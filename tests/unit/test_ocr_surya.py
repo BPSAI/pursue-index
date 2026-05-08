@@ -71,8 +71,13 @@ class _FakePredictor:
 def _patch_surya_predictor(
     monkeypatch: pytest.MonkeyPatch, predictor: _FakePredictor
 ) -> None:
-    """Force ``ocr_surya._get_predictor`` to return our stub."""
+    """Force the recognition + detection predictor seams to return stubs.
+
+    The detection predictor is opaque to ``ocr_image`` (it just hands it to
+    the recognition predictor), so a sentinel object is enough.
+    """
     monkeypatch.setattr(ocr_surya, "_get_predictor", lambda: predictor)
+    monkeypatch.setattr(ocr_surya, "_get_det_predictor", lambda: object())
 
 
 # ---------------------------------------------------------------------------
@@ -132,6 +137,21 @@ def test_surya_ocr_image_skips_none_confidence(
 
     assert text == "good line\nmissing conf"
     assert conf == pytest.approx(80.0)
+
+
+def test_surya_ocr_image_passes_detection_predictor(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Recognition predictor needs the detection predictor to find text-line bboxes."""
+    pred = _FakePredictor([[_FakeTextLine("hello", 0.9)]])
+    sentinel_det = object()
+    monkeypatch.setattr(ocr_surya, "_get_predictor", lambda: pred)
+    monkeypatch.setattr(ocr_surya, "_get_det_predictor", lambda: sentinel_det)
+
+    ocr_surya.ocr_image(Image.new("RGB", (10, 10)))
+
+    assert pred.calls
+    assert pred.calls[0]["kwargs"].get("det_predictor") is sentinel_det
 
 
 # ---------------------------------------------------------------------------

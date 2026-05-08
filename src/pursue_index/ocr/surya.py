@@ -23,6 +23,7 @@ from pursue_index import get_logger
 log = get_logger(__name__)
 
 _predictor: Any = None
+_det_predictor: Any = None
 
 
 def _get_predictor() -> Any:
@@ -45,6 +46,20 @@ def _get_predictor() -> Any:
     return _predictor
 
 
+def _get_det_predictor() -> Any:
+    """Return the cached Surya detection predictor (text-line bboxes)."""
+    global _det_predictor
+    if _det_predictor is not None:
+        return _det_predictor
+
+    from surya.detection import DetectionPredictor
+
+    log.info("ocr.surya.load_det_model")
+    _det_predictor = DetectionPredictor()
+    log.info("ocr.surya.load_det_model.done")
+    return _det_predictor
+
+
 def ocr_image(img: Image.Image) -> tuple[str, float]:
     """Return ``(text, mean_line_confidence)`` for a single page image.
 
@@ -53,7 +68,8 @@ def ocr_image(img: Image.Image) -> tuple[str, float]:
     confidence column in ``pages.jsonl`` is comparable across engines.
     """
     predictor = _get_predictor()
-    results = predictor([img])
+    det_predictor = _get_det_predictor()
+    results = predictor([img], det_predictor=det_predictor)
     if not results:
         return "", 0.0
 
