@@ -1,56 +1,122 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-dist/
-*.egg-info/
-.eggs/
-.venv/
-venv/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
 
-# Env
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
 .env
 .env.local
 .env.*.local
 
-# Data — large artifacts live on NAS, not in repo
-data/pdfs/
-data/ocr/
-data/inspect/
-data/logs/
-*.pdf
-*.tiff
-*.tif
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+.cache/
 
-# Manifests are versioned (small JSON), but tmp/scratch are not
-data/tmp/
-data/scratch/
+# Python
+__pycache__/
+/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.eggs/
+*.egg
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*~
-.DS_Store
+# Build output (if you add build tools later)
+dist/
+build/
+node_modules/
+package-lock.json
+yarn.lock
 
-# Playwright
-.playwright-cache/
+# UV
+uv.lock
 
-# DB local dev
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Backup files
+*.bak
+*.backup
+
+
+# SSL certificates (if added later)
+*.pem
+*.key
+*.crt
+# Exception: public key for license verification (must be tracked)
+!tools/cli/bpsai_pair/licensing/public_key.pem
+
+# Database files (if added later)
 *.db
 *.sqlite
 *.sqlite3
-postgres-data/
+.venv/
+tools/cli/dist/
+tools/cli/build/
+agent_pack.tgz
+*.pyc
 
-# OS
-Thumbs.db
+/.paircoder/data/
+/.paircoder/feedback
+/.paircoder/history/
+/.paircoder/cache/
+/.paircoder/.cli_version
+/.paircoder/telemetry/telemetry.jsonl
+/.paircoder/telemetry/audit.jsonl
+/.paircoder/telemetry/session_snapshot.json
+/.paircoder/feedback/calibration.json
+/.paircoder/time-tracking-cache.json
+/.paircoder/session.json
+/.paircoder/routing_decision_*.json
+
+
+

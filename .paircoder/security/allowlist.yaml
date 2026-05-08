@@ -1,0 +1,132 @@
+# PairCoder Command Allowlist
+# This file defines which commands are safe, require review, or are blocked.
+#
+# Decisions:
+#   - always_allowed: Execute without prompts
+#   - require_review: Require user confirmation
+#   - always_blocked: Reject with explanation
+#
+# Patterns use regex for complex matching.
+
+commands:
+  # Commands that execute without any prompts
+  always_allowed:
+    # Git read operations
+    - git status
+    - git diff
+    - git log
+    - git branch
+    - git show
+    - git remote
+    - git fetch
+
+    # Testing
+    - pytest
+    - python -m pytest
+
+    # PairCoder CLI
+    - bpsai-pair
+
+    # Read-only utilities
+    - ls
+    - cat
+    - head
+    - tail
+    - grep
+    - find
+    - wc
+    - which
+    - pwd
+    - echo
+    - env
+    - printenv
+
+    # Python read operations
+    - python --version
+    - python -c
+    - pip list
+    - pip show
+    - pip freeze
+
+  # Commands that require user confirmation
+  require_review:
+    # Git write operations
+    - git push
+    - git commit
+    - git merge
+    - git rebase
+    - git reset
+    - git checkout
+    - git stash
+
+    # Package management
+    - pip install
+    - pip uninstall
+    - npm install
+    - npm uninstall
+    - yarn add
+    - cargo add
+
+    # Docker (non-privileged)
+    - docker
+
+    # File operations
+    - mv
+    - cp
+    - mkdir
+    - touch
+    - rm
+
+    # Network
+    - curl
+    - wget
+
+  # Commands that are always rejected
+  always_blocked:
+    # Destructive operations
+    - rm -rf /
+    - rm -rf /*
+    - rm -rf ~
+    - rm -rf $HOME
+
+    # Privileged operations
+    - sudo rm
+    - sudo chmod
+    - sudo chown
+
+    # Remote code execution
+    - curl | bash
+    - curl | sh
+    - wget | bash
+    - wget | sh
+
+    # System modification
+    - mkfs
+    - dd if=
+    - ":(){ :|:& };:"  # Fork bomb
+
+  # Regex patterns for more complex matching
+  patterns:
+    # Patterns that trigger BLOCK
+    blocked:
+      - 'rm\s+-rf\s+/[^.]'     # rm -rf on absolute paths
+      - 'curl.*\|\s*(ba)?sh'   # curl piped to shell
+      - 'wget.*\|\s*(ba)?sh'   # wget piped to shell
+      - 'sudo\s+rm'            # sudo rm anything
+      - 'docker.*--privileged' # privileged docker
+      - 'chmod\s+777'          # overly permissive
+      - '>\s*/etc/'            # writing to /etc
+      - '>\s*/usr/'            # writing to /usr
+
+    # Patterns that trigger REVIEW
+    review:
+      - 'rm\s+-rf'             # any rm -rf
+      - 'git\s+push.*--force'  # force push
+      - 'git\s+reset.*--hard'  # hard reset
+
+# Custom project-specific rules can be added below
+# project_rules:
+#   allowed:
+#     - my-custom-tool
+#   blocked:
+#     - dangerous-legacy-script

@@ -3,9 +3,6 @@
 Two-table design:
   * ``cards``  — one row per scraped card (manifest-level metadata).
   * ``pages``  — one row per OCR'd page, with ``tsvector`` for FTS.
-
-Add ``pgvector`` semantic search later if needed; the embedding column is
-declared up front so migration is mechanical.
 """
 
 from __future__ import annotations
@@ -15,6 +12,7 @@ from datetime import datetime
 from sqlalchemy import (
     JSON,
     BigInteger,
+    Boolean,
     Computed,
     DateTime,
     ForeignKey,
@@ -36,17 +34,26 @@ class Card(Base):
     __tablename__ = "cards"
 
     card_id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    pdf_url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    pdf_filename: Mapped[str] = mapped_column(Text, nullable=False)
 
-    agency: Mapped[str | None] = mapped_column(String(128))
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    asset_type: Mapped[str] = mapped_column(String(8), nullable=False)
+    agency: Mapped[str] = mapped_column(String(128), nullable=False)
     release_date: Mapped[str | None] = mapped_column(String(64))
     incident_date: Mapped[str | None] = mapped_column(String(64))
     incident_location: Mapped[str | None] = mapped_column(String(256))
-    case_type: Mapped[str | None] = mapped_column(String(128))
-
-    title: Mapped[str | None] = mapped_column(Text)
+    redacted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
+
+    asset_url: Mapped[str | None] = mapped_column(Text)
+    asset_filename: Mapped[str | None] = mapped_column(Text)
+    modal_image_url: Mapped[str | None] = mapped_column(Text)
+
+    dvids_video_id: Mapped[str | None] = mapped_column(String(64))
+    video_title: Mapped[str | None] = mapped_column(Text)
+
+    pdf_pairing: Mapped[str | None] = mapped_column(Text)
+    video_pairing: Mapped[str | None] = mapped_column(Text)
+
     file_size_bytes: Mapped[int | None] = mapped_column(BigInteger)
     page_count: Mapped[int | None] = mapped_column(Integer)
 
@@ -57,6 +64,12 @@ class Card(Base):
     )
 
     pages: Mapped[list["Page"]] = relationship(back_populates="card", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index("ix_cards_agency", "agency"),
+        Index("ix_cards_asset_type", "asset_type"),
+        Index("ix_cards_redacted", "redacted"),
+    )
 
 
 class Page(Base):
@@ -71,7 +84,6 @@ class Page(Base):
     ocr_engine: Mapped[str] = mapped_column(String(32), nullable=False, default="tesseract")
     ocr_confidence: Mapped[float | None] = mapped_column()
 
-    # Postgres-generated tsvector — keeps FTS in sync without app-layer maintenance
     text_tsv: Mapped[str] = mapped_column(
         TSVECTOR,
         Computed("to_tsvector('english', coalesce(text, ''))", persisted=True),

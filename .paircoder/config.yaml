@@ -1,0 +1,344 @@
+version: 2.25.3
+project:
+  name: My Project
+  description: My Project project
+  primary_goal: Build awesome software
+  coverage_target: 80
+workflow:
+  default_branch_type: feature
+  main_branch: main
+  require_feature_branch: false
+  context_dir: context
+  plans_dir: .paircoder/plans
+  tasks_dir: .paircoder/tasks
+pack:
+  default_name: agent_pack.tgz
+  excludes:
+  - .git
+  - .venv
+  - __pycache__
+  - node_modules
+  - dist
+  - build
+  - '*.log'
+  - '*.bak'
+models:
+  navigator: claude-opus-4-6
+  driver: claude-opus-4-6
+  nayru: claude-opus-4-6
+  vaivora: claude-opus-4-6
+  bellona: claude-sonnet-4-6
+  divona: claude-sonnet-4-6
+  laverna: claude-sonnet-4-6
+  providers:
+    anthropic:
+      models:
+      - claude-opus-4-6
+      - claude-sonnet-4-6
+      - claude-sonnet-4-5
+      - claude-haiku-4-5
+      default_effort: medium
+routing:
+  by_complexity:
+    trivial:
+      max_score: 20
+      model: claude-haiku-4-5
+    simple:
+      max_score: 40
+      model: claude-sonnet-4-6
+    moderate:
+      max_score: 60
+      model: claude-sonnet-4-6
+    complex:
+      max_score: 80
+      model: claude-opus-4-6
+    epic:
+      max_score: 100
+      model: claude-opus-4-6
+  overrides:
+    bellona: claude-opus-4-6
+    architecture: claude-opus-4-6
+trello:
+  enabled: false
+  board_id: ''
+  board_name: ''
+  defaults:
+    project: My Project
+    stack: Worker/Function
+    repo_url: ''
+  board_structure:
+    lists:
+    - name: Intake/Backlog
+      maps_to_status:
+      - pending
+      - backlog
+    - name: Planned/Ready
+      maps_to_status:
+      - ready
+      - planned
+    - name: In Progress
+      maps_to_status:
+      - in_progress
+    - name: Review/Testing
+      maps_to_status:
+      - review
+      - testing
+    - name: Deployed/Done
+      maps_to_status:
+      - done
+      - deployed
+    - name: Issues/Tech Debt
+      maps_to_status:
+      - blocked
+      - issue
+  custom_fields:
+    project:
+      type: dropdown
+      options:
+      - --
+      - My Project
+      default: My Project
+    stack:
+      type: dropdown
+      options:
+      - --
+      - React
+      - Flask
+      - Worker/Function
+      - Infra
+      - Collection
+      mapping:
+        cli: Worker/Function
+        python: Flask
+        backend: Flask
+        frontend: React
+        ui: React
+        worker: Worker/Function
+        function: Worker/Function
+        infra: Infra
+        deploy: Infra
+        ci: Infra
+        docs: Collection
+        documentation: Collection
+      default: Worker/Function
+    status:
+      type: dropdown
+      options:
+      - --
+      - Planning
+      - In progress
+      - Testing
+      - Done
+      - Enqueued
+      - Waiting
+      - Blocked
+      mapping:
+        pending: Planning
+        ready: Enqueued
+        in_progress: In progress
+        review: Testing
+        testing: Testing
+        done: Done
+        blocked: Blocked
+        waiting: Waiting
+      default: Planning
+    effort:
+      type: dropdown
+      options:
+      - --
+      - S
+      - M
+      - L
+      mapping:
+        0-30: S
+        31-60: M
+        61-100: L
+      default: M
+    agent_task:
+      type: checkbox
+      default: false
+  labels:
+  - name: Frontend
+    color: green
+    matches:
+    - react
+    - ui
+    - frontend
+    - css
+  - name: Backend
+    color: blue
+    matches:
+    - flask
+    - api
+    - backend
+    - python
+  - name: Worker / Function
+    color: purple
+    matches:
+    - worker
+    - function
+    - background
+    - async
+    - cli
+  - name: Deployment
+    color: red
+    matches:
+    - deploy
+    - ci
+    - cd
+    - infra
+    - config
+  - name: Bug / Issue
+    color: orange
+    matches:
+    - bug
+    - fix
+    - issue
+    - error
+  - name: Documentation
+    color: sky
+    matches:
+    - docs
+    - documentation
+    - readme
+    - guide
+  automation:
+    on_task_ready:
+      move_to_list: Planned/Ready
+      set_status: Enqueued
+    on_task_start:
+      move_to_list: In Progress
+      set_status: In progress
+    on_task_review:
+      move_to_list: Review/Testing
+      set_status: Testing
+    on_task_complete:
+      move_to_list: Deployed/Done
+      set_status: Done
+    on_task_block:
+      move_to_list: Issues/Tech Debt
+      set_status: Blocked
+estimation:
+  complexity_to_hours:
+    xs:
+      range:
+      - 0
+      - 15
+      hours:
+      - 0.5
+      - 1.0
+      - 2.0
+    s:
+      range:
+      - 16
+      - 30
+      hours:
+      - 1.0
+      - 2.0
+      - 4.0
+    m:
+      range:
+      - 31
+      - 50
+      hours:
+      - 2.0
+      - 4.0
+      - 8.0
+    l:
+      range:
+      - 51
+      - 75
+      hours:
+      - 4.0
+      - 8.0
+      - 16.0
+    xl:
+      range:
+      - 76
+      - 100
+      hours:
+      - 8.0
+      - 16.0
+      - 32.0
+token_estimates:
+  base_context: 15000
+  per_complexity_point: 500
+  per_file_touched: 2000
+  by_task_type:
+    feature: 1.2
+    bugfix: 0.8
+    docs: 0.6
+    refactor: 1.5
+    chore: 0.9
+token_budget:
+  warning_threshold: 75
+  critical_threshold: 90
+metrics:
+  enabled: true
+  store_path: .paircoder/history/metrics.jsonl
+hooks:
+  enabled: true
+  on_task_ready:
+  - sync_pm
+  - update_state
+  on_task_start:
+  - select_model
+  - check_token_budget
+  - start_timer
+  - sync_pm
+  - update_state
+  on_task_review:
+  - sync_pm
+  - update_state
+  on_task_complete:
+  - arch_check_modified
+  - contract_break_check
+  - stop_timer
+  - workspace_impact_scan
+  - telemetry_snapshot
+  - calibration_update_incremental
+  - feedback_calibrate
+  - sync_pm
+  - update_state
+  - check_unblocked
+  on_task_block:
+  - sync_pm
+  - update_state
+pm:
+  provider: none
+  workflow: simple
+containment:
+  enabled: false
+  mode: advisory
+  blocked_directories: []
+  blocked_files: []
+  readonly_directories: []
+  readonly_files: []
+  allow_network:
+  - api.anthropic.com
+  - api.trello.com
+  - github.com
+  - pypi.org
+  auto_checkpoint: true
+  rollback_on_violation: false
+ci:
+  python_formatter: ruff
+  node_formatter: prettier
+architecture:
+  enabled: true
+  max_file_lines: 400
+  warning_file_lines: 200
+  max_function_lines: 50
+  max_functions_per_file: 15
+  max_imports: 20
+  exclude_patterns: []
+  enforce_on_commit: true
+  enforce_on_pr: true
+  enforce_on_ci: true
+  test_max_file_lines: 600
+  test_warning_file_lines: 400
+  test_max_function_lines: 50
+  test_max_functions_per_file: 40
+  test_max_imports: 30
+  roles: {}
+  role_overrides: {}

@@ -1,0 +1,537 @@
+# Capability Manifest
+# This file tells LLMs (Claude Code, Codex CLI, etc.) what they can do and when
+
+version: "2.25.3"
+name: paircoder
+description: |
+  AI pair programming framework with planning, skills, and context management.
+  LLMs should read this file to understand available capabilities.
+
+# ============================================================================
+# QUICK START FOR LLMs
+# ============================================================================
+#
+# 1. Read .paircoder/context/state.md to see current plan/task status
+# 2. Read .paircoder/context/project.md to understand this project
+# 3. Check if any skills apply to the user's request
+# 4. Execute the appropriate capability
+#
+# ============================================================================
+
+# Where to find context
+context_files:
+  project: .paircoder/context/project.md      # Project constraints and goals
+  workflow: .paircoder/context/workflow.md    # How we work here
+  state: .paircoder/context/state.md          # Current plan/task status
+
+# Where to find other resources
+directories:
+  skills: .claude/skills/           # Workflow definitions (PREFERRED)
+  plans: .paircoder/plans/          # Plan files
+  tasks: .paircoder/tasks/          # Task files organized by plan
+  agents: .claude/agents/           # Custom subagents
+  commands: .claude/commands/       # Slash commands
+
+# ============================================================================
+# CAPABILITIES
+# ============================================================================
+
+capabilities:
+
+  # --------------------------------------------------------------------------
+  # SKILL CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: use_skills
+    name: "Use skills for workflows"
+    description: |
+      Claude Code skills in .claude/skills/ provide structured workflows.
+      Skills are auto-discovered.
+    when_to_use:
+      - Starting any structured workflow
+      - Design, implementation, review tasks
+      - Task lifecycle management
+    how_to_invoke:
+      cli: "bpsai-pair skill list"
+      programmatic: |
+        1. List skills in .claude/skills/
+        2. Read relevant SKILL.md file
+        3. Follow the workflow steps
+    available_skills:
+      - architecting-modules       # Module decomposition and file size management
+      - creating-skills            # Create new workflow skills
+      - designing-and-implementing # Feature design and implementation
+      - finishing-branches         # Branch completion and PR creation
+      - implementing-with-tdd      # Test-driven development
+      - managing-task-lifecycle    # Task workflow with Trello
+      - planning-with-trello       # Sprint planning with Trello sync
+      - auditing-sibling-projects  # Cross-repo contract detection
+      - running-qc                 # Browser-based QC testing
+      - planning-with-pm           # Provider-agnostic PM planning
+      - reviewing-code             # Code review workflow
+
+  - id: export_skills
+    name: "Export skills to other platforms"
+    description: |
+      Export PairCoder skills to Cursor, Continue.dev, or Windsurf.
+    when_to_use:
+      - Sharing skills with other AI tools
+      - Cross-platform workflow consistency
+    how_to_invoke:
+      cli: "bpsai-pair skill export <name> --format <cursor|continue|windsurf>"
+
+  # --------------------------------------------------------------------------
+  # PLANNING CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: create_plan
+    name: "Create a new plan"
+    description: |
+      Creates a plan with goals and tasks for a feature, bugfix, or refactor.
+      Use this when the user wants to start working on something substantial.
+    when_to_use:
+      - User describes a feature they want to build
+      - User wants to fix a bug that requires multiple steps
+      - User wants to refactor code
+      - User says "let's plan" or "how should we approach"
+    how_to_invoke:
+      cli: "bpsai-pair plan new <slug> --type <feature|bugfix|refactor|chore>"
+      programmatic: |
+        1. Create .paircoder/plans/plan-YYYY-MM-<slug>.plan.yaml
+        2. Define goals, tasks with priorities and complexity
+        3. Update .paircoder/context/state.md to reference new plan
+    skill_to_run: designing-and-implementing
+    outputs:
+      - ".paircoder/plans/<plan-id>.plan.yaml"
+      - ".paircoder/tasks/<plan-slug>/TASK-*.task.md"
+
+  - id: view_plan
+    name: "View current plan status"
+    description: |
+      Shows the current active plan, its goals, and task statuses.
+    when_to_use:
+      - User asks "what's the plan" or "where are we"
+      - User wants to see task progress
+      - Before starting any work (to understand context)
+    how_to_invoke:
+      cli: "bpsai-pair plan show <plan-id>"
+      programmatic: |
+        1. Read .paircoder/context/state.md for active plan
+        2. Load plan from .paircoder/plans/
+        3. Load tasks from .paircoder/tasks/<plan-slug>/
+
+  - id: update_task_status
+    name: "Update task status"
+    description: |
+      Marks a task as in_progress, done, or blocked.
+      ⚠️ When marking done: You MUST also update state.md immediately.
+    when_to_use:
+      - After completing a task
+      - When starting work on a task
+      - When encountering a blocker
+    how_to_invoke:
+      cli: "bpsai-pair task update <task-id> --status <status>"
+      trello: "bpsai-pair ttask done TRELLO-XX --summary '...'"
+      programmatic: |
+        1. If done + Trello card: First run ttask done to check acceptance criteria
+        2. Load task from .paircoder/tasks/<plan-slug>/<task-id>.task.md
+        3. Update status in YAML frontmatter
+        4. IMMEDIATELY update .paircoder/context/state.md (NON-NEGOTIABLE)
+           - Mark task done in task list
+           - Add session entry under "What Was Just Done"
+
+  # --------------------------------------------------------------------------
+  # CONTEXT CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: sync_context
+    name: "Update context/state"
+    description: |
+      Updates the current state with what was done and what's next.
+    when_to_use:
+      - After completing significant work
+      - When changing focus to a different task
+      - Before ending a session
+    how_to_invoke:
+      cli: "bpsai-pair context-sync --last '<what>' --next '<next>' --blockers '<blockers>'"
+      programmatic: |
+        1. Update .paircoder/context/state.md
+        2. Update relevant task status if applicable
+
+  - id: pack_context
+    name: "Package context for handoff"
+    description: |
+      Creates a tarball of context files for sharing with another agent or session.
+    when_to_use:
+      - User wants to share context
+      - Handing off to another LLM
+      - Creating a checkpoint
+    how_to_invoke:
+      cli: "bpsai-pair pack --out <filename.tgz>"
+
+  # --------------------------------------------------------------------------
+  # FEATURE BRANCH CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: create_feature_branch
+    name: "Create feature branch"
+    description: |
+      Creates a git branch and initializes context for new work.
+    when_to_use:
+      - Starting work on a new feature
+      - User says "let's start on X"
+    how_to_invoke:
+      cli: "bpsai-pair feature <name> --type <feature|fix|refactor> [--plan <plan>]"
+      programmatic: |
+        1. git checkout -b <type>/<name>
+        2. Create/update plan if --plan specified
+        3. Update state.md
+
+  # --------------------------------------------------------------------------
+  # WIZARD CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: setup_wizard
+    name: "Run setup wizard"
+    description: |
+      Web-based setup wizard for project initialization.
+      Quick Setup works without any API key.
+      Guided Setup (AI chat) requires ANTHROPIC_API_KEY environment variable.
+    when_to_use:
+      - Initializing a new project
+      - User wants guided setup experience
+      - Configuring integrations (Trello, GitHub)
+    how_to_invoke:
+      cli: "bpsai-pair wizard"
+      cli_port: "bpsai-pair wizard --port 8080"
+    notes: |
+      Quick Setup: Step-by-step form, no API key needed
+      Guided Setup: AI chat requires ANTHROPIC_API_KEY
+
+  # --------------------------------------------------------------------------
+  # LICENSE CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: license_management
+    name: "Manage license"
+    description: |
+      Check license status, install license files, verify key alignment.
+    when_to_use:
+      - Checking current license tier and features
+      - Installing a new license
+      - Verifying license key matches API
+    how_to_invoke:
+      status: "bpsai-pair license status"
+      install: "bpsai-pair license install <file>"
+      verify: "bpsai-pair license verify-key"
+      features: "bpsai-pair license features"
+
+  # --------------------------------------------------------------------------
+  # VALIDATION CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: validate_structure
+    name: "Validate project structure"
+    description: |
+      Checks that .paircoder/ structure is valid and complete.
+    when_to_use:
+      - After making changes to structure
+      - When something seems wrong
+      - Periodically to ensure integrity
+    how_to_invoke:
+      cli: "bpsai-pair validate"
+
+  - id: show_status
+    name: "Show overall status"
+    description: |
+      Shows git status, current branch, active plan, task progress.
+    when_to_use:
+      - User asks "where are we" or "what's the status"
+      - Starting a new session
+      - Before making decisions
+    how_to_invoke:
+      cli: "bpsai-pair status"
+
+  # --------------------------------------------------------------------------
+  # BUDGET CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: check_budget
+    name: "Check token budget"
+    description: |
+      Check current token budget usage and estimate task costs.
+    when_to_use:
+      - Before starting large tasks
+      - When planning multiple tasks
+      - To understand context limits
+    how_to_invoke:
+      cli: "bpsai-pair budget status"
+      cli_estimate: "bpsai-pair budget estimate <task-id>"
+      cli_check: "bpsai-pair budget check --task <task-id>"
+
+  # --------------------------------------------------------------------------
+  # ARCHITECTURE ENFORCEMENT CAPABILITIES
+  # --------------------------------------------------------------------------
+
+  - id: check_architecture
+    name: "Check architecture constraints"
+    description: |
+      Verify files comply with architecture limits (line count, function count, etc.)
+      ⚠️ MANDATORY: Run before completing any task that modifies code.
+    when_to_use:
+      - Before marking a task as done
+      - After writing or modifying code
+      - When files seem too large
+    how_to_invoke:
+      cli: "bpsai-pair arch check <paths>"
+      cli_all: "bpsai-pair arch check"
+    constraints:
+      file_lines_error: 400
+      file_lines_warning: 200
+      function_lines: 50
+      functions_per_file: 15
+      imports_per_file: 20
+
+  - id: suggest_split
+    name: "Suggest file decomposition"
+    description: |
+      Get AI-assisted suggestions for splitting large files into smaller modules.
+    when_to_use:
+      - When arch check reports violations
+      - When files exceed line limits
+      - When planning refactoring
+    how_to_invoke:
+      cli: "bpsai-pair arch suggest-split <file>"
+    skill_to_run: architecting-modules
+
+  # --------------------------------------------------------------------------
+  # TELEMETRY CAPABILITIES (v2.12.0)
+  # --------------------------------------------------------------------------
+
+  - id: telemetry_management
+    name: "Manage telemetry"
+    description: |
+      View telemetry status, configure privacy levels, and export telemetry data.
+      Processes Claude Code transcripts into structured records.
+    when_to_use:
+      - Checking telemetry collection status
+      - Adjusting privacy settings (minimal, standard, full)
+      - Exporting telemetry data for analysis
+    how_to_invoke:
+      status: "bpsai-pair telemetry status"
+      config: "bpsai-pair telemetry config"
+      export: "bpsai-pair telemetry export --format <json|jsonl|csv>"
+
+  # --------------------------------------------------------------------------
+  # FEEDBACK CAPABILITIES (v2.12.0)
+  # --------------------------------------------------------------------------
+
+  - id: feedback_system
+    name: "Feedback and calibration"
+    description: |
+      Self-improving estimation from telemetry data. Provides token, duration,
+      effort, and model recommendations per task type.
+    when_to_use:
+      - Checking estimation accuracy and calibration health
+      - Getting task type estimates (tokens, duration, effort, model)
+      - Triggering recalibration from new telemetry data
+      - Reviewing anomalies in recent task performance
+    how_to_invoke:
+      status: "bpsai-pair feedback status"
+      accuracy: "bpsai-pair feedback accuracy"
+      calibrate: "bpsai-pair feedback calibrate"
+      query: "bpsai-pair feedback query <task-type>"
+
+  # --------------------------------------------------------------------------
+  # WORKSPACE CAPABILITIES (v2.12.0, Pro+)
+  # --------------------------------------------------------------------------
+
+  - id: workspace_management
+    name: "Manage workspaces"
+    description: |
+      Multi-project workspace management with .paircoder-workspace.yaml.
+      Requires Pro tier or above.
+    when_to_use:
+      - Setting up a multi-project workspace
+      - Checking workspace and project status (branches, dirty state)
+      - Pulling latest changes across workspace projects
+    how_to_invoke:
+      init: "bpsai-pair workspace init --name <name> --projects <name:path,...>"
+      status: "bpsai-pair workspace status"
+      pull: "bpsai-pair workspace pull [project] [--rebase]"
+    tier: "pro"
+
+  # --------------------------------------------------------------------------
+  # INTELLIGENCE PIPELINE CAPABILITIES (v2.13.0)
+  # --------------------------------------------------------------------------
+
+  - id: intelligence_pipeline
+    name: "Intelligence pipeline"
+    description: |
+      Usage snapshot builder with tiered privacy, value extraction scoring,
+      and cross-reference tamper detection. Snapshots piggyback on license
+      validation calls — no extra network requests.
+    when_to_use:
+      - Understanding what data is collected during license validation
+      - Reviewing value extraction scoring for refund abuse detection
+      - Checking cross-reference tamper detection across snapshots
+
+  - id: cross_repo_orchestration
+    name: "Cross-repo orchestration"
+    description: |
+      Workspace-level orchestration for multi-repo projects. Detects contract
+      changes, analyzes consumer impact, and pushes tasks to sibling repos.
+    when_to_use:
+      - Checking for breaking changes across sibling projects
+      - Running impact analysis on workspace dependencies
+      - Auditing sibling projects for contract compliance
+    how_to_invoke:
+      check_impact: "bpsai-pair workspace check-impact [--since <commit>] [--json]"
+      audit: "bpsai-pair workspace audit <project> [--fix] [--json]"
+    tier: "pro"
+
+  - id: agent_teams
+    name: "Agent team integration"
+    description: |
+      Role-based agent spawning with effort pass-through from calibration.
+      Maps PairCoder roles to Claude Code agent team members and permission modes.
+    when_to_use:
+      - Understanding role-to-permission mappings for agent teams
+      - Reviewing hook telemetry from SubagentStop events
+      - Configuring per-agent permission modes
+
+# ============================================================================
+# SKILL TRIGGERS
+# ============================================================================
+# When certain conditions are met, these skills should be suggested
+
+skill_triggers:
+
+  - trigger: "user_describes_feature"
+    patterns:
+      - "build a"
+      - "create a"
+      - "add a"
+      - "implement"
+      - "new feature"
+    suggested_skill: designing-and-implementing
+
+  - trigger: "user_reports_bug"
+    patterns:
+      - "bug"
+      - "broken"
+      - "not working"
+      - "error"
+      - "fix"
+    suggested_skill: implementing-with-tdd
+
+  - trigger: "user_wants_review"
+    patterns:
+      - "review"
+      - "check my"
+      - "look at"
+      - "is this right"
+    suggested_skill: reviewing-code
+
+  - trigger: "user_finishing_work"
+    patterns:
+      - "done"
+      - "finished"
+      - "ready to merge"
+      - "complete"
+    suggested_skill: finishing-branches
+
+  - trigger: "user_starting_task"
+    patterns:
+      - "start task"
+      - "work on"
+      - "TRELLO-"
+      - "T1."
+      - "T2."
+    suggested_skill: managing-task-lifecycle
+
+  - trigger: "user_planning"
+    patterns:
+      - "plan"
+      - "create plan"
+      - "sprint"
+      - "backlog"
+    suggested_skill: planning-with-trello
+
+  - trigger: "user_releasing"
+    patterns:
+      - "release"
+      - "version"
+      - "publish"
+      - "tag"
+      - "prep release"
+    suggested_skill: releasing-versions
+
+  - trigger: "user_creating_skill"
+    patterns:
+      - "create skill"
+      - "new skill"
+      - "document workflow"
+      - "skill template"
+    suggested_skill: creating-skills
+
+  - trigger: "user_architecture_concerns"
+    patterns:
+      - "too large"
+      - "split file"
+      - "decompose"
+      - "architecture"
+      - "module"
+      - "refactor into"
+    suggested_skill: architecting-modules
+
+# ============================================================================
+# ROLE DEFINITIONS
+# ============================================================================
+# Different "personas" the LLM can adopt based on the work being done
+
+roles:
+  navigator:
+    description: |
+      Strategic thinking, planning, design decisions.
+      Asks clarifying questions, proposes approaches, creates plans.
+    when_active:
+      - During designing-and-implementing skill (phases 1-2)
+      - When creating or modifying plans
+      - When user needs guidance on approach
+
+  driver:
+    description: |
+      Implementation, writing code, running tests.
+      Follows plans, implements tasks, runs verification.
+    when_active:
+      - During implementing-with-tdd skill
+      - When implementing specific tasks
+      - When user says "let's code" or "implement this"
+
+  reviewer:
+    description: |
+      Code review, quality checks, final verification.
+      Checks correctness, suggests improvements, ensures gates pass.
+    when_active:
+      - During reviewing-code skill
+      - When user asks for review
+      - Before merging
+
+# ============================================================================
+# IMPORTANT NOTES FOR LLMs
+# ============================================================================
+
+notes:
+  # NON-NEGOTIABLE REQUIREMENTS
+  - "⚠️ CRITICAL: Update state.md IMMEDIATELY after EVERY task completion - this is non-negotiable"
+  - "⚠️ CRITICAL: Use ttask done before task update to check Trello acceptance criteria"
+  - "⚠️ CRITICAL: Run arch check before completing code tasks"
+
+  # Standard workflow
+  - Always read state.md first to understand current context
+  - If a skill applies to the user's request, suggest or run it
+  - Tasks should be small (2-20 minutes of work each)
+  - Use verification gates to ensure quality
+  - When unsure, ask clarifying questions (Navigator role)
+  - A task is NOT complete until state.md is updated

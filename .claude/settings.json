@@ -1,0 +1,164 @@
+{
+  "permissions": {
+    "deny": [
+      "Read path:**/.env",
+      "Read path:**/.env.*",
+      "Read path:**/credentials.json",
+      "Read path:**/secrets.yaml",
+      "Read path:**/.pypirc",
+      "Read path:**/.npmrc",
+      "Edit path:**/.env",
+      "Edit path:**/.env.*",
+      "Edit path:**/credentials.json",
+      "Edit path:**/secrets.yaml",
+      "Edit path:**/.pypirc",
+      "Edit path:**/.npmrc",
+      "Write path:**/.env",
+      "Write path:**/.env.*",
+      "Write path:**/credentials.json",
+      "Write path:**/secrets.yaml",
+      "Write path:**/.pypirc",
+      "Write path:**/.npmrc"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/bootstrap-remote.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair enforce containment --file \"$CLAUDE_TOOL_INPUT_file_path\" --operation read"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair enforce containment --file \"$CLAUDE_TOOL_INPUT_file_path\" --operation write"
+          },
+          {
+            "type": "command",
+            "command": "bpsai-pair enforce task-edit --file \"$CLAUDE_TOOL_INPUT_file_path\" --new-content \"$CLAUDE_TOOL_INPUT_new_string$CLAUDE_TOOL_INPUT_content\""
+          },
+          {
+            "type": "command",
+            "command": "bpsai-pair enforce state-edit --file \"$CLAUDE_TOOL_INPUT_file_path\" --new-content \"$CLAUDE_TOOL_INPUT_new_string$CLAUDE_TOOL_INPUT_content\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair session check --quiet"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair compaction snapshot save --trigger \"$CLAUDE_COMPACT_TRIGGER\" --quiet"
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair session check --quiet"
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair orchestrate evaluate teammate_idle --agent-id \"$CLAUDE_AGENT_ID\" --agent-type \"$CLAUDE_AGENT_TYPE\" --quiet"
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair orchestrate evaluate task_completed --agent-id \"$CLAUDE_AGENT_ID\" --agent-type \"$CLAUDE_AGENT_TYPE\" --quiet"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bpsai-pair history-log --quiet"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'bpsai-pair telemetry log-failure --trigger \"$CLAUDE_STOP_REASON\" --quiet 2>/dev/null || true'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'bpsai-pair context-sync --auto 2>/dev/null || true'"
+          },
+          {
+            "type": "command",
+            "command": "sh -c 'bpsai-pair telemetry log-session-end --stop-reason \"$CLAUDE_STOP_REASON\" --quiet 2>/dev/null || true'"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'bpsai-pair telemetry log-subagent-outcome --stop-reason \"$CLAUDE_STOP_REASON\" --agent-id \"$CLAUDE_AGENT_ID\" --agent-type \"$CLAUDE_AGENT_TYPE\" --quiet 2>/dev/null || true'"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bpsai-pair-statusline",
+    "padding": 0
+  }
+}

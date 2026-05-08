@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, datetime
 from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
-from pursue_index.config import settings
 from pursue_index import get_logger
-from pursue_index.scrape import PlaywrightRunner, load_manifest, save_manifest
+from pursue_index.config import settings
+from pursue_index.scrape import fetch_raw_csv, load_manifest, run as scrape_run, save_manifest
 
 log = get_logger(__name__)
 console = Console()
@@ -25,44 +26,55 @@ app = typer.Typer(
 # ---------------------------------------------------------------------------
 # scrape
 # ---------------------------------------------------------------------------
-scrape_app = typer.Typer(name="scrape", help="Scrape the PURSUE index.")
+scrape_app = typer.Typer(name="scrape", help="Fetch the source CSV and build a manifest.")
 app.add_typer(scrape_app)
 
 
-@scrape_app.command("inspect")
-def scrape_inspect(
+@scrape_app.command("fetch-raw")
+def scrape_fetch_raw(
     out: Path = typer.Option(
         None,
         "--out",
-        help="Directory to write rendered HTML + screenshot.",
+        help="Path to write the raw CSV. Defaults to data/csv-archive/<timestamp>.csv.",
     ),
 ) -> None:
-    """Dump rendered DOM for offline selector tuning."""
+    """Download the raw CSV without parsing — useful for diagnostics or archiving."""
     settings.ensure_dirs()
-    out_dir = out or settings.inspect_dir
-    runner = PlaywrightRunner()
-    path = asyncio.run(runner.inspect(out_dir))
-    console.print(f"[green]✔[/green] Inspect output written to {path}")
+    raw = fetch_raw_csv()
+
+    if out is None:
+        ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        out = settings.csv_archive_dir / f"uap-csv-{ts}.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(raw)
+    console.print(f"[green]✔[/green] Raw CSV written to {out} ({len(raw)} bytes)")
 
 
 @scrape_app.command("run")
-def scrape_run(
+def scrape_run_cmd(
     out: Path = typer.Option(
         None,
         "--out",
-        help="Manifest output path. Defaults to data/manifests/release_01.json.",
+        help="Manifest output path. Defaults to data/manifests/latest.json.",
     ),
-    pages: str = typer.Option(
-        "all", "--pages", help='"all" or an integer max-pages cap.'
+    archive_csv: bool = typer.Option(
+        True,
+        "--archive-csv/--no-archive-csv",
+        help="Also save a timestamped copy of the raw CSV to the archive dir.",
     ),
 ) -> None:
-    """Build a manifest of every card across all pages."""
+    """Fetch the CSV, parse it, and write a manifest."""
     settings.ensure_dirs()
-    out_path = out or (settings.manifests_dir / "release_01.json")
-    max_pages = None if pages == "all" else int(pages)
+    out_path = out or (settings.manifests_dir / "latest.json")
 
-    runner = PlaywrightRunner()
-    manifest = asyncio.run(runner.run(max_pages=max_pages))
+    if archive_csv:
+        raw = fetch_raw_csv()
+        ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        archive_path = settings.csv_archive_dir / f"uap-csv-{ts}.csv"
+        archive_path.write_bytes(raw)
+        log.info("scrape.csv.archived", path=str(archive_path))
+
+    manifest = scrape_run()
     save_manifest(manifest, out_path)
 
     _print_manifest_summary(manifest)
@@ -72,7 +84,7 @@ def scrape_run(
 # ---------------------------------------------------------------------------
 # download
 # ---------------------------------------------------------------------------
-download_app = typer.Typer(name="download", help="Download PDFs referenced by a manifest.")
+download_app = typer.Typer(name="download", help="Download assets referenced by a manifest.")
 app.add_typer(download_app)
 
 
@@ -80,7 +92,7 @@ app.add_typer(download_app)
 def download_run(
     manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
 ) -> None:
-    """Download all PDFs referenced by ``manifest``."""
+    """Download every PDF/IMG (and optionally video) referenced by ``manifest``."""
     from pursue_index.download.downloader import download_all  # lazy import
 
     settings.ensure_dirs()
@@ -148,19 +160,30 @@ def serve(
 # helpers
 # ---------------------------------------------------------------------------
 def _print_manifest_summary(manifest) -> None:
-    table = Table(title=f"Manifest summary ({manifest.card_count} cards)")
-    table.add_column("Agency")
-    table.add_column("Count", justify="right")
-
-    counts: dict[str, int] = {}
+    by_agency: dict[str, int] = {}
+    by_type: dict[str, int] = {}
+    redacted = 0
     for c in manifest.cards:
-        key = c.agency or "(unknown)"
-        counts[key] = counts.get(key, 0) + 1
+        by_agency[c.agency] = by_agency.get(c.agency, 0) + 1
+        by_type[c.asset_type] = by_type.get(c.asset_type, 0) + 1
+        if c.redacted:
+            redacted += 1
 
-    for agency, count in sorted(counts.items(), key=lambda kv: -kv[1]):
-        table.add_row(agency, str(count))
+    summary = Table(title=f"Manifest summary — {manifest.card_count} cards")
+    summary.add_column("Agency")
+    summary.add_column("Count", justify="right")
+    for agency, count in sorted(by_agency.items(), key=lambda kv: -kv[1]):
+        summary.add_row(agency, str(count))
+    console.print(summary)
 
-    console.print(table)
+    by_type_table = Table(title="By asset type")
+    by_type_table.add_column("Type")
+    by_type_table.add_column("Count", justify="right")
+    for t, count in sorted(by_type.items(), key=lambda kv: -kv[1]):
+        by_type_table.add_row(t, str(count))
+    console.print(by_type_table)
+
+    console.print(f"Redacted: [bold]{redacted}[/bold] / {manifest.card_count}")
 
 
 if __name__ == "__main__":

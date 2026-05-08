@@ -1,53 +1,62 @@
 """Data shapes for scraped cards and the manifest.
 
-Card metadata schema is intentionally permissive — fields are Optional where
-we may not always be able to extract them from card or modal. The ``raw`` dict
-preserves anything else we capture so downstream stages can recover.
+Schema matches the war.gov ``uap-csv.csv`` columns 1:1, with normalization
+applied at parse time. Field names are snake_case versions of the CSV columns.
 """
 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
+AssetType = Literal["PDF", "VID", "IMG"]
+
 
 class CardMetadata(BaseModel):
-    """Single PURSUE card as scraped from the index."""
+    """Single PURSUE entry as represented in the source CSV."""
 
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid")
 
-    # Stable identity
-    card_id: str = Field(..., description="Stable id, hashed from PDF URL if no native id")
-    pdf_url: HttpUrl
-    pdf_filename: str
+    # Stable identity (derived)
+    card_id: str = Field(..., description="sha256(asset_url || title)[:16]")
 
-    # Filterable fields shown on the index table
-    agency: str | None = None
-    release_date: str | None = None  # ISO date if parseable, else original string
+    # Core CSV fields
+    title: str
+    asset_type: AssetType = Field(..., description="Normalized: PDF | VID | IMG")
+    agency: str
+    release_date: str | None = None
     incident_date: str | None = None
     incident_location: str | None = None
-    case_type: str | None = Field(default=None, alias="type")
-
-    # Modal-only enrichments
-    title: str | None = None
+    redacted: bool = False
     description: str | None = None
-    file_size_bytes: int | None = None
-    page_count: int | None = None
 
-    # Anything we captured but didn't model
+    # Asset locations
+    asset_url: HttpUrl | None = None
+    asset_filename: str | None = None
+    modal_image_url: HttpUrl | None = None
+
+    # Video-specific
+    dvids_video_id: str | None = None
+    video_title: str | None = None
+
+    # Cross-references between entries (free-text in CSV; we keep verbatim)
+    pdf_pairing: str | None = None
+    video_pairing: str | None = None
+
+    # Anything we captured but didn't model — forward compat for future CSV cols
     raw: dict[str, Any] = Field(default_factory=dict)
 
 
 class Manifest(BaseModel):
-    """A complete snapshot of the index for a given release/run."""
+    """A complete snapshot of the index for a given fetch."""
 
     model_config = ConfigDict(extra="forbid")
 
-    release: str = Field(default="release_01", description="DOW release identifier")
     source_url: HttpUrl
-    scraped_at: datetime
+    fetched_at: datetime
+    csv_sha256: str = Field(..., description="Hash of the raw CSV bytes")
     cards: list[CardMetadata]
 
     @property

@@ -1,0 +1,7 @@
+# Runtime artifacts — do not commit
+data/
+telemetry/signals.jsonl
+telemetry/heartbeat
+telemetry/telemetry.jsonl
+cache/
+history/

@@ -18,51 +18,61 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    # Storage
+    # ---- Storage ----
+    # data_root holds large derived artifacts (PDFs, OCR output, raw CSV archives).
+    # Point this at the NAS in production.
     data_root: Path = Field(default=Path("./data"))
+    # manifests_dir is intentionally separate — manifests are small JSON files
+    # that live in the repo and are version-controlled. They never go on the NAS.
+    manifests_dir: Path = Field(default=Path("./data/manifests"))
 
-    # Database
+    # ---- Database ----
     db_url: str = Field(default="postgresql+psycopg://pursue:pursue@localhost:5432/pursue")
 
-    # Scrape
-    source_url: HttpUrl = Field(default="https://www.war.gov/UFO/")
-    scrape_headless: bool = True
-    scrape_timeout_ms: int = 30_000
-    scrape_user_agent: str = "pursue-index/0.1 (+https://bpsaisoftware.com)"
+    # ---- Scrape ----
+    csv_url: HttpUrl = Field(default="https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-csv.csv")
+    scrape_user_agent: str = ""  # empty → use the realistic Chrome UA in csv_fetcher
 
-    # Download
+    # ---- Download ----
     download_concurrency: int = 4
     download_retries: int = 5
+    # Whether to fetch DVIDS-hosted videos. Defaults to PDFs and images only.
+    download_videos: bool = False
 
-    # OCR
+    # ---- OCR ----
     ocr_engine: Literal["tesseract", "azure", "auto"] = "auto"
     ocr_dpi: int = 300
     tesseract_bin: str = "/usr/bin/tesseract"
 
-    # API
+    # ---- API ----
     api_host: str = "0.0.0.0"
     api_port: int = 8080
 
-    # Logging
+    # ---- Logging ----
     log_level: str = "INFO"
     log_format: Literal["console", "json"] = "console"
 
     # ---- Derived paths ----
     @property
-    def manifests_dir(self) -> Path:
-        return self.data_root / "manifests"
-
-    @property
     def pdf_dir(self) -> Path:
         return self.data_root / "pdfs"
+
+    @property
+    def image_dir(self) -> Path:
+        return self.data_root / "images"
+
+    @property
+    def video_dir(self) -> Path:
+        return self.data_root / "videos"
 
     @property
     def ocr_dir(self) -> Path:
         return self.data_root / "ocr"
 
     @property
-    def inspect_dir(self) -> Path:
-        return self.data_root / "inspect"
+    def csv_archive_dir(self) -> Path:
+        """Where raw CSV snapshots are archived for historical diffing."""
+        return self.data_root / "csv-archive"
 
     @property
     def logs_dir(self) -> Path:
@@ -72,14 +82,15 @@ class Settings(BaseSettings):
         for d in (
             self.manifests_dir,
             self.pdf_dir,
+            self.image_dir,
+            self.video_dir,
             self.ocr_dir,
-            self.inspect_dir,
+            self.csv_archive_dir,
             self.logs_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)
 
 
-# Azure DI lives in its own settings block so the import doesn't fail when extras aren't installed.
 class AzureDISettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -1,6 +1,6 @@
 [project]
 name = "pursue-index"
-version = "0.1.0"
+version = "0.2.0"
 description = "Searchable index of DOW PURSUE UAP document releases"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -15,12 +15,8 @@ dependencies = [
     "rich>=13.7",
     "structlog>=24.1",
     "httpx>=0.27",
+    "curl-cffi>=0.7",
     "python-dotenv>=1.0",
-    # Scrape
-    "playwright>=1.45",
-    "beautifulsoup4>=4.12",
-    "lxml>=5.2",
-    # Download
     "tenacity>=8.4",
     # OCR
     "pytesseract>=0.3.10",
@@ -67,7 +63,7 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
-ignore = ["E501"]  # handled by formatter
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

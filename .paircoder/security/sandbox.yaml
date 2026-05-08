@@ -1,0 +1,49 @@
+# PairCoder Sandbox Configuration
+# Configures isolated Docker environment for command execution
+
+sandbox:
+  # Enable/disable sandbox (set to false to run commands locally)
+  enabled: true
+
+  # Docker image to use for sandbox
+  image: paircoder/sandbox:latest
+
+  # Resource limits
+  memory_limit: 2g    # Maximum memory (e.g., 512m, 1g, 2g)
+  cpu_limit: 2.0      # Maximum CPUs (e.g., 0.5, 1.0, 2.0)
+
+  # Network mode:
+  # - none: No network access (most secure, default)
+  # - bridge: Container-only network
+  # - host: Full host network access (least secure)
+  network: none
+
+  # Volume mounts
+  # The workspace is always mounted at /workspace
+  mounts: []
+  # Example additional mounts:
+  # - source: /path/on/host
+  #   target: /path/in/container
+  #   readonly: true
+
+  # Environment variables to pass through from host
+  # Only listed variables will be available in container
+  env_passthrough:
+    - GITHUB_TOKEN
+    - TRELLO_API_KEY
+    - TRELLO_API_TOKEN
+    # Add other required env vars here
+
+  # Timeout for command execution (seconds)
+  timeout: 300
+
+  # Allow network for specific commands (overrides network: none)
+  # Commands matching these patterns can access network
+  network_allowed_commands:
+    - "git fetch"
+    - "git pull"
+    - "git push"
+    - "pip install"
+    - "npm install"
+    - "curl"
+    - "wget"
