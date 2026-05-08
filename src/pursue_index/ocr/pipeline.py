@@ -3,10 +3,13 @@
 Per PDF, ``settings.ocr_dir/{card_id}/`` contains ``pages.jsonl`` (one
 ``{page, text, confidence, engine}`` per page) and ``meta.json`` (status,
 engine, pdf hash/size, timestamps). Idempotent: a card with
-``meta.json["status"] == "ok"`` is skipped on re-runs.
+``meta.json["status"] == "ok"`` is skipped on re-runs (use ``force=True``
+to override).
 
-The ``ocr_image`` seam is engine-agnostic — Tesseract (CPU, default) and
-Surya (GPU, in ``ocr/surya.py``) plug into the same shape.
+The ``ocr_image`` seam is engine-agnostic — Tesseract (CPU, default), Surya
+(GPU, in ``ocr/surya.py``), and the LLM fallback (``ocr/llm.py``) plug into
+the same shape. ``engine="auto"`` runs the primary engine then re-OCRs any
+page with confidence < ``settings.ocr_llm_threshold`` via the LLM.
 """
 
 from __future__ import annotations
@@ -26,6 +29,9 @@ from PIL import Image
 from pursue_index import get_logger
 from pursue_index.config import settings
 from pursue_index.download.downloader import asset_path_for
+from pursue_index.ocr import auto as ocr_auto
+from pursue_index.ocr import llm as ocr_llm
+from pursue_index.ocr import runners as ocr_runners
 from pursue_index.ocr import surya as ocr_surya
 from pursue_index.scrape.types import CardMetadata, Manifest
 
@@ -73,13 +79,21 @@ def _engine_ocr_image(engine: EngineName):  # type: ignore[no-untyped-def]
     """Look up the ``ocr_image(img) -> (text, conf)`` callable for ``engine``.
 
     Indirected via module attribute reads so tests can monkeypatch the
-    underlying seams (``ocr_pipeline.ocr_image`` / ``ocr_surya.ocr_image``).
+    underlying seams (``ocr_pipeline.ocr_image`` / ``ocr_surya.ocr_image``
+    / ``ocr_llm.ocr_image``).
     """
     if engine == "surya":
         return lambda img: ocr_surya.ocr_image(img)
     if engine == "tesseract":
         return lambda img: ocr_image(img)
+    if engine == "llm":
+        return lambda img: ocr_llm.ocr_image(img)
     raise ValueError(f"Unknown OCR engine: {engine!r}")
+
+
+def _rasterize(path: Path, dpi: int):  # type: ignore[no-untyped-def]
+    """Indirected so tests can monkeypatch ``ocr_pipeline.rasterize_pdf``."""
+    return rasterize_pdf(path, dpi)
 
 
 def _run_engine(
@@ -87,29 +101,53 @@ def _run_engine(
     pages_path: Path,
     dpi: int,
     engine: EngineName = DEFAULT_ENGINE,
+    primary_engine: EngineName | None = None,
 ) -> tuple[int, str | None]:
     """Stream pages.jsonl out of the engine. Returns (page_count, error_or_None)."""
-    page_count = 0
+    if engine == "auto":
+        chosen_primary = ocr_auto.resolve_primary_engine(primary_engine)
+        run_primary = _engine_ocr_image(chosen_primary)
+        return ocr_runners.run_auto_engine(
+            pdf_path, pages_path, dpi, chosen_primary, run_primary, _rasterize
+        )
     run_ocr = _engine_ocr_image(engine)
-    try:
-        with pages_path.open("w") as fh:
-            for page_idx, img in enumerate(rasterize_pdf(pdf_path, dpi), start=1):
-                text, conf = run_ocr(img)
-                fh.write(
-                    json.dumps(
-                        {
-                            "page": page_idx,
-                            "text": text,
-                            "confidence": conf,
-                            "engine": engine,
-                        }
-                    )
-                    + "\n"
-                )
-                page_count += 1
-    except Exception as exc:  # noqa: BLE001 — record any engine error in meta
-        return page_count, f"{type(exc).__name__}: {exc}"
-    return page_count, None
+    return ocr_runners.run_single_engine(
+        pdf_path, pages_path, dpi, engine, run_ocr, _rasterize
+    )
+
+
+def _resolve_meta_engine(engine: EngineName, primary_engine: EngineName | None) -> str:
+    """Pick the ``meta.json`` ``engine`` value based on the run mode."""
+    if engine != "auto":
+        return engine
+    chosen_primary = ocr_auto.resolve_primary_engine(primary_engine)
+    return ocr_auto.auto_meta_engine(chosen_primary)
+
+
+def _build_meta(
+    card: CardMetadata,
+    engine: EngineName,
+    primary_engine: EngineName | None,
+    pdf_bytes: bytes,
+    page_count: int,
+    started_at: datetime,
+    finished_at: datetime,
+    error: str | None,
+) -> dict[str, object]:
+    meta: dict[str, object] = {
+        "card_id": card.card_id,
+        "engine": _resolve_meta_engine(engine, primary_engine),
+        "status": "ok" if error is None else "failed",
+        "page_count": page_count,
+        "pdf_sha256": hashlib.sha256(pdf_bytes).hexdigest(),
+        "pdf_bytes": len(pdf_bytes),
+        "started_at": started_at.isoformat(),
+        "finished_at": finished_at.isoformat(),
+        "duration_s": (finished_at - started_at).total_seconds(),
+    }
+    if error is not None:
+        meta["error"] = error
+    return meta
 
 
 def ocr_card(
@@ -118,15 +156,25 @@ def ocr_card(
     out_dir: Path,
     dpi: int = 300,
     engine: EngineName = DEFAULT_ENGINE,
+    force: bool = False,
+    primary_engine: EngineName | None = None,
 ) -> bool:
     """Run OCR over a PDF; write pages.jsonl + meta.json. Idempotent.
 
     Returns ``True`` if OCR ran (success or failure), ``False`` if skipped.
-    The ``engine`` selects which adapter runs — ``"tesseract"`` (default,
-    CPU) or ``"surya"`` (GPU). Both share the same output format; the
-    ``engine`` field on each row + on ``meta.json`` records which ran.
+    The ``engine`` selects which adapter runs:
+
+    - ``"tesseract"`` (default, CPU)
+    - ``"surya"`` (GPU)
+    - ``"llm"`` (Anthropic vision)
+    - ``"auto"`` — run primary (``primary_engine`` or surya/tesseract via
+      auto-detect), re-OCR low-confidence pages via the LLM fallback.
+
+    ``force=True`` bypasses the ``meta.json`` idempotency check so a card
+    with existing OCR output is re-processed. ``primary_engine`` only
+    applies when ``engine="auto"``.
     """
-    if _is_done(out_dir):
+    if not force and _is_done(out_dir):
         log.info("ocr.skip.done", card_id=card.card_id)
         return False
     if not pdf_path.exists():
@@ -138,22 +186,15 @@ def ocr_card(
     log.info("ocr.start", card_id=card.card_id, path=str(pdf_path), engine=engine)
 
     pdf_bytes = pdf_path.read_bytes()
-    page_count, error = _run_engine(pdf_path, out_dir / "pages.jsonl", dpi, engine)
+    page_count, error = _run_engine(
+        pdf_path, out_dir / "pages.jsonl", dpi, engine, primary_engine
+    )
     finished_at = datetime.now(UTC)
 
-    meta: dict[str, object] = {
-        "card_id": card.card_id,
-        "engine": engine,
-        "status": "ok" if error is None else "failed",
-        "page_count": page_count,
-        "pdf_sha256": hashlib.sha256(pdf_bytes).hexdigest(),
-        "pdf_bytes": len(pdf_bytes),
-        "started_at": started_at.isoformat(),
-        "finished_at": finished_at.isoformat(),
-        "duration_s": (finished_at - started_at).total_seconds(),
-    }
+    meta = _build_meta(
+        card, engine, primary_engine, pdf_bytes, page_count, started_at, finished_at, error
+    )
     if error is not None:
-        meta["error"] = error
         log.error("ocr.fail", card_id=card.card_id, error=error)
     _write_meta(out_dir / "meta.json", meta)
 
@@ -162,23 +203,34 @@ def ocr_card(
 
 
 def _resolve_default_engine() -> EngineName:
-    """``PURSUE_OCR_ENGINE`` → engine name. ``"auto"``/``"azure"`` → tesseract."""
+    """``PURSUE_OCR_ENGINE`` → engine name. ``"azure"`` (legacy) → tesseract."""
     cfg = settings.ocr_engine
-    return cfg if cfg in ("surya", "tesseract") else DEFAULT_ENGINE
+    return cfg if cfg in ("surya", "tesseract", "llm", "auto") else DEFAULT_ENGINE
 
 
-async def ocr_all(manifest: Manifest, engine: EngineName | None = None) -> None:
+def _concurrency_for(engine: EngineName) -> int:
+    """Engine-aware concurrency. Surya/LLM serialize; tesseract parallelizes."""
+    if engine in ("surya", "llm", "auto"):
+        return 1
+    return min(4, os.cpu_count() or 1)
+
+
+async def ocr_all(
+    manifest: Manifest,
+    engine: EngineName | None = None,
+    force: bool = False,
+) -> None:
     """OCR every PDF card in the manifest with bounded concurrency.
 
-    Tesseract is CPU-bound: cap at ``min(4, cpu_count)``. Surya is GPU-bound:
-    serialize cards and let Surya batch internally.
+    Tesseract is CPU-bound: cap at ``min(4, cpu_count)``. Surya/LLM/auto are
+    serialized so the GPU + API call stay un-thrashed. ``force=True`` re-OCRs
+    cards even if their ``meta.json`` says ``status=ok``.
     """
     chosen = engine or _resolve_default_engine()
     pdf_cards = [c for c in manifest.cards if c.asset_type == "PDF"]
-    log.info("ocr.start_all", pdf_cards=len(pdf_cards), engine=chosen)
+    log.info("ocr.start_all", pdf_cards=len(pdf_cards), engine=chosen, force=force)
 
-    concurrency = 1 if chosen == "surya" else min(4, os.cpu_count() or 1)
-    sem = asyncio.Semaphore(concurrency)
+    sem = asyncio.Semaphore(_concurrency_for(chosen))
 
     async def _bounded(card: CardMetadata) -> None:
         pdf_path = asset_path_for(card)
@@ -193,6 +245,7 @@ async def ocr_all(manifest: Manifest, engine: EngineName | None = None) -> None:
                 card_ocr_dir(card),
                 settings.ocr_dpi,
                 chosen,
+                force,
             )
 
     await asyncio.gather(*(_bounded(c) for c in pdf_cards))
