@@ -1,0 +1,23 @@
+// Cloudflare Workers + Static Assets configuration.
+//
+// For now this is a pure static-asset Worker — no `main` entry, no JS
+// runtime. The chat-interface plan adds a Worker function alongside
+// these assets later; when that lands, drop in `"main": "./worker/index.ts"`
+// and route declarations and the static + dynamic surfaces deploy together.
+//
+// Build pipeline (configured in the CF Workers Builds wizard):
+//   build:  cd web && npm install && npm run build
+//   deploy: npx wrangler deploy
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pursueindex",
+  "compatibility_date": "2026-05-08",
+  "assets": {
+    "directory": "./web/dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
