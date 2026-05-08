@@ -33,13 +33,25 @@ filling out the OCR + ingest + serve stubs.
 - [x] Static UI scaffold (`/web`) — Astro + Preact + Tailwind v4 + MiniSearch. Routes: /, /card/[id], /search, /diff. Auto-deploys to GitHub Pages on push.
 - [x] Search index — `pages.json` (5.3 MB) shipped; full-text MiniSearch live across all 4,153 OCR'd pages.
 
-### Backlog
+### Phase 2 backlog (sequenced)
 
-- Index stage (`pursue index ingest`) — currently a stub
-- FastAPI search service (`pursue serve`) — currently a stub
-- **GPU OCR via Surya** — see `.paircoder/plans/ocr-gpu-surya.md`. 5090 sits idle on Tesseract; Surya should give 5–20× speedup and better quality on FBI scans.
-- **LLM OCR fallback** — see `.paircoder/plans/ocr-llm-fallback.md`. Replaces Azure DI from earlier architecture; better output, simpler integration.
-- DVIDS video ingestion (off by default)
+See `.paircoder/plans/phase-2-roadmap.md` for the master plan.
+Target: pursueindex.com / pursueindex.ai public launch with chat.
+
+1. `ocr-gpu-surya.md` — Surya on 5090 for speed + quality
+2. `ocr-llm-fallback.md` — LLM fallback for low-confidence pages
+3. `ocr-benchmark.md` — A/B harness, golden set, methodology numbers
+4. `review-correct.md` — agent-driven + human review queue, corrections
+5. `embed-stage.md` — `pursue embed` stage, Voyage-3 vectors
+6. `ui-redesign-alien.md` — declassified-terminal aesthetic (parallel)
+7. `chat-interface.md` — RAG chat with citations, edge backend
+8. `production-launch.md` — DNS, rate limits, methodology page, HN post
+
+### Deferred / out of phase 2
+
+- Postgres `index` + FastAPI `serve` (in-browser retrieval suffices at this corpus size)
+- DVIDS video ingestion (phase 3)
+- Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
 
