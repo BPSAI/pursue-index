@@ -28,7 +28,9 @@ filling out the OCR + ingest + serve stubs.
 - [x] Run `pursue scrape run` end-to-end; manifest written + raw CSV archived to NAS
 - [x] Squashed commit + push to `origin/main` (`485748f`)
 - [x] `pursue download run` — 133/161 assets on NAS (116 unique PDFs + 14 images; 28 videos off; 3 PDF cards de-duped against paired entries). Required a follow-up fix re-exporting `asset_path_for` (`9debf96`).
-- [ ] OCR stage — currently stub; Tesseract first, Azure DI fallback for low-confidence pages
+- [x] OCR v1 — Tesseract-only, idempotent. `ocr_card` writes `pages.jsonl` + `meta.json` per architecture spec. Smoke-tested on Apollo 17 debriefing PDF (2 pages, 3.9s).
+- [ ] OCR full run — `pursue ocr run --manifest data/manifests/latest.json` over all 119 PDFs (~10–20 min wall-clock)
+- [ ] OCR Azure DI fallback (auto mode) — currently any low-confidence page is just recorded; fallback engine deferred
 
 ### Backlog
 
