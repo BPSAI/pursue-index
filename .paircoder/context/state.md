@@ -4,9 +4,9 @@
 
 ## Active Plan
 
-**Plan:** Pipeline through OCR; static UI shipped to GitHub Pages; Surya GPU engine ready.
-**Status:** scrape ✅ download ✅ ocr (tesseract + surya) ✅ ui ✅ — index/serve still stub.
-**Current Sprint:** Wrap-up; backlog LLM fallback + benchmark harness + index ingest.
+**Plan:** Pipeline through OCR; static UI shipped to GitHub Pages; Surya GPU + LLM-fallback OCR ready; embed scaffold landed.
+**Status:** scrape ✅ download ✅ ocr (tesseract + surya + llm-fallback + auto-mode) ✅ ui ✅ embed (scaffold) 🔧 — index/serve still stub.
+**Current Sprint:** Wrap-up; backlog full Voyage embed run + benchmark harness + chat interface.
 
 ## Current Focus
 
@@ -34,6 +34,7 @@ filling out the OCR + ingest + serve stubs.
 - [x] Search index — `pages.json` (5.3 MB) shipped; full-text MiniSearch live across all 4,153 OCR'd pages.
 - [x] **Surya GPU OCR engine** — `ocr/surya.py` adapter slots into the existing engine seam; `ocr_card`/`ocr_all`/`pursue ocr run --engine surya` route by engine name; `pages.jsonl` + `meta.json` record `"engine": "surya"`. `surya-ocr>=0.17` added under `pyproject.toml [gpu]` extra. Live smoke: 40-page FBI HQ-83894 ran in 56.76s @ 93.90% mean conf vs Tesseract's 106.19s on the same file.
 - [x] **`pursue embed` stage scaffold** — Voyage-3 default, OpenAI stub seam, idempotent against `(card_id, page, model_id, text_sha)`. CLI + settings + web build helper. 50/50 unit tests green. Live smoke against the 4153-page corpus with a fake embedder confirmed shape + idempotency; full Voyage run pending `VOYAGE_API_KEY` export (~$0.13 estimated).
+- [x] **OCR LLM fallback + auto mode** — `ocr/llm.py` adds an Anthropic-vision engine matching the existing `(image)→(text,conf)` seam; system prompt sent with `cache_control=ephemeral`; per-image SHA-256 → response cached to disk; per-call token usage logged via `ocr.llm.usage`. `engine="auto"` runs primary (surya|tesseract) per page, re-OCRs pages with conf < `PURSUE_OCR_LLM_THRESHOLD` (default 70) via the LLM. Auto-mode rows preserve the primary attempt as a sibling `primary` block; `meta.json` records `engine: "auto:{primary}+{fallback}"`. New `pursue ocr run --force` bypasses the idempotency check. Surya now passes `math_mode=False` (no more `<b>...</b>` markup). 14 new tests (9 LLM + 5 auto-mode); 48/50 total green (2 pre-existing embed CLI failures unrelated). Live smoke on 15-page FBI HQ-83894 serial 220 with `claude-haiku-4-5`: 9 low-conf pages re-OCR'd, ~16k input + 3.1k output tokens (~$0.03 at Haiku rates), dramatic quality lift (page 1 went from 4 lines of garbage to a complete cover-sheet transcription).
 
 ### Phase 2 backlog (sequenced)
 
@@ -56,6 +57,65 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
+
+### Session: 2026-05-08 — OCR LLM fallback + auto mode + small chores
+
+- Added `src/pursue_index/ocr/llm.py` — Anthropic-vision OCR engine
+  exposing `ocr_image(img) -> (text, conf)` matching the existing seam.
+  System prompt is sent with `cache_control={"type": "ephemeral"}` so
+  static instructions hit the cache-read rate after the first call.
+  Per-image SHA-256 → response is cached to
+  `{data_root}/ocr/.llm-cache/{sha}.json` so re-runs are free. Token
+  usage logged via `ocr.llm.usage` on every call (input, output, cache
+  read/creation). Provider routing scaffolded: Anthropic is v1, OpenAI
+  is a stub raising `NotImplementedError`. Page images downscaled to
+  1568px longest edge before encoding (Anthropic's 5MB hard limit on
+  base64-encoded image inputs).
+- Wired `engine="auto"` in `ocr/pipeline.py`: primary engine (Surya if
+  `[gpu]` extras installed, else Tesseract; explicit `primary_engine`
+  kwarg overrides) runs per page, re-OCR'd via the LLM whenever
+  `confidence < settings.ocr_llm_threshold` (default 70). Auto-mode
+  rows in `pages.jsonl` keep the LLM result as the top-level
+  `text`/`confidence`/`engine`, with the primary attempt preserved as
+  a sibling `primary` block for transparency. `meta.json.engine` is
+  now `"auto:{primary}+{fallback}"` so the audit trail shows what
+  actually ran.
+- Added `pursue ocr run --force`: bypasses the `_is_done` idempotency
+  check so a card with existing OCR output can be re-processed. Wired
+  end-to-end through `ocr_card` and `ocr_all`.
+- Disabled Surya's `math_mode` (default `True` injects `<b>...</b>`
+  around inferred bold runs; the corpus has no math, downstream search
+  would otherwise have to strip the markup).
+- Web 404 page: switched hardcoded `<a href="/">` to
+  `import.meta.env.BASE_URL` so it survives a future `base` config
+  change (tracked from the surya plan's open-follow-ups).
+- New `[llm]` optional extra in `pyproject.toml` pinning
+  `anthropic>=0.40`. Default install stays Tesseract-only.
+- New env vars (`.env.example` updated, retired `AZURE_DI_*`):
+  `PURSUE_OCR_LLM_PROVIDER` (anthropic|openai),
+  `PURSUE_OCR_LLM_MODEL` (default `claude-sonnet-4-6`),
+  `PURSUE_OCR_LLM_THRESHOLD` (default 70).
+- 14 new tests (9 LLM + 5 auto-mode); 48/50 unit tests pass (the 2
+  failures are pre-existing in `test_embed_cli.py`, not touched by
+  this work).
+- Architecture: extracted `ocr/auto.py` (auto-mode helpers, no I/O)
+  and `ocr/runners.py` (per-engine page-streaming loops) to keep
+  `pipeline.py` under the function-count limit. arch-check returns
+  warnings only (file sizes >200 lines, all <300; threshold 400 err).
+- Live smoke on FBI HQ-83894 serial 220 (15-page faded scan,
+  Tesseract baseline mean conf 70%): auto mode triggered LLM
+  fallback on 9 pages (the ones below 70% conf), kept tesseract for
+  the 6 clean pages. 16,453 input + 3,115 output tokens across the
+  9 calls = ~$0.03 at Haiku-4.5 prices (~$0.10 projected at
+  Sonnet-4.6). Quality lift is dramatic — page 1 went from 4 lines
+  of broken glyphs to a clean transcription of the FBI cover sheet
+  with case numbers, FOIPA stamp, redaction marker, and barcode.
+  Smoke used haiku to avoid Claude Max sonnet rate-limit; production
+  default remains `claude-sonnet-4-6`.
+- Commits on `worktree-agent-a8f8c3bb83823541f`: `f68d368` (llm
+  engine), `2d79b54` (auto + force), `4d31810` (surya math_mode),
+  `bb7c021` (web 404), `caf720f` ([llm] extra + env.example),
+  `9b8029e` (image resize fix from smoke).
 
 ### Session: 2026-05-08 — `pursue embed` stage scaffolded
 
@@ -155,23 +215,23 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
    full 4153-page corpus. Estimated $0.13 (per the embed-stage plan)
    and well under the $1 cap. Then run `python scripts/build_embed_data.py`
    to produce the web payload (~8.5 MB float16 binary at 1024 dims).
-2. **Full Surya re-OCR** — once the worktree merges, run
-   `PURSUE_OCR_ENGINE=surya pursue ocr run --manifest …` against all
-   116 PDFs. Existing tesseract output will be skipped by the
-   idempotency check; need a `--force` flag (or to wipe `meta.json`)
-   to actually re-OCR. Out of scope for this worktree.
-3. **OCR benchmark harness** (`ocr-benchmark.md`) — A/B Surya vs
-   Tesseract on the 5 representative golden PDFs called out in the
-   plan, produce mean-confidence + wall-clock numbers for the
-   methodology page.
-4. **LLM OCR fallback** (`ocr-llm-fallback.md`) — vision-model cleanup
-   pass for pages where Surya confidence is low.
-5. **Chat interface** (`chat-interface.md`) — RAG worker over the embed
+2. **Full Surya re-OCR with auto-mode** — `pursue ocr run --force
+   --engine auto --manifest data/manifests/latest.json` now possible
+   with the `--force` flag landed. Auto-mode will run Surya as primary
+   (since `[gpu]` is installed), LLM-fallback the low-conf pages.
+   Need `ANTHROPIC_API_KEY` exported in workstation env. Estimated
+   cost: ~$0.10/card with Sonnet 4.6 on the worst FBI scans, near
+   zero on clean typewriter docs (most pages won't trigger fallback).
+3. **OCR benchmark harness** (`ocr-benchmark.md`) — now unblocked by
+   the `--force` flag. A/B Tesseract vs Surya vs Surya+LLM on the 5
+   representative golden PDFs, produce mean-confidence + wall-clock
+   + cost numbers for the methodology page.
+4. **Chat interface** (`chat-interface.md`) — RAG worker over the embed
    payload, streaming citations from Anthropic.
-6. **Index stage** — wire SQLAlchemy models (cards, pages) into the
+5. **Index stage** — wire SQLAlchemy models (cards, pages) into the
    manifest + OCR output. Becomes useful when the corpus outgrows
    ~10 MB of in-browser JSON.
-7. **FastAPI service** — only after Postgres ingest exists.
+6. **FastAPI service** — only after Postgres ingest exists.
 
 ## Blockers
 

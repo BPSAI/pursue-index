@@ -1,9 +1,23 @@
 ---
 id: ocr-llm-fallback
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-08
+shipped: 2026-05-08
+shipped_in: [f68d368, 2d79b54, 4d31810, bb7c021, caf720f, 9b8029e]
 ---
+
+> **Shipped 2026-05-08.** Engine adapter at `src/pursue_index/ocr/llm.py`
+> wires Anthropic vision behind `engine="llm"` and `engine="auto"`.
+> Auto-mode runs primary (surya|tesseract) per page and re-OCRs any
+> page with `confidence < PURSUE_OCR_LLM_THRESHOLD` via the LLM. System
+> prompt cached via `cache_control=ephemeral`; per-image SHA-256
+> response cache lives at `{data_root}/ocr/.llm-cache/`. Token usage
+> logged via `ocr.llm.usage`. `pursue ocr run --force` bypasses
+> idempotency. Live smoke on FBI HQ-83894 (15 pp, mixed-quality
+> faded scan): 9 pages re-OCR'd, ~16k input + 3.1k output tokens
+> (~$0.03 at Haiku-4.5, ~$0.10 projected at Sonnet-4.6); page-1 cover
+> sheet went from 4 lines of garbage to a complete transcription.
 
 # OCR fallback: LLM vision extraction
 
