@@ -41,10 +41,19 @@ class Settings(BaseSettings):
 
     # ---- OCR ----
     # ``surya`` runs the GPU transformer-OCR adapter (requires the [gpu] extra).
-    # ``auto`` is tesseract today; will promote to surya once it's the default.
-    ocr_engine: Literal["tesseract", "azure", "surya", "auto"] = "auto"
+    # ``auto`` runs the primary engine (surya if installed, else tesseract) and
+    # re-OCRs pages with confidence < ``ocr_llm_threshold`` via the LLM fallback.
+    ocr_engine: Literal["tesseract", "azure", "surya", "llm", "auto"] = "auto"
     ocr_dpi: int = 300
     tesseract_bin: str = "/usr/bin/tesseract"
+
+    # LLM fallback (engine=auto or engine=llm). Provider configurable; the
+    # Anthropic path is the v1 implementation, OpenAI is a stub (raises
+    # NotImplementedError). Threshold is the per-page mean confidence below
+    # which the primary engine's output is overwritten by the LLM's.
+    ocr_llm_provider: Literal["anthropic", "openai"] = "anthropic"
+    ocr_llm_model: str = "claude-sonnet-4-6"
+    ocr_llm_threshold: float = 70.0
 
     # ---- API ----
     api_host: str = "0.0.0.0"
