@@ -14,9 +14,9 @@ import Base from "../layouts/Base.astro";
       </pre>
 
       <div class="mt-6 pt-4 border-t border-[color:var(--color-border)] text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
-        <a href="/" class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ RETURN TO INDEX</a>
+        <a href={import.meta.env.BASE_URL} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ RETURN TO INDEX</a>
         <span class="mx-3 text-[color:var(--color-text-faint)]">·</span>
-        <a href="/search" class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ SEARCH CORPUS</a>
+        <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ SEARCH CORPUS</a>
       </div>
     </div>
   </div>
