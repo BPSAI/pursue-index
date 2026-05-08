@@ -36,6 +36,10 @@ _client: Any = None
 # isn't recursively re-OCR'd by auto-mode.
 _NOMINAL_CONFIDENCE = 75.0
 
+# Anthropic vision API rejects images > 5 MB base64-encoded. Cap the longest
+# edge so high-DPI rasters get downscaled before the encode step.
+_MAX_IMAGE_EDGE_PX = 1568
+
 _SYSTEM_PROMPT = """You are an expert OCR engine for declassified U.S. government documents \
 (typewriter scans, faded carbon copies, multi-column FBI forms, hand-stamped redactions, \
 marginalia, and handwritten annotations).
@@ -82,11 +86,26 @@ def _image_hash(img: Image.Image) -> str:
     return hashlib.sha256(buf.getvalue()).hexdigest()
 
 
+def _resize_for_vision(img: Image.Image) -> Image.Image:
+    """Cap the longest edge at ``_MAX_IMAGE_EDGE_PX`` for the Anthropic API.
+
+    300 DPI rasters of letter-sized pages routinely exceed the 5 MB base64
+    limit; Anthropic's docs recommend ~1568px on the longest edge anyway.
+    """
+    longest = max(img.width, img.height)
+    if longest <= _MAX_IMAGE_EDGE_PX:
+        return img
+    scale = _MAX_IMAGE_EDGE_PX / longest
+    new_size = (int(img.width * scale), int(img.height * scale))
+    return img.resize(new_size, Image.Resampling.LANCZOS)
+
+
 def _image_to_b64(img: Image.Image) -> str:
     """Encode an image as base64 PNG for the Anthropic vision API."""
     buf = io.BytesIO()
     rgb = img if img.mode == "RGB" else img.convert("RGB")
-    rgb.save(buf, format="PNG")
+    resized = _resize_for_vision(rgb)
+    resized.save(buf, format="PNG")
     return base64.standard_b64encode(buf.getvalue()).decode("ascii")
 
 
