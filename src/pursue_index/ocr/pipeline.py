@@ -1,16 +1,12 @@
-"""OCR pipeline: PDF → per-page text + confidence (Tesseract v1).
+"""OCR pipeline: PDF → per-page text + confidence.
 
-Output convention, per PDF::
+Per PDF, ``settings.ocr_dir/{card_id}/`` contains ``pages.jsonl`` (one
+``{page, text, confidence, engine}`` per page) and ``meta.json`` (status,
+engine, pdf hash/size, timestamps). Idempotent: a card with
+``meta.json["status"] == "ok"`` is skipped on re-runs.
 
-    settings.ocr_dir / {card_id} /
-        pages.jsonl   # one JSON object per page: {page, text, confidence, engine}
-        meta.json     # status, engine, pdf hash/size, run timestamps
-
-Idempotent: a card with ``meta.json["status"] == "ok"`` is skipped on
-re-runs. A partial failure leaves ``status == "failed"`` so the next run
-will retry. Azure DI fallback is intentionally out of scope for v1; the
-``ocr_image`` seam is engine-agnostic so it can land later without
-disturbing the orchestration.
+The ``ocr_image`` seam is engine-agnostic — Tesseract (CPU, default) and
+Surya (GPU, in ``ocr/surya.py``) plug into the same shape.
 """
 
 from __future__ import annotations
@@ -30,9 +26,13 @@ from PIL import Image
 from pursue_index import get_logger
 from pursue_index.config import settings
 from pursue_index.download.downloader import asset_path_for
+from pursue_index.ocr import surya as ocr_surya
 from pursue_index.scrape.types import CardMetadata, Manifest
 
 log = get_logger(__name__)
+
+EngineName = str
+DEFAULT_ENGINE: EngineName = "tesseract"
 
 
 def rasterize_pdf(path: Path, dpi: int) -> Iterator[Image.Image]:
@@ -69,20 +69,39 @@ def _write_meta(meta_path: Path, meta: dict[str, object]) -> None:
     meta_path.write_text(json.dumps(meta, indent=2, default=str))
 
 
-def _run_engine(pdf_path: Path, pages_path: Path, dpi: int) -> tuple[int, str | None]:
+def _engine_ocr_image(engine: EngineName):  # type: ignore[no-untyped-def]
+    """Look up the ``ocr_image(img) -> (text, conf)`` callable for ``engine``.
+
+    Indirected via module attribute reads so tests can monkeypatch the
+    underlying seams (``ocr_pipeline.ocr_image`` / ``ocr_surya.ocr_image``).
+    """
+    if engine == "surya":
+        return lambda img: ocr_surya.ocr_image(img)
+    if engine == "tesseract":
+        return lambda img: ocr_image(img)
+    raise ValueError(f"Unknown OCR engine: {engine!r}")
+
+
+def _run_engine(
+    pdf_path: Path,
+    pages_path: Path,
+    dpi: int,
+    engine: EngineName = DEFAULT_ENGINE,
+) -> tuple[int, str | None]:
     """Stream pages.jsonl out of the engine. Returns (page_count, error_or_None)."""
     page_count = 0
+    run_ocr = _engine_ocr_image(engine)
     try:
         with pages_path.open("w") as fh:
             for page_idx, img in enumerate(rasterize_pdf(pdf_path, dpi), start=1):
-                text, conf = ocr_image(img)
+                text, conf = run_ocr(img)
                 fh.write(
                     json.dumps(
                         {
                             "page": page_idx,
                             "text": text,
                             "confidence": conf,
-                            "engine": "tesseract",
+                            "engine": engine,
                         }
                     )
                     + "\n"
@@ -98,10 +117,14 @@ def ocr_card(
     pdf_path: Path,
     out_dir: Path,
     dpi: int = 300,
+    engine: EngineName = DEFAULT_ENGINE,
 ) -> bool:
-    """Run Tesseract over a PDF; write pages.jsonl + meta.json. Idempotent.
+    """Run OCR over a PDF; write pages.jsonl + meta.json. Idempotent.
 
     Returns ``True`` if OCR ran (success or failure), ``False`` if skipped.
+    The ``engine`` selects which adapter runs — ``"tesseract"`` (default,
+    CPU) or ``"surya"`` (GPU). Both share the same output format; the
+    ``engine`` field on each row + on ``meta.json`` records which ran.
     """
     if _is_done(out_dir):
         log.info("ocr.skip.done", card_id=card.card_id)
@@ -112,15 +135,15 @@ def ocr_card(
 
     out_dir.mkdir(parents=True, exist_ok=True)
     started_at = datetime.now(UTC)
-    log.info("ocr.start", card_id=card.card_id, path=str(pdf_path))
+    log.info("ocr.start", card_id=card.card_id, path=str(pdf_path), engine=engine)
 
     pdf_bytes = pdf_path.read_bytes()
-    page_count, error = _run_engine(pdf_path, out_dir / "pages.jsonl", dpi)
+    page_count, error = _run_engine(pdf_path, out_dir / "pages.jsonl", dpi, engine)
     finished_at = datetime.now(UTC)
 
     meta: dict[str, object] = {
         "card_id": card.card_id,
-        "engine": "tesseract",
+        "engine": engine,
         "status": "ok" if error is None else "failed",
         "page_count": page_count,
         "pdf_sha256": hashlib.sha256(pdf_bytes).hexdigest(),
@@ -138,16 +161,23 @@ def ocr_card(
     return True
 
 
-async def ocr_all(manifest: Manifest) -> None:
+def _resolve_default_engine() -> EngineName:
+    """``PURSUE_OCR_ENGINE`` → engine name. ``"auto"``/``"azure"`` → tesseract."""
+    cfg = settings.ocr_engine
+    return cfg if cfg in ("surya", "tesseract") else DEFAULT_ENGINE
+
+
+async def ocr_all(manifest: Manifest, engine: EngineName | None = None) -> None:
     """OCR every PDF card in the manifest with bounded concurrency.
 
-    Tesseract is CPU-bound; we cap concurrency at ``min(4, cpu_count)`` and
-    run each card in a thread so we don't block the event loop.
+    Tesseract is CPU-bound: cap at ``min(4, cpu_count)``. Surya is GPU-bound:
+    serialize cards and let Surya batch internally.
     """
+    chosen = engine or _resolve_default_engine()
     pdf_cards = [c for c in manifest.cards if c.asset_type == "PDF"]
-    log.info("ocr.start_all", pdf_cards=len(pdf_cards))
+    log.info("ocr.start_all", pdf_cards=len(pdf_cards), engine=chosen)
 
-    concurrency = min(4, os.cpu_count() or 1)
+    concurrency = 1 if chosen == "surya" else min(4, os.cpu_count() or 1)
     sem = asyncio.Semaphore(concurrency)
 
     async def _bounded(card: CardMetadata) -> None:
@@ -157,8 +187,13 @@ async def ocr_all(manifest: Manifest) -> None:
             return
         async with sem:
             await asyncio.to_thread(
-                ocr_card, card, pdf_path, card_ocr_dir(card), settings.ocr_dpi
+                ocr_card,
+                card,
+                pdf_path,
+                card_ocr_dir(card),
+                settings.ocr_dpi,
+                chosen,
             )
 
     await asyncio.gather(*(_bounded(c) for c in pdf_cards))
-    log.info("ocr.done_all", pdf_cards=len(pdf_cards))
+    log.info("ocr.done_all", pdf_cards=len(pdf_cards), engine=chosen)

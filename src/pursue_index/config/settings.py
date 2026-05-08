@@ -40,7 +40,9 @@ class Settings(BaseSettings):
     download_videos: bool = False
 
     # ---- OCR ----
-    ocr_engine: Literal["tesseract", "azure", "auto"] = "auto"
+    # ``surya`` runs the GPU transformer-OCR adapter (requires the [gpu] extra).
+    # ``auto`` is tesseract today; will promote to surya once it's the default.
+    ocr_engine: Literal["tesseract", "azure", "surya", "auto"] = "auto"
     ocr_dpi: int = 300
     tesseract_bin: str = "/usr/bin/tesseract"
 
