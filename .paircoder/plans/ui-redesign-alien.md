@@ -1,10 +1,28 @@
 ---
 id: ui-redesign-alien
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-08
+shipped: 2026-05-08
+shipped_in: [3e95345, 8aa220c, ea30fd2, e7ea7c1]
 priority: medium
 ---
+
+> **Shipped 2026-05-08.** Tailwind v4 `@theme` token block in
+> `web/src/styles/global.css`; `PURSUE://INDEX` lockup with blinking
+> caret in `Base.astro`; CRT scan-lines, redaction shimmer, sweep
+> loaders; index/search/diff/card surfaces restyled; new `/about`,
+> `/methodology`, `/404` routes; cards/table view toggle on the index;
+> `<iframe>` PDF preview on the card detail page; `/`-to-focus and
+> `Esc`-to-clear keyboard niceties on `/search`. 152 pages build green;
+> `_astro/` bundle 112KB total.
+>
+> **Open follow-ups noted by the redesign agent:**
+>
+> 1. `<a href="/">` paths in `404.astro` are root-relative; switch to
+>    `import.meta.env.BASE_URL` if `base` ever stops being `/`.
+> 2. PDF preview uses a plain `<iframe>` to `asset_url`; pdf.js +
+>    side-by-side OCR text view is a future polish pass for chat.
 
 # UI redesign — declassified-terminal aesthetic
 

@@ -4,7 +4,15 @@ type: feature
 status: backlog
 created: 2026-05-08
 depends_on: [ocr-gpu-surya, ocr-llm-fallback]
+blocked_on:
+  - "ocr-gpu-surya follow-up #1: --force flag or per-engine meta sidecar"
+  - "ocr-llm-fallback (not yet started)"
 ---
+
+> **Blocker:** the harness needs to OCR the same PDF with multiple
+> engines and compare. Today, `meta.json` idempotency skips a card with
+> any prior engine output. Until `pursue ocr run --force` (or per-engine
+> meta files) lands, you can only benchmark a "fresh" PDF the first time.
 
 # OCR benchmark harness
 

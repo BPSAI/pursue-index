@@ -1,9 +1,32 @@
 ---
 id: ocr-gpu-surya
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-08
+shipped: 2026-05-08
+shipped_in: [41ef7b1, f521f93, 44aa0a6, decd40d, f3b5e7b]
 ---
+
+> **Shipped 2026-05-08.** Engine adapter at `src/pursue_index/ocr/surya.py`,
+> wired through `_run_engine` in `pipeline.py`, exposed via
+> `PURSUE_OCR_ENGINE=surya` and `pursue ocr run --engine surya`. Live
+> smoke on the 40-page FBI HQ-83894: 56.76s @ 93.90% conf vs Tesseract's
+> 106.19s on the same file (~1.87× faster, materially higher confidence).
+> 23/23 tests pass. `transformers<5` pinned in `[gpu]` extra.
+>
+> **Open follow-ups (small chores, tracked in this plan):**
+>
+> 1. `pursue ocr run --force` — the idempotency check skips cards with
+>    existing `meta.json`, which prevents re-OCR with a different engine.
+>    The benchmark plan (`ocr-benchmark.md`) needs this. Either a
+>    `--force` flag or `--engine` causing a separate `meta-{engine}.json`
+>    sidecar so engines stack.
+> 2. Surya output sometimes contains `<b>...</b>` tags from
+>    `math_mode=True` (Surya's default). Decide whether to disable
+>    `math_mode` for this corpus or strip in-output downstream of
+>    `ocr_image`. The corpus has essentially no math, so disabling is
+>    probably right.
+> 3. Full Surya re-OCR of all 116 PDFs (blocked on #1).
 
 # OCR engine: Surya on the 5090
 

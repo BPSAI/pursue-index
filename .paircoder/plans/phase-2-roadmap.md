@@ -25,14 +25,14 @@ Plans below are dependency-ordered. Items in **bold** are critical-path.
 
 | # | Plan                                                       | Depends on | Why first  |
 |---|------------------------------------------------------------|------------|------------|
-| 1 | **[ocr-gpu-surya](./ocr-gpu-surya.md)**                    | —          | Tesseract output is too noisy for credible RAG. Surya on the 5090 is faster and higher-quality. |
+| 1 | ~~[ocr-gpu-surya](./ocr-gpu-surya.md)~~ ✅ shipped          | —          | Surya engine landed; ~1.87× faster than Tesseract on the FBI scans. |
 | 2 | **[ocr-llm-fallback](./ocr-llm-fallback.md)**              | (1)        | Vision-LLM cleanup pass on pages where Surya confidence is low. |
-| 3 | **[ocr-benchmark](./ocr-benchmark.md)**                    | (1)(2)     | A/B harness across engines on a golden-set so we can prove the quality lift, not assert it. |
+| 3 | **[ocr-benchmark](./ocr-benchmark.md)**                    | (1)(2)     | Blocked on a `--force` flag + LLM fallback. A/B harness on a golden set, methodology numbers for the launch. |
 | 4 | **[review-correct](./review-correct.md)**                  | (3)        | Human-in-the-loop (or agent-in-the-loop) corrections for the long tail. |
 | 5 | **[embed-stage](./embed-stage.md)**                        | (3)        | Vector embeddings over the cleaned corpus — input to retrieval. |
-| 6 | [ui-redesign-alien](./ui-redesign-alien.md)                | —          | Can run in parallel; visual direction is independent of pipeline work. |
+| 6 | ~~[ui-redesign-alien](./ui-redesign-alien.md)~~ ✅ shipped  | —          | Declassified-terminal aesthetic landed; 152-page build, 112KB bundle. |
 | 7 | **[chat-interface](./chat-interface.md)**                  | (5)(6)     | The headline feature. Streams from a backend, RAG over (5), citations mandatory. |
-| 8 | **[production-launch](./production-launch.md)**            | (7)        | Domain DNS, rate-limits, abuse handling, methodology page, HN post. |
+| 8 | **[production-launch](./production-launch.md)**            | (7)        | Domain DNS, rate-limits, abuse handling, methodology page, HN post. CF Pages migration runbook is at `docs/runbooks/cloudflare-pages-migration.md`. |
 
 ## Non-goals for phase 2
 
