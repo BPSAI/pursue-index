@@ -1,13 +1,33 @@
 ---
 import "../styles/global.css";
+import { manifest } from "../data/manifest-loader";
 
 interface Props {
   title?: string;
   description?: string;
+  active?: "index" | "search" | "diff" | "about" | "methodology" | null;
 }
 
-const { title = "pursue-index", description = "Searchable index of DOW PURSUE UAP releases" } = Astro.props;
+const {
+  title = "PURSUE://INDEX",
+  description = "Searchable archive of the U.S. Department of War PURSUE UAP document releases.",
+  active = null,
+} = Astro.props;
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const fetchedISO = manifest.fetched_at;
+const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 19).replace("T", " ");
+const sha = manifest.csv_sha256.slice(0, 12);
+const cardCount = manifest.cards.length;
+
+const navItems = [
+  { href: `${base}/`, label: "INDEX", key: "index" },
+  { href: `${base}/search`, label: "SEARCH", key: "search" },
+  { href: `${base}/diff`, label: "DIFF", key: "diff" },
+  { href: `${base}/about`, label: "ABOUT", key: "about" },
+  { href: `${base}/methodology`, label: "METHODOLOGY", key: "methodology" },
+];
 ---
 
 <!doctype html>
@@ -16,34 +36,72 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0d12" />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <title>{title}</title>
   </head>
-  <body>
-    <header class="border-b border-neutral-800 bg-neutral-950 sticky top-0 z-30 backdrop-blur">
-      <div class="mx-auto max-w-7xl px-4 py-3 flex items-center gap-4">
-        <a href={`${base}/`} class="font-semibold tracking-tight text-lg">
-          pursue<span class="text-neutral-500">-index</span>
+  <body class="terminal min-h-screen flex flex-col">
+    {/* Top scan line */}
+    <div class="h-px w-full bg-[color:var(--color-signal-green)]/30 shadow-[0_0_8px_rgba(164,255,90,0.4)]"></div>
+
+    <header class="sticky top-0 z-30 border-b border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]/85 backdrop-blur-sm">
+      <div class="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
+        <a href={`${base}/`} class="group inline-flex items-baseline font-mono text-sm tracking-tight">
+          <span class="text-[color:var(--color-text-dim)]">PURSUE</span>
+          <span class="text-[color:var(--color-signal-green)] mx-0.5">://</span>
+          <span class="text-[color:var(--color-text-bright)] font-semibold group-hover:text-[color:var(--color-signal-green)] transition-colors">INDEX</span>
+          <span class="pi-caret"></span>
         </a>
-        <nav class="ml-auto flex gap-4 text-sm text-neutral-400">
-          <a href={`${base}/`} class="hover:text-neutral-100">Index</a>
-          <a href={`${base}/search`} class="hover:text-neutral-100">Search</a>
-          <a href={`${base}/diff`} class="hover:text-neutral-100">Diff</a>
+
+        <nav class="ml-auto flex items-center gap-1 text-[11px] font-mono uppercase tracking-[0.18em]">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                "px-2 py-1 rounded-sm transition-colors",
+                active === item.key
+                  ? "text-[color:var(--color-signal-green)] bg-[color:var(--color-signal-green)]/10"
+                  : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text-bright)]",
+              ]}
+            >{item.label}</a>
+          ))}
           <a
             href="https://github.com/BPSAI/pursue-index"
-            class="hover:text-neutral-100"
             target="_blank"
             rel="noreferrer"
-          >GitHub</a>
+            class="ml-2 px-2 py-1 rounded-sm text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-cyan)] transition-colors"
+          >GH</a>
         </nav>
       </div>
     </header>
-    <main class="mx-auto max-w-7xl px-4 py-6">
+
+    <main class="flex-1 mx-auto w-full max-w-7xl px-4 py-8">
       <slot />
     </main>
-    <footer class="mt-16 border-t border-neutral-800 py-6 text-center text-xs text-neutral-500">
-      Source documents are U.S. Government works (public domain).
-      Index code &copy; BPS AI Software.
+
+    <footer class="mt-16 border-t border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]">
+      <div class="mx-auto max-w-7xl px-4 py-5 text-[11px] font-mono text-[color:var(--color-text-dim)] flex flex-wrap gap-x-6 gap-y-2">
+        <span>
+          <span class="text-[color:var(--color-text-faint)]">TS</span>
+          <span class="ml-2 text-[color:var(--color-text)]">{fetchedDate}Z</span>
+        </span>
+        <span>
+          <span class="text-[color:var(--color-text-faint)]">CSV_SHA256</span>
+          <span class="ml-2 text-[color:var(--color-signal-cyan)]">{sha}</span>
+        </span>
+        <span>
+          <span class="text-[color:var(--color-text-faint)]">N</span>
+          <span class="ml-2 text-[color:var(--color-text)]">{cardCount}</span>
+        </span>
+        <span class="ml-auto">
+          <span class="text-[color:var(--color-text-faint)]">SRC</span>
+          <span class="ml-2">U.S.G. WORK / PUBLIC DOMAIN</span>
+        </span>
+        <span>
+          <span class="text-[color:var(--color-text-faint)]">IDX</span>
+          <span class="ml-2">© BPS AI SOFTWARE</span>
+        </span>
+      </div>
     </footer>
   </body>
 </html>

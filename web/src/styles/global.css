@@ -1,11 +1,330 @@
 @import "tailwindcss";
 
+/* =========================================================================
+   pursueindex — declassified terminal aesthetic.
+   Tokens live in @theme so Tailwind v4 generates utilities (bg-bg-deep, etc).
+   ========================================================================= */
+
+@theme {
+  /* surfaces — near-black blue-shifted */
+  --color-bg-deep: #0a0d12;
+  --color-bg: #11151b;
+  --color-bg-elevated: #181d25;
+  --color-bg-raised: #1d242e;
+
+  /* borders */
+  --color-border: #1f2a35;
+  --color-border-bright: #2f3d4e;
+
+  /* text */
+  --color-text: #c5cdd6;
+  --color-text-bright: #ecf2f9;
+  --color-text-dim: #6b7783;
+  --color-text-faint: #4a5563;
+
+  /* signal colors — selective use */
+  --color-signal-green: #a4ff5a;
+  --color-signal-amber: #ffc857;
+  --color-signal-red: #ff5c5c;
+  --color-signal-cyan: #5fd4ff;
+  --color-signal-violet: #b78fff;
+
+  /* fonts */
+  --font-mono: "JetBrains Mono", "Berkeley Mono", "IBM Plex Mono",
+    ui-monospace, "Cascadia Code", "Fira Code", Menlo, Monaco, Consolas,
+    "Courier New", monospace;
+  --font-sans: "Inter Tight", "IBM Plex Sans", "Inter", ui-sans-serif,
+    system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
 :root {
   color-scheme: dark;
 }
 
+html {
+  background: var(--color-bg-deep);
+}
+
 body {
-  background: #0a0a0a;
-  color: #e5e5e5;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-bg-deep);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum", "ss01";
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular figures everywhere for IDs, dates, hashes. */
+code, kbd, samp, .font-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   CRT scan-lines — tile-able 1px gradient at low opacity.
+   Apply with .scanlines (full-screen on body) or .scanlines-soft (panel).
+   ========================================================================= */
+
+.scanlines::before,
+.scanlines-soft::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+.scanlines-soft::before {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015) 0,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Page-level vignette + scanline applied via body. */
+body.terminal::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(196, 220, 255, 0.018) 0,
+      rgba(196, 220, 255, 0.018) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+
+/* Above-the-vignette content. */
+body.terminal > * { position: relative; z-index: 2; }
+
+/* =========================================================================
+   Blinking caret — for the PURSUE://INDEX lockup and terminal prompts.
+   ========================================================================= */
+
+@keyframes pi-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.pi-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.15em;
+  background: var(--color-signal-green);
+  vertical-align: -0.12em;
+  animation: pi-caret 1.05s steps(2, end) infinite;
+}
+
+/* =========================================================================
+   Declassifying — character-reveal loading text.
+   ========================================================================= */
+
+@keyframes pi-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.pi-loading {
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-signal-green);
+  animation: pi-flicker 1.6s ease-in-out infinite;
+}
+
+/* Marquee-ish bracket sweep for indeterminate progress. */
+@keyframes pi-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+.pi-sweep {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+}
+
+.pi-sweep::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 25%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(164, 255, 90, 0.18) 50%,
+    transparent 100%
+  );
+  animation: pi-sweep 1.6s ease-in-out infinite;
+}
+
+/* =========================================================================
+   Redaction bars — inline black bar, hover reveals "REDACTED" in red.
+   ========================================================================= */
+
+.pi-redact {
+  display: inline-block;
+  position: relative;
+  background: #000;
+  color: transparent;
+  padding: 0 0.35em;
+  border-radius: 1px;
+  user-select: none;
+  cursor: help;
+}
+
+.pi-redact::after {
+  content: "REDACTED";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7em;
+  font-family: var(--font-mono);
+  letter-spacing: 0.15em;
+  color: var(--color-signal-red);
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.pi-redact:hover::after {
+  opacity: 1;
+}
+
+.pi-redact::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: pi-shimmer 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes pi-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* =========================================================================
+   Selection + scrollbar tweaks for atmosphere.
+   ========================================================================= */
+
+::selection {
+  background: rgba(164, 255, 90, 0.25);
+  color: var(--color-text-bright);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border: 2px solid var(--color-bg-deep);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-bright);
+}
+
+/* =========================================================================
+   Input focus ring — subtle terminal green.
+   ========================================================================= */
+
+.pi-input,
+input[type="search"],
+input[type="text"],
+select,
+textarea {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-bright);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 2px;
+  transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+}
+
+.pi-input:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-signal-green);
+  box-shadow: 0 0 0 1px rgba(164, 255, 90, 0.25);
+}
+
+/* =========================================================================
+   Utility: ASCII corner brackets on a panel (declassified-doc feel).
+   ========================================================================= */
+
+.pi-bracket {
+  position: relative;
+}
+.pi-bracket::before,
+.pi-bracket::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--color-border-bright);
+  pointer-events: none;
+}
+.pi-bracket::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.pi-bracket::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* =========================================================================
+   Reduce-motion: kill all animations.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
