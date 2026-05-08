@@ -58,12 +58,28 @@ Not every PURSUE entry is a PDF. Of the 161 in Release 01: 119 PDFs, 28 videos, 
 
 ## OCR strategy
 
-Two-engine approach because historical FBI scans vary wildly in quality:
+Historical FBI scans vary wildly in quality, so we plan for a multi-engine
+approach. The current implementation is **Tesseract-only (v1)**; the engine
+seam in `ocr/pipeline.py` (`rasterize_pdf`, `ocr_image`, `_run_engine`) is
+deliberately engine-agnostic so additional engines can land without
+disturbing orchestration.
 
-- **Tesseract** locally on the 5090 — fast, free, good enough for clean typewriter scans.
-- **Azure Document Intelligence Layout** — strong on faded, skewed, multi-column, and form-like pages. Costs ~$1.50/1k pages.
+- **Tesseract** (current default) — local CPU OCR. Fast, free, good enough
+  for clean typewriter scans. Note: Tesseract is CPU-only; the GPU on the
+  workstation is unused by this engine.
+- **GPU OCR** (planned) — modern transformer-based OCR (Surya is the leading
+  candidate) running on the local 5090 would dramatically outperform
+  Tesseract on faded, skewed, multi-column FBI scans, and likely cut
+  wall-clock by 5–20× on long PDFs.
+- **LLM extraction** (planned) — Anthropic / OpenAI vision models as the
+  high-quality fallback for pages where Tesseract confidence is low. This
+  replaces what an earlier draft of this doc called out as Azure Document
+  Intelligence; LLM extraction gives us better output for less integration
+  surface and no model-training overhead.
 
-In `auto` mode, Tesseract runs first; pages with mean confidence below threshold are re-OCR'd with Azure DI. Engine + confidence are recorded per page.
+In the eventual `auto` mode, Tesseract (or Surya) runs first; pages with
+mean confidence below threshold are re-extracted via the LLM fallback.
+Engine + confidence are recorded per page in `pages.jsonl`.
 
 ## Search
 

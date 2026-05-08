@@ -1,0 +1,49 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = "pursue-index", description = "Searchable index of DOW PURSUE UAP releases" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="border-b border-neutral-800 bg-neutral-950 sticky top-0 z-30 backdrop-blur">
+      <div class="mx-auto max-w-7xl px-4 py-3 flex items-center gap-4">
+        <a href={`${base}/`} class="font-semibold tracking-tight text-lg">
+          pursue<span class="text-neutral-500">-index</span>
+        </a>
+        <nav class="ml-auto flex gap-4 text-sm text-neutral-400">
+          <a href={`${base}/`} class="hover:text-neutral-100">Index</a>
+          <a href={`${base}/search`} class="hover:text-neutral-100">Search</a>
+          <a href={`${base}/diff`} class="hover:text-neutral-100">Diff</a>
+          <a
+            href="https://github.com/BPSAI/pursue-index"
+            class="hover:text-neutral-100"
+            target="_blank"
+            rel="noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main class="mx-auto max-w-7xl px-4 py-6">
+      <slot />
+    </main>
+    <footer class="mt-16 border-t border-neutral-800 py-6 text-center text-xs text-neutral-500">
+      Source documents are U.S. Government works (public domain).
+      Index code &copy; BPS AI Software.
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+---
+import Base from "../layouts/Base.astro";
+import DiffIsland from "../components/DiffIsland.tsx";
+import { manifest } from "../data/manifest-loader";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<Base title="Diff — pursue-index">
+  <div class="space-y-6 max-w-4xl">
+    <header>
+      <h1 class="text-2xl font-semibold tracking-tight">Tranche diff</h1>
+      <p class="text-sm text-neutral-400 mt-1">
+        Tracks what's new or removed between successive CSV snapshots from
+        war.gov. The current manifest is always compared against the most
+        recently committed snapshot under
+        <code class="text-neutral-300">/data/snapshots/</code>.
+      </p>
+    </header>
+    <DiffIsland client:load current={manifest} base={base} />
+  </div>
+</Base>

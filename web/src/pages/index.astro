@@ -1,0 +1,47 @@
+---
+import Base from "../layouts/Base.astro";
+import CardExplorer from "../components/CardExplorer.tsx";
+import { cards, summary } from "../data/manifest-loader";
+
+const s = summary();
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const fetchedDate = new Date(s.fetchedAt).toISOString().slice(0, 10);
+---
+
+<Base title="pursue-index — DOW PURSUE UAP releases" description="Searchable index of the DOW PURSUE UAP document releases.">
+  <div class="space-y-6">
+    <section class="space-y-3">
+      <h1 class="text-2xl font-semibold tracking-tight">DOW PURSUE UAP releases</h1>
+      <p class="text-sm text-neutral-400 max-w-3xl">
+        A searchable index of the U.S. Department of War's
+        <em>Presidential Unsealing and Reporting System for UAP Encounters</em>
+        document releases. {s.total} cards across {Object.keys(s.byAgency).length} agencies.
+        Snapshot fetched {fetchedDate} (csv_sha256
+        <code class="text-neutral-500">{s.csvSha256.slice(0, 12)}…</code>).
+      </p>
+      <div class="flex gap-2 flex-wrap">
+        {Object.entries(s.byAgency)
+          .sort((a, b) => b[1] - a[1])
+          .map(([agency, count]) => (
+            <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
+              {agency}: <span class="text-neutral-100">{count}</span>
+            </span>
+          ))}
+        <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
+          PDF: <span class="text-neutral-100">{s.byType.PDF ?? 0}</span>
+        </span>
+        <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
+          IMG: <span class="text-neutral-100">{s.byType.IMG ?? 0}</span>
+        </span>
+        <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
+          VID: <span class="text-neutral-100">{s.byType.VID ?? 0}</span>
+        </span>
+        <span class="text-xs px-2 py-1 rounded bg-red-950/40 border border-red-900 text-red-300">
+          redacted: {s.redacted}
+        </span>
+      </div>
+    </section>
+
+    <CardExplorer client:load cards={cards} base={base} />
+  </div>
+</Base>

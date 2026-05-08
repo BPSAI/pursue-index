@@ -34,9 +34,10 @@ filling out the OCR + ingest + serve stubs.
 
 ### Backlog
 
-- OCR stage (`pursue ocr run`) — currently a stub
 - Index stage (`pursue index ingest`) — currently a stub
 - FastAPI search service (`pursue serve`) — currently a stub
+- **GPU OCR via Surya** — see `.paircoder/plans/ocr-gpu-surya.md`. 5090 sits idle on Tesseract; Surya should give 5–20× speedup and better quality on FBI scans.
+- **LLM OCR fallback** — see `.paircoder/plans/ocr-llm-fallback.md`. Replaces Azure DI from earlier architecture; better output, simpler integration.
 - DVIDS video ingestion (off by default)
 
 ## What Was Just Done

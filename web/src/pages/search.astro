@@ -1,0 +1,19 @@
+---
+import Base from "../layouts/Base.astro";
+import SearchIsland from "../components/SearchIsland.tsx";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<Base title="Search — pursue-index">
+  <div class="space-y-6 max-w-4xl">
+    <header>
+      <h1 class="text-2xl font-semibold tracking-tight">Full-text search</h1>
+      <p class="text-sm text-neutral-400 mt-1">
+        Searches every OCR'd page across the manifest. Powered by MiniSearch
+        in-browser — no server, no network round-trips.
+      </p>
+    </header>
+    <SearchIsland client:load base={base} />
+  </div>
+</Base>

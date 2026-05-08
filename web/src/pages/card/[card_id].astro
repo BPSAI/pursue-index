@@ -1,0 +1,133 @@
+---
+import Base from "../../layouts/Base.astro";
+import { cards } from "../../data/manifest-loader";
+
+export function getStaticPaths() {
+  return cards.map((c) => ({
+    params: { card_id: c.card_id },
+    props: { card: c },
+  }));
+}
+
+const { card } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const TYPE_BADGE: Record<string, string> = {
+  PDF: "bg-red-900/40 text-red-300 ring-red-800",
+  IMG: "bg-emerald-900/40 text-emerald-300 ring-emerald-800",
+  VID: "bg-violet-900/40 text-violet-300 ring-violet-800",
+};
+
+const pairings = [
+  card.pdf_pairing ? { label: "PDF pairing", value: card.pdf_pairing } : null,
+  card.video_pairing ? { label: "Video pairing", value: card.video_pairing } : null,
+].filter((p): p is { label: string; value: string } => p !== null);
+
+const facts: Array<{ label: string; value: string | null }> = [
+  { label: "Release", value: card.release_date },
+  { label: "Incident", value: card.incident_date },
+  { label: "Location", value: card.incident_location },
+  { label: "Type", value: card.asset_type },
+];
+
+const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : ""} — pursue-index`;
+---
+
+<Base title={pageTitle} description={card.description ?? card.title}>
+  <article class="space-y-6 max-w-4xl">
+    <a href={`${base}/`} class="text-xs text-neutral-500 hover:text-neutral-300">
+      ← back to index
+    </a>
+
+    <header class="space-y-3">
+      <div class="flex flex-wrap gap-2 items-center">
+        <span class={`text-xs font-semibold uppercase tracking-wider ring-1 px-2 py-0.5 rounded ${TYPE_BADGE[card.asset_type] ?? ""}`}>
+          {card.asset_type}
+        </span>
+        <span class="text-xs text-neutral-400 uppercase tracking-wider">{card.agency}</span>
+        {card.redacted && (
+          <span class="text-xs uppercase tracking-wider text-red-400 font-semibold">
+            redacted
+          </span>
+        )}
+        <span class="ml-auto text-[11px] text-neutral-600 font-mono">
+          {card.card_id}
+        </span>
+      </div>
+      <h1 class="text-xl font-semibold leading-snug">{card.title}</h1>
+    </header>
+
+    <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+      {facts.map((f) => (
+        <div>
+          <dt class="text-[10px] uppercase tracking-wider text-neutral-500">{f.label}</dt>
+          <dd class="text-neutral-200">{f.value ?? <span class="text-neutral-600">—</span>}</dd>
+        </div>
+      ))}
+    </dl>
+
+    {card.description && (
+      <section>
+        <h2 class="text-xs uppercase tracking-wider text-neutral-500 mb-2">Description</h2>
+        <p class="text-sm leading-relaxed text-neutral-200 whitespace-pre-wrap">
+          {card.description}
+        </p>
+      </section>
+    )}
+
+    {pairings.length > 0 && (
+      <section class="space-y-2">
+        <h2 class="text-xs uppercase tracking-wider text-neutral-500">Cross-references</h2>
+        <ul class="text-sm text-neutral-300 space-y-1">
+          {pairings.map((p) => (
+            <li>
+              <span class="text-neutral-500">{p.label}:</span> {p.value}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <section class="space-y-2">
+      <h2 class="text-xs uppercase tracking-wider text-neutral-500">Source asset</h2>
+      {card.asset_url ? (
+        <a
+          href={card.asset_url}
+          target="_blank"
+          rel="noreferrer"
+          class="inline-flex items-center gap-2 text-sm text-neutral-100 underline decoration-neutral-700 hover:decoration-neutral-300 break-all"
+        >
+          {card.asset_filename ?? card.asset_url}
+          <span class="text-xs text-neutral-500">↗ war.gov</span>
+        </a>
+      ) : (
+        <p class="text-sm text-neutral-500">
+          No direct asset URL.
+          {card.dvids_video_id && (
+            <> Video hosted on DVIDS (id: <code>{card.dvids_video_id}</code>).</>
+          )}
+        </p>
+      )}
+    </section>
+
+    {card.modal_image_url && card.asset_type !== "VID" && (
+      <section class="space-y-2">
+        <h2 class="text-xs uppercase tracking-wider text-neutral-500">Modal image</h2>
+        <img
+          src={card.modal_image_url}
+          alt={card.title}
+          class="rounded-lg border border-neutral-800 max-w-full"
+          loading="lazy"
+        />
+      </section>
+    )}
+
+    <section class="space-y-2 pt-4 border-t border-neutral-800">
+      <h2 class="text-xs uppercase tracking-wider text-neutral-500">OCR text</h2>
+      <p class="text-sm text-neutral-500">
+        OCR output for this card will appear here once the Tesseract pass
+        completes and the next deploy ships the search index.
+      </p>
+    </section>
+  </article>
+</Base>

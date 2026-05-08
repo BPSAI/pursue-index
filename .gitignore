@@ -58,7 +58,7 @@ htmlcov/
 dist/
 build/
 node_modules/
-package-lock.json
+# package-lock.json and yarn.lock are committed for reproducible builds in /web
 yarn.lock
 
 # UV
