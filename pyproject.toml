@@ -41,6 +41,9 @@ gpu = [
     # Surya is the transformer-OCR engine for the local 5090. Pulls in torch +
     # CUDA wheels (~3 GB); install only on hosts with a CUDA-capable GPU.
     "surya-ocr>=0.17",
+    # surya-ocr 0.17.x is incompatible with transformers 5.x; pip will resolve
+    # to 5.8 by default and break import. Pin until surya catches up.
+    "transformers>=4.56,<5",
 ]
 dev = [
     "pytest>=8.2",
