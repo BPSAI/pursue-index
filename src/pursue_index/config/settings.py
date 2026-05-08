@@ -55,6 +55,13 @@ class Settings(BaseSettings):
     ocr_llm_model: str = "claude-sonnet-4-6"
     ocr_llm_threshold: float = 70.0
 
+    # ---- Embed ----
+    # ``voyage`` is the embed-stage default; ``openai`` is a stub seam for v2
+    # A/B testing once the benchmark stage exists. Model name is baked into
+    # the output dir so multiple embeddings coexist for retrieval comparison.
+    embed_provider: Literal["voyage", "openai"] = "voyage"
+    embed_model: str = "voyage-3"
+
     # ---- API ----
     api_host: str = "0.0.0.0"
     api_port: int = 8080
@@ -89,6 +96,11 @@ class Settings(BaseSettings):
     def logs_dir(self) -> Path:
         return self.data_root / "logs"
 
+    @property
+    def embeddings_dir(self) -> Path:
+        """Root of per-model embedding outputs. Sibling of ``ocr_dir``."""
+        return self.data_root / "embeddings"
+
     def ensure_dirs(self) -> None:
         for d in (
             self.manifests_dir,
@@ -96,6 +108,7 @@ class Settings(BaseSettings):
             self.image_dir,
             self.video_dir,
             self.ocr_dir,
+            self.embeddings_dir,
             self.csv_archive_dir,
             self.logs_dir,
         ):

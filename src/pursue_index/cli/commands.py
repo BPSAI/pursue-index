@@ -113,8 +113,15 @@ def ocr_run(
     engine: str = typer.Option(
         None,
         "--engine",
-        help="OCR engine: 'tesseract' (CPU) or 'surya' (GPU). "
-        "Defaults to PURSUE_OCR_ENGINE.",
+        help="OCR engine: 'tesseract' (CPU), 'surya' (GPU), 'llm' "
+        "(Anthropic vision), or 'auto' (primary + LLM fallback for "
+        "low-confidence pages). Defaults to PURSUE_OCR_ENGINE.",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        help="Re-OCR cards even if meta.json says status=ok. Required to "
+        "re-run a card with a different engine.",
     ),
 ) -> None:
     """OCR every PDF that hasn't been processed yet."""
@@ -122,7 +129,80 @@ def ocr_run(
 
     settings.ensure_dirs()
     m = load_manifest(manifest)
-    asyncio.run(ocr_all(m, engine=engine))
+    asyncio.run(ocr_all(m, engine=engine, force=force))
+
+
+# ---------------------------------------------------------------------------
+# embed
+# ---------------------------------------------------------------------------
+embed_app = typer.Typer(name="embed", help="Embed OCR pages into a vector index.")
+app.add_typer(embed_app)
+
+
+def _make_embedder(provider: str, model: str):  # type: ignore[no-untyped-def]
+    """Resolve provider name → embedder instance. Lazy-imports adapters."""
+    import os
+
+    if provider == "voyage":
+        api_key = os.environ.get("VOYAGE_API_KEY", "")
+        if not api_key:
+            console.print(
+                "[red]error:[/red] VOYAGE_API_KEY is not set; "
+                "export it or pass --provider openai once that adapter ships."
+            )
+            raise typer.Exit(code=2)
+        from pursue_index.embed import voyage as voyage_mod
+
+        return voyage_mod.VoyageAdapter(api_key=api_key, model=model)
+    if provider == "openai":
+        from pursue_index.embed.openai import OpenAIAdapter
+
+        api_key = os.environ.get("OPENAI_API_KEY", "")
+        return OpenAIAdapter(api_key=api_key, model=model)  # raises
+    console.print(f"[red]error:[/red] unknown provider: {provider!r}")
+    raise typer.Exit(code=2)
+
+
+@embed_app.command("run")
+def embed_run_cmd(
+    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
+    provider: str = typer.Option(
+        None, "--provider", help="voyage|openai. Defaults to PURSUE_EMBED_PROVIDER."
+    ),
+    model: str = typer.Option(
+        None, "--model", help="Embedding model id. Defaults to PURSUE_EMBED_MODEL."
+    ),
+    limit: int = typer.Option(
+        None, "--limit", help="Embed at most N new pages (smoke testing)."
+    ),
+    cost_cap_usd: float = typer.Option(
+        1.0, "--cost-cap-usd", help="Abort if estimated cost exceeds this."
+    ),
+    batch_size: int = typer.Option(64, "--batch-size", help="Texts per provider call."),
+) -> None:
+    """Embed every OCR'd page that doesn't already have a current vector."""
+    from pursue_index.embed import pipeline as embed_pipeline  # lazy
+
+    settings.ensure_dirs()
+    load_manifest(manifest)  # validates the manifest path/shape
+
+    chosen_provider = provider or settings.embed_provider
+    chosen_model = model or settings.embed_model
+    embedder = _make_embedder(chosen_provider, chosen_model)
+
+    summary = embed_pipeline.embed_run(
+        ocr_dir=settings.ocr_dir,
+        out_root=settings.embeddings_dir,
+        embedder=embedder,
+        batch_size=batch_size,
+        limit=limit,
+        cost_cap_usd=cost_cap_usd,
+    )
+    console.print(
+        f"[green]✔[/green] embed: {summary.embedded} embedded, "
+        f"{summary.skipped} skipped, {summary.total_tokens} tokens, "
+        f"{summary.cards_seen} cards"
+    )
 
 
 # ---------------------------------------------------------------------------
