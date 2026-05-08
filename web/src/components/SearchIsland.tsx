@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import MiniSearch from "minisearch";
 
 interface PageDoc {
@@ -19,6 +19,7 @@ export default function SearchIsland({ base }: Props) {
   const [status, setStatus] = useState<Status>("loading");
   const [docs, setDocs] = useState<PageDoc[]>([]);
   const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
@@ -43,6 +44,21 @@ export default function SearchIsland({ base }: Props) {
       });
   }, [base]);
 
+  // Keyboard niceties: `/` focuses input from anywhere; `esc` clears.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "/" && !isTypingTarget(e.target)) {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      } else if (e.key === "Escape" && document.activeElement === inputRef.current) {
+        setQuery("");
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const search = useMemo(() => {
     if (status !== "ready" || docs.length === 0) return null;
     const ms = new MiniSearch<PageDoc>({
@@ -64,62 +80,96 @@ export default function SearchIsland({ base }: Props) {
     return search.search(query, { combineWith: "AND" }).slice(0, 50);
   }, [search, query]);
 
+  if (status === "loading") {
+    return (
+      <div class="space-y-3">
+        <div class="pi-sweep h-9"></div>
+        <p class="pi-loading text-xs">DECLASSIFYING<span class="pi-caret"></span></p>
+      </div>
+    );
+  }
+
+  if (status === "missing") {
+    return (
+      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 font-mono text-sm text-[color:var(--color-text)] pi-bracket relative scanlines-soft">
+        <p class="text-[color:var(--color-signal-amber)] uppercase tracking-[0.18em] text-xs mb-2">
+          [OCR PENDING]
+        </p>
+        <p>
+          The Surya pass hasn't completed (or the next deploy hasn't shipped
+          the index). Once published as
+          <code class="mx-1 text-[color:var(--color-signal-cyan)]">/data/pages.json</code>
+          this surface activates automatically.
+        </p>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <p class="font-mono text-sm text-[color:var(--color-signal-red)]">
+        [ERR] Failed to load search index.
+      </p>
+    );
+  }
+
   return (
     <div class="space-y-4">
-      {status === "loading" && (
-        <p class="text-sm text-neutral-500">Loading OCR index…</p>
-      )}
-      {status === "missing" && (
-        <div class="rounded-md border border-neutral-800 bg-neutral-925 p-4 text-sm text-neutral-400">
-          <p class="font-medium text-neutral-200 mb-1">OCR pending</p>
-          <p>
-            The Tesseract pass hasn't completed yet (or the next deploy hasn't
-            shipped the index). Once it's published as
-            <code class="mx-1 text-neutral-300">/data/pages.json</code>
-            this search will activate automatically.
-          </p>
+      <div>
+        <div class="relative">
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
+            placeholder="search across all OCR'd pages…"
+            class="w-full pr-16"
+            autofocus
+          />
+          <kbd class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-[color:var(--color-text-faint)] border border-[color:var(--color-border)] px-1.5 py-0.5 rounded-sm pointer-events-none">
+            /
+          </kbd>
+        </div>
+        <p class="mt-2 text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
+          <span class="text-[color:var(--color-signal-green)]">{docs.length.toLocaleString()}</span>
+          <span class="mx-1 text-[color:var(--color-text-faint)]">·</span>
+          PAGES INDEXED
+          <span class="mx-2 text-[color:var(--color-text-faint)]">|</span>
+          <span class="text-[color:var(--color-text-faint)]">/ FOCUS · ESC CLEAR</span>
+        </p>
+      </div>
+      {query.trim() && (
+        <div class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-1">
+          <span class="text-[color:var(--color-signal-green)]">{results.length}</span> MATCH{results.length === 1 ? "" : "ES"}
+          {results.length === 50 && <span class="text-[color:var(--color-signal-amber)] ml-2">(CAPPED)</span>}
         </div>
       )}
-      {status === "error" && (
-        <p class="text-sm text-red-400">Failed to load search index.</p>
-      )}
-      {status === "ready" && search && (
-        <>
-          <div>
-            <input
-              type="search"
-              value={query}
-              onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
-              placeholder="search across all OCR'd pages…"
-              class="w-full rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2 text-sm focus:border-neutral-500 focus:outline-none"
-              autofocus
-            />
-            <p class="mt-1 text-xs text-neutral-500">
-              {docs.length.toLocaleString()} pages indexed across the corpus.
-            </p>
-          </div>
-          {query.trim() && (
-            <div class="text-xs text-neutral-500">
-              {results.length} match{results.length === 1 ? "" : "es"}
-              {results.length === 50 && " (capped)"}
-            </div>
-          )}
-          <ul class="space-y-2">
-            {results.map((r) => (
-              <li class="rounded border border-neutral-800 bg-neutral-925 p-3 hover:border-neutral-600 transition-colors">
-                <a href={`${base}/card/${r.card_id}#page-${r.page}`} class="block space-y-1">
-                  <div class="text-xs text-neutral-500">
-                    page {r.page} · score {r.score.toFixed(2)}
-                  </div>
-                  <div class="text-sm text-neutral-200 line-clamp-2">
-                    {r.title}
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <ul class="space-y-1.5">
+        {results.map((r) => (
+          <li class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] hover:border-[color:var(--color-signal-green)]/50 transition-colors">
+            <a href={`${base}/card/${r.card_id}#page-${r.page}`} class="block p-3 space-y-1">
+              <div class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-faint)]">
+                <span class="text-[color:var(--color-signal-cyan)]">P{r.page}</span>
+                <span class="mx-2">·</span>
+                <span>SCORE {r.score.toFixed(2)}</span>
+                <span class="mx-2">·</span>
+                <span>{r.card_id.slice(0, 8)}</span>
+              </div>
+              <div class="text-sm text-[color:var(--color-text-bright)] line-clamp-2">
+                {r.title}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
+}
+
+function isTypingTarget(t: EventTarget | null): boolean {
+  if (!(t instanceof HTMLElement)) return false;
+  const tag = t.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+  if (t.isContentEditable) return true;
+  return false;
 }

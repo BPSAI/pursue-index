@@ -6,38 +6,57 @@ import { cards, summary } from "../data/manifest-loader";
 const s = summary();
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const fetchedDate = new Date(s.fetchedAt).toISOString().slice(0, 10);
+
+const agencyEntries = Object.entries(s.byAgency).sort((a, b) => b[1] - a[1]);
 ---
 
-<Base title="pursue-index — DOW PURSUE UAP releases" description="Searchable index of the DOW PURSUE UAP document releases.">
-  <div class="space-y-6">
-    <section class="space-y-3">
-      <h1 class="text-2xl font-semibold tracking-tight">DOW PURSUE UAP releases</h1>
-      <p class="text-sm text-neutral-400 max-w-3xl">
-        A searchable index of the U.S. Department of War's
-        <em>Presidential Unsealing and Reporting System for UAP Encounters</em>
-        document releases. {s.total} cards across {Object.keys(s.byAgency).length} agencies.
-        Snapshot fetched {fetchedDate} (csv_sha256
-        <code class="text-neutral-500">{s.csvSha256.slice(0, 12)}…</code>).
+<Base
+  title="PURSUE://INDEX — DOW UAP Document Archive"
+  description="Searchable index of the U.S. Department of War PURSUE UAP document releases."
+  active="index"
+>
+  <div class="space-y-10">
+    {/* Hero — terminal preamble */}
+    <section class="space-y-4 pi-bracket pl-4 pr-4 py-5 border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 relative scanlines-soft">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>cat /var/dow/pursue/release-01.manifest</span>
+      </div>
+      <h1 class="font-mono text-2xl sm:text-3xl font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        DEPARTMENT OF WAR / PURSUE
+        <span class="block text-[color:var(--color-text-dim)] text-base font-normal mt-1">
+          Presidential Unsealing &amp; Reporting System for UAP Encounters
+        </span>
+      </h1>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)] max-w-3xl">
+        Public archive of the Department of War's UAP document releases.
+        <span class="text-[color:var(--color-text-bright)] font-medium">{s.total}</span>
+        cards across
+        <span class="text-[color:var(--color-text-bright)] font-medium">{Object.keys(s.byAgency).length}</span>
+        agencies. Snapshot retrieved
+        <code class="text-[color:var(--color-signal-cyan)]">{fetchedDate}</code> from
+        <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>; CSV pinned at
+        <code class="text-[color:var(--color-signal-cyan)] break-all">{s.csvSha256.slice(0, 16)}…</code>
       </p>
-      <div class="flex gap-2 flex-wrap">
-        {Object.entries(s.byAgency)
-          .sort((a, b) => b[1] - a[1])
-          .map(([agency, count]) => (
-            <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
-              {agency}: <span class="text-neutral-100">{count}</span>
-            </span>
-          ))}
-        <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
-          PDF: <span class="text-neutral-100">{s.byType.PDF ?? 0}</span>
+
+      <div class="flex flex-wrap gap-1.5 pt-2 text-[11px] font-mono">
+        {agencyEntries.map(([agency, count]) => (
+          <span class="px-2 py-0.5 border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)]">
+            <span class="text-[color:var(--color-text-bright)]">{agency}</span>
+            <span class="ml-1 text-[color:var(--color-signal-cyan)]">{count}</span>
+          </span>
+        ))}
+        <span class="px-2 py-0.5 border border-[color:var(--color-signal-red)]/40 bg-[color:var(--color-signal-red)]/10 text-[color:var(--color-signal-red)]">
+          REDACTED <span class="ml-1">{s.redacted}</span>
         </span>
-        <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
-          IMG: <span class="text-neutral-100">{s.byType.IMG ?? 0}</span>
+        <span class="px-2 py-0.5 border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)]">
+          PDF <span class="ml-1 text-[color:var(--color-text-bright)]">{s.byType.PDF ?? 0}</span>
         </span>
-        <span class="text-xs px-2 py-1 rounded bg-neutral-900 border border-neutral-800">
-          VID: <span class="text-neutral-100">{s.byType.VID ?? 0}</span>
+        <span class="px-2 py-0.5 border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)]">
+          IMG <span class="ml-1 text-[color:var(--color-signal-green)]">{s.byType.IMG ?? 0}</span>
         </span>
-        <span class="text-xs px-2 py-1 rounded bg-red-950/40 border border-red-900 text-red-300">
-          redacted: {s.redacted}
+        <span class="px-2 py-0.5 border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)]">
+          VID <span class="ml-1 text-[color:var(--color-signal-violet)]">{s.byType.VID ?? 0}</span>
         </span>
       </div>
     </section>
