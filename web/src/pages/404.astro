@@ -1,0 +1,23 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="404 — PURSUE://INDEX" description="Resource not found.">
+  <div class="max-w-2xl mx-auto py-12">
+    <div class="border border-[color:var(--color-signal-red)]/40 bg-[color:var(--color-bg)]/60 p-6 font-mono text-sm relative scanlines-soft pi-bracket">
+      <pre class="text-[color:var(--color-text-dim)] whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">
+<span class="text-[color:var(--color-signal-green)]">$</span> pursue --resolve "{Astro.url.pathname}"
+<span class="text-[color:var(--color-signal-red)]">err:</span> resource not found
+<span class="text-[color:var(--color-signal-red)]">err:</span> manifest does not contain matching record
+<span class="text-[color:var(--color-text-dim)]">────────────────────────────────────────────</span>
+<span class="text-[color:var(--color-signal-amber)]">exit code 1</span><span class="pi-caret"></span>
+      </pre>
+
+      <div class="mt-6 pt-4 border-t border-[color:var(--color-border)] text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
+        <a href="/" class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ RETURN TO INDEX</a>
+        <span class="mx-3 text-[color:var(--color-text-faint)]">·</span>
+        <a href="/search" class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ SEARCH CORPUS</a>
+      </div>
+    </div>
+  </div>
+</Base>

@@ -1,0 +1,44 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="METHODOLOGY — PURSUE://INDEX"
+  description="How the pursueindex manifest is built: ingest, hashing, OCR, and diff."
+  active="methodology"
+>
+  <div class="space-y-6 max-w-3xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>man pursue-index</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        METHODOLOGY
+      </h1>
+    </header>
+
+    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3">
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Each release is fetched directly from the canonical
+        <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>
+        CSV, normalized into a typed manifest, hashed (SHA-256), and committed
+        alongside its prior snapshot. PDFs are fetched once and pinned by
+        URL; OCR is performed locally (Surya GPU pipeline; Tesseract
+        fallback) and benchmarked against a golden-set before a release
+        ships. Every claim in the search index can be traced back to a
+        specific page and the underlying public-domain source.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Full methodology — engine choice, confidence thresholds, redaction
+        handling, correction workflow — will be published before the v1.0
+        public launch.
+      </p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
+        DOC · <span class="text-[color:var(--color-signal-amber)]">DRAFT</span>
+        <span class="mx-2">·</span>
+        REV · <span class="text-[color:var(--color-signal-cyan)]">0.1</span>
+      </p>
+    </section>
+  </div>
+</Base>
