@@ -1,0 +1,42 @@
+name: "Accessibility — basic checks"
+description: |
+  Coarse-grained accessibility checks that don't require a full axe
+  scan. Focus-visible indicators, alt text on images, semantic
+  headings, color-contrast spot checks. A real axe audit comes later
+  via a dedicated tool.
+tags: [a11y, regression]
+preconditions:
+  - "App accessible at ${base_url}"
+
+scenarios:
+  - name: "Keyboard navigation reaches every nav link"
+    steps:
+      - navigate: "${base_url}/"
+      - verify: "Tabbing from the document start moves focus to the PURSUE://INDEX logo, then INDEX, SEARCH, DIFF, ABOUT, METHODOLOGY, GH"
+      - verify: "Each focused link has a visible focus indicator (ring, outline, or color shift) — not just default browser behavior"
+
+  - name: "Heading hierarchy is sane"
+    steps:
+      - navigate: "${base_url}/"
+      - verify: "Exactly one <h1> on the page"
+      - verify: "Section headings descend in order (no h4 before h2)"
+      - navigate: "${base_url}/card/0b298cfc9c65a4d6"
+      - verify: "Card detail also has a single <h1> (the card title) and ordered subheadings"
+
+  - name: "Images carry meaningful alt text"
+    steps:
+      - navigate: "${base_url}/card/19b18b71420602c5"
+      - verify: "The modal image element has an alt attribute reflecting the card title (not 'image' or empty)"
+
+  - name: "Search input is reachable and labeled"
+    steps:
+      - navigate: "${base_url}/search"
+      - wait: "2"
+      - verify: "The search input has either an associated <label>, an aria-label, or a clearly-visible placeholder"
+      - verify: "Tabbing focuses the search input (does not skip past it)"
+
+  - name: "Color contrast on body text"
+    steps:
+      - navigate: "${base_url}/"
+      - verify: "Body text on the dark background passes a casual contrast eyeball test (clearly legible at 100% zoom on a typical display)"
+      - verify: "Dim/faint metadata text is still readable, not so faint it disappears"

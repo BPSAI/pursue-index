@@ -1,0 +1,67 @@
+name: "Visual polish — brand consistency"
+description: |
+  Catches the kind of small UX/visual bugs that don't break tests but
+  do break the vibe. Run after any UI change. The criterion is taste,
+  not behavior — divona reports OBSERVATIONS rather than pure
+  pass/fail and humans triage from there.
+tags: [polish, ui]
+preconditions:
+  - "App accessible at ${base_url}"
+
+scenarios:
+  - name: "Brand lockup is consistent across routes"
+    steps:
+      - navigate: "${base_url}/"
+      - verify: "PURSUE://INDEX lockup in header has a blinking green caret"
+      - navigate: "${base_url}/search"
+      - verify: "Same lockup, same style, caret still blinks"
+      - navigate: "${base_url}/diff"
+      - verify: "Same lockup, same style"
+      - navigate: "${base_url}/about"
+      - verify: "Same lockup, same style"
+
+  - name: "Active nav state matches the current route"
+    steps:
+      - navigate: "${base_url}/"
+      - verify: "INDEX link in nav is highlighted (signal-green text + faint green background)"
+      - navigate: "${base_url}/search"
+      - verify: "SEARCH link is highlighted; INDEX is not"
+      - navigate: "${base_url}/diff"
+      - verify: "DIFF link is highlighted"
+
+  - name: "Scan-line overlay is subtle, not distracting"
+    steps:
+      - navigate: "${base_url}/"
+      - verify: "Scan lines on panels are visible at close inspection but do not interfere with reading body text"
+      - verify: "No weird moire or banding artifacts at the default zoom level"
+
+  - name: "Loading states actually appear"
+    steps:
+      - navigate: "${base_url}/search"
+      - verify: "Before the result count appears, there is a brief 'DECLASSIFYING…' or sweep-bar loading state (not a blank panel)"
+
+  - name: "Empty states are in-brand"
+    steps:
+      - navigate: "${base_url}/diff"
+      - verify: "Empty-state copy uses monospace font and signal-amber/dim color, not a generic dark-mode SaaS message"
+      - navigate: "${base_url}/"
+      - fill:
+          field: "QUERY"
+          value: "zzzz_no_match"
+      - verify: "Empty-state copy '[NO MATCH]' appears in monospace with signal-amber accent"
+
+  - name: "Footer metadata is correct and readable"
+    steps:
+      - navigate: "${base_url}/"
+      - verify: "Footer shows TS (timestamp), CSV_SHA256 prefix in cyan, N (card count), SRC, IDX"
+      - verify: "Each label is in faint text and value is in normal-weight text"
+      - verify: "On wide screens the SRC and IDX align right; on narrow screens they wrap cleanly"
+
+  - name: "Redaction shimmer does not cause obvious jank"
+    steps:
+      - navigate: "${base_url}/"
+      - fill:
+          field: "QUERY"
+          value: "redacted"
+      - wait: "2"
+      - verify: "If redaction-bar elements (.pi-redact) are visible, their shimmer animation is subtle and continuous, not stuttering"

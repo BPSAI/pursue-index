@@ -1,0 +1,28 @@
+name: "Diff — empty + populated states"
+description: |
+  The diff page compares the current manifest against any prior
+  snapshot under /data/snapshots/. With no snapshots committed yet the
+  empty state is what we show — once Release 02 lands and a snapshot
+  is committed, the populated path lights up automatically.
+tags: [regression, ui]
+preconditions:
+  - "App accessible at ${base_url}"
+
+scenarios:
+  - name: "Empty state when no prior snapshot exists"
+    steps:
+      - navigate: "${base_url}/diff"
+      - wait: "1"
+      - verify: "Heading reads 'Tranche diff'"
+      - verify: "An in-brand panel shows 'No prior snapshot yet' or equivalent"
+      - verify: "Current manifest fetched-date and csv_sha256 prefix are shown for context"
+      - check_console: "No errors. A 404 on /data/snapshots/index.json is expected and handled silently"
+
+  # Until Release 02 is fetched and we commit a snapshot, the populated
+  # diff state cannot be exercised. Leaving this scenario commented as a
+  # placeholder so divona doesn't fail.
+  # - name: "Populated diff shows added/removed sections"
+  #   steps:
+  #     - navigate: "${base_url}/diff"
+  #     - verify: "Two sections labeled 'Added' (green dot) and 'Removed' (red dot) are visible"
+  #     - verify: "Each section lists card titles linking to /card/[id]"

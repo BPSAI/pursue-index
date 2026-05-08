@@ -1,0 +1,46 @@
+# QC environment profiles for pursueindex.
+#
+# Divona (the QC agent) reads this to resolve ${VAR}-style substitutions in
+# suite specs and to honor read-only mode on prod.
+
+environments:
+  dev:
+    base_url: "http://localhost:4321"
+    description: "Local Astro dev server (npm run dev from /web)."
+    restrictions:
+      read_only: false
+      skip_tags: []
+    notes: |
+      Run `cd web && npm run dev` before invoking divona on this env.
+      Hot-reload is fine; allow ~1s settle after navigations.
+
+  staging:
+    base_url: "https://fantastic-bassoon-k5j8o45.pages.github.io"
+    description: "Private GH Pages preview. Requires GitHub auth."
+    restrictions:
+      read_only: true
+      skip_tags: []
+    notes: |
+      Auth-gated. Divona may need a manual login pause if a fresh
+      session is required. Once Cloudflare Pages is live this gets
+      retired in favor of the .pages.dev preview URL.
+
+  prod:
+    base_url: "https://pursueindex.com"
+    description: "Public production site. READ-ONLY by policy."
+    restrictions:
+      read_only: true
+      skip_tags: ["destructive", "form-submit"]
+    notes: |
+      Will not exist until the Cloudflare Pages migration finishes.
+      Until then this profile is a placeholder; suites that target
+      prod should be expected to skip with an unmet-precondition
+      until DNS resolves.
+
+defaults:
+  timeout_seconds: 10
+  navigation_settle_ms: 800
+  screenshot_on_failure: true
+
+suites_dir: ".paircoder/qc/suites"
+reports_dir: ".paircoder/qc/reports"

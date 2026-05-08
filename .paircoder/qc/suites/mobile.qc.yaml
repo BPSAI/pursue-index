@@ -1,0 +1,30 @@
+name: "Mobile — responsive layout"
+description: |
+  The site is desktop-first but mustn't be broken on a phone. Spot
+  checks the index, card detail, and search at a 375x812 viewport.
+tags: [mobile, regression]
+preconditions:
+  - "App accessible at ${base_url}"
+  - "Browser viewport can be resized to 375x812 (iPhone SE / 13 mini portrait)"
+
+scenarios:
+  - name: "Index renders at mobile width without horizontal overflow"
+    steps:
+      - navigate: "${base_url}/"
+      # divona: resize the window to 375x812 before verifying
+      - verify: "No horizontal scrollbar appears on the page or any panel"
+      - verify: "The card grid collapses to a single column"
+      - verify: "Header nav links remain reachable (may wrap or condense)"
+      - verify: "Hero panel monospace text wraps cleanly without tiny rendering glitches"
+
+  - name: "Card detail two-column layout collapses on mobile"
+    steps:
+      - navigate: "${base_url}/card/0b298cfc9c65a4d6"
+      - verify: "PDF preview and metadata sidebar stack vertically (no horizontal overflow)"
+      - verify: "Iframe height is reasonable on mobile (not 80vh which would be unusable; check it adapts)"
+
+  - name: "Filter dropdowns are usable on mobile"
+    steps:
+      - navigate: "${base_url}/"
+      - click: "AGENCY dropdown"
+      - verify: "Dropdown opens and is fully usable (not cut off by viewport)"

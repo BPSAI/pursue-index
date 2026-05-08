@@ -1,0 +1,52 @@
+name: "Card detail — metadata, preview, navigation"
+description: |
+  Per-card detail page across PDF, IMG, and VID asset types. PDF cards
+  embed an iframe to war.gov; IMG cards show the modal_image; VID cards
+  surface DVIDS metadata when no asset URL is present.
+tags: [regression, ui]
+preconditions:
+  - "App accessible at ${base_url}"
+
+scenarios:
+  - name: "PDF card renders header, metadata, and iframe preview"
+    steps:
+      - navigate: "${base_url}/card/0b298cfc9c65a4d6"
+      - verify: "Type badge reads PDF (red signal tone)"
+      - verify: "Agency line reads 'AGENCY · NASA'"
+      - verify: "Card title contains 'Apollo 17' and 'Crew Debriefing'"
+      - verify: "Metadata grid shows RELEASE, INCIDENT, LOCATION, TYPE values (some may be em-dash for missing)"
+      - verify: "Source section heading reads SOURCE with a green '▸' marker"
+      - verify: "An iframe is present and either loaded the war.gov PDF or shows the OPEN ↗ button to launch it externally"
+      - verify: "Description section is shown with the FBI case-file blurb text"
+
+  - name: "IMG card shows the modal image inline"
+    steps:
+      - navigate: "${base_url}/card/19b18b71420602c5"
+      - verify: "Type badge reads IMG (green signal tone)"
+      - verify: "An <img> element is rendered inside the SOURCE panel (not an iframe)"
+      - verify: "The image src points at war.gov"
+
+  - name: "VID card without asset_url surfaces DVIDS id"
+    steps:
+      - navigate: "${base_url}/"
+      - fill:
+          field: "TYPE"
+          value: "VID"
+      - wait: "1"
+      - click: "the first VID card in the filtered grid"
+      - wait: "1"
+      - verify: "Source panel shows a '[NO ASSET URL]' message"
+      - verify: "DVIDS id code is visible in violet"
+
+  - name: "Breadcrumb links navigate back to the index"
+    steps:
+      - navigate: "${base_url}/card/0b298cfc9c65a4d6"
+      - click: "/INDEX breadcrumb link"
+      - wait: "1"
+      - verify: "Browser is now on the index page (URL ends with / or /index)"
+
+  - name: "Direct deep-link to an unknown card_id 404s gracefully"
+    steps:
+      - navigate: "${base_url}/card/deadbeefdeadbeef"
+      - verify: "Custom terminal-style 404 page renders"
+      - check_console: "No errors except expected 404"
