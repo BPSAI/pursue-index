@@ -118,5 +118,8 @@ agent_pack.tgz
 /.paircoder/session.json
 /.paircoder/routing_decision_*.json
 
+# Sub-agent worktrees (transient; the branches are the source of truth)
+.claude/worktrees/
+
 
 
