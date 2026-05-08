@@ -154,6 +154,18 @@ def test_surya_ocr_image_passes_detection_predictor(
     assert pred.calls[0]["kwargs"].get("det_predictor") is sentinel_det
 
 
+def test_surya_ocr_image_disables_math_mode(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The corpus has no math; math_mode=True injects <b>...</b> markup. Disable it."""
+    pred = _FakePredictor([[_FakeTextLine("hello", 0.9)]])
+    _patch_surya_predictor(monkeypatch, pred)
+
+    ocr_surya.ocr_image(Image.new("RGB", (10, 10)))
+
+    assert pred.calls[0]["kwargs"].get("math_mode") is False
+
+
 # ---------------------------------------------------------------------------
 # routing through ocr_card
 # ---------------------------------------------------------------------------

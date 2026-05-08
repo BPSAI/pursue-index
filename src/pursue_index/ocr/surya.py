@@ -66,10 +66,15 @@ def ocr_image(img: Image.Image) -> tuple[str, float]:
     Matches the shape of ``ocr.pipeline.ocr_image`` (the Tesseract path).
     Surya emits per-line confidences in [0, 1]; we scale to [0, 100] so the
     confidence column in ``pages.jsonl`` is comparable across engines.
+
+    ``math_mode=False`` is set explicitly: Surya's default math-mode injects
+    ``<b>...</b>`` markup around inferred bold runs, which the PURSUE corpus
+    (declassified gov docs, no math) doesn't need and which downstream
+    search/embedding stages would have to strip.
     """
     predictor = _get_predictor()
     det_predictor = _get_det_predictor()
-    results = predictor([img], det_predictor=det_predictor)
+    results = predictor([img], det_predictor=det_predictor, math_mode=False)
     if not results:
         return "", 0.0
 
