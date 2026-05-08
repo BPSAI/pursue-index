@@ -4,34 +4,30 @@
 
 ## Active Plan
 
-**Plan:** Recover from CSV-pivot scrape regression
-**Status:** Diagnosed — ready to apply header fix
-**Current Sprint:** Bring v0.2.0 (CSV pivot) into a working state
+**Plan:** v0.2.0 CSV pivot is shipped; pipeline downstream stages are next.
+**Status:** Scrape stage live; 161-card manifest committed at `data/manifests/latest.json`.
+**Current Sprint:** Begin OCR / index / serve stages (currently stubs).
 
 ## Current Focus
 
-The `pursue-index-csv-pivot.tar.gz` patch landed cleanly (v0.1.0 → v0.2.0):
-Playwright is gone, `csv_fetcher.py` + `normalize.py` replace
-`extractor.py` + `playwright_runner.py`, manifests now live in
-`PURSUE_MANIFESTS_DIR` (separated from NAS data root). 9/9 unit tests pass.
+The CSV pivot is in (`485748f` on `origin/main`). `pursue scrape run` fetches
+via curl_cffi with Chrome TLS impersonation and writes a 161-card manifest
+(119 PDF / 28 VID / 14 IMG, sha256 `596cc1881aa97d2f…`). 13/13 unit tests pass.
 
-`pursue scrape run` fails at the live network step with `403 Forbidden` from
-Akamai (`AkamaiGHost`). Diagnosis confirms the cause: the fetcher sends only
-UA + Accept + Accept-Language + Referer. Akamai's bot rules require the full
-Chrome client-hint header set (`Sec-Ch-Ua*`, `Sec-Fetch-*`, `Accept-Encoding`).
-With those headers, the CSV downloads cleanly (185,105 bytes, 200 OK).
+Next step is to run `pursue download run` against the manifest and start
+filling out the OCR + ingest + serve stubs.
 
 ## Task Status
 
 ### Active Sprint
 
 - [x] Apply CSV-pivot patch (extractor → csv_fetcher; manifests_dir split)
-- [x] Diagnose 403 — Akamai bot detection, missing Chrome client-hint headers
-- [ ] Stage + commit CSV-pivot diff (delete extractor/playwright_runner; add csv_fetcher/normalize; update env, settings, CLI, downloader, models, tests)
-- [ ] Update local `.env` — drop `PURSUE_SOURCE_URL`/`PURSUE_SCRAPE_HEADLESS`/`PURSUE_SCRAPE_TIMEOUT_MS`, set `PURSUE_SCRAPE_USER_AGENT=` (empty so the realistic UA wins), add `PURSUE_CSV_URL`
-- [ ] Patch `csv_fetcher.fetch_raw_csv` to send the full Chrome client-hint header set; add a regression test
-- [ ] Run `pursue scrape run` end-to-end, archive raw CSV, write `data/manifests/latest.json`
-- [ ] Push to `origin/main` (or feature branch if policy flips)
+- [x] Diagnose 403 — Akamai bot detection on TLS fingerprint
+- [x] Switch fetcher to `curl_cffi` with `impersonate="chrome"`; add regression test pinning the contract
+- [x] Clean up `.env` — drop stale Playwright vars, set `PURSUE_SCRAPE_USER_AGENT=` empty
+- [x] Run `pursue scrape run` end-to-end; manifest written + raw CSV archived to NAS
+- [x] Squashed commit + push to `origin/main` (`485748f`)
+- [ ] `pursue download run --manifest data/manifests/latest.json` — verify PDFs/IMGs land on NAS
 
 ### Backlog
 
@@ -42,37 +38,38 @@ With those headers, the CSV downloads cleanly (185,105 bytes, 200 OK).
 
 ## What Was Just Done
 
-### Session: 2026-05-08 — CSV pivot landed; 403 diagnosed
+### Session: 2026-05-08 — CSV pivot shipped end-to-end
 
-- Reviewed the patch produced by `pursue-index-csv-pivot.tar.gz`:
-  - **Removed:** `src/pursue_index/scrape/extractor.py`,
-    `src/pursue_index/scrape/playwright_runner.py`.
-  - **Added:** `src/pursue_index/scrape/csv_fetcher.py`,
-    `src/pursue_index/scrape/normalize.py`,
-    `tests/unit/test_normalize.py`.
-  - **Modified:** `.env.example`, `.gitignore`, `docs/architecture.md`,
-    `pyproject.toml` (v0.1.0 → v0.2.0), `scripts/bootstrap_dev.sh`,
-    `src/pursue_index/cli/commands.py`,
-    `src/pursue_index/config/settings.py`,
-    `src/pursue_index/download/downloader.py`,
-    `src/pursue_index/index/models.py`,
-    `src/pursue_index/scrape/__init__.py`,
-    `src/pursue_index/scrape/types.py`, `tests/unit/test_manifest.py`.
-- 9/9 unit tests pass under `pytest`.
-- Reproduced the 403 with the current code path and confirmed Akamai accepts
-  identical requests when sec-ch-ua / sec-fetch / accept-encoding are present.
+- Reviewed the `pursue-index-csv-pivot.tar.gz` patch (v0.1.0 → v0.2.0):
+  Playwright extractor + runner removed; `csv_fetcher.py` + `normalize.py`
+  added; storage split (`PURSUE_DATA_ROOT` vs `PURSUE_MANIFESTS_DIR`);
+  models, downloader, CLI updated to the new asset_* shape.
+- Diagnosed the 403: Akamai TLS-fingerprint bot detection. Plain httpx is
+  blocked even with full Chrome client-hint headers; curl_cffi's
+  `impersonate="chrome"` clears the gate.
+- TDD: wrote `tests/unit/test_csv_fetcher.py` first — failed on missing
+  `_http_get` seam, then went green after rewriting the fetcher.
+- Pinned `curl-cffi>=0.7` in `pyproject.toml`; cleaned local `.env`.
+- 13/13 unit tests green; arch check clean on every modified file.
+- Live `pursue scrape run` produced the 161-card manifest committed at
+  `data/manifests/latest.json` (csv_sha256
+  `596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2`).
+- Bundled paircoder + Claude Code integration into the same commit per
+  user direction.
+- Squashed commit `485748f` pushed to `origin/main`.
 
 ## What's Next
 
-1. Patch `csv_fetcher.fetch_raw_csv` to send Chrome-equivalent headers (TDD: failing test first).
-2. Clean up `.env` to match the new contract.
-3. Commit the patch + the header fix together.
-4. Run `pursue scrape run` and verify the manifest lands.
-5. Push.
+1. `pursue download run --manifest data/manifests/latest.json` — pull PDFs
+   + images to the NAS; videos stay off (requires DVIDS API).
+2. Flesh out the OCR stage (currently stub) — Tesseract first, Azure DI
+   fallback for low-confidence pages.
+3. Ingest stage — wire SQLAlchemy models into the new manifest schema.
+4. FastAPI search service.
 
 ## Blockers
 
-None — the 403 is reproducible and the workaround is identified.
+None.
 
 ## Quick Commands
 
