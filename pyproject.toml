@@ -45,6 +45,17 @@ gpu = [
     # to 5.8 by default and break import. Pin until surya catches up.
     "transformers>=4.56,<5",
 ]
+llm = [
+    # LLM-based OCR fallback for low-confidence pages. The Anthropic SDK is
+    # the v1 implementation; the OpenAI provider is a stub for v2.
+    "anthropic>=0.40",
+]
+embed = [
+    # Voyage-3 embeddings for the chat retrieval surface (embed-stage plan).
+    # OpenAI text-embedding-3-large is wired as a stub for v2 A/B testing.
+    "voyageai>=0.3",
+    "numpy>=2.0",
+]
 dev = [
     "pytest>=8.2",
     "pytest-asyncio>=0.23",
