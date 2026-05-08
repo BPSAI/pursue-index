@@ -110,13 +110,19 @@ app.add_typer(ocr_app)
 @ocr_app.command("run")
 def ocr_run(
     manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
+    engine: str = typer.Option(
+        None,
+        "--engine",
+        help="OCR engine: 'tesseract' (CPU) or 'surya' (GPU). "
+        "Defaults to PURSUE_OCR_ENGINE.",
+    ),
 ) -> None:
     """OCR every PDF that hasn't been processed yet."""
     from pursue_index.ocr.pipeline import ocr_all  # lazy import
 
     settings.ensure_dirs()
     m = load_manifest(manifest)
-    asyncio.run(ocr_all(m))
+    asyncio.run(ocr_all(m, engine=engine))
 
 
 # ---------------------------------------------------------------------------

@@ -37,6 +37,11 @@ azure = [
     "azure-ai-documentintelligence>=1.0.0b3",
     "azure-identity>=1.17",
 ]
+gpu = [
+    # Surya is the transformer-OCR engine for the local 5090. Pulls in torch +
+    # CUDA wheels (~3 GB); install only on hosts with a CUDA-capable GPU.
+    "surya-ocr>=0.17",
+]
 dev = [
     "pytest>=8.2",
     "pytest-asyncio>=0.23",
