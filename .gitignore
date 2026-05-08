@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Data — large artifacts live on NAS, not in repo
+data/pdfs/
+data/ocr/
+data/inspect/
+data/logs/
+*.pdf
+*.tiff
+*.tif
+
+# Manifests are versioned (small JSON), but tmp/scratch are not
+data/tmp/
+data/scratch/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+
+# Playwright
+.playwright-cache/
+
+# DB local dev
+*.db
+*.sqlite
+*.sqlite3
+postgres-data/
+
+# OS
+Thumbs.db
