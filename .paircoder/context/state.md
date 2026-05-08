@@ -4,9 +4,9 @@
 
 ## Active Plan
 
-**Plan:** v0.2.0 CSV pivot is shipped; pipeline downstream stages are next.
-**Status:** Scrape stage live; 161-card manifest committed at `data/manifests/latest.json`.
-**Current Sprint:** Begin OCR / index / serve stages (currently stubs).
+**Plan:** Pipeline through OCR; static UI shipped to GitHub Pages.
+**Status:** scrape ✅ download ✅ ocr ✅ ui ✅ — index/serve still stub.
+**Current Sprint:** Wrap-up; backlog Surya GPU OCR + LLM fallback + index ingest.
 
 ## Current Focus
 
@@ -29,8 +29,9 @@ filling out the OCR + ingest + serve stubs.
 - [x] Squashed commit + push to `origin/main` (`485748f`)
 - [x] `pursue download run` — 133/161 assets on NAS (116 unique PDFs + 14 images; 28 videos off; 3 PDF cards de-duped against paired entries). Required a follow-up fix re-exporting `asset_path_for` (`9debf96`).
 - [x] OCR v1 — Tesseract-only, idempotent. `ocr_card` writes `pages.jsonl` + `meta.json` per architecture spec. Smoke-tested on Apollo 17 debriefing PDF (2 pages, 3.9s).
-- [ ] OCR full run — `pursue ocr run --manifest data/manifests/latest.json` over all 119 PDFs (~10–20 min wall-clock)
-- [ ] OCR Azure DI fallback (auto mode) — currently any low-confidence page is just recorded; fallback engine deferred
+- [x] OCR full run — 116 cards / 4,153 pages, 0 failures, ~64 min wall-clock at 4-way concurrency on the workstation.
+- [x] Static UI scaffold (`/web`) — Astro + Preact + Tailwind v4 + MiniSearch. Routes: /, /card/[id], /search, /diff. Auto-deploys to GitHub Pages on push.
+- [x] Search index — `pages.json` (5.3 MB) shipped; full-text MiniSearch live across all 4,153 OCR'd pages.
 
 ### Backlog
 
@@ -64,12 +65,15 @@ filling out the OCR + ingest + serve stubs.
 
 ## What's Next
 
-1. `pursue download run --manifest data/manifests/latest.json` — pull PDFs
-   + images to the NAS; videos stay off (requires DVIDS API).
-2. Flesh out the OCR stage (currently stub) — Tesseract first, Azure DI
-   fallback for low-confidence pages.
-3. Ingest stage — wire SQLAlchemy models into the new manifest schema.
-4. FastAPI search service.
+1. **Index stage** — wire SQLAlchemy models (cards, pages) into the manifest +
+   OCR output. The static UI gives us in-browser search already; Postgres
+   becomes useful when the corpus outgrows ~10 MB of in-browser JSON.
+2. **GPU OCR via Surya** (`.paircoder/plans/ocr-gpu-surya.md`) — likely 5–20×
+   speedup vs Tesseract on the long FBI scans, plus better quality.
+3. **LLM OCR fallback** (`.paircoder/plans/ocr-llm-fallback.md`) — replaces
+   the original Azure DI plan with frontier vision models.
+4. **FastAPI service** — only after Postgres ingest exists; for now the
+   static UI covers all interactive needs.
 
 ## Blockers
 
