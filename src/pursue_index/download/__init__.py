@@ -1,3 +1,3 @@
-from pursue_index.download.downloader import download_all, pdf_path_for
+from pursue_index.download.downloader import asset_path_for, download_all
 
-__all__ = ["download_all", "pdf_path_for"]
+__all__ = ["asset_path_for", "download_all"]
