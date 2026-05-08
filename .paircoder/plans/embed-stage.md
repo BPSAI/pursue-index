@@ -1,10 +1,38 @@
 ---
 id: embed-stage
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-08
+shipped: 2026-05-08
+shipped_in: [5eaec62, 64e75cc, b7bd864, d67eb63, 7d19c6a]
 depends_on: [ocr-benchmark]
 ---
+
+> **Shipped 2026-05-08.** New `src/pursue_index/embed/` module with
+> `pipeline.py` (orchestration), `voyage.py` (Voyage-3 adapter, lazy
+> import), `openai.py` (stub seam), `store.py` (on-disk format helpers).
+> CLI: `pursue embed run --manifest …` with cost guardrails (defaults
+> to $1 cap, override with `--cost-cap-usd`). Output at
+> `{data_root}/embeddings/{model_id}/{vectors.bin, index.json}` per the
+> plan; idempotent on `(card_id, page, model_id, text_sha)`.
+> `scripts/build_embed_data.py` packs to float16 for the in-browser
+> payload (`web/public/data/{embeddings.bin, embed_index.json}`).
+> 12 new unit tests; idempotency confirmed end-to-end on the live
+> 4,153-page corpus with a fake-embedder (132 KB binary in 0.4s; second
+> run was a complete no-op).
+>
+> **Awaiting:** `VOYAGE_API_KEY` set in `.env` to run the live pass.
+> Estimated cost ~$0.13 for the full corpus per the plan estimate.
+> Real Voyage-3 binary projected at ~8.5 MB (under the 10 MB threshold,
+> but close — sub-page chunking becomes a consideration if Release 02+
+> grows the corpus past ~6,000 pages).
+>
+> **Note re: dependency order.** The plan listed this as
+> `depends_on: [ocr-benchmark]`, meaning we'd embed the *highest-quality*
+> OCR output. Pragmatic call: shipped against current Tesseract output
+> so chat-interface can move ahead. Re-run is cheap once Surya/LLM
+> output replaces the Tesseract pages — idempotency keys mean only
+> changed pages re-embed.
 
 # Pipeline stage: pursue embed
 
