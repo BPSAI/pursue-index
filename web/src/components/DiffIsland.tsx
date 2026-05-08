@@ -52,45 +52,65 @@ export default function DiffIsland({ current, base }: Props) {
   }, [current, snapshot]);
 
   if (index === null) {
-    return <p class="text-sm text-neutral-500">Loading snapshots…</p>;
+    return (
+      <div class="space-y-3">
+        <div class="pi-sweep h-8"></div>
+        <p class="pi-loading text-xs">LOADING SNAPSHOTS<span class="pi-caret"></span></p>
+      </div>
+    );
   }
 
   if (index.length === 0) {
     return (
-      <div class="rounded-md border border-neutral-800 bg-neutral-925 p-4 text-sm text-neutral-400">
-        <p class="font-medium text-neutral-200 mb-1">No prior snapshot yet</p>
-        <p>
-          Diff view compares <code class="text-neutral-300">latest.json</code>
-          against any previous manifest under
-          <code class="mx-1 text-neutral-300">/data/snapshots/</code>. Once a
-          second tranche lands and the snapshot is committed, this page will
-          surface what changed.
+      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 font-mono text-sm text-[color:var(--color-text)] pi-bracket relative scanlines-soft space-y-2">
+        <p class="text-[color:var(--color-signal-amber)] uppercase tracking-[0.18em] text-xs">
+          [NO PRIOR SNAPSHOT]
         </p>
-        <p class="mt-2 text-xs text-neutral-500">
-          Current manifest fetched {new Date(current.fetched_at).toISOString().slice(0, 10)} ·
-          {" "}{current.cards.length} cards · csv_sha256{" "}
-          <code>{current.csv_sha256.slice(0, 12)}…</code>
+        <p>
+          Diff compares <code class="text-[color:var(--color-signal-cyan)]">latest.json</code>
+          against any previous manifest under
+          <code class="mx-1 text-[color:var(--color-signal-cyan)]">/data/snapshots/</code>.
+          Once Release 02 lands and the snapshot is committed, this surface
+          will report what changed.
+        </p>
+        <p class="text-[11px] text-[color:var(--color-text-dim)] border-t border-[color:var(--color-border)] pt-2 mt-3">
+          CURRENT · {new Date(current.fetched_at).toISOString().slice(0, 10)}
+          <span class="mx-2 text-[color:var(--color-text-faint)]">·</span>
+          {current.cards.length} CARDS
+          <span class="mx-2 text-[color:var(--color-text-faint)]">·</span>
+          CSV_SHA256 <code class="text-[color:var(--color-signal-cyan)]">{current.csv_sha256.slice(0, 12)}</code>
         </p>
       </div>
     );
   }
 
   if (error) {
-    return <p class="text-sm text-red-400">Failed to load snapshot: {error}</p>;
+    return (
+      <p class="font-mono text-sm text-[color:var(--color-signal-red)]">
+        [ERR] Failed to load snapshot: {error}
+      </p>
+    );
   }
 
   if (!result || !snapshot) {
-    return <p class="text-sm text-neutral-500">Loading snapshot…</p>;
+    return (
+      <div class="space-y-3">
+        <div class="pi-sweep h-8"></div>
+        <p class="pi-loading text-xs">DECLASSIFYING<span class="pi-caret"></span></p>
+      </div>
+    );
   }
 
   return (
     <div class="space-y-6">
-      <div class="text-sm text-neutral-400">
-        Comparing against <code class="text-neutral-200">{snapshot.filename}</code>
-        {" "}({snapshot.manifest.cards.length} cards)
+      <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-2">
+        VS
+        <code class="ml-2 text-[color:var(--color-signal-cyan)]">{snapshot.filename}</code>
+        <span class="mx-2 text-[color:var(--color-text-faint)]">·</span>
+        {snapshot.manifest.cards.length} CARDS
       </div>
-      <DiffSection title="Added" cards={result.added} tone="emerald" base={base} />
-      <DiffSection title="Removed" cards={result.removed} tone="red" base={base} />
+      <DiffSection title="ADDED" cards={result.added} tone="green" base={base} />
+      <DiffSection title="REMOVED" cards={result.removed} tone="red" base={base} />
     </div>
   );
 }
@@ -103,27 +123,32 @@ function DiffSection({
 }: {
   title: string;
   cards: CardMetadata[];
-  tone: "emerald" | "red";
+  tone: "green" | "red";
   base: string;
 }) {
-  const dot = tone === "emerald" ? "bg-emerald-500" : "bg-red-500";
+  const colorVar = tone === "green" ? "--color-signal-green" : "--color-signal-red";
+  const sym = tone === "green" ? "+" : "-";
   return (
     <section class="space-y-2">
-      <h2 class="flex items-center gap-2 text-sm uppercase tracking-wider text-neutral-300">
-        <span class={`inline-block h-2 w-2 rounded-full ${dot}`} />
-        {title} ({cards.length})
+      <h2 class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em]">
+        <span class={`inline-block h-2 w-2 rounded-full bg-[color:var(${colorVar})] shadow-[0_0_8px_var(${colorVar})]`}></span>
+        <span class={`text-[color:var(${colorVar})]`}>{title}</span>
+        <span class="text-[color:var(--color-text-dim)]">({cards.length})</span>
       </h2>
       {cards.length === 0 ? (
-        <p class="text-xs text-neutral-500">none</p>
+        <p class="font-mono text-[11px] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] pl-4">
+          ── NONE ──
+        </p>
       ) : (
-        <ul class="text-sm divide-y divide-neutral-800 border border-neutral-800 rounded-md">
+        <ul class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 divide-y divide-[color:var(--color-border)] font-mono text-xs">
           {cards.map((c) => (
-            <li class="px-3 py-2 hover:bg-neutral-925">
-              <a href={`${base}/card/${c.card_id}`} class="flex items-baseline gap-2">
-                <span class="text-[10px] uppercase tracking-wider text-neutral-500">
+            <li class="px-3 py-1.5 hover:bg-[color:var(--color-bg-elevated)]">
+              <a href={`${base}/card/${c.card_id}`} class="flex items-baseline gap-3">
+                <span class={`text-[color:var(${colorVar})]`}>{sym}</span>
+                <span class="text-[10px] uppercase tracking-[0.15em] text-[color:var(--color-text-faint)] w-10 shrink-0">
                   {c.asset_type}
                 </span>
-                <span class="text-neutral-200 line-clamp-1">{c.title}</span>
+                <span class="text-[color:var(--color-text-bright)] line-clamp-1">{c.title}</span>
               </a>
             </li>
           ))}

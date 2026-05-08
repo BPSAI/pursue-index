@@ -1,0 +1,40 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="ABOUT — PURSUE://INDEX"
+  description="About pursueindex — the public, citable archive of DOW PURSUE UAP releases."
+  active="about"
+>
+  <div class="space-y-6 max-w-3xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>cat /etc/pursue/about.txt</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        ABOUT
+      </h1>
+    </header>
+
+    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3">
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <span class="font-mono text-[color:var(--color-signal-cyan)]">pursueindex</span>
+        is a searchable, citable, version-tracked public archive of the
+        U.S. Department of War's <em>Presidential Unsealing &amp; Reporting
+        System for UAP Encounters</em> (PURSUE) document releases. Every
+        record is hash-pinned to the source CSV, every asset URL resolves
+        to the original
+        <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>
+        artifact, and every change between releases is preserved in the
+        diff log.
+      </p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
+        STATUS · <span class="text-[color:var(--color-signal-amber)]">PRE-LAUNCH</span>
+        <span class="mx-2">·</span>
+        BUILD · <span class="text-[color:var(--color-signal-cyan)]">PHASE-2</span>
+      </p>
+    </section>
+  </div>
+</Base>
