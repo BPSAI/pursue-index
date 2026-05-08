@@ -33,6 +33,7 @@ filling out the OCR + ingest + serve stubs.
 - [x] Static UI scaffold (`/web`) — Astro + Preact + Tailwind v4 + MiniSearch. Routes: /, /card/[id], /search, /diff. Auto-deploys to GitHub Pages on push.
 - [x] Search index — `pages.json` (5.3 MB) shipped; full-text MiniSearch live across all 4,153 OCR'd pages.
 - [x] **Surya GPU OCR engine** — `ocr/surya.py` adapter slots into the existing engine seam; `ocr_card`/`ocr_all`/`pursue ocr run --engine surya` route by engine name; `pages.jsonl` + `meta.json` record `"engine": "surya"`. `surya-ocr>=0.17` added under `pyproject.toml [gpu]` extra. Live smoke: 40-page FBI HQ-83894 ran in 56.76s @ 93.90% mean conf vs Tesseract's 106.19s on the same file.
+- [x] **`pursue embed` stage scaffold** — Voyage-3 default, OpenAI stub seam, idempotent against `(card_id, page, model_id, text_sha)`. CLI + settings + web build helper. 50/50 unit tests green. Live smoke against the 4153-page corpus with a fake embedder confirmed shape + idempotency; full Voyage run pending `VOYAGE_API_KEY` export (~$0.13 estimated).
 
 ### Phase 2 backlog (sequenced)
 
@@ -55,6 +56,52 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
+
+### Session: 2026-05-08 — `pursue embed` stage scaffolded
+
+- Added `src/pursue_index/embed/` module: `pipeline.py` (orchestration),
+  `voyage.py` (Voyage-3 adapter — default per the embed-stage plan),
+  `openai.py` (stub seam for v2 A/B testing), `store.py` (on-disk
+  format helpers).
+- Output convention matches the plan:
+  `{data_root}/embeddings/{model_id}/{vectors.bin, index.json}` —
+  contiguous float32 [N, D] little-endian binary; index records
+  `{card_id, page, text_sha, offset}` per row.
+- Idempotency keyed by `(card_id, page, model_id, text_sha)`; running
+  on an unchanged corpus is a `embed.run.noop`. A corrected page
+  (text_sha changes) re-embeds only that page.
+- `pursue embed run --manifest …` CLI added with `--limit`,
+  `--cost-cap-usd`, `--batch-size`, `--provider`, `--model` flags.
+  Lazy-imports the pipeline so install-without-`[embed]` still loads
+  the CLI.
+- Cost guardrail: $1 default cap from estimated tokens (chars / 4 ≈
+  tokens, $0.06 / 1M Voyage pricing); aborts before any API call when
+  exceeded; `--cost-cap-usd N` overrides.
+- `scripts/build_embed_data.py` reads the embed output and writes the
+  web payload: float16 `embeddings.bin` + compact `embed_index.json`
+  (`pages: [[card_id, page]]`). Logs a warning when binary > 10 MB so
+  we know when to flip to server-side retrieval (chat-interface plan).
+- Live smoke (no VOYAGE_API_KEY available): used `scripts/smoke_embed_fake.py`
+  with a deterministic 8-dim fake embedder against the real 4153-page
+  NAS corpus.
+  - First run: 4153 embedded, 0 skipped, 116 cards seen, 0.4s,
+    vectors.bin = 132,896 B (= 4153 × 8 × 4).
+  - Second run: 0 embedded, 4153 skipped — full no-op as designed.
+  - Web build: `embeddings.bin` 66 KB float16 + `embed_index.json`
+    109 KB; payload well under the 10 MB threshold (real Voyage-3 at
+    1024 dims would be ~8.5 MB binary — still under).
+- Settings: `PURSUE_EMBED_PROVIDER` (voyage|openai), `PURSUE_EMBED_MODEL`
+  (default voyage-3), derived `embeddings_dir` property.
+- 10 new unit tests; 50/50 unit tests green; arch clean on every
+  modified file.
+- Commits on this worktree branch (not pushed):
+  `feat(embed): pipeline scaffold + Voyage adapter`,
+  `feat(embed): wire pursue embed run CLI + settings`,
+  `feat(embed): web build helper + [embed] extra`,
+  `chore(embed): add fake-embedder smoke script`.
+- Open: full Voyage-3 embed run is gated on a `VOYAGE_API_KEY` being
+  exported in the workstation env; estimated cost is $0.13 per the
+  plan and the $1 cap leaves plenty of headroom.
 
 ### Session: 2026-05-08 — Surya GPU OCR engine landed
 
@@ -103,21 +150,28 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 
 ## What's Next
 
-1. **Full Surya re-OCR** — once the worktree merges, run
+1. **Full Voyage-3 embed run** — export `VOYAGE_API_KEY` and run
+   `pursue embed run --manifest data/manifests/latest.json` against the
+   full 4153-page corpus. Estimated $0.13 (per the embed-stage plan)
+   and well under the $1 cap. Then run `python scripts/build_embed_data.py`
+   to produce the web payload (~8.5 MB float16 binary at 1024 dims).
+2. **Full Surya re-OCR** — once the worktree merges, run
    `PURSUE_OCR_ENGINE=surya pursue ocr run --manifest …` against all
    116 PDFs. Existing tesseract output will be skipped by the
    idempotency check; need a `--force` flag (or to wipe `meta.json`)
    to actually re-OCR. Out of scope for this worktree.
-2. **OCR benchmark harness** (`ocr-benchmark.md`) — A/B Surya vs
+3. **OCR benchmark harness** (`ocr-benchmark.md`) — A/B Surya vs
    Tesseract on the 5 representative golden PDFs called out in the
    plan, produce mean-confidence + wall-clock numbers for the
    methodology page.
-3. **LLM OCR fallback** (`ocr-llm-fallback.md`) — vision-model cleanup
+4. **LLM OCR fallback** (`ocr-llm-fallback.md`) — vision-model cleanup
    pass for pages where Surya confidence is low.
-4. **Index stage** — wire SQLAlchemy models (cards, pages) into the
+5. **Chat interface** (`chat-interface.md`) — RAG worker over the embed
+   payload, streaming citations from Anthropic.
+6. **Index stage** — wire SQLAlchemy models (cards, pages) into the
    manifest + OCR output. Becomes useful when the corpus outgrows
    ~10 MB of in-browser JSON.
-5. **FastAPI service** — only after Postgres ingest exists.
+7. **FastAPI service** — only after Postgres ingest exists.
 
 ## Blockers
 
