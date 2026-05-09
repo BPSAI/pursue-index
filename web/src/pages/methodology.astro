@@ -305,6 +305,22 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         Alex's parallel work for raising the bar on what an AI-augmented
         public-domain mirror can look like.
       </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Augmented retrieval.</strong>
+        As of 2026-05-09, every embedded page that has VLM image
+        descriptions available in Alex's corpus carries a bracketed
+        <code class="font-mono text-xs">[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]]</code>
+        block in the embedded text, scored against the same query as our
+        OCR. {/* TODO(post-augmented-run): replace placeholder with the actual
+        coverage stat from data/embeddings/voyage-3/index.json's
+        augmented_by + page count. Expected: ~1212 / 4153 pages augmented. */}
+        On a corpus where 86.6% of pages are image-only scans, his
+        descriptions materially improve recall on the photographs,
+        sketches, rubber stamps, and handwritten margin notes our OCR
+        captures only as typed text. The block is human-readable and
+        labeled at the source so chat citations can disambiguate his
+        words from ours.
+      </p>
     </section>
 
     {/* Reproducibility */}
