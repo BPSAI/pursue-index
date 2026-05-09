@@ -1,83 +1,124 @@
 # pursue-index
 
-A searchable index of the U.S. Department of War's **Presidential Unsealing
-and Reporting System for UAP Encounters (PURSUE)** document releases.
+> A citable, full-text-searchable interface to the U.S. Department of War's
+> **Presidential Unsealing and Reporting System for UAP Encounters (PURSUE)**
+> document releases.
 
-Source: <https://www.war.gov/UFO/>
+Live: **<https://pursueindex.com>** *(research preview, splash gate active)*
+Source: **<https://www.war.gov/UFO/>**
+Code: **<https://github.com/BPSAI/pursue-index>**
+
+---
 
 ## What this is
 
-DOW publishes the PURSUE corpus as a single CSV
-(`uap-csv.csv`) rendered into a DataTables widget on the public page. New
-tranches drop every few weeks; the file is updated in place. This project:
+The DOW publishes the PURSUE corpus as a single CSV (`uap-csv.csv`) rendered
+inside a DataTables widget. That's fine for browsing one record at a time.
+It's useless for searching the actual contents of the documents.
 
-1. **Snapshots the upstream CSV** on each run and archives it for forensic
-   diffing.
-2. **Builds a content-hashed manifest** so re-runs only do net-new work.
-3. **Pulls the referenced PDFs and images** to local/NAS storage.
-4. **OCRs every PDF** to a per-page JSON Lines file.
-5. **Ingests** the manifest + OCR output into Postgres for full-text search.
-6. **Serves** a search API (and eventually a UI) over the index.
+`pursue-index` is the first end-to-end pipeline and reader for that corpus:
 
-Each stage is independently runnable via the `pursue` CLI and idempotent
-against the manifest, so re-running on a new tranche only touches new entries.
+1. Snapshot the upstream CSV and pin its SHA-256 in a hash-stable manifest.
+2. Fetch every referenced PDF / image idempotently into content-addressable storage.
+3. OCR every PDF page through a GPU pipeline (Surya) with an LLM fallback for
+   low-confidence pages, recording per-page engine + confidence in `pages.jsonl`.
+4. Build an in-browser search index over the OCR transcripts.
+5. Serve the result as a static site with mandatory citations on every claim.
+
+Every record traces back to a specific page of a specific war.gov PDF.
+Methodology is published. Numbers are reproducible from a clean clone.
+
+## Live now (2026-05-09)
+
+- **Custom domain.** [pursueindex.com](https://pursueindex.com) on Cloudflare
+  Workers + Static Assets, behind a research-preview splash gate.
+- **Full-text search** across **4,153 OCR'd pages** spanning the 116 PDF cards
+  in Release 01 of the corpus. Search runs in the browser; no server.
+- **OCR pipeline.** Surya (GPU, transformer-based) primary, Anthropic vision
+  LLM fallback for pages whose Surya confidence falls below threshold. The
+  shipped index is **3,529 Surya pages + 624 LLM-cleaned pages**.
+- **Published quality benchmark.** Five-PDF golden set covering the engine
+  failure modes (clean typewriter / faded carbon / multi-column / redacted /
+  long debriefing). Surya median CER **6.1%** vs Tesseract **40.4%** vs the
+  LLM truth proxy. See [`docs/ocr-benchmark.md`](docs/ocr-benchmark.md) and
+  [/methodology](https://pursueindex.com/methodology).
+- **Tranche diff.** Every snapshot is timestamped under `csv-archive/`; the
+  diff page surfaces per-card deltas when the upstream CSV changes.
+- **Pages.** [/about](https://pursueindex.com/about),
+  [/methodology](https://pursueindex.com/methodology), and a small set of
+  curated [/finds](https://pursueindex.com/finds) entries — primary-source
+  reading guides written against specific pages of specific cards.
+
+## In flight (toward public launch)
+
+- **Chat interface.** Retrieval-augmented Q&A over the corpus, with
+  mandatory citations on every claim. Anonymous (server-funded, rate-limited)
+  and BYOK (bring-your-own Anthropic key) modes share the same UI. The BYOK
+  path keeps cost flat under HN-spike traffic.
+- **Curated finds expansion.** More hand-authored reading guides; current
+  set is intentionally small to set the editorial bar.
+- **Novelty detection.** Per-page cosine similarity vs The Black Vault's
+  reference UAP corpus → "previously disclosed vs new in this release"
+  tagging. A citation moat for journalists tracking what's actually new.
 
 ## Pipeline
 
 ```
-scrape  →  download  →  ocr  →  index  →  serve
-  │           │          │       │         │
-  manifest    PDFs/IMGs  text    Postgres  FastAPI + UI
-  (json)      (NAS)      (jsonl) (+ FTS)
+scrape  ─►  download  ─►  ocr  ─►  embed  ─►  serve
+   │           │            │        │          │
+manifest    PDFs/IMGs    pages    voyage-3    static site
+(JSON,      (NAS, CAS)   .jsonl   float16     (CF Workers)
+hash-pinned)             (NAS)    payload
 ```
 
-| Stage    | Status | Output                                              |
-|----------|--------|-----------------------------------------------------|
-| scrape   | ✅     | `data/manifests/latest.json`                        |
-| download | ✅     | `{pdfs,images,videos}/{card_id}/{filename}` on NAS  |
-| ocr      | ✅ v1  | `ocr/{card_id}/{pages.jsonl, meta.json}` on NAS     |
-| index    | 🔧 stub | Postgres rows with `tsvector` FTS                  |
-| serve    | 🔧 stub | FastAPI search API                                 |
+| Stage    | Status   | Output                                                        |
+|----------|----------|---------------------------------------------------------------|
+| scrape   | shipped  | `data/manifests/latest.json` (SHA-256-pinned, version-controlled) |
+| download | shipped  | `{pdfs,images,videos}/{card_id}/{filename}` on NAS            |
+| ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — Surya + LLM fallback |
+| embed    | shipped  | Voyage-3 embeddings, ~8.5MB float16 in-browser payload         |
+| serve    | shipped  | Astro static build deployed to Cloudflare Workers              |
+
+Each stage is an independent CLI verb under `pursue` and idempotent against
+the manifest; re-running on an unchanged manifest is a no-op modulo
+timestamps. Re-running on a new tranche only touches new entries.
 
 See [`docs/architecture.md`](docs/architecture.md) for the full design.
 
-## Quickstart
+## Reproducibility
 
-Requires Python 3.12+, Postgres (for the eventual `index` and `serve` stages),
-and the `tesseract` system binary for OCR.
+The manifest is **hash-pinned and version-controlled**. From a clean clone
+with the upstream CSV available, any reader can rebuild the entire index:
 
 ```bash
-# Bootstrap a venv and install
-make install
-
-# System dep for OCR (one-time)
-sudo apt install tesseract-ocr tesseract-ocr-eng poppler-utils
-
-# Copy and edit config
-cp .env.example .env
-$EDITOR .env   # at minimum, set PURSUE_DATA_ROOT
-
-# Pipeline
-pursue scrape run                                    # writes data/manifests/latest.json
+pursue scrape run                                        # writes manifests/latest.json + archives raw CSV
 pursue download run --manifest data/manifests/latest.json
-pursue ocr run --manifest data/manifests/latest.json
-pursue index ingest --manifest data/manifests/latest.json   # (stub)
-pursue serve --port 8080                                    # (stub)
+pursue ocr run --manifest data/manifests/latest.json --engine auto
+pursue embed run --manifest data/manifests/latest.json
 ```
 
-The full Release 01 corpus is **161 cards** (119 PDFs / 28 videos / 14 images),
-~2.4 GB on disk after `download`, and produces ~4–6k OCR pages.
+Each stage is content-addressed by `card_id = sha256(asset_url || title)[:16]`,
+so partial reruns converge on the same final state regardless of order.
 
-## Why curl_cffi for scrape
+The CSV archive (`{data_root}/csv-archive/uap-csv-<timestamp>.csv`) is a
+forensic trail of how the source has evolved over time. The manifest carries
+`csv_sha256` so upstream changes are detectable in O(bytes-of-CSV).
 
-The CSV endpoint is gated by Akamai bot management on TLS fingerprint and
-HTTP/2 framing — plain `httpx`/`requests` clients get a 403, even with the
-full Chrome client-hint header set. We use
-[`curl_cffi`](https://github.com/lexiforest/curl_cffi) with
-`impersonate="chrome"` so the handshake looks identical to a real Chrome
-session. The asset URLs (PDFs, images) are served by a more permissive Akamai
-config and work fine over plain `httpx`, so the downloader doesn't need TLS
-impersonation.
+## Tech stack
+
+| Layer        | Choice                                                     |
+|--------------|------------------------------------------------------------|
+| Pipeline     | Python 3.12, Typer CLI, Pydantic settings                  |
+| OCR primary  | [Surya](https://github.com/datalab-to/surya) on CUDA       |
+| OCR fallback | Anthropic vision (Haiku-4.5 default; Sonnet-4.6 available) |
+| Embeddings   | Voyage-3 (`voyage-3-large`)                                |
+| Frontend     | Astro + Preact + Tailwind v4                               |
+| Hosting      | Cloudflare Workers + Static Assets                         |
+| Storage      | NAS for bulk artifacts; Git for manifests                  |
+
+The full corpus pipeline pass — Surya OCR + auto-mode LLM cleanup on the 624
+sub-threshold pages + Voyage-3 embeddings — costs **under $2** end to end at
+current API rates. See `docs/ocr-benchmark.md` for the breakdown.
 
 ## Storage split
 
@@ -96,53 +137,76 @@ produced them.
 ## Idempotency contract
 
 - `card_id = sha256(asset_url || title)[:16]` — stable across re-fetches.
-- Manifest carries `csv_sha256` (hash of raw CSV bytes) so we can detect
-  upstream changes cheaply.
+- Manifest carries `csv_sha256` (hash of raw CSV bytes) for cheap
+  upstream-change detection.
 - Each stage skips work it's already done for unchanged `card_id`s.
-- The CSV archive (`{data_root}/csv-archive/uap-csv-<timestamp>.csv`) is a
-  forensic trail of how the source has evolved over time.
+- Auto-mode OCR re-runs LLM cleanup only on pages whose primary-engine
+  confidence is below threshold; previously-cleaned pages are not re-billed.
 
 ## Repo layout
 
 ```
 pursue-index/
 ├── src/pursue_index/
-│   ├── scrape/          # CSV fetch (curl_cffi) + parse + manifest
+│   ├── scrape/          # CSV fetch + parse + manifest
 │   ├── download/        # Asset retrieval, content-addressable storage
-│   ├── ocr/             # Tesseract pipeline → pages.jsonl + meta.json
-│   ├── index/           # SQLAlchemy models, ingest, search (WIP)
-│   ├── api/             # FastAPI app (WIP)
+│   ├── ocr/             # Surya + LLM-fallback pipeline → pages.jsonl
+│   ├── embed/           # Voyage-3 embeddings + in-browser payload
+│   ├── index/           # SQLAlchemy models for forensic ingest (optional)
 │   ├── cli/             # Typer CLI (`pursue`)
 │   └── config/          # Pydantic settings (env-driven, PURSUE_* prefix)
+├── web/                 # Astro + Preact + Tailwind v4 frontend
+├── worker/              # Cloudflare Worker for the chat backend (in flight)
 ├── tests/               # unit + integration
-├── migrations/          # Alembic
-├── scripts/             # bootstrap, ops helpers
-├── docs/                # architecture, schema, runbook
-├── docker-compose.yml   # Postgres for local dev
-├── pyproject.toml
-└── Makefile
+├── scripts/             # bootstrap, ops helpers, benchmark runners
+├── docs/                # architecture, benchmark, runbooks, launch comms
+├── data/manifests/      # hash-pinned, version-controlled
+└── pyproject.toml
 ```
 
-## Development
+## Quickstart (developers)
+
+Requires Python 3.12+, an NVIDIA GPU with current CUDA toolkit (for Surya),
+an Anthropic API key (for the OCR LLM fallback), and a Voyage AI API key
+(for embeddings).
 
 ```bash
-# Run tests
-pytest
+# Bootstrap a venv and install
+make install
 
-# Type-check
-mypy src/
+# Copy and edit config
+cp .env.example .env
+$EDITOR .env   # at minimum: PURSUE_DATA_ROOT, ANTHROPIC_API_KEY, VOYAGE_API_KEY
 
-# Lint
-ruff check src/
+# Run the pipeline
+pursue scrape run
+pursue download run --manifest data/manifests/latest.json
+pursue ocr run --manifest data/manifests/latest.json --engine auto
+pursue embed run --manifest data/manifests/latest.json
+
+# Build and preview the site
+cd web && npm install && npm run dev
 ```
 
-This repo is built to run against [PairCoder](https://bpsaisoftware.com).
-The workflow contract is enforced via the standard `pursue` CLI verbs, and
-every stage emits structured JSON suitable for assertion-based validation.
-See `.paircoder/context/` for plan/state docs and `.claude/skills/` for the
-agent workflow surface.
+## Status
+
+Research preview. The site is reachable at pursueindex.com behind a splash
+gate while the chat interface lands; the public launch flips the gate when
+chat is shipped, the methodology page is locked, and the launch comms set
+under [`docs/launch/`](docs/launch/) is published.
 
 ## License
 
-Source documents are U.S. Government works (public domain). This index code
-is © BPS AI Software, license TBD.
+Source documents are works of the U.S. Government and are in the public
+domain. The OCR transcripts derived from them carry no additional copyright
+claim — they are mechanically generated from public-domain originals.
+
+The index code and this site are © BPS AI Software, license TBD before
+public launch.
+
+## Contributing
+
+This is a research preview; we are not currently accepting outside
+contributions. Once the gate flips, corrections will be welcomed via
+GitHub issues against the manifest and OCR transcripts. The plan for
+that workflow lives in [`.paircoder/plans/review-correct.md`](.paircoder/plans/review-correct.md).
