@@ -5,16 +5,35 @@ import { manifest } from "../data/manifest-loader";
 interface Props {
   title?: string;
   description?: string;
-  active?: "index" | "search" | "diff" | "about" | "methodology" | null;
+  active?: "index" | "search" | "diff" | "about" | "methodology" | "finds" | null;
+  /**
+   * Pre-launch: every page is noindex/nofollow until we flip the default.
+   * FIXME(launch): flip noindex default to false once we're ready for SE indexing.
+   */
+  noindex?: boolean;
+  /** Optional override for the OG image; defaults to /og.png. */
+  ogImage?: string;
+  /** OG type — "website" by default; "article" for individual finds entries. */
+  ogType?: "website" | "article";
 }
 
 const {
   title = "PURSUE://INDEX",
   description = "Searchable archive of the U.S. Department of War PURSUE UAP document releases.",
   active = null,
+  // FIXME(launch): flip noindex default to false
+  noindex = true,
+  ogImage,
+  ogType = "website",
 } = Astro.props;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const siteOrigin = Astro.site ? Astro.site.origin : "https://pursueindex.com";
+const canonicalPath = Astro.url.pathname.replace(/\/$/, "") || "/";
+const canonicalUrl = `${siteOrigin}${canonicalPath}`;
+const ogImageUrl = ogImage
+  ? (ogImage.startsWith("http") ? ogImage : `${siteOrigin}${ogImage}`)
+  : `${siteOrigin}${base}/og.png`;
 
 const fetchedISO = manifest.fetched_at;
 const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 19).replace("T", " ");
@@ -24,6 +43,7 @@ const cardCount = manifest.cards.length;
 const navItems = [
   { href: `${base}/`, label: "INDEX", key: "index" },
   { href: `${base}/search`, label: "SEARCH", key: "search" },
+  { href: `${base}/finds`, label: "FINDS", key: "finds" },
   { href: `${base}/diff`, label: "DIFF", key: "diff" },
   { href: `${base}/about`, label: "ABOUT", key: "about" },
   { href: `${base}/methodology`, label: "METHODOLOGY", key: "methodology" },
@@ -37,7 +57,31 @@ const navItems = [
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0a0d12" />
+
+    {/* FIXME(launch): flip noindex default to false in Base.astro Props */}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+
+    {/* Open Graph */}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="PURSUE://INDEX" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="PURSUE://INDEX — DOW PURSUE UAP Document Archive" />
+
+    {/* Twitter Card */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content="PURSUE://INDEX — DOW PURSUE UAP Document Archive" />
+
     <title>{title}</title>
   </head>
   <body class="terminal min-h-screen flex flex-col">
@@ -65,6 +109,14 @@ const navItems = [
               ]}
             >{item.label}</a>
           ))}
+          <a
+            href={`${base}/about#status`}
+            title="What 'research preview' means"
+            class="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono lowercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
+          >
+            <span class="size-1.5 rounded-full bg-[color:var(--color-signal-amber)] inline-block"></span>
+            research preview
+          </a>
           <a
             href="https://github.com/BPSAI/pursue-index"
             target="_blank"
