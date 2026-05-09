@@ -112,9 +112,10 @@ def _select_new_rows(
     ocr_dir: Path,
     index_path: Path,
     limit: int | None,
+    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
 ) -> tuple[list[PageRow], list[PageRow], int]:
     """Walk OCR output and partition into (new, all, prior_dim)."""
-    all_rows = iter_card_pages(ocr_dir)
+    all_rows = iter_card_pages(ocr_dir, augment_lookup=augment_lookup)
     seen, prior_dim = load_existing_index(index_path)
     new_rows = [r for r in all_rows if (r.card_id, r.page, r.text_sha) not in seen]
     if limit is not None:
@@ -129,11 +130,12 @@ def _persist(
     dim: int,
     new_bytes: bytes,
     new_index_rows: list[IndexRow],
+    augmented_by: dict[str, str] | None = None,
 ) -> list[IndexRow]:
     with vectors_path.open("ab") as fh:
         fh.write(new_bytes)
     all_index_rows = load_prior_index_rows(index_path) + new_index_rows
-    write_index(index_path, model_id, dim, all_index_rows)
+    write_index(index_path, model_id, dim, all_index_rows, augmented_by=augmented_by)
     return all_index_rows
 
 
@@ -161,6 +163,28 @@ def _check_and_log_start(
     )
 
 
+def _handle_noop(
+    index_path: Path,
+    model_id: str,
+    prior_dim: int,
+    skipped: int,
+    augmented_by: dict[str, str] | None,
+) -> None:
+    """No new rows path: ensure an index.json exists, log, return."""
+    if not index_path.exists():
+        write_index(
+            index_path, model_id, prior_dim, [], augmented_by=augmented_by
+        )
+    log.info("embed.run.noop", skipped=skipped, model=model_id)
+
+
+def _prepare_paths(out_root: Path, model_id: str) -> tuple[Path, Path]:
+    """Ensure ``{out_root}/{model_id}/`` exists; return (vectors, index) paths."""
+    out_dir = out_root / model_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return out_dir / "vectors.bin", out_dir / "index.json"
+
+
 def embed_run(
     ocr_dir: Path,
     out_root: Path,
@@ -169,29 +193,27 @@ def embed_run(
     limit: int | None = None,
     cost_cap_usd: float = DEFAULT_COST_CAP_USD,
     usd_per_million_tokens: float | None = None,
+    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
+    augmented_by: dict[str, str] | None = None,
 ) -> EmbedSummary:
     """Walk OCR output, embed new pages, append to vectors.bin + index.json.
 
-    ``usd_per_million_tokens=None`` (the default) reads the rate from the
-    embedder. Pass an explicit float to override (e.g. for pricing experiments
-    or until the adapter's listed price catches up to a vendor change).
+    ``augment_lookup`` injects alex-zhang42 image tags before text_sha
+    (see ``atlas_join.load_atlas_index``); ``augmented_by`` records the
+    dataset/revision provenance into index.json. ``usd_per_million_tokens``
+    overrides the adapter's published rate for cost-cap math.
     """
     model_id = embedder.model
-    out_dir = out_root / model_id
-    out_dir.mkdir(parents=True, exist_ok=True)
-    vectors_path = out_dir / "vectors.bin"
-    index_path = out_dir / "index.json"
-
-    new_rows, all_rows, prior_dim = _select_new_rows(ocr_dir, index_path, limit)
+    vectors_path, index_path = _prepare_paths(out_root, model_id)
+    new_rows, all_rows, prior_dim = _select_new_rows(
+        ocr_dir, index_path, limit, augment_lookup=augment_lookup
+    )
     skipped = len(all_rows) - len(new_rows)
     summary = EmbedSummary(
         skipped=skipped, cards_seen=len({r.card_id for r in all_rows})
     )
-
     if not new_rows:
-        if not index_path.exists():
-            write_index(index_path, model_id, prior_dim, [])
-        log.info("embed.run.noop", skipped=skipped, model=model_id)
+        _handle_noop(index_path, model_id, prior_dim, skipped, augmented_by)
         return summary
 
     rate = _resolve_rate(embedder, usd_per_million_tokens)
@@ -200,7 +222,10 @@ def embed_run(
     new_bytes, new_index_rows, dim = _embed_new_rows(
         new_rows, embedder, batch_size, next_offset, prior_dim, summary
     )
-    _persist(vectors_path, index_path, model_id, dim, new_bytes, new_index_rows)
+    _persist(
+        vectors_path, index_path, model_id, dim, new_bytes, new_index_rows,
+        augmented_by=augmented_by,
+    )
     summary.embedded = len(new_index_rows)
     log.info("embed.run.done", embedded=summary.embedded, model=model_id)
     return summary

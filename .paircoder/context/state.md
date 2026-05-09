@@ -31,6 +31,45 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — alex-zhang42 VLM ingest (implementation, branch `feat/alex-zhang-ingest`)
+
+- Pinned alex-zhang42/ufo-pursue-open-atlas at HF revision
+  `b0f0c79924b88d339846aa9fc4283958fe15682b` (2026-05-08 release).
+  Their `corpus.jsonl` form isn't actually shipped — only the parquet
+  config — so wrote `scripts/build_alex_zhang_corpus.py` that
+  deterministically projects `text/train.parquet` -> JSONL. Output
+  committed at `data/external/alex-zhang42-corpus.jsonl` (14.6 MB) with
+  `.sha256` and `.revision` sidecars.
+- New module `src/pursue_index/embed/atlas_join.py` implements
+  `load_atlas_index(corpus_jsonl, manifest)` -> `{(card_id, page): [tags]}`
+  keyed by *our* `stable_card_id`. Direct hash match first; then a
+  canonical-URL fallback (lowercase + percent-decode + collapse
+  whitespace/underscore runs) to handle the war.gov-served literal-space
+  filenames that we percent-encode and they slugify. Fails closed if
+  miss-rate > 1% on the join. Real-corpus run: 1212 pages augmented
+  across 79/161 cards, 1366 image-tag lines total — under threshold.
+- Wired augmentation into `embed/store.py::_read_card_pages` (optional
+  `augment_lookup` arg appends `[[IMAGE-DESCRIPTIONS via …]]` block
+  before `text_sha`, so existing idempotency naturally re-keys augmented
+  rows). `embed/pipeline.py::embed_run` accepts `augment_lookup` +
+  `augmented_by` provenance; `write_index` now records the
+  `augmented_by` block in `index.json`.
+- New CLI flags on `pursue embed run`: `--augment-from PATH` and
+  `--augment-miss-rate-threshold FLOAT`. Embed sub-app extracted to
+  `src/pursue_index/cli/embed_cli.py` to keep `commands.py` under the
+  per-file size cap.
+- 16 new tests (atlas_join: 7, embed_augment: 7, embed_cli: 2) plus
+  fixture `tests/fixtures/atlas_join_sample.jsonl`. Full suite: 95/95
+  python, 56/56 worker. Web build clean (162 pages). Arch check
+  errors: zero (warnings only on file-too-large, all under hard limit).
+- Methodology (`web/src/pages/methodology.astro`) Related Work section
+  extended with the augmented-retrieval paragraph + TODO marker for
+  the post-run coverage stat. Cite (`web/src/pages/cite.astro`) gained
+  a section on dual citation when quoting an `[[IMAGE-DESCRIPTIONS …]]`
+  snippet.
+- **Did NOT run** the augmented embed — operator approval required for
+  the ~$0.13 Voyage spend.
+
 ### Session: 2026-05-09 — Post-launch cleanup
 
 - **Polish patch (commit `82f6a2c`):** Removed dead splash/preview-gate
@@ -94,11 +133,13 @@ hardening, git history scrub.
 
 ### Post-launch backlog (priority order)
 
-1. **Ingest alex-zhang42 VLM image descriptions** — their corpus.jsonl
-   is CC0 with image-described content for the 86.6% of pages with no
-   native PDF text. Mounting alongside our OCR text would meaningfully
-   improve retrieval on image-heavy pages. Plan + implementation in
-   progress in current session.
+1. **Ingest alex-zhang42 VLM image descriptions** — implementation
+   landed on `feat/alex-zhang-ingest`. Outstanding step: operator runs
+   `pursue embed run --manifest data/manifests/latest.json --augment-from
+   data/external/alex-zhang42-corpus.jsonl` (~$0.13, ~5 min) once they
+   want to spend the Voyage tokens, then republishes
+   `web/public/data/embeddings.bin` + `index.json` and updates the
+   coverage-stat TODO in `methodology.astro`.
 2. **Curated Finds expansion** — current set is intentionally small to
    set the editorial bar. Plan: `.paircoder/plans/curated-finds.md`.
 3. **Auto-mode full corpus re-OCR** — Surya-primary + LLM-fallback

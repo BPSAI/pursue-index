@@ -119,6 +119,29 @@ https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
 
     <section class="space-y-3">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Citing an IMAGE-DESCRIPTIONS snippet
+      </h2>
+      <p class="text-sm text-[color:var(--color-text)]">
+        When a search snippet you quote is bracketed with
+        <code class="font-mono text-xs">[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]]</code>,
+        the words inside that block were written by Alex Zhang's VLM
+        pipeline, not our OCR. Honest provenance means citing both
+        projects: ours for the retrieval surface and the page anchor,
+        Alex's for the description text itself.
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index card <card_id>, p. <n>, image description.
+Image text via Zhang, A. (2026). ufo-pursue-open-atlas (CC0).
+https://huggingface.co/datasets/alex-zhang42/ufo-pursue-open-atlas
+https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
+      <p class="text-sm text-[color:var(--color-text)]">
+        See <a href="/methodology#related" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology#related</a>
+        for how the augmentation works and why we keep both attributions
+        on every augmented snippet.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ BibTeX
       </h2>
       <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`@misc{pursueindex2026,
