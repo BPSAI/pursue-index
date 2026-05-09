@@ -10,7 +10,7 @@
 //   deploy: npx wrangler deploy
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "pursueindex",
+  "name": "pursue-index",
   "compatibility_date": "2026-05-08",
   "assets": {
     "directory": "./web/dist",
