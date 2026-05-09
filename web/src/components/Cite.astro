@@ -1,0 +1,108 @@
+---
+/**
+ * Cite — inline citation chip linking to a specific page of a corpus card.
+ *
+ * Usage (inside `.mdx` finds entries):
+ *   <Cite card="99c12a9c49a91750" page={67} />
+ *   <Cite card="99c12a9c49a91750" page={67} q="silver objects" />
+ *   <Cite card="99c12a9c49a91750" page={67} label="¹" />
+ *
+ * Anti-hallucination guard: if `card` is not present in the manifest the
+ * chip renders as a styled amber warning instead of a clickable link.
+ * This mirrors the chat surface's "do not silently link unknown ids"
+ * policy — a curator typo becomes visible at build/preview time rather
+ * than a 404 the reader has to chase.
+ *
+ * URL contract matches CardOcrIsland: `?q=…` is read from
+ * `window.location.search`, so the query string must come BEFORE the
+ * `#page-N` fragment. (The spec sketch had these reversed.)
+ */
+import { manifest } from "../data/manifest-loader";
+
+interface Props {
+  /** Full card_id (sha256 prefix). */
+  card: string;
+  /** 1-indexed page number. */
+  page: number;
+  /** Optional query terms to highlight in the destination. */
+  q?: string;
+  /** Optional explicit label; falls back to "<card_short> · p<page>". */
+  label?: string;
+}
+
+const { card, page, q, label } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const cardEntry = manifest.cards.find((c) => c.card_id === card);
+const known = cardEntry !== undefined;
+const cardTitle = cardEntry?.title ?? "(unknown card)";
+const cardAgency = cardEntry?.agency ?? "";
+const queryPart = q ? `?q=${encodeURIComponent(q)}` : "";
+const href = `${base}/card/${card}${queryPart}#page-${page}`;
+const displayLabel = label ?? `${card.slice(0, 8)} · p${page}`;
+const tooltip = known
+  ? `${cardAgency} · ${cardTitle} · page ${page}`
+  : "Unknown card_id; manifest does not contain this id.";
+---
+
+{known ? (
+  <a
+    href={href}
+    class="pi-cite"
+    title={tooltip}
+    data-card={card}
+    data-page={page}
+  >
+    {displayLabel}
+  </a>
+) : (
+  <span
+    class="pi-cite pi-cite-unknown"
+    title={tooltip}
+    data-card={card}
+    data-page={page}
+  >
+    {displayLabel}? UNKNOWN CARD
+  </span>
+)}
+
+<style is:global>
+  /* Inline citation chip — terminal-aesthetic, non-disruptive in prose flow.
+     Uses signal-cyan for known/clickable; signal-amber for unknown-card guard. */
+  .pi-cite {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.05em 0.4em;
+    margin: 0 0.1em;
+    border: 1px solid var(--color-border-bright);
+    background: var(--color-bg-elevated);
+    color: var(--color-signal-cyan);
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: baseline;
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+
+  .pi-cite:hover {
+    background: color-mix(in srgb, var(--color-signal-cyan) 12%, transparent);
+    color: var(--color-text-bright);
+  }
+
+  .pi-cite:focus-visible {
+    outline: 2px solid var(--color-signal-cyan);
+    outline-offset: 1px;
+  }
+
+  /* Anti-hallucination guard — chip is non-interactive and amber-flagged
+     when the cited card_id is not in the manifest. Curators see this in
+     preview rather than shipping a dead link to readers. */
+  .pi-cite-unknown {
+    border-color: color-mix(in srgb, var(--color-signal-amber) 40%, transparent);
+    background: color-mix(in srgb, var(--color-signal-amber) 10%, transparent);
+    color: var(--color-signal-amber);
+    cursor: help;
+  }
+</style>
