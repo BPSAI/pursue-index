@@ -1,0 +1,8 @@
+# OCR benchmark golden set
+# Format: card_id  category  description
+# Pinned 2026-05-08; rationale documented in docs/ocr-benchmark.md
+78dc972c0c143d1e  clean_typewriter  NASA-UAP-D2 Apollo 17 Transcript 1972 (16 pp)
+4b68726be4af8ff9  faded_fbi_scan    FBI HQ-83894 Serial 220 (15 pp, mid-1950s carbon)
+15d23b5f88df64fa  multi_column_form DOW-UAP-D25 Mission Report Greece Jan 2024 (7 pp)
+26b02d358ec20061  redacted_page     FBI HQ-101634279 100-DE-26505 (15 pp, black-bar redactions)
+13f86e95aed52840  long_debriefing   FBI HQ-83894 Section 6 (271 pp, mixed-quality omnibus)

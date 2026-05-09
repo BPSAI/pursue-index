@@ -1,12 +1,12 @@
 # Current State
 
-> Last updated: 2026-05-08 (UX bug-bash session)
+> Last updated: 2026-05-08 (post Surya full pass + benchmark)
 
 ## Active Plan
 
-**Plan:** Pipeline through OCR; static UI shipped to GitHub Pages; Surya GPU + LLM-fallback OCR ready; embed scaffold landed.
-**Status:** scrape ✅ download ✅ ocr (tesseract + surya + llm-fallback + auto-mode) ✅ ui ✅ embed (scaffold) 🔧 — index/serve still stub.
-**Current Sprint:** Wrap-up; backlog full Voyage embed run + benchmark harness + chat interface.
+**Plan:** Pipeline through OCR; static UI shipped to GitHub Pages; Surya full corpus pass on the NAS; LLM-fallback ready; embed scaffold landed; benchmark methodology shipped.
+**Status:** scrape ✅ download ✅ ocr (tesseract + surya full corpus + llm-fallback + auto-mode + benchmark) ✅ ui ✅ embed (scaffold) 🔧 — index/serve still stub.
+**Current Sprint:** Wrap-up; backlog full Voyage embed run + auto-mode full corpus + chat interface.
 
 ## Current Focus
 
@@ -35,6 +35,7 @@ filling out the OCR + ingest + serve stubs.
 - [x] **Surya GPU OCR engine** — `ocr/surya.py` adapter slots into the existing engine seam; `ocr_card`/`ocr_all`/`pursue ocr run --engine surya` route by engine name; `pages.jsonl` + `meta.json` record `"engine": "surya"`. `surya-ocr>=0.17` added under `pyproject.toml [gpu]` extra. Live smoke: 40-page FBI HQ-83894 ran in 56.76s @ 93.90% mean conf vs Tesseract's 106.19s on the same file.
 - [x] **`pursue embed` stage scaffold** — Voyage-3 default, OpenAI stub seam, idempotent against `(card_id, page, model_id, text_sha)`. CLI + settings + web build helper. 50/50 unit tests green. Live smoke against the 4153-page corpus with a fake embedder confirmed shape + idempotency; full Voyage run pending `VOYAGE_API_KEY` export (~$0.13 estimated).
 - [x] **OCR LLM fallback + auto mode** — `ocr/llm.py` adds an Anthropic-vision engine matching the existing `(image)→(text,conf)` seam; system prompt sent with `cache_control=ephemeral`; per-image SHA-256 → response cached to disk; per-call token usage logged via `ocr.llm.usage`. `engine="auto"` runs primary (surya|tesseract) per page, re-OCRs pages with conf < `PURSUE_OCR_LLM_THRESHOLD` (default 70) via the LLM. Auto-mode rows preserve the primary attempt as a sibling `primary` block; `meta.json` records `engine: "auto:{primary}+{fallback}"`. New `pursue ocr run --force` bypasses the idempotency check. Surya now passes `math_mode=False` (no more `<b>...</b>` markup). 14 new tests (9 LLM + 5 auto-mode); 48/50 total green (2 pre-existing embed CLI failures unrelated). Live smoke on 15-page FBI HQ-83894 serial 220 with `claude-haiku-4-5`: 9 low-conf pages re-OCR'd, ~16k input + 3.1k output tokens (~$0.03 at Haiku rates), dramatic quality lift (page 1 went from 4 lines of garbage to a complete cover-sheet transcription).
+- [x] **Surya full corpus pass + benchmark report + search payload rebuild** — re-OCR'd all 116 PDFs/4153 pages with Surya (134.8 min wall-clock vs Tesseract's 185.3, page-weighted mean conf 86.03 vs 78.64, zero failures). Pinned a 5-card golden set (`tests/fixtures/ocr_golden.txt`) covering the engine failure modes. Ran the A/B harness (`scripts/run_ocr_benchmark.py`) against 25 pages × 3 engines using `claude-haiku-4-5` as the truth proxy; full per-page detail at `data/benchmarks/ocr-20260509T002235Z.json`. Median CER vs LLM truth: Surya 6.1% vs Tesseract 40.4%. Auto-mode projected at $1.36 (Haiku) / $17.67 (Sonnet) on the full corpus given 8% of golden Surya pages fell below the 70 fallback threshold. Search payload rebuilt at 7.2 MB (vs 5.3 MB Tesseract baseline; under the 8 MB threshold). Surya's `<b>/</u>/<i>` markup stripped at the search-payload boundary instead of disabling another Surya flag. Benchmark itself spent ~$0.10 in LLM tokens; 50/50 unit tests still green. Methodology page committed at `docs/ocr-benchmark.md` for the public launch.
 
 ### Phase 2 backlog (sequenced)
 
@@ -58,164 +59,96 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 
 ## What Was Just Done
 
-### Session: 2026-05-08 — UX bug-bash from a real-human review (mobile, agency stamp, search snippets)
+### Session: 2026-05-08 — Surya full corpus pass + OCR benchmark + search payload rebuild
 
-A friend of the user browsed pursueindex.com on PC and mobile and flagged
-three concrete UX gaps. All three landed on `agent-a9d528d23d18a598e`
-worktree (three conventional-commit commits, build green at 154 pages).
-
-- **`fix(web): mobile layout audit at 375px and below`** (`abaffee`) —
-  the Base.astro header nav (six uppercase items + GH + research-preview
-  pill) overflowed at 375px because the row had no `flex-wrap`. Reflowed
-  so the nav drops to its own row below the lockup on mobile and the
-  preview pill shrinks to "preview" + sits next to the lockup. Footer
-  drops the dangling `ml-auto` (was leaving a stranded gap before
-  SRC/IDX). CardExplorer filter `<select>` gets `w-full lg:w-auto` so
-  the dropdowns fill the column on mobile instead of being narrow pills
-  against blank space. Card detail PDF iframe was `h-[80vh]
-  min-h-[640px]` — the 640px floor exceeded an iPhone SE 13 mini's
-  ~600px viewport; now `h-[60vh] min-h-[420px] sm:h-[80vh]
-  sm:min-h-[640px]`. Index hero h1 + command preamble step down a size
-  on mobile and `break-all` on the long upstream-CSV reference.
-  Methodology's full war.gov URL got `break-all`. Splash lockup
-  centers on mobile; splash footer flows in two natural columns
-  (sm:justify-between) instead of `ml-auto`-stranding the
-  preview-token line.
-- **`feat(web): agency case-file stamps on card detail header`**
-  (`b5d61e4`) — replaces the small mono "AGENCY · FBI" line on
-  /card/[id] with a visually obvious "case-file stamp" treatment in
-  the header's top-right slot. New `web/src/components/AgencyStamp.astro`:
-  rotated (~4deg) dashed-border tile, mono uppercase abbreviation
-  (DOW/FBI/NASA/DOS) + `DECLASSIFIED · {release_date}` subtitle,
-  color-coded per agency from the existing signal palette (DOW amber,
-  FBI red, NASA cyan, DOS green; neutral `--color-text-bright` fallback
-  for unknown agencies). `lg` (header) and `sm` (future grid use) sizes.
-  **Brand-original by design — does not reproduce any official seal**
-  (USC § 506 / DOD seal restrictions). Saved as a Driver feedback
-  memory so this constraint sticks for future asks.
-  Card-detail header restructured to keep agency text + redaction
-  badges on the left, stamp on the right; on mobile they stack with
-  the stamp centered. Card_id moved to its own under-line beneath
-  the dl row (less prominent, still scannable).
-- **`feat(web): search snippets + in-page OCR highlighting`**
-  (`3e2e28d`) — closes the worst UX gap of the three. Search results
-  in `SearchIsland.tsx` now show a 140-char snippet centered on the
-  first hit with matched terms wrapped in `<mark class="pi-mark">`
-  (signal-amber bg + dark text, css in global.css). Snippet uses
-  word-boundary protection at the edges so we don't chop mid-word.
-  Result links carry `?q={query}` in addition to `#page-{n}`.
-  CardOcrIsland.tsx reads `?q=` on mount, builds a Unicode
-  word-boundary regex (whole words only — "alien" matches the standalone
-  word but not "alienate" or "spacecraft"; lenient on punctuation),
-  highlights every match in the OCR text, and `scrollIntoView({
-  block: "center" })` to the very first match (with a green ring on
-  the first-hit `<mark>`). New `web/src/components/highlight.ts`
-  shared module (split into its own Vite chunk); 117 lines, 6
-  module-level functions — under arch limits.
-
-**Build status:** clean, 154 pages, 1.5s.
-**Architecture check:** `bpsai-pair arch check web/src/` — no violations.
-
-**Cross-references with sibling agents (running in parallel):**
-- nayru/laverna are read-only review; no shared-file conflicts.
-- OCR benchmark agent owns `web/public/data/pages.json` and
-  `scripts/build_*` — left untouched. The MiniSearch index in
-  `SearchIsland.tsx` consumes `pages.json` unchanged; only the
-  rendering layer changed.
-
-**Backlog items surfaced during the audit (not fixed in this pass):**
-- The `astro.config.mjs.site` still resolves OG canonical URLs to a
-  github.io origin; the launch task still needs to flip this to
-  `https://pursueindex.com` (already noted in prior session's
-  "What's Next").
-- The card grid in CardExplorer could optionally surface a small
-  AgencyStamp tile to make agency identifiable at a glance from the
-  index — judgment call deferred (the current type-badge + agency
-  text is already legible; adding a stamp risks tile-noise). The
-  `sm` size of AgencyStamp is built and ready.
-- Methodology / about pages have no in-page TOC on mobile; long-scroll
-  on a 375x812 viewport is fine but a sticky section nav would help.
-- The diff page (`/diff`) was not audited at narrow widths in this
-  pass — DiffIsland.tsx wasn't surfaced as a friend complaint and
-  staying focused.
-
-### Session: 2026-05-08 — Launch-prep UX (OCR card view, content, OG, noindex, finds, sitemap)
-
-Eight deliverables landed on `worktree-agent-aa46101777e1463bf` to close
-the visible UX gap on the live site. All commits use conventional-commit
-prefixes; final build green at 153 pages.
-
-- **`feat(web): card OCR island`** (`a1ccd33`) — new
-  `web/src/components/CardOcrIsland.tsx` Preact island that fetches
-  `/data/pages.json` (cache-shared with SearchIsland), filters by
-  `card_id`, and renders collapsible per-page sections with
-  `PAGE n · {confidence}% · {engine}` headers and `id="page-N"`
-  anchors so search results' `#page-N` deep-links scroll correctly.
-  First page expanded by default; brand `pi-loading` + `pi-sweep`
-  loading state; tailored empty-state copy for IMG/VID cards. Wired
-  into `[card_id].astro` replacing the stale "OCR pending" sidebar
-  placeholder; the OCR transcript now renders full-width below the
-  source/sidebar grid.
-- **`feat(web): about + methodology content`** (`6adce71`) — full
-  content for `/about` (what it is, why we built it, who built it,
-  editorial standards, research-preview status with `#status` anchor)
-  and `/methodology` (source provenance with the live csv_sha256,
-  curl_cffi rationale + why-not-Playwright, three-engine OCR
-  comparison table, idempotency with the `card_id = sha256(...)[:16]`
-  derivation as a code block, what we don't do, honest limitations,
-  license posture, reproducibility steps, and a `/benchmark` placeholder
-  for the OCR comparison run).
-- **`feat(web): launch-prep head metadata, robots, status pill`**
-  (`d898781`) — full OG + Twitter Card meta block in `Base.astro`
-  driven by page title/description props, canonical URL, ogImage
-  override, and ogType (website|article). Static branded OG image at
-  `web/public/og.png` (1200x630, rasterized from `og.svg` via Inkscape).
-  Pre-launch noindex via a `noindex` prop defaulting to `true` (with
-  a `FIXME(launch)` comment) and `robots.txt` disallowing all UAs.
-  Subtle signal-amber "research preview" pill in the header (right
-  side, hidden on mobile) linking to `/about#status`.
-- **`feat(web): finds route scaffold`** (`d802b91`) — Astro Content
-  Collection at `web/src/content/finds/` with a typed schema (title,
-  subtitle, summary, tags, cards, published, updated, draft) defined
-  in `web/src/content.config.ts` (Astro 6's new content config path —
-  the legacy `src/content/config.ts` location is deprecated). Index
-  at `/finds` with empty-state pointing at GitHub releases for
-  subscription; `/finds/[slug]` dynamic route renders Markdown via
-  `astro:content` `render()` with a Sources rail listing each card_id
-  the entry draws from. FINDS nav item between SEARCH and DIFF in
-  Base.astro. No actual entries shipped — content authoring is its
-  own task per `curated-finds.md`.
-- **`feat(web): sitemap integration`** (`0ec6cc7`) —
-  `@astrojs/sitemap` integration; auto-generates `sitemap-index.xml`
-  + `sitemap-0.xml` covering all 153 pages. Sitemap is built but
-  the site stays noindex until launch. `astro.config.mjs` site/base
-  unchanged per task constraints.
-
-**Notable judgment calls (not blockers):**
-- The OG/canonical URLs resolve against the github.io origin in
-  `astro.config.mjs.site` rather than the live `pursueindex.com`
-  CNAME, since the task forbade modifying site/base. The github.io
-  domain still serves the same static assets (it's the underlying
-  GH Pages host), so OG images load. Flipping `site` to
-  `https://pursueindex.com` at launch is a one-line change.
-- Per-deliverable commits were collapsed where they all touched
-  `Base.astro` head — OG + noindex + pill ship as one commit
-  (`d898781`) rather than three artificial splits of the same file.
-  Commit message enumerates all three intents.
-
-**Out-of-scope acknowledged:**
-- Chat interface (separate plan).
-- Curated finds entries (own task).
-- The `/benchmark` page (depends on the parallel OCR agent's
-  benchmark run; methodology page references it as pending).
-
-**Cross-references with the OCR agent (running in parallel):**
-- Did not touch `web/public/data/pages.json` or
-  `web/src/data/{types,manifest-loader}.ts`.
-- Did not touch `src/pursue_index/`, `tests/`, or `scripts/`.
-- The `CardOcrIsland` will surface the full live OCR text the
-  moment the OCR agent's pages.json reaches deploy; no further
-  web-side wiring needed.
+- **Surya full corpus pass.** `PURSUE_OCR_ENGINE=surya pursue ocr run --force
+  --manifest data/manifests/latest.json` re-OCR'd all 116 PDFs / 4153 pages
+  on the workstation 5090. 134.8 min total wall-clock (Tesseract baseline:
+  185.3 min — Surya is 27% faster end-to-end and runs serialized vs
+  Tesseract's 4-way concurrency). Page-weighted mean confidence: 86.03 vs
+  Tesseract's 78.64 (+7.4 pp). Zero failures. The pass was killed mid-run
+  the first time due to a foreground-shell propagation; resumed under
+  `nohup` and finished cleanly. The `_is_done` idempotency check was
+  used to skip the 7 cards already on Surya from the partial run — by
+  unlinking only the `meta.json` files of the 109 still-Tesseract cards,
+  the resume run picked up exactly where the kill left off without
+  redoing the 7 large FBI sections (no `--force` needed).
+- **Engine snapshots committed.** `data/benchmarks/_tesseract-snapshot.json`
+  and `_surya-snapshot.json` capture per-card pages/conf/duration before
+  and after the swap so the report numbers are reproducible from disk
+  alone. Pages 1-5 of each golden card preserved in
+  `_tesseract-snapshot-pages/` so the Tesseract column of the benchmark
+  is reproducible without re-running Tesseract.
+- **Benchmark harness.** `scripts/run_ocr_benchmark.py` runs Tesseract /
+  Surya / LLM (Anthropic Haiku-4.5 vision) over the same 25 pages and
+  records per-page text + confidence + wall-clock + token usage. Uses the
+  Claude Code OAuth token from `~/.claude/.credentials.json` as the
+  Anthropic API key when `ANTHROPIC_API_KEY` is unset (matching the prior
+  LLM-fallback agent). Sonnet-4.6 hits 429 immediately on Max-tier OAuth
+  for image inference, so Haiku-4.5 is the benchmark default; Sonnet
+  numbers projected at ~13× the Haiku per-token blend. Per-image SHA-256
+  cache zero-cost re-runs.
+- **Methodology pinned.** Golden set at `tests/fixtures/ocr_golden.txt`:
+  clean typewriter (NASA Apollo 17 Transcript), faded FBI carbon
+  (HQ-83894 serial 220), multi-column DOW Mission Report (Greece),
+  redacted FBI page (100-DE-26505), long FBI debriefing (Section 6,
+  271 pp). LLM as truth proxy per the plan's open question on
+  truth-set transcription; CER/WER scored against it.
+- **Numbers (golden set, 25 pages):**
+    - Median CER vs LLM truth: Tesseract 40.4%, Surya 6.1% (~7× fewer
+      char errors on the typical page).
+    - Capped mean CER (clipped at 100% per page): Tesseract 44.0%, Surya
+      30.1%. Raw means are skewed by 1-2 hallucination outliers on
+      near-blank pages where one engine emitted long garbage and another
+      was correctly silent — median is the honest metric.
+    - Median WER: Tesseract 59.8%, Surya 9.6%.
+    - Per-page wall-clock: Surya 1.9s, Tesseract 2.4s, LLM 7.7s.
+    - LLM cost on Haiku-4.5: $0.0041/page, ~$0.10 for the whole benchmark.
+    - Worst Tesseract failure (`26b02d358ec20061` page 3, redacted FBI
+      cover): Tesseract emitted 1700+ chars of `: _ ee . | _ . :` style
+      garbage; Surya returned ~200 chars of partial form fields; LLM
+      returned a clean form-template transcription with `[REDACTED]` /
+      `[ILLEGIBLE]` markers per the prompt contract.
+- **Auto-mode projection.** 2/25 Surya pages on the golden set fell below
+  the 70 LLM-fallback threshold. Extrapolated to the full 4153-page
+  corpus: ~332 LLM calls = ~$1.36 at Haiku, ~$17.67 at Sonnet. The
+  recommendation lands as: **auto:surya+llm-anthropic with Haiku** is
+  the right default for the public corpus — under $2 keeps it within
+  the embed budget and the lift on hard pages is real (Surya
+  hallucinates plausible-but-wrong text on heavily-faded carbons; the
+  LLM correctly emits `[ILLEGIBLE]` and the auto threshold catches
+  these because Surya self-rates low when in trouble).
+- **Search payload rebuilt.** `scripts/build_search_data.py` regenerated
+  `web/public/data/pages.json` from the post-Surya `pages.jsonl`. Size
+  7.2 MB (vs 5.3 MB Tesseract baseline; +1.9 MB from Surya's better
+  text extraction across redactions and layout). Under the 8 MB
+  threshold called out in the embed-stage plan. The builder now strips
+  Surya's `<b>...</b>` / `<u>...</u>` / `<i>...</i>` markup from the
+  payload — Surya emits these for inferred bold/underline runs even
+  with `math_mode=False`, and the corpus has no markup semantics.
+  This is the cleaner fix vs disabling another Surya flag (tracked as
+  `ocr-gpu-surya` follow-up #2 in the plan; closes that item).
+- **What I decided differently.** Skipped writing CER/WER vs
+  hand-transcribed ground truth (the plan flagged this as one-time
+  grunt work; not feasible at agent velocity for 25 pages). Used the
+  LLM as truth proxy explicitly, with the methodology disclaimer in
+  the report. Did not run auto-mode on the full corpus — left that
+  decision to the user as the prompt instructed. Surya markup is
+  stripped at the search-payload boundary, not in `ocr/surya.py`,
+  because keeping the raw model output in `pages.jsonl` is the right
+  layering (downstream consumers can choose how much markup to keep).
+- **Spend audit.** ~$0.10 LLM benchmark, well under the $1 cap. Sonnet
+  on Max-tier OAuth was rate-limited immediately on the first try;
+  Haiku ran cleanly (one 401 transient mid-run, recovered after retry
+  via the per-image cache). Total OAuth tokens billed: ~45k input +
+  ~11k output across 25 LLM calls.
+- **Tests.** 50/50 unit tests green. Architecture check on every
+  modified file: errors zero, only file-size warnings on the report
+  builder (212-279 lines) which is acceptable for a one-off generator.
+- **Commits on `worktree-agent-ac19ed70e91de1982`** (not pushed):
+  `972398e` (full Surya pass + snapshots), `b81eab3` (benchmark report
+  + harness + golden set), `8dcb640` (search payload rebuild + Surya
+  markup strip).
 
 ### Session: 2026-05-08 — OCR LLM fallback + auto mode + small chores
 
@@ -369,40 +302,24 @@ prefixes; final build green at 153 pages.
 
 ## What's Next
 
--1. **UX bug-bash merge** — review and merge `agent-a9d528d23d18a598e`
-   into main. Three commits: mobile layout audit, agency case-file
-   stamps, search snippets + in-page OCR highlighting. No data shape
-   changes; Worker / wrangler / pages.json untouched.
-0. **Launch-prep UX merge** — review and merge
-   `worktree-agent-aa46101777e1463bf` into main. Once merged, the live
-   `pursueindex.com` deploy will pick up: card OCR transcripts, real
-   /about + /methodology, OG cards, research-preview pill, /finds
-   scaffold, sitemap. Remaining launch toggles: flip `noindex` default
-   to `false` in `Base.astro`, replace `robots.txt` with permissive
-   rules + sitemap reference, optionally update `astro.config.mjs.site`
-   to `https://pursueindex.com` so OG/canonical URLs match the CNAME.
-1. **Full Voyage-3 embed run** — export `VOYAGE_API_KEY` and run
+1. **Auto-mode full corpus pass** — user-decision pending the benchmark
+   numbers above. `PURSUE_OCR_ENGINE=auto pursue ocr run --force
+   --manifest data/manifests/latest.json` will Surya-primary every page
+   and LLM-fallback the ~8% below the 70 threshold (~332 calls,
+   ~$1.36 at Haiku-4.5, ~$17.67 at Sonnet-4.6). Recommended Haiku for
+   public-launch budget. Will overwrite the current Surya-only output;
+   re-run `python scripts/build_search_data.py` after.
+2. **Full Voyage-3 embed run** — export `VOYAGE_API_KEY` and run
    `pursue embed run --manifest data/manifests/latest.json` against the
-   full 4153-page corpus. Estimated $0.13 (per the embed-stage plan)
-   and well under the $1 cap. Then run `python scripts/build_embed_data.py`
-   to produce the web payload (~8.5 MB float16 binary at 1024 dims).
-2. **Full Surya re-OCR with auto-mode** — `pursue ocr run --force
-   --engine auto --manifest data/manifests/latest.json` now possible
-   with the `--force` flag landed. Auto-mode will run Surya as primary
-   (since `[gpu]` is installed), LLM-fallback the low-conf pages.
-   Need `ANTHROPIC_API_KEY` exported in workstation env. Estimated
-   cost: ~$0.10/card with Sonnet 4.6 on the worst FBI scans, near
-   zero on clean typewriter docs (most pages won't trigger fallback).
-3. **OCR benchmark harness** (`ocr-benchmark.md`) — now unblocked by
-   the `--force` flag. A/B Tesseract vs Surya vs Surya+LLM on the 5
-   representative golden PDFs, produce mean-confidence + wall-clock
-   + cost numbers for the methodology page.
-4. **Chat interface** (`chat-interface.md`) — RAG worker over the embed
+   full 4153-page corpus. Estimated $0.13 per the embed-stage plan
+   and well under the $1 cap. Should run AFTER auto-mode lands so
+   embeddings are over the highest-quality text.
+3. **Chat interface** (`chat-interface.md`) — RAG worker over the embed
    payload, streaming citations from Anthropic.
-5. **Index stage** — wire SQLAlchemy models (cards, pages) into the
+4. **Index stage** — wire SQLAlchemy models (cards, pages) into the
    manifest + OCR output. Becomes useful when the corpus outgrows
    ~10 MB of in-browser JSON.
-6. **FastAPI service** — only after Postgres ingest exists.
+5. **FastAPI service** — only after Postgres ingest exists.
 
 ## Blockers
 
