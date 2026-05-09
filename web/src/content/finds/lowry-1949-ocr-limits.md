@@ -1,0 +1,140 @@
+---
+title: "DOW 319.1 — When the Documents Don't Cooperate"
+subtitle: "What heavily-degraded carbon copies actually look like after OCR, and what survives transcription"
+summary: "Card 218e167fbd265d91 is the Department of War's Flying Discs 1949 file — 143 pages of mostly carbon-copy correspondence between Air Force Flight Service Centers, Air Materiel Command, and Wright-Patterson AFB. The OCR pipeline succeeded on most pages but failed on roughly a quarter of them, falling back to LLM-vision and returning [ILLEGIBLE] markers. This entry is about that failure mode: what bad OCR looks like, why it happens, and what the reader can and cannot recover from a 75-year-old typewritten carbon."
+tags: ["dow", "1949", "primary-source", "ocr-limits", "transparency"]
+cards:
+  - 218e167fbd265d91
+published: 2026-05-09
+---
+
+## Why this entry
+
+Most curated finds on this site cite documents that are *recoverable* — the OCR pipeline read them, the words on the page line up with the words in the search index, you can quote them. This entry is about a card where that breaks down.
+
+`218e167fbd265d91` is **DOW 319.1 Flying Discs 1949** — 143 declassified pages comprising correspondence routed between U.S. Air Force Flight Service Centers (Lowry, Olmsted, McChord, others), Air Materiel Command, and Wright-Patterson Air Force Base, dated mostly 1949 with some 1948 and 1950 material. The file is presumably the working dossier of a Flight Service unit responsible for compiling sighting reports per **Flight Service Regulation 200-4** of 2 November 1948.
+
+The reason this card is worth its own entry is that **roughly a quarter of its pages are too degraded for the primary OCR engine to handle**. They fall back to a vision-language-model pipeline that returns annotations like `[ILLEGIBLE]`, `[REDACTED]`, and shape descriptions instead of transcribed text. A reader who clicks into this card looking for evidence will encounter both kinds of pages and should be calibrated for what they're seeing.
+
+## What the file is, when it is recoverable
+
+The cleanest pages in the file are individual flight-service Form-No.-7 reports. A representative example is page 1, the cover transmission from **Lowry Flight Service Center, Lowry Air Force Base, Denver, Colorado, dated 9 January 1950**, signed by Lt. Col. Robert M. McLeod:
+
+> "In compliance with Flight Service Regulation 200-4, dated 2 November 1948, Subject: 'Unidentified Flying Objects,' the following report is submitted.
+> 2. On the night of 6 January 1950, two objects were sighted over Kansas City, Kansas, and Olathe, Kansas. They appeared to be motionless over Clathe for ten to fifteen minutes, then moved off very fast.
+> 3. The weather at Kansas City was clear with twelve miles visibility.
+> 4. The incident was witnessed by James F. Grey, 6200 Hadley St., Raytown, Missouri, phone FL 2744; and Robert Van De Vyvere, 5532, Raytown Road, Missouri. Both are employed at Bendix Aviation, Kansas City, Kansas, and the former is a pilot.
+> […]
+> 6. Two objects were sighted, both spherical in shape. They appeared to be the size of old fashioned street lights about two blocks distant. They were a brilliant white, emanating orange and red flashes."[^kc-report]
+
+This is what *recoverable* looks like — clean transcription, full witness names and addresses, weather, flight regulation cited, a working chain of custody back to "Fairfax AFB Operations, Kansas City, Kansas." The OCR engine reports 95% confidence on this page. Researchers can quote it.
+
+A second representative recoverable page is the **September 22, 1949 Olmsted Flight Service Center report** of an object sighted thirty miles northeast of Griffiss Air Force Base, Rome, New York:
+
+> "Date of Sighting: 20 September 1949 […] Where Sighted: Thirty North East, Griffiss Air Force Base, Rome, New York […] (1) Type aircraft, speed, altitude, direction of flight. C-45, 160 [knots], 10,000, 250 degrees"[^olmsted-report]
+
+A page later, the same Olmsted form continues into negative-evidence fields:
+
+> "11. Effect on clouds: Unknown
+> 12. Lights: None
+> 13. Support: None
+> 14. Propulsion: Appeared to be rocket or jet
+> a. Propeller or jet: Appeared to be rocket or jet
+> b. Rotor: None
+> c. Aerodynamic vanes: None observed
+> d. Visible exhaust or jet openings: None observed
+> 15. Control and stability: None observed"[^olmsted-form]
+
+This is recoverable because the original was a clean carbon, the form is a typeset template with limited handwriting, and Surya's typewriter-character recognition handles 1940s monospace cleanly.
+
+## What the file is, when it is not recoverable
+
+Now the same file's **page 2** — the routing slip that sits behind the McLeod cover transmission described above:
+
+> "TRANSMITTED
+> JAN 9 4 00 PM '50
+> LOWEY
+> FLIGHT SERVICE CENTER
+> [ILLEGIBLE - faded text throughout middle section]
+> FLIGHT:
+> [ILLEGIBLE - faded text]
+> [Several paragraphs of heavily faded and illegible typewritten text]
+> [ILLEGIBLE - bottom section contains faded text]
+> DENLEH' COГOBVДO
+> ГOMБA VIБ LOHCE БУДЕ
+> ГOMБA ERIГIГIРI ЗЕВДICE CEИДЕБ"[^lowey]
+
+That last block of text is not Cyrillic. It is the LLM-vision pipeline attempting to transcribe an upside-down, mirror-image, heavily-faded carbon impression where individual character glyphs have degraded toward a state in which the model's tokenizer is reaching for whichever character set best matches what looks like a series of curls and dots. "DENLEH' COГOBVДO" is almost certainly a partly-rotated rendering of *DENVER, COLORADO*; "ГOMБA" and similar tokens are almost certainly faded artifacts of the form's printed *FORM* and similar header text. The page is unrecoverable; the model's best-effort produces glyph-soup.
+
+The pipeline exposed `[ILLEGIBLE]` and `[REDACTED]` markers so that downstream search and LLM consumers don't accidentally confuse model hallucination with archival text.
+
+A second, more compact example is page 21:
+
+> "TRANSMITTED
+> AUG 10 3 [illegible] PM '49
+> FILED SENT RETURN
+> WM. ROOHOOFER FIELD"[^aug10]
+
+"WM. ROOHOOFER FIELD" is not a real Air Force installation. Surya's confidence score is 45 on this page, and the LLM has rendered what is presumably a faded date stamp in the form `WM. ROOFNOFER` or `MCCHORD` (it is in fact almost certainly *McCHORD FIELD* — a 1949 Air Force base near Tacoma, Washington — but the model is not certain enough to commit). The reader should treat this page as: a routing slip exists; it is dated approximately August 10, 1949; it appears to involve a Flight Service installation; nothing more.
+
+## Where the LLM-vision fallback succeeds
+
+It is worth noting where the LLM pipeline does *better* than the OCR engine, which is when the page is not text at all. Page 70 of this file is an annotated photograph of an aircraft, with the surviving caption text:
+
+> "Chance-Vought V-173 or XF5U-1
+> U.S. Navy
+> Incl. 1"[^chance-vought]
+
+The Chance-Vought V-173 (and its larger sibling, the XF5U-1 "Flying Flapjack") was a U.S. Navy experimental disc-shaped aircraft of the 1940s — exactly the kind of contemporary candidate flight-service investigators would have included as Inclosure 1 to demonstrate that not everything disc-shaped was unexplained. Surya would not have transcribed the photograph at all; the LLM's vision component identifies what the photograph shows and renders the caption text. This is the kind of page where the fallback adds value.
+
+The same fallback can also handle ambiguity cleanly. Page 119 of the file:
+
+> "[Page appears to be a heavily faded carbon copy or poor quality scan of a declassified document. Most text is illegible due to fading.]
+> [At top of page, two black dots marking holes for file fasteners]
+> [Several lines of text in upper portion are too faded to read with certainty]
+> [Middle section contains what appears to be a table or columnar data, but text is too faded to transcribe accurately]
+> [At bottom of page, two circular stamps/marks are visible:]
+> Left stamp (circular): [ILLEGIBLE - appears to be a date stamp, possibly reading 'NOV 1 1904']
+> Right stamp (larger circular): [ILLEGIBLE - contains text arranged in circular pattern around the perimeter, text too faded to read]
+> [Additional text below stamps, appears reversed/upside down]: 'RECORDED' and 'HAS HEREIN CONTAINED'
+> [Arrow marker visible in upper right corner]"[^p119]
+
+This is the model doing what it should: describing the page's structure, flagging stamps it can identify versus stamps it cannot, noting orientation issues. The "NOV 1 1904" reading is nearly certain to be wrong (this file is 1949 material), and the model says "possibly reading." That hedge is correct behavior.
+
+## What the file does not recover
+
+The most useful thing this entry can offer a working researcher is the **distribution**, so they know what to expect:
+
+- 143 total pages
+- 109 transcribed by Surya (76% of the file). Median Surya confidence: **93**.
+- 34 fell through to LLM-vision (24% of the file). Median LLM-vision confidence: **25**.
+- 31 pages have an overall confidence below 50 — i.e., the OCR system itself is flagging "this page is mostly unrecoverable."
+
+Approximately one in five pages in this file is *partially* unrecoverable in a way that loses content the original document presumably contains. We do not know what those pages say. The full PDF on war.gov has the same physical degradation; an in-person archivist with a high-resolution scan and a magnifying glass might do better than either OCR or vision-LLM, but that is not a service this site provides.
+
+The reader should *not* assume that the readable pages on this card are representative of the full file's content. There is content the corpus does not preserve, and the absence is not random — it concentrates on routing slips, file covers, and intra-office memoranda where carbon copies were produced casually, while the principal incident reports (those signed by colonels for forwarding to Air Materiel Command) are typically much cleaner.
+
+## What this means for citing the corpus
+
+A small piece of practical guidance for anyone planning to cite material from PURSUE in published work:
+
+1. **Check the engine and confidence on every page you cite.** Surya at 90+ confidence on a 1947–1968 typewritten page is high-quality transcription. LLM-vision at confidence 25 with `[ILLEGIBLE]` markers is *not* a quote; it is the model describing a page it could not read.
+2. **Quote verbatim, including OCR oddities.** If the form spells the surname "Strapp" once and "Stapp" elsewhere, both spellings are part of the historical record. Don't silently correct.
+3. **When in doubt, link to the page and let the reader see the source themselves.** That is what the citation format on this site is for.
+4. **`[ILLEGIBLE]` is data.** A page being mostly unreadable tells you something about the original document's condition. Quote the markers if they're load-bearing for your argument.
+
+For the larger primary-source-rich material — the [FBI omnibus file](/finds/fbi-62-hq-83894-readers-guide), the [Muroc affidavits](/finds/muroc-1947), the [DOW Box 7 incident summaries](/finds/dow-incidents-1-100) — the OCR is mostly clean and quotable. This card is the unusual one. We are flagging it now so a researcher who clicks into it knows what they are looking at, and so the broader principle — *the corpus is honest about its own limits* — is on the record alongside the [other meta entries](/finds/whats-not-uap).
+
+[^kc-report]: Lowry Flight Service Center cover transmission, signed Lt. Col. Robert M. McLeod, USAF, dated 9 January 1950, regarding the 6 January 1950 sighting near Kansas City / Olathe, Kansas. [DOW 319.1, page 1](/card/218e167fbd265d91#page-1).
+
+[^olmsted-report]: Olmsted Flight Service Center, Olmsted Air Force Base, Middletown, Pennsylvania, MOT 000.92, dated 22 September 1949, regarding a 20 September 1949 sighting near Griffiss Air Force Base. [DOW 319.1, page 3](/card/218e167fbd265d91#page-3).
+
+[^olmsted-form]: Continuation of the Olmsted form, "Essential Elements of Information." [DOW 319.1, page 5](/card/218e167fbd265d91#page-5).
+
+[^lowey]: Routing transmission slip behind the McLeod cover, returned by the LLM-vision fallback at confidence 25. [DOW 319.1, page 2](/card/218e167fbd265d91#page-2).
+
+[^aug10]: Routing slip dated approximately August 10, 1949, returned at LLM-vision confidence 45. The "WM. ROOHOOFER FIELD" rendering is the model's best attempt at what is presumably *McCHORD FIELD*. [DOW 319.1, page 21](/card/218e167fbd265d91#page-21).
+
+[^chance-vought]: Annotated photograph caption identifying the Chance-Vought V-173 / XF5U-1 prototype as Inclosure 1 to a flight-service report. [DOW 319.1, page 70](/card/218e167fbd265d91#page-70).
+
+[^p119]: LLM-vision description of a heavily-degraded page with circular date stamps. [DOW 319.1, page 119](/card/218e167fbd265d91#page-119).
