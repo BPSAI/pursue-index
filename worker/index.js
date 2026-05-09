@@ -170,8 +170,7 @@ export default {
       );
     }
 
-    // /api/* routes — cookie-gated until launch + CORS-locked to our origins.
-    // FIXME(launch): when we flip the gate, drop the cookie check (keep CORS).
+    // /api/* routes — public after launch; CORS-locked to our origins.
     if (url.pathname.startsWith("/api/")) {
       // CORS: only browsers from our own origins should be calling these.
       // Same-origin requests don't send Origin (or send our own host); cross-
@@ -197,23 +196,6 @@ export default {
           }),
         );
       }
-      if (!hasPreviewCookie(request)) {
-        return withSecurityHeaders(
-          new Response(
-            JSON.stringify({
-              error:
-                "Research preview is gated. Visit /?preview=<token> first.",
-            }),
-            {
-              status: 403,
-              headers: {
-                "Content-Type": "application/json",
-                ...corsHeaders(origin),
-              },
-            },
-          ),
-        );
-      }
       let response;
       if (url.pathname === "/api/retrieve") {
         response = await handleRetrieve(request, env);
@@ -233,19 +215,9 @@ export default {
       return withSecurityHeaders(corsResponse);
     }
 
-    // Gate the homepage. Every other path falls through to static assets.
-    if (url.pathname === "/" || url.pathname === "") {
-      if (!hasPreviewCookie(request)) {
-        // /splash/ with trailing slash matches Astro's auto-trailing-slash
-        // build output (web/dist/splash/index.html). Without the slash CF
-        // returns a 307, which we'd then have to follow.
-        const splashUrl = new URL("/splash/", url);
-        return withSecurityHeaders(
-          await env.ASSETS.fetch(new Request(splashUrl, request)),
-        );
-      }
-    }
-
+    // Gate is flipped — homepage and every other path serve from static
+    // assets unconditionally. The splash route still exists at /splash for
+    // anyone who bookmarked it; can be deleted in a follow-up.
     return withSecurityHeaders(await env.ASSETS.fetch(request));
   },
 };
