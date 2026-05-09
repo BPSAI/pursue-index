@@ -58,6 +58,84 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 
 ## What Was Just Done
 
+### Session: 2026-05-08 — Launch-prep UX (OCR card view, content, OG, noindex, finds, sitemap)
+
+Eight deliverables landed on `worktree-agent-aa46101777e1463bf` to close
+the visible UX gap on the live site. All commits use conventional-commit
+prefixes; final build green at 153 pages.
+
+- **`feat(web): card OCR island`** (`a1ccd33`) — new
+  `web/src/components/CardOcrIsland.tsx` Preact island that fetches
+  `/data/pages.json` (cache-shared with SearchIsland), filters by
+  `card_id`, and renders collapsible per-page sections with
+  `PAGE n · {confidence}% · {engine}` headers and `id="page-N"`
+  anchors so search results' `#page-N` deep-links scroll correctly.
+  First page expanded by default; brand `pi-loading` + `pi-sweep`
+  loading state; tailored empty-state copy for IMG/VID cards. Wired
+  into `[card_id].astro` replacing the stale "OCR pending" sidebar
+  placeholder; the OCR transcript now renders full-width below the
+  source/sidebar grid.
+- **`feat(web): about + methodology content`** (`6adce71`) — full
+  content for `/about` (what it is, why we built it, who built it,
+  editorial standards, research-preview status with `#status` anchor)
+  and `/methodology` (source provenance with the live csv_sha256,
+  curl_cffi rationale + why-not-Playwright, three-engine OCR
+  comparison table, idempotency with the `card_id = sha256(...)[:16]`
+  derivation as a code block, what we don't do, honest limitations,
+  license posture, reproducibility steps, and a `/benchmark` placeholder
+  for the OCR comparison run).
+- **`feat(web): launch-prep head metadata, robots, status pill`**
+  (`d898781`) — full OG + Twitter Card meta block in `Base.astro`
+  driven by page title/description props, canonical URL, ogImage
+  override, and ogType (website|article). Static branded OG image at
+  `web/public/og.png` (1200x630, rasterized from `og.svg` via Inkscape).
+  Pre-launch noindex via a `noindex` prop defaulting to `true` (with
+  a `FIXME(launch)` comment) and `robots.txt` disallowing all UAs.
+  Subtle signal-amber "research preview" pill in the header (right
+  side, hidden on mobile) linking to `/about#status`.
+- **`feat(web): finds route scaffold`** (`d802b91`) — Astro Content
+  Collection at `web/src/content/finds/` with a typed schema (title,
+  subtitle, summary, tags, cards, published, updated, draft) defined
+  in `web/src/content.config.ts` (Astro 6's new content config path —
+  the legacy `src/content/config.ts` location is deprecated). Index
+  at `/finds` with empty-state pointing at GitHub releases for
+  subscription; `/finds/[slug]` dynamic route renders Markdown via
+  `astro:content` `render()` with a Sources rail listing each card_id
+  the entry draws from. FINDS nav item between SEARCH and DIFF in
+  Base.astro. No actual entries shipped — content authoring is its
+  own task per `curated-finds.md`.
+- **`feat(web): sitemap integration`** (`0ec6cc7`) —
+  `@astrojs/sitemap` integration; auto-generates `sitemap-index.xml`
+  + `sitemap-0.xml` covering all 153 pages. Sitemap is built but
+  the site stays noindex until launch. `astro.config.mjs` site/base
+  unchanged per task constraints.
+
+**Notable judgment calls (not blockers):**
+- The OG/canonical URLs resolve against the github.io origin in
+  `astro.config.mjs.site` rather than the live `pursueindex.com`
+  CNAME, since the task forbade modifying site/base. The github.io
+  domain still serves the same static assets (it's the underlying
+  GH Pages host), so OG images load. Flipping `site` to
+  `https://pursueindex.com` at launch is a one-line change.
+- Per-deliverable commits were collapsed where they all touched
+  `Base.astro` head — OG + noindex + pill ship as one commit
+  (`d898781`) rather than three artificial splits of the same file.
+  Commit message enumerates all three intents.
+
+**Out-of-scope acknowledged:**
+- Chat interface (separate plan).
+- Curated finds entries (own task).
+- The `/benchmark` page (depends on the parallel OCR agent's
+  benchmark run; methodology page references it as pending).
+
+**Cross-references with the OCR agent (running in parallel):**
+- Did not touch `web/public/data/pages.json` or
+  `web/src/data/{types,manifest-loader}.ts`.
+- Did not touch `src/pursue_index/`, `tests/`, or `scripts/`.
+- The `CardOcrIsland` will surface the full live OCR text the
+  moment the OCR agent's pages.json reaches deploy; no further
+  web-side wiring needed.
+
 ### Session: 2026-05-08 — OCR LLM fallback + auto mode + small chores
 
 - Added `src/pursue_index/ocr/llm.py` — Anthropic-vision OCR engine
@@ -210,6 +288,14 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 
 ## What's Next
 
+0. **Launch-prep UX merge** — review and merge
+   `worktree-agent-aa46101777e1463bf` into main. Once merged, the live
+   `pursueindex.com` deploy will pick up: card OCR transcripts, real
+   /about + /methodology, OG cards, research-preview pill, /finds
+   scaffold, sitemap. Remaining launch toggles: flip `noindex` default
+   to `false` in `Base.astro`, replace `robots.txt` with permissive
+   rules + sitemap reference, optionally update `astro.config.mjs.site`
+   to `https://pursueindex.com` so OG/canonical URLs match the CNAME.
 1. **Full Voyage-3 embed run** — export `VOYAGE_API_KEY` and run
    `pursue embed run --manifest data/manifests/latest.json` against the
    full 4153-page corpus. Estimated $0.13 (per the embed-stage plan)
