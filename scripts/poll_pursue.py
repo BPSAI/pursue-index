@@ -1,42 +1,33 @@
 """Lightweight poll for upstream PURSUE CSV changes.
 
-This script runs from a GitHub Actions cron schedule (see
-``.github/workflows/poll-pursue.yml``). It is the lightweight half of
-the two-layer architecture in ``.paircoder/plans/auto-poll-tranches.md``:
+Driven by ``.github/workflows/poll-pursue.yml`` on a 6h cron (Layer 1
+of the two-layer architecture in
+``.paircoder/plans/auto-poll-tranches.md``). Fetches the upstream CSV
+via ``pursue_index.scrape.csv_fetcher`` (same curl_cffi + Chrome-TLS
+path the CLI uses, so the Akamai bypass is exercised), hashes the
+bytes, and compares to the last-known sha stored in
+``data/last-known-csv-sha.txt`` (with ``data/manifests/latest.json#csv_sha256``
+as fallback when the .txt is missing — keeps the two truth sources in
+sync if the operator ran ``pursue scrape run`` manually).
 
-* Fetch the upstream CSV via ``pursue_index.scrape.csv_fetcher`` —
-  same curl_cffi + Chrome-TLS path as ``pursue scrape run``, so the
-  Akamai bypass is exercised and we get an early signal if it stops
-  working.
-* SHA-256 the bytes; compare to the previously-observed value stored
-  in ``data/last-known-csv-sha.txt`` (committed to the repo so drift
-  is visible from ``git log``).
-* On unchanged: exit 0 with status=unchanged.
-* On change: exit 0 with status=changed and emit an issue payload tagged
-  ``tranche-detected`` so the operator runs the heavy pipeline.
-* On fetch failure: exit 1 with status=failed and emit an issue payload
-  tagged ``tranche-poll-failure``.
+Result variants live in ``_poll_results.py``; ``$GITHUB_OUTPUT``
+serialization lives in ``_poll_gh_io.py``. Exit codes:
 
-The script never auto-runs the heavy ingest pipeline. Per the plan:
-"GPU provisioning, cost, content review" — operator-attended is the
-right policy.
+* unchanged -> 0, status=unchanged
+* changed   -> 0, status=changed (commit + tranche-detected issue)
+* failed    -> 1, status=failed (tranche-poll-failure issue)
 
-Run manually:
+Heavy ingest is operator-attended by design. Run manually:
 
-    python scripts/poll_pursue.py [--state data/last-known-csv-sha.txt]
-
-Set ``GITHUB_OUTPUT`` to the path of an output kv-pairs file to have
-``status``, ``old_sha``, ``new_sha``, ``issue_title``, ``issue_body``,
-and ``issue_labels`` written for the surrounding workflow to consume.
+    python scripts/poll_pursue.py [--state ...] [--manifest ...]
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-import os
+import json
 import sys
-from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -47,42 +38,24 @@ _SRC = _REPO_ROOT / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
+# Make sibling helper module importable in the same way (scripts/ is not
+# a package, so a relative import would fail).
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
 from pursue_index.scrape.csv_fetcher import fetch_raw_csv  # noqa: E402
 
+from _poll_gh_io import (  # noqa: E402
+    changed_issue_body,
+    emit_gh_outputs,
+    failed_issue_body,
+    truncate_error,
+)
+from _poll_results import Changed, Failed, PollResult, Unchanged  # noqa: E402
+
 DEFAULT_STATE_PATH = _REPO_ROOT / "data" / "last-known-csv-sha.txt"
-
-
-@dataclass(frozen=True)
-class Unchanged:
-    """The upstream sha matches the last-known sha."""
-
-    sha: str
-
-
-@dataclass(frozen=True)
-class Changed:
-    """The upstream sha differs from last-known (or there is no last-known)."""
-
-    old_sha: str
-    new_sha: str
-    fetched_at: str
-    is_bootstrap: bool = False
-    issue_labels: tuple[str, ...] = ("tranche-detected",)
-    issue_body: str = ""
-
-
-@dataclass(frozen=True)
-class Failed:
-    """The fetch raised, returned non-200, or returned an empty body."""
-
-    error: str
-    fetched_at: str
-    issue_labels: tuple[str, ...] = ("tranche-poll-failure",)
-    issue_body: str = ""
-    extra: dict[str, str] = field(default_factory=dict)
-
-
-PollResult = Unchanged | Changed | Failed
+DEFAULT_MANIFEST_PATH = _REPO_ROOT / "data" / "manifests" / "latest.json"
 
 
 def sha256_hex(body: bytes) -> str:
@@ -91,67 +64,93 @@ def sha256_hex(body: bytes) -> str:
 
 
 def _read_last_known(state_path: Path) -> str:
-    """Return the previously-observed sha, or ``""`` if there isn't one.
+    """Sha from the state file, or ``""`` if missing/empty.
 
     File format: ``{sha256}  {iso8601}\n`` (two spaces between fields).
     """
     if not state_path.exists():
         return ""
     text = state_path.read_text().strip()
-    if not text:
+    return text.split()[0] if text else ""
+
+
+def _read_manifest_sha(manifest_path: Path) -> str:
+    """``csv_sha256`` from ``manifest_path``, or ``""`` on miss/parse-error.
+
+    Fallback used when the state file is missing — keeps the state
+    file and the manifest in agreement so a manual ``pursue scrape
+    run`` doesn't look like an upstream change on the next tick.
+    """
+    if not manifest_path.exists():
         return ""
-    return text.split()[0]
+    try:
+        data = json.loads(manifest_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return ""
+    sha = data.get("csv_sha256", "") if isinstance(data, dict) else ""
+    return sha if isinstance(sha, str) else ""
 
 
 def _now_iso() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _changed_issue_body(old_sha: str, new_sha: str, ts: str, bootstrap: bool) -> str:
-    if bootstrap:
-        return (
-            "First observation of upstream CSV. Recording sha for future"
-            f" change detection.\n\n* new_sha: `{new_sha}`\n"
-            f"* observed_at: {ts}\n"
-        )
-    return (
-        "Upstream PURSUE CSV changed. The operator should run the heavy"
-        " ingest pipeline (`pursue scrape run` -> download -> ocr -> embed).\n\n"
-        f"* old_sha: `{old_sha}`\n"
-        f"* new_sha: `{new_sha}`\n"
-        f"* observed_at: {ts}\n"
+def _resolve_old_sha(state_path: Path, manifest_path: Path | None) -> str:
+    """State file wins; manifest is fallback; both missing => bootstrap."""
+    sha = _read_last_known(state_path)
+    if sha:
+        return sha
+    return _read_manifest_sha(manifest_path) if manifest_path is not None else ""
+
+
+def _failed(exc_or_msg: BaseException | str, ts: str) -> Failed:
+    """Build a Failed result with truncated, sanitized error text."""
+    if isinstance(exc_or_msg, BaseException):
+        exc_type = type(exc_or_msg).__name__
+        raw = f"{exc_type}: {exc_or_msg}"
+    else:
+        exc_type = "EmptyBody"
+        raw = exc_or_msg
+    err = truncate_error(raw)
+    return Failed(
+        error=err,
+        fetched_at=ts,
+        issue_body=failed_issue_body(err, ts),
+        extra={"exception_type": exc_type},
     )
 
 
-def _failed_issue_body(error: str, ts: str) -> str:
-    return (
-        "Polling the upstream CSV failed. This may indicate Akamai has"
-        " changed defenses, the upstream is down, or our curl_cffi"
-        " impersonation has drifted. Investigate before assuming the"
-        " corpus is stable.\n\n"
-        f"* error: {error}\n"
-        f"* observed_at: {ts}\n"
-    )
+def _fetch_or_failed(ts: str) -> bytes | Failed:
+    """Run the upstream fetch, returning the body or a Failed result.
+
+    ``KeyboardInterrupt`` and ``SystemExit`` propagate (they are not
+    poll failures and shouldn't open a real GitHub issue). (nayru P2 #7)
+    """
+    try:
+        return fetch_raw_csv()
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except Exception as exc:  # noqa: BLE001 — surface any transport failure
+        return _failed(exc, ts)
 
 
-def poll(state_path: Path) -> PollResult:
+def poll(state_path: Path, manifest_path: Path | None = DEFAULT_MANIFEST_PATH) -> PollResult:
     """Fetch upstream, compare to ``state_path``, return a result.
 
-    Pure observation: does NOT mutate ``state_path``. The caller (the
-    CLI / workflow) decides whether to commit a new sha.
+    Pure observation: does NOT mutate ``state_path``. The caller decides
+    whether to commit. ``manifest_path=None`` disables the manifest
+    fallback (test-only).
     """
     ts = _now_iso()
-    old_sha = _read_last_known(state_path)
+    old_sha = _resolve_old_sha(state_path, manifest_path)
 
-    try:
-        body = fetch_raw_csv()
-    except Exception as exc:  # noqa: BLE001 — surface any transport failure
-        err = f"{type(exc).__name__}: {exc}"
-        return Failed(error=err, fetched_at=ts, issue_body=_failed_issue_body(err, ts))
+    body_or_failed = _fetch_or_failed(ts)
+    if isinstance(body_or_failed, Failed):
+        return body_or_failed
+    body = body_or_failed
 
     if not body:
-        err = "fetch returned empty body"
-        return Failed(error=err, fetched_at=ts, issue_body=_failed_issue_body(err, ts))
+        return _failed("fetch returned empty body", ts)
 
     new_sha = sha256_hex(body)
     if new_sha == old_sha:
@@ -163,44 +162,13 @@ def poll(state_path: Path) -> PollResult:
         new_sha=new_sha,
         fetched_at=ts,
         is_bootstrap=bootstrap,
-        issue_body=_changed_issue_body(old_sha, new_sha, ts, bootstrap),
+        issue_body=changed_issue_body(old_sha, new_sha, ts, bootstrap),
     )
 
 
 def _write_state(state_path: Path, sha: str, ts: str) -> None:
     state_path.parent.mkdir(parents=True, exist_ok=True)
     state_path.write_text(f"{sha}  {ts}\n")
-
-
-def _emit_gh_outputs(result: PollResult) -> None:
-    """Write step-output kv pairs if GITHUB_OUTPUT is set."""
-    out_path = os.environ.get("GITHUB_OUTPUT")
-    if not out_path:
-        return
-    lines: list[str] = []
-    if isinstance(result, Unchanged):
-        lines.append("status=unchanged")
-        lines.append(f"new_sha={result.sha}")
-    elif isinstance(result, Changed):
-        lines.append("status=changed")
-        lines.append(f"old_sha={result.old_sha}")
-        lines.append(f"new_sha={result.new_sha}")
-        lines.append(f"is_bootstrap={'true' if result.is_bootstrap else 'false'}")
-        lines.append(f"issue_labels={','.join(result.issue_labels)}")
-        lines.append(f"issue_title=PURSUE tranche detected: {result.new_sha[:12]}")
-        lines.append("issue_body<<EOF")
-        lines.append(result.issue_body.rstrip("\n"))
-        lines.append("EOF")
-    else:  # Failed
-        lines.append("status=failed")
-        lines.append(f"error={result.error}")
-        lines.append(f"issue_labels={','.join(result.issue_labels)}")
-        lines.append("issue_title=PURSUE poll failed")
-        lines.append("issue_body<<EOF")
-        lines.append(result.issue_body.rstrip("\n"))
-        lines.append("EOF")
-    with open(out_path, "a", encoding="utf-8") as fh:
-        fh.write("\n".join(lines) + "\n")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -211,10 +179,17 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_STATE_PATH,
         help="Path to the last-known-sha file.",
     )
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=DEFAULT_MANIFEST_PATH,
+        help="Path to the latest manifest (used as fallback sha source).",
+    )
     args = parser.parse_args(argv)
     state: Path = args.state
+    manifest: Path = args.manifest
 
-    result = poll(state)
+    result = poll(state, manifest_path=manifest)
 
     if isinstance(result, Changed):
         _write_state(state, result.new_sha, result.fetched_at)
@@ -222,15 +197,15 @@ def main(argv: list[str] | None = None) -> int:
             f"changed: {result.old_sha or '(bootstrap)'} -> {result.new_sha}",
             flush=True,
         )
-        _emit_gh_outputs(result)
+        emit_gh_outputs(result)
         return 0
     if isinstance(result, Unchanged):
         print(f"unchanged: {result.sha}", flush=True)
-        _emit_gh_outputs(result)
+        emit_gh_outputs(result)
         return 0
     # Failed
     print(f"failed: {result.error}", file=sys.stderr, flush=True)
-    _emit_gh_outputs(result)
+    emit_gh_outputs(result)
     return 1
 
 

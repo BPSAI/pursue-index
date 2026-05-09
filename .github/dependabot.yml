@@ -1,0 +1,33 @@
+# Track upstream releases for the SHA-pinned workflow actions
+# (.github/workflows/poll-pursue.yml). When a new tagged release is
+# cut, Dependabot opens a PR bumping the pinned SHA + comment so we
+# stay current on supply-chain fixes without drifting back to floating
+# major-version tags. (SEC-001)
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(actions)"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Track the hash-locked poll requirements file. When a transitive
+  # dep ships a security release, Dependabot will open a PR that
+  # regenerates the pinned hash set. (SEC-002)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-name: "curl-cffi"
+      - dependency-name: "pydantic"
+      - dependency-name: "structlog"
+      - dependency-name: "pydantic-settings"
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"

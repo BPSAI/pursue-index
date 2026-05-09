@@ -11,6 +11,23 @@ name: Poll PURSUE for new tranches
 # poll starts failing, that's an early warning to investigate. If it
 # silently stops detecting, the next operator-attended run will catch up
 # but we'll have lost the canonical-archive lead.
+#
+# Operational dependencies (SEC-004):
+# * Direct push: the "Commit new sha" step pushes straight to `main`
+#   using the auto-provisioned `GITHUB_TOKEN`. If branch protection is
+#   later enabled on `main` requiring PRs/reviews, this push will fail
+#   and the sha update will be lost. Either keep `github-actions[bot]`
+#   exempt from those rules, or rework this step to open a PR.
+# * Bot commit surface: the bot ONLY ever writes
+#   `data/last-known-csv-sha.txt`. Future contributors should not
+#   expand the commit surface without revisiting permissions.
+# * Action pinning: `actions/checkout` and `actions/setup-python` are
+#   pinned to commit SHAs (SEC-001). Bumps land via Dependabot
+#   (`.github/dependabot.yml`, `github-actions` ecosystem).
+# * Pip install is hash-locked via `requirements-poll.txt` (SEC-002).
+#   Regenerate with:
+#     pip-compile --generate-hashes -o requirements-poll.txt \
+#       requirements-poll.in
 
 on:
   schedule:
@@ -29,25 +46,42 @@ jobs:
   poll:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout v4.2.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          # Need full history so the auto-commit pushes cleanly.
+          # Shallow checkout is fine — we make a single fast-forward
+          # commit and rebase before push if main advanced concurrently.
           fetch-depth: 1
 
-      - uses: actions/setup-python@v5
+      # actions/setup-python v5.6.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.12"
 
+      - name: Ensure issue labels exist
+        # `gh issue create --label foo` exits non-zero when `foo` doesn't
+        # exist on the repo, which would mask the structured payload the
+        # poll script emits. `gh label create --force` is idempotent, so
+        # this is safe to run on every invocation.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create tranche-detected \
+            --color 0E8A16 \
+            --description "Upstream PURSUE CSV changed; operator should run heavy ingest" \
+            --force
+          gh label create tranche-poll-failure \
+            --color D93F0B \
+            --description "The auto-poll workflow could not fetch/parse the upstream CSV" \
+            --force
+
       - name: Install minimal scrape deps
-        # Avoid the full project install — we only need curl_cffi and
-        # the small set of transitive deps that csv_fetcher pulls in.
+        # Hash-locked install (SEC-002). Source list:
+        # `requirements-poll.in`; resolved + hashed:
+        # `requirements-poll.txt`.
         run: |
           python -m pip install --upgrade pip
-          python -m pip install \
-            "curl_cffi>=0.7" \
-            "pydantic>=2.0" \
-            "structlog>=24.0" \
-            "pydantic-settings>=2.0"
+          python -m pip install --require-hashes -r requirements-poll.txt
 
       - name: Run poll
         id: poll
@@ -72,6 +106,10 @@ jobs:
             MSG="chore(poll): upstream CSV changed ${OLD_SHA:0:12} -> ${NEW_SHA:0:12}"
           fi
           git commit -m "$MSG"
+          # Rebase against any concurrent advance of main (e.g. a human
+          # merge between checkout and push). Without this, fetch-depth: 1
+          # plus a bare push races on non-fast-forward. (vaivora P1#2)
+          git pull --rebase origin main
           git push
 
       - name: Open tranche-detected issue
@@ -90,12 +128,18 @@ jobs:
             --label "$ISSUE_LABELS"
 
       - name: Open tranche-poll-failure issue
-        if: steps.poll.outputs.status == 'failed'
+        # Fire on either the script-emitted status OR a hard step failure
+        # (e.g. import/runtime error before $GITHUB_OUTPUT is written).
+        # Without the outcome check, a crash that bypasses the output
+        # file would silently disable failure alerting. (Codex P1)
+        if: steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_TITLE: ${{ steps.poll.outputs.issue_title }}
-          ISSUE_BODY: ${{ steps.poll.outputs.issue_body }}
-          ISSUE_LABELS: ${{ steps.poll.outputs.issue_labels }}
+          # Fall back to a generic title/body when the script crashed
+          # before emitting outputs.
+          ISSUE_TITLE: ${{ steps.poll.outputs.issue_title || 'PURSUE poll crashed (no structured output)' }}
+          ISSUE_BODY: ${{ steps.poll.outputs.issue_body || 'The poll script exited with a non-zero status before writing $GITHUB_OUTPUT. See the workflow run log for details.' }}
+          ISSUE_LABELS: ${{ steps.poll.outputs.issue_labels || 'tranche-poll-failure' }}
         run: |
           gh issue create \
             --title "$ISSUE_TITLE" \
@@ -103,5 +147,7 @@ jobs:
             --label "$ISSUE_LABELS"
 
       - name: Propagate failure exit code
-        if: steps.poll.outputs.status == 'failed'
+        # Same dual condition as the failure-issue step so the workflow
+        # always reflects red when the poll didn't succeed.
+        if: steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure'
         run: exit 1
