@@ -290,14 +290,18 @@ def test_build_og_image_script_handles_out_path_outside_repo(
     assert "ValueError" not in result.stderr
 
 
-def test_deploy_ui_workflow_regenerates_og_image() -> None:
+def test_deploy_cf_workflow_regenerates_og_image() -> None:
     """vaivora #10 — manifest bumps must not silently drift the OG card.
     The deploy workflow has to call ``build_og_image.py`` as a pre-build
-    step so cards/sha updates flow into the rendered PNG automatically."""
-    workflow = REPO_ROOT / ".github" / "workflows" / "deploy-ui.yml"
+    step so cards/sha updates flow into the rendered PNG automatically.
+
+    Updated for PR #18: the GH-Actions deploy lives at ``deploy-cf.yml``
+    (the original ``deploy-ui.yml`` was retired in #18 in favor of the
+    Cloudflare Workers fallback workflow)."""
+    workflow = REPO_ROOT / ".github" / "workflows" / "deploy-cf.yml"
     text = workflow.read_text()
     assert "build_og_image.py" in text, (
-        "deploy-ui.yml does not run scripts/build_og_image.py; the OG "
+        "deploy-cf.yml does not run scripts/build_og_image.py; the OG "
         "card will silently drift when the manifest updates."
     )
     # Pre-build ordering: regen must run before npm run build (so the

@@ -32,6 +32,91 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — PR #20 review fixes (per-entry OG follow-up)
+
+Addressed all legitimate review findings on PR #20 from vaivora
+(cross-cutting), nayru (P1/P2), laverna (LOW), and chatgpt-codex
+(P2). Single follow-up commit on `feat/per-entry-og-images`.
+
+Highlights:
+- **P0 draft parity**: ``finds_frontmatter.py`` now parses ``draft``
+  (default False) and the build script skips ``draft: true``,
+  matching Astro's ``getCollection(... !data.draft)`` filter.
+- **P1 long unspaced tokens**: ``finds_og`` hard-breaks any token
+  wider than ``max_width`` by character before greedy wrap, so a
+  300-char URL/hash never escapes the title box.
+- **P1 glob parity**: build script now uses ``rglob`` on both
+  ``*.md`` and ``*.mdx``; subdir entries get PNGs at
+  ``<entry.id>.png`` (matching Astro's ``entry.id`` derivation).
+- **P1 multi-card label**: multi-card entries render
+  ``AGENCY · prefix · 1 of N`` so the picker is visible (covers
+  fbi-62-hq-83894 with 10 cards, muroc-1947 with 2).
+- **P1 prefix [:10] → [:8]**: matches the source rail's
+  ``c.id.slice(0, 8)``. Regenerated all 11 PNGs; 9 shrank slightly
+  (fewer chars), 2 grew (the multi-card "1 of N" suffix).
+- **P1 subtitle ellipsis symmetry**: extracted
+  ``_truncate_with_ellipsis``; ``/FINDS/<slug>`` fallback now ends
+  in "…" when truncated.
+- **P1 byte-equality smoke**: ``test_apollo_17_committed_png_matches_fresh_render``
+  re-renders apollo-17 and compares bytes to the on-disk PNG;
+  silent renderer drift now trips CI.
+- **P2 frontmatter regex**: trailing-newline tolerance via
+  ``(\n|\Z)`` end-anchor.
+- **P2 file size**: split ``finds_og.py`` (191 LoC, near warn) into
+  orchestrator + ``finds_og_layers.py``; both now well under 200.
+- **LOW escaped quotes**: ``_strip_yaml_string`` unescapes ``\"`` /
+  ``\'`` in YAML scalars (was rendering as literal backslash).
+- **LOW slug sanitize**: ``_assert_safe_slug`` rejects ``..`` / ``\``
+  / absolute paths before writing the PNG.
+- **vaivora #12 deploy chain**: wired both OG scripts into
+  ``deploy-cf.yml`` (PR #18) before ``npm run build`` with
+  setup-python pinned to the same SHA used in poll-pursue.yml. Added
+  the OG sources to the ``paths:`` trigger.
+- **vaivora #13 dedup**: extracted ``og_writer.write_deterministic_png``;
+  both ``og_image.py`` and ``finds_og.py`` now share one writer for
+  the byte-stability postlude.
+- **Codex P2 inline cards**: parser handles ``cards: ["a", "b"]``
+  flow-list shape (was silently dropping to ``()``).
+- **Test patch**: updated ``test_deploy_ui_workflow_regenerates_og_image``
+  → ``test_deploy_cf_workflow_regenerates_og_image`` (deploy-ui.yml
+  retired in PR #18).
+
+Validation: 205/205 pytest pass, npm run build clean,
+``bpsai-pair arch check`` clean on all touched files,
+``yaml.safe_load`` parses ``deploy-cf.yml`` cleanly.
+
+### Session: 2026-05-09 — Per-entry OG images for /finds/<slug> (PR #20)
+
+Follow-up to PR #7 (real OG image + per-route hook). Each /finds entry
+now ships its own 1200×630 OG card so individual shares get a unique
+preview instead of inheriting the default `og.png`. Composition reuses
+the declassified-document chrome (corner brackets, terminal header,
+DECLASSIFIED stamp, manifest sha line, footer status pill) and replaces
+the PURSUE://INDEX lockup with the entry title (wrapped to 3 lines max,
+ellipsized), subtitle (truncated to one line), and an "AGENCY · prefix"
+source label resolved against the manifest.
+
+11 entries × ~85 KB each = ~984 KB committed under `web/public/og/finds/`.
+
+Files added:
+- `src/pursue_index/web/finds_og.py` — orchestrator + drawing layers (191 LoC)
+- `src/pursue_index/web/finds_frontmatter.py` — minimal MDX YAML-FM parser, no PyYAML dep (105 LoC)
+- `scripts/build_finds_og_images.py` — CLI, idempotent, byte-stable (102 LoC)
+- `tests/unit/test_finds_og_image.py` — 13 tests (composition, byte-stability, frontmatter, layout wiring, all-entries smoke test)
+- `web/src/pages/finds/[slug].astro` — passes `ogImage={`${base}/og/finds/${entry.id}.png`}` to Base
+
+Validation:
+- 13 new tests pass; full suite 177 passed (no regressions)
+- `bpsai-pair arch check` clean on all four new files
+- `npm run build` clean (169 pages built); rendered HTML verifies `og:image` resolves to `https://pursueindex.com/og/finds/<slug>.png`
+- Byte-stability confirmed across two consecutive script runs (apollo-17.png sha = `04b57b4487a04614…`)
+
+Trade-offs flagged in PR body:
+- New finds entries require running `python scripts/build_finds_og_images.py` before deploy. The `test_all_finds_entries_have_committed_og_images` smoke test catches missing PNGs in CI.
+- Per task instruction, the GH Actions deploy workflow was NOT modified; operator will wire `build_finds_og_images.py` into deploy-cf.yml (or deploy-ui.yml) post-merge.
+
+PR: https://github.com/BPSAI/pursue-index/pull/20 — branch `feat/per-entry-og-images`, do NOT merge.
+
 ### Session: 2026-05-09 — PR #19 review-fix follow-up (`feat/api-integration-smoke`)
 
 Pushed `e39787e` to PR #19 addressing every legitimate review finding

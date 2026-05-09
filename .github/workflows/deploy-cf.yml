@@ -46,6 +46,16 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/deploy-cf.yml"
+      # OG build scripts run in this workflow; a change to either
+      # script or its rendering modules must re-deploy so the new
+      # PNGs ship to production.
+      - "scripts/build_og_image.py"
+      - "scripts/build_finds_og_images.py"
+      - "src/pursue_index/web/og_image.py"
+      - "src/pursue_index/web/og_layers.py"
+      - "src/pursue_index/web/og_fonts.py"
+      - "src/pursue_index/web/finds_og.py"
+      - "src/pursue_index/web/finds_frontmatter.py"
   workflow_dispatch:
 
 permissions:
@@ -104,6 +114,32 @@ jobs:
         # deployed bundle ships the stale checked-in copy. Mirrors the
         # step from the deleted `deploy-ui.yml`.
         run: cp data/manifests/latest.json web/src/data/manifest.json
+
+      # actions/setup-python v5.6.0 — pinned to SHA per SEC-001.
+      # Matches the SHA used in poll-pursue.yml; bumps land via Dependabot.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Install Pillow (only dep needed by OG build scripts)
+        # The OG build scripts read JSON + render PNG with Pillow. They
+        # do not import the rest of pursue_index, so we avoid the heavy
+        # core install (sqlalchemy, fastapi, surya/torch, etc.) and pin
+        # Pillow to the same lower bound as pyproject.toml [CVE-2024-28219].
+        run: pip install "pillow>=11.1.0"
+
+      - name: Render default OG image (web/public/og.png)
+        # Reads data/manifests/latest.json so the rendered card stays
+        # in sync with the corpus stats. Idempotent / byte-stable —
+        # safe to re-run on every deploy.
+        run: python scripts/build_og_image.py
+
+      - name: Render per-entry finds OG images (web/public/og/finds/*.png)
+        # Reads web/src/content/finds/**/*.{md,mdx} and writes one
+        # PNG per non-draft entry. Astro filters drafts via
+        # !data.draft so the script does too — orphan PNGs would
+        # otherwise ship for entries with no /finds/<slug> route.
+        run: python scripts/build_finds_og_images.py
 
       - name: Build web assets (Astro -> web/dist)
         working-directory: web
