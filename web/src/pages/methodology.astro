@@ -281,6 +281,32 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       </p>
     </section>
 
+    {/* Related work */}
+    <section id="related" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Related work
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Independent of this project, Alex Zhang released
+        <a href="https://huggingface.co/datasets/alex-zhang42/ufo-pursue-open-atlas" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">ufo-pursue-open-atlas</a>
+        — a CC0 dataset of the same release with a vision-language model
+        describing every photograph, sketch, stamp, and handwritten margin
+        note as inline text. The corpus ships as a single
+        <code class="font-mono text-xs">corpus.jsonl</code> plus parquet
+        shards on Hugging Face Hub, alongside a 3D
+        <a href="https://ufo.gpt2077.com/" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">atlas</a>
+        viewer.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Different focus, same source. If you want the corpus as a
+        downloadable artifact for downstream ML or analysis, grab Alex's
+        release. If you want end-user search and a citing chatbot, you're
+        already here. The two projects are complementary and we credit
+        Alex's parallel work for raising the bar on what an AI-augmented
+        public-domain mirror can look like.
+      </p>
+    </section>
+
     {/* Reproducibility */}
     <section id="reproducibility" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">

@@ -1,38 +1,17 @@
 // pursue-index Worker entry.
 //
-// Two jobs:
-//   1) Gate the homepage on a preview cookie so the site stays
-//      "research preview" until launch. Visitors with no cookie at /
-//      get the splash; with the cookie they get the real index.
-//   2) Dispatch /api/retrieve and /api/chat to the chat-interface
-//      handlers (worker/retrieve.js + worker/chat.js). Both API routes
-//      are behind the same preview-cookie gate until launch — better
-//      default than letting an API endpoint slip past it.
-//
-// Magic-link to grant access:
-//   https://pursueindex.com/?preview=bps-launch
-//   → sets cookie, redirects to /, full site visible thereafter.
-//
-// To revoke: visit /preview-off (clears cookie).
-//
-// At launch, drop the gate by either:
-//   1) deleting this Worker (revert to static-only assets), or
-//   2) inverting the gate logic so / and /api/* serve unconditionally.
+// Dispatches /api/retrieve and /api/chat to the chat-interface handlers
+// (worker/retrieve.js + worker/chat.js). All other paths fall through to
+// static assets.
 //
 // Secrets (Worker-side, configured via `wrangler secret put`):
 //   VOYAGE_API_KEY      — Voyage embeddings for /api/retrieve query embed.
 //   ANTHROPIC_API_KEY   — Anonymous-tier chat. Never leaves the Worker.
 // KV namespace bindings:
 //   CHAT_KV             — rate limit + semantic cache + daily budget.
-//
-// CSP is intentionally NOT set here. The card detail pages iframe
-// `https://www.war.gov/...` PDFs, so a meaningful CSP needs `frame-src
-// https://www.war.gov` plus careful testing against asset previews.
 
 import { handleRetrieve } from "./retrieve.js";
 import { handleChat } from "./chat.js";
-
-const PREVIEW_TOKEN = "bps-launch";
 
 // Allowed origins for /api/* CORS. Same-origin browser requests don't send
 // Origin (or send our own host); cross-origin requests from malicious sites
@@ -48,44 +27,10 @@ function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": allowed,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Cookie",
-    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "600",
     Vary: "Origin",
   };
-}
-
-export function setCookieHeader(value, maxAgeSeconds) {
-  return `preview=${value}; Path=/; Max-Age=${maxAgeSeconds}; Secure; SameSite=Lax; HttpOnly`;
-}
-
-/**
- * Parse the Cookie header into a {name: value} map.
- *
- * Cookie format per RFC 6265 §5.4: `name=value; name=value; ...` — any
- * non-` ;` whitespace is technically illegal but we tolerate leading/trailing
- * spaces around names and values to be lenient with proxies. Quoted values
- * are not unquoted; we don't set quoted values anywhere in this Worker.
- */
-export function parseCookies(header) {
-  const out = {};
-  if (!header) return out;
-  for (const part of header.split(";")) {
-    const eq = part.indexOf("=");
-    if (eq < 0) continue;
-    const name = part.slice(0, eq).trim();
-    const value = part.slice(eq + 1).trim();
-    if (!name) continue;
-    // First occurrence wins — matches browser behavior.
-    if (!(name in out)) out[name] = value;
-  }
-  return out;
-}
-
-export function hasPreviewCookie(request) {
-  const header = request.headers.get("Cookie") || "";
-  const cookies = parseCookies(header);
-  return cookies.preview === PREVIEW_TOKEN;
 }
 
 /**
@@ -140,37 +85,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Magic-link grants access then redirects to /.
-    if (url.pathname === "/" && url.searchParams.get("preview") === PREVIEW_TOKEN) {
-      return withSecurityHeaders(
-        new Response(null, {
-          status: 302,
-          headers: {
-            Location: "/",
-            "Set-Cookie": setCookieHeader(PREVIEW_TOKEN, 31536000),
-            "Cache-Control": "no-store",
-          },
-        }),
-      );
-    }
-
-    // /preview-off clears the cookie.
-    if (url.pathname === "/preview-off") {
-      return withSecurityHeaders(
-        new Response(
-          '<!doctype html><meta http-equiv="refresh" content="2;url=/"><p style="font-family:monospace">preview disabled.</p>',
-          {
-            headers: {
-              "Set-Cookie": setCookieHeader("", 0),
-              "Content-Type": "text/html; charset=utf-8",
-              "Cache-Control": "no-store",
-            },
-          },
-        ),
-      );
-    }
-
-    // /api/* routes — public after launch; CORS-locked to our origins.
+    // /api/* routes — CORS-locked to our origins.
     if (url.pathname.startsWith("/api/")) {
       // CORS: only browsers from our own origins should be calling these.
       // Same-origin requests don't send Origin (or send our own host); cross-
@@ -215,9 +130,7 @@ export default {
       return withSecurityHeaders(corsResponse);
     }
 
-    // Gate is flipped — homepage and every other path serve from static
-    // assets unconditionally. The splash route still exists at /splash for
-    // anyone who bookmarked it; can be deleted in a follow-up.
+    // Everything else falls through to static assets.
     return withSecurityHeaders(await env.ASSETS.fetch(request));
   },
 };

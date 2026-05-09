@@ -8,12 +8,8 @@
 // Cache entries get a 24h TTL so even if a query repeats on the next
 // day the cache will have expired naturally.
 
-// FIXME(launch): drop RATE_LIMIT to 5 when the splash gate flips off.
-// During research preview every visitor holds the magic-link cookie, so the
-// 5/day cap was firing on the operator's own dev/test traffic. 100/day is
-// the right number for an internal-team pre-launch surface; 5/day is the
-// right number for a post-launch anonymous public surface (with BYOK CTA).
-export const RATE_LIMIT = 100;
+// 5 chats/IP/24h on the anonymous tier. BYOK bypasses the cap.
+export const RATE_LIMIT = 5;
 export const DAILY_BUDGET_USD = 100; // global cap before degrade
 export const CACHE_TTL_SECONDS = 24 * 60 * 60;
 
