@@ -1,0 +1,785 @@
+{
+  "started_at": "2026-05-09T00:22:35.580343+00:00",
+  "finished_at": "2026-05-09T00:28:12.571666+00:00",
+  "duration_s": 336.991323,
+  "pages_per_card": 5,
+  "dpi": 300,
+  "llm_model": "claude-haiku-4-5",
+  "llm_pricing": {
+    "input_per_m": 1.0,
+    "output_per_m": 5.0,
+    "cache_read_per_m": 0.1
+  },
+  "results": [
+    {
+      "card_id": "78dc972c0c143d1e",
+      "category": "clean_typewriter",
+      "description": "NASA-UAP-D2 Apollo 17 Transcript 1972 (16 pp)",
+      "pdf_filename": "nasa-uap-d2-apollo-17-transcript-1972.pdf",
+      "engines": {
+        "tesseract": [
+          {
+            "page": 1,
+            "text": "Tape 5/2\n\n00 03 25 O1\n\n00 03 27 27\n\n00 03 31 55\n\n00 03 34 10\n\nCC\n\ncc\n\ncc\n\nce\n\ncc\n\nCMP\n\ncc\n\nCMP\n\ncc\n\nCMP\n\nCC\n\nLMP\n\nCMP\n\nKe\n\nes, we copied your V. and your EMS numbers, and\n\nve got a number for you. Maneuver start time\n\nOkay, we got you. Maneuver at 03:33:27.\nThat's affirmative, Jack.\n\nYou guys didn't tell us we couldn't see anything\ngoing through the sunrise.\n\n(Laughter) Roger.\n\n17, Houston. We're making plans here for a space-\ncraft SEP time of 03 plus 43.\n\n03 plus 43. Roger.\n\n17, Houston. We're copying cabin press of 5.9 this\ntime.\n\nRoger. We - we just got it, Bob.\n\nOkay.\n\nThank you.\n\nFrame 65 for the LMPs mag November November.\nOkay. We - we are maneuvering, Houston.\n\nRoger. We're watching it.\n\nRoger. Understand.\n",
+            "confidence": 92.56521739130434,
+            "wall_clock_s": 1.4418335128575563,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "00 03 37 34\n\n00 03 37 45\n\n00 03 37 46\n\nCC\n\nCMP\n\nCC\n\nCMP\n\nCC\n\nCMP\n\ncc\n\nCMP\n\nCDR\n\nCMP\n\na\nQ\n\nCC\n\nCDR\n\nCMP\n\nTape 5/3\n\nRoger. They look like fluid of some sort?\n\nNot to me. They look like pieces of something.\n\nRoger.\n\nThey're very bright.\n\nJack, we'd like OMNI Charlie.\n\nBob, for the most part, these fragments are not -\na\nings.\natterns\n\nRoger. I've got you. We're all ears on these frag-\nments. Do you think you can figure out what they\nmight be?\n\nWell, you know I - I don't know. There are a num-\n\nlittle\n\n|\n\nOkay. RCS LOGIC is ...\n\n~ - ice chunks, possibly. Or maybe there's paint\n\nRoger. I noticed on one trip up the elevator last\n\nfe}\n3\n\nAnd the S-IVB maneuver is complete.\n\u00bb.. in 1 minute.\nOkay. We'll set the old clock.\n\nOkay. And the ~ with the maneuver complete, the\n\n3\n9\n",
+            "confidence": 91.96815286624204,
+            "wall_clock_s": 1.5886005680076778,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "Tape 5/4\n\n00 03 38 01\n\n00 03 39 35\n\n00 03 39 53\n\n00 03 39 57\n\ncc\n\nCMP\n\ncc\n\nCMP\n\nLMP\n\nCMP\n\ncc\n\nCMP\n\ncc\n\nCDR\n\ncc\n\nCMP\n\ncc\n\nRoger. Cut in.\n\n|\n\nRoger.\n\nYes.\n\nRoger. Understand.\n\ni\n\nRoger, Gene. Thank you.\n\nOkay. We've got 0180 and O on the old thumbwheels.\nOkay.\n\nRoger, Ron.\n\nOkay. TRANS CONTROL is ARMED.\n\n... two ARMED.\n\nCONTROLLER number 2 is ARMED.\n\n. SECS LOGIC ...\n",
+            "confidence": 89.02702702702703,
+            "wall_clock_s": 1.315922241192311,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "00\n\n00\n\n00\n00\n00\n\n00\n\n00\n\n00\n\n00\n\n00\n\n00\n\n03\n\n03\n\n03\n\n03\n\n03\n\n03\n\n03\n\n03\n\n03\n\n03\n\n03\n\nho\n\n4O\n\nho\n\n41\n\n41\n4a\n\n4a\n4\n\n4o\n\nyo\n\n7)\n\nOl\n\n13\n\n38\n00\n\n19\nhe\n\noy)\n29\n\n12\n\n19\n\n29\n\nCMP\n\nCC\n\nCDR\n\nCMP\n\nCMP\n\nCMP\n\nCMP\n\nCMP\n\nCDR\n\nCC\n\nCMP\n\nCMP\n\nCMP\n\nCMP\n\nCDR\n\nCMP\n\nCMP\n\nTape 5/5\nOkay. SECS LOGIC is CLOSED; SECS ARM are CLOSED;\nLOGIC POWER is ON.\nOkay.\n17, Houston. You have a GO for T&D.\nOkay. A GO for T&D.\n\nOkay. We'll ARM the PYROs. And we'll hit the GDC\nALIGN.\n\nAnd maneuver's complete. And 0180 and 0? On the\nGDC? No. It's just ... It's kind of diddling.\n\nOkay. DELTA-V in NORMAL.\n\nS-IVB, okay. Okay, switches are all set.\nOkay; 59:30.\n\nOkay. Let's start the DET.\n\nTickity-tick-tickity, Houston. We're running\nat 59:30.\n\nRoger.\n\nOkay.\n\nOkay. That's LAUNCH VEHICLE SEP, push button.\nOkay.\n\nMC in AUTO.\n\nNext?\n\nSEPARATION, Houston.\n\nOkay, check the covers. Okay. And check the\nother ones off.\n\nThey're all\nOkay, I'm going to start the - My gosh, look at\n\nthe junk! Okay; there's 15 seconds. Pitch her\nup. Okay, we'll PROCEED on the - -\n",
+            "confidence": 89.97989949748744,
+            "wall_clock_s": 1.7134115672670305,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "Tape 46/4\n\no2 18 41 11 CDR\n\nCMP\n\n02 18 41 59 +CMP\nCDR\ncc\n\n02 18 42 34 CDR\n\nCC\n\nCDR\n\ncc\nCDR\n\nCMP\n\ncc\n\nOkay. Is that it? Yes, I can get that, Gene.\n\nOkay, you want to take a picture of it first?\nOkay, POWER ... Okay, stand by. 3, 2,1 -\n\nMARK it. POWER switch OFF.\n\nSay, Bob or Stu.\n\nRoger. Go ahead.\n\nOka ad Oo ad to toda No ast nigh b -\n\n[| guess the first night [ was in bed - 1 definitely\naw some of these \u2014 because | nad a nard time going\n\nimpressed me\n\nOkay. We got all that, Gene.\n\nOkay.\n\nHey, Gene, we appreciate all the data. We were\njust trying to make the data fit the curve; you\nknow the old trick.\n",
+            "confidence": 89.47058823529412,
+            "wall_clock_s": 1.3925278643146157,
+            "cost_usd": 0.0
+          }
+        ],
+        "surya": [
+          {
+            "page": 1,
+            "text": "Tape 5/2\nCC\nYes, we copied your V<sub>T</sub> and your EMS numbers, and\nwe've got a number for you. Maneuver start time\nwill be at 03 plus 33 plus 27.\nLMP\nOkay, we got you. Maneuver at 03:33:27.\nCC\nThat's affirmative, Jack.\nLMP\nYou guys didn't tell us we couldn't see anything\ngoing through the sunrise.\n(Laughter) Roger.\nCC\n00 03 25 01 CC\n17, Houston. We're making plans here for a space-\ncraft SEP time of 03 plus 43.\n03 plus 43. Roger.\nLMP\n00 03 27 27 CC\n17, Houston. We're copying cabin press of 5.9 this\ntime.\nCMP\nRoger. We - we just got it, Bob.\nCC\nOkay.\nCMP\nThank you.\n00 03 31 55\nLMP\nFrame 65 for the LMPs mag November November.\n00 03 34 10\nLMP\nOkay. We - we are maneuvering, Houston.\nCC\nRoger. We're watching it.\nCMP\nNow we've got a few very bright particles or frag-\nments or something that go drifting by as we\nmaneuver.\nCC\nRoger. Understand.\nLMP\nThere's a whole bunce of big ones on my window\ndown there - just bright. It looks like the\nFourth of July out of Ron's window.\nCMP\nYes. Now you can see some of them in shape.\nThey're very jagged, angular fragments that are\ntumbling.",
+            "confidence": 89.14344478342333,
+            "wall_clock_s": 4.714813231956214,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "Tape 5/3\nCC\nRoger. They look like fluid of some sort?\nCMP\nNot to me. They look like pieces of something.\nCC\nRoger.\nCMP\nThey're very bright.\nCC\nJack, we'd like OMNI Charlie.\nBob, for the most part, these fragments are not -\nCMP\nor are tumbling at a very slow rate. I tried a\ncouple of pictures of them - different settings.\nYou may get an idea of what, at least, the patterns\nlook like.\nCC\nRoger. I've got you. We're all ears on these frag-\nments. Do you think you can figure out what they\nmight be?\nCMP\nWell, you know I - I don't know. There are a num-\nber of possibilities. If you had some kind of a -\nI got the impression maybe they were curved a little\nbit, as if they might be - off the side of the\nS-IVB. And that's a wild guess - -\nCDR\nOkay. RCS LOGIC is ... - -\nCMP\n- - ice chunks, possibly. Or maybe there's paint\ncoming off of it.\n00 03 37 34 CC\nRoger. I noticed on one trip up the elevator last\nweak near one of the flags. I thought it was on\nthe S-II, but it might have been on the S-IVB.\nLooked like it was peeling. Maybe that's what\nyou've got.\n00 03 37 45 CC\nAnd the S-IVB maneuver is complete.\n00 03 37 46 LMP\n... in 1 minute.\nCDR\nOkay. We'll set the old clock.\nCMP\nOkay. And the - with the maneuver complete, the\nfragment field is essentially static, except for\nvery slight tumbling within the fragments.",
+            "confidence": 91.15221240460917,
+            "wall_clock_s": 1.1387059888802469,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "Tape 5/4\n00 03 38 01 CC\nRoger. Cut in.\nCMP\nEvery once in a while, a fragment of considerably\nhigher velocity than the others goes across my\nwindow. But that's very rare.\nCC\nRoger.\nCMP\nHey, that's that field of view I saw out my window.\nJack, do you see it now?\nLMP\nYes.\nCMP\nAnd, Bob. At least, there - there's no apparent\nrelative motion between fragments.\nCC\nRoger. Understand.\nCMP\nI'll take two pictures about a minute apart if I\ncan. And it'll be Frame 70.\nCC\nOkay. Frame 70.\nCDR :\nAnd, Bob. This is Geno. My impression is that\nthey are - flat, flakelike particles. Some may\nbe 6 inches across. And, although there's no\nrelative motion between the two, most of them seem\nto be twinkling. And I think, for the most part,\nthey're all moving away from us.\nCC\nRoger, Gene. Thank you.\n00 03 39 35\nOkay. We've got 0180 and 0 on the old thumbwheels.\nCMP\nLMP\nOkay.\nCC\nRoger, Ron.\n00 03 39 53\nOkay. TRANS CONTROL is ARMED.\nCMP\nLMP\n... two ARMED.\n00 03 39 57\nCMP\nCONTROLLER number 2 is ARMED.\nLMP\n... SECS LOGIC ...",
+            "confidence": 87.90753054572573,
+            "wall_clock_s": 1.1596048381179571,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "Tape 5/5\n00 03 40 01 CMP\nOkay. SECS LOGIC is CLOSED; SECS ARM are CLOSED;\nLOGIC POWER is ON.\nLMP\nOkay.\n00 03 40 13\nCC\n17, Houston. You have a GO for T&D.\nCDR\nOkay. A GO for T&D.\n00 03 40 38\nCMP\nOkay. We'll ARM the PYROs. And we'll hit the GDC\nALIGN.\n00 03 41 00 CMP\nAnd maneuver's complete. And 0180 and 0? On the\nGDC? No. It's just ... It's kind of diddling.\n00 03 41 19 CMP\nOkay. DELTA-V in NORMAL.\n00 03 41 42 CMP\nS-IVB, okay. Okay, switches are all set.\nLMP\nOkay; 59:30.\n00 03 41 55\nCMP\nOkay. Let's start the DET.\n00 03 41 59\nCDR\nTickity-tick-tickity, Houston. We're running\nat 59:30.\nCC\nRoger.\nCMP\nOkay.\n00 03 42 12\nCMP\nOkay. That's LAUNCH VEHICLE SEP, push button.\nLMP\nOkay.\n00 03 42 19 CMP\nMC in AUTO.\nCMP\nNext?\n00 03 42 29\nCDR\nSEPARATION, Houston.\nCMP\nOkay, check the covers. Okay. And check the\nother ones off.\nThey're all ...\nLMP\nCMP\nOkay, I'm going to start the - My gosh, look at\nthe junk! Okay; there's 15 seconds. Pitch her\nup. Okay, we'll PROCEED on the - -",
+            "confidence": 90.36549477260188,
+            "wall_clock_s": 1.0544037302024662,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "Tape 46/4\n02 18 41 11\nCDR\nOkay. Is that it? Yes, I can get that, Gene.\nCMP\nOkay, you want to take a picture of it first?\nOkay, POWER ... Okay, stand by. 3, 2, 1 -\n02 18 41 59\nCMP\nMARK it. POWER switch OFF.\nCDR\nSay, Bob or Stu.\nCC\nRoger. Go ahead.\n02 18 42 34\nCDR\nOkay, add - to ad to today. Not last night, but -\nI guess the first night I was in bed - I definitely\nsaw some of these - because I had a hard time going\nto bed, to start with - I saw some of the same\nperipheral horizon-type things you said were not\nthe type of data you were looking for; but I also\nsaw a - some sets of the streaks. And probably\nthe one most imposing thing I remember is - and the\nlast one I remember before falling asleep - was\nthe fact that there was a very bright spot that\nflashed right between my eyes like a very bright\nheadlight - like a train coming at you, only with\na flash. It's difficult probably to estimate the\nfrequency of any of those because I was in a -\nsort of a sleep-hazy mode.\nCC\nRoger.\nCDR\nBut then, as today, I saw some that flashed and\nlit up the horizon and some that lit up peripher-\nally; and I guess, as you say, that's a different\nkind of data, but I did see them there and they\nimpressed me.\nCC\nOkay. We got all that, Gene.\nCDR\nOkay.\nCMP\nAnd it might be interesting to know I've never\nseen it before today.\nCC\nHey, Gene, we appreciate all the data. We were\njust trying to make the data fit the curve; you\nknow the old trick.",
+            "confidence": 94.68947056643977,
+            "wall_clock_s": 1.110192108899355,
+            "cost_usd": 0.0
+          }
+        ],
+        "llm": [
+          {
+            "page": 1,
+            "text": "Tape 5/2\n\nCC         Yes, we copied your V_T and your EMS numbers, and\n           we've got a number for you.  Maneuver start time\n           will be at 03 plus 33 plus 27.\n\nLMP        Okay, we got you.  Maneuver at 03:33:27.\n\nCC         That's affirmative, Jack.\n\nLMP        You guys didn't tell us we couldn't see anything\n           going through the sunrise.\n\nCC         (Laughter) Roger.\n\n00 03 25 01 CC  17, Houston.  We're making plans here for a space-\n               craft SEP time of 03 plus 43.\n\nLMP        03 plus 43.  Roger.\n\n00 03 27 27 CC  17, Houston.  We're copying cabin press of 5.9 this\n               time.\n\nCMP        Roger.  We - we just got it, Bob.\n\nCC         Okay.\n\nCMP        Thank you.\n\n00 03 31 55 LMP  Frame 65 for the LMPs mag November November.\n\n00 03 34 10 LMP  Okay.  We - we are maneuvering, Houston.\n\nCC         Roger.  We're watching it.\n\nCMP        Now we've got a few very bright particles or frag-\n           ments or something that go drifting by as we\n           maneuver.\n\nCC         Roger.  Understand.\n\nLMP        There's a whole bunch of big ones on my window\n           down there - just bright.  It looks like the\n           Fourth of July out of Ron's window.\n\nCMP        Yes.  Now you can see some of them in shape.\n           They're very jagged, angular fragments that are\n           tumbling.",
+            "confidence": 92.0,
+            "wall_clock_s": 7.7309383801184595,
+            "cost_usd": 0.004266,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 490,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 2,
+            "text": "Tape 5/3\n\nCC         Roger. They look like fluid of some sort?\n\nCMP        Not to me. They look like pieces of something.\n\nCC         Roger.\n\nCMP        They're very bright.\n\nCC         Jack, we'd like OMNI Charlie.\n\nCMP        Bob, for the most part, these fragments are not -\n           or are tumbling at a very slow rate. I tried a\n           couple of pictures of them - different settings.\n           You may get an idea of what, at least, the patterns\n           look like.\n\nCC         Roger. I've got you. We're all ears on these frag-\n           ments. Do you think you can figure out what they\n           might be?\n\nCMP        Well, you know I - I don't know. There are a num-\n           ber of possibilities. If you had some kind of a -\n           I got the impression maybe they were curved a little\n           bit, as if they might be - off the side of the\n           S-IVB. And that's a wild guess - -\n\nCDR        Okay. RCS LOGIC is ... - -\n\nCMP        - - ice chunks, possibly. Or maybe there's paint\n           coming off of it.\n\n00 03 37 34 CC         Roger. I noticed on one trip up the elevator last\n           week near one of the flags. I thought it was on\n           the S-II, but it might have been on the S-IVB.\n           Looked like it was peeling. Maybe that's what\n           you've got.\n\n00 03 37 45 CC         And the S-IVB maneuver is complete.\n\n00 03 37 46 LMP        ... in 1 minute.\n\n           CDR        Okay. We'll set the old clock.\n\n           CMP        Okay. And the - with the maneuver complete, the\n                      fragment field is essentially static, except for\n                      very slight tumbling within the fragments.",
+            "confidence": 85.0,
+            "wall_clock_s": 8.721926977857947,
+            "cost_usd": 0.004441,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 525,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 3,
+            "text": "Tape 5/4\n\n00 03 38 01  CC          Roger. Cut in.\n\n            CMP         Every once in a while, a fragment of considerably\n                        higher velocity than the others goes across my\n                        window. But that's very rare.\n\n            CC          Roger.\n\n            CMP         Hey, that's that field of view I saw out my window.\n                        Jack, do you see it now?\n\n            LMP         Yes.\n\n            CMP         And, Bob. At least, there - there's no apparent\n                        relative motion between fragments.\n\n            CC          Roger. Understand.\n\n            CMP         I'll take two pictures about a minute apart if I\n                        can. And it'll be Frame 70.\n\n            CC          Okay. Frame 70.\n\n            CDR         And, Bob. This is Geno. My impression is that\n                        they are - flat, flakelike particles. Some may\n                        be 6 inches across. And, although there's no\n                        relative motion between the two, most of them seem\n                        to be twinkling. And I think, for the most part,\n                        they're all moving away from us.\n\n            CC          Roger, Gene. Thank you.\n\n00 03 39 35  CMP         Okay. We've got 0180 and 0 on the old thumbwheels.\n\n            LMP         Okay.\n\n            CC          Roger, Ron.\n\n00 03 39 53  CMP         Okay. TRANS CONTROL is ARMED.\n\n            LMP         ... two ARMED.\n\n00 03 39 57  CMP         CONTROLLER number 2 is ARMED.\n\n            LMP         ... SECS LOGIC ...",
+            "confidence": 92.0,
+            "wall_clock_s": 6.628304267767817,
+            "cost_usd": 0.004156,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 468,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 4,
+            "text": "Tape 5/5\n\n00 03 40 01 CMP         Okay. SECS LOGIC is CLOSED; SECS ARM are CLOSED;\n                     LOGIC POWER is ON.\n\n             LMP         Okay.\n\n00 03 40 13 CC          LT, Houston. You have a GO for T&D.\n\n             CDR         Okay. A GO for T&D.\n\n00 03 40 38 CMP         Okay. We'll ARM the PYROs. And we'll hit the GDC\n                     ALIGN.\n\n00 03 41 00 CMP         And maneuver's complete. And 0180 and 0? On the\n                     GDC? No. It's just ... It's kind of diddling.\n\n00 03 41 19 CMP         Okay. DELTA-V in NORMAL.\n\n00 03 41 42 CMP         S-IVB, okay. Okay, switches are all set.\n\n             LMP         Okay; 59:30.\n\n00 03 41 55 CMP         Okay. Let's start the DET.\n\n00 03 41 59 CDR         Tickity-tick-tickity, Houston. We're running\n                     at 59:30.\n\n             CC          Roger.\n\n             CMP         Okay.\n\n00 03 42 12 CMP         Okay. That's LAUNCH VEHICLE SEP, push button.\n\n             LMP         Okay.\n\n00 03 42 19 CMP         MC in AUTO.\n\n             CMP         Next?\n\n00 03 42 29 CDR         SEPARATION, Houston.\n\n             CMP         Okay, check the covers. Okay. And check the\n                     other ones off.\n\n             LMP         They're all ...\n\n             CMP         Okay, I'm going to start the - My gosh, look at\n                     the junk! Okay; there's 15 seconds. Pitch her\n                     up. Okay, we'll PROCEED on the - -",
+            "confidence": 92.0,
+            "wall_clock_s": 7.7735492419451475,
+            "cost_usd": 0.004621,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 561,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 5,
+            "text": "Tape 46/4\n\n02 18 41 11  CDR         Okay. Is that it? Yes, I can get that, Gene.\n\n                CMP         Okay, you want to take a picture of it first?\n                            Okay, POWER ... Okay, stand by. 3, 2, 1 -\n\n02 18 41 59  CMP         MARK it. POWER switch OFF.\n\n                CDR         Say, Bob or Stu.\n\n                CC          Roger. Go ahead.\n\n02 18 42 34  CDR         Okay, add - to ad to today. Not last night, but -\n                            I guess the first night I was in bed - I definitely\n                            saw some of these - because I had a hard time going\n                            to bed, to start with - I saw some of the same\n                            peripheral horizon-type things you said were not\n                            the type of data you were looking for; but I also\n                            saw a - some sets of the streaks. And probably\n                            the one most imposing thing I remember is - and the\n                            last one I remember before falling asleep - was\n                            the fact that there was a very bright spot that\n                            flashed right between my eyes like a very bright\n                            headlight - like a train coming at you, only with\n                            a flash. It's difficult probably to estimate the\n                            frequency of any of those because I was in a -\n                            sort of a sleep-hazy mode.\n\n                CC          Roger.\n\n                CDR         But then, as today, I saw some that flashed and\n                            lit up the horizon and some that lit up peripher-\n                            ally; and I guess, as you say, that's a different\n                            kind of data, but I did see them there and they\n                            impressed me.\n\n                CC          Okay. We got all that, Gene.\n\n                CDR         Okay.\n\n                CMP         And it might be interesting to know I've never\n                            seen it before today.\n\n                CC          Hey, Gene, we appreciate all the data. We were\n                            just trying to make the data fit the curve; you\n                            know the old trick.",
+            "confidence": 92.0,
+            "wall_clock_s": 9.181237871292979,
+            "cost_usd": 0.004691,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 575,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "card_id": "4b68726be4af8ff9",
+      "category": "faded_fbi_scan",
+      "description": "FBI HQ-83894 Serial 220 (15 pp, mid-1950s carbon)",
+      "pdf_filename": "65_hs1-834228961_62-hq-83894_serial_220.pdf",
+      "engines": {
+        "tesseract": [
+          {
+            "page": 1,
+            "text": "ym ben | |\nc cWv\n\nVMN YUOUY NIH ice\nAMMAN\n\n",
+            "confidence": 27.0,
+            "wall_clock_s": 1.9307162468321621,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "MIGUEL ANGEL GARCIA MACTIAS\nPianist Composer Discoverer\nand Ideographic Inventor\nNo. 324 Pino Suarez Avenue\n\nVERACRUZ, Veracruz\n\nVeracruz, Veracruz\nMarch 19, 1950\n\nTo the President of the Commission of Scientific Investigation\nof the United States of North America\n\nNew York\nDear Mr. President,\n\nThis is to greet you and at the same time to bring to your\nknowledge the STUDIES which I permit myself to send to that Honorable Commission\nof Scientific Investigation, because I believe that it is my duty to make\nthem available for the deep consideration of that commission over which\nyou so worthily preside.\n\nThis deals with stratospheric aerostats (?)* or Flying** saucers\nas people commonly call them, and which I believe your great Nation, making\nuse of ATOMIC force, possesses. Before giving an exposition of my IDEA, I\nwant you to know of the Inventions which I have thought up by means of my\nSTIDIES as an IDEOGRAPHIC Inventor, and which have been REGISTERED and\nPATENTED by other persons whom I do not know and which are the following:\n\n\"GOTE-GRADUNS\" (DROP GRADUATION?)\n\nThe \"Gote-Graduns\" was originated when I was making studies on\nAtmospheric Graduations of the Earth and one afternoon it occurred to me\nto graduate a Dropper. The experiment did not cause me a great deal of\nwork since I was able to graduate it with ease, but the PLANS of my IDEA\nwere stolen from me and patented in your Nation.\n\nNEW\n\nORK\n195]\n\n\"AUTOMATIC SHOVELS\" for Dump-Trucks (or Concrete-Mixers )**+# APRS. See\n\nThe Automatic Shovels originated when a party of Workers, was \u2014\u2014\u2014\u2014\u2014\ntrying to fill a Dump-Truck in front of the Custom House of the Port. I\ntook my watch and I was able to prove that the workers took a long time to\nfill the truck since it took almost an hour and a half of continuous work.\nThen I thought that the same Truck equipped with an Automatic Shovel could\ndo the same work in less time. I set about drawing up the plans and I sent\nthem to Mexico to the Secretary of National Economy. The plans remained there\n\n% \u201cmb se words are written \"aereo-astactos extratofericos\". I think that\n\nv\u2019 the writer intended to write \"aereo-estaticos estratoesfericos\".\n\n7% The writer frequently uses capital letters when there is no apparent need\nfor them. I have retained them in the translation.\n\n** \"Camiones de volteo\", literally, \"trucks for turning over or revolving\".\n\n",
+            "confidence": 93.01485148514851,
+            "wall_clock_s": 3.671511942986399,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "\u00ab<2 =\n\nfor eight months. After that time, and after I had paid all my fees as an\nInventor of the said Apparatus, I received a reply stating that the said\nPatent had already been given to another person whose identity I do not\nknow.\n\n\"ROOMS FOR MEASURING OPTICS\" for the Examination of vision.\n\nI have this study in my possession and have not REGISTERED it since\nI need to prove some things in order to be able to put it into effect.\n\n\"THE GRADUAL CENTIMETRIC MUSIC OF THE FUTURE\" or the discovery of\nSound (15) composed for PIANOMETRICS, PHONOMETRICS, CENTIMETRICS and\nDISCOPHONOMETRICS .\n\nI have finished this Study and the plans are in the TOWN LI BRARY\nof this Port, as well as the Autophonics and the Euphonics of Alphabetic\nLetters.\n\nThe \"FERROTACTOMETER and the FERROCEMACTOMETER\u201d to eliminate Railway\ncollisions from a DISTANCE at Road crossings. I extended this IDEOGRAPHIC\nINVENTION to eliminate automobile collisions on Roads, but since I do not\nhave money I was not able to put it in PRACTICE nor to have it REGISTERED.\n\n\"EXQUINOCIS\" (?) of graduation, time and distance, in order to\ndetermine the distribtion and division of TIME on CLOCKS of the whole World.\nThis drawing is in the Town Library of this Port.\n\nDescription of the STABILITY of SURFACE and the SUPERMEDIA (?) in\norder to prevent the sinking of big Transatlantic liners, guaranteeing\nthe lives and interests of persons who travel, like those of Navigation\nCompanies of the whole World.\n\nThe graduation and Illumination of the Wharves which load large\nquantities of combustible materials, in order to eliminate accidents on the\nWharves during the loading and unloading of the same.\n\nStudy of the MULTIPLES and the SUBMULTIPLES of Mechanized gears.\nThis study is correlated with Music since it deals with Universal mechanical\ngearing or the gradual Centimetric Music of the Future.\n\n\"STRATOSPHERIC AEROSTATS\"\n\nIn this study enters Global Stability which the Globe has and\nSemi-Global Stability which the Parachute has. Uniting the two STABILITISS\ninto one, we find the superior Stability or the SUPER-STABILITY of bodies\nin Air or space. These apparatuses can be used in order to avoid Atomic\nExplosion on the Earth, since the velocity is Greater than that of Light or\nSound in accordance with the quantity of Atomic Material which is used in\ntheir fabrication. These apparatuses can be thrown from the ground or from\n\n",
+            "confidence": 93.965,
+            "wall_clock_s": 3.70124643901363,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "-3-\n\nthe Water since the Conic-Global or Global-Conic form permits it.\n\nThe force that the said apparatus can develop can be compared\nonly with THOUGHT since this has no barriers on the earth such as mountains\nand clouds in Space. This apparatus can be used for the Study of the Stars.\nThis force is applied by means of stratospheric skyrockets placed at the top\nor sides of this apparatus using Nuclear-Atomic force,\n\nI hope that my idea is Studied and approved by the said Commission\nand may serve for the Progress of the Universe instead of its DESTRUCTION,\nand for the good of all of us human beings who inhabit the Earth.\n\nMy description is IDEOGRAPHIC, but I believe that it will be a\n\ngrain of sand which will help the SCIENTIFIC INVESTIGATION of that big\nNation.\n\nCordially yours,\nMiguel Angel Garcia Macias\n\nIdeographic Inventor\n\n\"FOR UNIVERSAL PROGRESS\"\n\nTranslator: Mrs. Sophia Saliba\n\n",
+            "confidence": 95.15032679738562,
+            "wall_clock_s": 1.9122805180959404,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "THE FIRST PHOTOGRAPHS OF A \"FLYING SAUCER\", OBTAINED IN DURANGO AT AN\nALTITUDE OF 9000 FEET\n\n(Caption under photographs )\n\nMr. German Horacio Robles Jr., student at the National School of\nEngineering, is one of the thgusands of persons who have seen \"with their\nown eyes\" the flying saucers or disks which have become the general topic of\ncommentaries and have given rise to the most varied hypotheses. Put at the\nsame time the young man himself is the first to have photographed those\nstrange apparatuses. He observed one of them and was able to take its\npicture against the skies of the city of Durango. 1. Picture of the \"flying\nsaucer\" at an altitude of 8000 to 9000 feet above the streets of Durango.\nThe apparatus seems to be a double truncated cone, joined at its bases which\nmoves by something like jet propulsion and which displaces itself by changing\nposition in order to use its motive force in the direction desired, for which\nreason it can be seen under apparently different forms. 2. Conception of\nMr. Robles Jr., Concerning the real form of the strange mechenical objects\ndrawn by him. 3. Another aspect of the flying saucer. 4. The future civil\nengineer, HoracioX\\Robles Jr. sketched in our editorial offices after having\nreported his observations on the flying disk and after having handed over\nthe pictures of this apparatus which he had obtained.\n\n(Page with five drawings is entitled \"Wings and Propellers\"\n\nNext drawing Propeller\nAir-Seizing Force\n\nDirection of the currents of air\n\nCatches\n\nCuts\n\nExpels\n\nDirection of the Wings\n\nAtomic Force\n\nVacuum Third Level\nOxygen Chamber 2nd Level\nEntrance of the Air Currents lst Level\nPropeller Air Seizing Force\nExits of the Air Currents\nExpulsion of Air\n\nGLORAL-CONIC AND SEMI-GLOBAL STABILITY\n\nTranslator: Mrs. Sophia Saliba\n\n",
+            "confidence": 94.54697986577182,
+            "wall_clock_s": 2.9780037640593946,
+            "cost_usd": 0.0
+          }
+        ],
+        "surya": [
+          {
+            "page": 1,
+            "text": "62-\nHQ-83894\nENCL BEHIND FILE\nSerials EBF 220\nEBF\n62-HQ-83894-EBF 220\n-220\n438411\n00 -\n0\nDO NOT<br>DESTROY\n1 19\nFOIPA# 1294932\n.\n.\nFBI - CENTRAL RECORDS CENTER\n<b>HQ - HEADQUARTERS</b>\nSerial #\nVol.\nSub\nClass / Case #\nONLY\n220\n1\n0062 83894\n8/11/1274164\nDeclassification authority derived\nfrom FBI Automatic Declassification\nRRP003IXG6\nGuide, issued May 24, 2007.",
+            "confidence": 90.91027702771356,
+            "wall_clock_s": 1.524018649943173,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": ". .\n. .\nMIGUEL ANGEL GARCIA MACIAS\nPianist Composer Discoverer\nand Ideographic Inventor\nNo. 324 Pino Suarez Avenue\nVERACRUZ, Veracruz\nVeracruz, Veracruz\nMarch 19, 1950\nTo the President of the Commission of Scientific Investigation\nof the United States of North America\nNew York\nDear Mr. President,\nThis is to greet you and at the same time to bring to your\nknowledge the STUDIES which I permit myself to send to that Honorable Commission\nof Scientific Investigation, because I believe that it is my duty to make\nthem available for the deep consideration of that commission over which\nyou so worthily preside.\nThis deals with stratospheric aerostats (?)* or Flying** saucers\nas people commonly call them, and which I believe your great Nation, making\nuse of ATOMIC force, possesses. Before giving an exposition of my IDEA, I\nwant you to know of the Inventions which I have thought up by means of my\nSTUDIES as an IDEOGRAPHIC Inventor, and which have been REGISTERED and\nPATENTED by other persons whom I do not know and which are the following:\n\"GOTE-GRADUNS\" (DROP GRADUATION?)\nThe \"Gote-Graduns\" was originated when I was making studies on\nAtmospheric Graduations of the Earth and one afternoon it occurred to me\nto graduate a Dropper. The experiment did not cause me a great deal of\nwork since I was able to graduate it with ease, but the PLANS of my IDEA\nwere stolen from me and patented in your Nation.\nFRI - NEW YORK\n1954\nAPR 7\n\"AUTOMATIC SHOVELS\" for Dump-Trucks (or Concrete-Mixers) ***\nThe Automatic Shovels originated when a party of Workers was\ntrying to fill a Dump-Truck in front of the Custom House of the Port. I\ntook my watch and I was able to prove that the workers took a long time to\nfill the truck since it took almost an hour and a half of continuous work.\nThen I thought that the same Truck equipped with an Automatic Shovel could\ndo the same work in less time. I set about drawing up the plans and I sent\nthem to Mexico to the Secretary of National Economy. The plans remained there\nThese words are written \"aereo-astactos extratofericos\". I think that\nthe writer intended to write \"aereo-estaticos estratoesfericos\".\nThe writer frequently uses capital letters when there is no apparent need\nfor them. I have retained them in the translation.\n\"Camiones de volteo\", literally, \"trucks for turning over or revolving\".\n**",
+            "confidence": 96.5783879216998,
+            "wall_clock_s": 1.859463443979621,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": ". .\n- 2 -\n.\n.\nfor eight months. After that time, and after I had paid all my fees as an\nInventor of the said Apparatus, I received a reply stating that the said\nPatent had already been given to another person whose identity I do not\nknow.\n\"ROOMS FOR MEASURING OPTICS\" for the Examination of vision.\nI have this study in my possession and have not REGISTERED it since\nI need to prove some things in order to be able to put it into effect.\n\"THE GRADUAL CENTIMETRIC MUSIC OF THE FUTURE\" or the discovery of\nSound (15) composed for PIANOMETRICS, PHONOMETRICS, CENTIMETRICS and\nDISCOPHONOMETRICS.\nI have finished this Study and the plans are in the TOWN LIBRARY\nof this Port, as well as the Autophonics and the Euphonics of Alphabetic\nLetters.\nThe \"FERROTACTOMETER and the FERROCEMACTOMETER\" to eliminate Railway\ncollisions from a DISTANCE at Road crossings. I extended this IDEOGRAPHIC\nINVENTION to eliminate automobile collisions on Roads, but since I do not\nhave money I was not able to put it in PRACTICE nor to have it REGISTERED.\n\"EXQUINOCIS\" (?) of graduation, time and distance, in order to\ndetermine the distribution and division of TIME on CLOCKS of the whole World.\nThis drawing is in the Town Library of this Port.\nDescription of the STABILITY of SURFACE and the SUPERMEDIA (?) in\norder to prevent the sinking of big Transatlantic liners, guaranteeing\nthe lives and interests of persons who travel, like those of Navigation\nCompanies of the whole World.\nThe graduation and Illumination of the Wharves which load large\nquantities of combustible materials, in order to eliminate accidents on the\nWharves during the loading and unloading of the same.\nStudy of the MULTIPLES and the SUBMULTIPLES of Mechanized gears.\nThis study is correlated with Music since it deals with Universal mechanical\ngearing or the gradual Centimetric Music of the Future.\n\"STRATOSPHERIC AEROSTATS\"\nIn this study enters Global Stability which the Globe has and\nSemi-Global Stability which the Parachute has. Uniting the two STABILITIES\ninto one, we find the superior Stability or the SUPER-STABILITY of bodies\nin Air or space. These apparatuses can be used in order to avoid Atomic\nExplosion on the Earth, since the velocity is Greater than that of Light or\nSound in accordance with the quantity of Atomic Material which is used in\ntheir fabrication. These apparatuses can be thrown from the ground or from",
+            "confidence": 96.6532695040275,
+            "wall_clock_s": 1.5140701029449701,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "4\n10\u00b0 10\u00b0 10\u00b0 10\u00b0 10\u00b0 10\u00b0 10\u00b0 10\u00b0 10\u00b0 10\u00b0 \n- 3 -\n. .\nthe Water since the Conic-Global or Global-Conic form permits it.\nThe force that the said apparatus can develop can be compared\nonly with THOUGHT since this has no barriers on the earth such as mountains\nand clouds in Space. This apparatus can be used for the Study of the Stars.\nThis force is applied by means of stratospheric skyrockets placed at the top\nor sides of this apparatus using Nuclear-Atomic force.\nI hope that my idea is Studied and approved by the said Commission\nand may serve for the Progress of the Universe instead of its DESTRUCTION,\nand for the good of all of us human beings who inhabit the Earth.\nMy description is IDEOGRAPHIC, but I believe that it will be a\ngrain of sand which will help the SCIENTIFIC INVESTIGATION of that big\nNation.\nCordially yours,\nMiguel Angel Garcia Macias\nIdeographic Inventor\n\"FOR UNIVERSAL PROGRESS\"\nTranslator: Mrs. Sophia Saliba",
+            "confidence": 92.69597097103285,
+            "wall_clock_s": 1.1842234381474555,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "v 4\n300\nTHE FIRST PHOTOGRAPHS OF A \"FLYING SAUCER\", OBTAINED IN DURANGO AT AN\nALTITUDE OF 9000 FEET\n(Caption under photographs)\nMr. German Horacio Robles Jr., student at the National School of\nEngineering, is one of the thousands of persons who have seen \"with their\nown eyes\" the flying saucers or disks which have become the general topic of\ncommentaries and have given rise to the most varied hypotheses. But at the\nsame time the young man himself is the first to have photographed those\nstrange apparatuses. He observed one of them and was able to take its\npicture against the skies of the city of Durango. 1. Picture of the \"flying\nsaucer\" at an altitude of 8000 to 9000 feet above the streets of Durango.\nThe apparatus seems to be a double truncated cone, joined at its bases which\nmoves by something like jet propulsion and which displaces itself by changing\nposition in order to use its motive force in the direction desired, for which\nreason it can be seen under apparently different forms. 2. Conception of\nMr. Robles Jr., concerning the real form of the strange mechanical objects\ndrawn by him. 3. Another aspect of the flying saucer. 4. The future civil\nengineer, Horacio Robles Jr. sketched in our editorial offices after having\nreported his observations on the flying disk and after having handed over\nthe pictures of this apparatus which he had obtained.\n(Page with five drawings is entitled \"Wings and Propellers\"\nPropeller\nNext drawing\nAir-Seizing Force\nDirection of the currents of air\nCatches\nCuts\nExpels\nDirection of the Wings\nAtomic Force\nThird Level\nVacuum\n2nd Level\nOxygen Chamber\n1st Level\nEntrance of the Air Currents\nPropeller Air Seizing Force\nExits of the Air Currents\nExpulsion of Air\nGLOBAL-CONIC AND SEMI-GLOBAL STABILITY\nFBI - NEW YORK\n1950\nAPR 7\nTranslator: Mrs. Sophia Saliba",
+            "confidence": 94.82788223227674,
+            "wall_clock_s": 1.665148257277906,
+            "cost_usd": 0.0
+          }
+        ],
+        "llm": [
+          {
+            "page": 1,
+            "text": "62-                HQ-83894\n\nSerials EBF 220\n\n[BARCODE: EC-70-83894-EBF 220]\n                                                        EBF\n\n                                                        [RED CROSS SYMBOL]\n\n                                                        62-83894-220\nDO NOT\nDESTROY\nFOIPA\n\n\nFBI - CENTRAL RECORDS CENTER\n\nHQ - HEADQUARTERS\n\nClass/Case #    Sub      Vol.    Serial #\n\n0062 83894      1        220     ONLY\n\n\n                    8/11/1274164\n\n                    [BARCODE: RRDWIX06]",
+            "confidence": 75.0,
+            "wall_clock_s": 4.384405214805156,
+            "cost_usd": 0.0028799999999999997,
+            "tokens": {
+              "input_tokens": 1840,
+              "output_tokens": 208,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 2,
+            "text": "MIGUEL ANGEL GARCIA MACIAS\nPianist Composer Discoverer\nand Ideographic Inventor\nNo. 324 Pino Suarez Avenue\nVERAGRUZ, Veracruz\n\n                                                    Veracruz, Veracruz\n                                                    March 19, 1950\n\nTo the President of the Commission of Scientific Investigation\nof the United States of North America\n\n                                                    New York\n\nDear Mr. President,\n\n        This is to greet you and at the same time to bring to your\nknowledge the STUDIES which I permit myself to send to that Honorable Commission\nof Scientific Investigation, because I believe that it is my duty to make\nthem available for the deep consideration of that commission over which\nyou so worthily preside.\n\n        This deals with stratospheric aerostats (?)* or Flying** saucers\nas people commonly call them, and which I believe your great Nation, making\nuse of ATOMIC force, possesses. Before giving an exposition of my IDEA, I\nwant you to know of the Inventions which I have thought up by means of my\nSTUDIES as an IDEOGRAPHIC Inventor, and which have been REGISTERED and\nPATENTED by other persons whom I do not know and which are the following:\n\n                    \"GOTE-GRADUNS\" (DROP GRADUATION?)\n\n        The \"Gote-Graduns\" was originated when I was making studies on\nAtmospheric Graduations of the Earth and one afternoon it occurred to me\nto graduate a Dropper. The experiment did not cause me a great deal of\nwork since I was able to graduate it with ease, but the PLANS of my IDEA\nwere stolen from me and patented in your Nation.\n\n                \"AUTOMATIC SHOVELS\" for Dump-Trucks (or Concrete-Mixers)***\n\n        The Automatic Shovels originated when a party of Workers was\ntrying to fill a Dump-Truck in front of the Custom House of the Port. I\ntook my watch and I was able to prove that the workers took a long time to\nfill the truck since it took almost an hour and a half of continuous work.\nThen I thought that the same Truck equipped with an Automatic Shovel could\ndo the same work in less time. I set about drawing up the plans and I sent\nthem to Mexico to the Secretary of National Economy. The plans remained there\n\n* These words are written \"aereo-astactos extratofericos\". I think that\nthe writer intended to write \"aereo-estaticos estratoesfericos\".\n** The writer frequently uses capital letters when there is no apparent need\nfor them. I have retained them in the translation.\n*** \"Camiones de volteo\", literally, \"trucks for turning over or revolving\".",
+            "confidence": 92.0,
+            "wall_clock_s": 12.001360479276627,
+            "cost_usd": 0.005451,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 727,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 3,
+            "text": "- 2 -\n\nfor eight months. After that time, and after I had paid all my fees as an\nInventor of the said Apparatus, I received a reply stating that the said\nPatent had already been given to another person whose identity I do not\nknow.\n\n\"ROOMS FOR MEASURING OPTICS\" for the Examination of vision.\n\nI have this study in my possession and have not REGISTERED it since\nI need to prove some things in order to be able to put it into effect.\n\n\"THE GRADUAL CENTIMETRIC MUSIC OF THE FUTURE\" or the discovery of\nSound (15) composed for PIANOMETRICS, PHONOMETRICS, CENTIMETRICS and\nDISCOPHONOMETRICS.\n\nI have finished this Study and the plans are in the TOWN LIBRARY\nof this Port, as well as the Autophonics and the Euphonics of Alphabetic\nLetters.\n\nThe \"FERROTACTOMETER and the FERROCEMACTOMETER\" to eliminate Railway\ncollisions from a DISTANCE at Road crossings. I extended this IDEOGRAPHIC\nINVENTION to eliminate automobile collisions on Roads, but since I do not\nhave money I was not able to put it in PRACTICE nor to have it REGISTERED.\n\n\"EXQUINOCIS\" (?) of graduation, time and distance, in order to\ndetermine the distribution and division of TIME on CLOCKS of the whole World.\nThis drawing is in the Town Library of this Port.\n\nDescription of the STABILITY of SURFACE and the SUPERMEDIA (?) in\norder to prevent the sinking of big Transatlantic liners, guaranteeing\nthe lives and interests of persons who travel, like those of Navigation\nCompanies of the whole World.\n\nThe graduation and Illumination of the Wharves which load large\nquantities of combustible materials, in order to eliminate accidents on the\nWharves during the loading and unloading of the same.\n\nStudy of the MULTIPLES and SUBMULTIPLES of Mechanized gears.\nThis study is correlated with Music since it deals with Universal mechanical\ngearing or the gradual Centimetric Music of the Future.\n\n\"STRATOSPHERIC AEROSTATS\"\n\nIn this study enters Global Stability which the Globe has and\nSemi-Global Stability which the Parachute has. Uniting the two STABILITIES\ninto one, we find the superior Stability or the SUPER-STABILITY of bodies\nin Air or space. These apparatuses can be used in order to avoid Atomic\nExplosion on the Earth, since the velocity is Greater than that of Light or\nSound in accordance with the quantity of Atomic Material which is used in\ntheir fabrication. These apparatuses can be thrown from the ground or from",
+            "confidence": 92.0,
+            "wall_clock_s": 12.223201888147742,
+            "cost_usd": 0.005356,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 708,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 4,
+            "text": "- 3 -\n\nthe Water since the Conic-Global or Global-Conic form permits it.\n\n     The force that the said apparatus can develop can be compared\nonly with THOUGHT since this has no barriers on the earth such as mountains\nand clouds in Space. This apparatus can be used for the Study of the Stars.\nThis force is applied by means of stratospheric skyrockets placed at the top\nor sides of this apparatus using Nuclear-Atomic force.\n\n     I hope that my idea is Studied and approved by the said Commission\nand may serve for the Progress of the Universe instead of its DESTRUCTION,\nand for the good of all of us human beings who inhabit the Earth.\n\n     My description is IDEOGRAPHIC, but I believe that it will be a\ngrain of sand which will help the SCIENTIFIC INVESTIGATION of that big\nNation.\n\n                                        Cordially yours,\n                                        Miguel Angel Garcia Macias\n\n                                        Ideographic Inventor\n\n                                        \"FOR UNIVERSAL PROGRESS\"\n\n\n\n\nTranslator: Mrs. Sophia Saliba",
+            "confidence": 95.0,
+            "wall_clock_s": 11.389798149000853,
+            "cost_usd": 0.003301,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 297,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 5,
+            "text": "THE FIRST PHOTOGRAPHS OF A \"FLYING SAUCER\", OBTAINED IN DURANGO AT AN\nALTITUDE OF 9000 FEET\n\n(Caption under photographs)\n\nMr. German Horacio Robles Jr., student at the National School of\nEngineering, is one of the thousands of persons who have seen \"with their\nown eyes\" the flying saucers or disks which have become the general topic of\ncommentaries and have given rise to the most varied hypotheses. But at the\nsame time the young man himself is the first to have photographed these\nstrange apparatuses. He observed one of them and was able to take its\npicture against the skies of the city of Durango. 1. Picture of the \"Flying\nsaucer\" at an altitude of 8000 to 9000 feet above the streets of Durango.\nThe apparatus seems to be a double truncated cone, joined at its base which\nmoves by something like jet propulsion and which displaces itself by changing\nposition in order to use its motive force in the direction desired, for which\nreason it can be seen under apparently different forms. 2. Conception of\nMr. Robles Jr., concerning the real form of the strange mechanical objects\ndrawn by him. 3. Another aspect of the flying saucer. 4. The future civil\nengineer, Horacio Robles Jr. sketched in our editorial offices after having\nreported his observations on the flying disk and after having handed over\nthe pictures of this apparatus which he had obtained.\n\n(Page with five drawings is entitled \"Wings and Propellers\"\n\nNext drawing        Propeller\n                    Air-Seizing Force\n\nDirection of the currents of air\n\n                    Catches\n                    Cuts\n                    Expels\n                    Direction of the Wings\n\n                    Atomic Force\n\n                    Vacuum                Third level\n                    Oxygen Chamber        2nd level\n                    Entrance of the air Currents    1st level\n                    Propeller   Air-Seizing Force\n                    Exits of the air Currents\n                    Expulsion of Air\n\nGLOBAL-CONIC AND SEMI-GLOBAL STABILITY\n\n\n                                          FBI - NEW YORK\n                                          APR 7  1950\n\nTranslator: Mrs. Sophia Saliba",
+            "confidence": 92.0,
+            "wall_clock_s": 10.23410758888349,
+            "cost_usd": 0.004926,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 622,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "card_id": "15d23b5f88df64fa",
+      "category": "multi_column_form",
+      "description": "DOW-UAP-D25 Mission Report Greece Jan 2024 (7 pp)",
+      "pdf_filename": "dow-uap-d25-mission-report-greece-january-2024.pdf",
+      "engines": {
+        "tesseract": [
+          {
+            "page": 1,
+            "text": "Misrep undefined-9629373\n\nNarrative\nGReReneeeneana\nAT 01092, (b)(1)1.4a CONDUCTED SLR TAKE OFF FROM LGLR. \u00ae)\")'48PROCEEDED TO\n\nFRAGGED TASKING TO SUPPORT\nAT 0509Z, \u00ae\"4# OBSERVED AN UNIDENTIFIED AERIAL PHENOMENON (SEE UAP 1).\n\nAT 0135Z, \"44 WAS 7-LINED TO SUPPORT (11-44 ARRIVED ON-STATION AT 0635Z,\nCHECKED IN WITH [((4)1.4a JAND PERFORMED FMV/SIGINT COLLECTION AT 36R XV {ai ha\n48)(1)1 KSEE ISR 1).\n\nAT 1504Z, \u00ae\"\u201c# RETURNED TO BASE. AT 2149Z, \"44 LANDED AT LGLR. FULL MOTION\nVIDEO WAS EXPLOITED BY GET. 20:40 MISSION HOURS, 08:29 FMV HOURS, 1X FMV\nTASKINGS PROSECUTED, 08:27 SIGINT HOURS, 1X SIGINT TASKINGS.\nRee oe el\n\ntities Oy Mission Narrative\n\nAdmin\n\nCLASSIFICATION\n\n\u00a2 Classification: SSGRam\n\n\u00a2 Associated Caveats: Diximi@neGeyalaily\n\n\u00a2 Classification Source (MS or Classification Guide ID): MS\n\u00a2 Declassification Date (YYYYMMDD): 20490125\n\nOPERATION\n\n* Operation:\n\n\u00a2 Domain: AIR\n\n\u00a2 Operations Center: 603rd\n\n\u00a2 Major Command (MAJCOM): AFSOC\n\n\u00a2 Combatant Command (COCOM): USCENTCOM\n\n. EOIA Exemption (b)(6\n\nRe\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S 10/28/25 001\nApproved for Release to AARO\n",
+            "confidence": 81.57055214723927,
+            "wall_clock_s": 1.6212135669775307,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "MSGID\n\n\u00a2 Report Type: MISREP\n\u00a2 Originator (Unit or Squadron): 33 SOS\n\u00a2 Submit Date:\n\nMSNID\n\n\u00a2 Tasking Order (ATO): 24-024\n\n\u00a2 Mission Type: ISR\n\n\u00a2 ATO Mission Number: 4055\n\n\u00a2 Country Tasked: US - UNITED STATES\n\u00a2 Service Tasked: A - AIR FORCE\n\nPoc\n\nPOC\n\nRank: A1C\n\nFudlsName:gxemptions (b)(3),|130b, (b)(6)\n\nUnit: 56 SOIS\n\nWing: 27 SOW\n\nPhone Numberuia Exemptibn (b)(6)\n\nEmail:\n\nService: Air Force\nOperations Center: 609 AOC Det 1\n\nQC\n\nRank: SrA\n\nFul\u2019 Nanaea [Exemptions (b)(3), 130b, (b)(6)\n\nUnit: Unavailable\n\nWing: 27 SOW\n\nPhone Number Exemptibn (b)(6)\n\nEmail:\n\nService: Air Force\nOperations Center: 609 CAOC\n\nAPPROVER\n\n\u00a2 Rank: AIC\n\u00a2 Full Nawresia Exemptions (b)(3), 130b, (b)(6)\n\n\u00a2 Unit: Unavailable\n\n. EOIA Exemption (b)(6\n\neRe\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S 10/28/25 002\nApproved for Release to AARO\n",
+            "confidence": 85.43846153846154,
+            "wall_clock_s": 1.3422435270622373,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "\u00a2 Wing: Other\n\u00a2 Phone Number Exemptibn (b)(6)\n* Email:[_3.5c, FOIA Exemption (b)(6) |\n\n\u00a2 Service: Air Force\n\u00a2 Operations Center: 603 AOC\n\nINGEST\n\n\u00a2 Rank:\n\nFull Name:\n\n* Unit:\n\n\u00a2 Wing:\n\nPhone Number:\nEmail:\n\nService:\nOperations Center:\n\nACEQUIP\n\nACEQUIP\n\n\u00a2 Aircraft Callsign: (b)(1)1.4a\n\nRadar Name or Destination:\n\nRadar Software Load or Mission Data:\nRadar Warning Receiver (RWR) Name or Designator:\nRWR Software Load or Mission Data:\nMWS Name or Designator:\n\nMWS Software Load or Mission Data:\nIRCM Name or Designator:\n\nIRCM Software Load or Mission Data:\nECM Name or Designator:\n\nECM Software Load or Mission Data:\nCMD Name or Designator:\n\nChaff Designator:\n\nNum Chaff or Cartridges:\n\nFlare Designator:\n\nNum Flares:\n\nTowed Decoy Name or Designator:\nTowed Decoy Software Load or Mission Data:\nNum Towed Decoys:\n\nType of Radar-Guided AAM:\n\nNum Radar-Guided AAM:\n\n. EOIA Exemption (b)(6\n\nea Le\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S 10/28/25 003\nApproved for Release to AARO\n",
+            "confidence": 89.3202614379085,
+            "wall_clock_s": 1.4529533409513533,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "\u00a2 Type of IR-Guided AAM:\n\n\u00a2 Num IR-Guided AAM:\n\n\u00a2 Gun Name or Designator:\n\n\u00a2 Num Gun Rounds:\n\n\u00a2 Air-to-Ground Wpn to Include Num of Each: -\n\u00a2 TGT Pod Name or Designator: AN/DAS-4\n\n\u00a2 Additional Avionics: AH/GMESH/SANTA FE\n\n\u00a2 Data Link: LINK 16\n\n\u00a2 Gentext:\n\nTimeline\n\nTakeoff\n\n(b)(1)1.4a\n\n\u00a2 Callsign:\n\u00a2 Number of Aircraft: 1\n\n\u00a2 Asset Type (Aircragt)}1.4a, (b)(1)1.49\n\n\u00a2 Aircraft Tail Numben(s)r.4a, (b)(1)1.49\n\n\u00a2 Takeoff Location (ICAO Code): LGLR\n\u00a2 Takeoff Time DTG: 250109:00ZJAN24\n\u00a2 Mode 3 (IFF Codes): 4055\n\n\u00a2 Gentext/Additional Details:\n\n\u00a2 Mission Canceled:\n\nLanding\n\n\u00a2 Last Land Location (ICAO Code): LGLR\n\n\u00a2 Last Land Time: 252149:00ZJAN24\n\n\u00a2 Last Engine Shutdown Time: 252159:00ZJAN24\n\u00a2 Total Mission Time: 20 hours 40 minutes\n\n\u00a2 Gentext/Additional Details:\n\nOn Station\n\n\u00a2 Time On Station DTG: 250635:00ZJAN24\n* Callsign: (b)(1)1.4a\n\n\u00a2 JTAR Number: -\n\n\u00a2 Killbox (Location): -\n\n\u00a2 Mission Type: ISR\n\n\u00a2 JTAC Callsign: (b)(1)1.4a\n\n\u00a2 Gentext/Additional Details:\n\n\u00a2 Did not Arrive On Station:\n\n. EOIA Exemption (b)(6\n\nbe\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S 10/28/25 004\nApproved for Release to AARO\n",
+            "confidence": 87.2183908045977,
+            "wall_clock_s": 1.4808631977066398,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "Off Station\n\n\u00a2 Time Off Station DTG: 251504:00ZJAN24\n\u00a2 Total Time On Station: 8 hours 29 minutes\n\u00a2 Gentext/Additional Details:\n\nISR\n\nTime-on Station DTG: 250635:00ZJAN24\nTime-off Station DTG: 251504:00ZJAN24\nAircraft Callsign: (b)(1)1.4a\n\nMsn Type: AREC\n\nPrimary Sensor: FMV\n\nSensors Available: BLASPHEMY\nTasking Type: Planned\n\nTasking or Request Number (JTAR#, AEM#, PRI#, or TIC#): DATA MASKED\nBE Number (if NTISR): -\n\nTasked Start Point: 36RXV 19)(1)1.48\\(1)1.4a\nActivity Description: ISR\n\nFMV or Image File Name (if NTISR): -\nEEIs Observed: Yes\n\nNumber of EEIs: 1\n\nGlobal Campaign Plan:\n\nGENTEXT/ISR\n\n* Gentext: GEGREE RES as\n\nUPON ARRIVAL TO THE SP AT 0635Z, \u00ae'44 OBSERVED NO EEI RELATED ACTIVITY. FROM\n0635Z- 1353Z, \u00ae')44CQNDUCTED POL AND OBSERVED NSTR. FROM 1353Z-1500Z, \u00ae)'\nCONDUCTED A 1X STOP FOLLOW ON 1X ADM IN A SILVER SUV. AT 1400Z, \u00ae?'*? OBSERVED\nA LARGE WHITE BOX BEING TRANSFERRED FROM BLACK SUV TO WHITE VAN.\n\nMOBGREene ena\n\nISR ASSET UTILIZATION\n\n\u00a2 Supported Unit:\n\n\u00a2 Supported Operation:\n\u00a2 Precoord Time: -\n\n\u00a2 Precoord Effectiveness: -\n\nWEATHER\n\n\u00a2 Weather: (UNCLASSIFIED)\n\n. EOIA Exemption (b)(6\n\neee\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S 10/28/25 005\nApproved for Release to AARO\n",
+            "confidence": 87.3225806451613,
+            "wall_clock_s": 1.6659263162873685,
+            "cost_usd": 0.0
+          }
+        ],
+        "surya": [
+          {
+            "page": 1,
+            "text": "Declassified by MG Richard A. Harrison\n<b>USCENTCOM Chief of Staff</b>\nDeclassified on: 24 October 2025\nMisrep undefined-9629373\n<b>Narrative</b>\n(SECRETIFIED TO USI, TVET)\nAT 0109Z, (b)(1)1.4a CONDUCTED SLR TAKE OFF FROM LGLR. (b)(1)1.4a PROCEEDED TO\nFRAGGED TASKING TO SUPPORT (b)(1)1.4a\nAT 0509Z, (b)(1)1.4a OBSERVED AN UNIDENTIFIED AERIAL PHENOMENON (SEE UAP 1).\nAT 0135Z, (b)(1)1.4a WAS 7-LINED TO SUPPORT (b)(1)1.4a ARRIVED ON-STATION AT 0635Z,\nCHECKED IN WITH (b)(1)1.4a AND PERFORMED FMV/SIGINT COLLECTION AT 36R XV 1/9/(1)1.4a\n68 (1)1. (SEE ISR 1).\nAT 1504Z, (b)(1)1.4a RETURNED TO BASE. AT 2149Z, (b)(1)1.4a LANDED AT LGLR. FULL MOTION\nVIDEO WAS EXPLOITED BY GET. 20:40 MISSION HOURS, 08:29 FMV HOURS, 1X FMV\nTASKINGS PROSECUTED, 08:27 SIGINT HOURS, 1X SIGINT TASKINGS.\nTELLITOR TO COLL, I VEI\n(S/RELIDG) Mission Narrative\nAdmin\n<b>CLASSIFICATION</b>\n\u2022 Classification: GECRET\n\u2022 Associated Caveats: DEL TO USA, FVET\n\u2022 Classification Source (MS or Classification Guide ID): MS\n\u2022 Declassification Date (YYYYMMDD): 20490125\n<b>OPERATION</b>\n\u2022 Operation:\n(b)(1)1.4a\n\u2022 Domain: AIR\n\u2022 Operations Center: 603rd\n\u2022 Major Command (MAJCOM): AFSOC\n\u2022 Combatant Command (COCOM): USCENTCOM\n3.5c, FOIA Exemption (b)(6)\nELITICE I O COLLEGE\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S\n10/28/25 001\nApproved for Release to AARO",
+            "confidence": 80.84788913316945,
+            "wall_clock_s": 1.5161278378218412,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "Declassified by MG Richard A. Harrison\n<b>USCENTCOM Chief of Staff</b>\nDeclassified on: 24 October 2025\nCECDET/DEL TO LICA EVEN\n<b>MSGID</b>\n\u2022 <b>Report Type:</b> MISREP\n\u2022 Originator (Unit or Squadron): 33 SOS\n\u2022 Submit Date:\n<b>MSNID</b>\n\u2022 Tasking Order (ATO): 24-024\n\u2022 Mission Type: ISR\n\u2022 ATO Mission Number: 4055\n\u2022 Country Tasked: US - UNITED STATES\n\u2022 Service Tasked: A - AIR FORCE\nPoc\n<i>POC</i>\n\u2022 Rank: A1C\n\u2022 Fulls xemptions (b)(3), 130b, (b)(6)\n\u2022 Unit: 56 SOIS\n\u2022 Wing: 27 SOW\n\u2022 Phone Numbero IA Exemption (b)(6)\n\u2022 Email:\n3.5c, FOIA Exemption (b)(6)\n\u2022 <b>Service:</b> Air Force\n\u2022 Operations Center: 609 AOC Det 1\nQC\n\u2022 Rank: SrA\n\u2022 Full Name Exemptions (b)(3), 130b, (b)(6)\n\u2022 Unit: Unavailable\n\u2022 <b>Wing:</b> 27 SOW\n\u2022 Phone Numbero IA Exemption (b)(6)\n\u2022 Email:\n3.5c, FOIA Exemption (b)(6)\n\u2022 <b>Service:</b> Air Force\n\u2022 Operations Center: 609 CAOC\n<i>APPROVER</i>\n\u2022 Rank: A1C\n\u2022 Full Name | A Exemptions (b)(3), 130b, (b)(6)\n\u2022 Unit: Unavailable\n3.5c, FOIA Exemption (b)(6)\n_ _ _ _ _ _ _ _\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S\n10/28/25 002\nApproved for Release to AARO",
+            "confidence": 85.8925836141951,
+            "wall_clock_s": 1.1181836929172277,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "Declassified by MG Richard A. Harrison\n<b>USCENTCOM Chief of Staff</b>\nDeclassified on: 24 October 2025\n\u2022 Wing: Other\n\u2022 Phone Numbero IA Exemption (b)(6)\n\u2022 Email:\n3.5c, FOIA Exemption (b)(6)\n\u2022 <b>Service:</b> Air Force\n\u2022 Operations Center: 603 AOC\n<i>INGEST</i>\n\u2022 Rank:\n\u2022 Full Name:\n\u2022 Unit:\n\u2022 Wing:\n\u2022 Phone Number:\n\u2022 Email:\n\u2022 Service:\n\u2022 Operations Center:\n<b>ACEQUIP</b>\n<i>ACEQUIP</i>\n\u2022 Aircraft Callsign: (b)(1)1.4a\n\u2022 Radar Name or Destination:\n\u2022 Radar Software Load or Mission Data:\n\u2022 Radar Warning Receiver (RWR) Name or Designator:\n\u2022 RWR Software Load or Mission Data:\n\u2022 MWS Name or Designator:\n\u2022 MWS Software Load or Mission Data:\n\u2022 IRCM Name or Designator:\n\u2022 IRCM Software Load or Mission Data:\n\u2022 ECM Name or Designator:\n\u2022 ECM Software Load or Mission Data:\n\u2022 CMD Name or Designator:\n\u2022 Chaff Designator:\n\u2022 Num Chaff or Cartridges:\n\u2022 Flare Designator:\n\u2022 Num Flares:\n\u2022 Towed Decoy Name or Designator:\n\u2022 Towed Decoy Software Load or Mission Data:\n\u2022 Num Towed Decoys:\n\u2022 Type of Radar-Guided AAM:\n\u2022 Num Radar-Guided AAM:\n3.5c, FOIA Exemption (b)(6)\nDECRETIFIED TO COME TE\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S\n10/28/25 003\nApproved for Release to AARO",
+            "confidence": 75.58840860968674,
+            "wall_clock_s": 1.1305393250659108,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "Declassified by MG Richard A. Harrison\n<b>USCENTCOM Chief of Staff</b>\nDeclassified on: 24 October 2025\n\u2022 Type of IR-Guided AAM:\n\u2022 Num IR-Guided AAM:\n\u2022 Gun Name or Designator:\n\u2022 Num Gun Rounds:\n\u2022 Air-to-Ground Wpn to Include Num of Each: -\n\u2022 TGT Pod Name or Designator: AN/DAS-4\n\u2022 Additional Avionics: AH/GMESH/SANTA FE\n\u2022 Data Link: LINK 16\n\u2022 Gentext:\n<b>Timeline</b>\nTakeoff\n\u2022 Callsign: (b)(1)1.4a\n\u2022 Number of Aircraft: 1\n\u2022 Asset Type (Aircraft);1.4a, (b)(1)1.4g\n\u2022 Aircraft Tail Number (s): 4a, (b)(1)1.4g\n\u2022 Takeoff Location (ICAO Code): LGLR\n\u2022 Takeoff Time DTG: 250109:00ZJAN24\n\u2022 Mode 3 (IFF Codes): 4055\n\n    Gentext/Additional Details:\n\n\n    Mission Canceled:\n\nLanding\n\u2022 Last Land Location (ICAO Code): LGLR\n\u2022 Last Land Time: 252149:00ZJAN24\n\u2022 Last Engine Shutdown Time: 252159:00ZJAN24\n\u2022 Total Mission Time: 20 hours 40 minutes\n\u2022 Gentext/Additional Details:\nOn Station\n\u2022 Time On Station DTG: 250635:00ZJAN24\n\u2022 Callsign: (b)(1)1.4a\n\u2022 JTAR Number: -\n\u2022 Killbox (Location): -\n\u2022 Mission Type: ISR\n\u2022 <b>JTAC Callsign:</b> (b)(1)1.4a\n\n    Gentext/Additional Details:\n\n\u2022 Did not Arrive On Station:\n3.5c, FOIA Exemption (b)(6)\nALLEN AU UNIA\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S\n10/28/25 004\nApproved for Release to AARO",
+            "confidence": 79.57882617922573,
+            "wall_clock_s": 1.1313966498710215,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "Declassified by MG Richard A. Harrison\n<b>USCENTCOM Chief of Staff</b>\nDeclassified on: 24 October 2025\nTHE TO COME THE\nOff Station\n\u2022 Time Off Station DTG: 251504:00ZJAN24\n\u2022 Total Time On Station: 8 hours 29 minutes\n\n    Gentext/Additional Details:\n\nISR\n\u2022 Time-on Station DTG: 250635:00ZJAN24\n\u2022 Time-off Station DTG: 251504:00ZJAN24\n\u2022 Aircraft Callsign: (b)(1)1.4a\n\u2022 Msn Type: AREC\n\u2022 Primary Sensor: FMV\n\u2022 Sensors Available: BLASPHEMY\n\u2022 Tasking Type: Planned\n\u2022 Tasking or Request Number (JTAR#, AEM#, PRI#, or TIC#): DATA MASKED\n\u2022 BE Number (if NTISR): -\n\u2022 Tasked Start Point: 36RXV1(9)(1)1.4a(1)1.4a\n\u2022 Activity Description: ISR\n\u2022 FMV or Image File Name (if NTISR): -\n\u2022 <b>EEIs Observed:</b> Yes\n\u2022 Number of EEIs: 1\n\u2022 Global Campaign Plan:\nGENTEXT/ISR\n\u2022 Gentext: (SECRET//TELL TO USA, T VET)\nUPON ARRIVAL TO THE SP AT 0635Z, (b)(1)1.4a OBSERVED NO EEI RELATED ACTIVITY. FROM\n0635Z- 1353Z, (b)(1)1.4a CONDUCTED POL AND OBSERVED NSTR. FROM 1353Z-1500Z, (b)(1)1.4a\nCONDUCTED A 1X STOP FOLLOW ON 1X ADM IN A SILVER SUV. AT 1400Z, (b)(1)1.4a OBSERVED\nA LARGE WHITE BOX BEING TRANSFERRED FROM BLACK SUV TO WHITE VAN.\nISR ASSET UTILIZATION\n\u2022 Supported Unit: (b)(1)1.4a\n\u2022 Supported Operation:\n(b)(1)1.4a\n\u2022 Precoord Time: -\n\u2022 Precoord Effectiveness: -\n<i>WEATHER</i>\n\u2022 Weather: (UNCLASSIFIED)\n3.5c, FOIA Exemption (b)(6)\nTHE PROPERTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY O\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S\n10/28/25 005\nApproved for Release to AARO",
+            "confidence": 78.66420919433465,
+            "wall_clock_s": 2.9330656989477575,
+            "cost_usd": 0.0
+          }
+        ],
+        "llm": [
+          {
+            "page": 1,
+            "text": "Declassified by MG Richard A. Harrison\nUSCENTCOM Chief of Staff\nDeclassified on: 24 October 2025\n\n[REDACTED]\n\nMisrep undefined-9629373\n\nNarrative\n\n[REDACTED]\nAT 0109Z, (b)(1)1.4a CONDUCTED SLR TAKE OFF FROM LGLR. (b)(1)1.4a PROCEEDED TO\nFRAGGED TASKING TO SUPPORT [b)(1)1.4a\n\nAT 0509Z, (b)(1)1.4a OBSERVED AN UNIDENTIFIED AERIAL PHENOMENON (SEE UAP 1).\n\nAT 0135Z, (b)(1)1.4a WAS 7-LINED TO SUPPORT [b)(1)1.4a] (b)(1)1.4a ARRIVED ON-STATION AT 0635Z,\nCHECKED IN WITH [b)(1)1.4a AND PERFORMED FMV/SIGINT COLLECTION AT 36R XV 19[b)(1)1.4a\n68[b](1)1.4a (SEE ISR 1).\n\nAT 1504Z, (b)(1)1.4a RETURNED TO BASE. AT 2149Z, (b)(1)1.4a LANDED AT LGLR. FULL MOTION\nVIDEO WAS EXPLOITED BY GET. 20:40 MISSION HOURS, 08:29 FMV HOURS, 1X FMV\nTASKINGS PROSECUTED, 08:27 SIGINT HOURS, 1X SIGINT TASKINGS.\n\n[REDACTED]\n\n[REDACTED] Mission Narrative\n\n\nAdmin\n\nCLASSIFICATION\n\n\u2022 Classification: [REDACTED]\n\u2022 Associated Caveats: [REDACTED]\n\u2022 Classification Source (MS or Classification Guide ID): MS\n\u2022 Declassification Date (YYYYMMDD): 20490125\n\nOPERATION\n\n\u2022 Operation: [b)(1)1.4a\n\u2022 Domain: AIR\n\u2022 Operations Center: 603rd\n\u2022 Major Command (MAJCOM): AFSOC\n\u2022 Combatant Command (COCOM): USCENTCOM\n\n3.5c, FOIA Exemption (b)(6)\n\n[REDACTED]\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TMBS                           10/28/25 001\nApproved for Release to AARO",
+            "confidence": 75.0,
+            "wall_clock_s": 12.53221422387287,
+            "cost_usd": 0.005351,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 707,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 2,
+            "text": "Declassified by MG Richard A. Harrison\nUSCENTCOM Chief of Staff\nDeclassified on: 24 October 2025\n\n[REDACTED]\n\nMSGID\n\n\u2022 Report Type: MISREP\n\u2022 Originator (Unit or Squadron): 33 SOS\n\u2022 Submit Date:\n\nMSNID\n\n\u2022 Tasking Order (ATO): 24-024\n\u2022 Mission Type: ISR\n\u2022 ATO Mission Number: 4055\n\u2022 Country Tasked: US - UNITED STATES\n\u2022 Service Tasked: A - AIR FORCE\n\nPoc\n\nPOC\n\n\u2022 Rank: A1C\n\u2022 Full Name: Exemptions (b)(3), ]30b, (b)(6)\n\u2022 Unit: 56 SOIS\n\u2022 Wing: 27 SOW\n\u2022 Phone Number: [IA Exemption (b)(6)\n\u2022 Email: 3.5c, FOIA Exemption (b)(6)\n\u2022 Service: Air Force\n\u2022 Operations Center: 609 AOC Det 1\n\nQC\n\n\u2022 Rank: SrA\n\u2022 Full Name: Exemptions (b)(3), ]30b, (b)(6)\n\u2022 Unit: Unavailable\n\u2022 Wing: 27 SOW\n\u2022 Phone Number: [IA Exemption (b)(6)\n\u2022 Email: 3.5c, FOIA Exemption (b)(6)\n\u2022 Service: Air Force\n\u2022 Operations Center: 609 CAOC\n\nAPPROVER\n\n\u2022 Rank: A1C\n\u2022 Full Name: IA Exemptions (b)(3), ]3b, (b)(6)\n\u2022 Unit: Unavailable\n\n3.5c, FOIA Exemption (b)(6)\n\n[REDACTED]\n\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TM8S                                    10/28/25 002\nApproved for Release to AARO",
+            "confidence": 75.0,
+            "wall_clock_s": 7.341431561857462,
+            "cost_usd": 0.004601,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 557,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 3,
+            "text": "Declassified by MG Richard A. Harrison\nUSCENTCOM Chief of Staff\nDeclassified on: 24 October 2025\n\n[REDACTED]\n\n\u2022 Wing: Other\n\u2022 Phone Number: FOIA Exemption (b)(6)\n\u2022 Email: 3.5c, FOIA Exemption (b)(6)\n\u2022 Service: Air Force\n\u2022 Operations Center: 603 AOC\n\nINGEST\n\n\u2022 Rank:\n\u2022 Full Name:\n\u2022 Unit:\n\u2022 Wing:\n\u2022 Phone Number:\n\u2022 Email:\n\u2022 Service:\n\u2022 Operations Center:\n\nACEQUIP\n\nACEQUIP\n\n\u2022 Aircraft Callsign: (b)(1)1.4a\n\u2022 Radar Name or Destination:\n\u2022 Radar Software Load or Mission Data:\n\u2022 Radar Warning Receiver (RWR) Name or Designator:\n\u2022 RWR Software Load or Mission Data:\n\u2022 MWS Name or Designator:\n\u2022 MWS Software Load or Mission Data:\n\u2022 IRCM Name or Designator:\n\u2022 IRCM Software Load or Mission Data:\n\u2022 ECM Name or Designator:\n\u2022 ECM Software Load or Mission Data:\n\u2022 CMD Name or Designator:\n\u2022 Chaff Designator:\n\u2022 Num Chaff or Cartridges:\n\u2022 Flare Designator:\n\u2022 Num Flares:\n\u2022 Towed Decoy Name or Designator:\n\u2022 Towed Decoy Software Load or Mission Data:\n\u2022 Num Towed Decoys:\n\u2022 Type of Radar-Guided AAM:\n\u2022 Num Radar-Guided AAM:\n\n3.5c, FOIA Exemption (b)(6)\n\n[REDACTED]\n\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TMBS                    10/28/25 003\nApproved for Release to AARO",
+            "confidence": 85.0,
+            "wall_clock_s": 6.538797693327069,
+            "cost_usd": 0.004436000000000001,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 524,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 4,
+            "text": "Declassified by MG Richard A. Harrison\nUSCENTCOM Chief of Staff\nDeclassified on: 24 October 2025\n\n[REDACTED]\n\n\u2022 Type of IR-Guided AAM:\n\u2022 Num IR-Guided AAM:\n\u2022 Gun Name or Designator:\n\u2022 Num Gun Rounds:\n\u2022 Air-to-Ground Wpn to Include Num of Each: -\n\u2022 TGT Pod Name or Designator: AN/DAS-4\n\u2022 Additional Avionics: AH/GMESH/SANTA FE\n\u2022 Data Link: LINK 16\n\u2022 Gentext:\n\nTimeline\n\nTakeoff\n\n\u2022 Callsign: (b)(1).4a\n\u2022 Number of Aircraft: 1\n\u2022 Asset Type (Aircraft): (4a, (b))(1).4g\n\u2022 Aircraft Tail Number(s): 4a, (b))(1).4g\n\u2022 Takeoff Location (ICAO Code): LGLR\n\u2022 Takeoff Time DTG: 250109:00ZJAN24\n\u2022 Mode 3 (IFF Codes): 4055\n\u2022 Gentext/Additional Details:\n\u2022 Mission Canceled:\n\nLanding\n\n\u2022 Last Land Location (ICAO Code): LGLR\n\u2022 Last Land Time: 252149:00ZJAN24\n\u2022 Last Engine Shutdown Time: 252159:00ZJAN24\n\u2022 Total Mission Time: 20 hours 40 minutes\n\u2022 Gentext/Additional Details:\n\nOn Station\n\n\u2022 Time On Station DTG: 250635:00ZJAN24\n\u2022 Callsign: (b))(1).4a\n\u2022 JTAR Number: -\n\u2022 Killbox (Location): -\n\u2022 Mission Type: ISR\n\u2022 JTAC Callsign: (b))(1).4a\n\u2022 Gentext/Additional Details:\n\u2022 Did not Arrive On Station:\n\n3.5c. FOIA Exemption (b)(6)\n\n[REDACTED]\n\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TMBS                                    10/28/25 004\nApproved for Release to AARO",
+            "confidence": 85.0,
+            "wall_clock_s": 8.47051991475746,
+            "cost_usd": 0.004841,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 605,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 5,
+            "text": "Declassified by MG Richard A. Harrison\nUSCENTCOM Chief of Staff\nDeclassified on: 24 October 2025\n\n[REDACTED]\n\nOff Station\n\n\u2022 Time Off Station DTG: 251504:00ZJAN24\n\u2022 Total Time On Station: 8 hours 29 minutes\n\u2022 Gentext/Additional Details:\n\nISR\n\n\u2022 Time-on Station DTG: 250635:00ZJAN24\n\u2022 Time-off Station DTG: 251504:00ZJAN24\n\u2022 Aircraft Callsign: (b)(1)1.4a\n\u2022 Msn Type: AREC\n\u2022 Primary Sensor: FMV\n\u2022 Sensors Available: BLASPHEMY\n\u2022 Tasking Type: Planned\n\u2022 Tasking or Request Number (JTAR#, AEM#, PRI#, or TIC#): DATA MASKED\n\u2022 BE Number (if NTISR): -\n\u2022 Tasked Start Point: 36RXV[REDACTED](b)(1)1.4a\n\u2022 Activity Description: ISR\n\u2022 FMV or Image File Name (if NTISR): -\n\u2022 EEIs Observed: Yes\n\u2022 Number of EEIs: 1\n\u2022 Global Campaign Plan:\n\nGENTEXT/ISR\n\n\u2022 Gentext: [REDACTED]\nUPON ARRIVAL TO THE SP AT 0635Z, (b)(1)1.4a OBSERVED NO EEI RELATED ACTIVITY. FROM 0635Z-1353Z, (b)(1)1.4a CONDUCTED POL AND OBSERVED NSTR. FROM 1353Z-1500Z, (b)(1)1.4a CONDUCTED A 1X STOP FOLLOW ON 1X ADM IN A SILVER SUV. AT 1400Z, (b)(1)1.4a OBSERVED A LARGE WHITE BOX BEING TRANSFERRED FROM BLACK SUV TO WHITE VAN.\n[REDACTED]\n\nISR ASSET UTILIZATION\n\n\u2022 Supported Unit: (b)(1)1.4a\n\u2022 Supported Operation: (b)(1)1.4a\n\u2022 Precord Time: -\n\u2022 Precord Effectiveness: -\n\nWEATHER\n\n\u2022 Weather: (UNCLASSIFIED)\n\n3.5c, FOIA Exemption (b)(6)\n\n[REDACTED]\nUSCENTCOM MDR 25-0100 thru 25-0103 / JS-250710-TMBS                                                           10/28/25 005\nApproved for Release to AARO",
+            "confidence": 75.0,
+            "wall_clock_s": 9.973218604922295,
+            "cost_usd": 0.005291,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 695,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "card_id": "26b02d358ec20061",
+      "category": "redacted_page",
+      "description": "FBI HQ-101634279 100-DE-26505 (15 pp, black-bar redactions)",
+      "pdf_filename": "65_hs1-101634279_100-de-26505.pdf",
+      "engines": {
+        "tesseract": [
+          {
+            "page": 1,
+            "text": "FD-245 (REV. 1-21-80)\n\nOddy\n\n6d doo\n\nfee)\n~~\ni)\nC\n\u2014\nLe)\n\u2122N\nBSS\noi\nLe)\n\u00bb\n\nSee\n\u2014___\nj\u2014_\u2014_,_ 4\na\noo\nLncuemvaanmnsomtememsee }\n=\n\u2014\u2014\u2014\nLe nl\n_\n| eeesnenwaenmeme\n=\n=\u2014_\u2014_\u2014_\u2014_\u2014_=\neT\n\u2014_\n\u2014\u2014\u2014\na_i\nle\n=\n-__\n=\ncd\nj cmunanninnemmemee ne}\n(-__,_]\n=\n\u2014_\u2014\u2014_\n\u2014\na\n\\_ac_\nET)\n_\n_=\njvammemumnememmen en]\ni _s\u2014_\n\u2014_\u2014\u2014\n\u2014____\nA\nee\n\u2014\u2014\u2014\u2014\n_\u2014_\n=\n\u2014\u2014__\u2014\u2014_\u2014\u2014\na\nes\n\u2014\u2014\u2014\u2014\u2014\u2014\n_\n\u2014\u2014\u2014\u2014\u2014_\u2014_\nA\n\u2014_\u2014_\u2014\n__-,,_ |\n\u2014\nnl\n\u2014_\u2014\u2014\n|__|\n\u2014_\u2014\nee\n\u2014\u2014\u2014__\n||\nfates |\nees\n\nSee also Nos. |\n\n\u2018hiomnrnsaunensnn see\n\nNW 90290\nDocld:34714592 Page 1\n\nid\nnt dive ati we Jeclassitication authority\nHenved from FBI Automatic\n\neclassiicatian Guide,\n\nEE ETE peg. ene REMOVED FROM OR ADDED TQ THIS FILE}\n\u00a2\n\nSOS92 OOLO\n# 8SPD / sseiy\n\nLIOYL3d - 3q\n\nqng\n\nL\n\"JOA\n\n# [elas\n\nYALN39 squoogy IWYLN39 - Ig4\n\n\u201d)\nCOMPUTER\n| NUMBER\n\n",
+            "confidence": 42.74050632911393,
+            "wall_clock_s": 2.9352794350124896,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "1. Notes re: interview with WLADYSLAW KRASUSKI (rec'd 11/7/57(\n\nait. TNRORMATTGN CONTA:\nwe NA ee ee Se \u201c\n\nLoreen eo 3 i\n\n* PA k aaa Nw nw Om aE\natypr 2 coacr F Ty\nML Bape lk rat\nwT\nbY\n\nern BIEN\n\nNW 90290\n' Decid:34714592 Page 2\n\n",
+            "confidence": 51.08771929824562,
+            "wall_clock_s": 1.7558257700875401,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": ": _ ee .\n. a : 2\n| _ . :\n\n| oe a So\n. |\n\n1 . a ve Lee\n\na a. J sees i\n\n7 . o . \" oo a \u2018\n3 L :\n\nC : oe\n\nee . )\n\n_ 2 :\n\n: Paes\n: a oe\n\no Co\n\nee _\n\nee Be \u2018 ee\n_ MA : ae 5 ae\noo : SO 2. al oo i _ oo :\nas : 5 : c - a 7 yy Co o ee oo E a ae o /\nae Ce ee,\n4 oo a a -\nA ee\n\noo - o ce - Be\nae : . .\na eh oe 7 a\nVo 7 S cc\n\u2014 ae\n\n- . | .\n\n- fs.\nae | . oo ae\n. i _ oe\noo es ee\n\no .\n\nge\n\noe\n. i : : a\nons : : . as\n\n:\noN : es : oe \"\neine\n\nee \u2018 oe .\ngs oo i : os\nee ao a ted ea co \" a\n\n: Hee\n\na ao hal ey u Le ue i: - I S\nEs S : | SG i i Bee . i ae en\n. Lo : ee : Z Ne a Tus, ne NE ae\nee | : a\nue ee Ss -\" oe _ es . a\n: ue Co ee Oe ee d\no See ae aes Os as NS \\ oe Ce f Us ~ ie\n_ oe : A: ee ee 7 oom\u201d sn\noe a A eee es oo 2 |\ni as fe ie oe & le ee \u2018 is nue pee\nee . a\nes a . . es oa a {\nee ee ERA wna ge\n: co : ee oO a ee :\nee\n. ae eo Ri cn\n- oe oo : yo . a\n\nas on : se\n: Gee Loe \u2122 oo\n\n. uo a\nar Cae ae a\n. ee\n\nDes a ia\neee\noe ee Se Ne . Eee\n\nA 4 .\n\noe oe S Ae _ a _ .\n\n. oe | a - a\n. oo\n\nae\n.\n\nPRU\n\na. / '\n~~\u201c a\n\noe ae ae ee :\nes es oo a\na ao a a oy Ne | eee\n\nce oe : ae ae ee\nSN\n\n: .\nee 2 . ey\noe A a ee oo a Os oe\nee . _ . . a coe\ni ernie ah i a :\nae ee a a ce va\n\na _ ee oo ae eee ; ee . is\nce ena ae es ae ae\nAe a oe ro ne a ee ae as ae ae ae is\n\na a Soe ae . oe\nee ea:\na Ce i oe a\n\nUN: ee ae oo Tent oo a a | oe L . ee .\nee SEs ee SO ae ee ae\na _ : an a a _ a oF - . 7 7 A _\nPe ee as ee . re S a . .\n_ _ _ . _ |.\na - ke oo _ an . oe |\neee ee ee a ae a Bae i | . ae a\u201c oe oo co . - 7\na Los . . > io a. . S 7 _ . Le - a _ ms > e ac \u2014\nes Ee ee ee cy ey ce a 4 . . eee\n. . . . - . 4 . i: : ce oe\na ae ae Gee ane ae a ee es He\n\n. Cae 1 o . a .  . : C oe\n\n.\n\noe ep rai: \u2018 oe ne \\ ca on a\n. |. o _. | . ce _. ) _. oe Lo Le\n\ni\n\nNW 90290 :\nDocld:34714592 Page3 tit\n",
+            "confidence": 14.894009216589861,
+            "wall_clock_s": 10.560070612933487,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "\u201cga\n\n2\n\nGN CON\n\nASoLFIED\n\nNW 90290\nDocld:34714592 Page 4\n",
+            "confidence": 81.94736842105263,
+            "wall_clock_s": 2.125828525982797,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "G 86eq Z6SPbLPE:PI20q |\n06206 MN |\n\nwr WLADYSLAW ERAS USK nl >|\n\ntwo - DLTOS\n\n",
+            "confidence": 81.84126984126983,
+            "wall_clock_s": 1.712909267283976,
+            "cost_usd": 0.0
+          }
+        ],
+        "surya": [
+          {
+            "page": 1,
+            "text": "FD-245 (REV. 1-21-80)\nScreened by NARA (RF)\n11-19-2025 FOIA #\n30290 DOCID: 34714592\nII. S. Department of Instice\nDeclassification authority\nderived from FBI Automatic\nDeclassification Guide,\nssued May 24, 2007\nNOT BE REMOVED FROM OR ADDED TO THIS FILE)\n\n0100\nClass\nDE\nBUREAU\n26505\n\u012c\nCase\nDETROIT\nFBI\n8/08/374524\n\nRRP000PJD9\n\nRRP000PJD9\n#\n6\nCEN\nSub\nTRAL\n8/08/\nIGAIION\nV<sub>0</sub>\nRECORDS\nSe\n___\nrial\n#\nCENTER\nOPEN\n\nS\n0\n<u>0</u>\n\n\nCOPIEDFUR\nBY\nDATE\nCOMPUTER\nTREQUESTERS FULL NAME\nMIMBER\nSERVALO\n(hares+, un: dual 145,974 5-31-85 Dee\nSee also Nos.\nAU\nasid Setton\nNW 90290\nDocld:34714592 Page 1",
+            "confidence": 82.45681398342396,
+            "wall_clock_s": 2.1388597413897514,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "\nNotes re: interview with WLADYSLAW KRASUSKI (rec'd 11/7/57(\n1.\nTIL INFORMATION CONTAINED ON this envelope\n\nHEREIT JULIASSIFIED & Bjottey\n\nDATE 5/25/85 BY SP-6 Sportley\n111\nlos by\nThe second control of the second control of the second control of the second control of the second control of the second control of the second control of the second control of the second control of the second control of th\n\n\nFRI - DETRO\nNW 90290\nDocld:34714592 Page 2",
+            "confidence": 81.24172410454541,
+            "wall_clock_s": 3.151329016778618,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "4947\ninsk1\n4\n\n\nW\n500\n\nASKOY.\nj\n\n(Address of contributor)\n(Name of Special Agent)\nReturned Yes ( )\n2620\n(Name of contributor)\n5\nX\n3\nb\nE Received.\nDescription:\n\u0428\nFile No.\n\n\n\n\nNW 90290\nDocld:34714592 Page 3",
+            "confidence": 72.40396184433939,
+            "wall_clock_s": 1.1755682872608304,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "11/7/57\nWARING AND CAMPAGE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE S\n\nFrancisco Contrator de Caracteria de Caracteria de Caracteria de Caracteria de Caracteria de Caracteria de Car\n\nMarine Commission of the Commission of the Commission of the Commission of the Commission of the Commission of the Commission of the Commission of the Commission of the Commission of the Commission of the Commission of the\nMATCHMATION CONTAINED\nA made bear\n10 165 SP SP6 lifettey\nditil\nDA\nNW 90290\nDocld:34714592 Page 4",
+            "confidence": 61.57185561780831,
+            "wall_clock_s": 3.222042851150036,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "Docld:34714592 Page 5\n06Z06 MN\n\n\n\n. . . . . . . .\n\n\n\n\u7f51\u7edc\u533b\u76ae\u5c5e\n\n\n\n\n9.30\nLeternan ur beladyslan krasuski 11/7/59\n100-26505",
+            "confidence": 84.06695467294594,
+            "wall_clock_s": 1.3985198950394988,
+            "cost_usd": 0.0
+          }
+        ],
+        "llm": [
+          {
+            "page": 1,
+            "text": "FD-245 (REV. 1-21-80)\n\nScreened by NARA [RF]\n11-19-2025 FOIA II\n90290 DOCID: 3471489\n\nU. S. Department of Justice\n\n[MUST NOT BE REMOVED FROM OR ADDED TO THIS FILE]\n\nDeclassification authority\nDerived from FBI Automatic\nDeclassification Guide,\nIssued May 24, 2007\n\n000 25505\nClass # Case #\nDE - DE/TERRI\nFBI - CENTRAL RECORDS CENTER\n\nBUREAU\nof\nINVESTIGATION\n\nSub\nVol\nSerial #\nOPEN\n\n8008\n37252524\nJP6430131928\n\nCOPIED FOR FOIPA\n\nSee also Nos. ALL\n\nSERIALS | REQUESTERS FULL NAME | COMPUTER NUMBER | DATE | BY\n         | Chariest, Michael L. | 695794 | 5-1-85 | Lee\n\nClosed Section\n\nNW 90290\nDocID:34714592 Page 1",
+            "confidence": 65.0,
+            "wall_clock_s": 6.71728013176471,
+            "cost_usd": 0.003526,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 342,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 2,
+            "text": "C                                                C\n\n\n1.  Notes re: interview with WLADYSLAW KRASUSKI (rec'd 11/7/57(\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n                                           ALL INFORMATION CONTAINED on this envelope\n                                           HERETO IS UNCLASSIFIED\n                                           DATE 5/1/65 BY SP 6 [ILLEGIBLE]\n\n\n\n\n\n\n\n\n                                                                    144-26605/1\u00bd\n                                                                    SEARCHED_______INDEXED__\n                                                                    SERIALIZED______FILED___\n                                                                    NOV 1 1965\n                                                                    FBI - DETROIT",
+            "confidence": 75.0,
+            "wall_clock_s": 4.392066046129912,
+            "cost_usd": 0.002936,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 224,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 3,
+            "text": "Date Received ________________\n\nFrom _____________ (Name of contributor)\n         _____________ (Address)\n\nBy _____________ (Initials of contributor) _______________\nTo Be Name of Special Agent\n   Returned    Yes [ ] No [ ]\n\nDescription:\n_________________________________\n_________________________________\n_________________________________\n\nFile No.________________\n\nALL INFORMATION CONTAINED\nHEREIN IS CLASSIFIED\nDATED: [ILLEGIBLE]\n\n[Handwritten text at top right]: \n4/15/65\n\n[Handwritten text in middle right]:\nRec. at \nWashington\n\n[Handwritten signature and notation in middle]:\nInt'o\nA. unknown\nMARSHALL WASN'T\n\n[Handwritten notation at bottom]:\nFile No. [Illegible]\n\nDocId-34714592 Page 3\nNW 90290",
+            "confidence": 45.0,
+            "wall_clock_s": 5.1653403849340975,
+            "cost_usd": 0.003136,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 264,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 4,
+            "text": "WA 27916 - 4/25/19\n5457 go Compar\n\nper\ncable sle sum in 44\ngods in 45\n\n400\n\n[VARIOUS SKETCHES AND DIAGRAMS]\n\n$2 + 4/4 + 45\n[ILLEGIBLE] (S) +\n2-3) nu\nBrilon\n2+u+\n\n50 [ILLEGIBLE] o\n100 . 150 watt\n\n55 Major Solsren\n\n(S)\n\nALL INFORMATION CONTAINED\nHEREIN IS UNCLASSIFIED\nDATE 5/22/15 BY Lee[ILLEGIBLE]\n\nRLMM 4/17\n\nNW 90290\nDocId:34714592 Page 4",
+            "confidence": 35.0,
+            "wall_clock_s": 5.163824905175716,
+            "cost_usd": 0.003026,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 242,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 5,
+            "text": "NM 06200\nDocID:P1:3065H:26:8 aBeG S\n\n[ILLEGIBLE TEXT WITH WATERMARKS]\n\n[ILLEGIBLE TEXT - appears to be \"DIRECTOR OF INVESTIGATION CONTINUED\" or similar]\n\n[PAGE CONTAINS MOSTLY BLANK LINED PAPER WITH FAINT WATERMARKS AND STAMPS]\n\nReturned w/ WLADYSLAW KRASUSKI    11/7/57\n100-2650S",
+            "confidence": 35.0,
+            "wall_clock_s": 4.286493799649179,
+            "cost_usd": 0.002536,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 144,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "category": "long_debriefing",
+      "description": "FBI HQ-83894 Section 6 (271 pp, mixed-quality omnibus)",
+      "pdf_filename": "65_hs1-834228961_62-hq-83894_section_6.pdf",
+      "engines": {
+        "tesseract": [
+          {
+            "page": 1,
+            "text": "g2- |H0-49894 grin 6\nIAS 246-30!\n\n*62-HQ-83 | |\n\nGuide, issued May 24, 2007.\n\n3\n>\n=\n\u00ae\nue)\n=\n=\nfe}\nss\n=]\noO\ni>\nS\nE\n\u201d\nwo\n3\n\nfrom FBI Automatic Declassification\n\nFBI - CENTRAL RECORDS CENTER\n\nHQ - HE AN QUARTERS\n\nClass / Case # Sub Vol. Serial #\n\n0062 83894 246\n\n8/11/1274188\n\nAIT TP\n\nRRPOOSIXGU\n\n",
+            "confidence": 66.78688524590164,
+            "wall_clock_s": 1.7570830760523677,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "Office Memordndum + onrrep states GOVERNMEN;\nTO : Dp. rade DATE: August BV\nFROM : Fen F Belietop\u2122 a\n\nSUBJECT: SUMMARY er\nPHENOMENA IN NEW MEXICO\ni MISCELLANEOUS - INFORMATION CONCERNING\n\nPURPOSE\n\nTo advise that: (1) OSI has expressed concern le \u00bb\n} connection with the continued appearance of unerplained phendmend\n/described as green fireballs, discs and meteors in the utcinity yy, Z\n\nof sensitive installations in New Mexico. (2) Dr. Lapaz, Meteor \u2018\nErpert of the University of New Merico, reported that the phenomena ,\ndoes not appear to be of meteoric \u2018origin. (3) OSI has contracted\n\nwith Land-Air Inc., Alamogordo, New Merico, to make scientific\nstudy of the unerplained phenomena. : Heat\n\n\u2018NATURE OF PHENOMENA\n\nObservations of aerial phenomena occurring within the\nvicinity of sensitive installations have been recorded by the\nAir Force since December, 1948. The phenomena have been\nclassified into 3 general types which are tdentified as follows:\n\nle Green fireballs, objects moving at high speed\nin shapes resembling half moons, circles and discs emitting\ngreen light.\n\n&. Discs, round flat shaped objects or phenomena\nmoving at fast velocity and emitting a brilliant white light\nor reflected light.\n\n3. Meteors, aerial phenomena resembling meteoric\nmaterial moving at high velocity and varying in color.\n\nThe above phenomena have been reported to vary in /\n\ncolor from brilliant, white to amber, red and green. Fo\n\nSince 1948, approrimately 150 observations of aerial\nphenomena referred to above have been recorded in the vicinity\nof installations in New Merico. A number of observations have\nbeen reported by different reliable individuals at approximately\nthe same time.\n\nRECORDED - 9 | ATG\nwy INDEXED - 2 \u00bb\n\nBP SEP 18 959\n\nKWD/mp\n\n",
+            "confidence": 84.5373665480427,
+            "wall_clock_s": 3.4363008122891188,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "5USNF 40123\nRe\niNOWT38 0.934\n\n05. HY eo |] \u00a7 43S\n\n",
+            "confidence": 32.083333333333336,
+            "wall_clock_s": 1.0075125088915229,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "RESULTS OF AN INQUIRY BY PROFESSOR LINCOLN LA PAZ\n\nDr. Lapaz, Director, Institute of Meteoritics,\nUniversity of New Mexico, submitted an analysis of the various\nobservations on May 23, 1950. He concluded, as a result of\nhis investigation, that approximately half of the phenomena\nrecorded were of meteoric origin. The other phenomena\ncommonly referred to as green fireballs or discs he believed\nto be U.S. guided missiles being tested in the neighborhood\nof the installations. Dr. LaPaz pointed out that if he were\nwrong in interpreting the phenomena as originating with U.S.\nguided missiles that a systematic investigation of the obser=\nvations should be made immediately. Dr. LaPaz pointed out that\nmisstles moving with the velocities of the order of those\nfound for the green fireballs and discs could travel from the\nUral region of the USSR to New Mexico in less than 15 minutes.\nHe suggested that the observations might be of guided missiles\nlaunched from bases in the Urals.\n\nOn the basis of the investigations made by Dr. Lapaz\nand the Air Force, tt was concluded that the occurrence of the\nunerplained phenomena in the vicinity of sensitive installations\nwas @ cause for concern. The Air Force entered into a contract\nwith LandAir, Incorporated, Alamogordo, New Merico, for the\npurpose of making scientific studies of the green fireballs and\ndiscs. It was pointed out in the summary furnished by OSI on\nJuly 19, 1950, that the unerplained grem fireballs and discs\nare still observed in the vicinity of sensitive military and\nGopernment installations.\n\nRESULTS OF AIR FORCE INVESTIGATION\n\nThe Atr Force together with Land-Air, Incorporated,\nhave established a number of observation posts in the vicinity\nof Vaughn, New Merico, for the purpose of photographing and\ndetermining the speed, height and nature of the unusual\nphenomena referred to as green fireballs and discs. On May 24,\n1950, personnel of Land-Air, Incorporated, sighted 8 to 10\nobjects of aerial phenomena. A 24-hour day watch is being\n\nmaintained and has been designated #rroject Twinkle.\"\n\n",
+            "confidence": 92.56586826347305,
+            "wall_clock_s": 3.8648448972962797,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "CONCLUSIONS\n\nThe Albuquerque Office, in a letter dated August 10,\n1950, advised that there have been no new developments in connection\nwith the efforts to ascertain the identity of the strange aerial\nphenomena referred to as green fireballs and discs. The Albuquerque\nOffice advised that Dr. Anthony 0. Mirarchi, Project Engineer,\nhad been informed of the Bureau$S jurisdiction relative to espionage\nand sabotage and arrangements have been made so that the Bureau\nwill be promptly advised in the event additional information relative\nto this project indicates any jurisdiction on the part of the\nBureau.\n\nACTION\n\n| None.w The above is for your information.\n\n",
+            "confidence": 91.95192307692308,
+            "wall_clock_s": 1.8136690817773342,
+            "cost_usd": 0.0
+          }
+        ],
+        "surya": [
+          {
+            "page": 1,
+            "text": "4-564 (12-22-55)\nDeclassification authority derived\n0062\nClass / Case #\nfrom FBI Automatic Declassification\nOH<br>OH\nGuide, issued May 24, 2007.\nSERIALS\nR\n83894\nHEADQUARTERS\nFBI\nment of Justice\n1\n\n12-83894\n246-301\nCENTRAL RECORDS\nSub\nOVED FROM OR ADDED TO THIS FILE!\n8/11\n127\nVol.\n0\n4\n88\n246\nSerial #\n0\nCENTER\n301\nSETTION 6\nHOVE\nMAR 2 1978 3Y 3\nSTIGATION\nJAN 19.1979\nAPR 13 1977 BY\n5\nUSE CARE IN HANDLING THIS FILE\nDO NOT\nTransfer-Call PESTROY\nFORFA# 993057",
+            "confidence": 87.93705449965874,
+            "wall_clock_s": 1.8070043637417257,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 2,
+            "text": "STANDARD FORM NO. 64\nOffice Memorandum \u2022 UNITED STATES GOVERNMENT\nDATE: August 2.\nTO\nD. M. Ladd\nA. H. Belmo\nFROM\nSUBJECT:\nSUMMARY OF AERIAL\nPHENOMENA IN NEW MEXICO\nMISCELLANEOUS - INFORMATION CONCERNING\nBelmont\nMonr\nTele. Room\nPURPOSE\nGandy\nTo advise that: (1) OSI has expressed concern in Alexander\nconnection with the continued appearance of unexplained phenomena\ndescribed as green fireballs, discs and meteors in the vicinity use of sensitive installations in New Mexico. (2) Dr. LaPaz, Meteor\nExpert of the University of New Mexico, reported that the phenomena\ndoes not appear to be of meteoric origin. (3) OSI has contracted\nwith Land-Air Inc., Alamogordo, New Mexico, to make scientific\nstudy of the unexplained phenomena.\nJersly\nNATURE OF PHENOMENA\nObservations of aerial phenomena occurring within the\nvicinity of sensitive installations have been recorded by the\nAir Force since December, 1948. The phenomena have been\nclassified into 3 general types which are identified as follows:\n1. Green fireballs, objects moving at high speed\nin shapes resembling half moons, circles and discs emitting\ngreen light.\n2. Discs, round flat shaped objects or phenomena\nmoving at fast velocity and emitting a brilliant white light\nor reflected light.\n3. Meteors, aerial phenomena resembling meteoric\nmaterial moving at high velocity and varying in color.\nThe above phenomena have been reported to vary in\ncolor from brilliant white to amber, red and green.\nSince 1948, approximately 150 observations of aerial\nphenomena referred to above have been recorded in the vicinity\nof installations in New Mexico. A number of observations have\nbeen reported by different reliable individuals at approximately\nthe same time.\nRECORDED - 2\nKWD/mp\nINDEXED - 2\n52 SEP 18 1950",
+            "confidence": 94.4619796601322,
+            "wall_clock_s": 2.6579451798461378,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 3,
+            "text": "TO ANY PARKETURAL PRINTS\nATTEMPORTURE TO STORY\nDATE: CONTROL SAL LING\n5.50 L 38 . . . . . . . . . . . . . . . . . . \nTHE ONL OF\n\n2508,608\n\n\nTHE RESERVE OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF\nTHE PERSON WESTERN OF THE SERVICE OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PERSON OF THE PERSON OF THE PERSON OF THE PERSON OF THE PERSON OF THE PERSON OF THE PERSON OF THE PERSON OF THE PERSO\ndescribed was reserved in the contract of the second to the second of the second of the second of the second of the second of the second of the second of the second of the second of the second of the second of the second o\nCONTRACTOR OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF THE STATE OF \n\u00b7 10.                                   \nthe sound of the case of the second of the second of the second of the second of the second of the second of the second of the second of the second of the second of the second of the second of the second of the second of t\n\u4e00\u79cd\u6587\u5b66\u3001\u201c\u5927\u5b66\u5de5\u4f5c\u201d\u3002\u8fd9\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\u4e00\u4e2a\u4eba\u7684\n. Dramaten beside to say a spirit\n35\nII 02 AM\nChicaracter to the carried contraction\nSEP\nAccept the party of the party of the party of the party of the party of the party of the party of the party of the party of the party of the party of the party of the party of the party of the party of the party of the par\nRE\nEnglished with the College of the state of the\n0\nThe latest the state of the state of the state of the state of the state of the state of the state of the state of the state of the state of the state of the state of the state of the state of the state of the state of the\nITI\nREC\nCL.\n0\nTHE CHARLEST TORESTON OF THE PARTY OF THE PARTY OF\nH\nSEP\n32\nes recentlin tolk trans, others in\nJUSTIC\nADD\n\nJ.\nOR THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERTY OF THE PROPERT\nTh\n\u00b7 \u5927\u5de5\u5de5\u4f5c\u7684\uff0c\u57281000\u5e741000\u5e741000\u5e741000\u5e741000\u5e741000\u5e741000\u5e74100\nTHE RESIDENCE OF\nthe some some and the second second second second second second second second second second second second second second second second second second second second second second second second second second second second seco\nto the day of the section.\nas the set he reason install\n09\u00b0 Hd 65 9 1 dag\nIS WE ON SOLVE TO IT SO OF F. D.\nOre HOL SI\nAug 23\nRECEIVED-LADD<br>F B I JUSTICE\nSEP\nBOLLSOL\nJ. S. DEPT\n2 42 PM 500\nBOLLIAN JASTICE\nDIRECTOR\n:0\nHOE SA S 20 GA SUN STEP SAN STEP STEP STEP STEP STEP STEP STEP STEP\nCE CHONOIDS TO STONE OF BENDER J\n05\u00b0 MA",
+            "confidence": 48.93533111620157,
+            "wall_clock_s": 6.043016128707677,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 4,
+            "text": "RESULTS OF AN INQUIRY BY PROFESSOR LINCOLN LA PAZ\nDr. LaPaz, Director, Institute of Meteoritics,\nUniversity of New Mexico, submitted an analysis of the various\nobservations on May 23, 1950. He concluded, as a result of\nhis investigation, that approximately half of the phenomena\nrecorded were of meteoric origin. The other phenomena\ncommonly referred to as green fireballs or discs he believed\nto be U.S. guided missiles being tested in the neighborhood\nof the installations. Dr. LaPaz pointed out that if he were\nwrong in interpreting the phenomena as originating with U.S.\nguided missiles that a systematic investigation of the obser-\nvations should be made immediately. Dr. LaPaz pointed out that\nmissiles moving with the velocities of the order of those\nfound for the green fireballs and discs could travel from the\nUral region of the USSR to New Mexico in less than 15 minutes.\nHe suggested that the observations might be of guided missiles\nlaunched from bases in the Urals.\nOn the basis of the investigations made by Dr. LaPaz\nand the Air Force, it was concluded that the occurrence of the\nunexplained phenomena in the vicinity of sensitive installations\nwas a cause for concern. The Air Force entered into a contract\nwith Land-Air, Incorporated, Alamogordo, New Mexico, for the\npurpose of making scientific studies of the green fireballs and\nIt was pointed out in the summary furnished by OSI on\nJuly 19, 1950, that the unexplained green fireballs and discs\nare still observed in the vicinity of sensitive military and\nGovernment installations.\nRESULTS OF AIR FORCE INVESTIGATION\nThe Air Force together with Land-Air, Incorporated.\nhave established a number of observation posts in the vicinity\nof Vaughn, New Mexico, for the purpose of photographing and\ndetermining the speed, height and nature of the unusual\nphenomena referred to as green fireballs and discs. On May 24,\n1950, personnel of Land-Air, Incorporated, sighted 8 to 10\nobjects of aerial phenomena. A 24-hour day watch is being\nmaintained and has been designated Project Twinkle.\"\n- 2 -",
+            "confidence": 96.15968667587988,
+            "wall_clock_s": 1.3294104929082096,
+            "cost_usd": 0.0
+          },
+          {
+            "page": 5,
+            "text": "CONCLUSIONS\nThe Albuquerque Office, in a letter dated August 10,\n1950, advised that there have been no new developments in connection\nwith the efforts to ascertain the identity of the strange aerial\nphenomena referred to as green fireballs and discs. The Albuquerque\nOffice advised that Dr. Anthony O. Mirarchi, Project Engineer,\nhad been informed of the Bureaus jurisdiction relative to espionage\nand sabotage and arrangements have been made so that the Bureau\nwill be promptly advised in the event additional information relative\nto this project indicates any jurisdiction on the part of the\nBureau.\nACTION\nThe above is for your information.\nNone.\n3",
+            "confidence": 98.56425939080808,
+            "wall_clock_s": 1.0380147830583155,
+            "cost_usd": 0.0
+          }
+        ],
+        "llm": [
+          {
+            "page": 1,
+            "text": "4364 (1/22-23)\n\n[Document header with barcode and reference numbers]\n\n81117241388\n\nCASE #1 + HEADQUARTERS\nFBI - CENTRAL RECORDS CENTER\n\n[Barcode/reference information]\nCASE \n2002\nSub\n6\nVol\n246\nSerial\n301\n\n[Declassification stamp in blue box]\nDeclassification authority derived\nfrom FBI Automatic Declassification\nGuide, Issued May 24, 2007.\n\nDepartment of Justice\n\n[REDACTED text stamps and markings]\n\n[Partial text visible: \"COVERED FROM OR ADDED TO THIS FILE\"]\n\n[Large red stamp: \"BUREAU\"]\n\n[Partial text visible: \"FOR\"]\n\n[Stamps reading:]\n\"COPIED FOR\nA\nJAN 19 1978\"\n\n\"COPIED FOR\nAPR 13 1978 BY\"\n\n\"INVESTIGATION\"\n\n\"MAR 2 1978\"\n\n\"SECTION 6\nSERI (AL 246-301\"\n\nUSE CARE IN HANDLING. THIS FILE\n\nDO NOT\nTransfer-Call 25 DESTROY\nFOIPA # 979-3019\n\n[Various official file markings, dates, and processing stamps throughout]",
+            "confidence": 65.0,
+            "wall_clock_s": 6.805986153893173,
+            "cost_usd": 0.003752,
+            "tokens": {
+              "input_tokens": 1822,
+              "output_tokens": 386,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 2,
+            "text": "STANDARD FORM NO. 64\n\nOffice Memorandum \u2022 UNITED STATES GOVERNMENT\n\nTO        :    D. M. Ladd                                DATE:    August 2, 1950\n\nFROM      :    A. H. Belmont\n\nSUBJECT:       SUMMARY OF AERIAL\n               PHENOMENA IN NEW MEXICO\n               MISCELLANEOUS - INFORMATION CONCERNING\n\n\nPURPOSE\n\n     To advise that: (1) OSI has expressed concern in connection with the continued appearance of unexplained phenomena described as green fireballs, discs and meteors in the vicinity of sensitive installations in New Mexico. (2) Dr. LaPaz, Meteor Expert of the University of New Mexico, reported that the phenomena does not appear to be of meteoric origin. (3) OSI has contacted with Land-Air Inc., Alamogordo, New Mexico, to make scientific study of the unexplained phenomena.\n\nNATURE OF PHENOMENA\n\n     Observations of aerial phenomena occurring within the vicinity of sensitive installations have been recorded by the Air Force since December, 1948. The phenomena have been classified into 3 general types which are identified as follows:\n\n     1. Green fireballs, objects moving at high speed in shapes resembling half moons, circles and discs emitting green light.\n\n     2. Discs, round flat shaped objects or phenomena moving at fast velocity and emitting a brilliant white light or reflected light.\n\n     3. Meteors, aerial phenomena resembling meteoric material moving at high velocity and varying in color.\n\n     The above phenomena have been reported to vary in color from brilliant white to amber, red and green.\n\n     Since 1948, approximately 150 observations of aerial phenomena referred to above have been recorded in the vicinity of installations in New Mexico. A number of observations have been reported by different reliable individuals at approximately the same time.\n\n\nKWD/mp                    RECORDED - Z\n                          INDEXED - Z\n\n                          SEP 18 1950",
+            "confidence": 92.0,
+            "wall_clock_s": 8.272120659705251,
+            "cost_usd": 0.004416,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 520,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 3,
+            "text": "SEP 5 1962 IN 50\nRECD BELMONT\nF.B.I.\nENT-JUSTICE\n\n\n[ILLEGIBLE TEXT - heavily faded typewritten content in center of page]\n\n\nREFERRAL-\nF.B.I.\nREF-JUSTICE\n\nAUG 2 1962\nRECD JUSTICE\nF.B.I.\nREFERRAL\n\n[ILLEGIBLE TEXT - appears to be upside down stamped text at bottom of page with multiple date stamps and routing notations, including references to Justice Department and F.B.I.]",
+            "confidence": 35.0,
+            "wall_clock_s": 3.59095813985914,
+            "cost_usd": 0.002721,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 181,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 4,
+            "text": "RESULTS OF AN INQUIRY BY PROFESSOR LINCOLN LA PAZ\n\nDr. LaPaz, Director, Institute of Meteorites,\nUniversity of New Mexico, submitted an analysis of the various\nobservations on May 23, 1950. He concluded, as a result of\nhis investigation, that approximately half of the phenomena\nrecorded were of meteoritic origin. The other phenomena\ncommonly referred to as green fireballs or discs he believed\nto be U.S. guided missiles being tested in the neighborhood\nof the installations. Dr. LaPaz pointed out that it it were\nwrong in interpreting the phenomena as originating with U.S.\nguided missiles that a systematic investigation of the obser-\nvations should be made immediately. Dr. LaPaz pointed out that\nmissiles moving with the velocities of the order of those\nfound for the green fireballs and discs could travel from the\nUral region of the USSR to New Mexico in less than 15 minutes.\nHe suggested that the observations might be of guided missiles\nlaunched from bases in the Urals.\n\nOn the basis of the investigations made by Dr. LaPaz\nand the Air Force, it was concluded that the occurrence of the\nunexplained phenomena in the vicinity of sensitive installations\nwas a cause for concern. The Air Force entered into a contract\nwith Land-Air, Incorporated, Alamogordo, New Mexico, for the\npurpose of making scientific studies of the green fireballs and\ndiscs. It was pointed out in the summary furnished by OSI on\nJuly 19, 1950, that the unexplained green fireballs and discs\nare still observed in the vicinity of sensitive military and\nGovernment installations.\n\nRESULTS OF AIR FORCE INVESTIGATION\n\nThe Air Force together with Land-Air, Incorporated,\nhave established a number of observation posts in the vicinity\nof Vaughn, New Mexico, for the purpose of photographing and\ndetermining the speed, height and nature of the unusual\nphenomena referred to as green fireballs and discs. On May 24,\n1950, personnel of Land-Air, Incorporated, sighted 8 to 10\nobjects of aerial phenomena. A 24-hour day watch is being\nmaintained and has been designated \"Project Twinkle.\"\n\n- 2 -",
+            "confidence": 92.0,
+            "wall_clock_s": 8.623206602409482,
+            "cost_usd": 0.004791,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 595,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          },
+          {
+            "page": 5,
+            "text": "CONCLUSIONS\n\nThe Albuquerque Office, in a letter dated August 10,\n1950, advised that there have been no new developments in connection\nwith the efforts to ascertain the identity of the strange aerial\nphenomena referred to as green fireballs and discs. The Albuquerque\nOffice advised that Brigadier General O. Hirarch, Project Engineer,\nhad been informed of the Bureau's jurisdiction relative to espionage\nand sabotage and arrangements have been made so that the Bureau\nwill be promptly advised in the event additional information relative\nto this project indicates any jurisdiction on the part of the\nBureau.\n\nACTION\n\nNone. The above is for your information.\n\n[HANDWRITTEN SIGNATURE]\n\n- 3 -",
+            "confidence": 88.0,
+            "wall_clock_s": 4.459566567093134,
+            "cost_usd": 0.002911,
+            "tokens": {
+              "input_tokens": 1816,
+              "output_tokens": 219,
+              "cache_read": 0,
+              "cache_creation": 0,
+              "cache_hit": false
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
