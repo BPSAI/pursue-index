@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-05-09 (chat interface — RAG over corpus with citations)
+> Last updated: 2026-05-09 (novelty detection — machinery + UI; placeholder reference corpus)
 
 ## Active Plan
 
@@ -113,6 +113,79 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
+
+### Session: 2026-05-09 — Novelty detection (machinery + UI surface, placeholder reference corpus)
+
+- **`pursue novelty compute` CLI + machinery.** New module
+  `src/pursue_index/novelty/`:
+    - `compare.py` — `cosine_top1` primitive + `load_reference_index`
+      (reuses the embed pipeline's float32 vectors.bin + index.json
+      shape).
+    - `aggregate.py` — page-level scores → card-level
+      `disclosure_status` (>70% of pages above 0.85 → previously-
+      disclosed, >70% below 0.70 → novel, else partial). Carries top-3
+      matches for UI display.
+    - `pipeline.py` — orchestrator: `compute_novelty(pursue_embed_dir,
+      reference_embed_dir, archive_id, out_path, thresholds)` → writes
+      `data/novelty/latest.json` with `{archive_id, computed_at,
+      thresholds, cards: [{card_id, disclosure_status, novelty_score,
+      matches: [...top 3 ref matches]}]}`.
+    - CLI: `pursue novelty compute --manifest ... --reference ... --out ...`.
+- **Synthetic placeholder reference corpus.** 10 hand-crafted public-
+  domain UFO-adjacent passages at `data/reference/synthetic/passages.json`
+  (Roswell 1947 press release, Project Blue Book final report summary,
+  Project Sign 1948, Hottel memo 1950, RB-47 1957, Malmstrom 1967,
+  Hessdalen, AAWSAP/AATIP 2017, Condon Report 1969, USS Nimitz 2004).
+  Embedded via real voyage-3 (1024d, fell back to deterministic hash if
+  no key) by `scripts/build_synthetic_reference.py`. Documented as a
+  *methodology demo*, NOT a coverage claim, in
+  `data/reference/README.md`.
+- **Live novelty run.** `pursue novelty compute` against the live
+  4119-page voyage-3 PURSUE index produced
+  `data/novelty/latest.json`: 116 cards, all currently classified
+  `novel` (correct given the placeholder size). Top semantic matches
+  are real and meaningful — FBI 62-HQ-83894 sections match the FBI
+  Hottel memo at 0.794 and the Project Blue Book summary at 0.758;
+  another section matches the Roswell press release at 0.709;
+  `255_413270_UFO's_and_Defense...` matches the RB-47 1957 incident
+  at 0.705. The 0.85 "previously-disclosed" threshold isn't crossed
+  by any card, which is correct — with only 10 reference passages
+  there's nothing to be disclosed against.
+- **Web payload + UI surfaces.**
+    - `scripts/build_novelty_data.py` → 43.9 KB
+      `web/public/data/novelty.json` (card-keyed map for O(1)
+      lookup).
+    - `web/src/components/NoveltyFilter.ts` — shared loader,
+      filter primitive, disclosure-status pill tones.
+    - `CardExplorer.tsx` extended with a DISCLOSURE filter dropdown
+      (any | novel | partial | previously-disclosed), URL-hash
+      persisted alongside existing filters; per-card disclosure pill
+      in card grid; Selector now supports a disabled state with a
+      "(n/a)" label that kicks in when the novelty payload is absent.
+    - New `CardProvenance.tsx` Preact island, `client:load` after
+      the OCR transcript section on each card detail page. For
+      `partial`/`previously-disclosed` cards: renders top-3 reference
+      matches with cosine score + ref_archive + ref_card_id. For
+      `novel` cards: single-line "no close matches" + the highest-sim
+      score. For absent payload: "novelty comparison not yet computed
+      for this corpus" copy. Always renders the synthetic-placeholder
+      caveat with a link to /methodology#novelty.
+    - `methodology.astro` extended with a Provenance / Novelty
+      Detection section after Benchmark — explains the rules
+      (>70% rule), the thresholds (0.85 / 0.70), and the integrated
+      reference corpora (placeholder now, Black Vault post-launch).
+- **Tests + arch.** 14 new pytest cases across 3 files
+  (`test_novelty_compute.py`, `test_novelty_aggregate.py`,
+  `test_novelty_pipeline.py`, `test_build_novelty_data.py`).
+  79/79 pytest still green. `bpsai-pair arch check
+  src/pursue_index/novelty/` clean (no errors, no warnings —
+  every novelty file under 200 lines). Web build clean (162 pages).
+- **Honest framing flag for launch comms.** The reference corpus is
+  small and synthetic; this is a methodology demo, not yet a real
+  coverage claim. The UI is explicit about that. Real Black Vault
+  acquisition is the next operational task; once it lands, every
+  existing card automatically gets a meaningful disclosure status
+  with no user-facing change.
 
 ### Session: 2026-05-09 — Chat interface (RAG with citations) — anonymous + BYOK tiers
 

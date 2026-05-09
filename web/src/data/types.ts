@@ -40,3 +40,30 @@ export interface PageRecord {
   confidence: number;
   engine: string;
 }
+
+// Novelty / disclosure-status types — mirrors the Python
+// `pursue_index.novelty.aggregate.CardNovelty` shape, flattened to the
+// compact map `scripts/build_novelty_data.py` writes for the browser.
+
+export type DisclosureStatus = "novel" | "partial" | "previously-disclosed";
+
+export interface NoveltyMatch {
+  page: number;
+  ref_archive: string;
+  ref_card_id?: string;
+  ref_page?: number;
+  similarity: number;
+}
+
+export interface CardNovelty {
+  disclosure_status: DisclosureStatus;
+  novelty_score: number;
+  matches: NoveltyMatch[];
+}
+
+export interface NoveltyPayload {
+  archive_id: string;
+  computed_at: string;
+  thresholds: { high: number; partial: number };
+  cards: Record<string, CardNovelty>;
+}

@@ -221,6 +221,79 @@ def embed_run_cmd(
 
 
 # ---------------------------------------------------------------------------
+# novelty
+# ---------------------------------------------------------------------------
+novelty_app = typer.Typer(
+    name="novelty",
+    help="Compare PURSUE embeddings against a prior-disclosure reference corpus.",
+)
+app.add_typer(novelty_app)
+
+
+def _resolve_pursue_embed_dir(model: str | None) -> Path:
+    chosen_model = model or settings.embed_model
+    pursue_embed_dir = settings.embeddings_dir / chosen_model
+    if not (pursue_embed_dir / "index.json").exists():
+        console.print(
+            f"[red]error:[/red] no PURSUE embed index at {pursue_embed_dir}; "
+            "run 'pursue embed run' first."
+        )
+        raise typer.Exit(code=2)
+    return pursue_embed_dir
+
+
+@novelty_app.command("compute")
+def novelty_compute(
+    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
+    reference: Path = typer.Option(
+        ...,
+        "--reference",
+        help="Path to the per-model reference embed dir (e.g. "
+        "data/reference/synthetic/embeddings/voyage-3).",
+    ),
+    archive_id: str = typer.Option(
+        None,
+        "--archive-id",
+        help="Identifier for the reference corpus (defaults to its parent dir name).",
+    ),
+    out: Path = typer.Option(
+        Path("data/novelty/latest.json"),
+        "--out",
+        help="Sidecar JSON output path (default: data/novelty/latest.json).",
+    ),
+    threshold_high: float = typer.Option(
+        0.85, "--threshold-high", help="Cosine threshold for previously-disclosed."
+    ),
+    threshold_partial: float = typer.Option(
+        0.70, "--threshold-partial", help="Cosine threshold below which pages are novel."
+    ),
+    model: str = typer.Option(
+        None, "--model", help="Embedding model id (defaults to PURSUE_EMBED_MODEL)."
+    ),
+) -> None:
+    """Run cosine top-1 + aggregation, writing the disclosure sidecar."""
+    from pursue_index.novelty.aggregate import Thresholds  # lazy
+    from pursue_index.novelty.pipeline import compute_novelty
+
+    settings.ensure_dirs()
+    load_manifest(manifest)
+    pursue_embed_dir = _resolve_pursue_embed_dir(model)
+    chosen_archive = archive_id or reference.parent.parent.name
+    report = compute_novelty(
+        pursue_embed_dir=pursue_embed_dir,
+        reference_embed_dir=reference,
+        archive_id=chosen_archive,
+        out_path=out,
+        thresholds=Thresholds(high=threshold_high, partial=threshold_partial),
+    )
+    console.print(
+        f"[green]✔[/green] novelty: {report.cards_processed} cards, "
+        f"{report.pages_compared} pages compared against archive "
+        f"[bold]{report.archive_id}[/bold] → {out}"
+    )
+
+
+# ---------------------------------------------------------------------------
 # index
 # ---------------------------------------------------------------------------
 index_app = typer.Typer(name="index", help="Postgres ingest + search.")

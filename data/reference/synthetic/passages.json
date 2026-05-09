@@ -1,0 +1,58 @@
+{
+  "archive_id": "synthetic-placeholder",
+  "name": "Synthetic Placeholder Reference Corpus",
+  "description": "Hand-crafted public-domain UFO-adjacent text passages. This is a methodology demo, NOT a coverage claim. Real Black Vault integration is post-launch.",
+  "license": "Public domain — paraphrased from declassified U.S. government records (Project Blue Book summaries, FBI release notes, Project Sign archive descriptions). No copyright claim.",
+  "passages": [
+    {
+      "id": "synth-roswell-1947-press-release",
+      "source": "Paraphrased from Roswell Army Air Field public statements, July 1947 (public record).",
+      "text": "On July 8, 1947, the Roswell Army Air Field issued a press release stating that personnel had recovered a flying disc from a ranch near Roswell, New Mexico. The following day, the statement was revised to identify the recovered material as a weather balloon. Subsequent investigations and contemporaneous radar reports remained inconclusive."
+    },
+    {
+      "id": "synth-project-bluebook-summary",
+      "source": "Paraphrased from Project Blue Book final report summaries (declassified, public domain).",
+      "text": "Project Blue Book was the United States Air Force study of unidentified flying objects from 1952 through 1969. The project investigated 12,618 reported sightings; 701 remained classified as unidentified. The final report concluded that no UFO reported, investigated, and evaluated represented a technological development beyond present-day scientific knowledge."
+    },
+    {
+      "id": "synth-project-sign-1948",
+      "source": "Project Sign estimate of the situation (declassified summary).",
+      "text": "Project Sign was the United States Air Force's first official UFO investigation, established in 1948. An internal estimate of the situation drafted that year posited an extraterrestrial origin for some of the more unusual sightings. The estimate was reportedly rejected by the Chief of Staff and the project was reorganized as Project Grudge in 1949."
+    },
+    {
+      "id": "synth-fbi-hottel-memo-1950",
+      "source": "Paraphrased from FBI memorandum dated March 22, 1950, Guy Hottel to J. Edgar Hoover (FBI Vault, public).",
+      "text": "An informant of the Air Force stated that three so-called flying saucers had been recovered in New Mexico. They were described as circular in shape, approximately fifty feet in diameter. Each one was reportedly occupied by three bodies of human shape, dressed in metallic cloth of fine texture. The informant attributed the discs to high-power radar interference."
+    },
+    {
+      "id": "synth-rb47-1957",
+      "source": "Paraphrased from declassified RB-47 incident reports, July 17, 1957 (Project Blue Book).",
+      "text": "On July 17, 1957, a U.S. Air Force RB-47 reconnaissance aircraft on a routine training mission tracked an unidentified object simultaneously by airborne radar, ground-based radar, and visual observation across several states for over an hour. The object exhibited speeds and accelerations exceeding the capability of contemporary aircraft."
+    },
+    {
+      "id": "synth-malmstrom-1967",
+      "source": "Paraphrased from declassified Malmstrom AFB security incident reports, March 1967.",
+      "text": "On March 16, 1967, missile maintenance personnel at Malmstrom Air Force Base reported that ten Minuteman intercontinental ballistic missiles in the Echo flight area had simultaneously gone off-alert status. Several base personnel reported observing unidentified luminous objects in the vicinity at the time. The cause of the simultaneous alert failures was officially documented as undetermined."
+    },
+    {
+      "id": "synth-hessdalen-radar",
+      "source": "Open scientific literature, Project Hessdalen (Norwegian Defence Research Establishment summaries, public).",
+      "text": "Project Hessdalen, an open scientific investigation in central Norway, has documented recurring luminous phenomena since 1981. Optical, magnetometric, and radar observations have recorded transient events whose physical mechanisms remain incompletely characterized. The phenomenon has been observed and instrumented by university and research-institute teams."
+    },
+    {
+      "id": "synth-pentagon-2017-nyt",
+      "source": "Paraphrased from Department of Defense statements regarding the Advanced Aerospace Threat Identification Program (publicly disclosed 2017).",
+      "text": "The Advanced Aerospace Threat Identification Program was a Department of Defense effort, active from 2007 through 2012, that investigated reports of unidentified aerial phenomena encountered by military aviators. The program's existence was publicly acknowledged in 2017. Several pilot reports and gun-camera videos were subsequently released to the public domain."
+    },
+    {
+      "id": "synth-condon-report-1969",
+      "source": "Paraphrased from the Condon Report (Final Report of the Scientific Study of Unidentified Flying Objects, University of Colorado, 1969 — public domain).",
+      "text": "The Condon Report, formally titled the Final Report of the Scientific Study of Unidentified Flying Objects, was a study commissioned by the United States Air Force at the University of Colorado from 1966 to 1968. The report concluded that further extensive study of UFOs probably could not be justified in the expectation that science would be advanced thereby. Project Blue Book was terminated shortly after publication."
+    },
+    {
+      "id": "synth-aatip-tic-tac",
+      "source": "Paraphrased from publicly released U.S. Navy F/A-18 forward-looking infrared video and pilot statements (USS Nimitz strike group, November 2004).",
+      "text": "In November 2004, U.S. Navy F/A-18 pilots from the USS Nimitz carrier strike group reported visual and forward-looking infrared sensor contact with an object of approximately tic-tac shape, off the coast of southern California. The object was reported to display flight characteristics, including instantaneous acceleration, that exceeded the performance envelope of known contemporary aircraft. The associated sensor video was officially released by the Department of Defense in 2020."
+    }
+  ]
+}

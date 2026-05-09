@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { CardMetadata } from "../data/types";
+import {
+  DISCLOSURE_TONE,
+  EMPTY_NOVELTY,
+  loadNovelty,
+  passesDisclosureFilter,
+  type DisclosureFilter,
+  type NoveltyState,
+} from "./NoveltyFilter";
 
 interface Props {
   cards: CardMetadata[];
@@ -51,9 +59,23 @@ export default function CardExplorer({ cards, base }: Props) {
   const [query, setQuery] = useState("");
   const [agency, setAgency] = useState<string>("");
   const [type, setType] = useState<string>("");
+  const [disclosure, setDisclosure] = useState<DisclosureFilter>("");
   const [redactedOnly, setRedactedOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>("title");
   const [view, setView] = useState<ViewMode>("cards");
+  const [novelty, setNovelty] = useState<NoveltyState>(EMPTY_NOVELTY);
+
+  // Fetch novelty payload once on mount. Failure is silent — the filter
+  // disables and pills don't render when `available` stays false.
+  useEffect(() => {
+    let cancelled = false;
+    loadNovelty(base).then((n) => {
+      if (!cancelled) setNovelty(n);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [base]);
 
   // Effect-ordering guard: the URL-sync effect must NOT run on the very
   // first render (state is still defaults), or it will overwrite the hash
@@ -71,6 +93,10 @@ export default function CardExplorer({ cards, base }: Props) {
       if (params.get("agency")) setAgency(params.get("agency")!);
       if (params.get("type")) setType(params.get("type")!);
       if (params.get("redacted") === "1") setRedactedOnly(true);
+      const d = params.get("disclosure");
+      if (d === "novel" || d === "partial" || d === "previously-disclosed") {
+        setDisclosure(d);
+      }
       const s = params.get("sort");
       if (s === "release" || s === "incident" || s === "type") setSort(s);
       const v = params.get("view");
@@ -87,12 +113,13 @@ export default function CardExplorer({ cards, base }: Props) {
     if (agency) params.set("agency", agency);
     if (type) params.set("type", type);
     if (redactedOnly) params.set("redacted", "1");
+    if (disclosure) params.set("disclosure", disclosure);
     if (sort !== "title") params.set("sort", sort);
     if (view !== "cards") params.set("view", view);
     const next = params.toString();
     const url = next ? `#${next}` : window.location.pathname;
     history.replaceState(null, "", url);
-  }, [query, agency, type, redactedOnly, sort, view]);
+  }, [query, agency, type, redactedOnly, disclosure, sort, view]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -100,6 +127,7 @@ export default function CardExplorer({ cards, base }: Props) {
       if (agency && c.agency !== agency) return false;
       if (type && c.asset_type !== type) return false;
       if (redactedOnly && !c.redacted) return false;
+      if (!passesDisclosureFilter(c.card_id, disclosure, novelty)) return false;
       if (q) {
         const hay =
           `${c.title} ${c.description ?? ""} ${c.incident_location ?? ""}`.toLowerCase();
@@ -119,7 +147,7 @@ export default function CardExplorer({ cards, base }: Props) {
           return a.title.localeCompare(b.title);
       }
     });
-  }, [cards, query, agency, type, redactedOnly, sort]);
+  }, [cards, query, agency, type, redactedOnly, disclosure, novelty, sort]);
 
   return (
     <div class="space-y-6">
@@ -132,6 +160,9 @@ export default function CardExplorer({ cards, base }: Props) {
         setType={setType}
         redactedOnly={redactedOnly}
         setRedactedOnly={setRedactedOnly}
+        disclosure={disclosure}
+        setDisclosure={setDisclosure}
+        disclosureAvailable={novelty.available}
         sort={sort}
         setSort={setSort}
         agencies={agencies}
@@ -147,7 +178,7 @@ export default function CardExplorer({ cards, base }: Props) {
       </div>
 
       {view === "cards" ? (
-        <CardGrid filtered={filtered} base={base} />
+        <CardGrid filtered={filtered} base={base} novelty={novelty} />
       ) : (
         <TableView filtered={filtered} base={base} />
       )}
@@ -171,6 +202,9 @@ interface FiltersProps {
   setType: (v: string) => void;
   redactedOnly: boolean;
   setRedactedOnly: (v: boolean) => void;
+  disclosure: DisclosureFilter;
+  setDisclosure: (v: DisclosureFilter) => void;
+  disclosureAvailable: boolean;
   sort: SortKey;
   setSort: (v: SortKey) => void;
   agencies: string[];
@@ -178,7 +212,7 @@ interface FiltersProps {
 
 function Filters(p: FiltersProps) {
   return (
-    <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:items-end">
+    <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto_auto] lg:items-end">
       <div>
         <label class="block text-[10px] font-mono uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-1.5">
           QUERY
@@ -193,6 +227,18 @@ function Filters(p: FiltersProps) {
       </div>
       <Selector label="AGENCY" value={p.agency} onChange={p.setAgency} options={["", ...p.agencies]} />
       <Selector label="TYPE" value={p.type} onChange={p.setType} options={["", "PDF", "IMG", "VID"]} />
+      <Selector
+        label="DISCLOSURE"
+        value={p.disclosure}
+        onChange={(v) => p.setDisclosure(v as DisclosureFilter)}
+        options={["", "novel", "partial", "previously-disclosed"]}
+        disabled={!p.disclosureAvailable}
+        title={
+          p.disclosureAvailable
+            ? undefined
+            : "novelty comparison not yet computed for this corpus"
+        }
+      />
       <Selector
         label="SORT"
         value={p.sort}
@@ -234,7 +280,27 @@ function ViewToggle({ view, setView }: { view: ViewMode; setView: (v: ViewMode) 
   );
 }
 
-function CardGrid({ filtered, base }: { filtered: CardMetadata[]; base: string }) {
+function DisclosurePill({ status }: { status: keyof typeof DISCLOSURE_TONE }) {
+  const tone = DISCLOSURE_TONE[status];
+  if (!tone) return null;
+  return (
+    <span
+      class={`text-[9px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tone.bg} ${tone.fg} ${tone.border}`}
+    >
+      {tone.label}
+    </span>
+  );
+}
+
+function CardGrid({
+  filtered,
+  base,
+  novelty,
+}: {
+  filtered: CardMetadata[];
+  base: string;
+  novelty: NoveltyState;
+}) {
   return (
     <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {filtered.map((c) => (
@@ -249,6 +315,9 @@ function CardGrid({ filtered, base }: { filtered: CardMetadata[]; base: string }
                 <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-signal-red)] font-semibold">
                   REDACTED
                 </span>
+              )}
+              {novelty.available && novelty.cards[c.card_id] && (
+                <DisclosurePill status={novelty.cards[c.card_id].disclosure_status} />
               )}
               <span class="ml-auto text-[10px] font-mono text-[color:var(--color-text-faint)]">
                 {c.card_id.slice(0, 8)}
@@ -324,21 +393,31 @@ function Selector({
   value,
   onChange,
   options,
+  disabled,
+  title,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
+  disabled?: boolean;
+  title?: string;
 }) {
   return (
-    <div>
+    <div title={title}>
       <label class="block text-[10px] font-mono uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-1.5">
         {label}
+        {disabled && (
+          <span class="ml-1 text-[color:var(--color-text-faint)] normal-case tracking-normal">
+            (n/a)
+          </span>
+        )}
       </label>
       <select
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange((e.target as HTMLSelectElement).value)}
-        class="w-full lg:w-auto"
+        class="w-full lg:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {options.map((opt) => (
           <option value={opt}>{opt || `any`}</option>
