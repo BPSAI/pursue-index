@@ -36,9 +36,15 @@ DEFAULT_COST_CAP_USD = 1.0
 
 
 class Embedder(Protocol):
-    """Minimal contract any embedding adapter must satisfy."""
+    """Minimal contract any embedding adapter must satisfy.
+
+    ``usd_per_million_tokens`` lets each adapter own the rate the pipeline
+    uses for cost-cap math — Voyage and OpenAI charge different rates and
+    silently using one for the other understates cost by ~2×.
+    """
 
     model: str
+    usd_per_million_tokens: float
 
     def embed_texts(
         self, texts: list[str], input_type: str = "document"
@@ -131,6 +137,30 @@ def _persist(
     return all_index_rows
 
 
+def _resolve_rate(embedder: Embedder, override: float | None) -> float:
+    """Pick the $/Mtok rate: explicit override wins, else adapter default."""
+    return override if override is not None else embedder.usd_per_million_tokens
+
+
+def _check_and_log_start(
+    new_rows: list[PageRow],
+    skipped: int,
+    cost_cap_usd: float,
+    rate: float,
+    model_id: str,
+) -> None:
+    """Trip the cost cap and emit ``embed.run.start`` so spend is observable."""
+    est = _check_cost_cap(new_rows, cost_cap_usd, rate)
+    log.info(
+        "embed.run.start",
+        new_pages=len(new_rows),
+        skipped=skipped,
+        est_cost_usd=round(est, 4),
+        usd_per_million_tokens=rate,
+        model=model_id,
+    )
+
+
 def embed_run(
     ocr_dir: Path,
     out_root: Path,
@@ -138,9 +168,14 @@ def embed_run(
     batch_size: int = DEFAULT_BATCH_SIZE,
     limit: int | None = None,
     cost_cap_usd: float = DEFAULT_COST_CAP_USD,
-    usd_per_million_tokens: float = 0.06,
+    usd_per_million_tokens: float | None = None,
 ) -> EmbedSummary:
-    """Walk OCR output, embed new pages, append to vectors.bin + index.json."""
+    """Walk OCR output, embed new pages, append to vectors.bin + index.json.
+
+    ``usd_per_million_tokens=None`` (the default) reads the rate from the
+    embedder. Pass an explicit float to override (e.g. for pricing experiments
+    or until the adapter's listed price catches up to a vendor change).
+    """
     model_id = embedder.model
     out_dir = out_root / model_id
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -159,21 +194,13 @@ def embed_run(
         log.info("embed.run.noop", skipped=skipped, model=model_id)
         return summary
 
-    est = _check_cost_cap(new_rows, cost_cap_usd, usd_per_million_tokens)
-    log.info(
-        "embed.run.start",
-        new_pages=len(new_rows),
-        skipped=skipped,
-        est_cost_usd=round(est, 4),
-        model=model_id,
-    )
+    rate = _resolve_rate(embedder, usd_per_million_tokens)
+    _check_and_log_start(new_rows, skipped, cost_cap_usd, rate, model_id)
     next_offset = vectors_path.stat().st_size if vectors_path.exists() else 0
     new_bytes, new_index_rows, dim = _embed_new_rows(
         new_rows, embedder, batch_size, next_offset, prior_dim, summary
     )
-    summary.pages = _persist(
-        vectors_path, index_path, model_id, dim, new_bytes, new_index_rows
-    )
+    _persist(vectors_path, index_path, model_id, dim, new_bytes, new_index_rows)
     summary.embedded = len(new_index_rows)
     log.info("embed.run.done", embedded=summary.embedded, model=model_id)
     return summary

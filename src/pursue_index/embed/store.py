@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import struct
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -33,11 +33,19 @@ class IndexRow:
 
 @dataclass
 class EmbedSummary:
+    """Counters returned to the CLI / caller after a run.
+
+    Note: an earlier version of this dataclass carried a ``pages`` field that
+    held the entire post-run index (prior + new). It was never read by any
+    caller and grew linearly with the corpus, so it's been dropped. If a
+    future caller wants the rows, ``store.load_prior_index_rows`` reads them
+    from disk on demand.
+    """
+
     embedded: int = 0
     skipped: int = 0
     total_tokens: int = 0
     cards_seen: int = 0
-    pages: list[IndexRow] = field(default_factory=list)
 
 
 def text_sha(text: str) -> str:

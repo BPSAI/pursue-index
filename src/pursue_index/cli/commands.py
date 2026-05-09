@@ -158,7 +158,15 @@ def _make_embedder(provider: str, model: str):  # type: ignore[no-untyped-def]
         from pursue_index.embed.openai import OpenAIAdapter
 
         api_key = os.environ.get("OPENAI_API_KEY", "")
-        return OpenAIAdapter(api_key=api_key, model=model)  # raises
+        if not api_key:
+            console.print(
+                "[red]error:[/red] OPENAI_API_KEY is not set; "
+                "export it or pass --provider voyage."
+            )
+            raise typer.Exit(code=2)
+        # Construction succeeds (so cost-cap math has the rate); embed_texts
+        # is what raises NotImplementedError until we wire OpenAI in v2.
+        return OpenAIAdapter(api_key=api_key, model=model)
     console.print(f"[red]error:[/red] unknown provider: {provider!r}")
     raise typer.Exit(code=2)
 
@@ -177,6 +185,12 @@ def embed_run_cmd(
     ),
     cost_cap_usd: float = typer.Option(
         1.0, "--cost-cap-usd", help="Abort if estimated cost exceeds this."
+    ),
+    usd_per_million_tokens: float = typer.Option(
+        None,
+        "--usd-per-million-tokens",
+        help="Override the adapter's $/Mtok rate (defaults to whatever the "
+        "selected provider's adapter publishes).",
     ),
     batch_size: int = typer.Option(64, "--batch-size", help="Texts per provider call."),
 ) -> None:
@@ -197,6 +211,7 @@ def embed_run_cmd(
         batch_size=batch_size,
         limit=limit,
         cost_cap_usd=cost_cap_usd,
+        usd_per_million_tokens=usd_per_million_tokens,
     )
     console.print(
         f"[green]✔[/green] embed: {summary.embedded} embedded, "
