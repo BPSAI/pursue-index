@@ -188,6 +188,24 @@ def load_prior_index_rows(index_path: Path) -> list[IndexRow]:
     ]
 
 
+def load_existing_augmented_by(index_path: Path) -> dict[str, str] | None:
+    """Return the prior index's ``augmented_by`` block, or ``None`` if the
+    index doesn't exist or never carried provenance. Used by the pipeline
+    to preserve forensic provenance across subsequent runs that don't
+    re-pass ``--augment-from`` (Codex P2).
+    """
+    if not index_path.exists():
+        return None
+    try:
+        prior = json.loads(index_path.read_text())
+    except json.JSONDecodeError:
+        return None
+    block = prior.get("augmented_by")
+    if not isinstance(block, dict):
+        return None
+    return {str(k): str(v) for k, v in block.items()}
+
+
 def vectors_to_bytes(vectors: list[list[float]]) -> bytes:
     """Serialize [N, D] float32 little-endian, contiguous."""
     flat: list[float] = []

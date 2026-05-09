@@ -281,3 +281,130 @@ def test_embed_run_respects_explicit_usd_override(tmp_path: Path) -> None:
             cost_cap_usd=0.10,
             usd_per_million_tokens=0.30,
         )
+
+
+# ---------------------------------------------------------------------------
+# Codex P1 — orphan-row drop on augmentation re-keying.
+#
+# When --augment-from is applied to an existing un-augmented index, the
+# augmented page produces a new text_sha and is treated as a new row. The
+# fix in _persist drops any prior un-augmented row for the same
+# (card_id, page) so the index doesn't carry both copies.
+# ---------------------------------------------------------------------------
+
+
+def test_persist_drops_unaugmented_prior_when_augmenting(tmp_path: Path) -> None:
+    """Prior un-augmented row for an augmented (card_id, page) must be
+    dropped from index.json so retrieval doesn't see duplicate vectors per
+    page (Codex P1)."""
+    ocr_dir = tmp_path / "ocr"
+    out_root = tmp_path / "embeddings"
+    _write_card_pages(ocr_dir, "card_aaa", ["page one OCR", "page two OCR"])
+
+    # Phase 1: un-augmented run.
+    embed_pipeline.embed_run(
+        ocr_dir=ocr_dir, out_root=out_root, embedder=FakeEmbedder()
+    )
+
+    # Phase 2: same OCR + augment_lookup that matches page 1 only.
+    augment = {("card_aaa", 1): ["A photograph of a metallic disc."]}
+    embed_pipeline.embed_run(
+        ocr_dir=ocr_dir,
+        out_root=out_root,
+        embedder=FakeEmbedder(),
+        augment_lookup=augment,
+    )
+
+    index = json.loads((out_root / "voyage-3" / "index.json").read_text())
+    rows = index["pages"]
+
+    page1_rows = [r for r in rows if r["card_id"] == "card_aaa" and r["page"] == 1]
+    assert len(page1_rows) == 1, (
+        f"page 1 must have exactly one row after augmentation; got {len(page1_rows)}"
+    )
+    assert page1_rows[0].get("augmented") is True
+
+    # Page 2 was not in augment_lookup → its un-augmented row stays.
+    page2_rows = [r for r in rows if r["card_id"] == "card_aaa" and r["page"] == 2]
+    assert len(page2_rows) == 1
+    assert page2_rows[0].get("augmented", False) is False
+
+
+# ---------------------------------------------------------------------------
+# Codex P2 — preserve augmented_by across subsequent runs.
+#
+# A subsequent ``pursue embed run`` without --augment-from would otherwise
+# silently strip ``augmented_by`` even when prior rows are still augmented.
+# The fix loads the prior provenance as the default unless the caller
+# explicitly passes a new one.
+# ---------------------------------------------------------------------------
+
+
+def test_persist_preserves_augmented_by_across_runs(tmp_path: Path) -> None:
+    """A subsequent run without augmented_by must not strip the prior
+    provenance (Codex P2)."""
+    ocr_dir = tmp_path / "ocr"
+    out_root = tmp_path / "embeddings"
+    _write_card_pages(ocr_dir, "card_aaa", ["page one"])
+
+    # Phase 1: augmented run with provenance metadata.
+    augment = {("card_aaa", 1): ["image tag"]}
+    augmented_by = {
+        "dataset": "alex-zhang42/ufo-pursue-open-atlas",
+        "revision": "abc123",
+        "sha256": "deadbeef",
+    }
+    embed_pipeline.embed_run(
+        ocr_dir=ocr_dir,
+        out_root=out_root,
+        embedder=FakeEmbedder(),
+        augment_lookup=augment,
+        augmented_by=augmented_by,
+    )
+    index = json.loads((out_root / "voyage-3" / "index.json").read_text())
+    assert index.get("augmented_by") == augmented_by
+
+    # Phase 2: add a new card, re-run WITHOUT augment_lookup or augmented_by.
+    _write_card_pages(ocr_dir, "card_bbb", ["fresh content"])
+    embed_pipeline.embed_run(
+        ocr_dir=ocr_dir, out_root=out_root, embedder=FakeEmbedder()
+    )
+
+    index = json.loads((out_root / "voyage-3" / "index.json").read_text())
+    assert index.get("augmented_by") == augmented_by, (
+        "augmented_by must survive subsequent runs that don't re-pass it"
+    )
+
+
+def test_persist_overrides_augmented_by_when_explicitly_passed(tmp_path: Path) -> None:
+    """An explicit augmented_by passed on a later run replaces the prior
+    provenance (e.g. bumping revision)."""
+    ocr_dir = tmp_path / "ocr"
+    out_root = tmp_path / "embeddings"
+    _write_card_pages(ocr_dir, "card_aaa", ["page one"])
+
+    augment = {("card_aaa", 1): ["image tag"]}
+    v1 = {
+        "dataset": "alex-zhang42/ufo-pursue-open-atlas",
+        "revision": "v1",
+        "sha256": "11" * 32,
+    }
+    embed_pipeline.embed_run(
+        ocr_dir=ocr_dir, out_root=out_root, embedder=FakeEmbedder(),
+        augment_lookup=augment, augmented_by=v1,
+    )
+
+    # New card + new revision — caller explicitly bumps provenance.
+    _write_card_pages(ocr_dir, "card_bbb", ["other content"])
+    v2 = {
+        "dataset": "alex-zhang42/ufo-pursue-open-atlas",
+        "revision": "v2",
+        "sha256": "22" * 32,
+    }
+    embed_pipeline.embed_run(
+        ocr_dir=ocr_dir, out_root=out_root, embedder=FakeEmbedder(),
+        augment_lookup=augment, augmented_by=v2,
+    )
+
+    index = json.loads((out_root / "voyage-3" / "index.json").read_text())
+    assert index.get("augmented_by") == v2

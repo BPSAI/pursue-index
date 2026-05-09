@@ -20,6 +20,7 @@ from pursue_index.embed.store import (
     IndexRow,
     PageRow,
     iter_card_pages,
+    load_existing_augmented_by,
     load_existing_index,
     load_prior_index_rows,
     vectors_to_bytes,
@@ -144,9 +145,42 @@ def _persist(
     new_index_rows: list[IndexRow],
     augmented_by: dict[str, str] | None = None,
 ) -> list[IndexRow]:
+    """Append ``new_bytes`` to vectors, then rewrite ``index.json``.
+
+    Two invariants beyond the obvious append:
+
+    * **Codex P1 — orphan-row drop.** When ``new_index_rows`` includes
+      augmented siblings, the un-augmented prior row for the same
+      ``(card_id, page)`` is dropped from the index. Without this, the
+      embed root keeps both copies and retrieval over the embed root sees
+      duplicate vectors per page (the deploy-side dedupe in
+      ``build_embed_data.py`` only fires at publish time).
+    * **Codex P2 — preserve provenance across runs.** A subsequent
+      ``pursue embed run`` without ``--augment-from`` would otherwise
+      silently strip ``augmented_by`` even when prior rows are still
+      augmented. We default to the prior index's ``augmented_by`` unless
+      the current invocation explicitly passes a new one.
+
+    The vector bytes for dropped rows remain on disk (they're already
+    appended at this point); only the index reference is removed.
+    Compaction is a separate concern.
+    """
     with vectors_path.open("ab") as fh:
         fh.write(new_bytes)
-    all_index_rows = load_prior_index_rows(index_path) + new_index_rows
+
+    prior_rows = load_prior_index_rows(index_path)
+    augmented_keys = {
+        (r.card_id, r.page) for r in new_index_rows if r.augmented
+    }
+    if augmented_keys:
+        prior_rows = [
+            r for r in prior_rows if (r.card_id, r.page) not in augmented_keys
+        ]
+    all_index_rows = prior_rows + new_index_rows
+
+    if augmented_by is None:
+        augmented_by = load_existing_augmented_by(index_path)
+
     write_index(index_path, model_id, dim, all_index_rows, augmented_by=augmented_by)
     return all_index_rows
 
