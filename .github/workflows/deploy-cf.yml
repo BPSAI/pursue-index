@@ -81,7 +81,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      # actions/setup-node v4.4.0 — pinned to SHA per SEC-001.
+      # actions/setup-node v6.4.0 — pinned to SHA per SEC-001.
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           # Node 22 LTS — matches `web/package.json` engines field
