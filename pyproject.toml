@@ -56,7 +56,7 @@ gpu = [
     "surya-ocr>=0.17",
     # surya-ocr 0.17.x is incompatible with transformers 5.x; pip will resolve
     # to 5.8 by default and break import. Pin until surya catches up.
-    "transformers>=4.56,<5",
+    "transformers>=4.56,<6",
 ]
 llm = [
     # LLM-based OCR fallback for low-confidence pages. The Anthropic SDK is
