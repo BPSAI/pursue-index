@@ -21,6 +21,11 @@ log = get_logger(__name__)
 
 DEFAULT_MODEL = "voyage-3"
 
+# Voyage's published rate for voyage-3. Owned by the adapter so the embed
+# pipeline can read the right $/Mtok for whichever provider it's wrapping
+# without per-provider knowledge in the orchestration layer.
+DEFAULT_USD_PER_MILLION_TOKENS = 0.06
+
 
 @dataclass(frozen=True)
 class EmbedResult:
@@ -44,6 +49,10 @@ class VoyageAdapter:
     chat surface should embed user queries with ``input_type="query"``,
     which we'll wire when the chat backend lands.
     """
+
+    # Voyage-3 list price. Class attribute so tests / cost-cap consumers can
+    # read it without constructing a client.
+    usd_per_million_tokens: float = DEFAULT_USD_PER_MILLION_TOKENS
 
     def __init__(self, api_key: str, model: str = DEFAULT_MODEL) -> None:
         if not api_key:

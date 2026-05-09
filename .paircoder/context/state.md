@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-05-08 (post Surya full pass + benchmark)
+> Last updated: 2026-05-08 (post bug-bash punch list)
 
 ## Active Plan
 
@@ -58,6 +58,103 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
+
+### Session: 2026-05-08 — Pre-chat bug-bash punch list (10 items)
+
+Consolidated punch list from a code review + a security review. All ten
+items landed across five logical commits on
+`worktree-agent-aa9b49834a79769e1` (not pushed).
+
+- **`fix(infra)` worker** — `worker/index.js` cookie parser was
+  `cookie.includes("preview=bps-launch")`, matched decoy cookies like
+  `notpreview=bps-launchfoo`. Replaced with an RFC-6265 name=value
+  parser; `cookies.preview` must equal the token exactly. Added a
+  small response-wrapper that sets X-Content-Type-Options,
+  Referrer-Policy, X-Frame-Options, Permissions-Policy on every
+  response. CSP intentionally deferred — card detail pages iframe
+  www.war.gov PDFs and a meaningful CSP needs `frame-src` plus
+  testing; documented for the chat-interface plan to pick up. Also
+  documented in the Worker header comment that the cookie gate is
+  expected to apply to all routes (including future `/api/chat`)
+  until launch — splash cookie = preview access full-stop. New
+  `worker/package.json` + `worker/tests/` with `node --test` suite;
+  9 cookie tests + 6 security-header tests, all green.
+
+- **`fix(embed)` cost-cap drift** — `embed_run` hardcoded
+  `usd_per_million_tokens=0.06` (Voyage's rate). The OpenAI stub
+  would silently understate cost by ~2× once wired
+  (text-embedding-3-large is ~$0.13/Mtok). Moved the rate onto each
+  adapter as a class attribute; pipeline reads it from the embedder
+  by default and accepts an optional override threaded through the
+  CLI as `--usd-per-million-tokens`. Also dropped
+  `EmbedSummary.pages` (unused; held the entire post-run index;
+  grew linearly with the corpus). OpenAI adapter now constructs
+  cleanly and only raises `NotImplementedError` at the
+  `embed_texts` call site, not on import — lets the cost-cap math
+  read the rate without crashing. Refactored `embed_run` to extract
+  `_resolve_rate` + `_check_and_log_start` so the orchestration
+  function stays under the 50-line limit.
+
+- **`fix(ocr)` regex tightening** — `_parse_response` used
+  `re.search(r"\{.*\}", raw, re.DOTALL)` which is greedy across
+  nested braces. A model response containing prose with stray `{`
+  followed by a real JSON envelope spanned the whole reply and
+  failed to parse, dropping to the nominal-confidence path with
+  the entire raw reply as text. Replaced with a scan-from-each-`{`
+  loop using `json.JSONDecoder.raw_decode` that returns the first
+  balanced JSON object containing a `"text"` key. Two new tests
+  cover the prose-with-braces failure and the strict-JSON case
+  where the transcription itself contains `{` / `}` characters.
+
+- **`fix(web)` UX correctness** —
+  - DiffIsland: `r.ok ? r.json() : []` swallowed every non-OK
+    status as "no snapshot." Distinguish 404 (legitimate empty
+    state) from 5xx (real error → surface via existing `error`
+    state). Reordered the render branches so error trumps empty.
+  - SearchIsland: "(CAPPED)" badge fired on `results.length === 50`,
+    marking exactly-50-real-matches as truncated. Track total
+    matches before slicing; only flag CAPPED when `total > 50`.
+    The 50-row render cap remains.
+  - CardExplorer: URL-sync useEffect ran on mount before the hash-
+    hydrate effect captured initial state, so a shared link like
+    `/#q=apollo` had its hash cleared. Added a `hydrated` ref that
+    flips true at the end of the hydrate effect; sync effect
+    early-returns until then. Swapped effect order: hydrate first,
+    then sync.
+
+- **`chore(web)` typed bundle hygiene** — Dropped
+  `CardMetadata.raw: Record<string, string>` from `web/src/data/types.ts`.
+  Always empty in the manifest; Python side enforces
+  `extra="forbid"` so downstream loaders don't depend on the wire
+  field.
+
+- **What I decided differently from the brief.**
+  - Worker tests: brief said "harder to test directly; do your
+    best." I added a real `node --test` suite under `worker/tests/`
+    instead of skipping; gave us proper RED-GREEN cycles for the
+    cookie + security-header changes.
+  - OpenAI adapter (3.2): brief said "move the raise to
+    `_make_embedder`-equivalent." I moved it onto `embed_texts`
+    instead — that's the actual call seam, surfaces a clean error
+    at the moment a caller would notice, and lets cost-cap math
+    read `usd_per_million_tokens` without an exception.
+  - The cookie-gate / chat-API question: leaned **yes, gate
+    everything until launch** as the brief suggested; documented
+    in `worker/index.js` header. The `noindex` flip stays for the
+    chat-interface plan.
+
+- **Tests.** Pytest 59/59 (was 50; added 5 ocr regex + 3 voyage
+  price + 4 openai adapter + 2 pipeline rate-routing — minus 1
+  test renamed during the OpenAI refactor that's still passing
+  via the new construction path). Worker `node --test` 15/15.
+  `web && npm run build` clean (154 pages, 1.61s).
+
+- **Arch check.** Errors: zero. Warnings: pipeline.py 206 lines
+  (was 180; warning at 200), ocr/llm.py 270 (was 245), cli/commands.py
+  291 (was 282). All under the 400 error threshold.
+
+- **Commits (not pushed).** `7beea4d` worker, `491fce6` embed,
+  `02a4f6b` ocr, `bf813bc` web, `c7760ee` chore.
 
 ### Session: 2026-05-08 — Surya full corpus pass + OCR benchmark + search payload rebuild
 

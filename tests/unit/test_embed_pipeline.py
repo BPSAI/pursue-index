@@ -23,6 +23,7 @@ class FakeEmbedder:
     """Deterministic 4-dim embedder. Returns hash-derived float32 vectors."""
 
     model = "voyage-3"
+    usd_per_million_tokens = 0.06
 
     def __init__(self) -> None:
         self.calls: list[list[str]] = []
@@ -194,3 +195,60 @@ def test_embed_run_aborts_when_cost_exceeds_cap(tmp_path: Path) -> None:
         )
     # No vectors written.
     assert not (out_root / "voyage-3" / "vectors.bin").exists()
+
+
+def test_embed_run_uses_adapter_price_when_no_override(tmp_path: Path) -> None:
+    """The pipeline reads ``embedder.usd_per_million_tokens`` so each adapter
+    is the source of truth for its own rate. A 5×-priced adapter should
+    trip a cap that the default Voyage rate would clear.
+    """
+    ocr_dir = tmp_path / "ocr"
+    out_root = tmp_path / "embeddings"
+    # Big enough corpus to exercise the math: at $0.06/Mtok this is a few
+    # cents; at $0.30/Mtok (5× drift) it should breach a $0.10 cap.
+    big_text = "a" * 4_000_000  # ~1M tokens at chars/4
+    _write_card_pages(ocr_dir, "card_aaa", [big_text])
+
+    class ExpensiveEmbedder:
+        model = "voyage-3"
+        usd_per_million_tokens = 0.30  # 5× the Voyage rate
+
+        def embed_texts(self, texts: list[str], input_type: str = "document"):
+            return EmbedResult(vectors=[[0.0] * 4 for _ in texts], total_tokens=0)
+
+    with pytest.raises(RuntimeError, match="cap"):
+        embed_pipeline.embed_run(
+            ocr_dir=ocr_dir,
+            out_root=out_root,
+            embedder=ExpensiveEmbedder(),
+            cost_cap_usd=0.10,
+        )
+
+
+def test_embed_run_respects_explicit_usd_override(tmp_path: Path) -> None:
+    """An explicit ``usd_per_million_tokens`` overrides the adapter default.
+
+    Use case: forcing a tighter or looser cap from the CLI without editing
+    the adapter (e.g. early-day pricing experiments).
+    """
+    ocr_dir = tmp_path / "ocr"
+    out_root = tmp_path / "embeddings"
+    big_text = "a" * 4_000_000
+    _write_card_pages(ocr_dir, "card_aaa", [big_text])
+
+    class CheapEmbedder:
+        model = "voyage-3"
+        usd_per_million_tokens = 0.06
+
+        def embed_texts(self, texts: list[str], input_type: str = "document"):
+            return EmbedResult(vectors=[[0.0] * 4 for _ in texts], total_tokens=0)
+
+    # Adapter default would be under cap, but override forces it over.
+    with pytest.raises(RuntimeError, match="cap"):
+        embed_pipeline.embed_run(
+            ocr_dir=ocr_dir,
+            out_root=out_root,
+            embedder=CheapEmbedder(),
+            cost_cap_usd=0.10,
+            usd_per_million_tokens=0.30,
+        )

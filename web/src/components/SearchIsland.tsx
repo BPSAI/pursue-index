@@ -81,9 +81,12 @@ export default function SearchIsland({ base }: Props) {
     return ms;
   }, [status, docs]);
 
-  const results = useMemo(() => {
-    if (!search || !query.trim()) return [];
-    return search.search(query, { combineWith: "AND" }).slice(0, 50);
+  // Track the *unsliced* total so the "(CAPPED)" badge only shows when we
+  // actually truncated — at exactly 50 hits with nothing dropped, no cap.
+  const { results, totalMatches } = useMemo(() => {
+    if (!search || !query.trim()) return { results: [], totalMatches: 0 };
+    const all = search.search(query, { combineWith: "AND" });
+    return { results: all.slice(0, 50), totalMatches: all.length };
   }, [search, query]);
 
   // Build a docs lookup so we can retrieve the full page text for snippet
@@ -163,8 +166,8 @@ export default function SearchIsland({ base }: Props) {
       </div>
       {query.trim() && (
         <div class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-1">
-          <span class="text-[color:var(--color-signal-green)]">{results.length}</span> MATCH{results.length === 1 ? "" : "ES"}
-          {results.length === 50 && <span class="text-[color:var(--color-signal-amber)] ml-2">(CAPPED)</span>}
+          <span class="text-[color:var(--color-signal-green)]">{totalMatches}</span> MATCH{totalMatches === 1 ? "" : "ES"}
+          {totalMatches > 50 && <span class="text-[color:var(--color-signal-amber)] ml-2">(CAPPED)</span>}
         </div>
       )}
       <ul class="space-y-1.5">

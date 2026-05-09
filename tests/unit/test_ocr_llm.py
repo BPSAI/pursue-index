@@ -244,3 +244,51 @@ def test_ocr_image_handles_non_json_response(
     assert "plain text response" in text
     # Fallback nominal confidence — picked so it survives the auto-mode threshold
     assert conf >= 0.0
+
+
+def test_ocr_image_parses_json_when_transcription_contains_braces(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Real OCR'd pages sometimes legitimately contain `{` characters in
+    typewritten text (handwritten margin notes, math, weird stamps). The
+    relaxed JSON-block regex was greedy and DOTALL — it would mis-parse
+    a model that emits prose containing a stray `{` followed by a real
+    JSON envelope. Tighten the parse to find the JSON object that has
+    a "text" key, not just any matching `{...}` blob.
+    """
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    # The model wraps its JSON in some chatter (against instructions) and
+    # the chatter contains a stray `{` — a greedy `\{.*\}` matches from
+    # that brace through the end and fails to parse.
+    bad_then_good = (
+        "Here is the page text { which contains a brace } as part of "
+        'transcribed prose, then: {"text": "REAL TRANSCRIPTION", "confidence": 88}'
+    )
+    client = _FakeAnthropic([(bad_then_good, _FakeUsage(800, 30))])
+    _patch_client(monkeypatch, client)
+
+    text, conf = ocr_llm.ocr_image(Image.new("RGB", (10, 10)))
+
+    assert text == "REAL TRANSCRIPTION"
+    assert conf == pytest.approx(88.0)
+
+
+def test_ocr_image_handles_strict_json_with_braces_in_text(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Even when the model is well-behaved (strict JSON), the transcribed
+    text itself may legitimately contain `{` / `}` characters from the
+    page. The strict-JSON path must preserve them verbatim.
+    """
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    payload = json.dumps({
+        "text": "Note: deflection coefficient {k} = 0.42",
+        "confidence": 91,
+    })
+    client = _FakeAnthropic([(payload, _FakeUsage(800, 30))])
+    _patch_client(monkeypatch, client)
+
+    text, conf = ocr_llm.ocr_image(Image.new("RGB", (10, 10)))
+
+    assert text == "Note: deflection coefficient {k} = 0.42"
+    assert conf == pytest.approx(91.0)

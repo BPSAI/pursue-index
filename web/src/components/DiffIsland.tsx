@@ -32,9 +32,21 @@ export default function DiffIsland({ current, base }: Props) {
 
   useEffect(() => {
     fetch(`${base}/data/snapshots/index.json`)
-      .then((r) => (r.ok ? r.json() : []))
+      .then((r) => {
+        // 404 is a legitimate "no snapshot yet" — show the empty state.
+        // Any other non-OK status is a real error and must surface so we
+        // don't silently mask 5xx as "no snapshots."
+        if (r.status === 404) return [];
+        if (!r.ok) {
+          throw new Error(`snapshots index: HTTP ${r.status}`);
+        }
+        return r.json() as Promise<string[]>;
+      })
       .then((data: string[]) => setIndex(data))
-      .catch(() => setIndex([]));
+      .catch((e) => {
+        setIndex([]);
+        setError(String(e));
+      });
   }, [base]);
 
   useEffect(() => {
@@ -60,6 +72,16 @@ export default function DiffIsland({ current, base }: Props) {
     );
   }
 
+  // Error trumps the empty-state — a 5xx on the snapshots index was getting
+  // rendered as "no prior snapshot" before, which silently hid real failures.
+  if (error) {
+    return (
+      <p class="font-mono text-sm text-[color:var(--color-signal-red)]">
+        [ERR] Failed to load snapshot: {error}
+      </p>
+    );
+  }
+
   if (index.length === 0) {
     return (
       <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 font-mono text-sm text-[color:var(--color-text)] pi-bracket relative scanlines-soft space-y-2">
@@ -81,14 +103,6 @@ export default function DiffIsland({ current, base }: Props) {
           CSV_SHA256 <code class="text-[color:var(--color-signal-cyan)]">{current.csv_sha256.slice(0, 12)}</code>
         </p>
       </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <p class="font-mono text-sm text-[color:var(--color-signal-red)]">
-        [ERR] Failed to load snapshot: {error}
-      </p>
     );
   }
 

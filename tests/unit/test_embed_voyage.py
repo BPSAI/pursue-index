@@ -54,3 +54,19 @@ def test_voyage_adapter_requires_api_key() -> None:
 
     with pytest.raises(ValueError, match="api_key"):
         voyage.VoyageAdapter(api_key="", model="voyage-3")
+
+
+def test_voyage_adapter_exposes_voyage_price_per_million_tokens(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Each adapter is the source of truth for its own $/Mtok rate.
+
+    Voyage-3 is documented at $0.06 / 1M tokens; the cost-cap math uses this
+    when the CLI doesn't pass an override. Hardcoding the rate in the
+    pipeline silently understated cost when the OpenAI adapter ships.
+    """
+    from pursue_index.embed import voyage
+
+    monkeypatch.setattr(voyage, "_make_client", lambda api_key: object())
+    adapter = voyage.VoyageAdapter(api_key="vk-test", model="voyage-3")
+    assert adapter.usd_per_million_tokens == pytest.approx(0.06)

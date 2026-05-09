@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { CardMetadata } from "../data/types";
 
 interface Props {
@@ -55,8 +55,33 @@ export default function CardExplorer({ cards, base }: Props) {
   const [sort, setSort] = useState<SortKey>("title");
   const [view, setView] = useState<ViewMode>("cards");
 
+  // Effect-ordering guard: the URL-sync effect must NOT run on the very
+  // first render (state is still defaults), or it will overwrite the hash
+  // before the hydrate effect captures it. So a shared `/#q=apollo` link
+  // would lose its query. The ref flips true at the end of the hydrate
+  // effect; the sync effect early-returns until then.
+  const hydrated = useRef(false);
+
+  // Hydrate from hash on mount.
+  useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (hash) {
+      const params = new URLSearchParams(hash);
+      if (params.get("q")) setQuery(params.get("q")!);
+      if (params.get("agency")) setAgency(params.get("agency")!);
+      if (params.get("type")) setType(params.get("type")!);
+      if (params.get("redacted") === "1") setRedactedOnly(true);
+      const s = params.get("sort");
+      if (s === "release" || s === "incident" || s === "type") setSort(s);
+      const v = params.get("view");
+      if (v === "table" || v === "cards") setView(v);
+    }
+    hydrated.current = true;
+  }, []);
+
   // Sync state to URL hash so links are shareable.
   useEffect(() => {
+    if (!hydrated.current) return;
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (agency) params.set("agency", agency);
@@ -68,21 +93,6 @@ export default function CardExplorer({ cards, base }: Props) {
     const url = next ? `#${next}` : window.location.pathname;
     history.replaceState(null, "", url);
   }, [query, agency, type, redactedOnly, sort, view]);
-
-  // Hydrate from hash on mount.
-  useEffect(() => {
-    const hash = window.location.hash.replace(/^#/, "");
-    if (!hash) return;
-    const params = new URLSearchParams(hash);
-    if (params.get("q")) setQuery(params.get("q")!);
-    if (params.get("agency")) setAgency(params.get("agency")!);
-    if (params.get("type")) setType(params.get("type")!);
-    if (params.get("redacted") === "1") setRedactedOnly(true);
-    const s = params.get("sort");
-    if (s === "release" || s === "incident" || s === "type") setSort(s);
-    const v = params.get("view");
-    if (v === "table" || v === "cards") setView(v);
-  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
