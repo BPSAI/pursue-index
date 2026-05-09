@@ -384,6 +384,202 @@ textarea:focus {
 }
 
 /* =========================================================================
+   pi-prose — long-form typography for /finds entries (and any other
+   place where MDX renders into a wrapper). Tailwind v4 has no typography
+   plugin in this project; we hand-tune the few elements we actually use
+   so finds entries are easily legible without depending on a plugin.
+
+   Specificity is low (`:where()`) so any inline override or component
+   class wins. The rules are scoped to the wrapper class to keep them
+   from leaking into card details, search results, etc.
+   ========================================================================= */
+
+.pi-prose {
+  /* Comfortable measure + reading-friendly line height. */
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+/* Paragraph spacing — the actual fix the operator flagged. */
+.pi-prose :where(p) {
+  margin-block: 1em;
+}
+
+/* Tighten leading paragraph. */
+.pi-prose > :where(p):first-child {
+  margin-top: 0;
+}
+
+/* Headings: keep the monospace section-marker feel. */
+.pi-prose :where(h2) {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-signal-green);
+  margin-top: 2.25em;
+  margin-bottom: 0.85em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pi-prose :where(h2)::before {
+  content: "▸ ";
+  color: var(--color-signal-green);
+  margin-right: 0.15em;
+}
+
+.pi-prose :where(h3) {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-signal-cyan);
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+.pi-prose :where(h4) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-bright);
+  margin-top: 1.3em;
+  margin-bottom: 0.45em;
+}
+
+/* Lists. */
+.pi-prose :where(ul, ol) {
+  margin-block: 1em;
+  padding-left: 1.25em;
+}
+
+.pi-prose :where(ul) { list-style: disc; }
+.pi-prose :where(ol) { list-style: decimal; }
+
+.pi-prose :where(li) {
+  margin-block: 0.35em;
+}
+
+.pi-prose :where(li > p) {
+  margin-block: 0.35em;
+}
+
+.pi-prose :where(li::marker) {
+  color: var(--color-text-faint);
+}
+
+/* Inline emphasis. */
+.pi-prose :where(strong) {
+  color: var(--color-text-bright);
+  font-weight: 600;
+}
+
+.pi-prose :where(em) {
+  color: var(--color-text);
+  font-style: italic;
+}
+
+/* Block quotes — declassified-doc-style left rule. */
+.pi-prose :where(blockquote) {
+  margin: 1.5em 0;
+  padding: 0.6em 1.1em;
+  border-left: 2px solid var(--color-signal-cyan);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-bright);
+  font-style: normal;
+}
+
+.pi-prose :where(blockquote p) {
+  margin-block: 0.5em;
+}
+
+.pi-prose :where(blockquote p:first-child) { margin-top: 0; }
+.pi-prose :where(blockquote p:last-child) { margin-bottom: 0; }
+
+/* Inline code + code blocks. */
+.pi-prose :where(code) {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-signal-cyan);
+  background: var(--color-bg-elevated);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+}
+
+.pi-prose :where(pre) {
+  margin: 1.25em 0;
+  padding: 0.9em 1em;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  overflow-x: auto;
+  font-size: 0.825rem;
+  line-height: 1.55;
+}
+
+.pi-prose :where(pre code) {
+  background: transparent;
+  padding: 0;
+  color: var(--color-text);
+  font-size: inherit;
+}
+
+/* Links — underlined, signal-cyan, hover lights up. */
+.pi-prose :where(a:not(.pi-cite)) {
+  color: var(--color-signal-cyan);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-bright);
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 120ms ease;
+}
+
+.pi-prose :where(a:not(.pi-cite):hover) {
+  text-decoration-color: var(--color-signal-cyan);
+}
+
+/* Horizontal rule — minimal section divider. */
+.pi-prose :where(hr) {
+  margin: 2.25em 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Tables — declassified-spreadsheet feel. */
+.pi-prose :where(table) {
+  width: 100%;
+  margin: 1.4em 0;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.pi-prose :where(th, td) {
+  text-align: left;
+  padding: 0.5em 0.75em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pi-prose :where(th) {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-faint);
+  border-bottom-color: var(--color-border-bright);
+}
+
+/* Images — full-width with subtle frame. */
+.pi-prose :where(img) {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+}
+
+/* =========================================================================
    Reduce-motion: kill all animations.
    ========================================================================= */
 
