@@ -1,4 +1,10 @@
 ---
+// Source-of-truth contract: this page documents the public /api/* surface.
+// The Worker dispatch in `worker/index.js` (see `WORKER_API_PATHS`) handles
+// only `/api/retrieve` and `/api/chat`; every other `/api/*` path — including
+// this docs page itself — falls through to the static asset bundle. If you
+// add a new dynamic Worker route, document it here. If you add a new static
+// /api/* page, no Worker change is needed.
 import Base from "../layouts/Base.astro";
 ---
 

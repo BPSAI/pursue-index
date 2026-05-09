@@ -32,6 +32,56 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — PR #16 review-fixes (branch `fix/worker-api-routing`)
+
+Addressed the union of legitimate findings from nayru (P1/P2), vaivora
+(6 cross-cutting), and laverna (1 informational) on PR #16. One
+follow-up commit pushed to `fix/worker-api-routing`; not merged per
+task spec.
+
+- **nayru P1.1 (security headers on fall-through):** New regression
+  test asserts `X-Content-Type-Options: nosniff` and
+  `Referrer-Policy: strict-origin-when-cross-origin` on the `/api/`
+  ASSETS path. A future refactor that drops `withSecurityHeaders` on
+  line 132 will now fail CI.
+- **nayru P1.2 (foreign-Origin on fall-through):** New test pins
+  `Origin: https://evil.example.com` against `/api/` → ASSETS, NOT
+  403. Prevents the Origin gate from drifting back outside the
+  `WORKER_API_PATHS` branch.
+- **nayru P2 (per-request `new Set` allocation):** Hoisted
+  `WORKER_API_PATHS` to module scope alongside `ALLOWED_API_ORIGINS`.
+- **vaivora #1 (bare `/api`):** New test for `/api` (no slash) →
+  ASSETS. `astro.config.mjs` `trailingSlash: "ignore"` should keep
+  these paths equivalent; a future Astro-default flip would now trip
+  CI.
+- **vaivora #2 (reciprocal cross-references):** Comment on
+  `WORKER_API_PATHS` points at `web/src/pages/api.astro`; reciprocal
+  comment in `api.astro` frontmatter points at the Worker's
+  allowlist. Closes the drift loop in both directions.
+- **vaivora #3 (architecture.md Worker section):** New "Worker
+  dispatch (Cloudflare)" subsection at the end of `docs/architecture.md`
+  documents the allowlist contract, method-gating boundary, and
+  add-route checklist.
+- **vaivora #4 (method-gating note):** Added inline comment on
+  `WORKER_API_PATHS` explicitly stating the allowlist is path-only;
+  references the 405 lines in `worker/retrieve.js:273` and
+  `worker/chat.js:46`.
+- **vaivora #5 (CF Pages routing):** No code change; documented in
+  the follow-up commit message + PR description as a manual
+  post-deploy smoke check (`curl https://pursueindex.com/api/`).
+- **vaivora #6 (integration-boundary smoke test):** Future-ticket
+  rather than this-PR scope. Captured in "What's Next" below.
+- **laverna LOW (path-traversal):** Defense-in-depth comment above
+  the `new URL(request.url)` line documents why crafted
+  `/api/../etc/passwd` is non-exploitable (URL parser normalizes
+  *before* set membership; ASSETS binds to a flat static artifact).
+
+Tests: 61/61 worker (was 58 — +3 new regression tests). Arch check:
+zero errors on `worker/index.js`. Codex review check:
+`gh api repos/BPSAI/pursue-index/pulls/16/reviews | jq '.[] |
+select(.user.login == "chatgpt-codex-connector[bot]")'` returned
+empty — no Codex findings to address.
+
 ### Session: 2026-05-09 — Semantic-browser PR #6 review-fixes (branch `feat/semantic-browser`)
 
 Addressed all legitimate findings from the four-reviewer pass on PR #6
@@ -584,6 +634,15 @@ hardening, git history scrub.
    `finds` entries in a build script, render `<slug>.png` per
    entry, and pass `ogImage="/og/finds/<slug>.png"` on the
    `/finds/[slug]` page. Defers from the share-meta PR (#7).
+8. **Integration-boundary smoke test for `/api/*` dispatch** —
+   vaivora finding on PR #16. Worker tests stub ASSETS; web tests
+   don't run the Worker. A post-build harness (`wrangler dev` plus
+   `curl /api/`, `/api`, `/api/retrieve` (405), `/api/chat` (405),
+   `/api/bogus` (200 from ASSETS)) would have caught the original
+   PR #4 regression that this PR fixes, and would catch the inverse
+   drift (a static `/api/v2` page being shadowed by a new Worker
+   handler). Either a CI job against `wrangler dev` or a post-deploy
+   probe against the public URL.
 
 ### Optional cleanup
 
