@@ -87,10 +87,15 @@ become permanent.
 
 ### CVE-2026-1839 — `transformers.Trainer` arbitrary code execution
 
+**Accepted:** 2026-05-09
+
 **Status:** Accepted, unexploitable in pursue-index deployment.
 
+**Audit performed at commit `6373312` against PR #15 (Dependabot
+`transformers <5 → <6` bump).**
+
 **Pin:** `transformers>=4.56,<5` in `pyproject.toml [gpu]` extra
-(see `pyproject.toml:57-59` for the inline rationale).
+(see `pyproject.toml:57-61` — inline rationale at :57-60, pin at :61).
 
 **Why we cannot upgrade:** `surya-ocr 0.17.x` — the GPU OCR engine in
 the `[gpu]` extra — fails to import under `transformers >= 5.x`. Until
@@ -103,8 +108,7 @@ revisit this exception when `surya-ocr` ships a release that supports
 - pursue-index does not import `transformers.Trainer` anywhere in
   `src/`, `scripts/`, or `tests/`. Audit grep:
   `grep -rn "transformers.Trainer\|TrainingArguments" src/ scripts/ tests/ --include="*.py"`
-  returns zero hits as of the commit that introduced this section
-  (resolve via `git log -- SECURITY.md` for the SHA).
+  returns zero hits as of audit commit `6373312`.
 - The OCR pipeline runs Surya's `RecognitionPredictor` +
   `DetectionPredictor` inference paths only. No training, no
   fine-tuning, no `Trainer` instantiation.
