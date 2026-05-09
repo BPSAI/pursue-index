@@ -1,61 +1,49 @@
-name: Deploy to Cloudflare Workers (fallback)
+name: Deploy to Cloudflare Workers (fallback, manual)
 
 # Fallback CI for `npx wrangler deploy`. The primary deploy path is the
 # Cloudflare Workers Builds pipeline configured in the CF dashboard
-# (see wrangler.jsonc header). That pipeline has stalled multiple times
-# (2026-05-09: PRs #6-#17 merged but the live worker stayed pinned to a
-# pre-#6 build until the operator manually ran `npx wrangler deploy`),
-# so this workflow exists as a redundant deploy path that we control.
+# (see wrangler.jsonc header). That pipeline previously stalled
+# multiple times (2026-05-09: PRs #6-#17 merged but the live worker
+# stayed pinned to a pre-#6 build until the operator manually ran
+# `npx wrangler deploy`), so this workflow exists as a redundant
+# deploy path that we control.
 #
-# When this fires *and* CF Workers Builds is healthy, both will deploy
-# the same commit — wrangler is idempotent on identical bundles, the
-# second deploy just produces a new version pointing at the same code.
+# Triggers: `workflow_dispatch` only — manual button in the Actions
+# UI. CF Workers Builds is now reliably triggering on push to `main`
+# (operator-verified 2026-05-09 dashboard run), so auto-firing this
+# fallback on every push doubled deploys, produced redundant Version
+# IDs in the Cloudflare Versions list, and doubled the failure-issue
+# noise for no functional gain (vaivora flagged the dual-pipeline
+# concurrency caveat in PR #18 review). The workflow stays available
+# as a manual button so the operator can re-run a deploy when CF
+# Workers Builds stalls again.
 #
 # Required repo secrets (operator must set in repo settings):
 #   CLOUDFLARE_API_TOKEN  — same value as PURSUE_CF_API_TOKEN in .env
 #   CLOUDFLARE_ACCOUNT_ID — same value as PURSUE_CF_ACCOUNT_ID in .env
 #
 # Operational dependencies (mirrors poll-pursue.yml SEC-001/002):
-# * Action pinning: `actions/checkout` and `actions/setup-node` are
-#   pinned to commit SHAs. Bumps land via Dependabot
-#   (`.github/dependabot.yml`, `github-actions` ecosystem).
-# * No pip installs here — pure Node + wrangler.
+# * Action pinning: `actions/checkout`, `actions/setup-node`, and
+#   `actions/setup-python` are pinned to commit SHAs. Bumps land via
+#   Dependabot (`.github/dependabot.yml`, `github-actions` ecosystem).
+# * Pip install runs `pip install -e .` to get pursue_index + its
+#   runtime deps (Pillow, structlog, pydantic, ...). The OG build
+#   scripts import `pursue_index.web.og_image`, which in turn imports
+#   `pursue_index/__init__.py` — that package init imports `structlog`
+#   at module level, so a Pillow-only install ImportErrors before the
+#   render even starts. The `[gpu]` extra (surya/torch, ~3 GB) is
+#   intentionally omitted; the OG path does not need it.
 # * Failure-issue pattern mirrors poll-pursue.yml: on deploy failure,
 #   open or update a `deploy-failure` issue with the run URL so the
 #   operator gets paged via GitHub notifications. The full wrangler
 #   output is not embedded in the issue body (see laverna MED-001
 #   audit on PR #18) — the run URL is repo-read-gated and is the
-#   authoritative log surface.
+#   authoritative log surface. With the trigger flipped to manual,
+#   any open `deploy-failure` issue stays open until the operator
+#   either re-runs a successful manual deploy and closes it, or
+#   closes it directly; auto-push deploys no longer churn the issue.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "web/**"
-      - "worker/**"
-      - "worker/package.json"
-      - "worker/package-lock.json"
-      - "wrangler.jsonc"
-      # Narrowed from `data/**` to `data/manifests/**`: poll-pursue.yml
-      # writes `data/last-known-csv-sha.txt` on a 6-hour cron and pushes
-      # to main from `github-actions[bot]`; matching `data/**` would
-      # trigger a full deploy for a one-line SHA bump that does not
-      # affect the bundle. Only `data/manifests/**` ships into the
-      # build (via the `cp` step below).
-      - "data/manifests/**"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/deploy-cf.yml"
-      # OG build scripts run in this workflow; a change to either
-      # script or its rendering modules must re-deploy so the new
-      # PNGs ship to production.
-      - "scripts/build_og_image.py"
-      - "scripts/build_finds_og_images.py"
-      - "src/pursue_index/web/og_image.py"
-      - "src/pursue_index/web/og_layers.py"
-      - "src/pursue_index/web/og_fonts.py"
-      - "src/pursue_index/web/finds_og.py"
-      - "src/pursue_index/web/finds_frontmatter.py"
   workflow_dispatch:
 
 permissions:
@@ -121,12 +109,20 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Pillow (only dep needed by OG build scripts)
-        # The OG build scripts read JSON + render PNG with Pillow. They
-        # do not import the rest of pursue_index, so we avoid the heavy
-        # core install (sqlalchemy, fastapi, surya/torch, etc.) and pin
-        # Pillow to the same lower bound as pyproject.toml [CVE-2024-28219].
-        run: pip install "pillow>=11.1.0"
+      - name: Install pursue_index runtime deps (editable, no extras)
+        # The OG build scripts import `pursue_index.web.og_image` and
+        # `pursue_index.web.finds_og`, which transitively load
+        # `pursue_index/__init__.py` — that package init imports
+        # `structlog` at module level. A Pillow-only install therefore
+        # ImportErrors on `import structlog` before any rendering runs
+        # (observed on the failed deploy-cf runs preceding this fix).
+        # `pip install -e .` pulls Pillow (>=11.1.0, CVE-2024-28219) plus
+        # structlog, pydantic, typer, httpx, and the rest of the core
+        # runtime list in `pyproject.toml [project].dependencies`.
+        # The `[gpu]` extra (surya-ocr/torch/CUDA wheels, ~3 GB) is
+        # intentionally omitted — it is not on the OG render path and
+        # would add minutes to every deploy.
+        run: pip install -e .
 
       - name: Render default OG image (web/public/og.png)
         # Reads data/manifests/latest.json so the rendered card stays
