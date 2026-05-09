@@ -1,0 +1,97 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+// Filter out drafts; sort newest first.
+const all = await getCollection("finds", ({ data }) => !data.draft);
+const entries = all
+  .slice()
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const hasEntries = entries.length > 0;
+---
+
+<Base
+  title="FINDS — PURSUE://INDEX"
+  description="Curated reading guides authored from the source documents."
+  active="finds"
+>
+  <div class="space-y-6 max-w-3xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>ls /var/dow/pursue/finds/</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        CURATED FINDS
+      </h1>
+      <p class="text-sm text-[color:var(--color-text)] max-w-2xl">
+        Hand-authored reading guides drawing from specific cards and pages
+        in the corpus. Editorial standards: every claim cites; verbatim
+        over paraphrase; abstention over speculation.
+      </p>
+    </header>
+
+    {!hasEntries && (
+      <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3">
+        <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
+          [COMING SOON]
+        </p>
+        <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+          Curated reading guides — authored from the source documents,
+          reviewed before publish — are in the works. Each entry walks
+          a specific case or theme through the cards and pages that
+          anchor it, with verbatim excerpts and explicit notes on what
+          the corpus does <em>not</em> support.
+        </p>
+        <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+          Subscribe via
+          <a
+            href="https://github.com/BPSAI/pursue-index/releases"
+            target="_blank"
+            rel="noreferrer"
+            class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
+          >GitHub releases</a>
+          to be notified when the first entries publish.
+        </p>
+        <p class="text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+          In the meantime, the
+          <a href={`${base}/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">full index</a>
+          and
+          <a href={`${base}/search`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">full-text search</a>
+          are live across the entire corpus.
+        </p>
+      </section>
+    )}
+
+    {hasEntries && (
+      <ul class="space-y-3">
+        {entries.map((entry) => (
+          <li class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] hover:border-[color:var(--color-signal-green)]/50 transition-colors">
+            <a href={`${base}/finds/${entry.id}`} class="block p-4 space-y-2">
+              <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span class="text-[color:var(--color-signal-cyan)]">
+                  {entry.data.published.toISOString().slice(0, 10)}
+                </span>
+                {entry.data.tags.length > 0 && <span>·</span>}
+                {entry.data.tags.map((tag) => (
+                  <span class="px-1.5 py-0.5 border border-[color:var(--color-border)] bg-[color:var(--color-bg)] text-[color:var(--color-text-dim)]">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <h2 class="font-mono text-lg font-semibold text-[color:var(--color-text-bright)] leading-snug">
+                {entry.data.title}
+              </h2>
+              {entry.data.subtitle && (
+                <p class="text-sm text-[color:var(--color-text-dim)]">{entry.data.subtitle}</p>
+              )}
+              <p class="text-sm text-[color:var(--color-text)]">{entry.data.summary}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>
