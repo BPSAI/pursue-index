@@ -31,6 +31,47 @@ retrieval is on the post-launch backlog (see `What's Next`).
 | atlas     | shipped  | 2D UMAP semantic browser (/atlas) — regl-scatterplot, 4,119 dots   |
 
 ## What Was Just Done
+
+### Session: 2026-05-09 — PR #19 review-fix follow-up (`feat/api-integration-smoke`)
+
+Pushed `e39787e` to PR #19 addressing every legitimate review finding
+across laverna (1 MED + 2 LOW), nayru (5 P1 + 3 P2), vaivora (4
+latents), and chatgpt-codex-connector (2 line-level). One bundled
+follow-up commit; no changes to merge state.
+
+Hardening applied (behavior of the 6 dispatch assertions unchanged):
+
+- Wrangler pinned as `web/` devDependency (`^4.90.0` + lockfile);
+  smoke now invokes `web/node_modules/.bin/wrangler` instead of
+  `npx --yes wrangler`. Workflow runs `npm ci` before the smoke step
+  so the pin is present.
+- Workflow uploads wrangler dev log artifact on failure; smoke
+  honors `SMOKE_KEEP_LOG=1` so the cleanup trap doesn't `rm` it.
+- Readiness curl gets `--max-time 5`; assertion 2 gets `--max-redirs 3`.
+- `${arr[@]+"${arr[@]}"}` idiom for bash-3.2 / macOS compat under -u.
+- Workflow path filter adds `web/astro.config.mjs` and
+  `web/package*.json` (build inputs that produce smoke's input file).
+- `mktemp` invocations have explicit failure handling.
+- Assertion 5 also asserts `Content-Type: text/html*` so the
+  "ASSETS HTML, not Worker JSON" contract is checked at the type
+  level, not just by substring exclusion.
+- Script consolidates to `set -euo pipefail`; header documents the
+  `.dev.vars` secrets caveat and the `wrangler dev` ↔ prod parity gap
+  (CORS / OPTIONS / `not_found_handling: "404-page"` not exercised).
+- Cross-pointers between `scripts/smoke_api_dispatch.sh`,
+  `web/scripts/test-api-page.mjs`, and `worker/index.js`'s
+  `WORKER_API_PATHS` declaration so future editors see all three.
+- On non-zero exit, full wrangler log preserved at
+  `/tmp/wrangler-smoke-last.log` (local) and
+  `$GITHUB_WORKSPACE/wrangler-smoke.log` (CI artifact).
+
+Validation: smoke script ran locally against wrangler 4.90.0 + freshly
+built `web/dist`; all 7 assertions passed. New static-shape test at
+`tests/unit/test_smoke_api_dispatch_hardening.py` (19 tests, all
+passing) pins each fix to prevent silent regression. Full suite
+green: 183 passed, 0 failed. Arch check clean on every modified file.
+Push only — branch not merged; CI re-runs on push event.
+
 ### Session: 2026-05-09 — Eight-PR shipping batch (autonomous)
 
 After the public launch closed cleanly, ran a parallel-feature batch
