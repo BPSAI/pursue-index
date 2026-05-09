@@ -133,3 +133,9 @@ agent_pack.tgz
 docs/launch/hn-post.md
 docs/launch/journalist-outreach.md
 /.paircoder/qc/reports/
+
+# Agent-internal memory: notes, audits, and working state from
+# specialized subagents. Useful locally for cross-session continuity,
+# but contains internal jargon, absolute paths, and occasional
+# credential fragments — keep out of the public repo.
+/.claude/agent-memory/
