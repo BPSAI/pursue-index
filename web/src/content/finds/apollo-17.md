@@ -1,0 +1,77 @@
+---
+title: "Apollo 17 Crew Debriefing — What's Actually There"
+subtitle: "An exercise in expectation calibration"
+summary: "The Apollo 17 Technical Crew Debriefing is in the PURSUE archive. It's two pages. The 'unusual sightings' Cernan, Evans, and Schmitt described to NASA in January 1973 are reentry plasma, an aircraft carrier seen through fog, and the famous Apollo light flashes — three different known phenomena. We're including this entry to demonstrate the editorial bar: the documents say what they say, not what they're rumored to."
+tags: [nasa, apollo, expectation-calibration]
+cards:
+  - 0b298cfc9c65a4d6
+published: 2026-05-09
+---
+
+## Why this entry exists
+
+Of the 161 cards in this archive, the **Apollo 17 Technical Crew Debriefing** is one of the shortest — exactly two pages — and one of the most asked-about. Apollo astronauts are folkloric witnesses; the corner of the internet that cares about UAP often quotes Apollo crew members to imply concealed encounters.
+
+Anyone clicking into [the card](/card/0b298cfc9c65a4d6) deserves to know what the document actually contains. So:
+
+## What the document actually says
+
+Page 1 is a cover sheet — title, indexing data, a declassification stamp dated 5/6/2026 ("E.O. 13526, Sec 3.3(a) / NASA Declassification Guide").[^cover]
+
+Page 2 is the substantive content, an excerpt from a longer mission debriefing that addresses three discrete phenomena.
+
+### Reentry "tunnel"
+
+Command Module Pilot **Ronald Evans** describes what he saw through the rendezvous window after the heat-shield fireball decreased:
+
+> "…after the brightness of the fireball decreased, I could look back up through the rendezvous window and see what to me was kind of like a tunnel with a bright spot in the middle of the tunnel. Way down the tunnel, way back behind, I could see the fireball."[^evans]
+
+This is plasma sheath geometry during reentry — well-documented across the Apollo program and not at all unusual. The crew is describing the optical interior of the ionization trail behind the command module as it slows in the upper atmosphere.
+
+### "Tin can"
+
+Mission Commander **Eugene Cernan** offers a one-liner about post-splashdown:
+
+> "The only unusual sighting I can recall during landing or recovery is when the CMP looked out the window and saw the superstructure of an aircraft carrier and said, 'Oh, we've got a tin can with us.'"[^cernan]
+
+Evans replies, in the same exchange:
+
+> "Well, it was kind of foggy on the windows."[^evans-reply]
+
+The "unusual sighting" was an aircraft carrier briefly mis-identified through fogged-up windows. Both astronauts are laughing about it on the record.
+
+### Light flashes
+
+Lunar Module Pilot **Harrison Schmitt** describes the Apollo light flashes:
+
+> "We had light flashes just about continuously during the whole flight when we were dark adapted. I had one which I thought was a flash on the lunar surface. That one period of time when we had the blindfolds on for the ALFMED experiment there were just no visible flashes, although that evening, that night, before I went to sleep I noticed that I was seeing the light flashes again."[^schmitt]
+
+These are the **Apollo light flashes**, a phenomenon studied since Apollo 11 and attributed to cosmic ray interaction with the retina or with the visual cortex of dark-adapted astronauts. ALFMED — the Apollo Light Flash Moving Emulsion Detector — was a *deliberate experiment* on Apollo 17 to characterize them, not an investigation of an unknown.
+
+## What this isn't
+
+The Apollo 17 debriefing in PURSUE is a small, mundane document. It contains:
+
+- A **known optical effect** during reentry.
+- A **misidentification** corrected immediately on the record.
+- The **Apollo light flashes**, a phenomenon under active scientific investigation at the time and well-explained today.
+
+It does not describe: spacecraft. It does not describe: lunar artifacts. It does not describe: anything unexplained that survived first-pass analysis at NASA in January 1973.
+
+The fact that this document is filed under PURSUE's UAP release is itself informative. It tells us the Department of War's release criteria were broad — they included material that *mentioned* unusual visual phenomena even when those phenomena had benign explanations. That's a feature, not a bug; readers want full disclosure, not curated highlights.
+
+But it cuts both ways. Documents being in this archive does not, by itself, make them mysterious. The bar this site holds itself to — every claim cites; abstention is fine; the documents say what they say — applies most clearly to entries like this one, where the easy thing would be to lean into the famous-astronaut framing.
+
+## What to read instead
+
+Readers looking for substantive primary-source UFO testimony from the same archive should start with [the Muroc AAF sightings of July 8, 1947](/finds/muroc-1947) — five sworn witness statements about objects that *were* unexplained, in a file that the FBI kept open for sixty years.
+
+[^cover]: NASA-UAP-D6, Apollo 17 Technical Crew Debriefing, January 4, 1973. MSC-07631. [page 1](/card/0b298cfc9c65a4d6#page-1).
+
+[^evans]: Statement of Ronald E. Evans, Command Module Pilot, in the technical crew debriefing transcript. [page 2](/card/0b298cfc9c65a4d6#page-2).
+
+[^cernan]: Statement of Eugene A. Cernan, Mission Commander. Same page as the Evans quote.
+
+[^evans-reply]: Continuation of the Evans-Cernan exchange. Same page.
+
+[^schmitt]: Statement of Harrison H. Schmitt, Lunar Module Pilot. Same page. Note the explicit reference to the ALFMED experiment, which was specifically designed to study the light-flash phenomenon.

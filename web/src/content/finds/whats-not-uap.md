@@ -1,0 +1,59 @@
+---
+title: "What's Not Actually UAP in the PURSUE Archive"
+subtitle: "Curatorial honesty about the release criteria"
+summary: "The PURSUE archive contains 161 documents. Not all 161 are about UAP. The most striking example is DOW-UAP-D48, a 181-page 1996 launch-range safety report on space booster failure modeling. We flag this not to undermine the archive but to set expectations: the Department of War's release criteria were broader than 'UAP material' alone."
+tags: [meta, transparency, dow]
+cards:
+  - 17a8cc07fd8c694f
+published: 2026-05-09
+---
+
+## The premise
+
+A reader scanning PURSUE assumes every document is about Unidentified Anomalous Phenomena. The Department of War filed it under that release; the manifest titles use the `DOW-UAP-D##` prefix; the press will frame the whole package as "UAP files."
+
+That's not quite the shape of what's here.
+
+## DOW-UAP-D48: a 1996 launch-range safety report
+
+The card titled **"DOW-UAP-D48, Department of the Air Force Report, 1996"** is in fact:
+
+> **"Modeling Unlikely Space-Booster Failures in Risk Calculations"**, Research Triangle Institute (RTI) Report No. RTI/5180/77-43F, September 10, 1996, prepared for the U.S. Air Force 45th Space Wing (Patrick AFB, FL) and 30th Space Wing (Vandenberg AFB, CA) Safety Offices.[^cover]
+
+Authors: **James A. Ward, Jr.** and **Robert M. Montgomery** of RTI's Center for Aerospace Technology, Launch Systems Safety Department.[^authors]
+
+The abstract begins:
+
+> "Missile and space-vehicle performance histories contain many examples of failures that cause, or have the potential to cause, significant vehicle deviations from the intended flight line. In RTI's risk-analysis program, DAMP, such failures are referred to as Mode-5 failure responses. Although Mode-5 failure responses are much less likely to occur than those that result in impacts near the flight line, risk-analysis studies are incomplete without them."[^abstract]
+
+181 pages of statistical risk modeling for Atlas and Titan launch vehicle failures. Tables of "Mode-5 Shaping Constants." References to Lockheed Martin internal data, USAF accident reports, the General Dynamics Atlas Flight History through 1965.[^references]
+
+There is no UAP content in this document.
+
+The connection to PURSUE is presumably that **failed launch vehicles can produce anomalous visual phenomena that get reported as UAP** — a tumbling booster reentering the atmosphere is exactly the kind of thing a witness on the ground might describe as a maneuvering disc. Range-safety risk analysis is the engineering domain that quantifies how often that happens and what trajectories it can take.
+
+So the document is *adjacent* to UAP — useful background for anyone analyzing claimed sightings near the Eastern Range or Vandenberg launch corridor — but it is not itself UAP material.
+
+## Why surface this
+
+Two reasons:
+
+**1. Reader trust.** If you've come to PURSUE expecting "the Pentagon's UFO files," you will hit DOW-UAP-D48 eventually and feel either confused or misled. Telling you up front that not every document in the archive is what its filename suggests defuses that. The archive is real; the labels are sometimes inherited from filing systems older than the release; we're going to keep flagging the surprises rather than letting them become someone else's "gotcha."
+
+**2. It tells us something about the release criteria.** The Department of War's PURSUE process appears to have included documents that *touched* UAP investigation infrastructure — including the safety/range-control engineering side — not only the witness statements and mission reports that are the obvious core. That broader scope is interesting. It implies that the DoD's internal UAP working groups have been pulling from launch range data, accident investigations, and safety analyses to inform their own assessments. That's a methodology question worth surfacing for anyone studying how the U.S. government actually approaches UAP characterization.
+
+## What we're not claiming
+
+- We are not claiming DOW-UAP-D48 is "fake," "filler," or "intentionally misleading." It's an unredacted public document the U.S. Air Force paid for, and it's been out for nearly thirty years. Its inclusion is presumably deliberate.
+- We are not claiming the rest of the archive is similarly thin. The Apollo 17 debriefing is short and mundane (see [Apollo 17 — what's actually there](/finds/apollo-17)). The FBI's omnibus 62-HQ-83894 file is ~1,900 pages of investigative material spanning two decades (see [the Muroc affidavits](/finds/muroc-1947) for one of its most concrete cases).
+- We are not flagging this as the only "non-UAP" document in PURSUE. As the curated finds set grows, we'll annotate others if and when they're worth pointing out.
+
+The 4,153 OCR'd pages in this corpus include genuine primary-source UFO investigation files. They also include a 1996 booster-failure risk model. Both are worth knowing about. Reader, calibrate accordingly.
+
+[^cover]: DOW-UAP-D48 cover page. RTI Report No. RTI/5180/77-43F. Distribution statement: "Distribution authorized to US Government agencies and their contractors to protect administrative/operational use data, 10 September 96." [page 1](/card/17a8cc07fd8c694f#page-1).
+
+[^authors]: Title page identifies the authors and their affiliation with the Research Triangle Institute Center for Aerospace Technology, Launch Systems Safety Department. [page 2](/card/17a8cc07fd8c694f#page-2).
+
+[^abstract]: Abstract introducing the Mode-5 failure response concept. [page 4](/card/17a8cc07fd8c694f#page-4).
+
+[^references]: Reference list including "Atlas Program Flight History (through April 1965)", "Titan IV, America's Silent Hero" (Florida Today, 13 Nov 95), and various USAF Accident/Incident Reports for Atlas and Titan failures. [page 181](/card/17a8cc07fd8c694f#page-181).
