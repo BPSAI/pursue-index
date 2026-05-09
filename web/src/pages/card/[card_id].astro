@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import CardOcrIsland from "../../components/CardOcrIsland.tsx";
+import CardProvenance from "../../components/CardProvenance.tsx";
 import AgencyStamp from "../../components/AgencyStamp.astro";
 import { cards } from "../../data/manifest-loader";
 
@@ -233,6 +234,11 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
         base={base}
         assetType={card.asset_type}
       />
+    </section>
+
+    {/* Provenance — novelty / "previously-disclosed" matches against the reference corpus */}
+    <section class="space-y-3 pt-2" id="provenance">
+      <CardProvenance client:load cardId={card.card_id} base={base} />
     </section>
   </article>
 </Base>
