@@ -1,13 +1,47 @@
 ---
 id: novelty-detection
 type: feature
-status: backlog
+status: shipped-machinery-only
 created: 2026-05-08
+updated: 2026-05-09
 priority: high
 depends_on: [embed-stage]
 ---
 
 # Novelty detection — "new vs. previously disclosed"
+
+## Status (2026-05-09)
+
+**Machinery + UI surface: shipped.** `pursue novelty compute` produces
+the per-card disclosure status sidecar; `scripts/build_novelty_data.py`
+emits the in-browser payload; the CardExplorer index page has a
+DISCLOSURE filter chip + per-card pills; the card detail page has a
+Provenance panel with top-3 reference matches + honest caveat copy;
+the methodology page documents the rules + thresholds + reference
+corpora.
+
+**Reference corpus: synthetic placeholder, NOT a coverage claim.**
+The integrated v1 reference is 10 hand-crafted public-domain UFO-adjacent
+text passages embedded with voyage-3 (see `data/reference/synthetic/`).
+This is enough to light up the UI and demonstrate the methodology;
+it is **not** a real coverage measurement. Top-similarity matches
+already surface the right kind of content (FBI 62-HQ-83894 sections
+match the FBI Hottel memo + Project Blue Book summary in the placeholder
+corpus at ~0.79 cosine), but with only 10 reference passages the
+0.85 "previously-disclosed" threshold is not crossed by any card —
+which is correct behavior for a placeholder.
+
+**Next step (post-launch):** acquire + OCR + embed the Black Vault
+bulk archive (~100k–500k pages, ~$3–15 voyage-3 cost, ~24h Surya OCR
+on the 5090, ~400 MB storage). Once the index lives at
+`data/reference/blackvault/embeddings/voyage-3/`, re-running
+`pursue novelty compute --reference data/reference/blackvault/...`
+gives every existing card a meaningful disclosure status without
+any user-facing change. The launch credibility comes from the
+machinery being built and visible, not from full Black Vault
+coverage on day one.
+
+
 
 ## Why
 

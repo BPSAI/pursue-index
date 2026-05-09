@@ -48,6 +48,14 @@ Methodology is published. Numbers are reproducible from a clean clone.
   [/methodology](https://pursueindex.com/methodology), and a small set of
   curated [/finds](https://pursueindex.com/finds) entries — primary-source
   reading guides written against specific pages of specific cards.
+- **Novelty detection (machinery + UI).** `pursue novelty compute` runs
+  cosine top-1 vs a reference embedding index and tags each card as
+  `novel` / `partial` / `previously-disclosed`. The index page has a
+  DISCLOSURE filter chip; the card detail page has a Provenance panel
+  showing the top-3 reference matches. Currently shipping with a small
+  synthetic placeholder reference corpus (10 hand-crafted public-domain
+  passages from Roswell 1947, Project Blue Book, the Hottel memo, etc.) —
+  full Black Vault integration is in flight.
 
 ## In flight (toward public launch)
 
@@ -57,9 +65,10 @@ Methodology is published. Numbers are reproducible from a clean clone.
   path keeps cost flat under HN-spike traffic.
 - **Curated finds expansion.** More hand-authored reading guides; current
   set is intentionally small to set the editorial bar.
-- **Novelty detection.** Per-page cosine similarity vs The Black Vault's
-  reference UAP corpus → "previously disclosed vs new in this release"
-  tagging. A citation moat for journalists tracking what's actually new.
+- **Black Vault reference corpus.** Acquire + OCR + embed the canonical
+  prior-disclosure FOIA archive (~100k–500k pages) so the novelty
+  detection moves from "methodology demo" to "real coverage measurement"
+  for every card.
 
 ## Pipeline
 
