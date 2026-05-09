@@ -37,6 +37,16 @@ updates:
     labels:
       - "dependencies"
       - "python"
+    ignore:
+      # CVE-2026-1839 in transformers.Trainer is unexploitable in our
+      # deployment: no Trainer import in src/scripts/tests, OCR runs
+      # inference-only via surya-ocr, and the deployed Worker is JS
+      # (Python is build-time only). transformers <5 is pinned because
+      # surya-ocr 0.17.x breaks on 5.x. See SECURITY.md "Documented
+      # exceptions" for full rationale.
+      # Removal trigger: a surya-ocr release that supports transformers >= 5.
+      - dependency-name: "transformers"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions versions used by `.github/workflows/*`.
   - package-ecosystem: "github-actions"

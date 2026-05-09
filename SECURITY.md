@@ -77,3 +77,48 @@ parity in CI (`web/scripts/test-api-page.mjs`). Constants live in
 
 Changing any of these on the worker side requires a corresponding
 update to `web/src/pages/api.astro`; CI will fail otherwise.
+
+## Documented exceptions
+
+These are dependency-level CVEs that a static scanner will flag but
+that we have determined are unexploitable in pursue-index's deployed
+runtime. Each entry names a removal trigger so the exception does not
+become permanent.
+
+### CVE-2026-1839 — `transformers.Trainer` arbitrary code execution
+
+**Status:** Accepted, unexploitable in pursue-index deployment.
+
+**Pin:** `transformers>=4.56,<5` in `pyproject.toml [gpu]` extra
+(see `pyproject.toml:57-59` for the inline rationale).
+
+**Why we cannot upgrade:** `surya-ocr 0.17.x` — the GPU OCR engine in
+the `[gpu]` extra — fails to import under `transformers >= 5.x`. Until
+surya cuts a compatible release, the `<5` ceiling stays. We will
+revisit this exception when `surya-ocr` ships a release that supports
+`transformers >= 5`.
+
+**Why this CVE is unexploitable for us:**
+
+- pursue-index does not import `transformers.Trainer` anywhere in
+  `src/`, `scripts/`, or `tests/`. Audit grep:
+  `grep -rn "transformers.Trainer\|TrainingArguments" src/ scripts/ tests/ --include="*.py"`
+  returns zero hits as of the commit that introduced this section
+  (resolve via `git log -- SECURITY.md` for the SHA).
+- The OCR pipeline runs Surya's `RecognitionPredictor` +
+  `DetectionPredictor` inference paths only. No training, no
+  fine-tuning, no `Trainer` instantiation.
+- Surya's model weights are bundled with the package and pinned; we
+  never load a user-supplied or remote pickled checkpoint.
+- The deployed pursueindex.com runtime is a Cloudflare Worker
+  (JavaScript). Python — and therefore `transformers` — executes only
+  at build/ingest time on operator-controlled hosts, never at request
+  time. There is no user-input path that reaches
+  `transformers.Trainer`.
+- The CVE attack vector requires loading a malicious checkpoint or
+  config into `Trainer`. Without `Trainer` instantiation in our code,
+  the vector is unreachable.
+
+**Removal trigger:** when `surya-ocr` ships a release that supports
+`transformers >= 5.x`, bump both pins in a single PR and delete this
+exception entry along with the matching `dependabot.yml` ignore rule.
