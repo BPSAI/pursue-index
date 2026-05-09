@@ -140,4 +140,79 @@ describe("API surface (post-launch)", () => {
     assert.equal(r.status, 200);
     assert.equal(assetsCalled, true);
   });
+
+  // Regression (PR #16 review nayru P1.1): a future refactor that drops
+  // `withSecurityHeaders` from the ASSETS fall-through branch must fail CI.
+  // The /api/ docs page is a static asset but still needs the same security
+  // header set the Worker-handled paths get.
+  test("ASSETS fall-through still carries security headers", async () => {
+    const env = {
+      ASSETS: { fetch: async () => new Response("docs", { status: 200 }) },
+      CHAT_KV: makeKV(),
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const r = await worker.fetch(
+      new Request("https://x/api/", { method: "GET" }),
+      env,
+    );
+    assert.equal(r.headers.get("X-Content-Type-Options"), "nosniff");
+    assert.equal(
+      r.headers.get("Referrer-Policy"),
+      "strict-origin-when-cross-origin",
+    );
+  });
+
+  // Regression (PR #16 review nayru P1.2): the Origin allowlist check now
+  // lives inside the WORKER_API_PATHS branch. Pin that invariant: a foreign
+  // Origin against the /api/ docs page must fall through to ASSETS, not 403.
+  test("foreign Origin against /api/ falls through to ASSETS (not 403)", async () => {
+    let assetsCalled = false;
+    const env = {
+      ASSETS: {
+        fetch: async () => {
+          assetsCalled = true;
+          return new Response("docs", { status: 200 });
+        },
+      },
+      CHAT_KV: makeKV(),
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const r = await worker.fetch(
+      new Request("https://x/api/", {
+        method: "GET",
+        headers: { Origin: "https://evil.example.com" },
+      }),
+      env,
+    );
+    assert.notEqual(r.status, 403);
+    assert.equal(r.status, 200);
+    assert.equal(assetsCalled, true);
+  });
+
+  // Regression (PR #16 review vaivora #1): astro.config.mjs has
+  // trailingSlash: "ignore", so /api (no slash) and /api/ both serve the
+  // docs page. A future Astro upgrade flipping the default could silently
+  // break the bare /api URL without tripping CI.
+  test("bare /api (no trailing slash) falls through to ASSETS", async () => {
+    let assetsCalled = false;
+    const env = {
+      ASSETS: {
+        fetch: async () => {
+          assetsCalled = true;
+          return new Response("docs", { status: 200 });
+        },
+      },
+      CHAT_KV: makeKV(),
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const r = await worker.fetch(
+      new Request("https://x/api", { method: "GET" }),
+      env,
+    );
+    assert.equal(r.status, 200);
+    assert.equal(assetsCalled, true);
+  });
 });

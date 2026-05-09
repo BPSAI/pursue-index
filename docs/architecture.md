@@ -135,3 +135,15 @@ re-deploying the site without re-running them ships dotted UMAP coords
 pointing at deduped rows that are gone from `pages.json`. `random_state=42`
 keeps the atlas layout reproducible across machines, so re-runs of step
 4 against the same `vectors.bin` produce identical bytes.
+
+## Worker dispatch (Cloudflare)
+
+`worker/index.js` handles an explicit allowlist of `/api/*` paths
+(`/api/retrieve`, `/api/chat`); everything else under `/api/*`, including
+the static docs page at `/api/` (`web/src/pages/api.astro`) and any future
+static `/api/*` pages, falls through to the ASSETS binding. Adding a new
+dynamic route requires updating `WORKER_API_PATHS` in `worker/index.js`
+*and* documenting it on `api.astro`. Adding a new static `/api/*` page
+requires no Worker change. Method gating (e.g., 405 on non-POST) is the
+handler's responsibility, not the dispatcher's — the allowlist is
+path-only by design.

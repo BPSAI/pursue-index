@@ -22,6 +22,21 @@ const ALLOWED_API_ORIGINS = new Set([
   "https://www.pursueindex.com",
 ]);
 
+// Worker-handled API endpoints. Anything outside this set with an /api/*
+// prefix falls through to the static-asset bundle, so the /api documentation
+// page (web/src/pages/api.astro) and any future static /api/* pages serve
+// directly from ASSETS.
+//
+// Source-of-truth contract: the docs page at web/src/pages/api.astro
+// describes the surface this set enumerates; keep them in sync. Adding a
+// new dynamic Worker route requires adding it here AND documenting it on
+// api.astro. Adding a new static /api/* page requires NO Worker change.
+//
+// Method gating is the handler's job, not the dispatcher's. This allowlist
+// is path-only: GET /api/retrieve and GET /api/chat both reach the handler
+// and 405 there (worker/retrieve.js:273, worker/chat.js:46).
+const WORKER_API_PATHS = new Set(["/api/retrieve", "/api/chat"]);
+
 function corsHeaders(origin) {
   const allowed = origin && ALLOWED_API_ORIGINS.has(origin) ? origin : "https://pursueindex.com";
   return {
@@ -83,12 +98,14 @@ export function withSecurityHeaders(response) {
 
 export default {
   async fetch(request, env) {
+    // `new URL(request.url).pathname` is normalized by the URL parser —
+    // sequences like `/api/../etc/passwd` resolve to `/etc/passwd` before
+    // we test set membership. The fall-through ASSETS binding is bound to
+    // the static build artifact (a flat, bounded file tree), so even if a
+    // crafted path somehow slipped past the dispatcher there is no
+    // server-side filesystem to traverse. Defense-in-depth posture, not a
+    // load-bearing check. (laverna PR #16 informational finding.)
     const url = new URL(request.url);
-
-    // Worker-handled API endpoints. Anything outside this set with an
-    // /api/* prefix falls through to the static-asset bundle so the
-    // /api documentation page (web/src/pages/api.astro) actually serves.
-    const WORKER_API_PATHS = new Set(["/api/retrieve", "/api/chat"]);
 
     if (WORKER_API_PATHS.has(url.pathname)) {
       // CORS: only browsers from our own origins should be calling these.
