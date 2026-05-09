@@ -53,7 +53,7 @@ jobs:
           # commit and rebase before push if main advanced concurrently.
           fetch-depth: 1
 
-      # actions/setup-python v5.6.0 — pinned to SHA per SEC-001.
+      # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: "3.12"

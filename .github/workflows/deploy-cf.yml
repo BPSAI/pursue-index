@@ -115,7 +115,7 @@ jobs:
         # step from the deleted `deploy-ui.yml`.
         run: cp data/manifests/latest.json web/src/data/manifest.json
 
-      # actions/setup-python v5.6.0 — pinned to SHA per SEC-001.
+      # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
       # Matches the SHA used in poll-pursue.yml; bumps land via Dependabot.
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
