@@ -93,7 +93,7 @@ jobs:
 
       - name: Upload wrangler dev log on failure
         if: failure()
-        # actions/upload-artifact v4.6.2 — pinned to SHA per SEC-001.
+        # actions/upload-artifact v7.0.1 — pinned to SHA per SEC-001.
         # The smoke script copies its log to
         # $GITHUB_WORKSPACE/wrangler-smoke.log on non-zero exit; pick
         # that up here so post-mortem on a CI failure is the full log,
