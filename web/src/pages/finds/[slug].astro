@@ -15,6 +15,11 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const pageTitle = `${entry.data.title} — FINDS — PURSUE://INDEX`;
+// Per-entry OG image rendered by scripts/build_finds_og_images.py and
+// committed at web/public/og/finds/<slug>.png. New entries that haven't
+// been built yet will 404 the image and scrapers will fall back to
+// site-default behavior — run the script before deploying a new entry.
+const perEntryOgImage = `${base}/og/finds/${entry.id}.png`;
 
 // Resolve each card_id in the entry's frontmatter against the manifest so
 // the "sources" rail can show agency/title alongside the id. Unknown ids
@@ -35,6 +40,8 @@ const sourceCards = entry.data.cards.map((id) => {
   description={entry.data.summary}
   active="finds"
   ogType="article"
+  ogImage={perEntryOgImage}
+  ogImageAlt={`${entry.data.title} — declassified-document OG card for PURSUE://INDEX FINDS entry`}
 >
   <article class="space-y-6 max-w-3xl">
     <nav class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex items-center gap-2">
