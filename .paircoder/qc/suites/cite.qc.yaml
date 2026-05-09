@@ -1,0 +1,43 @@
+name: "Cite — citation guide page"
+description: |
+  Validates the /cite page renders the canonical citation snippets,
+  worked example, and BibTeX block. The manifest's csv_sha256 +
+  fetched-date should be live-substituted into the snippet so a
+  reader citing the corpus pins the exact snapshot they're seeing.
+tags: [cite, regression, ui]
+preconditions:
+  - "App accessible at ${base_url}"
+  - "Splash cookie set"
+
+scenarios:
+  - name: "/cite renders with all five sections"
+    steps:
+      - navigate: "${base_url}/cite"
+      - verify: "Page heading reads 'How to cite pursueindex'"
+      - verify: "Section 'What you are actually citing' table is visible with three rows"
+      - verify: "Section 'Citing the corpus as a whole' code block is visible"
+      - verify: "Section 'Citing a specific document or page' code block + worked example visible"
+      - verify: "Section 'Citing the OCR transcript itself' code block visible"
+      - verify: "BibTeX section visible"
+      - verify: "Reproducibility footer visible with Apache-2.0 license note"
+
+  - name: "Corpus citation snippet has live manifest hash"
+    steps:
+      - navigate: "${base_url}/cite"
+      - verify: "First code block contains 'PURSUE Index' and the current csv_sha256 (full 64-char hex string)"
+      - verify: "First code block contains the snapshot date in YYYY-MM-DD format"
+      - verify: "The csv_sha256 in the citation snippet matches the value shown in the page footer"
+
+  - name: "BibTeX block is copy-pasteable"
+    steps:
+      - navigate: "${base_url}/cite"
+      - verify: "BibTeX block contains '@misc{pursueindex2026' or similar key"
+      - verify: "BibTeX block contains a truncated csv_sha256 reference"
+      - verify: "BibTeX block contains the snapshot date"
+
+  - name: "Worked-example citation links to a real card page"
+    steps:
+      - navigate: "${base_url}/cite"
+      - click: "the muroc-1947 entry link inside the 'worked example' paragraph"
+      - wait: "2"
+      - verify: "Browser navigated to /finds/muroc-1947"

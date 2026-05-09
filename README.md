@@ -199,10 +199,11 @@ cd web && npm install && npm run dev
 
 ## Status
 
-Research preview. The site is reachable at pursueindex.com behind a splash
-gate while the chat interface lands; the public launch flips the gate when
-chat is shipped, the methodology page is locked, and the launch comms set
-under [`docs/launch/`](docs/launch/) is published.
+Research preview. The site is reachable at
+[pursueindex.com](https://pursueindex.com) behind a splash gate. The
+chat interface, citation guide, methodology page, curated finds, and
+novelty-detection scaffold are all live for cookie-holders. Public
+launch flips the gate when the launch comms cycle is ready.
 
 ## License
 
