@@ -1,10 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
+import { summary } from "../data/manifest-loader";
+
+const s = summary();
 ---
 
 <Base
   title="ABOUT — PURSUE://INDEX"
-  description="About pursueindex — the public, citable archive of DOW PURSUE UAP releases."
+  description="About pursueindex — a citable, version-tracked archive of the DOW PURSUE UAP document releases."
   active="about"
 >
   <div class="space-y-6 max-w-3xl">
@@ -19,21 +22,130 @@ import Base from "../layouts/Base.astro";
     </header>
 
     <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ What pursueindex is
+      </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <span class="font-mono text-[color:var(--color-signal-cyan)]">pursueindex</span>
-        is a searchable, citable, version-tracked public archive of the
-        U.S. Department of War's <em>Presidential Unsealing &amp; Reporting
-        System for UAP Encounters</em> (PURSUE) document releases. Every
-        record is hash-pinned to the source CSV, every asset URL resolves
-        to the original
+        is a searchable, citable archive of the U.S. Department of War's
+        <em>Presidential Unsealing &amp; Reporting System for UAP Encounters</em>
+        (PURSUE) document releases. Every record in the
+        <span class="text-[color:var(--color-text-bright)] font-medium">{s.total}</span>-card
+        corpus is hash-pinned to the source CSV; every asset URL resolves
+        directly to the original
         <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>
-        artifact, and every change between releases is preserved in the
-        diff log.
+        artifact. The site organizes the corpus by agency, asset type,
+        release date, and incident date, and runs full-text search across
+        every OCR'd page entirely in the browser — no server, no tracking.
       </p>
+    </section>
+
+    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Why we built it
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The DOW publishes a single CSV. The official portal is a paginated
+        DataTables widget — fine for browsing one record at a time, useless
+        for searching the actual contents of the documents. This is the
+        first public effort to programmatically index and search the PURSUE
+        corpus end-to-end: ingest the CSV, fetch the PDFs, OCR every page,
+        and ship the resulting index as a static, in-browser search experience.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The source documents are public domain; we add only the indexing
+        layer — manifest, OCR transcripts, diff history, search index. The
+        pipeline is fully reproducible from a clean clone and a copy of the
+        upstream CSV. <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">See methodology</a>.
+      </p>
+    </section>
+
+    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Who built it
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <span class="font-mono text-[color:var(--color-signal-cyan)]">BPS AI Software</span>
+        — an in-house engineering effort. The v1 byline is the org; named
+        attribution will follow once the chat interface and review pipeline
+        ship. The project is open-source; the
+        <a href="https://github.com/BPSAI/pursue-index" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">repository</a>
+        carries the manifest, ingest code, and this site under one tree.
+      </p>
+    </section>
+
+    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Editorial standards
+      </h2>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 list-none pl-0">
+        <li>
+          <span class="text-[color:var(--color-signal-amber)] font-mono text-xs uppercase tracking-[0.18em]">Citations · </span>
+          Every factual claim links to a specific page of a specific card.
+          No paraphrase without a source link.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-signal-amber)] font-mono text-xs uppercase tracking-[0.18em]">Restraint · </span>
+          The site does not speculate beyond what the documents literally say.
+          Document <em>reports</em> are distinguished from document
+          <em>conclusions</em>.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-signal-amber)] font-mono text-xs uppercase tracking-[0.18em]">Abstention · </span>
+          "The corpus does not contain that information" is a first-class
+          answer. When the chat ships, it will say so explicitly rather than
+          fabricate.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-signal-amber)] font-mono text-xs uppercase tracking-[0.18em]">Redactions · </span>
+          Preserved as
+          <code class="text-[color:var(--color-signal-red)]">[REDACTED]</code>.
+          We do not guess at what was withheld.
+        </li>
+      </ul>
+    </section>
+
+    <section
+      id="status"
+      class="border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/5 p-5 space-y-3 scroll-mt-20"
+    >
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
+        ▸ Status · research preview
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The site is currently in
+        <span class="font-mono text-[color:var(--color-signal-amber)] uppercase tracking-[0.15em]">research preview</span>.
+        The corpus, OCR transcripts, search, and diff are live. The
+        following are in flight:
+      </p>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Chat interface</span> —
+          retrieval-augmented Q&amp;A with mandatory citations. Anonymous
+          (server-funded, rate-limited) and BYOK (bring your own Anthropic
+          key) modes will share the same UI.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Curated finds</span> —
+          hand-authored reading guides drawing from specific cards and pages.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Novelty detection</span> —
+          per-page comparison against prior FOIA archives (Black Vault, etc.)
+          to surface what's genuinely new in this release.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">OCR benchmark</span> —
+          published A/B numbers across Tesseract, Surya, and the LLM fallback
+          on a golden test set.
+        </li>
+      </ul>
       <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
-        STATUS · <span class="text-[color:var(--color-signal-amber)]">PRE-LAUNCH</span>
+        STATUS · <span class="text-[color:var(--color-signal-amber)]">RESEARCH PREVIEW</span>
         <span class="mx-2">·</span>
-        BUILD · <span class="text-[color:var(--color-signal-cyan)]">PHASE-2</span>
+        CSV · <span class="text-[color:var(--color-signal-cyan)]">{s.csvSha256.slice(0, 12)}</span>
+        <span class="mx-2">·</span>
+        N · <span class="text-[color:var(--color-text-bright)]">{s.total}</span>
       </p>
     </section>
   </div>

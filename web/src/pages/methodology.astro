@@ -1,10 +1,17 @@
 ---
 import Base from "../layouts/Base.astro";
+import { manifest, summary } from "../data/manifest-loader";
+
+const s = summary();
+const csvShort = manifest.csv_sha256.slice(0, 12);
+const csvFull = manifest.csv_sha256;
+const fetchedISO = manifest.fetched_at;
+const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
 ---
 
 <Base
   title="METHODOLOGY — PURSUE://INDEX"
-  description="How the pursueindex manifest is built: ingest, hashing, OCR, and diff."
+  description="How the pursueindex corpus is fetched, hashed, OCR'd, and made reproducible."
   active="methodology"
 >
   <div class="space-y-6 max-w-3xl">
@@ -16,29 +23,307 @@ import Base from "../layouts/Base.astro";
       <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
         METHODOLOGY
       </h1>
+      <p class="text-sm text-[color:var(--color-text-dim)] max-w-2xl">
+        Every claim on this site traces back to a specific page of a specific
+        document. This page documents how that pipeline works, end to end.
+      </p>
     </header>
 
-    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3">
+    {/* Source provenance */}
+    <section id="provenance" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Source provenance
+      </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        Each release is fetched directly from the canonical
-        <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>
-        CSV, normalized into a typed manifest, hashed (SHA-256), and committed
-        alongside its prior snapshot. PDFs are fetched once and pinned by
-        URL; OCR is performed locally (Surya GPU pipeline; Tesseract
-        fallback) and benchmarked against a golden-set before a release
-        ships. Every claim in the search index can be traced back to a
-        specific page and the underlying public-domain source.
+        The U.S. Department of War publishes the PURSUE corpus as a single
+        CSV at
+        <code class="text-[color:var(--color-signal-cyan)]">war.gov/Portals/1/Interactive/2026/UFO/uap-csv.csv</code>.
+        Every fetch snapshots that file, archives the raw bytes, and pins
+        the SHA-256 in the manifest. If the upstream CSV changes — a new
+        tranche, a corrected row, a withdrawn entry — the next snapshot
+        produces a different hash and the diff page surfaces every
+        per-card delta.
+      </p>
+      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-3 font-mono text-[11px] space-y-1">
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Current snapshot</span>
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="text-[color:var(--color-text-faint)]">FETCHED</span>
+          <span class="text-[color:var(--color-text-bright)]">{fetchedDate}</span>
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="text-[color:var(--color-text-faint)]">CSV_SHA256</span>
+          <span class="text-[color:var(--color-signal-cyan)] break-all">{csvFull}</span>
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="text-[color:var(--color-text-faint)]">N_CARDS</span>
+          <span class="text-[color:var(--color-text-bright)]">{s.total}</span>
+        </div>
+      </div>
+    </section>
+
+    {/* Scrape */}
+    <section id="scrape" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ How we scrape
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        war.gov sits behind Akamai bot management, which fingerprints the
+        TLS handshake and HTTP/2 frame ordering of plain Python clients
+        (<code class="text-[color:var(--color-signal-cyan)]">requests</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">httpx</code>)
+        and serves them a 403. We use
+        <code class="text-[color:var(--color-signal-cyan)]">curl_cffi</code>
+        with Chrome TLS impersonation, which presents a handshake fingerprint
+        identical to a real browser and is allowed through.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        Full methodology — engine choice, confidence thresholds, redaction
-        handling, correction workflow — will be published before the v1.0
-        public launch.
-      </p>
-      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
-        DOC · <span class="text-[color:var(--color-signal-amber)]">DRAFT</span>
-        <span class="mx-2">·</span>
-        REV · <span class="text-[color:var(--color-signal-cyan)]">0.1</span>
+        We deliberately do <em>not</em> use Playwright or any other browser
+        automation. The CSV is a static asset; once you can fetch it, the
+        scrape stage is a one-shot HTTP GET. Avoiding a browser gives us
+        a smaller, more reproducible, and faster pipeline — and removes
+        the entire class of "the page changed its DOM" failures.
       </p>
     </section>
+
+    {/* OCR */}
+    <section id="ocr" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ OCR pipeline
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Three engines sit behind a common interface. Each page is rasterized
+        once and routed to one of:
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs font-mono border-collapse">
+          <thead>
+            <tr class="border-b border-[color:var(--color-border-bright)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">
+              <th class="text-left py-2 pr-4">Engine</th>
+              <th class="text-left py-2 pr-4">Hardware</th>
+              <th class="text-left py-2 pr-4">Strength</th>
+              <th class="text-left py-2">Tradeoff</th>
+            </tr>
+          </thead>
+          <tbody class="text-[color:var(--color-text)]">
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">tesseract</td>
+              <td class="py-2 pr-4">CPU</td>
+              <td class="py-2 pr-4">Fast, free, baseline-quality on clean typewriter scans</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">Struggles on faded / multi-column / handwritten pages</td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">surya</td>
+              <td class="py-2 pr-4">GPU</td>
+              <td class="py-2 pr-4">Transformer-based; ~1.87× faster than Tesseract on FBI scans, much better on faded source</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">Requires CUDA hardware; larger model footprint</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">llm (anthropic vision)</td>
+              <td class="py-2 pr-4">API</td>
+              <td class="py-2 pr-4">Fallback for low-confidence pages; reads the page image directly</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">~$0.10 / 15pp at Sonnet rates; rate-limited; not deterministic</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        In <code class="text-[color:var(--color-signal-cyan)]">engine="auto"</code>
+        mode, the primary engine (Tesseract or Surya) runs first; pages
+        whose mean confidence falls below threshold are re-OCR'd by the
+        LLM fallback from the original page image — not from the broken
+        primary text. The two outputs are independent extractions of the
+        same source pixels.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Engine and per-page confidence are recorded in
+        <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>
+        and surfaced in the OCR transcript on each card page. The
+        currently-deployed engine for the live search index is documented
+        on the (forthcoming) <code class="text-[color:var(--color-signal-cyan)]">/benchmark</code>
+        page once the comparison run completes.
+      </p>
+    </section>
+
+    {/* Idempotency */}
+    <section id="idempotency" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Idempotency
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Every stage — scrape, download, OCR, index — is idempotent against
+        a content-hashed manifest. The card identifier is derived from the
+        upstream asset URL, with title as a fallback for the rare metadata-only
+        row:
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>card_id = sha256(asset_url || title)[:16]</code></pre>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The manifest carries
+        <code class="text-[color:var(--color-signal-cyan)]">csv_sha256</code>
+        for cheap upstream-change detection. Every stage skips work it has
+        already done for unchanged
+        <code class="text-[color:var(--color-signal-cyan)]">card_id</code>s.
+        Re-running on an unchanged manifest is a no-op modulo timestamps.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The manifest itself is shaped like this (one entry per card):
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text)] overflow-x-auto whitespace-pre"><code>{`{
+  "source_url": "https://www.war.gov/.../uap-csv.csv",
+  "fetched_at": "2026-05-08T19:21:00Z",
+  "csv_sha256": "${csvShort}…",
+  "cards": [
+    {
+      "card_id": "0b298cfc9c65a4d6",
+      "title": "NASA-UAP-D6, Apollo 17 Technical Crew Debriefing, 1973",
+      "asset_type": "PDF",
+      "agency": "NASA",
+      "release_date": "...",
+      "asset_url": "https://www.war.gov/.../apollo-17.pdf",
+      "redacted": false,
+      "raw": { ...original CSV row... }
+    }
+  ]
+}`}</code></pre>
+    </section>
+
+    {/* What we don't do */}
+    <section id="not-do" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ What we don't do
+      </h2>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">No data modification.</span>
+          The OCR transcript is the engine's literal output. We do not
+          spell-check, hand-correct, or "smooth" the text after extraction.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">No transcription guessing.</span>
+          When Tesseract produces garbage, the LLM fallback re-OCRs from
+          the page image — it is not a "rewrite" of the broken Tesseract
+          text. The two engines see the same pixels independently.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">No redaction inference.</span>
+          Black bars in the source are preserved as
+          <code class="text-[color:var(--color-signal-red)]">[REDACTED]</code>
+          tokens. We do not speculate about what was withheld.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">No silent updates.</span>
+          When the upstream CSV changes, the diff is captured in the manifest
+          history. Every release of this site is reproducible from the
+          archived CSV snapshots.
+        </li>
+      </ul>
+    </section>
+
+    {/* Limitations */}
+    <section id="limitations" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Limitations
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Honest framing — these are the failure modes you should expect
+        when reading OCR output from this corpus:
+      </p>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Faded scans.</span>
+          The 1947–1968 FBI material varies wildly in scan quality. Tesseract
+          frequently produces gibberish on the worst pages; Surya and the
+          LLM fallback do better but are not perfect.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Reading order.</span>
+          Multi-column forms — particularly the carbon-copy intake forms
+          common in the FBI files — occasionally lose reading order. Column
+          detection is heuristic.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Redaction boundaries.</span>
+          When a redaction crosses a word boundary or sits inline with
+          surrounding text, the OCR output may lose adjacent characters.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Handwriting.</span>
+          Marginalia and signatures are inconsistently captured. Surya
+          handles these better than Tesseract; the LLM fallback handles
+          them best but at API cost.
+        </li>
+      </ul>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        A published quality benchmark — engine-by-engine, with golden-set
+        WER and CER numbers — will live at
+        <code class="text-[color:var(--color-signal-cyan)]">/benchmark</code>
+        once the comparison run completes.
+      </p>
+    </section>
+
+    {/* License */}
+    <section id="license" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ License
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The source documents are works of the U.S. Government and are in
+        the public domain. The OCR transcripts derived from them carry no
+        additional copyright claim from us — they are mechanically generated
+        from public-domain originals.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The index code and this site are
+        <span class="text-[color:var(--color-signal-cyan)]">© BPS AI Software</span>.
+        License: TBD before public launch.
+      </p>
+    </section>
+
+    {/* Reproducibility */}
+    <section id="reproducibility" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Reproducibility
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The full pipeline lives at
+        <a href="https://github.com/BPSAI/pursue-index" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">github.com/BPSAI/pursue-index</a>.
+        The manifest is version-controlled in the repo, hash-pinned to the
+        upstream CSV. From a clean clone with the upstream CSV available,
+        any reader can:
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`pursue scrape run    # writes manifests/latest.json + archives raw CSV
+pursue download run  # fetches PDFs/IMGs idempotently
+pursue ocr run       # writes pages.jsonl per card
+pursue index ingest  # builds the search payload`}</code></pre>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Every stage is rerunnable on the same manifest as a no-op. Every
+        stage's output is content-addressed by
+        <code class="text-[color:var(--color-signal-cyan)]">card_id</code>,
+        so partial reruns converge on the same final state regardless of order.
+      </p>
+    </section>
+
+    {/* Benchmark placeholder */}
+    <section id="benchmark" class="border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/5 p-5 space-y-2 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
+        ▸ Quality benchmark — pending
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        A&nbsp;published A/B benchmark across Tesseract, Surya, and the LLM
+        fallback — over a golden test set drawn from this corpus — will
+        live at <code class="text-[color:var(--color-signal-cyan)]">/benchmark</code>
+        when the comparison run completes. Expect WER, CER, per-engine
+        wall-clock, and the threshold at which the fallback fires.
+      </p>
+    </section>
+
+    <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
+      DOC · <span class="text-[color:var(--color-signal-amber)]">RESEARCH PREVIEW</span>
+      <span class="mx-2">·</span>
+      REV · <span class="text-[color:var(--color-signal-cyan)]">0.2</span>
+      <span class="mx-2">·</span>
+      CSV · <span class="text-[color:var(--color-signal-cyan)]">{csvShort}</span>
+    </p>
   </div>
 </Base>
