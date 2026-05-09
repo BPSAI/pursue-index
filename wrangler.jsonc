@@ -36,10 +36,7 @@
   "kv_namespaces": [
     {
       "binding": "CHAT_KV",
-      // Replace with the id printed by `wrangler kv namespace create CHAT_KV`.
-      // Until then, /api/chat will degrade gracefully (no rate limit /
-      // budget / cache; the handler null-checks env.CHAT_KV).
-      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+      "id": "ef53469e68c04c539cd758b0cf8f1ad8"
     }
   ],
   "observability": {
