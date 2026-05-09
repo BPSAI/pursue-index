@@ -56,6 +56,8 @@ gpu = [
     "surya-ocr>=0.17",
     # surya-ocr 0.17.x is incompatible with transformers 5.x; pip will resolve
     # to 5.8 by default and break import. Pin until surya catches up.
+    # NOTE: this <5 ceiling is also load-bearing for CVE-2026-1839 acceptance —
+    # see SECURITY.md "Documented exceptions" before relaxing.
     "transformers>=4.56,<5",
 ]
 llm = [
