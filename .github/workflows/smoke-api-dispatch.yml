@@ -1,0 +1,97 @@
+name: Smoke test /api/* dispatch
+
+# Integration boundary test for the Worker dispatch contract.
+#
+# Why this exists:
+#   PR #4 shipped the static /api docs page; PR #16 had to fix a regression
+#   where the Worker's prefix-match shadowed it. Three reviewers missed the
+#   collision because the unit tests in worker/tests/api_gate.test.js stub
+#   the ASSETS binding and the web tests don't exercise the Worker. This
+#   workflow runs `wrangler dev` against a freshly-built web/dist and
+#   asserts the dispatch contract end-to-end (six assertions in
+#   scripts/smoke_api_dispatch.sh).
+#
+# Triggering posture:
+#   * pull_request -> main, ONLY when files that can break the contract
+#     change. Every-push on main would generate noise; the contract is a
+#     pre-merge gate.
+#   * workflow_dispatch for operator-driven re-runs.
+#
+# Permissions: contents: read only — this job never writes to the repo.
+#
+# Action pinning: SHA-pinned per SEC-001, same posture as poll-pursue.yml.
+# Bumps land via Dependabot's `github-actions` ecosystem.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - "wrangler.jsonc"
+      - "web/src/pages/api.astro"
+      - "web/src/pages/api/**"
+      - "scripts/smoke_api_dispatch.sh"
+      - ".github/workflows/smoke-api-dispatch.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Per-PR cancel-in-progress: stale runs from successive pushes pile up
+# otherwise. workflow_dispatch runs are isolated by run_id.
+concurrency:
+  group: smoke-api-dispatch-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: dispatch contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # actions/checkout v4.2.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+
+      # actions/setup-node v4.4.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web deps
+        working-directory: web
+        run: npm ci
+
+      - name: Build web/dist
+        working-directory: web
+        # The smoke script's preflight refuses to start wrangler dev
+        # without web/dist/api/index.html present.
+        run: npm run build
+
+      - name: Run /api dispatch smoke
+        id: smoke
+        run: bash scripts/smoke_api_dispatch.sh
+
+      - name: Capture wrangler dev log on failure
+        if: failure()
+        # The smoke script tears down its temp log on exit, so the only
+        # signal we have for diagnostic purposes is what made it to
+        # stderr/stdout above. Surface a hint to the operator and the
+        # script's own contract description into the run summary.
+        run: |
+          {
+            echo "## /api dispatch smoke failed"
+            echo ""
+            echo "The integration smoke test for the /api/* dispatch contract failed."
+            echo "Inspect the 'Run /api dispatch smoke' step output above for the failing"
+            echo "assertion(s). The contract is documented in"
+            echo "\`scripts/smoke_api_dispatch.sh\` and \`docs/architecture.md\`."
+            echo ""
+            echo "Common causes:"
+            echo "* New WORKER_API_PATHS entry without a smoke assertion"
+            echo "* New static /api/*.astro page without a smoke assertion"
+            echo "* Worker dispatcher regressed to prefix-match (PR #16 redux)"
+          } >> "$GITHUB_STEP_SUMMARY"

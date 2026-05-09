@@ -147,3 +147,12 @@ dynamic route requires updating `WORKER_API_PATHS` in `worker/index.js`
 requires no Worker change. Method gating (e.g., 405 on non-POST) is the
 handler's responsibility, not the dispatcher's — the allowlist is
 path-only by design.
+
+Integration-boundary smoke test runs on every PR via
+`.github/workflows/smoke-api-dispatch.yml` and asserts the dispatch
+contract end-to-end against `wrangler dev` + a freshly-built `web/dist`.
+The unit tests in `worker/tests/api_gate.test.js` stub the ASSETS
+binding; the smoke script does not. New routes added to either
+`WORKER_API_PATHS` or `web/src/pages/api*.astro` should also be added to
+`scripts/smoke_api_dispatch.sh` so the contract test stays
+comprehensive.
