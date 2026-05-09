@@ -75,11 +75,20 @@ def iter_card_pages(ocr_dir: Path) -> list[PageRow]:
 
 
 def _read_card_pages(card_id: str, pages_path: Path) -> list[PageRow]:
+    """Yield non-empty PageRows. Pages with empty/whitespace-only text are
+    dropped — Voyage rejects empty input strings with HTTP 400, and pages
+    with no readable OCR content (near-blank scans the LLM marked
+    ``[ILLEGIBLE]`` only, or simply blank) wouldn't contribute useful
+    retrieval signal anyway. Their absence from the embed index is the
+    correct behavior: the chat retrieval surface should never surface them.
+    """
     rows: list[PageRow] = []
     with pages_path.open() as fh:
         for line in fh:
             row = json.loads(line)
             text = row.get("text", "") or ""
+            if not text.strip():
+                continue
             rows.append(
                 PageRow(
                     card_id=card_id,

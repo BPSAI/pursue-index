@@ -112,6 +112,35 @@ def test_embed_run_skips_failed_ocr_cards(tmp_path: Path) -> None:
     assert all(r["card_id"] == "card_ok" for r in index["pages"])
 
 
+def test_embed_run_skips_empty_pages(tmp_path: Path) -> None:
+    """Voyage rejects empty input strings with HTTP 400. Pages with no
+    OCR text (near-blank scans where the LLM returned ``""`` or whitespace
+    only) must be filtered before reaching the embedder so the run doesn't
+    abort the whole batch on one empty page."""
+    ocr_dir = tmp_path / "ocr"
+    out_root = tmp_path / "embeddings"
+    _write_card_pages(
+        ocr_dir,
+        "card_mixed",
+        ["real content", "", "   \n  ", "more real content"],
+    )
+
+    embedder = FakeEmbedder()
+    summary = embed_pipeline.embed_run(
+        ocr_dir=ocr_dir, out_root=out_root, embedder=embedder, batch_size=8
+    )
+
+    # Two empty/whitespace pages dropped before reaching the embedder.
+    for batch in embedder.calls:
+        for text in batch:
+            assert text.strip(), f"empty text reached embedder: {text!r}"
+
+    assert summary.embedded == 2
+    index = json.loads((out_root / "voyage-3" / "index.json").read_text())
+    pages = sorted(r["page"] for r in index["pages"])
+    assert pages == [1, 4]  # only the non-empty pages
+
+
 def test_embed_run_is_idempotent_on_unchanged_corpus(tmp_path: Path) -> None:
     ocr_dir = tmp_path / "ocr"
     out_root = tmp_path / "embeddings"
