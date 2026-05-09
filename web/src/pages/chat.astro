@@ -1,0 +1,26 @@
+---
+import Base from "../layouts/Base.astro";
+import ChatIsland from "../components/ChatIsland.tsx";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<Base title="CHAT — PURSUE://INDEX" active="chat" noindex={true}>
+  <div class="space-y-6 max-w-5xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>pursue chat --rag --strict-corpus</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        DOCUMENT CHAT
+      </h1>
+      <p class="text-sm text-[color:var(--color-text)] max-w-2xl">
+        Ask the corpus a question. Every claim is grounded in a citation
+        you can click through to the source page. Off-corpus questions
+        return an explicit abstention rather than a guess.
+      </p>
+    </header>
+    <ChatIsland client:only="preact" base={base} />
+  </div>
+</Base>
