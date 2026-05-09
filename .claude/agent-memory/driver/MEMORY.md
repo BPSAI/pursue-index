@@ -15,4 +15,8 @@
 - Run from project root: `python -m pytest tests/ -v`
 
 ## Patterns Learned
-<!-- Add project-specific patterns as you discover them -->
+
+- [Anthropic OAuth via Claude Code creds](feedback_oauth_for_anthropic.md) — Sonnet hits 429 immediately on Max-tier; default to Haiku for benchmarks/smoke.
+- [Worktree CWD vs main repo gotcha](feedback_worktree_cwd.md) — absolute paths to /home/david/projects/pursue-index/ land on main, not the worktree; verify `git status` from the worktree dir.
+- [Long-running pipelines need nohup](feedback_long_ocr_runs.md) — Bash run_in_background propagates SIGTERM; nohup + & detaches fully. The `meta.json`-unlink trick lets a kill-resume skip already-done cards without `--force`.
+- [Surya emits <b>/<u>/<i> markup](feedback_surya_markup.md) — strip at the search-payload boundary, not in ocr/surya.py; keep raw model output in pages.jsonl.
