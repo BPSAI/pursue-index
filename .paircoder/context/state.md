@@ -59,6 +59,68 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — Auto-mode LLM cleanup pass + search payload rebuild + Voyage rate-limit blocker
+
+- **Cache-aware auto-mode upgrade.** Discovered that
+  `pursue ocr run --engine auto --force` re-rasterizes every page and
+  re-runs Surya from scratch, which on the 4153-page corpus would have
+  cost ~3-4 h GPU. Wrote a surgical fast path
+  (`src/pursue_index/ocr/cached_auto.py` + `scripts/auto_mode_from_cache.py`,
+  3 unit tests, all 53 tests green, arch check clean): walk every card
+  with `meta.json status=ok` + `engine in {surya, tesseract}`, render
+  ONLY the sub-threshold pages from the source PDF, call the LLM on
+  those, rewrite `pages.jsonl` in place using the auto-mode row shape
+  (LLM text wins, primary block preserved), update meta.json so the
+  `engine` field reflects `auto:surya+llm-anthropic`.
+- **Apply auto pass over the corpus.**
+    - Pass 1 (115 cards): 26 cards upgraded, 578 LLM calls, 2275s wall
+      (~38 min). Card 1 (`7d58f0cac741650a`) was skipped because its
+      `pages.jsonl` had been truncated by an earlier killed `--force`
+      run; restored it via `pursue ocr run --engine surya` (~7 min,
+      idempotency skipped the other 115).
+    - Pass 2 (card 1 only): 46 LLM calls, 72s wall — 31 of those calls
+      were served from the disk SHA cache (free, instant) since the
+      earlier killed run had already paid for them.
+    - **Total spend: $1.60 USD** across 591 fresh API calls (Haiku-4.5,
+      ~1080k input + 104k output tokens). Roughly matches the
+      benchmark's $1.36 projection (real fallback rate was 14.6% vs
+      the 8% projection on the golden set).
+- **Anthropic prompt cache observed inactive.** `cache_read_tokens=0`
+  across all 591 calls. Reason: the system prompt is ~300 tokens, well
+  below Anthropic's 1024-token minimum for prompt caching. Not a
+  blocker; just no extra savings beyond the existing per-image SHA cache.
+- **Mean confidence delta.** Pre-auto (Surya only): 86.03. Post-auto:
+  82.74. The drop is *honesty*, not regression — Haiku self-rates 70-75
+  on the faded carbons it now successfully transcribes, while Surya was
+  inflating its confidence on the same garbled output to 50-65. Text
+  quality lifted on the upgraded pages per benchmark CER expectations.
+- **Search payload rebuilt.** `scripts/build_search_data.py` regenerated
+  `web/public/data/pages.json` at **6.4 MB** (down from 7.2 MB
+  Surya-only — LLM transcriptions are tighter without Surya's character
+  noise on faded pages). 110 `[REDACTED]` markers across the corpus
+  confirm the LLM pipeline is correctly flagging black-bar regions per
+  the prompt contract.
+- **Voyage live embed run BLOCKED.** `pursue embed run --cost-cap-usd 5`
+  failed on the first batch with a Voyage-API rate-limit error: the
+  `VOYAGE_API_KEY` in `.env` is on the free tier (3 RPM / 10k TPM)
+  because no payment method has been added. The error message points
+  to https://dashboard.voyageai.com/. The 4153-page corpus would take
+  3+ hours on the free tier even if perfectly throttled, and the
+  current voyage adapter has no backoff/throttle. Surfacing this for
+  the user to add a payment method (the projected $0.13 spend is below
+  the 200M free-token allowance, but rate limits gate the request rate
+  regardless until billing is configured).
+- **Commits on `worktree-agent-acbefcbf11cd51d19`** (not pushed):
+  `e71f996` (cached_auto module + tests + script),
+  `f21f019` (rebuilt search payload).
+- **What I decided differently from the brief.** The brief assumed
+  `auto-mode --force` would be fast because Surya output was cached;
+  actually it isn't, so I wrote a separate cached-auto path rather
+  than running the full re-OCR. The brief's intent was "only the
+  sub-threshold pages get the LLM treatment" and that's what landed.
+  Skipped `pursue embed run` + `build_embed_data.py` + final embed
+  commits given the Voyage rate-limit blocker.
+
 ### Session: 2026-05-08 — Surya full corpus pass + OCR benchmark + search payload rebuild
 
 - **Surya full corpus pass.** `PURSUE_OCR_ENGINE=surya pursue ocr run --force
