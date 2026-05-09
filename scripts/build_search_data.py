@@ -74,6 +74,8 @@ def main() -> int:
                         "page": row["page"],
                         "title": title,
                         "text": _clean_text(row["text"]),
+                        "engine": row.get("engine", "unknown"),
+                        "confidence": row.get("confidence", 0),
                     }
                 )
                 pages_seen += 1

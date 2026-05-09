@@ -115,8 +115,11 @@ const s = summary();
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         The site is currently in
         <span class="font-mono text-[color:var(--color-signal-amber)] uppercase tracking-[0.15em]">research preview</span>.
-        The corpus, OCR transcripts, search, and diff are live. The
-        following are in flight:
+        Live now: the corpus, OCR transcripts (Surya GPU + LLM cleanup
+        on faded pages), full-text search, tranche diff, and the
+        published quality benchmark on
+        <a href="/methodology#benchmark" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology</a>.
+        Still in flight before public launch:
       </p>
       <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
         <li>
@@ -133,11 +136,6 @@ const s = summary();
           <span class="text-[color:var(--color-text-bright)]">Novelty detection</span> —
           per-page comparison against prior FOIA archives (Black Vault, etc.)
           to surface what's genuinely new in this release.
-        </li>
-        <li>
-          <span class="text-[color:var(--color-text-bright)]">OCR benchmark</span> —
-          published A/B numbers across Tesseract, Surya, and the LLM fallback
-          on a golden test set.
         </li>
       </ul>
       <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">

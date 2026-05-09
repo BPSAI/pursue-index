@@ -89,9 +89,10 @@ export default function DiffIsland({ current, base }: Props) {
           [NO PRIOR SNAPSHOT]
         </p>
         <p>
-          Diff compares <code class="text-[color:var(--color-signal-cyan)]">latest.json</code>
-          against any previous manifest under
-          <code class="mx-1 text-[color:var(--color-signal-cyan)]">/data/snapshots/</code>.
+          Diff compares{" "}
+          <code class="text-[color:var(--color-signal-cyan)]">latest.json</code>{" "}
+          against any previous manifest under{" "}
+          <code class="text-[color:var(--color-signal-cyan)]">/data/snapshots/</code>.
           Once Release 02 lands and the snapshot is committed, this surface
           will report what changed.
         </p>

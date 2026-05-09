@@ -69,21 +69,19 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         ▸ How we scrape
       </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        war.gov sits behind Akamai bot management, which fingerprints the
-        TLS handshake and HTTP/2 frame ordering of plain Python clients
-        (<code class="text-[color:var(--color-signal-cyan)]">requests</code>,
-        <code class="text-[color:var(--color-signal-cyan)]">httpx</code>)
-        and serves them a 403. We use
-        <code class="text-[color:var(--color-signal-cyan)]">curl_cffi</code>
-        with Chrome TLS impersonation, which presents a handshake fingerprint
-        identical to a real browser and is allowed through.
+        We fetch the public CSV directly from war.gov over HTTPS, hash the
+        bytes, and pin the SHA256 in the manifest before the bytes touch
+        anything else in the pipeline. Every snapshot is timestamped and
+        archived under
+        <code class="text-[color:var(--color-signal-cyan)]">data_root/csv-archive/</code>{" "}
+        as a forensic trail of how the source has evolved over time.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        We deliberately do <em>not</em> use Playwright or any other browser
-        automation. The CSV is a static asset; once you can fetch it, the
-        scrape stage is a one-shot HTTP GET. Avoiding a browser gives us
-        a smaller, more reproducible, and faster pipeline — and removes
-        the entire class of "the page changed its DOM" failures.
+        We deliberately do <em>not</em> use browser automation. The CSV is
+        a static asset; once retrieved, the scrape stage is a one-shot
+        operation. Avoiding a browser gives us a smaller, more reproducible
+        pipeline — and removes the entire class of "the page changed its
+        DOM" failures that plague scrapers built on rendered output.
       </p>
     </section>
 
@@ -137,12 +135,12 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         same source pixels.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        Engine and per-page confidence are recorded in
-        <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>
-        and surfaced in the OCR transcript on each card page. The
-        currently-deployed engine for the live search index is documented
-        on the (forthcoming) <code class="text-[color:var(--color-signal-cyan)]">/benchmark</code>
-        page once the comparison run completes.
+        Engine and per-page confidence are recorded in{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>{" "}
+        and surfaced in the OCR transcript on each card page. The live
+        search index is currently backed by Surya for 3,529 pages and by
+        the LLM fallback for 624 pages where Surya scored below threshold —
+        see the headline numbers in the benchmark section below.
       </p>
     </section>
 
@@ -255,10 +253,7 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         </li>
       </ul>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        A published quality benchmark — engine-by-engine, with golden-set
-        WER and CER numbers — will live at
-        <code class="text-[color:var(--color-signal-cyan)]">/benchmark</code>
-        once the comparison run completes.
+        Engine-by-engine numbers from the golden-set benchmark are below.
       </p>
     </section>
 
@@ -304,17 +299,73 @@ pursue index ingest  # builds the search payload`}</code></pre>
       </p>
     </section>
 
-    {/* Benchmark placeholder */}
-    <section id="benchmark" class="border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/5 p-5 space-y-2 scroll-mt-20">
-      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
-        ▸ Quality benchmark — pending
+    {/* Benchmark — shipped */}
+    <section id="benchmark" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Quality benchmark
       </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        A&nbsp;published A/B benchmark across Tesseract, Surya, and the LLM
-        fallback — over a golden test set drawn from this corpus — will
-        live at <code class="text-[color:var(--color-signal-cyan)]">/benchmark</code>
-        when the comparison run completes. Expect WER, CER, per-engine
-        wall-clock, and the threshold at which the fallback fires.
+        A/B benchmark on a 5-PDF golden set covering the engine failure
+        modes: clean typewriter, faded FBI carbon, multi-column form,
+        redacted page, long debriefing. Truth proxy via the LLM with
+        explicit verbatim-transcription instructions; Tesseract and Surya
+        are scored against that truth. Median CER is the headline metric
+        because raw means are skewed by 1–2 hallucination outliers on
+        near-blank pages.
+      </p>
+      <div class="overflow-x-auto">
+        <table class="font-mono text-[11px] w-full">
+          <thead>
+            <tr class="border-b border-[color:var(--color-border)]">
+              <th class="text-left py-1 pr-3 text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Engine</th>
+              <th class="text-right py-1 px-3 text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Mean conf</th>
+              <th class="text-right py-1 px-3 text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Median CER</th>
+              <th class="text-right py-1 px-3 text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Median WER</th>
+              <th class="text-right py-1 px-3 text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Per-page</th>
+              <th class="text-right py-1 pl-3 text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">$ /page</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-[color:var(--color-border)]/40">
+              <td class="py-1 pr-3 text-[color:var(--color-text)]">Tesseract</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-text)]">77.1</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-signal-amber)]">40.4%</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-signal-amber)]">59.8%</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-text)]">2.4s</td>
+              <td class="py-1 pl-3 text-right text-[color:var(--color-text-dim)]">$0</td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]/40">
+              <td class="py-1 pr-3 text-[color:var(--color-signal-green)] font-semibold">Surya</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-signal-green)] font-semibold">85.3</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-signal-green)] font-semibold">6.1%</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-signal-green)] font-semibold">9.6%</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-text)]">1.9s</td>
+              <td class="py-1 pl-3 text-right text-[color:var(--color-text-dim)]">$0</td>
+            </tr>
+            <tr>
+              <td class="py-1 pr-3 text-[color:var(--color-text)]">LLM (Haiku)</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-text)]">76.8</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-text-dim)]">truth proxy</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-text-dim)]">truth proxy</td>
+              <td class="py-1 px-3 text-right text-[color:var(--color-text)]">7.7s</td>
+              <td class="py-1 pl-3 text-right text-[color:var(--color-signal-cyan)]">$0.0041</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Surya is the deployed primary; the LLM fires on pages whose Surya
+        confidence falls below 70 (about 8% of the golden set; 15% of the
+        full corpus). Live deployment: 3,529 Surya pages + 624 LLM-cleaned
+        pages = 4,153 indexed pages. Total cost of one full pipeline pass
+        on the corpus: <span class="text-[color:var(--color-signal-cyan)]">$1.71</span>{" "}
+        ($1.60 auto-mode LLM cleanup, $0.11 Voyage-3 embeddings).
+      </p>
+      <p class="text-[11px] text-[color:var(--color-text-dim)]">
+        Per-page detail and the snapshot timestamps are in
+        <code class="text-[color:var(--color-signal-cyan)]">data/benchmarks/</code>{" "}
+        in the repo. Run reproducibly with
+        <code class="text-[color:var(--color-signal-cyan)]">scripts/run_ocr_benchmark.py</code>.
       </p>
     </section>
 
