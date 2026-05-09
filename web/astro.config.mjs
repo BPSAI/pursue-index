@@ -6,12 +6,10 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 //
-// Private repo → GitHub assigns a random pages.github.io subdomain that
-// serves at root (e.g., fantastic-bassoon-XXXX.pages.github.io/). If the
-// repo flips to public later, update site → "https://bpsai.github.io" and
-// base → "/pursue-index".
+// Live custom domain via Cloudflare Workers + Static Assets.
+// pursueindex.ai → 301 → pursueindex.com (Single Redirect rule on the .ai zone).
 export default defineConfig({
-  site: "https://fantastic-bassoon-k5j8o45.pages.github.io",
+  site: "https://pursueindex.com",
   base: "/",
   trailingSlash: "ignore",
   integrations: [preact(), sitemap()],
