@@ -17,11 +17,17 @@ interface PageDoc {
 
 interface Props {
   base: string;
+  /**
+   * Optional clickable example queries shown beneath the input when empty.
+   * Used by the homepage hero to advertise representative searches; the
+   * `/search` route omits this and just shows the bare input.
+   */
+  examples?: readonly string[];
 }
 
 type Status = "loading" | "missing" | "ready" | "error";
 
-export default function SearchIsland({ base }: Props) {
+export default function SearchIsland({ base, examples }: Props) {
   const [status, setStatus] = useState<Status>("loading");
   const [docs, setDocs] = useState<PageDoc[]>([]);
   const [query, setQuery] = useState("");
@@ -148,8 +154,9 @@ export default function SearchIsland({ base }: Props) {
             type="search"
             value={query}
             onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
-            placeholder="search across all OCR'd pages…"
+            placeholder={`search ${docs.length.toLocaleString()} OCR'd pages…`}
             class="w-full pr-16"
+            aria-label="Search OCR'd pages across the PURSUE corpus"
             autofocus
           />
           <kbd class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-[color:var(--color-text-faint)] border border-[color:var(--color-border)] px-1.5 py-0.5 rounded-sm pointer-events-none">
@@ -163,6 +170,25 @@ export default function SearchIsland({ base }: Props) {
           <span class="mx-2 text-[color:var(--color-text-faint)]">|</span>
           <span class="text-[color:var(--color-text-faint)]">/ FOCUS · ESC CLEAR</span>
         </p>
+        {examples && examples.length > 0 && !query.trim() && (
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="text-[10px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">
+              try:
+            </span>
+            {examples.map((ex) => (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery(ex);
+                  inputRef.current?.focus();
+                }}
+                class="px-2 py-1 text-[11px] font-mono border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-signal-green)]/60 hover:text-[color:var(--color-signal-green)] transition-colors"
+              >
+                {ex}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {query.trim() && (
         <div class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-1">
