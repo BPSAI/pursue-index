@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import MiniSearch from "minisearch";
+import {
+  buildHighlightRegex,
+  buildSnippet,
+  splitWithRegex,
+  tokenize,
+} from "./highlight";
 
 interface PageDoc {
   id: string; // `${card_id}-p${page}`
@@ -80,6 +86,23 @@ export default function SearchIsland({ base }: Props) {
     return search.search(query, { combineWith: "AND" }).slice(0, 50);
   }, [search, query]);
 
+  // Build a docs lookup so we can retrieve the full page text for snippet
+  // extraction without bloating MiniSearch's storeFields.
+  const docsById = useMemo(() => {
+    const m = new Map<string, PageDoc>();
+    for (const d of docs) m.set(d.id, d);
+    return m;
+  }, [docs]);
+
+  // Highlight regex covers MiniSearch's matched terms (handles fuzzy/prefix
+  // expansions) plus the raw query tokens, so a query like "alien craft"
+  // marks both whole tokens even when MiniSearch matched only one stem.
+  const queryTerms = useMemo(() => tokenize(query), [query]);
+  const queryRegex = useMemo(
+    () => buildHighlightRegex(queryTerms),
+    [queryTerms],
+  );
+
   if (status === "loading") {
     return (
       <div class="space-y-3">
@@ -145,22 +168,48 @@ export default function SearchIsland({ base }: Props) {
         </div>
       )}
       <ul class="space-y-1.5">
-        {results.map((r) => (
-          <li class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] hover:border-[color:var(--color-signal-green)]/50 transition-colors">
-            <a href={`${base}/card/${r.card_id}#page-${r.page}`} class="block p-3 space-y-1">
-              <div class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-faint)]">
-                <span class="text-[color:var(--color-signal-cyan)]">P{r.page}</span>
-                <span class="mx-2">·</span>
-                <span>SCORE {r.score.toFixed(2)}</span>
-                <span class="mx-2">·</span>
-                <span>{r.card_id.slice(0, 8)}</span>
-              </div>
-              <div class="text-sm text-[color:var(--color-text-bright)] line-clamp-2">
-                {r.title}
-              </div>
-            </a>
-          </li>
-        ))}
+        {results.map((r) => {
+          const doc = docsById.get(r.id);
+          // MiniSearch's `match` map includes the actual terms it matched
+          // after fuzzy/prefix expansion (e.g. "aliens" for query "alien").
+          // Build a regex covering both raw query terms and matched terms so
+          // snippet highlighting reflects what actually scored.
+          const matchedTerms = r.match ? Object.keys(r.match) : [];
+          const allTerms = Array.from(new Set([...queryTerms, ...matchedTerms]));
+          const snipRegex = buildHighlightRegex(allTerms);
+          const snippet = doc?.text
+            ? buildSnippet(doc.text, snipRegex, 140)
+            : "";
+          const linkQuery = encodeURIComponent(query.trim());
+          const href = `${base}/card/${r.card_id}?q=${linkQuery}#page-${r.page}`;
+          return (
+            <li class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] hover:border-[color:var(--color-signal-green)]/50 transition-colors">
+              <a href={href} class="block p-3 space-y-1.5">
+                <div class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-faint)]">
+                  <span class="text-[color:var(--color-signal-cyan)]">P{r.page}</span>
+                  <span class="mx-2">·</span>
+                  <span>SCORE {r.score.toFixed(2)}</span>
+                  <span class="mx-2">·</span>
+                  <span>{r.card_id.slice(0, 8)}</span>
+                </div>
+                <div class="text-sm text-[color:var(--color-text-bright)] line-clamp-2">
+                  {r.title}
+                </div>
+                {snippet && (
+                  <p class="font-mono text-[12px] leading-relaxed text-[color:var(--color-text-dim)] line-clamp-3">
+                    {splitWithRegex(snippet, snipRegex).map((seg) =>
+                      seg.kind === "match" ? (
+                        <mark class="pi-mark">{seg.value}</mark>
+                      ) : (
+                        <span>{seg.value}</span>
+                      ),
+                    )}
+                  </p>
+                )}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

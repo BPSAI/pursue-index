@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
+import {
+  buildHighlightRegex,
+  splitWithRegex,
+  tokenize,
+} from "./highlight";
 
 interface PageDoc {
   id: string;
@@ -53,12 +58,22 @@ function PageBlock({
   pageData,
   expanded,
   onToggle,
+  highlightRegex,
+  isActiveHighlightPage,
 }: {
   pageData: CardPage;
   expanded: boolean;
   onToggle: () => void;
+  highlightRegex: RegExp | null;
+  /** True for the page that should carry data-pi-active so we can scroll to
+   *  its first <mark>. Only one page is "active" at a time. */
+  isActiveHighlightPage: boolean;
 }) {
   const conf = formatConfidence(pageData.confidence);
+  const segments = expanded
+    ? splitWithRegex(pageData.text, highlightRegex)
+    : [];
+  let firstMatchSeen = false;
   return (
     <section
       id={pageData.anchorId}
@@ -82,8 +97,27 @@ function PageBlock({
       {expanded && (
         <div class="border-t border-[color:var(--color-border)] px-4 py-3">
           {pageData.text.trim() ? (
-            <pre class="font-mono text-[12px] leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap break-words">
-              {pageData.text}
+            <pre
+              data-pi-page={pageData.page}
+              class="font-mono text-[12px] leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap break-words"
+            >
+              {segments.map((seg) => {
+                if (seg.kind === "match") {
+                  // Mark only the very first hit on the active page as the
+                  // scroll-target — that's the "where do I start" anchor.
+                  const isFirst = isActiveHighlightPage && !firstMatchSeen;
+                  firstMatchSeen = true;
+                  return (
+                    <mark
+                      class="pi-mark"
+                      data-pi-first-match={isFirst ? "true" : "false"}
+                    >
+                      {seg.value}
+                    </mark>
+                  );
+                }
+                return <span>{seg.value}</span>;
+              })}
             </pre>
           ) : (
             <p class="font-mono text-xs text-[color:var(--color-text-dim)]">
@@ -107,10 +141,33 @@ function emptyStateCopy(assetType?: string): string {
   return "No OCR pages were extracted for this card. The source asset above is the canonical reference.";
 }
 
+/**
+ * Read the `q` URL param (set by SearchIsland's result links) and produce a
+ * highlight regex covering every token in it. Returns null when there's no
+ * query (so the OCR text renders unchanged).
+ */
+function readQueryRegex(): { regex: RegExp | null; raw: string } {
+  if (typeof window === "undefined") return { regex: null, raw: "" };
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get("q") ?? "";
+  return { regex: buildHighlightRegex(tokenize(raw)), raw };
+}
+
+function activePageFromHash(): number | null {
+  if (typeof window === "undefined") return null;
+  const m = window.location.hash.match(/^#page-(\d+)$/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  return Number.isNaN(n) ? null : n;
+}
+
 export default function CardOcrIsland({ cardId, base, assetType }: Props) {
   const [status, setStatus] = useState<Status>("loading");
   const [pages, setPages] = useState<CardPage[]>([]);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+  // Highlight state captured once on mount — query is sticky to the URL.
+  const [highlight] = useState(() => readQueryRegex());
+  const [activePage] = useState<number | null>(() => activePageFromHash());
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
@@ -130,12 +187,7 @@ export default function CardOcrIsland({ cardId, base, assetType }: Props) {
         // First page expanded by default; honor #page-N hash on mount.
         const initial: Record<number, boolean> = {};
         if (normalized.length > 0) initial[normalized[0].page] = true;
-        const hash = typeof window !== "undefined" ? window.location.hash : "";
-        const match = hash.match(/^#page-(\d+)$/);
-        if (match) {
-          const n = Number(match[1]);
-          if (!Number.isNaN(n)) initial[n] = true;
-        }
+        if (activePage != null) initial[activePage] = true;
         setExpanded(initial);
         setStatus("ready");
       })
@@ -143,17 +195,30 @@ export default function CardOcrIsland({ cardId, base, assetType }: Props) {
         console.error(err);
         setStatus("error");
       });
-  }, [base, cardId]);
+  }, [base, cardId, activePage]);
 
-  // After the page list renders, scroll to #page-N if present.
+  // After the page list renders, scroll to the first match on the anchored
+  // page when ?q= is present; otherwise fall back to scrolling the page top.
   useEffect(() => {
     if (status !== "ready" || typeof window === "undefined") return;
-    const hash = window.location.hash;
-    const match = hash.match(/^#page-(\d+)$/);
-    if (!match) return;
-    const el = document.getElementById(`page-${match[1]}`);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [status, pages]);
+    if (activePage == null) return;
+    // Defer to next frame so the DOM has the freshly-rendered <mark> nodes.
+    const raf = requestAnimationFrame(() => {
+      if (highlight.regex) {
+        const firstMark = document.querySelector<HTMLElement>(
+          `[data-pi-first-match="true"]`,
+        );
+        if (firstMark) {
+          firstMark.setAttribute("data-active", "true");
+          firstMark.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+      }
+      const el = document.getElementById(`page-${activePage}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [status, pages, activePage, highlight]);
 
   const totalChars = useMemo(
     () => pages.reduce((acc, p) => acc + p.text.length, 0),
@@ -218,6 +283,15 @@ export default function CardOcrIsland({ cardId, base, assetType }: Props) {
           </span>{" "}
           CHARS
         </span>
+        {highlight.raw && (
+          <>
+            <span class="text-[color:var(--color-text-faint)]">·</span>
+            <span class="normal-case tracking-normal">
+              <span class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Q</span>
+              <mark class="pi-mark ml-2 font-mono">{highlight.raw}</mark>
+            </span>
+          </>
+        )}
       </div>
       <div class="space-y-2">
         {pages.map((p) => (
@@ -226,6 +300,8 @@ export default function CardOcrIsland({ cardId, base, assetType }: Props) {
             pageData={p}
             expanded={!!expanded[p.page]}
             onToggle={() => toggle(p.page)}
+            highlightRegex={highlight.regex}
+            isActiveHighlightPage={activePage === p.page}
           />
         ))}
       </div>

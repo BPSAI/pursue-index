@@ -235,6 +235,27 @@ body.terminal > * { position: relative; z-index: 2; }
 }
 
 /* =========================================================================
+   Search hit highlighting — used by both result snippets (SearchIsland)
+   and in-page OCR highlighting (CardOcrIsland) when ?q= is present.
+   Signal-amber background + dark text = readable, on-brand, hard to miss.
+   ========================================================================= */
+
+mark.pi-mark {
+  background: var(--color-signal-amber);
+  color: var(--color-bg-deep);
+  padding: 0 0.1em;
+  border-radius: 1px;
+  font-weight: 600;
+  /* Explicit so it survives `prose` and `pre` resets. */
+  text-decoration: none;
+}
+
+/* When the same hit is the active scroll-target, give it a subtle ring. */
+mark.pi-mark[data-active="true"] {
+  box-shadow: 0 0 0 2px var(--color-signal-green);
+}
+
+/* =========================================================================
    Selection + scrollbar tweaks for atmosphere.
    ========================================================================= */
 
