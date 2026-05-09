@@ -146,7 +146,7 @@ Surya median CER 6.1% vs Tesseract 40.4%. pursueindex.com/methodology
 
 ```
 On July 8, 1947, while Roswell was retracting its "flying disc" press
-release, five Air Force personnel at Muroc gave sworn statements about
+release, five Army Air Forces personnel at Muroc gave sworn statements about
 two separate disc sightings. The FBI file is now searchable.
 pursueindex.com/finds/muroc-1947
 ```
