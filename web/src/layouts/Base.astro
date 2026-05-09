@@ -48,6 +48,7 @@ const navItems = [
   { href: `${base}/diff`, label: "DIFF", key: "diff" },
   { href: `${base}/about`, label: "ABOUT", key: "about" },
   { href: `${base}/methodology`, label: "METHODOLOGY", key: "methodology" },
+  { href: `${base}/support`, label: "SUPPORT", key: "support" },
 ];
 ---
 
@@ -147,9 +148,9 @@ const navItems = [
     </main>
 
     <footer class="mt-16 border-t border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]">
-      {/* Two columns of metadata that wrap naturally; the prior `ml-auto`
-          left a stranded gap before SRC/IDX on narrow viewports. */}
-      <div class="mx-auto max-w-7xl px-4 py-5 text-[11px] font-mono text-[color:var(--color-text-dim)] flex flex-wrap gap-x-6 gap-y-2 sm:justify-between">
+      {/* Provenance / metadata row — TS, CSV_SHA256, N are load-bearing
+          for citation reproducibility. SRC + IDX establish copyright + license. */}
+      <div class="mx-auto max-w-7xl px-4 pt-5 pb-3 text-[11px] font-mono text-[color:var(--color-text-dim)] flex flex-wrap gap-x-6 gap-y-2 sm:justify-between">
         <span>
           <span class="text-[color:var(--color-text-faint)]">TS</span>
           <span class="ml-2 text-[color:var(--color-text)]">{fetchedDate}Z</span>
@@ -168,8 +169,27 @@ const navItems = [
         </span>
         <span>
           <span class="text-[color:var(--color-text-faint)]">IDX</span>
-          <span class="ml-2">© BPS AI SOFTWARE</span>
+          <a
+            href="https://bpsaisoftware.com"
+            target="_blank"
+            rel="noreferrer"
+            class="ml-2 hover:text-[color:var(--color-signal-cyan)] transition-colors"
+          >© BPS AI SOFTWARE</a>
+          <span class="mx-1 text-[color:var(--color-text-faint)]">·</span>
+          <a href={`${base}/cite`} class="hover:text-[color:var(--color-signal-cyan)] transition-colors">APACHE-2.0</a>
         </span>
+      </div>
+      {/* Credit row — Powered by PairCoder, paired with the BPS link above. */}
+      <div class="mx-auto max-w-7xl px-4 pb-5 text-[10px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex flex-wrap gap-x-3 gap-y-1 items-center">
+        <span>POWERED BY</span>
+        <a
+          href="https://paircoder.ai"
+          target="_blank"
+          rel="noreferrer"
+          class="text-[color:var(--color-signal-green)] hover:text-[color:var(--color-text-bright)] transition-colors"
+        >PAIRCODER</a>
+        <span>·</span>
+        <span>AI-AUGMENTED PAIR PROGRAMMING</span>
       </div>
     </footer>
   </body>

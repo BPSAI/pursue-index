@@ -201,8 +201,23 @@ Source documents are works of the U.S. Government and are in the public
 domain. The OCR transcripts derived from them carry no additional copyright
 claim — they are mechanically generated from public-domain originals.
 
-The index code and this site are © BPS AI Software, license TBD before
-public launch.
+The index code and this site are licensed under the
+[Apache License, Version 2.0](LICENSE). Copyright © 2026
+[BPS AI Software, LLC](https://bpsaisoftware.com). See [NOTICE](NOTICE)
+for third-party attributions.
+
+If you cite this work in academic or journalistic context, see
+[`/cite`](https://pursueindex.com/cite) for the canonical format
+(includes BibTeX). Pin the manifest CSV SHA-256 in your citation —
+that's the load-bearing reproducibility claim.
+
+## Built with
+
+Powered by [PairCoder](https://paircoder.ai) — the AI-augmented pair
+programming framework that ran the full pipeline: corpus scrape, OCR
+benchmark, vector embeddings, chat interface, security audit, and
+launch comms — orchestrated through specialized agents with
+test-driven development at each stage.
 
 ## Contributing
 

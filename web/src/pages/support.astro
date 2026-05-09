@@ -1,0 +1,180 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="Support — PURSUE://INDEX"
+  description="How to use the chat without breaking the bank — yours or ours. Free tier, BYOK (bring your own Anthropic key), and how to support the project."
+>
+  <article class="space-y-10 max-w-3xl">
+    <header class="space-y-2">
+      <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ SUPPORT
+      </p>
+      <h1 class="text-2xl font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        How to use the chat without breaking the bank
+      </h1>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The chat at <a href="/chat" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/chat</a>
+        is RAG over the corpus — every answer cites a specific page. There
+        are two ways to use it. Both are gated behind the same UI; the only
+        difference is who pays for the LLM call.
+      </p>
+    </header>
+
+    {/* Free tier */}
+    <section class="space-y-3 border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Free tier (default)
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The chat is free to use, no account needed.
+      </p>
+      <ul class="text-sm text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>
+          Anonymous visitors get
+          <span class="text-[color:var(--color-signal-green)] font-semibold">5 chats per IP per 24h</span>,
+          server-funded by us.
+        </li>
+        <li>
+          Repeat queries (same question + similar retrieved passages) within
+          that window may return as cache hits — instant and free, don't
+          count against your cap.
+        </li>
+        <li>
+          When you hit the cap you'll get a clear "daily limit reached"
+          message with a link to the BYOK setup below.
+        </li>
+        <li>
+          We hold a daily global budget cap. If the site sees an unexpected
+          traffic spike, the chat surface degrades to keyword-only search
+          for the rest of the day rather than burning a credit card. The
+          archive itself remains fully usable.
+        </li>
+      </ul>
+    </section>
+
+    {/* BYOK */}
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ BYOK · bring your own Anthropic key
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        For unlimited use, paste an Anthropic API key into the
+        <strong class="text-[color:var(--color-text-bright)]">Settings</strong>
+        panel inside <a href="/chat" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/chat</a>.
+        Anthropic charges your account directly per usage; nothing flows
+        through our infrastructure.
+      </p>
+      <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
+        Where to get a key
+      </h3>
+      <ol class="text-sm text-[color:var(--color-text)] space-y-1 pl-5 list-decimal marker:text-[color:var(--color-text-faint)]">
+        <li>
+          Visit <a href="https://console.anthropic.com/" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">console.anthropic.com</a>{" "}
+          and sign in (any email; same account works as Claude.ai).
+        </li>
+        <li>
+          <strong class="text-[color:var(--color-text-bright)]">Settings → Billing</strong>{" "}
+          → add a payment method. Anthropic free tier rate-limits aggressively;
+          BYOK assumes a paid account. No minimum spend; you pay for what you use.
+        </li>
+        <li>
+          <strong class="text-[color:var(--color-text-bright)]">Settings → API Keys</strong>{" "}
+          → "Create Key". Name it something like <code class="text-[color:var(--color-signal-cyan)]">pursueindex</code>.
+        </li>
+        <li>
+          Copy the value — starts with <code class="text-[color:var(--color-signal-cyan)]">sk-ant-api03-…</code>.
+          You'll see it once; save it now.
+        </li>
+        <li>
+          Paste into <a href="/chat" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/chat</a>{" "}
+          → Settings → BYOK. Save.
+        </li>
+      </ol>
+
+      <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
+        Trust pitch — the key never leaves your browser
+      </h3>
+      <ul class="text-sm text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>
+          Stored in your browser's <code class="text-[color:var(--color-signal-cyan)]">localStorage</code>{" "}
+          only. Never POSTed to our origin.
+        </li>
+        <li>
+          Browser → <code class="text-[color:var(--color-signal-cyan)]">api.anthropic.com</code>{" "}
+          direct, with the
+          <code class="text-[color:var(--color-signal-cyan)] mx-1">anthropic-dangerous-direct-browser-access</code>
+          header. We use raw fetch — no SDK with hidden behavior.
+        </li>
+        <li>
+          Verifiable in your browser's DevTools network tab: no request to
+          <code class="text-[color:var(--color-signal-cyan)] mx-1">pursueindex.com</code>
+          carries your key.
+        </li>
+        <li>
+          Removable any time from the same Settings panel.
+        </li>
+      </ul>
+
+      <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
+        What BYOK unlocks
+      </h3>
+      <ul class="text-sm text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>Model picker: Sonnet 4.6 (default) or Opus 4.7.</li>
+        <li>Unlimited queries per day — you hit Anthropic's rate limits, not ours.</li>
+        <li>No per-IP cap.</li>
+      </ul>
+    </section>
+
+    {/* Support the project */}
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Support the project
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        This is a research-preview side-project, currently funded by
+        <a href="https://bpsaisoftware.com" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)] mx-1">BPS AI Software</a>.
+        If it gets traction and the costs grow, we'll add a Stripe-backed
+        patron tier. Until then, a few zero-cost ways to support:
+      </p>
+      <ul class="text-sm text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>
+          <strong class="text-[color:var(--color-text-bright)]">Star us on GitHub</strong>:{" "}
+          <a href="https://github.com/BPSAI/pursue-index" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">github.com/BPSAI/pursue-index</a>.
+          Pure visibility signal; helps the project surface in search.
+        </li>
+        <li>
+          <strong class="text-[color:var(--color-text-bright)]">Cite us correctly</strong>{" "}
+          when you use the corpus —{" "}
+          <a href="/cite" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">canonical formats here</a>.
+        </li>
+        <li>
+          <strong class="text-[color:var(--color-text-bright)]">Share a curated finds entry</strong>{" "}
+          when one's relevant — see{" "}
+          <a href="/finds" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/finds</a>.
+          The Muroc 1947 entry pairs well with general UAP discourse;
+          the Apollo 17 and "what's not UAP" entries pair well with
+          methodology / skeptic discussions.
+        </li>
+        <li>
+          <strong class="text-[color:var(--color-text-bright)]">Submit a correction</strong>{" "}
+          via GitHub if you spot an OCR error or a citation that doesn't
+          resolve. We log every correction;{" "}
+          <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology</a>{" "}
+          surfaces correction stats.
+        </li>
+      </ul>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text-dim)] pt-2">
+        A patron tier is on the roadmap. If you'd want to be notified when
+        it goes live, drop a note via GitHub Issues or watch the repo.
+      </p>
+    </section>
+
+    <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-4 border-t border-[color:var(--color-border)]">
+      DOC · <span class="text-[color:var(--color-signal-amber)]">RESEARCH PREVIEW</span>
+      <span class="mx-2">·</span>
+      REV · <span class="text-[color:var(--color-signal-cyan)]">0.1</span>
+    </p>
+  </article>
+</Base>

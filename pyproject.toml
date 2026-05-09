@@ -5,7 +5,7 @@ description = "Searchable index of DOW PURSUE UAP document releases"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "BPS AI Software", email = "david@bpsaisoftware.com" }]
-license = { text = "Proprietary" }
+license = "Apache-2.0"
 
 dependencies = [
     # Core

@@ -1,0 +1,28 @@
+pursue-index
+Copyright 2026 BPS AI Software, LLC
+
+This product includes software developed by BPS AI Software, LLC.
+
+This product includes the following third-party components:
+
+- Astro (https://astro.build)               — MIT
+- Preact (https://preactjs.com)             — MIT
+- Tailwind CSS (https://tailwindcss.com)    — MIT
+- MiniSearch (https://github.com/lucaong/minisearch) — MIT
+- @astrojs/sitemap                          — MIT
+- @astrojs/preact                           — MIT
+- @tailwindcss/vite                         — MIT
+- Anthropic Python + JS SDKs                — MIT
+- Voyage AI Python SDK                      — MIT
+- Surya OCR (https://github.com/datalab-to/surya) — GPL-3.0 (used as a runtime
+  dependency only; not redistributed)
+- Tesseract OCR (https://github.com/tesseract-ocr/tesseract) — Apache-2.0
+- pdf2image, pypdfium2                      — Apache-2.0 / MIT
+- Pillow                                    — HPND
+- httpx, curl_cffi, Pydantic, Typer         — BSD-3 / MIT / Apache-2.0
+- structlog, tenacity                       — MIT
+- FastAPI, uvicorn, SQLAlchemy, Alembic     — MIT / BSD
+
+Source documents in the corpus (DOW PURSUE UAP releases) are works of the
+U.S. Government and are in the public domain. The OCR transcripts derived
+from them carry no additional copyright claim from BPS AI Software, LLC.
