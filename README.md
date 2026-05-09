@@ -64,6 +64,15 @@ Methodology is published. Numbers are reproducible from a clean clone.
   synthetic placeholder reference corpus (10 hand-crafted public-domain
   passages from Roswell 1947, Project Blue Book, the Hottel memo, etc.) —
   full Black Vault integration is on the post-launch backlog.
+- **2D semantic browser.** [/atlas](https://pursueindex.com/atlas) projects
+  every OCR'd page from the 1024-dim Voyage-3 embedding space into 2D via
+  UMAP (`random_state=42`). 4,119 dots, color-coded by agency, pan / zoom
+  / lasso via WebGL (`regl-scatterplot`); type to dim non-matches via the
+  same MiniSearch index `/search` uses. Sub-400px viewports get a k-means
+  cluster-list fallback. The layout is a low-dimensional approximation,
+  not ground-truth topic groupings — see
+  [/methodology#atlas](https://pursueindex.com/methodology#atlas) for
+  projection details and tradeoffs.
 
 ## On the post-launch backlog
 

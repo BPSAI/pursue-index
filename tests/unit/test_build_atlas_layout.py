@@ -284,6 +284,60 @@ def test_build_from_published_payload(tmp_path: Path) -> None:
 import numpy as np  # noqa: E402
 
 
+def test_write_layout_is_atomic_no_tmp_left_on_success(tmp_path: Path) -> None:
+    """``_write_layout`` must write via ``.tmp`` + ``os.replace`` so a crash
+    mid-write can't leave ``atlas-layout.json`` half-written. After a clean
+    run, the ``.tmp`` sibling must NOT exist on disk — its presence would
+    indicate the script wrote directly without the rename, or that a
+    previous failed run wasn't cleaned up.
+    """
+    mod = _load_script_module()
+    out_path = tmp_path / "atlas-layout.json"
+    mod._write_layout(
+        out_path,
+        model_id="voyage-3",
+        points=[{"card_id": "x", "page": 1, "x": 0.1, "y": 0.2, "agency": "FBI"}],
+        augmented_by=None,
+    )
+    assert out_path.exists()
+    # Atomic-write tmp sibling must be cleaned up after rename.
+    siblings = [p.name for p in tmp_path.iterdir()]
+    assert all(not name.endswith(".tmp") for name in siblings), (
+        f"unexpected .tmp leftover in {siblings} — _write_layout did not "
+        f"replace atomically"
+    )
+
+
+def test_write_layout_preserves_existing_on_replace_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """If the atomic rename fails (filesystem hiccup, EACCES, etc.), the
+    pre-existing ``atlas-layout.json`` must remain intact. Verifies the
+    write-tmp-then-replace contract by patching ``os.replace`` to raise
+    after the tmp file has been written.
+    """
+    import os as _os
+
+    mod = _load_script_module()
+    out_path = tmp_path / "atlas-layout.json"
+    out_path.write_text('{"preserved": true}')
+
+    def _boom(src: object, dst: object) -> None:
+        raise OSError("simulated rename failure")
+
+    monkeypatch.setattr(_os, "replace", _boom)
+    with pytest.raises(OSError, match="simulated rename failure"):
+        mod._write_layout(
+            out_path,
+            model_id="voyage-3",
+            points=[{"card_id": "x", "page": 1, "x": 0.1, "y": 0.2, "agency": "FBI"}],
+            augmented_by=None,
+        )
+    # Original file untouched — the corrupted-half-write hazard is the
+    # exact thing atomic write is designed to prevent.
+    assert json.loads(out_path.read_text()) == {"preserved": True}
+
+
 def test_select_rows_dedupes_augmented_siblings() -> None:
     """Same dedupe rule as ``build_embed_data.py``: when an un-augmented
     row and an augmented row share ``(card_id, page)``, keep the augmented.

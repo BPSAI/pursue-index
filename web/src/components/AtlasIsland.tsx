@@ -2,10 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import {
   AGENCY_ORDER,
   agencyToCategory,
+  buildAtlasMiniSearch,
+  buildCardHref,
   categoryColors,
-  filterIndicesByQuery,
   kmeansClusters,
   pointToScatterplotRow,
+  searchIndicesViaMiniSearch,
+  type AtlasMiniSearch,
   type AtlasPoint,
 } from "./atlas-helpers.ts";
 
@@ -52,10 +55,16 @@ export default function AtlasIsland({ base }: Props) {
   const [layout, setLayout] = useState<Layout | null>(null);
   const [docs, setDocs] = useState<PageDoc[]>([]);
   const [query, setQuery] = useState("");
+  // Debounced query feeds the (expensive) full-array re-upload effect
+  // — typing "blue book" shouldn't fire 9 redraws of 4,119 rows. The
+  // input element keeps using ``query`` for instant input feedback;
+  // the scatterplot re-draw watches ``debouncedQuery`` only.
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
-  const [width, setWidth] = useState(
-    typeof window === "undefined" ? 1024 : window.innerWidth,
-  );
+  // Start at 0 (unknown) and let the mount effect set the real width.
+  // SSR'ing 1024 would flash the desktop canvas-mount path on a real
+  // <400px viewport before the first resize event corrects it (nayru #6).
+  const [width, setWidth] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scatterplotRef = useRef<{
     draw: (rows: number[][]) => Promise<void>;
@@ -93,12 +102,38 @@ export default function AtlasIsland({ base }: Props) {
     };
   }, [base]);
 
-  // Track viewport width for the mobile-fallback decision.
+  // Track viewport width for the mobile-fallback decision. The initial
+  // setWidth call here is what flips the component out of the "width=0"
+  // hold state — that hold prevents a brief desktop-canvas mount on
+  // real <400px viewports (the prior code SSR'd 1024 unconditionally).
   useEffect(() => {
     const onResize = () => setWidth(window.innerWidth);
+    onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  // Debounce ``query`` -> ``debouncedQuery`` at 150ms. Without this,
+  // each keystroke triggers a full 4,119-row re-upload through the
+  // re-color effect below. 150ms is the SearchIsland-feels-instant
+  // budget; lower starts to jank on lower-end mobile/tablets.
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedQuery(query), 150);
+    return () => clearTimeout(handle);
+  }, [query]);
+
+  // Push width changes into the regl-scatterplot instance — without
+  // this, a desktop window resize leaves the WebGL viewport stretched
+  // and hit-testing offset (Codex-1). regl-scatterplot's docs require
+  // explicit ``set({width, height})`` on canvas resize.
+  useEffect(() => {
+    const sp = scatterplotRef.current;
+    if (!sp || !canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      void sp.set({ width: rect.width, height: rect.height });
+    }
+  }, [width]);
 
   // Build a docs lookup keyed by ``card_id-page`` so we can resolve a
   // hovered point to its title + snippet without scanning the array.
@@ -109,13 +144,32 @@ export default function AtlasIsland({ base }: Props) {
   }, [docs]);
 
   const pointsForRender = useMemo(() => layout?.points ?? [], [layout]);
-  const isMobile = width > 0 && width < MOBILE_BREAKPOINT;
+  // Canvas mount requires a measured viewport >= 400px. ``width === 0``
+  // is the pre-mount state — neither path renders until the resize
+  // effect runs and sets the real width. ``isMobile`` is true for
+  // measured-and-narrow only.
+  const hasMeasuredViewport = width > 0;
+  const isMobile = hasMeasuredViewport && width < MOBILE_BREAKPOINT;
 
-  // Lazy-load regl-scatterplot only when ready + on desktop. Avoids
-  // pulling the WebGL bundle into the SSR'd HTML and into the mobile
-  // fallback path.
+  // Build the MiniSearch index once when docs land. Re-runs only when
+  // points or doc set changes — keystrokes hit the cached index, not a
+  // fresh build. Replaces the naive substring filter so /atlas search
+  // lights up the same set of rows /search does for the same input
+  // (vaivora P1).
+  const atlasIndex = useMemo<AtlasMiniSearch | null>(() => {
+    if (!layout) return null;
+    return buildAtlasMiniSearch(layout.points, (p) =>
+      docsByKey.get(`${p.card_id}-${p.page}`),
+    );
+  }, [layout, docsByKey]);
+
+  // Lazy-load regl-scatterplot only when ready + on a measured desktop
+  // viewport. Avoids pulling the WebGL bundle into the SSR'd HTML, into
+  // the mobile fallback path, AND into the brief width=0 hold state
+  // before the resize effect has run (which would otherwise flash a
+  // canvas-mount on real <400px viewports — nayru #6).
   useEffect(() => {
-    if (status !== "ready" || isMobile || !canvasRef.current || !layout) return;
+    if (status !== "ready" || !hasMeasuredViewport || isMobile || !canvasRef.current || !layout) return;
     let cancelled = false;
     let scatterplot: {
       draw: (rows: number[][]) => Promise<void>;
@@ -133,7 +187,7 @@ export default function AtlasIsland({ base }: Props) {
         canvas,
         width: rect.width,
         height: rect.height,
-        pointColor: categoryColors().map(([r, g, b, a]) => [r, g, b, a]),
+        pointColor: categoryColors(),
         pointSize: 4,
         backgroundColor: [10 / 255, 13 / 255, 18 / 255, 1],
       }) as typeof scatterplot;
@@ -147,7 +201,7 @@ export default function AtlasIsland({ base }: Props) {
         if (sel && sel.length > 0) {
           const p = layout.points[sel[0]];
           if (p) {
-            window.location.href = `${base}/card/${p.card_id}?page=${p.page}#page-${p.page}`;
+            window.location.href = buildCardHref(base, p.card_id, p.page);
           }
         }
       });
@@ -162,22 +216,22 @@ export default function AtlasIsland({ base }: Props) {
         scatterplotRef.current = null;
       }
     };
-    // base + layout + isMobile are the meaningful dep set; ESLint would
-    // also list `status` but it's tracked above with a guard.
+    // base + layout + isMobile + hasMeasuredViewport are the meaningful dep set;
+    // ESLint would also list `status` but it's tracked above with a guard.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, isMobile, layout, base]);
+  }, [status, hasMeasuredViewport, isMobile, layout, base]);
 
-  // Re-color on query change: matched indices keep full opacity, others
-  // dim. The cheapest way is a fresh draw with a new fourth-column
-  // (opacity-ish) value per row.
+  // Re-color on (debounced) query change: matched indices keep full
+  // opacity, others dim. The cheapest way is a fresh draw with a new
+  // fourth-column (opacity-ish) value per row. Driven off
+  // ``debouncedQuery`` so each keystroke doesn't re-upload 4,119 rows
+  // (nayru #5). Search is via the MiniSearch index for parity with
+  // /search (vaivora P1).
   useEffect(() => {
     const sp = scatterplotRef.current;
-    if (!sp || !layout) return;
+    if (!sp || !layout || !atlasIndex) return;
     const matched = new Set(
-      filterIndicesByQuery(layout.points, query, (p) => {
-        const d = docsByKey.get(`${p.card_id}-${p.page}`);
-        return `${d?.title ?? ""} ${d?.text ?? ""}`;
-      }),
+      searchIndicesViaMiniSearch(atlasIndex, debouncedQuery),
     );
     const rows = layout.points.map((p, i): number[] => [
       p.x,
@@ -186,9 +240,12 @@ export default function AtlasIsland({ base }: Props) {
       matched.has(i) ? 1.0 : 0.15,
     ]);
     void sp.draw(rows);
-  }, [query, layout, docsByKey]);
+  }, [debouncedQuery, layout, atlasIndex]);
 
-  if (status === "loading") {
+  if (status === "loading" || !hasMeasuredViewport) {
+    // The width=0 hold prevents a desktop-canvas flash on real <400px
+    // viewports — render the loading state until the resize effect
+    // has measured the viewport.
     return <p class="pi-loading text-xs">DECLASSIFYING<span class="pi-caret"></span></p>;
   }
   if (status === "missing") {
@@ -224,7 +281,13 @@ export default function AtlasIsland({ base }: Props) {
         </p>
       </div>
       {isMobile ? (
-        <ClusterListFallback points={pointsForRender} docsByKey={docsByKey} base={base} />
+        <ClusterListFallback
+          points={pointsForRender}
+          docsByKey={docsByKey}
+          base={base}
+          atlasIndex={atlasIndex}
+          query={debouncedQuery}
+        />
       ) : (
         <div class="relative border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/80 aspect-[4/3] sm:aspect-[16/10]">
           <canvas ref={canvasRef} class="block w-full h-full" />
@@ -286,15 +349,30 @@ function ClusterListFallback({
   points,
   docsByKey,
   base,
+  atlasIndex,
+  query,
 }: {
   points: AtlasPoint[];
   docsByKey: Map<string, PageDoc>;
   base: string;
+  atlasIndex: AtlasMiniSearch | null;
+  query: string;
 }) {
   // 8 clusters keeps the list scannable without losing density signal —
-  // matches the plan's k=8 default.
+  // matches the plan's k=8 default. Built from the full point set so
+  // cluster labels stay stable while the user types.
   const labels = useMemo(() => kmeansClusters(points, 8, 42), [points]);
-  const clusters = useMemo(() => groupByCluster(points, labels), [points, labels]);
+  // Filter the cluster contents by the active query (Codex-2 — without
+  // this, the search input on phones / <400px viewports has no effect).
+  // Empty query means "show everything" by MiniSearch contract.
+  const matched = useMemo(() => {
+    if (!atlasIndex) return null;
+    return new Set(searchIndicesViaMiniSearch(atlasIndex, query));
+  }, [atlasIndex, query]);
+  const clusters = useMemo(
+    () => groupByCluster(points, labels, matched),
+    [points, labels, matched],
+  );
   return (
     <ul class="space-y-3">
       {clusters.map((c) => (
@@ -308,7 +386,7 @@ function ClusterListFallback({
               return (
                 <li>
                   <a
-                    href={`${base}/card/${p.card_id}?page=${p.page}#page-${p.page}`}
+                    href={buildCardHref(base, p.card_id, p.page)}
                     class="text-[color:var(--color-text-bright)] hover:text-[color:var(--color-signal-green)]"
                   >
                     {d?.title ?? p.card_id} · P{p.page}
@@ -331,9 +409,11 @@ function ClusterListFallback({
 function groupByCluster(
   points: AtlasPoint[],
   labels: number[],
+  matched: Set<number> | null,
 ): { cluster: number; points: AtlasPoint[]; dominantAgency: string }[] {
   const groups = new Map<number, AtlasPoint[]>();
   for (let i = 0; i < points.length; i++) {
+    if (matched && !matched.has(i)) continue;
     const arr = groups.get(labels[i]) ?? [];
     arr.push(points[i]);
     groups.set(labels[i], arr);

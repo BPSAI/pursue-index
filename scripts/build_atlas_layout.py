@@ -25,6 +25,14 @@ a noisy diff in PRs. UMAP version is recorded in
 ``pyproject.toml::project.optional-dependencies::build-tools`` — bump
 when intentionally regenerating.
 
+Float16 vs float32 caveat: UMAP is sensitive to small numerical
+perturbations in the input. Running with ``--from-published`` (the
+deployed float16 payload) produces coordinates that are *near*, not
+identical, to a native float32 run — the per-point delta is small but
+nonzero. The deployed ``atlas-layout.json`` should be regenerated from
+the native float32 ``vectors.bin`` whenever the NAS is reachable; the
+published-payload path is a CI / airgap fallback only.
+
 Run from project root after a fresh embed pass::
 
     python scripts/build_atlas_layout.py
@@ -44,6 +52,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import struct
 import sys
 from pathlib import Path
@@ -244,7 +253,14 @@ def _write_layout(
         payload["augmented_by"] = augmented_by
     out_path.parent.mkdir(parents=True, exist_ok=True)
     # Compact separators trim ~10% off the wire size at no loss of fidelity.
-    out_path.write_text(json.dumps(payload, separators=(",", ":")))
+    serialized = json.dumps(payload, separators=(",", ":"))
+    # Write to ``.tmp`` sibling then ``os.replace`` — POSIX-atomic on the
+    # same filesystem, so a crash mid-write can't leave the deployed
+    # ``atlas-layout.json`` half-written (the asset is 343 KB; partial
+    # writes have shipped corrupt JSON to the browser before).
+    tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
+    tmp_path.write_text(serialized)
+    os.replace(tmp_path, out_path)
 
 
 def _load_source(

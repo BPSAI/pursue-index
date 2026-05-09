@@ -11,6 +11,8 @@
  * that file converted to floats; if the tokens move, update both.
  */
 
+import MiniSearch from "minisearch";
+
 /** Wire shape of one point in ``atlas-layout.json``. */
 export interface AtlasPoint {
   card_id: string;
@@ -104,6 +106,83 @@ export function filterIndicesByQuery(
     }
   }
   return matches;
+}
+
+/**
+ * Build the deep-link URL for a card / page hit.
+ *
+ * Site-wide deep-link contract: the query slot is reserved for ``?q=…``
+ * (the search-term carry-through used by ``Cite.astro`` and
+ * ``CardOcrIsland`` for highlight). Atlas links MUST emit fragment-only
+ * URLs — adding ``?page=N`` would squat on that slot, conflict with
+ * future query carry-through, and bloat shared URLs.
+ *
+ * Encodes ``cardId`` defensively (``encodeURIComponent``); today's IDs
+ * are sha256[:16] hex so the encode is a no-op, but this hardens any
+ * future flow that surfaces a non-hex token through the same helper
+ * (laverna SEC-003).
+ */
+export function buildCardHref(base: string, cardId: string, page: number): string {
+  return `${base}/card/${encodeURIComponent(cardId)}#page-${page}`;
+}
+
+/**
+ * MiniSearch instance for atlas search. Indexed once over all atlas
+ * points so each keystroke runs a search rather than a fresh build.
+ *
+ * Configuration matches ``SearchIsland`` (boost: title, prefix, fuzzy)
+ * so the same input lights up the same set of rows on /search and
+ * /atlas — vaivora P1 (search-relevance divergence). Stores ``index``
+ * (the position in the points array) as the only stored field so the
+ * island can re-key matches back to its render order.
+ */
+export interface AtlasMiniSearch {
+  search(query: string): number[];
+  size: number;
+}
+
+export function buildAtlasMiniSearch(
+  points: AtlasPoint[],
+  lookup: (p: AtlasPoint) => { title?: string; text?: string } | undefined,
+): AtlasMiniSearch {
+  const ms = new MiniSearch<{ id: number; title: string; text: string }>({
+    fields: ["title", "text"],
+    storeFields: ["id"],
+    idField: "id",
+    searchOptions: {
+      boost: { title: 2 },
+      prefix: true,
+      fuzzy: 0.2,
+      combineWith: "AND",
+    },
+  });
+  const docs = points.map((p, i) => {
+    const r = lookup(p) ?? {};
+    return { id: i, title: r.title ?? "", text: r.text ?? "" };
+  });
+  ms.addAll(docs);
+  return {
+    size: points.length,
+    search(query: string): number[] {
+      const trimmed = query.trim();
+      if (!trimmed) return points.map((_, i) => i);
+      const hits = ms.search(trimmed);
+      return hits.map((h) => Number(h.id));
+    },
+  };
+}
+
+/**
+ * Run a MiniSearch query against an atlas index, mapping hits back to
+ * point indices in the render array. Empty / whitespace-only queries
+ * return all indices so callers can use the same code path for
+ * "no filter" and "filter".
+ */
+export function searchIndicesViaMiniSearch(
+  index: AtlasMiniSearch,
+  query: string,
+): number[] {
+  return index.search(query);
 }
 
 /**

@@ -1,0 +1,40 @@
+# Dependabot updates — runtime supply-chain hygiene.
+#
+# Rationale (laverna SEC-001 on PR #6): npm dependencies are pinned to
+# exact versions in `web/package.json` so a tag-force-push or upstream
+# compromise can't auto-land on the next deploy. Dependabot opens a PR
+# when an upgrade is available, the human reviews the diff, the lock
+# file gets bumped explicitly. Same posture for python via pip + the
+# GitHub Actions ecosystem.
+
+version: 2
+updates:
+  # Web frontend (Astro / Preact / regl-scatterplot etc.)
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    versioning-strategy: "increase"
+    labels:
+      - "dependencies"
+      - "javascript"
+
+  # Python (pursue_index pipeline + scripts)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+
+  # GitHub Actions versions used by `.github/workflows/*`
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"

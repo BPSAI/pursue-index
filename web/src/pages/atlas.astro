@@ -36,8 +36,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     </section>
 
     {/* ===== The canvas itself ===== */}
+    {/*
+      ``client:visible`` defers hydration (and the parallel fetches for
+      ``atlas-layout.json`` ~340 KB + ``pages.json`` ~7 MB) to when the
+      user actually scrolls the canvas into view. The canvas typically
+      sits below the hero on mobile, so paying for a ~7 MB hydration on
+      initial paint was wasted bandwidth (nayru #8).
+    */}
     <section>
-      <AtlasIsland client:load base={base} />
+      <AtlasIsland client:visible base={base} />
     </section>
 
     {/* ===== Honest disclaimer ===== */}

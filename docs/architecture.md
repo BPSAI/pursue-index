@@ -105,3 +105,33 @@ pursue index ingest --manifest data/manifests/latest.json
 ```
 
 Each stage skips work it's already done for unchanged `card_id`s. The CSV archive (`data/csv-archive/uap-csv-<timestamp>.csv`) gives us a forensic trail of how the source has evolved over time, independent of the manifests we generate.
+
+## Web build chain (post-embed)
+
+The static site shipped to Cloudflare reads three browser-side payloads
+that derive from the embed/index outputs. They have an implicit
+ordering: a fresh `pursue embed run` invalidates all three, and the web
+build must rebuild them all before re-deploying or the rendered pages
+will reference deduped rows that don't exist in the deployed payload.
+
+| # | Script                              | Reads                                                | Writes                                            |
+|---|-------------------------------------|------------------------------------------------------|---------------------------------------------------|
+| 1 | `pursue embed run`                  | OCR pages + manifest                                 | `{embeddings_root}/{model}/{vectors.bin,index.json}` |
+| 2 | `scripts/build_search_data.py`      | OCR + augment lookup                                 | `web/public/data/pages.json`                      |
+| 3 | `scripts/build_embed_data.py`       | embed root                                           | `web/public/data/{embeddings.bin,embed_index.json}` (float16) |
+| 4 | `scripts/build_atlas_layout.py`     | embed root (float32) **or** deployed payload (float16) | `web/public/data/atlas-layout.json`               |
+| 5 | `scripts/build_novelty_data.py`     | embed root + reference index                         | `web/public/data/novelty.json`                    |
+| 6 | `cd web && npm run build`           | all of the above                                     | `web/dist/` (Cloudflare Workers static assets)    |
+
+`build_atlas_layout.py` prefers the native float32 `vectors.bin` because
+UMAP is sensitive to the float16 → float32 round-trip (the deployed
+fallback gets you a *near* layout, not an identical one). When the NAS
+isn't mounted (CI / clean clones), pass `--from-published web/public/data/`
+to read the deployed float16 payload — accept the small precision delta
+versus refusing to build.
+
+**Order matters.** A fresh `pursue embed run` invalidates 2–5;
+re-deploying the site without re-running them ships dotted UMAP coords
+pointing at deduped rows that are gone from `pages.json`. `random_state=42`
+keeps the atlas layout reproducible across machines, so re-runs of step
+4 against the same `vectors.bin` produce identical bytes.
