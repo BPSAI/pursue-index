@@ -27,7 +27,7 @@ Plans below are dependency-ordered. Items in **bold** are critical-path.
 |---|------------------------------------------------------------|------------|------------|
 | 1 | ~~[ocr-gpu-surya](./ocr-gpu-surya.md)~~ ✅ shipped          | —          | Surya engine landed; ~1.87× faster than Tesseract on the FBI scans. |
 | 2 | ~~[ocr-llm-fallback](./ocr-llm-fallback.md)~~ ✅ shipped    | (1)        | Anthropic vision behind `engine="auto"`; FBI cover page went from gibberish to full transcription, ~$0.10/15pp at Sonnet rates. |
-| 3 | **[ocr-benchmark](./ocr-benchmark.md)**                    | (1)(2)     | Now unblocked (`--force` flag landed with LLM fallback). A/B harness on a golden set, methodology numbers for the launch. |
+| 3 | ~~[ocr-benchmark](./ocr-benchmark.md)~~ ✅ shipped          | (1)(2)     | Surya median CER 6.1% vs Tesseract 40.4%. Methodology page-ready. Auto-mode projected ~$1.36 at Haiku for full corpus cleanup. |
 | 4 | **[review-correct](./review-correct.md)**                  | (3)        | Human-in-the-loop (or agent-in-the-loop) corrections for the long tail. |
 | 5 | ~~[embed-stage](./embed-stage.md)~~ ✅ shipped              | (3)        | `pursue embed run` Voyage-3 pipeline; in-browser float16 payload ~8.5MB. Awaiting VOYAGE_API_KEY for the live pass. |
 | 6 | ~~[ui-redesign-alien](./ui-redesign-alien.md)~~ ✅ shipped  | —          | Declassified-terminal aesthetic landed; 152-page build, 112KB bundle. |

@@ -1,18 +1,39 @@
 ---
 id: ocr-benchmark
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-08
+shipped: 2026-05-09
+shipped_in: [972398e, b81eab3, 8dcb640, c4da5cc, 02b99aa, 79206a1]
 depends_on: [ocr-gpu-surya, ocr-llm-fallback]
-blocked_on:
-  - "ocr-gpu-surya follow-up #1: --force flag or per-engine meta sidecar"
-  - "ocr-llm-fallback (not yet started)"
 ---
 
-> **Blocker:** the harness needs to OCR the same PDF with multiple
-> engines and compare. Today, `meta.json` idempotency skips a card with
-> any prior engine output. Until `pursue ocr run --force` (or per-engine
-> meta files) lands, you can only benchmark a "fresh" PDF the first time.
+> **Shipped 2026-05-09.** Full Surya re-OCR of the 116-card corpus +
+> A/B benchmark on a 5-card golden set + methodology report
+> (`docs/ocr-benchmark.md`) + per-page JSON dump
+> (`data/benchmarks/ocr-20260509T002235Z.json`).
+>
+> **Headline numbers (golden set, 25 pages, vs LLM-Haiku truth proxy):**
+>
+> | Engine | Mean conf | Median CER | Median WER | Per-page wall |
+> |---|---:|---:|---:|---:|
+> | Tesseract | 77.1 | 40.4% | 59.8% | 2.4s |
+> | Surya | **85.3** | **6.1%** | **9.6%** | **1.9s** |
+> | LLM (Haiku) | 76.8 | — | — | 7.7s |
+>
+> **Surya is the new default.** Median CER 6× better than Tesseract;
+> 27% faster end-to-end despite running serialized on the GPU.
+>
+> **Auto-mode recommendation** (also shipped): 8% of Surya pages on
+> the golden set fell below the 70-conf threshold; extrapolated to
+> the full corpus that's ~332 LLM calls = **~$1.36 at Haiku-4.5** for
+> a full clean-up pass. Recommended default: `auto:surya+llm-haiku`.
+> Run when ready.
+>
+> Search payload (`web/public/data/pages.json`) rebuilt at 7.2 MB
+> from Surya output (+36% from Tesseract 5.3 MB; Surya extracts more
+> text across redactions and layout). Live on the site after the
+> merge deploy.
 
 # OCR benchmark harness
 
