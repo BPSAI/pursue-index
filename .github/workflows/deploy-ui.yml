@@ -40,6 +40,8 @@ jobs:
 
       - run: npm run build
 
+      - run: npm run test:api-page
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist
