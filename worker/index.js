@@ -35,6 +35,12 @@ const ALLOWED_API_ORIGINS = new Set([
 // Method gating is the handler's job, not the dispatcher's. This allowlist
 // is path-only: GET /api/retrieve and GET /api/chat both reach the handler
 // and 405 there (worker/retrieve.js:273, worker/chat.js:46).
+//
+// New entries here REQUIRE a corresponding assertion in
+// `scripts/smoke_api_dispatch.sh` so the integration smoke test stays
+// comprehensive — that script runs `wrangler dev` in CI and verifies
+// the dispatch contract end-to-end, including that paths NOT in this
+// set fall through to ASSETS instead of returning the Worker JSON 404.
 const WORKER_API_PATHS = new Set(["/api/retrieve", "/api/chat"]);
 
 function corsHeaders(origin) {
