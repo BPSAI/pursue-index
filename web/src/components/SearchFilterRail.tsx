@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import {
   EMPTY_FILTERS,
   type SearchFilters,
@@ -127,6 +127,13 @@ function AgencyFacet({
   );
 }
 
+// Pattern that lets the DateInput commit to filter state. Matches a complete
+// `YYYY-MM-DD` OR an empty string (so clearing the input clears the bound).
+// Intentionally NOT exported because the canonical predicate-side regex lives
+// in search-filters.ts and is the same shape — duplicated here only because
+// the input doesn't import from that module.
+const COMMITTABLE_DATE_RE = /^(\d{4}-\d{2}-\d{2})?$/;
+
 function DateRange({
   from,
   to,
@@ -142,46 +149,73 @@ function DateRange({
     <div>
       <FacetLabel>INCIDENT DATE</FacetLabel>
       <div class="grid grid-cols-2 gap-2">
-        <div>
-          <label
-            for="filter-date-from"
-            class="block text-[10px] font-mono text-[color:var(--color-text-faint)] mb-1"
-          >
-            from
-          </label>
-          <input
-            id="filter-date-from"
-            type="text"
-            value={from}
-            placeholder="YYYY-MM-DD"
-            inputMode="numeric"
-            pattern="\d{4}-\d{2}-\d{2}"
-            onInput={(e) => onFrom((e.target as HTMLInputElement).value.trim())}
-            class="w-full font-mono text-[12px]"
-          />
-        </div>
-        <div>
-          <label
-            for="filter-date-to"
-            class="block text-[10px] font-mono text-[color:var(--color-text-faint)] mb-1"
-          >
-            to
-          </label>
-          <input
-            id="filter-date-to"
-            type="text"
-            value={to}
-            placeholder="YYYY-MM-DD"
-            inputMode="numeric"
-            pattern="\d{4}-\d{2}-\d{2}"
-            onInput={(e) => onTo((e.target as HTMLInputElement).value.trim())}
-            class="w-full font-mono text-[12px]"
-          />
-        </div>
+        <DateInput id="filter-date-from" label="from" value={from} onCommit={onFrom} />
+        <DateInput id="filter-date-to" label="to" value={to} onCommit={onTo} />
       </div>
       <p class="mt-1.5 text-[10px] font-mono text-[color:var(--color-text-faint)] leading-snug">
         cards w/ no incident date are excluded when any bound is set
       </p>
+    </div>
+  );
+}
+
+/**
+ * Date input that buffers the in-flight string locally and only commits to
+ * the parent's filter state when the value is empty or a complete
+ * `YYYY-MM-DD`. Why: the predicate compares dates lexicographically, so a
+ * half-typed "194" would otherwise filter to "all cards ≥ 194" the moment
+ * the user hits the fourth keystroke — clearly not what they meant. Buffering
+ * defers the filter activation until the format is committable.
+ */
+function DateInput({
+  id,
+  label,
+  value,
+  onCommit,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onCommit: (v: string) => void;
+}) {
+  // Local buffer mirrors the parent value when it changes externally (e.g.
+  // RESET FILTERS, URL hydration), but otherwise tracks raw keystrokes.
+  const [buffer, setBuffer] = useState(value);
+  useEffect(() => {
+    setBuffer(value);
+  }, [value]);
+
+  const onInput = (e: Event) => {
+    const v = (e.target as HTMLInputElement).value.trim();
+    setBuffer(v);
+    if (COMMITTABLE_DATE_RE.test(v)) onCommit(v);
+  };
+  const onBlur = () => {
+    // If the user tabs away with a half-typed value, don't leave it in the
+    // input — snap back to whatever the committed parent state is so we
+    // don't visually contradict the active filter.
+    if (!COMMITTABLE_DATE_RE.test(buffer)) setBuffer(value);
+  };
+
+  return (
+    <div>
+      <label
+        for={id}
+        class="block text-[10px] font-mono text-[color:var(--color-text-faint)] mb-1"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type="text"
+        value={buffer}
+        placeholder="YYYY-MM-DD"
+        inputMode="numeric"
+        pattern="\d{4}-\d{2}-\d{2}"
+        onInput={onInput}
+        onBlur={onBlur}
+        class="w-full font-mono text-[12px]"
+      />
     </div>
   );
 }

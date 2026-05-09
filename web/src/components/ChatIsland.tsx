@@ -26,9 +26,26 @@ import {
 import { loadBYOKConfig, type BYOKConfig } from "../lib/byok";
 import ChatSettingsPanel from "./ChatSettingsPanel";
 import { segmentWithCitations } from "../lib/citation-render";
+import {
+  EMPTY_FILTERS,
+  cardMatchesFilters,
+  parseFiltersFromQuery,
+  type SearchFilters,
+} from "./search-filters.ts";
+import { FilterContextBanner } from "./search-result-chrome.tsx";
+import type { CardMetadata } from "../data/types.ts";
 
 interface Props {
   base: string;
+  /**
+   * Optional manifest. When provided alongside an active filter URL state
+   * (e.g. arriving at /chat from a filtered /search link), the citation
+   * panel is post-filtered client-side using the same `cardMatchesFilters`
+   * predicate the search island uses. The LLM still sees the full retrieval
+   * set — this scopes the *displayed* sources only, mirroring search-side
+   * behavior. PR #5 review F10.
+   */
+  cards?: CardMetadata[];
 }
 
 interface Message {
@@ -48,16 +65,41 @@ const SUGGESTED_QUERIES = [
   "What does the corpus say about UAP sightings near nuclear facilities?",
 ];
 
-export default function ChatIsland({ base }: Props) {
+export default function ChatIsland({ base, cards }: Props) {
   const [config, setConfig] = useState<BYOKConfig>(() => loadBYOKConfig());
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [phase, setPhase] = useState<"" | "RETRIEVING" | "GENERATING">("");
   const [showSettings, setShowSettings] = useState(false);
+  const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Pull filter state from the URL on mount so a `/chat?agency=FBI&from=…`
+  // link scopes the displayed citation list. LLM context is unaffected — the
+  // worker's /api/retrieve has no filter awareness yet (vaivora F10).
+  useEffect(() => {
+    if (cards && cards.length > 0) {
+      setFilters(parseFiltersFromQuery(window.location.search));
+    }
+  }, [cards]);
+
+  // Build a card_id → CardMetadata lookup once for O(1) post-filter checks
+  // against each citation. Empty Map when no manifest is provided — in that
+  // case the post-filter is a no-op and behavior is identical to pre-PR.
+  const cardsById = useMemo(() => {
+    const m = new Map<string, CardMetadata>();
+    if (cards) for (const c of cards) m.set(c.card_id, c);
+    return m;
+  }, [cards]);
+
+  const filtersActive =
+    filters.agencies.length > 0 ||
+    filters.dateFrom !== "" ||
+    filters.dateTo !== "" ||
+    filters.redactedOnly;
 
   // Provider is recomputed when the config changes.
   const provider: LLMProvider = useMemo(() => {
@@ -138,7 +180,16 @@ export default function ChatIsland({ base }: Props) {
       const last = { ...next[idx] };
       switch (chunk.type) {
         case "citations":
-          last.citations = chunk.passages;
+          // Post-filter the citations against any active URL filter state so
+          // the displayed source list matches the user's expectation from
+          // /search. The model still grounded on the full retrieval set
+          // — this scopes display only.
+          last.citations = filtersActive
+            ? chunk.passages.filter((p) => {
+                const card = cardsById.get(p.card_id);
+                return card ? cardMatchesFilters(card, filters) : true;
+              })
+            : chunk.passages;
           break;
         case "text":
           last.text = (last.text || "") + chunk.delta;
@@ -213,6 +264,13 @@ export default function ChatIsland({ base }: Props) {
           ⚙ SETTINGS
         </button>
       </div>
+
+      {filtersActive && (
+        <FilterContextBanner
+          filters={filters}
+          onClear={() => setFilters(EMPTY_FILTERS)}
+        />
+      )}
 
       {/* Messages area */}
       <div ref={scrollRef} class="flex-1 overflow-y-auto pr-1">

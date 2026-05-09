@@ -34,7 +34,10 @@ Methodology is published. Numbers are reproducible from a clean clone.
   Workers + Static Assets.
 - **Full-text + semantic search** across **4,153 OCR'd pages** spanning the
   116 PDF cards in Release 01. MiniSearch lexical index + Voyage-3
-  embeddings, both browser-side; no server.
+  embeddings, both browser-side; no server. The `/search` route adds a
+  faceted filter rail (agency multi-select, incident-date range,
+  redacted-only) over the lexical index; filter state round-trips through
+  the URL so links are shareable.
 - **OCR pipeline.** Surya (GPU, transformer-based) primary, Anthropic vision
   LLM fallback for pages whose Surya confidence falls below threshold. The
   shipped index is **3,529 Surya pages + 624 LLM-cleaned pages**.

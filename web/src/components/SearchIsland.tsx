@@ -15,7 +15,16 @@ import {
   parseFiltersFromQuery,
   type SearchFilters,
 } from "./search-filters.ts";
+import {
+  ActiveFilterBadge,
+  EmptyResults,
+  hasActiveFilters,
+} from "./search-result-chrome.tsx";
 import type { CardMetadata } from "../data/types.ts";
+
+// URL keys this island owns — anything else (utm_*, fbclid, ref, gclid…)
+// must survive the writer effect untouched. PR #5 review F1.
+const OWNED_URL_KEYS = ["q", "agency", "from", "to", "redacted"] as const;
 
 interface PageDoc {
   id: string; // `${card_id}-p${page}`
@@ -76,28 +85,46 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
       });
   }, [base]);
 
-  // Hydrate query + filters from URL on mount, then keep them in sync.
-  // Done in a useRef-gated effect so the first render doesn't clobber a
-  // shared `?q=foo&agency=FBI` link.
+  // Hydrate query + filters from URL on mount. Gated on `filtersOn` so the
+  // homepage hero (no filter rail) doesn't touch the URL at all — its
+  // submit-on-Enter sends users to /search where the real hydrate happens.
+  // The `useRef` flag prevents the writer effect below from running before
+  // hydration completes (which would clobber a shared `?q=foo&agency=FBI`
+  // link with the empty default state on first render).
   const hydrated = useRef(false);
   useEffect(() => {
+    if (!filtersOn) {
+      // Nothing to hydrate or sync; mark as "done" so the writer's
+      // early-return continues to short-circuit even if filtersOn flips.
+      hydrated.current = true;
+      return;
+    }
     const search = window.location.search;
     const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
     const q = params.get("q");
     if (q) setQuery(q);
-    if (filtersOn) setFilters(parseFiltersFromQuery(search));
+    setFilters(parseFiltersFromQuery(search));
     hydrated.current = true;
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // ^ Mount-only. We deliberately ignore later changes to `filtersOn`:
+    //   the URL is the source of truth, and re-hydrating mid-session would
+    //   undo any user edits made since mount.
+  }, []);
 
   useEffect(() => {
-    if (!hydrated.current) return;
-    const params = new URLSearchParams();
+    // Only the filter-enabled mount writes back to the URL — preserves the
+    // homepage hero's behavior of being a pure submit-and-redirect input
+    // (it doesn't own the location bar). PR #5 review F2.
+    if (!filtersOn || !hydrated.current) return;
+    // Seed from existing search params so we preserve any unrelated
+    // analytics/referral params (utm_*, fbclid, ref, gclid…). We only
+    // delete + re-set the keys this island owns. PR #5 review F1.
+    const params = new URLSearchParams(window.location.search);
+    for (const k of OWNED_URL_KEYS) params.delete(k);
     if (query.trim()) params.set("q", query.trim());
-    if (filtersOn) {
-      const fqs = filtersToQueryString(filters);
-      if (fqs) {
-        for (const [k, v] of new URLSearchParams(fqs)) params.set(k, v);
-      }
+    const fqs = filtersToQueryString(filters);
+    if (fqs) {
+      for (const [k, v] of new URLSearchParams(fqs)) params.set(k, v);
     }
     const qs = params.toString();
     history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
@@ -322,64 +349,6 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
       />
       {main}
     </div>
-  );
-}
-
-function ActiveFilterBadge({ filters, onClear }: { filters: SearchFilters; onClear: () => void }) {
-  if (!hasActiveFilters(filters)) return null;
-  const parts: string[] = [];
-  if (filters.agencies.length > 0) parts.push(filters.agencies.join(" + "));
-  if (filters.dateFrom || filters.dateTo) {
-    parts.push(`${filters.dateFrom || "…"} → ${filters.dateTo || "…"}`);
-  }
-  if (filters.redactedOnly) parts.push("redacted only");
-  return (
-    <div class="flex items-center gap-2 flex-wrap text-[11px] font-mono uppercase tracking-[0.15em] border border-[color:var(--color-signal-cyan)]/40 bg-[color:var(--color-signal-cyan)]/5 px-3 py-2">
-      <span class="text-[color:var(--color-signal-cyan)]">FILTERS:</span>
-      <span class="text-[color:var(--color-text-bright)] normal-case tracking-normal">
-        {parts.join(" · ")}
-      </span>
-      <button
-        type="button"
-        onClick={onClear}
-        class="ml-auto text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-amber)]"
-      >
-        [clear]
-      </button>
-    </div>
-  );
-}
-
-function EmptyResults({ filtersOn, hasActive, onClear }: { filtersOn: boolean; hasActive: boolean; onClear: () => void }) {
-  if (filtersOn && hasActive) {
-    return (
-      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-5 text-center font-mono text-sm text-[color:var(--color-text-dim)]">
-        <span class="text-[color:var(--color-signal-amber)]">[NO MATCH]</span>
-        <span class="mx-2">no results match these filters</span>
-        <span class="text-[color:var(--color-text-faint)]">·</span>
-        <button
-          type="button"
-          onClick={onClear}
-          class="ml-2 text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)] underline-offset-2 hover:underline"
-        >
-          clear filters
-        </button>
-      </div>
-    );
-  }
-  return (
-    <p class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-faint)]">
-      [no results]
-    </p>
-  );
-}
-
-function hasActiveFilters(f: SearchFilters): boolean {
-  return (
-    f.agencies.length > 0 ||
-    f.dateFrom !== "" ||
-    f.dateTo !== "" ||
-    f.redactedOnly
   );
 }
 

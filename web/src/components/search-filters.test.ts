@@ -258,3 +258,102 @@ test("agencyCounts: returns zero / undefined for an empty corpus", () => {
   const counts = agencyCounts([]);
   assert.equal(counts.size, 0);
 });
+
+// ---------------------------------------------------------------------------
+// Edge-case predicate behaviors flagged in PR #5 review.
+// ---------------------------------------------------------------------------
+
+test("cardMatchesFilters: dateFrom > dateTo yields an empty intersection", () => {
+  // A user typing/sharing a swapped range should match nothing — no card has
+  // an incident_date that is BOTH ≥ 1970-01-01 AND ≤ 1947-01-01.
+  const filters: SearchFilters = {
+    ...EMPTY_FILTERS,
+    dateFrom: "1970-01-01",
+    dateTo: "1947-01-01",
+  };
+  assert.equal(
+    cardMatchesFilters(makeCard({ incident_date: "1948-06-15" }), filters),
+    false,
+  );
+  assert.equal(
+    cardMatchesFilters(makeCard({ incident_date: "1971-01-01" }), filters),
+    false,
+  );
+});
+
+test("cardMatchesFilters: null incident_date passes when agency+redacted active but no date bound", () => {
+  // Specifically asserts the "null is not excluded by non-date filters" path
+  // — the predicate's structure implies it but we want a regression guard.
+  const card = makeCard({
+    incident_date: null,
+    agency: "FBI",
+    redacted: true,
+  });
+  const filters: SearchFilters = {
+    ...EMPTY_FILTERS,
+    agencies: ["FBI"],
+    redactedOnly: true,
+  };
+  assert.equal(cardMatchesFilters(card, filters), true);
+});
+
+// ---------------------------------------------------------------------------
+// Hardening: agency safety caps + calendrically-valid dates.
+// ---------------------------------------------------------------------------
+
+test("parseFiltersFromQuery: caps agencies array at 50 entries", () => {
+  // SEC-001: oversized agency lists from a hostile share link must not
+  // allocate huge arrays that get scanned via .includes() on every keystroke.
+  const many = Array.from({ length: 200 }, (_, i) => `A${i}`).join(",");
+  const parsed = parseFiltersFromQuery(`agency=${many}`);
+  assert.equal(parsed.agencies.length, 50);
+  // Order preserved: first 50 win.
+  assert.equal(parsed.agencies[0], "A0");
+  assert.equal(parsed.agencies[49], "A49");
+});
+
+test("parseFiltersFromQuery: drops agency entries longer than 100 chars", () => {
+  // SEC-001: per-entry length cap.
+  const longAgency = "X".repeat(150);
+  const parsed = parseFiltersFromQuery(`agency=FBI,${longAgency},DOS`);
+  assert.deepEqual(parsed.agencies, ["FBI", "DOS"]);
+});
+
+test("parseFiltersFromQuery: rejects calendrically-invalid dates that pass the regex", () => {
+  // SEC-002: 9999-99-99 matches the regex but is not a real date. Reject so
+  // a crafted share link doesn't silently zero out results.
+  assert.equal(parseFiltersFromQuery("from=9999-99-99").dateFrom, "");
+  assert.equal(parseFiltersFromQuery("from=2026-13-01").dateFrom, "");
+  assert.equal(parseFiltersFromQuery("from=2026-02-30").dateFrom, "");
+  // Real dates still pass.
+  assert.equal(parseFiltersFromQuery("from=2026-02-28").dateFrom, "2026-02-28");
+  assert.equal(parseFiltersFromQuery("to=2024-02-29").dateTo, "2024-02-29"); // leap year
+});
+
+test("filtersToQueryString: agency names containing commas survive a round-trip", () => {
+  // F4 (P2): "DEPT, OF X".split(",") used to corrupt names. Encoding the
+  // delimiter (we use %2C inside an entry, comma between entries) keeps
+  // round-trips lossless.
+  const original: SearchFilters = {
+    ...EMPTY_FILTERS,
+    agencies: ["DEPT, OF X", "FBI"],
+  };
+  const qs = filtersToQueryString(original);
+  const parsed = parseFiltersFromQuery(qs);
+  assert.deepEqual(parsed.agencies, ["DEPT, OF X", "FBI"]);
+});
+
+test("EMPTY_FILTERS: outer object is frozen so callers can't reassign properties", () => {
+  // F6 (P2): the previous `Object.freeze(...) as SearchFilters` cast lost the
+  // readonly typing. The exported type is now `Readonly<SearchFilters>` (and
+  // a deep freeze is applied so the agencies array can't be mutated either),
+  // pinning the contract in both the type system and at runtime.
+  assert.throws(() => {
+    // @ts-expect-error — caller mutation is exactly the misuse we want errors for.
+    EMPTY_FILTERS.redactedOnly = true;
+  });
+  assert.throws(() => {
+    // @ts-expect-error — see above.
+    EMPTY_FILTERS.agencies.push("FBI");
+  });
+});
