@@ -148,16 +148,6 @@ requires no Worker change. Method gating (e.g., 405 on non-POST) is the
 handler's responsibility, not the dispatcher's — the allowlist is
 path-only by design.
 
-<<<<<<< HEAD
-Integration-boundary smoke test runs on every PR via
-`.github/workflows/smoke-api-dispatch.yml` and asserts the dispatch
-contract end-to-end against `wrangler dev` + a freshly-built `web/dist`.
-The unit tests in `worker/tests/api_gate.test.js` stub the ASSETS
-binding; the smoke script does not. New routes added to either
-`WORKER_API_PATHS` or `web/src/pages/api*.astro` should also be added to
-`scripts/smoke_api_dispatch.sh` so the contract test stays
-comprehensive.
-=======
 ### Deploy paths
 
 There are three ways the live Worker can be updated, in order of
@@ -190,4 +180,14 @@ preference:
 3. **Manual — `npx wrangler deploy` from a local repo.** Last-resort
    path the operator uses when both above are stuck. Requires
    `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` in env (or `wrangler login`).
->>>>>>> origin/main
+
+### /api/* dispatch contract
+
+Integration-boundary smoke test runs on every PR via
+`.github/workflows/smoke-api-dispatch.yml` and asserts the dispatch
+contract end-to-end against `wrangler dev` + a freshly-built `web/dist`.
+The unit tests in `worker/tests/api_gate.test.js` stub the ASSETS
+binding; the smoke script does not. New routes added to either
+`WORKER_API_PATHS` or `web/src/pages/api*.astro` should also be added to
+`scripts/smoke_api_dispatch.sh` so the contract test stays
+comprehensive.
