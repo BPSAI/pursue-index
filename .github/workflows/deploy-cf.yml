@@ -21,8 +21,11 @@ name: Deploy to Cloudflare Workers (fallback)
 #   (`.github/dependabot.yml`, `github-actions` ecosystem).
 # * No pip installs here — pure Node + wrangler.
 # * Failure-issue pattern mirrors poll-pursue.yml: on deploy failure,
-#   open or update a `deploy-failure` issue with the run URL + tail of
-#   wrangler output so the operator gets paged via GitHub notifications.
+#   open or update a `deploy-failure` issue with the run URL so the
+#   operator gets paged via GitHub notifications. The full wrangler
+#   output is not embedded in the issue body (see laverna MED-001
+#   audit on PR #18) — the run URL is repo-read-gated and is the
+#   authoritative log surface.
 
 on:
   push:
@@ -30,8 +33,16 @@ on:
     paths:
       - "web/**"
       - "worker/**"
+      - "worker/package.json"
+      - "worker/package-lock.json"
       - "wrangler.jsonc"
-      - "data/**"
+      # Narrowed from `data/**` to `data/manifests/**`: poll-pursue.yml
+      # writes `data/last-known-csv-sha.txt` on a 6-hour cron and pushes
+      # to main from `github-actions[bot]`; matching `data/**` would
+      # trigger a full deploy for a one-line SHA bump that does not
+      # affect the bundle. Only `data/manifests/**` ships into the
+      # build (via the `cp` step below).
+      - "data/manifests/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/deploy-cf.yml"
@@ -63,10 +74,12 @@ jobs:
       # actions/setup-node v4.4.0 — pinned to SHA per SEC-001.
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
-          # Node 20 LTS — wrangler supports >=20 and Astro 6 supports
-          # >=20.10. Using 20 (not 22 like deploy-ui.yml did) keeps the
-          # CI image identical to what wrangler tests against upstream.
-          node-version: "20"
+          # Node 22 LTS — matches `web/package.json` engines field
+          # (`"node": ">=22.12.0"`) and the Node version `web/package-lock.json`
+          # was generated under. The deleted `deploy-ui.yml` correctly
+          # used 22 here. Wrangler supports >=20 and Astro 6 supports
+          # >=20.10, but the project's manifest is the authority.
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -84,9 +97,25 @@ jobs:
         working-directory: web
         run: npm ci
 
+      - name: Sync manifest into web/src/data (mirror of data/manifests/latest.json)
+        # The web build imports `web/src/data/manifest.json`, which is a
+        # separate committed copy of `data/manifests/latest.json`.
+        # Without this `cp`, a manifest update lands in `data/` but the
+        # deployed bundle ships the stale checked-in copy. Mirrors the
+        # step from the deleted `deploy-ui.yml`.
+        run: cp data/manifests/latest.json web/src/data/manifest.json
+
       - name: Build web assets (Astro -> web/dist)
         working-directory: web
         run: npm run build
+
+      - name: Drift snapshot (worker constants <-> /api docs page)
+        # Asserts `web/dist/api/index.html` contains required fragments
+        # and that worker constants stay in sync with the docs page.
+        # Mirrors the step from the deleted `deploy-ui.yml`; without
+        # this, doc/worker drift deploys silently.
+        working-directory: web
+        run: npm run test:api-page
 
       - name: Deploy with wrangler
         id: deploy
@@ -101,9 +130,18 @@ jobs:
           npx wrangler deploy 2>&1 | tee wrangler-deploy.log
           # Pull the version ID out of wrangler's output for the run
           # summary. wrangler prints lines like:
-          #   Current Version ID: 12345678-abcd-...
-          VERSION_ID=$(grep -oE 'Current Version ID: [0-9a-f-]+' wrangler-deploy.log \
-            | tail -1 | awk '{print $4}')
+          #   Current Version ID: 12345678-abcd-1234-5678-abcdef012345
+          # Broader pattern (case-insensitive 'version id', accepts the
+          # 'Worker Version ID' / 'Deployment ID' variants wrangler uses
+          # across 3.x/4.x) keyed on the trailing UUID shape so a label
+          # tweak upstream doesn't degrade the summary to 'unknown'.
+          # Wrapped in `set +o pipefail` + `|| true` so a renamed/missing
+          # line never fails the step after a successful deploy
+          # (otherwise the failure-issue path fires on a green deploy).
+          set +o pipefail
+          VERSION_ID=$(grep -oiE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' wrangler-deploy.log \
+            | tail -1 || true)
+          set -o pipefail
           echo "version_id=${VERSION_ID:-unknown}" >> "$GITHUB_OUTPUT"
         continue-on-error: true
 
@@ -129,26 +167,32 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
         # Reuse a single open issue rather than spamming a new one per
         # failure. If an open `deploy-failure` issue exists, append a
-        # comment; otherwise open a fresh one. Tail of wrangler output
-        # is included for at-a-glance triage.
+        # comment; otherwise open a fresh one. Body links to the run
+        # URL only (no log tail) — wrangler best-effort redacts secrets
+        # in its output, but a future plugin or HTTP error body could
+        # echo the CF token; the run URL is repo-read-gated and shows
+        # the same content in a place that respects org visibility.
         run: |
-          TAIL=$(tail -n 50 wrangler-deploy.log 2>/dev/null || echo "(no log captured)")
           BODY=$(cat <<EOF
           GH Actions wrangler-deploy fallback failed.
 
           - Commit: \`${COMMIT_SHA}\`
           - Run: ${RUN_URL}
 
-          Last 50 lines of \`wrangler deploy\` output:
-
-          \`\`\`
-          ${TAIL}
-          \`\`\`
+          Open the run URL above for full \`wrangler deploy\` output
+          (the log tail is intentionally not embedded here; see
+          comment in workflow file).
 
           Live Worker may be stale until either CF Workers Builds catches up or this is fixed and re-run.
           EOF
           )
-          EXISTING=$(gh issue list --label deploy-failure --state open --json number --jq '.[0].number')
+          # `--jq '.[0].number'` returns the literal string `null` for
+          # an empty array, which would make EXISTING non-empty and
+          # send the script down the `gh issue comment "null"` path
+          # (failing instead of opening the first deploy-failure
+          # issue). `// empty` collapses null to the empty string so
+          # the `[ -n "$EXISTING" ]` guard works correctly.
+          EXISTING=$(gh issue list --label deploy-failure --state open --json number --jq '.[0].number // empty')
           if [ -n "$EXISTING" ]; then
             gh issue comment "$EXISTING" --body "$BODY"
           else

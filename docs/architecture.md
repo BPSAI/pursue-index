@@ -160,15 +160,23 @@ preference:
    healthy day.
 2. **Fallback — `.github/workflows/deploy-cf.yml`.** Same deploy from
    GH Actions, triggered on push to `main` for paths that affect the
-   bundle (`web/**`, `worker/**`, `wrangler.jsonc`, `data/**`). Exists
-   because CF Workers Builds has stalled multiple times (notably the
-   2026-05-09 cluster — PRs #6 through #17 merged but the live Worker
-   stayed pinned to a pre-#6 build until the operator manually
-   deployed). On failure it opens or updates a `deploy-failure`
-   issue. Runs in parallel with the CF dashboard build when both
-   paths are healthy; `wrangler deploy` is idempotent on identical
-   bundles, so the second deploy just produces a new version pointing
-   at the same code.
+   bundle (`web/**`, `worker/**`, `wrangler.jsonc`,
+   `data/manifests/**`). Exists because CF Workers Builds has stalled
+   multiple times (notably the 2026-05-09 cluster — PRs #6 through
+   #17 merged but the live Worker stayed pinned to a pre-#6 build
+   until the operator manually deployed). On failure it opens or
+   updates a `deploy-failure` issue. Runs in parallel with the CF
+   dashboard build when both paths are healthy; `wrangler deploy` is
+   idempotent on identical bundles, so the second deploy just
+   produces a new version pointing at the same code. The workflow's
+   `concurrency: deploy-cf` group only serializes GH Actions runs
+   against each other — it does **not** coordinate with the CF
+   dashboard pipeline, so two simultaneous `wrangler deploy` calls
+   against the same account can land out of wallclock order in the
+   Versions list (the slower path's Version ID lands later even if it
+   started earlier). This is purely an audit-trail nit; the bundle
+   itself is identical and the latest version always points at the
+   most recent commit.
 3. **Manual — `npx wrangler deploy` from a local repo.** Last-resort
    path the operator uses when both above are stuck. Requires
    `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` in env (or `wrangler login`).
