@@ -147,3 +147,28 @@ dynamic route requires updating `WORKER_API_PATHS` in `worker/index.js`
 requires no Worker change. Method gating (e.g., 405 on non-POST) is the
 handler's responsibility, not the dispatcher's — the allowlist is
 path-only by design.
+
+### Deploy paths
+
+There are three ways the live Worker can be updated, in order of
+preference:
+
+1. **Primary — CF Workers Builds.** Configured via the Cloudflare
+   dashboard (`build: cd web && npm install && npm run build`,
+   `deploy: npx wrangler deploy`). Triggers on push to `main`. This
+   is the path documented in `wrangler.jsonc` and is what runs on a
+   healthy day.
+2. **Fallback — `.github/workflows/deploy-cf.yml`.** Same deploy from
+   GH Actions, triggered on push to `main` for paths that affect the
+   bundle (`web/**`, `worker/**`, `wrangler.jsonc`, `data/**`). Exists
+   because CF Workers Builds has stalled multiple times (notably the
+   2026-05-09 cluster — PRs #6 through #17 merged but the live Worker
+   stayed pinned to a pre-#6 build until the operator manually
+   deployed). On failure it opens or updates a `deploy-failure`
+   issue. Runs in parallel with the CF dashboard build when both
+   paths are healthy; `wrangler deploy` is idempotent on identical
+   bundles, so the second deploy just produces a new version pointing
+   at the same code.
+3. **Manual — `npx wrangler deploy` from a local repo.** Last-resort
+   path the operator uses when both above are stuck. Requires
+   `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` in env (or `wrangler login`).
