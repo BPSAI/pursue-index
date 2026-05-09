@@ -37,16 +37,30 @@ DEFAULT_WARN_BYTES = 10 * 1024 * 1024  # 10 MB — chat-interface plan threshold
 
 
 def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
+    """Read vectors.bin into a contiguous float32 [total, dim] array.
+
+    ``total`` is derived from the actual file size, not ``index["n"]``.
+    After an augmented embed run, the embed root's ``index.json`` drops
+    un-augmented prior rows for any (card_id, page) that now has an
+    augmented sibling (Codex P1 fix in ``pipeline._persist``), but those
+    orphan vector bytes remain on disk. The kept rows index into this
+    larger array via their original ``offset``; ``_filter_vectors``
+    slices to only the kept rows downstream.
+    """
     index = json.loads((in_dir / "index.json").read_text())
     dim = int(index["dim"])
-    n = int(index["n"])
     raw = (in_dir / "vectors.bin").read_bytes()
-    if len(raw) != n * dim * 4:
+    if len(raw) % (dim * 4) != 0:
         raise RuntimeError(
-            f"vectors.bin size {len(raw)} != n*dim*4 ({n * dim * 4})"
+            f"vectors.bin size {len(raw)} not a multiple of dim*4 ({dim * 4})"
         )
-    floats = struct.unpack(f"<{n * dim}f", raw)
-    arr = np.array(floats, dtype=np.float32).reshape(n, dim)
+    total = len(raw) // (dim * 4)
+    if total < int(index["n"]):
+        raise RuntimeError(
+            f"vectors.bin holds {total} vectors but index references {index['n']} rows"
+        )
+    floats = struct.unpack(f"<{total * dim}f", raw)
+    arr = np.array(floats, dtype=np.float32).reshape(total, dim)
     return arr, index
 
 
