@@ -18,6 +18,7 @@ you commit alongside the manifest, since OCR runs on the workstation.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -28,6 +29,15 @@ from pursue_index.config import settings  # noqa: E402
 
 MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
+
+# Surya emits <b>...</b> and <u>...</u> markup even with math_mode=False; the
+# corpus has no markup semantics, so strip these tags from the search payload
+# (text between the tags is preserved). Tracked as ocr-gpu-surya follow-up #2.
+_SURYA_TAG_RE = re.compile(r"</?(?:b|u|i)>")
+
+
+def _clean_text(text: str) -> str:
+    return _SURYA_TAG_RE.sub("", text)
 
 
 def main() -> int:
@@ -63,7 +73,7 @@ def main() -> int:
                         "card_id": card_id,
                         "page": row["page"],
                         "title": title,
-                        "text": row["text"],
+                        "text": _clean_text(row["text"]),
                     }
                 )
                 pages_seen += 1
