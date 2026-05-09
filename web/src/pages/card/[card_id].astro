@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import CardOcrIsland from "../../components/CardOcrIsland.tsx";
 import { cards } from "../../data/manifest-loader";
 
 export function getStaticPaths() {
@@ -202,14 +203,25 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
             OCR TEXT
           </h3>
           <p class="font-mono text-xs leading-relaxed text-[color:var(--color-text-dim)]">
-            <span class="text-[color:var(--color-signal-amber)]">[PENDING]</span>
-            <span class="block mt-1">
-              OCR output for this card will appear here once the Surya pass
-              completes and the next deploy ships the search index.
-            </span>
+            Per-page OCR transcript renders below. Use
+            <code class="text-[color:var(--color-signal-cyan)]">#page-N</code>
+            anchors to deep-link into a specific page.
           </p>
         </section>
       </aside>
     </div>
+
+    {/* OCR transcript — full width, collapsible per page */}
+    <section class="space-y-3 pt-2" id="ocr">
+      <h2 class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] flex items-center gap-2">
+        <span class="text-[color:var(--color-signal-green)]">▸</span> OCR TRANSCRIPT
+      </h2>
+      <CardOcrIsland
+        client:load
+        cardId={card.card_id}
+        base={base}
+        assetType={card.asset_type}
+      />
+    </section>
   </article>
 </Base>
