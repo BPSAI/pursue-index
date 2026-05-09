@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-05-08
+> Last updated: 2026-05-08 (UX bug-bash session)
 
 ## Active Plan
 
@@ -57,6 +57,87 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
+
+### Session: 2026-05-08 — UX bug-bash from a real-human review (mobile, agency stamp, search snippets)
+
+A friend of the user browsed pursueindex.com on PC and mobile and flagged
+three concrete UX gaps. All three landed on `agent-a9d528d23d18a598e`
+worktree (three conventional-commit commits, build green at 154 pages).
+
+- **`fix(web): mobile layout audit at 375px and below`** (`abaffee`) —
+  the Base.astro header nav (six uppercase items + GH + research-preview
+  pill) overflowed at 375px because the row had no `flex-wrap`. Reflowed
+  so the nav drops to its own row below the lockup on mobile and the
+  preview pill shrinks to "preview" + sits next to the lockup. Footer
+  drops the dangling `ml-auto` (was leaving a stranded gap before
+  SRC/IDX). CardExplorer filter `<select>` gets `w-full lg:w-auto` so
+  the dropdowns fill the column on mobile instead of being narrow pills
+  against blank space. Card detail PDF iframe was `h-[80vh]
+  min-h-[640px]` — the 640px floor exceeded an iPhone SE 13 mini's
+  ~600px viewport; now `h-[60vh] min-h-[420px] sm:h-[80vh]
+  sm:min-h-[640px]`. Index hero h1 + command preamble step down a size
+  on mobile and `break-all` on the long upstream-CSV reference.
+  Methodology's full war.gov URL got `break-all`. Splash lockup
+  centers on mobile; splash footer flows in two natural columns
+  (sm:justify-between) instead of `ml-auto`-stranding the
+  preview-token line.
+- **`feat(web): agency case-file stamps on card detail header`**
+  (`b5d61e4`) — replaces the small mono "AGENCY · FBI" line on
+  /card/[id] with a visually obvious "case-file stamp" treatment in
+  the header's top-right slot. New `web/src/components/AgencyStamp.astro`:
+  rotated (~4deg) dashed-border tile, mono uppercase abbreviation
+  (DOW/FBI/NASA/DOS) + `DECLASSIFIED · {release_date}` subtitle,
+  color-coded per agency from the existing signal palette (DOW amber,
+  FBI red, NASA cyan, DOS green; neutral `--color-text-bright` fallback
+  for unknown agencies). `lg` (header) and `sm` (future grid use) sizes.
+  **Brand-original by design — does not reproduce any official seal**
+  (USC § 506 / DOD seal restrictions). Saved as a Driver feedback
+  memory so this constraint sticks for future asks.
+  Card-detail header restructured to keep agency text + redaction
+  badges on the left, stamp on the right; on mobile they stack with
+  the stamp centered. Card_id moved to its own under-line beneath
+  the dl row (less prominent, still scannable).
+- **`feat(web): search snippets + in-page OCR highlighting`**
+  (`3e2e28d`) — closes the worst UX gap of the three. Search results
+  in `SearchIsland.tsx` now show a 140-char snippet centered on the
+  first hit with matched terms wrapped in `<mark class="pi-mark">`
+  (signal-amber bg + dark text, css in global.css). Snippet uses
+  word-boundary protection at the edges so we don't chop mid-word.
+  Result links carry `?q={query}` in addition to `#page-{n}`.
+  CardOcrIsland.tsx reads `?q=` on mount, builds a Unicode
+  word-boundary regex (whole words only — "alien" matches the standalone
+  word but not "alienate" or "spacecraft"; lenient on punctuation),
+  highlights every match in the OCR text, and `scrollIntoView({
+  block: "center" })` to the very first match (with a green ring on
+  the first-hit `<mark>`). New `web/src/components/highlight.ts`
+  shared module (split into its own Vite chunk); 117 lines, 6
+  module-level functions — under arch limits.
+
+**Build status:** clean, 154 pages, 1.5s.
+**Architecture check:** `bpsai-pair arch check web/src/` — no violations.
+
+**Cross-references with sibling agents (running in parallel):**
+- nayru/laverna are read-only review; no shared-file conflicts.
+- OCR benchmark agent owns `web/public/data/pages.json` and
+  `scripts/build_*` — left untouched. The MiniSearch index in
+  `SearchIsland.tsx` consumes `pages.json` unchanged; only the
+  rendering layer changed.
+
+**Backlog items surfaced during the audit (not fixed in this pass):**
+- The `astro.config.mjs.site` still resolves OG canonical URLs to a
+  github.io origin; the launch task still needs to flip this to
+  `https://pursueindex.com` (already noted in prior session's
+  "What's Next").
+- The card grid in CardExplorer could optionally surface a small
+  AgencyStamp tile to make agency identifiable at a glance from the
+  index — judgment call deferred (the current type-badge + agency
+  text is already legible; adding a stamp risks tile-noise). The
+  `sm` size of AgencyStamp is built and ready.
+- Methodology / about pages have no in-page TOC on mobile; long-scroll
+  on a 375x812 viewport is fine but a sticky section nav would help.
+- The diff page (`/diff`) was not audited at narrow widths in this
+  pass — DiffIsland.tsx wasn't surfaced as a friend complaint and
+  staying focused.
 
 ### Session: 2026-05-08 — Launch-prep UX (OCR card view, content, OG, noindex, finds, sitemap)
 
@@ -288,6 +369,10 @@ prefixes; final build green at 153 pages.
 
 ## What's Next
 
+-1. **UX bug-bash merge** — review and merge `agent-a9d528d23d18a598e`
+   into main. Three commits: mobile layout audit, agency case-file
+   stamps, search snippets + in-page OCR highlighting. No data shape
+   changes; Worker / wrangler / pages.json untouched.
 0. **Launch-prep UX merge** — review and merge
    `worktree-agent-aa46101777e1463bf` into main. Once merged, the live
    `pursueindex.com` deploy will pick up: card OCR transcripts, real
