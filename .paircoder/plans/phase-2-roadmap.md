@@ -31,7 +31,7 @@ Plans below are dependency-ordered. Items in **bold** are critical-path.
 | 4 | **[review-correct](./review-correct.md)**                  | (3)        | Human-in-the-loop (or agent-in-the-loop) corrections for the long tail. |
 | 5 | ~~[embed-stage](./embed-stage.md)~~ ✅ shipped              | (3)        | `pursue embed run` Voyage-3 pipeline; in-browser float16 payload ~8.5MB. Awaiting VOYAGE_API_KEY for the live pass. |
 | 6 | ~~[ui-redesign-alien](./ui-redesign-alien.md)~~ ✅ shipped  | —          | Declassified-terminal aesthetic landed; 152-page build, 112KB bundle. |
-| 7 | **[chat-interface](./chat-interface.md)**                  | (5)(6)     | The headline feature. Streams from a backend, RAG over (5), citations mandatory. UNBLOCKED by embed-stage shipping. |
+| 7 | ~~[chat-interface](./chat-interface.md)~~ ✅ shipped        | (5)(6)     | RAG with citations, BYOK + anonymous, rate limit + cache + budget cap, off-corpus abstention shortcut. Deploy needs `wrangler kv namespace create CHAT_KV` + secrets first. |
 | 8 | **[production-launch](./production-launch.md)**            | (7)        | Domain DNS, rate-limits, abuse handling, methodology page, HN post. CF Pages migration runbook is at `docs/runbooks/cloudflare-pages-migration.md`. |
 | 9 | [curated-finds](./curated-finds.md)                        | —          | "Notable Cases" page — hand-curated reading guide. Authority play, can ship before chat. |
 | 10 | [novelty-detection](./novelty-detection.md)               | (5)        | Per-page cosine similarity vs Black Vault reference corpus → "new vs previously disclosed" tags. The citation moat. |

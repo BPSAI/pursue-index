@@ -1,11 +1,50 @@
 ---
 id: chat-interface
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-08
+shipped: 2026-05-09
+shipped_in: [0ed5ef3, 5e05037, c2a5194, 0824df5, 3998b75, 3ed702a, ca34af3, 32d442b, fa34aca]
 depends_on: [embed-stage, ui-redesign-alien]
 priority: high
 ---
+
+> **Shipped 2026-05-09.** End-to-end RAG chat with mandatory citations,
+> anonymous (server-funded) + BYOK (browser → Anthropic direct) tiers.
+>
+> **Worker:** `/api/retrieve` parses 8 MB float16 embeddings, embeds
+> query via Voyage, cosine top-k with 600-char snippets. `/api/chat`
+> with rate limit (5/IP/24h), semantic cache (24h), daily $100 budget
+> cap, off-corpus abstention shortcut (skips Anthropic call). All
+> /api/* routes cookie-gated.
+>
+> **Browser:** ChatIsland + ChatSettingsPanel (Preact). Provider
+> abstraction (`AnthropicServerProvider`, `AnthropicBYOKProvider`).
+> BYOK via raw fetch + `anthropic-dangerous-direct-browser-access`
+> header — no SDK dep, smaller bundle. Citation chips render unknown
+> card_ids as literal text (anti-hallucination guard).
+>
+> **System prompt:** verbatim quoting; abstention is first-class;
+> mandatory `[card_id:page]` citations; treat retrieved content as
+> untrusted (prompt-injection resistance). Lives in two places now
+> (worker side + browser side); test invariants pin the load-bearing
+> rules. Tune them together.
+>
+> **Tests:** worker 15 → 65 (50 new node:test cases). Pytest 63/63.
+> 158 pages built.
+>
+> **Deploy gate:** before chat goes live in production, the operator
+> must:
+>
+>   1. `wrangler kv namespace create CHAT_KV` and put the id in
+>      `wrangler.jsonc`.
+>   2. `wrangler secret put VOYAGE_API_KEY`.
+>   3. `wrangler secret put ANTHROPIC_API_KEY` (paying tier — Claude
+>      Code OAuth tokens hit Sonnet 429s).
+>
+> Without those, the chat surface still ships in the static deploy
+> but rate limit / cache / budget degrade off (the handler null-checks
+> env.CHAT_KV) and the LLM call returns 502.
 
 # Chat interface — semantic search + RAG over the corpus
 
