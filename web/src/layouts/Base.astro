@@ -11,11 +11,25 @@ interface Props {
    * FIXME(launch): flip noindex default to false once we're ready for SE indexing.
    */
   noindex?: boolean;
-  /** Optional override for the OG image; defaults to /og.png. */
+  /**
+   * Optional override for the OG image; defaults to /og.png.
+   *
+   * Must be either an absolute URL whose origin matches `siteOrigin`
+   * (i.e. `https://pursueindex.com/...`) OR a root-relative path
+   * starting with a single `/`. Protocol-relative (`//cdn...`) and
+   * bare relative paths are rejected — they break absolute-URL
+   * resolution and let an attacker who controls the prop point
+   * scrapers at an arbitrary host (SEC-002 hardening).
+   */
   ogImage?: string;
+  /** Optional alt text for the OG/Twitter image. Same value used in both. */
+  ogImageAlt?: string;
   /** OG type — "website" by default; "article" for individual finds entries. */
   ogType?: "website" | "article";
 }
+
+const DEFAULT_OG_IMAGE_ALT =
+  "PURSUE://INDEX — DOW PURSUE UAP Document Archive — declassified document card with PURSUE://INDEX wordmark and corpus stats";
 
 const {
   title = "PURSUE://INDEX",
@@ -23,6 +37,7 @@ const {
   active = null,
   noindex = false,
   ogImage,
+  ogImageAlt = DEFAULT_OG_IMAGE_ALT,
   ogType = "website",
 } = Astro.props;
 
@@ -30,9 +45,42 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const siteOrigin = Astro.site ? Astro.site.origin : "https://pursueindex.com";
 const canonicalPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 const canonicalUrl = `${siteOrigin}${canonicalPath}`;
-const ogImageUrl = ogImage
-  ? (ogImage.startsWith("http") ? ogImage : `${siteOrigin}${ogImage}`)
-  : `${siteOrigin}${base}/og.png`;
+
+// Validate ``ogImage`` shape at build time. Anything unexpected is a
+// hard error rather than a silent malformed meta tag — see SEC-002.
+function resolveOgImageUrl(raw: string | undefined): string {
+  if (!raw) return `${siteOrigin}${base}/og.png`;
+  if (/^https?:\/\//.test(raw)) {
+    if (!raw.startsWith(`${siteOrigin}/`) && raw !== siteOrigin) {
+      throw new Error(
+        `Invalid ogImage: cross-origin URL ${JSON.stringify(raw)} not allowed. Must start with ${siteOrigin}/ or be root-relative.`,
+      );
+    }
+    return raw;
+  }
+  // Reject protocol-relative ("//cdn.example.com/x.png") and bare
+  // relative paths ("og.png" without a leading slash).
+  if (raw.startsWith("//") || !raw.startsWith("/")) {
+    throw new Error(
+      `Invalid ogImage: ${JSON.stringify(raw)} must be an absolute URL on ${siteOrigin} or a root-relative path beginning with '/'.`,
+    );
+  }
+  return `${siteOrigin}${raw}`;
+}
+
+const ogImageUrl = resolveOgImageUrl(ogImage);
+// Derive the MIME type from the resolved URL so per-route JPEG/WebP
+// overrides are labeled correctly (Codex P2). Defaults to image/png
+// for the bundled card.
+const _ogImageExt = ogImageUrl.split("?")[0].split("#")[0].toLowerCase().split(".").pop() ?? "png";
+const ogImageType =
+  _ogImageExt === "jpg" || _ogImageExt === "jpeg"
+    ? "image/jpeg"
+    : _ogImageExt === "webp"
+      ? "image/webp"
+      : _ogImageExt === "gif"
+        ? "image/gif"
+        : "image/png";
 
 const fetchedISO = manifest.fetched_at;
 const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 19).replace("T", " ");
@@ -75,14 +123,17 @@ const navItems = [
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="PURSUE://INDEX — DOW PURSUE UAP Document Archive" />
+    <meta property="og:image:type" content={ogImageType} />
+    <meta property="og:image:alt" content={ogImageAlt} />
 
     {/* Twitter Card */}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
-    <meta name="twitter:image:alt" content="PURSUE://INDEX — DOW PURSUE UAP Document Archive" />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+    {/* twitter:site / twitter:creator deferred — no BPS X/Twitter handle yet.
+        When one lands, add: <meta name="twitter:site" content="@..." /> */}
 
     <title>{title}</title>
   </head>

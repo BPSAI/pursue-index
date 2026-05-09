@@ -21,7 +21,12 @@ dependencies = [
     # OCR
     "pytesseract>=0.3.10",
     "pdf2image>=1.17",
-    "pillow>=10.3",
+    # Pillow 11.1.0 patches CVE-2024-28219 (ImagingResampleHorizontal
+    # buffer overflow in the C extension), which is on the rotation
+    # path used by ``src/pursue_index/web/og_layers.py::declassified_stamp``
+    # (Image.BICUBIC resample). Do not relax this lower bound without
+    # confirming the patched series.
+    "pillow>=11.1.0",
     "pypdfium2>=4.30",
     # Index / DB
     "sqlalchemy>=2.0",
@@ -40,6 +45,14 @@ azure = [
 gpu = [
     # Surya is the transformer-OCR engine for the local 5090. Pulls in torch +
     # CUDA wheels (~3 GB); install only on hosts with a CUDA-capable GPU.
+    #
+    # Known conflict (2026-05): surya-ocr 0.17.1 pins ``pillow<11.0.0``, but
+    # the core dependency now requires ``pillow>=11.1.0`` (CVE-2024-28219).
+    # Until surya releases a Pillow-11-compatible build, install the gpu
+    # extra in a separate venv (`uv pip install pursue-index[gpu] --resolution=lowest`)
+    # or with ``pip install --no-deps surya-ocr==0.17.1``. The CVE-affected
+    # resampler is on the og_image build path, not the OCR path, so the
+    # security gap on a gpu-only OCR host is bounded.
     "surya-ocr>=0.17",
     # surya-ocr 0.17.x is incompatible with transformers 5.x; pip will resolve
     # to 5.8 by default and break import. Pin until surya catches up.
