@@ -21,9 +21,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image, PngImagePlugin
+from PIL import Image
 
 from . import og_layers as layers
+from .og_writer import write_deterministic_png
 
 
 @dataclass(frozen=True)
@@ -67,13 +68,4 @@ def render_og_image(ctx: OgImageContext, out_path: Path) -> None:
     layers.footer_bar(im, status_label=ctx.status_label)
     layers.declassified_stamp(im)
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    flat = im.convert("RGB")  # PNG with no alpha — smaller, no halo on Slack/iMessage.
-    pnginfo = PngImagePlugin.PngInfo()  # empty => no timestamps, deterministic
-    flat.save(
-        out_path,
-        format="PNG",
-        optimize=True,
-        compress_level=9,
-        pnginfo=pnginfo,
-    )
+    write_deterministic_png(im, out_path)

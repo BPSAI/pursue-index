@@ -233,6 +233,108 @@ def test_long_title_does_not_crash_or_overflow(tmp_path: Path) -> None:
         assert im.size == (1200, 630)
 
 
+def test_long_unspaced_token_is_hard_broken(tmp_path: Path) -> None:
+    """A 300-char run with no whitespace (e.g. a long URL or hash)
+    cannot stay on one line — it would render past the right margin
+    and through the corner brackets / DECLASSIFIED stamp area on the
+    public OG card. The wrapper must break by character before the
+    greedy word-wrap claims the token whole.
+
+    Asserted via the public ``_wrap_title`` helper to keep the test
+    fast and focused; the renderer-level smoke is covered by the
+    generic ``test_long_title_does_not_crash_or_overflow`` above.
+    """
+    from PIL import ImageDraw
+
+    from pursue_index.web import og_fonts as fonts
+    from pursue_index.web.finds_og import _wrap_title
+
+    im = Image.new("RGBA", (1200, 630), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(im)
+    f = fonts.mono(44, bold=True)
+    blob = "A" * 300
+    lines = _wrap_title(blob, draw=draw, font=f, max_width=940, max_lines=3)
+    assert len(lines) <= 3
+    for line in lines:
+        # Each line must measure within the title box. The previous
+        # implementation returned one ~300-char line that overflowed.
+        assert draw.textlength(line, font=f) <= 940, (
+            f"line {line!r} overflows max_width=940"
+        )
+
+
+# --- Subtitle truncation ellipsis symmetry --------------------------------
+
+
+def test_subtitle_fallback_ellipsizes_when_truncated(
+    tmp_path: Path, ctx: FindsOgContext
+) -> None:
+    """When ``subtitle is None``, the slug-breadcrumb fallback
+    ``/FINDS/<slug>`` must apply the same ellipsis logic as a real
+    truncated subtitle. A long-slug fallback must end in ``…`` if it
+    was shortened, not silently hide the truncation.
+    """
+    from PIL import ImageDraw
+
+    from pursue_index.web import og_fonts as fonts
+    from pursue_index.web.finds_og import _truncate_with_ellipsis
+
+    im = Image.new("RGBA", (1200, 630), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(im)
+    f = fonts.sans(24)
+    super_long_slug = "x" * 400
+    # Pretend it was a fallback (subtitle=None, original=fallback string).
+    fallback = f"/FINDS/{super_long_slug}"
+    out = _truncate_with_ellipsis(
+        fallback, draw=draw, font=f, max_width=940, original=fallback
+    )
+    assert out.endswith("…"), (
+        f"fallback truncation must end in ellipsis, got {out!r}"
+    )
+
+
+# --- Committed-PNG byte-equality regression catch -------------------------
+
+
+def test_apollo_17_committed_png_matches_fresh_render(tmp_path: Path) -> None:
+    """Re-render apollo-17 with the same context the build script
+    produces and assert byte-equality with the on-disk PNG. If anyone
+    tweaks the renderer without re-running the build script, the
+    committed PNGs go stale and previously-passing tests would mask
+    that drift; this test makes the byte-stability claim load-bearing
+    in CI.
+    """
+    if not FINDS_DIR.exists():
+        pytest.skip("finds content dir not present")
+    committed = FINDS_OG_DIR / "apollo-17.png"
+    if not committed.exists():
+        pytest.skip("committed apollo-17 PNG not present")
+    # Re-derive the context the build script computes for apollo-17.
+    # Apollo-17 has exactly one card so the source label is unambiguous.
+    apollo_ctx = FindsOgContext(
+        slug="apollo-17",
+        title="Apollo 17 Crew Debriefing — What's Actually There",
+        subtitle="An exercise in expectation calibration",
+        source_label="NASA · 0b298cfc",
+        csv_sha256=_load_manifest_sha(),
+        status_label="RESEARCH PREVIEW",
+    )
+    fresh = tmp_path / "apollo-17.png"
+    render_finds_og_image(apollo_ctx, fresh)
+    assert fresh.read_bytes() == committed.read_bytes(), (
+        "apollo-17.png is stale relative to the renderer; "
+        "run `python scripts/build_finds_og_images.py` to rebuild"
+    )
+
+
+def _load_manifest_sha() -> str:
+    """Read csv_sha256 out of the live manifest the build script uses."""
+    import json
+
+    manifest = REPO_ROOT / "data" / "manifests" / "latest.json"
+    return json.loads(manifest.read_text())["csv_sha256"]
+
+
 # --- Smoke test: build all real entries -----------------------------------
 
 
