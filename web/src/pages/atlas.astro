@@ -1,0 +1,64 @@
+---
+import Base from "../layouts/Base.astro";
+import AtlasIsland from "../components/AtlasIsland.tsx";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<Base
+  title="ATLAS — PURSUE://INDEX"
+  description="2D semantic browser of 4,119 OCR'd pages from the DOW PURSUE UAP releases. UMAP projection of voyage-3 embeddings; click any dot to open the source page."
+  active="atlas"
+>
+  <div class="space-y-6">
+    {/* ===== Hero ===== */}
+    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 px-4 py-6 sm:py-8 pi-bracket relative scanlines-soft">
+      <div class="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2 break-all">
+        <span class="text-[color:var(--color-text-faint)] flex-shrink-0">$</span>
+        <span class="break-all">umap --n_components 2 --random_state 42 ./voyage-3</span>
+      </div>
+      <h1 class="mt-3 font-mono text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        SEMANTIC BROWSER
+        <span class="block text-[color:var(--color-text-dim)] text-sm sm:text-base font-normal mt-1 leading-snug">
+          A 2D projection of the corpus — near = related
+        </span>
+      </h1>
+      <p class="mt-3 text-sm leading-relaxed text-[color:var(--color-text)] max-w-3xl">
+        Each dot is one OCR'd page from the DOW PURSUE releases, placed
+        by similarity in the 1024-dim
+        <code class="text-[color:var(--color-signal-cyan)]">voyage-3</code>
+        embedding space and projected to 2D with
+        <a href={`${base}/methodology#atlas`} class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">UMAP</a>.
+        Pages on similar topics drift together; agencies color-code into
+        rough territories. Click any dot to open the source page in the
+        reader. Type to filter — matches glow, the rest dim.
+      </p>
+    </section>
+
+    {/* ===== The canvas itself ===== */}
+    <section>
+      <AtlasIsland client:load base={base} />
+    </section>
+
+    {/* ===== Honest disclaimer ===== */}
+    <section class="border border-[color:var(--color-signal-amber)]/30 bg-[color:var(--color-signal-amber)]/5 p-4 max-w-3xl">
+      <p class="text-[11px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-signal-amber)]">
+        ▸ what you're looking at
+      </p>
+      <p class="mt-2 text-sm leading-relaxed text-[color:var(--color-text)]">
+        This is a low-dimensional approximation, not ground-truth topic
+        groupings. UMAP preserves <em>local</em> neighborhoods well and
+        global geometry only loosely; cluster boundaries here are not
+        official topic labels. The layout would shift if rerun with a
+        different seed — we pin
+        <code class="text-[color:var(--color-signal-cyan)]">random_state=42</code>
+        so it doesn't churn between commits, but that's a choice, not a
+        truth.
+      </p>
+      <p class="mt-2 text-sm leading-relaxed text-[color:var(--color-text)]">
+        For projection details + tradeoffs, see
+        <a href={`${base}/methodology#atlas`} class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">methodology / atlas</a>.
+      </p>
+    </section>
+  </div>
+</Base>

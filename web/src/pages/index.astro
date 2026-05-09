@@ -76,6 +76,15 @@ const pdfCount = s.byType.PDF ?? 0;
           width on desktop while letting it go full-bleed on mobile. */}
       <div class="mt-6 sm:mt-8 mx-auto w-full sm:max-w-2xl lg:max-w-3xl">
         <SearchIsland client:load base={base} examples={heroExamples} />
+        {/* Secondary affordance: a low-key link into the 2D semantic
+            browser. Subtle on purpose — search remains the headline. */}
+        <p class="mt-4 text-[11px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">
+          or
+          <a
+            href={`${base}/atlas`}
+            class="ml-1 text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] transition-colors"
+          >explore by topic →</a>
+        </p>
       </div>
     </section>
 
