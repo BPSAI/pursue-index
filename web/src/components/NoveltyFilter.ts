@@ -50,16 +50,28 @@ export const DISCLOSURE_TONE: Record<
   },
 };
 
-/** Fetch the static novelty payload. Resolves to EMPTY_NOVELTY on any error. */
+/** Fetch the static novelty payload. Resolves to EMPTY_NOVELTY on any error.
+ *
+ * `available` is true ONLY when a real reference corpus is loaded. The
+ * synthetic-placeholder corpus loads cards + archiveId so the Provenance
+ * panel on the card detail page can render its honest "placeholder; full
+ * comparison pending" message — but the index page's per-card pills and
+ * filter dropdown are gated on `available`, so they hide entirely until
+ * a real reference corpus (Black Vault et al.) lands. Showing a "NOVEL"
+ * pill on every card when the comparison is against 10 placeholder
+ * passages misleads readers into thinking we measured something we didn't.
+ */
 export async function loadNovelty(base: string): Promise<NoveltyState> {
   try {
     const res = await fetch(`${base}/data/novelty.json`, { cache: "force-cache" });
     if (!res.ok) return { ...EMPTY_NOVELTY, loaded: true };
     const payload = (await res.json()) as NoveltyPayload;
+    const archiveId = payload.archive_id ?? "";
+    const isPlaceholder = archiveId === "synthetic-placeholder" || archiveId === "";
     return {
       loaded: true,
-      available: true,
-      archiveId: payload.archive_id ?? "",
+      available: !isPlaceholder,
+      archiveId,
       thresholds: payload.thresholds ?? { high: 0.85, partial: 0.7 },
       cards: payload.cards ?? {},
     };

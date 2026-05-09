@@ -18,7 +18,14 @@
 const VOYAGE_EMBED_URL = "https://api.voyageai.com/v1/embeddings";
 const VOYAGE_MODEL = "voyage-3";
 const DEFAULT_K = 8;
-const SCORE_THRESHOLD = 0.5;
+// Cosine-similarity floor for retrieval. Voyage-3 paraphrased queries land
+// in the 0.3–0.5 range against the corpus even when semantically relevant
+// (observed: "Did Apollo 17 astronauts report any anomalies?" misses the
+// Apollo 17 page at 0.5 because the page text uses different vocabulary).
+// 0.30 lets borderline-but-plausible matches through; the model's Rule 3
+// abstention discipline catches the actually-irrelevant cases via the
+// system prompt rather than via this threshold.
+const SCORE_THRESHOLD = 0.3;
 const SNIPPET_CHARS = 600; // generous — used as prompt context, not display.
 
 /**
