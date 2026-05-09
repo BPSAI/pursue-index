@@ -1,0 +1,2663 @@
+{
+  "archive_id": "synthetic-placeholder",
+  "computed_at": "2026-05-09T13:55:46.952822+00:00",
+  "thresholds": {
+    "high": 0.85,
+    "partial": 0.7
+  },
+  "cards": [
+    {
+      "card_id": "0b298cfc9c65a4d6",
+      "disclosure_status": "novel",
+      "novelty_score": 0.631,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4276
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.3103
+        }
+      ]
+    },
+    {
+      "card_id": "0d7a23b29e6de1bf",
+      "disclosure_status": "novel",
+      "novelty_score": 0.7113,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.2887
+        }
+      ]
+    },
+    {
+      "card_id": "0e3b3ec17a9ae021",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6595,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3405
+        }
+      ]
+    },
+    {
+      "card_id": "108379f8a86dbe9c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4965,
+      "matches": [
+        {
+          "page": 11,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6191
+        },
+        {
+          "page": 112,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6138
+        },
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6094
+        }
+      ]
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5278,
+      "matches": [
+        {
+          "page": 24,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6363
+        },
+        {
+          "page": 196,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.6222
+        },
+        {
+          "page": 198,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6219
+        }
+      ]
+    },
+    {
+      "card_id": "15d23b5f88df64fa",
+      "disclosure_status": "novel",
+      "novelty_score": 0.556,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4957
+        },
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4765
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4754
+        }
+      ]
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6401,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3599
+        }
+      ]
+    },
+    {
+      "card_id": "1701a0f307714921",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6668,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.3332
+        }
+      ]
+    },
+    {
+      "card_id": "17a8cc07fd8c694f",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6679,
+      "matches": [
+        {
+          "page": 159,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4787
+        },
+        {
+          "page": 135,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4746
+        },
+        {
+          "page": 140,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4591
+        }
+      ]
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "disclosure_status": "novel",
+      "novelty_score": 0.7099,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.2901
+        }
+      ]
+    },
+    {
+      "card_id": "1b522e779e72877c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6154,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-condon-report-1969",
+          "ref_page": 1,
+          "similarity": 0.3846
+        }
+      ]
+    },
+    {
+      "card_id": "1e63919cc6c3daf4",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6377,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.3623
+        }
+      ]
+    },
+    {
+      "card_id": "205f9d0f627074c3",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5772,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4228
+        }
+      ]
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5365,
+      "matches": [
+        {
+          "page": 44,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5983
+        },
+        {
+          "page": 142,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.58
+        },
+        {
+          "page": 23,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.569
+        }
+      ]
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4773,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5227
+        }
+      ]
+    },
+    {
+      "card_id": "239d049dab8c81d5",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4492,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5508
+        }
+      ]
+    },
+    {
+      "card_id": "26b02d358ec20061",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5918,
+      "matches": [
+        {
+          "page": 15,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.573
+        },
+        {
+          "page": 13,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5507
+        },
+        {
+          "page": 14,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.5177
+        }
+      ]
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6778,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.3222
+        }
+      ]
+    },
+    {
+      "card_id": "2fecc4f3b434e64d",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5557,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5006
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4586
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-pentagon-2017-nyt",
+          "ref_page": 1,
+          "similarity": 0.4424
+        }
+      ]
+    },
+    {
+      "card_id": "33cca99659328520",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5457,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4543
+        }
+      ]
+    },
+    {
+      "card_id": "36bcfe2cfb5f3f54",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6787,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.3213
+        }
+      ]
+    },
+    {
+      "card_id": "3746998b8c506e5c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5583,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5519
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4882
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4645
+        }
+      ]
+    },
+    {
+      "card_id": "39c999bd61b2e20f",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5868,
+      "matches": [
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4528
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-pentagon-2017-nyt",
+          "ref_page": 1,
+          "similarity": 0.4355
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-pentagon-2017-nyt",
+          "ref_page": 1,
+          "similarity": 0.4217
+        }
+      ]
+    },
+    {
+      "card_id": "3a0d83f3e51179db",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5637,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5018
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5011
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4801
+        }
+      ]
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5527,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4473
+        }
+      ]
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6335,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3665
+        }
+      ]
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4957,
+      "matches": [
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5043
+        }
+      ]
+    },
+    {
+      "card_id": "43db2719407a7897",
+      "disclosure_status": "novel",
+      "novelty_score": 0.574,
+      "matches": [
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5035
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4949
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.445
+        }
+      ]
+    },
+    {
+      "card_id": "4555d94dd6067f57",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5673,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4843
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4487
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4347
+        }
+      ]
+    },
+    {
+      "card_id": "4844321219e306af",
+      "disclosure_status": "novel",
+      "novelty_score": 0.53,
+      "matches": [
+        {
+          "page": 84,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.6683
+        },
+        {
+          "page": 88,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.6577
+        },
+        {
+          "page": 194,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.6554
+        }
+      ]
+    },
+    {
+      "card_id": "48e4bc1bdb5a66e8",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5002,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5363
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5093
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4874
+        }
+      ]
+    },
+    {
+      "card_id": "4b68726be4af8ff9",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6179,
+      "matches": [
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5899
+        },
+        {
+          "page": 13,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.521
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4324
+        }
+      ]
+    },
+    {
+      "card_id": "57e9cc7f9942e2cf",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6131,
+      "matches": [
+        {
+          "page": 9,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4384
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4232
+        },
+        {
+          "page": 10,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.4217
+        }
+      ]
+    },
+    {
+      "card_id": "5847028ebb855cf8",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6396,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.467
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4284
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-condon-report-1969",
+          "ref_page": 1,
+          "similarity": 0.3428
+        }
+      ]
+    },
+    {
+      "card_id": "5d9d3147f0b62d0c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6568,
+      "matches": [
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.373
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.3499
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.3411
+        }
+      ]
+    },
+    {
+      "card_id": "5ecebc7c28a8d8c7",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5412,
+      "matches": [
+        {
+          "page": 150,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6715
+        },
+        {
+          "page": 95,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.6333
+        },
+        {
+          "page": 153,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6255
+        }
+      ]
+    },
+    {
+      "card_id": "63c47bad93af4c92",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5983,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-hessdalen-radar",
+          "ref_page": 1,
+          "similarity": 0.4143
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-hessdalen-radar",
+          "ref_page": 1,
+          "similarity": 0.3987
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.392
+        }
+      ]
+    },
+    {
+      "card_id": "669dd29723dd423f",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5016,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4984
+        }
+      ]
+    },
+    {
+      "card_id": "672ae7eab15481ff",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6682,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3318
+        }
+      ]
+    },
+    {
+      "card_id": "67ab3ffef2aecf70",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6626,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.3374
+        }
+      ]
+    },
+    {
+      "card_id": "67c2ef13cc69891c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.569,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.54
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.4128
+        }
+      ]
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "disclosure_status": "novel",
+      "novelty_score": 0.571,
+      "matches": [
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4962
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.493
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-pentagon-2017-nyt",
+          "ref_page": 1,
+          "similarity": 0.4763
+        }
+      ]
+    },
+    {
+      "card_id": "6d7faf71150107e9",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6095,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4832
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.2979
+        }
+      ]
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5828,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4172
+        }
+      ]
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5021,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4979
+        }
+      ]
+    },
+    {
+      "card_id": "71758de42a2df926",
+      "disclosure_status": "novel",
+      "novelty_score": 0.556,
+      "matches": [
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5623
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5452
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-hessdalen-radar",
+          "ref_page": 1,
+          "similarity": 0.4102
+        }
+      ]
+    },
+    {
+      "card_id": "775d16ead1ec8fa1",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5508,
+      "matches": [
+        {
+          "page": 43,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4988
+        },
+        {
+          "page": 47,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4961
+        },
+        {
+          "page": 35,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4911
+        }
+      ]
+    },
+    {
+      "card_id": "78dc972c0c143d1e",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6379,
+      "matches": [
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-hessdalen-radar",
+          "ref_page": 1,
+          "similarity": 0.4907
+        },
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4801
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4496
+        }
+      ]
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5567,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5269
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.5145
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5113
+        }
+      ]
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5441,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4559
+        }
+      ]
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5338,
+      "matches": [
+        {
+          "page": 177,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.7585
+        },
+        {
+          "page": 179,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-condon-report-1969",
+          "ref_page": 1,
+          "similarity": 0.6766
+        },
+        {
+          "page": 30,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.6746
+        }
+      ]
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "disclosure_status": "novel",
+      "novelty_score": 0.496,
+      "matches": [
+        {
+          "page": 42,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6632
+        },
+        {
+          "page": 153,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6606
+        },
+        {
+          "page": 73,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6569
+        }
+      ]
+    },
+    {
+      "card_id": "80e36017873c19a1",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5731,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5108
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4338
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4258
+        }
+      ]
+    },
+    {
+      "card_id": "83aa439781e60e7b",
+      "disclosure_status": "novel",
+      "novelty_score": 0.501,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5386
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4593
+        }
+      ]
+    },
+    {
+      "card_id": "852224ee097b52cf",
+      "disclosure_status": "novel",
+      "novelty_score": 0.579,
+      "matches": [
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4947
+        },
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4827
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4521
+        }
+      ]
+    },
+    {
+      "card_id": "88a20bf256ccce7a",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5311,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4689
+        }
+      ]
+    },
+    {
+      "card_id": "8bb54e0aec5e91ad",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6001,
+      "matches": [
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4703
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4621
+        },
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4433
+        }
+      ]
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5529,
+      "matches": [
+        {
+          "page": 261,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6506
+        },
+        {
+          "page": 200,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.6454
+        },
+        {
+          "page": 196,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.6036
+        }
+      ]
+    },
+    {
+      "card_id": "8d0b85ce46109d06",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4648,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.5941
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5501
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5238
+        }
+      ]
+    },
+    {
+      "card_id": "8e727ae36892cba9",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5889,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4464
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4343
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-pentagon-2017-nyt",
+          "ref_page": 1,
+          "similarity": 0.4212
+        }
+      ]
+    },
+    {
+      "card_id": "8f354cf1d1f821f0",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5859,
+      "matches": [
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4367
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4121
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.3936
+        }
+      ]
+    },
+    {
+      "card_id": "9151e15016109463",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5565,
+      "matches": [
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5022
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4988
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4985
+        }
+      ]
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4579,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6408
+        },
+        {
+          "page": 24,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-sign-1948",
+          "ref_page": 1,
+          "similarity": 0.6345
+        },
+        {
+          "page": 15,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.6272
+        }
+      ]
+    },
+    {
+      "card_id": "954d1e1944bc6d17",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5264,
+      "matches": [
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.5083
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.5054
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.4072
+        }
+      ]
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5091,
+      "matches": [
+        {
+          "page": 17,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.7054
+        },
+        {
+          "page": 18,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.703
+        },
+        {
+          "page": 45,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-condon-report-1969",
+          "ref_page": 1,
+          "similarity": 0.6831
+        }
+      ]
+    },
+    {
+      "card_id": "9877727cd0d1bbfe",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5228,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4928
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4923
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4466
+        }
+      ]
+    },
+    {
+      "card_id": "9961adf6adf1010b",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5666,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5121
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5081
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4176
+        }
+      ]
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5223,
+      "matches": [
+        {
+          "page": 175,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6274
+        },
+        {
+          "page": 59,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6227
+        },
+        {
+          "page": 173,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6105
+        }
+      ]
+    },
+    {
+      "card_id": "9a0a2d62e9f47eb8",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5691,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5186
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4416
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4138
+        }
+      ]
+    },
+    {
+      "card_id": "9a3f23d9136eddf3",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5966,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4034
+        }
+      ]
+    },
+    {
+      "card_id": "9e2c2621d67dde12",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6477,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-condon-report-1969",
+          "ref_page": 1,
+          "similarity": 0.4087
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3687
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-hessdalen-radar",
+          "ref_page": 1,
+          "similarity": 0.3412
+        }
+      ]
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4772,
+      "matches": [
+        {
+          "page": 23,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6291
+        },
+        {
+          "page": 20,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6133
+        },
+        {
+          "page": 21,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5791
+        }
+      ]
+    },
+    {
+      "card_id": "a0f6663169c21caf",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5586,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4414
+        }
+      ]
+    },
+    {
+      "card_id": "a33faf4c40674462",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5699,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4751
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4385
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-pentagon-2017-nyt",
+          "ref_page": 1,
+          "similarity": 0.4241
+        }
+      ]
+    },
+    {
+      "card_id": "a3f68d208681dc64",
+      "disclosure_status": "novel",
+      "novelty_score": 0.424,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5928
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5593
+        }
+      ]
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "disclosure_status": "novel",
+      "novelty_score": 0.607,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.393
+        }
+      ]
+    },
+    {
+      "card_id": "aa3097b4c549a67a",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6468,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-condon-report-1969",
+          "ref_page": 1,
+          "similarity": 0.4091
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3687
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3425
+        }
+      ]
+    },
+    {
+      "card_id": "ad721de274bb7d6c",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5539,
+      "matches": [
+        {
+          "page": 53,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6146
+        },
+        {
+          "page": 48,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5988
+        },
+        {
+          "page": 50,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5934
+        }
+      ]
+    },
+    {
+      "card_id": "aef933642db8134a",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5372,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5415
+        },
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5036
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4836
+        }
+      ]
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6488,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.3512
+        }
+      ]
+    },
+    {
+      "card_id": "af42a6774881c110",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4939,
+      "matches": [
+        {
+          "page": 17,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6039
+        },
+        {
+          "page": 37,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6015
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5996
+        }
+      ]
+    },
+    {
+      "card_id": "b03309df6758ab15",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5087,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5074
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4753
+        }
+      ]
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4387,
+      "matches": [
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5799
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5427
+        }
+      ]
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5526,
+      "matches": [
+        {
+          "page": 68,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.7937
+        },
+        {
+          "page": 56,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6573
+        },
+        {
+          "page": 159,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6477
+        }
+      ]
+    },
+    {
+      "card_id": "b279eac8e49cf4fe",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6465,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3535
+        }
+      ]
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4544,
+      "matches": [
+        {
+          "page": 168,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6759
+        },
+        {
+          "page": 172,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6642
+        },
+        {
+          "page": 136,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6548
+        }
+      ]
+    },
+    {
+      "card_id": "b8b5b17a6d70ef39",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5806,
+      "matches": [
+        {
+          "page": 9,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.4736
+        },
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4659
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4217
+        }
+      ]
+    },
+    {
+      "card_id": "bbc494426d526bdc",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5767,
+      "matches": [
+        {
+          "page": 9,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5106
+        },
+        {
+          "page": 10,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4919
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4757
+        }
+      ]
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5282,
+      "matches": [
+        {
+          "page": 70,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.7088
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.6623
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6317
+        }
+      ]
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6622,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.3378
+        }
+      ]
+    },
+    {
+      "card_id": "be226374e719c729",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4982,
+      "matches": [
+        {
+          "page": 60,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.606
+        },
+        {
+          "page": 32,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.6019
+        },
+        {
+          "page": 66,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5948
+        }
+      ]
+    },
+    {
+      "card_id": "be533a4ab886eb11",
+      "disclosure_status": "novel",
+      "novelty_score": 0.477,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.556
+        },
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.5335
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4796
+        }
+      ]
+    },
+    {
+      "card_id": "c1c59236394f7b14",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5421,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.508
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4891
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4718
+        }
+      ]
+    },
+    {
+      "card_id": "c2961d7ccb95ae45",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5455,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4545
+        }
+      ]
+    },
+    {
+      "card_id": "c304734c04357887",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6311,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3689
+        }
+      ]
+    },
+    {
+      "card_id": "c48c078b811c0fd7",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6747,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5016
+        },
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.4264
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3388
+        }
+      ]
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6031,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3969
+        }
+      ]
+    },
+    {
+      "card_id": "c788c17e8cc32230",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5491,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5631
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4872
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4717
+        }
+      ]
+    },
+    {
+      "card_id": "cc33e8c352fc80ce",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5602,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4398
+        }
+      ]
+    },
+    {
+      "card_id": "ccd932b4f40e8de7",
+      "disclosure_status": "novel",
+      "novelty_score": 0.7025,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.2975
+        }
+      ]
+    },
+    {
+      "card_id": "d14e0371a5bf0f5e",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5664,
+      "matches": [
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4872
+        },
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4867
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.4781
+        }
+      ]
+    },
+    {
+      "card_id": "d8e5687dc870892d",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5576,
+      "matches": [
+        {
+          "page": 9,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5253
+        },
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5228
+        },
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4873
+        }
+      ]
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6377,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.3623
+        }
+      ]
+    },
+    {
+      "card_id": "e897e67f95bc1e1b",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4353,
+      "matches": [
+        {
+          "page": 84,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6528
+        },
+        {
+          "page": 91,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6481
+        },
+        {
+          "page": 117,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-roswell-1947-press-release",
+          "ref_page": 1,
+          "similarity": 0.6476
+        }
+      ]
+    },
+    {
+      "card_id": "e93f6997811954dc",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5559,
+      "matches": [
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5169
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-malmstrom-1967",
+          "ref_page": 1,
+          "similarity": 0.3712
+        }
+      ]
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5694,
+      "matches": [
+        {
+          "page": 8,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4788
+        },
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4694
+        },
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4647
+        }
+      ]
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5638,
+      "matches": [
+        {
+          "page": 3,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5635
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5371
+        },
+        {
+          "page": 2,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5221
+        }
+      ]
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6189,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.3811
+        }
+      ]
+    },
+    {
+      "card_id": "f42c11ca158aeffc",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4794,
+      "matches": [
+        {
+          "page": 14,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.6181
+        },
+        {
+          "page": 13,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6161
+        },
+        {
+          "page": 17,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6022
+        }
+      ]
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "disclosure_status": "novel",
+      "novelty_score": 0.4929,
+      "matches": [
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5071
+        }
+      ]
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5476,
+      "matches": [
+        {
+          "page": 71,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.6445
+        },
+        {
+          "page": 80,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.6425
+        },
+        {
+          "page": 75,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-project-bluebook-summary",
+          "ref_page": 1,
+          "similarity": 0.6412
+        }
+      ]
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6475,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.3525
+        }
+      ]
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "disclosure_status": "novel",
+      "novelty_score": 0.5722,
+      "matches": [
+        {
+          "page": 88,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5645
+        },
+        {
+          "page": 80,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5618
+        },
+        {
+          "page": 64,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-fbi-hottel-memo-1950",
+          "ref_page": 1,
+          "similarity": 0.5585
+        }
+      ]
+    },
+    {
+      "card_id": "fd8286ffc6fbc1fb",
+      "disclosure_status": "novel",
+      "novelty_score": 0.671,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.329
+        }
+      ]
+    },
+    {
+      "card_id": "fd8bfb9481bcbdd3",
+      "disclosure_status": "novel",
+      "novelty_score": 0.591,
+      "matches": [
+        {
+          "page": 6,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.5042
+        },
+        {
+          "page": 7,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4473
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.4175
+        }
+      ]
+    },
+    {
+      "card_id": "ff30c985595153f3",
+      "disclosure_status": "novel",
+      "novelty_score": 0.6304,
+      "matches": [
+        {
+          "page": 1,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-aatip-tic-tac",
+          "ref_page": 1,
+          "similarity": 0.5118
+        },
+        {
+          "page": 5,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.4357
+        },
+        {
+          "page": 4,
+          "ref_archive": "synthetic-placeholder",
+          "ref_card_id": "synth-rb47-1957",
+          "ref_page": 1,
+          "similarity": 0.3391
+        }
+      ]
+    }
+  ]
+}
