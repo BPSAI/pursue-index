@@ -22,26 +22,83 @@ the synthesized answer.
 
 ## Architecture
 
+Two execution paths behind the same provider interface:
+
 ```
-Browser ──► Cloudflare Worker / Vercel Edge ──► Anthropic API
-   │              │
-   │              ├─ Retrieval (in-memory cosine over embeddings.bin
-   │              │           shipped at deploy time, ~50 MB)
-   │              └─ Optional semantic-similarity cache (KV/Redis)
-   │
-   └─ Streams Claude response via SSE; renders citations live
+                 ┌─ ANONYMOUS / DEFAULT ───────────────────────────────┐
+Browser ────────►│ Cloudflare Worker (same as static)                   │
+                 │   ├─ Rate limit (5/IP/day)                           │
+                 │   ├─ Semantic cache (Workers KV)                     │
+                 │   ├─ Retrieval (in-memory cosine over embeddings.bin) │
+                 │   └─ Anthropic API (server-funded, sonnet)           │
+                 └──────────────────────────────────────────────────────┘
+                 ┌─ BYOK / POWER USER ──────────────────────────────────┐
+Browser ────────►│ Anthropic API (direct, user's key, opus or sonnet)   │
+        │        └──────────────────────────────────────────────────────┘
+        └────────► Worker (retrieval only)  ───────────────────────────┐
+                   Returns retrieved snippets; browser does the LLM call
+                   keeps key out of our infra entirely
 ```
 
-Static frontend stays on Pages. The Worker handles:
+Static frontend stays on the same Worker. Two modes share the same UI
+and the same retrieval path; only the LLM call differs.
 
-1. Query embedding (Voyage / OpenAI; same model as the corpus).
-2. Top-k retrieval (cosine, k=8, threshold 0.5).
-3. Prompt assembly: system prompt + retrieved page snippets + user query.
-4. Anthropic streaming response.
-5. Citation extraction from response → linked back to /card/[id]#page-N.
+### Anonymous (default)
 
-The frontend's `/chat` surface streams the answer + a citations sidebar
-that updates as references arrive.
+Worker handles:
+
+1. Per-IP rate limit (Workers KV counter, 5/day).
+2. Semantic cache lookup (hash of query + top-k retrieved card_ids → cached answer).
+3. Query embedding (Voyage / OpenAI; same model as the corpus).
+4. Top-k retrieval (cosine, k=8, threshold 0.5).
+5. Prompt assembly: system prompt + retrieved page snippets + user query.
+6. Anthropic streaming response (server-funded, default model: claude-sonnet-4-6).
+7. Citation extraction → /card/[id]#page-N links.
+8. Daily global spend cap → graceful degrade to keyword-only search.
+
+### BYOK (power user)
+
+User opens **Settings** in the chat surface, pastes an Anthropic API key.
+Stored in `localStorage` only — never sent to our origin. Anthropic key
+permissions are respected entirely by the user; we never see, log, or
+proxy the key.
+
+Worker still handles retrieval (we'd rather not embed the entire 8.5 MB
+vectors.bin in the browser; retrieval needs the whole index). Browser
+handles the LLM call directly via `@anthropic-ai/sdk` with
+`dangerouslyAllowBrowser: true`.
+
+Flow:
+
+1. Browser → Worker `/api/retrieve` with query → Worker returns top-k
+   passages + citation metadata.
+2. Browser → Anthropic API directly with retrieved snippets + user
+   key → streams response.
+3. Browser renders streaming + citations identically to anonymous mode.
+
+Tradeoff: in BYOK mode the user's IP hits Anthropic directly so they
+get whatever rate limit Anthropic gives them. They also unlock model
+choice (Opus 4.7 instead of Sonnet 4.6) via a settings toggle.
+
+### Provider abstraction
+
+The browser-side LLM call lives behind a provider interface from day
+one so adding OpenAI, Mistral, or local Ollama later is a one-file change:
+
+```typescript
+interface LLMProvider {
+  name: string;
+  stream(messages: Message[], opts: StreamOpts): AsyncIterable<Chunk>;
+}
+```
+
+Implementations:
+- `AnthropicServerProvider` — calls our Worker `/api/chat` (anonymous mode)
+- `AnthropicBYOKProvider` — calls Anthropic directly with user key
+- `OpenAIBYOKProvider` — calls OpenAI directly with user key (post-launch)
+- `OllamaProvider` — calls user's local Ollama server (privacy-niche, post-launch)
+
+Settings panel chooses provider; UI is identical regardless.
 
 ## Prompt scaffolding
 
@@ -72,40 +129,76 @@ Few-shot examples in the prompt show the citation format and the
   - "Did Apollo 17 astronauts report any anomalies?"
   - "What incidents involved redacted location data?"
 
-## Rate limits + abuse
+## Rate limits + abuse (anonymous mode)
 
-- Per-IP: 30 chats / hour at the edge (Workers KV counter).
-- Global: $50/day cap; over → graceful "high traffic, try again"
-  message. Alert via Pushover/Slack hook.
+- Per-IP: 5 chats / 24h via Workers KV counter. (Generous enough that a
+  curious skeptic can poke; tight enough to bound spend at HN scale.)
+- Global: $100/day cap; over → graceful "high traffic, try again or
+  bring your own Anthropic key" message that links to BYOK setup.
+  Alert via Pushover/Slack hook.
 - Semantic cache: hash query + top-k page IDs; identical retrieved set
-  + similar query → cached answer for 24h. Catches HN-spike duplication.
+  + similar query → cached answer for 24h. Catches HN-spike duplication
+  (most queries on launch day will be ten variants of "Roswell").
 - Abuse signals: prompt-injection patterns (`ignore previous`,
   `<system>`), automated-script UA fingerprints, bulk identical queries
   from same IP. Quietly degrade those to keyword-search-only.
 
+BYOK mode bypasses all of this — user owns their cost and their rate
+limit relationship with Anthropic.
+
 ## Cost model
 
-Per chat, rough:
+Per anonymous chat, rough:
 
-- Embed query: ~$0.0001
+- Embed query (Voyage on Worker side): ~$0.0001
 - Anthropic Sonnet 4.6 with ~3k retrieved + 500 query tokens + 800
   response: ~$0.015
 - Cache hit: $0
 
-At 10k chats/day during a launch spike: ~$150/day worst-case, much less
-with cache. Below the alert threshold, but visible.
+Worst-case launch math:
+
+| Scenario | Anonymous chats | Cache hit rate | Daily spend |
+|---|---|---|---|
+| HN front page, day 1 | 25,000 | 60% | ~$150 |
+| HN front page, day 2 | 8,000 | 80% | ~$24 |
+| Settled state | 500 | 50% | ~$4 |
+| BYOK power users | unlimited | n/a | $0 (user pays) |
+
+Spend ceiling is the daily cap, not the observed traffic. BYOK
+adoption (we'd expect 5–15% of power users) reduces marginal load on
+the anonymous tier even further.
+
+### Optional: patron tier (post-launch)
+
+Stripe subscription, $5–10/month, bumps your anonymous quota to
+100/day instead of 5. Proceeds fund the anonymous tier. Canonical
+"open-source funded by supporters" pattern. Defer until we see real
+traffic; ship without if the cost math holds.
 
 ## Acceptance
 
-- Sample query "Show me FBI docs on Roswell" returns a synthesized
-  answer with at least 3 distinct citations, each linking to a real
-  card page.
-- Off-corpus query "Did aliens build Stonehenge?" returns explicit
-  abstention, not a guess.
-- Streaming response renders character-by-character; citations appear
-  as references are emitted, not after-the-fact.
-- Rate limit kicks in at 31st request from a single IP within an hour.
-- Per-chat latency < 3s to first token (p50).
+- **Anonymous mode (default):**
+  - Sample query "Show me FBI docs on Roswell" returns a synthesized
+    answer with at least 3 distinct citations, each linking to a real
+    card page.
+  - Off-corpus query "Did aliens build Stonehenge?" returns explicit
+    abstention, not a guess.
+  - Streaming response renders character-by-character; citations
+    appear as references are emitted, not after-the-fact.
+  - Rate limit kicks in at the 6th request from a single IP within 24h
+    with a clear message offering BYOK mode.
+  - Per-chat latency < 3s to first token (p50).
+- **BYOK mode:**
+  - Settings panel accepts an Anthropic API key, stores in
+    localStorage, never POSTs the key to our origin (verifiable in
+    devtools network tab).
+  - With a key configured, chat works regardless of anonymous-tier
+    rate limit.
+  - Model picker exposes Sonnet 4.6 + Opus 4.7 (BYOK only).
+  - Removing the key from settings reverts to anonymous mode.
+  - Provider abstraction (`AnthropicServerProvider` /
+    `AnthropicBYOKProvider`) is in place; adding a new provider is
+    a single new file.
 
 ## Open questions
 
