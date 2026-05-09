@@ -6,6 +6,16 @@ import {
   splitWithRegex,
   tokenize,
 } from "./highlight";
+import SearchFilterRail from "./SearchFilterRail.tsx";
+import {
+  EMPTY_FILTERS,
+  agencyCounts as buildAgencyCounts,
+  cardMatchesFilters,
+  filtersToQueryString,
+  parseFiltersFromQuery,
+  type SearchFilters,
+} from "./search-filters.ts";
+import type { CardMetadata } from "../data/types.ts";
 
 interface PageDoc {
   id: string; // `${card_id}-p${page}`
@@ -23,15 +33,25 @@ interface Props {
    * `/search` route omits this and just shows the bare input.
    */
   examples?: readonly string[];
+  /**
+   * When supplied, renders the faceted filter rail (agency / date /
+   * redacted) and applies filters to results. Cards are looked up by
+   * `card_id` to scope search hits. Omitted on the homepage hero.
+   */
+  cards?: CardMetadata[];
+  /** Whether to render the filter rail. Requires `cards` to be set. */
+  enableFilters?: boolean;
 }
 
 type Status = "loading" | "missing" | "ready" | "error";
 
-export default function SearchIsland({ base, examples }: Props) {
+export default function SearchIsland({ base, examples, cards, enableFilters }: Props) {
   const [status, setStatus] = useState<Status>("loading");
   const [docs, setDocs] = useState<PageDoc[]>([]);
   const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
   const inputRef = useRef<HTMLInputElement>(null);
+  const filtersOn = !!(enableFilters && cards && cards.length > 0);
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
@@ -55,6 +75,33 @@ export default function SearchIsland({ base, examples }: Props) {
         setStatus("error");
       });
   }, [base]);
+
+  // Hydrate query + filters from URL on mount, then keep them in sync.
+  // Done in a useRef-gated effect so the first render doesn't clobber a
+  // shared `?q=foo&agency=FBI` link.
+  const hydrated = useRef(false);
+  useEffect(() => {
+    const search = window.location.search;
+    const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+    const q = params.get("q");
+    if (q) setQuery(q);
+    if (filtersOn) setFilters(parseFiltersFromQuery(search));
+    hydrated.current = true;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!hydrated.current) return;
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("q", query.trim());
+    if (filtersOn) {
+      const fqs = filtersToQueryString(filters);
+      if (fqs) {
+        for (const [k, v] of new URLSearchParams(fqs)) params.set(k, v);
+      }
+    }
+    const qs = params.toString();
+    history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+  }, [query, filters, filtersOn]);
 
   // Keyboard niceties: `/` focuses input from anywhere; `esc` clears.
   useEffect(() => {
@@ -87,13 +134,36 @@ export default function SearchIsland({ base, examples }: Props) {
     return ms;
   }, [status, docs]);
 
+  // card_id → CardMetadata, so we can apply the filter predicate to each
+  // MiniSearch hit's parent card without an O(n) lookup per result.
+  const cardsById = useMemo(() => {
+    const m = new Map<string, CardMetadata>();
+    if (cards) for (const c of cards) m.set(c.card_id, c);
+    return m;
+  }, [cards]);
+  const agencies = useMemo(
+    () => (cards ? Array.from(new Set(cards.map((c) => c.agency))).sort() : []),
+    [cards],
+  );
+  const agencyCountMap = useMemo(
+    () => buildAgencyCounts(cards ?? []),
+    [cards],
+  );
+
   // Track the *unsliced* total so the "(CAPPED)" badge only shows when we
-  // actually truncated — at exactly 50 hits with nothing dropped, no cap.
+  // actually truncated. With filters on, totalMatches reflects filtered
+  // count (it'd be misleading to advertise pre-filter totals).
   const { results, totalMatches } = useMemo(() => {
     if (!search || !query.trim()) return { results: [], totalMatches: 0 };
     const all = search.search(query, { combineWith: "AND" });
-    return { results: all.slice(0, 50), totalMatches: all.length };
-  }, [search, query]);
+    const scoped = filtersOn
+      ? all.filter((r) => {
+          const card = cardsById.get(r.card_id);
+          return card ? cardMatchesFilters(card, filters) : false;
+        })
+      : all;
+    return { results: scoped.slice(0, 50), totalMatches: scoped.length };
+  }, [search, query, filtersOn, filters, cardsById]);
 
   // Build a docs lookup so we can retrieve the full page text for snippet
   // extraction without bloating MiniSearch's storeFields.
@@ -103,9 +173,6 @@ export default function SearchIsland({ base, examples }: Props) {
     return m;
   }, [docs]);
 
-  // Highlight regex covers MiniSearch's matched terms (handles fuzzy/prefix
-  // expansions) plus the raw query tokens, so a query like "alien craft"
-  // marks both whole tokens even when MiniSearch matched only one stem.
   const queryTerms = useMemo(() => tokenize(query), [query]);
   const queryRegex = useMemo(
     () => buildHighlightRegex(queryTerms),
@@ -145,8 +212,8 @@ export default function SearchIsland({ base, examples }: Props) {
     );
   }
 
-  return (
-    <div class="space-y-4">
+  const main = (
+    <div class="space-y-4 min-w-0">
       <div>
         <div class="relative">
           <input
@@ -190,19 +257,19 @@ export default function SearchIsland({ base, examples }: Props) {
           </div>
         )}
       </div>
+      {filtersOn && <ActiveFilterBadge filters={filters} onClear={() => setFilters(EMPTY_FILTERS)} />}
       {query.trim() && (
         <div class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-1">
           <span class="text-[color:var(--color-signal-green)]">{totalMatches}</span> MATCH{totalMatches === 1 ? "" : "ES"}
           {totalMatches > 50 && <span class="text-[color:var(--color-signal-amber)] ml-2">(CAPPED)</span>}
         </div>
       )}
+      {query.trim() && totalMatches === 0 && (
+        <EmptyResults filtersOn={filtersOn} hasActive={hasActiveFilters(filters)} onClear={() => setFilters(EMPTY_FILTERS)} />
+      )}
       <ul class="space-y-1.5">
         {results.map((r) => {
           const doc = docsById.get(r.id);
-          // MiniSearch's `match` map includes the actual terms it matched
-          // after fuzzy/prefix expansion (e.g. "aliens" for query "alien").
-          // Build a regex covering both raw query terms and matched terms so
-          // snippet highlighting reflects what actually scored.
           const matchedTerms = r.match ? Object.keys(r.match) : [];
           const allTerms = Array.from(new Set([...queryTerms, ...matchedTerms]));
           const snipRegex = buildHighlightRegex(allTerms);
@@ -241,6 +308,78 @@ export default function SearchIsland({ base, examples }: Props) {
         })}
       </ul>
     </div>
+  );
+
+  if (!filtersOn) return main;
+
+  return (
+    <div class="grid grid-cols-1 md:grid-cols-[15rem_1fr] gap-4 md:gap-6">
+      <SearchFilterRail
+        filters={filters}
+        setFilters={setFilters}
+        agencies={agencies}
+        agencyCounts={agencyCountMap}
+      />
+      {main}
+    </div>
+  );
+}
+
+function ActiveFilterBadge({ filters, onClear }: { filters: SearchFilters; onClear: () => void }) {
+  if (!hasActiveFilters(filters)) return null;
+  const parts: string[] = [];
+  if (filters.agencies.length > 0) parts.push(filters.agencies.join(" + "));
+  if (filters.dateFrom || filters.dateTo) {
+    parts.push(`${filters.dateFrom || "…"} → ${filters.dateTo || "…"}`);
+  }
+  if (filters.redactedOnly) parts.push("redacted only");
+  return (
+    <div class="flex items-center gap-2 flex-wrap text-[11px] font-mono uppercase tracking-[0.15em] border border-[color:var(--color-signal-cyan)]/40 bg-[color:var(--color-signal-cyan)]/5 px-3 py-2">
+      <span class="text-[color:var(--color-signal-cyan)]">FILTERS:</span>
+      <span class="text-[color:var(--color-text-bright)] normal-case tracking-normal">
+        {parts.join(" · ")}
+      </span>
+      <button
+        type="button"
+        onClick={onClear}
+        class="ml-auto text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-amber)]"
+      >
+        [clear]
+      </button>
+    </div>
+  );
+}
+
+function EmptyResults({ filtersOn, hasActive, onClear }: { filtersOn: boolean; hasActive: boolean; onClear: () => void }) {
+  if (filtersOn && hasActive) {
+    return (
+      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-5 text-center font-mono text-sm text-[color:var(--color-text-dim)]">
+        <span class="text-[color:var(--color-signal-amber)]">[NO MATCH]</span>
+        <span class="mx-2">no results match these filters</span>
+        <span class="text-[color:var(--color-text-faint)]">·</span>
+        <button
+          type="button"
+          onClick={onClear}
+          class="ml-2 text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)] underline-offset-2 hover:underline"
+        >
+          clear filters
+        </button>
+      </div>
+    );
+  }
+  return (
+    <p class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-faint)]">
+      [no results]
+    </p>
+  );
+}
+
+function hasActiveFilters(f: SearchFilters): boolean {
+  return (
+    f.agencies.length > 0 ||
+    f.dateFrom !== "" ||
+    f.dateTo !== "" ||
+    f.redactedOnly
   );
 }
 
