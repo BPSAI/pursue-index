@@ -31,6 +31,48 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — Real OG image + complete share metadata (branch `feat/og-image-share-meta`)
+
+The site is being shared to HN/Reddit/Twitter/Mastodon/Bluesky and every
+unfurl needs a custom card, not a default favicon. Built a deterministic
+Pillow-based OG image generator and tightened the layout's social meta.
+
+- **New module** `src/pursue_index/web/og_image.py` (orchestrator),
+  `og_layers.py` (drawing primitives — background+scanlines, corner
+  brackets, terminal command line, `PURSUE://INDEX_` lockup with green
+  caret bar, tagline, stat strip, manifest hash line, footer bar with
+  status pill, and an angled red `DECLASSIFIED` stamp), and
+  `og_fonts.py` (DejaVu Sans Mono fallback chain so no
+  font-fallback-fail in CI). Pure value object input
+  (`OgImageContext`) + byte-stable PNG output (empty `PngInfo`,
+  `optimize=True`, `compress_level=9`).
+- **CLI** `scripts/build_og_image.py` reads
+  `data/manifests/latest.json` for live corpus stats (`cards`,
+  `csv_sha256`) and writes `web/public/og.png`. Idempotent — re-runs
+  with same inputs produce identical bytes.
+- **Composition shipped:** stamped declassified document — 1200x630,
+  88 KB, deep-bg with subtle scanlines, signal-green ://, declassified
+  stamp at -12° in upper-right partly overlapping the wordmark, footer
+  with status pill + brand. Reads cleanly at 600x315 thumbnail.
+- **Base.astro:** added `og:image:type=image/png`, broader
+  `og:image:alt`. Existing `og:image:width/height`, `twitter:card=
+  summary_large_image`, `twitter:image`, per-route `ogImage` prop,
+  and absolute-URL construction (via `siteOrigin` falling back to
+  `https://pursueindex.com`) all confirmed wired up correctly.
+  `finds/[slug].astro` continues to pass `ogType="article"` and
+  inherits the default OG image until per-entry templates land.
+- **Robots/sitemap:** `web/public/robots.txt` already correct
+  (allow-all except `/api/`); `astro.config.mjs` `site:
+  https://pursueindex.com` produces a sitemap-index.xml pointing at
+  the canonical host. No changes needed.
+- **Tests:** 7 new in `tests/unit/test_og_image.py` — dimensions,
+  size cap, byte-stability, lockup-band brightness (legibility
+  proxy), Base.astro head snapshot, absolute og:image URL,
+  per-route override hook. Full suite: 126/126 green. `npm run
+  build` clean — 167 pages built, sitemap-index.xml at
+  `https://pursueindex.com/sitemap-0.xml`. Arch check: zero
+  violations on all 5 new files.
+
 ### Session: 2026-05-09 — alex-zhang42 ingest review-fixes (PR #2 follow-up, branch `feat/alex-zhang-ingest`)
 
 Addressed the union of actionable findings from three parallel reviews
