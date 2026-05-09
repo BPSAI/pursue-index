@@ -37,10 +37,10 @@ const description =
     {/* Top scan line */}
     <div class="h-px w-full bg-[color:var(--color-signal-green)]/30 shadow-[0_0_8px_rgba(164,255,90,0.4)]"></div>
 
-    <main class="flex-1 mx-auto w-full max-w-3xl px-6 py-16 sm:py-24 flex flex-col">
-      {/* Lockup */}
-      <header class="space-y-2 mb-12">
-        <div class="font-mono text-[11px] uppercase tracking-[0.25em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+    <main class="flex-1 mx-auto w-full max-w-3xl px-4 sm:px-6 py-12 sm:py-16 lg:py-24 flex flex-col">
+      {/* Lockup — centered on mobile (hero feel), left-aligned from sm up. */}
+      <header class="space-y-2 mb-12 text-center sm:text-left">
+        <div class="font-mono text-[11px] uppercase tracking-[0.25em] text-[color:var(--color-signal-green)] inline-flex items-center gap-2">
           <span class="text-[color:var(--color-text-faint)]">$</span>
           <span>uname -n</span>
         </div>
@@ -50,7 +50,7 @@ const description =
           <span class="text-[color:var(--color-text-bright)]">INDEX</span>
           <span class="pi-caret"></span>
         </h1>
-        <p class="font-mono text-sm uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
+        <p class="font-mono text-xs sm:text-sm uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
           DOW UAP DOCUMENT ARCHIVE · RESEARCH PREVIEW
         </p>
       </header>
@@ -135,17 +135,20 @@ const description =
         </ul>
       </section>
 
-      {/* CTA / footer */}
-      <footer class="mt-auto pt-8 border-t border-[color:var(--color-border)] flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
-        <a
-          href="https://github.com/BPSAI/pursue-index"
-          target="_blank"
-          rel="noreferrer"
-          class="hover:text-[color:var(--color-signal-cyan)]"
-        >github.com/BPSAI/pursue-index</a>
-        <span class="text-[color:var(--color-text-faint)]">·</span>
-        <span>© BPS AI Software</span>
-        <span class="ml-auto text-[color:var(--color-text-faint)]">// preview access available with valid token</span>
+      {/* CTA / footer — flow naturally; the trailing token-access line wraps
+          to its own row on mobile rather than being stranded by ml-auto. */}
+      <footer class="mt-auto pt-8 border-t border-[color:var(--color-border)] flex flex-wrap gap-x-4 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-dim)] sm:items-center sm:justify-between">
+        <span class="flex flex-wrap gap-x-3 gap-y-1 items-center">
+          <a
+            href="https://github.com/BPSAI/pursue-index"
+            target="_blank"
+            rel="noreferrer"
+            class="hover:text-[color:var(--color-signal-cyan)]"
+          >github.com/BPSAI/pursue-index</a>
+          <span class="text-[color:var(--color-text-faint)]">·</span>
+          <span>© BPS AI Software</span>
+        </span>
+        <span class="text-[color:var(--color-text-faint)]">// preview access available with valid token</span>
       </footer>
     </main>
 

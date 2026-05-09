@@ -328,6 +328,7 @@ function Selector({
       <select
         value={value}
         onChange={(e) => onChange((e.target as HTMLSelectElement).value)}
+        class="w-full lg:w-auto"
       >
         {options.map((opt) => (
           <option value={opt}>{opt || `any`}</option>

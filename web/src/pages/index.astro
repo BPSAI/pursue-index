@@ -18,13 +18,13 @@ const agencyEntries = Object.entries(s.byAgency).sort((a, b) => b[1] - a[1]);
   <div class="space-y-10">
     {/* Hero — terminal preamble */}
     <section class="space-y-4 pi-bracket pl-4 pr-4 py-5 border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 relative scanlines-soft">
-      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
-        <span class="text-[color:var(--color-text-faint)]">$</span>
-        <span>cat /var/dow/pursue/release-01.manifest</span>
+      <div class="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2 break-all">
+        <span class="text-[color:var(--color-text-faint)] flex-shrink-0">$</span>
+        <span class="break-all">cat /var/dow/pursue/release-01.manifest</span>
       </div>
-      <h1 class="font-mono text-2xl sm:text-3xl font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+      <h1 class="font-mono text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight text-[color:var(--color-text-bright)]">
         DEPARTMENT OF WAR / PURSUE
-        <span class="block text-[color:var(--color-text-dim)] text-base font-normal mt-1">
+        <span class="block text-[color:var(--color-text-dim)] text-sm sm:text-base font-normal mt-1 leading-snug">
           Presidential Unsealing &amp; Reporting System for UAP Encounters
         </span>
       </h1>

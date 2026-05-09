@@ -89,15 +89,29 @@ const navItems = [
     <div class="h-px w-full bg-[color:var(--color-signal-green)]/30 shadow-[0_0_8px_rgba(164,255,90,0.4)]"></div>
 
     <header class="sticky top-0 z-30 border-b border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]/85 backdrop-blur-sm">
-      <div class="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
-        <a href={`${base}/`} class="group inline-flex items-baseline font-mono text-sm tracking-tight">
-          <span class="text-[color:var(--color-text-dim)]">PURSUE</span>
-          <span class="text-[color:var(--color-signal-green)] mx-0.5">://</span>
-          <span class="text-[color:var(--color-text-bright)] font-semibold group-hover:text-[color:var(--color-signal-green)] transition-colors">INDEX</span>
-          <span class="pi-caret"></span>
-        </a>
+      {/* On mobile, the nav wraps below the lockup; on lg, both share one row.
+          Without flex-wrap the long uppercase nav overflowed at 375px. */}
+      <div class="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-6">
+        <div class="flex items-center justify-between gap-3">
+          <a href={`${base}/`} class="group inline-flex items-baseline font-mono text-sm tracking-tight">
+            <span class="text-[color:var(--color-text-dim)]">PURSUE</span>
+            <span class="text-[color:var(--color-signal-green)] mx-0.5">://</span>
+            <span class="text-[color:var(--color-text-bright)] font-semibold group-hover:text-[color:var(--color-signal-green)] transition-colors">INDEX</span>
+            <span class="pi-caret"></span>
+          </a>
+          {/* Mobile-only research preview pill — sits next to the lockup so
+              the wrapping nav row reads cleanly below. */}
+          <a
+            href={`${base}/about#status`}
+            title="What 'research preview' means"
+            class="lg:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono lowercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
+          >
+            <span class="size-1.5 rounded-full bg-[color:var(--color-signal-amber)] inline-block"></span>
+            preview
+          </a>
+        </div>
 
-        <nav class="ml-auto flex items-center gap-1 text-[11px] font-mono uppercase tracking-[0.18em]">
+        <nav class="-mx-1 flex flex-wrap items-center gap-x-1 gap-y-1 text-[11px] font-mono uppercase tracking-[0.18em] lg:ml-auto lg:mr-0 lg:flex-nowrap">
           {navItems.map((item) => (
             <a
               href={item.href}
@@ -112,7 +126,7 @@ const navItems = [
           <a
             href={`${base}/about#status`}
             title="What 'research preview' means"
-            class="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono lowercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
+            class="ml-2 hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono lowercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
           >
             <span class="size-1.5 rounded-full bg-[color:var(--color-signal-amber)] inline-block"></span>
             research preview
@@ -121,7 +135,7 @@ const navItems = [
             href="https://github.com/BPSAI/pursue-index"
             target="_blank"
             rel="noreferrer"
-            class="ml-2 px-2 py-1 rounded-sm text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-cyan)] transition-colors"
+            class="ml-1 lg:ml-2 px-2 py-1 rounded-sm text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-cyan)] transition-colors"
           >GH</a>
         </nav>
       </div>
@@ -132,7 +146,9 @@ const navItems = [
     </main>
 
     <footer class="mt-16 border-t border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]">
-      <div class="mx-auto max-w-7xl px-4 py-5 text-[11px] font-mono text-[color:var(--color-text-dim)] flex flex-wrap gap-x-6 gap-y-2">
+      {/* Two columns of metadata that wrap naturally; the prior `ml-auto`
+          left a stranded gap before SRC/IDX on narrow viewports. */}
+      <div class="mx-auto max-w-7xl px-4 py-5 text-[11px] font-mono text-[color:var(--color-text-dim)] flex flex-wrap gap-x-6 gap-y-2 sm:justify-between">
         <span>
           <span class="text-[color:var(--color-text-faint)]">TS</span>
           <span class="ml-2 text-[color:var(--color-text)]">{fetchedDate}Z</span>
@@ -145,7 +161,7 @@ const navItems = [
           <span class="text-[color:var(--color-text-faint)]">N</span>
           <span class="ml-2 text-[color:var(--color-text)]">{cardCount}</span>
         </span>
-        <span class="ml-auto">
+        <span>
           <span class="text-[color:var(--color-text-faint)]">SRC</span>
           <span class="ml-2">U.S.G. WORK / PUBLIC DOMAIN</span>
         </span>
