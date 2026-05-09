@@ -18,7 +18,6 @@ import base64
 import hashlib
 import io
 import json
-import re
 from pathlib import Path
 from typing import Any
 
@@ -128,27 +127,53 @@ def _store_cached(sha: str, text: str, confidence: float) -> None:
     )
 
 
+def _find_text_json_object(raw: str) -> dict[str, Any] | None:
+    """Scan ``raw`` for the first JSON object that decodes AND has a "text"
+    key. Returns the parsed dict, or ``None`` if no such block exists.
+
+    Necessary because real model output sometimes wraps the JSON envelope in
+    chatter that itself contains stray ``{`` / ``}`` (transcribed prose,
+    handwritten margin marks, math). A naive ``\\{.*\\}`` greedy DOTALL match
+    spans from the first prose-brace to the last brace and fails to parse.
+
+    Strategy: walk every ``{`` position; for each, try ``json.JSONDecoder``'s
+    ``raw_decode`` to locate a balanced object. Return the first that decodes
+    AND contains ``"text"`` — that's the schema we asked the model for.
+    """
+    decoder = json.JSONDecoder()
+    for i, ch in enumerate(raw):
+        if ch != "{":
+            continue
+        try:
+            obj, _ = decoder.raw_decode(raw, i)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict) and "text" in obj:
+            return obj
+    return None
+
+
 def _parse_response(raw: str) -> tuple[str, float]:
     """Pull ``text`` + ``confidence`` from the model's reply.
 
-    Tries strict JSON first, then a relaxed JSON-block regex; falls back to
-    using the whole reply as text with a nominal confidence so a malformed
-    model response never breaks the page.
+    Tries strict JSON first, then scans for the first balanced JSON object
+    that has a ``"text"`` field; falls back to using the whole reply as text
+    with a nominal confidence so a malformed response never breaks the page.
     """
     raw = raw.strip()
+    obj: dict[str, Any] | None = None
     try:
-        obj = json.loads(raw)
+        parsed = json.loads(raw)
+        if isinstance(parsed, dict):
+            obj = parsed
     except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", raw, re.DOTALL)
-        if match is None:
-            return raw, _NOMINAL_CONFIDENCE
-        try:
-            obj = json.loads(match.group(0))
-        except json.JSONDecodeError:
-            return raw, _NOMINAL_CONFIDENCE
+        obj = _find_text_json_object(raw)
 
-    text = str(obj.get("text", "")) if isinstance(obj, dict) else str(obj)
-    conf_raw = obj.get("confidence", _NOMINAL_CONFIDENCE) if isinstance(obj, dict) else _NOMINAL_CONFIDENCE
+    if obj is None:
+        return raw, _NOMINAL_CONFIDENCE
+
+    text = str(obj.get("text", ""))
+    conf_raw = obj.get("confidence", _NOMINAL_CONFIDENCE)
     try:
         confidence = float(conf_raw)
     except (TypeError, ValueError):
