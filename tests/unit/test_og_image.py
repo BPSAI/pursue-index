@@ -22,6 +22,8 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
+from pursue_index.web import og_fonts
+from pursue_index.web.og_fonts import FontLoadError
 from pursue_index.web.og_image import OgImageContext, render_og_image
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -133,3 +135,223 @@ def test_per_route_og_image_override_supported() -> None:
     assert "ogImage?: string" in src
     # The fallback path: if ogImage is set, use it; else default to /og.png.
     assert "/og.png" in src
+
+
+def _count_pixels(
+    band: Image.Image,
+    *,
+    predicate: object,
+    step: int = 4,
+) -> int:
+    """Sample pixels on a stride-``step`` grid and count those matching."""
+    n = 0
+    for y in range(0, band.height, step):
+        for x in range(0, band.width, step):
+            r, g, b = band.getpixel((x, y))[:3]
+            if predicate(r, g, b):  # type: ignore[operator]
+                n += 1
+    return n
+
+
+def test_declassified_stamp_renders_red_pixels(
+    tmp_path: Path, ctx: OgImageContext
+) -> None:
+    """nayru P1 #4 — assert the DECLASSIFIED stamp is actually drawn.
+    The stamp is `(212, 49, 58)` red placed in the upper-right quadrant.
+    A future refactor that drops ``layers.declassified_stamp(im)`` from
+    the orchestrator must fail this test (not only byte-stability)."""
+    out = tmp_path / "og.png"
+    render_og_image(ctx, out)
+    with Image.open(out) as im:
+        rgb = im.convert("RGB")
+        # Upper-right quadrant where the rotated stamp lands.
+        band = rgb.crop((640, 60, 1200, 320))
+
+        def is_red(r: int, g: int, b: int) -> bool:
+            # The stamp red is (212, 49, 58); allow generous slack for
+            # antialiasing + alpha knockdown to ~0.78.
+            return r > 130 and g < 90 and b < 90
+
+        red = _count_pixels(band, predicate=is_red)
+        assert red > 50, f"DECLASSIFIED stamp absent or too sparse: {red} red samples"
+
+
+def test_footer_status_pill_renders_amber(
+    tmp_path: Path, ctx: OgImageContext
+) -> None:
+    """The footer 'STATUS RESEARCH PREVIEW' label uses ``SIGNAL_AMBER``
+    `(255, 200, 87)`. Assert at least a few amber pixels in the footer
+    band so a future drop of ``layers.footer_bar`` is caught."""
+    out = tmp_path / "og.png"
+    render_og_image(ctx, out)
+    with Image.open(out) as im:
+        rgb = im.convert("RGB")
+        band = rgb.crop((100, 530, 700, 580))
+
+        def is_amber(r: int, g: int, b: int) -> bool:
+            # SIGNAL_AMBER (255, 200, 87): high R, mid-high G, low B.
+            return r > 220 and g > 150 and b < 130
+
+        amber = _count_pixels(band, predicate=is_amber, step=2)
+        assert amber > 20, f"footer status pill absent: {amber} amber samples"
+
+
+def test_sha256_line_renders_dim_text(
+    tmp_path: Path, ctx: OgImageContext
+) -> None:
+    """The manifest hash line at y=445 prints the sha prefix in
+    ``TEXT_DIM`` `(197, 205, 214)`. Assert the band has dim grayish
+    text — neither pure white (lockup) nor color highlights."""
+    out = tmp_path / "og.png"
+    render_og_image(ctx, out)
+    with Image.open(out) as im:
+        rgb = im.convert("RGB")
+        band = rgb.crop((100, 440, 600, 470))
+
+        def is_dim_text(r: int, g: int, b: int) -> bool:
+            # TEXT_DIM (197, 205, 214) — near-grey, mid-bright.
+            return 150 < r < 230 and 150 < g < 230 and 150 < b < 240 and abs(r - g) < 30
+
+        dim = _count_pixels(band, predicate=is_dim_text, step=2)
+        assert dim > 30, f"sha256 line absent: {dim} dim-text samples"
+
+
+def test_base_astro_validates_ogimage_against_protocol_relative_and_bare() -> None:
+    """The ``ogImage`` prop must reject:
+
+    - protocol-relative URLs like ``//cdn.example.com/x.png`` (the old
+      ``startsWith("http")`` check let these through and produced
+      malformed ``https://pursueindex.com//cdn...`` URLs);
+    - bare relative paths missing a leading slash (e.g. ``og.png``);
+    - cross-origin absolute URLs that don't begin with ``siteOrigin``
+      (SEC-002 — phishing-grade meta-tag injection if a route is ever
+      driven by untrusted input).
+
+    Implemented in ``Base.astro`` as a regex test + origin-prefix
+    check. We grep for the validator's signature here.
+    """
+    src = BASE_LAYOUT.read_text()
+    # Regex (not bare ``startsWith("http")``) — must match the
+    # ``^https?://`` form, not protocol-relative or bare.
+    assert "/^https?:\\/\\//" in src or "/^https?:\\/\\//.test(" in src
+    # Validator emits a build-time error for invalid shapes so a typo
+    # doesn't silently ship a broken og:image meta tag.
+    assert "Invalid ogImage" in src or "throw new Error" in src
+
+
+def test_base_astro_og_url_bound_to_astro_url() -> None:
+    """``og:url`` must be derived from ``Astro.url``, not hardcoded —
+    a future refactor that fixes it to ``/`` would otherwise pass
+    every existing test (vaivora #2). Assert the binding."""
+    src = BASE_LAYOUT.read_text()
+    assert "Astro.url.pathname" in src
+    # canonicalUrl is the variable that flows into og:url and the
+    # canonical link.
+    assert 'property="og:url" content={canonicalUrl}' in src
+
+
+def test_base_astro_alt_text_is_consistent_across_og_and_twitter() -> None:
+    """nayru P2 #5 — ``og:image:alt`` and ``twitter:image:alt`` must
+    use the same alt text so social previews are consistent. We grep
+    for a single ``ogImageAlt`` variable bound to both tags."""
+    src = BASE_LAYOUT.read_text()
+    assert 'property="og:image:alt" content={ogImageAlt}' in src
+    assert 'name="twitter:image:alt" content={ogImageAlt}' in src
+
+
+def test_build_og_image_script_handles_out_path_outside_repo(
+    tmp_path: Path,
+) -> None:
+    """Codex P2 — ``args.out.relative_to(REPO_ROOT)`` raises ``ValueError``
+    when the user passes ``--out /tmp/og.png`` (or any absolute path
+    outside the repo root). The script must fall back to ``str(args.out)``
+    for the success print so successful renders aren't reported as
+    failures in CI / local tooling."""
+    import subprocess
+
+    out = tmp_path / "og.png"
+    repo_root = REPO_ROOT
+    result = subprocess.run(
+        [
+            "python",
+            str(repo_root / "scripts" / "build_og_image.py"),
+            "--out",
+            str(out),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, f"script failed: {result.stderr}"
+    assert out.exists()
+    # The success line should print *some* path representation, not
+    # raise ValueError.
+    assert "wrote" in result.stdout
+    assert "ValueError" not in result.stderr
+
+
+def test_deploy_ui_workflow_regenerates_og_image() -> None:
+    """vaivora #10 — manifest bumps must not silently drift the OG card.
+    The deploy workflow has to call ``build_og_image.py`` as a pre-build
+    step so cards/sha updates flow into the rendered PNG automatically."""
+    workflow = REPO_ROOT / ".github" / "workflows" / "deploy-ui.yml"
+    text = workflow.read_text()
+    assert "build_og_image.py" in text, (
+        "deploy-ui.yml does not run scripts/build_og_image.py; the OG "
+        "card will silently drift when the manifest updates."
+    )
+    # Pre-build ordering: regen must run before npm run build (so the
+    # PNG is in place when Astro copies web/public into dist/).
+    regen_idx = text.index("build_og_image.py")
+    npm_build_idx = text.index("npm run build")
+    assert regen_idx < npm_build_idx, (
+        "OG regen step must run BEFORE 'npm run build' so the fresh "
+        "PNG is bundled into the deploy artifact."
+    )
+
+
+def test_build_og_image_script_marks_default_pages_with_todo() -> None:
+    """nayru P2 #6 — the placeholder ``DEFAULT_PAGES = 4153`` must
+    carry a ``TODO`` marker so it's grep-able once the page-count
+    source lands."""
+    script = (REPO_ROOT / "scripts" / "build_og_image.py").read_text()
+    # Find the DEFAULT_PAGES assignment and assert a TODO is nearby.
+    lines = script.splitlines()
+    for i, line in enumerate(lines):
+        if "DEFAULT_PAGES" in line and "=" in line:
+            # Allow TODO on same line or in a comment within 3 lines above.
+            window = "\n".join(lines[max(0, i - 3) : i + 1])
+            assert "TODO" in window, (
+                "DEFAULT_PAGES assignment missing nearby TODO marker; "
+                f"context was:\n{window}"
+            )
+            return
+    pytest.fail("DEFAULT_PAGES not found in scripts/build_og_image.py")
+
+
+def test_mono_raises_when_no_font_resolves(monkeypatch: pytest.MonkeyPatch) -> None:
+    """When all filesystem candidates AND the named lookup fail, the
+    font loader must raise ``FontLoadError`` rather than silently
+    falling back to PIL's bundled default — that fallback ignores the
+    requested size and would produce an unreadable og.png."""
+    monkeypatch.setattr(og_fonts, "_first_existing", lambda paths: None)
+
+    def _always_fail(*_: object, **__: object) -> object:  # pragma: no cover
+        raise OSError("simulated: no truetype available")
+
+    monkeypatch.setattr(og_fonts.ImageFont, "truetype", _always_fail)
+    with pytest.raises(FontLoadError):
+        og_fonts.mono(96, bold=True)
+
+
+def test_sans_raises_when_no_font_resolves(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Same contract as ``mono`` — never silently degrade to the bundled
+    default size."""
+    monkeypatch.setattr(og_fonts, "_first_existing", lambda paths: None)
+
+    def _always_fail(*_: object, **__: object) -> object:  # pragma: no cover
+        raise OSError("simulated: no truetype available")
+
+    monkeypatch.setattr(og_fonts.ImageFont, "truetype", _always_fail)
+    with pytest.raises(FontLoadError):
+        og_fonts.sans(30)

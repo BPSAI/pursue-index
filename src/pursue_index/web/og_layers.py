@@ -4,15 +4,16 @@ Kept separate from ``og_image.py`` so the orchestrator stays small and
 the layers are individually inspectable / swappable. Colors mirror the
 site's terminal palette (``web/src/styles/global.css``):
 
-- bg-deep      ``#0a0d12``
-- text-bright  ``#ecf2f9``
-- text-dim     ``#c5cdd6``
-- text-faint   ``#4a5563``
-- border       ``#1f2a35``
-- signal-green ``#a4ff5a``
-- signal-cyan  ``#5fd4ff``
-- signal-amber ``#ffc857``
-- declass-red  ``#d4313a``  (used only in the stamp)
+- bg-deep        ``#0a0d12``
+- text-bright    ``#ecf2f9``
+- text-dim       ``#c5cdd6``
+- text-faint     ``#4a5563``
+- border         ``#1f2a35``  (footer rule, subtle separators)
+- border-bright  ``#2f3d4e``  (corner brackets, declassified-doc trim)
+- signal-green   ``#a4ff5a``
+- signal-cyan    ``#5fd4ff``
+- signal-amber   ``#ffc857``
+- declass-red    ``#d4313a``  (used only in the stamp)
 """
 
 from __future__ import annotations
@@ -26,7 +27,8 @@ BG_DEEP = (10, 13, 18)
 TEXT_BRIGHT = (236, 242, 249)
 TEXT_DIM = (197, 205, 214)
 TEXT_FAINT = (74, 85, 99)
-BORDER = (47, 61, 78)
+BORDER = (31, 42, 53)  # #1f2a35 — site --color-border (footer rule)
+BORDER_BRIGHT = (47, 61, 78)  # #2f3d4e — site --color-border-bright (corner trim)
 SIGNAL_GREEN = (164, 255, 90)
 SIGNAL_CYAN = (95, 212, 255)
 SIGNAL_AMBER = (255, 200, 87)
@@ -70,7 +72,7 @@ def corner_brackets(im: Image.Image) -> None:
         ((W - inset, H - inset - length), (W - inset, H - inset), (W - inset - length, H - inset)),
     )
     for poly in corners:
-        draw.line(poly, fill=BORDER, width=w)
+        draw.line(poly, fill=BORDER_BRIGHT, width=w)
 
 
 def header_command(im: Image.Image) -> None:
@@ -153,7 +155,7 @@ def manifest_hash_line(im: Image.Image, *, csv_sha256: str) -> None:
 def footer_bar(im: Image.Image, *, status_label: str) -> None:
     """Bottom rule + status pill + brand."""
     draw = ImageDraw.Draw(im)
-    draw.line(((100, 510), (1100, 510)), fill=(31, 42, 53), width=1)
+    draw.line(((100, 510), (1100, 510)), fill=BORDER, width=1)
     f = fonts.mono(20)
     draw.text((100, 540), "STATUS ", font=f, fill=TEXT_FAINT)
     sw = int(draw.textlength("STATUS ", font=f))

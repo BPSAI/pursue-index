@@ -32,8 +32,24 @@ from pursue_index.web.og_image import OgImageContext, render_og_image  # noqa: E
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT = REPO_ROOT / "web" / "public" / "og.png"
-# Fallback when no page-count source is wired up yet. Update via --pages.
+# TODO: pull from the manifest at build time once ``total_pages`` lands
+# in ``data/manifests/latest.json``. For now the manifest is per-card,
+# not per-page, so we keep this as a CLI-overridable default.
 DEFAULT_PAGES = 4153
+
+
+def _format_out_path(out: Path) -> str:
+    """Return ``out`` relative to the repo root when possible, else absolute.
+
+    ``Path.relative_to`` raises ``ValueError`` for paths outside the
+    repo (e.g. ``--out /tmp/og.png``). Falling back to ``str(out)``
+    keeps the success line printable in those scenarios so CI and
+    local tooling don't see ``ValueError`` after a successful render.
+    """
+    try:
+        return str(out.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(out)
 
 
 def _load_manifest_stats(path: Path) -> tuple[int, str]:
@@ -64,7 +80,7 @@ def main(argv: list[str] | None = None) -> int:
     render_og_image(ctx, args.out)
     size_kb = args.out.stat().st_size / 1024
     print(
-        f"wrote {args.out.relative_to(REPO_ROOT)} "
+        f"wrote {_format_out_path(args.out)} "
         f"({size_kb:.1f} KB, cards={cards}, pages={args.pages}, sha={sha[:12]}…)"
     )
     return 0

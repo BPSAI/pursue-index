@@ -31,6 +31,91 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — PR #7 review-fixes (branch `feat/og-image-share-meta`)
+
+Addressed every legitimate finding across laverna (security), nayru
+(code review), vaivora (cross-cutting), and Codex on PR #7:
+
+- **SEC-001 (Pillow CVE-2024-28219, merge blocker):** Bumped
+  `pillow>=11.1.0` in `pyproject.toml` (was `>=10.3`, resolved 10.4.0).
+  Resolves to 12.2.0 with patched `ImagingResampleHorizontal`. Added
+  comment pinning the rationale. Documented the conflict with
+  `surya-ocr 0.17.1` (which still pins `pillow<11.0.0`) in the gpu
+  extra; gpu users install with a separate venv until surya catches up.
+  CVE-affected resampler is on the og_image build path, not the OCR
+  path, so the gpu-only OCR host gap is bounded. `pip-audit` no
+  longer flags Pillow.
+- **SEC-002 / nayru P1 #5 (`ogImage` validation):** Replaced the
+  brittle `startsWith("http")` check in `Base.astro` with a
+  `resolveOgImageUrl()` helper that uses `/^https?:\/\//`,
+  rejects protocol-relative `//cdn...` URLs, requires a leading
+  `/` on relative paths, and refuses cross-origin absolute URLs
+  (must start with `siteOrigin`). Throws a build-time `Error` on
+  invalid input rather than silently shipping a malformed meta tag.
+- **nayru P1 #3 (font fallback):** `og_fonts.py` now raises a new
+  `FontLoadError` instead of falling back to
+  `ImageFont.load_default()` (which silently ignores requested
+  size and would collapse the 96px lockup to ~10px). Updated
+  docstring to drop the misleading "never crashes" claim.
+- **nayru P1 #4 (test coverage gap):** Added per-region brightness
+  assertions for the DECLASSIFIED stamp (red pixels in upper-right
+  quadrant), the footer status pill (amber pixels in footer band),
+  and the sha256 line (dim text near y=445). A future refactor that
+  drops one of these layers from the orchestrator will now fail
+  beyond just the byte-stability test.
+- **vaivora #11 / Codex (`og:url` test gap):** New
+  `test_base_astro_og_url_bound_to_astro_url` asserts both that
+  `Astro.url.pathname` is referenced AND that `og:url` flows from
+  `canonicalUrl`, catching a future hardcode-to-`/` regression.
+- **Codex P2 (`og:image:type` per-route):** Now derived from the
+  resolved image extension (`png`/`jpeg`/`webp`/`gif`) so per-route
+  overrides are labeled correctly. Defaults to `image/png`.
+- **Codex P2 (build script `relative_to`):** Extracted
+  `_format_out_path()` that falls back to `str(out)` on `ValueError`,
+  so `--out /tmp/og.png` no longer reports a successful render as a
+  failed command.
+- **nayru P2 #5 (alt text consistency):** `og:image:alt` and
+  `twitter:image:alt` now share a single `ogImageAlt` variable
+  (with a `DEFAULT_OG_IMAGE_ALT` constant + per-route override
+  hook). Defaults to the long form.
+- **nayru P2 #6 (BORDER constant mismatch):** Renamed
+  `BORDER = (47, 61, 78)` → `BORDER_BRIGHT` (matches CSS
+  `--color-border-bright`) and made the new
+  `BORDER = (31, 42, 53)` match the docstring + the footer's
+  previously-hardcoded value (`#1f2a35`,
+  `--color-border`). Footer no longer hardcodes the tuple.
+  Bytes identical (verified: same sha as pre-change).
+- **nayru P2 #6 (DEFAULT_PAGES TODO):** Added explicit
+  `# TODO: pull from manifest at build time once total_pages
+  lands` above `DEFAULT_PAGES = 4153` in
+  `scripts/build_og_image.py`.
+- **nayru P2 #7 (Twitter site/creator):** Added a deferred-note
+  HTML comment in `Base.astro` next to the Twitter card block;
+  no BPS X/Twitter handle yet, so we don't emit empty tags.
+- **vaivora #10 (OG regen drift):** Wired
+  `python scripts/build_og_image.py` into
+  `.github/workflows/deploy-ui.yml` as a pre-build step (with
+  `setup-python@v5` + `pip install pillow>=11.1.0`). Manifest
+  bumps now flow into the OG card automatically. Idempotent
+  byte-stable render so re-running on every deploy is safe.
+- **vaivora #12 (`/finds/[slug]` per-entry images):** Documented
+  as a follow-up in `What's Next` post-launch backlog item #7.
+- **Tests:** 11 new in `tests/unit/test_og_image.py` (now 18
+  total / 137 suite-wide green): font-load failure for both
+  `mono` and `sans`, ogImage validator (regex + leading-slash +
+  cross-origin reject), `og:url` binding to `Astro.url`, alt-text
+  consistency, declassified-stamp red-pixel count, footer
+  amber-pixel count, sha256 dim-text count,
+  build-script-out-outside-repo, DEFAULT_PAGES TODO marker,
+  deploy workflow regenerates og.png.
+- **og.png sha (post-bump):**
+  `5c5dcd416f22e21a3a1335a2e41f000cfb67369d95eeb277ea51f92cfb89b703`
+  (88,311 bytes, 86.2 KB) — byte-identical to the pre-bump file
+  (Pillow 12.2.0 preserves the same encoder output for this
+  context). No fixture change needed.
+- Web build clean: 167 pages, sitemap-index.xml at canonical host.
+  `bpsai-pair arch check` zero violations on every modified file.
+
 ### Session: 2026-05-09 — Real OG image + complete share metadata (branch `feat/og-image-share-meta`)
 
 The site is being shared to HN/Reddit/Twitter/Mastodon/Bluesky and every
@@ -241,6 +326,12 @@ hardening, git history scrub.
    canonical FOIA archive (~100k–500k pages) so novelty detection
    moves from "methodology demo" to "real coverage measurement"
    for every card.
+7. **Per-entry OG images for `/finds/[slug]`** — the `ogImage` prop
+   hook is wired in `Base.astro` and the byte-stable
+   `OgImageContext` orchestrator can be looped per-slug. Loop over
+   `finds` entries in a build script, render `<slug>.png` per
+   entry, and pass `ogImage="/og/finds/<slug>.png"` on the
+   `/finds/[slug]` page. Defers from the share-meta PR (#7).
 
 ### Optional cleanup
 
