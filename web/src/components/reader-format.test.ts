@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import {
   reformatOcrText,
   readPageFromHash,
+  readPageFromQuery,
+  readPageFromLocation,
   pdfPageHref,
+  buildPdfIframeSrc,
   clampPageIndex,
   loadReaderMode,
   saveReaderMode,
@@ -121,6 +124,93 @@ test("saveReaderMode: round-trips via loadReaderMode", () => {
 test("saveReaderMode: tolerates a null storage (SSR / private mode)", () => {
   // Should not throw even when storage is unavailable.
   saveReaderMode(null, "reader");
+});
+
+test("readPageFromQuery: parses ?page=N from a query string", () => {
+  // Forward-compat: nothing currently emits `?page=N`, but if a future
+  // citation source does, the page should resolve. Hash always wins
+  // (see readPageFromLocation) — this helper is purely query-side.
+  assert.equal(readPageFromQuery("?page=3"), 3);
+  assert.equal(readPageFromQuery("page=3"), 3); // tolerate missing leading ?
+  assert.equal(readPageFromQuery("?q=foo&page=12"), 12);
+  assert.equal(readPageFromQuery("?page=1&q=hi"), 1);
+});
+
+test("readPageFromQuery: returns null for malformed/missing values", () => {
+  assert.equal(readPageFromQuery(""), null);
+  assert.equal(readPageFromQuery(null), null);
+  assert.equal(readPageFromQuery("?q=hello"), null);
+  assert.equal(readPageFromQuery("?page="), null);
+  assert.equal(readPageFromQuery("?page=0"), null); // 1-indexed
+  assert.equal(readPageFromQuery("?page=abc"), null);
+  assert.equal(readPageFromQuery("?page=-2"), null);
+});
+
+test("readPageFromLocation: hash takes precedence over query", () => {
+  // The reader-mode contract: #page-N is the canonical anchor. ?page=N
+  // is a fallback for external links that prefer queries; if both are
+  // present, the hash wins so copy-pasted reader URLs stay deterministic.
+  assert.equal(readPageFromLocation("#page-5", "?page=2"), 5);
+  assert.equal(readPageFromLocation("#page-5", ""), 5);
+  assert.equal(readPageFromLocation("", "?page=2"), 2);
+  assert.equal(readPageFromLocation("", ""), null);
+  assert.equal(readPageFromLocation(null, null), null);
+  assert.equal(readPageFromLocation("#provenance", "?page=4"), 4);
+});
+
+test("buildPdfIframeSrc: appends #page=N to PDF urls", () => {
+  // PDF.js and most native browser viewers honor `#page=N` in iframe src.
+  assert.equal(
+    buildPdfIframeSrc("https://www.war.gov/foo.pdf", 3, "PDF"),
+    "https://www.war.gov/foo.pdf#page=3",
+  );
+});
+
+test("buildPdfIframeSrc: returns the bare url when page is null/invalid", () => {
+  // Page null = no anchor desired (e.g. user landed on /card/<id> with no hash).
+  assert.equal(
+    buildPdfIframeSrc("https://x.test/y.pdf", null, "PDF"),
+    "https://x.test/y.pdf",
+  );
+  assert.equal(
+    buildPdfIframeSrc("https://x.test/y.pdf", 0, "PDF"),
+    "https://x.test/y.pdf",
+  );
+});
+
+test("buildPdfIframeSrc: skips the fragment for non-PDF cards (IMG/VID)", () => {
+  // Image cards render the asset_url in an <img>, not an <iframe>, but if
+  // a future caller still wires this for IMG/VID we should not pollute
+  // the URL with a meaningless #page=N.
+  assert.equal(
+    buildPdfIframeSrc("https://x.test/y.jpg", 3, "IMG"),
+    "https://x.test/y.jpg",
+  );
+  assert.equal(
+    buildPdfIframeSrc("https://x.test/y.mp4", 3, "VID"),
+    "https://x.test/y.mp4",
+  );
+});
+
+test("buildPdfIframeSrc: returns null when the source URL is missing", () => {
+  assert.equal(buildPdfIframeSrc(null, 3, "PDF"), null);
+  assert.equal(buildPdfIframeSrc("", 3, "PDF"), null);
+  assert.equal(buildPdfIframeSrc(undefined, 3, "PDF"), null);
+});
+
+test("buildPdfIframeSrc: replaces an existing #page=N fragment, preserves bare hash", () => {
+  // If asset_url already includes a stale `#page=2` from a prior nav,
+  // overwrite with the new page rather than concatenating.
+  assert.equal(
+    buildPdfIframeSrc("https://x.test/y.pdf#page=2", 7, "PDF"),
+    "https://x.test/y.pdf#page=7",
+  );
+  // But leave non-page fragments alone (e.g. `#zoom=fit` from a manual hand-edit).
+  // Simpler: we strip and replace — the asset_url isn't expected to carry zoom hints.
+  assert.equal(
+    buildPdfIframeSrc("https://x.test/y.pdf#zoom=100", 7, "PDF"),
+    "https://x.test/y.pdf#page=7",
+  );
 });
 
 test("clampPageIndex: clamps to [1, total] and falls back to 1", () => {

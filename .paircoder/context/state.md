@@ -31,6 +31,44 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — reader-mode ↔ iframed PDF page sync (branch `feat/reader-pdf-anchors`)
+
+Reader-mode page navigation (j/k, prev/next, hash, citation chip) now
+keeps the embedded PDF iframe locked to the same page. Before this
+change the iframe was rendered with the bare `asset_url` and never
+updated — clicking a `[card_id:5]` chip would scroll the reader to
+page 5 but leave the side-by-side PDF on page 1.
+
+- **`reader-format.ts`**: added `readPageFromQuery`, `readPageFromLocation`
+  (hash-wins-over-query), and `buildPdfIframeSrc` (PDF-only, strips/replaces
+  fragments). 9 new unit tests.
+- **`pdf-iframe-sync.ts`** (new module): `nextIframeSrc` (pure) and
+  `syncPdfIframeToPage(document, page)` (DOM lookup). Skips IMG/VID
+  cards, handles missing iframe, no-ops when src already matches. 11
+  new unit tests.
+- **`CardReaderView.tsx`**: after `replaceState("#page-N")`, calls
+  `syncPdfIframeToPage(document, activePage)`. We update the iframe
+  inline because `replaceState` deliberately does not fire `hashchange`,
+  so a passive listener would never wake.
+- **`CardOcrIsland.tsx`**: `activePageFromHash` → `activePageFromUrl`
+  (uses `readPageFromLocation` so `?page=N` resolves too).
+- **`[card_id].astro`**: iframe gains `id="card-pdf-iframe"`,
+  `data-asset-type`, `data-asset-url`. New `<script>` import of
+  `card-pdf-bootstrap.ts` runs once on page load: normalizes
+  `?page=N` → `#page-N` (replaceState), syncs iframe on initial paint,
+  re-syncs on `hashchange` (covers user-paste and back/forward).
+
+URL contract readers can rely on:
+  - `/card/<id>#page-N` is canonical (reader sets it, citations link to it).
+  - `/card/<id>?page=N` is accepted and promoted to `#page-N` on load.
+  - Both forms drive both the reader and the iframe to page N.
+  - PDF cards: iframe `src` ends with `#page=N`. IMG/VID/no-OCR: no-op.
+
+Tests: 35 (was 16 — 19 new). All passing. `npm run build` clean (167
+pages). `bpsai-pair arch check`: zero errors on every modified file.
+
+PR: open against `main`, do not merge per task spec.
+
 ### Session: 2026-05-09 — alex-zhang42 ingest review-fixes (PR #2 follow-up, branch `feat/alex-zhang-ingest`)
 
 Addressed the union of actionable findings from three parallel reviews

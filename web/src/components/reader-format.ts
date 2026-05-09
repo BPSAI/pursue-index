@@ -45,6 +45,41 @@ export function readPageFromHash(hash: string | null | undefined): number | null
 }
 
 /**
+ * Parse `?page=N` from a URL query string. Returns null when absent or
+ * malformed. Forward-compat hook: nothing in the corpus currently emits
+ * `?page=N`, but external citation sources (or future Trello cards) might,
+ * so the reader normalizes both forms onto the same active-page state.
+ */
+export function readPageFromQuery(search: string | null | undefined): number | null {
+  if (!search) return null;
+  // URLSearchParams tolerates with-or-without leading `?`.
+  const normalized = search.startsWith("?") ? search : `?${search}`;
+  let value: string | null;
+  try {
+    value = new URLSearchParams(normalized).get("page");
+  } catch {
+    return null;
+  }
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+/**
+ * Resolve the active page number from a URL's hash and query parts.
+ * Hash wins when both are present so reader-mode deep-links stay
+ * deterministic when a user copies a URL the reader itself produced.
+ */
+export function readPageFromLocation(
+  hash: string | null | undefined,
+  search: string | null | undefined,
+): number | null {
+  const fromHash = readPageFromHash(hash);
+  if (fromHash != null) return fromHash;
+  return readPageFromQuery(search);
+}
+
+/**
  * Build a deep-link to a specific page in the source PDF using the
  * standard PDF.js fragment syntax (`#page=N`). Returns null when the
  * input URL is empty so the caller can hide the link gracefully.
@@ -54,6 +89,30 @@ export function pdfPageHref(assetUrl: string | null | undefined, page: number): 
   if (!Number.isInteger(page) || page < 1) return null;
   // Strip any pre-existing fragment so we don't end up with two.
   const base = assetUrl.split("#")[0];
+  return `${base}#page=${page}`;
+}
+
+/**
+ * Build the `src` URL for an embedded PDF viewer iframe so it shows
+ * page N. Only PDF cards get the `#page=N` fragment — IMG/VID cards
+ * (where `<iframe>` is the wrong renderer anyway) get the bare URL so
+ * we never confuse a non-PDF asset with a meaningless anchor.
+ *
+ * Returns null when the source URL is missing so callers can hide the
+ * iframe and avoid rendering `<iframe src="">` (which would request
+ * the current page).
+ */
+export function buildPdfIframeSrc(
+  assetUrl: string | null | undefined,
+  page: number | null | undefined,
+  assetType: string | null | undefined,
+): string | null {
+  if (!assetUrl) return null;
+  const base = assetUrl.split("#")[0];
+  if (assetType !== "PDF") return base;
+  if (typeof page !== "number" || !Number.isInteger(page) || page < 1) {
+    return base;
+  }
   return `${base}#page=${page}`;
 }
 

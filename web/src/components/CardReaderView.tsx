@@ -5,6 +5,7 @@ import {
   clampPageIndex,
   readPageFromHash,
 } from "./reader-format.ts";
+import { syncPdfIframeToPage } from "./pdf-iframe-sync.ts";
 
 export interface ReaderPage {
   page: number;
@@ -44,7 +45,11 @@ export default function CardReaderView({
 
   // Sync the URL hash so deep-links remain copy-pasteable as the user
   // navigates. Replace (not push) — page-by-page paging shouldn't bloat
-  // browser history.
+  // browser history. Also poke the embedded PDF iframe (when present)
+  // so its native viewer jumps to the same page in lock-step. We update
+  // the iframe inline rather than letting it react to a `hashchange`
+  // event because `history.replaceState` deliberately does NOT fire
+  // `hashchange`, so the iframe would otherwise stay frozen.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (total < 1) return;
@@ -52,6 +57,7 @@ export default function CardReaderView({
     if (window.location.hash !== target) {
       history.replaceState(null, "", target);
     }
+    syncPdfIframeToPage(document, activePage);
   }, [activePage, total]);
 
   // Honor #page-N hash changes from outside (e.g. user paste).

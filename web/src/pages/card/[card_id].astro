@@ -124,6 +124,9 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
               >OPEN ↗</a>
             </div>
             <iframe
+              id="card-pdf-iframe"
+              data-asset-type={card.asset_type}
+              data-asset-url={card.asset_url}
               src={card.asset_url}
               title={`PDF source: ${card.title}`}
               class="w-full h-[60vh] min-h-[420px] sm:h-[80vh] sm:min-h-[640px] bg-[color:var(--color-bg-deep)]"
@@ -242,4 +245,12 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
       <CardProvenance client:load cardId={card.card_id} base={base} />
     </section>
   </article>
+
+  {/* Bootstrap script: keeps the PDF iframe synced to whatever #page-N
+       (or ?page=N) the URL carries on initial load and on hashchange.
+       Reader-mode pagination from within the island syncs its own iframe
+       writes; this script handles entry-point links (citations, pastes). */}
+  <script>
+    import "../../scripts/card-pdf-bootstrap.ts";
+  </script>
 </Base>

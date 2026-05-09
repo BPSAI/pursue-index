@@ -7,6 +7,7 @@ import {
 import CardReaderView from "./CardReaderView.tsx";
 import {
   loadReaderMode,
+  readPageFromLocation,
   saveReaderMode,
   type ReaderMode,
 } from "./reader-format.ts";
@@ -164,12 +165,13 @@ function readQueryRegex(): { regex: RegExp | null; raw: string } {
   return { regex: buildHighlightRegex(tokenize(raw)), raw };
 }
 
-function activePageFromHash(): number | null {
+function activePageFromUrl(): number | null {
   if (typeof window === "undefined") return null;
-  const m = window.location.hash.match(/^#page-(\d+)$/);
-  if (!m) return null;
-  const n = Number(m[1]);
-  return Number.isNaN(n) ? null : n;
+  // Hash wins over query (see readPageFromLocation contract). The page-level
+  // bootstrap script normalizes `?page=N` → `#page-N` before this island
+  // hydrates, so by the time we read the URL the hash should already be
+  // canonical — but checking both keeps us robust to script-load ordering.
+  return readPageFromLocation(window.location.hash, window.location.search);
 }
 
 export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Props) {
@@ -178,7 +180,7 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   // Highlight state captured once on mount — query is sticky to the URL.
   const [highlight] = useState(() => readQueryRegex());
-  const [activePage] = useState<number | null>(() => activePageFromHash());
+  const [activePage] = useState<number | null>(() => activePageFromUrl());
   // Reader/raw mode preference. Default "raw" preserves backward-compat
   // for existing visitors; new visitors discover Reader via the toggle.
   const [mode, setMode] = useState<ReaderMode>(() =>
