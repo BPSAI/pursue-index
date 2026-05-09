@@ -1,11 +1,11 @@
 # Current State
 
-> Last updated: 2026-05-08 (post Surya full pass + benchmark)
+> Last updated: 2026-05-09 (chat interface — RAG over corpus with citations)
 
 ## Active Plan
 
 **Plan:** Pipeline through OCR; static UI shipped to GitHub Pages; Surya full corpus pass on the NAS; LLM-fallback ready; embed scaffold landed; benchmark methodology shipped.
-**Status:** scrape ✅ download ✅ ocr (tesseract + surya full corpus + llm-fallback + auto-mode + benchmark) ✅ ui ✅ embed (scaffold) 🔧 — index/serve still stub.
+**Status:** scrape ✅ download ✅ ocr (tesseract + surya full corpus + llm-fallback + auto-mode + benchmark) ✅ ui ✅ embed (scaffold) 🔧 chat (`/api/retrieve` + `/api/chat` + browser islands) ✅ — index/serve still stub.
 **Current Sprint:** Wrap-up; backlog full Voyage embed run + auto-mode full corpus + chat interface.
 
 ## Current Focus
@@ -35,6 +35,61 @@ filling out the OCR + ingest + serve stubs.
 - [x] **Surya GPU OCR engine** — `ocr/surya.py` adapter slots into the existing engine seam; `ocr_card`/`ocr_all`/`pursue ocr run --engine surya` route by engine name; `pages.jsonl` + `meta.json` record `"engine": "surya"`. `surya-ocr>=0.17` added under `pyproject.toml [gpu]` extra. Live smoke: 40-page FBI HQ-83894 ran in 56.76s @ 93.90% mean conf vs Tesseract's 106.19s on the same file.
 - [x] **`pursue embed` stage scaffold** — Voyage-3 default, OpenAI stub seam, idempotent against `(card_id, page, model_id, text_sha)`. CLI + settings + web build helper. 50/50 unit tests green. Live smoke against the 4153-page corpus with a fake embedder confirmed shape + idempotency; full Voyage run pending `VOYAGE_API_KEY` export (~$0.13 estimated).
 - [x] **OCR LLM fallback + auto mode** — `ocr/llm.py` adds an Anthropic-vision engine matching the existing `(image)→(text,conf)` seam; system prompt sent with `cache_control=ephemeral`; per-image SHA-256 → response cached to disk; per-call token usage logged via `ocr.llm.usage`. `engine="auto"` runs primary (surya|tesseract) per page, re-OCRs pages with conf < `PURSUE_OCR_LLM_THRESHOLD` (default 70) via the LLM. Auto-mode rows preserve the primary attempt as a sibling `primary` block; `meta.json` records `engine: "auto:{primary}+{fallback}"`. New `pursue ocr run --force` bypasses the idempotency check. Surya now passes `math_mode=False` (no more `<b>...</b>` markup). 14 new tests (9 LLM + 5 auto-mode); 48/50 total green (2 pre-existing embed CLI failures unrelated). Live smoke on 15-page FBI HQ-83894 serial 220 with `claude-haiku-4-5`: 9 low-conf pages re-OCR'd, ~16k input + 3.1k output tokens (~$0.03 at Haiku rates), dramatic quality lift (page 1 went from 4 lines of garbage to a complete cover-sheet transcription).
+- [x] **Chat interface — RAG over the corpus with mandatory citations** —
+  Two-tier delivery:
+    - **Anonymous tier** (`/api/chat`): Worker-mediated. Per-IP rate limit
+      (5/day via Workers KV), 24h semantic cache, $100/day spend cap.
+      Server-funded Anthropic Sonnet-4.6 with system prompt enforcing
+      strict-corpus answers, [card_id:page] citation format,
+      explicit abstention, prompt-injection resistance, [REDACTED]
+      handling. Off-corpus queries skip the Anthropic call entirely
+      and stream a canned abstention.
+    - **BYOK tier** (browser-direct): user pastes Anthropic key into
+      Settings, key stored in localStorage, never POSTs to our origin.
+      `AnthropicBYOKProvider` calls /api/retrieve for context then
+      api.anthropic.com directly using the
+      `anthropic-dangerous-direct-browser-access` header. Model picker
+      unlocks Opus-4.7 in BYOK mode.
+  Architecture:
+    - `worker/retrieve.js` — voyage-3 query embed + cosine top-k over
+      8 MB embeddings.bin, parsed once and cached at module scope across
+      warm-Worker requests. Hand-rolled float16 decoder (no runtime dep).
+    - `worker/chat.js` — orchestrator (rate→budget→retrieve→cache→
+      Anthropic SSE proxy → spend record + cache write).
+    - `worker/chat_kv.js` — KV primitives, all date-bucketed so the
+      namespace self-cleans without an LRU pass.
+    - `worker/chat_prompt.js` — system prompt with four few-shot
+      examples (clean answer + 3 abstention variants).
+    - `worker/chat_sse.js` — SSE wire-format translator (Anthropic →
+      our leaner citations/text/done/error events).
+    - `worker/index.js` — dispatches /api/{retrieve,chat} through the
+      preview cookie gate (FIXME(launch) flip).
+    - `web/src/lib/llm-provider.ts` — `LLMProvider` abstraction with
+      `AnthropicServerProvider`, `AnthropicBYOKProvider`,
+      `OpenAIBYOKProvider` stub.
+    - `web/src/lib/byok.ts` + `byok-prompt.ts` — localStorage helpers
+      (validates sk-ant- shape, redact-for-display) + browser-side
+      mirror of the system prompt.
+    - `web/src/lib/citation-render.tsx` — inline [card_id:page] →
+      numeric chip rendering, with literal-text fallback for unknown
+      citations.
+    - `web/src/components/{ChatIsland,ChatSettingsPanel}.tsx` — UI.
+  Tests: 50 new node:test cases across 8 files (cosine + voyage embed
+  + retrieve handler + KV primitives + prompt invariants + chat
+  handler with mocked SSE + api gate). 65/65 worker tests green;
+  63/63 pytest still green; web build clean (155 pages).
+  Live smoke (wrangler dev, real voyage key, Claude Code OAuth as
+  ANTHROPIC_API_KEY): /api/retrieve returns 3 well-scored Roswell
+  passages (0.59–0.62) from the same UAP-defense report card. /api/chat
+  abstains correctly on off-corpus queries without hitting Anthropic.
+  Rate limit kicks in at the 6th call from the same IP. Anthropic
+  Sonnet-4.6 hit 429 immediately on the OAuth token (per
+  driver/feedback_oauth_for_anthropic.md) — no production impact;
+  the streamed `event: error` was correctly piped to the client.
+  Wrangler config now declares CHAT_KV namespace + secrets;
+  before-deploy steps: `wrangler kv namespace create CHAT_KV`,
+  `wrangler secret put VOYAGE_API_KEY`,
+  `wrangler secret put ANTHROPIC_API_KEY`.
 - [x] **Surya full corpus pass + benchmark report + search payload rebuild** — re-OCR'd all 116 PDFs/4153 pages with Surya (134.8 min wall-clock vs Tesseract's 185.3, page-weighted mean conf 86.03 vs 78.64, zero failures). Pinned a 5-card golden set (`tests/fixtures/ocr_golden.txt`) covering the engine failure modes. Ran the A/B harness (`scripts/run_ocr_benchmark.py`) against 25 pages × 3 engines using `claude-haiku-4-5` as the truth proxy; full per-page detail at `data/benchmarks/ocr-20260509T002235Z.json`. Median CER vs LLM truth: Surya 6.1% vs Tesseract 40.4%. Auto-mode projected at $1.36 (Haiku) / $17.67 (Sonnet) on the full corpus given 8% of golden Surya pages fell below the 70 fallback threshold. Search payload rebuilt at 7.2 MB (vs 5.3 MB Tesseract baseline; under the 8 MB threshold). Surya's `<b>/</u>/<i>` markup stripped at the search-payload boundary instead of disabling another Surya flag. Benchmark itself spent ~$0.10 in LLM tokens; 50/50 unit tests still green. Methodology page committed at `docs/ocr-benchmark.md` for the public launch.
 
 ### Phase 2 backlog (sequenced)
@@ -58,6 +113,90 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
+
+### Session: 2026-05-09 — Chat interface (RAG with citations) — anonymous + BYOK tiers
+
+- **Worker side (`worker/`).** Six new modules under arch limits:
+    - `retrieve.js` (303 LoC) — parses 8 MB float16 embeddings.bin once
+      per warm Worker, voyage-3 query embed, cosine top-k filtered at
+      0.5 score threshold, snippet centered on the first matching query
+      term. Module-level cache survives across requests.
+    - `chat.js` (217 LoC) — orchestrator: validate → rate limit →
+      budget → retrieve → cache lookup → live Anthropic SSE → record
+      spend + write cache. Empty-passage path skips Anthropic and
+      streams a canned abstention.
+    - `chat_kv.js` — KV primitives, every key date-bucketed so the
+      namespace self-cleans without LRU. `RATE_LIMIT=5/IP/day`,
+      `DAILY_BUDGET_USD=100`, `CACHE_TTL=24h`. djb2 hash for cache key.
+    - `chat_prompt.js` — system prompt with eight numbered rules
+      (strict-corpus, [card_id:page] format, abstention, REPORTS-vs-
+      CONCLUDES, untrusted-input, [REDACTED] handling, no UFO-reality
+      framing, conciseness) and four few-shot examples covering the
+      four behaviors that matter for launch quality.
+    - `chat_sse.js` — translates Anthropic content_block_delta SSE
+      into our leaner citations/text/done/error wire format. Replay
+      path produces identical bytes for cached responses so the
+      browser parser doesn't branch.
+    - `index.js` — extended router to dispatch /api/{retrieve,chat}
+      through the existing preview-cookie gate. Marked the FIXME for
+      launch-flip alongside the existing one on the homepage.
+- **Browser side (`web/`).** Provider abstraction shipped:
+    - `lib/llm-provider.ts` (343 LoC, single Chunk type =
+      citations|text|done|error) with `AnthropicServerProvider` (calls
+      our /api/chat) and `AnthropicBYOKProvider` (calls /api/retrieve
+      then api.anthropic.com directly with the user's key, native SSE
+      parser inline). `OpenAIBYOKProvider` is a stub that throws.
+    - `lib/byok.ts` + `lib/byok-prompt.ts` — localStorage wrappers,
+      `sk-ant-` shape validator, redact-for-display helper, and a
+      browser-side mirror of the system prompt so BYOK works even if
+      the Worker is degraded.
+    - `lib/citation-render.tsx` — parses inline `[card_id:page]`
+      markers in model output and renders them as numbered chips
+      linking to the card page. Unknown citations render as literal
+      text — no possibility of a confidently-wrong link.
+    - `components/ChatIsland.tsx` (390 LoC) — single-turn streaming
+      chat with terminal aesthetic. Empty-state with five clickable
+      sample queries. Phase indicator (RETRIEVING → GENERATING).
+      Cmd/Ctrl+Enter submit; plain Enter newline. Inline citation
+      chips + a sources list under each assistant message. Rate-limit
+      and budget errors include a CTA toward Settings + BYOK.
+    - `components/ChatSettingsPanel.tsx` — modal drawer: provider
+      toggle (anonymous / BYOK), model picker (Sonnet locked when
+      anonymous, Opus unlocked in BYOK), Anthropic key input
+      (password-masked, validates sk-ant-, redacted-for-display once
+      saved). Footer: "Your key never leaves the browser."
+    - `pages/chat.astro` — the route, `noindex={true}`. Nav: CHAT
+      added to Base.astro between SEARCH and FINDS.
+- **Tests.** 50 new node:test cases across 8 files (cosine math,
+  voyage embed contract, retrieve handler with mocked ASSETS,
+  KV primitives, prompt invariants, chat handler with mocked
+  Anthropic SSE + KV, api-gate cookie contract). Total: 65/65
+  worker tests green (was 15). Pytest 63/63 still green. Web
+  build still clean (155 pages, including /chat/).
+- **Live smoke (wrangler dev, port 8787, real Voyage + Claude Code
+  OAuth as ANTHROPIC_API_KEY):**
+    - `/api/retrieve` cookie gate: 403 without cookie ✓.
+    - `/api/retrieve` with cookie: returns 3 Roswell passages from
+      the same UAP-defense report (0.59–0.62 cosine) ✓.
+    - `/api/chat` off-corpus query: empty citations + canned
+      "documents do not address that" abstention, no Anthropic call ✓.
+    - `/api/chat` rate limit: 6th call from same IP returns 429 with
+      BYOK CTA in error message ✓.
+    - `/api/chat` real-corpus query: streams citations event with 5
+      passages, then hits Sonnet-4.6 429 on Max-tier OAuth (expected
+      per driver/feedback_oauth_for_anthropic.md) — error event
+      correctly piped to client ✓. With a paying-tier
+      `ANTHROPIC_API_KEY` set on the deployed Worker this returns a
+      streamed answer with citations.
+    - `/chat/` page renders with CHAT-active nav, ChatIsland
+      hydrated as `client="only"` Preact island ✓.
+- **Wrangler config.** Documented `VOYAGE_API_KEY`,
+  `ANTHROPIC_API_KEY` (via `wrangler secret put`) and the `CHAT_KV`
+  namespace binding. Chat handler null-checks `env.CHAT_KV` so first
+  deploy works before the namespace id is filled in (rate
+  limit/cache/budget just degrade off until then).
+- **Files.** All under arch limits — largest is ChatIsland.tsx at
+  390 LoC; arch check passes on every new source file.
 
 ### Session: 2026-05-09 — Auto-mode LLM cleanup pass + search payload rebuild + Voyage rate-limit blocker
 

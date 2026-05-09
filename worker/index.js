@@ -1,9 +1,13 @@
 // pursue-index Worker entry.
 //
-// Currently does one job: gate the homepage on a preview cookie so the site
-// stays "research preview" until launch. Visitors with no preview cookie
-// hitting / get the splash page. Visitors with the cookie get the real index.
-// Every other route serves the static site as-is.
+// Two jobs:
+//   1) Gate the homepage on a preview cookie so the site stays
+//      "research preview" until launch. Visitors with no cookie at /
+//      get the splash; with the cookie they get the real index.
+//   2) Dispatch /api/retrieve and /api/chat to the chat-interface
+//      handlers (worker/retrieve.js + worker/chat.js). Both API routes
+//      are behind the same preview-cookie gate until launch — better
+//      default than letting an API endpoint slip past it.
 //
 // Magic-link to grant access:
 //   https://pursueindex.com/?preview=bps-launch
@@ -11,20 +15,22 @@
 //
 // To revoke: visit /preview-off (clears cookie).
 //
-// Future chat surface (`/api/chat` etc.): the cookie gate is *also* expected
-// to apply to those routes once they ship. Treat the splash cookie as
-// "preview access" full-stop until launch — better default than letting an
-// API endpoint slip past the gate. This is enforced by the gate-everything
-// branch below.
-//
 // At launch, drop the gate by either:
 //   1) deleting this Worker (revert to static-only assets), or
-//   2) inverting the gate logic so / serves the index unconditionally.
+//   2) inverting the gate logic so / and /api/* serve unconditionally.
+//
+// Secrets (Worker-side, configured via `wrangler secret put`):
+//   VOYAGE_API_KEY      — Voyage embeddings for /api/retrieve query embed.
+//   ANTHROPIC_API_KEY   — Anonymous-tier chat. Never leaves the Worker.
+// KV namespace bindings:
+//   CHAT_KV             — rate limit + semantic cache + daily budget.
 //
 // CSP is intentionally NOT set here. The card detail pages iframe
 // `https://www.war.gov/...` PDFs, so a meaningful CSP needs `frame-src
-// https://www.war.gov` plus careful testing against asset previews. The
-// chat-interface plan picks that up.
+// https://www.war.gov` plus careful testing against asset previews.
+
+import { handleRetrieve } from "./retrieve.js";
+import { handleChat } from "./chat.js";
 
 const PREVIEW_TOKEN = "bps-launch";
 
@@ -121,6 +127,39 @@ export default {
             },
           },
         ),
+      );
+    }
+
+    // /api/* routes — also behind the preview cookie until launch.
+    // FIXME(launch): when we flip the gate, drop the cookie check here too.
+    if (url.pathname.startsWith("/api/")) {
+      if (!hasPreviewCookie(request)) {
+        return withSecurityHeaders(
+          new Response(
+            JSON.stringify({
+              error:
+                "Research preview is gated. Visit /?preview=<token> first.",
+            }),
+            {
+              status: 403,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+        );
+      }
+      if (url.pathname === "/api/retrieve") {
+        return withSecurityHeaders(await handleRetrieve(request, env));
+      }
+      if (url.pathname === "/api/chat") {
+        // SSE response — withSecurityHeaders is safe here because we
+        // re-wrap via the Response constructor without touching the body.
+        return withSecurityHeaders(await handleChat(request, env));
+      }
+      return withSecurityHeaders(
+        new Response(JSON.stringify({ error: "not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }),
       );
     }
 
