@@ -46,7 +46,7 @@ jobs:
   poll:
     runs-on: ubuntu-latest
     steps:
-      # actions/checkout v4.2.2 — pinned to SHA per SEC-001.
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           # Shallow checkout is fine — we make a single fast-forward
