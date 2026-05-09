@@ -19,7 +19,11 @@ export interface CardMetadata {
   video_title: string | null;
   pdf_pairing: string | null;
   video_pairing: string | null;
-  raw: Record<string, string>;
+  // NOTE: the Python `CardMetadata` ships a `raw` dict for forward-compat
+  // with future CSV columns, but it's always empty in the manifest we
+  // build. Dropping it here keeps the typed-bundle shape lean. The Python
+  // side already enforces `extra="forbid"` on the manifest schema, so
+  // downstream loaders don't depend on this field existing on the wire.
 }
 
 export interface Manifest {
