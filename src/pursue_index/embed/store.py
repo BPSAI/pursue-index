@@ -37,6 +37,12 @@ class IndexRow:
     page: int
     text_sha: str
     offset: int
+    # True iff this row was hashed against text that included the
+    # alex-zhang42 IMAGE-DESCRIPTIONS block. Lets the build/publish step
+    # dedupe by ``(card_id, page)`` keeping the augmented sibling when
+    # both an un-augmented prior row and a new augmented row coexist
+    # (vaivora cross-cutting blocker #3).
+    augmented: bool = False
 
 
 @dataclass
@@ -176,6 +182,7 @@ def load_prior_index_rows(index_path: Path) -> list[IndexRow]:
             page=int(r["page"]),
             text_sha=r["text_sha"],
             offset=int(r["offset"]),
+            augmented=bool(r.get("augmented", False)),
         )
         for r in prior.get("pages", [])
     ]
@@ -206,16 +213,23 @@ def write_index(
         "dim": dim,
         "n": len(rows),
         "created_at": datetime.now(UTC).isoformat(),
-        "pages": [
-            {
-                "card_id": r.card_id,
-                "page": r.page,
-                "text_sha": r.text_sha,
-                "offset": r.offset,
-            }
-            for r in rows
-        ],
+        "pages": [_index_row_to_dict(r) for r in rows],
     }
     if augmented_by is not None:
         payload["augmented_by"] = augmented_by
     index_path.write_text(json.dumps(payload, indent=2))
+
+
+def _index_row_to_dict(r: IndexRow) -> dict[str, object]:
+    """Per-row JSON shape. ``augmented`` is omitted when False to keep the
+    on-disk shape backward-compatible with un-augmented runs.
+    """
+    out: dict[str, object] = {
+        "card_id": r.card_id,
+        "page": r.page,
+        "text_sha": r.text_sha,
+        "offset": r.offset,
+    }
+    if r.augmented:
+        out["augmented"] = True
+    return out

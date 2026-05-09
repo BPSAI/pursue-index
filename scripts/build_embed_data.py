@@ -50,22 +50,55 @@ def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
     return arr, index
 
 
-def _compact_pages(index: dict) -> list[list]:
+def _dedupe_rows(rows: list[dict]) -> list[dict]:
+    """Drop un-augmented rows whose ``(card_id, page)`` has an augmented sibling.
+
+    Per vaivora cross-cutting blocker #3: after an augmented embed run,
+    ``index.json`` carries both the prior un-augmented row and the new
+    augmented row for every re-embedded page. Shipping both wastes top-k
+    slots and roughly doubles ``vectors.bin`` size for those pages. The
+    deployed payload picks the augmented row whenever both exist; rows
+    without an augmented sibling pass through untouched.
+    """
+    augmented_keys = {
+        (r["card_id"], int(r["page"])) for r in rows if r.get("augmented")
+    }
+    return [
+        r for r in rows
+        if r.get("augmented")
+        or (r["card_id"], int(r["page"])) not in augmented_keys
+    ]
+
+
+def _select_rows(index: dict) -> list[dict]:
+    """Return offset-sorted rows after orphan-row dedupe."""
     rows = sorted(index["pages"], key=lambda r: r["offset"])
+    return _dedupe_rows(rows)
+
+
+def _compact_pages(rows: list[dict]) -> list[list]:
+    """Collapse to the wire shape ``[[card_id, page], ...]``."""
     return [[r["card_id"], int(r["page"])] for r in rows]
 
 
-def _write_index(idx_path: Path, index: dict) -> None:
-    idx_path.write_text(
-        json.dumps(
-            {
-                "model_id": index["model_id"],
-                "dim": int(index["dim"]),
-                "n": int(index["n"]),
-                "pages": _compact_pages(index),
-            }
-        )
-    )
+def _filter_vectors(arr: np.ndarray, kept_rows: list[dict], dim: int) -> np.ndarray:
+    """Slice ``arr`` to the rows we kept, ordered by their original offset."""
+    indices = [r["offset"] // (dim * 4) for r in kept_rows]
+    return arr[indices]
+
+
+def _write_index(idx_path: Path, index: dict, kept_rows: list[dict]) -> None:
+    payload: dict[str, object] = {
+        "model_id": index["model_id"],
+        "dim": int(index["dim"]),
+        "n": len(kept_rows),
+        "pages": _compact_pages(kept_rows),
+    }
+    # Provenance is end-to-end: preserve ``augmented_by`` from the source
+    # ``index.json`` into the deployed ``embed_index.json`` (vaivora #2).
+    if "augmented_by" in index:
+        payload["augmented_by"] = index["augmented_by"]
+    idx_path.write_text(json.dumps(payload))
 
 
 def _maybe_warn(size: int, threshold: int) -> None:
@@ -94,6 +127,9 @@ def build(
         return 1
 
     arr, index = _read_vectors(in_dir)
+    dim = int(index["dim"])
+    kept_rows = _select_rows(index)
+    arr = _filter_vectors(arr, kept_rows, dim)
     arr_f16 = arr.astype(np.float16)
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -102,13 +138,14 @@ def build(
 
     # Little-endian float16 — explicit dtype keeps platform endianness sane.
     bin_path.write_bytes(arr_f16.astype("<f2").tobytes(order="C"))
-    _write_index(idx_path, index)
+    _write_index(idx_path, index, kept_rows)
 
     size = bin_path.stat().st_size
     size_mb = size / (1024 * 1024)
+    dropped = int(index["n"]) - len(kept_rows)
     print(
         f"wrote {bin_path} ({size_mb:.2f} MB, {arr.shape[0]} vectors × "
-        f"{arr.shape[1]} dims float16)"
+        f"{arr.shape[1]} dims float16; dropped {dropped} orphan rows)"
     )
     print(f"wrote {idx_path}")
     _maybe_warn(size, warn_threshold_bytes)

@@ -31,6 +31,49 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — alex-zhang42 ingest review-fixes (PR #2 follow-up, branch `feat/alex-zhang-ingest`)
+
+Addressed the union of actionable findings from three parallel reviews
+(vaivora REQUEST_CHANGES, laverna + nayru APPROVE_WITH_NITS):
+
+- **vaivora #1 (build_search_data drops augmentation):** Rewrote the
+  script to detect `augmented_by` in `embeddings/{model}/index.json`,
+  mirror the embed pipeline's `atlas_join` lookup, and apply the same
+  `_augment_text` to each matched page before writing `pages.json`.
+  New `--augment-from` flag (required when index declares augmentation;
+  refuses to ship out-of-sync payload).
+- **vaivora #2 (provenance died at build_embed_data):** `_write_index`
+  now copies `augmented_by` from the source index into the deployed
+  `embed_index.json`. End-to-end provenance.
+- **vaivora #3 (orphan-row drift):** `IndexRow` gained an `augmented`
+  flag (omitted on disk when False, backward-compatible). Pipeline
+  marks new rows with `augmented=True` iff `(card_id, page)` was in
+  the lookup. `build_embed_data._dedupe_rows` drops un-augmented rows
+  whose `(card_id, page)` has an augmented sibling. Vector file is
+  filtered in lockstep.
+- **SEC-001 (sha256 sidecar unverified):** `load_atlas_index` now
+  hashes the corpus and compares against `<stem>.sha256` before
+  parsing. Hard fail on mismatch or missing sidecar; opt-out via
+  `PURSUE_AUGMENT_SKIP_HASH_CHECK=1` for local regeneration.
+- **SEC-002 (1.0 threshold disabled the gate):** `--augment-miss-rate-threshold`
+  clamped to `[0.0, 0.5]` at both Typer (`min=`/`max=`) and call-site
+  (`_validate_threshold`).
+- **SEC-003 (HF HEAD drift silent):** `build_alex_zhang_corpus.py`
+  hardcodes `PINNED_REVISION = "b0f0c79924b88d339846aa9fc4283958fe15682b"`
+  and aborts when upstream HEAD differs.
+- **nayru P1 (provenance half-truth):** `_load_augment_provenance`
+  raises (FileNotFoundError / ValueError) on missing or empty
+  `.revision` / `.sha256` sidecars rather than emitting `revision=""`
+  into `index.json`.
+- **nayru P1 (empty source_url silently missed):** `atlas_join` now
+  raises `AtlasJoinError` on records with missing or empty `source_url`.
+
+Tests: 116 python (was 95; +21 covering all the above). Worker: 56/56
+green. Web build clean. Arch check: zero errors on every modified file
+(file-too-large warnings only). Out of scope per task instructions:
+docstring polish on canonicalize_url, SEC-004 (Jaime Maussan caption —
+operator policy call), the `(license TBD)` line in cite.astro.
+
 ### Session: 2026-05-09 — alex-zhang42 VLM ingest (implementation, branch `feat/alex-zhang-ingest`)
 
 - Pinned alex-zhang42/ufo-pursue-open-atlas at HF revision

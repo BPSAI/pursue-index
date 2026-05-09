@@ -51,37 +51,48 @@ def _make_embedder(provider: str, model: str) -> Any:
     raise typer.Exit(code=2)
 
 
+def _read_sidecar(corpus_path: Path, suffix: str) -> str:
+    """Return the trimmed sidecar content for ``<corpus>.{suffix}``.
+
+    Accepts both ``<stem>.{suffix}`` and ``<filename>.{suffix}`` forms.
+    Raises ``FileNotFoundError`` when neither is present and ``ValueError``
+    on an empty sidecar — both cases are forensic half-truths that the
+    plan calls out as non-negotiable.
+    """
+    candidates = [
+        corpus_path.with_suffix(f".{suffix}"),
+        corpus_path.parent / (corpus_path.name + f".{suffix}"),
+    ]
+    for p in candidates:
+        if p.exists():
+            text = p.read_text().strip()
+            if not text:
+                raise ValueError(
+                    f"augment provenance: {p} is empty; "
+                    f"expected the {suffix} value on the first line."
+                )
+            # ``.sha256`` files are ``<hex>  <filename>``; pick the hex.
+            return text.split()[0]
+    raise FileNotFoundError(
+        f"augment provenance: no .{suffix} sidecar next to {corpus_path}; "
+        f"expected one of {[str(c) for c in candidates]}"
+    )
+
+
 def _load_augment_provenance(corpus_path: Path) -> dict[str, str]:
     """Read the dataset/revision/sha256 sidecars next to ``corpus_path``.
 
     The build script ``scripts/build_alex_zhang_corpus.py`` writes
-    ``<stem>.sha256`` and ``<stem>.revision`` next to the corpus file
-    (replacing the ``.jsonl`` suffix). This helper looks for both forms
-    so an operator-renamed corpus still resolves cleanly.
+    ``<stem>.sha256`` and ``<stem>.revision`` next to the corpus file.
+    Both sidecars must exist and be non-empty: an ``augmented_by`` block
+    written into ``index.json`` is provenance, and provenance with empty
+    ``revision`` or ``sha256`` is a forensic half-truth (nayru P1). Fail
+    loudly here rather than silently emit one.
     """
-    candidates_sha = [
-        corpus_path.with_suffix(".sha256"),
-        corpus_path.parent / (corpus_path.name + ".sha256"),
-    ]
-    candidates_rev = [
-        corpus_path.with_suffix(".revision"),
-        corpus_path.parent / (corpus_path.name + ".revision"),
-    ]
-    sha = ""
-    revision = ""
-    for p in candidates_sha:
-        if p.exists():
-            text = p.read_text().strip()
-            sha = text.split()[0] if text else ""
-            break
-    for p in candidates_rev:
-        if p.exists():
-            revision = p.read_text().strip()
-            break
     return {
         "dataset": "alex-zhang42/ufo-pursue-open-atlas",
-        "revision": revision,
-        "sha256": sha,
+        "revision": _read_sidecar(corpus_path, "revision"),
+        "sha256": _read_sidecar(corpus_path, "sha256"),
     }
 
 
@@ -93,16 +104,22 @@ def _maybe_load_augment(
     """Return ``(lookup, provenance)`` or ``(None, None)`` if not augmenting."""
     if augment_from is None:
         return None, None
-    from pursue_index.embed.atlas_join import load_atlas_index
-
-    lookup = load_atlas_index(
-        augment_from, manifest, miss_rate_threshold=miss_rate_threshold
+    from pursue_index.embed.atlas_join import (
+        AtlasJoinError,
+        load_atlas_index,
     )
-    provenance = _load_augment_provenance(augment_from)
+
+    try:
+        lookup = load_atlas_index(
+            augment_from, manifest, miss_rate_threshold=miss_rate_threshold
+        )
+        provenance = _load_augment_provenance(augment_from)
+    except (AtlasJoinError, FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error:[/red] augment load failed: {exc}")
+        raise typer.Exit(code=2) from exc
     console.print(
         f"[cyan]augment:[/cyan] {len(lookup)} pages have VLM image tags "
-        f"from {provenance['dataset']} @ "
-        f"{provenance['revision'][:12] or '?'}"
+        f"from {provenance['dataset']} @ {provenance['revision'][:12]}"
     )
     return lookup, provenance
 
@@ -124,7 +141,10 @@ _OPT_AUGMENT = typer.Option(
 )
 _OPT_MISS_RATE = typer.Option(
     0.01, "--augment-miss-rate-threshold",
-    help="Atlas join miss-rate ceiling (default 1%).",
+    min=0.0,
+    max=0.5,
+    help="Atlas join miss-rate ceiling (default 1%; must be in [0.0, 0.5] — "
+    "higher values would silently disable the join quality gate).",
 )
 
 

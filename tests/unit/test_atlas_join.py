@@ -16,6 +16,7 @@ The fixture ``tests/fixtures/atlas_join_sample.jsonl`` has 5 records:
 
 from __future__ import annotations
 
+import hashlib
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -29,6 +30,23 @@ from pursue_index.embed.atlas_join import (
 from pursue_index.scrape.types import CardMetadata, Manifest
 
 FIXTURE = Path(__file__).parent.parent / "fixtures" / "atlas_join_sample.jsonl"
+
+
+def _write_jsonl_with_sha256(path: Path, body: str) -> None:
+    """Write a JSONL fixture and its companion ``.sha256`` sidecar.
+
+    ``load_atlas_index`` verifies the sha256 sidecar before parsing
+    (laverna SEC-001 fail-closed), so any test fixture written at
+    runtime needs both files alongside.
+    """
+    path.write_text(body)
+    digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
+    path.with_suffix(".sha256").write_text(f"{digest}  {path.name}\n")
+
+
+def _unlink_jsonl_with_sha256(path: Path) -> None:
+    path.unlink()
+    path.with_suffix(".sha256").unlink()
 
 
 def _card(card_id: str, asset_url: str, title: str = "x") -> CardMetadata:
@@ -75,7 +93,7 @@ def _full_manifest() -> Manifest:
 def test_load_atlas_index_returns_pages_for_direct_hash_matches() -> None:
     """Records whose source_url hashes to a known card_id join directly."""
     manifest = _full_manifest()
-    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=1.0)
+    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
 
     # 059uap00011 has 2 pages, 065uap00099 has 1 page.
     assert ("ff30c985595153f3", 1) in index
@@ -114,7 +132,7 @@ def test_load_atlas_index_joins_via_canonicalization_when_hash_misses() -> None:
     direct hash misses because of %20 vs underscore.
     """
     manifest = _full_manifest()
-    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=1.0)
+    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
     # bbf7124aa3691fc4 is OUR card_id; the join must surface their tags
     # under our id even though their hash differs.
     assert ("bbf7124aa3691fc4", 7) in index
@@ -135,11 +153,11 @@ def test_load_atlas_index_aborts_when_miss_rate_exceeds_threshold() -> None:
 def test_load_atlas_index_records_misses_below_threshold() -> None:
     """When the miss rate is acceptable (e.g. 1 unmatched record on a 5-page
     fixture, 20%), the loader still surfaces the un-matched URL set so the
-    operator can audit. We use a permissive threshold (1.0 = allow 100%
-    miss) to test the surface explicitly.
+    operator can audit. We use the operational ceiling (0.5 = allow up to
+    50% miss) to test the surface explicitly.
     """
     manifest = _full_manifest()
-    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=1.0)
+    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
     # The orphan page is dropped — there's no card_id to attach it to.
     # Only the 4 matched pages are in the index.
     assert len(index) == 4
@@ -155,11 +173,12 @@ def test_load_atlas_index_skips_records_with_no_image_tags() -> None:
     with an empty list, which downstream code would have to filter again).
     """
     fixture = FIXTURE.parent / "atlas_join_empty_tags.jsonl"
-    fixture.write_text(
+    _write_jsonl_with_sha256(
+        fixture,
         '{"record_id":"059uap00011","pdf_stem":"059uap00011","page_num":1,'
         '"text":"## blank","image_tags":[],"image_tag_source":"mimo-v2.5",'
         '"source_url":"https://www.war.gov/medialink/ufo/release_1/059uap00011.pdf",'
-        '"sha256":"x"}\n'
+        '"sha256":"x"}\n',
     )
     try:
         manifest = _manifest(
@@ -170,10 +189,10 @@ def test_load_atlas_index_skips_records_with_no_image_tags() -> None:
                 ),
             ]
         )
-        index = load_atlas_index(fixture, manifest, miss_rate_threshold=1.0)
+        index = load_atlas_index(fixture, manifest, miss_rate_threshold=0.5)
         assert ("ff30c985595153f3", 1) not in index
     finally:
-        fixture.unlink()
+        _unlink_jsonl_with_sha256(fixture)
 
 
 def test_load_atlas_index_deduplicates_repeated_tags() -> None:
@@ -182,12 +201,13 @@ def test_load_atlas_index_deduplicates_repeated_tags() -> None:
     should de-dupe while preserving first-seen order.
     """
     fixture = FIXTURE.parent / "atlas_join_dupes.jsonl"
-    fixture.write_text(
+    _write_jsonl_with_sha256(
+        fixture,
         '{"record_id":"059uap00011","pdf_stem":"059uap00011","page_num":1,'
         '"text":"## x","image_tags":["A.","B.","A."],'
         '"image_tag_source":"mimo-v2.5",'
         '"source_url":"https://www.war.gov/medialink/ufo/release_1/059uap00011.pdf",'
-        '"sha256":"x"}\n'
+        '"sha256":"x"}\n',
     )
     try:
         manifest = _manifest(
@@ -198,7 +218,7 @@ def test_load_atlas_index_deduplicates_repeated_tags() -> None:
                 ),
             ]
         )
-        index = load_atlas_index(fixture, manifest, miss_rate_threshold=1.0)
+        index = load_atlas_index(fixture, manifest, miss_rate_threshold=0.5)
         assert index[("ff30c985595153f3", 1)] == ["A.", "B."]
     finally:
-        fixture.unlink()
+        _unlink_jsonl_with_sha256(fixture)

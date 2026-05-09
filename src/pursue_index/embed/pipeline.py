@@ -81,8 +81,15 @@ def _embed_new_rows(
     starting_offset: int,
     starting_dim: int,
     summary: EmbedSummary,
+    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
 ) -> tuple[bytes, list[IndexRow], int]:
-    """Run new_rows through the embedder; return (bytes, index_rows, dim)."""
+    """Run new_rows through the embedder; return (bytes, index_rows, dim).
+
+    ``augment_lookup`` is consulted only to decide which new rows get
+    their ``augmented=True`` flag flipped — a row is augmented iff its
+    ``(card_id, page)`` was in the lookup, meaning the IMAGE-DESCRIPTIONS
+    block actually changed the hashed text.
+    """
     new_index_rows: list[IndexRow] = []
     accumulated = bytearray()
     dim = starting_dim
@@ -95,12 +102,17 @@ def _embed_new_rows(
         chunk = vectors_to_bytes(result.vectors)
         for i, page_row in enumerate(batch):
             offset = starting_offset + len(accumulated) + i * dim * 4
+            is_augmented = (
+                augment_lookup is not None
+                and (page_row.card_id, page_row.page) in augment_lookup
+            )
             new_index_rows.append(
                 IndexRow(
                     card_id=page_row.card_id,
                     page=page_row.page,
                     text_sha=page_row.text_sha,
                     offset=offset,
+                    augmented=is_augmented,
                 )
             )
         accumulated.extend(chunk)
@@ -220,7 +232,8 @@ def embed_run(
     _check_and_log_start(new_rows, skipped, cost_cap_usd, rate, model_id)
     next_offset = vectors_path.stat().st_size if vectors_path.exists() else 0
     new_bytes, new_index_rows, dim = _embed_new_rows(
-        new_rows, embedder, batch_size, next_offset, prior_dim, summary
+        new_rows, embedder, batch_size, next_offset, prior_dim, summary,
+        augment_lookup=augment_lookup,
     )
     _persist(
         vectors_path, index_path, model_id, dim, new_bytes, new_index_rows,
