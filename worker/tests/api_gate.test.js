@@ -91,4 +91,53 @@ describe("API surface (post-launch)", () => {
     assert.equal(r.headers.get("X-Content-Type-Options"), "nosniff");
     assert.equal(r.headers.get("Referrer-Policy"), "strict-origin-when-cross-origin");
   });
+
+  // Regression: the /api documentation page (web/src/pages/api.astro) is
+  // a static asset under /api/. Before this fix, the Worker's prefix-
+  // match `startsWith("/api/")` swallowed every /api/* path that wasn't
+  // /api/retrieve or /api/chat and returned `{"error":"not found"}`.
+  // The static page never served. Now Worker-handled paths are an
+  // explicit set; everything else falls through to ASSETS.
+  test("/api/ (docs page) falls through to ASSETS, not the Worker", async () => {
+    let assetsCalled = false;
+    const env = {
+      ASSETS: {
+        fetch: async () => {
+          assetsCalled = true;
+          return new Response("docs", { status: 200 });
+        },
+      },
+      CHAT_KV: makeKV(),
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const r = await worker.fetch(
+      new Request("https://x/api/", { method: "GET" }),
+      env,
+    );
+    assert.equal(r.status, 200);
+    assert.equal(assetsCalled, true);
+  });
+
+  test("/api/anything-else also falls through to ASSETS", async () => {
+    // Future-proofs new static /api/* routes (e.g. /api/changelog).
+    let assetsCalled = false;
+    const env = {
+      ASSETS: {
+        fetch: async () => {
+          assetsCalled = true;
+          return new Response("page", { status: 200 });
+        },
+      },
+      CHAT_KV: makeKV(),
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const r = await worker.fetch(
+      new Request("https://x/api/changelog", { method: "GET" }),
+      env,
+    );
+    assert.equal(r.status, 200);
+    assert.equal(assetsCalled, true);
+  });
 });
