@@ -60,7 +60,10 @@ export default {
     // Gate the homepage. Every other path falls through to static assets.
     if (url.pathname === "/" || url.pathname === "") {
       if (!hasPreviewCookie(request)) {
-        const splashUrl = new URL("/splash", url);
+        // /splash/ with trailing slash matches Astro's auto-trailing-slash
+        // build output (web/dist/splash/index.html). Without the slash CF
+        // returns a 307, which we'd then have to follow.
+        const splashUrl = new URL("/splash/", url);
         return env.ASSETS.fetch(new Request(splashUrl, request));
       }
     }
