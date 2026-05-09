@@ -1,0 +1,4 @@
+# Pre-launch: keep the site out of search results until the official launch.
+# FIXME(launch): replace with permissive rules + sitemap reference.
+User-agent: *
+Disallow: /

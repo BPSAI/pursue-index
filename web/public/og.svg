@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0a0d12"/>
+
+  <!-- Subtle grid scanlines -->
+  <defs>
+    <pattern id="scan" x="0" y="0" width="1200" height="3" patternUnits="userSpaceOnUse">
+      <rect width="1200" height="1" fill="#c4dcff" opacity="0.025"/>
+    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="65%">
+      <stop offset="55%" stop-color="#0a0d12" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+    </radialGradient>
+    <linearGradient id="topline" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#a4ff5a" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#a4ff5a" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#a4ff5a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#scan)"/>
+
+  <!-- Top scanline accent -->
+  <rect x="0" y="0" width="1200" height="2" fill="url(#topline)"/>
+
+  <!-- Bracket frame (declassified-doc corners) -->
+  <g stroke="#2f3d4e" stroke-width="2" fill="none">
+    <polyline points="60,60 60,90 90,60"/>
+    <polyline points="1140,60 1140,90 1110,60"/>
+    <polyline points="60,570 60,540 90,570"/>
+    <polyline points="1140,570 1140,540 1110,570"/>
+  </g>
+
+  <!-- Header line: $ cat /etc/pursue/about -->
+  <text x="100" y="135"
+    font-family="JetBrains Mono, Menlo, ui-monospace, monospace"
+    font-size="22" letter-spacing="3" fill="#4a5563">
+    <tspan fill="#4a5563">$ </tspan><tspan fill="#a4ff5a">cat /etc/pursue/release.manifest</tspan>
+  </text>
+
+  <!-- Lockup: PURSUE://INDEX -->
+  <g font-family="JetBrains Mono, Menlo, ui-monospace, monospace" font-weight="700">
+    <text x="100" y="280" font-size="100">
+      <tspan fill="#6b7783">PURSUE</tspan><tspan fill="#a4ff5a">://</tspan><tspan fill="#ecf2f9">INDEX</tspan>
+    </text>
+    <!-- caret -->
+    <rect x="900" y="208" width="38" height="76" fill="#a4ff5a"/>
+  </g>
+
+  <!-- Subtitle / tagline -->
+  <text x="100" y="350"
+    font-family="Inter Tight, Inter, system-ui, sans-serif"
+    font-size="32" fill="#c5cdd6">
+    DOW PURSUE UAP Document Archive
+  </text>
+
+  <!-- Stat strip -->
+  <g font-family="JetBrains Mono, Menlo, ui-monospace, monospace" font-size="22" letter-spacing="2">
+    <text x="100" y="430">
+      <tspan fill="#4a5563">N </tspan><tspan fill="#ecf2f9" font-weight="600">161</tspan>
+      <tspan fill="#4a5563"> CARDS  ·  </tspan>
+      <tspan fill="#4a5563">PAGES </tspan><tspan fill="#5fd4ff" font-weight="600">4,153</tspan>
+      <tspan fill="#4a5563">  ·  </tspan>
+      <tspan fill="#4a5563">SRC </tspan><tspan fill="#ecf2f9">war.gov</tspan>
+    </text>
+  </g>
+
+  <!-- Bottom bar: status + brand -->
+  <line x1="100" y1="500" x2="1100" y2="500" stroke="#1f2a35" stroke-width="1"/>
+  <g font-family="JetBrains Mono, Menlo, ui-monospace, monospace" font-size="20" letter-spacing="3">
+    <text x="100" y="540">
+      <tspan fill="#4a5563">STATUS </tspan><tspan fill="#ffc857" font-weight="600">RESEARCH PREVIEW</tspan>
+    </text>
+    <text x="1100" y="540" text-anchor="end">
+      <tspan fill="#4a5563">© </tspan><tspan fill="#c5cdd6">BPS AI SOFTWARE</tspan>
+    </text>
+  </g>
+
+  <!-- Vignette overlay last so it sits on top -->
+  <rect width="1200" height="630" fill="url(#vignette)"/>
+</svg>

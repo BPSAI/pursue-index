@@ -1,0 +1,76 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const all = await getCollection("finds", ({ data }) => !data.draft);
+  return all.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const pageTitle = `${entry.data.title} — FINDS — PURSUE://INDEX`;
+---
+
+<Base
+  title={pageTitle}
+  description={entry.data.summary}
+  active="finds"
+  ogType="article"
+>
+  <article class="space-y-6 max-w-3xl">
+    <nav class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex items-center gap-2">
+      <a href={`${base}/finds`} class="hover:text-[color:var(--color-signal-green)]">/FINDS</a>
+      <span>/</span>
+      <span class="text-[color:var(--color-signal-cyan)]">{entry.id}</span>
+    </nav>
+
+    <header class="space-y-3 border-b border-[color:var(--color-border)] pb-5">
+      <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span class="text-[color:var(--color-signal-cyan)]">
+          {entry.data.published.toISOString().slice(0, 10)}
+        </span>
+        {entry.data.tags.length > 0 && <span>·</span>}
+        {entry.data.tags.map((tag) => (
+          <span class="px-1.5 py-0.5 border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)]">
+            {tag}
+          </span>
+        ))}
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)] leading-snug">
+        {entry.data.title}
+      </h1>
+      {entry.data.subtitle && (
+        <p class="text-base text-[color:var(--color-text-dim)]">{entry.data.subtitle}</p>
+      )}
+    </header>
+
+    {entry.data.cards.length > 0 && (
+      <aside class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
+        <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-2">
+          Sources
+        </h3>
+        <ul class="font-mono text-xs space-y-1">
+          {entry.data.cards.map((id) => (
+            <li>
+              <a
+                href={`${base}/card/${id}`}
+                class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] break-all"
+              >
+                /card/{id}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
+
+    <div class="prose prose-invert max-w-none text-[color:var(--color-text)] leading-relaxed">
+      <Content />
+    </div>
+  </article>
+</Base>
