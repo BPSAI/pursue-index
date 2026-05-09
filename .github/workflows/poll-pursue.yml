@@ -1,0 +1,107 @@
+name: Poll PURSUE for new tranches
+
+# Runs the lightweight poll on a 6-hour cadence. The script fetches the
+# upstream CSV via curl_cffi (Chrome-TLS impersonation), hashes it, and
+# compares to the committed last-known-sha. On change, it commits the new
+# sha and opens a `tranche-detected` issue. On fetch failure (Akamai 4xx,
+# transport error, empty body) it opens a `tranche-poll-failure` issue and
+# the job fails so the operator gets a workflow-failure email too.
+#
+# Why this layer: detection lives on infra DOW doesn't control. If the
+# poll starts failing, that's an early warning to investigate. If it
+# silently stops detecting, the next operator-attended run will catch up
+# but we'll have lost the canonical-archive lead.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # every 6 hours UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write   # commit data/last-known-csv-sha.txt on change
+  issues: write     # open tranche-detected / tranche-poll-failure issues
+
+concurrency:
+  group: poll-pursue
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need full history so the auto-commit pushes cleanly.
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal scrape deps
+        # Avoid the full project install — we only need curl_cffi and
+        # the small set of transitive deps that csv_fetcher pulls in.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            "curl_cffi>=0.7" \
+            "pydantic>=2.0" \
+            "structlog>=24.0" \
+            "pydantic-settings>=2.0"
+
+      - name: Run poll
+        id: poll
+        run: python scripts/poll_pursue.py
+        # Don't `set -e` out here — script exits 1 on fetch failure and we
+        # still want the issue-opening step to fire before failing the job.
+        continue-on-error: true
+
+      - name: Commit new sha (when changed)
+        if: steps.poll.outputs.status == 'changed'
+        env:
+          OLD_SHA: ${{ steps.poll.outputs.old_sha }}
+          NEW_SHA: ${{ steps.poll.outputs.new_sha }}
+          IS_BOOTSTRAP: ${{ steps.poll.outputs.is_bootstrap }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/last-known-csv-sha.txt
+          if [ "$IS_BOOTSTRAP" = "true" ]; then
+            MSG="chore(poll): bootstrap last-known sha ${NEW_SHA:0:12}"
+          else
+            MSG="chore(poll): upstream CSV changed ${OLD_SHA:0:12} -> ${NEW_SHA:0:12}"
+          fi
+          git commit -m "$MSG"
+          git push
+
+      - name: Open tranche-detected issue
+        # Skip the issue on bootstrap — there's no actual change to alert on,
+        # we just hadn't been watching yet.
+        if: steps.poll.outputs.status == 'changed' && steps.poll.outputs.is_bootstrap == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ steps.poll.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.poll.outputs.issue_body }}
+          ISSUE_LABELS: ${{ steps.poll.outputs.issue_labels }}
+        run: |
+          gh issue create \
+            --title "$ISSUE_TITLE" \
+            --body  "$ISSUE_BODY" \
+            --label "$ISSUE_LABELS"
+
+      - name: Open tranche-poll-failure issue
+        if: steps.poll.outputs.status == 'failed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ steps.poll.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.poll.outputs.issue_body }}
+          ISSUE_LABELS: ${{ steps.poll.outputs.issue_labels }}
+        run: |
+          gh issue create \
+            --title "$ISSUE_TITLE" \
+            --body  "$ISSUE_BODY" \
+            --label "$ISSUE_LABELS"
+
+      - name: Propagate failure exit code
+        if: steps.poll.outputs.status == 'failed'
+        run: exit 1

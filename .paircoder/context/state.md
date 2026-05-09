@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-05-09 (post-launch — public site live, full pipeline shipped)
+> Last updated: 2026-05-09 (post-launch — public site live, full pipeline shipped; auto-poll layer added on `feat/auto-poll-tranches`)
 
 ## Current Focus
 
@@ -30,6 +30,43 @@ retrieval is on the post-launch backlog (see `What's Next`).
 | novelty   | shipped  | machinery + UI; placeholder reference corpus (10 passages)         |
 
 ## What Was Just Done
+
+### Session: 2026-05-09 — Auto-poll for new PURSUE tranches (branch `feat/auto-poll-tranches`)
+
+Implemented Layer 1 of the two-layer architecture in
+`.paircoder/plans/auto-poll-tranches.md`. Picked Option B (GitHub Actions
+cron) over Option A (CF Worker cron) — the Worker can't run curl_cffi
+for the Akamai bypass, so reusing the existing Python scrape stack is
+simpler and the storage is just a git commit.
+
+- `scripts/poll_pursue.py` — fetch via `csv_fetcher.fetch_raw_csv`,
+  hash, compare to `data/last-known-csv-sha.txt`, return one of
+  `Unchanged | Changed | Failed`. Pure function; CLI entrypoint mutates
+  the state file only on change. Empty body and any transport raise
+  both classified as `Failed`. Missing last-known file is treated as
+  bootstrap: commit the sha, do NOT open a tranche-detected issue
+  (nothing changed, we just hadn't been watching).
+- `.github/workflows/poll-pursue.yml` — `cron: '0 */6 * * *'` plus
+  `workflow_dispatch`. Permissions: `contents: write`, `issues: write`.
+  Reads kv pairs from `$GITHUB_OUTPUT` set by the script; commits the
+  new sha file on change (skipping the issue when bootstrap), opens a
+  `tranche-detected` issue on real change, opens a
+  `tranche-poll-failure` issue + fails the job on fetch failure.
+  Uses `secrets.GITHUB_TOKEN` only — no operator credentials.
+- `data/last-known-csv-sha.txt` — seeded with the sha from the current
+  `data/manifests/latest.json` (`596cc188...cafa2`, 2026-05-08 fetch)
+  so the first cron run is a no-op rather than an unnecessary
+  bootstrap commit.
+- 10 new unit tests in `tests/unit/test_poll_pursue.py`. Stubs
+  `fetch_raw_csv` exactly the way `test_csv_fetcher.py` does so the
+  curl_cffi contract isn't double-mocked. Full suite: 129/129 green
+  (was 119). Arch check: zero errors on
+  `scripts/poll_pursue.py` (one warning at 238/200 lines, well under
+  the 400 hard limit).
+- Layer 2 (heavy pipeline) intentionally NOT auto-triggered — operator
+  runs `pursue scrape run` -> download -> ocr -> embed manually when
+  GPU + content-review attention is available. The auto-opened issue
+  is the trigger.
 
 ### Session: 2026-05-09 — alex-zhang42 ingest review-fixes (PR #2 follow-up, branch `feat/alex-zhang-ingest`)
 
@@ -189,8 +226,9 @@ hardening, git history scrub.
    re-run on every page (~8% will trigger LLM cleanup, ~$1.36 at
    Haiku rates). Quality lift is real but incremental over what's
    shipped. Needs operator attendance for the run.
-4. **Auto-poll for new tranches** — DOW publishes new releases by
-   updating the same CSV in place. Polling closes the gap. Plan:
+4. **Auto-poll for new tranches** — Layer 1 (lightweight poll) shipped
+   on `feat/auto-poll-tranches` (PR pending). Layer 2 (heavy pipeline
+   trigger) intentionally remains operator-attended. Plan:
    `.paircoder/plans/auto-poll-tranches.md`.
 5. **Review-and-correct pipeline** — accept community OCR corrections
    via GitHub issues; flow them back into the index. Plan:
@@ -217,6 +255,10 @@ pursue scrape run
 pursue download run --manifest data/manifests/latest.json
 pursue ocr run --manifest data/manifests/latest.json --engine auto
 pursue embed run --manifest data/manifests/latest.json
+
+# Lightweight upstream-CSV poll (Layer 1 of auto-poll-tranches.md)
+# Runs on GH Actions cron every 6h; this is the manual operator path.
+python scripts/poll_pursue.py
 
 # Tests
 pytest -x                     # python, 79 tests
