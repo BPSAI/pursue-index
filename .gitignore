@@ -132,3 +132,4 @@ agent_pack.tgz
 # Launch comms drafts — kept locally only (the operator has working copies)
 docs/launch/hn-post.md
 docs/launch/journalist-outreach.md
+/.paircoder/qc/reports/

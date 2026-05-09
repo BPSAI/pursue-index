@@ -1,9 +1,8 @@
 // Cloudflare Workers + Static Assets configuration.
 //
-// `main` is the Worker that:
-//   1) gates / on a preview cookie until launch,
-//   2) dispatches /api/retrieve and /api/chat to the chat-interface
-//      handlers in worker/retrieve.js + worker/chat.js.
+// `main` is the Worker that dispatches /api/retrieve and /api/chat to the
+// chat-interface handlers in worker/retrieve.js + worker/chat.js. All other
+// paths fall through to static assets.
 //
 // Static + dynamic both deploy as one project.
 //

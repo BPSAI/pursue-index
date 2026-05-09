@@ -4,7 +4,7 @@
 > **Presidential Unsealing and Reporting System for UAP Encounters (PURSUE)**
 > document releases.
 
-Live: **<https://pursueindex.com>** *(research preview, splash gate active)*
+Live: **<https://pursueindex.com>**
 Source: **<https://www.war.gov/UFO/>**
 Code: **<https://github.com/BPSAI/pursue-index>**
 
@@ -28,15 +28,21 @@ It's useless for searching the actual contents of the documents.
 Every record traces back to a specific page of a specific war.gov PDF.
 Methodology is published. Numbers are reproducible from a clean clone.
 
-## Live now (2026-05-09)
+## What's live
 
 - **Custom domain.** [pursueindex.com](https://pursueindex.com) on Cloudflare
-  Workers + Static Assets, behind a research-preview splash gate.
-- **Full-text search** across **4,153 OCR'd pages** spanning the 116 PDF cards
-  in Release 01 of the corpus. Search runs in the browser; no server.
+  Workers + Static Assets.
+- **Full-text + semantic search** across **4,153 OCR'd pages** spanning the
+  116 PDF cards in Release 01. MiniSearch lexical index + Voyage-3
+  embeddings, both browser-side; no server.
 - **OCR pipeline.** Surya (GPU, transformer-based) primary, Anthropic vision
   LLM fallback for pages whose Surya confidence falls below threshold. The
   shipped index is **3,529 Surya pages + 624 LLM-cleaned pages**.
+- **RAG chat with mandatory citations.** Anonymous tier (server-funded,
+  5/IP/24h, $100/day budget cap) and BYOK tier (browser-direct to
+  Anthropic). Both share the same UI. Off-corpus questions abstain
+  rather than hallucinate; every cited claim is `[card_id:page]` and
+  resolves to a primary-source page.
 - **Published quality benchmark.** Five-PDF golden set covering the engine
   failure modes (clean typewriter / faded carbon / multi-column / redacted /
   long debriefing). Surya median CER **6.1%** vs Tesseract **40.4%** vs the
@@ -45,7 +51,9 @@ Methodology is published. Numbers are reproducible from a clean clone.
 - **Tranche diff.** Every snapshot is timestamped under `csv-archive/`; the
   diff page surfaces per-card deltas when the upstream CSV changes.
 - **Pages.** [/about](https://pursueindex.com/about),
-  [/methodology](https://pursueindex.com/methodology), and a small set of
+  [/methodology](https://pursueindex.com/methodology),
+  [/cite](https://pursueindex.com/cite),
+  [/support](https://pursueindex.com/support), and a small set of
   curated [/finds](https://pursueindex.com/finds) entries — primary-source
   reading guides written against specific pages of specific cards.
 - **Novelty detection (machinery + UI).** `pursue novelty compute` runs
@@ -55,20 +63,24 @@ Methodology is published. Numbers are reproducible from a clean clone.
   showing the top-3 reference matches. Currently shipping with a small
   synthetic placeholder reference corpus (10 hand-crafted public-domain
   passages from Roswell 1947, Project Blue Book, the Hottel memo, etc.) —
-  full Black Vault integration is in flight.
+  full Black Vault integration is on the post-launch backlog.
 
-## In flight (toward public launch)
+## On the post-launch backlog
 
-- **Chat interface.** Retrieval-augmented Q&A over the corpus, with
-  mandatory citations on every claim. Anonymous (server-funded, rate-limited)
-  and BYOK (bring-your-own Anthropic key) modes share the same UI. The BYOK
-  path keeps cost flat under HN-spike traffic.
 - **Curated finds expansion.** More hand-authored reading guides; current
   set is intentionally small to set the editorial bar.
 - **Black Vault reference corpus.** Acquire + OCR + embed the canonical
   prior-disclosure FOIA archive (~100k–500k pages) so the novelty
   detection moves from "methodology demo" to "real coverage measurement"
   for every card.
+- **Auto-poll for new tranches.** The DOW publishes new releases by
+  updating the same CSV in place. Polling closes the gap between a new
+  drop and our index reflecting it. Plan in
+  [`.paircoder/plans/auto-poll-tranches.md`](.paircoder/plans/auto-poll-tranches.md).
+- **Review-and-correct pipeline.** Post-launch, accept community
+  corrections on OCR transcripts via GitHub issues; flow them back into
+  the index. Plan in
+  [`.paircoder/plans/review-correct.md`](.paircoder/plans/review-correct.md).
 
 ## Pipeline
 
@@ -199,11 +211,9 @@ cd web && npm install && npm run dev
 
 ## Status
 
-Research preview. The site is reachable at
-[pursueindex.com](https://pursueindex.com) behind a splash gate. The
-chat interface, citation guide, methodology page, curated finds, and
-novelty-detection scaffold are all live for cookie-holders. Public
-launch flips the gate when the launch comms cycle is ready.
+Public. Site is live at [pursueindex.com](https://pursueindex.com),
+the full pipeline (scrape → download → OCR → embed → serve) has run
+end-to-end against PURSUE Release 01, and the chat interface is open.
 
 ## License
 
@@ -231,7 +241,7 @@ test-driven development at each stage.
 
 ## Contributing
 
-This is a research preview; we are not currently accepting outside
-contributions. Once the gate flips, corrections will be welcomed via
-GitHub issues against the manifest and OCR transcripts. The plan for
-that workflow lives in [`.paircoder/plans/review-correct.md`](.paircoder/plans/review-correct.md).
+Issues from existing GitHub users are welcome — bugs, OCR-transcript
+corrections against specific pages, methodology questions. The plan
+for the full review-and-correct workflow lives in
+[`.paircoder/plans/review-correct.md`](.paircoder/plans/review-correct.md).
