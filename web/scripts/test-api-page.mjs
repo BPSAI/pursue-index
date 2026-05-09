@@ -16,6 +16,13 @@
 //      `worker/chat_kv.js` and `worker/chat.js` so a constant flip on
 //      the worker side surfaces here loudly. Closes the gap flagged by
 //      vaivora's PR-4 review (snapshot caught only forward drift).
+//
+// See also: `scripts/smoke_api_dispatch.sh` — the integration smoke
+// that asserts the *dispatch behavior* of /api/* (Worker handlers vs.
+// ASSETS-served static page). This file asserts the static-HTML
+// contents; the smoke asserts the Worker dispatcher routes the right
+// requests to the right backend. The two are complementary halves of
+// the /api contract gate.
 
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";

@@ -8,13 +8,15 @@ name: Smoke test /api/* dispatch
 #   collision because the unit tests in worker/tests/api_gate.test.js stub
 #   the ASSETS binding and the web tests don't exercise the Worker. This
 #   workflow runs `wrangler dev` against a freshly-built web/dist and
-#   asserts the dispatch contract end-to-end (six assertions in
+#   asserts the dispatch contract end-to-end (assertions in
 #   scripts/smoke_api_dispatch.sh).
 #
 # Triggering posture:
 #   * pull_request -> main, ONLY when files that can break the contract
 #     change. Every-push on main would generate noise; the contract is a
-#     pre-merge gate.
+#     pre-merge gate. The path filter includes web/astro.config.mjs and
+#     web/package*.json because those control what builds web/dist/api/
+#     index.html (the smoke's own input).
 #   * workflow_dispatch for operator-driven re-runs.
 #
 # Permissions: contents: read only — this job never writes to the repo.
@@ -30,6 +32,9 @@ on:
       - "wrangler.jsonc"
       - "web/src/pages/api.astro"
       - "web/src/pages/api/**"
+      - "web/astro.config.mjs"
+      - "web/package.json"
+      - "web/package-lock.json"
       - "scripts/smoke_api_dispatch.sh"
       - ".github/workflows/smoke-api-dispatch.yml"
   workflow_dispatch:
@@ -63,6 +68,10 @@ jobs:
 
       - name: Install web deps
         working-directory: web
+        # Installs the lockfile-pinned wrangler devDep that the smoke
+        # script invokes from web/node_modules/.bin/. Without this step
+        # the script would have to fetch wrangler at runtime, which
+        # leaks supply-chain control to npm's "current" tag.
         run: npm ci
 
       - name: Build web/dist
@@ -73,21 +82,43 @@ jobs:
 
       - name: Run /api dispatch smoke
         id: smoke
+        # SMOKE_KEEP_LOG=1 tells the script's cleanup trap to skip
+        # `rm -f` on the wrangler dev log, so the upload-artifact step
+        # below can pick it up. The script also copies the log to
+        # $GITHUB_WORKSPACE/wrangler-smoke.log on non-zero exit, which
+        # is what the artifact step actually uploads.
+        env:
+          SMOKE_KEEP_LOG: "1"
         run: bash scripts/smoke_api_dispatch.sh
+
+      - name: Upload wrangler dev log on failure
+        if: failure()
+        # actions/upload-artifact v4.6.2 — pinned to SHA per SEC-001.
+        # The smoke script copies its log to
+        # $GITHUB_WORKSPACE/wrangler-smoke.log on non-zero exit; pick
+        # that up here so post-mortem on a CI failure is the full log,
+        # not just the in-band tail-80 dump.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wrangler-smoke-log
+          path: wrangler-smoke.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Capture wrangler dev log on failure
         if: failure()
-        # The smoke script tears down its temp log on exit, so the only
-        # signal we have for diagnostic purposes is what made it to
-        # stderr/stdout above. Surface a hint to the operator and the
-        # script's own contract description into the run summary.
+        # Surface a diagnostic hint into the run summary alongside the
+        # uploaded artifact above. The smoke script also dumps its
+        # tail-80 to stderr in the smoke step, which is the immediate
+        # signal; the artifact is the post-mortem signal.
         run: |
           {
             echo "## /api dispatch smoke failed"
             echo ""
             echo "The integration smoke test for the /api/* dispatch contract failed."
             echo "Inspect the 'Run /api dispatch smoke' step output above for the failing"
-            echo "assertion(s). The contract is documented in"
+            echo "assertion(s), and the 'wrangler-smoke-log' artifact for the full"
+            echo "wrangler dev log. The contract is documented in"
             echo "\`scripts/smoke_api_dispatch.sh\` and \`docs/architecture.md\`."
             echo ""
             echo "Common causes:"
