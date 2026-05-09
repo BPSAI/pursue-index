@@ -1,6 +1,7 @@
-// /api/* must be behind the same preview-cookie gate as the homepage.
-// Until we flip the gate at launch, anonymous chat requires the cookie.
-// These tests pin that contract end-to-end against the default fetch handler.
+// Post-launch: /api/* is public (CORS-locked but not cookie-gated).
+// Pre-launch this suite asserted the cookie gate; that assertion was
+// retired the moment we flipped the gate. The CORS lockdown + security
+// headers are what now protect the surface.
 
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
@@ -40,37 +41,46 @@ function envForApi() {
   };
 }
 
-describe("API cookie gate", () => {
-  test("/api/retrieve without cookie → 403", async () => {
-    const r = await worker.fetch(
-      new Request("https://x/api/retrieve", { method: "POST" }),
-      envForApi(),
-    );
-    assert.equal(r.status, 403);
-  });
-
-  test("/api/chat without cookie → 403", async () => {
-    const r = await worker.fetch(
-      new Request("https://x/api/chat", { method: "POST" }),
-      envForApi(),
-    );
-    assert.equal(r.status, 403);
-  });
-
-  test("/api/retrieve with cookie reaches the handler (returns 400 on missing query body)", async () => {
+describe("API surface (post-launch)", () => {
+  test("/api/retrieve without cookie reaches the handler (no gate)", async () => {
     const r = await worker.fetch(
       new Request("https://x/api/retrieve", {
         method: "POST",
-        headers: {
-          Cookie: "preview=bps-launch",
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       }),
       envForApi(),
     );
-    // Past the gate → handler validation; missing query → 400.
+    // Past the gate (which no longer exists) → handler validation;
+    // missing query → 400.
     assert.equal(r.status, 400);
+  });
+
+  test("/api/chat without cookie reaches the handler", async () => {
+    const r = await worker.fetch(
+      new Request("https://x/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      }),
+      envForApi(),
+    );
+    assert.equal(r.status, 400);
+  });
+
+  test("CORS still rejects foreign Origin", async () => {
+    const r = await worker.fetch(
+      new Request("https://x/api/retrieve", {
+        method: "POST",
+        headers: {
+          Origin: "https://evil.example.com",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: "test" }),
+      }),
+      envForApi(),
+    );
+    assert.equal(r.status, 403);
   });
 
   test("API responses still carry the security header set", async () => {
