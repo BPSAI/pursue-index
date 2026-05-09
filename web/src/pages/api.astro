@@ -65,11 +65,11 @@ import Base from "../layouts/Base.astro";
         <strong class="text-[color:var(--color-text-bright)]">CORS posture.</strong>
         The Worker locks <code class="text-[color:var(--color-signal-cyan)]">/api/*</code>
         to <code class="text-[color:var(--color-signal-cyan)]">https://pursueindex.com</code>
-        and <code class="text-[color:var(--color-signal-cyan)]">https://www.pursueindex.com</code>.
-        Browser fetches from any other origin get a 403.
-        Non-browser clients (curl, Python <code>requests</code>, Go, etc.)
-        don't send an <code>Origin</code> header and pass through unchallenged.
-        If you're scripting against this surface from a server, you're fine.
+        and <code class="text-[color:var(--color-signal-cyan)]">https://www.pursueindex.com</code>;
+        browser fetches from any other origin get a 403. Programmatic
+        clients — curl, server-side scripts, language SDKs (Python, Go,
+        Node, etc.) — are supported. Anonymous-tier abuse is bounded by
+        the per-IP rate limit on <code>/api/chat</code>.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">BYOK.</strong>
@@ -152,7 +152,11 @@ Content-Type: application/json
         with a system prompt that enforces inline
         <code class="text-[color:var(--color-signal-cyan)]">[card_id:page]</code>
         citations and abstention on off-corpus questions, and streams the
-        response back as Server-Sent Events.
+        response back as Server-Sent Events. The exact model may be
+        updated as Anthropic releases new generations; the canonical
+        value lives in <code>worker/chat.js</code>
+        (<code>DEFAULT_MODEL</code>) and the page is regenerated when it
+        changes.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">Anonymous tier limits.</strong>
@@ -192,6 +196,17 @@ data: {"usage":{"input_tokens":1234,"output_tokens":456}}`}</code></pre>
         with a sanitized message before the stream closes — your client
         should handle that as a terminal event.
       </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Optional flags on <code>done</code>.</strong>
+        Cache replays add <code class="text-[color:var(--color-signal-cyan)]">cached: true</code>;
+        canned abstentions (off-corpus retrieval) add
+        <code class="text-[color:var(--color-signal-cyan)]">abstained: true</code>.
+        Both are additive — the
+        <code>usage</code> field is always present, the flags appear only
+        when relevant. Neither replays a fresh Anthropic call, so neither
+        increments the per-IP rate counter or contributes to the daily
+        spend cap.
+      </p>
       <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">curl — consume the SSE stream</p>
       <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`curl -N -X POST https://pursueindex.com/api/chat \\
   -H "Content-Type: application/json" \\
@@ -228,6 +243,11 @@ data: {"usage":{"input_tokens":1234,"output_tokens":456}}`}</code></pre>
         for citation forms when you publish — the
         <code>card_id</code> is stable across re-fetches because it's
         <code class="text-[color:var(--color-signal-cyan)]">sha256(asset_url || title)[:16]</code>.
+        Disclosing the derivation is fine here because the corpus is
+        public-domain U.S. Government work; if any deployment of this
+        codebase indexes private or restricted documents, this paragraph
+        must be removed before going live (see
+        <a href="https://github.com/BPSAI/pursue-index/blob/main/SECURITY.md" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">SECURITY.md</a>).
       </p>
     </section>
 
@@ -257,6 +277,11 @@ data: {"usage":{"input_tokens":1234,"output_tokens":456}}`}</code></pre>
               <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"cross-origin not allowed"}`}</code></td>
             </tr>
             <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">405</td>
+              <td class="py-2 pr-4">Non-POST request to <code>/api/chat</code> or <code>/api/retrieve</code> (method not allowed)</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"method not allowed"}`}</code></td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]">
               <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">429</td>
               <td class="py-2 pr-4">Per-IP daily rate limit exceeded (chat only — 5 / IP / 24h)</td>
               <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"…BYOK…","rate_limit":N}`}</code></td>
@@ -274,6 +299,17 @@ data: {"usage":{"input_tokens":1234,"output_tokens":456}}`}</code></pre>
           </tbody>
         </table>
       </div>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">429 body shape.</strong>
+        <code>rate_limit</code> is the <strong>current count</strong> for
+        the calling IP at the moment the request was refused (not the
+        cap, not a remaining quota). The cap itself is fixed — 5 chats
+        per IP per UTC day — so a backoff client can compare against
+        that constant locally. The Worker does <em>not</em> emit a
+        <code>Retry-After</code> header today; clients should retry no
+        sooner than the next UTC midnight, when the per-IP counter rolls
+        over to a new date bucket.
+      </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         Errors that happen <em>during</em> an SSE stream — e.g., Anthropic
         429s after the citations frame has already gone out — arrive as
