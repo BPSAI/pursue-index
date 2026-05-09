@@ -1,11 +1,17 @@
 # Dependabot updates — runtime supply-chain hygiene.
 #
-# Rationale (laverna SEC-001 on PR #6): npm dependencies are pinned to
-# exact versions in `web/package.json` so a tag-force-push or upstream
-# compromise can't auto-land on the next deploy. Dependabot opens a PR
-# when an upgrade is available, the human reviews the diff, the lock
-# file gets bumped explicitly. Same posture for python via pip + the
-# GitHub Actions ecosystem.
+# Posture (laverna SEC-001 across PRs #3 and #6):
+# - npm deps in `web/package.json` are pinned to exact versions so a
+#   tag-force-push or upstream compromise can't auto-land on the next
+#   deploy. Dependabot opens a PR when an upgrade is available; the
+#   human reviews the diff before the lock file gets bumped.
+# - GitHub Actions used by `.github/workflows/*` are SHA-pinned (PR #3
+#   `poll-pursue.yml`); Dependabot opens a PR bumping the SHA + comment
+#   when a new tagged release is cut.
+# - Python pip deps in `pyproject.toml` and the hash-locked
+#   `requirements-poll.txt` (PR #3 SEC-002) get the same treatment:
+#   transitive security release → PR that regenerates the pinned hash
+#   set.
 
 version: 2
 updates:
@@ -20,21 +26,27 @@ updates:
       - "dependencies"
       - "javascript"
 
-  # Python (pursue_index pipeline + scripts)
+  # Python (pursue_index pipeline + scripts) — broad weekly sweep.
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
     labels:
       - "dependencies"
       - "python"
 
-  # GitHub Actions versions used by `.github/workflows/*`
+  # GitHub Actions versions used by `.github/workflows/*`.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(actions)"
     labels:
       - "dependencies"
+      - "github-actions"
       - "ci"

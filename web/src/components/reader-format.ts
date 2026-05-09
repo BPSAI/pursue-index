@@ -45,17 +45,111 @@ export function readPageFromHash(hash: string | null | undefined): number | null
 }
 
 /**
+ * Parse `?page=N` from a URL query string. Returns null when absent or
+ * malformed. Forward-compat hook: nothing in the corpus currently emits
+ * `?page=N`, but external citation sources (or future Trello cards) might,
+ * so the reader normalizes both forms onto the same active-page state.
+ *
+ * No try/catch: `URLSearchParams` does not throw on malformed input —
+ * it silently yields no value for missing keys. (Verified in
+ * reader-format.test.ts via `?%ZZ` and duplicate-key cases.)
+ */
+export function readPageFromQuery(search: string | null | undefined): number | null {
+  if (!search) return null;
+  // URLSearchParams tolerates with-or-without leading `?`.
+  const normalized = search.startsWith("?") ? search : `?${search}`;
+  const value = new URLSearchParams(normalized).get("page");
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+/**
+ * Drop the `?page=N` parameter from a query string, preserving any other
+ * params and the leading `?` only when something remains. Returns "" for
+ * empty/null input. Used by the page-load bootstrap to canonicalize URLs
+ * after promoting `?page=N` → `#page-N`, so a copy-paste yields the
+ * cleaner `/card/<id>#page-N` form rather than `/card/<id>?page=5#page-5`.
+ */
+export function stripPageParam(search: string | null | undefined): string {
+  if (!search) return "";
+  const normalized = search.startsWith("?") ? search.slice(1) : search;
+  if (!normalized) return "";
+  const params = new URLSearchParams(normalized);
+  params.delete("page");
+  const out = params.toString();
+  return out ? `?${out}` : "";
+}
+
+/**
+ * Compute the canonical card URL after `?page=N` normalization. Returns
+ * the new `/card/<id>[?qs][#hash]` string when a rewrite is warranted,
+ * or null when the URL is already canonical and the bootstrap can skip
+ * `replaceState`.
+ *
+ * Cases:
+ *   - `?page=N` only            → promote to `#page-N`, drop the query.
+ *   - `?page=N` + `#page-N`     → drop only the redundant query.
+ *   - `?page=N` + `#other`      → drop the query, keep the hash.
+ *   - no `?page=N`              → null (no-op).
+ *
+ * Pure: takes pathname/search/hash strings and returns a string. Lives
+ * here so it can be unit-tested without `window.location`/`history`.
+ */
+export function promotedCardUrl(
+  pathname: string,
+  search: string | null | undefined,
+  hash: string | null | undefined,
+): string | null {
+  const fromQuery = readPageFromQuery(search);
+  if (fromQuery == null) return null;
+  const cleanedSearch = stripPageParam(search);
+  const existingHash = hash ?? "";
+  if (existingHash) {
+    return `${pathname}${cleanedSearch}${existingHash}`;
+  }
+  return `${pathname}${cleanedSearch}#page-${fromQuery}`;
+}
+
+/**
+ * Resolve the active page number from a URL's hash and query parts.
+ * Hash wins when both are present so reader-mode deep-links stay
+ * deterministic when a user copies a URL the reader itself produced.
+ */
+export function readPageFromLocation(
+  hash: string | null | undefined,
+  search: string | null | undefined,
+): number | null {
+  const fromHash = readPageFromHash(hash);
+  if (fromHash != null) return fromHash;
+  return readPageFromQuery(search);
+}
+
+/**
  * Build a deep-link to a specific page in the source PDF using the
  * standard PDF.js fragment syntax (`#page=N`). Returns null when the
  * input URL is empty so the caller can hide the link gracefully.
+ *
+ * Preserves non-`page=` fragment params (zoom, view, ...) so the citation
+ * "Read on war.gov" link survives a user-set zoom level. Only the `page=`
+ * key is rewritten.
  */
 export function pdfPageHref(assetUrl: string | null | undefined, page: number): string | null {
   if (!assetUrl) return null;
   if (!Number.isInteger(page) || page < 1) return null;
-  // Strip any pre-existing fragment so we don't end up with two.
-  const base = assetUrl.split("#")[0];
-  return `${base}#page=${page}`;
+  const hashIdx = assetUrl.indexOf("#");
+  const base = hashIdx === -1 ? assetUrl : assetUrl.slice(0, hashIdx);
+  const fragment = hashIdx === -1 ? "" : assetUrl.slice(hashIdx + 1);
+  if (!fragment) return `${base}#page=${page}`;
+  // Hand-parse — same lenient PDF.js fragment grammar as nextIframeSrc.
+  const parts = fragment.split("&").filter((p) => p.length > 0 && !p.startsWith("page="));
+  parts.unshift(`page=${page}`);
+  return `${base}#${parts.join("&")}`;
 }
+
+// `buildPdfIframeSrc` was removed: it had no runtime consumer (vaivora P2 #13).
+// `nextIframeSrc` in pdf-iframe-sync.ts is the single source of truth for
+// PDF iframe URL construction.
 
 /**
  * Clamp a candidate page number into the valid 1..total range. Used by

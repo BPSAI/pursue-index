@@ -10,7 +10,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:api-page": "node scripts/test-api-page.mjs",
+    "test": "npm run test:api-page"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.4",

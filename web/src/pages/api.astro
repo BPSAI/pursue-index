@@ -1,0 +1,364 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="API — PURSUE://INDEX"
+  description="Programmatic access to the pursueindex corpus: /api/retrieve for semantic search and /api/chat for streaming RAG. CORS-locked to pursueindex.com but reachable from non-browser clients (curl, scripts)."
+>
+  <article class="space-y-8 max-w-3xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>man pursue-index --section api</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        API
+      </h1>
+      <p class="text-sm text-[color:var(--color-text-dim)] max-w-2xl">
+        Programmatic access to the pursueindex corpus for researchers,
+        journalists, and tinkerers. Two endpoints — semantic search and
+        streaming RAG — both read-only, both reachable from non-browser
+        clients. Anonymous tier is rate-limited to keep the lights on; for
+        higher-volume use, bring your own Anthropic key.
+      </p>
+    </header>
+
+    {/* 1. Surface overview */}
+    <section id="surface" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Surface overview
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Two endpoints, both <code class="text-[color:var(--color-signal-cyan)]">POST</code> with
+        a JSON body, both anonymous (no auth header). All requests are
+        read-only; nothing on the corpus or the index can be mutated through
+        this surface.
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs font-mono border-collapse">
+          <thead>
+            <tr class="border-b border-[color:var(--color-border-bright)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">
+              <th class="text-left py-2 pr-4">Endpoint</th>
+              <th class="text-left py-2 pr-4">Purpose</th>
+              <th class="text-left py-2 pr-4">Response</th>
+              <th class="text-left py-2">Rate limit</th>
+            </tr>
+          </thead>
+          <tbody class="text-[color:var(--color-text)]">
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">POST /api/retrieve</td>
+              <td class="py-2 pr-4">Voyage-3 semantic search</td>
+              <td class="py-2 pr-4">JSON</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">Uncapped (read-only, ~free)</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">POST /api/chat</td>
+              <td class="py-2 pr-4">Streaming RAG (Sonnet 4.6)</td>
+              <td class="py-2 pr-4">SSE</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">5 chats / IP / 24h</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">CORS posture.</strong>
+        The Worker locks <code class="text-[color:var(--color-signal-cyan)]">/api/*</code>
+        to <code class="text-[color:var(--color-signal-cyan)]">https://pursueindex.com</code>
+        and <code class="text-[color:var(--color-signal-cyan)]">https://www.pursueindex.com</code>;
+        browser fetches from any other origin get a 403. Programmatic
+        clients — curl, server-side scripts, language SDKs (Python, Go,
+        Node, etc.) — are supported. Anonymous-tier abuse is bounded by
+        the per-IP rate limit on <code>/api/chat</code>.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">BYOK.</strong>
+        For chat traffic above the anonymous cap, paste an Anthropic key
+        into the <a href="/chat" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">Settings</a>
+        panel on <code>/chat</code>. The browser then calls Anthropic
+        directly with the
+        <code class="text-[color:var(--color-signal-cyan)]">anthropic-dangerous-direct-browser-access: true</code>
+        header — your key never touches our Worker. Programmatic BYOK is
+        not supported via this Worker; the Worker is anonymous-tier only.
+        If you need scripted high-volume access, call Anthropic yourself
+        and use <code>/api/retrieve</code> for the retrieval step.
+      </p>
+    </section>
+
+    {/* 2. /api/retrieve */}
+    <section id="retrieve" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ POST /api/retrieve — semantic search
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Embeds your query with <code class="text-[color:var(--color-signal-cyan)]">voyage-3</code>
+        and returns the top-k passages by cosine similarity over the
+        shipped augmented embeddings. No rate limit on this endpoint —
+        retrieval is essentially free, so we let researchers pull as much
+        as they want. Results below cosine
+        <code class="text-[color:var(--color-signal-cyan)]">0.30</code>
+        are filtered out.
+      </p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">Request</p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`POST /api/retrieve
+Content-Type: application/json
+
+{
+  "query": "Apollo 17 anomalies during EVA",
+  "k": 8
+}`}</code></pre>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <code class="text-[color:var(--color-signal-cyan)]">k</code> is
+        optional (default 8, min 1, max 20). <code>query</code> is
+        required, max 1000 chars.
+      </p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">Response</p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`{
+  "passages": [
+    {
+      "card_id": "0b298cfc9c65a4d6",
+      "page": 17,
+      "title": "NASA-UAP-D6, Apollo 17 Technical Crew Debriefing, 1973",
+      "snippet": "…unidentified flash on the lunar surface…",
+      "score": 0.6421,
+      "page_text": "<full page OCR text>"
+    }
+  ],
+  "model": "voyage-3",
+  "k": 8,
+  "threshold": 0.3
+}`}</code></pre>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <code class="text-[color:var(--color-signal-cyan)]">snippet</code>
+        is a query-centered ~600-char window; <code>page_text</code> is
+        the full page OCR (handy if you're feeding this into your own
+        RAG). <code>card_id</code> + <code>page</code> resolve to
+        <code class="text-[color:var(--color-signal-cyan)]">https://pursueindex.com/card/&lt;card_id&gt;#page-&lt;n&gt;</code>.
+      </p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">curl</p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`curl -s -X POST https://pursueindex.com/api/retrieve \\
+  -H "Content-Type: application/json" \\
+  -d '{"query":"Apollo 17 anomalies during EVA","k":5}'`}</code></pre>
+    </section>
+
+    {/* 3. /api/chat */}
+    <section id="chat" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ POST /api/chat — streaming RAG
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Retrieves top-8 passages, hands them to Anthropic's
+        <code class="text-[color:var(--color-signal-cyan)]">claude-sonnet-4-6</code>
+        with a system prompt that enforces inline
+        <code class="text-[color:var(--color-signal-cyan)]">[card_id:page]</code>
+        citations and abstention on off-corpus questions, and streams the
+        response back as Server-Sent Events. The exact model may be
+        updated as Anthropic releases new generations; the canonical
+        value lives in <code>worker/chat.js</code>
+        (<code>DEFAULT_MODEL</code>) and the page is regenerated when it
+        changes.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Anonymous tier limits.</strong>
+        5 chats per IP per UTC day. Global daily spend cap of $100 USD
+        across all callers; once that's hit, the endpoint returns 503
+        until the next UTC day rolls over. A 24-hour semantic cache means
+        repeated identical queries replay without burning rate budget or
+        spend. Off-corpus questions skip Anthropic entirely and stream a
+        canned abstention — also free, also no rate counter increment.
+      </p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">Request</p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`POST /api/chat
+Content-Type: application/json
+
+{
+  "query": "What did the FBI 62-HQ-83894 file say about Roswell?"
+}`}</code></pre>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">Response — SSE wire format</p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`event: citations
+data: [{"card_id":"a1b2c3d4e5f6","page":5,"title":"...","snippet":"…","score":0.71}, …]
+
+event: text
+data: {"delta":"The 62-HQ-83894 file"}
+
+event: text
+data: {"delta":" contains a 1950 memo"}
+
+…
+
+event: done
+data: {"usage":{"input_tokens":1234,"output_tokens":456}}`}</code></pre>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <code>citations</code> arrives first with the retrieved passages,
+        then a stream of <code>text</code> deltas, then <code>done</code>
+        with the usage stats. Mid-stream failures emit
+        <code class="text-[color:var(--color-signal-amber)]">event: error</code>
+        with a sanitized message before the stream closes — your client
+        should handle that as a terminal event.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Optional flags on <code>done</code>.</strong>
+        Cache replays add <code class="text-[color:var(--color-signal-cyan)]">cached: true</code>;
+        canned abstentions (off-corpus retrieval) add
+        <code class="text-[color:var(--color-signal-cyan)]">abstained: true</code>.
+        Both are additive — the
+        <code>usage</code> field is always present, the flags appear only
+        when relevant. Neither replays a fresh Anthropic call, so neither
+        increments the per-IP rate counter or contributes to the daily
+        spend cap.
+      </p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">curl — consume the SSE stream</p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`curl -N -X POST https://pursueindex.com/api/chat \\
+  -H "Content-Type: application/json" \\
+  -d '{"query":"What did the FBI 62-HQ-83894 file say about Roswell?"}'`}</code></pre>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <code>-N</code> disables curl's output buffering so you see the
+        deltas as they arrive. Without it, curl may hold the response
+        until the stream closes and you lose the streaming behavior.
+      </p>
+    </section>
+
+    {/* 4. Citation contract */}
+    <section id="citations" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Citation contract
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Every factual claim in <code>/api/chat</code> output ends with a
+        <code class="text-[color:var(--color-signal-cyan)]">[card_id:page]</code>
+        marker. Multiple citations per claim are encouraged. The system
+        prompt enforces this as Rule 2 (cite the source of each individual
+        claim, not just the end of the answer) and Rule 3 (abstain on
+        off-corpus questions rather than draw on training data).
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Clients can parse these markers with a trivial regex —
+        <code class="text-[color:var(--color-signal-cyan)]">/\[([0-9a-f]{`{16}`}):(\d+)\]/g</code> —
+        and resolve each match to a primary source. The page anchor is a
+        hash fragment; the card detail page handles the scroll:
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        See <a href="/cite" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/cite</a>
+        for citation forms when you publish — the
+        <code>card_id</code> is stable across re-fetches because it's
+        <code class="text-[color:var(--color-signal-cyan)]">sha256(asset_url || title)[:16]</code>.
+        Disclosing the derivation is fine here because the corpus is
+        public-domain U.S. Government work; if any deployment of this
+        codebase indexes private or restricted documents, this paragraph
+        must be removed before going live (see
+        <a href="https://github.com/BPSAI/pursue-index/blob/main/SECURITY.md" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">SECURITY.md</a>).
+      </p>
+    </section>
+
+    {/* 5. Errors */}
+    <section id="errors" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Errors and behavior
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs font-mono border-collapse">
+          <thead>
+            <tr class="border-b border-[color:var(--color-border-bright)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">
+              <th class="text-left py-2 pr-4">Status</th>
+              <th class="text-left py-2 pr-4">When</th>
+              <th class="text-left py-2">Body</th>
+            </tr>
+          </thead>
+          <tbody class="text-[color:var(--color-text)]">
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">400</td>
+              <td class="py-2 pr-4">Missing/empty <code>query</code>, malformed JSON, or query &gt;1000 chars</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"…"}`}</code></td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">403</td>
+              <td class="py-2 pr-4">Browser sending <code>Origin</code> header that isn't in the allowlist</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"cross-origin not allowed"}`}</code></td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">405</td>
+              <td class="py-2 pr-4">Non-POST request to <code>/api/chat</code> or <code>/api/retrieve</code> (method not allowed)</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"method not allowed"}`}</code></td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">429</td>
+              <td class="py-2 pr-4">Per-IP daily rate limit exceeded (chat only — 5 / IP / 24h)</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"…BYOK…","rate_limit":N}`}</code></td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">502</td>
+              <td class="py-2 pr-4">Upstream Voyage embed failure</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"…"}`}</code></td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">503</td>
+              <td class="py-2 pr-4">Daily $100 global budget cap reached (chat only)</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"…try BYOK…"}`}</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">429 body shape.</strong>
+        <code>rate_limit</code> is the <strong>current count</strong> for
+        the calling IP at the moment the request was refused (not the
+        cap, not a remaining quota). The cap itself is fixed — 5 chats
+        per IP per UTC day — so a backoff client can compare against
+        that constant locally. The Worker does <em>not</em> emit a
+        <code>Retry-After</code> header today; clients should retry no
+        sooner than the next UTC midnight, when the per-IP counter rolls
+        over to a new date bucket.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Errors that happen <em>during</em> an SSE stream — e.g., Anthropic
+        429s after the citations frame has already gone out — arrive as
+        <code class="text-[color:var(--color-signal-amber)]">event: error</code>
+        with a sanitized message and an upstream status code, not as an
+        HTTP error. The HTTP response itself was already 200 by the time
+        the stream opened.
+      </p>
+    </section>
+
+    {/* 6. Disclaimer + license */}
+    <section id="license" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Disclaimer and license
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        API access is offered as a courtesy to researchers, journalists,
+        and tinkerers. Both endpoints are read-only — there are no
+        destructive operations to worry about — but the rate limit and
+        the daily spend cap exist because someone is paying the bill on
+        the anonymous tier. For higher-volume use,
+        <a href="/chat" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"> BYOK</a>
+        is the intended path. Please don't try to launder anonymous-tier
+        traffic through proxy IPs to dodge the cap; we'd rather you ask.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Source documents are works of the U.S. Government and in the
+        public domain. The OCR transcripts derived from them carry no
+        additional copyright claim from us. Index code and this site are
+        <a href="https://bpsaisoftware.com" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"> © BPS AI Software</a>,
+        licensed under the
+        <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"> Apache License, Version 2.0</a>.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        For citation guidance when published research uses retrieved
+        snippets — corpus-level, page-level, OCR-transcript, or
+        image-description forms — see
+        <a href="/cite" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/cite</a>.
+        Methodology and engine numbers live at
+        <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology</a>.
+      </p>
+    </section>
+
+    <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
+      DOC · <span class="text-[color:var(--color-signal-amber)]">RESEARCH PREVIEW</span>
+      <span class="mx-2">·</span>
+      REV · <span class="text-[color:var(--color-signal-cyan)]">0.1</span>
+      <span class="mx-2">·</span>
+      SURFACE · <span class="text-[color:var(--color-signal-cyan)]">/api/retrieve · /api/chat</span>
+    </p>
+  </article>
+</Base>

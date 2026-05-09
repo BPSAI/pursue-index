@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-05-09 (post-launch — public site live, full pipeline shipped)
+> Last updated: 2026-05-09 (post-launch — public site live, full pipeline shipped; auto-poll layer added on `feat/auto-poll-tranches`)
 
 ## Current Focus
 
@@ -99,6 +99,315 @@ encoding) and `buildAtlasMiniSearch` / `searchIndicesViaMiniSearch`
 check zero errors on every modified file. The semantic-browser plan at
 `.paircoder/plans/semantic-browser.md` is retired pending operator
 delete-on-merge per the doc-cleanup pattern.
+
+### Session: 2026-05-09 — PR #8 review-fix follow-up (branch `feat/reader-pdf-anchors`)
+
+Addressed the union of legitimate findings from three reviews (nayru P1/P2,
+laverna SEC-001/002/004, vaivora P1/P2) on `feat/reader-pdf-anchors`. One
+follow-up commit, no merge per task spec.
+
+Decisions:
+- **Iframe-reload claim (nayru P1 #1):** Could not empirically verify in a
+  real browser from this environment. Took the honest-docstring + debounce
+  path nayru recommended as fallback. Updated `pdf-iframe-sync.ts` header
+  to acknowledge that `iframe.src` writes ARE navigations in Chrome/WebKit
+  (per HTML living standard + MDN); added `createDebouncedPdfIframeSync`
+  (250ms) and wired CardReaderView to use it so j/j/j collapses into one
+  iframe write.
+- **Fragment preservation (nayru P1 #2):** Rewrote `nextIframeSrc` and
+  `pdfPageHref` to parse the PDF.js fragment (`page=N&zoom=fit&view=FitH`)
+  and replace only `page=`. Other params survive. Order normalized so
+  `page=` leads (PDF.js is order-tolerant).
+- **Query/hash promotion (nayru P1 #3 / laverna SEC-004 / vaivora P1 #11):**
+  Extracted pure `promotedCardUrl(pathname, search, hash)` into
+  `reader-format.ts` and tested all five branches. Bootstrap now drops the
+  redundant `?page=N` whether or not a hash was already present, yielding
+  the canonical `/card/<id>#page-N` shape on copy-paste.
+- **Hashchange redundancy (nayru P1 #4):** Documented why both bootstrap
+  and CardReaderView listen — bootstrap is the only listener when raw mode
+  is active (CardReaderView unmounted). Kept both; the `current === target`
+  no-op guard makes the second a no-op in reader mode.
+- **SEC-001 (sandbox missing):** Added
+  `sandbox="allow-scripts allow-same-origin"` and `referrerpolicy="no-referrer"`
+  to the iframe in `[card_id].astro`. Excluded top-navigation / forms / popups.
+- **SEC-002 (protocol guard):** `nextIframeSrc` returns null for any non-`https://`
+  src. Belt-and-suspenders test: hostile `javascript:alert(1)` asset_url
+  is refused at the DOM layer.
+- **vaivora P2 #12 (dead `data-asset-url`):** Removed from the iframe
+  markup; runtime helper derives the base from `iframe.src`.
+- **vaivora P2 #13 (`buildPdfIframeSrc` duplicate):** Deleted unused export
+  from `reader-format.ts`. `nextIframeSrc` is now the single source of
+  truth for iframe URL construction. Tests cleaned up accordingly.
+- **nayru P2 #5 (test gaps):** Added multi-page-sequence test (2 → 3 → 5)
+  and IMG-card no-op test through the DOM helper specifically.
+- **nayru P2 #6 (dead try/catch):** Removed from `readPageFromQuery`. New
+  test documents that URLSearchParams does not throw on weird input.
+
+Files touched:
+- `web/src/components/pdf-iframe-sync.ts` (+nextIframeSrc fragment parsing,
+  protocol guard, debounce factory; honest perf docstring)
+- `web/src/components/reader-format.ts` (+stripPageParam, +promotedCardUrl,
+  pdfPageHref preserves non-page params; -buildPdfIframeSrc; -dead try/catch)
+- `web/src/scripts/card-pdf-bootstrap.ts` (delegates to promotedCardUrl)
+- `web/src/components/CardReaderView.tsx` (debounced iframe sync via useRef)
+- `web/src/pages/card/[card_id].astro` (sandbox + referrerpolicy; -data-asset-url)
+- Tests: 51 (was 35 — 16 new across both files). All passing.
+  `npm run build` clean. `bpsai-pair arch check`: zero errors.
+
+### Session: 2026-05-09 — reader-mode ↔ iframed PDF page sync (branch `feat/reader-pdf-anchors`)
+
+Reader-mode page navigation (j/k, prev/next, hash, citation chip) now
+keeps the embedded PDF iframe locked to the same page. Before this
+change the iframe was rendered with the bare `asset_url` and never
+updated — clicking a `[card_id:5]` chip would scroll the reader to
+page 5 but leave the side-by-side PDF on page 1.
+
+- **`reader-format.ts`**: added `readPageFromQuery`, `readPageFromLocation`
+  (hash-wins-over-query), and `buildPdfIframeSrc` (PDF-only, strips/replaces
+  fragments). 9 new unit tests.
+- **`pdf-iframe-sync.ts`** (new module): `nextIframeSrc` (pure) and
+  `syncPdfIframeToPage(document, page)` (DOM lookup). Skips IMG/VID
+  cards, handles missing iframe, no-ops when src already matches. 11
+  new unit tests.
+- **`CardReaderView.tsx`**: after `replaceState("#page-N")`, calls
+  `syncPdfIframeToPage(document, activePage)`. We update the iframe
+  inline because `replaceState` deliberately does not fire `hashchange`,
+  so a passive listener would never wake.
+- **`CardOcrIsland.tsx`**: `activePageFromHash` → `activePageFromUrl`
+  (uses `readPageFromLocation` so `?page=N` resolves too).
+- **`[card_id].astro`**: iframe gains `id="card-pdf-iframe"`,
+  `data-asset-type`, `data-asset-url`. New `<script>` import of
+  `card-pdf-bootstrap.ts` runs once on page load: normalizes
+  `?page=N` → `#page-N` (replaceState), syncs iframe on initial paint,
+  re-syncs on `hashchange` (covers user-paste and back/forward).
+
+URL contract readers can rely on:
+  - `/card/<id>#page-N` is canonical (reader sets it, citations link to it).
+  - `/card/<id>?page=N` is accepted and promoted to `#page-N` on load.
+  - Both forms drive both the reader and the iframe to page N.
+  - PDF cards: iframe `src` ends with `#page=N`. IMG/VID/no-OCR: no-op.
+
+Tests: 35 (was 16 — 19 new). All passing. `npm run build` clean (167
+pages). `bpsai-pair arch check`: zero errors on every modified file.
+
+PR: open against `main`, do not merge per task spec.
+
+### Session: 2026-05-09 — PR #7 review-fixes (branch `feat/og-image-share-meta`)
+
+Addressed every legitimate finding across laverna (security), nayru
+(code review), vaivora (cross-cutting), and Codex on PR #7:
+
+- **SEC-001 (Pillow CVE-2024-28219, merge blocker):** Bumped
+  `pillow>=11.1.0` in `pyproject.toml` (was `>=10.3`, resolved 10.4.0).
+  Resolves to 12.2.0 with patched `ImagingResampleHorizontal`. Added
+  comment pinning the rationale. Documented the conflict with
+  `surya-ocr 0.17.1` (which still pins `pillow<11.0.0`) in the gpu
+  extra; gpu users install with a separate venv until surya catches up.
+  CVE-affected resampler is on the og_image build path, not the OCR
+  path, so the gpu-only OCR host gap is bounded. `pip-audit` no
+  longer flags Pillow.
+- **SEC-002 / nayru P1 #5 (`ogImage` validation):** Replaced the
+  brittle `startsWith("http")` check in `Base.astro` with a
+  `resolveOgImageUrl()` helper that uses `/^https?:\/\//`,
+  rejects protocol-relative `//cdn...` URLs, requires a leading
+  `/` on relative paths, and refuses cross-origin absolute URLs
+  (must start with `siteOrigin`). Throws a build-time `Error` on
+  invalid input rather than silently shipping a malformed meta tag.
+- **nayru P1 #3 (font fallback):** `og_fonts.py` now raises a new
+  `FontLoadError` instead of falling back to
+  `ImageFont.load_default()` (which silently ignores requested
+  size and would collapse the 96px lockup to ~10px). Updated
+  docstring to drop the misleading "never crashes" claim.
+- **nayru P1 #4 (test coverage gap):** Added per-region brightness
+  assertions for the DECLASSIFIED stamp (red pixels in upper-right
+  quadrant), the footer status pill (amber pixels in footer band),
+  and the sha256 line (dim text near y=445). A future refactor that
+  drops one of these layers from the orchestrator will now fail
+  beyond just the byte-stability test.
+- **vaivora #11 / Codex (`og:url` test gap):** New
+  `test_base_astro_og_url_bound_to_astro_url` asserts both that
+  `Astro.url.pathname` is referenced AND that `og:url` flows from
+  `canonicalUrl`, catching a future hardcode-to-`/` regression.
+- **Codex P2 (`og:image:type` per-route):** Now derived from the
+  resolved image extension (`png`/`jpeg`/`webp`/`gif`) so per-route
+  overrides are labeled correctly. Defaults to `image/png`.
+- **Codex P2 (build script `relative_to`):** Extracted
+  `_format_out_path()` that falls back to `str(out)` on `ValueError`,
+  so `--out /tmp/og.png` no longer reports a successful render as a
+  failed command.
+- **nayru P2 #5 (alt text consistency):** `og:image:alt` and
+  `twitter:image:alt` now share a single `ogImageAlt` variable
+  (with a `DEFAULT_OG_IMAGE_ALT` constant + per-route override
+  hook). Defaults to the long form.
+- **nayru P2 #6 (BORDER constant mismatch):** Renamed
+  `BORDER = (47, 61, 78)` → `BORDER_BRIGHT` (matches CSS
+  `--color-border-bright`) and made the new
+  `BORDER = (31, 42, 53)` match the docstring + the footer's
+  previously-hardcoded value (`#1f2a35`,
+  `--color-border`). Footer no longer hardcodes the tuple.
+  Bytes identical (verified: same sha as pre-change).
+- **nayru P2 #6 (DEFAULT_PAGES TODO):** Added explicit
+  `# TODO: pull from manifest at build time once total_pages
+  lands` above `DEFAULT_PAGES = 4153` in
+  `scripts/build_og_image.py`.
+- **nayru P2 #7 (Twitter site/creator):** Added a deferred-note
+  HTML comment in `Base.astro` next to the Twitter card block;
+  no BPS X/Twitter handle yet, so we don't emit empty tags.
+- **vaivora #10 (OG regen drift):** Wired
+  `python scripts/build_og_image.py` into
+  `.github/workflows/deploy-ui.yml` as a pre-build step (with
+  `setup-python@v5` + `pip install pillow>=11.1.0`). Manifest
+  bumps now flow into the OG card automatically. Idempotent
+  byte-stable render so re-running on every deploy is safe.
+- **vaivora #12 (`/finds/[slug]` per-entry images):** Documented
+  as a follow-up in `What's Next` post-launch backlog item #7.
+- **Tests:** 11 new in `tests/unit/test_og_image.py` (now 18
+  total / 137 suite-wide green): font-load failure for both
+  `mono` and `sans`, ogImage validator (regex + leading-slash +
+  cross-origin reject), `og:url` binding to `Astro.url`, alt-text
+  consistency, declassified-stamp red-pixel count, footer
+  amber-pixel count, sha256 dim-text count,
+  build-script-out-outside-repo, DEFAULT_PAGES TODO marker,
+  deploy workflow regenerates og.png.
+- **og.png sha (post-bump):**
+  `5c5dcd416f22e21a3a1335a2e41f000cfb67369d95eeb277ea51f92cfb89b703`
+  (88,311 bytes, 86.2 KB) — byte-identical to the pre-bump file
+  (Pillow 12.2.0 preserves the same encoder output for this
+  context). No fixture change needed.
+- Web build clean: 167 pages, sitemap-index.xml at canonical host.
+  `bpsai-pair arch check` zero violations on every modified file.
+
+### Session: 2026-05-09 — Real OG image + complete share metadata (branch `feat/og-image-share-meta`)
+
+The site is being shared to HN/Reddit/Twitter/Mastodon/Bluesky and every
+unfurl needs a custom card, not a default favicon. Built a deterministic
+Pillow-based OG image generator and tightened the layout's social meta.
+
+- **New module** `src/pursue_index/web/og_image.py` (orchestrator),
+  `og_layers.py` (drawing primitives — background+scanlines, corner
+  brackets, terminal command line, `PURSUE://INDEX_` lockup with green
+  caret bar, tagline, stat strip, manifest hash line, footer bar with
+  status pill, and an angled red `DECLASSIFIED` stamp), and
+  `og_fonts.py` (DejaVu Sans Mono fallback chain so no
+  font-fallback-fail in CI). Pure value object input
+  (`OgImageContext`) + byte-stable PNG output (empty `PngInfo`,
+  `optimize=True`, `compress_level=9`).
+- **CLI** `scripts/build_og_image.py` reads
+  `data/manifests/latest.json` for live corpus stats (`cards`,
+  `csv_sha256`) and writes `web/public/og.png`. Idempotent — re-runs
+  with same inputs produce identical bytes.
+- **Composition shipped:** stamped declassified document — 1200x630,
+  88 KB, deep-bg with subtle scanlines, signal-green ://, declassified
+  stamp at -12° in upper-right partly overlapping the wordmark, footer
+  with status pill + brand. Reads cleanly at 600x315 thumbnail.
+- **Base.astro:** added `og:image:type=image/png`, broader
+  `og:image:alt`. Existing `og:image:width/height`, `twitter:card=
+  summary_large_image`, `twitter:image`, per-route `ogImage` prop,
+  and absolute-URL construction (via `siteOrigin` falling back to
+  `https://pursueindex.com`) all confirmed wired up correctly.
+  `finds/[slug].astro` continues to pass `ogType="article"` and
+  inherits the default OG image until per-entry templates land.
+- **Robots/sitemap:** `web/public/robots.txt` already correct
+  (allow-all except `/api/`); `astro.config.mjs` `site:
+  https://pursueindex.com` produces a sitemap-index.xml pointing at
+  the canonical host. No changes needed.
+- **Tests:** 7 new in `tests/unit/test_og_image.py` — dimensions,
+  size cap, byte-stability, lockup-band brightness (legibility
+  proxy), Base.astro head snapshot, absolute og:image URL,
+  per-route override hook. Full suite: 126/126 green. `npm run
+  build` clean — 167 pages built, sitemap-index.xml at
+  `https://pursueindex.com/sitemap-0.xml`. Arch check: zero
+  violations on all 5 new files.
+### Session: 2026-05-09 — Auto-poll PR #3 review fixes (branch `feat/auto-poll-tranches`)
+
+Addressed the union of legitimate findings from three reviewers
+(nayru / laverna / vaivora) plus Codex auto-review on PR #3. One
+follow-up commit pushed; orchestrator will re-review then merge.
+
+**Workflow (.github/workflows/poll-pursue.yml):**
+- Pre-create labels (`gh label create --force`) so issue-create steps
+  don't hard-fail on first run (nayru P0 / vaivora P0).
+- SHA-pin `actions/checkout@11bd71...` (v4.2.2) and
+  `actions/setup-python@a26af6...` (v5.6.0); add `.github/dependabot.yml`
+  to track upstream releases (laverna SEC-001).
+- Hash-locked install via `requirements-poll.{in,txt}` generated by
+  `pip-compile --generate-hashes` (laverna SEC-002).
+- Document direct-push + bot-commit-surface dependencies in workflow
+  header (laverna SEC-004).
+- `git pull --rebase` before push to handle non-FF race when main
+  advances between checkout and push (vaivora P1#2).
+- Failure-issue + propagate-failure steps now key off both
+  `steps.poll.outputs.status == 'failed'` AND
+  `steps.poll.outcome == 'failure'` so a script crash before
+  `$GITHUB_OUTPUT` writes still alerts (Codex P1).
+- Fixed misleading `fetch-depth: 1` comment.
+
+**Script (scripts/poll_pursue.py + new helpers):**
+- Extracted `_poll_gh_io.py` (heredoc + issue-body rendering) and
+  `_poll_results.py` (`Unchanged`/`Changed`/`Failed` dataclasses) so
+  the main script clears most of the line-count budget (nayru P2#6).
+  Now 213 lines (was 238); both helpers under all thresholds.
+- Heredoc terminator is `EOF_<uuid4-hex>` per GH docs (nayru P1#3).
+- `Failed.extra` populated with `exception_type` and emitted to
+  `$GITHUB_OUTPUT` as `extra_<key>=...` (nayru P1#4).
+- Re-raise `KeyboardInterrupt` and `SystemExit` before broad `except`
+  (nayru P2#7).
+- Truncate exception strings to 500 chars before publishing (laverna
+  SEC-003).
+- Fall back to `data/manifests/latest.json#csv_sha256` when state
+  file is missing (vaivora P1#1).
+
+**Tests:** 19/19 in `test_poll_pursue.py` (was 10), 138/138 full suite.
+New coverage: `_emit_gh_outputs` unchanged + failed paths, unique
+heredoc delimiter, KeyboardInterrupt/SystemExit propagation,
+`Failed.extra` population, error truncation, manifest fallback,
+state-file precedence.
+
+**Docs:** plan frontmatter -> `status: shipped (layer 1)`; README
+auto-poll bullet rewritten to reflect Layer 1 shipped.
+
+Arch check: 0 errors. Warnings only on `scripts/poll_pursue.py`
+(213/200) and `tests/unit/test_poll_pursue.py` (450/400), both well
+under their 400/600 error thresholds.
+
+Commit: `a500553` on `feat/auto-poll-tranches`.
+
+### Session: 2026-05-09 — Auto-poll for new PURSUE tranches (branch `feat/auto-poll-tranches`)
+
+Implemented Layer 1 of the two-layer architecture in
+`.paircoder/plans/auto-poll-tranches.md`. Picked Option B (GitHub Actions
+cron) over Option A (CF Worker cron) — the Worker can't run curl_cffi
+for the Akamai bypass, so reusing the existing Python scrape stack is
+simpler and the storage is just a git commit.
+
+- `scripts/poll_pursue.py` — fetch via `csv_fetcher.fetch_raw_csv`,
+  hash, compare to `data/last-known-csv-sha.txt`, return one of
+  `Unchanged | Changed | Failed`. Pure function; CLI entrypoint mutates
+  the state file only on change. Empty body and any transport raise
+  both classified as `Failed`. Missing last-known file is treated as
+  bootstrap: commit the sha, do NOT open a tranche-detected issue
+  (nothing changed, we just hadn't been watching).
+- `.github/workflows/poll-pursue.yml` — `cron: '0 */6 * * *'` plus
+  `workflow_dispatch`. Permissions: `contents: write`, `issues: write`.
+  Reads kv pairs from `$GITHUB_OUTPUT` set by the script; commits the
+  new sha file on change (skipping the issue when bootstrap), opens a
+  `tranche-detected` issue on real change, opens a
+  `tranche-poll-failure` issue + fails the job on fetch failure.
+  Uses `secrets.GITHUB_TOKEN` only — no operator credentials.
+- `data/last-known-csv-sha.txt` — seeded with the sha from the current
+  `data/manifests/latest.json` (`596cc188...cafa2`, 2026-05-08 fetch)
+  so the first cron run is a no-op rather than an unnecessary
+  bootstrap commit.
+- 10 new unit tests in `tests/unit/test_poll_pursue.py`. Stubs
+  `fetch_raw_csv` exactly the way `test_csv_fetcher.py` does so the
+  curl_cffi contract isn't double-mocked. Full suite: 129/129 green
+  (was 119). Arch check: zero errors on
+  `scripts/poll_pursue.py` (one warning at 238/200 lines, well under
+  the 400 hard limit).
+- Layer 2 (heavy pipeline) intentionally NOT auto-triggered — operator
+  runs `pursue scrape run` -> download -> ocr -> embed manually when
+  GPU + content-review attention is available. The auto-opened issue
+  is the trigger.
 
 ### Session: 2026-05-09 — alex-zhang42 ingest review-fixes (PR #2 follow-up, branch `feat/alex-zhang-ingest`)
 
@@ -258,8 +567,9 @@ hardening, git history scrub.
    re-run on every page (~8% will trigger LLM cleanup, ~$1.36 at
    Haiku rates). Quality lift is real but incremental over what's
    shipped. Needs operator attendance for the run.
-4. **Auto-poll for new tranches** — DOW publishes new releases by
-   updating the same CSV in place. Polling closes the gap. Plan:
+4. **Auto-poll for new tranches** — Layer 1 (lightweight poll) shipped
+   on `feat/auto-poll-tranches` (PR pending). Layer 2 (heavy pipeline
+   trigger) intentionally remains operator-attended. Plan:
    `.paircoder/plans/auto-poll-tranches.md`.
 5. **Review-and-correct pipeline** — accept community OCR corrections
    via GitHub issues; flow them back into the index. Plan:
@@ -268,6 +578,12 @@ hardening, git history scrub.
    canonical FOIA archive (~100k–500k pages) so novelty detection
    moves from "methodology demo" to "real coverage measurement"
    for every card.
+7. **Per-entry OG images for `/finds/[slug]`** — the `ogImage` prop
+   hook is wired in `Base.astro` and the byte-stable
+   `OgImageContext` orchestrator can be looped per-slug. Loop over
+   `finds` entries in a build script, render `<slug>.png` per
+   entry, and pass `ogImage="/og/finds/<slug>.png"` on the
+   `/finds/[slug]` page. Defers from the share-meta PR (#7).
 
 ### Optional cleanup
 
@@ -286,6 +602,10 @@ pursue scrape run
 pursue download run --manifest data/manifests/latest.json
 pursue ocr run --manifest data/manifests/latest.json --engine auto
 pursue embed run --manifest data/manifests/latest.json
+
+# Lightweight upstream-CSV poll (Layer 1 of auto-poll-tranches.md)
+# Runs on GH Actions cron every 6h; this is the manual operator path.
+python scripts/poll_pursue.py
 
 # Tests
 pytest -x                     # python, 79 tests

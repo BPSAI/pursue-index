@@ -1,25 +1,27 @@
 ---
 import Base from "../layouts/Base.astro";
 import SearchIsland from "../components/SearchIsland.tsx";
+import { cards } from "../data/manifest-loader";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <Base title="SEARCH — PURSUE://INDEX" active="search">
-  <div class="space-y-6 max-w-4xl">
+  <div class="space-y-6 max-w-6xl">
     <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
       <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
         <span class="text-[color:var(--color-text-faint)]">$</span>
-        <span>grep -ri . /var/dow/pursue/ocr/</span>
+        <span>grep -ri . /var/dow/pursue/ocr/ | filter --agency --date</span>
       </div>
       <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
         FULL-TEXT SEARCH
       </h1>
       <p class="text-sm text-[color:var(--color-text)] max-w-2xl">
         Searches every OCR'd page across the manifest. Powered by MiniSearch
-        in-browser — no server, no network round-trips.
+        in-browser — no server, no network round-trips. Use the filter rail
+        to scope by agency, incident-date range, or redacted-only.
       </p>
     </header>
-    <SearchIsland client:load base={base} />
+    <SearchIsland client:load base={base} cards={cards} enableFilters={true} />
   </div>
 </Base>
