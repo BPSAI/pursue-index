@@ -9,6 +9,8 @@
 // Build pipeline (configured in the CF Workers Builds wizard):
 //   build:  cd web && npm install && npm run build
 //   deploy: npx wrangler deploy
+// Fallback CI: `.github/workflows/deploy-cf.yml` runs the same deploy
+// from GH Actions on push-to-main when CF Workers Builds stalls.
 //
 // Required secrets (set with `wrangler secret put NAME`):
 //   VOYAGE_API_KEY      — Voyage embeddings (input_type=query) for retrieve
