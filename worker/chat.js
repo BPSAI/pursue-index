@@ -18,7 +18,8 @@
 import { retrievePassages } from "./retrieve.js";
 import { buildSystemPrompt, buildUserPrompt } from "./chat_prompt.js";
 import {
-  checkAndIncrementRate,
+  checkRate,
+  incrementRate,
   cacheKey,
   readCache,
   writeCache,
@@ -61,9 +62,12 @@ export async function handleChat(request, env, opts = {}) {
   const day = utcDay();
   const kv = env.CHAT_KV;
 
-  // Step 2: per-IP rate limit.
+  // Step 2: per-IP rate limit — read-only check, no increment yet.
+  // Abstention shortcuts and cache hits skip the increment entirely
+  // because they don't spend Anthropic tokens; only an actual upstream
+  // call ticks the counter forward (see the pipeAnthropicSSE callback).
   if (kv) {
-    const rate = await checkAndIncrementRate(kv, ip, day);
+    const rate = await checkRate(kv, ip, day);
     if (!rate.allowed) {
       return jsonResponse(
         {
@@ -102,38 +106,88 @@ export async function handleChat(request, env, opts = {}) {
     );
   }
 
-  // SSE response body — controller drives the writes.
+  // Step 5: canned abstention if retrieval is empty.
+  // Returned as its own SSE response — no rate-counter increment, no
+  // Anthropic call, no cache write. Saves both spend and the user's
+  // daily quota for genuine off-corpus queries.
+  if (passages.length === 0) {
+    return abstentionSSEResponse(query);
+  }
+
+  const citations = passages.map((p) => ({
+    card_id: p.card_id,
+    page: p.page,
+    title: p.title,
+    snippet: p.snippet,
+    score: p.score,
+  }));
+
+  // Step 6: cache lookup.
+  // Cache hits replay the saved answer as a fresh SSE — same wire format
+  // as a live stream so the client code path is identical. No rate-counter
+  // increment because no Anthropic call.
+  const ck = cacheKey(query, passages);
+  if (kv) {
+    const cached = await readCache(kv, ck);
+    if (cached) {
+      return cacheReplaySSEResponse({ ...cached, citations });
+    }
+  }
+
+  // Step 7: we're committed to a real upstream call. Increment the rate
+  // counter NOW, in the handler's main flow, before constructing the
+  // streaming response — so callers (including tests) can rely on the
+  // counter being current the moment handleChat returns. Doing this
+  // inside the stream's start() function isn't reliable: Node's stream
+  // consumers can race the start function's awaits against the close.
+  if (kv) {
+    await incrementRate(kv, ip, day);
+  }
+
+  return liveAnthropicSSEResponse({
+    query,
+    passages,
+    citations,
+    ck,
+    kv,
+    env,
+    opts,
+    day,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Response builders — each returns a 200 SSE Response in the same wire
+// format. Splitting them out keeps handleChat's main flow linear and lets
+// the rate-counter increment happen synchronously in handleChat itself.
+// ---------------------------------------------------------------------------
+
+function abstentionSSEResponse(query) {
+  const stream = new ReadableStream({
+    start(controller) {
+      streamAbstention(controller, query);
+      controller.close();
+    },
+  });
+  return sseResponse(stream);
+}
+
+function cacheReplaySSEResponse(cached) {
+  const stream = new ReadableStream({
+    start(controller) {
+      replayCachedAsSSE(controller, cached);
+      controller.close();
+    },
+  });
+  return sseResponse(stream);
+}
+
+function liveAnthropicSSEResponse({ query, passages, citations, ck, kv, env, opts, day }) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Step 5: canned abstention if retrieval is empty.
-        if (passages.length === 0) {
-          streamAbstention(controller, query);
-          controller.close();
-          return;
-        }
-        // Send citations event up-front so the UI can render the sidebar.
-        const citations = passages.map((p) => ({
-          card_id: p.card_id,
-          page: p.page,
-          title: p.title,
-          snippet: p.snippet,
-          score: p.score,
-        }));
         controller.enqueue(sseFrame("citations", citations));
 
-        // Step 6: cache lookup.
-        const ck = cacheKey(query, passages);
-        if (kv) {
-          const cached = await readCache(kv, ck);
-          if (cached) {
-            replayCachedAsSSE(controller, { ...cached, citations });
-            controller.close();
-            return;
-          }
-        }
-
-        // Step 7: live Anthropic streaming call.
         const anthropicFetch = opts.anthropicFetch || fetch;
         const sys = buildSystemPrompt();
         const user = buildUserPrompt(query, passages);
@@ -170,7 +224,9 @@ export async function handleChat(request, env, opts = {}) {
           return;
         }
         await pipeAnthropicSSE(controller, apiRes.body, async ({ usage, fullText }) => {
-          // Record spend + write cache entry.
+          // Stream completed — record the dollar spend and cache the
+          // answer. The rate counter was already incremented in
+          // handleChat's main flow before this stream was constructed.
           if (kv) {
             const usd = costUsd(usage);
             await recordSpend(kv, day, usd);
@@ -191,7 +247,10 @@ export async function handleChat(request, env, opts = {}) {
       }
     },
   });
+  return sseResponse(stream);
+}
 
+function sseResponse(stream) {
   return new Response(stream, {
     status: 200,
     headers: {

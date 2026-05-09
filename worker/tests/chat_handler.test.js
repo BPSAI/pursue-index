@@ -167,12 +167,25 @@ describe("handleChat", () => {
       embedFn: async () => new Float32Array([1, 0, 0]),
       anthropicFetch: async () => fakeAnthropicSSEResponse("ok"),
     };
+    // Each iteration uses a unique query so the semantic cache (which
+    // keys on query+passages) doesn't short-circuit subsequent requests.
+    // Cache hits skip the rate-counter increment by design — that's the
+    // whole point of the abstention/cache shortcuts being free — but it
+    // means same-query repeated calls would never advance the counter.
     for (let i = 0; i < RATE_LIMIT; i += 1) {
-      const r = await handleChat(makeChatRequest(), env, opts);
+      const r = await handleChat(
+        makeChatRequest({ body: { query: `unique query ${i}` } }),
+        env,
+        opts,
+      );
       assert.equal(r.status, 200, `request ${i + 1} should succeed`);
       await r.text();
     }
-    const blocked = await handleChat(makeChatRequest(), env, opts);
+    const blocked = await handleChat(
+      makeChatRequest({ body: { query: "blocked query" } }),
+      env,
+      opts,
+    );
     assert.equal(blocked.status, 429);
     const j = await blocked.json();
     assert.match(j.error, /rate limit|too many/i);

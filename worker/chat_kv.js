@@ -31,22 +31,47 @@ function rateKey(ip, day) {
 }
 
 /**
- * Atomically increment the per-IP daily counter and return whether the
- * caller is allowed.
+ * Read-only check of the per-IP daily counter. Does NOT increment.
+ *
+ * Use this at the top of a chat request to short-circuit a 429 response
+ * before doing any retrieval / Anthropic work. The actual increment
+ * happens in `incrementRate` AFTER we've decided we're going to spend.
+ * Abstention shortcuts and cache hits skip the increment entirely
+ * because they don't cost real money.
+ */
+export async function checkRate(kv, ip, day = utcDay()) {
+  const current = parseInt((await kv.get(rateKey(ip, day))) || "0", 10);
+  return { allowed: current < RATE_LIMIT, count: current };
+}
+
+/**
+ * Increment the per-IP daily counter. Call only when the request is
+ * about to (or did) spend Anthropic tokens — not for abstentions or
+ * cache hits, which are free.
  *
  * Note: Workers KV doesn't have atomic INCR. We accept a tiny race window
  * between get and put — at HN scale the worst case is the limit ticking
  * to N+1 instead of stopping at N for a brief overlap, which is fine.
  */
-export async function checkAndIncrementRate(kv, ip, day = utcDay()) {
+export async function incrementRate(kv, ip, day = utcDay()) {  
   const key = rateKey(ip, day);
   const current = parseInt((await kv.get(key)) || "0", 10);
-  if (current >= RATE_LIMIT) {
-    return { allowed: false, count: current };
-  }
   const next = current + 1;
   await kv.put(key, String(next), { expirationTtl: CACHE_TTL_SECONDS });
-  return { allowed: true, count: next };
+  return { count: next };
+}
+
+/**
+ * Backwards-compatible combined check + increment, kept for tests and
+ * for any caller that genuinely wants the old semantics. Prefer the
+ * split `checkRate` / `incrementRate` pair in new code so abstentions
+ * and cache hits don't burn rate budget.
+ */
+export async function checkAndIncrementRate(kv, ip, day = utcDay()) {
+  const check = await checkRate(kv, ip, day);
+  if (!check.allowed) return check;
+  const inc = await incrementRate(kv, ip, day);
+  return { allowed: true, count: inc.count };
 }
 
 // ---------------------------------------------------------------------------
