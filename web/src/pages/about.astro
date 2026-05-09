@@ -115,27 +115,28 @@ const s = summary();
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         The site is currently in
         <span class="font-mono text-[color:var(--color-signal-amber)] uppercase tracking-[0.15em]">research preview</span>.
-        Live now: the corpus, OCR transcripts (Surya GPU + LLM cleanup
-        on faded pages), full-text search, tranche diff, and the
-        published quality benchmark on
+        Live now:{" "}
+        <a href="/" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">corpus index</a>
+        with full-text search, OCR transcripts (Surya GPU + LLM cleanup
+        on faded pages),{" "}
+        <a href="/finds" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">curated finds</a>
+        (hand-authored reading guides), tranche diff, the
+        <a href="/chat" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">chat interface</a>
+        (RAG with mandatory citations; BYOK supported), and the published
+        quality benchmark on{" "}
         <a href="/methodology#benchmark" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology</a>.
         Still in flight before public launch:
       </p>
       <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
         <li>
-          <span class="text-[color:var(--color-text-bright)]">Chat interface</span> —
-          retrieval-augmented Q&amp;A with mandatory citations. Anonymous
-          (server-funded, rate-limited) and BYOK (bring your own Anthropic
-          key) modes will share the same UI.
-        </li>
-        <li>
-          <span class="text-[color:var(--color-text-bright)]">Curated finds</span> —
-          hand-authored reading guides drawing from specific cards and pages.
+          <span class="text-[color:var(--color-text-bright)]">Curated finds expansion</span> —
+          a small set of entries is live; more reading guides being authored.
         </li>
         <li>
           <span class="text-[color:var(--color-text-bright)]">Novelty detection</span> —
           per-page comparison against prior FOIA archives (Black Vault, etc.)
-          to surface what's genuinely new in this release.
+          to surface what's genuinely new in this release. Target: shortly
+          after launch, not before.
         </li>
       </ul>
       <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">

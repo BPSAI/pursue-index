@@ -1,0 +1,155 @@
+---
+import Base from "../layouts/Base.astro";
+import { manifest } from "../data/manifest-loader";
+
+const sha = manifest.csv_sha256;
+const fetchedDate = new Date(manifest.fetched_at).toISOString().slice(0, 10);
+---
+
+<Base
+  title="Citation Guide — PURSUE://INDEX"
+  description="How to cite pursueindex.com — the corpus, individual cards, and OCR transcripts. Includes BibTeX and reproducibility notes."
+>
+  <article class="space-y-8 max-w-3xl">
+    <header class="space-y-2">
+      <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ CITATION GUIDE
+      </p>
+      <h1 class="text-2xl font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        How to cite pursueindex
+      </h1>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        A short guide for researchers, journalists, and academic readers
+        using pursueindex as a reference. The source documents are
+        public-domain U.S. Government work; we provide the indexing layer
+        (manifest, OCR transcripts, search). This page tells you how to
+        point at us correctly.
+      </p>
+    </header>
+
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ What you are actually citing
+      </h2>
+      <table class="w-full text-sm border border-[color:var(--color-border)]">
+        <thead class="bg-[color:var(--color-bg-elevated)]">
+          <tr>
+            <th class="text-left py-2 px-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-faint)]">Claim type</th>
+            <th class="text-left py-2 px-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-faint)]">Cite</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t border-[color:var(--color-border)]">
+            <td class="py-2 px-3">Contents of a source document</td>
+            <td class="py-2 px-3 text-[color:var(--color-text-bright)]">The original DOW PDF (we're a reader)</td>
+          </tr>
+          <tr class="border-t border-[color:var(--color-border)]">
+            <td class="py-2 px-3">A transcribed passage as it appears here</td>
+            <td class="py-2 px-3 text-[color:var(--color-text-bright)]">This site, with <code>card_id</code> and page</td>
+          </tr>
+          <tr class="border-t border-[color:var(--color-border)]">
+            <td class="py-2 px-3">The corpus itself, or methodology</td>
+            <td class="py-2 px-3 text-[color:var(--color-text-bright)]">This site, manifest snapshot</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Citing the corpus as a whole
+      </h2>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index. (2026). BPS AI Software.
+https://pursueindex.com
+(manifest CSV SHA-256: ${sha},
+ snapshot: ${fetchedDate})`}</code></pre>
+      <p class="text-sm text-[color:var(--color-text)]">
+        The hash pin is the load-bearing reproducibility claim — anyone
+        with the same{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">csv_sha256</code>{" "}
+        is looking at the same upstream CSV bytes you cited. Both fields
+        appear in this site's footer on every page.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Citing a specific document or page
+      </h2>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index card <card_id>, p. <n>.
+Sourced from U.S. Department of War, Presidential Unsealing
+and Reporting System for UAP Encounters (PURSUE), Release 01 (2026).
+https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
+      <p class="text-sm text-[color:var(--color-text)]">
+        Worked example — citing the McHenry affidavit from
+        <a href="/finds/muroc-1947" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"> the Muroc 1947 entry</a>:
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index card 99c12a9c49a91750, p. 67.
+Sourced from U.S. Department of War, PURSUE Release 01 (2026).
+https://pursueindex.com/card/99c12a9c49a91750#page-67`}</code></pre>
+      <p class="text-sm text-[color:var(--color-text)]">
+        The <code class="text-[color:var(--color-signal-cyan)]">card_id</code>{" "}
+        is stable across re-fetches —{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">sha256(asset_url || title)[:16]</code>{" "}
+        — so the same card resolves the same way for every reader regardless
+        of when they re-run the pipeline. Page numbers are 1-indexed.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Citing the OCR transcript itself
+      </h2>
+      <p class="text-sm text-[color:var(--color-text)]">
+        If you're quoting the OCR transcript (not the original PDF text),
+        make that explicit. OCR is imperfect; the transcript is a derivative work.
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index OCR transcript, card <card_id>, p. <n>,
+OCR engine <engine> (confidence <conf>).
+https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
+      <p class="text-sm text-[color:var(--color-text)]">
+        <code class="text-[color:var(--color-signal-cyan)]">{"<engine>"}</code>{" "}
+        is either <code>surya</code> or{" "}
+        <code class="text-[color:var(--color-signal-amber)]">llm-anthropic</code>{" "}
+        on the current corpus; both surface inline on each card page. When
+        the OCR is wrong and the original PDF text is correct, cite the
+        original PDF and not us.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ BibTeX
+      </h2>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[11px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre"><code>{`@misc{pursueindex2026,
+  title  = {PURSUE Index},
+  author = {{BPS AI Software}},
+  year   = {2026},
+  url    = {https://pursueindex.com},
+  note   = {Manifest CSV SHA-256: ${sha.slice(0, 16)}...;
+            snapshot ${fetchedDate}.
+            Source: U.S. Department of War PURSUE Release 01.}
+}`}</code></pre>
+    </section>
+
+    <section class="space-y-3 pt-4 border-t border-[color:var(--color-border)]">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Reproducibility
+      </h2>
+      <p class="text-sm text-[color:var(--color-text)]">
+        The manifest is hash-pinned and version-controlled. From a clean clone of
+        <a href="https://github.com/BPSAI/pursue-index" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"> github.com/BPSAI/pursue-index</a>{" "}
+        any reader can rebuild the entire index. Methodology and benchmark
+        numbers live at{" "}
+        <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology</a>.
+      </p>
+      <p class="text-sm text-[color:var(--color-text)]">
+        Source documents are works of the U.S. Government and in the public
+        domain. The OCR transcripts derived from them carry no additional
+        copyright claim from us. Index code and this site are{" "}
+        <span class="text-[color:var(--color-signal-cyan)]">© BPS AI Software</span>{" "}
+        (license TBD before public launch).
+      </p>
+    </section>
+  </article>
+</Base>
