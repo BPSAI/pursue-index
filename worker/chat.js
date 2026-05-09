@@ -149,10 +149,21 @@ export async function handleChat(request, env, opts = {}) {
           }),
         });
         if (!apiRes.ok) {
-          const t = await apiRes.text();
+          // Log the full body server-side for debugging; do NOT pipe it to
+          // the client. Anthropic error responses can include partial-key
+          // hints, rate-limit details, and other server context. Client
+          // gets a sanitized message keyed only on the upstream status.
+          const fullBody = await apiRes.text();
+          console.error("anthropic upstream error", apiRes.status, fullBody);
           controller.enqueue(
             sseFrame("error", {
-              message: `anthropic ${apiRes.status}: ${t.slice(0, 200)}`,
+              message:
+                apiRes.status === 401 || apiRes.status === 403
+                  ? "Upstream LLM provider rejected the request. Try BYOK."
+                  : apiRes.status === 429
+                    ? "Upstream LLM provider is rate-limiting. Try again shortly or use BYOK."
+                    : "Upstream LLM provider returned an error. Try again shortly.",
+              status: apiRes.status,
             }),
           );
           controller.close();

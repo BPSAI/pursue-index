@@ -34,6 +34,27 @@ import { handleChat } from "./chat.js";
 
 const PREVIEW_TOKEN = "bps-launch";
 
+// Allowed origins for /api/* CORS. Same-origin browser requests don't send
+// Origin (or send our own host); cross-origin requests from malicious sites
+// carry their own Origin, which we reject. Non-browser callers (curl, etc.)
+// don't send Origin and pass through.
+const ALLOWED_API_ORIGINS = new Set([
+  "https://pursueindex.com",
+  "https://www.pursueindex.com",
+]);
+
+function corsHeaders(origin) {
+  const allowed = origin && ALLOWED_API_ORIGINS.has(origin) ? origin : "https://pursueindex.com";
+  return {
+    "Access-Control-Allow-Origin": allowed,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Cookie",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Max-Age": "600",
+    Vary: "Origin",
+  };
+}
+
 export function setCookieHeader(value, maxAgeSeconds) {
   return `preview=${value}; Path=/; Max-Age=${maxAgeSeconds}; Secure; SameSite=Lax; HttpOnly`;
 }
@@ -75,16 +96,35 @@ export function hasPreviewCookie(request) {
  *   - Referrer-Policy: strict-origin-when-cross-origin (default, but explicit)
  *   - X-Frame-Options: SAMEORIGIN       (clickjacking; we never frame ourselves)
  *   - Permissions-Policy: interest-cohort=()  (opt out of FLoC/Topics)
+ *   - Content-Security-Policy: a minimum permissive policy. Astro/Preact
+ *     hydration scripts inline → script-src 'unsafe-inline'. Tailwind
+ *     emits inline styles → style-src 'unsafe-inline'. Card detail iframes
+ *     war.gov PDFs → frame-src + img-src include www.war.gov. BYOK chat
+ *     calls Anthropic direct → connect-src includes api.anthropic.com.
+ *     Tighter than nothing; permissive enough to not break anything.
  *
  * If the underlying response already set one of these (e.g. an asset that
  * needs to be framed), defer to it — we use `headers.has()` not `set()`.
- * No CSP — see header note above.
  */
+const CSP_VALUE = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' https://www.war.gov data:",
+  "font-src 'self' data:",
+  "frame-src 'self' https://www.war.gov",
+  "connect-src 'self' https://api.anthropic.com https://api.voyageai.com",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
 const SECURITY_HEADERS = [
   ["X-Content-Type-Options", "nosniff"],
   ["Referrer-Policy", "strict-origin-when-cross-origin"],
   ["X-Frame-Options", "SAMEORIGIN"],
   ["Permissions-Policy", "interest-cohort=()"],
+  ["Content-Security-Policy", CSP_VALUE],
 ];
 
 export function withSecurityHeaders(response) {
@@ -130,9 +170,33 @@ export default {
       );
     }
 
-    // /api/* routes — also behind the preview cookie until launch.
-    // FIXME(launch): when we flip the gate, drop the cookie check here too.
+    // /api/* routes — cookie-gated until launch + CORS-locked to our origins.
+    // FIXME(launch): when we flip the gate, drop the cookie check (keep CORS).
     if (url.pathname.startsWith("/api/")) {
+      // CORS: only browsers from our own origins should be calling these.
+      // Same-origin requests don't send Origin (or send our own host); cross-
+      // origin requests from a malicious site would carry a different Origin.
+      const origin = request.headers.get("Origin");
+      if (origin && !ALLOWED_API_ORIGINS.has(origin)) {
+        return withSecurityHeaders(
+          new Response(
+            JSON.stringify({ error: "cross-origin not allowed" }),
+            {
+              status: 403,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+        );
+      }
+      // Preflight OPTIONS — short-circuit with the CORS headers.
+      if (request.method === "OPTIONS") {
+        return withSecurityHeaders(
+          new Response(null, {
+            status: 204,
+            headers: corsHeaders(origin),
+          }),
+        );
+      }
       if (!hasPreviewCookie(request)) {
         return withSecurityHeaders(
           new Response(
@@ -142,25 +206,31 @@ export default {
             }),
             {
               status: 403,
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                ...corsHeaders(origin),
+              },
             },
           ),
         );
       }
+      let response;
       if (url.pathname === "/api/retrieve") {
-        return withSecurityHeaders(await handleRetrieve(request, env));
-      }
-      if (url.pathname === "/api/chat") {
-        // SSE response — withSecurityHeaders is safe here because we
-        // re-wrap via the Response constructor without touching the body.
-        return withSecurityHeaders(await handleChat(request, env));
-      }
-      return withSecurityHeaders(
-        new Response(JSON.stringify({ error: "not found" }), {
+        response = await handleRetrieve(request, env);
+      } else if (url.pathname === "/api/chat") {
+        response = await handleChat(request, env);
+      } else {
+        response = new Response(JSON.stringify({ error: "not found" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
-        }),
-      );
+        });
+      }
+      // Stamp CORS headers + security headers and return.
+      const corsResponse = new Response(response.body, response);
+      for (const [k, v] of Object.entries(corsHeaders(origin))) {
+        corsResponse.headers.set(k, v);
+      }
+      return withSecurityHeaders(corsResponse);
     }
 
     // Gate the homepage. Every other path falls through to static assets.

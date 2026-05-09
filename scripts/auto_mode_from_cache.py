@@ -33,17 +33,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-# Plumb Claude Code OAuth into ANTHROPIC_API_KEY if not already set, so the
-# Anthropic SDK in ocr.llm has credentials. The Max-tier OAuth token works
-# verbatim as an API key for the user:inference scope.
 if "ANTHROPIC_API_KEY" not in os.environ:
-    creds_path = Path("/home/david/.claude/.credentials.json")
-    if creds_path.exists():
-        creds = json.loads(creds_path.read_text())
-        os.environ["ANTHROPIC_API_KEY"] = creds["claudeAiOauth"]["accessToken"]
+    sys.exit(
+        "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
+        "running the cleanup pass — get a key at https://console.anthropic.com/."
+    )
 
-# Default to Haiku for the cleanup pass — Sonnet on Max-tier OAuth hits 429
-# almost immediately on image inference. Set BEFORE importing settings so
+# Default to Haiku for the cleanup pass; Sonnet's higher per-token cost
+# isn't justified for the LLM-fallback step where Haiku already produces
+# strong quality on faded scans. Set BEFORE importing settings so
 # pydantic-settings env loading picks it up.
 os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 os.environ.setdefault("PURSUE_OCR_LLM_PROVIDER", "anthropic")

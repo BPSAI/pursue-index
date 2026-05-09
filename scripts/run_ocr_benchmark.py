@@ -25,19 +25,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-# Plumb the Claude Code OAuth token into ANTHROPIC_API_KEY if it's not already
-# set. The Anthropic Python SDK accepts the OAuth access token verbatim as an
-# API key for the Max-tier inference scope.
 if "ANTHROPIC_API_KEY" not in os.environ:
-    creds_path = Path("/home/david/.claude/.credentials.json")
-    if creds_path.exists():
-        creds = json.loads(creds_path.read_text())
-        os.environ["ANTHROPIC_API_KEY"] = creds["claudeAiOauth"]["accessToken"]
+    sys.exit(
+        "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
+        "running the benchmark — get a key at https://console.anthropic.com/."
+    )
 
-# Default to Haiku for benchmarks: Sonnet on the Max-tier OAuth token hits
-# 429 almost immediately for image inference. Haiku has dramatically more
-# headroom and the previous LLM smoke showed strong quality lift on faded
-# scans even at the smaller tier. Set BEFORE importing settings so the
+# Default to Haiku for benchmarks. Sonnet's higher per-token cost isn't
+# justified for a comparison run; Haiku produced strong quality lift on
+# faded scans in earlier smoke runs. Set BEFORE importing settings so the
 # pydantic-settings env load picks it up.
 os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 
