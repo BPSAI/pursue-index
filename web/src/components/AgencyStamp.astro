@@ -1,0 +1,160 @@
+---
+/**
+ * AgencyStamp — case-file rubber-stamp treatment for an agency.
+ *
+ * Brand-original visual: rotated dashed-border box, mono uppercase, colored
+ * per agency. Deliberately *not* a reproduction of any official seal/logo
+ * (USC § 506 / DOD seal restrictions). Evokes a stamp without copying one.
+ *
+ * Two sizes:
+ *   "lg" — header position on /card/[id], ~140px wide.
+ *   "sm" — list/grid tile, ~78px wide.
+ */
+
+interface Props {
+  agency: string;
+  releaseDate?: string | null;
+  size?: "lg" | "sm";
+  /** Optional class hook for positioning. */
+  class?: string;
+}
+
+const { agency, releaseDate = null, size = "lg", class: cls = "" } = Astro.props;
+
+interface Style {
+  abbr: string;
+  /** Css color var name — must exist in @theme. */
+  color: string;
+}
+
+const STYLES: Record<string, Style> = {
+  "Department of War": { abbr: "DOW", color: "var(--color-signal-amber)" },
+  "FBI": { abbr: "FBI", color: "var(--color-signal-red)" },
+  "NASA": { abbr: "NASA", color: "var(--color-signal-cyan)" },
+  "Department of State": { abbr: "DOS", color: "var(--color-signal-green)" },
+};
+
+function styleFor(name: string): Style {
+  // Exact match first.
+  if (STYLES[name]) return STYLES[name];
+  // Loose match — handle minor punctuation / case drift.
+  const norm = name.trim().toLowerCase();
+  for (const [k, v] of Object.entries(STYLES)) {
+    if (k.toLowerCase() === norm) return v;
+  }
+  // Fall back to a neutral stamp using the input as-is, capped to 6 chars.
+  const abbr = name
+    .replace(/[^A-Za-z]/g, "")
+    .slice(0, 6)
+    .toUpperCase() || "AGENCY";
+  return { abbr, color: "var(--color-text-bright)" };
+}
+
+const style = styleFor(agency);
+
+const isLg = size === "lg";
+
+// Tile dimensions; tuned so the stamp reads at a glance without dominating.
+const wrapW = isLg ? "9rem" : "5rem";
+const wrapH = isLg ? "5.25rem" : "3rem";
+const titleSize = isLg ? "1.6rem" : "0.95rem";
+const subSize = isLg ? "0.55rem" : "0.45rem";
+// Slight angle — enough to feel stamped, gentle enough to stay legible.
+const tilt = isLg ? "-4deg" : "-3deg";
+
+// Show the release date on the lg stamp only — cramped on sm.
+const subtitle = isLg && releaseDate ? `DECLASSIFIED · ${releaseDate}` : "DECLASSIFIED";
+---
+
+<span
+  class:list={["pi-stamp", `pi-stamp-${size}`, cls]}
+  data-agency={style.abbr}
+  aria-label={`Agency stamp: ${agency}${releaseDate ? `, declassified ${releaseDate}` : ""}`}
+  style={`
+    --stamp-color: ${style.color};
+    --stamp-w: ${wrapW};
+    --stamp-h: ${wrapH};
+    --stamp-title: ${titleSize};
+    --stamp-sub: ${subSize};
+    --stamp-tilt: ${tilt};
+  `}
+>
+  <span class="pi-stamp-inner">
+    <span class="pi-stamp-abbr">{style.abbr}</span>
+    {isLg && (
+      <span class="pi-stamp-sub">{subtitle}</span>
+    )}
+  </span>
+</span>
+
+<style is:global>
+  /* Stamp wrapper — rotated, dashed border, signal-colored. Slight ink
+     unevenness via two box-shadow inset rings. No JS, no SVG, no logos. */
+  .pi-stamp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--stamp-w);
+    height: var(--stamp-h);
+    transform: rotate(var(--stamp-tilt));
+    transform-origin: center;
+    border: 2px dashed var(--stamp-color);
+    color: var(--stamp-color);
+    background:
+      linear-gradient(
+        115deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.18) 45%,
+        rgba(0, 0, 0, 0) 90%
+      );
+    /* Subtle inner ring to suggest pressed-stamp impression. */
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--stamp-color) 25%, transparent),
+      inset 0 0 12px color-mix(in srgb, var(--stamp-color) 12%, transparent);
+    border-radius: 1px;
+    user-select: none;
+    /* Avoid getting flattened by surrounding flex/grid containers. */
+    flex: 0 0 auto;
+  }
+
+  .pi-stamp-inner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    gap: 0.18em;
+    padding: 0 0.4em;
+    text-align: center;
+  }
+
+  .pi-stamp-abbr {
+    font-family: var(--font-mono);
+    font-size: var(--stamp-title);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    /* Tight tracking but readable; very slight glow keeps the stamp from
+       feeling flat against dark panels. */
+    text-shadow:
+      0 0 8px color-mix(in srgb, var(--stamp-color) 35%, transparent);
+  }
+
+  .pi-stamp-sub {
+    font-family: var(--font-mono);
+    font-size: var(--stamp-sub);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    white-space: nowrap;
+  }
+
+  /* Reduce the tilt + drop the inner glow for users who prefer reduced motion;
+     a static rotated panel is fine, but heavy effects feel busy. */
+  @media (prefers-reduced-motion: reduce) {
+    .pi-stamp {
+      box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--stamp-color) 25%, transparent);
+    }
+  }
+</style>

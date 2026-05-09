@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import CardOcrIsland from "../../components/CardOcrIsland.tsx";
+import AgencyStamp from "../../components/AgencyStamp.astro";
 import { cards } from "../../data/manifest-loader";
 
 export function getStaticPaths() {
@@ -61,22 +62,27 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
 
     {/* Header */}
     <header class="space-y-4 border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class={`text-[10px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tc.bg} ${tc.fg} ${tc.border}`}>
-          {card.asset_type}
-        </span>
-        <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
-          AGENCY · {card.agency}
-        </span>
-        {card.redacted && (
-          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-signal-red)] font-semibold">
-            ● REDACTED
+      {/* Top row: type/redaction badges (left), agency stamp (right).
+          Stack on mobile with stamp centered; align on sm and up. */}
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div class="flex flex-wrap items-center gap-2 min-w-0">
+          <span class={`text-[10px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tc.bg} ${tc.fg} ${tc.border}`}>
+            {card.asset_type}
           </span>
-        )}
-        <span class="ml-auto text-[10px] font-mono text-[color:var(--color-text-faint)] break-all">
-          {card.card_id}
-        </span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
+            AGENCY · {card.agency}
+          </span>
+          {card.redacted && (
+            <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-signal-red)] font-semibold">
+              ● REDACTED
+            </span>
+          )}
+        </div>
+        <div class="flex justify-center sm:block sm:flex-shrink-0">
+          <AgencyStamp agency={card.agency} releaseDate={card.release_date} size="lg" />
+        </div>
       </div>
+
       <h1 class="text-lg sm:text-xl font-semibold leading-snug text-[color:var(--color-text-bright)]">
         {card.title}
       </h1>
@@ -91,6 +97,11 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
           </div>
         ))}
       </dl>
+
+      <div class="text-[10px] font-mono text-[color:var(--color-text-faint)] break-all pt-2 border-t border-[color:var(--color-border)]">
+        <span class="uppercase tracking-[0.18em]">CARD_ID</span>
+        <span class="ml-2">{card.card_id}</span>
+      </div>
     </header>
 
     {/* Two-column: PDF preview + sidebar metadata. PDF stacks below on small screens. */}
