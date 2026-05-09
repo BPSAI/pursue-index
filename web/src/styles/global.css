@@ -310,6 +310,51 @@ textarea:focus {
 }
 
 /* =========================================================================
+   Inline citation chip (used by <Cite> in finds/*.mdx and the sources rail
+   on /finds/[slug]). Keep here in global.css so the chip styling is
+   present even on pages that don't render the <Cite> component itself
+   (e.g. the sources rail on a finds entry whose body has zero <Cite>s).
+   ========================================================================= */
+
+.pi-cite {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.05em 0.4em;
+  margin: 0 0.1em;
+  border: 1px solid var(--color-border-bright);
+  background: var(--color-bg-elevated);
+  color: var(--color-signal-cyan);
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: baseline;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.pi-cite:hover {
+  background: color-mix(in srgb, var(--color-signal-cyan) 12%, transparent);
+  color: var(--color-text-bright);
+}
+
+.pi-cite:focus-visible {
+  outline: 2px solid var(--color-signal-cyan);
+  outline-offset: 1px;
+}
+
+/* Anti-hallucination guard — chip is non-interactive and amber-flagged
+   when the cited card_id is not in the manifest. Curators see this in
+   preview rather than shipping a dead link to readers. */
+.pi-cite-unknown {
+  border-color: color-mix(in srgb, var(--color-signal-amber) 40%, transparent);
+  background: color-mix(in srgb, var(--color-signal-amber) 10%, transparent);
+  color: var(--color-signal-amber);
+  cursor: help;
+}
+
+/* =========================================================================
    Utility: ASCII corner brackets on a panel (declassified-doc feel).
    ========================================================================= */
 

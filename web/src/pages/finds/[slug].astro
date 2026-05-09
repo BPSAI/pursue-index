@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { getCollection, render } from "astro:content";
+import { manifest } from "../../data/manifest-loader";
 
 export async function getStaticPaths() {
   const all = await getCollection("finds", ({ data }) => !data.draft);
@@ -14,6 +15,19 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const pageTitle = `${entry.data.title} — FINDS — PURSUE://INDEX`;
+
+// Resolve each card_id in the entry's frontmatter against the manifest so
+// the "sources" rail can show agency/title alongside the id. Unknown ids
+// (curator typo) render as amber warnings, mirroring the <Cite> guard.
+const sourceCards = entry.data.cards.map((id) => {
+  const card = manifest.cards.find((c) => c.card_id === id);
+  return {
+    id,
+    title: card?.title ?? null,
+    agency: card?.agency ?? null,
+    known: card !== undefined,
+  };
+});
 ---
 
 <Base
@@ -49,20 +63,34 @@ const pageTitle = `${entry.data.title} — FINDS — PURSUE://INDEX`;
       )}
     </header>
 
-    {entry.data.cards.length > 0 && (
+    {sourceCards.length > 0 && (
       <aside class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
         <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-2">
-          Sources
+          Sources · {sourceCards.length} card{sourceCards.length === 1 ? "" : "s"}
         </h3>
-        <ul class="font-mono text-xs space-y-1">
-          {entry.data.cards.map((id) => (
+        <ul class="flex flex-wrap gap-2">
+          {sourceCards.map((c) => (
             <li>
-              <a
-                href={`${base}/card/${id}`}
-                class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] break-all"
-              >
-                /card/{id}
-              </a>
+              {c.known ? (
+                <a
+                  href={`${base}/card/${c.id}`}
+                  class="pi-cite"
+                  title={`${c.agency ?? ""} · ${c.title ?? ""}`.trim()}
+                  data-card={c.id}
+                >
+                  {c.agency && <span class="opacity-70">{c.agency}</span>}
+                  {c.agency && <span class="opacity-50 px-1">·</span>}
+                  <span>{c.id.slice(0, 8)}</span>
+                </a>
+              ) : (
+                <span
+                  class="pi-cite pi-cite-unknown"
+                  title="Unknown card_id; manifest does not contain this id."
+                  data-card={c.id}
+                >
+                  {c.id.slice(0, 8)}? UNKNOWN CARD
+                </span>
+              )}
             </li>
           ))}
         </ul>
