@@ -114,6 +114,33 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — Launch-readiness QC pass (post-gate-flip)
+
+- **Two real-user fixes pushed to prod** (`815844b`):
+    - `web/src/pages/methodology.astro` License section: removed stale
+      "License: TBD before public launch." Now reads "© BPS AI Software,
+      licensed under the Apache License, Version 2.0" with links to
+      apache.org and to the full citation guide at `/cite`.
+    - `web/src/layouts/Base.astro`: added CITE entry to main nav between
+      METHODOLOGY and SUPPORT so academic + journalist readers can find
+      the citation guide without typing the URL. Also widened the active
+      key type to cover the new routes.
+- **Repo flipped public** + **GitHub interaction limits applied**:
+    - `gh api /repos/BPSAI/pursue-index/interaction-limits` returns
+      `{"limit":"existing_users","origin":"repository","expires_at":
+      "2026-11-09T16:34:11Z"}` — drive-by-issue spam blocked through
+      November.
+- **Divona QC sweep on prod** (`/run-qc --env prod`): 19 scenarios
+  across 5 critical/regression suites — **smoke 4/4, chat 3/3 (4
+  read-only-skipped as designed), cite 4/4, mobile 3/3, support 5/5**.
+  Zero failures, zero blockers. The two patched items confirmed live:
+  License section text correct, CITE in nav at the right position,
+  `/cite` renders cleanly, sha256 footer hash consistent across home
+  + cite + BibTeX block. Report at
+  `.paircoder/qc/reports/launch-readiness-prod-2026-05-09T155601Z.json`.
+- **GO recommendation issued** — safe to post HN + start journalist
+  outreach.
+
 ### Session: 2026-05-09 — Novelty detection (machinery + UI surface, placeholder reference corpus)
 
 - **`pursue novelty compute` CLI + machinery.** New module
@@ -575,6 +602,25 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Squashed commit `485748f` pushed to `origin/main`.
 
 ## What's Next
+
+### Immediate (launch comms)
+
+1. **Post HN draft** — operator has `docs/launch/hn-post.md` locally
+   (scrubbed from git history; lives in his working tree only). Title +
+   body ready to paste at https://news.ycombinator.com/submit.
+2. **Sequenced journalist outreach** — operator has
+   `docs/launch/journalist-outreach.md` locally with the recipient list
+   + per-outlet pitch language.
+
+### Optional cleanup (no longer launch-blocking)
+
+- Delete `web/src/pages/splash.astro` and the `/splash` branch in
+  `worker/index.js` once a few days of traffic confirm nobody's
+  bookmark hits it.
+- Delete the local `pre-scrub-backup-*` git tag once you're confident
+  the history scrub stuck.
+
+### Backlog (post-launch)
 
 1. **Auto-mode full corpus pass** — user-decision pending the benchmark
    numbers above. `PURSUE_OCR_ENGINE=auto pursue ocr run --force
