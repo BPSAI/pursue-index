@@ -31,6 +31,60 @@ retrieval is on the post-launch backlog (see `What's Next`).
 
 ## What Was Just Done
 
+### Session: 2026-05-09 — PR #8 review-fix follow-up (branch `feat/reader-pdf-anchors`)
+
+Addressed the union of legitimate findings from three reviews (nayru P1/P2,
+laverna SEC-001/002/004, vaivora P1/P2) on `feat/reader-pdf-anchors`. One
+follow-up commit, no merge per task spec.
+
+Decisions:
+- **Iframe-reload claim (nayru P1 #1):** Could not empirically verify in a
+  real browser from this environment. Took the honest-docstring + debounce
+  path nayru recommended as fallback. Updated `pdf-iframe-sync.ts` header
+  to acknowledge that `iframe.src` writes ARE navigations in Chrome/WebKit
+  (per HTML living standard + MDN); added `createDebouncedPdfIframeSync`
+  (250ms) and wired CardReaderView to use it so j/j/j collapses into one
+  iframe write.
+- **Fragment preservation (nayru P1 #2):** Rewrote `nextIframeSrc` and
+  `pdfPageHref` to parse the PDF.js fragment (`page=N&zoom=fit&view=FitH`)
+  and replace only `page=`. Other params survive. Order normalized so
+  `page=` leads (PDF.js is order-tolerant).
+- **Query/hash promotion (nayru P1 #3 / laverna SEC-004 / vaivora P1 #11):**
+  Extracted pure `promotedCardUrl(pathname, search, hash)` into
+  `reader-format.ts` and tested all five branches. Bootstrap now drops the
+  redundant `?page=N` whether or not a hash was already present, yielding
+  the canonical `/card/<id>#page-N` shape on copy-paste.
+- **Hashchange redundancy (nayru P1 #4):** Documented why both bootstrap
+  and CardReaderView listen — bootstrap is the only listener when raw mode
+  is active (CardReaderView unmounted). Kept both; the `current === target`
+  no-op guard makes the second a no-op in reader mode.
+- **SEC-001 (sandbox missing):** Added
+  `sandbox="allow-scripts allow-same-origin"` and `referrerpolicy="no-referrer"`
+  to the iframe in `[card_id].astro`. Excluded top-navigation / forms / popups.
+- **SEC-002 (protocol guard):** `nextIframeSrc` returns null for any non-`https://`
+  src. Belt-and-suspenders test: hostile `javascript:alert(1)` asset_url
+  is refused at the DOM layer.
+- **vaivora P2 #12 (dead `data-asset-url`):** Removed from the iframe
+  markup; runtime helper derives the base from `iframe.src`.
+- **vaivora P2 #13 (`buildPdfIframeSrc` duplicate):** Deleted unused export
+  from `reader-format.ts`. `nextIframeSrc` is now the single source of
+  truth for iframe URL construction. Tests cleaned up accordingly.
+- **nayru P2 #5 (test gaps):** Added multi-page-sequence test (2 → 3 → 5)
+  and IMG-card no-op test through the DOM helper specifically.
+- **nayru P2 #6 (dead try/catch):** Removed from `readPageFromQuery`. New
+  test documents that URLSearchParams does not throw on weird input.
+
+Files touched:
+- `web/src/components/pdf-iframe-sync.ts` (+nextIframeSrc fragment parsing,
+  protocol guard, debounce factory; honest perf docstring)
+- `web/src/components/reader-format.ts` (+stripPageParam, +promotedCardUrl,
+  pdfPageHref preserves non-page params; -buildPdfIframeSrc; -dead try/catch)
+- `web/src/scripts/card-pdf-bootstrap.ts` (delegates to promotedCardUrl)
+- `web/src/components/CardReaderView.tsx` (debounced iframe sync via useRef)
+- `web/src/pages/card/[card_id].astro` (sandbox + referrerpolicy; -data-asset-url)
+- Tests: 51 (was 35 — 16 new across both files). All passing.
+  `npm run build` clean. `bpsai-pair arch check`: zero errors.
+
 ### Session: 2026-05-09 — reader-mode ↔ iframed PDF page sync (branch `feat/reader-pdf-anchors`)
 
 Reader-mode page navigation (j/k, prev/next, hash, citation chip) now

@@ -6,11 +6,12 @@ import {
   readPageFromQuery,
   readPageFromLocation,
   pdfPageHref,
-  buildPdfIframeSrc,
   clampPageIndex,
   loadReaderMode,
   saveReaderMode,
   READER_MODE_KEY,
+  stripPageParam,
+  promotedCardUrl,
 } from "./reader-format.ts";
 
 /** Minimal in-memory Storage shim — matches the Web Storage API surface
@@ -78,10 +79,13 @@ test("pdfPageHref: appends PDF.js #page=N fragment", () => {
   );
 });
 
-test("pdfPageHref: strips any pre-existing fragment", () => {
+test("pdfPageHref: rewrites only the page= key, leaving other fragment params intact", () => {
+  // Updated contract (was: "strips any pre-existing fragment"). We now
+  // preserve PDF.js viewer params like zoom/view so a zoom hint travels
+  // with the page anchor. See also the dedicated preserve test below.
   assert.equal(
     pdfPageHref("https://example.com/x.pdf#zoom=100", 5),
-    "https://example.com/x.pdf#page=5",
+    "https://example.com/x.pdf#page=5&zoom=100",
   );
 });
 
@@ -158,58 +162,104 @@ test("readPageFromLocation: hash takes precedence over query", () => {
   assert.equal(readPageFromLocation("#provenance", "?page=4"), 4);
 });
 
-test("buildPdfIframeSrc: appends #page=N to PDF urls", () => {
-  // PDF.js and most native browser viewers honor `#page=N` in iframe src.
+test("stripPageParam: removes ?page=N from a query string and preserves other params", () => {
+  // After promoteQueryToHash succeeds, the URL is rewritten to drop the
+  // now-redundant `?page=N` so canonical shape is `/card/<id>#page-N`.
+  // Other params (e.g. `q=...` from a citation chip) must survive.
+  assert.equal(stripPageParam("?page=5"), "");
+  assert.equal(stripPageParam("?page=5&q=foo"), "?q=foo");
+  assert.equal(stripPageParam("?q=foo&page=5"), "?q=foo");
+  assert.equal(stripPageParam("?q=foo&page=5&zoom=fit"), "?q=foo&zoom=fit");
+});
+
+test("stripPageParam: returns the input unchanged when ?page is absent", () => {
+  assert.equal(stripPageParam(""), "");
+  assert.equal(stripPageParam("?q=hello"), "?q=hello");
+  assert.equal(stripPageParam(null), "");
+  assert.equal(stripPageParam(undefined), "");
+});
+
+test("stripPageParam: handles a leading-?-less query string", () => {
+  // mirrors readPageFromQuery's tolerance — internal callers might pass
+  // either form depending on whether they sourced from window.location.search.
+  assert.equal(stripPageParam("page=3&q=foo"), "?q=foo");
+  assert.equal(stripPageParam("page=3"), "");
+});
+
+test("pdfPageHref: preserves non-page fragment params (zoom, view) when appending page", () => {
+  // Citation chip "Read on war.gov" should preserve any zoom hint the
+  // caller has on the asset_url. We only rewrite the `page=` key.
   assert.equal(
-    buildPdfIframeSrc("https://www.war.gov/foo.pdf", 3, "PDF"),
-    "https://www.war.gov/foo.pdf#page=3",
+    pdfPageHref("https://example.com/x.pdf#zoom=fit", 5),
+    "https://example.com/x.pdf#page=5&zoom=fit",
+  );
+  assert.equal(
+    pdfPageHref("https://example.com/x.pdf#page=2&zoom=100", 5),
+    "https://example.com/x.pdf#page=5&zoom=100",
   );
 });
 
-test("buildPdfIframeSrc: returns the bare url when page is null/invalid", () => {
-  // Page null = no anchor desired (e.g. user landed on /card/<id> with no hash).
+test("readPageFromQuery: returns null without throwing for genuinely odd input (no dead catch)", () => {
+  // URLSearchParams in modern Node/Chromium does not throw on weird input —
+  // it just yields nothing for missing keys. This test documents that
+  // contract so a future refactor doesn't reintroduce a defensive catch.
+  assert.equal(readPageFromQuery("?%ZZ"), null);
+  assert.equal(readPageFromQuery("?page=3&page=4"), 3);
+});
+
+test("promotedCardUrl: only ?page=N → /card/<id>#page-N (drops the query)", () => {
+  // External link with no hash: promote the query to a hash and drop
+  // the now-redundant `?page=N`. Fixes laverna SEC-004 / nayru P1 #3.
   assert.equal(
-    buildPdfIframeSrc("https://x.test/y.pdf", null, "PDF"),
-    "https://x.test/y.pdf",
-  );
-  assert.equal(
-    buildPdfIframeSrc("https://x.test/y.pdf", 0, "PDF"),
-    "https://x.test/y.pdf",
+    promotedCardUrl("/card/abc", "?page=5", ""),
+    "/card/abc#page-5",
   );
 });
 
-test("buildPdfIframeSrc: skips the fragment for non-PDF cards (IMG/VID)", () => {
-  // Image cards render the asset_url in an <img>, not an <iframe>, but if
-  // a future caller still wires this for IMG/VID we should not pollute
-  // the URL with a meaningless #page=N.
+test("promotedCardUrl: keeps non-page query params when promoting", () => {
+  // `?q=foo&page=5` → `/card/abc?q=foo#page-5`. Drop only `page`.
   assert.equal(
-    buildPdfIframeSrc("https://x.test/y.jpg", 3, "IMG"),
-    "https://x.test/y.jpg",
-  );
-  assert.equal(
-    buildPdfIframeSrc("https://x.test/y.mp4", 3, "VID"),
-    "https://x.test/y.mp4",
+    promotedCardUrl("/card/abc", "?q=foo&page=5", ""),
+    "/card/abc?q=foo#page-5",
   );
 });
 
-test("buildPdfIframeSrc: returns null when the source URL is missing", () => {
-  assert.equal(buildPdfIframeSrc(null, 3, "PDF"), null);
-  assert.equal(buildPdfIframeSrc("", 3, "PDF"), null);
-  assert.equal(buildPdfIframeSrc(undefined, 3, "PDF"), null);
+test("promotedCardUrl: ?page=5#page-5 → /card/<id>#page-5 (vaivora P1 #11)", () => {
+  // Atlas link arrives with both forms. Hash is already authoritative;
+  // strip the redundant query so the canonical URL is what the user copies.
+  assert.equal(
+    promotedCardUrl("/card/abc", "?page=5", "#page-5"),
+    "/card/abc#page-5",
+  );
 });
 
-test("buildPdfIframeSrc: replaces an existing #page=N fragment, preserves bare hash", () => {
-  // If asset_url already includes a stale `#page=2` from a prior nav,
-  // overwrite with the new page rather than concatenating.
+test("promotedCardUrl: ?page=5&q=foo#page-5 → /card/<id>?q=foo#page-5", () => {
+  // Hash present + non-page query params → drop only `?page` from the query.
   assert.equal(
-    buildPdfIframeSrc("https://x.test/y.pdf#page=2", 7, "PDF"),
-    "https://x.test/y.pdf#page=7",
+    promotedCardUrl("/card/abc", "?q=foo&page=5", "#page-5"),
+    "/card/abc?q=foo#page-5",
   );
-  // But leave non-page fragments alone (e.g. `#zoom=fit` from a manual hand-edit).
-  // Simpler: we strip and replace — the asset_url isn't expected to carry zoom hints.
+});
+
+test("promotedCardUrl: returns null when no normalization is needed", () => {
+  // No `?page` in query → nothing to do; bootstrap should skip replaceState.
+  // We return null so the caller can branch cheaply rather than compare strings.
+  assert.equal(promotedCardUrl("/card/abc", "", ""), null);
+  assert.equal(promotedCardUrl("/card/abc", "?q=foo", ""), null);
+  assert.equal(promotedCardUrl("/card/abc", "", "#page-5"), null);
+  assert.equal(promotedCardUrl("/card/abc", "?q=foo", "#page-5"), null);
+});
+
+test("promotedCardUrl: hash with non-page anchor is preserved", () => {
+  // /card/abc?page=5#provenance — hash isn't a page anchor, but the
+  // query still gets canonicalized (drop ?page=5, keep the hash).
+  // Either decision is defensible; we currently treat it as "promote
+  // wins" since the user landed via an external `?page=5` link, so
+  // we rewrite the hash to match. Document whichever choice.
+  // CHOICE: hash wins when present at all. Drop only the redundant query.
   assert.equal(
-    buildPdfIframeSrc("https://x.test/y.pdf#zoom=100", 7, "PDF"),
-    "https://x.test/y.pdf#page=7",
+    promotedCardUrl("/card/abc", "?page=5", "#provenance"),
+    "/card/abc#provenance",
   );
 });
 

@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import {
   reformatOcrText,
   pdfPageHref,
   clampPageIndex,
   readPageFromHash,
 } from "./reader-format.ts";
-import { syncPdfIframeToPage } from "./pdf-iframe-sync.ts";
+import { createDebouncedPdfIframeSync } from "./pdf-iframe-sync.ts";
 
 export interface ReaderPage {
   page: number;
@@ -43,6 +43,14 @@ export default function CardReaderView({
     clampPageIndex(initialPage ?? 1, total),
   );
 
+  // A debounced iframe-sync handle, lazily built once per mount. Why
+  // debounce: setting `iframe.src` is a navigation in Chrome/WebKit even
+  // when only the fragment changes — j/j/j would otherwise trigger three
+  // PDF re-fetches + flashes. 250ms collapses bursts into a single write
+  // (nayru P1 #1). The handle is created on first effect run so we have
+  // access to `document`, and it's stable across renders via useRef.
+  const syncIframeRef = useRef<((page: number) => void) | null>(null);
+
   // Sync the URL hash so deep-links remain copy-pasteable as the user
   // navigates. Replace (not push) — page-by-page paging shouldn't bloat
   // browser history. Also poke the embedded PDF iframe (when present)
@@ -57,7 +65,10 @@ export default function CardReaderView({
     if (window.location.hash !== target) {
       history.replaceState(null, "", target);
     }
-    syncPdfIframeToPage(document, activePage);
+    if (!syncIframeRef.current) {
+      syncIframeRef.current = createDebouncedPdfIframeSync(document, 250);
+    }
+    syncIframeRef.current(activePage);
   }, [activePage, total]);
 
   // Honor #page-N hash changes from outside (e.g. user paste).

@@ -123,12 +123,21 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
                 class="px-2 py-1 bg-[color:var(--color-bg-deep)]/85 border border-[color:var(--color-border)] text-[color:var(--color-signal-cyan)] hover:border-[color:var(--color-signal-cyan)]"
               >OPEN ↗</a>
             </div>
+            {/* sandbox: explicit capabilities allowlist (laverna SEC-001).
+                allow-scripts + allow-same-origin are required for PDF.js
+                to function as the in-frame viewer; we deliberately exclude
+                allow-top-navigation, allow-forms, and allow-popups so a
+                compromised PDF cannot escape the iframe.
+                data-asset-url removed (vaivora P2 #12) — the runtime helper
+                derives the base from iframe.src directly, so the attribute
+                was unread weight on the DOM. */}
             <iframe
               id="card-pdf-iframe"
               data-asset-type={card.asset_type}
-              data-asset-url={card.asset_url}
               src={card.asset_url}
               title={`PDF source: ${card.title}`}
+              sandbox="allow-scripts allow-same-origin"
+              referrerpolicy="no-referrer"
               class="w-full h-[60vh] min-h-[420px] sm:h-[80vh] sm:min-h-[640px] bg-[color:var(--color-bg-deep)]"
               loading="lazy"
             ></iframe>
