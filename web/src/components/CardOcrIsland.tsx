@@ -4,6 +4,12 @@ import {
   splitWithRegex,
   tokenize,
 } from "./highlight";
+import CardReaderView from "./CardReaderView.tsx";
+import {
+  loadReaderMode,
+  saveReaderMode,
+  type ReaderMode,
+} from "./reader-format.ts";
 
 interface PageDoc {
   id: string;
@@ -23,6 +29,11 @@ interface Props {
    * for IMG / VID cards that legitimately have no OCR pages.
    */
   assetType?: string;
+  /**
+   * Source PDF URL (war.gov) so reader-mode can deep-link "Read on
+   * war.gov →" to the same page in the official viewer.
+   */
+  assetUrl?: string | null;
 }
 
 type Status = "loading" | "missing" | "ready" | "error";
@@ -161,13 +172,24 @@ function activePageFromHash(): number | null {
   return Number.isNaN(n) ? null : n;
 }
 
-export default function CardOcrIsland({ cardId, base, assetType }: Props) {
+export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Props) {
   const [status, setStatus] = useState<Status>("loading");
   const [pages, setPages] = useState<CardPage[]>([]);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   // Highlight state captured once on mount — query is sticky to the URL.
   const [highlight] = useState(() => readQueryRegex());
   const [activePage] = useState<number | null>(() => activePageFromHash());
+  // Reader/raw mode preference. Default "raw" preserves backward-compat
+  // for existing visitors; new visitors discover Reader via the toggle.
+  const [mode, setMode] = useState<ReaderMode>(() =>
+    typeof window === "undefined" ? "raw" : loadReaderMode(window.localStorage),
+  );
+  const setModePersisted = (next: ReaderMode) => {
+    setMode(next);
+    if (typeof window !== "undefined") {
+      saveReaderMode(window.localStorage, next);
+    }
+  };
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
@@ -271,40 +293,81 @@ export default function CardOcrIsland({ cardId, base, assetType }: Props) {
 
   return (
     <div class="space-y-3">
-      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
-        <span>
-          <span class="text-[color:var(--color-signal-green)]">{pages.length}</span>{" "}
-          PAGE{pages.length === 1 ? "" : "S"}
-        </span>
-        <span class="text-[color:var(--color-text-faint)]">·</span>
-        <span>
-          <span class="text-[color:var(--color-text-bright)]">
-            {totalChars.toLocaleString()}
-          </span>{" "}
-          CHARS
-        </span>
-        {highlight.raw && (
-          <>
-            <span class="text-[color:var(--color-text-faint)]">·</span>
-            <span class="normal-case tracking-normal">
-              <span class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Q</span>
-              <mark class="pi-mark ml-2 font-mono">{highlight.raw}</mark>
-            </span>
-          </>
-        )}
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
+          <span>
+            <span class="text-[color:var(--color-signal-green)]">{pages.length}</span>{" "}
+            PAGE{pages.length === 1 ? "" : "S"}
+          </span>
+          <span class="text-[color:var(--color-text-faint)]">·</span>
+          <span>
+            <span class="text-[color:var(--color-text-bright)]">
+              {totalChars.toLocaleString()}
+            </span>{" "}
+            CHARS
+          </span>
+          {highlight.raw && (
+            <>
+              <span class="text-[color:var(--color-text-faint)]">·</span>
+              <span class="normal-case tracking-normal">
+                <span class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">Q</span>
+                <mark class="pi-mark ml-2 font-mono">{highlight.raw}</mark>
+              </span>
+            </>
+          )}
+        </div>
+        <div
+          role="group"
+          aria-label="OCR display mode"
+          class="inline-flex font-mono text-[11px] uppercase tracking-[0.15em] border border-[color:var(--color-border)]"
+        >
+          <button
+            type="button"
+            aria-pressed={mode === "raw"}
+            onClick={() => setModePersisted("raw")}
+            class={`px-3 py-1.5 transition-colors ${
+              mode === "raw"
+                ? "bg-[color:var(--color-bg-elevated)] text-[color:var(--color-signal-cyan)]"
+                : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text-bright)]"
+            }`}
+          >
+            Raw
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === "reader"}
+            onClick={() => setModePersisted("reader")}
+            class={`px-3 py-1.5 border-l border-[color:var(--color-border)] transition-colors ${
+              mode === "reader"
+                ? "bg-[color:var(--color-bg-elevated)] text-[color:var(--color-signal-cyan)]"
+                : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text-bright)]"
+            }`}
+          >
+            Reader
+          </button>
+        </div>
       </div>
-      <div class="space-y-2">
-        {pages.map((p) => (
-          <PageBlock
-            key={p.page}
-            pageData={p}
-            expanded={!!expanded[p.page]}
-            onToggle={() => toggle(p.page)}
-            highlightRegex={highlight.regex}
-            isActiveHighlightPage={activePage === p.page}
-          />
-        ))}
-      </div>
+      {mode === "reader" ? (
+        <CardReaderView
+          pages={pages.map((p) => ({ page: p.page, text: p.text }))}
+          initialPage={activePage}
+          assetUrl={assetUrl}
+          onSwitchToRaw={() => setModePersisted("raw")}
+        />
+      ) : (
+        <div class="space-y-2">
+          {pages.map((p) => (
+            <PageBlock
+              key={p.page}
+              pageData={p}
+              expanded={!!expanded[p.page]}
+              onToggle={() => toggle(p.page)}
+              highlightRegex={highlight.regex}
+              isActiveHighlightPage={activePage === p.page}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
