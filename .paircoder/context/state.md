@@ -28,8 +28,77 @@ retrieval is on the post-launch backlog (see `What's Next`).
 | serve     | shipped  | Astro static + CF Worker (CORS-locked, 5/IP/24h, $100/day cap)     |
 | chat      | shipped  | RAG with mandatory citations, anonymous + BYOK tiers               |
 | novelty   | shipped  | machinery + UI; placeholder reference corpus (10 passages)         |
+| atlas     | shipped  | 2D UMAP semantic browser (/atlas) — regl-scatterplot, 4,119 dots   |
 
 ## What Was Just Done
+
+### Session: 2026-05-09 — Semantic-browser PR #6 review-fixes (branch `feat/semantic-browser`)
+
+Addressed all legitimate findings from the four-reviewer pass on PR #6
+(vaivora REQUEST_CHANGES, nayru APPROVE_WITH_NITS, laverna SEC review,
+Codex auto-review):
+
+- **vaivora P0 + nayru #7 (deep-link contract):** Atlas click handler
+  and mobile fallback list both now emit fragment-only URLs via a new
+  `buildCardHref` helper (`/card/<id>#page-N`). The query slot is
+  reserved for `?q=…` (Cite.astro / SearchIsland highlight carry-through);
+  squatting on `?page=N` was unread by `CardOcrIsland` and conflicted with
+  the established pattern.
+- **vaivora P1 (search-relevance divergence):** Replaced the naive
+  substring filter (`filterIndicesByQuery`) with a MiniSearch index built
+  from the same fields + boost / prefix / fuzzy config that powers
+  `/search`. Same input, same matches across both surfaces. Added
+  `buildAtlasMiniSearch` + `searchIndicesViaMiniSearch` helpers.
+- **nayru #3 (float16-vs-float32 layout drift):** Regenerated
+  `web/public/data/atlas-layout.json` from the native float32
+  `vectors.bin` on the NAS. New sha (`0f3484a77549c623`) differs from
+  the float16-derived deploy (`81628da1bca86858`).
+- **nayru #4 (non-atomic JSON write):** `_write_layout` now writes to a
+  `.tmp` sibling then `os.replace` — POSIX-atomic on the same fs, so a
+  crash mid-write can't leave the 343 KB asset half-written. Two new
+  tests pin the contract (atomic-no-tmp-leftover + replace-failure
+  preserves existing).
+- **nayru #5 (search redraw not debounced):** `query` now feeds a
+  `debouncedQuery` at 150ms; the 4,119-row regl-scatterplot upload only
+  re-runs after the user stops typing, not per keystroke.
+- **nayru #6 (mobile flash <400px):** Width state starts at 0
+  (unknown); resize effect measures real viewport on mount; render is
+  held in the loading state until `width > 0`. Real <400px viewports no
+  longer transiently mount the canvas before the resize handler corrects.
+- **nayru #8 (eager hydration):** `atlas.astro` switched from
+  `client:load` to `client:visible` — defers the ~7 MB `pages.json` +
+  340 KB `atlas-layout.json` parallel fetch to when the canvas
+  scrolls into view.
+- **nayru #9 (identity-map noise):** Dropped the `categoryColors().map(...)`
+  no-op in the regl init.
+- **laverna SEC-001 (semver-floating regl-scatterplot):** Pinned to
+  exact `1.16.0` in `web/package.json`. Added `.github/dependabot.yml`
+  covering npm (web/), pip (root), and github-actions ecosystems with
+  weekly cadence.
+- **laverna SEC-003 (defensive URL encoding):** `buildCardHref` runs
+  `encodeURIComponent` on `cardId` — no-op for today's hex IDs but
+  hardens any future flow that surfaces user-supplied tokens through
+  the same helper.
+- **Codex P2 #1 (regl resize):** Added an effect that calls
+  `scatterplot.set({ width, height })` on viewport-width change so the
+  WebGL canvas stays in sync with CSS dimensions after a desktop resize.
+- **Codex P2 #2 (mobile filter regression):** `ClusterListFallback`
+  now accepts `atlasIndex` + `query` and filters cluster contents to
+  matched indices — the search input on phones now actually filters.
+- **vaivora latents (docs / orchestration):** New `## Web build chain
+  (post-embed)` section in `docs/architecture.md` documents the
+  `embed → search/embed/atlas/novelty → web build` order; clarifies
+  that `build_atlas_layout.py` reads native float32 by default with a
+  float16 published-payload fallback. README's `## What's live` and
+  state.md's `## Active Plan` table now include `/atlas`.
+
+Tests: 8/8 python (was 6) — two new tests on `_write_layout` atomicity.
+13/13 TS — three new tests covering `buildCardHref` (hash-only +
+encoding) and `buildAtlasMiniSearch` / `searchIndicesViaMiniSearch`
+(stemming + empty-query parity). Web build clean (168 pages). Arch
+check zero errors on every modified file. The semantic-browser plan at
+`.paircoder/plans/semantic-browser.md` is retired pending operator
+delete-on-merge per the doc-cleanup pattern.
 
 ### Session: 2026-05-09 — PR #8 review-fix follow-up (branch `feat/reader-pdf-anchors`)
 

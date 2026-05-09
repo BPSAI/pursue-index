@@ -69,6 +69,16 @@ embed = [
     "voyageai>=0.3",
     "numpy>=2.0",
 ]
+build-tools = [
+    # Build-time only — used by ``scripts/build_atlas_layout.py`` to produce
+    # ``web/public/data/atlas-layout.json`` for the /atlas semantic browser.
+    # NOT a runtime dependency: the projection is a static asset, the browser
+    # never sees umap-learn. Pin a sane lower bound so reviewers don't get
+    # surprise layout drift across minor releases.
+    "umap-learn>=0.5,<0.6",
+    "numpy>=2.0",
+    "scikit-learn>=1.4",
+]
 dev = [
     "pytest>=8.2",
     "pytest-asyncio>=0.23",

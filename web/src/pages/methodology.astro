@@ -323,6 +323,54 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       </p>
     </section>
 
+    {/* Atlas — 2D semantic browser */}
+    <section id="atlas" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Atlas (2D semantic browser)
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The <a href="/atlas" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/atlas</a>
+        page is a 2D projection of the corpus's 1024-dim
+        <code class="text-[color:var(--color-signal-cyan)]">voyage-3</code>
+        embeddings. We use
+        <a href="https://umap-learn.readthedocs.io/" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">UMAP</a>
+        with <code class="text-[color:var(--color-signal-cyan)]">n_components=2</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">n_neighbors=15</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">min_dist=0.1</code>, and
+        <code class="text-[color:var(--color-signal-cyan)]">random_state=42</code>.
+        The projection runs at build time via
+        <code class="text-[color:var(--color-signal-cyan)]">scripts/build_atlas_layout.py</code>;
+        the browser loads a 343 KB static asset (rounded-coordinate JSON)
+        and renders it through
+        <a href="https://github.com/flekschas/regl-scatterplot" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">regl-scatterplot</a> (WebGL).
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Why UMAP and not t-SNE: at 4k+ points, UMAP preserves global
+        topology better — clusters that are far apart in 1024-dim land
+        far apart in 2D. t-SNE produces visually striking but
+        navigation-misleading layouts where global distances are
+        compressed away. PCA was a fallback option but lost the
+        non-linear structure we wanted to surface.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Why 2D and not 3D: pan + zoom on a plane is muscle memory; 3D
+        rotation is novelty. The atlas is meant to be a
+        <em>navigation surface</em>, not a showpiece. Mobile especially
+        benefits — at viewport widths below 400px we drop the canvas
+        entirely and render a k-means cluster list instead.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Honest framing.</strong>
+        UMAP is a low-dim approximation; the cluster boundaries you see
+        are not curated topic labels. The layout is reproducible only
+        because we pin the seed — re-running unseeded would shuffle the
+        coordinates without changing the underlying semantics. Color is
+        by reporting agency (Department of War / FBI / NASA / Department
+        of State), which is metadata-derived, not learned. Treat the
+        atlas as a <em>lens</em>, not a ground truth.
+      </p>
+    </section>
+
     {/* Reproducibility */}
     <section id="reproducibility" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
