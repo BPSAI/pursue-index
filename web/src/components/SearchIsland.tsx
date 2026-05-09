@@ -6,6 +6,25 @@ import {
   splitWithRegex,
   tokenize,
 } from "./highlight";
+import SearchFilterRail from "./SearchFilterRail.tsx";
+import {
+  EMPTY_FILTERS,
+  agencyCounts as buildAgencyCounts,
+  cardMatchesFilters,
+  filtersToQueryString,
+  parseFiltersFromQuery,
+  type SearchFilters,
+} from "./search-filters.ts";
+import {
+  ActiveFilterBadge,
+  EmptyResults,
+  hasActiveFilters,
+} from "./search-result-chrome.tsx";
+import type { CardMetadata } from "../data/types.ts";
+
+// URL keys this island owns — anything else (utm_*, fbclid, ref, gclid…)
+// must survive the writer effect untouched. PR #5 review F1.
+const OWNED_URL_KEYS = ["q", "agency", "from", "to", "redacted"] as const;
 
 interface PageDoc {
   id: string; // `${card_id}-p${page}`
@@ -23,15 +42,25 @@ interface Props {
    * `/search` route omits this and just shows the bare input.
    */
   examples?: readonly string[];
+  /**
+   * When supplied, renders the faceted filter rail (agency / date /
+   * redacted) and applies filters to results. Cards are looked up by
+   * `card_id` to scope search hits. Omitted on the homepage hero.
+   */
+  cards?: CardMetadata[];
+  /** Whether to render the filter rail. Requires `cards` to be set. */
+  enableFilters?: boolean;
 }
 
 type Status = "loading" | "missing" | "ready" | "error";
 
-export default function SearchIsland({ base, examples }: Props) {
+export default function SearchIsland({ base, examples, cards, enableFilters }: Props) {
   const [status, setStatus] = useState<Status>("loading");
   const [docs, setDocs] = useState<PageDoc[]>([]);
   const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
   const inputRef = useRef<HTMLInputElement>(null);
+  const filtersOn = !!(enableFilters && cards && cards.length > 0);
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
@@ -55,6 +84,51 @@ export default function SearchIsland({ base, examples }: Props) {
         setStatus("error");
       });
   }, [base]);
+
+  // Hydrate query + filters from URL on mount. Gated on `filtersOn` so the
+  // homepage hero (no filter rail) doesn't touch the URL at all — its
+  // submit-on-Enter sends users to /search where the real hydrate happens.
+  // The `useRef` flag prevents the writer effect below from running before
+  // hydration completes (which would clobber a shared `?q=foo&agency=FBI`
+  // link with the empty default state on first render).
+  const hydrated = useRef(false);
+  useEffect(() => {
+    if (!filtersOn) {
+      // Nothing to hydrate or sync; mark as "done" so the writer's
+      // early-return continues to short-circuit even if filtersOn flips.
+      hydrated.current = true;
+      return;
+    }
+    const search = window.location.search;
+    const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+    const q = params.get("q");
+    if (q) setQuery(q);
+    setFilters(parseFiltersFromQuery(search));
+    hydrated.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // ^ Mount-only. We deliberately ignore later changes to `filtersOn`:
+    //   the URL is the source of truth, and re-hydrating mid-session would
+    //   undo any user edits made since mount.
+  }, []);
+
+  useEffect(() => {
+    // Only the filter-enabled mount writes back to the URL — preserves the
+    // homepage hero's behavior of being a pure submit-and-redirect input
+    // (it doesn't own the location bar). PR #5 review F2.
+    if (!filtersOn || !hydrated.current) return;
+    // Seed from existing search params so we preserve any unrelated
+    // analytics/referral params (utm_*, fbclid, ref, gclid…). We only
+    // delete + re-set the keys this island owns. PR #5 review F1.
+    const params = new URLSearchParams(window.location.search);
+    for (const k of OWNED_URL_KEYS) params.delete(k);
+    if (query.trim()) params.set("q", query.trim());
+    const fqs = filtersToQueryString(filters);
+    if (fqs) {
+      for (const [k, v] of new URLSearchParams(fqs)) params.set(k, v);
+    }
+    const qs = params.toString();
+    history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+  }, [query, filters, filtersOn]);
 
   // Keyboard niceties: `/` focuses input from anywhere; `esc` clears.
   useEffect(() => {
@@ -87,13 +161,36 @@ export default function SearchIsland({ base, examples }: Props) {
     return ms;
   }, [status, docs]);
 
+  // card_id → CardMetadata, so we can apply the filter predicate to each
+  // MiniSearch hit's parent card without an O(n) lookup per result.
+  const cardsById = useMemo(() => {
+    const m = new Map<string, CardMetadata>();
+    if (cards) for (const c of cards) m.set(c.card_id, c);
+    return m;
+  }, [cards]);
+  const agencies = useMemo(
+    () => (cards ? Array.from(new Set(cards.map((c) => c.agency))).sort() : []),
+    [cards],
+  );
+  const agencyCountMap = useMemo(
+    () => buildAgencyCounts(cards ?? []),
+    [cards],
+  );
+
   // Track the *unsliced* total so the "(CAPPED)" badge only shows when we
-  // actually truncated — at exactly 50 hits with nothing dropped, no cap.
+  // actually truncated. With filters on, totalMatches reflects filtered
+  // count (it'd be misleading to advertise pre-filter totals).
   const { results, totalMatches } = useMemo(() => {
     if (!search || !query.trim()) return { results: [], totalMatches: 0 };
     const all = search.search(query, { combineWith: "AND" });
-    return { results: all.slice(0, 50), totalMatches: all.length };
-  }, [search, query]);
+    const scoped = filtersOn
+      ? all.filter((r) => {
+          const card = cardsById.get(r.card_id);
+          return card ? cardMatchesFilters(card, filters) : false;
+        })
+      : all;
+    return { results: scoped.slice(0, 50), totalMatches: scoped.length };
+  }, [search, query, filtersOn, filters, cardsById]);
 
   // Build a docs lookup so we can retrieve the full page text for snippet
   // extraction without bloating MiniSearch's storeFields.
@@ -103,9 +200,6 @@ export default function SearchIsland({ base, examples }: Props) {
     return m;
   }, [docs]);
 
-  // Highlight regex covers MiniSearch's matched terms (handles fuzzy/prefix
-  // expansions) plus the raw query tokens, so a query like "alien craft"
-  // marks both whole tokens even when MiniSearch matched only one stem.
   const queryTerms = useMemo(() => tokenize(query), [query]);
   const queryRegex = useMemo(
     () => buildHighlightRegex(queryTerms),
@@ -145,8 +239,8 @@ export default function SearchIsland({ base, examples }: Props) {
     );
   }
 
-  return (
-    <div class="space-y-4">
+  const main = (
+    <div class="space-y-4 min-w-0">
       <div>
         <div class="relative">
           <input
@@ -190,19 +284,19 @@ export default function SearchIsland({ base, examples }: Props) {
           </div>
         )}
       </div>
+      {filtersOn && <ActiveFilterBadge filters={filters} onClear={() => setFilters(EMPTY_FILTERS)} />}
       {query.trim() && (
         <div class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-1">
           <span class="text-[color:var(--color-signal-green)]">{totalMatches}</span> MATCH{totalMatches === 1 ? "" : "ES"}
           {totalMatches > 50 && <span class="text-[color:var(--color-signal-amber)] ml-2">(CAPPED)</span>}
         </div>
       )}
+      {query.trim() && totalMatches === 0 && (
+        <EmptyResults filtersOn={filtersOn} hasActive={hasActiveFilters(filters)} onClear={() => setFilters(EMPTY_FILTERS)} />
+      )}
       <ul class="space-y-1.5">
         {results.map((r) => {
           const doc = docsById.get(r.id);
-          // MiniSearch's `match` map includes the actual terms it matched
-          // after fuzzy/prefix expansion (e.g. "aliens" for query "alien").
-          // Build a regex covering both raw query terms and matched terms so
-          // snippet highlighting reflects what actually scored.
           const matchedTerms = r.match ? Object.keys(r.match) : [];
           const allTerms = Array.from(new Set([...queryTerms, ...matchedTerms]));
           const snipRegex = buildHighlightRegex(allTerms);
@@ -240,6 +334,20 @@ export default function SearchIsland({ base, examples }: Props) {
           );
         })}
       </ul>
+    </div>
+  );
+
+  if (!filtersOn) return main;
+
+  return (
+    <div class="grid grid-cols-1 md:grid-cols-[15rem_1fr] gap-4 md:gap-6">
+      <SearchFilterRail
+        filters={filters}
+        setFilters={setFilters}
+        agencies={agencies}
+        agencyCounts={agencyCountMap}
+      />
+      {main}
     </div>
   );
 }
