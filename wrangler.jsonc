@@ -1,14 +1,26 @@
 // Cloudflare Workers + Static Assets configuration.
 //
-// `main` is a tiny Worker that gates / on a preview cookie; everything
-// else falls through to static assets. At launch we either delete the
-// Worker (revert to assets-only) or invert the gate. The chat-interface
-// plan will replace/extend this Worker with the chat function later;
-// static + dynamic both deploy as one project.
+// `main` is the Worker that:
+//   1) gates / on a preview cookie until launch,
+//   2) dispatches /api/retrieve and /api/chat to the chat-interface
+//      handlers in worker/retrieve.js + worker/chat.js.
+//
+// Static + dynamic both deploy as one project.
 //
 // Build pipeline (configured in the CF Workers Builds wizard):
 //   build:  cd web && npm install && npm run build
 //   deploy: npx wrangler deploy
+//
+// Required secrets (set with `wrangler secret put NAME`):
+//   VOYAGE_API_KEY      — Voyage embeddings (input_type=query) for retrieve
+//   ANTHROPIC_API_KEY   — anonymous-tier chat; never leaves the Worker
+//
+// Required KV namespace binding:
+//   CHAT_KV             — rate limit + semantic cache + daily budget
+//
+// Create the KV namespace first:
+//   wrangler kv namespace create CHAT_KV
+// Then set the returned id below in `kv_namespaces`.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pursue-index",
@@ -21,6 +33,15 @@
     "html_handling": "auto-trailing-slash",
     "run_worker_first": true
   },
+  "kv_namespaces": [
+    {
+      "binding": "CHAT_KV",
+      // Replace with the id printed by `wrangler kv namespace create CHAT_KV`.
+      // Until then, /api/chat will degrade gracefully (no rate limit /
+      // budget / cache; the handler null-checks env.CHAT_KV).
+      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+    }
+  ],
   "observability": {
     "enabled": true
   }
