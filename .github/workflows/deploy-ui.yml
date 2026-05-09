@@ -33,12 +33,32 @@ jobs:
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
+      # Python toolchain for the OG image regen step below. The
+      # generator is byte-stable, so re-rendering on every deploy
+      # produces an identical PNG when the manifest hasn't changed.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Pillow for OG image build
+        working-directory: ${{ github.workspace }}
+        # Match the lower bound in pyproject.toml (CVE-2024-28219).
+        run: pip install "pillow>=11.1.0"
+
+      - name: Regenerate OG image from current manifest
+        working-directory: ${{ github.workspace }}
+        # Reads data/manifests/latest.json and writes web/public/og.png.
+        # Idempotent — safe to run on every deploy.
+        run: python scripts/build_og_image.py
+
       - name: Sync manifest into web/src/data
         run: cp ../data/manifests/latest.json src/data/manifest.json
 
       - run: npm ci
 
       - run: npm run build
+
+      - run: npm run test:api-page
 
       - uses: actions/upload-pages-artifact@v3
         with:

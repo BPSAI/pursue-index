@@ -1,13 +1,18 @@
 ---
 id: auto-poll-tranches
 type: feature
-status: backlog
+status: shipped (layer 1)
 created: 2026-05-09
 priority: medium
 depends_on: [embed-stage]
 ---
 
 # Auto-poll for new CSV tranches
+
+> **Status:** Layer 1 (lightweight cron poll) is shipped — see
+> `.github/workflows/poll-pursue.yml` and `scripts/poll_pursue.py`.
+> Layer 2 (heavy ingest pipeline trigger) is operator-attended by
+> design and remains tracked under this plan.
 
 ## Why
 

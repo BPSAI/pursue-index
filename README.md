@@ -34,7 +34,10 @@ Methodology is published. Numbers are reproducible from a clean clone.
   Workers + Static Assets.
 - **Full-text + semantic search** across **4,153 OCR'd pages** spanning the
   116 PDF cards in Release 01. MiniSearch lexical index + Voyage-3
-  embeddings, both browser-side; no server.
+  embeddings, both browser-side; no server. The `/search` route adds a
+  faceted filter rail (agency multi-select, incident-date range,
+  redacted-only) over the lexical index; filter state round-trips through
+  the URL so links are shareable.
 - **OCR pipeline.** Surya (GPU, transformer-based) primary, Anthropic vision
   LLM fallback for pages whose Surya confidence falls below threshold. The
   shipped index is **3,529 Surya pages + 624 LLM-cleaned pages**.
@@ -73,9 +76,12 @@ Methodology is published. Numbers are reproducible from a clean clone.
   prior-disclosure FOIA archive (~100k–500k pages) so the novelty
   detection moves from "methodology demo" to "real coverage measurement"
   for every card.
-- **Auto-poll for new tranches.** The DOW publishes new releases by
-  updating the same CSV in place. Polling closes the gap between a new
-  drop and our index reflecting it. Plan in
+- **Auto-poll for new tranches — Layer 2.** Layer 1 (lightweight cron
+  poll detecting upstream CSV changes) is shipped in
+  `.github/workflows/poll-pursue.yml`; it commits new shas and opens a
+  `tranche-detected` issue. Layer 2 (heavy ingest pipeline trigger) is
+  operator-attended by design — GPU provisioning, cost, and content
+  review keep auto-run off the table at v1. Plan in
   [`.paircoder/plans/auto-poll-tranches.md`](.paircoder/plans/auto-poll-tranches.md).
 - **Review-and-correct pipeline.** Post-launch, accept community
   corrections on OCR transcripts via GitHub issues; flow them back into
