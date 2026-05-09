@@ -21,11 +21,21 @@ depends_on: [ocr-benchmark]
 > 4,153-page corpus with a fake-embedder (132 KB binary in 0.4s; second
 > run was a complete no-op).
 >
-> **Awaiting:** `VOYAGE_API_KEY` set in `.env` to run the live pass.
-> Estimated cost ~$0.13 for the full corpus per the plan estimate.
-> Real Voyage-3 binary projected at ~8.5 MB (under the 10 MB threshold,
-> but close — sub-page chunking becomes a consideration if Release 02+
-> grows the corpus past ~6,000 pages).
+> **Awaiting:** ~~`VOYAGE_API_KEY` set in `.env` to run the live pass.~~
+> ~~Estimated cost ~$0.13 for the full corpus per the plan estimate.~~
+> ~~Real Voyage-3 binary projected at ~8.5 MB (under the 10 MB threshold)~~.
+>
+> **Live run completed 2026-05-09:** 4,119 pages × 1024 dims, 1.75M
+> tokens, **$0.11 actual spend** (within projection). 17 MB on NAS,
+> **8.04 MB float16 in-browser payload**. 34 pages were dropped at the
+> input layer because their OCR text was empty/whitespace-only — the
+> auto-mode pass left some near-blank scans with no usable content.
+> Filter shipped in `embed/store.py:_read_card_pages`; regression
+> test pins the contract.
+>
+> Voyage free tier rate-limits gated the first attempt; user added a
+> payment method which lifted the cap. No surprise; documented in the
+> agent-memory `feedback_voyage_free_tier.md`.
 >
 > **Note re: dependency order.** The plan listed this as
 > `depends_on: [ocr-benchmark]`, meaning we'd embed the *highest-quality*
