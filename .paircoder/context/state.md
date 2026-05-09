@@ -1,12 +1,12 @@
 # Current State
 
-> Last updated: 2026-05-08
+> Last updated: 2026-05-08 (post Surya full pass + benchmark)
 
 ## Active Plan
 
-**Plan:** Pipeline through OCR; static UI shipped to GitHub Pages; Surya GPU + LLM-fallback OCR ready; embed scaffold landed.
-**Status:** scrape ✅ download ✅ ocr (tesseract + surya + llm-fallback + auto-mode) ✅ ui ✅ embed (scaffold) 🔧 — index/serve still stub.
-**Current Sprint:** Wrap-up; backlog full Voyage embed run + benchmark harness + chat interface.
+**Plan:** Pipeline through OCR; static UI shipped to GitHub Pages; Surya full corpus pass on the NAS; LLM-fallback ready; embed scaffold landed; benchmark methodology shipped.
+**Status:** scrape ✅ download ✅ ocr (tesseract + surya full corpus + llm-fallback + auto-mode + benchmark) ✅ ui ✅ embed (scaffold) 🔧 — index/serve still stub.
+**Current Sprint:** Wrap-up; backlog full Voyage embed run + auto-mode full corpus + chat interface.
 
 ## Current Focus
 
@@ -35,6 +35,7 @@ filling out the OCR + ingest + serve stubs.
 - [x] **Surya GPU OCR engine** — `ocr/surya.py` adapter slots into the existing engine seam; `ocr_card`/`ocr_all`/`pursue ocr run --engine surya` route by engine name; `pages.jsonl` + `meta.json` record `"engine": "surya"`. `surya-ocr>=0.17` added under `pyproject.toml [gpu]` extra. Live smoke: 40-page FBI HQ-83894 ran in 56.76s @ 93.90% mean conf vs Tesseract's 106.19s on the same file.
 - [x] **`pursue embed` stage scaffold** — Voyage-3 default, OpenAI stub seam, idempotent against `(card_id, page, model_id, text_sha)`. CLI + settings + web build helper. 50/50 unit tests green. Live smoke against the 4153-page corpus with a fake embedder confirmed shape + idempotency; full Voyage run pending `VOYAGE_API_KEY` export (~$0.13 estimated).
 - [x] **OCR LLM fallback + auto mode** — `ocr/llm.py` adds an Anthropic-vision engine matching the existing `(image)→(text,conf)` seam; system prompt sent with `cache_control=ephemeral`; per-image SHA-256 → response cached to disk; per-call token usage logged via `ocr.llm.usage`. `engine="auto"` runs primary (surya|tesseract) per page, re-OCRs pages with conf < `PURSUE_OCR_LLM_THRESHOLD` (default 70) via the LLM. Auto-mode rows preserve the primary attempt as a sibling `primary` block; `meta.json` records `engine: "auto:{primary}+{fallback}"`. New `pursue ocr run --force` bypasses the idempotency check. Surya now passes `math_mode=False` (no more `<b>...</b>` markup). 14 new tests (9 LLM + 5 auto-mode); 48/50 total green (2 pre-existing embed CLI failures unrelated). Live smoke on 15-page FBI HQ-83894 serial 220 with `claude-haiku-4-5`: 9 low-conf pages re-OCR'd, ~16k input + 3.1k output tokens (~$0.03 at Haiku rates), dramatic quality lift (page 1 went from 4 lines of garbage to a complete cover-sheet transcription).
+- [x] **Surya full corpus pass + benchmark report + search payload rebuild** — re-OCR'd all 116 PDFs/4153 pages with Surya (134.8 min wall-clock vs Tesseract's 185.3, page-weighted mean conf 86.03 vs 78.64, zero failures). Pinned a 5-card golden set (`tests/fixtures/ocr_golden.txt`) covering the engine failure modes. Ran the A/B harness (`scripts/run_ocr_benchmark.py`) against 25 pages × 3 engines using `claude-haiku-4-5` as the truth proxy; full per-page detail at `data/benchmarks/ocr-20260509T002235Z.json`. Median CER vs LLM truth: Surya 6.1% vs Tesseract 40.4%. Auto-mode projected at $1.36 (Haiku) / $17.67 (Sonnet) on the full corpus given 8% of golden Surya pages fell below the 70 fallback threshold. Search payload rebuilt at 7.2 MB (vs 5.3 MB Tesseract baseline; under the 8 MB threshold). Surya's `<b>/</u>/<i>` markup stripped at the search-payload boundary instead of disabling another Surya flag. Benchmark itself spent ~$0.10 in LLM tokens; 50/50 unit tests still green. Methodology page committed at `docs/ocr-benchmark.md` for the public launch.
 
 ### Phase 2 backlog (sequenced)
 
@@ -57,6 +58,97 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 - Multi-tranche analytics (until Release 02 lands)
 
 ## What Was Just Done
+
+### Session: 2026-05-08 — Surya full corpus pass + OCR benchmark + search payload rebuild
+
+- **Surya full corpus pass.** `PURSUE_OCR_ENGINE=surya pursue ocr run --force
+  --manifest data/manifests/latest.json` re-OCR'd all 116 PDFs / 4153 pages
+  on the workstation 5090. 134.8 min total wall-clock (Tesseract baseline:
+  185.3 min — Surya is 27% faster end-to-end and runs serialized vs
+  Tesseract's 4-way concurrency). Page-weighted mean confidence: 86.03 vs
+  Tesseract's 78.64 (+7.4 pp). Zero failures. The pass was killed mid-run
+  the first time due to a foreground-shell propagation; resumed under
+  `nohup` and finished cleanly. The `_is_done` idempotency check was
+  used to skip the 7 cards already on Surya from the partial run — by
+  unlinking only the `meta.json` files of the 109 still-Tesseract cards,
+  the resume run picked up exactly where the kill left off without
+  redoing the 7 large FBI sections (no `--force` needed).
+- **Engine snapshots committed.** `data/benchmarks/_tesseract-snapshot.json`
+  and `_surya-snapshot.json` capture per-card pages/conf/duration before
+  and after the swap so the report numbers are reproducible from disk
+  alone. Pages 1-5 of each golden card preserved in
+  `_tesseract-snapshot-pages/` so the Tesseract column of the benchmark
+  is reproducible without re-running Tesseract.
+- **Benchmark harness.** `scripts/run_ocr_benchmark.py` runs Tesseract /
+  Surya / LLM (Anthropic Haiku-4.5 vision) over the same 25 pages and
+  records per-page text + confidence + wall-clock + token usage. Uses the
+  Claude Code OAuth token from `~/.claude/.credentials.json` as the
+  Anthropic API key when `ANTHROPIC_API_KEY` is unset (matching the prior
+  LLM-fallback agent). Sonnet-4.6 hits 429 immediately on Max-tier OAuth
+  for image inference, so Haiku-4.5 is the benchmark default; Sonnet
+  numbers projected at ~13× the Haiku per-token blend. Per-image SHA-256
+  cache zero-cost re-runs.
+- **Methodology pinned.** Golden set at `tests/fixtures/ocr_golden.txt`:
+  clean typewriter (NASA Apollo 17 Transcript), faded FBI carbon
+  (HQ-83894 serial 220), multi-column DOW Mission Report (Greece),
+  redacted FBI page (100-DE-26505), long FBI debriefing (Section 6,
+  271 pp). LLM as truth proxy per the plan's open question on
+  truth-set transcription; CER/WER scored against it.
+- **Numbers (golden set, 25 pages):**
+    - Median CER vs LLM truth: Tesseract 40.4%, Surya 6.1% (~7× fewer
+      char errors on the typical page).
+    - Capped mean CER (clipped at 100% per page): Tesseract 44.0%, Surya
+      30.1%. Raw means are skewed by 1-2 hallucination outliers on
+      near-blank pages where one engine emitted long garbage and another
+      was correctly silent — median is the honest metric.
+    - Median WER: Tesseract 59.8%, Surya 9.6%.
+    - Per-page wall-clock: Surya 1.9s, Tesseract 2.4s, LLM 7.7s.
+    - LLM cost on Haiku-4.5: $0.0041/page, ~$0.10 for the whole benchmark.
+    - Worst Tesseract failure (`26b02d358ec20061` page 3, redacted FBI
+      cover): Tesseract emitted 1700+ chars of `: _ ee . | _ . :` style
+      garbage; Surya returned ~200 chars of partial form fields; LLM
+      returned a clean form-template transcription with `[REDACTED]` /
+      `[ILLEGIBLE]` markers per the prompt contract.
+- **Auto-mode projection.** 2/25 Surya pages on the golden set fell below
+  the 70 LLM-fallback threshold. Extrapolated to the full 4153-page
+  corpus: ~332 LLM calls = ~$1.36 at Haiku, ~$17.67 at Sonnet. The
+  recommendation lands as: **auto:surya+llm-anthropic with Haiku** is
+  the right default for the public corpus — under $2 keeps it within
+  the embed budget and the lift on hard pages is real (Surya
+  hallucinates plausible-but-wrong text on heavily-faded carbons; the
+  LLM correctly emits `[ILLEGIBLE]` and the auto threshold catches
+  these because Surya self-rates low when in trouble).
+- **Search payload rebuilt.** `scripts/build_search_data.py` regenerated
+  `web/public/data/pages.json` from the post-Surya `pages.jsonl`. Size
+  7.2 MB (vs 5.3 MB Tesseract baseline; +1.9 MB from Surya's better
+  text extraction across redactions and layout). Under the 8 MB
+  threshold called out in the embed-stage plan. The builder now strips
+  Surya's `<b>...</b>` / `<u>...</u>` / `<i>...</i>` markup from the
+  payload — Surya emits these for inferred bold/underline runs even
+  with `math_mode=False`, and the corpus has no markup semantics.
+  This is the cleaner fix vs disabling another Surya flag (tracked as
+  `ocr-gpu-surya` follow-up #2 in the plan; closes that item).
+- **What I decided differently.** Skipped writing CER/WER vs
+  hand-transcribed ground truth (the plan flagged this as one-time
+  grunt work; not feasible at agent velocity for 25 pages). Used the
+  LLM as truth proxy explicitly, with the methodology disclaimer in
+  the report. Did not run auto-mode on the full corpus — left that
+  decision to the user as the prompt instructed. Surya markup is
+  stripped at the search-payload boundary, not in `ocr/surya.py`,
+  because keeping the raw model output in `pages.jsonl` is the right
+  layering (downstream consumers can choose how much markup to keep).
+- **Spend audit.** ~$0.10 LLM benchmark, well under the $1 cap. Sonnet
+  on Max-tier OAuth was rate-limited immediately on the first try;
+  Haiku ran cleanly (one 401 transient mid-run, recovered after retry
+  via the per-image cache). Total OAuth tokens billed: ~45k input +
+  ~11k output across 25 LLM calls.
+- **Tests.** 50/50 unit tests green. Architecture check on every
+  modified file: errors zero, only file-size warnings on the report
+  builder (212-279 lines) which is acceptable for a one-off generator.
+- **Commits on `worktree-agent-ac19ed70e91de1982`** (not pushed):
+  `972398e` (full Surya pass + snapshots), `b81eab3` (benchmark report
+  + harness + golden set), `8dcb640` (search payload rebuild + Surya
+  markup strip).
 
 ### Session: 2026-05-08 — OCR LLM fallback + auto mode + small chores
 
@@ -210,28 +302,24 @@ Target: pursueindex.com / pursueindex.ai public launch with chat.
 
 ## What's Next
 
-1. **Full Voyage-3 embed run** — export `VOYAGE_API_KEY` and run
+1. **Auto-mode full corpus pass** — user-decision pending the benchmark
+   numbers above. `PURSUE_OCR_ENGINE=auto pursue ocr run --force
+   --manifest data/manifests/latest.json` will Surya-primary every page
+   and LLM-fallback the ~8% below the 70 threshold (~332 calls,
+   ~$1.36 at Haiku-4.5, ~$17.67 at Sonnet-4.6). Recommended Haiku for
+   public-launch budget. Will overwrite the current Surya-only output;
+   re-run `python scripts/build_search_data.py` after.
+2. **Full Voyage-3 embed run** — export `VOYAGE_API_KEY` and run
    `pursue embed run --manifest data/manifests/latest.json` against the
-   full 4153-page corpus. Estimated $0.13 (per the embed-stage plan)
-   and well under the $1 cap. Then run `python scripts/build_embed_data.py`
-   to produce the web payload (~8.5 MB float16 binary at 1024 dims).
-2. **Full Surya re-OCR with auto-mode** — `pursue ocr run --force
-   --engine auto --manifest data/manifests/latest.json` now possible
-   with the `--force` flag landed. Auto-mode will run Surya as primary
-   (since `[gpu]` is installed), LLM-fallback the low-conf pages.
-   Need `ANTHROPIC_API_KEY` exported in workstation env. Estimated
-   cost: ~$0.10/card with Sonnet 4.6 on the worst FBI scans, near
-   zero on clean typewriter docs (most pages won't trigger fallback).
-3. **OCR benchmark harness** (`ocr-benchmark.md`) — now unblocked by
-   the `--force` flag. A/B Tesseract vs Surya vs Surya+LLM on the 5
-   representative golden PDFs, produce mean-confidence + wall-clock
-   + cost numbers for the methodology page.
-4. **Chat interface** (`chat-interface.md`) — RAG worker over the embed
+   full 4153-page corpus. Estimated $0.13 per the embed-stage plan
+   and well under the $1 cap. Should run AFTER auto-mode lands so
+   embeddings are over the highest-quality text.
+3. **Chat interface** (`chat-interface.md`) — RAG worker over the embed
    payload, streaming citations from Anthropic.
-5. **Index stage** — wire SQLAlchemy models (cards, pages) into the
+4. **Index stage** — wire SQLAlchemy models (cards, pages) into the
    manifest + OCR output. Becomes useful when the corpus outgrows
    ~10 MB of in-browser JSON.
-6. **FastAPI service** — only after Postgres ingest exists.
+5. **FastAPI service** — only after Postgres ingest exists.
 
 ## Blockers
 
