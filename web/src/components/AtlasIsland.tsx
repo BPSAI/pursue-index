@@ -184,7 +184,7 @@ export default function AtlasIsland({ base }: Props) {
       subscribe: (event: string, handler: (info: unknown) => void) => void;
     } | null = null;
     void import("regl-scatterplot")
-      .then((mod) => {
+      .then(async (mod) => {
         if (cancelled || !canvasRef.current) return;
         const createScatterplot = (mod as { default: (opts: unknown) => unknown })
           .default;
@@ -213,7 +213,12 @@ export default function AtlasIsland({ base }: Props) {
           }
         });
         const rows = layout.points.map(pointToScatterplotRow);
-        void scatterplot.draw(rows);
+        // Awaited so an async failure inside `draw()` (rare — late shader
+        // compile error, GPU buffer upload reject) propagates into the
+        // outer `.catch` and triggers the mount-error overlay. A bare
+        // `void scatterplot.draw(rows)` would discard the rejection and
+        // leave the user staring at an empty bordered box (nayru P1 #2).
+        await scatterplot.draw(rows);
         scatterplotRef.current = scatterplot;
       })
       .catch((err) => {
@@ -312,7 +317,11 @@ export default function AtlasIsland({ base }: Props) {
           <canvas ref={canvasRef} class="block w-full h-full" />
           <AtlasLegend />
           {mountError !== null && (
-            <div class="absolute inset-0 flex items-center justify-center p-4 text-center bg-[color:var(--color-bg-deep)]/90">
+            // Fully opaque so a half-rendered canvas behind doesn't bleed
+            // through (nayru P2 #5). Using `bg-deep` (no /90 alpha) keeps
+            // the overlay readable regardless of canvas state at the
+            // moment of failure.
+            <div class="absolute inset-0 flex items-center justify-center p-4 text-center bg-[color:var(--color-bg-deep)]">
               <p class="font-mono text-sm text-[color:var(--color-signal-red)] max-w-md leading-relaxed">
                 [ATLAS UNAVAILABLE] WebGL initialization failed in this browser.
                 <span class="block mt-1 text-[11px] text-[color:var(--color-text-dim)] uppercase tracking-[0.15em]">

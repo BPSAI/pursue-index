@@ -129,3 +129,55 @@ exception entry. (`.github/dependabot.yml` was removed entirely on
 2026-05-09 in favor of GitHub's server-side security-update path;
 no automated version-bump PRs fire any longer, so the per-package
 ignore rule is no longer necessary.)
+
+### `'unsafe-eval'` CSP relaxation + Cloudflare beacon allowlist
+
+**Accepted:** 2026-05-09
+
+**Status:** Accepted, narrow risk delta over the existing
+`'unsafe-inline'` posture.
+
+**Audit performed at PR #25 (`fix/atlas-csp-and-error-boundary`).**
+
+**Where it lives:** `worker/index.js::CSP_VALUE` —
+`script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com`
+plus `connect-src ... https://cloudflareinsights.com`. The technical
+note in `docs/architecture.md` (Content-Security-Policy notes section)
+describes the *what* and links here for the *why*.
+
+**Why this is acceptable:**
+
+- **No user-input → eval path.** Source scan of `web/src/` and
+  `worker/` (laverna PR #25 audit) found zero call sites passing
+  user-supplied content to `eval()`, `new Function()`, or
+  `setTimeout(string)`. LLM output in `ChatIsland.tsx` is rendered as
+  Preact text, never as code. The only eval consumer is
+  `regl-scatterplot`'s internal shader compiler operating on
+  library-generated GLSL strings.
+- **Same-origin script policy.** All script sources are `'self'` or
+  the first-party CF Web Analytics host; `eval` cannot exfiltrate
+  beyond the existing `connect-src` allowlist.
+- **Negligible blast-radius increase.** `'unsafe-inline'` was already
+  in the policy, which already permits an XSS attacker with injected
+  `<script>` tag execution to do anything `eval` could do. Adding
+  `'unsafe-eval'` does not materially expand the attack surface given
+  the existing inline posture.
+- **Cloudflare beacon trust boundary.** The
+  `static.cloudflareinsights.com` beacon script and its
+  `cloudflareinsights.com/cdn-cgi/rum` POST endpoint are operated by
+  CF, which is already our edge provider — they are inside our trust
+  boundary by virtue of serving the Worker itself. There is **no
+  Subresource Integrity (`integrity=`) pin** on the beacon script
+  tag; CF rotates `beacon.min.js` on its own cadence and SRI on a
+  first-party analytics script from your own edge is a common
+  accepted exception. Document, do not pin.
+
+**Removal trigger:** when the project moves to a nonce-based CSP
+(which would also drop `'unsafe-inline'` — both flags should be
+addressed together in a future hardening pass, not in isolation), or
+when `regl-scatterplot` drops its runtime-shader-compile path /
+migrates to a non-eval visualizer, drop `'unsafe-eval'` and delete
+this entry. The CF beacon allowlist can stay independently as long
+as CF Web Analytics remains the chosen telemetry path; if analytics
+move off CF, drop both `cloudflareinsights.com` tokens at the same
+time.

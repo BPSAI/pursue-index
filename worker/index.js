@@ -82,6 +82,13 @@ function corsHeaders(origin) {
  *         Web Analytics beacon. Allowing the script source domain is fine;
  *         the beacon itself is a CF service we already trust at the edge.
  *
+ *     connect-src also includes:
+ *       - https://cloudflareinsights.com: the beacon's RUM telemetry POSTs
+ *         go to https://cloudflareinsights.com/cdn-cgi/rum — a different
+ *         subdomain than the script host. script-src governs the script
+ *         load, connect-src governs the egress; both are needed or the
+ *         second CSP violation reappears on a different directive.
+ *
  * If the underlying response already set one of these (e.g. an asset that
  * needs to be framed), defer to it — we use `headers.has()` not `set()`.
  */
@@ -92,7 +99,7 @@ const CSP_VALUE = [
   "img-src 'self' https://www.war.gov data:",
   "font-src 'self' data:",
   "frame-src 'self' https://www.war.gov",
-  "connect-src 'self' https://api.anthropic.com https://api.voyageai.com",
+  "connect-src 'self' https://api.anthropic.com https://api.voyageai.com https://cloudflareinsights.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",

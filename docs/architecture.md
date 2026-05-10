@@ -211,12 +211,19 @@ comprehensive.
 `script-src` includes `'unsafe-eval'`. WebGL shader compilation in
 `regl-scatterplot` (atlas page) requires runtime `Function()`
 evaluation — without it the entire `/atlas` visualization fails to
-initialize. Acceptable here because all script sources are same-origin
-(`'self'`) and the request path doesn't accept user-supplied JS, so
-`eval` cannot exfiltrate beyond the existing `connect-src` allowlist.
-Site-wide rather than `/atlas`-scoped so the Worker doesn't need a
-per-route CSP function coupled to asset paths. `script-src` also
-allowlists `https://static.cloudflareinsights.com` for the first-party
-CF Web Analytics beacon. Regression-locked by
-`worker/tests/security_headers.test.js` so a future tightening can't
-silently break /atlas.
+initialize. Site-wide rather than `/atlas`-scoped so the Worker
+doesn't need a per-route CSP function coupled to asset paths.
+`script-src` also allowlists `https://static.cloudflareinsights.com`
+for the first-party CF Web Analytics beacon, and `connect-src`
+allowlists `https://cloudflareinsights.com` for the beacon's RUM
+telemetry POST (different subdomain than the script host — both are
+needed). Regression-locked by `worker/tests/security_headers.test.js`
+so a future tightening can't silently break /atlas or analytics.
+
+The **policy rationale** for accepting `'unsafe-eval'` (no
+user-input → eval path, same-origin scripts, blast-radius bounded by
+`connect-src`, negligible delta over the existing `'unsafe-inline'`
+posture, and the SRI-pin gap on the CF beacon) lives in
+`SECURITY.md` under "Documented exceptions" — the same pattern used
+for the CVE-2026-1839 / `transformers` exception. This section is
+the technical *where it lives*; SECURITY.md is the policy *why*.
