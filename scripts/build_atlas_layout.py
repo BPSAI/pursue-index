@@ -185,7 +185,7 @@ def _normalize_coords(coords: np.ndarray) -> np.ndarray:
     x_center = (x_max + x_min) / 2.0
     y_center = (y_max + y_min) / 2.0
     half_range = max(x_max - x_min, y_max - y_min) / 2.0
-    if half_range == 0.0:
+    if half_range < 1e-12:
         return np.zeros_like(coords)
     out = np.empty_like(coords)
     out[:, 0] = (coords[:, 0] - x_center) / half_range
