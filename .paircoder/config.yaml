@@ -1,8 +1,8 @@
 version: 2.25.3
 project:
-  name: My Project
-  description: My Project project
-  primary_goal: Build awesome software
+  name: pursue-index
+  description: Citable interface to U.S. DoW PURSUE Release 01 (UAP documents)
+  primary_goal: Ship a reproducible, citable archive of declassified UAP documents with full-text search, semantic atlas, and editorial reading guides
   coverage_target: 80
 workflow:
   default_branch_type: feature
@@ -63,7 +63,7 @@ trello:
   board_id: ''
   board_name: ''
   defaults:
-    project: My Project
+    project: pursue-index
     stack: Worker/Function
     repo_url: ''
   board_structure:

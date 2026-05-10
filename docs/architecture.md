@@ -34,11 +34,11 @@ CSV columns we consume:
 
 | # | Stage    | Inputs                | Outputs                              | Status |
 |---|----------|-----------------------|--------------------------------------|--------|
-| 1 | scrape   | DOW CSV               | `manifest.json`                      | ✅     |
-| 2 | download | manifest              | PDFs/IMGs in `data/{pdfs,images}/`   | ✅     |
-| 3 | ocr      | PDFs                  | `pages.jsonl` per card               | 🔧 stub |
-| 4 | index    | manifest + OCR output | Postgres rows                        | 🔧 stub |
-| 5 | serve    | Postgres              | FastAPI search API                   | 🔧 stub |
+| 1 | scrape   | DOW CSV               | `manifest.json`                      | ✅ shipped |
+| 2 | download | manifest              | PDFs/IMGs in `data/{pdfs,images}/`   | ✅ shipped |
+| 3 | ocr      | PDFs                  | `pages.jsonl` per card               | ✅ shipped |
+| 4 | index    | manifest + OCR output | Postgres rows / browser payload      | ✅ shipped |
+| 5 | serve    | embed payload + worker | Static site + Cloudflare Worker chat | ✅ shipped |
 
 ## Idempotency contract
 
@@ -72,10 +72,9 @@ disturbing orchestration.
   Tesseract on faded, skewed, multi-column FBI scans, and likely cut
   wall-clock by 5–20× on long PDFs.
 - **LLM extraction** (planned) — Anthropic / OpenAI vision models as the
-  high-quality fallback for pages where Tesseract confidence is low. This
-  replaces what an earlier draft of this doc called out as Azure Document
-  Intelligence; LLM extraction gives us better output for less integration
-  surface and no model-training overhead.
+  high-quality fallback for pages where Tesseract confidence is low. LLM
+  extraction gives us better output for less integration surface and no
+  model-training overhead.
 
 In the eventual `auto` mode, Tesseract (or Surya) runs first; pages with
 mean confidence below threshold are re-extracted via the LLM fallback.

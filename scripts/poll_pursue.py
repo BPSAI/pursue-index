@@ -1,9 +1,9 @@
 """Lightweight poll for upstream PURSUE CSV changes.
 
 Driven by ``.github/workflows/poll-pursue.yml`` on a 6h cron (Layer 1
-of the two-layer architecture in
-``.paircoder/plans/auto-poll-tranches.md``). Fetches the upstream CSV
-via ``pursue_index.scrape.csv_fetcher`` (same curl_cffi + Chrome-TLS
+of the two-layer auto-poll architecture; the workflow YAML is the
+canonical specification). Fetches the upstream CSV via
+``pursue_index.scrape.csv_fetcher`` (same curl_cffi + Chrome-TLS
 path the CLI uses, so the Akamai bypass is exercised), hashes the
 bytes, and compares to the last-known sha stored in
 ``data/last-known-csv-sha.txt`` (with ``data/manifests/latest.json#csv_sha256``

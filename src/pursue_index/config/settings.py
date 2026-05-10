@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     # ``surya`` runs the GPU transformer-OCR adapter (requires the [gpu] extra).
     # ``auto`` runs the primary engine (surya if installed, else tesseract) and
     # re-OCRs pages with confidence < ``ocr_llm_threshold`` via the LLM fallback.
-    ocr_engine: Literal["tesseract", "azure", "surya", "llm", "auto"] = "auto"
+    ocr_engine: Literal["tesseract", "surya", "llm", "auto"] = "auto"
     ocr_dpi: int = 300
     tesseract_bin: str = "/usr/bin/tesseract"
 
@@ -115,16 +115,4 @@ class Settings(BaseSettings):
             d.mkdir(parents=True, exist_ok=True)
 
 
-class AzureDISettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    endpoint: str = Field(default="", validation_alias="AZURE_DI_ENDPOINT")
-    key: str = Field(default="", validation_alias="AZURE_DI_KEY")
-
-    @property
-    def configured(self) -> bool:
-        return bool(self.endpoint and self.key)
-
-
 settings = Settings()
-azure_di_settings = AzureDISettings()

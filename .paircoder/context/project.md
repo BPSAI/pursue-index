@@ -85,8 +85,8 @@ Two independent paths so manifests stay in the repo and bulk data goes to NAS:
 | `PURSUE_DATA_ROOT`      | PDFs, images, videos, OCR output, raw CSV archives  |
 | `PURSUE_MANIFESTS_DIR`  | Manifest JSON (small, version-controlled)           |
 
-In production, `PURSUE_DATA_ROOT` points at the NAS mount on `buschleague`
-(currently `/mnt/nas/personal/pursue`). Manifests stay under `./data/manifests`
+In production, `PURSUE_DATA_ROOT` points at the NAS mount on the dev NAS
+(currently the project's NAS data root). Manifests stay under `./data/manifests`
 and are committed.
 
 ## Idempotency

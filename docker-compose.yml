@@ -4,6 +4,7 @@ services:
     container_name: pursue-postgres
     environment:
       POSTGRES_USER: pursue
+      # dev-only credential; rotate before any networked exposure
       POSTGRES_PASSWORD: pursue
       POSTGRES_DB: pursue
     ports:

@@ -1,3 +1,3 @@
-from pursue_index.config.settings import azure_di_settings, settings
+from pursue_index.config.settings import settings
 
-__all__ = ["settings", "azure_di_settings"]
+__all__ = ["settings"]
