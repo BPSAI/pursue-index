@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import {
   AGENCY_ORDER,
+  DIM_OPACITY,
+  FULL_OPACITY,
   buildAtlasMiniSearch,
   buildCardHref,
   categoryColors,
@@ -207,13 +209,27 @@ export default function AtlasIsland({ base }: Props) {
           pointColor: categoryColors(),
           // colorBy / opacityBy tell regl-scatterplot which row slot
           // drives the color / opacity encoding. `pointToScatterplotRow`
-          // packs `[x, y, agencyToCategory(p.agency), 1.0]` (or 0.15
-          // when the search filter dims a row) — without these two
-          // keys, regl ignores slots 2 & 3 and every dot renders with
-          // the first palette entry at full opacity (the original
+          // packs `[x, y, agencyToCategory(p.agency), opacityIndex]`
+          // where opacityIndex is 0 (dim) or 1 (bright) — without these
+          // two keys, regl ignores slots 2 & 3 and every dot renders
+          // with the first palette entry at full opacity (the original
           // "all-green / search-does-nothing" bug).
           colorBy: "valueA",
           opacityBy: "valueB",
+          // `opacity` is a LOOKUP TABLE indexed by
+          // floor(state.w * opacityMultiplicator), populated from this
+          // array. With `wDataType: "continuous"` (see
+          // SCATTERPLOT_DATA_TYPES) and opacity.length === 2,
+          // multiplicator = 1, so state.w === 0 → opacity[0] =
+          // DIM_OPACITY and state.w === 1 → opacity[1] = FULL_OPACITY.
+          // Symmetric counterpart of `pointColor: categoryColors()` for
+          // color encoding — same pattern, different config slot.
+          // Without this, `opacity` defaults to scalar 1, the texture
+          // has one entry, the index always returns 1.0, and dimming
+          // silently never fires (PR #30 wired colorBy/opacityBy but
+          // missed this lookup; the result was that typing in /atlas
+          // search produced no visible dim).
+          opacity: [DIM_OPACITY, FULL_OPACITY],
           pointSize: 4,
           backgroundColor: [10 / 255, 13 / 255, 18 / 255, 1],
         }) as typeof scatterplot;
@@ -277,10 +293,12 @@ export default function AtlasIsland({ base }: Props) {
     );
     // Same row builder as the initial mount draw — `pointToScatterplotRow`
     // owns the tuple shape so the `colorBy: "valueA"` / `opacityBy: "valueB"`
-    // slot semantics live in one place (vaivora P2). Pass the dim factor
-    // as the second arg; non-matches drop to 0.15.
+    // slot semantics live in one place (vaivora P2). Slot 3 is a SELECTOR
+    // INDEX (0 or 1) into the `opacity: [DIM_OPACITY, FULL_OPACITY]` lookup
+    // table on the createScatterplot config: 1 for matches (bright), 0 for
+    // non-matches (dim).
     const rows = layout.points.map((p, i) =>
-      pointToScatterplotRow(p, matched.has(i) ? 1.0 : 0.15),
+      pointToScatterplotRow(p, matched.has(i) ? 1 : 0),
     );
     // Re-pass the data-type hints on every redraw — without them, the
     // initial categorical/continuous classification can be re-detected

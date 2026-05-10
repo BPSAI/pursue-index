@@ -72,22 +72,47 @@ export function categoryColors(): RgbaColor[] {
 export type ScatterplotRow = [number, number, number, number];
 
 /**
+ * Dim opacity applied to non-matching points when a search filter is
+ * active. Lives at index 0 of the ``opacity`` lookup table passed to
+ * ``createScatterplot``.
+ */
+export const DIM_OPACITY = 0.15;
+
+/**
+ * Full opacity for matched / unfiltered points. Lives at index 1 of the
+ * ``opacity`` lookup table passed to ``createScatterplot``.
+ */
+export const FULL_OPACITY = 1.0;
+
+/**
  * Encode an ``AtlasPoint`` for regl-scatterplot.
  *
- * Slot 2 carries the category (color encoding); slot 3 carries an
- * "opacity-ish" value used to dim non-matching dots when a search
- * query is active. ``dimFactor`` defaults to 1.0 (all-shown) so the
- * bare ``points.map(pointToScatterplotRow)`` call site for the initial
- * draw keeps working; the search-redraw effect passes 0.15 for
- * non-matching points to dim them via ``opacityBy: "valueB"``. Using
- * the same row builder in both paths keeps the tuple shape (and the
- * `colorBy`/`opacityBy` slot semantics) in one place — vaivora P2.
+ * Slot 2 carries the category (color encoding via ``colorBy: "valueA"``);
+ * slot 3 carries a SELECTOR INDEX (0 or 1) into the ``opacity`` lookup
+ * table on the ``createScatterplot`` config — NOT a raw opacity value.
+ *
+ * Why an index, not the opacity itself: regl-scatterplot's shader does
+ * ``floor(state.w * opacityMultiplicator)`` to index a 1D texture built
+ * from the ``opacity`` config array. With ``opacity: [DIM_OPACITY,
+ * FULL_OPACITY]`` the multiplicator is 1, so ``state.w === 0`` →
+ * ``opacity[0]`` (dim) and ``state.w === 1`` → ``opacity[1]`` (full).
+ * Packing the index here (rather than a raw 0.15 / 1.0) keeps the dim
+ * value in one place (the ``opacity`` lookup) and avoids the trap where
+ * a future maintainer changes ``DIM_OPACITY`` to 0.5 and discovers that
+ * ``floor(0.5 * 1) = 0`` happens to still floor to dim, but ``0.7``
+ * silently floors to dim too.
+ *
+ * Default ``opacityIndex`` is 1 (bright) so the bare
+ * ``points.map(pointToScatterplotRow)`` initial-draw call site renders
+ * all-shown; the search-redraw effect passes 0 for non-matching points.
+ * Using the same row builder in both paths keeps the tuple shape (and
+ * the ``colorBy`` / ``opacityBy`` slot semantics) in one place — vaivora P2.
  */
 export function pointToScatterplotRow(
   p: AtlasPoint,
-  dimFactor: number = 1.0,
+  opacityIndex: 0 | 1 = 1,
 ): ScatterplotRow {
-  return [p.x, p.y, agencyToCategory(p.agency), dimFactor];
+  return [p.x, p.y, agencyToCategory(p.agency), opacityIndex];
 }
 
 /**
