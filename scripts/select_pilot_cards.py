@@ -57,7 +57,11 @@ def _read_card_stats(ocr_dir: Path, card_id: str) -> _CardStat | None:
                 continue
             row = json.loads(line)
             conf = row.get("confidence")
-            if isinstance(conf, (int, float)) and conf > 0:
+            # Codex P1: keep zero-confidence pages. They are not noise —
+            # they're exactly the "OCR couldn't read this" signal the
+            # degraded bucket needs to surface. Filter only entries
+            # missing or non-numeric ``confidence`` values.
+            if isinstance(conf, (int, float)):
                 confidences.append(float(conf))
     if not confidences:
         return None

@@ -148,6 +148,19 @@ def _process_page(
     ):
         state.skipped += 1
         return
+    # Codex P2: empty raw OCR is empty-in/empty-out — skip the model call
+    # and record a clean-flagged row for provenance. Calling the model on
+    # an empty payload would trip the length-divergence guard with
+    # misleading provenance ("length_divergence" reads like a refusal).
+    if not raw_text.strip():
+        empty_row = clean_sidecar.row_from_clean(
+            card_id=card_id, page=page, cleaned_text="", raw_text=raw_text,
+            model_id=model_id, prompt_sha=prompt_sha,
+            cleanup_skipped="empty_input",
+        )
+        clean_sidecar.write_row(sidecar_path, empty_row)
+        state.skipped += 1
+        return
     state.cost += _clean_one_page(
         card_id=card_id, page=page, raw_text=raw_text,
         model_id=model_id, prompt_sha=prompt_sha,

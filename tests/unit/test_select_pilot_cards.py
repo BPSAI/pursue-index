@@ -68,6 +68,40 @@ def test_pick_buckets_does_not_invent_cards_when_pool_too_small(
     assert len(set(picked)) == 12
 
 
+def test_zero_confidence_card_lands_in_degraded_bucket(tmp_path: Path) -> None:
+    """Codex P1: a card whose pages are ALL zero-confidence is the most
+    degraded card possible — the OCR engine couldn't read anything. The
+    selector must include it (mean_confidence == 0.0) rather than filter
+    it out, so the pilot's degraded bucket can find genuinely-broken
+    cards. Prior behaviour (``confidence > 0`` filter) silently dropped
+    these cards from the candidate pool entirely.
+    """
+    ocr_dir = tmp_path / "ocr"
+    # The "obviously broken" card — all pages zero-confidence.
+    _seed_card(ocr_dir, "broken", pages=12, conf=0.0)
+    # Filler at varying mid-range confidence so "broken" is clearly worst.
+    for i in range(15):
+        _seed_card(ocr_dir, f"fl{i:02d}", pages=20, conf=70 + i)
+
+    manifest = tmp_path / "manifest.json"
+    card_ids = ["broken"] + [f"fl{i:02d}" for i in range(15)]
+    manifest.write_text(json.dumps({
+        "cards": [
+            {"card_id": cid, "asset_type": "PDF"} for cid in card_ids
+        ],
+    }))
+    stats = select_pilot_cards._gather_stats(manifest, ocr_dir)
+    # Broken card MUST be in the stats with mean_confidence == 0.0.
+    by_id = {s.card_id: s for s in stats}
+    assert "broken" in by_id, "zero-confidence card was filtered out"
+    assert by_id["broken"].mean_confidence == 0.0
+    assert by_id["broken"].page_count == 12
+
+    picked = select_pilot_cards._pick_buckets(stats)
+    # The all-zero card IS the most degraded — must land in the picks.
+    assert "broken" in picked
+
+
 def test_picks_high_medium_low_confidence_buckets(tmp_path: Path) -> None:
     ocr_dir = tmp_path / "ocr"
     # 15 cards: 5 high-page-count, 5 medium, 5 low-confidence + 5 filler.

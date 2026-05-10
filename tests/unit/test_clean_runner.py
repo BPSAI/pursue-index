@@ -304,6 +304,52 @@ def test_run_card_keeps_cleaned_output_when_ratio_is_in_band(
     assert rows[0]["text_cleaned"] != raw  # Cleaned version kept
 
 
+def test_run_card_skips_empty_ocr_pages_without_calling_model(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Codex P2: empty raw OCR text is empty-in/empty-out, not a length
+    divergence. Special-case at the top of the per-page loop: don't call
+    the model, write a sidecar row flagged ``cleanup_skipped="empty_input"``,
+    and count the page as skipped (not cleaned).
+
+    Why: empty pages used to trip the [0.2, 2.0] length-divergence guard
+    (``len('') / max(len(''), 1) == 0``), which mis-flagged them as
+    refusals. The provenance was misleading AND we burned a model call
+    on a guaranteed-empty result.
+    """
+    pages_path = tmp_path / "cardE" / "pages.jsonl"
+    _write_pages(
+        pages_path,
+        [
+            {"page": 1, "text": "", "confidence": 0, "engine": "surya"},
+            {"page": 2, "text": "   \n  ", "confidence": 0, "engine": "surya"},
+        ],
+    )
+    sidecar_path = tmp_path / "cardE" / "pages_cleaned.jsonl"
+
+    def _trip(*args: object, **kwargs: object) -> tuple[str, clean_client.Usage]:
+        raise AssertionError("clean_page must NOT be called on empty pages")
+
+    monkeypatch.setattr(runner, "clean_page", _trip)
+
+    report = runner.run_card(
+        card_id="cardE",
+        pages_path=pages_path,
+        sidecar_path=sidecar_path,
+        model_id="claude-haiku-4-5-20251001",
+        budget_usd=10.0,
+        running_cost_usd=0.0,
+    )
+    rows = list(_iter_jsonl(sidecar_path))
+    assert len(rows) == 2
+    for row in rows:
+        assert row["cleanup_skipped"] == "empty_input"
+        assert row["text_cleaned"] == ""  # empty in → empty out
+    # Empty pages are skipped, not cleaned (no LLM call billed).
+    assert report.pages_cleaned == 0
+    assert report.pages_skipped == 2
+
+
 def _iter_jsonl(path: Path):
     with path.open() as fh:
         for line in fh:
