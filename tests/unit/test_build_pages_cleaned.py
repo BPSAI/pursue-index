@@ -323,6 +323,53 @@ def _alignment_fixture_rows() -> list[dict]:
     ]
 
 
+def test_build_recomputes_output_sha256_when_clearing_length_divergence_text(
+    tmp_path: Path,
+) -> None:
+    """Codex P1: when ``_sanitize_row_for_mirror`` clears ``text_cleaned``
+    for ``length_divergence`` rows, the row's ``output_sha256`` — computed
+    at runner time against the raw OCR fallback — must be recomputed so
+    it matches the shipped (now empty) text. Otherwise the provenance
+    contract ("output_sha256 matches the shipped text") is broken:
+    ``text == ""`` but ``output_sha256 == <hash of raw OCR>``.
+    """
+    import hashlib
+    raw_text = "raw OCR fallback text"
+    raw_hash = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+    empty_hash = hashlib.sha256(b"").hexdigest()
+    # Sanity: the two hashes must differ — otherwise the test proves nothing.
+    assert raw_hash != empty_hash
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": raw_text,
+                "model_id": "m", "input_sha256": "a" * 64,
+                "output_sha256": raw_hash,
+                "cleanup_skipped": "length_divergence",
+            },
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    page1 = next(p for p in payload["pages"] if p["page"] == 1)
+    # The shipped text is empty (no raw-OCR leak under "cleaned" label).
+    assert page1["text"] == ""
+    # output_sha256 must match the SHA of the shipped (empty) text, not
+    # the original raw-OCR hash — preserves the provenance contract.
+    assert page1["output_sha256"] == empty_hash
+    assert page1["output_sha256"] == hashlib.sha256(
+        page1["text"].encode("utf-8"),
+    ).hexdigest()
+
+
 def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     """A card_id present in the manifest but with no sidecar is not in cards_covered."""
     ocr_dir = tmp_path / "ocr"

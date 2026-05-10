@@ -31,6 +31,7 @@ the same way — see `web/src/components/CardOcrIsland.tsx`.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from datetime import UTC, datetime
@@ -99,11 +100,19 @@ def _sanitize_row_for_mirror(row: dict) -> dict:
     semantically clean. The ``cleanup_skipped`` flag is propagated so
     the UI can render an appropriate "[Cleanup unavailable]" notice.
     ``empty_input`` rows already have empty text; preserved as-is.
+
+    Codex P1: the runner stored ``output_sha256`` against the raw OCR
+    fallback. After we clear ``text_cleaned`` we MUST recompute
+    ``output_sha256`` against the new (empty) text — otherwise the
+    shipped row violates the provenance contract that ``output_sha256``
+    matches the shipped ``text``. Mirrors the runner's hashing
+    (``src/pursue_index/clean/prompt.py::output_sha256``).
     """
     skipped = row.get("cleanup_skipped")
     if skipped == "length_divergence":
         sanitized = dict(row)
         sanitized["text_cleaned"] = ""
+        sanitized["output_sha256"] = hashlib.sha256(b"").hexdigest()
         return sanitized
     return row
 
