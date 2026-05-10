@@ -338,6 +338,124 @@ def test_write_layout_preserves_existing_on_replace_failure(
     assert json.loads(out_path.read_text()) == {"preserved": True}
 
 
+def test_normalize_coords_maps_into_unit_square() -> None:
+    """Coordinates must be normalized into ``[-1, 1]`` so regl-scatterplot's
+    default unit-square camera frames the cluster.
+
+    Without this, UMAP output (typically ``x ∈ [-6, 19], y ∈ [-3, 21]``)
+    ships off-camera and the deployed canvas renders empty.
+    """
+    mod = _load_script_module()
+    coords = np.array(
+        [
+            [-6.17, -2.98],
+            [19.28, 21.41],
+            [5.64, 7.73],
+        ],
+        dtype=np.float32,
+    )
+    out = mod._normalize_coords(coords)
+    assert out.shape == coords.shape
+    assert float(out[:, 0].min()) >= -1.0 - 1e-6
+    assert float(out[:, 0].max()) <= 1.0 + 1e-6
+    assert float(out[:, 1].min()) >= -1.0 - 1e-6
+    assert float(out[:, 1].max()) <= 1.0 + 1e-6
+
+
+def test_normalize_coords_preserves_aspect_ratio() -> None:
+    """Asymmetric shapes (different x and y spans) must keep their
+    relative spans after scaling — UMAP's geometry must not be squashed
+    along one axis.
+    """
+    mod = _load_script_module()
+    coords = np.array(
+        [
+            [0.0, 0.0],
+            [10.0, 0.0],
+            [10.0, 5.0],
+            [0.0, 5.0],
+        ],
+        dtype=np.float32,
+    )
+    out = mod._normalize_coords(coords)
+    raw_aspect = (coords[:, 0].max() - coords[:, 0].min()) / (
+        coords[:, 1].max() - coords[:, 1].min()
+    )
+    norm_aspect = (out[:, 0].max() - out[:, 0].min()) / (
+        out[:, 1].max() - out[:, 1].min()
+    )
+    assert norm_aspect == pytest.approx(raw_aspect, abs=1e-5)
+    # Wider axis (x) must span the full [-1, 1].
+    assert float(out[:, 0].min()) == pytest.approx(-1.0, abs=1e-6)
+    assert float(out[:, 0].max()) == pytest.approx(1.0, abs=1e-6)
+    # Narrower axis (y) is centered around 0 with proportional scaling
+    # — span = 5/10 = 0.5 of the wider axis = [-0.5, 0.5].
+    assert float(out[:, 1].min()) == pytest.approx(-0.5, abs=1e-6)
+    assert float(out[:, 1].max()) == pytest.approx(0.5, abs=1e-6)
+
+
+def test_normalize_coords_known_point_maps_as_expected() -> None:
+    """Spec a specific input/output pair so regressions in the centering
+    formula surface as a single-line failure.
+    """
+    mod = _load_script_module()
+    # x ∈ [-6, 18] → center 6, half_range 12.
+    # y ∈ [-2, 22] → center 10, half_range 12 (same span).
+    coords = np.array(
+        [[-6.0, -2.0], [18.0, 22.0], [6.0, 10.0]],
+        dtype=np.float32,
+    )
+    out = mod._normalize_coords(coords)
+    # Min corner → (-1, -1); max corner → (1, 1); center → (0, 0).
+    assert out[0].tolist() == pytest.approx([-1.0, -1.0], abs=1e-6)
+    assert out[1].tolist() == pytest.approx([1.0, 1.0], abs=1e-6)
+    assert out[2].tolist() == pytest.approx([0.0, 0.0], abs=1e-6)
+
+
+def test_normalize_coords_handles_degenerate_zero_range() -> None:
+    """All-coincident points must not divide by zero; output should land
+    at the origin (any finite point is fine, but origin is the convention).
+    """
+    mod = _load_script_module()
+    coords = np.array([[3.0, 3.0], [3.0, 3.0]], dtype=np.float32)
+    out = mod._normalize_coords(coords)
+    assert np.all(np.isfinite(out))
+    assert np.allclose(out, np.zeros_like(coords), atol=1e-6)
+
+
+def test_build_writes_normalized_coords_into_atlas_layout(tmp_path: Path) -> None:
+    """End-to-end invariant: every (x, y) in the written JSON must lie in
+    ``[-1, 1]``. This is the bug fix's user-visible contract.
+    """
+    embed_root, manifest, out_dir = _seed_inputs(tmp_path)
+    mod = _load_script_module()
+    rc = mod.build(
+        embeddings_root=embed_root,
+        model_id="voyage-3",
+        manifest_path=manifest,
+        out_dir=out_dir,
+        n_neighbors=2,
+        random_state=42,
+    )
+    assert rc == 0
+    layout = json.loads((out_dir / "atlas-layout.json").read_text())
+    xs = [p["x"] for p in layout["points"]]
+    ys = [p["y"] for p in layout["points"]]
+    assert min(xs) >= -1.0 and max(xs) <= 1.0, (
+        f"x range {(min(xs), max(xs))} escapes regl-scatterplot's "
+        "default [-1, 1] camera"
+    )
+    assert min(ys) >= -1.0 and max(ys) <= 1.0, (
+        f"y range {(min(ys), max(ys))} escapes regl-scatterplot's "
+        "default [-1, 1] camera"
+    )
+    # At least one axis should saturate the unit square so we know we're
+    # actually scaling to fill, not just clipping into a tiny corner.
+    span_x = max(xs) - min(xs)
+    span_y = max(ys) - min(ys)
+    assert max(span_x, span_y) == pytest.approx(2.0, abs=1e-3)
+
+
 def test_select_rows_dedupes_augmented_siblings() -> None:
     """Same dedupe rule as ``build_embed_data.py``: when an un-augmented
     row and an augmented row share ``(card_id, page)``, keep the augmented.
