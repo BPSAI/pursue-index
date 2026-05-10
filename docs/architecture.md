@@ -159,27 +159,41 @@ preference:
    is the path documented in `wrangler.jsonc` and is what runs on a
    healthy day.
 2. **Fallback — `.github/workflows/deploy-cf.yml`.** Same deploy from
-   GH Actions, triggered on push to `main` for paths that affect the
-   bundle (`web/**`, `worker/**`, `wrangler.jsonc`,
-   `data/manifests/**`). Exists because CF Workers Builds has stalled
-   multiple times (notably the 2026-05-09 cluster — PRs #6 through
-   #17 merged but the live Worker stayed pinned to a pre-#6 build
-   until the operator manually deployed). On failure it opens or
-   updates a `deploy-failure` issue. Runs in parallel with the CF
-   dashboard build when both paths are healthy; `wrangler deploy` is
-   idempotent on identical bundles, so the second deploy just
-   produces a new version pointing at the same code. The workflow's
-   `concurrency: deploy-cf` group only serializes GH Actions runs
-   against each other — it does **not** coordinate with the CF
-   dashboard pipeline, so two simultaneous `wrangler deploy` calls
-   against the same account can land out of wallclock order in the
-   Versions list (the slower path's Version ID lands later even if it
-   started earlier). This is purely an audit-trail nit; the bundle
-   itself is identical and the latest version always points at the
-   most recent commit.
+   GH Actions, **manual-only** (`workflow_dispatch`). Exists because
+   CF Workers Builds has stalled multiple times (notably the
+   2026-05-09 cluster — PRs #6 through #17 merged but the live Worker
+   stayed pinned to a pre-#6 build until the operator manually
+   deployed). Originally triggered on push to `main` for paths that
+   affect the bundle (`web/**`, `worker/**`, `wrangler.jsonc`,
+   `data/manifests/**`); flipped to manual-only on 2026-05-09 once
+   CF Workers Builds was confirmed reliably triggering on push, since
+   running both paths on every push doubled the Version IDs in the
+   Cloudflare Versions list and doubled the `deploy-failure` issue
+   noise for no functional gain (vaivora flagged the dual-pipeline
+   concurrency caveat in PR #18 review). Run it from the Actions UI
+   ("Run workflow") whenever the dashboard pipeline stalls. On
+   failure it opens or updates a `deploy-failure` issue keyed off the
+   run URL; with auto-firing disabled, an open issue persists until
+   the operator either re-runs a successful manual deploy and closes
+   it or closes it directly. The workflow's `concurrency: deploy-cf`
+   group still serializes manual runs against each other, so a quick
+   double-click on "Run workflow" cancels the older queued run rather
+   than racing two `wrangler deploy` calls.
 3. **Manual — `npx wrangler deploy` from a local repo.** Last-resort
    path the operator uses when both above are stuck. Requires
    `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` in env (or `wrangler login`).
+
+Token-rot detection runs out-of-band via
+`.github/workflows/cf-token-health.yml` — a weekly Monday-12:00-UTC
+`workflow_dispatch`-able cron that calls `npx wrangler whoami` against
+the same `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets the
+fallback deploy uses. With the deploy workflow flipped to manual-only
+(see path #2), those secrets are no longer exercised on every push, so
+a rotated-but-not-updated token would otherwise sit broken until the
+next manual deploy attempt. The health check opens or updates a
+`cf-token-health-failure` issue on probe failure, mirroring the
+`deploy-failure` issue pattern. Recommended by laverna in the PR #24
+security review.
 
 ### /api/* dispatch contract
 
