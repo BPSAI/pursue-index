@@ -2,53 +2,6 @@
 
 > Last updated: 2026-05-09
 
-## What Was Just Done
-
-- 2026-05-09 — PR #25 review-finding follow-up (branch
-  `fix/atlas-csp-and-error-boundary`, push-only, NOT merged). All
-  three reviewers (nayru, laverna, vaivora) concurred on the
-  `connect-src` gap; addressed alongside lower-severity findings:
-  (1) added `https://cloudflareinsights.com` to `connect-src` in
-  `worker/index.js::CSP_VALUE` so the CF beacon's RUM POST stops
-  hitting a second CSP violation on a different directive, paired
-  with a third regression-lock test in
-  `worker/tests/security_headers.test.js` (64 worker tests passing,
-  was 63); (2) extracted `getCspDirective(csp, name)` test helper to
-  remove duplicated parse pipeline across the three CSP tests
-  (nayru P2 #3); (3) chained `await scatterplot.draw(rows)` inside
-  the existing `.then` in `AtlasIsland.tsx` so async draw
-  rejections route into the outer `.catch` → `setMountError` and
-  the empty-box symptom can't reappear via that path (nayru P1 #2);
-  (4) bumped the mount-error overlay from `bg-deep/90` to fully
-  opaque `bg-deep` so a half-rendered canvas can't bleed through
-  (nayru P2 #5); (5) added an `'unsafe-eval' CSP relaxation +
-  Cloudflare beacon allowlist` entry under SECURITY.md "Documented
-  exceptions" mirroring the CVE-2026-1839 structure (Accepted
-  date / Status / Why-acceptable / Removal trigger), including the
-  laverna LOW finding that no SRI is pinned on the CF beacon
-  (vaivora P1 + laverna LOW); (6) reframed the architecture.md CSP
-  section as the technical *what* and cross-linked SECURITY.md for
-  the policy *why*. Web build clean, arch check clean on all
-  touched files. One conventional-commits follow-up commit pushed
-  to the PR branch.
-
-- 2026-05-09 — Atlas CSP + error-boundary fix (PR
-  [#25](https://github.com/BPSAI/pursue-index/pull/25), branch
-  `fix/atlas-csp-and-error-boundary`). `/atlas` was rendering chrome but
-  the canvas stayed empty because the site CSP blocked
-  regl-scatterplot's WebGL shader compilation (regl uses `Function()`
-  to evaluate generated GLSL→JS). Added `'unsafe-eval'` to site-wide
-  `script-src` (rationale documented in `worker/index.js::CSP_VALUE`
-  comment + `docs/architecture.md`); also allowlisted
-  `https://static.cloudflareinsights.com` for the CF Web Analytics
-  beacon. Wrapped the dynamic `import("regl-scatterplot")` chain in
-  `AtlasIsland.tsx` with a `.catch()` that surfaces
-  `[ATLAS UNAVAILABLE]` inside the canvas frame on mount failure.
-  Regression-locked the directive content with two new tests in
-  `worker/tests/security_headers.test.js` (63 worker tests passing).
-  Web build clean. PR opened against `main`, NOT merged — operator to
-  manually smoke `wrangler dev` against `/atlas` before approving.
-
 ## Current Focus
 
 Public site live at <https://pursueindex.com>. Full pipeline (scrape →
