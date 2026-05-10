@@ -40,6 +40,29 @@ const s = summary();
       </p>
     </section>
 
+    {/* Augmented retrieval callout — condensed version of the
+        /methodology#augmented-retrieval section. Surfaced on /about
+        because it's a project differentiator that a casual visitor
+        landing on /about should see without having to click into
+        methodology. Keep the figure (29%) in sync with the methodology
+        section and embed_index.json. */}
+    <section class="border border-[color:var(--color-signal-green)]/40 bg-[color:var(--color-signal-green)]/5 p-5 space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Augmented retrieval
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        For ~29% of pages where text OCR alone underrepresents the source,
+        we integrate vision-language descriptions of photographs, sketches,
+        rubber stamps, and handwritten marginalia from a parallel research
+        project,
+        <a href="https://github.com/alex-zhang42/ufo-pursue-open-atlas" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">alex-zhang42/ufo-pursue-open-atlas</a>.
+        Every retrieved chunk is provenance-labeled so a reader can tell
+        whether a quoted line came from text OCR or augmented description;
+        the two corpora stay distinct in our index and are never blended
+        silently. <a href="/methodology#augmented-retrieval" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">Methodology →</a>
+      </p>
+    </section>
+
     <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ Why we built it

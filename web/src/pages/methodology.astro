@@ -144,6 +144,69 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       </p>
     </section>
 
+    {/* Augmented retrieval — promoted from a buried "Related Work" mention
+        to a top-section differentiator. Positioned right after the OCR
+        pipeline because it answers "what about the 29% of pages OCR alone
+        underrepresents?" — i.e. it pairs conceptually with OCR. Provenance
+        framing (engine field per chunk) is the load-bearing claim: we
+        never blend OCR text and VLM descriptions silently. The bottom
+        Related Work section points UP to this anchor rather than
+        restating it. */}
+    <section id="augmented-retrieval" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Augmented retrieval
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">augmented retrieval</strong>
+        — for 29% of pages where text OCR alone underrepresents the source,
+        we integrate the
+        <a href="https://github.com/alex-zhang42/ufo-pursue-open-atlas" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">alex-zhang42/ufo-pursue-open-atlas</a>
+        project's vision-language descriptions of photographs, sketches,
+        rubber stamps, and handwritten marginalia. Provenance is labeled
+        per source: every retrieved chunk discloses whether it came from
+        text OCR or augmented description. The two corpora stay distinct
+        in our index; we never blend them silently.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">What OCR underrepresents.</strong>
+        Photographs embedded inside IMG-type cards. Hand-drawn sketches
+        inside FBI files. Blurry carbon-copy scans where Surya and the
+        LLM fallback both abstain. Rubber-stamped redaction markers and
+        case-disposition stamps that read as glyphs to OCR but as
+        meaningful flags to a vision model. As of 2026-05-09,
+        <strong class="text-[color:var(--color-text-bright)]">1,208 of our 4,119 embedded pages (~29%)</strong>
+        carry an augmented description block alongside the OCR text.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">How provenance is labeled.</strong>
+        Every chunk in the retrieve index carries an
+        <code class="text-[color:var(--color-signal-cyan)]">engine</code>
+        field with one of
+        <code class="text-[color:var(--color-signal-cyan)]">surya</code> |
+        <code class="text-[color:var(--color-signal-cyan)]">anthropic-vision</code> |
+        <code class="text-[color:var(--color-signal-cyan)]">augmented-vlm</code>.
+        The
+        <code class="font-mono text-xs">/api/retrieve</code> response
+        surfaces this field on every hit, and the chat treats augmented
+        chunks as cite-eligible context but distinguishes them in
+        citation form so a reader can always tell whether a quoted line
+        came from the document's text or from a vision-language
+        description of the document's image content. Dataset, revision,
+        and content hash are recorded in
+        <code class="font-mono text-xs">embed_index.json</code>'s
+        <code class="font-mono text-xs">augmented_by</code> field.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The augmented block itself is human-readable and labeled at the
+        source —
+        <code class="font-mono text-xs">[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]]</code>
+        — so the disambiguation is visible in raw transcripts too, not
+        just in the API response. See
+        <a href="/cite" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">citation guidance</a>
+        for how to credit the two sources when quoting augmented text.
+      </p>
+    </section>
+
     {/* Reader cleanup overlay */}
     <section id="reader-cleanup" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
@@ -369,20 +432,11 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         public-domain mirror can look like.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        <strong class="text-[color:var(--color-text-bright)]">Augmented retrieval.</strong>
-        As of 2026-05-09, <strong class="text-[color:var(--color-text-bright)]">1,208 of our 4,119 embedded pages (~29%)</strong>
-        carry a bracketed
-        <code class="font-mono text-xs">[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]]</code>
-        block in the embedded text, scored against the same query as our
-        OCR. On a corpus where 86.6% of pages are image-only scans, his
-        descriptions materially improve recall on the photographs,
-        sketches, rubber stamps, and handwritten margin notes our OCR
-        captures only as typed text. The block is human-readable and
-        labeled at the source so chat citations can disambiguate his
-        words from ours. Provenance is recorded in
-        <code class="font-mono text-xs">embed_index.json</code>'s
-        <code class="font-mono text-xs">augmented_by</code> field
-        (dataset, HuggingFace revision, sha256).
+        For how Alex's vision-language descriptions are integrated into
+        our retrieve index — coverage, provenance labeling, and citation
+        disambiguation — see
+        <a href="#augmented-retrieval" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">▸ Augmented retrieval</a>
+        above.
       </p>
     </section>
 
