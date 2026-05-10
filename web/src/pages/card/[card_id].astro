@@ -130,11 +130,18 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
                 compromised PDF cannot escape the iframe.
                 data-asset-url removed (vaivora P2 #12) — the runtime helper
                 derives the base from iframe.src directly, so the attribute
-                was unread weight on the DOM. */}
+                was unread weight on the DOM.
+                src: same-origin /pdf/<card_id>.pdf served from the R2
+                mirror via worker/pdf.js. We used to point this at
+                `card.asset_url` (war.gov), but war.gov / Akamai shipped
+                cross-origin framing protection in May 2026 and Chrome
+                started surfacing the embed as `chrome-error://chromewebdata/`.
+                The OPEN ↗ link above still uses card.asset_url so war.gov
+                stays the cite-of-record. */}
             <iframe
               id="card-pdf-iframe"
               data-asset-type={card.asset_type}
-              src={card.asset_url}
+              src={`/pdf/${card.card_id}.pdf`}
               title={`PDF source: ${card.title}`}
               sandbox="allow-scripts allow-same-origin"
               referrerpolicy="no-referrer"

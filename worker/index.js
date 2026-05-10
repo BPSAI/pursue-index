@@ -12,6 +12,7 @@
 
 import { handleRetrieve } from "./retrieve.js";
 import { handleChat } from "./chat.js";
+import { tryHandlePdfRoute } from "./pdf.js";
 
 // Allowed origins for /api/* CORS. Same-origin browser requests don't send
 // Origin (or send our own host); cross-origin requests from malicious sites
@@ -65,8 +66,13 @@ function corsHeaders(origin) {
  *   - Content-Security-Policy: a minimum permissive policy. Astro/Preact
  *     hydration scripts inline → script-src 'unsafe-inline'. Tailwind
  *     emits inline styles → style-src 'unsafe-inline'. Card detail iframes
- *     war.gov PDFs → frame-src + img-src include www.war.gov. BYOK chat
- *     calls Anthropic direct → connect-src includes api.anthropic.com.
+ *     used to embed war.gov PDFs cross-origin (so frame-src had to allow
+ *     www.war.gov), but war.gov / Akamai shipped framing protection in
+ *     May 2026 and broke that. PDFs are now served same-origin via the
+ *     `/pdf/:card_id.pdf` route off R2 (see worker/pdf.js), so frame-src
+ *     drops back to 'self' only. img-src keeps www.war.gov for now —
+ *     `card.modal_image_url` still points there for non-PDF cards. BYOK
+ *     chat calls Anthropic direct → connect-src includes api.anthropic.com.
  *     Tighter than nothing; permissive enough to not break anything.
  *
  *     script-src also includes:
@@ -98,7 +104,7 @@ const CSP_VALUE = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https://www.war.gov data:",
   "font-src 'self' data:",
-  "frame-src 'self' https://www.war.gov",
+  "frame-src 'self'",
   "connect-src 'self' https://api.anthropic.com https://api.voyageai.com https://cloudflareinsights.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
@@ -168,6 +174,14 @@ export default {
       }
       return withSecurityHeaders(corsResponse);
     }
+
+    // Self-hosted PDF route. PDFs live in R2 (`PDFS` binding) so the
+    // card-detail iframe can serve them same-origin — war.gov ships
+    // framing protection that blocks the cross-origin embed. See
+    // worker/pdf.js for the full contract. Returns null when the
+    // request isn't a PDF GET, so we fall through to ASSETS below.
+    const pdfResponse = await tryHandlePdfRoute(request, env);
+    if (pdfResponse) return withSecurityHeaders(pdfResponse);
 
     // Everything else falls through to static assets — including the
     // /api documentation page and any other /api/* paths a future

@@ -22,6 +22,15 @@
 // Create the KV namespace first:
 //   wrangler kv namespace create CHAT_KV
 // Then set the returned id below in `kv_namespaces`.
+//
+// Required R2 bucket binding:
+//   PDFS                — corpus PDFs served same-origin via
+//                         /pdf/<card_id>.pdf (see worker/pdf.js). Bucket
+//                         name `pursue-pdfs`, key format `<card_id>.pdf`.
+//                         The operator must create the bucket via the CF
+//                         dashboard and upload the corpus separately;
+//                         the binding name `PDFS` is load-bearing for
+//                         worker/pdf.js::serveR2Pdf.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pursue-index",
@@ -38,6 +47,12 @@
     {
       "binding": "CHAT_KV",
       "id": "ef53469e68c04c539cd758b0cf8f1ad8"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PDFS",
+      "bucket_name": "pursue-pdfs"
     }
   ],
   "observability": {
