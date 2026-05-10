@@ -76,4 +76,4 @@ def test_setup_python_uses_pinned_sha() -> None:
     text = WORKFLOW.read_text()
     assert "actions/setup-python@" in text, "setup-python step missing"
     # Match the same SHA used in poll-pursue.yml for consistency.
-    assert "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065" in text
+    assert "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405" in text
