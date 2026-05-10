@@ -308,7 +308,10 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
           const snippetSegments = snippet
             ? highlightSegments(snippet, snipRegex)
             : [];
-          const showSnippet = snippet && hasMatchSegment(snippetSegments);
+          // Boolean-coerce: `snippet` is a string and JSX would otherwise
+          // render an empty `""` falsy-but-defined branch when `&&` short-
+          // circuits on it. (nayru P1 on PR #29.)
+          const showSnippet = Boolean(snippet) && hasMatchSegment(snippetSegments);
           const linkQuery = encodeURIComponent(query.trim());
           const href = `${base}/card/${r.card_id}?q=${linkQuery}#page-${r.page}`;
           return (
@@ -322,21 +325,21 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
                   <span>{r.card_id.slice(0, 8)}</span>
                 </div>
                 <div class="text-sm text-[color:var(--color-text-bright)] line-clamp-2">
-                  {titleSegments.map((seg) =>
+                  {titleSegments.map((seg, i) =>
                     seg.kind === "match" ? (
-                      <mark class="pi-mark">{seg.value}</mark>
+                      <mark key={i} class="pi-mark">{seg.value}</mark>
                     ) : (
-                      <span>{seg.value}</span>
+                      <span key={i}>{seg.value}</span>
                     ),
                   )}
                 </div>
                 {showSnippet && (
                   <p class="font-mono text-[12px] leading-relaxed text-[color:var(--color-text-dim)] line-clamp-3">
-                    {snippetSegments.map((seg) =>
+                    {snippetSegments.map((seg, i) =>
                       seg.kind === "match" ? (
-                        <mark class="pi-mark">{seg.value}</mark>
+                        <mark key={i} class="pi-mark">{seg.value}</mark>
                       ) : (
-                        <span>{seg.value}</span>
+                        <span key={i}>{seg.value}</span>
                       ),
                     )}
                   </p>

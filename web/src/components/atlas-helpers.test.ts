@@ -161,10 +161,12 @@ test("buildCardHref encodes the card_id defensively", () => {
   assert.ok(!href.includes("?"));
 });
 
-test("buildAtlasMiniSearch indexes title + text and supports stemmed search", () => {
-  // Atlas search relevance must match SearchIsland — same MiniSearch
-  // configuration (boost: title, prefix, fuzzy) so the same query in the
-  // /atlas filter and the /search input lights up the same rows.
+test("buildAtlasMiniSearch indexes title + text and supports prefix search", () => {
+  // Atlas search relevance must match SearchIsland — both routes now source
+  // their MiniSearch config from `buildSearchIndexOptions` (boost: title,
+  // prefix, NO fuzzy) so the same query in the /atlas filter and the
+  // /search input lights up the same rows. The shared factory replaces the
+  // prior "must stay in lockstep" comment contract (vaivora P0 on PR #29).
   const points: AtlasPoint[] = [
     { card_id: "a", page: 1, x: 0, y: 0, agency: "FBI" },
     { card_id: "a", page: 2, x: 0, y: 0, agency: "FBI" },
@@ -184,6 +186,28 @@ test("buildAtlasMiniSearch indexes title + text and supports stemmed search", ()
   assert.ok(matched.includes(0), "Project Blue Book must match");
   assert.ok(matched.includes(2), "body-text mention must match");
   assert.ok(!matched.includes(1), "unrelated Roswell entry must not match");
+});
+
+test("buildAtlasMiniSearch inherits the no-fuzzy policy from the shared factory", () => {
+  // Cross-surface guard: the same fuzzy-trap that motivated PR #29 on
+  // /search must also be absent on /atlas. If a future edit re-adds
+  // `fuzzy` to either path, this test (and its /search twin) fail loudly.
+  const points: AtlasPoint[] = [
+    { card_id: "a", page: 1, x: 0, y: 0, agency: "FBI" },
+    { card_id: "ft", page: 1, x: 0, y: 0, agency: "FBI" },
+  ];
+  const docs = new Map<string, { title: string; text: string }>([
+    ["a-1", { title: "Yellow Area Anomaly", text: "yellow area report" }],
+    // Edit-distance-1 of "yellow"/"area" — would match under fuzzy: 0.2.
+    ["ft-1", { title: "Mellow Arena Notes", text: "mellow tune in arena" }],
+  ]);
+  const ms = buildAtlasMiniSearch(points, (p) => docs.get(`${p.card_id}-${p.page}`));
+  const matched = searchIndicesViaMiniSearch(ms, "yellow area");
+  assert.ok(matched.includes(0), "literal-match doc must be returned");
+  assert.ok(
+    !matched.includes(1),
+    "fuzzy-only doc must NOT be returned (no-fuzzy policy is shared)",
+  );
 });
 
 test("searchIndicesViaMiniSearch returns all indices for empty query", () => {

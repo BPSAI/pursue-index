@@ -132,3 +132,71 @@ test("hasMatchSegment handles empty regex (no query)", () => {
   const segs = highlightSegments("anything", null);
   assert.equal(hasMatchSegment(segs), false);
 });
+
+// ---------------------------------------------------------------------------
+// Cycle 4: buildSearchIndexOptions is the single config factory shared by
+// /search and /atlas. The override hook lets atlas plug a wider doc shape
+// in without redeclaring the shared options (boost / prefix / no-fuzzy).
+// vaivora P0 on PR #29 — keep configs structurally locked, not by comment.
+// ---------------------------------------------------------------------------
+
+test("buildSearchIndexOptions returns the canonical defaults when no overrides", () => {
+  const opts = buildSearchIndexOptions<PageDoc>();
+  assert.deepEqual(opts.fields, ["title", "text"]);
+  assert.deepEqual(opts.storeFields, ["card_id", "page", "title"]);
+  assert.equal(opts.idField, "id");
+  assert.deepEqual(opts.searchOptions?.boost, { title: 2 });
+  assert.equal(opts.searchOptions?.prefix, true);
+  // The whole point of PR #29 — fuzzy must not be silently re-introduced.
+  assert.ok(
+    !("fuzzy" in (opts.searchOptions ?? {})),
+    "fuzzy must remain absent (operator decision 2026-05-10)",
+  );
+});
+
+test("buildSearchIndexOptions allows overriding fields and storeFields", () => {
+  // Atlas indexes a different doc shape (numeric id, no card_id/page on the
+  // doc itself) and stores only its render-array index — so it needs to
+  // override storeFields without losing the no-fuzzy / boost / prefix
+  // contract baked into the factory.
+  interface AtlasDocLike {
+    id: number;
+    title: string;
+    text: string;
+  }
+  const opts = buildSearchIndexOptions<AtlasDocLike>({
+    storeFields: ["id"],
+  });
+  assert.deepEqual(opts.storeFields, ["id"]);
+  // Defaults preserved through the override path.
+  assert.deepEqual(opts.fields, ["title", "text"]);
+  assert.deepEqual(opts.searchOptions?.boost, { title: 2 });
+  assert.equal(opts.searchOptions?.prefix, true);
+  assert.ok(
+    !("fuzzy" in (opts.searchOptions ?? {})),
+    "fuzzy must remain absent even when overrides are passed",
+  );
+});
+
+test("buildSearchIndexOptions overrides apply to a real MiniSearch instance", () => {
+  // End-to-end: feed the factory output into MiniSearch and confirm atlas's
+  // narrower storeFields actually take effect at query time. Regression guard
+  // for the case where a future edit re-adds fuzzy in one path but not the
+  // other and the two surfaces drift again.
+  interface AtlasDocLike {
+    id: number;
+    title: string;
+    text: string;
+  }
+  const ms = new MiniSearch<AtlasDocLike>(
+    buildSearchIndexOptions<AtlasDocLike>({ storeFields: ["id"] }),
+  );
+  ms.addAll([
+    { id: 0, title: "Mellow Arena Notes", text: "mellow tune in the arena" },
+    { id: 1, title: "Yellow Area Anomaly", text: "yellow area report" },
+  ]);
+  const hits = ms.search("yellow area", { combineWith: "AND" });
+  // Same fuzzy-trap assertion as the /search side — confirms atlas now
+  // inherits the no-fuzzy guarantee from the shared factory.
+  assert.deepEqual(hits.map((h) => h.id), [1]);
+});
