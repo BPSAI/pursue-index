@@ -116,6 +116,21 @@ test("loadReaderMode: ignores garbage values, falls back to 'raw'", () => {
   assert.equal(loadReaderMode(s), "raw");
 });
 
+test("loadReaderMode: recognizes 'cleaned' as a valid persisted mode", () => {
+  // After the LLM-cleaned overlay shipped, "cleaned" joined the union.
+  // The localStorage migration is implicit: any value not in the union
+  // still falls back to "raw", so old browsers see no behavior change.
+  const s = fakeStorage();
+  s.setItem(READER_MODE_KEY, "cleaned");
+  assert.equal(loadReaderMode(s), "cleaned");
+});
+
+test("saveReaderMode: round-trips 'cleaned' via loadReaderMode", () => {
+  const s = fakeStorage();
+  saveReaderMode(s, "cleaned");
+  assert.equal(loadReaderMode(s), "cleaned");
+});
+
 test("saveReaderMode: round-trips via loadReaderMode", () => {
   const s = fakeStorage();
   saveReaderMode(s, "reader");

@@ -10,6 +10,19 @@ import { createDebouncedPdfIframeSync } from "./pdf-iframe-sync.ts";
 export interface ReaderPage {
   page: number;
   text: string;
+  /**
+   * When set, this page's cleanup pass did not produce usable cleaned
+   * text. Codex P1 follow-up: the row is preserved in the cleaned
+   * mirror for page-N alignment with the raw mirror; this flag tells
+   * the renderer to surface the appropriate notice instead of an
+   * empty article.
+   *   - `"empty_input"`       → falls through to the existing
+   *                             "[BLANK] No text extracted" path.
+   *   - `"length_divergence"` → "[Cleanup unavailable for this page]"
+   *                             with a one-click switch to Raw mode.
+   * Raw mode does not set this field; rendering stays unchanged.
+   */
+  cleanupSkipped?: string;
 }
 
 interface Props {
@@ -142,6 +155,23 @@ export default function CardReaderView({
               {p}
             </p>
           ))
+        ) : current.cleanupSkipped === "length_divergence" ? (
+          <p class="font-mono text-xs text-[color:var(--color-text-dim)]">
+            <span class="text-[color:var(--color-signal-amber)]">
+              [CLEANUP UNAVAILABLE]
+            </span>
+            <span class="ml-2">
+              Cleanup unavailable for this page —{" "}
+              <button
+                type="button"
+                onClick={onSwitchToRaw}
+                class="underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-cyan)]"
+              >
+                view Raw mode
+              </button>
+              .
+            </span>
+          </p>
         ) : (
           <p class="font-mono text-xs text-[color:var(--color-text-dim)]">
             <span class="text-[color:var(--color-signal-amber)]">[BLANK]</span>
