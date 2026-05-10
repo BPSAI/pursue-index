@@ -125,4 +125,7 @@ revisit this exception when `surya-ocr` ships a release that supports
 
 **Removal trigger:** when `surya-ocr` ships a release that supports
 `transformers >= 5.x`, bump both pins in a single PR and delete this
-exception entry along with the matching `dependabot.yml` ignore rule.
+exception entry. (`.github/dependabot.yml` was removed entirely on
+2026-05-09 in favor of GitHub's server-side security-update path;
+no automated version-bump PRs fire any longer, so the per-package
+ignore rule is no longer necessary.)
