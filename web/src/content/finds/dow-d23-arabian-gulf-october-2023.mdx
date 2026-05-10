@@ -1,0 +1,99 @@
+---
+title: "DOW-UAP-D23 — Two Events, Forty-One Minutes Apart"
+subtitle: "One mission, two UAP entries in the same MISREP, two paired AARO videos — and a SIGINT detail that arrives in the report earlier than the encounters do"
+summary: "Card d8e5687dc870892d is the October 2023 USCENTCOM Mission Report for an ISR sortie out of Al Dhafra over the Arabian Gulf. The MISREP records two separate UAP events forty-one minutes apart — 0241Z and 0322Z — each paired with its own AARO Unresolved UAP Report video (PR-26 and PR-27). Where DOW-UAP-D32 walked one observation window with three FMV clips, this entry walks one mission with two distinct encounters, and reads what the structured form does and does not commit to in each."
+tags: ["dow", "2023", "primary-source", "arabian-gulf", "uae", "fmv-video", "misrep-anatomy"]
+cards:
+  - d8e5687dc870892d
+published: 2026-05-10
+---
+
+import Cite from "../../components/Cite.astro";
+
+## What the document is
+
+Card `d8e5687dc870892d` is **DOW-UAP-D23, Mission Report, United Arab Emirates, October 2023** — a 9-page MISREP submitted by USCENTCOM, declassified by MG Richard A. Harrison on 12 September 2025 and approved for release to AARO under MDR 25-0104. It originated with the 50th Attack Squadron, 432 AEW, supporting Operation SPARTAN SHIELD. The mission departed OMAM (Al Dhafra) at `240015:00ZOCT23`, came on station at 0155Z in SRO TRACK IRISH SICKLE, and landed back at OMAM at `242058:00ZOCT23` — twenty hours forty-three minutes of mission time. <Cite card="d8e5687dc870892d" page={5} q="Total Mission Time" />
+
+Like D32, the same `card_id` shows up multiple times in the manifest because the corpus content-addresses by source URL: two PDF rows and two AARO video rows — **PR-26** and **PR-27** — pointing back to the same MISREP asset. Where [D32](/finds/dow-d32-syria-october-2024) was *one observation window, three FMV clips, one document*, D23 is **one mission, two distinct encounters, two videos, one document**. The encounters are entered as two separate UAP blocks — not one event split across clips — and the form's structure makes that explicit.
+
+## The mission's running narrative
+
+Page 1 is the running mission narrative — a numbered Zulu-time timeline. The two UAP events appear as two distinct line items:
+
+> "(SECRET//NOFORN) AT 0241Z, 1.4a OBSERVED 1X UAP. SEE UAP LINE 1." <Cite card="d8e5687dc870892d" page={1} q="UAP LINE 1" />
+>
+> "(SECRET//NOFORN) AT 0322Z, 1.4a OBSERVED 1X UAP. SEE UAP LINE 2."
+
+The narrative cross-refers each entry to its own structured UAP block: UAP LINE 1 on pages 7–8, UAP LINE 2 on pages 8–9. Two events, two form entries, two cross-references. The MISREP's authorship is committing to the count.
+
+## The Iranian guard call — context, not setup
+
+Earlier on that same page-1 timeline is a separate item that warrants careful framing:
+
+> "(SECRET//REL TO USA, FVEY) AT 0145Z, 1.4a RECEIVED A PROFESSIONAL GUARD CALL. SEE GUARD CALL LINE 1." <Cite card="d8e5687dc870892d" page={1} q="GUARD CALL" />
+
+The detail is built out on page 6. Ground Station Callsign: **IRANIAN AIR DEFENSE**. Aircraft at FL230, 031M heading, 158 KIAS. Tone logged as **Professional**. The transmitted text:
+
+> "AT 0145Z, [callsign] RECEIVED 1X GUARD CALL FROM IRANIAN AIR DEFENSE STATING 'MAINTAIN SAFE DISTANCE FROM BORDER'. CALL WAS PROFESSIONAL. [callsign] RESPONDED 'THIS IS A COALITION AIRCRAFT CONDUCTING ROUTINE OPERATIONS IN INTERNATIONAL AIRSPACE'. AT 0145Z, THE CALLS FROM IRANIAN AIR DEFENSE CEASED." <Cite card="d8e5687dc870892d" page={6} q="MAINTAIN SAFE DISTANCE" />
+
+The mission report records the guard call earlier in the operational window. The first UAP event is logged 56 minutes later, at 0241Z; the second at 0322Z. The two facts are on the same timeline because the timeline is chronological. The MISREP does not draw a connection between them, and neither does this entry. The guard call is documented in its own GUARDCALL block; the UAP events are documented in their own UAP blocks. They are adjacent in the form because they are adjacent in time, and that is all the document commits to.
+
+## UAP LINE 1 — 0241Z
+
+The first UAP block on pages 7–8 records the structured fields for the 0241Z event. The friendly aircraft is at FL243, 162 KTAS, 280-degree trajectory. The UAP-specific fields:
+
+> "**UAP Physical State:** Solid" <Cite card="d8e5687dc870892d" page={7} q="UAP Physical State" />
+>
+> "**UAP Propulsion Means:** UNK"
+>
+> "UAP Maneuverability Observations: NONE"
+>
+> "UAP Signatures: THERMAL SHOWED COLD"
+>
+> "Observer Assessment of UAP: Benign"
+
+The kinetic block on page 8 is partially populated: every field marked `Estimated`, with **Kinetic Velocity: 320 MPH** the only numeric value filled in. Altitude, depth, and trajectory are `UNK`. <Cite card="d8e5687dc870892d" page={8} q="320 MPH" />
+
+The form-grammar note from D32 applies here in mirror image. **"UAP Physical State: Solid"** is a checkbox-menu field — `Solid | Gas | Plasma | UNK` — and the aircrew picked `Solid`. D32's aircrew picked `Plasma` for what they described in prose as a "ball of white light." Different observation, different checkbox. The form's range is what makes the field readable, not an independent physical-state assertion. The free-text `UAP Description` field reads `UNK`; the only specific observational language anywhere in the record comes from the paired AARO video. <Cite card="d8e5687dc870892d" page={8} q="UAP Description" />
+
+The paired AARO **PR-26** description fills that gap from the clip side. Forty-three seconds, infrared sensor:
+
+> "00:00-00:17: An area of contrast remains generally within the top left quarter of the display. 00:17-00:18: The sensor pans from right to left, causing the area of contrast to pass through the center of the display... 00:29: The sensor stops tracking the area of contrast, causing it to leave the sensor field-of-view on the left side of the screen. 00:30-00:43: The sensor resumes its motion relative to the background but does not reacquire the area of contrast."
+
+PR-26 closes with the same boilerplate disclaimer that runs across the AARO catalog: the description is provided "for informational purposes only" and "should not [be interpreted] as reflecting an analytical judgment, investigative conclusion, or factual determination."
+
+## UAP LINE 2 — 0322Z, 41 minutes later
+
+The second UAP block on pages 8–9 records the 0322Z event. The friendly aircraft is at the same FL243, 162 KTAS, 280-degree trajectory. The structured fields read:
+
+> "**UAP Physical State:** Solid" <Cite card="d8e5687dc870892d" page={8} q="UAP Physical State" />
+>
+> "**UAP Propulsion Means:** UNK"
+>
+> "UAP Maneuverability Observations: NONE"
+>
+> "UAP Signatures: UNK"
+>
+> "Observer Assessment of UAP: Benign"
+
+The kinetic block on page 9 mirrors the first: every field `Estimated`, **Kinetic Velocity: 440 MPH**, altitude and trajectory `UNK`. <Cite card="d8e5687dc870892d" page={9} q="440 MPH" /> The `UAP Signatures` field, populated for the first event as `THERMAL SHOWED COLD`, is `UNK` for the second. The Description field is `UNK` again.
+
+Two structured blocks, identical in form, populated differently in detail. The 320-vs-440-MPH delta is what the form numerically commits to between the two events. Whether the second observation is the same object as the first, a different object, or the same form-grammar applied to a different phenomenon, the MISREP does not say. There is no "Same as Initial Contact" field, and no narrative line in GENTEXT/UAP linking the two.
+
+The paired **PR-27** clip is four minutes fifty-seven seconds, IR sensor — much longer than PR-26's forty-three. AARO records "no content" for the first 1:55, an area of contrast becoming distinguishable at 01:56, the sensor zooming in at 02:14, the area "remain[ing] generally in the center of the sensor field-of-view" through 03:26, then "sensor motion caus[ing] the area of contrast to move erratically across the display" through the end of the clip. Same observational-primitive vocabulary, same non-finding disclaimer.
+
+## What the document does not say
+
+Five things this MISREP and its two paired PR descriptions do **not** establish:
+
+1. **No causal link between the Iranian guard call and the UAP events.** They appear on the same page-1 timeline because the timeline is chronological. The form does not connect them, and neither does this entry. A 56-minute gap between the guard call ending and the first UAP observation is what the document records; that is all.
+2. **No propulsion or origin claim.** Both blocks read `UAP Propulsion Means: UNK` and `Observer Assessment of UAP: Benign`. The document closes the file from a tactical standpoint without committing to origin.
+3. **No claim about whether the two UAPs are the same object.** Two structured entries forty-one minutes apart, two velocities, no field linking them. The form's authorship logged them as `UAP Incident` twice and stopped.
+4. **The MISREP description fields are `UNK` even though video exists.** The specific observational language anywhere in the record — areas of contrast, sensor pans, durations — comes from AARO's PR-26 and PR-27, not the MISREP. The structured form admits a field for prose description and the aircrew left it `UNK`; the video is what carries the observable detail downstream.
+5. **"Solid" is not a physical-state finding.** Same form-grammar caveat as D32: it is the aircrew's selection from a checkbox menu.
+
+## Why this card is in this archive
+
+D32 walks the MISREP's field anatomy with one observation window. D23 shows the same form being used to record **two events in one mission**, separately and structurally. Each UAP gets its own `Initial Contact DTG`, kinetic block, velocity number, and signature line; the aircrew filled out two of them, and the corpus attached one paired AARO video to each event.
+
+A reader interested in the MISREP-anatomy frame should read D23 and [D32](/finds/dow-d32-syria-october-2024) together. Different physical-state checkbox (`Solid` vs. `Plasma`), different thermal language (`THERMAL SHOWED COLD` vs. blank), different kinematic populating (D23 commits two velocity numbers; D32 leaves the kinetic block blank). Same form, same institutional grammar, same `Observer Assessment: Benign` closure on each.
