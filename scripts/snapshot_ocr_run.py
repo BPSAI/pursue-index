@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Snapshot per-card mean confidence + duration from the current OCR output.
 
-Walks ``settings.ocr_dir`` and writes ``data/benchmarks/_{label}-snapshot.json``
+Walks ``settings.ocr_dir`` and writes ``data/benchmarks/{label}-snapshot.json``
 with one record per card: ``{card_id, engine, pages, mean_conf, duration_s}``.
 Used to capture the full-corpus baseline for a given engine before/after a
 re-OCR pass.
@@ -81,7 +81,7 @@ def main() -> int:
 
     records = collect_records(args.manifest)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OUT_DIR / f"_{args.label}-snapshot.json"
+    out_path = OUT_DIR / f"{args.label}-snapshot.json"
     out_path.write_text(json.dumps(records, indent=2))
 
     total_pages = sum(r["pages"] for r in records)
