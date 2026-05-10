@@ -75,37 +75,18 @@ export type ScatterplotRow = [number, number, number, number];
  *
  * Slot 2 carries the category (color encoding); slot 3 carries an
  * "opacity-ish" value used to dim non-matching dots when a search
- * query is active. We default to 1.0 for the all-shown case; the
- * island toggles it via ``draw(points)`` re-uploads when the query
- * changes.
+ * query is active. ``dimFactor`` defaults to 1.0 (all-shown) so the
+ * bare ``points.map(pointToScatterplotRow)`` call site for the initial
+ * draw keeps working; the search-redraw effect passes 0.15 for
+ * non-matching points to dim them via ``opacityBy: "valueB"``. Using
+ * the same row builder in both paths keeps the tuple shape (and the
+ * `colorBy`/`opacityBy` slot semantics) in one place — vaivora P2.
  */
-export function pointToScatterplotRow(p: AtlasPoint): ScatterplotRow {
-  return [p.x, p.y, agencyToCategory(p.agency), 1.0];
-}
-
-/**
- * Filter ``points`` to those whose lookup-resolved text contains
- * ``query`` (case-insensitive). Empty / whitespace-only ``query`` is
- * treated as "all match" so the caller can use the same code path
- * for "no filter" and "filter".
- */
-export function filterIndicesByQuery(
-  points: AtlasPoint[],
-  query: string,
-  lookup: (p: AtlasPoint) => string,
-): number[] {
-  const trimmed = query.trim().toLowerCase();
-  if (!trimmed) {
-    return points.map((_, i) => i);
-  }
-  const matches: number[] = [];
-  for (let i = 0; i < points.length; i++) {
-    const haystack = lookup(points[i]).toLowerCase();
-    if (haystack.includes(trimmed)) {
-      matches.push(i);
-    }
-  }
-  return matches;
+export function pointToScatterplotRow(
+  p: AtlasPoint,
+  dimFactor: number = 1.0,
+): ScatterplotRow {
+  return [p.x, p.y, agencyToCategory(p.agency), dimFactor];
 }
 
 /**

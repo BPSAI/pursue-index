@@ -15,7 +15,6 @@ import {
   buildAtlasMiniSearch,
   buildCardHref,
   categoryColors,
-  filterIndicesByQuery,
   pointToScatterplotRow,
   searchIndicesViaMiniSearch,
 } from "./atlas-helpers.ts";
@@ -85,37 +84,12 @@ test("pointToScatterplotRow encodes [x, y, category, opacity] as a 4-tuple", () 
   // a draw() re-upload when search runs. Consumed via
   // `opacityBy: "valueB"`.
   assert.equal(row[3], 1.0);
-});
-
-test("filterIndicesByQuery returns all indices when query is empty", () => {
-  const points: AtlasPoint[] = [
-    { card_id: "a", page: 1, x: 0, y: 0, agency: "FBI" },
-    { card_id: "b", page: 1, x: 1, y: 1, agency: "NASA" },
-  ];
-  // Empty query → all indices match. Caller treats that as "show all".
-  assert.deepEqual(filterIndicesByQuery(points, "", () => "anything"), [0, 1]);
-  assert.deepEqual(filterIndicesByQuery(points, "   ", () => "anything"), [0, 1]);
-});
-
-test("filterIndicesByQuery selects indices whose page text matches", () => {
-  const points: AtlasPoint[] = [
-    { card_id: "a", page: 1, x: 0, y: 0, agency: "FBI" },
-    { card_id: "a", page: 2, x: 0, y: 0, agency: "FBI" },
-    { card_id: "b", page: 1, x: 0, y: 0, agency: "NASA" },
-  ];
-  const corpus: Record<string, string> = {
-    "a-1": "Project Blue Book",
-    "a-2": "completely unrelated",
-    "b-1": "another mention of Blue Book",
-  };
-  const lookup = (p: AtlasPoint) => corpus[`${p.card_id}-${p.page}`] ?? "";
-  // Case-insensitive whole-string contains is enough for the live
-  // dim-non-matchers UX; if we ever want stemmed matches, swap in
-  // MiniSearch under the same callback.
-  assert.deepEqual(
-    filterIndicesByQuery(points, "blue book", lookup),
-    [0, 2],
-  );
+  // Optional dim-factor parameter overrides slot 3 — used by the
+  // search-redraw effect to dim non-matching points to 0.15 without
+  // hand-rolling the row tuple shape (vaivora P2). The default 1.0
+  // keeps the bare `points.map(pointToScatterplotRow)` call site working.
+  const dimmed = pointToScatterplotRow(p, 0.15);
+  assert.equal(dimmed[3], 0.15);
 });
 
 test("buildCardHref emits hash-only URL with no ?page= squat", () => {
@@ -172,8 +146,8 @@ test("buildAtlasMiniSearch indexes title + text and supports stemmed search", ()
 });
 
 test("searchIndicesViaMiniSearch returns all indices for empty query", () => {
-  // Empty query → "show everything" — same convention as
-  // filterIndicesByQuery so the island can drop the helper in directly.
+  // Empty query → "show everything" — the island uses this directly
+  // to drive the search-redraw effect (no separate "no filter" branch).
   const points: AtlasPoint[] = [
     { card_id: "a", page: 1, x: 0, y: 0, agency: "FBI" },
     { card_id: "b", page: 1, x: 1, y: 1, agency: "NASA" },

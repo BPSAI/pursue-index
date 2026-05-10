@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import {
   AGENCY_ORDER,
-  agencyToCategory,
   buildAtlasMiniSearch,
   buildCardHref,
   categoryColors,
@@ -10,6 +9,22 @@ import {
   type AtlasMiniSearch,
   type AtlasPoint,
 } from "./atlas-helpers.ts";
+
+/**
+ * regl-scatterplot's autodetect treats integers as categorical and
+ * floats in [0,1] as continuous — but in the edge case where every
+ * value is exactly 0 or 1 it can misclassify (see node_modules/
+ * regl-scatterplot/README.md ~line 106). The initial draw packs `1.0`
+ * into slot 3 for every row; without these explicit hints, regl can
+ * lock valueB as a single-bucket categorical column and the opacity
+ * gradient silently fails when search later mixes 1.0/0.15 values
+ * (nayru P1). These are draw() options, not createScatterplot config
+ * (README §scatterplot.draw, lines 352-353).
+ */
+const SCATTERPLOT_DATA_TYPES = {
+  zDataType: "categorical", // valueA = agency index (integer)
+  wDataType: "continuous", // valueB = opacity factor (float in [0,1])
+} as const;
 
 /**
  * 2D semantic browser for the PURSUE corpus.
@@ -73,7 +88,7 @@ export default function AtlasIsland({ base }: Props) {
   const [width, setWidth] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scatterplotRef = useRef<{
-    draw: (rows: number[][]) => Promise<void>;
+    draw: (rows: number[][], opts?: Record<string, unknown>) => Promise<void>;
     set: (props: Record<string, unknown>) => Promise<void>;
     destroy: () => void;
   } | null>(null);
@@ -173,7 +188,7 @@ export default function AtlasIsland({ base }: Props) {
     setMountError(null);
     let cancelled = false;
     let scatterplot: {
-      draw: (rows: number[][]) => Promise<void>;
+      draw: (rows: number[][], opts?: Record<string, unknown>) => Promise<void>;
       set: (props: Record<string, unknown>) => Promise<void>;
       destroy: () => void;
       subscribe: (event: string, handler: (info: unknown) => void) => void;
@@ -216,13 +231,15 @@ export default function AtlasIsland({ base }: Props) {
             }
           }
         });
-        const rows = layout.points.map(pointToScatterplotRow);
+        const rows = layout.points.map((p) => pointToScatterplotRow(p));
         // Awaited so an async failure inside `draw()` (rare — late shader
         // compile error, GPU buffer upload reject) propagates into the
         // outer `.catch` and triggers the mount-error overlay. A bare
         // `void scatterplot.draw(rows)` would discard the rejection and
         // leave the user staring at an empty bordered box (nayru P1 #2).
-        await scatterplot.draw(rows);
+        // SCATTERPLOT_DATA_TYPES pins z/w classification so the
+        // all-1.0 initial draw doesn't misautodetect (nayru P1 #1).
+        await scatterplot.draw(rows, SCATTERPLOT_DATA_TYPES);
         scatterplotRef.current = scatterplot;
       })
       .catch((err) => {
@@ -258,13 +275,17 @@ export default function AtlasIsland({ base }: Props) {
     const matched = new Set(
       searchIndicesViaMiniSearch(atlasIndex, debouncedQuery),
     );
-    const rows = layout.points.map((p, i): number[] => [
-      p.x,
-      p.y,
-      agencyToCategory(p.agency),
-      matched.has(i) ? 1.0 : 0.15,
-    ]);
-    void sp.draw(rows);
+    // Same row builder as the initial mount draw — `pointToScatterplotRow`
+    // owns the tuple shape so the `colorBy: "valueA"` / `opacityBy: "valueB"`
+    // slot semantics live in one place (vaivora P2). Pass the dim factor
+    // as the second arg; non-matches drop to 0.15.
+    const rows = layout.points.map((p, i) =>
+      pointToScatterplotRow(p, matched.has(i) ? 1.0 : 0.15),
+    );
+    // Re-pass the data-type hints on every redraw — without them, the
+    // initial categorical/continuous classification can be re-detected
+    // on each draw (nayru P1).
+    void sp.draw(rows, SCATTERPLOT_DATA_TYPES);
   }, [debouncedQuery, layout, atlasIndex]);
 
   if (status === "loading") {
