@@ -53,4 +53,37 @@ describe("withSecurityHeaders", () => {
     const wrapped = withSecurityHeaders(original);
     assert.equal(wrapped.headers.get("X-Frame-Options"), "DENY");
   });
+
+  // CSP regression-locks: the script-src directive must keep both
+  // 'unsafe-eval' (regl-scatterplot compiles WebGL shaders via Function())
+  // and the Cloudflare Insights beacon origin. A future tightening that
+  // drops either silently breaks the /atlas page, so freeze the contract
+  // here. See worker/index.js::CSP_VALUE for the rationale comment.
+  test("CSP script-src includes 'unsafe-eval' for regl/WebGL shader compile", () => {
+    const r = withSecurityHeaders(new Response("ok"));
+    const csp = r.headers.get("Content-Security-Policy") ?? "";
+    const scriptSrc = csp
+      .split(";")
+      .map((d) => d.trim())
+      .find((d) => d.startsWith("script-src "));
+    assert.ok(scriptSrc, "CSP must contain a script-src directive");
+    assert.ok(
+      scriptSrc.includes("'unsafe-eval'"),
+      `script-src must include 'unsafe-eval' (got: ${scriptSrc})`,
+    );
+  });
+
+  test("CSP script-src allows Cloudflare Insights beacon origin", () => {
+    const r = withSecurityHeaders(new Response("ok"));
+    const csp = r.headers.get("Content-Security-Policy") ?? "";
+    const scriptSrc = csp
+      .split(";")
+      .map((d) => d.trim())
+      .find((d) => d.startsWith("script-src "));
+    assert.ok(scriptSrc, "CSP must contain a script-src directive");
+    assert.ok(
+      scriptSrc.includes("https://static.cloudflareinsights.com"),
+      `script-src must include https://static.cloudflareinsights.com (got: ${scriptSrc})`,
+    );
+  });
 });

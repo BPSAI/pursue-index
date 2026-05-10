@@ -69,12 +69,25 @@ function corsHeaders(origin) {
  *     calls Anthropic direct → connect-src includes api.anthropic.com.
  *     Tighter than nothing; permissive enough to not break anything.
  *
+ *     script-src also includes:
+ *       - 'unsafe-eval': required by regl-scatterplot on the /atlas page
+ *         (regl compiles WebGL shader programs by Function()-evaluating
+ *         generated GLSL → JS strings). Without it the entire 2D atlas
+ *         visualization fails to initialize. Acceptable here because all
+ *         script sources are same-origin, the request path doesn't accept
+ *         user-supplied JS, and `eval` cannot exfiltrate beyond the
+ *         existing connect-src allowlist. Site-wide rather than
+ *         /atlas-scoped to avoid coupling Worker logic to asset paths.
+ *       - https://static.cloudflareinsights.com: Cloudflare's first-party
+ *         Web Analytics beacon. Allowing the script source domain is fine;
+ *         the beacon itself is a CF service we already trust at the edge.
+ *
  * If the underlying response already set one of these (e.g. an asset that
  * needs to be framed), defer to it — we use `headers.has()` not `set()`.
  */
 const CSP_VALUE = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https://www.war.gov data:",
   "font-src 'self' data:",
