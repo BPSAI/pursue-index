@@ -111,4 +111,24 @@ describe("withSecurityHeaders", () => {
       `connect-src must include https://cloudflareinsights.com (got: ${connectSrc})`,
     );
   });
+
+  // Regression: PDFs are now self-hosted via R2 (route /pdf/<id>.pdf in
+  // worker/index.js), so frame-src no longer needs to allowlist war.gov.
+  // Lock the same-origin posture here so a future regression that adds
+  // back the cross-origin permission has to confront this test. (See
+  // SECURITY.md and docs/architecture.md for the framing-block context.)
+  test("CSP frame-src is 'self' only (war.gov no longer needs framing)", () => {
+    const r = withSecurityHeaders(new Response("ok"));
+    const csp = r.headers.get("Content-Security-Policy") ?? "";
+    const frameSrc = getCspDirective(csp, "frame-src");
+    assert.ok(frameSrc, "CSP must contain a frame-src directive");
+    assert.ok(
+      !frameSrc.includes("war.gov"),
+      `frame-src must NOT include war.gov post-self-host (got: ${frameSrc})`,
+    );
+    assert.ok(
+      frameSrc.includes("'self'"),
+      `frame-src must include 'self' (got: ${frameSrc})`,
+    );
+  });
 });

@@ -127,6 +127,32 @@ test("nextIframeSrc: appends page= alongside an existing non-page fragment", () 
   );
 });
 
+test("nextIframeSrc: same-origin /pdf/<id>.pdf URLs are accepted and rewritten the same way", () => {
+  // After the war.gov framing fix (PR #27), the iframe src is now
+  // a same-origin route (`/pdf/<card_id>.pdf` served by worker/pdf.js
+  // off the `pursue-pdfs` R2 bucket). Lock the contract: the helper
+  // must rewrite these URLs identically to the legacy war.gov ones,
+  // so a future SSR refactor can't silently regress page-sync.
+  const sameOrigin = "https://pursueindex.com/pdf/abcdef0123456789.pdf";
+  // No existing fragment → page= is appended.
+  assert.equal(
+    nextIframeSrc(sameOrigin, "PDF", 3),
+    `${sameOrigin}#page=3`,
+  );
+  // Existing #page=N → replaced.
+  assert.equal(
+    nextIframeSrc(`${sameOrigin}#page=2`, "PDF", 7),
+    `${sameOrigin}#page=7`,
+  );
+  // Same-page no-op still detected with the new URL shape.
+  assert.equal(nextIframeSrc(`${sameOrigin}#page=4`, "PDF", 4), null);
+  // Extra viewer params (zoom) survive a page rewrite.
+  assert.equal(
+    nextIframeSrc(`${sameOrigin}#zoom=fit&page=2`, "PDF", 9),
+    `${sameOrigin}#page=9&zoom=fit`,
+  );
+});
+
 test("nextIframeSrc: returns null when page already matches even with extra fragment params", () => {
   // Same-page no-op must still trigger when other params are present so we
   // don't reorder/rewrite for a no-change navigation.

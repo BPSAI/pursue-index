@@ -206,6 +206,28 @@ binding; the smoke script does not. New routes added to either
 `scripts/smoke_api_dispatch.sh` so the contract test stays
 comprehensive.
 
+### Self-hosted PDFs (R2 mirror)
+
+`worker/pdf.js` handles `GET /pdf/<card_id>.pdf` against the R2 binding
+`PDFS` (bucket `pursue-pdfs`, key format `<card_id>.pdf`). The handler
+validates `card_id` against `/^[a-f0-9]{16}$/`, range-aware
+streams the body back with `Content-Type: application/pdf` and
+`Cache-Control: public, max-age=31536000, immutable` (URLs are
+content-addressed; the bytes can't change without changing the
+card_id), and 404s on missing objects.
+
+We mirror the corpus rather than embed war.gov directly because in
+May 2026 war.gov / Akamai shipped cross-origin framing protection
+(`X-Frame-Options` / `frame-ancestors`) that started returning
+`chrome-error://chromewebdata/` for iframe embeds while leaving direct
+opens working. The card-detail page's iframe `src` is now
+`/pdf/${card.card_id}.pdf`, but the OPEN ↗ button on that same page
+still points at `card.asset_url` on `www.war.gov` — war.gov stays the
+cite-of-record. The R2 mirror is just a hosting layer. Adding new PDFs
+requires the operator to create or update the R2 object via the CF
+dashboard or `wrangler r2 object put`; the binding name `PDFS` is
+load-bearing and referenced from `worker/pdf.js::serveR2Pdf`.
+
 ### Content-Security-Policy notes
 
 `script-src` includes `'unsafe-eval'`. WebGL shader compilation in
@@ -227,3 +249,10 @@ posture, and the SRI-pin gap on the CF beacon) lives in
 `SECURITY.md` under "Documented exceptions" — the same pattern used
 for the CVE-2026-1839 / `transformers` exception. This section is
 the technical *where it lives*; SECURITY.md is the policy *why*.
+
+`frame-src` is `'self'` only. It used to allow `https://www.war.gov`
+for the cross-origin PDF iframe on `/card/<id>`, but PDFs are now
+served same-origin from the R2 mirror (see "Self-hosted PDFs (R2
+mirror)" above), so the cross-origin permission is no longer needed.
+`img-src` still allows `https://www.war.gov` because non-PDF cards
+keep `card.modal_image_url` on war.gov for thumbnails.

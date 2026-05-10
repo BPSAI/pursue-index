@@ -28,6 +28,20 @@ of public-domain U.S. Government documents. The threat model assumes:
 | Upstream key leakage | Anthropic / Voyage keys live in Worker secrets; BYOK keys go browser → Anthropic directly        |
 | OCR poisoning        | Surya markup is stripped at the search-payload boundary (`pages.jsonl` keeps raw model output)   |
 
+### PDF hosting posture
+
+Corpus PDFs are mirrored into the Cloudflare R2 bucket `pursue-pdfs`
+and served same-origin via the Worker route `/pdf/<card_id>.pdf` (see
+`worker/pdf.js`). war.gov remains the citation source — the OPEN ↗
+button on each card page still links to the original `card.asset_url`
+on `www.war.gov`. We took this split in May 2026 after war.gov / Akamai
+shipped cross-origin framing protection (`X-Frame-Options` /
+`frame-ancestors`) that broke the in-page iframe embed; direct opens
+still worked, but Chrome surfaced the iframe as
+`chrome-error://chromewebdata/`. The R2 mirror is a hosting decision,
+not a content-integrity claim — the upstream bytes on war.gov remain
+the cite-of-record.
+
 ## Deploying this codebase against a non-public corpus
 
 If you fork this codebase and index private, restricted, or otherwise
