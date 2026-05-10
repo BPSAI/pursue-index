@@ -123,6 +123,32 @@ def _run_one_card(
     )
 
 
+def _fold_partial_spend(
+    exc: BudgetExceededError,
+    reports: list[CardReport],
+    running_cost: float,
+) -> float:
+    """Fold the in-progress card's partial spend into the summary.
+
+    Codex P1 follow-up: when ``BudgetExceededError`` fires mid-card, the
+    in-progress card has already written pages to the sidecar and spent
+    real dollars. Without this fold-in, the abort summary under-reports
+    total spend and an operator may overspend on the next invocation.
+    Returns the updated running-cost total.
+    """
+    partial = getattr(exc, "partial_cost_usd", 0.0)
+    partial_card_id = getattr(exc, "card_id", "")
+    if partial_card_id:
+        reports.append(CardReport(
+            card_id=partial_card_id,
+            pages_cleaned=getattr(exc, "pages_cleaned", 0),
+            pages_skipped=0,
+            cost_usd=partial,
+            input_tokens=0, output_tokens=0, cache_read_tokens=0,
+        ))
+    return running_cost + partial
+
+
 @clean_app.command("run")
 def clean_run(
     manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
@@ -165,6 +191,7 @@ def clean_run(
             reports.append(report)
             running_cost += report.cost_usd
     except BudgetExceededError as exc:
+        running_cost = _fold_partial_spend(exc, reports, running_cost)
         console.print(f"[red]BUDGET EXCEEDED[/red]: {exc}")
         _print_summary(reports, running_cost)
         raise typer.Exit(code=2)

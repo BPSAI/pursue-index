@@ -205,6 +205,53 @@ def test_run_card_aborts_when_running_cost_exceeds_budget(
     assert call_count["n"] == 2
 
 
+def test_budget_exceeded_error_carries_partial_card_spend(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Codex P1 follow-up: when the runner raises mid-card, the in-progress
+    card has already incurred N pages of cost on the sidecar. The exception
+    must surface that partial spend (``partial_cost_usd``) and the
+    in-progress card id so the CLI can fold it into the running total
+    before printing the abort summary. Otherwise the summary under-reports
+    spend and the operator may overspend on the next invocation.
+    """
+    pages_path = tmp_path / "cardP" / "pages.jsonl"
+    _write_pages(
+        pages_path,
+        [
+            {"page": 1, "text": "p1"},
+            {"page": 2, "text": "p2"},
+            {"page": 3, "text": "p3"},
+        ],
+    )
+    sidecar_path = tmp_path / "cardP" / "pages_cleaned.jsonl"
+    # $0.40 per call: after the first call cost = $0.40, after second = $0.80
+    # which trips the $0.50 cap. Partial-card spend should be ~$0.80.
+    expensive = clean_client.Usage(
+        input_tokens=500_000, output_tokens=0, cache_read_tokens=0,
+        cache_creation_tokens=0,
+    )
+    monkeypatch.setattr(runner, "clean_page", _fake_clean("out", expensive))
+
+    with pytest.raises(runner.BudgetExceededError) as excinfo:
+        runner.run_card(
+            card_id="cardP",
+            pages_path=pages_path,
+            sidecar_path=sidecar_path,
+            model_id="claude-haiku-4-5-20251001",
+            budget_usd=0.50,
+            running_cost_usd=0.0,
+        )
+    exc = excinfo.value
+    # Partial spend = both pages cleaned before the cap trip ($0.80).
+    assert exc.partial_cost_usd > 0.0
+    assert exc.partial_cost_usd == pytest.approx(0.80, abs=0.01)
+    assert exc.card_id == "cardP"
+    # And the in-progress page count is surfaced so the CLI can append a
+    # partial CardReport row to the summary.
+    assert exc.pages_cleaned == 2
+
+
 def test_run_card_falls_back_when_cleaned_output_is_too_short(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:

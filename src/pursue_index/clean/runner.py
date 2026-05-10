@@ -42,7 +42,27 @@ class BudgetExceededError(RuntimeError):
     The runner raises mid-card so partial work is preserved (the sidecar
     is appended row-by-row, so the next ``run_card`` call resumes cleanly
     via the idempotency check).
+
+    Codex P1 follow-up: carries ``partial_cost_usd`` (the spend on the
+    in-progress card before the cap tripped), ``card_id``, and
+    ``pages_cleaned`` so the CLI can fold the partial spend into the
+    printed summary. Without these, the summary under-reports total spend
+    by the partial-card amount and the operator may overspend on the next
+    invocation.
     """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        partial_cost_usd: float = 0.0,
+        card_id: str = "",
+        pages_cleaned: int = 0,
+    ) -> None:
+        super().__init__(message)
+        self.partial_cost_usd = partial_cost_usd
+        self.card_id = card_id
+        self.pages_cleaned = pages_cleaned
 
 
 @dataclass
@@ -125,9 +145,15 @@ def _clean_one_page(
 
 @dataclass
 class _CardLoopState:
-    """Mutable accumulator for the per-page loop. Internal only."""
+    """Mutable accumulator for the per-page loop. Internal only.
+
+    ``start_cost`` is the running total at card entry — used to compute
+    partial-card spend when the budget cap trips mid-card (Codex P1
+    follow-up).
+    """
 
     cost: float
+    start_cost: float
     cleaned: int = 0
     skipped: int = 0
 
@@ -174,6 +200,9 @@ def _process_page(
             f"Cost cap ${budget_usd:.2f} exceeded after page {page} "
             f"of card {card_id} (running ${state.cost:.4f}). Sidecar "
             f"preserved; re-run to resume.",
+            partial_cost_usd=state.cost - state.start_cost,
+            card_id=card_id,
+            pages_cleaned=state.cleaned,
         )
 
 
@@ -195,7 +224,7 @@ def run_card(
     existing = clean_sidecar.load_existing(sidecar_path)
     prompt_sha = prompt_sha256()
     totals: list[Usage] = [Usage(0, 0, 0, 0)]
-    state = _CardLoopState(cost=running_cost_usd)
+    state = _CardLoopState(cost=running_cost_usd, start_cost=running_cost_usd)
     for row in rows_in:
         _process_page(
             row=row, existing=existing, card_id=card_id, model_id=model_id,

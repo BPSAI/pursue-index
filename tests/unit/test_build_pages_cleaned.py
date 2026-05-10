@@ -237,6 +237,62 @@ def test_build_excludes_rows_flagged_with_cleanup_skipped(tmp_path: Path) -> Non
     assert payload["pages"][0]["page"] == 2
 
 
+def test_build_preserves_empty_input_rows_to_keep_page_coverage_aligned(
+    tmp_path: Path,
+) -> None:
+    """Codex P2 follow-up: pages with ``cleanup_skipped="empty_input"`` are
+    blank in the source OCR, not model failures. Stripping them from the
+    cleaned mirror desyncs page coverage between ``pages.json`` (which
+    includes blank pages) and ``pages-cleaned.json`` — navigating to page
+    N in Cleaned mode would jump to a different page than Raw mode.
+
+    Contract: preserve ``empty_input`` rows with empty ``text`` so
+    (card_id, page) keys align with pages.json. Still strip
+    ``length_divergence`` rows (those are model-failure fallbacks holding
+    raw OCR, not actual cleaned text).
+    """
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": "first cleaned",
+                "model_id": "m", "input_sha256": "a" * 64,
+            },
+            # Empty source page — preserved with empty text.
+            {
+                "page": 2, "card_id": "c1", "text_cleaned": "",
+                "model_id": "m", "input_sha256": "b" * 64,
+                "cleanup_skipped": "empty_input",
+            },
+            # Length-divergence fallback — still excluded.
+            {
+                "page": 3, "card_id": "c1", "text_cleaned": "raw kept",
+                "model_id": "m", "input_sha256": "c" * 64,
+                "cleanup_skipped": "length_divergence",
+            },
+            {
+                "page": 4, "card_id": "c1", "text_cleaned": "fourth cleaned",
+                "model_id": "m", "input_sha256": "d" * 64,
+            },
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    pages = payload["pages"]
+    # Page 3 (length_divergence) is dropped, but page 2 (empty_input) is kept.
+    page_nums = sorted(p["page"] for p in pages)
+    assert page_nums == [1, 2, 4]
+    page2 = next(p for p in pages if p["page"] == 2)
+    assert page2["text"] == ""
+
+
 def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     """A card_id present in the manifest but with no sidecar is not in cards_covered."""
     ocr_dir = tmp_path / "ocr"

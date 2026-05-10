@@ -83,14 +83,34 @@ def _dedupe_latest_per_page(rows: list[dict]) -> list[dict]:
     return [entry["row"] for entry in by_page.values()]
 
 
+def _keep_row_for_mirror(row: dict) -> bool:
+    """Decide whether a sidecar row makes it into the deployed mirror.
+
+    Codex P2 follow-up: ``empty_input`` rows are kept (text_cleaned="")
+    so the (card_id, page) coverage in pages-cleaned.json stays aligned
+    with pages.json — otherwise a Cleaned-mode page jump skips blank
+    pages and lands on the wrong one, breaking the
+    page-N-is-the-same-page-N invariant between Raw and Cleaned views.
+
+    Other ``cleanup_skipped`` values (currently ``length_divergence``)
+    still get stripped: those hold raw OCR as a model-failure fallback,
+    not actual cleaned text, and shouldn't ship as if they were cleaned.
+    """
+    skipped = row.get("cleanup_skipped")
+    if not skipped:
+        return True
+    return skipped == "empty_input"
+
+
 def _walk_sidecars(
     ocr_dir: Path, titles: dict[str, str],
 ) -> tuple[list[dict], list[str]]:
     """Return ``(pages_list, cards_covered)`` — deduped + filtered.
 
     Codex P1: dedupes to one row per page (latest generated_at wins).
-    Rows flagged ``cleanup_skipped`` (length-divergence fallback in
-    runner.py) hold raw OCR, not cleaned text, so they're excluded.
+    Rows flagged ``cleanup_skipped="length_divergence"`` hold raw OCR
+    (not cleaned text) and are excluded. ``empty_input`` rows are kept
+    with empty text to preserve page coverage (Codex P2 follow-up).
     """
     pages: list[dict] = []
     covered: list[str] = []
@@ -106,7 +126,7 @@ def _walk_sidecars(
         if not rows:
             continue
         rows = _dedupe_latest_per_page(rows)
-        rows = [r for r in rows if not r.get("cleanup_skipped")]
+        rows = [r for r in rows if _keep_row_for_mirror(r)]
         if not rows:
             continue
         card_id = card_dir.name
