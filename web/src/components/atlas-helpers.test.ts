@@ -2,9 +2,9 @@
  * Tests for the AtlasIsland's pure helper layer.
  *
  * The helpers are split from the island so the island stays small and
- * the data-shape logic (color mapping, k-means clustering for the
- * mobile fallback, query filtering) is testable without spinning up
- * regl-scatterplot. Run with ``node --test src/components/atlas-helpers.test.ts``.
+ * the data-shape logic (color mapping, query filtering) is testable
+ * without spinning up regl-scatterplot. Run with ``node --test
+ * src/components/atlas-helpers.test.ts``.
  */
 
 import { test } from "node:test";
@@ -16,7 +16,6 @@ import {
   buildCardHref,
   categoryColors,
   filterIndicesByQuery,
-  kmeansClusters,
   pointToScatterplotRow,
   searchIndicesViaMiniSearch,
 } from "./atlas-helpers.ts";
@@ -62,7 +61,7 @@ test("categoryColors has one entry per category index, including unknown", () =>
   }
 });
 
-test("pointToScatterplotRow encodes [x, y, category, opacity]", () => {
+test("pointToScatterplotRow encodes [x, y, category, opacity] as a 4-tuple", () => {
   const p: AtlasPoint = {
     card_id: "abc",
     page: 3,
@@ -71,11 +70,20 @@ test("pointToScatterplotRow encodes [x, y, category, opacity]", () => {
     agency: "FBI",
   };
   const row = pointToScatterplotRow(p);
+  // Length lock: regl-scatterplot's `colorBy: "valueA"` and
+  // `opacityBy: "valueB"` reach into slots 2 and 3 respectively. If
+  // this row ever shrinks, all dots silently lose their color/dim
+  // encoding (the original /atlas color-and-search bug). Lock the
+  // tuple length here so a future schema tweak surfaces loudly.
+  assert.equal(row.length, 4);
   assert.equal(row[0], 1.5);
   assert.equal(row[1], -2.0);
-  // Category index — 1 for FBI per AGENCY_ORDER.
+  // Category index — 1 for FBI per AGENCY_ORDER. Consumed via
+  // `colorBy: "valueA"` on the createScatterplot config.
   assert.equal(row[2], 1);
-  // Default opacity slot — 1.0 for matched/all-shown, dim later via filter.
+  // Default opacity slot — 1.0 for matched/all-shown, dim later via
+  // a draw() re-upload when search runs. Consumed via
+  // `opacityBy: "valueB"`.
   assert.equal(row[3], 1.0);
 });
 
@@ -108,29 +116,6 @@ test("filterIndicesByQuery selects indices whose page text matches", () => {
     filterIndicesByQuery(points, "blue book", lookup),
     [0, 2],
   );
-});
-
-test("kmeansClusters partitions points into k clusters", () => {
-  // Three obvious clusters; ask for 3 → expect 3 distinct labels and
-  // every point assigned. Used by the <400px mobile fallback to group
-  // dots into list-view buckets.
-  const points: AtlasPoint[] = [
-    { card_id: "a", page: 1, x: 0, y: 0, agency: "FBI" },
-    { card_id: "a", page: 2, x: 0.1, y: 0.1, agency: "FBI" },
-    { card_id: "b", page: 1, x: 10, y: 10, agency: "NASA" },
-    { card_id: "b", page: 2, x: 10.1, y: 10.1, agency: "NASA" },
-    { card_id: "c", page: 1, x: -10, y: -10, agency: "Department of War" },
-    { card_id: "c", page: 2, x: -10.1, y: -9.9, agency: "Department of War" },
-  ];
-  const labels = kmeansClusters(points, 3, 42);
-  assert.equal(labels.length, points.length);
-  // Three distinct labels — the algorithm found three groups.
-  const distinct = new Set(labels);
-  assert.equal(distinct.size, 3);
-  // Points with identical-ish coordinates land in the same cluster.
-  assert.equal(labels[0], labels[1]);
-  assert.equal(labels[2], labels[3]);
-  assert.equal(labels[4], labels[5]);
 });
 
 test("buildCardHref emits hash-only URL with no ?page= squat", () => {
@@ -198,28 +183,3 @@ test("searchIndicesViaMiniSearch returns all indices for empty query", () => {
   assert.deepEqual(searchIndicesViaMiniSearch(ms, "   "), [0, 1]);
 });
 
-test("kmeansClusters is deterministic under fixed seed", () => {
-  const points: AtlasPoint[] = [];
-  // 24 points across 4 clusters — small but enough that random init
-  // would matter without seeding.
-  const centres = [
-    [0, 0],
-    [10, 0],
-    [0, 10],
-    [10, 10],
-  ];
-  for (let c = 0; c < centres.length; c++) {
-    for (let i = 0; i < 6; i++) {
-      points.push({
-        card_id: `c${c}`,
-        page: i,
-        x: centres[c][0] + (i % 2) * 0.1,
-        y: centres[c][1] + (i % 3) * 0.1,
-        agency: "FBI",
-      });
-    }
-  }
-  const a = kmeansClusters(points, 4, 42);
-  const b = kmeansClusters(points, 4, 42);
-  assert.deepEqual(a, b);
-});

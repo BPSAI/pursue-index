@@ -5,7 +5,6 @@ import {
   buildAtlasMiniSearch,
   buildCardHref,
   categoryColors,
-  kmeansClusters,
   pointToScatterplotRow,
   searchIndicesViaMiniSearch,
   type AtlasMiniSearch,
@@ -17,8 +16,10 @@ import {
  *
  * Lazy-loads ``/data/atlas-layout.json`` (UMAP coords + agency) and
  * ``/data/pages.json`` (snippets + search) on hydration. Renders via
- * regl-scatterplot (WebGL) for pan/zoom/lasso at 4k+ points; falls
- * back to a list view of k-means clusters at viewports < 400px.
+ * regl-scatterplot (WebGL) for pan/zoom/lasso at 4k+ points across all
+ * viewports — the canvas works on small/mobile viewports too (slightly
+ * cramped but acceptable; the prior cluster-list fallback at <400px was
+ * a degraded view that obscured rather than helped).
  *
  * The component is deliberately small: pure functions live in
  * ``./atlas-helpers.ts``, and the regl wiring is loaded dynamically
@@ -47,7 +48,6 @@ interface Props {
 
 type Status = "loading" | "missing" | "ready" | "error";
 
-const MOBILE_BREAKPOINT = 400;
 const TOOLTIP_SNIPPET_LEN = 180;
 
 export default function AtlasIsland({ base }: Props) {
@@ -67,9 +67,9 @@ export default function AtlasIsland({ base }: Props) {
   // ``status === "error"`` path — that one fires before mount; this one
   // fires during/after the regl-scatterplot import + init.
   const [mountError, setMountError] = useState<string | null>(null);
-  // Start at 0 (unknown) and let the mount effect set the real width.
-  // SSR'ing 1024 would flash the desktop canvas-mount path on a real
-  // <400px viewport before the first resize event corrects it (nayru #6).
+  // Resize ticker — used purely to push width changes into the
+  // regl-scatterplot viewport via `set({width, height})`. Initial value
+  // 0 (unknown) gets corrected on the first resize event (mount).
   const [width, setWidth] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scatterplotRef = useRef<{
@@ -108,10 +108,10 @@ export default function AtlasIsland({ base }: Props) {
     };
   }, [base]);
 
-  // Track viewport width for the mobile-fallback decision. The initial
-  // setWidth call here is what flips the component out of the "width=0"
-  // hold state — that hold prevents a brief desktop-canvas mount on
-  // real <400px viewports (the prior code SSR'd 1024 unconditionally).
+  // Track viewport width so the resize-into-scatterplot effect below
+  // can push `set({width, height})` updates into the WebGL viewport on
+  // window resize. Without this, a desktop resize leaves the WebGL
+  // viewport stretched and hit-testing offset (Codex-1).
   useEffect(() => {
     const onResize = () => setWidth(window.innerWidth);
     onResize();
@@ -149,14 +149,6 @@ export default function AtlasIsland({ base }: Props) {
     return m;
   }, [docs]);
 
-  const pointsForRender = useMemo(() => layout?.points ?? [], [layout]);
-  // Canvas mount requires a measured viewport >= 400px. ``width === 0``
-  // is the pre-mount state — neither path renders until the resize
-  // effect runs and sets the real width. ``isMobile`` is true for
-  // measured-and-narrow only.
-  const hasMeasuredViewport = width > 0;
-  const isMobile = hasMeasuredViewport && width < MOBILE_BREAKPOINT;
-
   // Build the MiniSearch index once when docs land. Re-runs only when
   // points or doc set changes — keystrokes hit the cached index, not a
   // fresh build. Replaces the naive substring filter so /atlas search
@@ -169,13 +161,11 @@ export default function AtlasIsland({ base }: Props) {
     );
   }, [layout, docsByKey]);
 
-  // Lazy-load regl-scatterplot only when ready + on a measured desktop
-  // viewport. Avoids pulling the WebGL bundle into the SSR'd HTML, into
-  // the mobile fallback path, AND into the brief width=0 hold state
-  // before the resize effect has run (which would otherwise flash a
-  // canvas-mount on real <400px viewports — nayru #6).
+  // Lazy-load regl-scatterplot once data is ready. Avoids pulling the
+  // WebGL bundle into the SSR'd HTML — the dynamic import only fires
+  // after the initial fetch resolves and the canvas is mounted.
   useEffect(() => {
-    if (status !== "ready" || !hasMeasuredViewport || isMobile || !canvasRef.current || !layout) return;
+    if (status !== "ready" || !canvasRef.current || !layout) return;
     // Clear any prior mount error before retrying. Without this, a transient
     // failure followed by a viewport-mode change that retriggers the effect
     // would leave the [ATLAS UNAVAILABLE] overlay covering a freshly-mounted
@@ -200,6 +190,15 @@ export default function AtlasIsland({ base }: Props) {
           width: rect.width,
           height: rect.height,
           pointColor: categoryColors(),
+          // colorBy / opacityBy tell regl-scatterplot which row slot
+          // drives the color / opacity encoding. `pointToScatterplotRow`
+          // packs `[x, y, agencyToCategory(p.agency), 1.0]` (or 0.15
+          // when the search filter dims a row) — without these two
+          // keys, regl ignores slots 2 & 3 and every dot renders with
+          // the first palette entry at full opacity (the original
+          // "all-green / search-does-nothing" bug).
+          colorBy: "valueA",
+          opacityBy: "valueB",
           pointSize: 4,
           backgroundColor: [10 / 255, 13 / 255, 18 / 255, 1],
         }) as typeof scatterplot;
@@ -245,10 +244,7 @@ export default function AtlasIsland({ base }: Props) {
         scatterplotRef.current = null;
       }
     };
-    // base + layout + isMobile + hasMeasuredViewport are the meaningful dep set;
-    // ESLint would also list `status` but it's tracked above with a guard.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, hasMeasuredViewport, isMobile, layout, base]);
+  }, [status, layout, base]);
 
   // Re-color on (debounced) query change: matched indices keep full
   // opacity, others dim. The cheapest way is a fresh draw with a new
@@ -271,10 +267,7 @@ export default function AtlasIsland({ base }: Props) {
     void sp.draw(rows);
   }, [debouncedQuery, layout, atlasIndex]);
 
-  if (status === "loading" || !hasMeasuredViewport) {
-    // The width=0 hold prevents a desktop-canvas flash on real <400px
-    // viewports — render the loading state until the resize effect
-    // has measured the viewport.
+  if (status === "loading") {
     return <p class="pi-loading text-xs">DECLASSIFYING<span class="pi-caret"></span></p>;
   }
   if (status === "missing") {
@@ -309,37 +302,27 @@ export default function AtlasIsland({ base }: Props) {
           PAGES PROJECTED · UMAP r_state=42
         </p>
       </div>
-      {isMobile ? (
-        <ClusterListFallback
-          points={pointsForRender}
-          docsByKey={docsByKey}
-          base={base}
-          atlasIndex={atlasIndex}
-          query={debouncedQuery}
-        />
-      ) : (
-        <div class="relative border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/80 aspect-[4/3] sm:aspect-[16/10]">
-          <canvas ref={canvasRef} class="block w-full h-full" />
-          <AtlasLegend />
-          {mountError !== null && (
-            // Fully opaque so a half-rendered canvas behind doesn't bleed
-            // through (nayru P2 #5). Using `bg-deep` (no /90 alpha) keeps
-            // the overlay readable regardless of canvas state at the
-            // moment of failure.
-            <div class="absolute inset-0 flex items-center justify-center p-4 text-center bg-[color:var(--color-bg-deep)]">
-              <p class="font-mono text-sm text-[color:var(--color-signal-red)] max-w-md leading-relaxed">
-                [ATLAS UNAVAILABLE] WebGL initialization failed in this browser.
-                <span class="block mt-1 text-[11px] text-[color:var(--color-text-dim)] uppercase tracking-[0.15em]">
-                  see browser console for details
-                </span>
-              </p>
-            </div>
-          )}
-          {hoverIdx !== null && layout.points[hoverIdx] && (
-            <Tooltip point={layout.points[hoverIdx]} doc={docsByKey.get(`${layout.points[hoverIdx].card_id}-${layout.points[hoverIdx].page}`)} />
-          )}
-        </div>
-      )}
+      <div class="relative border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/80 aspect-[4/3] sm:aspect-[16/10]">
+        <canvas ref={canvasRef} class="block w-full h-full" />
+        <AtlasLegend />
+        {mountError !== null && (
+          // Fully opaque so a half-rendered canvas behind doesn't bleed
+          // through (nayru P2 #5). Using `bg-deep` (no /90 alpha) keeps
+          // the overlay readable regardless of canvas state at the
+          // moment of failure.
+          <div class="absolute inset-0 flex items-center justify-center p-4 text-center bg-[color:var(--color-bg-deep)]">
+            <p class="font-mono text-sm text-[color:var(--color-signal-red)] max-w-md leading-relaxed">
+              [ATLAS UNAVAILABLE] WebGL initialization failed in this browser.
+              <span class="block mt-1 text-[11px] text-[color:var(--color-text-dim)] uppercase tracking-[0.15em]">
+                see browser console for details
+              </span>
+            </p>
+          </div>
+        )}
+        {hoverIdx !== null && layout.points[hoverIdx] && (
+          <Tooltip point={layout.points[hoverIdx]} doc={docsByKey.get(`${layout.points[hoverIdx].card_id}-${layout.points[hoverIdx].page}`)} />
+        )}
+      </div>
       <p class="text-[11px] font-mono text-[color:var(--color-text-dim)] leading-relaxed max-w-3xl">
         Dots are a 2D approximation, not ground-truth topic groupings —
         the layout depends on the UMAP seed and shifts when retuned.
@@ -388,91 +371,3 @@ function Tooltip({ point, doc }: { point: AtlasPoint; doc: PageDoc | undefined }
   );
 }
 
-function ClusterListFallback({
-  points,
-  docsByKey,
-  base,
-  atlasIndex,
-  query,
-}: {
-  points: AtlasPoint[];
-  docsByKey: Map<string, PageDoc>;
-  base: string;
-  atlasIndex: AtlasMiniSearch | null;
-  query: string;
-}) {
-  // 8 clusters keeps the list scannable without losing density signal —
-  // matches the plan's k=8 default. Built from the full point set so
-  // cluster labels stay stable while the user types.
-  const labels = useMemo(() => kmeansClusters(points, 8, 42), [points]);
-  // Filter the cluster contents by the active query (Codex-2 — without
-  // this, the search input on phones / <400px viewports has no effect).
-  // Empty query means "show everything" by MiniSearch contract.
-  const matched = useMemo(() => {
-    if (!atlasIndex) return null;
-    return new Set(searchIndicesViaMiniSearch(atlasIndex, query));
-  }, [atlasIndex, query]);
-  const clusters = useMemo(
-    () => groupByCluster(points, labels, matched),
-    [points, labels, matched],
-  );
-  return (
-    <ul class="space-y-3">
-      {clusters.map((c) => (
-        <li class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-3">
-          <div class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-signal-green)]">
-            ▸ cluster · {c.dominantAgency} ({c.points.length} pages)
-          </div>
-          <ul class="mt-2 space-y-1 text-[12px]">
-            {c.points.slice(0, 5).map((p) => {
-              const d = docsByKey.get(`${p.card_id}-${p.page}`);
-              return (
-                <li>
-                  <a
-                    href={buildCardHref(base, p.card_id, p.page)}
-                    class="text-[color:var(--color-text-bright)] hover:text-[color:var(--color-signal-green)]"
-                  >
-                    {d?.title ?? p.card_id} · P{p.page}
-                  </a>
-                </li>
-              );
-            })}
-            {c.points.length > 5 && (
-              <li class="text-[color:var(--color-text-faint)] text-[11px] font-mono">
-                + {c.points.length - 5} more
-              </li>
-            )}
-          </ul>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function groupByCluster(
-  points: AtlasPoint[],
-  labels: number[],
-  matched: Set<number> | null,
-): { cluster: number; points: AtlasPoint[]; dominantAgency: string }[] {
-  const groups = new Map<number, AtlasPoint[]>();
-  for (let i = 0; i < points.length; i++) {
-    if (matched && !matched.has(i)) continue;
-    const arr = groups.get(labels[i]) ?? [];
-    arr.push(points[i]);
-    groups.set(labels[i], arr);
-  }
-  const out: { cluster: number; points: AtlasPoint[]; dominantAgency: string }[] = [];
-  for (const [cluster, pts] of groups.entries()) {
-    const counts = new Map<string, number>();
-    for (const p of pts) counts.set(p.agency, (counts.get(p.agency) ?? 0) + 1);
-    let dominant = "UNKNOWN";
-    let max = 0;
-    for (const [a, n] of counts) if (n > max) {
-      dominant = a;
-      max = n;
-    }
-    out.push({ cluster, points: pts, dominantAgency: dominant });
-  }
-  out.sort((a, b) => b.points.length - a.points.length);
-  return out;
-}
