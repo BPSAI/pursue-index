@@ -141,6 +141,14 @@ from pursue_index.cli.embed_cli import embed_app  # noqa: E402
 
 app.add_typer(embed_app)
 
+# ---------------------------------------------------------------------------
+# ops (health checks driven by GH Actions cron)
+# ---------------------------------------------------------------------------
+# Same split rationale as ``embed_app`` — keep this module slim.
+from pursue_index.cli.ops_cli import ops_app  # noqa: E402
+
+app.add_typer(ops_app)
+
 
 # ---------------------------------------------------------------------------
 # novelty
