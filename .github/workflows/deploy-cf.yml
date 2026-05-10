@@ -26,13 +26,26 @@ name: Deploy to Cloudflare Workers (fallback, manual)
 # * Action pinning: `actions/checkout`, `actions/setup-node`, and
 #   `actions/setup-python` are pinned to commit SHAs. Bumps land via
 #   Dependabot (`.github/dependabot.yml`, `github-actions` ecosystem).
-# * Pip install runs `pip install -e .` to get pursue_index + its
-#   runtime deps (Pillow, structlog, pydantic, ...). The OG build
-#   scripts import `pursue_index.web.og_image`, which in turn imports
+# * Pip install is split into two scoped steps that, together, install
+#   pursue_index (editable, `--no-deps`) plus only the OG-render dep
+#   closure (Pillow, structlog, pydantic, pydantic-settings — see the
+#   `[project.optional-dependencies].og` block in pyproject.toml,
+#   which is the canonical list). The OG build scripts import
+#   `pursue_index.web.og_image`, which in turn imports
 #   `pursue_index/__init__.py` — that package init imports `structlog`
 #   at module level, so a Pillow-only install ImportErrors before the
-#   render even starts. The `[gpu]` extra (surya/torch, ~3 GB) is
-#   intentionally omitted; the OG path does not need it.
+#   render even starts. Splitting the install this way skips the
+#   ~15-wheel core runtime closure (sqlalchemy, fastapi, uvicorn,
+#   httpx, curl-cffi, pytesseract, pdf2image, pypdfium2, alembic,
+#   psycopg, typer, rich, python-dotenv, tenacity) that pip would
+#   otherwise resolve from `[project].dependencies` — none of which
+#   are on the OG render path. `pip install -e .[og]` alone would
+#   still pull the core deps because extras are additive, not
+#   substitutive; `pip install -e .[og] --no-deps` would skip them but
+#   would also skip Pillow/structlog/pydantic. Hence the two-step
+#   approach. The `[gpu]` extra (surya/torch, ~3 GB) remains
+#   intentionally omitted. Reviewers nayru P2 / vaivora P2 on PR #24
+#   flagged the install bloat.
 # * Failure-issue pattern mirrors poll-pursue.yml: on deploy failure,
 #   open or update a `deploy-failure` issue with the run URL so the
 #   operator gets paged via GitHub notifications. The full wrangler
@@ -109,20 +122,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install pursue_index runtime deps (editable, no extras)
-        # The OG build scripts import `pursue_index.web.og_image` and
-        # `pursue_index.web.finds_og`, which transitively load
-        # `pursue_index/__init__.py` — that package init imports
-        # `structlog` at module level. A Pillow-only install therefore
-        # ImportErrors on `import structlog` before any rendering runs
-        # (observed on the failed deploy-cf runs preceding this fix).
-        # `pip install -e .` pulls Pillow (>=11.1.0, CVE-2024-28219) plus
-        # structlog, pydantic, typer, httpx, and the rest of the core
-        # runtime list in `pyproject.toml [project].dependencies`.
-        # The `[gpu]` extra (surya-ocr/torch/CUDA wheels, ~3 GB) is
-        # intentionally omitted — it is not on the OG render path and
-        # would add minutes to every deploy.
-        run: pip install -e .
+      - name: Install pursue_index editable (no transitive deps)
+        # `--no-deps` keeps the editable package install (so the OG
+        # scripts can `import pursue_index.web.og_image`) but skips
+        # the ~15-wheel core runtime closure in `[project].dependencies`
+        # — none of which are on the OG render path. The OG-only deps
+        # are installed in the next step from the `[og]` extra in
+        # pyproject.toml. (nayru P2 / vaivora P2 on PR #24.)
+        run: pip install -e . --no-deps
+
+      - name: Install OG-render deps (slim, mirrors [og] extra)
+        # Mirrors the canonical list in `pyproject.toml
+        # [project.optional-dependencies].og`. Kept in sync manually:
+        # if the `[og]` block changes, update this command too. The
+        # `[og]` extra exists primarily for local installs
+        # (`pip install -e .[og]` for an editor that does want the
+        # core deps too) and as the documented source of truth for
+        # what the OG path actually needs. Pillow >=11.1.0 is the
+        # CVE-2024-28219 floor (see comment in pyproject.toml).
+        run: pip install "pillow>=11.1.0" "structlog>=24.1" "pydantic>=2.7" "pydantic-settings>=2.3"
 
       - name: Render default OG image (web/public/og.png)
         # Reads data/manifests/latest.json so the rendered card stays

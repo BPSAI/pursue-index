@@ -38,6 +38,27 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Slim install for the deploy-cf OG render path. Only includes what
+# `pursue_index/__init__.py` + `pursue_index.config.settings` +
+# `pursue_index.web.{og_image,og_layers,og_fonts,og_writer,finds_og,
+# finds_og_layers,finds_frontmatter}` actually import: Pillow (image
+# composition), structlog (package init), pydantic + pydantic-settings
+# (Settings model that __init__.py loads). Excludes everything else
+# from `[project].dependencies` (sqlalchemy, fastapi, uvicorn, httpx,
+# curl-cffi, tenacity, pytesseract, pdf2image, pypdfium2, alembic,
+# psycopg, typer, rich, python-dotenv) — none of which are imported
+# by the OG path. Used by `.github/workflows/deploy-cf.yml`:
+# `pip install -e .[og] --no-deps` resolves only the slim transitive
+# closure. Reviewers nayru P2 / vaivora P2 (PR #24).
+og = [
+    # Pillow 11.1.0 patches CVE-2024-28219 — same lower bound and
+    # rationale as the core deps block above. og_layers.py uses
+    # Image.BICUBIC resample on the rotation path.
+    "pillow>=11.1.0",
+    "structlog>=24.1",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+]
 azure = [
     "azure-ai-documentintelligence>=1.0.0b3",
     "azure-identity>=1.17",

@@ -1,0 +1,173 @@
+name: Cloudflare token health check
+
+# Weekly probe that validates `CLOUDFLARE_API_TOKEN` /
+# `CLOUDFLARE_ACCOUNT_ID` without performing a deploy.
+#
+# Why this exists:
+#   `deploy-cf.yml` was flipped to `workflow_dispatch:`-only on
+#   2026-05-09 (PR #24). Before the flip, the CF token was implicitly
+#   exercised on every push that touched the deploy paths, so any
+#   rotation drift between `wrangler.toml` env and the GH Actions
+#   secret surfaced inside ~hours. Manual-only firing means a rotated-
+#   but-not-updated token can sit broken for arbitrarily long until
+#   the operator next clicks "Run workflow" — at which point they're
+#   already trying to recover from a stalled CF Workers Builds run
+#   and don't want a second failure mode in the way. This workflow
+#   keeps the secret continuously validated by running
+#   `npx wrangler whoami` (no deploy, no side effects) on a weekly
+#   cadence, and opens a `cf-token-health-failure` issue if the call
+#   non-zeros. Recommended by laverna in the PR #24 security review.
+#
+# Triggering posture:
+#   * schedule: Mondays 12:00 UTC. Picked to land mid-morning EU /
+#     pre-business-hours US so a failure surfaces before the operator's
+#     workweek starts. Cron uses GH Actions UTC; no DST drift.
+#   * workflow_dispatch: operator-driven re-run after a token rotation
+#     or to confirm a fix.
+#
+# Permissions:
+#   * Workflow-level `contents: read` — checkout only, never writes
+#     to the repo.
+#   * Job-level `issues: write` — needed for the failure-issue upsert
+#     step (mirrors deploy-cf.yml's pattern).
+#
+# Action pinning: SHA-pinned per SEC-001, same posture as
+# poll-pursue.yml / deploy-cf.yml. Bumps land via Dependabot's
+# `github-actions` ecosystem; the SHAs here MUST stay aligned with
+# deploy-cf.yml so a token-health green light reflects the same
+# wrangler version the deploy job will use.
+#
+# Failure-issue lifecycle: matches deploy-cf.yml — single open
+# `cf-token-health-failure` issue, append-comment on subsequent
+# failures, no log tail in the body (run URL is repo-read-gated and
+# is the authoritative log surface). The label is created idempotently
+# on every run via `gh label create --force` so the first run on a
+# fresh repo doesn't fail on a missing label.
+
+on:
+  schedule:
+    - cron: "0 12 * * 1"   # Mondays 12:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize health checks; cancel any older queued run when a newer
+  # one fires (e.g. operator clicks "Run workflow" while the scheduled
+  # run is still queued behind a busy runner pool).
+  group: cf-token-health
+  cancel-in-progress: true
+
+jobs:
+  whoami:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write   # for the failure-issue step below
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+
+      # actions/setup-node v6.4.0 — pinned to SHA per SEC-001.
+      # Node 22 matches deploy-cf.yml and `web/package.json` engines.
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Ensure cf-token-health-failure label exists
+        # Idempotent — `gh label create --force` is upsert. Required so
+        # the first run on a fresh repo (or after a label deletion)
+        # doesn't fail at the issue-upsert step. Mirrors the pattern in
+        # deploy-cf.yml's `Ensure deploy-failure label exists`.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create cf-token-health-failure \
+            --color D93F0B \
+            --description "Weekly wrangler whoami probe failed; CF token may be rotated/expired" \
+            --force
+
+      - name: Install web deps (npm ci, exact lockfile)
+        # `npm ci` not `npm install` — same posture as deploy-cf.yml.
+        # Wrangler is declared in `web/package.json` devDependencies.
+        working-directory: web
+        run: npm ci
+
+      - name: Probe CF token via wrangler whoami
+        id: whoami
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # `wrangler whoami` is a read-only call against the CF API. It
+        # exits non-zero on missing/expired/revoked token. No deploy,
+        # no side effects.
+        working-directory: web
+        run: |
+          set -o pipefail
+          npx wrangler whoami 2>&1 | tee whoami.log
+        continue-on-error: true
+
+      - name: Append health summary
+        if: always()
+        env:
+          OUTCOME: ${{ steps.whoami.outcome }}
+        run: |
+          {
+            echo "## CF token health"
+            echo ""
+            echo "- Probe: \`npx wrangler whoami\`"
+            echo "- Outcome: \`${OUTCOME}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update cf-token-health-failure issue
+        if: steps.whoami.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        # Reuse a single open issue rather than spamming one per
+        # failure, mirroring deploy-cf.yml. Body links to the run URL
+        # only — the wrangler whoami output may include the token tail
+        # or account ID; the run URL is repo-read-gated and respects
+        # org visibility while still showing the operator the same
+        # bytes if they need to debug.
+        run: |
+          BODY=$(cat <<EOF
+          Weekly \`wrangler whoami\` probe failed.
+
+          - Run: ${RUN_URL}
+
+          Likely causes (in order of frequency):
+          1. \`CLOUDFLARE_API_TOKEN\` repo secret was rotated upstream
+             (CF dashboard) but the GH Actions secret was not updated.
+          2. Token was revoked or expired.
+          3. \`CLOUDFLARE_ACCOUNT_ID\` was changed (rare).
+          4. Transient CF API outage — re-run the workflow before
+             rotating.
+
+          Open the run URL above for the wrangler whoami output. Until
+          this is fixed, the manual \`deploy-cf\` fallback (PR #24)
+          will fail when the operator next tries to use it.
+          EOF
+          )
+          # `// empty` collapses null to the empty string so the
+          # `[ -n "$EXISTING" ]` guard works correctly on a fresh repo
+          # with no prior health-failure issues. Same fix as
+          # deploy-cf.yml.
+          EXISTING=$(gh issue list --label cf-token-health-failure --state open --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create \
+              --title "cf-token-health: wrangler whoami failed (run ${{ github.run_id }})" \
+              --body "$BODY" \
+              --label "cf-token-health-failure"
+          fi
+
+      - name: Propagate failure exit code
+        if: steps.whoami.outcome == 'failure'
+        run: exit 1

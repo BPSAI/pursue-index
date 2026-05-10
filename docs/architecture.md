@@ -183,6 +183,18 @@ preference:
    path the operator uses when both above are stuck. Requires
    `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` in env (or `wrangler login`).
 
+Token-rot detection runs out-of-band via
+`.github/workflows/cf-token-health.yml` — a weekly Monday-12:00-UTC
+`workflow_dispatch`-able cron that calls `npx wrangler whoami` against
+the same `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets the
+fallback deploy uses. With the deploy workflow flipped to manual-only
+(see path #2), those secrets are no longer exercised on every push, so
+a rotated-but-not-updated token would otherwise sit broken until the
+next manual deploy attempt. The health check opens or updates a
+`cf-token-health-failure` issue on probe failure, mirroring the
+`deploy-failure` issue pattern. Recommended by laverna in the PR #24
+security review.
+
 ### /api/* dispatch contract
 
 Integration-boundary smoke test runs on every PR via
