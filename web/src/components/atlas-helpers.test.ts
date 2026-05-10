@@ -15,6 +15,8 @@ import {
   buildAtlasMiniSearch,
   buildCardHref,
   categoryColors,
+  DIM_OPACITY,
+  FULL_OPACITY,
   pointToScatterplotRow,
   searchIndicesViaMiniSearch,
 } from "./atlas-helpers.ts";
@@ -171,6 +173,36 @@ test("buildAtlasMiniSearch inherits the no-fuzzy policy from the shared factory"
     !matched.includes(1),
     "fuzzy-only doc must NOT be returned (no-fuzzy policy is shared)",
   );
+});
+
+test("DIM_OPACITY and FULL_OPACITY are stable", () => {
+  // The opacity[] lookup table baked into createScatterplot relies on
+  // these specific values. Changing them changes the visual contract;
+  // pinning here forces an intentional test-diff if a future PR alters them
+  // (laverna P3 + nayru P2 on PR #31 — both reviewers independently flagged
+  // that the prior tests asserted the slot-3 selector index but never the
+  // literal opacity values, so a silent drift from 0.15 → 0.5 would slip
+  // through CI).
+  assert.equal(DIM_OPACITY, 0.15);
+  assert.equal(FULL_OPACITY, 1.0);
+});
+
+test("pointToScatterplotRow opacityIndex param is type-narrowed to 0|1", () => {
+  // vaivora P3 on PR #31: the `0 | 1` narrowing is the type-level guard
+  // that prevents a future caller from passing a raw opacity value (e.g.
+  // 0.15) into slot 3 — the exact bug class that `floor(0.15 * 1) === 0`
+  // happened to mask before this PR. If this `@ts-expect-error` stops
+  // erroring, the param type has been silently widened back to `number`
+  // and the bug class has crept back in.
+  // @ts-expect-error — 0.5 is not assignable to 0 | 1
+  pointToScatterplotRow(
+    { x: 0, y: 0, agency: "FBI", card_id: "abcd1234abcd1234", page: 1 },
+    0.5,
+  );
+  // node --test strips TS at runtime so the call still executes; we only
+  // care that the compiler flags it. tsc --noEmit (npm run build) is the
+  // gate that actually enforces this — see pretest hook in package.json.
+  assert.ok(true);
 });
 
 test("searchIndicesViaMiniSearch returns all indices for empty query", () => {

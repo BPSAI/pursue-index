@@ -229,6 +229,11 @@ export default function AtlasIsland({ base }: Props) {
           // silently never fires (PR #30 wired colorBy/opacityBy but
           // missed this lookup; the result was that typing in /atlas
           // search produced no visible dim).
+          // opacity.length === 2 is load-bearing: the redraw effect packs slot 3 as
+          // a 0|1 selector index, and `floor(state.w * (length-1)) = floor(state.w * 1)`
+          // only resolves to {0, 1} when length === 2. Adding a third tier (e.g. a
+          // "hovered" state) requires re-thinking the row encoding — see
+          // pointToScatterplotRow docstring.
           opacity: [DIM_OPACITY, FULL_OPACITY],
           pointSize: 4,
           backgroundColor: [10 / 255, 13 / 255, 18 / 255, 1],

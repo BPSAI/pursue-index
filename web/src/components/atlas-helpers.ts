@@ -96,11 +96,15 @@ export const FULL_OPACITY = 1.0;
  * from the ``opacity`` config array. With ``opacity: [DIM_OPACITY,
  * FULL_OPACITY]`` the multiplicator is 1, so ``state.w === 0`` →
  * ``opacity[0]`` (dim) and ``state.w === 1`` → ``opacity[1]`` (full).
- * Packing the index here (rather than a raw 0.15 / 1.0) keeps the dim
- * value in one place (the ``opacity`` lookup) and avoids the trap where
- * a future maintainer changes ``DIM_OPACITY`` to 0.5 and discovers that
- * ``floor(0.5 * 1) = 0`` happens to still floor to dim, but ``0.7``
- * silently floors to dim too.
+ *
+ * TRAP for future maintainers: do NOT pack the actual opacity value
+ * (e.g. 0.15) into slot 3. That worked accidentally before this PR
+ * because ``floor(0.15 * 1) === 0`` happened to still resolve to dim —
+ * masking that the row encoding was actually broken (the shader was
+ * indexing the texture with a raw value rather than a selector). Slot 3
+ * MUST stay a strict 0/1 index into the ``opacity`` lookup; the ``0 | 1``
+ * type narrowing on ``opacityIndex`` below is the compile-time guard
+ * against this regressing.
  *
  * Default ``opacityIndex`` is 1 (bright) so the bare
  * ``points.map(pointToScatterplotRow)`` initial-draw call site renders
