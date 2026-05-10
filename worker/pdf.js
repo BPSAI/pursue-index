@@ -12,11 +12,14 @@
 //
 // Contract pinned by `worker/tests/pdf.test.js`:
 //   - card_id must match /^[a-f0-9]{16}$/ (lowercase). Anything else → 400.
-//   - missing object → 404 text/plain.
+//   - missing object → 404 text/plain (GET and HEAD).
 //   - 200 with PDF/disposition/cache/etag/length/accept-ranges headers.
+//   - HEAD mirrors GET headers but ships an empty body.
 //   - Range: bytes=N-M → 206 with Content-Range.
 //   - Range: bytes=N-   → 206 with offset only (R2 streams to EOF).
-//   - Malformed Range falls back to a full 200 (defense-in-depth).
+//   - Range past EOF (offset >= size) → 416 with `Content-Range: bytes */<size>`.
+//   - Malformed Range (suffix-range, multi-range, garbage) falls back to a
+//     full 200 (defense-in-depth — matches nginx/CloudFront behavior).
 
 /** Pinned card_id format: 16 hex chars, lowercase. Mirrors the manifest. */
 export const CARD_ID_RE = /^[a-f0-9]{16}$/;
@@ -76,6 +79,7 @@ function baseHeaders(cardId, etag) {
  * ReadableStream<Uint8Array> in the Workers runtime.
  */
 export async function serveR2Pdf(request, env, cardId) {
+  const isHead = request.method === "HEAD";
   const range = parseRangeHeader(request.headers.get("Range"));
   const opts = range ? { range } : undefined;
   const obj = await env.PDFS.get(`${cardId}.pdf`, opts);
@@ -85,8 +89,25 @@ export async function serveR2Pdf(request, env, cardId) {
       headers: { "Content-Type": "text/plain" },
     });
   }
+  // RFC 9110 §15.5.17: an unsatisfiable range (offset past EOF) MUST return
+  // 416 with `Content-Range: bytes */<complete-length>` so clients can
+  // recompute. We check this AFTER the R2 round-trip because we need the
+  // authoritative size — but we don't re-fetch; obj.size is enough.
+  if (range && range.offset >= obj.size) {
+    return new Response("range not satisfiable", {
+      status: 416,
+      headers: {
+        "Content-Type": "text/plain",
+        "Content-Range": `bytes */${obj.size}`,
+      },
+    });
+  }
   const etag = obj.httpEtag ?? obj.etag;
   const headers = baseHeaders(cardId, etag);
+  // HEAD must report the full set of GET headers (Content-Length, ETag,
+  // Accept-Ranges) but ship a null body. The Response constructor accepts
+  // `null` as body, which is the spec-compliant way to omit it.
+  const body = isHead ? null : obj.body;
   // Determine status + Content-Length + Content-Range based on range presence.
   if (range && obj.range) {
     const offset = obj.range.offset ?? 0;
@@ -94,22 +115,24 @@ export async function serveR2Pdf(request, env, cardId) {
     const end = offset + length - 1;
     headers.set("Content-Length", String(length));
     headers.set("Content-Range", `bytes ${offset}-${end}/${obj.size}`);
-    return new Response(obj.body, { status: 206, headers });
+    return new Response(body, { status: 206, headers });
   }
   headers.set("Content-Length", String(obj.size));
-  return new Response(obj.body, { status: 200, headers });
+  return new Response(body, { status: 200, headers });
 }
 
 /**
- * Match `GET /pdf/:card_id.pdf` and dispatch. Returns null when the
+ * Match `GET|HEAD /pdf/:card_id.pdf` and dispatch. Returns null when the
  * request isn't ours so the caller can fall through to other routes.
  *
- * We deliberately scope this to GET only — POST/PUT/etc. fall through
- * to ASSETS (which 404s in production) rather than 405-ing. The static
- * surface should be the only thing answering on this path family.
+ * We accept HEAD because CDN warmers and `curl -I` need to size the entity
+ * without downloading it; the handler reuses the GET path and replaces the
+ * body with null. POST/PUT/etc. still fall through to ASSETS (which 404s
+ * in production) rather than 405-ing — keeping the static surface the only
+ * thing answering on this path family.
  */
 export async function tryHandlePdfRoute(request, env) {
-  if (request.method !== "GET") return null;
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
   const url = new URL(request.url);
   if (!url.pathname.startsWith("/pdf/")) return null;
   if (!url.pathname.endsWith(".pdf")) return null;

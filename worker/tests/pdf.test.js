@@ -224,6 +224,122 @@ describe("GET /pdf/:card_id.pdf", () => {
     assert.equal(r2.calls[0].opts.range.length, undefined);
   });
 
+  test("Range whose offset is past EOF returns 416 with Content-Range: bytes */<size>", async () => {
+    // RFC 9110 §15.5.17: an unsatisfiable range MUST yield 416 with a
+    // `Content-Range: bytes */<complete-length>` so clients can recompute.
+    // The previous implementation served 206 with `bytes 999999--900000/100`,
+    // a malformed header that crashed strict clients (and PDF.js viewers
+    // would silently retry with a full GET, masking the bug). We detect
+    // offset >= obj.size after the R2 round-trip — no second fetch needed
+    // because R2 already gave us the size.
+    const fullSize = 100;
+    const r2 = {
+      calls: [],
+      async get(key, opts) {
+        this.calls.push({ key, opts });
+        // R2 returns the object even when the requested range is unsatisfiable;
+        // the worker is responsible for clamping. In practice R2 clamps too,
+        // but we don't rely on its clamping for the 416 decision — we look at
+        // the offset we asked for vs. obj.size, which is always correct.
+        return {
+          body: new ReadableStream({ start(c) { c.close(); } }),
+          size: fullSize,
+          etag: '"r"',
+          httpEtag: '"r"',
+          range: { offset: 999999, length: 0 },
+        };
+      },
+    };
+    const r = await worker.fetch(
+      new Request(`https://x/pdf/${VALID_CARD_ID}.pdf`, {
+        method: "GET",
+        headers: { Range: "bytes=999999-" },
+      }),
+      envWith(r2),
+    );
+    assert.equal(r.status, 416);
+    assert.equal(r.headers.get("Content-Range"), `bytes */${fullSize}`);
+    assert.equal(r.headers.get("Content-Type"), "text/plain");
+    assert.equal(await r.text(), "range not satisfiable");
+  });
+
+  test("Range: bytes=-100 (suffix range, unsupported syntax) falls back to full 200", async () => {
+    // Suffix-range syntax (`bytes=-N` = "last N bytes") is part of RFC 9110
+    // but PDF.js never emits it. Our parser refuses anything that isn't
+    // `bytes=N-` or `bytes=N-M`. Falling back to a full 200 (rather than
+    // 416-ing) matches nginx/CloudFront and keeps unfamiliar clients alive.
+    const body = new Uint8Array([1, 2, 3]);
+    const r2 = makeR2({
+      [`${VALID_CARD_ID}.pdf`]: r2Object({ body, size: 3, etag: '"e"' }),
+    });
+    const r = await worker.fetch(
+      new Request(`https://x/pdf/${VALID_CARD_ID}.pdf`, {
+        method: "GET",
+        headers: { Range: "bytes=-100" },
+      }),
+      envWith(r2),
+    );
+    assert.equal(r.status, 200);
+    assert.equal(r2.calls[0].opts, undefined);
+  });
+
+  test("Range with multiple ranges (multi-range) falls back to full 200", async () => {
+    // Multi-range responses require `multipart/byteranges`, which is more
+    // complexity than this handler's budget allows (PDF.js never uses it).
+    // The parser refuses, callers see a full 200.
+    const body = new Uint8Array([1, 2, 3]);
+    const r2 = makeR2({
+      [`${VALID_CARD_ID}.pdf`]: r2Object({ body, size: 3, etag: '"e"' }),
+    });
+    const r = await worker.fetch(
+      new Request(`https://x/pdf/${VALID_CARD_ID}.pdf`, {
+        method: "GET",
+        headers: { Range: "bytes=0-99,200-299" },
+      }),
+      envWith(r2),
+    );
+    assert.equal(r.status, 200);
+    assert.equal(r2.calls[0].opts, undefined);
+  });
+
+  test("HEAD: same headers as GET, but no body", async () => {
+    // HEAD must report Content-Length, ETag, Accept-Ranges identically to
+    // GET so caching middleboxes can size the entity without fetching it.
+    // PDF.js doesn't issue HEAD, but curl -I and CDN warmers do, and a
+    // 404-on-HEAD would mislead any operator probing the surface.
+    const body = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
+    const r2 = makeR2({
+      [`${VALID_CARD_ID}.pdf`]: r2Object({ body, size: body.byteLength, etag: '"h"' }),
+    });
+    const r = await worker.fetch(
+      new Request(`https://x/pdf/${VALID_CARD_ID}.pdf`, { method: "HEAD" }),
+      envWith(r2),
+    );
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get("Content-Type"), "application/pdf");
+    assert.equal(r.headers.get("Content-Length"), String(body.byteLength));
+    assert.equal(r.headers.get("ETag"), '"h"');
+    assert.equal(r.headers.get("Accept-Ranges"), "bytes");
+    // HEAD body must be empty.
+    const buf = new Uint8Array(await r.arrayBuffer());
+    assert.equal(buf.byteLength, 0);
+  });
+
+  test("HEAD on a missing object returns 404 (not fall-through)", async () => {
+    // The HEAD path must be the same dispatcher branch as GET, so a missing
+    // R2 object 404s here rather than falling through to ASSETS (which
+    // would also 404, but with the wrong Content-Type and a misleading
+    // server-side log line).
+    const r2 = makeR2({});
+    const r = await worker.fetch(
+      new Request(`https://x/pdf/${VALID_CARD_ID}.pdf`, { method: "HEAD" }),
+      envWith(r2),
+    );
+    assert.equal(r.status, 404);
+    // R2 was actually consulted — proving HEAD reached our handler.
+    assert.equal(r2.calls.length, 1);
+  });
+
   test("malformed Range header is ignored (treated as full GET, 200)", async () => {
     // Defense-in-depth: a malformed `Range: garbage` header shouldn't
     // 416 the user, just fall back to a full body. Cheap to implement;

@@ -12,17 +12,24 @@
  *   each page change.
  *
  * Why we mutate `src` (not `contentWindow.location.hash`):
- *   `contentWindow.location.hash` is blocked across origins (war.gov
- *   is the host of these PDFs) — it throws SecurityError. So `src` is
- *   the only reliable cross-origin path.
+ *   PDFs are now served same-origin from `/pdf/<card_id>.pdf` (worker/pdf.js
+ *   off the `pursue-pdfs` R2 bucket), so `contentWindow.location.hash`
+ *   would no longer throw SecurityError. We still rewrite `src` because
+ *   that's what the existing test suite locks (see pdf-iframe-sync.test.ts)
+ *   and the migration story is "framing fix only, no behavior change for
+ *   the page-sync path." A future improvement could switch to mutating
+ *   `iframe.contentWindow.location.hash` for a flash-free page jump now
+ *   that same-origin permits it — that's a deliberate follow-up, not a
+ *   blocker for the framing fix.
  *
  * Honest perf note (do not pretend otherwise):
  *   Assigning `iframe.src` is treated by Chromium and WebKit as a
  *   navigation, even when only the fragment changes — the iframe
  *   document re-fetches and re-renders. Firefox is more lenient but
  *   still inconsistent. Users will see a brief flash on each j/k.
- *   We accept this cost (cross-origin viewer leaves no other option)
- *   and mitigate by:
+ *   We accept this cost for now (the iframe-flash predates the framing
+ *   fix; switching to `contentWindow.location.hash` is the follow-up
+ *   that would actually eliminate it) and mitigate by:
  *     1. The `current === target` guard below — never write the same
  *        src twice in a row.
  *     2. Debouncing rapid page changes — see `syncPdfIframeToPageDebounced`.
@@ -52,10 +59,16 @@ export const PDF_IFRAME_ID = "card-pdf-iframe";
  * Preserves non-`page=` PDF.js viewer params (zoom, view, ...) when
  * rewriting the fragment so a user-set zoom level survives a page jump.
  *
- * Refuses non-https schemes (SEC-002): a malformed manifest entry could
- * carry `javascript:alert(1)` as `asset_url`, which would execute when
- * assigned to `iframe.src`. Returning null forces callers to leave the
- * iframe alone rather than synthesizing a hostile URL.
+ * Refuses non-https schemes (defense-in-depth): post-PR #27 the iframe
+ * src is built from `card.card_id` server-side, and `card_id` is
+ * regex-validated as `^[a-f0-9]{16}$` by both the worker (worker/pdf.js)
+ * and the manifest builder, so the original SEC-002 concern about a
+ * hostile `asset_url` slipping through no longer applies on the live
+ * code path. We keep the `https://` startsWith guard because a future
+ * refactor could reintroduce a code path that derives src from a
+ * less-validated field, and refusing non-https here costs nothing —
+ * `nextIframeSrc` returning null makes the helper a no-op rather than
+ * letting it synthesize a hostile URL.
  *
  * Exported for testing; the runtime helper below composes this with the
  * DOM lookup.
