@@ -50,6 +50,56 @@ export const DISCLOSURE_TONE: Record<
   },
 };
 
+/**
+ * Inline qualifier rendered alongside every disclosure-status chip at
+ * v1.0.0 launch. Honest framing: the reference corpus is a small
+ * synthetic placeholder, NOT a real prior-disclosure archive. When
+ * Black Vault integration lands, callers can swap this constant (or
+ * pass `archiveId` to `disclosurePillLabel`) to update every chip on
+ * the site in one place. See `.paircoder/plans/black-vault-reference.md`
+ * for the integration plan.
+ */
+export const CORPUS_QUALIFIER = "(against preview corpus)";
+
+/**
+ * Map a manifest `archive_id` to the short tag we stamp onto chips as
+ * `data-corpus="..."`. The synthetic-placeholder corpus (and the
+ * empty/absent case) maps to `"preview"` so the chip's `data-corpus`
+ * attribute is stable user-facing-copy regardless of internal naming.
+ */
+export function corpusTag(archiveId: string | undefined): string {
+  if (!archiveId || archiveId === "synthetic-placeholder") return "preview";
+  return archiveId;
+}
+
+/**
+ * Resolve the qualifier text for a given reference corpus. Defaults
+ * to the preview-corpus wording. A future Black Vault swap is a
+ * one-line change here, not a sweep across components.
+ */
+function qualifierFor(archiveId: string | undefined): string {
+  const tag = corpusTag(archiveId);
+  if (tag === "blackvault") return "(against Black Vault reference)";
+  return CORPUS_QUALIFIER;
+}
+
+/**
+ * Build the structured label for a disclosure chip: the bold status
+ * word + the de-emphasized parenthetical naming the reference corpus.
+ * Returning a structured object (rather than a pre-formatted string)
+ * lets the renderer style the two parts differently — the qualifier
+ * is rendered smaller and dimmer than the status.
+ */
+export function disclosurePillLabel(
+  status: DisclosureStatus,
+  archiveId?: string,
+): { status: string; qualifier: string } {
+  return {
+    status: DISCLOSURE_TONE[status].label,
+    qualifier: qualifierFor(archiveId),
+  };
+}
+
 /** Fetch the static novelty payload. Resolves to EMPTY_NOVELTY on any error.
  *
  * `available` is true ONLY when a real reference corpus is loaded. The

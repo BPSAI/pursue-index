@@ -3,6 +3,8 @@ import type { CardMetadata } from "../data/types";
 import {
   DISCLOSURE_TONE,
   EMPTY_NOVELTY,
+  corpusTag,
+  disclosurePillLabel,
   loadNovelty,
   passesDisclosureFilter,
   type DisclosureFilter,
@@ -280,14 +282,25 @@ function ViewToggle({ view, setView }: { view: ViewMode; setView: (v: ViewMode) 
   );
 }
 
-function DisclosurePill({ status }: { status: keyof typeof DISCLOSURE_TONE }) {
+function DisclosurePill({
+  status,
+  archiveId,
+}: {
+  status: keyof typeof DISCLOSURE_TONE;
+  archiveId?: string;
+}) {
   const tone = DISCLOSURE_TONE[status];
   if (!tone) return null;
+  const label = disclosurePillLabel(status, archiveId);
   return (
     <span
-      class={`text-[9px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tone.bg} ${tone.fg} ${tone.border}`}
+      data-corpus={corpusTag(archiveId)}
+      class={`inline-flex items-baseline gap-1 text-[9px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tone.bg} ${tone.fg} ${tone.border}`}
     >
-      {tone.label}
+      <span>{label.status}</span>
+      <span class="text-[7px] tracking-[0.1em] opacity-70 normal-case">
+        {label.qualifier}
+      </span>
     </span>
   );
 }
@@ -317,7 +330,10 @@ function CardGrid({
                 </span>
               )}
               {novelty.available && novelty.cards[c.card_id] && (
-                <DisclosurePill status={novelty.cards[c.card_id].disclosure_status} />
+                <DisclosurePill
+                  status={novelty.cards[c.card_id].disclosure_status}
+                  archiveId={novelty.archiveId}
+                />
               )}
               <span class="ml-auto text-[10px] font-mono text-[color:var(--color-text-faint)]">
                 {c.card_id.slice(0, 8)}

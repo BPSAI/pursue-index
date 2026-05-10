@@ -153,15 +153,18 @@ const navItems = [
             <span class="text-[color:var(--color-text-bright)] font-semibold group-hover:text-[color:var(--color-signal-green)] transition-colors">INDEX</span>
             <span class="pi-caret"></span>
           </a>
-          {/* Mobile-only research preview pill — sits next to the lockup so
-              the wrapping nav row reads cleanly below. */}
+          {/* Mobile-only research-preview badge — sits next to the lockup so
+              the wrapping nav row reads cleanly below. Bracketed terminal
+              styling mirrors the desktop badge; targets the methodology
+              page's #research-preview anchor for the one-paragraph
+              disclosure of what "v1.0.0 preview" means in practice
+              (placeholder novelty corpus, editorial coverage in flux). */}
           <a
-            href={`${base}/about#status`}
+            href={`${base}/methodology#research-preview`}
             title="What 'research preview' means"
-            class="lg:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono lowercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
+            class="lg:hidden inline-flex items-center px-1.5 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono uppercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
           >
-            <span class="size-1.5 rounded-full bg-[color:var(--color-signal-amber)] inline-block"></span>
-            preview
+            [RESEARCH PREVIEW]
           </a>
         </div>
 
@@ -177,13 +180,17 @@ const navItems = [
               ]}
             >{item.label}</a>
           ))}
+          {/* Desktop research-preview badge — terminal-style bracketed
+              label sitting at the end of the nav row. Links to the
+              methodology page's #research-preview anchor where the
+              v1.0.0 calibration surfaces (placeholder novelty corpus,
+              editorial coverage, OCR confidence) are disclosed up front. */}
           <a
-            href={`${base}/about#status`}
+            href={`${base}/methodology#research-preview`}
             title="What 'research preview' means"
-            class="ml-2 hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono lowercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
+            class="ml-2 hidden lg:inline-flex items-center px-1.5 py-0.5 rounded-sm border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 text-[10px] font-mono uppercase tracking-[0.12em] text-[color:var(--color-signal-amber)] hover:border-[color:var(--color-signal-amber)] transition-colors"
           >
-            <span class="size-1.5 rounded-full bg-[color:var(--color-signal-amber)] inline-block"></span>
-            research preview
+            [RESEARCH PREVIEW]
           </a>
           <a
             href="https://github.com/BPSAI/pursue-index"
