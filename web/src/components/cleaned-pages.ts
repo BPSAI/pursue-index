@@ -27,6 +27,21 @@ export interface CleanedPage {
   input_sha256: string;
   output_sha256: string;
   generated_at: string;
+  /**
+   * Codex P1 follow-up: when set, the cleanup pass did not produce
+   * usable cleaned text for this page. Row is still emitted so
+   * (card_id, page) coverage in `pages-cleaned.json` keeps the same
+   * page sequence as `pages.json` — the UI paginates by array index
+   * (`pages[activePage-1]`) and would otherwise mis-route deep links.
+   *
+   *   - `"empty_input"`       — source OCR was blank; render as a normal
+   *                             empty page (mirrors Raw-mode `[BLANK]`).
+   *   - `"length_divergence"` — model reply differed too much from the
+   *                             input; raw fallback stripped so it
+   *                             doesn't ship under the "cleaned" label.
+   *                             Render a notice + Raw-mode link.
+   */
+  cleanup_skipped?: string;
 }
 
 export interface CleanedMeta {

@@ -78,7 +78,18 @@ export default function CardCleanedView({
   return (
     <div class="space-y-3">
       <CardReaderView
-        pages={cleanedPages.map((p) => ({ page: p.page, text: p.text }))}
+        pages={cleanedPages.map((p) => ({
+          page: p.page,
+          text: p.text,
+          // Codex P1 follow-up: surface the skip reason so the reader
+          // renders a `length_divergence` notice instead of falling
+          // through to the generic `[BLANK]` message. `empty_input`
+          // intentionally stays undefined so it routes to the [BLANK]
+          // branch (consistent with how Raw renders blank pages).
+          ...(p.cleanup_skipped === "length_divergence"
+            ? { cleanupSkipped: p.cleanup_skipped }
+            : {}),
+        }))}
         initialPage={initialPage}
         assetUrl={assetUrl}
         onSwitchToRaw={onSwitchToRaw}

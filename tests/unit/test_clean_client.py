@@ -39,6 +39,18 @@ class _FakeMessage:
         self.usage = usage
 
 
+class _FakeMultiBlockMessage:
+    """Message whose ``content`` is multiple TextBlocks plus a non-text
+    block (e.g. a thinking block). Mirrors what the Anthropic SDK can
+    return when the model decides to split the response into multiple
+    blocks — reading only ``content[0].text`` silently drops the rest.
+    """
+
+    def __init__(self, blocks: list[Any], usage: _FakeUsage) -> None:
+        self.content = blocks
+        self.usage = usage
+
+
 class _FakeMessages:
     def __init__(self, payloads: list[tuple[str, _FakeUsage]]) -> None:
         self._queue = list(payloads)
@@ -191,6 +203,117 @@ def test_estimate_cost_cache_read_is_cheaper_than_uncached_input() -> None:
         cache_creation_tokens=0,
     )
     assert cached == pytest.approx(0.08, rel=1e-3)
+
+
+class _FakeNonTextBlock:
+    """Stand-in for a non-text response block (e.g. ``type == 'thinking'``).
+
+    Must NOT be concatenated into the cleaned text; the runner filters
+    by ``.type == 'text'``.
+    """
+
+    def __init__(self) -> None:
+        self.type = "thinking"
+        # Has no .text attribute on purpose — accessing it should not
+        # raise, because the filter must run before .text access.
+
+
+def test_clean_page_concatenates_multiple_text_blocks(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Codex P2: Anthropic responses can carry multiple ``TextBlock``
+    entries in ``response.content``. Reading only ``content[0].text``
+    silently drops the rest, truncating the cleaned transcript when
+    the model split its reply across blocks (e.g. after a thinking
+    block or for long outputs).
+
+    Contract: iterate over ``response.content``, filter to text-typed
+    blocks, and concatenate their ``.text`` fields into a single
+    cleaned string.
+    """
+    msg = _FakeMultiBlockMessage(
+        [
+            _FakeBlock("first half "),
+            _FakeBlock("second half"),
+        ],
+        _FakeUsage(10, 10),
+    )
+
+    class _Messages:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, Any]] = []
+
+        def create(self, **kwargs: Any) -> _FakeMultiBlockMessage:
+            self.calls.append(kwargs)
+            return msg
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _Messages()
+
+    fake = _Client()
+    monkeypatch.setattr(clean_client, "_get_client", lambda: fake)
+    cleaned, _ = clean_client.clean_page(
+        raw_text="raw", model_id="claude-haiku-4-5-20251001"
+    )
+    # Both blocks present — not just block 0.
+    assert "first half" in cleaned
+    assert "second half" in cleaned
+
+
+def test_clean_page_skips_non_text_blocks(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Non-text blocks (e.g. thinking blocks) must be filtered out, not
+    treated as transcript text. The filter check happens BEFORE any
+    ``.text`` access so blocks that lack the attribute don't blow up.
+    """
+    msg = _FakeMultiBlockMessage(
+        [
+            _FakeNonTextBlock(),
+            _FakeBlock("only the text block content"),
+        ],
+        _FakeUsage(10, 10),
+    )
+
+    class _Messages:
+        def create(self, **kwargs: Any) -> _FakeMultiBlockMessage:
+            return msg
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _Messages()
+
+    fake = _Client()
+    monkeypatch.setattr(clean_client, "_get_client", lambda: fake)
+    cleaned, _ = clean_client.clean_page(
+        raw_text="raw", model_id="claude-haiku-4-5-20251001"
+    )
+    assert cleaned == "only the text block content"
+
+
+def test_clean_page_handles_empty_content(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An empty ``response.content`` list returns an empty string rather
+    than indexing into nothing.
+    """
+    msg = _FakeMultiBlockMessage([], _FakeUsage(10, 0))
+
+    class _Messages:
+        def create(self, **kwargs: Any) -> _FakeMultiBlockMessage:
+            return msg
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _Messages()
+
+    fake = _Client()
+    monkeypatch.setattr(clean_client, "_get_client", lambda: fake)
+    cleaned, _ = clean_client.clean_page(
+        raw_text="raw", model_id="claude-haiku-4-5-20251001"
+    )
+    assert cleaned == ""
 
 
 def test_estimate_cost_cache_creation_is_125_percent_input_rate() -> None:

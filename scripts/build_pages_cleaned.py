@@ -83,34 +83,43 @@ def _dedupe_latest_per_page(rows: list[dict]) -> list[dict]:
     return [entry["row"] for entry in by_page.values()]
 
 
-def _keep_row_for_mirror(row: dict) -> bool:
-    """Decide whether a sidecar row makes it into the deployed mirror.
+def _sanitize_row_for_mirror(row: dict) -> dict:
+    """Return a copy of ``row`` safe to ship in the cleaned mirror.
 
-    Codex P2 follow-up: ``empty_input`` rows are kept (text_cleaned="")
-    so the (card_id, page) coverage in pages-cleaned.json stays aligned
-    with pages.json — otherwise a Cleaned-mode page jump skips blank
-    pages and lands on the wrong one, breaking the
-    page-N-is-the-same-page-N invariant between Raw and Cleaned views.
+    Codex P1 follow-up: ALL rows are now preserved regardless of
+    ``cleanup_skipped`` value, so ``pages-cleaned.json`` keeps the same
+    page sequence as ``pages.json``. The UI paginates by array index
+    (``pages[activePage-1]`` in ``CardReaderView``) — dropping any row
+    shifts every later page's position and breaks deep links like
+    ``#page-7`` plus citations into the cleaned mirror.
 
-    Other ``cleanup_skipped`` values (currently ``length_divergence``)
-    still get stripped: those hold raw OCR as a model-failure fallback,
-    not actual cleaned text, and shouldn't ship as if they were cleaned.
+    For ``length_divergence`` rows specifically, the sidecar holds the
+    *raw* OCR as a model-failure fallback. We MUST NOT ship that under
+    the ``text_cleaned`` label: clear it to "" so the field stays
+    semantically clean. The ``cleanup_skipped`` flag is propagated so
+    the UI can render an appropriate "[Cleanup unavailable]" notice.
+    ``empty_input`` rows already have empty text; preserved as-is.
     """
     skipped = row.get("cleanup_skipped")
-    if not skipped:
-        return True
-    return skipped == "empty_input"
+    if skipped == "length_divergence":
+        sanitized = dict(row)
+        sanitized["text_cleaned"] = ""
+        return sanitized
+    return row
 
 
 def _walk_sidecars(
     ocr_dir: Path, titles: dict[str, str],
 ) -> tuple[list[dict], list[str]]:
-    """Return ``(pages_list, cards_covered)`` — deduped + filtered.
+    """Return ``(pages_list, cards_covered)`` — deduped + sanitized.
 
     Codex P1: dedupes to one row per page (latest generated_at wins).
-    Rows flagged ``cleanup_skipped="length_divergence"`` hold raw OCR
-    (not cleaned text) and are excluded. ``empty_input`` rows are kept
-    with empty text to preserve page coverage (Codex P2 follow-up).
+    Codex P1 follow-up: ALL rows ship regardless of ``cleanup_skipped``
+    value, so page-N in pages-cleaned.json keeps pointing at the same
+    source page as page-N in pages.json (the UI paginates by array
+    index). ``length_divergence`` rows have ``text_cleaned`` cleared so
+    raw OCR never ships under the cleaned label —
+    ``_sanitize_row_for_mirror`` enforces that.
     """
     pages: list[dict] = []
     covered: list[str] = []
@@ -126,7 +135,7 @@ def _walk_sidecars(
         if not rows:
             continue
         rows = _dedupe_latest_per_page(rows)
-        rows = [r for r in rows if _keep_row_for_mirror(r)]
+        rows = [_sanitize_row_for_mirror(r) for r in rows]
         if not rows:
             continue
         card_id = card_dir.name
@@ -138,9 +147,14 @@ def _walk_sidecars(
 
 
 def _normalize_row(row: dict, card_id: str, title: str) -> dict:
-    """Coerce a sidecar row to the deployed-mirror page shape."""
+    """Coerce a sidecar row to the deployed-mirror page shape.
+
+    Propagates ``cleanup_skipped`` only when it has a truthy value so
+    "normal" rows stay free of the field (smaller payload, simpler
+    UI-side checks like ``if (page.cleanup_skipped)``).
+    """
     page = int(row.get("page", 0))
-    return {
+    out: dict = {
         "id": row.get("id") or f"{card_id}-p{page}",
         "card_id": card_id,
         "page": page,
@@ -152,6 +166,10 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
         "output_sha256": row.get("output_sha256", ""),
         "generated_at": row.get("generated_at", ""),
     }
+    skipped = row.get("cleanup_skipped")
+    if skipped:
+        out["cleanup_skipped"] = skipped
+    return out
 
 
 def _assert_homogeneous_provenance(pages: list[dict]) -> None:

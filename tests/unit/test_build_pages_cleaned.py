@@ -205,17 +205,27 @@ def test_build_dedupes_repeated_rows_keeping_latest_generated_at(
     assert page1["text"] == "new text"
 
 
-def test_build_excludes_rows_flagged_with_cleanup_skipped(tmp_path: Path) -> None:
-    """Length-divergence fallbacks (cycle 2) keep raw OCR in the sidecar
-    but must not appear in the deployed cleaned mirror — they're not
-    actually cleaned.
+def test_build_preserves_length_divergence_rows_with_empty_text(
+    tmp_path: Path,
+) -> None:
+    """Codex P1 follow-up: ``length_divergence`` rows must STAY in the
+    cleaned mirror so the UI's array-indexed pagination
+    (``pages[activePage-1]`` in ``CardReaderView``) keeps page-N in the
+    cleaned mirror pointing at the same source page as page-N in
+    pages.json. Dropping a row shifts every later page's position and
+    breaks deep links (#page-7) plus citations into the cleaned mirror.
+
+    The fix: keep the row for structural alignment, clear
+    ``text_cleaned`` to "" (no raw-OCR fallback leaks into a field
+    labeled "cleaned"), and propagate the ``cleanup_skipped`` flag so
+    the UI can render the appropriate "[Cleanup unavailable]" notice.
     """
     ocr_dir = tmp_path / "ocr"
     _write_sidecar(
         ocr_dir / "c1" / "pages_cleaned.jsonl",
         [
             {
-                "page": 1, "card_id": "c1", "text_cleaned": "raw",
+                "page": 1, "card_id": "c1", "text_cleaned": "raw OCR text",
                 "model_id": "m", "input_sha256": "a" * 64,
                 "cleanup_skipped": "length_divergence",
             },
@@ -233,49 +243,37 @@ def test_build_excludes_rows_flagged_with_cleanup_skipped(tmp_path: Path) -> Non
         source_tag="t",
     )
     payload = json.loads(out_path.read_text())
-    assert len(payload["pages"]) == 1
-    assert payload["pages"][0]["page"] == 2
+    pages = payload["pages"]
+    # Both rows survive so page-N indexing aligns with pages.json.
+    assert len(pages) == 2
+    page1 = next(p for p in pages if p["page"] == 1)
+    # Raw OCR fallback does not leak into the "cleaned" text field.
+    assert page1["text"] == ""
+    # Cleanup-skipped flag is propagated so the UI can render a notice.
+    assert page1["cleanup_skipped"] == "length_divergence"
+    page2 = next(p for p in pages if p["page"] == 2)
+    assert page2["text"] == "real cleanup"
+    # Non-skipped rows do not carry a cleanup_skipped flag (or it's empty).
+    assert not page2.get("cleanup_skipped")
 
 
-def test_build_preserves_empty_input_rows_to_keep_page_coverage_aligned(
+def test_build_page_index_matches_raw_mirror_for_array_pagination(
     tmp_path: Path,
 ) -> None:
-    """Codex P2 follow-up: pages with ``cleanup_skipped="empty_input"`` are
-    blank in the source OCR, not model failures. Stripping them from the
-    cleaned mirror desyncs page coverage between ``pages.json`` (which
-    includes blank pages) and ``pages-cleaned.json`` — navigating to page
-    N in Cleaned mode would jump to a different page than Raw mode.
+    """Codex P1 follow-up: the UI paginates by array index
+    (``pages[activePage-1]`` in ``CardReaderView``) so any dropped row
+    shifts later pages by 1 and mis-routes deep links like ``#page-7``.
 
-    Contract: preserve ``empty_input`` rows with empty ``text`` so
-    (card_id, page) keys align with pages.json. Still strip
-    ``length_divergence`` rows (those are model-failure fallbacks holding
-    raw OCR, not actual cleaned text).
+    Contract: ALL ``cleanup_skipped`` rows are preserved (regardless of
+    reason), so the cleaned mirror's page sequence matches the raw
+    mirror's. ``length_divergence`` rows have ``text_cleaned`` cleared
+    so raw OCR never ships under the cleaned label, but the row itself
+    stays for alignment.
     """
     ocr_dir = tmp_path / "ocr"
     _write_sidecar(
         ocr_dir / "c1" / "pages_cleaned.jsonl",
-        [
-            {
-                "page": 1, "card_id": "c1", "text_cleaned": "first cleaned",
-                "model_id": "m", "input_sha256": "a" * 64,
-            },
-            # Empty source page — preserved with empty text.
-            {
-                "page": 2, "card_id": "c1", "text_cleaned": "",
-                "model_id": "m", "input_sha256": "b" * 64,
-                "cleanup_skipped": "empty_input",
-            },
-            # Length-divergence fallback — still excluded.
-            {
-                "page": 3, "card_id": "c1", "text_cleaned": "raw kept",
-                "model_id": "m", "input_sha256": "c" * 64,
-                "cleanup_skipped": "length_divergence",
-            },
-            {
-                "page": 4, "card_id": "c1", "text_cleaned": "fourth cleaned",
-                "model_id": "m", "input_sha256": "d" * 64,
-            },
-        ],
+        _alignment_fixture_rows(),
     )
     manifest = tmp_path / "manifest.json"
     _write_manifest(manifest, ["c1"])
@@ -285,12 +283,44 @@ def test_build_preserves_empty_input_rows_to_keep_page_coverage_aligned(
         source_tag="t",
     )
     payload = json.loads(out_path.read_text())
-    pages = payload["pages"]
-    # Page 3 (length_divergence) is dropped, but page 2 (empty_input) is kept.
-    page_nums = sorted(p["page"] for p in pages)
-    assert page_nums == [1, 2, 4]
-    page2 = next(p for p in pages if p["page"] == 2)
-    assert page2["text"] == ""
+    pages_for_c1 = sorted(
+        (p for p in payload["pages"] if p["card_id"] == "c1"),
+        key=lambda p: p["page"],
+    )
+    # Raw mirror's page sequence for c1 would be [1, 2, 3, 4]; cleaned
+    # must match exactly so ``pages[activePage-1]`` resolves to the same
+    # source page in either view.
+    assert [p["page"] for p in pages_for_c1] == [1, 2, 3, 4]
+    by_page = {p["page"]: p for p in pages_for_c1}
+    # empty_input + length_divergence rows: empty cleaned text, flag set.
+    assert by_page[2]["text"] == ""
+    assert by_page[2]["cleanup_skipped"] == "empty_input"
+    assert by_page[3]["text"] == ""
+    assert by_page[3]["cleanup_skipped"] == "length_divergence"
+    # Normal rows: cleaned text present, no skip flag.
+    assert by_page[1]["text"] == "p1 cleaned"
+    assert not by_page[1].get("cleanup_skipped")
+    assert by_page[4]["text"] == "p4 cleaned"
+
+
+def _alignment_fixture_rows() -> list[dict]:
+    """Mixed normal + empty_input + length_divergence rows for one card.
+
+    Keeps the alignment test small enough to clear the 50-line function
+    cap while still exercising the full ``cleanup_skipped`` matrix.
+    """
+    return [
+        {"page": 1, "card_id": "c1", "text_cleaned": "p1 cleaned",
+         "model_id": "m", "input_sha256": "a" * 64},
+        {"page": 2, "card_id": "c1", "text_cleaned": "",
+         "model_id": "m", "input_sha256": "b" * 64,
+         "cleanup_skipped": "empty_input"},
+        {"page": 3, "card_id": "c1", "text_cleaned": "fallback raw",
+         "model_id": "m", "input_sha256": "c" * 64,
+         "cleanup_skipped": "length_divergence"},
+        {"page": 4, "card_id": "c1", "text_cleaned": "p4 cleaned",
+         "model_id": "m", "input_sha256": "d" * 64},
+    ]
 
 
 def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:

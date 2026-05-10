@@ -85,6 +85,35 @@ def _build_request(raw_text: str, model_id: str) -> dict[str, Any]:
     }
 
 
+def _extract_text(content: Any) -> str:
+    """Concatenate all text blocks from a ``messages.create`` response.
+
+    Codex P2: ``response.content`` is a list and can carry multiple
+    ``TextBlock`` entries (e.g. when the model splits its reply, or
+    after a thinking block). Reading only ``content[0].text`` silently
+    drops everything after the first block — that truncates long
+    cleanup outputs. We iterate, filter to text-typed blocks, and join
+    with the empty string because Anthropic returns one continuous
+    document split for streaming reasons, not as paragraph-separated
+    sub-replies; a newline join would inject spurious blank lines into
+    the cleaned transcript.
+
+    Non-text blocks (``thinking``, tool-use, etc.) are skipped. The
+    filter check runs BEFORE ``.text`` access so blocks that lack the
+    attribute don't blow up.
+    """
+    if not content:
+        return ""
+    parts: list[str] = []
+    for block in content:
+        if getattr(block, "type", None) != "text":
+            continue
+        text = getattr(block, "text", "")
+        if text:
+            parts.append(text)
+    return "".join(parts)
+
+
 def _extract_usage(usage: Any) -> Usage:
     """Coerce an SDK ``Usage`` object to our local dataclass."""
     return Usage(
@@ -109,7 +138,7 @@ def clean_page(raw_text: str, model_id: str) -> tuple[str, Usage]:
     log.info("clean.llm.call", model=model_id, input_chars=len(raw_text))
     response = client.messages.create(**request)
     usage = _extract_usage(response.usage)
-    cleaned = response.content[0].text if response.content else ""
+    cleaned = _extract_text(response.content)
     log.info(
         "clean.llm.usage",
         model=model_id,
