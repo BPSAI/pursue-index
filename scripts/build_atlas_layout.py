@@ -1,51 +1,23 @@
 #!/usr/bin/env python3
 """Build the 2D semantic-browser layout for ``/atlas``.
 
-Reads ``{embeddings_root}/{model_id}/{vectors.bin,index.json}`` (the
-native float32 output of ``pursue embed run``), runs UMAP to project the
-1024-dim Voyage-3 embeddings into 2D, joins each row's ``card_id`` to
-its agency from ``data/manifests/latest.json``, and writes
-``web/public/data/atlas-layout.json``.
+Reads ``{embeddings_root}/{model_id}/{vectors.bin,index.json}`` (native
+float32 from ``pursue embed run``), runs UMAP to project Voyage-3
+embeddings into 2D, normalizes coords into ``[-1, 1]`` (regl-scatterplot
+camera contract), joins agency from ``data/manifests/latest.json``, and
+writes ``web/public/data/atlas-layout.json``.
 
-Wire shape (one entry per indexed page)::
+Wire shape::
 
-    {
-      "model_id": "voyage-3",
-      "augmented_by": { ... },        # passthrough from index.json (optional)
-      "n": 4119,
-      "points": [
-        {"card_id": "...", "page": 1, "x": 0.123, "y": -0.456, "agency": "FBI"},
-        ...
-      ]
-    }
+    {"model_id": "voyage-3", "augmented_by": {...}, "n": 4119,
+     "points": [{"card_id": "...", "page": 1, "x": 0.12, "y": -0.45,
+                 "agency": "FBI"}, ...]}
 
-Reproducibility: ``random_state=42`` pinned. Re-running on the same
-``vectors.bin`` produces identical coordinates so layout shifts are not
-a noisy diff in PRs. UMAP version is recorded in
-``pyproject.toml::project.optional-dependencies::build-tools`` — bump
-when intentionally regenerating.
-
-Float16 vs float32 caveat: UMAP is sensitive to small numerical
-perturbations in the input. Running with ``--from-published`` (the
-deployed float16 payload) produces coordinates that are *near*, not
-identical, to a native float32 run — the per-point delta is small but
-nonzero. The deployed ``atlas-layout.json`` should be regenerated from
-the native float32 ``vectors.bin`` whenever the NAS is reachable; the
-published-payload path is a CI / airgap fallback only.
-
-Run from project root after a fresh embed pass::
-
-    python scripts/build_atlas_layout.py
-
-UMAP at 4,119 × 1024 takes ~30s on a single CPU core. The script is a
-build-time tool, not a runtime dep — ``umap-learn`` lives under the
-``build-tools`` extra to keep production install footprint small.
-
-Pipeline functions are split out for unit-testability and to keep the
-module under the project's 400-line architecture cap. The heavy lifting
-(``_load_native_vectors``, ``_select_rows``, ``_filter_vectors``) mirrors
-``scripts/build_embed_data.py`` so both publish steps see the same
-post-augmentation dedupe.
+``random_state=42`` is pinned for reproducibility. ``--from-published``
+reads the deployed float16 payload as a CI / airgap fallback (small
+nonzero precision delta vs native float32). Pipeline helpers
+(``_load_native_vectors``, ``_select_rows``, ``_filter_vectors``) mirror
+``scripts/build_embed_data.py`` for matching post-augmentation dedupe.
 """
 
 from __future__ import annotations
@@ -68,14 +40,11 @@ DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 
 
 def _load_published_vectors(web_data_dir: Path) -> tuple[np.ndarray, dict[str, Any]]:
-    """Read the deployed float16 payload, return ``(arr_f32, index)``.
+    """Read deployed float16 payload, return ``(arr_f32, index)``.
 
-    Used when running the build off the committed
-    ``web/public/data/{embeddings.bin,embed_index.json}`` rather than a
-    native embed root — handy in CI / smoke environments that don't have
-    the NAS-mounted embed dir. The deployed index is already deduped and
-    row-keyed by array index (``offset`` is dropped), so we synthesise
-    fake offsets to keep the downstream filter happy.
+    CI / airgap fallback for when the NAS-mounted embed root is absent.
+    The deployed index is row-keyed by array index (``offset`` dropped),
+    so synthetic offsets are emitted to keep ``_filter_vectors`` happy.
     """
     idx_path = web_data_dir / "embed_index.json"
     bin_path = web_data_dir / "embeddings.bin"
@@ -110,14 +79,12 @@ def _load_published_vectors(web_data_dir: Path) -> tuple[np.ndarray, dict[str, A
 
 
 def _load_native_vectors(in_dir: Path) -> tuple[np.ndarray, dict[str, Any]]:
-    """Read ``vectors.bin`` (float32) into a contiguous ``[total, dim]`` array.
+    """Read ``vectors.bin`` (float32) into a ``[total, dim]`` array.
 
-    ``total`` is derived from the actual file size, not from
-    ``index["n"]``. After an augmented embed run, ``vectors.bin`` may
-    contain orphan rows whose ``(card_id, page)`` was deduped out of
-    ``index.json``; downstream filtering handles that, but we need to
-    keep their bytes addressable so the kept rows' ``offset`` values
-    still resolve.
+    ``total`` is derived from file size, not ``index["n"]`` — augmented
+    embed runs leave orphan rows in ``vectors.bin`` whose ``(card_id,
+    page)`` was deduped out of ``index.json``; their bytes must stay
+    addressable so kept rows' ``offset`` values still resolve.
     """
     index = json.loads((in_dir / "index.json").read_text())
     dim = int(index["dim"])
@@ -139,9 +106,8 @@ def _load_native_vectors(in_dir: Path) -> tuple[np.ndarray, dict[str, Any]]:
 def _dedupe_rows(rows: list[dict]) -> list[dict]:
     """Drop un-augmented rows whose ``(card_id, page)`` has an augmented sibling.
 
-    Same dedupe rule used by ``scripts/build_embed_data.py`` so that the
-    atlas points and the published embedding payload reference the same
-    set of rows.
+    Mirrors ``scripts/build_embed_data.py`` so atlas points and the
+    published embedding payload reference the same row set.
     """
     augmented_keys = {
         (r["card_id"], int(r["page"])) for r in rows if r.get("augmented")
@@ -189,9 +155,10 @@ def _project_2d(
 ) -> np.ndarray:
     """Run UMAP to project ``arr`` into 2D.
 
-    Imported lazily so the script's import path doesn't pull in
-    ``umap-learn`` (and its scikit-learn / numba transitive deps) for
-    callers that only want to import helper functions in tests.
+    Imported lazily so tests that only need helpers don't pull in
+    ``umap-learn`` (scikit-learn / numba transitive deps).
+    ``transform_seed`` is pinned alongside ``random_state`` against
+    future UMAP API drift in the transform-stage RNG.
     """
     import umap  # type: ignore[import-untyped]
 
@@ -200,12 +167,30 @@ def _project_2d(
         n_neighbors=n_neighbors,
         min_dist=min_dist,
         random_state=random_state,
-        # Pin transform_seed too — UMAP samples a separate RNG for the
-        # transform stage when ``random_state`` is set, but pinning both
-        # belts-and-braces against future API drift.
         transform_seed=random_state,
     )
     return reducer.fit_transform(arr.astype(np.float32))
+
+
+def _normalize_coords(coords: np.ndarray) -> np.ndarray:
+    """Scale + center 2D coords into the ``[-1, 1]`` unit square.
+
+    regl-scatterplot's default camera frames ``[-1, 1]`` on both axes;
+    raw UMAP output (tens of units wide, off-origin) renders off-screen.
+    Uniform scaling by the wider axis preserves UMAP's aspect ratio.
+    Zero-range input collapses to the origin (no divide-by-zero).
+    """
+    x_min, x_max = float(coords[:, 0].min()), float(coords[:, 0].max())
+    y_min, y_max = float(coords[:, 1].min()), float(coords[:, 1].max())
+    x_center = (x_max + x_min) / 2.0
+    y_center = (y_max + y_min) / 2.0
+    half_range = max(x_max - x_min, y_max - y_min) / 2.0
+    if half_range < 1e-12:
+        return np.zeros_like(coords)
+    out = np.empty_like(coords)
+    out[:, 0] = (coords[:, 0] - x_center) / half_range
+    out[:, 1] = (coords[:, 1] - y_center) / half_range
+    return out
 
 
 def _make_points(
@@ -217,10 +202,8 @@ def _make_points(
 ) -> list[dict[str, Any]]:
     """Zip kept rows + coords + agency lookup into the wire shape.
 
-    Coordinates are rounded to ``coord_precision`` decimals (default 4)
-    — UMAP output is inherently a low-precision projection and the
-    extra digits inflate the JSON wire size by ~30% with no perceivable
-    rendering benefit.
+    Coords are rounded to ``coord_precision`` decimals (default 4) —
+    extra digits inflate JSON wire size by ~30% with no rendering gain.
     """
     points: list[dict[str, Any]] = []
     for row, (x, y) in zip(kept_rows, coords, strict=True):
@@ -252,12 +235,10 @@ def _write_layout(
     if augmented_by is not None:
         payload["augmented_by"] = augmented_by
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    # Compact separators trim ~10% off the wire size at no loss of fidelity.
+    # Compact separators trim ~10% off wire size; .tmp + os.replace is
+    # POSIX-atomic so a crash mid-write can't ship half-written JSON
+    # (the deployed asset is 343 KB — partial writes have corrupted it).
     serialized = json.dumps(payload, separators=(",", ":"))
-    # Write to ``.tmp`` sibling then ``os.replace`` — POSIX-atomic on the
-    # same filesystem, so a crash mid-write can't leave the deployed
-    # ``atlas-layout.json`` half-written (the asset is 343 KB; partial
-    # writes have shipped corrupt JSON to the browser before).
     tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
     tmp_path.write_text(serialized)
     os.replace(tmp_path, out_path)
@@ -279,6 +260,31 @@ def _load_source(
         print(f"index.json missing in {in_dir}", file=sys.stderr)
         return None
     return _load_native_vectors(in_dir)
+
+
+def _project_and_normalize(
+    arr: np.ndarray,
+    index: dict[str, Any],
+    *,
+    n_neighbors: int,
+    min_dist: float,
+    random_state: int,
+) -> tuple[list[dict[str, Any]], np.ndarray]:
+    """Filter to kept rows, run UMAP, normalize to [-1, 1].
+
+    Returns ``(kept_rows, normalized_coords)``. Normalization is required
+    so regl-scatterplot's default unit-square camera frames the cluster.
+    """
+    dim = int(index["dim"])
+    kept_rows = _select_rows(index)
+    filtered = _filter_vectors(arr, kept_rows, dim)
+    coords = _project_2d(
+        filtered,
+        n_neighbors=min(n_neighbors, max(2, filtered.shape[0] - 1)),
+        min_dist=min_dist,
+        random_state=random_state,
+    )
+    return kept_rows, _normalize_coords(coords)
 
 
 def build(
@@ -306,12 +312,10 @@ def build(
     if loaded is None:
         return 1
     arr, index = loaded
-    dim = int(index["dim"])
-    kept_rows = _select_rows(index)
-    arr = _filter_vectors(arr, kept_rows, dim)
-    coords = _project_2d(
+    kept_rows, coords = _project_and_normalize(
         arr,
-        n_neighbors=min(n_neighbors, max(2, arr.shape[0] - 1)),
+        index,
+        n_neighbors=n_neighbors,
         min_dist=min_dist,
         random_state=random_state,
     )
@@ -325,7 +329,7 @@ def build(
         augmented_by=index.get("augmented_by"),
     )
     print(
-        f"wrote {out_path} ({len(points)} points, {arr.shape[1]} input dims, "
+        f"wrote {out_path} ({len(points)} points, "
         f"random_state={random_state})"
     )
     return 0
@@ -368,18 +372,13 @@ def _build_parser(default_embeddings_root: Path, default_model: str) -> argparse
         "--from-published",
         type=Path,
         default=None,
-        help=(
-            "Read deployed float16 payload from this dir "
-            "(web/public/data) instead of the native embed root."
-        ),
+        help="Read deployed float16 payload from this dir (web/public/data).",
     )
     return p
 
 
 def main() -> int:
-    # Lazy settings import so the test harness doesn't require .env to be
-    # populated — ``build`` accepts explicit paths instead of consulting
-    # settings directly.
+    # Lazy settings import keeps the test harness from requiring .env.
     from pursue_index.config import settings
 
     args = _build_parser(settings.embeddings_dir, settings.embed_model).parse_args()
