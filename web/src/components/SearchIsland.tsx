@@ -3,9 +3,13 @@ import MiniSearch from "minisearch";
 import {
   buildHighlightRegex,
   buildSnippet,
-  splitWithRegex,
   tokenize,
 } from "./highlight";
+import {
+  buildSearchIndexOptions,
+  hasMatchSegment,
+  highlightSegments,
+} from "./search-result-highlight.ts";
 import SearchFilterRail from "./SearchFilterRail.tsx";
 import {
   EMPTY_FILTERS,
@@ -147,16 +151,9 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
 
   const search = useMemo(() => {
     if (status !== "ready" || docs.length === 0) return null;
-    const ms = new MiniSearch<PageDoc>({
-      fields: ["title", "text"],
-      storeFields: ["card_id", "page", "title"],
-      idField: "id",
-      searchOptions: {
-        boost: { title: 2 },
-        prefix: true,
-        fuzzy: 0.2,
-      },
-    });
+    // Options live in `search-result-highlight.ts` so the test suite can
+    // construct an identical index; see that module for why fuzzy is off.
+    const ms = new MiniSearch<PageDoc>(buildSearchIndexOptions<PageDoc>());
     ms.addAll(docs);
     return ms;
   }, [status, docs]);
@@ -303,6 +300,15 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
           const snippet = doc?.text
             ? buildSnippet(doc.text, snipRegex, 140)
             : "";
+          const titleSegments = highlightSegments(r.title, snipRegex);
+          // Title-only hits would otherwise render an unhighlighted slice
+          // of body text (buildSnippet falls back to head-of-text when it
+          // can't find a match). Suppress the snippet block in that case
+          // — the highlighted title already shows where the match lives.
+          const snippetSegments = snippet
+            ? highlightSegments(snippet, snipRegex)
+            : [];
+          const showSnippet = snippet && hasMatchSegment(snippetSegments);
           const linkQuery = encodeURIComponent(query.trim());
           const href = `${base}/card/${r.card_id}?q=${linkQuery}#page-${r.page}`;
           return (
@@ -316,11 +322,17 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
                   <span>{r.card_id.slice(0, 8)}</span>
                 </div>
                 <div class="text-sm text-[color:var(--color-text-bright)] line-clamp-2">
-                  {r.title}
+                  {titleSegments.map((seg) =>
+                    seg.kind === "match" ? (
+                      <mark class="pi-mark">{seg.value}</mark>
+                    ) : (
+                      <span>{seg.value}</span>
+                    ),
+                  )}
                 </div>
-                {snippet && (
+                {showSnippet && (
                   <p class="font-mono text-[12px] leading-relaxed text-[color:var(--color-text-dim)] line-clamp-3">
-                    {splitWithRegex(snippet, snipRegex).map((seg) =>
+                    {snippetSegments.map((seg) =>
                       seg.kind === "match" ? (
                         <mark class="pi-mark">{seg.value}</mark>
                       ) : (
