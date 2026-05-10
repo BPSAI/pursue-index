@@ -370,6 +370,58 @@ def test_build_recomputes_output_sha256_when_clearing_length_divergence_text(
     ).hexdigest()
 
 
+def test_dedupe_skips_rows_with_non_numeric_page(
+    tmp_path: Path, capsys: object,
+) -> None:
+    """Codex P2: a single corrupt row (non-numeric ``page``) must not
+    abort the entire mirror build. ``_iter_sidecar`` already tolerates
+    corrupt JSON lines by skipping them — the dedup pass should follow
+    the same convention. The function must log a structured warning and
+    continue with the remaining valid rows.
+    """
+    rows = [
+        {"page": 1, "card_id": "c1", "text_cleaned": "p1",
+         "generated_at": "2026-05-09T00:00:00Z"},
+        # Bad rows: non-numeric / missing / None page values.
+        {"page": "NaN", "card_id": "c1", "text_cleaned": "junk"},
+        {"page": None, "card_id": "c1", "text_cleaned": "junk"},
+        {"page": "not-a-number", "card_id": "c1", "text_cleaned": "junk"},
+    ]
+    # Must not raise.
+    out = build_pages_cleaned._dedupe_latest_per_page(rows)
+    # Only the valid row survives.
+    assert len(out) == 1
+    assert out[0]["text_cleaned"] == "p1"
+
+
+def test_dedupe_skips_corrupt_row_inside_build(tmp_path: Path) -> None:
+    """End-to-end: a sidecar with one valid row + one corrupt page row
+    must produce a mirror containing only the valid row, no exception.
+    """
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            {"page": 1, "card_id": "c1", "text_cleaned": "good",
+             "model_id": "m", "input_sha256": "a" * 64,
+             "generated_at": "2026-05-09T00:00:00Z"},
+            {"page": "NaN", "card_id": "c1", "text_cleaned": "bad",
+             "model_id": "m", "input_sha256": "b" * 64},
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    rc = build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    assert rc == 0
+    payload = json.loads(out_path.read_text())
+    assert len(payload["pages"]) == 1
+    assert payload["pages"][0]["text"] == "good"
+
+
 def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     """A card_id present in the manifest but with no sidecar is not in cards_covered."""
     ocr_dir = tmp_path / "ocr"

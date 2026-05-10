@@ -102,6 +102,46 @@ def test_zero_confidence_card_lands_in_degraded_bucket(tmp_path: Path) -> None:
     assert "broken" in picked
 
 
+def test_read_card_stats_skips_malformed_jsonl_lines(tmp_path: Path) -> None:
+    """Codex P2: a single truncated/corrupt JSONL line must not crash the
+    selector. ``_read_card_stats`` must skip the malformed line, log a
+    structured warning, and process the remaining valid lines so the
+    pilot can always be generated even with a slightly damaged sidecar.
+    """
+    ocr_dir = tmp_path / "ocr"
+    cdir = ocr_dir / "c1"
+    cdir.mkdir(parents=True, exist_ok=True)
+    (cdir / "meta.json").write_text(json.dumps({"status": "ok"}))
+    # Valid line, then truncated/malformed line, then another valid line.
+    (cdir / "pages.jsonl").write_text(
+        json.dumps({"page": 1, "text": "p1", "confidence": 80.0}) + "\n"
+        + '{"page": 2, "text": "tru'  # truncated mid-string
+        + "\n"
+        + json.dumps({"page": 3, "text": "p3", "confidence": 90.0}) + "\n"
+    )
+    # Must not raise.
+    stat = select_pilot_cards._read_card_stats(ocr_dir, "c1")
+    assert stat is not None
+    # Only the two valid lines contribute to the confidence aggregate.
+    assert stat.page_count == 2
+    assert stat.mean_confidence == 85.0
+
+
+def test_read_card_stats_returns_none_when_all_lines_malformed(
+    tmp_path: Path,
+) -> None:
+    """If every line is malformed, the function returns None rather than
+    raising — consistent with the existing "no valid confidences" branch.
+    """
+    ocr_dir = tmp_path / "ocr"
+    cdir = ocr_dir / "c1"
+    cdir.mkdir(parents=True, exist_ok=True)
+    (cdir / "meta.json").write_text(json.dumps({"status": "ok"}))
+    (cdir / "pages.jsonl").write_text("{bad\n{also bad\n")
+    stat = select_pilot_cards._read_card_stats(ocr_dir, "c1")
+    assert stat is None
+
+
 def test_picks_high_medium_low_confidence_buckets(tmp_path: Path) -> None:
     ocr_dir = tmp_path / "ocr"
     # 15 cards: 5 high-page-count, 5 medium, 5 low-confidence + 5 filler.

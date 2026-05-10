@@ -51,11 +51,22 @@ def _read_card_stats(ocr_dir: Path, card_id: str) -> _CardStat | None:
         return None
     confidences: list[float] = []
     with pages_path.open() as fh:
-        for line in fh:
+        for ln, line in enumerate(fh, start=1):
             line = line.strip()
             if not line:
                 continue
-            row = json.loads(line)
+            # Codex P2: tolerate a truncated/corrupt JSONL line rather
+            # than crashing the selector. Skip with a structured warning
+            # and continue with the remaining lines.
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                print(
+                    f"warning select_pilot.skip_malformed_line "
+                    f"card_id={card_id} line_number={ln}",
+                    file=sys.stderr,
+                )
+                continue
             conf = row.get("confidence")
             # Codex P1: keep zero-confidence pages. They are not noise —
             # they're exactly the "OCR couldn't read this" signal the

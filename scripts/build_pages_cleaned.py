@@ -67,14 +67,28 @@ def _iter_sidecar(path: Path) -> list[dict]:
     return rows
 
 
-def _dedupe_latest_per_page(rows: list[dict]) -> list[dict]:
+def _dedupe_latest_per_page(
+    rows: list[dict], card_id: str = "",
+) -> list[dict]:
     """Keep one row per page, latest by (generated_at, file order).
 
     Codex P1: append-only sidecars accumulate duplicates after re-runs.
+    Codex P2: tolerate corrupt rows whose ``page`` is missing or
+    non-numeric — log a structured warning to stderr and skip, matching
+    ``_iter_sidecar``'s "skip bad JSON, don't crash the build" stance.
     """
     by_page: dict[int, dict] = {}
     for idx, row in enumerate(rows):
-        page = int(row.get("page", 0))
+        try:
+            page = int(row.get("page", 0))
+        except (ValueError, TypeError):
+            print(
+                f"warning clean.build.skip_corrupt_row "
+                f"card_id={card_id} row_index={idx} "
+                f"bad_page={row.get('page')!r}",
+                file=sys.stderr,
+            )
+            continue
         prior = by_page.get(page)
         if prior is None:
             by_page[page] = {"row": row, "ts": row.get("generated_at", ""), "i": idx}
@@ -143,11 +157,11 @@ def _walk_sidecars(
         rows = _iter_sidecar(sidecar)
         if not rows:
             continue
-        rows = _dedupe_latest_per_page(rows)
+        card_id = card_dir.name
+        rows = _dedupe_latest_per_page(rows, card_id=card_id)
         rows = [_sanitize_row_for_mirror(r) for r in rows]
         if not rows:
             continue
-        card_id = card_dir.name
         covered.append(card_id)
         title = titles.get(card_id, "(unknown)")
         for row in rows:
