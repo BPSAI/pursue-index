@@ -61,6 +61,12 @@ export default function AtlasIsland({ base }: Props) {
   // the scatterplot re-draw watches ``debouncedQuery`` only.
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  // Defensive: surface canvas-mount failures (CSP block, missing WebGL,
+  // failed dynamic import, regl init throw) instead of leaving the user
+  // staring at an empty bordered box. Distinct from the data-fetch
+  // ``status === "error"`` path — that one fires before mount; this one
+  // fires during/after the regl-scatterplot import + init.
+  const [mountError, setMountError] = useState<string | null>(null);
   // Start at 0 (unknown) and let the mount effect set the real width.
   // SSR'ing 1024 would flash the desktop canvas-mount path on a real
   // <400px viewport before the first resize event corrects it (nayru #6).
@@ -170,6 +176,11 @@ export default function AtlasIsland({ base }: Props) {
   // canvas-mount on real <400px viewports — nayru #6).
   useEffect(() => {
     if (status !== "ready" || !hasMeasuredViewport || isMobile || !canvasRef.current || !layout) return;
+    // Clear any prior mount error before retrying. Without this, a transient
+    // failure followed by a viewport-mode change that retriggers the effect
+    // would leave the [ATLAS UNAVAILABLE] overlay covering a freshly-mounted
+    // live canvas. (Codex P2 on PR #25.)
+    setMountError(null);
     let cancelled = false;
     let scatterplot: {
       draw: (rows: number[][]) => Promise<void>;
@@ -177,38 +188,56 @@ export default function AtlasIsland({ base }: Props) {
       destroy: () => void;
       subscribe: (event: string, handler: (info: unknown) => void) => void;
     } | null = null;
-    void import("regl-scatterplot").then((mod) => {
-      if (cancelled || !canvasRef.current) return;
-      const createScatterplot = (mod as { default: (opts: unknown) => unknown })
-        .default;
-      const canvas = canvasRef.current;
-      const rect = canvas.getBoundingClientRect();
-      scatterplot = createScatterplot({
-        canvas,
-        width: rect.width,
-        height: rect.height,
-        pointColor: categoryColors(),
-        pointSize: 4,
-        backgroundColor: [10 / 255, 13 / 255, 18 / 255, 1],
-      }) as typeof scatterplot;
-      if (!scatterplot) return;
-      scatterplot.subscribe("pointOver", (info) => {
-        if (typeof info === "number") setHoverIdx(info);
-      });
-      scatterplot.subscribe("pointOut", () => setHoverIdx(null));
-      scatterplot.subscribe("select", (info) => {
-        const sel = (info as { points?: number[] })?.points;
-        if (sel && sel.length > 0) {
-          const p = layout.points[sel[0]];
-          if (p) {
-            window.location.href = buildCardHref(base, p.card_id, p.page);
+    void import("regl-scatterplot")
+      .then(async (mod) => {
+        if (cancelled || !canvasRef.current) return;
+        const createScatterplot = (mod as { default: (opts: unknown) => unknown })
+          .default;
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+        scatterplot = createScatterplot({
+          canvas,
+          width: rect.width,
+          height: rect.height,
+          pointColor: categoryColors(),
+          pointSize: 4,
+          backgroundColor: [10 / 255, 13 / 255, 18 / 255, 1],
+        }) as typeof scatterplot;
+        if (!scatterplot) return;
+        scatterplot.subscribe("pointOver", (info) => {
+          if (typeof info === "number") setHoverIdx(info);
+        });
+        scatterplot.subscribe("pointOut", () => setHoverIdx(null));
+        scatterplot.subscribe("select", (info) => {
+          const sel = (info as { points?: number[] })?.points;
+          if (sel && sel.length > 0) {
+            const p = layout.points[sel[0]];
+            if (p) {
+              window.location.href = buildCardHref(base, p.card_id, p.page);
+            }
           }
-        }
+        });
+        const rows = layout.points.map(pointToScatterplotRow);
+        // Awaited so an async failure inside `draw()` (rare — late shader
+        // compile error, GPU buffer upload reject) propagates into the
+        // outer `.catch` and triggers the mount-error overlay. A bare
+        // `void scatterplot.draw(rows)` would discard the rejection and
+        // leave the user staring at an empty bordered box (nayru P1 #2).
+        await scatterplot.draw(rows);
+        scatterplotRef.current = scatterplot;
+      })
+      .catch((err) => {
+        // CSP blocks (e.g. missing 'unsafe-eval' for regl shader compile),
+        // WebGL-unavailable browsers, or chunked-import failures end up
+        // here. Surface a visible message inside the canvas frame so the
+        // page degrades gracefully instead of showing an empty box.
+        if (cancelled) return;
+        // eslint-disable-next-line no-console
+        console.error("[AtlasIsland] regl-scatterplot mount failed:", err);
+        setMountError(
+          err instanceof Error && err.message ? err.message : "unknown error",
+        );
       });
-      const rows = layout.points.map(pointToScatterplotRow);
-      void scatterplot.draw(rows);
-      scatterplotRef.current = scatterplot;
-    });
     return () => {
       cancelled = true;
       if (scatterplotRef.current) {
@@ -292,6 +321,20 @@ export default function AtlasIsland({ base }: Props) {
         <div class="relative border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/80 aspect-[4/3] sm:aspect-[16/10]">
           <canvas ref={canvasRef} class="block w-full h-full" />
           <AtlasLegend />
+          {mountError !== null && (
+            // Fully opaque so a half-rendered canvas behind doesn't bleed
+            // through (nayru P2 #5). Using `bg-deep` (no /90 alpha) keeps
+            // the overlay readable regardless of canvas state at the
+            // moment of failure.
+            <div class="absolute inset-0 flex items-center justify-center p-4 text-center bg-[color:var(--color-bg-deep)]">
+              <p class="font-mono text-sm text-[color:var(--color-signal-red)] max-w-md leading-relaxed">
+                [ATLAS UNAVAILABLE] WebGL initialization failed in this browser.
+                <span class="block mt-1 text-[11px] text-[color:var(--color-text-dim)] uppercase tracking-[0.15em]">
+                  see browser console for details
+                </span>
+              </p>
+            </div>
+          )}
           {hoverIdx !== null && layout.points[hoverIdx] && (
             <Tooltip point={layout.points[hoverIdx]} doc={docsByKey.get(`${layout.points[hoverIdx].card_id}-${layout.points[hoverIdx].page}`)} />
           )}

@@ -9,6 +9,19 @@ import assert from "node:assert/strict";
 
 import { withSecurityHeaders } from "../index.js";
 
+/**
+ * Pull a CSP directive (e.g. "script-src 'self' 'unsafe-inline' ...") out of
+ * a CSP header string. Returns the directive line with its name, or
+ * ``undefined`` if the directive is absent. Centralizes the parse logic so
+ * the per-token regression locks below stay one-liners (nayru P2 #3).
+ */
+function getCspDirective(csp, name) {
+  return csp
+    .split(";")
+    .map((d) => d.trim())
+    .find((d) => d.startsWith(`${name} `));
+}
+
 describe("withSecurityHeaders", () => {
   test("adds X-Content-Type-Options: nosniff", () => {
     const r = withSecurityHeaders(new Response("ok"));
@@ -52,5 +65,50 @@ describe("withSecurityHeaders", () => {
     });
     const wrapped = withSecurityHeaders(original);
     assert.equal(wrapped.headers.get("X-Frame-Options"), "DENY");
+  });
+
+  // CSP regression-locks: the script-src directive must keep both
+  // 'unsafe-eval' (regl-scatterplot compiles WebGL shaders via Function())
+  // and the Cloudflare Insights beacon origin. A future tightening that
+  // drops either silently breaks the /atlas page, so freeze the contract
+  // here. See worker/index.js::CSP_VALUE for the rationale comment.
+  test("CSP script-src includes 'unsafe-eval' for regl/WebGL shader compile", () => {
+    const r = withSecurityHeaders(new Response("ok"));
+    const csp = r.headers.get("Content-Security-Policy") ?? "";
+    const scriptSrc = getCspDirective(csp, "script-src");
+    assert.ok(scriptSrc, "CSP must contain a script-src directive");
+    assert.ok(
+      scriptSrc.includes("'unsafe-eval'"),
+      `script-src must include 'unsafe-eval' (got: ${scriptSrc})`,
+    );
+  });
+
+  test("CSP script-src allows Cloudflare Insights beacon origin", () => {
+    const r = withSecurityHeaders(new Response("ok"));
+    const csp = r.headers.get("Content-Security-Policy") ?? "";
+    const scriptSrc = getCspDirective(csp, "script-src");
+    assert.ok(scriptSrc, "CSP must contain a script-src directive");
+    assert.ok(
+      scriptSrc.includes("https://static.cloudflareinsights.com"),
+      `script-src must include https://static.cloudflareinsights.com (got: ${scriptSrc})`,
+    );
+  });
+
+  // Beacon SCRIPT loads from `static.cloudflareinsights.com` (script-src,
+  // above), but the RUM telemetry POST egresses to
+  // `https://cloudflareinsights.com/cdn-cgi/rum` — a *different* subdomain
+  // governed by `connect-src`. Without this token the beacon script loads
+  // and then the POST is blocked, surfacing as a second CSP violation on
+  // a different directive. Lock the connect-src contract here so a future
+  // narrowing of the connect-src list can't silently re-break analytics.
+  test("CSP connect-src allows Cloudflare Insights RUM endpoint", () => {
+    const r = withSecurityHeaders(new Response("ok"));
+    const csp = r.headers.get("Content-Security-Policy") ?? "";
+    const connectSrc = getCspDirective(csp, "connect-src");
+    assert.ok(connectSrc, "CSP must contain a connect-src directive");
+    assert.ok(
+      connectSrc.includes("https://cloudflareinsights.com"),
+      `connect-src must include https://cloudflareinsights.com (got: ${connectSrc})`,
+    );
   });
 });
