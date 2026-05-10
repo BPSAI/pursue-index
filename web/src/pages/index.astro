@@ -88,8 +88,12 @@ const pdfCount = s.byType.PDF ?? 0;
       </div>
     </section>
 
-    {/* ===== Brief framing — one sentence, tighter than /about ===== */}
-    <section class="max-w-3xl">
+    {/* ===== Brief framing — one sentence, tighter than /about =====
+        Second paragraph names the augmented-retrieval integration. The
+        ~29% figure matches /methodology's ▸ Augmented retrieval section
+        and embed_index.json's `augmented_by` accounting (1,208 / 4,119
+        embedded pages). Keep that single source of truth — don't drift. */}
+    <section class="max-w-3xl space-y-3">
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <span class="font-mono text-[color:var(--color-signal-cyan)]">pursueindex</span>
         is a citable, hash-pinned archive of the U.S. Department of War's
@@ -100,6 +104,21 @@ const pdfCount = s.byType.PDF ?? 0;
           href={`${base}/about`}
           class="ml-1 text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
         >More →</a>
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+        <span class="font-mono text-[color:var(--color-signal-green)]">Augmented for what OCR can't read.</span>
+        For ~29% of pages, we integrate vision-language descriptions of
+        photographs, sketches, and marginalia from a parallel research
+        project (<a
+          href="https://github.com/alex-zhang42/ufo-pursue-open-atlas"
+          target="_blank"
+          rel="noreferrer"
+          class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
+        >alex-zhang42/ufo-pursue-open-atlas</a>) — provenance-labeled per chunk, never blended silently.
+        <a
+          href={`${base}/methodology#augmented-retrieval`}
+          class="ml-1 text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
+        >How →</a>
       </p>
     </section>
 
