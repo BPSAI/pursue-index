@@ -70,7 +70,11 @@ export default function CardCleanedView({
       </p>
     );
   }
-  const modelId = payload?.meta.model_id ?? "claude-haiku-4-5";
+  // vaivora P2 #3: align fallback to the canonical date-suffixed model
+  // id used in clean_cli.py and methodology.astro. Without the suffix
+  // the citation footer breaks reproducibility hygiene if payload meta
+  // is ever missing.
+  const modelId = payload?.meta.model_id ?? "claude-haiku-4-5-20251001";
   return (
     <div class="space-y-3">
       <CardReaderView

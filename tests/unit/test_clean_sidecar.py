@@ -77,3 +77,52 @@ def test_should_skip_when_input_sha_matches(tmp_path: Path) -> None:
 def test_should_skip_when_row_is_missing_input_sha() -> None:
     """A row without input_sha256 (legacy / partial write) → never skip."""
     assert sidecar.should_skip({"page": 1}, new_input_sha="abc") is False
+
+
+def test_should_skip_requires_matching_model_id_when_provided() -> None:
+    """Model bump invalidates the skip even if input is unchanged.
+
+    Reviewer-flagged regression (nayru P1 / Codex P1): a prompt or model
+    change must NOT silently re-use a cached row, since the cleaned text
+    will diverge. The runner's docstring promises this; the sidecar
+    helper must enforce it.
+    """
+    row = {
+        "page": 1,
+        "input_sha256": "abc",
+        "model_id": "claude-haiku-4-5-old",
+        "prompt_sha256": "p1",
+        "text_cleaned": "old",
+    }
+    # Same input, same model, same prompt → skip
+    assert sidecar.should_skip(
+        row, new_input_sha="abc",
+        new_model_id="claude-haiku-4-5-old", new_prompt_sha="p1",
+    ) is True
+    # Same input, NEW model → re-clean
+    assert sidecar.should_skip(
+        row, new_input_sha="abc",
+        new_model_id="claude-haiku-4-5-new", new_prompt_sha="p1",
+    ) is False
+    # Same input, NEW prompt → re-clean
+    assert sidecar.should_skip(
+        row, new_input_sha="abc",
+        new_model_id="claude-haiku-4-5-old", new_prompt_sha="p2",
+    ) is False
+
+
+def test_should_skip_treats_missing_provenance_fields_as_unskippable() -> None:
+    """Legacy row missing model_id/prompt_sha256 → re-clean (force refresh)."""
+    row = {"page": 1, "input_sha256": "abc", "text_cleaned": "old"}
+    assert sidecar.should_skip(
+        row, new_input_sha="abc",
+        new_model_id="m", new_prompt_sha="p",
+    ) is False
+
+
+def test_should_skip_back_compat_two_arg_form_still_works() -> None:
+    """The old (row, new_input_sha) signature stays working for any caller
+    that hasn't yet adopted the model+prompt-aware form."""
+    row = {"page": 1, "input_sha256": "abc"}
+    assert sidecar.should_skip(row, new_input_sha="abc") is True
+    assert sidecar.should_skip(row, new_input_sha="def") is False

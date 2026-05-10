@@ -81,13 +81,16 @@ def test_run_card_skips_pages_already_in_sidecar(
     pages_path = tmp_path / "cardB" / "pages.jsonl"
     _write_pages(pages_path, [{"page": 1, "text": "same text"}])
     sidecar_path = tmp_path / "cardB" / "pages_cleaned.jsonl"
-    # Seed the sidecar with a row whose input_sha256 matches the input.
+    # Seed the sidecar with a row whose input_sha256 + model + prompt all
+    # match — the only path that should produce a skip after the
+    # idempotency tightening.
     seed_row = {
         "page": 1,
         "card_id": "cardB",
         "text_cleaned": "previously cleaned",
         "input_sha256": clean_prompt.input_sha256("same text"),
         "model_id": "claude-haiku-4-5-20251001",
+        "prompt_sha256": clean_prompt.prompt_sha256(),
     }
     sidecar_path.parent.mkdir(parents=True, exist_ok=True)
     sidecar_path.write_text(json.dumps(seed_row) + "\n")
@@ -111,6 +114,51 @@ def test_run_card_skips_pages_already_in_sidecar(
     assert calls == []
     assert report.pages_cleaned == 0
     assert report.pages_skipped == 1
+
+
+def test_run_card_does_not_skip_when_prompt_sha256_changes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Regression for nayru P1 / Codex P1: a prompt bump must invalidate
+    cached rows even when ``input_sha256`` matches.
+
+    Prior behaviour was to skip on input-sha-only match, so a prompt
+    revision would silently reuse stale cleaned text. The runner now
+    checks ``model_id`` + ``prompt_sha256`` against the row before
+    declaring a skip.
+    """
+    from pursue_index.clean import prompt as clean_prompt
+
+    pages_path = tmp_path / "cardP" / "pages.jsonl"
+    _write_pages(pages_path, [{"page": 1, "text": "same text"}])
+    sidecar_path = tmp_path / "cardP" / "pages_cleaned.jsonl"
+    seed_row = {
+        "page": 1,
+        "card_id": "cardP",
+        "text_cleaned": "previously cleaned",
+        "input_sha256": clean_prompt.input_sha256("same text"),
+        "model_id": "claude-haiku-4-5-20251001",
+        # Stale prompt_sha — does NOT match the current canonical prompt.
+        "prompt_sha256": "0" * 64,
+    }
+    sidecar_path.parent.mkdir(parents=True, exist_ok=True)
+    sidecar_path.write_text(json.dumps(seed_row) + "\n")
+
+    usage = clean_client.Usage(
+        input_tokens=10, output_tokens=10, cache_read_tokens=0,
+        cache_creation_tokens=0,
+    )
+    monkeypatch.setattr(runner, "clean_page", _fake_clean("RECLEANED", usage))
+    report = runner.run_card(
+        card_id="cardP",
+        pages_path=pages_path,
+        sidecar_path=sidecar_path,
+        model_id="claude-haiku-4-5-20251001",
+        budget_usd=10.0,
+        running_cost_usd=0.0,
+    )
+    assert report.pages_cleaned == 1
+    assert report.pages_skipped == 0
 
 
 def test_run_card_aborts_when_running_cost_exceeds_budget(
@@ -155,6 +203,105 @@ def test_run_card_aborts_when_running_cost_exceeds_budget(
     # $0.50 cap, so the second call runs and pushes us over. The third
     # call must NOT happen.
     assert call_count["n"] == 2
+
+
+def test_run_card_falls_back_when_cleaned_output_is_too_short(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """nayru P1 / laverna SEC-001: model returning a refusal or near-empty
+    string would clobber valid OCR. Guard: ratio < 0.2 → keep raw OCR
+    text, flag the row as ``cleanup_skipped="length_divergence"``.
+    """
+    pages_path = tmp_path / "cardS" / "pages.jsonl"
+    raw = "This is a long-enough OCR page with several sentences." * 5
+    _write_pages(pages_path, [{"page": 1, "text": raw}])
+    sidecar_path = tmp_path / "cardS" / "pages_cleaned.jsonl"
+
+    usage = clean_client.Usage(
+        input_tokens=100, output_tokens=10, cache_read_tokens=0,
+        cache_creation_tokens=0,
+    )
+    # Model returns a refusal — far below the 0.2 ratio threshold.
+    monkeypatch.setattr(
+        runner, "clean_page", _fake_clean("I cannot.", usage),
+    )
+    report = runner.run_card(
+        card_id="cardS",
+        pages_path=pages_path,
+        sidecar_path=sidecar_path,
+        model_id="claude-haiku-4-5-20251001",
+        budget_usd=10.0,
+        running_cost_usd=0.0,
+    )
+    rows = list(_iter_jsonl(sidecar_path))
+    assert len(rows) == 1
+    assert rows[0]["text_cleaned"] == raw  # Raw OCR preserved
+    assert rows[0]["cleanup_skipped"] == "length_divergence"
+    # The page still counts as "cleaned" for accounting (LLM was called),
+    # but downstream consumers (build_pages_cleaned) will treat it as a
+    # skipped row — see cycle 3.
+    assert report.pages_cleaned == 1
+
+
+def test_run_card_falls_back_when_cleaned_output_is_too_long(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Mirror of the short-divergence case: ratio > 2.0 → keep raw OCR."""
+    pages_path = tmp_path / "cardL" / "pages.jsonl"
+    raw = "Short OCR page."
+    _write_pages(pages_path, [{"page": 1, "text": raw}])
+    sidecar_path = tmp_path / "cardL" / "pages_cleaned.jsonl"
+
+    usage = clean_client.Usage(
+        input_tokens=100, output_tokens=300, cache_read_tokens=0,
+        cache_creation_tokens=0,
+    )
+    # Model returns a long preamble + the text — way over 2x.
+    long_output = "Here is the cleaned OCR text you requested: " * 20 + raw
+    monkeypatch.setattr(
+        runner, "clean_page", _fake_clean(long_output, usage),
+    )
+    runner.run_card(
+        card_id="cardL",
+        pages_path=pages_path,
+        sidecar_path=sidecar_path,
+        model_id="claude-haiku-4-5-20251001",
+        budget_usd=10.0,
+        running_cost_usd=0.0,
+    )
+    rows = list(_iter_jsonl(sidecar_path))
+    assert rows[0]["text_cleaned"] == raw
+    assert rows[0]["cleanup_skipped"] == "length_divergence"
+
+
+def test_run_card_keeps_cleaned_output_when_ratio_is_in_band(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Ratio in [0.2, 2.0] → cleaned text is kept, no flag set."""
+    pages_path = tmp_path / "cardK" / "pages.jsonl"
+    raw = "Some OCR text with a few errrs and broken-\nhyphens."
+    _write_pages(pages_path, [{"page": 1, "text": raw}])
+    sidecar_path = tmp_path / "cardK" / "pages_cleaned.jsonl"
+
+    usage = clean_client.Usage(
+        input_tokens=20, output_tokens=20, cache_read_tokens=0,
+        cache_creation_tokens=0,
+    )
+    monkeypatch.setattr(
+        runner, "clean_page",
+        _fake_clean("Some OCR text with a few errors and broken hyphens.", usage),
+    )
+    runner.run_card(
+        card_id="cardK",
+        pages_path=pages_path,
+        sidecar_path=sidecar_path,
+        model_id="claude-haiku-4-5-20251001",
+        budget_usd=10.0,
+        running_cost_usd=0.0,
+    )
+    rows = list(_iter_jsonl(sidecar_path))
+    assert "cleanup_skipped" not in rows[0]
+    assert rows[0]["text_cleaned"] != raw  # Cleaned version kept
 
 
 def _iter_jsonl(path: Path):

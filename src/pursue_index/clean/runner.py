@@ -11,9 +11,7 @@ skip (the runner re-keys via ``idempotency_key``).
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 
 from pursue_index import get_logger
@@ -24,13 +22,18 @@ from pursue_index.clean.client import (
     estimate_cost_usd,
 )
 from pursue_index.clean.prompt import (
-    idempotency_key,
     input_sha256,
-    output_sha256,
     prompt_sha256,
 )
 
 log = get_logger(__name__)
+
+
+# Length-divergence guard (nayru P1 / laverna SEC-001): cleaned output
+# outside [0.2x, 2.0x] of the raw input is implausible for "fix OCR
+# errors only" — refusal / preamble leak / silent drop. Fall back to raw.
+_LENGTH_RATIO_MIN = 0.2
+_LENGTH_RATIO_MAX = 2.0
 
 
 class BudgetExceededError(RuntimeError):
@@ -55,63 +58,34 @@ class CardReport:
     cache_read_tokens: int
 
 
-def _read_pages(pages_path: Path) -> list[dict]:
-    """Read ``pages.jsonl`` into a list of row dicts, ordered by page #."""
-    rows: list[dict] = []
-    with pages_path.open() as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            rows.append(json.loads(line))
-    rows.sort(key=lambda r: int(r.get("page", 0)))
-    return rows
+def _length_diverges(raw_text: str, cleaned_text: str) -> bool:
+    """True when the cleaned-output length is implausibly off the raw."""
+    ratio = len(cleaned_text) / max(len(raw_text), 1)
+    return ratio < _LENGTH_RATIO_MIN or ratio > _LENGTH_RATIO_MAX
 
 
-def _row_from_clean(
-    *,
-    card_id: str,
-    page: int,
-    cleaned_text: str,
-    raw_text: str,
-    model_id: str,
-    prompt_sha: str,
-) -> dict:
-    """Build the per-row dict written to the sidecar JSONL."""
-    return {
-        "id": f"{card_id}-p{page}",
-        "card_id": card_id,
-        "page": page,
-        "text_cleaned": cleaned_text,
-        "model_id": model_id,
-        "prompt_sha256": prompt_sha,
-        "input_sha256": input_sha256(raw_text),
-        "output_sha256": output_sha256(cleaned_text),
-        "idempotency_key": idempotency_key(
-            text=raw_text, model_id=model_id, prompt_sha=prompt_sha,
-        ),
-        "generated_at": datetime.now(UTC).isoformat(),
-    }
+def _accumulate_usage(totals: list[Usage], one: Usage) -> None:
+    """Add ``one`` into the rolling total at ``totals[0]`` (in-place).
 
-
-def _accumulate_usage(totals: list[Usage], one: Usage) -> Usage:
-    """Append + return rolling total (kept as a 1-elem list for closure)."""
+    Side-effect-only: callers read the running total via ``totals[0]``
+    after the call (the 1-elem list is just a closure trick to dodge
+    Python's name-binding rules). nayru P3 #6: the prior signature
+    returned the new total, but the only caller discarded it; trimmed
+    the return so the contract reads honestly.
+    """
     prev = totals[0]
-    nxt = Usage(
+    totals[0] = Usage(
         input_tokens=prev.input_tokens + one.input_tokens,
         output_tokens=prev.output_tokens + one.output_tokens,
         cache_read_tokens=prev.cache_read_tokens + one.cache_read_tokens,
         cache_creation_tokens=prev.cache_creation_tokens + one.cache_creation_tokens,
     )
-    totals[0] = nxt
-    return nxt
 
 
 def _call_cost(usage: Usage) -> float:
     """Wrapper so the per-page loop reads as a one-liner."""
     return estimate_cost_usd(
-        input_tokens=usage.input_tokens,
-        output_tokens=usage.output_tokens,
+        input_tokens=usage.input_tokens, output_tokens=usage.output_tokens,
         cache_read_tokens=usage.cache_read_tokens,
         cache_creation_tokens=usage.cache_creation_tokens,
     )
@@ -119,24 +93,31 @@ def _call_cost(usage: Usage) -> float:
 
 def _clean_one_page(
     *,
-    card_id: str,
-    page: int,
-    raw_text: str,
-    model_id: str,
-    prompt_sha: str,
-    sidecar_path: Path,
-    totals: list[Usage],
+    card_id: str, page: int, raw_text: str,
+    model_id: str, prompt_sha: str,
+    sidecar_path: Path, totals: list[Usage],
 ) -> float:
     """Clean one page, write its sidecar row, return the call's USD cost."""
     cleaned_text, usage = clean_page(raw_text=raw_text, model_id=model_id)
     _accumulate_usage(totals, usage)
-    sidecar_row = _row_from_clean(
+    cleanup_skipped: str | None = None
+    if _length_diverges(raw_text, cleaned_text):
+        log.warning(
+            "clean.page.length_divergence",
+            card_id=card_id, page=page,
+            raw_len=len(raw_text), cleaned_len=len(cleaned_text),
+            ratio=round(len(cleaned_text) / max(len(raw_text), 1), 3),
+        )
+        cleaned_text = raw_text
+        cleanup_skipped = "length_divergence"
+    sidecar_row = clean_sidecar.row_from_clean(
         card_id=card_id,
         page=page,
         cleaned_text=cleaned_text,
         raw_text=raw_text,
         model_id=model_id,
         prompt_sha=prompt_sha,
+        cleanup_skipped=cleanup_skipped,
     )
     clean_sidecar.write_row(sidecar_path, sidecar_row)
     return _call_cost(usage)
@@ -153,21 +134,18 @@ class _CardLoopState:
 
 def _process_page(
     *,
-    row: dict,
-    existing: dict[int, dict],
-    card_id: str,
-    model_id: str,
-    prompt_sha: str,
-    sidecar_path: Path,
-    totals: list[Usage],
-    state: _CardLoopState,
-    budget_usd: float,
+    row: dict, existing: dict[int, dict], card_id: str,
+    model_id: str, prompt_sha: str, sidecar_path: Path,
+    totals: list[Usage], state: _CardLoopState, budget_usd: float,
 ) -> None:
     """Handle one input row: skip-or-clean, update state, enforce budget."""
     page = int(row.get("page", 0))
     raw_text = str(row.get("text", ""))
     prior = existing.get(page)
-    if prior is not None and clean_sidecar.should_skip(prior, input_sha256(raw_text)):
+    if prior is not None and clean_sidecar.should_skip(
+        prior, input_sha256(raw_text),
+        new_model_id=model_id, new_prompt_sha=prompt_sha,
+    ):
         state.skipped += 1
         return
     state.cost += _clean_one_page(
@@ -200,7 +178,7 @@ def run_card(
     Raises ``BudgetExceededError`` if the running total (passed in plus
     this run's accumulated cost) crosses ``budget_usd``.
     """
-    rows_in = _read_pages(pages_path)
+    rows_in = clean_sidecar.read_pages(pages_path)
     existing = clean_sidecar.load_existing(sidecar_path)
     prompt_sha = prompt_sha256()
     totals: list[Usage] = [Usage(0, 0, 0, 0)]

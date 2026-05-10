@@ -66,10 +66,32 @@ def _iter_sidecar(path: Path) -> list[dict]:
     return rows
 
 
+def _dedupe_latest_per_page(rows: list[dict]) -> list[dict]:
+    """Keep one row per page, latest by (generated_at, file order).
+
+    Codex P1: append-only sidecars accumulate duplicates after re-runs.
+    """
+    by_page: dict[int, dict] = {}
+    for idx, row in enumerate(rows):
+        page = int(row.get("page", 0))
+        prior = by_page.get(page)
+        if prior is None:
+            by_page[page] = {"row": row, "ts": row.get("generated_at", ""), "i": idx}
+            continue
+        if (row.get("generated_at", ""), idx) >= (prior["ts"], prior["i"]):
+            by_page[page] = {"row": row, "ts": row.get("generated_at", ""), "i": idx}
+    return [entry["row"] for entry in by_page.values()]
+
+
 def _walk_sidecars(
     ocr_dir: Path, titles: dict[str, str],
 ) -> tuple[list[dict], list[str]]:
-    """Return ``(pages_list, cards_covered)`` for the deployed mirror."""
+    """Return ``(pages_list, cards_covered)`` — deduped + filtered.
+
+    Codex P1: dedupes to one row per page (latest generated_at wins).
+    Rows flagged ``cleanup_skipped`` (length-divergence fallback in
+    runner.py) hold raw OCR, not cleaned text, so they're excluded.
+    """
     pages: list[dict] = []
     covered: list[str] = []
     if not ocr_dir.exists():
@@ -81,6 +103,10 @@ def _walk_sidecars(
         if not sidecar.exists():
             continue
         rows = _iter_sidecar(sidecar)
+        if not rows:
+            continue
+        rows = _dedupe_latest_per_page(rows)
+        rows = [r for r in rows if not r.get("cleanup_skipped")]
         if not rows:
             continue
         card_id = card_dir.name
@@ -108,10 +134,33 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
     }
 
 
+def _assert_homogeneous_provenance(pages: list[dict]) -> None:
+    """Fail loudly when model_id or prompt_sha256 varies across rows.
+
+    nayru P3 #7 / vaivora P2 #2: meta records a single value from the
+    first row, so a mixed build would misrepresent provenance.
+    """
+    if not pages:
+        return
+    model_ids = {p.get("model_id", "") for p in pages}
+    prompt_shas = {p.get("prompt_sha256", "") for p in pages}
+    if len(model_ids) > 1:
+        raise ValueError(
+            f"mixed model_id values in sidecars: {sorted(model_ids)}. "
+            "Re-clean affected cards or split the build by model."
+        )
+    if len(prompt_shas) > 1:
+        raise ValueError(
+            f"mixed prompt_sha256 values in sidecars: {sorted(prompt_shas)}. "
+            "Re-clean affected cards or split the build by prompt revision."
+        )
+
+
 def _meta_block(
     pages: list[dict], covered: list[str], source_tag: str,
 ) -> dict:
     """Top-level metadata describing the build."""
+    _assert_homogeneous_provenance(pages)
     model_id = pages[0]["model_id"] if pages else ""
     prompt_sha = pages[0]["prompt_sha256"] if pages else ""
     return {

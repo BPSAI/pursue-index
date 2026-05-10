@@ -22,12 +22,13 @@ log = get_logger(__name__)
 _client: Any = None
 
 # Haiku-4-5 pricing per the plan: $0.80/M in, $4/M out, $0.08/M cache-read
-# (cache-read is 1/10th input). Cache-creation is the input rate so the
-# first request in a window pays full freight; subsequent pay cache-read.
+# (cache-read is 1/10th input). Cache-creation (ephemeral) is billed at
+# 1.25x the input rate (nayru P2 #4 — was previously coded as 1.0x,
+# under-billing the first call in each cache window by ~25%).
 _RATE_INPUT_PER_M = 0.80
 _RATE_OUTPUT_PER_M = 4.00
 _RATE_CACHE_READ_PER_M = 0.08
-_RATE_CACHE_CREATION_PER_M = _RATE_INPUT_PER_M
+_RATE_CACHE_CREATION_PER_M = 1.25 * _RATE_INPUT_PER_M
 
 # Conservative output cap: typical OCR page is ~600 tokens; budget headroom
 # for the few long pages so we don't truncate mid-sentence.
@@ -56,7 +57,15 @@ def _get_client() -> Any:
 
 
 def _build_request(raw_text: str, model_id: str) -> dict[str, Any]:
-    """Build the ``messages.create`` kwargs with cache_control on system."""
+    """Build the ``messages.create`` kwargs with cache_control on system.
+
+    User content is wrapped in ``<ocr_document>`` tags (laverna SEC-003)
+    so OCR text that reads like instructions ("Disregard prior
+    directives...") is structurally fenced off from the assistant's
+    instructions. The system prompt acknowledges the tags so the model
+    treats their contents as document text, not as a directive.
+    """
+    user_content = f"<ocr_document>\n{raw_text}\n</ocr_document>"
     return {
         "model": model_id,
         "max_tokens": _MAX_TOKENS,
@@ -70,7 +79,7 @@ def _build_request(raw_text: str, model_id: str) -> dict[str, Any]:
         "messages": [
             {
                 "role": "user",
-                "content": [{"type": "text", "text": raw_text}],
+                "content": [{"type": "text", "text": user_content}],
             }
         ],
     }

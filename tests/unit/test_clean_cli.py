@@ -17,10 +17,11 @@ from pursue_index.clean import runner as clean_runner
 
 runner_cli = CliRunner()
 
-# Typer collapses a single-command sub-app into the root for direct
-# CliRunner invocation — so we omit the `run` token in tests. When the
-# app is mounted on the parent CLI via `app.add_typer(clean_app)`, the
-# real-world invocation is `pursue clean run ...` (verified manually).
+# After vaivora P2 #1: ``clean_app`` now has a no-op callback, matching
+# ``ops_cli``. This forces typer to keep the sub-app as a multi-command
+# group regardless of how it's invoked, so the ``run`` token is now
+# required in test invocations as well as in production
+# (``pursue clean run ...``).
 
 
 def _write_manifest(path: Path, card_ids: list[str]) -> None:
@@ -93,7 +94,7 @@ def test_clean_run_drives_all_cards_when_no_filter(
 
     result = runner_cli.invoke(
         clean_app,
-        ["--manifest", str(manifest_path), "--budget-usd", "5"],
+        ["run", "--manifest", str(manifest_path), "--budget-usd", "5"],
     )
     assert result.exit_code == 0, result.stdout
     card_ids = [c["card_id"] for c in _patch_runner]
@@ -113,7 +114,7 @@ def test_clean_run_filters_to_explicit_card_list(
 
     result = runner_cli.invoke(
         clean_app,
-        ["--manifest", str(manifest_path),
+        ["run", "--manifest", str(manifest_path),
          "--cards", "c1,c3", "--budget-usd", "5"],
     )
     assert result.exit_code == 0, result.stdout
@@ -133,11 +134,51 @@ def test_clean_run_honors_limit_flag(
 
     result = runner_cli.invoke(
         clean_app,
-        ["--manifest", str(manifest_path),
+        ["run", "--manifest", str(manifest_path),
          "--limit", "2", "--budget-usd", "5"],
     )
     assert result.exit_code == 0, result.stdout
     assert len(_patch_runner) == 2
+
+
+def test_clean_run_exits_with_code_2_when_runner_raises_budget_exceeded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """nayru P2 #5: when the runner raises BudgetExceededError mid-card,
+    the CLI must exit 2 (distinct from runtime error code 1) AND print
+    the partial summary so the operator sees what was spent before the
+    abort. Previously we trusted the implementation; now there's a
+    regression test pinning the exit-code contract.
+    """
+    from pursue_index.config import settings
+    monkeypatch.setattr(settings, "data_root", tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    _write_manifest(manifest_path, ["c1", "c2"])
+    _seed_pages(tmp_path / "ocr", "c1", [{"page": 1, "text": "x"}])
+    _seed_pages(tmp_path / "ocr", "c2", [{"page": 1, "text": "y"}])
+
+    def fake_run_card(**kwargs):
+        if kwargs["card_id"] == "c1":
+            return clean_runner.CardReport(
+                card_id="c1", pages_cleaned=1, pages_skipped=0,
+                cost_usd=0.42, input_tokens=100, output_tokens=80,
+                cache_read_tokens=0,
+            )
+        # Second card trips the budget cap.
+        raise clean_runner.BudgetExceededError(
+            "Cost cap $0.50 exceeded after page 1 of card c2"
+        )
+
+    monkeypatch.setattr("pursue_index.cli.clean_cli.run_card", fake_run_card)
+
+    result = runner_cli.invoke(
+        clean_app,
+        ["run", "--manifest", str(manifest_path), "--budget-usd", "0.50"],
+    )
+    assert result.exit_code == 2, result.stdout
+    # Partial summary surfaces the c1 row + the budget message.
+    assert "BUDGET EXCEEDED" in result.stdout
+    assert "c1" in result.stdout
 
 
 def test_clean_run_dry_run_does_not_invoke_runner(
@@ -152,7 +193,7 @@ def test_clean_run_dry_run_does_not_invoke_runner(
 
     result = runner_cli.invoke(
         clean_app,
-        ["--manifest", str(manifest_path), "--dry-run", "--budget-usd", "5"],
+        ["run", "--manifest", str(manifest_path), "--dry-run", "--budget-usd", "5"],
     )
     assert result.exit_code == 0, result.stdout
     assert _patch_runner == []

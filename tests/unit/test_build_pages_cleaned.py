@@ -102,6 +102,141 @@ def test_build_handles_empty_ocr_dir(tmp_path: Path) -> None:
     assert payload["meta"]["cards_covered"] == []
 
 
+def test_build_raises_when_rows_have_mixed_model_id(tmp_path: Path) -> None:
+    """nayru P3 #7 / vaivora P2 #2: ``meta.model_id`` is taken from the
+    first row, so a build that mixes runs across models would silently
+    misrepresent provenance. Force the operator to choose by asserting
+    homogeneity — a mixed build is not a valid pilot artifact.
+    """
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [{"page": 1, "card_id": "c1", "text_cleaned": "p1",
+          "model_id": "claude-haiku-4-5-20251001",
+          "input_sha256": "a" * 64, "prompt_sha256": "abc"}],
+    )
+    _write_sidecar(
+        ocr_dir / "c2" / "pages_cleaned.jsonl",
+        [{"page": 1, "card_id": "c2", "text_cleaned": "p2",
+          "model_id": "claude-haiku-4-5-OTHER",  # Different model!
+          "input_sha256": "b" * 64, "prompt_sha256": "abc"}],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1", "c2"])
+    out_path = tmp_path / "pages-cleaned.json"
+    import pytest as _pytest
+    with _pytest.raises(ValueError, match="model_id|prompt_sha256"):
+        build_pages_cleaned.build(
+            ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+            source_tag="t",
+        )
+
+
+def test_build_raises_when_rows_have_mixed_prompt_sha256(tmp_path: Path) -> None:
+    """Same as the model_id case but for prompt drift."""
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [{"page": 1, "card_id": "c1", "text_cleaned": "p1",
+          "model_id": "m", "input_sha256": "a" * 64,
+          "prompt_sha256": "OLD"}],
+    )
+    _write_sidecar(
+        ocr_dir / "c2" / "pages_cleaned.jsonl",
+        [{"page": 1, "card_id": "c2", "text_cleaned": "p2",
+          "model_id": "m", "input_sha256": "b" * 64,
+          "prompt_sha256": "NEW"}],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1", "c2"])
+    out_path = tmp_path / "pages-cleaned.json"
+    import pytest as _pytest
+    with _pytest.raises(ValueError, match="prompt_sha256"):
+        build_pages_cleaned.build(
+            ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+            source_tag="t",
+        )
+
+
+def test_build_dedupes_repeated_rows_keeping_latest_generated_at(
+    tmp_path: Path,
+) -> None:
+    """Codex P1: ``pages_cleaned.jsonl`` is append-only, so a re-run after
+    a prompt bump produces two rows for the same (card_id, page). The
+    build script must emit only the most-recent row per page.
+    """
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            # Older row — superseded by the second.
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": "old text",
+                "model_id": "claude-haiku-4-5-20251001",
+                "input_sha256": "a" * 64, "prompt_sha256": "old",
+                "generated_at": "2026-05-01T00:00:00Z",
+            },
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": "new text",
+                "model_id": "claude-haiku-4-5-20251001",
+                "input_sha256": "a" * 64, "prompt_sha256": "new",
+                "generated_at": "2026-05-09T00:00:00Z",
+            },
+            # A different page, only one row — must survive untouched.
+            {
+                "page": 2, "card_id": "c1", "text_cleaned": "p2",
+                "model_id": "claude-haiku-4-5-20251001",
+                "input_sha256": "b" * 64, "prompt_sha256": "new",
+                "generated_at": "2026-05-09T00:00:00Z",
+            },
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    pages = payload["pages"]
+    assert len(pages) == 2
+    page1 = next(p for p in pages if p["page"] == 1)
+    assert page1["text"] == "new text"
+
+
+def test_build_excludes_rows_flagged_with_cleanup_skipped(tmp_path: Path) -> None:
+    """Length-divergence fallbacks (cycle 2) keep raw OCR in the sidecar
+    but must not appear in the deployed cleaned mirror — they're not
+    actually cleaned.
+    """
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": "raw",
+                "model_id": "m", "input_sha256": "a" * 64,
+                "cleanup_skipped": "length_divergence",
+            },
+            {
+                "page": 2, "card_id": "c1", "text_cleaned": "real cleanup",
+                "model_id": "m", "input_sha256": "b" * 64,
+            },
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    assert len(payload["pages"]) == 1
+    assert payload["pages"][0]["page"] == 2
+
+
 def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     """A card_id present in the manifest but with no sidecar is not in cards_covered."""
     ocr_dir = tmp_path / "ocr"

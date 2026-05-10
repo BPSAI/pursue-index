@@ -23,6 +23,51 @@ def _seed_card(ocr_dir: Path, card_id: str, *, pages: int, conf: float) -> None:
     (cdir / "pages.jsonl").write_text(rows + "\n")
 
 
+def test_pick_buckets_backfills_when_buckets_overlap(tmp_path: Path) -> None:
+    """Codex P2: bucket merge dedupes across high/medium/degraded but
+    doesn't replenish, so an overlap (e.g. a high-page card that's also
+    among the most degraded) yields fewer than 30 cards. The selector
+    must backfill from unused candidates so the pilot always runs at
+    full sample size when one is available.
+    """
+    # 35 candidates, but the top-degraded set fully overlaps the
+    # high-page set — without backfill the result drops to 25.
+    stats: list[select_pilot_cards._CardStat] = []
+    for i in range(10):
+        # high page count, also low confidence — overlaps both buckets.
+        stats.append(select_pilot_cards._CardStat(
+            card_id=f"hi{i:02d}", page_count=200 + i, mean_confidence=10 + i,
+        ))
+    for i in range(10):
+        stats.append(select_pilot_cards._CardStat(
+            card_id=f"md{i:02d}", page_count=20, mean_confidence=85,
+        ))
+    for i in range(15):
+        stats.append(select_pilot_cards._CardStat(
+            card_id=f"fl{i:02d}", page_count=15, mean_confidence=70,
+        ))
+    picked = select_pilot_cards._pick_buckets(stats)
+    assert len(picked) == 30
+    assert len(set(picked)) == 30  # all unique
+
+
+def test_pick_buckets_does_not_invent_cards_when_pool_too_small(
+    tmp_path: Path,
+) -> None:
+    """If fewer than 30 candidates exist total, return what's available
+    rather than crashing or padding with empty strings.
+    """
+    stats = [
+        select_pilot_cards._CardStat(
+            card_id=f"c{i:02d}", page_count=20 + i, mean_confidence=80,
+        )
+        for i in range(12)
+    ]
+    picked = select_pilot_cards._pick_buckets(stats)
+    assert len(picked) == 12
+    assert len(set(picked)) == 12
+
+
 def test_picks_high_medium_low_confidence_buckets(tmp_path: Path) -> None:
     ocr_dir = tmp_path / "ocr"
     # 15 cards: 5 high-page-count, 5 medium, 5 low-confidence + 5 filler.

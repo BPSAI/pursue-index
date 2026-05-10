@@ -31,6 +31,20 @@ clean_app = typer.Typer(
     no_args_is_help=True,
 )
 
+
+# vaivora P2 #1 alignment: ``ops_cli`` uses a no-op callback to keep typer
+# treating the sub-app as a multi-command group under both invocation
+# paths (direct ``runner.invoke(clean_app, ...)`` in tests vs.
+# ``app.add_typer(clean_app)`` in the parent CLI). Without this anchor,
+# typer collapses single-command sub-apps into the root, so the
+# invocation shape silently changes when ``clean`` later gets a second
+# subcommand. See ``ops_cli.py`` for the canonical caveat.
+@clean_app.callback()
+def _clean_callback() -> None:
+    """Anchor that forces typer to treat ``clean`` as a multi-command group."""
+    return
+
+
 # Default model: Haiku-4-5 per the plan. Cheaper than Sonnet by ~4x at
 # the same prompt-cache hit rate and good enough for "fix obvious OCR
 # errors" — verified via the pilot before any corpus-wide run.
@@ -126,7 +140,11 @@ def clean_run(
     ),
     budget_usd: float = typer.Option(
         DEFAULT_BUDGET_USD, "--budget-usd",
-        help="Hard cost cap. Run aborts when cumulative cost exceeds this.",
+        help=(
+            "Hard cost cap. Run aborts when cumulative cost exceeds this. "
+            "Cap is checked after each page; up to one page's worth of "
+            "cost may be incurred past the cap at card boundaries."
+        ),
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run",

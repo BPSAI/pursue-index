@@ -80,27 +80,52 @@ def _gather_stats(manifest_path: Path, ocr_dir: Path) -> list[_CardStat]:
     return out
 
 
+_TARGET_PILOT_SIZE = 30
+
+
 def _pick_buckets(stats: list[_CardStat]) -> list[str]:
     """Split into high/medium/low-confidence buckets and pick 10 each.
 
     Deterministic ordering: each bucket sorted by ``card_id`` after the
     primary criterion, so re-runs across machines pick the same sample.
+
+    Codex P2 backfill: deduping across overlapping buckets can drop the
+    result below the pilot target (e.g. a high-page card that's also
+    among the most degraded gets counted once). After the bucket-merge
+    pass, fill remaining slots from the broader pool — first by walking
+    each bucket beyond the initial top-10 cut, then (last resort) any
+    unused card sorted by ``card_id`` — to land on exactly
+    ``_TARGET_PILOT_SIZE`` whenever the candidate pool is large enough.
     """
-    high_pages = sorted(stats, key=lambda s: (-s.page_count, s.card_id))[:10]
+    high_pages = sorted(stats, key=lambda s: (-s.page_count, s.card_id))
     sorted_by_pages = sorted(stats, key=lambda s: s.page_count)
     n = len(sorted_by_pages)
     median_start = max(0, n // 2 - 5)
-    medium_pages = sorted_by_pages[median_start: median_start + 10]
-    degraded = sorted(stats, key=lambda s: (s.mean_confidence, s.card_id))[:10]
+    medium_pages = sorted_by_pages[median_start:]
+    degraded = sorted(stats, key=lambda s: (s.mean_confidence, s.card_id))
+    fallback = sorted(stats, key=lambda s: s.card_id)
     seen: set[str] = set()
     picked: list[str] = []
-    for bucket in (high_pages, medium_pages, degraded):
+    # First pass: top-10 from each bucket (the contractual sample shape).
+    for bucket in (high_pages[:10], medium_pages[:10], degraded[:10]):
         for stat in bucket:
             if stat.card_id in seen:
                 continue
             seen.add(stat.card_id)
             picked.append(stat.card_id)
-    return picked[:30]
+    if len(picked) >= _TARGET_PILOT_SIZE:
+        return picked[:_TARGET_PILOT_SIZE]
+    # Backfill: walk each bucket past its initial slice, then the
+    # global fallback list, until we hit the target or exhaust candidates.
+    for bucket in (high_pages, medium_pages, degraded, fallback):
+        for stat in bucket:
+            if stat.card_id in seen:
+                continue
+            seen.add(stat.card_id)
+            picked.append(stat.card_id)
+            if len(picked) >= _TARGET_PILOT_SIZE:
+                return picked
+    return picked
 
 
 def main() -> int:
