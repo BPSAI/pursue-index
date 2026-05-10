@@ -12,6 +12,7 @@
  */
 
 import MiniSearch from "minisearch";
+import { buildSearchIndexOptions } from "./search-result-highlight.ts";
 
 /** Wire shape of one point in ``atlas-layout.json``. */
 export interface AtlasPoint {
@@ -130,11 +131,17 @@ export function buildCardHref(base: string, cardId: string, page: number): strin
  * MiniSearch instance for atlas search. Indexed once over all atlas
  * points so each keystroke runs a search rather than a fresh build.
  *
- * Configuration matches ``SearchIsland`` (boost: title, prefix, fuzzy)
- * so the same input lights up the same set of rows on /search and
- * /atlas — vaivora P1 (search-relevance divergence). Stores ``index``
- * (the position in the points array) as the only stored field so the
- * island can re-key matches back to its render order.
+ * Configuration is sourced from ``buildSearchIndexOptions`` in
+ * ``search-result-highlight.ts`` — the same factory ``SearchIsland`` uses
+ * — so the same input lights up the same set of rows on /search and
+ * /atlas (vaivora P1: search-relevance divergence; vaivora P0 on PR #29:
+ * the prior comment-only contract was drift-prone, the shared factory
+ * makes the lockstep structural). Atlas overrides ``storeFields`` to keep
+ * only the render-array index, since it doesn't need card_id/page on the
+ * stored doc — the island re-keys matches back to its own render order.
+ *
+ * Per-search options (``combineWith: "AND"``) live at the call site below;
+ * the factory only manages construction-time options.
  */
 export interface AtlasMiniSearch {
   search(query: string): number[];
@@ -145,17 +152,10 @@ export function buildAtlasMiniSearch(
   points: AtlasPoint[],
   lookup: (p: AtlasPoint) => { title?: string; text?: string } | undefined,
 ): AtlasMiniSearch {
-  const ms = new MiniSearch<{ id: number; title: string; text: string }>({
-    fields: ["title", "text"],
-    storeFields: ["id"],
-    idField: "id",
-    searchOptions: {
-      boost: { title: 2 },
-      prefix: true,
-      fuzzy: 0.2,
-      combineWith: "AND",
-    },
-  });
+  type AtlasDoc = { id: number; title: string; text: string };
+  const ms = new MiniSearch<AtlasDoc>(
+    buildSearchIndexOptions<AtlasDoc>({ storeFields: ["id"] }),
+  );
   const docs = points.map((p, i) => {
     const r = lookup(p) ?? {};
     return { id: i, title: r.title ?? "", text: r.text ?? "" };
@@ -166,7 +166,7 @@ export function buildAtlasMiniSearch(
     search(query: string): number[] {
       const trimmed = query.trim();
       if (!trimmed) return points.map((_, i) => i);
-      const hits = ms.search(trimmed);
+      const hits = ms.search(trimmed, { combineWith: "AND" });
       return hits.map((h) => Number(h.id));
     },
   };
