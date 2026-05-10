@@ -12,6 +12,14 @@ name: Poll PURSUE for new tranches
 # silently stops detecting, the next operator-attended run will catch up
 # but we'll have lost the canonical-archive lead.
 #
+# A second observability lane — the PDF-fetch health check — runs
+# after the CSV poll and uses the same curl_cffi Chrome-impersonate
+# path. If Akamai ever tightens PDF gating without touching the CSV
+# (or vice versa), one lane will fail while the other stays green
+# and we'll know within 6 hours instead of finding out from a failed
+# operator-attended download stage. Both lanes feed the same
+# `gh issue create` pipeline so the alert pathway stays unified.
+#
 # Operational dependencies (SEC-004):
 # * Direct push: the "Commit new sha" step pushes straight to `main`
 #   using the auto-provisioned `GITHUB_TOKEN`. If branch protection is
@@ -73,6 +81,10 @@ jobs:
           gh label create tranche-poll-failure \
             --color D93F0B \
             --description "The auto-poll workflow could not fetch/parse the upstream CSV" \
+            --force
+          gh label create pdf-health-failure \
+            --color D93F0B \
+            --description "The 6h cron sentinel PDF fetch failed (likely Akamai gating shift)" \
             --force
 
       - name: Install minimal scrape deps
@@ -146,8 +158,81 @@ jobs:
             --body  "$ISSUE_BODY" \
             --label "$ISSUE_LABELS"
 
+      # PDF surveillance lane is independent of CSV: continue-on-error on both
+      # steps means a PDF crash never suppresses CSV issue creation, and vice
+      # versa. Ordering after CSV is purely for log-readability — readers
+      # triaging an outage want CSV results above PDF results in the run log.
+      - name: Run PDF-fetch health check
+        # Sentinel-PDF ping via the same curl_cffi Chrome-impersonate
+        # path the CSV fetcher uses. Catches PDF-only Akamai gating
+        # shifts that the CSV poll would miss. `continue-on-error` so
+        # the issue-opening step can still fire on failure.
+        #
+        # `if: always()` keeps PDF surveillance independent: if a CSV-side
+        # step (e.g., a `gh issue create` 422) hard-fails earlier, the
+        # default `success()` gate would otherwise skip this step and we
+        # would lose the PDF lane on the very runs where it matters most.
+        # Codex P2 review (2026-05-10).
+        #
+        # Like scripts/poll_pursue.py, this script sys.path-injects
+        # `src/` itself so it works under the lean
+        # `requirements-poll.txt` install (no full `pursue` CLI dep).
+        id: pdf_health
+        if: ${{ always() }}
+        run: python scripts/pdf_health_check.py
+        continue-on-error: true
+
+      - name: Open pdf-health-failure issue
+        # Fires whenever the sentinel fetch fails. The body links the
+        # operator straight to the workflow log; the curl_cffi shared
+        # path means the CSV fetcher is also worth a re-check (a
+        # gate that broke PDFs may break CSVs next).
+        #
+        # Dedup guard (laverna SEC-001): without a search-before-create
+        # check, every failing 6h cron tick opens a NEW issue. After 24
+        # hours of an outage the operator has 4+ duplicate issues and
+        # the alert lane gets ignored. Skip creation if an open issue
+        # with the label already exists.
+        if: steps.pdf_health.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          existing=$(gh issue list --label pdf-health-failure --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "open pdf-health-failure issue already exists (#$existing); skipping creation"
+            exit 0
+          fi
+          BODY=$(cat <<EOF
+          The 6h cron's sentinel PDF fetch failed.
+
+          This is the canary for PDF-side Akamai gating: the same
+          curl_cffi Chrome-impersonate path that the CSV fetcher uses.
+          If this is failing but the CSV poll passed, Akamai likely
+          tightened gating on the medialink/PDF download path
+          specifically. If both are failing, the shared TLS/header
+          contract is the suspect.
+
+          Run log: $RUN_URL
+
+          Triage:
+          1. Pull the workflow log; the failing step prints
+             pdf-health.fail url=<url> status=<n> error=<msg> on stderr.
+          2. Re-run 'pursue scrape fetch-raw' locally — if that also
+             4xxs, the gate moved on the shared path.
+          3. If only PDFs are 4xx, compare the Range/Referer headers
+             in src/pursue_index/scrape/pdf_health.py against the
+             download stage and bring them into agreement.
+          EOF
+          )
+          gh issue create \
+            --title "[health] PDF fetch failed (sentinel ping)" \
+            --label "pdf-health-failure" \
+            --body "$BODY"
+
       - name: Propagate failure exit code
-        # Same dual condition as the failure-issue step so the workflow
-        # always reflects red when the poll didn't succeed.
-        if: steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure'
+        # Workflow goes red on EITHER failure mode (CSV poll OR PDF health).
+        # Without this, a green checkmark could ship while one of the two
+        # surveillance lanes was actively broken.
+        if: steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure' || steps.pdf_health.outcome == 'failure'
         run: exit 1

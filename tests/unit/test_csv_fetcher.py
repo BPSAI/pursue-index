@@ -57,7 +57,7 @@ def test_fetch_raw_csv_uses_chrome_impersonation(monkeypatch: pytest.MonkeyPatch
         captured.update(kwargs)
         return _FakeResponse(200, _SAMPLE_CSV)
 
-    monkeypatch.setattr(csv_fetcher, "_http_get", fake_get)
+    monkeypatch.setattr(csv_fetcher, "http_get", fake_get)
 
     raw = fetch_raw_csv()
 
@@ -69,7 +69,7 @@ def test_fetch_raw_csv_uses_chrome_impersonation(monkeypatch: pytest.MonkeyPatch
 def test_fetch_raw_csv_raises_on_http_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         csv_fetcher,
-        "_http_get",
+        "http_get",
         lambda url, **kw: _FakeResponse(403, b"Access Denied"),
     )
     with pytest.raises(RuntimeError, match="403"):

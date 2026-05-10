@@ -106,6 +106,8 @@ pursue index ingest --manifest data/manifests/latest.json
 
 Each stage skips work it's already done for unchanged `card_id`s. The CSV archive (`data/csv-archive/uap-csv-<timestamp>.csv`) gives us a forensic trail of how the source has evolved over time, independent of the manifests we generate.
 
+A 6-hour cron (`.github/workflows/poll-pursue.yml`) watches the upstream CSV via the curl_cffi Chrome-impersonate path and opens an issue when the sha changes (or when fetching fails). The same workflow runs a sentinel PDF-fetch health check (`scripts/pdf_health_check.py`, deterministic lex-smallest PDF card from the manifest) over the same TLS path so PDF-only Akamai gating shifts surface within 6h instead of waiting for an operator-attended download stage to fail.
+
 ## Web build chain (post-embed)
 
 The static site shipped to Cloudflare reads three browser-side payloads
