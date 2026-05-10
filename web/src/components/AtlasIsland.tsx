@@ -176,6 +176,11 @@ export default function AtlasIsland({ base }: Props) {
   // canvas-mount on real <400px viewports — nayru #6).
   useEffect(() => {
     if (status !== "ready" || !hasMeasuredViewport || isMobile || !canvasRef.current || !layout) return;
+    // Clear any prior mount error before retrying. Without this, a transient
+    // failure followed by a viewport-mode change that retriggers the effect
+    // would leave the [ATLAS UNAVAILABLE] overlay covering a freshly-mounted
+    // live canvas. (Codex P2 on PR #25.)
+    setMountError(null);
     let cancelled = false;
     let scatterplot: {
       draw: (rows: number[][]) => Promise<void>;
