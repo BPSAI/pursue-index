@@ -1,13 +1,30 @@
 ---
 id: curated-finds
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-08
+shipped: 2026-05-09
+updated: 2026-05-10
 priority: high
 depends_on: []
 ---
 
 # Curated finds — "Notable Cases" page
+
+> **Phase 1 shipped 2026-05-09.** The `/finds` page is live with the
+> Astro content collection, Cite component, header nav entry, and the
+> opening set of editor-written entries. As of 2026-05-10 the page
+> carries **12 published entries** at the established editorial bar.
+>
+> **Phase 2 (autonomous expansion) is a separate plan:**
+> [`autonomous-finds-pipeline.md`](./autonomous-finds-pipeline.md).
+> That plan covers the pipeline that surveys the corpus continuously,
+> drafts publish-ready entries in narrative voice, and submits them
+> for editorial review.
+>
+> The original Phase 1 scope is preserved below as historical context.
+
+---
 
 ## Why
 
