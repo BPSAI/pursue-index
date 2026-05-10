@@ -6,8 +6,10 @@ Rather than scraping the JS-rendered DOM, we fetch the underlying CSV directly.
 Akamai gates the CSV on TLS fingerprint plus the full Chrome client-hint header
 set; plain ``httpx``/``requests`` clients are 403'd. We use ``curl_cffi`` with
 ``impersonate="chrome"`` so the TLS handshake and HTTP/2 frame pattern look
-identical to a real Chrome request. The ``_http_get`` indirection exists so
-tests can monkeypatch a fake transport without touching the network.
+identical to a real Chrome request. The ``http_get`` indirection is a public
+reuse seam: tests monkeypatch it to inject fake transports, and ``pdf_health``
+imports it directly so any TLS-gate shift trips both surveillance lanes in
+lockstep.
 """
 
 from __future__ import annotations
@@ -39,8 +41,13 @@ log = get_logger(__name__)
 _IMPERSONATE = "chrome"
 
 
-def _http_get(url: str, **kwargs: Any) -> Any:
-    """Indirection seam over ``curl_cffi.requests.get`` for testability."""
+def http_get(url: str, **kwargs: Any) -> Any:
+    """curl_cffi GET indirection used by both csv_fetcher and pdf_health.
+
+    Public reuse seam: tests monkeypatch this to inject fake transports;
+    pdf_health imports it directly so any TLS-gate shift trips both
+    surveillance lanes in lockstep.
+    """
     return curl_requests.get(url, **kwargs)
 
 
@@ -57,7 +64,7 @@ def fetch_raw_csv(url: str | None = None) -> bytes:
     if settings.scrape_user_agent:
         headers["User-Agent"] = settings.scrape_user_agent
 
-    resp = _http_get(
+    resp = http_get(
         target,
         headers=headers,
         impersonate=_IMPERSONATE,

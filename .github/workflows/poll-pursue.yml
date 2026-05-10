@@ -158,6 +158,10 @@ jobs:
             --body  "$ISSUE_BODY" \
             --label "$ISSUE_LABELS"
 
+      # PDF surveillance lane is independent of CSV: continue-on-error on both
+      # steps means a PDF crash never suppresses CSV issue creation, and vice
+      # versa. Ordering after CSV is purely for log-readability — readers
+      # triaging an outage want CSV results above PDF results in the run log.
       - name: Run PDF-fetch health check
         # Sentinel-PDF ping via the same curl_cffi Chrome-impersonate
         # path the CSV fetcher uses. Catches PDF-only Akamai gating
@@ -176,11 +180,22 @@ jobs:
         # operator straight to the workflow log; the curl_cffi shared
         # path means the CSV fetcher is also worth a re-check (a
         # gate that broke PDFs may break CSVs next).
+        #
+        # Dedup guard (laverna SEC-001): without a search-before-create
+        # check, every failing 6h cron tick opens a NEW issue. After 24
+        # hours of an outage the operator has 4+ duplicate issues and
+        # the alert lane gets ignored. Skip creation if an open issue
+        # with the label already exists.
         if: steps.pdf_health.outcome == 'failure'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          existing=$(gh issue list --label pdf-health-failure --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "open pdf-health-failure issue already exists (#$existing); skipping creation"
+            exit 0
+          fi
           BODY=$(cat <<EOF
           The 6h cron's sentinel PDF fetch failed.
 

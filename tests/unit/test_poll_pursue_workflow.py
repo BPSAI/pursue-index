@@ -49,8 +49,27 @@ def _step_index(steps: list[dict], needle: str) -> int:
 
 
 def test_poll_pursue_yaml_parses() -> None:
-    """yaml.safe_load must succeed — guards typos, indent drift, etc."""
-    yaml.safe_load(WORKFLOW.read_text())
+    """yaml.safe_load must succeed AND the trigger block must be wired.
+
+    PyYAML 1.1 silently casts unquoted ``on:`` to Python ``True``, so a
+    plain ``safe_load`` succeeds even when the trigger block is empty
+    or malformed. Drill into the trigger map to confirm both
+    ``schedule`` and ``workflow_dispatch`` are present and the cron
+    expression is non-empty. (nayru P1#2)
+    """
+    data = yaml.safe_load(WORKFLOW.read_text())
+
+    # PyYAML 1.1 may key the unquoted ``on:`` block under True (bool) or "on" (str).
+    triggers = data.get("on") if "on" in data else data.get(True)
+    assert triggers is not None, "workflow has no trigger block"
+    assert "schedule" in triggers, "workflow missing 'schedule' trigger"
+    assert "workflow_dispatch" in triggers, "workflow missing 'workflow_dispatch' trigger"
+
+    schedule = triggers["schedule"]
+    # ``schedule`` is a list of dicts each with a ``cron`` key.
+    assert isinstance(schedule, list) and schedule, "schedule must be a non-empty list"
+    cron_expr = schedule[0].get("cron", "")
+    assert cron_expr, "cron expression must be non-empty"
 
 
 def test_pdf_health_step_runs_after_csv_poll() -> None:
@@ -125,6 +144,31 @@ def test_pdf_health_label_created_in_label_seed_step() -> None:
     # within ~10 lines of the label name.
     snippet = "\n".join(after.split("\n")[:10])
     assert "--force" in snippet
+
+
+def test_pdf_health_issue_step_has_dedup_guard() -> None:
+    """Without a search-before-create guard, every failing 6h cron tick
+    opens a *new* pdf-health-failure issue. After 24 hours of an outage
+    the operator has 4 duplicate issues and the alert lane is noisy
+    enough to be ignored. (laverna SEC-001)
+
+    The guard pattern: ``gh issue list --label pdf-health-failure
+    --state open ...`` must appear before ``gh issue create`` within
+    the same step's run block.
+    """
+    steps = _load_steps()
+    pdf_issue_idx = _step_index(steps, "Open pdf-health-failure issue")
+    assert pdf_issue_idx >= 0, "PDF-failure issue step missing"
+    run_block = steps[pdf_issue_idx].get("run", "")
+
+    list_pos = run_block.find("gh issue list")
+    create_pos = run_block.find("gh issue create")
+    assert list_pos >= 0, "PDF issue step missing 'gh issue list' dedup probe"
+    assert create_pos >= 0, "PDF issue step missing 'gh issue create'"
+    assert list_pos < create_pos, (
+        "dedup probe ('gh issue list') must run BEFORE 'gh issue create'"
+    )
+    assert "pdf-health-failure" in run_block[:list_pos + 200]
 
 
 def test_pdf_health_step_invokes_dedicated_script() -> None:

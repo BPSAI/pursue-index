@@ -136,7 +136,7 @@ def test_check_pdf_health_uses_chrome_impersonation(
         captured.update(kwargs)
         return _FakeResponse(200, b"x" * 256)
 
-    monkeypatch.setattr(pdf_health.csv_fetcher, "_http_get", fake_get)
+    monkeypatch.setattr(pdf_health.csv_fetcher, "http_get", fake_get)
 
     result = pdf_health.check_pdf_health("https://www.war.gov/x.pdf")
 
@@ -156,7 +156,7 @@ def test_check_pdf_health_returns_fail_on_403(monkeypatch: pytest.MonkeyPatch) -
     def fake_get(url: str, **kwargs: object) -> _FakeResponse:
         return _FakeResponse(403, b"Access Denied")
 
-    monkeypatch.setattr(pdf_health.csv_fetcher, "_http_get", fake_get)
+    monkeypatch.setattr(pdf_health.csv_fetcher, "http_get", fake_get)
 
     result = pdf_health.check_pdf_health("https://www.war.gov/x.pdf")
 
@@ -172,7 +172,7 @@ def test_check_pdf_health_returns_fail_on_404(monkeypatch: pytest.MonkeyPatch) -
     def fake_get(url: str, **kwargs: object) -> _FakeResponse:
         return _FakeResponse(404, b"")
 
-    monkeypatch.setattr(pdf_health.csv_fetcher, "_http_get", fake_get)
+    monkeypatch.setattr(pdf_health.csv_fetcher, "http_get", fake_get)
 
     result = pdf_health.check_pdf_health("https://www.war.gov/x.pdf")
 
@@ -189,13 +189,91 @@ def test_check_pdf_health_returns_fail_on_transport_error(
     def fake_get(url: str, **kwargs: object) -> _FakeResponse:
         raise ConnectionError("name resolution failed")
 
-    monkeypatch.setattr(pdf_health.csv_fetcher, "_http_get", fake_get)
+    monkeypatch.setattr(pdf_health.csv_fetcher, "http_get", fake_get)
 
     result = pdf_health.check_pdf_health("https://www.war.gov/x.pdf")
 
     assert isinstance(result, pdf_health.HealthFail)
     assert result.status == -1  # transport sentinel
     assert "ConnectionError" in result.error
+
+
+# ---------------------------------------------------------------------------
+# kv-format helpers (format_ok / format_fail)
+# ---------------------------------------------------------------------------
+
+
+def test_format_ok_emits_stable_kv_line() -> None:
+    """``pdf-health.ok url=<url> bytes=<n>`` is the contract the workflow
+    log greps. Pin the exact format so a reorder/rename of fields can't
+    silently break a downstream awk/cut consumer."""
+    result = pdf_health.HealthOk(url="https://www.war.gov/x.pdf", bytes_received=256)
+
+    assert pdf_health.format_ok(result) == (
+        "pdf-health.ok url=https://www.war.gov/x.pdf bytes=256"
+    )
+
+
+def test_format_fail_replaces_internal_whitespace_with_underscores() -> None:
+    """A multi-word error like ``ValueError: no PDF cards in manifest``
+    contains spaces that break any whitespace-splitting log parser. The
+    sanitizer must collapse them to a single token (underscores)."""
+    result = pdf_health.HealthFail(
+        url="-",
+        status=-1,
+        error="ValueError: no PDF cards in manifest",
+    )
+
+    line = pdf_health.format_fail(result)
+
+    # Header fields stay quotable single tokens.
+    assert line.startswith("pdf-health.fail url=- status=-1 error=")
+    # Extract the error= value and assert it has no internal whitespace.
+    error_value = line.split("error=", 1)[1]
+    assert " " not in error_value
+    assert "\t" not in error_value
+
+
+def test_format_fail_redacts_cf_ray_substring() -> None:
+    """WAF debug headers (cf-ray, x-akamai-*, x-check-cacheable, via:*) can
+    contain operator-internal info we don't want in the public Actions
+    log. Redact known patterns before printing. (laverna SEC-002)"""
+    result = pdf_health.HealthFail(
+        url="https://www.war.gov/x.pdf",
+        status=403,
+        error="HTTPError 403 cf-ray:abc12345-LAX",
+    )
+
+    line = pdf_health.format_fail(result)
+
+    assert "cf-ray" not in line.lower()
+    assert "[redacted]" in line
+
+
+def test_format_fail_truncates_long_error_to_80_chars() -> None:
+    """An unbounded error string would blow up the log line length and
+    bury the structured kv fields. Cap at 80 chars."""
+    long_error = "X" * 200
+    result = pdf_health.HealthFail(
+        url="https://www.war.gov/x.pdf", status=500, error=long_error
+    )
+
+    line = pdf_health.format_fail(result)
+
+    error_value = line.split("error=", 1)[1]
+    assert len(error_value) <= 80
+
+
+def test_format_fail_handles_empty_error_string() -> None:
+    """An empty error must not produce ``error=`` (a dangling kv) — the
+    parser must always see a value token, even if it's just ``unknown``."""
+    result = pdf_health.HealthFail(url="-", status=-1, error="")
+
+    line = pdf_health.format_fail(result)
+
+    error_value = line.split("error=", 1)[1]
+    assert error_value  # non-empty
+    assert " " not in error_value
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +289,7 @@ def _patch_pdf_health_cli(
     def fake_get(url: str, **kwargs: object) -> _FakeResponse:
         return _FakeResponse(status_code, body)
 
-    monkeypatch.setattr(pdf_health.csv_fetcher, "_http_get", fake_get)
+    monkeypatch.setattr(pdf_health.csv_fetcher, "http_get", fake_get)
 
 
 def test_cli_pdf_health_exits_zero_on_success(
@@ -267,7 +345,7 @@ def test_cli_pdf_health_exits_one_on_transport_error(
     def fake_get(url: str, **kwargs: object) -> _FakeResponse:
         raise ConnectionError("name resolution failed")
 
-    monkeypatch.setattr(pdf_health.csv_fetcher, "_http_get", fake_get)
+    monkeypatch.setattr(pdf_health.csv_fetcher, "http_get", fake_get)
 
     runner = CliRunner()
     res = runner.invoke(ops_app, ["pdf-health", "--manifest", str(manifest_path)])

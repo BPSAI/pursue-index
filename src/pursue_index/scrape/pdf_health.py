@@ -7,7 +7,7 @@ out hours/days late from a download stage failure.
 
 This module pings a single, deterministically-selected sentinel PDF
 from the latest manifest using the **same** curl_cffi Chrome-impersonate
-machinery the CSV fetcher uses (``csv_fetcher._http_get``). Re-using
+machinery the CSV fetcher uses (``csv_fetcher.http_get``). Re-using
 the indirection keeps both surveillance lanes aligned: any TLS or
 header contract change shows up in both at once.
 
@@ -19,6 +19,7 @@ reproducible failures the operator can grep.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -76,16 +77,16 @@ class HealthFail:
 def check_pdf_health(url: str) -> HealthOk | HealthFail:
     """Fetch the first 1 KiB of ``url`` and return ok/fail.
 
-    Goes through ``csv_fetcher._http_get`` so the curl_cffi Chrome
+    Goes through ``csv_fetcher.http_get`` so the curl_cffi Chrome
     impersonation contract is exercised in lockstep with CSV fetches.
-    Tests monkeypatch ``_http_get`` to skip the network.
+    Tests monkeypatch ``http_get`` to skip the network.
 
     Range request bounds the cost: we only need to know the gate
     opens, not the full file body.
     """
     headers = {"Range": _RANGE_HEADER}
     try:
-        resp = csv_fetcher._http_get(
+        resp = csv_fetcher.http_get(
             url,
             headers=headers,
             impersonate=_IMPERSONATE,
@@ -106,6 +107,53 @@ def check_pdf_health(url: str) -> HealthOk | HealthFail:
 
     log.warning("pdf_health.http_error", url=url, status=status)
     return HealthFail(url=url, status=status, error=f"HTTP {status}")
+
+
+# ---------------------------------------------------------------------------
+# kv-format helpers
+# ---------------------------------------------------------------------------
+#
+# Both the bare script (``scripts/pdf_health_check.py``) and the typer CLI
+# (``ops_cli.pdf_health_cmd``) emit two stable line formats the workflow
+# log greps without re-parsing JSON. Centralizing the f-strings here:
+#
+# * keeps the two callers from drifting (vaivora P1#2)
+# * sanitizes error tokens so a multi-word ``ValueError: no PDF cards``
+#   message can't break ``awk``/``cut`` consumers that split on
+#   whitespace (nayru P1#1)
+# * redacts WAF debug headers (cf-ray, x-akamai-*, x-check-cacheable,
+#   via:*) before they land in the public Actions log (laverna SEC-002)
+
+
+# Compiled once at import time. Match common WAF/CDN debug header
+# fragments that may surface inside an exception's ``str(exc)``.
+_WAF_REDACT_RE = re.compile(
+    r"(cf-ray|x-akamai[^\s]*|x-check[^\s]*|via:[^\s]*)[^\s]*",
+    flags=re.IGNORECASE,
+)
+_WHITESPACE_RE = re.compile(r"\s+")
+_ERROR_MAX_LEN = 80
+
+
+def format_ok(result: HealthOk) -> str:
+    """Stable kv-format line for ok results. No spaces in values."""
+    return f"pdf-health.ok url={result.url} bytes={result.bytes_received}"
+
+
+def format_fail(result: HealthFail) -> str:
+    """Stable kv-format line for failures. Sanitizes error to a single token.
+
+    Three guarantees, in order:
+      1. WAF debug headers (cf-ray, x-akamai-*, etc) -> ``[redacted]``
+      2. Internal whitespace -> underscores (single token)
+      3. Truncated to ``_ERROR_MAX_LEN`` chars; empty -> ``unknown``
+    """
+    raw = result.error or ""
+    redacted = _WAF_REDACT_RE.sub("[redacted]", raw)
+    sanitized = _WHITESPACE_RE.sub("_", redacted.strip())[:_ERROR_MAX_LEN] or "unknown"
+    return (
+        f"pdf-health.fail url={result.url} status={result.status} error={sanitized}"
+    )
 
 
 def pick_sentinel(manifest_path: Path) -> Sentinel:

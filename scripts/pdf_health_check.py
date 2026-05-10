@@ -3,11 +3,12 @@
 Mirror of ``scripts/poll_pursue.py`` for the PDF-fetch path. Lives
 alongside it because they're invoked from the same workflow
 (``.github/workflows/poll-pursue.yml``) and share the curl_cffi +
-Chrome-TLS contract via ``pursue_index.scrape.csv_fetcher._http_get``.
+Chrome-TLS contract via ``pursue_index.scrape.csv_fetcher.http_get``.
 
 The script is intentionally a thin shell — all the testable logic
-lives in ``pursue_index.scrape.pdf_health``. This file exists so the
-GH Actions runner can invoke it directly without needing the full
+(including the kv-format ``format_ok``/``format_fail`` helpers) lives
+in ``pursue_index.scrape.pdf_health``. This file exists so the GH
+Actions runner can invoke it directly without needing the full
 ``pursue`` CLI (typer + click + rich) installed; see
 ``requirements-poll.in`` for the minimal install list.
 
@@ -50,31 +51,25 @@ def main(argv: list[str] | None = None) -> int:
         sentinel = pdf_health.pick_sentinel(manifest_path)
     except (FileNotFoundError, ValueError) as exc:
         # Silent green here would mask real problems (manifest never
-        # built, all-VID manifest). Treat as failure.
-        print(
-            f"pdf-health.fail url=- status=-1 "
-            f"error=sentinel:{type(exc).__name__}: {exc}",
-            file=sys.stderr,
-            flush=True,
+        # built, all-VID manifest). Treat as failure. ``format_fail``
+        # sanitizes the error string so multi-word messages don't
+        # break log parsers.
+        sentinel_fail = pdf_health.HealthFail(
+            url="-",
+            status=-1,
+            error=f"sentinel:{type(exc).__name__}: {exc}",
         )
+        print(pdf_health.format_fail(sentinel_fail), file=sys.stderr, flush=True)
         return 1
 
     result = pdf_health.check_pdf_health(str(sentinel.asset_url))
     if isinstance(result, pdf_health.HealthOk):
-        print(
-            f"pdf-health.ok url={result.url} bytes={result.bytes_received}",
-            flush=True,
-        )
+        print(pdf_health.format_ok(result), flush=True)
         return 0
 
     # HealthFail — emit on stderr so failures stay visible even if
     # stdout is consumed by a downstream pipe.
-    print(
-        f"pdf-health.fail url={result.url} status={result.status} "
-        f"error={result.error}",
-        file=sys.stderr,
-        flush=True,
-    )
+    print(pdf_health.format_fail(result), file=sys.stderr, flush=True)
     return 1
 
 
