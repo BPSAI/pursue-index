@@ -144,6 +144,65 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       </p>
     </section>
 
+    {/* Reader cleanup overlay */}
+    <section id="reader-cleanup" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Reader cleanup (opt-in)
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Cards offer three reading layers behind a toggle at the top-right
+        of the OCR panel:
+        <code class="text-[color:var(--color-signal-cyan)]">Raw</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">Reader</code>,
+        and
+        <code class="text-[color:var(--color-signal-cyan)]">Cleaned</code>.
+        Raw is the canonical engine output. Reader is a presentation pass
+        that reflows whitespace for prose typography without changing a
+        single character of the text. Cleaned is an LLM pass that fixes
+        obvious OCR errors — broken hyphenation across line breaks,
+        column-detection scrambles, redaction-boundary glitches — without
+        changing meaning.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The model is
+        <code class="text-[color:var(--color-signal-cyan)]">claude-haiku-4-5-20251001</code>.
+        It runs against the raw OCR text (no vision), is constrained by a
+        sealed system prompt, and is told: do not reword, do not modernize
+        spelling or grammar, do not expand abbreviations, do not change
+        capitalization unless the OCR clearly misread it, do not touch
+        anything inside a
+        <code class="text-[color:var(--color-signal-red)]">[REDACTED]</code>
+        marker. If the passage is too garbled to clean confidently, leave
+        it unchanged.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Every cleaned page row carries a provenance tuple:
+        <code class="text-[color:var(--color-signal-cyan)]">model_id</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">prompt_sha256</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">input_sha256</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">output_sha256</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">generated_at</code>.
+        The prompt hash lets you reproduce the exact instruction the model
+        was given; the input/output hashes let you confirm a passage you
+        quote matches the bytes that were cleaned. The deployed mirror is
+        <code class="text-[color:var(--color-signal-cyan)]">/data/pages-cleaned.json</code>{" "}
+        and is only fetched when a visitor toggles to Cleaned, so users on
+        Raw or Reader pay zero extra bytes.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">
+          Raw remains canonical for citation.
+        </strong>{" "}
+        Cleaned is a presentation layer; the URL anchor format is unchanged
+        (<code class="text-[color:var(--color-signal-cyan)]">/card/&lt;id&gt;#page-&lt;n&gt;</code>)
+        and points at the canonical card record. When you quote a passage
+        in the Cleaned view, the
+        <a href="/cite" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">citation guide</a>{" "}
+        explains the three-way provenance: source PDF, OCR pass, cleanup
+        pass.
+      </p>
+    </section>
+
     {/* Idempotency */}
     <section id="idempotency" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
@@ -194,8 +253,12 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
         <li>
           <span class="text-[color:var(--color-text-bright)]">No data modification.</span>
-          The OCR transcript is the engine's literal output. We do not
-          spell-check, hand-correct, or "smooth" the text after extraction.
+          The Raw OCR transcript is the engine's literal output. We do not
+          spell-check, hand-correct, or "smooth" the canonical text. The
+          opt-in
+          <a href="#reader-cleanup" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">Cleaned overlay</a>{" "}
+          fixes obvious OCR errors without changing meaning; Raw stays
+          canonical and is what citations point to.
         </li>
         <li>
           <span class="text-[color:var(--color-text-bright)]">No transcription guessing.</span>

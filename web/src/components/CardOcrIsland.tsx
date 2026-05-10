@@ -5,12 +5,16 @@ import {
   tokenize,
 } from "./highlight";
 import CardReaderView from "./CardReaderView.tsx";
+import CardCleanedView, {
+  type CleanedStatus,
+} from "./CardCleanedView.tsx";
 import {
   loadReaderMode,
   readPageFromLocation,
   saveReaderMode,
   type ReaderMode,
 } from "./reader-format.ts";
+import { type CleanedPayload } from "./cleaned-pages.ts";
 
 interface PageDoc {
   id: string;
@@ -181,8 +185,10 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
   // Highlight state captured once on mount — query is sticky to the URL.
   const [highlight] = useState(() => readQueryRegex());
   const [activePage] = useState<number | null>(() => activePageFromUrl());
-  // Reader/raw mode preference. Default "raw" preserves backward-compat
-  // for existing visitors; new visitors discover Reader via the toggle.
+  // Reader/raw/cleaned mode preference. Default "raw" preserves
+  // backward-compat for existing visitors; new visitors discover Reader
+  // and Cleaned via the toggle. The localStorage migration is implicit —
+  // see loadReaderMode's union guard.
   const [mode, setMode] = useState<ReaderMode>(() =>
     typeof window === "undefined" ? "raw" : loadReaderMode(window.localStorage),
   );
@@ -192,6 +198,36 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
       saveReaderMode(window.localStorage, next);
     }
   };
+
+  // Lazy-loaded cleaned-pages mirror (Option C). The fetch fires on the
+  // first transition to "cleaned" mode and the payload sticks for the
+  // session — un-augmented users pay zero bytes.
+  const [cleanedStatus, setCleanedStatus] = useState<CleanedStatus>("idle");
+  const [cleanedPayload, setCleanedPayload] = useState<CleanedPayload | null>(null);
+
+  useEffect(() => {
+    if (mode !== "cleaned") return;
+    if (cleanedStatus !== "idle") return;
+    setCleanedStatus("loading");
+    fetch(`${base}/data/pages-cleaned.json`)
+      .then((r) => {
+        if (r.status === 404) {
+          setCleanedStatus("missing");
+          return null;
+        }
+        if (!r.ok) throw new Error(`fetch cleaned: ${r.status}`);
+        return r.json() as Promise<CleanedPayload>;
+      })
+      .then((data) => {
+        if (!data) return;
+        setCleanedPayload(data);
+        setCleanedStatus("loaded");
+      })
+      .catch((err) => {
+        console.error(err);
+        setCleanedStatus("error");
+      });
+  }, [mode, cleanedStatus, base]);
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
@@ -347,16 +383,39 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
           >
             Reader
           </button>
+          <button
+            type="button"
+            aria-pressed={mode === "cleaned"}
+            onClick={() => setModePersisted("cleaned")}
+            class={`px-3 py-1.5 border-l border-[color:var(--color-border)] transition-colors ${
+              mode === "cleaned"
+                ? "bg-[color:var(--color-bg-elevated)] text-[color:var(--color-signal-cyan)]"
+                : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text-bright)]"
+            }`}
+          >
+            Cleaned
+          </button>
         </div>
       </div>
-      {mode === "reader" ? (
+      {mode === "reader" && (
         <CardReaderView
           pages={pages.map((p) => ({ page: p.page, text: p.text }))}
           initialPage={activePage}
           assetUrl={assetUrl}
           onSwitchToRaw={() => setModePersisted("raw")}
         />
-      ) : (
+      )}
+      {mode === "cleaned" && (
+        <CardCleanedView
+          cardId={cardId}
+          status={cleanedStatus}
+          payload={cleanedPayload}
+          initialPage={activePage}
+          assetUrl={assetUrl}
+          onSwitchToRaw={() => setModePersisted("raw")}
+        />
+      )}
+      {mode === "raw" && (
         <div class="space-y-2">
           {pages.map((p) => (
             <PageBlock
@@ -373,3 +432,4 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
     </div>
   );
 }
+

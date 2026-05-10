@@ -1,0 +1,222 @@
+"""Per-card cleanup runner.
+
+Reads ``pages.jsonl``, cleans each unseen page via the Anthropic client,
+writes per-row provenance to ``pages_cleaned.jsonl``, and respects a hard
+USD budget cap that aborts mid-card if exceeded.
+
+Idempotency contract: a sidecar row whose ``input_sha256`` matches the
+new input's hash is skipped. Switching model or prompt invalidates the
+skip (the runner re-keys via ``idempotency_key``).
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+
+from pursue_index import get_logger
+from pursue_index.clean import sidecar as clean_sidecar
+from pursue_index.clean.client import (
+    Usage,
+    clean_page,
+    estimate_cost_usd,
+)
+from pursue_index.clean.prompt import (
+    idempotency_key,
+    input_sha256,
+    output_sha256,
+    prompt_sha256,
+)
+
+log = get_logger(__name__)
+
+
+class BudgetExceededError(RuntimeError):
+    """Raised when the cumulative cost crosses the configured cap.
+
+    The runner raises mid-card so partial work is preserved (the sidecar
+    is appended row-by-row, so the next ``run_card`` call resumes cleanly
+    via the idempotency check).
+    """
+
+
+@dataclass
+class CardReport:
+    """Per-card outcome stats — fed to the pilot run summary."""
+
+    card_id: str
+    pages_cleaned: int
+    pages_skipped: int
+    cost_usd: float
+    input_tokens: int
+    output_tokens: int
+    cache_read_tokens: int
+
+
+def _read_pages(pages_path: Path) -> list[dict]:
+    """Read ``pages.jsonl`` into a list of row dicts, ordered by page #."""
+    rows: list[dict] = []
+    with pages_path.open() as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            rows.append(json.loads(line))
+    rows.sort(key=lambda r: int(r.get("page", 0)))
+    return rows
+
+
+def _row_from_clean(
+    *,
+    card_id: str,
+    page: int,
+    cleaned_text: str,
+    raw_text: str,
+    model_id: str,
+    prompt_sha: str,
+) -> dict:
+    """Build the per-row dict written to the sidecar JSONL."""
+    return {
+        "id": f"{card_id}-p{page}",
+        "card_id": card_id,
+        "page": page,
+        "text_cleaned": cleaned_text,
+        "model_id": model_id,
+        "prompt_sha256": prompt_sha,
+        "input_sha256": input_sha256(raw_text),
+        "output_sha256": output_sha256(cleaned_text),
+        "idempotency_key": idempotency_key(
+            text=raw_text, model_id=model_id, prompt_sha=prompt_sha,
+        ),
+        "generated_at": datetime.now(UTC).isoformat(),
+    }
+
+
+def _accumulate_usage(totals: list[Usage], one: Usage) -> Usage:
+    """Append + return rolling total (kept as a 1-elem list for closure)."""
+    prev = totals[0]
+    nxt = Usage(
+        input_tokens=prev.input_tokens + one.input_tokens,
+        output_tokens=prev.output_tokens + one.output_tokens,
+        cache_read_tokens=prev.cache_read_tokens + one.cache_read_tokens,
+        cache_creation_tokens=prev.cache_creation_tokens + one.cache_creation_tokens,
+    )
+    totals[0] = nxt
+    return nxt
+
+
+def _call_cost(usage: Usage) -> float:
+    """Wrapper so the per-page loop reads as a one-liner."""
+    return estimate_cost_usd(
+        input_tokens=usage.input_tokens,
+        output_tokens=usage.output_tokens,
+        cache_read_tokens=usage.cache_read_tokens,
+        cache_creation_tokens=usage.cache_creation_tokens,
+    )
+
+
+def _clean_one_page(
+    *,
+    card_id: str,
+    page: int,
+    raw_text: str,
+    model_id: str,
+    prompt_sha: str,
+    sidecar_path: Path,
+    totals: list[Usage],
+) -> float:
+    """Clean one page, write its sidecar row, return the call's USD cost."""
+    cleaned_text, usage = clean_page(raw_text=raw_text, model_id=model_id)
+    _accumulate_usage(totals, usage)
+    sidecar_row = _row_from_clean(
+        card_id=card_id,
+        page=page,
+        cleaned_text=cleaned_text,
+        raw_text=raw_text,
+        model_id=model_id,
+        prompt_sha=prompt_sha,
+    )
+    clean_sidecar.write_row(sidecar_path, sidecar_row)
+    return _call_cost(usage)
+
+
+@dataclass
+class _CardLoopState:
+    """Mutable accumulator for the per-page loop. Internal only."""
+
+    cost: float
+    cleaned: int = 0
+    skipped: int = 0
+
+
+def _process_page(
+    *,
+    row: dict,
+    existing: dict[int, dict],
+    card_id: str,
+    model_id: str,
+    prompt_sha: str,
+    sidecar_path: Path,
+    totals: list[Usage],
+    state: _CardLoopState,
+    budget_usd: float,
+) -> None:
+    """Handle one input row: skip-or-clean, update state, enforce budget."""
+    page = int(row.get("page", 0))
+    raw_text = str(row.get("text", ""))
+    prior = existing.get(page)
+    if prior is not None and clean_sidecar.should_skip(prior, input_sha256(raw_text)):
+        state.skipped += 1
+        return
+    state.cost += _clean_one_page(
+        card_id=card_id, page=page, raw_text=raw_text,
+        model_id=model_id, prompt_sha=prompt_sha,
+        sidecar_path=sidecar_path, totals=totals,
+    )
+    state.cleaned += 1
+    log.info("clean.page.done", card_id=card_id, page=page,
+             running_cost_usd=round(state.cost, 4))
+    if state.cost > budget_usd:
+        raise BudgetExceededError(
+            f"Cost cap ${budget_usd:.2f} exceeded after page {page} "
+            f"of card {card_id} (running ${state.cost:.4f}). Sidecar "
+            f"preserved; re-run to resume.",
+        )
+
+
+def run_card(
+    *,
+    card_id: str,
+    pages_path: Path,
+    sidecar_path: Path,
+    model_id: str,
+    budget_usd: float,
+    running_cost_usd: float,
+) -> CardReport:
+    """Clean every uncached page in ``pages_path`` to ``sidecar_path``.
+
+    Raises ``BudgetExceededError`` if the running total (passed in plus
+    this run's accumulated cost) crosses ``budget_usd``.
+    """
+    rows_in = _read_pages(pages_path)
+    existing = clean_sidecar.load_existing(sidecar_path)
+    prompt_sha = prompt_sha256()
+    totals: list[Usage] = [Usage(0, 0, 0, 0)]
+    state = _CardLoopState(cost=running_cost_usd)
+    for row in rows_in:
+        _process_page(
+            row=row, existing=existing, card_id=card_id, model_id=model_id,
+            prompt_sha=prompt_sha, sidecar_path=sidecar_path, totals=totals,
+            state=state, budget_usd=budget_usd,
+        )
+    return CardReport(
+        card_id=card_id,
+        pages_cleaned=state.cleaned,
+        pages_skipped=state.skipped,
+        cost_usd=state.cost - running_cost_usd,
+        input_tokens=totals[0].input_tokens,
+        output_tokens=totals[0].output_tokens,
+        cache_read_tokens=totals[0].cache_read_tokens,
+    )

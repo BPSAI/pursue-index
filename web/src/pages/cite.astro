@@ -119,6 +119,36 @@ https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
 
     <section class="space-y-3">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Citing a Cleaned-mode passage
+      </h2>
+      <p class="text-sm text-[color:var(--color-text)]">
+        Cards offer an opt-in
+        <a href="/methodology#reader-cleanup" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">Cleaned overlay</a>{" "}
+        that fixes obvious OCR errors (broken hyphenation, column scrambles,
+        redaction-boundary glitches) via an LLM pass.
+        <strong class="text-[color:var(--color-text-bright)]">
+          Raw remains canonical for citation.
+        </strong>{" "}
+        If you absolutely must quote a Cleaned-mode passage — e.g. because
+        the Raw OCR is hard to read in print — disclose all three layers:
+        the source PDF, the OCR engine, and the cleanup model.
+      </p>
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index card <card_id>, p. <n> (Cleaned overlay).
+OCR engine <engine>; cleanup pass: claude-haiku-4-5-20251001
+(prompt sha256: <prompt_sha256>; generated <generated_at>).
+Canonical Raw transcript: same anchor, Raw mode.
+https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
+      <p class="text-sm text-[color:var(--color-text)]">
+        The provenance fields (<code>prompt_sha256</code>,{" "}
+        <code>input_sha256</code>, <code>output_sha256</code>,{" "}
+        <code>generated_at</code>) are recorded per-page in the deployed
+        mirror at <code>/data/pages-cleaned.json</code> so anyone can verify
+        the bytes you quoted came out of the documented prompt and model.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ Citing an IMAGE-DESCRIPTIONS snippet
       </h2>
       <p class="text-sm text-[color:var(--color-text)]">

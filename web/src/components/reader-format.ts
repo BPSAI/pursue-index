@@ -165,7 +165,7 @@ export function clampPageIndex(candidate: number | null | undefined, total: numb
   return Math.floor(candidate);
 }
 
-export type ReaderMode = "raw" | "reader";
+export type ReaderMode = "raw" | "reader" | "cleaned";
 
 /** localStorage key for the user's mode preference (sticky across cards). */
 export const READER_MODE_KEY = "pursueindex.reader.mode";
@@ -180,7 +180,11 @@ export function loadReaderMode(storage: Storage | null | undefined): ReaderMode 
   if (!storage) return "raw";
   try {
     const v = storage.getItem(READER_MODE_KEY);
-    return v === "reader" || v === "raw" ? v : "raw";
+    // "cleaned" was added after the LLM cleanup overlay shipped. Any
+    // value outside the union falls back to "raw", which keeps the
+    // localStorage migration implicit — old browsers see no change.
+    if (v === "reader" || v === "raw" || v === "cleaned") return v;
+    return "raw";
   } catch {
     // localStorage can throw in private-browsing modes.
     return "raw";

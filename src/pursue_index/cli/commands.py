@@ -142,6 +142,16 @@ from pursue_index.cli.embed_cli import embed_app  # noqa: E402
 app.add_typer(embed_app)
 
 # ---------------------------------------------------------------------------
+# clean (LLM cleanup of OCR text — pilot-gated)
+# ---------------------------------------------------------------------------
+# Same split rationale as embed_app/ops_app: keep this module slim. The
+# cleanup stage is opt-in and feeds the reader-mode `Cleaned` overlay; it
+# never modifies the canonical OCR output.
+from pursue_index.cli.clean_cli import clean_app  # noqa: E402
+
+app.add_typer(clean_app)
+
+# ---------------------------------------------------------------------------
 # ops (health checks driven by GH Actions cron)
 # ---------------------------------------------------------------------------
 # Same split rationale as ``embed_app`` — keep this module slim.
