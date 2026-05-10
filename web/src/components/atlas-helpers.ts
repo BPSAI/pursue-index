@@ -76,37 +76,18 @@ export type ScatterplotRow = [number, number, number, number];
  *
  * Slot 2 carries the category (color encoding); slot 3 carries an
  * "opacity-ish" value used to dim non-matching dots when a search
- * query is active. We default to 1.0 for the all-shown case; the
- * island toggles it via ``draw(points)`` re-uploads when the query
- * changes.
+ * query is active. ``dimFactor`` defaults to 1.0 (all-shown) so the
+ * bare ``points.map(pointToScatterplotRow)`` call site for the initial
+ * draw keeps working; the search-redraw effect passes 0.15 for
+ * non-matching points to dim them via ``opacityBy: "valueB"``. Using
+ * the same row builder in both paths keeps the tuple shape (and the
+ * `colorBy`/`opacityBy` slot semantics) in one place — vaivora P2.
  */
-export function pointToScatterplotRow(p: AtlasPoint): ScatterplotRow {
-  return [p.x, p.y, agencyToCategory(p.agency), 1.0];
-}
-
-/**
- * Filter ``points`` to those whose lookup-resolved text contains
- * ``query`` (case-insensitive). Empty / whitespace-only ``query`` is
- * treated as "all match" so the caller can use the same code path
- * for "no filter" and "filter".
- */
-export function filterIndicesByQuery(
-  points: AtlasPoint[],
-  query: string,
-  lookup: (p: AtlasPoint) => string,
-): number[] {
-  const trimmed = query.trim().toLowerCase();
-  if (!trimmed) {
-    return points.map((_, i) => i);
-  }
-  const matches: number[] = [];
-  for (let i = 0; i < points.length; i++) {
-    const haystack = lookup(points[i]).toLowerCase();
-    if (haystack.includes(trimmed)) {
-      matches.push(i);
-    }
-  }
-  return matches;
+export function pointToScatterplotRow(
+  p: AtlasPoint,
+  dimFactor: number = 1.0,
+): ScatterplotRow {
+  return [p.x, p.y, agencyToCategory(p.agency), dimFactor];
 }
 
 /**
@@ -183,123 +164,6 @@ export function searchIndicesViaMiniSearch(
   query: string,
 ): number[] {
   return index.search(query);
-}
-
-/**
- * Tiny seeded RNG (mulberry32). Keeps ``kmeansClusters`` deterministic
- * across browsers without pulling in a heavyweight RNG library.
- */
-function mulberry32(seed: number): () => number {
-  let s = seed >>> 0;
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0;
-    let t = s;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/**
- * k-means in 2D, used by the mobile fallback to group dots into list-view
- * buckets. Lloyd's algorithm with seeded init and a fixed iteration cap
- * — accuracy is not the win here, predictability across renders is.
- *
- * Returns one cluster label per point; labels are arbitrary but stable
- * for a fixed (points, k, seed) tuple.
- */
-export function kmeansClusters(
-  points: AtlasPoint[],
-  k: number,
-  seed: number,
-  maxIterations = 50,
-): number[] {
-  if (points.length === 0) return [];
-  const effectiveK = Math.min(k, points.length);
-  const rng = mulberry32(seed);
-  // Forgy init — pick k distinct random points as initial centroids.
-  const indices = points.map((_, i) => i);
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-  let centroids: [number, number][] = indices
-    .slice(0, effectiveK)
-    .map((i) => [points[i].x, points[i].y]);
-  let labels = new Array(points.length).fill(0);
-  for (let iter = 0; iter < maxIterations; iter++) {
-    const next = assignLabels(points, centroids);
-    const newCentroids = recomputeCentroids(points, next, effectiveK, centroids);
-    if (sameLabels(labels, next) && centroidsClose(centroids, newCentroids)) {
-      labels = next;
-      centroids = newCentroids;
-      break;
-    }
-    labels = next;
-    centroids = newCentroids;
-  }
-  return labels;
-}
-
-function assignLabels(
-  points: AtlasPoint[],
-  centroids: [number, number][],
-): number[] {
-  const out = new Array(points.length).fill(0);
-  for (let i = 0; i < points.length; i++) {
-    let best = 0;
-    let bestDist = Infinity;
-    for (let c = 0; c < centroids.length; c++) {
-      const dx = points[i].x - centroids[c][0];
-      const dy = points[i].y - centroids[c][1];
-      const d = dx * dx + dy * dy;
-      if (d < bestDist) {
-        bestDist = d;
-        best = c;
-      }
-    }
-    out[i] = best;
-  }
-  return out;
-}
-
-function recomputeCentroids(
-  points: AtlasPoint[],
-  labels: number[],
-  k: number,
-  prev: [number, number][],
-): [number, number][] {
-  const sums: [number, number][] = Array.from({ length: k }, () => [0, 0]);
-  const counts = new Array(k).fill(0);
-  for (let i = 0; i < points.length; i++) {
-    const c = labels[i];
-    sums[c][0] += points[i].x;
-    sums[c][1] += points[i].y;
-    counts[c]++;
-  }
-  return sums.map((s, c): [number, number] => {
-    if (counts[c] === 0) return prev[c];
-    return [s[0] / counts[c], s[1] / counts[c]];
-  });
-}
-
-function sameLabels(a: number[], b: number[]): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-  return true;
-}
-
-function centroidsClose(
-  a: [number, number][],
-  b: [number, number][],
-  eps = 1e-6,
-): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (Math.abs(a[i][0] - b[i][0]) > eps) return false;
-    if (Math.abs(a[i][1] - b[i][1]) > eps) return false;
-  }
-  return true;
 }
 
 function hexToRgba(hex: string, alpha = 1.0): RgbaColor {
