@@ -93,6 +93,23 @@ def test_pdf_health_step_is_continue_on_error() -> None:
     assert steps[pdf_idx].get("continue-on-error") is True
 
 
+def test_pdf_health_runs_regardless_of_earlier_failures() -> None:
+    """Codex P2 review (2026-05-10): without an explicit `if`, GitHub's
+    default `success()` gate skips this step if any earlier non-
+    continue-on-error step (like `gh issue create` for CSV) failed.
+    That defeats the entire independent-PDF-surveillance design.
+    `if: always()` keeps the lane truly independent."""
+    steps = _load_steps()
+    pdf_idx = _step_index(steps, "Run PDF-fetch health check")
+    assert pdf_idx >= 0
+    if_clause = steps[pdf_idx].get("if", "")
+    # Accept either form GitHub recognizes as "always run".
+    assert "always" in if_clause or "!cancelled" in if_clause, (
+        f"PDF health step must run unconditionally (always() / !cancelled()), "
+        f"got if={if_clause!r}"
+    )
+
+
 def test_pdf_failure_issue_is_gated_on_pdf_outcome_only() -> None:
     """The PDF-health issue must NOT fire on CSV outputs and the
     CSV-tranche issue must NOT fire on PDF outputs. The two

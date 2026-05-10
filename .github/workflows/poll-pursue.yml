@@ -168,10 +168,17 @@ jobs:
         # shifts that the CSV poll would miss. `continue-on-error` so
         # the issue-opening step can still fire on failure.
         #
+        # `if: always()` keeps PDF surveillance independent: if a CSV-side
+        # step (e.g., a `gh issue create` 422) hard-fails earlier, the
+        # default `success()` gate would otherwise skip this step and we
+        # would lose the PDF lane on the very runs where it matters most.
+        # Codex P2 review (2026-05-10).
+        #
         # Like scripts/poll_pursue.py, this script sys.path-injects
         # `src/` itself so it works under the lean
         # `requirements-poll.txt` install (no full `pursue` CLI dep).
         id: pdf_health
+        if: ${{ always() }}
         run: python scripts/pdf_health_check.py
         continue-on-error: true
 
