@@ -29,6 +29,55 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       </p>
     </header>
 
+    {/* Research-preview disclosure — surfaces the calibration-in-progress
+        framing up front so readers know which v1.0.0 numbers to read as
+        provisional. Linked from the site-wide topbar [RESEARCH PREVIEW]
+        badge; deeper detail lives in the per-surface sections below
+        (novelty, OCR, finds). */}
+    <section id="research-preview" class="border border-[color:var(--color-signal-amber)]/50 bg-[color:var(--color-signal-amber)]/5 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
+        ▸ Research preview (v1.0.0)
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        This site is a v1.0.0 research preview. Raw transcripts and the
+        manifest hash are stable across refinements; several derived
+        surfaces are calibrated against limited inputs and will be refined
+        as the project matures:
+      </p>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Novelty detection.</span>
+          Currently runs against a small synthetic placeholder reference
+          corpus of 10 hand-crafted public-domain passages. A
+          community-research-resource integration is in progress that
+          replaces the placeholder with a substantial prior-disclosure
+          archive — see the
+          <a href="#novelty" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">provenance / novelty detection</a>
+          section below for thresholds, status rules, and reference-corpus
+          roadmap.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">Editorial /finds.</span>
+          The reading guides reflect the curatorial bar at v1.0.0; coverage
+          expands continuously and a guide's absence does not signal an
+          absence of material on a topic.
+        </li>
+        <li>
+          <span class="text-[color:var(--color-text-bright)]">OCR confidence.</span>
+          Reported per page; raw transcripts are canonical and every
+          citation is anchored to a specific page
+          (<code class="text-[color:var(--color-signal-cyan)]">card_id:page</code>),
+          so a reader can always verify against the source image.
+        </li>
+      </ul>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The "research preview" label will be revised as each surface
+        reaches maturity. Per-card disclosure-status chips carry an inline
+        <code class="text-[color:var(--color-signal-cyan)]">(against preview corpus)</code>
+        qualifier until the reference-corpus integration lands.
+      </p>
+    </section>
+
     {/* Source provenance */}
     <section id="provenance" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 pi-bracket relative scanlines-soft space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">

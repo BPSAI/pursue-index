@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import type { CardNovelty, NoveltyMatch, NoveltyPayload } from "../data/types";
-import { DISCLOSURE_TONE } from "./NoveltyFilter";
+import { DISCLOSURE_TONE, corpusTag, disclosurePillLabel } from "./NoveltyFilter";
 
 interface Props {
   cardId: string;
@@ -136,17 +136,22 @@ function Section({
   status?: keyof typeof DISCLOSURE_TONE;
 }) {
   const tone = status ? DISCLOSURE_TONE[status] : undefined;
+  const label = status ? disclosurePillLabel(status, archiveId) : null;
   return (
     <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3">
       <header class="flex flex-wrap items-center gap-2 border-b border-[color:var(--color-border)] pb-2">
         <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
           ▸ Provenance
         </h2>
-        {tone && (
+        {tone && label && (
           <span
-            class={`text-[10px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tone.bg} ${tone.fg} ${tone.border}`}
+            data-corpus={corpusTag(archiveId)}
+            class={`inline-flex items-baseline gap-1 text-[10px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tone.bg} ${tone.fg} ${tone.border}`}
           >
-            {tone.label}
+            <span>{label.status}</span>
+            <span class="text-[8px] tracking-[0.1em] opacity-70 normal-case">
+              {label.qualifier}
+            </span>
           </span>
         )}
         {archiveId && (
