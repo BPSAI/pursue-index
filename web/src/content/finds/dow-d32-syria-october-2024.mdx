@@ -1,0 +1,99 @@
+---
+title: "DOW-UAP-D32 — How the Modern Military Writes Down a UAP Encounter"
+subtitle: "One mission report, three paired AARO videos, and a structured form whose checkbox grammar is part of the record"
+summary: "Card ea029a05470b8f4e bundles the October 20, 2024 USCENTCOM Mission Report from Syria together with three separately-cataloged AARO 'Unresolved UAP Report' videos (PR-31, PR-32, PR-33) — six manifest rows in total, all sharing one card_id because the corpus content-addresses by source URL. The MISREP is a structured intake form: pre-printed fields, a checkbox-style 'UAP Physical State' dropdown, a separate GENTEXT block where the aircrew narrates in prose, and a final 'Observer Assessment of UAP: Benign.' Reading the document the way the form lays it out — field anatomy first, narrative softening second, threat-mode rule-out third — is what this entry walks through."
+tags: ["dow", "2024", "primary-source", "syria", "fmv-video", "misrep-anatomy"]
+cards:
+  - ea029a05470b8f4e
+published: 2026-05-10
+---
+
+import Cite from "../../components/Cite.astro";
+
+## What the document is
+
+Card `ea029a05470b8f4e` is **DOW-UAP-D32, Mission Report, Syria, October 2024** — a 10-page Mission Report (MISREP) submitted by USCENTCOM, declassified by MG Richard A. Harrison on 24 October 2025 and approved for release to AARO on 28 October. It originated with the 12th Special Operations Squadron, 27 SOW, supporting Operation INHERENT RESOLVE, filed against three ISR taskings flown by a single airframe between takeoff at OJMS at 0823Z on 20 October 2024 and landing at 0447Z on 21 October — 20 hours 24 minutes of mission time, 14 hours 22 minutes of full-motion video. <Cite card="ea029a05470b8f4e" page={1} q="MISSION HOURS" />
+
+The same `card_id` appears six times in the manifest. Three rows are the PDF — once per paired video. Three are AARO video reports — **PR-31**, **PR-32**, and **PR-33** — each catalogued as a separate "Unresolved UAP Report" but pointing back to the same PDF asset URL. This is how the corpus content-addresses: `card_id` is `sha256(asset_url)[:16]`, the PDF has one URL, so all six rows collapse to one card. One observation window, three FMV clips, one document.
+
+This entry walks the form field by field, and the way the form-grammar and the narrative grammar disagree about the same observation.
+
+## The form's grammar — a checkbox menu
+
+The MISREP is not free prose. It is a structured intake template, and the UAP section in particular sits inside that template as a rectangular block of pre-printed fields. The fields the aircrew filled in for this incident, on page 8:
+
+> "**UAP Physical State:** Plasma" <Cite card="ea029a05470b8f4e" page={8} q="UAP Physical State" />
+>
+> "**UAP Propulsion Means:** UNKNOWN"
+>
+> "UAP Under Intelligent Control (yes/no; if yes, describe): NO"
+>
+> "UAP Effects on Persons: NO"
+>
+> "UAP Anomalous Characteristics/ Behaviors: LIGHT/GLARE FROM UNKNOWN ORIGIN FLASHED ACCROSS FMV CAMERA FEED. AIRCREW ASSESSED THIS NOT TO BE A LASING EVENT." <Cite card="ea029a05470b8f4e" page={8} q="LASING EVENT" />
+
+"Plasma" is the most quotable line on the page, and it would be easy to over-pump it. The field is a **fixed-menu dropdown** — the aircrew picks from a constrained list of `Solid | Gas | Plasma | UNK`. "Plasma" here is the closest available checkbox label to "ball of light," not a physical-state assertion the document is independently making. The form is constraining what the report can say.
+
+The same constraint shapes the kinematic block on page 8: every "Kinetic" field — altitude, depth, velocity, trajectory — is left blank with `Estimated` accuracy. The aircrew did not fill them in. The MISREP does not commit to altitude, velocity, or trajectory for the observed phenomenon — only for the friendly aircraft (20,088 ft, 144 knots, ORBIT) on page 7.
+
+## The narrative softening
+
+Following the structured fields, the form opens up into a free-text **GENTEXT/UAP** block on page 9. This is where the aircrew narrates in prose. What the form-fields recorded as "Plasma" and "LIGHT/GLARE FROM UNKNOWN ORIGIN," the GENTEXT renders as:
+
+> "**UAP Description (e.g., size, shape, color, markings, recognizable features):** MISHAPEN AND UNEVEN BALL OF WHITE LIGHT.
+>
+> **Gentext (UAP Event Description):** (SECRET//REL TO USA, FVEY) FROM 1559Z-1644Z, [callsign redacted] OBSERVED MULTIPLE GLARES OR LIGHT FROM UNKNOWN ORIGIN AT DIFFERENT ANGLES AND DIRECTIONS. AT 1559Z, 1602Z AND AT 1644Z, [callsign] OBSERVED 1X LIGHT/GLARE CROSSED DIRECTLY ON THE FMV CAMERA. AT 1609Z AND 1620Z, [callsign] OBSERVED A LIGHT/GLARE HALO EFFECT AT THE TOP OF [callsign] FMV FEED. AIRCREW CONSIDERED THIS NO MISSION IMPACT OR CHANGE AND UAP WAS BENIGN." <Cite card="ea029a05470b8f4e" page={9} q="MULTIPLE GLARES" />
+
+What the form-grammar compressed into the word "Plasma," the GENTEXT expands across forty-five minutes — `1559Z-1644Z` — and **five timestamped observations**: glares crossing the camera at 1559Z, 1602Z, and 1644Z, halo effects at 1609Z and 1620Z. These are the events that ended up in three FMV clips published as PR-31, PR-32, and PR-33.
+
+The phrase "MISHAPEN AND UNEVEN BALL OF WHITE LIGHT" — *misshapen* is misspelled in the source, retained verbatim — is the aircrew's own adjectival description, not a checkbox. It is the most concrete observational sentence in the document.
+
+## The aircrew's own threat-mode rule-out
+
+One of the most interesting things on the page is that the aircrew's reasoning is visible in the form. The "UAP Anomalous Characteristics/ Behaviors" field on page 8 doesn't just describe what was seen; it records what the aircrew ruled out:
+
+> "AIRCREW ASSESSED THIS NOT TO BE A LASING EVENT." <Cite card="ea029a05470b8f4e" page={8} q="LASING EVENT" />
+
+A lasing event — a hostile laser dazzler aimed at the aircraft's sensor — is the operationally relevant default hypothesis for "light/glare from unknown origin on an ISR camera over Syria." The aircrew considered it, dismissed it, and recorded the dismissal *inside the same field* where they described the observation. This is not after-the-fact analysis; it is the on-station threat assessment surfacing into the formal report.
+
+The corresponding line at the *top* of the UAP section on page 7 commits the same judgment to a separate field: **Observer Assessment of UAP: Benign.** <Cite card="ea029a05470b8f4e" page={7} q="Benign" /> The form has a slot for that assessment; the aircrew filled it in.
+
+## What AARO wrote about the videos
+
+The three paired AARO **Unresolved UAP Reports** that share this card describe the same observation window from the *clip side*. AARO's prose discipline is itself a model worth quoting — terse, observational, and explicit about what it is not asserting.
+
+**PR-31** describes a five-second clip:
+
+> "00:00-00:01: An indistinctly shaped multi-colored area moves from right to left across the top edge of the sensor display within the first second of the video."
+
+**PR-32** describes a six-second clip:
+
+> "00:02-00:04: An area of irregular color and brightness, mainly consisting of white and red highlights, appears near the center of the top edge of the sensor display. The area extends to a width of approximately one-third of the horizontal frame, with a vertical area comprising approximately one-sixth of the viewing area. Overall, its shape is best described as a horizontally-oriented half-oval bisected along its major axis."
+
+**PR-33** describes a five-second clip:
+
+> "00:01-00:03: Two semi-transparent, irregularly shaped orange areas overlay the background imagery, persisting for less than two seconds each."
+
+All three close with the same boilerplate disclaimer:
+
+> "This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event's validity, nature, or significance."
+
+The discipline on display here is exactly the discipline this site tries to model. AARO writes "areas of contrast," not "craft." It writes "indistinctly shaped multi-colored area," not "object." It quantifies — fractions of frame width, durations in seconds — and stops. The disclaimer is doing real work: it tells the reader the description is an observational primitive, not a finding.
+
+## What the document does not say
+
+Five things the MISREP and the three PR descriptions do **not** establish, which a reader should hold separately from what they do:
+
+1. **The document does not characterize this as exotic or unexplained-in-principle.** *Observer Assessment: Benign.* *No mission impact or change.* The aircrew's own framing closes the file from a tactical standpoint.
+2. **The document does not record propulsion, kinetic altitude, or velocity for the UAP.** Those fields exist on the form and were left blank or marked `UNKNOWN`. <Cite card="ea029a05470b8f4e" page={8} q="UAP Propulsion" />
+3. **The document does not describe a solid object.** AARO's PR descriptions are deliberately careful — "indistinctly shaped multi-colored area," "irregularly shaped orange areas," "half-oval bisected along its major axis." The MISREP says "ball of white light." Neither commits to a craft.
+4. **The MISREP does not confirm three discrete UAPs.** It describes one observation window of "multiple glares" at five recorded timestamps; AARO subsequently published three separate clips from the larger FMV recording. The card-collision is bookkeeping, not multiplicity.
+5. **"Plasma" is not a physical-state finding.** It is the aircrew's selection from a fixed menu of checkbox options on a structured intake form. The word's prominence on the page is form-anatomy, not analysis.
+
+## Why this card is in this archive
+
+Every other curated entry on this site walks one document. This one walks four — a MISREP and three paired video reports — because the corpus made them one card, and a reader clicking in deserves to know that *one observation window* is what they are looking at. The MISREP's value is methodological as much as evidentiary: it shows what the U.S. military's current UAP-reporting form *looks like* when it is filled in, which fields are checkbox-constrained, which fields admit prose, and where the aircrew's own reasoning becomes visible.
+
+The 2024-vintage form is a recognizable descendant of the typed Form-No.-7 reports that fill [DOW 319.1 Flying Discs 1949](/finds/lowry-1949-ocr-limits) — same template logic, same separation of structured intake from narrative GENTEXT, the same habit of writing the threat-mode rule-out into the same paragraph as the observation. Seventy-six years on, the form has gained dropdowns and a UAP-specific section, but the institutional grammar is continuous.
+
+A reader interested in how AARO writes its own descriptions — "areas of contrast," durations in seconds, the explicit non-finding disclaimer — should treat the three PR descriptions on this card as the model. The bar there is the bar this site is trying to meet.
