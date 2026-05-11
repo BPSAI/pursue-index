@@ -397,6 +397,87 @@ def test_run_card_skips_empty_ocr_pages_without_calling_model(
     assert report.pages_skipped == 2
 
 
+def test_run_card_writes_content_filter_skip_row_and_continues(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """When Anthropic's content filter blocks one page, the runner must:
+
+      1. Catch ``ContentFilteredError`` so the pilot does not crash
+         mid-card (this is the bug that took down the FBI 62-HQ-83894
+         run at card ``7d58f0cac741650a`` page 88).
+      2. Write a sidecar row flagged ``cleanup_skipped="content_filter"``
+         with empty ``text_cleaned`` — the raw OCR is preserved in
+         ``pages.jsonl`` and the build script will keep this row for
+         page-coverage alignment without shipping raw OCR under the
+         "cleaned" label.
+      3. Continue to the next page so the rest of the card cleans
+         normally.
+
+    Content-filter rejections also do not bill (the API rejects before
+    returning output), so the page is counted as ``skipped``, not
+    ``cleaned`` — mirrors the ``empty_input`` accounting.
+    """
+    from pursue_index.clean import client as clean_client_mod
+
+    pages_path = tmp_path / "cardCF" / "pages.jsonl"
+    _write_pages(
+        pages_path,
+        [
+            {"page": 1, "text": "first page, cleans fine"},
+            {"page": 2, "text": "page that trips the filter"},
+            {"page": 3, "text": "third page, cleans fine"},
+        ],
+    )
+    sidecar_path = tmp_path / "cardCF" / "pages_cleaned.jsonl"
+
+    ok_usage = clean_client.Usage(
+        input_tokens=50, output_tokens=50, cache_read_tokens=0,
+        cache_creation_tokens=0,
+    )
+    call_log: list[int] = []
+
+    def _fn(raw_text: str, model_id: str) -> tuple[str, clean_client.Usage]:
+        call_log.append(len(raw_text))
+        if "trips the filter" in raw_text:
+            raise clean_client_mod.ContentFilteredError(
+                "Output blocked by content filtering policy",
+                request_id="req_test_001",
+            )
+        return "CLEANED", ok_usage
+
+    monkeypatch.setattr(runner, "clean_page", _fn)
+
+    report = runner.run_card(
+        card_id="cardCF",
+        pages_path=pages_path,
+        sidecar_path=sidecar_path,
+        model_id="claude-haiku-4-5-20251001",
+        budget_usd=10.0,
+        running_cost_usd=0.0,
+    )
+    rows = list(_iter_jsonl(sidecar_path))
+    # Three rows out: one normal-cleaned + one content_filter skip + one
+    # normal-cleaned. The runner did NOT crash on the filtered page.
+    assert len(rows) == 3
+    by_page = {row["page"]: row for row in rows}
+    assert by_page[1]["text_cleaned"] == "CLEANED"
+    assert "cleanup_skipped" not in by_page[1]
+    # Skip row: empty cleaned text, content_filter flag set, raw OCR
+    # never shipped under the "cleaned" label.
+    assert by_page[2]["cleanup_skipped"] == "content_filter"
+    assert by_page[2]["text_cleaned"] == ""
+    # Page 3 cleaned normally — proving the runner did not abort.
+    assert by_page[3]["text_cleaned"] == "CLEANED"
+    assert "cleanup_skipped" not in by_page[3]
+    # Accounting: filtered page does not count as cleaned (no model
+    # billing accrued) — mirrors how ``empty_input`` is bucketed.
+    assert report.pages_cleaned == 2
+    assert report.pages_skipped == 1
+    # All three input pages were visited (the filter trip didn't short-
+    # circuit the loop).
+    assert len(call_log) == 3
+
+
 def _iter_jsonl(path: Path):
     with path.open() as fh:
         for line in fh:

@@ -83,10 +83,15 @@ export default function CardCleanedView({
           text: p.text,
           // Codex P1 follow-up: surface the skip reason so the reader
           // renders a `length_divergence` notice instead of falling
-          // through to the generic `[BLANK]` message. `empty_input`
-          // intentionally stays undefined so it routes to the [BLANK]
-          // branch (consistent with how Raw renders blank pages).
-          ...(p.cleanup_skipped === "length_divergence"
+          // through to the generic `[BLANK]` message. `content_filter`
+          // is the third skip reason — added after the FBI 62-HQ-83894
+          // pilot hit Anthropic's content-moderation policy. Both
+          // route through CardReaderView's cleanup-notice branch.
+          // `empty_input` intentionally stays undefined so it routes
+          // to the [BLANK] branch (consistent with how Raw renders
+          // blank pages).
+          ...(p.cleanup_skipped === "length_divergence" ||
+          p.cleanup_skipped === "content_filter"
             ? { cleanupSkipped: p.cleanup_skipped }
             : {}),
         }))}

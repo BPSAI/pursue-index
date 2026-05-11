@@ -115,6 +115,13 @@ def _sanitize_row_for_mirror(row: dict) -> dict:
     the UI can render an appropriate "[Cleanup unavailable]" notice.
     ``empty_input`` rows already have empty text; preserved as-is.
 
+    ``content_filter`` rows (the third skip reason) follow the same
+    contract as ``length_divergence``: the runner already writes empty
+    text for them, but defensively clear + rehash here so a future
+    runner change can never leak un-cleaned text under the "cleaned"
+    label. Cost-of-defense: one extra hash per filtered row, which is
+    rare enough not to matter.
+
     Codex P1: the runner stored ``output_sha256`` against the raw OCR
     fallback. After we clear ``text_cleaned`` we MUST recompute
     ``output_sha256`` against the new (empty) text — otherwise the
@@ -123,7 +130,7 @@ def _sanitize_row_for_mirror(row: dict) -> dict:
     (``src/pursue_index/clean/prompt.py::output_sha256``).
     """
     skipped = row.get("cleanup_skipped")
-    if skipped == "length_divergence":
+    if skipped in ("length_divergence", "content_filter"):
         sanitized = dict(row)
         sanitized["text_cleaned"] = ""
         sanitized["output_sha256"] = hashlib.sha256(b"").hexdigest()

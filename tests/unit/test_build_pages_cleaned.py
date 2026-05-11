@@ -422,6 +422,64 @@ def test_dedupe_skips_corrupt_row_inside_build(tmp_path: Path) -> None:
     assert payload["pages"][0]["text"] == "good"
 
 
+def test_build_preserves_content_filter_rows_with_empty_text(
+    tmp_path: Path,
+) -> None:
+    """``content_filter`` is the third ``cleanup_skipped`` reason — added
+    after the FBI 62-HQ-83894 pilot ran into Anthropic's content-
+    moderation policy on charged source material. Same contract as
+    ``length_divergence``:
+
+      - PRESERVE the row so the cleaned mirror's array index stays
+        aligned with ``pages.json`` (the UI paginates by
+        ``pages[activePage-1]``).
+      - SHIP empty ``text_cleaned`` (we never had cleaned output to
+        ship, so the only honest value is "").
+      - PROPAGATE the ``cleanup_skipped`` flag so the UI renders a
+        "[CLEANUP UNAVAILABLE — content filter]" notice and offers a
+        switch to Raw mode.
+
+    Unlike ``length_divergence``, the runner already writes an empty
+    ``text_cleaned`` for content_filter rows (no model output exists to
+    fall back to), so the build script's only job is to leave the row
+    alone and propagate the flag.
+    """
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": "",
+                "model_id": "m", "input_sha256": "a" * 64,
+                "cleanup_skipped": "content_filter",
+            },
+            {
+                "page": 2, "card_id": "c1", "text_cleaned": "real cleanup",
+                "model_id": "m", "input_sha256": "b" * 64,
+            },
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    pages = payload["pages"]
+    # Both rows survive so page-N indexing aligns with pages.json.
+    assert len(pages) == 2
+    page1 = next(p for p in pages if p["page"] == 1)
+    # No raw OCR ships under the "cleaned" label — empty stays empty.
+    assert page1["text"] == ""
+    # Flag is propagated to the UI.
+    assert page1["cleanup_skipped"] == "content_filter"
+    page2 = next(p for p in pages if p["page"] == 2)
+    assert page2["text"] == "real cleanup"
+    assert not page2.get("cleanup_skipped")
+
+
 def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     """A card_id present in the manifest but with no sidecar is not in cards_covered."""
     ocr_dir = tmp_path / "ocr"

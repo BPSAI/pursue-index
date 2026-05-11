@@ -17,6 +17,7 @@ from pathlib import Path
 from pursue_index import get_logger
 from pursue_index.clean import sidecar as clean_sidecar
 from pursue_index.clean.client import (
+    ContentFilteredError,
     Usage,
     clean_page,
     estimate_cost_usd,
@@ -158,6 +159,57 @@ class _CardLoopState:
     skipped: int = 0
 
 
+def _write_skip_row(
+    *,
+    sidecar_path: Path, card_id: str, page: int, raw_text: str,
+    model_id: str, prompt_sha: str, reason: str,
+) -> None:
+    """Append a ``cleanup_skipped`` sidecar row with empty cleaned text.
+
+    Shared helper for the three skip cases (``empty_input``,
+    ``content_filter``, and — historically — ``length_divergence``,
+    which still routes through ``_clean_one_page`` because it requires
+    inspecting the model's reply). Keeping the row shape identical
+    across skip reasons lets the build script's
+    ``_sanitize_row_for_mirror`` treat them uniformly.
+    """
+    row = clean_sidecar.row_from_clean(
+        card_id=card_id, page=page, cleaned_text="", raw_text=raw_text,
+        model_id=model_id, prompt_sha=prompt_sha,
+        cleanup_skipped=reason,
+    )
+    clean_sidecar.write_row(sidecar_path, row)
+
+
+def _try_clean_or_skip(
+    *,
+    card_id: str, page: int, raw_text: str, model_id: str, prompt_sha: str,
+    sidecar_path: Path, totals: list[Usage], state: _CardLoopState,
+) -> None:
+    """Run ``_clean_one_page`` with content-filter fallback.
+
+    Catches ``ContentFilteredError`` so a single rejected page does not
+    crash the whole pilot mid-card (the bug that took down card
+    ``7d58f0cac741650a`` page 88). Writes a ``content_filter`` skip row
+    and continues. No cost is added: filter rejections are not billed
+    by Anthropic (the API rejects before returning output).
+    """
+    try:
+        state.cost += _clean_one_page(
+            card_id=card_id, page=page, raw_text=raw_text,
+            model_id=model_id, prompt_sha=prompt_sha,
+            sidecar_path=sidecar_path, totals=totals,
+        )
+        state.cleaned += 1
+    except ContentFilteredError:
+        _write_skip_row(
+            sidecar_path=sidecar_path, card_id=card_id, page=page,
+            raw_text=raw_text, model_id=model_id, prompt_sha=prompt_sha,
+            reason="content_filter",
+        )
+        state.skipped += 1
+
+
 def _process_page(
     *,
     row: dict, existing: dict[int, dict], card_id: str,
@@ -179,20 +231,18 @@ def _process_page(
     # an empty payload would trip the length-divergence guard with
     # misleading provenance ("length_divergence" reads like a refusal).
     if not raw_text.strip():
-        empty_row = clean_sidecar.row_from_clean(
-            card_id=card_id, page=page, cleaned_text="", raw_text=raw_text,
-            model_id=model_id, prompt_sha=prompt_sha,
-            cleanup_skipped="empty_input",
+        _write_skip_row(
+            sidecar_path=sidecar_path, card_id=card_id, page=page,
+            raw_text=raw_text, model_id=model_id, prompt_sha=prompt_sha,
+            reason="empty_input",
         )
-        clean_sidecar.write_row(sidecar_path, empty_row)
         state.skipped += 1
         return
-    state.cost += _clean_one_page(
+    _try_clean_or_skip(
         card_id=card_id, page=page, raw_text=raw_text,
         model_id=model_id, prompt_sha=prompt_sha,
-        sidecar_path=sidecar_path, totals=totals,
+        sidecar_path=sidecar_path, totals=totals, state=state,
     )
-    state.cleaned += 1
     log.info("clean.page.done", card_id=card_id, page=page,
              running_cost_usd=round(state.cost, 4))
     if state.cost > budget_usd:

@@ -18,8 +18,12 @@ export interface ReaderPage {
    * empty article.
    *   - `"empty_input"`       → falls through to the existing
    *                             "[BLANK] No text extracted" path.
-   *   - `"length_divergence"` → "[Cleanup unavailable for this page]"
-   *                             with a one-click switch to Raw mode.
+   *   - `"length_divergence"` → "[CLEANUP UNAVAILABLE]" with a
+   *                             one-click switch to Raw mode.
+   *   - `"content_filter"`    → "[CLEANUP UNAVAILABLE — content
+   *                             filter]" with a one-click switch to
+   *                             Raw mode. Honest but not alarming;
+   *                             the reader knows what it means.
    * Raw mode does not set this field; rendering stays unchanged.
    */
   cleanupSkipped?: string;
@@ -155,10 +159,13 @@ export default function CardReaderView({
               {p}
             </p>
           ))
-        ) : current.cleanupSkipped === "length_divergence" ? (
+        ) : current.cleanupSkipped === "length_divergence" ||
+          current.cleanupSkipped === "content_filter" ? (
           <p class="font-mono text-xs text-[color:var(--color-text-dim)]">
             <span class="text-[color:var(--color-signal-amber)]">
-              [CLEANUP UNAVAILABLE]
+              {current.cleanupSkipped === "content_filter"
+                ? "[CLEANUP UNAVAILABLE — content filter]"
+                : "[CLEANUP UNAVAILABLE]"}
             </span>
             <span class="ml-2">
               Cleanup unavailable for this page —{" "}

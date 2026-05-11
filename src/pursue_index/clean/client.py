@@ -21,6 +21,34 @@ log = get_logger(__name__)
 
 _client: Any = None
 
+
+class ContentFilteredError(Exception):
+    """Anthropic's content-moderation system declined to return cleaned output.
+
+    Raised by ``clean_page`` when the SDK surfaces a 400 BadRequestError
+    whose body matches the content-filter signature (the pilot saw it
+    on FBI section files with charged source material). The runner
+    catches this as the third member of the ``cleanup_skipped`` family
+    — alongside ``empty_input`` and ``length_divergence`` — and writes
+    a skip row with ``cleanup_skipped="content_filter"`` so the pilot
+    continues past the offending page instead of crashing mid-card.
+
+    Carries ``request_id`` from the underlying response when available,
+    so operator post-mortems can correlate against Anthropic-side logs.
+    """
+
+    def __init__(self, message: str, *, request_id: str | None = None) -> None:
+        super().__init__(message)
+        self.request_id = request_id
+
+
+# Substring fingerprints we use to recognise a content-filter 400 from
+# Anthropic. The API surfaces both the human-readable "content filtering"
+# phrase and (occasionally) the snake_case "content_filter" token in the
+# error body — match either, lowercased, so a wording tweak on Anthropic's
+# side doesn't reopen the pilot-crashing edge case.
+_CONTENT_FILTER_MARKERS = ("content filtering", "content_filter")
+
 # Haiku-4-5 pricing per the plan: $0.80/M in, $4/M out, $0.08/M cache-read
 # (cache-read is 1/10th input). Cache-creation (ephemeral) is billed at
 # 1.25x the input rate (nayru P2 #4 — was previously coded as 1.0x,
@@ -126,17 +154,65 @@ def _extract_usage(usage: Any) -> Usage:
     )
 
 
+def _is_content_filter_error(exc: Exception) -> bool:
+    """True when a BadRequestError body matches the content-filter signature.
+
+    Checks both ``str(exc)`` (covers the SDK's default repr) and a
+    ``.body`` payload when present — Anthropic exposes the moderation
+    decision under the JSON ``error.message`` field which the SDK
+    deserialises into ``.body``. Matching against both forms keeps the
+    detection robust against minor SDK-side message-rendering tweaks.
+    """
+    haystack = str(exc).lower()
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        err = body.get("error")
+        if isinstance(err, dict):
+            msg = err.get("message")
+            if isinstance(msg, str):
+                haystack = haystack + " " + msg.lower()
+    return any(marker in haystack for marker in _CONTENT_FILTER_MARKERS)
+
+
+def _invoke_messages_create(client: Any, request: dict[str, Any], model_id: str, input_chars: int) -> Any:
+    """Call ``messages.create`` and convert content-filter 400s to a typed error.
+
+    Other ``BadRequestError`` instances (invalid model id, malformed
+    request, etc.) propagate unchanged — those are operator bugs, not a
+    skip-and-continue case.
+    """
+    import anthropic  # type: ignore[import-not-found]
+
+    try:
+        return client.messages.create(**request)
+    except anthropic.BadRequestError as exc:
+        if _is_content_filter_error(exc):
+            request_id = getattr(exc, "request_id", None)
+            log.warning(
+                "clean.llm.content_filtered",
+                model=model_id, input_chars=input_chars,
+                request_id=request_id,
+            )
+            raise ContentFilteredError(str(exc), request_id=request_id) from exc
+        raise
+
+
 def clean_page(raw_text: str, model_id: str) -> tuple[str, Usage]:
     """Send one page through the cleanup prompt; return (cleaned_text, usage).
 
     The raw text is sent verbatim — the system prompt tells the model what
     to fix. Output is the model's reply text, stripped of leading/trailing
     whitespace.
+
+    Raises ``ContentFilteredError`` when Anthropic's content-moderation
+    declines to return output for the page (400 BadRequestError with the
+    content-filter signature). The runner treats this as a third
+    ``cleanup_skipped`` reason and continues to the next page.
     """
     client = _get_client()
     request = _build_request(raw_text, model_id)
     log.info("clean.llm.call", model=model_id, input_chars=len(raw_text))
-    response = client.messages.create(**request)
+    response = _invoke_messages_create(client, request, model_id, len(raw_text))
     usage = _extract_usage(response.usage)
     cleaned = _extract_text(response.content)
     log.info(

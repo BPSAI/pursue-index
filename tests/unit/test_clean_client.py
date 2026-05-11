@@ -329,3 +329,84 @@ def test_estimate_cost_cache_creation_is_125_percent_input_rate() -> None:
     )
     # 1.25x of $0.80/M input rate = $1.00/M.
     assert creation_only == pytest.approx(1.00, rel=1e-3)
+
+
+def _make_bad_request_error(message: str) -> Exception:
+    """Build a real ``anthropic.BadRequestError`` for the SDK-boundary test.
+
+    The SDK's ``BadRequestError`` requires a real ``httpx.Response`` plus
+    a request body — pass minimal stand-ins that pass the constructor
+    without needing a live network call.
+    """
+    import anthropic
+    import httpx
+
+    request = httpx.Request("POST", "https://api.anthropic.test/v1/messages")
+    response = httpx.Response(400, request=request)
+    return anthropic.BadRequestError(
+        message,
+        response=response,
+        body={"error": {"type": "invalid_request_error", "message": message}},
+    )
+
+
+class _ContentFilterMessages:
+    """Mock ``client.messages`` that raises a content-filter 400 on .create."""
+
+    def __init__(self, exc: Exception) -> None:
+        self._exc = exc
+        self.calls: list[dict[str, Any]] = []
+
+    def create(self, **kwargs: Any) -> Any:
+        self.calls.append(kwargs)
+        raise self._exc
+
+
+def test_clean_page_raises_content_filtered_error_on_400_filter(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """When Anthropic returns 400 with a content-filter message, wrap it
+    as ``ContentFilteredError`` so the runner has a typed handle on the
+    "Anthropic refused to clean this page" case.
+
+    Otherwise the bare BadRequestError leaks across the SDK boundary and
+    forces every caller to substring-match the exception message — which
+    is exactly the bug that crashed the pilot at card
+    ``7d58f0cac741650a`` page 88.
+    """
+    exc = _make_bad_request_error("Output blocked by content filtering policy")
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _ContentFilterMessages(exc)
+
+    fake = _Client()
+    monkeypatch.setattr(clean_client, "_get_client", lambda: fake)
+    with pytest.raises(clean_client.ContentFilteredError):
+        clean_client.clean_page(
+            raw_text="some OCR text", model_id="claude-haiku-4-5-20251001",
+        )
+
+
+def test_clean_page_propagates_other_400_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Non-content-filter 400s (e.g. invalid model id, malformed request)
+    must propagate as ``BadRequestError`` — they're operator bugs, not a
+    skip-and-continue case. Silently swallowing them would mask
+    misconfiguration across a whole pilot.
+    """
+    import anthropic
+
+    exc = _make_bad_request_error("invalid model: foo-bar")
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _ContentFilterMessages(exc)
+
+    fake = _Client()
+    monkeypatch.setattr(clean_client, "_get_client", lambda: fake)
+    with pytest.raises(anthropic.BadRequestError):
+        clean_client.clean_page(
+            raw_text="some OCR text", model_id="bogus-model",
+        )
