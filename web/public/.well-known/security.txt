@@ -1,0 +1,8 @@
+# RFC 9116 security disclosure contact for pursueindex.com.
+# https://pursueindex.com/.well-known/security.txt
+
+Contact: mailto:david@bpsaisoftware.com
+Expires: 2027-05-11T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://pursueindex.com/.well-known/security.txt
+Policy: https://github.com/BPSAI/pursue-index/blob/main/SECURITY.md

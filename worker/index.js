@@ -117,6 +117,12 @@ const SECURITY_HEADERS = [
   ["X-Frame-Options", "SAMEORIGIN"],
   ["Permissions-Policy", "interest-cohort=()"],
   ["Content-Security-Policy", CSP_VALUE],
+  // HSTS: 1 year, subdomains opt-in. `preload` deliberately omitted —
+  // adding it commits us to the Chromium HSTS preload list, which is
+  // effectively irreversible. We can add `preload` and submit later
+  // once we're confident every subdomain we'll ever want to serve is
+  // HTTPS-only.
+  ["Strict-Transport-Security", "max-age=31536000; includeSubDomains"],
 ];
 
 export function withSecurityHeaders(response) {
