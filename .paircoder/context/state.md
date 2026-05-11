@@ -9,8 +9,10 @@
 - A r/UFOs reader DM'd the operator pointing out that the Muroc-1947 entry stated Roswell was "2,000 miles east" of Muroc/Edwards AFB. Actual great-circle distance is ~800 mi. Fixed directly on `main` as `5c8a0a9`.
 - Defensive fact-check pass across all 14 `/finds` entries (via Explore agent). Verified Apollo 17, Kenneth Arnold, LaPaz fireballs, Mantell, Rhodes Phoenix, FBI 62-HQ-83894 sectioning, LaPaz/Institute of Meteoritics. **No additional factual errors.**
 - One HIGH-severity ambiguity surfaced and fixed: D23 entry's manifest `incident_date: 10/31/2023` vs MISREP Zulu DTGs (Oct 24, 2023). In-entry clarifier landed as `d7258e9`. Manifest-field correction continues as Issue #36.
-- LLM-cleaned pilot resume kicked off: `pursue clean run --cards <30> --budget-usd 0.75`. PR #46's content-filter graceful-skip validated in production (page 93 of card `7d58f0cac741650a`).
-- Spot-check checklist for the pilot output landed at `.paircoder/plans/llm-cleaned-pilot-spotcheck.md` — 40 checks across 5 pages, ship-readiness criteria explicit.
+- LLM-cleaned pilot resume kicked off: `pursue clean run --cards <30> --budget-usd 0.75`. PR #46's content-filter graceful-skip validated in production (page 93 of card `7d58f0cac741650a`). Pilot hit the cap at 3 cards; extension pilot on 3 modern MISREPs (D23/D32/D33) added at $0.08, zero skips. Combined pilot output: 385 cleaned pages + 88 skip rows across 6 cards for $0.83.
+- Spot-check checklist for the pilot output landed at `.paircoder/plans/llm-cleaned-pilot-spotcheck.md` — 40 checks across 5 pages, ship-readiness criteria explicit. Manual spot-check executed; **0 hard signals + 1 soft signal across 5 pages → GO verdict**. Lone soft signal: D33 p1 `1.48 → 1.4a` interpretive cleanup (single-character OCR fix in context, defensible but worth documenting in methodology).
+- Full corpus pass launched: `pursue clean run --budget-usd 25.00`. Running in background; projected $8–12 spend across ~4,153 pages.
+- QC engine plan landed: `.paircoder/plans/clean-quality-review.md` — LLM-judge layer over the cleanup output, ~$6 (Haiku judge) or ~$42 (Sonnet judge) per corpus pass, with explicit calibration discipline (20-page operator sample per run).
 
 **2026-05-10 — v1.0.0 shipping run (19 PRs merged).**
 
@@ -86,7 +88,9 @@ image-description blocks into our retrieval index.
 
 ### Active (in-flight today)
 
-1. **LLM-cleaned reading text — pilot resume.** Pilot is *running now* (`/tmp/pursue-pilot/run.log`; monitor armed). Next: spot-check 5 sidecar pages per `llm-cleaned-pilot-spotcheck.md`, then full-corpus run with `--budget-usd 25.00`, then `python scripts/build_pages_cleaned.py` to flip the toggle live. Open strategic question for after pilot: content-filter fallback strategy (option 1/2/3 in `project_pickup_2026_05_11.md` memory). Plan: `.paircoder/plans/llm-cleaned-reading-text.md`.
+1. **LLM-cleaned reading text — full corpus pass.** Full-corpus pilot *running now* (`/tmp/pursue-pilot/run-fullcorpus.log`; monitor armed; PID 86434). After: `python scripts/build_pages_cleaned.py` to produce the deployable asset, commit + push to flip the toggle live. Methodology page update needed before publish: document the interpretive-cleanup boundary (`1.48 → 1.4a` allowed; redaction-fill-in never), three skip-row reasons, and skip-rate per content class. Plan: `.paircoder/plans/llm-cleaned-reading-text.md`.
+
+2. **QC engine plan landed (backlog/next thread).** `.paircoder/plans/clean-quality-review.md` — LLM-judge layer over cleanup output. Idempotent sidecar `pages_cleaned_qc.jsonl` with 8 structured checks per page. Calibration discipline: 20-page operator sample per corpus run. Pilots after the cleanup-mode toggle goes live.
 
 ### Backlog (priority order)
 
