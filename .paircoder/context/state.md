@@ -1,6 +1,15 @@
 # Current State
 
-> Last updated: 2026-05-09
+> Last updated: 2026-05-11
+
+## What Was Just Done
+
+**2026-05-11 — Editorial fact-check pass on `/finds` entries (post-launch).**
+
+- A r/UFOs reader DM'd the operator pointing out that the Muroc-1947 entry stated Roswell was "2,000 miles east" of Muroc/Edwards AFB. Actual great-circle distance is ~800 mi. Fixed directly on `main` as `5c8a0a9`: `fix(finds): correct Muroc→Roswell distance (was 2,000 mi, actually ~800 mi)`.
+- Defensive fact-check pass triggered across all 14 `/finds` entries (via Explore agent). Verified Apollo 17 dates/crew, Kenneth Arnold date/location, LaPaz fireballs, Mantell incident, Rhodes Phoenix, FBI 62-HQ-83894 sectioning, LaPaz/Institute of Meteoritics attribution. **No additional factual errors found.**
+- One HIGH-severity ambiguity flagged: D23 entry's manifest `incident_date: 10/31/2023` vs MISREP body's Zulu DTGs (`240015:00ZOCT23` / `242058:00ZOCT23`, decoding to Oct 24, 2023). Manifest is wrong; document is canonical. Fixed via in-entry clarifier as `d7258e9`: `fix(finds): clarify D23 date (MISREP says Oct 24; manifest says 10/31)`. Manifest-field correction continues to track as Issue #36.
+- Two MEDIUM items flagged (OCR artifacts in entry text) are already properly handled — they are quoted *as-is* with bracketed editorial notes per the project's transcription-fidelity discipline, not errors.
 
 ## Current Focus
 
