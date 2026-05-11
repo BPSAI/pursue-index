@@ -40,8 +40,47 @@ export interface CleanedPage {
    *                             input; raw fallback stripped so it
    *                             doesn't ship under the "cleaned" label.
    *                             Render a notice + Raw-mode link.
+   *   - `"content_filter"`    — Anthropic's moderation declined to
+   *                             return cleaned output for this page.
+   *                             Render the "[CLEANUP UNAVAILABLE —
+   *                             content filter]" notice + Raw-mode
+   *                             link; mirrors `length_divergence` in
+   *                             behavior but distinguishable in copy.
+   *
+   * Kept as the wider `CleanupSkipReason | string` so an unknown future
+   * reason from the Python side (added in `build_pages_cleaned.py`
+   * before this file is updated) doesn't break the runtime type read —
+   * the UI gates render decisions through `requiresUiNotice` and falls
+   * back to the generic `[BLANK]` path otherwise.
    */
-  cleanup_skipped?: string;
+  cleanup_skipped?: CleanupSkipReason | string;
+}
+
+/**
+ * Canonical list of `cleanup_skipped` reasons. Mirrors the Python-side
+ * `CLEANUP_SKIP_REASONS` in `scripts/build_pages_cleaned.py` —
+ * single-source-of-truth on each side of the JSON boundary so a future
+ * fourth reason is a one-line add on each side.
+ */
+export const CLEANUP_SKIP_REASONS = [
+  "empty_input",
+  "length_divergence",
+  "content_filter",
+] as const;
+
+export type CleanupSkipReason = (typeof CLEANUP_SKIP_REASONS)[number];
+
+/**
+ * Returns true when the skip reason should render the "[CLEANUP
+ * UNAVAILABLE]" notice (vs falling through to the generic `[BLANK]`
+ * path). `empty_input` intentionally returns false — empty raw OCR is
+ * indistinguishable from a blank page and renders consistently with
+ * Raw mode's `[BLANK]` rather than under a cleanup-specific notice.
+ */
+export function requiresUiNotice(
+  reason: CleanupSkipReason | string | undefined,
+): boolean {
+  return reason === "length_divergence" || reason === "content_filter";
 }
 
 export interface CleanedMeta {

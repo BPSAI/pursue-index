@@ -370,9 +370,9 @@ def test_clean_page_raises_content_filtered_error_on_400_filter(
     "Anthropic refused to clean this page" case.
 
     Otherwise the bare BadRequestError leaks across the SDK boundary and
-    forces every caller to substring-match the exception message — which
-    is exactly the bug that crashed the pilot at card
-    ``7d58f0cac741650a`` page 88.
+    forces every caller to substring-match the exception message — the
+    failure mode that interrupted a May 2026 pilot run on a page with
+    charged source material (card <redacted> page <redacted>).
     """
     exc = _make_bad_request_error("Output blocked by content filtering policy")
 
@@ -410,3 +410,105 @@ def test_clean_page_propagates_other_400_errors(
         clean_client.clean_page(
             raw_text="some OCR text", model_id="bogus-model",
         )
+
+
+def _make_bad_request_error_with_type(error_type: str) -> Exception:
+    """Build a BadRequestError whose body.error.type carries ``error_type``.
+
+    Used to exercise the defensive branch of `_is_content_filter_error`
+    that catches a future SDK shape where the type field carries the
+    filter signal while the message is generic.
+    """
+    import anthropic
+    import httpx
+
+    request = httpx.Request("POST", "https://api.anthropic.test/v1/messages")
+    response = httpx.Response(400, request=request)
+    return anthropic.BadRequestError(
+        "Request rejected by safety system.",
+        response=response,
+        body={"error": {"type": error_type, "message": "Request rejected by safety system."}},
+    )
+
+
+def test_is_content_filter_error_detects_type_field(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """nayru P2 #1: belt-and-suspenders detection — also match against
+    ``error.type`` in the body dict, not just the message substring.
+
+    Anthropic's SDK could move the human-readable phrase out of the
+    rendered exception message (e.g. localising it, swapping wording)
+    while keeping the structured ``error.type`` stable. Matching on
+    both the message and the type field keeps the pilot crash-fix
+    robust against that wording-tweak failure mode.
+
+    Both ``content_filter`` and ``content_filtered`` are accepted —
+    Anthropic has used both spellings in different SDK versions.
+    """
+    for filter_type in ("content_filter", "content_filtered"):
+        exc = _make_bad_request_error_with_type(filter_type)
+        assert clean_client._is_content_filter_error(exc), (
+            f"expected {filter_type} to be classified as a content-filter "
+            f"error via the error.type field"
+        )
+
+
+def test_is_content_filter_error_returns_false_for_unrelated_400(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Sanity check the defensive branch doesn't over-match — an
+    `invalid_request_error` whose message has nothing to do with
+    filtering must still propagate as a regular BadRequestError so
+    operator bugs aren't silently skipped.
+    """
+    exc = _make_bad_request_error("invalid model: foo-bar")
+    assert not clean_client._is_content_filter_error(exc)
+
+
+def test_content_filtered_error_message_is_sanitized(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """laverna P2 CF-001: the public-facing exception message must not
+    embed the raw SDK repr (which carries request_id, HTTP status, the
+    full body dict, etc.).
+
+    The exception traceback can land in a public CI log; ``request_id``
+    is operator-only telemetry. Keep it on the exception attribute and
+    in the structured warning log, but strip it from ``str(exc)``.
+
+    The original BadRequestError is preserved via ``__cause__`` (the
+    ``from exc`` chain) for internal post-mortem.
+    """
+    # Pick a request_id pattern the public message MUST NOT contain.
+    sdk_message = (
+        "Error code: 400 - "
+        "{'error': {'type': 'invalid_request_error', "
+        "'message': 'Output blocked by content filtering policy', "
+        "'request_id': 'req_secret_abc123'}}"
+    )
+    exc = _make_bad_request_error(sdk_message)
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _ContentFilterMessages(exc)
+
+    fake = _Client()
+    monkeypatch.setattr(clean_client, "_get_client", lambda: fake)
+    with pytest.raises(clean_client.ContentFilteredError) as exc_info:
+        clean_client.clean_page(
+            raw_text="some OCR text", model_id="claude-haiku-4-5-20251001",
+        )
+
+    # The public-facing string MUST NOT carry the request_id or the
+    # full SDK body dict — those are operator-only telemetry that the
+    # structured log + the exception attribute already hold.
+    rendered = str(exc_info.value)
+    assert "req_secret_abc123" not in rendered, (
+        f"request_id leaked into public exception message: {rendered!r}"
+    )
+    assert "{'error'" not in rendered, (
+        f"SDK body dict leaked into public exception message: {rendered!r}"
+    )
+    # __cause__ preserves the original for internal post-mortem.
+    assert exc_info.value.__cause__ is exc

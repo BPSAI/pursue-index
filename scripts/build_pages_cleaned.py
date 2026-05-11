@@ -45,6 +45,24 @@ from pursue_index.config import settings  # noqa: E402
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
 
+# vaivora P2 #8: canonical list of ``cleanup_skipped`` reasons. Mirrors
+# the TS-side ``CLEANUP_SKIP_REASONS`` in
+# ``web/src/components/cleaned-pages.ts`` — single-source-of-truth on
+# each side of the JSON boundary so a future fourth reason is a
+# one-line add on each side.
+CLEANUP_SKIP_REASONS = frozenset(
+    {"empty_input", "length_divergence", "content_filter"}
+)
+
+# Reasons where ``text_cleaned`` must be cleared (and ``output_sha256``
+# rehashed) before the row ships in the mirror. ``empty_input`` rows
+# already have empty text; the other two carry a raw-OCR fallback or
+# unexpected payload from the model that MUST NOT ship under the
+# "cleaned" label.
+CLEANUP_SKIP_REQUIRES_TEXT_CLEAR = frozenset(
+    {"length_divergence", "content_filter"}
+)
+
 
 def _load_titles(manifest_path: Path) -> dict[str, str]:
     payload = json.loads(manifest_path.read_text())
@@ -130,7 +148,7 @@ def _sanitize_row_for_mirror(row: dict) -> dict:
     (``src/pursue_index/clean/prompt.py::output_sha256``).
     """
     skipped = row.get("cleanup_skipped")
-    if skipped in ("length_divergence", "content_filter"):
+    if skipped in CLEANUP_SKIP_REQUIRES_TEXT_CLEAR:
         sanitized = dict(row)
         sanitized["text_cleaned"] = ""
         sanitized["output_sha256"] = hashlib.sha256(b"").hexdigest()

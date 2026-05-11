@@ -201,7 +201,18 @@ def _try_clean_or_skip(
             sidecar_path=sidecar_path, totals=totals,
         )
         state.cleaned += 1
-    except ContentFilteredError:
+    except ContentFilteredError as exc:
+        # nayru P2 #2: bind request_id at the runner site so the per-
+        # card-page correlation (card_id, page) ↔ Anthropic request_id
+        # lives in a single log scope. The client already emits
+        # ``clean.llm.content_filtered`` at the SDK boundary; this
+        # runner-site warning gives operator post-mortems all the
+        # context they need without having to join across log streams.
+        log.warning(
+            "clean.page.content_filtered",
+            card_id=card_id, page=page,
+            request_id=exc.request_id,
+        )
         _write_skip_row(
             sidecar_path=sidecar_path, card_id=card_id, page=page,
             raw_text=raw_text, model_id=model_id, prompt_sha=prompt_sha,

@@ -499,3 +499,27 @@ def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     )
     payload = json.loads(out_path.read_text())
     assert payload["meta"]["cards_covered"] == ["c1"]
+
+
+def test_cleanup_skip_reasons_constant_stays_aligned_with_ts_side() -> None:
+    """vaivora P2 #8: the canonical list of ``cleanup_skipped`` reasons
+    lives on both sides of the JSON boundary (Python `build_pages_cleaned.py`
+    and TS `cleaned-pages.ts`). Pin the Python side here so a future
+    fourth reason forces both sides to be updated together — if TS adds
+    one but Python doesn't, the build will silently drop the new
+    reason during sanitization.
+
+    Mirror test on the TS side: `cleaned-pages.test.ts` →
+    "CLEANUP_SKIP_REASONS: stays aligned with Python-side constant".
+    """
+    assert build_pages_cleaned.CLEANUP_SKIP_REASONS == frozenset(
+        {"empty_input", "length_divergence", "content_filter"}
+    )
+    # Subset semantics: the "requires text clear" set must be a strict
+    # subset of the full reason set. ``empty_input`` rows already have
+    # empty text, so they are intentionally excluded — adding them
+    # would be a no-op rehash but documents the intent either way.
+    assert build_pages_cleaned.CLEANUP_SKIP_REQUIRES_TEXT_CLEAR <= (
+        build_pages_cleaned.CLEANUP_SKIP_REASONS
+    )
+    assert "empty_input" not in build_pages_cleaned.CLEANUP_SKIP_REQUIRES_TEXT_CLEAR

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -403,8 +404,8 @@ def test_run_card_writes_content_filter_skip_row_and_continues(
     """When Anthropic's content filter blocks one page, the runner must:
 
       1. Catch ``ContentFilteredError`` so the pilot does not crash
-         mid-card (this is the bug that took down the FBI 62-HQ-83894
-         run at card ``7d58f0cac741650a`` page 88).
+         mid-card (interrupted a May 2026 pilot on a charged page;
+         card <redacted> page <redacted>).
       2. Write a sidecar row flagged ``cleanup_skipped="content_filter"``
          with empty ``text_cleaned`` — the raw OCR is preserved in
          ``pages.jsonl`` and the build script will keep this row for
@@ -476,6 +477,58 @@ def test_run_card_writes_content_filter_skip_row_and_continues(
     # All three input pages were visited (the filter trip didn't short-
     # circuit the loop).
     assert len(call_log) == 3
+
+
+def _capture_runner_warnings(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
+    """Patch ``runner.log.warning`` to append to a captured list."""
+    captured: list[dict[str, Any]] = []
+
+    def fake_warning(event: str, **kw: Any) -> None:
+        captured.append({"event": event, **kw})
+
+    monkeypatch.setattr(runner.log, "warning", fake_warning)
+    return captured
+
+
+def test_run_card_logs_request_id_at_runner_site_on_content_filter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """nayru P2 #2: the runner-site warning binds ``request_id`` from
+    the exception so post-mortem correlation between (card_id, page)
+    and the Anthropic-side log happens in a single log scope.
+
+    The client already logs ``clean.llm.content_filtered`` with the
+    request_id at the SDK boundary; the runner's additional warning
+    binds card_id + page + request_id together for operators acting
+    on a public-pilot incident without joining across log streams.
+    """
+    from pursue_index.clean import client as clean_client_mod
+
+    pages_path = tmp_path / "cardCF" / "pages.jsonl"
+    _write_pages(pages_path, [{"page": 1, "text": "filtered page"}])
+    sidecar_path = tmp_path / "cardCF" / "pages_cleaned.jsonl"
+
+    def _fn(raw_text: str, model_id: str) -> tuple[str, clean_client.Usage]:
+        raise clean_client_mod.ContentFilteredError(
+            "Anthropic content filter declined cleaned output",
+            request_id="req_test_logger_bound",
+        )
+
+    monkeypatch.setattr(runner, "clean_page", _fn)
+    captured = _capture_runner_warnings(monkeypatch)
+
+    runner.run_card(
+        card_id="cardCF", pages_path=pages_path, sidecar_path=sidecar_path,
+        model_id="claude-haiku-4-5-20251001",
+        budget_usd=10.0, running_cost_usd=0.0,
+    )
+
+    cf_events = [e for e in captured if e["event"] == "clean.page.content_filtered"]
+    assert cf_events, f"expected runner-site warning; got: {captured}"
+    e = cf_events[0]
+    assert e["card_id"] == "cardCF"
+    assert e["page"] == 1
+    assert e["request_id"] == "req_test_logger_bound"
 
 
 def _iter_jsonl(path: Path):

@@ -26,15 +26,19 @@ class ContentFilteredError(Exception):
     """Anthropic's content-moderation system declined to return cleaned output.
 
     Raised by ``clean_page`` when the SDK surfaces a 400 BadRequestError
-    whose body matches the content-filter signature (the pilot saw it
-    on FBI section files with charged source material). The runner
-    catches this as the third member of the ``cleanup_skipped`` family
-    — alongside ``empty_input`` and ``length_divergence`` — and writes
-    a skip row with ``cleanup_skipped="content_filter"`` so the pilot
-    continues past the offending page instead of crashing mid-card.
+    whose body matches the content-filter signature (observed during a
+    May 2026 pilot run on pages with charged source material). The
+    runner catches this as the third member of the ``cleanup_skipped``
+    family — alongside ``empty_input`` and ``length_divergence`` — and
+    writes a skip row with ``cleanup_skipped="content_filter"`` so the
+    pilot continues past the offending page instead of crashing
+    mid-card.
 
     Carries ``request_id`` from the underlying response when available,
     so operator post-mortems can correlate against Anthropic-side logs.
+    The public-facing message is intentionally generic
+    (``_CONTENT_FILTER_PUBLIC_MESSAGE``) so a traceback in a public CI
+    log doesn't surface request_id or the SDK's full body dict.
     """
 
     def __init__(self, message: str, *, request_id: str | None = None) -> None:
@@ -48,6 +52,23 @@ class ContentFilteredError(Exception):
 # error body — match either, lowercased, so a wording tweak on Anthropic's
 # side doesn't reopen the pilot-crashing edge case.
 _CONTENT_FILTER_MARKERS = ("content filtering", "content_filter")
+
+# Structured-field fingerprints: nayru P2 #1 — also match against the
+# ``body.error.type`` field as a belt-and-suspenders signal in case a
+# future SDK release moves the human-readable phrase out of the rendered
+# exception message while keeping the structured type stable. Both
+# spellings have appeared in different Anthropic-side SDK versions.
+_CONTENT_FILTER_TYPES = frozenset({"content_filter", "content_filtered"})
+
+# Public-facing message used on the ContentFilteredError chain. The
+# raw ``str(exc)`` of the SDK's BadRequestError embeds request_id, the
+# full HTTP body dict, and the response headers — that's operator-only
+# telemetry which must not leak into a public-repo CI traceback. Keep
+# request_id on the exception attribute + the structured log only.
+_CONTENT_FILTER_PUBLIC_MESSAGE = (
+    "Anthropic content filter declined cleaned output; "
+    "see request_id in structured logs"
+)
 
 # Haiku-4-5 pricing per the plan: $0.80/M in, $4/M out, $0.08/M cache-read
 # (cache-read is 1/10th input). Cache-creation (ephemeral) is billed at
@@ -157,11 +178,15 @@ def _extract_usage(usage: Any) -> Usage:
 def _is_content_filter_error(exc: Exception) -> bool:
     """True when a BadRequestError body matches the content-filter signature.
 
-    Checks both ``str(exc)`` (covers the SDK's default repr) and a
-    ``.body`` payload when present — Anthropic exposes the moderation
-    decision under the JSON ``error.message`` field which the SDK
-    deserialises into ``.body``. Matching against both forms keeps the
-    detection robust against minor SDK-side message-rendering tweaks.
+    Detection runs on three signals (belt-and-suspenders):
+      1. ``str(exc)`` — covers the SDK's default repr.
+      2. ``body.error.message`` — the structured human-readable phrase.
+      3. ``body.error.type`` — the structured type field (nayru P2 #1).
+
+    Anthropic could move the phrase out of the rendered exception
+    message (localisation, wording tweak) while keeping the structured
+    ``error.type`` stable. Matching on all three signals keeps the
+    pilot crash-fix robust against that failure mode.
     """
     haystack = str(exc).lower()
     body = getattr(exc, "body", None)
@@ -171,6 +196,9 @@ def _is_content_filter_error(exc: Exception) -> bool:
             msg = err.get("message")
             if isinstance(msg, str):
                 haystack = haystack + " " + msg.lower()
+            err_type = err.get("type")
+            if isinstance(err_type, str) and err_type.lower() in _CONTENT_FILTER_TYPES:
+                return True
     return any(marker in haystack for marker in _CONTENT_FILTER_MARKERS)
 
 
@@ -193,7 +221,17 @@ def _invoke_messages_create(client: Any, request: dict[str, Any], model_id: str,
                 model=model_id, input_chars=input_chars,
                 request_id=request_id,
             )
-            raise ContentFilteredError(str(exc), request_id=request_id) from exc
+            # laverna P2 CF-001: pass a static summary as the public-
+            # facing message; keep request_id + the raw SDK exception
+            # detail in the structured warning above and on the
+            # exception attribute / __cause__ chain. The original
+            # BadRequestError is preserved via ``from exc`` for
+            # post-mortem; the rendered str() of ContentFilteredError
+            # is safe to land in a public CI traceback.
+            raise ContentFilteredError(
+                _CONTENT_FILTER_PUBLIC_MESSAGE,
+                request_id=request_id,
+            ) from exc
         raise
 
 

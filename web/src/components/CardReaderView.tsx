@@ -6,6 +6,7 @@ import {
   readPageFromHash,
 } from "./reader-format.ts";
 import { createDebouncedPdfIframeSync } from "./pdf-iframe-sync.ts";
+import { requiresUiNotice } from "./cleaned-pages.ts";
 
 export interface ReaderPage {
   page: number;
@@ -159,8 +160,7 @@ export default function CardReaderView({
               {p}
             </p>
           ))
-        ) : current.cleanupSkipped === "length_divergence" ||
-          current.cleanupSkipped === "content_filter" ? (
+        ) : requiresUiNotice(current.cleanupSkipped) ? (
           <p class="font-mono text-xs text-[color:var(--color-text-dim)]">
             <span class="text-[color:var(--color-signal-amber)]">
               {current.cleanupSkipped === "content_filter"
