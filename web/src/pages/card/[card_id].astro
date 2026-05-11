@@ -123,27 +123,36 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
                 class="px-2 py-1 bg-[color:var(--color-bg-deep)]/85 border border-[color:var(--color-border)] text-[color:var(--color-signal-cyan)] hover:border-[color:var(--color-signal-cyan)]"
               >OPEN ↗</a>
             </div>
-            {/* sandbox: explicit capabilities allowlist (laverna SEC-001).
-                allow-scripts + allow-same-origin are required for PDF.js
-                to function as the in-frame viewer; we deliberately exclude
-                allow-top-navigation, allow-forms, and allow-popups so a
-                compromised PDF cannot escape the iframe.
-                data-asset-url removed (vaivora P2 #12) — the runtime helper
-                derives the base from iframe.src directly, so the attribute
-                was unread weight on the DOM.
-                src: same-origin /pdf/<card_id>.pdf served from the R2
-                mirror via worker/pdf.js. We used to point this at
-                `card.asset_url` (war.gov), but war.gov / Akamai shipped
-                cross-origin framing protection in May 2026 and Chrome
-                started surfacing the embed as `chrome-error://chromewebdata/`.
-                The OPEN ↗ link above still uses card.asset_url so war.gov
-                stays the cite-of-record. */}
+            {/* No `sandbox` attribute on this iframe — intentional, see below.
+
+                Originally (PR #27, laverna SEC-001) we shipped this iframe
+                with `sandbox="allow-scripts allow-same-origin"` so a hostile
+                PDF could not escape via top-navigation / popups / forms.
+                Chrome 147 (May 2026) changed PDFium's iframe behavior:
+                ANY value of `sandbox` — even with every allow-* token
+                enumerated — now suppresses inline PDF rendering, leaving
+                the iframe blank. The PDF viewer plugin will not initialize
+                under a sandboxed browsing context. Verified empirically by
+                toggling tokens; the attribute itself is the trigger.
+
+                Trust basis for dropping it: after PR #27 this iframe loads
+                ONLY `/pdf/<card_id>.pdf`, served same-origin from our own
+                R2 mirror (binding PDFS, bucket pursue-pdfs). The URL is
+                content-addressed by sha256(asset_url || title); we put the
+                bytes there ourselves. The original threat model assumed
+                third-party PDF content could end up in this iframe, which
+                hasn't been true since #27. CSP `frame-ancestors 'self'`
+                + worker `X-Frame-Options: SAMEORIGIN` keep the page from
+                being framed by anyone else.
+
+                src: same-origin /pdf/<card_id>.pdf served from R2 via
+                worker/pdf.js. OPEN ↗ above still cites card.asset_url
+                (war.gov) as source-of-record. */}
             <iframe
               id="card-pdf-iframe"
               data-asset-type={card.asset_type}
               src={`/pdf/${card.card_id}.pdf`}
               title={`PDF source: ${card.title}`}
-              sandbox="allow-scripts allow-same-origin"
               referrerpolicy="no-referrer"
               class="w-full h-[60vh] min-h-[420px] sm:h-[80vh] sm:min-h-[640px] bg-[color:var(--color-bg-deep)]"
               loading="lazy"
