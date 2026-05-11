@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bootstrap a dev environment on buschleague.
+# Bootstrap a dev environment on a local workstation with NAS-mounted data.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -14,8 +14,6 @@ uv venv
 source .venv/bin/activate
 
 uv pip install -e ".[dev]"
-playwright install chromium
-playwright install-deps chromium
 
 if [[ ! -f .env ]]; then
     cp .env.example .env

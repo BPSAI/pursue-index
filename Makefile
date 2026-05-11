@@ -1,17 +1,12 @@
-.PHONY: install install-dev install-azure scrape-inspect scrape download ocr ingest serve \
+.PHONY: install install-dev scrape-inspect scrape download ocr ingest serve \
         test lint typecheck fmt db-up db-down clean
 
 # ---- setup ----
 install:
 	uv venv && . .venv/bin/activate && uv pip install -e .
-	. .venv/bin/activate && playwright install chromium
 
 install-dev:
 	uv venv && . .venv/bin/activate && uv pip install -e ".[dev]"
-	. .venv/bin/activate && playwright install chromium
-
-install-azure:
-	. .venv/bin/activate && uv pip install -e ".[azure]"
 
 # ---- pipeline shortcuts ----
 scrape-inspect:

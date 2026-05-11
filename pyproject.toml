@@ -59,10 +59,6 @@ og = [
     "pydantic>=2.7",
     "pydantic-settings>=2.3",
 ]
-azure = [
-    "azure-ai-documentintelligence>=1.0.0b3",
-    "azure-identity>=1.17",
-]
 gpu = [
     # Surya is the transformer-OCR engine for the local 5090. Pulls in torch +
     # CUDA wheels (~3 GB); install only on hosts with a CUDA-capable GPU.

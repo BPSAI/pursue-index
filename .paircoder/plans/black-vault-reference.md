@@ -158,7 +158,7 @@ What does change:
    separated. Before/after comparison documented in the plan PR.
 7. **Steady-state**: monthly re-poll of the sitemap, diff vs manifest,
    fetch + OCR + embed only the delta. Reuses the auto-poll pattern
-   from `auto-poll-tranches.md`.
+   from `.github/workflows/poll-pursue.yml`.
 
 ## Storage + Delivery
 

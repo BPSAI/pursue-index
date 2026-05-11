@@ -203,7 +203,7 @@ def ocr_card(
 
 
 def _resolve_default_engine() -> EngineName:
-    """``PURSUE_OCR_ENGINE`` → engine name. ``"azure"`` (legacy) → tesseract."""
+    """``PURSUE_OCR_ENGINE`` → engine name."""
     cfg = settings.ocr_engine
     return cfg if cfg in ("surya", "tesseract", "llm", "auto") else DEFAULT_ENGINE
 

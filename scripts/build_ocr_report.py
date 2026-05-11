@@ -42,7 +42,7 @@ def latest_benchmark() -> Path:
 
 
 def load_snapshot(label: str) -> list[dict]:
-    snap = BENCH_DIR / f"_{label}-snapshot.json"
+    snap = BENCH_DIR / f"{label}-snapshot.json"
     if not snap.exists():
         return []
     return json.loads(snap.read_text())

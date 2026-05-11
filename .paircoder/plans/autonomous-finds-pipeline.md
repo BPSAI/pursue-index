@@ -18,11 +18,11 @@ strongest candidates, and submits them as pull requests against
 pursueindex.com for editorial review.
 
 The pipeline itself is **not** part of the public pursue-index repo. It
-lives as a private internal artifact within the BPS AI fleet because it
-relies on internal IP (voice profile, agent infrastructure) that is not
-appropriate for public distribution. The public repo only sees the
-output: a pull request opened by a bot account containing a single
-`.mdx` file ready for editorial review.
+lives as a private internal artifact because it relies on internal IP
+(voice profile, agent infrastructure) that is not appropriate for public
+distribution. The public repo only sees the output: a pull request
+opened by a bot account containing a single `.mdx` file ready for
+editorial review.
 
 ## Why
 
@@ -35,24 +35,24 @@ The next phase is **coverage**. The corpus has 116 PDF cards on Release
 every card deserves an entry. A pipeline that does the reading pass
 autonomously, surfaces the candidates worth publishing, and writes them
 in the operator's narrative voice — under editorial review — converts
-"this page is great when David writes one" into "this page grows
+"this page is great when the operator writes one" into "this page grows
 continuously without operator-burning."
 
 ## Architecture: Public / Private Split
 
 The pipeline crosses a trust boundary. The public pursue-index repo
 contains the corpus, the site, and the rendered finds entries. The
-private BPS AI infrastructure contains the agent fleet, voice profiles,
-and orchestration. The pipeline lives entirely on the private side and
+private infrastructure contains the agent fleet, voice profiles, and
+orchestration. The pipeline lives entirely on the private side and
 reaches into the public repo only through the same surface a human
 contributor would use: pull requests.
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│  PRIVATE BPS AI INFRASTRUCTURE                                  │
+│  PRIVATE INFRASTRUCTURE                                          │
 │                                                                  │
 │   pursue-finds-pipeline  (private repo or sibling-project       │
-│      within bpsai-computer)                                     │
+│      within private orchestration / dispatch infrastructure)    │
 │      ├─ pulls pursue-index manifest (HTTPS, public)             │
 │      ├─ pulls pursue-index existing /finds entries (Git, public)│
 │      ├─ runs novelty detection                                  │
@@ -83,9 +83,9 @@ Boundaries:
 
 | Concern | Lives in | Why |
 |---|---|---|
-| Voice profile (`david.yaml`) | Private fleet repo | Closely-guarded craft tool; not for public distribution |
-| Twin agent + enforcement rules | Private fleet (bpsai-twins) | Internal IP; voice fidelity is the product |
-| Pipeline orchestration | Private fleet (sibling or inside bpsai-computer) | Couples private agents; couples to private A2A transport |
+| Voice profile (operator voice profile) | Private fleet repo | Closely-guarded craft tool; not for public distribution |
+| Writer agent + enforcement rules | Private voice-disciplined writer agent | Internal IP; voice fidelity is the product |
+| Pipeline orchestration | Private fleet (sibling or inside private orchestration / dispatch infrastructure) | Couples private agents; couples to private inter-agent transport |
 | Pursue-index novelty pipeline | Public pursue-index | Already exists; library-callable from private side |
 | Manifest, OCR, embeddings | Public pursue-index | Already public artifacts |
 | Generated `.mdx` finds entry | Public pursue-index (after PR merge) | Public content; the editorial artifact |
@@ -138,7 +138,7 @@ Hard caps per tick:
 ## Pipeline Stages (Sense / Plan / Execute / Learn)
 
 The pipeline is a `BaseAgent` subclass following the lifecycle pattern
-the BPS AI fleet uses.
+the private agent fleet uses.
 
 **Sense**:
 - Fetch the pursue-index manifest (HTTPS).
@@ -160,8 +160,9 @@ the BPS AI fleet uses.
 - Pick the top candidate (one per tick).
 
 **Execute**:
-- Dispatch the voice-disciplined writer agent (TwinAgent or successor)
-  with: card metadata, full OCR text, paired video descriptions (if
+- Dispatch the voice-disciplined writer agent (the writer agent or
+  successor) with: card metadata, full OCR text, paired video
+  descriptions (if
   any), existing finds entries as style/voice anchors, editorial bar
   prompt block.
 - Receive draft .mdx output.
@@ -205,14 +206,14 @@ at steady-state.
   measure against. Without Black Vault, the pipeline can still avoid
   duplicates against existing finds entries, but the novelty signal is
   weak.
-- **Voice profile maturity** — the operator's `david.yaml` profile in
-  the private fleet needs to be trained against the 12 existing finds
+- **Voice profile maturity** — the operator voice profile in the
+  private fleet needs to be trained against the 12 existing finds
   entries as voice anchors. Confirmation required that the profile
   consumes those entries during enforcement.
 - **Bot account setup** — a GitHub bot account with PR-creation rights
   on pursueindex.com (and only that; no merge rights, no settings
   changes). Operator-owned, clearly labeled.
-- **Twin agent maturity** — the writer agent must reliably produce
+- **Writer agent maturity** — the writer agent must reliably produce
   output that passes the structural validation block. The PR #32
   demonstration was a single supervised draft under operator-supplied
   brief; the pipeline drafts unsupervised against an editorial bar
@@ -231,7 +232,7 @@ at steady-state.
 
 ## Out of Scope
 
-- Building the agent fleet (assumed to exist within BPS AI infrastructure).
+- Building the agent fleet (assumed to exist within the private infrastructure).
 - Publishing the voice profile or any private agent code.
 - Auto-merge of PRs without operator review (v1 is PR + human review only).
 - A community-contribution layer where external readers can suggest entries.
@@ -240,10 +241,10 @@ at steady-state.
 ## Open Questions for Operator
 
 1. Where exactly does the pipeline live within the private fleet — new
-   sibling repo `bpsai-pursue-finds`, or inside `bpsai-computer` as a
-   workspace it dispatches, or inside the planned `bpsai-heimdall` as a
-   specialized watcher?
-2. Bot account: existing BPS AI bot, or new one specifically for
+   sibling repo, or inside the private orchestration / dispatch
+   infrastructure as a workspace it dispatches, or inside a planned
+   watcher agent as a specialized watcher?
+2. Bot account: existing private fleet bot, or new one specifically for
    pursue-index editorial PRs?
 3. Cadence: pipeline ticks on every 6h cron (passive), or only when
    the manifest changes (event-driven)?

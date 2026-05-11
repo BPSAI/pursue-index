@@ -87,11 +87,11 @@ Methodology is published. Numbers are reproducible from a clean clone.
   for every card.
 - **Auto-poll for new tranches — Layer 2.** Layer 1 (lightweight cron
   poll detecting upstream CSV changes) is shipped in
-  `.github/workflows/poll-pursue.yml`; it commits new shas and opens a
-  `tranche-detected` issue. Layer 2 (heavy ingest pipeline trigger) is
-  operator-attended by design — GPU provisioning, cost, and content
-  review keep auto-run off the table at v1. Plan in
-  [`.paircoder/plans/auto-poll-tranches.md`](.paircoder/plans/auto-poll-tranches.md).
+  [`.github/workflows/poll-pursue.yml`](.github/workflows/poll-pursue.yml);
+  it commits new shas and opens a `tranche-detected` issue. Layer 2
+  (heavy ingest pipeline trigger) is operator-attended by design —
+  GPU provisioning, cost, and content review keep auto-run off the
+  table at v1.
 - **Review-and-correct pipeline.** Post-launch, accept community
   corrections on OCR transcripts via GitHub issues; flow them back into
   the index. Plan in
