@@ -1,6 +1,7 @@
 import CardReaderView from "./CardReaderView.tsx";
 import {
   filterCleanedPages,
+  requiresUiNotice,
   type CleanedPayload,
 } from "./cleaned-pages.ts";
 
@@ -81,12 +82,19 @@ export default function CardCleanedView({
         pages={cleanedPages.map((p) => ({
           page: p.page,
           text: p.text,
-          // Codex P1 follow-up: surface the skip reason so the reader
-          // renders a `length_divergence` notice instead of falling
-          // through to the generic `[BLANK]` message. `empty_input`
-          // intentionally stays undefined so it routes to the [BLANK]
-          // branch (consistent with how Raw renders blank pages).
-          ...(p.cleanup_skipped === "length_divergence"
+          // vaivora P0 fix: forward the skip reason so the reader
+          // renders the appropriate notice instead of falling through
+          // to the generic `[BLANK]` message. Gated via
+          // `requiresUiNotice` so both `length_divergence` and
+          // `content_filter` route through CardReaderView's
+          // cleanup-notice branch (the latter is the third skip
+          // reason — added after Anthropic's content-moderation policy
+          // declined output for charged source material in the pilot).
+          // `empty_input` intentionally stays undefined so it routes
+          // to the [BLANK] branch (consistent with how Raw renders
+          // blank pages). A future fourth reason is a one-line opt-in
+          // on the `requiresUiNotice` predicate in `cleaned-pages.ts`.
+          ...(requiresUiNotice(p.cleanup_skipped)
             ? { cleanupSkipped: p.cleanup_skipped }
             : {}),
         }))}

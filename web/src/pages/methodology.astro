@@ -334,6 +334,25 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         explains the three-way provenance: source PDF, OCR pass, cleanup
         pass.
       </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">
+          Pages we couldn't clean.
+        </strong>{" "}
+        Three cases are recorded on the cleaned page row as
+        <code class="text-[color:var(--color-signal-cyan)]">cleanup_skipped</code>:
+        <code class="text-[color:var(--color-signal-cyan)]">empty_input</code>
+        (the source OCR was blank),
+        <code class="text-[color:var(--color-signal-cyan)]">length_divergence</code>
+        (the model's reply was implausibly off the input length — likely a
+        refusal or preamble leak), and
+        <code class="text-[color:var(--color-signal-cyan)]">content_filter</code>
+        (Anthropic's content-moderation system declined to return cleaned
+        output for that page). In all three cases the raw OCR in
+        <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>
+        is preserved unchanged; the cleaned mirror records the skip and
+        the reader shows a notice with a one-click switch to Raw.
+        Citation still anchors to Raw.
+      </p>
     </section>
 
     {/* Idempotency */}

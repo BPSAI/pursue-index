@@ -422,6 +422,64 @@ def test_dedupe_skips_corrupt_row_inside_build(tmp_path: Path) -> None:
     assert payload["pages"][0]["text"] == "good"
 
 
+def test_build_preserves_content_filter_rows_with_empty_text(
+    tmp_path: Path,
+) -> None:
+    """``content_filter`` is the third ``cleanup_skipped`` reason — added
+    after the FBI 62-HQ-83894 pilot ran into Anthropic's content-
+    moderation policy on charged source material. Same contract as
+    ``length_divergence``:
+
+      - PRESERVE the row so the cleaned mirror's array index stays
+        aligned with ``pages.json`` (the UI paginates by
+        ``pages[activePage-1]``).
+      - SHIP empty ``text_cleaned`` (we never had cleaned output to
+        ship, so the only honest value is "").
+      - PROPAGATE the ``cleanup_skipped`` flag so the UI renders a
+        "[CLEANUP UNAVAILABLE — content filter]" notice and offers a
+        switch to Raw mode.
+
+    Unlike ``length_divergence``, the runner already writes an empty
+    ``text_cleaned`` for content_filter rows (no model output exists to
+    fall back to), so the build script's only job is to leave the row
+    alone and propagate the flag.
+    """
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": "",
+                "model_id": "m", "input_sha256": "a" * 64,
+                "cleanup_skipped": "content_filter",
+            },
+            {
+                "page": 2, "card_id": "c1", "text_cleaned": "real cleanup",
+                "model_id": "m", "input_sha256": "b" * 64,
+            },
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    pages = payload["pages"]
+    # Both rows survive so page-N indexing aligns with pages.json.
+    assert len(pages) == 2
+    page1 = next(p for p in pages if p["page"] == 1)
+    # No raw OCR ships under the "cleaned" label — empty stays empty.
+    assert page1["text"] == ""
+    # Flag is propagated to the UI.
+    assert page1["cleanup_skipped"] == "content_filter"
+    page2 = next(p for p in pages if p["page"] == 2)
+    assert page2["text"] == "real cleanup"
+    assert not page2.get("cleanup_skipped")
+
+
 def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     """A card_id present in the manifest but with no sidecar is not in cards_covered."""
     ocr_dir = tmp_path / "ocr"
@@ -441,3 +499,27 @@ def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     )
     payload = json.loads(out_path.read_text())
     assert payload["meta"]["cards_covered"] == ["c1"]
+
+
+def test_cleanup_skip_reasons_constant_stays_aligned_with_ts_side() -> None:
+    """vaivora P2 #8: the canonical list of ``cleanup_skipped`` reasons
+    lives on both sides of the JSON boundary (Python `build_pages_cleaned.py`
+    and TS `cleaned-pages.ts`). Pin the Python side here so a future
+    fourth reason forces both sides to be updated together — if TS adds
+    one but Python doesn't, the build will silently drop the new
+    reason during sanitization.
+
+    Mirror test on the TS side: `cleaned-pages.test.ts` →
+    "CLEANUP_SKIP_REASONS: stays aligned with Python-side constant".
+    """
+    assert build_pages_cleaned.CLEANUP_SKIP_REASONS == frozenset(
+        {"empty_input", "length_divergence", "content_filter"}
+    )
+    # Subset semantics: the "requires text clear" set must be a strict
+    # subset of the full reason set. ``empty_input`` rows already have
+    # empty text, so they are intentionally excluded — adding them
+    # would be a no-op rehash but documents the intent either way.
+    assert build_pages_cleaned.CLEANUP_SKIP_REQUIRES_TEXT_CLEAR <= (
+        build_pages_cleaned.CLEANUP_SKIP_REASONS
+    )
+    assert "empty_input" not in build_pages_cleaned.CLEANUP_SKIP_REQUIRES_TEXT_CLEAR
