@@ -239,8 +239,12 @@ Total Phase 1: ~90cx. Single sprint.
   thumb run` stage: render page 1 of each PDF to WebP at two
   sizes (240×310 and 480×620, ~2× DPR). Idempotency keyed on
   PDF content hash. Outputs land in `web/public/data/thumbs/`
-  (~30 MB total at WebP quality 80; vet against CF Pages asset
-  budget). Adds 116 tiles to the gallery.
+  (~30 MB total at WebP quality 80 across 116 files). Adds 116
+  tiles to the gallery. **Asset-budget concern resolved
+  2026-05-11**: Cloudflare Workers Static Assets ceiling is
+  25 MiB *per file* (not per deployment) and 20,000 files
+  total — our thumbnail set is ~150 KB/file across 116 files,
+  trivial against both limits. No vendor switch needed.
 - **T?.6 Document tab in `/gallery`** (S, ~15cx). Adds the
   `DOCUMENTS` filter tab; tile shows thumbnail + redaction badge
   with the existing scanline treatment.
@@ -311,10 +315,19 @@ they propose a visual feature:
    adding an 11th is the line. Candidates: METHODOLOGY (folded
    into ABOUT), CITE (folded into footer only), DIFF (folded into
    methodology).
-2. **PDF thumbnail asset budget:** ~30 MB of WebP thumbs lands in
-   `web/public/data/thumbs/`. CF Pages free tier asset limit is
-   25 MB total per deployment historically; need to confirm the
-   current quota before Phase 2.
+2. **PDF thumbnail asset budget — RESOLVED 2026-05-11.** The
+   historic "25 MB total per deployment" note was incorrect:
+   Cloudflare Workers Static Assets actually allows 25 MiB
+   *per file* and up to 20,000 files per deployment (Free tier;
+   100,000 on Paid). Our ~30 MB thumbnail set across 116 files
+   averages ~150 KB/file — well under both limits. Workers
+   Static Assets serves them edge-cached at $0 incremental cost.
+   No vendor switch needed; PDFs stay on R2 (their size class
+   warrants it), thumbnails ship with the static deployment.
+   Storage-research details in the 2026-05-11 agent transcript;
+   the same research found CF beats S3/CloudFront, Azure Blob,
+   Backblaze B2, and GitHub Pages at our scale (and infra cost
+   is rounding error in any case).
 3. **`display_date` curation owner:** is this a reasoning-agent
    pass with human review (like curated finds), or a one-shot
    manual pass? Affects Phase 3 timeline by ~2 weeks.
