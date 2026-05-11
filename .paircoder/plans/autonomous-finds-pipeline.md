@@ -35,7 +35,7 @@ The next phase is **coverage**. The corpus has 116 PDF cards on Release
 every card deserves an entry. A pipeline that does the reading pass
 autonomously, surfaces the candidates worth publishing, and writes them
 in the operator's narrative voice — under editorial review — converts
-"this page is great when David writes one" into "this page grows
+"this page is great when the operator writes one" into "this page grows
 continuously without operator-burning."
 
 ## Architecture: Public / Private Split

@@ -37,7 +37,7 @@ CSV columns we consume:
 | 1 | scrape   | DOW CSV               | `manifest.json`                      | ✅ shipped |
 | 2 | download | manifest              | PDFs/IMGs in `data/{pdfs,images}/`   | ✅ shipped |
 | 3 | ocr      | PDFs                  | `pages.jsonl` per card               | ✅ shipped |
-| 4 | index    | manifest + OCR output | Postgres rows / browser payload      | ✅ shipped |
+| 4 | embed    | manifest + OCR output | Voyage-3 float16 browser payload     | ✅ shipped |
 | 5 | serve    | embed payload + worker | Static site + Cloudflare Worker chat | ✅ shipped |
 
 ## Idempotency contract
