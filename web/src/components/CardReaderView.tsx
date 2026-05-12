@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { useEffect, useMemo, useReducer, useRef } from "preact/hooks";
 import {
   reformatOcrText,
   pdfPageHref,
@@ -57,7 +57,42 @@ export default function CardReaderView({
   onSwitchToRaw,
 }: Props) {
   const total = pages.length;
-  const [activePage, setActivePage] = useState<number>(() =>
+
+  // Keep the latest `total` in a ref so reducer + event-listener closures
+  // always read the current value. Without this, a long-lived listener
+  // captured `total` at registration time and could re-clamp navigation
+  // against a stale length — which was the root cause of the 2026-05-11
+  // "sequential clicks stop after the first" regression: with useState +
+  // functional updater the closure path bound `total` from an earlier
+  // render and clamped p+1 back down to the captured value, making every
+  // click after the first a no-op. See bug-fix PR for the full timeline.
+  const totalRef = useRef(total);
+  totalRef.current = total;
+
+  // useReducer over useState: the dispatch fn is GUARANTEED stable across
+  // renders (Preact contract), so the click/keyboard handlers don't have
+  // to worry about closure freshness on the setter itself. The reducer
+  // always sees the latest committed state, so `next`/`prev` actions
+  // can't accidentally operate on a stale page index. Clamps via
+  // totalRef.current so a delayed action still bounds against the
+  // current pages array.
+  type Action =
+    | { type: "next" }
+    | { type: "prev" }
+    | { type: "set"; page: number };
+  const [activePage, dispatch] = useReducer<number, Action>(
+    (state, action) => {
+      switch (action.type) {
+        case "next":
+          return clampPageIndex(state + 1, totalRef.current);
+        case "prev":
+          return clampPageIndex(state - 1, totalRef.current);
+        case "set":
+          return clampPageIndex(action.page, totalRef.current);
+        default:
+          return state;
+      }
+    },
     clampPageIndex(initialPage ?? 1, total),
   );
 
@@ -90,18 +125,20 @@ export default function CardReaderView({
   }, [activePage, total]);
 
   // Honor #page-N hash changes from outside (e.g. user paste).
+  // No deps — dispatch is stable, totalRef is always current.
   useEffect(() => {
     if (typeof window === "undefined") return;
     function onHashChange() {
       const fromHash = readPageFromHash(window.location.hash);
-      if (fromHash != null) setActivePage(clampPageIndex(fromHash, total));
+      if (fromHash != null) dispatch({ type: "set", page: fromHash });
     }
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, [total]);
+  }, []);
 
   // j/k + arrow-key bindings. Skip when focus is in an input/textarea so
   // we don't hijack typing. Vanilla DOM events; no hotkey library.
+  // No deps — dispatch is stable; reducer reads latest total via ref.
   useEffect(() => {
     if (typeof window === "undefined") return;
     function onKey(e: KeyboardEvent) {
@@ -111,15 +148,15 @@ export default function CardReaderView({
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "j" || e.key === "ArrowDown") {
         e.preventDefault();
-        setActivePage((p) => clampPageIndex(p + 1, total));
+        dispatch({ type: "next" });
       } else if (e.key === "k" || e.key === "ArrowUp") {
         e.preventDefault();
-        setActivePage((p) => clampPageIndex(p - 1, total));
+        dispatch({ type: "prev" });
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [total]);
+  }, []);
 
   const current = pages[activePage - 1];
   const paragraphs = useMemo(
@@ -192,9 +229,7 @@ export default function CardReaderView({
           <div class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.15em]">
             <button
               type="button"
-              onClick={() =>
-                setActivePage((p) => clampPageIndex(p - 1, total))
-              }
+              onClick={() => dispatch({ type: "prev" })}
               disabled={activePage <= 1}
               aria-label="Previous page"
               class="px-3 py-1.5 border border-[color:var(--color-border)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-cyan)] hover:border-[color:var(--color-signal-cyan)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-[color:var(--color-text-dim)] disabled:hover:border-[color:var(--color-border)]"
@@ -208,9 +243,7 @@ export default function CardReaderView({
             </span>
             <button
               type="button"
-              onClick={() =>
-                setActivePage((p) => clampPageIndex(p + 1, total))
-              }
+              onClick={() => dispatch({ type: "next" })}
               disabled={activePage >= total}
               aria-label="Next page"
               class="px-3 py-1.5 border border-[color:var(--color-border)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-cyan)] hover:border-[color:var(--color-signal-cyan)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-[color:var(--color-text-dim)] disabled:hover:border-[color:var(--color-border)]"
