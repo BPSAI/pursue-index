@@ -136,7 +136,14 @@ def make_r2_client():
     except ImportError:
         print("[r2-archive] boto3 not installed", file=sys.stderr)
         return None
-    aid = os.environ.get("CF_ACCOUNT_ID")
+    # GH Actions secrets use CF_ACCOUNT_ID (per the workflow's env
+    # block); operator's local .env uses PURSUE_CF_ACCOUNT_ID (existing
+    # naming convention for project-scoped env vars). Accept either so
+    # the same script works in both contexts without renaming a
+    # production secret.
+    aid = os.environ.get("CF_ACCOUNT_ID") or os.environ.get(
+        "PURSUE_CF_ACCOUNT_ID"
+    )
     akid = os.environ.get("R2_ACCESS_KEY_ID")
     sak = os.environ.get("R2_SECRET_ACCESS_KEY")
     if not (aid and akid and sak):

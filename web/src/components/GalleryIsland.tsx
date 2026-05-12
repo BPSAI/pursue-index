@@ -1,9 +1,14 @@
-import { useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 import type { CardMetadata } from "../data/types";
 
 interface Props {
   cards: CardMetadata[];
   base: string;
+}
+
+interface PostersIndex {
+  posters: Record<string, string>;
+  count: number;
 }
 
 type Filter = "all" | "image" | "video";
@@ -40,7 +45,15 @@ function tileYear(c: CardMetadata): string {
   return "—";
 }
 
-function GalleryTile({ card, base }: { card: CardMetadata; base: string }) {
+function GalleryTile({
+  card,
+  base,
+  posterUrl,
+}: {
+  card: CardMetadata;
+  base: string;
+  posterUrl: string | null;
+}) {
   const isImage = card.asset_type === "IMG";
   const isVideo = card.asset_type === "VID";
   const href = `${base}/card/${card.card_id}/`;
@@ -60,6 +73,35 @@ function GalleryTile({ card, base }: { card: CardMetadata; base: string }) {
             loading="lazy"
             class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
           />
+        ) : isVideo && posterUrl ? (
+          <>
+            <img
+              src={posterUrl}
+              alt={card.title}
+              loading="lazy"
+              class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
+            />
+            {/* Play-triangle overlay so the tile reads as "video" at a glance even when the poster looks like a still image. */}
+            <span
+              aria-hidden="true"
+              class="absolute inset-0 flex items-center justify-center pointer-events-none"
+            >
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="rgba(0,0,0,0.55)"
+                stroke="rgba(255,255,255,0.92)"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              >
+                <polygon points="6 4 20 12 6 20 6 4"></polygon>
+              </svg>
+            </span>
+            <span class="absolute top-2 right-2 z-10 font-mono text-[9px] uppercase tracking-[0.2em] text-[color:var(--color-signal-violet)] bg-[color:var(--color-bg-deep)]/85 px-1.5 py-0.5 border border-[color:var(--color-signal-violet)]/40">
+              VID
+            </span>
+          </>
         ) : isVideo ? (
           <div class="w-full h-full flex flex-col items-center justify-center text-[color:var(--color-text-dim)] gap-2 bg-[color:var(--color-bg-deep)]/85">
             <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-[color:var(--color-signal-violet)]">
@@ -111,6 +153,18 @@ function GalleryTile({ card, base }: { card: CardMetadata; base: string }) {
 
 export default function GalleryIsland({ cards, base }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [posters, setPosters] = useState<Record<string, string>>({});
+
+  // Lazy-load the poster index. 404 is acceptable — VID tiles fall back
+  // to the placeholder. The index is small (~25 entries × ~50 bytes).
+  useEffect(() => {
+    fetch(`${base}/data/video-posters/index.json`)
+      .then((r) => (r.ok ? (r.json() as Promise<PostersIndex>) : null))
+      .then((data) => {
+        if (data?.posters) setPosters(data.posters);
+      })
+      .catch(() => {});
+  }, [base]);
 
   const visible = useMemo(() => {
     const pred = FILTERS.find((f) => f.key === filter)?.predicate ?? (() => true);
@@ -183,7 +237,16 @@ export default function GalleryIsland({ cards, base }: Props) {
       ) : (
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {visible.map((c) => (
-            <GalleryTile key={c.card_id} card={c} base={base} />
+            <GalleryTile
+              key={c.card_id}
+              card={c}
+              base={base}
+              posterUrl={
+                c.asset_type === "VID" && posters[c.card_id]
+                  ? `${base}/data/video-posters/${posters[c.card_id]}`
+                  : null
+              }
+            />
           ))}
         </div>
       )}
