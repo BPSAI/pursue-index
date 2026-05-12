@@ -1,0 +1,124 @@
+name: Daily byte-verify of every referenced asset
+
+# Catches the threat model the operator named (2026-05-11):
+#   "Decent attempt to defeat scrapers by keeping the same file name
+#    but serving other content. Non-zero chance someone will just
+#    replace it and not even notice."
+#
+# The 30-minute poll workflow drives an asset archive ONLY when the
+# upstream CSV sha changes — efficient, but blind to silent same-URL-
+# different-bytes overlays. This workflow closes that hole: once a
+# day it runs the same r2_archive_assets.py script against the
+# current manifest. The script's HEAD-then-GET path short-circuits
+# unchanged assets cheaply (one HEAD per card, ~50ms each), and only
+# fetches + archives the few (typically zero) whose content-length
+# differs from their last registry entry. So a full daily verify
+# costs ~130 lightweight HEAD requests against war.gov and zero R2
+# writes when nothing changed — the day a silent overlay lands, the
+# script catches it, archives the new byte_sha at archive/<sha>.<ext>
+# (never touching the prior archive entry), and appends a registry
+# row. Diff queryable on next inspection.
+#
+# Idempotency contract: byte_sha == filename means a re-archived
+# unchanged byte stream costs zero R2 storage. Registry only appends
+# when the byte_sha was not previously recorded for that card_id.
+#
+# Same credentials required as the poll workflow's asset-archive
+# lane — see comments in poll-pursue.yml for the operator setup.
+# If credentials are missing this workflow exits 0 with a one-line
+# log message; it doesn't fail.
+#
+# Cadence: 06:00 UTC daily. Spread out from the 30-min CSV poll
+# cron times so the two lanes don't pile up on the same minute.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: verify-assets-daily
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Install verify deps
+        # Same lean set as the poll workflow's asset-archive lane —
+        # curl_cffi via the poll requirements file, plus boto3 for
+        # R2's S3 API. Pinned per SEC-002.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements-poll.txt
+          python -m pip install 'boto3>=1.35,<2'
+
+      - name: Run R2 byte-verify
+        id: verify
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: python scripts/r2_archive_assets.py
+        continue-on-error: true
+
+      - name: Commit registry updates (when verify ran)
+        if: steps.verify.outcome == 'success'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f data/asset-bytes-registry.jsonl ]; then
+            git add data/asset-bytes-registry.jsonl
+          fi
+          if ! git diff --cached --quiet; then
+            new_rows=$(git diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')
+            git commit -m "chore(verify): daily byte-verify caught +${new_rows} row(s)"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No byte changes detected today."
+          fi
+
+      - name: Open issue when silent overlay caught
+        # If the daily verify added new registry rows, that means an
+        # asset's bytes changed without the CSV changing — exactly the
+        # threat we're watching for. Open an issue so the operator
+        # sees it on first sign-in. Dedup guard avoids spamming.
+        if: steps.verify.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # Only open issue when the last commit was the verify's.
+          if ! git log -1 --pretty=%s | grep -q "byte-verify caught"; then
+            echo "No silent overlay detected on this run."
+            exit 0
+          fi
+          gh label create silent-overlay-detected \
+            --color "B60205" \
+            --description "Daily byte-verify caught upstream bytes changing under a stable URL" \
+            --force 2>/dev/null || true
+          # Dedup: skip if there's already an open issue with this label.
+          existing=$(gh issue list --label silent-overlay-detected --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "Open issue #${existing} already tracking; skipping."
+            exit 0
+          fi
+          rows=$(tail -n 20 data/asset-bytes-registry.jsonl | grep -c '^{' || echo "?")
+          gh issue create \
+            --title "[integrity] Silent same-URL-different-bytes overlay detected" \
+            --label "silent-overlay-detected" \
+            --body "The daily verify workflow caught upstream bytes changing under a stable URL. New row(s) landed in data/asset-bytes-registry.jsonl. Run log: $RUN_URL"
