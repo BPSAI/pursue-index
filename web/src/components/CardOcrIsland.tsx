@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import {
   buildHighlightRegex,
   splitWithRegex,
@@ -205,29 +205,54 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
   const [cleanedStatus, setCleanedStatus] = useState<CleanedStatus>("idle");
   const [cleanedPayload, setCleanedPayload] = useState<CleanedPayload | null>(null);
 
+  // Gate the fetch on a ref instead of including cleanedStatus in the
+  // useEffect deps. Pre-2026-05-11 the effect deps were
+  // [mode, cleanedStatus, base], which caused the effect to re-fire on
+  // every cleanedStatus transition (idle → loading → loaded). When the
+  // user toggled Reader → Cleaned mid-session, the chain of re-fires
+  // intermittently raced with the in-flight fetch and the .then
+  // callback's setCleanedStatus("loaded") would land in a render scope
+  // where the new state didn't propagate — payload set, status stuck on
+  // "loading", indefinitely. Operator-reported as "sometimes loads,
+  // sometimes doesn't — refresh fixes it." Gating via a ref means the
+  // effect only fires on mode/base changes and the fetch starts exactly
+  // once per session, with a cleanup-cancellation so a fast Reader →
+  // Cleaned → Reader toggle doesn't leak setState into an unmounted /
+  // mode-switched component.
+  const cleanedFetchTriggeredRef = useRef(false);
+
   useEffect(() => {
     if (mode !== "cleaned") return;
-    if (cleanedStatus !== "idle") return;
+    if (cleanedFetchTriggeredRef.current) return;
+    cleanedFetchTriggeredRef.current = true;
+    let cancelled = false;
     setCleanedStatus("loading");
     fetch(`${base}/data/pages-cleaned.json`)
       .then((r) => {
         if (r.status === 404) {
-          setCleanedStatus("missing");
+          if (!cancelled) setCleanedStatus("missing");
           return null;
         }
         if (!r.ok) throw new Error(`fetch cleaned: ${r.status}`);
         return r.json() as Promise<CleanedPayload>;
       })
       .then((data) => {
+        if (cancelled) return;
         if (!data) return;
         setCleanedPayload(data);
         setCleanedStatus("loaded");
       })
       .catch((err) => {
+        if (cancelled) return;
         console.error(err);
+        // Reset the trigger so a future mode toggle CAN retry.
+        cleanedFetchTriggeredRef.current = false;
         setCleanedStatus("error");
       });
-  }, [mode, cleanedStatus, base]);
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, base]);
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
