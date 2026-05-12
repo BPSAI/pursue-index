@@ -26,98 +26,128 @@ _None._
 ### `0499d6dc86c848d6` — DOW-UAP-PR040, Unresolved UAP Report, Middle East, 2020
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `1456142475ed413b`, `784bb977e5172856`, `c74789aa8f318c6c`, `cf38883fb2a14b2d`, `95276b360927b1b8`, `43b24cc9276de054`
-- reasons: same incident_location (Arabian Gulf); matching numeric id 40
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `784bb977e5172856` — DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf); matching numeric id 40_
+  - ★ `43b24cc9276de054` — DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `cf38883fb2a14b2d` — DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `c74789aa8f318c6c` — DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `1456142475ed413b` — DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `95276b360927b1b8` — DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
 
 ### `167f6a21c7238d0c` — NASA-UAP-D003A, Gemini 7 Audio Excerpt, 1965
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `4b346a44f42f6a05`
-- reasons: same agency + same incident_date (12/5/65); same incident_location (Low Earth Orbit)
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `4b346a44f42f6a05` — NASA-UAP-D3A, Gemini 7 Audio Excerpt, 1965 — _same agency + same incident_date (12/5/65); same incident_location (Low Earth Orbit)_
 
 ### `2b6de60628336eb8` — DOW-UAP-PR045, Unresolved UAP Report, Middle East, 2020
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `f62bdd9d2cd17b38`
-- reasons: matching numeric id 45; same incident_location (Southern United States)
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `f62bdd9d2cd17b38` — DOW-UAP-PR45, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Southern United States); matching numeric id 45_
 
 ### `42158cfc89c7ab84` — DOW-UAP-PR044, Unresolved UAP Report, Middle East, 2020
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `1456142475ed413b`, `784bb977e5172856`, `c74789aa8f318c6c`, `cf38883fb2a14b2d`, `95276b360927b1b8`, `43b24cc9276de054`
-- reasons: same incident_location (Arabian Gulf); matching numeric id 44
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `95276b360927b1b8` — DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf); matching numeric id 44_
+  - ★ `43b24cc9276de054` — DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `cf38883fb2a14b2d` — DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `c74789aa8f318c6c` — DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `784bb977e5172856` — DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `1456142475ed413b` — DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
 
 ### `46d871c93e4585fd` — DOW-UAP-PR037, Unresolved UAP Report, Middle East, 2020
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `1456142475ed413b`, `784bb977e5172856`, `c74789aa8f318c6c`, `cf38883fb2a14b2d`, `95276b360927b1b8`, `43b24cc9276de054`
-- reasons: same incident_location (Arabian Gulf); matching numeric id 37
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `43b24cc9276de054` — DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf); matching numeric id 37_
+  - ★ `cf38883fb2a14b2d` — DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `c74789aa8f318c6c` — DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `784bb977e5172856` — DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `1456142475ed413b` — DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `95276b360927b1b8` — DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
 
 ### `5ffbe11403179567` — DOW-UAP-PR028, Unresolved UAP Report, Greece, January 2024
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `d94bec9880a2a556`
-- reasons: same incident_location (Greece); matching numeric id 28
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `d94bec9880a2a556` — DOW-UAP-PR28, Unresolved UAP Report, Greece, January 2024 — _same incident_location (Greece); matching numeric id 28_
 
 ### `7aede23a09ee4c6b` — DOW-UAP-PR043, Unresolved UAP Report, Africa, 2025
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `79beb6bb07aed2fd`
-- reasons: same incident_location (Djibouti); matching numeric id 43
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `79beb6bb07aed2fd` — DOW-UAP-PR43, Unresolved UAP Report, Africa, 2025 — _same incident_location (Djibouti); matching numeric id 43_
 
 ### `86c966cdd1f9f31a` — DOW-UAP-PR047, Unresolved UAP Report, INDOPACOM, 2023
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `5bfa9fd87605eb5b`
-- reasons: same incident_location (Japan); matching numeric id 47
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `5bfa9fd87605eb5b` — DOW-UAP-PR47, Unresolved UAP Report, INDOPACOM, 2023 — _same incident_location (Japan); matching numeric id 47_
 
 ### `8d3833f36d05ec03` — DOW-UAP-PR049, Unresolved UAP Report, Department of the Army, 2026
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `29bd36a1b5e69ae9`
-- reasons: same incident_location (North America); matching numeric id 49
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `29bd36a1b5e69ae9` — DOW-UAP-PR49, Unresolved UAP Report, Department of the Army, 2026 — _same incident_location (North America); matching numeric id 49_
 
 ### `9532749afe2d4273` — DOW-UAP-PR038, Unresolved UAP Report, Middle East, 2013
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `321dff3d6f61e843`
-- reasons: matching numeric id 38; same incident_location (Middle East)
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `321dff3d6f61e843` — DOW-UAP-PR38, Unresolved UAP Report, Middle East, 2013 — _same incident_location (Middle East); matching numeric id 38_
 
 ### `9fdc75d250206f65` — DOW-UAP-PR046, Unresolved UAP Report, INDOPACOM, 2024
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `3918ab9742a1aebf`
-- reasons: same incident_location (East China Sea); matching numeric id 46
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `3918ab9742a1aebf` — DOW-UAP-PR46, Unresolved UAP Report, INDOPACOM, 2024 — _same incident_location (East China Sea); matching numeric id 46_
 
 ### `aa638778a043c89c` — DOW-UAP-PR029, Unresolved UAP Report, United Arab Emirates, June 2024
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `6e780e439a23084d`
-- reasons: matching numeric id 29; same incident_location (Gulf of Oman)
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `6e780e439a23084d` — DOW-UAP-PR29, Unresolved UAP Report, United Arab Emirates, June 2024 — _same incident_location (Gulf of Oman); matching numeric id 29_
 
 ### `c4da38582fc64334` — DOW-UAP-PR042, Unresolved UAP Report, Middle East, 2020
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `1456142475ed413b`, `784bb977e5172856`, `c74789aa8f318c6c`, `cf38883fb2a14b2d`, `95276b360927b1b8`, `43b24cc9276de054`
-- reasons: matching numeric id 42; same incident_location (Arabian Gulf)
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `1456142475ed413b` — DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf); matching numeric id 42_
+  - ★ `43b24cc9276de054` — DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `cf38883fb2a14b2d` — DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `c74789aa8f318c6c` — DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `784bb977e5172856` — DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `95276b360927b1b8` — DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
 
 ### `c5850afb384c768b` — DOW-UAP-PR048, Unresolved UAP Report, INDOPACOM, 2024
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `8a6b8cfddf19aa1e`
-- reasons: same incident_location (Indo-PACOM); matching numeric id 48
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `8a6b8cfddf19aa1e` — DOW-UAP-PR48, Unresolved UAP Report, INDOPACOM, 2024 — _same incident_location (Indo-PACOM); matching numeric id 48_
 
 ### `cf5c53c84485c70d` — DOW-UAP-PR041, Unresolved UAP Report, Middle East, 2020
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `1456142475ed413b`, `784bb977e5172856`, `c74789aa8f318c6c`, `cf38883fb2a14b2d`, `95276b360927b1b8`, `43b24cc9276de054`
-- reasons: same incident_location (Arabian Gulf); matching numeric id 41
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `cf38883fb2a14b2d` — DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf); matching numeric id 41_
+  - ★ `43b24cc9276de054` — DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `c74789aa8f318c6c` — DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `784bb977e5172856` — DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `1456142475ed413b` — DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `95276b360927b1b8` — DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
 
 ### `e924a48f55719a0d` — DOW-UAP-PR039, Unresolved UAP Report, Middle East, 2020
 - new byte_sha256: `unknown…`
 - new asset_filename: ``
-- matched against: `1456142475ed413b`, `784bb977e5172856`, `c74789aa8f318c6c`, `cf38883fb2a14b2d`, `95276b360927b1b8`, `43b24cc9276de054`
-- reasons: same incident_location (Arabian Gulf); matching numeric id 39
+- candidate matches (ranked by signal strength — more reasons firing = stronger):
+  - ★★ `c74789aa8f318c6c` — DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf); matching numeric id 39_
+  - ★ `43b24cc9276de054` — DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `cf38883fb2a14b2d` — DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `784bb977e5172856` — DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `1456142475ed413b` — DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
+  - ★ `95276b360927b1b8` — DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 — _same incident_location (Arabian Gulf)_
 
 ## Restored — byte-identical to previously preserved (safe)
 
@@ -134,27 +164,29 @@ _None._
 
 _None._
 
-## Removed upstream (no rename match — candidates for /removed)
+## Removed upstream (candidates for /removed — or candidate rename sources)
 
-| card_id | title | filename |
-| --- | --- | --- |
-| `1456142475ed413b` | DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 |  |
-| `29bd36a1b5e69ae9` | DOW-UAP-PR49, Unresolved UAP Report, Department of the Army, 2026 |  |
-| `321dff3d6f61e843` | DOW-UAP-PR38, Unresolved UAP Report, Middle East, 2013 |  |
-| `3918ab9742a1aebf` | DOW-UAP-PR46, Unresolved UAP Report, INDOPACOM, 2024 |  |
-| `43b24cc9276de054` | DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 |  |
-| `4b346a44f42f6a05` | NASA-UAP-D3A, Gemini 7 Audio Excerpt, 1965 |  |
-| `5bfa9fd87605eb5b` | DOW-UAP-PR47, Unresolved UAP Report, INDOPACOM, 2023 |  |
-| `6e780e439a23084d` | DOW-UAP-PR29, Unresolved UAP Report, United Arab Emirates, June 2024 |  |
-| `784bb977e5172856` | DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 |  |
-| `79beb6bb07aed2fd` | DOW-UAP-PR43, Unresolved UAP Report, Africa, 2025 |  |
-| `8a6b8cfddf19aa1e` | DOW-UAP-PR48, Unresolved UAP Report, INDOPACOM, 2024 |  |
-| `95276b360927b1b8` | DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 |  |
-| `9c86c04b5e4a50e8` | 65_HS1-834228961_62-HQ-83894_Section_6 |  |
-| `c74789aa8f318c6c` | DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 |  |
-| `cf38883fb2a14b2d` | DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 |  |
-| `d94bec9880a2a556` | DOW-UAP-PR28, Unresolved UAP Report, Greece, January 2024 |  |
-| `f62bdd9d2cd17b38` | DOW-UAP-PR45, Unresolved UAP Report, Middle East, 2020 |  |
+_An old card_id can appear here AND in the Quarantined section's 'candidate matches' list — that's by design while operator review is pending. Once you `--approve-rename <new>=<old>`, that pairing materializes as an alias and the old card_id is no longer a candidate for /removed. The 'candidate rename source for' column shows the reverse view: which quarantined cards (if any) are hypothesized to be this old card's new identity._
+
+| card_id | title | filename | candidate rename source for |
+|---|---|---|---|
+| `1456142475ed413b` | DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020 | `` | ★★ `c4da38582fc64334`<br>★ `0499d6dc86c848d6`<br>★ `42158cfc89c7ab84`<br>★ `46d871c93e4585fd`<br>★ `cf5c53c84485c70d`<br>★ `e924a48f55719a0d` |
+| `29bd36a1b5e69ae9` | DOW-UAP-PR49, Unresolved UAP Report, Department of the Army, 2026 | `` | ★★ `8d3833f36d05ec03` |
+| `321dff3d6f61e843` | DOW-UAP-PR38, Unresolved UAP Report, Middle East, 2013 | `` | ★★ `9532749afe2d4273` |
+| `3918ab9742a1aebf` | DOW-UAP-PR46, Unresolved UAP Report, INDOPACOM, 2024 | `` | ★★ `9fdc75d250206f65` |
+| `43b24cc9276de054` | DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020 | `` | ★★ `46d871c93e4585fd`<br>★ `0499d6dc86c848d6`<br>★ `42158cfc89c7ab84`<br>★ `c4da38582fc64334`<br>★ `cf5c53c84485c70d`<br>★ `e924a48f55719a0d` |
+| `4b346a44f42f6a05` | NASA-UAP-D3A, Gemini 7 Audio Excerpt, 1965 | `` | ★★ `167f6a21c7238d0c` |
+| `5bfa9fd87605eb5b` | DOW-UAP-PR47, Unresolved UAP Report, INDOPACOM, 2023 | `` | ★★ `86c966cdd1f9f31a` |
+| `6e780e439a23084d` | DOW-UAP-PR29, Unresolved UAP Report, United Arab Emirates, June 2024 | `` | ★★ `aa638778a043c89c` |
+| `784bb977e5172856` | DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020 | `` | ★★ `0499d6dc86c848d6`<br>★ `42158cfc89c7ab84`<br>★ `46d871c93e4585fd`<br>★ `c4da38582fc64334`<br>★ `cf5c53c84485c70d`<br>★ `e924a48f55719a0d` |
+| `79beb6bb07aed2fd` | DOW-UAP-PR43, Unresolved UAP Report, Africa, 2025 | `` | ★★ `7aede23a09ee4c6b` |
+| `8a6b8cfddf19aa1e` | DOW-UAP-PR48, Unresolved UAP Report, INDOPACOM, 2024 | `` | ★★ `c5850afb384c768b` |
+| `95276b360927b1b8` | DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020 | `` | ★★ `42158cfc89c7ab84`<br>★ `0499d6dc86c848d6`<br>★ `46d871c93e4585fd`<br>★ `c4da38582fc64334`<br>★ `cf5c53c84485c70d`<br>★ `e924a48f55719a0d` |
+| `9c86c04b5e4a50e8` | 65_HS1-834228961_62-HQ-83894_Section_6 | `` | (no rename candidate — likely genuine removal) |
+| `c74789aa8f318c6c` | DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020 | `` | ★★ `e924a48f55719a0d`<br>★ `0499d6dc86c848d6`<br>★ `42158cfc89c7ab84`<br>★ `46d871c93e4585fd`<br>★ `c4da38582fc64334`<br>★ `cf5c53c84485c70d` |
+| `cf38883fb2a14b2d` | DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020 | `` | ★★ `cf5c53c84485c70d`<br>★ `0499d6dc86c848d6`<br>★ `42158cfc89c7ab84`<br>★ `46d871c93e4585fd`<br>★ `c4da38582fc64334`<br>★ `e924a48f55719a0d` |
+| `d94bec9880a2a556` | DOW-UAP-PR28, Unresolved UAP Report, Greece, January 2024 | `` | ★★ `5ffbe11403179567` |
+| `f62bdd9d2cd17b38` | DOW-UAP-PR45, Unresolved UAP Report, Middle East, 2020 | `` | ★★ `2b6de60628336eb8` |
 
 ## Field-only changes (same card_id, different metadata)
 

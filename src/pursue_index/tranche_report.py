@@ -49,10 +49,66 @@ def _md_quarantined(rows: list[dict[str, Any]]) -> str:
         out.append(f"### `{r['new_card_id']}` — {r.get('new_title') or '(no title)'}")
         out.append(f"- new byte_sha256: `{(r.get('new_byte_sha256') or 'unknown')[:24]}…`")
         out.append(f"- new asset_filename: `{r.get('new_asset_filename') or ''}`")
-        out.append(f"- matched against: {', '.join(f'`{c}`' for c in r.get('matched_against', []))}")
-        out.append(f"- reasons: {'; '.join(r.get('reasons', []))}")
+        matches = r.get("matches", [])
+        if matches:
+            out.append("- candidate matches (ranked by signal strength — more reasons firing = stronger):")
+            for m in matches:
+                stars = "★" * min(m["strength"], 4)
+                reasons = "; ".join(m["reasons"])
+                title = m.get("title") or "(no title)"
+                out.append(f"  - {stars} `{m['card_id']}` — {title} — _{reasons}_")
+        else:
+            # Backwards-compat for older diff payloads.
+            out.append(f"- matched against: {', '.join(f'`{c}`' for c in r.get('matched_against', []))}")
         out.append("")
     return "\n".join(out)
+
+
+def _build_rename_candidate_index(quarantined: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Reverse-index: {old_card_id: [{quarantined_new_id, strength}, ...]}.
+
+    Used to annotate the removed section with "also a candidate rename
+    source for: ..." backlinks. An old card_id can appear as a candidate
+    for multiple quarantined new card_ids; we show all.
+    """
+    idx: dict[str, list[dict[str, Any]]] = {}
+    for q in quarantined:
+        for m in q.get("matches", []):
+            idx.setdefault(m["card_id"], []).append({
+                "quarantined_new_id": q["new_card_id"],
+                "new_title": q.get("new_title"),
+                "strength": m["strength"],
+            })
+    # Within each old card's list, sort strongest-first so the operator
+    # sees the most-likely rename target first.
+    for entries in idx.values():
+        entries.sort(key=lambda e: -e["strength"])
+    return idx
+
+
+def _md_removed_with_backlinks(
+    removed: list[dict[str, Any]],
+    rename_candidates: dict[str, list[dict[str, Any]]],
+) -> str:
+    if not removed:
+        return "_None._\n"
+    out: list[str] = []
+    out.append("| card_id | title | filename | candidate rename source for |")
+    out.append("|---|---|---|---|")
+    for r in removed:
+        cid = r["card_id"]
+        title = (r.get("title") or "")[:80]
+        filename = (r.get("asset_filename") or "")[:80]
+        candidates = rename_candidates.get(cid, [])
+        if candidates:
+            cell = "<br>".join(
+                f"{'★' * min(c['strength'], 4)} `{c['quarantined_new_id']}`"
+                for c in candidates
+            )
+        else:
+            cell = "(no rename candidate — likely genuine removal)"
+        out.append(f"| `{cid}` | {title} | `{filename}` | {cell} |")
+    return "\n".join(out) + "\n"
 
 
 def _md_simple_rows(rows: list[dict[str, Any]], cols: list[tuple[str, str]]) -> str:
@@ -127,11 +183,14 @@ def render_markdown(diff: dict[str, Any]) -> str:
         "## Restored — bytes unknown (no asset_url to verify)",
         "",
         _md_restored(diff.get("restored_unknown", [])),
-        "## Removed upstream (no rename match — candidates for /removed)",
+        "## Removed upstream (candidates for /removed — or candidate rename sources)",
         "",
-        _md_simple_rows(diff["removed"],
-                       [("card_id", "card_id"), ("title", "title"),
-                        ("asset_filename", "filename")]),
+        "_An old card_id can appear here AND in the Quarantined section's 'candidate matches' list — that's by design while operator review is pending. Once you `--approve-rename <new>=<old>`, that pairing materializes as an alias and the old card_id is no longer a candidate for /removed. The 'candidate rename source for' column shows the reverse view: which quarantined cards (if any) are hypothesized to be this old card's new identity._",
+        "",
+        _md_removed_with_backlinks(
+            diff["removed"],
+            _build_rename_candidate_index(diff.get("quarantined", [])),
+        ),
         "## Field-only changes (same card_id, different metadata)",
         "",
         _md_field_changes(diff["field_only_changes"]),

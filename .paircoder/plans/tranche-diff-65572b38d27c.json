@@ -21,16 +21,63 @@
       "new_asset_url": null,
       "new_byte_sha256": null,
       "matched_against": [
-        "1456142475ed413b",
         "784bb977e5172856",
-        "c74789aa8f318c6c",
+        "43b24cc9276de054",
         "cf38883fb2a14b2d",
-        "95276b360927b1b8",
-        "43b24cc9276de054"
+        "c74789aa8f318c6c",
+        "1456142475ed413b",
+        "95276b360927b1b8"
       ],
-      "reasons": [
-        "same incident_location (Arabian Gulf)",
-        "matching numeric id 40"
+      "matches": [
+        {
+          "card_id": "784bb977e5172856",
+          "title": "DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)",
+            "matching numeric id 40"
+          ],
+          "strength": 2
+        },
+        {
+          "card_id": "43b24cc9276de054",
+          "title": "DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "cf38883fb2a14b2d",
+          "title": "DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "c74789aa8f318c6c",
+          "title": "DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "1456142475ed413b",
+          "title": "DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "95276b360927b1b8",
+          "title": "DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        }
       ]
     },
     {
@@ -42,9 +89,16 @@
       "matched_against": [
         "4b346a44f42f6a05"
       ],
-      "reasons": [
-        "same agency + same incident_date (12/5/65)",
-        "same incident_location (Low Earth Orbit)"
+      "matches": [
+        {
+          "card_id": "4b346a44f42f6a05",
+          "title": "NASA-UAP-D3A, Gemini 7 Audio Excerpt, 1965",
+          "reasons": [
+            "same agency + same incident_date (12/5/65)",
+            "same incident_location (Low Earth Orbit)"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -56,9 +110,16 @@
       "matched_against": [
         "f62bdd9d2cd17b38"
       ],
-      "reasons": [
-        "matching numeric id 45",
-        "same incident_location (Southern United States)"
+      "matches": [
+        {
+          "card_id": "f62bdd9d2cd17b38",
+          "title": "DOW-UAP-PR45, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Southern United States)",
+            "matching numeric id 45"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -68,16 +129,63 @@
       "new_asset_url": null,
       "new_byte_sha256": null,
       "matched_against": [
-        "1456142475ed413b",
-        "784bb977e5172856",
-        "c74789aa8f318c6c",
-        "cf38883fb2a14b2d",
         "95276b360927b1b8",
-        "43b24cc9276de054"
+        "43b24cc9276de054",
+        "cf38883fb2a14b2d",
+        "c74789aa8f318c6c",
+        "784bb977e5172856",
+        "1456142475ed413b"
       ],
-      "reasons": [
-        "same incident_location (Arabian Gulf)",
-        "matching numeric id 44"
+      "matches": [
+        {
+          "card_id": "95276b360927b1b8",
+          "title": "DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)",
+            "matching numeric id 44"
+          ],
+          "strength": 2
+        },
+        {
+          "card_id": "43b24cc9276de054",
+          "title": "DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "cf38883fb2a14b2d",
+          "title": "DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "c74789aa8f318c6c",
+          "title": "DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "784bb977e5172856",
+          "title": "DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "1456142475ed413b",
+          "title": "DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        }
       ]
     },
     {
@@ -87,16 +195,63 @@
       "new_asset_url": null,
       "new_byte_sha256": null,
       "matched_against": [
-        "1456142475ed413b",
-        "784bb977e5172856",
-        "c74789aa8f318c6c",
+        "43b24cc9276de054",
         "cf38883fb2a14b2d",
-        "95276b360927b1b8",
-        "43b24cc9276de054"
+        "c74789aa8f318c6c",
+        "784bb977e5172856",
+        "1456142475ed413b",
+        "95276b360927b1b8"
       ],
-      "reasons": [
-        "same incident_location (Arabian Gulf)",
-        "matching numeric id 37"
+      "matches": [
+        {
+          "card_id": "43b24cc9276de054",
+          "title": "DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)",
+            "matching numeric id 37"
+          ],
+          "strength": 2
+        },
+        {
+          "card_id": "cf38883fb2a14b2d",
+          "title": "DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "c74789aa8f318c6c",
+          "title": "DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "784bb977e5172856",
+          "title": "DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "1456142475ed413b",
+          "title": "DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "95276b360927b1b8",
+          "title": "DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        }
       ]
     },
     {
@@ -108,9 +263,16 @@
       "matched_against": [
         "d94bec9880a2a556"
       ],
-      "reasons": [
-        "same incident_location (Greece)",
-        "matching numeric id 28"
+      "matches": [
+        {
+          "card_id": "d94bec9880a2a556",
+          "title": "DOW-UAP-PR28, Unresolved UAP Report, Greece, January 2024",
+          "reasons": [
+            "same incident_location (Greece)",
+            "matching numeric id 28"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -122,9 +284,16 @@
       "matched_against": [
         "79beb6bb07aed2fd"
       ],
-      "reasons": [
-        "same incident_location (Djibouti)",
-        "matching numeric id 43"
+      "matches": [
+        {
+          "card_id": "79beb6bb07aed2fd",
+          "title": "DOW-UAP-PR43, Unresolved UAP Report, Africa, 2025",
+          "reasons": [
+            "same incident_location (Djibouti)",
+            "matching numeric id 43"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -136,9 +305,16 @@
       "matched_against": [
         "5bfa9fd87605eb5b"
       ],
-      "reasons": [
-        "same incident_location (Japan)",
-        "matching numeric id 47"
+      "matches": [
+        {
+          "card_id": "5bfa9fd87605eb5b",
+          "title": "DOW-UAP-PR47, Unresolved UAP Report, INDOPACOM, 2023",
+          "reasons": [
+            "same incident_location (Japan)",
+            "matching numeric id 47"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -150,9 +326,16 @@
       "matched_against": [
         "29bd36a1b5e69ae9"
       ],
-      "reasons": [
-        "same incident_location (North America)",
-        "matching numeric id 49"
+      "matches": [
+        {
+          "card_id": "29bd36a1b5e69ae9",
+          "title": "DOW-UAP-PR49, Unresolved UAP Report, Department of the Army, 2026",
+          "reasons": [
+            "same incident_location (North America)",
+            "matching numeric id 49"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -164,9 +347,16 @@
       "matched_against": [
         "321dff3d6f61e843"
       ],
-      "reasons": [
-        "matching numeric id 38",
-        "same incident_location (Middle East)"
+      "matches": [
+        {
+          "card_id": "321dff3d6f61e843",
+          "title": "DOW-UAP-PR38, Unresolved UAP Report, Middle East, 2013",
+          "reasons": [
+            "same incident_location (Middle East)",
+            "matching numeric id 38"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -178,9 +368,16 @@
       "matched_against": [
         "3918ab9742a1aebf"
       ],
-      "reasons": [
-        "same incident_location (East China Sea)",
-        "matching numeric id 46"
+      "matches": [
+        {
+          "card_id": "3918ab9742a1aebf",
+          "title": "DOW-UAP-PR46, Unresolved UAP Report, INDOPACOM, 2024",
+          "reasons": [
+            "same incident_location (East China Sea)",
+            "matching numeric id 46"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -192,9 +389,16 @@
       "matched_against": [
         "6e780e439a23084d"
       ],
-      "reasons": [
-        "matching numeric id 29",
-        "same incident_location (Gulf of Oman)"
+      "matches": [
+        {
+          "card_id": "6e780e439a23084d",
+          "title": "DOW-UAP-PR29, Unresolved UAP Report, United Arab Emirates, June 2024",
+          "reasons": [
+            "same incident_location (Gulf of Oman)",
+            "matching numeric id 29"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -205,15 +409,62 @@
       "new_byte_sha256": null,
       "matched_against": [
         "1456142475ed413b",
-        "784bb977e5172856",
-        "c74789aa8f318c6c",
+        "43b24cc9276de054",
         "cf38883fb2a14b2d",
-        "95276b360927b1b8",
-        "43b24cc9276de054"
+        "c74789aa8f318c6c",
+        "784bb977e5172856",
+        "95276b360927b1b8"
       ],
-      "reasons": [
-        "matching numeric id 42",
-        "same incident_location (Arabian Gulf)"
+      "matches": [
+        {
+          "card_id": "1456142475ed413b",
+          "title": "DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)",
+            "matching numeric id 42"
+          ],
+          "strength": 2
+        },
+        {
+          "card_id": "43b24cc9276de054",
+          "title": "DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "cf38883fb2a14b2d",
+          "title": "DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "c74789aa8f318c6c",
+          "title": "DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "784bb977e5172856",
+          "title": "DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "95276b360927b1b8",
+          "title": "DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        }
       ]
     },
     {
@@ -225,9 +476,16 @@
       "matched_against": [
         "8a6b8cfddf19aa1e"
       ],
-      "reasons": [
-        "same incident_location (Indo-PACOM)",
-        "matching numeric id 48"
+      "matches": [
+        {
+          "card_id": "8a6b8cfddf19aa1e",
+          "title": "DOW-UAP-PR48, Unresolved UAP Report, INDOPACOM, 2024",
+          "reasons": [
+            "same incident_location (Indo-PACOM)",
+            "matching numeric id 48"
+          ],
+          "strength": 2
+        }
       ]
     },
     {
@@ -237,16 +495,63 @@
       "new_asset_url": null,
       "new_byte_sha256": null,
       "matched_against": [
-        "1456142475ed413b",
-        "784bb977e5172856",
-        "c74789aa8f318c6c",
         "cf38883fb2a14b2d",
-        "95276b360927b1b8",
-        "43b24cc9276de054"
+        "43b24cc9276de054",
+        "c74789aa8f318c6c",
+        "784bb977e5172856",
+        "1456142475ed413b",
+        "95276b360927b1b8"
       ],
-      "reasons": [
-        "same incident_location (Arabian Gulf)",
-        "matching numeric id 41"
+      "matches": [
+        {
+          "card_id": "cf38883fb2a14b2d",
+          "title": "DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)",
+            "matching numeric id 41"
+          ],
+          "strength": 2
+        },
+        {
+          "card_id": "43b24cc9276de054",
+          "title": "DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "c74789aa8f318c6c",
+          "title": "DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "784bb977e5172856",
+          "title": "DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "1456142475ed413b",
+          "title": "DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "95276b360927b1b8",
+          "title": "DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        }
       ]
     },
     {
@@ -256,16 +561,63 @@
       "new_asset_url": null,
       "new_byte_sha256": null,
       "matched_against": [
-        "1456142475ed413b",
-        "784bb977e5172856",
         "c74789aa8f318c6c",
+        "43b24cc9276de054",
         "cf38883fb2a14b2d",
-        "95276b360927b1b8",
-        "43b24cc9276de054"
+        "784bb977e5172856",
+        "1456142475ed413b",
+        "95276b360927b1b8"
       ],
-      "reasons": [
-        "same incident_location (Arabian Gulf)",
-        "matching numeric id 39"
+      "matches": [
+        {
+          "card_id": "c74789aa8f318c6c",
+          "title": "DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)",
+            "matching numeric id 39"
+          ],
+          "strength": 2
+        },
+        {
+          "card_id": "43b24cc9276de054",
+          "title": "DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "cf38883fb2a14b2d",
+          "title": "DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "784bb977e5172856",
+          "title": "DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "1456142475ed413b",
+          "title": "DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        },
+        {
+          "card_id": "95276b360927b1b8",
+          "title": "DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020",
+          "reasons": [
+            "same incident_location (Arabian Gulf)"
+          ],
+          "strength": 1
+        }
       ]
     }
   ],

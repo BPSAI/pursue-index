@@ -147,14 +147,29 @@ def _classify_added_card(
         })
     matches = find_title_continuity(new_card, removed_old_cards)
     if matches:
+        # Preserve per-match data so the report can show signal strength
+        # per candidate rather than unioning reasons across all candidates
+        # (which loses the operator's ability to distinguish "strong
+        # match on numeric_id + agency" from "weak match on shared
+        # location alone"). Rank by reason count descending — more
+        # heuristics firing = stronger candidate.
+        ranked = sorted(matches, key=lambda m: -len(m["reasons"]))
         return ("C", {
             "new_card_id": cid,
             "new_title": new_card.get("title"),
             "new_asset_filename": new_card.get("asset_filename"),
             "new_asset_url": new_card.get("asset_url"),
             "new_byte_sha256": sha,
-            "matched_against": [m["card_id"] for m in matches],
-            "reasons": list({r for m in matches for r in m["reasons"]}),
+            "matched_against": [m["card_id"] for m in ranked],
+            "matches": [
+                {
+                    "card_id": m["card_id"],
+                    "title": (m["card"].get("title") or "")[:80],
+                    "reasons": m["reasons"],
+                    "strength": len(m["reasons"]),
+                }
+                for m in ranked
+            ],
         })
     return ("B", {
         "new_card_id": cid,
