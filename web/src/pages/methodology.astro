@@ -219,7 +219,7 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
 
     {/* Augmented retrieval — promoted from a buried "Related Work" mention
         to a top-section differentiator. Positioned right after the OCR
-        pipeline because it answers "what about the 29% of pages OCR alone
+        pipeline because it answers "what about the ~27% of pages OCR alone
         underrepresents?" — i.e. it pairs conceptually with OCR. The
         load-bearing claim is provenance discipline: internal sidecars
         carry an engine field per page, and augmented chunks carry an
@@ -724,11 +724,11 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
       </div>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         Surya is the deployed primary; the LLM fires on pages whose Surya
-        confidence falls below 70 (about 8% of the golden set; 15% of the
+        confidence falls below 70 (about 8% of the golden set; ~15% of the
         full corpus). Live deployment:
         <strong class="text-[color:var(--color-text-bright)]">4,161 indexed pages</strong>
-        (Surya primary; LLM fallback on the ~8% of pages where Surya
-        scored below threshold). Total cost of one full pipeline pass on
+        (Surya primary; LLM fallback on the ~15% of full-corpus pages
+        where Surya scored below threshold). Total cost of one full pipeline pass on
         the corpus: <span class="text-[color:var(--color-signal-cyan)]">$1.71</span>{" "}
         ($1.60 auto-mode LLM cleanup, $0.11 Voyage-3 embeddings).
       </p>
