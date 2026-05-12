@@ -4,6 +4,16 @@
 
 ## What Was Just Done
 
+**2026-05-12 (afternoon) — Three new finds entries shipped + card-rename handling plan adopted + audit-findings sensitivity-routed to opsec + worker alias resolver (plan step 2) live.**
+
+Step 2 of the card-rename plan landed (worker alias resolver). New module `worker/aliases.js` (141 lines) loads `data/card-aliases.json` from the static-assets binding, builds an in-memory lookup map honoring append-only semantics (latest entry wins per old_card_id; `operator_revoke` removes the alias; subsequent rows re-establish). 18 unit tests + 8 integration tests (in `worker/tests/`); 108 worker tests total now pass.
+
+Wired into `worker/index.js`: `/card/<old_id>` 301s to `/card/<new_id>` with `X-Pursue-Aliased-From` header before falling through to ASSETS; `/pdf/<old_id>.pdf` continues to serve preserved bytes from R2 at the old key and stamps `X-Pursue-Aliased-To` header (preservation contract — never redirect PDFs, always serve at the original handle and signal the new identity via header). Failure-soft: a corrupt/missing aliases file silently yields an empty index, never affecting non-aliased requests.
+
+Initial empty aliases file (`{"aliases": []}`) deployed at `data/card-aliases.json` (source) and `web/public/data/card-aliases.json` (bundled into Astro build). Worker is deployable today with the empty file — does nothing until tranche_diff (plan step 3) starts writing alias rows. Astro build clean: 181 pages.
+
+Editorial side-effect: caught a YAML quoting bug in the new Apollo 11 finds entry (`1969` unquoted parsed as int, breaking the content-collection schema). Fixed alongside this commit.
+
 **2026-05-12 (afternoon) — Three new finds entries shipped + card-rename handling plan adopted + audit-findings sensitivity-routed to opsec.**
 
 Three curated finds entries written and editorially approved, document-first (no external-narrative framing): `fbi-1947-dallas-teletype.mdx` (Wyly+Hottel disambiguation in FBI 62-HQ-83894), `fbi-usper-2025-orb.mdx` (modern FD-302 vs MISREP grammar contrast), `apollo-11-debriefing.mdx` (the in-conversation reasoning arc on three distinct anomalies, with cosmic-ray-flashes as the document's strongest physical-science moment). Earlier-draft rebuttal framing scrubbed.

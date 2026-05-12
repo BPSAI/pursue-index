@@ -13,6 +13,12 @@
 import { handleRetrieve } from "./retrieve.js";
 import { handleChat } from "./chat.js";
 import { tryHandlePdfRoute } from "./pdf.js";
+import {
+  loadAliasIndex,
+  parsePdfPath,
+  resolveAlias,
+  tryHandleCardAlias,
+} from "./aliases.js";
 
 // Allowed origins for /api/* CORS. Same-origin browser requests don't send
 // Origin (or send our own host); cross-origin requests from malicious sites
@@ -198,13 +204,40 @@ export default {
       return withSecurityHeaders(corsResponse);
     }
 
+    // Card-alias resolver. When upstream re-catalogs a card, the
+    // old card_id is no longer in the deployed manifest but stays
+    // resolvable here via data/card-aliases.json — we 301 to the
+    // new card_id (and keep serving the preserved PDF bytes from R2
+    // at the old key via the PDF route below). See worker/aliases.js
+    // for the full contract. Loading is cheap (small JSON, ASSETS
+    // binding is edge-cached) and failure-soft (empty index on any
+    // error — non-aliased requests are never affected).
+    const aliasIndex = await loadAliasIndex(env);
+    const aliasRedirect = tryHandleCardAlias(request, aliasIndex);
+    if (aliasRedirect) return withSecurityHeaders(aliasRedirect);
+
     // Self-hosted PDF route. PDFs live in R2 (`PDFS` binding) so the
     // card-detail iframe can serve them same-origin — war.gov ships
     // framing protection that blocks the cross-origin embed. See
     // worker/pdf.js for the full contract. Returns null when the
     // request isn't a PDF GET, so we fall through to ASSETS below.
     const pdfResponse = await tryHandlePdfRoute(request, env);
-    if (pdfResponse) return withSecurityHeaders(pdfResponse);
+    if (pdfResponse) {
+      // If this PDF's card_id has an alias, stamp the header so
+      // downstream consumers (citation indexers, third-party archives)
+      // can follow the rename chain. The preserved bytes themselves
+      // stay served at the old card_id key — preservation contract.
+      const pdfCardId = parsePdfPath(url.pathname);
+      if (pdfCardId) {
+        const newId = resolveAlias(aliasIndex, pdfCardId);
+        if (newId) {
+          const stamped = new Response(pdfResponse.body, pdfResponse);
+          stamped.headers.set("X-Pursue-Aliased-To", newId);
+          return withSecurityHeaders(stamped);
+        }
+      }
+      return withSecurityHeaders(pdfResponse);
+    }
 
     // Everything else falls through to static assets — including the
     // /api documentation page and any other /api/* paths a future
