@@ -228,17 +228,44 @@ def _parse_corpus_records(
     known_ids: set[str],
     canonical_lookup: dict[str, str],
 ) -> tuple[dict[tuple[str, int], list[str]], list[str], int]:
-    """Read the corpus and partition into ``(matches, misses, total)``."""
+    """Read the corpus and partition into ``(matches, misses, total)``.
+
+    Corrupt JSONL rows are logged and skipped rather than aborting the
+    entire ingest. The augment corpus comes from an external source
+    (alex-zhang42/ufo-pursue-open-atlas) — we observed 4 corrupt rows in
+    a 4156-row file on 2026-05-11, all clustered on consecutive line
+    numbers (448-451), which fit the profile of a single bad input
+    during the upstream generation that cascaded into a handful of
+    adjacent rows. Failing the entire embed run for a sub-1% corruption
+    rate would mean losing the augmented-retrieval differentiator over
+    a few image-description entries that we can't fix from our side
+    anyway. Track via the returned ``parse_errors`` count so an
+    operator-visible threshold check can still catch a wholesale
+    corpus break.
+    """
     out: dict[tuple[str, int], list[str]] = {}
     misses: list[str] = []
     total = 0
+    parse_errors = 0
     with corpus_jsonl.open(encoding="utf-8") as fh:
-        for line in fh:
+        for line_num, line in enumerate(fh, start=1):
             line = line.strip()
             if not line:
                 continue
             total += 1
-            rec = json.loads(line)
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError as exc:
+                parse_errors += 1
+                if parse_errors <= 5:
+                    # Keep the log readable on a wholesale break — first
+                    # five samples is enough to diagnose.
+                    print(
+                        f"atlas_join: skip corrupt row at line {line_num} "
+                        f"(col {exc.colno}): {exc.msg}",
+                        flush=True,
+                    )
+                continue
             source_url = _extract_source_url(rec)
             card_id = _resolve_card_id(
                 source_url, known_ids, canonical_lookup
@@ -250,6 +277,24 @@ def _parse_corpus_records(
             if not tags:
                 continue
             out[(card_id, int(rec["page_num"]))] = tags
+    if parse_errors > 0:
+        # If more than 5% of rows are corrupt, the upstream corpus has a
+        # systemic problem we shouldn't quietly absorb. Raise so the
+        # operator can investigate instead of shipping a half-augmented
+        # index.
+        corrupt_rate = parse_errors / max(total, 1)
+        print(
+            f"atlas_join: {parse_errors}/{total} rows corrupt "
+            f"({corrupt_rate:.2%})",
+            flush=True,
+        )
+        if corrupt_rate > 0.05:
+            raise AtlasJoinError(
+                f"atlas corpus has {parse_errors}/{total} corrupt rows "
+                f"({corrupt_rate:.2%}) — refusing to embed; regenerate "
+                f"the corpus or set PURSUE_AUGMENT_SKIP_HASH_CHECK=1 "
+                f"if this is expected"
+            )
     return out, misses, total
 
 
