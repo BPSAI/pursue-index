@@ -18,6 +18,7 @@ This is thin glue over `pursue_index.ingest`. All logic lives there.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -31,11 +32,39 @@ from pursue_index.ingest import (
     parse_rename_flags,
     record_approval,
 )
+from pursue_index.post_ingest_audit import (
+    audit_targets,
+    collect_audit_targets,
+    has_blocking_mismatch,
+    render_audit_summary,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_APPROVAL_LOG = _REPO_ROOT / "data" / "tranche-approval-log.jsonl"
 DEFAULT_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
 DEFAULT_DIFF_DIR = _REPO_ROOT / ".paircoder" / "plans"
+DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
+
+
+def _fetch_byte_sha_via_curl(url: str) -> str | None:
+    try:
+        from curl_cffi import requests as cffi_requests
+    except ImportError:
+        return None
+    try:
+        resp = cffi_requests.get(url, impersonate="chrome", timeout=300)
+        resp.raise_for_status()
+        return hashlib.sha256(resp.content).hexdigest()
+    except Exception as exc:
+        typer.echo(f"[audit] fetch fail {url}: {exc}", err=True)
+        return None
+
+
+def _load_new_manifest(tranche_sha: str, snapshots_dir: Path) -> dict | None:
+    """Find the snapshot manifest for the given tranche sha."""
+    for path in snapshots_dir.glob(f"{tranche_sha}*.json"):
+        return json.loads(path.read_text())
+    return None
 
 
 ingest_app = typer.Typer(
@@ -107,6 +136,41 @@ def _load_diff_or_exit(tranche: str, diff_dir: Path) -> dict:
     return json.loads(diff_path.read_text())
 
 
+def _run_pre_approval_audit(
+    enriched_aliases: list[dict],
+    diff: dict,
+    tranche: str,
+    snapshots_dir: Path,
+    skip_audit: bool,
+) -> list[dict]:
+    """Run the TOCTOU re-verification audit. Returns audit results.
+    Raises typer.Exit(3) on blocking mismatch."""
+    if skip_audit:
+        typer.echo("[audit] --skip-audit set; TOCTOU re-verification skipped", err=True)
+        return []
+    new_manifest = _load_new_manifest(tranche, snapshots_dir)
+    if new_manifest is None:
+        typer.echo(
+            f"[audit] WARNING: no snapshot manifest found at {snapshots_dir} for "
+            f"tranche {tranche[:12]} — skipping audit (operator_manual-only approval?)",
+            err=True,
+        )
+        return []
+    targets = collect_audit_targets(enriched_aliases, diff, new_manifest)
+    results = audit_targets(targets, _fetch_byte_sha_via_curl)
+    typer.echo(render_audit_summary(results), err=True)
+    if has_blocking_mismatch(results):
+        typer.echo(
+            "refusing to approve — audit detected upstream sha mismatch. "
+            "Bytes changed between tranche-diff and approval. "
+            "Review the mismatched cards before re-attempting "
+            "(or use --skip-audit if you have an explicit reason).",
+            err=True,
+        )
+        raise typer.Exit(3)
+    return results
+
+
 @ingest_app.command("approve")
 def approve_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
@@ -119,8 +183,19 @@ def approve_cmd(
     log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
     aliases: Path = typer.Option(DEFAULT_ALIASES, "--aliases"),
     diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
+    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
+    skip_audit: bool = typer.Option(
+        False,
+        "--skip-audit",
+        help="Skip the TOCTOU re-fetch audit. NOT RECOMMENDED — use only with explicit reason.",
+    ),
 ) -> None:
-    """Record an approval row + materialize the approved aliases."""
+    """Record an approval row + materialize the approved aliases.
+
+    Runs a pre-approval audit (re-fetches upstream bytes for byte-collision
+    renames and restored_unchanged events) to catch TOCTOU swaps between
+    tranche-diff and approval. Refuses approval if any sha mismatches.
+    """
     diff = _load_diff_or_exit(tranche, diff_dir)
     diff_summary = diff.get("summary", {})
     auto_renames = auto_approve_renames(diff)
@@ -131,6 +206,9 @@ def approve_cmd(
         raise typer.Exit(2)
 
     enriched = _enrich_with_provenance(auto_renames + manual_renames, tranche)
+    audit_results = _run_pre_approval_audit(
+        enriched, diff, tranche, snapshots_dir, skip_audit
+    )
     record_approval(
         log_path=log,
         tranche_sha=tranche,
@@ -138,6 +216,15 @@ def approve_cmd(
         diff_summary=diff_summary,
         renames_approved=enriched,
     )
+    if audit_results:
+        # Audit results are part of the audit trail.
+        log_dir = log.parent
+        audit_log = log_dir / "audit-log.jsonl"
+        with audit_log.open("a") as fh:
+            fh.write(json.dumps({
+                "tranche_sha256": tranche,
+                "results": audit_results,
+            }) + "\n")
     append_aliases(aliases, enriched)
     _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary)
 

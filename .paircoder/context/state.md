@@ -4,6 +4,22 @@
 
 ## What Was Just Done
 
+**2026-05-12 (evening) — Post-ingest TOCTOU audit (plan step 5) shipped. `pursue ingest approve` now runs an inline pre-approval re-fetch audit; refuses approval on any sha mismatch.**
+
+Step 5 of the card-rename plan landed. New `pursue_index.post_ingest_audit` module re-fetches upstream bytes at approval time for every byte-collision rename and every restored_unchanged event, compares against the sha recorded at tranche-diff time, and surfaces any mismatch as a blocking error before aliases are materialized. 9 unit tests, all green; arch-clean.
+
+The audit catches the TOCTOU scenario: upstream serving bytes A during tranche-diff and bytes B during approval — turning a confirmed safe-to-alias event into a content swap done under cover of metadata change. Three target classes:
+
+- `byte_collision_rename` (Class A) — expected_sha is from tranche-diff; refusal on mismatch
+- `restored_unchanged` (Class D) — expected_sha is the pinned byte_sha from the registry; refusal on mismatch
+- `operator_manual_rename` (Class C approved) — typically no asset_url (PR/VID metadata-only cards); skipped with note when no asset_url is present, sha recorded for audit trail otherwise but never refused
+
+Wired into `pursue ingest approve` with a `--skip-audit` escape hatch for emergency cases. Audit results are appended to `data/audit-log.jsonl` for permanent provenance. The `--snapshots-dir` flag locates the candidate manifest snapshot needed to look up asset_urls.
+
+Characterization helpers (OCR-text diff, PDF metadata diff for `restored_modified` investigation) deliberately deferred — no `restored_modified` or differing-byte Class C entries in the current tranche to warrant the build.
+
+For the current `65572b38` ingest, the audit will re-fetch ONE card (FBI 62-HQ-83894 Section 6, ~370MB, ~30s) to verify the restoration is still byte-identical at approval time. The 16 operator_manual aliases all have null asset_urls and will be skipped automatically.
+
 **2026-05-12 (early evening) — Ingest-approval gate (plan step 4) shipped. `pursue ingest approve` / `pursue ingest check` CLI live, integrated into the existing typer CLI.**
 
 Step 4 of the card-rename plan landed. New `pursue_index.ingest` module with the gate primitives (`is_tranche_approved`, `record_approval`, `auto_approve_renames`, `parse_rename_flags`, `append_aliases`) and `pursue_index.cli.ingest_cli` typer wrapper exposing `pursue ingest check` and `pursue ingest approve`. 16 unit tests, all green; arch-clean.
