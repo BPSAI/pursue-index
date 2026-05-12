@@ -56,7 +56,11 @@ export function agencyToCategory(agency: string): number {
  *   - FBI                 → signal-cyan    #5fd4ff
  *   - NASA                → signal-violet  #b78fff
  *   - Department of State → signal-amber   #ffc857
- *   - UNKNOWN             → text-dim       #6b7783
+ *   - UNKNOWN             → text-dim       #9ba6b3
+ *
+ * (text-dim was #6b7783 prior to the WCAG AA bump; if you re-tune it
+ * in global.css, mirror the new value here so the legend swatch keeps
+ * matching the prose color.)
  */
 export function categoryColors(): RgbaColor[] {
   return [
@@ -64,7 +68,7 @@ export function categoryColors(): RgbaColor[] {
     hexToRgba("#5fd4ff"),
     hexToRgba("#b78fff"),
     hexToRgba("#ffc857"),
-    hexToRgba("#6b7783"),
+    hexToRgba("#9ba6b3"),
   ];
 }
 
