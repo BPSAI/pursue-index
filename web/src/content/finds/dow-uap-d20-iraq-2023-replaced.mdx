@@ -44,27 +44,38 @@ Six pages, MISREP format, SECRET//NOFORN. The MISREP records:
 
 ## What the replacement (`085c019c9899db9b`) contains
 
-The replacement card was added to the manifest on 2026-05-11 with `release_date: 5/8/26` — the same release date string the original carried. OCR has not yet ingested the new PDF as of the 2026-05-11 pipeline run, so the page-level content of the replacement is not yet in `/data/pages.json` for direct comparison. The pipeline-level facts available from the manifest itself are summarized in the table above.
+The replacement card's PDF was OCR'd on 2026-05-12 (six pages — same page count as the original). The page-level content is now live in `/data/pages.json` and the LLM-cleaned mirror at `/data/pages-cleaned.json`. A direct side-by-side against the original is possible.
 
-The PURSUE description text recorded for the replacement is in the manifest entry and tracks the standard MISREP description language ("operator reported observing several bright objects maneuvering quickly west to east northeast" and the structured-fields qualifier about subjective interpretation), consistent with the substance the original document carries. The replacement does not yet have OCR pages available in this archive.
+## Side-by-side: what changed, what didn't
 
-## Differences worth a side-by-side, once both are OCR'd
+**The structural-difference hypotheses listed in the draft of this entry can now be checked against the bytes.** The empirical result is that the *content* of the replacement is essentially the same as the original. Every "potentially sensitive" marker that drove the "tradecraft scrub" hypothesis is present in both documents:
 
-Three structural differences between the original D20 and its still-listed siblings (D23, D32, D33) are visible on a careful read of the preserved OCR and were the basis for naming this entry. Once the replacement file's OCR is in the index, a direct page-by-page diff against the original will show whether each of these differences narrows in the new version:
+| Marker | Original (`80e36017873c19a1`) | Replacement (`085c019c9899db9b`) |
+|---|---|---|
+| Squadron callout: 77 EFS | present | present |
+| Airfield ICAO: OEPS (Prince Sultan AB) | present | present |
+| Mission DTGs (takeoff/landing) | `311901:00ZMAR23` / `010148ZAPR23` | same |
+| Weapons loadout: AIM-120, AIM-9X, M61A1 | present | present |
+| Countermeasures: ALQ-184 ECM, ALE-50 towed decoy, ALR-56M RWR | present | present |
+| SEAD pod: HTS-P | present | present |
+| Specific software-load IDs (e.g., `SY0730`) | present | present |
+| Narrative line: "as previously seen in PRIOR SORTIES" | present, page 6 | **also present in the replacement** |
 
-1. **Platform fingerprint depth.** The original carries fully populated entries in the avionics/weapons-block fields where the sibling ISR-platform MISREPs have those fields blank or dashed. The specific values are visible in the preserved OCR at `/card/80e36017873c19a1` and on the R2 mirror PDF.
-2. **Filename / title alignment.** The original asset filename was `...southern-united-states-2023.pdf`; the title is "Iraq, 2023." The replacement aligns filename and title on "iraq."
-3. **The "as previously seen in PRIOR SORTIES" line on page 6.** This language places the encounter in a pattern; whether the replacement preserves the phrasing or scopes it differently is a direct factual question once the new OCR is available.
+In other words: the original entry's strongest hypothesis — that the upstream replaced this file in order to redact the EW/weapons fingerprint and the prior-sorties narrative — is **refuted by the OCR of the replacement**. The replacement carries the same operational detail. The remaining substantive difference between the two cards is the asset filename: the original was `...southern-united-states-2023.pdf` (geographic-slug mismatch with the title "Iraq, 2023"); the replacement is `...iraq-2023.pdf` (filename and title agree).
+
+The simplest reading consistent with the evidence: the upstream replaced this file specifically to fix the filename-vs-title mismatch, NOT to re-redact the content. The "scrub" hypothesis was a plausible read of metadata alone, but the OCR side-by-side rules it out.
+
+This is a useful integrity story in its own right: a curated archive that hypothesizes a motive should be willing to refute its own hypotheses when the bytes prove otherwise. Editorial discipline doesn't end at "we don't assert motive" — it extends to "we update our entries when later evidence narrows or refutes earlier guesses."
 
 ## What's preserved
 
 | Surface | Original (`80e36017873c19a1`) | Replacement (`085c019c9899db9b`) |
 |---|---|---|
-| PDF | live at `/pdf/80e36017873c19a1.pdf` (R2 mirror, our copy) | new — will mirror after next pipeline pass |
-| OCR text | 6 pages in `/data/pages.json` | not yet OCR'd in this archive |
-| LLM-cleaned reading text | yes (2026-05-11 corpus pass) | follows next OCR |
-| Embeddings | yes | follows next OCR |
-| Card detail | `/card/80e36017873c19a1` | `/card/085c019c9899db9b` (will populate after OCR) |
+| PDF | live at `/pdf/80e36017873c19a1.pdf` (R2 mirror, our copy) | live at `/pdf/085c019c9899db9b.pdf` (R2 mirror) |
+| OCR text | 6 pages in `/data/pages.json` | 6 pages in `/data/pages.json` |
+| LLM-cleaned reading text | yes (2026-05-11 corpus pass) | yes (2026-05-12 incremental pass) |
+| Embeddings | yes | yes (added 2026-05-12) |
+| Card detail | `/card/80e36017873c19a1` | `/card/085c019c9899db9b` |
 | Listed by upstream | no — as of 2026-05-11 | yes |
 
 The original is the version most readers should expect to see referenced in third-party citations dated before 2026-05-11; it remains accessible through this archive.

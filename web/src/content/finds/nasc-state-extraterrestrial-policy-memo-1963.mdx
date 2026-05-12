@@ -53,19 +53,29 @@ The new file is two pages; the original was six. The new `incident_date` field i
 What the upstream did, in concrete terms: they pulled a 1963 NASC document from a State Department / RG 59 / Decimal 711.5612 title pattern that, by the filename and content, belongs to July 28, 1952, and replaced the asset at that title with a 1952 State memorandum whose filename and content match. Whether this is a metadata correction (the 1963 document was originally mis-filed) or a withdrawal under cover of a metadata correction is not something this entry asserts. Both documents are preserved here:
 
 - Original (1963 NASC alien-policy memo): `/card/aa3097b4c549a67a` and `/pdf/aa3097b4c549a67a.pdf` (R2 mirror)
-- Replacement (1952 State UFO sighting-reports memo, two pages): `/card/df43a479bc891969`. The replacement's PDF will mirror to R2 after the next download stage; its OCR will follow.
+- Replacement (1952 State UFO sighting-reports memo, two pages): `/card/df43a479bc891969` and `/pdf/df43a479bc891969.pdf` (R2 mirror). OCR'd 2026-05-12.
+
+## What the replacement document contains (OCR added 2026-05-12)
+
+The replacement is a **two-page interagency memorandum dated July 28, 1952**, from "F.H." to a "Mr. Armstrong" at the State Department, subject "Flying Saucers." The cover line records that **Paul Nitze** asked the author what the Air Force thought about flying saucers and the author judged the question worth circulating at the morning meeting. The cover note credits the substantive content to a briefing the author received from **General Samford** at the IAC (Intelligence Advisory Committee). <Cite card="df43a479bc891969" page={1} q="Paul Nitze asked me" />
+
+Major General John A. Samford was the USAF Director of Intelligence in 1952; his recorded position, per the memo, was that there is "very little that can be said to clarify the flying saucer business: It is still a complete enigma." <Cite card="df43a479bc891969" page={2} q="complete enigma" /> The memo then attributes the contemporary increase in observations to two factors: "vastly improved methods of observation and reporting, including not only radar but the reporting systems used by civilian and military pilots," and "the publicity which is given it, which takes on certain elements of a 'fad.'" <Cite card="df43a479bc891969" page={2} q="elements of a" />
+
+Substantive historical claim in the memo: phenomena "falling within the general description of flying saucers have actually been known to exist and have been reported one way or another for over 100 years." Page 2 carries a `DECLASSIFIED NND 852931` stamp.
+
+The two-page brief is consistent with the title-pattern's date and filename, lending weight to the metadata-correction reading of the swap. It does NOT, however, explain what mechanism *previously* filed the 1963 Hunter-to-Packard memo under this 1952-coded title pattern; that mis-filing is itself a curious artifact preserved by the original card.
 
 The change is logged at [/removed](/removed) and the snapshot of the prior manifest is at `/data/snapshots/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json`.
 
 ## What's preserved
 
-| Surface | Status |
-|---|---|
-| PDF (R2 mirror) | live at `/pdf/aa3097b4c549a67a.pdf` |
-| OCR text | 6 pages in `/data/pages.json` |
-| LLM-cleaned reading text | yes, in the 2026-05-11 corpus pass |
-| Embeddings | in the deployed Voyage-3 index |
-| Card detail | `/card/aa3097b4c549a67a` |
+| Surface | Original (`aa3097b4c549a67a`, 1963 NASC memo) | Replacement (`df43a479bc891969`, 1952 State memo) |
+|---|---|---|
+| PDF (R2 mirror) | `/pdf/aa3097b4c549a67a.pdf` | `/pdf/df43a479bc891969.pdf` |
+| OCR text | 6 pages in `/data/pages.json` | 2 pages in `/data/pages.json` |
+| LLM-cleaned reading text | yes (2026-05-11 corpus pass) | yes (2026-05-12 incremental pass) |
+| Embeddings | in the deployed Voyage-3 index | added 2026-05-12 |
+| Card detail | `/card/aa3097b4c549a67a` | `/card/df43a479bc891969` |
 
 ## Provenance of this entry
 
