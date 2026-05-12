@@ -4,6 +4,27 @@
 
 ## What Was Just Done
 
+**2026-05-12 (late evening) — Card-rename plan COMPLETE (steps 1-7). Tranche 65572b38 ingested + promoted. Surgical v1.0.0/numeric-drift fixes on the highest-traffic public surfaces. Backlog re-prioritized.**
+
+Steps 6 + 7 of the card-rename plan landed:
+- **Step 6**: `tests/unit/test_finds_citations.py` — CI test asserts every `<Cite card="...">` (and `cards:` frontmatter) in `web/src/content/finds/*.mdx` resolves via current manifest, /removed, or alias chain. 3 tests including alias-chain-acyclicity defense. **Caught one real broken citation on first run**: `fbi-62-hq-83894-section-6-removed-2026-05.mdx` cited `9c86c04b5e4a50e8` (the no-asset_url Section 6 transient mid-state from the 0d7e9ba1 tranche). Fixed by adding an operator_manual alias `9c86c04b → 13f86e95` (the canonical Section 6 card_id) to `data/card-aliases.json`. Now 17 aliases live; CI green.
+- **Step 7**: `pursue ingest run` orchestrator (`src/pursue_index/ingest_run.py` + CLI) — gate-checks the tranche, locates the snapshot, promotes to `latest.json`, identifies which downstream stages need to run based on tranche-diff classifications. For 65572b38 (metadata-only): just promote + rebuild deploy mirrors via `cd web && npm run build`; no OCR/embed work needed. 9 unit tests, all green. Also added prefix-matching to the gate's sha lookup so CLI invocation with the 12-char display prefix works.
+
+**Tranche 65572b38 ingested**: `data/manifests/latest.json` is now the new snapshot. Astro build clean: 181 pages.
+
+**v1.0.0 / numeric-drift surgical fixes** on the highest-traffic surfaces:
+- `web/src/pages/methodology.astro`: "Research preview (v1.0.0)" → "(v1.1.0)"; loosened framing
+- `web/src/layouts/Base.astro`: "v1.0.0 preview" / "v1.0.0 calibration" → drop version-specific framing
+- `web/src/pages/index.astro`: "4,153 PAGES" → "4,161 PAGES"
+- `web/src/pages/atlas.astro`: "4,119 OCR'd pages" → "4,127"
+- `README.md`: "4,153 OCR'd pages spanning the 116 PDF cards in Release 01" → loosened to avoid future drift
+- `docs/architecture.md`: "161 in Release 01" → "158 in PURSUE Release 01 (as of tranche 65572b38)"
+- The comprehensive 31-finding sweep is what `pursue-opsec/findings/2026-05-12-documentation-staleness-audit.md` covers — recommended as the next priority work.
+
+**Backlog re-prioritized** (in "What's Next" below). Recommended #1: documentation staleness remediation. Already-scoped findings, low-risk, high editorial-credibility return.
+
+**Editorial accuracy correction** that came out in this session: I had earlier characterized FBI Photo B-series and State Cable 004 as net-new content in tranche 65572b38, based on a shallow CSV diff. That was wrong. The proper card_id-based tranche_diff shows 0 net-new content in this tranche; both FBI Photos and Cables were already in the prior 0d7e9ba1 tranche with slightly different titles/URLs that the shallow diff treated as added/removed pairs. Corpus is at 158 cards in upstream + 3 on /removed = 161 unique cards = matches the original May-8 count exactly. No content lost across the entire history.
+
 **2026-05-12 (evening) — First end-to-end tranche approval ran clean for 65572b38. Audit re-verified FBI Section 6 byte-identity; 16 PR-card renames materialized to card-aliases.json.**
 
 `pursue ingest approve` executed against tranche 65572b38 with all 16 quarantined → operator_manual rename pairings. The pre-approval TOCTOU audit re-fetched FBI 62-HQ-83894 Section 6 from upstream (~370MB, ~10s actual runtime), confirmed byte_sha256 still matches the morning's pin (`3df0935cf48e6847d0a5df77a987f8a446e545cc1dda20cad60f79d966516568`), and emitted summary `ok: 1, skipped: 16`. Approval recorded; 16 alias rows written to `data/card-aliases.json` with operator_manual provenance; full audit row appended to `data/audit-log.jsonl`.
@@ -214,29 +235,36 @@ image-description blocks into our retrieval index.
 
 ## What's Next
 
-### Active (next priority, in operator-stated order)
+### Active
 
-1. **Archive integrity — snapshot rotation + removal detection.** Operator-explicit priority before gallery: "make sure that whatever may have come with this latest drop is not overwriting something that we had before. People have complained about the epstein files getting pages removed etc. quietly and are already bringing it up in relation to this project." Current state: `DiffIsland` is already wired to read `/data/snapshots/index.json` + per-snapshot manifests, but the snapshots directory doesn't exist and the scrape stage doesn't write prior manifests anywhere except git history. CSV is archived per-fetch (`csv_archive_dir`); manifests are not. Required: (a) snapshot rotation in `scrape_run_cmd` — copy old `latest.json` to `data/manifests/snapshots/<csv_sha>.json` before overwriting; (b) backfill the last-known prior manifest from git so the diff page has *something* to compare against today; (c) removal detection that opens a `card-removed-upstream` issue with the specifics when cards disappear between scrapes; (d) preservation guarantee for R2 mirrored PDFs on removed cards (already true since download stage doesn't delete, but document and surface in UI). **Surface evidence**: the 2026-05-11 augment-corpus join shipped a 7% miss rate against the new manifest, ~289 augment rows pointing at URLs our manifest no longer has — strong signal that upstream removed/renamed cards in this tranche or the prior one. Worth diffing carefully.
+_Nothing currently in flight. Tranche 65572b38 fully approved and ingested-promoted; card-rename plan complete (steps 1-7 + 1 historical alias). Section 6 finds entry could optionally be updated with a "restored 2026-05-12 — byte-verified" section (small editorial follow-up, parallel to the NASC-State pattern from this morning)._
 
-2. **VID downloads + ingest the 28 video cards in current manifest.** `PURSUE_DOWNLOAD_VIDEOS` is default off; downloader skips VIDs. Operator noted upstream site offers bulk download links for videos. Path: either flip the flag and ingest via `dvids_video_id` (per-card from DVIDS), or fetch the bulk archive from war.gov. After download, decide on R2 mirror vs. external-link-only (videos are GB-scale).
+### Recommended next priorities
 
-3. **Gallery surface build + deploy** (operator gate: after archive integrity). The current 2026-05-11 tranche is 28 VIDs + 14 IMGs + 0 new PDFs, which highlights the discoverability gap for non-text cards. Plan: `.paircoder/plans/visual-browse-surface.md`. Move up from backlog.
+**1. Documentation staleness remediation (HIGHEST RECOMMENDED).** Already-scoped: 31 specific findings catalogued in `pursue-opsec/findings/2026-05-12-documentation-staleness-audit.md`. Three drift classes: tool/engine names (Tesseract→Surya hedges), numeric facts (page counts, embed counts, etc. — surgical fixes done tonight on `index.astro`+`atlas.astro`+`README.md`+`docs/architecture.md`, but most surfaces remain), and architectural claims that haven't caught up to the integrity stack + /gallery + /removed work shipped in v1.1.0. Low-risk (no API budget, no infrastructure changes), high editorial-credibility return, scoped work. Operator-attended ~2-3 hours or one focused agent dispatch + operator review of the patch set.
 
-4. **Tranche `0d7e9ba1` not yet scraped.** Auto-poll workflow caught a second CSV change at 2026-05-11T18:40Z → tranche-detected issue + commit `dc16062` updating `data/last-known-csv-sha.txt`. Our current `latest.json` is the prior tranche `f07601eb`. Run `pursue scrape` again when ready (best done AFTER snapshot rotation is in place so we don't lose tranche-f07601eb's manifest).
+**2. Accessibility audit + remediation.** Plan: `.paircoder/plans/accessibility-audit-and-remediation.md`. Priority HIGH per the plan; civic responsibility for a public archive. Includes the regl-scatterplot a11y challenges on `/atlas`. No deps.
 
-5. **QC engine plan landed (lower-priority thread).** `.paircoder/plans/clean-quality-review.md` — LLM-judge layer over cleanup output. Idempotent sidecar `pages_cleaned_qc.jsonl` with 8 structured checks per page. Calibration discipline: 20-page operator sample per corpus run. Pilots when capacity opens up.
+**3. Black Vault reference corpus.** Plan: `.paircoder/plans/black-vault-reference.md`. Replaces the placeholder synthetic novelty corpus (10 hand-crafted passages) with a real FOIA prior-disclosure archive. Makes the novelty detection feature meaningful rather than illustrative. Medium priority; depends on existing novelty-detection scaffold (already shipped).
 
-6. **`web/src/content/finds/hanawalt-cobalt-ray-1966.mdx` awaiting review.** Untracked operator draft from last session, opened in IDE today. 64-line curated entry on FBI 62-HQ-83894 Section 10 pages 53–56 (Hanawalt cobalt-ray telegram). Sharp methodology framing on the difference between "document the FBI filed" and "claim the FBI endorsed." Ready to commit on operator green-light.
+### Other backlog (in current order)
 
-### Backlog (priority order)
+- **`pursue-vision-augment` Phase 2** — our own VLM pass alongside alex-zhang42 augmented retrieval, with per-page provenance distinguishing the two sources. Plan: `.paircoder/plans/pursue-vision-augment.md`.
+- **Curated finds expansion** — 17 entries now set the editorial bar (3 new today: 1947 Wyly teletype, 2025 USPER orb, Apollo 11 debriefing); corpus has more strong candidates. Plan: `.paircoder/plans/curated-finds.md`.
+- **`clean-quality-review`** — LLM-judge layer over cleanup output. Pilots when capacity opens up. Plan: `.paircoder/plans/clean-quality-review.md`.
+- **Incidents map clustering** — geographic density visualization. Plan: `.paircoder/plans/incidents-map-clustering.md`.
+- **Display-date curation** — UI improvement. Plan: `.paircoder/plans/display-date-curation.md`.
+- **Review-and-correct pipeline** — accept community OCR transcript corrections via GitHub issues. Plan: `.paircoder/plans/review-correct.md`.
+- **Autonomous finds pipeline** — auto-draft finds entries from new tranches, operator-gated for editorial publish. Plan: `.paircoder/plans/autonomous-finds-pipeline.md`.
 
-1. **Documentation staleness audit (new).** Operator-surfaced 2026-05-12 morning: `/methodology` still references Tesseract where it should be Surya. That's almost certainly not isolated — the repo has had several architectural shifts since docs were last comprehensively read. Plan: `.paircoder/plans/documentation-staleness-audit.md`. ~2 hours operator-attended or ~4 hours agent-dispatched with operator review of the punch-list.
-2. **Black Vault reference corpus.** Replace the placeholder novelty corpus with a real prior-disclosure FOIA archive. Engagement done; technical phases discovery → fetch → OCR → embed → calibrate are unblocked. Plan: `.paircoder/plans/black-vault-reference.md`.
-3. **Accessibility audit + remediation.** Plan landed 2026-05-10 (#45) covering WCAG 2.2 AA targets including the regl-scatterplot atlas a11y challenges. Plan: `.paircoder/plans/accessibility-audit-and-remediation.md`.
-3. **`/gallery` visual-browse-surface.** Image-content browse page alongside the textual /search and the spatial /atlas. Plan: `.paircoder/plans/visual-browse-surface.md`.
-4. **pursue-vision-augment Phase 2.** Our own VLM pass alongside the alex-zhang42 augmented retrieval, with per-page provenance distinguishing the two sources. Plan: `.paircoder/plans/pursue-vision-augment.md`.
-5. **Curated finds expansion.** 14 entries set the editorial bar; corpus has more strong candidates. Plan: `.paircoder/plans/curated-finds.md`.
-6. **Review-and-correct pipeline.** Accept community OCR transcript corrections via GitHub issues; flow them back into the index. Plan: `.paircoder/plans/review-correct.md`.
+### Open issues
+
+- **#36** — Manifest `incident_date` audit across modern D## entries. Low priority.
+- **#56** — Tranche 65572b38 detected (auto-filed by poll). **Resolved by tonight's ingest run; can be closed.**
+
+### pursue-opsec follow-ups
+
+- **pursue-opsec#1** — RFC: tier-2 cryptographic signing of registry rows. Awaiting operator decision on key-handling option (4 options laid out).
 7. **Autonomous finds pipeline.** Background drafting of finds entries from new tranches, operator-gated for editorial publish. Plan: `.paircoder/plans/autonomous-finds-pipeline.md`.
 
 ### Open issues

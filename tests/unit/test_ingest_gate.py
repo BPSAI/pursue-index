@@ -59,9 +59,9 @@ def test_gate_approves_recorded_tranche(tmp_path: Path) -> None:
 
 def test_gate_distinguishes_different_tranches(tmp_path: Path) -> None:
     log = tmp_path / "approval-log.jsonl"
-    record_approval(log, "abc123", "ok", {}, [])
-    assert is_tranche_approved(log, "abc123") is True
-    assert is_tranche_approved(log, "def456") is False
+    record_approval(log, "abc12345aaaa", "ok", {}, [])
+    assert is_tranche_approved(log, "abc12345aaaa") is True
+    assert is_tranche_approved(log, "def45678bbbb") is False
 
 
 def test_gate_handles_missing_log_file(tmp_path: Path) -> None:
@@ -73,12 +73,12 @@ def test_gate_handles_corrupt_rows(tmp_path: Path) -> None:
     """Corrupt rows are skipped, not crash-the-gate. Future-readable JSONL."""
     log = tmp_path / "approval-log.jsonl"
     log.write_text(
-        '{"tranche_sha256": "abc"}\n'
+        '{"tranche_sha256": "abc12345aaaa"}\n'
         "this is not JSON\n"
-        '{"tranche_sha256": "def"}\n'
+        '{"tranche_sha256": "def45678bbbb"}\n'
     )
-    assert is_tranche_approved(log, "abc") is True
-    assert is_tranche_approved(log, "def") is True
+    assert is_tranche_approved(log, "abc12345aaaa") is True
+    assert is_tranche_approved(log, "def45678bbbb") is True
 
 
 # --- record_approval ---

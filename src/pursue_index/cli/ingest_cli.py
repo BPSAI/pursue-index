@@ -32,6 +32,12 @@ from pursue_index.ingest import (
     parse_rename_flags,
     record_approval,
 )
+from pursue_index.ingest_run import (
+    locate_snapshot,
+    promote_snapshot,
+    render_next_steps,
+    summarize_ingest_work,
+)
 from pursue_index.post_ingest_audit import (
     audit_targets,
     collect_audit_targets,
@@ -44,6 +50,7 @@ DEFAULT_APPROVAL_LOG = _REPO_ROOT / "data" / "tranche-approval-log.jsonl"
 DEFAULT_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
 DEFAULT_DIFF_DIR = _REPO_ROOT / ".paircoder" / "plans"
 DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
+DEFAULT_LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 
 
 def _fetch_byte_sha_via_curl(url: str) -> str | None:
@@ -227,6 +234,44 @@ def approve_cmd(
             }) + "\n")
     append_aliases(aliases, enriched)
     _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary)
+
+
+@ingest_app.command("run")
+def run_cmd(
+    tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
+    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
+    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
+    manifest: Path = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest"),
+    diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
+) -> None:
+    """Promote an approved tranche to the deployed manifest + report next steps.
+
+    Refuses if the tranche is not approved. Promotes the snapshot to
+    data/manifests/latest.json. Identifies downstream pipeline work
+    (download/ocr/embed) required by any new content in the tranche
+    and prints copy-paste-ready next-step commands.
+    """
+    if not is_tranche_approved(log, tranche):
+        typer.echo(
+            f"refusing to ingest — tranche {tranche[:12]} is not approved.\n"
+            f"  Review the tranche-diff at {diff_dir}/tranche-diff-{tranche[:12]}.md\n"
+            f"  then run `pursue ingest approve --tranche {tranche} --note ...`",
+            err=True,
+        )
+        raise typer.Exit(1)
+    snapshot = locate_snapshot(tranche, snapshots_dir)
+    if snapshot is None:
+        typer.echo(
+            f"refusing to ingest — no snapshot found in {snapshots_dir} for {tranche[:12]}",
+            err=True,
+        )
+        raise typer.Exit(2)
+    diff_payload = _load_diff_or_exit(tranche, diff_dir)
+    summary = summarize_ingest_work(diff_payload)
+    promote_snapshot(snapshot, manifest)
+    typer.echo(f"promoted snapshot to {manifest}")
+    typer.echo("")
+    typer.echo(render_next_steps(summary))
 
 
 def main() -> None:

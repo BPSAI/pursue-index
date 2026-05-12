@@ -65,10 +65,27 @@ def _read_log_rows(log_path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _shas_match(stored: str, query: str) -> bool:
+    """Match stored sha against query sha allowing prefix on either side.
+
+    Approval log stores the full csv_sha256; CLI may be invoked with
+    the 12-char display prefix or the full sha. Either should match
+    the other as long as one is a prefix of the other and at least
+    8 chars overlap (avoid empty-string false matches).
+    """
+    if not stored or not query:
+        return False
+    shorter, longer = (query, stored) if len(query) <= len(stored) else (stored, query)
+    if len(shorter) < 8:
+        return False
+    return longer.startswith(shorter)
+
+
 def is_tranche_approved(log_path: Path, tranche_sha: str) -> bool:
-    """Return True iff there is at least one approval row for this sha."""
+    """Return True iff there is at least one approval row for this sha
+    (full or prefix match in either direction)."""
     for row in _read_log_rows(log_path):
-        if row.get("tranche_sha256") == tranche_sha:
+        if _shas_match(row.get("tranche_sha256", ""), tranche_sha):
             return True
     return False
 

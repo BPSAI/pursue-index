@@ -50,7 +50,7 @@ Every stage is idempotent against a content-hashed manifest. The manifest carrie
 
 ## Multi-modal handling
 
-Not every PURSUE entry is a PDF. Of the 161 in Release 01: 119 PDFs, 28 videos, 14 images.
+Not every PURSUE entry is a PDF. Of the 158 in PURSUE Release 01 (as of tranche 65572b38, 2026-05-12): 116 PDFs, 28 videos, 14 images.
 
 - **PDFs**: download → OCR → index. Standard flow.
 - **Images**: download → store. Future: vision analysis (the DOW shipped these as raw infrared stills; OCR isn't useful but visual feature extraction may be).

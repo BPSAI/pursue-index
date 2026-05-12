@@ -32,8 +32,8 @@ Methodology is published. Numbers are reproducible from a clean clone.
 
 - **Custom domain.** [pursueindex.com](https://pursueindex.com) on Cloudflare
   Workers + Static Assets.
-- **Full-text + semantic search** across **4,153 OCR'd pages** spanning the
-  116 PDF cards in Release 01. MiniSearch lexical index + Voyage-3
+- **Full-text + semantic search** across the OCR'd corpus spanning the
+  116 PDF cards in PURSUE Release 01. MiniSearch lexical index + Voyage-3
   embeddings, both browser-side; no server. The `/search` route adds a
   faceted filter rail (agency multi-select, incident-date range,
   redacted-only) over the lexical index; filter state round-trips through
