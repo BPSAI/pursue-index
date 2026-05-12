@@ -4,6 +4,20 @@
 
 ## What Was Just Done
 
+**2026-05-12 (early evening) — Ingest-approval gate (plan step 4) shipped. `pursue ingest approve` / `pursue ingest check` CLI live, integrated into the existing typer CLI.**
+
+Step 4 of the card-rename plan landed. New `pursue_index.ingest` module with the gate primitives (`is_tranche_approved`, `record_approval`, `auto_approve_renames`, `parse_rename_flags`, `append_aliases`) and `pursue_index.cli.ingest_cli` typer wrapper exposing `pursue ingest check` and `pursue ingest approve`. 16 unit tests, all green; arch-clean.
+
+The CLI:
+- `pursue ingest check --tranche <sha>` returns exit 0 if approved, 1 if not. Downstream ingest-pipeline commands call this gate to refuse to proceed against an unapproved tranche.
+- `pursue ingest approve --tranche <sha> --note "..." [--approve-rename <new>=<old>]...` records an audit-log row and materializes the approved aliases into `data/card-aliases.json`. Class A entries (byte-collision-confirmed renames) are auto-included; Class C / quarantined entries require explicit `--approve-rename` flags. The CLI surfaces a warning if any quarantined items go unaddressed (gate still clears, but those renames are NOT in aliases.json — operator must come back if/when they decide).
+
+Approval-log infrastructure at `data/tranche-approval-log.jsonl` (append-only, JSONL, corrupt rows skipped on read). Failure-mode discipline: missing log → unapproved; corrupt rows → skip; malformed `--approve-rename` flags raise ValueError so operator notices before writing a broken alias. The `byte_collision` vs `operator_manual` method field distinguishes cryptographically-confirmed from operator-judgment renames in the audit trail.
+
+The first real exercise of the gate against tranche `65572b38d27c` (which has 0 Class A + 16 quarantined + 1 restored_unchanged) is the operator-driven next step — pending review of the 16 quarantined.
+
+Editorial note baked into the design: a different byte_sha means *something changed* — re-render, metadata edit, font subset shift, redaction-layer update, or genuine content edit. The integrity layer detects change; it does not characterize it. Step 5 (post-ingest tampering audit) will add characterization helpers (OCR-text diff, PDF metadata diff, page-count delta) that turn "sha changed" into "here are the specific differences, you decide." Approval-CLI messaging deliberately avoids "tampering" / "malicious" wording when surfacing `restored_modified` items.
+
 **2026-05-12 (late afternoon) — `tranche_diff.py` (plan step 3) shipped + restoration-class detection (Class D) added on first real-world exercise.**
 
 Step 3 of the card-rename plan landed. New `scripts/tranche_diff.py` (326 lines) + supporting helpers in `src/pursue_index/tranche.py` (heuristics, levenshtein, numeric-id extraction) and `src/pursue_index/tranche_report.py` (markdown + JSON rendering). 31 unit tests, all green; arch-clean.
