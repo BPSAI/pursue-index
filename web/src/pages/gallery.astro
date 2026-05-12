@@ -9,12 +9,27 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 // WebP thumbnails from /data/thumbs/<card_id>.webp (built by
 // scripts/build_pdf_thumbs.py); when no thumbnail exists yet the
 // PDF tile falls back to a generic document placeholder.
-const galleryCards = manifest.cards.filter(
-  (c) =>
-    c.asset_type === "IMG" ||
-    c.asset_type === "VID" ||
-    c.asset_type === "PDF",
-);
+//
+// Deduplicate by card_id (vaivora P0): the manifest contains 158 rows
+// but only ~146 unique card_ids — PR-series videos share the parent
+// MISREP's content-addressed card_id (e.g., PR26+PR27 collide on
+// d8e5687dc870892d for D23, PR31+PR32+PR33 on ea029a05470b8f4e for
+// D32). Without this dedup the gallery would render the same tile
+// 2-3× for colliding card_ids and produce duplicate React keys.
+// First-row-wins matches the video-poster extractor's behavior.
+const _seenCardIds = new Set<string>();
+const galleryCards = manifest.cards.filter((c) => {
+  if (
+    c.asset_type !== "IMG" &&
+    c.asset_type !== "VID" &&
+    c.asset_type !== "PDF"
+  ) {
+    return false;
+  }
+  if (_seenCardIds.has(c.card_id)) return false;
+  _seenCardIds.add(c.card_id);
+  return true;
+});
 ---
 
 <Base title="GALLERY — PURSUE://INDEX" active="gallery">

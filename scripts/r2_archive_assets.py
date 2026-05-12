@@ -105,7 +105,14 @@ def fetch_asset(url: Any) -> bytes:
 
 
 def load_registry(path: Path) -> dict[str, list[dict[str, Any]]]:
-    """Return ``{card_id: [row, row, ...]}`` sorted newest-last by fetched_at."""
+    """Return ``{card_id: [row, row, ...]}`` sorted newest-last by fetched_at.
+
+    Robust against malformed rows: a line missing ``card_id`` or
+    failing JSON parse is skipped, not raised. The registry is
+    append-only + content-addressed and is committed by multiple
+    workflows; a single corrupt mid-write line shouldn't take down
+    every subsequent run (nayru P0).
+    """
     if not path.exists():
         return {}
     out: dict[str, list[dict[str, Any]]] = {}
@@ -117,7 +124,10 @@ def load_registry(path: Path) -> dict[str, list[dict[str, Any]]]:
                 row = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            out.setdefault(row["card_id"], []).append(row)
+            card_id = row.get("card_id")
+            if not card_id:
+                continue
+            out.setdefault(card_id, []).append(row)
     for rows in out.values():
         rows.sort(key=lambda r: r.get("fetched_at", ""))
     return out
@@ -194,6 +204,7 @@ def _process_card(
     client: Any,
     bucket: str,
     dry_run: bool,
+    registry_path: Path,
 ) -> str:
     """Return 'new' | 'unchanged' | 'archive-hit' | 'fail'."""
     rows = registry.get(card.card_id, [])
@@ -216,7 +227,19 @@ def _process_card(
     if any(r.get("byte_sha256") == byte_sha for r in rows):
         return "unchanged"
 
-    ext = Path(card.asset_filename or "").suffix.lstrip(".") or "pdf"
+    # Allowlist extensions before building R2 keys (laverna SEC-003):
+    # asset_filename comes from the upstream CSV, not the operator —
+    # a crafted upstream filename could otherwise inject characters
+    # that R2 interprets as path separators (slashes via Path.suffix
+    # on a weirdly-shaped value) or produce keys that overwrite
+    # adjacent archive objects. Anything outside the allowlist falls
+    # back to "pdf" — there are no non-PDF/non-image assets in the
+    # corpus at the time of writing, and an unrecognized extension
+    # is signal enough to warrant operator review rather than silent
+    # archival under an arbitrary key.
+    _ALLOWED_EXTS = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}
+    raw_ext = Path(card.asset_filename or "").suffix.lstrip(".").lower()
+    ext = raw_ext if raw_ext in _ALLOWED_EXTS else "pdf"
     archive_key = f"archive/{byte_sha}.{ext}"
     current_key = f"{card.card_id}.{ext}"
     content_type = (
@@ -257,10 +280,15 @@ def _process_card(
         "current_key": current_key,
         "fetched_at": _now_iso(),
     }
-    return _record_or_dryrun(entry, dry_run, archive_hit)
+    return _record_or_dryrun(entry, dry_run, archive_hit, registry_path)
 
 
-def _record_or_dryrun(entry: dict[str, Any], dry_run: bool, archive_hit: bool) -> str:
+def _record_or_dryrun(
+    entry: dict[str, Any],
+    dry_run: bool,
+    archive_hit: bool,
+    registry_path: Path,
+) -> str:
     if dry_run:
         print(
             f"[r2-archive] DRY-RUN would archive "
@@ -268,7 +296,11 @@ def _record_or_dryrun(entry: dict[str, Any], dry_run: bool, archive_hit: bool) -
             f"({entry['byte_size']} B)"
         )
         return "new"
-    append_registry(DEFAULT_REGISTRY, entry)
+    # Use the CLI-supplied registry path, not the module default —
+    # tests/dev runs that pass `--registry /tmp/test.jsonl` previously
+    # *read* from the test file but *wrote* to the production registry,
+    # a high-blast-radius footgun (nayru P1).
+    append_registry(registry_path, entry)
     label = "archive-hit" if archive_hit else "new"
     print(
         f"[r2-archive] {label}: {entry['card_id']} -> "
@@ -320,7 +352,12 @@ def main(argv: list[str] | None = None) -> int:
 
     for card in eligible:
         result = _process_card(
-            card, registry, client, args.bucket, args.dry_run
+            card,
+            registry,
+            client,
+            args.bucket,
+            args.dry_run,
+            args.registry,
         )
         counts[result] = counts.get(result, 0) + 1
 

@@ -62,7 +62,13 @@ permissions:
   issues: write     # open tranche-detected / tranche-poll-failure issues
 
 concurrency:
-  group: poll-pursue
+  # Shared with verify-assets-daily.yml so the two registry-writing
+  # workflows serialize on the same lock (nayru P1). Both append to
+  # data/asset-bytes-registry.jsonl and push to main; running them
+  # concurrently is a recipe for losing one workflow's appended
+  # rows during rebase resolution. GitHub Actions only runs one job
+  # per group at a time within a repo.
+  group: pursue-registry-writers
   cancel-in-progress: false
 
 jobs:

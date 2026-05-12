@@ -109,6 +109,15 @@ const CSP_VALUE = [
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",
+  // Explicit `object-src 'none'` added 2026-05-12 (laverna SEC-002)
+  // after the PDF iframe sandbox was dropped for Chrome 147 PDFium
+  // compatibility (commit 4e03a1d). default-src 'self' covered this
+  // as a fallback, but locking it explicitly to 'none' means a
+  // future CSP refactor of `default-src` can't silently re-open the
+  // `<object>` / `<embed>` plugin path. The unsandboxed iframe now
+  // inherits the site CSP, so even a script-injecting PDF can't
+  // pivot to plugin-based payload delivery.
+  "object-src 'none'",
 ].join("; ");
 
 const SECURITY_HEADERS = [

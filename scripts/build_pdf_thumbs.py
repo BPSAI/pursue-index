@@ -252,7 +252,9 @@ def main(argv: list[str] | None = None) -> int:
 
     save_index(index_path, mapping)
     print(
-        f"[thumbs] done: new={counts['new']} fresh={counts['fresh']} "
+        f"[thumbs] done: new={counts['new']} "
+        f"regenerated={counts['regenerated']} "
+        f"fresh={counts['fresh']} "
         f"render_fail={counts['render_fail']} "
         f"no_local_pdf={counts['no_local_pdf']}"
     )

@@ -33,7 +33,13 @@ name: Daily byte-verify of every referenced asset
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    # 06:07 UTC — offset from any 30-minute boundary so this never
+    # fires concurrently with the poll workflow's `*/30 * * * *` cron.
+    # The 7-minute offset isn't strictly necessary now that both
+    # workflows share the same concurrency group, but it's a free
+    # belt-and-suspenders defense against the registry-write race
+    # nayru P1 flagged.
+    - cron: "7 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -41,7 +47,13 @@ permissions:
   issues: write
 
 concurrency:
-  group: verify-assets-daily
+  # Shared with poll-pursue.yml so the two registry-writing workflows
+  # serialize on the same lock (nayru P1). Without this, a 06:07 UTC
+  # verify tick could run simultaneously with a 06:00 UTC poll tick,
+  # both append to data/asset-bytes-registry.jsonl, and both
+  # git pull --rebase + push — a deterministic recipe for losing one
+  # workflow's appended rows during the rebase resolution.
+  group: pursue-registry-writers
   cancel-in-progress: false
 
 jobs:

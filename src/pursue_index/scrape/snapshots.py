@@ -122,18 +122,59 @@ def detect_removals(
     return [c for c in prior.get("cards", []) if c["card_id"] not in new_ids]
 
 
+DEFAULT_REMOVED_JSON = Path("web/public/data/removed-cards.json")
+
+
+def _rebuild_removed_json(
+    log_path: Path = DEFAULT_REMOVED_LOG,
+    out_path: Path = DEFAULT_REMOVED_JSON,
+) -> None:
+    """Derive ``web/public/data/removed-cards.json`` from the JSONL log.
+
+    The web RemovedIsland fetches the public JSON at runtime
+    (``/data/removed-cards.json``); the canonical write target is the
+    JSONL log. Without this rebuild step the JSONL would grow on
+    every detected removal but the public surface would silently fall
+    behind (vaivora P1). Re-derive on every ``log_removals`` call so
+    the two are always in sync.
+
+    The JSON wrapper shape ``{removed: [...]}`` is what the existing
+    RemovedIsland.tsx contract reads; sorting newest-first matches
+    operator expectation.
+    """
+    rows: list[dict[str, Any]] = []
+    if log_path.exists():
+        with log_path.open() as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                try:
+                    rows.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+    rows.sort(key=lambda r: r.get("detected_at", ""), reverse=True)
+    payload = {"removed": rows}
+    _atomic_write_json(out_path, payload)
+
+
 def log_removals(
     removed: list[dict[str, Any]],
     prior: dict[str, Any],
     new: dict[str, Any],
     log_path: Path = DEFAULT_REMOVED_LOG,
+    public_json_path: Path = DEFAULT_REMOVED_JSON,
 ) -> None:
-    """Append one JSONL row per removed card.
+    """Append one JSONL row per removed card AND rebuild the public JSON.
 
     Each row carries the full prior card record (title, agency, dates,
     asset_url) plus context (when we noticed, which csv_sha pairs flank
     the transition) so a downstream UI can render a "preserved record"
     surface without needing to cross-reference the snapshot files.
+
+    After appending, derives the public JSON snapshot the RemovedIsland
+    consumes so the UI surface tracks the canonical JSONL log
+    automatically (vaivora P1 — previously the public JSON was hand-
+    authored and would silently drift on the next detected removal).
     """
     if not removed:
         return
@@ -151,6 +192,7 @@ def log_removals(
                 "card": card,
             }
             fh.write(json.dumps(entry) + "\n")
+    _rebuild_removed_json(log_path=log_path, out_path=public_json_path)
 
 
 def rotate_and_diff(
