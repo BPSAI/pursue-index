@@ -6,6 +6,50 @@ Email security@bpsaisoftware.com. Include enough detail to reproduce
 (URLs, payloads, expected vs. observed behavior). We aim to acknowledge
 within 72 hours.
 
+## Internal disclosure policy (for contributors and review agents)
+
+**Security-impacting findings are NOT filed as public GitHub issues**
+on this repository. The repo's threat model deliberately differs from
+a typical open-source project: we mirror documents that the originating
+agency has, in observed cases, pulled or replaced quietly, and we
+publish the preservation infrastructure that catches those operations.
+That makes any public roadmap of our defensive gaps a roadmap for an
+adversary who would prefer that the archive be unreliable or
+compromised.
+
+The following types of finding go to a private channel
+(`security@bpsaisoftware.com` for external reporters; the private
+`pursue-opsec` companion repo for internal review cycles and reviewer
+agent reports), never to a public issue or commit message:
+
+- Supply-chain weaknesses (unpinned deps, missing SRI, etc.)
+- Workflow / CI exposure (token scoping, branch protection gaps,
+  arbitrary-write paths in bot commit surfaces)
+- Specific bypass mechanisms used by our scrape stage that an upstream
+  provider could weaponize against us
+- Detection-threshold numerics (corruption rate guards, miss-rate
+  thresholds, cron offsets) — anything that lets an adversary tune to
+  stay under our alerting bar
+- Architectural details that name specific R2 key namespaces, secret
+  names, or trust boundaries beyond what is needed for citation
+  reproducibility
+
+The following stay public, because they are load-bearing for the
+project's credibility as an archive:
+
+- That we preserve everything (the byte-history claim itself)
+- The `card_id` derivation and citation contract
+- The existence of the R2 mirror + the `<card_id>.<ext>` serving path
+- The CSP, HSTS, security-headers posture (these are defenses, and
+  documenting them is part of the defense)
+
+A reviewer agent (nayru/laverna/vaivora or human) doing a pass
+against this repo should default to filing security-relevant findings
+in `pursue-opsec` rather than on the public issue tracker. If unsure
+which side of the line a finding sits on, file privately first and
+move public if/when the finding is patched and the public exposure no
+longer matters.
+
 ## Threat model — public-corpus deployment
 
 This repository is deployed at https://pursueindex.com against a corpus

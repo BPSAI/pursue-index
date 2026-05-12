@@ -133,8 +133,13 @@ jobs:
             echo "Open issue #${existing} already tracking; skipping."
             exit 0
           fi
-          rows=$(tail -n 20 data/asset-bytes-registry.jsonl | grep -c '^{' || echo "?")
+          # Enumerate the exact rows this run added, not just the tail
+          # of the file — concurrent registry writers can interleave
+          # appends and a tail-slice may not contain the newly-added
+          # rows. `git diff HEAD^ HEAD` reads from the just-committed
+          # diff, which is the precise set this run produced.
+          added=$(git diff HEAD^ HEAD -- data/asset-bytes-registry.jsonl 2>/dev/null | grep -c '^+{' || echo "?")
           gh issue create \
             --title "[integrity] Silent same-URL-different-bytes overlay detected" \
             --label "silent-overlay-detected" \
-            --body "The daily verify workflow caught upstream bytes changing under a stable URL. New row(s) landed in data/asset-bytes-registry.jsonl. Run log: $RUN_URL"
+            --body "The daily verify workflow caught upstream bytes changing under a stable URL. ${added} new row(s) landed in data/asset-bytes-registry.jsonl this run. Run log: $RUN_URL"

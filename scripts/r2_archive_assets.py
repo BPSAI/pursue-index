@@ -134,8 +134,20 @@ def load_registry(path: Path) -> dict[str, list[dict[str, Any]]]:
 
 
 def append_registry(path: Path, entry: dict[str, Any]) -> None:
+    """Append one JSONL row to the asset-bytes registry.
+
+    Contract pin: every row MUST be on a single line. The workflow's
+    "count new rows" step uses `grep -c '^+{'` on the diff to report
+    how many rows landed in a given commit; that grep relies on each
+    row starting with `{` and ending with `}\n` — i.e., no pretty-
+    printed multi-line JSON. ``json.dumps`` with default settings
+    enforces this (no indent argument supplied), but the contract is
+    load-bearing for the workflow's row-count source, so this comment
+    serves as the regression alert: do NOT add `indent=` here.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a") as fh:
+        # json.dumps default: compact, no indent → single-line per row.
         fh.write(json.dumps(entry) + "\n")
 
 
