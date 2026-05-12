@@ -1,11 +1,13 @@
 ---
-title: "The Hunter-to-Packard Memo, July 18, 1963"
-subtitle: "A National Aeronautics and Space Council staffer asks the State Department to think about diplomatic policy toward extraterrestrial intelligence — and how to avoid 'grand panic' if encounter ever happens"
-summary: "Card aa3097b4c549a67a is a six-page interagency memorandum from Maxwell W. Hunter II of the National Aeronautics and Space Council to Robert F. Packard at State/OES, dated July 18, 1963. It is one of the few documents in the PURSUE release that addresses extraterrestrial-contact policy at the Executive Office level rather than through sighting reports. The card was present in the 2026-05-08 manifest and removed from the 2026-05-11 manifest; the document remains preserved here."
-tags: ["state-department", "nasc", "1963", "primary-source", "executive-policy", "removed-upstream", "preserved-record"]
+title: "The Hunter-to-Packard Memo, July 18, 1963 — and the 1952 Document That Replaced It"
+subtitle: "A 1963 NASC alien-policy memo was published under the title pattern '59_64634_711.5612[7-2852' until 2026-05-11. The current upstream listing at that exact title points to a different document — a 1952 State memo on UFO sighting reports. Both are preserved here."
+summary: "Card aa3097b4c549a67a is a six-page interagency memorandum from Maxwell W. Hunter II of the National Aeronautics and Space Council to Robert F. Packard at State/OES, dated July 18, 1963. It is one of the few documents in the PURSUE release that addresses extraterrestrial-contact policy at the Executive Office level. The card was present in the 2026-05-08 PURSUE CSV and the same title now points to a different file in the 2026-05-11 CSV — described upstream as 'a two page memorandum, dated July 28, 1952, relates to increased reports of unidentified flying objects.' These are different documents at the same title pattern. The original is preserved here at card_id aa3097b4c549a67a; the replacement is in the current manifest as card_id df43a479bc891969."
+tags: ["state-department", "nasc", "1963", "1952", "primary-source", "executive-policy", "replaced-upstream", "preserved-record"]
 cards:
   - aa3097b4c549a67a
+  - df43a479bc891969
 published: 2026-05-11
+updated: 2026-05-11
 ---
 
 import Cite from "../../components/Cite.astro";
@@ -38,11 +40,22 @@ Most of the war.gov PURSUE corpus is sighting reports, MISREP forms, agency inve
 
 Maxwell W. Hunter II was a real engineer-turned-policy-staffer; in later decades he became publicly associated with U.S. ballistic-missile-defense work. Robert F. Packard was an actual science-affairs officer at State during this period. The memo's surface — letterhead, signature block, addressee, classification handle — is internally consistent with a routine 1963 interagency communication and does not show signs of post-hoc fabrication.
 
-## The removal
+## What the upstream did
 
-Card `aa3097b4c549a67a` was present in the 2026-05-08 manifest (csv_sha `596cc188...`) and absent from the 2026-05-11 manifest (csv_sha `0d7e9ba1...`). The auto-poll workflow detected the change; the attended scrape produced the diff. The removal is logged at [/removed](/removed) and the snapshot of the prior manifest is at `/data/snapshots/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json`.
+Card `aa3097b4c549a67a` was present in the 2026-05-08 CSV with the asset URL `59_214434_sp_16_7.18.1963.pdf` — a filename that announces the document as a 7/18/1963 record. The CSV row also carried an `incident_date` field of `7/18/52`, which is internally inconsistent: the asset filename says 1963, the incident-date field says 1952. The agent-pass over the preserved OCR resolved the inconsistency: the document is the 1963 NASC-to-State Hunter-to-Packard memo described above.
 
-The replacement listing for this exact document does not yet appear in the new manifest under a different card_id — unlike the [DOW-UAP-D20 removal](/finds/dow-uap-d20-iraq-2023-replaced) where the upstream substituted a new card at the same title. The Hunter-Packard memo's status as of the most recent fetch is: gone from the public listing, preserved here.
+The 2026-05-11 CSV no longer carries that asset URL. The same title pattern — `59_64634_711.5612[7-2852` — now points to a different file: `59_64634_711.5612[7-2852.pdf`. The upstream description on that row reads:
+
+> "*a two page memorandum, dated July 28, 1952, relates to increased reports of unidentified flying objects.*" <Cite card="df43a479bc891969" page={1} q="a two page memorandum, dated July 28, 1952" />
+
+The new file is two pages; the original was six. The new `incident_date` field is `7/28/52`; the original was `7/18/52`. The new asset filename string matches the title pattern (`711.5612[7-2852` ↔ `711.5612.[7-28-52]`); the original did not (its filename was `59_214434_sp_16_7.18.1963`). The new card_id is `df43a479bc891969`; the original was `aa3097b4c549a67a`.
+
+What the upstream did, in concrete terms: they pulled a 1963 NASC document from a State Department / RG 59 / Decimal 711.5612 title pattern that, by the filename and content, belongs to July 28, 1952, and replaced the asset at that title with a 1952 State memorandum whose filename and content match. Whether this is a metadata correction (the 1963 document was originally mis-filed) or a withdrawal under cover of a metadata correction is not something this entry asserts. Both documents are preserved here:
+
+- Original (1963 NASC alien-policy memo): `/card/aa3097b4c549a67a` and `/pdf/aa3097b4c549a67a.pdf` (R2 mirror)
+- Replacement (1952 State UFO sighting-reports memo, two pages): `/card/df43a479bc891969`. The replacement's PDF will mirror to R2 after the next download stage; its OCR will follow.
+
+The change is logged at [/removed](/removed) and the snapshot of the prior manifest is at `/data/snapshots/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json`.
 
 ## What's preserved
 

@@ -1,11 +1,13 @@
 ---
-title: "FBI 62-HQ-83894 Section 6 — Removed from Upstream, Preserved Here"
-subtitle: "271 pages of the FBI's omnibus UFO file disappeared from the war.gov listing between 2026-05-08 and 2026-05-11. The bytes, OCR, and embeddings remain in this archive."
-summary: "Card 13f86e95aed52840 — Section 6 of the FBI's ten-section omnibus UFO file 62-HQ-83894 — was present in the 2026-05-08 PURSUE manifest and absent from the 2026-05-11 manifest. No announcement, no replacement listing. The PDF stays available on our R2 mirror and the 271-page OCR transcript remains in /search and /atlas. This entry catalogues what the section contains — green-fireball reports, Oak Ridge sightings, Rhodes/Phoenix-1947 chain of custody, an FBI background investigation of a named civilian witness — so the document is legible without depending on upstream availability."
-tags: ["fbi", "archive-integrity", "removed-upstream", "primary-source", "preserved-record"]
+title: "FBI 62-HQ-83894 Section 6 — PDF Pulled, Listing Kept"
+subtitle: "271 pages of the FBI's omnibus UFO file lost their upstream PDF link between 2026-05-08 and 2026-05-11. The listing row stays, with 'PDF | Image Link: N/A'. The bytes, OCR, and embeddings remain in this archive."
+summary: "Card 13f86e95aed52840 — Section 6 of the FBI's ten-section omnibus UFO file 62-HQ-83894 — was downloadable from war.gov in the 2026-05-08 PURSUE CSV and is not in the 2026-05-11 CSV: the same title still appears in the upstream listing (under a new card_id, 9c86c04b5e4a50e8), but with the PDF link explicitly set to 'N/A'. The PDF is now only available through this archive's R2 mirror, and the 271-page OCR transcript remains in /search and /atlas. This entry catalogues what the section contains — green-fireball reports, Oak Ridge sightings, Rhodes/Phoenix-1947 chain of custody, an FBI background investigation of a named civilian witness — so the document is legible without depending on upstream availability."
+tags: ["fbi", "archive-integrity", "pulled-upstream", "primary-source", "preserved-record"]
 cards:
   - 13f86e95aed52840
+  - 9c86c04b5e4a50e8
 published: 2026-05-11
+updated: 2026-05-11
 ---
 
 import Cite from "../../components/Cite.astro";
@@ -16,11 +18,17 @@ Card `13f86e95aed52840` is **Section 6 of FBI file 62-HQ-83894**, the Bureau's o
 
 Section 6 is 271 pages, weighted heavily to 1949–1952 (year-frequency in the OCR: 1952 × 192, 1950 × 114, 1949 × 40, 1951 × 30, with smaller counts before and after). The CSV description that originally accompanied this card on war.gov characterized this version as a "complete case file with several newly declassified pages and only minor redactions" — explicitly comparing it favorably against the more-redacted version available on the FBI Vault. The prior manifest record carried `redacted: false`.
 
-## The removal
+## The pull, as the new CSV states it
 
-The PURSUE upstream CSV is fetched on a six-hour cadence by our `poll-pursue` workflow; the CSV's sha256 is committed to `data/last-known-csv-sha.txt` whenever it changes. The 2026-05-11 fetch detected `f07601eb...` succeeding `596cc188...`; an attended scrape on the operator's machine that evening produced a new `latest.json` whose card-set differed from the prior manifest by three removals. Section 6 was one of those three.
+A direct field-by-field diff of the 2026-05-08 CSV against the 2026-05-11 CSV is unambiguous about what happened. The Section 6 title is still in the upstream listing — same description text, same "Type: PDF," same agency. The single field that changed:
 
-A snapshot of the prior manifest is preserved at `/data/snapshots/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json`; the removal event itself is logged at `/data/removed-cards.json` and surfaced on [/removed](/removed). The PDF remains servable at `/pdf/13f86e95aed52840.pdf` from this archive's R2 mirror — we do not delete bytes when upstream changes a listing.
+> `PDF | Image Link: N/A` <Cite card="9c86c04b5e4a50e8" page={1} q="N/A" />
+
+In the 2026-05-08 row, that field held `https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_6.pdf`. In the 2026-05-11 row, the link is the string "N/A." The PDF is no longer downloadable from war.gov. Sections 1–5 and 7–10 of 62-HQ-83894 remain available. Section 6 is the only one of the ten where the asset link has been switched to N/A.
+
+Because our `card_id` is content-addressed by `sha256(asset_url || title)[:16]`, swapping the URL produces a new card_id (`9c86c04b5e4a50e8`) at the same title — the upstream listing remains, but our manifest now carries two rows for "Section 6": the old one (`13f86e95aed52840`, with the PDF link our R2 mirror is keyed to) and the new one (`9c86c04b5e4a50e8`, with `asset_url: null`). The PDF remains servable at `/pdf/13f86e95aed52840.pdf` from this archive — we do not delete bytes when upstream changes a listing.
+
+A snapshot of the prior manifest is preserved at `/data/snapshots/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json`; the change is logged at `/data/removed-cards.json` and surfaced on [/removed](/removed).
 
 ## What's in Section 6
 
