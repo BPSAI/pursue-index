@@ -1,7 +1,7 @@
 ---
 id: llm-cleaned-pilot-spotcheck
 type: chore
-status: ready
+status: shipped
 created: 2026-05-11
 priority: high
 depends_on: [llm-cleaned-reading-text]

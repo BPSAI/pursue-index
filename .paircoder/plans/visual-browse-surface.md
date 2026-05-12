@@ -1,7 +1,7 @@
 ---
 id: visual-browse-surface
 type: feature
-status: backlog
+status: phase-3-only
 created: 2026-05-10
 priority: medium
 depends_on: []

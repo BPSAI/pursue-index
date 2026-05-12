@@ -1,7 +1,7 @@
 ---
 id: llm-cleaned-reading-text
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-09
 priority: medium
 depends_on: [embed-stage, reader-mode]

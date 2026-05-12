@@ -1,8 +1,23 @@
 # Current State
 
-> Last updated: 2026-05-11 (evening)
+> Last updated: 2026-05-12 (overnight)
 
 ## What Was Just Done
+
+**2026-05-12 (overnight) — Archive integrity stack shipped + /gallery complete + repo cleanup.**
+
+- **CSV byte preservation + 30-min cadence (`a88fd18`).** Every poll now writes `data/raw/csv/<sha>.csv` content-addressed, idempotent. Bumped cron `0 */6 * *` → `*/30 * * * *`. Closes the f07601eb-tranche-lost gap. 22 poll tests + 3 new TDD tests for byte-archive contract pass.
+- **R2 content-addressed asset archive (`7cd9708`).** `scripts/r2_archive_assets.py` runs on detected CSV change. HEAD-then-GET pre-flight skips unchanged assets cheaply; uploads to `archive/<byte_sha256>.<ext>` (append-only, never overwrites) AND `<card_id>.<ext>` (current pointer, what worker/pdf.js serves). Defeats the same-URL-different-bytes overlay attack.
+- **Daily byte-verify cron (`9bd924d`).** `.github/workflows/verify-assets-daily.yml` — 06:00 UTC, same script, catches silent same-URL-different-bytes swaps the CSV poll cannot. Auto-opens `silent-overlay-detected` issue with dedup guard if any new row lands.
+- **R2 archive baselined (`3edb5d3`).** First full pass tonight: 129/129 eligible cards have a registry row. 0 failures. The daily verify cron now has a real baseline to diff against.
+- **/removed surface (`ef00c85`) + 3 finds writeups (`2970f56`).** First captured upstream removal event: FBI 62-HQ-83894 Section 6 (PDF link set to "N/A" upstream), the NASC-State 1963 file-swap (a different 1952 file now lives at that title pattern), and DOW-UAP-D20 (replaced with new card at same title, different filename). All three preserved in our archive. Hanawalt cobalt-ray finds entry also shipped (`4057a29`).
+- **/gallery Phase 1 + 2 (`4c92367`, `d622431`, `17b847e`).** Image + video tile browse with type filters and year buckets. Video tiles use real poster frames extracted from operator-downloaded DVIDS .mp4s (25 of 28 unique card_ids; remaining 3 are card_id collisions from PR-series videos sharing parent MISREPs). PDF tiles use page-1 WebP thumbnails (115 of 116; one card has upstream `asset_url: N/A`). ~3.1 MB total static assets, well under CF Workers Static Assets ceilings.
+- **Two Codex P2 fixes (`f94a00b`).** Issues #38 (`build_pages_cleaned.py` missing-page → skip+log) and #39 (`select_pilot_cards.py` backfill round-robin). Closed.
+- **Methodology disclosure (`a0d3af3`).** Full-corpus skip rate (0.55%, 23 of 4153 pages), per-skip-reason breakdown, interpretive-cleanup boundary made explicit (1.48 → 1.4a allowed; redaction fill-in never).
+- **Incident-date audit (`2b9964d`).** Systematic findings for issue #36 at `data/incident-date-audit.md`. Scraper not at fault — upstream CSV is the source. Editorial rule: prefer in-body MISREP DTG over manifest `incident_date` for /finds entries. Per-card OCR-pass follow-ups for D27 + 6 N/A cards remain.
+- **Plug-the-leak hygiene.** After two accidental secret leaks (rotated both API keys + CF API token), all env existence checks now use the `[ -n "$VAR" ]` bracket pattern. Verified safe.
+
+Tonight's commit run on `main`: 24 commits from `0035f3f` (pre-overnight) to current HEAD. All deploys live or propagating.
 
 **2026-05-11 (evening) — Regression bug hunt + tranche f07601eb ingest + integrity ask landed.**
 
