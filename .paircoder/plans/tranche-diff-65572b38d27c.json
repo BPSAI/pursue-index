@@ -1,0 +1,1386 @@
+{
+  "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d",
+  "prior_manifest_sha": "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 0,
+    "quarantined": 16,
+    "restored_unchanged": 1,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 17,
+    "field_only_changes": 93
+  },
+  "renames_confirmed": [],
+  "new_content": [],
+  "quarantined": [
+    {
+      "new_card_id": "0499d6dc86c848d6",
+      "new_title": "DOW-UAP-PR040, Unresolved UAP Report, Middle East, 2020",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "1456142475ed413b",
+        "784bb977e5172856",
+        "c74789aa8f318c6c",
+        "cf38883fb2a14b2d",
+        "95276b360927b1b8",
+        "43b24cc9276de054"
+      ],
+      "reasons": [
+        "same incident_location (Arabian Gulf)",
+        "matching numeric id 40"
+      ]
+    },
+    {
+      "new_card_id": "167f6a21c7238d0c",
+      "new_title": "NASA-UAP-D003A, Gemini 7 Audio Excerpt, 1965",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "4b346a44f42f6a05"
+      ],
+      "reasons": [
+        "same agency + same incident_date (12/5/65)",
+        "same incident_location (Low Earth Orbit)"
+      ]
+    },
+    {
+      "new_card_id": "2b6de60628336eb8",
+      "new_title": "DOW-UAP-PR045, Unresolved UAP Report, Middle East, 2020",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "f62bdd9d2cd17b38"
+      ],
+      "reasons": [
+        "matching numeric id 45",
+        "same incident_location (Southern United States)"
+      ]
+    },
+    {
+      "new_card_id": "42158cfc89c7ab84",
+      "new_title": "DOW-UAP-PR044, Unresolved UAP Report, Middle East, 2020",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "1456142475ed413b",
+        "784bb977e5172856",
+        "c74789aa8f318c6c",
+        "cf38883fb2a14b2d",
+        "95276b360927b1b8",
+        "43b24cc9276de054"
+      ],
+      "reasons": [
+        "same incident_location (Arabian Gulf)",
+        "matching numeric id 44"
+      ]
+    },
+    {
+      "new_card_id": "46d871c93e4585fd",
+      "new_title": "DOW-UAP-PR037, Unresolved UAP Report, Middle East, 2020",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "1456142475ed413b",
+        "784bb977e5172856",
+        "c74789aa8f318c6c",
+        "cf38883fb2a14b2d",
+        "95276b360927b1b8",
+        "43b24cc9276de054"
+      ],
+      "reasons": [
+        "same incident_location (Arabian Gulf)",
+        "matching numeric id 37"
+      ]
+    },
+    {
+      "new_card_id": "5ffbe11403179567",
+      "new_title": "DOW-UAP-PR028, Unresolved UAP Report, Greece, January 2024",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "d94bec9880a2a556"
+      ],
+      "reasons": [
+        "same incident_location (Greece)",
+        "matching numeric id 28"
+      ]
+    },
+    {
+      "new_card_id": "7aede23a09ee4c6b",
+      "new_title": "DOW-UAP-PR043, Unresolved UAP Report, Africa, 2025",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "79beb6bb07aed2fd"
+      ],
+      "reasons": [
+        "same incident_location (Djibouti)",
+        "matching numeric id 43"
+      ]
+    },
+    {
+      "new_card_id": "86c966cdd1f9f31a",
+      "new_title": "DOW-UAP-PR047, Unresolved UAP Report, INDOPACOM, 2023",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "5bfa9fd87605eb5b"
+      ],
+      "reasons": [
+        "same incident_location (Japan)",
+        "matching numeric id 47"
+      ]
+    },
+    {
+      "new_card_id": "8d3833f36d05ec03",
+      "new_title": "DOW-UAP-PR049, Unresolved UAP Report, Department of the Army, 2026",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "29bd36a1b5e69ae9"
+      ],
+      "reasons": [
+        "same incident_location (North America)",
+        "matching numeric id 49"
+      ]
+    },
+    {
+      "new_card_id": "9532749afe2d4273",
+      "new_title": "DOW-UAP-PR038, Unresolved UAP Report, Middle East, 2013",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "321dff3d6f61e843"
+      ],
+      "reasons": [
+        "matching numeric id 38",
+        "same incident_location (Middle East)"
+      ]
+    },
+    {
+      "new_card_id": "9fdc75d250206f65",
+      "new_title": "DOW-UAP-PR046, Unresolved UAP Report, INDOPACOM, 2024",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "3918ab9742a1aebf"
+      ],
+      "reasons": [
+        "same incident_location (East China Sea)",
+        "matching numeric id 46"
+      ]
+    },
+    {
+      "new_card_id": "aa638778a043c89c",
+      "new_title": "DOW-UAP-PR029, Unresolved UAP Report, United Arab Emirates, June 2024",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "6e780e439a23084d"
+      ],
+      "reasons": [
+        "matching numeric id 29",
+        "same incident_location (Gulf of Oman)"
+      ]
+    },
+    {
+      "new_card_id": "c4da38582fc64334",
+      "new_title": "DOW-UAP-PR042, Unresolved UAP Report, Middle East, 2020",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "1456142475ed413b",
+        "784bb977e5172856",
+        "c74789aa8f318c6c",
+        "cf38883fb2a14b2d",
+        "95276b360927b1b8",
+        "43b24cc9276de054"
+      ],
+      "reasons": [
+        "matching numeric id 42",
+        "same incident_location (Arabian Gulf)"
+      ]
+    },
+    {
+      "new_card_id": "c5850afb384c768b",
+      "new_title": "DOW-UAP-PR048, Unresolved UAP Report, INDOPACOM, 2024",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "8a6b8cfddf19aa1e"
+      ],
+      "reasons": [
+        "same incident_location (Indo-PACOM)",
+        "matching numeric id 48"
+      ]
+    },
+    {
+      "new_card_id": "cf5c53c84485c70d",
+      "new_title": "DOW-UAP-PR041, Unresolved UAP Report, Middle East, 2020",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "1456142475ed413b",
+        "784bb977e5172856",
+        "c74789aa8f318c6c",
+        "cf38883fb2a14b2d",
+        "95276b360927b1b8",
+        "43b24cc9276de054"
+      ],
+      "reasons": [
+        "same incident_location (Arabian Gulf)",
+        "matching numeric id 41"
+      ]
+    },
+    {
+      "new_card_id": "e924a48f55719a0d",
+      "new_title": "DOW-UAP-PR039, Unresolved UAP Report, Middle East, 2020",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "1456142475ed413b",
+        "784bb977e5172856",
+        "c74789aa8f318c6c",
+        "cf38883fb2a14b2d",
+        "95276b360927b1b8",
+        "43b24cc9276de054"
+      ],
+      "reasons": [
+        "same incident_location (Arabian Gulf)",
+        "matching numeric id 39"
+      ]
+    }
+  ],
+  "restored_unchanged": [
+    {
+      "new_card_id": "13f86e95aed52840",
+      "new_title": "65_HS1-834228961_62-HQ-83894_Section_6",
+      "new_asset_filename": "65_hs1-834228961_62-hq-83894_section_6.pdf",
+      "new_asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_6.pdf",
+      "pinned_byte_sha256": "3df0935cf48e6847d0a5df77a987f8a446e545cc1dda20cad60f79d966516568",
+      "pinned_fetched_at": "2026-05-12T14:44:09.432732+00:00",
+      "new_byte_sha256": "3df0935cf48e6847d0a5df77a987f8a446e545cc1dda20cad60f79d966516568"
+    }
+  ],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [
+    {
+      "card_id": "1456142475ed413b",
+      "title": "DOW-UAP-PR42, Unresolved UAP Report, Middle East, 2020",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "29bd36a1b5e69ae9",
+      "title": "DOW-UAP-PR49, Unresolved UAP Report, Department of the Army, 2026",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "321dff3d6f61e843",
+      "title": "DOW-UAP-PR38, Unresolved UAP Report, Middle East, 2013",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "3918ab9742a1aebf",
+      "title": "DOW-UAP-PR46, Unresolved UAP Report, INDOPACOM, 2024",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "43b24cc9276de054",
+      "title": "DOW-UAP-PR37, Unresolved UAP Report, Middle East, 2020",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "4b346a44f42f6a05",
+      "title": "NASA-UAP-D3A, Gemini 7 Audio Excerpt, 1965",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "5bfa9fd87605eb5b",
+      "title": "DOW-UAP-PR47, Unresolved UAP Report, INDOPACOM, 2023",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "6e780e439a23084d",
+      "title": "DOW-UAP-PR29, Unresolved UAP Report, United Arab Emirates, June 2024",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "784bb977e5172856",
+      "title": "DOW-UAP-PR40, Unresolved UAP Report, Middle East, 2020",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "79beb6bb07aed2fd",
+      "title": "DOW-UAP-PR43, Unresolved UAP Report, Africa, 2025",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "8a6b8cfddf19aa1e",
+      "title": "DOW-UAP-PR48, Unresolved UAP Report, INDOPACOM, 2024",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "95276b360927b1b8",
+      "title": "DOW-UAP-PR44, Unresolved UAP Report, Middle East, 2020",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "9c86c04b5e4a50e8",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_6",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "c74789aa8f318c6c",
+      "title": "DOW-UAP-PR39, Unresolved UAP Report, Middle East, 2020",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "cf38883fb2a14b2d",
+      "title": "DOW-UAP-PR41, Unresolved UAP Report, Middle East, 2020",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "d94bec9880a2a556",
+      "title": "DOW-UAP-PR28, Unresolved UAP Report, Greece, January 2024",
+      "asset_url": null,
+      "asset_filename": null
+    },
+    {
+      "card_id": "f62bdd9d2cd17b38",
+      "title": "DOW-UAP-PR45, Unresolved UAP Report, Middle East, 2020",
+      "asset_url": null,
+      "asset_filename": null
+    }
+  ],
+  "field_only_changes": [
+    {
+      "card_id": "04b9179a7637d6ad",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "085c019c9899db9b",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D20, Mission Report, Iraq, 2023",
+          "new": "DOW-UAP-D020, Mission Report, Iraq, 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "0b298cfc9c65a4d6",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-D6, Apollo 17 Technical Crew Debriefing, 1973",
+          "new": "NASA-UAP-D006, Apollo 17 Technical Crew Debriefing, 1973"
+        }
+      ]
+    },
+    {
+      "card_id": "0d7a23b29e6de1bf",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "0e3b3ec17a9ae021",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "15d23b5f88df64fa",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D25, Mission Report, Greece, January 2024",
+          "new": "DOW-UAP-D025, Mission Report, Greece, January 2024"
+        }
+      ]
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "17a8cc07fd8c694f",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D48, Department of the Air Force Report, 1996",
+          "new": "DOW-UAP-D048, Department of the Air Force Report, 1996"
+        }
+      ]
+    },
+    {
+      "card_id": "19b18b71420602c5",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-VM3, Apollo 12, 1969",
+          "new": "NASA-UAP-VM003, Apollo 12, 1969"
+        }
+      ]
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "1b522e779e72877c",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D12",
+          "new": "DoW-UAP-D012"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR20, Unresolved UAP Report, Kuwait, May 2022",
+          "new": "DOW-UAP-PR020, Unresolved UAP Report, Kuwait, May 2022"
+        }
+      ]
+    },
+    {
+      "card_id": "1e63919cc6c3daf4",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "205f9d0f627074c3",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D56, Range Fouler Debrief, Arabian Sea, August 2020",
+          "new": "DOW-UAP-D056, Range Fouler Debrief, Arabian Sea, August 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D54, Mission Report, Mediterranean Sea, NA",
+          "new": "DOW-UAP-D054, Mission Report, Mediterranean Sea, NA"
+        }
+      ]
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "2fecc4f3b434e64d",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D64, Mission Report, Iran, November 2020",
+          "new": "DOW-UAP-D064, Mission Report, Iran, November 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "303ad110cb5fa8b4",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-VM1, Apollo 12, 1969",
+          "new": "NASA-UAP-VM001, Apollo 12, 1969"
+        }
+      ]
+    },
+    {
+      "card_id": "33cca99659328520",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D8, Mission Report, Djibouti, 2025",
+          "new": "DOW-UAP-D008, Mission Report, Djibouti, 2025"
+        }
+      ]
+    },
+    {
+      "card_id": "34f3278ad20d348f",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-VM4, Apollo 12, 1969",
+          "new": "NASA-UAP-VM004, Apollo 12, 1969"
+        }
+      ]
+    },
+    {
+      "card_id": "36bcfe2cfb5f3f54",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "3746998b8c506e5c",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D33",
+          "new": "DoW-UAP-D033"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR34, Unresolved UAP Report, Greece, October 2023",
+          "new": "DOW-UAP-PR034, Unresolved UAP Report, Greece, October 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "3893e5d0279db3b1",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "39c999bd61b2e20f",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D60, Mission Report, Arabian Gulf, August 2020",
+          "new": "DOW-UAP-D060, Mission Report, Arabian Gulf, August 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "3a0d83f3e51179db",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D27, Mission Report, United Arab Emirates, October 2023",
+          "new": "DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "3deb237b1d68e203",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-VM6, Apollo 17, 1972",
+          "new": "NASA-UAP-VM006, Apollo 17, 1972"
+        }
+      ]
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D4, Mission Report, Arabian Gulf, 2020",
+          "new": "DOW-UAP-D004, Mission Report, Arabian Gulf, 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "43db2719407a7897",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D14",
+          "new": "DoW-UAP-D014"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR21, Unresolved UAP Report, Iraq, May 2022",
+          "new": "DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022"
+        }
+      ]
+    },
+    {
+      "card_id": "4555d94dd6067f57",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D16",
+          "new": "DoW-UAP-D016"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR22, Unresolved UAP Report, Syria, July 2022",
+          "new": "DOW-UAP-PR022, Unresolved UAP Report, Syria, July 2022"
+        }
+      ]
+    },
+    {
+      "card_id": "48e4bc1bdb5a66e8",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-D3, Gemini 7 Transcript, 1965",
+          "new": "NASA-UAP-D003, Gemini 7 Transcript, 1965"
+        }
+      ]
+    },
+    {
+      "card_id": "57e9cc7f9942e2cf",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D19, Mission Report, Syria, February 21, 2023",
+          "new": "DOW-UAP-D019, Mission Report, Syria, February 21, 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "5847028ebb855cf8",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "State Department UAP Cable 4, Ashgabat, Turkmenistan, November 5, 2004",
+          "new": "State Department UAP Cable 004, Ashgabat, Turkmenistan, November 5, 2004"
+        }
+      ]
+    },
+    {
+      "card_id": "5a487c793b488382",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "5d9d3147f0b62d0c",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-D1, Apollo 12 Transcript, 1969",
+          "new": "NASA-UAP-D001, Apollo 12 Transcript, 1969"
+        }
+      ]
+    },
+    {
+      "card_id": "613dc8ef961f9399",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "63c47bad93af4c92",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-D5, Apollo 17 Crew Debriefing for Science, 1973",
+          "new": "NASA-UAP-D005, Apollo 17 Crew Debriefing for Science, 1973"
+        }
+      ]
+    },
+    {
+      "card_id": "669dd29723dd423f",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D55, Mission Report, Syria, November 2016",
+          "new": "DOW-UAP-D055, Mission Report, Syria, November 2016"
+        }
+      ]
+    },
+    {
+      "card_id": "672ae7eab15481ff",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "67ab3ffef2aecf70",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "6d7faf71150107e9",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D50, Email Correspondence, INDOPACOM, April 2025",
+          "new": "DOW-UAP-D050, Email Correspondence, INDOPACOM, April 2025"
+        }
+      ]
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D7, Mission Report, Arabian Gulf, 2020",
+          "new": "DOW-UAP-D007, Mission Report, Arabian Gulf, 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "71758de42a2df926",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D51, Email Correspondence, Pacific Time Zone, March 2023",
+          "new": "DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "775d16ead1ec8fa1",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D49, Launch Summary, Vandenberg AFB, 2000",
+          "new": "DOW-UAP-D049, Launch Summary, Vandenberg AFB, 2000"
+        }
+      ]
+    },
+    {
+      "card_id": "784dc42f885dc12e",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-VM5, Apollo 12, 1969",
+          "new": "NASA-UAP-VM005, Apollo 12, 1969"
+        }
+      ]
+    },
+    {
+      "card_id": "78dc972c0c143d1e",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-D2, Apollo 17 Transcript, 1972",
+          "new": "NASA-UAP-D002, Apollo 17 Transcript, 1972"
+        }
+      ]
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "819e725592d1ba79",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "852224ee097b52cf",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D75, Mission Report, Gulf of Aden, July 2024",
+          "new": "DOW-UAP-D075, Mission Report, Gulf of Aden, July 2024"
+        }
+      ]
+    },
+    {
+      "card_id": "88a20bf256ccce7a",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D38",
+          "new": "DoW-UAP-D038"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR36, Unresolved UAP Report, Middle East, May 2020",
+          "new": "DOW-UAP-PR036, Unresolved UAP Report, Middle East, May 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "8bb54e0aec5e91ad",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-D7, Skylab Techincal Crew Debriefing 1973",
+          "new": "NASA-UAP-D007, Skylab Techincal Crew Debriefing 1973"
+        }
+      ]
+    },
+    {
+      "card_id": "8e727ae36892cba9",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D63, Mission Report, Strait of Hormuz, October 2020",
+          "new": "DOW-UAP-D063, Mission Report, Strait of Hormuz, October 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "8f354cf1d1f821f0",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "State Department UAP Cable 1, Papua New Guinea, January 28, 1985",
+          "new": "State Department UAP Cable 001, Papua New Guinea, January 28, 1985"
+        }
+      ]
+    },
+    {
+      "card_id": "9151e15016109463",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D28, Mission Report, Iraq, September 2024",
+          "new": "DOW-UAP-D028, Mission Report, Iraq, September 2024"
+        }
+      ]
+    },
+    {
+      "card_id": "93cbdaad1d4ac853",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "9877727cd0d1bbfe",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "State Department UAP Cable 2, Kazakhstan, January 31, 1994",
+          "new": "State Department UAP Cable 002, Kazakhstan, January 31, 1994"
+        }
+      ]
+    },
+    {
+      "card_id": "9961adf6adf1010b",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D18",
+          "new": "DoW-UAP-D018"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR23, Unresolved UAP Report, Iraq, December 2022",
+          "new": "DOW-UAP-PR023, Unresolved UAP Report, Iraq, December 2022"
+        }
+      ]
+    },
+    {
+      "card_id": "9a0a2d62e9f47eb8",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D12, Mission Report, Iraq, May 2022",
+          "new": "DOW-UAP-D012, Mission Report, Iraq, May 2022"
+        }
+      ]
+    },
+    {
+      "card_id": "9a3f23d9136eddf3",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D58, Range Fouler Debrief, NA, October 2020",
+          "new": "DOW-UAP-D058, Range Fouler Debrief, NA, October 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "a0f6663169c21caf",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D42, Range Fouler Debrief, Japan, 2023",
+          "new": "DOW-UAP-D042, Range Fouler Debrief, Japan, 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "a33faf4c40674462",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D61, Mission Report, Arabian Gulf, August 2020",
+          "new": "DOW-UAP-D061, Mission Report, Arabian Gulf, August 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "a3f68d208681dc64",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D52, Email Correspondance, NA, August 2024",
+          "new": "DOW-UAP-D052, Email Correspondance, NA, August 2024"
+        }
+      ]
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "aef933642db8134a",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D65, Mission Report, Arabian Gulf, July 2020",
+          "new": "DOW-UAP-D065, Mission Report, Arabian Gulf, July 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D5, Mission Report, Arabian Gulf, 2020",
+          "new": "DOW-UAP-D005, Mission Report, Arabian Gulf, 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "b279eac8e49cf4fe",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "b8b5b17a6d70ef39",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D62, Mission Report, Strait of Hormuz, September 2020",
+          "new": "DOW-UAP-D062, Mission Report, Strait of Hormuz, September 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "ba30b5fdb4f6d153",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "bbc494426d526bdc",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D74, Mission Report, Syria, November 2023",
+          "new": "DOW-UAP-D074, Mission Report, Syria, November 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "bd9411951868bc3e",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-VM2, Apollo 12, 1969",
+          "new": "NASA-UAP-VM002, Apollo 12, 1969"
+        }
+      ]
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "be533a4ab886eb11",
+      "diffs": [
+        {
+          "field": "description",
+          "old": "This is an FBI 302 interview conducted with a senior US intelligence official regarding his first-hand account of a UAP encounter at a US military facility. USPER relayed to FBI agents that he and other federal and state personnel conducted searches to where orbs had been previously seen.  After searching the area with a helicopter, they found a \u201csuper-hot\u201d orb hovering over the ground.  The orb is reported to have travelled for 20 miles at a speed too fast for the helicopter in pursuit.  An additional \u201cswarm\u201d of lights were seen moving in all directions.  A total of four or five additional orbs were seen shortly thereafter for a short time, flaring up and then down.  This pattern of four or five orbs flaring up, then down continued over the next thirty minutes across the area.",
+          "new": "This is an FBI 302 interview conducted with a senior US intelligence official regarding his first-hand account of a UAP encounter at a US military facility. USPER relayed to FBI agents that he and other federal and state personnel conducted searches to where orbs had been previously seen. After searching the area with a helicopter, they found a \u201csuper-hot\u201d orb hovering over the ground. The orb is reported to have travelled for 20 miles at a speed too fast for the helicopter in pursuit. An additional \u201cswarm\u201d of lights were seen moving in all directions. A total of four or five additional orbs were seen shortly thereafter for a short time, flaring up and then down. This pattern of four or five orbs flaring up, then down continued over the next thirty minutes across the area.\n\nThe photos linked in the \"Related Media\" section are connected to a set of UAP encounters on a sensitive government testing installation in the Western US in 2025. These orb-like UAP were observed at various ranges by multiple, and in some cases simultaneous, government personnel and sensors. The linked narrative is an FBI-collected account from a senior U.S. intelligence community official who witnessed the UAP with the naked eye, while accompanied by two pilots under NVGs. Other pilots in separate aircraft, and ground-based observers with night vision, also witnessed UAP during the exercise. The photos of UAP underneath the helicopter are from this same set of observations, taken through night vision devices by ground-based personnel."
+        },
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "FBI Photo A1 | FBI Photo A2 | FBI Photo A3 | FBI Photo A4 | FBI Photo A5 | FBI Photo A6 | FBI Photo A7 | FBI Photo A8 | FBI Photo B1 | FBI Photo B2 | FBI Photo B3 | FBI Photo B4 | FBI Photo B5 | FBI Photo B6 | FBI Photo B7 | FBI Photo B8 | FBI Photo B9 | FBI Photo B10 | FBI Photo B11 | FBI Photo B12 | FBI Photo B13 | FBI Photo B14 | FBI Photo B15 | FBI Photo B16 | FBI Photo B17 | FBI Photo B18 | FBI Photo B19 | FBI Photo B20 | FBI Photo B21 | FBI Photo B22 | FBI Photo B23 | FBI Photo B24"
+        }
+      ]
+    },
+    {
+      "card_id": "c142741e8cafc659",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "c1c59236394f7b14",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D10",
+          "new": "DoW-UAP-D010"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR19, Unresolved UAP Report, Middle East, May 2022",
+          "new": "DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022"
+        }
+      ]
+    },
+    {
+      "card_id": "c2961d7ccb95ae45",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D57, Range Fouler Reporting Form, Gulf of Aden, September 2020",
+          "new": "DOW-UAP-D057, Range Fouler Reporting Form, Gulf of Aden, September 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "c304734c04357887",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "c48c078b811c0fd7",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "State Department UAP Cable 5, Mexico, September 16, 2003",
+          "new": "State Department UAP Cable 005, Mexico, September 16, 2003"
+        }
+      ]
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "c788c17e8cc32230",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D35",
+          "new": "DoW-UAP-D035"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR35, Unresolved UAP Report, Greece, October 2023",
+          "new": "DOW-UAP-PR035, Unresolved UAP Report, Greece, October 2023"
+        }
+      ]
+    },
+    {
+      "card_id": "cc33e8c352fc80ce",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D44, Range Fouler Reporting Form, Gulf of Aden, October 2020",
+          "new": "DOW-UAP-D044, Range Fouler Reporting Form, Gulf of Aden, October 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "ccd932b4f40e8de7",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "d14e0371a5bf0f5e",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "NASA-UAP-D4, Apollo 11 Technical Crew Debriefing, 1969",
+          "new": "NASA-UAP-D004, Apollo 11 Technical Crew Debriefing, 1969"
+        }
+      ]
+    },
+    {
+      "card_id": "d8e5687dc870892d",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D23",
+          "new": "DoW-UAP-D023"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR27, Unresolved UAP Report, United Arab Emirates, October 2023",
+          "new": "DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023"
+        },
+        {
+          "field": "video_pairing",
+          "old": "PR-26",
+          "new": "PR-026"
+        }
+      ]
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DoW-UAP-D32",
+          "new": "DoW-UAP-D032"
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-PR33, Unresolved UAP Report, Syria, October 2024",
+          "new": "DOW-UAP-PR033, Unresolved UAP Report, Syria, October 2024"
+        },
+        {
+          "field": "video_pairing",
+          "old": "PR-31 | PR-32",
+          "new": "PR-031 | PR-032"
+        }
+      ]
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D6, Mission Report, Arabian Gulf, 2020",
+          "new": "DOW-UAP-D006, Mission Report, Arabian Gulf, 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "fd8286ffc6fbc1fb",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "USPER Statement about UAP Sighting"
+        }
+      ]
+    },
+    {
+      "card_id": "fd8bfb9481bcbdd3",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "DOW-UAP-D3, Mission Report, Arabian Gulf, 2020",
+          "new": "DOW-UAP-D003, Mission Report, Arabian Gulf, 2020"
+        }
+      ]
+    },
+    {
+      "card_id": "ff30c985595153f3",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "State Department UAP Cable 3, Tbilisi, Georgia, October 30, 2001",
+          "new": "State Department UAP Cable 003, Tbilisi, Georgia, October 30, 2001"
+        }
+      ]
+    }
+  ]
+}
