@@ -40,6 +40,8 @@ CSV columns we consume:
 | 4 | embed    | manifest + OCR output | Voyage-3 float16 browser payload     | ✅ shipped |
 | 5 | serve    | embed payload + worker | Static site + Cloudflare Worker chat | ✅ shipped |
 
+The 30-minute CSV poll drives a parallel **archive** lane: per-fetch CSV bytes are committed content-addressed, prior manifests rotate into `data/manifests/snapshots/<csv_sha>.json`, and every referenced PDF/IMG asset is mirrored into R2 keyed by `byte_sha256`. A daily verify cron catches silent upstream overlays.
+
 ## Idempotency contract
 
 Every stage is idempotent against a content-hashed manifest. The manifest carries `csv_sha256` (hash of raw bytes) so we can detect upstream changes cheaply. Re-running on an unchanged manifest is a no-op modulo timestamps.
@@ -58,37 +60,43 @@ Not every PURSUE entry is a PDF. Of the 158 in PURSUE Release 01 (as of tranche 
 
 ## OCR strategy
 
-Historical FBI scans vary wildly in quality, so we plan for a multi-engine
-approach. The current implementation is **Tesseract-only (v1)**; the engine
-seam in `ocr/pipeline.py` (`rasterize_pdf`, `ocr_image`, `_run_engine`) is
-deliberately engine-agnostic so additional engines can land without
-disturbing orchestration.
+Historical FBI scans vary wildly in quality, so the pipeline supports
+three engines behind a common interface. The deployed primary is Surya;
+an LLM-vision fallback fires on pages whose Surya confidence falls
+below threshold. Tesseract remains available as a CLI option for
+CPU-only hosts but is not used in the deployed corpus. The engine seam
+in `ocr/pipeline.py` (`rasterize_pdf`, `ocr_image`, `_run_engine`) is
+engine-agnostic so additional engines can land without disturbing
+orchestration.
 
-- **Tesseract** (current default) — local CPU OCR. Fast, free, good enough
-  for clean typewriter scans. Note: Tesseract is CPU-only; the GPU on the
-  workstation is unused by this engine.
-- **GPU OCR** (planned) — modern transformer-based OCR (Surya is the leading
-  candidate) running on the local 5090 would dramatically outperform
-  Tesseract on faded, skewed, multi-column FBI scans, and likely cut
-  wall-clock by 5–20× on long PDFs.
-- **LLM extraction** (planned) — Anthropic / OpenAI vision models as the
-  high-quality fallback for pages where Tesseract confidence is low. LLM
-  extraction gives us better output for less integration surface and no
-  model-training overhead.
+- **Surya** (deployed default on the GPU host) — transformer-based,
+  CUDA. Median CER 6.1% on the golden set vs Tesseract's 40.4%; see
+  `docs/ocr-benchmark.md`.
+- **LLM extraction (Anthropic Haiku 4.5)** — fallback for pages with
+  Surya confidence below 70. Re-OCRs from the page image, not from
+  the broken Surya text.
+- **Tesseract** — CPU baseline. Available via `--engine tesseract`
+  for hosts without a CUDA GPU; not used in production.
 
-In the eventual `auto` mode, Tesseract (or Surya) runs first; pages with
-mean confidence below threshold are re-extracted via the LLM fallback.
-Engine + confidence are recorded per page in `pages.jsonl`.
+In `auto` mode (`resolve_primary_engine`), Surya runs first when the
+`[gpu]` extra is installed; Tesseract is the fallback primary
+otherwise. Either way, pages with mean confidence below the LLM
+threshold are re-extracted via Anthropic vision from the original
+page image. Engine + confidence are recorded per page in `pages.jsonl`.
 
 ## Search
 
-Phase 1: Postgres full-text search via a `tsvector` column with a GIN index. Phase 2 (if needed): pgvector for semantic search.
+Search is browser-side: MiniSearch (lexical) over the OCR text plus
+Voyage-3 embeddings for semantic / `/api/retrieve`. No server query
+path. The SQLAlchemy schema in `src/pursue_index/index/` is an optional
+forensic-ingest target — not in the deployed read path.
 
 ## What lives where
 
-- **Repo**: code, `pyproject.toml`, manifests (small JSON, version-controlled), migrations, docs.
-- **NAS** (`PURSUE_DATA_ROOT`): `pdfs/`, `images/`, `videos/`, `ocr/`, `csv-archive/` (timestamped raw CSV snapshots), `logs/`.
-- **Postgres**: `cards`, `pages`. No blobs in DB.
+- **Repo**: code, `pyproject.toml`, manifests (small JSON, version-controlled), migrations, docs, content-addressed CSV bytes (`data/raw/csv/<sha>.csv`) and rotated manifest snapshots (`data/manifests/snapshots/`).
+- **NAS** (`PURSUE_DATA_ROOT`): `pdfs/`, `images/`, `videos/`, `ocr/`, `logs/`.
+- **R2**: `archive/<byte_sha256>.<ext>` mirror of every referenced PDF/IMG asset (silent-overlay-resistant byte-history archive).
+- **Postgres** (optional forensic-ingest target; not used by the deployed site): `cards`, `pages`.
 
 The split is enforced by config: `PURSUE_DATA_ROOT` and `PURSUE_MANIFESTS_DIR` are independent, so manifests stay in the repo regardless of where bulk data is parked.
 
@@ -99,13 +107,13 @@ The CSV URL is stable; DOW updates the file in place when new tranches drop.
 ```bash
 pursue scrape run                          # writes data/manifests/latest.json + archives raw CSV
 pursue download run --manifest data/manifests/latest.json
-pursue ocr run --manifest data/manifests/latest.json
-pursue index ingest --manifest data/manifests/latest.json
+pursue ocr run --manifest data/manifests/latest.json --engine auto
+pursue embed run --manifest data/manifests/latest.json --augment-from data/external/alex-zhang42-corpus.jsonl
 ```
 
-Each stage skips work it's already done for unchanged `card_id`s. The CSV archive (`data/csv-archive/uap-csv-<timestamp>.csv`) gives us a forensic trail of how the source has evolved over time, independent of the manifests we generate.
+Each stage skips work it's already done for unchanged `card_id`s. The CSV archive (`data/raw/csv/<sha>.csv`, content-addressed and committed) gives us a forensic trail of how the source has evolved over time, independent of the manifests we generate.
 
-A 6-hour cron (`.github/workflows/poll-pursue.yml`) watches the upstream CSV via the curl_cffi Chrome-impersonate path and opens an issue when the sha changes (or when fetching fails). The same workflow runs a sentinel PDF-fetch health check (`scripts/pdf_health_check.py`, deterministic lex-smallest PDF card from the manifest) over the same TLS path so PDF-only Akamai gating shifts surface within 6h instead of waiting for an operator-attended download stage to fail.
+A 30-minute cron (`.github/workflows/poll-pursue.yml`) watches the upstream CSV via the curl_cffi Chrome-impersonate path; on every fetch it preserves the raw CSV bytes content-addressed under `data/raw/csv/<sha>.csv` and on sha change opens a `tranche-detected` issue. The same workflow runs a sentinel PDF-fetch health check (`scripts/pdf_health_check.py`, deterministic lex-smallest PDF card from the manifest) over the same TLS path so PDF-only Akamai gating shifts surface within 30 minutes instead of waiting for an operator-attended download stage to fail. A companion `verify-assets-daily.yml` workflow runs at 06:07 UTC daily and HEAD-checks every referenced asset against its registered byte_sha — same-URL-different-bytes overlays land as a new `archive/<byte_sha>.<ext>` row and open a `silent-overlay-detected` issue.
 
 ## Web build chain (post-embed)
 
