@@ -646,8 +646,11 @@ textarea:focus {
 
 /* Global focus-visible ring — applies to elements that don't override it.
    Skipped on form fields (they have their own ring above) and on the skip
-   link (it has its own bigger ring) to avoid double-ring stacking. */
-a:focus-visible,
+   link (it has its own bigger ring) to avoid double-ring stacking.
+   The :not(.pi-cite) on a:focus-visible preserves the cyan citation-chip
+   ring (defined above at :347), which would otherwise tie on specificity
+   and lose by source order (vaivora cross-cutting P2, 2026-05-12). */
+a:not(.pi-cite):focus-visible,
 button:focus-visible,
 [role="button"]:focus-visible,
 [role="tab"]:focus-visible,

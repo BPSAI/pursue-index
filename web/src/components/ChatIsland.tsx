@@ -297,15 +297,19 @@ export default function ChatIsland({ base, cards }: Props) {
             </li>
           ))}
         </ul>
-        {busy && (
-          <p
-            role="status"
-            class="pi-loading text-[11px] uppercase tracking-[0.18em] mt-3"
-          >
-            {phase}<span class="pi-caret" aria-hidden="true"></span>
-          </p>
-        )}
       </div>
+      {/* Phase indicator sits OUTSIDE the role="log" container — nested
+          live regions can double-announce on some screen readers
+          (vaivora P1, 2026-05-12). Sibling placement keeps polite
+          phase transitions distinct from transcript appends. */}
+      {busy && (
+        <p
+          role="status"
+          class="pi-loading text-[11px] uppercase tracking-[0.18em] mt-3"
+        >
+          {phase}<span class="pi-caret" aria-hidden="true"></span>
+        </p>
+      )}
 
       {/* Composer */}
       <div class="mt-3 border-t border-[color:var(--color-border)] pt-3">

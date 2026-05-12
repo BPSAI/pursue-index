@@ -137,3 +137,70 @@ def test_token_table_matches_global_css() -> None:
     assert not drift, (
         f"Token drift between this test's table and global.css: {drift}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Drift guard, extended: catches token consumers OUTSIDE global.css that
+# could go stale silently. The original guard only walked global.css; the
+# vaivora cross-cutting review (2026-05-12) flagged that web/public/og.svg
+# and web/src/components/atlas-helpers.ts hard-code the same hex literals
+# and were missed during the WCAG bump. Extends the guard to those files.
+# ---------------------------------------------------------------------------
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+EXTERNAL_TOKEN_CONSUMERS = [
+    _REPO_ROOT / "web" / "public" / "og.svg",
+    _REPO_ROOT / "web" / "src" / "components" / "atlas-helpers.ts",
+]
+# The OLD literals that should no longer appear as fill/color usage in any
+# consumer. Matched against lowercased file text for case-insensitivity.
+RETIRED_LITERALS = {"#4a5563", "#6b7783"}
+
+
+def test_external_token_consumers_have_no_retired_literals() -> None:
+    """No file outside global.css should still carry the pre-WCAG-AA hex.
+
+    Note: false-positives possible if a consumer mentions the old hex in
+    a comment or docstring describing the migration. The atlas-helpers.ts
+    `text-dim was #6b7783 prior` comment is one such case — matched on
+    'old hex' textual context, allowed via _COMMENT_EXEMPT below.
+    """
+    _COMMENT_EXEMPT = {"#6b7783"}  # historical comment in atlas-helpers.ts
+    offenders: dict[str, list[str]] = {}
+    for path in EXTERNAL_TOKEN_CONSUMERS:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8").lower()
+        # Per-file: filter out exempt-via-comment hits by checking whether
+        # the literal appears in a comment-only line. For the atlas-helpers
+        # case the literal is on a `*` JSDoc line; for og.svg there is no
+        # comment context for these hexes.
+        hits: list[str] = []
+        for lit in RETIRED_LITERALS:
+            if lit not in text:
+                continue
+            # Walk per-line: if every occurrence is in a comment line for
+            # an exempt literal, skip. Otherwise flag.
+            non_comment_use = False
+            for line in text.splitlines():
+                if lit not in line:
+                    continue
+                stripped = line.strip()
+                is_comment_line = (
+                    stripped.startswith("*") or
+                    stripped.startswith("//") or
+                    stripped.startswith("#") or
+                    stripped.startswith("<!--")
+                )
+                if not (is_comment_line and lit in _COMMENT_EXEMPT):
+                    non_comment_use = True
+                    break
+            if non_comment_use:
+                hits.append(lit)
+        if hits:
+            offenders[str(path.relative_to(_REPO_ROOT))] = hits
+    assert not offenders, (
+        f"Retired hex literals still present in non-CSS consumers: {offenders}. "
+        f"The WCAG AA bump (2026-05-12) replaced #4a5563 → #8390a0 and "
+        f"#6b7783 → #9ba6b3 in global.css; mirror the change here."
+    )

@@ -170,9 +170,14 @@ export default function AtlasAccessibleBrowser({ cards, base }: Props) {
       </header>
       <p class="text-[12px] text-[color:var(--color-text)] leading-relaxed">
         A keyboard- and screen-reader-friendly alternative to the canvas
-        above. Same corpus, same destinations — clicking a row opens the
-        same card detail page. Sort by any column; the canvas's color
-        coding by agency is preserved here as the default sort.
+        above. Same underlying corpus; clicking a row opens the same
+        card detail page. Note: this table is card-scoped
+        ({cards.length.toLocaleString()} cards) while the canvas is
+        page-scoped (each card contributes one dot per OCR'd page),
+        and the two surfaces have independent filter/search state — a
+        filter applied here does not propagate to the canvas, and vice
+        versa. Sort by any column; the canvas's color coding by agency
+        is preserved here as the default sort.
       </p>
 
       {/* View toggle — sets the natural sort anchor; users can override
