@@ -56,6 +56,7 @@ from _poll_results import Changed, Failed, PollResult, Unchanged  # noqa: E402
 
 DEFAULT_STATE_PATH = _REPO_ROOT / "data" / "last-known-csv-sha.txt"
 DEFAULT_MANIFEST_PATH = _REPO_ROOT / "data" / "manifests" / "latest.json"
+DEFAULT_CSV_ARCHIVE_DIR = _REPO_ROOT / "data" / "raw" / "csv"
 
 
 def sha256_hex(body: bytes) -> str:
@@ -134,12 +135,45 @@ def _fetch_or_failed(ts: str) -> bytes | Failed:
         return _failed(exc, ts)
 
 
-def poll(state_path: Path, manifest_path: Path | None = DEFAULT_MANIFEST_PATH) -> PollResult:
+def _archive_csv_bytes(body: bytes, sha: str, archive_dir: Path) -> Path:
+    """Write the fetched CSV bytes to ``<archive_dir>/<sha>.csv``.
+
+    Content-addressed by sha, so this is idempotent: a future poll on
+    an unchanged CSV will hit the same path and find the file already
+    exists. Returns the path either way so the caller can log it.
+
+    Why this exists: the poll already has the bytes in memory (it has
+    to, to compute the hash). Without this step the bytes are
+    discarded after the hash is recorded, and a transient upstream
+    state shorter than the gap between attended scrapes (the
+    f07601ebed0f tranche on 2026-05-11, ~5 hours between detection at
+    18:40Z and the next operator-attended scrape at 23:35Z) goes
+    permanently unrecoverable. Saving bytes inline at fetch time
+    closes that integrity gap with one filesystem write per poll.
+    """
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    path = archive_dir / f"{sha}.csv"
+    if not path.exists():
+        path.write_bytes(body)
+    return path
+
+
+def poll(
+    state_path: Path,
+    manifest_path: Path | None = DEFAULT_MANIFEST_PATH,
+    csv_archive_dir: Path | None = None,
+) -> PollResult:
     """Fetch upstream, compare to ``state_path``, return a result.
 
-    Pure observation: does NOT mutate ``state_path``. The caller decides
-    whether to commit. ``manifest_path=None`` disables the manifest
-    fallback (test-only).
+    Pure observation w.r.t. ``state_path``: does NOT mutate it. The
+    caller decides whether to commit. ``manifest_path=None`` disables
+    the manifest fallback (test-only).
+
+    Side effect: when ``csv_archive_dir`` is set (the default), the
+    fetched bytes are written to ``<dir>/<sha>.csv`` content-addressed
+    and idempotent. This is the byte-preservation guarantee — without
+    it we could only ever know the sha changed, not what the changed
+    bytes looked like.
     """
     ts = _now_iso()
     old_sha = _resolve_old_sha(state_path, manifest_path)
@@ -153,6 +187,16 @@ def poll(state_path: Path, manifest_path: Path | None = DEFAULT_MANIFEST_PATH) -
         return _failed("fetch returned empty body", ts)
 
     new_sha = sha256_hex(body)
+
+    # Archive the bytes BEFORE branching on changed/unchanged.
+    # Idempotent — same sha means same path, write skips if file exists.
+    # We archive even on Unchanged so that on the very first poll after
+    # the operator runs a manual scrape (which doesn't currently archive
+    # to git-tracked storage), the bytes for the current upstream state
+    # land in the repo without waiting for the next CSV change.
+    if csv_archive_dir is not None:
+        _archive_csv_bytes(body, new_sha, csv_archive_dir)
+
     if new_sha == old_sha:
         return Unchanged(sha=new_sha)
 
@@ -185,11 +229,22 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_MANIFEST_PATH,
         help="Path to the latest manifest (used as fallback sha source).",
     )
+    parser.add_argument(
+        "--csv-archive-dir",
+        type=Path,
+        default=DEFAULT_CSV_ARCHIVE_DIR,
+        help=(
+            "Directory to write each fetched CSV body to, named "
+            "<sha>.csv. Content-addressed so re-fetches are idempotent. "
+            "Default is data/raw/csv/ in the repo root."
+        ),
+    )
     args = parser.parse_args(argv)
     state: Path = args.state
     manifest: Path = args.manifest
+    csv_archive: Path = args.csv_archive_dir
 
-    result = poll(state, manifest_path=manifest)
+    result = poll(state, manifest_path=manifest, csv_archive_dir=csv_archive)
 
     if isinstance(result, Changed):
         _write_state(state, result.new_sha, result.fetched_at)

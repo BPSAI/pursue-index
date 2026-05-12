@@ -26,9 +26,14 @@ name: Poll PURSUE for new tranches
 #   later enabled on `main` requiring PRs/reviews, this push will fail
 #   and the sha update will be lost. Either keep `github-actions[bot]`
 #   exempt from those rules, or rework this step to open a PR.
-# * Bot commit surface: the bot ONLY ever writes
-#   `data/last-known-csv-sha.txt`. Future contributors should not
-#   expand the commit surface without revisiting permissions.
+# * Bot commit surface: the bot writes BOTH
+#   `data/last-known-csv-sha.txt` (the canonical state file) AND
+#   `data/raw/csv/<sha>.csv` (the content-addressed byte archive,
+#   added 2026-05-11 to plug the integrity gap where transient
+#   upstream states between attended scrapes were unrecoverable).
+#   The byte archive is committed on every detected change so the
+#   public record always has the bytes that produced the recorded
+#   sha. Both files share the same fast-forward push lane.
 # * Action pinning: `actions/checkout` and `actions/setup-python` are
 #   pinned to commit SHAs (SEC-001). Bumps land via Dependabot
 #   (`.github/dependabot.yml`, `github-actions` ecosystem).
@@ -39,7 +44,17 @@ name: Poll PURSUE for new tranches
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # every 6 hours UTC
+    # Every 30 minutes UTC. Bumped from 6h on 2026-05-11 after the
+    # f07601eb tranche (which lived ~5 hours on war.gov) was lost to
+    # the 6h cadence — a transient state shorter than the polling
+    # window has zero chance of being caught. 30 min keeps us under
+    # GitHub Actions' free-tier minute budget (the public-repo tier
+    # is unlimited anyway) and is short enough that the typical
+    # tranche-shape window is captured. If upstream behavior tightens
+    # further, drop to */15 — the poll itself runs ~30s and the only
+    # real ceiling is rate-limiting from war.gov on the Akamai edge,
+    # which has not been observed at any cadence we've tested.
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -102,7 +117,7 @@ jobs:
         # still want the issue-opening step to fire before failing the job.
         continue-on-error: true
 
-      - name: Commit new sha (when changed)
+      - name: Commit new sha + CSV bytes (when changed)
         if: steps.poll.outputs.status == 'changed'
         env:
           OLD_SHA: ${{ steps.poll.outputs.old_sha }}
@@ -112,10 +127,19 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/last-known-csv-sha.txt
+          # The poll script writes the fetched bytes to
+          # data/raw/csv/<sha>.csv at fetch time. Stage it so the
+          # canonical byte record lands in git alongside the sha update.
+          # Content-addressed naming means duplicates self-resolve: if
+          # the file is already tracked from a prior run, git add is a
+          # no-op. (Plugs the f07601eb-style integrity gap.)
+          if [ -d data/raw/csv ]; then
+            git add data/raw/csv/*.csv 2>/dev/null || true
+          fi
           if [ "$IS_BOOTSTRAP" = "true" ]; then
             MSG="chore(poll): bootstrap last-known sha ${NEW_SHA:0:12}"
           else
-            MSG="chore(poll): upstream CSV changed ${OLD_SHA:0:12} -> ${NEW_SHA:0:12}"
+            MSG="chore(poll): upstream CSV changed ${OLD_SHA:0:12} -> ${NEW_SHA:0:12} (+bytes)"
           fi
           git commit -m "$MSG"
           # Rebase against any concurrent advance of main (e.g. a human
@@ -123,6 +147,32 @@ jobs:
           # plus a bare push races on non-fast-forward. (vaivora P1#2)
           git pull --rebase origin main
           git push
+
+      - name: Archive CSV bytes on every poll (idempotent)
+        # On UNCHANGED polls, the poll script still wrote the bytes to
+        # data/raw/csv/<sha>.csv (idempotent — same content == same
+        # filename, write skips if file exists). The "changed" branch
+        # above already commits anything new. This step handles the
+        # one-shot bootstrap case: the very first poll after this
+        # change lands, the current upstream sha's bytes might not
+        # yet be in git from any prior run. Commit them then.
+        # Safe to no-op on every subsequent run.
+        if: steps.poll.outputs.status == 'unchanged'
+        env:
+          SHA: ${{ steps.poll.outputs.new_sha }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -d data/raw/csv ]; then
+            git add data/raw/csv/*.csv 2>/dev/null || true
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(poll): backfill CSV bytes for ${SHA:0:12}"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No new CSV bytes to commit (already in git)."
+          fi
 
       - name: Open tranche-detected issue
         # Skip the issue on bootstrap — there's no actual change to alert on,

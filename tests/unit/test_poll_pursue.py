@@ -63,11 +63,88 @@ def test_unchanged_when_sha_matches_last_known(
     sha_a = poll_pursue.sha256_hex(_BODY_A)
     state.write_text(f"{sha_a}  2026-05-08T00:00:00Z\n")
 
-    result = poll_pursue.poll(state)
+    result = poll_pursue.poll(state, csv_archive_dir=None)
 
     assert isinstance(result, poll_pursue.Unchanged)
     assert result.sha == sha_a
     assert state.read_text().startswith(sha_a)  # file untouched
+
+
+def test_archives_bytes_to_sha_named_file_on_changed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Plug-the-gap test: every fetched body lands at <archive>/<sha>.csv.
+
+    This is the byte-preservation guarantee added 2026-05-11 to recover
+    transient upstream states (the f07601eb tranche existed ~5 hours on
+    war.gov and was lost because the poll discarded the bytes after
+    hashing). Without this archive step, the only record of any change
+    is the sha — useless for reconstructing what the bytes were.
+    """
+    _stub_fetch(monkeypatch, _BODY_B)
+    state = tmp_path / "state.txt"
+    sha_a = poll_pursue.sha256_hex(_BODY_A)
+    state.write_text(f"{sha_a}  2026-05-08T00:00:00Z\n")
+    archive_dir = tmp_path / "csv-archive"
+
+    result = poll_pursue.poll(state, csv_archive_dir=archive_dir)
+
+    assert isinstance(result, poll_pursue.Changed)
+    archived = archive_dir / f"{result.new_sha}.csv"
+    assert archived.exists(), "expected sha-named file in archive dir"
+    assert archived.read_bytes() == _BODY_B
+
+
+def test_archives_bytes_on_unchanged_too(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unchanged polls still archive — covers first-poll-after-manual-scrape.
+
+    A manual `pursue scrape run` doesn't currently land CSV bytes into
+    the git-tracked archive. The next poll after that operator-attended
+    scrape sees no change (sha matches), but is the first opportunity
+    to commit the bytes for the current upstream state. Skipping the
+    archive on Unchanged would leave a permanent off-by-one gap.
+    """
+    _stub_fetch(monkeypatch, _BODY_A)
+    state = tmp_path / "state.txt"
+    sha_a = poll_pursue.sha256_hex(_BODY_A)
+    state.write_text(f"{sha_a}  2026-05-08T00:00:00Z\n")
+    archive_dir = tmp_path / "csv-archive"
+
+    result = poll_pursue.poll(state, csv_archive_dir=archive_dir)
+
+    assert isinstance(result, poll_pursue.Unchanged)
+    archived = archive_dir / f"{result.sha}.csv"
+    assert archived.exists()
+    assert archived.read_bytes() == _BODY_A
+
+
+def test_archive_is_idempotent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Content-addressed naming makes re-polls a no-op.
+
+    Same sha == same filename. The poll runs every 30 min in CI; if
+    archiving weren't idempotent we'd rewrite the same bytes 48 times a
+    day. The test pins that the file's mtime doesn't bump on the second
+    poll — i.e., the implementation skips the write when the path
+    already exists.
+    """
+    _stub_fetch(monkeypatch, _BODY_A)
+    state = tmp_path / "state.txt"
+    sha_a = poll_pursue.sha256_hex(_BODY_A)
+    state.write_text(f"{sha_a}  2026-05-08T00:00:00Z\n")
+    archive_dir = tmp_path / "csv-archive"
+
+    poll_pursue.poll(state, csv_archive_dir=archive_dir)
+    first_mtime = (archive_dir / f"{sha_a}.csv").stat().st_mtime_ns
+    poll_pursue.poll(state, csv_archive_dir=archive_dir)
+    second_mtime = (archive_dir / f"{sha_a}.csv").stat().st_mtime_ns
+    assert first_mtime == second_mtime, "second poll re-wrote the same bytes"
 
 
 def test_changed_returns_old_and_new_sha_and_issue_payload(
@@ -161,7 +238,7 @@ def test_cli_main_exits_zero_when_unchanged(
     original = f"{sha_a}  2026-05-08T00:00:00Z\n"
     state.write_text(original)
 
-    rc = poll_pursue.main(["--state", str(state)])
+    rc = poll_pursue.main(["--state", str(state), "--csv-archive-dir", str(tmp_path / "csv-archive")])
 
     assert rc == 0
     assert state.read_text() == original  # unchanged on disk
@@ -177,7 +254,7 @@ def test_cli_main_writes_new_sha_when_changed(
     sha_a = poll_pursue.sha256_hex(_BODY_A)
     state.write_text(f"{sha_a}  2026-05-08T00:00:00Z\n")
 
-    rc = poll_pursue.main(["--state", str(state)])
+    rc = poll_pursue.main(["--state", str(state), "--csv-archive-dir", str(tmp_path / "csv-archive")])
 
     assert rc == 0
     written = state.read_text()
@@ -196,7 +273,7 @@ def test_cli_main_exits_nonzero_on_fetch_failure(
     state.parent.mkdir(parents=True)
     state.write_text(f"{poll_pursue.sha256_hex(_BODY_A)}  2026-05-08T00:00:00Z\n")
 
-    rc = poll_pursue.main(["--state", str(state)])
+    rc = poll_pursue.main(["--state", str(state), "--csv-archive-dir", str(tmp_path / "csv-archive")])
 
     assert rc == 1
 
@@ -218,7 +295,7 @@ def test_cli_main_writes_github_outputs_on_change(
     gh_out = tmp_path / "gh_output.txt"
     monkeypatch.setenv("GITHUB_OUTPUT", str(gh_out))
 
-    rc = poll_pursue.main(["--state", str(state)])
+    rc = poll_pursue.main(["--state", str(state), "--csv-archive-dir", str(tmp_path / "csv-archive")])
 
     assert rc == 0
     out = gh_out.read_text()
@@ -252,7 +329,7 @@ def test_cli_main_writes_github_outputs_on_unchanged(
     gh_out = tmp_path / "gh_output.txt"
     monkeypatch.setenv("GITHUB_OUTPUT", str(gh_out))
 
-    rc = poll_pursue.main(["--state", str(state)])
+    rc = poll_pursue.main(["--state", str(state), "--csv-archive-dir", str(tmp_path / "csv-archive")])
 
     assert rc == 0
     out = gh_out.read_text()
@@ -278,7 +355,7 @@ def test_cli_main_writes_github_outputs_on_failure(
     gh_out = tmp_path / "gh_output.txt"
     monkeypatch.setenv("GITHUB_OUTPUT", str(gh_out))
 
-    rc = poll_pursue.main(["--state", str(state)])
+    rc = poll_pursue.main(["--state", str(state), "--csv-archive-dir", str(tmp_path / "csv-archive")])
 
     assert rc == 1
     out = gh_out.read_text()
@@ -305,7 +382,7 @@ def test_emit_gh_outputs_uses_unique_heredoc_delimiter(
     gh_out = tmp_path / "gh_output.txt"
     monkeypatch.setenv("GITHUB_OUTPUT", str(gh_out))
 
-    rc = poll_pursue.main(["--state", str(state)])
+    rc = poll_pursue.main(["--state", str(state), "--csv-archive-dir", str(tmp_path / "csv-archive")])
 
     assert rc == 0
     out = gh_out.read_text()
