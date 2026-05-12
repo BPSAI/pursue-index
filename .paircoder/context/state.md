@@ -4,6 +4,14 @@
 
 ## What Was Just Done
 
+**2026-05-12 (afternoon) — Three new finds entries shipped + card-rename handling plan adopted + audit-findings sensitivity-routed to opsec.**
+
+Three curated finds entries written and editorially approved, document-first (no external-narrative framing): `fbi-1947-dallas-teletype.mdx` (Wyly+Hottel disambiguation in FBI 62-HQ-83894), `fbi-usper-2025-orb.mdx` (modern FD-302 vs MISREP grammar contrast), `apollo-11-debriefing.mdx` (the in-conversation reasoning arc on three distinct anomalies, with cosmic-ray-flashes as the document's strongest physical-science moment). Earlier-draft rebuttal framing scrubbed.
+
+**Card-rename handling plan landed** at `.paircoder/plans/card-rename-handling.md`. Codifies the three-class trust hierarchy (confirmed rename via byte_sha collision / net-new content / suspicious replacement quarantined). Critically distinguishes the always-on capture layer (poll + byte-archive + tranche-diff + daily verify, all unattended-safe) from the operator-gated editorial-publication layer (`pursue ingest run` with tranche-approval). All four open questions resolved: (1) always quarantine Class C, no auto-approval rule; (2) old card_ids preserved forever via append-only aliases — codified as a contract section; (3) bandwidth acceptable; (4) per-card pill on detail page, no new nav surface.
+
+**Documentation-staleness audit findings (31 items) moved** to `pursue-opsec-staging/findings/2026-05-12-documentation-staleness-audit.md`. Audit plan itself stays public (describes the approach, not the current weaknesses). General policy adopted: plans describing how the system works → public; audit findings revealing current weaknesses → opsec until remediated.
+
 **2026-05-12 (mid-day) — Closed the /removed integrity gap + caught the upstream CSV rename + tier-1 backup mirror first-sync verified.**
 
 Operator-driven session: started from the question "where did the May 8 R2 uploads go and are all bytes accounted for?" Built a read-only reconciler (`scripts/r2_reconcile.py`) that diffed the R2 bucket against the asset-bytes-registry. Found exactly **3 orphan objects** — all corresponding to the 3 cards on `/removed` (FBI Section 6, DOW-UAP-D20, NASC-State). These had been uploaded May 8 as part of PR #27's bulk-load and were never brought under the integrity-layer's coverage when the byte-archive stack landed overnight May 11→12.
