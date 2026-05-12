@@ -5,7 +5,7 @@ import { manifest } from "../data/manifest-loader";
 interface Props {
   title?: string;
   description?: string;
-  active?: "index" | "search" | "chat" | "diff" | "about" | "methodology" | "cite" | "support" | "finds" | "atlas" | null;
+  active?: "index" | "search" | "chat" | "diff" | "removed" | "about" | "methodology" | "cite" | "support" | "finds" | "atlas" | null;
   /**
    * Pre-launch: every page is noindex/nofollow until we flip the default.
    * FIXME(launch): flip noindex default to false once we're ready for SE indexing.
@@ -94,6 +94,7 @@ const navItems = [
   { href: `${base}/finds`, label: "FINDS", key: "finds" },
   { href: `${base}/atlas`, label: "ATLAS", key: "atlas" },
   { href: `${base}/diff`, label: "DIFF", key: "diff" },
+  { href: `${base}/removed`, label: "REMOVED", key: "removed" },
   { href: `${base}/about`, label: "ABOUT", key: "about" },
   { href: `${base}/methodology`, label: "METHODOLOGY", key: "methodology" },
   { href: `${base}/cite`, label: "CITE", key: "cite" },

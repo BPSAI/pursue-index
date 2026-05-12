@@ -1,0 +1,38 @@
+---
+import Base from "../layouts/Base.astro";
+import RemovedIsland from "../components/RemovedIsland.tsx";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<Base title="REMOVED — PURSUE://INDEX" active="removed">
+  <div class="space-y-6 max-w-4xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-red)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>cat data/removed-cards.jsonl | jq .</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        REMOVED UPSTREAM &mdash; PRESERVED HERE
+      </h1>
+      <p class="text-sm text-[color:var(--color-text)] max-w-2xl">
+        Documents that were present in a prior version of the
+        <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>
+        PURSUE manifest but have since been silently removed from the
+        upstream listing. The bytes, OCR text, and embeddings remain in
+        this archive &mdash; including the card detail page, the PDF on
+        our self-hosted mirror, and the search/atlas indexes.
+      </p>
+      <p class="text-xs text-[color:var(--color-text-dim)] max-w-2xl pt-1">
+        Detection happens at scrape time: the prior <code>latest.json</code>
+        is rotated into
+        <code class="text-[color:var(--color-signal-cyan)]">/data/snapshots/</code>
+        before the new manifest overwrites it, then the
+        <code>card_id</code> sets are diffed. Removals are appended to
+        <code>data/removed-cards.jsonl</code> with full prior card metadata
+        plus the CSV-SHA transition that flanks the disappearance.
+      </p>
+    </header>
+    <RemovedIsland client:load base={base} />
+  </div>
+</Base>
