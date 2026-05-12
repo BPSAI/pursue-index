@@ -4,6 +4,19 @@
 
 ## What Was Just Done
 
+**2026-05-12 (overnight, ran through morning) — Archive integrity stack + /gallery complete + repo cleanup + reviewer cycle + OPSEC hardening + replacement-card pipeline + VID playback.**
+
+The session ran from sunset through to ~1 AM operator-time the next day. Headline: v1.1.0 shipped at the midpoint; second half was reviewer cycle, security hardening, operator-private companion repo (`pursue-opsec`), tier-1 durability infrastructure, and the catch-everything-at-the-end items the operator surfaced (VID playback was a real bedtime blocker; OCR-deployment drift was a real subtle gap that none of the green-checkmark workflows caught).
+
+Late-session additions on top of the v1.1.0 release notes:
+
+- **`pursue-opsec` private companion repo created (`BPSAI/pursue-opsec`)** with README + findings/2026-05-12-reviewer-cycle.md + reference/{thresholds,trust-boundaries,data-schemas,nas-rsync-setup,r2-destructive-edit-test}.md. SECURITY.md on the public repo got a new "Internal disclosure policy" section codifying that security findings go private, never public issues. Four reviewer-cycle public issues deleted retroactively (#49 patched + closed by commit, #50/#51/#52 deleted from public, content preserved in pursue-opsec).
+- **OPSEC hardening on the public repo**: branch protection on `main` (force-push + deletion blocked, enforce_admins=false so bot can still push), wiki + projects disabled, R2 archive PUTs now use `IfNoneMatch: "*"` for atomic immutability. Public forks couldn't be disabled (GitHub policy on public repos). `pursue-opsec` got branch protection + forks-off + wiki/projects-off as belt-and-suspenders.
+- **Tier-1 durability** wired in `pursue-opsec`: `mirror_to_backup.py` + workflow that mirrors `pursue-pdfs` → a backup R2 bucket (different account preferred) on a daily 08:13 UTC cron. Hash-pinned boto3 via `requirements-mirror.txt`. Graceful-exit on missing creds. Operator-side NAS rsync recipe at `reference/nas-rsync-setup.md` (rclone config + cron template + quarterly encrypted-snapshot recipe). Tier-2 cryptographic signing of registry rows filed as RFC issue `pursue-opsec#1` for discussion.
+- **VID playback fixed** (`70e51f5`). All 28 VID cards have `asset_url: null` (DVIDS-hosted), so the card detail page was hitting `[NO ASSET URL]` for every video. Added `isVideo` branch that renders a `https://www.dvidshub.net/video/embed/<id>` iframe with "Open on DVIDS ↗" fallback. CSP `frame-src` extended to allow DVIDS. Mobile playback via the DVIDS player works post-deploy.
+- **Replacement-card pipeline completed** (`4959ff3`). When OCR auto-ran for the new D20 + State memo replacement cards on the 11th, the per-card NAS outputs landed correctly but the deployed mirrors (pages.json, pages-cleaned.json, embed_index.json, embeddings.bin, atlas-layout.json) were never rebuilt — operator caught this when noticing the D20 finds entry's "OCR pending" placeholder. Ran `pursue clean run` on the 2 new cards (~$0.02 Anthropic spend), rebuilt all five deployed mirrors. **Empirical editorial finding from the side-by-side**: the "tradecraft scrub" hypothesis on D20 is REFUTED — original and replacement both carry the same sensitive markers (77 EFS, OEPS, AIM-120, ALR-56M, ALQ-184, ALE-50, HTS-P, SY0730 software-load IDs, "PRIOR SORTIES" line). The replacement is a filename/title alignment fix, not a re-redaction. Finds entry updated to document the refutation explicitly as editorial discipline. State memo replacement OCR'd to reveal a 1952 Samford-to-Nitze flying-saucer briefing memo — genuinely interesting historical content; finds entry expanded with citations.
+- **Two API key leaks (mine, not the operator's)** during shell-expansion mishaps earlier in the session — ANTHROPIC_API_KEY + VOYAGE_API_KEY + PURSUE_CF_API_TOKEN all rotated by the operator. Verified-safe `[ -n "$VAR" ]` bracket pattern is now the only env-existence check pattern used.
+
 **2026-05-12 (overnight) — Archive integrity stack shipped + /gallery complete + repo cleanup.**
 
 - **CSV byte preservation + 30-min cadence (`a88fd18`).** Every poll now writes `data/raw/csv/<sha>.csv` content-addressed, idempotent. Bumped cron `0 */6 * *` → `*/30 * * * *`. Closes the f07601eb-tranche-lost gap. 22 poll tests + 3 new TDD tests for byte-archive contract pass.
@@ -127,8 +140,9 @@ image-description blocks into our retrieval index.
 
 ### Backlog (priority order)
 
-1. **Black Vault reference corpus.** Replace the placeholder novelty corpus with a real prior-disclosure FOIA archive. Engagement done; technical phases discovery → fetch → OCR → embed → calibrate are unblocked. Plan: `.paircoder/plans/black-vault-reference.md`.
-2. **Accessibility audit + remediation.** Plan landed 2026-05-10 (#45) covering WCAG 2.2 AA targets including the regl-scatterplot atlas a11y challenges. Plan: `.paircoder/plans/accessibility-audit-and-remediation.md`.
+1. **Documentation staleness audit (new).** Operator-surfaced 2026-05-12 morning: `/methodology` still references Tesseract where it should be Surya. That's almost certainly not isolated — the repo has had several architectural shifts since docs were last comprehensively read. Plan: `.paircoder/plans/documentation-staleness-audit.md`. ~2 hours operator-attended or ~4 hours agent-dispatched with operator review of the punch-list.
+2. **Black Vault reference corpus.** Replace the placeholder novelty corpus with a real prior-disclosure FOIA archive. Engagement done; technical phases discovery → fetch → OCR → embed → calibrate are unblocked. Plan: `.paircoder/plans/black-vault-reference.md`.
+3. **Accessibility audit + remediation.** Plan landed 2026-05-10 (#45) covering WCAG 2.2 AA targets including the regl-scatterplot atlas a11y challenges. Plan: `.paircoder/plans/accessibility-audit-and-remediation.md`.
 3. **`/gallery` visual-browse-surface.** Image-content browse page alongside the textual /search and the spatial /atlas. Plan: `.paircoder/plans/visual-browse-surface.md`.
 4. **pursue-vision-augment Phase 2.** Our own VLM pass alongside the alex-zhang42 augmented retrieval, with per-page provenance distinguishing the two sources. Plan: `.paircoder/plans/pursue-vision-augment.md`.
 5. **Curated finds expansion.** 14 entries set the editorial bar; corpus has more strong candidates. Plan: `.paircoder/plans/curated-finds.md`.
