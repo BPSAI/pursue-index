@@ -53,13 +53,14 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
 
 <Base title={pageTitle} description={card.description ?? card.title}>
   <article class="space-y-6">
-    {/* Breadcrumb */}
-    <nav class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex items-center gap-2">
+    {/* Breadcrumb — visual `/` separators are decorative; aria-label
+        on the nav makes the landmark discoverable. */}
+    <nav aria-label="Breadcrumb" class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex items-center gap-2">
       <a href={`${base}/`} class="hover:text-[color:var(--color-signal-green)]">/INDEX</a>
-      <span>/</span>
+      <span aria-hidden="true">/</span>
       <span class="text-[color:var(--color-text-dim)]">CARD</span>
-      <span>/</span>
-      <span class="text-[color:var(--color-signal-cyan)]">{card.card_id.slice(0, 12)}</span>
+      <span aria-hidden="true">/</span>
+      <span class="text-[color:var(--color-signal-cyan)]" aria-current="page">{card.card_id.slice(0, 12)}</span>
     </nav>
 
     {/* Header */}
@@ -226,12 +227,14 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
         )}
       </section>
 
-      {/* Sidebar */}
-      <aside class="space-y-4">
+      {/* Sidebar — sections are siblings of SOURCE under the card <h1>,
+          so they take h2 to keep the outline flat-and-correct rather
+          than skipping a level. */}
+      <aside aria-label="Card sidebar" class="space-y-4">
         <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
-          <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-3">
+          <h2 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-3">
             ASSET
-          </h3>
+          </h2>
           {card.asset_url ? (
             <a
               href={card.asset_url}
@@ -251,9 +254,9 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
 
         {pairings.length > 0 && (
           <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
-            <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-3">
+            <h2 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-3">
               CROSS-REFERENCES
-            </h3>
+            </h2>
             <ul class="font-mono text-xs space-y-1.5">
               {pairings.map((p) => (
                 <li class="text-[color:var(--color-text)]">
@@ -266,9 +269,9 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
         )}
 
         <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
-          <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-3">
+          <h2 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-3">
             OCR TEXT
-          </h3>
+          </h2>
           <p class="font-mono text-xs leading-relaxed text-[color:var(--color-text-dim)]">
             Per-page OCR transcript renders below. Use
             <code class="text-[color:var(--color-signal-cyan)]">#page-N</code>

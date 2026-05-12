@@ -39,8 +39,10 @@ const pdfCount = s.byType.PDF ?? 0;
         feedback. This fold makes search the immediately obvious thing
         you can do; the card grid still renders below for direct browsing. */}
     <section class="relative pi-bracket border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 px-4 py-8 sm:py-10 lg:py-14 scanlines-soft">
-      {/* Terminal preamble — kept tight so the input dominates the fold. */}
-      <div class="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2 break-all">
+      {/* Terminal preamble — kept tight so the input dominates the fold.
+          aria-hidden because the prompt is a decorative aesthetic flourish;
+          the meaningful content (h1 + description) lives directly below. */}
+      <div aria-hidden="true" class="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2 break-all">
         <span class="text-[color:var(--color-text-faint)] flex-shrink-0">$</span>
         <span class="break-all">grep -ri . /var/dow/pursue/ocr/</span>
       </div>
