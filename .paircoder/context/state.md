@@ -1,8 +1,19 @@
 # Current State
 
-> Last updated: 2026-05-11
+> Last updated: 2026-05-11 (evening)
 
 ## What Was Just Done
+
+**2026-05-11 (evening) — Regression bug hunt + tranche f07601eb ingest + integrity ask landed.**
+
+- **PDF iframe sandbox regression fixed (#48 — direct to main, `4e03a1d`).** Chrome 147 PDFium changed behavior: any `<iframe sandbox=...>` now suppresses inline PDF rendering regardless of allow-* tokens. Every card detail page on desktop Chrome was shipping a blank iframe; mobile masked it (system PDF viewers). Trust basis for dropping sandbox: post-PR #27 the iframe loads only same-origin `/pdf/<card_id>.pdf` from our R2 mirror, not adversarial content. CSP `frame-ancestors 'self'` + `X-Frame-Options: SAMEORIGIN` + worker card_id regex validation provide defense-in-depth.
+- **Security bundle (`b6dba3f`).** HSTS header `max-age=31536000; includeSubDomains` (preload deliberately omitted) + RFC 9116 `/.well-known/security.txt` per operator audit. Clears 3 of the 11 audit items; DMARC + Always-Use-HTTPS + AI-bot toggles are operator dashboard/DNS actions.
+- **Reader/Cleaned pagination regression fixed in two passes (`6d41ac6` then `ed93bb0`).** Operator-reported "first click works, then stuck" across both Reader and Cleaned modes, desktop + mobile. Reproduced live: rapid clicks within a single tick batched correctly (state 1→5), but sequential clicks with any wait failed after the first. The first-pass useReducer fix did not clear it on prod. Second pass refactored to ref-driven `navigateTo(target)`: handlers read `activePageRef.current` + `totalRef.current` live, compute the explicit target page, dispatch a `set` action, and do `history.replaceState` + iframe sync inline in the same call. Eliminates the deferred-useEffect race that was the root cause.
+- **Mobile title overflow fixed (`e0d7add`).** `break-words` on the card title h1 so long technical filenames wrap on narrow viewports.
+- **Augment loader hardened (`d60d9d9`).** Four corrupt rows (lines 448–451) in `alex-zhang42-corpus.jsonl` were aborting the entire embed. Parser now skips per-row with a logged sample and a 5% wholesale-corruption guardrail.
+- **Cleaned-mode fetch race fixed (`e5defd7`).** The pre-existing "sometimes loads, sometimes doesn't — refresh fixes it" hang: useEffect dep `cleanedStatus` caused the fetch effect to re-fire on every status transition (idle → loading → loaded), racing with the 7.7 MB `r.json()` parse and stranding state on "loading." Gated via `useRef` flag; deps shrink to `[mode, base]`; cleanup-cancellation on unmount/mode-switch.
+- **Tranche f07601eb ingested.** Scrape → 158 cards (was 119; +39: 28 VIDs + 14 IMGs + 0 net new PDFs). Download → 129/158 (the 29 missing are DVID-hosted videos; `PURSUE_DOWNLOAD_VIDEOS` default off). OCR → 116 PDF cards (no new pages). Embed → 1216 new embeddings, 2911 skipped, 418,704 tokens, **~$0.025**. Then re-run with augment-from: 1132 pages got VLM image tags (lenient parser caught the 4 corrupt rows).
+- **API key rotation.** Operator rotated `ANTHROPIC_API_KEY` + `VOYAGE_API_KEY` after the assistant accidentally printed both via a misused `${VAR:-default}` bash expansion. New keys deployed to `.env` (local) and CF Worker secrets (live via `npx wrangler secret put`). No GitHub Actions reference either key.
 
 **2026-05-11 — Fact-check pass + LLM-cleaned pilot resume.**
 
@@ -30,9 +41,8 @@
 
 | Feature | Implementation | Wiring | Validation | Output | Live? |
 |---|---|---|---|---|---|
-| LLM-cleaned reading text | ✓ (#37, #46) | ✓ (toggle on `/card/:id`) | partial (pilot in progress) | not yet (`pages-cleaned.json` missing) | **No — toggle reads "not available"** |
 
-This row clears when the pilot lands cleanly, spot-check passes, full-corpus run completes, and `scripts/build_pages_cleaned.py` produces the deployable asset. See `.paircoder/plans/llm-cleaned-pilot-spotcheck.md` for the QA bar.
+No dark code currently. The LLM-cleaned reading text shipped fully on 2026-05-11 (PR #37 + #46 + `0035f3f` for the asset + post-deploy pagination/race fixes). The dark-code row from earlier in the day cleared with `0035f3f`; subsequent fixes were live-bug regression patches, not unwired features.
 
 ## Current Focus
 
@@ -86,11 +96,19 @@ image-description blocks into our retrieval index.
 
 ## What's Next
 
-### Active (in-flight today)
+### Active (next priority, in operator-stated order)
 
-1. **LLM-cleaned reading text — full corpus pass.** Full-corpus pilot *running now* (`/tmp/pursue-pilot/run-fullcorpus.log`; monitor armed; PID 86434). After: `python scripts/build_pages_cleaned.py` to produce the deployable asset, commit + push to flip the toggle live. Methodology page update needed before publish: document the interpretive-cleanup boundary (`1.48 → 1.4a` allowed; redaction-fill-in never), three skip-row reasons, and skip-rate per content class. Plan: `.paircoder/plans/llm-cleaned-reading-text.md`.
+1. **Archive integrity — snapshot rotation + removal detection.** Operator-explicit priority before gallery: "make sure that whatever may have come with this latest drop is not overwriting something that we had before. People have complained about the epstein files getting pages removed etc. quietly and are already bringing it up in relation to this project." Current state: `DiffIsland` is already wired to read `/data/snapshots/index.json` + per-snapshot manifests, but the snapshots directory doesn't exist and the scrape stage doesn't write prior manifests anywhere except git history. CSV is archived per-fetch (`csv_archive_dir`); manifests are not. Required: (a) snapshot rotation in `scrape_run_cmd` — copy old `latest.json` to `data/manifests/snapshots/<csv_sha>.json` before overwriting; (b) backfill the last-known prior manifest from git so the diff page has *something* to compare against today; (c) removal detection that opens a `card-removed-upstream` issue with the specifics when cards disappear between scrapes; (d) preservation guarantee for R2 mirrored PDFs on removed cards (already true since download stage doesn't delete, but document and surface in UI). **Surface evidence**: the 2026-05-11 augment-corpus join shipped a 7% miss rate against the new manifest, ~289 augment rows pointing at URLs our manifest no longer has — strong signal that upstream removed/renamed cards in this tranche or the prior one. Worth diffing carefully.
 
-2. **QC engine plan landed (backlog/next thread).** `.paircoder/plans/clean-quality-review.md` — LLM-judge layer over cleanup output. Idempotent sidecar `pages_cleaned_qc.jsonl` with 8 structured checks per page. Calibration discipline: 20-page operator sample per corpus run. Pilots after the cleanup-mode toggle goes live.
+2. **VID downloads + ingest the 28 video cards in current manifest.** `PURSUE_DOWNLOAD_VIDEOS` is default off; downloader skips VIDs. Operator noted upstream site offers bulk download links for videos. Path: either flip the flag and ingest via `dvids_video_id` (per-card from DVIDS), or fetch the bulk archive from war.gov. After download, decide on R2 mirror vs. external-link-only (videos are GB-scale).
+
+3. **Gallery surface build + deploy** (operator gate: after archive integrity). The current 2026-05-11 tranche is 28 VIDs + 14 IMGs + 0 new PDFs, which highlights the discoverability gap for non-text cards. Plan: `.paircoder/plans/visual-browse-surface.md`. Move up from backlog.
+
+4. **Tranche `0d7e9ba1` not yet scraped.** Auto-poll workflow caught a second CSV change at 2026-05-11T18:40Z → tranche-detected issue + commit `dc16062` updating `data/last-known-csv-sha.txt`. Our current `latest.json` is the prior tranche `f07601eb`. Run `pursue scrape` again when ready (best done AFTER snapshot rotation is in place so we don't lose tranche-f07601eb's manifest).
+
+5. **QC engine plan landed (lower-priority thread).** `.paircoder/plans/clean-quality-review.md` — LLM-judge layer over cleanup output. Idempotent sidecar `pages_cleaned_qc.jsonl` with 8 structured checks per page. Calibration discipline: 20-page operator sample per corpus run. Pilots when capacity opens up.
+
+6. **`web/src/content/finds/hanawalt-cobalt-ray-1966.mdx` awaiting review.** Untracked operator draft from last session, opened in IDE today. 64-line curated entry on FBI 62-HQ-83894 Section 10 pages 53–56 (Hanawalt cobalt-ray telegram). Sharp methodology framing on the difference between "document the FBI filed" and "claim the FBI endorsed." Ready to commit on operator green-light.
 
 ### Backlog (priority order)
 

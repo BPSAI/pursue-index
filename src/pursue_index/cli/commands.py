@@ -63,7 +63,18 @@ def scrape_run_cmd(
         help="Also save a timestamped copy of the raw CSV to the archive dir.",
     ),
 ) -> None:
-    """Fetch the CSV, parse it, and write a manifest."""
+    """Fetch the CSV, parse it, and write a manifest.
+
+    Before overwriting ``latest.json`` we rotate the prior manifest into
+    ``data/manifests/snapshots/<csv_sha>.json`` (plus a public mirror at
+    ``web/public/data/snapshots/`` for the DiffIsland UI). After the new
+    manifest is built we diff it against the snapshot and log any
+    removed cards to ``data/removed-cards.jsonl`` — append-only so the
+    record survives subsequent scrapes. Removals are surfaced loudly:
+    they're the canonical signal that an upstream quiet-pull happened.
+    """
+    from pursue_index.scrape.snapshots import rotate_and_diff
+
     settings.ensure_dirs()
     out_path = out or (settings.manifests_dir / "latest.json")
 
@@ -75,10 +86,31 @@ def scrape_run_cmd(
         log.info("scrape.csv.archived", path=str(archive_path))
 
     manifest = scrape_run()
+
+    # Rotate the prior latest.json + detect removals BEFORE the new
+    # manifest overwrites it. Uses the pydantic model_dump for the diff
+    # because manifest is the new model and snapshots/ holds the raw
+    # JSON bytes — same shape.
+    diff = rotate_and_diff(out_path, manifest.model_dump(by_alias=True))
+
     save_manifest(manifest, out_path)
 
     _print_manifest_summary(manifest)
     console.print(f"\n[green]✔[/green] Manifest written to {out_path}")
+    if diff["snapshot"]:
+        console.print(
+            f"[dim]Prior manifest rotated to snapshot:[/dim] "
+            f"{diff['snapshot']}"
+        )
+    if diff["added"]:
+        console.print(f"[cyan]+[/cyan] {diff['added']} new card(s)")
+    if diff["removed"]:
+        console.print(
+            f"[red]![/red] [bold]{diff['removed']} card(s) REMOVED "
+            f"upstream[/bold] — logged to data/removed-cards.jsonl"
+        )
+        for title in diff["removed_titles"]:
+            console.print(f"  [red]-[/red] {title}")
 
 
 # ---------------------------------------------------------------------------
