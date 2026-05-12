@@ -130,16 +130,30 @@ def _pick_buckets(stats: list[_CardStat]) -> list[str]:
             picked.append(stat.card_id)
     if len(picked) >= _TARGET_PILOT_SIZE:
         return picked[:_TARGET_PILOT_SIZE]
-    # Backfill: walk each bucket past its initial slice, then the
-    # global fallback list, until we hit the target or exhaust candidates.
-    for bucket in (high_pages, medium_pages, degraded, fallback):
-        for stat in bucket:
+    # Backfill: round-robin across bucket tails so the 10+10+10
+    # distribution intent survives even when buckets overlap heavily
+    # (closes issue #39 — Codex P2 finding). The previous loop
+    # drained `high_pages` entirely before moving to `medium_pages`,
+    # which over-represented one bucket whenever top-10s overlapped.
+    tails = [
+        [s for s in high_pages if s.card_id not in seen],
+        [s for s in medium_pages if s.card_id not in seen],
+        [s for s in degraded if s.card_id not in seen],
+        [s for s in fallback if s.card_id not in seen],
+    ]
+    while len(picked) < _TARGET_PILOT_SIZE:
+        progress = False
+        for bucket in tails:
+            if not bucket or len(picked) >= _TARGET_PILOT_SIZE:
+                continue
+            stat = bucket.pop(0)
             if stat.card_id in seen:
                 continue
             seen.add(stat.card_id)
             picked.append(stat.card_id)
-            if len(picked) >= _TARGET_PILOT_SIZE:
-                return picked
+            progress = True
+        if not progress:
+            break  # every bucket exhausted
     return picked
 
 

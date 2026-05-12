@@ -97,13 +97,26 @@ def _dedupe_latest_per_page(
     """
     by_page: dict[int, dict] = {}
     for idx, row in enumerate(rows):
+        # A missing ``page`` field is a corrupt row, not page 0 — closes
+        # the Codex P2 follow-up (issue #38). Treating absence as 0
+        # used to silently emit garbage rows into pages-cleaned.json
+        # at page 0 and break the index-by-page-N navigation contract
+        # in CardReaderView. Skip + log instead.
+        raw_page = row.get("page")
+        if raw_page is None:
+            print(
+                f"warning clean.build.skip_missing_page "
+                f"card_id={card_id} row_index={idx}",
+                file=sys.stderr,
+            )
+            continue
         try:
-            page = int(row.get("page", 0))
+            page = int(raw_page)
         except (ValueError, TypeError):
             print(
                 f"warning clean.build.skip_corrupt_row "
                 f"card_id={card_id} row_index={idx} "
-                f"bad_page={row.get('page')!r}",
+                f"bad_page={raw_page!r}",
                 file=sys.stderr,
             )
             continue
@@ -200,8 +213,19 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
     Propagates ``cleanup_skipped`` only when it has a truthy value so
     "normal" rows stay free of the field (smaller payload, simpler
     UI-side checks like ``if (page.cleanup_skipped)``).
+
+    Callers are expected to have already filtered rows missing the
+    ``page`` field via ``_dedupe_pages`` (closes issue #38). If a row
+    reaches here without a ``page`` field, a ``ValueError`` propagates
+    so the failure is loud rather than silently emitting a page-0 row.
     """
-    page = int(row.get("page", 0))
+    raw_page = row.get("page")
+    if raw_page is None:
+        raise ValueError(
+            f"missing 'page' field on row for card_id={card_id}; "
+            "should have been filtered by _dedupe_pages"
+        )
+    page = int(raw_page)
     out: dict = {
         "id": row.get("id") or f"{card_id}-p{page}",
         "card_id": card_id,
