@@ -104,7 +104,15 @@ const CSP_VALUE = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https://www.war.gov data:",
   "font-src 'self' data:",
-  "frame-src 'self'",
+  // DVIDS embed player for VID cards (operator-noted 2026-05-12: VID
+  // cards have no asset_url, so playback uses the DVIDS public embed
+  // iframe — same source the war.gov upstream display uses). DVIDS is
+  // a DoD-operated public-affairs distribution hub; the embed player
+  // serves the same media file the card_id's dvids_video_id resolves
+  // to. Adding to frame-src so the iframe is permitted; falls back to
+  // an "Open on DVIDS ↗" link if the embed iframe is ever broken or
+  // blocked by the DVIDS side.
+  "frame-src 'self' https://www.dvidshub.net",
   "connect-src 'self' https://api.anthropic.com https://api.voyageai.com https://cloudflareinsights.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",

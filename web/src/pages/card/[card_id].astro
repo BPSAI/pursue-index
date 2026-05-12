@@ -47,6 +47,7 @@ const facts: Array<{ label: string; value: string | null }> = [
 ];
 
 const isPdf = card.asset_type === "PDF" && !!card.asset_url;
+const isVideo = card.asset_type === "VID" && !!card.dvids_video_id;
 const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : ""} — PURSUE://INDEX`;
 ---
 
@@ -157,6 +158,32 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
               class="w-full h-[60vh] min-h-[420px] sm:h-[80vh] sm:min-h-[640px] bg-[color:var(--color-bg-deep)]"
               loading="lazy"
             ></iframe>
+          </div>
+        ) : isVideo ? (
+          <div class="space-y-2">
+            <div class="border border-[color:var(--color-border)] bg-black relative overflow-hidden">
+              <iframe
+                src={`https://www.dvidshub.net/video/embed/${card.dvids_video_id}`}
+                title={`Video: ${card.title}`}
+                allowfullscreen
+                referrerpolicy="no-referrer"
+                class="w-full aspect-video bg-black"
+                loading="lazy"
+              ></iframe>
+            </div>
+            <div class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em]">
+              <a
+                href={`https://www.dvidshub.net/video/${card.dvids_video_id}`}
+                target="_blank"
+                rel="noreferrer"
+                class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
+              >
+                Open on DVIDS ↗
+              </a>
+              <span class="text-[color:var(--color-text-faint)]">
+                DVIDS id: <code class="text-[color:var(--color-signal-violet)]">{card.dvids_video_id}</code>
+              </span>
+            </div>
           </div>
         ) : card.modal_image_url && card.asset_type !== "VID" ? (
           <div class="border border-[color:var(--color-border)] bg-black/40 p-2 relative scanlines-soft">
