@@ -5,11 +5,15 @@ import { manifest } from "../data/manifest-loader";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-// Gallery only renders IMG and VID cards. PDF cards arrive in Phase 2
-// once the page-1 thumbnail pipeline ships (see
-// .paircoder/plans/visual-browse-surface.md, T?.5).
+// Gallery renders IMG, VID, and PDF cards. PDF tiles use page-1
+// WebP thumbnails from /data/thumbs/<card_id>.webp (built by
+// scripts/build_pdf_thumbs.py); when no thumbnail exists yet the
+// PDF tile falls back to a generic document placeholder.
 const galleryCards = manifest.cards.filter(
-  (c) => c.asset_type === "IMG" || c.asset_type === "VID",
+  (c) =>
+    c.asset_type === "IMG" ||
+    c.asset_type === "VID" ||
+    c.asset_type === "PDF",
 );
 ---
 
@@ -24,14 +28,11 @@ const galleryCards = manifest.cards.filter(
         GALLERY
       </h1>
       <p class="text-sm text-[color:var(--color-text)] max-w-2xl">
-        Visual browse for the IMG and VID cards in the corpus &mdash;
-        14 declassified photographs and {galleryCards.filter((c) => c.asset_type === "VID").length} DVIDS-hosted videos.
-        Tap any tile to open its card page; we don't trap you in a
-        modal. PDF documents are the largest slice of the corpus and
-        are not on this page yet &mdash; page-1 thumbnail rendering is
-        the gating piece, tracked in
-        <code class="text-[color:var(--color-signal-cyan)]">/finds</code>
-        and the visual-browse-surface plan.
+        Visual browse across every asset type in the corpus &mdash;
+        declassified photographs, DVIDS-hosted videos, and page-1
+        previews of every PDF. Tap any tile to open its card page;
+        we don't trap you in a modal. Filter by type with the row of
+        buttons; tiles render in newest-first order within each filter.
       </p>
     </header>
     <GalleryIsland client:load cards={galleryCards} base={base} />

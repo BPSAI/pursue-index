@@ -11,12 +11,18 @@ interface PostersIndex {
   count: number;
 }
 
-type Filter = "all" | "image" | "video";
+interface ThumbsIndex {
+  thumbs: Record<string, string>;
+  count: number;
+}
+
+type Filter = "all" | "image" | "video" | "document";
 
 const FILTERS: { key: Filter; label: string; predicate: (c: CardMetadata) => boolean }[] = [
   { key: "all", label: "ALL", predicate: () => true },
   { key: "image", label: "IMAGES", predicate: (c) => c.asset_type === "IMG" },
   { key: "video", label: "VIDEOS", predicate: (c) => c.asset_type === "VID" },
+  { key: "document", label: "DOCUMENTS", predicate: (c) => c.asset_type === "PDF" },
 ];
 
 /**
@@ -49,13 +55,16 @@ function GalleryTile({
   card,
   base,
   posterUrl,
+  thumbUrl,
 }: {
   card: CardMetadata;
   base: string;
   posterUrl: string | null;
+  thumbUrl: string | null;
 }) {
   const isImage = card.asset_type === "IMG";
   const isVideo = card.asset_type === "VID";
+  const isPdf = card.asset_type === "PDF";
   const href = `${base}/card/${card.card_id}/`;
   const year = tileYear(card);
   return (
@@ -127,6 +136,39 @@ function GalleryTile({
               </span>
             )}
           </div>
+        ) : isPdf && thumbUrl ? (
+          <>
+            <img
+              src={thumbUrl}
+              alt={`${card.title} — page 1 preview`}
+              loading="lazy"
+              class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
+            />
+            <span class="absolute top-2 right-2 z-10 font-mono text-[9px] uppercase tracking-[0.2em] text-[color:var(--color-signal-cyan)] bg-[color:var(--color-bg-deep)]/85 px-1.5 py-0.5 border border-[color:var(--color-signal-cyan)]/40">
+              PDF
+            </span>
+          </>
+        ) : isPdf ? (
+          <div class="w-full h-full flex flex-col items-center justify-center text-[color:var(--color-text-dim)] gap-2 bg-[color:var(--color-bg-deep)]/85">
+            <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-[color:var(--color-signal-cyan)]">
+              PDF
+            </span>
+            <svg
+              aria-hidden="true"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-[color:var(--color-signal-cyan)] opacity-70"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
         ) : (
           <div class="w-full h-full flex items-center justify-center text-[color:var(--color-text-faint)] font-mono text-[10px]">
             (no preview)
@@ -154,14 +196,23 @@ function GalleryTile({
 export default function GalleryIsland({ cards, base }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
   const [posters, setPosters] = useState<Record<string, string>>({});
+  const [thumbs, setThumbs] = useState<Record<string, string>>({});
 
-  // Lazy-load the poster index. 404 is acceptable — VID tiles fall back
-  // to the placeholder. The index is small (~25 entries × ~50 bytes).
+  // Lazy-load the poster + thumb indexes. 404 on either is acceptable
+  // — tiles fall back to the placeholder. Each index is small
+  // (~25 entries × ~50 bytes for posters; ~116 entries × ~50 bytes
+  // for thumbs). Two parallel fetches; no dependency between them.
   useEffect(() => {
     fetch(`${base}/data/video-posters/index.json`)
       .then((r) => (r.ok ? (r.json() as Promise<PostersIndex>) : null))
       .then((data) => {
         if (data?.posters) setPosters(data.posters);
+      })
+      .catch(() => {});
+    fetch(`${base}/data/thumbs/index.json`)
+      .then((r) => (r.ok ? (r.json() as Promise<ThumbsIndex>) : null))
+      .then((data) => {
+        if (data?.thumbs) setThumbs(data.thumbs);
       })
       .catch(() => {});
   }, [base]);
@@ -178,11 +229,12 @@ export default function GalleryIsland({ cards, base }: Props) {
   }, [cards, filter]);
 
   const counts = useMemo(() => {
-    const out: Record<Filter, number> = { all: 0, image: 0, video: 0 };
+    const out: Record<Filter, number> = { all: 0, image: 0, video: 0, document: 0 };
     for (const c of cards) {
       out.all += 1;
       if (c.asset_type === "IMG") out.image += 1;
       if (c.asset_type === "VID") out.video += 1;
+      if (c.asset_type === "PDF") out.document += 1;
     }
     return out;
   }, [cards]);
@@ -211,15 +263,6 @@ export default function GalleryIsland({ cards, base }: Props) {
             {f.label} <span class="text-[color:var(--color-text-faint)] ml-1 normal-case">{counts[f.key]}</span>
           </button>
         ))}
-        <button
-          type="button"
-          aria-pressed={false}
-          disabled
-          title="Document thumbnails arrive in Phase 2 — page-1 PDF rendering pipeline"
-          class="px-3 py-1.5 border-l border-[color:var(--color-border)] text-[color:var(--color-text-faint)] cursor-not-allowed opacity-60"
-        >
-          DOCUMENTS <span class="ml-1 normal-case">soon</span>
-        </button>
       </div>
 
       <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
@@ -244,6 +287,11 @@ export default function GalleryIsland({ cards, base }: Props) {
               posterUrl={
                 c.asset_type === "VID" && posters[c.card_id]
                   ? `${base}/data/video-posters/${posters[c.card_id]}`
+                  : null
+              }
+              thumbUrl={
+                c.asset_type === "PDF" && thumbs[c.card_id]
+                  ? `${base}/data/thumbs/${thumbs[c.card_id]}`
                   : null
               }
             />
