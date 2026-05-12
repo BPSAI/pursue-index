@@ -163,7 +163,11 @@ export default function RemovedIsland({ base }: Props) {
                 </dd>
               </div>
             </dl>
-            <nav class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em] pt-1">
+            {/* Per-article actions — uses <div>, not <nav>, because <nav>
+                is for top-level navigation regions; one <nav> per
+                removal event would create many same-named landmarks
+                and fail axe's landmark-unique check. */}
+            <div class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em] pt-1">
               <a
                 href={`/card/${evt.card.card_id}/`}
                 class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
@@ -178,7 +182,7 @@ export default function RemovedIsland({ base }: Props) {
               >
                 download PDF (R2 mirror) &rarr;
               </a>
-            </nav>
+            </div>
           </article>
         ))}
       </div>

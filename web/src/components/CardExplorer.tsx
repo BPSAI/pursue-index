@@ -419,26 +419,33 @@ function Selector({
   disabled?: boolean;
   title?: string;
 }) {
+  // Wrapping <label> implicitly associates with the <select> inside it
+  // (HTML spec: a labeled control is the first descendant labelable
+  // element). Wrapping is preferred over for/id because it's robust to
+  // the consumer rendering multiple Selectors without coordinating ids.
   return (
     <div title={title}>
-      <label class="block text-[10px] font-mono uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-1.5">
-        {label}
-        {disabled && (
-          <span class="ml-1 text-[color:var(--color-text-faint)] normal-case tracking-normal">
-            (n/a)
-          </span>
-        )}
+      <label class="block">
+        <span class="block text-[10px] font-mono uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-1.5">
+          {label}
+          {disabled && (
+            <span class="ml-1 text-[color:var(--color-text-faint)] normal-case tracking-normal">
+              (n/a)
+            </span>
+          )}
+        </span>
+        <select
+          value={value}
+          disabled={disabled}
+          onChange={(e) => onChange((e.target as HTMLSelectElement).value)}
+          class="w-full lg:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label={label}
+        >
+          {options.map((opt) => (
+            <option value={opt}>{opt || `any`}</option>
+          ))}
+        </select>
       </label>
-      <select
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onChange((e.target as HTMLSelectElement).value)}
-        class="w-full lg:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {options.map((opt) => (
-          <option value={opt}>{opt || `any`}</option>
-        ))}
-      </select>
     </div>
   );
 }
