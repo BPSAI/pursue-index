@@ -4,6 +4,22 @@
 
 ## What Was Just Done
 
+**2026-05-12 (late afternoon) — `tranche_diff.py` (plan step 3) shipped + restoration-class detection (Class D) added on first real-world exercise.**
+
+Step 3 of the card-rename plan landed. New `scripts/tranche_diff.py` (326 lines) + supporting helpers in `src/pursue_index/tranche.py` (heuristics, levenshtein, numeric-id extraction) and `src/pursue_index/tranche_report.py` (markdown + JSON rendering). 31 unit tests, all green; arch-clean.
+
+Classifies every added card_id in an incoming tranche into one of six classes:
+- **A** confirmed rename (byte_sha collision against existing registry entry → safe to alias)
+- **B** net-new content
+- **C** quarantined (no collision, but title-continuity heuristics match an old card → manual review)
+- **restored_unchanged** previously-archived card_id reappears with byte-identical content (safe)
+- **restored_modified** previously-archived card_id reappears with DIFFERENT bytes (possible tampering disguised as restoration — manual review)
+- **restored_unknown** previously-archived card_id reappears but no asset_url to verify
+
+The restoration class wasn't in the original plan; surfaced during first real-world exercise against the live `65572b38` tranche when FBI 62-HQ-83894 Section 6 (`13f86e95aed52840`, the card pinned to /removed earlier today) showed up in the new manifest as "added." The threat model explicitly names this scenario ("re-publication after removal as cover for content edits"), so added the detection logic + tests + report sections in the same commit.
+
+First real-world dry-run against `65572b38` (heuristic-only, no byte-sha fetches): **0 confirmed renames, 16 quarantined, 1 restored_unknown (FBI Section 6), 17 removed, 93 field-only changes**. The 16 quarantined are PR40↔PR040-style zero-padding renames that will mostly resolve to Class A once we run with real byte fetches. The 1 restored_unknown will resolve to either `restored_unchanged` (safe — same bytes we pinned) or `restored_modified` (SUSPICIOUS — possible tampering). The 17 removed are the old-format predecessors of the quarantined renames.
+
 **2026-05-12 (afternoon) — Three new finds entries shipped + card-rename handling plan adopted + audit-findings sensitivity-routed to opsec + worker alias resolver (plan step 2) live.**
 
 Step 2 of the card-rename plan landed (worker alias resolver). New module `worker/aliases.js` (141 lines) loads `data/card-aliases.json` from the static-assets binding, builds an in-memory lookup map honoring append-only semantics (latest entry wins per old_card_id; `operator_revoke` removes the alias; subsequent rows re-establish). 18 unit tests + 8 integration tests (in `worker/tests/`); 108 worker tests total now pass.
