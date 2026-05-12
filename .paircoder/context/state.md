@@ -1,8 +1,26 @@
 # Current State
 
-> Last updated: 2026-05-12 (overnight)
+> Last updated: 2026-05-12 (mid-day)
 
 ## What Was Just Done
+
+**2026-05-12 (mid-day) — Closed the /removed integrity gap + caught the upstream CSV rename + tier-1 backup mirror first-sync verified.**
+
+Operator-driven session: started from the question "where did the May 8 R2 uploads go and are all bytes accounted for?" Built a read-only reconciler (`scripts/r2_reconcile.py`) that diffed the R2 bucket against the asset-bytes-registry. Found exactly **3 orphan objects** — all corresponding to the 3 cards on `/removed` (FBI Section 6, DOW-UAP-D20, NASC-State). These had been uploaded May 8 as part of PR #27's bulk-load and were never brought under the integrity-layer's coverage when the byte-archive stack landed overnight May 11→12.
+
+Closed the gap:
+
+- **`scripts/r2_pin_removed.py`** (with TDD: 6 unit tests, mock-S3-client). Walks `removed-cards.json`; for each card: HEADs R2 → GETs current-pointer bytes → computes byte_sha256 → PUTs to `archive/<sha>.<ext>` with `IfNoneMatch: "*"` (append-only) → appends a registry row with `preserved: true`. Idempotent. Live run pinned 2 archive entries (D20, FBI Section 6) and reported `archive-existed` for the State memo (see byte-finding below).
+- **`scripts/r2_verify_preserved.py`** (with TDD: 5 unit tests). Companion to the manifest-walking verify cron — re-reads each preserved card's bytes from R2 and compares against the pinned byte_sha. Different threat model from silent-overlay-detected: this catches in-control-plane tampering (leaked write key, buggy script, accidental wrangler PUT).
+- **`.github/workflows/verify-assets-daily.yml`** extended with a new `verify-preserved` step + new `preserved-tampered` issue label/title with full sha-diff body when a preservation copy mismatches.
+
+**Editorial finding surfaced by the integrity layer itself.** The pin's IfNoneMatch returned `PreconditionFailed` on the NASC-State card (`aa3097b4c549a67a`): the archive key already existed because **current-manifest card `9e2c2621d67dde12` has byte-identical content**. Same pattern as yesterday's D20 refutation. The "1963 → 1952 file-swap" framing was incomplete: upstream's 2026-05-11 change to that listing was actually **two operations at once** — (a) re-issued the same 1963 NASC memo at a corrected 1963-coded title (byte-identical, cryptographically verified), and (b) added a genuinely-new 1952 State memo at the original 1952-coded title. The 1963 content was preserved verbatim across the rename. Finds entry `nasc-state-extraterrestrial-policy-memo-1963.mdx` updated with a new "Byte-level integrity finding" section, a corrected preservation table (now 3 cards), and a sentence in provenance about how the tooling discovered the identity.
+
+**Tier-1 durability mirror verified.** Manually triggered `mirror-to-backup-r2` workflow in `pursue-opsec` after operator set the 7 backup R2 secrets. First sync: **129 archive_copied + 129 current_copied, 0 failures, ~13 minutes for ~6 GB.** Tier-1 cross-account redundancy is now live. The 3 newly-pinned preserved entries weren't in this sync (they were uncommitted at trigger time) — re-trigger queued for after this commit pushes.
+
+**Upstream CSV rename caught and patched.** During the session, the operator noticed three consecutive poll-workflow failures (15:28, 16:20, 17:15 UTC) and asked. Investigation: war.gov restructured the UAP site and renamed `uap-csv.csv` → `uap-release001.csv`. The old URL now 404s; the new URL is linked from `war.gov/UFO/` and serves the same 158-card content with the same shape. The naming pattern (`release001`) strongly suggests upstream is moving to **explicit release versioning** instead of mutating a single canonical CSV — actually a *better* upstream model. One-line fix to `csv_url` default in `src/pursue_index/config/settings.py`; 35 existing CSV/poll tests still green. Auto-filed `tranche-poll-failure` issue #55 will close on the next successful poll tick after push.
+
+**Reconciliation final state**: 0 orphans, 0 missing, 263 R2 objects all accounted for by 132 registry rows (3 of which are preserved entries; 1 archive key is shared between aa3097b4 and 9e2c2621 because their bytes are identical).
 
 **2026-05-12 (overnight, ran through morning) — Archive integrity stack + /gallery complete + repo cleanup + reviewer cycle + OPSEC hardening + replacement-card pipeline + VID playback.**
 

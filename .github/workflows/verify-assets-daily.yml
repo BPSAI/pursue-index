@@ -91,6 +91,26 @@ jobs:
         run: python scripts/r2_archive_assets.py
         continue-on-error: true
 
+      - name: Verify /removed preservation copies
+        # The manifest-walking verify above only covers cards currently
+        # in latest.json. /removed cards (upstream-pulled or replaced)
+        # live outside that walk but their bytes still need integrity
+        # coverage — a tampering of a preservation copy in R2 is the
+        # threat this step catches. Re-reads each preserved row from
+        # R2, hashes, compares against the pinned byte_sha in the
+        # registry. Exits non-zero if any preserved card fails; the
+        # next step files a (different) issue and never blocks the
+        # silent-overlay path above.
+        id: verify_preserved
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          python scripts/r2_verify_preserved.py \
+            --report /tmp/preserved-verify-report.json
+        continue-on-error: true
+
       - name: Commit registry updates (when verify ran)
         if: steps.verify.outcome == 'success'
         run: |
@@ -143,3 +163,38 @@ jobs:
             --title "[integrity] Silent same-URL-different-bytes overlay detected" \
             --label "silent-overlay-detected" \
             --body "The daily verify workflow caught upstream bytes changing under a stable URL. ${added} new row(s) landed in data/asset-bytes-registry.jsonl this run. Run log: $RUN_URL"
+
+      - name: Open issue when preserved tampering detected
+        # Different threat from silent-overlay-detected: a preserved
+        # card's bytes in R2 no longer hash to the pinned byte_sha. The
+        # IfNoneMatch guard prevents archive/<sha>.<ext> from being
+        # overwritten, but the current-pointer <card_id>.<ext> key is
+        # writable — a leaked write key, a buggy script run, or an
+        # accidental wrangler PUT could tamper with one without
+        # touching upstream. This issue alerts the operator with the
+        # exact diff so they can roll the current-pointer back from
+        # archive/<sha>.<ext>.
+        if: steps.verify_preserved.outcome != 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create preserved-tampered \
+            --color "B60205" \
+            --description "Daily byte-verify caught a /removed preservation copy mismatching its pinned byte_sha" \
+            --force 2>/dev/null || true
+          existing=$(gh issue list --label preserved-tampered --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "Open issue #${existing} already tracking; skipping."
+            exit 0
+          fi
+          if [ -f /tmp/preserved-verify-report.json ]; then
+            body_file=/tmp/preserved-verify-report.json
+            report_excerpt=$(cat "$body_file" | head -c 3000)
+          else
+            report_excerpt="(report file not produced; check run log)"
+          fi
+          gh issue create \
+            --title "[integrity] Preserved card tampering detected" \
+            --label "preserved-tampered" \
+            --body "$(printf 'A /removed preservation copy in R2 no longer matches its pinned byte_sha. This is tampering inside our control plane (not upstream). Roll the current-pointer back from archive/<sha>.<ext>.\n\nReport excerpt:\n```\n%s\n```\n\nRun log: %s' "$report_excerpt" "$RUN_URL")"

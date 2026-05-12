@@ -1,13 +1,14 @@
 ---
 title: "The Hunter-to-Packard Memo, July 18, 1963 — and the 1952 Document That Replaced It"
-subtitle: "A 1963 NASC alien-policy memo was published under the title pattern '59_64634_711.5612[7-2852' until 2026-05-11. The current upstream listing at that exact title points to a different document — a 1952 State memo on UFO sighting reports. Both are preserved here."
-summary: "Card aa3097b4c549a67a is a six-page interagency memorandum from Maxwell W. Hunter II of the National Aeronautics and Space Council to Robert F. Packard at State/OES, dated July 18, 1963. It is one of the few documents in the PURSUE release that addresses extraterrestrial-contact policy at the Executive Office level. The card was present in the 2026-05-08 PURSUE CSV and the same title now points to a different file in the 2026-05-11 CSV — described upstream as 'a two page memorandum, dated July 28, 1952, relates to increased reports of unidentified flying objects.' These are different documents at the same title pattern. The original is preserved here at card_id aa3097b4c549a67a; the replacement is in the current manifest as card_id df43a479bc891969."
-tags: ["state-department", "nasc", "1963", "1952", "primary-source", "executive-policy", "replaced-upstream", "preserved-record"]
+subtitle: "A 1963 NASC alien-policy memo was filed under a 1952-coded title pattern until 2026-05-11. Upstream then split that listing in two: the 1963 memo was re-issued under a corrected (1963-coded) title — byte-for-byte identical to the original, cryptographically verified — and a different 1952 State memo was added at the original title pattern. All three card identities are preserved here."
+summary: "Card aa3097b4c549a67a is a six-page interagency memorandum from Maxwell W. Hunter II of the National Aeronautics and Space Council to Robert F. Packard at State/OES, dated July 18, 1963 — one of the few PURSUE documents addressing extraterrestrial-contact policy at the Executive Office level. The card was present in the 2026-05-08 PURSUE CSV with mismatched metadata (1952-coded title attached to 1963 content). In the 2026-05-11 CSV upstream did two things at once: re-issued the same 1963 memo under a corrected 1963-coded title (card_id 9e2c2621d67dde12, byte-for-byte identical to the original), and added a genuinely different document at the original title pattern, a 1952 State memo on UFO sighting reports (card_id df43a479bc891969). The original card_id aa3097b4c549a67a remains preserved here. The byte-identity between the original and the re-issued 1963 card is cryptographically verified by the project's content-addressed archive layer."
+tags: ["state-department", "nasc", "1963", "1952", "primary-source", "executive-policy", "replaced-upstream", "preserved-record", "byte-verified", "metadata-correction"]
 cards:
   - aa3097b4c549a67a
+  - 9e2c2621d67dde12
   - df43a479bc891969
 published: 2026-05-11
-updated: 2026-05-11
+updated: 2026-05-12
 ---
 
 import Cite from "../../components/Cite.astro";
@@ -50,10 +51,11 @@ The 2026-05-11 CSV no longer carries that asset URL. The same title pattern — 
 
 The new file is two pages; the original was six. The new `incident_date` field is `7/28/52`; the original was `7/18/52`. The new asset filename string matches the title pattern (`711.5612[7-2852` ↔ `711.5612.[7-28-52]`); the original did not (its filename was `59_214434_sp_16_7.18.1963`). The new card_id is `df43a479bc891969`; the original was `aa3097b4c549a67a`.
 
-What the upstream did, in concrete terms: they pulled a 1963 NASC document from a State Department / RG 59 / Decimal 711.5612 title pattern that, by the filename and content, belongs to July 28, 1952, and replaced the asset at that title with a 1952 State memorandum whose filename and content match. Whether this is a metadata correction (the 1963 document was originally mis-filed) or a withdrawal under cover of a metadata correction is not something this entry asserts. Both documents are preserved here:
+What the upstream did, in concrete terms — and what the byte-level evidence later showed (see "Byte-level integrity finding" below) — is that they did two distinct operations on the listing in a single update: (a) they re-issued the 1963 Hunter-to-Packard memo at a corrected, 1963-coded title pattern, with bytes identical to the version present on 2026-05-08; and (b) they added a different 1952 State memorandum, whose filename and content match the original 1952-coded title pattern. All three card identities are preserved here:
 
-- Original (1963 NASC alien-policy memo): `/card/aa3097b4c549a67a` and `/pdf/aa3097b4c549a67a.pdf` (R2 mirror)
-- Replacement (1952 State UFO sighting-reports memo, two pages): `/card/df43a479bc891969` and `/pdf/df43a479bc891969.pdf` (R2 mirror). OCR'd 2026-05-12.
+- Original 2026-05-08 listing (1963 NASC memo, filed under a 1952-coded title): `/card/aa3097b4c549a67a` and `/pdf/aa3097b4c549a67a.pdf` (R2 mirror)
+- Current 2026-05-11 re-listing of the same 1963 memo (corrected 1963-coded title, byte-identical content): `/card/9e2c2621d67dde12` and `/pdf/9e2c2621d67dde12.pdf` (R2 mirror)
+- Current 2026-05-11 listing at the original 1952-coded title (a genuinely-new 1952 State memo, two pages): `/card/df43a479bc891969` and `/pdf/df43a479bc891969.pdf` (R2 mirror). OCR'd 2026-05-12.
 
 ## What the replacement document contains (OCR added 2026-05-12)
 
@@ -67,16 +69,29 @@ The two-page brief is consistent with the title-pattern's date and filename, len
 
 The change is logged at [/removed](/removed) and the snapshot of the prior manifest is at `/data/snapshots/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json`.
 
+## Byte-level integrity finding (added 2026-05-12)
+
+When the 2026-05-12 archive-reconciliation pass retroactively pinned the three `/removed` preservation copies into the project's content-addressed byte-archive layer, the SHA-256 of card `aa3097b4c549a67a`'s preserved bytes was compared against every existing archive entry. The hash collided with an already-archived entry — the current-manifest card `9e2c2621d67dde12`. Both card identities resolve to the same R2 object: `archive/aba3ec3b8ef0240364308cf046ccbfcd252c5a5d7ef470d696b72c1f41b2502d.pdf` (1,598,931 bytes).
+
+**What the byte-equivalence proves.** The upstream's 2026-05-11 change to the 1963 NASC memo's listing was a metadata-only operation on the content side. Every page, every signature, every stamp, every redaction in the document is bit-for-bit identical to the version captured on 2026-05-08. The 1963 content was not re-redacted, re-paginated, re-OCR'd, or otherwise altered. It was re-classified — given a corrected title and asset filename — without any modification to the underlying document bytes.
+
+**What the byte-equivalence does NOT prove.** Upstream's *motivation* remains ambiguous. The byte-identical re-issue is consistent with a routine metadata correction (the 1963 document had been mis-filed under a 1952-coded title; cleaning that up). It is also consistent with a deliberate withdrawal-then-restoration carried out under cover of a metadata correction — for instance, to reset analytic continuity, break inbound links to the prior URL, or test whether downstream archives were watching. This entry continues not to assert which.
+
+What the byte-equivalence *does* establish is the floor: regardless of motive, no editorial alteration of the 1963 document content accompanied the upstream change. Future upstream operations on this card can now be evaluated against a cryptographic baseline rather than a description-level one.
+
 ## What's preserved
 
-| Surface | Original (`aa3097b4c549a67a`, 1963 NASC memo) | Replacement (`df43a479bc891969`, 1952 State memo) |
-|---|---|---|
-| PDF (R2 mirror) | `/pdf/aa3097b4c549a67a.pdf` | `/pdf/df43a479bc891969.pdf` |
-| OCR text | 6 pages in `/data/pages.json` | 2 pages in `/data/pages.json` |
-| LLM-cleaned reading text | yes (2026-05-11 corpus pass) | yes (2026-05-12 incremental pass) |
-| Embeddings | in the deployed Voyage-3 index | added 2026-05-12 |
-| Card detail | `/card/aa3097b4c549a67a` | `/card/df43a479bc891969` |
+| Surface | Original 1963 memo (`aa3097b4c549a67a`, 1952-coded title) | Re-issued 1963 memo (`9e2c2621d67dde12`, 1963-coded title, byte-identical) | Genuinely-new 1952 memo (`df43a479bc891969`) |
+|---|---|---|---|
+| PDF (R2 mirror) | `/pdf/aa3097b4c549a67a.pdf` | `/pdf/9e2c2621d67dde12.pdf` | `/pdf/df43a479bc891969.pdf` |
+| OCR text | 6 pages in `/data/pages.json` | 6 pages in `/data/pages.json` (same content) | 2 pages in `/data/pages.json` |
+| LLM-cleaned reading text | yes (2026-05-11 corpus pass) | yes (same content → same cleaning) | yes (2026-05-12 incremental pass) |
+| Embeddings | in the deployed Voyage-3 index | in the deployed Voyage-3 index | added 2026-05-12 |
+| Card detail | `/card/aa3097b4c549a67a` | `/card/9e2c2621d67dde12` | `/card/df43a479bc891969` |
+| SHA-256 of asset bytes | `aba3ec3b8ef0…` | `aba3ec3b8ef0…` (identical) | different |
 
 ## Provenance of this entry
 
 A code-assistant agent extracted the document's identifying surface (author, addressee, date, classification, content threads) from the preserved OCR pages and reported back; the editorial frame is the operator's. The agent was asked to identify the document and summarize its content; it was not asked to assert *why* the listing was removed, and this entry does not. The mis-cataloged `incident_date` field in the prior manifest is a data-quality observation, not a removal motive.
+
+The 2026-05-12 byte-level integrity finding surfaced as a side effect of running the project's content-addressed archive reconciliation pass — not an investigative effort directed at this card. The SHA-256 collision between `aa3097b4c549a67a` and `9e2c2621d67dde12` was reported by `scripts/r2_pin_removed.py` when its append-only PUT to `archive/<sha>.<ext>` returned `PreconditionFailed` (the archive key already existed from the current-manifest card's earlier write). The integrity tooling discovered the byte-identity; the editorial interpretation of what that means is the operator's.

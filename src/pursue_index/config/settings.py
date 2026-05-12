@@ -30,7 +30,11 @@ class Settings(BaseSettings):
     db_url: str = Field(default="postgresql+psycopg://pursue:pursue@localhost:5432/pursue")
 
     # ---- Scrape ----
-    csv_url: HttpUrl = Field(default="https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-csv.csv")
+    # 2026-05-12: upstream renamed uap-csv.csv → uap-release001.csv (linked
+    # from war.gov/UFO/). The naming pattern suggests upstream is moving to
+    # explicit release versioning (release001 → release002 → ...) rather
+    # than mutating a single canonical CSV. The old URL now returns 404.
+    csv_url: HttpUrl = Field(default="https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-release001.csv")
     scrape_user_agent: str = ""  # empty → use the realistic Chrome UA in csv_fetcher
 
     # ---- Download ----
