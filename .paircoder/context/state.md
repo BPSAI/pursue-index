@@ -4,6 +4,14 @@
 
 ## What Was Just Done
 
+**2026-05-12 (evening) — First end-to-end tranche approval ran clean for 65572b38. Audit re-verified FBI Section 6 byte-identity; 16 PR-card renames materialized to card-aliases.json.**
+
+`pursue ingest approve` executed against tranche 65572b38 with all 16 quarantined → operator_manual rename pairings. The pre-approval TOCTOU audit re-fetched FBI 62-HQ-83894 Section 6 from upstream (~370MB, ~10s actual runtime), confirmed byte_sha256 still matches the morning's pin (`3df0935cf48e6847d0a5df77a987f8a446e545cc1dda20cad60f79d966516568`), and emitted summary `ok: 1, skipped: 16`. Approval recorded; 16 alias rows written to `data/card-aliases.json` with operator_manual provenance; full audit row appended to `data/audit-log.jsonl`.
+
+This is the first time the integrity stack has run end-to-end against a live upstream change with operator approval. The full chain held: poll detected the rename → byte-archive captured every byte stream → tranche-diff classified the 158 cards → side-by-side metadata review confirmed all 16 PR renames as clean → audit re-verified the restoration → approval clean → aliases materialized. The worker resolver shipped in step 2 will redirect `/card/<old_id>` for all 16 + Section 6 from the next deploy.
+
+Open follow-up: full `pursue ingest run` (manifest promotion + OCR/embed/clean + deploy rebuild) for tranche 65572b38. Currently the deployed `latest.json` is still the prior `0d7e9ba1` snapshot; the approval clears the gate but doesn't auto-promote. Step 7 of the card-rename plan covers the orchestration.
+
 **2026-05-12 (evening) — Post-ingest TOCTOU audit (plan step 5) shipped. `pursue ingest approve` now runs an inline pre-approval re-fetch audit; refuses approval on any sha mismatch.**
 
 Step 5 of the card-rename plan landed. New `pursue_index.post_ingest_audit` module re-fetches upstream bytes at approval time for every byte-collision rename and every restored_unchanged event, compares against the sha recorded at tranche-diff time, and surfaces any mismatch as a blocking error before aliases are materialized. 9 unit tests, all green; arch-clean.

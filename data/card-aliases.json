@@ -1,3 +1,116 @@
 {
-  "aliases": []
+  "aliases": [
+    {
+      "old_card_id": "784bb977e5172856",
+      "new_card_id": "0499d6dc86c848d6",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "4b346a44f42f6a05",
+      "new_card_id": "167f6a21c7238d0c",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "f62bdd9d2cd17b38",
+      "new_card_id": "2b6de60628336eb8",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "95276b360927b1b8",
+      "new_card_id": "42158cfc89c7ab84",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "43b24cc9276de054",
+      "new_card_id": "46d871c93e4585fd",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "d94bec9880a2a556",
+      "new_card_id": "5ffbe11403179567",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "79beb6bb07aed2fd",
+      "new_card_id": "7aede23a09ee4c6b",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "5bfa9fd87605eb5b",
+      "new_card_id": "86c966cdd1f9f31a",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "29bd36a1b5e69ae9",
+      "new_card_id": "8d3833f36d05ec03",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "321dff3d6f61e843",
+      "new_card_id": "9532749afe2d4273",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "3918ab9742a1aebf",
+      "new_card_id": "9fdc75d250206f65",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "6e780e439a23084d",
+      "new_card_id": "aa638778a043c89c",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "1456142475ed413b",
+      "new_card_id": "c4da38582fc64334",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "8a6b8cfddf19aa1e",
+      "new_card_id": "c5850afb384c768b",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "cf38883fb2a14b2d",
+      "new_card_id": "cf5c53c84485c70d",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "c74789aa8f318c6c",
+      "new_card_id": "e924a48f55719a0d",
+      "method": "operator_manual",
+      "established": "2026-05-12T21:53:48.533372+00:00",
+      "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    }
+  ]
 }
