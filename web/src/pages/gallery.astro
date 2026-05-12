@@ -1,0 +1,39 @@
+---
+import Base from "../layouts/Base.astro";
+import GalleryIsland from "../components/GalleryIsland.tsx";
+import { manifest } from "../data/manifest-loader";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Gallery only renders IMG and VID cards. PDF cards arrive in Phase 2
+// once the page-1 thumbnail pipeline ships (see
+// .paircoder/plans/visual-browse-surface.md, T?.5).
+const galleryCards = manifest.cards.filter(
+  (c) => c.asset_type === "IMG" || c.asset_type === "VID",
+);
+---
+
+<Base title="GALLERY — PURSUE://INDEX" active="gallery">
+  <div class="space-y-6">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4 max-w-4xl">
+      <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>ls -la data/&#123;images,videos&#125;/</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        GALLERY
+      </h1>
+      <p class="text-sm text-[color:var(--color-text)] max-w-2xl">
+        Visual browse for the IMG and VID cards in the corpus &mdash;
+        14 declassified photographs and {galleryCards.filter((c) => c.asset_type === "VID").length} DVIDS-hosted videos.
+        Tap any tile to open its card page; we don't trap you in a
+        modal. PDF documents are the largest slice of the corpus and
+        are not on this page yet &mdash; page-1 thumbnail rendering is
+        the gating piece, tracked in
+        <code class="text-[color:var(--color-signal-cyan)]">/finds</code>
+        and the visual-browse-surface plan.
+      </p>
+    </header>
+    <GalleryIsland client:load cards={galleryCards} base={base} />
+  </div>
+</Base>
