@@ -1,11 +1,19 @@
 ---
 id: card-rename-handling
 type: feature
-status: draft
+status: shipped
 created: 2026-05-12
+shipped: 2026-05-12
 priority: high
 depends_on: []
 ---
+
+> **Shipped 2026-05-12.** Steps 1-7 of this plan landed in tranche
+> `65572b38d27c` ingestion (commits `9dd7d9c`, `2aeef64`, `4959ff3`).
+> The byte-archive layer, rename-detection policy, replacement-card
+> pipeline, and pre-approval TOCTOU re-fetch audit are all live.
+> Kept as a historical record of the design.
+
 
 # Safe ingestion of upstream renames and re-cataloging
 
