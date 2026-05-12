@@ -71,12 +71,16 @@ jobs:
 
       - name: Install verify deps
         # Same lean set as the poll workflow's asset-archive lane —
-        # curl_cffi via the poll requirements file, plus boto3 for
-        # R2's S3 API. Pinned per SEC-002.
+        # curl_cffi via requirements-poll.txt, boto3 + transitive deps
+        # via requirements-archive.txt. Both files hash-pinned (closes
+        # the SEC-001 supply-chain finding from laverna review). This
+        # lane runs with R2 credentials in its env so an unpinned
+        # transitive of boto3 was a clear arbitrary-code path to
+        # bucket-write access.
         run: |
           python -m pip install --upgrade pip
           python -m pip install --require-hashes -r requirements-poll.txt
-          python -m pip install 'boto3>=1.35,<2'
+          python -m pip install --require-hashes -r requirements-archive.txt
 
       - name: Run R2 byte-verify
         id: verify

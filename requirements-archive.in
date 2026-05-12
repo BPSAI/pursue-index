@@ -1,0 +1,20 @@
+# Source for requirements-archive.txt (regenerate with:
+#   pip-compile --generate-hashes -o requirements-archive.txt \
+#     requirements-archive.in
+# ).
+#
+# Dependencies for the asset-archive workflow lane
+# (.github/workflows/poll-pursue.yml + verify-assets-daily.yml).
+# Kept separate from requirements-poll.in because the poll lane
+# itself is lean (curl_cffi + small structlog deps) and runs every
+# 30 min; the archive lane only runs on detected change or daily
+# verify, so installing boto3 + transitive deps there is fine.
+#
+# Why hash-pinning matters here specifically (laverna SEC-001):
+# this lane runs with R2_ACCESS_KEY_ID + R2_SECRET_ACCESS_KEY in
+# its env. A PyPI compromise or index-confusion attack on boto3 or
+# any of its transitive deps would execute arbitrary code with R2
+# bucket write access. The poll lane already enforces
+# --require-hashes; this file extends that discipline to the
+# archive lane.
+boto3>=1.35,<2

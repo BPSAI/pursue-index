@@ -202,12 +202,15 @@ jobs:
       # next 30-minute cron tick.
       # ----------------------------------------------------------------
       - name: Install asset-archive deps
-        # Lean-but-not-leaner: poll deps + boto3 pinned. Skipped on
-        # unchanged/failed so we don't make a broken poll worse and
+        # Hash-pinned via requirements-archive.txt (SEC-001 fix for the
+        # supply-chain weakness laverna flagged — this lane runs with
+        # R2_ACCESS_KEY_ID + R2_SECRET_ACCESS_KEY in its env, so any
+        # un-pinned dep is a write-the-bucket attack vector). Skipped
+        # on unchanged/failed so we don't make a broken poll worse and
         # don't HEAD 130 URLs on every quiet 30-min tick.
         if: steps.poll.outputs.status == 'changed'
         run: |
-          python -m pip install 'boto3>=1.35,<2'
+          python -m pip install --require-hashes -r requirements-archive.txt
 
       - name: Run R2 asset archive
         # Runs ONLY on detected CSV change. The CSV is the primary
