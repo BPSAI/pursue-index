@@ -1,5 +1,9 @@
 # OCR benchmark — 2026-05-09
 
+> _Note: the corpus has grown to 4,161 pages since this run via the_
+> _2026-05-12 replacement-card pipeline; the engine choice and per-page_
+> _economics scale linearly. See state.md for current counts._
+
 > Methodology: 5 cards × first 5 pages × 3 engines (Tesseract, Surya, Anthropic
 > Haiku-4.5 vision). The LLM transcription is used as the assumed-correct
 > truth proxy per `.paircoder/plans/ocr-benchmark.md`'s open question on
