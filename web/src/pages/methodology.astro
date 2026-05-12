@@ -353,6 +353,51 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         the reader shows a notice with a one-click switch to Raw.
         Citation still anchors to Raw.
       </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">
+          Skip rate, full corpus.
+        </strong>{" "}
+        The 2026-05-11 full-corpus cleanup pass produced cleaned text for
+        <strong class="text-[color:var(--color-text-bright)]">4,130 of 4,153</strong>{" "}
+        OCR pages —
+        <strong class="text-[color:var(--color-text-bright)]">23 pages</strong>{" "}
+        skipped, a
+        <strong class="text-[color:var(--color-text-bright)]">0.55%</strong>{" "}
+        skip rate. Of those 23 skips, 19 hit
+        <code class="text-[color:var(--color-signal-cyan)]">length_divergence</code>{" "}
+        and 4 hit
+        <code class="text-[color:var(--color-signal-cyan)]">content_filter</code>;
+        the content-filter cases cluster on a small number of older
+        documents (one Adamski-era citizen newsletter in particular).
+        The full pass cost{" "}
+        <strong class="text-[color:var(--color-text-bright)]">$8.55</strong>{" "}
+        in Anthropic API spend at Haiku 4.5 rates.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">
+          The interpretive boundary.
+        </strong>{" "}
+        Cleaned is an OCR-error pass, not a transcription pass. The model
+        is allowed to fix things like
+        <code class="text-[color:var(--color-signal-cyan)]">1.48</code>{" "}
+        →
+        <code class="text-[color:var(--color-signal-cyan)]">1.4a</code>{" "}
+        when an obvious single-character OCR misread is recoverable from
+        context (a numbered list item where the surrounding text makes the
+        intent unambiguous). It is{" "}
+        <strong class="text-[color:var(--color-text-bright)]">not</strong>{" "}
+        allowed to fill in what a redaction covers, expand abbreviations
+        the original document didn't expand, or modernize archaic spellings.
+        When a passage is genuinely garbled and the cleanup would require
+        guessing rather than correcting, the model is instructed to leave
+        it alone — the
+        <code class="text-[color:var(--color-signal-cyan)]">length_divergence</code>{" "}
+        skip path is the safety valve that catches the cases where it
+        couldn't comply with that instruction. Quoting from Cleaned and
+        reporting the underlying claim as if it were the original
+        document's exact wording is the failure mode this section is here
+        to warn against: when precision matters, quote Raw.
+      </p>
     </section>
 
     {/* Idempotency */}
