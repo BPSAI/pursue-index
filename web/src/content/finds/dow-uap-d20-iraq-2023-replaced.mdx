@@ -1,0 +1,78 @@
+---
+title: "DOW-UAP-D20 — Replaced Between Tranches"
+subtitle: "The same mission report appears in the 2026-05-08 and 2026-05-11 manifests under different card_ids, different filenames, and different incident-date fields. Both versions matter."
+summary: "Card 80e36017873c19a1 — the upstream DOW-UAP-D20 Mission Report as published on 2026-05-08 — was removed from the war.gov listing between 2026-05-08 and 2026-05-11. The new manifest contains a card with the same title (DOW-UAP-D20, Mission Report, Iraq, 2023) at a different card_id (085c019c9899db9b) pointing to a different asset filename. This is a replacement, not a deletion. Both filenames, both card records, and the preserved OCR of the original are documented here so the diff between versions stays legible."
+tags: ["dow", "2023", "primary-source", "iraq", "syria", "f-16", "misrep-anatomy", "removed-upstream", "preserved-record", "replaced"]
+cards:
+  - 80e36017873c19a1
+  - 085c019c9899db9b
+published: 2026-05-11
+---
+
+import Cite from "../../components/Cite.astro";
+
+## Two cards, one title
+
+PURSUE content-addresses each card by `sha256(asset_url || title)[:16]`. When the upstream changes a document's filename or URL, the card_id changes — even if the title stays identical. The DOW-UAP-D20 Mission Report appears twice in the PURSUE record under two distinct card_ids:
+
+| | Original (removed) | Replacement (current) |
+|---|---|---|
+| `card_id` | `80e36017873c19a1` | `085c019c9899db9b` |
+| `asset_filename` | `dow-uap-d20-mission-report-southern-united-states-2023.pdf` | `dow-uap-d20-mission-report-iraq-2023.pdf` |
+| `title` | DOW-UAP-D20, Mission Report, Iraq, 2023 | DOW-UAP-D20, Mission Report, Iraq, 2023 |
+| `incident_date` (manifest field) | (absent or different) | `3/31/23` |
+| `incident_location` (manifest field) | (absent or different) | `Iraq` |
+| in 2026-05-08 manifest? | yes | no |
+| in 2026-05-11 manifest? | no | yes |
+
+The titles are identical. The filenames differ on the geographic slug — `southern-united-states-2023` versus `iraq-2023`. The replacement is in our manifest now; the original is preserved by this archive but no longer listed upstream.
+
+## What the original (`80e36017873c19a1`) contains
+
+Six pages, MISREP format, SECRET//NOFORN. The MISREP records:
+
+- **Originator:** 77 Expeditionary Fighter Squadron, 378 Air Expeditionary Wing, supporting Operation INHERENT RESOLVE, with 609 CAOC oversight. <Cite card="80e36017873c19a1" page={2} q="77 EFS" />
+- **Platform:** a two-ship of F-16CM Fighting Falcons (paired manned-fighter sortie, in contrast to the unmanned ISR platforms in [DOW-UAP-D23](/finds/dow-d23-arabian-gulf-october-2023), [D32](/finds/dow-d32-syria-october-2024), and [D33](/finds/dow-d33-aegean-sea-october-2023)).
+- **Mission type:** Defensive Counter-Air (DCA).
+- **Takeoff:** ICAO `OEPS` — Prince Sultan Air Base, Saudi Arabia — at `311901:00ZMAR23`. <Cite card="80e36017873c19a1" page={1} q="OEPS" />
+- **Landing:** `010148ZAPR23`. Mission duration approximately 6 hours 47 minutes.
+- **Routing:** transited Iraqi airspace, then Syrian airspace; on station in killbox "ESSA" from 2058Z to 0000Z.
+- **UAP event DTG:** `312302:05ZMAR23` — 31 March 2023, 23:02 Zulu.
+- **Observation:** approximately 10–20 bright objects moving west-to-east at flight level above 600 (the F-16s were at FL265). Each object was held on the SNIPER LDP targeting pod in TV mode for roughly 20 seconds before dimming and dropping from track. <Cite card="80e36017873c19a1" page={6} q="approximately 10" /> The aircrew explicitly distinguished the returns from stars via comparative pod imagery.
+- **Response:** no kinetic engagement; no effects on personnel; the flight returned to base normally.
+- **Pattern note:** the narrative on page 6 includes language describing the formation as not having been seen in this configuration "as previously seen in PRIOR SORTIES," indicating the originator had context for repeat events.
+
+## What the replacement (`085c019c9899db9b`) contains
+
+The replacement card was added to the manifest on 2026-05-11 with `release_date: 5/8/26` — the same release date string the original carried. OCR has not yet ingested the new PDF as of the 2026-05-11 pipeline run, so the page-level content of the replacement is not yet in `/data/pages.json` for direct comparison. The pipeline-level facts available from the manifest itself are summarized in the table above.
+
+The PURSUE description text recorded for the replacement is in the manifest entry and tracks the standard MISREP description language ("operator reported observing several bright objects maneuvering quickly west to east northeast" and the structured-fields qualifier about subjective interpretation), consistent with the substance the original document carries. The replacement does not yet have OCR pages available in this archive.
+
+## Differences worth a side-by-side, once both are OCR'd
+
+Three structural differences between the original D20 and its still-listed siblings (D23, D32, D33) are visible on a careful read of the preserved OCR and were the basis for naming this entry. Once the replacement file's OCR is in the index, a direct page-by-page diff against the original will show whether each of these differences narrows in the new version:
+
+1. **Platform fingerprint depth.** The original carries fully populated entries in the avionics/weapons-block fields where the sibling ISR-platform MISREPs have those fields blank or dashed. The specific values are visible in the preserved OCR at `/card/80e36017873c19a1` and on the R2 mirror PDF.
+2. **Filename / title alignment.** The original asset filename was `...southern-united-states-2023.pdf`; the title is "Iraq, 2023." The replacement aligns filename and title on "iraq."
+3. **The "as previously seen in PRIOR SORTIES" line on page 6.** This language places the encounter in a pattern; whether the replacement preserves the phrasing or scopes it differently is a direct factual question once the new OCR is available.
+
+## What's preserved
+
+| Surface | Original (`80e36017873c19a1`) | Replacement (`085c019c9899db9b`) |
+|---|---|---|
+| PDF | live at `/pdf/80e36017873c19a1.pdf` (R2 mirror, our copy) | new — will mirror after next pipeline pass |
+| OCR text | 6 pages in `/data/pages.json` | not yet OCR'd in this archive |
+| LLM-cleaned reading text | yes (2026-05-11 corpus pass) | follows next OCR |
+| Embeddings | yes | follows next OCR |
+| Card detail | `/card/80e36017873c19a1` | `/card/085c019c9899db9b` (will populate after OCR) |
+| Listed by upstream | no — as of 2026-05-11 | yes |
+
+The original is the version most readers should expect to see referenced in third-party citations dated before 2026-05-11; it remains accessible through this archive.
+
+## How to use this entry
+
+If a citation in another work points to "DOW-UAP-D20" without specifying which version, follow the date of the citation: pre-2026-05-11 citations describe the original (`80e36017873c19a1`); after, the replacement. The PURSUE description text in the manifest entry is essentially the same across both. The PDFs are different files at different content-addressed URLs and may differ at the page level. When the replacement OCRs, this entry will be updated with a direct field-by-field comparison.
+
+## Provenance of this entry
+
+A code-assistant agent walked the preserved OCR of the original and the manifest-level surface of the replacement, summarized the three structural differences identified above, and reported back. The editorial frame is the operator's. The agent identified hypotheses for *why* the replacement happened; this entry does not assert any of them. The factual claim here is that two card_ids exist at the same title with different asset filenames and different listing dates, and that the first is preserved.

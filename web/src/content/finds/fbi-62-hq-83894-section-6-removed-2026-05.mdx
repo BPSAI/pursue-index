@@ -1,0 +1,73 @@
+---
+title: "FBI 62-HQ-83894 Section 6 — Removed from Upstream, Preserved Here"
+subtitle: "271 pages of the FBI's omnibus UFO file disappeared from the war.gov listing between 2026-05-08 and 2026-05-11. The bytes, OCR, and embeddings remain in this archive."
+summary: "Card 13f86e95aed52840 — Section 6 of the FBI's ten-section omnibus UFO file 62-HQ-83894 — was present in the 2026-05-08 PURSUE manifest and absent from the 2026-05-11 manifest. No announcement, no replacement listing. The PDF stays available on our R2 mirror and the 271-page OCR transcript remains in /search and /atlas. This entry catalogues what the section contains — green-fireball reports, Oak Ridge sightings, Rhodes/Phoenix-1947 chain of custody, an FBI background investigation of a named civilian witness — so the document is legible without depending on upstream availability."
+tags: ["fbi", "archive-integrity", "removed-upstream", "primary-source", "preserved-record"]
+cards:
+  - 13f86e95aed52840
+published: 2026-05-11
+---
+
+import Cite from "../../components/Cite.astro";
+
+## What the document is
+
+Card `13f86e95aed52840` is **Section 6 of FBI file 62-HQ-83894**, the Bureau's omnibus UFO file. The full file family runs Sections 1 through 10 — approximately 1,900 pages of catalogued correspondence, investigation memoranda, citizen letters, and inter-bureau coordination between 1947 and 1968. The reading guide at [/finds/fbi-62-hq-83894-readers-guide](/finds/fbi-62-hq-83894-readers-guide) walks the section structure.
+
+Section 6 is 271 pages, weighted heavily to 1949–1952 (year-frequency in the OCR: 1952 × 192, 1950 × 114, 1949 × 40, 1951 × 30, with smaller counts before and after). The CSV description that originally accompanied this card on war.gov characterized this version as a "complete case file with several newly declassified pages and only minor redactions" — explicitly comparing it favorably against the more-redacted version available on the FBI Vault. The prior manifest record carried `redacted: false`.
+
+## The removal
+
+The PURSUE upstream CSV is fetched on a six-hour cadence by our `poll-pursue` workflow; the CSV's sha256 is committed to `data/last-known-csv-sha.txt` whenever it changes. The 2026-05-11 fetch detected `f07601eb...` succeeding `596cc188...`; an attended scrape on the operator's machine that evening produced a new `latest.json` whose card-set differed from the prior manifest by three removals. Section 6 was one of those three.
+
+A snapshot of the prior manifest is preserved at `/data/snapshots/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json`; the removal event itself is logged at `/data/removed-cards.json` and surfaced on [/removed](/removed). The PDF remains servable at `/pdf/13f86e95aed52840.pdf` from this archive's R2 mirror — we do not delete bytes when upstream changes a listing.
+
+## What's in Section 6
+
+Sampling broadly across the 271 pages, the section is organized chronologically by FBI serial number and covers six recurring threads.
+
+### New Mexico green-fireball file (1949–1952)
+
+The dominant thread. OSI-Kirtland 17th District summaries, communications with Dr. Lincoln LaPaz at the UNM Institute of Meteoritics, and material on the Land-Air Inc. observational contract. <Cite card="13f86e95aed52840" page={47} q="Land-Air" /> LaPaz's hypothesis that some discs could be Soviet missile tests originating in the Urals appears in correspondence on these pages.
+
+### Sensitive-installation sightings (1949–1951)
+
+Reports tied to Los Alamos, Sandia Base, Oak Ridge, and Hanford. The Oak Ridge material includes a January 1951 radar-track sequence at the S-50 area observed by named senior officers across three services — covered in detail in [/finds/oak-ridge-radar-january-1951](/finds/oak-ridge-radar-january-1951), which cites this card.
+
+### The William A. Rhodes / Phoenix 1947 photographs chain of custody
+
+Pages 170–185 walk the route of the original Rhodes negatives — FBI to OSI to a Drew Pearson television broadcast, and a contemporaneous claim by Rhodes that the Bureau "borrowed" the negatives and never returned them. The Bureau's internal characterization of the transfer is that it was extended "only as a courtesy to Air Force." <Cite card="13f86e95aed52840" page={170} q="only as a courtesy" /> The Rhodes case is the subject of a separate find: [/finds/rhodes-photographs-phoenix-1947](/finds/rhodes-photographs-phoenix-1947).
+
+### A background investigation of a named civilian witness
+
+Pages 156–164 are an FBI Baltimore Field Office background investigation of a named civilian who had reported a UFO sighting. The investigation includes the witness's full street address, telephone exchange, age, employer, and interviews with named neighbors at named addresses — the standard surface of a Bureau background check, applied to a citizen whose primary contact with the Bureau was reporting a sighting. The investigation also notes a 1948 questioning of the witness over a hammer-and-sickle decal on a company truck, included in the same case file.
+
+### Citizen-letter intake
+
+Approximately twenty letters from members of the public mentioning saucers, lights, or disc-shaped objects, each filed with the writer's name and full street address. The letters span Virginia, West Virginia, South Carolina, Indiana, and a Toronto correspondent. The Bureau's standard response — Hoover's form letter declining to confirm or deny investigative interest — accompanies several.
+
+### Administrative correspondence
+
+Hoover, Cabell, Belmont, Ladd, and Tolson appear throughout the inter-bureau routing — the standard 1950s FBI executive layer.
+
+## What's NOT in Section 6
+
+Not present in the OCR pass: no Roswell-as-crash material (the four Roswell hits in this section are routine sighting tabulations from Kirtland correspondence, not 1947 debris-recovery content), no Aztec, no Robertson Panel deliberations, no MJ-12-style claims, no living political figures.
+
+## What's preserved
+
+| Surface | Status |
+|---|---|
+| PDF (R2 mirror) | live at `/pdf/13f86e95aed52840.pdf` |
+| OCR text | 271 pages in `/data/pages.json` |
+| LLM-cleaned reading text | covered by 2026-05-11 full-corpus run |
+| Embeddings | in the deployed Voyage-3 index |
+| Search | discoverable on `/search` |
+| Atlas | discoverable on `/atlas` |
+| Card detail | `/card/13f86e95aed52840` |
+
+The card detail page renders normally because the manifest used at build time still includes this entry; if a future sync removes it, the [/removed](/removed) page is the canonical entry point and links directly to the preserved PDF.
+
+## Provenance of this entry
+
+This entry was drafted from a structured pass over the OCR text by a code-assistant agent run against the preserved content; the editorial frame is the operator's. The agent was asked to characterize the document's contents and identify what would be lost if the upstream listing's removal were also a loss of access — it was not asked to assert *why* the removal happened, and we do not. Possible explanations exist; readers can examine the document themselves and form their own.
