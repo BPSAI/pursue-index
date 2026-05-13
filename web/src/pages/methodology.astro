@@ -86,12 +86,15 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         The U.S. Department of War publishes the PURSUE corpus as a single
         CSV at
-        <code class="text-[color:var(--color-signal-cyan)] break-all">war.gov/Portals/1/Interactive/2026/UFO/uap-csv.csv</code>.
+        <code class="text-[color:var(--color-signal-cyan)] break-all">war.gov/Portals/1/Interactive/2026/UFO/uap-release001.csv</code>{" "}
+        (renamed from <code class="text-[color:var(--color-signal-cyan)]">uap-csv.csv</code>{" "}
+        by upstream on 2026-05-12 — the {`"release001"`} suffix appears to
+        signal upstream's move toward explicit release-versioned filenames).
         Every fetch snapshots that file, archives the raw bytes, and pins
         the SHA-256 in the manifest. If the upstream CSV changes — a new
-        tranche, a corrected row, a withdrawn entry — the next snapshot
-        produces a different hash and the diff page surfaces every
-        per-card delta.
+        tranche, a corrected row, a withdrawn entry, or a filename
+        rotation like the one above — the next snapshot produces a
+        different hash and the diff page surfaces every per-card delta.
       </p>
       <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-3 font-mono text-[11px] space-y-1">
         <div class="flex flex-wrap gap-x-4 gap-y-1">
@@ -453,7 +456,7 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         The manifest itself is shaped like this (one entry per card):
       </p>
       <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-3 font-mono text-[11px] text-[color:var(--color-text)] overflow-x-auto whitespace-pre"><code>{`{
-  "source_url": "https://www.war.gov/.../uap-csv.csv",
+  "source_url": "https://www.war.gov/.../uap-release001.csv",
   "fetched_at": "2026-05-08T19:21:00Z",
   "csv_sha256": "${csvShort}…",
   "cards": [
