@@ -130,14 +130,14 @@ For Twitter / Bluesky / Mastodon. All under 280 characters.
 
 ```
 pursueindex.com — every page of the DOW's PURSUE UAP release, OCR'd and
-citable. 4,153 pages, hash-pinned manifest, published quality benchmark.
+citable. 4,161 pages, hash-pinned manifest, published quality benchmark.
 Methodology: pursueindex.com/methodology
 ```
 
 **Methodology angle:**
 
 ```
-We OCR'd the entire DOW PURSUE UAP corpus (4,153 pages) for under $2:
+We OCR'd the entire DOW PURSUE UAP corpus (4,161 pages) for under $2:
 Surya GPU primary, Anthropic vision fallback on sub-threshold pages.
 Surya median CER 6.1% vs Tesseract 40.4%. pursueindex.com/methodology
 ```
