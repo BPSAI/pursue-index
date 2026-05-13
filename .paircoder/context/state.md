@@ -1,8 +1,28 @@
 # Current State
 
-> Last updated: 2026-05-12 (overnight)
+> Last updated: 2026-05-13 (early AM, end of overnight session)
 
 ## What Was Just Done
+
+**2026-05-13 (~02:00 UTC) — Both autonomous-run PRs MERGED. Plus 4 hot-fix commits on main. Plus deeper-fix patch. Plus opsec proposal for a release-pipeline gate. Final staleness sweep clean.**
+
+**Merged tonight:**
+- **PR #58** staleness-remediation (`merged 01:50 UTC`) — 31 audit findings + 2 Codex P2 nits + 3 plans marked shipped. Rebased once.
+- **PR #59** accessibility-remediation (`merged 01:58 UTC`) — WCAG AA: 1 critical+28 serious+60+ moderate → 0 violations; new AtlasAccessibleBrowser; new contrast-test suite. Rebased twice (post-#58 + post-hotfixes).
+
+**Hot-fixes on main (all symptoms of one structural gap):**
+- `5e9b480` — sync `web/src/data/manifest.json` from pipeline manifest (was causing prod 404s on PR-renamed card pages)
+- `9b9b40d` — root-cause patch in `promote_snapshot()` for the manifest mirror
+- `d84b792` — restore 16 video posters at new card_ids + Section 6 PDF thumb
+- `076ef78` — mirror tranche-65572b38 snapshot to web-side so /diff page compares correct pair
+- `ffeeddd` — extend `promote_snapshot()` to also mirror snapshot + rebuild web-side index.json
+- `93873c5` — final staleness sweep (3 more user-facing numerics: whats-not-uap, apollo-17, cite-this.md)
+
+**Operator-stated structural fix (HIGH priority for next session):** `pursue-opsec/findings/2026-05-12-release-pipeline-gate.md` — proposes a deterministic CI-enforced GitHub Action + bpsai-pair skill that gates merges without confirming all deploy-side mirrors are in lockstep with the pipeline-side source-of-truth. Tonight's four hot-fixes are all the same class of bug. Concrete plan: 6 implementation steps, ~2.5-3 hours. Recommended top-of-backlog before the next tranche.
+
+**Discovery flagged for editorial decision (not blocking):** `pursue-opsec/findings/2026-05-12-duplicate-card-ids-discovery.md` — tranche 65572b38 has 9 unique card_ids that appear multiple times because upstream reuses one PDF's `asset_url` across multiple "cards" with different titles. 12 collapsed instances. Three remediation options laid out; recommendation Option 3 (post-parse disambiguation, backward-compatible).
+
+**Live deploy verified:** all key URLs return 200; / shows 4,161 pages; /atlas shows 4,127 dots; /diff references 65572b38.
 
 **2026-05-12 (overnight) — WCAG 2.2 AA accessibility audit + remediation across the entire site. Branch: `accessibility-remediation`. axe-core scan: 0 violations across 18 representative routes (all pages + a representative card detail page).**
 
