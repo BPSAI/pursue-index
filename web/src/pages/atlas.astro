@@ -1,8 +1,19 @@
 ---
 import Base from "../layouts/Base.astro";
 import AtlasIsland from "../components/AtlasIsland.tsx";
+import AtlasAccessibleBrowser from "../components/AtlasAccessibleBrowser.tsx";
+import { cards, summary } from "../data/manifest-loader";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const s = summary();
+
+// Build the canvas long-summary string from the same manifest-derived
+// agency counts the visualization itself colors by. Renders inside
+// `.sr-only` next to the canvas via aria-describedby so screen-reader
+// users get the shape of the data without having to interpret pixels.
+const agencyEntries = Object.entries(s.byAgency).sort((a, b) => b[1] - a[1]);
+const agencySummaryParts = agencyEntries.map(([agency, n]) => `${n.toLocaleString()} ${agency}`);
+const canvasLongSummary = `2D semantic projection of ${s.total.toLocaleString()} cards from the PURSUE corpus, colored by reporting agency: ${agencySummaryParts.join(", ")}. Pages on similar topics drift together. The accessible browse table below provides the same destinations in keyboard- and screen-reader-friendly form.`;
 ---
 
 <Base
@@ -13,7 +24,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   <div class="space-y-6">
     {/* ===== Hero ===== */}
     <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 px-4 py-6 sm:py-8 pi-bracket relative scanlines-soft">
-      <div class="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2 break-all">
+      {/* Decorative shell prompt — see index.astro for rationale. */}
+      <div aria-hidden="true" class="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2 break-all">
         <span class="text-[color:var(--color-text-faint)] flex-shrink-0">$</span>
         <span class="break-all">umap --n_components 2 --random_state 42 ./voyage-3</span>
       </div>
@@ -35,17 +47,31 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       </p>
     </section>
 
-    {/* ===== The canvas itself ===== */}
-    {/*
+    {/* ===== The canvas itself =====
       ``client:visible`` defers hydration (and the parallel fetches for
       ``atlas-layout.json`` ~340 KB + ``pages.json`` ~7 MB) to when the
       user actually scrolls the canvas into view. The canvas typically
       sits below the hero on mobile, so paying for a ~7 MB hydration on
       initial paint was wasted bandwidth (nayru #8).
+
+      A11y: the WebGL canvas is opaque to screen readers by design.
+      We provide a programmatic summary via the .sr-only paragraph
+      (referenced by aria-describedby on the island root) AND a
+      separate accessible browse surface below — see
+      `.paircoder/plans/accessibility-audit-and-remediation.md` for
+      the rationale. Both link to the same /card/<id> destinations.
     */}
-    <section>
+    <section aria-labelledby="atlas-canvas-heading">
+      <h2 id="atlas-canvas-heading" class="sr-only">Semantic projection (visual canvas)</h2>
+      <p id="atlas-canvas-summary" class="sr-only">{canvasLongSummary}</p>
       <AtlasIsland client:visible base={base} />
     </section>
+
+    {/* ===== Accessible browse alternative — keyboard + screen reader =====
+      The canvas above is a pixel-shader visualization; this table is the
+      programmatic surface every visitor can use regardless of pointer or
+      assistive-tech setup. Same data, same destinations. */}
+    <AtlasAccessibleBrowser client:visible cards={cards} base={base} />
 
     {/* ===== Honest disclaimer ===== */}
     <section class="border border-[color:var(--color-signal-amber)]/30 bg-[color:var(--color-signal-amber)]/5 p-4 max-w-3xl">

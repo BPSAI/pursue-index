@@ -16,11 +16,16 @@
   --color-border: #1f2a35;
   --color-border-bright: #2f3d4e;
 
-  /* text */
+  /* text — text-dim and text-faint were bumped to satisfy WCAG 2.2 AA
+     (4.5:1 minimum) against every surface token. Prior values
+     (#6b7783 / #4a5563) only met large-text or failed entirely. The
+     new shades preserve the dim < faint < text < bright hierarchy.
+     If you change one, also update tests/unit/test_a11y_contrast.py
+     (drift guard) and re-verify all four backgrounds. */
   --color-text: #c5cdd6;
   --color-text-bright: #ecf2f9;
-  --color-text-dim: #6b7783;
-  --color-text-faint: #4a5563;
+  --color-text-dim: #9ba6b3;
+  --color-text-faint: #8390a0;
 
   /* signal colors — selective use */
   --color-signal-green: #a4ff5a;
@@ -577,6 +582,82 @@ textarea:focus {
   margin: 1.5em 0;
   border: 1px solid var(--color-border);
   background: var(--color-bg-elevated);
+}
+
+/* =========================================================================
+   Accessibility utilities.
+   - .sr-only hides content visually but keeps it in the accessibility
+     tree for screen readers (used by the skip link, atlas long-summary,
+     etc.).
+   - .sr-only-focusable: same as .sr-only until focused, then renders
+     normally — pattern used by the skip-to-main-content link so it stays
+     out of the visual layout for sighted users but appears the moment a
+     keyboard user tabs to it.
+   - Global :focus-visible ring on interactive elements that don't
+     already define one. We can't rely on the browser default because
+     some custom-styled buttons have no border to anchor it to.
+   ========================================================================= */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip-to-main link styling when focused. Sits at top-left, signal-green
+   on bg-deep so it reads against any underlying content while focused. */
+.pi-skip-link:focus,
+.pi-skip-link:focus-within {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 9999;
+  padding: 0.5rem 0.875rem;
+  background: var(--color-bg-deep);
+  border: 2px solid var(--color-signal-green);
+  color: var(--color-signal-green);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  text-decoration: none;
+  outline: none;
+  /* Big shadow so it's unmistakably "here I am" at the top of the page. */
+  box-shadow: 0 0 0 4px rgba(164, 255, 90, 0.25);
+}
+
+/* Global focus-visible ring — applies to elements that don't override it.
+   Skipped on form fields (they have their own ring above) and on the skip
+   link (it has its own bigger ring) to avoid double-ring stacking.
+   The :not(.pi-cite) on a:focus-visible preserves the cyan citation-chip
+   ring (defined above at :347), which would otherwise tie on specificity
+   and lose by source order (vaivora cross-cutting P2, 2026-05-12). */
+a:not(.pi-cite):focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--color-signal-green);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* =========================================================================

@@ -44,10 +44,10 @@ const sourceCards = entry.data.cards.map((id) => {
   ogImageAlt={`${entry.data.title} — declassified-document OG card for PURSUE://INDEX FINDS entry`}
 >
   <article class="space-y-6 max-w-3xl">
-    <nav class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex items-center gap-2">
+    <nav aria-label="Breadcrumb" class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex items-center gap-2">
       <a href={`${base}/finds`} class="hover:text-[color:var(--color-signal-green)]">/FINDS</a>
-      <span>/</span>
-      <span class="text-[color:var(--color-signal-cyan)]">{entry.id}</span>
+      <span aria-hidden="true">/</span>
+      <span class="text-[color:var(--color-signal-cyan)]" aria-current="page">{entry.id}</span>
     </nav>
 
     <header class="space-y-3 border-b border-[color:var(--color-border)] pb-5">
@@ -71,10 +71,13 @@ const sourceCards = entry.data.cards.map((id) => {
     </header>
 
     {sourceCards.length > 0 && (
-      <aside class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
-        <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-2">
+      <aside aria-labelledby="finds-sources-heading" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
+        {/* h2: this is the first sub-section under the entry's h1; jumping
+            to h3 would skip a level (WCAG 1.3.1 / SC 2.4.6). The visual
+            weight is unchanged because the styling is class-driven. */}
+        <h2 id="finds-sources-heading" class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-2">
           Sources · {sourceCards.length} card{sourceCards.length === 1 ? "" : "s"}
-        </h3>
+        </h2>
         <ul class="flex flex-wrap gap-2">
           {sourceCards.map((c) => (
             <li>

@@ -141,8 +141,15 @@ const navItems = [
     <title>{title}</title>
   </head>
   <body class="terminal min-h-screen flex flex-col">
-    {/* Top scan line */}
-    <div class="h-px w-full bg-[color:var(--color-signal-green)]/30 shadow-[0_0_8px_rgba(164,255,90,0.4)]"></div>
+    {/* Skip to main content — WCAG 2.4.1. Hidden until keyboard focus,
+        then renders at top-left as a signal-green pill. The anchor target
+        ``#main`` is the <main> element below. Without this, a keyboard
+        user has to tab through the entire 12-link nav on every page. */}
+    <a href="#main" class="pi-skip-link sr-only-focusable">Skip to main content</a>
+
+    {/* Top scan line — decorative; aria-hidden so screen readers don't
+        announce it as a separator. */}
+    <div aria-hidden="true" class="h-px w-full bg-[color:var(--color-signal-green)]/30 shadow-[0_0_8px_rgba(164,255,90,0.4)]"></div>
 
     <header class="sticky top-0 z-30 border-b border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]/85 backdrop-blur-sm">
       {/* On mobile, the nav wraps below the lockup; on lg, both share one row.
@@ -170,10 +177,11 @@ const navItems = [
           </a>
         </div>
 
-        <nav class="-mx-1 flex flex-wrap items-center gap-x-1 gap-y-1 text-[11px] font-mono uppercase tracking-[0.18em] lg:ml-auto lg:mr-0 lg:flex-nowrap">
+        <nav aria-label="Primary" class="-mx-1 flex flex-wrap items-center gap-x-1 gap-y-1 text-[11px] font-mono uppercase tracking-[0.18em] lg:ml-auto lg:mr-0 lg:flex-nowrap">
           {navItems.map((item) => (
             <a
               href={item.href}
+              aria-current={active === item.key ? "page" : undefined}
               class:list={[
                 "px-2 py-1 rounded-sm transition-colors",
                 active === item.key
@@ -198,13 +206,14 @@ const navItems = [
             href="https://github.com/BPSAI/pursue-index"
             target="_blank"
             rel="noreferrer"
+            aria-label="Project repository on GitHub (opens in new tab)"
             class="ml-1 lg:ml-2 px-2 py-1 rounded-sm text-[color:var(--color-text-dim)] hover:text-[color:var(--color-signal-cyan)] transition-colors"
           >GH</a>
         </nav>
       </div>
     </header>
 
-    <main class="flex-1 mx-auto w-full max-w-7xl px-4 py-8">
+    <main id="main" tabindex="-1" class="flex-1 mx-auto w-full max-w-7xl px-4 py-8">
       <slot />
     </main>
 

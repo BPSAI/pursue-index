@@ -312,19 +312,30 @@ export default function AtlasIsland({ base }: Props) {
   }, [debouncedQuery, layout, atlasIndex]);
 
   if (status === "loading") {
-    return <p class="pi-loading text-xs">DECLASSIFYING<span class="pi-caret"></span></p>;
+    return (
+      <p role="status" class="pi-loading text-xs">
+        DECLASSIFYING<span class="pi-caret" aria-hidden="true"></span>
+        <span class="sr-only">Loading atlas data, please wait</span>
+      </p>
+    );
   }
   if (status === "missing") {
     return (
-      <p class="font-mono text-sm text-[color:var(--color-signal-amber)]">
-        [LAYOUT PENDING] /data/atlas-layout.json not yet published.
+      <p
+        role="status"
+        class="font-mono text-sm text-[color:var(--color-signal-amber)]"
+      >
+        <span class="sr-only">Status: </span>[LAYOUT PENDING] /data/atlas-layout.json not yet published.
       </p>
     );
   }
   if (status === "error" || !layout) {
     return (
-      <p class="font-mono text-sm text-[color:var(--color-signal-red)]">
-        [ERR] Failed to load atlas layout.
+      <p
+        role="alert"
+        class="font-mono text-sm text-[color:var(--color-signal-red)]"
+      >
+        <span class="sr-only">Error: </span>[ERR] Failed to load atlas layout.
       </p>
     );
   }
@@ -347,7 +358,23 @@ export default function AtlasIsland({ base }: Props) {
         </p>
       </div>
       <div class="relative border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/80 aspect-[4/3] sm:aspect-[16/10]">
-        <canvas ref={canvasRef} class="block w-full h-full" />
+        {/*
+          role="img" + aria-label + aria-describedby is the pattern for
+          a non-text graphic that has both a short accessible name (the
+          label) and a longer description (the .sr-only paragraph in
+          atlas.astro with id="atlas-canvas-summary"). Without these
+          attributes, screen readers either skip the canvas entirely or
+          announce a meaningless "graphic" / "canvas" with no context.
+          The accessible browse table beneath the canvas is the
+          interactive equivalent for keyboard / AT users.
+        */}
+        <canvas
+          ref={canvasRef}
+          role="img"
+          aria-label="2D semantic projection of the PURSUE corpus, colored by reporting agency. Visual interaction (pan, zoom, click) requires a pointer; use the accessible browse table below for keyboard navigation."
+          aria-describedby="atlas-canvas-summary"
+          class="block w-full h-full"
+        />
         <AtlasLegend />
         {mountError !== null && (
           // Fully opaque so a half-rendered canvas behind doesn't bleed
@@ -380,13 +407,17 @@ function AtlasLegend() {
   const colors = categoryColors();
   const labels = [...AGENCY_ORDER, "UNKNOWN"];
   return (
-    <ul class="absolute top-2 right-2 bg-[color:var(--color-bg-deep)]/85 border border-[color:var(--color-border)] p-2 text-[10px] font-mono uppercase tracking-[0.15em] space-y-1 pointer-events-none">
+    <ul
+      aria-label="Color legend for the canvas"
+      class="absolute top-2 right-2 bg-[color:var(--color-bg-deep)]/85 border border-[color:var(--color-border)] p-2 text-[10px] font-mono uppercase tracking-[0.15em] space-y-1 pointer-events-none"
+    >
       {labels.map((label, i) => {
         const [r, g, b] = colors[i];
         const swatch = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
         return (
           <li class="flex items-center gap-2">
-            <span class="size-2 inline-block" style={{ background: swatch }}></span>
+            {/* Swatch is purely decorative; the label text carries the meaning. */}
+            <span aria-hidden="true" class="size-2 inline-block" style={{ background: swatch }}></span>
             <span class="text-[color:var(--color-text-dim)]">{label}</span>
           </li>
         );

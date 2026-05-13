@@ -259,9 +259,9 @@ export default function ChatIsland({ base, cards }: Props) {
         <button
           onClick={() => setShowSettings(true)}
           class="px-2 py-1 border border-[color:var(--color-border)] hover:border-[color:var(--color-signal-green)] hover:text-[color:var(--color-signal-green)] transition-colors"
-          aria-label="Open settings"
+          aria-label="Open chat settings (provider, model, BYOK key)"
         >
-          ⚙ SETTINGS
+          <span aria-hidden="true">⚙ </span>SETTINGS
         </button>
       </div>
 
@@ -272,8 +272,19 @@ export default function ChatIsland({ base, cards }: Props) {
         />
       )}
 
-      {/* Messages area */}
-      <div ref={scrollRef} class="flex-1 overflow-y-auto pr-1">
+      {/* Messages area — aria-live="polite" so the streaming assistant
+          response and phase indicator are announced to screen readers
+          as new content arrives. role="log" is the standard pattern for
+          a chat transcript that grows over time. The phase banner uses
+          role="status" so RETRIEVING/GENERATING transitions are
+          announced without being chatty about every text delta. */}
+      <div
+        ref={scrollRef}
+        role="log"
+        aria-live="polite"
+        aria-label="Chat transcript"
+        class="flex-1 overflow-y-auto pr-1"
+      >
         {messages.length === 0 && <EmptyState onPick={(q) => submit(q)} />}
         <ul class="space-y-5">
           {messages.map((m, i) => (
@@ -286,16 +297,27 @@ export default function ChatIsland({ base, cards }: Props) {
             </li>
           ))}
         </ul>
-        {busy && (
-          <p class="pi-loading text-[11px] uppercase tracking-[0.18em] mt-3">
-            {phase}<span class="pi-caret"></span>
-          </p>
-        )}
       </div>
+      {/* Phase indicator sits OUTSIDE the role="log" container — nested
+          live regions can double-announce on some screen readers
+          (vaivora P1, 2026-05-12). Sibling placement keeps polite
+          phase transitions distinct from transcript appends. */}
+      {busy && (
+        <p
+          role="status"
+          class="pi-loading text-[11px] uppercase tracking-[0.18em] mt-3"
+        >
+          {phase}<span class="pi-caret" aria-hidden="true"></span>
+        </p>
+      )}
 
       {/* Composer */}
       <div class="mt-3 border-t border-[color:var(--color-border)] pt-3">
+        <label for="chat-input" class="sr-only">
+          Question for the PURSUE corpus
+        </label>
         <textarea
+          id="chat-input"
           ref={inputRef}
           value={input}
           onInput={(e) => setInput((e.target as HTMLTextAreaElement).value)}
@@ -305,12 +327,14 @@ export default function ChatIsland({ base, cards }: Props) {
           class="w-full font-mono text-sm resize-none"
           disabled={busy}
           autofocus
+          aria-describedby="chat-send-hint"
         />
         <div class="flex items-center justify-between mt-2 text-[10px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">
-          <span>CMD/CTRL + ENTER TO SEND</span>
+          <span id="chat-send-hint">CMD/CTRL + ENTER TO SEND</span>
           <button
             onClick={() => submit(input)}
             disabled={busy || !input.trim()}
+            aria-label={busy ? "Sending question" : "Send question"}
             class="px-3 py-1 border border-[color:var(--color-signal-green)] text-[color:var(--color-signal-green)] hover:bg-[color:var(--color-signal-green)]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {busy ? "…" : "SEND"}
@@ -432,9 +456,12 @@ function ErrorBlock({ message }: { message: string }) {
   const isRateLimit = /rate limit|too many|byok/i.test(message);
   const isBudget = /high traffic|budget|exceeded/i.test(message);
   return (
-    <div class="border border-[color:var(--color-signal-red)]/50 bg-[color:var(--color-signal-red)]/5 p-3 font-mono text-[12px]">
+    <div
+      role="alert"
+      class="border border-[color:var(--color-signal-red)]/50 bg-[color:var(--color-signal-red)]/5 p-3 font-mono text-[12px]"
+    >
       <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-red)] mb-1">
-        [ERR]
+        <span class="sr-only">Error: </span>[ERR]
       </div>
       <p class="text-[color:var(--color-text)]">{message}</p>
       {(isRateLimit || isBudget) && (

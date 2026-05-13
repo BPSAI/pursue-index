@@ -205,18 +205,22 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
 
   if (status === "loading") {
     return (
-      <div class="space-y-3">
-        <div class="pi-sweep h-9"></div>
-        <p class="pi-loading text-xs">DECLASSIFYING<span class="pi-caret"></span></p>
+      <div class="space-y-3" role="status">
+        <div class="pi-sweep h-9" aria-hidden="true"></div>
+        <p class="pi-loading text-xs">DECLASSIFYING<span class="pi-caret" aria-hidden="true"></span></p>
+        <span class="sr-only">Loading search index, please wait</span>
       </div>
     );
   }
 
   if (status === "missing") {
     return (
-      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 font-mono text-sm text-[color:var(--color-text)] pi-bracket relative scanlines-soft">
+      <div
+        role="status"
+        class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 font-mono text-sm text-[color:var(--color-text)] pi-bracket relative scanlines-soft"
+      >
         <p class="text-[color:var(--color-signal-amber)] uppercase tracking-[0.18em] text-xs mb-2">
-          [OCR PENDING]
+          <span class="sr-only">Status: </span>[OCR PENDING]
         </p>
         <p>
           The Surya pass hasn't completed (or the next deploy hasn't shipped
@@ -230,8 +234,11 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
 
   if (status === "error") {
     return (
-      <p class="font-mono text-sm text-[color:var(--color-signal-red)]">
-        [ERR] Failed to load search index.
+      <p
+        role="alert"
+        class="font-mono text-sm text-[color:var(--color-signal-red)]"
+      >
+        <span class="sr-only">Error: </span>[ERR] Failed to load search index.
       </p>
     );
   }
@@ -256,9 +263,9 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
         </div>
         <p class="mt-2 text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
           <span class="text-[color:var(--color-signal-green)]">{docs.length.toLocaleString()}</span>
-          <span class="mx-1 text-[color:var(--color-text-faint)]">·</span>
+          <span aria-hidden="true" class="mx-1 text-[color:var(--color-text-faint)]">·</span>
           PAGES INDEXED
-          <span class="mx-2 text-[color:var(--color-text-faint)]">|</span>
+          <span aria-hidden="true" class="mx-2 text-[color:var(--color-text-faint)]">|</span>
           <span class="text-[color:var(--color-text-faint)]">/ FOCUS · ESC CLEAR</span>
         </p>
         {examples && examples.length > 0 && !query.trim() && (
@@ -282,12 +289,22 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
         )}
       </div>
       {filtersOn && <ActiveFilterBadge filters={filters} onClear={() => setFilters(EMPTY_FILTERS)} />}
-      {query.trim() && (
-        <div class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-1">
-          <span class="text-[color:var(--color-signal-green)]">{totalMatches}</span> MATCH{totalMatches === 1 ? "" : "ES"}
-          {totalMatches > 50 && <span class="text-[color:var(--color-signal-amber)] ml-2">(CAPPED)</span>}
-        </div>
-      )}
+      {/* aria-live so screen readers announce the new match count when
+          the user types or changes filters; aria-atomic="true" so the
+          whole sentence is re-spoken as a unit instead of just the
+          changed digits. */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        class="text-[11px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]"
+      >
+        {query.trim() && (
+          <div class="border-b border-[color:var(--color-border)] pb-1">
+            <span class="text-[color:var(--color-signal-green)]">{totalMatches}</span> MATCH{totalMatches === 1 ? "" : "ES"}
+            {totalMatches > 50 && <span class="text-[color:var(--color-signal-amber)] ml-2">(CAPPED)</span>}
+          </div>
+        )}
+      </div>
       {query.trim() && totalMatches === 0 && (
         <EmptyResults filtersOn={filtersOn} hasActive={hasActiveFilters(filters)} onClear={() => setFilters(EMPTY_FILTERS)} />
       )}

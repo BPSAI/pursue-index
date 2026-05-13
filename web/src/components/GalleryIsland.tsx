@@ -78,7 +78,7 @@ function GalleryTile({
         {isImage && card.modal_image_url ? (
           <img
             src={card.modal_image_url}
-            alt={card.title}
+            alt={`${card.title}${card.redacted ? " (contains redactions)" : ""}`}
             loading="lazy"
             class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
           />
@@ -86,7 +86,7 @@ function GalleryTile({
           <>
             <img
               src={posterUrl}
-              alt={card.title}
+              alt={`Video poster: ${card.title}${card.redacted ? " (contains redactions)" : ""}`}
               loading="lazy"
               class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
             />
@@ -140,7 +140,7 @@ function GalleryTile({
           <>
             <img
               src={thumbUrl}
-              alt={`${card.title} — page 1 preview`}
+              alt={`${card.title} — page 1 preview${card.redacted ? " (contains redactions)" : ""}`}
               loading="lazy"
               class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
             />
@@ -265,7 +265,11 @@ export default function GalleryIsland({ cards, base }: Props) {
         ))}
       </div>
 
-      <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]"
+      >
         <span class="text-[color:var(--color-signal-green)]">{visible.length}</span>{" "}
         TILE{visible.length === 1 ? "" : "S"}
       </div>

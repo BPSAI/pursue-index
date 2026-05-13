@@ -33,14 +33,14 @@
   <!-- Header line: $ cat /etc/pursue/about -->
   <text x="100" y="135"
     font-family="JetBrains Mono, Menlo, ui-monospace, monospace"
-    font-size="22" letter-spacing="3" fill="#4a5563">
-    <tspan fill="#4a5563">$ </tspan><tspan fill="#a4ff5a">cat /etc/pursue/release.manifest</tspan>
+    font-size="22" letter-spacing="3" fill="#8390a0">
+    <tspan fill="#8390a0">$ </tspan><tspan fill="#a4ff5a">cat /etc/pursue/release.manifest</tspan>
   </text>
 
   <!-- Lockup: PURSUE://INDEX -->
   <g font-family="JetBrains Mono, Menlo, ui-monospace, monospace" font-weight="700">
     <text x="100" y="280" font-size="100">
-      <tspan fill="#6b7783">PURSUE</tspan><tspan fill="#a4ff5a">://</tspan><tspan fill="#ecf2f9">INDEX</tspan>
+      <tspan fill="#9ba6b3">PURSUE</tspan><tspan fill="#a4ff5a">://</tspan><tspan fill="#ecf2f9">INDEX</tspan>
     </text>
     <!-- caret -->
     <rect x="900" y="208" width="38" height="76" fill="#a4ff5a"/>
@@ -56,11 +56,11 @@
   <!-- Stat strip -->
   <g font-family="JetBrains Mono, Menlo, ui-monospace, monospace" font-size="22" letter-spacing="2">
     <text x="100" y="430">
-      <tspan fill="#4a5563">N </tspan><tspan fill="#ecf2f9" font-weight="600">161</tspan>
-      <tspan fill="#4a5563"> CARDS  ·  </tspan>
-      <tspan fill="#4a5563">PAGES </tspan><tspan fill="#5fd4ff" font-weight="600">4,153</tspan>
-      <tspan fill="#4a5563">  ·  </tspan>
-      <tspan fill="#4a5563">SRC </tspan><tspan fill="#ecf2f9">war.gov</tspan>
+      <tspan fill="#8390a0">N </tspan><tspan fill="#ecf2f9" font-weight="600">158</tspan>
+      <tspan fill="#8390a0"> CARDS  ·  </tspan>
+      <tspan fill="#8390a0">PAGES </tspan><tspan fill="#5fd4ff" font-weight="600">4,161</tspan>
+      <tspan fill="#8390a0">  ·  </tspan>
+      <tspan fill="#8390a0">SRC </tspan><tspan fill="#ecf2f9">war.gov</tspan>
     </text>
   </g>
 
@@ -68,10 +68,10 @@
   <line x1="100" y1="500" x2="1100" y2="500" stroke="#1f2a35" stroke-width="1"/>
   <g font-family="JetBrains Mono, Menlo, ui-monospace, monospace" font-size="20" letter-spacing="3">
     <text x="100" y="540">
-      <tspan fill="#4a5563">STATUS </tspan><tspan fill="#ffc857" font-weight="600">RESEARCH PREVIEW</tspan>
+      <tspan fill="#8390a0">STATUS </tspan><tspan fill="#ffc857" font-weight="600">RESEARCH PREVIEW</tspan>
     </text>
     <text x="1100" y="540" text-anchor="end">
-      <tspan fill="#4a5563">© </tspan><tspan fill="#c5cdd6">BPS AI SOFTWARE</tspan>
+      <tspan fill="#8390a0">© </tspan><tspan fill="#c5cdd6">BPS AI SOFTWARE</tspan>
     </text>
   </g>
 

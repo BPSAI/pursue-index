@@ -4,20 +4,34 @@ import Base from "../layouts/Base.astro";
 
 <Base title="404 — PURSUE://INDEX" description="Resource not found.">
   <div class="max-w-2xl mx-auto py-12">
+    {/* Visually-hidden h1 — the page is a stylized terminal error block,
+        but a screen reader needs a programmatic h1 to anchor the
+        document outline and to announce the page kind on landing.
+        Visible content below conveys the same thing graphically. */}
+    <h1 class="sr-only">404 — Resource not found</h1>
     <div class="border border-[color:var(--color-signal-red)]/40 bg-[color:var(--color-bg)]/60 p-6 font-mono text-sm relative scanlines-soft pi-bracket">
-      <pre class="text-[color:var(--color-text-dim)] whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">
+      {/* The shell-output block is purely a stylized presentation of
+          "the URL you requested isn't in our manifest". aria-hidden so
+          a screen reader doesn't try to read the prompt + glyphs as
+          content — the .sr-only paragraph below conveys the same
+          information in plain language. */}
+      <pre aria-hidden="true" class="text-[color:var(--color-text-dim)] whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">
 <span class="text-[color:var(--color-signal-green)]">$</span> pursue --resolve "{Astro.url.pathname}"
 <span class="text-[color:var(--color-signal-red)]">err:</span> resource not found
 <span class="text-[color:var(--color-signal-red)]">err:</span> manifest does not contain matching record
 <span class="text-[color:var(--color-text-dim)]">────────────────────────────────────────────</span>
 <span class="text-[color:var(--color-signal-amber)]">exit code 1</span><span class="pi-caret"></span>
       </pre>
+      <p class="sr-only">
+        The path {Astro.url.pathname} is not present in the PURSUE
+        manifest. The page either never existed or has been removed.
+      </p>
 
-      <div class="mt-6 pt-4 border-t border-[color:var(--color-border)] text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
+      <nav aria-label="404 recovery options" class="mt-6 pt-4 border-t border-[color:var(--color-border)] text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
         <a href={import.meta.env.BASE_URL} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ RETURN TO INDEX</a>
-        <span class="mx-3 text-[color:var(--color-text-faint)]">·</span>
+        <span aria-hidden="true" class="mx-3 text-[color:var(--color-text-faint)]">·</span>
         <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-signal-green)]">▸ SEARCH CORPUS</a>
-      </div>
+      </nav>
     </div>
   </div>
 </Base>

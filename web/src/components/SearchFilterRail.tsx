@@ -97,9 +97,16 @@ function AgencyFacet({
   selected: string[];
   onToggle: (a: string) => void;
 }) {
+  // <fieldset>/<legend> is the standards-first way to group toggle
+  // buttons under a shared label. The legend is visually styled to
+  // match FacetLabel so the appearance is unchanged for sighted users
+  // while screen readers now announce "AGENCY, group" before reading
+  // each pill (which already carries aria-pressed state).
   return (
-    <div>
-      <FacetLabel>AGENCY</FacetLabel>
+    <fieldset class="border-0 p-0 m-0 min-w-0">
+      <legend class="text-[10px] font-mono uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-2 p-0">
+        AGENCY
+      </legend>
       <div class="flex flex-wrap gap-1.5">
         {agencies.map((a) => {
           const isOn = selected.includes(a);
@@ -109,6 +116,7 @@ function AgencyFacet({
               type="button"
               onClick={() => onToggle(a)}
               aria-pressed={isOn}
+              aria-label={`${a} (${n.toLocaleString()} cards)`}
               class={`px-2 py-1 text-[11px] font-mono uppercase tracking-[0.12em] border transition-colors ${
                 isOn
                   ? "bg-[color:var(--color-signal-green)]/15 border-[color:var(--color-signal-green)]/60 text-[color:var(--color-signal-green)]"
@@ -116,14 +124,14 @@ function AgencyFacet({
               }`}
             >
               {a}
-              <span class="ml-1.5 text-[color:var(--color-text-faint)]">
+              <span aria-hidden="true" class="ml-1.5 text-[color:var(--color-text-faint)]">
                 {n.toLocaleString()}
               </span>
             </button>
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }
 
@@ -145,17 +153,21 @@ function DateRange({
   onFrom: (v: string) => void;
   onTo: (v: string) => void;
 }) {
+  // fieldset+legend so the two date inputs are programmatically grouped
+  // as "INCIDENT DATE — from / to" instead of two unlabeled date fields.
   return (
-    <div>
-      <FacetLabel>INCIDENT DATE</FacetLabel>
+    <fieldset class="border-0 p-0 m-0 min-w-0" aria-describedby="incident-date-help">
+      <legend class="text-[10px] font-mono uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-2 p-0">
+        INCIDENT DATE
+      </legend>
       <div class="grid grid-cols-2 gap-2">
         <DateInput id="filter-date-from" label="from" value={from} onCommit={onFrom} />
         <DateInput id="filter-date-to" label="to" value={to} onCommit={onTo} />
       </div>
-      <p class="mt-1.5 text-[10px] font-mono text-[color:var(--color-text-faint)] leading-snug">
+      <p id="incident-date-help" class="mt-1.5 text-[10px] font-mono text-[color:var(--color-text-faint)] leading-snug">
         cards w/ no incident date are excluded when any bound is set
       </p>
-    </div>
+    </fieldset>
   );
 }
 

@@ -1,24 +1,33 @@
 # Current State
 
-> Last updated: 2026-05-12 (overnight, staleness remediation)
+> Last updated: 2026-05-12 (overnight)
 
 ## What Was Just Done
 
-**2026-05-12 (overnight) — Documentation staleness remediation complete: all 31 audit findings fixed on `staleness-remediation` branch + plans directory cleaned up.**
+**2026-05-12 (overnight) — WCAG 2.2 AA accessibility audit + remediation across the entire site. Branch: `accessibility-remediation`. axe-core scan: 0 violations across 18 representative routes (all pages + a representative card detail page).**
 
-Driver agent ran the full punch list at `pursue-opsec/findings/2026-05-12-documentation-staleness-audit.md`. Five granular commits on the `staleness-remediation` branch:
+Implements `.paircoder/plans/accessibility-audit-and-remediation.md` end-to-end. Operator constraint: fix everything, defer nothing. Outcome:
 
-- `f263126` — methodology.astro M1-M11: dropped Tesseract from primary engines table; auto-mode prose names Surya as primary; "When Surya scores below threshold..." (was Tesseract); dropped Tesseract from limitations; 1,132/4,127 (~27%) augmented pages dated 2026-05-12; cleanup pass updated to 4,111/4,161 (50 skips, 1.20% — empty_input dominates); live deployment generalized to "4,161 indexed pages" (no 3,529/624 split); added archive-integrity paragraph to Source provenance; csv-archive path -> data/raw/csv/<sha>.csv; `pursue embed run` (not `pursue index ingest`) in repro snippet.
-- `a00a2c8` — README.md R1-R7: 4,161 OCR'd pages surfaced in search bullet; OCR-pipeline bullet generalized; atlas dot count 4,119 -> 4,127; poll cadence 6h -> 30m + byte preservation; dropped "(in flight)" from worker; added /gallery + /removed + Archive integrity bullets to "What's live"; csv-archive path corrected.
-- `e07e95e` — docs/architecture.md A1-A8: rewrote OCR strategy section (was pre-v1 "Tesseract-only" planning prose); poll cadence 6h -> 30m; `pursue embed run` in re-run snippet; added archive-lane sentence after stages table; search section reflects browser-side MiniSearch + Voyage-3 (no Postgres in deployed read path); Postgres qualified as optional forensic-ingest target; csv-archive path corrected.
-- `e3d6f29` — pages B1, C1-C2, I1-I2: docs/ocr-benchmark.md gets corpus-grew-since-this-run note; about.astro 29% -> 27% + comment names current count; about.astro "before public launch" -> "post-launch"; index.astro editorial comment updated to 1,132/4,127 + ~27%.
-- `b3a00b2` — plans cleanup: visual-browse-surface phase-3-only -> shipped (gallery live, timeline/browse remain deferred); card-rename-handling draft -> shipped; documentation-staleness-audit backlog -> shipped. Already-shipped plans (auto-poll-tranches, llm-cleaned pilot/reading, curated-finds) untouched. Backlog plans untouched.
+- **Color contrast (WCAG 1.4.3).** `--color-text-faint` (#4a5563) was failing AA on every background (2.06–2.57:1, 152 usages). `--color-text-dim` (#6b7783) only met large-text. Bumped to `#8390a0` / `#9ba6b3` — minimum changes that hit AA on every surface while preserving the dim < faint < text < bright hierarchy. Atlas legend swatch for "UNKNOWN" updated in lockstep (`atlas-helpers.ts`). Drift guarded by new pytest `tests/unit/test_a11y_contrast.py` (38 parametrized cases + a token-table-vs-CSS sync check).
+- **Skip link (WCAG 2.4.1).** `Base.astro` now ships a `.sr-only-focusable` skip-to-main link as the first focusable element on every page. Visible-on-focus, signal-green styling, 9999 z-index.
+- **Atlas accessible alternative (WCAG 1.1.1 for the WebGL canvas).** New `AtlasAccessibleBrowser.tsx` companion island renders the corpus as a sortable HTML table with `aria-sort` headers, agency/date view toggle, and free-text filter. Keyboard- + screen-reader-friendly path to the same `/card/<id>` destinations the canvas dots link to. The canvas itself now carries `role="img"` + `aria-label` + `aria-describedby` pointing at an `.sr-only` long summary built from the manifest's per-agency counts.
+- **Form labels.** Chat textarea now has an `<label for="chat-input">` (sr-only). Every `<select>` in `CardExplorer` is now wrapped by `<label>` + carries `aria-label` (was previously orphaned). `SearchFilterRail` uses `<fieldset>` + `<legend>` for the agency-pills group and the date-range group instead of a `<p>` "label" sibling.
+- **Live regions.** Chat transcript: `role="log" aria-live="polite"`. Phase indicator (RETRIEVING/GENERATING): `role="status"`. Search results count: `aria-live="polite" aria-atomic="true"`. Atlas + search loading states: `role="status"` with sr-only "Loading…" text. Error states: `role="alert"`.
+- **Heading hierarchy.** 404 page now has an `<h1>` (sr-only — the visible "shell error" block stays as decoration with `aria-hidden`). Card sidebar `<h3>`s for ASSET / CROSS-REFERENCES / OCR TEXT promoted to `<h2>` (siblings of the SOURCE h2 under the card h1). Finds-entry "Sources" promoted from `<h3>` to `<h2>`.
+- **Decorative aesthetic.** Every `$ grep -ri ...` shell-prompt header is `aria-hidden="true"` (decoration; the meaningful h1 sits directly below). Top scanline div, breadcrumb `/` separators, gallery dots, atlas legend swatches all `aria-hidden`. Chat gear emoji wrapped in `aria-hidden`.
+- **Nav semantics.** Primary nav has `aria-label="Primary"` and the active link carries `aria-current="page"`. Breadcrumbs on `/card/<id>` and `/finds/<slug>` have `aria-label="Breadcrumb"` + `aria-current="page"` on the leaf. GH external link has `aria-label="…(opens in new tab)"`. Per-removal-event link rows on `/removed` switched from `<nav>` to `<div>` to avoid duplicate-landmark axe violations.
+- **Alt text.** Gallery image alts now include "(contains redactions)" when the underlying card is redacted, so screen readers get the same signal sighted users get from the visible REDACTED corner badge.
+- **Global focus-visible ring.** Added to `global.css` for `a` / `button` / `[role="button"]` / `[role="tab"]` / `summary` so custom-styled buttons that don't define their own ring still surface focus visibly.
 
-Verification: `cd web && npm run build` clean (181 pages, 2.94s). `pytest tests/unit/ -q --deselect test_finds_og_image.py` 391 passed (no regressions). No Python source touched, so arch-check doesn't apply. Branch pushed to origin; operator review pending (no PR opened — operator reviews the branch first).
+**Verification:**
+- `cd web && npm run build` — clean, 181 pages built
+- `pytest tests/unit/ -q` — 443 passed, 2 deselected
+- axe-core/Puppeteer scan over 18 routes — **0 violations of any severity, including best-practice tags**
+- `bpsai-pair arch check tests/unit/test_a11y_contrast.py` — clean
 
-Findings A2 (cards 158/116/28/14) and the methodology M-series subset were already partially patched by the operator's earlier surgical fixes; remediation re-verified each against current ground truth and applied only the deltas.
+**Operator-decision item carried in commit message:** the `--color-text-faint` / `--color-text-dim` bumps shift two tokens used on every page. Visual diff is small (still distinctly dim) but worth a sanity-check on a few representative surfaces before merging.
 
-Findings file kept private at pursue-opsec; remediation results companion file at `pursue-opsec/findings/2026-05-12-staleness-remediation-results.md`.
+Findings file lands at `pursue-opsec/findings/2026-05-12-accessibility-remediation-results.md` in the operator opsec repo.
 
 **2026-05-12 (late evening) — Card-rename plan COMPLETE (steps 1-7). Tranche 65572b38 ingested + promoted. Surgical v1.0.0/numeric-drift fixes on the highest-traffic public surfaces. Backlog re-prioritized.**
 
