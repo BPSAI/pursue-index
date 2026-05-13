@@ -28,6 +28,7 @@ Decision matrix (per tranche-diff classification):
 
 from __future__ import annotations
 
+import json
 import shutil
 from pathlib import Path
 from typing import Any
@@ -42,32 +43,96 @@ def locate_snapshot(tranche_sha: str, snapshots_dir: Path) -> Path | None:
     return None
 
 
+def _mirror_snapshot_to_web(
+    snapshot_path: Path,
+    snapshot_sha: str,
+    web_snapshots_dir: Path,
+) -> None:
+    """Copy the snapshot file into web/public/data/snapshots/ and refresh
+    the index.json the /diff page reads. Safe filesystem-only operation;
+    no external deps required."""
+    if not web_snapshots_dir.exists():
+        return
+    target = web_snapshots_dir / f"{snapshot_sha}.json"
+    shutil.copyfile(snapshot_path, target)
+    # Rebuild the index from the on-disk listing so any prior snapshot
+    # added through other means (operator manual copy, hot-fix) stays
+    # in the listing.
+    files = sorted(
+        f.name for f in web_snapshots_dir.glob("*.json") if f.name != "index.json"
+    )
+    # Order entries by csv `fetched_at` so /diff shows oldest → newest
+    # (matches the pipeline-side index.json convention).
+    entries: list[tuple[str, str]] = []
+    for fname in files:
+        try:
+            data = json.loads((web_snapshots_dir / fname).read_text())
+            entries.append((data.get("fetched_at") or "", fname))
+        except Exception:
+            entries.append(("", fname))
+    entries.sort()
+    listing = [name for _, name in entries]
+    (web_snapshots_dir / "index.json").write_text(
+        json.dumps(listing, indent=2) + "\n"
+    )
+
+
 def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
-    """Copy the snapshot to the deployed manifest path + the build-side mirror.
+    """Copy the snapshot to every deployed-side surface that depends on it.
 
-    Astro reads `web/src/data/manifest.json` at build time (via
-    `web/src/data/manifest-loader.ts`), NOT `data/manifests/latest.json`.
-    A promotion that updates only the pipeline-side file but not the
-    build-side mirror leaves the deployed site running against a stale
-    manifest — card pages for newly-aliased card_ids never get built,
-    and the worker alias resolver redirects to non-existent /card/<id>
-    paths (prod 404s). Caught on 2026-05-12 evening when a video-tile
-    click in /gallery resolved to a 404 via the alias chain.
+    Three surfaces refresh in lockstep:
 
-    The build-side mirror is computed relative to `manifest_path` by
-    walking up two parents (data/manifests/) then to web/src/data/.
-    Override via `--build-manifest` if a future repo layout differs.
+      1. `data/manifests/latest.json` — pipeline source-of-truth (the
+         file the operator-CLI commands read).
+      2. `web/src/data/manifest.json` — Astro build input (every card
+         page is generated from this; drift here causes prod 404s).
+      3. `web/public/data/snapshots/<sha>.json` + `index.json` — the
+         `/diff` page reads these to compute the per-card delta against
+         the prior snapshot. Without the new snapshot mirrored, /diff
+         compares against an outdated baseline.
+
+    All three caught and fixed manually on 2026-05-12 evening. The
+    pattern was: `pursue ingest run` only updated #1; the operator
+    discovered each missing mirror through prod-side symptoms (404s,
+    missing thumbs, stale /diff). This function now updates all three
+    atomically so a future ingest can't silently desync.
+
+    NOT auto-invoked here (operator-local dependencies):
+      - `build_video_posters.py` — needs operator's .mp4 files; if
+        card_ids changed via rename, posters keyed under old card_ids
+        need re-keying. Operator runs locally after a rename-heavy
+        tranche.
+      - `build_pdf_thumbs.py` — needs PDFs on the NAS; idempotent so
+        running it after every ingest is cheap (only new/changed cards
+        regenerate). Operator runs locally.
+      - `build_search_data.py`, `build_atlas_layout.py`,
+        `build_embed_data.py` — derived from pages.json + embeddings.bin
+        which only change when OCR/embed stages run.
+
+    The follow-up plan in `pursue-opsec/findings/2026-05-12-release-pipeline-gate.md`
+    proposes a deterministic checklist + GitHub Action to cover ALL of
+    the above as gated AC before any deploy.
     """
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(snapshot_path, manifest_path)
-    # Mirror to the Astro build-side path. If the conventional path
-    # doesn't exist, skip silently — non-Astro consumers (CLI-only
-    # workflows, fresh checkouts before npm install) have no need for
-    # the mirror.
     repo_root = manifest_path.parent.parent.parent
+    _mirror_to_deploy_surfaces(snapshot_path, repo_root)
+
+
+def _mirror_to_deploy_surfaces(snapshot_path: Path, repo_root: Path) -> None:
+    """Walk every deploy-side surface that depends on the manifest. Each
+    is independently checked so non-Astro / fresh-checkout layouts still
+    work without raising."""
     build_manifest = repo_root / "web" / "src" / "data" / "manifest.json"
     if build_manifest.parent.exists():
         shutil.copyfile(snapshot_path, build_manifest)
+    try:
+        snapshot_sha = json.loads(snapshot_path.read_text()).get("csv_sha256", "")
+    except (json.JSONDecodeError, OSError):
+        snapshot_sha = ""
+    if snapshot_sha:
+        web_snapshots = repo_root / "web" / "public" / "data" / "snapshots"
+        _mirror_snapshot_to_web(snapshot_path, snapshot_sha, web_snapshots)
 
 
 def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:

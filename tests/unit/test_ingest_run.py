@@ -99,6 +99,89 @@ def test_promote_snapshot_skips_build_mirror_when_layout_absent(tmp_path: Path) 
     assert manifest.read_text() == snapshot.read_text()
 
 
+# --- Snapshot mirror to web/public/data/snapshots/ (the /diff page) ---
+
+
+def _build_repo(tmp_path: Path) -> Path:
+    """Recreate the conventional layout so promote_snapshot has all paths."""
+    repo_root = tmp_path / "repo"
+    (repo_root / "data" / "manifests").mkdir(parents=True)
+    (repo_root / "web" / "src" / "data").mkdir(parents=True)
+    (repo_root / "web" / "public" / "data" / "snapshots").mkdir(parents=True)
+    return repo_root
+
+
+def test_promote_snapshot_mirrors_to_web_snapshots_dir(tmp_path: Path) -> None:
+    """Snapshot file appears at web/public/data/snapshots/<sha>.json so
+    the /diff page can compare against it."""
+    import json as _json
+    repo_root = _build_repo(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "abc123def456" + "0" * 52,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+    promote_snapshot(snapshot, manifest)
+
+    web_snapshots = repo_root / "web" / "public" / "data" / "snapshots"
+    expected = web_snapshots / ("abc123def456" + "0" * 52 + ".json")
+    assert expected.exists(), "snapshot must be mirrored to web-side"
+    assert expected.read_text() == snapshot.read_text()
+
+
+def test_promote_snapshot_rebuilds_web_snapshots_index(tmp_path: Path) -> None:
+    """index.json reflects every snapshot on disk after promotion."""
+    import json as _json
+    repo_root = _build_repo(tmp_path)
+    web_snapshots = repo_root / "web" / "public" / "data" / "snapshots"
+    # Pre-populate with a prior snapshot to ensure it stays in the index.
+    prior_sha = "111" + "0" * 61
+    prior = web_snapshots / f"{prior_sha}.json"
+    prior.write_text(_json.dumps({
+        "csv_sha256": prior_sha,
+        "fetched_at": "2026-05-11T00:00:00Z",
+        "cards": [],
+    }))
+
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    new_sha = "222" + "0" * 61
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": new_sha,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+    promote_snapshot(snapshot, manifest)
+
+    index_data = _json.loads((web_snapshots / "index.json").read_text())
+    assert prior.name in index_data
+    assert f"{new_sha}.json" in index_data
+    # Ordering: oldest fetched_at first, newest last (matches /diff convention).
+    assert index_data.index(prior.name) < index_data.index(f"{new_sha}.json")
+
+
+def test_promote_snapshot_skips_web_snapshots_when_dir_absent(tmp_path: Path) -> None:
+    """No-op silently when web/public/data/snapshots/ doesn't exist."""
+    snapshot = tmp_path / "snapshot.json"
+    snapshot.write_text('{"csv_sha256": "abc", "cards": []}')
+    manifest = tmp_path / "latest.json"
+    promote_snapshot(snapshot, manifest)
+    assert manifest.read_text() == snapshot.read_text()
+
+
+def test_promote_snapshot_handles_corrupt_snapshot_gracefully(tmp_path: Path) -> None:
+    """Corrupt snapshot JSON shouldn't crash the manifest copy step."""
+    snapshot = tmp_path / "snapshot.json"
+    snapshot.write_text("not valid json")
+    manifest = tmp_path / "latest.json"
+    promote_snapshot(snapshot, manifest)  # must not raise
+    assert manifest.read_text() == snapshot.read_text()
+
+
 # --- summarize_ingest_work ---
 
 
