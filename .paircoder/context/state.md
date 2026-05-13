@@ -1,6 +1,18 @@
 # Current State
 
-> Last updated: 2026-05-13 (early AM, end of overnight session)
+> Last updated: 2026-05-13 (overnight, second tranche ingested + deep audit clean)
+
+## What Was Just Done
+
+**2026-05-13 (~04:15 UTC) — Tranche 4a35f559 ingested cleanly + deep cross-tranche byte audit CLEAN + plans dir cleaned per operator policy.**
+
+Second-wave upstream catalog cleanup detected at 18:13 UTC (issue #57, since closed). 0 added/removed/quarantined/restored, 46 field-only changes (PDF-card title format updates: Section_5→Section_005, B4→B008, etc.). asset_urls + asset_filenames stable so card_ids preserved + NAS files untouched. First end-to-end test of the `promote_snapshot` deeper-fix patch (`ffeeddd`) on a fresh tranche — auto-mirrored cleanly to all three deploy paths.
+
+**Deep cross-tranche byte audit (165 card_ids × 4 snapshots): CLEAN.** Registry byte_sha consistency 0 mismatches; asset_url drift 0; Section 6 restoration byte-identity reconfirmed against audit-log; field-only spot-check confirms title-format-only changes. Read-only investigation, no API budget, no upstream re-fetches. Findings at `pursue-opsec/findings/2026-05-13-deep-byte-review-4a35f559.md`.
+
+**Plans dir cleaned (operator directive: don't retain shipped plans).** 8 shipped plans deleted (a11y, auto-poll, card-rename, curated-finds, doc-staleness, llm-cleaned-pilot, llm-cleaned-text, visual-browse-surface). Git history is the audit trail. Remaining: 8 backlog plans + 5 tranche-diff artifacts.
+
+**2026-05-13 (~02:00 UTC) — Both autonomous-run PRs MERGED. Plus 4 hot-fix commits on main. Plus deeper-fix patch. Plus opsec proposal for a release-pipeline gate. Final staleness sweep clean.**
 
 ## What Was Just Done
 
