@@ -43,9 +43,31 @@ def locate_snapshot(tranche_sha: str, snapshots_dir: Path) -> Path | None:
 
 
 def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
-    """Copy the snapshot to the deployed manifest path. Idempotent."""
+    """Copy the snapshot to the deployed manifest path + the build-side mirror.
+
+    Astro reads `web/src/data/manifest.json` at build time (via
+    `web/src/data/manifest-loader.ts`), NOT `data/manifests/latest.json`.
+    A promotion that updates only the pipeline-side file but not the
+    build-side mirror leaves the deployed site running against a stale
+    manifest — card pages for newly-aliased card_ids never get built,
+    and the worker alias resolver redirects to non-existent /card/<id>
+    paths (prod 404s). Caught on 2026-05-12 evening when a video-tile
+    click in /gallery resolved to a 404 via the alias chain.
+
+    The build-side mirror is computed relative to `manifest_path` by
+    walking up two parents (data/manifests/) then to web/src/data/.
+    Override via `--build-manifest` if a future repo layout differs.
+    """
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(snapshot_path, manifest_path)
+    # Mirror to the Astro build-side path. If the conventional path
+    # doesn't exist, skip silently — non-Astro consumers (CLI-only
+    # workflows, fresh checkouts before npm install) have no need for
+    # the mirror.
+    repo_root = manifest_path.parent.parent.parent
+    build_manifest = repo_root / "web" / "src" / "data" / "manifest.json"
+    if build_manifest.parent.exists():
+        shutil.copyfile(snapshot_path, build_manifest)
 
 
 def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:

@@ -67,6 +67,38 @@ def test_promote_snapshot_overwrites_existing_manifest(tmp_path: Path) -> None:
     assert "old" not in manifest.read_text()
 
 
+def test_promote_snapshot_mirrors_to_build_manifest(tmp_path: Path) -> None:
+    """The build-side mirror at web/src/data/manifest.json must also be
+    updated, or Astro builds against a stale manifest and renamed-card
+    pages don't ship — caught in production on 2026-05-12 evening."""
+    # Recreate the conventional layout: <repo>/data/manifests/latest.json
+    # and <repo>/web/src/data/manifest.json
+    repo_root = tmp_path / "repo"
+    pipeline = repo_root / "data" / "manifests"
+    pipeline.mkdir(parents=True)
+    build_dir = repo_root / "web" / "src" / "data"
+    build_dir.mkdir(parents=True)
+
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text('{"csv_sha256": "new", "cards": []}')
+    manifest = pipeline / "latest.json"
+    promote_snapshot(snapshot, manifest)
+
+    build_manifest = build_dir / "manifest.json"
+    assert build_manifest.exists(), "build-side mirror must be created"
+    assert build_manifest.read_text() == snapshot.read_text()
+
+
+def test_promote_snapshot_skips_build_mirror_when_layout_absent(tmp_path: Path) -> None:
+    """Promotion must still succeed when web/src/data/ doesn't exist
+    (e.g., CLI-only checkouts without npm install)."""
+    snapshot = tmp_path / "snapshot.json"
+    snapshot.write_text("{}")
+    manifest = tmp_path / "latest.json"
+    promote_snapshot(snapshot, manifest)  # must not raise
+    assert manifest.read_text() == snapshot.read_text()
+
+
 # --- summarize_ingest_work ---
 
 
