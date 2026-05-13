@@ -44,14 +44,15 @@ const s = summary();
         /methodology#augmented-retrieval section. Surfaced on /about
         because it's a project differentiator that a casual visitor
         landing on /about should see without having to click into
-        methodology. Keep the figure (29%) in sync with the methodology
-        section and embed_index.json. */}
+        methodology. Keep the figure (~27%) in sync with the methodology
+        section and embed_index.json (1,132 / 4,127 embedded pages
+        currently). */}
     <section class="border border-[color:var(--color-signal-green)]/40 bg-[color:var(--color-signal-green)]/5 p-5 space-y-3">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ Augmented retrieval
       </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        For ~29% of pages where text OCR alone underrepresents the source,
+        For ~27% of pages where text OCR alone underrepresents the source,
         we integrate vision-language descriptions of photographs, sketches,
         rubber stamps, and handwritten marginalia from a parallel research
         project,
@@ -142,13 +143,19 @@ const s = summary();
         <a href="/" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">corpus index</a>
         with full-text search, OCR transcripts (Surya GPU + LLM cleanup
         on faded pages),{" "}
+        <a href="/atlas" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/atlas</a>
+        (semantic browser),{" "}
+        <a href="/gallery" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/gallery</a>
+        (image + video tile browse),{" "}
         <a href="/finds" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">curated finds</a>
-        (hand-authored reading guides), tranche diff, the
+        (hand-authored reading guides), tranche diff,{" "}
+        <a href="/removed" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/removed</a>
+        (preserved-here index for upstream-pulled cards), the
         <a href="/chat" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">chat interface</a>
         (RAG with mandatory citations; BYOK supported), and the published
         quality benchmark on{" "}
         <a href="/methodology#benchmark" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology</a>.
-        Still in flight before public launch:
+        Still in flight post-launch:
       </p>
       <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
         <li>

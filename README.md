@@ -32,15 +32,29 @@ Methodology is published. Numbers are reproducible from a clean clone.
 
 - **Custom domain.** [pursueindex.com](https://pursueindex.com) on Cloudflare
   Workers + Static Assets.
-- **Full-text + semantic search** across the OCR'd corpus spanning the
-  116 PDF cards in PURSUE Release 01. MiniSearch lexical index + Voyage-3
-  embeddings, both browser-side; no server. The `/search` route adds a
-  faceted filter rail (agency multi-select, incident-date range,
+- **Full-text + semantic search** across **4,161 OCR'd pages** spanning
+  the 116 PDF cards in PURSUE Release 01. MiniSearch lexical index +
+  Voyage-3 embeddings, both browser-side; no server. The `/search` route
+  adds a faceted filter rail (agency multi-select, incident-date range,
   redacted-only) over the lexical index; filter state round-trips through
   the URL so links are shareable.
 - **OCR pipeline.** Surya (GPU, transformer-based) primary, Anthropic vision
   LLM fallback for pages whose Surya confidence falls below threshold. The
-  shipped index is **3,529 Surya pages + 624 LLM-cleaned pages**.
+  shipped index is **4,161 OCR'd pages** (Surya primary, LLM fallback for
+  sub-threshold pages).
+- **Archive integrity.** Every CSV byte stream we fetch is committed
+  content-addressed; prior manifests are rotated into per-snapshot JSON;
+  every referenced PDF/IMG is mirrored into R2 keyed by `byte_sha256`;
+  a daily byte-verify cron opens an issue on any silent
+  same-URL-different-bytes overlay.
+- **/gallery surface.** Image + video tile browse alongside textual
+  /search and spatial /atlas. Tiles use real DVIDS poster frames for
+  videos and page-1 WebP thumbnails for PDFs. Type filters + year
+  buckets; ~3.1 MB total static assets.
+- **/removed surface.** Index of cards we preserved here after the
+  upstream version was pulled, swapped, or rewritten. Each entry points
+  at the prior-manifest snapshot's byte-history archive so the cited
+  bytes stay reachable.
 - **RAG chat with mandatory citations.** Anonymous tier (server-funded,
   5/IP/24h, $100/day budget cap) and BYOK tier (browser-direct to
   Anthropic). Both share the same UI. Off-corpus questions abstain
@@ -51,8 +65,10 @@ Methodology is published. Numbers are reproducible from a clean clone.
   long debriefing). Surya median CER **6.1%** vs Tesseract **40.4%** vs the
   LLM truth proxy. See [`docs/ocr-benchmark.md`](docs/ocr-benchmark.md) and
   [/methodology](https://pursueindex.com/methodology).
-- **Tranche diff.** Every snapshot is timestamped under `csv-archive/`; the
-  diff page surfaces per-card deltas when the upstream CSV changes.
+- **Tranche diff.** Every CSV byte stream we fetch is committed at
+  `data/raw/csv/<sha>.csv` and the prior manifest is rotated into
+  `data/manifests/snapshots/<csv_sha>.json`; the diff page surfaces
+  per-card deltas when the upstream CSV changes.
 - **Pages.** [/about](https://pursueindex.com/about),
   [/methodology](https://pursueindex.com/methodology),
   [/cite](https://pursueindex.com/cite),
@@ -69,7 +85,7 @@ Methodology is published. Numbers are reproducible from a clean clone.
   full Black Vault integration is on the post-launch backlog.
 - **2D semantic browser.** [/atlas](https://pursueindex.com/atlas) projects
   every OCR'd page from the 1024-dim Voyage-3 embedding space into 2D via
-  UMAP (`random_state=42`). 4,119 dots, color-coded by agency, pan / zoom
+  UMAP (`random_state=42`). 4,127 dots, color-coded by agency, pan / zoom
   / lasso via WebGL (`regl-scatterplot`); type to dim non-matches via the
   same MiniSearch index `/search` uses. Sub-400px viewports get a k-means
   cluster-list fallback. The layout is a low-dimensional approximation,
@@ -86,9 +102,10 @@ Methodology is published. Numbers are reproducible from a clean clone.
   detection moves from "methodology demo" to "real coverage measurement"
   for every card.
 - **Auto-poll for new tranches — Layer 2.** Layer 1 (lightweight cron
-  poll detecting upstream CSV changes) is shipped in
+  poll detecting upstream CSV changes, every 30 minutes) is shipped in
   [`.github/workflows/poll-pursue.yml`](.github/workflows/poll-pursue.yml);
-  it commits new shas and opens a `tranche-detected` issue. Layer 2
+  on change it commits both the new sha and the raw CSV bytes
+  (content-addressed) and opens a `tranche-detected` issue. Layer 2
   (heavy ingest pipeline trigger) is operator-attended by design —
   GPU provisioning, cost, and content review keep auto-run off the
   table at v1.
@@ -136,9 +153,10 @@ pursue embed run --manifest data/manifests/latest.json
 Each stage is content-addressed by `card_id = sha256(asset_url || title)[:16]`,
 so partial reruns converge on the same final state regardless of order.
 
-The CSV archive (`{data_root}/csv-archive/uap-csv-<timestamp>.csv`) is a
-forensic trail of how the source has evolved over time. The manifest carries
-`csv_sha256` so upstream changes are detectable in O(bytes-of-CSV).
+The CSV archive (`data/raw/csv/<sha>.csv`, content-addressed and
+committed to the repo) is a forensic trail of how the source has
+evolved over time. The manifest carries `csv_sha256` so upstream
+changes are detectable in O(bytes-of-CSV).
 
 ## Tech stack
 
@@ -192,7 +210,7 @@ pursue-index/
 │   ├── cli/             # Typer CLI (`pursue`)
 │   └── config/          # Pydantic settings (env-driven, PURSUE_* prefix)
 ├── web/                 # Astro + Preact + Tailwind v4 frontend
-├── worker/              # Cloudflare Worker for the chat backend (in flight)
+├── worker/              # Cloudflare Worker — chat, retrieve, and self-hosted PDFs
 ├── tests/               # unit + integration
 ├── scripts/             # bootstrap, ops helpers, benchmark runners
 ├── docs/                # architecture, benchmark, runbooks, launch comms

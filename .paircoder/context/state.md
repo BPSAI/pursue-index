@@ -1,25 +1,24 @@
 # Current State
 
-> Last updated: 2026-05-12 (mid-day)
+> Last updated: 2026-05-12 (overnight, staleness remediation)
 
 ## What Was Just Done
 
-**2026-05-12 (overnight, autonomous) — Three-track autonomous run while operator AFK. Two PRs open for review (staleness-remediation, accessibility-remediation); Argus repo investigation completed as SKIP for both use cases.**
+**2026-05-12 (overnight) — Documentation staleness remediation complete: all 31 audit findings fixed on `staleness-remediation` branch + plans directory cleaned up.**
 
-Operator authorized an autonomous overnight run with explicit constraints: anything touching code goes to a new branch, full reviewer cycle required, findings posted to pursue-opsec (not the public repo), nothing deferred — fix every finding. Three independent tracks dispatched in parallel:
+Driver agent ran the full punch list at `pursue-opsec/findings/2026-05-12-documentation-staleness-audit.md`. Five granular commits on the `staleness-remediation` branch:
 
-- **Track A (Documentation staleness remediation + plans cleanup)** → PR #58. All 31 audit findings addressed (22 fixed, 9 verified-no-change-needed). 3 plans marked shipped (`card-rename-handling`, `documentation-staleness-audit`, `visual-browse-surface`) with design rationale preserved. Nayru reviewer cycle: APPROVE WITH NITS — 3 P1/P2 fixes applied in `5260bff`, 2 reviewer flags verified false-positive (README:173 "624 sub-threshold pages" is accurate).
-- **Track C (Argus_UFO_AI_Data investigation)** → SKIP both use cases. The repo's "79K records" claim is misleading (raw NUFORC CSV not shipped, only ~30 small aggregate JSONs); domain mismatch (NUFORC eyewitness prose ≠ declassified government documents) is fatal for novelty detection. Their "Pentagon" content is a hand-typed summary referencing US (with wrong stats — they cite 162 files, we have 158); Argus doesn't actually link to pursueindex.com — they link to upstream war.gov/ufo. No reciprocal-link relationship to pursue.
-- **Track D (WCAG 2.2 AA accessibility audit + remediation)** → PR #59. axe-core baseline: 1 critical + 28 serious + 60+ moderate across 18 routes. Post-remediation: **0 violations** at any severity across `wcag2a wcag2aa wcag21a wcag21aa wcag22aa best-practice` tags. Token bumps: `--color-text-faint` (#4a5563 → #8390a0), `--color-text-dim` (→ #9ba6b3) — affects 152+ usages; visual hierarchy preserved. New `AtlasAccessibleBrowser.tsx` (316 lines) — sortable HTML-table alternative to the WebGL canvas. New `tests/unit/test_a11y_contrast.py` (38 contrast assertions + drift guard). Skip link, focus rings, ARIA labels, fieldset/legend on filter rail, heading hierarchy fixes, decorative-element `aria-hidden`, redaction-state alt text. Nayru + vaivora reviewer cycles ran in parallel; both APPROVE WITH NITS; all 6 actionable nits fixed in `d6dbd5c` (nested-live-region, og.svg color drift, focus-ring specificity collision, copy softening for canvas/table grain mismatch, drift-guard test extended to og.svg + atlas-helpers.ts).
+- `f263126` — methodology.astro M1-M11: dropped Tesseract from primary engines table; auto-mode prose names Surya as primary; "When Surya scores below threshold..." (was Tesseract); dropped Tesseract from limitations; 1,132/4,127 (~27%) augmented pages dated 2026-05-12; cleanup pass updated to 4,111/4,161 (50 skips, 1.20% — empty_input dominates); live deployment generalized to "4,161 indexed pages" (no 3,529/624 split); added archive-integrity paragraph to Source provenance; csv-archive path -> data/raw/csv/<sha>.csv; `pursue embed run` (not `pursue index ingest`) in repro snippet.
+- `a00a2c8` — README.md R1-R7: 4,161 OCR'd pages surfaced in search bullet; OCR-pipeline bullet generalized; atlas dot count 4,119 -> 4,127; poll cadence 6h -> 30m + byte preservation; dropped "(in flight)" from worker; added /gallery + /removed + Archive integrity bullets to "What's live"; csv-archive path corrected.
+- `e07e95e` — docs/architecture.md A1-A8: rewrote OCR strategy section (was pre-v1 "Tesseract-only" planning prose); poll cadence 6h -> 30m; `pursue embed run` in re-run snippet; added archive-lane sentence after stages table; search section reflects browser-side MiniSearch + Voyage-3 (no Postgres in deployed read path); Postgres qualified as optional forensic-ingest target; csv-archive path corrected.
+- `e3d6f29` — pages B1, C1-C2, I1-I2: docs/ocr-benchmark.md gets corpus-grew-since-this-run note; about.astro 29% -> 27% + comment names current count; about.astro "before public launch" -> "post-launch"; index.astro editorial comment updated to 1,132/4,127 + ~27%.
+- `b3a00b2` — plans cleanup: visual-browse-surface phase-3-only -> shipped (gallery live, timeline/browse remain deferred); card-rename-handling draft -> shipped; documentation-staleness-audit backlog -> shipped. Already-shipped plans (auto-poll-tranches, llm-cleaned pilot/reading, curated-finds) untouched. Backlog plans untouched.
 
-Post-correction during the run: PR descriptions stay terse + operational; substantive reviewer findings live in pursue-opsec only. Original dispatch had said "reviewer findings in PR description" — operator caught that exposes adversary-useful detail. Coordination doc updated mid-run; both PRs follow the corrected pattern.
+Verification: `cd web && npm run build` clean (181 pages, 2.94s). `pytest tests/unit/ -q --deselect test_finds_og_image.py` 391 passed (no regressions). No Python source touched, so arch-check doesn't apply. Branch pushed to origin; operator review pending (no PR opened — operator reviews the branch first).
 
-**Robustness test verdict for the autonomous-pipeline + pursue-opsec gate pattern: works.** Reviewer cycles caught real issues the work agents missed (nested live regions in chat, og.svg color drift, focus-ring specificity, content claims that oversold state-sync). Nothing deferred — every actionable finding from every review was fixed before opening the PR.
+Findings A2 (cards 158/116/28/14) and the methodology M-series subset were already partially patched by the operator's earlier surgical fixes; remediation re-verified each against current ground truth and applied only the deltas.
 
-**Outstanding for operator review (overnight handoff):**
-- PR #58 (staleness-remediation, doc-only edits)
-- PR #59 (accessibility-remediation, color-token visual sanity-check recommended)
-- pursue-opsec/findings/2026-05-12-* — full reviewer detail and outcome docs
+Findings file kept private at pursue-opsec; remediation results companion file at `pursue-opsec/findings/2026-05-12-staleness-remediation-results.md`.
 
 **2026-05-12 (late evening) — Card-rename plan COMPLETE (steps 1-7). Tranche 65572b38 ingested + promoted. Surgical v1.0.0/numeric-drift fixes on the highest-traffic public surfaces. Backlog re-prioritized.**
 

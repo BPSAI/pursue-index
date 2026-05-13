@@ -1,10 +1,20 @@
 ---
 id: documentation-staleness-audit
-status: backlog
+status: shipped
 created: 2026-05-12
+shipped: 2026-05-12
 priority: medium
 depends_on: []
 ---
+
+> **Shipped 2026-05-12.** Audit produced findings at
+> `pursue-opsec/findings/2026-05-12-documentation-staleness-audit.md`
+> (31 findings: M1-M11, R1-R7, A1-A9, B1-B2, C1-C3, Ci1-Ci2, Ai1-Ai2,
+> S1, I1-I3, P1). Remediation landed via the
+> `staleness-remediation` branch (results documented at
+> `pursue-opsec/findings/2026-05-12-staleness-remediation-results.md`).
+> Kept as a historical record of the audit design.
+
 
 # Full-repo documentation staleness audit
 

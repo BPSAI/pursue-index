@@ -1,11 +1,19 @@
 ---
 id: visual-browse-surface
 type: feature
-status: phase-3-only
+status: shipped
 created: 2026-05-10
+shipped: 2026-05-12
 priority: medium
 depends_on: []
 ---
+
+> **Shipped 2026-05-12.** `/gallery` (image + video tile browse with
+> year buckets and type filters) is live. `/timeline` and `/browse`
+> remain unshipped per the recommendation in this plan; this file is
+> kept as a historical record of the design rationale and the shipped
+> /gallery scope vs the deferred surfaces.
+
 
 # Visual-first browse surface (`/gallery`, `/timeline`, `/browse`)
 
