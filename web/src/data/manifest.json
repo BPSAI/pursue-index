@@ -1,312 +1,8 @@
 {
   "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-release001.csv",
-  "fetched_at": "2026-05-12T20:20:14.710913Z",
-  "csv_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d",
+  "fetched_at": "2026-05-13T03:46:08.624879Z",
+  "csv_sha256": "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea",
   "cards": [
-    {
-      "card_id": "7d58f0cac741650a",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_10",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_10.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_10.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_10.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "4844321219e306af",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_2",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_2.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_2.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_2.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "99c12a9c49a91750",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_3",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_3.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_3.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_3.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "5ecebc7c28a8d8c7",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_4",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_4.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_4.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_4.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "b246c782b16be168",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_5",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_5.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_5.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_5.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "13f86e95aed52840",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_6",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_6.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_6.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_6.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "f85532f0514320be",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_7",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_7.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_7.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_7.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "8bfd94484138d59b",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_9",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_9.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_section_9.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_9.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "108379f8a86dbe9c",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_130",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_130.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_130.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_130.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "67c2ef13cc69891c",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_153",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_153.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_153.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_153.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "fa24eb58219a8dff",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_164",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_164.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_164.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_164.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "4b68726be4af8ff9",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_220",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_220.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_220.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_220.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "954d1e1944bc6d17",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_403",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_403.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_403.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_403.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "af42a6774881c110",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_438",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_438.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_438.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_438.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "f42c11ca158aeffc",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_449",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_449.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_449.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_449.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "e897e67f95bc1e1b",
-      "title": "65_HS1-834228961_62-HQ-83894_SUB_A",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": null,
-      "redacted": false,
-      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_sub_a.pdf",
-      "asset_filename": "65_hs1-834228961_62-hq-83894_sub_a.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_sub_a.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": null,
-      "video_pairing": null,
-      "raw": {}
-    },
     {
       "card_id": "9e677b8697685311",
       "title": "18_100754_ General 1946-7_Vol_2",
@@ -324,7 +20,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9317a6ea91f7425c",
@@ -343,7 +42,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "973c1f75f55d0d39",
@@ -362,7 +64,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "7bd99ac64660258e",
@@ -381,7 +86,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "6bda02c546051f43",
@@ -400,7 +108,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ed585fe68e3c4e7e",
@@ -419,7 +130,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "218e167fbd265d91",
@@ -438,7 +152,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "7fd3d2656cbc83a6",
@@ -457,7 +174,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "be226374e719c729",
@@ -476,7 +196,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "b60b84a66715204a",
@@ -495,7 +218,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9e2c2621d67dde12",
@@ -514,7 +240,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "df43a479bc891969",
@@ -533,7 +262,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "239d049dab8c81d5",
@@ -552,7 +284,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "26b02d358ec20061",
@@ -571,11 +306,14 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "bcf2e688dfbc220d",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_1",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_001",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -590,11 +328,146 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "4844321219e306af",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_002",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_2.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_2.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_2.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_003",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_3.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_3.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_3.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "5ecebc7c28a8d8c7",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_004",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_4.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_4.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_4.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_005",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_5.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_5.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_5.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_006",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_6.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_6.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_6.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_007",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_7.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_7.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_7.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ad721de274bb7d6c",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_8",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_008",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -609,7 +482,230 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_009",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_9.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_9.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_9.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "title": "65_HS1-834228961_62-HQ-83894_Section_010",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_section_10.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_10.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_section_10.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "A brown folder bears multiple red stamps with text and stickers with barcodes.",
+        "Image VIRIN": "260508-O-ZZ999-1001"
+      }
+    },
+    {
+      "card_id": "108379f8a86dbe9c",
+      "title": "65_HS1-834228961_62-HQ-83894_Serial_130",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_130.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_130.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_130.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "67c2ef13cc69891c",
+      "title": "65_HS1-834228961_62-HQ-83894_Serial_153",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_153.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_153.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_153.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "title": "65_HS1-834228961_62-HQ-83894_Serial_164",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_164.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_164.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_164.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "4b68726be4af8ff9",
+      "title": "65_HS1-834228961_62-HQ-83894_Serial_220",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_220.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_220.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_220.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "954d1e1944bc6d17",
+      "title": "65_HS1-834228961_62-HQ-83894_Serial_403",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_403.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_403.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_403.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "af42a6774881c110",
+      "title": "65_HS1-834228961_62-HQ-83894_Serial_438",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_438.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_438.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_438.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "f42c11ca158aeffc",
+      "title": "65_HS1-834228961_62-HQ-83894_Serial_449",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_serial_449.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_449.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_serial_449.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "e897e67f95bc1e1b",
+      "title": "65_HS1-834228961_62-HQ-83894_SUB_A",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": null,
+      "redacted": false,
+      "description": "The FBI's 62-HQ-83894 case file includes investigative records, eyewitness testimonies, and public reports concerning Unidentified Flying Objects and flying discs documented between June 1947 and July 1968. The records include high-profile incident accounts, photographic evidence from sites like Oak Ridge, TN, and technical proposals regarding potential propulsion systems. Additional topics include convention programs, researcher accounts, and extensive media coverage from the period.  This file is partially posted on FBI vault with more redactions and some pages missing.  Included here is the complete case file with several newly declassified pages and only minor redactions.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/65_hs1-834228961_62-hq-83894_sub_a.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_sub_a.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/65_hs1-834228961_62-hq-83894_sub_a.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "fd8bfb9481bcbdd3",
@@ -628,7 +724,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "4382ccbf2a39513d",
@@ -647,7 +746,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "b21122b1b7b2d953",
@@ -666,7 +768,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "f6d9556247ebeb2d",
@@ -685,7 +790,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "6fc6419676926f13",
@@ -704,7 +812,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "33cca99659328520",
@@ -723,7 +834,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c1c59236394f7b14",
@@ -742,7 +856,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-019",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9a0a2d62e9f47eb8",
@@ -761,7 +878,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "43db2719407a7897",
@@ -780,7 +900,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-021",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "4555d94dd6067f57",
@@ -799,7 +922,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-022",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9961adf6adf1010b",
@@ -818,7 +944,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-023",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "57e9cc7f9942e2cf",
@@ -837,7 +966,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "085c019c9899db9b",
@@ -856,7 +988,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -875,7 +1010,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-026 | PR-027",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "15d23b5f88df64fa",
@@ -894,7 +1032,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "3a0d83f3e51179db",
@@ -913,7 +1054,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9151e15016109463",
@@ -932,7 +1076,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -951,7 +1098,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-031 | PR-032 | PR-033",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "3746998b8c506e5c",
@@ -970,7 +1120,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-034",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c788c17e8cc32230",
@@ -989,7 +1142,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-035",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "88a20bf256ccce7a",
@@ -1008,7 +1164,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": "PR-036",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "a0f6663169c21caf",
@@ -1027,7 +1186,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "cc33e8c352fc80ce",
@@ -1046,7 +1208,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "17a8cc07fd8c694f",
@@ -1065,7 +1230,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "775d16ead1ec8fa1",
@@ -1084,7 +1252,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "6d7faf71150107e9",
@@ -1103,7 +1274,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "71758de42a2df926",
@@ -1122,7 +1296,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "a3f68d208681dc64",
@@ -1141,7 +1318,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "2201422e542ed597",
@@ -1160,7 +1340,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "669dd29723dd423f",
@@ -1179,7 +1362,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "205f9d0f627074c3",
@@ -1198,7 +1384,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c2961d7ccb95ae45",
@@ -1217,7 +1406,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9a3f23d9136eddf3",
@@ -1236,7 +1428,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "39c999bd61b2e20f",
@@ -1255,7 +1450,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "a33faf4c40674462",
@@ -1274,7 +1472,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "b8b5b17a6d70ef39",
@@ -1293,7 +1494,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "8e727ae36892cba9",
@@ -1312,7 +1516,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "2fecc4f3b434e64d",
@@ -1331,7 +1538,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "aef933642db8134a",
@@ -1350,7 +1560,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "bbc494426d526bdc",
@@ -1369,7 +1582,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "852224ee097b52cf",
@@ -1388,7 +1604,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c1c59236394f7b14",
@@ -1407,7 +1626,10 @@
       "video_title": "Unresolved UAP Report, Middle East, May 2022",
       "pdf_pairing": "DoW-UAP-D010",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "1b522e779e72877c",
@@ -1426,7 +1648,10 @@
       "video_title": "Unresolved UAP Report, Iraq, May 2022",
       "pdf_pairing": "DoW-UAP-D012",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "43db2719407a7897",
@@ -1445,7 +1670,10 @@
       "video_title": "Unresolved UAP Report, Iraq, May 2022",
       "pdf_pairing": "DoW-UAP-D014",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "4555d94dd6067f57",
@@ -1464,7 +1692,10 @@
       "video_title": "Unresolved UAP Report, Syria, July 2022",
       "pdf_pairing": "DoW-UAP-D016",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9961adf6adf1010b",
@@ -1483,7 +1714,10 @@
       "video_title": "Unresolved UAP Report, Iraq, December 2022",
       "pdf_pairing": "DoW-UAP-D018",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -1502,7 +1736,10 @@
       "video_title": "Unresolved UAP Report, United Arab Emirates, October 2023",
       "pdf_pairing": "DoW-UAP-D023",
       "video_pairing": "PR-027",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -1521,7 +1758,10 @@
       "video_title": "Unresolved UAP Report, United Arab Emirates, October 2023",
       "pdf_pairing": "DoW-UAP-D023",
       "video_pairing": "PR-026",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "5ffbe11403179567",
@@ -1540,7 +1780,10 @@
       "video_title": "Unresolved UAP Report, Greece, January 2024",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "aa638778a043c89c",
@@ -1559,26 +1802,10 @@
       "video_title": "Unresolved UAP Report, Gulf of Oman, June 2024",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "ea029a05470b8f4e",
-      "title": "DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024",
-      "asset_type": "VID",
-      "agency": "Department of War",
-      "release_date": "5/8/26",
-      "incident_date": null,
-      "incident_location": "Syria",
-      "redacted": true,
-      "description": "The United States Central Command submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of six seconds of video footage from a full-motion video (FMV) camera aboard a U.S. military platform in 2024. An accompanying mission report, DoW-UAP-D32, described the UAP as consisting of a \u201cmisshapen and uneven ball of white light,\u201d and reported that a \u201clight/glare halo effect\u201d occurred at the top of the FMV feed.\n\nVideo Description:\n00:02-00:04: An area of irregular color and brightness, mainly consisting of white and red highlights, appears near the center of the top edge of the sensor display. The area extends to a width of approximately one-third of the horizontal frame, with a vertical area comprising approximately one-sixth of the viewing area. Overall, its shape is best described as a horizontally-oriented half-oval bisected along its major axis.\n\nThis video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/dow-uap-d32-mission-report,-syria-october-2024.pdf",
-      "asset_filename": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
-      "modal_image_url": null,
-      "dvids_video_id": "1006078",
-      "video_title": "Unresolved UAP Report, Syria, October 2024",
-      "pdf_pairing": "DoW-UAP-D032",
-      "video_pairing": "PR-031 | PR-033",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -1597,7 +1824,32 @@
       "video_title": "Unresolved UAP Report, Syria, October 2024",
       "pdf_pairing": "DoW-UAP-D032",
       "video_pairing": "PR-032 | PR-033",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "title": "DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024",
+      "asset_type": "VID",
+      "agency": "Department of War",
+      "release_date": "5/8/26",
+      "incident_date": null,
+      "incident_location": "Syria",
+      "redacted": true,
+      "description": "The United States Central Command submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of six seconds of video footage from a full-motion video (FMV) camera aboard a U.S. military platform in 2024. An accompanying mission report, DoW-UAP-D32, described the UAP as consisting of a \u201cmisshapen and uneven ball of white light,\u201d and reported that a \u201clight/glare halo effect\u201d occurred at the top of the FMV feed.\n\nVideo Description:\n00:02-00:04: An area of irregular color and brightness, mainly consisting of white and red highlights, appears near the center of the top edge of the sensor display. The area extends to a width of approximately one-third of the horizontal frame, with a vertical area comprising approximately one-sixth of the viewing area. Overall, its shape is best described as a horizontally-oriented half-oval bisected along its major axis.\n\nThis video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/dow-uap-d32-mission-report,-syria-october-2024.pdf",
+      "asset_filename": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
+      "modal_image_url": null,
+      "dvids_video_id": "1006078",
+      "video_title": "Unresolved UAP Report, Syria, October 2024",
+      "pdf_pairing": "DoW-UAP-D032",
+      "video_pairing": "PR-031 | PR-033",
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -1616,7 +1868,10 @@
       "video_title": "Unresolved UAP Report, Syria, October 2024",
       "pdf_pairing": "DoW-UAP-D032",
       "video_pairing": "PR-031 | PR-032",
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "3746998b8c506e5c",
@@ -1635,7 +1890,10 @@
       "video_title": "Unresolved UAP Report, Greece, October 2023",
       "pdf_pairing": "DoW-UAP-D033",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c788c17e8cc32230",
@@ -1654,7 +1912,10 @@
       "video_title": "Unresolved UAP Report, Greece, October 2023",
       "pdf_pairing": "DoW-UAP-D035",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "88a20bf256ccce7a",
@@ -1673,7 +1934,10 @@
       "video_title": "Unresolved UAP Report, Middle East, May 2020",
       "pdf_pairing": "DoW-UAP-D038",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "46d871c93e4585fd",
@@ -1692,7 +1956,10 @@
       "video_title": "Unresolved UAP Report, Arabian Gulf 2020",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9532749afe2d4273",
@@ -1711,7 +1978,10 @@
       "video_title": "Resolved as an Aircraft, Middle East 2013",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "e924a48f55719a0d",
@@ -1730,7 +2000,10 @@
       "video_title": "Unresolved UAP Report, Arabian Gulf, 2020",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "0499d6dc86c848d6",
@@ -1749,7 +2022,10 @@
       "video_title": "Unresolved UAP Report, Arabian Gulf, 2020",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "cf5c53c84485c70d",
@@ -1768,7 +2044,10 @@
       "video_title": "Unresolved UAP Report, Arabian Gulf, 2020",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c4da38582fc64334",
@@ -1787,7 +2066,10 @@
       "video_title": "Unresolved UAP Report, Arabian Gulf, 2020",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "7aede23a09ee4c6b",
@@ -1806,7 +2088,10 @@
       "video_title": "Unresolved UAP Report, Djibouti, 2025",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "42158cfc89c7ab84",
@@ -1825,7 +2110,10 @@
       "video_title": "Unresolved UAP Report, Arabian Gulf, 2020",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "2b6de60628336eb8",
@@ -1844,7 +2132,10 @@
       "video_title": "Unresolved UAP Report, Southern United States, 2020",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9fdc75d250206f65",
@@ -1863,7 +2154,10 @@
       "video_title": "Unresolved UAP Report East China Sea, 2024",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "86c966cdd1f9f31a",
@@ -1882,7 +2176,10 @@
       "video_title": "Unresolved UAP Report Japan, 2023",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c5850afb384c768b",
@@ -1901,7 +2198,10 @@
       "video_title": "Unresolved UAP Report, Indo-PACOM 2024",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "8d3833f36d05ec03",
@@ -1920,11 +2220,14 @@
       "video_title": "Unresolved UAP Report, Department of the Army 2026",
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "3893e5d0279db3b1",
-      "title": "FBI Photo A1",
+      "title": "FBI Photo A001",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -1939,11 +2242,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ba30b5fdb4f6d153",
-      "title": "FBI Photo A2",
+      "title": "FBI Photo A002",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -1958,11 +2264,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "93cbdaad1d4ac853",
-      "title": "FBI Photo A3",
+      "title": "FBI Photo A003",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -1977,11 +2286,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "04b9179a7637d6ad",
-      "title": "FBI Photo A4",
+      "title": "FBI Photo A004",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -1996,11 +2308,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "613dc8ef961f9399",
-      "title": "FBI Photo A5",
+      "title": "FBI Photo A005",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2015,11 +2330,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "5a487c793b488382",
-      "title": "FBI Photo A6",
+      "title": "FBI Photo A006",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2034,11 +2352,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c142741e8cafc659",
-      "title": "FBI Photo A7",
+      "title": "FBI Photo A007",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2053,11 +2374,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "819e725592d1ba79",
-      "title": "FBI Photo A8",
+      "title": "FBI Photo A008",
       "asset_type": "IMG",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2072,11 +2396,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "1e63919cc6c3daf4",
-      "title": "FBI Photo B1",
+      "title": "FBI Photo B001",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2091,201 +2418,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "af047a976bac0c89",
-      "title": "FBI Photo B10",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small, dark, circular object is visible just to the top right quadrant of the center of the reticle. The background shows an indistinct mountain range.This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b10.pdf",
-      "asset_filename": "fbi-photo-b10.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b10.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "19d8e1d503211c84",
-      "title": "FBI Photo B11",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small, dark, circular object is visible in the upper right quadrant of the frame. The background appears to show an indistinct mountain range. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b11.pdf",
-      "asset_filename": "fbi-photo-b11.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b11.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "2b947223739f5bd4",
-      "title": "FBI Photo B12",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small, dark, circular object is visible in the upper right quadrant of the frame. The background shows an indistinct mountain range.This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b12.pdf",
-      "asset_filename": "fbi-photo-b12.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b12.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "16fcb501de623b9c",
-      "title": "FBI Photo B13",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, elongated objects are visible near the center of the frame in the bottom right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b13.pdf",
-      "asset_filename": "fbi-photo-b13.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b13.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "7d1b50162c29378a",
-      "title": "FBI Photo B14",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, circular objects are visible near the center of the frame. A digital artifact or distortion is visible along the edge of the redaction box in the lower right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b14.pdf",
-      "asset_filename": "fbi-photo-b14.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b14.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "3a5445e8aa7985d4",
-      "title": "FBI Photo B15",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, circular objects are visible near the center of the frame in the upper right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b15.pdf",
-      "asset_filename": "fbi-photo-b15.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b15.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "3b36f3dc3b51cf3b",
-      "title": "FBI Photo B16",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two dark, irregular-shaped objects are visible just right of the center in the upper right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b16.pdf",
-      "asset_filename": "fbi-photo-b16.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b16.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "f8bd1f11b7a2ae48",
-      "title": "FBI Photo B17",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, circular objects are visible near the center of the frame. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b17.pdf",
-      "asset_filename": "fbi-photo-b17.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b17.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "c568aea24f3aef31",
-      "title": "FBI Photo B18",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, elongated objects are visible near the center of the frame in the lower left quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b18.pdf",
-      "asset_filename": "fbi-photo-b18.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b18.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "eda0a3d37c6dbbc3",
-      "title": "FBI Photo B19",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small cluster of dark pixels, forming an object, is visible at the exact center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b19.pdf",
-      "asset_filename": "fbi-photo-b19.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b19.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "67ab3ffef2aecf70",
-      "title": "FBI Photo B2",
+      "title": "FBI Photo B002",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2300,106 +2440,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "bdf033d4a47eaad3",
-      "title": "FBI Photo B20",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. One to two small, dark, objects are visible just above and to the right of the center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b20.pdf",
-      "asset_filename": "fbi-photo-b20.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b20.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "c304734c04357887",
-      "title": "FBI Photo B21",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. One to two small, dark, objects are visible just above and to the right of the center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b21.pdf",
-      "asset_filename": "fbi-photo-b21.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b21.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "dc9f45a9ec6feb00",
-      "title": "FBI Photo B22",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, elongated objects are visible near the center of the frame in the upper right quadrant.This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b22.pdf",
-      "asset_filename": "fbi-photo-b22.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b22.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "a417f61b2dbd671f",
-      "title": "FBI Photo B23",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. A single dark, elongated object is visible near the edge of the reticle to the right of center. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b23.pdf",
-      "asset_filename": "fbi-photo-b23.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b23.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
-    },
-    {
-      "card_id": "6ded7ef20ded84c7",
-      "title": "FBI Photo B24",
-      "asset_type": "PDF",
-      "agency": "FBI",
-      "release_date": "5/8/26",
-      "incident_date": "Late 2025",
-      "incident_location": "Western United States",
-      "redacted": true,
-      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. A single dark, irregular-shaped object is visible just above the center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
-      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b24.pdf",
-      "asset_filename": "fbi-photo-b24.pdf",
-      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b24.jpg",
-      "dvids_video_id": null,
-      "video_title": null,
-      "pdf_pairing": "USPER Statement about UAP Sighting",
-      "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "0e3b3ec17a9ae021",
-      "title": "FBI Photo B3",
+      "title": "FBI Photo B003",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2414,11 +2462,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "672ae7eab15481ff",
-      "title": "FBI Photo B4",
+      "title": "FBI Photo B004",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2433,11 +2484,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "36bcfe2cfb5f3f54",
-      "title": "FBI Photo B5",
+      "title": "FBI Photo B005",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2452,11 +2506,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "b279eac8e49cf4fe",
-      "title": "FBI Photo B6",
+      "title": "FBI Photo B006",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2471,11 +2528,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ccd932b4f40e8de7",
-      "title": "FBI Photo B7",
+      "title": "FBI Photo B007",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2490,11 +2550,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "0d7a23b29e6de1bf",
-      "title": "FBI Photo B8",
+      "title": "FBI Photo B008",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2509,11 +2572,14 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "fd8286ffc6fbc1fb",
-      "title": "FBI Photo B9",
+      "title": "FBI Photo B009",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2528,7 +2594,340 @@
       "video_title": null,
       "pdf_pairing": "USPER Statement about UAP Sighting",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "title": "FBI Photo B010",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small, dark, circular object is visible just to the top right quadrant of the center of the reticle. The background shows an indistinct mountain range.This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b10.pdf",
+      "asset_filename": "fbi-photo-b10.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b10.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "title": "FBI Photo B011",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small, dark, circular object is visible in the upper right quadrant of the frame. The background appears to show an indistinct mountain range. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b11.pdf",
+      "asset_filename": "fbi-photo-b11.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b11.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "title": "FBI Photo B012",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small, dark, circular object is visible in the upper right quadrant of the frame. The background shows an indistinct mountain range.This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b12.pdf",
+      "asset_filename": "fbi-photo-b12.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b12.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "title": "FBI Photo B013",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, elongated objects are visible near the center of the frame in the bottom right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b13.pdf",
+      "asset_filename": "fbi-photo-b13.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b13.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "title": "FBI Photo B014",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, circular objects are visible near the center of the frame. A digital artifact or distortion is visible along the edge of the redaction box in the lower right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b14.pdf",
+      "asset_filename": "fbi-photo-b14.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b14.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "title": "FBI Photo B015",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, circular objects are visible near the center of the frame in the upper right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b15.pdf",
+      "asset_filename": "fbi-photo-b15.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b15.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "title": "FBI Photo B016",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two dark, irregular-shaped objects are visible just right of the center in the upper right quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b16.pdf",
+      "asset_filename": "fbi-photo-b16.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b16.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "title": "FBI Photo B017",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, circular objects are visible near the center of the frame. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b17.pdf",
+      "asset_filename": "fbi-photo-b17.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b17.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "title": "FBI Photo B018",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, elongated objects are visible near the center of the frame in the lower left quadrant. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b18.pdf",
+      "asset_filename": "fbi-photo-b18.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b18.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "title": "FBI Photo B019",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. A small cluster of dark pixels, forming an object, is visible at the exact center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b19.pdf",
+      "asset_filename": "fbi-photo-b19.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b19.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "title": "FBI Photo B020",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. One to two small, dark, objects are visible just above and to the right of the center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b20.pdf",
+      "asset_filename": "fbi-photo-b20.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b20.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "c304734c04357887",
+      "title": "FBI Photo B021",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a central crosshair reticle. One to two small, dark, objects are visible just above and to the right of the center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b21.pdf",
+      "asset_filename": "fbi-photo-b21.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b21.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "title": "FBI Photo B022",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. Two small, dark, elongated objects are visible near the center of the frame in the upper right quadrant.This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b22.pdf",
+      "asset_filename": "fbi-photo-b22.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b22.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "title": "FBI Photo B023",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. A single dark, elongated object is visible near the edge of the reticle to the right of center. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b23.pdf",
+      "asset_filename": "fbi-photo-b23.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b23.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "title": "FBI Photo B024",
+      "asset_type": "PDF",
+      "agency": "FBI",
+      "release_date": "5/8/26",
+      "incident_date": "Late 2025",
+      "incident_location": "Western United States",
+      "redacted": true,
+      "description": "The Federal Bureau of Investigation (FBI) submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of a still image derived from a U.S. military system in 2025. The original imagery was altered with redactions before being submitted to AARO. An accompanying mission report was not provided. The operator reported that they were unable to positively identify the UAP. The date in the image is incorrect due to system date/time not being set.\n\nNarrative Description: The monochrome image displays a grainy texture with a simplified central crosshair. A single dark, irregular-shaped object is visible just above the center of the reticle. This narrative description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event\u2019s validity, nature, or significance.",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/fbi-photo-b24.pdf",
+      "asset_filename": "fbi-photo-b24.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/fbi-photo-b24.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "1701a0f307714921",
@@ -2547,11 +2946,14 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "b03309df6758ab15",
-      "title": "FBI September 2023 Sighting - Serial 3",
+      "title": "FBI September 2023 Sighting - Serial 003",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2566,11 +2968,14 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "e93f6997811954dc",
-      "title": "FBI September 2023 Sighting - Serial 4",
+      "title": "FBI September 2023 Sighting - Serial 004",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2585,11 +2990,14 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "83aa439781e60e7b",
-      "title": "FBI September 2023 Sighting - Serial 5",
+      "title": "FBI September 2023 Sighting - Serial 005",
       "asset_type": "PDF",
       "agency": "FBI",
       "release_date": "5/8/26",
@@ -2604,7 +3012,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "5d9d3147f0b62d0c",
@@ -2623,7 +3034,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "78dc972c0c143d1e",
@@ -2642,7 +3056,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "48e4bc1bdb5a66e8",
@@ -2661,7 +3078,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "167f6a21c7238d0c",
@@ -2680,7 +3100,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "d14e0371a5bf0f5e",
@@ -2699,7 +3122,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "63c47bad93af4c92",
@@ -2718,7 +3144,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "0b298cfc9c65a4d6",
@@ -2737,7 +3166,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "8bb54e0aec5e91ad",
@@ -2756,7 +3188,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "303ad110cb5fa8b4",
@@ -2775,7 +3210,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "bd9411951868bc3e",
@@ -2794,7 +3232,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "19b18b71420602c5",
@@ -2813,7 +3254,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "34f3278ad20d348f",
@@ -2832,7 +3276,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "784dc42f885dc12e",
@@ -2851,7 +3298,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "3deb237b1d68e203",
@@ -2870,7 +3320,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "8f354cf1d1f821f0",
@@ -2889,7 +3342,10 @@
       "video_title": null,
       "pdf_pairing": "059UAP00009",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "9877727cd0d1bbfe",
@@ -2908,7 +3364,10 @@
       "video_title": null,
       "pdf_pairing": "059UAP000010",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "ff30c985595153f3",
@@ -2927,7 +3386,10 @@
       "video_title": null,
       "pdf_pairing": "059UAP00011",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "5847028ebb855cf8",
@@ -2946,7 +3408,10 @@
       "video_title": null,
       "pdf_pairing": "059UAP00012",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "c48c078b811c0fd7",
@@ -2965,7 +3430,10 @@
       "video_title": null,
       "pdf_pairing": "059UAP00013",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "be533a4ab886eb11",
@@ -2982,9 +3450,12 @@
       "modal_image_url": "https://www.war.gov/medialink/ufo/release_1/thumbnail/usper-statement-redacted.jpg",
       "dvids_video_id": null,
       "video_title": null,
-      "pdf_pairing": "FBI Photo A1 | FBI Photo A2 | FBI Photo A3 | FBI Photo A4 | FBI Photo A5 | FBI Photo A6 | FBI Photo A7 | FBI Photo A8 | FBI Photo B1 | FBI Photo B2 | FBI Photo B3 | FBI Photo B4 | FBI Photo B5 | FBI Photo B6 | FBI Photo B7 | FBI Photo B8 | FBI Photo B9 | FBI Photo B10 | FBI Photo B11 | FBI Photo B12 | FBI Photo B13 | FBI Photo B14 | FBI Photo B15 | FBI Photo B16 | FBI Photo B17 | FBI Photo B18 | FBI Photo B19 | FBI Photo B20 | FBI Photo B21 | FBI Photo B22 | FBI Photo B23 | FBI Photo B24",
+      "pdf_pairing": "FBI Photo A001 | FBI Photo A002 | FBI Photo A003 | FBI Photo A004 | FBI Photo A005 | FBI Photo A006 | FBI Photo A007 | FBI Photo A008 | FBI Photo B001 | FBI Photo B002 | FBI Photo B003 | FBI Photo B004 | FBI Photo B005 | FBI Photo B006 | FBI Photo B007 | FBI Photo B008 | FBI Photo B009 | FBI Photo B010 | FBI Photo B011 | FBI Photo B012 | FBI Photo B013 | FBI Photo B014 | FBI Photo B015 | FBI Photo B016 | FBI Photo B017 | FBI Photo B018 | FBI Photo B019 | FBI Photo B020 | FBI Photo B021 | FBI Photo B022 | FBI Photo B023 | FBI Photo B024",
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     },
     {
       "card_id": "8d0b85ce46109d06",
@@ -3003,7 +3474,10 @@
       "video_title": null,
       "pdf_pairing": null,
       "video_pairing": null,
-      "raw": {}
+      "raw": {
+        "Image Alt Text": "",
+        "Image VIRIN": ""
+      }
     }
   ]
 }
