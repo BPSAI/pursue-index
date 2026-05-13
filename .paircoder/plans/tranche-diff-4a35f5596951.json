@@ -1,0 +1,483 @@
+{
+  "tranche_sha256": "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea",
+  "prior_manifest_sha": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 0,
+    "quarantined": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 0,
+    "field_only_changes": 46
+  },
+  "renames_confirmed": [],
+  "new_content": [],
+  "quarantined": [],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [],
+  "field_only_changes": [
+    {
+      "card_id": "04b9179a7637d6ad",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A4",
+          "new": "FBI Photo A004"
+        }
+      ]
+    },
+    {
+      "card_id": "0d7a23b29e6de1bf",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B8",
+          "new": "FBI Photo B008"
+        }
+      ]
+    },
+    {
+      "card_id": "0e3b3ec17a9ae021",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B3",
+          "new": "FBI Photo B003"
+        }
+      ]
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_6",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_006"
+        }
+      ]
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B13",
+          "new": "FBI Photo B013"
+        }
+      ]
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B11",
+          "new": "FBI Photo B011"
+        }
+      ]
+    },
+    {
+      "card_id": "1e63919cc6c3daf4",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B1",
+          "new": "FBI Photo B001"
+        }
+      ]
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B12",
+          "new": "FBI Photo B012"
+        }
+      ]
+    },
+    {
+      "card_id": "36bcfe2cfb5f3f54",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B5",
+          "new": "FBI Photo B005"
+        }
+      ]
+    },
+    {
+      "card_id": "3893e5d0279db3b1",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A1",
+          "new": "FBI Photo A001"
+        }
+      ]
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B15",
+          "new": "FBI Photo B015"
+        }
+      ]
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B16",
+          "new": "FBI Photo B016"
+        }
+      ]
+    },
+    {
+      "card_id": "4844321219e306af",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_2",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_002"
+        }
+      ]
+    },
+    {
+      "card_id": "5a487c793b488382",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A6",
+          "new": "FBI Photo A006"
+        }
+      ]
+    },
+    {
+      "card_id": "5ecebc7c28a8d8c7",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_4",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_004"
+        }
+      ]
+    },
+    {
+      "card_id": "613dc8ef961f9399",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A5",
+          "new": "FBI Photo A005"
+        }
+      ]
+    },
+    {
+      "card_id": "672ae7eab15481ff",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B4",
+          "new": "FBI Photo B004"
+        }
+      ]
+    },
+    {
+      "card_id": "67ab3ffef2aecf70",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B2",
+          "new": "FBI Photo B002"
+        }
+      ]
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B24",
+          "new": "FBI Photo B024"
+        }
+      ]
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B14",
+          "new": "FBI Photo B014"
+        }
+      ]
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_10",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_010"
+        }
+      ]
+    },
+    {
+      "card_id": "819e725592d1ba79",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A8",
+          "new": "FBI Photo A008"
+        }
+      ]
+    },
+    {
+      "card_id": "83aa439781e60e7b",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI September 2023 Sighting - Serial 5",
+          "new": "FBI September 2023 Sighting - Serial 005"
+        }
+      ]
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_9",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_009"
+        }
+      ]
+    },
+    {
+      "card_id": "93cbdaad1d4ac853",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A3",
+          "new": "FBI Photo A003"
+        }
+      ]
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_3",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_003"
+        }
+      ]
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B23",
+          "new": "FBI Photo B023"
+        }
+      ]
+    },
+    {
+      "card_id": "ad721de274bb7d6c",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_8",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_008"
+        }
+      ]
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B10",
+          "new": "FBI Photo B010"
+        }
+      ]
+    },
+    {
+      "card_id": "b03309df6758ab15",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI September 2023 Sighting - Serial 3",
+          "new": "FBI September 2023 Sighting - Serial 003"
+        }
+      ]
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_5",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_005"
+        }
+      ]
+    },
+    {
+      "card_id": "b279eac8e49cf4fe",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B6",
+          "new": "FBI Photo B006"
+        }
+      ]
+    },
+    {
+      "card_id": "ba30b5fdb4f6d153",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A2",
+          "new": "FBI Photo A002"
+        }
+      ]
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_1",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_001"
+        }
+      ]
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B20",
+          "new": "FBI Photo B020"
+        }
+      ]
+    },
+    {
+      "card_id": "be533a4ab886eb11",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "FBI Photo A1 | FBI Photo A2 | FBI Photo A3 | FBI Photo A4 | FBI Photo A5 | FBI Photo A6 | FBI Photo A7 | FBI Photo A8 | FBI Photo B1 | FBI Photo B2 | FBI Photo B3 | FBI Photo B4 | FBI Photo B5 | FBI Photo B6 | FBI Photo B7 | FBI Photo B8 | FBI Photo B9 | FBI Photo B10 | FBI Photo B11 | FBI Photo B12 | FBI Photo B13 | FBI Photo B14 | FBI Photo B15 | FBI Photo B16 | FBI Photo B17 | FBI Photo B18 | FBI Photo B19 | FBI Photo B20 | FBI Photo B21 | FBI Photo B22 | FBI Photo B23 | FBI Photo B24",
+          "new": "FBI Photo A001 | FBI Photo A002 | FBI Photo A003 | FBI Photo A004 | FBI Photo A005 | FBI Photo A006 | FBI Photo A007 | FBI Photo A008 | FBI Photo B001 | FBI Photo B002 | FBI Photo B003 | FBI Photo B004 | FBI Photo B005 | FBI Photo B006 | FBI Photo B007 | FBI Photo B008 | FBI Photo B009 | FBI Photo B010 | FBI Photo B011 | FBI Photo B012 | FBI Photo B013 | FBI Photo B014 | FBI Photo B015 | FBI Photo B016 | FBI Photo B017 | FBI Photo B018 | FBI Photo B019 | FBI Photo B020 | FBI Photo B021 | FBI Photo B022 | FBI Photo B023 | FBI Photo B024"
+        }
+      ]
+    },
+    {
+      "card_id": "c142741e8cafc659",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo A7",
+          "new": "FBI Photo A007"
+        }
+      ]
+    },
+    {
+      "card_id": "c304734c04357887",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B21",
+          "new": "FBI Photo B021"
+        }
+      ]
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B18",
+          "new": "FBI Photo B018"
+        }
+      ]
+    },
+    {
+      "card_id": "ccd932b4f40e8de7",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B7",
+          "new": "FBI Photo B007"
+        }
+      ]
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B22",
+          "new": "FBI Photo B022"
+        }
+      ]
+    },
+    {
+      "card_id": "e93f6997811954dc",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI September 2023 Sighting - Serial 4",
+          "new": "FBI September 2023 Sighting - Serial 004"
+        }
+      ]
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B19",
+          "new": "FBI Photo B019"
+        }
+      ]
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "65_HS1-834228961_62-HQ-83894_Section_7",
+          "new": "65_HS1-834228961_62-HQ-83894_Section_007"
+        }
+      ]
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B17",
+          "new": "FBI Photo B017"
+        }
+      ]
+    },
+    {
+      "card_id": "fd8286ffc6fbc1fb",
+      "diffs": [
+        {
+          "field": "title",
+          "old": "FBI Photo B9",
+          "new": "FBI Photo B009"
+        }
+      ]
+    }
+  ]
+}

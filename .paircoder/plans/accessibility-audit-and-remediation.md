@@ -1,13 +1,25 @@
 ---
 id: accessibility-audit-and-remediation
 type: feature
-status: backlog
+status: shipped
 created: 2026-05-10
+shipped: 2026-05-13
 priority: high
 depends_on: []
 ---
 
 # Accessibility audit and remediation (WCAG AA)
+
+> **Shipped 2026-05-13** via PR #59 (merged 01:58 UTC). axe-core scan
+> across 18 routes: 1 critical + 28 serious + 60+ moderate findings
+> reduced to **0 violations** at any severity. Token bumps to satisfy
+> WCAG AA (text-faint #4a5563 → #8390a0, text-dim → #9ba6b3); new
+> `AtlasAccessibleBrowser.tsx` as keyboard/SR alternative to the WebGL
+> canvas; chat + search rail ARIA labeling; heading hierarchy fixes;
+> new `tests/unit/test_a11y_contrast.py` (38 contrast assertions + drift
+> guard extended to og.svg + atlas-helpers.ts in vaivora P2 fixup).
+> Outcome doc + reviewer cycles in
+> `pursue-opsec/findings/2026-05-12-accessibility-remediation-*.md`.
 
 ## Summary
 
