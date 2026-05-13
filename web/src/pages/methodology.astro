@@ -140,10 +140,17 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         We fetch the public CSV directly from war.gov over HTTPS, hash the
         bytes, and pin the SHA256 in the manifest before the bytes touch
-        anything else in the pipeline. Every snapshot is archived under
+        anything else in the pipeline. Every poll-driven snapshot (every
+        30 minutes) is archived under
         <code class="text-[color:var(--color-signal-cyan)]">data/raw/csv/&lt;sha&gt;.csv</code>{" "}
         (content-addressed) and committed to the repo, as a forensic
-        trail of how the source has evolved over time.
+        trail of how the source has evolved over time. Local
+        operator-driven runs of <code class="text-[color:var(--color-signal-cyan)]">pursue
+        scrape run</code> archive separately to{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">data/csv-archive/</code>{" "}
+        (timestamped); the integrity guarantee comes from the
+        poll workflow's content-addressed archive committed alongside
+        each manifest update.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         We deliberately do <em>not</em> use browser automation. The CSV is
@@ -212,7 +219,7 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>{" "}
         and surfaced in the OCR transcript on each card page. The live
         search index covers 4,161 pages (Surya primary; LLM fallback on
-        the ~8% of pages where Surya scored below threshold) — see the
+        the ~15% of pages where Surya scored below threshold) — see the
         headline numbers in the benchmark section below.
       </p>
     </section>
