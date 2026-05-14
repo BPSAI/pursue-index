@@ -1,18 +1,90 @@
 # Current State
 
-> Last updated: 2026-05-14 (mid-day operator check-in — major upstream redaction event captured)
-
-## Read this first
-
-The single-doc handoff for the next session is at
-**`.paircoder/context/handoff-2026-05-14.md`** — covers what happened
-during the 2-day quiet stretch, the 70-card silent-redaction event
-that the integrity layer caught, and the queued operator-decision
-items.
+> Last updated: 2026-05-14 (late afternoon — NAS preservation tier rebuilt to mirror the public R2 layout exactly; 28 DVIDS videos added to the preservation chain)
 
 ## What Was Just Done
 
-**2026-05-14 (mid-day) — Operator returned after 2-day quiet stretch. Discovered (via status pull) that the integrity layer captured a major upstream silent-redaction event overnight 2026-05-13/14: 70 cards' bytes silently changed at the same upstream URLs, total corpus shrank 2.34 GB → 1.10 GB (-53%). Both versions preserved in R2 + backup R2.**
+**2026-05-14 (late afternoon) — NAS preservation tier rebuilt to mirror the public R2 layout prefix-for-prefix + 28 DVIDS-sourced video assets added to the preservation chain across all three storage tiers.**
+
+The NAS-layout decision item queued earlier in the day is now resolved. NAS now mirrors primary R2 exactly:
+
+- `archive/<byte_sha256>.<ext>` — content-addressed pool, immutable by construction; an `rclone sync` against the public bucket cannot overwrite a key because the filename IS the sha
+- `<card_id>.<ext>` — current-pointer for PDFs/images (matches R2 root keys)
+- `<dvids_video_id>.mp4` — current-pointer for videos (DVIDS video ID is the unique key since multiple cards can be paired with the same video)
+
+Hardlinks tie the two views to the same inodes; storage cost = unique inodes only. The threat scenario from this morning's handoff (a future naive rclone overwriting OLD → NEW on the NAS) is structurally eliminated — `archive/<sha>` keys can never collide across byte versions.
+
+**28 DVIDS videos preserved**. Mapping (`card_id` ↔ `dvids_video_id` ↔ `DOD_<asset_id>.mp4`) was recovered from the public DVIDS pages, and bytes were ingested from operator-side local copies. All 28 are now in:
+
+- Primary R2 (`archive/<sha>.mp4`, IfNoneMatch immutable, hash-verified post-upload)
+- Backup R2 (direct copy from primary, hash-verified)
+- NAS (hardlinked into the same r2-mirror layout, hash-verified)
+
+`data/asset-bytes-registry.jsonl` was extended with 28 new rows. Schema additions (backward-compatible): `source: "dvids"`, `dvids_video_id`, `dod_asset_filename`. `current_key` is omitted on video rows because videos are served via DVIDS iframe embeds on the public site, not an R2 alias. The backup-mirror script in `pursue-opsec` was updated to gracefully handle archive-only rows.
+
+**Preservation guarantee state as of today:**
+
+| Asset class | Archived byte versions | Storage tiers |
+|---|---|---|
+| PDFs / images | 200 | primary R2 + backup R2 + NAS |
+| Videos (DVIDS) | 28 | primary R2 + backup R2 + NAS |
+| **Total** | **228** | **3-place redundancy across the board** |
+
+Registry rows: 230 (202 pre-existing + 28 video).
+
+**Operator-decision queue (updated):**
+
+1. **Release-pipeline-gate proposal** (HIGH from May-12) — still queued.
+2. **duplicate-card-ids Option 1** (alt-titles UI surface, ~1.5h) — still queued.
+3. **Re-pin Section 6 `preserved=true` (LOW)** — re-pin against the new sha OR affirm the old pin via audit-log.
+4. **Integrate video integrity checks into the daily verify cron** — `verify-assets-daily.yml` currently only walks PDF/IMG cards (those have war.gov URLs to HEAD-check). Video rows are in the registry but the cron doesn't touch them. Closing this loop would extend the daily integrity guarantee to videos as well.
+
+**Closed today (no longer pending):**
+- NAS layout decision → resolved (above)
+- Old NAS per-card_id paths cleanup → resolved (removed; content preserved via hardlinks)
+- Operator-side NAS rsync recipe → doc updated to describe the new layout
+
+> Last updated: 2026-05-14 (afternoon — 70-card event RE-CLASSIFIED as non-adversarial upstream re-OCR; preservation verified across 3 storage tiers)
+
+## Read this first
+
+Today's investigation overturned yesterday's classification. The
+"silent redaction event" headline from the morning handoff was
+**wrong**. It's not a redaction; it's an upstream re-processing pass
+(Adobe Acrobat Paper Capture: re-OCR + rotation correction +
+accessibility tagging). Same image content, added text layer, better
+metadata. 3-place storage redundancy confirmed for OLD bytes. See
+**`pursue-opsec/findings/2026-05-14-70-card-upstream-event-classification.md`**
+for the full classification + preservation verification.
+
+## What Was Just Done
+
+**2026-05-14 (afternoon) — Deep dive on the 70-card byte event. Re-classified as benign upstream re-OCR, not adversarial redaction. All preservation guarantees verified across 3 storage tiers (primary R2, backup R2, NAS). Issues #60/#61/#62 closed.**
+
+Investigation summary:
+- **Spot-checked 8 of 70 affected cards** spanning all 4 agencies (FBI, DOW, NASA, State), full size-change distribution (-86% to +227%), and both already-Adobe-processed and previously-scan-only files. Every NEW PDF has identical signature: `Producer: Adobe Acrobat (32-bit) 26 Paper Capture Plug-in`, `Tagged: yes`, real OCR text layer, rotation-corrected. Every card has **identical page count** old vs new.
+- **Sampled page renders** at 150 DPI for Section 1 page 70 (Wyly teletype) and Section 6 page 135 (Eekhout interview): pixel-level diffs are diffuse anti-aliasing artifacts (mean 3.28–6.84 / 255), no localized clusters indicating word swaps or in-place redactions. Content visually preserved.
+- **OCR comparison**: Surya (our pages.json) is markedly cleaner than Adobe Paper Capture's embedded text on these teletype-style scans. "Free re-OCR via pdftotext" path rejected.
+- **Preservation verified across 3 tiers:**
+  - Primary R2 (immutable via IfNoneMatch): 140/140 keys present, sizes match
+  - Backup R2 (separate bucket): 140/140 keys present + 5 OLD shas hash-verified (847 MB streamed)
+  - NAS (`/mnt/nas/personal/pursue/pdfs/`): 70/70 affected cards hold OLD byte size, 4 hash-verified MATCH
+- **Issues closed:** #60 (silent-overlay-detected → re-classified upstream re-OCR), #61 (preserved-tampered → upstream re-issue, not control-plane tampering), #62 (transient poll-failure, 5 consecutive successful runs since).
+
+**Operator-decision items now queued (priority order):**
+
+1. **NAS layout decision (NEW, MEDIUM)**: Current NAS layout is `pdfs/<card_id>/<filename>.pdf` — one file per card_id, no sha namespacing. OLD bytes are currently preserved on NAS only because no rsync ran post-event. A future naive sync would overwrite OLD → NEW, dropping the third copy. Two options: (a) adopt per-sha layout matching the rsync-setup recipe doc; (b) freeze a dated tar.gz of current `pdfs/` before any future sync.
+2. **Release-pipeline-gate proposal (still HIGH from May-12)** — `pursue-opsec/findings/2026-05-12-release-pipeline-gate.md`, untouched.
+3. **duplicate-card-ids Option 1** (alt-titles UI surface, ~1.5h) — unchanged.
+4. **Re-pin Section 6 preserved=true (LOW)**: Either re-pin against the new sha (`7620094802…`) or affirm the old pin (`3df0935c…`) with an audit-log entry. Either is fine; the OLD bytes are already in 3 places.
+
+**What did NOT happen** (vs the morning handoff's queued items):
+- No public "redaction event newsletter" — the underlying premise was wrong.
+- No re-OCR of the 70 cards via pdftotext — Adobe's text layer is lower quality than our Surya.
+- No editorial response to the redaction — there was no redaction.
+- No commits/code changes — investigation was read-only.
+
+**2026-05-14 (mid-day) — Operator returned after 2-day quiet stretch. Discovered (via status pull) that the integrity layer captured a major upstream silent-redaction event overnight 2026-05-13/14: 70 cards' bytes silently changed at the same upstream URLs, total corpus shrank 2.34 GB → 1.10 GB (-53%). Both versions preserved in R2 + backup R2. [SUPERSEDED — see today's afternoon entry above]**
 
 Headline metrics:
 - 70 of 132 archived cards had bytes change at the same URL between 2026-05-12 (last archive run) and 2026-05-14 07:16 UTC (daily verify cron)
