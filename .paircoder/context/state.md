@@ -1,6 +1,40 @@
 # Current State
 
-> Last updated: 2026-05-13 (overnight, second tranche ingested + deep audit clean)
+> Last updated: 2026-05-14 (mid-day operator check-in — major upstream redaction event captured)
+
+## Read this first
+
+The single-doc handoff for the next session is at
+**`.paircoder/context/handoff-2026-05-14.md`** — covers what happened
+during the 2-day quiet stretch, the 70-card silent-redaction event
+that the integrity layer caught, and the queued operator-decision
+items.
+
+## What Was Just Done
+
+**2026-05-14 (mid-day) — Operator returned after 2-day quiet stretch. Discovered (via status pull) that the integrity layer captured a major upstream silent-redaction event overnight 2026-05-13/14: 70 cards' bytes silently changed at the same upstream URLs, total corpus shrank 2.34 GB → 1.10 GB (-53%). Both versions preserved in R2 + backup R2.**
+
+Headline metrics:
+- 70 of 132 archived cards had bytes change at the same URL between 2026-05-12 (last archive run) and 2026-05-14 07:16 UTC (daily verify cron)
+- Top drops: FBI 62-HQ-83894 Section 6 (371 → 61 MB, -310 MB), Box 7 Incident Summaries 1-100 (247 → 33 MB), Box 7 101-172 (243 → 29 MB), every FBI 62-HQ-83894 section reduced
+- 41 of the 70 are FBI; 21 "Other" (mostly Box 7); 4 NASA; 2 State; 2 DOW
+
+Issues filed by the integrity layer (all healthy behavior):
+- #60 silent-overlay-detected — the 70-card event
+- #61 preserved-tampered — Section 6's pinned sha no longer matches current-pointer (correctly raised; the upstream re-edit overwrote the bytes after our May-12 restoration pin)
+- #62 poll-failure — single transient at 10:16 UTC, recovered next cycle, closeable
+
+**The integrity layer worked exactly as designed.** Both old + new bytes preserved at content-addressed `archive/<sha>.<ext>` keys. Backup R2 mirror has both. Daily verify cron caught the change within hours of upstream's edit. This is the project's first real defense of its preservation guarantee against the threat model the operator articulated at the start.
+
+**Operator-decision items queued** (next session priority):
+1. Editorial response to the redaction — re-OCR? UI surface? public messaging?
+2. Section 6 specifically — the May-12 finds entry (`fbi-1947-dallas-teletype.mdx`) cites Section 1 page 70 (Wyly teletype); Section 1 also redacted (109→30 MB); verify the cited page survives
+3. Release-pipeline-gate proposal still open (HIGH from yesterday)
+4. duplicate-card-ids Option 1 (alt-titles UI surface)
+
+Full backlog ranking in last session's state.md entry below; full event detail in the handoff doc.
+
+**2026-05-13 (overnight, second tranche ingested + deep audit clean)**
 
 ## What Was Just Done
 
