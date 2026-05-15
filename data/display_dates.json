@@ -1,0 +1,24 @@
+{
+  "entries": [
+    {
+      "card_id": "9e677b8697685311",
+      "display_date": "1947-12-30",
+      "display_date_range": null,
+      "display_date_evidence": "OFFICE AFMRS 30 December 1947 SUBJECT: Flying Discs",
+      "display_date_evidence_card_ref": "9e677b8697685311#page-3",
+      "display_date_abstention": null,
+      "display_date_curator": "operator-david",
+      "display_date_approved_at": "2026-05-15T18:46:43.997Z"
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "display_date": "1948-05-08",
+      "display_date_range": null,
+      "display_date_evidence": "AFCIR-CO/Lt Col Garrett/lwd/4544 DECLASSIFIED 14 June 48",
+      "display_date_evidence_card_ref": "9317a6ea91f7425c#page-2",
+      "display_date_abstention": null,
+      "display_date_curator": "operator-david",
+      "display_date_approved_at": "2026-05-15T18:50:27.472Z"
+    }
+  ]
+}
