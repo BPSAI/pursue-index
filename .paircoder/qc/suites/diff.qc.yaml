@@ -33,19 +33,26 @@ scenarios:
       - check_console: "No errors. A 404 on /data/snapshots/index.json is NOT expected here (the file exists with 5 entries)"
 
   - name: "Comparison is against immediate-prior snapshot, not Release 01 baseline"
+    # The snapshot reference renders uppercase as 'VS4A35F5596951...JSON' due to
+    # CSS text-transform on the comparison label. Match case-insensitively.
     steps:
       - navigate: "${base_url}/diff"
       - wait: "2"
-      - verify: "Snapshot reference shown on the page mentions sha prefix '4a35f55' (the immediate-prior snapshot to current c9cc83fcaf43) OR shows a chronologically near snapshot date"
-      - verify: "Comparison does NOT cite sha prefix '596cc188' (which would indicate the page is still comparing against Release 01 baseline — the bug fixed in commit ef4d2ae)"
+      - verify: "Snapshot reference shown on the page contains sha prefix '4a35f55' (case-insensitive; rendered as '4A35F55' in the uppercased comparison label) — this is the immediate-prior snapshot to current c9cc83fcaf43"
+      - verify: "Comparison does NOT contain sha prefix '596cc188' (case-insensitive). That would indicate the page is still comparing against Release 01 baseline — the bug fixed in commit ef4d2ae."
 
   - name: "No card content changes between c9cc83fcaf43 and 4a35f5596951"
     # Both tranches are metadata-only (alt-text + VIRIN backfill on
     # c9cc83, title-format normalization on 4a35f5). card_id set is
     # identical between them.
+    #
+    # Rendered shape: 'ADDED' label + '(0)' count below it, then a
+    # '── NONE ──' separator. Same for REMOVED. The verify text below
+    # accepts either '(0)' or ': 0' or 'NONE' patterns to stay robust
+    # against future styling tweaks.
     steps:
       - navigate: "${base_url}/diff"
       - wait: "2"
-      - verify: "Added section either absent OR shows 0 cards"
-      - verify: "Removed section either absent OR shows 0 cards"
-      - verify: "If a 'field-only changes' indicator is present, it shows ~122 cards changed (alt-text + VIRIN backfill)"
+      - verify: "Added section shows zero cards — either '(0)', ': 0', or a 'NONE' indicator"
+      - verify: "Removed section shows zero cards — either '(0)', ': 0', or a 'NONE' indicator"
+      - verify: "If a 'field-only changes' indicator is present, it shows ~122 cards changed (alt-text + VIRIN backfill). Note 2026-05-15: this indicator is NOT currently surfaced on prod — known gap tracked in the diff-page-arbitrary-pair-selection plan, not a regression. Skip this verify if absent."

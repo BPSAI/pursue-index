@@ -4,6 +4,11 @@ description: |
   the Cite component rendering, sources rail, citation chip
   resolution, and editorial-bar invariants visible in the rendered
   HTML.
+
+  String-match conventions: section headings render with
+  `text-transform: uppercase` styling, so a verify for "What this
+  isn't" matches against the rendered "WHAT THIS ISN'T". Treat
+  heading verifies as case-insensitive unless explicitly stated.
 tags: [finds, regression, ui]
 preconditions:
   - "App accessible at ${base_url}"
@@ -51,7 +56,7 @@ scenarios:
     steps:
       - navigate: "${base_url}/finds/apollo-17"
       - verify: "Entry explicitly mentions reentry plasma OR aircraft carrier OR ALFMED"
-      - verify: "Entry has a 'What this isn't' or 'What we're not claiming' section"
+      - verify: "Entry has a 'What this isn't' or 'What we're not claiming' section (case-insensitive — section heading renders uppercase)"
       - verify: "Entry cross-links to /finds/muroc-1947 OR /finds/whats-not-uap"
 
   - name: "whats-not-uap entry surfaces DOW-UAP-D48"
