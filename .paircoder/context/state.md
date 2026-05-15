@@ -1,6 +1,60 @@
 # Current State
 
-> Last updated: 2026-05-14 (late afternoon — NAS preservation tier rebuilt to mirror the public R2 layout exactly; 28 DVIDS videos added to the preservation chain)
+> Last updated: 2026-05-15 (evening — tranche c9cc83fcaf43 promoted with new accessibility metadata fields; release-pipeline-gate shipped; finds structural validator + CI gate scaffolded)
+
+## What Was Just Done
+
+**2026-05-15 (evening) — Tranche c9cc83fcaf43 promoted end-to-end; the May-12 HIGH-priority `release-pipeline-gate` proposal shipped; the public-side scaffolding for an autonomous-finds-pipeline landed (structural validator + CI gate).**
+
+### Tranche c9cc83fcaf43 (accessibility metadata backfill)
+
+158-card metadata-only tranche detected by the 30-min poll workflow at 2026-05-14 20:06 UTC. Zero byte changes. 130 cards got upstream `Image Alt Text`, 131 got DoD `Image VIRIN` identifiers (all `260508-D-D0360-NNNN`, sequential — single upstream batch). Pattern matches the prior 4a35f5596951 metadata-only tranche; not adversarial. Promoted via `pursue ingest run --tranche c9cc83fcaf43`.
+
+Wiring:
+- `CardMetadata` schema extended with `image_alt_text`, `image_virin`, `original_classification` (backward-compatible optional fields). Classification is extracted at parse time from alt-text when an explicit level keyword is present (Top Secret / Secret / Confidential / Restricted / Unclassified). 17 of 158 cards have an explicit level recorded.
+- `web/src/components/GalleryIsland.tsx` prefers upstream alt-text over auto-generated when present, with the redaction-suffix preserved for screen-reader signal. Falls back to existing title-based alt when alt-text is absent.
+- Card detail sidebar now renders the original classification as a badge + the VIRIN as a citable DoD identifier (DoDI 5040.02 format). Rendered on the 17 cards with explicit classification; VIRIN rendered on ~83% of cards.
+- `/diff` page: 1-line fix to compare current snapshot against the most recent PRIOR snapshot (was comparing against Release 01 baseline, which made every diff look like a cumulative changelog instead of the per-tranche delta visitors expect).
+
+### Release-pipeline-gate (May-12 HIGH item, now shipped)
+
+Six implementation steps complete:
+
+1. `tests/integration/test_card_page_coverage.py` — every manifest card_id has a built `dist/card/<id>/index.html`
+2. `tests/integration/test_alias_destinations.py` — every alias terminal has a built page; alias chains acyclic
+3. `tests/unit/test_snapshot_mirror_coverage.py` — pipeline + web snapshot dirs in sync, index.json drift-free, paired snapshots byte-equal, manifest mirror byte-equal
+4. `.github/workflows/release-gate.yml` — wires all six AC into a single CI status check on PRs touching manifest / snapshot / aliases / finds paths
+5. `.claude/skills/release-pipeline-gate/SKILL.md` — operator-side checklist mirroring the CI workflow for local pre-push verification
+6. `pursue ingest run` now invokes `build_video_posters.py` and `build_pdf_thumbs.py` as part of the lockstep refresh (graceful-skip when local inputs are missing — so it runs in CI without harm and adds value operator-side)
+
+This closes the bug class behind the four May-12 hot-fixes (`5e9b480`, `9b9b40d`, `076ef78`, `ffeeddd`, `93873c5`). 482 tests green; 11 of those are the new release-gate suite.
+
+### Finds structural validator (public-side scaffolding)
+
+Public-side surface for a future autonomous content pipeline. The validator at `pursue_index/finds_validator.py` enforces the structural minimum that every `/finds` entry — hand-written or future-bot-opened — must pass:
+
+- Frontmatter completeness (title, summary, tags, cards, published)
+- Citation density ≥3 `<Cite>` tags
+- Methodology / abstention / provenance section present (matches the varied closing-frame patterns the corpus uses today: "Provenance of this entry", "Why X is in this archive", "What we're not claiming", "What the file establishes", "What to read instead", etc.)
+
+Word count outside 800-5000 surfaces as a soft warning, not a gate failure. CLI runnable: `python -m pursue_index.finds_validator [path...]`. CI-runnable: step 5b of the release-gate workflow on every PR touching `web/src/content/finds/**`. All 21 currently-committed entries pass the gate; the two shortest entries (rhodes 759 words, whats-not-uap 683) surface word-count warnings.
+
+The validator is intentionally bottom-of-the-stack: it doesn't enforce voice, style, or novelty. Those are upstream concerns. It catches the obvious structural failure modes before editorial review burns operator attention.
+
+### Test suite + arch state
+
+- 482 tests passing (467 before today's session + 11 release-gate + 4 finds-validator integration assertions across categories)
+- All file-size warnings within the soft band (200 < lines < 400); no hard errors
+
+### Updated operator-decision queue
+
+1. **Release-pipeline-gate** (HIGH from May-12) — **SHIPPED**
+2. **duplicate-card-ids Option 1** (alt-titles UI surface, ~1.5h) — still queued
+3. **Re-pin Section 6 `preserved=true`** (LOW) — still queued
+4. **Video integrity in `verify-assets-daily.yml` cron** — still queued (registry rows landed on 2026-05-14; cron filter still excludes them)
+5. **`/diff` arbitrary-pair selector + timeline strip** (the FULL plan beyond today's 1-line fix) — still queued
+6. **display-date-curation** (unblocks `/timeline`) — still queued
+7. **autonomous-finds-pipeline** — public-side scaffolding **SHIPPED** today; remainder lives in the private fleet (writer agent, voice profile, novelty filter, bot account) and is not in this repo's scope
 
 ## What Was Just Done
 

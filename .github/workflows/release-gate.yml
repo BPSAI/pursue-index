@@ -1,0 +1,110 @@
+name: Release gate — deploy-side coherence
+
+# Deterministic AC for PRs that touch the manifest, snapshot mirrors,
+# alias map, or finds entries. Closes the entire class of bugs that
+# hit main on 2026-05-12 (four hot-fixes in one evening for stale
+# build-side files vs pipeline-side source-of-truth) by running the
+# same coherence checks in CI rather than relying on operator
+# attentiveness at the moment of promotion.
+#
+# Operator framing (verbatim, captured in the proposal doc):
+#   "The volume is such that you will always use context, so a
+#    deterministic checklist and gated AC are the answer."
+#
+# This workflow IS that gated AC. Six checks (some are existing tests,
+# some are new for this gate):
+#
+#   1. Manifest coherence    — latest.json == web/src/data/manifest.json
+#   2. Snapshot mirror       — pipeline + web snapshot dirs in sync
+#   3. Snapshot index drift  — index.json matches filesystem
+#   4. Snapshot byte parity  — paired snapshots are byte-equal
+#   5. Citation resolution   — every <Cite> in /finds resolves
+#   6. Build + coverage      — npm run build + every card has a page
+#                            + every alias terminal has a page
+#
+# Each step fails fast with an actionable one-line message so the
+# operator sees "fix X then re-push" instead of a wall of green
+# except one buried red.
+#
+# Paths gating: scoped to files that can cause a sync gap. PRs that
+# only touch worker code or finds entries don't get blocked on
+# build-side rebuilds — see the `on.pull_request.paths` filter below.
+
+on:
+  pull_request:
+    paths:
+      - "data/manifests/**"
+      - "web/src/data/manifest.json"
+      - "web/public/data/snapshots/**"
+      - "data/card-aliases.json"
+      - "web/src/content/finds/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      # actions/setup-python v6.0.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Install Python test deps
+        # Lean: only pytest is needed for the unit + integration tests
+        # this gate runs. They don't import anything from the pipeline
+        # itself — pure stdlib + pytest.
+        run: pip install pytest
+
+      # ---------------------------------------------------------------
+      # Cheap unit gates — run first so we fail fast before npm install.
+      # ---------------------------------------------------------------
+      - name: 1+2+3+4 — Snapshot mirror coherence (4 invariants)
+        # latest.json byte-equal to build manifest; pipeline/web snapshot
+        # dirs in sync; index.json covers web side; paired snapshots
+        # byte-equal. All four invariants in one test file.
+        run: pytest tests/unit/test_snapshot_mirror_coverage.py -v
+
+      - name: 5 — Citation resolution (every <Cite> in /finds)
+        # Existing test; included here for the single-status-check
+        # ergonomics. A finds entry citing a dead card_id is a silent
+        # 404 in prod editorial credibility.
+        run: pytest tests/unit/test_finds_citations.py -v
+
+      - name: 5b — Finds structural validator (every .mdx)
+        # Closes the autonomous-finds-pipeline plan's "structural
+        # validation" gate at the public-repo boundary. Catches missing
+        # frontmatter, citation density below 3, missing methodology
+        # block. Soft word-count warnings don't gate. Both human-written
+        # and bot-opened entries pass through this gate identically.
+        run: pytest tests/unit/test_finds_validator.py -v
+
+      # ---------------------------------------------------------------
+      # Build-dependent gates — need npm + Astro to produce web/dist/.
+      # ---------------------------------------------------------------
+      # actions/setup-node v6.4.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web deps + build
+        # `npm ci` is reproducible from the committed lockfile; `npm
+        # install` would float minor versions. Build output lands in
+        # web/dist/ for the coverage tests below.
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+
+      - name: 6a — Card-page coverage (every manifest card_id → dist page)
+        run: pytest tests/integration/test_card_page_coverage.py -v
+
+      - name: 6b — Alias destinations (every alias terminal → dist page)
+        run: pytest tests/integration/test_alias_destinations.py -v

@@ -30,8 +30,22 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
+
+# Operator-local builders invoked from promote_snapshot as part of the
+# release-pipeline-gate lockstep refresh. Both are idempotent and
+# graceful-skip when local inputs (operator's .mp4s, NAS PDFs) are
+# missing — they print a `no_local_*=N` summary and exit 0. Adding
+# them here closes the "operator forgot to re-key posters after a
+# rename-heavy tranche" class of bug captured in commits 9b9b40d /
+# 076ef78 / ffeeddd on 2026-05-12.
+_OPERATOR_LOCAL_BUILDERS = (
+    "build_video_posters.py",
+    "build_pdf_thumbs.py",
+)
 
 
 def locate_snapshot(tranche_sha: str, snapshots_dir: Path) -> Path | None:
@@ -117,6 +131,7 @@ def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
     shutil.copyfile(snapshot_path, manifest_path)
     repo_root = manifest_path.parent.parent.parent
     _mirror_to_deploy_surfaces(snapshot_path, repo_root)
+    _run_operator_local_builders(repo_root)
 
 
 def _mirror_to_deploy_surfaces(snapshot_path: Path, repo_root: Path) -> None:
@@ -133,6 +148,39 @@ def _mirror_to_deploy_surfaces(snapshot_path: Path, repo_root: Path) -> None:
     if snapshot_sha:
         web_snapshots = repo_root / "web" / "public" / "data" / "snapshots"
         _mirror_snapshot_to_web(snapshot_path, snapshot_sha, web_snapshots)
+
+
+def _run_operator_local_builders(repo_root: Path) -> None:
+    """Invoke the operator-local poster + thumb builders after a mirror.
+
+    Both scripts are idempotent and graceful-skip on missing local
+    inputs (operator's .mp4 sources, NAS PDFs) — they print a
+    `no_local_*=N` summary and exit 0 in that case. A non-zero exit
+    from either builder is logged + tolerated so a buggy or
+    misconfigured builder can't block manifest promotion.
+
+    No-op when scripts/ doesn't exist on disk (fresh / partial
+    checkout) or when an individual builder file is missing.
+    """
+    scripts_dir = repo_root / "scripts"
+    if not scripts_dir.is_dir():
+        return
+    for builder in _OPERATOR_LOCAL_BUILDERS:
+        script = scripts_dir / builder
+        if not script.is_file():
+            continue
+        try:
+            subprocess.run(
+                [sys.executable, str(script)],
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=str(repo_root),
+            )
+        except OSError:
+            # Subprocess machinery unavailable (extremely unusual; e.g.
+            # restricted CI runner). Don't fail the manifest promote.
+            continue
 
 
 def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:

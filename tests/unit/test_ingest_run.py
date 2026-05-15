@@ -173,6 +173,124 @@ def test_promote_snapshot_skips_web_snapshots_when_dir_absent(tmp_path: Path) ->
     assert manifest.read_text() == snapshot.read_text()
 
 
+# --- Operator-local builders (posters + thumbs) invoked from ingest run ---
+
+
+def _build_repo_with_scripts(tmp_path: Path) -> tuple[Path, Path]:
+    """Like _build_repo but also creates scripts/ dir with stub builder files."""
+    repo_root = _build_repo(tmp_path)
+    scripts_dir = repo_root / "scripts"
+    scripts_dir.mkdir()
+    # Touch the two builder scripts so the orchestrator can find them.
+    (scripts_dir / "build_video_posters.py").write_text("#!/usr/bin/env python\n")
+    (scripts_dir / "build_pdf_thumbs.py").write_text("#!/usr/bin/env python\n")
+    return repo_root, scripts_dir
+
+
+def test_promote_snapshot_invokes_operator_local_builders(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """After mirroring filesystem surfaces, promote_snapshot should run
+    `build_video_posters.py` and `build_pdf_thumbs.py` if both scripts
+    exist on disk. Both are idempotent + graceful-skip on missing local
+    inputs (the 2026-05-12 plan made this explicit), so running them
+    from the orchestrator can't make a fresh-checkout state worse.
+    """
+    import json as _json
+    import subprocess
+
+    repo_root, scripts_dir = _build_repo_with_scripts(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "abc" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    invoked: list[list[str]] = []
+
+    def _fake_run(cmd, *args, **kwargs):
+        invoked.append(list(cmd))
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", _fake_run)
+    promote_snapshot(snapshot, manifest)
+
+    # Both builders should have been invoked exactly once each. Don't
+    # constrain the python executable form — sys.executable can be
+    # `python3`, `python3.12`, or a full venv path; we care about the
+    # script argument, not how the interpreter is spelled.
+    invoked_flat = [arg for cmd in invoked for arg in cmd]
+    assert any("build_video_posters.py" in s for s in invoked_flat), (
+        f"build_video_posters.py not invoked. invoked={invoked}"
+    )
+    assert any("build_pdf_thumbs.py" in s for s in invoked_flat), (
+        f"build_pdf_thumbs.py not invoked. invoked={invoked}"
+    )
+
+
+def test_promote_snapshot_tolerates_builder_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """If a builder exits non-zero (rare; the scripts are designed to
+    exit 0 even when inputs are missing), the orchestrator must NOT
+    raise — promote_snapshot is the single source of truth for the
+    manifest mirror, and a broken-builder shouldn't block that.
+    """
+    import json as _json
+    import subprocess
+
+    repo_root, scripts_dir = _build_repo_with_scripts(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "def" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    def _fake_run(cmd, *args, **kwargs):
+        # Pretend the builder crashed
+        return subprocess.CompletedProcess(cmd, 1, stdout="", stderr="boom")
+
+    monkeypatch.setattr(subprocess, "run", _fake_run)
+    # Must not raise even though the builders return non-zero.
+    promote_snapshot(snapshot, manifest)
+    # And the core mirror still happened.
+    assert manifest.read_text() == snapshot.read_text()
+
+
+def test_promote_snapshot_skips_builders_when_scripts_absent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fresh-checkout / partial-checkout case: no scripts/ dir → no-op,
+    no raise. The orchestrator should NOT subprocess-invoke a builder
+    that doesn't exist on disk."""
+    import json as _json
+    import subprocess
+
+    repo_root = _build_repo(tmp_path)  # no scripts/ dir
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "ghi" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    invoked: list[list[str]] = []
+    monkeypatch.setattr(
+        subprocess, "run",
+        lambda cmd, *a, **kw: (invoked.append(list(cmd)) or subprocess.CompletedProcess(cmd, 0)),
+    )
+    promote_snapshot(snapshot, manifest)
+    assert invoked == [], f"should not invoke any builder when scripts/ is absent, got {invoked}"
+
+
 def test_promote_snapshot_handles_corrupt_snapshot_gracefully(tmp_path: Path) -> None:
     """Corrupt snapshot JSON shouldn't crash the manifest copy step."""
     snapshot = tmp_path / "snapshot.json"
