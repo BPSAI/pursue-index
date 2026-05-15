@@ -1,6 +1,63 @@
 # Current State
 
-> Last updated: 2026-05-15 (evening — tranche c9cc83fcaf43 promoted with new accessibility metadata fields; release-pipeline-gate shipped; finds structural validator + CI gate scaffolded)
+> Last updated: 2026-05-15 (late night, autonomous AFK run — /timeline shipped + alt-titles UI surface + Section 6 re-pin + omnibus reclassification + display-date-curation phases 1-3 + diff-page full plan)
+
+## Saturday-morning pickup (2026-05-16)
+
+**Start here.** Tonight's autonomous run was scoped to tier A + B from the "What can you knock out while I'm out?" decision. Everything shipped clean except one prod-side bug that I caught + fixed in the same run.
+
+What's live on prod that wasn't there when you left:
+- **`/timeline`** — new browse surface. Year-axis strip with 123 plotted dots + 35-card "undated" abstention bucket below. Reads `data/display_dates.json` (your 2 approvals) + the agent's 156 tentative proposals. As you do the phase-4 review, the page lights up incrementally.
+- **Card-detail "ALSO CATALOGED UPSTREAM AS" section** on the 9 cards with duplicate-card-id alt-titles. Example: `/card/ea029a05470b8f4e` shows PR031/PR032/PR033 cross-references with DVIDS click-throughs.
+- **Omnibus reclassification of the proposals queue** — 16 cards (FBI 62-HQ-83894 sections, Box 7 collections, 1940s Generals files, etc.) were rewritten from "agent proposed a single date" to "abstain with templated coverage-range reason." Your review queue is now 120 single-document cards + 16 confirm-abstain (~5 sec each) instead of 158 unfiltered. Estimated review time: 45-75 min instead of 1-2 h.
+- **Section 6 (`13f86e95aed52840`) preserved-pin reaffirmation** logged in `data/audit-log.jsonl`. The May-12 OLD-bytes pin stays canonical; NEW upstream bytes are documented as the benign Adobe Paper Capture re-OCR pass per the May-14 finding.
+- **Editorial finding** at `pursue-opsec/findings/2026-05-15-incident-date-field-shape.md` generalizing Issue #36 from "specific dates wrong" → "the field's shape is wrong for ~25% of the corpus." Issue #36 closed.
+
+What I detected + fixed mid-run:
+- The first `/timeline` deploy worked locally but rendered with **empty data on prod** because I used `node:fs.readFileSync` in the Astro frontmatter — that silently fails in the Cloudflare Pages build context. Switched to native ES imports (matching diff.astro's pattern). Verified live on prod: total 158, approved 2, abstained 35, 123 dots. Documented in commit `8703f2d`.
+
+To resume phase-4 review:
+
+```bash
+python scripts/curate_dates_ui.py
+# → opens http://localhost:5555/
+```
+
+Keyboard: `A` accept · `E` edit · `R` reject · `S` abstain · `J/→` skip. Your existing 2 entries stay (the script doesn't overwrite display_dates.json). 16 cards now propose abstention; you'll fast-confirm those (5 sec each). 120 cards still need a real decision (~30-60 sec each).
+
+**One open editorial decision** carried over: your two already-approved entries are both omnibus files (1940s Generals Vol 1 + Vol 2). Per the new policy, they "should" be abstentions. Editorially defensible either way — you picked dates with cited evidence. Your call whether to leave them as-is or revisit them.
+
+API spend tonight: **$0** (no agent re-runs; all changes via pattern-matching scripts + manual code).
+
+## What Was Just Done
+
+**2026-05-15 (late night, autonomous AFK) — /timeline scaffold + alt-titles UI + omnibus reclassification + display-date-curation phases 1-3 + diff-page full plan + Section 6 re-pin all shipped to prod.**
+
+Six commits pushed (`311e16a..8703f2d`):
+1. `08e5088` feat(display-dates): phases 1-3 — schema + writer agent + review UI
+2. `f0fd915` chore(display-dates): 2 operator-approved entries from initial curation pass
+3. `311e16a` feat(diff): arbitrary snapshot-pair selection + timeline + rename-aware diff
+4. `cf52630` feat(curation): pre-classify omnibus-pattern proposals as abstentions
+5. `aa6fd75` feat(timeline): /timeline page scaffold reading curated dates + agent proposals
+6. `da847cf` feat(card-detail): surface alt-titles for duplicate-card-id cohorts
+7. `9b4e974` chore(audit-log): Section 6 preserved-pin reaffirmation after May-14 event
+8. `8703f2d` fix(timeline): use native ES imports for date overlay data (CF Pages build)
+
+Tests: 487 pytest + 31 node:test passing (added 11 timeline-helpers + 20 diff-helpers).
+
+Prod QC re-run (divona, 7 suites, 26 scenarios): **0 real failures** post-fix. Two known QC spec stalenesses remain (the VID `[NO ASSET URL]` scenario and diff scenario 3 cardinality) — both are spec-side tightening, not site bugs. Worth ~10 min when you're back.
+
+**Operator-decision queue (updated)**:
+1. ~~release-pipeline-gate~~ **shipped**
+2. ~~display-date-curation phases 1-3~~ **shipped** (phase 4 = your Saturday review)
+3. ~~diff-page-arbitrary-pair-selection (full plan)~~ **shipped**
+4. ~~duplicate-card-ids Option 1~~ **shipped**
+5. ~~Section 6 re-pin~~ **shipped (LOW item closed)**
+6. **Two QC spec stalenesses** — small cleanup
+7. **Video integrity in verify-assets-daily.yml** — extends the cron to walk video rows
+8. **Schema extension** (two-slot `display_date_incident` + `display_date_document`) — deferred per tonight's finding; revisit once single-document curation reveals boundary cases
+9. **incidents-map-clustering (`/map`)** — Tier 2 net-new geographic browse surface
+10. **pursue-vision-augment** — Tier 2 Phase 2 VLM extraction
 
 ## What Was Just Done
 
