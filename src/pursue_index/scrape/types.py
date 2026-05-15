@@ -56,6 +56,20 @@ class CardMetadata(BaseModel):
     # "Unclassified" — or None when upstream didn't say (most cards).
     original_classification: str | None = None
 
+    # Curated display-date overlay (operator-approved per
+    # .paircoder/plans/display-date-curation.md). Applied AFTER CSV
+    # parsing by ``merge_display_dates``. The upstream CSV's
+    # incident_date is preserved separately in manifest_incident_date_raw
+    # so the audit trail survives the merge.
+    display_date: str | None = None
+    display_date_range: tuple[str, str] | None = None
+    display_date_evidence: str | None = None
+    display_date_evidence_card_ref: str | None = None
+    display_date_curator: str | None = None
+    display_date_approved_at: str | None = None
+    display_date_abstention: str | None = None
+    manifest_incident_date_raw: str | None = None
+
     # Anything we captured but didn't model — forward compat for future CSV cols
     raw: dict[str, Any] = Field(default_factory=dict)
 

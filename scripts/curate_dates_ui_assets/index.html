@@ -1,0 +1,204 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Display-date review — pursue-index</title>
+<style>
+:root {
+  --bg: #0a0e14;
+  --bg-elev: #11161d;
+  --border: #1d242d;
+  --text: #c4cbd4;
+  --text-bright: #ffffff;
+  --text-dim: #6b7783;
+  --text-faint: #8390a0;
+  --green: #5ccc6a;
+  --cyan: #6ec7ff;
+  --amber: #f5a623;
+  --red: #ff6464;
+  --violet: #a78bfa;
+}
+* { box-sizing: border-box; }
+body { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--bg); color: var(--text); margin: 0; padding: 24px; font-size: 13px; line-height: 1.45; }
+.wrap { max-width: 1100px; margin: 0 auto; }
+header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 24px; }
+h1 { font-size: 14px; font-weight: 600; color: var(--text-bright); margin: 0; letter-spacing: 0.2em; text-transform: uppercase; }
+.progress { color: var(--text-dim); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+.progress .done { color: var(--green); }
+.card { background: var(--bg-elev); border: 1px solid var(--border); padding: 24px; margin-bottom: 16px; }
+.row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 4px 0; align-items: baseline; }
+.row .label { color: var(--text-faint); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+.row .value { color: var(--text); }
+.row .value.dim { color: var(--text-dim); }
+.row .value.bright { color: var(--text-bright); font-weight: 500; }
+.row .value.amber { color: var(--amber); }
+.row .value.cyan { color: var(--cyan); }
+.badge-abstain { display: inline-block; padding: 2px 8px; border: 1px solid var(--amber); color: var(--amber); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; }
+.evidence { background: rgba(110, 199, 255, 0.06); border-left: 2px solid var(--cyan); padding: 10px 14px; margin-top: 6px; font-style: italic; color: var(--text-bright); white-space: pre-wrap; }
+.actions { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 8px 14px; cursor: pointer; font-family: inherit; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; }
+.btn:hover { border-color: var(--cyan); color: var(--text-bright); }
+.btn.green { border-color: var(--green); color: var(--green); }
+.btn.amber { border-color: var(--amber); color: var(--amber); }
+.btn.red { border-color: var(--red); color: var(--red); }
+.btn .kbd { display: inline-block; margin-right: 6px; padding: 1px 5px; border: 1px solid var(--text-faint); color: var(--text-faint); font-size: 9px; }
+.edit-form { margin-top: 14px; border: 1px dashed var(--border); padding: 12px; }
+.edit-form label { display: block; color: var(--text-faint); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 4px; margin-top: 8px; }
+.edit-form input, .edit-form textarea { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 8px; font-family: inherit; font-size: 12px; }
+.edit-form textarea { min-height: 60px; resize: vertical; }
+.empty { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+.empty h2 { color: var(--green); font-size: 14px; letter-spacing: 0.2em; text-transform: uppercase; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { color: var(--text-bright); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>$ display-date-review</h1>
+    <span class="progress" id="progress">loading…</span>
+  </header>
+  <div id="content"></div>
+</div>
+<script>
+let state = { pending: [], curated_count: 0, total: 0, idx: 0 };
+let editing = false;
+
+async function fetchQueue() {
+  const r = await fetch('/api/state');
+  state = await r.json();
+  state.idx = 0;
+  render();
+}
+function progress() {
+  return `${state.curated_count} / ${state.total} curated · ${state.pending.length} pending`;
+}
+function render() {
+  const prog = document.getElementById('progress');
+  const content = document.getElementById('content');
+  prog.innerHTML = `<span class="done">${state.curated_count}</span> / ${state.total} curated · ${state.pending.length} pending`;
+
+  if (state.pending.length === 0) {
+    content.innerHTML = `<div class="empty"><h2>✓ All cards curated</h2><p>${state.curated_count} entries saved to data/display_dates.json. Run \`pursue scrape run\` to merge into the manifest.</p></div>`;
+    return;
+  }
+  const p = state.pending[state.idx];
+  if (!p) { content.innerHTML = `<div class="empty"><h2>queue exhausted</h2></div>`; return; }
+
+  const isAbstain = p.display_date === null;
+  const dateLine = isAbstain
+    ? `<span class="badge-abstain">abstain</span>`
+    : `<span class="value bright">${escapeHtml(p.display_date)}</span>`;
+  const rangeRow = p.display_date_range
+    ? `<div class="row"><div class="label">range</div><div class="value cyan">${escapeHtml(p.display_date_range.join(' → '))}</div></div>`
+    : '';
+  const evidenceBlock = isAbstain
+    ? `<div class="evidence">${escapeHtml(p.display_date_abstention || '(no abstention reason given)')}</div>`
+    : `<div class="evidence">${escapeHtml(p.display_date_evidence || '(no evidence cited)')}</div>`;
+  const refLink = p.display_date_evidence_card_ref
+    ? `<a href="https://pursueindex.com/card/${p.card_id}#page-${(p.display_date_evidence_card_ref.split('#page-')[1] || '1')}" target="_blank">${escapeHtml(p.display_date_evidence_card_ref)} ↗</a>`
+    : '<span class="value dim">(no ref)</span>';
+  const m = p.manifest || {};
+  content.innerHTML = `
+    <div class="card">
+      <div class="row"><div class="label">card_id</div><div class="value cyan">${escapeHtml(p.card_id)}</div></div>
+      <div class="row"><div class="label">title</div><div class="value bright">${escapeHtml(m.title || '')}</div></div>
+      <div class="row"><div class="label">agency · type</div><div class="value">${escapeHtml((m.agency || '') + ' · ' + (m.asset_type || ''))}</div></div>
+      <div class="row"><div class="label">csv incident</div><div class="value ${m.incident_date ? 'amber' : 'dim'}">${escapeHtml(m.incident_date || '(null)')}</div></div>
+      <div class="row"><div class="label">proposed</div><div class="value">${dateLine}</div></div>
+      ${rangeRow}
+      <div class="row"><div class="label">evidence ref</div><div class="value">${refLink}</div></div>
+      <div class="row"><div class="label">evidence</div><div class="value">${evidenceBlock}</div></div>
+      <div class="actions">
+        <button class="btn green" onclick="action('accept')"><span class="kbd">A</span>Accept</button>
+        <button class="btn" onclick="action('edit')"><span class="kbd">E</span>Edit</button>
+        <button class="btn red" onclick="action('reject')"><span class="kbd">R</span>Reject</button>
+        <button class="btn amber" onclick="action('abstain')"><span class="kbd">S</span>Mark abstain</button>
+        <button class="btn" onclick="action('skip')"><span class="kbd">J</span>Skip (next)</button>
+      </div>
+      <div id="edit-form-slot"></div>
+    </div>
+  `;
+}
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function action(kind) {
+  const p = state.pending[state.idx];
+  if (!p) return;
+  if (kind === 'edit') {
+    editing = true;
+    renderEditForm(p);
+    return;
+  }
+  let body = { card_id: p.card_id, action: kind };
+  if (kind === 'accept') body.entry = pickEntryFields(p);
+  if (kind === 'abstain') {
+    const reason = prompt('Abstention reason:', p.display_date_abstention || '(no defensible date)');
+    if (reason == null) return;
+    body.entry = pickEntryFields(p);
+    body.entry.display_date = null;
+    body.entry.display_date_range = null;
+    body.entry.display_date_abstention = reason;
+    body.entry.display_date_evidence = body.entry.display_date_evidence || '';
+  }
+  const r = await fetch('/api/decide', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (j.error) { alert(j.error); return; }
+  await fetchQueue();
+}
+function pickEntryFields(p) {
+  return {
+    card_id: p.card_id,
+    display_date: p.display_date,
+    display_date_range: p.display_date_range || null,
+    display_date_evidence: p.display_date_evidence || null,
+    display_date_evidence_card_ref: p.display_date_evidence_card_ref || null,
+    display_date_abstention: p.display_date_abstention || null,
+    display_date_curator: 'operator-david',
+    display_date_approved_at: new Date().toISOString(),
+  };
+}
+function renderEditForm(p) {
+  const slot = document.getElementById('edit-form-slot');
+  slot.innerHTML = `
+    <form class="edit-form" onsubmit="submitEdit(event)">
+      <label>display_date (YYYY-MM-DD or YYYY)</label>
+      <input name="display_date" value="${escapeHtml(p.display_date || '')}" autofocus>
+      <label>display_date_evidence (verbatim span)</label>
+      <textarea name="display_date_evidence">${escapeHtml(p.display_date_evidence || '')}</textarea>
+      <label>display_date_evidence_card_ref</label>
+      <input name="display_date_evidence_card_ref" value="${escapeHtml(p.display_date_evidence_card_ref || '')}">
+      <div class="actions">
+        <button class="btn green" type="submit">Save</button>
+        <button class="btn" type="button" onclick="editing=false; render();">Cancel</button>
+      </div>
+    </form>
+  `;
+}
+async function submitEdit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const p = state.pending[state.idx];
+  const entry = pickEntryFields(p);
+  entry.display_date = form.display_date.value.trim() || null;
+  entry.display_date_evidence = form.display_date_evidence.value.trim() || null;
+  entry.display_date_evidence_card_ref = form.display_date_evidence_card_ref.value.trim() || null;
+  entry.display_date_curator = 'operator-david';
+  const r = await fetch('/api/decide', { method:'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ card_id: p.card_id, action: 'accept', entry }) });
+  const j = await r.json();
+  if (j.error) { alert(j.error); return; }
+  editing = false;
+  await fetchQueue();
+}
+document.addEventListener('keydown', e => {
+  if (editing) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const k = e.key.toLowerCase();
+  if (k === 'a') action('accept');
+  else if (k === 'e') action('edit');
+  else if (k === 'r') action('reject');
+  else if (k === 's') action('abstain');
+  else if (k === 'j' || k === 'arrowright') action('skip');
+});
+fetchQueue();
+</script>
+</body>
+</html>

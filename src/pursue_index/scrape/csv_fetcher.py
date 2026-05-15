@@ -169,7 +169,17 @@ def build_manifest(raw: bytes, cards: list[CardMetadata], source_url: str) -> Ma
 
 
 def run() -> Manifest:
-    """End-to-end: fetch the CSV, parse it, build a manifest."""
+    """End-to-end: fetch the CSV, parse it, merge curated display
+    dates if the overlay file exists, build a manifest."""
+    from pursue_index.scrape.display_dates import (
+        load_display_dates,
+        merge_display_dates,
+    )
+
     raw = fetch_raw_csv()
     cards = parse_csv(raw)
+    overlay_path = settings.data_root / "display_dates.json"
+    overlay = load_display_dates(overlay_path)
+    if overlay:
+        cards = merge_display_dates(cards, overlay)
     return build_manifest(raw, cards, str(settings.csv_url))
