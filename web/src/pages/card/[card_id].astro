@@ -1,9 +1,31 @@
 ---
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
 import Base from "../../layouts/Base.astro";
 import CardOcrIsland from "../../components/CardOcrIsland.tsx";
 import CardProvenance from "../../components/CardProvenance.tsx";
 import AgencyStamp from "../../components/AgencyStamp.astro";
 import { cards } from "../../data/manifest-loader";
+
+// Load alt-titles for cards that share asset_url with other rows
+// upstream (the 9-card cohort from the duplicate-card-ids-discovery
+// finding). When present, the card detail page surfaces a "Also
+// cataloged upstream as:" section so readers see the cross-references
+// upstream maintains for the same underlying file.
+interface AltTitleEntry {
+  title: string;
+  dvids_video_id: string | null;
+  asset_filename: string | null;
+}
+const altsByCardId: Record<string, AltTitleEntry[]> = (() => {
+  const p = resolve(import.meta.dirname, "..", "..", "..", "..", "data", "card_alt_titles.json");
+  if (!existsSync(p)) return {};
+  try {
+    return JSON.parse(readFileSync(p, "utf-8")).alts ?? {};
+  } catch {
+    return {};
+  }
+})();
 
 export function getStaticPaths() {
   return cards.map((c) => ({
@@ -14,6 +36,7 @@ export function getStaticPaths() {
 
 const { card } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const altTitles: AltTitleEntry[] = altsByCardId[card.card_id] ?? [];
 
 const TYPE_COLORS: Record<string, { fg: string; bg: string; border: string }> = {
   PDF: {
@@ -295,6 +318,35 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
                 <li class="text-[color:var(--color-text)]">
                   <span class="text-[color:var(--color-text-faint)] uppercase">{p.label}:</span>
                   <span class="ml-2 text-[color:var(--color-signal-cyan)]">{p.value}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {altTitles.length > 0 && (
+          <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-4">
+            <h2 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-3">
+              ALSO CATALOGED UPSTREAM AS
+            </h2>
+            <p class="font-mono text-[10px] leading-relaxed text-[color:var(--color-text-dim)] mb-3">
+              Upstream lists this same file under additional catalog entries. The byte-truth is one PDF; the cross-references are editorial framings DoW publishes for the same underlying document.
+            </p>
+            <ul class="font-mono text-xs space-y-2">
+              {altTitles.map((alt) => (
+                <li class="text-[color:var(--color-text)]">
+                  <div class="text-[color:var(--color-text-bright)] leading-snug">{alt.title}</div>
+                  {alt.dvids_video_id && (
+                    <div class="text-[10px] text-[color:var(--color-text-faint)] mt-0.5">
+                      DVIDS{" "}
+                      <a
+                        href={`https://www.dvidshub.net/video/${alt.dvids_video_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        class="text-[color:var(--color-signal-violet)] hover:text-[color:var(--color-text-bright)]"
+                      >{alt.dvids_video_id} ↗</a>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
