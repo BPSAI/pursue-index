@@ -1,0 +1,1933 @@
+{
+  "tranche_sha256": "c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1",
+  "prior_manifest_sha": "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 0,
+    "quarantined": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 0,
+    "field_only_changes": 122
+  },
+  "renames_confirmed": [],
+  "new_content": [],
+  "quarantined": [],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [],
+  "field_only_changes": [
+    {
+      "card_id": "04b9179a7637d6ad",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1024"
+        }
+      ]
+    },
+    {
+      "card_id": "085c019c9899db9b",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1022"
+        }
+      ]
+    },
+    {
+      "card_id": "0b298cfc9c65a4d6",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Confidential NASA Apollo 17 Technical Crew Debriefing cover from the Manned Spacecraft Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1065"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Confidential"
+        }
+      ]
+    },
+    {
+      "card_id": "0d7a23b29e6de1bf",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1036"
+        }
+      ]
+    },
+    {
+      "card_id": "0e3b3ec17a9ae021",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1031"
+        }
+      ]
+    },
+    {
+      "card_id": "108379f8a86dbe9c",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Confidential document from Headquarters Air Defense Command."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1013"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Confidential"
+        }
+      ]
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1008"
+        }
+      ]
+    },
+    {
+      "card_id": "15d23b5f88df64fa",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1024"
+        }
+      ]
+    },
+    {
+      "card_id": "167f6a21c7238d0c",
+      "diffs": [
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1062"
+        }
+      ]
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1041"
+        }
+      ]
+    },
+    {
+      "card_id": "1701a0f307714921",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Saucer-shaped object with a bright light hovers over a grassy field."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1053"
+        }
+      ]
+    },
+    {
+      "card_id": "17a8cc07fd8c694f",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Research Triangle Institute report cover for the Department of the Air Force."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1033"
+        }
+      ]
+    },
+    {
+      "card_id": "19b18b71420602c5",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Photograph of the lunar surface showing astronaut shadows and a magnified callouts of objects in the sky."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1069"
+        }
+      ]
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1039"
+        }
+      ]
+    },
+    {
+      "card_id": "1b522e779e72877c",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Department of Defense sensor image cleared for open publication, showing an unidentified object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1051"
+        }
+      ]
+    },
+    {
+      "card_id": "1e63919cc6c3daf4",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1029"
+        }
+      ]
+    },
+    {
+      "card_id": "205f9d0f627074c3",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Range Fouler Debrief Form with redacted information."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1040"
+        }
+      ]
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Restricted document from Lowry Flight Service Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1006"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Restricted"
+        }
+      ]
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Mission report video 54"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1038"
+        }
+      ]
+    },
+    {
+      "card_id": "239d049dab8c81d5",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI office memorandum"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1001"
+        }
+      ]
+    },
+    {
+      "card_id": "26b02d358ec20061",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1002"
+        }
+      ]
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1040"
+        }
+      ]
+    },
+    {
+      "card_id": "2fecc4f3b434e64d",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1047"
+        }
+      ]
+    },
+    {
+      "card_id": "303ad110cb5fa8b4",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1067"
+        }
+      ]
+    },
+    {
+      "card_id": "33cca99659328520",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Mission report video 8"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1015"
+        }
+      ]
+    },
+    {
+      "card_id": "34f3278ad20d348f",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1070"
+        }
+      ]
+    },
+    {
+      "card_id": "36bcfe2cfb5f3f54",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1033"
+        }
+      ]
+    },
+    {
+      "card_id": "3893e5d0279db3b1",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1021"
+        }
+      ]
+    },
+    {
+      "card_id": "39c999bd61b2e20f",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1043"
+        }
+      ]
+    },
+    {
+      "card_id": "3a0d83f3e51179db",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1025"
+        }
+      ]
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1043"
+        }
+      ]
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1044"
+        }
+      ]
+    },
+    {
+      "card_id": "3deb237b1d68e203",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1072"
+        }
+      ]
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Mission report video 4"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1011"
+        }
+      ]
+    },
+    {
+      "card_id": "4844321219e306af",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1004"
+        }
+      ]
+    },
+    {
+      "card_id": "48e4bc1bdb5a66e8",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Public Affairs Office commentary and transcript of a flight."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1061"
+        }
+      ]
+    },
+    {
+      "card_id": "4b68726be4af8ff9",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI Headquarters file envelope."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1016"
+        }
+      ]
+    },
+    {
+      "card_id": "57e9cc7f9942e2cf",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1021"
+        }
+      ]
+    },
+    {
+      "card_id": "5847028ebb855cf8",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Unclassified diplomatic cable from the US Department of State."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-S-D0360-1006"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Unclassified"
+        }
+      ]
+    },
+    {
+      "card_id": "5a487c793b488382",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1026"
+        }
+      ]
+    },
+    {
+      "card_id": "5d9d3147f0b62d0c",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "A page from a space flight mission transcript."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1059"
+        }
+      ]
+    },
+    {
+      "card_id": "5ecebc7c28a8d8c7",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1006"
+        }
+      ]
+    },
+    {
+      "card_id": "613dc8ef961f9399",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1025"
+        }
+      ]
+    },
+    {
+      "card_id": "63c47bad93af4c92",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "NASA Apollo 17 Crew Debriefing for Science cover from the Manned Spacecraft Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1064"
+        }
+      ]
+    },
+    {
+      "card_id": "669dd29723dd423f",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified intelligence slide from USCENTCOM showing the observation of an unidentified low-flying object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1039"
+        }
+      ]
+    },
+    {
+      "card_id": "672ae7eab15481ff",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1032"
+        }
+      ]
+    },
+    {
+      "card_id": "67ab3ffef2aecf70",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1030"
+        }
+      ]
+    },
+    {
+      "card_id": "67c2ef13cc69891c",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI Headquarters file envelope."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1014"
+        }
+      ]
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Top Secret document from the U.S. Air Force Directorate of Intelligence."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1004"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Top Secret"
+        }
+      ]
+    },
+    {
+      "card_id": "6d7faf71150107e9",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted document showing email correspondence."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1035"
+        }
+      ]
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle centered on an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1052"
+        }
+      ]
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Mission report video 7"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1014"
+        }
+      ]
+    },
+    {
+      "card_id": "71758de42a2df926",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted document showing email correspondence."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1036"
+        }
+      ]
+    },
+    {
+      "card_id": "775d16ead1ec8fa1",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Vandenberg AFB Launch Summary cover page from the 30th Space Wing Office of History."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1034"
+        }
+      ]
+    },
+    {
+      "card_id": "784dc42f885dc12e",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Photograph of the lunar surface showing astronaut shadows and a magnified callouts of objects in the sky."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1071"
+        }
+      ]
+    },
+    {
+      "card_id": "78dc972c0c143d1e",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "A page from a space flight mission transcript with highlighted sections."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1060"
+        }
+      ]
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Air Staff document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1003"
+        }
+      ]
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1042"
+        }
+      ]
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1012"
+        }
+      ]
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Secret envelope with a report label."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1007"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Secret"
+        }
+      ]
+    },
+    {
+      "card_id": "819e725592d1ba79",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1028"
+        }
+      ]
+    },
+    {
+      "card_id": "83aa439781e60e7b",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted Federal Bureau of Investigation official record."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1056"
+        }
+      ]
+    },
+    {
+      "card_id": "852224ee097b52cf",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1050"
+        }
+      ]
+    },
+    {
+      "card_id": "8bb54e0aec5e91ad",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Skylab 1/2 Technical Crew Debriefing cover from the Lyndon B. Johnson Space Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1066"
+        }
+      ]
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1011"
+        }
+      ]
+    },
+    {
+      "card_id": "8d0b85ce46109d06",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Event summary slide titled 'Orbs Launching Orbs'."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1052"
+        }
+      ]
+    },
+    {
+      "card_id": "8e727ae36892cba9",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1046"
+        }
+      ]
+    },
+    {
+      "card_id": "8f354cf1d1f821f0",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Unclassified diplomatic cable from the US Department of State."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-S-D0360-1003"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Unclassified"
+        }
+      ]
+    },
+    {
+      "card_id": "9151e15016109463",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1026"
+        }
+      ]
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Confidential document from the U.S. Air Force."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1002"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Confidential"
+        }
+      ]
+    },
+    {
+      "card_id": "93cbdaad1d4ac853",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1023"
+        }
+      ]
+    },
+    {
+      "card_id": "954d1e1944bc6d17",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI Headquarters file envelope."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1017"
+        }
+      ]
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Brown file folder labeled with the number 78078."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1058"
+        }
+      ]
+    },
+    {
+      "card_id": "9877727cd0d1bbfe",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Unclassified diplomatic cable from the US Department of State."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-S-D0360-1004"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Unclassified"
+        }
+      ]
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1005"
+        }
+      ]
+    },
+    {
+      "card_id": "9a0a2d62e9f47eb8",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1017"
+        }
+      ]
+    },
+    {
+      "card_id": "9a3f23d9136eddf3",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Range Fouler Debrief Form with redacted information."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1042"
+        }
+      ]
+    },
+    {
+      "card_id": "9e2c2621d67dde12",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified memorandum from the National Aeronautics and Space Council."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-S-D0360-1001"
+        }
+      ]
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Secret document from Air Materiel Command."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1001"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Secret"
+        }
+      ]
+    },
+    {
+      "card_id": "a0f6663169c21caf",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Range Fouler Debrief Form with redacted information."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1031"
+        }
+      ]
+    },
+    {
+      "card_id": "a33faf4c40674462",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1044"
+        }
+      ]
+    },
+    {
+      "card_id": "a3f68d208681dc64",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted document showing email correspondence."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1037"
+        }
+      ]
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle centered on an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1051"
+        }
+      ]
+    },
+    {
+      "card_id": "ad721de274bb7d6c",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1010"
+        }
+      ]
+    },
+    {
+      "card_id": "aef933642db8134a",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1048"
+        }
+      ]
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1038"
+        }
+      ]
+    },
+    {
+      "card_id": "af42a6774881c110",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI Headquarters file envelope."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1018"
+        }
+      ]
+    },
+    {
+      "card_id": "b03309df6758ab15",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted Federal Bureau of Investigation official record."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1054"
+        }
+      ]
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Mission report video 5"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1012"
+        }
+      ]
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1007"
+        }
+      ]
+    },
+    {
+      "card_id": "b279eac8e49cf4fe",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle and a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1034"
+        }
+      ]
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified file cover with Confidential and Secret markings."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1009"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Confidential"
+        }
+      ]
+    },
+    {
+      "card_id": "b8b5b17a6d70ef39",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1045"
+        }
+      ]
+    },
+    {
+      "card_id": "ba30b5fdb4f6d153",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1022"
+        }
+      ]
+    },
+    {
+      "card_id": "bbc494426d526bdc",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1049"
+        }
+      ]
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1003"
+        }
+      ]
+    },
+    {
+      "card_id": "bd9411951868bc3e",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1068"
+        }
+      ]
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle centered on an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1048"
+        }
+      ]
+    },
+    {
+      "card_id": "be226374e719c729",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Secret document cover sheet with handwritten notes."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1008"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Secret"
+        }
+      ]
+    },
+    {
+      "card_id": "be533a4ab886eb11",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted event log."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1057"
+        }
+      ]
+    },
+    {
+      "card_id": "c142741e8cafc659",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1027"
+        }
+      ]
+    },
+    {
+      "card_id": "c2961d7ccb95ae45",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Range Fouler Debrief Form with redacted information."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1041"
+        }
+      ]
+    },
+    {
+      "card_id": "c304734c04357887",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle centered on an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1049"
+        }
+      ]
+    },
+    {
+      "card_id": "c48c078b811c0fd7",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Unclassified diplomatic cable from the US Department of State."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-S-D0360-1007"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Unclassified"
+        }
+      ]
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1046"
+        }
+      ]
+    },
+    {
+      "card_id": "cc33e8c352fc80ce",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Range Fouler Debrief Form with redacted information."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1032"
+        }
+      ]
+    },
+    {
+      "card_id": "ccd932b4f40e8de7",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle and a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1035"
+        }
+      ]
+    },
+    {
+      "card_id": "d14e0371a5bf0f5e",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Confidential NASA Apollo 11 Technical Crew Debriefing cover."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1063"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Confidential"
+        }
+      ]
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle centered on an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1050"
+        }
+      ]
+    },
+    {
+      "card_id": "df43a479bc891969",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Secret memorandum with handwritten notes."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-S-D0360-1002"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Secret"
+        }
+      ]
+    },
+    {
+      "card_id": "e897e67f95bc1e1b",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover for criminal investigative and administrative files."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1020"
+        }
+      ]
+    },
+    {
+      "card_id": "e93f6997811954dc",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted Federal Bureau of Investigation official record."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1055"
+        }
+      ]
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Secret file folder."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1005"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Secret"
+        }
+      ]
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle centered on an object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1047"
+        }
+      ]
+    },
+    {
+      "card_id": "f42c11ca158aeffc",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI Headquarters file envelope."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1019"
+        }
+      ]
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Mission report video 6"
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1013"
+        }
+      ]
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1009"
+        }
+      ]
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a crosshair targeting a visible object."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1045"
+        }
+      ]
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified FBI file cover from the Central Records Center."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1015"
+        }
+      ]
+    },
+    {
+      "card_id": "fd8286ffc6fbc1fb",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Redacted sensor image with a targeting reticle."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-O-D0360-1037"
+        }
+      ]
+    },
+    {
+      "card_id": "fd8bfb9481bcbdd3",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Heavily redacted government mission report document."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-D-D0360-1010"
+        }
+      ]
+    },
+    {
+      "card_id": "ff30c985595153f3",
+      "diffs": [
+        {
+          "field": "image_alt_text",
+          "old": null,
+          "new": "Declassified Confidential diplomatic cable from the US Department of State."
+        },
+        {
+          "field": "image_virin",
+          "old": null,
+          "new": "260508-S-D0360-1005"
+        },
+        {
+          "field": "original_classification",
+          "old": null,
+          "new": "Confidential"
+        }
+      ]
+    }
+  ]
+}

@@ -75,3 +75,31 @@ def stable_card_id(asset_url: str | None, title: str) -> str:
     """
     seed = asset_url or title
     return hashlib.sha256(seed.encode("utf-8")).hexdigest()[:16]
+
+
+_CLASSIFICATION_PATTERN = re.compile(
+    # Match the canonical US/NATO levels as standalone words. "Top Secret"
+    # must come before "Secret" so the longer phrase wins on greedy match.
+    # Word boundary on both sides prevents matches inside larger words.
+    r"\b(Top Secret|Secret|Confidential|Restricted|Unclassified)\b",
+    re.IGNORECASE,
+)
+
+
+def extract_classification(alt_text: str | None) -> str | None:
+    """Pull the original document classification out of upstream alt-text.
+
+    Upstream alt-text often reads like "Declassified Secret document
+    from Air Materiel Command." or "Declassified Top Secret document
+    from the U.S. Air Force Directorate of Intelligence." Only ~13% of
+    cards in tranche c9cc83fcaf43 have a level keyword — the rest say
+    "Declassified" without a level, or describe the cover/folder rather
+    than the document. We surface what's explicit and stay silent on
+    the rest rather than guessing.
+    """
+    if not alt_text:
+        return None
+    m = _CLASSIFICATION_PATTERN.search(alt_text)
+    if not m:
+        return None
+    return m.group(1).title()

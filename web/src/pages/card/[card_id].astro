@@ -250,6 +250,39 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
               <span class="text-[color:var(--color-signal-amber)]">[NULL]</span>
             </p>
           )}
+
+          {/* DoD provenance: original classification (when upstream alt-text
+              embeds it) + VIRIN (DoDI 5040.02 identifier). Added 2026-05-14
+              via tranche c9cc83fcaf43. ~13% of cards have an explicit
+              classification level; the rest were declassified without a
+              level recorded. VIRIN is now present on ~83% of cards. */}
+          {(card.original_classification || card.image_virin) && (
+            <dl class="mt-3 pt-3 border-t border-[color:var(--color-border)] font-mono text-[11px] space-y-1.5">
+              {card.original_classification && (
+                <div class="flex items-baseline gap-2">
+                  <dt class="text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">
+                    Class:
+                  </dt>
+                  <dd>
+                    <span class="px-1.5 py-0.5 border border-[color:var(--color-signal-amber)]/60 text-[color:var(--color-signal-amber)] uppercase tracking-[0.15em] text-[10px]">
+                      {card.original_classification}
+                    </span>
+                    <span class="ml-2 text-[10px] text-[color:var(--color-text-faint)] normal-case">declassified</span>
+                  </dd>
+                </div>
+              )}
+              {card.image_virin && (
+                <div class="flex items-baseline gap-2">
+                  <dt class="text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">
+                    VIRIN:
+                  </dt>
+                  <dd class="text-[color:var(--color-text)]" title="Visual Information Record Identification Number (DoDI 5040.02)">
+                    {card.image_virin}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          )}
         </section>
 
         {pairings.length > 0 && (

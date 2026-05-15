@@ -45,6 +45,17 @@ class CardMetadata(BaseModel):
     pdf_pairing: str | None = None
     video_pairing: str | None = None
 
+    # Accessibility / DoD provenance (added upstream 2026-05-14 in tranche
+    # c9cc83fcaf43 — alt-text per Section 508, VIRIN per DoDI 5040.02).
+    image_alt_text: str | None = None
+    image_virin: str | None = None
+
+    # Original document classification extracted from upstream alt-text
+    # when an explicit level is present. Set on parse; not a CSV column.
+    # Values: "Top Secret" | "Secret" | "Confidential" | "Restricted" |
+    # "Unclassified" — or None when upstream didn't say (most cards).
+    original_classification: str | None = None
+
     # Anything we captured but didn't model — forward compat for future CSV cols
     raw: dict[str, Any] = Field(default_factory=dict)
 

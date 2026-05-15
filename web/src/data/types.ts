@@ -19,6 +19,16 @@ export interface CardMetadata {
   video_title: string | null;
   pdf_pairing: string | null;
   video_pairing: string | null;
+  // Upstream accessibility metadata (added in tranche c9cc83fcaf43,
+  // 2026-05-14). Section 508 alt-text + DoDI 5040.02 VIRIN. Not every
+  // card has them — fall back to title-based alts when absent.
+  image_alt_text: string | null;
+  image_virin: string | null;
+  // Extracted from `image_alt_text` at parse time when an explicit
+  // classification keyword is present. Values: "Top Secret" | "Secret" |
+  // "Confidential" | "Restricted" | "Unclassified" | null. ~13% of cards
+  // have one; the rest say "Declassified" without a level.
+  original_classification: string | null;
   // NOTE: the Python `CardMetadata` ships a `raw` dict for forward-compat
   // with future CSV columns, but it's always empty in the manifest we
   // build. Dropping it here keeps the typed-bundle shape lean. The Python

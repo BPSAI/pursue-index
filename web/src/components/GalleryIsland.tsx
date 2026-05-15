@@ -26,6 +26,23 @@ const FILTERS: { key: Filter; label: string; predicate: (c: CardMetadata) => boo
 ];
 
 /**
+ * Build the alt-text for a gallery tile image. Upstream-curated
+ * `image_alt_text` (added in tranche c9cc83fcaf43) is preferred when
+ * present — it describes the image content directly ("Brown file
+ * folder labeled with the number 78078.") rather than re-stating
+ * the filename. Falls back to a structured per-asset-type string
+ * derived from the card title.
+ *
+ * The "(contains redactions)" suffix is always appended for redacted
+ * cards so screen-reader users get the same signal sighted users get
+ * from the visible REDACTED corner badge.
+ */
+function imageAlt(card: CardMetadata, fallback: string): string {
+  const base = card.image_alt_text || fallback;
+  return card.redacted ? `${base} (contains redactions)` : base;
+}
+
+/**
  * Year-bucket label for the tile's date stamp. Prefers `incident_date`
  * (when present and parseable) and falls back to `release_date`. The
  * manifest fields are free-form strings like "5/8/26" or "Late 2025"
@@ -78,7 +95,7 @@ function GalleryTile({
         {isImage && card.modal_image_url ? (
           <img
             src={card.modal_image_url}
-            alt={`${card.title}${card.redacted ? " (contains redactions)" : ""}`}
+            alt={imageAlt(card, card.title)}
             loading="lazy"
             class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
           />
@@ -86,7 +103,7 @@ function GalleryTile({
           <>
             <img
               src={posterUrl}
-              alt={`Video poster: ${card.title}${card.redacted ? " (contains redactions)" : ""}`}
+              alt={imageAlt(card, `Video poster: ${card.title}`)}
               loading="lazy"
               class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
             />
@@ -140,7 +157,7 @@ function GalleryTile({
           <>
             <img
               src={thumbUrl}
-              alt={`${card.title} — page 1 preview${card.redacted ? " (contains redactions)" : ""}`}
+              alt={imageAlt(card, `${card.title} — page 1 preview`)}
               loading="lazy"
               class={`w-full h-full object-cover ${card.redacted ? "scanlines-soft" : ""}`}
             />

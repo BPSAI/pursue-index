@@ -27,6 +27,7 @@ from pursue_index.config import settings
 from pursue_index.scrape.normalize import (
     clean_str,
     clean_title,
+    extract_classification,
     filename_from_url,
     normalize_asset_type,
     parse_redacted,
@@ -109,6 +110,7 @@ def _row_to_card(row: dict[str, str]) -> CardMetadata:
     agency = clean_str(row.get("Agency")) or "(unknown)"
     asset_url = clean_str(row.get("PDF | Image Link"))
     modal_image_url = clean_str(row.get("Modal Image"))
+    image_alt_text = clean_str(row.get("Image Alt Text"))
 
     # Track everything the CSV gave us, including unknowns, in raw
     raw = {k: v for k, v in row.items() if k not in _MAPPED_KEYS}
@@ -130,6 +132,9 @@ def _row_to_card(row: dict[str, str]) -> CardMetadata:
         video_title=clean_str(row.get("Video Title")),
         pdf_pairing=clean_str(row.get("PDF Pairing")),
         video_pairing=clean_str(row.get("Video Pairing")),
+        image_alt_text=image_alt_text,
+        image_virin=clean_str(row.get("Image VIRIN")),
+        original_classification=extract_classification(image_alt_text),
         raw=raw,
     )
 
@@ -149,6 +154,8 @@ _MAPPED_KEYS = {
     "Incident Location",
     "PDF | Image Link",
     "Modal Image",
+    "Image Alt Text",
+    "Image VIRIN",
 }
 
 

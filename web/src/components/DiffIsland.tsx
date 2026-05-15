@@ -51,7 +51,13 @@ export default function DiffIsland({ current, base }: Props) {
 
   useEffect(() => {
     if (!index || index.length === 0) return;
-    const filename = index[0];
+    // Compare current vs the most recent PRIOR snapshot — that's what
+    // visitors are asking when they hit /diff ("what changed in the
+    // latest tranche?"). index is chronologically sorted oldest→newest,
+    // and `latest.json` matches index[-1], so the meaningful comparison
+    // is against index[-2]. When only one snapshot exists, fall back to
+    // index[0] so the page still renders something useful.
+    const filename = index.length >= 2 ? index[index.length - 2] : index[0];
     fetch(`${base}/data/snapshots/${filename}`)
       .then((r) => r.json() as Promise<Manifest>)
       .then((m) => setSnapshot({ filename, manifest: m }))
