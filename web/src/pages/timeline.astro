@@ -1,20 +1,16 @@
 ---
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
 import Base from "../layouts/Base.astro";
 import TimelineIsland from "../components/TimelineIsland.tsx";
 import { manifest } from "../data/manifest-loader";
-
-// Load the curated overlay + the proposals queue at build time.
-// `data/display_dates.json` is the operator-approved canonical source;
-// `data/display_dates_proposals.jsonl` is the agent's draft queue that
-// the operator review UI consumes. Both feed the timeline so users see
-// the curation pass come together incrementally — approved entries
-// solid, proposals as ghosts.
-//
-// Files are repo-rooted (not under web/). Use absolute paths from the
-// Astro project root.
-const repoRoot = resolve(import.meta.dirname, "..", "..", "..");
+// Native ES imports — Astro's bundler resolves these at build time and
+// inlines them into the route's static output. Prior version used
+// node:fs `readFileSync` which silently returned empty in the
+// Cloudflare Pages build context (verified 2026-05-15: `approved` prop
+// was [] on prod despite data files being committed). The ES-import
+// pattern matches diff.astro's card-aliases import and works
+// identically across Astro's dev + production builds.
+import displayDatesJson from "../../../data/display_dates.json";
+import proposalsJson from "../../../data/display_dates_proposals.json";
 
 interface RawDateEntry {
   card_id: string;
@@ -25,32 +21,8 @@ interface RawDateEntry {
   display_date_curator?: string | null;
 }
 
-function loadApproved(): RawDateEntry[] {
-  const p = resolve(repoRoot, "data", "display_dates.json");
-  if (!existsSync(p)) return [];
-  try {
-    const data = JSON.parse(readFileSync(p, "utf-8"));
-    return data.entries ?? [];
-  } catch {
-    return [];
-  }
-}
-
-function loadProposals(): RawDateEntry[] {
-  const p = resolve(repoRoot, "data", "display_dates_proposals.jsonl");
-  if (!existsSync(p)) return [];
-  try {
-    return readFileSync(p, "utf-8")
-      .split("\n")
-      .filter((l) => l.trim())
-      .map((l) => JSON.parse(l));
-  } catch {
-    return [];
-  }
-}
-
-const approved = loadApproved();
-const proposals = loadProposals();
+const approved: RawDateEntry[] = (displayDatesJson as any).entries ?? [];
+const proposals: RawDateEntry[] = proposalsJson as RawDateEntry[];
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
