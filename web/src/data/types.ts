@@ -43,6 +43,20 @@ export interface Manifest {
   cards: CardMetadata[];
 }
 
+// Mirror of one row in `data/card-aliases.json`. The `aliases` array
+// in that file is consumed by the /diff page (rename-aware grouping)
+// AND by the worker's redirect lane. `method`:
+//   - "byte_collision"  — Class A auto-rename (new card_id maps to same byte sha)
+//   - "operator_manual" — Class C operator-approved rename
+//   - "operator_revoke" — tombstone removing a prior alias
+export interface AliasEntry {
+  old_card_id: string;
+  new_card_id: string;
+  method: "byte_collision" | "operator_manual" | "operator_revoke" | string;
+  established: string;
+  tranche_sha256?: string;
+}
+
 export interface PageRecord {
   card_id: string;
   page: number;

@@ -2,8 +2,10 @@
 import Base from "../layouts/Base.astro";
 import DiffIsland from "../components/DiffIsland.tsx";
 import { manifest } from "../data/manifest-loader";
+import aliasesJson from "../../../data/card-aliases.json";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const aliases = aliasesJson.aliases ?? [];
 ---
 
 <Base title="DIFF — PURSUE://INDEX" active="diff">
@@ -11,19 +13,18 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
       <div aria-hidden="true" class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
         <span class="text-[color:var(--color-text-faint)]">$</span>
-        <span>diff snapshots/prev.json data/latest.json</span>
+        <span>diff snapshots/&lt;from&gt;.json data/&lt;to&gt;.json</span>
       </div>
       <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
         TRANCHE DIFF
       </h1>
       <p class="text-sm text-[color:var(--color-text)] max-w-2xl">
-        Tracks what's new or removed between successive CSV snapshots from
-        <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>.
-        The current manifest is always compared against the most recently
-        committed snapshot under
-        <code class="text-[color:var(--color-signal-cyan)]">/data/snapshots/</code>.
+        Every snapshot of the upstream PURSUE catalog is preserved here.
+        Use the selectors below to compare any two snapshots — see what
+        was added, removed, renamed, or quietly modified between them.
+        The default view shows the most recent change.
       </p>
     </header>
-    <DiffIsland client:load current={manifest} base={base} />
+    <DiffIsland client:load current={manifest} base={base} aliases={aliases} />
   </div>
 </Base>
