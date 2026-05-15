@@ -1,0 +1,83 @@
+---
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import Base from "../layouts/Base.astro";
+import TimelineIsland from "../components/TimelineIsland.tsx";
+import { manifest } from "../data/manifest-loader";
+
+// Load the curated overlay + the proposals queue at build time.
+// `data/display_dates.json` is the operator-approved canonical source;
+// `data/display_dates_proposals.jsonl` is the agent's draft queue that
+// the operator review UI consumes. Both feed the timeline so users see
+// the curation pass come together incrementally — approved entries
+// solid, proposals as ghosts.
+//
+// Files are repo-rooted (not under web/). Use absolute paths from the
+// Astro project root.
+const repoRoot = resolve(import.meta.dirname, "..", "..", "..");
+
+interface RawDateEntry {
+  card_id: string;
+  display_date?: string | null;
+  display_date_range?: [string, string] | null;
+  display_date_evidence?: string | null;
+  display_date_abstention?: string | null;
+  display_date_curator?: string | null;
+}
+
+function loadApproved(): RawDateEntry[] {
+  const p = resolve(repoRoot, "data", "display_dates.json");
+  if (!existsSync(p)) return [];
+  try {
+    const data = JSON.parse(readFileSync(p, "utf-8"));
+    return data.entries ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function loadProposals(): RawDateEntry[] {
+  const p = resolve(repoRoot, "data", "display_dates_proposals.jsonl");
+  if (!existsSync(p)) return [];
+  try {
+    return readFileSync(p, "utf-8")
+      .split("\n")
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l));
+  } catch {
+    return [];
+  }
+}
+
+const approved = loadApproved();
+const proposals = loadProposals();
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<Base title="TIMELINE — PURSUE://INDEX" active="timeline">
+  <div class="space-y-6 max-w-6xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div aria-hidden="true" class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>plot --by display_date data/manifests/latest.json</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        TIMELINE
+      </h1>
+      <p class="text-sm text-[color:var(--color-text)] max-w-3xl">
+        Every card in the corpus plotted at its curated <code class="text-[color:var(--color-signal-cyan)]">display_date</code> —
+        the operator-approved point or year-precision date that beats the manifest's CSV
+        <code class="text-[color:var(--color-signal-cyan)]">incident_date</code> field (which is unreliable for ~25% of the corpus
+        per the <a href="https://github.com/BPSAI/pursue-index/issues/36" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline">2026-05-15 field-shape finding</a>).
+        Cards lacking a defensible single document date are surfaced in the "undated" bucket below — not hidden, not invented.
+      </p>
+    </header>
+    <TimelineIsland
+      client:load
+      cards={manifest.cards}
+      approved={approved}
+      proposals={proposals}
+      base={base}
+    />
+  </div>
+</Base>
