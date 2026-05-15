@@ -1,28 +1,51 @@
-name: "Diff — empty + populated states"
+name: "Diff — populated comparison against immediate-prior snapshot"
 description: |
-  The diff page compares the current manifest against any prior
-  snapshot under /data/snapshots/. With no snapshots committed yet the
-  empty state is what we show — once Release 02 lands and a snapshot
-  is committed, the populated path lights up automatically.
+  The /diff page compares the current manifest against the most recent
+  PRIOR snapshot under /data/snapshots/. As of 2026-05-15 we have five
+  snapshots committed (596cc188, 0d7e9ba1, 65572b38, 4a35f5596951,
+  c9cc83fcaf43) so the page renders a populated comparison by default.
+
+  History — earlier behavior compared against the OLDEST snapshot
+  (Release 01 baseline), which produced a cumulative changelog
+  instead of the per-tranche delta visitors expect. The 1-line fix
+  in commit ef4d2ae switched the comparison to index.at(-2). The
+  full snapshot-pair-selection plan
+  (.paircoder/plans/diff-page-arbitrary-pair-selection.md) layers
+  selectors + a timeline strip on top of this default — still queued.
+
+  Most recent comparison (c9cc83fcaf43 vs 4a35f5596951) is metadata-
+  only: 0 added, 0 removed, 122 field-only changes. So expect the
+  page to render but with no added/removed sections — or with an
+  in-brand "no card changes in this tranche" indicator if the UI
+  surfaces that distinction.
 tags: [regression, ui]
 preconditions:
   - "App accessible at ${base_url}"
 
 scenarios:
-  - name: "Empty state when no prior snapshot exists"
+  - name: "Diff page loads and compares current vs immediate-prior snapshot"
     steps:
       - navigate: "${base_url}/diff"
-      - wait: "1"
-      - verify: "Heading reads 'Tranche diff'"
-      - verify: "An in-brand panel shows 'No prior snapshot yet' or equivalent"
-      - verify: "Current manifest fetched-date and csv_sha256 prefix are shown for context"
-      - check_console: "No errors. A 404 on /data/snapshots/index.json is expected and handled silently"
+      - wait: "2"
+      - verify: "Heading reads 'TRANCHE DIFF' or 'Tranche diff'"
+      - verify: "Page shows either Added / Removed sections (with card titles linking to /card/[id]) OR an in-brand 'no card changes in this tranche' indicator"
+      - verify: "Loading state ('LOADING SNAPSHOTS' or similar) was visible briefly then resolved"
+      - check_console: "No errors. A 404 on /data/snapshots/index.json is NOT expected here (the file exists with 5 entries)"
 
-  # Until Release 02 is fetched and we commit a snapshot, the populated
-  # diff state cannot be exercised. Leaving this scenario commented as a
-  # placeholder so divona doesn't fail.
-  # - name: "Populated diff shows added/removed sections"
-  #   steps:
-  #     - navigate: "${base_url}/diff"
-  #     - verify: "Two sections labeled 'Added' (green dot) and 'Removed' (red dot) are visible"
-  #     - verify: "Each section lists card titles linking to /card/[id]"
+  - name: "Comparison is against immediate-prior snapshot, not Release 01 baseline"
+    steps:
+      - navigate: "${base_url}/diff"
+      - wait: "2"
+      - verify: "Snapshot reference shown on the page mentions sha prefix '4a35f55' (the immediate-prior snapshot to current c9cc83fcaf43) OR shows a chronologically near snapshot date"
+      - verify: "Comparison does NOT cite sha prefix '596cc188' (which would indicate the page is still comparing against Release 01 baseline — the bug fixed in commit ef4d2ae)"
+
+  - name: "No card content changes between c9cc83fcaf43 and 4a35f5596951"
+    # Both tranches are metadata-only (alt-text + VIRIN backfill on
+    # c9cc83, title-format normalization on 4a35f5). card_id set is
+    # identical between them.
+    steps:
+      - navigate: "${base_url}/diff"
+      - wait: "2"
+      - verify: "Added section either absent OR shows 0 cards"
+      - verify: "Removed section either absent OR shows 0 cards"
+      - verify: "If a 'field-only changes' indicator is present, it shows ~122 cards changed (alt-text + VIRIN backfill)"

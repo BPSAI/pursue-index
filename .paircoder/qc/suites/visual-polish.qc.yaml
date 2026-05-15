@@ -41,9 +41,10 @@ scenarios:
       - verify: "Before the result count appears, there is a brief 'DECLASSIFYING…' or sweep-bar loading state (not a blank panel)"
 
   - name: "Empty states are in-brand"
+    # /diff no longer renders an empty state — 5 snapshots are committed
+    # so the populated comparison loads by default. The search empty
+    # state is the canonical example now.
     steps:
-      - navigate: "${base_url}/diff"
-      - verify: "Empty-state copy uses monospace font and signal-amber/dim color, not a generic dark-mode SaaS message"
       - navigate: "${base_url}/"
       - fill:
           field: "QUERY"

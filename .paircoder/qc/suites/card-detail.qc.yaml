@@ -50,3 +50,44 @@ scenarios:
       - navigate: "${base_url}/card/deadbeefdeadbeef"
       - verify: "Custom terminal-style 404 page renders"
       - check_console: "No errors except expected 404"
+
+  - name: "Top Secret card renders classification badge + VIRIN in sidebar"
+    # Added in tranche c9cc83fcaf43 (2026-05-15). 17 of 158 cards have
+    # an explicit original_classification. Card 6bda02c546051f43 is
+    # the only Top Secret card in the corpus (341_110448_Records_
+    # Relating_to_the_Collection_..., DoD Air Staff intel records).
+    steps:
+      - navigate: "${base_url}/card/6bda02c546051f43"
+      - wait: "1"
+      - verify: "Sidebar ASSET section shows a 'Class:' label and a 'Top Secret' badge (bordered, signal-amber tone, uppercase)"
+      - verify: "Sidebar ASSET section shows a 'VIRIN:' label and the value '260508-D-D0360-1004' (or similar 260508-D-D0360-NNNN format)"
+      - verify: "VIRIN value has a hover tooltip mentioning DoDI 5040.02 OR 'Visual Information Record Identification Number'"
+      - verify: "A 'declassified' note appears next to the classification badge in faint text"
+
+  - name: "Secret-class card also shows classification badge"
+    # Verifies the badge isn't specific to Top Secret.
+    steps:
+      - navigate: "${base_url}/card/9e677b8697685311"
+      - wait: "1"
+      - verify: "Sidebar shows 'Class:' label and a 'Secret' badge"
+      - verify: "Sidebar shows 'VIRIN:' label with a 260508-D-D0360 sequence"
+
+  - name: "VIRIN-only card (no explicit classification) renders VIRIN but no badge"
+    # ~131 of 158 cards have a VIRIN; only 17 have an explicit
+    # classification. Cards without an explicit level should show
+    # VIRIN alone, with no badge or label for classification.
+    steps:
+      - navigate: "${base_url}/card/973c1f75f55d0d39"
+      - wait: "1"
+      - verify: "Sidebar shows a 'VIRIN:' label with value (260508-O-D0360-1058 or similar)"
+      - verify: "No 'Class:' label is rendered (the card has no explicit classification recorded upstream)"
+
+  - name: "Gallery thumbnail uses upstream alt-text when present"
+    # Tranche c9cc83fcaf43 added image_alt_text for 130 of 158 cards.
+    # GalleryIsland.tsx prefers upstream alt-text (with redaction
+    # suffix preserved) over the auto-generated title-based fallback.
+    steps:
+      - navigate: "${base_url}/gallery"
+      - wait: "2"
+      - verify: "At least one gallery tile's <img> alt attribute contains a sentence-like description (e.g. starts with 'Declassified', 'Brown file folder', 'Redacted', etc.) — not just a filename"
+      - verify: "Redacted cards still have '(contains redactions)' appended to their alt text"

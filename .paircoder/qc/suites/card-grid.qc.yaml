@@ -11,7 +11,7 @@ scenarios:
   - name: "Query narrows the result set"
     steps:
       - navigate: "${base_url}/"
-      - verify: "Result counter near the top reads '161 / 161 RECORDS' (or close — manifest dependent)"
+      - verify: "Result counter near the top reads '158 / 158 RECORDS' (or close — manifest dependent; current = 158 as of tranche c9cc83fcaf43)"
       - fill:
           field: "QUERY"
           value: "roswell"
@@ -47,7 +47,7 @@ scenarios:
       - click: "REDACTED checkbox"
       - wait: "1"
       - verify: "All visible cards show the red REDACTED indicator"
-      - verify: "Result counter is approximately 108 (manifest has 108 redacted cards)"
+      - verify: "Result counter is approximately 105 (manifest has 105 redacted cards as of tranche c9cc83fcaf43)"
 
   - name: "View toggle switches between card and table modes"
     steps:

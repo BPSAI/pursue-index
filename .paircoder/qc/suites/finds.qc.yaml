@@ -10,13 +10,25 @@ preconditions:
   - "Splash cookie set"
 
 scenarios:
-  - name: "/finds index lists all six entries"
+  - name: "/finds index lists all current entries"
+    # Current set (21 entries as of 2026-05-15): apollo-11-debriefing,
+    # apollo-17, dow-d23-arabian-gulf-october-2023, dow-d32-syria-
+    # october-2024, dow-d33-aegean-sea-october-2023, dow-incidents-1-
+    # 100, dow-uap-d20-iraq-2023-replaced, fbi-1947-dallas-teletype,
+    # fbi-62-hq-83894-readers-guide, fbi-62-hq-83894-section-6-
+    # removed-2026-05, fbi-usper-2025-orb, hanawalt-cobalt-ray-1966,
+    # kenneth-arnold-june-24-1947, lapaz-green-fireballs-1948-1950,
+    # lowry-1949-ocr-limits, muroc-1947, nasc-state-extraterrestrial-
+    # policy-memo-1963, oak-ridge-radar-january-1951, presley-oak-
+    # ridge-photographs-1947, rhodes-photographs-phoenix-1947,
+    # whats-not-uap.
     steps:
       - navigate: "${base_url}/finds"
       - verify: "Page heading reads 'Finds' or 'Curated finds' or equivalent"
-      - verify: "Six entries are listed: muroc-1947, apollo-17, whats-not-uap, fbi-62-hq-83894-readers-guide, dow-incidents-1-100, lowry-1949-ocr-limits"
+      - verify: "At least 20 entries are listed (current count: 21 as of 2026-05-15)"
       - verify: "Each entry shows its title and a summary line"
       - verify: "Entries are clickable and navigate to their detail page"
+      - verify: "Both early-era entries (muroc-1947, kenneth-arnold-june-24-1947, fbi-1947-dallas-teletype) and modern-era entries (dow-d32-syria-october-2024, fbi-usper-2025-orb) are present"
 
   - name: "muroc-1947 entry renders with chips and sources rail"
     steps:

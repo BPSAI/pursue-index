@@ -13,7 +13,7 @@ scenarios:
       - navigate: "${base_url}/"
       - verify: "Header shows the PURSUE://INDEX lockup with a green caret"
       - verify: "Hero panel is visible with a 'cat /var/dow/pursue/release-01.manifest' line and the agency tally chips"
-      - verify: "At least 100 card tiles are rendered in the grid (manifest has 161)"
+      - verify: "At least 100 card tiles are rendered in the grid (manifest has 158 as of tranche c9cc83fcaf43)"
       - verify: "Footer shows TS, CSV_SHA256 (12-char prefix), N (card count), SRC, IDX"
       - check_console: "No errors and no warnings other than dev-server hot-reload chatter"
 
@@ -23,7 +23,8 @@ scenarios:
       - verify: "Search heading 'Full-text search' visible and an input is focused or focusable"
       - check_console: "No errors"
       - navigate: "${base_url}/diff"
-      - verify: "Tranche diff heading visible and an empty-state panel explaining 'No prior snapshot yet'"
+      - verify: "Tranche diff heading visible"
+      - verify: "Comparison loads (now that 5 snapshots are committed); page shows either added/removed sections or a 'no changes' indicator for a metadata-only tranche"
       - check_console: "No errors"
       - navigate: "${base_url}/about"
       - verify: "About page renders with brand-consistent layout (terminal aesthetic, mono headings)"
