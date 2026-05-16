@@ -19,6 +19,16 @@
       "display_date_abstention": null,
       "display_date_curator": "operator-david",
       "display_date_approved_at": "2026-05-15T18:50:27.472Z"
+    },
+    {
+      "card_id": "c48c078b811c0fd7",
+      "display_date": "2023-09-12",
+      "display_date_range": null,
+      "display_date_evidence": "Description: 'On September 12, 2023 the Mexican Congress heard testimony on UAP from experts including... former U.S. Navy pilot Ryan Graves'; cable itself dated Sep 16, 2023 (DTG 160150Z SEP 23) on page 1. display_date uses the hearing date (Sep 12), not the cable authoring date (Sep 16), since the editorial relevance of this card is the hearing event.",
+      "display_date_evidence_card_ref": "c48c078b811c0fd7#page-5",
+      "display_date_abstention": null,
+      "display_date_curator": "operator-david (via 2026-05-16 patch on Graves social-post context)",
+      "display_date_approved_at": "2026-05-16T13:11:35.198367+00:00"
     }
   ]
 }

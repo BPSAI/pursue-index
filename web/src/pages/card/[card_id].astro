@@ -1,31 +1,43 @@
 ---
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
 import Base from "../../layouts/Base.astro";
 import CardOcrIsland from "../../components/CardOcrIsland.tsx";
 import CardProvenance from "../../components/CardProvenance.tsx";
 import AgencyStamp from "../../components/AgencyStamp.astro";
 import { cards } from "../../data/manifest-loader";
+// Native ES imports for build-time data (matches diff.astro + the
+// timeline.astro fix on 2026-05-15; the readFileSync pattern was
+// unreliable on the Cloudflare Pages build context).
+import cardAltTitlesJson from "../../../../data/card_alt_titles.json";
+import displayDatesJson from "../../../../data/display_dates.json";
 
-// Load alt-titles for cards that share asset_url with other rows
-// upstream (the 9-card cohort from the duplicate-card-ids-discovery
-// finding). When present, the card detail page surfaces a "Also
-// cataloged upstream as:" section so readers see the cross-references
-// upstream maintains for the same underlying file.
+// Alt-titles for cards that share asset_url with other rows upstream
+// (the 9-card cohort from duplicate-card-ids-discovery). When
+// present, the card detail page surfaces "Also cataloged upstream
+// as:" so readers see the cross-references upstream maintains.
 interface AltTitleEntry {
   title: string;
   dvids_video_id: string | null;
   asset_filename: string | null;
 }
-const altsByCardId: Record<string, AltTitleEntry[]> = (() => {
-  const p = resolve(import.meta.dirname, "..", "..", "..", "..", "data", "card_alt_titles.json");
-  if (!existsSync(p)) return {};
-  try {
-    return JSON.parse(readFileSync(p, "utf-8")).alts ?? {};
-  } catch {
-    return {};
-  }
-})();
+const altsByCardId: Record<string, AltTitleEntry[]> = (cardAltTitlesJson as any).alts ?? {};
+
+// Curated display-date overlay. Operator-approved entries in
+// data/display_dates.json override the manifest's incident_date for
+// editorial accuracy (e.g. when the manifest carries 9/12/03 but the
+// document body has a 2023 Zulu DTG, the curated date wins).
+interface DisplayDateEntry {
+  card_id: string;
+  display_date?: string | null;
+  display_date_range?: [string, string] | null;
+  display_date_evidence?: string | null;
+  display_date_evidence_card_ref?: string | null;
+  display_date_abstention?: string | null;
+  display_date_curator?: string | null;
+  display_date_approved_at?: string | null;
+}
+const displayDateByCardId: Record<string, DisplayDateEntry> = Object.fromEntries(
+  ((displayDatesJson as any).entries ?? []).map((e: DisplayDateEntry) => [e.card_id, e]),
+);
 
 export function getStaticPaths() {
   return cards.map((c) => ({
@@ -37,6 +49,13 @@ export function getStaticPaths() {
 const { card } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const altTitles: AltTitleEntry[] = altsByCardId[card.card_id] ?? [];
+const displayDateEntry: DisplayDateEntry | null = displayDateByCardId[card.card_id] ?? null;
+// When a curated display_date exists, surface it as the primary
+// INCIDENT line; preserve the manifest's raw CSV value as a muted
+// sub-line so the override is auditable. When the curated entry is
+// an abstention, surface the abstention reason instead of a date.
+const curatedIncidentDate = displayDateEntry?.display_date ?? null;
+const curatedAbstention = displayDateEntry?.display_date_abstention ?? null;
 
 const TYPE_COLORS: Record<string, { fg: string; bg: string; border: string }> = {
   PDF: {
@@ -62,9 +81,34 @@ const pairings = [
   card.video_pairing ? { label: "Video pairing", value: card.video_pairing } : null,
 ].filter((p): p is { label: string; value: string } => p !== null);
 
-const facts: Array<{ label: string; value: string | null }> = [
+// INCIDENT line uses the curated display_date when present; the
+// manifest's raw incident_date is preserved as a sub-line in the
+// fact-grid renderer when the two disagree. The curated value is
+// what /timeline plots and what citations should reference.
+const incidentLineValue: string | null = curatedIncidentDate
+  ? curatedIncidentDate
+  : curatedAbstention
+    ? "(undated — see provenance)"
+    : card.incident_date;
+
+interface Fact {
+  label: string;
+  value: string | null;
+  // Optional muted sub-line (e.g. the manifest's raw CSV value when
+  // we're overriding it with a curated display_date).
+  subValue?: string | null;
+}
+
+const facts: Fact[] = [
   { label: "RELEASE", value: card.release_date },
-  { label: "INCIDENT", value: card.incident_date },
+  {
+    label: "INCIDENT",
+    value: incidentLineValue,
+    subValue:
+      curatedIncidentDate && card.incident_date && curatedIncidentDate !== card.incident_date
+        ? `manifest CSV value: ${card.incident_date} (overridden by curated display_date)`
+        : null,
+  },
   { label: "LOCATION", value: card.incident_location },
   { label: "TYPE", value: card.asset_type },
 ];
@@ -120,6 +164,11 @@ const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : 
             <dd class="font-mono text-[color:var(--color-text-bright)] mt-0.5">
               {f.value ?? <span class="text-[color:var(--color-text-faint)]">—</span>}
             </dd>
+            {f.subValue && (
+              <dd class="font-mono text-[9px] text-[color:var(--color-text-faint)] mt-0.5 italic">
+                {f.subValue}
+              </dd>
+            )}
           </div>
         ))}
       </dl>
