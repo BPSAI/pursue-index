@@ -13,7 +13,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "test:api-page": "node scripts/test-api-page.mjs",
-    "test:lib": "node --test src/lib/release.test.ts src/lib/seo.test.ts src/lib/robots.test.ts",
+    "test:lib": "node --test src/lib/release.test.ts src/lib/seo.test.ts src/lib/robots.test.ts src/components/homepage-search.test.ts",
     "test:llms": "node --test scripts/build_llms_txt.test.mjs",
     "test": "npm run test:api-page && npm run test:lib && npm run test:llms"
   },

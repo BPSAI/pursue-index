@@ -1,6 +1,85 @@
 # Current State
 
-> Last updated: 2026-05-16 (Sprint 1 GEO foundation completed locally on branch `sprint-1-geo-foundation`, NOT pushed — pending operator review)
+> Last updated: 2026-05-16 (Sprint 2 Lighthouse perf-pass completed locally on branch `sprint-2-lighthouse`, NOT pushed — pending operator review. Sprint 1 GEO foundation already merged as commit `73f6ecb`.)
+
+## What Was Just Done
+
+**2026-05-16 — Sprint 2 (Lighthouse perf-pass) implemented on branch `sprint-2-lighthouse`. Single uncommitted change-set targeting the homepage's TBT + LCP + resource-size catastrophe. Tests + arch checks clean; build green; not yet pushed pending operator review.**
+
+### Diagnosis (`docs/perf-baseline.md` — new file, "Sprint 2 diagnostic" section)
+
+Three root causes of the 37-mobile-score in APAC + the universal 5.6–9s TBT, identified by inspecting `web/dist/` after the local build:
+
+1. **`<SearchIsland client:load>` on `/` hydrates eagerly** and fetches `/data/pages.json` (7.1 MB unminified) on every homepage visit. The fetch itself is the LCP-path asset — APAC + Finland regions have no warm CF edge cache for it, hence the 13.1s LCP. The subsequent synchronous MiniSearch index build over 4,127 docs is the dominant TBT contributor.
+2. **`<CardExplorer client:load>` on `/` inlines the full 158-card manifest** as serialized island props. dist/index.html is **676 KB unminified / 67 KB gzipped**. Hydrates eagerly + fetches `/data/novelty.json` (44 KB) on mount.
+3. **No `web/public/_headers`** — `/data/*` assets serve with the CF assets binding's default cache headers, which don't fill regional edges aggressively.
+
+### Phase 2 — TBT quick wins
+
+- **`web/src/components/HomepageSearch.tsx` (new)** — tiny Preact form that submits to `/search?q=<query>`. Does NOT load MiniSearch, does NOT fetch pages.json. Mirrors the prior hero look (input + example chips + kbd hint).
+- **`web/src/components/homepage-search.ts` (new)** — pure `buildSearchHref()` helper for URL construction. Encoded properly via `encodeURIComponent` (spaces → `%20`, not `+`; reserved chars escape).
+- **`web/src/components/homepage-search.test.ts` (new)** — 9 node:test cases: empty/whitespace query, ASCII/Unicode/reserved-char encoding, base normalization (trailing slash, nested preview paths). All 9 green.
+- **`web/src/pages/index.astro`** — swaps `<SearchIsland client:load>` → `<HomepageSearch client:idle>` and `<CardExplorer client:load>` → `<CardExplorer client:visible>`. No layout-shift risk: hero is server-rendered + CardExplorer renders below the fold with intrinsic grid sizing.
+
+### Phase 3 — LCP regional fix
+
+- **`web/public/_headers` (new)** — explicit Cloudflare cache directives:
+  - `/_astro/*` → `public, max-age=31536000, immutable` (hashed filenames, safe to cache forever)
+  - `/data/*` → `public, max-age=3600, stale-while-revalidate=86400` (1h fresh, 24h SWR)
+  - `/data/thumbs/*`, `/data/video-posters/*`, `/og/*` → `public, max-age=604800, stale-while-revalidate=2592000`
+  - `/og.png`, `/og.svg`, `/favicon.*` → `public, max-age=604800`
+  - `/llms.txt`, `/llms-full.txt` → `public, max-age=3600`
+
+### Phase 4 — Resource size
+
+- **`web/astro.config.mjs`** — adds `vite.build.target: "es2022"`. Bumps Vite's transpile target from ES2017 → ES2022; lets MiniSearch / Preact / regl-scatterplot ship without re-downleveling their already-modern bundles.
+
+### Phase 5 — Polish
+
+- No webfonts in use (`global.css` is system stack only — `ui-monospace`/`system-ui`). `font-display: swap` n/a; no `<link rel="preconnect">` needed.
+- No third-party origins on `/` requiring preconnect. Anthropic-API origin is `/chat`-route only; Voyage embeddings are Worker-side only.
+
+### Measured locally (post-build)
+
+| Asset | Before | After | Delta |
+|---|---|---|---|
+| `dist/index.html` gzipped | ~67 KB | **63 KB** | -4 KB |
+| Homepage-island eager JS | SearchIsland 12K + search-result-highlight 18K + CardExplorer 9.8K = **39.8K** raw | **HomepageSearch 1.8K** (rest deferred) | -38K on first paint |
+| `pages.json` requested on `/` | 7.1 MB | **0** | -7.1 MB |
+| `novelty.json` requested on `/` | 44 KB | 0 (deferred to `client:visible`) | -44 KB on first paint |
+| `_headers` directives | absent | 9 path rules | n/a |
+
+### Test results
+
+- **Web:** 190 tests green (35 lib + 9 llms + 145 component + 1 api-page snapshot — added 9 homepage-search tests this pass).
+- **Python:** 491 passed.
+- **Worker:** 108 passed.
+- **Astro build:** 182 pages built in 6.4s. `dist/llms.txt`, `dist/llms-full.txt`, `dist/robots.txt`, `dist/_headers` all emitted.
+
+### arch check
+
+Clean on each of the 5 modified/new files.
+
+### Branch state
+
+- Branch: `sprint-2-lighthouse` (created from `main` at `73f6ecb`).
+- Single uncommitted change-set. Bundled per [[feedback_bundled_commits]].
+- **NOT pushed.** Operator reviews locally first.
+
+### Verification plan (cannot fully verify locally)
+
+Lighthouse regional scores require a real CF Pages deploy → PSI run from each region. Once operator approves + pushes:
+
+1. CF Pages preview deploy completes.
+2. `npx lighthouse https://<preview-url> --preset=mobile` for a local sanity check (no regional data).
+3. After merge + prod deploy, wait ~5 min for CF edge warming, then re-run PageSpeed Insights across the six baseline regions (US West, US East, Germany, Finland, Japan, Australia).
+4. Post-fix row in `docs/perf-baseline.md` gets the actual numbers; if any metric misses target, file a Sprint-4 follow-up.
+
+### Operator-action items (deferred to operator)
+
+1. CF Pages dashboard — confirm "auto minify HTML" is OFF (Astro already minifies).
+2. CF Pages dashboard — verify "Tiered Cache" is ON for the `pursueindex.com` zone (materially helps APAC).
+3. After deploy + cache warm, re-run PSI from the six regions and fill the post-fix row.
 
 ## What Was Just Done
 

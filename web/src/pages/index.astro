@@ -1,7 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import CardExplorer from "../components/CardExplorer.tsx";
-import SearchIsland from "../components/SearchIsland.tsx";
+import HomepageSearch from "../components/HomepageSearch.tsx";
 import { cards, summary } from "../data/manifest-loader";
 import { RELEASE, formatPageCount } from "../lib/release";
 
@@ -79,7 +79,18 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
           eye is drawn to the input on first paint. mx-auto + max-w caps the
           width on desktop while letting it go full-bleed on mobile. */}
       <div class="mt-6 sm:mt-8 mx-auto w-full sm:max-w-2xl lg:max-w-3xl">
-        <SearchIsland client:load base={base} examples={heroExamples} />
+        {/* Sprint 2 perf-pass: the homepage hero used to mount the full
+            SearchIsland with `client:load`, which fetched the 7.1 MB
+            pages.json + built a MiniSearch index of ~4,127 docs on
+            EVERY homepage visit — the LCP-path asset in APAC, the
+            dominant TBT contributor. Replaced with a shortcut input
+            that redirects to /search?q=… and lets that route pay
+            hydration honestly. `client:idle` because the input itself
+            doesn't need to be interactive in the first paint
+            millisecond — the browser's native focus + onSubmit handle
+            an enter-press just fine pre-hydration. See
+            docs/perf-baseline.md. */}
+        <HomepageSearch client:idle base={base} examples={heroExamples} />
         {/* Secondary affordance: a low-key link into the 2D semantic
             browser. Subtle on purpose — search remains the headline. */}
         <p class="mt-4 text-[11px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-text-faint)]">
@@ -136,7 +147,16 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
           </span>
         </h2>
       </header>
-      <CardExplorer client:load cards={cards} base={base} />
+      {/* Sprint 2 perf-pass: was `client:load` — the explorer hydrated
+          eagerly and parsed the 158-card props blob + fetched
+          novelty.json on every visit. The card grid lives BELOW the
+          fold on mobile (search hero takes the viewport), so
+          `client:visible` defers hydration until the user scrolls
+          there. CLS-safe because the server-rendered output already
+          has the final dimensions: filter chrome is full-width and
+          the grid is `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+          with intrinsic li sizing. */}
+      <CardExplorer client:visible cards={cards} base={base} />
     </section>
   </div>
 </Base>

@@ -19,5 +19,16 @@ export default defineConfig({
   integrations: [preact(), sitemap(), mdx()],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      // Sprint 2 perf-pass — Astro's default Vite target is "modules"
+      // (≈ES2017). Every browser in our supported matrix handles ES2022
+      // natively, so bumping the target lets Vite skip transpiling
+      // `??`, `?.`, top-level await, class fields, etc. into helper-
+      // function polyfills. Materially reduces island JS chunk size.
+      // Preact, Astro 6, MiniSearch, regl-scatterplot all ship ES2022+
+      // in their distributed bundles already; this just stops us from
+      // re-down-leveling them on our side.
+      target: "es2022",
+    },
   },
 });
