@@ -1,6 +1,70 @@
 # Current State
 
-> Last updated: 2026-05-15 (late night, autonomous AFK run — /timeline shipped + alt-titles UI surface + Section 6 re-pin + omnibus reclassification + display-date-curation phases 1-3 + diff-page full plan)
+> Last updated: 2026-05-16 (Sprint 1 GEO foundation completed locally on branch `sprint-1-geo-foundation`, NOT pushed — pending operator review)
+
+## What Was Just Done
+
+**2026-05-16 — Sprint 1 (GEO foundation) implemented on branch `sprint-1-geo-foundation`. Four work items shipped in a single uncommitted change-set; tests + arch checks clean; build green; not yet pushed pending operator review.**
+
+Four items, all four green:
+
+### Item 1: llms.txt + llms-full.txt build pipeline
+
+- `web/scripts/build_llms_txt.mjs` — Node ESM prebuild script (no new deps). Walks `data/manifests/latest.json` for cards, `web/public/data/pages.json` for OCR text, `web/src/content/finds/**` for finds entries. Emits two artifacts:
+  - `web/public/llms.txt` (~29 KB) — Jeremy Howard convention index. Meta + Cards + Finds sections, one canonical URL per entry.
+  - `web/public/llms-full.txt` (~450 KB) — anchor-stable H2 corpus: `## Project overview`, `## Methodology`, `## About`, `## How to cite`, `## Cards`, `## Finds`. Cards get H3 + agency/date/URL/war.gov-source + 500-char OCR page-1 excerpt. Finds get H3 + canonical URL + frontmatter summary + body with `<Cite>` stripped to plain bracket markers.
+- Wired as `npm run prebuild` so `astro build` triggers it automatically; verified `web/dist/llms.txt` and `web/dist/llms-full.txt` are emitted on build.
+- `web/scripts/build_llms_txt.test.mjs` — 9 smoke tests on the in-process renderers (anchor-stable H2 set, per-card H3 + URLs, 500-char excerpt truncation, frontmatter parser, MDX `<Cite>` stripping).
+
+### Item 2: AI-crawler robots.txt allowlist
+
+- `web/src/lib/robots.ts` — content builder (27 named AI-crawler user-agents in `AI_CRAWLERS` const, exported for audit). Alphabetical-by-vendor: Amazon, Anthropic (anthropic-ai / Claude-Web / ClaudeBot / ClaudeBot-User), Apple (Applebot / Applebot-Extended), ByteDance (Bytespider), Common Crawl (CCBot), Cohere (cohere-ai), Diffbot, DuckDuckGo (DuckAssistBot), Google (Google-Extended / GoogleOther), Meta (FacebookBot / Meta-ExternalAgent / Meta-ExternalFetcher), Mistral (Mistral-AI), OpenAI (ChatGPT-User / GPTBot / OAI-SearchBot), Perplexity (Perplexity-User / PerplexityBot), Petal (PetalBot), xAI (Grok / xAI), You.com (YouBot).
+- `web/src/pages/robots.txt.ts` — dynamic Astro endpoint serving the generated body with `Cache-Control: public, max-age=3600`.
+- `web/public/robots.txt` — deleted (replaced by the dynamic endpoint).
+- `web/src/lib/robots.test.ts` — 7 tests verifying every named crawler has an explicit `Allow: /` block, the wildcard fallback + `Disallow: /api/` is preserved, and `Sitemap:` + `Host:` directives are present. Fixes the Lighthouse "robots.txt is not valid" SEO audit finding.
+
+### Item 3: JSON-LD coverage
+
+- `web/src/lib/seo.ts` — typed builders for `organizationJsonLd()`, `websiteJsonLd()` (with SearchAction), `datasetJsonLd()` (dual licensing: Apache-2.0 code + usa.gov public-domain, Dataset distribution endpoints), `digitalDocumentJsonLd()` (with war.gov `sameAs`, GovernmentOrganization creator, OCR text slice truncated at 5KB), `articleJsonLd()` (with citation array linking primary card URLs), `breadcrumbJsonLd()`, `speakableJsonLd()`.
+- `web/src/lib/seo.test.ts` — 18 tests, including a banned-words guard (`best`, `leading`, `ultimate`, `revolutionary`…) running over every builder's output so any future drift into promotional language fails loudly.
+- `web/src/components/JsonLd.astro` — single-purpose injector. Accepts object or array; one `<script type="application/ld+json">` per entry (Google + AI-Overviews prefer separate tags over `@graph`). Defensive `</script>` sentinel escape for future-proofing.
+- Integration:
+  - **Root layout** (`Base.astro`): Organization + WebSite + Dataset auto-injected on every page via `RELEASE` constants from `web/src/lib/release.ts`.
+  - **Card pages** (`card/[card_id].astro`): DigitalDocument with first-page OCR text (loaded once per build via `fs.readFileSync` of pages.json — explicitly avoided ES-importing the 7MB file) + BreadcrumbList.
+  - **/finds entries** (`finds/[slug].astro`): Article + BreadcrumbList. Article.citation populated from frontmatter `cards` field.
+  - **/methodology, /about, /cite**: Article + Speakable + BreadcrumbList. Added `id="methodology-lede"` / `id="about-lede"` / `id="cite-lede"` to the lead paragraphs so the Speakable CSS selectors resolve.
+
+### Item 4: `web/src/lib/release.ts` consolidation
+
+- `web/src/lib/release.ts` — typed `RELEASE` const reading `web/src/data/manifest.json` (card count, csv_sha256, fetched_at) + `data/manifests/snapshots/index.json` (tranche count) + `web/public/data/pages.json` via fs (OCR page count, with `4161` fallback if file missing). Exports `currentTrancheId`, `currentTrancheIdShort` (12-char), `cardCount`, `ocrPageCount`, `lastTrancheDate`, `release01Date` (frozen `2026-05-08`), `trancheCount`, `fetchedAtIso`, plus `formatCardCount()` / `formatPageCount()` thousands-separator helpers.
+- `web/src/lib/release.test.ts` — 10 schema/shape tests asserting the public contract.
+- Replaced hardcoded `4,161` in `web/src/pages/index.astro` (meta description + hero PAGES strip) and `web/src/pages/methodology.astro` (3 locations) with `formatPageCount(RELEASE.ocrPageCount)`. Conservative — only numeric tokens; prose left intact.
+- Used JSON import attributes (`with { type: "json" }`) so the file works under both Astro (vite) and `node --test` (Node 24+).
+
+### Test results
+
+- **Web (this PR's scope):** 35 lib tests (release + seo + robots) + 9 llms tests + 145 existing component tests + 1 api-page snapshot = 190 green, 0 fail.
+- **Python:** 491 passed (no regressions).
+- **Worker:** 108 passed (no regressions).
+- **Astro build:** 182 pages built in 17.4s. `dist/llms.txt`, `dist/llms-full.txt`, `dist/robots.txt` all emitted. View-source on `/`, `/card/<any>`, `/finds/<any>` shows the expected JSON-LD scripts.
+
+### arch check
+
+Clean on every new/modified file (17 files checked individually).
+
+### Branch state
+
+- Branch: `sprint-1-geo-foundation` (created from `main` at `3236a18`).
+- Single commit on the branch. Bundled per [[feedback_bundled_commits]] — operator prefers fewer larger commits over churn-style splits, and these four items ship as one PR per the brief.
+- **NOT pushed.** Operator reviews locally first.
+
+### Operator follow-ups / unresolved
+
+1. **OG SVG (`web/public/og.svg` line 61)** still hardcodes `4,161` because it's an asset file, not a source file. Re-rendering the OG card with the dynamic number requires running the existing OG-build pipeline (`scripts/build_finds_og_images.py` and friends); intentionally out of Sprint-1 scope. Number drifts only when a new tranche changes OCR'd-page count, which is rare.
+2. **`4,111 of 4,161` cleaned-pages count in methodology** — left "4,111" as literal prose; only the right-hand `4,161` was templated. Operator: confirm whether "4,111" should also become a constant (it's recorded somewhere but not in `manifest.json`).
+3. **`116` and `162` references from the operator brief** — not found in current `web/src/`. The "162 files" / "116 cards" numbers in the Sprint 1 brief appear to be stale; current corpus is 158 cards / 4,161 OCR'd pages.
+4. **Author override on /finds entries** — Article schema currently defaults to `pursue-index` as author; frontmatter schema (`content.config.ts`) has no `author` field yet. If a finds entry should ever credit a named human author, add `author: z.string().optional()` to the schema; `articleJsonLd()` already reads `entry.data.author` when present.
+5. **Speakable selectors are minimal** — currently one CSS selector per page (`#methodology-lede`, `#about-lede`, `#cite-lede`) targeting the lead paragraph. If voice-assistant surfaces should read further into the page (e.g. the citation table on /cite), add more selectors per `speakableJsonLd(...)`.
 
 ## Saturday-morning pickup (2026-05-16)
 

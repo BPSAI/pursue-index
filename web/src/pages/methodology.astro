@@ -1,18 +1,48 @@
 ---
 import Base from "../layouts/Base.astro";
 import { manifest, summary } from "../data/manifest-loader";
+import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
+import { RELEASE, formatPageCount } from "../lib/release";
 
 const s = summary();
+const pageCountLabel = formatPageCount(RELEASE.ocrPageCount);
 const csvShort = manifest.csv_sha256.slice(0, 12);
 const csvFull = manifest.csv_sha256;
 const fetchedISO = manifest.fetched_at;
 const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
+
+// Article schema for the methodology page — AI Overviews prefers
+// authored content. The "article" framing here is factual: this page
+// documents the pipeline, with a named publisher and a dated review.
+// Speakable highlights the canonical-citation paragraph for voice
+// assistants. Selectors target the lead paragraph by its anchor id
+// (`#methodology-lede`) so a future page restructuring doesn't break
+// the speakable surface.
+const methodologyJsonLd = [
+  articleJsonLd({
+    id: "methodology",
+    data: {
+      title: "Methodology — pursue-index",
+      summary: "How the pursue-index corpus is fetched, hashed, OCR'd, and made reproducible.",
+      cards: [],
+      published: new Date("2026-05-08T00:00:00Z"),
+      updated: new Date(fetchedISO),
+      tags: ["methodology", "reproducibility", "provenance"],
+    },
+  }),
+  speakableJsonLd(["#methodology-lede"]),
+  breadcrumbJsonLd([
+    { name: "Index", url: "/" },
+    { name: "Methodology", url: "/methodology" },
+  ]),
+];
 ---
 
 <Base
   title="METHODOLOGY — PURSUE://INDEX"
   description="How the pursueindex corpus is fetched, hashed, OCR'd, and made reproducible."
   active="methodology"
+  jsonLd={methodologyJsonLd}
 >
   <div class="space-y-6 max-w-3xl">
     <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
@@ -23,7 +53,7 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
       <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
         METHODOLOGY
       </h1>
-      <p class="text-sm text-[color:var(--color-text-dim)] max-w-2xl">
+      <p id="methodology-lede" class="text-sm text-[color:var(--color-text-dim)] max-w-2xl">
         Every claim on this site traces back to a specific page of a specific
         document. This page documents how that pipeline works, end to end.
       </p>
@@ -221,7 +251,7 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
         Engine and per-page confidence are recorded in{" "}
         <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>{" "}
         and surfaced in the OCR transcript on each card page. The live
-        search index covers 4,161 pages (Surya primary; LLM fallback on
+        search index covers {pageCountLabel} pages (Surya primary; LLM fallback on
         the ~15% of pages where Surya scored below threshold) — see the
         headline numbers in the benchmark section below.
       </p>
@@ -387,7 +417,7 @@ const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 10);
           Skip rate, full corpus.
         </strong>{" "}
         The 2026-05-12 full-corpus cleanup pass produced cleaned text for
-        <strong class="text-[color:var(--color-text-bright)]">4,111 of 4,161</strong>{" "}
+        <strong class="text-[color:var(--color-text-bright)]">4,111 of {pageCountLabel}</strong>{" "}
         OCR pages —
         <strong class="text-[color:var(--color-text-bright)]">50 pages</strong>{" "}
         skipped, a
@@ -736,7 +766,7 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
         Surya is the deployed primary; the LLM fires on pages whose Surya
         confidence falls below 70 (about 8% of the golden set; ~15% of the
         full corpus). Live deployment:
-        <strong class="text-[color:var(--color-text-bright)]">4,161 indexed pages</strong>
+        <strong class="text-[color:var(--color-text-bright)]">{pageCountLabel} indexed pages</strong>
         (Surya primary; LLM fallback on the ~15% of full-corpus pages
         where Surya scored below threshold). Total cost of one full pipeline pass on
         the corpus: <span class="text-[color:var(--color-signal-cyan)]">$1.71</span>{" "}

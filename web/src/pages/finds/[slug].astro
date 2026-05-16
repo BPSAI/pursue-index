@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { getCollection, render } from "astro:content";
 import { manifest } from "../../data/manifest-loader";
+import { articleJsonLd, breadcrumbJsonLd } from "../../lib/seo";
 
 export async function getStaticPaths() {
   const all = await getCollection("finds", ({ data }) => !data.draft);
@@ -33,6 +34,19 @@ const sourceCards = entry.data.cards.map((id) => {
     known: card !== undefined,
   };
 });
+
+// Page-specific JSON-LD: Article (with citation array linking primary
+// card URLs) + BreadcrumbList. The Article schema is preferred by AI
+// Overviews for authored content; citation entries are the GEO signal
+// that anchors derived claims to primary sources.
+const findsJsonLd = [
+  articleJsonLd(entry),
+  breadcrumbJsonLd([
+    { name: "Index", url: "/" },
+    { name: "Finds", url: "/finds" },
+    { name: entry.data.title, url: `/finds/${entry.id}` },
+  ]),
+];
 ---
 
 <Base
@@ -42,6 +56,7 @@ const sourceCards = entry.data.cards.map((id) => {
   ogType="article"
   ogImage={perEntryOgImage}
   ogImageAlt={`${entry.data.title} — declassified-document OG card for PURSUE://INDEX FINDS entry`}
+  jsonLd={findsJsonLd}
 >
   <article class="space-y-6 max-w-3xl">
     <nav aria-label="Breadcrumb" class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] flex items-center gap-2">

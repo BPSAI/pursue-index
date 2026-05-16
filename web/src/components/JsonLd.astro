@@ -1,0 +1,45 @@
+---
+/**
+ * Single-purpose JSON-LD injector.
+ *
+ * Accepts either one JSON-LD object or an array. Renders one
+ * `<script type="application/ld+json">` per entry — Google + AI
+ * Overviews recommend separate script tags per @type rather than a
+ * mixed `@graph` array, because some parsers handle the former more
+ * reliably (and the latter is harder to deduplicate across includes).
+ *
+ * Usage:
+ *   import JsonLd from "../components/JsonLd.astro";
+ *   import { organizationJsonLd, websiteJsonLd } from "../lib/seo";
+ *   <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+ *
+ * The serialization uses `JSON.stringify(value, null, 0)` (no
+ * whitespace) so the inline payload stays compact. The output is
+ * pure data — no user input is ever interpolated into the surrounding
+ * <script> tag, so there is no XSS escape path here. We do escape
+ * the closing-tag sentinel `</script>` defensively in case future
+ * inputs contain it.
+ */
+
+import type { JsonLdObject } from "../lib/seo";
+
+interface Props {
+  data: JsonLdObject | JsonLdObject[];
+}
+
+const { data } = Astro.props;
+const items: JsonLdObject[] = Array.isArray(data) ? data : [data];
+
+// Defensive sanitization: a JSON value containing the literal string
+// `</script>` would prematurely close the script tag in the rendered
+// HTML. JSON.stringify itself does NOT escape this case. We replace
+// the forward slash with its unicode escape, which JSON parsers and
+// HTML parsers both handle correctly.
+function safeJson(obj: JsonLdObject): string {
+  return JSON.stringify(obj).replace(/<\/script/gi, "<\\/script");
+}
+---
+
+{items.map((entry) => (
+  <script type="application/ld+json" set:html={safeJson(entry)} />
+))}

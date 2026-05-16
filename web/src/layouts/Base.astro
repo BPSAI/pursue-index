@@ -1,6 +1,14 @@
 ---
 import "../styles/global.css";
 import { manifest } from "../data/manifest-loader";
+import JsonLd from "../components/JsonLd.astro";
+import {
+  organizationJsonLd,
+  websiteJsonLd,
+  datasetJsonLd,
+  type JsonLdObject,
+} from "../lib/seo";
+import { RELEASE } from "../lib/release";
 
 interface Props {
   title?: string;
@@ -26,6 +34,13 @@ interface Props {
   ogImageAlt?: string;
   /** OG type — "website" by default; "article" for individual finds entries. */
   ogType?: "website" | "article";
+  /**
+   * Page-specific JSON-LD schemas (DigitalDocument, Article,
+   * BreadcrumbList, Speakable, etc.). Rendered alongside the
+   * site-wide Organization / WebSite / Dataset blocks. Pass a single
+   * object or an array.
+   */
+  jsonLd?: JsonLdObject | JsonLdObject[];
 }
 
 const DEFAULT_OG_IMAGE_ALT =
@@ -39,7 +54,27 @@ const {
   ogImage,
   ogImageAlt = DEFAULT_OG_IMAGE_ALT,
   ogType = "website",
+  jsonLd,
 } = Astro.props;
+
+// Site-wide JSON-LD blocks (rendered on every page): Organization +
+// WebSite (with SearchAction) + Dataset. Per Sprint 1 GEO foundation.
+// Page-specific schemas (DigitalDocument, Article, BreadcrumbList,
+// Speakable) come in via the `jsonLd` prop and are appended below.
+const siteJsonLd: JsonLdObject[] = [
+  organizationJsonLd(),
+  websiteJsonLd(),
+  datasetJsonLd({
+    cardCount: RELEASE.cardCount,
+    ocrPageCount: RELEASE.ocrPageCount,
+    lastTrancheDate: RELEASE.lastTrancheDate,
+    release01Date: RELEASE.release01Date,
+  }),
+];
+const pageJsonLd: JsonLdObject[] = jsonLd
+  ? Array.isArray(jsonLd) ? jsonLd : [jsonLd]
+  : [];
+const allJsonLd: JsonLdObject[] = [...siteJsonLd, ...pageJsonLd];
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const siteOrigin = Astro.site ? Astro.site.origin : "https://pursueindex.com";
@@ -138,6 +173,10 @@ const navItems = [
     <meta name="twitter:image:alt" content={ogImageAlt} />
     {/* twitter:site / twitter:creator deferred — no BPS X/Twitter handle yet.
         When one lands, add: <meta name="twitter:site" content="@..." /> */}
+
+    {/* JSON-LD schemas — site-wide + page-specific. See web/src/lib/seo.ts
+        and the Sprint 1 GEO foundation plan. */}
+    <JsonLd data={allJsonLd} />
 
     <title>{title}</title>
   </head>

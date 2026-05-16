@@ -4,11 +4,55 @@ import CardOcrIsland from "../../components/CardOcrIsland.tsx";
 import CardProvenance from "../../components/CardProvenance.tsx";
 import AgencyStamp from "../../components/AgencyStamp.astro";
 import { cards } from "../../data/manifest-loader";
+import {
+  digitalDocumentJsonLd,
+  breadcrumbJsonLd,
+  SITE_ORIGIN,
+} from "../../lib/seo";
 // Native ES imports for build-time data (matches diff.astro + the
 // timeline.astro fix on 2026-05-15; the readFileSync pattern was
 // unreliable on the Cloudflare Pages build context).
 import cardAltTitlesJson from "../../../../data/card_alt_titles.json";
 import displayDatesJson from "../../../../data/display_dates.json";
+
+// Page-1 OCR text snippet for the DigitalDocument JSON-LD body. Read
+// once at module-evaluation time from pages.json via fs (not ES
+// import — pages.json is ~7MB and would bloat every card page's
+// build artifact otherwise). The lookup is built once per build and
+// shared across all card pages emitted by getStaticPaths.
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+interface OcrPage {
+  card_id: string;
+  page: number;
+  text: string;
+}
+
+function loadFirstPageByCard(): Record<string, string> {
+  const here = dirname(fileURLToPath(import.meta.url));
+  // web/src/pages/card/[card_id].astro → web/public/data/pages.json
+  const path = resolve(here, "../../../public/data/pages.json");
+  let text: string;
+  try {
+    text = readFileSync(path, "utf8");
+  } catch {
+    return {};
+  }
+  const rows = JSON.parse(text) as OcrPage[];
+  const byCard: Record<string, string> = {};
+  for (const row of rows) {
+    if (!row || typeof row.text !== "string") continue;
+    const existing = byCard[row.card_id];
+    // Keep the lowest page number's text per card (page 1 if present).
+    if (existing === undefined || row.page === 1) {
+      byCard[row.card_id] = row.text;
+    }
+  }
+  return byCard;
+}
+const firstPageTextByCard = loadFirstPageByCard();
 
 // Alt-titles for cards that share asset_url with other rows upstream
 // (the 9-card cohort from duplicate-card-ids-discovery). When
@@ -116,9 +160,20 @@ const facts: Fact[] = [
 const isPdf = card.asset_type === "PDF" && !!card.asset_url;
 const isVideo = card.asset_type === "VID" && !!card.dvids_video_id;
 const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : ""} — PURSUE://INDEX`;
+
+// Page-specific JSON-LD: DigitalDocument (with first-page OCR slice)
+// + BreadcrumbList. Site-wide Org / WebSite / Dataset come from Base.
+const firstPageText = firstPageTextByCard[card.card_id] ?? "";
+const cardJsonLd = [
+  digitalDocumentJsonLd(card, firstPageText),
+  breadcrumbJsonLd([
+    { name: "Index", url: "/" },
+    { name: "Card", url: `/card/${card.card_id}` },
+  ]),
+];
 ---
 
-<Base title={pageTitle} description={card.description ?? card.title}>
+<Base title={pageTitle} description={card.description ?? card.title} jsonLd={cardJsonLd}>
   <article class="space-y-6">
     {/* Breadcrumb — visual `/` separators are decorative; aria-label
         on the nav makes the landmark discoverable. */}

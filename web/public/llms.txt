@@ -1,0 +1,198 @@
+# pursue-index
+
+> Citable archive of the U.S. Department of War PURSUE UAP document releases.
+> Primary-source documents, OCR transcripts, page-level citations.
+> Source: https://pursueindex.com
+
+## Meta
+
+- [Methodology](https://pursueindex.com/methodology): How the corpus is fetched, hashed, OCR'd, and made reproducible.
+- [About](https://pursueindex.com/about): What pursue-index is, and what it is not.
+- [How to cite](https://pursueindex.com/cite): Citation patterns for the corpus, individual cards, and OCR transcripts.
+- [Support](https://pursueindex.com/support): Operator contact + funding posture.
+- [API](https://pursueindex.com/api): Machine-readable endpoints (manifest, pages, embeddings).
+
+## Cards
+
+- [9e677b8697685311 — 18_100754_ General 1946-7_Vol_2](https://pursueindex.com/card/9e677b8697685311): Department of War (12/30/47).
+- [9317a6ea91f7425c — 18_6369445_General_1948_Vol_1](https://pursueindex.com/card/9317a6ea91f7425c): Department of War (6/15/48).
+- [973c1f75f55d0d39 — 255_413270_UFO's_and_Defense_What_Should_we_Prepare_For](https://pursueindex.com/card/973c1f75f55d0d39): NASA (5/8/26).
+- [7bd99ac64660258e — 331_120752_Numeric_Files_1944–1945_37153_German_Armament_Equipment_Documents](https://pursueindex.com/card/7bd99ac64660258e): Department of War (3/18/45).
+- [6bda02c546051f43 — 341_110448_Records_Relating_to_the_Collection_and_Dissemination_of_Intelligence_1948-1955-TS_CONT_No.2_2-5300-2-5399](https://pursueindex.com/card/6bda02c546051f43): Department of War (11/8/48).
+- [ed585fe68e3c4e7e — 341_110677_Numerical_File,_5-2500](https://pursueindex.com/card/ed585fe68e3c4e7e): Department of War (10/14/55).
+- [218e167fbd265d91 — 342_HS1-416511228_319.1 Flying Discs 1949](https://pursueindex.com/card/218e167fbd265d91): Department of War (1/9/50).
+- [7fd3d2656cbc83a6 — 38_143685_box_Incident_Summaries_101-172](https://pursueindex.com/card/7fd3d2656cbc83a6): Department of War (5/8/26).
+- [be226374e719c729 — 38_143685_box_Incident_Summaries_173-233](https://pursueindex.com/card/be226374e719c729): Department of War (5/8/26).
+- [b60b84a66715204a — 38_143685_box7_Incident_Summaries_1-100](https://pursueindex.com/card/b60b84a66715204a): Department of War (5/8/26).
+- [9e2c2621d67dde12 — 59_214434_SP 16 [7.18.1963]](https://pursueindex.com/card/9e2c2621d67dde12): Department of State (7/18/63).
+- [df43a479bc891969 — 59_64634_711.5612[7-2852](https://pursueindex.com/card/df43a479bc891969): Department of State (7/28/52).
+- [239d049dab8c81d5 — 65_HS1-101634279_100-DE-18221_Serial_844](https://pursueindex.com/card/239d049dab8c81d5): FBI (4/17/58).
+- [26b02d358ec20061 — 65_HS1-101634279_100-DE-26505](https://pursueindex.com/card/26b02d358ec20061): FBI (11/7/57).
+- [bcf2e688dfbc220d — 65_HS1-834228961_62-HQ-83894_Section_001](https://pursueindex.com/card/bcf2e688dfbc220d): FBI (5/8/26).
+- [4844321219e306af — 65_HS1-834228961_62-HQ-83894_Section_002](https://pursueindex.com/card/4844321219e306af): FBI (5/8/26).
+- [99c12a9c49a91750 — 65_HS1-834228961_62-HQ-83894_Section_003](https://pursueindex.com/card/99c12a9c49a91750): FBI (5/8/26).
+- [5ecebc7c28a8d8c7 — 65_HS1-834228961_62-HQ-83894_Section_004](https://pursueindex.com/card/5ecebc7c28a8d8c7): FBI (5/8/26).
+- [b246c782b16be168 — 65_HS1-834228961_62-HQ-83894_Section_005](https://pursueindex.com/card/b246c782b16be168): FBI (5/8/26).
+- [13f86e95aed52840 — 65_HS1-834228961_62-HQ-83894_Section_006](https://pursueindex.com/card/13f86e95aed52840): FBI (5/8/26).
+- [f85532f0514320be — 65_HS1-834228961_62-HQ-83894_Section_007](https://pursueindex.com/card/f85532f0514320be): FBI (5/8/26).
+- [ad721de274bb7d6c — 65_HS1-834228961_62-HQ-83894_Section_008](https://pursueindex.com/card/ad721de274bb7d6c): FBI (5/8/26).
+- [8bfd94484138d59b — 65_HS1-834228961_62-HQ-83894_Section_009](https://pursueindex.com/card/8bfd94484138d59b): FBI (5/8/26).
+- [7d58f0cac741650a — 65_HS1-834228961_62-HQ-83894_Section_010](https://pursueindex.com/card/7d58f0cac741650a): FBI (5/8/26).
+- [108379f8a86dbe9c — 65_HS1-834228961_62-HQ-83894_Serial_130](https://pursueindex.com/card/108379f8a86dbe9c): FBI (5/8/26).
+- [67c2ef13cc69891c — 65_HS1-834228961_62-HQ-83894_Serial_153](https://pursueindex.com/card/67c2ef13cc69891c): FBI (5/8/26).
+- [fa24eb58219a8dff — 65_HS1-834228961_62-HQ-83894_Serial_164](https://pursueindex.com/card/fa24eb58219a8dff): FBI (5/8/26).
+- [4b68726be4af8ff9 — 65_HS1-834228961_62-HQ-83894_Serial_220](https://pursueindex.com/card/4b68726be4af8ff9): FBI (5/8/26).
+- [954d1e1944bc6d17 — 65_HS1-834228961_62-HQ-83894_Serial_403](https://pursueindex.com/card/954d1e1944bc6d17): FBI (5/8/26).
+- [af42a6774881c110 — 65_HS1-834228961_62-HQ-83894_Serial_438](https://pursueindex.com/card/af42a6774881c110): FBI (5/8/26).
+- [f42c11ca158aeffc — 65_HS1-834228961_62-HQ-83894_Serial_449](https://pursueindex.com/card/f42c11ca158aeffc): FBI (5/8/26).
+- [e897e67f95bc1e1b — 65_HS1-834228961_62-HQ-83894_SUB_A](https://pursueindex.com/card/e897e67f95bc1e1b): FBI (5/8/26).
+- [fd8bfb9481bcbdd3 — DOW-UAP-D003, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/fd8bfb9481bcbdd3): Department of War (5/8/26).
+- [4382ccbf2a39513d — DOW-UAP-D004, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/4382ccbf2a39513d): Department of War (5/8/26).
+- [b21122b1b7b2d953 — DOW-UAP-D005, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/b21122b1b7b2d953): Department of War (5/8/26).
+- [f6d9556247ebeb2d — DOW-UAP-D006, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/f6d9556247ebeb2d): Department of War (5/8/26).
+- [6fc6419676926f13 — DOW-UAP-D007, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/6fc6419676926f13): Department of War (5/8/26).
+- [33cca99659328520 — DOW-UAP-D008, Mission Report, Djibouti, 2025](https://pursueindex.com/card/33cca99659328520): Department of War (5/8/26).
+- [c1c59236394f7b14 — DOW-UAP-D010, Mission Report, Middle East, May 2022](https://pursueindex.com/card/c1c59236394f7b14): Department of War (5/6/22).
+- [9a0a2d62e9f47eb8 — DOW-UAP-D012, Mission Report, Iraq, May 2022](https://pursueindex.com/card/9a0a2d62e9f47eb8): Department of War (5/20/22).
+- [43db2719407a7897 — DOW-UAP-D014, Mission Report, Iraq, May 2022](https://pursueindex.com/card/43db2719407a7897): Department of War (5/29/22).
+- [4555d94dd6067f57 — DOW-UAP-D016, Mission Report, Syria, July 2022](https://pursueindex.com/card/4555d94dd6067f57): Department of War (7/31/22).
+- [9961adf6adf1010b — DOW-UAP-D018, Mission Report, Iraq, December 2022](https://pursueindex.com/card/9961adf6adf1010b): Department of War (12/1/22).
+- [57e9cc7f9942e2cf — DOW-UAP-D019, Mission Report, Syria, February 21, 2023](https://pursueindex.com/card/57e9cc7f9942e2cf): Department of War (2/21/23).
+- [085c019c9899db9b — DOW-UAP-D020, Mission Report, Iraq, 2023](https://pursueindex.com/card/085c019c9899db9b): Department of War (3/31/23).
+- [d8e5687dc870892d — DOW-UAP-D023, Mission Report, United Arab Emirates, October 2023](https://pursueindex.com/card/d8e5687dc870892d): Department of War (10/31/23).
+- [15d23b5f88df64fa — DOW-UAP-D025, Mission Report, Greece, January 2024](https://pursueindex.com/card/15d23b5f88df64fa): Department of War (1/25/24).
+- [3a0d83f3e51179db — DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023](https://pursueindex.com/card/3a0d83f3e51179db): Department of War (6/7/24).
+- [9151e15016109463 — DOW-UAP-D028, Mission Report, Iraq, September 2024](https://pursueindex.com/card/9151e15016109463): Department of War (9/20/24).
+- [ea029a05470b8f4e — DOW-UAP-D032, Mission Report, Syria, October 2024](https://pursueindex.com/card/ea029a05470b8f4e): Department of War (10/20/24).
+- [3746998b8c506e5c — DOW-UAP-D033, Mission Report, Greece, October 2023](https://pursueindex.com/card/3746998b8c506e5c): Department of War (10/27/23).
+- [c788c17e8cc32230 — DOW-UAP-D035, Mission Report, Greece, October 2023](https://pursueindex.com/card/c788c17e8cc32230): Department of War (10/29/23).
+- [88a20bf256ccce7a — DOW-UAP-D038, Range Fouler Debrief, Middle East, May 2020](https://pursueindex.com/card/88a20bf256ccce7a): Department of War (5/14/20).
+- [a0f6663169c21caf — DOW-UAP-D042, Range Fouler Debrief, Japan, 2023](https://pursueindex.com/card/a0f6663169c21caf): Department of War (8/31/20).
+- [cc33e8c352fc80ce — DOW-UAP-D044, Range Fouler Reporting Form, Gulf of Aden, October 2020](https://pursueindex.com/card/cc33e8c352fc80ce): Department of War (10/15/20).
+- [17a8cc07fd8c694f — DOW-UAP-D048, Department of the Air Force Report, 1996](https://pursueindex.com/card/17a8cc07fd8c694f): Department of War (9/10/96).
+- [775d16ead1ec8fa1 — DOW-UAP-D049, Launch Summary, Vandenberg AFB, 2000](https://pursueindex.com/card/775d16ead1ec8fa1): Department of War (2/3/00).
+- [6d7faf71150107e9 — DOW-UAP-D050, Email Correspondence, INDOPACOM, April 2025](https://pursueindex.com/card/6d7faf71150107e9): Department of War (4/10/2025-4/11/2025).
+- [71758de42a2df926 — DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023](https://pursueindex.com/card/71758de42a2df926): Department of War (3/23/26).
+- [a3f68d208681dc64 — DOW-UAP-D052, Email Correspondance, NA, August 2024](https://pursueindex.com/card/a3f68d208681dc64): Department of War (10/31/24).
+- [2201422e542ed597 — DOW-UAP-D054, Mission Report, Mediterranean Sea, NA](https://pursueindex.com/card/2201422e542ed597): Department of War (5/8/26).
+- [669dd29723dd423f — DOW-UAP-D055, Mission Report, Syria, November 2016](https://pursueindex.com/card/669dd29723dd423f): Department of War (11/18/16).
+- [205f9d0f627074c3 — DOW-UAP-D056, Range Fouler Debrief, Arabian Sea, August 2020](https://pursueindex.com/card/205f9d0f627074c3): Department of War (8/24/20).
+- [c2961d7ccb95ae45 — DOW-UAP-D057, Range Fouler Reporting Form, Gulf of Aden, September 2020](https://pursueindex.com/card/c2961d7ccb95ae45): Department of War (9/4/20).
+- [9a3f23d9136eddf3 — DOW-UAP-D058, Range Fouler Debrief, NA, October 2020](https://pursueindex.com/card/9a3f23d9136eddf3): Department of War (10/27/20).
+- [39c999bd61b2e20f — DOW-UAP-D060, Mission Report, Arabian Gulf, August 2020](https://pursueindex.com/card/39c999bd61b2e20f): Department of War (8/8/20).
+- [a33faf4c40674462 — DOW-UAP-D061, Mission Report, Arabian Gulf, August 2020](https://pursueindex.com/card/a33faf4c40674462): Department of War (8/27/20).
+- [b8b5b17a6d70ef39 — DOW-UAP-D062, Mission Report, Strait of Hormuz, September 2020](https://pursueindex.com/card/b8b5b17a6d70ef39): Department of War (9/16/20).
+- [8e727ae36892cba9 — DOW-UAP-D063, Mission Report, Strait of Hormuz, October 2020](https://pursueindex.com/card/8e727ae36892cba9): Department of War (10/1/20).
+- [2fecc4f3b434e64d — DOW-UAP-D064, Mission Report, Iran, November 2020](https://pursueindex.com/card/2fecc4f3b434e64d): Department of War (11/2/20).
+- [aef933642db8134a — DOW-UAP-D065, Mission Report, Arabian Gulf, July 2020](https://pursueindex.com/card/aef933642db8134a): Department of War (7/16/20).
+- [bbc494426d526bdc — DOW-UAP-D074, Mission Report, Syria, November 2023](https://pursueindex.com/card/bbc494426d526bdc): Department of War (11/9/23).
+- [852224ee097b52cf — DOW-UAP-D075, Mission Report, Gulf of Aden, July 2024](https://pursueindex.com/card/852224ee097b52cf): Department of War (7/14/24).
+- [c1c59236394f7b14 — DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022](https://pursueindex.com/card/c1c59236394f7b14): Department of War (5/8/26).
+- [1b522e779e72877c — DOW-UAP-PR020, Unresolved UAP Report, Kuwait, May 2022](https://pursueindex.com/card/1b522e779e72877c): Department of War (5/8/26).
+- [43db2719407a7897 — DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022](https://pursueindex.com/card/43db2719407a7897): Department of War (5/8/26).
+- [4555d94dd6067f57 — DOW-UAP-PR022, Unresolved UAP Report, Syria, July 2022](https://pursueindex.com/card/4555d94dd6067f57): Department of War (5/8/26).
+- [9961adf6adf1010b — DOW-UAP-PR023, Unresolved UAP Report, Iraq, December 2022](https://pursueindex.com/card/9961adf6adf1010b): Department of War (5/8/26).
+- [d8e5687dc870892d — DOW-UAP-PR026, Unresolved UAP Report, United Arab Emirates, October 2023](https://pursueindex.com/card/d8e5687dc870892d): Department of War (5/8/26).
+- [d8e5687dc870892d — DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023](https://pursueindex.com/card/d8e5687dc870892d): Department of War (5/8/26).
+- [5ffbe11403179567 — DOW-UAP-PR028, Unresolved UAP Report, Greece, January 2024](https://pursueindex.com/card/5ffbe11403179567): Department of War (5/8/26).
+- [aa638778a043c89c — DOW-UAP-PR029, Unresolved UAP Report, United Arab Emirates, June 2024](https://pursueindex.com/card/aa638778a043c89c): Department of War (5/8/26).
+- [ea029a05470b8f4e — DOW-UAP-PR031, Unresolved UAP Report, Syria, October 2024](https://pursueindex.com/card/ea029a05470b8f4e): Department of War (5/8/26).
+- [ea029a05470b8f4e — DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024](https://pursueindex.com/card/ea029a05470b8f4e): Department of War (5/8/26).
+- [ea029a05470b8f4e — DOW-UAP-PR033, Unresolved UAP Report, Syria, October 2024](https://pursueindex.com/card/ea029a05470b8f4e): Department of War (5/8/26).
+- [3746998b8c506e5c — DOW-UAP-PR034, Unresolved UAP Report, Greece, October 2023](https://pursueindex.com/card/3746998b8c506e5c): Department of War (5/8/26).
+- [c788c17e8cc32230 — DOW-UAP-PR035, Unresolved UAP Report, Greece, October 2023](https://pursueindex.com/card/c788c17e8cc32230): Department of War (5/8/26).
+- [88a20bf256ccce7a — DOW-UAP-PR036, Unresolved UAP Report, Middle East, May 2020](https://pursueindex.com/card/88a20bf256ccce7a): Department of War (5/8/26).
+- [46d871c93e4585fd — DOW-UAP-PR037, Unresolved UAP Report, Middle East, 2020](https://pursueindex.com/card/46d871c93e4585fd): Department of War (5/8/26).
+- [9532749afe2d4273 — DOW-UAP-PR038, Unresolved UAP Report, Middle East, 2013](https://pursueindex.com/card/9532749afe2d4273): Department of War (5/8/26).
+- [e924a48f55719a0d — DOW-UAP-PR039, Unresolved UAP Report, Middle East, 2020](https://pursueindex.com/card/e924a48f55719a0d): Department of War (5/8/26).
+- [0499d6dc86c848d6 — DOW-UAP-PR040, Unresolved UAP Report, Middle East, 2020](https://pursueindex.com/card/0499d6dc86c848d6): Department of War (5/8/26).
+- [cf5c53c84485c70d — DOW-UAP-PR041, Unresolved UAP Report, Middle East, 2020](https://pursueindex.com/card/cf5c53c84485c70d): Department of War (5/8/26).
+- [c4da38582fc64334 — DOW-UAP-PR042, Unresolved UAP Report, Middle East, 2020](https://pursueindex.com/card/c4da38582fc64334): Department of War (5/8/26).
+- [7aede23a09ee4c6b — DOW-UAP-PR043, Unresolved UAP Report, Africa, 2025](https://pursueindex.com/card/7aede23a09ee4c6b): Department of War (5/8/26).
+- [42158cfc89c7ab84 — DOW-UAP-PR044, Unresolved UAP Report, Middle East, 2020](https://pursueindex.com/card/42158cfc89c7ab84): Department of War (5/8/26).
+- [2b6de60628336eb8 — DOW-UAP-PR045, Unresolved UAP Report, Middle East, 2020](https://pursueindex.com/card/2b6de60628336eb8): Department of War (5/8/26).
+- [9fdc75d250206f65 — DOW-UAP-PR046, Unresolved UAP Report, INDOPACOM, 2024](https://pursueindex.com/card/9fdc75d250206f65): Department of War (5/8/26).
+- [86c966cdd1f9f31a — DOW-UAP-PR047, Unresolved UAP Report, INDOPACOM, 2023](https://pursueindex.com/card/86c966cdd1f9f31a): Department of War (5/8/26).
+- [c5850afb384c768b — DOW-UAP-PR048, Unresolved UAP Report, INDOPACOM, 2024](https://pursueindex.com/card/c5850afb384c768b): Department of War (5/8/26).
+- [8d3833f36d05ec03 — DOW-UAP-PR049, Unresolved UAP Report, Department of the Army, 2026](https://pursueindex.com/card/8d3833f36d05ec03): Department of War (5/8/26).
+- [3893e5d0279db3b1 — FBI Photo A001](https://pursueindex.com/card/3893e5d0279db3b1): FBI (Late 2025).
+- [ba30b5fdb4f6d153 — FBI Photo A002](https://pursueindex.com/card/ba30b5fdb4f6d153): FBI (Late 2025).
+- [93cbdaad1d4ac853 — FBI Photo A003](https://pursueindex.com/card/93cbdaad1d4ac853): FBI (Late 2025).
+- [04b9179a7637d6ad — FBI Photo A004](https://pursueindex.com/card/04b9179a7637d6ad): FBI (Late 2025).
+- [613dc8ef961f9399 — FBI Photo A005](https://pursueindex.com/card/613dc8ef961f9399): FBI (Late 2025).
+- [5a487c793b488382 — FBI Photo A006](https://pursueindex.com/card/5a487c793b488382): FBI (Late 2025).
+- [c142741e8cafc659 — FBI Photo A007](https://pursueindex.com/card/c142741e8cafc659): FBI (Late 2025).
+- [819e725592d1ba79 — FBI Photo A008](https://pursueindex.com/card/819e725592d1ba79): FBI (Late 2025).
+- [1e63919cc6c3daf4 — FBI Photo B001](https://pursueindex.com/card/1e63919cc6c3daf4): FBI (Late 2025).
+- [67ab3ffef2aecf70 — FBI Photo B002](https://pursueindex.com/card/67ab3ffef2aecf70): FBI (Late 2025).
+- [0e3b3ec17a9ae021 — FBI Photo B003](https://pursueindex.com/card/0e3b3ec17a9ae021): FBI (Late 2025).
+- [672ae7eab15481ff — FBI Photo B004](https://pursueindex.com/card/672ae7eab15481ff): FBI (Late 2025).
+- [36bcfe2cfb5f3f54 — FBI Photo B005](https://pursueindex.com/card/36bcfe2cfb5f3f54): FBI (Late 2025).
+- [b279eac8e49cf4fe — FBI Photo B006](https://pursueindex.com/card/b279eac8e49cf4fe): FBI (Late 2025).
+- [ccd932b4f40e8de7 — FBI Photo B007](https://pursueindex.com/card/ccd932b4f40e8de7): FBI (Late 2025).
+- [0d7a23b29e6de1bf — FBI Photo B008](https://pursueindex.com/card/0d7a23b29e6de1bf): FBI (Late 2025).
+- [fd8286ffc6fbc1fb — FBI Photo B009](https://pursueindex.com/card/fd8286ffc6fbc1fb): FBI (Late 2025).
+- [af047a976bac0c89 — FBI Photo B010](https://pursueindex.com/card/af047a976bac0c89): FBI (Late 2025).
+- [19d8e1d503211c84 — FBI Photo B011](https://pursueindex.com/card/19d8e1d503211c84): FBI (Late 2025).
+- [2b947223739f5bd4 — FBI Photo B012](https://pursueindex.com/card/2b947223739f5bd4): FBI (Late 2025).
+- [16fcb501de623b9c — FBI Photo B013](https://pursueindex.com/card/16fcb501de623b9c): FBI (Late 2025).
+- [7d1b50162c29378a — FBI Photo B014](https://pursueindex.com/card/7d1b50162c29378a): FBI (Late 2025).
+- [3a5445e8aa7985d4 — FBI Photo B015](https://pursueindex.com/card/3a5445e8aa7985d4): FBI (Late 2025).
+- [3b36f3dc3b51cf3b — FBI Photo B016](https://pursueindex.com/card/3b36f3dc3b51cf3b): FBI (Late 2025).
+- [f8bd1f11b7a2ae48 — FBI Photo B017](https://pursueindex.com/card/f8bd1f11b7a2ae48): FBI (Late 2025).
+- [c568aea24f3aef31 — FBI Photo B018](https://pursueindex.com/card/c568aea24f3aef31): FBI (Late 2025).
+- [eda0a3d37c6dbbc3 — FBI Photo B019](https://pursueindex.com/card/eda0a3d37c6dbbc3): FBI (Late 2025).
+- [bdf033d4a47eaad3 — FBI Photo B020](https://pursueindex.com/card/bdf033d4a47eaad3): FBI (Late 2025).
+- [c304734c04357887 — FBI Photo B021](https://pursueindex.com/card/c304734c04357887): FBI (Late 2025).
+- [dc9f45a9ec6feb00 — FBI Photo B022](https://pursueindex.com/card/dc9f45a9ec6feb00): FBI (Late 2025).
+- [a417f61b2dbd671f — FBI Photo B023](https://pursueindex.com/card/a417f61b2dbd671f): FBI (Late 2025).
+- [6ded7ef20ded84c7 — FBI Photo B024](https://pursueindex.com/card/6ded7ef20ded84c7): FBI (Late 2025).
+- [1701a0f307714921 — FBI September 2023 Sighting - Composite Sketch](https://pursueindex.com/card/1701a0f307714921): FBI (9/1/23).
+- [b03309df6758ab15 — FBI September 2023 Sighting - Serial 003](https://pursueindex.com/card/b03309df6758ab15): FBI (9/1/23).
+- [e93f6997811954dc — FBI September 2023 Sighting - Serial 004](https://pursueindex.com/card/e93f6997811954dc): FBI (9/1/23).
+- [83aa439781e60e7b — FBI September 2023 Sighting - Serial 005](https://pursueindex.com/card/83aa439781e60e7b): FBI (9/1/23).
+- [5d9d3147f0b62d0c — NASA-UAP-D001, Apollo 12 Transcript, 1969](https://pursueindex.com/card/5d9d3147f0b62d0c): NASA (1969).
+- [78dc972c0c143d1e — NASA-UAP-D002, Apollo 17 Transcript, 1972](https://pursueindex.com/card/78dc972c0c143d1e): NASA (1972).
+- [48e4bc1bdb5a66e8 — NASA-UAP-D003, Gemini 7 Transcript, 1965](https://pursueindex.com/card/48e4bc1bdb5a66e8): NASA (12/5/65).
+- [167f6a21c7238d0c — NASA-UAP-D003A, Gemini 7 Audio Excerpt, 1965](https://pursueindex.com/card/167f6a21c7238d0c): NASA (12/5/65).
+- [d14e0371a5bf0f5e — NASA-UAP-D004, Apollo 11 Technical Crew Debriefing, 1969](https://pursueindex.com/card/d14e0371a5bf0f5e): NASA (1969).
+- [63c47bad93af4c92 — NASA-UAP-D005, Apollo 17 Crew Debriefing for Science, 1973](https://pursueindex.com/card/63c47bad93af4c92): NASA (1973).
+- [0b298cfc9c65a4d6 — NASA-UAP-D006, Apollo 17 Technical Crew Debriefing, 1973](https://pursueindex.com/card/0b298cfc9c65a4d6): NASA (1973).
+- [8bb54e0aec5e91ad — NASA-UAP-D007, Skylab Techincal Crew Debriefing 1973](https://pursueindex.com/card/8bb54e0aec5e91ad): NASA (1973).
+- [303ad110cb5fa8b4 — NASA-UAP-VM001, Apollo 12, 1969](https://pursueindex.com/card/303ad110cb5fa8b4): NASA (1969).
+- [bd9411951868bc3e — NASA-UAP-VM002, Apollo 12, 1969](https://pursueindex.com/card/bd9411951868bc3e): NASA (1969).
+- [19b18b71420602c5 — NASA-UAP-VM003, Apollo 12, 1969](https://pursueindex.com/card/19b18b71420602c5): NASA (1969).
+- [34f3278ad20d348f — NASA-UAP-VM004, Apollo 12, 1969](https://pursueindex.com/card/34f3278ad20d348f): NASA (1969).
+- [784dc42f885dc12e — NASA-UAP-VM005, Apollo 12, 1969](https://pursueindex.com/card/784dc42f885dc12e): NASA (1969).
+- [3deb237b1d68e203 — NASA-UAP-VM006, Apollo 17, 1972](https://pursueindex.com/card/3deb237b1d68e203): NASA (1972).
+- [8f354cf1d1f821f0 — State Department UAP Cable 001, Papua New Guinea, January 28, 1985](https://pursueindex.com/card/8f354cf1d1f821f0): Department of State (1/24/85).
+- [9877727cd0d1bbfe — State Department UAP Cable 002, Kazakhstan, January 31, 1994](https://pursueindex.com/card/9877727cd0d1bbfe): Department of State (1/27/94).
+- [ff30c985595153f3 — State Department UAP Cable 003, Tbilisi, Georgia, October 30, 2001](https://pursueindex.com/card/ff30c985595153f3): Department of State (10/28/2001-10/29/2001).
+- [5847028ebb855cf8 — State Department UAP Cable 004, Ashgabat, Turkmenistan, November 5, 2004](https://pursueindex.com/card/5847028ebb855cf8): Department of State (11/5/04).
+- [c48c078b811c0fd7 — State Department UAP Cable 005, Mexico, September 16, 2003](https://pursueindex.com/card/c48c078b811c0fd7): Department of State (9/12/03).
+- [be533a4ab886eb11 — USPER Statement about UAP Sighting](https://pursueindex.com/card/be533a4ab886eb11): FBI (Late 2025).
+- [8d0b85ce46109d06 — Western US Event](https://pursueindex.com/card/8d0b85ce46109d06): Department of War (2023).
+
+## Finds
+
+- [apollo-11-debriefing — Apollo 11 Technical Crew Debriefing: Three Anomalous Observations and How the Crew Reasoned About Them](https://pursueindex.com/finds/apollo-11-debriefing): Card d14e0371a5bf0f5e is the NASA Apollo 11 Technical Crew Debriefing (July 31, 1969), 11 OCR'd pages drawn from Volumes I and II of the post-mission report.…
+- [fbi-1947-dallas-teletype — The July 8 1947 Wyly Teletype and the March 22 1950 Hottel Memo](https://pursueindex.com/finds/fbi-1947-dallas-teletype): Card bcf2e688dfbc220d (FBI 62-HQ-83894 Section 1, page 70) is a single-page urgent teletype from SAC Dallas, sent at 6:17 PM on July 8, 1947, relaying a same…
+- [fbi-usper-2025-orb — An FBI FD-302 on a Senior Intelligence Official's UAP Sighting, Late 2025](https://pursueindex.com/finds/fbi-usper-2025-orb): Card be533a4ab886eb11 is a three-page FBI FD-302-style interview narrative classified SECRET//NOFORN on every page, summarizing a senior US intelligence offi…
+- [dow-uap-d20-iraq-2023-replaced — DOW-UAP-D20 — Replaced Between Tranches](https://pursueindex.com/finds/dow-uap-d20-iraq-2023-replaced): Card 80e36017873c19a1 — the upstream DOW-UAP-D20 Mission Report as published on 2026-05-08 — was removed from the war.gov listing between 2026-05-08 and 2026…
+- [fbi-62-hq-83894-section-6-removed-2026-05 — FBI 62-HQ-83894 Section 6 — PDF Pulled, Listing Kept](https://pursueindex.com/finds/fbi-62-hq-83894-section-6-removed-2026-05): Card 13f86e95aed52840 — Section 6 of the FBI's ten-section omnibus UFO file 62-HQ-83894 — was downloadable from war.gov in the 2026-05-08 PURSUE CSV and is n…
+- [hanawalt-cobalt-ray-1966 — The Hanawalt Cobalt-Ray Telegram, December 1966](https://pursueindex.com/finds/hanawalt-cobalt-ray-1966): In December 1966, W. R. Hanawalt of Harlingen, Texas sent a telegram to the Mexican Federal Security Police claiming that a 'cobalt ray' could control the hu…
+- [nasc-state-extraterrestrial-policy-memo-1963 — The Hunter-to-Packard Memo, July 18, 1963 — and the 1952 Document That Replaced It](https://pursueindex.com/finds/nasc-state-extraterrestrial-policy-memo-1963): Card aa3097b4c549a67a is a six-page interagency memorandum from Maxwell W. Hunter II of the National Aeronautics and Space Council to Robert F. Packard at St…
+- [dow-d23-arabian-gulf-october-2023 — DOW-UAP-D23 — Two Events, Forty-One Minutes Apart](https://pursueindex.com/finds/dow-d23-arabian-gulf-october-2023): Card d8e5687dc870892d is the October 2023 USCENTCOM Mission Report for an ISR sortie out of Al Dhafra over the Arabian Gulf. The MISREP records two separate …
+- [dow-d32-syria-october-2024 — DOW-UAP-D32 — How the Modern Military Writes Down a UAP Encounter](https://pursueindex.com/finds/dow-d32-syria-october-2024): Card ea029a05470b8f4e bundles the October 20, 2024 USCENTCOM Mission Report from Syria together with three separately-cataloged AARO 'Unresolved UAP Report' …
+- [dow-d33-aegean-sea-october-2023 — DOW-UAP-D33 — One Observation, In the Aircrew's Own Words](https://pursueindex.com/finds/dow-d33-aegean-sea-october-2023): Card 3746998b8c506e5c bundles the October 27, 2023 USCENTCOM Mission Report from the Aegean Sea with one paired AARO video, PR-34. Where the D32 Syria entry …
+- [apollo-17 — Apollo 17 Crew Debriefing — What's Actually There](https://pursueindex.com/finds/apollo-17): The Apollo 17 Technical Crew Debriefing is in the PURSUE archive. It's two pages. The 'unusual sightings' Cernan, Evans, and Schmitt described to NASA in Jan…
+- [dow-incidents-1-100 — DOW Box 7 — The Numbered Incidents, 1947–1948](https://pursueindex.com/finds/dow-incidents-1-100): The Department of War's Box 7 contains 100 numbered Unidentified Flying Object incident reports filed in CHECK-LIST format — the same standardized intake she…
+- [fbi-62-hq-83894-readers-guide — FBI 62-HQ-83894 — A Reader's Guide](https://pursueindex.com/finds/fbi-62-hq-83894-readers-guide): The FBI's omnibus UFO file is the largest single archive in PURSUE: ten cards, ~1,900 declassified pages spanning the first twenty years of the American 'fly…
+- [kenneth-arnold-june-24-1947 — Kenneth Arnold, June 24 1947 — In His Own Words](https://pursueindex.com/finds/kenneth-arnold-june-24-1947): Kenneth Arnold's typed account of his June 24, 1947 sighting over the Cascade Mountains is preserved in FBI 62-HQ-83894 Section 2 as a copy attached to a CIC…
+- [lapaz-green-fireballs-1948-1950 — Lincoln LaPaz and the Green Fireballs (1948–1950)](https://pursueindex.com/finds/lapaz-green-fireballs-1948-1950): Between December 1948 and May 1950, Dr. Lincoln LaPaz — Director of the Institute of Meteoritics at the University of New Mexico — compiled a sequence of sev…
+- [lowry-1949-ocr-limits — DOW 319.1 — When the Documents Don't Cooperate](https://pursueindex.com/finds/lowry-1949-ocr-limits): Card 218e167fbd265d91 is the Department of War's Flying Discs 1949 file — 143 pages of mostly carbon-copy correspondence between Air Force Flight Service Cen…
+- [muroc-1947 — The Muroc AAF Sightings, July 8, 1947](https://pursueindex.com/finds/muroc-1947): On the same day Roswell Army Air Field publicly announced and then retracted a 'flying disc' recovery, five Army Air Forces personnel at Muroc — the dry-lake…
+- [oak-ridge-radar-january-1951 — Oak Ridge, January 1951 — Radar Lock, Three Passes, No Visual](https://pursueindex.com/finds/oak-ridge-radar-january-1951): FBI 62-HQ-83894 Section 7 contains a Department of Defense Office of Public Information statement summarizing the Air Force's working understanding of uniden…
+- [presley-oak-ridge-photographs-1947 — Presley's Oak Ridge Photographs (July 1947) — Forensic Analysis of a False Positive](https://pursueindex.com/finds/presley-oak-ridge-photographs-1947): In July 1947 William Presley of 218 Illinois Avenue, Oak Ridge, Tennessee, photographed what he reported as a flying object. The photographs and negatives we…
+- [rhodes-photographs-phoenix-1947 — The Rhodes Photographs (Phoenix, 1947) — Custody, Not Verdict](https://pursueindex.com/finds/rhodes-photographs-phoenix-1947): On July 7, 1947, William Albert Rhodes photographed two unidentified objects over Phoenix, Arizona. He delivered the negatives to Army Air Forces Intelligenc…
+- [whats-not-uap — What's Not Actually UAP in the PURSUE Archive](https://pursueindex.com/finds/whats-not-uap): The PURSUE archive contains 161 documents. Not all 161 are about UAP. The most striking example is DOW-UAP-D48, a 181-page 1996 launch-range safety report on…

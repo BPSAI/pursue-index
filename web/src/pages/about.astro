@@ -1,14 +1,35 @@
 ---
 import Base from "../layouts/Base.astro";
-import { summary } from "../data/manifest-loader";
+import { summary, manifest } from "../data/manifest-loader";
+import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
 
 const s = summary();
+
+const aboutJsonLd = [
+  articleJsonLd({
+    id: "about",
+    data: {
+      title: "About — pursue-index",
+      summary: "About pursue-index — a citable, hash-pinned archive of the U.S. Department of War PURSUE UAP document releases.",
+      cards: [],
+      published: new Date("2026-05-08T00:00:00Z"),
+      updated: new Date(manifest.fetched_at),
+      tags: ["about"],
+    },
+  }),
+  speakableJsonLd(["#about-lede"]),
+  breadcrumbJsonLd([
+    { name: "Index", url: "/" },
+    { name: "About", url: "/about" },
+  ]),
+];
 ---
 
 <Base
   title="ABOUT — PURSUE://INDEX"
   description="About pursueindex — a citable, version-tracked archive of the DOW PURSUE UAP document releases."
   active="about"
+  jsonLd={aboutJsonLd}
 >
   <div class="space-y-6 max-w-3xl">
     <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
@@ -25,7 +46,7 @@ const s = summary();
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ What pursueindex is
       </h2>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+      <p id="about-lede" class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <span class="font-mono text-[color:var(--color-signal-cyan)]">pursueindex</span>
         is a searchable, citable archive of the U.S. Department of War's
         <em>Presidential Unsealing &amp; Reporting System for UAP Encounters</em>

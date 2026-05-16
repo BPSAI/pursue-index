@@ -1,14 +1,35 @@
 ---
 import Base from "../layouts/Base.astro";
 import { manifest } from "../data/manifest-loader";
+import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
 
 const sha = manifest.csv_sha256;
 const fetchedDate = new Date(manifest.fetched_at).toISOString().slice(0, 10);
+
+const citeJsonLd = [
+  articleJsonLd({
+    id: "cite",
+    data: {
+      title: "Citation Guide — pursue-index",
+      summary: "How to cite pursueindex.com — the corpus, individual cards, and OCR transcripts. Includes BibTeX and reproducibility notes.",
+      cards: [],
+      published: new Date("2026-05-08T00:00:00Z"),
+      updated: new Date(manifest.fetched_at),
+      tags: ["citation", "reproducibility"],
+    },
+  }),
+  speakableJsonLd(["#cite-lede"]),
+  breadcrumbJsonLd([
+    { name: "Index", url: "/" },
+    { name: "Cite", url: "/cite" },
+  ]),
+];
 ---
 
 <Base
   title="Citation Guide — PURSUE://INDEX"
   description="How to cite pursueindex.com — the corpus, individual cards, and OCR transcripts. Includes BibTeX and reproducibility notes."
+  jsonLd={citeJsonLd}
 >
   <article class="space-y-8 max-w-3xl">
     <header class="space-y-2">
@@ -18,7 +39,7 @@ const fetchedDate = new Date(manifest.fetched_at).toISOString().slice(0, 10);
       <h1 class="text-2xl font-semibold tracking-tight text-[color:var(--color-text-bright)]">
         How to cite pursueindex
       </h1>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+      <p id="cite-lede" class="text-sm leading-relaxed text-[color:var(--color-text)]">
         A short guide for researchers, journalists, and academic readers
         using pursueindex as a reference. The source documents are
         public-domain U.S. Government work; we provide the indexing layer
