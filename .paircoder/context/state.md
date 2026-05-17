@@ -1,57 +1,49 @@
 # Current State
 
-> Last updated: 2026-05-17 (Sprint 2.1 cache-headers fix completed locally on branch `sprint-2.1-cache-headers`, NOT pushed — pending operator review. Sprint 2 already merged as commit `7dfb008`; Sprint 1 GEO foundation merged as commit `73f6ecb`.)
+> Last updated: 2026-05-17 (Sprint 2.1 cache-headers fix + Sprint 1.1 robots-policy split both merged to main on 2026-05-17. Sprint 2.1 = `5840303`; Sprint 2 Lighthouse perf-pass = `7dfb008`; Sprint 1 GEO foundation = `73f6ecb`.)
 
 ## What Was Just Done
 
-**2026-05-17 — Sprint 2.1 (cache-headers Worker fix) implemented on branch `sprint-2.1-cache-headers` from `7dfb008`. Single change-set; 124 worker tests + arch check clean; not yet committed/pushed pending review.**
+**2026-05-17 — Sprint 1.1 (robots.txt allow/block policy split) implemented on branch `sprint-1.1-robots-policy`. Single uncommitted change-set; aligns the generated `/robots.txt` with the operator's stated policy — surface our content (search/user/archivers), block training-corpus crawlers. Resolves the visible contradiction between the prior single allow-list and CF's Managed robots.txt Disallow override.**
 
-### Root cause (verified post-Sprint-2 deploy)
+### Source-of-truth split (`web/src/lib/robots.ts`)
 
-Sprint 2 shipped `web/public/_headers` to set the path-based Cache-Control policy. Live verification showed the headers are NOT being applied — `/_astro/*` returns `cache-control: public, max-age=0, must-revalidate` (the assets binding's default) instead of `max-age=31536000, immutable`. Workers Static Assets with `run_worker_first: true` doesn't honor `_headers`: the Worker handles every request first and the ASSETS-binding response strips the directives. APAC LCP stayed at 12-13s because regional edges had no warm cache.
+- Replaced single `AI_CRAWLERS` (27 entries, all Allow) with two typed lists:
+  - **`AI_ALLOW` (22 entries)** — bots that surface our content to user-driven sessions OR archivers (preservation): `ChatGPT-User`, `OAI-SearchBot`, `Claude-User`, `Claude-SearchBot`, `Googlebot`, `Bingbot`, `Applebot`, `PerplexityBot`, `Perplexity-User`, `DuckAssistBot`, `MistralAI-User`, `Meta-ExternalFetcher`, `PetalBot`, `Amzn-SearchBot`, `Amzn-User`, `Google-CloudVertexBot`, `ProRataInc`, `Cloudflare Crawler`, `Anchor Browser`, `Manus Bot`, `archive.org_bot`, `Arquivo Web Crawler`.
+  - **`AI_BLOCK` (18 entries)** — bots whose stated purpose is bulk corpus ingestion for LLM pretraining: `GPTBot`, `ClaudeBot`, `Google-Extended`, `Applebot-Extended`, `PanguBot`, `Bytespider`, `TikTok Spider`, `CCBot`, `Meta-ExternalAgent`, `FacebookBot`, `Amazonbot`, `Diffbot`, `ImagesiftBot`, `img2dataset`, `cohere-training-data-crawler`, `Terracotta Bot`, `Timpibot`, `Novellum AI Crawl`.
+- `buildRobotsTxt()` emits the Disallow section **before** the Allow section so first-match parsers (RFC 9309) honor the deny rule before any other.
+- Wildcard `User-agent: *` block + `/api/` Disallow + Sitemap/Host directives preserved.
+- Operator-specific decisions encoded: Amazon granular (general Amazonbot blocked, search/user variants allowed); Terracotta + Timpibot flipped to Block; Novellum blocked conservatively; Cloudflare Crawler and Google Vertex Allow.
 
-### Fix
+### Test rewrite (`web/src/lib/robots.test.ts`)
 
-**Own Cache-Control in the Worker.** Path-based policy table in `worker/index.js::CACHE_POLICY`, applied by `withCacheHeaders()` at the ASSETS fall-through point — single source of truth, version-controlled, code-reviewable.
+- 15 node:test cases (up from 7). Coverage includes:
+  - Full list-membership snapshots for both `AI_ALLOW` and `AI_BLOCK`.
+  - Mutual-exclusion guard (Terracotta-style overlap regression test).
+  - Per-list dedupe guard.
+  - Critical-bot spot checks (ClaudeBot/GPTBot/Google-Extended/etc. must be Block; ChatGPT-User/Googlebot/Bingbot etc. must be Allow).
+  - Paired-vendor table test — confirms each `Allow`/`Disallow` pairing for the 14 vendor pairs.
+  - Order assertion — `AI_BLOCK` section precedes `AI_ALLOW` in the rendered body.
+  - Cardinality: total `Allow: /` = `AI_ALLOW.length + 1` (wildcard); total `Disallow: /` = `AI_BLOCK.length`; `Disallow: /api/` appears exactly once.
 
-Files modified:
-- **`worker/index.js`** — adds `CACHE_POLICY` table (5 path patterns), `ASSETS_DEFAULT_CACHE_CONTROL` sentinel, and exported `withCacheHeaders(response, request)`. Wired at the dispatch point: `return withSecurityHeaders(withCacheHeaders(await env.ASSETS.fetch(request), request));`. Cache headers layered INSIDE security headers so both are applied.
-- **`worker/tests/cache_headers.test.js` (new)** — 16 tests across two suites: 12 unit tests pinning the path-to-policy mapping (including the "preserve deliberate upstream Cache-Control" and "override the assets-binding default placeholder" edge cases) + 4 dispatcher-integration tests verifying the wrapper composes with `withSecurityHeaders`.
-- **`web/public/_headers`** — deleted (dead weight under `run_worker_first: true`).
+### Verification
 
-### Policy
+- `npm run test` — all green: 52 lib tests + 9 llms + 1 api-page; +8 net tests from Sprint 1.1.
+- Worker: `node --test tests/*.test.js` — 108 passed, 0 fail.
+- Python: `pytest tests/ -q` — 491 passed.
+- `bpsai-pair arch check` — clean on `web/src/lib/robots.ts` (197 lines), `web/src/lib/robots.test.ts` (337 lines), `web/src/pages/robots.txt.ts` (unchanged).
 
-Same TTL buckets as the (now-deleted) `_headers` file. Order matters; first match wins:
-- `/_astro/*` → `public, max-age=31536000, immutable` (content-hashed)
-- `/data/<file>.json` → `public, max-age=3600, stale-while-revalidate=86400`
-- `/data/embeddings.bin` → `public, max-age=3600, stale-while-revalidate=86400`
-- `/data/thumbs/*`, `/og/*` → `public, max-age=604800, stale-while-revalidate=2592000`
-- `/llms.txt`, `/llms-full.txt`, `/robots.txt`, `/sitemap*.xml` → `public, max-age=3600`
-- Anything else: pass through, no header set.
-- Upstream Cache-Control deliberately set by a handler (e.g. chat SSE `private, no-store`) is preserved; only the assets binding's default `public, max-age=0, must-revalidate` is treated as overridable.
+**2026-05-17 — Sprint 2.1 (cache-headers Worker fix) merged to main as `5840303`.** Workers Static Assets with `run_worker_first: true` doesn't honor `_headers`; cache directives now live in `worker/index.js::CACHE_POLICY` applied by `withCacheHeaders()`. `web/public/_headers` deleted. 124 worker tests (+16 cache cases), arch check clean. Path-based TTL: `/_astro/*` immutable 1yr; `/data/<file>.json` + `/data/embeddings.bin` 1h fresh + 24h SWR; `/data/thumbs/*` + `/og/*` 1wk + 30d SWR; `/llms*.txt` + `robots.txt` + `sitemap*.xml` 1h fresh. Operator follow-up: `curl -sSI https://pursueindex.com/_astro/<any>.css | grep cache-control` should show `max-age=31536000, immutable`; re-run PSI from six baseline regions ~5 min after CF edge warm.
 
-### Test results
+## What's Next
 
-- **Worker:** 124 tests (108 prior + 16 new), all green.
-- **arch check:** clean on `worker/index.js` (335 lines) and `worker/tests/cache_headers.test.js` (228 lines).
+1. **Operator review + push.** Branch `sprint-1.1-robots-policy` is local-only. Review the rendered robots.txt sample (15 Disallow blocks then 22 Allow blocks then wildcard), confirm bot lists match policy, then `git push -u origin sprint-1.1-robots-policy` and merge.
+2. **Sprint 1.1.b (operator-side, NOT code).** Mirror the AI_BLOCK list in Cloudflare Bot Management (or WAF custom rules). robots.txt is voluntary — the dashboard rule is what actually stops a non-compliant crawler. Concrete steps:
+   - CF dashboard → Security → Bots → Bot Management → add each `AI_BLOCK` UA to the "block" managed list, OR
+   - WAF → Custom Rules → "block if `cf.bot_management.verified_bot == false AND http.user_agent contains <name>`" per Block entry.
+3. **Resume Sprint 2.1 (cache-headers).** That branch (`sprint-2.1-cache-headers`) is separately in-flight with its own changes (`worker/index.js`, `cache_headers.test.js`, `web/public/_headers` reorg). Independent of Sprint 1.1.
 
-### Expected post-deploy
-
-- `curl -sSI https://pursueindex.com/_astro/<x>.css | grep cache-control` should show `public, max-age=31536000, immutable` (vs current `max-age=0, must-revalidate`).
-- APAC LCP should drop further once edge cache warms post-deploy — Sprint 2 already cut the homepage-visible eager JS; this gates the regional cache fill that Sprint 2 attempted but couldn't complete.
-
-### Branch state
-
-- Branch: `sprint-2.1-cache-headers` (from `main` at `7dfb008`).
-- One change-set staged-or-modifiable; **NOT committed/pushed**. Operator reviews locally first.
-- Stashes carry over from this session's branch-switching: `sprint-2.1-*` and `robots-*` stashes can be dropped by the operator (they're snapshots of partial work that was successfully redone).
-
-### Operator follow-ups
-
-1. After review + push + CF deploy, run `curl -sSI https://pursueindex.com/_astro/<any>.css | grep -i cache-control` to verify the headers are now stamped.
-2. Re-run PSI from the six baseline regions (~5 min after deploy for edge warm) and fill the post-fix row in `docs/perf-baseline.md`. Headroom on APAC LCP should finally close now that the regional edge can cache.
-
-## What Was Just Done
+---
 
 **2026-05-16 — Sprint 2 (Lighthouse perf-pass) implemented on branch `sprint-2-lighthouse`. Single uncommitted change-set targeting the homepage's TBT + LCP + resource-size catastrophe. Tests + arch checks clean; build green; not yet pushed pending operator review.**
 
