@@ -147,33 +147,49 @@ def test_commit_step_guards_against_missing_history_file() -> None:
     )
 
 
-def test_path_filter_is_narrowed_to_render_affecting_paths() -> None:
-    """L3 (vaivora): trigger paths exclude state.md / docs / OG-only commits.
+def test_triggers_are_release_cron_and_dispatch_only() -> None:
+    """Sprint 4c cadence change (2026-05-17): no push trigger.
 
-    The pre-fix filter was ``web/**``, which fired on every meaningful
-    push touching the web tree — including state.md sweeps from the
-    paircoder hooks (which never change rendered HTML) and docs
-    subdirs. CI minute cost was non-trivial. Narrowed list contains
-    only paths whose change actually affects the public site.
+    Operator removed the per-push trigger because Wayback's actual
+    wall-clock is 30-90 min per run (Wayback's save endpoint takes
+    10-30s per URL; script delay is only 2s — Wayback latency is the
+    dominant cost). At 1 GHA min per real minute, every render-
+    affecting push was burning 30-90 GHA min for trivial benefit.
+
+    Cadence now:
+      * ``release: published`` — formal version cuts
+      * weekly schedule — drift-catcher between releases (24h
+        freshness gate skips most URLs)
+      * ``workflow_dispatch`` — manual
+
+    The ``push`` trigger MUST be absent (regression guard).
     """
     data = _load()
-    # YAML quirk: `on:` parses as bool True under safe_load. Look up
-    # either key form.
     on_block = data.get("on") or data.get(True)
     assert on_block, "workflow must define triggers"
-    paths = on_block["push"]["paths"]
-    # Manifest changes always warrant a fresh snapshot.
-    assert "data/manifests/latest.json" in paths
-    # Source code paths that affect rendered HTML — pages, content,
-    # components, layouts. Public dir (OG bot output) is intentionally
-    # absent because OG image changes don't change the public URL.
-    assert any("web/src/pages" in p for p in paths)
-    assert any("web/src/content" in p for p in paths)
-    assert any("web/src/components" in p for p in paths)
-    assert any("web/src/layouts" in p for p in paths)
-    # The over-broad `web/**` must be gone.
-    assert "web/**" not in paths, (
-        "L3: `web/**` is too broad — narrow to render-affecting subdirs"
+
+    # Required triggers
+    assert "release" in on_block, "expected `release: published` trigger"
+    release_types = on_block["release"].get("types", [])
+    assert "published" in release_types, (
+        "release trigger must be gated to `types: [published]`"
+    )
+
+    assert "schedule" in on_block, "expected weekly drift-catcher schedule"
+    cron_list = on_block["schedule"]
+    assert any("cron" in entry for entry in cron_list), (
+        "schedule block must define at least one cron expression"
+    )
+
+    assert "workflow_dispatch" in on_block, (
+        "workflow_dispatch must remain for manual operator runs"
+    )
+
+    # Regression guard: no per-push trigger
+    assert "push" not in on_block, (
+        "Sprint 4c removed the `push` trigger to bound GHA minute cost; "
+        "do not re-introduce without reading the cadence-change rationale "
+        "in the workflow file's header comment"
     )
 
 

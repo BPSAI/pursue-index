@@ -7,24 +7,34 @@ name: Wayback save after tranche change
 # preservation: byte-archive proves *what was served*, Wayback proves
 # *that the public URL rendered that content at this date*.
 #
-# Triggers:
-#   * `push` to main, gated to runs that touched a path that actually
-#     affects the rendered public site (Sprint 4a fix-pass L3 narrows
-#     this from `web/**` so state.md sweeps + docs subdirs don't
-#     trigger fresh snapshots).
-#   * `workflow_dispatch` — manual button for operator-triggered
-#     re-snapshot (e.g., after a content-only change that didn't
-#     touch the manifest).
+# Triggers (Sprint 4c cadence change 2026-05-17):
+#   * `release: published` — fires on every formal GitHub release
+#     (operator-cut version tag). Wayback is forensic preservation
+#     of public URL state at version cuts, not real-time tracking.
+#   * `schedule: weekly` (Sunday 08:00 UTC) — drift-catcher between
+#     releases. The 24h freshness gate in the script means most URLs
+#     will be skipped on each run; the cron exists to catch URLs
+#     modified outside a release (e.g., content-collection updates
+#     between tags).
+#   * `workflow_dispatch` — manual button for ad-hoc snapshots.
 #
-# Synchronization with CF deploy: the public site is deployed by the
-# CF Workers Builds dashboard pipeline (auto-deploy on push to main),
-# NOT by the in-repo `deploy-cf.yml` (which is now workflow_dispatch-
-# only). The 5-min sleep below is timed against the CFWB pipeline,
-# which typically takes ~2-3 min from push → live. If CFWB stalls,
-# Wayback captures the PRE-deploy version of the site — affects
-# snapshot quality, not pipeline correctness. The next scheduled run
-# (or a manual workflow_dispatch after the operator confirms deploy)
-# captures the post-stall version once the freshness window expires.
+# REMOVED 2026-05-17 (per operator): the prior `push` trigger on
+# narrowed paths. Reality: the script takes 30-90 min wall-clock per
+# run because Wayback's save endpoint takes ~10-30 s per URL (script
+# delay is 2s; Wayback latency is the dominant cost). At ~1 min of
+# billable GHA minutes per minute of script wall-clock, every
+# render-affecting push was burning 30-90 GHA min for trivial benefit
+# (most pushes don't change content beyond the prior snapshot).
+# Release-trigger + weekly cron + on-demand covers the use case at
+# a fraction of the minute cost.
+#
+# Synchronization with CF deploy: release-triggered runs fire after
+# the release is published, which the operator does after confirming
+# CF Workers Builds finished deploying. Manual + cron paths use the
+# 5-min sleep below as a defensive wait. If CFWB stalls, Wayback
+# captures the pre-deploy version — affects snapshot quality, not
+# pipeline correctness. The next run picks up the post-stall version
+# once the freshness window expires.
 #
 # Wayback rate-limits hard: the script defaults to 2 s between
 # submissions and reads `data/wayback-history.json` to skip URLs
@@ -40,17 +50,13 @@ name: Wayback save after tranche change
 # failure: the script logs the issue and exits 0.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      # L3 (vaivora): narrow from `web/**` to paths that actually
-      # change the rendered public site. State-only sweeps, docs/,
-      # and OG-render-bot commits should not trigger fresh snapshots.
-      - 'data/manifests/latest.json'
-      - 'web/src/pages/**'
-      - 'web/src/content/**'
-      - 'web/src/components/**'
-      - 'web/src/layouts/**'
+  release:
+    types: [published]
+  schedule:
+    # Sunday 08:00 UTC — low-traffic window for the drift-catcher.
+    # Offset from any other cron's `0 8 * * *` pattern so workflows
+    # don't pile up on the same minute boundary.
+    - cron: '7 8 * * 0'
   workflow_dispatch:
 
 permissions:
