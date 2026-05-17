@@ -155,3 +155,13 @@ docs/launch/journalist-outreach.md
 # but contains internal jargon, absolute paths, and occasional
 # credential fragments — keep out of the public repo.
 /.claude/agent-memory/
+
+# Claude Code's harness creates a per-cwd `.claude/` scope; when an
+# agent runs with `cwd=web/` (Astro tooling) the harness mirrors a
+# subset of `.claude/` state there (mostly `agent-memory/`). Same
+# rationale as the root-level rule above — local-only, never imported.
+/web/.claude/
+
+# Per-session scheduler lock the harness drops at the project root.
+# Process-local; never relevant to source.
+/.claude/scheduled_tasks.lock
