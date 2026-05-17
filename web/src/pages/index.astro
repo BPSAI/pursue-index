@@ -2,12 +2,28 @@
 import Base from "../layouts/Base.astro";
 import CardExplorer from "../components/CardExplorer.tsx";
 import HomepageSearch from "../components/HomepageSearch.tsx";
-import { cards, summary } from "../data/manifest-loader";
+import { cards as manifestCards, summary } from "../data/manifest-loader";
 import { RELEASE, formatPageCount } from "../lib/release";
+import { SITE_ORIGIN, itemListJsonLd } from "../lib/seo";
 
 const s = summary();
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const fetchedDate = new Date(s.fetchedAt).toISOString().slice(0, 10);
+
+// Sprint 4b Codex-P1 fix: the CardExplorer card grid hydrates from a
+// runtime fetch of /data/cards-summary.json — crawlers without JS would
+// see an empty grid. Inject a schema.org ItemList in <head> at SSR
+// time so the canonical card enumeration is in the static HTML
+// (~16 KB JSON; ~5 KB gzipped). Crawlers parse this as the authoritative
+// list of cards; users still get the runtime-fetched interactive grid.
+// See `web/src/lib/seo.ts::itemListJsonLd`.
+const cardItemList = itemListJsonLd(
+  manifestCards.map((c) => ({
+    id: c.card_id,
+    name: c.title,
+    url: `${SITE_ORIGIN}${base}/card/${c.card_id}`,
+  })),
+);
 
 // Hero example queries — each verified to return real corpus hits via
 // `jq` against web/public/data/pages.json. Page-level AND counts captured
@@ -33,6 +49,7 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
   title="PURSUE://INDEX — Declassified DOW UAP / UFO Document Archive"
   description={`Search ${ocrPageCountLabel} OCR'd pages of the declassified U.S. Department of War PURSUE UAP / UFO release — FBI memos, NASA records, mission reports & AARO findings.`}
   active="index"
+  jsonLd={cardItemList}
 >
   <div class="space-y-10">
     {/* ===== Hero — search-first primary affordance =====
@@ -155,8 +172,17 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
           there. CLS-safe because the server-rendered output already
           has the final dimensions: filter chrome is full-width and
           the grid is `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
-          with intrinsic li sizing. */}
-      <CardExplorer client:visible cards={cards} base={base} />
+          with intrinsic li sizing.
+
+          Sprint 4b Theme F: dropped the `cards` prop. CardExplorer
+          fetches /data/cards-summary.json on hydration (prebuild
+          generates the file from manifest.json). This removes a
+          ~440 KB HTML-encoded JSON blob from dist/index.html. The
+          252 KB JSON file is served once, CF-edge-cached under the
+          existing /data/*.json rule, and gzips to ~50 KB on the
+          wire. Lighthouse "Avoid an excessive DOM size" Best
+          Practices flag — that's what this fixes. */}
+      <CardExplorer client:visible base={base} />
     </section>
   </div>
 </Base>

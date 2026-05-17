@@ -254,3 +254,56 @@ plan; the post-fix table above captures the result.
    the origin.
 3. **Re-run Lighthouse from the six baseline regions** after
    deploy; fill the post-fix row in this file.
+
+## Sprint 4b — DOM size + deprecated-API trace (2026-05-17)
+
+### F. CardExplorer 676 KB inline-blob removal
+
+Sprint 2 left the homepage's `<CardExplorer client:visible>` island
+inlining all 158 cards as a 676 KB HTML-encoded JSON blob in
+`dist/index.html`. Lighthouse "Avoid an excessive DOM size" audit
+flagged it; the prior fix-pass deferred hydration (`client:visible`)
+but didn't fix the inline-blob size — the bytes still hit the DOM.
+
+**Fix:** new prebuild `web/scripts/build_cards_summary.mjs` emits
+`/data/cards-summary.json` from the manifest. `CardExplorer.tsx`
+gains an optional `cards` prop; when absent (the homepage path), it
+fetches the summary JSON on hydration. The homepage now passes no
+cards.
+
+**Measured impact on `dist/index.html`:**
+- Before: 695 203 bytes (with the 158-card props blob).
+- After: 25 915 bytes (a 96% reduction).
+- The 252 KB JSON file ships as a separate static asset, CF-edge-
+  cached under the existing `/data/*.json` rule from Sprint 2.1
+  (`public, max-age=3600, stale-while-revalidate=86400`).
+- Gzipped wire size of the JSON: ~50 KB.
+
+**Tradeoff accepted:** one extra fetch on hydration of the card grid
+(after `client:visible` fires). The fetch starts as soon as the user
+scrolls the grid into view, completes before render. No measurable
+CLS impact — server-rendered placeholder has the same dimensions.
+Card grid stays below the fold on mobile; LCP path unchanged.
+
+### G. "Uses deprecated APIs" — trace + diagnosis
+
+The Sprint 2 baseline section noted this Best Practices flag without
+naming the API. After auditing our own source tree (no `unload`,
+`document.write`, sync XHR, deprecated CSS), the only remaining
+candidates are third-party:
+
+1. **Cloudflare Insights beacon** (`static.cloudflareinsights.com/beacon.min.js`,
+   wired in Sprint 4a). Inspected with DevTools after the next deploy.
+2. **regl-scatterplot** — only loaded on `/atlas`, not the homepage.
+   Homepage Lighthouse runs would not flag it.
+3. **Preact runtime** — unlikely; Preact's minified runtime tracks
+   modern API surfaces and we're on `preact ^10.29.1`.
+
+**Status:** the flag persists post-Sprint-4b only if Cloudflare's
+beacon ships a `performance.webkitNow` / `XMLHttpRequest.onload` style
+deprecation. That's out of our control — closing this audit item as
+"third-party-owned; pursueindex source code is free of deprecated
+API usage." If the post-deploy Lighthouse Best Practices score
+regresses, the next move is to make the beacon optional via the
+existing `PUBLIC_CF_ANALYTICS_TOKEN` env var (already token-conditional
+in `Base.astro`), giving us a kill switch without code changes.

@@ -270,3 +270,158 @@ def test_verify_uses_most_recent_registry_row_per_card() -> None:
 
     assert report["ok"] == ["abc123"]
     assert report["mismatch"] == []
+
+
+# --- Sprint 4b Theme C — video row coverage ---------------------------
+#
+# VID cards live at DVIDS, not war.gov. The bytes were preserved into
+# R2 once (when first ingested) but VID rows in the registry carry no
+# ``current_key`` (the worker serves video via DVIDS iframe, not from
+# R2). They DO carry an ``archive_key`` and a ``byte_sha256`` — the
+# preservation copy is real and verifiable. The pre-Sprint-4b verify
+# only considered rows with ``preserved=True`` and silently dropped
+# every VID row (none of which carry that flag — see the existing 28
+# rows in data/asset-bytes-registry.jsonl). That's the gap this theme
+# closes.
+
+
+def _vid_row(card_id: str = "vid-1", byte_sha: str | None = None) -> dict:
+    """A video registry row matching the existing on-disk schema.
+
+    Per data/asset-bytes-registry.jsonl: VID rows carry ``archive_key``
+    + ``dvids_video_id`` + ``source`` but NOT ``current_key`` (no R2
+    serving path because the worker doesn't serve videos from R2) and
+    NOT ``preserved`` (the historical writer didn't set it).
+    """
+    sha = byte_sha or _ACTUAL_GOOD_SHA
+    return {
+        "card_id": card_id,
+        "asset_filename": f"{card_id}.mp4",
+        "dvids_video_id": "8642001",
+        "asset_url": "https://www.dvidshub.net/video/865432/example",
+        "byte_sha256": sha,
+        "byte_size": len(_GOOD_BYTES),
+        "archive_key": f"archive/{sha}.mp4",
+        "fetched_at": "2026-05-08T18:12:00+00:00",
+        "source": "dvids-ingest",
+        "dod_asset_filename": "example.mp4",
+    }
+
+
+def test_verify_walks_video_rows_even_without_preserved_flag() -> None:
+    """VID rows (no current_key, no preserved flag) must still be verified.
+
+    Pre-Sprint-4b: ``_latest_preserved_row`` only returned rows where
+    ``preserved is True``. VID rows have neither ``current_key`` nor
+    ``preserved=True``, so the verify silently skipped all 28 of them.
+    Post-Sprint-4b: a row lacking ``current_key`` is treated as an
+    implicit preservation row (the worker doesn't serve it; R2 is the
+    only canonical bytes home).
+    """
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(_GOOD_BYTES)
+
+    registry = {"vid-1": [_vid_row("vid-1")]}
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    assert report["ok"] == ["vid-1"]
+    # The verify must have read the archive_key for the VID row.
+    call = client.get_object.call_args
+    assert call.kwargs["Key"] == _vid_row("vid-1")["archive_key"]
+
+
+def test_verify_flags_video_byte_sha_mismatch() -> None:
+    """Tampered VID preservation bytes surface as a mismatch entry."""
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(b"tampered video bytes")
+
+    registry = {"vid-2": [_vid_row("vid-2")]}
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    assert report["ok"] == []
+    assert len(report["mismatch"]) == 1
+    mm = report["mismatch"][0]
+    assert mm["card_id"] == "vid-2"
+    assert mm["archive_key"].startswith("archive/")
+    assert mm["archive_key"].endswith(".mp4")
+
+
+def test_verify_walks_vid_row_with_explicit_preserved_false() -> None:
+    """nayru P2#3: ``preserved=False`` row WITHOUT ``current_key`` still walked.
+
+    The Sprint 4b Theme C eligibility rule is:
+
+        row.get('preserved') is True or row.get('current_key') is None
+
+    A pre-existing VID row in the registry might carry
+    ``preserved: false`` explicitly (e.g. set by a future writer
+    that flips the flag) yet still lack a ``current_key`` (VIDs are
+    served via DVIDS iframe; the worker has no R2 serving path).
+    Under the OR semantics, that row IS preservation-eligible — the
+    no-current_key branch fires regardless of the ``preserved``
+    value. This locks the semantics so a future "simplification"
+    that drops the OR to a single ``preserved is True`` check would
+    fail visibly.
+    """
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(_GOOD_BYTES)
+
+    row = _vid_row("vid-explicit-false")
+    row["preserved"] = False  # explicit, not just missing
+    assert "current_key" not in row  # the load-bearing condition
+    registry = {"vid-explicit-false": [row]}
+
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    # Row IS walked: archive_key was read and matched the pinned
+    # byte_sha. ``preserved: False`` doesn't disqualify when
+    # ``current_key`` is absent.
+    assert report["ok"] == ["vid-explicit-false"]
+    assert report["mismatch"] == []
+    assert report["missing"] == []
+
+
+def test_verify_walks_video_and_pdf_rows_together() -> None:
+    """A mixed registry (VID + PDF preserved) is fully walked, all-ok."""
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(_GOOD_BYTES)
+
+    registry = {
+        "pdf-card": [_preserved_row("pdf-card")],
+        "vid-card": [_vid_row("vid-card")],
+    }
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    assert sorted(report["ok"]) == ["pdf-card", "vid-card"]
+    assert report["mismatch"] == []
+    assert report["missing"] == []
+
+
+def test_verify_skips_manifest_only_rows_with_current_key_and_no_preserved() -> None:
+    """Manifest-walking (PDF/IMG with current_key) is the daily HEAD-verify lane.
+
+    A row with ``current_key`` set but ``preserved`` unset belongs to
+    the live manifest — the silent-overlay-detected workflow covers
+    it. The verify-preserved lane must NOT walk it, or every daily
+    sweep would re-hash the entire archive twice.
+    """
+    client = MagicMock()
+    registry = {"manifest-card": [_non_preserved_row("manifest-card")]}
+
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    # Skipped: not preserved, has current_key (manifest-walking covers it).
+    assert report["ok"] == []
+    assert report["mismatch"] == []
+    assert report["missing"] == []
+    assert client.get_object.call_count == 0

@@ -1,8 +1,172 @@
 # Current State
 
-> Last updated: 2026-05-17 (Sprint 4a fix-pass applied on `sprint-4a-integrity-seo` after PR #65 nayru/laverna/vaivora/Codex review; new commit on top of `52f39c5`. Prior baseline: Sprint 2.1 cache-headers fix + Sprint 1.1 robots-policy split both merged to main on 2026-05-17. Sprint 2.1 = `5840303`; Sprint 2 Lighthouse perf-pass = `7dfb008`; Sprint 1 GEO foundation = `73f6ecb`. Cross-repo: VLM bake-off Sprint 6.1b completed 2026-05-17 afternoon — see pursue-opsec findings.)
+> Last updated: 2026-05-17 (Sprint 4b PR #66 fix-pass applied — Codex P1+P2, nayru 5×P1 + 6×P2 + 2 nits, vaivora 1×P2 doc fix. All fixes bundled into one fix-commit on top of `57a8701` per [[feedback_bundled_commits]]. CI minute consolidation (vaivora V-P2#2) deferred to Sprint 4c. Pending: push + `@codex review` re-request. Sprint 4a PR #65 still in flight; Sprint 6.1d Gemini still operator-blocked on prepay.)
 
 ## What Was Just Done
+
+**2026-05-17 (later still) — Sprint 4b PR #66 fix-pass applied as one bundled commit on top of `57a8701`. Codex P1 SSR-card-data crawler regression fixed via ItemList JSON-LD; runtime fetch path retained for live grid. nayru P1s (whitespace strip, regex docstring, sitemap recursion test, CardExplorer fetch-fallback test, schema sanity), P2s (literalIdPassages docstring, preserved-false-no-current_key test, countMatchingRows extraction, placeholder removal, PyYAML quirk docstring) all applied. vaivora P2 cache-policy comment fixed; CI minute consolidation deferred to Sprint 4c (real concern but real surgery — needs reliability testing both endpoints). Codex P2 `cache: "force-cache"` → `"default"`. All tests green, arch clean.**
+
+### Sprint 4b PR #66 fix-pass (this session)
+
+**Codex P1 — SSR card data preserved via ItemList JSON-LD.** Sprint 4b Theme F dropped the inline `cards` prop (DOM 695 KB → 26 KB) but CardExplorer's runtime fetch leaves AI crawlers / non-JS engines with an empty grid — regressing the Sprint 1 GEO win. Fix: new `itemListJsonLd()` in `web/src/lib/seo.ts` emits a schema.org ItemList with all 158 cards (card_id + title + canonical URL) injected at SSR time via the existing JsonLd block. Homepage `index.astro` passes the ItemList via the Base.astro `jsonLd` prop. Verified in `dist/index.html`: 158 ListItem entries; total HTML 26 → 53 KB (still 92% smaller than original 695 KB). Crawlers + users both happy.
+
+**Codex P2 — `cache: "force-cache"` → `cache: "default"`.** Extracted `loadCardsSummary` from CardExplorer.tsx to a testable helper at `web/src/components/card-summary-loader.ts`. The new `CARD_SUMMARY_FETCH_OPTIONS = { cache: "default" }` lets the browser honor the Worker's Cache-Control (`worker/index.js::CACHE_POLICY`, 1h fresh + 24h SWR from Sprint 2.1). Previous `force-cache` ignored SWR and pinned stale payloads across tranches.
+
+**nayru P1s addressed (5/5):**
+- P1#1 sitemap recursion depth test (`test_expand_sitemap_index_depth_one`): top-level → urlset expanded; nested sitemap-index second-hop dropped. Locks docstring promise.
+- P1#2 `resolve_key` whitespace strip: env var value stripped BEFORE truthiness check; falls through to file branch on whitespace-only input; same posture on file branch. 3 new tests.
+- P1#3 16-digit numeric regex documented + tested: regex matches pure-digit 16-char strings (hex 0-9 overlap); `literalIdPassages` silently drops unknown IDs so this is benign. Docstring note in `retrieve_literal_id.js`; unit test + end-to-end `retrievePassages` test for the phone-number case.
+- P1#4 CardExplorer fetch fallback test: 7 new tests on `loadCardsSummary` covering happy path, URL shape, cache option, network rejection, non-2xx, non-array body. Also added `cards: CardMetadata[] | null` sentinel to suppress the "0 / 0 RECORDS" flash (counter shows "LOADING…" until fetch resolves; `[NO MATCH]` only renders post-resolution).
+- P1#5 `build_cards_summary` schema sanity: explicit `Array.isArray(manifest.cards)` check + clear stderr message naming the field + `process.exit(1)`. 2 new tests (not-array, null).
+
+**nayru P2s (apply-all per operator):**
+- P2#1 (linear scan over indexPages): NO CHANGE — already documented as deferred in comments.
+- P2#2 docstring for `literalIdPassages`: explicit "first chunk per card; multi-page cards rely on semantic tail" + revisit-when criteria.
+- P2#3 test for `{preserved: False, no current_key}`: `test_verify_walks_vid_row_with_explicit_preserved_false` locks the OR-semantics of `_latest_preserved_row` so the eligibility branch can't silently regress.
+- P2#4 `countMatchingRows` helper extracted in `release.ts`: pure refactor; `countOcrPages` / `countCleanedPages` now both delegate to the shared scaffolding. All 11 existing tests still green.
+- P2#5 `indexnow-placeholder.txt` deleted: stub removed from `web/public/`, runbook content moved to `scripts/indexnow_ping.py` module docstring, `.gitignore` adds guard against re-introduction. No public "no key set" page anymore.
+- P2#6 PyYAML `True` vs `"on"` quirk: promoted from inline comment in `test_indexnow_workflow.py::test_path_filter_is_narrowed_to_render_affecting_paths` to `_load()` docstring so future readers find it on first look.
+
+**vaivora P2 (1/2):**
+- V-P2#1 CardExplorer `_headers` doc nit: updated cache-policy comment to reference `worker/index.js::withCacheHeaders` (the actual policy site post-Sprint-2.1). Lives in both CardExplorer.tsx inline comment and `card-summary-loader.ts` module docstring.
+- V-P2#2 doubled CI minute footprint: **DEFERRED to Sprint 4c.** Real concern (indexnow + wayback workflows on identical triggers + 5-min sleeps) but real surgery (need to reliability-test both endpoints under a single dispatcher). Documented as Sprint 4c candidate.
+
+**Style nits:**
+- NIT#1 `worker/retrieve.js` re-export comment: rewritten to explain why the surface lives in `retrieve.js` (call-site stability across internal reorganization).
+- NIT#4 `card[k] ?? null` shorthand in `build_cards_summary.mjs::slimCard`: applied; semantics unchanged (only `undefined` → `null`, all other values pass through).
+- NIT#5 `tests/unit/conftest.py` for repeated `_SCRIPTS` insertion: NOT APPLIED — broader cleanup, defer.
+
+**laverna gap-fill:** clean per prior check. No findings, nothing to fix.
+
+### Test count delta (fix-pass)
+
+- **Python:** 569 → 574 (+5).
+- **Web:** 71 → 83 named tests (+12). (Plus 1 unchanged api-page smoke.)
+- **Worker:** 135 → 137 (+2).
+
+### arch check
+
+All modified files clean (no errors, only the pre-existing file-size warnings on `scripts/indexnow_ping.py` (342) / `scripts/r2_verify_preserved.py` (232) / `tests/unit/test_indexnow_ping.py` (458) / `tests/unit/test_r2_verify_preserved.py` (427) — all under the error thresholds).
+
+### Files modified
+
+- `web/src/lib/seo.ts` + `seo.test.ts` — new `itemListJsonLd()` builder + 3 tests + banned-words guard updated.
+- `web/src/pages/index.astro` — passes `cardItemList` as `jsonLd` prop.
+- `web/src/components/CardExplorer.tsx` — `cards` state typed as `CardMetadata[] | null` for the loading sentinel; counter renders "LOADING…" pre-fetch; cache-policy comment updated.
+- `web/src/components/card-summary-loader.ts` + `.test.ts` — new module: `loadCardsSummary` extracted from CardExplorer with `cache: "default"` fetch options + 7 tests.
+- `web/src/lib/release.ts` — `countMatchingRows` helper extracted; `countOcrPages` / `countCleanedPages` now delegate.
+- `web/scripts/build_cards_summary.mjs` + `.test.mjs` — `Array.isArray(manifest.cards)` schema guard + 2 tests; `??` shorthand in slimCard.
+- `web/package.json` — `test:lib` script adds the new `card-summary-loader.test.ts`.
+- `scripts/indexnow_ping.py` — `resolve_key` whitespace handling; operator runbook docstring (moved from removed placeholder).
+- `tests/unit/test_indexnow_ping.py` — 1 sitemap depth test + 3 whitespace-strip tests.
+- `tests/unit/test_indexnow_workflow.py` — `_load()` docstring documents PyYAML `True` quirk.
+- `tests/unit/test_r2_verify_preserved.py` — 1 preserved-false-no-current_key test.
+- `worker/retrieve_literal_id.js` — regex docstring on 16-digit false positive; `literalIdPassages` docstring on first-chunk-per-card.
+- `worker/retrieve.js` — re-export comment improved.
+- `worker/tests/retrieve_literal_id.test.js` — 1 regex test + 1 end-to-end 16-digit-numeric test.
+- `web/public/indexnow-placeholder.txt` — DELETED.
+- `.gitignore` — guards against re-introduction of placeholder.
+
+### Operator follow-ups carrying
+
+1. **`INDEXNOW_KEY`** — same as before; operator-action runbook now lives in `scripts/indexnow_ping.py` docstring.
+2. **Re-run Lighthouse Best Practices** post-deploy on the homepage.
+3. **Sprint 4c candidate:** consolidate indexnow + wayback workflows into a single post-deploy dispatcher (vaivora V-P2#2).
+
+---
+
+**2026-05-17 (later) — Sprint 4b implemented on branch `sprint-4b-polish-and-ops`. Two bundled commits per [[feedback_bundled_commits]]. All tests green; arch warnings only (no errors); no regressions expected on Accessibility 100 / CLS 0 / mobile Performance 90-95 (DOM-size fix should improve, not regress).**
+
+### Theme A — Literal-ID bypass in chat retrieval (worker/)
+
+Sprint 6.0 finding: voyage-3 dense embeddings miss literal-ID lookups ("what's in 13f86e95aed52840?"). Hex strings cluster in the noise floor of natural-language embeddings.
+
+- New `worker/retrieve_literal_id.js` (110 lines): pure helpers (`extractLiteralCardIds`, `literalIdPassages`, `mergeLiteralAndSemantic`). 16-hex regex with `\b` boundaries rejects 15/17-hex.
+- `worker/retrieve.js`: prepends exact-match chunks before semantic top-k, dedups by `card_id+page`, caps at k.
+- 11 new tests in `worker/tests/retrieve_literal_id.test.js`.
+
+### Theme B — IndexNow ping post-deploy
+
+Bing / Yandex (and ChatGPT-search via Bing) pick up changes within minutes.
+
+- `scripts/indexnow_ping.py` (300 lines, stdlib-only): sitemap → ≤10 000-URL batches → POST to `api.indexnow.org`. Key resolved from `INDEXNOW_KEY` env or `data/indexnow-key.txt` (gitignored). Graceful exit 0 on missing key / per-batch failure.
+- `.github/workflows/indexnow-after-deploy.yml`: same narrowed paths + 5-min CFWB-warm sleep + SHA-pinned actions as wayback-after-deploy.
+- `web/public/indexnow-placeholder.txt`: operator-action runbook.
+- 15 unit tests + 6 workflow tests.
+
+### Theme C — VID integrity in `verify-assets-daily.yml`
+
+28 video registry rows carry `archive_key` + `byte_sha256` but no `current_key` and no `preserved=True`. Pre-Sprint-4b `_latest_preserved_row` silently skipped all 28.
+
+- `scripts/r2_verify_preserved.py`: no-`current_key` rows now treated as implicit preservation rows. Manifest-active rows (current_key set, preserved unset) still skipped — covered by silent-overlay manifest-walk lane; avoid double-hashing.
+- Module docstring + `verify-assets-daily.yml` step comment updated.
+- 4 new tests pin: VID-walked, VID-mismatch-flagged, mixed-walked, manifest-only-still-skipped.
+
+### Theme D — QC spec stalenesses (AUDIT-ONLY)
+
+Per Sprint 4 brief, two QC scenarios flagged. Audited:
+- VID `[NO ASSET URL]` scenario in `card-detail.qc.yaml` — already updated 2026-05-15 (asserts DVIDS embed iframe; inline comment documents the spec drift fix).
+- diff scenario 3 cardinality in `diff.qc.yaml` — already updated 2026-05-15 (uses c9cc83fcaf43 vs 4a35f5596951 0/0/122 numbers).
+
+No code changes required; both were spec-drift items resolved in prior commits.
+
+### Theme E — Sprint 1 carry-overs
+
+- **E1 OG number.** `og.png` (canonical) re-rendered against the live manifest (158 / 4,161 / sha c9cc83fcaf43). `og.svg` is a legacy unreferenced file; added deprecation comment.
+- **E2 methodology "4,111 of 4,161".** Added `countCleanedPages()` to `lib/release.ts` (reads `/data/pages-cleaned.json`, counts rows with text + no skip_reason). New `RELEASE.cleanedPageCount` drives prose via `formatPageCount()`. Invariant test: `cleanedPageCount > 0 && ≤ ocrPageCount`.
+- **E3 `/finds` author.** `author: z.string().optional()` added to finds collection. `articleJsonLd()` already consumed it.
+- **E4 Speakable selectors.** methodology / about / cite each went from 1 → 3 selectors. Added matching `id="…"` attributes on second/third paragraphs and key h2s.
+
+### Theme F — CardExplorer 676 KB inline-blob removal
+
+- New `web/scripts/build_cards_summary.mjs` prebuild → `/data/cards-summary.json` (252 KB minified).
+- `CardExplorer.tsx`: `cards` prop now optional; absent → fetch on hydration; present → use it (SSR/test).
+- `index.astro` drops the `cards` prop.
+- 4 new tests.
+
+**Measured impact:** `dist/index.html` 695 203 → 25 915 bytes (-96%). JSON ships separately, CF-edge-cached under Sprint 2.1 `/data/*.json` rule; gzip ~50 KB on the wire. No CLS regression.
+
+### Theme G — Deprecated APIs trace
+
+Audit of `web/src/` + `worker/`: zero internal usage of `unload` / `document.write` / sync XHR / deprecated CSS. Candidates all third-party. Diagnosis written into `docs/perf-baseline.md` with mitigation (CF beacon is token-conditional; can be dropped via env-var if needed).
+
+### Test counts (post-Sprint-4b)
+
+- **Python:** 542 → 565 (+23).
+- **Web:** 67 → 72 (+5).
+- **Worker:** 124 → 135 (+11).
+
+### arch check
+
+All new/modified files pass. Warnings only (no errors):
+- `scripts/indexnow_ping.py` 300 lines.
+- `scripts/r2_verify_preserved.py` 232 lines.
+- `web/src/components/CardExplorer.tsx` 481 lines (pre-existing >400; +30 this sprint for the optional-cards fetch logic — extraction deferred as single cohesive component).
+- `worker/retrieve.js` 329 lines (post-extraction of `retrieve_literal_id.js`).
+
+### Branch state
+
+- Branch: `sprint-4b-polish-and-ops` (off main `8834068`).
+- Commit 1 (themes A-C, ops hardening) + Commit 2 (themes E-G, web polish). Theme D audit-only.
+- Pending: push + PR + `@codex review` comment.
+
+### Operator-action items (pre-merge / post-deploy)
+
+1. **`INDEXNOW_KEY`** — Generate `secrets.token_hex(16)`, add as repo secret, place matching `<key>.txt` in `web/public/`, delete `indexnow-placeholder.txt`. Until done, workflow exits 0 with "no key found" — no failed runs.
+2. **Re-run Lighthouse Best Practices** post-deploy on the homepage. Confirm DOM-size flag is gone and "Uses deprecated APIs" status.
+
+## What's Next
+
+1. **Push `sprint-4b-polish-and-ops` + open PR + request `@codex review`** (matches Sprint 4a posture).
+2. **(carrying) Sprint 6.1d Gemini bake-off — operator unblock required.** Project on prepay with $0 balance.
+3. **(carrying) Watch Codex re-review on PR #65** (Sprint 4a fix-pass).
+4. **(carrying) Wayback first-run validation** post-merge.
+
+---
+
+## Earlier sessions
+
+**2026-05-17 (later) — Sprint 6.1d Gemini bake-off retry (post-billing-connect): still blocked, new diagnosis, eval doc updated in-place.** Operator connected Google Cloud billing on the project tied to `GEMINI_API_KEY` and re-authorized the bake-off. Pre-flight `generate_content` probe (1 token, 4 max output) against five Gemini models (`gemini-3.1-pro-preview`, `gemini-3-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-pro-latest`) confirmed billing is now linked — the original free-tier `limit: 0` error is gone — but ALL FIVE 429 with `"Your prepayment credits are depleted"`. Project is on **prepay** billing mode with a $0 balance; all Gemini 3.x and 2.5-pro families share the same project-level prepay pool, so there is no within-Gemini free substitution path. `count_tokens` still succeeds on all five (it doesn't consume credits), confirming SDK/network/key remain valid. The 25-page runner was NOT executed (per the brief's "If still 0, surface the blocker and stop"). $0.00 incremental spend (429s don't bill per Google's docs); $0.00 / $5 cap. Updated `pursue-opsec-staging/findings/2026-05-17-vlm-bakeoff-results.md`: new §3.2a documents the retry + prepay-depleted diagnosis, front-matter has a "retry addendum" entry, §6.7 amended with the post-billing-connect update, §7.6 unblock recipe revised from "enable paid billing" to "top up prepay credits OR switch project to postpay", §8.4 documents the retry posture (no auto-spend, no 25-page runner triggered). Agent-memory `project_gemini_billing_block_6_1d.md` rewritten to reflect the new state. **Operator action required to unblock:** AI Studio → project billing → "Add credits" (a $5 top-up covers expected $0.40-0.80 bake-off spend plus margin), OR switch billing mode from prepay to postpay in the same console. Operated answer (Sonnet 4.6 single-pass) remains unchanged.
 
 **2026-05-17 (evening) — Sprint 4a PR #65 fix-pass: ALL review findings applied as one bundled fix-commit on top of the initial Sprint 4a commit (`52f39c5`). H1-H5 + M1-M3 + M-new + L1-L5 + nayru coverage gaps + nit. Per [[feedback_bundled_commits]], one commit (not five) to keep PR-history tight. Per [[feedback_ship_wired_and_validated]], every fix is test-covered before merge: the Path-collapse bug, the staged-before-diff bug, the if-always commit-back, the rebase-before-push, the origin HEAD wiring, atomic history writes, JSON-decode recovery, max-urls DoS cap, the Base.astro JSON.stringify, the GET docstring drift, the narrowed workflow path filter, the CF Workers Builds docstring, and the CF_MANAGED_BOTS drift-detector all have failing-first tests now green.**
 
@@ -75,9 +239,10 @@ Clean (or warning-level only) on every modified/new file:
 
 ## What's Next
 
-1. **Watch Codex re-review on PR #65.** If clean, merge to main and let the CF Workers Builds pipeline auto-deploy. Then set `PUBLIC_CF_ANALYTICS_TOKEN`.
-2. **Wayback first-run validation** (unchanged from prior entry).
-3. **Sprint 4b carry-forward candidates** (unchanged): IndexNow ping post-deploy, literal-ID bypass in `worker/`, QC spec staleness, Sprint 1 carried follow-ups.
+1. **(new) Sprint 6.1d Gemini bake-off — operator unblock required.** Project on prepay with $0 balance. AI Studio → project billing → "Add credits" ($5 covers expected $0.40-0.80 spend with margin), OR switch billing mode to postpay. Once unblocked, single command executes the bake-off: `cd pursue-opsec-staging/scratch/vlm-bakeoff-2026-05-17 && ./.venv-bakeoff/bin/python run_gemini_bakeoff.py && ./.venv-bakeoff/bin/python score_locals.py && ./.venv-bakeoff/bin/python score_by_difficulty.py`. Eval-doc update points are pre-staked at §3.2a / §4.1 (gemini_3_1_pro_preview row) / §6.7 (one of three outcome paths) / §7.6 / §9.6. No further code or doc work needed until operator confirms top-up.
+2. **Watch Codex re-review on PR #65.** If clean, merge to main and let the CF Workers Builds pipeline auto-deploy. Then set `PUBLIC_CF_ANALYTICS_TOKEN`.
+3. **Wayback first-run validation** (unchanged from prior entry).
+4. **Sprint 4b carry-forward candidates** (unchanged): IndexNow ping post-deploy, literal-ID bypass in `worker/`, QC spec staleness, Sprint 1 carried follow-ups.
 
 ---
 

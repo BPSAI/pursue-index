@@ -254,6 +254,53 @@ export function breadcrumbJsonLd(crumbs: Crumb[]): JsonLdObject {
 }
 
 // ---------------------------------------------------------------------------
+// ItemList (crawler-visible card enumeration)
+// ---------------------------------------------------------------------------
+//
+// Sprint 4b Codex P1: the homepage dropped its inline cards prop to cut
+// DOM size from 695 KB → 26 KB and now fetches /data/cards-summary.json
+// at runtime. AI crawlers + search engines that don't execute JS would
+// see EMPTY cards — regressing the Sprint 1 GEO win. The homepage
+// renders an ItemList JSON-LD block in <head> at SSR time enumerating
+// card_id + title + canonical URL for every card, so crawlers have the
+// authoritative card enumeration without parsing the runtime payload.
+
+/** One row of an ItemList — schema.org ListItem inputs. */
+export interface ItemListEntry {
+  /** Identifier (e.g. card_id) — embedded as ListItem.identifier. */
+  id: string;
+  /** Human-readable name surfaced to crawlers. */
+  name: string;
+  /** Canonical URL the ListItem points to. */
+  url: string;
+}
+
+/**
+ * Build a schema.org ItemList JSON-LD payload from an enumerated list
+ * of items. Each entry becomes a positional ListItem; the `numberOfItems`
+ * field is set to `items.length`. Safe for the empty case (returns an
+ * ItemList with `numberOfItems: 0` and an empty `itemListElement`).
+ *
+ * Used by `web/src/pages/index.astro` to keep the crawler-visible card
+ * enumeration after the runtime-fetch refactor. See the Codex P1 note in
+ * the Sprint 4b fix-pass review for the architectural rationale.
+ */
+export function itemListJsonLd(items: ItemListEntry[]): JsonLdObject {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    numberOfItems: items.length,
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      url: item.url,
+      identifier: item.id,
+    })),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Speakable
 // ---------------------------------------------------------------------------
 

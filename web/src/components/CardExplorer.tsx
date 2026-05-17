@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { CardMetadata } from "../data/types";
+import { loadCardsSummary } from "./card-summary-loader";
 import {
   DISCLOSURE_TONE,
   EMPTY_NOVELTY,
@@ -12,7 +13,14 @@ import {
 } from "./NoveltyFilter";
 
 interface Props {
-  cards: CardMetadata[];
+  /**
+   * Card list. When omitted, CardExplorer fetches
+   * `${base}/data/cards-summary.json` on hydration. Sprint 4b Theme F:
+   * the homepage no longer passes this prop, dropping 440 KB of inline
+   * HTML-encoded JSON from dist/index.html. Other callers (tests,
+   * future server-rendered surfaces) can still pass cards directly.
+   */
+  cards?: CardMetadata[];
   base: string;
 }
 
@@ -52,10 +60,37 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
-export default function CardExplorer({ cards, base }: Props) {
+export default function CardExplorer({ cards: cardsProp, base }: Props) {
+  // Sprint 4b Theme F: when `cards` is omitted, fetch the slim summary
+  // on hydration. `null` is the "fetch hasn't resolved yet" sentinel —
+  // distinct from `[]` (resolved-but-empty) so the record counter can
+  // hide the `0 / 0 RECORDS` flash that would otherwise render between
+  // hydration and the first fetch completion. When `cards` is provided
+  // (legacy callers, tests), we use it directly and skip the fetch.
+  // Cache policy: 1h fresh + 24h stale-while-revalidate is applied by
+  // worker/index.js::withCacheHeaders (the `/data/<file>.json` rule).
+  // See `card-summary-loader.ts` for the fetch options.
+  const [cards, setCards] = useState<CardMetadata[] | null>(
+    cardsProp ?? null,
+  );
+  useEffect(() => {
+    if (cardsProp !== undefined) return;
+    let cancelled = false;
+    loadCardsSummary(base).then((loaded) => {
+      if (!cancelled) setCards(loaded);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // base is build-time stable; cardsProp is the SSR escape hatch.
+  }, [base, cardsProp]);
+  // Resolved view: empty array before first fetch resolves; the
+  // counter below suppresses the "X / Y RECORDS" line until non-null.
+  const resolvedCards = cards ?? [];
+
   const agencies = useMemo(
-    () => Array.from(new Set(cards.map((c) => c.agency))).sort(),
-    [cards],
+    () => Array.from(new Set(resolvedCards.map((c) => c.agency))).sort(),
+    [resolvedCards],
   );
 
   const [query, setQuery] = useState("");
@@ -125,7 +160,7 @@ export default function CardExplorer({ cards, base }: Props) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = cards.filter((c) => {
+    const list = resolvedCards.filter((c) => {
       if (agency && c.agency !== agency) return false;
       if (type && c.asset_type !== type) return false;
       if (redactedOnly && !c.redacted) return false;
@@ -149,7 +184,7 @@ export default function CardExplorer({ cards, base }: Props) {
           return a.title.localeCompare(b.title);
       }
     });
-  }, [cards, query, agency, type, redactedOnly, disclosure, novelty, sort]);
+  }, [resolvedCards, query, agency, type, redactedOnly, disclosure, novelty, sort]);
 
   return (
     <div class="space-y-6">
@@ -171,10 +206,21 @@ export default function CardExplorer({ cards, base }: Props) {
       />
 
       <div class="flex items-center justify-between border-b border-[color:var(--color-border)] pb-2">
+        {/* Suppress the `0 / 0 RECORDS` flash before the first fetch
+            resolves. `cards === null` means "hydration ran but the
+            fetch hasn't completed" — render an unobtrusive
+            placeholder so the row keeps its height (CLS guard) but
+            the misleading zero doesn't appear. nayru P1#4. */}
         <div class="text-[11px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
-          <span class="text-[color:var(--color-signal-green)]">{filtered.length}</span>
-          <span class="mx-1 text-[color:var(--color-text-faint)]">/</span>
-          {cards.length} RECORDS
+          {cards === null ? (
+            <span class="text-[color:var(--color-text-faint)]">LOADING…</span>
+          ) : (
+            <>
+              <span class="text-[color:var(--color-signal-green)]">{filtered.length}</span>
+              <span class="mx-1 text-[color:var(--color-text-faint)]">/</span>
+              {resolvedCards.length} RECORDS
+            </>
+          )}
         </div>
         <ViewToggle view={view} setView={setView} />
       </div>
@@ -185,7 +231,12 @@ export default function CardExplorer({ cards, base }: Props) {
         <TableView filtered={filtered} base={base} />
       )}
 
-      {filtered.length === 0 && (
+      {/* [NO MATCH] only renders once the fetch resolves — otherwise
+          it flashes during the brief pre-fetch window where
+          `resolvedCards` is `[]` and `filtered.length === 0` looks
+          like a user-facing "no results" state when it's actually a
+          hydration state. nayru P1#4. */}
+      {cards !== null && filtered.length === 0 && (
         <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-8 text-center font-mono text-sm text-[color:var(--color-text-dim)]">
           <span class="text-[color:var(--color-signal-amber)]">[NO MATCH]</span>
           <span class="ml-2">loosen a filter or clear the query.</span>

@@ -15,6 +15,19 @@
 // The cosine math is exposed as pure functions so they can be tested
 // without mocking ASSETS or fetch.
 
+import {
+  extractLiteralCardIds,
+  literalIdPassages,
+  mergeLiteralAndSemantic,
+} from "./retrieve_literal_id.js";
+
+// Re-export from the extracted helper module so callers (tests,
+// adjacent worker modules) can keep importing from `retrieve.js` —
+// the central module surface — without knowing whether the helper
+// was inlined or extracted. Lets us reorganize internals without
+// breaking import paths in test fixtures or future call sites.
+export { extractLiteralCardIds } from "./retrieve_literal_id.js";
+
 const VOYAGE_EMBED_URL = "https://api.voyageai.com/v1/embeddings";
 const VOYAGE_MODEL = "voyage-3";
 const DEFAULT_K = 8;
@@ -223,7 +236,9 @@ export function makeSnippet(text, query, maxChars = SNIPPET_CHARS) {
  * Retrieve top-k passages for a query.
  *
  * Returns an array of {card_id, page, title, snippet, score, page_text}
- * sorted by descending score, filtered by SCORE_THRESHOLD.
+ * sorted with literal-ID hits first (in query mention order), then
+ * dense-embedding hits descending by cosine score, filtered by
+ * SCORE_THRESHOLD. The output is capped at `k` entries total.
  *
  * `env` must provide ASSETS and VOYAGE_API_KEY. `embedFn` overrides the
  * embedding step in tests.
@@ -247,7 +262,7 @@ export async function retrievePassages(query, k, env, embedFn) {
   const hits = cosineTopK(queryVec, corpus.vectors, k, index.n).filter(
     (h) => h.score >= SCORE_THRESHOLD,
   );
-  return hits.map((h) => {
+  const semanticPassages = hits.map((h) => {
     const [card_id, page] = index.pages[h.index];
     const pageRec = pages.get(`${card_id}-p${page}`);
     return {
@@ -259,6 +274,13 @@ export async function retrievePassages(query, k, env, embedFn) {
       page_text: pageRec?.text || "",
     };
   });
+
+  // Sprint 4b Theme A: literal-ID bypass. Detect hex card_ids in the
+  // query, prepend exact-match chunks, dedup by `card_id+page`, cap at k.
+  const ids = extractLiteralCardIds(query);
+  if (ids.length === 0) return semanticPassages;
+  const literal = literalIdPassages(ids, index.pages, pages, query, makeSnippet);
+  return mergeLiteralAndSemantic(literal, semanticPassages, k);
 }
 
 // ---------------------------------------------------------------------------
