@@ -16,7 +16,12 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildRobotsTxt, AI_ALLOW, AI_BLOCK } from "./robots.ts";
+import {
+  buildRobotsTxt,
+  AI_ALLOW,
+  AI_BLOCK,
+  CF_MANAGED_BOTS,
+} from "./robots.ts";
 
 // --- List membership ---------------------------------------------------
 
@@ -182,18 +187,21 @@ test("critical surface bots are in AI_ALLOW", () => {
 
 // --- Rendered output --------------------------------------------------
 
-test("buildRobotsTxt emits a Disallow / block for every AI_BLOCK entry", () => {
+test("buildRobotsTxt emits a Disallow / block for every NON-CF-managed AI_BLOCK entry", () => {
+  // Sprint 4a (2026-05-17): bots in CF_MANAGED_BOTS are intentionally
+  // filtered out of the rendered body to avoid duplicate User-agent
+  // lines with CF's Managed robots.txt. The rendered body must still
+  // emit Disallow blocks for the non-overlap set (PanguBot, TikTok
+  // Spider, etc.).
   const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
-  for (const name of AI_BLOCK) {
-    // Each blocked crawler needs its own User-agent block with
-    // Disallow: / so a parser can find an authoritative rule.
+  const cfSet = new Set(CF_MANAGED_BOTS.map((n) => n.toLowerCase()));
+  const renderedBlock = AI_BLOCK.filter((n) => !cfSet.has(n.toLowerCase()));
+  for (const name of renderedBlock) {
     const uaPattern = new RegExp(
       `^User-agent: ${escapeRegex(name)}\\s*$`,
       "m",
     );
     assert.match(body, uaPattern, `Missing User-agent block for ${name}`);
-    // Spot-check via positional assertion: the block's Disallow rule
-    // must directly follow the User-agent line.
     const idx = body.indexOf(`User-agent: ${name}\n`);
     assert.ok(
       idx >= 0,
@@ -231,9 +239,14 @@ test("buildRobotsTxt emits an Allow / block for every AI_ALLOW entry", () => {
 test("buildRobotsTxt orders AI_BLOCK entries before AI_ALLOW entries", () => {
   // RFC 9309 says most parsers honor first match. Listing Disallow
   // blocks first means a training crawler reading top-down hits its
-  // own rule before hitting any other Allow rule.
+  // own rule before hitting any other Allow rule. The first BLOCK
+  // entry we render is the first non-CF-managed bot (CF Managed bots
+  // are filtered out at render time per Sprint 4a).
   const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
-  const firstBlockIdx = body.indexOf(`User-agent: ${AI_BLOCK[0]}`);
+  const cfSet = new Set(CF_MANAGED_BOTS.map((n) => n.toLowerCase()));
+  const firstRenderedBlock = AI_BLOCK.find((n) => !cfSet.has(n.toLowerCase()));
+  assert.ok(firstRenderedBlock, "Sanity: at least one non-CF-managed block bot");
+  const firstBlockIdx = body.indexOf(`User-agent: ${firstRenderedBlock}`);
   const firstAllowIdx = body.indexOf(`User-agent: ${AI_ALLOW[0]}`);
   assert.ok(firstBlockIdx >= 0 && firstAllowIdx >= 0);
   assert.ok(
@@ -245,23 +258,25 @@ test("buildRobotsTxt orders AI_BLOCK entries before AI_ALLOW entries", () => {
 test("buildRobotsTxt distinguishes Allow/Disallow correctly for paired bot families", () => {
   // The whole point of Sprint 1.1: a vendor's user bot and its
   // training bot must end up on opposite sides of the policy. Spot
-  // check the key pairs explicitly.
+  // check the pairs that survive Sprint 4a's CF-managed dedupe.
+  // Disallow-side pairs whose training bot is in CF_MANAGED_BOTS
+  // (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended,
+  // Amazonbot, Meta-ExternalAgent) are now handled by CF Managed
+  // and are not asserted in OUR rendered body.
   const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
 
   const pairs: Array<[string, "Allow" | "Disallow"]> = [
-    ["GPTBot", "Disallow"],
-    ["ChatGPT-User", "Allow"],
-    ["ClaudeBot", "Disallow"],
-    ["Claude-User", "Allow"],
-    ["Google-Extended", "Disallow"],
-    ["Googlebot", "Allow"],
-    ["Applebot-Extended", "Disallow"],
-    ["Applebot", "Allow"],
+    // Pairs whose Disallow side remains in our rendered body:
     ["PanguBot", "Disallow"],
     ["PetalBot", "Allow"],
-    ["Meta-ExternalAgent", "Disallow"],
+    // The Allow-side surface bots — none of these are in CF_MANAGED_BOTS,
+    // so all remain rendered. Each vendor's training counterpart is
+    // intentionally absent (CF Managed handles it).
+    ["ChatGPT-User", "Allow"],
+    ["Claude-User", "Allow"],
+    ["Googlebot", "Allow"],
+    ["Applebot", "Allow"],
     ["Meta-ExternalFetcher", "Allow"],
-    ["Amazonbot", "Disallow"],
     ["Amzn-SearchBot", "Allow"],
   ];
   for (const [bot, action] of pairs) {
@@ -276,10 +291,14 @@ test("buildRobotsTxt distinguishes Allow/Disallow correctly for paired bot famil
   }
 });
 
-test("buildRobotsTxt preserves the wildcard fallback with /api/ Disallow", () => {
+test("buildRobotsTxt no longer emits a wildcard or /api/ Disallow (CF Managed handles them)", () => {
+  // Sprint 4a (2026-05-17): the wildcard `User-agent: *` block and
+  // its `Disallow: /api/` directive were duplicates of CF Managed's
+  // canonical wildcard. Removed; CF Managed is now the source-of-
+  // truth wildcard. /api/ remains protected by worker routing.
   const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
-  assert.match(body, /^User-agent: \*$/m);
-  assert.match(body, /^Disallow: \/api\//m);
+  assert.doesNotMatch(body, /^User-agent: \*$/m);
+  assert.doesNotMatch(body, /^Disallow: \/api\//m);
 });
 
 test("buildRobotsTxt includes Sitemap and Host directives", () => {
@@ -305,28 +324,169 @@ test("buildRobotsTxt accepts a custom siteOrigin", () => {
   assert.match(body, /^Host: example\.org$/m);
 });
 
-test("buildRobotsTxt issues exactly one Allow/Disallow rule per AI block", () => {
-  // Sanity: total Allow: / lines = AI_ALLOW.length + 1 (wildcard).
-  // Total Disallow: / lines = AI_BLOCK.length. /api/ Disallow appears
-  // only in the wildcard block.
+test("buildRobotsTxt issues exactly one Allow/Disallow rule per emitted bot", () => {
+  // Sprint 4a (2026-05-17): wildcard removed; rendered counts are:
+  //   Allow: /     = AI_ALLOW.length     (no wildcard Allow)
+  //   Disallow: /  = effectiveBlockList  (CF-managed bots filtered out)
+  //   Disallow: /api/ = 0                (CF Managed renders the wildcard)
   const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
   const allowSlashCount = (body.match(/^Allow: \/$/gm) ?? []).length;
   const disallowSlashCount = (body.match(/^Disallow: \/$/gm) ?? []).length;
   const disallowApiCount = (body.match(/^Disallow: \/api\//gm) ?? []).length;
+  const cfSet = new Set(CF_MANAGED_BOTS.map((n) => n.toLowerCase()));
+  const renderedBlockCount = AI_BLOCK.filter(
+    (n) => !cfSet.has(n.toLowerCase()),
+  ).length;
   assert.equal(
     allowSlashCount,
-    AI_ALLOW.length + 1,
-    "Allow: / count should be AI_ALLOW.length + 1 (wildcard)",
+    AI_ALLOW.length,
+    "Allow: / count should equal AI_ALLOW.length (no wildcard)",
   );
   assert.equal(
     disallowSlashCount,
-    AI_BLOCK.length,
-    "Disallow: / count should match AI_BLOCK.length",
+    renderedBlockCount,
+    "Disallow: / count should match the non-CF-managed AI_BLOCK subset",
   );
   assert.equal(
     disallowApiCount,
-    1,
-    "Disallow: /api/ should only appear once (wildcard block)",
+    0,
+    "Disallow: /api/ should no longer appear (CF Managed handles wildcard)",
+  );
+});
+
+// --- Sprint 4a B4: CF-managed dedupe ---------------------------------
+//
+// Cloudflare's Managed robots.txt prepends a Disallow for a set of
+// well-known AI/training bots. View-source on
+// https://pursueindex.com/robots.txt showed our generated body
+// duplicated 8 of those entries (GPTBot, ClaudeBot, Google-Extended,
+// CCBot, Bytespider, Applebot-Extended, Amazonbot, wildcard *).
+// RFC 9309 first-match wins so the duplicates were functionally a
+// no-op, but Lighthouse SEO flagged them. The Sprint 4a change drops
+// the bots in CF_MANAGED_BOTS from OUR rendered AI_BLOCK so the
+// rendered robots.txt is free of duplicates.
+
+test("CF_MANAGED_BOTS lists the bots Cloudflare's Managed robots.txt handles", () => {
+  // Source: live curl https://pursueindex.com/robots.txt (2026-05-17),
+  // looking at the CF-prepended User-agent blocks. If CF expands this
+  // list upstream, this constant should be updated to match.
+  const REQUIRED_CF = [
+    "Amazonbot",
+    "Applebot-Extended",
+    "Bytespider",
+    "CCBot",
+    "ClaudeBot",
+    "CloudflareBrowserRenderingCrawler",
+    "Google-Extended",
+    "GPTBot",
+    "meta-externalagent",
+  ];
+  for (const name of REQUIRED_CF) {
+    assert.ok(
+      CF_MANAGED_BOTS.includes(name),
+      `Expected CF_MANAGED_BOTS to include ${JSON.stringify(name)}`,
+    );
+  }
+});
+
+test("rendered robots.txt does NOT contain CF_MANAGED_BOTS user-agent blocks", () => {
+  // The whole point of the dedupe: our body must not re-disallow the
+  // bots that CF Managed already disallows. Lighthouse SEO clears
+  // once this stops emitting duplicate User-agent lines.
+  const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
+  for (const name of CF_MANAGED_BOTS) {
+    // Case-insensitive match: CF lowercases some agents (e.g.
+    // `meta-externalagent`), our list mirrors that. We assert no
+    // line `User-agent: <name>` exists in our rendered output for
+    // any spelling variant.
+    const pattern = new RegExp(
+      `^User-agent:\\s*${escapeRegex(name)}\\s*$`,
+      "im",
+    );
+    assert.doesNotMatch(
+      body,
+      pattern,
+      `Rendered robots.txt unexpectedly contains User-agent: ${name} (CF Managed handles it)`,
+    );
+  }
+});
+
+test("rendered robots.txt still contains non-CF-managed AI_BLOCK bots", () => {
+  // After dedupe, the bots in AI_BLOCK that are NOT in CF_MANAGED_BOTS
+  // remain in the rendered output. This is the non-overlap set
+  // (PanguBot, TikTok Spider, FacebookBot, Diffbot, etc.).
+  const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
+  const cfSet = new Set(CF_MANAGED_BOTS.map((n) => n.toLowerCase()));
+  const remaining = AI_BLOCK.filter((n) => !cfSet.has(n.toLowerCase()));
+  // Sanity: dedupe didn't remove everything.
+  assert.ok(
+    remaining.length > 0,
+    "AI_BLOCK must have at least one non-CF-managed entry post-dedupe",
+  );
+  for (const name of remaining) {
+    const pattern = new RegExp(
+      `^User-agent: ${escapeRegex(name)}\\s*$`,
+      "m",
+    );
+    assert.match(
+      body,
+      pattern,
+      `Missing User-agent block for non-CF-managed ${name}`,
+    );
+  }
+});
+
+test("AI_ALLOW survives the CF_MANAGED_BOTS filter (filter applies to AI_BLOCK only)", () => {
+  // Sprint 4a fix-pass (nayru coverage gap): if a vendor's user/search
+  // bot is later added to CF_MANAGED_BOTS (e.g., CF expands to also
+  // disallow `Applebot` or `Bingbot` upstream), the AI_ALLOW Allow
+  // block must remain rendered — CF Managed disallows-by-default, so
+  // our explicit Allow is what flips them back on. The CF_MANAGED_BOTS
+  // filter applies to AI_BLOCK only; this test pins that invariant.
+  //
+  // Synthesize the regression: pretend Applebot got added upstream.
+  // We can't mutate CF_MANAGED_BOTS at runtime (readonly + frozen),
+  // so we assert the structural invariant instead: every AI_ALLOW
+  // entry, including any that happen to overlap CF_MANAGED_BOTS in
+  // the future, must still emit an Allow block in the rendered body.
+  const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
+  // Pick a representative AI_ALLOW entry that's NOT currently in
+  // CF_MANAGED_BOTS (Applebot — Applebot-Extended is in CF_MANAGED_BOTS
+  // but the search-purpose `Applebot` is in AI_ALLOW). Even if
+  // Applebot were later added to CF_MANAGED_BOTS, our Allow must stay.
+  const applebotIdx = body.indexOf("User-agent: Applebot\n");
+  assert.ok(applebotIdx >= 0, "Applebot must remain in AI_ALLOW renders");
+  const applebotWindow = body
+    .slice(applebotIdx)
+    .split("\n")
+    .slice(0, 3)
+    .join("\n");
+  assert.match(applebotWindow, /Allow: \/$/m);
+
+  // Belt-and-suspenders: confirm every AI_ALLOW name is rendered as
+  // an Allow rule, including names that share a prefix with a
+  // CF_MANAGED_BOTS entry (Applebot vs Applebot-Extended).
+  for (const allowName of AI_ALLOW) {
+    const pattern = new RegExp(
+      `^User-agent:\\s*${escapeRegex(allowName)}\\s*$`,
+      "m",
+    );
+    assert.match(body, pattern, `AI_ALLOW entry ${allowName} dropped from render`);
+  }
+});
+
+test("rendered robots.txt no longer contains the wildcard User-agent: * block", () => {
+  // CF Managed renders the canonical wildcard with Allow: / and
+  // Content-Signal directives; our wildcard duplicated it. Sprint 4a
+  // removes ours entirely. /api/ remains protected by CF's wildcard
+  // semantics (RFC 9309 first-match) — if the operator later wants
+  // an explicit /api/ Disallow, it must be carried by a NAMED
+  // User-agent block, not the wildcard.
+  const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
+  assert.doesNotMatch(
+    body,
+    /^User-agent:\s*\*\s*$/m,
+    "Rendered robots.txt should no longer emit the wildcard User-agent: * block (CF Managed renders the canonical one)",
   );
 });
 

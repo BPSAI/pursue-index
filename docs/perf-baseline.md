@@ -189,22 +189,60 @@ NA/EU regions should see similar absolute improvement (TBT 6.5–9s
 → <600ms) but their LCP was already acceptable (1.3–1.9s), so
 their score gain will be primarily TBT-driven.
 
+## Post-Sprint-2.1 baseline — 2026-05-17 (mobile, all six regions)
+
+Measured ~5 min after `5840303` (Sprint 2.1 cache-headers Worker fix)
+landed on main and CF edge cache filled. Sprint 2.1 finished the
+work Sprint 2 started: the `web/public/_headers` file Sprint 2
+shipped turned out to be a no-op under Workers Static Assets with
+`run_worker_first: true`, so the headers were moved into
+`worker/index.js::CACHE_POLICY` and applied via `withCacheHeaders()`.
+
+| Region | Score | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|
+| US West | 95 | 1.1s | 1.2s | 272ms | 0 |
+| US East | 92 | 1.1s | 1.2s | 364ms | 0 |
+| Germany | 90 | 1.1s | 1.2s | 414ms | 0 |
+| Finland | 93 | 1.1s | 1.2s | 311ms | 0 |
+| Japan | 90 | 1.1s | 1.9s | 398ms | 0 |
+| Australia | 93 | 1.1s | 1.2s | 322ms | 0 |
+
+**Resource size: 8.26 MB → 826 KB (-89%). Requests: 18 → 11.**
+
+### Targets vs measured
+
+| Metric | Target | Worst region | Best region | Status |
+|---|---|---|---|---|
+| Mobile score | ≥ 85 | 90 (Germany / Japan) | 95 (US West) | **MET** |
+| FCP | < 1.5s | 1.1s (5 regions) / 1.1s (Japan also) | 1.1s | **MET** |
+| LCP | < 2.5s | 1.9s (Japan) | 1.2s (5 regions) | **MET** |
+| TBT | < 600ms | 414ms (Germany) | 272ms (US West) | **MET** |
+| CLS | ≤ 0.03 | 0 (all regions) | 0 | **BEATEN** (was 0.03, now 0) |
+| Resource size | < 3 MB | 826 KB | 826 KB | **BEATEN** by 3.6× |
+
+All six Sprint 2 perf targets met or beaten. The APAC catastrophe is
+fully resolved — Japan moved 37 → 90 (+53), Australia 37 → 93 (+56),
+Finland 44 → 93 (+49). NA/EU regions moved 69/70 → 92/95 driven by
+TBT going from 6.5–9s → 272–414ms.
+
+### Reference
+
+- Sprint 2 (initial perf-pass): commit `7dfb008` — pages.json off
+  homepage critical path, CardExplorer deferred to `client:visible`,
+  HomepageSearch island ~1.8 KB.
+- Sprint 2.1 (cache-headers Worker fix): commit `5840303` — moved
+  `_headers` directives into `worker/index.js::CACHE_POLICY` so
+  Workers Static Assets actually honors them. The 8.26 MB → 826 KB
+  resource-size win is primarily this commit; the LCP regional fix
+  is the Sprint 2 hero-deferral + Sprint 2.1 edge-cache filling.
+
 ## Verification plan
 
 The fixes above are landed on branch `sprint-2-lighthouse`. They
 **cannot be fully verified locally**; Lighthouse mobile-regional
 scores require a real deploy to pursueindex.com so PageSpeed
-Insights can run from each region. After operator review + push:
-
-1. Push branch → CF Pages builds + deploys to preview URL.
-2. Run `npx lighthouse https://<preview-url> --preset=mobile` for
-   a local sanity check (no regional data).
-3. After merge to main + production deploy, wait ~5 min for CF
-   edge cache to fill, then re-run PageSpeed Insights across the
-   six regions in the baseline table.
-4. Re-fill the post-fix row in this file with the actual numbers.
-5. If any metric misses target, open a Sprint-4 carry-forward
-   ticket with the specific regression + an audit-log entry.
+Insights can run from each region. Sprint 2 + 2.1 ran through this
+plan; the post-fix table above captures the result.
 
 ## Operator-action items (deferred to operator)
 

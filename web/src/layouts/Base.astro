@@ -117,6 +117,22 @@ const ogImageType =
         ? "image/gif"
         : "image/png";
 
+// Cloudflare Web Analytics beacon token. CF Pages auto-injects this
+// via HTML rewriter on traditional Pages deploys, but Workers Static
+// Assets (our deploy path) bypasses that injection — SEOPTIMER
+// detected "Cloudflare Browser Insights" via tech fingerprint while
+// view-source on the deployed HTML showed no script tag, confirming
+// the gap. Sprint 4a (2026-05-17) wires the beacon explicitly. The
+// token is read from PUBLIC_CF_ANALYTICS_TOKEN at build time; the
+// CSP already allows static.cloudflareinsights.com (script-src) and
+// cloudflareinsights.com (connect-src) — see worker/index.js.
+//
+// Operator action required: set PUBLIC_CF_ANALYTICS_TOKEN in CF
+// Pages → Settings → Environment variables, sourced from CF →
+// Analytics & Logs → Web Analytics → site token. Until set, the
+// beacon script is skipped (token-conditional render below).
+const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+
 const fetchedISO = manifest.fetched_at;
 const fetchedDate = new Date(fetchedISO).toISOString().slice(0, 19).replace("T", " ");
 const sha = manifest.csv_sha256.slice(0, 12);
@@ -177,6 +193,20 @@ const navItems = [
     {/* JSON-LD schemas — site-wide + page-specific. See web/src/lib/seo.ts
         and the Sprint 1 GEO foundation plan. */}
     <JsonLd data={allJsonLd} />
+
+    {/* Cloudflare Web Analytics — Sprint 4a (2026-05-17). Workers
+        Static Assets bypasses CF Pages' HTML-rewriter beacon injection,
+        so we wire it explicitly. Token-conditional: skipped when
+        PUBLIC_CF_ANALYTICS_TOKEN is unset (local dev, preview builds
+        without the env var). `defer` keeps the beacon off the LCP
+        critical path. */}
+    {cfAnalyticsToken && (
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: cfAnalyticsToken })}
+      ></script>
+    )}
 
     <title>{title}</title>
   </head>
