@@ -109,15 +109,22 @@ jobs:
         # (per-URL failure should not lose freshness state).
         # H4: ``git pull --rebase`` before push avoids races with other
         # workflows that also write to main (mirrors verify-assets-daily).
+        # Codex re-review P1 (2026-05-17): rebase MUST happen BEFORE
+        # ``git add`` — Git refuses to rebase with an uncommitted index
+        # (``cannot pull with rebase: Your index contains uncommitted
+        # changes``). Order: sync tree (rebase) → stage → check → commit
+        # → push. The wayback-history.json file is untracked or modified
+        # at this point; rebase doesn't touch it because it operates on
+        # committed history only.
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add data/wayback-history.json
           if git diff --cached --quiet; then
             echo "[wayback] no history change; nothing to commit"
             exit 0
           fi
-          git pull --rebase origin main
           git commit -m "chore(wayback): update save history after wayback-after-deploy"
           git push origin main

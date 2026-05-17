@@ -90,6 +90,31 @@ def test_commit_step_rebases_before_push() -> None:
     )
 
 
+def test_commit_step_rebases_before_staging() -> None:
+    """Codex re-review P1 (2026-05-17): rebase before stage.
+
+    Git refuses to rebase with an uncommitted index — ``cannot pull
+    with rebase: Your index contains uncommitted changes``. The
+    fix-pass initially put ``git add`` before ``git pull --rebase``,
+    which broke the workflow in the exact case it was supposed to
+    handle (non-empty history changes). Order must be:
+        1. ``git pull --rebase origin main``  (clean tree)
+        2. ``git add data/wayback-history.json``
+        3. diff check + commit + push
+    """
+    step = _commit_back_step()
+    run = step["run"]
+    rebase_idx = run.find("git pull --rebase")
+    add_idx = run.find("git add data/wayback-history.json")
+    assert rebase_idx >= 0, "expected `git pull --rebase` in commit step"
+    assert add_idx >= 0, "expected `git add` in commit step"
+    assert rebase_idx < add_idx, (
+        "Codex P1: `git pull --rebase` must precede `git add` so the "
+        "rebase runs on a clean index (git refuses rebase with staged "
+        "changes)"
+    )
+
+
 def test_path_filter_is_narrowed_to_render_affecting_paths() -> None:
     """L3 (vaivora): trigger paths exclude state.md / docs / OG-only commits.
 
