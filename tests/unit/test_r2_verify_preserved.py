@@ -129,8 +129,92 @@ def test_verify_skips_non_preserved_rows() -> None:
     assert report["ok"] == ["preserved-card"]
     # Manifest card was never read — verify-preserved doesn't touch it.
     get_call_keys = [c.kwargs.get("Key") for c in client.get_object.call_args_list]
+    assert f"archive/{_ACTUAL_GOOD_SHA}.pdf" in get_call_keys
+    # Neither current_key form (manifest-card.pdf / preserved-card.pdf)
+    # is read — we only read the archive key, regardless of card_id.
     assert "manifest-card.pdf" not in get_call_keys
-    assert "preserved-card.pdf" in get_call_keys
+    assert "preserved-card.pdf" not in get_call_keys
+
+
+def test_verify_reads_archive_key_not_current_key() -> None:
+    """The verify must read archive/<sha>.<ext>, not current_key.
+
+    Sprint 4a (2026-05-17): The Section 6 (2026-05-14 preserved-pin
+    reaffirmation) policy means current_key legitimately serves NEW
+    upstream bytes while the OLD preserved bytes live at
+    archive/<preserved_sha>.<ext>. Reading current_key produces
+    false-positive mismatches every day for the Section 6 cards
+    (Issues #61, #64). Reading archive_key directly verifies what
+    "preservation" structurally means.
+    """
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(_GOOD_BYTES)
+
+    row = _preserved_row("card-x")
+    # The Section-6 case: current_key may serve different bytes than
+    # the pinned byte_sha. archive_key always serves the pinned bytes.
+    registry = {"card-x": [row]}
+
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    assert report["ok"] == ["card-x"]
+    # The get_object call must have used archive_key, not current_key.
+    call = client.get_object.call_args
+    assert call.kwargs["Key"] == row["archive_key"]
+    assert call.kwargs["Key"] != row["current_key"]
+
+
+def test_verify_section6_reaffirmation_no_longer_false_positives() -> None:
+    """Reproduces the Section-6 false-positive case: archive/<sha>.<ext>
+    holds the preserved bytes intact (verify passes); current_key holds
+    different upstream bytes (would have falsely flagged tampering
+    under the old current_key-based check).
+
+    We only exercise the archive_key read here — the script no longer
+    touches current_key, so the bytes there are irrelevant to the
+    verify. Asserts the script reports ok, not mismatch.
+    """
+    client = MagicMock()
+    # R2 returns the preserved (good) bytes when asked for archive_key.
+    client.get_object.return_value = _fake_get(_GOOD_BYTES)
+
+    registry = {"section6-card": [_preserved_row("section6-card")]}
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    # Critical: under the OLD logic this would have appeared as a
+    # mismatch (current_key serving new upstream bytes). Under the
+    # NEW logic it's clean — we verified the immutable archive copy.
+    assert report["ok"] == ["section6-card"]
+    assert report["mismatch"] == []
+    assert report["missing"] == []
+
+
+def test_verify_mismatch_report_uses_archive_key_field() -> None:
+    """When a mismatch fires, the report names archive_key (not current_key).
+
+    Renamed in Sprint 4a so an operator reading the issue body sees
+    the actual key that failed — the immutable preservation copy at
+    archive/<sha>.<ext> — not the mutable current-pointer.
+    """
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(b"%PDF-1.4 TAMPERED bytes")
+    row = _preserved_row("tampered-card")
+    registry = {"tampered-card": [row]}
+
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    assert len(report["mismatch"]) == 1
+    mm = report["mismatch"][0]
+    assert "archive_key" in mm
+    assert mm["archive_key"] == row["archive_key"]
+    # current_key is intentionally not present — it's not what was read.
+    assert "current_key" not in mm
 
 
 def test_verify_uses_most_recent_registry_row_per_card() -> None:

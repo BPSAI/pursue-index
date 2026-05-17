@@ -8,16 +8,27 @@ upstream URL is, by definition, no longer authoritative (404 or
 serving a replacement file), and the preservation copy lives entirely
 inside our R2 bucket.
 
-This script re-reads each preserved row from R2 itself and compares
-the byte_sha256 of what's currently at ``<card_id>.<ext>`` against the
-pinned sha in ``data/asset-bytes-registry.jsonl``. A mismatch here is
-a different threat: **something inside our control plane changed the
-preservation bytes** — a buggy script run, a leaked write key, an
-accidental ``wrangler r2 object put``. The append-only
-``archive/<sha>.<ext>`` mirror is protected by IfNoneMatch, but the
-current-pointer key is not, and the daily manifest-walker skips
-preserved cards (they're not in the manifest). Without this script,
-silent tampering of a preservation copy is undetectable.
+This script re-reads the preserved bytes from the immutable archive
+mirror at ``archive/<byte_sha256>.<ext>`` and verifies the bytes still
+hash to the pinned ``byte_sha256`` in
+``data/asset-bytes-registry.jsonl``. The archive key is the structural
+preservation copy: it's append-only (IfNoneMatch-guarded) and is
+keyed by its own content hash, so under the project's normal
+invariants this verify is tautological — but the verify exists
+precisely to catch the rare failure mode where the tautology breaks
+(write-key compromise, accidental ``wrangler r2 object put`` against
+the archive key, ACL drift on the bucket).
+
+The mutable current-pointer key at ``<card_id>.<ext>`` is
+deliberately **not** verified here. After the 2026-05-14 Section 6
+preserved-pin reaffirmation policy (commit 13f86e95aed52840),
+current_key legitimately serves whatever bytes upstream is currently
+publishing at the original URL — including bytes that diverge from
+the preserved/pinned sha. Verifying current_key produced daily
+false-positive ``preserved-tampered`` issues (Issues #61, #64 closed)
+that the cron then kept re-filing. The script now verifies the
+immutable archive/<sha>.<ext> preservation copy, not the mutable
+current-pointer.
 
 Exit codes:
   0  — every preserved row matches its pinned byte_sha
@@ -100,12 +111,15 @@ def verify_preserved(
         row = _latest_preserved_row(rows)
         if row is None:
             continue
-        current_key = row["current_key"]
+        # Sprint 4a (2026-05-17): verify the immutable archive copy,
+        # not the mutable current-pointer. See module docstring for
+        # Section 6 reaffirmation context (Issues #61, #64).
+        archive_key = row["archive_key"]
         expected_sha = row["byte_sha256"]
-        body = _read_r2_bytes(client, bucket, current_key)
+        body = _read_r2_bytes(client, bucket, archive_key)
         if body is None:
             missing.append(card_id)
-            print(f"[verify-preserved] MISSING {card_id} key={current_key}")
+            print(f"[verify-preserved] MISSING {card_id} key={archive_key}")
             continue
         actual_sha = hashlib.sha256(body).hexdigest()
         if actual_sha == expected_sha:
@@ -114,7 +128,7 @@ def verify_preserved(
             mismatch.append(
                 {
                     "card_id": card_id,
-                    "current_key": current_key,
+                    "archive_key": archive_key,
                     "expected_sha": expected_sha,
                     "actual_sha": actual_sha,
                     "actual_size": len(body),

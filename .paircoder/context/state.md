@@ -1,8 +1,71 @@
 # Current State
 
-> Last updated: 2026-05-17 (Sprint 2.1 cache-headers fix + Sprint 1.1 robots-policy split both merged to main on 2026-05-17. Sprint 2.1 = `5840303`; Sprint 2 Lighthouse perf-pass = `7dfb008`; Sprint 1 GEO foundation = `73f6ecb`.)
+> Last updated: 2026-05-17 (Sprint 4a integrity + SEO polish implemented on `sprint-4a-integrity-seo`; NOT yet pushed. Prior baseline: Sprint 2.1 cache-headers fix + Sprint 1.1 robots-policy split both merged to main on 2026-05-17. Sprint 2.1 = `5840303`; Sprint 2 Lighthouse perf-pass = `7dfb008`; Sprint 1 GEO foundation = `73f6ecb`. Cross-repo: VLM bake-off Sprint 6.1b completed 2026-05-17 afternoon — see pursue-opsec findings.)
 
 ## What Was Just Done
+
+**2026-05-17 — Sprint 4a (integrity layer + SEO polish) implemented on branch `sprint-4a-integrity-seo`. Single uncommitted change-set bundling Theme A (provenance/integrity hardening) and Theme B (homepage SEO surface polish); tests + arch checks clean; build green; not yet pushed pending operator review.**
+
+### Theme A — Provenance & integrity
+
+- **A1: `scripts/r2_verify_preserved.py` reads `archive_key`, not `current_key`.** After the 2026-05-14 Section 6 preserved-pin reaffirmation policy (`13f86e95aed52840`), `current_key` legitimately serves NEW upstream bytes while OLD preserved bytes live at `archive/<sha>.<ext>`. Reading current_key was producing daily false-positive `preserved-tampered` issues (Issues #61, #64 closed; cron kept re-filing). The verify now reads the immutable archive copy directly — which is what "preservation" structurally means. Module docstring rewritten to reflect the new behavior; mismatch report renames `current_key` → `archive_key` for operator clarity. Three new unit tests cover the Section-6 reaffirmation case + the archive-key read assertion + the renamed report field. `tests/unit/test_r2_verify_preserved.py` 5 → 8 cases, all green.
+- **A2: Wayback wiring built fresh.** Re-searched pursue-index, pursue-opsec-staging, worker, and `.github/` for any existing wayback / web.archive / save endpoint references — only the existing `archive.org_bot` AI_ALLOW entry in `robots.ts` came up. No prior script. Built `scripts/wayback_save.py` (pure-stdlib, strict-sequential with 2s delay, 24h freshness gate against `data/wayback-history.json`, sitemap-xml or `--url` input, idempotent). Added `.github/workflows/wayback-after-deploy.yml` — fires on push to main scoped to changes in `data/manifests/latest.json` OR `web/**`, plus `workflow_dispatch`. Waits 5 min for CF edge warm before submitting. Commits history JSON back to the repo so subsequent runs honor the freshness window. 13 new unit tests cover the parser, freshness gating, plan filtering, save-URL construction, and origin-status gating. `tests/unit/test_wayback_save.py` new file, all 13 green.
+
+### Theme B — SEO content polish
+
+- **B1: Title tags 41 → 50-60 chars.** Homepage: `PURSUE://INDEX — Declassified DOW UAP / UFO Document Archive` (60 chars). Methodology: `METHODOLOGY — PURSUE://INDEX — DOW UAP / UFO OCR Pipeline` (57). About: `ABOUT — PURSUE://INDEX — Declassified DOW UAP / UFO Archive` (59). Cite: `Citation Guide — PURSUE://INDEX — Declassified DOW UAP Archive` (62). All add `Declassified` + `UFO` (consumer-search keyword) on top of the existing brand line.
+- **B2: Meta descriptions 88 → 120-160 chars.** Homepage: `Search 4,161 OCR'd pages of the declassified U.S. Department of War PURSUE UAP / UFO release — FBI memos, NASA records, mission reports & AARO findings.` (152 chars, page count templated via `formatPageCount(RELEASE.ocrPageCount)`). Methodology 149. About 158. Cite 150. Each adds the keyword cluster (declassified, FBI, NASA, AARO, mission reports) without keyword-stuffing.
+- **B3: Keyword distribution.** New title + meta cover the must-haves (UAP, declassified, Department of War, OCR'd pages) and strong-adds (military / mission report via "mission reports", AARO, FBI, NASA) and the edge-add (UFO). Homepage H1 already keyword-bearing (`DEPARTMENT OF WAR / PURSUE` + UAP subtitle); no H2 addition needed. seo.test.ts banned-words guard (`best`, `leading`, `ultimate`, `revolutionary`…) reviewed against new copy — clean.
+- **B4: robots.txt CF-managed duplicate trim.** Added `CF_MANAGED_BOTS` const (9 entries: Amazonbot, Applebot-Extended, Bytespider, CCBot, ClaudeBot, CloudflareBrowserRenderingCrawler, Google-Extended, GPTBot, meta-externalagent). `buildRobotsTxt()` filters AI_BLOCK against this list at render time; AI_BLOCK itself unchanged so the source-of-truth policy still lists every bot we want blocked, regardless of which layer enforces it. Wildcard `User-agent: *` block + `Disallow: /api/` removed (CF Managed renders the canonical wildcard with Content-Signal directives). Rendered `dist/robots.txt`: 10 non-CF-managed Disallow blocks (PanguBot, TikTok Spider, FacebookBot, Diffbot, ImagesiftBot, img2dataset, cohere-training-data-crawler, Terracotta Bot, Timpibot, Novellum AI Crawl) + 22 Allow blocks + Sitemap + Host. **No duplicate User-agent lines with CF's prepended block.** 4 new robots tests assert the dedupe (CF_MANAGED_BOTS membership + rendered-body absence + non-CF-managed presence + wildcard removal); 11 existing tests updated to the new contract. `robots.test.ts` 15 → 19 cases, all green.
+- **B5: Cloudflare Web Analytics beacon wired in `Base.astro`.** Workers Static Assets bypasses CF Pages' HTML-rewriter beacon injection — SEOPTIMER detected "Cloudflare Browser Insights" via tech fingerprint but view-source showed no script tag, confirming the gap. Added token-conditional `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "..."}'>` reading from `PUBLIC_CF_ANALYTICS_TOKEN` (Astro env var). CSP already allows `static.cloudflareinsights.com` (script-src) + `cloudflareinsights.com` (connect-src) per `worker/index.js`. **Path (a)** taken — beacon code shipped, token-conditional render means local-dev preview builds without the env var skip the script entirely (no broken token interpolation). **Operator action required: set `PUBLIC_CF_ANALYTICS_TOKEN` in CF Pages → Settings → Environment variables before deploy.** Token sourced from CF dashboard → Analytics & Logs → Web Analytics → site token.
+- **B6: `docs/perf-baseline.md` post-Sprint-2.1 baseline section filled.** All six regions captured: US West 95, US East 92, Germany 90, Finland 93, Japan 90, Australia 93. Resource size 8.26 MB → 826 KB (-89%). Requests 18 → 11. CLS 0.03 → 0 (beaten). All six Sprint 2 targets MET or BEATEN — APAC catastrophe fully resolved (Japan +53, Australia +56, Finland +49). Sprint 2 + 2.1 commit references documented in the new section.
+
+### Test results
+
+- **Web (lib/test:lib + test:llms + test:api-page):** 56 lib (+4 from Sprint 4a: 19 robots up from 15, plus unchanged release 10 + seo 18 + homepage-search 9) + 9 llms + 1 api-page = 66 in `npm run test`. All green.
+- **Python (`pytest tests/`):** 507 passed (+16 from Sprint 4a: 3 new in test_r2_verify_preserved + 13 new in test_wayback_save; baseline 491). 0 fail.
+- **Worker:** 124 passed (unchanged from Sprint 2.1). 0 fail.
+- **Astro build:** 182 pages built in 6.7s. `dist/robots.txt` shows the clean filtered output; `dist/llms.txt`, `dist/llms-full.txt`, `dist/sitemap-index.xml` all emitted.
+
+### arch check
+
+Clean on every modified/new source file:
+- `scripts/r2_verify_preserved.py` — clean
+- `scripts/wayback_save.py` — 1 warning (file too large, 302 > 200 warning threshold; well under 400 error threshold)
+- `tests/unit/test_r2_verify_preserved.py` — clean
+- `tests/unit/test_wayback_save.py` — clean
+- `web/src/lib/robots.ts` — clean
+- `web/src/lib/robots.test.ts` — clean
+- `web/src/pages/{index,methodology,about,cite}.astro` — clean
+- `web/src/layouts/Base.astro` — clean
+
+### Branch state
+
+- Branch: `sprint-4a-integrity-seo` (created from `main` post-Sprint-2.1).
+- Single uncommitted change-set. Bundled per [[feedback_bundled_commits]].
+- **NOT pushed.** Operator reviews locally first.
+
+### Operator-action items (deferred to operator)
+
+1. **`PUBLIC_CF_ANALYTICS_TOKEN` env var.** Set in CF Pages → Settings → Environment variables (sourced from CF dashboard → Analytics & Logs → Web Analytics → site token). Until set, the beacon `<script>` is skipped at build time — code-side change is harmless without the token.
+2. **Wayback workflow first-run.** First production run will save ~180 sitemap URLs at 2s/URL ≈ 6 min wall-clock. The committed `data/wayback-history.json` is empty at branch-tip; first run populates it. Subsequent runs only re-save URLs whose 24h freshness expired.
+3. **Verify Lighthouse SEO clears.** After deploy, run Lighthouse SEO audit on `/` — the prior "robots.txt is not valid" + duplicate User-agent warnings should be gone. Title/meta description length warnings should also clear.
+
+## What's Next
+
+1. **Operator review + push.** Branch `sprint-4a-integrity-seo` is local-only. Review the rendered `dist/robots.txt` sample above, confirm the title/meta lengths match the brief (60 / 152 / 149 / 158 / 150), then `git push -u origin sprint-4a-integrity-seo` and merge. Then set `PUBLIC_CF_ANALYTICS_TOKEN` per operator-action #1 above.
+2. **Wayback first-run validation.** After merge, the workflow fires on the next `data/manifests/latest.json` change (next tranche poll) OR can be triggered manually via `workflow_dispatch`. Watch the run log; if Wayback rate-limits surface as 429s, increase `--delay-seconds` from 2 to 3+ in the workflow yaml.
+3. **Sprint 4b carry-forward candidates surfaced during Sprint 4a:**
+   - IndexNow ping post-deploy (Sprint 4 brief item, not bundled here).
+   - Literal-ID bypass in `worker/` chat retrieval (Sprint 4 brief item).
+   - QC spec staleness — 2 cases per Sprint 4 brief (VID `[NO ASSET URL]`, diff scenario 3 cardinality).
+   - Sprint 1 carried follow-ups still open: OG SVG hardcoded `4,161`, methodology `4,111` (template or leave as prose), /finds author schema field, Speakable selector expansion.
+
+---
+
+**2026-05-17 (afternoon, cross-repo) — VLM bake-off Sprint 6.1b: local-candidate completion. GLM-OCR ran on the 25-page golden set; capped-mean CER 26.9% vs Sonnet 4.6's 20.1%. Sonnet 4.6 confirmed as the operated answer for the upcoming pursue-index vision-augment pass (miss exceeds the >5 pp Sonnet-confirm criterion). Two candidates still recoverable: dots.mocr blocked on flash-attn install authorization; Infinity-Parser2-Pro skipped on VRAM fit (~34 B-param MoE, ~68 GB bf16 footprint vs RTX 5090's 32 GB). Full results: `pursue-opsec-staging/findings/2026-05-17-vlm-bakeoff-results.md`. Scratch scripts + per-engine results JSON: `pursue-opsec-staging/scratch/vlm-bakeoff-2026-05-17/`. Zero impact on pursue-index source tree — bake-off ran in a dedicated venv (`pursue-opsec-staging/scratch/vlm-bakeoff-2026-05-17/.venv-bakeoff/`) so the pursue-index venv's `transformers==4.57.6` pin is untouched.**
+
+---
 
 **2026-05-17 — Sprint 1.1 (robots.txt allow/block policy split) implemented on branch `sprint-1.1-robots-policy`. Single uncommitted change-set; aligns the generated `/robots.txt` with the operator's stated policy — surface our content (search/user/archivers), block training-corpus crawlers. Resolves the visible contradiction between the prior single allow-list and CF's Managed robots.txt Disallow override.**
 
@@ -42,6 +105,8 @@
    - CF dashboard → Security → Bots → Bot Management → add each `AI_BLOCK` UA to the "block" managed list, OR
    - WAF → Custom Rules → "block if `cf.bot_management.verified_bot == false AND http.user_agent contains <name>`" per Block entry.
 3. **Resume Sprint 2.1 (cache-headers).** That branch (`sprint-2.1-cache-headers`) is separately in-flight with its own changes (`worker/index.js`, `cache_headers.test.js`, `web/public/_headers` reorg). Independent of Sprint 1.1.
+4. **Cross-repo: Sprint 6.2 vision-augment pipeline plumbing.** With Sonnet 4.6 confirmed as the operated VLM (bake-off 6.1b), the next backend work item is wiring it into `pursue-index/src/pursue_index/ocr/` as a third engine alongside Surya + Haiku auto-mode. Two operator decisions feed into that plan: (a) auto-mode threshold recalibration (the existing `70` confidence cut tuned for Haiku is too aggressive for Sonnet's wider confidence range — Sonnet self-rates 30 on hand-sketched-diagram pages even when substantively correct); (b) per-page provenance plumbing — manifest needs to distinguish Surya-from-original vs Sonnet-from-original vs operator-attested-corrected. Findings doc: `pursue-opsec-staging/findings/2026-05-17-vlm-bakeoff-results.md` §6.2 + §7.
+5. **Cross-repo: Sprint 6.1c (optional, recoverable).** Two local OCR candidates still uncompleted from the bake-off. Operator chooses which to unblock: (a) authorize `flash-attn` install in the bake-off venv (small, fast, unblocks dots.mocr — ~6 GB VRAM expected, MIT); (b) download Infinity-Parser2-Flash (the smaller variant of Infinity-Parser2 — the Pro is a 34B-MoE, fails VRAM fit on the 5090); (c) skip both and lock in Sonnet 4.6 as final. Path (c) is the default if not opened in the next session.
 
 ---
 

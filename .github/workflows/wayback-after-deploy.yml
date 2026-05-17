@@ -1,0 +1,97 @@
+name: Wayback save after tranche change
+
+# Submits the live pursueindex.com sitemap to the Internet Archive
+# Wayback Machine so a snapshot is captured against the public URL
+# (independent of CF, R2, or origin availability). This is the
+# Sprint 4a Theme-A complement to the `r2_archive_assets` bytes-side
+# preservation: byte-archive proves *what was served*, Wayback proves
+# *that the public URL rendered that content at this date*.
+#
+# Triggers:
+#   * `push` to main, gated to runs that touched
+#     `data/manifests/latest.json` (new tranche landed) OR the
+#     `web/` tree (deploy is about to happen) — avoids hammering
+#     Wayback on every commit.
+#   * `workflow_dispatch` — manual button for operator-triggered
+#     re-snapshot (e.g., after a content-only change that didn't
+#     touch the manifest).
+#
+# Wayback rate-limits hard: the script defaults to 2 s between
+# submissions and reads `data/wayback-history.json` to skip URLs
+# saved within the last 24 h. The history file is committed back
+# to the repo at the end of the run so subsequent runs don't
+# re-save still-fresh URLs.
+#
+# Failures on individual URLs (429, timeout, bot challenge) are
+# logged but don't fail the workflow; the next scheduled run
+# picks them up once their freshness window expires. Network-level
+# failure (sitemap unreachable, IA outage) is a soft-failure: the
+# script logs the issue and exits 0.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/manifests/latest.json'
+      - 'web/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # commit-back wayback-history.json
+
+concurrency:
+  group: wayback-after-deploy
+  cancel-in-progress: false
+
+jobs:
+  wayback-save:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
+      # Matches the SHA used by poll-pursue.yml and deploy-cf.yml.
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Wait for CF deploy + edge warm (5 min)
+        # Wayback's snapshot reads from the live origin; if we fire
+        # before the CF deploy completes + the edge warms, IA captures
+        # the previous version. The deploy pipeline triggers on the
+        # same `push` to main, so a fixed 5 min wait is the simplest
+        # synchronization. workflow_dispatch is exempt — operator
+        # presumably ran this manually because the deploy already
+        # landed.
+        if: github.event_name == 'push'
+        run: sleep 300
+
+      - name: Submit live sitemap URLs to Wayback
+        # The script reads the live sitemap-index from pursueindex.com
+        # (post-deploy), filters out URLs saved within the last 24 h,
+        # and submits the rest at 2 s/URL. ~180 URLs * 2 s ≈ 6 min.
+        run: |
+          python scripts/wayback_save.py \
+            --sitemap https://pursueindex.com/sitemap-index.xml \
+            --history data/wayback-history.json \
+            --window-hours 24 \
+            --delay-seconds 2
+
+      - name: Commit updated wayback-history.json
+        # Only commits when the script wrote new entries. The history
+        # file is what makes subsequent runs idempotent — if we don't
+        # commit it back, every run re-saves every URL.
+        run: |
+          if git diff --quiet data/wayback-history.json; then
+            echo "[wayback] no history change; nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/wayback-history.json
+          git commit -m "chore(wayback): update save history after wayback-after-deploy"
+          git push
