@@ -93,6 +93,49 @@ def _read_r2_bytes(client: Any, bucket: str, key: str) -> bytes | None:
     return body if isinstance(body, bytes) else bytes(body)
 
 
+def _check_one_row(
+    card_id: str,
+    row: dict[str, Any],
+    client: Any,
+    bucket: str,
+) -> tuple[str, dict[str, Any] | None]:
+    """Verify one preserved row. Returns ``(status, mismatch_entry_or_none)``.
+
+    ``status`` is one of: ``"ok"``, ``"missing"``, ``"mismatch"``, ``"skip"``.
+    Returns the mismatch payload alongside when status is ``"mismatch"`` so
+    the caller can append to its report.
+    """
+    # Sprint 4a fix-pass: tolerate legacy rows lacking archive_key
+    # (pre-Sprint-4a writer schemas). Skip + warn rather than crash
+    # the daily integrity sweep.
+    archive_key = row.get("archive_key")
+    if archive_key is None:
+        print(
+            f"[verify-preserved] SKIP {card_id} — row missing "
+            "archive_key field (legacy writer schema?)"
+        )
+        return "skip", None
+    expected_sha = row["byte_sha256"]
+    body = _read_r2_bytes(client, bucket, archive_key)
+    if body is None:
+        print(f"[verify-preserved] MISSING {card_id} key={archive_key}")
+        return "missing", None
+    actual_sha = hashlib.sha256(body).hexdigest()
+    if actual_sha == expected_sha:
+        return "ok", None
+    print(
+        f"[verify-preserved] MISMATCH {card_id} "
+        f"expected={expected_sha[:12]}... actual={actual_sha[:12]}..."
+    )
+    return "mismatch", {
+        "card_id": card_id,
+        "archive_key": archive_key,
+        "expected_sha": expected_sha,
+        "actual_sha": actual_sha,
+        "actual_size": len(body),
+    }
+
+
 def verify_preserved(
     registry: dict[str, list[dict[str, Any]]],
     client: Any,
@@ -101,44 +144,25 @@ def verify_preserved(
     """Walk every preserved card in the registry and check R2 bytes.
 
     Returns: ``{"ok": [card_id,...], "mismatch": [{...},...],
-    "missing": [card_id,...]}``.
+    "missing": [card_id,...]}``. Sprint 4a (2026-05-17): verifies the
+    immutable archive copy at ``archive/<sha>.<ext>``, not the mutable
+    current-pointer. See module docstring for Section 6 reaffirmation
+    context (Issues #61, #64).
     """
     ok: list[str] = []
     mismatch: list[dict[str, Any]] = []
     missing: list[str] = []
-
     for card_id, rows in registry.items():
         row = _latest_preserved_row(rows)
         if row is None:
             continue
-        # Sprint 4a (2026-05-17): verify the immutable archive copy,
-        # not the mutable current-pointer. See module docstring for
-        # Section 6 reaffirmation context (Issues #61, #64).
-        archive_key = row["archive_key"]
-        expected_sha = row["byte_sha256"]
-        body = _read_r2_bytes(client, bucket, archive_key)
-        if body is None:
-            missing.append(card_id)
-            print(f"[verify-preserved] MISSING {card_id} key={archive_key}")
-            continue
-        actual_sha = hashlib.sha256(body).hexdigest()
-        if actual_sha == expected_sha:
+        status, entry = _check_one_row(card_id, row, client, bucket)
+        if status == "ok":
             ok.append(card_id)
-        else:
-            mismatch.append(
-                {
-                    "card_id": card_id,
-                    "archive_key": archive_key,
-                    "expected_sha": expected_sha,
-                    "actual_sha": actual_sha,
-                    "actual_size": len(body),
-                }
-            )
-            print(
-                f"[verify-preserved] MISMATCH {card_id} "
-                f"expected={expected_sha[:12]}... actual={actual_sha[:12]}..."
-            )
-
+        elif status == "missing":
+            missing.append(card_id)
+        elif status == "mismatch" and entry is not None:
+            mismatch.append(entry)
     return {"ok": ok, "mismatch": mismatch, "missing": missing}
 
 

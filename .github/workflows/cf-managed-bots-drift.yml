@@ -1,0 +1,95 @@
+name: CF Managed bots drift check
+
+# Weekly check that our hardcoded ``CF_MANAGED_BOTS`` const in
+# ``web/src/lib/robots.ts`` still matches the live CF Managed
+# robots.txt block. If Cloudflare expands or trims the upstream
+# Managed list, our render-time filter drifts:
+#
+#   * CF added a bot we don't list → robots.txt emits a duplicate
+#     User-agent line that CF also prepends (Lighthouse SEO re-flag).
+#   * CF removed a bot we list → our body silently omits a Disallow
+#     that USED to be enforced by CF Managed (training crawler hole).
+#
+# Either direction warrants an issue + operator update of the const.
+# Source-of-truth is the live ``/robots.txt`` body, not CF's docs
+# (which lag the actual feature rollout). Schedule: Mondays 09:00 UTC
+# so any drift surfaces at the start of the operator week.
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Mondays 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write   # file an issue on drift
+
+concurrency:
+  group: cf-managed-bots-drift
+  cancel-in-progress: false
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+
+      # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Run drift check
+        id: drift
+        # Exit 1 on drift; exit 0 on no-drift OR soft-failure (fetch
+        # error, CF Managed disabled). ``continue-on-error: true``
+        # makes the run green even on drift so the next step can file
+        # an issue. ``::warning::`` annotations from the script remain
+        # visible in the run summary.
+        continue-on-error: true
+        run: python scripts/check_cf_managed_bots_drift.py
+        # Capture the exit code so the issue-filing step can decide.
+        # GitHub Actions reports it via steps.<id>.outcome / .conclusion.
+
+      - name: File drift issue
+        # actions/github-script v8.0.0 — pinned to SHA per SEC-001.
+        # Only files an issue when the script exited non-zero (drift).
+        if: steps.drift.outcome == 'failure'
+        uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0
+        with:
+          script: |
+            const title = 'CF Managed robots.txt bot list drifted from CF_MANAGED_BOTS const';
+            const body = [
+              'The weekly drift check detected a mismatch between the live',
+              'Cloudflare Managed robots.txt block and the hardcoded',
+              '`CF_MANAGED_BOTS` constant in `web/src/lib/robots.ts`.',
+              '',
+              'See the run logs for the specific `::warning::` lines naming',
+              'which bots are in one set but not the other:',
+              '',
+              `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              'Operator action: update `CF_MANAGED_BOTS` to match the live',
+              'block, then re-run the workflow to confirm clean.',
+            ].join('\n');
+            // De-dupe: skip if an open issue with this title already exists.
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'cf-managed-drift',
+            });
+            if (existing.data.some(i => i.title === title)) {
+              core.info('Open drift issue already exists; skipping');
+              return;
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['cf-managed-drift', 'chore'],
+            });

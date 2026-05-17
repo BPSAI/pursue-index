@@ -8,13 +8,23 @@ name: Wayback save after tranche change
 # *that the public URL rendered that content at this date*.
 #
 # Triggers:
-#   * `push` to main, gated to runs that touched
-#     `data/manifests/latest.json` (new tranche landed) OR the
-#     `web/` tree (deploy is about to happen) — avoids hammering
-#     Wayback on every commit.
+#   * `push` to main, gated to runs that touched a path that actually
+#     affects the rendered public site (Sprint 4a fix-pass L3 narrows
+#     this from `web/**` so state.md sweeps + docs subdirs don't
+#     trigger fresh snapshots).
 #   * `workflow_dispatch` — manual button for operator-triggered
 #     re-snapshot (e.g., after a content-only change that didn't
 #     touch the manifest).
+#
+# Synchronization with CF deploy: the public site is deployed by the
+# CF Workers Builds dashboard pipeline (auto-deploy on push to main),
+# NOT by the in-repo `deploy-cf.yml` (which is now workflow_dispatch-
+# only). The 5-min sleep below is timed against the CFWB pipeline,
+# which typically takes ~2-3 min from push → live. If CFWB stalls,
+# Wayback captures the PRE-deploy version of the site — affects
+# snapshot quality, not pipeline correctness. The next scheduled run
+# (or a manual workflow_dispatch after the operator confirms deploy)
+# captures the post-stall version once the freshness window expires.
 #
 # Wayback rate-limits hard: the script defaults to 2 s between
 # submissions and reads `data/wayback-history.json` to skip URLs
@@ -23,17 +33,24 @@ name: Wayback save after tranche change
 # re-save still-fresh URLs.
 #
 # Failures on individual URLs (429, timeout, bot challenge) are
-# logged but don't fail the workflow; the next scheduled run
-# picks them up once their freshness window expires. Network-level
-# failure (sitemap unreachable, IA outage) is a soft-failure: the
-# script logs the issue and exits 0.
+# logged as ``::warning::`` annotations but don't fail the workflow
+# (H3 fix-pass: the script returns 0 on per-URL failure so the
+# commit-back step still runs and partial-success history persists).
+# Network-level failure (sitemap unreachable, IA outage) is a soft-
+# failure: the script logs the issue and exits 0.
 
 on:
   push:
     branches: [main]
     paths:
+      # L3 (vaivora): narrow from `web/**` to paths that actually
+      # change the rendered public site. State-only sweeps, docs/,
+      # and OG-render-bot commits should not trigger fresh snapshots.
       - 'data/manifests/latest.json'
-      - 'web/**'
+      - 'web/src/pages/**'
+      - 'web/src/content/**'
+      - 'web/src/components/**'
+      - 'web/src/layouts/**'
   workflow_dispatch:
 
 permissions:
@@ -59,14 +76,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Wait for CF deploy + edge warm (5 min)
+      - name: Wait for CF Workers Builds deploy + edge warm (5 min)
         # Wayback's snapshot reads from the live origin; if we fire
-        # before the CF deploy completes + the edge warms, IA captures
-        # the previous version. The deploy pipeline triggers on the
-        # same `push` to main, so a fixed 5 min wait is the simplest
-        # synchronization. workflow_dispatch is exempt — operator
-        # presumably ran this manually because the deploy already
-        # landed.
+        # before the CFWB deploy completes + the edge warms, IA captures
+        # the previous version. The CFWB pipeline triggers on the same
+        # `push` to main as this workflow; a fixed 5 min wait covers
+        # the typical 2-3 min CFWB latency plus edge warm-up.
+        # workflow_dispatch is exempt — operator presumably ran this
+        # manually because the deploy already landed.
         if: github.event_name == 'push'
         run: sleep 300
 
@@ -74,6 +91,8 @@ jobs:
         # The script reads the live sitemap-index from pursueindex.com
         # (post-deploy), filters out URLs saved within the last 24 h,
         # and submits the rest at 2 s/URL. ~180 URLs * 2 s ≈ 6 min.
+        # H3: per-URL failures surface as ``::warning::`` annotations
+        # but do NOT mark the step as failed.
         run: |
           python scripts/wayback_save.py \
             --sitemap https://pursueindex.com/sitemap-index.xml \
@@ -82,16 +101,23 @@ jobs:
             --delay-seconds 2
 
       - name: Commit updated wayback-history.json
-        # Only commits when the script wrote new entries. The history
-        # file is what makes subsequent runs idempotent — if we don't
-        # commit it back, every run re-saves every URL.
+        # H2: stage the file BEFORE the diff so newly-created (untracked)
+        # history files are detected. ``git diff --quiet <path>`` does
+        # not catch untracked files; ``git diff --cached --quiet`` does.
+        # H3: ``if: always()`` ensures the commit-back step runs even
+        # when the save step produced ``::warning::`` annotations
+        # (per-URL failure should not lose freshness state).
+        # H4: ``git pull --rebase`` before push avoids races with other
+        # workflows that also write to main (mirrors verify-assets-daily).
+        if: always()
         run: |
-          if git diff --quiet data/wayback-history.json; then
-            echo "[wayback] no history change; nothing to commit"
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/wayback-history.json
+          if git diff --cached --quiet; then
+            echo "[wayback] no history change; nothing to commit"
+            exit 0
+          fi
+          git pull --rebase origin main
           git commit -m "chore(wayback): update save history after wayback-after-deploy"
-          git push
+          git push origin main

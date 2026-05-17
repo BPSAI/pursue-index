@@ -204,7 +204,7 @@ const navItems = [
       <script
         defer
         src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={`{"token": "${cfAnalyticsToken}"}`}
+        data-cf-beacon={JSON.stringify({ token: cfAnalyticsToken })}
       ></script>
     )}
 

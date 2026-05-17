@@ -94,7 +94,7 @@ def test_verify_flags_byte_sha_mismatch() -> None:
 
 
 def test_verify_flags_missing_object() -> None:
-    """If R2 has no object at current_key → preservation copy gone."""
+    """If R2 has no object at archive_key → preservation copy gone."""
     from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 
     client = MagicMock()
@@ -134,6 +134,38 @@ def test_verify_skips_non_preserved_rows() -> None:
     # is read — we only read the archive key, regardless of card_id.
     assert "manifest-card.pdf" not in get_call_keys
     assert "preserved-card.pdf" not in get_call_keys
+
+
+def test_verify_skips_row_missing_archive_key(capsys) -> None:
+    """Sprint 4a fix-pass (nayru coverage gap): a preserved row that
+    lacks ``archive_key`` is skipped with a warning, not a KeyError.
+
+    Registry rows are merged from multiple writers (the daily ingest,
+    operator-triggered re-pins, the Section 6 reaffirmation script).
+    A row produced by a pre-Sprint-4a writer might lack the
+    ``archive_key`` field even though ``preserved=True``. The verify
+    must surface that as a triageable warning rather than crash the
+    daily integrity sweep.
+    """
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(_GOOD_BYTES)
+
+    row = _preserved_row("legacy-card")
+    del row["archive_key"]  # legacy writer never populated it
+    registry = {"legacy-card": [row]}
+
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    # The row is skipped — not counted as ok/mismatch/missing — and a
+    # warning is emitted so the operator sees the schema gap.
+    assert report["ok"] == []
+    assert report["mismatch"] == []
+    assert report["missing"] == []
+    captured = capsys.readouterr()
+    assert "legacy-card" in captured.out
+    assert "archive_key" in captured.out
 
 
 def test_verify_reads_archive_key_not_current_key() -> None:

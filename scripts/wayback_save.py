@@ -1,11 +1,14 @@
 """Submit pursue-index URLs to the Wayback Machine.
 
-Reads a list of URLs (sitemap-xml or CLI ``--url``) and POSTs each to
+Reads a list of URLs (sitemap-xml or CLI ``--url``) and GETs each at
 ``https://web.archive.org/save/<url>``. The Wayback save endpoint is
 the long-standing one Brewster Kahle's project has exposed for years;
 calling it strict-sequentially with a 2-second delay is the operator-
 friendly rate-limit posture documented at
-``https://archive.org/help/wayback_api.php``.
+``https://archive.org/help/wayback_api.php``. Wayback accepts both GET
+and POST against the save endpoint — we use GET because it's the
+conventional shape for save-page-now and keeps the script trivially
+inspectable in a browser if an operator wants to dry-run it manually.
 
 Design constraints:
 
@@ -15,32 +18,37 @@ Design constraints:
 * **Idempotent.** A small JSON history file at
   ``data/wayback-history.json`` records the last save time per URL.
   URLs saved inside the freshness window (default 24 h) are skipped.
-* **Origin-aware.** Wayback rejects 404/5xx origin URLs. The script
-  optionally HEADs the origin first and skips non-2xx/3xx URLs so the
-  Wayback queue doesn't fill with dead pointers.
+* **Origin-aware.** Wayback rejects 404/5xx origin URLs. By default
+  the script HEADs each origin URL first and skips non-2xx/3xx URLs
+  so the Wayback queue doesn't fill with dead pointers. Bypass with
+  ``--skip-origin-check`` (e.g., archiving a known-removed URL).
 * **No-op when no inputs.** If the sitemap has zero URLs or every URL
   is fresh, the script exits 0 with a one-line message.
+* **DoS posture.** ``--max-urls`` caps the plan length (default 1000)
+  so a runaway / attacker-controlled sitemap can't pin the Wayback
+  queue.
 
-The Wayback save endpoint itself returns 200 on accept; failures
-(429, timeout, bot challenge) are logged but not retried. The next
-scheduled run picks the URL up again once its freshness window
-expires.
+The Wayback save endpoint itself returns 200 on accept; per-URL
+failures (429, timeout, bot challenge, 404) are surfaced as GH Actions
+``::warning::`` annotations but do **not** mark the run as failed —
+exit 1 is reserved for catastrophic failure (unreadable history file
+post-recovery, etc.). The next scheduled run picks the URL up again
+once its freshness window expires.
 
 This script is intentionally tiny and pure-stdlib (only ``urllib`` /
-``http.client``) so it can run on the ``ubuntu-latest`` GitHub
-runner without ``pip install``.
+``http.client``) so it can run on the ``ubuntu-latest`` GitHub runner
+without ``pip install``.
 
 Exit codes:
-  0  — every selected URL produced a 200 (or was skipped, or no inputs)
+  0  — normal completion, regardless of per-URL save outcome
   0  — credentials/network unavailable (graceful)
-  1  — at least one save submission produced a non-200 status
+  1  — catastrophic failure (reserved; no current paths exercise it)
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 import time
 import urllib.error
@@ -48,91 +56,46 @@ import urllib.request
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from _wayback_helpers import (  # noqa: E402  (local module)
+    apply_max_urls_cap,
+    build_save_url,
+    build_plan,
+    is_fresh,
+    parse_sitemap_urls,
+    should_skip_origin_status,
+)
+
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_HISTORY = _REPO_ROOT / "data" / "wayback-history.json"
 DEFAULT_SITEMAP = _REPO_ROOT / "web" / "dist" / "sitemap-index.xml"
 DEFAULT_DELAY_SECONDS = 2.0
 DEFAULT_WINDOW_HOURS = 24
-WAYBACK_SAVE_PREFIX = "https://web.archive.org/save/"
-SKIPPABLE_STATUS_MIN = 400
+DEFAULT_MAX_URLS = 1000
 SAVE_TIMEOUT_SECONDS = 60
+ORIGIN_HEAD_TIMEOUT_SECONDS = 10
 
 
-# --- sitemap parsing --------------------------------------------------
-
-
-_LOC_RE = re.compile(r"<loc>\s*([^<]+?)\s*</loc>", re.IGNORECASE)
-
-
-def parse_sitemap_urls(xml: str) -> list[str]:
-    """Extract <loc> values from a urlset OR sitemapindex XML body.
-
-    Pure-stdlib regex parser — avoids the ``xml.etree`` namespace
-    quirk where ``find("loc")`` returns ``None`` unless the caller
-    spells the namespace correctly. The pattern is tight enough for
-    the well-formed sitemap that Astro emits.
-    """
-    return [m.group(1).strip() for m in _LOC_RE.finditer(xml)]
-
-
-# --- freshness gating -------------------------------------------------
-
-
-def is_fresh(
-    saved_at: datetime | None, *, now: datetime, window: timedelta
-) -> bool:
-    """True if ``saved_at`` is within ``window`` of ``now``.
-
-    A ``None`` saved_at means we've never saved this URL → not fresh.
-    """
-    if saved_at is None:
-        return False
-    return now - saved_at < window
-
-
-# --- save-URL construction --------------------------------------------
-
-
-def build_save_url(src: str) -> str:
-    """``https://web.archive.org/save/<src>`` — passthrough."""
-    return f"{WAYBACK_SAVE_PREFIX}{src}"
-
-
-# --- plan filtering ---------------------------------------------------
-
-
-def build_plan(
-    urls: list[str],
-    *,
-    history: dict[str, datetime],
-    now: datetime,
-    window: timedelta,
-) -> list[str]:
-    """Return the subset of ``urls`` that are stale per ``history``.
-
-    Order-preserving. URLs absent from history are kept; URLs whose
-    last save is older than ``window`` are kept; URLs saved inside
-    the window are skipped.
-    """
-    return [u for u in urls if not is_fresh(history.get(u), now=now, window=window)]
-
-
-# --- origin-status gating ---------------------------------------------
-
-
-def should_skip_origin_status(status: int) -> bool:
-    """4xx and 5xx origin responses are skipped from the save plan."""
-    return status >= SKIPPABLE_STATUS_MIN
-
-
-# --- history persistence ----------------------------------------------
+# --- history persistence ---------------------------------------------
 
 
 def load_history(path: Path) -> dict[str, datetime]:
-    """Load the wayback save history. Returns empty dict if missing."""
+    """Load the wayback save history. Returns ``{}`` if missing OR corrupt.
+
+    A crashed prior run could leave a half-written JSON file behind
+    (M1 makes that path atomic, but pre-existing corrupt files still
+    need to be tolerated). We emit a GH Actions ``::warning::`` so the
+    operator sees the recovery and exit 0 from an empty history.
+    """
     if not path.exists():
         return {}
-    raw: dict[str, str] = json.loads(path.read_text())
+    try:
+        raw: dict[str, str] = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        print(
+            f"::warning::wayback-save: history file at {path} is unreadable "
+            f"({exc}); starting from an empty history"
+        )
+        return {}
     out: dict[str, datetime] = {}
     for url, iso in raw.items():
         out[url] = datetime.fromisoformat(iso)
@@ -140,20 +103,47 @@ def load_history(path: Path) -> dict[str, datetime]:
 
 
 def save_history(path: Path, history: dict[str, datetime]) -> None:
-    """Persist the history as ISO-8601 strings."""
+    """Persist the history as ISO-8601 strings.
+
+    M1 (Codex P2): write-temp-then-rename so a partial write can't
+    corrupt the on-disk file. ``Path.replace`` is atomic on POSIX
+    (and on Windows since 3.3 via ``MoveFileExW(REPLACE_EXISTING)``).
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     serialized: dict[str, str] = {
         url: ts.astimezone(UTC).isoformat() for url, ts in history.items()
     }
-    path.write_text(json.dumps(serialized, indent=2, sort_keys=True))
+    body = json.dumps(serialized, indent=2, sort_keys=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(body, encoding="utf-8")
+    tmp.replace(path)
 
 
 # --- network ---------------------------------------------------------
 
 
 def _submit_save(save_url: str, *, timeout: float = SAVE_TIMEOUT_SECONDS) -> int:
-    """POST to the Wayback save endpoint. Returns HTTP status code."""
+    """GET the Wayback save endpoint. Returns HTTP status code (0 on network err)."""
     req = urllib.request.Request(save_url, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return int(resp.status)
+    except urllib.error.HTTPError as exc:
+        return int(exc.code)
+    except (urllib.error.URLError, TimeoutError):
+        return 0
+
+
+def _head_origin_status(
+    url: str, *, timeout: float = ORIGIN_HEAD_TIMEOUT_SECONDS
+) -> int:
+    """HEAD the origin URL to determine if it's worth saving.
+
+    Returns the integer status code, or 0 on network error. A 0 is
+    treated as "skip" by callers — better to defer than to fire a
+    Wayback save against a host that's currently flaky.
+    """
+    req = urllib.request.Request(url, method="HEAD")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return int(resp.status)
@@ -174,11 +164,12 @@ def _read_sitemap_text(sitemap_arg: str) -> str:
 def _expand_sitemap_index(
     initial_urls: list[str], *, sitemap_origin: str | None
 ) -> list[str]:
-    """If the URL list contains child sitemap pointers, expand them.
+    """Expand the top-level sitemap-index by following each child once.
 
-    A sitemapindex yields URLs that themselves end in ``.xml`` — we
-    recursively fetch each and concatenate their <loc> values. Limit
-    depth to one level (no nested indexes) to avoid surprises.
+    Does NOT recurse — nested sub-indexes (rare; we don't emit any)
+    are passed through to Wayback as-is. For Astro's 2-level sitemap
+    this is correct behavior: the top-level is a sitemapindex whose
+    children are urlsets, and we fetch each child once.
     """
     expanded: list[str] = []
     for url in initial_urls:
@@ -196,20 +187,66 @@ def _expand_sitemap_index(
 
 
 def _collect_urls(args: argparse.Namespace) -> list[str]:
-    """Resolve the source URL list from CLI args."""
+    """Resolve the source URL list from CLI args.
+
+    H1 (vaivora P1): ``args.sitemap`` is typed as ``str`` at the
+    argparse layer — typing it as Path silently collapses ``https://``
+    to ``https:/`` because ``pathlib.Path`` normalizes consecutive
+    slashes. The str type keeps the URL form intact so the http branch
+    of ``_read_sitemap_text`` activates.
+    """
     if args.url:
         return list(args.url)
-    sitemap_text = _read_sitemap_text(str(args.sitemap))
+    sitemap_text = _read_sitemap_text(args.sitemap)
     initial = parse_sitemap_urls(sitemap_text)
     return _expand_sitemap_index(initial, sitemap_origin=None)
 
 
+def _filter_dead_origins(
+    plan: list[str], *, skip_origin_check: bool
+) -> list[str]:
+    """Drop URLs whose origin HEAD returns 4xx/5xx.
+
+    H5 (laverna): wires ``should_skip_origin_status`` into the plan so
+    dead pointers never reach the Wayback queue. ``--skip-origin-check``
+    bypasses this for cases where the operator wants to archive a
+    known-removed URL (race: capture in Wayback before it's also
+    expunged there).
+    """
+    if skip_origin_check:
+        return plan
+    keep: list[str] = []
+    for url in plan:
+        status = _head_origin_status(url)
+        if status == 0:
+            # Network error HEADing — defer rather than fire a save.
+            print(
+                f"::warning::wayback-save: origin HEAD failed for {url}; "
+                "deferring to next run"
+            )
+            continue
+        if should_skip_origin_status(status):
+            print(
+                f"::warning::wayback-save: origin status {status} for {url}; "
+                "skipping Wayback save"
+            )
+            continue
+        keep.append(url)
+    return keep
+
+
 def _run_plan(
     plan: list[str], *, delay_seconds: float
-) -> tuple[dict[str, datetime], list[tuple[str, int]]]:
-    """Submit each URL in ``plan``. Returns (new_history, failures)."""
+) -> dict[str, datetime]:
+    """Submit each URL in ``plan``. Returns the new-history dict.
+
+    Per-URL failures are surfaced as ``::warning::`` GH Actions
+    annotations (so the operator sees them in the run summary) but do
+    not cause exit 1 — Wayback's 429 is recoverable on the next run
+    and dropping the workflow on a single throttled URL would lose
+    the partial-success history. See H3.
+    """
     new_history: dict[str, datetime] = {}
-    failures: list[tuple[str, int]] = []
     for i, url in enumerate(plan):
         if i > 0:
             time.sleep(delay_seconds)
@@ -219,17 +256,20 @@ def _run_plan(
             new_history[url] = datetime.now(UTC)
             print(f"[wayback-save] OK  {url}")
         else:
-            failures.append((url, status))
-            print(f"[wayback-save] FAIL status={status} {url}")
-    return new_history, failures
+            print(
+                f"::warning::wayback-save: {url} returned status {status} "
+                "(will retry on next scheduled run)"
+            )
+    return new_history
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--sitemap",
-        type=Path,
-        default=DEFAULT_SITEMAP,
+        # H1: NOT Path — argparse + Path collapses https:// to https:/.
+        type=str,
+        default=str(DEFAULT_SITEMAP),
         help="Path or URL to sitemap-index.xml (default: web/dist/sitemap-index.xml)",
     )
     parser.add_argument(
@@ -256,6 +296,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Sleep between save calls (default: 2.0)",
     )
     parser.add_argument(
+        "--max-urls",
+        type=int,
+        default=DEFAULT_MAX_URLS,
+        help="Cap on plan length post-freshness (default: 1000)",
+    )
+    parser.add_argument(
+        "--skip-origin-check",
+        action="store_true",
+        help="Skip the origin HEAD probe (save even 404 origins)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print the save plan without submitting",
@@ -263,8 +314,8 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> int:
-    args = _build_parser().parse_args()
+def _main_with_args(args: argparse.Namespace) -> int:
+    """Entry point taking parsed args — exposed for integration tests."""
     try:
         urls = _collect_urls(args)
     except (FileNotFoundError, urllib.error.URLError) as exc:
@@ -279,10 +330,13 @@ def main() -> int:
     now = datetime.now(UTC)
     window = timedelta(hours=args.window_hours)
     plan = build_plan(urls, history=history, now=now, window=window)
+    plan, cap_warning = apply_max_urls_cap(plan, max_urls=args.max_urls)
+    if cap_warning is not None:
+        print(cap_warning)
     print(
         f"[wayback-save] {len(urls)} urls; "
         f"{len(plan)} stale (>{args.window_hours}h); "
-        f"{len(urls) - len(plan)} skipped fresh"
+        f"{len(urls) - len(plan)} skipped fresh or capped"
     )
 
     if args.dry_run:
@@ -292,10 +346,20 @@ def main() -> int:
     if not plan:
         return 0
 
-    new_history, failures = _run_plan(plan, delay_seconds=args.delay_seconds)
+    plan = _filter_dead_origins(plan, skip_origin_check=args.skip_origin_check)
+    if not plan:
+        save_history(args.history, history)
+        return 0
+
+    new_history = _run_plan(plan, delay_seconds=args.delay_seconds)
     history.update(new_history)
     save_history(args.history, history)
-    return 1 if failures else 0
+    return 0
+
+
+def main() -> int:
+    args = _build_parser().parse_args()
+    return _main_with_args(args)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,85 @@
 # Current State
 
-> Last updated: 2026-05-17 (Sprint 4a integrity + SEO polish implemented on `sprint-4a-integrity-seo`; NOT yet pushed. Prior baseline: Sprint 2.1 cache-headers fix + Sprint 1.1 robots-policy split both merged to main on 2026-05-17. Sprint 2.1 = `5840303`; Sprint 2 Lighthouse perf-pass = `7dfb008`; Sprint 1 GEO foundation = `73f6ecb`. Cross-repo: VLM bake-off Sprint 6.1b completed 2026-05-17 afternoon — see pursue-opsec findings.)
+> Last updated: 2026-05-17 (Sprint 4a fix-pass applied on `sprint-4a-integrity-seo` after PR #65 nayru/laverna/vaivora/Codex review; new commit on top of `52f39c5`. Prior baseline: Sprint 2.1 cache-headers fix + Sprint 1.1 robots-policy split both merged to main on 2026-05-17. Sprint 2.1 = `5840303`; Sprint 2 Lighthouse perf-pass = `7dfb008`; Sprint 1 GEO foundation = `73f6ecb`. Cross-repo: VLM bake-off Sprint 6.1b completed 2026-05-17 afternoon — see pursue-opsec findings.)
 
 ## What Was Just Done
+
+**2026-05-17 (evening) — Sprint 4a PR #65 fix-pass: ALL review findings applied as one bundled fix-commit on top of the initial Sprint 4a commit (`52f39c5`). H1-H5 + M1-M3 + M-new + L1-L5 + nayru coverage gaps + nit. Per [[feedback_bundled_commits]], one commit (not five) to keep PR-history tight. Per [[feedback_ship_wired_and_validated]], every fix is test-covered before merge: the Path-collapse bug, the staged-before-diff bug, the if-always commit-back, the rebase-before-push, the origin HEAD wiring, atomic history writes, JSON-decode recovery, max-urls DoS cap, the Base.astro JSON.stringify, the GET docstring drift, the narrowed workflow path filter, the CF Workers Builds docstring, and the CF_MANAGED_BOTS drift-detector all have failing-first tests now green.**
+
+### Fix-pass scope (PR #65)
+
+- **H1 — `scripts/wayback_save.py` --sitemap type fix.** `type=Path` collapsed `https://` to `https:/` because `pathlib.Path` normalizes consecutive slashes. Changed to `type=str`. Integration test `test_collect_urls_accepts_https_sitemap_arg_without_path_collapse` monkey-patches `urlopen` and asserts the URL reaches the http branch intact.
+- **H2 — workflow stages history file BEFORE diff.** `git diff --quiet <path>` does NOT detect untracked files — first-run history file would be silently dropped. Now: `git add` then `git diff --cached --quiet`. Tested via `test_commit_step_stages_before_diff_check`.
+- **H3 — workflow `if: always()` + script returns 0 on per-URL failure.** Per-URL 429/timeout was failing the workflow and the commit-back step never ran → freshness state was lost. Now: `_run_plan` emits `::warning::` annotations but always succeeds; commit-back runs unconditionally. Tested by `test_run_plan_per_url_failures_return_exit_zero` + `test_run_plan_emits_warning_annotation_for_failures` + `test_commit_step_has_if_always`.
+- **H4 — `git pull --rebase origin main` before push.** Mirrors verify-assets-daily.yml race posture for concurrent main writers. Tested by `test_commit_step_rebases_before_push`.
+- **H5 — `should_skip_origin_status` wired in.** Was previously dead code. `_filter_dead_origins()` HEADs each URL before submitting to Wayback; `--skip-origin-check` bypasses for "save a known-removed URL before it's also expunged" cases. Two integration tests pin both branches (`test_run_plan_skips_dead_origin_urls`, `test_skip_origin_check_flag_bypasses_head`).
+- **M1 — atomic `save_history` (write-temp-then-rename).** `path.with_suffix(...".tmp")` → `tmp.replace(path)` (atomic on POSIX, MoveFileExW on Windows). Tested with `test_save_history_is_atomic_on_partial_write` that monkey-patches `Path.replace` to raise; the original file must be untouched.
+- **M2 — `load_history` try/except json.JSONDecodeError.** Corrupt-history file (left by a crashed pre-M1 write, or operator manual edit) now returns `{}` with a `::warning::` annotation rather than crashing the workflow. Tested by `test_load_history_recovers_from_corrupt_json`.
+- **M3 — `_expand_sitemap_index` docstring matches behavior.** Old text claimed "recursive" but code expands one level only. Rewrote to explicitly say "follows each child once, does NOT recurse" with a note that nested sub-indexes (we emit none) pass through to Wayback as-is.
+- **M-new — `--max-urls` DoS cap (default 1000).** Truncates plan + emits `::warning::` annotation. Prevents a runaway sitemap (typo / attacker-controlled subdomain) from pinning the Wayback queue. Pure helper extracted to `_wayback_helpers.py::apply_max_urls_cap` for testability; three unit tests cover under-cap / at-cap / over-cap behavior plus the end-to-end `test_main_with_args_truncates_oversized_plan`.
+- **L1 — `Base.astro` data-cf-beacon JSON.stringify.** Replaced manual template literal with `JSON.stringify({ token: cfAnalyticsToken })`. Astro escapes the HTML output and JSON.stringify handles quotes/backslashes/newlines correctly. Beacon `<script>` remains token-conditional (skipped when env var unset).
+- **L2 — GET docstring drift.** Top-level module docstring + `_submit_save` docstring now both say "GET" (matching `method="GET"` in code). Wayback accepts both GET and POST; GET is the conventional save-page-now shape.
+- **L3 — workflow path filter narrowed.** Was `web/**` (fired on every state.md sweep, docs/, OG-bot commit). Narrowed to `data/manifests/latest.json` + `web/src/{pages,content,components,layouts}/**`. Tested by `test_path_filter_is_narrowed_to_render_affecting_paths`.
+- **L4 — CF Workers Builds dependency documented.** Top-of-file header explains the 5-min sleep is timed against the CFWB dashboard pipeline (auto-deploy on push to main), NOT the in-repo `deploy-cf.yml` (which is workflow_dispatch-only). Note: a CFWB stall means Wayback captures the pre-deploy version — affects snapshot quality, not pipeline correctness. Tested by `test_workflow_documents_cfwb_dependency`.
+- **L5 — `scripts/check_cf_managed_bots_drift.py` + `.github/workflows/cf-managed-bots-drift.yml`.** Weekly cron (Mon 09:00 UTC) fetches live `https://pursueindex.com/robots.txt`, extracts the CF-prepended block between `# BEGIN/END Cloudflare Managed` sentinels, diffs against the `CF_MANAGED_BOTS` const in `web/src/lib/robots.ts`. Drift in either direction → `::warning::` annotation → opens a labeled issue (de-duped against any open one). 12 unit tests in `test_check_cf_managed_bots_drift.py` cover the slice extractor, the const-array regex (with inline `//` comment tolerance), case-insensitive diff (CF lowercases `meta-externalagent`), and the end-to-end parse against the real `robots.ts`.
+
+### Nayru coverage gaps (closed)
+
+- **`load_history`/`save_history` round-trip + missing-file + corrupt-JSON cases** — three tests in `test_wayback_save.py`.
+- **`_run_plan` mixed 200/429 → exit 0 + history persisted for 200 only** — two tests in `test_wayback_save_integration.py`.
+- **main() end-to-end no-URLs, no-plan, oversized-plan cases** — three tests with `urlopen` mocked.
+- **`r2_verify_preserved`: row missing `archive_key` → skip + log** — `test_verify_skips_row_missing_archive_key` written first, fails on `KeyError`, fixed by `row.get("archive_key")` + skip branch. The branch made `verify_preserved` 56 lines (over the 50-line limit), so the per-row logic was extracted to `_check_one_row()` returning `(status, mismatch_entry_or_none)`. Both functions now under limit.
+- **robots.ts: AI_ALLOW survives the CF_MANAGED_BOTS filter** — `test_AI_ALLOW_survives_the_CF_MANAGED_BOTS_filter` pins that if CF later adds (e.g.) `Applebot` to its Managed block, our explicit `Allow: /` still renders because the filter applies to AI_BLOCK only.
+
+### Nits
+
+- `test_r2_verify_preserved.py:97` docstring fixed: `current_key` → `archive_key`.
+
+### Refactor for arch compliance
+
+- Extracted pure helpers from `wayback_save.py` to `scripts/_wayback_helpers.py` (~106 lines): `parse_sitemap_urls`, `is_fresh`, `build_save_url`, `build_plan`, `should_skip_origin_status`, `apply_max_urls_cap`. `wayback_save.py` re-imports them so the public-test surface is unchanged. Without this split the main file would have crossed the 400-line error threshold once the new --max-urls + origin-HEAD + JSON-recover paths landed.
+
+### Test counts (post-fix)
+
+- **Python:** 542 passed (+35 from 507 baseline: +5 in test_wayback_save, +8 in new test_wayback_save_integration, +7 in new test_wayback_workflow, +12 in new test_check_cf_managed_bots_drift, +1 in test_r2_verify_preserved). 0 fail.
+- **Web (lib):** 57 (+1 from 56 baseline: AI_ALLOW-survives-CF-managed-filter). 0 fail. test:llms unchanged 9; test:api-page unchanged 1.
+- **Worker:** 124 (unchanged). 0 fail.
+- **Astro build:** 182 pages built in ~6.5s; `dist/robots.txt` still clean (no duplicates with CF Managed).
+
+### arch check
+
+Clean (or warning-level only) on every modified/new file:
+- `scripts/wayback_save.py` — 366 lines (warning, well under 400 error)
+- `scripts/_wayback_helpers.py` — clean (106 lines)
+- `scripts/check_cf_managed_bots_drift.py` — clean (186 lines)
+- `scripts/r2_verify_preserved.py` — 204 lines (warning, just over 200)
+- `web/src/layouts/Base.astro` — clean
+- `web/src/lib/robots.test.ts` — clean
+- `tests/unit/test_wayback_save.py` (289 lines, 20 funcs) — clean
+- `tests/unit/test_wayback_save_integration.py` (379 lines, 8 funcs) — clean
+- `tests/unit/test_wayback_workflow.py` — clean
+- `tests/unit/test_check_cf_managed_bots_drift.py` — clean
+- `tests/unit/test_r2_verify_preserved.py` — clean
+
+### Branch state
+
+- Branch: `sprint-4a-integrity-seo` (rev: fix-pass commit on top of `52f39c5`).
+- **Pushed** to origin after this commit so Codex re-reviews PR #65 within ~5 min.
+
+### Operator-action items (unchanged from prior Sprint 4a entry)
+
+1. **`PUBLIC_CF_ANALYTICS_TOKEN` env var.** Set in CF Pages → Settings → Environment variables before deploy. Beacon script is skipped at build time without it.
+2. **Wayback workflow first-run.** First production run will save ~180 sitemap URLs at 2s/URL ≈ 6 min wall-clock. Now with `--skip-origin-check` available if the operator ever wants to bypass the HEAD probe.
+3. **Verify Lighthouse SEO clears.** After deploy, run Lighthouse SEO audit on `/`.
+4. **(new) `cf-managed-bots-drift` workflow.** Files an issue automatically on Mon 09:00 UTC if CF expands the Managed list upstream. Watch for the `cf-managed-drift` label.
+
+## What's Next
+
+1. **Watch Codex re-review on PR #65.** If clean, merge to main and let the CF Workers Builds pipeline auto-deploy. Then set `PUBLIC_CF_ANALYTICS_TOKEN`.
+2. **Wayback first-run validation** (unchanged from prior entry).
+3. **Sprint 4b carry-forward candidates** (unchanged): IndexNow ping post-deploy, literal-ID bypass in `worker/`, QC spec staleness, Sprint 1 carried follow-ups.
+
+---
 
 **2026-05-17 — Sprint 4a (integrity layer + SEO polish) implemented on branch `sprint-4a-integrity-seo`. Single uncommitted change-set bundling Theme A (provenance/integrity hardening) and Theme B (homepage SEO surface polish); tests + arch checks clean; build green; not yet pushed pending operator review.**
 

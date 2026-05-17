@@ -436,6 +436,45 @@ test("rendered robots.txt still contains non-CF-managed AI_BLOCK bots", () => {
   }
 });
 
+test("AI_ALLOW survives the CF_MANAGED_BOTS filter (filter applies to AI_BLOCK only)", () => {
+  // Sprint 4a fix-pass (nayru coverage gap): if a vendor's user/search
+  // bot is later added to CF_MANAGED_BOTS (e.g., CF expands to also
+  // disallow `Applebot` or `Bingbot` upstream), the AI_ALLOW Allow
+  // block must remain rendered — CF Managed disallows-by-default, so
+  // our explicit Allow is what flips them back on. The CF_MANAGED_BOTS
+  // filter applies to AI_BLOCK only; this test pins that invariant.
+  //
+  // Synthesize the regression: pretend Applebot got added upstream.
+  // We can't mutate CF_MANAGED_BOTS at runtime (readonly + frozen),
+  // so we assert the structural invariant instead: every AI_ALLOW
+  // entry, including any that happen to overlap CF_MANAGED_BOTS in
+  // the future, must still emit an Allow block in the rendered body.
+  const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
+  // Pick a representative AI_ALLOW entry that's NOT currently in
+  // CF_MANAGED_BOTS (Applebot — Applebot-Extended is in CF_MANAGED_BOTS
+  // but the search-purpose `Applebot` is in AI_ALLOW). Even if
+  // Applebot were later added to CF_MANAGED_BOTS, our Allow must stay.
+  const applebotIdx = body.indexOf("User-agent: Applebot\n");
+  assert.ok(applebotIdx >= 0, "Applebot must remain in AI_ALLOW renders");
+  const applebotWindow = body
+    .slice(applebotIdx)
+    .split("\n")
+    .slice(0, 3)
+    .join("\n");
+  assert.match(applebotWindow, /Allow: \/$/m);
+
+  // Belt-and-suspenders: confirm every AI_ALLOW name is rendered as
+  // an Allow rule, including names that share a prefix with a
+  // CF_MANAGED_BOTS entry (Applebot vs Applebot-Extended).
+  for (const allowName of AI_ALLOW) {
+    const pattern = new RegExp(
+      `^User-agent:\\s*${escapeRegex(allowName)}\\s*$`,
+      "m",
+    );
+    assert.match(body, pattern, `AI_ALLOW entry ${allowName} dropped from render`);
+  }
+});
+
 test("rendered robots.txt no longer contains the wildcard User-agent: * block", () => {
   // CF Managed renders the canonical wildcard with Allow: / and
   // Content-Signal directives; our wildcard duplicated it. Sprint 4a
