@@ -157,6 +157,89 @@ export function withSecurityHeaders(response) {
   return next;
 }
 
+/**
+ * Cache TTL policy by URL path.
+ *
+ * Order matters: more specific patterns first; the first match wins.
+ * Sprint 2.1 (2026-05-17) replaces the dead `web/public/_headers` file —
+ * Workers Static Assets with `run_worker_first: true` doesn't honor
+ * `_headers` because the Worker handles every request first and the
+ * ASSETS-binding response doesn't carry the directives through. Verified
+ * at the Sprint 2 deploy: `/_astro/*` was returning the assets binding's
+ * default `max-age=0, must-revalidate` instead of the intended
+ * `max-age=31536000, immutable`. APAC LCP stayed at 12–13s because
+ * regional edges had nothing to cache against.
+ *
+ * Owning Cache-Control here makes the policy version-controlled and
+ * code-reviewable. The dispatcher wires this AFTER the ASSETS fetch so
+ * card-detail HTML, chat SSE, etc. can still set their own explicit
+ * Cache-Control upstream and have it preserved (see withCacheHeaders).
+ */
+const CACHE_POLICY = [
+  // Hashed Astro assets — content-addressed, safe to cache forever.
+  {
+    test: /^\/_astro\//,
+    cacheControl: "public, max-age=31536000, immutable",
+  },
+  // /data/<file>.json — corpus payloads (pages.json, manifest.json,
+  // novelty.json, embed_index.json, atlas-layout.json, snapshot diffs).
+  // Filenames are NOT content-hashed; refreshes on each tranche deploy.
+  // 1h fresh + 24h stale-while-revalidate covers most user sessions
+  // and balances against the 30-min upstream poll cadence.
+  {
+    test: /^\/data\/[^/]+\.json$/,
+    cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
+  },
+  // Embeddings binary blob — 8.1 MB, same policy as /data/*.json. Called
+  // out explicitly because it's the largest single static asset and worth
+  // eyeballing in cache audits.
+  {
+    test: /^\/data\/embeddings\.bin$/,
+    cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
+  },
+  // /data/thumbs/* and /og/* — generated images, names derived from
+  // card_id (stable per tranche). 1-week fresh + 30-day SWR; tranche
+  // replace invalidates via the assets-binding deploy.
+  {
+    test: /^\/(data\/thumbs|og)\//,
+    cacheControl: "public, max-age=604800, stale-while-revalidate=2592000",
+  },
+  // Sprint 1 GEO surfaces — llms.txt / llms-full.txt / robots.txt /
+  // sitemap*.xml. These ship per-deploy (prebuild script regenerates
+  // them); 1-hour TTL matches the /data/*.json policy.
+  {
+    test: /^\/(llms(-full)?\.txt|robots\.txt|sitemap.*\.xml)$/,
+    cacheControl: "public, max-age=3600",
+  },
+];
+
+// The exact Cache-Control string the Workers ASSETS binding emits when it
+// has "no opinion." Treat it as a placeholder we're allowed to override;
+// anything else is treated as an upstream deliberate choice.
+const ASSETS_DEFAULT_CACHE_CONTROL = "public, max-age=0, must-revalidate";
+
+export function withCacheHeaders(response, request) {
+  // Defer to a deliberate upstream Cache-Control (e.g. an explicit
+  // `private, no-store` from the chat SSE handler). Only the assets
+  // binding's "no opinion" default is treated as overridable.
+  const existing = response.headers.get("Cache-Control");
+  if (existing && existing !== ASSETS_DEFAULT_CACHE_CONTROL) {
+    return response;
+  }
+
+  const path = new URL(request.url).pathname;
+  const match = CACHE_POLICY.find((p) => p.test.test(path));
+  if (!match) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", match.cacheControl);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request, env) {
     // `new URL(request.url).pathname` is normalized by the URL parser —
@@ -241,7 +324,12 @@ export default {
 
     // Everything else falls through to static assets — including the
     // /api documentation page and any other /api/* paths a future
-    // static page might add.
-    return withSecurityHeaders(await env.ASSETS.fetch(request));
+    // static page might add. `withCacheHeaders` stamps the path-based
+    // Cache-Control policy (the `_headers` file was dead weight under
+    // `run_worker_first: true`; see CACHE_POLICY for the why); the
+    // outer `withSecurityHeaders` then layers the security set on top.
+    return withSecurityHeaders(
+      withCacheHeaders(await env.ASSETS.fetch(request), request),
+    );
   },
 };

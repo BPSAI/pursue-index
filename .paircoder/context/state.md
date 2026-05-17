@@ -1,6 +1,55 @@
 # Current State
 
-> Last updated: 2026-05-16 (Sprint 2 Lighthouse perf-pass completed locally on branch `sprint-2-lighthouse`, NOT pushed — pending operator review. Sprint 1 GEO foundation already merged as commit `73f6ecb`.)
+> Last updated: 2026-05-17 (Sprint 2.1 cache-headers fix completed locally on branch `sprint-2.1-cache-headers`, NOT pushed — pending operator review. Sprint 2 already merged as commit `7dfb008`; Sprint 1 GEO foundation merged as commit `73f6ecb`.)
+
+## What Was Just Done
+
+**2026-05-17 — Sprint 2.1 (cache-headers Worker fix) implemented on branch `sprint-2.1-cache-headers` from `7dfb008`. Single change-set; 124 worker tests + arch check clean; not yet committed/pushed pending review.**
+
+### Root cause (verified post-Sprint-2 deploy)
+
+Sprint 2 shipped `web/public/_headers` to set the path-based Cache-Control policy. Live verification showed the headers are NOT being applied — `/_astro/*` returns `cache-control: public, max-age=0, must-revalidate` (the assets binding's default) instead of `max-age=31536000, immutable`. Workers Static Assets with `run_worker_first: true` doesn't honor `_headers`: the Worker handles every request first and the ASSETS-binding response strips the directives. APAC LCP stayed at 12-13s because regional edges had no warm cache.
+
+### Fix
+
+**Own Cache-Control in the Worker.** Path-based policy table in `worker/index.js::CACHE_POLICY`, applied by `withCacheHeaders()` at the ASSETS fall-through point — single source of truth, version-controlled, code-reviewable.
+
+Files modified:
+- **`worker/index.js`** — adds `CACHE_POLICY` table (5 path patterns), `ASSETS_DEFAULT_CACHE_CONTROL` sentinel, and exported `withCacheHeaders(response, request)`. Wired at the dispatch point: `return withSecurityHeaders(withCacheHeaders(await env.ASSETS.fetch(request), request));`. Cache headers layered INSIDE security headers so both are applied.
+- **`worker/tests/cache_headers.test.js` (new)** — 16 tests across two suites: 12 unit tests pinning the path-to-policy mapping (including the "preserve deliberate upstream Cache-Control" and "override the assets-binding default placeholder" edge cases) + 4 dispatcher-integration tests verifying the wrapper composes with `withSecurityHeaders`.
+- **`web/public/_headers`** — deleted (dead weight under `run_worker_first: true`).
+
+### Policy
+
+Same TTL buckets as the (now-deleted) `_headers` file. Order matters; first match wins:
+- `/_astro/*` → `public, max-age=31536000, immutable` (content-hashed)
+- `/data/<file>.json` → `public, max-age=3600, stale-while-revalidate=86400`
+- `/data/embeddings.bin` → `public, max-age=3600, stale-while-revalidate=86400`
+- `/data/thumbs/*`, `/og/*` → `public, max-age=604800, stale-while-revalidate=2592000`
+- `/llms.txt`, `/llms-full.txt`, `/robots.txt`, `/sitemap*.xml` → `public, max-age=3600`
+- Anything else: pass through, no header set.
+- Upstream Cache-Control deliberately set by a handler (e.g. chat SSE `private, no-store`) is preserved; only the assets binding's default `public, max-age=0, must-revalidate` is treated as overridable.
+
+### Test results
+
+- **Worker:** 124 tests (108 prior + 16 new), all green.
+- **arch check:** clean on `worker/index.js` (335 lines) and `worker/tests/cache_headers.test.js` (228 lines).
+
+### Expected post-deploy
+
+- `curl -sSI https://pursueindex.com/_astro/<x>.css | grep cache-control` should show `public, max-age=31536000, immutable` (vs current `max-age=0, must-revalidate`).
+- APAC LCP should drop further once edge cache warms post-deploy — Sprint 2 already cut the homepage-visible eager JS; this gates the regional cache fill that Sprint 2 attempted but couldn't complete.
+
+### Branch state
+
+- Branch: `sprint-2.1-cache-headers` (from `main` at `7dfb008`).
+- One change-set staged-or-modifiable; **NOT committed/pushed**. Operator reviews locally first.
+- Stashes carry over from this session's branch-switching: `sprint-2.1-*` and `robots-*` stashes can be dropped by the operator (they're snapshots of partial work that was successfully redone).
+
+### Operator follow-ups
+
+1. After review + push + CF deploy, run `curl -sSI https://pursueindex.com/_astro/<any>.css | grep -i cache-control` to verify the headers are now stamped.
+2. Re-run PSI from the six baseline regions (~5 min after deploy for edge warm) and fill the post-fix row in `docs/perf-baseline.md`. Headroom on APAC LCP should finally close now that the regional edge can cache.
 
 ## What Was Just Done
 
