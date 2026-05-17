@@ -120,6 +120,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Hotfix 2026-05-17: the save step may exit 0 without ever
+          # creating ``data/wayback-history.json`` (e.g., sitemap fetch
+          # 403'd by CF, OR every URL submission failed). ``git add``
+          # on a missing path exits 128; guard before staging.
+          if [ ! -f data/wayback-history.json ]; then
+            echo "[wayback] no history file produced this run; nothing to commit"
+            exit 0
+          fi
           git pull --rebase origin main
           git add data/wayback-history.json
           if git diff --cached --quiet; then

@@ -74,6 +74,17 @@ DEFAULT_MAX_URLS = 1000
 SAVE_TIMEOUT_SECONDS = 60
 ORIGIN_HEAD_TIMEOUT_SECONDS = 10
 
+# Cloudflare's Bot Management blocks the default ``Python-urllib/3.x``
+# User-Agent as a suspected scraper — even on our OWN site. The first
+# real-world run of this workflow (2026-05-17 commit 21886ca) failed
+# with ``HTTP Error 403: Forbidden`` on the sitemap fetch for exactly
+# this reason. Mozilla-style UA with our project identifier bypasses
+# the default block while still being honest about who's calling.
+USER_AGENT = (
+    "Mozilla/5.0 (compatible; pursueindex-wayback/1.0; "
+    "+https://pursueindex.com)"
+)
+
 
 # --- history persistence ---------------------------------------------
 
@@ -124,7 +135,9 @@ def save_history(path: Path, history: dict[str, datetime]) -> None:
 
 def _submit_save(save_url: str, *, timeout: float = SAVE_TIMEOUT_SECONDS) -> int:
     """GET the Wayback save endpoint. Returns HTTP status code (0 on network err)."""
-    req = urllib.request.Request(save_url, method="GET")
+    req = urllib.request.Request(
+        save_url, method="GET", headers={"User-Agent": USER_AGENT}
+    )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return int(resp.status)
@@ -143,7 +156,9 @@ def _head_origin_status(
     treated as "skip" by callers — better to defer than to fire a
     Wayback save against a host that's currently flaky.
     """
-    req = urllib.request.Request(url, method="HEAD")
+    req = urllib.request.Request(
+        url, method="HEAD", headers={"User-Agent": USER_AGENT}
+    )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return int(resp.status)
@@ -154,9 +169,18 @@ def _head_origin_status(
 
 
 def _read_sitemap_text(sitemap_arg: str) -> str:
-    """Read a sitemap from either a local path or an https URL."""
+    """Read a sitemap from either a local path or an https URL.
+
+    Sets ``USER_AGENT`` on the HTTPS branch because Cloudflare Bot
+    Management blocks the default ``Python-urllib/3.x`` UA — even
+    on our own pursueindex.com. Discovered 2026-05-17 when the first
+    real wayback workflow run got 403'd on its own sitemap fetch.
+    """
     if sitemap_arg.startswith(("http://", "https://")):
-        with urllib.request.urlopen(sitemap_arg, timeout=30) as resp:
+        req = urllib.request.Request(
+            sitemap_arg, headers={"User-Agent": USER_AGENT}
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
             return resp.read().decode("utf-8")
     return Path(sitemap_arg).read_text()
 

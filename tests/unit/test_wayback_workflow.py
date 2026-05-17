@@ -115,6 +115,38 @@ def test_commit_step_rebases_before_staging() -> None:
     )
 
 
+def test_commit_step_guards_against_missing_history_file() -> None:
+    """Hotfix 2026-05-17: guard `git add` on missing history file.
+
+    The first real run of the workflow (Sprint 4a merge 21886ca)
+    failed with ``fatal: pathspec 'data/wayback-history.json' did not
+    match any files`` because the sitemap fetch was 403'd by CF (UA
+    blocked) — wayback_save.py exits 0 with no history file created,
+    then ``git add`` on the missing path exits 128.
+
+    The guard must be:
+        if [ ! -f data/wayback-history.json ]; then
+            echo "[wayback] no history file produced this run; ..."
+            exit 0
+        fi
+
+    The guard must appear BEFORE the ``git add`` so a missing file
+    short-circuits to a graceful no-op.
+    """
+    step = _commit_back_step()
+    run = step["run"]
+    guard_idx = run.find("[ ! -f data/wayback-history.json ]")
+    add_idx = run.find("git add data/wayback-history.json")
+    assert guard_idx >= 0, (
+        "expected `[ ! -f data/wayback-history.json ]` guard before staging"
+    )
+    assert add_idx >= 0, "expected `git add` in commit step"
+    assert guard_idx < add_idx, (
+        "hotfix: missing-file guard must precede `git add` so a "
+        "no-save-this-run path short-circuits to exit 0"
+    )
+
+
 def test_path_filter_is_narrowed_to_render_affecting_paths() -> None:
     """L3 (vaivora): trigger paths exclude state.md / docs / OG-only commits.
 
