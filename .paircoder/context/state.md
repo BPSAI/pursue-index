@@ -1,8 +1,101 @@
 # Current State
 
-> Last updated: 2026-05-17 (Sprint 4a fix-pass applied on `sprint-4a-integrity-seo` after PR #65 nayru/laverna/vaivora/Codex review; new commit on top of `52f39c5`. Prior baseline: Sprint 2.1 cache-headers fix + Sprint 1.1 robots-policy split both merged to main on 2026-05-17. Sprint 2.1 = `5840303`; Sprint 2 Lighthouse perf-pass = `7dfb008`; Sprint 1 GEO foundation = `73f6ecb`. Cross-repo: VLM bake-off Sprint 6.1b completed 2026-05-17 afternoon — see pursue-opsec findings.)
+> Last updated: 2026-05-17 (Sprint 4b — tech debt + ops hardening — implemented on branch `sprint-4b-polish-and-ops`. Two bundled commits (themes A-C + themes E-G); theme D was audit-only. Pending: push + PR + `@codex review`. Prior Sprint 6.1d Gemini bake-off remains operator-blocked on prepay; Sprint 4a PR #65 fix-pass remains in flight.)
 
 ## What Was Just Done
+
+**2026-05-17 (later) — Sprint 4b implemented on branch `sprint-4b-polish-and-ops`. Two bundled commits per [[feedback_bundled_commits]]. All tests green; arch warnings only (no errors); no regressions expected on Accessibility 100 / CLS 0 / mobile Performance 90-95 (DOM-size fix should improve, not regress).**
+
+### Theme A — Literal-ID bypass in chat retrieval (worker/)
+
+Sprint 6.0 finding: voyage-3 dense embeddings miss literal-ID lookups ("what's in 13f86e95aed52840?"). Hex strings cluster in the noise floor of natural-language embeddings.
+
+- New `worker/retrieve_literal_id.js` (110 lines): pure helpers (`extractLiteralCardIds`, `literalIdPassages`, `mergeLiteralAndSemantic`). 16-hex regex with `\b` boundaries rejects 15/17-hex.
+- `worker/retrieve.js`: prepends exact-match chunks before semantic top-k, dedups by `card_id+page`, caps at k.
+- 11 new tests in `worker/tests/retrieve_literal_id.test.js`.
+
+### Theme B — IndexNow ping post-deploy
+
+Bing / Yandex (and ChatGPT-search via Bing) pick up changes within minutes.
+
+- `scripts/indexnow_ping.py` (300 lines, stdlib-only): sitemap → ≤10 000-URL batches → POST to `api.indexnow.org`. Key resolved from `INDEXNOW_KEY` env or `data/indexnow-key.txt` (gitignored). Graceful exit 0 on missing key / per-batch failure.
+- `.github/workflows/indexnow-after-deploy.yml`: same narrowed paths + 5-min CFWB-warm sleep + SHA-pinned actions as wayback-after-deploy.
+- `web/public/indexnow-placeholder.txt`: operator-action runbook.
+- 15 unit tests + 6 workflow tests.
+
+### Theme C — VID integrity in `verify-assets-daily.yml`
+
+28 video registry rows carry `archive_key` + `byte_sha256` but no `current_key` and no `preserved=True`. Pre-Sprint-4b `_latest_preserved_row` silently skipped all 28.
+
+- `scripts/r2_verify_preserved.py`: no-`current_key` rows now treated as implicit preservation rows. Manifest-active rows (current_key set, preserved unset) still skipped — covered by silent-overlay manifest-walk lane; avoid double-hashing.
+- Module docstring + `verify-assets-daily.yml` step comment updated.
+- 4 new tests pin: VID-walked, VID-mismatch-flagged, mixed-walked, manifest-only-still-skipped.
+
+### Theme D — QC spec stalenesses (AUDIT-ONLY)
+
+Per Sprint 4 brief, two QC scenarios flagged. Audited:
+- VID `[NO ASSET URL]` scenario in `card-detail.qc.yaml` — already updated 2026-05-15 (asserts DVIDS embed iframe; inline comment documents the spec drift fix).
+- diff scenario 3 cardinality in `diff.qc.yaml` — already updated 2026-05-15 (uses c9cc83fcaf43 vs 4a35f5596951 0/0/122 numbers).
+
+No code changes required; both were spec-drift items resolved in prior commits.
+
+### Theme E — Sprint 1 carry-overs
+
+- **E1 OG number.** `og.png` (canonical) re-rendered against the live manifest (158 / 4,161 / sha c9cc83fcaf43). `og.svg` is a legacy unreferenced file; added deprecation comment.
+- **E2 methodology "4,111 of 4,161".** Added `countCleanedPages()` to `lib/release.ts` (reads `/data/pages-cleaned.json`, counts rows with text + no skip_reason). New `RELEASE.cleanedPageCount` drives prose via `formatPageCount()`. Invariant test: `cleanedPageCount > 0 && ≤ ocrPageCount`.
+- **E3 `/finds` author.** `author: z.string().optional()` added to finds collection. `articleJsonLd()` already consumed it.
+- **E4 Speakable selectors.** methodology / about / cite each went from 1 → 3 selectors. Added matching `id="…"` attributes on second/third paragraphs and key h2s.
+
+### Theme F — CardExplorer 676 KB inline-blob removal
+
+- New `web/scripts/build_cards_summary.mjs` prebuild → `/data/cards-summary.json` (252 KB minified).
+- `CardExplorer.tsx`: `cards` prop now optional; absent → fetch on hydration; present → use it (SSR/test).
+- `index.astro` drops the `cards` prop.
+- 4 new tests.
+
+**Measured impact:** `dist/index.html` 695 203 → 25 915 bytes (-96%). JSON ships separately, CF-edge-cached under Sprint 2.1 `/data/*.json` rule; gzip ~50 KB on the wire. No CLS regression.
+
+### Theme G — Deprecated APIs trace
+
+Audit of `web/src/` + `worker/`: zero internal usage of `unload` / `document.write` / sync XHR / deprecated CSS. Candidates all third-party. Diagnosis written into `docs/perf-baseline.md` with mitigation (CF beacon is token-conditional; can be dropped via env-var if needed).
+
+### Test counts (post-Sprint-4b)
+
+- **Python:** 542 → 565 (+23).
+- **Web:** 67 → 72 (+5).
+- **Worker:** 124 → 135 (+11).
+
+### arch check
+
+All new/modified files pass. Warnings only (no errors):
+- `scripts/indexnow_ping.py` 300 lines.
+- `scripts/r2_verify_preserved.py` 232 lines.
+- `web/src/components/CardExplorer.tsx` 481 lines (pre-existing >400; +30 this sprint for the optional-cards fetch logic — extraction deferred as single cohesive component).
+- `worker/retrieve.js` 329 lines (post-extraction of `retrieve_literal_id.js`).
+
+### Branch state
+
+- Branch: `sprint-4b-polish-and-ops` (off main `8834068`).
+- Commit 1 (themes A-C, ops hardening) + Commit 2 (themes E-G, web polish). Theme D audit-only.
+- Pending: push + PR + `@codex review` comment.
+
+### Operator-action items (pre-merge / post-deploy)
+
+1. **`INDEXNOW_KEY`** — Generate `secrets.token_hex(16)`, add as repo secret, place matching `<key>.txt` in `web/public/`, delete `indexnow-placeholder.txt`. Until done, workflow exits 0 with "no key found" — no failed runs.
+2. **Re-run Lighthouse Best Practices** post-deploy on the homepage. Confirm DOM-size flag is gone and "Uses deprecated APIs" status.
+
+## What's Next
+
+1. **Push `sprint-4b-polish-and-ops` + open PR + request `@codex review`** (matches Sprint 4a posture).
+2. **(carrying) Sprint 6.1d Gemini bake-off — operator unblock required.** Project on prepay with $0 balance.
+3. **(carrying) Watch Codex re-review on PR #65** (Sprint 4a fix-pass).
+4. **(carrying) Wayback first-run validation** post-merge.
+
+---
+
+## Earlier sessions
+
+**2026-05-17 (later) — Sprint 6.1d Gemini bake-off retry (post-billing-connect): still blocked, new diagnosis, eval doc updated in-place.** Operator connected Google Cloud billing on the project tied to `GEMINI_API_KEY` and re-authorized the bake-off. Pre-flight `generate_content` probe (1 token, 4 max output) against five Gemini models (`gemini-3.1-pro-preview`, `gemini-3-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-pro-latest`) confirmed billing is now linked — the original free-tier `limit: 0` error is gone — but ALL FIVE 429 with `"Your prepayment credits are depleted"`. Project is on **prepay** billing mode with a $0 balance; all Gemini 3.x and 2.5-pro families share the same project-level prepay pool, so there is no within-Gemini free substitution path. `count_tokens` still succeeds on all five (it doesn't consume credits), confirming SDK/network/key remain valid. The 25-page runner was NOT executed (per the brief's "If still 0, surface the blocker and stop"). $0.00 incremental spend (429s don't bill per Google's docs); $0.00 / $5 cap. Updated `pursue-opsec-staging/findings/2026-05-17-vlm-bakeoff-results.md`: new §3.2a documents the retry + prepay-depleted diagnosis, front-matter has a "retry addendum" entry, §6.7 amended with the post-billing-connect update, §7.6 unblock recipe revised from "enable paid billing" to "top up prepay credits OR switch project to postpay", §8.4 documents the retry posture (no auto-spend, no 25-page runner triggered). Agent-memory `project_gemini_billing_block_6_1d.md` rewritten to reflect the new state. **Operator action required to unblock:** AI Studio → project billing → "Add credits" (a $5 top-up covers expected $0.40-0.80 bake-off spend plus margin), OR switch billing mode from prepay to postpay in the same console. Operated answer (Sonnet 4.6 single-pass) remains unchanged.
 
 **2026-05-17 (evening) — Sprint 4a PR #65 fix-pass: ALL review findings applied as one bundled fix-commit on top of the initial Sprint 4a commit (`52f39c5`). H1-H5 + M1-M3 + M-new + L1-L5 + nayru coverage gaps + nit. Per [[feedback_bundled_commits]], one commit (not five) to keep PR-history tight. Per [[feedback_ship_wired_and_validated]], every fix is test-covered before merge: the Path-collapse bug, the staged-before-diff bug, the if-always commit-back, the rebase-before-push, the origin HEAD wiring, atomic history writes, JSON-decode recovery, max-urls DoS cap, the Base.astro JSON.stringify, the GET docstring drift, the narrowed workflow path filter, the CF Workers Builds docstring, and the CF_MANAGED_BOTS drift-detector all have failing-first tests now green.**
 
@@ -75,9 +168,10 @@ Clean (or warning-level only) on every modified/new file:
 
 ## What's Next
 
-1. **Watch Codex re-review on PR #65.** If clean, merge to main and let the CF Workers Builds pipeline auto-deploy. Then set `PUBLIC_CF_ANALYTICS_TOKEN`.
-2. **Wayback first-run validation** (unchanged from prior entry).
-3. **Sprint 4b carry-forward candidates** (unchanged): IndexNow ping post-deploy, literal-ID bypass in `worker/`, QC spec staleness, Sprint 1 carried follow-ups.
+1. **(new) Sprint 6.1d Gemini bake-off — operator unblock required.** Project on prepay with $0 balance. AI Studio → project billing → "Add credits" ($5 covers expected $0.40-0.80 spend with margin), OR switch billing mode to postpay. Once unblocked, single command executes the bake-off: `cd pursue-opsec-staging/scratch/vlm-bakeoff-2026-05-17 && ./.venv-bakeoff/bin/python run_gemini_bakeoff.py && ./.venv-bakeoff/bin/python score_locals.py && ./.venv-bakeoff/bin/python score_by_difficulty.py`. Eval-doc update points are pre-staked at §3.2a / §4.1 (gemini_3_1_pro_preview row) / §6.7 (one of three outcome paths) / §7.6 / §9.6. No further code or doc work needed until operator confirms top-up.
+2. **Watch Codex re-review on PR #65.** If clean, merge to main and let the CF Workers Builds pipeline auto-deploy. Then set `PUBLIC_CF_ANALYTICS_TOKEN`.
+3. **Wayback first-run validation** (unchanged from prior entry).
+4. **Sprint 4b carry-forward candidates** (unchanged): IndexNow ping post-deploy, literal-ID bypass in `worker/`, QC spec staleness, Sprint 1 carried follow-ups.
 
 ---
 
