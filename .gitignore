@@ -122,6 +122,13 @@ agent_pack.tgz
 # Sub-agent worktrees (transient; the branches are the source of truth)
 .claude/worktrees/
 
+# Sprint 4b Theme B — IndexNow key file. Lives at data/indexnow-key.txt
+# locally for dry-runs; the production value lives in the GitHub Actions
+# secret INDEXNOW_KEY. The public ownership file at
+# web/public/<key>.txt IS committed (that's the whole point — it has to
+# be reachable from the public site), but the bare key value isn't.
+/data/indexnow-key.txt
+
 
 
 

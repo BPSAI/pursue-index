@@ -91,16 +91,26 @@ jobs:
         run: python scripts/r2_archive_assets.py
         continue-on-error: true
 
-      - name: Verify /removed preservation copies
-        # The manifest-walking verify above only covers cards currently
-        # in latest.json. /removed cards (upstream-pulled or replaced)
-        # live outside that walk but their bytes still need integrity
-        # coverage — a tampering of a preservation copy in R2 is the
-        # threat this step catches. Re-reads each preserved row from
-        # R2, hashes, compares against the pinned byte_sha in the
-        # registry. Exits non-zero if any preserved card fails; the
-        # next step files a (different) issue and never blocks the
-        # silent-overlay path above.
+      - name: Verify /removed + VID preservation copies
+        # The manifest-walking verify above only covers PDF/IMG cards
+        # currently in latest.json (asset_url + war.gov-served). Two
+        # classes of registry row live outside that walk but still
+        # need integrity coverage:
+        #
+        #   * /removed cards (upstream-pulled or replaced) — preserved
+        #     bytes live in R2 alone; the upstream URL is no longer
+        #     authoritative.
+        #   * VID cards — Sprint 4b Theme C. Video registry rows carry
+        #     archive_key but no current_key (the worker serves video
+        #     via DVIDS iframe, not from R2). r2_verify_preserved.py
+        #     was extended to walk no-current_key rows as implicit
+        #     preservation rows so the daily sweep no longer silently
+        #     skips the 28 VID archive copies.
+        #
+        # Re-reads each eligible row's archive_key bytes from R2, hashes,
+        # compares against the pinned byte_sha in the registry. Exits
+        # non-zero if any card fails; the next step files a (different)
+        # issue and never blocks the silent-overlay path above.
         id: verify_preserved
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}

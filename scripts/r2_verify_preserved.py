@@ -1,12 +1,18 @@
-"""Daily byte-verify of /removed preservation copies in R2.
+"""Daily byte-verify of preservation copies in R2.
 
 Companion to ``r2_archive_assets.py``. That script walks the current
 manifest and HEAD-checks upstream URLs — it's the right tool for the
 silent-overlay-detected threat (upstream serves different bytes at the
-same URL). It is **not** the right tool for ``/removed`` cards: their
-upstream URL is, by definition, no longer authoritative (404 or
-serving a replacement file), and the preservation copy lives entirely
-inside our R2 bucket.
+same URL). It is **not** the right tool for cards whose canonical bytes
+home is R2 alone:
+
+  * ``/removed`` cards — their upstream URL is, by definition, no
+    longer authoritative (404 or serving a replacement file). The
+    preservation copy in R2 is what citations resolve against.
+  * Video (DVIDS) cards — Sprint 4b Theme C. VID registry rows carry
+    ``archive_key`` but no ``current_key`` (the worker serves video
+    via DVIDS iframe, not from R2). The preservation copy in R2 is
+    still the integrity-bearing artifact; this verify covers it.
 
 This script re-reads the preserved bytes from the immutable archive
 mirror at ``archive/<byte_sha256>.<ext>`` and verifies the bytes still
@@ -63,16 +69,38 @@ DEFAULT_BUCKET = "pursue-pdfs"
 def _latest_preserved_row(
     rows: list[dict[str, Any]],
 ) -> dict[str, Any] | None:
-    """Return the newest row carrying preserved=True, or None.
+    """Return the newest preservation-eligible row, or None.
+
+    Preservation eligibility (any of):
+
+    * ``preserved=True`` — explicit /removed-card preservation, set
+      by the operator-driven re-pin script. The canonical case.
+    * No ``current_key`` field — the row describes a VID or other
+      asset whose canonical bytes home is R2 alone (the worker doesn't
+      serve videos from R2 — DVIDS iframe handles the player — but R2
+      still holds the immutable preservation copy keyed by sha). Sprint
+      4b Theme C: the daily byte-verify cron previously walked PDFs/
+      images via the manifest-walk lane and SKIPPED video registry rows
+      here because they aren't flagged ``preserved=True``. Treating
+      no-current_key as implicit preservation closes that gap.
+
+    Rows with a ``current_key`` and no ``preserved=True`` are
+    manifest-active and covered by ``r2_archive_assets.py``'s
+    HEAD-then-GET silent-overlay sweep; they're intentionally skipped
+    here so the daily sweep doesn't re-hash the same bytes twice.
 
     ``load_registry`` sorts each card_id's rows oldest-first by
-    fetched_at; we want the most recent preserved entry so a re-pin
+    fetched_at; we want the most recent eligible entry so a re-pin
     (operator intentional byte change) supersedes the original.
     """
-    preserved_rows = [r for r in rows if r.get("preserved") is True]
-    if not preserved_rows:
+    eligible = [
+        r
+        for r in rows
+        if r.get("preserved") is True or r.get("current_key") is None
+    ]
+    if not eligible:
         return None
-    return max(preserved_rows, key=lambda r: r.get("fetched_at", ""))
+    return max(eligible, key=lambda r: r.get("fetched_at", ""))
 
 
 def _read_r2_bytes(client: Any, bucket: str, key: str) -> bytes | None:
