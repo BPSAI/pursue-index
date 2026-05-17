@@ -21,8 +21,11 @@ import {
   mergeLiteralAndSemantic,
 } from "./retrieve_literal_id.js";
 
-// Re-export so existing consumers and tests can keep importing from
-// the central retrieve.js module surface.
+// Re-export from the extracted helper module so callers (tests,
+// adjacent worker modules) can keep importing from `retrieve.js` —
+// the central module surface — without knowing whether the helper
+// was inlined or extracted. Lets us reorganize internals without
+// breaking import paths in test fixtures or future call sites.
 export { extractLiteralCardIds } from "./retrieve_literal_id.js";
 
 const VOYAGE_EMBED_URL = "https://api.voyageai.com/v1/embeddings";

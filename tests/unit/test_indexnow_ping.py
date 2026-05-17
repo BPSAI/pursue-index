@@ -49,6 +49,83 @@ def test_parse_sitemap_urls_returns_loc_values() -> None:
     ]
 
 
+# --- sitemap index expansion (depth-one recursion guard) -------------
+
+
+def test_expand_sitemap_index_depth_one(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """nayru P1#1: ``_expand_sitemap_index`` follows ONE level, not two.
+
+    The docstring promises depth-one expansion: a top-level
+    sitemap-index whose entries point at child urlsets is expanded
+    correctly, but if those children are themselves sitemap-indexes
+    (which is rare in practice but allowed by the spec), the deeper
+    URLs are NOT collected. This locks that invariant in place — both
+    the happy positive case (sitemap-index → urlset) and the
+    negative case (sitemap-index → sitemap-index → urlset, second
+    hop dropped).
+    """
+    # Build a fake URL → XML map mocking _read_sitemap_text. Two
+    # children: one is a urlset (expanded; URLs surface in the
+    # output), one is a nested sitemap-index (NOT recursively
+    # expanded; its child URLs do NOT surface).
+    child_urlset = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://pursueindex.com/page-a</loc></url>
+  <url><loc>https://pursueindex.com/page-b</loc></url>
+</urlset>
+""".strip()
+
+    nested_sitemap_index = """<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://pursueindex.com/deeper-sitemap.xml</loc></sitemap>
+</sitemapindex>
+""".strip()
+
+    # If recursion DID go a second level, this is what it'd find. It
+    # must NOT appear in the output.
+    deeper_urlset = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://pursueindex.com/MUST-NOT-APPEAR</loc></url>
+</urlset>
+""".strip()
+
+    fetched: list[str] = []
+
+    def fake_read(url: str) -> str | None:
+        fetched.append(url)
+        if url == "https://pursueindex.com/child.xml":
+            return child_urlset
+        if url == "https://pursueindex.com/nested.xml":
+            return nested_sitemap_index
+        if url == "https://pursueindex.com/deeper-sitemap.xml":
+            return deeper_urlset
+        return None
+
+    monkeypatch.setattr(indexnow_ping, "_read_sitemap_text", fake_read)
+
+    initial = [
+        "https://pursueindex.com/child.xml",
+        "https://pursueindex.com/nested.xml",
+    ]
+    expanded = indexnow_ping._expand_sitemap_index(initial)
+
+    # Positive: page-a / page-b from the child urlset surface.
+    assert "https://pursueindex.com/page-a" in expanded
+    assert "https://pursueindex.com/page-b" in expanded
+    # Negative: the deeper URL does NOT appear; the nested index was
+    # opened once (one level of follow) but its children weren't
+    # recursed into. ``deeper-sitemap.xml`` literal will appear in
+    # the result because at depth-one the nested index expands to
+    # ``<sitemap><loc>...deeper-sitemap.xml</loc></sitemap>`` which
+    # the regex pulls out, but the URL behind it is NOT fetched.
+    assert "https://pursueindex.com/MUST-NOT-APPEAR" not in expanded
+    # The deeper file must NOT have been fetched at all — that is
+    # the load-bearing assertion that the recursion stopped.
+    assert "https://pursueindex.com/deeper-sitemap.xml" not in fetched
+
+
 # --- batching --------------------------------------------------------
 
 
@@ -129,6 +206,51 @@ def test_resolve_key_returns_none_when_neither_source_present(
     monkeypatch.delenv("INDEXNOW_KEY", raising=False)
     nonexistent = tmp_path / "no-such-file.txt"
     assert indexnow_ping.resolve_key(file_path=nonexistent) is None
+
+
+def test_resolve_key_whitespace_only_env_falls_through_to_file(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """nayru P1#2: ``INDEXNOW_KEY=' \\t\\n'`` must NOT count as a real key.
+
+    A whitespace-only env var (e.g. an accidentally-misconfigured CI
+    secret that contains only newline padding) used to return ``''``
+    from ``resolve_key`` — passing the truthiness check in ``main()``
+    and POSTing an empty key to IndexNow, which fails verification
+    with 422 silently on every deploy. The fix: strip BEFORE the
+    truthiness check, and fall through to the file branch on
+    whitespace-only input.
+    """
+    monkeypatch.setenv("INDEXNOW_KEY", "   \t\n  ")
+    keyfile = tmp_path / "indexnow-key.txt"
+    keyfile.write_text("real-file-key\n")
+    # File branch must fire because the whitespace-only env reads as
+    # "no key set" once stripped.
+    assert indexnow_ping.resolve_key(file_path=keyfile) == "real-file-key"
+
+
+def test_resolve_key_whitespace_only_env_returns_none_when_no_file(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """Whitespace-only env + no file → None (graceful no-key exit)."""
+    monkeypatch.setenv("INDEXNOW_KEY", "\n\n")
+    nonexistent = tmp_path / "no-such-file.txt"
+    assert indexnow_ping.resolve_key(file_path=nonexistent) is None
+
+
+def test_resolve_key_whitespace_only_file_returns_none(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """Whitespace-only file + no env → None (graceful, not empty string).
+
+    Same posture for the file branch: a file that contains only
+    whitespace is functionally equivalent to "no key set" and must
+    surface that way to the caller.
+    """
+    monkeypatch.delenv("INDEXNOW_KEY", raising=False)
+    keyfile = tmp_path / "indexnow-key.txt"
+    keyfile.write_text("   \n\t  \n")
+    assert indexnow_ping.resolve_key(file_path=keyfile) is None
 
 
 # --- main() end-to-end ------------------------------------------------

@@ -129,6 +129,15 @@ agent_pack.tgz
 # be reachable from the public site), but the bare key value isn't.
 /data/indexnow-key.txt
 
+# Sprint 4b fix-pass (nayru P2#5): the pre-launch
+# `indexnow-placeholder.txt` was deleted to avoid serving a public
+# "no key set" status page. Anyone reading the source can find the
+# operator-action runbook in `scripts/indexnow_ping.py`'s module
+# docstring. Guard against an accidental future commit of a
+# similarly-named placeholder.
+/web/public/indexnow-placeholder.txt
+/web/dist/indexnow-placeholder.txt
+
 
 
 

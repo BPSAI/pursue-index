@@ -18,6 +18,18 @@
 // underscore is a word char and breaks the boundary). Case-insensitive
 // match; output is normalized to lowercase to match the on-disk
 // card_id casing in embed_index.json.
+//
+// nayru P1#3 note: this regex ALSO matches pure-digit 16-character
+// strings (a phone or case number), because hex digits include 0-9.
+// That's a benign false-positive in practice: `literalIdPassages`
+// silently drops unknown IDs not in the corpus index, so a 16-digit
+// numeric token in a user query triggers a no-op lookup and falls
+// through to the semantic search lane. We deliberately do NOT tighten
+// the pattern to require at least one a-f character: the 16-hex
+// canonical card_ids that DO live in the corpus might happen to be
+// all-numeric (the SHA prefix has uniform digit distribution; ~1/16⁻⁰
+// of card_ids would be all-digits over the long run). Locking the
+// behavior in test coverage prevents accidental tightening.
 export const LITERAL_CARD_ID_RE = /\b[a-f0-9]{16}\b/gi;
 
 /**
@@ -49,6 +61,16 @@ export function extractLiteralCardIds(query) {
  * passage record. Unknown IDs (not in the corpus index) are silently
  * skipped — better to fall through to semantic search than to fail
  * the request on an unparseable hex string the user happened to type.
+ *
+ * nayru P2#2 note: this only emits the FIRST chunk per card_id (the
+ * `break` after the first match exits the inner loop). For a
+ * multi-page card, page 1 is always prepended; subsequent pages
+ * surface only via the semantic-search tail when they cosine-match
+ * the rest of the query. That matches the intent of the literal-ID
+ * lookup ("show me card X") — page 1 is the canonical anchor and the
+ * chat model can pull additional pages on follow-up via the same
+ * mechanism. Revisit if multi-page literal-ID expansion becomes a
+ * recurring miss in chat traces.
  *
  * `makeSnippetFn` is injected (rather than imported from retrieve.js)
  * to avoid a circular dependency.

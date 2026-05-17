@@ -49,6 +49,45 @@ function trancheCount(): number {
 }
 
 /**
+ * Read a JSON file relative to this module and count rows in a list
+ * (either a top-level array OR a `{pages: [...]}` shape) that satisfy
+ * `predicate`. Returns `fallback` on any failure: file missing, parse
+ * error, list-shape mismatch, predicate-matched-zero-rows.
+ *
+ * nayru P2#4: extracted from the previously-near-duplicate
+ * `countOcrPages` / `countCleanedPages` so the file-read +
+ * fallback-on-error scaffolding lives in one place. New builders that
+ * count manifest-derived rows should plumb through here.
+ *
+ * `listGetter` describes how to find the list inside the parsed JSON:
+ * pages.json is itself an array, pages-cleaned.json has the list under
+ * `.pages`. Callers pass the lookup so the helper stays shape-agnostic.
+ */
+function countMatchingRows(
+  relativePath: string,
+  listGetter: (parsed: unknown) => unknown,
+  predicate: (row: unknown) => boolean,
+  fallback: number,
+): number {
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const path = resolve(here, relativePath);
+    if (!existsSync(path)) return fallback;
+    const text = readFileSync(path, "utf8");
+    const parsed = JSON.parse(text);
+    const list = listGetter(parsed);
+    if (!Array.isArray(list)) return fallback;
+    let n = 0;
+    for (const row of list) {
+      if (predicate(row)) n++;
+    }
+    return n > 0 ? n : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
  * Count OCR'd pages by reading public/data/pages.json at build time.
  *
  * We deliberately avoid ES-importing pages.json (it's ~7MB minified
@@ -62,26 +101,19 @@ function trancheCount(): number {
  * of tranche c9cc83fcaf43 (2026-05-15).
  */
 function countOcrPages(): number {
-  const FALLBACK = 4161;
-  try {
-    const here = dirname(fileURLToPath(import.meta.url));
-    // web/src/lib/release.ts → web/public/data/pages.json
-    const path = resolve(here, "../../public/data/pages.json");
-    if (!existsSync(path)) return FALLBACK;
-    const text = readFileSync(path, "utf8");
-    // pages.json is a flat array of {card_id, page, text, …}. Count
-    // entries with a non-empty text field. JSON.parse is fine — the
-    // file is structured and a one-time build-time cost.
-    const parsed = JSON.parse(text);
-    if (!Array.isArray(parsed)) return FALLBACK;
-    let n = 0;
-    for (const row of parsed) {
-      if (row && typeof row.text === "string" && row.text.length > 0) n++;
-    }
-    return n > 0 ? n : FALLBACK;
-  } catch {
-    return FALLBACK;
-  }
+  // web/src/lib/release.ts → web/public/data/pages.json.
+  // pages.json is a flat array of {card_id, page, text, …}; count
+  // entries with a non-empty text field.
+  return countMatchingRows(
+    "../../public/data/pages.json",
+    (parsed) => parsed,
+    (row) => {
+      if (!row || typeof row !== "object") return false;
+      const r = row as { text?: unknown };
+      return typeof r.text === "string" && r.text.length > 0;
+    },
+    4161,
+  );
 }
 
 /**
@@ -102,30 +134,24 @@ function countOcrPages(): number {
  * is missing on first-clone builds.
  */
 function countCleanedPages(): number {
-  const FALLBACK = 4111;
-  try {
-    const here = dirname(fileURLToPath(import.meta.url));
-    const path = resolve(here, "../../public/data/pages-cleaned.json");
-    if (!existsSync(path)) return FALLBACK;
-    const text = readFileSync(path, "utf8");
-    const parsed = JSON.parse(text);
-    // pages-cleaned.json shape: { meta: {...}, pages: [...] }
-    if (!parsed || !Array.isArray(parsed.pages)) return FALLBACK;
-    let n = 0;
-    for (const row of parsed.pages) {
-      if (
-        row &&
-        typeof row.text === "string" &&
-        row.text.length > 0 &&
-        !row.skip_reason
-      ) {
-        n++;
+  // pages-cleaned.json shape: { meta: {...}, pages: [...] }
+  return countMatchingRows(
+    "../../public/data/pages-cleaned.json",
+    (parsed) => {
+      if (parsed && typeof parsed === "object" && "pages" in parsed) {
+        return (parsed as { pages: unknown }).pages;
       }
-    }
-    return n > 0 ? n : FALLBACK;
-  } catch {
-    return FALLBACK;
-  }
+      return undefined;
+    },
+    (row) => {
+      if (!row || typeof row !== "object") return false;
+      const r = row as { text?: unknown; skip_reason?: unknown };
+      return (
+        typeof r.text === "string" && r.text.length > 0 && !r.skip_reason
+      );
+    },
+    4111,
+  );
 }
 
 const currentTrancheId = manifest.csv_sha256;

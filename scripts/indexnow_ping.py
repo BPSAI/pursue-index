@@ -48,6 +48,39 @@ Exit codes:
   0  — normal completion (regardless of per-batch outcome)
   0  — key missing (graceful)
   0  — sitemap unreachable / empty (graceful)
+
+Operator runbook (first-time setup)
+-----------------------------------
+
+The workflow at ``.github/workflows/indexnow-after-deploy.yml`` is
+wired up but will exit 0 with "no key found" until the operator
+completes these steps. Until done, no failed runs — just a no-op.
+
+  1. Generate a random hex key::
+
+         $ python3 -c "import secrets; print(secrets.token_hex(16))"
+
+  2. Save THAT exact key string in a file at::
+
+         web/public/<key>.txt
+
+     One line containing only the key. No quotes, no ``key=value``
+     prefix, no trailing comment. The filename is the key value
+     itself.
+
+  3. Add the same value as a GitHub Actions secret named
+     ``INDEXNOW_KEY`` under repo Settings → Secrets and variables
+     → Actions.
+
+After the next deploy, ``https://pursueindex.com/<key>.txt`` serves
+the key, IndexNow verifies ownership, and the workflow's post-deploy
+ping starts populating Bing / Yandex / ChatGPT-search within minutes
+of each tranche update. Spec at ``https://www.indexnow.org/documentation``.
+
+Sprint 4b fix-pass (nayru P2#5) moved this runbook here from a
+``web/public/indexnow-placeholder.txt`` stub. The stub had to ship at a
+public URL to exist; serving "no key set" page-content to crawlers
+was the wrong public posture even pre-launch.
 """
 
 from __future__ import annotations
@@ -124,12 +157,21 @@ def resolve_key(file_path: Path | None) -> str | None:
     Env var ``INDEXNOW_KEY`` wins if set (matches the CI shape where the
     secret is injected via ``secrets.INDEXNOW_KEY``). Falls back to a
     local gitignored file at ``file_path``. None → graceful exit.
+
+    Whitespace-only sources are treated as "no key set" (nayru P1#2):
+    stripping AFTER the truthiness check used to return ``""`` from a
+    misconfigured CI secret containing only newline padding, which
+    silently POSTed an empty key to IndexNow and failed verification
+    on every deploy. We strip BEFORE the check on both branches and
+    fall through to the next source when the value is whitespace-only.
     """
-    env_val = os.environ.get("INDEXNOW_KEY")
+    env_val = os.environ.get("INDEXNOW_KEY", "").strip()
     if env_val:
-        return env_val.strip()
+        return env_val
     if file_path and file_path.exists():
-        return file_path.read_text(encoding="utf-8").strip()
+        file_val = file_path.read_text(encoding="utf-8").strip()
+        if file_val:
+            return file_val
     return None
 
 

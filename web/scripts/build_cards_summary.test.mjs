@@ -98,6 +98,76 @@ test("preserves null fields rather than coercing to undefined", () => {
   assert.equal(out[0].original_classification, null);
 });
 
+test("aborts with non-zero exit when manifest.cards is not an array", () => {
+  // nayru P1#5: schema sanity. A malformed manifest (e.g. cards
+  // somehow serialized as an object or null) must produce a clear,
+  // immediate failure rather than ``TypeError: ... map is not a
+  // function`` deep in slimCard. We exercise the script via
+  // execFileSync so the actual stderr + exit-code surface to CI.
+  const tmp = resolve(here, ".test-tmp-cards-summary-bad");
+  rmSync(tmp, { recursive: true, force: true });
+  mkdirSync(resolve(tmp, "scripts"), { recursive: true });
+  mkdirSync(resolve(tmp, "src/data"), { recursive: true });
+  mkdirSync(resolve(tmp, "public/data"), { recursive: true });
+  writeFileSync(
+    resolve(tmp, "src/data/manifest.json"),
+    JSON.stringify({
+      csv_sha256: "z".repeat(64),
+      fetched_at: "2026-05-17T00:00:00Z",
+      // The breakage: cards as an object, not an array.
+      cards: { wrong: "shape" },
+    }),
+  );
+  const scriptBody = readFileSync(SCRIPT, "utf8");
+  writeFileSync(resolve(tmp, "scripts/build_cards_summary.mjs"), scriptBody);
+  let threw = false;
+  let stderr = "";
+  try {
+    execFileSync("node", [resolve(tmp, "scripts/build_cards_summary.mjs")], {
+      stdio: "pipe",
+    });
+  } catch (err) {
+    threw = true;
+    stderr = String(err.stderr ?? err.stdout ?? err.message);
+  }
+  rmSync(tmp, { recursive: true, force: true });
+  assert.ok(threw, "must exit non-zero on malformed manifest.cards");
+  // The error message must NAME the field so the operator can fix it
+  // without re-reading the script.
+  assert.match(stderr, /manifest\.cards/);
+});
+
+test("aborts with non-zero exit when manifest.cards is null", () => {
+  // Same posture as the not-an-array case, but with ``null`` (which
+  // is the most likely accidental output of a Python jq filter that
+  // misses an empty list).
+  const tmp = resolve(here, ".test-tmp-cards-summary-null");
+  rmSync(tmp, { recursive: true, force: true });
+  mkdirSync(resolve(tmp, "scripts"), { recursive: true });
+  mkdirSync(resolve(tmp, "src/data"), { recursive: true });
+  mkdirSync(resolve(tmp, "public/data"), { recursive: true });
+  writeFileSync(
+    resolve(tmp, "src/data/manifest.json"),
+    JSON.stringify({
+      csv_sha256: "z".repeat(64),
+      fetched_at: "2026-05-17T00:00:00Z",
+      cards: null,
+    }),
+  );
+  const scriptBody = readFileSync(SCRIPT, "utf8");
+  writeFileSync(resolve(tmp, "scripts/build_cards_summary.mjs"), scriptBody);
+  let threw = false;
+  try {
+    execFileSync("node", [resolve(tmp, "scripts/build_cards_summary.mjs")], {
+      stdio: "pipe",
+    });
+  } catch {
+    threw = true;
+  }
+  rmSync(tmp, { recursive: true, force: true });
+  assert.ok(threw, "null manifest.cards must also abort, not silently emit []");
+});
+
 test("output is minified JSON (no trailing newline, no indent)", () => {
   const tmp = resolve(here, ".test-tmp-cards-summary-min");
   rmSync(tmp, { recursive: true, force: true });

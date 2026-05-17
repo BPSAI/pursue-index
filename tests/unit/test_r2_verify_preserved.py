@@ -350,6 +350,43 @@ def test_verify_flags_video_byte_sha_mismatch() -> None:
     assert mm["archive_key"].endswith(".mp4")
 
 
+def test_verify_walks_vid_row_with_explicit_preserved_false() -> None:
+    """nayru P2#3: ``preserved=False`` row WITHOUT ``current_key`` still walked.
+
+    The Sprint 4b Theme C eligibility rule is:
+
+        row.get('preserved') is True or row.get('current_key') is None
+
+    A pre-existing VID row in the registry might carry
+    ``preserved: false`` explicitly (e.g. set by a future writer
+    that flips the flag) yet still lack a ``current_key`` (VIDs are
+    served via DVIDS iframe; the worker has no R2 serving path).
+    Under the OR semantics, that row IS preservation-eligible — the
+    no-current_key branch fires regardless of the ``preserved``
+    value. This locks the semantics so a future "simplification"
+    that drops the OR to a single ``preserved is True`` check would
+    fail visibly.
+    """
+    client = MagicMock()
+    client.get_object.return_value = _fake_get(_GOOD_BYTES)
+
+    row = _vid_row("vid-explicit-false")
+    row["preserved"] = False  # explicit, not just missing
+    assert "current_key" not in row  # the load-bearing condition
+    registry = {"vid-explicit-false": [row]}
+
+    report = r2_verify_preserved.verify_preserved(
+        registry=registry, client=client, bucket="pursue-pdfs"
+    )
+
+    # Row IS walked: archive_key was read and matched the pinned
+    # byte_sha. ``preserved: False`` doesn't disqualify when
+    # ``current_key`` is absent.
+    assert report["ok"] == ["vid-explicit-false"]
+    assert report["mismatch"] == []
+    assert report["missing"] == []
+
+
 def test_verify_walks_video_and_pdf_rows_together() -> None:
     """A mixed registry (VID + PDF preserved) is fully walked, all-ok."""
     client = MagicMock()

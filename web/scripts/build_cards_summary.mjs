@@ -70,15 +70,34 @@ function slimCard(card) {
   const out = {};
   for (const k of FIELDS) {
     // Preserve nulls / falsey strings exactly — the React types pin
-    // each field as `T | null`, and dropping nulls would coerce to
-    // undefined which breaks the type contract on the client side.
-    out[k] = card[k] === undefined ? null : card[k];
+    // each field as `T | null`, and dropping `undefined` to `null`
+    // keeps the type contract on the client side. The `??` shorthand
+    // (nayru NIT#4) preserves explicit `null` and only substitutes
+    // when the value is missing or `undefined`. Empty strings, `0`,
+    // and `false` round-trip unchanged.
+    out[k] = card[k] ?? null;
   }
   return out;
 }
 
 const raw = readFileSync(MANIFEST, "utf8");
 const manifest = JSON.parse(raw);
+
+// Schema sanity (nayru P1#5): a malformed manifest must abort the
+// build with a clear, named error rather than crashing somewhere
+// downstream with ``TypeError: manifest.cards.map is not a function``.
+// The most likely shapes for accidental breakage are ``null``
+// (jq-filter-misses-empty), ``{}`` (whole-object passthrough bug),
+// or ``undefined`` (key typo). All of those fail this check.
+if (!Array.isArray(manifest.cards)) {
+  console.error(
+    `[build_cards_summary] manifest.cards is not an array (got ${
+      manifest.cards === null ? "null" : typeof manifest.cards
+    }); aborting`,
+  );
+  process.exit(1);
+}
+
 const cards = manifest.cards.map(slimCard);
 
 mkdirSync(dirname(OUT), { recursive: true });

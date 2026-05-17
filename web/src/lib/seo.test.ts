@@ -20,6 +20,7 @@ import {
   articleJsonLd,
   breadcrumbJsonLd,
   speakableJsonLd,
+  itemListJsonLd,
 } from "./seo.ts";
 
 const SITE = "https://pursueindex.com";
@@ -239,6 +240,48 @@ test("speakableJsonLd requires at least one selector (defensive)", () => {
   assert.throws(() => speakableJsonLd([]), /at least one/i);
 });
 
+// ---------------- ItemList (crawler-visible card enumeration) ----------------
+//
+// Sprint 4b Codex P1: the homepage dropped its inline cards prop to cut
+// DOM size from 695 KB → 26 KB, and CardExplorer now fetches
+// /data/cards-summary.json at runtime. AI crawlers + search engines
+// without JS execution would see EMPTY cards — regressing the Sprint 1
+// GEO win. ItemList JSON-LD enumerates card_id + title + canonical URL
+// at SSR time so crawlers parse the structured-data block as the
+// canonical card enumeration. Users still get the runtime-fetched grid.
+
+test("itemListJsonLd produces an ItemList with numberOfItems matching input length", () => {
+  const ld = itemListJsonLd([
+    { id: "aaaa", name: "Card A", url: "https://pursueindex.com/card/aaaa" },
+    { id: "bbbb", name: "Card B", url: "https://pursueindex.com/card/bbbb" },
+  ]);
+  assert.equal(ld["@context"], "https://schema.org");
+  assert.equal(ld["@type"], "ItemList");
+  assert.equal(ld.numberOfItems, 2);
+});
+
+test("itemListJsonLd itemListElement is a position-indexed ListItem array", () => {
+  const ld = itemListJsonLd([
+    { id: "aaaa", name: "Card A", url: "https://pursueindex.com/card/aaaa" },
+    { id: "bbbb", name: "Card B", url: "https://pursueindex.com/card/bbbb" },
+  ]);
+  assert.ok(Array.isArray(ld.itemListElement));
+  assert.equal(ld.itemListElement.length, 2);
+  // Schema.org convention: position is 1-based.
+  assert.equal(ld.itemListElement[0]["@type"], "ListItem");
+  assert.equal(ld.itemListElement[0].position, 1);
+  assert.equal(ld.itemListElement[0].name, "Card A");
+  assert.equal(ld.itemListElement[0].url, "https://pursueindex.com/card/aaaa");
+  assert.equal(ld.itemListElement[1].position, 2);
+  assert.equal(ld.itemListElement[1].name, "Card B");
+});
+
+test("itemListJsonLd handles the empty-input case (no crash, numberOfItems 0)", () => {
+  const ld = itemListJsonLd([]);
+  assert.equal(ld.numberOfItems, 0);
+  assert.deepEqual(ld.itemListElement, []);
+});
+
 // ---------------- No marketing copy guard ----------------
 
 test("none of the builders emit promotional language", () => {
@@ -269,6 +312,9 @@ test("none of the builders emit promotional language", () => {
     }),
     digitalDocumentJsonLd(CARD_FIXTURE, "OCR slice"),
     articleJsonLd(FINDS_FIXTURE),
+    itemListJsonLd([
+      { id: "aaaa", name: "Card A", url: "https://pursueindex.com/card/aaaa" },
+    ]),
   ];
   const serialized = JSON.stringify(samples).toLowerCase();
   for (const word of BANNED) {

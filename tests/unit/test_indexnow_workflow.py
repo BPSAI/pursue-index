@@ -24,6 +24,17 @@ WORKFLOW = REPO_ROOT / ".github" / "workflows" / "indexnow-after-deploy.yml"
 
 
 def _load() -> dict:
+    """Load the workflow YAML.
+
+    nayru P2#6: PyYAML pre-2.0 maps the bare ``on:`` key (YAML
+    boolean-style) to Python ``True`` rather than the string ``"on"``.
+    The unquoted ``on:`` in GitHub workflow files is treated as the
+    boolean literal, so callers must look up the trigger block via
+    ``workflow.get(True) or workflow.get("on")`` to be safe across
+    PyYAML versions. The string-key fallback covers the case where a
+    future PyYAML release (or a different YAML library) maps ``on``
+    as a plain string — both shapes round-trip.
+    """
     return yaml.safe_load(WORKFLOW.read_text())
 
 

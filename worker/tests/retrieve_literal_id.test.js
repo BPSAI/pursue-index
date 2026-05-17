@@ -118,6 +118,22 @@ describe("extractLiteralCardIds", () => {
       ["13f86e95aed52840"],
     );
   });
+
+  test("matches 16-digit pure-numeric strings (regex doesn't exclude 0-9-only)", () => {
+    // nayru P1#3: ``/\b[a-f0-9]{16}\b/g`` accepts pure-digit
+    // 16-char strings because hex digits include 0-9. A 16-digit
+    // phone number / case number in a user query technically
+    // matches. ``literalIdPassages`` silently drops unknown IDs
+    // (the corpus is keyed by real card_ids), so the false
+    // positive is benign: it triggers a no-op lookup, falls
+    // through to semantic search. Lock the behavior with a test so
+    // any future "tighten to require at least one a-f" change is
+    // an explicit decision, not an accident.
+    assert.deepEqual(
+      extractLiteralCardIds("call 5551234567890123 about it"),
+      ["5551234567890123"],
+    );
+  });
 });
 
 describe("retrievePassages — literal-ID bypass", () => {
@@ -166,6 +182,24 @@ describe("retrievePassages — literal-ID bypass", () => {
     assert.ok(out.length >= 2, `expected ≥2 hits, got ${out.length}`);
     assert.equal(out[0].card_id, "aaaaaaaaaaaaaaaa", "literal-ID hit leads");
     assert.equal(out[1].card_id, "bbbbbbbbbbbbbbbb", "semantic hit follows");
+  });
+
+  test("16-digit numeric token in query → no crash, semantic-only results", async () => {
+    // nayru P1#3 end-to-end guard: ``5551234567890123`` is a valid
+    // ``/\b[a-f0-9]{16}\b/`` match (all hex digits 0-9). The
+    // literal-ID lane should silently drop it (no card with that
+    // ID), and the request must complete successfully via the
+    // semantic-search fallback. This is the "16-digit phone or
+    // case number in the chat input" case.
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0]);
+    const out = await retrievePassages(
+      "what does case 5551234567890123 say about Roswell?",
+      8,
+      env,
+      embedFn,
+    );
+    assert.equal(out.length, 1, "semantic lane returns one hit");
+    assert.equal(out[0].card_id, "bbbbbbbbbbbbbbbb", "Roswell hit unchanged");
   });
 
   test("literal-ID present but not in the corpus → behavior unchanged", async () => {
