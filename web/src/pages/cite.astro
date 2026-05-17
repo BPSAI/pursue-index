@@ -18,7 +18,11 @@ const citeJsonLd = [
       tags: ["citation", "reproducibility"],
     },
   }),
-  speakableJsonLd(["#cite-lede"]),
+  // Sprint 4b Theme E4: expanded selectors so voice surfaces read the
+  // lede (what this is) + the corpus-citation heading (the canonical
+  // citation form) + the hash-pin explanation (why it's
+  // reproducible). Each is a stable anchored element.
+  speakableJsonLd(["#cite-lede", "#cite-corpus", "#cite-hash-pin"]),
   breadcrumbJsonLd([
     { name: "Index", url: "/" },
     { name: "Cite", url: "/cite" },
@@ -77,14 +81,14 @@ const citeJsonLd = [
     </section>
 
     <section class="space-y-3">
-      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+      <h2 id="cite-corpus" class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ Citing the corpus as a whole
       </h2>
       <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index. (2026). BPS AI Software.
 https://pursueindex.com
 (manifest CSV SHA-256: ${sha},
  snapshot: ${fetchedDate})`}</code></pre>
-      <p class="text-sm text-[color:var(--color-text)]">
+      <p id="cite-hash-pin" class="text-sm text-[color:var(--color-text)]">
         The hash pin is the load-bearing reproducibility claim — anyone
         with the same{" "}
         <code class="text-[color:var(--color-signal-cyan)]">csv_sha256</code>{" "}

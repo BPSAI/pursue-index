@@ -12,12 +12,41 @@ import {
 } from "./NoveltyFilter";
 
 interface Props {
-  cards: CardMetadata[];
+  /**
+   * Card list. When omitted, CardExplorer fetches
+   * `${base}/data/cards-summary.json` on hydration. Sprint 4b Theme F:
+   * the homepage no longer passes this prop, dropping 440 KB of inline
+   * HTML-encoded JSON from dist/index.html. Other callers (tests,
+   * future server-rendered surfaces) can still pass cards directly.
+   */
+  cards?: CardMetadata[];
   base: string;
 }
 
 type SortKey = "title" | "release" | "incident" | "type";
 type ViewMode = "cards" | "table";
+
+/**
+ * Fetch the cards-summary payload built by web/scripts/build_cards_summary.mjs.
+ * Resolves to `[]` on failure so the UI degrades gracefully rather
+ * than hanging in a loading state.
+ */
+async function loadCardsSummary(base: string): Promise<CardMetadata[]> {
+  try {
+    const res = await fetch(`${base}/data/cards-summary.json`, {
+      // Match novelty.json's caching expectation; the file is hashed
+      // by content via the manifest sha indirectly (prebuild rebuilds
+      // whenever the manifest changes), so a long browser cache is
+      // safe given CF's edge cache rules in web/public/_headers.
+      cache: "force-cache",
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as CardMetadata[];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
 
 const TYPE_TONE: Record<string, { bg: string; text: string; border: string; label: string }> = {
   PDF: {
@@ -52,7 +81,25 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
-export default function CardExplorer({ cards, base }: Props) {
+export default function CardExplorer({ cards: cardsProp, base }: Props) {
+  // Sprint 4b Theme F: when `cards` is omitted, fetch the slim summary
+  // on hydration. The empty array seeds the first render so the
+  // filter chrome paints immediately; cards populate via the fetch
+  // effect below. When `cards` is provided (legacy callers, tests),
+  // we use it directly and skip the fetch.
+  const [cards, setCards] = useState<CardMetadata[]>(cardsProp ?? []);
+  useEffect(() => {
+    if (cardsProp !== undefined) return;
+    let cancelled = false;
+    loadCardsSummary(base).then((loaded) => {
+      if (!cancelled) setCards(loaded);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // base is build-time stable; cardsProp is the SSR escape hatch.
+  }, [base, cardsProp]);
+
   const agencies = useMemo(
     () => Array.from(new Set(cards.map((c) => c.agency))).sort(),
     [cards],

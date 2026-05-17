@@ -84,6 +84,50 @@ function countOcrPages(): number {
   }
 }
 
+/**
+ * Count successfully-cleaned pages from public/data/pages-cleaned.json.
+ *
+ * Sprint 4b Theme E2: methodology.astro carried a literal `4,111 of
+ * 4,161` prose that drifts on every full-corpus cleanup pass. The
+ * right-hand number was already templated via `formatPageCount(RELEASE.ocrPageCount)`;
+ * this constant adds a build-time source for the left-hand number so
+ * the whole phrase tracks the manifest.
+ *
+ * A "successfully cleaned" page is one where the LLM cleanup produced
+ * usable cleaned text AND no skip_reason was recorded. Pages skipped
+ * due to content_filter / refusal / etc. preserve their original OCR
+ * row in the mirror but `text` is empty + `skip_reason` is set; those
+ * are excluded from this count. Falls back to a recorded last-known
+ * value (matches the 2026-05-12 full-corpus pass state) if the file
+ * is missing on first-clone builds.
+ */
+function countCleanedPages(): number {
+  const FALLBACK = 4111;
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const path = resolve(here, "../../public/data/pages-cleaned.json");
+    if (!existsSync(path)) return FALLBACK;
+    const text = readFileSync(path, "utf8");
+    const parsed = JSON.parse(text);
+    // pages-cleaned.json shape: { meta: {...}, pages: [...] }
+    if (!parsed || !Array.isArray(parsed.pages)) return FALLBACK;
+    let n = 0;
+    for (const row of parsed.pages) {
+      if (
+        row &&
+        typeof row.text === "string" &&
+        row.text.length > 0 &&
+        !row.skip_reason
+      ) {
+        n++;
+      }
+    }
+    return n > 0 ? n : FALLBACK;
+  } catch {
+    return FALLBACK;
+  }
+}
+
 const currentTrancheId = manifest.csv_sha256;
 const lastTrancheDate = new Date(manifest.fetched_at)
   .toISOString()
@@ -98,6 +142,13 @@ export interface ReleaseConst {
   cardCount: number;
   /** Number of OCR'd pages indexed in the current corpus. */
   ocrPageCount: number;
+  /**
+   * Number of OCR'd pages for which the LLM-cleanup pass produced
+   * usable cleaned text. Always ≤ ocrPageCount; the difference is the
+   * pages skipped (content_filter, refusal, etc.). See
+   * `scripts/build_pages_cleaned.py::CLEANUP_SKIP_REASONS`.
+   */
+  cleanedPageCount: number;
   /** ISO date (YYYY-MM-DD) of the most recent tranche fetch. */
   lastTrancheDate: string;
   /** Frozen ISO date of PURSUE Release 01 (the canonical origin event). */
@@ -113,6 +164,7 @@ export const RELEASE: ReleaseConst = {
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,
   ocrPageCount: countOcrPages(),
+  cleanedPageCount: countCleanedPages(),
   lastTrancheDate,
   release01Date: RELEASE_01_DATE,
   trancheCount: trancheCount(),

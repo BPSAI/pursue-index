@@ -6,6 +6,13 @@ import { RELEASE, formatPageCount } from "../lib/release";
 
 const s = summary();
 const pageCountLabel = formatPageCount(RELEASE.ocrPageCount);
+// Sprint 4b Theme E2: cleanedPageCount is the build-time count of
+// pages where the LLM cleanup pass produced usable text (the rest
+// preserve their raw OCR rows but carry a `skip_reason`). Templated
+// here so the methodology prose tracks pages-cleaned.json on every
+// rebuild instead of carrying a literal that goes stale on the next
+// corpus pass.
+const cleanedPageLabel = formatPageCount(RELEASE.cleanedPageCount);
 const csvShort = manifest.csv_sha256.slice(0, 12);
 const csvFull = manifest.csv_sha256;
 const fetchedISO = manifest.fetched_at;
@@ -30,7 +37,16 @@ const methodologyJsonLd = [
       tags: ["methodology", "reproducibility", "provenance"],
     },
   }),
-  speakableJsonLd(["#methodology-lede"]),
+  // Sprint 4b Theme E4: expanded from one selector to three. The lede
+  // (what this page covers) + the provenance section (the integrity
+  // story) + the augmented-retrieval section (the project
+  // differentiator). All three anchor IDs are stable section ids
+  // that map directly to TOC entries on the page.
+  speakableJsonLd([
+    "#methodology-lede",
+    "#provenance",
+    "#augmented-retrieval",
+  ]),
   breadcrumbJsonLd([
     { name: "Index", url: "/" },
     { name: "Methodology", url: "/methodology" },
@@ -417,7 +433,7 @@ const methodologyJsonLd = [
           Skip rate, full corpus.
         </strong>{" "}
         The 2026-05-12 full-corpus cleanup pass produced cleaned text for
-        <strong class="text-[color:var(--color-text-bright)]">4,111 of {pageCountLabel}</strong>{" "}
+        <strong class="text-[color:var(--color-text-bright)]">{cleanedPageLabel} of {pageCountLabel}</strong>{" "}
         OCR pages —
         <strong class="text-[color:var(--color-text-bright)]">50 pages</strong>{" "}
         skipped, a

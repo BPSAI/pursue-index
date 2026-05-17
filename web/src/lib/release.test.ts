@@ -57,6 +57,20 @@ test("ocrPageCount is a positive integer (build-time corpus stat)", () => {
   assert.ok(RELEASE.ocrPageCount > 0);
 });
 
+test("cleanedPageCount is a positive integer and ≤ ocrPageCount", () => {
+  // Sprint 4b Theme E2: cleanedPageCount is the number of OCR'd
+  // pages that the LLM-cleanup pass produced usable cleaned text for.
+  // Always ≤ ocrPageCount because some pages skip cleaning
+  // (content_filter, refusal, etc.).
+  assert.equal(typeof RELEASE.cleanedPageCount, "number");
+  assert.ok(Number.isInteger(RELEASE.cleanedPageCount));
+  assert.ok(RELEASE.cleanedPageCount > 0);
+  assert.ok(
+    RELEASE.cleanedPageCount <= RELEASE.ocrPageCount,
+    `cleanedPageCount (${RELEASE.cleanedPageCount}) must be ≤ ocrPageCount (${RELEASE.ocrPageCount})`,
+  );
+});
+
 test("lastTrancheDate is an ISO-8601 string", () => {
   // YYYY-MM-DD prefix — the manifest's fetched_at is full ISO; we
   // expose the date portion so display contexts can render compactly.

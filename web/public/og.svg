@@ -1,4 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!--
+    DEPRECATED / UNREFERENCED. Sprint 4b note 2026-05-17:
+    The active social-share image is web/public/og.png, rendered by
+    scripts/build_og_image.py against the manifest. This SVG is a
+    legacy hand-drawn version that no Base.astro / no robots.txt /
+    no worker code references. It carries hardcoded `158` and
+    `4,161` numbers below; both happen to match the current corpus
+    state as of c9cc83fcaf43 (2026-05-15) but will silently go stale
+    on any future tranche bump. If you find this file referenced
+    from somewhere, either (a) delete that reference and the file,
+    or (b) port the render to scripts/build_og_image.py so the
+    numbers track manifest-loader / lib/release.ts at build time.
+  -->
   <!-- Background -->
   <rect width="1200" height="630" fill="#0a0d12"/>
 

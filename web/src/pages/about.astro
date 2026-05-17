@@ -17,7 +17,12 @@ const aboutJsonLd = [
       tags: ["about"],
     },
   }),
-  speakableJsonLd(["#about-lede"]),
+  // Sprint 4b Theme E4: expanded from one selector to three so a
+  // voice-assistant read covers the project framing (lede) + the
+  // augmented-retrieval differentiator + the motivation. Each
+  // selector targets a stable anchored paragraph so future page
+  // restructuring breaks the link visibly rather than silently.
+  speakableJsonLd(["#about-lede", "#about-augmented", "#about-why"]),
   breadcrumbJsonLd([
     { name: "Index", url: "/" },
     { name: "About", url: "/about" },
@@ -72,7 +77,7 @@ const aboutJsonLd = [
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ Augmented retrieval
       </h2>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+      <p id="about-augmented" class="text-sm leading-relaxed text-[color:var(--color-text)]">
         For ~27% of pages where text OCR alone underrepresents the source,
         we integrate vision-language descriptions of photographs, sketches,
         rubber stamps, and handwritten marginalia from a parallel research
@@ -89,7 +94,7 @@ const aboutJsonLd = [
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ Why we built it
       </h2>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+      <p id="about-why" class="text-sm leading-relaxed text-[color:var(--color-text)]">
         The DOW publishes a single CSV. The official portal is a paginated
         DataTables widget — fine for browsing one record at a time, useless
         for searching the actual contents of the documents. This is the
