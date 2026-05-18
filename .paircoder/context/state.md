@@ -1,6 +1,35 @@
 # Current State
 
-> Last updated: 2026-05-18 (clean session handoff after Sprint 4a/b/c + 6.1 series cycle. All work verified live. CF Analytics + IndexNow + Wayback all confirmed. Bake-off doc consolidation done. Operated VLM answer locked: Sonnet 4.6 single-pass.)
+> Last updated: 2026-05-18 (Sprint 4d shipped — PR #67 open, awaiting Codex review. Tier-2 registry signing RFC drafted next.)
+
+## 2026-05-18 — Tier-2 registry-signing RFC
+
+Drafted `pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md` (466 lines). Threat model (T1-T4 in scope; byzantine operator out), four options surveyed (per-row sig / Sigstore / Merkle+git-tag / release-tag-only), cost-vs-coverage matrix, recommendation: Merkle root + operator-signed git tag. Implementation sketch (~270 LOC + 23 tests). Three operator decisions called out before any code lands. Committed to opsec-staging local-only (`53f8163`); not pushed pending operator skim of the recommendation.
+
+## 2026-05-18 — Sprint 4d: auto-close tranche-detected issues on promote
+
+Branch `sprint-4d-tranche-autoclose` (commit `281e81d`) pushed; PR #67 opened with `@codex review` requested.
+
+### What shipped
+
+- **`scripts/close_tranche_issues_on_promote.py`** (227 lines) — pure-stdlib + `gh` CLI. Reads `csv_sha256` from the promoted manifest, lists open `tranche-detected` issues via `gh issue list`, matches each body's `* new_sha: \`<sha>\`` line (precise regex; fails closed on format drift), comments + closes match(es). Every branch exits 0 — a parser hiccup must never fail the promote workflow.
+- **`.github/workflows/close-tranche-on-promote.yml`** — `push` to main on `data/manifests/latest.json` + `workflow_dispatch`; `permissions: { issues: write, contents: read }`; SHA-pinned actions per SEC-001; concurrency group `close-tranche-on-promote`.
+- **`tests/unit/test_close_tranche_issues_on_promote.py`** — 21 unit tests (manifest read 5, body parse 4, matcher 4, comment text 2, main() integration via `_run_gh` fake 6).
+- **`tests/unit/test_close_tranche_on_promote_workflow.py`** — 7 workflow-shape tests (yaml parses, trigger narrowing, permissions block, env exports, SHA-pinning, concurrency group, script invocation).
+
+### Approach decision (recorded for follow-up sessions)
+
+State.md had offered "extend `pursue ingest run` OR companion GH workflow". Picked **companion workflow** because (i) the bytes landing on main define "promoted", not the CLI invocation; (ii) `GITHUB_TOKEN` already has `issues: write` — no operator-local `gh` auth or PAT needed; (iii) matches the existing post-deploy pattern (wayback / indexnow / cf-managed-bots-drift).
+
+### Verification
+
+- 28 new tests green (21 + 7); python suite: 574 → 602 (+28). Web + worker suites unchanged (no surface in those modules touched).
+- `bpsai-pair arch check` clean — single `file too large` warning on the script (227 vs 200 warn threshold; 400 error threshold). Test files clean.
+- PR #67: https://github.com/BPSAI/pursue-index/pull/67
+
+### Operator-action items
+
+None — Codex review will arrive on PR #67 in ~5 min. After merge, the next `tranche-detected` issue auto-closes when the operator promotes that tranche; until then, the workflow no-ops on every manifest change with a `::notice::` log.
 
 ## ✅ Session handoff — 2026-05-17 → 2026-05-18
 
@@ -66,17 +95,26 @@ All operator actions from this session are complete:
 - ✅ INDEXNOW_KEY + ownership file
 - ✅ CF Bot Management list
 
-### Sprint 4d candidate (small, ~30 lines)
+### Sprint 4d — IN FLIGHT (PR #67)
 
-**Auto-close tranche-detected GH issues on ingest promotion.** Surfaced 2026-05-17 when issue #63 was found stale. `pursue ingest run` doesn't comment on or close the corresponding `tranche-detected` issue. Two open issues this session (#63 + #64) were both stale for this triage gap.
+Shipped 2026-05-18 to PR #67 (`sprint-4d-tranche-autoclose`, commit `281e81d`). Awaiting Codex review. After merge, drops off this list.
 
-Fix: extend `pursue ingest run` (or a companion GH workflow with `repo:write` token) to comment + close any open `tranche-detected` issue whose `new_sha` matches the promoted tranche. ~30 line script change.
+### Tier-2 registry-signing RFC — DRAFTED (awaiting operator skim)
+
+`pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md` (466 lines, opsec-staging commit `53f8163`, local-only — not pushed pending operator review).
+
+**Recommendation:** Option (c) — Merkle root over canonical-JSON registry rows + operator-signed git tag per promote. Zero per-row friction; reuses operator's existing SSH key (already configured for git push); verification is `git tag -v`, no external service. Estimated implementation effort: ~270 LOC + ~23 tests + one signed tag per promote.
+
+**Three decisions pending operator:**
+1. Option lock-in (confirm (c); or layer (b)/(a) on top).
+2. Key custody (existing push key vs dedicated signing key, offline-stored).
+3. `allowed_signers` location (repo-tracked `docs/allowed-signers.txt` vs out-of-repo declaration).
 
 ### Sprint 5 — operator-attention queue (from prior roadmap)
 
 - Display-date phase 4 review (45-75 min operator UI session against `python scripts/curate_dates_ui.py`)
 - Black Vault reference corpus replacement (planning + dispatch + review)
-- pursue-opsec#1 RFC: tier-2 cryptographic signing of registry rows
+- ~~pursue-opsec#1 RFC: tier-2 cryptographic signing of registry rows~~ → drafted this session, awaiting decisions
 
 ### Sprint 6.2 — operated VLM pipeline (pending 6 operator decisions)
 
