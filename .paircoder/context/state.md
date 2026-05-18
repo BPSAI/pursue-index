@@ -1,6 +1,98 @@
 # Current State
 
-> Last updated: 2026-05-17 (Sprint 4b PR #66 fix-pass applied — Codex P1+P2, nayru 5×P1 + 6×P2 + 2 nits, vaivora 1×P2 doc fix. All fixes bundled into one fix-commit on top of `57a8701` per [[feedback_bundled_commits]]. CI minute consolidation (vaivora V-P2#2) deferred to Sprint 4c. Pending: push + `@codex review` re-request. Sprint 4a PR #65 still in flight; Sprint 6.1d Gemini still operator-blocked on prepay.)
+> Last updated: 2026-05-18 (clean session handoff after Sprint 4a/b/c + 6.1 series cycle. All work verified live. CF Analytics + IndexNow + Wayback all confirmed. Bake-off doc consolidation done. Operated VLM answer locked: Sonnet 4.6 single-pass.)
+
+## ✅ Session handoff — 2026-05-17 → 2026-05-18
+
+**Clean handoff state — everything confirmed live and tested. Next session can pick up directly with Sprint 4d / 5 / 6.2.**
+
+### Live on prod (verified via `curl https://pursueindex.com/`)
+
+| Surface | Status | Verification |
+|---|---|---|
+| ItemList JSON-LD (158 ListItems for crawler-visible cards) | ✅ Live | `grep -o '"@type":"ListItem"' \| wc -l` → 158 |
+| Dataset JSON-LD (Sprint 1 GEO foundation) | ✅ Live | 1 entry, schema.org/Dataset |
+| Cache-Control on /_astro/* (Sprint 2.1 worker headers) | ✅ Live | `public, max-age=31536000, immutable` |
+| CF Web Analytics beacon (Sprint 4a B5) | ✅ Live | token `28d5f461bce94463afa26c5d78e5517b` |
+| IndexNow ownership file | ✅ Live | `https://pursueindex.com/3ac171e82c609affc9699ce12fbe5e71.txt` returns the key |
+| HTML size 695 KB → 53 KB (Sprint 4b Theme F + fix-pass) | ✅ -92% | Confirmed via `curl ... \| wc -c` |
+| Mobile Lighthouse 37-69 → 90-95 globally (Sprint 2 + 2.1) | ✅ Confirmed | All six baseline regions cleared targets |
+
+### Sprints shipped this session
+
+| Sprint | Status |
+|---|---|
+| Sprint 1 (GEO foundation) | merged 73f6ecb |
+| Sprint 1.1 (robots policy AI_ALLOW + AI_BLOCK split) | merged ff2c3f2 |
+| Sprint 2 (Lighthouse) | merged 7dfb008 |
+| Sprint 2.1 (Worker cache headers, replaces dead _headers) | merged 5840303 |
+| Sprint 3 (Reducto eval) | findings only |
+| Sprint 4a (integrity + SEO content polish) | merged 21886ca + hotfix 8834068 |
+| Sprint 4b (tech debt + ops hardening) | merged fccf9f8 (PR #66 review cycle: nayru/laverna/vaivora/Codex) |
+| Sprint 4c (wayback cadence + gitignore + doc consolidation) | direct-to-main: 4099974, f1d76e8; pursue-opsec ff417ef |
+| Sprint 6.0 (VLM landscape research) | corrected Infinity-Parser2-Pro: 34B MoE 68GB, not 7B 16GB |
+| Sprint 6.1 / 6.1b / 6.1c / 6.1d / 6.1ef | full bake-off complete; ~$3.61 / $30 cap |
+
+### Issues closed during session
+
+- **#61** — Section 6 preserved-pin reaffirmation (false-positive class identified)
+- **#63** — c9cc83fcaf43 tranche-detected (stale; promoted 2026-05-15 but issue never closed)
+- **#64** — Section 6 false-positive recurrence (now fixed by Sprint 4a A1: `r2_verify_preserved.py` checks `archive_key` not `current_key`)
+
+### Operated VLM answer — LOCKED
+
+**Primary: Sonnet 4.6 single-pass** (cm-CER 20.1%, ~$53/full-corpus, ~15h API single-flight)
+**Cross-witness:** GLM-OCR local ($0, 26.9% cm-CER, agreement classification surfaces ~8% LOW-confidence pages for review)
+**Cost-shrunk fallback:** gpt-5.4 ($0.17/25pp, 21.3%, 2.5× faster)
+**Content-filter backstop:** o4-mini (zero filter trips on FBI content where Opus refused)
+
+**Eliminated (tested, gap-documented):** Reducto, Opus 4.7, Gemini 3.1 Pro, GPT-5.5/5.5-pro, o3 reasoning, all multi-step + adversarial + Sonnet+thinking variants.
+
+**Methodology findings worth keeping:**
+- Reasoning architectures hurt HARD-tier OCR across vendors (Sonnet+thinking-16k +4.2pp; o3 +3.3pp) — strong eliminator for future OCR shortlists
+- High self-confidence ≠ accuracy on HARD-tier (Gemini 94.2 confidence → 39.6% HARD cm-CER, 2nd-worst in ladder)
+- Pre-flight gates discovered: VRAM-fit, billing-tier, content-filter
+
+Canonical bake-off doc: `pursue-opsec-staging/findings/2026-05-18-vlm-bakeoff-final.md` (620 lines; predecessors archived to `findings/archive/`).
+
+## What's Next
+
+### Operator action items — NONE pending
+
+All operator actions from this session are complete:
+- ✅ CF Analytics token (build-time env var)
+- ✅ Google Cloud Gemini billing
+- ✅ OpenAI API key
+- ✅ INDEXNOW_KEY + ownership file
+- ✅ CF Bot Management list
+
+### Sprint 4d candidate (small, ~30 lines)
+
+**Auto-close tranche-detected GH issues on ingest promotion.** Surfaced 2026-05-17 when issue #63 was found stale. `pursue ingest run` doesn't comment on or close the corresponding `tranche-detected` issue. Two open issues this session (#63 + #64) were both stale for this triage gap.
+
+Fix: extend `pursue ingest run` (or a companion GH workflow with `repo:write` token) to comment + close any open `tranche-detected` issue whose `new_sha` matches the promoted tranche. ~30 line script change.
+
+### Sprint 5 — operator-attention queue (from prior roadmap)
+
+- Display-date phase 4 review (45-75 min operator UI session against `python scripts/curate_dates_ui.py`)
+- Black Vault reference corpus replacement (planning + dispatch + review)
+- pursue-opsec#1 RFC: tier-2 cryptographic signing of registry rows
+
+### Sprint 6.2 — operated VLM pipeline (pending 6 operator decisions)
+
+Per `pursue-opsec-staging/findings/2026-05-18-vlm-bakeoff-final.md` §6:
+
+1. Truth-proxy choice for full-corpus pass (recommend: Haiku-4.5 stay + 5-10 page human-verified calibration sample)
+2. Operator review queue tooling for ~8% LOW-class pages (~330 expected)
+3. Per-page provenance plumbing (add `engine` field to manifest distinguishing 6 sources)
+4. alex-zhang42 corpus retirement (recommend: keep as cold-storage reference, not retire)
+5. Budget envelope (~$70 of $90 cap; $86 headroom after $3.61 lifetime bake-off spend)
+6. Trigger: attended session required per no-autospend; ~1.5h at 10-way API concurrency; recommend standing up review queue first
+
+### Sprint 7+ — Tier 2 backlog
+
+- `incidents-map-clustering` (`/map`) — net-new geographic browse surface
+- `autonomous-finds-pipeline` (private fleet remainder; out of pursue-index repo scope)
 
 ## What Was Just Done
 
