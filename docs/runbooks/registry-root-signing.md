@@ -108,8 +108,9 @@ Source options:
 * `curl -s https://github.com/Buschleague.keys` to fetch GitHub's record of your keys.
 
 Commit + push. Readers can now run local `git tag -v` against this
-file for offline verification; the CI lane uses the GH-API anchor
-described above regardless.
+file for offline verification; the CI lane uses the
+`OPERATOR_ALLOWED_SIGNERS` secret-pinned anchor described above
+regardless.
 
 ### 5. Sign the baseline registry-root tag
 
@@ -223,21 +224,22 @@ The bumped registry and the root file are not in sync. Three paths:
 
 ### Workflow `verify-assets-daily` opened a `signing-failure` issue
 
-GitHub reports the latest signed tag's `.verification.verified` as
-false. Three paths:
+`git tag -v` against the pinned operator key (from the
+`OPERATOR_ALLOWED_SIGNERS` secret) failed on the latest signed tag.
+Three paths:
 
-1. **Key rotation in progress.** You uploaded a new Signing key to
-   GitHub but the latest tag was signed with the old key (or vice
-   versa). Re-sign the latest tag with the active key:
+1. **Key rotation in progress.** The secret holds the new key but
+   the latest tag was signed with the old key (or vice versa).
+   Re-sign the latest tag with the key currently in the secret:
    ```bash
    git tag -d registry-root-<HHMM>      # delete local
    git push --delete origin registry-root-<HHMM>   # delete remote
    git tag -s registry-root-<HHMM> <original_commit>
    git push --tags
    ```
-2. **Signing key removed from GitHub Settings.** Restore it under
-   Settings → SSH and GPG keys → Signing keys. The tag will verify
-   on the next daily tick.
+2. **`OPERATOR_ALLOWED_SIGNERS` got cleared or truncated.** Restore
+   it in repo Settings → Secrets and variables → Actions. The tag
+   will verify on the next daily tick.
 3. **Genuine tampering.** Assume the worst. The tag itself was
    replaced by an attacker who had push access. Roll the repo back
    to the last commit before the tag landed:
@@ -272,25 +274,37 @@ until you close it or auto-close it via gh).
 
 1. Decide on the replacement key. If the old key was yubikey-backed
    and you're rotating to a fresh yubikey: generate the new key
-   on the new device, leave the old key in
-   `allowed-signers.txt` for the rotation window.
-2. Add the new key to `allowed-signers.txt`:
+   on the new device, leave the old key in the
+   `OPERATOR_ALLOWED_SIGNERS` secret for the rotation window.
+2. **Update the `OPERATOR_ALLOWED_SIGNERS` repo secret** (Settings
+   → Secrets and variables → Actions → Update). Either add the new
+   key as a second line (transition window) or replace outright:
    ```text
    david@bpsaisoftware.com ssh-ed25519 OLD_KEY...
    david@bpsaisoftware.com ssh-ed25519 NEW_KEY...
    ```
-3. Commit + push that change. Sign the commit with the NEW key.
-4. Sign a "rotation note" commit:
+   This is the load-bearing step — CI verifies against the secret,
+   not the repo file. Forgetting it = CI stays pinned to the old
+   key and raises `signing-failure` after rotation.
+3. Upload the new key to GitHub Settings → SSH and GPG keys →
+   Signing keys (for the "Verified" badge on tags).
+4. Update `docs/allowed-signers.txt` to match the secret (reader
+   convenience).
+5. Commit + push the `docs/allowed-signers.txt` change. Sign the
+   commit with the NEW key.
+6. Sign a "rotation note" commit:
    ```bash
    echo "Rotating to new signing key on $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
        > docs/key-rotation-log.md
    git commit -S -m "chore(security): key rotation note"
    ```
-5. Sign the next `registry-root-*` tag with the new key.
-6. After two or three subsequent promotes have signed with the new
+7. Sign the next `registry-root-*` tag with the new key.
+8. After two or three subsequent promotes have signed with the new
    key (proves the new key is reliably in service), remove the old
-   key from `allowed-signers.txt`. Past signatures from the old key
-   stay verifiable in git history as evidence-of-past.
+   key from `OPERATOR_ALLOWED_SIGNERS` AND from
+   `docs/allowed-signers.txt` AND from GitHub Signing keys. Past
+   signatures from the old key stay verifiable in git history as
+   evidence-of-past.
 
 ## Out-of-scope here
 
