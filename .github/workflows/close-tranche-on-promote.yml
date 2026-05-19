@@ -1,0 +1,74 @@
+name: Close tranche-detected issues on promote
+
+# Sprint 4d. Companion to poll-pursue.yml.
+#
+# When a tranche is detected upstream, poll-pursue.yml opens a
+# ``tranche-detected`` issue with the new CSV sha in the body
+# (formatted as ``* new_sha: `<64-hex>` `` by
+# scripts/_poll_gh_io.py::changed_issue_body).
+#
+# When the operator later promotes that tranche via ``pursue ingest run``
+# and pushes the new ``data/manifests/latest.json`` to main, the
+# corresponding issue should auto-close — keeping the operator-attention
+# queue free of stale triage state. This was a manual step until 2026-05-17
+# when issues #63 and #64 were both found stale.
+#
+# Triggers narrowly on ``data/manifests/latest.json`` so unrelated main
+# pushes (state.md sweeps, doc updates, code refactors) don't fire the
+# closer. Plus ``workflow_dispatch`` for manual re-runs.
+#
+# Sibling-on-same-path coordination (vaivora M1): on a manifest push,
+# ``indexnow-after-deploy.yml`` also fires. Both use disjoint
+# concurrency groups (indexnow-after-deploy / close-tranche-on-promote)
+# and run in parallel — that's intentional, neither writes back to the
+# repo and IndexNow has no overlap with the gh-issue API surface. A
+# future workflow added on this same path should remain disjoint.
+# (Wayback used to be on this trigger but moved to release+cron in
+# Sprint 4c per pursue-index commit 4099974.)
+#
+# Every branch in scripts/close_tranche_issues_on_promote.py exits 0 — a
+# parser hiccup must never fail the promote workflow. Worst case an issue
+# stays open until the next promote, and the operator closes it manually.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/manifests/latest.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write   # Comment + close matching tranche-detected issues.
+
+concurrency:
+  group: close-tranche-on-promote
+  cancel-in-progress: false
+
+jobs:
+  close-matching-tranche-issue:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001. Matches
+      # the pin used by every other workflow in this repo.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+
+      # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Close matching tranche-detected issue
+        # gh CLI is preinstalled on GitHub-hosted runners; the script
+        # invokes ``gh issue list`` / ``gh issue comment`` / ``gh issue
+        # close`` against the current repo. Authenticates via
+        # ``GH_TOKEN`` env (the standard preinstalled-gh contract).
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python scripts/close_tranche_issues_on_promote.py \
+            --manifest data/manifests/latest.json

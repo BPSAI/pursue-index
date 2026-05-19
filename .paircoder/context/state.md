@@ -1,6 +1,91 @@
 # Current State
 
-> Last updated: 2026-05-18 (clean session handoff after Sprint 4a/b/c + 6.1 series cycle. All work verified live. CF Analytics + IndexNow + Wayback all confirmed. Bake-off doc consolidation done. Operated VLM answer locked: Sonnet 4.6 single-pass.)
+> Last updated: 2026-05-19 (Sprint 4d PR #67 — two fix-pass commits applied: Codex+nayru+vaivora bundle, then a follow-up for laverna SEC-P1-001 stderr truncation. 28 → 43 tests on the new modules.)
+
+## 2026-05-19 — Sprint 4d PR #67 second fix-pass (laverna stderr truncate)
+
+After the first fix-pass push, re-launched laverna with a tighter brief (it had timed out mid-investigation on the first pass). Single P1 returned:
+
+**SEC-P1-001** — gh stderr surfaced unbounded in `::warning::` annotations against the repo's own SEC-003 precedent (`scripts/_poll_gh_io.py::truncate_error`, 500-char cap). gh "hint" lines can echo bearer-token fragments on auth failure; an unbounded surface compounds rate-limit storms.
+
+Applied as a separate small commit (not bundled with the prior fix-pass — that commit was already pushed and Codex-rereview-requested):
+
+- `from _poll_gh_io import truncate_error` via the established sys.path manipulation pattern (mirrors `r2_verify_preserved.py:58-63`).
+- Three call sites wrapped: `GhCommandFailed` constructor in `_list_open_tranche_issues`, comment-failed warning, close-failed warning.
+- Two new tests pin the truncation behavior: 2000-char stderr → ≤700-char warning line + explicit `...[truncated]` marker.
+
+Test count: 41 → 43 on the Sprint 4d modules; python suite 608 → 610. arch check clean.
+
+P2 findings (deferred per laverna): `GITHUB_REPOSITORY` shape validation (narrow surface; runner-controlled today); rate-limit back-off (annotation-log only, not a vulnerability).
+
+## 2026-05-19 — Sprint 4d PR #67 fix-pass (bundled)
+
+Per [[feedback_bundled_commits]], one commit on top of `5bb7f8e` covering Codex P1/P2 + nayru/vaivora findings. (laverna timed out mid-investigation; nayru's review covered the security-adjacent concerns — command construction via list-of-args, permission scoping, action-pinning — at sufficient depth to proceed.)
+
+### Codex findings applied
+
+- **P1** — `gh issue list` failures no longer masquerade as no-match. New `GhCommandFailed` exception; main() catches it with a distinct `::warning::gh issue list failed; skipping auto-close: rc=N: <stderr>` line.
+- **P2** — `_close_with_comment` now returns `bool` based on actual rc of both `gh issue comment` and `gh issue close`. main() suppresses `::notice::closed` when either fails. Comment failure short-circuits (does NOT proceed to close, avoiding orphaned-close).
+
+### nayru P1 + P2 findings applied
+
+- **H1** (arch error) — extracted `_close_matches(...)` helper. `main()` now 35 lines (was 53; ceiling 50). arch check clean.
+- **H2** — `GhCommandFailed` message includes BOTH `rc=N` and stderr (or `(no stderr)` marker). Both diagnostic facts independent; both surface.
+- **H3** — P1/P2 regression tests now pin stderr text (`"401"`, `"422"`, `"403"`, `"Bad credentials"`, `"Resource not accessible"`, `"already closed"`) reaches the log line. New `test_main_gh_list_nonzero_with_empty_stderr_still_includes_rc` covers the rc-only case.
+- **M1** — workflow test asserts `cancel-in-progress is False` (pin against a future "make-it-snappy" flip).
+- **M3** — `_GH_LIST_LIMIT` bumped 100 → 1000 with a comment explaining the ceiling (worst-case AFK-week posture).
+- **M4** — `_close_with_comment` warnings now include `tranche <short>` so multi-match failure logs are self-describing.
+- **M5** — non-int issue numbers emit `::warning::skipping issue with non-int number: <value!r>` instead of silent skip.
+- **L3** — `test_parse_new_sha_picks_first_when_body_has_two` rewritten so both candidate lines start with `* new_sha:` (legitimately exercises first-match ordering, not just the `^` anchor).
+
+### vaivora H/M findings applied
+
+- **H1** — new `test_parse_new_sha_round_trips_changed_issue_body` test imports `scripts/_poll_gh_io.changed_issue_body()` and feeds its output into `parse_new_sha_from_body()`. Round-trip equality pinned for both the bootstrap and non-bootstrap body shapes. Closes the producer/consumer-coupled-but-not-locked gap.
+- **M1** — workflow yaml header now documents the sibling-on-same-path (indexnow-after-deploy, fires concurrently, disjoint concurrency group; wayback moved off this trigger in Sprint 4c).
+
+### Test count delta (fix-pass)
+
+- New tests: 28 → 41 on the Sprint 4d modules (+13 across both files); python suite 605 → 608.
+- All 608 green. arch check: 0 errors, 1 warning (file size 321 vs 200 warn; well under 400 error).
+
+### Not applied (notes only)
+
+- nayru M2 (workflow uses `GH_TOKEN` not `token:` on checkout) — intentional asymmetry, no change.
+- nayru L1 (regex anchor) — verified correct, no change.
+- nayru L2 (`collections.abc.Callable`) — minor convention nit, deferred.
+- vaivora M2 (concurrency disjointness with poll-pursue) — sha-match design is the load-bearing protection; documented in the round-trip test.
+- vaivora L1 (sys.path manipulation) — matches established repo-wide pattern across 15+ test files.
+
+
+
+## 2026-05-18 — Tier-2 registry-signing RFC
+
+Drafted `pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md` (466 lines). Threat model (T1-T4 in scope; byzantine operator out), four options surveyed (per-row sig / Sigstore / Merkle+git-tag / release-tag-only), cost-vs-coverage matrix, recommendation: Merkle root + operator-signed git tag. Implementation sketch (~270 LOC + 23 tests). Three operator decisions called out before any code lands. Committed to opsec-staging local-only (`53f8163`); not pushed pending operator skim of the recommendation.
+
+## 2026-05-18 — Sprint 4d: auto-close tranche-detected issues on promote
+
+Branch `sprint-4d-tranche-autoclose` (commit `281e81d`) pushed; PR #67 opened with `@codex review` requested.
+
+### What shipped
+
+- **`scripts/close_tranche_issues_on_promote.py`** (227 lines) — pure-stdlib + `gh` CLI. Reads `csv_sha256` from the promoted manifest, lists open `tranche-detected` issues via `gh issue list`, matches each body's `* new_sha: \`<sha>\`` line (precise regex; fails closed on format drift), comments + closes match(es). Every branch exits 0 — a parser hiccup must never fail the promote workflow.
+- **`.github/workflows/close-tranche-on-promote.yml`** — `push` to main on `data/manifests/latest.json` + `workflow_dispatch`; `permissions: { issues: write, contents: read }`; SHA-pinned actions per SEC-001; concurrency group `close-tranche-on-promote`.
+- **`tests/unit/test_close_tranche_issues_on_promote.py`** — 21 unit tests (manifest read 5, body parse 4, matcher 4, comment text 2, main() integration via `_run_gh` fake 6).
+- **`tests/unit/test_close_tranche_on_promote_workflow.py`** — 7 workflow-shape tests (yaml parses, trigger narrowing, permissions block, env exports, SHA-pinning, concurrency group, script invocation).
+
+### Approach decision (recorded for follow-up sessions)
+
+State.md had offered "extend `pursue ingest run` OR companion GH workflow". Picked **companion workflow** because (i) the bytes landing on main define "promoted", not the CLI invocation; (ii) `GITHUB_TOKEN` already has `issues: write` — no operator-local `gh` auth or PAT needed; (iii) matches the existing post-deploy pattern (wayback / indexnow / cf-managed-bots-drift).
+
+### Verification
+
+- 28 new tests green (21 + 7); python suite: 574 → 602 (+28). Web + worker suites unchanged (no surface in those modules touched).
+- `bpsai-pair arch check` clean — single `file too large` warning on the script (227 vs 200 warn threshold; 400 error threshold). Test files clean.
+- PR #67: https://github.com/BPSAI/pursue-index/pull/67
+
+### Operator-action items
+
+None — Codex review will arrive on PR #67 in ~5 min. After merge, the next `tranche-detected` issue auto-closes when the operator promotes that tranche; until then, the workflow no-ops on every manifest change with a `::notice::` log.
 
 ## ✅ Session handoff — 2026-05-17 → 2026-05-18
 
@@ -66,17 +151,26 @@ All operator actions from this session are complete:
 - ✅ INDEXNOW_KEY + ownership file
 - ✅ CF Bot Management list
 
-### Sprint 4d candidate (small, ~30 lines)
+### Sprint 4d — IN FLIGHT (PR #67)
 
-**Auto-close tranche-detected GH issues on ingest promotion.** Surfaced 2026-05-17 when issue #63 was found stale. `pursue ingest run` doesn't comment on or close the corresponding `tranche-detected` issue. Two open issues this session (#63 + #64) were both stale for this triage gap.
+Shipped 2026-05-18 to PR #67 (`sprint-4d-tranche-autoclose`, commit `281e81d`). Awaiting Codex review. After merge, drops off this list.
 
-Fix: extend `pursue ingest run` (or a companion GH workflow with `repo:write` token) to comment + close any open `tranche-detected` issue whose `new_sha` matches the promoted tranche. ~30 line script change.
+### Tier-2 registry-signing RFC — DRAFTED (awaiting operator skim)
+
+`pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md` (466 lines, opsec-staging commit `53f8163`, local-only — not pushed pending operator review).
+
+**Recommendation:** Option (c) — Merkle root over canonical-JSON registry rows + operator-signed git tag per promote. Zero per-row friction; reuses operator's existing SSH key (already configured for git push); verification is `git tag -v`, no external service. Estimated implementation effort: ~270 LOC + ~23 tests + one signed tag per promote.
+
+**Three decisions pending operator:**
+1. Option lock-in (confirm (c); or layer (b)/(a) on top).
+2. Key custody (existing push key vs dedicated signing key, offline-stored).
+3. `allowed_signers` location (repo-tracked `docs/allowed-signers.txt` vs out-of-repo declaration).
 
 ### Sprint 5 — operator-attention queue (from prior roadmap)
 
 - Display-date phase 4 review (45-75 min operator UI session against `python scripts/curate_dates_ui.py`)
 - Black Vault reference corpus replacement (planning + dispatch + review)
-- pursue-opsec#1 RFC: tier-2 cryptographic signing of registry rows
+- ~~pursue-opsec#1 RFC: tier-2 cryptographic signing of registry rows~~ → drafted this session, awaiting decisions
 
 ### Sprint 6.2 — operated VLM pipeline (pending 6 operator decisions)
 
