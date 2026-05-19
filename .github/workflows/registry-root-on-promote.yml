@@ -1,0 +1,69 @@
+name: Verify registry-root on promote
+
+# Sprint 4e Phase 3. Companion to the operator-signed git tag scheme
+# in pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md.
+#
+# Triggers on every push to main that touches the registry OR its
+# committed root file. Re-derives the Merkle root from
+# data/asset-bytes-registry.jsonl and asserts the result matches
+# data/registry-root.txt. A mismatch means either (a) the operator
+# edited the registry but forgot to re-run scripts/registry_root.py
+# (annoying but recoverable), or (b) one of the two files has been
+# tampered with (the threat tier-2 exists to catch).
+#
+# Unlike the post-deploy companion workflows (wayback, indexnow,
+# close-tranche), this one is ALLOWED TO FAIL — registry-root drift
+# is exactly the integrity signal we want to surface, and the cost
+# of a red check is the right shape for "stop and investigate before
+# the next promote." This is the one workflow whose red state is
+# load-bearing.
+#
+# Trigger expansion: push paths cover both the registry itself AND
+# the root file. A direct edit to registry-root.txt without a
+# corresponding registry edit would also re-derive and surface the
+# drift.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/asset-bytes-registry.jsonl'
+      - 'data/registry-root.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read   # Read-only — no commits, no comments back.
+
+concurrency:
+  group: registry-root-on-promote
+  cancel-in-progress: false
+
+jobs:
+  verify-registry-root:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+
+      # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Verify registry-root matches current registry
+        # The verify script exits non-zero on mismatch — this step
+        # then FAILS the workflow on purpose. Operator gets a red
+        # check and investigates before the next promote lands on
+        # top of a drifted root.
+        #
+        # ``--signed-source`` is left empty here: the divergence
+        # locator needs the bytes from the latest signed tag, which
+        # the daily verify lane handles. Per-push verify only needs
+        # to assert root-file freshness, not localize drift.
+        run: |
+          python scripts/verify_registry_root.py \
+            --registry data/asset-bytes-registry.jsonl \
+            --root data/registry-root.txt \
+            --signed-source ""

@@ -64,6 +64,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 1
+          # Sprint 4e Phase 4: tag-verify step below needs the signed
+          # ``registry-root-*`` tags. Default checkout doesn't fetch
+          # tags; enable it.
+          fetch-tags: true
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -208,3 +212,74 @@ jobs:
             --title "[integrity] Preserved card tampering detected" \
             --label "preserved-tampered" \
             --body "$(printf 'A /removed preservation copy in R2 no longer matches its pinned byte_sha. This is tampering inside our control plane (not upstream). Roll the current-pointer back from archive/<sha>.<ext>.\n\nReport excerpt:\n```\n%s\n```\n\nRun log: %s' "$report_excerpt" "$RUN_URL")"
+
+      - name: Verify latest signed registry-root tag
+        # Sprint 4e Phase 4. Tier-2 signature gate: every promote
+        # bumps data/registry-root.txt and the operator signs a
+        # ``registry-root-YYYY-MM-DD-HHMM`` git tag whose tree
+        # transitively commits to that root. The daily verify
+        # re-runs the signature check against the latest such tag.
+        #
+        # Bootstrap window: before the operator signs the baseline
+        # tag, this step exits 0 with a ``::notice::`` — the
+        # registry-root-on-promote workflow is sufficient until then.
+        #
+        # Failure mode: ``git tag -v`` returns non-zero. We pin the
+        # outcome to ``signing-failure`` issue creation below rather
+        # than letting the step itself fail the workflow, so a key
+        # rotation in progress doesn't suppress the silent-overlay
+        # detection lane above.
+        id: signing
+        # Configure SSH-signature verification against the repo-tracked
+        # allowed_signers file. The yubikey-backed operator key is
+        # declared there; rotation = a commit to the same file.
+        env:
+          GIT_CONFIG_PARAMETERS: "'gpg.format=ssh' 'gpg.ssh.allowedSignersFile=docs/allowed-signers.txt'"
+        run: |
+          latest_tag=$(git tag --list 'registry-root-*' --sort=-creatordate | head -1)
+          if [ -z "$latest_tag" ]; then
+            echo "::notice::no signed registry-root tag yet — operator must sign the baseline tag to enable tier-2 verification"
+            echo "signing_state=bootstrap" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Verifying signature on $latest_tag..."
+          if git tag -v "$latest_tag" 2>&1 | tee /tmp/tag-verify.log; then
+            echo "::notice::signature verified on $latest_tag"
+            echo "signing_state=verified" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::signature verification FAILED on $latest_tag"
+            echo "signing_state=failed" >> "$GITHUB_OUTPUT"
+            echo "failed_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+          fi
+        continue-on-error: true
+
+      - name: Open issue when signing verification fails
+        # Distinct from preserved-tampered / silent-overlay: this
+        # signals that the chain-of-trust ON THE REGISTRY ITSELF is
+        # broken, not that R2 bytes diverged. Operator response is to
+        # check ``allowed-signers.txt`` for key rotation in progress,
+        # then assume tampering if no rotation is expected.
+        if: steps.signing.outputs.signing_state == 'failed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FAILED_TAG: ${{ steps.signing.outputs.failed_tag }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create signing-failure \
+            --color "B60205" \
+            --description "git tag -v failed on the latest registry-root-* tag" \
+            --force 2>/dev/null || true
+          existing=$(gh issue list --label signing-failure --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "Open issue #${existing} already tracking; skipping."
+            exit 0
+          fi
+          if [ -f /tmp/tag-verify.log ]; then
+            log_excerpt=$(head -c 2000 /tmp/tag-verify.log)
+          else
+            log_excerpt="(verify log not produced)"
+          fi
+          gh issue create \
+            --title "[integrity] Signing verification failed on $FAILED_TAG" \
+            --label "signing-failure" \
+            --body "$(printf 'git tag -v failed on %s. Either (a) a key rotation is in progress (update docs/allowed-signers.txt + sign new baseline), or (b) tier-2 tampering. Check pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md §5.2 for rotation playbook.\n\nVerify log:\n```\n%s\n```\n\nRun log: %s' "$FAILED_TAG" "$log_excerpt" "$RUN_URL")"

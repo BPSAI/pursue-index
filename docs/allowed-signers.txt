@@ -1,0 +1,38 @@
+# SSH allowed-signers file for `git verify-tag` / `git log --show-signature`.
+#
+# Format (per ssh-keygen(1) "ALLOWED SIGNERS"):
+#   <email-or-principal> <key-type> <base64-key>
+#
+# Used by .github/workflows/verify-assets-daily.yml to validate the
+# operator's signature on `registry-root-*` tags. Configured by:
+#   git -c gpg.format=ssh \
+#       -c gpg.ssh.allowedSignersFile=docs/allowed-signers.txt \
+#       tag -v <tag>
+#
+# OPERATOR ACTION REQUIRED:
+#
+#   Replace the placeholder line below with your real ssh-ed25519
+#   public key. Two ways to source it:
+#
+#     a) `cat ~/.ssh/id_ed25519.pub` (or whichever key you sign with)
+#     b) `curl -s https://github.com/Buschleague.keys` to fetch the
+#        keys GitHub has on file for the account
+#
+#   Then locally configure git to sign tags with that key:
+#     git config --global gpg.format ssh
+#     git config --global user.signingkey ~/.ssh/<chosen-key>.pub
+#     git config --global tag.gpgsign true
+#
+#   First baseline signing (one-time after this file is populated):
+#     git tag -s registry-root-2026-05-19-baseline-<HHMM> HEAD
+#     git push --tags
+#
+#   See docs/runbooks/registry-root-signing.md for the full playbook.
+#
+# Rotation: a key compromise means (1) revoke the key in GitHub UI,
+# (2) commit a new line here with the replacement key, (3) sign a
+# revocation note + the next registry-root tag with the new key. Old
+# signatures remain verifiable as evidence-of-past; new signatures
+# from the revoked key would no longer match this file.
+
+david@bpsaisoftware.com ssh-ed25519 PLACEHOLDER_REPLACE_BEFORE_SIGNING_BASELINE
