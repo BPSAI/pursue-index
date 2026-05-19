@@ -67,25 +67,42 @@ def test_signing_verify_step_exists_with_id_signing() -> None:
     assert step["continue-on-error"] is True
 
 
-def test_signing_verify_step_uses_github_api_as_trust_anchor() -> None:
-    """Codex P1 #2: trust anchor MUST NOT be ``docs/allowed-signers.txt``
-    (mutable by anyone with repo:write — the threat model the
-    integrity layer exists to detect). Use GitHub's tag-object
-    verification API, anchored to the operator's profile signing
-    keys.
+def test_signing_verify_step_pins_to_operator_secret() -> None:
+    """Codex P1 #3: ``.verification.verified == true`` only confirms
+    "valid against ANY GitHub-registered signing key" — a repo:write
+    attacker with their own registered Signing key can satisfy that.
+    Pin verification to exactly the operator key via the
+    ``OPERATOR_ALLOWED_SIGNERS`` GitHub Actions secret (modifiable
+    only by repo admin/maintain, not by repo:write contributors).
     """
     step = _step("Verify latest signed registry-root tag")
     cmd = step["run"]
-    # New trust anchor: gh api on the tag object's verification field.
-    assert "gh api" in cmd
-    assert "/git/tags/" in cmd
-    assert ".verification" in cmd
-    # OLD trust anchor must be gone.
     env = step.get("env") or {}
-    assert "GIT_CONFIG_PARAMETERS" not in env
-    assert "allowedSignersFile" not in cmd
-    # GH_TOKEN must be exported for the gh api call.
-    assert env.get("GH_TOKEN") == "${{ secrets.GITHUB_TOKEN }}"
+    # Trust anchor is the secret, materialized to a runner-local file.
+    assert env.get("OPERATOR_ALLOWED_SIGNERS") == "${{ secrets.OPERATOR_ALLOWED_SIGNERS }}"
+    assert "$OPERATOR_ALLOWED_SIGNERS" in cmd
+    assert "trusted-signers.txt" in cmd
+    # Verification is git tag -v against the SECRET's allowed-signers,
+    # NOT gh api .verification.verified (the previous design which
+    # Codex P1 #3 flagged as too permissive).
+    assert "git -c gpg.format=ssh" in cmd
+    assert "gpg.ssh.allowedSignersFile=" in cmd
+    assert "tag -v" in cmd
+    assert "gh api" not in cmd or ".verification.verified" not in cmd
+    # Repo-tracked allowed-signers file MUST NOT be the trust anchor.
+    assert "docs/allowed-signers.txt" not in cmd
+
+
+def test_signing_verify_step_emits_unconfigured_state_when_secret_unset() -> None:
+    """Before the operator sets ``OPERATOR_ALLOWED_SIGNERS``, the
+    verify step exits 0 with ``signing_state=unconfigured`` and a
+    ``::warning::`` — the workflow shouldn't paint red just because
+    the operator hasn't completed setup.
+    """
+    step = _step("Verify latest signed registry-root tag")
+    cmd = step["run"]
+    assert "signing_state=unconfigured" in cmd
+    assert "OPERATOR_ALLOWED_SIGNERS" in cmd
 
 
 def test_signing_verify_step_binds_to_current_registry_root() -> None:

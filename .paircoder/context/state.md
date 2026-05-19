@@ -1,6 +1,23 @@
 # Current State
 
-> Last updated: 2026-05-19 (Sprint 4e PR #68 fix-pass — Codex P1 #1 + #2 + nayru + laverna + vaivora bundled. RFC 6962 domain separation, GitHub-API trust anchor, freshness binding, bot-writer root refresh.)
+> Last updated: 2026-05-19 (Sprint 4e PR #68 2nd fix-pass — Codex P1 #3 addressed. Trust anchor moved from `gh api .verification.verified` (too permissive — accepts any GitHub-registered signing key) to a GitHub Actions secret pinning exactly the operator key.)
+
+## 2026-05-19 — Sprint 4e PR #68 2nd fix-pass (Codex P1 #3)
+
+After the first fix-pass merged the GH-API trust anchor, Codex re-reviewed and surfaced a real residual gap: `gh api .verification.verified` returns true for ANY tag signed by ANY GitHub-registered Signing key — a repo:write attacker with their own registered key can satisfy that check.
+
+Fix: trust anchor now sources from a GitHub Actions secret `OPERATOR_ALLOWED_SIGNERS` containing the operator's pubkey in allowed-signers format. Verify step writes the secret to a runner-local tmp file at job time and runs `git -c gpg.format=ssh -c gpg.ssh.allowedSignersFile=<tmp> tag -v <latest>`. The secret is modifiable only by repo admin/maintain (not by repo:write contributors) — that's the security boundary tier-2 cares about.
+
+New state `signing_state=unconfigured` distinct from `bootstrap`: bootstrap = no signed tag yet; unconfigured = signed tag exists but secret isn't set. Both exit 0 with notice/warning.
+
+Updates:
+- `verify-assets-daily.yml` — swap `gh api` for secret-pinned `git tag -v`.
+- Runbook + `allowed-signers.txt` comments document the new trust anchor + add a setup step for the secret.
+- Tests pin the new shape: `OPERATOR_ALLOWED_SIGNERS` env, secret materialized to tmp, no `gh api` trust path.
+
+Python suite: 662 → 663 (+1). All workflow tests green.
+
+## 2026-05-19 — Sprint 4e PR #68 fix-pass (bundled, post-triad-review)
 
 ## 2026-05-19 — Sprint 4e PR #68 fix-pass (bundled, post-triad-review)
 

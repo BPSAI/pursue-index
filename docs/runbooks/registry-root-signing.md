@@ -26,19 +26,32 @@ Two workflows enforce this:
 ## Trust anchor
 
 CI verification (the `verify-assets-daily.yml` signing step) trusts
-**GitHub's view of your account-level signing keys**, not the
-repo-tracked `docs/allowed-signers.txt`. The repo file is mutable
-by anyone with repo:write — exactly the threat the tier-2 layer
-exists to detect — so it cannot be the trust anchor for the CI
-lane. The GH-API anchor (`.verification.verified` on the tag
-object) resolves against keys you've registered in GitHub Settings
-→ SSH and GPG keys → **Signing keys** (distinct key-type from
-"Authentication keys" used for git push).
+**exactly the operator signing key, pinned via a GitHub Actions
+secret**: `OPERATOR_ALLOWED_SIGNERS`. The secret holds one or more
+allowed-signers lines (`<email> ssh-ed25519 <base64-key>`); the
+verify step writes them to a runner-local tmp file at job time and
+runs `git -c gpg.ssh.allowedSignersFile=<tmp> tag -v <latest>`.
+
+Three previous trust-anchor designs were rejected:
+
+1. **`docs/allowed-signers.txt` in-repo** — anyone with repo:write
+   can swap in their own key. Same threat tier-2 exists to detect.
+2. **`gh api .verification.verified`** — only confirms "valid
+   signature against ANY GitHub-registered Signing key". A
+   repo:write attacker with their *own* registered Signing key
+   passes this check (Codex P1 #3, PR #68).
+3. **Pubkey fetched from `https://github.com/<owner>.keys`** —
+   same hole as (2) if the attacker is a collaborator.
+
+The GHA secret is only modifiable by users with admin/maintain
+role on the repo, which is the security boundary tier-2 cares
+about.
 
 `docs/allowed-signers.txt` remains in the repo as **reader
-convenience** for offline `git tag -v`, with a note pointing the
-reader at `https://github.com/<owner>.keys` for production-grade
-cross-check.
+convenience** for offline `git tag -v`. Readers should also
+cross-check against `https://github.com/<owner>.keys` or the
+GitHub UI's "Verified" badge on the tag — but neither of those is
+the production trust anchor.
 
 ## One-time setup
 
@@ -49,7 +62,29 @@ Signing Key**. This is separate from any "Authentication" key you
 already use for git push — both can be the same underlying pubkey,
 but must be registered twice under the two key-types.
 
-### 2. Configure git for SSH signing
+This step is what makes the "Verified" badge appear on signed tags
+in the GitHub UI. It is NOT what gates the CI verify — that's the
+secret below.
+
+### 2. Set the `OPERATOR_ALLOWED_SIGNERS` repo secret
+
+Repo Settings → Secrets and variables → Actions → New repository
+secret.
+
+* **Name**: `OPERATOR_ALLOWED_SIGNERS`
+* **Value**: one line in OpenSSH allowed-signers format:
+  ```text
+  david@bpsaisoftware.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...
+  ```
+
+The principal (`david@bpsaisoftware.com`) must match your
+`git config --global user.email` (git tag -s signs with that
+principal by default).
+
+If you ever rotate signing keys: update this secret in the same
+step you upload the new key to GitHub Signing Keys.
+
+### 3. Configure git for SSH signing
 
 ```bash
 git config --global gpg.format ssh
@@ -60,7 +95,7 @@ git config --global tag.gpgsign true                        # auto-sign every ta
 The `gpg.format=ssh` shape means git uses the SSH agent (yubikey
 included) for signing, not GPG. No GPG key material needed.
 
-### 3. Populate `docs/allowed-signers.txt` (reader convenience)
+### 4. Populate `docs/allowed-signers.txt` (reader convenience)
 
 Replace the placeholder line with your real ssh-ed25519 public key:
 
@@ -76,7 +111,7 @@ Commit + push. Readers can now run local `git tag -v` against this
 file for offline verification; the CI lane uses the GH-API anchor
 described above regardless.
 
-### 4. Sign the baseline registry-root tag
+### 5. Sign the baseline registry-root tag
 
 The current registry has 230 rows. Sign the current root state once,
 then per-promote signings extend the chain.
@@ -101,7 +136,7 @@ The tag name format is `registry-root-YYYY-MM-DD-HHMM[-baseline]`
 (UTC; minute-level resolution). The `-baseline` suffix is convention
 for the first signed root only — subsequent tags drop it.
 
-### 5. Optional: configure tag-pattern protection on GitHub
+### 6. Optional: configure tag-pattern protection on GitHub
 
 In repo settings → Rules → Rulesets, add a rule that prevents
 force-deletion of tags matching `registry-root-*`. This stops an

@@ -7,50 +7,61 @@
 #
 # The CI signing-verify lane (.github/workflows/verify-assets-daily.yml,
 # "Verify latest signed registry-root tag" step) anchors trust to
-# GitHub's view of the operator's *account-level* signing keys,
-# accessed via:
+# the **OPERATOR_ALLOWED_SIGNERS GitHub Actions secret**, NOT this
+# file.
 #
-#   gh api repos/<owner>/<repo>/git/tags/<tag_object_sha>
-#       --jq '.verification.verified'
+# The secret holds an allowed-signers line (or lines) pinning exactly
+# the operator's signing key. The verify step materializes the secret
+# to a runner-local tmp file at job time and runs:
 #
-# That field returns true iff the tag's signature validates against
-# the operator's "Signing keys" registered in GitHub profile
-# settings (NOT this repo file). The repo file is mutable by anyone
-# with repo:write — i.e., exactly the write-capability threat the
-# tier-2 layer exists to detect. The GH-API anchor is bound to
-# account-level identity, which a repo:write attacker cannot modify
-# (would require GitHub-account takeover).
+#   git -c gpg.format=ssh \
+#       -c gpg.ssh.allowedSignersFile=$RUNNER_TEMP/trusted-signers.txt \
+#       tag -v <tag>
+#
+# Why the secret and not this file: a repo:write attacker can
+# overwrite this file in the same commit they push a forged tag —
+# exactly the threat the tier-2 layer exists to detect. The Actions
+# secret is modifiable only by repo admin/maintain, not by
+# repo:write contributors. That's the security boundary tier-2 cares
+# about.
+#
+# Earlier trust-anchor designs that were rejected:
+#  * gh api .verification.verified — accepts ANY GitHub-registered
+#    Signing key, including an attacker's own (Codex P1 #3, PR #68).
+#  * github.com/<owner>.keys URL fetch — same hole.
 #
 # This file remains as reader convenience for local-laptop
-# verification: any reader can run
+# verification:
 #
 #   git -c gpg.format=ssh \
 #       -c gpg.ssh.allowedSignersFile=docs/allowed-signers.txt \
 #       tag -v <tag>
 #
-# But the reader should not treat a green ``tag -v`` against THIS
-# file as final — also cross-check against
-# https://github.com/<owner>.keys (or the GitHub UI's "Verified"
-# badge on the tag) for the production-grade anchor.
+# A green local ``tag -v`` against this file is informative but not
+# authoritative — readers should cross-check against
+# https://github.com/<owner>.keys or the GitHub UI's "Verified"
+# badge on the tag.
 #
 # # OPERATOR ACTION (one-time setup)
 #
 #   1. Upload your ssh-ed25519 public key to GitHub at Settings →
 #      SSH and GPG keys → New SSH key → **Key type: Signing Key**.
-#      (This is separate from the "Authentication" key type used for
-#      git push — both are needed.)
 #
-#   2. Replace the placeholder line below with the same public key
-#      for reader-convenience verification. Sources:
-#        a) `cat ~/.ssh/id_ed25519.pub`
-#        b) `curl -s https://github.com/Buschleague.keys`
+#   2. Set the **OPERATOR_ALLOWED_SIGNERS** repo secret (Settings →
+#      Secrets and variables → Actions) to your allowed-signers line:
+#        david@bpsaisoftware.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5...
+#      Principal must match your ``git config --global user.email``.
+#      This is the load-bearing trust anchor.
 #
-#   3. Locally configure git to sign tags:
+#   3. Replace the placeholder line below with the same public key
+#      for reader-convenience verification.
+#
+#   4. Locally configure git to sign tags:
 #        git config --global gpg.format ssh
 #        git config --global user.signingkey ~/.ssh/<chosen-key>.pub
 #        git config --global tag.gpgsign true
 #
-#   4. First baseline signing (one-time after this file is populated):
+#   5. First baseline signing (one-time after the secret is set):
 #        git tag -s registry-root-$(date -u +%Y-%m-%d-%H%M)-baseline HEAD
 #        git push --tags
 #
@@ -60,11 +71,14 @@
 # # ROTATION
 #
 # 1. Upload the new key to GitHub (Signing Keys).
-# 2. Commit the new key line to this file alongside (or replacing)
-#    the old line.
-# 3. Sign the next registry-root-* tag with the new key.
-# 4. After the new key proves reliable across a few promotes, remove
-#    the old key from GitHub Signing Keys AND from this file. Old
-#    signatures remain verifiable as evidence-of-past.
+# 2. Update the OPERATOR_ALLOWED_SIGNERS secret in repo Settings →
+#    Secrets and variables → Actions. Either add the new key as a
+#    second line (transition window) or replace outright.
+# 3. Update this file (reader convenience) with the new key.
+# 4. Sign the next registry-root-* tag with the new key.
+# 5. After the new key proves reliable across a few promotes, remove
+#    the old key from GitHub Signing Keys, from the secret, and from
+#    this file. Old signatures remain verifiable as evidence-of-past
+#    via git's signed-commit history.
 
 david@bpsaisoftware.com ssh-ed25519 PLACEHOLDER_REPLACE_BEFORE_SIGNING_BASELINE
