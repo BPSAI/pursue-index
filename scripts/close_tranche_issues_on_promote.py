@@ -46,6 +46,17 @@ import sys
 from pathlib import Path
 from typing import Callable
 
+# Mirror of the cross-script-import pattern used in
+# ``r2_verify_preserved.py``: scripts/ isn't on sys.path under
+# ``python scripts/<name>.py``, so we explicitly add it so the shared
+# SEC-003 ``truncate_error`` helper from ``_poll_gh_io`` can be
+# reused here.
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+from _poll_gh_io import truncate_error  # noqa: E402
+
 # Body line shape emitted by ``scripts/_poll_gh_io.py::changed_issue_body``:
 #   * new_sha: `<64-hex>`
 # Lock to lowercase 64-hex inside backticks so a future format drift
@@ -168,7 +179,13 @@ def _list_open_tranche_issues(run_gh: _GhRunner) -> list[dict]:
         # include BOTH rc and stderr — they're independent diagnostic
         # facts (rc-only failures with empty stderr happen on network
         # drops; stderr-rich failures still need rc for grep-ability).
-        raise GhCommandFailed(f"rc={rc}: {err.strip() or '(no stderr)'}")
+        # laverna SEC-P1-001: cap stderr at 500 chars per the repo's
+        # SEC-003 pattern. Defangs the surface where gh "hint" lines
+        # could echo back bearer-token fragments on auth failure, and
+        # bounds annotation-log blowup under a rate-limit storm.
+        raise GhCommandFailed(
+            f"rc={rc}: {truncate_error(err.strip()) if err.strip() else '(no stderr)'}"
+        )
     if not out.strip():
         return []
     try:
@@ -203,16 +220,17 @@ def _close_with_comment(
     short = promoted_sha[:12]
     rc_c, _, err_c = run_gh(["issue", "comment", str(number), "--body", comment])
     if rc_c != 0:
+        # laverna SEC-P1-001: truncate stderr per SEC-003.
         print(
             f"::warning::gh issue comment #{number} (tranche `{short}`) failed"
-            f" (rc={rc_c}): {err_c.strip()}"
+            f" (rc={rc_c}): {truncate_error(err_c.strip())}"
         )
         return False
     rc_x, _, err_x = run_gh(["issue", "close", str(number)])
     if rc_x != 0:
         print(
             f"::warning::gh issue close #{number} (tranche `{short}`) failed"
-            f" (rc={rc_x}): {err_x.strip()}"
+            f" (rc={rc_x}): {truncate_error(err_x.strip())}"
         )
         return False
     return True

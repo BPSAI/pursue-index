@@ -476,6 +476,54 @@ def test_main_gh_comment_failure_skips_close_and_warns(
     assert "::notice::closed" not in out
 
 
+def test_main_gh_list_unbounded_stderr_is_truncated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    """laverna SEC-P1-001 + repo SEC-003: bound the size of gh stderr
+    surfaced in ``::warning::`` annotations to 500 chars (plus the
+    explicit ``...[truncated]`` marker). Defangs the surface where a
+    gh hint line could echo a bearer-token fragment on auth failure
+    and prevents rate-limit storms from blowing up the annotation log.
+    """
+    sha = "c9cc83fcaf43bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    manifest = _write_manifest(tmp_path / "data/manifests/latest.json", sha)
+    fake = _FakeGh(list_rc=1, list_stderr="A" * 2000)
+    monkeypatch.setattr(ctc, "_run_gh", fake)
+    exit_code = ctc.main(["--manifest", str(manifest)])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    # The full 2000-char stderr must NOT appear verbatim.
+    assert "A" * 2000 not in out
+    # Truncation marker must be present.
+    assert "...[truncated]" in out
+    # The whole warning line must stay under the truncation ceiling
+    # plus a small fixed overhead for the rc=N: prefix + marker.
+    warning_lines = [line for line in out.splitlines() if "::warning::" in line]
+    assert warning_lines, "expected at least one ::warning:: line"
+    for line in warning_lines:
+        assert len(line) < 700, f"warning line too long: {len(line)} chars"
+
+
+def test_main_gh_close_unbounded_stderr_is_truncated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    """laverna SEC-P1-001: same truncation applies to per-issue close
+    failures, not just the list-level path.
+    """
+    sha = "c9cc83fcaf43bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    manifest = _write_manifest(tmp_path / "data/manifests/latest.json", sha)
+    fake = _FakeGh(
+        list_response=[_issue(64, f"* new_sha: `{sha}`")],
+        close_rc=1,
+        close_stderr="B" * 2000,
+    )
+    monkeypatch.setattr(ctc, "_run_gh", fake)
+    ctc.main(["--manifest", str(manifest)])
+    out = capsys.readouterr().out
+    assert "B" * 2000 not in out
+    assert "...[truncated]" in out
+
+
 def test_main_logs_warning_for_non_int_issue_number(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:

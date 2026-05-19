@@ -1,6 +1,22 @@
 # Current State
 
-> Last updated: 2026-05-19 (Sprint 4d PR #67 fix-pass applied: Codex P1/P2 + nayru + vaivora findings bundled. 28 → 41 tests on the new modules.)
+> Last updated: 2026-05-19 (Sprint 4d PR #67 — two fix-pass commits applied: Codex+nayru+vaivora bundle, then a follow-up for laverna SEC-P1-001 stderr truncation. 28 → 43 tests on the new modules.)
+
+## 2026-05-19 — Sprint 4d PR #67 second fix-pass (laverna stderr truncate)
+
+After the first fix-pass push, re-launched laverna with a tighter brief (it had timed out mid-investigation on the first pass). Single P1 returned:
+
+**SEC-P1-001** — gh stderr surfaced unbounded in `::warning::` annotations against the repo's own SEC-003 precedent (`scripts/_poll_gh_io.py::truncate_error`, 500-char cap). gh "hint" lines can echo bearer-token fragments on auth failure; an unbounded surface compounds rate-limit storms.
+
+Applied as a separate small commit (not bundled with the prior fix-pass — that commit was already pushed and Codex-rereview-requested):
+
+- `from _poll_gh_io import truncate_error` via the established sys.path manipulation pattern (mirrors `r2_verify_preserved.py:58-63`).
+- Three call sites wrapped: `GhCommandFailed` constructor in `_list_open_tranche_issues`, comment-failed warning, close-failed warning.
+- Two new tests pin the truncation behavior: 2000-char stderr → ≤700-char warning line + explicit `...[truncated]` marker.
+
+Test count: 41 → 43 on the Sprint 4d modules; python suite 608 → 610. arch check clean.
+
+P2 findings (deferred per laverna): `GITHUB_REPOSITORY` shape validation (narrow surface; runner-controlled today); rate-limit back-off (annotation-log only, not a vulnerability).
 
 ## 2026-05-19 — Sprint 4d PR #67 fix-pass (bundled)
 
