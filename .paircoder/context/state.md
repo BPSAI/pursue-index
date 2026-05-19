@@ -1,6 +1,40 @@
 # Current State
 
-> Last updated: 2026-05-19 (Sprint 4d PR #67 — two fix-pass commits applied: Codex+nayru+vaivora bundle, then a follow-up for laverna SEC-P1-001 stderr truncation. 28 → 43 tests on the new modules.)
+> Last updated: 2026-05-19 (Sprint 4d MERGED as squash commit `48ccd51`. Feature lands dark — trigger is the next `data/manifests/latest.json` change on push to main.)
+
+## 2026-05-19 — Sprint 4d MERGED (PR #67 → `48ccd51`)
+
+Codex re-review on the fix-pass found no further issues. PR squash-merged to main; branch `sprint-4d-tranche-autoclose` deleted locally + remotely; `git remote prune origin` clean.
+
+### Files on main
+
+- `scripts/close_tranche_issues_on_promote.py` (339 lines)
+- `.github/workflows/close-tranche-on-promote.yml` (74 lines)
+- `tests/unit/test_close_tranche_issues_on_promote.py` (548 lines, 28 tests)
+- `tests/unit/test_close_tranche_on_promote_workflow.py` (98 lines, 7 tests)
+
+### Dark-code posture per [[feedback_ship_wired_and_validated]]
+
+The workflow is wired (push trigger + `data/manifests/latest.json` path filter + correct permissions + SHA-pinned actions) but has NOT yet produced output. **Trigger:** the next time the operator runs `pursue ingest run` and pushes the resulting manifest change to main, the workflow fires. There are no currently-open `tranche-detected` issues (last two — #63 + #64 — were manually closed in the prior session), so the first live firing will surface a `::notice::no open tranche-detected issue matches promoted sha <short>; nothing to close` log line. That's the expected baseline; the auto-close branch will exercise on the FIRST promote that lands while a `tranche-detected` issue is open (i.e., the operator runs `pursue ingest run` for a tranche surfaced by the 30-min poll cron during the same session window).
+
+### Validation chain so far
+
+- 35 new tests cover every branch of main() (happy path, no-match, missing manifest, corrupt manifest, gh-absent, list-rc-nonzero with stderr, list-rc-nonzero with empty stderr, close-rc-nonzero, comment-rc-nonzero, multi-match, non-int issue number, list+close unbounded-stderr truncation).
+- Producer/consumer contract pinned by `test_parse_new_sha_round_trips_changed_issue_body` (links `_poll_gh_io.changed_issue_body` ↔ `parse_new_sha_from_body`).
+- Workflow shape locked: trigger narrowing, permissions, env exports, SHA-pinning, concurrency `cancel-in-progress: False`, script invocation path.
+
+### Review cycle landed (full file-list pass per [[feedback_review_cycle_by_filelist]])
+
+- **Codex** initial: P1 (gh list failures masked) + P2 (close rc ignored). Both fixed.
+- **Codex** re-review (after fix-pass): no further findings. Clean.
+- **nayru**: 1 arch error (H1) + 2 P1 quality (H2/H3) + 4 P2 (M1/M3/M4/M5) + 1 L3 polish. All 8 applied.
+- **vaivora**: 1 H (round-trip test gap) + 1 M (workflow header docs). Both applied.
+- **laverna** (re-launched after first run timed out): 1 P1 (SEC-P1-001 stderr truncation per SEC-003 pattern). Applied. 2 P2 deferred with rationale (`GITHUB_REPOSITORY` shape validation, rate-limit back-off).
+
+### Test count delta (final)
+
+- Python suite: 574 → 610 (+36 from Sprint 4d).
+- arch check: 0 errors, 1 file-size warning on the script (339 vs 200 warn / 400 error).
 
 ## 2026-05-19 — Sprint 4d PR #67 second fix-pass (laverna stderr truncate)
 
@@ -150,10 +184,6 @@ All operator actions from this session are complete:
 - ✅ OpenAI API key
 - ✅ INDEXNOW_KEY + ownership file
 - ✅ CF Bot Management list
-
-### Sprint 4d — IN FLIGHT (PR #67)
-
-Shipped 2026-05-18 to PR #67 (`sprint-4d-tranche-autoclose`, commit `281e81d`). Awaiting Codex review. After merge, drops off this list.
 
 ### Tier-2 registry-signing RFC — DRAFTED (awaiting operator skim)
 
