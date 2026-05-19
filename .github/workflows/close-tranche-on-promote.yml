@@ -17,6 +17,15 @@ name: Close tranche-detected issues on promote
 # pushes (state.md sweeps, doc updates, code refactors) don't fire the
 # closer. Plus ``workflow_dispatch`` for manual re-runs.
 #
+# Sibling-on-same-path coordination (vaivora M1): on a manifest push,
+# ``indexnow-after-deploy.yml`` also fires. Both use disjoint
+# concurrency groups (indexnow-after-deploy / close-tranche-on-promote)
+# and run in parallel — that's intentional, neither writes back to the
+# repo and IndexNow has no overlap with the gh-issue API surface. A
+# future workflow added on this same path should remain disjoint.
+# (Wayback used to be on this trigger but moved to release+cron in
+# Sprint 4c per pursue-index commit 4099974.)
+#
 # Every branch in scripts/close_tranche_issues_on_promote.py exits 0 — a
 # parser hiccup must never fail the promote workflow. Worst case an issue
 # stays open until the next promote, and the operator closes it manually.

@@ -107,11 +107,13 @@ def build_comment_text(
     return "\n".join(lines)
 
 
-def _run_gh(args: list[str]) -> tuple[int, str]:
-    """Invoke ``gh <args>`` and return ``(returncode, stdout)``.
+def _run_gh(args: list[str]) -> tuple[int, str, str]:
+    """Invoke ``gh <args>`` and return ``(returncode, stdout, stderr)``.
 
     Wrapped so tests can monkeypatch the IO boundary without touching
-    the orchestration logic in ``main``.
+    the orchestration logic in ``main``. stderr is surfaced so callers
+    can include the gh diagnostic in ``::warning::`` annotations
+    (Codex PR #67 P1).
     """
     proc = subprocess.run(
         ["gh", *args],
@@ -119,15 +121,33 @@ def _run_gh(args: list[str]) -> tuple[int, str]:
         capture_output=True,
         text=True,
     )
-    return proc.returncode, proc.stdout
+    return proc.returncode, proc.stdout, proc.stderr
 
 
 # Module-level indirection so tests can swap ``_run_gh`` for a fake.
-_GhRunner = Callable[[list[str]], tuple[int, str]]
+_GhRunner = Callable[[list[str]], tuple[int, str, str]]
+
+
+class GhCommandFailed(RuntimeError):
+    """``gh`` returned a non-zero exit code.
+
+    Distinct from ``FileNotFoundError`` so ``main()`` can surface a
+    different warning (an actual API/auth failure is operationally
+    different from "gh isn't installed").
+    """
+
+
+# ``--limit 1000`` ceiling: ~30-min poll cadence × 24h × 7d = ~336
+# tranche-detected issues at the worst-case "operator AFK during upstream
+# churn" scenario. 1000 covers that with margin and still fits in a
+# single gh-list page (gh paginates above 1000 anyway). Below this, the
+# closer would silently truncate older issues out of the match set and
+# leave them open forever. (nayru/vaivora M3)
+_GH_LIST_LIMIT = "1000"
 
 
 def _list_open_tranche_issues(run_gh: _GhRunner) -> list[dict]:
-    rc, out = run_gh(
+    rc, out, err = run_gh(
         [
             "issue",
             "list",
@@ -138,10 +158,18 @@ def _list_open_tranche_issues(run_gh: _GhRunner) -> list[dict]:
             "--json",
             "number,title,body",
             "--limit",
-            "100",
+            _GH_LIST_LIMIT,
         ]
     )
-    if rc != 0 or not out.strip():
+    if rc != 0:
+        # Codex P1: don't mask gh failures as no-match. Auth errors,
+        # rate limits, transient 5xx, etc. need to be visible to
+        # operators or stale issues accumulate silently. nayru H2:
+        # include BOTH rc and stderr — they're independent diagnostic
+        # facts (rc-only failures with empty stderr happen on network
+        # drops; stderr-rich failures still need rc for grep-ability).
+        raise GhCommandFailed(f"rc={rc}: {err.strip() or '(no stderr)'}")
+    if not out.strip():
         return []
     try:
         data = json.loads(out)
@@ -154,10 +182,40 @@ def _close_with_comment(
     *,
     number: int,
     comment: str,
+    promoted_sha: str,
     run_gh: _GhRunner,
-) -> None:
-    run_gh(["issue", "comment", str(number), "--body", comment])
-    run_gh(["issue", "close", str(number)])
+) -> bool:
+    """Comment on the issue, then close it. Returns True only when
+    BOTH commands succeed.
+
+    Codex P2: previously the rc of either call was ignored and
+    ``main()`` always reported success — a real failure produced a
+    misleading ``::notice::closed`` log line. If the comment fails we
+    do NOT proceed to close (the operator-facing announcement is part
+    of the contract; orphaning the close is worse than leaving the
+    issue open one more day).
+
+    nayru M4: warning messages name the tranche short-sha so a
+    multi-match failure log surfaces which tranche each failure
+    belongs to without forcing the operator to cross-reference issue
+    number → body manually.
+    """
+    short = promoted_sha[:12]
+    rc_c, _, err_c = run_gh(["issue", "comment", str(number), "--body", comment])
+    if rc_c != 0:
+        print(
+            f"::warning::gh issue comment #{number} (tranche `{short}`) failed"
+            f" (rc={rc_c}): {err_c.strip()}"
+        )
+        return False
+    rc_x, _, err_x = run_gh(["issue", "close", str(number)])
+    if rc_x != 0:
+        print(
+            f"::warning::gh issue close #{number} (tranche `{short}`) failed"
+            f" (rc={rc_x}): {err_x.strip()}"
+        )
+        return False
+    return True
 
 
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -181,6 +239,46 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _close_matches(
+    *,
+    matches: list[dict],
+    promoted_sha: str,
+    comment: str,
+    run_gh: _GhRunner,
+) -> None:
+    """Comment + close every matching issue, emitting ``::notice::`` on
+    success and ``::warning::`` on per-call failure. Extracted from
+    ``main()`` to keep that function under the 50-line architecture
+    ceiling (nayru/arch-check H1).
+    """
+    short = promoted_sha[:12]
+    for issue in matches:
+        number = issue.get("number")
+        if not isinstance(number, int):
+            # nayru M5: gh's JSON schema isn't pinned; log if a future
+            # response shape ever serializes issue numbers as strings.
+            print(f"::warning::skipping issue with non-int number: {number!r}")
+            continue
+        try:
+            closed = _close_with_comment(
+                number=number,
+                comment=comment,
+                promoted_sha=promoted_sha,
+                run_gh=run_gh,
+            )
+        except FileNotFoundError:
+            # gh disappeared mid-run (extremely unusual). Log + bail
+            # without raising — partial progress is fine; remaining
+            # issues will close on the next promote.
+            print("::warning::gh CLI disappeared mid-run; bailing")
+            return
+        # Codex P2: only announce the close when both gh calls
+        # succeeded. ``_close_with_comment`` has already emitted a
+        # ``::warning::`` for the specific subcommand that failed.
+        if closed:
+            print(f"::notice::closed #{number} for tranche `{short}`")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     promoted = read_promoted_sha(args.manifest)
@@ -195,6 +293,13 @@ def main(argv: list[str] | None = None) -> int:
     except FileNotFoundError:
         print("::warning::gh CLI not available; skipping auto-close")
         return 0
+    except GhCommandFailed as exc:
+        # Codex P1: distinguish a real gh failure (auth, rate limit,
+        # transient API blip) from a legitimate no-match. Surface as a
+        # warning so the operator can investigate; never fail the
+        # workflow.
+        print(f"::warning::gh issue list failed; skipping auto-close: {exc}")
+        return 0
     matches = find_matching_issues(issues, promoted)
     if not matches:
         short = promoted[:12]
@@ -206,20 +311,9 @@ def main(argv: list[str] | None = None) -> int:
     comment = build_comment_text(
         promoted_sha=promoted, commit_sha=args.commit_sha, repo=args.repo
     )
-    for issue in matches:
-        number = issue.get("number")
-        if not isinstance(number, int):
-            continue
-        try:
-            _close_with_comment(number=number, comment=comment, run_gh=_run_gh)
-        except FileNotFoundError:
-            # gh disappeared mid-run (extremely unusual). Log + bail
-            # without raising — partial progress is fine; remaining
-            # issues will close on the next promote.
-            print("::warning::gh CLI disappeared mid-run; bailing")
-            return 0
-        short = promoted[:12]
-        print(f"::notice::closed #{number} for tranche `{short}`")
+    _close_matches(
+        matches=matches, promoted_sha=promoted, comment=comment, run_gh=_run_gh
+    )
     return 0
 
 

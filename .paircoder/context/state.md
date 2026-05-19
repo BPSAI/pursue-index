@@ -1,6 +1,46 @@
 # Current State
 
-> Last updated: 2026-05-18 (Sprint 4d shipped — PR #67 open, awaiting Codex review. Tier-2 registry signing RFC drafted next.)
+> Last updated: 2026-05-19 (Sprint 4d PR #67 fix-pass applied: Codex P1/P2 + nayru + vaivora findings bundled. 28 → 41 tests on the new modules.)
+
+## 2026-05-19 — Sprint 4d PR #67 fix-pass (bundled)
+
+Per [[feedback_bundled_commits]], one commit on top of `5bb7f8e` covering Codex P1/P2 + nayru/vaivora findings. (laverna timed out mid-investigation; nayru's review covered the security-adjacent concerns — command construction via list-of-args, permission scoping, action-pinning — at sufficient depth to proceed.)
+
+### Codex findings applied
+
+- **P1** — `gh issue list` failures no longer masquerade as no-match. New `GhCommandFailed` exception; main() catches it with a distinct `::warning::gh issue list failed; skipping auto-close: rc=N: <stderr>` line.
+- **P2** — `_close_with_comment` now returns `bool` based on actual rc of both `gh issue comment` and `gh issue close`. main() suppresses `::notice::closed` when either fails. Comment failure short-circuits (does NOT proceed to close, avoiding orphaned-close).
+
+### nayru P1 + P2 findings applied
+
+- **H1** (arch error) — extracted `_close_matches(...)` helper. `main()` now 35 lines (was 53; ceiling 50). arch check clean.
+- **H2** — `GhCommandFailed` message includes BOTH `rc=N` and stderr (or `(no stderr)` marker). Both diagnostic facts independent; both surface.
+- **H3** — P1/P2 regression tests now pin stderr text (`"401"`, `"422"`, `"403"`, `"Bad credentials"`, `"Resource not accessible"`, `"already closed"`) reaches the log line. New `test_main_gh_list_nonzero_with_empty_stderr_still_includes_rc` covers the rc-only case.
+- **M1** — workflow test asserts `cancel-in-progress is False` (pin against a future "make-it-snappy" flip).
+- **M3** — `_GH_LIST_LIMIT` bumped 100 → 1000 with a comment explaining the ceiling (worst-case AFK-week posture).
+- **M4** — `_close_with_comment` warnings now include `tranche <short>` so multi-match failure logs are self-describing.
+- **M5** — non-int issue numbers emit `::warning::skipping issue with non-int number: <value!r>` instead of silent skip.
+- **L3** — `test_parse_new_sha_picks_first_when_body_has_two` rewritten so both candidate lines start with `* new_sha:` (legitimately exercises first-match ordering, not just the `^` anchor).
+
+### vaivora H/M findings applied
+
+- **H1** — new `test_parse_new_sha_round_trips_changed_issue_body` test imports `scripts/_poll_gh_io.changed_issue_body()` and feeds its output into `parse_new_sha_from_body()`. Round-trip equality pinned for both the bootstrap and non-bootstrap body shapes. Closes the producer/consumer-coupled-but-not-locked gap.
+- **M1** — workflow yaml header now documents the sibling-on-same-path (indexnow-after-deploy, fires concurrently, disjoint concurrency group; wayback moved off this trigger in Sprint 4c).
+
+### Test count delta (fix-pass)
+
+- New tests: 28 → 41 on the Sprint 4d modules (+13 across both files); python suite 605 → 608.
+- All 608 green. arch check: 0 errors, 1 warning (file size 321 vs 200 warn; well under 400 error).
+
+### Not applied (notes only)
+
+- nayru M2 (workflow uses `GH_TOKEN` not `token:` on checkout) — intentional asymmetry, no change.
+- nayru L1 (regex anchor) — verified correct, no change.
+- nayru L2 (`collections.abc.Callable`) — minor convention nit, deferred.
+- vaivora M2 (concurrency disjointness with poll-pursue) — sha-match design is the load-bearing protection; documented in the round-trip test.
+- vaivora L1 (sys.path manipulation) — matches established repo-wide pattern across 15+ test files.
+
+
 
 ## 2026-05-18 — Tier-2 registry-signing RFC
 

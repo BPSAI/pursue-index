@@ -78,9 +78,16 @@ def test_action_versions_are_sha_pinned() -> None:
 def test_concurrency_group_prevents_overlap() -> None:
     """A second promote landing within seconds of the first should
     queue (or skip), not race the first's close.
+
+    nayru M1: ``cancel-in-progress: false`` is load-bearing here — a
+    flip to True would let a fast second push cancel the first run
+    mid-close, leaving an issue partially-commented or
+    not-closed-but-commented. Pin it explicitly so a future
+    "make-it-snappy" refactor surfaces as a test failure.
     """
     concurrency = _load()["concurrency"]
     assert concurrency["group"] == "close-tranche-on-promote"
+    assert concurrency["cancel-in-progress"] is False
 
 
 def test_invokes_close_script_with_default_manifest() -> None:
