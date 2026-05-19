@@ -1,6 +1,39 @@
 # Current State
 
-> Last updated: 2026-05-19 (Sprint 4e PR #68 2nd fix-pass — Codex P1 #3 addressed. Trust anchor moved from `gh api .verification.verified` (too permissive — accepts any GitHub-registered signing key) to a GitHub Actions secret pinning exactly the operator key.)
+> Last updated: 2026-05-19 (Sprint 4e MERGED as squash commit `b76c2c8`. Feature lands dark — trigger is the operator completing the 5 setup steps + signing the baseline tag.)
+
+## 2026-05-19 — Sprint 4e MERGED (PR #68 → `b76c2c8`)
+
+Sprint 4e went through THREE Codex review cycles (initial + 2 fix-pass rounds) before clean:
+
+- **Initial review** caught P1 #1 (verify not bound to current registry commit) + P1 #2 (trust anchor in mutable repo state).
+- **Fix-pass #1** (commit `f2f6e7d`) addressed those + the in-house triad (nayru/laverna/vaivora) findings — RFC 6962 domain separation, freshness binding, bot-writer root refresh, manifest in path filter, allow_nan, encoding=utf-8, etc.
+- **Codex P1 #3** then surfaced: `gh api .verification.verified` only confirms "valid against ANY GitHub-registered signing key" — a repo:write attacker with their *own* registered Signing key satisfies that check.
+- **Fix-pass #2** (commit `a4fc10e`) pinned trust to a GitHub Actions secret `OPERATOR_ALLOWED_SIGNERS`. Only repo admin/maintain can modify it.
+- **Codex P2s** then surfaced two stale-doc bugs in the runbook (still referenced "GH-API anchor" + rotation playbook only updated allowed-signers.txt, not the secret).
+- **Fix-pass #3** (commit `d5ae213`) corrected those.
+- Squash-merged as `b76c2c8` per operator direction (no post-merge review cycle).
+
+### Files on main
+
+- `scripts/registry_root.py` — RFC 6962 Merkle root over canonical-JSON registry rows.
+- `scripts/verify_registry_root.py` — re-derive + compare to root.txt + divergence locator.
+- `.github/workflows/registry-root-on-promote.yml` — push trigger, allowed to fail red.
+- `.github/workflows/verify-assets-daily.yml` (modified) — adds tag-verify step against `OPERATOR_ALLOWED_SIGNERS` secret + freshness binding + signing-failure / signing-stale issue lanes.
+- `.github/workflows/poll-pursue.yml` (modified) — commit step refreshes root in lockstep.
+- `docs/allowed-signers.txt` — reader-convenience documentation (not the CI trust anchor).
+- `docs/runbooks/registry-root-signing.md` — full operator playbook.
+- `data/registry-root.txt` — baseline `994e9edac7396c1d03bba3b0d17bfabe1f04bf1d51c543807010da1a3bb3369d` (230 rows).
+- `data/registry-root-manifest.txt` — tab-separated receipt.
+
+### Dark-code posture per [[feedback_ship_wired_and_validated]]
+
+The on-promote workflow is wired and immediately functional (verifies root-file freshness on every registry push). The tier-2 signature lane is in `signing_state=bootstrap` mode until the operator completes setup. **Operator action items below.**
+
+### Test count (final)
+
+- Python suite: 574 → 663 (+89 over Sprint 4d + 4e combined).
+- arch check: 0 errors. File-size warnings only on `registry_root.py` (224 lines) and `verify_registry_root.py` (213 lines) — under 400 error threshold.
 
 ## 2026-05-19 — Sprint 4e PR #68 2nd fix-pass (Codex P1 #3)
 
