@@ -51,7 +51,7 @@ from registry_root import (  # noqa: E402
     canonicalize_row,
     compute_registry_root,
     leaf_hash,
-    _read_registry_rows,
+    read_registry_rows,
 )
 
 _REPO_ROOT = _SCRIPTS_DIR.parent
@@ -65,7 +65,7 @@ _HEX_ROOT_RE = re.compile(r"^[0-9a-f]{64}$")
 def read_root_file(root_path: Path) -> str | None:
     """Return the 64-hex stored root, or None if missing/corrupt."""
     try:
-        contents = root_path.read_text().strip()
+        contents = root_path.read_text(encoding="utf-8").strip()
     except OSError:
         return None
     return contents if _HEX_ROOT_RE.match(contents) else None
@@ -89,7 +89,7 @@ def find_first_divergent_index(
 
 
 def _leaves_from_registry(registry_path: Path) -> list[bytes]:
-    rows = _read_registry_rows(registry_path)
+    rows = read_registry_rows(registry_path)
     return [leaf_hash(canonicalize_row(row)) for row in rows]
 
 
@@ -97,9 +97,26 @@ def _report_divergence(
     *, current_registry: Path, signed_source: Path
 ) -> None:
     """Walk the two leaf lists and surface the first divergent index +
-    row counts. Side-effects: ``print()`` only."""
-    current_leaves = _leaves_from_registry(current_registry)
-    expected_leaves = _leaves_from_registry(signed_source)
+    row counts. Side-effects: ``print()`` only.
+
+    Catches malformed signed-source bytes (nayru M1.2) — `git show
+    <tag>:...` output can be partially truncated by a network blip
+    or a buggy redirect. Don't crash; degrade to "row counts only"
+    with a clear warning.
+    """
+    try:
+        current_leaves = _leaves_from_registry(current_registry)
+    except ValueError as exc:
+        print(f"::warning::current registry is malformed; cannot locate divergence: {exc}")
+        return
+    try:
+        expected_leaves = _leaves_from_registry(signed_source)
+    except ValueError as exc:
+        print(
+            f"::warning::signed-source {signed_source} is malformed JSON,"
+            f" skipping divergence locator: {exc}"
+        )
+        return
     idx = find_first_divergent_index(current_leaves, expected_leaves)
     print(
         f"registry row count: current={len(current_leaves)},"
@@ -145,7 +162,22 @@ def main(argv: list[str] | None = None) -> int:
             " re-run scripts/registry_root.py to refresh"
         )
         return 1
-    recomputed, row_count, first_ts, last_ts = compute_registry_root(args.registry)
+    try:
+        recomputed, row_count, first_ts, last_ts = compute_registry_root(args.registry)
+    except FileNotFoundError:
+        # nayru M1.1: missing registry file gets a stack trace today.
+        # Surface as an actionable ::error:: instead so the operator
+        # can fix --registry pathing without parsing a traceback.
+        print(
+            f"::error::registry file not found at {args.registry};"
+            " check --registry path"
+        )
+        return 1
+    except ValueError as exc:
+        # Malformed JSON in the registry — surface row number from
+        # the underlying error.
+        print(f"::error::registry is malformed: {exc}")
+        return 1
     if stored == recomputed:
         print(
             f"::notice::registry-root verified: {stored[:12]}... over"

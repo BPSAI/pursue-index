@@ -29,6 +29,12 @@ on:
     paths:
       - 'data/asset-bytes-registry.jsonl'
       - 'data/registry-root.txt'
+      # vaivora M1: manifest churn is also tier-2-relevant — a tamper
+      # of just the receipt without touching root.txt or the registry
+      # would otherwise slip past this trigger. The verifier itself
+      # doesn't yet read the manifest, but the workflow firing on
+      # manifest changes leaves room for that follow-up.
+      - 'data/registry-root-manifest.txt'
   workflow_dispatch:
 
 permissions:

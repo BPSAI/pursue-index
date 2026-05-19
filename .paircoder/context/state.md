@@ -1,6 +1,42 @@
 # Current State
 
-> Last updated: 2026-05-19 (Sprint 4d MERGED as squash commit `48ccd51`. Feature lands dark — trigger is the next `data/manifests/latest.json` change on push to main.)
+> Last updated: 2026-05-19 (Sprint 4e PR #68 fix-pass — Codex P1 #1 + #2 + nayru + laverna + vaivora bundled. RFC 6962 domain separation, GitHub-API trust anchor, freshness binding, bot-writer root refresh.)
+
+## 2026-05-19 — Sprint 4e PR #68 fix-pass (bundled, post-triad-review)
+
+Codex came back with two P1s in the same vein as findings my own dispatched triad surfaced; bundled everything into a single fix-pass commit per [[feedback_bundled_commits]].
+
+### Codex P1 findings (both applied)
+
+- **P1 #1** — Bind verify to current registry commit. The daily verify previously passed if ANY `registry-root-*` tag had a valid signature, even if the signed tag pointed at an older root than HEAD. New: extract `git show <tag>:data/registry-root.txt` and compare to current HEAD's root; on mismatch, emit `signing_state=stale` and file a `signing-stale` issue (distinct from `signing-failure`).
+- **P1 #2** — Move trust anchor out of mutable repo state. `docs/allowed-signers.txt` is repo-tracked and writable by anyone with repo:write — exactly the threat tier-2 exists to detect. Switched the CI lane to `gh api repos/.../git/tags/$tag_object_sha --jq '.verification.verified'`. Trust anchor is now GitHub's profile-level Signing keys, which a repo:write attacker cannot modify. `docs/allowed-signers.txt` reduced to reader-convenience docs only.
+
+### nayru / laverna / vaivora bundled (15 applied, 3 deferred)
+
+- **nayru H1.1 + laverna P1** — RFC 6962 domain separation (`0x00` prefix for leaves, `0x01` for internal nodes). Defeats the Bitcoin CVE-2012-2459 2nd-preimage class. New tests prove `[a,b,c]` and `[a,b,c,c]` now produce different roots. Live baseline root changed: `913e37d224dc...` → `994e9edac739...`.
+- **nayru H1.2 + vaivora H1** — Bot writers refresh root in lockstep. `poll-pursue.yml` + `verify-assets-daily.yml` commit steps now run `python scripts/registry_root.py` before staging the registry, and stage `data/registry-root.txt` + `data/registry-root-manifest.txt` alongside. The on-promote workflow stays green on bot-driven appends; the operator sees a `signing-stale` issue prompting them to sign a fresh tag.
+- **nayru M1.1** — Missing registry file emits actionable `::error::registry file not found at <path>` instead of stack trace.
+- **nayru M1.2** — Malformed `--signed-source` emits `::warning::` + skips divergence locator instead of crashing.
+- **nayru M1.3** — `null` `fetched_at` maps to `(unknown)` instead of literal `"None"`.
+- **nayru M1.4** — `encoding="utf-8"` explicit on all `read_text` / `write_text` in both scripts.
+- **nayru M2.1** — `_read_registry_rows` renamed `read_registry_rows` (publicly importable).
+- **laverna P2** — `allow_nan=False` rejects `NaN`/`Infinity` at canonicalization time.
+- **vaivora M1** — `data/registry-root-manifest.txt` added to on-promote workflow's path filter.
+
+### Not applied (deferred with rationale)
+
+- laverna P2 (bootstrap-pending issue) — runbook already directs the operator clearly; one-time setup. Issue-spam not worth the noise.
+- nayru M1.5/M1.6 (additional divergence + truncated-hex tests) — current coverage is sufficient for the integrity-critical paths; defer.
+- vaivora M2 (`pursue verify registry-root` CLI subcommand) — carry-over; defer until the operator has run the manual `python scripts/verify_registry_root.py` path enough to feel CLI ergonomics.
+- nayru M2.2 (fsync atomic write) — matches existing project precedent; no action.
+- nayru M2.3 (RFC 8785 docstring tightening) — applied (RFC 8785 reference reframed to subset claim).
+
+### Test count delta (fix-pass)
+
+- python suite: 653 → 662 (+9).
+- arch check: 0 errors on all files; 2 file-size warnings (`registry_root.py` 224 / `verify_registry_root.py` 213) — well under 400 error threshold.
+
+## 2026-05-19 — Sprint 4d MERGED (PR #67 → `48ccd51`)
 
 ## 2026-05-19 — Sprint 4d MERGED (PR #67 → `48ccd51`)
 

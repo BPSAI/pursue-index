@@ -200,6 +200,60 @@ def test_main_mismatch_reports_divergence_when_signed_source_provided(
     assert "3" in out  # the row count
 
 
+def test_main_missing_registry_exits_nonzero_with_actionable_message(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """nayru M1.1: a missing registry file used to surface as a bare
+    Python traceback. Wrap in ``::error::`` with a clear "check path"
+    nudge so the operator doesn't have to parse a stack trace.
+    """
+    root_file = _write_root_file(tmp_path / "data/registry-root.txt", "ab" * 32)
+    exit_code = vrr.main(
+        [
+            "--registry",
+            str(tmp_path / "data/no-such-file.jsonl"),
+            "--root",
+            str(root_file),
+            "--signed-source",
+            "",
+        ]
+    )
+    assert exit_code != 0
+    out = capsys.readouterr().out
+    assert "::error::" in out
+    assert "registry file not found" in out
+
+
+def test_main_malformed_signed_source_emits_warning_not_crash(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """nayru M1.2: ``git show <tag>:...`` can deliver truncated bytes
+    on a network blip. Don't crash with a ValueError stack trace;
+    degrade to "skip divergence locator" with a clear warning.
+    """
+    rows = [{"card_id": "a", "fetched_at": "2026-05-01T00:00:00Z"}]
+    registry = _write_registry(tmp_path / "data/asset-bytes-registry.jsonl", rows)
+    root_file = _write_root_file(tmp_path / "data/registry-root.txt", "00" * 32)
+    # Truncated JSONL — looks like a partial fetch.
+    signed = tmp_path / "signed-truncated.jsonl"
+    signed.write_text('{"card_id":"trunc')  # mid-string, no closing brace
+    exit_code = vrr.main(
+        [
+            "--registry",
+            str(registry),
+            "--root",
+            str(root_file),
+            "--signed-source",
+            str(signed),
+        ]
+    )
+    # Still exit non-zero because root mismatched, but no crash.
+    assert exit_code != 0
+    out = capsys.readouterr().out
+    assert "::warning::" in out
+    assert "malformed" in out.lower()
+
+
 def test_main_no_signed_tag_skips_divergence_locator_gracefully(
     tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:

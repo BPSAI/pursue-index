@@ -23,9 +23,33 @@ Two workflows enforce this:
   `git tag -v` step on the latest `registry-root-*` tag. Opens a
   `signing-failure` issue on failure.
 
+## Trust anchor
+
+CI verification (the `verify-assets-daily.yml` signing step) trusts
+**GitHub's view of your account-level signing keys**, not the
+repo-tracked `docs/allowed-signers.txt`. The repo file is mutable
+by anyone with repo:write — exactly the threat the tier-2 layer
+exists to detect — so it cannot be the trust anchor for the CI
+lane. The GH-API anchor (`.verification.verified` on the tag
+object) resolves against keys you've registered in GitHub Settings
+→ SSH and GPG keys → **Signing keys** (distinct key-type from
+"Authentication keys" used for git push).
+
+`docs/allowed-signers.txt` remains in the repo as **reader
+convenience** for offline `git tag -v`, with a note pointing the
+reader at `https://github.com/<owner>.keys` for production-grade
+cross-check.
+
 ## One-time setup
 
-### 1. Configure git for SSH signing
+### 1. Upload your SSH signing key to GitHub
+
+GitHub Settings → SSH and GPG keys → New SSH key. Choose **Key type:
+Signing Key**. This is separate from any "Authentication" key you
+already use for git push — both can be the same underlying pubkey,
+but must be registered twice under the two key-types.
+
+### 2. Configure git for SSH signing
 
 ```bash
 git config --global gpg.format ssh
@@ -36,7 +60,7 @@ git config --global tag.gpgsign true                        # auto-sign every ta
 The `gpg.format=ssh` shape means git uses the SSH agent (yubikey
 included) for signing, not GPG. No GPG key material needed.
 
-### 2. Populate `docs/allowed-signers.txt`
+### 3. Populate `docs/allowed-signers.txt` (reader convenience)
 
 Replace the placeholder line with your real ssh-ed25519 public key:
 
@@ -48,10 +72,11 @@ Source options:
 * `cat ~/.ssh/id_ed25519.pub` (or the corresponding `.pub` for whichever key you signed with).
 * `curl -s https://github.com/Buschleague.keys` to fetch GitHub's record of your keys.
 
-Commit + push. From this commit forward, `git tag -v` (under the
-allowed-signers config) will accept signatures from this key.
+Commit + push. Readers can now run local `git tag -v` against this
+file for offline verification; the CI lane uses the GH-API anchor
+described above regardless.
 
-### 3. Sign the baseline registry-root tag
+### 4. Sign the baseline registry-root tag
 
 The current registry has 230 rows. Sign the current root state once,
 then per-promote signings extend the chain.
@@ -76,7 +101,7 @@ The tag name format is `registry-root-YYYY-MM-DD-HHMM[-baseline]`
 (UTC; minute-level resolution). The `-baseline` suffix is convention
 for the first signed root only — subsequent tags drop it.
 
-### 4. Optional: configure tag-pattern protection on GitHub
+### 5. Optional: configure tag-pattern protection on GitHub
 
 In repo settings → Rules → Rulesets, add a rule that prevents
 force-deletion of tags matching `registry-root-*`. This stops an
@@ -138,13 +163,22 @@ still hashes to that root.
 
 ### Workflow `registry-root-on-promote` failed red
 
-The bumped registry and the root file are not in sync. Two paths:
+The bumped registry and the root file are not in sync. Three paths:
 
-1. You edited the registry but forgot `python scripts/registry_root.py`.
-   Re-run it, commit the freshly-bumped root file, and push.
-2. The registry was tampered with (the bytes you committed are not
-   the bytes a reader sees). Roll the registry back from the latest
-   signed tag's tree:
+1. You (the operator) edited the registry but forgot
+   `python scripts/registry_root.py`. Re-run it, commit the
+   freshly-bumped root file, and push.
+2. **A bot writer landed a registry row without refreshing the
+   root.** This should not happen after Sprint 4e — both
+   `poll-pursue.yml` and `verify-assets-daily.yml` commit steps
+   now run `registry_root.py` before staging. But if a future PR
+   introduces a third registry writer that misses this step, this
+   is what it'll look like. Add the missing
+   `python scripts/registry_root.py` step + stage the root files
+   alongside.
+3. **The registry was tampered with** (the bytes you committed are
+   not the bytes a reader sees). Roll the registry back from the
+   latest signed tag's tree:
    ```bash
    git show registry-root-<latest>:data/asset-bytes-registry.jsonl > \
        data/asset-bytes-registry.jsonl
@@ -154,21 +188,21 @@ The bumped registry and the root file are not in sync. Two paths:
 
 ### Workflow `verify-assets-daily` opened a `signing-failure` issue
 
-`git tag -v` failed on the latest tag. Three paths:
+GitHub reports the latest signed tag's `.verification.verified` as
+false. Three paths:
 
-1. **Key rotation in progress.** You're mid-flight on a key swap —
-   the new key landed in `allowed-signers.txt` but the latest tag
-   was signed with the old key (or vice versa). Re-sign the latest
-   tag with the active key:
+1. **Key rotation in progress.** You uploaded a new Signing key to
+   GitHub but the latest tag was signed with the old key (or vice
+   versa). Re-sign the latest tag with the active key:
    ```bash
    git tag -d registry-root-<HHMM>      # delete local
    git push --delete origin registry-root-<HHMM>   # delete remote
    git tag -s registry-root-<HHMM> <original_commit>
    git push --tags
    ```
-2. **`allowed-signers.txt` truncated or corrupted.** Restore the
-   file from git history; the tag will verify on the next daily
-   tick.
+2. **Signing key removed from GitHub Settings.** Restore it under
+   Settings → SSH and GPG keys → Signing keys. The tag will verify
+   on the next daily tick.
 3. **Genuine tampering.** Assume the worst. The tag itself was
    replaced by an attacker who had push access. Roll the repo back
    to the last commit before the tag landed:
@@ -177,6 +211,27 @@ The bumped registry and the root file are not in sync. Two paths:
    # find the last commit whose signature was valid
    ```
    Treat this as a security incident.
+
+### Workflow `verify-assets-daily` opened a `signing-stale` issue
+
+This is the **expected steady-state** signal after a bot writer
+(silent-overlay catch from `verify-assets-daily.yml`, asset archive
+from `poll-pursue.yml`) lands a new registry row. The bot refreshes
+`data/registry-root.txt` in lockstep (so on-promote stays green),
+but only you can sign a fresh `registry-root-*` tag. Until you do,
+the daily verify reports `signing_state=stale` and files this
+issue.
+
+**Response**: sign a fresh tag against current HEAD:
+
+```bash
+git tag -s registry-root-$(date -u +%Y-%m-%d-%H%M) HEAD
+git push --tags
+```
+
+The next daily cron tick sees the signed root match the current
+root and does not file a new issue (the existing one stays open
+until you close it or auto-close it via gh).
 
 ## Key rotation playbook
 

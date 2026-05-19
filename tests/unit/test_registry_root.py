@@ -72,49 +72,92 @@ def test_canonicalize_row_returns_bytes_not_str() -> None:
 # --------------------------- leaf_hash + merkle ----------------------------
 
 
-def test_leaf_hash_is_sha256_of_canonical_bytes() -> None:
+def test_leaf_hash_uses_rfc_6962_domain_separation() -> None:
+    """RFC 6962 §2.1: leaf hashes are prefixed with 0x00 to defeat
+    second-preimage attacks where a leaf could be confused with an
+    internal node (Bitcoin CVE-2012-2459).
+    """
     row = {"k": "v"}
     canonical = rr.canonicalize_row(row)
-    assert rr.leaf_hash(canonical) == hashlib.sha256(canonical).digest()
+    expected = hashlib.sha256(b"\x00" + canonical).digest()
+    assert rr.leaf_hash(canonical) == expected
 
 
 def test_merkle_root_single_leaf_equals_that_leaf() -> None:
-    leaf = hashlib.sha256(b"only").digest()
+    """RFC 6962 §2.1: single-leaf tree's root IS the leaf hash."""
+    leaf = rr.leaf_hash(b"only")
     assert rr.build_merkle_root([leaf]) == leaf
 
 
-def test_merkle_root_two_leaves_is_parent_hash() -> None:
-    leaf_a = hashlib.sha256(b"a").digest()
-    leaf_b = hashlib.sha256(b"b").digest()
-    expected = hashlib.sha256(leaf_a + leaf_b).digest()
+def test_merkle_root_two_leaves_uses_internal_node_prefix() -> None:
+    """RFC 6962 §2.1: internal nodes prefix with 0x01."""
+    leaf_a = rr.leaf_hash(b"a")
+    leaf_b = rr.leaf_hash(b"b")
+    expected = hashlib.sha256(b"\x01" + leaf_a + leaf_b).digest()
     assert rr.build_merkle_root([leaf_a, leaf_b]) == expected
 
 
-def test_merkle_root_three_leaves_duplicates_last() -> None:
-    """Odd count at any level: duplicate the last leaf (Bitcoin-style)
-    so the tree stays balanced. Three leaves → tree is:
-
-           root
-          /    \\
-        ab      cc
-       /  \\    /  \\
-      a    b  c    c
+def test_merkle_root_three_leaves_rfc_6962_split() -> None:
+    """RFC 6962 §2.1 split: an odd-leaf tree splits at the largest
+    power of 2 less than the leaf count. For 3 leaves: split at 2,
+    left subtree = root([a,b]), right subtree = c (single leaf).
+    NO duplication — that's the whole point of RFC 6962 over the
+    Bitcoin construction.
     """
-    a = hashlib.sha256(b"a").digest()
-    b = hashlib.sha256(b"b").digest()
-    c = hashlib.sha256(b"c").digest()
-    ab = hashlib.sha256(a + b).digest()
-    cc = hashlib.sha256(c + c).digest()
-    expected = hashlib.sha256(ab + cc).digest()
+    a = rr.leaf_hash(b"a")
+    b = rr.leaf_hash(b"b")
+    c = rr.leaf_hash(b"c")
+    left = hashlib.sha256(b"\x01" + a + b).digest()
+    right = c
+    expected = hashlib.sha256(b"\x01" + left + right).digest()
     assert rr.build_merkle_root([a, b, c]) == expected
 
 
 def test_merkle_root_four_leaves_is_balanced() -> None:
-    leaves = [hashlib.sha256(s).digest() for s in (b"a", b"b", b"c", b"d")]
-    ab = hashlib.sha256(leaves[0] + leaves[1]).digest()
-    cd = hashlib.sha256(leaves[2] + leaves[3]).digest()
-    expected = hashlib.sha256(ab + cd).digest()
+    leaves = [rr.leaf_hash(s) for s in (b"a", b"b", b"c", b"d")]
+    ab = hashlib.sha256(b"\x01" + leaves[0] + leaves[1]).digest()
+    cd = hashlib.sha256(b"\x01" + leaves[2] + leaves[3]).digest()
+    expected = hashlib.sha256(b"\x01" + ab + cd).digest()
     assert rr.build_merkle_root(leaves) == expected
+
+
+def test_merkle_root_rejects_bitcoin_2nd_preimage(tmp_path: Path) -> None:
+    """The Bitcoin CVE-2012-2459 attack: [a,b,c] and [a,b,c,c]
+    produce the same root under the duplicate-last construction.
+
+    RFC 6962's split-at-largest-pow-2 construction does NOT duplicate
+    leaves, so these two trees produce DIFFERENT roots. This is the
+    cryptographic property the registry-signing integrity layer
+    depends on.
+    """
+    a = rr.leaf_hash(b"a")
+    b = rr.leaf_hash(b"b")
+    c = rr.leaf_hash(b"c")
+    root_three = rr.build_merkle_root([a, b, c])
+    root_three_with_dup = rr.build_merkle_root([a, b, c, c])
+    assert root_three != root_three_with_dup
+
+
+def test_merkle_root_rejects_2nd_preimage_via_compute_registry_root(
+    tmp_path: Path,
+) -> None:
+    """End-to-end: a registry with N rows and a registry where the
+    last row is duplicated produce DIFFERENT roots under the
+    end-to-end ``compute_registry_root`` path. This locks the
+    attack scenario laverna P1 + nayru H1.1 identified.
+    """
+    rows = [
+        {"card_id": "a", "fetched_at": "2026-05-01T00:00:00Z"},
+        {"card_id": "b", "fetched_at": "2026-05-02T00:00:00Z"},
+        {"card_id": "c", "fetched_at": "2026-05-03T00:00:00Z"},
+    ]
+    reg_normal = _write_registry(tmp_path / "normal/asset-bytes-registry.jsonl", rows)
+    reg_dup = _write_registry(
+        tmp_path / "dup/asset-bytes-registry.jsonl", [*rows, rows[-1]]
+    )
+    root_normal, *_ = rr.compute_registry_root(reg_normal)
+    root_dup, *_ = rr.compute_registry_root(reg_dup)
+    assert root_normal != root_dup
 
 
 def test_merkle_root_empty_raises() -> None:
@@ -219,6 +262,44 @@ def test_compute_registry_root_handles_row_without_fetched_at(tmp_path: Path) ->
     _, _, first_ts, last_ts = rr.compute_registry_root(registry)
     assert first_ts == "(unknown)"
     assert last_ts == "(unknown)"
+
+
+def test_compute_registry_root_handles_null_fetched_at(tmp_path: Path) -> None:
+    """A row with ``"fetched_at": null`` (JSON null → Python None)
+    must surface as ``(unknown)`` rather than the literal string
+    ``"None"`` (nayru M1.3). Today no row has a null fetched_at;
+    forward-looking infrastructure.
+    """
+    rows = [{"card_id": "null-ts", "fetched_at": None}]
+    registry = _write_registry(tmp_path / "asset-bytes-registry.jsonl", rows)
+    _, _, first_ts, last_ts = rr.compute_registry_root(registry)
+    assert first_ts == "(unknown)"
+    assert last_ts == "(unknown)"
+
+
+def test_canonicalize_row_rejects_nan_and_infinity() -> None:
+    """laverna P2: NaN/Infinity produce non-standard JSON that's not
+    cross-platform reproducible. ``allow_nan=False`` makes this
+    fail loud at canonicalization time rather than silently producing
+    bytes a non-Python verifier can't reproduce.
+    """
+    import math
+
+    with pytest.raises(ValueError):
+        rr.canonicalize_row({"score": math.nan})
+    with pytest.raises(ValueError):
+        rr.canonicalize_row({"score": math.inf})
+
+
+def test_read_registry_rows_is_publicly_importable() -> None:
+    """nayru M2.1: was ``_read_registry_rows`` (underscore = private)
+    but ``verify_registry_root`` reaches into it as if it were
+    public. Rename to ``read_registry_rows`` so the public contract
+    is honest. Tests pin the new name; old name removed so callers
+    must update.
+    """
+    assert hasattr(rr, "read_registry_rows")
+    assert not hasattr(rr, "_read_registry_rows")
 
 
 # --------------------------- write_root_files -------------------------------

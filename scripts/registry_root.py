@@ -47,6 +47,16 @@ DEFAULT_ROOT = _REPO_ROOT / "data" / "registry-root.txt"
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "registry-root-manifest.txt"
 
 
+# RFC 6962 (Certificate Transparency) domain-separation prefixes.
+# Leaves are hashed with 0x00 prepended; internal nodes are hashed
+# with 0x01 prepended. This defeats the Bitcoin-style 2nd-preimage
+# attack (CVE-2012-2459) where a registry of N rows and a registry
+# of N+1 rows formed by duplicating the last leaf can produce the
+# same Merkle root.
+_LEAF_PREFIX = b"\x00"
+_NODE_PREFIX = b"\x01"
+
+
 def canonicalize_row(row: dict) -> bytes:
     """Deterministic canonical encoding of a single registry row.
 
@@ -54,48 +64,67 @@ def canonicalize_row(row: dict) -> bytes:
     strip whitespace so the bytes are exact. ``ensure_ascii=False``
     preserves any non-ASCII codepoints literally — escaping them to
     ``\\uXXXX`` would make canonical bytes Python-version-sensitive
-    (escapes lowercase changed across versions historically). UTF-8
-    encoding lands the final bytes; this matches RFC 8785 (JSON
-    Canonicalization Scheme) closely enough for our purposes.
+    (escapes lowercase changed across versions historically).
+    ``allow_nan=False`` rejects ``NaN``/``Infinity`` — non-standard
+    JSON, Python-only, cross-verifier-fatal (laverna P2). UTF-8
+    encoding lands the final bytes.
+
+    Compatible with RFC 8785 on the subset of types this registry
+    uses today (``str``/``int``/``bool`` only). Future schema
+    extensions adding ``float``/``Decimal``/``null`` numeric values
+    would need to revisit this encoding choice.
     """
     return json.dumps(
-        row, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        row,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
     ).encode("utf-8")
 
 
 def leaf_hash(canonical_bytes: bytes) -> bytes:
-    """sha256 over the canonical row bytes. Returns 32 raw bytes."""
-    return hashlib.sha256(canonical_bytes).digest()
+    """RFC 6962 leaf hash: sha256(0x00 || canonical). Returns 32 raw
+    bytes. The 0x00 prefix is what separates "leaf semantics" from
+    "internal-node semantics" so an attacker can't repurpose internal
+    bytes as leaves (or vice versa)."""
+    return hashlib.sha256(_LEAF_PREFIX + canonical_bytes).digest()
 
 
 def build_merkle_root(leaves: list[bytes]) -> bytes:
-    """Bottom-up binary Merkle tree. Odd-count levels duplicate the
-    last node (Bitcoin-style) so the tree stays balanced.
+    """RFC 6962 §2.1 Merkle Hash. Split at the largest power of 2
+    strictly less than ``len(leaves)``, recurse on each half, combine
+    with the internal-node prefix. NO duplicate-last — odd subtree
+    sizes are handled by the recursive split, which is what defeats
+    the Bitcoin 2nd-preimage attack.
 
     Refuses empty input — a Merkle root over nothing is meaningless
     and almost certainly an operator mistake.
     """
     if not leaves:
         raise ValueError("cannot build Merkle root over empty leaf list")
-    level = list(leaves)
-    while len(level) > 1:
-        if len(level) % 2 == 1:
-            level.append(level[-1])
-        next_level = [
-            hashlib.sha256(level[i] + level[i + 1]).digest()
-            for i in range(0, len(level), 2)
-        ]
-        level = next_level
-    return level[0]
+    if len(leaves) == 1:
+        return leaves[0]
+    # Largest power of 2 strictly less than n.
+    n = len(leaves)
+    k = 1
+    while k * 2 < n:
+        k *= 2
+    left = build_merkle_root(leaves[:k])
+    right = build_merkle_root(leaves[k:])
+    return hashlib.sha256(_NODE_PREFIX + left + right).digest()
 
 
-def _read_registry_rows(registry_path: Path) -> list[dict]:
+def read_registry_rows(registry_path: Path) -> list[dict]:
     """Parse JSONL, skipping blank lines (file-tail whitespace is not
     data). Raises ValueError with a row number on the first malformed
     line so the operator can fix it without scanning the whole file.
+
+    Public per nayru M2.1 — the verifier module depends on this
+    contract.
     """
     rows: list[dict] = []
-    text = registry_path.read_text()
+    text = registry_path.read_text(encoding="utf-8")
     # ``row_no`` counts only non-blank lines; the error message uses
     # that number so it matches the row position the operator sees in
     # a JSONL-aware viewer.
@@ -113,16 +142,28 @@ def _read_registry_rows(registry_path: Path) -> list[dict]:
     return rows
 
 
+def _fetched_at_or_unknown(row: dict) -> str:
+    """Return ``row['fetched_at']`` if it's a non-empty string, else
+    ``(unknown)``. Distinct from ``.get(default=...)`` because we
+    want explicit-null in the registry to map to ``(unknown)``, not
+    to the literal string ``"None"`` (nayru M1.3).
+    """
+    value = row.get("fetched_at")
+    return value if isinstance(value, str) and value else "(unknown)"
+
+
 def compute_registry_root(registry_path: Path) -> tuple[str, int, str, str]:
     """Read the registry and produce a (root_hex, row_count,
     first_fetched_at, last_fetched_at) tuple. The tuple maps directly
-    to the manifest-receipt format.
+    to the manifest-receipt format. Timestamps are positional (first
+    row in file, last row in file) — the registry isn't sorted by
+    fetched_at and the receipt's column names are *not* min/max.
     """
-    rows = _read_registry_rows(registry_path)
+    rows = read_registry_rows(registry_path)
     leaves = [leaf_hash(canonicalize_row(row)) for row in rows]
     root = build_merkle_root(leaves)
-    first_ts = rows[0].get("fetched_at", "(unknown)") if rows else "(unknown)"
-    last_ts = rows[-1].get("fetched_at", "(unknown)") if rows else "(unknown)"
+    first_ts = _fetched_at_or_unknown(rows[0]) if rows else "(unknown)"
+    last_ts = _fetched_at_or_unknown(rows[-1]) if rows else "(unknown)"
     return root.hex(), len(rows), first_ts, last_ts
 
 
@@ -145,8 +186,11 @@ def write_root_files(
 
 
 def _atomic_write_text(path: Path, content: str) -> None:
+    # encoding=utf-8 explicit per project convention + nayru M1.4 —
+    # platform default is utf-8 on the runner but explicit pins the
+    # contract against a future runner-image change.
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(content)
+    tmp.write_text(content, encoding="utf-8")
     tmp.replace(path)
 
 

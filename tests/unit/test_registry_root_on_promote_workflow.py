@@ -37,9 +37,10 @@ def test_workflow_yaml_parses() -> None:
     _load()
 
 
-def test_trigger_covers_registry_and_root_file_paths() -> None:
-    """Both the registry and the recorded root file are triggers —
-    a tamper attack might touch either side."""
+def test_trigger_covers_registry_root_file_and_manifest() -> None:
+    """All three commitment files are triggers — a tamper attack
+    might touch any of registry, root.txt, or the manifest receipt.
+    vaivora M1: manifest path was previously missing."""
     workflow = _load()
     on_block = workflow.get(True) or workflow.get("on")
     push = on_block["push"]
@@ -47,6 +48,7 @@ def test_trigger_covers_registry_and_root_file_paths() -> None:
     paths = push["paths"]
     assert "data/asset-bytes-registry.jsonl" in paths
     assert "data/registry-root.txt" in paths
+    assert "data/registry-root-manifest.txt" in paths
     assert "workflow_dispatch" in on_block
 
 

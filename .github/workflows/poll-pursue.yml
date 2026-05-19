@@ -233,12 +233,24 @@ jobs:
         # The registry is append-only. Commit any new rows the archive
         # script produced. Idempotent — git diff is empty if no new
         # rows landed.
+        #
+        # Sprint 4e: after staging the registry, refresh
+        # ``data/registry-root.txt`` + ``data/registry-root-manifest.txt``
+        # in lockstep. The on-promote workflow watches both registry
+        # and root file paths; a bot append without the matching root
+        # bump would paint the next push red (vaivora H1 / nayru H1.2).
+        # The signing-stale issue lane in verify-assets-daily.yml
+        # picks up the "root advanced past the last signed tag"
+        # state and pings the operator to sign a fresh tag.
         if: steps.r2_archive.outcome == 'success'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -f data/asset-bytes-registry.jsonl ]; then
-            git add data/asset-bytes-registry.jsonl
+            python scripts/registry_root.py
+            git add data/asset-bytes-registry.jsonl \
+                    data/registry-root.txt \
+                    data/registry-root-manifest.txt
           fi
           if ! git diff --cached --quiet; then
             new_rows=$(git diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')

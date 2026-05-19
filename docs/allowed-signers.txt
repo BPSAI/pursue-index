@@ -1,38 +1,70 @@
-# SSH allowed-signers file for `git verify-tag` / `git log --show-signature`.
+# SSH allowed-signers file — READER CONVENIENCE ONLY (NOT the CI trust anchor).
 #
 # Format (per ssh-keygen(1) "ALLOWED SIGNERS"):
 #   <email-or-principal> <key-type> <base64-key>
 #
-# Used by .github/workflows/verify-assets-daily.yml to validate the
-# operator's signature on `registry-root-*` tags. Configured by:
+# # WHERE THE TRUST ANCHOR ACTUALLY LIVES
+#
+# The CI signing-verify lane (.github/workflows/verify-assets-daily.yml,
+# "Verify latest signed registry-root tag" step) anchors trust to
+# GitHub's view of the operator's *account-level* signing keys,
+# accessed via:
+#
+#   gh api repos/<owner>/<repo>/git/tags/<tag_object_sha>
+#       --jq '.verification.verified'
+#
+# That field returns true iff the tag's signature validates against
+# the operator's "Signing keys" registered in GitHub profile
+# settings (NOT this repo file). The repo file is mutable by anyone
+# with repo:write — i.e., exactly the write-capability threat the
+# tier-2 layer exists to detect. The GH-API anchor is bound to
+# account-level identity, which a repo:write attacker cannot modify
+# (would require GitHub-account takeover).
+#
+# This file remains as reader convenience for local-laptop
+# verification: any reader can run
+#
 #   git -c gpg.format=ssh \
 #       -c gpg.ssh.allowedSignersFile=docs/allowed-signers.txt \
 #       tag -v <tag>
 #
-# OPERATOR ACTION REQUIRED:
+# But the reader should not treat a green ``tag -v`` against THIS
+# file as final — also cross-check against
+# https://github.com/<owner>.keys (or the GitHub UI's "Verified"
+# badge on the tag) for the production-grade anchor.
 #
-#   Replace the placeholder line below with your real ssh-ed25519
-#   public key. Two ways to source it:
+# # OPERATOR ACTION (one-time setup)
 #
-#     a) `cat ~/.ssh/id_ed25519.pub` (or whichever key you sign with)
-#     b) `curl -s https://github.com/Buschleague.keys` to fetch the
-#        keys GitHub has on file for the account
+#   1. Upload your ssh-ed25519 public key to GitHub at Settings →
+#      SSH and GPG keys → New SSH key → **Key type: Signing Key**.
+#      (This is separate from the "Authentication" key type used for
+#      git push — both are needed.)
 #
-#   Then locally configure git to sign tags with that key:
-#     git config --global gpg.format ssh
-#     git config --global user.signingkey ~/.ssh/<chosen-key>.pub
-#     git config --global tag.gpgsign true
+#   2. Replace the placeholder line below with the same public key
+#      for reader-convenience verification. Sources:
+#        a) `cat ~/.ssh/id_ed25519.pub`
+#        b) `curl -s https://github.com/Buschleague.keys`
 #
-#   First baseline signing (one-time after this file is populated):
-#     git tag -s registry-root-2026-05-19-baseline-<HHMM> HEAD
-#     git push --tags
+#   3. Locally configure git to sign tags:
+#        git config --global gpg.format ssh
+#        git config --global user.signingkey ~/.ssh/<chosen-key>.pub
+#        git config --global tag.gpgsign true
 #
-#   See docs/runbooks/registry-root-signing.md for the full playbook.
+#   4. First baseline signing (one-time after this file is populated):
+#        git tag -s registry-root-$(date -u +%Y-%m-%d-%H%M)-baseline HEAD
+#        git push --tags
 #
-# Rotation: a key compromise means (1) revoke the key in GitHub UI,
-# (2) commit a new line here with the replacement key, (3) sign a
-# revocation note + the next registry-root tag with the new key. Old
-# signatures remain verifiable as evidence-of-past; new signatures
-# from the revoked key would no longer match this file.
+#   See docs/runbooks/registry-root-signing.md for the full playbook
+#   including the per-promote workflow and key rotation.
+#
+# # ROTATION
+#
+# 1. Upload the new key to GitHub (Signing Keys).
+# 2. Commit the new key line to this file alongside (or replacing)
+#    the old line.
+# 3. Sign the next registry-root-* tag with the new key.
+# 4. After the new key proves reliable across a few promotes, remove
+#    the old key from GitHub Signing Keys AND from this file. Old
+#    signatures remain verifiable as evidence-of-past.
 
 david@bpsaisoftware.com ssh-ed25519 PLACEHOLDER_REPLACE_BEFORE_SIGNING_BASELINE

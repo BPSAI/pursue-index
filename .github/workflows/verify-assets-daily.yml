@@ -126,12 +126,21 @@ jobs:
         continue-on-error: true
 
       - name: Commit registry updates (when verify ran)
+        # Sprint 4e: refresh data/registry-root.txt +
+        # data/registry-root-manifest.txt in lockstep so the
+        # registry-root-on-promote workflow stays green on bot-driven
+        # appends (vaivora H1 / nayru H1.2). The signing-stale issue
+        # lane below pings the operator to sign a fresh tag covering
+        # the new root.
         if: steps.verify.outcome == 'success'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -f data/asset-bytes-registry.jsonl ]; then
-            git add data/asset-bytes-registry.jsonl
+            python scripts/registry_root.py
+            git add data/asset-bytes-registry.jsonl \
+                    data/registry-root.txt \
+                    data/registry-root-manifest.txt
           fi
           if ! git diff --cached --quiet; then
             new_rows=$(git diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')
@@ -214,27 +223,44 @@ jobs:
             --body "$(printf 'A /removed preservation copy in R2 no longer matches its pinned byte_sha. This is tampering inside our control plane (not upstream). Roll the current-pointer back from archive/<sha>.<ext>.\n\nReport excerpt:\n```\n%s\n```\n\nRun log: %s' "$report_excerpt" "$RUN_URL")"
 
       - name: Verify latest signed registry-root tag
-        # Sprint 4e Phase 4. Tier-2 signature gate: every promote
-        # bumps data/registry-root.txt and the operator signs a
-        # ``registry-root-YYYY-MM-DD-HHMM`` git tag whose tree
-        # transitively commits to that root. The daily verify
-        # re-runs the signature check against the latest such tag.
+        # Sprint 4e Phase 4 + fix-pass. Tier-2 signature gate: every
+        # promote bumps data/registry-root.txt and the operator signs
+        # a ``registry-root-YYYY-MM-DD-HHMM`` git tag whose tree
+        # transitively commits to that root. The daily verify checks
+        # two things:
+        #
+        #   1. ``signing_state == verified`` — the latest tag's
+        #      signature verifies under GitHub's profile-keys trust
+        #      anchor (the GH ``verification.verified`` API field).
+        #   2. ``signing_state == stale`` (Codex P1 #1) — the latest
+        #      signed tag's ``data/registry-root.txt`` content matches
+        #      the current HEAD's root file. Otherwise the current
+        #      state has shifted and is no longer covered by any
+        #      signed attestation.
+        #
+        # Trust anchor (Codex P1 #2): we use the GitHub Tag Object
+        # API's ``.verification.verified`` field, NOT
+        # ``docs/allowed-signers.txt``. That file is repo-tracked and
+        # mutable by anyone with repo:write — i.e., exactly the
+        # write-capability threat tier-2 exists to detect. GitHub's
+        # ``.verification.verified`` resolves against the operator's
+        # *account-level* "Signing keys" registered in GitHub
+        # profile settings, which a repo:write attacker cannot modify.
+        # The repo-tracked allowed-signers file remains as
+        # reader-convenience documentation only (see
+        # ``docs/allowed-signers.txt`` + ``docs/runbooks/
+        # registry-root-signing.md``).
         #
         # Bootstrap window: before the operator signs the baseline
-        # tag, this step exits 0 with a ``::notice::`` — the
-        # registry-root-on-promote workflow is sufficient until then.
+        # tag, this step exits 0 with a ``::notice::``. The on-promote
+        # workflow's root-file freshness check is sufficient until
+        # the baseline lands.
         #
-        # Failure mode: ``git tag -v`` returns non-zero. We pin the
-        # outcome to ``signing-failure`` issue creation below rather
-        # than letting the step itself fail the workflow, so a key
-        # rotation in progress doesn't suppress the silent-overlay
-        # detection lane above.
+        # ``continue-on-error: true`` keeps the silent-overlay lane
+        # above this one from being suppressed during a key rotation.
         id: signing
-        # Configure SSH-signature verification against the repo-tracked
-        # allowed_signers file. The yubikey-backed operator key is
-        # declared there; rotation = a commit to the same file.
         env:
-          GIT_CONFIG_PARAMETERS: "'gpg.format=ssh' 'gpg.ssh.allowedSignersFile=docs/allowed-signers.txt'"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           latest_tag=$(git tag --list 'registry-root-*' --sort=-creatordate | head -1)
           if [ -z "$latest_tag" ]; then
@@ -242,44 +268,107 @@ jobs:
             echo "signing_state=bootstrap" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "Verifying signature on $latest_tag..."
-          if git tag -v "$latest_tag" 2>&1 | tee /tmp/tag-verify.log; then
-            echo "::notice::signature verified on $latest_tag"
-            echo "signing_state=verified" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::signature verification FAILED on $latest_tag"
+          echo "Latest tag: $latest_tag"
+
+          # Look up GitHub's verification verdict on the tag object.
+          tag_object_sha=$(git rev-parse "$latest_tag")
+          verification_json=$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/$tag_object_sha" \
+              --jq '.verification // {}' 2>/tmp/tag-verify.log || echo '{}')
+          echo "$verification_json" > /tmp/tag-verification.json
+          verified=$(echo "$verification_json" | jq -r '.verified // false')
+          reason=$(echo "$verification_json" | jq -r '.reason // "unknown"')
+
+          if [ "$verified" != "true" ]; then
+            echo "::error::signature verification FAILED on $latest_tag (verified=$verified, reason=$reason)"
             echo "signing_state=failed" >> "$GITHUB_OUTPUT"
             echo "failed_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+            echo "failure_reason=$reason" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+
+          # Freshness binding (Codex P1 #1): the signed tag's tree
+          # must include a registry-root.txt that matches the
+          # current HEAD's registry-root.txt. Otherwise current
+          # state is unsigned — even though a valid tag exists.
+          signed_root=$(git show "$latest_tag:data/registry-root.txt" 2>/dev/null | tr -d '[:space:]')
+          current_root=$(tr -d '[:space:]' < data/registry-root.txt)
+          if [ -z "$signed_root" ] || [ "$signed_root" != "$current_root" ]; then
+            echo "::error::current registry-root NOT covered by latest signed tag"
+            echo "  current = $current_root"
+            echo "  signed  = $signed_root (from $latest_tag)"
+            echo "signing_state=stale" >> "$GITHUB_OUTPUT"
+            echo "failed_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "::notice::signature verified on $latest_tag (covers current root $current_root)"
+          echo "signing_state=verified" >> "$GITHUB_OUTPUT"
         continue-on-error: true
 
       - name: Open issue when signing verification fails
         # Distinct from preserved-tampered / silent-overlay: this
         # signals that the chain-of-trust ON THE REGISTRY ITSELF is
         # broken, not that R2 bytes diverged. Operator response is to
-        # check ``allowed-signers.txt`` for key rotation in progress,
-        # then assume tampering if no rotation is expected.
+        # check the operator's GitHub profile signing keys (the trust
+        # anchor), then assume tampering if no rotation is in
+        # progress.
         if: steps.signing.outputs.signing_state == 'failed'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FAILED_TAG: ${{ steps.signing.outputs.failed_tag }}
+          FAILURE_REASON: ${{ steps.signing.outputs.failure_reason }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           gh label create signing-failure \
             --color "B60205" \
-            --description "git tag -v failed on the latest registry-root-* tag" \
+            --description "GitHub-side signature verification failed on the latest registry-root-* tag" \
             --force 2>/dev/null || true
           existing=$(gh issue list --label signing-failure --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
           if [ -n "$existing" ]; then
             echo "Open issue #${existing} already tracking; skipping."
             exit 0
           fi
-          if [ -f /tmp/tag-verify.log ]; then
-            log_excerpt=$(head -c 2000 /tmp/tag-verify.log)
+          if [ -f /tmp/tag-verification.json ]; then
+            log_excerpt=$(head -c 2000 /tmp/tag-verification.json)
           else
-            log_excerpt="(verify log not produced)"
+            log_excerpt="(verification payload not captured)"
           fi
           gh issue create \
             --title "[integrity] Signing verification failed on $FAILED_TAG" \
             --label "signing-failure" \
-            --body "$(printf 'git tag -v failed on %s. Either (a) a key rotation is in progress (update docs/allowed-signers.txt + sign new baseline), or (b) tier-2 tampering. Check pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md §5.2 for rotation playbook.\n\nVerify log:\n```\n%s\n```\n\nRun log: %s' "$FAILED_TAG" "$log_excerpt" "$RUN_URL")"
+            --body "$(printf 'GitHub reports signature on %s as unverified (reason=%s). Either (a) a key rotation is in progress (add the new key to the operator GitHub profile under Settings → SSH and GPG keys → Signing keys, then re-sign), or (b) tier-2 tampering. Check pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md §5.2 for rotation playbook.\n\nGitHub verification payload:\n```\n%s\n```\n\nRun log: %s' "$FAILED_TAG" "$FAILURE_REASON" "$log_excerpt" "$RUN_URL")"
+
+      - name: Open issue when latest signed tag is stale (does not cover HEAD)
+        # Codex P1 #1: the latest tag's signature verifies, but the
+        # tag's tree contains an OLDER ``registry-root.txt`` than HEAD
+        # has. Means a bot writer (silent-overlay catch, scheduled
+        # poll) — or a manual commit — bumped the registry and the
+        # root since the last tag, and the operator hasn't signed a
+        # fresh tag yet. The current registry state is therefore
+        # unsigned even though tier-1 + the on-promote workflow are
+        # both green.
+        #
+        # Operator response: sign a fresh registry-root tag against
+        # HEAD. The next daily cron auto-resolves the issue (matching
+        # signed root → no issue creation; existing one stays open
+        # until the operator closes it OR a fresh promote happens).
+        if: steps.signing.outputs.signing_state == 'stale'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STALE_TAG: ${{ steps.signing.outputs.failed_tag }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create signing-stale \
+            --color "FBCA04" \
+            --description "Current registry-root.txt is not covered by the latest signed registry-root-* tag" \
+            --force 2>/dev/null || true
+          existing=$(gh issue list --label signing-stale --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "Open issue #${existing} already tracking; skipping."
+            exit 0
+          fi
+          current_root=$(tr -d '[:space:]' < data/registry-root.txt)
+          gh issue create \
+            --title "[integrity] Current registry-root not covered by signed tag" \
+            --label "signing-stale" \
+            --body "$(printf 'The latest signed tag %s verifies, but the registry-root it covers does not match the current HEAD root file.\n\nCurrent root (unsigned): %s\n\nThis is the expected state after the daily silent-overlay catch (or 30-min poll) appends a new registry row — the bot writers refresh `data/registry-root.txt` in lockstep, but only the operator can sign a fresh `registry-root-*` tag. Re-sign per the per-promote workflow in `docs/runbooks/registry-root-signing.md`.\n\nRun log: %s' "$STALE_TAG" "$current_root" "$RUN_URL")"
