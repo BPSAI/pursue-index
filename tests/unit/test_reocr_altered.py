@@ -114,9 +114,11 @@ def test_resume_from_page_handles_blank_lines_and_trailing_newlines(tmp_path: Pa
 
 def test_resume_from_page_returns_1_on_corrupt_file(tmp_path: Path) -> None:
     """A torn write (process killed mid-line) shouldn't lose ALL
-    progress, but it MUST NOT silently double-OCR pages. We treat a
-    corrupt file as "start over" — the operator can manually inspect
-    if pages were already produced."""
+    progress, but it MUST NOT silently double-OCR pages. ``resume_from_page``
+    treats a corrupt file as "start over" — the caller is expected to
+    call ``truncate_jsonl_to_valid_prefix`` before appending, otherwise
+    the corrupt prefix persists and every rerun re-spends the full
+    per-card API budget (Codex PR #72 P1)."""
     path = tmp_path / "pages.jsonl"
     path.write_text(
         json.dumps({"page": 1, "text": "x", "confidence": 0.9}) + "\n{torn"
@@ -124,6 +126,59 @@ def test_resume_from_page_returns_1_on_corrupt_file(tmp_path: Path) -> None:
     # Corrupt JSON on line 2 → bail; tolerated entries before are
     # rejected (safer to start over than misalign page indices).
     assert ra.resume_from_page(path) == 1
+
+
+def test_truncate_jsonl_to_valid_prefix_keeps_good_lines(tmp_path: Path) -> None:
+    """Codex PR #72 P1: the torn-write repair path. File has 3 valid
+    lines + 1 torn → truncate to the 3 valid lines + return page 4
+    (the next-to-OCR). Subsequent appends land in the right place."""
+    path = tmp_path / "pages.jsonl"
+    path.write_text(
+        "\n".join(
+            json.dumps({"page": i, "text": "x", "confidence": 0.9})
+            for i in (1, 2, 3)
+        )
+        + "\n{torn"
+    )
+    from _reocr_helpers import truncate_jsonl_to_valid_prefix
+    next_page = truncate_jsonl_to_valid_prefix(path)
+    assert next_page == 4
+    # File now contains exactly the 3 valid lines + trailing newline.
+    rewritten = path.read_text(encoding="utf-8")
+    assert rewritten.count("\n") == 3
+    for i in (1, 2, 3):
+        assert f'"page": {i}' in rewritten
+    assert "{torn" not in rewritten
+
+
+def test_truncate_jsonl_to_valid_prefix_empties_when_first_line_torn(tmp_path: Path) -> None:
+    """Pathological case: first line is torn → keep nothing + return
+    page 1. File is rewritten as empty so the resume loop starts
+    fresh without the corrupt prefix re-trapping."""
+    path = tmp_path / "pages.jsonl"
+    path.write_text("{torn\n")
+    from _reocr_helpers import truncate_jsonl_to_valid_prefix
+    assert truncate_jsonl_to_valid_prefix(path) == 1
+    assert path.read_text(encoding="utf-8") == ""
+
+
+def test_truncate_jsonl_to_valid_prefix_noop_when_all_valid(tmp_path: Path) -> None:
+    """All lines parse → file is rewritten with identical contents
+    + correct next-page. Idempotent."""
+    path = tmp_path / "pages.jsonl"
+    original = "\n".join(
+        json.dumps({"page": i, "text": "x", "confidence": 0.9})
+        for i in (1, 2, 3)
+    ) + "\n"
+    path.write_text(original)
+    from _reocr_helpers import truncate_jsonl_to_valid_prefix
+    assert truncate_jsonl_to_valid_prefix(path) == 4
+    assert path.read_text(encoding="utf-8") == original
+
+
+def test_truncate_jsonl_to_valid_prefix_handles_missing_file(tmp_path: Path) -> None:
+    from _reocr_helpers import truncate_jsonl_to_valid_prefix
+    assert truncate_jsonl_to_valid_prefix(tmp_path / "nope.jsonl") == 1
 
 
 # --------------------------- cost tracking -------------------------------
@@ -229,6 +284,57 @@ def test_ocr_card_resumes_from_partial(
     contents = (card_dir / "pages.jsonl").read_text().strip().split("\n")
     assert len(contents) == 3
     assert json.loads(contents[2])["page"] == 3
+
+
+def test_ocr_card_repairs_torn_jsonl_before_resuming(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Codex PR #72 P1 integration: ``ocr_card`` calls
+    ``truncate_jsonl_to_valid_prefix`` before the page loop, so a
+    torn-write file produced by a prior interrupted run gets
+    repaired in place. Without this, the resume path was a budget
+    trap — every restart re-OCR'd every page.
+    """
+    out_dir = tmp_path / "altered-ocr"
+    card_dir = out_dir / "x"
+    card_dir.mkdir(parents=True)
+    # Simulate the torn-write state: pages 1+2 valid, line 3 torn.
+    (card_dir / "pages.jsonl").write_text(
+        json.dumps({"page": 1, "text": "x", "confidence": 0.9}) + "\n"
+        + json.dumps({"page": 2, "text": "x", "confidence": 0.9}) + "\n"
+        + "{torn"
+    )
+
+    target = {
+        "card_id": "x",
+        "byte_sha256": "a" * 64,
+        "archive_key": "archive/" + "a" * 64 + ".pdf",
+        "asset_filename": "doc.pdf",
+    }
+    fake_r2 = MagicMock()
+    # 4 pages rendered; pages 1+2 already OCR'd, page 3 was torn.
+    fake_rasterize = MagicMock(return_value=[MagicMock() for _ in range(4)])
+    fake_ocr = MagicMock(return_value=("recovered text", 0.95))
+    tracker = ra.UsageTracker()
+    ra.ocr_card(
+        target=target,
+        out_dir=out_dir,
+        r2_client=fake_r2,
+        rasterize=fake_rasterize,
+        ocr_image=fake_ocr,
+        tracker=tracker,
+        cost_cap_usd=10.0,
+    )
+    # Should OCR only pages 3 + 4 (NOT all 4 — that would be the
+    # pre-fix budget trap).
+    assert fake_ocr.call_count == 2
+    # Final file has 4 entries (no corrupt prefix).
+    final = (card_dir / "pages.jsonl").read_text().strip().split("\n")
+    assert len(final) == 4
+    pages = [json.loads(line)["page"] for line in final]
+    assert pages == [1, 2, 3, 4]
+    # The torn line is GONE.
+    assert "{torn" not in (card_dir / "pages.jsonl").read_text()
 
 
 def test_ocr_card_respects_cost_cap_mid_run(

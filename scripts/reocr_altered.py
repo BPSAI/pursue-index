@@ -78,6 +78,7 @@ from _reocr_helpers import (  # noqa: E402
     fetch_r2_pdf as _r2_fetch_pdf,
     resume_from_page,
     select_ocr_targets,
+    truncate_jsonl_to_valid_prefix,
 )
 
 # Re-export for back-compat with tests + downstream consumers.
@@ -147,7 +148,10 @@ def ocr_card(
     pages_jsonl = out_dir / card_id / "pages.jsonl"
     pdf_bytes = _r2_fetch_pdf(r2_client, target["archive_key"])
     images = rasterize(pdf_bytes)
-    start_page = resume_from_page(pages_jsonl)
+    # Codex PR #72 P1: repair any torn-write prefix BEFORE resuming,
+    # otherwise resume_from_page returns 1 forever and we re-spend the
+    # full per-card budget on every rerun.
+    start_page = truncate_jsonl_to_valid_prefix(pages_jsonl)
     if start_page > len(images):
         # nayru M2: not silent — could mask a PDF that truncated
         # upstream after we last OCR'd it.

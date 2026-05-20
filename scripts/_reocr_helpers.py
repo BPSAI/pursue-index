@@ -99,6 +99,11 @@ def resume_from_page(jsonl_path: Path) -> int:
     Reads existing pages.jsonl entries and returns ``max(page) + 1``.
     Returns 1 if the file is missing OR any line is malformed
     (corrupt file = restart; safer than misaligning page indices).
+
+    Callers that intend to append to the file should call
+    ``truncate_jsonl_to_valid_prefix`` first — otherwise a torn line
+    permanently traps every rerun at page 1, re-spending API budget
+    indefinitely (Codex PR #72 P1).
     """
     if not jsonl_path.is_file():
         return 1
@@ -117,6 +122,53 @@ def resume_from_page(jsonl_path: Path) -> int:
         page = row.get("page")
         if isinstance(page, int) and page > highest:
             highest = page
+    return highest + 1
+
+
+def truncate_jsonl_to_valid_prefix(jsonl_path: Path) -> int:
+    """Rewrite ``jsonl_path`` to contain only the longest contiguous
+    prefix of valid JSON lines, returning the next-page-to-OCR (i.e.,
+    ``max(valid page) + 1``).
+
+    Codex PR #72 P1 fix: a torn write leaves a malformed line.
+    ``resume_from_page`` returns 1 (safe but lossy) and any subsequent
+    appends would land BEHIND the malformed line — meaning the
+    corrupt prefix persists forever and every later rerun re-OCRs
+    every page, re-spending the full per-card API budget. This
+    helper repairs the file in place so the resume loop can pick up
+    cleanly without re-spending.
+
+    Idempotent: if every line parses, the file is rewritten to its
+    own contents (cheap; no semantic change).
+
+    Returns 1 when the file is missing or the first line is already
+    torn (no valid prefix to keep).
+    """
+    if not jsonl_path.is_file():
+        return 1
+    valid_lines: list[str] = []
+    highest = 0
+    try:
+        text = jsonl_path.read_text(encoding="utf-8")
+    except OSError:
+        return 1
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            break
+        valid_lines.append(line)
+        page = row.get("page")
+        if isinstance(page, int) and page > highest:
+            highest = page
+    # Rewrite the file with only the validated lines (atomic via
+    # temp+rename so an interrupt here doesn't compound the problem).
+    rewritten = ("\n".join(valid_lines) + "\n") if valid_lines else ""
+    tmp = jsonl_path.with_suffix(jsonl_path.suffix + ".tmp")
+    tmp.write_text(rewritten, encoding="utf-8")
+    tmp.replace(jsonl_path)
     return highest + 1
 
 
