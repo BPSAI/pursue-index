@@ -343,9 +343,16 @@ const cardJsonLd = [
                 </li>
               ))}
             </ul>
-            <p class="text-[10px] text-[color:var(--color-text-faint)]">
-              See <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a> for the full
-              list of cards where upstream bytes changed under the same identifier.
+            <p class="text-[10px] text-[color:var(--color-text-faint)] space-y-1">
+              <span class="block">
+                <a href={`/altered/${card.card_id}/`} class="text-[color:var(--color-signal-amber)] underline">
+                  See the exact text changes →
+                </a>
+              </span>
+              <span class="block">
+                See <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a> for the full
+                list of cards where upstream bytes changed under the same identifier.
+              </span>
             </p>
           </aside>
         )}

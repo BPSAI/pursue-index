@@ -1,0 +1,193 @@
+---
+import Base from "../../layouts/Base.astro";
+import { cards } from "../../data/manifest-loader";
+import byteHistoryJson from "../../data/byte-history.json";
+import alteredDiffsJson from "../../data/altered-diffs.json";
+import { formatBytes, sizeDeltaPct } from "../../lib/byte-display.ts";
+import { SITE_ORIGIN } from "../../lib/seo";
+
+type ByteHistoryEntry = {
+  byte_sha256: string;
+  byte_size: number;
+  fetched_at: string;
+  archive_key: string;
+  asset_filename: string | null;
+  is_current: boolean;
+};
+
+type DiffSegment = { kind: "equal" | "removed" | "added"; text: string };
+type PageDiff = { page_no: number; segments: DiffSegment[] };
+type CardDiff = {
+  pages: PageDiff[];
+  summary: {
+    removed_words: number;
+    added_words: number;
+    modified_pages: number[];
+    first_change_page: number | null;
+    ocr_status?: "complete" | "partial";
+    ocr_max_page?: number;
+    total_pre_pages?: number;
+  };
+};
+
+const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
+// Sprint 4h fix-pass (vaivora H4): output is now wrapped with a _meta
+// block that pins the pre-edit OCR source sha. The .diffs subobject
+// holds the card_id → diff map.
+const alteredDiffs = (alteredDiffsJson as { diffs?: Record<string, CardDiff> })
+  .diffs ?? (alteredDiffsJson as Record<string, CardDiff>);
+
+// Generate one static page per multi-sha card. Cards without a diff
+// entry (e.g. .mp4 video cards or cards whose OCR hasn't run yet)
+// degrade gracefully — they'd render a "diff not available; see byte
+// archive" page.
+//
+// NOTE: getStaticPaths is hoisted by Astro's compiler and runs in a
+// separate evaluation context where the frontmatter consts above
+// haven't been initialized yet. Inline the import here so the
+// hoisted function sees the data.
+export function getStaticPaths() {
+  return Object.keys(byteHistoryJson).map((card_id) => ({
+    params: { card_id },
+  }));
+}
+
+const { card_id } = Astro.params;
+const card = cards.find((c) => c.card_id === card_id);
+if (!card) {
+  return new Response("Card not found", { status: 404 });
+}
+const entries = byteHistory[card_id] ?? [];
+const current = entries[0];
+const oldest = entries[entries.length - 1];
+const diff = alteredDiffs[card_id] ?? null;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const pageTitle = `${card.title.slice(0, 50)}${card.title.length > 50 ? "…" : ""} — text diff — PURSUE://INDEX`;
+---
+<Base title={pageTitle} active="altered">
+  <div class="space-y-6 max-w-6xl">
+    <nav aria-label="Breadcrumb" class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
+      <a href={`${base}/altered/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">/altered</a>
+      <span class="mx-1 text-[color:var(--color-text-faint)]">›</span>
+      <a href={`${base}/card/${card.card_id}/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">{card.card_id}</a>
+      <span class="mx-1 text-[color:var(--color-text-faint)]">›</span>
+      <span class="text-[color:var(--color-text-bright)]">text diff</span>
+    </nav>
+
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        {card.title}
+      </h1>
+      <p class="text-xs text-[color:var(--color-text-dim)]">
+        Side-by-side OCR text diff between the pre-edit bytes (preserved at <a href={`/${oldest.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{oldest.archive_key}</a>) and the current bytes (<a href={`/${current.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{current.archive_key}</a>). Both versions live in R2 under their content-addressed sha256.
+      </p>
+    </header>
+
+    {diff && diff.summary ? (
+      <section class="space-y-2">
+        {diff.summary.ocr_status === "partial" && (
+          <div class="border border-[color:var(--color-signal-red)]/60 bg-[color:var(--color-signal-red)]/10 p-3 font-mono text-xs">
+            <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-red)] mb-1">
+              ● OCR INCOMPLETE
+            </div>
+            <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+              Content-filter rejection truncated post-edit OCR at page{" "}
+              <span class="text-[color:var(--color-text-bright)]">{diff.summary.ocr_max_page}</span> of{" "}
+              <span class="text-[color:var(--color-text-bright)]">{diff.summary.total_pre_pages}</span>. Diff below covers pages 1&ndash;{diff.summary.ocr_max_page} only.
+              Pages {(diff.summary.ocr_max_page ?? 0) + 1}+ have not been OCR'd from the post-edit bytes; absence here is not evidence of redaction.
+              See <a href={`/${current.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{current.archive_key}</a> to inspect bytes directly.
+            </p>
+          </div>
+        )}
+        <div class="border border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/10 p-3 font-mono text-xs">
+          <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)] mb-2">
+            ● SUMMARY
+          </div>
+          <ul class="space-y-1 text-[color:var(--color-text-dim)]">
+            <li>
+              <span class="text-[color:var(--color-signal-red)]">{diff.summary.removed_words}</span> words removed,{" "}
+              <span class="text-[color:var(--color-signal-green)]">{diff.summary.added_words}</span> words added
+            </li>
+            {diff.summary.modified_pages.length > 0 && (
+              <li>
+                Affected pages: <span class="text-[color:var(--color-text-bright)]">{diff.summary.modified_pages.join(", ")}</span> (of {diff.pages.length})
+              </li>
+            )}
+            <li>
+              File size: <span class="text-[color:var(--color-text-dim)]">{formatBytes(oldest.byte_size)}</span>{" "}
+              <span class="text-[color:var(--color-text-faint)]">→</span>{" "}
+              <span class="text-[color:var(--color-text-bright)]">{formatBytes(current.byte_size)}</span>{" "}
+              <span class="text-[color:var(--color-text-faint)]">({sizeDeltaPct(oldest.byte_size, current.byte_size)})</span>
+            </li>
+            <li>
+              Pre-edit fetched <span class="text-[color:var(--color-text-bright)]">{oldest.fetched_at.slice(0, 10)}</span>;{" "}
+              current fetched <span class="text-[color:var(--color-text-bright)]">{current.fetched_at.slice(0, 10)}</span>
+            </li>
+          </ul>
+        </div>
+
+        {diff.pages.map((page) => {
+          const hasChanges = page.segments.some((s) => s.kind !== "equal");
+          if (!hasChanges) return null;
+          return (
+            <article class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-3 font-mono text-xs space-y-2">
+              <h2 class="text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+                ▸ page {page.page_no}
+              </h2>
+              <div class="space-y-1 leading-relaxed">
+                {page.segments.map((seg) => {
+                  if (seg.kind === "equal") {
+                    return <span class="text-[color:var(--color-text-dim)]">{seg.text} </span>;
+                  }
+                  if (seg.kind === "removed") {
+                    return (
+                      <span class="text-[color:var(--color-signal-red)] line-through decoration-[color:var(--color-signal-red)]/60">
+                        {seg.text}{" "}
+                      </span>
+                    );
+                  }
+                  if (seg.kind === "added") {
+                    return (
+                      <span class="text-[color:var(--color-signal-green)] underline decoration-[color:var(--color-signal-green)]/60">
+                        {seg.text}{" "}
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            </article>
+          );
+        })}
+
+        {diff.summary.modified_pages.length === 0 && (
+          <p class="font-mono text-xs text-[color:var(--color-text-dim)]">
+            <span class="text-[color:var(--color-signal-green)]">[NO TEXTUAL CHANGES]</span> The OCR text on every page matches between the two versions. The bytes differ (file size delta above) but the text is identical — could mean image-only redaction, metadata-only re-publish, or OCR equivalence across re-rasterized scans.
+          </p>
+        )}
+      </section>
+    ) : (
+      <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-4 font-mono text-xs space-y-2">
+        <p class="text-[color:var(--color-signal-amber)] text-[10px] uppercase tracking-[0.2em]">
+          ● TEXT DIFF NOT AVAILABLE
+        </p>
+        <p class="text-[color:var(--color-text-dim)]">
+          OCR has not yet been run on the post-edit bytes for this card, or
+          this card is a video file (no text content). The byte-level
+          difference is still observable via the archive route:
+        </p>
+        <ul class="space-y-1 text-[10px]">
+          <li>
+            Pre-edit: <a href={`/${oldest.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{oldest.archive_key}</a>{" "}
+            ({formatBytes(oldest.byte_size)})
+          </li>
+          <li>
+            Current: <a href={`/${current.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{current.archive_key}</a>{" "}
+            ({formatBytes(current.byte_size)})
+          </li>
+        </ul>
+      </section>
+    )}
+  </div>
+</Base>
