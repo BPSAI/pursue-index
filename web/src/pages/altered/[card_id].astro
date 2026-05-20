@@ -31,7 +31,11 @@ type CardDiff = {
 };
 
 const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
-const alteredDiffs = alteredDiffsJson as Record<string, CardDiff>;
+// Sprint 4h fix-pass (vaivora H4): output is now wrapped with a _meta
+// block that pins the pre-edit OCR source sha. The .diffs subobject
+// holds the card_id → diff map.
+const alteredDiffs = (alteredDiffsJson as { diffs?: Record<string, CardDiff> })
+  .diffs ?? (alteredDiffsJson as Record<string, CardDiff>);
 
 // Generate one static page per multi-sha card. Cards without a diff
 // entry (e.g. .mp4 video cards or cards whose OCR hasn't run yet)

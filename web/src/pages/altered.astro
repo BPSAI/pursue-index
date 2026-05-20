@@ -13,6 +13,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
 const alteredRows = buildAlteredRows(byteHistory, cards);
+// Note: /altered.astro does not consume altered-diffs.json directly;
+// the per-card pages handle the wrapped shape in their own loader.
 
 // JSON-LD ItemList for crawler discoverability. Each entry points
 // at the card-detail page (where the banner + iframe + archived

@@ -177,6 +177,29 @@ def test_build_card_diff_marks_partial_ocr_when_post_runs_short() -> None:
     assert diff["summary"]["total_pre_pages"] == 2
 
 
+def test_build_card_diff_marks_post_extended_when_post_runs_longer() -> None:
+    """nayru/vaivora H3: when post-edit has MORE pages than pre-edit
+    (upstream re-published with appended pages), the diff must
+    render those added pages as wholesale insertions — not silently
+    drop them. Pre-fix: only the overlap was diffed and the extra
+    post pages disappeared. Post-fix: ``ocr_status="post_extended"``
+    + the new pages render as added.
+    """
+    pre_pages = [{"page": 1, "text": "Page 1 keeps."}]
+    post_pages = [
+        {"page": 1, "text": "Page 1 keeps."},
+        {"page": 2, "text": "Brand new appended content."},
+    ]
+    diff = bad.build_card_diff(pre_pages, post_pages)
+    assert diff["summary"]["ocr_status"] == "post_extended"
+    assert diff["summary"]["ocr_max_page"] == 2
+    assert diff["summary"]["total_pre_pages"] == 1
+    # Both pages in the diff; page 2 entirely added.
+    assert len(diff["pages"]) == 2
+    page2 = diff["pages"][1]
+    assert any(s["kind"] == "added" for s in page2["segments"])
+
+
 def test_build_card_diff_whole_page_redacted_via_empty_text() -> None:
     """A whole-page redaction with successful OCR yields ``post_text
     == ""`` for that page — the diff legitimately renders the page

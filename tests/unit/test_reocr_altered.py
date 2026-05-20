@@ -213,12 +213,6 @@ def test_ocr_card_resumes_from_partial(
     fake_r2 = MagicMock()
     fake_rasterize = MagicMock(return_value=[MagicMock(), MagicMock(), MagicMock()])  # 3 pages
     fake_ocr = MagicMock(return_value=("page 3 text", 0.95))
-    fake_ocr.last_usage = MagicMock(input_tokens=1500, output_tokens=600)
-
-    def ocr_with_usage(img):
-        ra._record_usage(ra._anthropic_last_usage_holder, 1500, 600)
-        return ("page 3 text", 0.95)
-
     tracker = ra.UsageTracker()
     ra.ocr_card(
         target=target,

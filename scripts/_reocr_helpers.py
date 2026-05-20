@@ -16,7 +16,6 @@ inputs for it.
 from __future__ import annotations
 
 import json
-import os
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -128,9 +127,10 @@ def fetch_r2_pdf(client: Any, archive_key: str, bucket: str = "pursue-pdfs") -> 
 
 
 def append_jsonl(path: Path, row: dict) -> None:
-    """Atomic-enough append. Mirrors pages.jsonl writers elsewhere."""
+    """Append one row. nayru M1: dropped fsync — the resume_from_page
+    handler restarts cleanly on torn-write JSON parse failure, so
+    flush() is sufficient and avoids 3,425 fsyncs per OCR run."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(row, ensure_ascii=False) + "\n")
         fh.flush()
-        os.fsync(fh.fileno())

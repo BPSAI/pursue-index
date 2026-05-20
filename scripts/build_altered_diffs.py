@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import hashlib
 import json
 import re
 import sys
@@ -129,17 +130,71 @@ def summarize_diff(segments: list[dict]) -> dict:
     return {"removed_words": removed, "added_words": added}
 
 
-def build_card_diff(pre_pages: list[dict], post_pages: list[dict]) -> dict:
-    """Build the diff structure for one card. Pairs pages by page_no;
-    pages present in only one side become wholesale add/remove.
+def _diff_one_page(page_no: int, pre_text: str, post_text: str) -> tuple[dict, int, int]:
+    """Diff one page; return (page_diff_dict, removed_words, added_words).
+    Extracted to keep ``build_card_diff`` under the 50-line ceiling
+    (nayru/vaivora H1)."""
+    segments = diff_sentences(pre_text, post_text)
+    s = summarize_diff(segments)
+    return (
+        {"page_no": page_no, "segments": segments},
+        s["removed_words"],
+        s["added_words"],
+    )
 
-    Detects partial post-edit OCR (e.g., content-filter rejected
-    pages mid-card): when the highest post-edit page is less than
-    the highest pre-edit page, only diff the overlapping range and
-    mark ``ocr_status: "partial"`` so the diff page can render a
-    "OCR incomplete past page N" banner. Without this, pages N+1
-    through end-of-pre would render as "everything removed" — a
-    misleading framing of redaction that's actually OCR truncation.
+
+def _classify_ocr_status(pre_max: int, post_max: int) -> str:
+    """Symmetric coverage classification (nayru/vaivora H3):
+
+    * ``complete`` — pre_max == post_max (typical).
+    * ``partial`` — post_max < pre_max (content-filter truncation
+      or upstream removed pages; OCR may be incomplete on the
+      post-edit side).
+    * ``post_extended`` — post_max > pre_max (upstream re-published
+      with ADDED pages; pre-edit OCR has no text for the new ones
+      so any "added" content would render as wholesale insert).
+    """
+    if post_max == 0 or pre_max == 0:
+        return "complete"
+    if post_max < pre_max:
+        return "partial"
+    if post_max > pre_max:
+        return "post_extended"
+    return "complete"
+
+
+def _candidate_pages(
+    pre_by_page: dict[int, str],
+    post_by_page: dict[int, str],
+    ocr_status: str,
+    post_max: int,
+) -> list[int]:
+    """Decide which page numbers to diff given the coverage status.
+
+    * complete: every page on either side.
+    * partial (post truncated, e.g., content-filter trip): every
+      page where post has OCR. Pre-only pages past ``post_max``
+      are EXCLUDED so they don't render as "all removed" — that
+      would frame OCR truncation as redaction (nayru/vaivora H3
+      partial-side guard).
+    * post_extended (upstream re-published longer): every page on
+      either side. Post-only pages past pre_max render as wholesale
+      additions, which is the truthful framing.
+    """
+    all_keys = set(pre_by_page.keys()) | set(post_by_page.keys())
+    if ocr_status == "partial":
+        all_keys = {p for p in all_keys if p <= post_max}
+    return sorted(all_keys)
+
+
+def build_card_diff(pre_pages: list[dict], post_pages: list[dict]) -> dict:
+    """Build the diff structure for one card.
+
+    Symmetric coverage: ``ocr_status`` distinguishes complete /
+    partial / post_extended so the diff page can banner each
+    case correctly (nayru/vaivora H3). Pre-fix the post>pre case
+    silently dropped added pages from the diff, mis-framing a
+    longer-document re-publish as no-change.
     """
     pre_by_page = {p["page"]: p.get("text", "") for p in pre_pages}
     post_by_page = {p["page"]: p.get("text", "") for p in post_pages}
@@ -147,28 +202,23 @@ def build_card_diff(pre_pages: list[dict], post_pages: list[dict]) -> dict:
         return _empty_diff()
     pre_max = max(pre_by_page.keys()) if pre_by_page else 0
     post_max = max(post_by_page.keys()) if post_by_page else 0
-    # If post-edit OCR is incomplete (post_max < pre_max), constrain
-    # the diff to the overlap and surface the truncation.
-    ocr_partial = post_max > 0 and post_max < pre_max
-    diff_max = min(pre_max, post_max) if (pre_max and post_max) else max(pre_max, post_max)
-    all_pages = sorted({
-        p for p in (set(pre_by_page.keys()) | set(post_by_page.keys()))
-        if p <= diff_max
-    })
+    ocr_status = _classify_ocr_status(pre_max, post_max)
+    pages_to_diff = _candidate_pages(pre_by_page, post_by_page, ocr_status, post_max)
 
     page_diffs: list[dict] = []
     modified_pages: list[int] = []
     total_removed = 0
     total_added = 0
-    for page_no in all_pages:
-        pre_text = pre_by_page.get(page_no, "")
-        post_text = post_by_page.get(page_no, "")
-        segments = diff_sentences(pre_text, post_text)
-        page_summary = summarize_diff(segments)
-        page_diffs.append({"page_no": page_no, "segments": segments})
-        total_removed += page_summary["removed_words"]
-        total_added += page_summary["added_words"]
-        if page_summary["removed_words"] > 0 or page_summary["added_words"] > 0:
+    for page_no in pages_to_diff:
+        page_diff, removed, added = _diff_one_page(
+            page_no,
+            pre_by_page.get(page_no, ""),
+            post_by_page.get(page_no, ""),
+        )
+        page_diffs.append(page_diff)
+        total_removed += removed
+        total_added += added
+        if removed > 0 or added > 0:
             modified_pages.append(page_no)
 
     return {
@@ -178,7 +228,7 @@ def build_card_diff(pre_pages: list[dict], post_pages: list[dict]) -> dict:
             "added_words": total_added,
             "modified_pages": modified_pages,
             "first_change_page": modified_pages[0] if modified_pages else None,
-            "ocr_status": "partial" if ocr_partial else "complete",
+            "ocr_status": ocr_status,
             "ocr_max_page": post_max,
             "total_pre_pages": pre_max,
         },
@@ -200,9 +250,15 @@ def _empty_diff() -> dict:
     }
 
 
-def _load_pre_ocr_by_card(pages_cleaned_path: Path) -> dict[str, list[dict]]:
-    """Parse pages-cleaned.json → {card_id: [{page, text}, ...]}."""
-    blob = json.loads(pages_cleaned_path.read_text(encoding="utf-8"))
+def _load_pre_ocr_by_card(pages_cleaned_path: Path) -> tuple[dict[str, list[dict]], str]:
+    """Parse pages-cleaned.json → ({card_id: [{page, text}, ...]},
+    sha256 of bytes). vaivora H4: the sha is recorded in
+    altered-diffs.json's meta block so a future re-build can verify
+    the pre-edit OCR source hasn't shifted under us.
+    """
+    raw = pages_cleaned_path.read_bytes()
+    pre_sha = hashlib.sha256(raw).hexdigest()
+    blob = json.loads(raw.decode("utf-8"))
     pages_by_card: dict[str, list[dict]] = {}
     for row in blob.get("pages", []):
         card_id = row.get("card_id")
@@ -212,10 +268,9 @@ def _load_pre_ocr_by_card(pages_cleaned_path: Path) -> dict[str, list[dict]]:
             "page": row["page"],
             "text": row.get("text", ""),
         })
-    # Ensure each card's pages are sorted by page_no.
     for pages in pages_by_card.values():
         pages.sort(key=lambda p: p["page"])
-    return pages_by_card
+    return pages_by_card, pre_sha
 
 
 def _load_post_ocr(card_dir: Path) -> list[dict]:
@@ -244,26 +299,34 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args(argv)
 
-    pre_by_card = _load_pre_ocr_by_card(args.pre_ocr)
+    pre_by_card, pre_sha = _load_pre_ocr_by_card(args.pre_ocr)
     byte_history = json.loads(args.byte_history.read_text(encoding="utf-8"))
 
     diffs: dict[str, dict] = {}
     for card_id in sorted(byte_history.keys()):
         post_pages = _load_post_ocr(args.post_ocr_dir / card_id)
         if not post_pages:
-            # No post-edit OCR yet (Phase 1 may still be running, or
-            # this card is a .mp4 video — skipped from OCR). The diff
-            # page will degrade gracefully; no entry in altered-diffs.
             continue
         pre_pages = pre_by_card.get(card_id, [])
-        diff = build_card_diff(pre_pages, post_pages)
-        diffs[card_id] = diff
+        diffs[card_id] = build_card_diff(pre_pages, post_pages)
 
+    # vaivora H4: pin the pre-edit OCR source sha256 in the output's
+    # meta block. If pages-cleaned.json ever gets re-generated from
+    # post-edit bytes (after a future OCR pass), the sha will mismatch
+    # and operators can detect the diff is stale before re-publishing.
+    output = {
+        "_meta": {
+            "pre_ocr_source": str(args.pre_ocr.relative_to(_REPO_ROOT)) if args.pre_ocr.is_absolute() else str(args.pre_ocr),
+            "pre_ocr_sha256": pre_sha,
+            "card_count": len(diffs),
+        },
+        "diffs": diffs,
+    }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(diffs, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
         f"build_altered_diffs: {len(diffs)} card(s) → {args.out}"
-        f" (skipped {len(byte_history) - len(diffs)} without post-edit OCR)"
+        f" (pre-ocr sha256={pre_sha[:12]}...; skipped {len(byte_history) - len(diffs)} without post-edit OCR)"
     )
     return 0
 

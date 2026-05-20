@@ -149,6 +149,12 @@ def ocr_card(
     images = rasterize(pdf_bytes)
     start_page = resume_from_page(pages_jsonl)
     if start_page > len(images):
+        # nayru M2: not silent — could mask a PDF that truncated
+        # upstream after we last OCR'd it.
+        print(
+            f"::notice::card {card_id} already complete"
+            f" ({start_page - 1} pages on disk, {len(images)} rendered)"
+        )
         return
     _ocr_pages_into_jsonl(
         images=images,
