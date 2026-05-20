@@ -13,7 +13,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "test:api-page": "node scripts/test-api-page.mjs",
-    "test:lib": "node --test src/lib/release.test.ts src/lib/seo.test.ts src/lib/robots.test.ts src/components/homepage-search.test.ts src/components/card-summary-loader.test.ts",
+    "test:lib": "node --test src/lib/release.test.ts src/lib/seo.test.ts src/lib/robots.test.ts src/lib/byte-display.test.ts src/lib/altered-helpers.test.ts src/components/homepage-search.test.ts src/components/card-summary-loader.test.ts",
     "test:llms": "node --test scripts/build_llms_txt.test.mjs",
     "test:cards-summary": "node --test scripts/build_cards_summary.test.mjs",
     "test:byte-history": "node --test scripts/build_byte_history.test.mjs",

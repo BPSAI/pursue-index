@@ -9,6 +9,7 @@ import {
   breadcrumbJsonLd,
   SITE_ORIGIN,
 } from "../../lib/seo";
+import { formatBytes, sizeDeltaPct } from "../../lib/byte-display.ts";
 // Native ES imports for build-time data (matches diff.astro + the
 // timeline.astro fix on 2026-05-15; the readFileSync pattern was
 // unreliable on the Cloudflare Pages build context).
@@ -206,17 +207,6 @@ const currentByteEntry = hasByteEdits ? byteHistory[0] : null;
 const priorByteEntries = hasByteEdits ? byteHistory.slice(1) : [];
 const mostRecentEditDate = currentByteEntry?.fetched_at?.slice(0, 10) ?? "";
 
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / 1024 / 1024).toFixed(2)} MB`;
-}
-function sizeDeltaPct(prior: number, current: number): string {
-  if (prior === 0) return "+∞";
-  const pct = ((current - prior) / prior) * 100;
-  const sign = pct >= 0 ? "+" : "";
-  return `${sign}${pct.toFixed(1)}%`;
-}
 function archiveHrefFromKey(key: string): string {
   // archive_key in registry has the form ``archive/<sha>.<ext>``.
   // The worker route is mounted at ``/archive/<sha>.<ext>``.

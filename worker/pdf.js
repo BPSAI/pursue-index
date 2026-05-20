@@ -64,7 +64,7 @@ export function parseRangeHeader(header) {
  * content-addressed:
  *   * /pdf/<card_id>.pdf       — MUTABLE. card_id = sha256(asset_url
  *     || title)[:16], NOT sha256(bytes). Upstream silently re-published
- *     78 cards under their existing card_ids on 2026-05-14 with
+ *     79 cards under their existing card_ids on 2026-05-14 with
  *     different bytes. ``immutable`` was a lie here; we now use a
  *     short max-age + SWR matching the Sprint 2.1 worker-cache pattern
  *     for /data/*.json.

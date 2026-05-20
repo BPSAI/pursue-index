@@ -3,67 +3,16 @@ import Base from "../layouts/Base.astro";
 import { cards } from "../data/manifest-loader";
 import byteHistoryJson from "../data/byte-history.json";
 import { itemListJsonLd, SITE_ORIGIN } from "../lib/seo";
+import { formatBytes, sizeDeltaPct } from "../lib/byte-display.ts";
+import {
+  buildAlteredRows,
+  type ByteHistoryEntry,
+} from "../lib/altered-helpers.ts";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-type ByteHistoryEntry = {
-  byte_sha256: string;
-  byte_size: number;
-  fetched_at: string;
-  archive_key: string;
-  asset_filename: string | null;
-  is_current: boolean;
-};
-
 const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
-
-// Build the row set for the table. Pair each affected card_id with
-// the most recent and oldest archived entries — the table shows
-// "old size → new size" and "first observed → last edit" framing.
-type AlteredRow = {
-  card_id: string;
-  title: string;
-  asset_type: string;
-  current_entry: ByteHistoryEntry;
-  oldest_entry: ByteHistoryEntry;
-  total_versions: number;
-};
-
-const cardsById = new Map(cards.map((c) => [c.card_id, c]));
-const alteredRows: AlteredRow[] = [];
-for (const [cardId, entries] of Object.entries(byteHistory)) {
-  const card = cardsById.get(cardId);
-  if (!card) continue; // card may have been removed entirely (also covered by /removed)
-  const current = entries[0];
-  const oldest = entries[entries.length - 1];
-  alteredRows.push({
-    card_id: cardId,
-    title: card.title,
-    asset_type: card.asset_type,
-    current_entry: current,
-    oldest_entry: oldest,
-    total_versions: entries.length,
-  });
-}
-// Sort by most-recent edit first, then by title.
-alteredRows.sort((a, b) => {
-  const ad = a.current_entry.fetched_at;
-  const bd = b.current_entry.fetched_at;
-  if (ad !== bd) return ad < bd ? 1 : -1;
-  return a.title.localeCompare(b.title);
-});
-
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / 1024 / 1024).toFixed(2)} MB`;
-}
-function sizeDeltaPct(prior: number, current: number): string {
-  if (prior === 0) return "+∞";
-  const pct = ((current - prior) / prior) * 100;
-  const sign = pct >= 0 ? "+" : "";
-  return `${sign}${pct.toFixed(1)}%`;
-}
+const alteredRows = buildAlteredRows(byteHistory, cards);
 
 // JSON-LD ItemList for crawler discoverability. Each entry points
 // at the card-detail page (where the banner + iframe + archived

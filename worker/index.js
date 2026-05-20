@@ -324,7 +324,7 @@ export default {
 
     // Content-addressed archive route (Sprint 4g). Serves preserved
     // pre-edit bytes from R2 key `archive/<byte_sha256>.<ext>` for the
-    // 78 cards whose bytes were silently re-published upstream on
+    // 79 cards whose bytes were silently re-published upstream on
     // 2026-05-14. URL is content-addressed so Cache-Control:immutable
     // is honest here (unlike on /pdf/<card_id>.pdf where card_id =
     // sha256(asset_url||title), not sha256(bytes)). See worker/pdf.js
