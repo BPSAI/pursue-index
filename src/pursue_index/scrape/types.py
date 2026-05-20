@@ -11,7 +11,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-AssetType = Literal["PDF", "VID", "IMG"]
+AssetType = Literal["PDF", "VID", "IMG", "AUD"]
 
 
 class CardMetadata(BaseModel):
@@ -24,7 +24,7 @@ class CardMetadata(BaseModel):
 
     # Core CSV fields
     title: str
-    asset_type: AssetType = Field(..., description="Normalized: PDF | VID | IMG")
+    asset_type: AssetType = Field(..., description="Normalized: PDF | VID | IMG | AUD")
     agency: str
     release_date: str | None = None
     incident_date: str | None = None

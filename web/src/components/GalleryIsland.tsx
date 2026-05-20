@@ -21,7 +21,11 @@ type Filter = "all" | "image" | "video" | "document";
 const FILTERS: { key: Filter; label: string; predicate: (c: CardMetadata) => boolean }[] = [
   { key: "all", label: "ALL", predicate: () => true },
   { key: "image", label: "IMAGES", predicate: (c) => c.asset_type === "IMG" },
-  { key: "video", label: "VIDEOS", predicate: (c) => c.asset_type === "VID" },
+  // Sprint 4f: AUD lumped with VID under "VIDEOS" lane — both are
+  // DVIDS-hosted, no asset_url, no thumb. A separate "AUDIO" lane
+  // would be UI noise at N=1 today; revisit if upstream adds more
+  // audio cards.
+  { key: "video", label: "VIDEOS", predicate: (c) => c.asset_type === "VID" || c.asset_type === "AUD" },
   { key: "document", label: "DOCUMENTS", predicate: (c) => c.asset_type === "PDF" },
 ];
 
@@ -80,7 +84,12 @@ function GalleryTile({
   thumbUrl: string | null;
 }) {
   const isImage = card.asset_type === "IMG";
-  const isVideo = card.asset_type === "VID";
+  // Sprint 4f: VID and AUD both render through the no-poster
+  // DVIDS-embed shape since DVIDS-hosted audio doesn't ship a poster
+  // image. ``isVideo`` keeps its name for diff-readability; the tile
+  // label below uses ``card.asset_type`` so AUD shows up as AUD.
+  const isVideo = card.asset_type === "VID" || card.asset_type === "AUD";
+  const isAudio = card.asset_type === "AUD";
   const isPdf = card.asset_type === "PDF";
   const href = `${base}/card/${card.card_id}/`;
   const year = tileYear(card);
@@ -130,23 +139,42 @@ function GalleryTile({
           </>
         ) : isVideo ? (
           <div class="w-full h-full flex flex-col items-center justify-center text-[color:var(--color-text-dim)] gap-2 bg-[color:var(--color-bg-deep)]/85">
-            <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-[color:var(--color-signal-violet)]">
-              VID
-            </span>
-            <svg
-              aria-hidden="true"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="text-[color:var(--color-signal-violet)] opacity-80"
+            <span
+              class={`font-mono text-[10px] tracking-[0.18em] uppercase ${isAudio ? "text-[color:var(--color-signal-amber)]" : "text-[color:var(--color-signal-violet)]"}`}
             >
-              <polygon points="6 4 20 12 6 20 6 4"></polygon>
-            </svg>
+              {card.asset_type}
+            </span>
+            {isAudio ? (
+              <svg
+                aria-hidden="true"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-[color:var(--color-signal-amber)] opacity-80"
+              >
+                <path d="M3 12h2l2-7 4 14 3-10 3 6h4"></path>
+              </svg>
+            ) : (
+              <svg
+                aria-hidden="true"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-[color:var(--color-signal-violet)] opacity-80"
+              >
+                <polygon points="6 4 20 12 6 20 6 4"></polygon>
+              </svg>
+            )}
             {card.dvids_video_id && (
               <span class="font-mono text-[9px] text-[color:var(--color-text-faint)] tracking-wide">
                 DVIDS {card.dvids_video_id}
@@ -250,7 +278,9 @@ export default function GalleryIsland({ cards, base }: Props) {
     for (const c of cards) {
       out.all += 1;
       if (c.asset_type === "IMG") out.image += 1;
-      if (c.asset_type === "VID") out.video += 1;
+      // Sprint 4f: AUD counts toward the VIDEOS lane (DVIDS-hosted,
+      // no asset_url, mirrors VID behavior).
+      if (c.asset_type === "VID" || c.asset_type === "AUD") out.video += 1;
       if (c.asset_type === "PDF") out.document += 1;
     }
     return out;

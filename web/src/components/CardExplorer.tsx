@@ -46,6 +46,15 @@ const TYPE_TONE: Record<string, { bg: string; text: string; border: string; labe
     border: "border-[color:var(--color-signal-violet)]/40",
     label: "VID",
   },
+  // Sprint 4f: upstream relabeled the NASA Gemini 7 audio card from
+  // VID → AUD in tranche f75e2f7. Audio is DVIDS-hosted like video;
+  // a distinct badge keeps the filter UI honest.
+  AUD: {
+    bg: "bg-[color:var(--color-signal-amber)]/10",
+    text: "text-[color:var(--color-signal-amber)]",
+    border: "border-[color:var(--color-signal-amber)]/40",
+    label: "AUD",
+  },
 };
 
 function TypeBadge({ type }: { type: string }) {
@@ -279,7 +288,7 @@ function Filters(p: FiltersProps) {
         />
       </div>
       <Selector label="AGENCY" value={p.agency} onChange={p.setAgency} options={["", ...p.agencies]} />
-      <Selector label="TYPE" value={p.type} onChange={p.setType} options={["", "PDF", "IMG", "VID"]} />
+      <Selector label="TYPE" value={p.type} onChange={p.setType} options={["", "PDF", "IMG", "VID", "AUD"]} />
       <Selector
         label="DISCLOSURE"
         value={p.disclosure}

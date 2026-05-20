@@ -28,13 +28,28 @@ log = get_logger(__name__)
 
 
 def asset_path_for(card: CardMetadata) -> Path | None:
+    """Return the on-disk path the downloader should write this asset
+    to, or None if the card has no downloadable bytes.
+
+    None paths:
+      * No ``asset_url`` (VID + AUD cards are DVIDS-hosted and have
+        null asset_url today).
+      * No ``asset_filename``.
+      * Unknown ``asset_type`` (AUD without a configured download
+        target — Sprint 4f). ``.get()`` instead of ``[]`` so a future
+        asset type that lands upstream without a corresponding
+        settings entry fails-closed (skipped) rather than KeyErroring
+        through the pipeline.
+    """
     if not card.asset_url or not card.asset_filename:
         return None
     base = {
         "PDF": settings.pdf_dir,
         "IMG": settings.image_dir,
         "VID": settings.video_dir,
-    }[card.asset_type]
+    }.get(card.asset_type)
+    if base is None:
+        return None
     return base / card.card_id / card.asset_filename
 
 

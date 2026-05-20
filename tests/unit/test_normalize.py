@@ -35,9 +35,25 @@ def test_normalize_asset_type_handles_trailing_space() -> None:
     assert normalize_asset_type("img") == "IMG"
 
 
+def test_normalize_asset_type_accepts_aud() -> None:
+    """Sprint 4f: upstream relabeled the NASA Gemini 7 audio card
+    (card_id 167f6a21c7238d0c) from VID → AUD between tranche
+    c9cc83fcaf43 and f75e2f7de0ff. Parser must accept AUD as a
+    first-class asset type — same DVIDS-hosted metadata-only
+    semantics as VID, just audio instead of video.
+    """
+    assert normalize_asset_type("AUD") == "AUD"
+    assert normalize_asset_type("aud") == "AUD"
+    assert normalize_asset_type("AUD ") == "AUD"
+
+
 def test_normalize_asset_type_rejects_unknown() -> None:
     with pytest.raises(ValueError):
         normalize_asset_type("DOC")
+    # PHOTO is plausibly close to IMG but isn't a canonical type —
+    # must still fail closed so a future schema change surfaces loud.
+    with pytest.raises(ValueError):
+        normalize_asset_type("PHOTO")
 
 
 def test_parse_redacted() -> None:
