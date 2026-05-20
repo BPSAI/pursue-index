@@ -41,12 +41,19 @@ def clean_title(value: object) -> str:
 
 
 def normalize_asset_type(value: object) -> AssetType:
-    """Normalize the ``Type`` column to a known asset type."""
+    """Normalize the ``Type`` column to a known asset type.
+
+    AUD added Sprint 4f after upstream relabeled the NASA Gemini 7
+    audio card (card_id 167f6a21c7238d0c) from VID → AUD between
+    tranche c9cc83fcaf43 and f75e2f7de0ff. AUD semantics mirror VID:
+    DVIDS-hosted, no asset_url, metadata-only card. The download +
+    OCR lanes skip both types identically.
+    """
     s = clean_str(value)
     if not s:
         raise ValueError("Asset type is required")
     s = s.upper().strip()
-    if s in {"PDF", "VID", "IMG"}:
+    if s in {"PDF", "VID", "IMG", "AUD"}:
         return cast(AssetType, s)
     raise ValueError(f"Unknown asset type: {value!r}")
 

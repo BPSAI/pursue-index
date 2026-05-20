@@ -1,0 +1,33 @@
+{
+  "tranche_sha256": "f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543",
+  "prior_manifest_sha": "c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 0,
+    "quarantined": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 0,
+    "field_only_changes": 1
+  },
+  "renames_confirmed": [],
+  "new_content": [],
+  "quarantined": [],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [],
+  "field_only_changes": [
+    {
+      "card_id": "167f6a21c7238d0c",
+      "diffs": [
+        {
+          "field": "asset_type",
+          "old": "VID",
+          "new": "AUD"
+        }
+      ]
+    }
+  ]
+}

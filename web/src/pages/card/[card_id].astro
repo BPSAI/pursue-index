@@ -117,6 +117,13 @@ const TYPE_COLORS: Record<string, { fg: string; bg: string; border: string }> = 
     bg: "bg-[color:var(--color-signal-violet)]/10",
     border: "border-[color:var(--color-signal-violet)]/40",
   },
+  // Sprint 4f: amber matches CardExplorer.TYPE_TONE + GalleryIsland
+  // tile icon + the audio embed's DVIDS-id code styling below.
+  AUD: {
+    fg: "text-[color:var(--color-signal-amber)]",
+    bg: "bg-[color:var(--color-signal-amber)]/10",
+    border: "border-[color:var(--color-signal-amber)]/40",
+  },
 };
 const tc = TYPE_COLORS[card.asset_type] ?? TYPE_COLORS.PDF;
 
@@ -159,6 +166,11 @@ const facts: Fact[] = [
 
 const isPdf = card.asset_type === "PDF" && !!card.asset_url;
 const isVideo = card.asset_type === "VID" && !!card.dvids_video_id;
+// Sprint 4f: AUD cards share the DVIDS-id field today (the upstream
+// CSV uses the same "DVIDS Video ID" column for both video and audio).
+// DVIDS itself has a separate /audio/embed/<id> path that points at
+// the audio player.
+const isAudio = card.asset_type === "AUD" && !!card.dvids_video_id;
 const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : ""} — PURSUE://INDEX`;
 
 // Page-specific JSON-LD: DigitalDocument (with first-page OCR slice)
@@ -313,7 +325,32 @@ const cardJsonLd = [
               </span>
             </div>
           </div>
-        ) : card.modal_image_url && card.asset_type !== "VID" ? (
+        ) : isAudio ? (
+          <div class="space-y-2">
+            <div class="border border-[color:var(--color-border)] bg-black relative overflow-hidden">
+              <iframe
+                src={`https://www.dvidshub.net/audio/embed/${card.dvids_video_id}`}
+                title={`Audio: ${card.title}`}
+                referrerpolicy="no-referrer"
+                class="w-full h-[180px] bg-black"
+                loading="lazy"
+              ></iframe>
+            </div>
+            <div class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em]">
+              <a
+                href={`https://www.dvidshub.net/audio/${card.dvids_video_id}`}
+                target="_blank"
+                rel="noreferrer"
+                class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
+              >
+                Open on DVIDS ↗
+              </a>
+              <span class="text-[color:var(--color-text-faint)]">
+                DVIDS id: <code class="text-[color:var(--color-signal-amber)]">{card.dvids_video_id}</code>
+              </span>
+            </div>
+          </div>
+        ) : card.modal_image_url && card.asset_type !== "VID" && card.asset_type !== "AUD" ? (
           <div class="border border-[color:var(--color-border)] bg-black/40 p-2 relative scanlines-soft">
             <img
               src={card.modal_image_url}

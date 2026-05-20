@@ -11,7 +11,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-AssetType = Literal["PDF", "VID", "IMG"]
+AssetType = Literal["PDF", "VID", "IMG", "AUD"]
 
 
 class CardMetadata(BaseModel):
@@ -24,7 +24,7 @@ class CardMetadata(BaseModel):
 
     # Core CSV fields
     title: str
-    asset_type: AssetType = Field(..., description="Normalized: PDF | VID | IMG")
+    asset_type: AssetType = Field(..., description="Normalized: PDF | VID | IMG | AUD")
     agency: str
     release_date: str | None = None
     incident_date: str | None = None
@@ -37,7 +37,14 @@ class CardMetadata(BaseModel):
     asset_filename: str | None = None
     modal_image_url: HttpUrl | None = None
 
-    # Video-specific
+    # DVIDS-hosted media (video + audio per Sprint 4f). Field name
+    # retained as ``dvids_video_id`` for backwards-compat with prior
+    # manifests + the upstream CSV column "DVIDS Video ID" — but the
+    # value now also carries DVIDS audio IDs for AUD cards. The
+    # value space is shared (DVIDS IDs are content-type-agnostic on
+    # their end); only the embed path differs (/video/embed/<id> vs
+    # /audio/embed/<id>). Read sites should gate on ``asset_type``,
+    # not on field-name semantics.
     dvids_video_id: str | None = None
     video_title: str | None = None
 
