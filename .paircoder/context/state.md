@@ -1,6 +1,49 @@
 # Current State
 
-> Last updated: 2026-05-20 (Sprint 4f MERGED as squash commit `32ad9f5`. Tier-2 setup complete: signing key uploaded, OPERATOR_ALLOWED_SIGNERS secret set, baseline tag `registry-root-2026-05-20-1643-baseline` signed + verified. Real-world dry-run of Sprint 4d+4e+4f queued on next promote of tranche f75e2f7.)
+> Last updated: 2026-05-20 (Sprint 4g MERGED as squash commit `b339d1e`. The 79 silent-overlay byte events (May-14 redaction class) are now reachable via /altered + per-card banners + the new /archive/<sha>.<ext> worker route. Lying Cache-Control on /pdf/<card_id>.pdf retired. Audit gating for the planned Reddit post is satisfied.)
+
+## 2026-05-20 — Sprint 4g MERGED (PR #71 → `b339d1e`)
+
+Audit before the planned Reddit post found that 79 cards whose upstream bytes were silently re-published under the same card_ids (mostly 2026-05-14) were unreachable from any user-facing surface — visitors saw post-edit PDF in the iframe + pre-edit OCR text below + zero notice. `worker/pdf.js` even claimed `Cache-Control: immutable`, which had been quietly lying since May 14.
+
+### What shipped (4 phases)
+
+| Phase | Surface |
+|---|---|
+| 1 | `worker/pdf.js::tryHandleArchiveRoute` — new `/archive/<sha>.<ext>` route. Content-addressed (honestly immutable). Strict 64-hex sha + extension allowlist (pdf/png/jpg/jpeg/gif/webp/mp4). 16 new worker tests. Path-traversal hardened against encoded slashes, `..` segments, dotfiles, multi-dot, etc. |
+| 2 | `worker/pdf.js::baseHeaders` (renamed `buildHeaders`) — `/pdf/<card_id>.pdf` switched from `max-age=31536000, immutable` to Sprint 2.1 worker policy (`max-age=3600, stale-while-revalidate=86400`). `immutable` token explicitly removed (test asserts `doesNotMatch(/immutable/)`). |
+| 3 | `web/scripts/build_byte_history.mjs` + `web/src/data/byte-history.json` — build-time card_id → newest-first byte-history map (multi-sha cards only). Card-detail page renders amber "BYTES CHANGED UPSTREAM" banner above iframe linking to preserved version(s) via /archive/. |
+| 4 | `web/src/pages/altered.astro` — listing page with table (size delta, dates, archive link) + JSON-LD ItemList for crawler discoverability. `/removed.astro` header copy fix. Nav extension. `web/src/lib/byte-display.ts` + `altered-helpers.ts` extracted with pinned tests. |
+
+### Cycle (3 Codex review rounds + 1 in-house triad)
+
+- **Codex initial** on `577ee7a`: 0 blockers.
+- **Triad (nayru + laverna + vaivora)**: 5 M1 findings + 1 vaivora P1.1 operator-decision flag. Bundled fix-pass `40cf80f` applied 4 M1s (anchor mismatch in /removed, 78→79 comment drift, helper extraction × 2). vaivora P1.1 (AI bot policy on /archive/*) explicitly left as-is per operator direction.
+- **Codex on `40cf80f`**: P1 — registry has 28 .mp4 archive_keys; 9 of 79 multi-sha cards point at .mp4; without allowlist entry those /altered + banner links returned 400. Fix `79cd21e`: added `mp4 → video/mp4` + test. (+1 worker test → 153.)
+- **Codex on `79cd21e`**: P2 — sort comparator `(a.key < b.key ? 1 : -1)` never returned 0, violated sort-comparator contract; ES2019+ stable-sort masked it but inter-runtime stability not guaranteed. Fix `b862038`: explicit equality branch with deterministic byte_sha256 / title tie-breaker; tests pin the contract. byte-history.json regenerated (8-line diff, deterministic re-order among entries with tied fetched_at; `is_current` semantics preserved).
+- Merged as `b339d1e` per operator direction (no further Codex loop).
+
+### Final test deltas
+
+- Worker: 137 → 153 (+16 from archive.test.js + the MP4 test).
+- Web: build_byte_history.test.mjs +8, altered-helpers.test.ts +6, byte-display.test.ts +12. Astro build 183 pages (was 182, +1 for /altered).
+- Python: 669 passed; 1 pre-existing failure (apollo-17.png stale; unrelated to 4g — flagged for separate follow-up).
+- arch check: clean on every modified file.
+
+### Live spot-check (post CF Pages deploy)
+
+Verify after deploy: hit `https://pursueindex.com/altered/` (should list 79 cards) and a sample affected card (e.g. `/card/0d7a23b29e6de1bf/` FBI Photo B008 — should render amber "BYTES CHANGED UPSTREAM" banner with `-78.7%` delta + link to `/archive/cae6a62245153fd1...pdf`).
+
+### Deferred (per audit's P2, all operator-attended or follow-up)
+
+- OCR labeling on cards (~1h).
+- OCR re-run on the 79 new bytes for side-by-side text-diff page (~$0.20-15 spend + 4-6h impl; attended).
+- /removed copy update reflecting that two entries' content was re-published under new card_ids (editorial pass).
+- nayru L1 polish items (export cache constants, portable main-guard, Vary: Range, prebuild ordering comment, /altered in llms.txt) — defer to a separate sprint or punt entirely.
+- vaivora P1.1 (Disallow /archive/ for AI_ALLOW search bots) — operator chose to leave as-is.
+- Pre-existing apollo-17.png test failure on main — file separately as `chore(finds): rebuild apollo-17.png`.
+
+## 2026-05-20 — Sprint 4f MERGED (PR #70 → `32ad9f5`)
 
 ## 2026-05-20 — Sprint 4f MERGED (PR #70 → `32ad9f5`)
 
