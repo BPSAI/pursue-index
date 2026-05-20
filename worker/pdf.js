@@ -95,8 +95,16 @@ const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 
 /** Allowed extensions for the /archive/ route. Strict allowlist to
  * prevent serving arbitrary R2 keys (e.g., scripts, executables).
- * Tracks the asset-bytes-registry: today only PDF + image formats are
- * preserved. */
+ *
+ * Tracks the asset-bytes-registry. Today's preserved formats (audit
+ * via ``jq -r '.archive_key' data/asset-bytes-registry.jsonl | grep
+ * -oE '\\.[a-zA-Z0-9]+$' | sort | uniq -c``): 188 PDFs, 28 MP4s, 8
+ * PNGs, 6 JPGs.
+ *
+ * MP4 added in the PR #71 fix-pass after Codex flagged that 9 cards
+ * (11% of byte-history) had `.mp4` archive_keys — without this entry
+ * the /altered + card banners surfaced links that returned 400.
+ */
 const ARCHIVE_EXT_TO_CONTENT_TYPE = {
   pdf: "application/pdf",
   png: "image/png",
@@ -104,6 +112,7 @@ const ARCHIVE_EXT_TO_CONTENT_TYPE = {
   jpeg: "image/jpeg",
   gif: "image/gif",
   webp: "image/webp",
+  mp4: "video/mp4",
 };
 
 /** byte_sha256 in canonical lowercase 64-hex form (matches asset-bytes-

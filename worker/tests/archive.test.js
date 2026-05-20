@@ -92,6 +92,20 @@ describe("/archive/<sha>.<ext> route — happy path", () => {
     assert.equal(res.headers.get("Content-Type"), "image/png");
   });
 
+  test("serves MP4 with video/mp4 content type (Codex PR #71 P1)", async () => {
+    // 28 of 230 registry rows are .mp4 archive_keys (DVIDS video
+    // preservation); 9 multi-sha cards point at .mp4. Without this
+    // ext in the allowlist, the /altered + card-banner pre-edit
+    // links return 400 for ~11% of affected cards.
+    const body = new Uint8Array([0x00, 0x00, 0x00, 0x18]); // ftyp box prefix
+    const pdfs = makeR2({
+      [`archive/${VALID_SHA}.mp4`]: r2Object({ body, size: body.length }),
+    });
+    const res = await fetchPath(envWith(pdfs), "GET", `/archive/${VALID_SHA}.mp4`);
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get("Content-Type"), "video/mp4");
+  });
+
   test("HEAD returns headers with no body", async () => {
     const body = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
     const pdfs = makeR2({
