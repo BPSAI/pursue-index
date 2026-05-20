@@ -89,7 +89,7 @@ describe("GET /pdf/:card_id.pdf", () => {
   test("rejects an uppercase-hex card_id with 400 (lowercase only)", async () => {
     // Card IDs are derived as `sha256(...)[:16]` and stored lowercase.
     // Accepting uppercase here would let two URLs serve the same object
-    // and confuse the immutable cache.
+    // and split the CDN cache.
     const r2 = makeR2({});
     const r = await worker.fetch(
       new Request("https://x/pdf/ABCDEF0123456789.pdf", { method: "GET" }),
@@ -127,10 +127,19 @@ describe("GET /pdf/:card_id.pdf", () => {
       r.headers.get("Content-Disposition"),
       `inline; filename="${VALID_CARD_ID}.pdf"`,
     );
+    // Sprint 4g: the current-pointer URL /pdf/<card_id>.pdf is MUTABLE
+    // (card_id = sha256(asset_url || title)[:16], NOT sha256(bytes)).
+    // Upstream silently re-published 78 cards under their existing
+    // card_ids on 2026-05-14 with redacted bytes. The earlier
+    // `immutable` annotation was a lie — switched to the Sprint 2.1
+    // worker cache policy (1h fresh + 24h SWR) and CRITICALLY no
+    // ``immutable`` token. The honest immutable lane is the new
+    // /archive/<byte_sha256>.<ext> route (content-addressed).
     assert.equal(
       r.headers.get("Cache-Control"),
-      "public, max-age=31536000, immutable",
+      "public, max-age=3600, stale-while-revalidate=86400",
     );
+    assert.doesNotMatch(r.headers.get("Cache-Control"), /immutable/);
     assert.equal(r.headers.get("Accept-Ranges"), "bytes");
     assert.equal(r.headers.get("Content-Length"), String(body.byteLength));
     assert.equal(r.headers.get("ETag"), '"deadbeef"');

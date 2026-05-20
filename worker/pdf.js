@@ -56,20 +56,70 @@ export function parseRangeHeader(header) {
 }
 
 /**
- * Build the response headers common to both 200 and 206 responses.
- * Cache-Control is `immutable` because the URL is content-addressed:
- * a card's PDF bytes are pinned to its card_id; if the bytes ever
- * change, the card_id changes (sha256 of asset_url || title).
+ * Build the response headers common to both 200 and 206 responses for
+ * any R2-served object.
+ *
+ * Sprint 4g: callers pass an explicit ``cacheControl`` because the
+ * cacheability of an R2 object depends entirely on whether the URL is
+ * content-addressed:
+ *   * /pdf/<card_id>.pdf       — MUTABLE. card_id = sha256(asset_url
+ *     || title)[:16], NOT sha256(bytes). Upstream silently re-published
+ *     79 cards under their existing card_ids on 2026-05-14 with
+ *     different bytes. ``immutable`` was a lie here; we now use a
+ *     short max-age + SWR matching the Sprint 2.1 worker-cache pattern
+ *     for /data/*.json.
+ *   * /archive/<byte_sha256>.<ext> — IMMUTABLE. URL is content-addressed
+ *     by sha256 of bytes; if bytes change, sha changes, URL changes.
+ *     ``immutable`` is honest.
  */
-function baseHeaders(cardId, etag) {
+function buildHeaders({ filename, etag, contentType, cacheControl }) {
   const headers = new Headers();
-  headers.set("Content-Type", "application/pdf");
-  headers.set("Content-Disposition", `inline; filename="${cardId}.pdf"`);
-  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  headers.set("Content-Type", contentType);
+  headers.set("Content-Disposition", `inline; filename="${filename}"`);
+  headers.set("Cache-Control", cacheControl);
   headers.set("Accept-Ranges", "bytes");
   if (etag) headers.set("ETag", etag);
   return headers;
 }
+
+/** Cache-Control for the mutable current-pointer route /pdf/<card_id>.pdf.
+ *
+ * Matches the Sprint 2.1 worker policy for /data/*.json (1h fresh, 24h
+ * SWR). Critically NO ``immutable`` — bytes at this URL can change
+ * upstream-silent at any time.
+ */
+const MUTABLE_CACHE = "public, max-age=3600, stale-while-revalidate=86400";
+
+/** Cache-Control for the content-addressed /archive/<sha>.<ext> route. */
+const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
+
+/** Allowed extensions for the /archive/ route. Strict allowlist to
+ * prevent serving arbitrary R2 keys (e.g., scripts, executables).
+ *
+ * Tracks the asset-bytes-registry. Today's preserved formats (audit
+ * via ``jq -r '.archive_key' data/asset-bytes-registry.jsonl | grep
+ * -oE '\\.[a-zA-Z0-9]+$' | sort | uniq -c``): 188 PDFs, 28 MP4s, 8
+ * PNGs, 6 JPGs.
+ *
+ * MP4 added in the PR #71 fix-pass after Codex flagged that 9 cards
+ * (11% of byte-history) had `.mp4` archive_keys — without this entry
+ * the /altered + card banners surfaced links that returned 400.
+ */
+const ARCHIVE_EXT_TO_CONTENT_TYPE = {
+  pdf: "application/pdf",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  mp4: "video/mp4",
+};
+
+/** byte_sha256 in canonical lowercase 64-hex form (matches asset-bytes-
+ * registry.jsonl). Strict — uppercase, partial, or non-hex inputs
+ * reject at the router edge.
+ */
+export const BYTE_SHA_RE = /^[a-f0-9]{64}$/;
 
 /**
  * Serve a PDF from the R2 binding given a validated card_id.
@@ -78,13 +128,13 @@ function baseHeaders(cardId, etag) {
  * 50 MB PDF doesn't pin Worker memory. R2's `body` is already a
  * ReadableStream<Uint8Array> in the Workers runtime.
  */
-export async function serveR2Pdf(request, env, cardId) {
+async function serveR2Object(request, env, { key, filename, contentType, cacheControl, notFoundMessage }) {
   const isHead = request.method === "HEAD";
   const range = parseRangeHeader(request.headers.get("Range"));
   const opts = range ? { range } : undefined;
-  const obj = await env.PDFS.get(`${cardId}.pdf`, opts);
+  const obj = await env.PDFS.get(key, opts);
   if (obj == null) {
-    return new Response("PDF not found", {
+    return new Response(notFoundMessage, {
       status: 404,
       headers: { "Content-Type": "text/plain" },
     });
@@ -103,7 +153,7 @@ export async function serveR2Pdf(request, env, cardId) {
     });
   }
   const etag = obj.httpEtag ?? obj.etag;
-  const headers = baseHeaders(cardId, etag);
+  const headers = buildHeaders({ filename, etag, contentType, cacheControl });
   // HEAD must report the full set of GET headers (Content-Length, ETag,
   // Accept-Ranges) but ship a null body. The Response constructor accepts
   // `null` as body, which is the spec-compliant way to omit it.
@@ -119,6 +169,37 @@ export async function serveR2Pdf(request, env, cardId) {
   }
   headers.set("Content-Length", String(obj.size));
   return new Response(body, { status: 200, headers });
+}
+
+export async function serveR2Pdf(request, env, cardId) {
+  return serveR2Object(request, env, {
+    key: `${cardId}.pdf`,
+    filename: `${cardId}.pdf`,
+    contentType: "application/pdf",
+    cacheControl: MUTABLE_CACHE,
+    notFoundMessage: "PDF not found",
+  });
+}
+
+/**
+ * Serve preserved bytes from R2 key ``archive/<sha>.<ext>``.
+ *
+ * Sprint 4g. The URL is content-addressed by byte_sha256, so:
+ *   * Cache-Control is honestly immutable.
+ *   * Path traversal is structurally impossible — the sha must match
+ *     ``BYTE_SHA_RE`` (64-hex lowercase) and the extension must be in
+ *     the strict allowlist (PDF + common image formats). Anything else
+ *     is rejected at the router edge before R2 is consulted.
+ */
+export async function serveR2Archive(request, env, sha, ext) {
+  const contentType = ARCHIVE_EXT_TO_CONTENT_TYPE[ext];
+  return serveR2Object(request, env, {
+    key: `archive/${sha}.${ext}`,
+    filename: `${sha}.${ext}`,
+    contentType,
+    cacheControl: IMMUTABLE_CACHE,
+    notFoundMessage: "Archived object not found",
+  });
 }
 
 /**
@@ -144,4 +225,42 @@ export async function tryHandlePdfRoute(request, env) {
     });
   }
   return serveR2Pdf(request, env, cardId);
+}
+
+/**
+ * Match ``GET|HEAD /archive/<byte_sha256>.<ext>`` and dispatch to the
+ * archived-bytes serve path. Returns null when the request isn't ours
+ * so the caller can fall through to other routes.
+ *
+ * Strict parse-before-serve: both the sha and the extension must
+ * validate before the R2 binding is consulted. A path like
+ * ``/archive/../etc/passwd`` returns null at the dot check and falls
+ * through to static-asset handling (which 404s).
+ */
+export async function tryHandleArchiveRoute(request, env) {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/archive/")) return null;
+  const trailing = url.pathname.slice("/archive/".length);
+  // Require exactly one '.' separator with hex sha on the left + allowed
+  // ext on the right. Reject anything else (including missing extension,
+  // multiple dots, slashes from path-traversal attempts).
+  const dotIdx = trailing.indexOf(".");
+  if (dotIdx <= 0 || dotIdx !== trailing.lastIndexOf(".")) return null;
+  if (trailing.includes("/")) return null;
+  const sha = trailing.slice(0, dotIdx);
+  const ext = trailing.slice(dotIdx + 1);
+  if (!BYTE_SHA_RE.test(sha)) {
+    return new Response("invalid byte_sha256", {
+      status: 400,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+  if (!Object.prototype.hasOwnProperty.call(ARCHIVE_EXT_TO_CONTENT_TYPE, ext)) {
+    return new Response("disallowed extension", {
+      status: 400,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+  return serveR2Archive(request, env, sha, ext);
 }
