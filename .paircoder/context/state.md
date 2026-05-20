@@ -1,6 +1,73 @@
 # Current State
 
-> Last updated: 2026-05-20 (Sprint 4g MERGED as squash commit `b339d1e`. The 79 silent-overlay byte events (May-14 redaction class) are now reachable via /altered + per-card banners + the new /archive/<sha>.<ext> worker route. Lying Cache-Control on /pdf/<card_id>.pdf retired. Audit gating for the planned Reddit post is satisfied.)
+> Last updated: 2026-05-20 (Sprint 4h MERGED as squash commit `a7b3dae`. OCR text-diff surface live for 79 altered cards — visitors can see exact sentence-level redactions per card. Reddit-post receipts ready.)
+
+## 2026-05-20 — Sprint 4h MERGED (PR #72 → `a7b3dae`)
+
+The receipts layer for the May-14 redaction class. Sprint 4g made the bytes reachable; Sprint 4h shows the text changes. Audit's deferred P2.6 promoted to ship.
+
+### What landed
+
+| Layer | File | Notes |
+|---|---|---|
+| OCR pipeline | `scripts/reocr_altered.py` + `_reocr_helpers.py` | Sonnet 4.6 single-pass via existing `pursue_index.ocr.llm`. 8-way concurrency. Resume-aware + cost-capped. |
+| Diff builder | `scripts/build_altered_diffs.py` | Sentence-level via difflib. Symmetric coverage classification (complete / partial / post_extended). Pins pre-edit OCR source sha256 in `_meta` block. |
+| Diff page | `web/src/pages/altered/[card_id].astro` | Side-by-side red strikethrough / green underline. OCR INCOMPLETE banner for partial cards. |
+| Cross-links | `/altered` table "text diff →" + card banner "See exact text changes →" + llms.txt entries | Discoverability |
+| Data | `data/altered-ocr/<79 dirs>/pages.jsonl` (6.4 MB) + `web/src/data/altered-diffs.json` (9.3 MB) | Committed for reproducibility |
+
+### OCR run (operator-attended, 2026-05-20T20:17-22:23 UTC)
+
+- 79 cards selected, 3,425 OCR calls, **$46.24 total spend** (well under $90 cap)
+- 77 clean + 2 content-filter trips (`7d58f0cac741650a` truncated at page 87/184; `f85532f0514320be` at 74/205) → Sprint 4i follow-up via o4-mini backstop
+- Per-card OCR INCOMPLETE banner correctly surfaces truncation as truncation, not redaction
+
+### Headline diffs surfaced
+
+| Card | Removed | Added | Pages |
+|---|---|---|---|
+| `13f86e95aed52840` | 39,291 | 42,116 | 269 |
+| `e897e67f95bc1e1b` | 35,367 | 37,308 | 107 |
+| `8bfd94484138d59b` | 24,677 | 28,505 | 246 |
+| `7d58f0cac741650a` (partial) | 37,125 | 40,224 | 87/184 |
+| `0d7a23b29e6de1bf` (FBI Photo B008, -78.7% file shrink) | 16 | 12 | 1 |
+
+### Review cycle
+
+- **Codex initial** on `a203ff8`: 1 P2 (post-only pages dropped from diff)
+- **In-house triad** (nayru + laverna + vaivora): 3 H + 6 M + 15 L findings
+- **Fix-pass #1** (`69bed87`): H1 arch error on `build_card_diff`, H2 dead test code, H3 post_extended case (Codex P2 + triad H3 both), H4 pages-cleaned.json freshness pin via sha256, M1 dropped fsync, M2 warn on edge case
+- **Codex on fix-pass**: 1 new P1 (torn-write trap — every rerun re-spends full budget)
+- **Fix-pass #2** (`2c6fecd`): `truncate_jsonl_to_valid_prefix` helper; `ocr_card` repairs before resuming. 5 new tests pin the repair contract.
+- Squash-merged as `a7b3dae` per operator direction (no further Codex loop).
+
+### Test count
+
+- Sprint 4h: 0 → 37 (+14 reocr + 18 diff builder + 5 torn-write repair)
+- Full python suite: 700 → 705 passed
+- Pre-existing apollo-17.png failure on main: unchanged, Sprint 4i follow-up
+
+### Deferred to Sprint 4i (per triad)
+
+- Retry the 2 content-filter cards via o4-mini backstop (Sprint 4h banner explains the gap; ship-ready, Sprint 4i polishes)
+- Actual API usage tracking (vs current hardcoded 1500/600 token estimate) — needs change to canonical `pursue_index.ocr.llm` to return usage
+- OCR cache shareability (currently operator-local at `/mnt/nas/...`; future operators re-pay $46)
+- Keyed-per-card altered-diffs JSON (current 9.3 MB SSR-imported is fine for now)
+- JSON-LD on diff pages (discoverability polish)
+- Archive_key format assertion at `fetch_r2_pdf` (defense-in-depth)
+- CI size gate on altered-diffs.json
+- Lint nits (unused imports, sort __all__, etc.)
+- Pre-existing apollo-17.png stale test failure
+
+### Reddit-post status
+
+The four sprints (4d auto-closer + 4e tier-2 signing + 4f AUD type + 4g altered surface + 4h OCR diff) together complete the integrity-receipts story.
+
+Title that earns shares: "I built a side-by-side diff showing what the U.S. Department of War silently redacted from 79 declassified UAP documents after release. Every byte version preserved. Every change reproducible."
+
+Screenshot lead: the FBI Photo B008 diff at `/altered/0d7a23b29e6de1bf/` (78.7% file shrink, tabular data shifted) or the larger redaction events (`13f86e95aed52840` with 39k words removed).
+
+## 2026-05-20 — Sprint 4g MERGED (PR #71 → `b339d1e`)
 
 ## 2026-05-20 — Sprint 4g MERGED (PR #71 → `b339d1e`)
 
