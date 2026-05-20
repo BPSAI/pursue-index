@@ -1,6 +1,66 @@
 # Current State
 
-> Last updated: 2026-05-19 (Sprint 4e MERGED as squash commit `b76c2c8`. Feature lands dark — trigger is the operator completing the 5 setup steps + signing the baseline tag.)
+> Last updated: 2026-05-20 (Sprint 4f MERGED as squash commit `32ad9f5`. Tier-2 setup complete: signing key uploaded, OPERATOR_ALLOWED_SIGNERS secret set, baseline tag `registry-root-2026-05-20-1643-baseline` signed + verified. Real-world dry-run of Sprint 4d+4e+4f queued on next promote of tranche f75e2f7.)
+
+## 2026-05-20 — Sprint 4f MERGED (PR #70 → `32ad9f5`)
+
+AUD asset type support added after upstream relabeled the NASA Gemini 7 Audio Excerpt card (card_id `167f6a21c7238d0c`) from VID → AUD in tranche f75e2f7. The parser only accepted PDF/VID/IMG so it silently skipped the row, making the initial tranche_diff report a false-positive "removal". Post-merge, the diff correctly reads: 0 removed, 1 field-only-change (asset_type: VID → AUD).
+
+### Cycle (faster than 4d/4e — no Codex back-and-forth)
+
+- **Initial commit `12f9c38`** — parser core (types.py + normalize.py) + downstream surfaces (downloader defensive .get(), CardExplorer, GalleryIsland, CardOcrIsland, card-detail page).
+- **Codex initial review** — one P2 (already addressed in concurrent triad fix-pass; comment was anchored to the latest commit but referred to pre-fix-pass state).
+- **In-house triad (nayru + laverna + vaivora) caught 5 P1 consumer-side gaps**: types.ts mirror, gallery.astro filter, [card_id].astro TYPE_COLORS, TimelineIsland.tsx ALL_TYPES, test_downloader_asset_path AUD-with-url test coverage gap. Bundled fix-pass `8f02e48`.
+- **Codex re-review on `8f02e48`**: "Didn't find any major issues. More of your lovely PRs please." Clean.
+- Squash-merged as `32ad9f5`.
+
+### Surfaces touched
+
+| Layer | Files |
+|---|---|
+| Parser | `src/pursue_index/scrape/{types,normalize}.py` — AUD added to Literal + accepted set; dual semantics on `dvids_video_id` documented |
+| Downloader | `src/pursue_index/download/downloader.py` — defensive `.get()` on type→dir map (fail-closed for unknown future types) |
+| TypeScript mirror | `web/src/data/types.ts` |
+| Page filters | `web/src/pages/gallery.astro` allow-list |
+| Page rendering | `web/src/pages/card/[card_id].astro` — `isAudio` flag + `dvidshub.net/audio/embed/<id>` iframe + TYPE_COLORS amber entry |
+| Components | `CardExplorer.tsx` (TYPE_TONE + filter), `GalleryIsland.tsx` (VIDEOS-lane predicate + waveform tile icon + counter), `CardOcrIsland.tsx` (AUD empty-state copy), `TimelineIsland.tsx` (ALL_TYPES) |
+| Tests | `tests/unit/test_normalize.py` (AUD accept + PHOTO rejection); `tests/unit/test_downloader_asset_path.py` (new file, 6 tests pinning fail-closed contract) |
+| Tranche-diff | `.paircoder/plans/tranche-diff-f75e2f7de0ff.{json,md}` — committed refreshed diff |
+
+### Deferred with rationale
+
+- **laverna P2-001** (numeric-only validation of `dvids_video_id` before URL interpolation) — pre-existing parity issue with VID embed, not a 4f regression. Should land as a separate follow-up that defangs both embed paths together.
+- **nayru P2 polish** — non-blocking naming + constant-extraction items.
+
+### Test count (final)
+
+- Python: 663 → 670 (+7 across 4f).
+- Web: 6/6 pass + lib clean.
+- Worker: 137/137 pass.
+- Astro build: 182 pages, ~6.8s.
+- arch check: clean on every touched file.
+
+## Tier-2 setup status (post-Sprint-4e operator action items)
+
+All complete:
+
+- ✅ Signing key (ed25519, `~/.ssh/pursue_signing`) generated + uploaded to GitHub Settings → SSH and GPG keys → **Signing keys** (via `gh auth refresh -s admin:ssh_signing_key && gh ssh-key add ... --type signing`).
+- ✅ `OPERATOR_ALLOWED_SIGNERS` repo secret set (verified via `gh secret list`).
+- ✅ Git configured for SSH signing (`gpg.format=ssh`, `user.signingkey`, `tag.gpgsign=true` globally).
+- ✅ `docs/allowed-signers.txt` populated with operator pubkey (commits `e5be0f4` + `2ec89de`).
+- ✅ Baseline tag signed + pushed: `registry-root-2026-05-20-1643-baseline` over commit `e5be0f4`. Local `git tag -v` returns "Good git signature".
+- ⏸️ Optional: tag-pattern protection ruleset in GitHub Settings → Rules → Rulesets (defers force-deletion of `registry-root-*` tags).
+
+## Real-world dry-run queued (Sprint 4d + 4e + 4f end-to-end)
+
+Tranche `f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543` (NASA Gemini 7 audio reclassification) is detected upstream — issue #69 is open. Whenever the operator runs `pursue ingest run` to promote it, three sprints exercise simultaneously for the first time against a real event:
+
+1. **Sprint 4d auto-closer**: should close issue #69 once the promote commit lands on main.
+2. **Sprint 4e on-promote workflow**: should re-derive the registry root, match the bumped `data/registry-root.txt`, return green.
+3. **Sprint 4e signing-stale lane (daily verify)**: next 06:07 UTC tick should detect that current root no longer matches the latest signed tag → file `signing-stale` issue → operator signs a fresh tag → next cron resolves.
+4. **Sprint 4f rendering**: NASA Gemini 7 card displays via `dvidshub.net/audio/embed/1006119`, amber badge, AUD filter on /explore + /gallery VIDEOS lane + /timeline.
+
+vaivora flagged one item to tail during the dry-run: the asset_type mutation (VID → AUD) may surface a different auto-closer log path than card-id-only mutations. Worth watching the workflow log on first promote.
 
 ## 2026-05-19 — Sprint 4e MERGED (PR #68 → `b76c2c8`)
 
