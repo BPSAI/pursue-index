@@ -1,0 +1,180 @@
+---
+import Base from "../layouts/Base.astro";
+import { cards } from "../data/manifest-loader";
+import byteHistoryJson from "../data/byte-history.json";
+import { itemListJsonLd, SITE_ORIGIN } from "../lib/seo";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+type ByteHistoryEntry = {
+  byte_sha256: string;
+  byte_size: number;
+  fetched_at: string;
+  archive_key: string;
+  asset_filename: string | null;
+  is_current: boolean;
+};
+
+const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
+
+// Build the row set for the table. Pair each affected card_id with
+// the most recent and oldest archived entries — the table shows
+// "old size → new size" and "first observed → last edit" framing.
+type AlteredRow = {
+  card_id: string;
+  title: string;
+  asset_type: string;
+  current_entry: ByteHistoryEntry;
+  oldest_entry: ByteHistoryEntry;
+  total_versions: number;
+};
+
+const cardsById = new Map(cards.map((c) => [c.card_id, c]));
+const alteredRows: AlteredRow[] = [];
+for (const [cardId, entries] of Object.entries(byteHistory)) {
+  const card = cardsById.get(cardId);
+  if (!card) continue; // card may have been removed entirely (also covered by /removed)
+  const current = entries[0];
+  const oldest = entries[entries.length - 1];
+  alteredRows.push({
+    card_id: cardId,
+    title: card.title,
+    asset_type: card.asset_type,
+    current_entry: current,
+    oldest_entry: oldest,
+    total_versions: entries.length,
+  });
+}
+// Sort by most-recent edit first, then by title.
+alteredRows.sort((a, b) => {
+  const ad = a.current_entry.fetched_at;
+  const bd = b.current_entry.fetched_at;
+  if (ad !== bd) return ad < bd ? 1 : -1;
+  return a.title.localeCompare(b.title);
+});
+
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(2)} MB`;
+}
+function sizeDeltaPct(prior: number, current: number): string {
+  if (prior === 0) return "+∞";
+  const pct = ((current - prior) / prior) * 100;
+  const sign = pct >= 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}%`;
+}
+
+// JSON-LD ItemList for crawler discoverability. Each entry points
+// at the card-detail page (where the banner + iframe + archived
+// link live) — NOT directly at the /archive/<sha> URL, because the
+// card page is the operator-curated context.
+const itemListLd = itemListJsonLd(
+  alteredRows.map((row) => ({
+    id: row.card_id,
+    name: row.title,
+    url: `${SITE_ORIGIN}/card/${row.card_id}/`,
+  })),
+);
+---
+<Base title="ALTERED — PURSUE://INDEX" active="altered" jsonLd={itemListLd}>
+  <div class="space-y-6 max-w-5xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <div aria-hidden="true" class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)] flex items-center gap-2">
+        <span class="text-[color:var(--color-text-faint)]">$</span>
+        <span>jq 'group_by(.card_id) | map(select(length &gt; 1))' data/asset-bytes-registry.jsonl</span>
+      </div>
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        ALTERED UPSTREAM &mdash; BOTH VERSIONS PRESERVED
+      </h1>
+      <p class="text-sm text-[color:var(--color-text)] max-w-3xl">
+        Cards where the source bytes at the upstream URL changed but the
+        listing kept the same identifier. Distinct from <a href="/removed/" class="text-[color:var(--color-signal-cyan)] underline">/removed</a>,
+        which lists cards that disappeared from the manifest entirely.
+        Every byte version we&apos;ve observed is preserved in R2 and
+        reachable at <code class="text-[color:var(--color-signal-cyan)]">/archive/&lt;byte_sha256&gt;.&lt;ext&gt;</code>
+        (content-addressed, immutable, served same-origin).
+      </p>
+      <p class="text-xs text-[color:var(--color-text-dim)] max-w-3xl pt-1">
+        Detection happens at fetch time:
+        <code class="text-[color:var(--color-signal-cyan)]">scripts/r2_archive_assets.py</code>
+        HEAD-checks every asset_url before re-downloading; a Content-Length
+        delta or upstream ETag change re-fetches, the new bytes get hashed,
+        and if the byte_sha256 differs from the prior pinned value a new
+        row appends to <code>data/asset-bytes-registry.jsonl</code> with
+        the new <code>archive_key</code>. The old archive_key is never
+        overwritten (IfNoneMatch guards on R2). This page enumerates
+        every card whose registry has &gt;1 entry.
+      </p>
+    </header>
+
+    {alteredRows.length === 0 ? (
+      <p class="font-mono text-sm text-[color:var(--color-text-dim)]">
+        <span class="text-[color:var(--color-signal-green)]">[CLEAN]</span> No
+        upstream byte-edit events recorded.
+      </p>
+    ) : (
+      <section class="space-y-2">
+        <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
+          <span class="text-[color:var(--color-signal-amber)]">{alteredRows.length}</span> card{alteredRows.length === 1 ? "" : "s"} affected
+        </div>
+        <div class="overflow-x-auto border border-[color:var(--color-border)]">
+          <table class="w-full font-mono text-xs">
+            <thead class="bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">
+              <tr>
+                <th class="text-left px-3 py-2 text-[10px]">CARD</th>
+                <th class="text-left px-3 py-2 text-[10px]">TYPE</th>
+                <th class="text-left px-3 py-2 text-[10px]">SIZE Δ</th>
+                <th class="text-left px-3 py-2 text-[10px]">FIRST SEEN</th>
+                <th class="text-left px-3 py-2 text-[10px]">LAST EDIT</th>
+                <th class="text-left px-3 py-2 text-[10px]">PRESERVED</th>
+              </tr>
+            </thead>
+            <tbody>
+              {alteredRows.map((row) => (
+                <tr class="border-t border-[color:var(--color-border)] hover:bg-[color:var(--color-bg-elevated)]/50">
+                  <td class="px-3 py-2">
+                    <a href={`${base}/card/${row.card_id}/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">
+                      <code class="text-[10px]">{row.card_id}</code>
+                    </a>
+                    <div class="text-[color:var(--color-text-dim)] text-[10px] mt-0.5 max-w-md truncate" title={row.title}>
+                      {row.title}
+                    </div>
+                  </td>
+                  <td class="px-3 py-2 text-[color:var(--color-text-faint)]">{row.asset_type}</td>
+                  <td class="px-3 py-2 whitespace-nowrap">
+                    <span class="text-[color:var(--color-text-dim)]">{formatBytes(row.oldest_entry.byte_size)}</span>
+                    <span class="text-[color:var(--color-text-faint)] mx-1">→</span>
+                    <span class="text-[color:var(--color-text-bright)]">{formatBytes(row.current_entry.byte_size)}</span>
+                    <span class="text-[color:var(--color-text-faint)] ml-1 text-[10px]">
+                      ({sizeDeltaPct(row.oldest_entry.byte_size, row.current_entry.byte_size)})
+                    </span>
+                  </td>
+                  <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap text-[10px]">
+                    {row.oldest_entry.fetched_at.slice(0, 10)}
+                  </td>
+                  <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap text-[10px]">
+                    {row.current_entry.fetched_at.slice(0, 10)}
+                  </td>
+                  <td class="px-3 py-2">
+                    <a
+                      href={`/${row.oldest_entry.archive_key}`}
+                      class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] text-[10px]"
+                    >
+                      pre-edit ↗
+                    </a>
+                    {row.total_versions > 2 && (
+                      <span class="text-[color:var(--color-text-faint)] text-[10px] ml-1">
+                        (+{row.total_versions - 2} more)
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+  </div>
+</Base>

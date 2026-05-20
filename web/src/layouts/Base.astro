@@ -13,7 +13,7 @@ import { RELEASE } from "../lib/release";
 interface Props {
   title?: string;
   description?: string;
-  active?: "index" | "search" | "chat" | "diff" | "removed" | "about" | "methodology" | "cite" | "support" | "finds" | "atlas" | "gallery" | null;
+  active?: "index" | "search" | "chat" | "diff" | "removed" | "altered" | "about" | "methodology" | "cite" | "support" | "finds" | "atlas" | "gallery" | null;
   /**
    * Pre-launch: every page is noindex/nofollow until we flip the default.
    * FIXME(launch): flip noindex default to false once we're ready for SE indexing.
@@ -148,6 +148,7 @@ const navItems = [
   { href: `${base}/timeline`, label: "TIMELINE", key: "timeline" },
   { href: `${base}/diff`, label: "DIFF", key: "diff" },
   { href: `${base}/removed`, label: "REMOVED", key: "removed" },
+  { href: `${base}/altered`, label: "ALTERED", key: "altered" },
   { href: `${base}/about`, label: "ABOUT", key: "about" },
   { href: `${base}/methodology`, label: "METHODOLOGY", key: "methodology" },
   { href: `${base}/cite`, label: "CITE", key: "cite" },

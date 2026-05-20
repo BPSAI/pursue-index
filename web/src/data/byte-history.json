@@ -1,0 +1,1448 @@
+{
+  "085c019c9899db9b": [
+    {
+      "byte_sha256": "71ca8826db94d61583083ef8465a6902564532dcab7d49d0d2db3e86aaf85b2f",
+      "byte_size": 3698245,
+      "fetched_at": "2026-05-14T07:20:08.025317+00:00",
+      "archive_key": "archive/71ca8826db94d61583083ef8465a6902564532dcab7d49d0d2db3e86aaf85b2f.pdf",
+      "asset_filename": "dow-uap-d20-mission-report-iraq-2023.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "3e5b68e982951556825ffa4ac21fd8f950e4055ed4da4d425fa6387a660b398b",
+      "byte_size": 3354523,
+      "fetched_at": "2026-05-12T02:19:59.949908+00:00",
+      "archive_key": "archive/3e5b68e982951556825ffa4ac21fd8f950e4055ed4da4d425fa6387a660b398b.pdf",
+      "asset_filename": "dow-uap-d20-mission-report-iraq-2023.pdf",
+      "is_current": false
+    }
+  ],
+  "0d7a23b29e6de1bf": [
+    {
+      "byte_sha256": "bb60e830904c747b7a2a7f43b655d2c02534894529b74f36447d1a4b8f537701",
+      "byte_size": 124509,
+      "fetched_at": "2026-05-14T07:20:32.735942+00:00",
+      "archive_key": "archive/bb60e830904c747b7a2a7f43b655d2c02534894529b74f36447d1a4b8f537701.pdf",
+      "asset_filename": "fbi-photo-b8.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "cae6a62245153fd16acd8c4ff995d19c49fdadf7be152a85c8fe5d714fc3f423",
+      "byte_size": 585686,
+      "fetched_at": "2026-05-12T02:22:53.545458+00:00",
+      "archive_key": "archive/cae6a62245153fd16acd8c4ff995d19c49fdadf7be152a85c8fe5d714fc3f423.pdf",
+      "asset_filename": "fbi-photo-b8.pdf",
+      "is_current": false
+    }
+  ],
+  "0e3b3ec17a9ae021": [
+    {
+      "byte_sha256": "8a58dbdbe84dc4f29f131c9c471354ac9a4cac9276bc2503eb09a6b9eb215f09",
+      "byte_size": 169593,
+      "fetched_at": "2026-05-14T07:20:27.088693+00:00",
+      "archive_key": "archive/8a58dbdbe84dc4f29f131c9c471354ac9a4cac9276bc2503eb09a6b9eb215f09.pdf",
+      "asset_filename": "fbi-photo-b3.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "4a23e128950c1c45cf2f9e32c588088155e63e056d96f09ec94ddaa73ff0cccb",
+      "byte_size": 167999,
+      "fetched_at": "2026-05-12T02:22:44.232793+00:00",
+      "archive_key": "archive/4a23e128950c1c45cf2f9e32c588088155e63e056d96f09ec94ddaa73ff0cccb.pdf",
+      "asset_filename": "fbi-photo-b3.pdf",
+      "is_current": false
+    }
+  ],
+  "108379f8a86dbe9c": [
+    {
+      "byte_sha256": "77043137eec2494bbeeb945c2cf8674ce343617e3c4d14ab17a69806c58dae6a",
+      "byte_size": 21525036,
+      "fetched_at": "2026-05-14T07:19:44.432440+00:00",
+      "archive_key": "archive/77043137eec2494bbeeb945c2cf8674ce343617e3c4d14ab17a69806c58dae6a.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_130.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "6446322736ff970386c35f5d305a9d245e632e80f53594ca948718cefd8669a9",
+      "byte_size": 106690293,
+      "fetched_at": "2026-05-12T02:16:42.353685+00:00",
+      "archive_key": "archive/6446322736ff970386c35f5d305a9d245e632e80f53594ca948718cefd8669a9.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_130.pdf",
+      "is_current": false
+    }
+  ],
+  "13f86e95aed52840": [
+    {
+      "byte_sha256": "7620094802463bc97ea365b0e15438dd236739db15f0edc689aebd83a9f6a938",
+      "byte_size": 60929949,
+      "fetched_at": "2026-05-14T07:18:52.954245+00:00",
+      "archive_key": "archive/7620094802463bc97ea365b0e15438dd236739db15f0edc689aebd83a9f6a938.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_6.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "3df0935cf48e6847d0a5df77a987f8a446e545cc1dda20cad60f79d966516568",
+      "byte_size": 370571478,
+      "fetched_at": "2026-05-12T14:44:09.432732+00:00",
+      "archive_key": "archive/3df0935cf48e6847d0a5df77a987f8a446e545cc1dda20cad60f79d966516568.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_6.pdf",
+      "is_current": false
+    }
+  ],
+  "16fcb501de623b9c": [
+    {
+      "byte_sha256": "259b451d1355deb3c7f63a640641231859fe482ee7929b243727adf78716b64d",
+      "byte_size": 66245,
+      "fetched_at": "2026-05-14T07:20:38.960144+00:00",
+      "archive_key": "archive/259b451d1355deb3c7f63a640641231859fe482ee7929b243727adf78716b64d.pdf",
+      "asset_filename": "fbi-photo-b13.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "92555935e35bf99584a41d4433d9b53fd5e9eeff02656e86f7f3456c6f798984",
+      "byte_size": 434067,
+      "fetched_at": "2026-05-12T02:22:18.428079+00:00",
+      "archive_key": "archive/92555935e35bf99584a41d4433d9b53fd5e9eeff02656e86f7f3456c6f798984.pdf",
+      "asset_filename": "fbi-photo-b13.pdf",
+      "is_current": false
+    }
+  ],
+  "1701a0f307714921": [
+    {
+      "byte_sha256": "b18179d90564ecae48fbca58e945894633ac9c37f49f5781a9406a389b457663",
+      "byte_size": 112045,
+      "fetched_at": "2026-05-14T07:20:51.794429+00:00",
+      "archive_key": "archive/b18179d90564ecae48fbca58e945894633ac9c37f49f5781a9406a389b457663.pdf",
+      "asset_filename": "2024-04-30-composite-sketch.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "7768268e837325333be0ea00ce5c00f571de3190e0c390f33e098f183cbf19a5",
+      "byte_size": 109275,
+      "fetched_at": "2026-05-12T02:23:35.296308+00:00",
+      "archive_key": "archive/7768268e837325333be0ea00ce5c00f571de3190e0c390f33e098f183cbf19a5.pdf",
+      "asset_filename": "2024-04-30-composite-sketch.pdf",
+      "is_current": false
+    }
+  ],
+  "19d8e1d503211c84": [
+    {
+      "byte_sha256": "aad2a8d88ab6e1dae78467b1b8d4226424ecf19ec3f67eb9e9fc56a0dd38bda9",
+      "byte_size": 120485,
+      "fetched_at": "2026-05-14T07:20:36.920911+00:00",
+      "archive_key": "archive/aad2a8d88ab6e1dae78467b1b8d4226424ecf19ec3f67eb9e9fc56a0dd38bda9.pdf",
+      "asset_filename": "fbi-photo-b11.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "ff3909ff0fa5f99ee6da291d9241b9cd57b24f2889fcead89d8ae37a753d6c1c",
+      "byte_size": 582514,
+      "fetched_at": "2026-05-12T02:22:14.694559+00:00",
+      "archive_key": "archive/ff3909ff0fa5f99ee6da291d9241b9cd57b24f2889fcead89d8ae37a753d6c1c.pdf",
+      "asset_filename": "fbi-photo-b11.pdf",
+      "is_current": false
+    }
+  ],
+  "1b522e779e72877c": [
+    {
+      "byte_sha256": "d6614ddb85556a5ad5476be15798b97f16fc3396e42ceffd993548d1e3201389",
+      "byte_size": 2297146,
+      "fetched_at": "2026-05-14T07:20:20.114832+00:00",
+      "archive_key": "archive/d6614ddb85556a5ad5476be15798b97f16fc3396e42ceffd993548d1e3201389.pdf",
+      "asset_filename": "dow-uap-pr20.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "1ff8c16256579734969188915ad0e80062e1d5639bc424c6a207340e892c6dc6",
+      "byte_size": 2292342,
+      "fetched_at": "2026-05-12T02:21:09.015091+00:00",
+      "archive_key": "archive/1ff8c16256579734969188915ad0e80062e1d5639bc424c6a207340e892c6dc6.pdf",
+      "asset_filename": "dow-uap-pr20.pdf",
+      "is_current": false
+    }
+  ],
+  "1e63919cc6c3daf4": [
+    {
+      "byte_sha256": "6a456b9add3f4f6d87e39fa26698261bd86c654fd9d812d3a6cbd869d2b4de85",
+      "byte_size": 126599,
+      "fetched_at": "2026-05-14T07:20:24.219810+00:00",
+      "archive_key": "archive/6a456b9add3f4f6d87e39fa26698261bd86c654fd9d812d3a6cbd869d2b4de85.pdf",
+      "asset_filename": "fbi-photo-b1.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "6c47098b047b4cce59129072df1a7eeb5b6602da7ef209fa9dc1299e13622199",
+      "byte_size": 613116,
+      "fetched_at": "2026-05-12T02:21:24.910730+00:00",
+      "archive_key": "archive/6c47098b047b4cce59129072df1a7eeb5b6602da7ef209fa9dc1299e13622199.pdf",
+      "asset_filename": "fbi-photo-b1.pdf",
+      "is_current": false
+    }
+  ],
+  "218e167fbd265d91": [
+    {
+      "byte_sha256": "9d159600731338100b6b9c8565971b68aac644476fd766ade9d6bf126cfd3c7b",
+      "byte_size": 71924623,
+      "fetched_at": "2026-05-14T07:17:34.667402+00:00",
+      "archive_key": "archive/9d159600731338100b6b9c8565971b68aac644476fd766ade9d6bf126cfd3c7b.pdf",
+      "asset_filename": "342_hs1-416511228_box186_319.1-flying-discs-1949.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "707639e26003ce0c4f317b379626092d56af0f5a73db52cd91d4af184009c515",
+      "byte_size": 123253043,
+      "fetched_at": "2026-05-12T02:17:54.466293+00:00",
+      "archive_key": "archive/707639e26003ce0c4f317b379626092d56af0f5a73db52cd91d4af184009c515.pdf",
+      "asset_filename": "342_hs1-416511228_box186_319.1-flying-discs-1949.pdf",
+      "is_current": false
+    }
+  ],
+  "239d049dab8c81d5": [
+    {
+      "byte_sha256": "36b00fdf99e456dff9a507db7fd90fadb995db235650966f14b77279095fcc6a",
+      "byte_size": 265783,
+      "fetched_at": "2026-05-14T07:18:11.675545+00:00",
+      "archive_key": "archive/36b00fdf99e456dff9a507db7fd90fadb995db235650966f14b77279095fcc6a.pdf",
+      "asset_filename": "65_hs1-101634279_100-de-18221_serial_844.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "17e13c53b0cc0c3122b4d14d5b74a6cf8fda907179a9f8f8fea506c90c8fe09c",
+      "byte_size": 677153,
+      "fetched_at": "2026-05-12T02:18:56.048349+00:00",
+      "archive_key": "archive/17e13c53b0cc0c3122b4d14d5b74a6cf8fda907179a9f8f8fea506c90c8fe09c.pdf",
+      "asset_filename": "65_hs1-101634279_100-de-18221_serial_844.pdf",
+      "is_current": false
+    }
+  ],
+  "26b02d358ec20061": [
+    {
+      "byte_sha256": "3fc7a74876b36b328bca96953fd73049b063cc0b50ad412c7a32900c83539d89",
+      "byte_size": 5326217,
+      "fetched_at": "2026-05-14T07:18:13.322933+00:00",
+      "archive_key": "archive/3fc7a74876b36b328bca96953fd73049b063cc0b50ad412c7a32900c83539d89.pdf",
+      "asset_filename": "65_hs1-101634279_100-de-26505.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "d71c2f57a9f173b56220eb6a7f5b867a6d0ed296a0c997cd4997e26fc895f29b",
+      "byte_size": 12990300,
+      "fetched_at": "2026-05-12T02:18:59.055942+00:00",
+      "archive_key": "archive/d71c2f57a9f173b56220eb6a7f5b867a6d0ed296a0c997cd4997e26fc895f29b.pdf",
+      "asset_filename": "65_hs1-101634279_100-de-26505.pdf",
+      "is_current": false
+    }
+  ],
+  "2b947223739f5bd4": [
+    {
+      "byte_sha256": "1c4afdbae5c62023ed0c3cdf1272d864d851b5e178a2565ec8b744927c58c7ac",
+      "byte_size": 120747,
+      "fetched_at": "2026-05-14T07:20:38.018152+00:00",
+      "archive_key": "archive/1c4afdbae5c62023ed0c3cdf1272d864d851b5e178a2565ec8b744927c58c7ac.pdf",
+      "asset_filename": "fbi-photo-b12.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "c440872bb730cae896ce618a3b9d4c4d57553e1910ad218b41c0be01f8801694",
+      "byte_size": 574722,
+      "fetched_at": "2026-05-12T02:22:16.336279+00:00",
+      "archive_key": "archive/c440872bb730cae896ce618a3b9d4c4d57553e1910ad218b41c0be01f8801694.pdf",
+      "asset_filename": "fbi-photo-b12.pdf",
+      "is_current": false
+    }
+  ],
+  "36bcfe2cfb5f3f54": [
+    {
+      "byte_sha256": "9048f6d63441caa23ca385c07340399b34a3c70cd9d21da4f79fd73da57aafac",
+      "byte_size": 119604,
+      "fetched_at": "2026-05-14T07:20:29.305530+00:00",
+      "archive_key": "archive/9048f6d63441caa23ca385c07340399b34a3c70cd9d21da4f79fd73da57aafac.pdf",
+      "asset_filename": "fbi-photo-b5.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "032b86473fefc250def77d3904c381dad010e34390d58de54fd560054127936c",
+      "byte_size": 580719,
+      "fetched_at": "2026-05-12T02:22:48.200487+00:00",
+      "archive_key": "archive/032b86473fefc250def77d3904c381dad010e34390d58de54fd560054127936c.pdf",
+      "asset_filename": "fbi-photo-b5.pdf",
+      "is_current": false
+    }
+  ],
+  "3746998b8c506e5c": [
+    {
+      "byte_sha256": "7078d96f334dbf396e0e0a141f943009fe2191cd20842e16ee381bcbc2776c43",
+      "byte_size": 897434,
+      "fetched_at": "2026-05-12T02:20:14.650911+00:00",
+      "archive_key": "archive/7078d96f334dbf396e0e0a141f943009fe2191cd20842e16ee381bcbc2776c43.pdf",
+      "asset_filename": "dow-uap-d33-mission-report-greece-october-2023.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "34eb85ab42bb6ce5d376c02fd2db4eee0211864ed3bcd8a8247a08fe0da8c99e",
+      "byte_size": 198248609,
+      "fetched_at": "2026-05-11T17:46:04+00:00",
+      "archive_key": "archive/34eb85ab42bb6ce5d376c02fd2db4eee0211864ed3bcd8a8247a08fe0da8c99e.mp4",
+      "asset_filename": "DOD_111689011.mp4",
+      "is_current": false
+    }
+  ],
+  "3a5445e8aa7985d4": [
+    {
+      "byte_sha256": "92e6279262cc580978f5fd2bf9a0d1f1eb0e22326e6c2354fec861f174c7d611",
+      "byte_size": 62256,
+      "fetched_at": "2026-05-14T07:20:41.197222+00:00",
+      "archive_key": "archive/92e6279262cc580978f5fd2bf9a0d1f1eb0e22326e6c2354fec861f174c7d611.pdf",
+      "asset_filename": "fbi-photo-b15.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "0c6fe7a96a68e8440cd405bb92519fce639079a00ed6b6193863a39fa5a86c14",
+      "byte_size": 427316,
+      "fetched_at": "2026-05-12T02:22:21.978987+00:00",
+      "archive_key": "archive/0c6fe7a96a68e8440cd405bb92519fce639079a00ed6b6193863a39fa5a86c14.pdf",
+      "asset_filename": "fbi-photo-b15.pdf",
+      "is_current": false
+    }
+  ],
+  "3b36f3dc3b51cf3b": [
+    {
+      "byte_sha256": "a9abc1e6d69201bd0954a34170c2e70407b377b1791497666c13b580c7ac7a8f",
+      "byte_size": 62669,
+      "fetched_at": "2026-05-14T07:20:42.082797+00:00",
+      "archive_key": "archive/a9abc1e6d69201bd0954a34170c2e70407b377b1791497666c13b580c7ac7a8f.pdf",
+      "asset_filename": "fbi-photo-b16.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "76bc12588922fca7ef9019f1c809a07e3a159cb1d789013f6acbfcd893935b6a",
+      "byte_size": 433987,
+      "fetched_at": "2026-05-12T02:22:24.069150+00:00",
+      "archive_key": "archive/76bc12588922fca7ef9019f1c809a07e3a159cb1d789013f6acbfcd893935b6a.pdf",
+      "asset_filename": "fbi-photo-b16.pdf",
+      "is_current": false
+    }
+  ],
+  "43db2719407a7897": [
+    {
+      "byte_sha256": "1822564fbae08f152ad4541c8d067a6ec3b6014c4b4eb8209604e1facb5e1bb3",
+      "byte_size": 7463660,
+      "fetched_at": "2026-05-12T02:19:50.794556+00:00",
+      "archive_key": "archive/1822564fbae08f152ad4541c8d067a6ec3b6014c4b4eb8209604e1facb5e1bb3.pdf",
+      "asset_filename": "dow-uap-d14-mission-report-iraq-may-2022.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "af62b4e40a2eb0fd39f98093be2a6ae50271a011e7d5caca2119b26aaabc1212",
+      "byte_size": 12752210,
+      "fetched_at": "2026-05-11T17:45:44+00:00",
+      "archive_key": "archive/af62b4e40a2eb0fd39f98093be2a6ae50271a011e7d5caca2119b26aaabc1212.mp4",
+      "asset_filename": "DOD_111688762.mp4",
+      "is_current": false
+    }
+  ],
+  "4555d94dd6067f57": [
+    {
+      "byte_sha256": "b3b3f023d70bcce3178de9fe6a019ea6db5e5145bc7e28a49308442e190ef817",
+      "byte_size": 6999240,
+      "fetched_at": "2026-05-12T02:19:53.368470+00:00",
+      "archive_key": "archive/b3b3f023d70bcce3178de9fe6a019ea6db5e5145bc7e28a49308442e190ef817.pdf",
+      "asset_filename": "dow-uap-d16-mission-report-syria-july-2022.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "17106a65c823fb0c4c55f41be31f863f18300bd858f536726ea6f9f3cf35ac8c",
+      "byte_size": 3982264,
+      "fetched_at": "2026-05-11T17:45:46+00:00",
+      "archive_key": "archive/17106a65c823fb0c4c55f41be31f863f18300bd858f536726ea6f9f3cf35ac8c.mp4",
+      "asset_filename": "DOD_111688775.mp4",
+      "is_current": false
+    }
+  ],
+  "4844321219e306af": [
+    {
+      "byte_sha256": "b79da2d091ae8e1637f58d91602758feef2341aba3c90addd9c1487cdef58109",
+      "byte_size": 33449155,
+      "fetched_at": "2026-05-14T07:18:23.443439+00:00",
+      "archive_key": "archive/b79da2d091ae8e1637f58d91602758feef2341aba3c90addd9c1487cdef58109.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_2.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "e196678aefbf9d1239524925838250d452ac3155789d226d6ebe0158b915070e",
+      "byte_size": 118380300,
+      "fetched_at": "2026-05-12T02:15:41.556330+00:00",
+      "archive_key": "archive/e196678aefbf9d1239524925838250d452ac3155789d226d6ebe0158b915070e.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_2.pdf",
+      "is_current": false
+    }
+  ],
+  "48e4bc1bdb5a66e8": [
+    {
+      "byte_sha256": "1fe6258aa15843c8b5fba5dfc7da7b1939113201ab6710a183209c942790a6e0",
+      "byte_size": 277579,
+      "fetched_at": "2026-05-14T07:20:57.189517+00:00",
+      "archive_key": "archive/1fe6258aa15843c8b5fba5dfc7da7b1939113201ab6710a183209c942790a6e0.pdf",
+      "asset_filename": "255_t_763_r1b_transcripts.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "73cb8f0dc879a38811d9d745c11771263e112ec12a0e6bbabc27b9f781ddb74b",
+      "byte_size": 328211,
+      "fetched_at": "2026-05-12T02:17:29.231497+00:00",
+      "archive_key": "archive/73cb8f0dc879a38811d9d745c11771263e112ec12a0e6bbabc27b9f781ddb74b.pdf",
+      "asset_filename": "255_t_763_r1b_transcripts.pdf",
+      "is_current": false
+    }
+  ],
+  "4b68726be4af8ff9": [
+    {
+      "byte_sha256": "a61357a986698132d1704002b5eea63f687be0ef214013941fe670da1a9d3914",
+      "byte_size": 3208280,
+      "fetched_at": "2026-05-14T07:19:50.319736+00:00",
+      "archive_key": "archive/a61357a986698132d1704002b5eea63f687be0ef214013941fe670da1a9d3914.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_220.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "7899c7229a9c410bcc2ca0164c5a229c89c4ec9a31ead8824cdb8f5f501a605b",
+      "byte_size": 8421314,
+      "fetched_at": "2026-05-12T02:16:53.344805+00:00",
+      "archive_key": "archive/7899c7229a9c410bcc2ca0164c5a229c89c4ec9a31ead8824cdb8f5f501a605b.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_220.pdf",
+      "is_current": false
+    }
+  ],
+  "5847028ebb855cf8": [
+    {
+      "byte_sha256": "e1b27f7e274549e540de4cf77f9aae131cedcf3847819edd594a9825c4cad819",
+      "byte_size": 654734,
+      "fetched_at": "2026-05-14T07:21:09.235374+00:00",
+      "archive_key": "archive/e1b27f7e274549e540de4cf77f9aae131cedcf3847819edd594a9825c4cad819.pdf",
+      "asset_filename": "059uap00012.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "a289d6a9d8286514343ac3be8a793f0e1d297b400ccc0a417485cba385fd9230",
+      "byte_size": 656720,
+      "fetched_at": "2026-05-12T02:23:30.006587+00:00",
+      "archive_key": "archive/a289d6a9d8286514343ac3be8a793f0e1d297b400ccc0a417485cba385fd9230.pdf",
+      "asset_filename": "059uap00012.pdf",
+      "is_current": false
+    }
+  ],
+  "5d9d3147f0b62d0c": [
+    {
+      "byte_sha256": "74dc1a19ef09d093ceba4a0ab082bf3729cb19218c0c3481d8b71f814740c9b3",
+      "byte_size": 1052877,
+      "fetched_at": "2026-05-14T07:20:54.861978+00:00",
+      "archive_key": "archive/74dc1a19ef09d093ceba4a0ab082bf3729cb19218c0c3481d8b71f814740c9b3.pdf",
+      "asset_filename": "nasa-uap-d1-apollo-12-transcript-1969.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "ab911622b7d4203d9d54914f03d1662cf561b7f943afe9d17f9617cfaea06585",
+      "byte_size": 1030644,
+      "fetched_at": "2026-05-12T02:22:56.749567+00:00",
+      "archive_key": "archive/ab911622b7d4203d9d54914f03d1662cf561b7f943afe9d17f9617cfaea06585.pdf",
+      "asset_filename": "nasa-uap-d1-apollo-12-transcript-1969.pdf",
+      "is_current": false
+    }
+  ],
+  "5ecebc7c28a8d8c7": [
+    {
+      "byte_sha256": "c3a722892229c6da31db714aabfbe19ad86b82732258114a596cc076ea69d526",
+      "byte_size": 37916413,
+      "fetched_at": "2026-05-14T07:18:37.641757+00:00",
+      "archive_key": "archive/c3a722892229c6da31db714aabfbe19ad86b82732258114a596cc076ea69d526.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_4.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "1ddb6ef944239c55b86c1089246cd77aadd1d3d391238a1feeab700f7b773d7b",
+      "byte_size": 92073029,
+      "fetched_at": "2026-05-12T02:16:10.607979+00:00",
+      "archive_key": "archive/1ddb6ef944239c55b86c1089246cd77aadd1d3d391238a1feeab700f7b773d7b.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_4.pdf",
+      "is_current": false
+    }
+  ],
+  "63c47bad93af4c92": [
+    {
+      "byte_sha256": "23c76f92be6a04417373771a12229c0a6857b9769086989c1b5e459afb5c3e52",
+      "byte_size": 122499,
+      "fetched_at": "2026-05-14T07:20:59.657317+00:00",
+      "archive_key": "archive/23c76f92be6a04417373771a12229c0a6857b9769086989c1b5e459afb5c3e52.pdf",
+      "asset_filename": "nasa-uap-d5-apollo-17-crew-debriefing-for-science-1973.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "5d7db3870de8c01a1c39b7e8a4185dd026fe132f01d1cd5ded60f10866722f7e",
+      "byte_size": 212585,
+      "fetched_at": "2026-05-12T02:23:07.171247+00:00",
+      "archive_key": "archive/5d7db3870de8c01a1c39b7e8a4185dd026fe132f01d1cd5ded60f10866722f7e.pdf",
+      "asset_filename": "nasa-uap-d5-apollo-17-crew-debriefing-for-science-1973.pdf",
+      "is_current": false
+    }
+  ],
+  "672ae7eab15481ff": [
+    {
+      "byte_sha256": "b9b413c19731ce7d48c503c45cc8d00fd1be08154e0321cbf18b9a3613e31c7d",
+      "byte_size": 132213,
+      "fetched_at": "2026-05-14T07:20:28.168479+00:00",
+      "archive_key": "archive/b9b413c19731ce7d48c503c45cc8d00fd1be08154e0321cbf18b9a3613e31c7d.pdf",
+      "asset_filename": "fbi-photo-b4.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "d5dd840f008b10fcd88bcab731f07b56fb614aa16048ced9672c9b40a9c9bc69",
+      "byte_size": 593683,
+      "fetched_at": "2026-05-12T02:22:46.186505+00:00",
+      "archive_key": "archive/d5dd840f008b10fcd88bcab731f07b56fb614aa16048ced9672c9b40a9c9bc69.pdf",
+      "asset_filename": "fbi-photo-b4.pdf",
+      "is_current": false
+    }
+  ],
+  "67ab3ffef2aecf70": [
+    {
+      "byte_sha256": "861e37148d76359fb10e52eb7c2f17760f60ca0977ef0ad1079c5cda11b19530",
+      "byte_size": 122637,
+      "fetched_at": "2026-05-14T07:20:25.396566+00:00",
+      "archive_key": "archive/861e37148d76359fb10e52eb7c2f17760f60ca0977ef0ad1079c5cda11b19530.pdf",
+      "asset_filename": "fbi-photo-b2.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "e55d5cab5063153c6f2f27314c47b9e4a7f4938f2cefc6bfecf7eb6264b0a07b",
+      "byte_size": 583544,
+      "fetched_at": "2026-05-12T02:22:32.494027+00:00",
+      "archive_key": "archive/e55d5cab5063153c6f2f27314c47b9e4a7f4938f2cefc6bfecf7eb6264b0a07b.pdf",
+      "asset_filename": "fbi-photo-b2.pdf",
+      "is_current": false
+    }
+  ],
+  "67c2ef13cc69891c": [
+    {
+      "byte_sha256": "0df8c23b9c7710c849ebffc9d17edf3299e3f2876554ac8aa64bc5822e97150c",
+      "byte_size": 1082077,
+      "fetched_at": "2026-05-14T07:19:45.429676+00:00",
+      "archive_key": "archive/0df8c23b9c7710c849ebffc9d17edf3299e3f2876554ac8aa64bc5822e97150c.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_153.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "fbb76ffa1aad67e53d98e189b557ee3f893d2374ca28ae93862a79db20908db6",
+      "byte_size": 5546075,
+      "fetched_at": "2026-05-12T02:16:44.800864+00:00",
+      "archive_key": "archive/fbb76ffa1aad67e53d98e189b557ee3f893d2374ca28ae93862a79db20908db6.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_153.pdf",
+      "is_current": false
+    }
+  ],
+  "6bda02c546051f43": [
+    {
+      "byte_sha256": "fc5b1c8ab566157080d8137cdbbbf7f2c3d74e7e1fae52d49dcd5c44b06237ba",
+      "byte_size": 3167015,
+      "fetched_at": "2026-05-14T07:17:23.282101+00:00",
+      "archive_key": "archive/fc5b1c8ab566157080d8137cdbbbf7f2c3d74e7e1fae52d49dcd5c44b06237ba.pdf",
+      "asset_filename": "341_110448_records_relating_to_the_collection_and_dissemination_of_intelligence_1948-1955-ts_cont_no.2_2-5300-2-5399.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "45b2fdb6c919cd8ed9c4406f4d60c7add073669dff5a5497595d4ecf08d72073",
+      "byte_size": 9888054,
+      "fetched_at": "2026-05-12T02:17:36.251424+00:00",
+      "archive_key": "archive/45b2fdb6c919cd8ed9c4406f4d60c7add073669dff5a5497595d4ecf08d72073.pdf",
+      "asset_filename": "341_110448_records_relating_to_the_collection_and_dissemination_of_intelligence_1948-1955-ts_cont_no.2_2-5300-2-5399.pdf",
+      "is_current": false
+    }
+  ],
+  "6ded7ef20ded84c7": [
+    {
+      "byte_sha256": "8af86cd09af935b39d650d4db78adac5802600abc427f1683cc58cc44cf4bb42",
+      "byte_size": 67392,
+      "fetched_at": "2026-05-14T07:20:50.329486+00:00",
+      "archive_key": "archive/8af86cd09af935b39d650d4db78adac5802600abc427f1683cc58cc44cf4bb42.pdf",
+      "asset_filename": "fbi-photo-b24.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "3dab0652bc49b11624234042e65b3340a1146586ed9521f15731517ce042f8e1",
+      "byte_size": 440280,
+      "fetched_at": "2026-05-12T02:22:42.892872+00:00",
+      "archive_key": "archive/3dab0652bc49b11624234042e65b3340a1146586ed9521f15731517ce042f8e1.pdf",
+      "asset_filename": "fbi-photo-b24.pdf",
+      "is_current": false
+    }
+  ],
+  "78dc972c0c143d1e": [
+    {
+      "byte_sha256": "18ee158476f1203b0ce45bc1eb9b209c225e30b4181ec0fb98b338b2cc0b7591",
+      "byte_size": 643401,
+      "fetched_at": "2026-05-14T07:20:56.141772+00:00",
+      "archive_key": "archive/18ee158476f1203b0ce45bc1eb9b209c225e30b4181ec0fb98b338b2cc0b7591.pdf",
+      "asset_filename": "nasa-uap-d2-apollo-17-transcript-1972.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "9d041c8799a0124dc440c05cacd790a43d9e063e399aaa5cd3ee777b14146d03",
+      "byte_size": 463669,
+      "fetched_at": "2026-05-12T02:22:58.749189+00:00",
+      "archive_key": "archive/9d041c8799a0124dc440c05cacd790a43d9e063e399aaa5cd3ee777b14146d03.pdf",
+      "asset_filename": "nasa-uap-d2-apollo-17-transcript-1972.pdf",
+      "is_current": false
+    }
+  ],
+  "7d1b50162c29378a": [
+    {
+      "byte_sha256": "31c9299629c77d05de4acd549edfd548841baacc8460fd1fec9c683082f5239d",
+      "byte_size": 74014,
+      "fetched_at": "2026-05-14T07:20:40.309353+00:00",
+      "archive_key": "archive/31c9299629c77d05de4acd549edfd548841baacc8460fd1fec9c683082f5239d.pdf",
+      "asset_filename": "fbi-photo-b14.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "54f36aa547dd25b7c099a66b2c5f52c951315906a704d6b215cb1651e7dc92f2",
+      "byte_size": 448290,
+      "fetched_at": "2026-05-12T02:22:20.020516+00:00",
+      "archive_key": "archive/54f36aa547dd25b7c099a66b2c5f52c951315906a704d6b215cb1651e7dc92f2.pdf",
+      "asset_filename": "fbi-photo-b14.pdf",
+      "is_current": false
+    }
+  ],
+  "7d58f0cac741650a": [
+    {
+      "byte_sha256": "b13552c6b558408ef1e28a46158e6a45a62d74c3aac6074f74abb23bcab76fbe",
+      "byte_size": 58141207,
+      "fetched_at": "2026-05-14T07:19:41.387587+00:00",
+      "archive_key": "archive/b13552c6b558408ef1e28a46158e6a45a62d74c3aac6074f74abb23bcab76fbe.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_10.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "06f96d67fa825b5aefe41bd60e6f3860d71320e2aa436a2bf30240e12c33d0f0",
+      "byte_size": 106167501,
+      "fetched_at": "2026-05-12T02:15:33.899525+00:00",
+      "archive_key": "archive/06f96d67fa825b5aefe41bd60e6f3860d71320e2aa436a2bf30240e12c33d0f0.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_10.pdf",
+      "is_current": false
+    }
+  ],
+  "7fd3d2656cbc83a6": [
+    {
+      "byte_sha256": "23482936d9dbf8dee014f3b0e1e12462731e617894c724aca6bcb688a01e277c",
+      "byte_size": 28550135,
+      "fetched_at": "2026-05-14T07:17:39.472909+00:00",
+      "archive_key": "archive/23482936d9dbf8dee014f3b0e1e12462731e617894c724aca6bcb688a01e277c.pdf",
+      "asset_filename": "38_143685_box7_incident_summaries_101-172.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "f4b5cf6a93fe47c09123ce53706e430c814229ed688a49a96244a90b4bcf3e05",
+      "byte_size": 242733260,
+      "fetched_at": "2026-05-12T02:18:20.482017+00:00",
+      "archive_key": "archive/f4b5cf6a93fe47c09123ce53706e430c814229ed688a49a96244a90b4bcf3e05.pdf",
+      "asset_filename": "38_143685_box7_incident_summaries_101-172.pdf",
+      "is_current": false
+    }
+  ],
+  "88a20bf256ccce7a": [
+    {
+      "byte_sha256": "90b353682ba2181149054d0911b7553e58e959438dd4de531a06fc387a332f85",
+      "byte_size": 342668,
+      "fetched_at": "2026-05-12T02:20:18.609529+00:00",
+      "archive_key": "archive/90b353682ba2181149054d0911b7553e58e959438dd4de531a06fc387a332f85.pdf",
+      "asset_filename": "dow-uap-d38-range-fouler-debrief-middle-east-may-2020.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "5f32ce0126de2c9571f2af368b2629c15b4f1cb3582700641ef31c1d1a8ceac8",
+      "byte_size": 142686223,
+      "fetched_at": "2026-05-11T17:46:10+00:00",
+      "archive_key": "archive/5f32ce0126de2c9571f2af368b2629c15b4f1cb3582700641ef31c1d1a8ceac8.mp4",
+      "asset_filename": "DOD_111689030.mp4",
+      "is_current": false
+    }
+  ],
+  "8bb54e0aec5e91ad": [
+    {
+      "byte_sha256": "61f7e6594e7ab6959503214c73a2a591dc231a14ba92df8e36d0bb0a0fbd6691",
+      "byte_size": 301657,
+      "fetched_at": "2026-05-14T07:21:01.018067+00:00",
+      "archive_key": "archive/61f7e6594e7ab6959503214c73a2a591dc231a14ba92df8e36d0bb0a0fbd6691.pdf",
+      "asset_filename": "nasa-uap-d7-skylab-technical-crew-debriefing-1973.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "49e232c72a77f16f7e06593789a36882d614888d882a74d71eabcc7d2ce94fb6",
+      "byte_size": 659470,
+      "fetched_at": "2026-05-12T02:23:10.937772+00:00",
+      "archive_key": "archive/49e232c72a77f16f7e06593789a36882d614888d882a74d71eabcc7d2ce94fb6.pdf",
+      "asset_filename": "nasa-uap-d7-skylab-technical-crew-debriefing-1973.pdf",
+      "is_current": false
+    }
+  ],
+  "8bfd94484138d59b": [
+    {
+      "byte_sha256": "c0a322f3544e3ba6c95257b89b2fd3aec3249c7a5d8f419e3f1826facea40a08",
+      "byte_size": 52058639,
+      "fetched_at": "2026-05-14T07:19:34.492552+00:00",
+      "archive_key": "archive/c0a322f3544e3ba6c95257b89b2fd3aec3249c7a5d8f419e3f1826facea40a08.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_9.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "ca1684b554c662851028c03a8861028e04f1d813e5621ffbb888b8eac87e9fce",
+      "byte_size": 91452111,
+      "fetched_at": "2026-05-12T02:16:30.659943+00:00",
+      "archive_key": "archive/ca1684b554c662851028c03a8861028e04f1d813e5621ffbb888b8eac87e9fce.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_9.pdf",
+      "is_current": false
+    }
+  ],
+  "8d0b85ce46109d06": [
+    {
+      "byte_sha256": "8565c159b82f50a6e9038987f0b71541aa38f07737a91b08af1a5cf224b6a2f3",
+      "byte_size": 63768,
+      "fetched_at": "2026-05-14T07:21:12.877433+00:00",
+      "archive_key": "archive/8565c159b82f50a6e9038987f0b71541aa38f07737a91b08af1a5cf224b6a2f3.pdf",
+      "asset_filename": "western_us_event_slides_5.08.2026.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "6a4e6ee6111eec24d28aa9b4b9d72beafe0be5a480972683fbce82f758e6be35",
+      "byte_size": 63463,
+      "fetched_at": "2026-05-12T02:23:42.355369+00:00",
+      "archive_key": "archive/6a4e6ee6111eec24d28aa9b4b9d72beafe0be5a480972683fbce82f758e6be35.pdf",
+      "asset_filename": "western_us_event_slides_5.08.2026.pdf",
+      "is_current": false
+    }
+  ],
+  "8f354cf1d1f821f0": [
+    {
+      "byte_sha256": "566894d9cb31e15818e87d54e848a634ddd711aa7fb9ed72402d4a759e3a3bf8",
+      "byte_size": 306604,
+      "fetched_at": "2026-05-14T07:21:05.430407+00:00",
+      "archive_key": "archive/566894d9cb31e15818e87d54e848a634ddd711aa7fb9ed72402d4a759e3a3bf8.pdf",
+      "asset_filename": "dos-uap-d1-cable-1-papua-new-guinea-january-1985.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "74032ed145b1badbb1049005b4b77ba95351cb573c3cf6578a77ca25f4033220",
+      "byte_size": 301285,
+      "fetched_at": "2026-05-12T02:23:24.476635+00:00",
+      "archive_key": "archive/74032ed145b1badbb1049005b4b77ba95351cb573c3cf6578a77ca25f4033220.pdf",
+      "asset_filename": "dos-uap-d1-cable-1-papua-new-guinea-january-1985.pdf",
+      "is_current": false
+    }
+  ],
+  "9317a6ea91f7425c": [
+    {
+      "byte_sha256": "5479dd8f1138ef43c8bcf51481fe83df06d1704bdc54244d893c21cf0aad926f",
+      "byte_size": 4740807,
+      "fetched_at": "2026-05-14T07:17:17.291147+00:00",
+      "archive_key": "archive/5479dd8f1138ef43c8bcf51481fe83df06d1704bdc54244d893c21cf0aad926f.pdf",
+      "asset_filename": "18_6369445_general_1948_vol_1.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "34d59dc7578ffe7e072a6164c6050f45cff30b634313a87141c0886aa93d15c7",
+      "byte_size": 65878977,
+      "fetched_at": "2026-05-12T02:17:23.306765+00:00",
+      "archive_key": "archive/34d59dc7578ffe7e072a6164c6050f45cff30b634313a87141c0886aa93d15c7.pdf",
+      "asset_filename": "18_6369445_general_1948_vol_1.pdf",
+      "is_current": false
+    }
+  ],
+  "954d1e1944bc6d17": [
+    {
+      "byte_sha256": "b557b29df1c6f2c5ff8fa51e5cafb9ef9b61672a38ec0522658a1a13efb8bcae",
+      "byte_size": 890862,
+      "fetched_at": "2026-05-14T07:19:51.551620+00:00",
+      "archive_key": "archive/b557b29df1c6f2c5ff8fa51e5cafb9ef9b61672a38ec0522658a1a13efb8bcae.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_403.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "5cb3c74eecbafa0fb9d961ab173a1de54a89cbf430b55bdf144475c341413acf",
+      "byte_size": 5745008,
+      "fetched_at": "2026-05-12T02:16:55.559481+00:00",
+      "archive_key": "archive/5cb3c74eecbafa0fb9d961ab173a1de54a89cbf430b55bdf144475c341413acf.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_403.pdf",
+      "is_current": false
+    }
+  ],
+  "973c1f75f55d0d39": [
+    {
+      "byte_sha256": "b6a51b4cd1c09ff6ab811422d1af98173d1a2ba9193ee426b9b060e4cb9eea30",
+      "byte_size": 24581224,
+      "fetched_at": "2026-05-14T07:17:21.645516+00:00",
+      "archive_key": "archive/b6a51b4cd1c09ff6ab811422d1af98173d1a2ba9193ee426b9b060e4cb9eea30.pdf",
+      "asset_filename": "255_413270_ufo's_and_defense_what_should_we_prepare_for.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "2af37a8e08174de45b12ee3acc628736a3a36c5d95edd6c2c17f0bf6ccf1431e",
+      "byte_size": 33457869,
+      "fetched_at": "2026-05-12T02:17:27.663533+00:00",
+      "archive_key": "archive/2af37a8e08174de45b12ee3acc628736a3a36c5d95edd6c2c17f0bf6ccf1431e.pdf",
+      "asset_filename": "255_413270_ufo's_and_defense_what_should_we_prepare_for.pdf",
+      "is_current": false
+    }
+  ],
+  "9877727cd0d1bbfe": [
+    {
+      "byte_sha256": "e1d583556594e3e98f0ceea5598760c9d122283c4582f7d5f6c6c9ad96ad76e3",
+      "byte_size": 382367,
+      "fetched_at": "2026-05-14T07:21:06.488829+00:00",
+      "archive_key": "archive/e1d583556594e3e98f0ceea5598760c9d122283c4582f7d5f6c6c9ad96ad76e3.pdf",
+      "asset_filename": "dos-uap-d2-cable-2-kazakhstan-january-1994.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "64847feac6a309a847a39689ed2036e556f35a253189c7b9b33bd9d40b26b239",
+      "byte_size": 370719,
+      "fetched_at": "2026-05-12T02:23:26.897565+00:00",
+      "archive_key": "archive/64847feac6a309a847a39689ed2036e556f35a253189c7b9b33bd9d40b26b239.pdf",
+      "asset_filename": "dos-uap-d2-cable-2-kazakhstan-january-1994.pdf",
+      "is_current": false
+    }
+  ],
+  "9961adf6adf1010b": [
+    {
+      "byte_sha256": "4752dd830144b21c3055a2fea8b44c551445b41622c27db64fb0fa07c2dcd93d",
+      "byte_size": 3673697,
+      "fetched_at": "2026-05-12T02:19:55.632670+00:00",
+      "archive_key": "archive/4752dd830144b21c3055a2fea8b44c551445b41622c27db64fb0fa07c2dcd93d.pdf",
+      "asset_filename": "dow-uap-d18-mission-report-iraq-december-2022.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "d6a177a7004837546b8e3ea12ad0e632d9c31eabca427e05ae6eb9d4e4493f47",
+      "byte_size": 5300653,
+      "fetched_at": "2026-05-11T17:45:46+00:00",
+      "archive_key": "archive/d6a177a7004837546b8e3ea12ad0e632d9c31eabca427e05ae6eb9d4e4493f47.mp4",
+      "asset_filename": "DOD_111688809.mp4",
+      "is_current": false
+    }
+  ],
+  "99c12a9c49a91750": [
+    {
+      "byte_sha256": "ba72ac1879acea2f3c87f6bf40983f3b5f39f03038e1b59f907d136b0f02eab4",
+      "byte_size": 35533010,
+      "fetched_at": "2026-05-14T07:18:30.219497+00:00",
+      "archive_key": "archive/ba72ac1879acea2f3c87f6bf40983f3b5f39f03038e1b59f907d136b0f02eab4.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_3.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "1a9e21457d266c408a9982485034fed73ebdbede94b3c8322ee024eaa60cfe57",
+      "byte_size": 50907255,
+      "fetched_at": "2026-05-12T02:16:00.570281+00:00",
+      "archive_key": "archive/1a9e21457d266c408a9982485034fed73ebdbede94b3c8322ee024eaa60cfe57.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_3.pdf",
+      "is_current": false
+    }
+  ],
+  "9e2c2621d67dde12": [
+    {
+      "byte_sha256": "cddcc196385c373ef7fd55fee4c196bfad531860a05777786cf6d90a2fd7dabd",
+      "byte_size": 1169464,
+      "fetched_at": "2026-05-14T07:18:09.488450+00:00",
+      "archive_key": "archive/cddcc196385c373ef7fd55fee4c196bfad531860a05777786cf6d90a2fd7dabd.pdf",
+      "asset_filename": "59_214434_sp_16_[7.18.1963].pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "aba3ec3b8ef0240364308cf046ccbfcd252c5a5d7ef470d696b72c1f41b2502d",
+      "byte_size": 1598931,
+      "fetched_at": "2026-05-12T02:18:52.701798+00:00",
+      "archive_key": "archive/aba3ec3b8ef0240364308cf046ccbfcd252c5a5d7ef470d696b72c1f41b2502d.pdf",
+      "asset_filename": "59_214434_sp_16_[7.18.1963].pdf",
+      "is_current": false
+    }
+  ],
+  "9e677b8697685311": [
+    {
+      "byte_sha256": "373070ab867b592e5d76cd063f50887a00b7653d2ae4b86a6d988155ecd7c993",
+      "byte_size": 4838247,
+      "fetched_at": "2026-05-14T07:17:15.681895+00:00",
+      "archive_key": "archive/373070ab867b592e5d76cd063f50887a00b7653d2ae4b86a6d988155ecd7c993.pdf",
+      "asset_filename": "18_100754_ general 1946-7_vol_2.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "85d659d6b2208610ac55e6c82cfed0315002f4b6d43963a29fb8e973258bfdd2",
+      "byte_size": 61464225,
+      "fetched_at": "2026-05-12T02:17:16.866602+00:00",
+      "archive_key": "archive/85d659d6b2208610ac55e6c82cfed0315002f4b6d43963a29fb8e973258bfdd2.pdf",
+      "asset_filename": "18_100754_ general 1946-7_vol_2.pdf",
+      "is_current": false
+    }
+  ],
+  "a417f61b2dbd671f": [
+    {
+      "byte_sha256": "921e5ea0a0b4264d6aabfecee036fc924bf11dd9c6212873122c0fa457de194a",
+      "byte_size": 63037,
+      "fetched_at": "2026-05-14T07:20:49.367698+00:00",
+      "archive_key": "archive/921e5ea0a0b4264d6aabfecee036fc924bf11dd9c6212873122c0fa457de194a.pdf",
+      "asset_filename": "fbi-photo-b23.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "ddd839e52ad4d98986a25a760d0040c475d4c43fb7a52cf4c817aa87f51d9271",
+      "byte_size": 423857,
+      "fetched_at": "2026-05-12T02:22:41.195617+00:00",
+      "archive_key": "archive/ddd839e52ad4d98986a25a760d0040c475d4c43fb7a52cf4c817aa87f51d9271.pdf",
+      "asset_filename": "fbi-photo-b23.pdf",
+      "is_current": false
+    }
+  ],
+  "ad721de274bb7d6c": [
+    {
+      "byte_sha256": "ad2fd32949337143a56a9089a193e22f953edb28b1ee07a9ad8c5330bb1b9aa1",
+      "byte_size": 255526310,
+      "fetched_at": "2026-05-14T07:19:27.920145+00:00",
+      "archive_key": "archive/ad2fd32949337143a56a9089a193e22f953edb28b1ee07a9ad8c5330bb1b9aa1.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_8.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "29f187bce011d5e4eaad979e179dfb746d7dbe6a0701ed6cb6b32199080ffd55",
+      "byte_size": 120391107,
+      "fetched_at": "2026-05-12T02:19:44.204724+00:00",
+      "archive_key": "archive/29f187bce011d5e4eaad979e179dfb746d7dbe6a0701ed6cb6b32199080ffd55.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_8.pdf",
+      "is_current": false
+    }
+  ],
+  "af047a976bac0c89": [
+    {
+      "byte_sha256": "8195bb3076df73633e568307823bd2ff2ab53c50e8a427122e41db0c26e0cf53",
+      "byte_size": 126186,
+      "fetched_at": "2026-05-14T07:20:35.772889+00:00",
+      "archive_key": "archive/8195bb3076df73633e568307823bd2ff2ab53c50e8a427122e41db0c26e0cf53.pdf",
+      "asset_filename": "fbi-photo-b10.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "1594af0628fa9ae782b86bb3721ae2c1233a0bf0e03e6b45dd82a9badc642aa8",
+      "byte_size": 601748,
+      "fetched_at": "2026-05-12T02:22:13.291465+00:00",
+      "archive_key": "archive/1594af0628fa9ae782b86bb3721ae2c1233a0bf0e03e6b45dd82a9badc642aa8.pdf",
+      "asset_filename": "fbi-photo-b10.pdf",
+      "is_current": false
+    }
+  ],
+  "af42a6774881c110": [
+    {
+      "byte_sha256": "88c6b1c82931a1ddcb25c9c8797d8631bb31588f02e7a98717362556335274fc",
+      "byte_size": 7579278,
+      "fetched_at": "2026-05-14T07:19:53.746054+00:00",
+      "archive_key": "archive/88c6b1c82931a1ddcb25c9c8797d8631bb31588f02e7a98717362556335274fc.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_438.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "9a98bf803016c9a2252c03ea960d61d0e35652c88a9098018ebf8f953141c9a8",
+      "byte_size": 15143657,
+      "fetched_at": "2026-05-12T02:17:01.255701+00:00",
+      "archive_key": "archive/9a98bf803016c9a2252c03ea960d61d0e35652c88a9098018ebf8f953141c9a8.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_438.pdf",
+      "is_current": false
+    }
+  ],
+  "b246c782b16be168": [
+    {
+      "byte_sha256": "ed97686fb1301e3a12e19d91f833f31da5b97065ef85560fc6d8fce7b7c2265d",
+      "byte_size": 36260149,
+      "fetched_at": "2026-05-14T07:18:43.285590+00:00",
+      "archive_key": "archive/ed97686fb1301e3a12e19d91f833f31da5b97065ef85560fc6d8fce7b7c2265d.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_5.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "8bac3aeb023a716259510a74b1264cc38f16b3a012e420e1551a163e4df57573",
+      "byte_size": 58041955,
+      "fetched_at": "2026-05-12T02:16:16.185325+00:00",
+      "archive_key": "archive/8bac3aeb023a716259510a74b1264cc38f16b3a012e420e1551a163e4df57573.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_5.pdf",
+      "is_current": false
+    }
+  ],
+  "b279eac8e49cf4fe": [
+    {
+      "byte_sha256": "c70c7334e7b8f38701fc9951e356cc702c194caaeae12f6e5a41c1bf0c2463e9",
+      "byte_size": 124905,
+      "fetched_at": "2026-05-14T07:20:30.303746+00:00",
+      "archive_key": "archive/c70c7334e7b8f38701fc9951e356cc702c194caaeae12f6e5a41c1bf0c2463e9.pdf",
+      "asset_filename": "fbi-photo-b6.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "09444e6501f05a4030120db174a1841e891814464fd7ce6f325178d3c09cdf1a",
+      "byte_size": 608164,
+      "fetched_at": "2026-05-12T02:22:49.928875+00:00",
+      "archive_key": "archive/09444e6501f05a4030120db174a1841e891814464fd7ce6f325178d3c09cdf1a.pdf",
+      "asset_filename": "fbi-photo-b6.pdf",
+      "is_current": false
+    }
+  ],
+  "b60b84a66715204a": [
+    {
+      "byte_sha256": "c1c48d35943e6522fc285592453136526b6e41fed23b61a0e81ac61b68d8bde6",
+      "byte_size": 32675506,
+      "fetched_at": "2026-05-14T07:18:08.459258+00:00",
+      "archive_key": "archive/c1c48d35943e6522fc285592453136526b6e41fed23b61a0e81ac61b68d8bde6.pdf",
+      "asset_filename": "38_143685_box7_incident_summaries_1-100.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "13d1805bd1725b38174a328ddf34db564228163768a9082ddd59bca3780fc10e",
+      "byte_size": 247087612,
+      "fetched_at": "2026-05-12T02:18:50.920263+00:00",
+      "archive_key": "archive/13d1805bd1725b38174a328ddf34db564228163768a9082ddd59bca3780fc10e.pdf",
+      "asset_filename": "38_143685_box7_incident_summaries_1-100.pdf",
+      "is_current": false
+    }
+  ],
+  "bcf2e688dfbc220d": [
+    {
+      "byte_sha256": "6768eb6e15f7566057b77aad159767ca87e2846493a645e015ad8e06fdb759be",
+      "byte_size": 30436722,
+      "fetched_at": "2026-05-14T07:18:17.262148+00:00",
+      "archive_key": "archive/6768eb6e15f7566057b77aad159767ca87e2846493a645e015ad8e06fdb759be.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_1.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "47e9d92b03cd96e2af3510ae7b583ce03c6a89acc21a3cc75c0cae3773c19c35",
+      "byte_size": 108961866,
+      "fetched_at": "2026-05-12T02:19:20.216643+00:00",
+      "archive_key": "archive/47e9d92b03cd96e2af3510ae7b583ce03c6a89acc21a3cc75c0cae3773c19c35.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_1.pdf",
+      "is_current": false
+    }
+  ],
+  "bdf033d4a47eaad3": [
+    {
+      "byte_sha256": "97112a6fe175f0458412961285976b9384b31eceb540fe00abbe1bd28e51ceaa",
+      "byte_size": 122810,
+      "fetched_at": "2026-05-14T07:20:47.130498+00:00",
+      "archive_key": "archive/97112a6fe175f0458412961285976b9384b31eceb540fe00abbe1bd28e51ceaa.pdf",
+      "asset_filename": "fbi-photo-b20.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "d5f7a811de98462378fb4b61beeeb107bd2aa58d32b0a0d3a7788e1457b3593f",
+      "byte_size": 577784,
+      "fetched_at": "2026-05-12T02:22:34.509956+00:00",
+      "archive_key": "archive/d5f7a811de98462378fb4b61beeeb107bd2aa58d32b0a0d3a7788e1457b3593f.pdf",
+      "asset_filename": "fbi-photo-b20.pdf",
+      "is_current": false
+    }
+  ],
+  "be226374e719c729": [
+    {
+      "byte_sha256": "b24365329f506d92acfae313f0ed3aef2060de17d72bf61b6c91bc035bf7dd95",
+      "byte_size": 161362330,
+      "fetched_at": "2026-05-14T07:18:02.788073+00:00",
+      "archive_key": "archive/b24365329f506d92acfae313f0ed3aef2060de17d72bf61b6c91bc035bf7dd95.pdf",
+      "asset_filename": "38_143685_box7_incident_summaries_173-233.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "1d9722f764878359c73135f82b12608f1267eaf90d274c7d5775ab43bc9a289c",
+      "byte_size": 49382924,
+      "fetched_at": "2026-05-12T02:18:26.142384+00:00",
+      "archive_key": "archive/1d9722f764878359c73135f82b12608f1267eaf90d274c7d5775ab43bc9a289c.pdf",
+      "asset_filename": "38_143685_box7_incident_summaries_173-233.pdf",
+      "is_current": false
+    }
+  ],
+  "be533a4ab886eb11": [
+    {
+      "byte_sha256": "60c1239f7a6bad9655cb66e7b3a82c7e582762f8b4248bc1b614cca9a82d6e37",
+      "byte_size": 786861,
+      "fetched_at": "2026-05-14T07:21:11.970114+00:00",
+      "archive_key": "archive/60c1239f7a6bad9655cb66e7b3a82c7e582762f8b4248bc1b614cca9a82d6e37.pdf",
+      "asset_filename": "usper-statement-redacted.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "63deae172b2bd4923696ed097c0c25d1286f116be1efb313d14c0630ac0a1786",
+      "byte_size": 786792,
+      "fetched_at": "2026-05-12T02:23:33.715114+00:00",
+      "archive_key": "archive/63deae172b2bd4923696ed097c0c25d1286f116be1efb313d14c0630ac0a1786.pdf",
+      "asset_filename": "usper-statement-redacted.pdf",
+      "is_current": false
+    }
+  ],
+  "c1c59236394f7b14": [
+    {
+      "byte_sha256": "f9deed9063306b0c45a5a0f6b754db6967f7dc3a0ed66097f154be4b0f033399",
+      "byte_size": 663290,
+      "fetched_at": "2026-05-12T02:19:46.202853+00:00",
+      "archive_key": "archive/f9deed9063306b0c45a5a0f6b754db6967f7dc3a0ed66097f154be4b0f033399.pdf",
+      "asset_filename": "dow-uap-d10-mission-report-middle-east-may-2022.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "a38432ae56298abadf50de06103a6fbd591ea539e124ab1db25a4a511468cfb6",
+      "byte_size": 6814452,
+      "fetched_at": "2026-05-11T17:45:44+00:00",
+      "archive_key": "archive/a38432ae56298abadf50de06103a6fbd591ea539e124ab1db25a4a511468cfb6.mp4",
+      "asset_filename": "DOD_111688723.mp4",
+      "is_current": false
+    }
+  ],
+  "c48c078b811c0fd7": [
+    {
+      "byte_sha256": "257e2388f838975fcee0b00a381059e903e64018b7aafb7a12e5392437154f5f",
+      "byte_size": 1208817,
+      "fetched_at": "2026-05-14T07:21:10.778461+00:00",
+      "archive_key": "archive/257e2388f838975fcee0b00a381059e903e64018b7aafb7a12e5392437154f5f.pdf",
+      "asset_filename": "059uap00013.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "022b27728e86e291e078cac1d4fd5dcf225b2f6700175db9ea8ada19147318d8",
+      "byte_size": 1221743,
+      "fetched_at": "2026-05-12T02:23:31.891683+00:00",
+      "archive_key": "archive/022b27728e86e291e078cac1d4fd5dcf225b2f6700175db9ea8ada19147318d8.pdf",
+      "asset_filename": "059uap00013.pdf",
+      "is_current": false
+    }
+  ],
+  "c568aea24f3aef31": [
+    {
+      "byte_sha256": "64c4b8d8df93af933cc16efc183c27a4262284d0dffe2ca5f6479a32fa536eb0",
+      "byte_size": 61286,
+      "fetched_at": "2026-05-14T07:20:44.950406+00:00",
+      "archive_key": "archive/64c4b8d8df93af933cc16efc183c27a4262284d0dffe2ca5f6479a32fa536eb0.pdf",
+      "asset_filename": "fbi-photo-b18.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "5e8801ee956ccb3aed9c605cd9e1d097b2abfd379d3d6e84d4c09a080aa570fd",
+      "byte_size": 429941,
+      "fetched_at": "2026-05-12T02:22:27.775457+00:00",
+      "archive_key": "archive/5e8801ee956ccb3aed9c605cd9e1d097b2abfd379d3d6e84d4c09a080aa570fd.pdf",
+      "asset_filename": "fbi-photo-b18.pdf",
+      "is_current": false
+    }
+  ],
+  "c788c17e8cc32230": [
+    {
+      "byte_sha256": "b4f4f4ce6dc7687a543905990671f999cd6c5a9e579159bfda501bf6d04f4445",
+      "byte_size": 1415369,
+      "fetched_at": "2026-05-12T02:20:16.573791+00:00",
+      "archive_key": "archive/b4f4f4ce6dc7687a543905990671f999cd6c5a9e579159bfda501bf6d04f4445.pdf",
+      "asset_filename": "dow-uap-d35-mission-report-greece-october-2023.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "670077e60bca959cde784ae1595688d645397804d811a7f5a85912c60045d471",
+      "byte_size": 2406930,
+      "fetched_at": "2026-05-11T17:46:06+00:00",
+      "archive_key": "archive/670077e60bca959cde784ae1595688d645397804d811a7f5a85912c60045d471.mp4",
+      "asset_filename": "DOD_111689022.mp4",
+      "is_current": false
+    }
+  ],
+  "ccd932b4f40e8de7": [
+    {
+      "byte_sha256": "829f0a7381883c14261023832fedb51259a06d50eae7ba13ca21b9b9c5b45713",
+      "byte_size": 135280,
+      "fetched_at": "2026-05-14T07:20:31.357736+00:00",
+      "archive_key": "archive/829f0a7381883c14261023832fedb51259a06d50eae7ba13ca21b9b9c5b45713.pdf",
+      "asset_filename": "fbi-photo-b7.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "4f3122c323c6c0b6ef1bb12cefc623d7488b03fe1c5161f4ea4e111b91347684",
+      "byte_size": 607218,
+      "fetched_at": "2026-05-12T02:22:51.512045+00:00",
+      "archive_key": "archive/4f3122c323c6c0b6ef1bb12cefc623d7488b03fe1c5161f4ea4e111b91347684.pdf",
+      "asset_filename": "fbi-photo-b7.pdf",
+      "is_current": false
+    }
+  ],
+  "d8e5687dc870892d": [
+    {
+      "byte_sha256": "ea1cd5296143f378db533066b524c32c1ecfbfd43d74ec6be7d832c20fa271bb",
+      "byte_size": 1324277,
+      "fetched_at": "2026-05-12T02:20:01.628722+00:00",
+      "archive_key": "archive/ea1cd5296143f378db533066b524c32c1ecfbfd43d74ec6be7d832c20fa271bb.pdf",
+      "asset_filename": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "3c510fe34677a0784c656105b9653ce3039d83de46f929f1ee6d6fb820ce3b8c",
+      "byte_size": 155885289,
+      "fetched_at": "2026-05-11T17:45:52+00:00",
+      "archive_key": "archive/3c510fe34677a0784c656105b9653ce3039d83de46f929f1ee6d6fb820ce3b8c.mp4",
+      "asset_filename": "DOD_111688825.mp4",
+      "is_current": false
+    },
+    {
+      "byte_sha256": "46fdeec860cdaa6b27b6fcc51d0b7e045347d494832cdc65f2038e702eaa58aa",
+      "byte_size": 27493716,
+      "fetched_at": "2026-05-11T17:45:46+00:00",
+      "archive_key": "archive/46fdeec860cdaa6b27b6fcc51d0b7e045347d494832cdc65f2038e702eaa58aa.mp4",
+      "asset_filename": "DOD_111688816.mp4",
+      "is_current": false
+    }
+  ],
+  "dc9f45a9ec6feb00": [
+    {
+      "byte_sha256": "8dd6f06197acb06f90d60387ecb21367c23b4f67c1011641a5be6e43f842a922",
+      "byte_size": 66951,
+      "fetched_at": "2026-05-14T07:20:48.352686+00:00",
+      "archive_key": "archive/8dd6f06197acb06f90d60387ecb21367c23b4f67c1011641a5be6e43f842a922.pdf",
+      "asset_filename": "fbi-photo-b22.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "932c53d8d8031325459c479e54a6c44ea9408faa26344f2a983417ed437d0dc5",
+      "byte_size": 434482,
+      "fetched_at": "2026-05-12T02:22:39.370871+00:00",
+      "archive_key": "archive/932c53d8d8031325459c479e54a6c44ea9408faa26344f2a983417ed437d0dc5.pdf",
+      "asset_filename": "fbi-photo-b22.pdf",
+      "is_current": false
+    }
+  ],
+  "df43a479bc891969": [
+    {
+      "byte_sha256": "2539850305227baf0b3bb487cbf41f5834eca2b188dc2d65849fdb06b683bd13",
+      "byte_size": 898369,
+      "fetched_at": "2026-05-14T07:18:10.744910+00:00",
+      "archive_key": "archive/2539850305227baf0b3bb487cbf41f5834eca2b188dc2d65849fdb06b683bd13.pdf",
+      "asset_filename": "59_64634_711.5612[7-2852.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "dd6e0d2d32cec2ab397f2615f0d563b1b5edeeba719b3643b64abce0dee8a552",
+      "byte_size": 879944,
+      "fetched_at": "2026-05-12T02:18:54.285142+00:00",
+      "archive_key": "archive/dd6e0d2d32cec2ab397f2615f0d563b1b5edeeba719b3643b64abce0dee8a552.pdf",
+      "asset_filename": "59_64634_711.5612[7-2852.pdf",
+      "is_current": false
+    }
+  ],
+  "e897e67f95bc1e1b": [
+    {
+      "byte_sha256": "ed6e3824974865fe91667f834c2aba6e3f3d503a5913928dfefb62425279d2e4",
+      "byte_size": 35851631,
+      "fetched_at": "2026-05-14T07:20:01.671712+00:00",
+      "archive_key": "archive/ed6e3824974865fe91667f834c2aba6e3f3d503a5913928dfefb62425279d2e4.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_sub_a.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "35995afc0d3986fffe9ca48b82d7712fcc7942e3e13ce554aac845302b5b1862",
+      "byte_size": 49325139,
+      "fetched_at": "2026-05-12T02:17:10.218356+00:00",
+      "archive_key": "archive/35995afc0d3986fffe9ca48b82d7712fcc7942e3e13ce554aac845302b5b1862.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_sub_a.pdf",
+      "is_current": false
+    }
+  ],
+  "e93f6997811954dc": [
+    {
+      "byte_sha256": "abe02815d6331854374cee46db6b1f948f83d9115d2121ac86f5836fef1b65a0",
+      "byte_size": 468817,
+      "fetched_at": "2026-05-14T07:20:53.336125+00:00",
+      "archive_key": "archive/abe02815d6331854374cee46db6b1f948f83d9115d2121ac86f5836fef1b65a0.pdf",
+      "asset_filename": "serial-3_redacted.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "4f462fefe8f38e6445f652067ff0ba418e6b0d4f38ce73b5c8190e857fe352ed",
+      "byte_size": 275673,
+      "fetched_at": "2026-05-12T02:23:38.882148+00:00",
+      "archive_key": "archive/4f462fefe8f38e6445f652067ff0ba418e6b0d4f38ce73b5c8190e857fe352ed.pdf",
+      "asset_filename": "serial-3_redacted.pdf",
+      "is_current": false
+    }
+  ],
+  "ea029a05470b8f4e": [
+    {
+      "byte_sha256": "fd4deb1e48fcfa7fd2370b6459877882e6d6fdd0226ecaa881a45fba690172df",
+      "byte_size": 651740,
+      "fetched_at": "2026-05-12T02:20:12.521075+00:00",
+      "archive_key": "archive/fd4deb1e48fcfa7fd2370b6459877882e6d6fdd0226ecaa881a45fba690172df.pdf",
+      "asset_filename": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9",
+      "byte_size": 426911,
+      "fetched_at": "2026-05-11T17:45:56+00:00",
+      "archive_key": "archive/5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9.mp4",
+      "asset_filename": "DOD_111689005.mp4",
+      "is_current": false
+    },
+    {
+      "byte_sha256": "74bd47f0b608c19367b673ba186071db725719eebc7c7b251b8ef2b944c6427e",
+      "byte_size": 1834659,
+      "fetched_at": "2026-05-11T17:45:56+00:00",
+      "archive_key": "archive/74bd47f0b608c19367b673ba186071db725719eebc7c7b251b8ef2b944c6427e.mp4",
+      "asset_filename": "DOD_111688997.mp4",
+      "is_current": false
+    },
+    {
+      "byte_sha256": "3862ae94ef113a44814a6cc0362ac689333580afd1a307005f51abd0d4b9e3df",
+      "byte_size": 644525,
+      "fetched_at": "2026-05-11T17:45:56+00:00",
+      "archive_key": "archive/3862ae94ef113a44814a6cc0362ac689333580afd1a307005f51abd0d4b9e3df.mp4",
+      "asset_filename": "DOD_111688970.mp4",
+      "is_current": false
+    }
+  ],
+  "ed585fe68e3c4e7e": [
+    {
+      "byte_sha256": "10e3ba274b83d7733c2f7fac755656cc427930b647f003b7a367b58f520cb078",
+      "byte_size": 8092245,
+      "fetched_at": "2026-05-14T07:17:25.117510+00:00",
+      "archive_key": "archive/10e3ba274b83d7733c2f7fac755656cc427930b647f003b7a367b58f520cb078.pdf",
+      "asset_filename": "341_110677_numerical_file_5-2500.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "2cbbb33f9917d45c8b6009ee6ec5b958bc9c7d28b4a0f04edd261e7bf2f3d2f6",
+      "byte_size": 57343984,
+      "fetched_at": "2026-05-12T02:17:42.256831+00:00",
+      "archive_key": "archive/2cbbb33f9917d45c8b6009ee6ec5b958bc9c7d28b4a0f04edd261e7bf2f3d2f6.pdf",
+      "asset_filename": "341_110677_numerical_file_5-2500.pdf",
+      "is_current": false
+    }
+  ],
+  "eda0a3d37c6dbbc3": [
+    {
+      "byte_sha256": "43fc008a99501f57a114be1246ba3cae6004b734d2609c2f7eb6611b9209e509",
+      "byte_size": 125697,
+      "fetched_at": "2026-05-14T07:20:45.948479+00:00",
+      "archive_key": "archive/43fc008a99501f57a114be1246ba3cae6004b734d2609c2f7eb6611b9209e509.pdf",
+      "asset_filename": "fbi-photo-b19.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "29dc410fc55141b34ee1a7bc42f41a1fa388ccba7086a3dba5774aaec27cf8b0",
+      "byte_size": 600310,
+      "fetched_at": "2026-05-12T02:22:30.485931+00:00",
+      "archive_key": "archive/29dc410fc55141b34ee1a7bc42f41a1fa388ccba7086a3dba5774aaec27cf8b0.pdf",
+      "asset_filename": "fbi-photo-b19.pdf",
+      "is_current": false
+    }
+  ],
+  "f42c11ca158aeffc": [
+    {
+      "byte_sha256": "2ca8cede91d8fd7964cda2338decd999a5bbff19a662b35352f0d965a46a3999",
+      "byte_size": 6900861,
+      "fetched_at": "2026-05-14T07:19:55.385036+00:00",
+      "archive_key": "archive/2ca8cede91d8fd7964cda2338decd999a5bbff19a662b35352f0d965a46a3999.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_449.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "beab1e97edc095b41bac00f3da2909e9fe252a6a3c623f46a83496bf7f4ed13b",
+      "byte_size": 12499481,
+      "fetched_at": "2026-05-12T02:17:05.056499+00:00",
+      "archive_key": "archive/beab1e97edc095b41bac00f3da2909e9fe252a6a3c623f46a83496bf7f4ed13b.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_449.pdf",
+      "is_current": false
+    }
+  ],
+  "f85532f0514320be": [
+    {
+      "byte_sha256": "350806816e58095e0a8f89808fc1af246d6c9a005e63e49e28829b040963a5c2",
+      "byte_size": 39389073,
+      "fetched_at": "2026-05-14T07:19:00.084481+00:00",
+      "archive_key": "archive/350806816e58095e0a8f89808fc1af246d6c9a005e63e49e28829b040963a5c2.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_7.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "d1cc1285f2af2229df0f6a50dae11e72b943d94e95fb7effb34ba3433c12d82e",
+      "byte_size": 62687106,
+      "fetched_at": "2026-05-12T02:16:22.409653+00:00",
+      "archive_key": "archive/d1cc1285f2af2229df0f6a50dae11e72b943d94e95fb7effb34ba3433c12d82e.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_section_7.pdf",
+      "is_current": false
+    }
+  ],
+  "f8bd1f11b7a2ae48": [
+    {
+      "byte_sha256": "f2d96af041ac6d451eb716109e2fd606d6071e7504f91e429ad6e8d5ae654745",
+      "byte_size": 65683,
+      "fetched_at": "2026-05-14T07:20:43.434008+00:00",
+      "archive_key": "archive/f2d96af041ac6d451eb716109e2fd606d6071e7504f91e429ad6e8d5ae654745.pdf",
+      "asset_filename": "fbi-photo-b17.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "60418c8bf9ed18d064ebb7a6e378814ca24438614855b4e626d4375855f57e8d",
+      "byte_size": 435400,
+      "fetched_at": "2026-05-12T02:22:25.927496+00:00",
+      "archive_key": "archive/60418c8bf9ed18d064ebb7a6e378814ca24438614855b4e626d4375855f57e8d.pdf",
+      "asset_filename": "fbi-photo-b17.pdf",
+      "is_current": false
+    }
+  ],
+  "fa24eb58219a8dff": [
+    {
+      "byte_sha256": "fafb11efae96654a947177809349c9e10d0149d87c23f5f3af18a57e0b5dfae3",
+      "byte_size": 22734336,
+      "fetched_at": "2026-05-14T07:19:48.883383+00:00",
+      "archive_key": "archive/fafb11efae96654a947177809349c9e10d0149d87c23f5f3af18a57e0b5dfae3.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_164.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "879e35dffa0b4a126fc114f6f402a2ca398bd0b6e4718e12f377e7a65e1a3170",
+      "byte_size": 30938461,
+      "fetched_at": "2026-05-12T02:16:51.072613+00:00",
+      "archive_key": "archive/879e35dffa0b4a126fc114f6f402a2ca398bd0b6e4718e12f377e7a65e1a3170.pdf",
+      "asset_filename": "65_hs1-834228961_62-hq-83894_serial_164.pdf",
+      "is_current": false
+    }
+  ],
+  "fd8286ffc6fbc1fb": [
+    {
+      "byte_sha256": "86017c6972e7e6e110d86be0667a324d28b8d6c3e37d9fdb8acedddf3fd9dd02",
+      "byte_size": 125010,
+      "fetched_at": "2026-05-14T07:20:33.731761+00:00",
+      "archive_key": "archive/86017c6972e7e6e110d86be0667a324d28b8d6c3e37d9fdb8acedddf3fd9dd02.pdf",
+      "asset_filename": "fbi-photo-b9.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "e61a49212bb82cfc9a6e7627a2291c9159bbbb2272fb995e45411a48e44eb0b1",
+      "byte_size": 588086,
+      "fetched_at": "2026-05-12T02:22:55.045894+00:00",
+      "archive_key": "archive/e61a49212bb82cfc9a6e7627a2291c9159bbbb2272fb995e45411a48e44eb0b1.pdf",
+      "asset_filename": "fbi-photo-b9.pdf",
+      "is_current": false
+    }
+  ],
+  "ff30c985595153f3": [
+    {
+      "byte_sha256": "968c266f780e1f69abf1bca70aa0edcb094bc61c38d6743e01de335775af347c",
+      "byte_size": 825714,
+      "fetched_at": "2026-05-14T07:21:08.044751+00:00",
+      "archive_key": "archive/968c266f780e1f69abf1bca70aa0edcb094bc61c38d6743e01de335775af347c.pdf",
+      "asset_filename": "059uap00011.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "df5874d4b68d17f996da1af0026bf701c627a6e21c244cabf6fd53689369beca",
+      "byte_size": 830359,
+      "fetched_at": "2026-05-12T02:23:28.443363+00:00",
+      "archive_key": "archive/df5874d4b68d17f996da1af0026bf701c627a6e21c244cabf6fd53689369beca.pdf",
+      "asset_filename": "059uap00011.pdf",
+      "is_current": false
+    }
+  ]
+}

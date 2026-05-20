@@ -14,6 +14,11 @@ import {
 // unreliable on the Cloudflare Pages build context).
 import cardAltTitlesJson from "../../../../data/card_alt_titles.json";
 import displayDatesJson from "../../../../data/display_dates.json";
+// Sprint 4g: build-time byte-history map. Keyed card_id → newest-first
+// list of archived byte versions, present only for cards with >1
+// byte_sha256 in the asset-bytes-registry. Drives the "bytes changed
+// upstream" banner below.
+import byteHistoryJson from "../../data/byte-history.json";
 
 // Page-1 OCR text snippet for the DigitalDocument JSON-LD body. Read
 // once at module-evaluation time from pages.json via fs (not ES
@@ -171,6 +176,53 @@ const isVideo = card.asset_type === "VID" && !!card.dvids_video_id;
 // DVIDS itself has a separate /audio/embed/<id> path that points at
 // the audio player.
 const isAudio = card.asset_type === "AUD" && !!card.dvids_video_id;
+
+// Sprint 4g: byte-history lookup for the "bytes changed upstream"
+// banner. Present only when the asset-bytes-registry has >1 entry
+// for this card_id — i.e., upstream silently re-published the bytes
+// at the same URL. Entries are newest-first; index 0 is the current
+// pointer, index 1+ are preserved pre-edit versions reachable via
+// the /archive/<sha>.<ext> worker route.
+const byteHistory: Array<{
+  byte_sha256: string;
+  byte_size: number;
+  fetched_at: string;
+  archive_key: string;
+  asset_filename: string | null;
+  is_current: boolean;
+}> =
+  (byteHistoryJson as Record<string, unknown[]>)[card.card_id] as
+    | Array<{
+        byte_sha256: string;
+        byte_size: number;
+        fetched_at: string;
+        archive_key: string;
+        asset_filename: string | null;
+        is_current: boolean;
+      }>
+    | undefined ?? [];
+const hasByteEdits = byteHistory.length > 1;
+const currentByteEntry = hasByteEdits ? byteHistory[0] : null;
+const priorByteEntries = hasByteEdits ? byteHistory.slice(1) : [];
+const mostRecentEditDate = currentByteEntry?.fetched_at?.slice(0, 10) ?? "";
+
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(2)} MB`;
+}
+function sizeDeltaPct(prior: number, current: number): string {
+  if (prior === 0) return "+∞";
+  const pct = ((current - prior) / prior) * 100;
+  const sign = pct >= 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}%`;
+}
+function archiveHrefFromKey(key: string): string {
+  // archive_key in registry has the form ``archive/<sha>.<ext>``.
+  // The worker route is mounted at ``/archive/<sha>.<ext>``.
+  return `/${key}`;
+}
+
 const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : ""} — PURSUE://INDEX`;
 
 // Page-specific JSON-LD: DigitalDocument (with first-page OCR slice)
@@ -253,6 +305,60 @@ const cardJsonLd = [
         <h2 class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] flex items-center gap-2">
           <span class="text-[color:var(--color-signal-green)]">▸</span> SOURCE
         </h2>
+
+        {/* Sprint 4g: bytes-changed banner. Fires when the
+            asset-bytes-registry shows >1 byte_sha256 for this card —
+            i.e., upstream silently re-published at the same URL. The
+            iframe below shows the current bytes; the preserved
+            pre-edit version is reachable via the listed
+            /archive/<sha>.<ext> link(s). */}
+        {hasByteEdits && (
+          <aside
+            aria-label="Source bytes have changed upstream"
+            class="border border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/10 p-3 font-mono text-xs space-y-2"
+          >
+            <div class="flex items-baseline gap-2">
+              <span class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
+                ● BYTES CHANGED UPSTREAM
+              </span>
+              <span class="text-[color:var(--color-text-faint)] text-[10px]">
+                last edit detected {mostRecentEditDate}
+              </span>
+            </div>
+            <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+              The PDF below shows the current upstream version. Earlier
+              version{priorByteEntries.length > 1 ? "s" : ""} preserved in our archive:
+            </p>
+            <ul class="space-y-1">
+              {priorByteEntries.map((entry) => (
+                <li class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <a
+                    href={archiveHrefFromKey(entry.archive_key)}
+                    class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] underline decoration-[color:var(--color-border-bright)]"
+                  >
+                    <code class="text-[10px]">{entry.byte_sha256.slice(0, 12)}…</code>
+                    <span class="ml-1">↗ open preserved version</span>
+                  </a>
+                  <span class="text-[10px] text-[color:var(--color-text-faint)]">
+                    {formatBytes(entry.byte_size)}
+                    {currentByteEntry && (
+                      <span> → {formatBytes(currentByteEntry.byte_size)} (
+                        {sizeDeltaPct(entry.byte_size, currentByteEntry.byte_size)}
+                      )</span>
+                    )}
+                  </span>
+                  <span class="text-[10px] text-[color:var(--color-text-faint)]">
+                    fetched {entry.fetched_at.slice(0, 10)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p class="text-[10px] text-[color:var(--color-text-faint)]">
+              See <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a> for the full
+              list of cards where upstream bytes changed under the same identifier.
+            </p>
+          </aside>
+        )}
 
         {isPdf && card.asset_url ? (
           <div class="border border-[color:var(--color-border)] bg-black/60 relative overflow-hidden">

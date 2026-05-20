@@ -20,8 +20,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
         <code class="text-[color:var(--color-signal-cyan)]">war.gov</code>
         PURSUE manifest but have since been silently removed from the
         upstream listing. The bytes, OCR text, and embeddings remain in
-        this archive &mdash; including the card detail page, the PDF on
-        our self-hosted mirror, and the search/atlas indexes.
+        this archive &mdash; including the card detail page, the
+        preserved PDF reachable via <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/archive/&lt;byte_sha&gt;.&lt;ext&gt;</a>,
+        and the search/atlas indexes. Note: a separate event class &mdash;
+        upstream re-publishing the bytes at the same URL with redactions
+        &mdash; is listed at <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a>.
       </p>
       <p class="text-xs text-[color:var(--color-text-dim)] max-w-2xl pt-1">
         Detection happens at scrape time: the prior <code>latest.json</code>
