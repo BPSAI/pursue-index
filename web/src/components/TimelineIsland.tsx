@@ -21,7 +21,7 @@ function agencyColor(agency: string): string {
 }
 
 const ALL_AGENCIES = ["Department of War", "FBI", "NASA", "Department of State"];
-const ALL_TYPES = ["PDF", "VID", "IMG"];
+const ALL_TYPES = ["PDF", "VID", "IMG", "AUD"];
 
 export default function TimelineIsland({ cards, approved, proposals, base }: Props) {
   const approvedByCard = useMemo(

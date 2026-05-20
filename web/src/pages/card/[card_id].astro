@@ -117,6 +117,13 @@ const TYPE_COLORS: Record<string, { fg: string; bg: string; border: string }> = 
     bg: "bg-[color:var(--color-signal-violet)]/10",
     border: "border-[color:var(--color-signal-violet)]/40",
   },
+  // Sprint 4f: amber matches CardExplorer.TYPE_TONE + GalleryIsland
+  // tile icon + the audio embed's DVIDS-id code styling below.
+  AUD: {
+    fg: "text-[color:var(--color-signal-amber)]",
+    bg: "bg-[color:var(--color-signal-amber)]/10",
+    border: "border-[color:var(--color-signal-amber)]/40",
+  },
 };
 const tc = TYPE_COLORS[card.asset_type] ?? TYPE_COLORS.PDF;
 

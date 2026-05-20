@@ -19,10 +19,16 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 // First-row-wins matches the video-poster extractor's behavior.
 const _seenCardIds = new Set<string>();
 const galleryCards = manifest.cards.filter((c) => {
+  // Sprint 4f: AUD added to the allow-list — GalleryIsland's VIDEOS
+  // lane predicate unions VID and AUD, but a card has to pass this
+  // page-level filter first to reach the island. Without this, AUD
+  // cards are invisible on /gallery despite all the AUD wiring in
+  // GalleryIsland.tsx.
   if (
     c.asset_type !== "IMG" &&
     c.asset_type !== "VID" &&
-    c.asset_type !== "PDF"
+    c.asset_type !== "PDF" &&
+    c.asset_type !== "AUD"
   ) {
     return false;
   }

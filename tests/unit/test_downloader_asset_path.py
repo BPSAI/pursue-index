@@ -52,6 +52,23 @@ def test_asset_path_for_aud_returns_none() -> None:
     assert asset_path_for(card) is None
 
 
+def test_asset_path_for_aud_with_asset_url_still_returns_none() -> None:
+    """nayru P1.5 / laverna P3-002: lock the ``.get()`` fail-closed
+    path for AUD specifically. The prior AUD test only exercised the
+    no-url short-circuit. If a future sprint adds an AUD card with
+    asset_url + asset_filename (or upstream changes), the type→dir
+    map must STILL return None until ``AUD`` is explicitly added
+    with a real download target. Otherwise audio cards silently
+    enter the PDF download lane with the wrong base dir.
+    """
+    card = _card(
+        asset_type="AUD",
+        asset_url="https://war.gov/audio.mp3",
+        asset_filename="audio.mp3",
+    )
+    assert asset_path_for(card) is None
+
+
 def test_asset_path_for_vid_returns_none_when_no_asset_url() -> None:
     """VID parity check — same DVIDS-hosted shape as AUD."""
     card = _card(asset_type="VID", asset_url=None, asset_filename=None)

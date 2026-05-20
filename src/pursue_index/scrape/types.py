@@ -37,7 +37,14 @@ class CardMetadata(BaseModel):
     asset_filename: str | None = None
     modal_image_url: HttpUrl | None = None
 
-    # Video-specific
+    # DVIDS-hosted media (video + audio per Sprint 4f). Field name
+    # retained as ``dvids_video_id`` for backwards-compat with prior
+    # manifests + the upstream CSV column "DVIDS Video ID" — but the
+    # value now also carries DVIDS audio IDs for AUD cards. The
+    # value space is shared (DVIDS IDs are content-type-agnostic on
+    # their end); only the embed path differs (/video/embed/<id> vs
+    # /audio/embed/<id>). Read sites should gate on ``asset_type``,
+    # not on field-name semantics.
     dvids_video_id: str | None = None
     video_title: str | None = None
 

@@ -1,6 +1,6 @@
 // Mirror of pursue_index.scrape.types — keep in sync with the Python side.
 
-export type AssetType = "PDF" | "VID" | "IMG";
+export type AssetType = "PDF" | "VID" | "IMG" | "AUD";
 
 export interface CardMetadata {
   card_id: string;
