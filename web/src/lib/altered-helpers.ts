@@ -63,6 +63,10 @@ export function buildAlteredRows(
       total_versions: entries.length,
     });
   }
+  // Comparator returns 0 only when both keys (fetched_at + title) are
+  // equal — title's localeCompare returns 0 for identical strings, so
+  // the chained return is contract-compliant. (Codex P2 / PR #71
+  // fix-pass: paired with build_byte_history.mjs's comparator.)
   rows.sort((a, b) => {
     const ad = a.current_entry.fetched_at;
     const bd = b.current_entry.fetched_at;

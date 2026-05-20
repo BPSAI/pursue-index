@@ -65,7 +65,23 @@ export function buildByteHistory(rows) {
     if (entries.length <= 1) continue;
     // Newest-first by fetched_at. ISO-8601 strings sort lexically so
     // a plain string compare is correct.
-    entries.sort((a, b) => (a.fetched_at < b.fetched_at ? 1 : -1));
+    //
+    // Comparator MUST return 0 on equal keys (Codex P2 / PR #71): the
+    // prior `< ? 1 : -1` shape worked coincidentally under ES2019+
+    // stable-sort but violated the sort-comparator contract — equal
+    // timestamps were treated as a > b in both directions. Fall back
+    // to byte_sha256 lex order as a deterministic tie-breaker when
+    // two entries land at the same fetched_at (unlikely in practice
+    // but pins ordering across runtimes).
+    entries.sort((a, b) => {
+      if (a.fetched_at !== b.fetched_at) {
+        return a.fetched_at < b.fetched_at ? 1 : -1;
+      }
+      if (a.byte_sha256 !== b.byte_sha256) {
+        return a.byte_sha256 < b.byte_sha256 ? 1 : -1;
+      }
+      return 0;
+    });
     out[cardId] = entries.map((entry, idx) => ({
       ...entry,
       is_current: idx === 0,

@@ -77,6 +77,24 @@ describe("buildByteHistory — pure transform", () => {
     assert.deepEqual(buildByteHistory([]), {});
   });
 
+  test("comparator returns 0 on equal keys (sort contract)", () => {
+    // Codex P2 / PR #71: the prior comparator `< ? 1 : -1` never
+    // returned 0. ES2019+ stable-sort masked the contract violation,
+    // but the tie-breaker still needs to be deterministic so two
+    // entries at the same fetched_at don't flip across runtimes /
+    // engines. byte_sha256 lex order is the tie-breaker.
+    const sameTs = "2026-05-12T00:00:00Z";
+    const rows = [
+      { card_id: "x", byte_sha256: "b".repeat(64), byte_size: 200, fetched_at: sameTs, archive_key: "archive/b.pdf", asset_filename: "f.pdf" },
+      { card_id: "x", byte_sha256: "a".repeat(64), byte_size: 100, fetched_at: sameTs, archive_key: "archive/a.pdf", asset_filename: "f.pdf" },
+    ];
+    const out = buildByteHistory(rows);
+    // b > a lex-wise → b comes first; a (lex-smaller) comes second.
+    assert.equal(out.x[0].byte_sha256, "b".repeat(64));
+    assert.equal(out.x[1].byte_sha256, "a".repeat(64));
+    assert.equal(out.x[0].is_current, true);
+  });
+
   test("deterministic: same input → byte-identical output", () => {
     const rows = [
       { card_id: "x", byte_sha256: "a".repeat(64), byte_size: 100, fetched_at: "2026-05-12T00:00:00Z", archive_key: "archive/aaaa.pdf", asset_filename: "f.pdf" },

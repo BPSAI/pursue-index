@@ -1277,19 +1277,19 @@
       "is_current": true
     },
     {
-      "byte_sha256": "5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9",
-      "byte_size": 426911,
-      "fetched_at": "2026-05-11T17:45:56+00:00",
-      "archive_key": "archive/5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9.mp4",
-      "asset_filename": "DOD_111689005.mp4",
-      "is_current": false
-    },
-    {
       "byte_sha256": "74bd47f0b608c19367b673ba186071db725719eebc7c7b251b8ef2b944c6427e",
       "byte_size": 1834659,
       "fetched_at": "2026-05-11T17:45:56+00:00",
       "archive_key": "archive/74bd47f0b608c19367b673ba186071db725719eebc7c7b251b8ef2b944c6427e.mp4",
       "asset_filename": "DOD_111688997.mp4",
+      "is_current": false
+    },
+    {
+      "byte_sha256": "5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9",
+      "byte_size": 426911,
+      "fetched_at": "2026-05-11T17:45:56+00:00",
+      "archive_key": "archive/5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9.mp4",
+      "asset_filename": "DOD_111689005.mp4",
       "is_current": false
     },
     {

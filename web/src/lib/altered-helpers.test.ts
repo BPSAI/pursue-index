@@ -94,4 +94,35 @@ describe("buildAlteredRows", () => {
   test("empty input → empty output", () => {
     assert.deepEqual(buildAlteredRows({}, []), []);
   });
+
+  test("comparator returns 0 on equal keys (sort contract)", () => {
+    // Codex P2 / PR #71 fix-pass: pin that two rows with identical
+    // current_entry.fetched_at AND identical title produce a
+    // contract-compliant 0 from the sort comparator. Sort stability
+    // makes the surface invariant either way; this test pins the
+    // *contract*, not the empirical ordering.
+    const sameTs = "2026-05-14T00:00:00Z";
+    const sameTitle = "Identical Title";
+    const byteHistory = {
+      a: [
+        makeEntry("1".repeat(64), 100, sameTs),
+        makeEntry("2".repeat(64), 200, "2026-05-12T00:00:00Z"),
+      ],
+      b: [
+        makeEntry("3".repeat(64), 100, sameTs),
+        makeEntry("4".repeat(64), 200, "2026-05-12T00:00:00Z"),
+      ],
+    };
+    const cards = [
+      { card_id: "a", title: sameTitle, asset_type: "PDF" },
+      { card_id: "b", title: sameTitle, asset_type: "PDF" },
+    ];
+    const rows = buildAlteredRows(byteHistory, cards);
+    // Both rows present; stable-sort preserves a-before-b insertion order.
+    assert.equal(rows.length, 2);
+    assert.deepEqual(
+      rows.map((r) => r.card_id),
+      ["a", "b"],
+    );
+  });
 });
