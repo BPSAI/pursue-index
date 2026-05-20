@@ -149,6 +149,8 @@ function renderIndex(cards, finds) {
   lines.push(`- [How to cite](${SITE_ORIGIN}/cite): Citation patterns for the corpus, individual cards, and OCR transcripts.`);
   lines.push(`- [Support](${SITE_ORIGIN}/support): Operator contact + funding posture.`);
   lines.push(`- [API](${SITE_ORIGIN}/api): Machine-readable endpoints (manifest, pages, embeddings).`);
+  lines.push(`- [Removed](${SITE_ORIGIN}/removed): Cards dropped entirely from the upstream manifest; bytes preserved here.`);
+  lines.push(`- [Altered](${SITE_ORIGIN}/altered): Cards where upstream re-published bytes under the same identifier; pre-edit version preserved + per-card OCR text diff.`);
   lines.push("");
   lines.push("## Cards");
   lines.push("");

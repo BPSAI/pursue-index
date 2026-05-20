@@ -105,18 +105,28 @@ const itemListLd = itemListJsonLd(
                   <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap text-[10px]">
                     {row.current_entry.fetched_at.slice(0, 10)}
                   </td>
-                  <td class="px-3 py-2">
-                    <a
-                      href={`/${row.oldest_entry.archive_key}`}
-                      class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] text-[10px]"
-                    >
-                      pre-edit ↗
-                    </a>
-                    {row.total_versions > 2 && (
-                      <span class="text-[color:var(--color-text-faint)] text-[10px] ml-1">
-                        (+{row.total_versions - 2} more)
-                      </span>
-                    )}
+                  <td class="px-3 py-2 space-y-1">
+                    <div>
+                      <a
+                        href={`/${row.oldest_entry.archive_key}`}
+                        class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] text-[10px]"
+                      >
+                        pre-edit bytes ↗
+                      </a>
+                      {row.total_versions > 2 && (
+                        <span class="text-[color:var(--color-text-faint)] text-[10px] ml-1">
+                          (+{row.total_versions - 2} more)
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <a
+                        href={`${base}/altered/${row.card_id}/`}
+                        class="text-[color:var(--color-signal-amber)] hover:text-[color:var(--color-text-bright)] text-[10px]"
+                      >
+                        text diff →
+                      </a>
+                    </div>
                   </td>
                 </tr>
               ))}
