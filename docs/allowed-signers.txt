@@ -81,4 +81,4 @@
 #    this file. Old signatures remain verifiable as evidence-of-past
 #    via git's signed-commit history.
 
-david@bpsaisoftware.com ssh-ed25519 PLACEHOLDER_REPLACE_BEFORE_SIGNING_BASELINE
+david@bpsaisoftware.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKtB+MbUPIid+802KrAYutKI1xsapBzV9WObuuBRomJn pursue-index signing
