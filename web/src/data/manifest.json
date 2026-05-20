@@ -1,7 +1,7 @@
 {
-  "source_url": "https://www.war.gov/medialink/ufo/release_1/uap-csv.csv",
-  "fetched_at": "2026-05-15T04:53:46.845092Z",
-  "csv_sha256": "c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1",
+  "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-csv.csv",
+  "fetched_at": "2026-05-20T17:33:52.882319Z",
+  "csv_sha256": "f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543",
   "cards": [
     {
       "card_id": "9e677b8697685311",
@@ -23,6 +23,14 @@
       "image_alt_text": "Declassified Secret document from Air Materiel Command.",
       "image_virin": "260508-D-D0360-1001",
       "original_classification": "Secret",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -45,6 +53,14 @@
       "image_alt_text": "Declassified Confidential document from the U.S. Air Force.",
       "image_virin": "260508-D-D0360-1002",
       "original_classification": "Confidential",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -67,6 +83,14 @@
       "image_alt_text": "Brown file folder labeled with the number 78078.",
       "image_virin": "260508-O-D0360-1058",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -89,6 +113,14 @@
       "image_alt_text": "Declassified Air Staff document.",
       "image_virin": "260508-D-D0360-1003",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -111,6 +143,14 @@
       "image_alt_text": "Declassified Top Secret document from the U.S. Air Force Directorate of Intelligence.",
       "image_virin": "260508-D-D0360-1004",
       "original_classification": "Top Secret",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -133,6 +173,14 @@
       "image_alt_text": "Declassified Secret file folder.",
       "image_virin": "260508-D-D0360-1005",
       "original_classification": "Secret",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -155,6 +203,14 @@
       "image_alt_text": "Declassified Restricted document from Lowry Flight Service Center.",
       "image_virin": "260508-D-D0360-1006",
       "original_classification": "Restricted",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -177,6 +233,14 @@
       "image_alt_text": "Declassified Secret envelope with a report label.",
       "image_virin": "260508-D-D0360-1007",
       "original_classification": "Secret",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -199,6 +263,14 @@
       "image_alt_text": "Declassified Secret document cover sheet with handwritten notes.",
       "image_virin": "260508-D-D0360-1008",
       "original_classification": "Secret",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -221,6 +293,14 @@
       "image_alt_text": "Declassified file cover with Confidential and Secret markings.",
       "image_virin": "260508-D-D0360-1009",
       "original_classification": "Confidential",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -243,6 +323,14 @@
       "image_alt_text": "Declassified memorandum from the National Aeronautics and Space Council.",
       "image_virin": "260508-S-D0360-1001",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -265,6 +353,14 @@
       "image_alt_text": "Declassified Secret memorandum with handwritten notes.",
       "image_virin": "260508-S-D0360-1002",
       "original_classification": "Secret",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -287,6 +383,14 @@
       "image_alt_text": "Declassified FBI office memorandum",
       "image_virin": "260508-O-D0360-1001",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -309,6 +413,14 @@
       "image_alt_text": "Declassified FBI file",
       "image_virin": "260508-O-D0360-1002",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -331,6 +443,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1003",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -353,6 +473,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1004",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -375,6 +503,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1005",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -397,6 +533,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1006",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -419,6 +563,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1007",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -441,6 +593,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1008",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -463,6 +623,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1009",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -485,6 +653,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1010",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -507,6 +683,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1011",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -529,6 +713,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1012",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -551,6 +743,14 @@
       "image_alt_text": "Declassified Confidential document from Headquarters Air Defense Command.",
       "image_virin": "260508-O-D0360-1013",
       "original_classification": "Confidential",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -573,6 +773,14 @@
       "image_alt_text": "Declassified FBI Headquarters file envelope.",
       "image_virin": "260508-O-D0360-1014",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -595,6 +803,14 @@
       "image_alt_text": "Declassified FBI file cover from the Central Records Center.",
       "image_virin": "260508-O-D0360-1015",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -617,6 +833,14 @@
       "image_alt_text": "Declassified FBI Headquarters file envelope.",
       "image_virin": "260508-O-D0360-1016",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -639,6 +863,14 @@
       "image_alt_text": "Declassified FBI Headquarters file envelope.",
       "image_virin": "260508-O-D0360-1017",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -661,6 +893,14 @@
       "image_alt_text": "Declassified FBI Headquarters file envelope.",
       "image_virin": "260508-O-D0360-1018",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -683,6 +923,14 @@
       "image_alt_text": "Declassified FBI Headquarters file envelope.",
       "image_virin": "260508-O-D0360-1019",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -705,6 +953,14 @@
       "image_alt_text": "Declassified FBI file cover for criminal investigative and administrative files.",
       "image_virin": "260508-O-D0360-1020",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -727,6 +983,14 @@
       "image_alt_text": "Heavily redacted government mission report document.",
       "image_virin": "260508-D-D0360-1010",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -749,6 +1013,14 @@
       "image_alt_text": "Mission report video 4",
       "image_virin": "260508-D-D0360-1011",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -771,6 +1043,14 @@
       "image_alt_text": "Mission report video 5",
       "image_virin": "260508-D-D0360-1012",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -793,6 +1073,14 @@
       "image_alt_text": "Mission report video 6",
       "image_virin": "260508-D-D0360-1013",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -815,6 +1103,14 @@
       "image_alt_text": "Mission report video 7",
       "image_virin": "260508-D-D0360-1014",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -837,6 +1133,14 @@
       "image_alt_text": "Mission report video 8",
       "image_virin": "260508-D-D0360-1015",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -859,6 +1163,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1016",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -881,6 +1193,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1017",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -903,6 +1223,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1018",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -925,6 +1253,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1019",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -947,6 +1283,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1020",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -969,6 +1313,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1021",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -991,6 +1343,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1022",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1013,6 +1373,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1023",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1035,6 +1403,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1024",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1057,6 +1433,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1025",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1079,6 +1463,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1026",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1101,6 +1493,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1027",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1123,6 +1523,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1028",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1145,6 +1553,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1029",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1167,6 +1583,14 @@
       "image_alt_text": "Declassified Range Fouler Debrief Form with redacted information.",
       "image_virin": "260508-D-D0360-1030",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1189,6 +1613,14 @@
       "image_alt_text": "Declassified Range Fouler Debrief Form with redacted information.",
       "image_virin": "260508-D-D0360-1031",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1211,6 +1643,14 @@
       "image_alt_text": "Declassified Range Fouler Debrief Form with redacted information.",
       "image_virin": "260508-D-D0360-1032",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1233,6 +1673,14 @@
       "image_alt_text": "Research Triangle Institute report cover for the Department of the Air Force.",
       "image_virin": "260508-D-D0360-1033",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1255,6 +1703,14 @@
       "image_alt_text": "Vandenberg AFB Launch Summary cover page from the 30th Space Wing Office of History.",
       "image_virin": "260508-D-D0360-1034",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1277,6 +1733,14 @@
       "image_alt_text": "Heavily redacted document showing email correspondence.",
       "image_virin": "260508-D-D0360-1035",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1299,6 +1763,14 @@
       "image_alt_text": "Heavily redacted document showing email correspondence.",
       "image_virin": "260508-D-D0360-1036",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1321,6 +1793,14 @@
       "image_alt_text": "Heavily redacted document showing email correspondence.",
       "image_virin": "260508-D-D0360-1037",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1343,6 +1823,14 @@
       "image_alt_text": "Mission report video 54",
       "image_virin": "260508-D-D0360-1038",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1365,6 +1853,14 @@
       "image_alt_text": "Declassified intelligence slide from USCENTCOM showing the observation of an unidentified low-flying object.",
       "image_virin": "260508-D-D0360-1039",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1387,6 +1883,14 @@
       "image_alt_text": "Declassified Range Fouler Debrief Form with redacted information.",
       "image_virin": "260508-D-D0360-1040",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1409,6 +1913,14 @@
       "image_alt_text": "Declassified Range Fouler Debrief Form with redacted information.",
       "image_virin": "260508-D-D0360-1041",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1431,6 +1943,14 @@
       "image_alt_text": "Declassified Range Fouler Debrief Form with redacted information.",
       "image_virin": "260508-D-D0360-1042",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1453,6 +1973,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1043",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1475,6 +2003,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1044",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1497,6 +2033,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1045",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1519,6 +2063,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1046",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1541,6 +2093,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1047",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1563,6 +2123,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1048",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1585,6 +2153,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1049",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1607,6 +2183,14 @@
       "image_alt_text": "Redacted government mission report document.",
       "image_virin": "260508-D-D0360-1050",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1629,6 +2213,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1651,6 +2243,14 @@
       "image_alt_text": "Department of Defense sensor image cleared for open publication, showing an unidentified object.",
       "image_virin": "260508-D-D0360-1051",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1673,6 +2273,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1695,6 +2303,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1717,6 +2333,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1739,6 +2363,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1761,6 +2393,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1783,6 +2423,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1805,6 +2453,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1827,6 +2483,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1849,6 +2513,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1871,6 +2543,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1893,6 +2573,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1915,6 +2603,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1937,6 +2633,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1959,6 +2663,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -1981,6 +2693,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2003,6 +2723,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2025,6 +2753,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2047,6 +2783,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2069,6 +2813,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2091,6 +2843,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2113,6 +2873,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2135,6 +2903,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2157,6 +2933,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2179,6 +2963,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2201,6 +2993,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2223,6 +3023,14 @@
       "image_alt_text": null,
       "image_virin": null,
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2245,6 +3053,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting reticle.",
       "image_virin": "260508-O-D0360-1021",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2267,6 +3083,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting an object.",
       "image_virin": "260508-O-D0360-1022",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2289,6 +3113,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting an object.",
       "image_virin": "260508-O-D0360-1023",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2311,6 +3143,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting an object.",
       "image_virin": "260508-O-D0360-1024",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2333,6 +3173,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting an object.",
       "image_virin": "260508-O-D0360-1025",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2355,6 +3203,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting an object.",
       "image_virin": "260508-O-D0360-1026",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2377,6 +3233,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting an object.",
       "image_virin": "260508-O-D0360-1027",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2399,6 +3263,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting an object.",
       "image_virin": "260508-O-D0360-1028",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2421,6 +3293,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1029",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2443,6 +3323,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1030",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2465,6 +3353,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1031",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2487,6 +3383,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1032",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2509,6 +3413,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1033",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2531,6 +3443,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle and a visible object.",
       "image_virin": "260508-O-D0360-1034",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2553,6 +3473,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle and a visible object.",
       "image_virin": "260508-O-D0360-1035",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2575,6 +3503,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1036",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2597,6 +3533,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1037",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2619,6 +3563,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1038",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2641,6 +3593,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1039",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2663,6 +3623,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle.",
       "image_virin": "260508-O-D0360-1040",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2685,6 +3653,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting a visible object.",
       "image_virin": "260508-O-D0360-1041",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2707,6 +3683,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting a visible object.",
       "image_virin": "260508-O-D0360-1042",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2729,6 +3713,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting a visible object.",
       "image_virin": "260508-O-D0360-1043",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2751,6 +3743,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting a visible object.",
       "image_virin": "260508-O-D0360-1044",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2773,6 +3773,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting a visible object.",
       "image_virin": "260508-O-D0360-1045",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2795,6 +3803,14 @@
       "image_alt_text": "Redacted sensor image with a crosshair targeting a visible object.",
       "image_virin": "260508-O-D0360-1046",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2817,6 +3833,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle centered on an object.",
       "image_virin": "260508-O-D0360-1047",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2839,6 +3863,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle centered on an object.",
       "image_virin": "260508-O-D0360-1048",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2861,6 +3893,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle centered on an object.",
       "image_virin": "260508-O-D0360-1049",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2883,6 +3923,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle centered on an object.",
       "image_virin": "260508-O-D0360-1050",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2905,6 +3953,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle centered on an object.",
       "image_virin": "260508-O-D0360-1051",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2927,6 +3983,14 @@
       "image_alt_text": "Redacted sensor image with a targeting reticle centered on an object.",
       "image_virin": "260508-O-D0360-1052",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2949,6 +4013,14 @@
       "image_alt_text": "Saucer-shaped object with a bright light hovers over a grassy field.",
       "image_virin": "260508-O-D0360-1053",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2971,6 +4043,14 @@
       "image_alt_text": "Heavily redacted Federal Bureau of Investigation official record.",
       "image_virin": "260508-O-D0360-1054",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -2993,6 +4073,14 @@
       "image_alt_text": "Heavily redacted Federal Bureau of Investigation official record.",
       "image_virin": "260508-O-D0360-1055",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3015,6 +4103,14 @@
       "image_alt_text": "Heavily redacted Federal Bureau of Investigation official record.",
       "image_virin": "260508-O-D0360-1056",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3037,6 +4133,14 @@
       "image_alt_text": "A page from a space flight mission transcript.",
       "image_virin": "260508-O-D0360-1059",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3059,6 +4163,14 @@
       "image_alt_text": "A page from a space flight mission transcript with highlighted sections.",
       "image_virin": "260508-O-D0360-1060",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3081,12 +4193,20 @@
       "image_alt_text": "Public Affairs Office commentary and transcript of a flight.",
       "image_virin": "260508-O-D0360-1061",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
       "card_id": "167f6a21c7238d0c",
       "title": "NASA-UAP-D003A, Gemini 7 Audio Excerpt, 1965",
-      "asset_type": "VID",
+      "asset_type": "AUD",
       "agency": "NASA",
       "release_date": "5/8/26",
       "incident_date": "12/5/65",
@@ -3103,6 +4223,14 @@
       "image_alt_text": null,
       "image_virin": "260508-O-D0360-1062",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3125,6 +4253,14 @@
       "image_alt_text": "Declassified Confidential NASA Apollo 11 Technical Crew Debriefing cover.",
       "image_virin": "260508-O-D0360-1063",
       "original_classification": "Confidential",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3147,6 +4283,14 @@
       "image_alt_text": "NASA Apollo 17 Crew Debriefing for Science cover from the Manned Spacecraft Center.",
       "image_virin": "260508-O-D0360-1064",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3169,6 +4313,14 @@
       "image_alt_text": "Declassified Confidential NASA Apollo 17 Technical Crew Debriefing cover from the Manned Spacecraft Center.",
       "image_virin": "260508-O-D0360-1065",
       "original_classification": "Confidential",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3191,6 +4343,14 @@
       "image_alt_text": "Skylab 1/2 Technical Crew Debriefing cover from the Lyndon B. Johnson Space Center.",
       "image_virin": "260508-O-D0360-1066",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3213,6 +4373,14 @@
       "image_alt_text": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky.",
       "image_virin": "260508-O-D0360-1067",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3235,6 +4403,14 @@
       "image_alt_text": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky.",
       "image_virin": "260508-O-D0360-1068",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3257,6 +4433,14 @@
       "image_alt_text": "Photograph of the lunar surface showing astronaut shadows and a magnified callouts of objects in the sky.",
       "image_virin": "260508-O-D0360-1069",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3279,6 +4463,14 @@
       "image_alt_text": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky.",
       "image_virin": "260508-O-D0360-1070",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3301,6 +4493,14 @@
       "image_alt_text": "Photograph of the lunar surface showing astronaut shadows and a magnified callouts of objects in the sky.",
       "image_virin": "260508-O-D0360-1071",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3323,6 +4523,14 @@
       "image_alt_text": "Photograph of the lunar surface showing astronaut shadows and a magnified callout of an object in the sky.",
       "image_virin": "260508-O-D0360-1072",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3345,6 +4553,14 @@
       "image_alt_text": "Unclassified diplomatic cable from the US Department of State.",
       "image_virin": "260508-S-D0360-1003",
       "original_classification": "Unclassified",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3367,6 +4583,14 @@
       "image_alt_text": "Unclassified diplomatic cable from the US Department of State.",
       "image_virin": "260508-S-D0360-1004",
       "original_classification": "Unclassified",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3389,6 +4613,14 @@
       "image_alt_text": "Declassified Confidential diplomatic cable from the US Department of State.",
       "image_virin": "260508-S-D0360-1005",
       "original_classification": "Confidential",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3411,6 +4643,14 @@
       "image_alt_text": "Unclassified diplomatic cable from the US Department of State.",
       "image_virin": "260508-S-D0360-1006",
       "original_classification": "Unclassified",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3433,6 +4673,14 @@
       "image_alt_text": "Unclassified diplomatic cable from the US Department of State.",
       "image_virin": "260508-S-D0360-1007",
       "original_classification": "Unclassified",
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3455,6 +4703,14 @@
       "image_alt_text": "Heavily redacted event log.",
       "image_virin": "260508-O-D0360-1057",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     },
     {
@@ -3477,6 +4733,14 @@
       "image_alt_text": "Event summary slide titled 'Orbs Launching Orbs'.",
       "image_virin": "260508-D-D0360-1052",
       "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
       "raw": {}
     }
   ]
