@@ -55,6 +55,7 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 
 DEFAULT_PRE_OCR = _REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
+DEFAULT_ALTERED_PRE_OCR_DIR = _REPO_ROOT / "data" / "altered-ocr-pre"
 DEFAULT_POST_OCR_DIR = _REPO_ROOT / "data" / "altered-ocr"
 DEFAULT_BYTE_HISTORY = _REPO_ROOT / "web" / "src" / "data" / "byte-history.json"
 DEFAULT_OUT = _REPO_ROOT / "web" / "src" / "data" / "altered-diffs.json"
@@ -250,27 +251,10 @@ def _empty_diff() -> dict:
     }
 
 
-def _load_pre_ocr_by_card(pages_cleaned_path: Path) -> tuple[dict[str, list[dict]], str]:
-    """Parse pages-cleaned.json → ({card_id: [{page, text}, ...]},
-    sha256 of bytes). vaivora H4: the sha is recorded in
-    altered-diffs.json's meta block so a future re-build can verify
-    the pre-edit OCR source hasn't shifted under us.
-    """
-    raw = pages_cleaned_path.read_bytes()
-    pre_sha = hashlib.sha256(raw).hexdigest()
-    blob = json.loads(raw.decode("utf-8"))
-    pages_by_card: dict[str, list[dict]] = {}
-    for row in blob.get("pages", []):
-        card_id = row.get("card_id")
-        if not card_id:
-            continue
-        pages_by_card.setdefault(card_id, []).append({
-            "page": row["page"],
-            "text": row.get("text", ""),
-        })
-    for pages in pages_by_card.values():
-        pages.sort(key=lambda p: p["page"])
-    return pages_by_card, pre_sha
+def _pre_ocr_sha(pages_cleaned_path: Path) -> str:
+    """Hash ``pages-cleaned.json`` bytes; pinned in the diff's _meta so
+    a re-build can detect the source shifted under us (vaivora H4)."""
+    return hashlib.sha256(pages_cleaned_path.read_bytes()).hexdigest()
 
 
 def _load_post_ocr(card_dir: Path) -> list[dict]:
@@ -291,24 +275,82 @@ def _load_post_ocr(card_dir: Path) -> list[dict]:
     return rows
 
 
-def main(argv: list[str] | None = None) -> int:
+def _load_altered_pre_ocr(card_dir: Path) -> list[dict]:
+    """Parse data/altered-ocr-pre/<card_id>/pages.jsonl → [{page, text}].
+
+    Sprint 4j: when the engine-matched pre-edit OCR exists for a card,
+    use it instead of the legacy ``pages-cleaned.json`` entry. Keeps the
+    diff apples-to-apples (both sides produced by the same vision
+    model), which is the load-bearing assumption of sentence-level
+    difflib. Falls back to ``pages-cleaned.json`` for cards whose
+    engine-matched pre-edit isn't available.
+    """
+    return _load_post_ocr(card_dir)
+
+
+def _build_args_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pre-ocr", type=Path, default=DEFAULT_PRE_OCR)
+    parser.add_argument(
+        "--altered-pre-ocr-dir",
+        type=Path,
+        default=DEFAULT_ALTERED_PRE_OCR_DIR,
+        help="Engine-matched pre-edit OCR per altered card. Overrides "
+        "--pre-ocr for any card with a pages.jsonl present.",
+    )
     parser.add_argument("--post-ocr-dir", type=Path, default=DEFAULT_POST_OCR_DIR)
     parser.add_argument("--byte-history", type=Path, default=DEFAULT_BYTE_HISTORY)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
-    args = parser.parse_args(argv)
+    return parser
 
-    pre_by_card, pre_sha = _load_pre_ocr_by_card(args.pre_ocr)
+
+def _diff_one_card(
+    card_id: str, *, byte_history: dict, altered_pre_ocr_dir: Path,
+    post_ocr_dir: Path,
+) -> tuple[str, dict | None]:
+    """Extracted from main() to honor the 50-line cap. Status is one of
+    ``engine_matched`` / ``skipped_asset_type`` / ``skipped_missing_pre`` /
+    ``skipped_no_post``. Asset-type-swap cards (oldest entry non-PDF)
+    fall through to "TEXT DIFF NOT AVAILABLE" on the per-card page.
+    """
+    post_pages = _load_post_ocr(post_ocr_dir / card_id)
+    if not post_pages:
+        return "skipped_no_post", None
+    entries = byte_history.get(card_id, [])
+    if entries and not entries[-1].get("archive_key", "").lower().endswith(".pdf"):
+        return "skipped_asset_type", None
+    altered_pre = _load_altered_pre_ocr(altered_pre_ocr_dir / card_id)
+    if not altered_pre:
+        print(
+            f"::warning::skip {card_id}: no engine-matched pre-edit OCR "
+            f"at {altered_pre_ocr_dir / card_id}; rerun "
+            "`scripts/reocr_pre_edit_altered.py`.",
+            file=sys.stderr,
+        )
+        return "skipped_missing_pre", None
+    return "engine_matched", build_card_diff(altered_pre, post_pages)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _build_args_parser().parse_args(argv)
+    pre_sha = _pre_ocr_sha(args.pre_ocr)
     byte_history = json.loads(args.byte_history.read_text(encoding="utf-8"))
 
     diffs: dict[str, dict] = {}
+    engine_matched: list[str] = []
+    skipped_asset_type_change: list[str] = []
     for card_id in sorted(byte_history.keys()):
-        post_pages = _load_post_ocr(args.post_ocr_dir / card_id)
-        if not post_pages:
-            continue
-        pre_pages = pre_by_card.get(card_id, [])
-        diffs[card_id] = build_card_diff(pre_pages, post_pages)
+        status, card_diff = _diff_one_card(
+            card_id,
+            byte_history=byte_history,
+            altered_pre_ocr_dir=args.altered_pre_ocr_dir,
+            post_ocr_dir=args.post_ocr_dir,
+        )
+        if status == "engine_matched":
+            engine_matched.append(card_id)
+            diffs[card_id] = card_diff  # type: ignore[assignment]
+        elif status == "skipped_asset_type":
+            skipped_asset_type_change.append(card_id)
 
     # vaivora H4: pin the pre-edit OCR source sha256 in the output's
     # meta block. If pages-cleaned.json ever gets re-generated from
@@ -318,6 +360,11 @@ def main(argv: list[str] | None = None) -> int:
         "_meta": {
             "pre_ocr_source": str(args.pre_ocr.relative_to(_REPO_ROOT)) if args.pre_ocr.is_absolute() else str(args.pre_ocr),
             "pre_ocr_sha256": pre_sha,
+            "altered_pre_ocr_dir": str(
+                args.altered_pre_ocr_dir.relative_to(_REPO_ROOT)
+            ) if args.altered_pre_ocr_dir.is_absolute() else str(args.altered_pre_ocr_dir),
+            "engine_matched_cards": sorted(engine_matched),
+            "skipped_asset_type_change_cards": sorted(skipped_asset_type_change),
             "card_count": len(diffs),
         },
         "diffs": diffs,
@@ -326,7 +373,9 @@ def main(argv: list[str] | None = None) -> int:
     args.out.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
         f"build_altered_diffs: {len(diffs)} card(s) → {args.out}"
-        f" (pre-ocr sha256={pre_sha[:12]}...; skipped {len(byte_history) - len(diffs)} without post-edit OCR)"
+        f" ({len(engine_matched)} engine-matched; "
+        f"{len(skipped_asset_type_change)} skipped (asset-type swap, "
+        f"oldest was non-PDF); pre-ocr sha256={pre_sha[:12]}...)"
     )
     return 0
 

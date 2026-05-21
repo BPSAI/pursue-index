@@ -61,20 +61,37 @@ from _reocr_helpers import (  # noqa: E402
 from pursue_index.ocr._llm_parsing import parse_response  # noqa: E402
 
 
-TARGETS = [
+_DEFAULT_TARGETS_POST = [
     {
         "card_id": "7d58f0cac741650a",
         "resume_from": 88,
         "byte_sha256": "b13552c6b558408ef1e28a46158e6a45a62d74c3aac6074f74abb23bcab76fbe",
         "archive_key": "archive/b13552c6b558408ef1e28a46158e6a45a62d74c3aac6074f74abb23bcab76fbe.pdf",
+        "target_dir": "data/altered-ocr",
     },
     {
         "card_id": "f85532f0514320be",
         "resume_from": 75,
         "byte_sha256": "350806816e58095e0a8f89808fc1af246d6c9a005e63e49e28829b040963a5c2",
         "archive_key": "archive/350806816e58095e0a8f89808fc1af246d6c9a005e63e49e28829b040963a5c2.pdf",
+        "target_dir": "data/altered-ocr",
     },
 ]
+
+# Sprint 4j follow-up: the pre-edit version of the same content-filter
+# card also tripped Sonnet on pages 90+ during the corpus alignment run.
+# Bytes come from the local NAS r2-mirror (no R2 fetch).
+_DEFAULT_TARGETS_PRE = [
+    {
+        "card_id": "7d58f0cac741650a",
+        "resume_from": 90,
+        "byte_sha256": "06f96d67fa825b5aefe41bd60e6f3860d71320e2aa436a2bf30240e12c33d0f0",
+        "archive_key": "archive/06f96d67fa825b5aefe41bd60e6f3860d71320e2aa436a2bf30240e12c33d0f0.pdf",
+        "target_dir": "data/altered-ocr-pre",
+    },
+]
+
+TARGETS = _DEFAULT_TARGETS_POST  # default; --pre flag swaps to pre-edit targets
 
 # Mirrors pursue_index.ocr.llm._SYSTEM_PROMPT verbatim so the OCR
 # contract matches the canonical site OCR (same prompt, same expected
@@ -172,38 +189,35 @@ def existing_max_page(jsonl: Path) -> int:
     return max((row["page"] for row in rows), default=0)
 
 
-def retry_card(
+def _load_pdf_bytes(target: dict, nas_archive: Path | None, r2_client: Any) -> bytes:
+    """Prefer local NAS bytes when path is available (Sprint 4j pre-edit
+    retry); fall back to R2 fetch for the original Sprint 4i path."""
+    if nas_archive is not None:
+        nas_pdf = nas_archive / f"{target['byte_sha256']}.pdf"
+        if nas_pdf.exists():
+            print(
+                f"\n[{target['card_id']}] reading PDF from local NAS "
+                f"({nas_pdf.name})"
+            )
+            return nas_pdf.read_bytes()
+    print(f"\n[{target['card_id']}] fetching PDF + rasterizing pages...")
+    return fetch_r2_pdf(r2_client, target["archive_key"])
+
+
+def _ocr_pages_via_o4mini(
     *,
+    images: list[Any],
+    start_page: int,
+    pages_jsonl: Path,
     target: dict,
-    out_dir: Path,
-    r2_client: Any,
     client: Any,
     model: str,
     tracker: UsageTracker,
     cost_cap_usd: float,
 ) -> None:
+    """Inner page-loop. Extracted so retry_card stays under 50 lines."""
     card_id = target["card_id"]
-    pages_jsonl = out_dir / card_id / "pages.jsonl"
-
-    # The existing pages.jsonl pins pages 1..(resume_from - 1); pick the
-    # higher of "what's on disk" and "the documented resume_from" to be
-    # safe against a re-run after partial progress.
-    on_disk = existing_max_page(pages_jsonl)
-    start_page = max(on_disk + 1, target["resume_from"])
-
-    print(f"\n[{card_id}] fetching PDF + rasterizing pages...")
-    pdf_bytes = fetch_r2_pdf(r2_client, target["archive_key"])
-
-    from pdf2image import convert_from_bytes  # type: ignore[import-not-found]
-    images = convert_from_bytes(pdf_bytes, dpi=200)
     total_pages = len(images)
-
-    if start_page > total_pages:
-        print(f"[{card_id}] already complete ({on_disk}/{total_pages} pages on disk).")
-        return
-
-    print(f"[{card_id}] resuming from page {start_page}/{total_pages}.")
-
     for page_no in range(start_page, total_pages + 1):
         cost_now = _estimate_cost(tracker)
         if cost_now > cost_cap_usd:
@@ -241,29 +255,76 @@ def retry_card(
             )
 
 
-def main(argv: list[str] | None = None) -> int:
+def retry_card(
+    *,
+    target: dict,
+    out_dir: Path,
+    r2_client: Any,
+    client: Any,
+    model: str,
+    tracker: UsageTracker,
+    cost_cap_usd: float,
+    nas_archive: Path | None = None,
+) -> None:
+    card_id = target["card_id"]
+    pages_jsonl = out_dir / card_id / "pages.jsonl"
+    on_disk = existing_max_page(pages_jsonl)
+    start_page = max(on_disk + 1, target["resume_from"])
+    pdf_bytes = _load_pdf_bytes(target, nas_archive, r2_client)
+    from pdf2image import convert_from_bytes  # type: ignore[import-not-found]
+    images = convert_from_bytes(pdf_bytes, dpi=200)
+    total_pages = len(images)
+    if start_page > total_pages:
+        print(f"[{card_id}] already complete ({on_disk}/{total_pages} pages on disk).")
+        return
+    print(f"[{card_id}] resuming from page {start_page}/{total_pages}.")
+    _ocr_pages_via_o4mini(
+        images=images,
+        start_page=start_page,
+        pages_jsonl=pages_jsonl,
+        target=target,
+        client=client,
+        model=model,
+        tracker=tracker,
+        cost_cap_usd=cost_cap_usd,
+    )
+
+
+def _build_args_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out-dir", type=Path, default=_REPO_ROOT / "data" / "altered-ocr")
+    parser.add_argument("--out-dir", type=Path, default=None)
     parser.add_argument("--max-spend-usd", type=float, default=10.0)
     parser.add_argument(
         "--model",
         default="o4-mini",
         help="OpenAI model id (default o4-mini; fall back to gpt-4o-mini if 404).",
     )
-    args = parser.parse_args(argv)
+    parser.add_argument(
+        "--pre",
+        action="store_true",
+        help="Run the pre-edit retry targets (Sprint 4j follow-up). Default "
+        "is the post-edit targets (Sprint 4i #1).",
+    )
+    parser.add_argument(
+        "--nas-archive",
+        type=Path,
+        default=None,
+        help="Local path holding content-addressed archive bytes. Used as "
+        "the PDF source when present; otherwise the script falls back to "
+        "R2. Defaults to ``<PURSUE_DATA_ROOT>/r2-mirror/archive``.",
+    )
+    return parser
 
-    if not os.environ.get("OPENAI_API_KEY"):
-        print("OPENAI_API_KEY not set; cannot dispatch.", file=sys.stderr)
-        return 2
 
-    from openai import OpenAI  # type: ignore[import-not-found]
-    client = OpenAI()
-
-    from r2_archive_assets import make_r2_client  # type: ignore[import-not-found]
-    r2_client = make_r2_client()
-
-    tracker = UsageTracker()
-    for target in TARGETS:
+def _retry_each(
+    targets: list[dict],
+    *,
+    args: argparse.Namespace,
+    client: Any,
+    r2_client: Any,
+    tracker: UsageTracker,
+) -> None:
+    for target in targets:
         try:
             retry_card(
                 target=target,
@@ -273,6 +334,7 @@ def main(argv: list[str] | None = None) -> int:
                 model=args.model,
                 tracker=tracker,
                 cost_cap_usd=args.max_spend_usd,
+                nas_archive=args.nas_archive,
             )
         except CostCapExceededError as exc:
             print(f"COST CAP: {exc}", file=sys.stderr)
@@ -282,7 +344,31 @@ def main(argv: list[str] | None = None) -> int:
                 f"FAILED on {target['card_id']}: {type(exc).__name__}: {exc}",
                 file=sys.stderr,
             )
-            # Continue to next card so partial progress persists.
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _build_args_parser().parse_args(argv)
+    if args.nas_archive is None:
+        from pursue_index.config import settings  # type: ignore[import-not-found]
+        args.nas_archive = settings.data_root / "r2-mirror" / "archive"
+    if not os.environ.get("OPENAI_API_KEY"):
+        print("OPENAI_API_KEY not set; cannot dispatch.", file=sys.stderr)
+        return 2
+
+    targets = _DEFAULT_TARGETS_PRE if args.pre else _DEFAULT_TARGETS_POST
+    if args.out_dir is None:
+        args.out_dir = _REPO_ROOT / targets[0]["target_dir"]
+
+    from openai import OpenAI  # type: ignore[import-not-found]
+    client = OpenAI()
+
+    r2_client = None
+    if not args.nas_archive.exists():
+        from r2_archive_assets import make_r2_client  # type: ignore[import-not-found]
+        r2_client = make_r2_client()
+
+    tracker = UsageTracker()
+    _retry_each(targets, args=args, client=client, r2_client=r2_client, tracker=tracker)
 
     final_cost = _estimate_cost(tracker)
     print(
