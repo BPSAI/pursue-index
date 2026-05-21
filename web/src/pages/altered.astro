@@ -16,7 +16,25 @@ type ClassificationEntry = {
     | "content_changed"
     | "no_text_layer"
     | "asset_type_change";
+  visual_class?:
+    | "visually_identical"
+    | "visually_changed"
+    | "page_count_changed";
 };
+
+/** Resolve a card to its effective class for the listing — visual
+ * subclass folds the no_text_layer cards into the broader presentation/
+ * content buckets. */
+function effectiveClass(entry: ClassificationEntry | undefined): string {
+  if (!entry) return "unknown";
+  if (entry.class === "no_text_layer" && entry.visual_class === "visually_identical") {
+    return "presentation_only";
+  }
+  if (entry.class === "no_text_layer" && entry.visual_class === "visually_changed") {
+    return "content_changed";
+  }
+  return entry.class;
+}
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -26,7 +44,7 @@ const classification = (alteredDiffsJson as { classification?: Record<string, Cl
   .classification ?? {};
 const classCounts = alteredRows.reduce(
   (acc, row) => {
-    const cls = classification[row.card_id]?.class ?? "unknown";
+    const cls = effectiveClass(classification[row.card_id]);
     acc[cls] = (acc[cls] ?? 0) + 1;
     return acc;
   },
@@ -91,23 +109,23 @@ const itemListLd = itemListJsonLd(
 
         <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-3 font-mono text-[11px] text-[color:var(--color-text-dim)] leading-relaxed">
           <div class="uppercase tracking-[0.2em] text-[10px] text-[color:var(--color-text-faint)] mb-2">
-            CHANGE CLASSIFICATION (via PDF text-layer comparison)
+            CHANGE CLASSIFICATION — text-layer + perceptual-hash analysis
           </div>
           <ul class="space-y-1">
             <li>
               <span class="text-[color:var(--color-signal-red)]">●</span>{" "}
               <span class="text-[color:var(--color-text-bright)]">{classCounts.content_changed ?? 0}</span>{" "}
-              content_changed — text layer differs, real upstream edit
+              content_changed — text differs or visual hash diverges; real upstream edit
             </li>
             <li>
               <span class="text-[color:var(--color-signal-green)]">●</span>{" "}
               <span class="text-[color:var(--color-text-bright)]">{classCounts.presentation_only ?? 0}</span>{" "}
-              presentation_only — text layer identical, byte change is re-export / metadata / font subset
+              presentation_only — bytes changed but content didn't (re-encoding, font subset, metadata)
             </li>
             <li>
               <span class="text-[color:var(--color-signal-amber)]">●</span>{" "}
               <span class="text-[color:var(--color-text-bright)]">{classCounts.no_text_layer ?? 0}</span>{" "}
-              no_text_layer — image-only PDFs, classification unavailable via text alone
+              no_text_layer — image-only PDFs, visual classification still pending
             </li>
             <li>
               <span class="text-[color:var(--color-text-faint)]">●</span>{" "}
@@ -115,6 +133,12 @@ const itemListLd = itemListJsonLd(
               asset_type_change — upstream swapped asset type (e.g., video → PDF)
             </li>
           </ul>
+          <p class="text-[color:var(--color-text-faint)] text-[10px] mt-2">
+            Methodology: PDF text layer extracted via pypdfium2 and sha256-compared after
+            whitespace normalization (Sprint 4k-A); image-only PDFs additionally
+            compared via 64×64 perceptual-hash per page at 100 DPI (Sprint 4k-B).
+            Click any card for the per-card detail + verification numbers.
+          </p>
         </div>
         <div class="overflow-x-auto border border-[color:var(--color-border)]">
           <table class="w-full font-mono text-xs">
@@ -131,7 +155,7 @@ const itemListLd = itemListJsonLd(
             </thead>
             <tbody>
               {alteredRows.map((row) => {
-                const cls = classification[row.card_id]?.class ?? "unknown";
+                const cls = effectiveClass(classification[row.card_id]);
                 const clsColor =
                   cls === "content_changed" ? "text-[color:var(--color-signal-red)]"
                   : cls === "presentation_only" ? "text-[color:var(--color-signal-green)]"

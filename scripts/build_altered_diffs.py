@@ -306,12 +306,16 @@ def main(argv: list[str] | None = None) -> int:
     skipped_asset_type_change: list[str] = []
     skipped_presentation_only: list[str] = []
     for card_id in sorted(byte_history.keys()):
-        # Sprint 4k-A: when the text layer is byte-equal across pre/post,
-        # the upstream change was purely presentational (re-rasterization,
-        # font subset rev, metadata) and any OCR diff is Sonnet
-        # non-determinism noise. Skip the diff; the per-card page
-        # surfaces a "BYTES CHANGED — CONTENT IDENTICAL" badge instead.
-        if classification.get(card_id, {}).get("class") == "presentation_only":
+        # Sprint 4k-A + 4k-B: skip OCR diff for cards confirmed as
+        # content-identical via the text layer (presentation_only) OR
+        # via perceptual-hash image comparison (visually_identical).
+        # In both cases the bytes shifted but the content didn't, so
+        # any OCR diff is non-determinism noise.
+        card_info = classification.get(card_id, {})
+        if (
+            card_info.get("class") == "presentation_only"
+            or card_info.get("visual_class") == "visually_identical"
+        ):
             skipped_presentation_only.append(card_id)
             continue
         status, card_diff = _diff_one_card(

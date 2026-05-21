@@ -4,21 +4,13 @@
     "pre_ocr_sha256": "8b404dc2030c7df74b8843d201c46a63a080c30b67d5ed4dbe9dd29958933f0f",
     "altered_pre_ocr_dir": "data/altered-ocr-pre",
     "engine_matched_cards": [
-      "0d7a23b29e6de1bf",
       "108379f8a86dbe9c",
       "13f86e95aed52840",
-      "16fcb501de623b9c",
       "1701a0f307714921",
-      "19d8e1d503211c84",
       "1b522e779e72877c",
-      "1e63919cc6c3daf4",
       "218e167fbd265d91",
       "239d049dab8c81d5",
       "26b02d358ec20061",
-      "2b947223739f5bd4",
-      "36bcfe2cfb5f3f54",
-      "3a5445e8aa7985d4",
-      "3b36f3dc3b51cf3b",
       "4844321219e306af",
       "48e4bc1bdb5a66e8",
       "4b68726be4af8ff9",
@@ -26,12 +18,8 @@
       "5d9d3147f0b62d0c",
       "5ecebc7c28a8d8c7",
       "63c47bad93af4c92",
-      "672ae7eab15481ff",
-      "67ab3ffef2aecf70",
       "67c2ef13cc69891c",
       "6bda02c546051f43",
-      "6ded7ef20ded84c7",
-      "7d1b50162c29378a",
       "7d58f0cac741650a",
       "7fd3d2656cbc83a6",
       "8bb54e0aec5e91ad",
@@ -44,31 +32,21 @@
       "99c12a9c49a91750",
       "9e2c2621d67dde12",
       "9e677b8697685311",
-      "a417f61b2dbd671f",
       "ad721de274bb7d6c",
-      "af047a976bac0c89",
       "af42a6774881c110",
       "b246c782b16be168",
-      "b279eac8e49cf4fe",
       "b60b84a66715204a",
       "bcf2e688dfbc220d",
-      "bdf033d4a47eaad3",
       "be226374e719c729",
       "be533a4ab886eb11",
       "c48c078b811c0fd7",
-      "c568aea24f3aef31",
-      "ccd932b4f40e8de7",
-      "dc9f45a9ec6feb00",
       "df43a479bc891969",
       "e897e67f95bc1e1b",
       "e93f6997811954dc",
       "ed585fe68e3c4e7e",
-      "eda0a3d37c6dbbc3",
       "f42c11ca158aeffc",
       "f85532f0514320be",
-      "f8bd1f11b7a2ae48",
       "fa24eb58219a8dff",
-      "fd8286ffc6fbc1fb",
       "ff30c985595153f3"
     ],
     "skipped_asset_type_change_cards": [
@@ -84,11 +62,33 @@
     ],
     "skipped_presentation_only_cards": [
       "085c019c9899db9b",
+      "0d7a23b29e6de1bf",
       "0e3b3ec17a9ae021",
+      "16fcb501de623b9c",
+      "19d8e1d503211c84",
+      "1e63919cc6c3daf4",
+      "2b947223739f5bd4",
+      "36bcfe2cfb5f3f54",
+      "3a5445e8aa7985d4",
+      "3b36f3dc3b51cf3b",
+      "672ae7eab15481ff",
+      "67ab3ffef2aecf70",
+      "6ded7ef20ded84c7",
       "78dc972c0c143d1e",
-      "8d0b85ce46109d06"
+      "7d1b50162c29378a",
+      "8d0b85ce46109d06",
+      "a417f61b2dbd671f",
+      "af047a976bac0c89",
+      "b279eac8e49cf4fe",
+      "bdf033d4a47eaad3",
+      "c568aea24f3aef31",
+      "ccd932b4f40e8de7",
+      "dc9f45a9ec6feb00",
+      "eda0a3d37c6dbbc3",
+      "f8bd1f11b7a2ae48",
+      "fd8286ffc6fbc1fb"
     ],
-    "card_count": 66
+    "card_count": 44
   },
   "classification": {
     "085c019c9899db9b": {
@@ -105,7 +105,13 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 6,
+      "avg_page_bit_diff": 6.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "0e3b3ec17a9ae021": {
       "class": "presentation_only",
@@ -121,35 +127,65 @@
       "pre_pages": 126,
       "post_pages": 126,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 126,
+      "max_page_bit_diff": 1844,
+      "avg_page_bit_diff": 256.79,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "13f86e95aed52840": {
       "class": "no_text_layer",
       "pre_pages": 271,
       "post_pages": 271,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 271,
+      "max_page_bit_diff": 3241,
+      "avg_page_bit_diff": 215.89,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "16fcb501de623b9c": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 4,
+      "avg_page_bit_diff": 4.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "1701a0f307714921": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_changed",
+      "pages": 1,
+      "max_page_bit_diff": 993,
+      "avg_page_bit_diff": 993.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "19d8e1d503211c84": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 10,
+      "avg_page_bit_diff": 10.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "1b522e779e72877c": {
       "class": "content_changed",
@@ -165,42 +201,78 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 7,
+      "avg_page_bit_diff": 7.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "218e167fbd265d91": {
       "class": "no_text_layer",
       "pre_pages": 143,
       "post_pages": 143,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 143,
+      "max_page_bit_diff": 744,
+      "avg_page_bit_diff": 77.74,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "239d049dab8c81d5": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 1,
+      "max_page_bit_diff": 205,
+      "avg_page_bit_diff": 205.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "26b02d358ec20061": {
       "class": "no_text_layer",
       "pre_pages": 15,
       "post_pages": 15,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 15,
+      "max_page_bit_diff": 2211,
+      "avg_page_bit_diff": 253.6,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "2b947223739f5bd4": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 5,
+      "avg_page_bit_diff": 5.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "36bcfe2cfb5f3f54": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 7,
+      "avg_page_bit_diff": 7.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "3746998b8c506e5c": {
       "class": "asset_type_change",
@@ -213,14 +285,26 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 6,
+      "avg_page_bit_diff": 6.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "3b36f3dc3b51cf3b": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 0,
+      "avg_page_bit_diff": 0.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "43db2719407a7897": {
       "class": "asset_type_change",
@@ -239,21 +323,39 @@
       "pre_pages": 194,
       "post_pages": 194,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 194,
+      "max_page_bit_diff": 1931,
+      "avg_page_bit_diff": 149.77,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "48e4bc1bdb5a66e8": {
       "class": "no_text_layer",
       "pre_pages": 4,
       "post_pages": 4,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 4,
+      "max_page_bit_diff": 131,
+      "avg_page_bit_diff": 81.25,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "4b68726be4af8ff9": {
       "class": "no_text_layer",
       "pre_pages": 15,
       "post_pages": 15,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 15,
+      "max_page_bit_diff": 736,
+      "avg_page_bit_diff": 199.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "5847028ebb855cf8": {
       "class": "content_changed",
@@ -278,7 +380,13 @@
       "pre_pages": 214,
       "post_pages": 214,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 214,
+      "max_page_bit_diff": 1901,
+      "avg_page_bit_diff": 148.96,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "63c47bad93af4c92": {
       "class": "content_changed",
@@ -294,35 +402,65 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 11,
+      "avg_page_bit_diff": 11.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "67ab3ffef2aecf70": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 6,
+      "avg_page_bit_diff": 6.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "67c2ef13cc69891c": {
       "class": "no_text_layer",
       "pre_pages": 9,
       "post_pages": 9,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 9,
+      "max_page_bit_diff": 747,
+      "avg_page_bit_diff": 179.56,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "6bda02c546051f43": {
       "class": "no_text_layer",
       "pre_pages": 7,
       "post_pages": 7,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 7,
+      "max_page_bit_diff": 207,
+      "avg_page_bit_diff": 73.57,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "6ded7ef20ded84c7": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 2,
+      "avg_page_bit_diff": 2.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "78dc972c0c143d1e": {
       "class": "presentation_only",
@@ -338,21 +476,39 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 3,
+      "avg_page_bit_diff": 3.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "7d58f0cac741650a": {
       "class": "no_text_layer",
       "pre_pages": 184,
       "post_pages": 184,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 184,
+      "max_page_bit_diff": 2706,
+      "avg_page_bit_diff": 225.28,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "7fd3d2656cbc83a6": {
       "class": "no_text_layer",
       "pre_pages": 178,
       "post_pages": 178,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 178,
+      "max_page_bit_diff": 2935,
+      "avg_page_bit_diff": 377.06,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "88a20bf256ccce7a": {
       "class": "asset_type_change",
@@ -365,14 +521,26 @@
       "pre_pages": 11,
       "post_pages": 11,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 11,
+      "max_page_bit_diff": 294,
+      "avg_page_bit_diff": 126.91,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "8bfd94484138d59b": {
       "class": "no_text_layer",
       "pre_pages": 290,
       "post_pages": 290,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 290,
+      "max_page_bit_diff": 1835,
+      "avg_page_bit_diff": 132.81,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "8d0b85ce46109d06": {
       "class": "presentation_only",
@@ -397,21 +565,39 @@
       "pre_pages": 28,
       "post_pages": 28,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 28,
+      "max_page_bit_diff": 1223,
+      "avg_page_bit_diff": 165.68,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "954d1e1944bc6d17": {
       "class": "no_text_layer",
       "pre_pages": 3,
       "post_pages": 3,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 3,
+      "max_page_bit_diff": 1059,
+      "avg_page_bit_diff": 400.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "973c1f75f55d0d39": {
       "class": "no_text_layer",
       "pre_pages": 94,
       "post_pages": 94,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 94,
+      "max_page_bit_diff": 1217,
+      "avg_page_bit_diff": 155.56,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "9877727cd0d1bbfe": {
       "class": "content_changed",
@@ -433,91 +619,169 @@
       "pre_pages": 190,
       "post_pages": 190,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 190,
+      "max_page_bit_diff": 2601,
+      "avg_page_bit_diff": 196.52,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "9e2c2621d67dde12": {
       "class": "no_text_layer",
       "pre_pages": 6,
       "post_pages": 6,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 6,
+      "max_page_bit_diff": 51,
+      "avg_page_bit_diff": 20.83,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "9e677b8697685311": {
       "class": "no_text_layer",
       "pre_pages": 28,
       "post_pages": 28,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 28,
+      "max_page_bit_diff": 574,
+      "avg_page_bit_diff": 127.46,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "a417f61b2dbd671f": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 1,
+      "avg_page_bit_diff": 1.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "ad721de274bb7d6c": {
       "class": "no_text_layer",
       "pre_pages": 217,
       "post_pages": 217,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 217,
+      "max_page_bit_diff": 2018,
+      "avg_page_bit_diff": 208.09,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "af047a976bac0c89": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 3,
+      "avg_page_bit_diff": 3.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "af42a6774881c110": {
       "class": "no_text_layer",
       "pre_pages": 40,
       "post_pages": 40,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 40,
+      "max_page_bit_diff": 1203,
+      "avg_page_bit_diff": 132.35,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "b246c782b16be168": {
       "class": "no_text_layer",
       "pre_pages": 209,
       "post_pages": 209,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 209,
+      "max_page_bit_diff": 1741,
+      "avg_page_bit_diff": 149.04,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "b279eac8e49cf4fe": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 14,
+      "avg_page_bit_diff": 14.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "b60b84a66715204a": {
       "class": "no_text_layer",
       "pre_pages": 209,
       "post_pages": 209,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 209,
+      "max_page_bit_diff": 1869,
+      "avg_page_bit_diff": 276.82,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "bcf2e688dfbc220d": {
       "class": "no_text_layer",
       "pre_pages": 185,
       "post_pages": 185,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 185,
+      "max_page_bit_diff": 1685,
+      "avg_page_bit_diff": 128.3,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "bdf033d4a47eaad3": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 9,
+      "avg_page_bit_diff": 9.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "be226374e719c729": {
       "class": "no_text_layer",
       "pre_pages": 144,
       "post_pages": 144,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 144,
+      "max_page_bit_diff": 1008,
+      "avg_page_bit_diff": 120.72,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "be533a4ab886eb11": {
       "class": "content_changed",
@@ -548,7 +812,13 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 1,
+      "avg_page_bit_diff": 1.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "c788c17e8cc32230": {
       "class": "asset_type_change",
@@ -561,7 +831,13 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 8,
+      "avg_page_bit_diff": 8.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "d8e5687dc870892d": {
       "class": "asset_type_change",
@@ -574,7 +850,13 @@
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 0,
+      "avg_page_bit_diff": 0.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "df43a479bc891969": {
       "class": "content_changed",
@@ -590,14 +872,26 @@
       "pre_pages": 124,
       "post_pages": 124,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 124,
+      "max_page_bit_diff": 806,
+      "avg_page_bit_diff": 35.06,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "e93f6997811954dc": {
       "class": "no_text_layer",
       "pre_pages": 2,
       "post_pages": 2,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 2,
+      "max_page_bit_diff": 154,
+      "avg_page_bit_diff": 108.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "ea029a05470b8f4e": {
       "class": "asset_type_change",
@@ -610,49 +904,91 @@
       "pre_pages": 10,
       "post_pages": 10,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 10,
+      "max_page_bit_diff": 193,
+      "avg_page_bit_diff": 33.3,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "eda0a3d37c6dbbc3": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": false
+      "post_has_text": false,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 8,
+      "avg_page_bit_diff": 8.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "f42c11ca158aeffc": {
       "class": "no_text_layer",
       "pre_pages": 18,
       "post_pages": 18,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 18,
+      "max_page_bit_diff": 262,
+      "avg_page_bit_diff": 147.33,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "f85532f0514320be": {
       "class": "no_text_layer",
       "pre_pages": 205,
       "post_pages": 205,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 205,
+      "max_page_bit_diff": 1423,
+      "avg_page_bit_diff": 187.33,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "f8bd1f11b7a2ae48": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 2,
+      "avg_page_bit_diff": 2.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "fa24eb58219a8dff": {
       "class": "no_text_layer",
       "pre_pages": 137,
       "post_pages": 137,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_changed",
+      "pages": 137,
+      "max_page_bit_diff": 1089,
+      "avg_page_bit_diff": 74.96,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "fd8286ffc6fbc1fb": {
       "class": "no_text_layer",
       "pre_pages": 1,
       "post_pages": 1,
       "pre_has_text": false,
-      "post_has_text": true
+      "post_has_text": true,
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 5,
+      "avg_page_bit_diff": 5.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "ff30c985595153f3": {
       "class": "content_changed",
@@ -665,29 +1001,6 @@
     }
   },
   "diffs": {
-    "0d7a23b29e6de1bf": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "15 10 5 5 10 15 12/31/99 18:10:18"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "108379f8a86dbe9c": {
       "pages": [
         {
@@ -14774,60 +15087,11 @@
         "total_pre_pages": 271
       }
     },
-    "16fcb501de623b9c": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:54",
-              "after": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:54"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 1,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "1701a0f307714921": {
       "pages": [
         {
           "page_no": 1,
           "segments": []
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "19d8e1d503211c84": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "15 10 5 5 10 15 12/31/99 18:11:06"
-            }
-          ]
         }
       ],
       "summary": {
@@ -14859,35 +15123,6 @@
         "modified_sentences": 0,
         "modified_pages": [],
         "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "1e63919cc6c3daf4": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 15 10 5 + 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:19"
-            },
-            {
-              "kind": "added",
-              "text": "[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] 12/31/99 18:11:19"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 19,
-        "added_words": 19,
-        "modified_sentences": 0,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
         "ocr_status": "complete",
         "ocr_max_page": 1,
         "total_pre_pages": 1
@@ -18168,107 +18403,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 15,
         "total_pre_pages": 15
-      }
-    },
-    "2b947223739f5bd4": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:12"
-            },
-            {
-              "kind": "added",
-              "text": "[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] 12/31/99 18:11:12"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 19,
-        "added_words": 19,
-        "modified_sentences": 0,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "36bcfe2cfb5f3f54": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "15 10 5 5 10 15 12/31/99 18:12:20"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "3a5445e8aa7985d4": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:22",
-              "after": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:22"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 1,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "3b36f3dc3b51cf3b": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:41"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
       }
     },
     "4844321219e306af": {
@@ -34518,52 +34652,6 @@
         "total_pre_pages": 3
       }
     },
-    "672ae7eab15481ff": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 | 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:12:16"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "67ab3ffef2aecf70": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "15 10 5 5 10 15 12/31/99 18:11:27"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "67c2ef13cc69891c": {
       "pages": [
         {
@@ -34915,58 +35003,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 7,
         "total_pre_pages": 7
-      }
-    },
-    "6ded7ef20ded84c7": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:40"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "7d1b50162c29378a": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "3 3 12/31/99 18:20:08"
-            },
-            {
-              "kind": "added",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:08"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 8,
-        "added_words": 15,
-        "modified_sentences": 0,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
       }
     },
     "7d58f0cac741650a": {
@@ -65423,35 +65459,6 @@
         "total_pre_pages": 28
       }
     },
-    "a417f61b2dbd671f": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:33"
-            },
-            {
-              "kind": "added",
-              "text": "3 3 12/31/99 18:19:33"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 15,
-        "added_words": 8,
-        "modified_sentences": 0,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "ad721de274bb7d6c": {
       "pages": [
         {
@@ -71892,35 +71899,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 217,
         "total_pre_pages": 217
-      }
-    },
-    "af047a976bac0c89": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:50"
-            },
-            {
-              "kind": "added",
-              "text": "15 10 5 5 10 15 12/31/99 18:10:50"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 19,
-        "added_words": 12,
-        "modified_sentences": 0,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
       }
     },
     "af42a6774881c110": {
@@ -81189,29 +81167,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 209,
         "total_pre_pages": 209
-      }
-    },
-    "b279eac8e49cf4fe": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:00"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
       }
     },
     "b60b84a66715204a": {
@@ -93647,29 +93602,6 @@
         "total_pre_pages": 185
       }
     },
-    "bdf033d4a47eaad3": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "15 10 5 5 10 15 12/31/99 18:18:58"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "be226374e719c729": {
       "pages": [
         {
@@ -101459,75 +101391,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 7,
         "total_pre_pages": 7
-      }
-    },
-    "c568aea24f3aef31": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:21:02"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "ccd932b4f40e8de7": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:02"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "dc9f45a9ec6feb00": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:19"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
       }
     },
     "df43a479bc891969": {
@@ -109792,29 +109655,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 10,
         "total_pre_pages": 10
-      }
-    },
-    "eda0a3d37c6dbbc3": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "15 10 5 5 10 15 12/31/99 18:18:53"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
       }
     },
     "f42c11ca158aeffc": {
@@ -125309,32 +125149,6 @@
         "total_pre_pages": 205
       }
     },
-    "f8bd1f11b7a2ae48": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:48",
-              "after": "[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:48"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 1,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "fa24eb58219a8dff": {
       "pages": [
         {
@@ -127108,29 +126922,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 137,
         "total_pre_pages": 137
-      }
-    },
-    "fd8286ffc6fbc1fb": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:26"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
       }
     },
     "ff30c985595153f3": {
