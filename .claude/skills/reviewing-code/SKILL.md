@@ -72,6 +72,31 @@ Brief assessment.
 - Mock external services (Trello, GitHub APIs)
 - Follow existing patterns in codebase
 
+## Data Provenance Check
+
+For any code that consumes, compares, or transforms data from multiple
+sources, verify the inputs are **provenance-compatible** before
+approving.
+
+Check that each input was produced with the same:
+- model / engine / version
+- prompt / processing pipeline
+- DPI / encoding / sampling rate
+- source-generation (apples-to-apples, not pre-vs-post in mismatched
+  formats)
+
+If an input carries a `model_id`, `version`, `generated_at`, or similar
+provenance field, **read it and confirm compatibility with the other
+input(s)**. If provenance is absent or incompatible, the output may
+be meaningful-looking noise — flag as P0. Incorrect output is worse
+than no output.
+
+Heuristic: if the code emits a *comparison* (diff, delta, ratio,
+drift...), the surface should validate that the things being compared
+were generated under the same conditions. Add an invariant test if
+the codebase doesn't already enforce it (byte-vs-word-delta sanity
+checks, etc.).
+
 ## Quick Checks
 
 ```bash
