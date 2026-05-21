@@ -16,10 +16,19 @@ inputs for it.
 from __future__ import annotations
 
 import json
+import re
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+# archive_key shape: ``archive/<lowercase-64-hex-sha>.pdf``. Mirrors the
+# worker's ``BYTE_SHA_RE`` (``worker/pdf.js::BYTE_SHA_RE``). Anchored so
+# path-traversal attempts (``archive/../``) and trailing-dot tricks
+# (``archive/<sha>.pdf.png``) reject. .pdf only because ``fetch_r2_pdf``
+# is the PDF-specific path; .mp4 / .png archive_keys go through other
+# code paths and never reach this function.
+_ARCHIVE_KEY_PDF_RE = re.compile(r"^archive/[a-f0-9]{64}\.pdf$")
 
 # Sonnet 4.6 pricing per Anthropic (Sprint 4h kick-off, 2026-05-20):
 # $3/MTok input, $15/MTok output.
@@ -172,7 +181,17 @@ def truncate_jsonl_to_valid_prefix(jsonl_path: Path) -> int:
 
 
 def fetch_r2_pdf(client: Any, archive_key: str, bucket: str = "pursue-pdfs") -> bytes:
-    """Stream PDF bytes from R2 into memory."""
+    """Stream PDF bytes from R2 into memory.
+
+    Validates ``archive_key`` shape before the boto3 call so a corrupted
+    byte-history entry surfaces as a typed ``ValueError`` here instead
+    of a confusing ``NoSuchKey`` from R2 (Sprint 4i #8, laverna P3).
+    """
+    if not _ARCHIVE_KEY_PDF_RE.match(archive_key):
+        raise ValueError(
+            f"archive_key {archive_key!r} doesn't match the expected shape "
+            "`archive/<64-hex-sha>.pdf` — refusing to forward to R2."
+        )
     obj = client.get_object(Bucket=bucket, Key=archive_key)
     return obj["Body"].read()
 

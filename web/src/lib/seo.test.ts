@@ -16,6 +16,7 @@ import {
   organizationJsonLd,
   websiteJsonLd,
   datasetJsonLd,
+  cardDiffDatasetJsonLd,
   digitalDocumentJsonLd,
   articleJsonLd,
   breadcrumbJsonLd,
@@ -119,6 +120,49 @@ test("datasetJsonLd distribution lists machine-readable endpoints", () => {
     assert.ok(typeof d.contentUrl === "string");
     assert.ok(typeof d.encodingFormat === "string");
   }
+});
+
+// ---------------- cardDiffDatasetJsonLd (Sprint 4i #6) ----------------
+
+const DIFF_FIXTURE = {
+  cardId: "4844321219e306af",
+  cardTitle: "FBI 62-HQ-83894 Section 6",
+  preEditByteSha: "a".repeat(64),
+  postEditByteSha: "b".repeat(64),
+  removedWords: 247,
+  addedWords: 3,
+  dateModified: "2026-05-14T18:30:00Z",
+};
+
+test("cardDiffDatasetJsonLd declares a Dataset for the per-card diff", () => {
+  const ld = cardDiffDatasetJsonLd(DIFF_FIXTURE);
+  assert.equal(ld["@context"], "https://schema.org");
+  assert.equal(ld["@type"], "Dataset");
+  assert.equal(ld.url, `${SITE}/altered/4844321219e306af`);
+  assert.ok((ld.name as string).includes("FBI 62-HQ-83894"));
+});
+
+test("cardDiffDatasetJsonLd description surfaces word counts and short shas", () => {
+  const ld = cardDiffDatasetJsonLd(DIFF_FIXTURE);
+  const desc = ld.description as string;
+  assert.match(desc, /247 words removed/);
+  assert.match(desc, /3 words added/);
+  // Short-sha form, not full 64-hex.
+  assert.ok(desc.includes("aaaaaaaaaaaa"));
+  assert.ok(desc.includes("bbbbbbbbbbbb"));
+  assert.ok(!desc.includes("a".repeat(64)));
+});
+
+test("cardDiffDatasetJsonLd links isBasedOn back to the source card page", () => {
+  const ld = cardDiffDatasetJsonLd(DIFF_FIXTURE);
+  assert.equal(ld.isBasedOn, `${SITE}/card/4844321219e306af`);
+});
+
+test("cardDiffDatasetJsonLd includes dual licensing identical to corpus dataset", () => {
+  const ld = cardDiffDatasetJsonLd(DIFF_FIXTURE);
+  const license = ld.license as string[];
+  assert.ok(license.some((u: string) => /apache.*2\.0/i.test(u)));
+  assert.ok(license.some((u: string) => /usa\.gov|publicaccess/i.test(u)));
 });
 
 // ---------------- DigitalDocument ----------------

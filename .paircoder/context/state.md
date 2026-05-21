@@ -1,6 +1,28 @@
 # Current State
 
-> Last updated: 2026-05-21 (Sprint 4i batch 1 MERGED — `707599e` direct-to-main. Closes #2, #3, #4, #9, #10. Working tree clean; 5 backlog items remain in Sprint 4i.)
+> Last updated: 2026-05-21 (Sprint 4i batch 1 + batch 2 LANDED. Batch 2 (#5, #6, #7, #8) staged locally pending commit. Only Sprint 4i #1 (OCR retry on content-filter cards, operator-attended ~$2-5) remains open.)
+
+## 2026-05-21 — Sprint 4i batch 2 LOCAL (5 of 5 unattended items now closed)
+
+### Items closed this batch
+
+- **#5 OCR cache reproducibility**: new runbook `docs/runbooks/ocr-cache-reproducibility.md` explains where the cache lives (`<PURSUE_DATA_ROOT>/ocr/.llm-cache`), how a fresh checkout can reuse it via env-var pin or symlink, the `--max-spend-usd 0` cache-verification trick, and the $46 / 2-3h cost of regenerating from scratch. README pointer added under the cite/reproducibility paragraph.
+- **#6 JSON-LD on /altered/<card_id> pages**: new `cardDiffDatasetJsonLd` builder in `web/src/lib/seo.ts` emits a per-diff `schema.org/Dataset` with the pre/post sha pair, word-count delta, and `isBasedOn` linking back to the source card. Wired into `[card_id].astro` via `<Base jsonLd={...}>`. 4 new seo.test.ts cases pin the contract. Verified live in the Astro build at `web/dist/altered/0d7a23b29e6de1bf/index.html`.
+- **#7 CI size gate on altered-diffs.json**: new `tests/unit/test_altered_diffs_size.py` asserts the file stays under 20 MB (current 9.5 MB → ~50% headroom; trips at ~2x growth, well before the triple-corpus Astro-OOM threshold). Added as gate step 5c in `.github/workflows/release-gate.yml` with the file added to path filters.
+- **#8 archive_key format assertion in fetch_r2_pdf**: validates `^archive/[a-f0-9]{64}\.pdf$` before forwarding to boto3 `get_object`. Corrupted byte-history entries now surface as `ValueError` at the call site instead of a confusing `NoSuchKey` from R2. 15 new tests cover the valid-key passthrough + 14 malformed-key rejection cases (wrong prefix, wrong ext, wrong sha length, non-hex, uppercase, path-traversal).
+
+### Verification
+
+- 740 / 740 python tests pass (was 723; +17 net: 2 size-gate + 15 fetch_r2_pdf).
+- seo.test.ts 25 / 25 pass (+4 cardDiffDataset).
+- Ruff clean on touched files.
+- Arch check: 0 errors. `_reocr_helpers.py` warns at 206 lines (well under 400 error).
+- Astro build: 262 pages, no errors. Sample altered page renders the new Dataset JSON-LD correctly.
+
+### Sprint 4i — final state
+
+- **Closed**: #2, #3, #4, #5, #6, #7, #8, #9, #10
+- **Open**: #1 only — OCR retry on `7d58f0cac741650a` (p87-184) + `f85532f0514320be` (p74-205). Operator-attended, ~$2-5 approved spend. Implementation: one-shot script using o4-mini (frontier backstop) since `pursue_index.ocr.llm` OpenAI provider is a v2 stub.
 
 ## 2026-05-21 — Sprint 4i batch 1 MERGED (`707599e` → main, 36 files)
 

@@ -4,7 +4,7 @@ import { cards } from "../../data/manifest-loader";
 import byteHistoryJson from "../../data/byte-history.json";
 import alteredDiffsJson from "../../data/altered-diffs.json";
 import { formatBytes, sizeDeltaPct } from "../../lib/byte-display.ts";
-import { SITE_ORIGIN } from "../../lib/seo";
+import { SITE_ORIGIN, cardDiffDatasetJsonLd } from "../../lib/seo";
 
 type ByteHistoryEntry = {
   byte_sha256: string;
@@ -64,8 +64,25 @@ const diff = alteredDiffs[card_id] ?? null;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const pageTitle = `${card.title.slice(0, 50)}${card.title.length > 50 ? "…" : ""} — text diff — PURSUE://INDEX`;
+
+// JSON-LD Dataset for the per-card diff (Sprint 4i #6). Surfaces the
+// pre/post sha pair + word-count delta to crawlers + LLMs so the diff
+// is discoverable as a dataset distinct from the source card. Omitted
+// when the diff hasn't run yet (mp4 cards, future tranches, etc.).
+const pageJsonLd =
+  diff && diff.summary
+    ? cardDiffDatasetJsonLd({
+        cardId: card.card_id,
+        cardTitle: card.title,
+        preEditByteSha: oldest.byte_sha256,
+        postEditByteSha: current.byte_sha256,
+        removedWords: diff.summary.removed_words,
+        addedWords: diff.summary.added_words,
+        dateModified: current.fetched_at,
+      })
+    : undefined;
 ---
-<Base title={pageTitle} active="altered">
+<Base title={pageTitle} active="altered" jsonLd={pageJsonLd}>
   <div class="space-y-6 max-w-6xl">
     <nav aria-label="Breadcrumb" class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
       <a href={`${base}/altered/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">/altered</a>

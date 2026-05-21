@@ -38,6 +38,7 @@ on:
       - "web/public/data/snapshots/**"
       - "data/card-aliases.json"
       - "web/src/content/finds/**"
+      - "web/src/data/altered-diffs.json"
   workflow_dispatch:
 
 permissions:
@@ -83,6 +84,13 @@ jobs:
         # block. Soft word-count warnings don't gate. Both human-written
         # and bot-opened entries pass through this gate identically.
         run: pytest tests/unit/test_finds_validator.py -v
+
+      - name: 5c — Size gate on altered-diffs.json
+        # The diff payload is SSR-imported by /altered/<card_id>.astro.
+        # A future tranche tripling the corpus would OOM the Astro
+        # build. Trip the gate at ~2x growth so the operator can switch
+        # to keyed-per-card JSON before deploy breaks (Sprint 4i #7).
+        run: pytest tests/unit/test_altered_diffs_size.py -v
 
       # ---------------------------------------------------------------
       # Build-dependent gates — need npm + Astro to produce web/dist/.

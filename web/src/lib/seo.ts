@@ -128,6 +128,60 @@ export function datasetJsonLd(inputs: DatasetInputs): JsonLdObject {
 }
 
 // ---------------------------------------------------------------------------
+// Card-diff dataset (per-card /altered/<id> pages)
+// ---------------------------------------------------------------------------
+
+export interface CardDiffDatasetInputs {
+  cardId: string;
+  cardTitle: string;
+  /** Pre-edit (oldest) byte sha. Surfaces in keyword + url metadata. */
+  preEditByteSha: string;
+  /** Post-edit (newest) byte sha. */
+  postEditByteSha: string;
+  /** Words removed/added across all pages — surfaces in description. */
+  removedWords: number;
+  addedWords: number;
+  /** ISO date when the upstream change was observed (current entry's
+   * fetched_at). Used as dateModified to anchor the diff temporally. */
+  dateModified: string;
+}
+
+export function cardDiffDatasetJsonLd(
+  inputs: CardDiffDatasetInputs,
+): JsonLdObject {
+  const cardUrl = `${SITE_ORIGIN}/card/${inputs.cardId}`;
+  const diffUrl = `${SITE_ORIGIN}/altered/${inputs.cardId}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: `${inputs.cardTitle} — silent-overlay text diff`,
+    description:
+      `Sentence-level OCR text diff between the pre-edit (sha ${inputs.preEditByteSha.slice(0, 12)}) ` +
+      `and post-edit (sha ${inputs.postEditByteSha.slice(0, 12)}) bytes of card ${inputs.cardId}. ` +
+      `${inputs.removedWords} words removed, ${inputs.addedWords} words added. ` +
+      "Both byte versions preserved at content-addressed /archive/<sha>.<ext> URLs; this dataset shows the OCR delta.",
+    url: diffUrl,
+    identifier: `${diffUrl}#${inputs.preEditByteSha}-${inputs.postEditByteSha}`,
+    keywords: [
+      "UAP", "UFO", "Department of War", "declassified documents",
+      "silent overlay", "redaction", "OCR diff", "integrity",
+    ],
+    license: [
+      "https://www.apache.org/licenses/LICENSE-2.0",
+      "https://www.usa.gov/government-works",
+    ],
+    creator: {
+      "@type": "Organization",
+      name: "pursue-index",
+      url: SITE_ORIGIN,
+    },
+    isBasedOn: cardUrl,
+    dateModified: inputs.dateModified,
+    isAccessibleForFree: true,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // DigitalDocument (card pages)
 // ---------------------------------------------------------------------------
 

@@ -264,6 +264,10 @@ If you cite this work in academic or journalistic context, see
 (includes BibTeX). Pin the manifest CSV SHA-256 in your citation —
 that's the load-bearing reproducibility claim.
 
+For reproducing the OCR layer specifically (the only pipeline stage
+whose regeneration cost is in the tens of dollars), see
+[`docs/runbooks/ocr-cache-reproducibility.md`](docs/runbooks/ocr-cache-reproducibility.md).
+
 ## Built with
 
 Powered by [PairCoder](https://paircoder.ai) — the AI-augmented pair
