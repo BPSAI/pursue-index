@@ -1,0 +1,9 @@
+# Treat upstream source CSVs as binary — DO NOT normalize line endings.
+# The bytes are sha-pinned across manifest.json, web/src/data/csv/index.json,
+# and every "this card was in the manifest" citation. Git's default
+# CRLF→LF normalization would re-hash the committed bytes (verified
+# 2026-05-21 — disk sha f75e2f7d... became git-stored sha d23efd26...
+# after the first commit) and break reproducibility for anyone
+# downloading from pursueindex.com and shasum-verifying.
+data/raw/csv/*.csv binary
+web/public/data/csv/*.csv binary
