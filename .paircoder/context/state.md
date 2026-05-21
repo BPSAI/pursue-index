@@ -1,8 +1,8 @@
 # Current State
 
-> Last updated: 2026-05-21 (Sprint 4i #2 + #3 + #4 + #9 + #10 all landed locally with TDD. Awaiting commit + push.)
+> Last updated: 2026-05-21 (Sprint 4i batch 1 MERGED — `707599e` direct-to-main. Closes #2, #3, #4, #9, #10. Working tree clean; 5 backlog items remain in Sprint 4i.)
 
-## 2026-05-21 — Sprint 4i batch 1 (5 of 10 items landed locally)
+## 2026-05-21 — Sprint 4i batch 1 MERGED (`707599e` → main, 36 files)
 
 ### Items closed this session
 
