@@ -31,6 +31,64 @@ if str(_SCRIPTS) not in sys.path:
 import build_altered_diffs as bad  # noqa: E402
 
 
+# --------------------------- diff_sentences modified (Sprint 4k-D) -------
+
+
+def test_diff_sentences_similar_replace_becomes_modified() -> None:
+    """A small in-place edit (single redaction marker inserted into an
+    otherwise-identical sentence) should collapse to a single
+    `modified` segment, not pair removed+added."""
+    before = "The witness arrived at 1700 hours and reported the sighting."
+    after = "The witness arrived at [REDACTED] 1700 hours and reported the sighting."
+    segments = bad.diff_sentences(before, after)
+    kinds = [s["kind"] for s in segments]
+    assert "modified" in kinds, f"expected modified segment, got: {kinds}"
+    mod = next(s for s in segments if s["kind"] == "modified")
+    assert mod["before"] == before
+    assert mod["after"] == after
+
+
+def test_diff_sentences_dissimilar_replace_stays_removed_added() -> None:
+    """Genuinely different sentences below the similarity threshold
+    should emit removed+added (the legacy 3-kind behavior)."""
+    before = "The witness arrived at 1700 hours."
+    after = "Completely unrelated content here about reactor cores."
+    segments = bad.diff_sentences(before, after)
+    kinds = [s["kind"] for s in segments]
+    assert "modified" not in kinds
+    assert "removed" in kinds
+    assert "added" in kinds
+
+
+def test_diff_sentences_uneven_replace_pairs_then_falls_back() -> None:
+    """When a replace block has a different number of sentences on each
+    side, paired sentences should still be checked for similarity; the
+    longer side's leftovers fall through to wholesale add/remove."""
+    before = "First similar one. Second similar two. Extra sentence."
+    after = "First similar uno. Second similar dos."
+    segments = bad.diff_sentences(before, after)
+    kinds = [s["kind"] for s in segments]
+    # First two pairs are highly similar → modified
+    assert kinds.count("modified") == 2
+    # "Extra sentence." is left over on the pre side → removed
+    assert "removed" in kinds
+
+
+def test_summarize_diff_counts_modified_sentences() -> None:
+    segments = [
+        {"kind": "equal", "text": "unchanged words here."},
+        {"kind": "modified", "before": "old one.", "after": "old two."},
+        {"kind": "modified", "before": "alpha beta.", "after": "alpha gamma."},
+        {"kind": "removed", "text": "gone."},
+        {"kind": "added", "text": "new."},
+    ]
+    summary = bad.summarize_diff(segments)
+    assert summary["modified_sentences"] == 2
+    # modified segments don't inflate removed/added word counts:
+    assert summary["removed_words"] == bad._word_count("gone.")
+    assert summary["added_words"] == bad._word_count("new.")
+
+
 # --------------------------- split_sentences -----------------------------
 
 

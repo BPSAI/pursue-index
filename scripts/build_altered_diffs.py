@@ -71,16 +71,19 @@ DEFAULT_CLASSIFICATION = _REPO_ROOT / "data" / "altered-classification.json"
 DEFAULT_OUT = _REPO_ROOT / "web" / "src" / "data" / "altered-diffs.json"
 
 
-def _diff_one_page(page_no: int, pre_text: str, post_text: str) -> tuple[dict, int, int]:
-    """Diff one page; return (page_diff_dict, removed_words, added_words).
-    Extracted to keep ``build_card_diff`` under the 50-line ceiling
-    (nayru/vaivora H1)."""
+def _diff_one_page(
+    page_no: int, pre_text: str, post_text: str
+) -> tuple[dict, int, int, int]:
+    """Diff one page; return (page_diff_dict, removed_words, added_words,
+    modified_sentences). Extracted to keep ``build_card_diff`` under
+    the 50-line ceiling (nayru/vaivora H1)."""
     segments = diff_sentences(pre_text, post_text)
     s = summarize_diff(segments)
     return (
         {"page_no": page_no, "segments": segments},
         s["removed_words"],
         s["added_words"],
+        s["modified_sentences"],
     )
 
 
@@ -150,8 +153,9 @@ def build_card_diff(pre_pages: list[dict], post_pages: list[dict]) -> dict:
     modified_pages: list[int] = []
     total_removed = 0
     total_added = 0
+    total_modified = 0
     for page_no in pages_to_diff:
-        page_diff, removed, added = _diff_one_page(
+        page_diff, removed, added, modified = _diff_one_page(
             page_no,
             pre_by_page.get(page_no, ""),
             post_by_page.get(page_no, ""),
@@ -159,7 +163,8 @@ def build_card_diff(pre_pages: list[dict], post_pages: list[dict]) -> dict:
         page_diffs.append(page_diff)
         total_removed += removed
         total_added += added
-        if removed > 0 or added > 0:
+        total_modified += modified
+        if removed > 0 or added > 0 or modified > 0:
             modified_pages.append(page_no)
 
     return {
@@ -167,6 +172,7 @@ def build_card_diff(pre_pages: list[dict], post_pages: list[dict]) -> dict:
         "summary": {
             "removed_words": total_removed,
             "added_words": total_added,
+            "modified_sentences": total_modified,
             "modified_pages": modified_pages,
             "first_change_page": modified_pages[0] if modified_pages else None,
             "ocr_status": ocr_status,
@@ -182,6 +188,7 @@ def _empty_diff() -> dict:
         "summary": {
             "removed_words": 0,
             "added_words": 0,
+            "modified_sentences": 0,
             "modified_pages": [],
             "first_change_page": None,
             "ocr_status": "complete",

@@ -15,13 +15,16 @@ type ByteHistoryEntry = {
   is_current: boolean;
 };
 
-type DiffSegment = { kind: "equal" | "removed" | "added"; text: string };
+type DiffSegment =
+  | { kind: "equal" | "removed" | "added"; text: string }
+  | { kind: "modified"; before: string; after: string };
 type PageDiff = { page_no: number; segments: DiffSegment[] };
 type CardDiff = {
   pages: PageDiff[];
   summary: {
     removed_words: number;
     added_words: number;
+    modified_sentences?: number;
     modified_pages: number[];
     first_change_page: number | null;
     ocr_status?: "complete" | "partial";
@@ -176,6 +179,9 @@ const pageJsonLd =
             <li>
               <span class="text-[color:var(--color-signal-red)]">{diff.summary.removed_words}</span> words removed,{" "}
               <span class="text-[color:var(--color-signal-green)]">{diff.summary.added_words}</span> words added
+              {diff.summary.modified_sentences && diff.summary.modified_sentences > 0 ? (
+                <>, <span class="text-[color:var(--color-signal-amber)]">{diff.summary.modified_sentences}</span> sentence{diff.summary.modified_sentences === 1 ? "" : "s"} edited in place</>
+              ) : null}
             </li>
             {diff.summary.modified_pages.length > 0 && (
               <li>
@@ -219,6 +225,20 @@ const pageJsonLd =
                     return (
                       <span class="text-[color:var(--color-signal-green)] underline decoration-[color:var(--color-signal-green)]/60">
                         {seg.text}{" "}
+                      </span>
+                    );
+                  }
+                  if (seg.kind === "modified") {
+                    return (
+                      <span class="block border-l-2 border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/5 pl-2 py-1 my-1 text-[color:var(--color-signal-amber)] italic">
+                        <span class="text-[color:var(--color-text-faint)] not-italic text-[10px] uppercase tracking-[0.15em] block mb-0.5">
+                          ▾ modified
+                        </span>
+                        <span class="text-[color:var(--color-signal-red)] line-through decoration-[color:var(--color-signal-red)]/40">
+                          {seg.before}
+                        </span>
+                        <br />
+                        <span class="text-[color:var(--color-signal-green)]">{seg.after}</span>
                       </span>
                     );
                   }
