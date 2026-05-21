@@ -1,6 +1,28 @@
 # Current State
 
-> Last updated: 2026-05-21 (Sprint 4i batch 1 + batch 2 LANDED. Batch 2 (#5, #6, #7, #8) staged locally pending commit. Only Sprint 4i #1 (OCR retry on content-filter cards, operator-attended ~$2-5) remains open.)
+> Last updated: 2026-05-21 (Sprint 4i COMPLETE — all 10 backlog items closed across `707599e`, `d026373`, `2d3f048`, plus the OCR retry results landing now. Sprint 4j (corpus OCR alignment to the operated VLM answer) queued; dispatch authorized.)
+
+## 2026-05-21 — Sprint 4i #1 OCR retry COMPLETE
+
+- `7d58f0cac741650a`: 184/184 pages OCR'd (was 87 partial; +97 pages via `o4-mini`)
+- `f85532f0514320be`: 205/205 pages OCR'd (was 74 partial; +131 pages via `o4-mini`)
+- Total spend: **$3.54** of $10 cap (operator-approved $2-5 envelope hit cleanly)
+- No content-filter trips on `o4-mini` — different model family side-stepped the Anthropic-side rejection that truncated Sprint 4h
+- The OCR INCOMPLETE banner on both `/altered/<card>/` pages will resolve once `altered-diffs.json` rebuilds
+- New script: `scripts/reocr_content_filter_retry.py` — pinned-target one-shot; OPENAI_API_KEY + `openai` SDK as prereqs; uses canonical `parse_response` from `_llm_parsing.py` so envelope artifacts are handled identically to the Anthropic path
+
+## Sprint 4j queued — corpus OCR alignment
+
+Goal: re-OCR the full 158-card / 4,161-page corpus at the operated VLM answer (Sonnet 4.6 single-pass, per `pursue-opsec-staging/findings/2026-05-18-vlm-bakeoff-final.md`). Then regenerate `pages-cleaned.json` and `altered-diffs.json`.
+
+Cache audit: ~4,078 Sonnet OCR responses already on the NAS-backed `.llm-cache/` (~98% coverage from VLM bake-off + Sprint 4h). Expected real spend: <$2. Wall-clock dominated by PDF rasterization (~2-3h), not API calls.
+
+Dispatch sequence:
+1. `pursue ocr run --manifest data/manifests/latest.json --engine llm --force`
+2. `pursue clean run --manifest data/manifests/latest.json`
+3. `python scripts/build_pages_cleaned.py`
+4. `python scripts/build_altered_diffs.py`
+5. Commit + push the regenerated payloads.
 
 ## 2026-05-21 — Sprint 4i batch 2 LOCAL (5 of 5 unattended items now closed)
 
