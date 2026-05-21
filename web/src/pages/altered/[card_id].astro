@@ -34,8 +34,23 @@ const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
 // Sprint 4h fix-pass (vaivora H4): output is now wrapped with a _meta
 // block that pins the pre-edit OCR source sha. The .diffs subobject
 // holds the card_id → diff map.
-const alteredDiffs = (alteredDiffsJson as { diffs?: Record<string, CardDiff> })
-  .diffs ?? (alteredDiffsJson as Record<string, CardDiff>);
+type ClassificationEntry = {
+  class:
+    | "presentation_only"
+    | "content_changed"
+    | "no_text_layer"
+    | "asset_type_change";
+  pre_pages?: number;
+  post_pages?: number;
+  note?: string;
+};
+
+const alteredDiffsWrapper = alteredDiffsJson as {
+  diffs?: Record<string, CardDiff>;
+  classification?: Record<string, ClassificationEntry>;
+};
+const alteredDiffs = alteredDiffsWrapper.diffs ?? (alteredDiffsJson as Record<string, CardDiff>);
+const classification = alteredDiffsWrapper.classification ?? {};
 
 // Generate one static page per multi-sha card. Cards without a diff
 // entry (e.g. .mp4 video cards or cards whose OCR hasn't run yet)
@@ -61,6 +76,7 @@ const entries = byteHistory[card_id] ?? [];
 const current = entries[0];
 const oldest = entries[entries.length - 1];
 const diff = alteredDiffs[card_id] ?? null;
+const cardClass = classification[card_id] ?? null;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const pageTitle = `${card.title.slice(0, 50)}${card.title.length > 50 ? "…" : ""} — text diff — PURSUE://INDEX`;
@@ -100,6 +116,41 @@ const pageJsonLd =
         Side-by-side OCR text diff between the pre-edit bytes (preserved at <a href={`/${oldest.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{oldest.archive_key}</a>) and the current bytes (<a href={`/${current.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{current.archive_key}</a>). Both versions live in R2 under their content-addressed sha256.
       </p>
     </header>
+
+    {cardClass?.class === "presentation_only" && (
+      <section class="border border-[color:var(--color-signal-green)]/60 bg-[color:var(--color-signal-green)]/10 p-3 font-mono text-xs">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] mb-2">
+          ● BYTES CHANGED — TEXT CONTENT IDENTICAL
+        </div>
+        <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+          The embedded PDF text layer is byte-identical across pre-edit and current
+          bytes (after whitespace normalization). The upstream change was
+          presentational only — most commonly a re-rasterization, font subset
+          revision, embedded-image re-encoding, or metadata edit. No text content
+          was added or removed.
+        </p>
+        <p class="text-[color:var(--color-text-faint)] leading-relaxed mt-2">
+          Verification method: <span class="text-[color:var(--color-text-dim)]">pypdfium2</span>{" "}
+          text-layer extraction, sha256-compared after whitespace collapse.
+          See <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline">/methodology</a> for the classification protocol.
+        </p>
+      </section>
+    )}
+
+    {cardClass?.class === "no_text_layer" && (
+      <section class="border border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/10 p-3 font-mono text-xs">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)] mb-2">
+          ● IMAGE-ONLY PDF — TEXT-LAYER COMPARISON UNAVAILABLE
+        </div>
+        <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+          This card's PDFs have no extractable text layer (scanned image-only
+          documents). The OCR diff below is the best available signal, but Sonnet
+          OCR of two byte-different PDFs has some inherent non-determinism — minor
+          differences may not represent actual content changes. Visual-similarity
+          analysis is pending.
+        </p>
+      </section>
+    )}
 
     {diff && diff.summary ? (
       <section class="space-y-2">
@@ -184,15 +235,32 @@ const pageJsonLd =
           </p>
         )}
       </section>
+    ) : cardClass?.class === "presentation_only" ? (
+      <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-4 font-mono text-xs space-y-2">
+        <p class="text-[color:var(--color-text-dim)] text-[11px]">
+          Byte-level differences are still observable via the archive route:
+        </p>
+        <ul class="space-y-1 text-[10px]">
+          <li>
+            Pre-edit: <a href={`/${oldest.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{oldest.archive_key}</a>{" "}
+            ({formatBytes(oldest.byte_size)})
+          </li>
+          <li>
+            Current: <a href={`/${current.archive_key}`} class="text-[color:var(--color-signal-cyan)] underline">/{current.archive_key}</a>{" "}
+            ({formatBytes(current.byte_size)})
+          </li>
+        </ul>
+      </section>
     ) : (
       <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-4 font-mono text-xs space-y-2">
         <p class="text-[color:var(--color-signal-amber)] text-[10px] uppercase tracking-[0.2em]">
           ● TEXT DIFF NOT AVAILABLE
         </p>
         <p class="text-[color:var(--color-text-dim)]">
-          OCR has not yet been run on the post-edit bytes for this card, or
-          this card is a video file (no text content). The byte-level
-          difference is still observable via the archive route:
+          {cardClass?.class === "asset_type_change"
+            ? "Upstream replaced this card's asset (e.g., video → PDF report). There's no pre-edit text content to compare against."
+            : "OCR has not yet been run on the post-edit bytes for this card."}{" "}
+          The byte-level difference is still observable via the archive route:
         </p>
         <ul class="space-y-1 text-[10px]">
           <li>

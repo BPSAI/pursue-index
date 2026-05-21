@@ -4,9 +4,7 @@
     "pre_ocr_sha256": "8b404dc2030c7df74b8843d201c46a63a080c30b67d5ed4dbe9dd29958933f0f",
     "altered_pre_ocr_dir": "data/altered-ocr-pre",
     "engine_matched_cards": [
-      "085c019c9899db9b",
       "0d7a23b29e6de1bf",
-      "0e3b3ec17a9ae021",
       "108379f8a86dbe9c",
       "13f86e95aed52840",
       "16fcb501de623b9c",
@@ -33,13 +31,11 @@
       "67c2ef13cc69891c",
       "6bda02c546051f43",
       "6ded7ef20ded84c7",
-      "78dc972c0c143d1e",
       "7d1b50162c29378a",
       "7d58f0cac741650a",
       "7fd3d2656cbc83a6",
       "8bb54e0aec5e91ad",
       "8bfd94484138d59b",
-      "8d0b85ce46109d06",
       "8f354cf1d1f821f0",
       "9317a6ea91f7425c",
       "954d1e1944bc6d17",
@@ -86,76 +82,589 @@
       "d8e5687dc870892d",
       "ea029a05470b8f4e"
     ],
-    "card_count": 70
+    "skipped_presentation_only_cards": [
+      "085c019c9899db9b",
+      "0e3b3ec17a9ae021",
+      "78dc972c0c143d1e",
+      "8d0b85ce46109d06"
+    ],
+    "card_count": 66
+  },
+  "classification": {
+    "085c019c9899db9b": {
+      "class": "presentation_only",
+      "pre_pages": 6,
+      "post_pages": 6,
+      "pre_text_sha256": "6cb53704f3a9b59b0cab60e201090807e7e6c680aebaa353ee0075f1f271ee4c",
+      "post_text_sha256": "6cb53704f3a9b59b0cab60e201090807e7e6c680aebaa353ee0075f1f271ee4c",
+      "pre_byte_sha256": "3e5b68e982951556825ffa4ac21fd8f950e4055ed4da4d425fa6387a660b398b",
+      "post_byte_sha256": "71ca8826db94d61583083ef8465a6902564532dcab7d49d0d2db3e86aaf85b2f"
+    },
+    "0d7a23b29e6de1bf": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "0e3b3ec17a9ae021": {
+      "class": "presentation_only",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_text_sha256": "5ec1f7e700f37c3d0b2981d04855fc34b94aaa15457b05ca571817442d228f81",
+      "post_text_sha256": "5ec1f7e700f37c3d0b2981d04855fc34b94aaa15457b05ca571817442d228f81",
+      "pre_byte_sha256": "4a23e128950c1c45cf2f9e32c588088155e63e056d96f09ec94ddaa73ff0cccb",
+      "post_byte_sha256": "8a58dbdbe84dc4f29f131c9c471354ac9a4cac9276bc2503eb09a6b9eb215f09"
+    },
+    "108379f8a86dbe9c": {
+      "class": "no_text_layer",
+      "pre_pages": 126,
+      "post_pages": 126,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "13f86e95aed52840": {
+      "class": "no_text_layer",
+      "pre_pages": 271,
+      "post_pages": 271,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "16fcb501de623b9c": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "1701a0f307714921": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "19d8e1d503211c84": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "1b522e779e72877c": {
+      "class": "content_changed",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_text_sha256": "382c5e669e1db09c634d7a432e4b357b29e7febffb375164a9761dd9b5cd8d10",
+      "post_text_sha256": "20d7b62ccb29213451cd55521632fee7b5f7923983c5a41a21bca77f40939cf9",
+      "pre_byte_sha256": "1ff8c16256579734969188915ad0e80062e1d5639bc424c6a207340e892c6dc6",
+      "post_byte_sha256": "d6614ddb85556a5ad5476be15798b97f16fc3396e42ceffd993548d1e3201389"
+    },
+    "1e63919cc6c3daf4": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "218e167fbd265d91": {
+      "class": "no_text_layer",
+      "pre_pages": 143,
+      "post_pages": 143,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "239d049dab8c81d5": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "26b02d358ec20061": {
+      "class": "no_text_layer",
+      "pre_pages": 15,
+      "post_pages": 15,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "2b947223739f5bd4": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "36bcfe2cfb5f3f54": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "3746998b8c506e5c": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/34eb85ab42bb6ce5d376c02fd2db4eee0211864ed3bcd8a8247a08fe0da8c99e.mp4",
+      "post_archive_key": "archive/7078d96f334dbf396e0e0a141f943009fe2191cd20842e16ee381bcbc2776c43.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "3a5445e8aa7985d4": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "3b36f3dc3b51cf3b": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "43db2719407a7897": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/af62b4e40a2eb0fd39f98093be2a6ae50271a011e7d5caca2119b26aaabc1212.mp4",
+      "post_archive_key": "archive/1822564fbae08f152ad4541c8d067a6ec3b6014c4b4eb8209604e1facb5e1bb3.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "4555d94dd6067f57": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/17106a65c823fb0c4c55f41be31f863f18300bd858f536726ea6f9f3cf35ac8c.mp4",
+      "post_archive_key": "archive/b3b3f023d70bcce3178de9fe6a019ea6db5e5145bc7e28a49308442e190ef817.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "4844321219e306af": {
+      "class": "no_text_layer",
+      "pre_pages": 194,
+      "post_pages": 194,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "48e4bc1bdb5a66e8": {
+      "class": "no_text_layer",
+      "pre_pages": 4,
+      "post_pages": 4,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "4b68726be4af8ff9": {
+      "class": "no_text_layer",
+      "pre_pages": 15,
+      "post_pages": 15,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "5847028ebb855cf8": {
+      "class": "content_changed",
+      "pre_pages": 5,
+      "post_pages": 5,
+      "pre_text_sha256": "e5ecd5b915dbee7814d61ce66b3e5424fa78335aa05161a8ca7992bf73ce27c6",
+      "post_text_sha256": "4806d1154c8c1de143b174ae5ca8cf729341a18302297746f4719bcc91b92be1",
+      "pre_byte_sha256": "a289d6a9d8286514343ac3be8a793f0e1d297b400ccc0a417485cba385fd9230",
+      "post_byte_sha256": "e1b27f7e274549e540de4cf77f9aae131cedcf3847819edd594a9825c4cad819"
+    },
+    "5d9d3147f0b62d0c": {
+      "class": "content_changed",
+      "pre_pages": 4,
+      "post_pages": 4,
+      "pre_text_sha256": "f548ab5dcc207393479a7fc8bfcd003bca522b1a2d13b0f2e830f68b34c93714",
+      "post_text_sha256": "9edd6e9f062351110f5f0299fc2eaa73d88770fbb1a91b58ee18b1c4189d53f5",
+      "pre_byte_sha256": "ab911622b7d4203d9d54914f03d1662cf561b7f943afe9d17f9617cfaea06585",
+      "post_byte_sha256": "74dc1a19ef09d093ceba4a0ab082bf3729cb19218c0c3481d8b71f814740c9b3"
+    },
+    "5ecebc7c28a8d8c7": {
+      "class": "no_text_layer",
+      "pre_pages": 214,
+      "post_pages": 214,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "63c47bad93af4c92": {
+      "class": "content_changed",
+      "pre_pages": 3,
+      "post_pages": 3,
+      "pre_text_sha256": "4e1a14d69089218167fff00e2e7feb7df35644d03eca9378d8b045502ea57507",
+      "post_text_sha256": "b2ed80ef528feead1bb37ce84625eec4e2d9d8b05847a3d2b0b6bee185642518",
+      "pre_byte_sha256": "5d7db3870de8c01a1c39b7e8a4185dd026fe132f01d1cd5ded60f10866722f7e",
+      "post_byte_sha256": "23c76f92be6a04417373771a12229c0a6857b9769086989c1b5e459afb5c3e52"
+    },
+    "672ae7eab15481ff": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "67ab3ffef2aecf70": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "67c2ef13cc69891c": {
+      "class": "no_text_layer",
+      "pre_pages": 9,
+      "post_pages": 9,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "6bda02c546051f43": {
+      "class": "no_text_layer",
+      "pre_pages": 7,
+      "post_pages": 7,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "6ded7ef20ded84c7": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "78dc972c0c143d1e": {
+      "class": "presentation_only",
+      "pre_pages": 16,
+      "post_pages": 16,
+      "pre_text_sha256": "f140825096b8b717ea88ba5d13dead08ac17c7cce3217f0d06c069fda25cebc2",
+      "post_text_sha256": "f140825096b8b717ea88ba5d13dead08ac17c7cce3217f0d06c069fda25cebc2",
+      "pre_byte_sha256": "9d041c8799a0124dc440c05cacd790a43d9e063e399aaa5cd3ee777b14146d03",
+      "post_byte_sha256": "18ee158476f1203b0ce45bc1eb9b209c225e30b4181ec0fb98b338b2cc0b7591"
+    },
+    "7d1b50162c29378a": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "7d58f0cac741650a": {
+      "class": "no_text_layer",
+      "pre_pages": 184,
+      "post_pages": 184,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "7fd3d2656cbc83a6": {
+      "class": "no_text_layer",
+      "pre_pages": 178,
+      "post_pages": 178,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "88a20bf256ccce7a": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/5f32ce0126de2c9571f2af368b2629c15b4f1cb3582700641ef31c1d1a8ceac8.mp4",
+      "post_archive_key": "archive/90b353682ba2181149054d0911b7553e58e959438dd4de531a06fc387a332f85.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "8bb54e0aec5e91ad": {
+      "class": "no_text_layer",
+      "pre_pages": 11,
+      "post_pages": 11,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "8bfd94484138d59b": {
+      "class": "no_text_layer",
+      "pre_pages": 290,
+      "post_pages": 290,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "8d0b85ce46109d06": {
+      "class": "presentation_only",
+      "pre_pages": 4,
+      "post_pages": 4,
+      "pre_text_sha256": "4a6ad78f938d4e779131db8e7d2cfc6c05e9f8601435f319e3d47404b2749dc5",
+      "post_text_sha256": "4a6ad78f938d4e779131db8e7d2cfc6c05e9f8601435f319e3d47404b2749dc5",
+      "pre_byte_sha256": "6a4e6ee6111eec24d28aa9b4b9d72beafe0be5a480972683fbce82f758e6be35",
+      "post_byte_sha256": "8565c159b82f50a6e9038987f0b71541aa38f07737a91b08af1a5cf224b6a2f3"
+    },
+    "8f354cf1d1f821f0": {
+      "class": "content_changed",
+      "pre_pages": 3,
+      "post_pages": 3,
+      "pre_text_sha256": "a14fada49b7b833891415cb7654af083116e07a81c66930650ad57164a872acc",
+      "post_text_sha256": "053e9e948d0c30e6ef9e8edee6ffa3e5211939841910772a2a62a3b7117d65a5",
+      "pre_byte_sha256": "74032ed145b1badbb1049005b4b77ba95351cb573c3cf6578a77ca25f4033220",
+      "post_byte_sha256": "566894d9cb31e15818e87d54e848a634ddd711aa7fb9ed72402d4a759e3a3bf8"
+    },
+    "9317a6ea91f7425c": {
+      "class": "no_text_layer",
+      "pre_pages": 28,
+      "post_pages": 28,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "954d1e1944bc6d17": {
+      "class": "no_text_layer",
+      "pre_pages": 3,
+      "post_pages": 3,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "973c1f75f55d0d39": {
+      "class": "no_text_layer",
+      "pre_pages": 94,
+      "post_pages": 94,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "9877727cd0d1bbfe": {
+      "class": "content_changed",
+      "pre_pages": 3,
+      "post_pages": 3,
+      "pre_text_sha256": "bc107784f72de1dd781085f6700369b518b290dfed54d5350d979403aea4e0e6",
+      "post_text_sha256": "53fc0b2ae55324761e54553ac83acff334c5c3554e2fb61eaed6b798de6b19f6",
+      "pre_byte_sha256": "64847feac6a309a847a39689ed2036e556f35a253189c7b9b33bd9d40b26b239",
+      "post_byte_sha256": "e1d583556594e3e98f0ceea5598760c9d122283c4582f7d5f6c6c9ad96ad76e3"
+    },
+    "9961adf6adf1010b": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/d6a177a7004837546b8e3ea12ad0e632d9c31eabca427e05ae6eb9d4e4493f47.mp4",
+      "post_archive_key": "archive/4752dd830144b21c3055a2fea8b44c551445b41622c27db64fb0fa07c2dcd93d.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "99c12a9c49a91750": {
+      "class": "no_text_layer",
+      "pre_pages": 190,
+      "post_pages": 190,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "9e2c2621d67dde12": {
+      "class": "no_text_layer",
+      "pre_pages": 6,
+      "post_pages": 6,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "9e677b8697685311": {
+      "class": "no_text_layer",
+      "pre_pages": 28,
+      "post_pages": 28,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "a417f61b2dbd671f": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "ad721de274bb7d6c": {
+      "class": "no_text_layer",
+      "pre_pages": 217,
+      "post_pages": 217,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "af047a976bac0c89": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "af42a6774881c110": {
+      "class": "no_text_layer",
+      "pre_pages": 40,
+      "post_pages": 40,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "b246c782b16be168": {
+      "class": "no_text_layer",
+      "pre_pages": 209,
+      "post_pages": 209,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "b279eac8e49cf4fe": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "b60b84a66715204a": {
+      "class": "no_text_layer",
+      "pre_pages": 209,
+      "post_pages": 209,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "bcf2e688dfbc220d": {
+      "class": "no_text_layer",
+      "pre_pages": 185,
+      "post_pages": 185,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "bdf033d4a47eaad3": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "be226374e719c729": {
+      "class": "no_text_layer",
+      "pre_pages": 144,
+      "post_pages": 144,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "be533a4ab886eb11": {
+      "class": "content_changed",
+      "pre_pages": 3,
+      "post_pages": 3,
+      "pre_text_sha256": "2ff2ca5b3335721a4cddd639141287effcce08256461354cd6c315505387b018",
+      "post_text_sha256": "dbbadd8475c4c148c87bf3cb4fc6a188864f672ab7ccebb1c4ea114095cca603",
+      "pre_byte_sha256": "63deae172b2bd4923696ed097c0c25d1286f116be1efb313d14c0630ac0a1786",
+      "post_byte_sha256": "60c1239f7a6bad9655cb66e7b3a82c7e582762f8b4248bc1b614cca9a82d6e37"
+    },
+    "c1c59236394f7b14": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/a38432ae56298abadf50de06103a6fbd591ea539e124ab1db25a4a511468cfb6.mp4",
+      "post_archive_key": "archive/f9deed9063306b0c45a5a0f6b754db6967f7dc3a0ed66097f154be4b0f033399.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "c48c078b811c0fd7": {
+      "class": "content_changed",
+      "pre_pages": 7,
+      "post_pages": 7,
+      "pre_text_sha256": "4025affe8f119b5e80b79ffeb7311bac05d6ae90627267d985c59315e26ef83d",
+      "post_text_sha256": "0173698dbca2d6cdf356107522dfd6d80996f9028b85e858acb8f2b240a58754",
+      "pre_byte_sha256": "022b27728e86e291e078cac1d4fd5dcf225b2f6700175db9ea8ada19147318d8",
+      "post_byte_sha256": "257e2388f838975fcee0b00a381059e903e64018b7aafb7a12e5392437154f5f"
+    },
+    "c568aea24f3aef31": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "c788c17e8cc32230": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/670077e60bca959cde784ae1595688d645397804d811a7f5a85912c60045d471.mp4",
+      "post_archive_key": "archive/b4f4f4ce6dc7687a543905990671f999cd6c5a9e579159bfda501bf6d04f4445.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "ccd932b4f40e8de7": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "d8e5687dc870892d": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/46fdeec860cdaa6b27b6fcc51d0b7e045347d494832cdc65f2038e702eaa58aa.mp4",
+      "post_archive_key": "archive/ea1cd5296143f378db533066b524c32c1ecfbfd43d74ec6be7d832c20fa271bb.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "dc9f45a9ec6feb00": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "df43a479bc891969": {
+      "class": "content_changed",
+      "pre_pages": 2,
+      "post_pages": 2,
+      "pre_text_sha256": "60bc2f3e7bcdb19b54523b31ba3c2c584d0d8a7b0b4bf509346191798c5fad62",
+      "post_text_sha256": "8a3e9cb34d5e3aa00086acc0c91ecd279b82e33f3dc673f15650b7984db3fc22",
+      "pre_byte_sha256": "dd6e0d2d32cec2ab397f2615f0d563b1b5edeeba719b3643b64abce0dee8a552",
+      "post_byte_sha256": "2539850305227baf0b3bb487cbf41f5834eca2b188dc2d65849fdb06b683bd13"
+    },
+    "e897e67f95bc1e1b": {
+      "class": "no_text_layer",
+      "pre_pages": 124,
+      "post_pages": 124,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "e93f6997811954dc": {
+      "class": "no_text_layer",
+      "pre_pages": 2,
+      "post_pages": 2,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "ea029a05470b8f4e": {
+      "class": "asset_type_change",
+      "pre_archive_key": "archive/3862ae94ef113a44814a6cc0362ac689333580afd1a307005f51abd0d4b9e3df.mp4",
+      "post_archive_key": "archive/fd4deb1e48fcfa7fd2370b6459877882e6d6fdd0226ecaa881a45fba690172df.pdf",
+      "note": "oldest byte-history entry is non-PDF (video→PDF swap); no text-layer comparison possible."
+    },
+    "ed585fe68e3c4e7e": {
+      "class": "no_text_layer",
+      "pre_pages": 10,
+      "post_pages": 10,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "eda0a3d37c6dbbc3": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": false
+    },
+    "f42c11ca158aeffc": {
+      "class": "no_text_layer",
+      "pre_pages": 18,
+      "post_pages": 18,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "f85532f0514320be": {
+      "class": "no_text_layer",
+      "pre_pages": 205,
+      "post_pages": 205,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "f8bd1f11b7a2ae48": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "fa24eb58219a8dff": {
+      "class": "no_text_layer",
+      "pre_pages": 137,
+      "post_pages": 137,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "fd8286ffc6fbc1fb": {
+      "class": "no_text_layer",
+      "pre_pages": 1,
+      "post_pages": 1,
+      "pre_has_text": false,
+      "post_has_text": true
+    },
+    "ff30c985595153f3": {
+      "class": "content_changed",
+      "pre_pages": 5,
+      "post_pages": 5,
+      "pre_text_sha256": "7496b64021cfa7b846e7c5499a757216202541870b93ee6b44acb0f93de741d7",
+      "post_text_sha256": "a47add48dc2e361217cbd1b0c01d7f646ad8a70f849c89943825208892da0b3a",
+      "pre_byte_sha256": "df5874d4b68d17f996da1af0026bf701c627a6e21c244cabf6fd53689369beca",
+      "post_byte_sha256": "968c266f780e1f69abf1bca70aa0edcb094bc61c38d6743e01de335775af347c"
+    }
   },
   "diffs": {
-    "085c019c9899db9b": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "SECRET//NOFORN Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 8 October 2025 Misrep undefined-8584059 Narrative (S//REL TO USA, FVEY) 311901ZMAR23 - [ 1.4a ] ([ 1.4a ] FLT), A 2-SHIP OF F-16CM, TOOK OFF FROM PRINCE SULTAN AIR BASE (OEPS) ISO OPERATION INHERENT RESOLVE. 1.4a FLT WAS FRAGGED TO CONDUCT DCA IN THE ESSA (2100-0000). MISSION WAS FLOWN AS FRAGGED. (S//REL TO USA, FVEY) 2007Z- 1.4a FLT ENTERED IZ AIRSPACE. NFTR. (S//REL TO USA, FVEY) 2058Z - 1.4a FLT ENTERED SY AIRSPACE AND CHECKED ONSTA W/ KINGPIN TO CONDUCT DCA IN THE ESSA. (S//NF) 2302Z - 1.4a FLT OBSERVED MULTIPLE POSS UAPS. (SEE UAP) (S//REL TO USA, FVEY) 0000Z - 1.4a FLT CHECKED OFFSTA W/ KINGPIN AND PROCEEDED TO RTB (OEPS). NSTR. (S//REL TO USA, FVEY) 0046Z - 1.4a FLT EXITED IZ AIRSPACE. (S//REL TO USA, FVEY) 0148Z - 1.4a FLT LANDED AT OEPS W/ ESD AT 0215Z. NFTR.// (S/REL IDO) Mission Narrative Admin CLASSIFICATION • Classification: SECRET • Associated Caveats: NOFORN • Classification Source (MS or Classification Guide ID): MS • Declassification Date (YYYYMMDD): 20480401 OPERATION • Operation: INHERENT RESOLVE 3.5c, FOIA Exemption (b)(6) SECRET//NOFORN MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 001 Approved for Release to AARO"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 8 October 2025 SECRET//NOFORN • Domain: AIR • Operations Center: 609th • Major Command (MAJCOM): AFCENT • Combatant Command (COCOM): USCENTCOM MSGID • Report Type: MISREP • Originator (Unit or Squadron): 77 EFS • Submit Date: MSNID • Tasking Order (ATO): MT • Mission Type: DCA • ATO Mission Number: 1.4a • Country Tasked: US - UNITED STATES • Service Tasked: A - AIR FORCE Poc POC • Rank: 1LT • Full Name: Exemptions (b)(3), 130b, (b)(6) • Unit: 77 EFS • Wing: 378 AEW • Phone Number: FOIA Exemption (b)(6) • Email: 3.5c, FOIA Exemption (b)(6) • Service: Air Force • Operations Center: 609 CAOC QC • Rank: SSgt • Full Name: Exemptions (b)(3), 130b, (b)(6) • Unit: Unavailable • Wing: 378 AEW • Phone Number: FOIA Exemption (b)(6) • Email: 3.5c, FOIA Exemption (b)(6) • Service: Air Force • Operations Center: 609 CAOC 3.5c, FOIA Exemption (b)(6) SECRET//NOFORN MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 002 Approved for Release to AARO"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "~~SECRET//NOFORN~~ Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 8 October 2025 *APPROVER* • Rank: TSgt • Full Name: exemptions (b)(3), 130b, (b)(6) • Unit: Unavailable • Wing: Other • Phone Number: FOIA Exemption (b)(6) • Email: 3.5c, FOIA Exemption (b)(6) • Service: Air Force • Operations Center: 609 CAOC *INGEST* • Rank: • Full Name: • Unit: • Wing: • Phone Number: • Email: • Service: • Operations Center: **ACEQUIP** *ACEQUIP* • Aircraft Callsign: 1.4a • Radar Name or Destination: 1.4a, 1.4g • Radar Software Load or Mission Data: 8070 / MMC 7.3 • Radar Warning Receiver (RWR) Name or Designator: ALR-56M • RWR Software Load or Mission Data: 102 / SY0730 • MWS Name or Designator: • MWS Software Load or Mission Data: • IRCM Name or Designator: • IRCM Software Load or Mission Data: • ECM Name or Designator: ALQ-184 • ECM Software Load or Mission Data: C01856 • CMD Name or Designator: ALQ-213 • Chaff Designator: RR-180 • Num Chaff or Cartridges: 60 • Flare Designator: MJU-53, MJU-66 • Num Flares: 45 • Towed Decoy Name or Designator: ALE-50 3.5c, FOIA Exemption (b)(6) ~~SECRET//NOFORN~~ MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 003 Approved for Release to AARO"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "SECRET//NOFORN Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 8 October 2025 • Towed Decoy Software Load or Mission Data: MTP AA51 • Num Towed Decoys: 2 • Type of Radar-Guided AAM: AIM-120 • Num Radar-Guided AAM: 2 • Type of IR-Guided AAM: AIM-9X • Num IR-Guided AAM: 2 • Gun Name or Designator: M61A1 • Num Gun Rounds: 510 • Air-to-Ground Wpn to Include Num of Each: 1.4a • TGT Pod Name or Designator: SNIPER LDP • Additional Avionics: HTS-P R7.85 • Data Link: LINK 16 • Gentext: ACEQUIP • Aircraft Callsign: 1.4a • Radar Name or Destination: 1.4a, 1.4g • Radar Software Load or Mission Data: 8070 / MMC 7.3 • Radar Warning Receiver (RWR) Name or Designator: ALR-56M • RWR Software Load or Mission Data: 102 / SY0730 • MWS Name or Designator: • MWS Software Load or Mission Data: • IRCM Name or Designator: • IRCM Software Load or Mission Data: • ECM Name or Designator: ALQ-184 • ECM Software Load or Mission Data: C01856 • CMD Name or Designator: ALQ-213 • Chaff Designator: RR-180 • Num Chaff or Cartridges: 60 • Flare Designator: MJU-53, MJU-66 • Num Flares: 45 • Towed Decoy Name or Designator: ALE-50 • Towed Decoy Software Load or Mission Data: MTP AA51 • Num Towed Decoys: 2 • Type of Radar-Guided AAM: AIM-120 • Num Radar-Guided AAM: 2 • Type of IR-Guided AAM: AIM-9X • Num IR-Guided AAM: 2 • Gun Name or Designator: M61A1 • Num Gun Rounds: 510 • Air-to-Ground Wpn to Include Num of Each: 1.4a • TGT Pod Name or Designator: SNIPER LDP 3.5c, FOIA Exemption (b)(6) SECRET//NOFORN MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 004 Approved for Release to AARO"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 8 October 2025 SECRET//NOFORN • Additional Avionics: HTS-P R7.85 • Data Link: LINK 16 • Gentext: Timeline Takeoff • Callsign: 1.4a • Number of Aircraft: 2 • Asset Type (Aircraft): 1.4a, 1.4g • Aircraft Tail Number(s): 1.4a, 1.4g • Takeoff Location (ICAO Code): OEPS • Takeoff Time DTG: 311901:00ZMAR23 • Mode 3 (IFF Codes): 6266 • Gentext/Additional Details: (U) NSTR. • Mission Canceled: Landing • Last Land Location (ICAO Code): OEPS • Last Land Time: 010148:00ZAPR23 • Last Engine Shutdown Time: 010215:00ZAPR23 • Total Mission Time: 6 hours 47 minutes • Gentext/Additional Details: (U) NSTR. On Station • Time On Station DTG: 312058:00ZMAR23 • Callsign: 1.4a • JTAR Number: - • Killbox (Location): ESSA • Mission Type: DCA • JTAC Callsign: KINGPIN • Gentext/Additional Details: (U) NSTR. • Did not Arrive On Station: Off Station • Time Off Station DTG: 010000:00ZAPR23 • Total Time On Station: 3 hours 2 minutes • Gentext/Additional Details: 3.5c, FOIA Exemption (b)(6) SECRET//NOFORN MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 005 Approved for Release to AARO"
-            }
-          ]
-        },
-        {
-          "page_no": 6,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 8 October 2025 SECRET//NOFORN UAP • Initial Contact DTG: 312302:05ZMAR23 • MDS Type / Asset Type: 1.4a, 1.4g • Tail Number: 1.4a, 1.4g • Friendly Aircraft Location: 37SGA13 1.4a 72 1.4a • Friendly Aircraft Altitude/Depth: FL265 • Friendly Aircraft Speed: 293 • Friendly Aircraft State: N/A • Training Range (If applicable): • Operational Range: NE OF RLZ • UAP Physical State: • Number of UAP Sighted: POSS 10X-20X • UAP Signatures: No • UAP RF Frequency: • UAP RF Duration: • UAP Effects on Persons: (U) NONE. • Full Name: 3.5c, FOIA Exemption (b)(6) • Email: 3.5c, FOIA Exemption (b)(6) • Phone Number (VOSIP/STE): FOIA Exemption (b)(6) • UAP First Seen Location: DATA MASKED • UAP Altitude, Depth, Velocity, and Trajectory (indicate estimated or measured): FL600+ GENTEXT/UAP • UAP Description (e.g., size, shape, color, markings, recognizable features): (S//NF) STARTING AT 2302:05Z 1.4a FLT OBSERVED SEVERAL BRIGHT OBJECTS MANUEVERING QUICKLY WEST TO EAST NE OF RLZ. 1.4a FLT WOULD OBTAIN POSS UAP ON TARGETING POD (TV MODE) FOR APPROX 20S BEFORE OBJECT WOULD BECOME DIM AND DISAPPEAR FROM TARGETING POD. NONE OF THE OBJECTS WERE SEEN IN ANY FORMATIONS AS PREVIOUSLY SEEN IN PRIOR SORTIES. NFTR. ANALYST COMMENT: 1.4a FLT COMPARED TARGETING POD BETWEEN POSS UAP AND STAR. RESULTS WERE DIFFERENT. 3.5c, FOIA Exemption (b)(6) SECRET//NOFORN MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 006 Approved for Release to AARO"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 6,
-        "total_pre_pages": 6
-      }
-    },
     "0d7a23b29e6de1bf": {
       "pages": [
         {
@@ -164,28 +673,6 @@
             {
               "kind": "equal",
               "text": "15 10 5 5 10 15 12/31/99 18:10:18"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
-    "0e3b3ec17a9ae021": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] 12/31/99 18:11:34"
             }
           ]
         }
@@ -26926,163 +27413,6 @@
         "total_pre_pages": 1
       }
     },
-    "78dc972c0c143d1e": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 5/2 CC Yes, we copied your V_I and your EMS numbers, and we've got a number for you. Maneuver start time will be at 03 plus 33 plus 27. LMP Okay, we got you. Maneuver at 03:33:27. CC That's affirmative, Jack. LMP You guys didn't tell us we couldn't see anything going through the sunrise. CC (Laughter) Roger. 00 03 25 01 CC 17, Houston. We're making plans here for a space- craft SEP time of 03 plus 43. LMP 03 plus 43. Roger. 00 03 27 27 CC 17, Houston. We're copying cabin press of 5.9 this time. CMP Roger. We - we just got it, Bob. CC Okay. CMP Thank you. 00 03 31 55 LMP Frame 65 for the LMPs mag November November. 00 03 34 10 LMP Okay. We - we are maneuvering, Houston. CC Roger. We're watching it. CMP Now we've got a few very bright particles or frag- ments or something that go drifting by as we maneuver. CC Roger. Understand. LMP There's a whole bunce of big ones on my window down there - just bright. It looks like the Fourth of July out of Ron's window. CMP Yes. Now you can see some of them in shape. They're very jagged, angular fragments that are tumbling."
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 5/3 CC Roger. They look like fluid of some sort? CMP Not to me. They look like pieces of something. CC Roger. CMP They're very bright. CC Jack, we'd like OMNI Charlie. CMP Bob, for the most part, these fragments are not - or are tumbling at a very slow rate. I tried a couple of pictures of them - different settings. You may get an idea of what, at least, the patterns look like. CC Roger. I've got you. We're all ears on these frag- ments. Do you think you can figure out what they might be? CMP Well, you know I - I don't know. There are a num- ber of possibilities. If you had some kind of a - I got the impression maybe they were curved a little bit, as if they might be - off the side of the S-IVB. And that's a wild guess - - CDR Okay. RCS LOGIC is ... - - CMP - - ice chunks, possibly. Or maybe there's paint coming off of it. 00 03 37 34 CC Roger. I noticed on one trip up the elevator last weak near one of the flags. I thought it was on the S-II, but it might have been on the S-IVB. Looked like it was peeling. Maybe that's what you've got. 00 03 37 45 CC And the S-IVB maneuver is complete. 00 03 37 46 LMP ... in 1 minute. CDR Okay. We'll set the old clock. CMP Okay. And the - with the maneuver complete, the fragment field is essentially static, except for very slight tumbling within the fragments."
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 5/4 00 03 38 01 CC Roger. Cut in. CMP Every once in a while, a fragment of considerably higher velocity than the others goes across my window. But that's very rare. CC Roger. CMP Hey, that's that field of view I saw out my window. Jack, do you see it now? LMP Yes. CMP And, Bob. At least, there - there's no apparent relative motion between fragments. CC Roger. Understand. CMP I'll take two pictures about a minute apart if I can. And it'll be Frame 70. CC Okay. Frame 70. CDR And, Bob. This is Geno. My impression is that they are - flat, flakelike particles. Some may be 6 inches across. And, although there's no relative motion between the two, most of them seem to be twinkling. And I think, for the most part, they're all moving away from us. CC Roger, Gene. Thank you. 00 03 39 35 CMP Okay. We've got 0180 and 0 on the old thumbwheels. LMP Okay. CC Roger, Ron. 00 03 39 53 CMP Okay. TRANS CONTROL is ARMED. LMP ... two ARMED. 00 03 39 57 CMP CONTROLLER number 2 is ARMED. LMP ... SECS LOGIC ..."
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 5/5 00 03 40 01 CMP Okay. SECS LOGIC is CLOSED; SECS ARM are CLOSED; LOGIC POWER is ON. LMP Okay. 00 03 40 13 CC 17, Houston. You have a GO for T&D. CDR Okay. A GO for T&D. 00 03 40 38 CMP Okay. We'll ARM the PYROs. And we'll hit the GDC ALIGN. 00 03 41 00 CMP And maneuver's complete. And 0180 and 0? On the GDC? No. It's just ... It's kind of diddling. 00 03 41 19 CMP Okay. DELTA-V in NORMAL. 00 03 41 42 CMP S-IVB, okay. Okay, switches are all set. LMP Okay; 59:30. 00 03 41 55 CMP Okay. Let's start the DET. 00 03 41 59 CDR Tickity-tick-tickity, Houston. We're running at 59:30. CC Roger. CMP Okay. 00 03 42 12 CMP Okay. That's LAUNCH VEHICLE SEP, push button. LMP Okay. 00 03 42 19 CMP MC in AUTO. CMP Next? 00 03 42 29 CDR SEPARATION, Houston. CMP Okay, check the covers. Okay. And check the other ones off. LMP They're all ... CMP Okay, I'm going to start the - My gosh, look at the junk! Okay; there's 15 seconds. Pitch her up. Okay, we'll PROCEED on the - -"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 46/4 02 18 41 11 CDR Okay. Is that it? Yes, I can get that, Gene. CMP Okay, you want to take a picture of it first? Okay, POWER ... Okay, stand by. 3, 2, 1 - 02 18 41 59 CMP MARK it. POWER switch OFF. CDR Say, Bob or Stu. CC Roger. Go ahead. 02 18 42 34 CDR Okay, add - to ad to today. Not last night, but - I guess the first night I was in bed - I definitely saw some of these - because I had a hard time going to bed, to start with - I saw some of the same peripheral horizon-type things you said were not the type of data you were looking for; but I also saw a - some sets of the streaks. And probably the one most imposing thing I remember is - and the last one I remember before falling asleep - was the fact that there was a very bright spot that flashed right between my eyes like a very bright headlight - like a train coming at you, only with a flash. It's difficult probably to estimate the frequency of any of those because I was in a - sort of a sleep-hazy mode. CC Roger. CDR But then, as today, I saw some that flashed and lit up the horizon and some that lit up peripher- ally; and I guess, as you say, that's a different kind of data, but I did see them there and they impressed me. CC Okay. We got all that, Gene. CDR Okay. CMP And it might be interesting to know I've never seen it before today. CC Hey, Gene, we appreciate all the data. We were just trying to make the data fit the curve; you know the old trick."
-            }
-          ]
-        },
-        {
-          "page_no": 6,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 46/5 02 18 44 40 CDR Okay, I just wanted you to - just told them like we saw them. That's all. CC Roger. CDR I will say one thing, though; no question in my mind but that they're there. Last trip I took, I guess I just wasn't looking for them or paying any attention to them. Maybe they were there and I ignored them because of other things. But they're there. LMP Okay, all you flash bugs down there - or flash- bulbs I guess is the word - frame 50. I just took four pictures to show - two on the side and two on the bottom - to show the position of the ALFMED, and one of them of each set was focused on the ALFMED. The others were focused on the - the other set was focused on the struts. CC Roger, Jack. LMP And when you don't have anything else to do, why don't you have somebody predict where the S-IVB is. I think I've got her spotted - behind us and above us with respect to the Earth and our travel from it. CC FIDO just went out and shot himself, but we'll get working on it. LMP Oh, don't worry about it. Shoot. I thought you guys might have an idea off-the-cuff there. CC No, what's humorous on this, Jack, is they have really been working on that S-IVB impact point -, and they've really been - it's been a - a real difficult problem for them so far. LMP I'll tell you, I bet you Ron could give a star sighting on it (laughter). I looked at it through the monocular and sure looks like the S-IVB. CC Jack, we're not doubting you at all. We could probably start cranking it right now."
-            }
-          ]
-        },
-        {
-          "page_no": 7,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 46/6 02 18 46 46 CC Jack, are you sto - you all stowing the ALFMED now or are you done? CMP What's that, Bob? CC Are you all done with the ALFMED now, Ron? CMP Yes, I've got to get it to - get the plate moved back down there yet. CC Okay, Ron - - CMP ... get the blindfold off first so I can see what I'm doing. CC Roger. I just want you to know. We've got a real long update coming up to you here on the LOI abort charts and that - and it's going to be, probably, a difficult readup. And you're the most familiar with the charts; you probably would want to take them. But whenever you want to take them, they are on - charts on page 3-81, 3-82, and then the cue card for LOI limits. Whenever you want to take them. It will be a lengthy one. CMP Stand by, Bob. Let us get squared away from the ALFMED; then we can get going on that. CC No, I don't want to hurry you, Ron. I just want you to know what - when - just get yourself com- fortable and be ready to take them whenever you want them. It's going to be a lengthy time, though. 02 18 47 51 CMP Okay. CDR Hey, Bob, I'm looking at what - what Jack was talking about; and it's definitely not a particle that's nearby because there is another one I can look at and get a three-dimensional comparison with. It is a - it is a bright object, and it's obviously rotating because it's flashing. It's way out in the distance, as I say, because there are particles that are close by and it's obviously not one of those. It's apparently rotating in a"
-            }
-          ]
-        },
-        {
-          "page_no": 8,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 46/7 very rhythmic fashion because the flashes come around almost - almost on time. And it's as we look back at the Earth, it's up at about 11:00 about - oh, maybe 10 or 12 Earth diameters. I don't know whether that does you any good, but there is something out there. CC Roger. We don't doubt it, Gene. And we might work out a set of gimbal angles or something here; maybe we can get a look at it through the optics. 02 18 49 02 CDR Okay. And I - I - I just want to emphasize that it's definitely not - not one of these particles that tends to look like a star out there. It's something physical in the distance. (Laughter) Oh, yes. SC ... thing off. 02 18 50 13 CMP Yes, guess I am. CC Okay, Gene. If you can call up a NOUN 20 so we know the spacecraft attitude, and if you can reference the object you're looking at out of your window, with - with respect to body axis and let us look at your - your - give us a mark, somehow, and give us your NOUN 20s, we can try and get a tie-in and start locating - locating this object down for you. 02 18 50 58 CDR Okay, I'm looking it out - looking at it out the center window - the hatch window - and I'll give you a hack when it crosses the XX axis at the center window; and I guess it's up maybe 45 degrees. CC Okay, give us a hack and we're copying your NOUN 20s right now. CDR Okay, Jack says pitched up about 30 degrees but - - LMP No. 45, because - CDR Yes, he agrees. It's 45 degrees pitched up, and I'll give you a hack when it crosses the XX axis. CDR Okay -"
-            }
-          ]
-        },
-        {
-          "page_no": 9,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 46/8 02 18 51 32 CDR MARK it. It just crossed through the - - CC Mark. We got it. CDR - - let's call it the XZ plane of the spacecraft. One unique thing about it, Bob, is that it's got two flashes. As it comes around in - in rhythmic fashion, you get a very bright flash; and then you get a dull flash. And then it'll come around with a bright flash, and then a dull flash. 02 18 52 18 LMP That's the side and - of the S-IVB - and then the engine bell, Gene. LMP The commander doesn't think that I can see the engine bell on that thing. CC Roger, Jack. Is that with the monocular you're looking at it? CDR He couldn't see the engine bell if he had 10 monoc- ulars. CMP Okay. I've got the cable restowed now. CC Say again, Ron. 02 18 53 10 CMP And, Gene, where's your blindfold? ... 02 18 55 24 LMP Bob, couple of revolutions ago when I was looking at it, I had a much brighter view and I believe I was looking at it broadside. It looks to me like it may be flashing more or less end-on now. It's much, not - not as bright, although it's getting brighter. But it's not as bright now as it was awhile ago. CC Roger, Jack. LMP ... we've been noticing that, I think, for about 24 hours or so. I just - hadn't put it together as maybe being the S-IVB. I thought it was just some other particle out there. 02 18 56 27 CC Roger, Jack. CDR Hey, Robert, what's the final Cowboy score?"
-            }
-          ]
-        },
-        {
-          "page_no": 10,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 46/9 CC Okay; I was just going to update that. The Cowboys won it 34 to 24. And by winning it, they wrap up the wild-card slot in the NFC; and so both Wash- ington and Dallas will be in the playoffs. 02 18 56 53 CDR Sounds good. LMP Bob, that line of clouds I called a fir-tree pat- tern that swings up towards Hawaii - Hawaii, if you will - has - also has a mushroom pattern on the top. It has the appearance as if two major air masses - one going from west to east and the other form east to west - have converged along that line, and the joint movement of air at the interface being south to north. And up in the area of Hawaii, I think, it tends to mushroom so that the pattern then goes back to flow from west to east on the east side and from east to west on the west side. CC Roger. 02 18 58 27 LMP In a little while, we'll probably get a pretty good look at a - what looks like a very concen- trated intense storm that, I think, is just - east - CMP *** And then we'll put them. once we get updated a little bit. Yes, I'll get out of VOX in a minute. LMP I was looking for the Flight Plan and stuff. And the little books. LMP Say, Bob. CC Go ahead. LMP Houston, 17. How do you read? CC Go ahead, Jack. Read you loud and clear. CDR Okay, Bob, you want to update the LOI card and Flight Plan 3-82 and 3-81; is that right? CC That's affirmative. CDR Which one do you want to start on?"
-            }
-          ]
-        },
-        {
-          "page_no": 11,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 47/14 And I'll just confirm that the - that disturbance over the So - Solomon Islands is an awfully tightly wound little storm system. And right now, I finally have see New Zealand for the first time in a couple of days, for sure. And the South Island's got some, probably high cirrus over it. North Island looks pretty clear. That's the end that I can get right now. CC Roger. We saw you looking at Regulus there; we didn't realize you were looking at the Earth instead. LMP Ron's been looking for the booster. And he called me down and asked me to look at the Earth. He's been holding out on me. CC Roger. LMP Pass the torch of weather forecasting to Ron. 02 20 55 22 CC Hey, Jack. I also have some words for you and Gene. Got some advice from the home front. The thing to do with Ron in the future is to hook up a Baby Ben and a metal dishpan. It works every time, if you want to wake him up. CMP No. I think that's not a good way. CC Ron, everybody's fine over at El Lago. They are doing great. Listening to every word. CMP Very good, Bob. Thank you very much. CDR Hey, Bob. We got two of those flashers out there. They could be SLA panels. I don't know. They're alike in intensity and pretty regular in the - in the intensity, bright and dim flashes they come out with, and they're widely separated. One is about the position we called at the first time; the other one is - oh, as I'm looking at the Earth, far to the left. Closer to the center window now. 02 20 56 52 CC Roger. 02 21 01 07 LMP Houston, 17."
-            }
-          ]
-        },
-        {
-          "page_no": 12,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 47/15 CC Go ahead. LMP Yes, Bob, what is your - analysis chart, if you have it - surface terms analysis chart show for Hawaii today? CC Stand by on that. CC Jack, according to the - - LMP The reason I ask is that for using your term - Go ahead. CC No, go ahead on that, Jack. LMP I was going to say, using your terminator time as a partial - mark for where Hawaii ought to be, Hawaii ought to be, it looks like that cyclonic circulation at the north end of the cloud bank I described, approaching that area, would be just about on the Hawa - Hawaiian Islands. I'm curious if they're getting some weather down there now. CC Stand by right now; I've got my weatherman right beside me here. LMP Also, that major front we talked about last night as being east and south of Japan has progressed even farther and is, oh, maybe 20 degrees longi- tude - about 20 degrees longitude from the Hawaiian Islands. And I'm making some guesses on exactly where Hawaii is. CC Roger, Jack. We've got nothing adverse in the Hawaiian area at all. Just a lot of winds, high winds and surface winds and surface roughness, but we don't have any bad cloud area in the Hawaiian area. I'll get the Hickam sequence re- port here shortly, Jack. LMP Okay, ... a little bit. The - our zero-phase point is now centered just a little south of the disturbance near the Solomon Islands. And I see no distinct change in the intensity of that zero- phase point over what I had talked about a couple hours ago."
-            }
-          ]
-        },
-        {
-          "page_no": 13,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 47/16 02 21 04 23 CC Roger, Jack. The Solomon Islands disturbance and everything is confirmed on this chart that I've got. It's very definitely confirmed in there. LMP Okay. Well, it's a lot more obvious today than it was yesterday; but even then it was showing pretty strong circulation. It is starting to wrap up, look very much like Therese did yesterday. CC Roger. I'm sure of that. The one right off of Vietnam is also pretty tight, isn't it still? LMP Well, we can't see that one yet. CC Okay. LMP Australia in general is still very clear except in the northeastern portions where it looks like they have got scattered clouds; but it looks like a pretty night - over Australia. CC Roger. Looks that way from the satellite photo from the last couple days. Looks pretty nice down there. 02 21 05 34 LMP Right. 02 21 07 05 CC Jack, in looking at the sequence reports for Hickam and Hilo and that area, it looks like they just got their standard 3500 scattered, 4500 broken clouds, maybe a rain shower or two. But just their standard tropical fluffy clouds. END OF TAPE"
-            }
-          ]
-        },
-        {
-          "page_no": 14,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 59/19 mare. Still looking at Oceanus Procellarum. And now, out window 3, up to the northwest, Grimaldi is starting to show up - a very obvious dark area within the highlands of that part of the Moon - and one of the darkest mare regions that we have seen on the - on the Moon. It's comparable, at least in the photographs, to that of Tsiolkovsky. CC Roger. 03 15 33 25 LMP Normally, of course, we think of the dark mare as being the younger basalt flows that - on the Moon, but in our case, of course, young means something on the order of 3 billion years or older. END OF TAPE"
-            }
-          ]
-        },
-        {
-          "page_no": 15,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 60/1 APOLLO 17 AIR-TO-GROUND VOICE TRANSCRIPTION 03 15 33 44 CC Roger. LMP For our interp - If we can extrapolate from the samples returned by other missions. LMP Amazing how far over - now the highlands to the west of Procellarum are - still are bright, and the contrast between fresh craters and the normal high- land are very - are very obvious still in earthlight, particularly along the zero phase point with respect to the Earth. Rima Gamma now is - is coming a lit- tle bit closer to our oval track in the horseshoe in the - larger and more western end of it; the dark horseshoe is quite clear in this light. It's a west - or northwest-pointing horseshoe, as is the complete trend of that strange feature. I think Ron is going to have an excellent chance to study these light-colored swirls within the mare and other parts of the Moon. We had some good views of them and Mare Marginis and to the east of Crisium - Mare Crisium, and he should - if there is anything to be seen, he should be able to see it for - during the next few days. CC Okeydoke. 03 15 35 50 CDR Say, Gordo, something I just noticed here in work- ing with the GDC what-have-you. I - looked at the Pc gage, and in the Pz - Pc position, there is a continuous bias on it now of about, oh, 7 percent, and if I switch to ALPHA, it goes to zero. We never saw that bias before this last burn. CC Roger, Gene. 03 15 36 35 LMP Hey, Gordy, I'm looking right up the western edge of the Procellarum mare where it contacts the - the - the high - western highlands of the Moon, and we're just about to fly a little bit south of Grimaldi. That edge is very irregular. There is no obvious indications that it - there are large basins that have been flooded by mare that have formed that edge, but, again, the topographic dis- tinction's possible in this lighter small. Now I'm starting to see that there are shadows in the craters."
-            }
-          ]
-        },
-        {
-          "page_no": 16,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 60/2 CC Roger. LMP That's the small craters. There, in the Mare Procellarum closest to Grimaldi, there are two arcuate rilles. Look like they are probably V-shaped in their cross section. I'm sure we've seen those on the photographs much better than I can see them here. Those - the rille patterns, though, do seem to project over into the highlands. CC Okay. LMP To the north of that - to the north of that bay of mare. Just interrupt. 03 15 38 09 LMP Hey, I just saw a flash on the lunar surface! CC Oh, yes? LMP It was just out there north of Grimaldi. Just north of Grimaldi. You might see if you got any- thing on your seismometers, although a small impact probably would give a fair amount of visible light. CC Okay. We'll check. LMP It was a bright little flash right out there near that crater. See the crater right at the edge of Grimaldi. Then there is another one north of it. Fairly sharp one north of it is where there was just a thin streak of light. CC How about putting an X on the map where you saw it. LMP I keep looking occasionally for - yes, we will. I - I was planning on looking for those kind of things. Starting to see the edge of Orientale, Gordy. Way off to the west. Hey, just yell, Gene, anytime you - - 03 15 39 46 LMP Gordy, to the north of Grimaldi there is a large basin that is about the same size but only incom- pletely filled with mare in its northeastern quadrant. The rest of it looks like a fairly ir- regular and hummocky floor material of some kind. CC Roger."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 16,
-        "total_pre_pages": 16
-      }
-    },
     "7d1b50162c29378a": {
       "pages": [
         {
@@ -42934,55 +43264,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 290,
         "total_pre_pages": 290
-      }
-    },
-    "8d0b85ce46109d06": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "\"Orbs Launching Orbs\" • Location: Western U.S. • Time of Day: Dusk (on two separate days) • Three teams of two federal law enforcement special agents each (USPER1 through USPER6) independently describe seeing orange \"orbs\" in the sky emit/launch smaller red \"orbs\" in groups of two to four, with three being the general consensus. This is stated to have occurred at least five times. Each time, the orange orb would appear, launch red orbs, then disappear. The orange orb was only visible for one or two seconds. The red orbs would generally move away from the orange \"mother\" orb in a horizontal path, but in a couple of instances, one red orb was stated to move \"heading up at an angle,\" while another witness stated sometimes the red orbs would \"swoop down\" after being launched from the larger orange orb. These events were witnessed by multiple teams from varying locations and vantage points over a two-day period. Due to the sequential nature of the events, it is not known whether there was a single orange \"mother\" orb that released the groups of red orbs or whether there were multiple orange orbs at play."
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "\"Large, Fiery Orb\" • Location: Western U.S. • Time of Day: Dusk • Two federal law enforcement special agents (USPER5 and USPER6) witness a glowing orange orb at a distance of \"approximately 500-600 meters,\"* where it was perched close to a rock pinnacle. Size was difficult to determine, but it appeared to be similar in size to a \"small helicopter cockpit.\"** Witnesses were unable to clearly see any structure other than the glowing orb, though USPER6 noted that the object \"did almost appear it might have had a small spindle or something connecting it from underneath to the rock formation.\" Witnesses stated that the object did not emit any noticeable sound. The object was described as being \"similar to the Eye or [sic] Sauron from Lord of the Rings, except without the pupil, or maybe an orange Storm Electrify bowling ball.\" • USPER6 stated the object \"seemed to be hovering with zero resistance or movement, or to be suspended…\" The sighting lasted \"about a minute.\" * Measurements later gathered by AARO assess the object to have been ~1050 meters away from the observers. ** Measurements later gathered by AARO assess the object to have been between 12-18 meters in diameter. Artist Rendering"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "\"Dark Kite\" • Location: Western U.S. • Time of Day: Pre-dawn hours • Two federal law enforcement special agents (USPER5 and USPER6) observed what is initially thought to be a car traveling along a road in a restricted zone. The \"car\" had two lights (one red and one white) that are about 2 to 3 feet off the ground. Agents pursued the \"car\" and as they got to within a few hundred feet of it, the object suddenly moved off the road over the desert without changing its orientation with respect to the observers, i.e., it appeared to move laterally, at an estimated speed of 15-20mph. The object didn't change height and appeared to move with \"zero resistance.\" The object stopped about 100 meters off the side of the road and turned off its lights. USPER6 described the object as a \"thin line,\" from the back whereas the other agent (USPER5) stated that \"it almost looked like an ill defined, dark kite shape that had some rounded width to the sides.\"* • USPER6 used night vision goggles (NVGs) to view the object once it had stopped off the road. The agent stated that they observed the object for \"a split second in the NVGs before the light turned off\" and that once the lights were off, a \"very thin line\" remained. The object was estimated to be about 4 feet wide and positioned horizontally to the ground (see Image 1). The object then began moving at about the speed of 15-20mph and appeared to \"move up in height…, but [remain] a flat line.\" The agent lost sight of the object after a few seconds. * In later discussions with AARO, the object is described as being triangular. Image 1: Recreation of drawing provided by USPER6 of object seen in night vision goggles."
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "\"Transparent Kite\" • Location: Western U.S. • Time of Day: Pre-dawn hours • About 30 minutes after the \"Dark Kite\" sighting, federal law enforcement special agents (USPER5 and USPER6) returned to the same general area with another colleague (USPER7) in response to a report of another unauthorized object in the area. Within a few hundred meters of the \"Dark Kite\" sighting, two of the team members (USPER5 and USPER6) observed a kite-shaped object with a lighting pattern similar to the object seen previously. This object is about 6 meters off the ground, is canted at an angle from lower right to upper left (see Image 2), and appeared to be floating slowly with the wind. USPER5 was using NVGs when viewing the object and USPER6 used the bare eye. USPER7 did not see the object. USPER5 stated that in the night vision goggles, they could \"vaguely see a bright star or two in the distance through the object, though somewhat more faint,\" leading them to believe the object was somewhat transparent. After losing sight of the object, USPER5 tried using a spotlight to find it again. The witness noted that when shining the light around, \"at one point my beam went from shining far into the distance to stopping about 50 yards away on nothing in particular, it just was not projecting into the distance and then it was.\" When the witness pointed the light at the spot where the light had appeared to be blocked by something, this time the light was \"projecting into the distance again.\" The team was unable to reacquire sight of the object. Note: Outline was not definitive, but location of lights stayed in exact formation. Image 2: Recreation of drawing provided by USPER6 of object seen with the bare eye."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 4,
-        "total_pre_pages": 4
       }
     },
     "8f354cf1d1f821f0": {

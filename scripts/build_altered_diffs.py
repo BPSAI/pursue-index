@@ -45,90 +45,30 @@ Pure-Python stdlib only. Deterministic + idempotent. No API spend.
 from __future__ import annotations
 
 import argparse
-import difflib
 import hashlib
 import json
-import re
 import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+_SCRIPTS_DIR = _REPO_ROOT / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+# Sentence diff helpers extracted to keep this script under arch caps.
+from _diff_algorithm import (  # noqa: E402
+    diff_sentences,
+    split_sentences,
+    summarize_diff,
+    word_count as _word_count,
+)
 
 DEFAULT_PRE_OCR = _REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
 DEFAULT_ALTERED_PRE_OCR_DIR = _REPO_ROOT / "data" / "altered-ocr-pre"
 DEFAULT_POST_OCR_DIR = _REPO_ROOT / "data" / "altered-ocr"
 DEFAULT_BYTE_HISTORY = _REPO_ROOT / "web" / "src" / "data" / "byte-history.json"
+DEFAULT_CLASSIFICATION = _REPO_ROOT / "data" / "altered-classification.json"
 DEFAULT_OUT = _REPO_ROOT / "web" / "src" / "data" / "altered-diffs.json"
-
-
-_SENTENCE_SPLITTER = re.compile(r"(?<=[.!?])\s+")
-
-
-def split_sentences(text: str) -> list[str]:
-    """Split text into sentences. Sentence boundary = ``.``/``!``/``?``
-    followed by whitespace. Collapses internal whitespace; drops empty
-    segments.
-
-    OCR-friendly: keeps the terminator with each sentence so a viewer
-    can rebuild the original layout sentence-by-sentence.
-    """
-    if not text or not text.strip():
-        return []
-    parts = _SENTENCE_SPLITTER.split(text.strip())
-    out = []
-    for p in parts:
-        # Collapse internal whitespace (newlines + tabs from OCR
-        # rasterization).
-        normalized = re.sub(r"\s+", " ", p).strip()
-        if normalized:
-            out.append(normalized)
-    return out
-
-
-def diff_sentences(before: str, after: str) -> list[dict]:
-    """Sentence-level diff. Returns a list of segments with
-    ``kind ∈ {"equal", "removed", "added"}``.
-
-    Uses ``difflib.SequenceMatcher`` against the sentence-tokenized
-    inputs. Adjacent same-kind chunks are merged so the renderer can
-    treat a multi-sentence redaction as a single block.
-    """
-    pre = split_sentences(before)
-    post = split_sentences(after)
-    matcher = difflib.SequenceMatcher(a=pre, b=post, autojunk=False)
-    segments: list[dict] = []
-    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-        if tag == "equal":
-            segments.append({"kind": "equal", "text": " ".join(pre[i1:i2])})
-        elif tag == "delete":
-            segments.append({"kind": "removed", "text": " ".join(pre[i1:i2])})
-        elif tag == "insert":
-            segments.append({"kind": "added", "text": " ".join(post[j1:j2])})
-        elif tag == "replace":
-            # Treat replace as remove + add adjacent — keeps the
-            # segment kinds simple ({equal,removed,added} only) and
-            # lets the renderer decide whether to visually pair them.
-            segments.append({"kind": "removed", "text": " ".join(pre[i1:i2])})
-            segments.append({"kind": "added", "text": " ".join(post[j1:j2])})
-    # Drop empty segments (can occur if both sides have only whitespace).
-    return [s for s in segments if s["text"].strip()]
-
-
-_WORD_RE = re.compile(r"\b\w+\b")
-
-
-def _word_count(text: str) -> int:
-    return len(_WORD_RE.findall(text))
-
-
-def summarize_diff(segments: list[dict]) -> dict:
-    """Aggregate stats over a flat segment list (or a single page's
-    segments). Used both at the page level (for sub-totals if needed)
-    and at the card level (after concatenating all pages' segments).
-    """
-    removed = sum(_word_count(s["text"]) for s in segments if s["kind"] == "removed")
-    added = sum(_word_count(s["text"]) for s in segments if s["kind"] == "added")
-    return {"removed_words": removed, "added_words": added}
 
 
 def _diff_one_page(page_no: int, pre_text: str, post_text: str) -> tuple[dict, int, int]:
@@ -300,8 +240,25 @@ def _build_args_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--post-ocr-dir", type=Path, default=DEFAULT_POST_OCR_DIR)
     parser.add_argument("--byte-history", type=Path, default=DEFAULT_BYTE_HISTORY)
+    parser.add_argument(
+        "--classification",
+        type=Path,
+        default=DEFAULT_CLASSIFICATION,
+        help="Per-card change classification from "
+        "`scripts/classify_altered_changes.py`. When a card is classified "
+        "`presentation_only` (text layer byte-equal across pre/post), the "
+        "OCR diff is dropped — it's Sonnet non-determinism noise on "
+        "byte-different but content-identical PDFs.",
+    )
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     return parser
+
+
+def _load_classification(path: Path) -> dict[str, dict]:
+    """Returns {card_id: {class, ...}} or {} if no classification file."""
+    if not path.is_file():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8")).get("cards", {})
 
 
 def _diff_one_card(
@@ -335,11 +292,21 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_args_parser().parse_args(argv)
     pre_sha = _pre_ocr_sha(args.pre_ocr)
     byte_history = json.loads(args.byte_history.read_text(encoding="utf-8"))
+    classification = _load_classification(args.classification)
 
     diffs: dict[str, dict] = {}
     engine_matched: list[str] = []
     skipped_asset_type_change: list[str] = []
+    skipped_presentation_only: list[str] = []
     for card_id in sorted(byte_history.keys()):
+        # Sprint 4k-A: when the text layer is byte-equal across pre/post,
+        # the upstream change was purely presentational (re-rasterization,
+        # font subset rev, metadata) and any OCR diff is Sonnet
+        # non-determinism noise. Skip the diff; the per-card page
+        # surfaces a "BYTES CHANGED — CONTENT IDENTICAL" badge instead.
+        if classification.get(card_id, {}).get("class") == "presentation_only":
+            skipped_presentation_only.append(card_id)
+            continue
         status, card_diff = _diff_one_card(
             card_id,
             byte_history=byte_history,
@@ -365,17 +332,19 @@ def main(argv: list[str] | None = None) -> int:
             ) if args.altered_pre_ocr_dir.is_absolute() else str(args.altered_pre_ocr_dir),
             "engine_matched_cards": sorted(engine_matched),
             "skipped_asset_type_change_cards": sorted(skipped_asset_type_change),
+            "skipped_presentation_only_cards": sorted(skipped_presentation_only),
             "card_count": len(diffs),
         },
+        "classification": classification,
         "diffs": diffs,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
-        f"build_altered_diffs: {len(diffs)} card(s) → {args.out}"
-        f" ({len(engine_matched)} engine-matched; "
-        f"{len(skipped_asset_type_change)} skipped (asset-type swap, "
-        f"oldest was non-PDF); pre-ocr sha256={pre_sha[:12]}...)"
+        f"build_altered_diffs: {len(diffs)} card(s) → {args.out} "
+        f"({len(engine_matched)} engine-matched diff; "
+        f"{len(skipped_presentation_only)} presentation-only skipped; "
+        f"{len(skipped_asset_type_change)} asset-type-swap skipped)"
     )
     return 0
 

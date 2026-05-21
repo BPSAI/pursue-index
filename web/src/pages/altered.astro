@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { cards } from "../data/manifest-loader";
 import byteHistoryJson from "../data/byte-history.json";
+import alteredDiffsJson from "../data/altered-diffs.json";
 import { itemListJsonLd, SITE_ORIGIN } from "../lib/seo";
 import { formatBytes, sizeDeltaPct } from "../lib/byte-display.ts";
 import {
@@ -9,10 +10,28 @@ import {
   type ByteHistoryEntry,
 } from "../lib/altered-helpers.ts";
 
+type ClassificationEntry = {
+  class:
+    | "presentation_only"
+    | "content_changed"
+    | "no_text_layer"
+    | "asset_type_change";
+};
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
 const alteredRows = buildAlteredRows(byteHistory, cards);
+const classification = (alteredDiffsJson as { classification?: Record<string, ClassificationEntry> })
+  .classification ?? {};
+const classCounts = alteredRows.reduce(
+  (acc, row) => {
+    const cls = classification[row.card_id]?.class ?? "unknown";
+    acc[cls] = (acc[cls] ?? 0) + 1;
+    return acc;
+  },
+  {} as Record<string, number>,
+);
 // Note: /altered.astro does not consume altered-diffs.json directly;
 // the per-card pages handle the wrapped shape in their own loader.
 
@@ -69,11 +88,40 @@ const itemListLd = itemListJsonLd(
         <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
           <span class="text-[color:var(--color-signal-amber)]">{alteredRows.length}</span> card{alteredRows.length === 1 ? "" : "s"} affected
         </div>
+
+        <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-3 font-mono text-[11px] text-[color:var(--color-text-dim)] leading-relaxed">
+          <div class="uppercase tracking-[0.2em] text-[10px] text-[color:var(--color-text-faint)] mb-2">
+            CHANGE CLASSIFICATION (via PDF text-layer comparison)
+          </div>
+          <ul class="space-y-1">
+            <li>
+              <span class="text-[color:var(--color-signal-red)]">●</span>{" "}
+              <span class="text-[color:var(--color-text-bright)]">{classCounts.content_changed ?? 0}</span>{" "}
+              content_changed — text layer differs, real upstream edit
+            </li>
+            <li>
+              <span class="text-[color:var(--color-signal-green)]">●</span>{" "}
+              <span class="text-[color:var(--color-text-bright)]">{classCounts.presentation_only ?? 0}</span>{" "}
+              presentation_only — text layer identical, byte change is re-export / metadata / font subset
+            </li>
+            <li>
+              <span class="text-[color:var(--color-signal-amber)]">●</span>{" "}
+              <span class="text-[color:var(--color-text-bright)]">{classCounts.no_text_layer ?? 0}</span>{" "}
+              no_text_layer — image-only PDFs, classification unavailable via text alone
+            </li>
+            <li>
+              <span class="text-[color:var(--color-text-faint)]">●</span>{" "}
+              <span class="text-[color:var(--color-text-bright)]">{classCounts.asset_type_change ?? 0}</span>{" "}
+              asset_type_change — upstream swapped asset type (e.g., video → PDF)
+            </li>
+          </ul>
+        </div>
         <div class="overflow-x-auto border border-[color:var(--color-border)]">
           <table class="w-full font-mono text-xs">
             <thead class="bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">
               <tr>
                 <th class="text-left px-3 py-2 text-[10px]">CARD</th>
+                <th class="text-left px-3 py-2 text-[10px]">CLASS</th>
                 <th class="text-left px-3 py-2 text-[10px]">TYPE</th>
                 <th class="text-left px-3 py-2 text-[10px]">SIZE Δ</th>
                 <th class="text-left px-3 py-2 text-[10px]">FIRST SEEN</th>
@@ -82,7 +130,20 @@ const itemListLd = itemListJsonLd(
               </tr>
             </thead>
             <tbody>
-              {alteredRows.map((row) => (
+              {alteredRows.map((row) => {
+                const cls = classification[row.card_id]?.class ?? "unknown";
+                const clsColor =
+                  cls === "content_changed" ? "text-[color:var(--color-signal-red)]"
+                  : cls === "presentation_only" ? "text-[color:var(--color-signal-green)]"
+                  : cls === "no_text_layer" ? "text-[color:var(--color-signal-amber)]"
+                  : "text-[color:var(--color-text-faint)]";
+                const clsShort =
+                  cls === "content_changed" ? "content"
+                  : cls === "presentation_only" ? "presentation"
+                  : cls === "no_text_layer" ? "no-text-layer"
+                  : cls === "asset_type_change" ? "asset-swap"
+                  : "—";
+                return (
                 <tr class="border-t border-[color:var(--color-border)] hover:bg-[color:var(--color-bg-elevated)]/50">
                   <td class="px-3 py-2">
                     <a href={`${base}/card/${row.card_id}/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">
@@ -91,6 +152,9 @@ const itemListLd = itemListJsonLd(
                     <div class="text-[color:var(--color-text-dim)] text-[10px] mt-0.5 max-w-md truncate" title={row.title}>
                       {row.title}
                     </div>
+                  </td>
+                  <td class={`px-3 py-2 text-[10px] whitespace-nowrap ${clsColor}`}>
+                    {clsShort}
                   </td>
                   <td class="px-3 py-2 text-[color:var(--color-text-faint)]">{row.asset_type}</td>
                   <td class="px-3 py-2 whitespace-nowrap">
@@ -131,7 +195,8 @@ const itemListLd = itemListJsonLd(
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
