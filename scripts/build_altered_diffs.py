@@ -308,9 +308,12 @@ def main(argv: list[str] | None = None) -> int:
     for card_id in sorted(byte_history.keys()):
         # Sprint 4k-A + 4k-B: skip OCR diff for cards confirmed as
         # content-identical via the text layer (presentation_only) OR
-        # via perceptual-hash image comparison (visually_identical).
-        # In both cases the bytes shifted but the content didn't, so
-        # any OCR diff is non-determinism noise.
+        # via perceptual-hash image comparison (visually_identical,
+        # regardless of whether the text layer reported a diff — see
+        # Sprint 4k-QC: text-layer whitespace differences can fire on
+        # cards whose rendered images are pixel-identical, in which
+        # case the "content change" is internal PDF metadata, not
+        # visible to the eye).
         card_info = classification.get(card_id, {})
         if (
             card_info.get("class") == "presentation_only"

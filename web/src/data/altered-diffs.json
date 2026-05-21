@@ -7,14 +7,12 @@
       "108379f8a86dbe9c",
       "13f86e95aed52840",
       "1701a0f307714921",
-      "1b522e779e72877c",
       "218e167fbd265d91",
       "239d049dab8c81d5",
       "26b02d358ec20061",
       "4844321219e306af",
       "48e4bc1bdb5a66e8",
       "4b68726be4af8ff9",
-      "5847028ebb855cf8",
       "5d9d3147f0b62d0c",
       "5ecebc7c28a8d8c7",
       "63c47bad93af4c92",
@@ -24,11 +22,9 @@
       "7fd3d2656cbc83a6",
       "8bb54e0aec5e91ad",
       "8bfd94484138d59b",
-      "8f354cf1d1f821f0",
       "9317a6ea91f7425c",
       "954d1e1944bc6d17",
       "973c1f75f55d0d39",
-      "9877727cd0d1bbfe",
       "99c12a9c49a91750",
       "9e2c2621d67dde12",
       "9e677b8697685311",
@@ -38,16 +34,12 @@
       "b60b84a66715204a",
       "bcf2e688dfbc220d",
       "be226374e719c729",
-      "be533a4ab886eb11",
-      "c48c078b811c0fd7",
-      "df43a479bc891969",
       "e897e67f95bc1e1b",
       "e93f6997811954dc",
       "ed585fe68e3c4e7e",
       "f42c11ca158aeffc",
       "f85532f0514320be",
-      "fa24eb58219a8dff",
-      "ff30c985595153f3"
+      "fa24eb58219a8dff"
     ],
     "skipped_asset_type_change_cards": [
       "3746998b8c506e5c",
@@ -66,29 +58,37 @@
       "0e3b3ec17a9ae021",
       "16fcb501de623b9c",
       "19d8e1d503211c84",
+      "1b522e779e72877c",
       "1e63919cc6c3daf4",
       "2b947223739f5bd4",
       "36bcfe2cfb5f3f54",
       "3a5445e8aa7985d4",
       "3b36f3dc3b51cf3b",
+      "5847028ebb855cf8",
       "672ae7eab15481ff",
       "67ab3ffef2aecf70",
       "6ded7ef20ded84c7",
       "78dc972c0c143d1e",
       "7d1b50162c29378a",
       "8d0b85ce46109d06",
+      "8f354cf1d1f821f0",
+      "9877727cd0d1bbfe",
       "a417f61b2dbd671f",
       "af047a976bac0c89",
       "b279eac8e49cf4fe",
       "bdf033d4a47eaad3",
+      "be533a4ab886eb11",
+      "c48c078b811c0fd7",
       "c568aea24f3aef31",
       "ccd932b4f40e8de7",
       "dc9f45a9ec6feb00",
+      "df43a479bc891969",
       "eda0a3d37c6dbbc3",
       "f8bd1f11b7a2ae48",
-      "fd8286ffc6fbc1fb"
+      "fd8286ffc6fbc1fb",
+      "ff30c985595153f3"
     ],
-    "card_count": 44
+    "card_count": 36
   },
   "classification": {
     "085c019c9899db9b": {
@@ -194,7 +194,13 @@
       "pre_text_sha256": "382c5e669e1db09c634d7a432e4b357b29e7febffb375164a9761dd9b5cd8d10",
       "post_text_sha256": "20d7b62ccb29213451cd55521632fee7b5f7923983c5a41a21bca77f40939cf9",
       "pre_byte_sha256": "1ff8c16256579734969188915ad0e80062e1d5639bc424c6a207340e892c6dc6",
-      "post_byte_sha256": "d6614ddb85556a5ad5476be15798b97f16fc3396e42ceffd993548d1e3201389"
+      "post_byte_sha256": "d6614ddb85556a5ad5476be15798b97f16fc3396e42ceffd993548d1e3201389",
+      "visual_class": "visually_identical",
+      "pages": 1,
+      "max_page_bit_diff": 0,
+      "avg_page_bit_diff": 0.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "1e63919cc6c3daf4": {
       "class": "no_text_layer",
@@ -364,7 +370,13 @@
       "pre_text_sha256": "e5ecd5b915dbee7814d61ce66b3e5424fa78335aa05161a8ca7992bf73ce27c6",
       "post_text_sha256": "4806d1154c8c1de143b174ae5ca8cf729341a18302297746f4719bcc91b92be1",
       "pre_byte_sha256": "a289d6a9d8286514343ac3be8a793f0e1d297b400ccc0a417485cba385fd9230",
-      "post_byte_sha256": "e1b27f7e274549e540de4cf77f9aae131cedcf3847819edd594a9825c4cad819"
+      "post_byte_sha256": "e1b27f7e274549e540de4cf77f9aae131cedcf3847819edd594a9825c4cad819",
+      "visual_class": "visually_identical",
+      "pages": 5,
+      "max_page_bit_diff": 6,
+      "avg_page_bit_diff": 3.2,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "5d9d3147f0b62d0c": {
       "class": "content_changed",
@@ -373,7 +385,13 @@
       "pre_text_sha256": "f548ab5dcc207393479a7fc8bfcd003bca522b1a2d13b0f2e830f68b34c93714",
       "post_text_sha256": "9edd6e9f062351110f5f0299fc2eaa73d88770fbb1a91b58ee18b1c4189d53f5",
       "pre_byte_sha256": "ab911622b7d4203d9d54914f03d1662cf561b7f943afe9d17f9617cfaea06585",
-      "post_byte_sha256": "74dc1a19ef09d093ceba4a0ab082bf3729cb19218c0c3481d8b71f814740c9b3"
+      "post_byte_sha256": "74dc1a19ef09d093ceba4a0ab082bf3729cb19218c0c3481d8b71f814740c9b3",
+      "visual_class": "visually_changed",
+      "pages": 4,
+      "max_page_bit_diff": 119,
+      "avg_page_bit_diff": 29.75,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "5ecebc7c28a8d8c7": {
       "class": "no_text_layer",
@@ -395,7 +413,13 @@
       "pre_text_sha256": "4e1a14d69089218167fff00e2e7feb7df35644d03eca9378d8b045502ea57507",
       "post_text_sha256": "b2ed80ef528feead1bb37ce84625eec4e2d9d8b05847a3d2b0b6bee185642518",
       "pre_byte_sha256": "5d7db3870de8c01a1c39b7e8a4185dd026fe132f01d1cd5ded60f10866722f7e",
-      "post_byte_sha256": "23c76f92be6a04417373771a12229c0a6857b9769086989c1b5e459afb5c3e52"
+      "post_byte_sha256": "23c76f92be6a04417373771a12229c0a6857b9769086989c1b5e459afb5c3e52",
+      "visual_class": "visually_changed",
+      "pages": 3,
+      "max_page_bit_diff": 86,
+      "avg_page_bit_diff": 28.67,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "672ae7eab15481ff": {
       "class": "no_text_layer",
@@ -558,7 +582,13 @@
       "pre_text_sha256": "a14fada49b7b833891415cb7654af083116e07a81c66930650ad57164a872acc",
       "post_text_sha256": "053e9e948d0c30e6ef9e8edee6ffa3e5211939841910772a2a62a3b7117d65a5",
       "pre_byte_sha256": "74032ed145b1badbb1049005b4b77ba95351cb573c3cf6578a77ca25f4033220",
-      "post_byte_sha256": "566894d9cb31e15818e87d54e848a634ddd711aa7fb9ed72402d4a759e3a3bf8"
+      "post_byte_sha256": "566894d9cb31e15818e87d54e848a634ddd711aa7fb9ed72402d4a759e3a3bf8",
+      "visual_class": "visually_identical",
+      "pages": 3,
+      "max_page_bit_diff": 7,
+      "avg_page_bit_diff": 2.33,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "9317a6ea91f7425c": {
       "class": "no_text_layer",
@@ -606,7 +636,13 @@
       "pre_text_sha256": "bc107784f72de1dd781085f6700369b518b290dfed54d5350d979403aea4e0e6",
       "post_text_sha256": "53fc0b2ae55324761e54553ac83acff334c5c3554e2fb61eaed6b798de6b19f6",
       "pre_byte_sha256": "64847feac6a309a847a39689ed2036e556f35a253189c7b9b33bd9d40b26b239",
-      "post_byte_sha256": "e1d583556594e3e98f0ceea5598760c9d122283c4582f7d5f6c6c9ad96ad76e3"
+      "post_byte_sha256": "e1d583556594e3e98f0ceea5598760c9d122283c4582f7d5f6c6c9ad96ad76e3",
+      "visual_class": "visually_identical",
+      "pages": 3,
+      "max_page_bit_diff": 4,
+      "avg_page_bit_diff": 1.33,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "9961adf6adf1010b": {
       "class": "asset_type_change",
@@ -790,7 +826,13 @@
       "pre_text_sha256": "2ff2ca5b3335721a4cddd639141287effcce08256461354cd6c315505387b018",
       "post_text_sha256": "dbbadd8475c4c148c87bf3cb4fc6a188864f672ab7ccebb1c4ea114095cca603",
       "pre_byte_sha256": "63deae172b2bd4923696ed097c0c25d1286f116be1efb313d14c0630ac0a1786",
-      "post_byte_sha256": "60c1239f7a6bad9655cb66e7b3a82c7e582762f8b4248bc1b614cca9a82d6e37"
+      "post_byte_sha256": "60c1239f7a6bad9655cb66e7b3a82c7e582762f8b4248bc1b614cca9a82d6e37",
+      "visual_class": "visually_identical",
+      "pages": 3,
+      "max_page_bit_diff": 22,
+      "avg_page_bit_diff": 16.33,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "c1c59236394f7b14": {
       "class": "asset_type_change",
@@ -805,7 +847,13 @@
       "pre_text_sha256": "4025affe8f119b5e80b79ffeb7311bac05d6ae90627267d985c59315e26ef83d",
       "post_text_sha256": "0173698dbca2d6cdf356107522dfd6d80996f9028b85e858acb8f2b240a58754",
       "pre_byte_sha256": "022b27728e86e291e078cac1d4fd5dcf225b2f6700175db9ea8ada19147318d8",
-      "post_byte_sha256": "257e2388f838975fcee0b00a381059e903e64018b7aafb7a12e5392437154f5f"
+      "post_byte_sha256": "257e2388f838975fcee0b00a381059e903e64018b7aafb7a12e5392437154f5f",
+      "visual_class": "visually_identical",
+      "pages": 7,
+      "max_page_bit_diff": 28,
+      "avg_page_bit_diff": 7.71,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "c568aea24f3aef31": {
       "class": "no_text_layer",
@@ -865,7 +913,13 @@
       "pre_text_sha256": "60bc2f3e7bcdb19b54523b31ba3c2c584d0d8a7b0b4bf509346191798c5fad62",
       "post_text_sha256": "8a3e9cb34d5e3aa00086acc0c91ecd279b82e33f3dc673f15650b7984db3fc22",
       "pre_byte_sha256": "dd6e0d2d32cec2ab397f2615f0d563b1b5edeeba719b3643b64abce0dee8a552",
-      "post_byte_sha256": "2539850305227baf0b3bb487cbf41f5834eca2b188dc2d65849fdb06b683bd13"
+      "post_byte_sha256": "2539850305227baf0b3bb487cbf41f5834eca2b188dc2d65849fdb06b683bd13",
+      "visual_class": "visually_identical",
+      "pages": 2,
+      "max_page_bit_diff": 0,
+      "avg_page_bit_diff": 0.0,
+      "threshold": 32,
+      "hash_size_bits": 4096
     },
     "e897e67f95bc1e1b": {
       "class": "no_text_layer",
@@ -997,7 +1051,13 @@
       "pre_text_sha256": "7496b64021cfa7b846e7c5499a757216202541870b93ee6b44acb0f93de741d7",
       "post_text_sha256": "a47add48dc2e361217cbd1b0c01d7f646ad8a70f849c89943825208892da0b3a",
       "pre_byte_sha256": "df5874d4b68d17f996da1af0026bf701c627a6e21c244cabf6fd53689369beca",
-      "post_byte_sha256": "968c266f780e1f69abf1bca70aa0edcb094bc61c38d6743e01de335775af347c"
+      "post_byte_sha256": "968c266f780e1f69abf1bca70aa0edcb094bc61c38d6743e01de335775af347c",
+      "visual_class": "visually_identical",
+      "pages": 5,
+      "max_page_bit_diff": 12,
+      "avg_page_bit_diff": 6.2,
+      "threshold": 32,
+      "hash_size_bits": 4096
     }
   },
   "diffs": {
@@ -15105,29 +15165,6 @@
         "total_pre_pages": 1
       }
     },
-    "1b522e779e72877c": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "CLEARED For Open Publication Mar 10, 2026 Department of Defense OFFICE OF PREPUBLICATION AND SECURITY REVIEW Recommendation by MG Richard A. Harrison USCENTCOM Chief of Staff Recommended on: 8 Oct 25 [REDACTED] N USCENTCOM MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 001 USCENTCOM Recommendation to AARO"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "218e167fbd265d91": {
       "pages": [
         {
@@ -26396,87 +26433,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 15,
         "total_pre_pages": 15
-      }
-    },
-    "5847028ebb855cf8": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "UNCLASSIFIED SBU UNCLASSIFIED SBU MRN: 04 ASHGABAT 1028 Date/DTG: Nov 12, 2004 / 120851Z NOV 04 From: AMEMBASSY ASHGABAT Action: RUEHC/SECSTATE WASHDC ROUTINE E.O.: 12958 TAGS: AORC, TSPA, PREL, PGOV, EAID, OSCI, TX Captions: SENSITIVE Subject: TURKMENISTAN, CIVIL SOCIETY AND UFOS R 120851Z NOV 04 FM AMEMBASSY ASHGABAT TO RUEHC/SECSTATE WASHDC 5085 INFO RUCNCIS/CIS COLLECTIVE RUEHVEN/USMISSION USOSCE 1267 RUEHGV/USMISSION GENEVA 0905 RUEHBS/USEU BRUSSELS RUEAIIA/CIA WASHDC RUEKDIA/DIA WASHDC//DHO-2/REA/NMJIC-J2// RHEHNSC/NSC WASHDC RUCAACC/USCENTCOM MACDILL AFB FL//CCJ2/HSE/CCJ5// RUEKJCS/SECDEF WASHINGTON DC RUEKJCS/JOINT STAFF WASHINGTON DC//J5/RUE// BT UNCLAS SECTION 01 OF 02 ASHGABAT 001028 SENSITIVE DEPT FOR EUR/CACEN (RUBIN) E.O."
-            },
-            {
-              "kind": "added",
-              "text": "UNCLASSIFIED SBU UNCLASSIFIED SBU [U.S."
-            },
-            {
-              "kind": "added",
-              "text": "EMBASSY SEAL] MRN: 04 ASHGABAT 1028 Date/DTG: Nov 12, 2004 / 120851Z NOV 04 From: AMEMBASSY ASHGABAT Action: RUEHC/SECSTATE WASHDC ROUTINE E.O.: 12958 TAGS: AORC, TSPA, PREL, PGOV, EAID, OSCI, TX Captions: SENSITIVE Subject: TURKMENISTAN, CIVIL SOCIETY AND UFOS R 120851Z NOV 04 FM AMEMBASSY ASHGABAT TO RUEHC/SECSTATE WASHDC 5085 INFO RUCNCIS/CIS COLLECTIVE RUEHVEN/USMISSION USOSCE 1267 RUEHGV/USMISSION GENEVA 0905 RUEHBS/USEU BRUSSELS RUEAIIA/CIA WASHDC RUEKDIA/DIA WASHDC//DHO-2/REA/NMJIC-J2// RHEHNSC/NSC WASHDC RUCAACC/USCENTCOM MACDILL AFB FL//CCJ2/HSE/CCJ5// RUEKJCS/SECDEF WASHINGTON DC RUEKJCS/JOINT STAFF WASHINGTON DC//J5/RUE// BT UNCLAS SECTION 01 OF 02 ASHGABAT 001028 SENSITIVE DEPT FOR EUR/CACEN (RUBIN) E.O."
-            },
-            {
-              "kind": "equal",
-              "text": "12958: N/A TAGS: AORC, TSPA, PREL, PGOV, EAID, OSCI, TX SUBJECT: TURKMENISTAN, CIVIL SOCIETY AND UFOS REF: A) Ashgabat 989 (NOTAL) B) Ashgabat 406 (NOTAL) C) Ashgabat 291 (NOTAL) D) Ashgabat 234 (NOTAL) SENSITIVE BUT UNCLASSIFIED- PLEASE HANDLE ACCORDINGLY Summary ------- 1. (SBU) Yes, UFOs. Somehow, over time, the Union of Released in Full John Powers, Acting-Director US Department of State 2/25/2026 UNCLASSIFIED SBU Page 1 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED SBU UFOlogists of Turkmenabat has established a reputation as a reliable NGO partner for a variety of activities from assisting with small and medium businesses, to distributing humanitarian assistance, to assisting NGOs with registering under the 2003 NGO law. The UFOlogists have developed a good rapport with local authorities, they say, and are able to accomplish their tasks because &quot;everyone is interested in UFOs.&quot; The UFOlogists next initiative is to publish an independent newsletter, the first in independent Turkmenistan. 2. (SBU) In the appearances-are-deceiving world of Turkmenistan, it almost seems fitting that one of the USG&apos;s most reliable implementers is equally committed to looking for life on another planet. End Summary. UFOs in Turkmenabat ------------------- 3. (SBU) On November 5, DCM and USAID Director met with the Board and interested members of the Union of UfOlogists (UOU) of Turkmenabat, Lebap Welayet (province). The Union of UFOlogists is working on an $8,532 grant to assist other local NGOs navigate the NGO registration process of the new NGO law (reftels). The UOU was the first NGO to register after independence in 1992 and was the first independent NGO to reregister successfully under the new 2003 NGO law. 4. (SBU) Though the Union first was established to pursue the study of life on other planets, over time its activities became more &quot;practical,&quot; Board members told the DCM. Members of the Union have attended international UFO fora and published on the subject, but most members assured the DCM, they had limited or no interest in the subject at all. UOU President Ovezberdy Muradov said the Turkmen military and government authorities had consulted him about mysterious occurrences in Turkmen airspace, but he said there had been no confirmed sightings of UFOs in Turkmenistan. Peace on Earth -------------- 5. (SBU) Instead, the Union has attracted a local brain trust of lawyers, scientists, computer experts, accountants, teachers and others who had joined together to &quot;do good things.&quot; Pointing to their mission statement in English, Russian and Turkmen hanging on the wall of their office, members assured the DCM that any assistance they provided would fit their mission. According to their statement, the UFOlogists &quot;help spread the ideas about the struggle for peace and human coexistence on Earth and in the Universe.&quot; Because of their diverse activities, the UOU has become an umbrella organization with at least nine member organizations running Released in Full UNCLASSIFIED SBU Page 2 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED SBU activities from sport, to youth, to business consulting. The Union has over 1000 members including some individual members from other welayets. Registering Small and Medium Businesses ----------------------------------------- 6. (SBU) Members told the DCM they first started the &quot;practical&quot; side of their work shortly after independence by assisting small and medium-sized businesses register with local authorities. According to the UOU President, during the '90&apos;s the Union assisted 187 enterprises in registering ranging from farmers unions to joint enterprises to a shoe factory. The UOU told the DCM all ASHGABAT 00001028 002 OF 002 this consulting was done pro bono. The Union made money over the years, however, by running for-fee computer, accounting and other &quot;non-traditional&quot; courses such as UFOlogy and massage. 7. (SBU) UOU President Muradov told the DCM the Union had been successful in this effort because it had the respect of local authorities. According to Muradov, &quot;everyone is interested in UFOs&quot; and local authorities were eager to assist and also learn more about UFOs. The Union also regularly ran UFO-related seminars and talks, which were well attended. 8. (SBU) In addition to commercial work, the UOU obtained experience in humanitarian goods distribution when it became a partner of the State Department funded CHAP humanitarian assistance program administered by Counterpart International. UOU facilitated humanitarian assistance to refugees from the civil war in Tajikistan and also with Afghan refugees. Muradov said the Union was eager to continue with such work, should the need arise. Assisting NGOs -------------- 9. (SBU) Because of their established track record and their success in re-registering after the austere 2003 NGO law was passed, USAID, through Counterpart International, is considering a $15,000 grant to assist the UOU with internal capacity building. The grant passed the local grants committee and has been forward to the regional committee for consideration. The UOU already has successfully registered an NGO and is working on the registration documents of four others."
-            },
-            {
-              "kind": "modified",
-              "before": "Next, an Independent Newsletter -------------------------------- Released in Full UNCLASSIFIED SBU Page 3 of 5",
-              "after": "Next, an Independent Newsletter --------------------------------- Released in Full UNCLASSIFIED SBU Page 3 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED SBU 10. (SBU) USAID was presented with a grant proposal by the UOU for a $30k grant for printing equipment for the UOU to establish its own newsletter. Though printing of independent media is illegal in Turkmenistan, the UOU assured DCM it already had advance approval from local authorities because a license was needed for anything over 1000 copies and the UOU only planned to publish 999 copies. UOU members said the content of the newsletter would be nonpolitical and only would describe the activities of the Union. If members wanted to make additional copies, the UOU told DCM, &quot;that is up to them.&quot; Eventually subscribers would be charged for the newsletter, which would then become self-sustaining, according to the UOU plan. USAID has requested that the UOU submit a stronger, more cost-effective proposal. 11. (SBU) The UOU also is considering opening chapters in other welayets because &quot;our services are in so much demand.&quot; Comment ------- 12. (SBU) Crazy? Like a fox; and worthy of USG attention and support. End Comment. 13. (U) Minimize considered. JACOBSON BT #1028 NNNN Signature: JACOBSON Info: RUEHVEN/USMISSION USOSCE ROUTINE; RUEHGV/USMISSION GENEVA ROUTINE; RUEHBS/USEU BRUSSELS ROUTINE; RUEAIIA/CIA WASHDC ROUTINE; RUEKDIA/DIA WASHDC//DHO-2/REA/NMJIC-J2// ROUTINE; RHEHNSC/NSC WASHDC ROUTINE; RUCAACC/USCENTCOM MACDILL AFB FL//CCJ2/HSE/CCJ5// ROUTINE; RUEKJCS/SECDEF WASHINGTON DC ROUTINE; RUEKJCS/JOINT STAFF WASHINGTON DC//J5/RUE// ROUTINE; CIS COLLECTIVE ROUTINE XMT: ST PETERSBURG, AMCONSUL Dissemination Rule: Archive Copy Released in Full UNCLASSIFIED SBU Page 4 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "UNCLASSIFIED SBU UNCLASSIFIED SBU Released in Full UNCLASSIFIED SBU Page 5 of 5",
-              "after": "UNCLASSIFIED SBU UNCLASSIFIED ~~SBU~~ Released in Full UNCLASSIFIED SBU Page 5 of 5"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 119,
-        "added_words": 123,
-        "modified_sentences": 2,
-        "modified_pages": [
-          1,
-          3,
-          5
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 5,
-        "total_pre_pages": 5
       }
     },
     "5d9d3147f0b62d0c": {
@@ -56678,54 +56634,6 @@
         "total_pre_pages": 290
       }
     },
-    "8f354cf1d1f821f0": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "UNCLASSIFIED CSP-2025-00040 B-00002707027 \"UNCLASSIFIED\" 3/2/2026 UNCLASSIFIED [SEAL] MRN: 85 PORT MORESBY 199 Date/DTG: Jan 28, 1985 / 280000Z Jan 85 From: AMEMBASSY PORT MORESBY Action: USCINCLANT ROUTINE E.O.: Unknown TAGS: MARR, PP Reference: n/a Subject: PAPUA NEW GUINEA INQUIRY RE OVERFLIGHTS LIMITED OFFICIAL USE PAGE 01 PORT M 00199 280704Z ACTION PM-11 INFO OCT-00 COPY-01 ADS-00 INR-10 SS-00 CIAE-00 DODE-00 NSAE-00 EAP-00 /022 W --------------------026406 280708Z /12 O 280653Z JAN 85 FM AMEMBASSY PORT MORESBY TO USCINCPAC HONOLULU HI IMMEDIATE INFO 43SW ANDERSON AFB GU IMMEDIATE SECSTATE WASHDC 1694 AMEMBASSY CANBERRA AMEMBASSY JAKARTA LIMITED OFFICIAL USE PORT MORESBY 00199 USCINCPAC FOR J3 AND POLAD 43 SW FOR DONO STATE FOR EAP/PIA AND PM/RSA E.O.",
-              "after": "UNCLASSIFIED CSP-2025-00040 B-00002707027 \"UNCLASSIFIED\" 3/2/2026 UNCLASSIFIED MRN: 85 PORT MORESBY 199 Date/DTG: Jan 28, 1985 / 280000Z Jan 85 From: AMEMBASSY PORT MORESBY Action: USCINCLANT ROUTINE E.O.: Unknown TAGS: MARR, PP Reference: n/a Subject: PAPUA NEW GUINEA INQUIRY RE OVERFLIGHTS LIMITED OFFICIAL USE PAGE 01 PORT M 00199 280704Z ACTION PM-11 INFO OCT-00 COPY-01 ADS-00 INR-10 SS-00 CIAE-00 DODE-00 NSAE-00 EAP-00 /022 W --------------------026406 280708Z /12 O 280653Z JAN 85 FM AMEMBASSY PORT MORESBY TO USCINCPAC HONOLULU HI IMMEDIATE INFO 43SW ANDERSON AFB GU IMMEDIATE SECSTATE WASHDC 1694 AMEMBASSY CANBERRA AMEMBASSY JAKARTA LIMITED OFFICIAL USE PORT MORESBY 00199 USCINCPAC FOR J3 AND POLAD 43 SW FOR DONO STATE FOR EAP/PIA AND PM/RSA E.O."
-            },
-            {
-              "kind": "equal",
-              "text": "12356: N/A TAGS: MARR, PP SUBJECT: PAPUA NEW GUINEA INQUIRY RE OVERFLIGHTS 1. EMBASSY JANUARY 28 RECEIVED INFORMAL INQUIRY FROM PNG NATIONAL INTELLIGENCE ORGANIZATION (NIO) CONCERNING REPORTED SIGHTINGS OF HIGH-ALTITUDE, HIGH-SPEED AIRCRAFT OVER PNG DURING EVENING JANUARY 24. MATTER CAME TO NIO'S ATTENTION WHEN ITS OFFICER IN WEWAK REPORTED LOCAL RESIDENTS HAD BEEN FRIGHTENED BY OVERFLIGHTS, WHICH LED TO THE PROVINCIAL PREMIER'S CALLING OF A PUBLIC MEETING ON THE SUBJECT ATTENDED BY THE PRIME MINISTER WHO WAS WEEKENDING IN HIS ELECTORAL DISTRICT. Released in Full John Powers, Acting-Director US Department of State 2/25/2026 UNCLASSIFIED Page 1 of 3"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED CSP-2025-00040 B-00002707027 \"UNCLASSIFIED\" 3/2/2026 2. NIO SAID THERE HAVE BEEN VARIOUS REPORTS OF UNIDENTIFIED AERIAL PHENOMENA THE NIGHT OF JANUARY 24, INCLUDING FAST-MOVING OBJECTS WITH LIGHTS, CONTRAILS, LIMITED OFFICIAL USE LIMITED OFFICIAL USE PAGE 02 PORT M 00199 280704Z AND NOISE. THE REPORT IN WHICH NIO PLACES SOME CREDENCE ORIGINATED WITH AN AIR NIUGINI PILOT WHO HAD JUST TAKEN OFF FROM WEWAK ENROUTE PORT MORESBY. PILOT SAID HIS RADAR PICKED UP AIRCRAFT FLYING SOUTH TO NORTH AT HIGH ALTITUDE AND HIGH SPEED WHEN HE WAS OVER ANGORAM (VIC 4 DEG S, 144 DEG E). SEVERAL VISUAL SIGHTINGS OF CONTRAILS WERE ALSO REPORTED FROM VARIOUS POINTS AROUND PNG, OF ONE AIRCRAFT MOVING NORTH TO SOUTH AT 1900 LOCAL AND OF SIX-EIGHT AIRCRAFT TRAVELING SOUTH TO NORTH AT 2200 LOCAL. 3. BASED ON OUR RECORDS AND TELCON WITH 43SW, WE HAVE TOLD NIO WE KNEW OF NO B-52 OVERFLIGHTS AND NO U.S. AIRCRAFT IN PNG AIRSPACE ON JANUARY 24. 4. ALTHOUGH INFORMATION PROVIDED US ON THESE SIGHTINGS IS VERY SKETCHY AND SOURCES WERE UNSURE OF THE DIRECTIONS IN WHICH AIRCRAFT WERE FLYING, WE WOULD MOST APPRECIATE CONFIRMATION OF PARA 3 ABOVE AND ANY LIGHT YOU MIGHT THROW ON THESE REPORTS. GARDNER LIMITED OFFICIAL USE NNN UNCLASSIFIED Page 2 of 3"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED CSP-2025-00040 B-00002707027 \"UNCLASSIFIED\" 3/2/2026 Dissemination Rule: Archive Copy UNCLASSIFIED UNCLASSIFIED Page 3 of 3"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 1,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 3,
-        "total_pre_pages": 3
-      }
-    },
     "9317a6ea91f7425c": {
       "pages": [
         {
@@ -59237,47 +59145,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 94,
         "total_pre_pages": 94
-      }
-    },
-    "9877727cd0d1bbfe": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED CSP-2025-00040 B-00002707028 \"UNCLASSIFIED\" 3/2/2026 UNCLASSIFIED MRN: 94 DUSHANBE 259 Date/DTG: Jan 31, 1994 / 310000Z Jan 94 From: AMEMBASSY DUSHANBE Action: WASHDC, SECSTATE ROUTINE; MOSCOW, AMEMBASSY ROUTINE E.O.: Unknown TAGS: TSPA, EAIR, KZ, TI, TAJIK AIR, (RHODES, ED) Reference: n/a Subject: TAJIK AIR PILOTS REPORT UNIDENTIFIED FLYING OBJECT UNCLASSIFIED PAGE 01 DUSHAN 00259 310310Z ACTION OES-09 INFO LOG-00 AID-01 AMAD-01 OASY-00 DOTE-00 EAP-01 EB-01 EUR-01 FAAE-00 TEDE-00 INR-00 ADS-00 NSAE-00 SSO-00 SNIS-00 NISC-02 /016W --------------------1FA298 310310Z /38 R 310258Z JAN 94 FM AMEMBASSY DUSHANBE TO SECSTATE WASHDC 2150 INFO AMEMBASSY MOSCOW AMEMBASSY TASHKENT AMEMBASSY ASHGABAT AMEMBASSY ALMATY AMEMBASSY BEIJING AMEMBASSY BISHKEK CIA WASHDC 0224 DIA WASHDC 0232 UNCLAS DUSHANBE 00259 DEPARTMENT FOR OES/S E.O. 12356: N/A TAGS: TSAP, EAIR, TI SUBJECT: TAJIK AIR PILOTS REPORT UNIDENTIFIED FLYING OBJECT 1. TAJIK AIR CHIEF PILOT, AMCIT ED RHODES, AND HIS TWO AMERICAN PILOT COLLEAGUES REPORTED JANUARY 29 THAT, ON JANUARY 27, THEY HAD ENCOUNTERED A UFO WHILE FLYING AT 41,000 FEET IN THEIR BOEING UNCLASSIFIED Released in Full John Powers, Acting-Director US Department of State 2/25/2026 UNCLASSIFIED Page 1 of 3"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED CSP-2025-00040 B-00002707028 \"UNCLASSIFIED\" 3/2/2026 UNCLASSIFIED PAGE 02 DUSHAN 00259 310310Z 747SP AT LAT 45 NORTH AND LONG 55 EAST, OVER KAZAKHSTAN. THEY FIRST ENCOUNTERED THE OBJECT AS A BRIGHT LIGHT OF ENORMOUS INTENSITY, APPROACHING THEM FROM OVER THE HORIZON TO THE EAST AT A GREAT RATE OF SPEED AND AT A MUCH HIGHER ALTITUDE THAN THEIR OWN. THEY WATCHED THE OBJECT FOR SOME FORTY MINUTES AS IT MANEUVERED IN CIRCLES, CORKSCREWS AND MADE 90-DEGREE TURNS AT RAPID RATES OF SPEED AND UNDER VERY HIGH G'S. CAPTAIN RHODES TOOK SEVERAL PHOTOS WITH A POCKET OLYMPUS CAMERA AND WILL SEND COPIES TO THE EMBASSY AND THE TAJIKISTAN DESK (LOWRY TAYLOR) IN THE DEPARTMENT, IF THEY COME OUT. AFTER SOME TIME, THE OBJECT ADOPTED A HORIZONTAL HIGH-SPEED COURSE AND DISAPPEARED OVER THE HORIZON. 2. AS IT WAS DARK WHEN THE OBJECT WAS OBSERVED, THE CREW WERE UNABLE TO DISCERN ITS SHAPE. THEY DESCRIBED THE LIGHT IT EMITTED AS HAVING A \"BOW WAVE\" AND AS RESEMBLING A HIGH-SPEED PHOTO OF A BULLET IN FLIGHT, IN WHICH A VERY SMALL OBJECT GIVES OFF A MUCH LARGER TRAILING WAVE OF HEAT/LIGHT. SOME FORTY-FIVE MINUTES AFTER THE INITIAL SIGHTING, AS THE SUN WAS RISING, THE AIRCRAFT FLEW UNDER THE CONTRAILS WHICH THE OBJECT HAD LEFT BEHIND. THE PLANE WAS MAKING OVER 500 KNOTS. RHODES ESTIMATED THE ALTITUDE OF THE CONTRAILS AT APPROXIMATELY 100,000 FEET, NOTING THAT THERE IS TOO LITTLE AIR/MOISTURE AT THAT EXTREME ALTITUDE TO ENABLE THE CREATION OF CONTRAILS BY THE PROPULSION MECHANISMS OF ORDINARY AIRCRAFT WHICH MIGHT BE ABLE TO REACH THAT HEIGHT. THE PATHS OF THE CONTRAILS REFLECTED THE MANEUVERS OF THE OBJECT, I.E., CIRCLES, CORKSCREWS, ETC. 3. TO OUR SUGGESTION THAT THE OBJECT MIGHT HAVE BEEN A METEOR ENTERING AND SKIPPING OFF THE EARTH'S ATMOSPHERE, RHODES AND HIS CREW WERE ADAMANT THAT THEY HAD SEEN THOUSANDS OF \"FALLING STARS\" UNCLASSIFIED UNCLASSIFIED PAGE 03 DUSHAN 00259 310310Z AND OTHER SPACE JUNK ENTERING THE ATMOSPHERE IN THEIR YEARS OF FLYING PASSENGER AIRCRAFT FOR PANAM. THIS, THEY INSISTED, WAS NOTHING LIKE A METEOR. ON THE BASIS OF ITS SPEED AND MANEUVERABILITY, RHODES EXPRESSED THE OPINION, WHICH HIS CREW SEEMED TO SUPPORT, THAT THE OBJECT WAS EXTRATERRESTRIAL AND UNDER INTELLIGENT CONTROL. 4. COMMENT: WE HAVE NO OPINION AND REPORT THE ABOVE FOR WHAT IT MAY BE WORTH. ESCUDERO UNCLASSIFIED UNCLASSIFIED Page 2 of 3"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED CSP-2025-00040 B-00002707028 \"UNCLASSIFIED\" 3/2/2026 NNNN Dissemination Rule: Archive Copy UNCLASSIFIED UNCLASSIFIED Page 3 of 3"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 3,
-        "total_pre_pages": 3
       }
     },
     "99c12a9c49a91750": {
@@ -101259,172 +101126,6 @@
         "total_pre_pages": 144
       }
     },
-    "be533a4ab886eb11": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "SECRET//NOFORN On [REDACTED] 2025, at approximately 1700 hours [REDACTED] [WITNESS 1 (a senior US intelligence official)], [FEDERAL PARTNER 1] and [FEDERAL PARTNER 2], accompanied by [WITNESS 2 (a senior US intelligence official)], and two pilots from [STATE PARTNER ORGANIZATION], departed the [REDACTED] [OPERATIONS CENTER] ([COORDINATES]), [REDACTED] ([FACILITY]) main [REDACTED] area via a [STATE PARTNER ORGANIZATION] helicopter (call sign [CALL SIGN 1]) to conduct a daytime ariel search of the [MOUNTAIN RANGE NAME] west of [SITE CODE NAME] on [FACILITY]. Previous eyewitness reports from personnel who observed orbs/lights IVO [REDACTED] [COORDINATES]) cited hearing thuds as if something has fallen and hit the ground."
-            },
-            {
-              "kind": "modified",
-              "before": "(Note: Earlier that day the [REDACTED] Office [REDACTED] completed a successful test of the [REDACTED] at [SITE CODE NAME] ([COORDINATES]) on [FACILITY].",
-              "after": "(Note: Earlier that day the [REDACTED] [REDACTED] Office [REDACTED] completed a successful test of the [REDACTED] [REDACTED] at [SITE CODE NAME] ([COORDINATES]) on [FACILITY]."
-            },
-            {
-              "kind": "modified",
-              "before": "At 1751 hours [REDACTED] [CALL SIGN 1] spotted a large cavern entrance ([COORDINATES]) and conducted a short orbit of the location [REDACTED] At approximately 2050 hours [REDACTED] [CALL SIGN 1] landed west of the [REDACTED] mountains and dropped off [WITNESS 2] with [FEDERAL PARTNER 3] personnel.",
-              "after": "At 1751 hours [REDACTED] [CALL SIGN 1] spotted a large cavern entrance ([COORDINATES]) and conducted a short orbit of the location [REDACTED] At approximately 2050 hours [REDACTED] [CALL SIGN 1] landed west of the [REDACTED] [REDACTED] mountains and dropped off [WITNESS 2] with [FEDERAL PARTNER 3] personnel."
-            },
-            {
-              "kind": "equal",
-              "text": "At 2052 hours [REDACTED] [CALL SIGN 1] headed toward [SITE CODE NAME] to refuel. A second helicopter ([STATE PARTNER ORGANIZATION] – [CALL SIGN 2]) briefly landed at [SITE CODE NAME] to await refueling but then lifted off and returned to the [REDACTED]. At 2141 hours [REDACTED] [CALL SIGN 1] lifted off from [SITE CODE NAME] and headed toward debris spotted by the Listening Post/Observation Post (LP/OP - [FEDERAL PARTNER 4] personnel using Forward Looking Infrared (FLIR) and Night Vision Goggles (NVG)- position ([COORDINATES]) located approximately four miles east of [SITE CODE NAME] in the mountains [REDACTED] location ([COORDINATES])). [CALL SIGN 1] orbited the location while searching with NVGs (pilots) and the naked eye ([WITNESS 1]) with the aid of the helicopter's spotlight in near full darkness for several minutes with negative results. At approximately 2149 hours, [CALL SIGN 1] departed the search location to return to base and received notification from LP/OP that [REDACTED] had [REDACTED] hits bearing [REDACTED]. 4 miles out from their location. The JOC then provided coord ([COORDINATES]). [CALL SIGN 1] moved to intercept. At 2202 hours [REDACTED] [CALL SIGN 1] arrived at the aforementioned coordinates and spotted a possible aircraft on the horizon moving away to the west. LP/OP confirmed the sighting then relayed they spotted an orb under FLIR and described as \"super-hot\" hovering at ground level before heading bearing [REDACTED] from LP/OP. LP/OP reported the orb was heading east and then south at a high rate of speed and then broke into two objects. LP/OP directed [CALL SIGN 1] to head south to [COORDINATES] to intercept. SECRET//NOFORN"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "SECRET//NOFORN At 2207 hours[REDACTED] JOC reported five [MILITARY AIRCRAFT] from [REDACTED] were in the air space conducting a training mission. Once on station, [CALL SIGN 1] searched the location with FLIR, NVG, and the naked eye but did not locate the orb. LP/OP reported the orb gained elevation, came within ten feet of [CALL SIGN 1] and then headed east to[REDACTED] [REDACTED] [CALL SIGN 1] moved to intercept but LP/OP reported the orb continued southeast and estimated it to be past [ROAD NAME], some 20 miles from the current position at [REDACTED] [CALL SIGN 1], unable to match speed, broke off pursuit, however the co-pilot reported seeing under NVG something emerge from the two objects and then travel in a different direction and a high rate of speed. At 2218 hours [REDACTED] [CALL SIGN 1] remained at [COORDINATES] awaiting instructions when the pilots (NVG) and [WITNESS 1] (naked eye) spotting a swarm of lights (too many to count) moving in all directions but generally located west of [REDACTED] and headed south. JOC relayed they contacted the [MILITARY AIRCRAFT] who were enroute to assist, eta two minutes. At 2227 hours [REDACTED], [CALL SIGN 1] lost visual of the swarm. At approximately 2227 hours[REDACTED] (possible out of order), in proximity of [SITE CODE NAME] headed south, [WITNESS 1] (naked eye) and the pilots (NVG) spotted two large orbs appear in close proximity to [CALL SIGN 1] to the west and above the rotor disk. From the naked eye perspective, the two orbs appeared to flare up and remain stationary side by side. They appeared to be oval shaped, orange in color with a white or yellow center and emitting light in all directions. After a few seconds, a third orb flared up below the two, and then another one below that one until there were four or five in total below the original two. After a few seconds the orbs began to flare down in reverse order while appearing to be stationary until visual was lost. At approximately 2228 hours[REDACTED] [CALL SIGN 1] - [WITNESS 1] (naked eye) and the pilots (NVG) spotted four or five orbs (similar to the orbs that were in close proximity to the helicopter) appear to the west over the mountains above the [MILITARY AIRCRAFT]. The orbs flared up one at a time in a horizontal formation and after approximately ten – fifteen seconds, flared down in the opposite order. At approximately 2233 hours [REDACTED] [CALL SIGN 1] - [WITNESS 1] (naked eye) and the pilots (NVG) spotted a similar orb formation to the east in the direction of [NEARBY TOWN NAME]. The orbs flared up one at a time in a horizontal formation and after approximately ten – fifteen seconds, flared down in the opposite order and lost visual. At approximately 2241 hours[REDACTED] [CALL SIGN 1] - [WITNESS 1] (naked eye) and the pilots (NVG) spotted a similar orb flare up west of [SITE CODE NAME] over the mountain. After several seconds the orb flared down and lost visual. SECRET//NOFORN"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "SECRET//NOFORN At 2249 hours [REDACTED] while positioned IVO [SITE CODE NAME], [CALL SIGN 1] - [WITNESS 1] (naked eye) and the pilots (NVG) spotted a swarm of lights moving in all directions west of [REDACTED] with three distinct orbs in a triangle formation. After several seconds the orbs flared down and lost visual. At 2252 hours [REDACTED] while positioned approximately ten miles north of [SITE CODE NAME], [CALL SIGN 1] - [WITNESS 1] (naked eye) and the pilots (NVG) spotted five to six orbs flare up IVO [LOCAL TOWN] (east of [SITE CODE NAME]). The orbs flared up one at a time in a horizontal formation and after approximately ten seconds, flared down in the opposite order and lost visual. At 2257 hours [REDACTED] while positioned approximately ten miles north of [SITE CODE NAME], [CALL SIGN 1] - [WITNESS 1] (naked eye) and the pilots (NVG) spotted four orbs flare up over the [MILITARY AIRCRAFT] as they descended to land at [REDACTED] [REDACTED]. The orbs flared up one at a time in a horizontal formation and after approximately ten seconds, flared down in the opposite order and lost visual. At approximately 2306 hours [REDACTED] [CALL SIGN 1] [REDACTED] [REDACTED]. At 2316 hours [REDACTED] low on fuel, [CALL SIGN 1] returned to the [OPERATIONS CENTER]. At approximately 2320 hours [REDACTED] [CALL SIGN 1] headed southbound for the [OPERATIONS CENTER] and already in air-to air contact with [FEDERAL PARTER AIRCRAFT], passed each other as [FEDERAL PARTER AIRCRAFT] headed north toward [SITE CODE NAME]. [WITNESS 1] Comments: [REDACTED] – Pilots indicated they were recording however many sightings were above the helicopter which was outside of the helicopters FLIR camera angle. Some things I could not see with the naked eye, but I recall the pilots calling out sightings. The orbs appeared to break off from [CALL SIGN 1] and pursue the [MILITARY AIRCRAFT]. SECRET//NOFORN"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 2,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 3,
-        "total_pre_pages": 3
-      }
-    },
-    "c48c078b811c0fd7": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED UNCLASSIFIED SBU MRN: 23 MEXICO 2544 Date/DTG: Sep 16, 2023 / 160150Z SEP 23 From: AMEMBASSY MEXICO Action: WASHDC, SECSTATE Routine E.O: 13526 TAGS: PGOV, PREL, ASEC, TSPA, KJUS, KCRM, MX Captions: SENSITIVE Reference: A) 23 MEXICO 2468 B) 23 MEXICO 2166 C) 23 MEXICO 2346 Subject: (U) Mexico: Weekly Political Blotter, Sep 11-15 (U) Mexico: Weekly Political Blotter, Sep 11-15 1. (SBU) This edition of Mission Mexico's Political Blotter features: • Ebrard Challenges MORENA Election, Threatens to Leave Party • INE Names Commission Members Ahead of 2024 Election • Mexico City Security Secretary Steps Down, Might Run for Mexico City Head of Government • Pablo Vazquez Becomes Mexico City's New Security Secretary • Former MORENA Senate Leader Ricardo Monreal Will Not Run for Mexico City Head of Government • Criminals Targeting and Killing Prosecutors in Guerrero • Guadalajara Mayor Launches Gubernatorial Campaign • Mexican Congress Hears Testimony on Alien Life (SBU) Ebrard Challenges MORENA Election, Threatens to Leave Party 2. (SBU) Former Foreign Secretary Marcelo Ebrard announced September 11 he would challenge the results of MORENA's presidential contender selection Released in Full John Powers, Acting-Director US Department of State 2/25/2026 UNCLASSIFIED Page 1 of 7"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED process, alleging irregularities. On September 10, Sonora Governor and MORENA National Council President Alfonso Durazo formally certified the results of the party's selection process; while Durazo indicated he would continue to examine Ebrard's complaints, he also indicated he did not assess that the end results would change in light of Ebrard's allegations. Ebrard said he expected the MORENA Honesty and Justice Committee (responsible for solving intra-party conflicts) to hear his challenge, but also added he would \"not be interested in remaining in MORENA\" if the party rejected his allegations. He announced he would travel across the country starting September 18 to meet with supporters and formalize the creation of a new national political movement. Some outlets reported Ebrard created a new political party, but electoral laws would not allow this until 2026. 3. (SBU) Comment: Having moved on from its contender selection process, MORENA is unlikely to validate any of Ebrard's challenges and therefore his options seem limited: he could join Citizen's Movement (MC) as its presidential candidate (despite some strong opposition within MC, especially from the party's Jalisco wing), remain with and create a new \"Ebrardista current\" within MORENA, or join the opposition Broad Front alliance. He cannot form a new party in time for the June 2024 elections, and the last day to register as an independent candidate (September 8) came and went without his taking action. His latest statements and attacks on MORENA's leadership however, increasingly make it impossible for him to remain in the party: the party has certified Sheinbaum as its candidate, Sheinbaum has embarked on a nationwide tour, and there is no sign whatsoever that there will be a do-over of the poll, as Ebrard desires. Ebrard retains the support of dozens of MORENA and allied party legislators, but even they seem reluctant to leave the party, which limits his leverage. End comment. (SBU) INE Names Commission Members Ahead of 2024 Election 4. (SBU) The INE council approved the designation of presidents and members of key INE commissions September 9 who will oversee the 2024 elections. After a contentious session where some councilors seemed at odds on the designations (pro-MORENA councilors opposing anti-MORENA councilors, according to analysts), INE agreed on the makeup of the commissions that will be in place until September 2024. Analysts considered the designations a defeat for MORENA because, although its bloc obtained the presidency of key commissions (for Released in Full UNCLASSIFIED Page 2 of 7"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED example the auditing commission, tasked with reviewing party expenditures), the pro-MORENA bloc still does not have a majority in them. Notably, the complaints committee (tasked with analyzing electoral violations and which previously had a pro-MORENA majority) now has an anti-MORENA majority. (SBU) Mexico City Security Secretary Steps Down, Might Run for Head of Government 5. (SBU) After expressing interest in a possible run for Mexico City head of government last week (ref A), Mexico City Security Secretary Omar Garcia Harfuch resigned September 9, saying in a video he would \"collaborate with Claudia Sheinbaum, who with her vision and leadership will give continuity to the country's transformation.\" Mexico City's constitution requires officials with a role in police forces to step down before the electoral process begins (September 10) if they intend to run for public office in the city. Garcia Harfuch leads potential MORENA and opposition candidates in almost every poll. (SBU) Pablo Vazquez Becomes Mexico City's New Security Secretary 6. (SBU) Mexico City Head of Government Marti Batres announced September 9 Under Secretary of Citizen Participation and Crime Prevention Pablo Vazquez Camacho would replace Garcia Harfuch as Security Secretary. Vazquez has worked four years for Mexico City's Secretariat of Citizen Security (SSC). In his role as Under Secretary, Vazquez implemented and coordinated violence prevention and reintegration programs, including the \"Cease Fire\" program to reduce gun violence and homicides and the \"Reconnect\" program to prevent recidivism in first time criminal offenders, according to media outlets Milenio and La Silla Rota. Prior to SSC, Vazquez worked for the federal Security Secretariat (SSPC) and in the then-Prosecutor's General Office. Outside of government, he has been a guest criminology professor at the National Institute of Criminal Sciences in Mexico City. Vazquez has a bachelor's degree in international relations from the Mexico Autonomous Institute of Technology and a master's degree in criminology from the London School of Economics and Political Science, according to press reports. La Silla Rota reported Vazquez also studied organized crime in Sicily and Macedonia. Released in Full UNCLASSIFIED Page 3 of 7"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED (SBU) Former MORENA Senate Leader Ricardo Monreal Will Not Run for Mexico City Head of Government 7. (SBU) After finishing last in the MORENA presidential contender selection process and after Omar Garcia Harfuch's resignation and potential entry to the Mexico City head of government race, former MORENA Senate Leader Ricardo Monreal announced September 12 he would not run for Mexico City head of government. Predicting the candidate selection would come down to either Garcia Harfuch or Iztapalapa Mayor Clara Brugada and noting he had no chance of winning the MORENA nod, Monreal said he did not want to cause divisions within the party. In a series of interviews, Monreal also said he had no interest in serving as a cabinet member in a potential Sheinbaum administration and would now focus on teaching, writing, and \"hop[ing] for better times.\" Yet on the same day Sheinbaum announced Monreal as her campaign's organization and territorial coordinator, and former Interior Secretary Adan Augusto Lopez as her political coordinator. 8. (SBU) Comment: Monreal went from being one of the most powerful figures in the ruling coalition to an outcast in only a few years, mostly because of his open disagreements with Lopez Obrador. His addition to Sheinbaum's campaign despite having a close relationship with her shows he is willing to collaborate, although likely in exchange for positions for his close advisors. On September 12, media reported Monreal's daughter would run for mayor of Cuauhtemoc, the Mexico City borough where Monreal served 2015-2018. Meanwhile current mayor of Cuauhtemoc Sandra Cuevas (PRD), who reportedly also has close ties with Monreal, is trying to secure the opposition's candidacy for Mexico City head of government. End comment. (SBU) Criminals Targeting and Killing Prosecutors in Guerrero 9. (SBU) Criminals killed two Guerrero prosecutors within a week's time mid- September following attacks against two other prosecutors in July (ref B) and August. Criminals assassinated the state delegate of the Federal Attorney General's Office (FGR) in Guerrero, Fernando Garcia Fernandez, while he drove his vehicle to his office in Chilpancingo September 12. First reports noted armed men appeared to coordinate the attack as they shot at Garcia from two vehicles. In addition, criminals kidnapped from his home and then killed the Released in Full UNCLASSIFIED Page 4 of 7"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED recently appointed Guerrero state attorney general's office (FGE) regional prosecutor for the Tierra Caliente region, Victor Manuel Salas Cuadras, in Coyuca de Catalan September 9, according to Proceso. Security officials found Salas' body with approximately 50 gunshot wounds. In a separate late August incident, media reported 20 armed commandos kidnapped Patricia Jacqueline Salgado, recently appointed as head FGE prosecutor in Coyuca de Catalan. Authorities later located Salgado alive but have made no arrests thus far. Interior Secretary Luisa Maria Alcalde said during the September 11 presidential press conference there was a pattern of attacks against prosecutors in Guerrero in recent months, which was related to recent law enforcement arrests and seizures. (SBU) Guadalajara Mayor Launches Gubernatorial Campaign 10. (SBU) Guadalajara Mayor Pablo Lemus (MC) launched his campaign for Jalisco governor during his second annual mayoral address on September 12. \"I want to ask for your support to build a social and collective project,\" Lemus announced. He called for party unity, and specifically welcomed MC national coordinator Dante Delgado's representative despite the rift that emerged in August between Jalisco MC and the national party (ref C). Jalisco Governor Enrique Alfaro, Nuevo Leon Governor Samuel Garcia, Monterrey Mayor Luis Donaldo Colosio, and other MC leaders from Jalisco and Nuevo Leon (the two states MC governs) all attended the event. Lemus highlighted the presence of former Jalisco Governor Emilio Gonzalez (National Action Party - PAN) and University of Guadalajara (UdeG) Rector Ricardo Villanueva (Hagamos, affiliated with UdeG). Polls show Lemus holds a commanding lead over rivals from across the political spectrum. (U) Mexican Congress Hears Testimony on Alien Life 11. (U) Congress heard testimony on unidentified aerial phenomenon (UAP) September 12, from experts including from Mexican journalist Jaime Maussan and former U.S. Navy pilot Ryan Graves, who previously testified before the U.S. Congress. The hearing was to debate language on UAP in the Aerial Space Protection Law which, if approved, would make Mexico the first country to formally acknowledge the presence of alien life on Earth. Experts asked legislators to recognize UAP, guarantee airspace security, and allow UAP to be studied. Experts also presented to Congress two alleged alien corpses and videos of Mexican pilots' encounters with fast-moving flying objects during flight. After Released in Full UNCLASSIFIED Page 5 of 7"
-            }
-          ]
-        },
-        {
-          "page_no": 6,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED the hearing, Graves lamented the display took away from his and other pilots' experiences with UAP and expressed disappointment with Maussan's \"unsubstantiated stunt.\" Scientists have discredited previous alleged alien corpses Maussan presented as evidence of alien life. (U) Figure 1: Mexican journalist Jaime Maussan presented the alleged remains of non-human beings to Congress. (Photo credit: Reuters) Signature: SALAZAR Drafted By: MEXICO:Moreno, Sergio A POL:Cortazar, Eduardo POL:Karimi, Amanda EXEC:Tejeda, Maria de los Angeles Cleared By: POL:Naranjo, Brian POL:Karimi, Amanda ECON:Conlon, Steven PD:Harder, J INL/PROG:Okwuje, Ifeoma CONS/AG:Bernsteen, Gregory Approved By: EXEC:Johnson, Mark Released in Full UNCLASSIFIED Page 6 of 7"
-            }
-          ]
-        },
-        {
-          "page_no": 7,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "UNCLASSIFIED Released By: MEXICO:Moreno, Sergio A Info: NATIONAL SECURITY COUNCIL WASHINGTON DC Routine; WHITE HOUSE OFC OF THE VICE PRESIDENT WASHINGTON DC Routine; DNI WASHINGTON DC Routine; CIA WASHINGTON DC Routine; DIA WASHINGTON DC Routine; HQ USNORTHCOM Routine; DEPT OF HOMELAND SECURITY WASHINGTON DC Routine; DEPT OF JUSTICE WASHINGTON DC Routine; HQ USSOUTHCOM MIAMI FL Routine; WESTERN HEMISPHERIC AFFAIRS DIPL POSTS Routine; ALL US CONSULATES IN MEXICO COLLECTIVE Routine XMT: CARACAS, AMEMBASSY UNCLASSIFIED SBU Released in Full UNCLASSIFIED Page 7 of 7"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 7,
-        "total_pre_pages": 7
-      }
-    },
-    "df43a479bc891969": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "A.F. SECRET July 28, 1952 MEMORANDUM To: Mr. Armstrong Paul Nitze asked me what the Air Force thought about the flying saucers, and I suspect that the others would be interested. I recommend, therefore, that you pass on the gist of the attached at the morning meeting tomorrow. Samford gave it to me at the IAC. F.H. Subsequently at lunch 5th floor Paul asked me about, so I have given the gist of this to Paul, Doc, Howland, McFall. Att. [ILLEGIBLE signature] SECRET DECLASSIFIED NND 852931"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "SECRET July 28, 1952 MEMORANDUM Subject: Flying Saucers General Samford, A-2, in response to my inquiry, said that there is very little that can be said to clarify the flying saucer business: It is still a complete enigma. He did, however, point out that phenomena falling within the general description of flying saucers have actually been known to exist and have been reported one way or another for over 100 years. The increase in observation and in reporting and publicity on the subject is probably attributable in the main to vastly improved methods of observation and reporting, including not only radar but the reporting systems used by civilian and military pilots. It is also attributable in some measure to the publicity which is given it, which takes on certain elements of a \"fad.\" There is no question, according to Samford, that \"credible observers are reporting the incredible.\" The radar observation may have elements of \"electronic fluke,\" but is sufficiently tied in with pilot observation so that it cannot be attributed entirely to this. The Air Force views the flying saucers as a threat only because they are not understood and they are sufficiently frequent as a phenomena to mean that they will give great attention to them until they understand them. General Samford did not say anything about the possibility that they were man-made or controlled, friend or foe, but the whole implication of his remarks was that this possibility was so remote as not to be seriously considered. and Generally F.H. SECRET DECLASSIFIED NND 852931"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 2,
-        "total_pre_pages": 2
-      }
-    },
     "e897e67f95bc1e1b": {
       "pages": [
         {
@@ -126922,132 +126623,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 137,
         "total_pre_pages": 137
-      }
-    },
-    "ff30c985595153f3": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "CONFIDENTIAL UNCLASSIFIED CONFIDENTIAL MRN: 01 MOSCOW 13169 Date/DTG: Oct 30, 2001 / 300000Z Oct 01 From: AMEMBASSY MOSCOW Action: WASHDC, SECSTATE ROUTINE E.O.: Unknown TAGS: PREL, MARR, KCFE, UN, OSCE, GG, RS Reference: (A) MOSCOW 13072 (B) TBILISI 3087 Subject: UFOS OVER GEORGIA: STRANGE ENCOUNTERS OF AN MFA KIND CONFIDENTIAL PTQ6889 PAGE 01 MOSCOW 13169 01 OF 02 301754Z ACTION IO-00 INFO LOG-00 NP-00 AID-00 ACQ-00 CIAE-00 DOEE-00 DOTE-00 SRPP-00 DS-00 EB-00 EUR-00 OIGO-00 FAAE-00 FBIE-00 VC-00 H-01 TEDE-00 INR-00 LAB-01 L-00 VCE-00 MOFM-05 MOF-03 M-00 AC-01 DCP-01 NRRC-00 NSAE-00 NSCE-00 OIC-02 OMB-01 PA-00 PC-01 PM-00 PRS-00 ACE-00 P-00 SCT-00 SP-00 SS-00 TRSE-00 T-00 USIE-00 SA-00 BBG-00 SNIS-00 NISC-00 SSD-00 PMB-00 DSCC-00 PRM-00 DRL-02 G-00 NFAT-00 SAS-00 SWCI-00 /018W -------------------3782F8 301754Z /38 P 301741Z OCT 01 FM AMEMBASSY MOSCOW TO SECSTATE WASHDC PRIORITY 1142 INFO AMEMBASSY TBILISI PRIORITY USMISSION USUN NEW YORK PRIORITY MOSCOW POLITICAL COLLECTIVE AMEMBASSY BAKU AMEMBASSY YEREVAN USMISSION USOSCE SECDEF WASHDC JOINT STAFF WASHDC CONFIDENTIAL SECTION 01 OF 02 MOSCOW 013169 E.O.",
-              "after": "CONFIDENTIAL UNCLASSIFIED CONFIDENTIAL MRN: 01 MOSCOW 13169 Date/DTG: Oct 30, 2001 / 300000Z Oct 01 From: AMEMBASSY MOSCOW Action: WASHDC, SECSTATE ROUTINE E.O.: Unknown TAGS: PREL, MARR, KCFE, UN, OSCE, GG, RS Reference: (A) MOSCOW 13072 (B) TBILISI 3087 Subject: UFOS OVER GEORGIA: STRANGE ENCOUNTERS OF AN MFA KIND CONFIDENTIAL PTQ6889 PAGE 01 MOSCOW 13169 01 OF 02 301754Z ACTION IO-00 INFO LOG-00 NP-00 AID-00 ACQ-00 CIAE-00 DOEE-00 DOTE-00 SRPP-00 DS-00 EB-00 EUR-00 OIGO-00 FAAE-00 FBIE-00 VC-00 H-01 TEDE-00 INR-00 LAB-01 L-00 VCE-00 MOFM-05 MOF-03 M-00 AC-01 DCP-01 NRRC-00 NSAE-00 NSCE-00 OIC-02 OMB-01 PA-00 PC-01 PM-00 PRS-00 ACE-00 P-00 SCT-00 SP-00 SS-00 TRSE-00 T-00 USIE-00 SA-00 BBG-00 SNIS-00 NISC-00 SSD-00 PMB-00 DSCC-00 PRM-00 DRL-02 G-00 NFAT-00 SAS-00 SWCI-00 /018W ------------------3782F8 301754Z /38 P 301741Z OCT 01 FM AMEMBASSY MOSCOW TO SECSTATE WASHDC PRIORITY 1142 INFO AMEMBASSY TBILISI PRIORITY USMISSION USUN NEW YORK PRIORITY MOSCOW POLITICAL COLLECTIVE AMEMBASSY BAKU AMEMBASSY YEREVAN USMISSION USOSCE SECDEF WASHDC JOINT STAFF WASHDC CONFIDENTIAL SECTION 01 OF 02 MOSCOW 013169 E.O."
-            },
-            {
-              "kind": "equal",
-              "text": "12958: DECL: 10/29/21 TAGS: PREL, MARR, KCFE, UN, OSCE, GG, RS SUBJECT: UFOS OVER GEORGIA: STRANGE ENCOUNTERS OF AN MFA CONFIDENTIAL PAGE 02 MOSCOW 13169 01 OF 02 301754Z Declassified in Full / Release in Full John Powers, Acting-Director US Department of State 2/25/2026 CONFIDENTIAL UNCLASSIFIED Page 1 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "CONFIDENTIAL UNCLASSIFIED KIND CLASSIFIED BY POLMINCOUNS GEORGE KROL. REASON 1.5 (B/D). REF: (A) MOSCOW 13072 (B) TBILISI 3087 1. (C) SUMMARY: DEPUTY FOREIGN MINISTER MAMEDOV TOLD AMBASSADOR VERSHBOW OCTOBER 30 THAT ACCORDING TO THE RUSSIAN MINISTRY OF DEFENSE, NO RUSSIAN PLANES FLEW OVER OR BOMBED POSITIONS IN THE KODORI GORGE OCTOBER 28-29, DESPITE GEORGIAN ACCUSATIONS TO THE CONTRARY. MFA GEORGIA DESK CHIEF TEREOKEN ECHOED MAMEDOV'S STATEMENT. TEREOKEN FURTHER CONFIRMED THAT ONE RAILWAY CAR FULL OF RUSSIAN MILITARY EQUIPMENT LEFT GUDAUTA BASE AND ENTERED RUSSIA OCTOBER 29 (REF A) AND THAT TWO OTHER RAILWAY CARS ARE LOADED AND AWAITING ABKHAZ PERMISSION TO LEAVE FOR RUSSIA. THERE ARE NO PLANS TO WITHDRAW PERSONNEL UNTIL TBILISI AGREES THAT APPROXIMATELY 340 RUSSIAN \"GUARDS\" CAN REMAIN AT GUDAUTA. TEREOKEN SAID THAT ABKHAZ AUTHORITIES WOULD NOT ALLOW ANY OUTSIDE OBSERVERS TO WITNESS THE WITHDRAWAL. TEREOKEN TERMED GEORGIAN PARLIAMENTARY SPEAKER ZVANIA'S OCTOBER 25-28 VISIT TO MOSCOW POSITIVE IN TONE BUT EMPTY OF RESULTS. ACCORDING TO THE GEORGIAN EMBASSY, ZVANIA AND RUSSIAN DUMA SPEAKER SELEZNEV AGREED THAT BOTH SIDES SHOULD AVOID RECRIMINATIONS. TEREOKEN DENIED MEDIA REPORTS THAT DEFENSE MINISTER SERGEY IVANOV WAS PLANNING TO VISIT TBILISI SOON BUT DID NOT RULE OUT A VISIT COMPLETELY. END SUMMARY 2."
-            },
-            {
-              "kind": "modified",
-              "before": "(C) ON OCTOBER 30, DURING A PREVIOUSLY SCHEDULED MEETING, AMBASSADOR VERSHBOW RAISED REFTEL B REPORTS CONFIDENTIAL PAGE 03 MOSCOW 13169 01 OF 02 301754Z ALLEGING RUSSIAN PLANES HAD VIOLATED GEORGIAN AIRSPACE AND BOMBED AREAS OF THE KODORI GORGE.",
-              "after": "(U) ON OCTOBER 30, DURING A PREVIOUSLY SCHEDULED MEETING, AMBASSADOR VERSHBOW RAISED REFTEL B REPORTS CONFIDENTIAL PAGE 03 MOSCOW 13169 01 OF 02 301754Z ALLEGING RUSSIAN PLANES HAD VIOLATED GEORGIAN AIRSPACE AND BOMBED AREAS OF THE KODORI GORGE."
-            },
-            {
-              "kind": "equal",
-              "text": "THE AMBASSADOR STRESSED THAT SUCH INCIDENTS, IF TRUE, AND IF CONTINUED, COULD BE DISASTROUS FOR U.S.-RUSSIAN RELATIONS AND SPOIL THE UPCOMING SUMMIT MEETING OF OUR PRESIDENTS IN THE U.S. MAMEDOV AGREED THAT SUCH INCIDENTS WOULD HAVE A NEGATIVE EFFECT ON THE SUMMIT, BUT QUOTED THE RUSSIAN MINISTRY OF DEFENSE AS CATEGORICALLY DENYING THAT RUSSIAN PLANES WERE INVOLVED IN ANY INCIDENTS IN GEORGIAN AIRSPACE. 3."
-            },
-            {
-              "kind": "modified",
-              "before": "(C) MFA GEORGIA DESK CHIEF TEREOKEN, ECHOING MAMEDOV'S CLAIMS, DENIED TO US OCTOBER 30 REPORTS OF RUSSIAN PLANES BOMBING KODORI GORGE IN ABKHAZIA.",
-              "after": "(U) MFA GEORGIA DESK CHIEF TEREOKEN, ECHOING MAMEDOV'S CLAIMS, DENIED TO US OCTOBER 30 REPORTS OF RUSSIAN PLANES BOMBING KODORI GORGE IN ABKHAZIA."
-            },
-            {
-              "kind": "equal",
-              "text": "HE ALSO DENIED THAT THERE WERE ANY RUSSIAN VIOLATIONS OF GEORGIAN AIRSPACE, SAYING THAT THERE HAD BEEN NO RUSSIAN PLANES FLYING NEAR THE AREA ON EITHER OCTOBER 28 OR 29. ACCORDING TO TEREOKEN, THERE WERE CREDIBLE REPORTS OF ABKHAZ HELICOPTERS BOMBING THE AREAS \"WHERE THE TERRORISTS WERE\" BUT THAT REPORTS OF PLANES IN THE AREA MIGHT AS WELL HAVE BEEN ABOUT \"UFOS.\" MOSCOW, HE EXPLAINED, DOES NOT HAVE THE TECHNICAL CAPABILITY TO DETERMINE WHETHER THERE WERE FOREIGN PLANES IN THE REGION."
-            },
-            {
-              "kind": "removed",
-              "text": "UNDERSCORING THAT HE \"WAS NOT ACCUSING UNCLASSIFIED CONFIDENTIAL Page 2 of 5"
-            },
-            {
-              "kind": "added",
-              "text": "UNDERSCORING THAT HE \"WAS NOT ACCUSING CONFIDENTIAL UNCLASSIFIED Page 2 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "CONFIDENTIAL UNCLASSIFIED ANYONE,\" TEREOKEN ADDED THAT IT WAS POSSIBLE THAT \"ANY SIDE\" HAD SENT PLANES OVER KODORI. 4."
-            },
-            {
-              "kind": "modified",
-              "before": "(⊘) ASKED ABOUT PLANS TO WITHDRAW FROM GUDAUTA (REF A), TEREOKEN CONFIRMED THAT ONE TRAINLOAD OF MILITARY EQUIPMENT HAD DEPARTED THE BASE AND HAD ENTERED RUSSIA THE MORNING OF OCTOBER 29.",
-              "after": "(C) ASKED ABOUT PLANS TO WITHDRAW FROM GUDAUTA (REF A), TEREOKEN CONFIRMED THAT ONE TRAINLOAD OF MILITARY EQUIPMENT HAD DEPARTED THE BASE AND HAD ENTERED RUSSIA THE MORNING OF OCTOBER 29."
-            },
-            {
-              "kind": "equal",
-              "text": "TWO MORE TRAINS HAVE BEEN LOADED AND ARE AWAITING PERMISSION FROM ABKHAZ AUTHORITIES TO MOVE TO RUSSIA. MEMBERS OF THE RUSSIAN GENERAL STAFF ARE IN CONFIDENTIAL PAGE 04 MOSCOW 13169 01 OF 02 301754Z SUKHUMI TO COORDINATE THESE MOVES. 5."
-            },
-            {
-              "kind": "modified",
-              "before": "(⊘) WE ASKED WHY OUTSIDE OBSERVERS HAD NOT BEEN INVITED TO INSPECT THE WITHDRAWALS.",
-              "after": "(C) WE ASKED WHY OUTSIDE OBSERVERS HAD NOT BEEN INVITED TO INSPECT THE WITHDRAWALS."
-            },
-            {
-              "kind": "equal",
-              "text": "TEREOKEN CLAIMED THAT THE ABKHAZ AUTHORITIES LIKELY WOULD NOT TOLERATE THE PRESENCE OF OUTSIDERS GIVEN THE TENSE SITUATION WITH TBILISI. THE RUSSIANS, HE ADDED, HAD NO TIME TO INVITE OUTSIDE OBSERVERS BECAUSE \"WE DIDN'T KNOW UNTIL THE LAST MINUTE\" THAT THE WITHDRAWAL OF ONE TRAINLOAD OF EQUIPMENT WOULD PROCEED. WE ARGUED THAT MOSCOW NOW HAS TIME IF IT HAS ALREADY LOADED TWO OTHER TRAINS BUT IS WAITING FOR ABKHAZ PERMISSION TO WITHDRAW. THE LACK OF TRANSPARENCY MIGHT RAISE QUESTIONS ABOUT THE GOR'S INTENTIONS, WE NOTED. WE ASKED ABOUT PLANS TO WITHDRAW TROOPS. TEREOKEN SAID THAT APPROXIMATELY 600 RUSSIAN PERSONNEL REMAIN AT GUDAUTA. MOSCOW CONTINUES TO INSIST ON KEEPING ABOUT 340 THERE AS \"GUARDS.\" TBILISI, HE NOTED, CONTINUES TO WANT A MUCH LOWER FIGURE. 6."
-            },
-            {
-              "kind": "modified",
-              "before": "(⊘) WE ASKED TEREOKEN ABOUT GEORGIAN PARLIAMENTARY SPEAKER ZURAB ZVANIA'S VISIT TO MOSCOW LAST WEEK.",
-              "after": "(C) WE ASKED TEREOKEN ABOUT GEORGIAN PARLIAMENTARY SPEAKER ZURAB ZVANIA'S VISIT TO MOSCOW LAST WEEK."
-            },
-            {
-              "kind": "equal",
-              "text": "HE CONFIRMED THAT THE TONE OF ZVANIA'S VISIT WAS POSITIVE. HE NOTED, HOWEVER, THAT THE VISIT \"HAD NO PRACTICAL OUTCOME.\" THE GEORGIAN EMBASSY TOLD US OCTOBER 26 THAT GEORGIAN ZVANIA'S VISIT WAS GOING WELL (NOTE: ZVANIA DEPARTED MOSCOW OCTOBER 28)."
-            },
-            {
-              "kind": "modified",
-              "before": "ACCORDING TO GEORGIAN POLCOUNS CHKHEIDZE, ZVANIA AND RUSSIAN DUMA SPEAKER GENNADIY CONFIDENTIAL CONFIDENTIAL PTQ6891 PAGE 01 MOSCOW 13169 02 OF 02 301754Z ACTION IO-00 INFO LOG-00 NP-00 AID-00 ACQ-00 CIAE-00 DOEE-00 DOTE-00 SRPP-00 DS-00 EB-00 EUR-00 OIGO-00 FAAE-00 FBIE-00 VC-00 H-01 TEDE-00 INR-00 LAB-01 L-00 VCE-00 MOFM-05 MOF-03 M-00 AC-01 NRRC-00 NSAE-00 NSCE-00 OIC-02 OMB-01 PA-00 PC-01 PM-00 PRS-00 ACE-00 P-00 SCT-00 SP-00 SS-00 TRSE-00 T-00 USIE-00 SA-00 SNIS-00 NISC-00 SSD-00 PMB-00 DSCC-00 PRM-00 DRL-02 G-00 NFAT-00 SAS-00 SWCI-00 /017W -------------------378300 301754Z /38 P 301741Z OCT 01 UNCLASSIFIED CONFIDENTIAL Page 3 of 5",
-              "after": "ACCORDING TO GEORGIAN POLCOUNS CHKHEIDZE, ZVANIA AND RUSSIAN DUMA SPEAKER GENNADIY CONFIDENTIAL CONFIDENTIAL PTQ6891 PAGE 01 MOSCOW 13169 02 OF 02 301754Z ACTION IO-00 INFO LOG-00 NP-00 AID-00 ACQ-00 CIAE-00 DOEE-00 DOTE-00 SRPP-00 DS-00 EB-00 EUR-00 OIGO-00 FAAE-00 FBIE-00 VC-00 H-01 TEDE-00 INR-00 LAB-01 L-00 VCE-00 MOFM-05 MOF-03 M-00 AC-01 NRRC-00 NSAE-00 NSCE-00 OIC-02 OMB-01 PA-00 PC-01 PM-00 PRS-00 ACE-00 P-00 SCT-00 SP-00 SS-00 TRSE-00 T-00 USIE-00 SA-00 SNIS-00 NISC-00 SSD-00 PMB-00 DSCC-00 PRM-00 DRL-02 G-00 NFAT-00 SAS-00 SWCI-00 /017W ------------------378300 301754Z /38 P 301741Z OCT 01 UNCLASSIFIED CONFIDENTIAL Page 3 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "CONFIDENTIAL UNCLASSIFIED FM AMEMBASSY MOSCOW TO SECSTATE WASHDC PRIORITY 1143 INFO AMEMBASSY TBILISI PRIORITY USMISSION USUN NEW YORK PRIORITY MOSCOW POLITICAL COLLECTIVE AMEMBASSY BAKU AMEMBASSY YEREVAN USMISSION USOSCE SECDEF WASHDC JOINT STAFF WASHDC CONFIDENTIAL SECTION 02 OF 02 MOSCOW 013169 E.O. 12958: DECL: 10/29/21 TAGS: PREL, MARR, KCFE, UN, OSCE, GG, RS SUBJECT: UFOS OVER GEORGIA: STRANGE ENCOUNTERS OF AN MFA KIND CONFIDENTIAL PAGE 02 MOSCOW 13169 02 OF 02 301754Z SELEZNEV AGREED THAT BOTH COUNTRIES NEEDED TO DISCUSS THEIR DIFFERENCES CALMLY AND WORK ON A GENERAL TREATY. 7. (C) TEREOKEN DISMISSED PRESS REPORTS THAT DEFENSE MINISTER SERGEY IVANOV HAD AGREED TO VISIT TBILISI VERY SOON BUT NOTED HE COULD NOT ENTIRELY RULE OUT A VISIT IN THE COMING WEEKS. HE CLAIMED THERE ARE PLANS FOR A POSSIBLE MEETING BETWEEN SHEVARDNADZE AND PUTIN ON THE MARGINS OF THE NOVEMBER 30-DECEMBER 1 CIS SUMMIT IN MOSCOW, BUT NOTED NOTHING IS YET CONFIRMED. 8. (C) COMMENT: IT IS HARD TO ACCEPT OFFICIAL RUSSIAN DENIALS THAT RUSSIAN PLANES WERE NOT INVOLVED. TO POSIT THAT THEY COULD BE UFOS WOULD BE HUMOROUS IF IT WERE NOT FOR THE SERIOUSNESS OF THE VIOLATIONS. MOST LIKELY THE RUSSIANS WANT TO KEEP THE PRESSURE ON THE GEORGIANS AND THE CHECHENS IN THE GORGE IN AN UNSUBTLE EFFORT TO PREVENT THESE GROUPS' MOVEMENT TO ABKHAZIA OR TO RUSSIA. THEIR OFFICIAL DENIALS REFLECT A TRADITIONAL RUSSIAN PENCHANT TO AVOID AN AWKWARD ADMISSION WITH A BOLD LIE. AS FOR GUDAUTA, THE GOR LIKELY IS USING THE CONTINUED PRESENCE OF ITS 600 TROOPS THERE AS A BARGAINING CHIP TO TRY TO GET CONCESSIONS FROM TBILISI ON BOTH THE BODEN PAPER ON ABKHAZIA AND ON CLAMPING DOWN ON CHECHENS INSIDE GEORGIA. VERSHBOW CONFIDENTIAL << END OF DOCUMENT >> Info: TBILISI, AMEMBASSY ROUTINE UNCLASSIFIED CONFIDENTIAL Page 4 of 5"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "CONFIDENTIAL UNCLASSIFIED Dissemination Rule: Archive Copy CONFIDENTIAL UNCLASSIFIED CONFIDENTIAL Page 5 of 5"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 12,
-        "added_words": 12,
-        "modified_sentences": 7,
-        "modified_pages": [
-          1,
-          2,
-          3
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 5,
-        "total_pre_pages": 5
       }
     }
   }

@@ -24,12 +24,12 @@ type ClassificationEntry = {
 
 /** Resolve a card to its effective class for the listing — visual
  * subclass folds the no_text_layer cards into the broader presentation/
- * content buckets. */
+ * content buckets, and downgrades content_changed cards to
+ * presentation_only when the perceptual hash confirms visual identity
+ * (i.e., text-layer differences are internal-to-PDF and not visible). */
 function effectiveClass(entry: ClassificationEntry | undefined): string {
   if (!entry) return "unknown";
-  if (entry.class === "no_text_layer" && entry.visual_class === "visually_identical") {
-    return "presentation_only";
-  }
+  if (entry.visual_class === "visually_identical") return "presentation_only";
   if (entry.class === "no_text_layer" && entry.visual_class === "visually_changed") {
     return "content_changed";
   }

@@ -149,6 +149,14 @@ agent_pack.tgz
 docs/launch/journalist-outreach.md
 /.paircoder/qc/reports/
 
+# Locally-generated /altered/ QC sample report (Sprint 4k-QC). Pure
+# convenience artifact: a random-sample-per-bucket markdown summary
+# with links for human eyeball review. Regenerate any time via
+# `python scripts/altered_qc_sample_report.py`. Not committed because
+# the seed is daily so the file changes by date even with no
+# underlying data change.
+/data/altered-qc-report.md
+
 # Agent-internal memory: notes, audits, and working state from
 # specialized subagents. Useful locally for cross-session continuity,
 # but contains internal jargon, absolute paths, and occasional

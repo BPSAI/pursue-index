@@ -118,9 +118,17 @@ def compare_visuals(
 def classify_card_visually(
     *, card_id: str, entry: dict, byte_history: dict, archive_dir: Path
 ) -> dict[str, Any] | None:
-    """Process one no_text_layer card. Returns the extra fields to merge
-    into the existing classification entry, or None on skip."""
-    if entry.get("class") != "no_text_layer":
+    """Process one card visually. Originally targeted no_text_layer
+    cards only, but also runs on content_changed cards (Sprint 4k-QC
+    feedback): some text-layer differences are pure whitespace /
+    tokenization shifts internal to the PDF; if the rendered images
+    are visually identical, the effective classification is
+    presentation_only.
+
+    Returns the extra fields to merge into the existing classification
+    entry, or None on skip."""
+    eligible = {"no_text_layer", "content_changed"}
+    if entry.get("class") not in eligible:
         return None
     bh = byte_history.get(card_id, [])
     if len(bh) < 2:

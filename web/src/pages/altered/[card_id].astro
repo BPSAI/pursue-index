@@ -151,21 +151,37 @@ const pageJsonLd =
       </section>
     )}
 
-    {cardClass?.class === "no_text_layer" && cardClass.visual_class === "visually_identical" && (
+    {cardClass?.visual_class === "visually_identical" && cardClass.class !== "presentation_only" && (
       <section class="border border-[color:var(--color-signal-green)]/60 bg-[color:var(--color-signal-green)]/10 p-3 font-mono text-xs">
         <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] mb-2">
           ● BYTES CHANGED — VISUALLY IDENTICAL
         </div>
         <p class="text-[color:var(--color-text-dim)] leading-relaxed">
-          This card is an image-only scan with no extractable text layer, but
-          a perceptual-hash comparison of every page (pre-edit vs current bytes)
-          shows the rendered images are visually identical to within{" "}
-          <span class="text-[color:var(--color-text-bright)]">
-            {cardClass.max_page_bit_diff}/{cardClass.hash_size_bits}
-          </span>{" "}
-          bits of difference. The upstream change was a re-encoding event
-          (different JPEG quality, scanner color profile, or compression
-          settings) — no visible content was added, removed, or modified.
+          {cardClass.class === "content_changed" ? (
+            <>
+              The embedded PDF text layer differs (typically whitespace,
+              tokenization, or internal metadata shifts), but a perceptual-hash
+              comparison of every page shows the rendered images are visually
+              identical to within{" "}
+              <span class="text-[color:var(--color-text-bright)]">
+                {cardClass.max_page_bit_diff}/{cardClass.hash_size_bits}
+              </span>{" "}
+              bits of difference. The upstream change is internal-to-PDF and
+              not visible to a reader.
+            </>
+          ) : (
+            <>
+              This card is an image-only scan with no extractable text layer,
+              but a perceptual-hash comparison of every page shows the
+              rendered images are visually identical to within{" "}
+              <span class="text-[color:var(--color-text-bright)]">
+                {cardClass.max_page_bit_diff}/{cardClass.hash_size_bits}
+              </span>{" "}
+              bits of difference. The upstream change was a re-encoding event
+              (different JPEG quality, scanner color profile, or compression
+              settings) — no visible content was added, removed, or modified.
+            </>
+          )}
         </p>
         <p class="text-[color:var(--color-text-faint)] leading-relaxed mt-2">
           Verification method: 64×64 average-hash per page at 100 DPI; max

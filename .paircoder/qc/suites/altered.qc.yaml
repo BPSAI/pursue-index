@@ -1,0 +1,103 @@
+name: "Altered — classification banners + diff rendering"
+description: |
+  /altered/<card_id>/ pages render the Sprint 4k change-classification
+  banner (presentation_only / content_changed / visually_identical /
+  visually_changed / asset_type_change) AND the appropriate diff
+  payload. The classification summary on /altered surfaces the bucket
+  counts, and the per-card table includes a CLASS column.
+
+  These scenarios sample a known card from each bucket and verify the
+  rendered output matches the underlying classification — so future
+  regressions in the diff pipeline (e.g., a classification file getting
+  out of sync, a banner not rendering, or the OCR diff sneaking back
+  onto a presentation_only card) surface here instead of in production.
+
+  Cards picked are deterministic representatives — they should remain
+  representative across re-OCR passes, but if a future Sprint 4k
+  iteration reclassifies one of them, update both this suite AND state.md.
+
+tags: [regression, altered, ui]
+preconditions:
+  - "App accessible at ${base_url}"
+  - "Sprint 4k-A + 4k-B classification has run (data/altered-classification.json present)"
+
+scenarios:
+  - name: "Altered listing renders classification summary + CLASS column"
+    steps:
+      - navigate: "${base_url}/altered/"
+      - wait: "2"
+      - verify: "Heading reads 'ALTERED UPSTREAM — BOTH VERSIONS PRESERVED' (or equivalent uppercase)"
+      - verify: "Page shows a 'CHANGE CLASSIFICATION' summary block with bucket labels (content_changed, presentation_only, no_text_layer, asset_type_change)"
+      - verify: "Table has a CLASS column header"
+      - verify: "Table rows each have a class label (one of: content, presentation, no-text-layer, asset-swap)"
+      - check_console: "No errors"
+
+  - name: "presentation_only card (8d0b85ce46109d06) — green banner, no OCR diff"
+    # This card's PDF text layer is byte-identical pre/post. The
+    # legacy OCR diff incorrectly showed 731/669 word delta — that
+    # was non-determinism noise. The new banner explains why.
+    steps:
+      - navigate: "${base_url}/altered/8d0b85ce46109d06/"
+      - wait: "2"
+      - verify: "Banner reads 'BYTES CHANGED — TEXT CONTENT IDENTICAL' (or contains 'CONTENT IDENTICAL')"
+      - verify: "Banner explains the verification method (text-layer extraction, sha256-compare)"
+      - verify: "No 'SUMMARY' block with word-delta counts is shown (the OCR diff is suppressed for presentation_only)"
+      - verify: "Pre-edit + current archive links are present"
+      - check_console: "No errors"
+
+  - name: "content_changed card (be533a4ab886eb11) — diff renders with modified-sentence segments"
+    # This card has 2 sentences edited in place (each adding a
+    # [REDACTED] marker). Summary should reflect that exactly.
+    steps:
+      - navigate: "${base_url}/altered/be533a4ab886eb11/"
+      - wait: "2"
+      - verify: "SUMMARY block visible with word counts"
+      - verify: "Summary mentions 'sentence(s) edited in place' OR 'modified'"
+      - verify: "At least one '▾ modified' segment label appears on the page (the inline before/after block)"
+      - verify: "Page shows red strikethrough text AND green added text in the modified blocks"
+      - check_console: "No errors"
+
+  - name: "visually_identical card (0d7a23b29e6de1bf) — green visual banner, no OCR diff"
+    # FBI Photo B008: -78.7% file shrink (re-encoded JPEG inside the PDF),
+    # but the rendered images are visually identical (max bit-diff 6/4096).
+    steps:
+      - navigate: "${base_url}/altered/0d7a23b29e6de1bf/"
+      - wait: "2"
+      - verify: "Banner contains 'VISUALLY IDENTICAL' (case-insensitive)"
+      - verify: "Banner mentions the bit-diff numerator (e.g., '6' or any small number) and 'bits of difference'"
+      - verify: "Banner mentions 'perceptual-hash' or 'average-hash' as the verification method"
+      - verify: "No 'SUMMARY' block with word-delta is shown"
+      - check_console: "No errors"
+
+  - name: "visually_changed card (7d58f0cac741650a) — amber banner + OCR diff present"
+    # Image-only PDF where perceptual hashing detected real visual
+    # differences. OCR diff is shown (best textual signal available)
+    # with a caveat banner about Sonnet non-determinism.
+    steps:
+      - navigate: "${base_url}/altered/7d58f0cac741650a/"
+      - wait: "2"
+      - verify: "Banner contains 'VISUAL CHANGE' or 'visually_changed' (case-insensitive)"
+      - verify: "Banner mentions 'bit-diff' or 'Hamming' or 'perceptual-hash'"
+      - verify: "SUMMARY block is visible with word counts (OCR diff IS displayed for these cards)"
+      - check_console: "No errors"
+
+  - name: "asset_type_change card has 'no text-diff' framing"
+    # 9 cards transitioned video → PDF upstream. The /altered/<card>/
+    # page falls through to the "TEXT DIFF NOT AVAILABLE" branch
+    # because there's no pre-edit text to compare against.
+    steps:
+      - navigate: "${base_url}/altered/3746998b8c506e5c/"
+      - wait: "2"
+      - verify: "Page shows 'TEXT DIFF NOT AVAILABLE' OR mentions 'video' / 'asset' / 'no pre-edit text'"
+      - verify: "Pre-edit + current archive links are present"
+      - check_console: "No errors"
+
+  - name: "JSON-LD Dataset emits for content_changed cards"
+    # Sprint 4i #6 + JSON-LD wiring: each card-diff page emits a
+    # schema.org/Dataset entry. Verify presence on a content_changed
+    # card.
+    steps:
+      - navigate: "${base_url}/altered/be533a4ab886eb11/"
+      - wait: "2"
+      - verify: "Page source contains 'application/ld+json' AND '\"@type\":\"Dataset\"' OR '\"@type\": \"Dataset\"'"
+      - check_console: "No errors"
