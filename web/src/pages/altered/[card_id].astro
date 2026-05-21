@@ -131,22 +131,40 @@ const pageJsonLd =
       </p>
     </header>
 
+    <section class="border-2 border-[color:var(--color-signal-red)]/70 bg-[color:var(--color-signal-red)]/10 p-3 font-mono text-xs space-y-2">
+      <div class="uppercase tracking-[0.2em] text-[10px] text-[color:var(--color-signal-red)] font-semibold">
+        ● UNCONFIRMED — PENDING OPERATOR REVIEW
+      </div>
+      <p class="text-[color:var(--color-text-bright)] leading-relaxed">
+        Automated classification cannot reliably distinguish "real upstream
+        content edit" from "re-OCR / re-encoding noise" on declassified PDFs.
+        The diff below was generated algorithmically and has NOT been
+        operator-verified. Treat any specific finding here as a candidate to
+        check by eye, not as a confirmed claim.
+      </p>
+      <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+        Byte-history facts (sha, file size, fetch dates, preserved archive
+        links) are accurate. The bytes did change; what's uncertain is whether
+        the visible content meaningfully changed. Open the two archive links
+        above to compare directly.
+      </p>
+    </section>
+
     {cardClass?.class === "presentation_only" && (
       <section class="border border-[color:var(--color-signal-green)]/60 bg-[color:var(--color-signal-green)]/10 p-3 font-mono text-xs">
         <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] mb-2">
-          ● BYTES CHANGED — TEXT CONTENT IDENTICAL
+          ● BYTES CHANGED — NO VISIBLE CHANGE DETECTED
         </div>
         <p class="text-[color:var(--color-text-dim)] leading-relaxed">
           The embedded PDF text layer is byte-identical across pre-edit and current
-          bytes (after whitespace normalization). The upstream change was
-          presentational only — most commonly a re-rasterization, font subset
-          revision, embedded-image re-encoding, or metadata edit. No text content
-          was added or removed.
+          bytes (after whitespace normalization). The upstream change appears to
+          be presentational — most commonly a re-rasterization, font subset
+          revision, embedded-image re-encoding, or metadata edit.
         </p>
         <p class="text-[color:var(--color-text-faint)] leading-relaxed mt-2">
           Verification method: <span class="text-[color:var(--color-text-dim)]">pypdfium2</span>{" "}
           text-layer extraction, sha256-compared after whitespace collapse.
-          See <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline">/methodology</a> for the classification protocol.
+          See <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline">/methodology</a> for the classification protocol and its limitations.
         </p>
       </section>
     )}
@@ -154,38 +172,33 @@ const pageJsonLd =
     {cardClass?.visual_class === "visually_identical" && cardClass.class !== "presentation_only" && (
       <section class="border border-[color:var(--color-signal-green)]/60 bg-[color:var(--color-signal-green)]/10 p-3 font-mono text-xs">
         <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)] mb-2">
-          ● BYTES CHANGED — VISUALLY IDENTICAL
+          ● BYTES CHANGED — NO VISIBLE CHANGE DETECTED
         </div>
         <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+          A perceptual-hash comparison of every page shows the rendered images
+          are visually equivalent to within{" "}
+          <span class="text-[color:var(--color-text-bright)]">
+            {cardClass.max_page_bit_diff}/{cardClass.hash_size_bits}
+          </span>{" "}
+          bits of difference (threshold:{" "}
+          <span class="text-[color:var(--color-text-bright)]">{cardClass.threshold ?? 250}</span>).
           {cardClass.class === "content_changed" ? (
-            <>
-              The embedded PDF text layer differs (typically whitespace,
-              tokenization, or internal metadata shifts), but a perceptual-hash
-              comparison of every page shows the rendered images are visually
-              identical to within{" "}
-              <span class="text-[color:var(--color-text-bright)]">
-                {cardClass.max_page_bit_diff}/{cardClass.hash_size_bits}
-              </span>{" "}
-              bits of difference. The upstream change is internal-to-PDF and
-              not visible to a reader.
-            </>
+            <> The embedded PDF text layer does differ (typically whitespace
+            or tokenization shifts from upstream re-OCR'ing the same page),
+            but those changes aren't visible to a reader.</>
           ) : (
-            <>
-              This card is an image-only scan with no extractable text layer,
-              but a perceptual-hash comparison of every page shows the
-              rendered images are visually identical to within{" "}
-              <span class="text-[color:var(--color-text-bright)]">
-                {cardClass.max_page_bit_diff}/{cardClass.hash_size_bits}
-              </span>{" "}
-              bits of difference. The upstream change was a re-encoding event
-              (different JPEG quality, scanner color profile, or compression
-              settings) — no visible content was added, removed, or modified.
-            </>
+            <> The upstream change appears to be a re-encoding event
+            (different JPEG quality, scanner color profile, or compression
+            settings) rather than a content edit.</>
           )}
         </p>
         <p class="text-[color:var(--color-text-faint)] leading-relaxed mt-2">
-          Verification method: 64×64 average-hash per page at 100 DPI; max
-          per-page Hamming distance &lt; 32 bits across all pages.
+          Verification method: 64×64 average-hash per page at 100 DPI.
+          Threshold of 250 bits (~6% pixel difference) was calibrated against
+          operator-verified samples. Cards under the threshold may still
+          have trivial visual differences (anti-aliasing, sub-pixel scan
+          alignment); cards above the threshold land in the "visual
+          differences present" bucket below for further inspection.
         </p>
       </section>
     )}
@@ -193,18 +206,37 @@ const pageJsonLd =
     {cardClass?.class === "no_text_layer" && cardClass.visual_class === "visually_changed" && (
       <section class="border border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/10 p-3 font-mono text-xs">
         <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)] mb-2">
-          ● IMAGE-ONLY PDF — VISUAL CHANGE DETECTED
+          ● VISUAL DIFFERENCES PRESENT — REAL CHANGE VS SCAN NOISE UNCERTAIN
         </div>
         <p class="text-[color:var(--color-text-dim)] leading-relaxed">
-          No extractable text layer (scanned image-only document), but perceptual-
-          hash comparison of the rendered pages shows real visual differences
-          (max per-page bit-diff{" "}
+          Perceptual-hash comparison shows visual differences above the calibrated
+          noise threshold (max per-page bit-diff{" "}
           <span class="text-[color:var(--color-text-bright)]">
             {cardClass.max_page_bit_diff}/{cardClass.hash_size_bits}
           </span>
-          ). Something was added, removed, or visibly modified. The OCR diff
-          below is the best textual signal available; some Sonnet
-          non-determinism noise may still be present.
+          , threshold{" "}
+          <span class="text-[color:var(--color-text-bright)]">{cardClass.threshold ?? 250}</span>).
+          This could be a real content edit OR pronounced scan / encoding
+          variance — the threshold is calibrated conservatively but no
+          automated check can fully separate the two. The OCR diff below is
+          the best textual signal, but it may include re-OCR noise. Compare
+          the pre-edit and current PDFs directly for ground truth.
+        </p>
+      </section>
+    )}
+
+    {cardClass?.class === "content_changed" && cardClass.visual_class !== "visually_identical" && (
+      <section class="border border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/10 p-3 font-mono text-xs">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)] mb-2">
+          ● TEXT LAYER DIFFERS — CONTENT EDIT VS RE-OCR UNCERTAIN
+        </div>
+        <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+          The embedded PDF text layer differs between pre-edit and current
+          bytes after whitespace normalization. This may be a real content edit
+          OR upstream re-running their own OCR on the same visible page and
+          producing slightly different embedded text. Compare the pre-edit
+          and current PDFs visually before treating any specific diff as a
+          finding.
         </p>
       </section>
     )}

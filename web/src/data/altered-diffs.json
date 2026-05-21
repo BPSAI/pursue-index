@@ -8,16 +8,11 @@
       "13f86e95aed52840",
       "1701a0f307714921",
       "218e167fbd265d91",
-      "239d049dab8c81d5",
       "26b02d358ec20061",
       "4844321219e306af",
-      "48e4bc1bdb5a66e8",
       "4b68726be4af8ff9",
-      "5d9d3147f0b62d0c",
       "5ecebc7c28a8d8c7",
-      "63c47bad93af4c92",
       "67c2ef13cc69891c",
-      "6bda02c546051f43",
       "7d58f0cac741650a",
       "7fd3d2656cbc83a6",
       "8bb54e0aec5e91ad",
@@ -26,7 +21,6 @@
       "954d1e1944bc6d17",
       "973c1f75f55d0d39",
       "99c12a9c49a91750",
-      "9e2c2621d67dde12",
       "9e677b8697685311",
       "ad721de274bb7d6c",
       "af42a6774881c110",
@@ -35,8 +29,6 @@
       "bcf2e688dfbc220d",
       "be226374e719c729",
       "e897e67f95bc1e1b",
-      "e93f6997811954dc",
-      "ed585fe68e3c4e7e",
       "f42c11ca158aeffc",
       "f85532f0514320be",
       "fa24eb58219a8dff"
@@ -60,19 +52,25 @@
       "19d8e1d503211c84",
       "1b522e779e72877c",
       "1e63919cc6c3daf4",
+      "239d049dab8c81d5",
       "2b947223739f5bd4",
       "36bcfe2cfb5f3f54",
       "3a5445e8aa7985d4",
       "3b36f3dc3b51cf3b",
+      "48e4bc1bdb5a66e8",
       "5847028ebb855cf8",
+      "5d9d3147f0b62d0c",
+      "63c47bad93af4c92",
       "672ae7eab15481ff",
       "67ab3ffef2aecf70",
+      "6bda02c546051f43",
       "6ded7ef20ded84c7",
       "78dc972c0c143d1e",
       "7d1b50162c29378a",
       "8d0b85ce46109d06",
       "8f354cf1d1f821f0",
       "9877727cd0d1bbfe",
+      "9e2c2621d67dde12",
       "a417f61b2dbd671f",
       "af047a976bac0c89",
       "b279eac8e49cf4fe",
@@ -83,12 +81,14 @@
       "ccd932b4f40e8de7",
       "dc9f45a9ec6feb00",
       "df43a479bc891969",
+      "e93f6997811954dc",
+      "ed585fe68e3c4e7e",
       "eda0a3d37c6dbbc3",
       "f8bd1f11b7a2ae48",
       "fd8286ffc6fbc1fb",
       "ff30c985595153f3"
     ],
-    "card_count": 36
+    "card_count": 28
   },
   "classification": {
     "085c019c9899db9b": {
@@ -110,7 +110,7 @@
       "pages": 1,
       "max_page_bit_diff": 6,
       "avg_page_bit_diff": 6.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "0e3b3ec17a9ae021": {
@@ -132,7 +132,7 @@
       "pages": 126,
       "max_page_bit_diff": 1844,
       "avg_page_bit_diff": 256.79,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "13f86e95aed52840": {
@@ -145,7 +145,7 @@
       "pages": 271,
       "max_page_bit_diff": 3241,
       "avg_page_bit_diff": 215.89,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "16fcb501de623b9c": {
@@ -158,7 +158,7 @@
       "pages": 1,
       "max_page_bit_diff": 4,
       "avg_page_bit_diff": 4.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "1701a0f307714921": {
@@ -171,7 +171,7 @@
       "pages": 1,
       "max_page_bit_diff": 993,
       "avg_page_bit_diff": 993.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "19d8e1d503211c84": {
@@ -184,7 +184,7 @@
       "pages": 1,
       "max_page_bit_diff": 10,
       "avg_page_bit_diff": 10.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "1b522e779e72877c": {
@@ -199,7 +199,7 @@
       "pages": 1,
       "max_page_bit_diff": 0,
       "avg_page_bit_diff": 0.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "1e63919cc6c3daf4": {
@@ -212,7 +212,7 @@
       "pages": 1,
       "max_page_bit_diff": 7,
       "avg_page_bit_diff": 7.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "218e167fbd265d91": {
@@ -225,7 +225,7 @@
       "pages": 143,
       "max_page_bit_diff": 744,
       "avg_page_bit_diff": 77.74,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "239d049dab8c81d5": {
@@ -234,11 +234,11 @@
       "post_pages": 1,
       "pre_has_text": false,
       "post_has_text": true,
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 1,
       "max_page_bit_diff": 205,
       "avg_page_bit_diff": 205.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "26b02d358ec20061": {
@@ -251,7 +251,7 @@
       "pages": 15,
       "max_page_bit_diff": 2211,
       "avg_page_bit_diff": 253.6,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "2b947223739f5bd4": {
@@ -264,7 +264,7 @@
       "pages": 1,
       "max_page_bit_diff": 5,
       "avg_page_bit_diff": 5.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "36bcfe2cfb5f3f54": {
@@ -277,7 +277,7 @@
       "pages": 1,
       "max_page_bit_diff": 7,
       "avg_page_bit_diff": 7.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "3746998b8c506e5c": {
@@ -296,7 +296,7 @@
       "pages": 1,
       "max_page_bit_diff": 6,
       "avg_page_bit_diff": 6.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "3b36f3dc3b51cf3b": {
@@ -309,7 +309,7 @@
       "pages": 1,
       "max_page_bit_diff": 0,
       "avg_page_bit_diff": 0.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "43db2719407a7897": {
@@ -334,7 +334,7 @@
       "pages": 194,
       "max_page_bit_diff": 1931,
       "avg_page_bit_diff": 149.77,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "48e4bc1bdb5a66e8": {
@@ -343,11 +343,11 @@
       "post_pages": 4,
       "pre_has_text": false,
       "post_has_text": true,
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 4,
       "max_page_bit_diff": 131,
       "avg_page_bit_diff": 81.25,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "4b68726be4af8ff9": {
@@ -360,7 +360,7 @@
       "pages": 15,
       "max_page_bit_diff": 736,
       "avg_page_bit_diff": 199.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "5847028ebb855cf8": {
@@ -375,7 +375,7 @@
       "pages": 5,
       "max_page_bit_diff": 6,
       "avg_page_bit_diff": 3.2,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "5d9d3147f0b62d0c": {
@@ -386,11 +386,11 @@
       "post_text_sha256": "9edd6e9f062351110f5f0299fc2eaa73d88770fbb1a91b58ee18b1c4189d53f5",
       "pre_byte_sha256": "ab911622b7d4203d9d54914f03d1662cf561b7f943afe9d17f9617cfaea06585",
       "post_byte_sha256": "74dc1a19ef09d093ceba4a0ab082bf3729cb19218c0c3481d8b71f814740c9b3",
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 4,
       "max_page_bit_diff": 119,
       "avg_page_bit_diff": 29.75,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "5ecebc7c28a8d8c7": {
@@ -403,7 +403,7 @@
       "pages": 214,
       "max_page_bit_diff": 1901,
       "avg_page_bit_diff": 148.96,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "63c47bad93af4c92": {
@@ -414,11 +414,11 @@
       "post_text_sha256": "b2ed80ef528feead1bb37ce84625eec4e2d9d8b05847a3d2b0b6bee185642518",
       "pre_byte_sha256": "5d7db3870de8c01a1c39b7e8a4185dd026fe132f01d1cd5ded60f10866722f7e",
       "post_byte_sha256": "23c76f92be6a04417373771a12229c0a6857b9769086989c1b5e459afb5c3e52",
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 3,
       "max_page_bit_diff": 86,
       "avg_page_bit_diff": 28.67,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "672ae7eab15481ff": {
@@ -431,7 +431,7 @@
       "pages": 1,
       "max_page_bit_diff": 11,
       "avg_page_bit_diff": 11.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "67ab3ffef2aecf70": {
@@ -444,7 +444,7 @@
       "pages": 1,
       "max_page_bit_diff": 6,
       "avg_page_bit_diff": 6.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "67c2ef13cc69891c": {
@@ -457,7 +457,7 @@
       "pages": 9,
       "max_page_bit_diff": 747,
       "avg_page_bit_diff": 179.56,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "6bda02c546051f43": {
@@ -466,11 +466,11 @@
       "post_pages": 7,
       "pre_has_text": false,
       "post_has_text": true,
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 7,
       "max_page_bit_diff": 207,
       "avg_page_bit_diff": 73.57,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "6ded7ef20ded84c7": {
@@ -483,7 +483,7 @@
       "pages": 1,
       "max_page_bit_diff": 2,
       "avg_page_bit_diff": 2.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "78dc972c0c143d1e": {
@@ -505,7 +505,7 @@
       "pages": 1,
       "max_page_bit_diff": 3,
       "avg_page_bit_diff": 3.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "7d58f0cac741650a": {
@@ -518,7 +518,7 @@
       "pages": 184,
       "max_page_bit_diff": 2706,
       "avg_page_bit_diff": 225.28,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "7fd3d2656cbc83a6": {
@@ -531,7 +531,7 @@
       "pages": 178,
       "max_page_bit_diff": 2935,
       "avg_page_bit_diff": 377.06,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "88a20bf256ccce7a": {
@@ -550,7 +550,7 @@
       "pages": 11,
       "max_page_bit_diff": 294,
       "avg_page_bit_diff": 126.91,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "8bfd94484138d59b": {
@@ -563,7 +563,7 @@
       "pages": 290,
       "max_page_bit_diff": 1835,
       "avg_page_bit_diff": 132.81,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "8d0b85ce46109d06": {
@@ -587,7 +587,7 @@
       "pages": 3,
       "max_page_bit_diff": 7,
       "avg_page_bit_diff": 2.33,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "9317a6ea91f7425c": {
@@ -600,7 +600,7 @@
       "pages": 28,
       "max_page_bit_diff": 1223,
       "avg_page_bit_diff": 165.68,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "954d1e1944bc6d17": {
@@ -613,7 +613,7 @@
       "pages": 3,
       "max_page_bit_diff": 1059,
       "avg_page_bit_diff": 400.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "973c1f75f55d0d39": {
@@ -626,7 +626,7 @@
       "pages": 94,
       "max_page_bit_diff": 1217,
       "avg_page_bit_diff": 155.56,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "9877727cd0d1bbfe": {
@@ -641,7 +641,7 @@
       "pages": 3,
       "max_page_bit_diff": 4,
       "avg_page_bit_diff": 1.33,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "9961adf6adf1010b": {
@@ -660,7 +660,7 @@
       "pages": 190,
       "max_page_bit_diff": 2601,
       "avg_page_bit_diff": 196.52,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "9e2c2621d67dde12": {
@@ -669,11 +669,11 @@
       "post_pages": 6,
       "pre_has_text": false,
       "post_has_text": true,
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 6,
       "max_page_bit_diff": 51,
       "avg_page_bit_diff": 20.83,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "9e677b8697685311": {
@@ -686,7 +686,7 @@
       "pages": 28,
       "max_page_bit_diff": 574,
       "avg_page_bit_diff": 127.46,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "a417f61b2dbd671f": {
@@ -699,7 +699,7 @@
       "pages": 1,
       "max_page_bit_diff": 1,
       "avg_page_bit_diff": 1.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "ad721de274bb7d6c": {
@@ -712,7 +712,7 @@
       "pages": 217,
       "max_page_bit_diff": 2018,
       "avg_page_bit_diff": 208.09,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "af047a976bac0c89": {
@@ -725,7 +725,7 @@
       "pages": 1,
       "max_page_bit_diff": 3,
       "avg_page_bit_diff": 3.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "af42a6774881c110": {
@@ -738,7 +738,7 @@
       "pages": 40,
       "max_page_bit_diff": 1203,
       "avg_page_bit_diff": 132.35,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "b246c782b16be168": {
@@ -751,7 +751,7 @@
       "pages": 209,
       "max_page_bit_diff": 1741,
       "avg_page_bit_diff": 149.04,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "b279eac8e49cf4fe": {
@@ -764,7 +764,7 @@
       "pages": 1,
       "max_page_bit_diff": 14,
       "avg_page_bit_diff": 14.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "b60b84a66715204a": {
@@ -777,7 +777,7 @@
       "pages": 209,
       "max_page_bit_diff": 1869,
       "avg_page_bit_diff": 276.82,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "bcf2e688dfbc220d": {
@@ -790,7 +790,7 @@
       "pages": 185,
       "max_page_bit_diff": 1685,
       "avg_page_bit_diff": 128.3,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "bdf033d4a47eaad3": {
@@ -803,7 +803,7 @@
       "pages": 1,
       "max_page_bit_diff": 9,
       "avg_page_bit_diff": 9.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "be226374e719c729": {
@@ -816,7 +816,7 @@
       "pages": 144,
       "max_page_bit_diff": 1008,
       "avg_page_bit_diff": 120.72,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "be533a4ab886eb11": {
@@ -831,7 +831,7 @@
       "pages": 3,
       "max_page_bit_diff": 22,
       "avg_page_bit_diff": 16.33,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "c1c59236394f7b14": {
@@ -852,7 +852,7 @@
       "pages": 7,
       "max_page_bit_diff": 28,
       "avg_page_bit_diff": 7.71,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "c568aea24f3aef31": {
@@ -865,7 +865,7 @@
       "pages": 1,
       "max_page_bit_diff": 1,
       "avg_page_bit_diff": 1.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "c788c17e8cc32230": {
@@ -884,7 +884,7 @@
       "pages": 1,
       "max_page_bit_diff": 8,
       "avg_page_bit_diff": 8.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "d8e5687dc870892d": {
@@ -903,7 +903,7 @@
       "pages": 1,
       "max_page_bit_diff": 0,
       "avg_page_bit_diff": 0.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "df43a479bc891969": {
@@ -918,7 +918,7 @@
       "pages": 2,
       "max_page_bit_diff": 0,
       "avg_page_bit_diff": 0.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "e897e67f95bc1e1b": {
@@ -931,7 +931,7 @@
       "pages": 124,
       "max_page_bit_diff": 806,
       "avg_page_bit_diff": 35.06,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "e93f6997811954dc": {
@@ -940,11 +940,11 @@
       "post_pages": 2,
       "pre_has_text": false,
       "post_has_text": true,
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 2,
       "max_page_bit_diff": 154,
       "avg_page_bit_diff": 108.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "ea029a05470b8f4e": {
@@ -959,11 +959,11 @@
       "post_pages": 10,
       "pre_has_text": false,
       "post_has_text": true,
-      "visual_class": "visually_changed",
+      "visual_class": "visually_identical",
       "pages": 10,
       "max_page_bit_diff": 193,
       "avg_page_bit_diff": 33.3,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "eda0a3d37c6dbbc3": {
@@ -976,7 +976,7 @@
       "pages": 1,
       "max_page_bit_diff": 8,
       "avg_page_bit_diff": 8.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "f42c11ca158aeffc": {
@@ -989,7 +989,7 @@
       "pages": 18,
       "max_page_bit_diff": 262,
       "avg_page_bit_diff": 147.33,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "f85532f0514320be": {
@@ -1002,7 +1002,7 @@
       "pages": 205,
       "max_page_bit_diff": 1423,
       "avg_page_bit_diff": 187.33,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "f8bd1f11b7a2ae48": {
@@ -1015,7 +1015,7 @@
       "pages": 1,
       "max_page_bit_diff": 2,
       "avg_page_bit_diff": 2.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "fa24eb58219a8dff": {
@@ -1028,7 +1028,7 @@
       "pages": 137,
       "max_page_bit_diff": 1089,
       "avg_page_bit_diff": 74.96,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "fd8286ffc6fbc1fb": {
@@ -1041,7 +1041,7 @@
       "pages": 1,
       "max_page_bit_diff": 5,
       "avg_page_bit_diff": 5.0,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     },
     "ff30c985595153f3": {
@@ -1056,7 +1056,7 @@
       "pages": 5,
       "max_page_bit_diff": 12,
       "avg_page_bit_diff": 6.2,
-      "threshold": 32,
+      "threshold": 250,
       "hash_size_bits": 4096
     }
   },
@@ -18019,77 +18019,6 @@
         "total_pre_pages": 143
       }
     },
-    "239d049dab8c81d5": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "STANDARD FORM NO. 64 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007."
-            },
-            {
-              "kind": "modified",
-              "before": "Screened by NARA [RFT] 11-25-2025 FOIA # 90288 DOCID: 34715588 Office Memorandum • UNITED STATES GOVERNMENT TO : SAC, DETROIT DATE: April 17, 1958 FROM : SA ROBERT ROSS REYNOLDS SUBJECT: UNIDENTIFIED FLYING OBJECTS DAVID WEAVER, 15801 Decosta, Detroit, Michigan, Telephone No.",
-              "after": "Screened by NARA [RFI] 11-25-2025 FOIA # 90288 DOCID: 34715588 Office Memorandum • UNITED STATES GOVERNMENT TO : SAC, DETROIT DATE: April 17, 1958 FROM : SA ROBERT ROSS REYNOLDS SUBJECT: UNIDENTIFIED FLYING OBJECTS DAVID WEAVER, 15801 Decosta, Detroit, Michigan, Telephone No."
-            },
-            {
-              "kind": "equal",
-              "text": "KEnwood 6-7546, telephonically advised this office at 4:08 A.M., today, that he had just seen an object in the sky described as a circular object with a crystal-type dome that reflected lights. He said this object was passing in a northern direction from southwest and crossed the City three blocks south of Six Mile at Lamphere Street. WEAVER advised that he attempted to call Selfridge Field to get in touch with the Air Force but his attempts were un- productive. He then called the office to furnish the above information. WEAVER said he was 23 years of age, was the son of a Detroit policeman, and that he had previous experience with the Civil Air Patrol (CAP); however, he was not too familiar with the identi- fication of aircraft. WEAVER stated he was on his way home from his employment in Detroit when he observed instant object. RECOMMENDATION Advise proper air force authorities."
-            },
-            {
-              "kind": "modified",
-              "before": "RRR/mac (1) [Handwritten signatures and annotations: Lt Col (Bonnie) E.",
-              "after": "RRR/mac (1) [handwritten signatures and annotations] Lt Col (Bonnie) E."
-            },
-            {
-              "kind": "removed",
-              "text": "Prater advised 4/17/58 no letter nec."
-            },
-            {
-              "kind": "added",
-              "text": "Porter advised 4/17/58 o better me [illegible] FOIA/PA DO NOT DESTROY SERIAL 844 8/89 PRIOR TO___ 100-26505 100-18221-844 SEARCHED ............"
-            },
-            {
-              "kind": "removed",
-              "text": "myf] FOIA/PA 844 DO NOT DESTROY SERIAL 3189 PRIOR TO ___ 100-26505 100-18221-844 SEARCHED ............INDEXED ..."
-            },
-            {
-              "kind": "added",
-              "text": "INDEXED ........"
-            },
-            {
-              "kind": "removed",
-              "text": "SERIALIZED.......FILED......"
-            },
-            {
-              "kind": "added",
-              "text": "SERIALIZED.........."
-            },
-            {
-              "kind": "added",
-              "text": "FILED..............."
-            },
-            {
-              "kind": "equal",
-              "text": "APR 1 7 1958 FBI - DETROIT NW 90288 DocId:34715588 Page 1"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 29,
-        "added_words": 29,
-        "modified_sentences": 2,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 1,
-        "total_pre_pages": 1
-      }
-    },
     "26b02d358ec20061": {
       "pages": [
         {
@@ -25709,193 +25638,6 @@
         "total_pre_pages": 194
       }
     },
-    "48e4bc1bdb5a66e8": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "TAPE No. T-00763(R1b) \"P.A.O. RELEASE COMMENTARY OF THE GT-7/6 FLIGHT.\" P.A.O. SINCE THEN WE HAVE DUBBED THE TAPE OFF. THE MASTER TAPE HERE IN THE CONTRO CENTER AND WE ARE NOW PREPARED TO PLAY IT FOR YOU - IT CONTAINS REFERENCES TO SIGHTING NOT ONLY SOME PARTICLES BUT AS WELL AS AN UNIDENTIFIED OBJECT PLUS THE BOOSTER HERS THAT TAPE WE'LL PLAY IT FOR YOU NOW---- S/C GEMINI-7 HERE HOUSTON-- HOW DO YOU READ? HOUSTON: LOUD AND CLEAR SEVEN - GO AHEAD. S/C (BORMAN) A BOGEY AT TEN O'CLOCK HIGH. HOUSTON THIS IS HOUSTON, SAY AGAIN SEVEN? S/C (BORMAN) I SAID WE HAVE A BOGEY AT TEN O'CLOCK HIGH. HOUSTON ROGER. GEMINI-7 ISTHAT THE BOOSTER OR IS THAT A NATURAL SIGHTING? S/C A WHAT? HOUSTON SAY AGAIN SEVEN. S/C (BORMAN) WE HAVE DEBRIS UP HERE - THIS IS AN ACTUAL SIGHTING. HOUSTON YOU HAVE ANY MORE INFORMATION - ESTIMATE DISTANCE OR SIZE? S/C (BORMAN) WE ALSO HAVE THE BOOSTER IN SIGHT. HOUSTON UNDERSTAND YOU ALSO HAVE THE BOOSTER IN SIGHT. ROGER. S/C (BORMAN) WE HAVE VERY, VERY MANY A - IT LOOKS LIKE HUNDREDS OF LITTLE PARTICLES GOING BY TO THE LEFT OUT ABOUT THREE OR FOUR MILES. HOUSTON UNDERSTAND YOU HAVE MANY SMALL PARTICLES GOING BY ON THE LEFT AT WHAT DISTANCE? S/C (BORMAN) ....GARBLED ... FOUR MILES. OH, ABOUT - GARBLED - IT LOOKS LIKE A PATH OF THE VEHICLE AT 90 DEGREES. HOUSTON ROGER. UNDERSTAND THEY'RE ABOUT THREE OR FOUR MILES AWAY S/C (BORMAN) THEY'VE PASSED NOW. THEY'RE GOING INTO POLAR ORBIT. HOUSTON ROGER. UNDERSTAND THEY WERE THREE TO FOUR MILES AWAY. S/C THATS WHAT IT APPEARED LIKE. THATS ROGER. HOUSTON GEMINI-7 - HOUSTON - WERE THESE PARTICLES IN ADDITION TO THE BOOSTER AND THE BOGEY AT TEN O'CLOCK HIGH? S/C (LOVELL) ROGER. I HAVE THE BOOSTER ON MY SIDE.ITS A BRILLIANT BODY IN THE SUN AGAINST A BLACK BACKGROUND WITH TRILLIONS OF PARTICLES ON IT. HOUSTON ROGER WHAT DIRECTION IS IT FROM YOU? S/C (LOVELL) ITS ABOUT AT MY TWO O'CLOCK POSITION. HOUSTON DOES THAT MEAN ITS AHEAD OF YOU? S/C (LOVELL) ITS AHEAD OF US AT TWO O'CLOCK, SLOWLY TUMBLING HOUSTON ROGER. .......... LONG PAUSE......... DUAL TRANSMISSION........ P.A.O. THIS IS GEMINI CONTROL AGAIN THE REFERENCE IN THAT CONVERSATION TO THE THIRD AND UNIDENTIFIED OBJECT OF COURSE WAS OR THE THIRD OBJECT WAS A [REDACTED] BOGEY. THERE WERE SEVERAL REFERENCES TO THE BOGEY. AT 4 Hrs 24 MIN into THE FLIGHT THIS IS GEMINI CONTROL. - 1 -"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "T-00763 (R1B) \"UFO SIGHTING Since then we have dubbed the tape off BY BORMAN\" (GT-7) the master tape here in the Control center and we are now prepared to play it for you it contains references to sighting not only some particles but as well as an unidentified object a plus the booster heres that tape we'll play it for you now - S/c :- Gemini 7 here Houston - how do you read?"
-            },
-            {
-              "kind": "added",
-              "text": "T-00763 (R1B) \"UFO SIGHTING\" Since then we have dubbed the tape off BY BORMAN (GT-7) the master tape here in the Control Center and we are now prepared to play it for you."
-            },
-            {
-              "kind": "added",
-              "text": "It contains references to sighting not only some particles but as well as an Unidentified object a plus the booster heres that tape we'll play it for you now - S/c :- Gemini 7 here Houston - how do you read?"
-            },
-            {
-              "kind": "equal",
-              "text": "Houston:- loud & clear 7 go ahead."
-            },
-            {
-              "kind": "removed",
-              "text": "S/c : - a bogey at 10 oclock high (Borman) Houston:- this is houston say again seven?"
-            },
-            {
-              "kind": "added",
-              "text": "S/c :."
-            },
-            {
-              "kind": "added",
-              "text": "a bogey at 10 oclock high (Borman) Houston:- this is houston say again seven?"
-            },
-            {
-              "kind": "equal",
-              "text": "S/c :- Borman I said we have a bogey at 10 oclock high. Houston:- Roger Gemini 7 is that the booster or is that a natural sighting? S/c :- a what? Houston:- Say again seven."
-            },
-            {
-              "kind": "modified",
-              "before": "S/c :- Borman we have debris up here - this was actual sighting Houston:- you have any more information - Estimate distance or size?",
-              "after": "S/c :- Borman We have debris up here - this was an actual sighting Houston:- you have any more information - Estimate distance or size?"
-            },
-            {
-              "kind": "modified",
-              "before": "S/c :- Borman We also have the boosters in sight.",
-              "after": "S/c :- Borman We also have the booster in sight."
-            },
-            {
-              "kind": "modified",
-              "before": "Houston:- Understand you also have the boosters in sight.",
-              "after": "Houston:- Understand you also have the booster in sight."
-            },
-            {
-              "kind": "removed",
-              "text": "roger."
-            },
-            {
-              "kind": "added",
-              "text": "roger, S/c: Borman - We have very very movy a - it looks like hundreds of going little a particles going by to the left out about 3 to 4 miles Houston:- understand you have many small particles going"
-            },
-            {
-              "kind": "removed",
-              "text": "S/c :- Borman We have very very many a it looks like hundreds of a going little a particles going by to the left out about 3 to 4 miles Houston:- understand you have many small particles going"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "Houston: Try on the left at what distance?",
-              "after": "Houston: by on the left at what distance?"
-            },
-            {
-              "kind": "equal",
-              "text": "S/C: - Bowman - garbled - 4 miles."
-            },
-            {
-              "kind": "modified",
-              "before": "it looks like a round hand which could be painted or about garbled- it looks like a path of the thick at 90 degrees Houston: - Roger: understand they're about 3 to 4 miles away S/C: Bowman they passed now - they're going into polarorbif Houston: - Roger understand they were 3-4 miles away.",
-              "after": "its looks like a round Houston - which points ed ob about garbled- it looks like a path of the thick at 90 degrees Houston: - Roger: understand they're about 3 to 4 miles away S/C: Bowman they passed now - they're going into polarorbit Houston: - Roger understand they were 3- 4 miles away."
-            },
-            {
-              "kind": "modified",
-              "before": "S/C: - that's what it appeared like.",
-              "after": "S/C: - thats what it appeared like."
-            },
-            {
-              "kind": "modified",
-              "before": "that's roger.",
-              "after": "thats roger."
-            },
-            {
-              "kind": "removed",
-              "text": "Houston: - Gemini-7- Houston - were there particles in addition to the booster and the bogey at 10 oclock high."
-            },
-            {
-              "kind": "added",
-              "text": "Houston: - Gemini-7- Houston - were there particles in addition to the booster and the bogey at 10 oclock high Houston S/C: - (Lovell): - Roger - I have the boosters in site its a brilliant body in the sun against a black background with billions of particles on it."
-            },
-            {
-              "kind": "removed",
-              "text": "S/C: - (Lovell): - Roger - I have the boostron myself it's a brilliant body in the sun against a black background with billions of particles on it."
-            },
-            {
-              "kind": "added",
-              "text": "Houston: - roger what direction is it from you S/C: - (Lovell) its about at my 2 oclock position."
-            },
-            {
-              "kind": "removed",
-              "text": "Houston: - roger what direction is it from you S/C: - (Lovell) it's about at my 2 oclock position."
-            },
-            {
-              "kind": "added",
-              "text": "Houston: - does that mean that its ahead of you?"
-            },
-            {
-              "kind": "removed",
-              "text": "Houston: - does that mean that it's ahead of you?"
-            },
-            {
-              "kind": "added",
-              "text": "S/C: - (Lovell) its ahead of us at 2oclock slowly tumbling Houston - roger."
-            },
-            {
-              "kind": "removed",
-              "text": "S/C: - (Lovell) it's ahead of us at 2oclock slowly tumbling Houston-Roger."
-            },
-            {
-              "kind": "added",
-              "text": "- long pause - two garbled transmissions - tumbling Houston roger."
-            },
-            {
-              "kind": "removed",
-              "text": "long pause - two garbled transmissions - tumbling Houston roger."
-            },
-            {
-              "kind": "equal",
-              "text": "(PAO) Gem Control!"
-            },
-            {
-              "kind": "modified",
-              "before": "Gemini Control here again the reference in that conversation to the third and unidentified object of course - was to the third object was a bogey",
-              "after": "Gemcon Control here again the reference in that Conversation to the third and unidentified object of Course - was — the third object was a bogey"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "PAO 1- there were several references to the bogey this is the unidentified object in addition to the particles which appears to be headed in a polar orbit - you heard Frank Borman say plus Jim Lovall describe discussing the booster et was Borman who reported sighting the bogey - this is Gemini Control in Houston at 4 hrs 24 min into the flight.",
-              "after": "PAO 1- there were several references to the bogey this is the unidentified object in addition to the particles which appears to be headed in a polar orbit - you heard Frank Borman say plus Jim Lovell describe discussing the booster at was Borman who reported sighting the bogey - this is Gemini Control in Houston at 4 hrs 24 mins into the flight."
-            },
-            {
-              "kind": "equal",
-              "text": "time:- 05 min! 34 sec."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 227,
-        "added_words": 224,
-        "modified_sentences": 9,
-        "modified_pages": [
-          2,
-          3,
-          4
-        ],
-        "first_change_page": 2,
-        "ocr_status": "complete",
-        "ocr_max_page": 4,
-        "total_pre_pages": 4
-      }
-    },
     "4b68726be4af8ff9": {
       "pages": [
         {
@@ -26433,56 +26175,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 15,
         "total_pre_pages": 15
-      }
-    },
-    "5d9d3147f0b62d0c": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 90/3 Page 742 05 19 14 58 CC That's affirmative. We're ready for the E-MOD. 05 19 16 31 CC Intrepid, Houston. 05 19 16 35 CDR-LM Go. 05 19 16 37 CC If you will give us POO and ACCEPT, we'll give you a CSM state vector and RLS update. 05 19 16 45 CDR-LM You have POO and ACCEPT. 05 19 20 05 CMP Hello, Houston; Yankee Clipper. 05 19 20 09 CC Yankee Clipper, Houston. Loud and clear. 05 19 20 14 CMP Well, hello there, stranger. How are you? 05 19 20 22 CC Morning, Dick. We are fine. How are you? 05 19 20 27 CMP Well, pretty good. I hope you would like to have some company for a change. 05 19 20 31 CC Roger. Got the house clean? 05 19 20 36 CMP As a matter of fact, I just finished that. I sure do; got everything in order; ready to go towards the LM and bring back ... That's quite a chore; keeping this thing clean. 05 19 20 53 CC Roger. You got a couple of coal miners coming up to see you. 05 19 20 59 CMP That's okay. I'll be glad to see them. 05 19 21 10 CC Intrepid, Houston. The computer is yours. Break. Yankee Clipper, if you will go POO and ACCEPT, we have an uplink. 05 19 21 20 CMP All yours. 05 19 23 14 CDR-LM Houston, you got the lift-off time for me? 05 19 23 20 CC Stand by. 05 19 23 39 CC Intrepid, Houston. Your lift-off time is 142:03:47. 05 19 23 52 CDR-LM I copy 142:03:47.00. 05 19 23 57 CC Affirmative. 05 19 24 05 CC Clipper, Houston. Computer's yours."
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 90/4 Page 743 05 19 24 11 CMP Okay. And Jerry, will you find out what they want to do about this battery charge, because I'm using the bus ties during the rendezvous? 05 19 24 23 CC Roger. 05 19 24 43 CC Yankee Clipper, Houston. Why don't you figure on terminating the battery charge at LOS? 05 19 24 52 CMP All right; I could let it go until I ... just before lift-off. That way it might take it all the way up. 05 19 25 33 CC Clipper, Houston. We prefer that you terminate at LOS on this pass. 05 19 25 40 CMP Roger. 05 19 25 41 CC Roger. That would be one less thing for us to keep track of prior to lift-off. 05 19 25 48 CMP Okay. 05 19 27 17 CDR-LM Say, Houston; Intrepid. 05 19 27 20 CC Intrepid, Houston. Go. 05 19 27 25 IMP-LM Roger. When you look out the AOT in the dark quadrant? You can see these lights - particles of light, flashes of light just seem to come from - in this case, I'm looking in quadrant 1 which is the left one. It's coming from behind me, the left, and they're just sailing off in space. I was thinking they're dropping from my water boiler, but it looks like some of those things are escaping the Moon. They really haul out of here and just press off at the stars. 05 19 27 56 CC Roger. 05 19 28 25 CC Yankee Clipper, Houston with a P22 tracking PAD. 05 19 28 42 CMP Go ahead. 05 19 28 44 CC Roger. Your target is LM; T1 is 139:57:39; T2 is 140:02:38; south 05; latitude is minus 3 - - 05 19 29 10 CMP Roger. T 112 -"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 90/9 Page 748 05 20 08 23 CC Clipper, Houston. We'll give that data a good evaluation before we do anything with it. 05 20 09 25 LMP-LM Houston, Intrepid. 05 20 09 30 CC Intrepid, Houston. GO. 05 20 09 34 LMP-LM Got sort of an interesting thing going on AGS right now. I didn't notice earlier, but it may just be because the lights are brighter now. I'm getting an all 8's flash on both the address and the information registers at about one- fifth the brilliance of the normal numbers. And a - It's pulsing every second. 05 20 10 00 CC Roger, Al. 05 20 10 06 LMP-LM If I turn down the illumination level just a little bit, it's not noticeable. 05 20 10 52 LMP-LM Hello, Houston; Intrepid. You ready for my RCS hot fire? 05 20 10 59 CC Intrepid, Houston. Roger. Fire away. 05 20 11 03 CDR-LM Okay. 05 20 11 32 CC Intrepid, Houston. 05 20 11 37 LMP-LM Go. 05 20 11 39 CC Roger, Al. Fredo is here. He and I have both seen that phenomena on your DEDA during testing of most all the spacecrafts up at Bethpage, and it's probably an EMI. 05 20 11 56 CDR-LM That's what we've been talking about, but we thought we'd just touch in on it. 05 20 11 59 LMP-LM When you go to your roll rate, roll left, pitch up - - 05 20 12 01 CC Roger. I think TRW's got a workup on this problem. 05 20 12 08 CDR-LM Okay? 05 20 12 11 CDR-LM Here you go, Houston, with roll, pitch, and yaw. 05 20 12 14 CC Roger, Pete."
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "Tape 93/8 Page 778 06 00 21 42 CMP But I don't have you in the sextant. That's okay. Your blinking light's just not blinking, that's all. 06 C0 21 51 CDR-LM Hey, Houston. It looks like our tracking light's burned out. Dick hasn't been able to find us in this sextant. And on the first nightside pass we had little bits and pieces floating along with us and we could tell that the tracking light was flashing on them. And we still have, I've presumed to think, bits and pieces floating along and nothing's flashing on them, so I'm pretty sure it burned out. 06 00 22 11 CC Roger, Pete. 06 00 22 22 LMP-LM Yes, sir. Okay. 06 00 22 26 CC Hi, Intrepid. 06 00 22 27 LMP-LM Okay. 06 00 22 28 CC This is Houston. How'd your sweepdown fore and aft go? 06 00 22 33 CDR-LM It's getting much cleaner in here running this way; and, also, Yankee Clipper informs me he has the television all set up. When we come around the horn, we'll come around with the television on in VOX. 06 00 22 47 CC Roger. 06 00 22 53 CDR-LM Who knows, you may get to see the first whifferdill. 06 00 22 59 CC Roger, Pete. Our electrical watchers say that the current indicates that your tracking light is on. 06 00 23 11 CDR-LM Okay. Now we just turned it off. Now does the current show that? 06 00 23 19 CC It - It sure does, Pete. 06 00 23 26 CMP You're - they're - You're flying through the air backwards, then, Pete, because I don't see it. 06 00 23 33 CDR-LM Well, my ball tells me I'm pointed at you, Dick, ▲ and so does my radar."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 0,
-        "modified_pages": [],
-        "first_change_page": null,
-        "ocr_status": "complete",
-        "ocr_max_page": 4,
-        "total_pre_pages": 4
       }
     },
     "5ecebc7c28a8d8c7": {
@@ -34549,65 +34241,6 @@
         "total_pre_pages": 214
       }
     },
-    "63c47bad93af4c92": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "CB/R."
-            },
-            {
-              "kind": "added",
-              "text": "CB/R.A."
-            },
-            {
-              "kind": "removed",
-              "text": "A."
-            },
-            {
-              "kind": "added",
-              "text": "PARKER MSC-07632 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION * APOLLO 17 CREW DEBRIEFING FOR SCIENCE JANUARY 8, 1973 PREPARED BY SCIENCE REQUIREMENTS BRANCH PLANETARY AND EARTH SCIENCES DIVISION INDEXING DATA DATE OPR # T PGM SUBJECT SIGNATOR LOC 1-8-73 MSC MSC-07632 B APO # NS OBO-44F MANNED SPACECRAFT CENTER HOUSTON, TEXAS HS1- 481238"
-            },
-            {
-              "kind": "removed",
-              "text": "PARKER MSC-07632 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION * APOLLO 17 CREW DEBRIEFING FOR SCIENCE JANUARY 8, 1973 PREPARED BY SCIENCE REQUIREMENTS BRANCH PLANETARY AND EARTH SCIENCES DIVISION INDEXING DATA DATE OPR # T PGM SUBJECT SIGNATOR LOC 1-8-73 MSC MSC-07632 B APO # NS 080-44F MANNED SPACECRAFT CENTER HOUSTON,TEXAS HS1- 481238"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "119 HENRY (CONT'D) gravitationally holding it together. We though it might be in the form of ionized hydrogen. We looked for Lyman-alpha radiation, red shifted from the ionized hydrogen, and we didn't see any. We set a lower limit, which certainly ex- cludes the possibility that the Coma cluster is held together by this ionized hydrogen. I think that may leave a real mystery as to what is holding the thing together. The fourth point may turn out to be the most interesting thing of all. When you look in the Milky Way, you see a lot of UV coming from the stars, but the question is, what do you see when you look up to the North Galactic Pole or down to the South Galactic Pole. One of the most exciting results of X-ray astronomy was the fact that an X-ray back- ground was observed over the sky that nobody had expected, and part of this is the gamma-ray background that Dr. Trombka talked about. In the UV, nobody knows, but you never know until you look. You do have to deal with this background of stars that we know is there. So we did look at a large number of different points at high galactic latitudes, both north and south. The spectrum that we see is above this dark count. In other words, this abnormally high dark current did not, in fact, interfere with that experiment. The spectrum that we see looks like the spectrum of the hot"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "120 HENRY (CONT'D) star; however, we know that there were no hot stars within our field of view. Therefore, the most conservative inter- pretation, I think, is that what we're seeing is light from hot stars in the galactic plane going up out of the plane and reflecting off interstellar dust. There are certain characteristics of the spectrum, though, that don't fit that theory, and it's at least possible that this is extragalactic radiation. I'm looking forward very much to the detailed computer study of this, but it's going to take a long time. Fifth point: Lyman-alpha hydrogen radiation is a completely separate problem, and Gary Thomas at the University of Colorado and Charles Barthum [?] observed this from OGO-5. We obtained just an enormous amount of data on the Apollo that's going to straighten out this picture and clarify it considerably. This is hydrogen that is inside our solar system. It's sunlight reflecting off this. The hydrogen, Gary Thomas thinks, is hydrogen from interstellar space streaming through the solar system, and he is looking for- ward with great anticipation to getting detailed analyses of that. One more thing: the spectrum of the Earth. I keep saying \"we,\" but these were the guys that were there. We looked at the Earth from outside. A lot of people have observed"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 57,
-        "added_words": 57,
-        "modified_sentences": 0,
-        "modified_pages": [
-          1
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 3,
-        "total_pre_pages": 3
-      }
-    },
     "67c2ef13cc69891c": {
       "pages": [
         {
@@ -34722,243 +34355,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 9,
         "total_pre_pages": 9
-      }
-    },
-    "6bda02c546051f43": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "TOP SECRET SECURITY INFORMATION DECLASSIFIED Authority: NND 843014 Directorate of Intelligence Headquarters, U. S. Air Force 4B-854 Pentagon Washington 25, D. C. All documents filed in numerical sequence according to Top Secret Control Number. TS CONT. NO. 2-5300 - 2-5399 Nov 48 TOP SECRET SECURITY INFORMATION NW 90307 DocId:34714985 Page 1"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "AFOIN-4 (Rev 5 Dec 47) COVER SHEET 2-5317 T.S. Cont. # D.I.—Hq. USAF * * a. RECORD OF BASIC CORRESPONDENCE OR REQUEST b. CLASSIFICATION: FROM: DATE: 8 Nov 48 AFOIR-CO TYPE: TOP SECRET SUMMARY: Extracts from TT #1524, D/1, HQ."
-            },
-            {
-              "kind": "removed",
-              "text": "USAF vs A-2, USAFE SUSPENSE DATE _______________ ASGD BY ____________ NO."
-            },
-            {
-              "kind": "added",
-              "text": "USAF to A-2, USAFE SUSPENSE DATE _______________ ASGD BY ____________ DATE RECEIVED DIR/INT _______________________ NO."
-            },
-            {
-              "kind": "removed",
-              "text": "________________ DATE RECEIVED DIR/INT _______________________ c."
-            },
-            {
-              "kind": "added",
-              "text": "________________ c."
-            },
-            {
-              "kind": "equal",
-              "text": "TO: AFOIR SPECIAL INSTRUCTIONS - REMARKS 1."
-            },
-            {
-              "kind": "removed",
-              "text": "Submitted for information."
-            },
-            {
-              "kind": "added",
-              "text": "Submitted for information, DATE 8 Nov 48 2."
-            },
-            {
-              "kind": "removed",
-              "text": "DATE 8 Nov 48 2."
-            },
-            {
-              "kind": "added",
-              "text": "All items have been distributed NO."
-            },
-            {
-              "kind": "removed",
-              "text": "All items have been distributed to AFOAI branches."
-            },
-            {
-              "kind": "added",
-              "text": "1 to AFOAI branches."
-            },
-            {
-              "kind": "removed",
-              "text": "NO."
-            },
-            {
-              "kind": "added",
-              "text": "3."
-            },
-            {
-              "kind": "removed",
-              "text": "1 3."
-            },
-            {
-              "kind": "added",
-              "text": "Item USAFE 14 has been distributed to CIFT, AMC,+ armament Intelligence Branch, DCS/M."
-            },
-            {
-              "kind": "removed",
-              "text": "Item USAFE 14 has been distributed to CIA, AMC, + armament Intelligence Branch, DC5/M."
-            },
-            {
-              "kind": "equal",
-              "text": "4. Item USAFE 16 has been distributed to OIR-SR. USE OTHER SIDE THIS SHEET FOR ADDITIONAL REMARKS CO-12 d. TO BR. TO TO DIV."
-            },
-            {
-              "kind": "removed",
-              "text": "TO TO DIR/INT TO DOWN UP DOWN UP DOWN UP OIP-PP } OIP-FL } _______ AFOIP _______ _______ ASST EXEC _______ ADMIN } OIR-CO [ILLEGIBLE] _______ ASST EXEC [ILLEGIBLE] OIR-DD } OIR-AA } _______ AFOIR [ILLEGIBLE]_ OIR-CM } [ILLEGIBLE] OIR-RC } 8 NOV _______ EXECUTIVE [ILLEGIBLE] OAI-OA } OAI-DA } _______ DIR/INT [ILLEGIBLE] OAI-AE } _______ AFOAI _______ OAI-AF } OAI-SV } OCI-IS } OCI-RR } _______ AFOCI _______ OCI-CI } ......"
-            },
-            {
-              "kind": "added",
-              "text": "TO TO DIR/INT TO DOWN UP DOWN UP DOWN UP _____ OIP-PP _____ _____ OIP-FL _____ } _____ AFOIP _____ _____ ASST EXEC _____ _____ ADMIN _____ _____ OIR-CO Deo _____ ASST EXEC 3/8 _____ OIR-DD _____ 10 Nov _____ OIR-AA _____ } _____ AFOIR Ivvo _____ OIR-CM _____ 686 _____ OIR-RC _____ 8 Nov _____ EXECUTIVE S444 1300 - 15 Nov _____ OAI-OA _____ _____ OAI-DA _____ _____ DIR/INT XO/C _____ OAI-AE _____ } _____ AFOAI _____ 1100 - 13 Nov _____ OAI-AF _____ _____ OAI-SV _____ _____ OCI-IS _____ _____ OCI-RR _____ } _____ AFOCI _____ _____ OCI-CI _____ _____ ......"
-            },
-            {
-              "kind": "removed",
-              "text": "} ......"
-            },
-            {
-              "kind": "added",
-              "text": "_____ _____ ......"
-            },
-            {
-              "kind": "removed",
-              "text": "} X Action ......"
-            },
-            {
-              "kind": "added",
-              "text": "_____ X Action _____ ......"
-            },
-            {
-              "kind": "removed",
-              "text": "} ......"
-            },
-            {
-              "kind": "added",
-              "text": "_____ _____ ......"
-            },
-            {
-              "kind": "modified",
-              "before": "} ✓ Coordination (376) e.",
-              "after": "_____ ✓ Coordination (376) e."
-            },
-            {
-              "kind": "modified",
-              "before": "DATE REC'D BR ___________ f.",
-              "after": "DATE REC'D BR ______________ f."
-            },
-            {
-              "kind": "modified",
-              "before": "DISPATCH _____________ FILE ACTION ASGD TO __________ DATE ________ DISPATCHED BY _________ TO _______ SIGNED [ILLEGIBLE] DATE ________ DATE DISPATCHED 8-3477, AF NW 90307 DocId:34714985 Page 2",
-              "after": "DISPATCH _____________ FILE ✓ ACTION ASGD TO ____________ DATE _______ DISPATCHED BY _____________ TO _______ SIGNED mayWork DATE _______ DATE DISPATCHED 8-3477, AF NW 90307 DocId:34714985 Page 2"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "modified",
-              "before": "SECRET [ILLEGIBLE] Cont # [ILLEGIBLE] USAF USAFE 2 TT 1524 SECRET 4 Nov 48 To Gen Cabell We now have one complete set of all reports prepared by special intelligence organization of the European Command from its conception to present date.",
-              "after": "SECRET [ILLEGIBLE] Comd # + [ILLEGIBLE] USAF USAFE 2 TT 1524 SECRET 4 Nov 48 To Gen Cabell We now have one complete set of all reports prepared by special intelligence organization of the European Command from its conception to present date."
-            },
-            {
-              "kind": "equal",
-              "text": "We are forwarding these reports for your inspection and final disposition. We are of the opinion that inspection of these reports will lend weight to arguments for allocating Air Force funds to this organization. Advise caution in utilizing these reports as most of them were forwarded as received. (END OF ITEM) SECRET NW 90307 DocId:34714985 Page 3"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "CONFIDENTIAL USAFE 10 TT 1524 CONFIDENTIAL 4 Nov 1948 From OI OB Following report on unidentified aircraft sighting comes from 307th Bomb Group which participated in operation daggar. Unidentified aircraft was sighted by three crews of the group at 1402Z 5 Sep 48 off west coast of Holland, 5155N/0355E. Altitude of all aircraft was 30,000 feet. When first sighted the unidentified A/C was cruising at a normal jet speed, heading 120 degrees. Soon after first seen, A/C began leaving smoke trails and condensation trails accompanied by sudden acceleration and then climb. Generall agreed by observers that it was a single jet propelled A/C employing probably rocket assists with tremendous reserve power, more than normal curising speed for jets of the 1947 variety. Never within identification range; its course did not indicate its purpose. Our evaluation of the above: B-2. (END OF ITEM) CONFIDENTIAL NW 90307 DocId:34714985 Page 4"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "TOP SECRET 2-5317 I.B."
-            },
-            {
-              "kind": "added",
-              "text": "TOP SECRET 2-5317 [ILLEGIBLE] Comd."
-            },
-            {
-              "kind": "removed",
-              "text": "Cont."
-            },
-            {
-              "kind": "added",
-              "text": "[ILLEGIBLE] [ILLEGIBLE]—Hq."
-            },
-            {
-              "kind": "modified",
-              "before": "# Il--Hq, USAF USAFE 14 TT 1524 TOP SECRET 4 Nov 1948 From OI OB For some time we have been concerned by the recurring reports on flying saucers.",
-              "after": "USAF USAFE 14 TT 1524 TOP SECRET 4 Nov 1948 From OI OB For some time we have been concerned by the recurring reports on flying saucers."
-            },
-            {
-              "kind": "equal",
-              "text": "They periodically continue to cop up; during the last week, one was observed hovering over Neubiberg Air Base for about thirty minutes. They have been reported by so many sources and from such a variety of places that we are convinced that they cannot be disregarded and must be explained on some basis which is perhaps slightly beyond the scope of our present intelligence thinking. When officers of this Directorate recently visited the Swedish Air Intelligence Service. This question was put to the Swedes. Their answer was that some reliable and fully technically qualified people have reached the conclusion that \"these phenomena are obviously the result of a high technical skill which cannot be credited to any presently known culture on earth.\" They are therefore assuming that these objects originate from some previously unknown or unidentified technology, possibly outside the earth. One of these objects was observed by a Swedish technical expert near his home on the edge of a lake. The object crashed or landed in the lake and he carefully noted its azimuth from his point of observation. Swedish intelligence was sufficiently confident in his observation that a naval salvage team was sent to the lake. Operations were underway during the visit of USAFE officers. Divers had discovered a previously uncharted crater on the floor of the lake. No further information is available, but we have been promised knowledge of the results. In their opinion, the observation was reliable, and they believe that the depression on the floor of the lake, which did not appear on current hydrographic charts, was in fact caused by a flying saucer. Although accepting this theory of the origin of these objects poses a whole new group of questions and puts much of our thinking in a changed light, we are inclined not to discredit entirely this somewhat spectacular theory, meantime keeping an open mind on the subject. What are your reactions?"
-            },
-            {
-              "kind": "modified",
-              "before": "T O P S E C R E T (END OF USAFE ITEM 14) TOP SECRET NW 90307 DocId:34714985 Page 5",
-              "after": "TOP SECRET (END OF USAFE ITEM 14) TOP SECRET NW 90307 DocId:34714985 Page 5"
-            }
-          ]
-        },
-        {
-          "page_no": 6,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "TOP SECRET He also knows of a Soviet-built radar set located near Kholomia Airfield (5 KM W of Airfield, near the town of Kholomia). This type set is called \"Redut\". He believes personnel of this set to be army, assigned to PVO, but is not certain. His regiment conducted flying cooperation exercises with the set, presumably to train the set operators, since the set was first located at Kholomia in Spring 1947. His aircraft, in October 1948, lost the set on such an exercise at a distance of 150 kilometers and altitude of 1200 meters. Following instructions, he then climbed to 3000 meters, when the set again picked him up. he states he believes this type set is standard throughout the PVO, and that he believes its maximum range to be 150 kilometers, because no training flights of greater distances were ever undertaken. Further details will be sought. All TU-2 of 63 Regt are fitted with IFF type S. CH. (C-4), located in the tail of the aircraft and operated by a switch in the radio operator's compartment."
-            },
-            {
-              "kind": "modified",
-              "before": "Further, experiments with airborne radar (A tail warning device) werecarried out in 1947 and TU-2 of his regiment.",
-              "after": "Further, experiments with airborne radar (a tail warning device) werecarried out in 1947 and TU-2 of his regiment."
-            },
-            {
-              "kind": "equal",
-              "text": "This equipment involved the installation of a small external array. Sets were removed after a few days of testing, but results were understood to have been satisfactory. On the subject of Kholomia Airfield, this field is currently apparently simply a level pasture, 600 meters N/S by 1400 meters E/W, but a paved runway is being constructed outside the north boundary of the airfield. No details are known to subject, as work has just commenced. The airfield currently has no installations; aircraft are parked in the open, and fuel is brought directly to the aircraft from the town of Kholomia (7 kilometers to the N) by tank trucks. Another interesting fact is the arrival of the TU-2 with only a crew of three, and without the dorsal turret machine gun in place (nor anyplace on the aircraft). Subject states that the air gunner sergeants who should occupy this fourth position are on duty with the regiment, but are engaged in fatigue details, and XXXX rarely carried on training flights. Subject believes the TU-2 to be manufactured in a factory in Moscow, and it is noted that a plaque in the aircraft stated that it had been produced in Factory No. 19. A fuller report will shortly be underway, based on interrogation conducted so far, and many more details are expected to be obtained in the next week or two, with both pilot and navigator being interrogated. (END USFA-1) TOP SECRET NW 90307 DocId:34714985 Page 6"
-            }
-          ]
-        },
-        {
-          "page_no": 7,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "SECRET USAFE 16 TT 1524 SECRET 4 Nov 48 CIC source reports that the Russians have ordered CSR Missions in foreign countries to purchase radar tubes in large quantities regardless of costs. Mission also instructed to purchase a complete radar set. (Eval C-3) (END OF ITEM) SECRET NW 90307 DocId:34714985 Page 7"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 135,
-        "added_words": 184,
-        "modified_sentences": 7,
-        "modified_pages": [
-          2,
-          3,
-          5,
-          6
-        ],
-        "first_change_page": 2,
-        "ocr_status": "complete",
-        "ocr_max_page": 7,
-        "total_pre_pages": 7
       }
     },
     "7d58f0cac741650a": {
@@ -64311,102 +63707,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 190,
         "total_pre_pages": 190
-      }
-    },
-    "9e2c2621d67dde12": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "OFFICIAL USE ONLY SP 1-NASC ISA FILE COPY EXECUTIVE OFFICE OF THE PRESIDENT N A T I O N A L A E R O N A U T I C S a n d S P A C E C O U N C I L WASHINGTON ┌─────────────────────────────────┐ │ DECLASSIFIED │ │ NNS 43955 1 │ │ By ARS, Date │ └─────────────────────────────────┘ July 18, 1963 MEMORANDUM FOR Mr."
-            },
-            {
-              "kind": "added",
-              "text": "OFFICIAL USE ONLY EXECUTIVE OFFICE OF THE PRESIDENT N A T I O N A L A E R O N A U T I C S and S P A C E C O U N C I L WASHINGTON DECLASSIFIED NND 93955 1 By _____ NARS, Date July 18, 1963 MEMORANDUM FOR Mr."
-            },
-            {
-              "kind": "equal",
-              "text": "Robert F. Packard Office of International Scientific Affairs Department of State Washington 25, D.C. SUBJECT: Thoughts on the Space Alien Race Question During recent discussions the question has occasionally, though rarely, arisen that perhaps we should consider the policy question of what to do if an alien intelligence is discovered in space. Some discussion of this occurred, as you will recall, during deliberations on BNSP Task I. This memo contains some miscellaneous thoughts on the question. The consensus of scientific view says, with quite good reasons, that the possibility of running across an alien intelligent race in our solar system is negligible. This is due primarily to the presumed unsuit- ability of conditions upon other planets to support life as we know it. The flying saucer advocates claim, of course, that the scientific viewpoint is nonsense, and that there is overwhelming evidence of such beings. In my own mind, I find it difficult to side with the flying saucer advocates, but the almost total impossibility envisioned by most scientists also is disturbing. Therefore, I present the problem in current perspective, as I see it. Up until a few decades ago it seemed very improbable that intelligent life existed anywhere outside of the solar system. The chief reasons for this were a combination of scientific theory, scientific knowledge, and religious belief. The most widely accepted scientific theory as to the formation of the solar planetary system held that it was a re- sult of the near collision of two stars."
-            },
-            {
-              "kind": "modified",
-              "before": "Since such a precise near-miss INTERNATIONAL SCIENTIFIC AFFAIRS ISA Signed OFFICIAL USE ONLY JUL 22, 1963 [ILLEGIBLE] Huntatt 7,8,9,10 11,12,1,2,3,4,5,6",
-              "after": "Since such a precise near-miss INTERNATIONAL SCIENTIFIC AFFAIRS ISA Signed JUL 22 1963 OFFICIAL USE ONLY [ILLEGIBLE] Huntett 7,8,9,10 11,12,1,2,3,4,5,6"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "OFFICIAL USE ONLY - 2 - of two stars would be an extremely rare event, it followed that there would be very few other planetary systems in the universe and, in- deed, perhaps this was the only one. Religious belief said, further- more, that life was a gift bestowed by God. This was a relatively undisputed point since no scientific data existed to bridge the gap between non-living and living materials. The situation today is vastly changed in these respects. The most widely held theory of stellar formation would predict the formation of planetary systems to be a natural consequence of stellar evolution. On this basis, most stars would possess planetary systems, and the number of habitable planets in our galaxy would be tremendous. Our biggest telescopes cannot resolve planets at the distances even of the nearest stars, so no direct confirmation is yet available. In my own mind, however, the wide prevalence of multiple stars is an overwhelm- ing hint in support of this theory. In addition, the biological sciences have almost completely traced a series of natural occurrences which lead from inanimate molecules to elementary living viruses. Thus, we have the current scientific theory and data not only that there are a huge number of planets in the galaxy, but that life is quite likely to arise spontaneously on a large number of these. This, of course, does not necessarily imply intelligent life. Modern theology is not necessarily incompatible with this. The description in Genesis of the Creation cer- tainly is a better picture of the current theory than of a stellar collision, and since God only spent seven days on this system, He has clearly had lots of time to create many more systems. Even granting a probable existence of much life in the galaxy, there is still the question of whether another intelligent race exists in our solar system. There are, of course, two methods of its establishment in our system. One of these is that it originated on some other planet, for instance, Mars. Some of the spectacular markings of Mars have been interpreted as indicating intelligence. In particular, the famous \"Canali\" are rather narrow, and always run from one prominent marking to another, frequently with round splotches at intersections. As far as I know, no one has discovered a \"Canali\" which goes nowhere. This has quite understandably stimulated much conversation. In fact, a number of decades ago, when scientists thought that any life on other stellar systems was very remote, they seemed to feel that intelligent life OFFICIAL USE ONLY"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "OFFICIAL USE ONLY - 3 - probably existed on our other planets. Some of the discussions about life on Mars at the turn of the century seem to indicate a strong urge to want to find intelligent life elsewhere. Today, the situation is completely reversed, and although intelligent life is considered quite probable among the stars, it is held to be quite unlikely within the solar system. We seem more eager to listen with Ozma than to look closely at Canali. One school of flying saucer advocates claims that the Martians have been mining our moon for natural resources for some time. At first thought, one would think they would rather mine earth. It is interesting to speculate, however, upon space flight from the point of view of a Martian. The escape speed of Mars is only 16,500 fps, and, of course, braking speed on our moon is less than 10,000 fps. Thus, Martians look- ing at earth would tend to view it the same way Terrestrials look at Jupiter. Our moon might not be less work to get to, since atmospheric braking to earth is possible, but would be very much easier to return from, while the energy requirements to go to and return from the surface of the earth might well be so high as to discourage interest, at least initially. Inter- estingly enough, even a normal high energy chemical rocket could make a trip from Mars to our moon at favorable times while carrying almost 10% of its gross weight in payload. Space flight starting from Mars, then, is a much easier prospect than starting from Terra. If a suitable refueling base had been painfully established on our moon, the operation could be done quite commendably with merely chemical energy. (The afore- mentioned high energy chemical rocket could carry at favorable times almost 50% payload back to Mars.) Of course, many flying saucer advo- cates claim that the discovery of both Martian moons within a week in the latter part of the Nineteenth Century indicates that they are large artificial space stations, otherwise they would have been found earlier. If we were to discover Martians on the moon, it would result in surprisingly little re- adjustment of our scientific thinking. The biggest question would be why they were there rather than among the Asteroids. In fact, if we were not as scientifically sure of ourselves as we are, three recent events would be hailed as broad hints of intelligent life on the moon. (1) The discovery of hot gasses eminating from the crater Alphonsus when the moon was supposedly dead. This would be considered evidence of civili- zation and, since Alphonsus is close to the visible edge, interpreted to mean that the other side of the moon was teaming with population which had begun OFFICIAL USE ONLY"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "OFFICIAL USE ONLY - 4 - to spill around to this side. (2) The infra-red scans which show hot spots. These would be interpreted as indications of cities or at least mining camps. (3) The fact that no lunar or planetary probe of signi- ficance has been successful, in spite of major efforts on the part of two very successful earth orbitfaring nations. It would be supposed that someone was denying us deep space. (The other-side-of-the-moon pictures from Lunik III show no details of consequence, and the same can be said of the data from Mariner II compared to what we had already known about Venus from earth-based measurements.) Should the Martians have colonized the moon without discovering nuclear energy, then they represent no real problem, and our current national policy would be made to order for the situation. If all of this were true, of course, I would expect the Martians to be scared to death of what they have seen recently on this planet, and would expect that the highest priority de- velopment program in the solar system is being conducted by the Atomic Energy Commission of Mars. Even if we are secure in our belief that intelligent life never would develop on Mars or some other solar planet, there is still the question of visitors to the solar system from other stellar systems. This is normally written off as an extremely low probability, due to the tremendous distances be- tween stars, and the Einstein limitation on travel faster than the speed of light. Therefore, even if there are a large number of intelligent life forms in the galaxy, and even if they are continuously searching for other races, the frequency of investigation of any stellar system would be only once in many thousand of years and contact would rarely, if ever, be achieved. It might never be achieved, since presumably intelligent races die out. (What happened to the planet whose pieces now are spread around the Asteroid Belt? Or, for that matter, why is Uranus lying on its side?) I am not sure that this travel restriction is quite as infallible as it sounds. I believe that it is possible with what we now know about nuclear energy to envision ships driven at half to three-quarters of the speed of light. This, since the galaxy is 100,000 light-years across, still does not make a search of the entire galaxy feasible within the life span of the average man. But suppose some race under pressure of population explosion were expanding as fast as technically feasible from star to star throughout the galaxy. If their ships averaged half the speed of light, and if, on the average, they stopped every 10 light-years for a twenty-year stay at a stellar system to deposit colonists, refuel, and build extra ships, they would only take two hundred thousand years, starting at the center of the galaxy, to spread OFFICIAL USE ONLY"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "OFFICIAL USE ONLY - 5 - throughout the whole system. Since the earliest known remains of man have recently been dated at approximately one million seven- hundred thousand years, a sustained drive for merely two hundred thousand years may not be unreasonable. Of course, if we were to run across representatives of this kind of interstellar race, they would not be nearly as tame as the previously hypothesized chemical Martians, and our policy would need to be revised accordingly. Fortunately, travel time restrictions would inhibit their ability to bring all forces to bear, in case we should develop differences of viewpoint. The third possibility, scientifically abhorrent, is that the Einstein theory may only be an approximation, and an alien race which actually travels faster than light exists. If we were to meet such a race, our policy had better be to negotiate fast, because the implications of their far better understanding and control of the fundamental forces of nature would be obvious. If all the scientific speculation were to turn out wrong and we were to stumble across an alien race, we would want to know as quickly as possible which of the three types I have indicated it was, as our diplomatic policy would damned well be influenced by the results. CONCLUSIONS Although all plausible scientific thinking suggests that we will not find any other intelligence race, the probability that we will is finite, and perhaps should not be completely ignored. Were we to find one, the question of whether it was a race with primitive chemical space flight, space flight equivalent to our best understanding of nuclear energy, or space flight based on physics beyond Einstein should be ascertained as rapidly as possible, since our policies would be affected in the most drastically possible way. In any event, a policy of the immediate burying of all Terrestrial hatchets would likely be in order. Even if we only found tame chemical Martians, or merely the debris from some intra- glactic survey mission, it would be a good idea to proceed on the assump- tion that the human race would finally have found a bigger problem than the ones it has created for itself. There likely is nothing to be done at OFFICIAL USE ONLY"
-            }
-          ]
-        },
-        {
-          "page_no": 6,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "OFFICIAL USE ONLY - 6 - the moment to prepare for these possibilities (the only body of writing on the subject available in an emergency is science fiction), because no one of consequence is going to take this rubbish seriously unless it happens. At that point, our policy will be determined in the tradi- tional manner of grand panic. Maxwell W."
-            },
-            {
-              "kind": "removed",
-              "text": "Hunter II [handwritten signature] Maxwell W."
-            },
-            {
-              "kind": "added",
-              "text": "Hunter II Maxwell W."
-            },
-            {
-              "kind": "equal",
-              "text": "Hunter, II Member, Professional Staff OFFICIAL USE ONLY"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 68,
-        "added_words": 59,
-        "modified_sentences": 1,
-        "modified_pages": [
-          1,
-          6
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 6,
-        "total_pre_pages": 6
       }
     },
     "9e677b8697685311": {
@@ -108488,874 +107788,6 @@
         "ocr_status": "complete",
         "ocr_max_page": 124,
         "total_pre_pages": 124
-      }
-    },
-    "e93f6997811954dc": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "FD-302 (Rev."
-            },
-            {
-              "kind": "modified",
-              "before": "5-8-10) -1 of 2- [REDACTED] / [REDACTED] FEDERAL BUREAU OF INVESTIGATION Date of entry 10/[REDACTED]/2023 ( [REDACTED] On September [REDACTED] 2023, [REDACTED] and [REDACTED] and FBI Special Agent [REDACTED] interviewed [REDACTED] [REDACTED] office and [REDACTED]- [REDACTED] cell), in Building [REDACTED] [REDACTED] [REDACTED] [REDACTED] the [REDACTED] and [REDACTED] supervisor sat in on the interview.",
-              "after": "5-8-10) - 1 of 2 - [REDACTED] / FEDERAL BUREAU OF INVESTIGATION Date of entry 10/[REDACTED]/2023 ( /[REDACTED] On September [REDACTED] 2023, [REDACTED] and [REDACTED] [REDACTED] and FBI Special Agent [REDACTED] interviewed [REDACTED] ( [REDACTED] office and [REDACTED] cell), in Building [REDACTED] [REDACTED] [REDACTED] [REDACTED] thee[REDACTED] and [REDACTED] supervisor sat in on the interview."
-            },
-            {
-              "kind": "modified",
-              "before": "After being advised of the identity of the interviewing agents and the nature of the interview, [REDACTED] [REDACTED] provided the following information: ( [REDACTED] [REDACTED] had been the [REDACTED] [REDACTED] / [REDACTED] at [REDACTED] for [REDACTED] years.",
-              "after": "After being advised of the identity of the interviewing agents and the nature of the interview, [REDACTED] [REDACTED] provided the following information: ( /[REDACTED] had been the [REDACTED] / [REDACTED] at [REDACTED] [REDACTED] for [REDACTED] years."
-            },
-            {
-              "kind": "modified",
-              "before": "( [REDACTED] On [REDACTED] September [REDACTED] 2023, [REDACTED] was with [REDACTED] contractors working on a special project with [REDACTED] She had restricted the air space in [REDACTED] [REDACTED] for the upcoming tests.",
-              "after": "( /[REDACTED] On [REDACTED] September [REDACTED] 2023, [REDACTED] was with [REDACTED] contractors working on a special project with [REDACTED] She had restricted the air spacee in[REDACTED] [REDACTED] for the upcoming tests."
-            },
-            {
-              "kind": "modified",
-              "before": "At 7:02 am, the contractors received the bases' standard [REDACTED] ( [REDACTED] brief, got into three vehicles, and began driving to the site they were going to use for testing.",
-              "after": "At 7:02 am, the contractors receivede the bases' standard [REDACTED] ( [REDACTED] brief, got into threee vehicles, and began driving to the site they were going to use for testing."
-            },
-            {
-              "kind": "modified",
-              "before": "( [REDACTED] [REDACTED] drove the first vehicle with [REDACTED] [REDACTED] as the front passenger.",
-              "after": "( /[REDACTED] drove the first vehicle with [REDACTED] [REDACTED] as the front passenger."
-            },
-            {
-              "kind": "modified",
-              "before": "[REDACTED] [REDACTED] contractors [REDACTED] [REDACTED] and [REDACTED] were in the second and third vehicles.",
-              "after": "[REDACTED] [REDACTED] contractors [REDACTED] [REDACTED] and [REDACTED] [REDACTED] were in the second ande third vehicles."
-            },
-            {
-              "kind": "modified",
-              "before": "( [REDACTED] Between 7:15 and 7:30 am, [REDACTED] drove down [REDACTED] [REDACTED] to a gate that restricted access to part of the [REDACTED] [REDACTED] attempted to open the gate remotely using a fob.",
-              "after": "( /[REDACTED] Between 7:15 and 7:30 am, [REDACTED] drove down [REDACTED] [REDACTED] to ae gate that restricted access to part of the [REDACTED] [REDACTED] attempted to opene the gate remotely using a fob."
-            },
-            {
-              "kind": "modified",
-              "before": "The gate opened just a little and then closed on three separate tries.",
-              "after": "The gate opened just a little and then closede on three separate tries."
-            },
-            {
-              "kind": "modified",
-              "before": "On the fourth attempt the gate opened completely and stayed open.",
-              "after": "On the fourth attempt the gate opened completelye and stayed open."
-            },
-            {
-              "kind": "modified",
-              "before": "There were no prior operational problems with that particular gate and there were no operating issues with the gate after September [REDACTED] ( [REDACTED] As [REDACTED] was driving through the gate she looked up and saw a [REDACTED] [REDACTED] [REDACTED] / [REDACTED] Investigation on 09/[REDACTED]/2023 at [REDACTED] United States (In Person) File # [REDACTED] Date drafted 10/[REDACTED]/2023 by [REDACTED] This document contains neither recommendations nor conclusions of the FBI.",
-              "after": "There were no prior operational problems with thate particular gate and there were no operating issues with the gate aftere September [REDACTED] ( /[REDACTED] As [REDACTED] was driving through the gate she looked up and saw ae [REDACTED] [REDACTED] [REDACTED] /[REDACTED] Investigation on 09/[REDACTED]/2023 at [REDACTED] United States (In Person) File # [REDACTED] Date drafted 10/[REDACTED]/2023 by [REDACTED] This document contains neither recommendations nor conclusions of the FBI."
-            },
-            {
-              "kind": "equal",
-              "text": "It is the property of the FBI and is loaned to your agency; it and its contents are not to be distributed outside your agency."
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "FD-302a (Rev."
-            },
-            {
-              "kind": "modified",
-              "before": "5-8-10) [REDACTED]/[REDACTED] [REDACTED]-[REDACTED]-[REDACTED] September [REDACTED] 2023 [REDACTED] [REDACTED] UAP Continuation of FD-302 of [REDACTED] , On 09/[REDACTED]/2023 , Page 2 of 2 cigar shaped object with an extremely bright light southwest of them approximately 500 to 3000 feet above the nearest tree line (agent note: the tree line was approximately one mile south west of [REDACTED] position).",
-              "after": "5-8-10) [REDACTED]/[REDACTED] [REDACTED] September [REDACTED] 2023 [REDACTED] UAP Continuation of FD-302 of [REDACTED] , On 09/[REDACTED]/2023 , Page 2 of 2 cigar shaped object with an extremely bright light southwest of them approximately 500 to 3000 feet above the nearest tree line (agent note: the tree line was approximately one mile south west of [REDACTED] position)."
-            },
-            {
-              "kind": "equal",
-              "text": "The object was already there when she looked up. The object was almost hovering, slowly moving from east to west. The light was an intense diamond white light with what appeared to be a ring around the light and was located on the eastern end of the object. The light was pointing south east and looking at it (the light) was like looking into the sun. The object was \"metallic bronze in color\" and was the length of two or three Blackhawk helicopters lined up nose to tail. The width of the object was approximately the width of one and a half Blackhawks but was hard to determine due the light on the object's eastern end which may have been obscuring part of the body. The object was completely silent."
-            },
-            {
-              "kind": "modified",
-              "before": "( [REDACTED]/[REDACTED] [REDACTED] was initially annoyed when she saw the object because she had restricted the ranges for the tests they were going to conduct that morning but then she realized the object was not an aircraft or drone.",
-              "after": "([REDACTED]/[REDACTED] [REDACTED] was initially annoyed when she saw the object because she had restricted the ranges for the tests they were going to conduct that morning but then she realized the object was not an aircraft or drone."
-            },
-            {
-              "kind": "equal",
-              "text": "[REDACTED] inched her vehicle forward while she and [REDACTED] watched the object. They watched the object for five to ten seconds and then the object just disappeared. The sky was clear with no clouds and the object did leave any contrails. [REDACTED] and [REDACTED] searched the sky but did not see the object again. [REDACTED] did not notice any interference with her vehicle's engine while the object was visible. She only observed the one object and felt it left when it saw them."
-            },
-            {
-              "kind": "modified",
-              "before": "( [REDACTED]/[REDACTED] [REDACTED] drove to the test site where [REDACTED] [REDACTED] who was a passenger in the second vehicle said he saw the object too.",
-              "after": "([REDACTED]/[REDACTED] [REDACTED] drove to the test site where [REDACTED] [REDACTED] who was a passenger in the second vehicle said he saw the object too."
-            },
-            {
-              "kind": "modified",
-              "before": "( [REDACTED]/[REDACTED] [REDACTED] would not have reported the object if she had seen it by herself.",
-              "after": "([REDACTED]/[REDACTED] [REDACTED] would not have reported the object if she had seen it by herself."
-            },
-            {
-              "kind": "equal",
-              "text": "Several of her co-workers subsequently made fun of her due to her report."
-            },
-            {
-              "kind": "modified",
-              "before": "( [REDACTED]/[REDACTED] No photos or video of the object were taken by [REDACTED] or the contractors.",
-              "after": "([REDACTED]/[REDACTED] No photos or video of the object were taken by [REDACTED] or the contractors."
-            },
-            {
-              "kind": "equal",
-              "text": "[REDACTED] had seen most of the aircraft and drones used by the US military during her fifteen years working at [REDACTED] [REDACTED] [REDACTED] and had never seen anything like the object she observed. [REDACTED]/[REDACTED]"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 0,
-        "added_words": 0,
-        "modified_sentences": 15,
-        "modified_pages": [
-          1,
-          2
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 2,
-        "total_pre_pages": 2
-      }
-    },
-    "ed585fe68e3c4e7e": {
-      "pages": [
-        {
-          "page_no": 1,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "5-2500 9-544 [REDACTED] SECRET [REDACTED] SECRET DECLASSIFIED Authority: NND 857013 NW 91377 DocId:34749009 Page 1"
-            },
-            {
-              "kind": "added",
-              "text": "5-2500 9-544 [REDACTED] SECRET DECLASSIFIED Authority: NND 857013 [REDACTED] SECRET NW 91377 Doc[ILLEGIBLE] Page 1"
-            }
-          ]
-        },
-        {
-          "page_no": 2,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "No.1 MAS. 02."
-            },
-            {
-              "kind": "removed",
-              "text": "of 2 MASTERS [REDACTED] SECRET (NOFORN) S-2909 CLASSIFICATION T.S."
-            },
-            {
-              "kind": "added",
-              "text": "of 2 MASTERS [REDACTED] SECRET CLASSIFICATION (NOFORN) 5-2509 P.S."
-            },
-            {
-              "kind": "removed",
-              "text": "Cont.# COUNTRY OF ACTIVITY REPORTING REPORT NO."
-            },
-            {
-              "kind": "added",
-              "text": "Cont.# APOIN,[ILLEGIBLE] USA COUNTRY OF ACTIVITY REPORTING CZECHOSLOVAKIA REPORT NO."
-            },
-            {
-              "kind": "removed",
-              "text": "(Leave blank) AFOIN,HQ USA CZECHOSLOVAKIA IR 193-55 T."
-            },
-            {
-              "kind": "added",
-              "text": "IR 193-55 (Leave blank) AIR INTELLIGENCE INFORMATION REPORT COUNTRY OR AREA REPORT CONCERNS USSR DATE OF INFORMATION 4 OCT."
-            },
-            {
-              "kind": "removed",
-              "text": "S."
-            },
-            {
-              "kind": "added",
-              "text": "55 T.S."
-            },
-            {
-              "kind": "equal",
-              "text": "Cont. No."
-            },
-            {
-              "kind": "removed",
-              "text": "AIR INTELLIGENCE INFORMATION REPORT [ILLEGIBLE] COUNTRY OR AREA REPORT CONCERNS DATE OF INFORMATION USSR 4 OCT."
-            },
-            {
-              "kind": "added",
-              "text": "[ILLEGIBLE] ACTIVITY SUBMITTING REPORT US AIR ATTACHE DATE OF COLLECTION 13 OCT."
-            },
-            {
-              "kind": "removed",
-              "text": "55 ACTIVITY SUBMITTING REPORT DATE OF COLLECTION SRI STATUS (If applicable) US AIR ATTACHE 13 OCT."
-            },
-            {
-              "kind": "added",
-              "text": "55 SRI STATUS-(If applicable) SRI NO."
-            },
-            {
-              "kind": "removed",
-              "text": "55 SRI NO."
-            },
-            {
-              "kind": "added",
-              "text": "FIC 6244 CANCELED/COMPLETE PREPARING INDIVIDUAL LT."
-            },
-            {
-              "kind": "removed",
-              "text": "TIC 0244 PREPARING INDIVIDUAL DATE OF REPORT CANCELLED/COMPLETE LT."
-            },
-            {
-              "kind": "equal",
-              "text": "COL. THOMAS S."
-            },
-            {
-              "kind": "removed",
-              "text": "RYAN 14 OCT."
-            },
-            {
-              "kind": "added",
-              "text": "RYAN DATE OF REPORT 14 OCT."
-            },
-            {
-              "kind": "equal",
-              "text": "55 SRI NO."
-            },
-            {
-              "kind": "removed",
-              "text": "CANCELLED/INCOMPLETE NAME OR DESCRIPTION OF SOURCE EVALUATION SRI NO."
-            },
-            {
-              "kind": "added",
-              "text": "CANCELED/INCOMPLETE SRI NO."
-            },
-            {
-              "kind": "removed",
-              "text": "LT."
-            },
-            {
-              "kind": "added",
-              "text": "NAME OR DESCRIPTION OF SOURCE LT."
-            },
-            {
-              "kind": "equal",
-              "text": "COL. E.U."
-            },
-            {
-              "kind": "modified",
-              "before": "HATHAWAY B- 2 ACTIVE ADDITIONAL INFORMATION ON (Date) REFERENCES (RAIB Subject, previous reports, etc., as applicable) BAIR 38; 272; 3A3; 13A13; 3A15.",
-              "after": "HATHAWAY EVALUATION B- 2 ADDITIONAL INFORMATION ON (Date) ACTIVE REFERENCES (BAIR Subject, previous reports, etc., as applicable) BAIR 3A; 2T2; 3A3; 13513; 3A15."
-            },
-            {
-              "kind": "equal",
-              "text": "USAIRA CABLE (TS) C-103 dtd 13 OCT. 55 SUBJECT (Descriptive title. Use individual reports for separate subjects) OBSERVATIONS OF TRAVELER IN USSR SUMMARY (Give summary which highlights the salient factors of narrative report. Begin narrative text on AF Form 112a unless report can be fully stated on AF Form 112. List inclosures, including number of copies) This report contains an eye witness account of the ascent and flight of an unconventional aircraft in the Trans Caucasus region of the USSR. This aircraft was reported by three highly reliable United States observers who were travelling by rail at the time of the sighting. The three observers were firmly convinced that they saw a genuine flying saucer or flying disc. Two sightings occurred at 1910 hours on 4 Oct."
-            },
-            {
-              "kind": "modified",
-              "before": "55 between AEJATI and ADZEHIJABOL, ten minutes by rail after departing AEJATI.",
-              "after": "55 between AWATY and ADZHLIABOL, ten minutes by rail after departing AWATY."
-            },
-            {
-              "kind": "modified",
-              "before": "One disc aircraft ascended almost vertically, at a relatively slow speed with its outer surface revolving slowly to the right, to an altitude of about 6000 feet where its speed then increased sharply as it headed north.",
-              "after": "One disc aircraft ascended almost vertically, at a relatively slow speed with its outer surface revolving slowly to the right, to an altitude of about 6000 foot where its speed then increased sharply as it headed north."
-            },
-            {
-              "kind": "equal",
-              "text": "The second flying disc was seen performing the same actions about one minute later."
-            },
-            {
-              "kind": "modified",
-              "before": "The take-off area was about 1-2 miles south of the rail line where two searchlight ___0___INCLS beams were seen pointing up almost vertically.",
-              "after": "The take-off area was about 1-2 miles south of the rail line where two searchlight ___0___ INCLS beams were seen pointing up almost vertically."
-            },
-            {
-              "kind": "equal",
-              "text": "All other observations given to USAIRA in Prague by the three visitors, 12-13 Oct 55, are presented in Part II. USAIRA COMMENT: The significance of this report re the USAF project \"Unidentified Flying Objects\" is remarkable and lends credence to many \"saucer\" reports. Thomas S. Ryan THOMAS S. RYAN, LT. COL."
-            },
-            {
-              "kind": "modified",
-              "before": "AIR ATTACHE DISTRIBUTION BY ORIGINATOR (Except USAF and 11in.",
-              "after": "AIR ATTACHE DISTRIBUTION BY ORIGINATOR (Except USAF and file."
-            },
-            {
-              "kind": "modified",
-              "before": "Indicate Buel M/or and copies W/o inclosures, if applicable) 1 -USAF | 1 -USAFE | This document consists of 9 pages 1 -USAIRA MOSCOW| Copy No.",
-              "after": "Indicate Dest W/os and copies W/o Inclosures, if applicable) 1 -USAF 1 -USAFE This document consists of 9 pages 1 -USAIRA MOSCOW Copy No."
-            },
-            {
-              "kind": "modified",
-              "before": "of Copies WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C., Section 793 and 794.",
-              "after": "_____ of [REDACTED] Copies WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C., Section 793 and 794."
-            },
-            {
-              "kind": "equal",
-              "text": "Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law."
-            },
-            {
-              "kind": "modified",
-              "before": "Classification cancelled or changed b AF FORM 112 REPLACES AF FORM 112..",
-              "after": "Classification canceled or changed b[ILLEGIBLE] AF FORM 15 SEP 64 112 REPLACES AF FORM 112."
-            },
-            {
-              "kind": "equal",
-              "text": "1 OCT 52."
-            },
-            {
-              "kind": "removed",
-              "text": "WHICH MAY BE USED 15 SEP 54 SECRET [REDACTED] SECRET Air Force-USAFE, Wibo, Ger-[ILLEGIBLE] CLASSIFICATION By: C/S Oct 43 fr CIN-2X1, s/Iueke."
-            },
-            {
-              "kind": "added",
-              "text": "WHICH MAY BE USED [REDACTED] SECRET CLASSIFICATION Air Force-USARE, [ILLEGIBLE] By aut[ILLEGIBLE] C/S Oct 83 fr CIN-2X1, s/Ineke."
-            },
-            {
-              "kind": "modified",
-              "before": "Date: 30 April 1959 NW 91377 [REDACTED] DocId:34749008 Page 2",
-              "after": "By: _______________ Date: 30 April 1959 NW 91377 [REDACTED] DocId:34749008 Page 2"
-            }
-          ]
-        },
-        {
-          "page_no": 3,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "No. 1 MAS. 02. SECRET (NOFORN) of 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO. US AIR ATTACHE IR 193-55 PAGE 2 OF 9 PAGES QUOTED below is the cable classified Top Secret which was sent to Hqs. USAF on 13 Oct 55."
-            },
-            {
-              "kind": "modified",
-              "before": "USAIRA control number is C-103 and text follows: \" NIACT.",
-              "after": "USAIRA control number is C-103 and text follows: \"NIACT."
-            },
-            {
-              "kind": "equal",
-              "text": "TO: DINTA, WASH. DC. NOFORN. USAF handle as OPERATIONAL IMMEDIATE. USAF CRYPTO PASS TO CINCUSAFE AND USAIRA MOSCOW. THREE RELIABLE US OBSERVERS, SENATOR RICHARD RUSSELL, LT. COL. E.U. HATHAWAY, ARMY, MR. RUBEN EFRON, VISITED PRAGUE 12-13 OCT. ARRIVING DIRECT FROM KIEV, VIA BAKU, TIFLIS, DNIEPERPETROVSK, BLACK SEA AREA, AND REPORTED FOLLOWING TO USAIRA AND USARMA.: ON 4 OCT."
-            },
-            {
-              "kind": "modified",
-              "before": "55 AT 1910 HOURS BETWEEN ATJATI AND ADZHLJABUL, TEN MINUTES BY RAIL AFTER DEPARTING ATJATI IN TRANS CAUCASUS REGION, TWO ROUND AND CIRCULAR UNCONVENTIONAL AIRCRAFT RESEMBLING FLYING DISCS OR FLYING SAUCERS WERE SEEN TAKING OFF ALMOST VERTICALLY ONE MINUTE APART.",
-              "after": "55 AT 1910 HOURS BETWEEN ATJATI AND ADZHIJABUL, TEN MINUTES BY RAIL AFTER DEPARTING ATJATI IN TRANS CAUCASUS REGION, TWO ROUND AND CIRCULAR UNCONVENTIONAL AIRCRAFT RESEMBLING FLYING DISCS OR FLYING SAUCERS WERE SEEN TAKING OFF ALMOST VERTICALLY ONE MINUTE APART."
-            },
-            {
-              "kind": "equal",
-              "text": "DISC AIRCRAFT ASCENDED NEAR DUSK WITH OUTER SURFACE REVOLVING SLOWLY TO RIGHT AND WITH TWO LIGHTS STATIONARY ON TOP NEAR MIDDLE PART. SPARKS OR FLAME SEEN COMING FROM AIRCRAFT. NO PROTRUSIONS SEEN ON AIRCRAFT WHICH PASSED OVER OBSERVERS' TRAIN. BOTH FLYING DISC AIRCRAFT ASCENDED RELATIVELY SLOWLY TO ABOUT 6000 FEET, THEN SPEED INCREASED SHARPLY IN HORIZONTAL FLIGHT BOTH ON NORTHERLY HEADING. FLYING ATTITUDE OF DISC REMAINED SAME DURING ASCENT AS IN CRUISE, LIKE A DISCUS IN FLIGHT. TWO OPERATING SEARCHLIGHTS POINTING ALMOST VERTICAL SEEN NEAR TAKEOFF AREA LOCATED ABOUT 1-2 MILES SOUTH OF RR LINE. AFTER SIGHTING SOVIET TRAINMEN BECAME EXCITED AND LOWERED CURTAINS AND REFUSED PERMISSION TO LOOK OUT WINDOWS. US OBSERVERS FIRMLY BELIEVE THESE UNCONVENTIONAL AIRCRAFT WERE GENUINE SAUCER OR DISC AIRCRAFT."
-            },
-            {
-              "kind": "modified",
-              "before": "USAIRA RATES INFO B-2.",
-              "after": "USAIRA RATES INTO B-2."
-            },
-            {
-              "kind": "modified",
-              "before": "ON 9 OCT.55 AT DNIEPERPETROVSK AIRFIELD, HATHAWAY REPORTED 42 STUBBY JET FIGHTERS NOT FAGOTS AND ONE MULTI JET BOMBER DESCRIBED AS: ONE HALF AGAIN AS LONG AS US COCOS 47; ENGINES CANVAS COVERED BURIED WING TYPE; CANOPY WELL FORWARD NEAR BLUNT NOSE; TRICYCLE GEAR; DEFINITE SWAYBACK SHAPE ON TOP OF FUSELAGE; SEVERELY SWEPT WINGS SET IN MIDDLE OF FUSELAGE AND LOCATED ALMOST MIDWAY FROM NOSE TO TAIL; TAILPLANE LOCATED LOW BENEATH BOTTOM LEVEL OF VERTICAL FIN; VERTICAL FIN SWEPT WITH SQUARE TOP; AND SILVER BULBOUS BULGE AT TAILCONE EXTENDING REARWARD OF RUDDER LINE.",
-              "after": "ON 9 OCT.55 AT DNIEPERPETROVSK AIRFIELD, HATHAWAY REPORTED 42 STUBBY JET FIGHTERS NOT FAGOTS AND ONE MULTI JET BOMBER DESCRIBED AS: ONE HALF AGAIN AS LONG AS US COCOA 47; ENGINES CANVAS COVERED BURIED WING TYPE; CANOPY WELL FORWARD NEAR BLUNT NOSE; TRICYCLE GEAR; DEFINITE SWAYBACK SHAPE ON TOP OF FUSELAGE; SEVERELY SWEPT WINGS SET IN MIDDLE OF FUSELAGE AND LOCATED ALMOST MIDWAY FROM NOSE TO TAIL; TAILPLANE LOCATED LOW BENEATH BOTTOM LEVEL OF VERTICAL FIN; VERTICAL FIN SWEPT WITH SQUARE TOP; AND SILVER BULBOUS BULGE AT TAILCONE EXTENDING REARWARD OF RUDDER LINE."
-            },
-            {
-              "kind": "equal",
-              "text": "DNIEPERPETROVSK AIRFIELD WAS GRASS SOD. AT BAKU LONG TRAIN LOADED WITH MANY PLATOON SIZE LANDING CRAFT. 42 KILOMETERS FROM MOSCOW ON MOSCOW TO MINSK HIGHWAY,250 YARDS TO RIGHT OF ROAD, PARTY SIGHTED RADAR SITE TENTATIVELY IDENTIFIED HERE AS ONE WOODGAGE OR GAGE AND ONE SQUARE POLE FREYA. RECOMMEND COMPLETE DEBRIEFING OF RUSSELL GROUP UPON RETURN AND SUGGEST COMMENDATION FROM D/I FOR EFFORTS."
-            },
-            {
-              "kind": "modified",
-              "before": "RUSSELL GROUP DEPARTED PRAGUE ABOARD SWISSAIR FOR HOME 13 OCT.",
-              "after": "RUSSELL GROUP DEPARTED PRAGUE ABOARD SWAISSAIR FOR ROME 13 OCT."
-            },
-            {
-              "kind": "equal",
-              "text": "(Signed) T.S.RYAN.\" On 12 Oct. 1955 at about 2145 hours, Sen. Russell, Lt. Col. E.U. Hathaway, U.S. Army staff officer assigned to Senate Armed Forces Committee, and Mr. Ruben Efron, Committee Consultant, arrived at Wilson (Hlavni) Station in Prague, having come direct from Kiev."
-            },
-            {
-              "kind": "modified",
-              "before": "Their rail route from Kiev brought them to CCP, at the eastern border of Czechoslovakia, where they observed the RR gauge switching operation from the Russian broad gauge to the Czech standard guage.",
-              "after": "Their rail route from Kiev brought them to COP, at the eastern border of Czechoslovakia, where they observed the RR gauge switching operation from the Russian broad gauge to the Czech standard guage."
-            },
-            {
-              "kind": "equal",
-              "text": "Upon arrival at the RR Wilson Station, the Russell group was met by the acting Chief of Mission, Mr. Harold Vedler, and the USAIRA. We escorted the group to the US Residency where they were to spend the night. It was evident that they had seen much and had been to places in Russia and possibly in Czechoslovakia where US observers had not been, at least for a good many years. Sen. Russell stated that he had been in Prague once before in 1927, and was anxious to see some familiar places. After arrival at the Residency and dinner, Lt. Col. Hathaway expressed a desire to report something of the utmost importance to the USAIRA, \"something you may not believe, but something that we've been told by your people (USAF) doesn't exist.\" I suggested that we not discuss anything at the Residency WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U. S. C., Sections 793 and 794. Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law. It may not be reproduced in whole or in part, by other than United States Air Force Agencies, except by permission of the Director of Intelligence, USAF. AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 48, CLASSIFICATION (SECURITY INFORMATION when filled in) WHICH MAY BE USED. SECRET U. S."
-            },
-            {
-              "kind": "modified",
-              "before": "GOVERNMENT PRINTING OFFICE 16—08470-1 NW 91377 [REDACTED] DocId:34749008 Page 3",
-              "after": "GOVERNMENT PRINTING OFFICE 18—60470-1 NW 91377 DocID:34749008 Page 3"
-            }
-          ]
-        },
-        {
-          "page_no": 4,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "No. 1 MASTER 02."
-            },
-            {
-              "kind": "modified",
-              "before": "SECRET (NOFORN) OF 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO.",
-              "after": "SECRET (NOFORN) of 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO."
-            },
-            {
-              "kind": "modified",
-              "before": "US AIR ATTACHE IR 193-55 PAGE 3 OF 9 PAGES because of the absence of security precautions but suggested that we meet early the next morning in my office together with Col.",
-              "after": "PAGE OF PAGES US AIR ATTACHE IR 193-55 3 9 because of the absence of security precautions but suggested that we meet early the next morning in my office together with Col."
-            },
-            {
-              "kind": "equal",
-              "text": "Thomas Dooley , the US Army Attache. Lt. Col. Hathaway said he was anxious to report his observation and that he had witnesses, fortunately, in Sen. Russell and Mr. Efron. We met at 0900 on 13 Oct. in the larger office of the Army Attache and proceeded with the debriefing amid adequate safeguards for talking. Present were: Lt. Col. Hathaway, Mr. Efron, Col. Dooley and myself. Col. Dooley and I took notes and provided paper for sketches. Sen. Russell was busy with the Chief of Mission and was unable to attend."
-            },
-            {
-              "kind": "modified",
-              "before": "Due to the departure time of the group, we were unable to spend more than one hour talking, the interview ending about 1000.",
-              "after": "Due to the departure time of the group, we were unable to spend more than one hour talking, the interview ending about 1200."
-            },
-            {
-              "kind": "equal",
-              "text": "Col. Hathaway did most of the explaining and answering with Mr. Efron supplementing and adding support. Lt Col.Hathaway proved to be an excellent observer and Mr. Efron had kept detailed notes which he referred to for times and places. Hathaway led off with \"I doubt if you're going to believe this but we all saw it. Sen. Russell was the first to see this flying saucer and he called us to the window, and we both saw the second one (pointing to EFRON who nodded yes). We've been told for years that there isn't such a thing but all of us saw it, including Sen Russell. \" It was emphasized that Sen. Russell saw the first flying saucer or flying disc ascend and pass over the train on a northerly course, taking off from the left side of the train's direction, which places the take-off area on the south side of the RR line on which they were travelling. I stated that I don't disbelieve anything after having been in Czechoslovakia for 17 months. The following raw notes are quoted with my additional comments after: 1. \"Two flying saucer type aircraft were seen between two railway station stops after we left BAKU.\" 2."
-            },
-            {
-              "kind": "modified",
-              "before": "\"It was after we left ATJATY, we were there at 1900 and we saw the aircraft at 1910.",
-              "after": "\"It was after we left ADJAR, we were there at 1900 and we saw the aircraft at 1910."
-            },
-            {
-              "kind": "equal",
-              "text": "The next place we saw was ADZHIJABUL.\"(Efrons notes.) 3. \"They took off straight up and then the speed increased greatly as they moved straight ahead, horizontally, and disappeared to the right of the train.\" (Questioning revealed that the angle of ascent was not exactly \"straight up\" but rather in a slight arc just off the vertical line.) 4. \"The whole object whirred and then levelled and zoomed off at very high speed.\" (Questioning revealed that the outer surface of the object revolved slowly in a clockwise direction or to the right, with the rate of ascent being relatively slow in comparison to the high speed which the object took on at when it reached altitude.) 5. \" The take off was at an angle to about 2000 meters.\" (Both objects were said to have ascended almost vertically to an approximate altitude of 6000 feet before sharply increasing speed in level flight.) 6. \"They were seen out of window on left side of train.\" 7. \" Two searchlight were seen pointing at an angle near where the saucer took off.\" (The angle was nearly vertical and evidently, I gathered, that the angle of one searchlight beam was nearly vertical approximating the arc which the disc ascended to 6000 feet, while the second searchlight beam was pointing at another spot. Lack of time prevented complete clarification of the searchlight beams. Dusk was falling at the time of sighting.) 8. \"Some sparking or flame came out bottom as craft rose.\" 9. \"After we saw the two discs, the Soviet trainmen became excited, closing curtains and telling us that we were not allowed to look out of windows.\" (The behavior of the trainmen was such as to indicate that the US passengers had seen something that they were not supposed to see.) 10."
-            },
-            {
-              "kind": "modified",
-              "before": "\"Approximately one minute elapsed between the first and second takeoffs of the aircraft.\" (It was explained that Sen Russell had seen the WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.",
-              "after": "\"Approximately one minute elapsed between the first and second takeoffs of the aircraft.\" (It was explained that Sen Russell had seen the WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C., Sections 793 and 794."
-            },
-            {
-              "kind": "removed",
-              "text": "S. C., Sections 793 and 794."
-            },
-            {
-              "kind": "equal",
-              "text": "Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law. It may not be reproduced in whole or in part, by other than United States Air Force Agencies, except by permission of the Director of Intelligence, USAF."
-            },
-            {
-              "kind": "removed",
-              "text": "AF FORM REPLACES AF FORM 112-PART II, 1 JUN 48, CLASSIFICATION 1 OCT 52 112a WHICH MAY BE USED."
-            },
-            {
-              "kind": "added",
-              "text": "AF FORM REPLACES AF FORM 112-PART II, 1 JUN 48, CLASSIFICATION (SECURITY INFORMATION when filled in) 1 OCT 52 112a WHICH MAY BE USED."
-            },
-            {
-              "kind": "removed",
-              "text": "(SECURITY INFORMATION when filled in) U."
-            },
-            {
-              "kind": "added",
-              "text": "U."
-            },
-            {
-              "kind": "equal",
-              "text": "S. GOVERNMENT PRINTING OFFICE 16—56670-2 SECRET NW 91377 [REDACTED] DocID:34749008 Page 4"
-            }
-          ]
-        },
-        {
-          "page_no": 5,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "No.1 MASTER 02."
-            },
-            {
-              "kind": "modified",
-              "before": "SECRET(NOFORM) OF 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filed in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO.",
-              "after": "SECRET (NOFORM) OF 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO."
-            },
-            {
-              "kind": "modified",
-              "before": "US AIR ATTACHE IR 193-55 PAGE 4 OF 9 PAGES first flying object and recognized it as something drastically different rushing in to get Mr.",
-              "after": "PAGE US AIR ATTACHE IR 193-55 4 OF 9 PAGES first flying object and recognized it as something drastically different rushing in to get Mr."
-            },
-            {
-              "kind": "equal",
-              "text": "Efron and Col. Hathaway to see it. Col. Hathaway stated that he got to the window with the Senator in time to see the first while Mr. Efron said that he got only a short glimpse of the first due to crowding. However all three saw the second disc and all agreed that they saw the same round, disc shaped aircraft which was the same as the first.) 11. \"The take-off area was about one mile away, maybe a little further.\" (Searchlights were located in the same area.) 12. \"There were two lights towards the inside of the disc which remained stationary as the outer surface went around.\" (Both agreed firmly on this point.#) \"The lights sat near the top of the disc.\" (If a line representing the diameter of the disc were divided into three segments, the lights would have been located at the two points of division between the middle segment and the two outside segments ie. see sketch drawn with aid of Mr Efron: RELATIVE POSITION OF 2 LIGHTS 13. \"The aircraft was circular.\" \"The aircraft was round.\" \"It resembled a flying saucer.\" \"It seemed to be the shape of a discus, round and circular- revolving clockwise or to the right.\" (It was definitely round or at least circular in the eyes of these two observers, containing no protrusions or \"sticks\" or bulges. No estimate could be obtained from either observer re thickness or diameter. 14. \" There was no noticeable color\" (It was stated that dusk prevented any color impressions.) 15. \"After reaching 2000 meters, it whipped off at a great speed from our left to our right, or towards the north from the south.\" (Speed differential was very noticeable between ascent and level flight speed.) 16."
-            },
-            {
-              "kind": "modified",
-              "before": "\"We could see the take-off on the horizen to our left or south of our train.\" 17.",
-              "after": "\"We could see the take-off on the horizon to our left or south of our train.\" 17."
-            },
-            {
-              "kind": "modified",
-              "before": "\"Outer part revolved slowly to right.\" (There seemed to be a different impression of the disc's movement while climbing and after assuming level flight, with the terms\"revolving slowly\" used for the climb and the term \"whirring\" for the cruising flight.",
-              "after": "\"Outer part revolved slowly to right.\" (There seemed to be a different impression of the disc's movement while climbing and after assuming level flight, with the terms \"revolving slowly\" used for the climb and the term \"whirring\" for the cruising flight."
-            },
-            {
-              "kind": "equal",
-              "text": "18."
-            },
-            {
-              "kind": "modified",
-              "before": "\"The disc rose in the same position as it was in when it sped away.\" The flying attitude of the flying disc was said to resemble a discus in flight.) USAIRA COMMENT: I believe that further debriefing of all three US observers in a more relaxed atmosphere and with more time would produce much more valuable technical details than the hurried interview above.",
-              "after": "#\"The disc rose in the same position as it was in when it sped away.\" The flying attitude of the flying disc was said to resemble a discus in flight.) USAIRA COMMENT: I believe that further debriefing of all three US observers in a more relaxed atmosphere and with more time would produce much more valuable technical details than the hurried interview above."
-            },
-            {
-              "kind": "equal",
-              "text": "PART B."
-            },
-            {
-              "kind": "modified",
-              "before": "OBSERVATIONS AT BAKU A long RR train comprised of flat cars was seen outside of BAKU.",
-              "after": "OBSERVATIONS AT BAKU A long NE train comprised of flat cars was seen outside of BAKU."
-            },
-            {
-              "kind": "equal",
-              "text": "Each flatcar had one landing craft which was described by Col. Hathaway as being platoon size, with a slot in the rear for an outboard engine and the tops of the boats covered with canvas."
-            },
-            {
-              "kind": "modified",
-              "before": "Men were seen in the vicinity wearing a unique uniform which he could not recognize.",
-              "after": "Men were seen in the vicinity wearing a unique uniform which he could not recognise."
-            },
-            {
-              "kind": "equal",
-              "text": "One jet aircraft was seen flying high over Baku, too high for any type of identification. The party landed at Baku by aircraft, the civilian airfield being located an hour from the city. A military airfield WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U. S. C., Sections 793 and 794. Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law. It may not be reproduced in whole or in part, by other than United States Air Force Agencies, except by permission of the Director of Intelligence, USAF."
-            },
-            {
-              "kind": "modified",
-              "before": "AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 46, CLASSIFICATION (SECURITY INFORMATION when filed in) WHICH MAY BE USED.",
-              "after": "AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 45, CLASSIFICATION (SECURITY INFORMATION when filled in) WHICH MAY BE USED."
-            },
-            {
-              "kind": "equal",
-              "text": "SECRET U. S."
-            },
-            {
-              "kind": "modified",
-              "before": "GOVERNMENT PRINTING OFFICE 16--68470-1 NW 91377 [REDACTED] DocId:34749008 Page 5",
-              "after": "GOVERNMENT PRINTING OFFICE 10-60470-1 NW 91377 [REDACTED] Docld:34749008 Page 5"
-            }
-          ]
-        },
-        {
-          "page_no": 6,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "No. 1 MASTER 02."
-            },
-            {
-              "kind": "modified",
-              "before": "SECRET (NOFORN) of 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO.",
-              "after": "SECRET (NOFORN) OF 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO."
-            },
-            {
-              "kind": "removed",
-              "text": "PAGE 5 OF 9 PAGES U.S.A.I.R."
-            },
-            {
-              "kind": "added",
-              "text": "PAGE USAIR A IR 193-55 PAGE 5 OF 9 PAGES was passed on the outskirts of Baku on the way from the commercial field."
-            },
-            {
-              "kind": "removed",
-              "text": "A IR 193-55 was passed on the outskirts of Baku on the way from the commercial field."
-            },
-            {
-              "kind": "equal",
-              "text": "The Intourist guide stated that this was a military training airfield and Col. Hathaway recognized some dark green transports parked there. PART C. OBSERVATIONS AT DNIEPERPETROVSK AIRFIELD The three US observers arrived at Dnieperpetrovsk airfield sometime on 9 Oct. 55 by DC-3 type aircraft. The airfield is grass-sod. The parking ramp is of octagonal brick or cement (see sketch of jet bomber and ramp brick design on page 8 ). One jet bomber was parked at the airfield ( see description in text of cable and see profile sketch on page 8). Col. Hathaway counted 42 very stubby jet fighters parked at the field. The jet fighters were described as \"short, stubby, smaller and higher horizontal tailplane, wings more forward, canopy more forward.\" At the time of the description I was having Col. Hathaway compare the fighter he saw with a scale model of a FAGOT. He definitely did not think they were Fagots because of the fuselage being more stubby. (Sort of rules out Frescos of which I could use a model as I don't have any.) This is my reason for citing SRI TIC 6244, as the composite configuration concludes that the SRI fighter is one third smaller than the MIG-15. I did not have time to show the composite drawing to the observer but the possibility exists that his sighting was of the SRI composite type. Further debriefing should bring out more details. PART D. OBSERVATIONS NEAR MOSCOW The three observers were escorted to a place which Senator Russell had requested to see outside Moscow. On the way, exactly at the 42 kilometer signpost from Moscow on the Moscow to Minsk highway, on the right side of the road, there was a radar site (size unknown) with two radars. From the sketches of Col."
-            },
-            {
-              "kind": "modified",
-              "before": "Hathaway, they have been tentatively identified as one Woodgage or Gage and one square type the Freya.",
-              "after": "Hathaway, they have been tentatively identified as one Woodgage or Gage and one square type [ILLEGIBLE] Freya."
-            },
-            {
-              "kind": "equal",
-              "text": "(See sketch below): (Approx. 200-250 yards off side of road.) POLE [SKETCHES OF TWO RADAR INSTALLATIONS] PART E. OBSERVATIONS FROM TIFLIS TO SOCI. AT TIFLIS about the 5th of Oct. 55, Col."
-            },
-            {
-              "kind": "modified",
-              "before": "Hathaway sighted a large helecopter resembling a banana with two large, main rotors at each end and having many more windows than a banana type which he had seen in the USA.",
-              "after": "Hathaway sighted a large helicopter resembling a banana with two large, main rotors at each end and having many more windows than a banana type which he had seen in the USA."
-            },
-            {
-              "kind": "modified",
-              "before": "Between TIFLIS AND SOCI, on the Black Sea, while travelling by train, one of the most significant coincidences occurred, taking into account the observations which were reported in the ARJATX region.",
-              "after": "Between TIFLIS AND SOCI, on the Black Sea, while travelling by train, one of the most significant coincidences occurred, taking into account the observations which were reported in the ATJATY region."
-            },
-            {
-              "kind": "equal",
-              "text": "Sen. Russell's party made contact with a Russian who was about 55 years, named EGOROV. He was accompanied by a younger engineer who job was to keep EGOROV supplied with spirits. EGOROV was feeling pretty good when he met WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U. S. C., Sections 793 and 794."
-            },
-            {
-              "kind": "modified",
-              "before": "Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law.",
-              "after": "Its transmission or the revelation of its contents in any manner to an unauthorised person is prohibited by law."
-            },
-            {
-              "kind": "equal",
-              "text": "It may not be reproduced in whole or in part, by other than United States Air Force Agencies, except by permission of the Director of Intelligence, USAF. AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 48, CLASSIFICATION (SECURITY INFORMATION when filled in) WHICH MAY BE USED. U. S."
-            },
-            {
-              "kind": "removed",
-              "text": "GOVERNMENT PRINTING OFFICE 16-68479-1 SECRET NW 51377 [REDACTED] DocID:34749008 Page 6"
-            },
-            {
-              "kind": "added",
-              "text": "GOVERNMENT PRINTING OFFICE 16-68479-1 SECRET"
-            }
-          ]
-        },
-        {
-          "page_no": 7,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "No."
-            },
-            {
-              "kind": "removed",
-              "text": "1 MASTER 02."
-            },
-            {
-              "kind": "added",
-              "text": "1 MASTER OZ."
-            },
-            {
-              "kind": "equal",
-              "text": "SECRET (NOFORN) OF 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO. US AIR ATTACHE IR 193-55 PAGE 6 OF 9 PAGES the Americans and proceeded to continue the party with them."
-            },
-            {
-              "kind": "modified",
-              "before": "The history of EGOROV, according to Mr Efren, is that Egorov was one of the original pilots who made the trans-polar Russian flight to Washington State in 1935 or 36.",
-              "after": "The history of EGOROV, according to Mr Efron, is that Egorov was one of the original pilots who made the trans-polar Russian flight to Washington State in 1935 or 36."
-            },
-            {
-              "kind": "equal",
-              "text": "He told the party that he is now retired. He is a Hero of the Soviet Union and speaks fairly freely about the internal situation in the USSR. Sen."
-            },
-            {
-              "kind": "modified",
-              "before": "Russell attended an invitation for him to visit his office if he ever comes to the USA.",
-              "after": "Russell extended an invitation for him to visit his office if he ever comes to the USA."
-            },
-            {
-              "kind": "equal",
-              "text": "USAIRA COMMENT: It is difficult for me to believe that this experienced pilot in polar navigation would be retired and doing nothing but travelling around the Trans Caucasus region with a young engineer. Egorov stated that during World War II he had shot down 17 German aircraft. Col Hathaway observed, about 20 minutes outside of SOCI, a T-34 tank that had a muzzle brake on the gun, but looked very different from any he had seen during a combat tour in Korea. The tank was on a flatcar. PART F. OBSERVATIONS AT COP AND ABOUT CZECH RAILROADS The Russell group arrived at COP, the RR border crossing point between USSR and Czechoslovakia, early on the morning of 12 Oct. 55."
-            },
-            {
-              "kind": "modified",
-              "before": "About 1-2 hours later at 0630, they left COP and were on their way to Prague where they arrived at 0947 (on time) p.m.",
-              "after": "About 1-2 hours later at 0630, they left COP and were on their way to Prague where they arrived at 0947 (on time)p.m."
-            },
-            {
-              "kind": "equal",
-              "text": "(2147 hours). Upon arrival at COP, the train was broken up. One car was marked MOSCOW-BUCHAREST and was disconnected. Another car was marked MOSCOW-PRAGUE, the group's car, sleeper, and was disconnected and taken on a spur under a red star suspended on a border arch (probably marking border of Czechoslovakia) into a long building on the Czech side. This building was lighted and its length was such as to accomodate the car and two replacement trucks. The trucks for the new Czech RR guage were of the two axel type. The switching of trucks consumed 40-45 minutes for their sleeper car. There was an electric switch box or panel control on one side of the building. The passengers had to debark during the changing of the trucks. All other train cars were marked MOSCOW-COP. The switching building had a pit in the middle which the car straddled. Inside the sleeper there were two large square traps in the cars floor, one at either end. The first step was for the crew to open these doors and turn a large bar, which evidently released the truck from the body of the car. The second step was to apply large jacks at four points of the car on the outside, about at the position of the trucks, two jacks on a side. When the car was sufficiently jacked, the Czech guage trucks, which on the tracks forward of the car [REDACTED] on were the standard guage tracks of the Czech RR which were laid inside the Russian guage tracks, were pushed forward towards the sleeper."
-            },
-            {
-              "kind": "modified",
-              "before": "The Czech trucks banged the first Russian trucks out of place, continuing to the second Russian tracks and banging them out of place.",
-              "after": "The Czech trucks banged the first Russian trucks out of place, continuing to the second Russian trucks and banging them out of place."
-            },
-            {
-              "kind": "equal",
-              "text": "The jacked car was then ready to have the Czech trucks fastened. The jacks were lowered, letting the car down to the new standard guage trucks below. The crew then turned the bars through the floor openings locking the new trucks in place and the passengers were informed that they could board the car."
-            },
-            {
-              "kind": "modified",
-              "before": "(See sketch for USAIRA-Hathaway version of this operation.) The train departed COP at 0630, arr[ILLEGIBLE] at the first little Czech town ten minutes later, where on the rig[ILLEGIBLE]de of the RR, a \"big WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.",
-              "after": "(See sketch for USAIRA-Hathaway version of this operation.) The train departed COP at 0630, arrived at the first little Czech town ten minutes later, where on the right side of the RR, a \"big WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U."
-            },
-            {
-              "kind": "equal",
-              "text": "S. C., Sections 793 and 794. Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law. It may not be reproduced in whole or in part, by other than United States Air Force Agencies, except by permission of the Director of Intelligence, USAF. AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 48, CLASSIFICATION (SECURITY INFORMATION when filled in) WHICH MAY BE USED."
-            },
-            {
-              "kind": "removed",
-              "text": "SECRET U."
-            },
-            {
-              "kind": "added",
-              "text": "U."
-            },
-            {
-              "kind": "equal",
-              "text": "S."
-            },
-            {
-              "kind": "modified",
-              "before": "GOVERNMENT PRINTING OFFICE 16--55370-1 NW 91377 [REDACTED] DocId:34749008 Page 7",
-              "after": "GOVERNMENT PRINTING OFFICE 16--68870-1 SECRET NW 91377 [REDACTED] DocId:34749008 Page 7"
-            }
-          ]
-        },
-        {
-          "page_no": 8,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "No.1 MASTER OZ."
-            },
-            {
-              "kind": "modified",
-              "before": "SECRET (NOFORN) OF 2 MASTERS CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO.",
-              "after": "OF 2 MASTERS SECRET (NOFORN) CLASSIFICATION (SECURITY INFORMATION when filled in) SUPPLEMENT TO AF FORM 112 ORIGINATING AGENCY REPORT NO."
-            },
-            {
-              "kind": "modified",
-              "before": "US AIR ATTACHE IR 193-55 PAGE 7 OF 9 PAGES factory was on the right which was thought to be producing long, aluminum RR cars.",
-              "after": "US AIR ATTACHE IR 193-55 PAGE 7 OF 9 PAGES factory was on the right\" which was thought to be producing long, aluminum RR cars."
-            },
-            {
-              "kind": "equal",
-              "text": "Aluminum RR cars were seen on the siding and the observer believed that these were the plants product. Proceeding through the area on the Czech side of the border after leaving COP, Col. Hathaway observed very large RR marshaling yards with tracks stretching as far as he could see on both sides of his track. Guard towers were manned and located in the huge RR yards. There were 5 tracks at the border branching into many in the yards."
-            },
-            {
-              "kind": "modified",
-              "before": "As he went through the yards he observed that on his left side were loaded or full - freight cars, while on his right were all the empty freight cars, \"as far as could be seen.\" The RR route which the party travelled from COP was through KOSICE- POPRAD- ZELINA.",
-              "after": "As he went through the yards he observed that on his left side were loaded or full - freight cars, while on his right were all the empty freight cars, \"as far - as could be seen.\" The RR route which the party travelled from COP was through KOSICE- POPRAD- ZELINA."
-            },
-            {
-              "kind": "equal",
-              "text": "The observer stated that electrification began at a little town shortly after the first little town which was reached ten minutes after COP. From Cop to Kosice, Hathaway believed that there were two tracks and possibly three. From Kosice on Hathaway stated that construction was going on through the mountains, the construction crews using a prefabricated technique. Piled up alongside of the right of way were prefabricated track sections with \"rails already hooked to sleepers.\" Little buildings were spotted along the right of way where this prefabrication was taking place. Cable reels and stacks of metal towers were seen, the towers being rusty. He believed that electrification was nearly completed all the way although his train was being pulled by a steam engine. Just at dark, location enroute unknown, Hathaway passed by an area approximately one mile long with guard towers and a high fence. USAIRA COMMENT: Due to the time available for debriefing and the physical limitations of our office in Prague, no more can be reported from these excellent sources. END J.S."
-            },
-            {
-              "kind": "modified",
-              "before": "Ryan Lt Col USAF DECLASSIFIED Authority NND 857013 By BT NARA, Date 11-12-9[ILLEGIBLE] REPRODUCTION OF THIS DOCUMENT IN WHOLE OR IN PART IS PROHIBITED EXCEPT WITH PERMISSION OF THE ISSUING OFFICE WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.",
-              "after": "Ryan Lt Col USAF DECLASSIFIED Authority NND859013 By BT NARA, Date 11-12-93 REPRODUCTION OF THIS DOCUMENT IN WHOLE OR IN PART IS PROHIBITED EXCEPT WITH PERMISSION OF THE ISSUING OFFICE WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U."
-            },
-            {
-              "kind": "equal",
-              "text": "S. C., Sections 793 and 794. Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law. It may not be reproduced in whole or in part, by other than United States Air Force Agencies, except by permission of the Director of Intelligence, USAF. AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 48, CLASSIFICATION (SECURITY INFORMATION when filled in) WHICH MAY BE USED. SECRET U. S."
-            },
-            {
-              "kind": "modified",
-              "before": "GOVERNMENT PRINTING OFFICE 16-68470-1 NW 91377 [REDACTED] DocId:34749008 Page 8",
-              "after": "GOVERNMENT PRINTING OFFICE 16—60670-1 NW 91377 DocID:34749008 Page 8"
-            }
-          ]
-        },
-        {
-          "page_no": 9,
-          "segments": [
-            {
-              "kind": "equal",
-              "text": "DNIEPERPETROVSK AIRFIELD JET BOMBER PROFILE — 9 OCT."
-            },
-            {
-              "kind": "removed",
-              "text": "55 COCKPIT CANVAS SET FORWARD COVERED SWAYBACK APPEARANCE HERE SILVER (NOT GLASS) BULGE ←NOSE JET SEVERE WHEEL ENGINES SWEEP LOW SET TAIL PLANE CANVAS TO MID-WING COVERED ON WINGS DESIGN → OF BRICK ON RAMP AT AIRFIELD —ASPHALT SEAMS No."
-            },
-            {
-              "kind": "added",
-              "text": "55 COCKPIT CANVAS SET FORWARD COVERED SWAYBACK APPEARANCE HERE SILVER (NOT GLASS) BULGE LOW SET TAIL PLANE NOSE JET WHEEL ENGINES SEVERE CANVAS SWEEP COVERED TO MID-WING ON WINGS DESIGN OF BRICK ON RAMP AT AIRFIELD —ASPHALT SEAMS [octagon shape drawn] CLASSIFICATION: SECRET (NOFORN) (SECURITY INFORMATION when filed in) ORIGINATING AGENCY: U.S."
-            },
-            {
-              "kind": "added",
-              "text": "AIRA SUPPLEMENT TO AF FORM 112 REPORT NO.: IR 193-55 PAGE 8 of 9 PAGES No."
-            },
-            {
-              "kind": "equal",
-              "text": "1 MASTER 02."
-            },
-            {
-              "kind": "removed",
-              "text": "of 2 MASTERS SUPPLEMENT TO AF FORM 112 REPORT NO."
-            },
-            {
-              "kind": "added",
-              "text": "of 2 MASTERS WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C."
-            },
-            {
-              "kind": "removed",
-              "text": "1R 193-55 PAGE 8 of 9 PAGES ORIGINATING AGENCY U.S."
-            },
-            {
-              "kind": "added",
-              "text": "Sections 793 and 794."
-            },
-            {
-              "kind": "removed",
-              "text": "AIRA CLASSIFICATION SECRET (NOFORN) (SECURITY INFORMATION when filled in) WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C., Sections 793 and 794."
-            },
-            {
-              "kind": "equal",
-              "text": "Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law. It may not be reproduced in whole or in part, by other than United States Air Force Agencies, except by permission of the Director of Intelligence, USAF."
-            },
-            {
-              "kind": "removed",
-              "text": "CLASSIFICATION [ILLEGIBLE] (SECURITY INFORMATION when filled in) [ILLEGIBLE] AF FORM 112a REPLACES AF FORM 112-PART h, 1 JUN 46, 1 OCT 52 WHICH MAY BE USED."
-            },
-            {
-              "kind": "added",
-              "text": "(SECURITY INFORMATION when filed in) AF FORM 112a REPLACES AF FORM 112-PART II, 1 JUN 48, 1 OCT 52 WHICH MAY BE USED."
-            },
-            {
-              "kind": "modified",
-              "before": "NW 91377 DocId:34749008 Page 8",
-              "after": "NW 51377 DocId:32472008 Page:8"
-            }
-          ]
-        },
-        {
-          "page_no": 10,
-          "segments": [
-            {
-              "kind": "removed",
-              "text": "DIAGRAM OF RR GUAGE SWITCHING OPERATION AT COP 12 OCT 1955 BUILDING OUTLINE \"----\" WITH SIDING INSIDE FLOOR TRAP DOOR RUSSIAN BROAD GUAGE TRACK USSR ← CZECHOSLOVAKIA + COP PIT UNDER TRACKS [DIAGRAM OF RAILROAD TRACKS WITH COMPONENTS] CZECH RED STAR STANDARD CZECH RR OVER TRACK GUAGE TRUCKS (PROBABLE TRACK ARE PUSHED OFFICIAL TO RUSSIAN BORDER TRUCKS, MARKER) BANGING THEM IN RR SLEEPER CAR RUSSIAN DIRECTION MARKED ON SIDE GUAGE OF USSR \"MOSCOW - PRAGUE\" TRUCK FLOOR TRAP DOOR RUSSIAN GUAGE IN CONDUCTOR'S TRUCK COMPARTMENT WHERE TRUCK DISCONNECT BAR IS LOCATED No."
-            },
-            {
-              "kind": "added",
-              "text": "DIAGRAM OF RR GUAGE SWITCHING OPERATION AT COP 12 OCT 1955 BUILDING OUTLINE ---- WITH SIDING INSIDE FLOOR TRAP DOOR ← CZECHOSLOVAKIA PIT UNDER RUSSIAN TRACKS BROAD GUAGE USSR → TRACK + COP ←HH→ CZECH CZECH RR STANDARD TRUCKS GUAGE ARE PUSHED RED STAR TRACK TO RUSSIAN RUSSIAN OVER TRACK TRUCKS, GUAGE (PROBABLE BANGING TRUCK OFFICIAL THEM IN BORDER DIRECTION MARKER) OF USSR RR SLEEPER CAR MARKED ON SIDE \"MOSCOW - PRAGUE\" FLOOR RUSSIAN GUAGE TRAP DOOR TRUCK IN CONDUCTOR'S COMPARTMENT WHERE TRUCK DISCONNECT BAR IS LOCATED SECRET (NOFORN) (SECURITY INFORMATION when filed in) USAIRA SUPPLEMENT TO AF FORM 112 REPORT NO."
-            },
-            {
-              "kind": "added",
-              "text": "IR 193-55 PAGE 9 OF 9 PAGES No."
-            },
-            {
-              "kind": "equal",
-              "text": "1 MASTER OZ."
-            },
-            {
-              "kind": "removed",
-              "text": "OF 2 MASTERS SUPPLEMENT TO AF FORM 112 REPORT NO."
-            },
-            {
-              "kind": "added",
-              "text": "OF 2 MASTERS ORIGINATING AGENCY CLASSIFICATION AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 48, WHICH MAY BE USED."
-            },
-            {
-              "kind": "removed",
-              "text": "1P 193-55 PAGE 9 OF 9 ORIGINATING AGENCY USAIRA CLASSIFICATION SECRET (NOFORN) (SECURITY INFORMATION when filed in) SECURITY INFORMATION when filed in AF FORM 1 OCT 52 112a REPLACES AF FORM 112-PART II, 1 JUN 48, WHICH MAY BE USED."
-            },
-            {
-              "kind": "added",
-              "text": "NW 91377 DocId:34729008 Page 10"
-            },
-            {
-              "kind": "removed",
-              "text": "WARNING: This document contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C., Sections 793 and 794. Its transmission or the revelation of its contents in any manner to an unauthorized person is prohibited by law. It may not be reproduced in whole or in part, by other than United States Air Force agencies, except by permission of the Director of Intelligence, USAF. NW 91377 Doc#: 6347449008 Page 10"
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "removed_words": 561,
-        "added_words": 455,
-        "modified_sentences": 47,
-        "modified_pages": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10
-        ],
-        "first_change_page": 1,
-        "ocr_status": "complete",
-        "ocr_max_page": 10,
-        "total_pre_pages": 10
       }
     },
     "f42c11ca158aeffc": {

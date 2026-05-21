@@ -96,12 +96,43 @@ const itemListLd = itemListJsonLd(
       </p>
     </header>
 
-    {alteredRows.length === 0 ? (
+    <section class="border-2 border-[color:var(--color-signal-red)]/70 bg-[color:var(--color-signal-red)]/10 p-4 font-mono text-xs space-y-3">
+      <div class="uppercase tracking-[0.2em] text-[11px] text-[color:var(--color-signal-red)] font-semibold">
+        ● /ALTERED/ OFFLINE — UNDER OPERATOR REVIEW
+      </div>
+      <p class="text-[color:var(--color-text-bright)] leading-relaxed">
+        This surface has been temporarily withdrawn. Automated classification of
+        "real upstream content edit" vs "scan / re-encoding / re-OCR noise" did
+        not survive eyeball QC — the operator spot-checked 15 cards classified
+        as content-changed and found ~0 of them showed any actual content
+        difference. The PDF text layer can change when upstream re-runs their
+        own OCR on the same visible content, and Sonnet OCR on byte-different
+        rescans is not deterministic enough to safely distinguish noise from
+        edit at the page-level.
+      </p>
+      <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+        Next step: an operator-review tool (forthcoming) will surface each
+        multi-sha card side-by-side so any "altered" claim is operator-verified
+        before publication. Cards that pass review will return to this page;
+        the byte-history banner on individual <code>/card/&lt;id&gt;/</code> pages
+        keeps surfacing the underlying fact "bytes changed upstream"
+        independent of the content-vs-noise question.
+      </p>
+      <p class="text-[color:var(--color-text-faint)] leading-relaxed text-[11px]">
+        Existing per-card URLs (<code>/altered/&lt;card_id&gt;/</code>) still
+        resolve and are clearly marked "unconfirmed". The byte-history facts
+        — sha, file size, fetch dates, preserved archive links — are accurate
+        and continue to surface. Only the "real change" claim has been
+        withdrawn pending operator review.
+      </p>
+    </section>
+
+    {false && alteredRows.length === 0 ? (
       <p class="font-mono text-sm text-[color:var(--color-text-dim)]">
         <span class="text-[color:var(--color-signal-green)]">[CLEAN]</span> No
         upstream byte-edit events recorded.
       </p>
-    ) : (
+    ) : false && (
       <section class="space-y-2">
         <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
           <span class="text-[color:var(--color-signal-amber)]">{alteredRows.length}</span> card{alteredRows.length === 1 ? "" : "s"} affected

@@ -1,0 +1,343 @@
+---
+/**
+ * Operator-only review tool for /altered/ classification verdicts.
+ *
+ * Surfaces each multi-sha card from byte-history.json side-by-side
+ * (pre-edit + current PDFs as iframes), with the algorithmic
+ * classification as context, and lets the operator vote:
+ *   Y — confirmed real content change
+ *   N — no real change (re-OCR / re-encoding / scan noise)
+ *   ? — defer / unsure
+ *
+ * Verdicts persist to localStorage as you go. "Export verdicts"
+ * downloads a JSON file the operator commits to
+ * ``data/altered-operator-verdicts.json``; build_altered_diffs.py
+ * honors that file and only emits diffs for cards confirmed real.
+ *
+ * Not for public consumption: the page carries `<meta name="robots"
+ * content="noindex">` and an explicit operator-only banner.
+ */
+import Base from "../layouts/Base.astro";
+import byteHistoryJson from "../data/byte-history.json";
+import alteredDiffsJson from "../data/altered-diffs.json";
+import { cards } from "../data/manifest-loader";
+
+type ByteHistoryEntry = {
+  byte_sha256: string;
+  byte_size: number;
+  fetched_at: string;
+  archive_key: string;
+  asset_filename: string | null;
+  is_current: boolean;
+};
+
+type ClassificationEntry = {
+  class:
+    | "presentation_only"
+    | "content_changed"
+    | "no_text_layer"
+    | "asset_type_change";
+  visual_class?: "visually_identical" | "visually_changed" | "page_count_changed";
+  max_page_bit_diff?: number;
+  hash_size_bits?: number;
+};
+
+const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
+const classification =
+  (alteredDiffsJson as { classification?: Record<string, ClassificationEntry> })
+    .classification ?? {};
+const titlesByCardId: Record<string, string> = Object.fromEntries(
+  cards.map((c) => [c.card_id, c.title] as const),
+);
+
+// Build the review queue. Skip mp4/asset_type_change cards — those have
+// no text-comparable pre-edit, so operator review doesn't apply.
+type ReviewItem = {
+  card_id: string;
+  title: string;
+  cls: string;
+  visual_class: string;
+  max_bit_diff: number | null;
+  pre_archive_key: string;
+  post_archive_key: string;
+  pre_size: number;
+  post_size: number;
+  pre_fetched: string;
+  post_fetched: string;
+};
+const queue: ReviewItem[] = [];
+for (const card_id of Object.keys(byteHistory).sort()) {
+  const entries = byteHistory[card_id];
+  if (!entries || entries.length < 2) continue;
+  const cls = classification[card_id];
+  if (cls?.class === "asset_type_change") continue;
+  const current = entries[0];
+  const oldest = entries[entries.length - 1];
+  queue.push({
+    card_id,
+    title: titlesByCardId[card_id] ?? "(unknown title)",
+    cls: cls?.class ?? "unknown",
+    visual_class: cls?.visual_class ?? "—",
+    max_bit_diff: cls?.max_page_bit_diff ?? null,
+    pre_archive_key: oldest.archive_key,
+    post_archive_key: current.archive_key,
+    pre_size: oldest.byte_size,
+    post_size: current.byte_size,
+    pre_fetched: oldest.fetched_at,
+    post_fetched: current.fetched_at,
+  });
+}
+---
+
+<Base
+  title="Altered Review — Operator Only — PURSUE://INDEX"
+  active=""
+  noindex={true}
+>
+  <div class="space-y-4 max-w-7xl">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-3">
+      <h1 class="text-xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        /altered/ review — operator only
+      </h1>
+      <p class="text-xs text-[color:var(--color-text-dim)]">
+        Side-by-side PDF compare for each multi-sha card. Verdicts persist to
+        localStorage as you go. Export to JSON when finished; commit to
+        <code class="text-[color:var(--color-signal-cyan)]">data/altered-operator-verdicts.json</code>.
+      </p>
+    </header>
+
+    <section
+      id="progress"
+      class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-3 font-mono text-[11px] flex flex-wrap items-center gap-3"
+    >
+      <span class="text-[color:var(--color-text-dim)]">
+        Card <span id="idx-current" class="text-[color:var(--color-text-bright)]">—</span>
+        of <span id="idx-total" class="text-[color:var(--color-text-bright)]">{queue.length}</span>
+      </span>
+      <span class="text-[color:var(--color-text-faint)]">·</span>
+      <span class="text-[color:var(--color-text-dim)]">
+        Reviewed:
+        <span id="stat-y" class="text-[color:var(--color-signal-red)]">0</span> y /
+        <span id="stat-n" class="text-[color:var(--color-signal-green)]">0</span> n /
+        <span id="stat-s" class="text-[color:var(--color-signal-amber)]">0</span> ?
+      </span>
+      <span class="text-[color:var(--color-text-faint)] ml-auto">
+        Shortcuts: <kbd>Y</kbd> real / <kbd>N</kbd> no change / <kbd>S</kbd> skip /
+        <kbd>←</kbd> <kbd>→</kbd> nav
+      </span>
+    </section>
+
+    <section
+      id="review-card"
+      class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-3 font-mono text-xs space-y-3"
+    >
+      <header class="flex flex-wrap items-baseline gap-3 text-[11px]">
+        <span class="text-[color:var(--color-text-faint)] uppercase tracking-[0.2em]">CARD</span>
+        <code id="card-id" class="text-[color:var(--color-text-bright)]">—</code>
+        <a id="card-link" href="#" class="text-[color:var(--color-signal-cyan)] underline text-[10px]">/card/…</a>
+        <span class="text-[color:var(--color-text-faint)]">·</span>
+        <span id="card-title" class="text-[color:var(--color-text-dim)] truncate"></span>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div class="space-y-1">
+          <div class="flex items-baseline justify-between text-[10px] uppercase tracking-[0.2em]">
+            <span class="text-[color:var(--color-text-faint)]">PRE-EDIT</span>
+            <span id="pre-meta" class="text-[color:var(--color-text-dim)] normal-case tracking-normal"></span>
+          </div>
+          <iframe
+            id="pre-frame"
+            src="about:blank"
+            class="w-full h-[70vh] border border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]"
+            title="Pre-edit PDF"
+          ></iframe>
+        </div>
+        <div class="space-y-1">
+          <div class="flex items-baseline justify-between text-[10px] uppercase tracking-[0.2em]">
+            <span class="text-[color:var(--color-text-faint)]">CURRENT</span>
+            <span id="post-meta" class="text-[color:var(--color-text-dim)] normal-case tracking-normal"></span>
+          </div>
+          <iframe
+            id="post-frame"
+            src="about:blank"
+            class="w-full h-[70vh] border border-[color:var(--color-border)] bg-[color:var(--color-bg-deep)]"
+            title="Current PDF"
+          ></iframe>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-[color:var(--color-border)]">
+        <button
+          id="btn-real"
+          class="px-3 py-1.5 border border-[color:var(--color-signal-red)]/60 bg-[color:var(--color-signal-red)]/10 hover:bg-[color:var(--color-signal-red)]/20 text-[color:var(--color-signal-red)] font-mono text-[11px] uppercase tracking-[0.15em]"
+        >
+          ✓ Real change (Y)
+        </button>
+        <button
+          id="btn-none"
+          class="px-3 py-1.5 border border-[color:var(--color-signal-green)]/60 bg-[color:var(--color-signal-green)]/10 hover:bg-[color:var(--color-signal-green)]/20 text-[color:var(--color-signal-green)] font-mono text-[11px] uppercase tracking-[0.15em]"
+        >
+          ✗ No change (N)
+        </button>
+        <button
+          id="btn-skip"
+          class="px-3 py-1.5 border border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/10 hover:bg-[color:var(--color-signal-amber)]/20 text-[color:var(--color-signal-amber)] font-mono text-[11px] uppercase tracking-[0.15em]"
+        >
+          ? Skip / unsure (S)
+        </button>
+        <button
+          id="btn-prev"
+          class="px-3 py-1.5 border border-[color:var(--color-border)] hover:bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)] font-mono text-[11px]"
+        >
+          ← prev
+        </button>
+        <button
+          id="btn-next"
+          class="px-3 py-1.5 border border-[color:var(--color-border)] hover:bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-dim)] font-mono text-[11px]"
+        >
+          next →
+        </button>
+        <span class="text-[color:var(--color-text-faint)] text-[10px] ml-2">
+          Algorithmic class: <span id="card-class" class="text-[color:var(--color-text-dim)]"></span>
+          · max bit-diff: <span id="card-bitdiff" class="text-[color:var(--color-text-dim)]"></span>
+        </span>
+        <span id="current-verdict" class="ml-auto text-[10px] uppercase tracking-[0.2em]"></span>
+      </div>
+      <textarea
+        id="note-field"
+        rows="2"
+        placeholder="Optional note (saved with the verdict)"
+        class="w-full bg-[color:var(--color-bg-deep)] border border-[color:var(--color-border)] p-2 font-mono text-[11px] text-[color:var(--color-text-dim)] focus:outline-none focus:border-[color:var(--color-signal-cyan)]"
+      ></textarea>
+    </section>
+
+    <section class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-3 font-mono text-[11px] flex flex-wrap items-center gap-2">
+      <button
+        id="btn-export"
+        class="px-3 py-1.5 border border-[color:var(--color-signal-cyan)]/60 bg-[color:var(--color-signal-cyan)]/10 hover:bg-[color:var(--color-signal-cyan)]/20 text-[color:var(--color-signal-cyan)] font-mono text-[11px] uppercase tracking-[0.15em]"
+      >
+        ⬇ Export verdicts (JSON)
+      </button>
+      <button
+        id="btn-clear"
+        class="px-3 py-1.5 border border-[color:var(--color-border)] hover:bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-faint)] font-mono text-[11px]"
+      >
+        clear all
+      </button>
+      <span class="text-[color:var(--color-text-faint)] ml-2">
+        localStorage key: <code>altered_review_verdicts_v1</code>
+      </span>
+    </section>
+  </div>
+
+  <script set:html={`window.__REVIEW_QUEUE__ = ${JSON.stringify(queue)};`}></script>
+  <script type="module">
+    const queue = window.__REVIEW_QUEUE__ || [];
+    const LS_KEY = "altered_review_verdicts_v1";
+    let idx = 0;
+
+    function loadVerdicts() {
+      try { return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }
+      catch { return {}; }
+    }
+    function saveVerdicts(v) {
+      localStorage.setItem(LS_KEY, JSON.stringify(v));
+    }
+    function setVerdict(card_id, verdict, note) {
+      const v = loadVerdicts();
+      v[card_id] = {
+        verdict,
+        note: note || "",
+        recorded_at: new Date().toISOString(),
+      };
+      saveVerdicts(v);
+    }
+
+    const $ = (id) => document.getElementById(id);
+
+    function render() {
+      if (queue.length === 0) {
+        $("review-card").innerHTML = "<p>Nothing to review.</p>";
+        return;
+      }
+      idx = Math.max(0, Math.min(queue.length - 1, idx));
+      const item = queue[idx];
+      $("idx-current").textContent = (idx + 1).toString();
+      $("idx-total").textContent = queue.length.toString();
+      $("card-id").textContent = item.card_id;
+      $("card-title").textContent = item.title;
+      $("card-class").textContent = item.cls + (item.visual_class !== "—" ? " · " + item.visual_class : "");
+      $("card-bitdiff").textContent = item.max_bit_diff == null ? "n/a" : item.max_bit_diff + "/4096";
+      $("card-link").href = "/card/" + item.card_id + "/";
+      const fmtKB = (n) => (n / 1024).toFixed(1) + " KB";
+      $("pre-meta").textContent =
+        fmtKB(item.pre_size) + " · " + item.pre_fetched.slice(0, 10) + " · " + item.pre_archive_key;
+      $("post-meta").textContent =
+        fmtKB(item.post_size) + " · " + item.post_fetched.slice(0, 10) + " · " + item.post_archive_key;
+      $("pre-frame").src = "/" + item.pre_archive_key + "#view=FitH";
+      $("post-frame").src = "/" + item.post_archive_key + "#view=FitH";
+      const verdicts = loadVerdicts();
+      const v = verdicts[item.card_id];
+      $("note-field").value = v?.note || "";
+      $("current-verdict").innerHTML = v
+        ? (v.verdict === "real"
+            ? '<span class="text-[color:var(--color-signal-red)]">✓ real change</span>'
+            : v.verdict === "none"
+            ? '<span class="text-[color:var(--color-signal-green)]">✗ no change</span>'
+            : '<span class="text-[color:var(--color-signal-amber)]">? skipped</span>')
+        : '<span class="text-[color:var(--color-text-faint)]">no verdict</span>';
+      const counts = { real: 0, none: 0, skip: 0 };
+      for (const v of Object.values(verdicts)) {
+        counts[v.verdict] = (counts[v.verdict] || 0) + 1;
+      }
+      $("stat-y").textContent = (counts.real || 0).toString();
+      $("stat-n").textContent = (counts.none || 0).toString();
+      $("stat-s").textContent = (counts.skip || 0).toString();
+    }
+
+    function vote(verdict) {
+      const item = queue[idx];
+      setVerdict(item.card_id, verdict, $("note-field").value);
+      // Auto-advance unless on last card
+      if (idx < queue.length - 1) idx += 1;
+      render();
+    }
+
+    document.addEventListener("DOMContentLoaded", render);
+    $("btn-real").addEventListener("click", () => vote("real"));
+    $("btn-none").addEventListener("click", () => vote("none"));
+    $("btn-skip").addEventListener("click", () => vote("skip"));
+    $("btn-prev").addEventListener("click", () => { idx -= 1; render(); });
+    $("btn-next").addEventListener("click", () => { idx += 1; render(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") return;
+      if (e.key === "y" || e.key === "Y") vote("real");
+      else if (e.key === "n" || e.key === "N") vote("none");
+      else if (e.key === "s" || e.key === "S") vote("skip");
+      else if (e.key === "ArrowLeft") { idx -= 1; render(); }
+      else if (e.key === "ArrowRight") { idx += 1; render(); }
+    });
+    $("btn-export").addEventListener("click", () => {
+      const verdicts = loadVerdicts();
+      const blob = new Blob(
+        [JSON.stringify({
+          schema_version: 1,
+          exported_at: new Date().toISOString(),
+          verdicts,
+        }, null, 2)],
+        { type: "application/json" },
+      );
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "altered-operator-verdicts.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    $("btn-clear").addEventListener("click", () => {
+      if (confirm("Clear all verdicts? This cannot be undone.")) {
+        localStorage.removeItem(LS_KEY);
+        render();
+      }
+    });
+  </script>
+</Base>

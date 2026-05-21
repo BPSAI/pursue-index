@@ -38,11 +38,22 @@ DEFAULT_CLASSIFICATION = _REPO_ROOT / "data" / "altered-classification.json"
 _HASH_SIZE = 64
 
 # Per-page bit-diff threshold: pre/post hashes are considered "visually
-# equivalent" if the Hamming distance is < this. Tuned for 64x64
-# (4096 bits): 32 bits ≈ 0.8% of the image. Noise from re-rendering
-# typically lands below 10 bits; real content changes (added redaction
-# boxes, removed paragraphs) typically land well above 100.
-_PER_PAGE_BIT_THRESHOLD = 32
+# equivalent" if the Hamming distance is < this.
+#
+# Calibration (Sprint 4k-recal, against operator eyeball verification):
+#   - `48e4bc1bdb5a66e8` at max bit-diff 131/4096 → operator confirmed
+#     zero visible change (handwritten memo, scan re-encoding noise).
+#   - `e93f6997811954dc` at max bit-diff 294/4096 → operator confirmed
+#     a small real edit on the high-diff pages, but most pages identical.
+#   - Original threshold 32 was tuned against synthetic checkerboard
+#     tests, not real PDF rescans; produced ~80% false positives in
+#     production.
+#
+# 250 splits the calibration: 131 (zero change) is below; 294 (some
+# real change) is above. Conservative interpretation — cards above the
+# threshold MAY have real changes but the visual signal alone isn't
+# sufficient to confirm; downstream UI surfaces this as uncertain.
+_PER_PAGE_BIT_THRESHOLD = 250
 
 # Rasterization DPI. Lower than OCR's 200 (we don't need text-level
 # resolution for visual hashing); cuts time per page ~4x.
