@@ -1,6 +1,51 @@
 # Current State
 
-> Last updated: 2026-05-21 (Sprint 4j narrow scope LANDED — 70 altered PDF cards now have engine-matched pre-edit Sonnet OCR; `altered-diffs.json` regenerated and reflects real upstream content changes. Sprint 4i COMPLETE prior. One known follow-up: `7d58f0cac741650a` pre-edit OCR partial at 89/184 pages due to content filter; o4-mini retry queued for a future session.)
+> Last updated: 2026-05-21 (Sprint 4k QC stack LANDED across `1db41e6` / `68f949b` / `a48d9d5` / `2df12a7`. 34/79 altered cards confirmed bytes-only presentation changes (43%); 36 confirmed visually_changed with real OCR diff; 9 asset_type_change. Sprint 4k-C cross-witness o4-mini OCR deferred — marginal value low after the classification stack. Operator reviewing live site before next sprint.)
+
+## 2026-05-21 — Sprint 4k QC stack LANDED (4 commits)
+
+QC overhaul prompted by operator's question after Sprint 4j: "if bytes differ but content didn't, what actually changed?" The 4j engine-matched OCR diff was much cleaner but still showed apparent "OCR drift" on byte-different cards. Root cause was that Sonnet OCR of two byte-different PDFs is non-deterministic — even when content is visually identical, minor rasterization variance produces subtle OCR output differences. The classification stack below distinguishes "real upstream content edit" from "bytes-only presentation change with identical content" deterministically.
+
+### What landed
+
+| Sprint | Commit | What |
+|---|---|---|
+| 4k-A | `1db41e6` | PDF text-layer extraction + classification — `pypdfium2` extracts the embedded text layer from pre/post PDFs; sha256-compares after whitespace normalization. Buckets: `presentation_only` / `content_changed` / `no_text_layer` / `asset_type_change`. |
+| 4k-D | `68f949b` | Sentence-similarity threshold (0.85 char ratio) — replace ops in difflib pair sentences positionally; pairs above threshold collapse to `modified` segments with inline before/after, not removed+added. ~5,000 sentences moved out of removed/added counts. |
+| 4k-B | `a48d9d5` | Perceptual-hash visual classification — for `no_text_layer` cards (image-only PDFs), 64×64 average-hash per page at 100 DPI; max per-page Hamming distance < 32 / 4096 → `visually_identical`. |
+| 4k-QC | `2df12a7` | divona browser suite + 8 Python invariant tests + markdown sample-report generator. Also expanded visual classifier to process `content_changed` cards (catches text-layer-only metadata diffs where the rendered image is identical). |
+
+### Final classification distribution (79 altered cards)
+
+| Class | Count | UI banner |
+|---|---|---|
+| `presentation_only` (text-layer identical) | 4 | Green: "BYTES CHANGED — TEXT CONTENT IDENTICAL" |
+| `content_changed` + `visually_identical` (text-layer differs but rendered images identical = internal metadata change) | 8 | Green: "BYTES CHANGED — VISUALLY IDENTICAL" with note about internal-PDF change |
+| `no_text_layer` + `visually_identical` (image-only PDFs, hash within tolerance) | 22 | Green: "BYTES CHANGED — VISUALLY IDENTICAL" with bit-diff numerator |
+| `no_text_layer` + `visually_changed` (image-only with real visual delta) | 34 | Amber: "VISUAL CHANGE DETECTED" + OCR diff displayed |
+| `content_changed` + `visually_changed` (text + visual both differ) | 2 | Standard diff render |
+| `asset_type_change` (video → PDF swap) | 9 | "TEXT DIFF NOT AVAILABLE" with both archive links |
+
+So **34 of 79 cards (43%) confirmed bytes-only presentation changes**. The /altered/ surface now distinguishes "upstream re-export / metadata change / image re-encoding" from "real content edit" deterministically.
+
+### Operator spot-check results (post-4k)
+
+- `be533a4ab886eb11` (operator's original eyeball case): summary went 880/918 word delta → **0 removed / 0 added / 2 sentences edited in place**. The 2 modified sentences show inline before/after — both add `[REDACTED]` markers. Accurate reflection of the upstream change.
+- `8d0b85ce46109d06`: was showing 731/669 word delta post-Sprint-4j. Text-layer identical → classified `presentation_only`. Diff suppressed; green banner explains.
+- `0d7a23b29e6de1bf` (FBI Photo B008): image-only PDF, -78.7% file shrink, max per-page bit-diff 6/4096 → `visually_identical`. The "16 removed / 12 added" legacy diff is gone; banner reads "BYTES CHANGED — VISUALLY IDENTICAL".
+
+### QC infrastructure landed
+
+- `tests/integration/test_altered_classification_consistency.py` — 8 cross-consistency invariants between classification + altered-diffs files; runs in CI.
+- `.paircoder/qc/suites/altered.qc.yaml` — divona browser regression suite covering listing + one representative card from each bucket. Not yet dispatched.
+- `scripts/altered_qc_sample_report.py` — markdown sample-report generator; daily-stable seed; output at `data/altered-qc-report.md` (gitignored).
+- `.claude/skills/reviewing-code/SKILL.md` + `.claude/agents/nayru.md` (from earlier in session) — provenance-check bullet added to the review prompts so future PRs touching diff/comparison code get prompted to verify input compatibility.
+
+### Sprint 4k-C deferred
+
+The remaining work item — o4-mini cross-witness OCR on the 36 visually_changed cards — was scoped but not dispatched (~$50 spend, ~2h wall). Marginal value after the classification stack lands is lower than originally estimated. Revisit if eyeball QC surfaces specific cards where the OCR diff looks wrong on visually_changed cards.
+
+## 2026-05-21 — Sprint 4j narrow scope LANDED
 
 ## 2026-05-21 — Sprint 4j narrow scope LANDED
 
