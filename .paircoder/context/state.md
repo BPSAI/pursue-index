@@ -1,6 +1,69 @@
 # Current State
 
-> Last updated: 2026-05-20 (Sprint 4h MERGED as squash commit `a7b3dae`. OCR text-diff surface live for 79 altered cards — visitors can see exact sentence-level redactions per card. Reddit-post receipts ready.)
+> Last updated: 2026-05-20 (Sprint 4h MERGED + envelope-artifact hotfix `c19acdc` applied. Session-end handoff: clean working tree on main; sync with origin verified; next session picks up with Sprint 4i scope below.)
+
+## 2026-05-20 — SESSION HANDOFF
+
+### Sync state at handoff
+
+- Branch `main` at `c19acdc` (envelope-artifact hotfix); up to date with `origin/main`
+- Working tree clean
+- 0 open PRs on BPSAI/pursue-index
+- **2 stale local branches** with `[gone]` upstreams — first cleanup task next session:
+  ```
+  git branch -D sprint-4a-integrity-seo sprint-4b-polish-and-ops
+  ```
+- Sprint 4d/4e/4f/4g/4h all merged this session; all surfaces live on `https://pursueindex.com`
+
+### Open issues from this session (Sprint 4i candidates, priority-ordered)
+
+| # | Item | Estimated effort | Notes |
+|---|---|---|---|
+| **1** | **OCR retry on the 2 content-filter cards** (`7d58f0cac741650a` p87-184, `f85532f0514320be` p74-205) via `o4-mini` (frontier backstop) or `GLM-OCR` (local from VLM bake-off; ~$0). Each card has ~130 pages remaining. | 1-2h attended + ~$2-5 if o4-mini | Sprint 4h's per-card OCR INCOMPLETE banner will resolve once cleaned diff regenerates. Use `scripts/reocr_altered.py` with a new `--engine o4-mini` flag, OR write a tiny one-shot. |
+| **2** | **Root-cause parser fix** for the envelope artifact — `pursue_index/ocr/llm.py::_parse_response`. Should detect malformed-but-recoverable JSON envelopes (unescaped inner quotes) and fall back to regex extraction. Affects every future OCR run, not just Sprint 4h. | 1-2h | The hotfix script (`scripts/repair_altered_ocr_envelopes.py`) is a post-processing pass; this is the upstream fix that prevents recurrence. |
+| **3** | **Repo cleanup**: delete stale local branches above + `git remote prune origin` (low-risk; just hygiene) | 5 min | First action next session per operator note |
+| **4** | **Actual API token tracking** in `scripts/reocr_altered.py` — currently uses hardcoded 1500/600 estimate (~21% under-counts vs reality). nayru flagged on PR #72. Requires `pursue_index.ocr.llm.ocr_image` to return usage. | 30 min |
+| **5** | **OCR cache shareability** — `data/ocr/.llm-cache` is operator-local (`/mnt/nas/...`); a fresh checkout / CI runner would re-spend the $46. vaivora flagged on PR #72. Either commit the cache or document the NAS-pinning env var. | 30 min |
+| **6** | **JSON-LD on `/altered/[card_id]` pages** — currently no structured data on the diff pages. Other surfaces have it. Discoverability polish. | 30 min |
+| **7** | **CI size gate on `altered-diffs.json`** — laverna P3; current 9.3MB is fine, but if a future tranche triples the corpus the Astro build could OOM. | 15 min |
+| **8** | **Archive_key format assertion** in `fetch_r2_pdf` — laverna P3 defense-in-depth. Currently no app-layer validation before boto3 get_object. | 15 min |
+| **9** | **Pre-existing `apollo-17.png` test failure** on main — committed PNG is stale relative to the renderer. Verified failing pre-Sprint-4d. Just needs `python scripts/build_finds_og_images.py` + commit. | 5 min |
+| **10** | **Lint nits** from triad: unused imports, sort `__all__`, ruff UP035 `Callable` import, ruff N818 rename `CostCapExceeded` → `CostCapExceededError`, etc. | 30 min batch |
+
+### Other-project backlog (review next session before picking next sprint)
+
+After Sprint 4i housekeeping, the backlog review should consult:
+
+- **`.paircoder/plans/`** — local plans:
+  - `altered-ocr-diff.md` (Sprint 4h plan — now complete)
+  - `autonomous-finds-pipeline.md` — multi-week, ongoing API spend per tranche
+  - `incidents-map-clustering.md` — net-new `/map` surface, geographic browse
+  - `pursue-vision-augment.md` — Phase 2 VLM extraction (post-Sprint-6 work)
+  - `clean-quality-review.md`, `review-correct.md`, `black-vault-reference.md`, `display-date-curation.md`, `diff-page-arbitrary-pair-selection.md`
+- **`pursue-opsec-staging/findings/`** — cross-cutting:
+  - `2026-05-18-tier2-registry-signing-rfc.md` (Sprint 4e implementation; recommendation approved + landed)
+  - `2026-05-18-vlm-bakeoff-final.md` (Sprint 6.1 — canonical operated VLM answer)
+  - `2026-05-16-sprint-roadmap.md` (the multi-sprint roadmap; partially superseded by 4d-4h)
+
+### Reddit-post readiness assessment
+
+The receipts layer (Sprint 4g+4h) is live on prod:
+- `/altered/` lists 79 cards
+- `/altered/<card_id>/` per-card sentence-level diff
+- `/archive/<sha>.<ext>` content-addressed preserved bytes
+- Per-card banner on `/card/<id>/`
+
+**Recommended pre-post action: manually inspect the top-5 substantive-diff cards** before posting to confirm the diffs are real content changes (not artifacts). After the envelope hotfix, `8d0b85ce46109d06` dropped from 777/818 → 576/555 word delta — meaning real diff was inflated 35% by the artifact. Other affected cards likely similar.
+
+Headline candidates (need eyeball verification):
+- `13f86e95aed52840` (269pp, 39k/42k words delta — Section 6 re-pinned card)
+- `e897e67f95bc1e1b` (107pp, 35k/37k)
+- `8bfd94484138d59b` (246pp, 24k/28k)
+- `4844321219e306af` (167pp)
+
+After Sprint 4i #1 + #2 land (content-filter retry + parser root-cause), all 79 diffs will be fully clean and Reddit-post can fire.
+
+## 2026-05-20 — Sprint 4h MERGED (PR #72 → `a7b3dae`)
 
 ## 2026-05-20 — Sprint 4h MERGED (PR #72 → `a7b3dae`)
 
