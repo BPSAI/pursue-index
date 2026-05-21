@@ -2,9 +2,27 @@
 import Base from "../layouts/Base.astro";
 import { manifest } from "../data/manifest-loader";
 import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
+// CSV archive index — populated by web/scripts/build_csv_archive.mjs at
+// prebuild time. ES-import the JSON so it goes through Vite's loader
+// (same pattern the card-detail page uses for byte-history.json).
+import csvIndexJson from "../../public/data/csv/index.json";
 
 const sha = manifest.csv_sha256;
 const fetchedDate = new Date(manifest.fetched_at).toISOString().slice(0, 10);
+
+interface CsvIndexEntry {
+  sha256: string;
+  bytes: number;
+  archived_at: string;
+  url: string;
+}
+interface CsvIndex {
+  generated_at: string;
+  source_url: string;
+  source_notes: string;
+  csvs: CsvIndexEntry[];
+}
+const csvIndex = csvIndexJson as CsvIndex;
 
 const citeJsonLd = [
   articleJsonLd({
@@ -209,6 +227,85 @@ https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
             Source: U.S. Department of War PURSUE Release 01.}
 }`}</code></pre>
     </section>
+
+    {csvIndex && csvIndex.csvs.length > 0 && (
+      <section class="space-y-3 pt-4 border-t border-[color:var(--color-border)]">
+        <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+          ▸ Source CSV archive
+        </h2>
+        <p class="text-sm text-[color:var(--color-text)]">
+          Every distinct version of the upstream PURSUE CSV is preserved
+          here for citation reproducibility. The current manifest is
+          built from{" "}
+          <code class="text-[color:var(--color-signal-cyan)]">{csvIndex.csvs[0].sha256.slice(0, 16)}…</code>.
+          Each row shows the sha256 (load-bearing identifier), the byte
+          size, and the date we first archived that version.
+        </p>
+        <p class="text-xs text-[color:var(--color-text-dim)] leading-relaxed">
+          Upstream source:{" "}
+          <a
+            href={csvIndex.source_url}
+            target="_blank"
+            rel="noreferrer"
+            class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
+          >
+            {csvIndex.source_url}
+          </a>
+          . These are works of the U.S. Government in the public domain;
+          this archive provides a durable citation anchor.
+        </p>
+        <div class="overflow-x-auto border border-[color:var(--color-border)]">
+          <table class="w-full font-mono text-xs">
+            <thead class="bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">
+              <tr>
+                <th class="text-left px-3 py-2 text-[10px]">CSV sha256</th>
+                <th class="text-left px-3 py-2 text-[10px]">Bytes</th>
+                <th class="text-left px-3 py-2 text-[10px]">Archived</th>
+                <th class="text-left px-3 py-2 text-[10px]">Download</th>
+              </tr>
+            </thead>
+            <tbody>
+              {csvIndex.csvs.map((entry, i) => (
+                <tr class="border-t border-[color:var(--color-border)]">
+                  <td class="px-3 py-2">
+                    <code class="text-[10px] text-[color:var(--color-text-bright)]">{entry.sha256}</code>
+                    {i === 0 && (
+                      <span class="ml-2 text-[9px] uppercase tracking-[0.15em] text-[color:var(--color-signal-green)]">
+                        current
+                      </span>
+                    )}
+                  </td>
+                  <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap">
+                    {(entry.bytes / 1024).toFixed(1)} KB
+                  </td>
+                  <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap text-[10px]">
+                    {entry.archived_at.slice(0, 10)}
+                  </td>
+                  <td class="px-3 py-2">
+                    <a
+                      href={entry.url}
+                      download
+                      class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)] text-[10px]"
+                    >
+                      ⬇ {entry.sha256.slice(0, 12)}.csv
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-[color:var(--color-text-faint)]">
+          Machine-readable inventory:{" "}
+          <a href="/data/csv/index.json" class="text-[color:var(--color-signal-cyan)] underline">
+            /data/csv/index.json
+          </a>
+          . Verify any download with{" "}
+          <code>shasum -a 256 &lt;file&gt;</code> — the leading sha256
+          should match the row label.
+        </p>
+      </section>
+    )}
 
     <section class="space-y-3 pt-4 border-t border-[color:var(--color-border)]">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">

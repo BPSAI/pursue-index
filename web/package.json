@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/build_byte_history.mjs && node scripts/build_cards_summary.mjs && node scripts/build_llms_txt.mjs",
+    "prebuild": "node scripts/build_byte_history.mjs && node scripts/build_cards_summary.mjs && node scripts/build_llms_txt.mjs && node scripts/build_csv_archive.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
