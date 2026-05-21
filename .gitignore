@@ -146,7 +146,6 @@ agent_pack.tgz
 .claude/agent-memory/driver/feedback_oauth_for_anthropic.md
 
 # Launch comms drafts — kept locally only (the operator has working copies)
-docs/launch/hn-post.md
 docs/launch/journalist-outreach.md
 /.paircoder/qc/reports/
 

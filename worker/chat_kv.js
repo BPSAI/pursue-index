@@ -46,8 +46,9 @@ export async function checkRate(kv, ip, day = utcDay()) {
  * cache hits, which are free.
  *
  * Note: Workers KV doesn't have atomic INCR. We accept a tiny race window
- * between get and put — at HN scale the worst case is the limit ticking
- * to N+1 instead of stopping at N for a brief overlap, which is fine.
+ * between get and put — under high request volume the worst case is the
+ * limit ticking to N+1 instead of stopping at N for a brief overlap, which
+ * is fine.
  */
 export async function incrementRate(kv, ip, day = utcDay()) {  
   const key = rateKey(ip, day);

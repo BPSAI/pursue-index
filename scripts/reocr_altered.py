@@ -30,7 +30,7 @@ mid-card from the highest page number recorded so far. Operator can
 interrupt and resume without re-spending on completed pages.
 
 Cost-capped: ``--max-spend-usd`` (default $90 per state.md Sprint 6.2
-envelope) raises ``CostCapExceeded`` mid-run so a budget overrun
+envelope) raises ``CostCapExceededError`` mid-run so a budget overrun
 fails loud rather than silently consuming the cap.
 
 Reads R2 credentials from CF_ACCOUNT_ID + R2_ACCESS_KEY_ID +
@@ -43,9 +43,10 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPTS_DIR = _REPO_ROOT / "scripts"
@@ -70,8 +71,8 @@ DEFAULT_BUCKET = "pursue-pdfs"
 
 # Pure helpers + IO wrappers extracted to keep this file under the
 # architecture-rules file-size / function-count caps.
-from _reocr_helpers import (  # noqa: E402
-    CostCapExceeded,
+from _reocr_helpers import (  # noqa: E402, I001
+    CostCapExceededError,
     UsageTracker,
     append_jsonl as _append_jsonl,
     estimate_cost_usd,
@@ -83,13 +84,13 @@ from _reocr_helpers import (  # noqa: E402
 
 # Re-export for back-compat with tests + downstream consumers.
 __all__ = [
-    "CostCapExceeded",
+    "CostCapExceededError",
     "UsageTracker",
     "estimate_cost_usd",
+    "main",
+    "ocr_card",
     "resume_from_page",
     "select_ocr_targets",
-    "ocr_card",
-    "main",
 ]
 
 
@@ -109,7 +110,7 @@ def _ocr_pages_into_jsonl(
     total_pages = len(images)
     for page_no in range(start_page, total_pages + 1):
         if tracker.estimated_cost_usd() > cost_cap_usd:
-            raise CostCapExceeded(
+            raise CostCapExceededError(
                 f"estimated cost ${tracker.estimated_cost_usd():.2f}"
                 f" exceeds cap ${cost_cap_usd:.2f}"
                 f" mid-run on card {card_id} page {page_no}"
@@ -140,7 +141,7 @@ def ocr_card(
     """OCR every page of a single card, writing pages.jsonl.
 
     Resume-aware (starts from ``resume_from_page``), idempotent
-    (skips when complete), cost-capped (raises ``CostCapExceeded``
+    (skips when complete), cost-capped (raises ``CostCapExceededError``
     when over). Production wires the dependencies via
     ``_build_real_dependencies``; tests inject mocks.
     """
@@ -180,8 +181,9 @@ def _build_real_dependencies(cost_cap_usd: float) -> tuple[Any, Callable, Callab
     usage tracker. Kept out of the import path so tests can avoid
     pulling pdf2image / boto3 / anthropic SDK as test-time deps.
     """
-    from r2_archive_assets import make_r2_client  # type: ignore[import-not-found]
     from pdf2image import convert_from_bytes  # type: ignore[import-not-found]
+    from r2_archive_assets import make_r2_client  # type: ignore[import-not-found]
+
     from pursue_index.ocr import llm as pursue_ocr_llm  # type: ignore[import-not-found]
 
     r2_client = make_r2_client()
@@ -192,26 +194,15 @@ def _build_real_dependencies(cost_cap_usd: float) -> tuple[Any, Callable, Callab
         return convert_from_bytes(pdf_bytes, dpi=200)
 
     def ocr_image(img: Any) -> tuple:
-        # Wrap the canonical OCR function to also record usage. The
-        # existing ocr_image() doesn't return usage; we sniff the
-        # Anthropic SDK's last response from the module's structured
-        # logger. Simpler alternative: re-invoke the API directly with
-        # the same prompt + parse, but that double-charges if the
-        # cache is hit.
-        #
-        # For Sprint 4h we accept token-tracking imprecision: every
-        # successful OCR call increments a conservative estimate
-        # based on the image size + a typical output length. This
-        # lets ``cost_cap_usd`` be load-bearing without coupling the
-        # site's OCR module to Sprint 4h's tracking shape.
-        text, confidence = pursue_ocr_llm.ocr_image(img)
-        # Conservative estimate: ~1500 input tokens per page image
-        # (200 DPI letter-size at the resize-for-vision ceiling) +
-        # ~600 output tokens per page (typical doc page text).
-        # Updates as we get real usage data from the run; for now
-        # this is the documented per-page cost from state.md
-        # ($0.013/page).
-        tracker.add(input_tokens=1500, output_tokens=600)
+        # Use the with-usage variant so the tracker sees real SDK
+        # numbers (Sprint 4i #4 — replaces the hardcoded 1500/600
+        # estimate that under-counted by ~21% on the Sprint 4h run).
+        # Cache hits return zero-usage, so tracker never double-counts.
+        text, confidence, usage = pursue_ocr_llm.ocr_image_with_usage(img)
+        tracker.add(
+            input_tokens=usage["input_tokens"],
+            output_tokens=usage["output_tokens"],
+        )
         return text, confidence
 
     return r2_client, rasterize, ocr_image, tracker
@@ -225,7 +216,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         "--max-spend-usd",
         type=float,
         default=90.0,
-        help="Cost cap; raises CostCapExceeded mid-run if exceeded.",
+        help="Cost cap; raises CostCapExceededError mid-run if exceeded.",
     )
     parser.add_argument(
         "--limit",
@@ -267,9 +258,9 @@ def _run_card_pool(
                 cost_cap_usd=cost_cap_usd,
             )
             return target["card_id"], None
-        except CostCapExceeded as exc:
-            return target["card_id"], f"CostCapExceeded: {exc}"
-        except Exception as exc:  # noqa: BLE001
+        except CostCapExceededError as exc:
+            return target["card_id"], f"CostCapExceededError: {exc}"
+        except Exception as exc:
             return target["card_id"], f"{type(exc).__name__}: {exc}"
 
     completed = 0

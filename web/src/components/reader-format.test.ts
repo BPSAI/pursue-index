@@ -54,8 +54,8 @@ test("reformatOcrText: trims trailing whitespace and drops empty paragraphs", ()
 });
 
 test("reformatOcrText: sparse text (e.g. a stamp) is preserved intact", () => {
-  // The redditor critique called out cards where the only OCR is a stamp
-  // like "TOP SECRET" — reader mode should not try to fluff this up.
+  // Cards where the only OCR is a stamp like "TOP SECRET" must be preserved
+  // verbatim — reader mode should not try to fluff this up.
   const input = "TOP SECRET\nTOP SECRET";
   assert.deepEqual(reformatOcrText(input), ["TOP SECRET TOP SECRET"]);
 });

@@ -124,7 +124,7 @@ For a specific card, append:
 
 ## Suggested social-share text
 
-For Twitter / Bluesky / Mastodon. All under 280 characters.
+Each under 280 characters for short-form platform compatibility.
 
 **General share:**
 

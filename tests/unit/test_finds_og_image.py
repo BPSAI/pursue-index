@@ -111,7 +111,7 @@ def test_render_is_byte_stable(tmp_path: Path, ctx: FindsOgContext) -> None:
 
 def test_render_differs_per_entry(tmp_path: Path, ctx: FindsOgContext) -> None:
     """Two different entries must produce different PNGs — otherwise the
-    per-entry override is a no-op and Slack/Twitter scrapers will see the
+    per-entry override is a no-op and link-unfurl scrapers will see the
     same image regardless of slug."""
     a = tmp_path / "a.png"
     b = tmp_path / "b.png"

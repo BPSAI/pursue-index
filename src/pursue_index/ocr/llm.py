@@ -7,7 +7,7 @@ without changing orchestration.
 
 The default provider is Anthropic; OpenAI is a stub for v1. The system prompt
 is sent with ``cache_control={"type": "ephemeral"}`` so subsequent calls in
-the same window pay the cache-read rate (~10× cheaper) for the static
+the same window pay the cache-read rate (~10x cheaper) for the static
 instructions. Per-page responses are also cached on disk by image
 content-hash, so re-runs of the same PDF spend zero tokens.
 """
@@ -25,15 +25,15 @@ from PIL import Image
 
 from pursue_index import get_logger
 from pursue_index.config import settings
+from pursue_index.ocr._llm_parsing import (
+    ZERO_USAGE,
+    extract_usage,
+    parse_response,
+)
 
 log = get_logger(__name__)
 
 _client: Any = None
-
-# Nominal confidence used when the model fails to return structured JSON.
-# Set above the default ocr_llm_threshold (70) so a parse-failure response
-# isn't recursively re-OCR'd by auto-mode.
-_NOMINAL_CONFIDENCE = 75.0
 
 # Anthropic vision API rejects images > 5 MB base64-encoded. Cap the longest
 # edge so high-DPI rasters get downscaled before the encode step.
@@ -127,60 +127,6 @@ def _store_cached(sha: str, text: str, confidence: float) -> None:
     )
 
 
-def _find_text_json_object(raw: str) -> dict[str, Any] | None:
-    """Scan ``raw`` for the first JSON object that decodes AND has a "text"
-    key. Returns the parsed dict, or ``None`` if no such block exists.
-
-    Necessary because real model output sometimes wraps the JSON envelope in
-    chatter that itself contains stray ``{`` / ``}`` (transcribed prose,
-    handwritten margin marks, math). A naive ``\\{.*\\}`` greedy DOTALL match
-    spans from the first prose-brace to the last brace and fails to parse.
-
-    Strategy: walk every ``{`` position; for each, try ``json.JSONDecoder``'s
-    ``raw_decode`` to locate a balanced object. Return the first that decodes
-    AND contains ``"text"`` — that's the schema we asked the model for.
-    """
-    decoder = json.JSONDecoder()
-    for i, ch in enumerate(raw):
-        if ch != "{":
-            continue
-        try:
-            obj, _ = decoder.raw_decode(raw, i)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(obj, dict) and "text" in obj:
-            return obj
-    return None
-
-
-def _parse_response(raw: str) -> tuple[str, float]:
-    """Pull ``text`` + ``confidence`` from the model's reply.
-
-    Tries strict JSON first, then scans for the first balanced JSON object
-    that has a ``"text"`` field; falls back to using the whole reply as text
-    with a nominal confidence so a malformed response never breaks the page.
-    """
-    raw = raw.strip()
-    obj: dict[str, Any] | None = None
-    try:
-        parsed = json.loads(raw)
-        if isinstance(parsed, dict):
-            obj = parsed
-    except json.JSONDecodeError:
-        obj = _find_text_json_object(raw)
-
-    if obj is None:
-        return raw, _NOMINAL_CONFIDENCE
-
-    text = str(obj.get("text", ""))
-    conf_raw = obj.get("confidence", _NOMINAL_CONFIDENCE)
-    try:
-        confidence = float(conf_raw)
-    except (TypeError, ValueError):
-        confidence = _NOMINAL_CONFIDENCE
-    return text, confidence
-
-
 def _build_request(image_b64: str) -> dict[str, Any]:
     """Anthropic ``messages.create`` kwargs for a single-page transcription.
 
@@ -233,32 +179,47 @@ def _log_usage(usage: Any) -> None:
     )
 
 
-def _ocr_image_anthropic(img: Image.Image, sha: str) -> tuple[str, float]:
-    """Call Anthropic vision for a single page image; return ``(text, conf)``."""
+def _ocr_image_anthropic(
+    img: Image.Image, sha: str
+) -> tuple[str, float, dict[str, int]]:
+    """Call Anthropic vision for a single page image.
+
+    Returns ``(text, confidence, usage_dict)``. The usage dict has the
+    same keys as ``ZERO_USAGE`` so the caller (tracker, cost cap) sees
+    a stable shape regardless of which SDK fields were populated.
+    """
     client = _get_anthropic_client()
     request = _build_request(_image_to_b64(img))
     log.info("ocr.llm.call", provider="anthropic", model=settings.ocr_llm_model, sha=sha[:12])
     response = client.messages.create(**request)
     _log_usage(response.usage)
     raw = response.content[0].text if response.content else ""
-    return _parse_response(raw)
+    text, confidence = parse_response(raw)
+    return text, confidence, extract_usage(response.usage)
 
 
-def ocr_image(img: Image.Image) -> tuple[str, float]:
-    """Return ``(text, confidence)`` for a single page image via the LLM.
+def ocr_image_with_usage(
+    img: Image.Image,
+) -> tuple[str, float, dict[str, int]]:
+    """Return ``(text, confidence, usage)`` for a single page image.
 
-    Looks up a content-hash cache first; falls back to the configured provider
-    (Anthropic by default). OpenAI is a stub for v1.
+    ``usage`` is a dict with ``input_tokens`` / ``output_tokens`` /
+    ``cache_read_tokens`` / ``cache_creation_tokens``. Cache hits return
+    an all-zeros usage dict (no tokens spent), so a downstream tracker
+    can sum without double-counting.
+
+    Use this variant from cost-capped runs (``scripts/reocr_altered.py``).
+    Use ``ocr_image`` if you only need the text + confidence.
     """
     sha = _image_hash(img)
     cached = _load_cached(sha)
     if cached is not None:
         log.info("ocr.llm.cache_hit", sha=sha[:12])
-        return cached
+        return cached[0], cached[1], dict(ZERO_USAGE)
 
     provider = settings.ocr_llm_provider
     if provider == "anthropic":
-        text, confidence = _ocr_image_anthropic(img, sha)
+        text, confidence, usage = _ocr_image_anthropic(img, sha)
     elif provider == "openai":
         raise NotImplementedError(
             "OpenAI provider is a v2 stub; set PURSUE_OCR_LLM_PROVIDER=anthropic for now."
@@ -267,4 +228,16 @@ def ocr_image(img: Image.Image) -> tuple[str, float]:
         raise ValueError(f"Unknown LLM provider: {provider!r}")
 
     _store_cached(sha, text, confidence)
+    return text, confidence, usage
+
+
+def ocr_image(img: Image.Image) -> tuple[str, float]:
+    """Return ``(text, confidence)`` for a single page image via the LLM.
+
+    Looks up a content-hash cache first; falls back to the configured
+    provider (Anthropic by default). Delegates to ``ocr_image_with_usage``
+    and drops the usage dict — call that variant directly if you need
+    token tracking.
+    """
+    text, confidence, _ = ocr_image_with_usage(img)
     return text, confidence

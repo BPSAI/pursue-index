@@ -1,6 +1,28 @@
 # Current State
 
-> Last updated: 2026-05-20 (Sprint 4h MERGED + envelope-artifact hotfix `c19acdc` applied. Session-end handoff: clean working tree on main; sync with origin verified; next session picks up with Sprint 4i scope below.)
+> Last updated: 2026-05-21 (Sprint 4i #2 + #3 + #4 + #9 + #10 all landed locally with TDD. Awaiting commit + push.)
+
+## 2026-05-21 — Sprint 4i batch 1 (5 of 10 items landed locally)
+
+### Items closed this session
+
+- **#3 repo cleanup**: deleted stale local branches `sprint-4a-integrity-seo` + `sprint-4b-polish-and-ops`; `git remote prune origin` clean.
+- **#2 OCR envelope-artifact parser root-cause fix**: third-tier fallback `recover_envelope()` after `json.loads` → `find_text_json_object` → envelope-recovery → raw-text default. Detects the canonical envelope via regex (mirrors `scripts/repair_altered_ocr_envelopes.py`), extracts inner text, expands `\n` / `\t` / `\r` / `\"` / `\\`, pulls confidence from the well-formed tail. Affects every future OCR run.
+- **#9 apollo-17.png rebuild**: ran `python scripts/build_finds_og_images.py`; the formerly-failing test (and 20 sibling finds PNGs that were also stale relative to the renderer) now byte-match the committed images.
+- **#4 real API token tracking**: new `ocr_image_with_usage()` parallel API in `pursue_index.ocr.llm` returns `(text, conf, usage_dict)`. Cache hits return all-zeros usage. `scripts/reocr_altered.py` swapped from the hardcoded 1500/600 estimate to real SDK numbers via this seam. `ocr_image()` preserved as thin delegate.
+- **#10 lint nits**: ruff clean on Sprint 4h scripts (`scripts/reocr_altered.py`, `scripts/_reocr_helpers.py`, `scripts/build_altered_diffs.py`). Renamed `CostCapExceeded` → `CostCapExceededError` (N818). Sorted `__all__`. Fixed `Callable` import (UP035, now from `collections.abc`). Consolidated 3 split-by-isort `from _reocr_helpers import ...` blocks back into one with `# noqa: E402, I001`. Replaced pre-existing `×` → `x` in llm.py docstring (RUF001).
+- **Architecting**: when the parser fix pushed `llm.py` over the 15-function arch ceiling (16), extracted `_NOMINAL_CONFIDENCE`, `ZERO_USAGE`, `_ENVELOPE_*_RE`, `find_text_json_object`, `recover_envelope`, `parse_response`, `extract_usage` to a sibling `src/pursue_index/ocr/_llm_parsing.py` module. `llm.py` now 243 lines / 12 functions; `_llm_parsing.py` clean (no violations).
+- **Social-platform scrub** (operator-directed pre-sprint chore): scrubbed Reddit/HN/Mastodon/Bluesky from comments + planning docs + .gitignore (`docs/launch/hn-post.md`). Twitter references kept only where they name the literal HTML meta-tag spec (`twitter:card`, `twitter:image:alt`, etc. — code requirement). 9 files touched.
+
+### Verification
+
+- Full python suite: 723 passed, 0 failed (was 720 + 1 pre-existing apollo failure; the 1 red is now green).
+- Arch check: 0 errors on every modified file. Warnings only on file-size (`llm.py` 243, `test_ocr_llm.py` 462, `reocr_altered.py` 315) — all well under the 400/600 error thresholds.
+- Ruff: clean on Sprint 4h scripts + `llm.py` + `_llm_parsing.py`.
+
+### Still open in Sprint 4i
+
+Items #1 (OCR retry on the 2 content-filter cards — needs operator-attended dispatch + ~$2-5 spend), #5 (OCR cache shareability — `data/ocr/.llm-cache` is operator-local), #6 (JSON-LD on `/altered/[card_id]` pages), #7 (CI size gate on `altered-diffs.json`), #8 (Archive_key format assertion in `fetch_r2_pdf`).
 
 ## 2026-05-20 — SESSION HANDOFF
 
@@ -45,7 +67,7 @@ After Sprint 4i housekeeping, the backlog review should consult:
   - `2026-05-18-vlm-bakeoff-final.md` (Sprint 6.1 — canonical operated VLM answer)
   - `2026-05-16-sprint-roadmap.md` (the multi-sprint roadmap; partially superseded by 4d-4h)
 
-### Reddit-post readiness assessment
+### Receipts-layer readiness
 
 The receipts layer (Sprint 4g+4h) is live on prod:
 - `/altered/` lists 79 cards
@@ -53,15 +75,15 @@ The receipts layer (Sprint 4g+4h) is live on prod:
 - `/archive/<sha>.<ext>` content-addressed preserved bytes
 - Per-card banner on `/card/<id>/`
 
-**Recommended pre-post action: manually inspect the top-5 substantive-diff cards** before posting to confirm the diffs are real content changes (not artifacts). After the envelope hotfix, `8d0b85ce46109d06` dropped from 777/818 → 576/555 word delta — meaning real diff was inflated 35% by the artifact. Other affected cards likely similar.
+**Recommended QA action: manually inspect the top-5 substantive-diff cards** to confirm the diffs are real content changes (not artifacts). After the envelope hotfix, `8d0b85ce46109d06` dropped from 777/818 → 576/555 word delta — meaning real diff was inflated 35% by the artifact. Other affected cards likely similar.
 
-Headline candidates (need eyeball verification):
+Substantive-diff candidates (need eyeball verification):
 - `13f86e95aed52840` (269pp, 39k/42k words delta — Section 6 re-pinned card)
 - `e897e67f95bc1e1b` (107pp, 35k/37k)
 - `8bfd94484138d59b` (246pp, 24k/28k)
 - `4844321219e306af` (167pp)
 
-After Sprint 4i #1 + #2 land (content-filter retry + parser root-cause), all 79 diffs will be fully clean and Reddit-post can fire.
+After Sprint 4i #1 + #2 land (content-filter retry + parser root-cause), all 79 diffs will be fully clean.
 
 ## 2026-05-20 — Sprint 4h MERGED (PR #72 → `a7b3dae`)
 
@@ -122,19 +144,17 @@ The receipts layer for the May-14 redaction class. Sprint 4g made the bytes reac
 - Lint nits (unused imports, sort __all__, etc.)
 - Pre-existing apollo-17.png stale test failure
 
-### Reddit-post status
+### Integrity-receipts story
 
-The four sprints (4d auto-closer + 4e tier-2 signing + 4f AUD type + 4g altered surface + 4h OCR diff) together complete the integrity-receipts story.
+The four sprints (4d auto-closer + 4e tier-2 signing + 4f AUD type + 4g altered surface + 4h OCR diff) together complete the integrity-receipts story end-to-end.
 
-Title that earns shares: "I built a side-by-side diff showing what the U.S. Department of War silently redacted from 79 declassified UAP documents after release. Every byte version preserved. Every change reproducible."
-
-Screenshot lead: the FBI Photo B008 diff at `/altered/0d7a23b29e6de1bf/` (78.7% file shrink, tabular data shifted) or the larger redaction events (`13f86e95aed52840` with 39k words removed).
+Notable spot-cases for QA / citation work: the FBI Photo B008 diff at `/altered/0d7a23b29e6de1bf/` (78.7% file shrink, tabular data shifted) and the larger redaction events (`13f86e95aed52840` with 39k words removed).
 
 ## 2026-05-20 — Sprint 4g MERGED (PR #71 → `b339d1e`)
 
 ## 2026-05-20 — Sprint 4g MERGED (PR #71 → `b339d1e`)
 
-Audit before the planned Reddit post found that 79 cards whose upstream bytes were silently re-published under the same card_ids (mostly 2026-05-14) were unreachable from any user-facing surface — visitors saw post-edit PDF in the iframe + pre-edit OCR text below + zero notice. `worker/pdf.js` even claimed `Cache-Control: immutable`, which had been quietly lying since May 14.
+Pre-launch integrity audit found that 79 cards whose upstream bytes were silently re-published under the same card_ids (mostly 2026-05-14) were unreachable from any user-facing surface — visitors saw post-edit PDF in the iframe + pre-edit OCR text below + zero notice. `worker/pdf.js` even claimed `Cache-Control: immutable`, which had been quietly lying since May 14.
 
 ### What shipped (4 phases)
 

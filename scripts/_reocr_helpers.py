@@ -21,14 +21,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-
 # Sonnet 4.6 pricing per Anthropic (Sprint 4h kick-off, 2026-05-20):
 # $3/MTok input, $15/MTok output.
 SONNET_46_INPUT_USD_PER_MTOK = 3.0
 SONNET_46_OUTPUT_USD_PER_MTOK = 15.0
 
 
-class CostCapExceeded(RuntimeError):
+class CostCapExceededError(RuntimeError):
     """Estimated cost exceeded the ``--max-spend-usd`` cap mid-run.
 
     Cards whose pages.jsonl entries were written before the cap fired

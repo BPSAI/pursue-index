@@ -292,3 +292,171 @@ def test_ocr_image_handles_strict_json_with_braces_in_text(
 
     assert text == "Note: deflection coefficient {k} = 0.42"
     assert conf == pytest.approx(91.0)
+
+
+# ---------------------------------------------------------------------------
+# Sprint 4i #2 — envelope-artifact recovery (unescaped inner quotes)
+# ---------------------------------------------------------------------------
+# Sprint 4h surfaced a class of malformed responses: the model wraps OCR
+# text in a JSON envelope (``{"text": "...", "confidence": N}``) but
+# leaves inner double-quotes unescaped — typically from stamps or quoted
+# names on the source page. ``json.loads`` rejects them; ``raw_decode``
+# rejects them; pre-fix, ``_parse_response`` fell through to ``return raw``
+# and the literal envelope ended up in the page record. The hotfix script
+# (``scripts/repair_altered_ocr_envelopes.py``) is the post-processing
+# patch; this is the upstream root-cause fix — every future OCR run.
+def test_parse_recovers_envelope_with_unescaped_inner_quotes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    # Unescaped " around RECEIVED — the model emitted it verbatim from
+    # a stamp on the source page. json.loads fails here; raw_decode too.
+    bad_envelope = (
+        '{\n  "text": "Date: Jan 12 1968\\nStamp: "RECEIVED" Aug 03",\n'
+        '  "confidence": 87\n}'
+    )
+    client = _FakeAnthropic([(bad_envelope, _FakeUsage(1500, 600))])
+    _patch_client(monkeypatch, client)
+
+    text, _ = ocr_llm.ocr_image(Image.new("RGB", (10, 10)))
+
+    assert "Date: Jan 12 1968" in text
+    assert "RECEIVED" in text
+    # Literal envelope must not be returned verbatim.
+    assert not text.lstrip().startswith("{")
+    assert '"text":' not in text
+
+
+def test_parse_recovers_envelope_extracts_confidence_from_tail(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The envelope's trailing ``"confidence": N`` is well-formed even
+    when the inner text isn't. Pull it through rather than defaulting to
+    the nominal value."""
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    bad_envelope = (
+        '{\n  "text": "Mr. "Smith" filed a report",\n  "confidence": 63\n}'
+    )
+    client = _FakeAnthropic([(bad_envelope, _FakeUsage(1500, 600))])
+    _patch_client(monkeypatch, client)
+
+    _, conf = ocr_llm.ocr_image(Image.new("RGB", (10, 10)))
+    assert conf == pytest.approx(63.0)
+
+
+def test_parse_recovers_envelope_inside_code_fence(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Some malformed envelopes arrive inside a ```json ... ``` fence
+    (the model adds the fence against the prompt). Recover those too."""
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    bad_envelope = (
+        '```json\n{\n  "text": "Mr. "Smith" of Air Force",\n'
+        '  "confidence": 90\n}\n```'
+    )
+    client = _FakeAnthropic([(bad_envelope, _FakeUsage(1500, 600))])
+    _patch_client(monkeypatch, client)
+
+    text, conf = ocr_llm.ocr_image(Image.new("RGB", (10, 10)))
+
+    assert "Smith" in text
+    assert "Air Force" in text
+    assert "```" not in text
+    assert conf == pytest.approx(90.0)
+
+
+def test_parse_envelope_recovery_unescapes_standard_sequences(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Recovered text expands ``\\n``, ``\\t``, ``\\r``, ``\\"`` and
+    ``\\\\`` — matching what valid JSON parsing would have produced."""
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    bad_envelope = (
+        '{\n  "text": "line 1\\nline 2\\twith "quote"\\rand \\\\path",\n'
+        '  "confidence": 75\n}'
+    )
+    client = _FakeAnthropic([(bad_envelope, _FakeUsage(1500, 600))])
+    _patch_client(monkeypatch, client)
+
+    text, _ = ocr_llm.ocr_image(Image.new("RGB", (10, 10)))
+
+    assert "line 1\nline 2" in text  # actual newline
+    assert "\t" in text              # actual tab
+    assert "\r" in text              # actual carriage return
+    assert '"quote"' in text         # the inner unescaped quote survives
+    assert "\\path" in text          # \\\\ collapses to \\
+
+
+def test_parse_response_falls_through_when_envelope_pattern_absent(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Pre-existing fallback (raw text + nominal confidence) is preserved
+    for truly unstructured responses that don't match the envelope shape."""
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    client = _FakeAnthropic([
+        ("I cannot transcribe this page.", _FakeUsage(800, 30)),
+    ])
+    _patch_client(monkeypatch, client)
+
+    text, conf = ocr_llm.ocr_image(Image.new("RGB", (10, 10)))
+    assert text == "I cannot transcribe this page."
+    assert conf == pytest.approx(75.0)  # _NOMINAL_CONFIDENCE
+
+
+# ---------------------------------------------------------------------------
+# Sprint 4i #4 — ocr_image_with_usage returns real token counts
+# ---------------------------------------------------------------------------
+# scripts/reocr_altered.py previously estimated 1500/600 tokens per page
+# (~21% under-counted vs reality). Expose actual usage so the cost cap
+# stays load-bearing.
+def test_ocr_image_with_usage_returns_real_token_counts(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    client = _FakeAnthropic([
+        (_structured_response("page text", 90),
+         _FakeUsage(1820, 743, cache_read_input_tokens=512,
+                    cache_creation_input_tokens=128)),
+    ])
+    _patch_client(monkeypatch, client)
+
+    text, conf, usage = ocr_llm.ocr_image_with_usage(Image.new("RGB", (10, 10)))
+
+    assert text == "page text"
+    assert conf == pytest.approx(90.0)
+    assert usage == {
+        "input_tokens": 1820,
+        "output_tokens": 743,
+        "cache_read_tokens": 512,
+        "cache_creation_tokens": 128,
+    }
+
+
+def test_ocr_image_with_usage_returns_zero_for_cache_hit(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Cache hits spend zero tokens. The tracker must see zeros so cost
+    estimates don't double-count cached pages."""
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "cache")
+    client = _FakeAnthropic([
+        (_structured_response("cached", 88), _FakeUsage(1500, 500)),
+    ])
+    _patch_client(monkeypatch, client)
+
+    img = Image.new("RGB", (16, 16), color=(7, 8, 9))
+    # First call: real API hit, real usage.
+    _, _, first_usage = ocr_llm.ocr_image_with_usage(img)
+    assert first_usage["input_tokens"] == 1500
+
+    # Second call with identical image: cache hit, zero usage.
+    text, conf, usage = ocr_llm.ocr_image_with_usage(img)
+    assert text == "cached"
+    assert conf == pytest.approx(88.0)
+    assert usage == {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_creation_tokens": 0,
+    }
+    # Only one underlying API call.
+    assert len(client.messages.calls) == 1

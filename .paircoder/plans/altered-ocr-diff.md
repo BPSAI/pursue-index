@@ -1,21 +1,20 @@
 # Sprint 4h plan — OCR text-diff for the 79 altered cards
 
-Captured 2026-05-20 after Sprint 4g merged. Operator agreed this is
-the strongest lead for the upcoming Reddit post; converts the
-May-14 redaction event from a true-but-unsurfaced integrity claim
-into a screenshot-worthy "look exactly what they removed" surface.
+Captured 2026-05-20 after Sprint 4g merged. Converts the May-14
+redaction event from a true-but-unsurfaced integrity claim into a
+visible, citable "look exactly what they removed" surface.
 
 ## Motivation
 
 Sprint 4g exposed the 79 silent-overlay byte events at the byte
 layer: /altered table, per-card banner, /archive/<sha>.<ext> route.
-That's necessary but not sufficient for a Reddit post — visitors
-have to download both PDFs and diff in their own viewer.
+That's necessary but not sufficient — visitors still have to
+download both PDFs and diff in their own viewer.
 
 This sprint adds the OCR text-diff surface: for every affected
 card, a deep-dive page at /altered/<card_id>/ showing the pre-edit
 OCR text vs post-edit OCR text with redactions/additions
-highlighted inline. Reddit-shareable; reproducible.
+highlighted inline. Linkable; reproducible.
 
 ## Operator decisions needed before kick-off
 
@@ -154,23 +153,11 @@ Per state.md operated VLM answer: Sonnet 4.6 single-pass at
 
 Budget envelope per state.md Sprint 6.2: $86 headroom available.
 
-## Reddit post outline (for context, not in scope)
-
-After this ships:
-
-> Title: "I built a side-by-side diff showing what the U.S.
-> Department of War silently redacted from 79 declassified UAP
-> documents after release."
->
-> Body: brief framing + screenshot of the worst-shrink case
-> (FBI Photo B008 -78.7%) + link to /altered + invitation to
-> reproduce.
-
 ## Related backlog (not in scope, but flagged)
 
 - vaivora P1.1 from Sprint 4g (Disallow /archive/ for AI_ALLOW)
-  — operator left as-is, but if the Reddit post brings AI scraper
-  attention, revisit.
+  — operator left as-is; revisit if AI-scraper traffic to
+  /archive/ becomes material.
 - nayru L1 polish items from Sprint 4g — defer.
 - Pre-existing apollo-17.png test failure on main — file
   separately as `chore(finds): rebuild apollo-17.png`.

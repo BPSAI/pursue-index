@@ -341,7 +341,7 @@ def test_ocr_card_respects_cost_cap_mid_run(
     tmp_path: Path
 ) -> None:
     """If the running cost would exceed cost_cap_usd, stop and raise
-    CostCapExceeded so the operator can decide whether to re-up or
+    CostCapExceededError so the operator can decide whether to re-up or
     abandon. Cards that completed before the cap stay completed."""
     out_dir = tmp_path / "altered-ocr"
     target = {
@@ -367,7 +367,7 @@ def test_ocr_card_respects_cost_cap_mid_run(
         tracker.add(input_tokens=2_000_000, output_tokens=1_000_000)  # $21 per call
         return result
 
-    with pytest.raises(ra.CostCapExceeded):
+    with pytest.raises(ra.CostCapExceededError):
         ra.ocr_card(
             target=target,
             out_dir=out_dir,

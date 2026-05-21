@@ -2,17 +2,17 @@
 
 The build script must:
 
-1. Produce a 1200x630 PNG (Open Graph spec / Twitter summary_large_image).
-2. Stay under 200 KB so HN/Reddit/Twitter scrapers don't bail on size.
+1. Produce a 1200x630 PNG (Open Graph spec, ``summary_large_image`` card).
+2. Stay under 200 KB so link-unfurl scrapers don't bail on size.
 3. Be idempotent: same inputs => same byte-stable output (so re-running
    in CI doesn't churn ``web/public/og.png``).
-4. Render legibly at 600x315 (Slack default thumbnail) — we verify by
+4. Render legibly at 600x315 (default thumbnail size) — we verify by
    asserting the lockup occupies a substantial vertical band of the image
    so it doesn't disappear when downscaled.
 
-Snapshot-style test on the Astro layout asserts the OG/Twitter meta
-tags are present and reference the canonical host. No JS test framework
-in the web package, so we grep the source.
+Snapshot-style test on the Astro layout asserts the OG meta tags are
+present and reference the canonical host. No JS test framework in the
+web package, so we grep the source.
 """
 
 from __future__ import annotations
@@ -51,8 +51,8 @@ def test_render_produces_correct_dimensions(tmp_path: Path, ctx: OgImageContext)
 
 
 def test_render_under_200kb(tmp_path: Path, ctx: OgImageContext) -> None:
-    """Under 200 KB so social scrapers don't reject; many cap at 1 MB but
-    smaller is faster on the unfurl path."""
+    """Under 200 KB so link-unfurl scrapers don't reject; many cap at 1 MB
+    but smaller is faster on the unfurl path."""
     out = tmp_path / "og.png"
     render_og_image(ctx, out)
     assert out.stat().st_size < 200 * 1024
@@ -93,8 +93,8 @@ def test_lockup_occupies_substantial_vertical_band(
 
 
 def test_base_astro_head_has_og_meta_tags() -> None:
-    """The Base layout must emit a complete OG + Twitter card header so
-    HN/Reddit/Twitter/Mastodon/Bluesky all unfurl correctly."""
+    """The Base layout must emit a complete OG + ``twitter:*`` Card header
+    so link-unfurl scrapers render the preview correctly."""
     src = BASE_LAYOUT.read_text()
     expected = [
         'property="og:type"',
@@ -116,8 +116,8 @@ def test_base_astro_head_has_og_meta_tags() -> None:
 
 
 def test_base_astro_uses_absolute_og_image_url() -> None:
-    """og:image must be absolute — Twitter/Slack/Bluesky scrapers do not
-    resolve relative URLs. The layout builds this from ``Astro.site`` /
+    """og:image must be absolute — link-unfurl scrapers do not resolve
+    relative URLs. The layout builds this from ``Astro.site`` /
     ``siteOrigin`` so it's always prefixed with ``https://...``."""
     src = BASE_LAYOUT.read_text()
     # ogImageUrl is built from siteOrigin which falls back to
