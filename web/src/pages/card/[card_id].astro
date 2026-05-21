@@ -3,7 +3,10 @@ import Base from "../../layouts/Base.astro";
 import CardOcrIsland from "../../components/CardOcrIsland.tsx";
 import CardProvenance from "../../components/CardProvenance.tsx";
 import AgencyStamp from "../../components/AgencyStamp.astro";
+import CardRemovedPage from "../../components/CardRemovedPage.astro";
+import { getCollection } from "astro:content";
 import { cards } from "../../data/manifest-loader";
+import removedCardsJson from "../../../public/data/removed-cards.json";
 import {
   digitalDocumentJsonLd,
   breadcrumbJsonLd,
@@ -90,13 +93,63 @@ const displayDateByCardId: Record<string, DisplayDateEntry> = Object.fromEntries
 );
 
 export function getStaticPaths() {
-  return cards.map((c) => ({
+  // Cards in the current manifest get the full detail page; cards
+  // that were ONCE upstream but have since been removed get a
+  // citation-stable stub page (preserved bytes + original metadata).
+  // Both routes live under /card/<id>/ so existing citation URLs
+  // never 404 regardless of upstream rotation.
+  const manifestCardIds = new Set(cards.map((c) => c.card_id));
+  const paths = cards.map((c) => ({
     params: { card_id: c.card_id },
-    props: { card: c },
+    props: { card: c, removedRecord: null as any },
   }));
+  const removedJson = removedCardsJson as { removed?: any[] };
+  for (const record of removedJson.removed ?? []) {
+    if (manifestCardIds.has(record.card.card_id)) continue;
+    paths.push({
+      params: { card_id: record.card.card_id },
+      props: { card: null as any, removedRecord: record },
+    });
+  }
+  return paths;
 }
 
-const { card } = Astro.props;
+// Sprint 4k-followup: card may be null when this route is generated
+// for a card that was removed upstream. In that case `removedRecord`
+// is populated and the template body short-circuits to
+// `<CardRemovedPage>` near the bottom. Use the removed record's card
+// snapshot as the fallback so the rest of the frontmatter (which
+// reads `card.card_id`, etc.) still runs without NPE.
+const propsCard = Astro.props.card;
+const removedRecord = Astro.props.removedRecord;
+const card = propsCard ?? removedRecord!.card;
+const isRemoved = removedRecord !== null;
+// Look up the most recent preserved archive_key for a removed card
+// (used by CardRemovedPage to surface a /archive/<sha>.<ext> link).
+const removedArchiveKey: string | null = isRemoved
+  ? (() => {
+      const bhEntries = (byteHistoryJson as Record<string, any[]>)[card.card_id] ?? [];
+      // Newest first per Sprint 4g; the oldest preserved entry is the
+      // bytes captured before removal.
+      const oldest = bhEntries[bhEntries.length - 1];
+      return oldest?.archive_key ?? null;
+    })()
+  : null;
+// Surface the find slug + title that documents the removal, if any.
+// Scan the finds collection at build time for a `cards:` entry that
+// includes this card_id. There's at most a handful of finds per
+// removed card; first match wins (single-find expected per card).
+const relatedFind = isRemoved
+  ? await (async () => {
+      const allFinds = await getCollection("finds", ({ data }) => !data.draft);
+      const match = allFinds.find((f) =>
+        Array.isArray(f.data.cards) && f.data.cards.includes(card.card_id),
+      );
+      return match
+        ? { slug: match.id.replace(/\.mdx$/, ""), title: match.data.title as string }
+        : null;
+    })()
+  : null;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const altTitles: AltTitleEntry[] = altsByCardId[card.card_id] ?? [];
 const displayDateEntry: DisplayDateEntry | null = displayDateByCardId[card.card_id] ?? null;
@@ -227,6 +280,14 @@ const cardJsonLd = [
 ];
 ---
 
+{isRemoved ? (
+  <CardRemovedPage
+    record={removedRecord!}
+    archiveKey={removedArchiveKey}
+    relatedFindSlug={relatedFind?.slug ?? null}
+    relatedFindTitle={relatedFind?.title ?? null}
+  />
+) : (
 <Base title={pageTitle} description={card.description ?? card.title} jsonLd={cardJsonLd}>
   <article class="space-y-6">
     {/* Breadcrumb — visual `/` separators are decorative; aria-label
@@ -638,3 +699,4 @@ const cardJsonLd = [
     import "../../scripts/card-pdf-bootstrap.ts";
   </script>
 </Base>
+)}

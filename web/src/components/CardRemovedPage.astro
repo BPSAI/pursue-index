@@ -1,0 +1,217 @@
+---
+/**
+ * Removed-card landing page.
+ *
+ * Renders at `/card/<card_id>/` for card_ids that were once in the
+ * upstream manifest but have since been removed. The bytes are still
+ * preserved at `/archive/<sha>.<ext>` and the original metadata is
+ * shown here so the citation URL remains a stable, citable surface
+ * even after the upstream listing rotates.
+ *
+ * Inputs come from ``web/public/data/removed-cards.json``; the parent
+ * route ``card/[card_id].astro`` merges removed entries into the
+ * `getStaticPaths` output with a `removed: true` prop.
+ *
+ * Surfaces a link back to the relevant ``/finds/<slug>`` if one cites
+ * this card_id (the find typically explains *why* the upstream
+ * removed it and what replaced it).
+ */
+import Base from "../layouts/Base.astro";
+import AgencyStamp from "../components/AgencyStamp.astro";
+import { SITE_ORIGIN, breadcrumbJsonLd } from "../lib/seo";
+
+interface RemovedCardRecord {
+  detected_at: string;
+  prior_csv_sha256: string;
+  new_csv_sha256: string;
+  prior_fetched_at: string;
+  card: {
+    card_id: string;
+    title: string;
+    asset_type: string;
+    agency: string;
+    release_date: string;
+    incident_date: string | null;
+    incident_location: string | null;
+    redacted: boolean;
+    description: string;
+    asset_url: string;
+    asset_filename: string;
+    modal_image_url: string | null;
+    dvids_video_id: string | null;
+    raw?: Record<string, unknown>;
+  };
+}
+
+interface Props {
+  record: RemovedCardRecord;
+  /** Optional preserved-bytes archive key (e.g.
+   * ``archive/<sha>.pdf``). When present, surfaces a "preserved bytes"
+   * link to ``/archive/<sha>.<ext>``. */
+  archiveKey?: string | null;
+  /** Optional related find slug whose entry documents the removal. */
+  relatedFindSlug?: string | null;
+  /** Optional related find title for the link label. */
+  relatedFindTitle?: string | null;
+}
+
+const { record, archiveKey, relatedFindSlug, relatedFindTitle } = Astro.props;
+const card = record.card;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const pageTitle = `${card.title} — REMOVED — PURSUE://INDEX`;
+const removedDate = record.detected_at.slice(0, 10);
+// Worker-served preserved-bytes route. /pdf/<card_id>.<ext> resolves
+// via R2 to the bytes the operator captured at `prior_fetched_at`,
+// regardless of whether the upstream still serves the asset. Works
+// for PDF / IMG / VID asset types.
+const assetExt = card.asset_filename
+  ? card.asset_filename.split(".").pop()?.toLowerCase() ?? "pdf"
+  : "pdf";
+const preservedAssetUrl = `/pdf/${card.card_id}.${assetExt}`;
+
+const pageJsonLd = breadcrumbJsonLd([
+  { name: "Index", url: `${SITE_ORIGIN}/` },
+  { name: "Removed", url: `${SITE_ORIGIN}/removed` },
+  { name: card.title, url: `${SITE_ORIGIN}/card/${card.card_id}` },
+]);
+---
+
+<Base title={pageTitle} active="removed" jsonLd={pageJsonLd}>
+  <div class="space-y-6 max-w-4xl">
+    <nav aria-label="Breadcrumb" class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
+      <a href={`${base}/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">INDEX</a>
+      <span class="mx-1 text-[color:var(--color-text-faint)]">›</span>
+      <a href={`${base}/removed/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">/removed</a>
+      <span class="mx-1 text-[color:var(--color-text-faint)]">›</span>
+      <span class="text-[color:var(--color-text-bright)]">{card.card_id.slice(0, 12)}…</span>
+    </nav>
+
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
+        {card.title}
+      </h1>
+      <div class="flex flex-wrap items-center gap-2 text-[10px] font-mono uppercase tracking-[0.15em]">
+        <AgencyStamp agency={card.agency} />
+        <span class="text-[color:var(--color-text-faint)]">·</span>
+        <span class="text-[color:var(--color-signal-amber)]">REMOVED FROM UPSTREAM</span>
+        <span class="text-[color:var(--color-text-faint)]">·</span>
+        <span class="text-[color:var(--color-text-dim)]">{card.asset_type}</span>
+      </div>
+    </header>
+
+    <section class="border border-[color:var(--color-signal-amber)]/60 bg-[color:var(--color-signal-amber)]/10 p-3 font-mono text-xs">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)] mb-2">
+        ● UPSTREAM-REMOVED CARD — BYTES PRESERVED
+      </div>
+      <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+        Card <code class="text-[color:var(--color-text-bright)]">{card.card_id}</code>{" "}
+        was present in the upstream PURSUE manifest until{" "}
+        <span class="text-[color:var(--color-text-bright)]">{removedDate}</span>, when
+        the upstream re-published the corpus without it. The bytes we fetched
+        on <span class="text-[color:var(--color-text-bright)]">{record.prior_fetched_at.slice(0, 10)}</span>{" "}
+        are content-addressed in R2 and remain reachable via the link below.
+      </p>
+      <p class="text-[color:var(--color-text-faint)] leading-relaxed mt-2">
+        This page is a citation-stable record — the URL{" "}
+        <code>/card/{card.card_id}</code> stays live even after upstream
+        rotation so existing references (in finds, papers, screenshots)
+        continue to resolve.
+      </p>
+    </section>
+
+    {relatedFindSlug && (
+      <section class="border border-[color:var(--color-signal-cyan)]/40 bg-[color:var(--color-signal-cyan)]/5 p-3 font-mono text-xs">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-cyan)] mb-2">
+          ● CONTEXT
+        </div>
+        <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+          The find{" "}
+          <a href={`${base}/finds/${relatedFindSlug}/`} class="text-[color:var(--color-signal-cyan)] underline">
+            {relatedFindTitle ?? relatedFindSlug}
+          </a>{" "}
+          documents the removal in detail (date, what replaced it if anything,
+          the diff between versions).
+        </p>
+      </section>
+    )}
+
+    <section class="space-y-2 font-mono text-xs">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+        ORIGINAL METADATA (as of {removedDate})
+      </div>
+      <dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[color:var(--color-text-dim)]">
+        <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">card_id</dt>
+        <dd><code class="text-[color:var(--color-text-bright)]">{card.card_id}</code></dd>
+        <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">title</dt>
+        <dd class="text-[color:var(--color-text-bright)]">{card.title}</dd>
+        <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">agency</dt>
+        <dd>{card.agency}</dd>
+        <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">asset_type</dt>
+        <dd>{card.asset_type}</dd>
+        {card.asset_filename && (
+          <>
+            <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">filename</dt>
+            <dd><code class="text-[10px]">{card.asset_filename}</code></dd>
+          </>
+        )}
+        {card.incident_date && (
+          <>
+            <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">incident_date</dt>
+            <dd>{card.incident_date}</dd>
+          </>
+        )}
+        {card.incident_location && (
+          <>
+            <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">incident_location</dt>
+            <dd>{card.incident_location}</dd>
+          </>
+        )}
+        <dt class="text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">release_date</dt>
+        <dd>{card.release_date}</dd>
+      </dl>
+    </section>
+
+    {card.description && (
+      <section class="space-y-1 font-mono text-xs">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+          DESCRIPTION (as captured at removal)
+        </div>
+        <p class="text-[color:var(--color-text-dim)] leading-relaxed whitespace-pre-line">
+          {card.description}
+        </p>
+      </section>
+    )}
+
+    <section class="space-y-2 font-mono text-xs">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+        PRESERVED BYTES
+      </div>
+      <ul class="space-y-1 text-[color:var(--color-text-dim)]">
+        <li>
+          Preserved file:{" "}
+          <a href={preservedAssetUrl} class="text-[color:var(--color-signal-cyan)] underline">
+            {preservedAssetUrl}
+          </a>{" "}
+          <span class="text-[color:var(--color-text-faint)] text-[10px]">
+            (served by the R2 mirror; bytes captured on {record.prior_fetched_at.slice(0, 10)})
+          </span>
+        </li>
+        {archiveKey && (
+          <li>
+            Content-addressed copy:{" "}
+            <a href={`/${archiveKey}`} class="text-[color:var(--color-signal-cyan)] underline">
+              /{archiveKey}
+            </a>{" "}
+            <span class="text-[color:var(--color-text-faint)] text-[10px]">
+              (sha256 = bytes-hash, immutable)
+            </span>
+          </li>
+        )}
+        <li>
+          Original asset URL (no longer hosted upstream):{" "}
+          <code class="text-[10px] text-[color:var(--color-text-faint)]">{card.asset_url}</code>
+        </li>
+      </ul>
+    </section>
+  </div>
+</Base>
