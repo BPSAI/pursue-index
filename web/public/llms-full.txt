@@ -30,7 +30,7 @@ Cite the original DOW PDF for the contents of a source document. Cite this site 
 
 ## Cards
 
-158 cards across the current corpus. Each card has a canonical URL on this site and a 
+164 cards across the current corpus. Each card has a canonical URL on this site and a 
 `sameAs` link back to its war.gov artifact. Where OCR text is available, the first page's text is included verbatim below (truncated to ~500 characters).
 
 ### 9e677b8697685311 — 18_100754_ General 1946-7_Vol_2
@@ -271,7 +271,7 @@ Declassification authority derived 4-898 (REV. 11-20-73) from FBI Automatic Decl
 
 Excerpt (page 1):
 
-4-564 (12-22-55) Declassification authority derived 0062 Class / Case # from FBI Automatic Declassification OH<br>OH Guide, issued May 24, 2007. SERIALS R 83894 HEADQUARTERS FBI ment of Justice 1 12-83894 246-301 CENTRAL RECORDS Sub OVED FROM OR ADDED TO THIS FILE! 8/11 127 Vol. 0 4 88 246 Serial # 0 CENTER 301 SETTION 6 HOVE MAR 2 1978 3Y 3 STIGATION JAN 19.1979 APR 13 1977 BY 5 USE CARE IN HANDLING THIS FILE DO NOT Transfer-Call PESTROY FORFA# 993057
+4-564 (12-22-55) Declassification authority derived 0062 Class / Case # from FBI Automatic Declassification OH<br>OH Guide, issued May 24, 2007. SERIALS R 83894 HEADQUARTERS FBI ment of Justice 1 12-83894 246-301 CENTRAL RECORDS Sub OVED FROM OR ADDED TO THIS FILE! 8/11 127 Vol. 0 4 88 246 Serial # 0 CENTER 301 SETTION 6 HOVE MAR 2 1978 3Y 3 STIGATION JAN 19.1979 APR 13 1977 BY 5 USE CARE IN HANDLING THIS FILE DO NOT Transfer-Call PESTROY FORFA# 993057 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-p
 
 ### f85532f0514320be — 65_HS1-834228961_62-HQ-83894_Section_007
 
@@ -2158,6 +2158,78 @@ SECRET//NOFORM 2025, at approximately 1700 hours [WITNESS 1 (a senior US On inte
 Excerpt (page 1):
 
 "Orbs Launching Orbs" Location: Western U.S. Time of Day: Dusk (on two separate days) Three teams of two federal law enforcement special agents each (USPER1 through USPER6) independently describe seeing orange "orbs" in the sky emit/launch smaller red "orbs" in groups of two to four, with three being the general consensus. This is stated to have occurred at least five times. Each time, the orange orb would appear, launch red orbs, then disappear. The orange orb was only visible for one or two se
+
+### 7be223c345fecfdd — ODNI-UAP-D001, USPER Narrative - Senior USIC, 2026
+
+- Agency: Office of the Director of National Intelligence
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/7be223c345fecfdd
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf
+- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
+
+Excerpt (page 1):
+
+In late 2025, during early evening daylight hours, I – a senior U.S. intelligence officer – along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter. Our mission was to investigate loud thuds heard in the mountains on the test range, which coincided with Unidentified Aerial Phenomena (UAP) sightings reported over the previous several nights. We aimed to search remote mountain areas for possible debris or objects that might explain the orb-like sightings. 
+
+### eae6c4d03ee4e66f — CIA-UAP-D001, Intelligence Information Report - USSR, 1973
+
+- Agency: Central Intelligence Agency
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/eae6c4d03ee4e66f
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#CIA-UAP-D001_Intelligence_Information_Report_USSR_1973.pdf
+- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED. Crussified by Recorded Reporting Officer. Exempt from General Declassification Schedule of E.O. 11632 Ex ... impossible to determine date of automatic declassification. PAGE 1 U. . DIRECTORATE OF OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE REPORT NO. FIR K-311/01638+77 DATE DISTR. 20 December 1977 • ; . . . COUNTRY USSR November 1972-Novem
+
+### b20c658be70b0e4a — DOE-UAP-D001, PANTEX Image, 2026
+
+- Agency: Department of Energy
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/b20c658be70b0e4a
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOE-UAP-D001_PANTEX_Image.pdf
+- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
+
+Excerpt (page 1):
+
+UCNI ParteX Managed and Operated by Consolidated Nuclear Security, LLC Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower • (b)(3) (UCNI) UCNI Page 5 of 6
+
+### ce343c85c98e89aa — DOE-UAP-D002, James Tuck Correspondence, undated
+
+- Agency: Department of Energy
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/ce343c85c98e89aa
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOE-UAP-D002_JamesTuck_Correspondence.pdf
+- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
+
+Excerpt (page 1):
+
+A-83-001_2-1 BL 11-23-20 Dear Mr. Tuck: Im Derry That & Cannot fell Out The attacked forme since The times and dates of any Rightings escape me. I can However, like you that during the years 1948 through 1951 Reverale sightinge of Breen lighte Were made at Les alames. These threally occured during the early goart of the Hight, Hime to eleven, and were Usually use the Jenney Wouldins. I can recall several enstances of green light weaving in and out & Mountain years. This was all reported Is the p
+
+### 37a39b1959ee7737 — DOE-UAP-D003, Pajarito Astronomers, undated
+
+- Agency: Department of Energy
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/37a39b1959ee7737
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOE-UAP-D003_Pajarito_Astronomers.pdf
+- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
+
+Excerpt (page 1):
+
+A-86-014-91-3 H. Borgman H-183 5/20/86 Pajarito Astronomers P.O. Box 1092, Los Alamos NM, 87544 MS K553 President MS E531 Vice President MS F665 Treesurer Sponsored by Club 1563 EHF-100-334 Tuesday, May 20, 1986 Dear Members, Our next meeting will be Thursday, May 29, 1986, in the Ranch Room at Fuller Lodge, at 7:30 p.m. Guest speaker will be Dr. John Warren of AT-6, whose topic will be "Why Should a Scientist be Concerned about UFO's?" To find the Ranch Room, go around (outside) to the south en
+
+### a6595ad20e876e57 — DOW-UAP-D017, General Correspondence of Sandia, 2026
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/a6595ad20e876e57
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOW-UAP-D017_General_Correspondence_Of_Sandia.pdf
+- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
+
+Excerpt (page 1):
+
+this document consists of 2 pages, copy_____ of 4, series #. HEADQUARTERS, DETACHMENT D 1100TH USAF SPECIAL REPORTING GROUP Campbell Air Force Base Camp Campbell, Kentucky 7 April 1949 3331 SUBJECT: Security Inspection TO: Commanding General Sandia Base 230 Albuquerque, New Mexico Reference is made to secret letter, your headquarters, dated 1 April 1949, Subject: Security Inspection. 2. a. Guard Orders have been amended directing that the elec- tric gate be closed between 1700 hours until 0700 h
 
 ## Finds
 
