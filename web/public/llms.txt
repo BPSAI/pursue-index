@@ -16,6 +16,13 @@
 
 ## Cards
 
+- [d7c07f24a96f8bac — DOW-UAP-PR050, "4 UAP Formation Iran 26 Aug 2022 over water [CALLSIGN]"](https://pursueindex.com/card/d7c07f24a96f8bac): Department of War (2022).
+- [d6efb186cd925560 — DOW-UAP-PR051, "Syrian UAP instant acceleration"](https://pursueindex.com/card/d6efb186cd925560): Department of War (2021).
+- [09001c140b97a5db — DOW-UAP-D017, UAP Reported at Sandia Base, 1948-1950](https://pursueindex.com/card/09001c140b97a5db): Department of War (1948-1950).
+- [0f469fcf6fb42875 — CIA-UAP-D001, Intelligence Information Report, USSR, 1973](https://pursueindex.com/card/0f469fcf6fb42875): Central Intelligence Agency (12/20/73).
+- [fd342b7508668b0e — ODNI-UAP-D001, USPER Narrative, Senior USIC Official](https://pursueindex.com/card/fd342b7508668b0e): Office of the Director of National Intelligence (2025).
+- [9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969](https://pursueindex.com/card/9ed140b9186c20c5): NASA (1969).
+- [aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery](https://pursueindex.com/card/aaafecbc47103f4b): Department of Energy (5/22/26).
 - [9e677b8697685311 — 18_100754_ General 1946-7_Vol_2](https://pursueindex.com/card/9e677b8697685311): Department of War (12/30/47).
 - [9317a6ea91f7425c — 18_6369445_General_1948_Vol_1](https://pursueindex.com/card/9317a6ea91f7425c): Department of War (6/15/48).
 - [973c1f75f55d0d39 — 255_413270_UFO's_and_Defense_What_Should_we_Prepare_For](https://pursueindex.com/card/973c1f75f55d0d39): NASA (5/8/26).
@@ -48,6 +55,8 @@
 - [af42a6774881c110 — 65_HS1-834228961_62-HQ-83894_Serial_438](https://pursueindex.com/card/af42a6774881c110): FBI (5/8/26).
 - [f42c11ca158aeffc — 65_HS1-834228961_62-HQ-83894_Serial_449](https://pursueindex.com/card/f42c11ca158aeffc): FBI (5/8/26).
 - [e897e67f95bc1e1b — 65_HS1-834228961_62-HQ-83894_SUB_A](https://pursueindex.com/card/e897e67f95bc1e1b): FBI (5/8/26).
+- [8156067f7ff4b983 — DOE-UAP-D002, James Tuck Correspondence, 1970s](https://pursueindex.com/card/8156067f7ff4b983): Department of Energy (1970s).
+- [b1c6f5c4a7fbeee1 — DOE-UAP-D003, Pajarito Astronomers Invitation, 1986](https://pursueindex.com/card/b1c6f5c4a7fbeee1): Department of Energy (5/20/86).
 - [fd8bfb9481bcbdd3 — DOW-UAP-D003, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/fd8bfb9481bcbdd3): Department of War (5/8/26).
 - [4382ccbf2a39513d — DOW-UAP-D004, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/4382ccbf2a39513d): Department of War (5/8/26).
 - [b21122b1b7b2d953 — DOW-UAP-D005, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/b21122b1b7b2d953): Department of War (5/8/26).
@@ -117,6 +126,55 @@
 - [86c966cdd1f9f31a — DOW-UAP-PR047, Unresolved UAP Report, INDOPACOM, 2023](https://pursueindex.com/card/86c966cdd1f9f31a): Department of War (5/8/26).
 - [c5850afb384c768b — DOW-UAP-PR048, Unresolved UAP Report, INDOPACOM, 2024](https://pursueindex.com/card/c5850afb384c768b): Department of War (5/8/26).
 - [8d3833f36d05ec03 — DOW-UAP-PR049, Unresolved UAP Report, Department of the Army, 2026](https://pursueindex.com/card/8d3833f36d05ec03): Department of War (5/8/26).
+- [76780f0336af79e1 — DOW-UAP-PR052, "UAP USO Formation [CALLSIGN] (Mission)"](https://pursueindex.com/card/76780f0336af79e1): Department of War (5/22/26).
+- [79325f4e62f8f9b9 — DOW-UAP-PR053, "Cigar Shaped or Fast Sherical UAP clip 15 OCT 22"](https://pursueindex.com/card/79325f4e62f8f9b9): Department of War (2022).
+- [09fef4b135f48798 — DOW-UAP-PR054, "Spherical UAP Erratic movement [CALLSIGN] (Mission) 2022"](https://pursueindex.com/card/09fef4b135f48798): Department of War (2022).
+- [03b017d5b76f3a7e — DOW-UAP-PR055, "Spherical UAP over AFG in and out of clouds 23 Nov 2020"](https://pursueindex.com/card/03b017d5b76f3a7e): Department of War (2020).
+- [7c49f1a10e1d45ec — DOW-UAP-PR056, "Spherical UAP pulsing over water [CALLSIGN]"](https://pursueindex.com/card/7c49f1a10e1d45ec): Department of War (5/22/26).
+- [e04b05b132f03e28 — DOW-UAP-PR057a, "Spherical UAP in clouds"](https://pursueindex.com/card/e04b05b132f03e28): Department of War (2023).
+- [b4dc3f79f7616313 — DOW-UAP-PR057b, "[Platform] Observes UAP in East China Sea 05 JAN 2023 INDOPACOM"](https://pursueindex.com/card/b4dc3f79f7616313): Department of War (2023).
+- [47cb76adb62d7e44 — DOW-UAP-PR058, "[CALLSIGN] (Mission) UAP"](https://pursueindex.com/card/47cb76adb62d7e44): Department of War (5/22/26).
+- [414f485a5a580d74 — DOW-UAP-PR059, "NAG UAP 1 Jun 20"](https://pursueindex.com/card/414f485a5a580d74): Department of War (2020).
+- [f8810c11687af675 — DOW-UAP-PR060, "Spherical UAP [CALLSIGN] 2021/04/12 obj 2"](https://pursueindex.com/card/f8810c11687af675): Department of War (2021).
+- [a7ec8e0ae80d9061 — DOW-UAP-PR061, "Spherical UAP [CALLSIGN] 2021/04/12 vid 0"](https://pursueindex.com/card/a7ec8e0ae80d9061): Department of War (2021).
+- [0cccf7db865c827c — DOW-UAP-PR062, "Spherical UAP [CALLSIGN] 2021/04/12 vid 1"](https://pursueindex.com/card/0cccf7db865c827c): Department of War (2021).
+- [8f68a0b98c4647ab — DOW-UAP-PR063, "Spherical UAP [CALLSIGN] 2021/04/12 vid 2"](https://pursueindex.com/card/8f68a0b98c4647ab): Department of War (2021).
+- [b6549669cd12c33f — DOW-UAP-PR064, "AFSOC Kabul UAP Jul 2017"](https://pursueindex.com/card/b6549669cd12c33f): Department of War (5/22/26).
+- [034173b3a4641614 — DOW-UAP-PR065, "USCG C-144 Tyndall UAP 2 TIC TAC IR hot 24 April 2024"](https://pursueindex.com/card/034173b3a4641614): Department of War (2024).
+- [cd8858cf829e6ef7 — DOW-UAP-PR066, "USCG C-144 Tyndall UAP 1 TIC TAC IR hot 24 April 2024"](https://pursueindex.com/card/cd8858cf829e6ef7): Department of War (2024).
+- [9fedb1373b50d856 — DOW-UAP-PR067, "Multiple Spherical UAP USO near Sub. [CALLSIGN] 2022/03/25 in and out of water"](https://pursueindex.com/card/9fedb1373b50d856): Department of War (5/22/26).
+- [ea2e2a6496bbdbb1 — DOW-UAP-PR068, "IIR 1 666 S0151 23/Video Footage of Unidentified Aerial Phenomenon (UAP) captured by fifth generation aircraft on 20 Jan 23"](https://pursueindex.com/card/ea2e2a6496bbdbb1): Department of War (2023).
+- [0699b4948ba6fb90 — DOW-UAP-PR069, "F/A-18 FLIR UAP"](https://pursueindex.com/card/0699b4948ba6fb90): Department of War (5/22/26).
+- [bff6df8420d4cbdc — DOW-UAP-PR070, "IIR 1 655 S0301 23/Eglin AFB Aircrew Observed Unidentified Aerial Phenomena (UAP) on 13 Feb 23"](https://pursueindex.com/card/bff6df8420d4cbdc): Department of War (2023).
+- [b242f32347c819a5 — DOW-UAP-PR071, "USAF ANG F-16C (callsign [CALLSIGN]) Shoots Down UAP over Lake Huron with [Weapon System], 12 Feb 2023"](https://pursueindex.com/card/b242f32347c819a5): Department of War (2023).
+- [2a9f746d66a05666 — DOW-UAP-PR072, "ADMINISTRATIVE REVISION: IIR 1777 J0032 22 Kazakhstan - UAP in the vicinity of Karaganda International Airport"](https://pursueindex.com/card/2a9f746d66a05666): Department of War (2022).
+- [e07aead6d20b2925 — DOW-UAP-PR073, IIR 1 655 S0053 23/Several Unidentified Aerial Phenomenon Encountered In The Vicinity of Columbus OH"](https://pursueindex.com/card/e07aead6d20b2925): Department of War (2022).
+- [cc72a9adcc562f7a — DOW-UAP-PR074, "[CALLSIGN] (Mission)HD_20220613"](https://pursueindex.com/card/cc72a9adcc562f7a): Department of War (2022).
+- [bb61c203319b4b25 — DOW-UAP-PR075, "09JUN2021 [Platform] observed UAP in the ECS"](https://pursueindex.com/card/bb61c203319b4b25): Department of War (2021).
+- [58402012053be609 — DOW-UAP-PR076, "03 January 2021 [CALLSIGN] (Mission) observes UAP"](https://pursueindex.com/card/58402012053be609): Department of War (2021).
+- [22f4d050e1dad88c — DOW-UAP-PR077, "2 November 2020 [CALLSIGN] [CALLSIGN] Observes and tracks UAP 1 of 2"](https://pursueindex.com/card/22f4d050e1dad88c): Department of War (2020).
+- [d02f9eac223b1525 — DOW-UAP-PR078, "2 November 2020 [CALLSIGN] [CALLSIGN] Observes and tracks UAP 2 of 2"](https://pursueindex.com/card/d02f9eac223b1525): Department of War (2020).
+- [814d0aa44e632c73 — DOW-UAP-PR079, "29 October 2020 [CALLSIGN] (Mission) observes 3 fast moving UAP's"](https://pursueindex.com/card/814d0aa44e632c73): Department of War (2020).
+- [62abad9fdfc1652e — DOW-UAP-PR080, "20 October 2020 [CALLSIGN] [CALLSIGN] Observes UAP"](https://pursueindex.com/card/62abad9fdfc1652e): Department of War (2020).
+- [2163031bf38f0a63 — DOW-UAP-PR081, "18 Oct 2020 [CALLSIGN] observes UAP"](https://pursueindex.com/card/2163031bf38f0a63): Department of War (2020).
+- [44209964c97d2c53 — DOW-UAP-PR082, "16 OCT 2020 [CALLSIGN] views UAP"](https://pursueindex.com/card/44209964c97d2c53): Department of War (2020).
+- [d8944e2bc6627e5d — DOW-UAP-PR083, "7 October 2020 [CALLSIGN] observes UAP"](https://pursueindex.com/card/d8944e2bc6627e5d): Department of War (2020).
+- [d42052963cb29aaa — DOW-UAP-PR084, "17 Sept 2020 [CALLSIGN] observes UAP"](https://pursueindex.com/card/d42052963cb29aaa): Department of War (2020).
+- [a021a640e3108c35 — DOW-UAP-PR085, "16 Sept 2020 [CALLSIGN] [CALLSIGN] observes UAP"](https://pursueindex.com/card/a021a640e3108c35): Department of War (2020).
+- [4b0bd5b1c75a0c6f — DOW-UAP-PR086, "UAP from Dec 2019 (East Coast)"](https://pursueindex.com/card/4b0bd5b1c75a0c6f): Department of War (2019).
+- [aec4d4da8ac17636 — DOW-UAP-PR087, "05 September 2020 [CALLSIGN] UAP"](https://pursueindex.com/card/aec4d4da8ac17636): Department of War (2020).
+- [4649af95e88b6643 — DOW-UAP-PR088, "31 AUG [CALLSIGN] [CALLSIGN] Observes UAP"](https://pursueindex.com/card/4649af95e88b6643): Department of War (2020).
+- [b2a7526ec9774d17 — DOW-UAP-PR089, "31 AUG [CALLSIGN] [CALLSIGN] Observes UAP part2"](https://pursueindex.com/card/b2a7526ec9774d17): Department of War (2020).
+- [10d757c7b1bf6aa1 — DOW-UAP-PR090, "24 AUG 2020 [CALLSIGN] (Mission) Observes UAP"](https://pursueindex.com/card/10d757c7b1bf6aa1): Department of War (2020).
+- [4af74afe8dc054bc — DOW-UAP-PR091, "21 AUG [CALLSIGN] Observes UAP in Persian Gulf"](https://pursueindex.com/card/4af74afe8dc054bc): Department of War (2020).
+- [9dfbbb6de5c73272 — DOW-UAP-PR092, "08 AUG 2020 [CALLSIGN] [CALLSIGN] UAP observation"](https://pursueindex.com/card/9dfbbb6de5c73272): Department of War (2020).
+- [40a4c3e0843b0de7 — DOW-UAP-PR093, "May 05 2020 Gulf of Arabia [CALLSIGN] (Platform) Dual UAP"](https://pursueindex.com/card/40a4c3e0843b0de7): Department of War (2020).
+- [5f526642200e3985 — DOW-UAP-PR094, "[CALLSIGN] (Mission) - HD 2020-02-13"](https://pursueindex.com/card/5f526642200e3985): Department of War (2020).
+- [804d5367a7e29ee0 — DOW-UAP-PR095, "May 05 2020 Gulf of Arabia [CALLSIGN] (Platform) Dual UAP"](https://pursueindex.com/card/804d5367a7e29ee0): Department of War (2020).
+- [5f5e3ee158c91a63 — DOW-UAP-PR096, "HH11 03 July 2018 UAPs"](https://pursueindex.com/card/5f5e3ee158c91a63): Department of War (2018).
+- [23e7db6d552332e5 — DOW-UAP-PR097, "Hi-Res: [CALLSIGN] Observes UAP on 25SEP19 at 2135Z"](https://pursueindex.com/card/23e7db6d552332e5): Department of War (2019).
+- [f3ef3a248b605aa0 — DOW-UAP-PR098, "UFOs in formation over Persian Gulf?"](https://pursueindex.com/card/f3ef3a248b605aa0): Department of War (5/22/26).
+- [7d5b9bff15c9a44d — DOW-UAP-PR099, "Hi-Res: [CALLSIGN] Observes UAP on 25SEP19 at 1715Z"](https://pursueindex.com/card/7d5b9bff15c9a44d): Department of War (2023).
 - [3893e5d0279db3b1 — FBI Photo A001](https://pursueindex.com/card/3893e5d0279db3b1): FBI (Late 2025).
 - [ba30b5fdb4f6d153 — FBI Photo A002](https://pursueindex.com/card/ba30b5fdb4f6d153): FBI (Late 2025).
 - [93cbdaad1d4ac853 — FBI Photo A003](https://pursueindex.com/card/93cbdaad1d4ac853): FBI (Late 2025).
@@ -161,6 +219,12 @@
 - [63c47bad93af4c92 — NASA-UAP-D005, Apollo 17 Crew Debriefing for Science, 1973](https://pursueindex.com/card/63c47bad93af4c92): NASA (1973).
 - [0b298cfc9c65a4d6 — NASA-UAP-D006, Apollo 17 Technical Crew Debriefing, 1973](https://pursueindex.com/card/0b298cfc9c65a4d6): NASA (1973).
 - [8bb54e0aec5e91ad — NASA-UAP-D007, Skylab Techincal Crew Debriefing 1973](https://pursueindex.com/card/8bb54e0aec5e91ad): NASA (1973).
+- [002eaa383e76a277 — NASA-UAP-D009, Apollo 17 Audio Excerpt, December 7, 1972](https://pursueindex.com/card/002eaa383e76a277): NASA (12/7/72).
+- [1bc28d0e03b79e35 — NASA-UAP-D010, Mercury Atlas 9 Audio Excerpt, May 15, 1963](https://pursueindex.com/card/1bc28d0e03b79e35): NASA (5/15/63).
+- [ef779c3f0f7ba4d3 — NASA-UAP-D011, Mercury Atlas 9 Audio Excerpt, May 15, 1963](https://pursueindex.com/card/ef779c3f0f7ba4d3): NASA (5/15/63).
+- [35e0a7cff95a3e93 — NASA-UAP-D012, Mercury Atlas 8 Audio Excerpt, October 3, 1962](https://pursueindex.com/card/35e0a7cff95a3e93): NASA (10/3/62).
+- [6b12c3ddc6a96008 — NASA-UAP-D013, Mercury Atlas 7, May 24, 1962](https://pursueindex.com/card/6b12c3ddc6a96008): NASA (5/24/62).
+- [01765a63bbd3f02f — NASA-UAP-D014, Mercury-Redstone 4, July 21, 1961](https://pursueindex.com/card/01765a63bbd3f02f): NASA (7/21/61).
 - [303ad110cb5fa8b4 — NASA-UAP-VM001, Apollo 12, 1969](https://pursueindex.com/card/303ad110cb5fa8b4): NASA (1969).
 - [bd9411951868bc3e — NASA-UAP-VM002, Apollo 12, 1969](https://pursueindex.com/card/bd9411951868bc3e): NASA (1969).
 - [19b18b71420602c5 — NASA-UAP-VM003, Apollo 12, 1969](https://pursueindex.com/card/19b18b71420602c5): NASA (1969).
@@ -174,12 +238,6 @@
 - [c48c078b811c0fd7 — State Department UAP Cable 005, Mexico, September 16, 2003](https://pursueindex.com/card/c48c078b811c0fd7): Department of State (9/12/03).
 - [be533a4ab886eb11 — USPER Statement about UAP Sighting](https://pursueindex.com/card/be533a4ab886eb11): FBI (Late 2025).
 - [8d0b85ce46109d06 — Western US Event](https://pursueindex.com/card/8d0b85ce46109d06): Department of War (2023).
-- [7be223c345fecfdd — ODNI-UAP-D001, USPER Narrative - Senior USIC, 2026](https://pursueindex.com/card/7be223c345fecfdd): Office of the Director of National Intelligence (5/22/26).
-- [eae6c4d03ee4e66f — CIA-UAP-D001, Intelligence Information Report - USSR, 1973](https://pursueindex.com/card/eae6c4d03ee4e66f): Central Intelligence Agency (5/22/26).
-- [b20c658be70b0e4a — DOE-UAP-D001, PANTEX Image, 2026](https://pursueindex.com/card/b20c658be70b0e4a): Department of Energy (5/22/26).
-- [ce343c85c98e89aa — DOE-UAP-D002, James Tuck Correspondence, undated](https://pursueindex.com/card/ce343c85c98e89aa): Department of Energy (5/22/26).
-- [37a39b1959ee7737 — DOE-UAP-D003, Pajarito Astronomers, undated](https://pursueindex.com/card/37a39b1959ee7737): Department of Energy (5/22/26).
-- [a6595ad20e876e57 — DOW-UAP-D017, General Correspondence of Sandia, 2026](https://pursueindex.com/card/a6595ad20e876e57): Department of War (5/22/26).
 
 ## Finds
 

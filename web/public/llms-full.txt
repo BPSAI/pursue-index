@@ -30,8 +30,110 @@ Cite the original DOW PDF for the contents of a source document. Cite this site 
 
 ## Cards
 
-164 cards across the current corpus. Each card has a canonical URL on this site and a 
+222 cards across the current corpus. Each card has a canonical URL on this site and a 
 `sameAs` link back to its war.gov artifact. Where OCR text is available, the first page's text is included verbatim below (truncated to ~500 characters).
+
+### d7c07f24a96f8bac — DOW-UAP-PR050, "4 UAP Formation Iran 26 Aug 2022 over water [CALLSIGN]"
+
+- Agency: Department of War
+- Date: 2022
+- URL: https://pursueindex.com/card/d7c07f24a96f8bac
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “4 UAP Formation Iran 26 Aug 2022 over water [CALLSIGN],” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2022. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:00:20
+Video Description:
+00:01-00:04: Four areas of contrast transit the sensor field-of-view, entering from the lower third of the left side of the screen and exiting near the center of the bottom of the frame.
+00:05-00:06: An area of contrast enters the sensor field-of-view from the top left corner of the screen.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### d6efb186cd925560 — DOW-UAP-PR051, "Syrian UAP instant acceleration"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/d6efb186cd925560
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Syrian UAP instant acceleration,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:05:02
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+00:01-00:19: The sensor pans to maintain the position of an area of contrast within the center of the frame.
+00:20-00:21: The sensor stops tracking the area of contrast, causing it to rapidly exit the right side of the frame.
+00:22-00:27: No content.
+00:27-00:29 A black screen appears featuring the phrase “white edge threshold enhancement in attempt to highlight UAP shape. Original clip excerpt at 100% speed.” 
+00:30-00:50: The video replays with digital alterations applied.
+00:51-00:53: A black screen appears featuring the phrase “50% speed.”
+00:54-01:05: The video replays with digital alterations applied.
+01:06-01:08: A black screen appears featuring the phrase “25% speed.”
+01:09-01:35: The video replays with digital alterations applied.
+01:36-01:41: A black screen appears featuring the phrase “B/W values inverted, picture zoomed”
+01:42-02:03: The video replays with digital alterations applied.
+02:04-02:09: A black screen appears featuring the phrase “full original clip TRT: 2:52”
+02:10-03:49: The video replays, showing additional footage of the area of contrast at its original resolution on a far zoom.
+03:50-04:02: The sensor rapidly zooms in and out.
+04:03-04:28: The sensor focuses and zooms in, locking a reticle around the area of contrast.
+04:29-5:01: The video replays 00:20-00:21, the period in which the sensor stops tracking the area of contrast, causing it to rapidly exit the right side of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 09001c140b97a5db — DOW-UAP-D017, UAP Reported at Sandia Base, 1948-1950
+
+- Agency: Department of War
+- Date: 1948-1950
+- URL: https://pursueindex.com/card/09001c140b97a5db
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOW-UAP-D017_General_Correspondence_Of_Sandia.pdf
+- Description: This file contains 116 pages of documentation from the Armed Forces Special Weapons Program (AFSWP) – the direct, post-World War II successor to the Manhattan Project – and from the U.S. Air Force – relating to a series of sightings and investigations in Sandia, New Mexico, from 1948-1950. This file contains 209 sightings of “green orbs,” “discs,” and “fireballs” reported near the military base. Witnesses reported unidentified anomalous phenomena (UAP) maneuvering, flying out of sight, disappearing, or exploding. The documents also include the results of contemporary investigations into residual copper powder found in some areas where sightings were reported. A few of these investigations became the basis for Project Grudge, which collected reports of unidentified flying objects from various other military installations – also included in this collection.
+
+Excerpt (page 1):
+
+this document consists of 2 pages, copy_____ of 4, series #. HEADQUARTERS, DETACHMENT D 1100TH USAF SPECIAL REPORTING GROUP Campbell Air Force Base Camp Campbell, Kentucky 7 April 1949 3331 SUBJECT: Security Inspection TO: Commanding General Sandia Base 230 Albuquerque, New Mexico Reference is made to secret letter, your headquarters, dated 1 April 1949, Subject: Security Inspection. 2. a. Guard Orders have been amended directing that the elec- tric gate be closed between 1700 hours until 0700 h
+
+### 0f469fcf6fb42875 — CIA-UAP-D001, Intelligence Information Report, USSR, 1973
+
+- Agency: Central Intelligence Agency
+- Date: 12/20/73
+- URL: https://pursueindex.com/card/0f469fcf6fb42875
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/CIA-UAP-D001_Intelligence_Information_Report_USSR_1973.pdf
+- Description: This document is a Central Intelligence Agency (CIA) intelligence information report (IIR) that describes human intelligence gathering activities in the Union of Soviet Socialist Republics (USSR). This report characterizes its content as informational, not as finally evaluated intelligence. In section 14 of this document, the source describes an incident occurring in summer of 1973, where he allegedly observed an airborne, luminous, bright green, unidentified object. The source described concentric circles forming around the phenomenon over a period of several minutes, before it dissipated. The source also stated that no sound attended the observation. The source offered no opinion on the nature of the phenomenon and was unable to provide further details regarding the incident.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED. Crussified by Recorded Reporting Officer. Exempt from General Declassification Schedule of E.O. 11632 Ex ... impossible to determine date of automatic declassification. PAGE 1 U. . DIRECTORATE OF OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE REPORT NO. FIR K-311/01638+77 DATE DISTR. 20 December 1977 • ; . . . COUNTRY USSR November 1972-Novem
+
+### fd342b7508668b0e — ODNI-UAP-D001, USPER Narrative, Senior USIC Official
+
+- Agency: Office of the Director of National Intelligence
+- Date: 2025
+- URL: https://pursueindex.com/card/fd342b7508668b0e
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf
+- Description: This document is a first-hand account written by a currently serving (May 2026) senior U.S. intelligence official. The official was part of a team investigating reports of unusual noises and sightings of unidentified anomalous phenomena in and near a sensitive U.S. military facility in late 2025. From the official’s vantage point as a helicopter passenger, the official recounts encountering unidentified “glowing orbs” both at close range and at a distance. The account describes an apparent high-speed object moving low to the ground, which appeared to split in two and accelerate away in two different directions. It also describes numerous higher-altitude “orbs,” some of which the official assessed to be in close proximity to the helicopter. This account is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground, originally released on war.gov/UFO on May 8, 2026.
+
+Excerpt (page 1):
+
+In late 2025, during early evening daylight hours, I – a senior U.S. intelligence officer – along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter. Our mission was to investigate loud thuds heard in the mountains on the test range, which coincided with Unidentified Aerial Phenomena (UAP) sightings reported over the previous several nights. We aimed to search remote mountain areas for possible debris or objects that might explain the orb-like sightings. 
+
+### 9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969
+
+- Agency: NASA
+- Date: 1969
+- URL: https://pursueindex.com/card/9ed140b9186c20c5
+- Description: During a medical debriefing of the crew of the Apollo 12 mission, Commander Charles “Pete” Conrad, Command Module Pilot Richard “Dick” F. Gordon, and Lunar Module Pilot Alan L. Bean describe their observations of instances of light flashes or “streaks of lights.” The astronauts each reported that these experiences occurred in the dark as they tried to sleep.
+The NASA medical team considered whether similar phenomena reported by Apollo 11 Lunar Module Pilot Buzz Aldrin had been attributable to exposure of the retina by cosmic rays. NASA later determined that the phenomena reported by the Apollo 12 flight crew were internal to the astronauts’ vision rather than external light sources.
+
+### aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery
+
+- Agency: Department of Energy
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/aaafecbc47103f4b
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOE-UAP-D001_PANTEX_Image.pdf
+- Description: A Pantex Unidentified Object Incident Report that includes an enhanced image from ground surveillance radar tower.
+
+Excerpt (page 1):
+
+UCNI ParteX Managed and Operated by Consolidated Nuclear Security, LLC Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower • (b)(3) (UCNI) UCNI Page 5 of 6
 
 ### 9e677b8697685311 — 18_100754_ General 1946-7_Vol_2
 
@@ -416,6 +518,30 @@ SERIAL 449- ONLY G2. HQ. 33394 Val FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTER
 Excerpt (page 1):
 
 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. FD-245.1 (Rev. 1-4-99) U.S. Department of Justice 0062 딣 Class FBI / Case # HEADQUARTERS File 83894 CENTRAL No. Bureau D = ∞ Sub ᄁ ECORDS igation RRP003IXFT ⊸ CENTER Serial# OPEN Serials Volume Field Office Criminal Investigative Number and Administrative Files FOIPA Armed and Dangerous DO NOT DESTROY _ NCIC OCIS ELSUR Suicidal Escape Risk Financial Privacy Act Other _ See also Nos. _____ [[IMAGE-D
+
+### 8156067f7ff4b983 — DOE-UAP-D002, James Tuck Correspondence, 1970s
+
+- Agency: Department of Energy
+- Date: 1970s
+- URL: https://pursueindex.com/card/8156067f7ff4b983
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOE-UAP-D002_JamesTuck_Correspondence.pdf
+- Description: Personal correspondence to and from James Tuck, a Los Alamos National Laboratory-affiliated physicist, regarding his interest in unidentified anomalous phenomena circa 1970s.
+
+Excerpt (page 1):
+
+A-83-001_2-1 BL 11-23-20 Dear Mr. Tuck: Im Derry That & Cannot fell Out The attacked forme since The times and dates of any Rightings escape me. I can However, like you that during the years 1948 through 1951 Reverale sightinge of Breen lighte Were made at Les alames. These threally occured during the early goart of the Hight, Hime to eleven, and were Usually use the Jenney Wouldins. I can recall several enstances of green light weaving in and out & Mountain years. This was all reported Is the p
+
+### b1c6f5c4a7fbeee1 — DOE-UAP-D003, Pajarito Astronomers Invitation, 1986
+
+- Agency: Department of Energy
+- Date: 5/20/86
+- URL: https://pursueindex.com/card/b1c6f5c4a7fbeee1
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOE-UAP-D003_Pajarito_Astronomers.pdf
+- Description: A letter to the members of the Pajarito Astronomers club regarding an upcoming meeting featuring a presentation from a Los Alamos National Laboratory-affiliated physicist, Dr. John Warren, titled “Why Should a Scientist be Concerned about UFOs?” The referenced event was not officially hosted by Los Alamos. The laboratory has no record of the subject matter discussed at the meeting.
+
+Excerpt (page 1):
+
+A-86-014-91-3 H. Borgman H-183 5/20/86 Pajarito Astronomers P.O. Box 1092, Los Alamos NM, 87544 MS K553 President MS E531 Vice President MS F665 Treesurer Sponsored by Club 1563 EHF-100-334 Tuesday, May 20, 1986 Dear Members, Our next meeting will be Thursday, May 29, 1986, in the Ranch Room at Fuller Lodge, at 7:30 p.m. Guest speaker will be Dr. John Warren of AT-6, whose topic will be "Why Should a Scientist be Concerned about UFO's?" To find the Ranch Room, go around (outside) to the south en
 
 ### fd8bfb9481bcbdd3 — DOW-UAP-D003, Mission Report, Arabian Gulf, 2020
 
@@ -1436,6 +1562,948 @@ Video Description:
 
 This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
 
+### 76780f0336af79e1 — DOW-UAP-PR052, "UAP USO Formation [CALLSIGN] (Mission)"
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/76780f0336af79e1
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “UAP USO Formation [CALLSIGN] (Mission),” is likely derived from an infrared sensor aboard a U.S. military platform. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:08:16
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+
+00:00-00:05: Four areas of contrast transit the frame from the bottom third of the left side to the bottom third of the right side of the frame.
+00:06-00:38: The video appears to cut, refocusing on four areas of contrast. Visual elements of the sensor display enter and exit the frame.
+00:39-06:08: The video seems to cut multiple times, applying various contrast filters and zoom levels. Visual elements of the sensor display enter and exit the frame.
+06:09-06:50: The sensor zooms in on four areas of contrast.
+06:51-08:10: The areas of contrast become increasingly indistinct over time as the video quality degrades.
+08:11-08:15: Video appears to cut, or zoom out, likely cutting to an earlier portion of the video, with the areas of contrast more visible.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 79325f4e62f8f9b9 — DOW-UAP-PR053, "Cigar Shaped or Fast Sherical UAP clip 15 OCT 22"
+
+- Agency: Department of War
+- Date: 2022
+- URL: https://pursueindex.com/card/79325f4e62f8f9b9
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Cigar Shaped or Fast Spherical UAP clip 15 OCT 22,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in October 2022. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:00:21
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+
+00:01-00:04: An area of contrast transits the sensor field-of-view from left to right. 
+00:06-00:14: The video replays at a slower speed.
+00:15-00:21: The video replays again at an even slower speed.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 09fef4b135f48798 — DOW-UAP-PR054, "Spherical UAP Erratic movement [CALLSIGN] (Mission) 2022"
+
+- Agency: Department of War
+- Date: 2022
+- URL: https://pursueindex.com/card/09fef4b135f48798
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is “Spherical UAP Erratic movement [CALLSIGN] (Mission) 2022,” is likely derived from an infrared sensor aboard a U.S. military platform operating in the United States European Command area of responsibility in August 2022. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:03:57
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received. 
+
+00:00-00:45: The video features an area of contrast generally within the center the frame. The sensor pans to track the area of contrast. Digital alterations to the video footage significantly influence the area of contrast’s apparent performance characteristics.
+00:46-03:57: The video appears to cut, refocusing on an area of contrast generally within the center of the frame. The area of contrast intermittently passes in and out of frame as the sensor pans to track it.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 03b017d5b76f3a7e — DOW-UAP-PR055, "Spherical UAP over AFG in and out of clouds 23 Nov 2020"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/03b017d5b76f3a7e
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP over AFG in and out of clouds 23 Nov 2020,” is likely derived from an infrared sensor aboard a U.S. military platform operating in the United States Central Command area of responsibility in November 2020. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:00:47
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+
+00:00-00:02: A black screen appears featuring the phrase “zoomed in.”
+00:03-00:10: An area of contrast becomes visible near the top left corner of the screen, transiting from left to right before losing distinctiveness against the background.
+00:11-00:12: A black screen appears featuring the phrase “sharpened, zoomed motion tracked contrast enhanced slow to 60% speed.”
+00:12-00:28: The video replays at reduced speed and increased zoom level.
+00:28-00:29: A black screen appears featuring the phrase, “original video.”
+00:30-00:47: An area of contrast appears near the center of the top of the frame, transits downward to the left, before moving to the right and losing distinctiveness against the background.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 7c49f1a10e1d45ec — DOW-UAP-PR056, "Spherical UAP pulsing over water [CALLSIGN]"
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/7c49f1a10e1d45ec
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP pulsing over water [CALLSIGN],” is likely derived from an infrared sensor aboard a U.S. military platform. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:03:32
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+
+00:01-0:47: The video features an area of contrast generally within the center of the frame.
+00:48-00:52: The sensor briefly switches contrast modes, with the area of contrast remaining generally within the center of the frame.
+00:53-03:32: The sensor returns to its original contrast mode, with the area of contrast remaining generally within the center of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### e04b05b132f03e28 — DOW-UAP-PR057a, "Spherical UAP in clouds"
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/e04b05b132f03e28
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody. 
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP in clouds,” is likely derived from an infrared sensor aboard a U.S. military platform operating above the Yellow Sea in January 2023. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 1:10
+Video Description: 
+00:00-00:06: No content.
+00:07-00:08: An area of contrast enters the sensor field-of-view from left and exits near the center of the right side of the frame.
+00:09-00:20: The sensor pans and cycles zoom levels multiple times.
+00:21-00:31: An area of contrast enters the frame from the left side of the screen. The area of contrast becomes indistinguishable against the background.
+00:32-00:34: The sensor zooms in. An area of contrast becomes distinguishable against the background near the center of the frame.
+00:35-00:52: The sensor pans to track the area of contrast from left to right.
+00:53-00:56: The sensor zooms in. An area of contrast transits the sensor field-of-view from left to right in the bottom third of the frame. 
+00:57-01:10: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+AARO Comment: This media is a duplicate of DOW-UAP-PR57b, alternately titled, “[Platform] observes UAP in East China Sea 05 JAN 2023 INDOPACOM.” This discrepancy exists because two uploaders titled the underlying material differently on a classified network.
+
+### b4dc3f79f7616313 — DOW-UAP-PR057b, "[Platform] Observes UAP in East China Sea 05 JAN 2023 INDOPACOM"
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/b4dc3f79f7616313
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody. 
+
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP in clouds,” is likely derived from an infrared sensor aboard a U.S. military platform operating above the Yellow Sea in January 2023. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 1:10
+Video Description: 
+00:00-00:06: No content.
+00:07-00:08: An area of contrast enters the sensor field-of-view from left and exits near the center of the right side of the frame.
+00:09-00:20: The sensor pans and cycles zoom levels multiple times.
+00:21-00:31: An area of contrast enters the frame from the left side of the screen. The area of contrast becomes indistinguishable against the background.
+00:32-00:34: The sensor zooms in. An area of contrast becomes distinguishable against the background near the center of the frame.
+00:35-00:52: The sensor pans to track the area of contrast from left to right.
+00:53-00:56: The sensor zooms in. An area of contrast transits the sensor field-of-view from left to right in the bottom third of the frame. 
+00:57-01:10: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+AARO Comment: This media is a duplicate of DOW-UAP-PR57a, alternately titled, “Spherical UAP in clouds.” This discrepancy exists because two uploaders titled the underlying material differently on a classified network.
+
+### 47cb76adb62d7e44 — DOW-UAP-PR058, "[CALLSIGN] (Mission) UAP"
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/47cb76adb62d7e44
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “[CALLSIGN] (Mission) UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Indo-Pacific Command area of responsibility. A user uploaded this video to a classified network in June 2024. 
+
+Video Duration: 00:10:48
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+
+00:01-00:04: A black screen appears featuring the phrase, “[CALLSIGN] recording - 8x speed possible changes of shape stabilized and enhanced 38 secs.”
+00:05-00:41: An area of contrast remains centered within the frame. Visual elements of the sensor display enter and exit the frame intermittently throughout.
+00:42-00:45: A black screen appears featuring the phrase, “UAP recording original speed stabilized, sharpened, contrast enhanced 5 min.”
+00:46-05:45: An area of contrast remains generally within the center of the frame. The sensor cycles contrast modes multiple times.
+05:46-05:48: A black screen appears featuring the phrase, “UAP recording original clip 5 minutes.” 
+05:49-10:48: The sensor pans to track an area of contrast keeping it generally within the center of the frame. The overall quality of the footage progressively degrades throughout.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 414f485a5a580d74 — DOW-UAP-PR059, "NAG UAP 1 Jun 20"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/414f485a5a580d74
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “NAG UAP 1 Jun 20,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:04:51
+Video Description:
+00:02-00:36: An area of contrast appears in the sensor field-of-view. The sensor zooms and pans to keep the area of contrast in the field-of-view. 
+00:37-03:37: The sensor continues to pan to track the area of contrast, highlighting it with a reticle.
+03:38: The area of contrast exits the sensor field-of-view, leaving the frame in the bottom left quarter of the screen. 
+03:39-04:35: The sensor zooms out, pans to track the area of contrast, and zooms in to keep the area of contrast in the field-of-view.
+04:36-04:51: The sensor cycles zoom levels to keep the area of contrast within the sensor field-of-view.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### f8810c11687af675 — DOW-UAP-PR060, "Spherical UAP [CALLSIGN] 2021/04/12 obj 2"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/f8810c11687af675
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP [CALLSIGN] 2021/04/12 obj 2,” is likely derived from a full-motion video camera and an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:04:50
+Video Description:
+00:00-00:26: An area of contrast transits the sensor field-of-view from right to left. The sensor pans and zooms in and out to track the area of contrast.
+00:27-02:04: The area of contrast re-enters the sensor field-of-view. The sensor pans to the left and up to track it.
+02:05-04:50: The sensor refocuses on the original subject matter of the video.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### a7ec8e0ae80d9061 — DOW-UAP-PR061, "Spherical UAP [CALLSIGN] 2021/04/12 vid 0"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/a7ec8e0ae80d9061
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is “Spherical UAP [CALLSIGN] 2021/04/12 vid 0,” is likely derived from a full-motion video camera and an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:04:46
+Video Description:
+03:02-04:00: An area of contrast enters the sensor field-of-view from the upper right corner of the frame, exiting in the bottom right corner of the screen. The sensor pans to track the area of contrast, centering it within the sensor field-of-view.
+04:01-04:46: The sensor changes modes as the area of contrast becomes indistinct against the background.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 0cccf7db865c827c — DOW-UAP-PR062, "Spherical UAP [CALLSIGN] 2021/04/12 vid 1"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/0cccf7db865c827c
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP [CALLSIGN] 2021/04/12 vid 1,” is likely derived from a color and infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in May 2024.
+
+Video Duration: 00:04:49
+Video Description:
+00:00-04:49: The sensor pans and cycles zoom levels to track an area of contrast, keeping it generally within the center of the sensor field-of-view.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 8f68a0b98c4647ab — DOW-UAP-PR063, "Spherical UAP [CALLSIGN] 2021/04/12 vid 2"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/8f68a0b98c4647ab
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP [CALLSIGN] 2021/04/12 vid 2,” is likely derived from a full-motion video camera and an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in May 2024.
+
+Video Duration: 00:04:49
+Video Description:
+00:00-00:49: The sensor pans to track an area of contrast, keeping it generally within the center of the sensor field-of-view.
+00:50: The sensor pans away from the area of contrast.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### b6549669cd12c33f — DOW-UAP-PR064, "AFSOC Kabul UAP Jul 2017"
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/b6549669cd12c33f
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “AFSOC Kabul UAP Jul 2017,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:00:17
+Video Description:
+00:00-00:13: No content.
+00:14-00:15: An area of contrast moves into the sensor field-of-view from the left edge and moves to the right edge out of the field-of-view.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 034173b3a4641614 — DOW-UAP-PR065, "USCG C-144 Tyndall UAP 2 TIC TAC IR hot 24 April 2024"
+
+- Agency: Department of War
+- Date: 2024
+- URL: https://pursueindex.com/card/034173b3a4641614
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “USCG C-144 Tyndall UAP 2 TIC TAC IR hot 24 April 2024,” is likely derived from an infrared sensor aboard a U.S. Coast Guard platform operating in the Southeastern United States in 2024. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:00:38
+Video Description:
+00:00-00:32: A sensor pans to keep an area of contrast in its field-of-view.
+00:33: The sensor pans to the left causing the area of contrast to leave the field-of-view on the right side of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### cd8858cf829e6ef7 — DOW-UAP-PR066, "USCG C-144 Tyndall UAP 1 TIC TAC IR hot 24 April 2024"
+
+- Agency: Department of War
+- Date: 2024
+- URL: https://pursueindex.com/card/cd8858cf829e6ef7
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “USCG C-144 Tyndall UAP 1 TIC TAC IR hot 24 April 2024,” is likely derived from an infrared sensor aboard a U.S. Coast Guard platform operating in the Southeastern United States in 2024. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:00:48
+Video Description:
+00:09-00:15: An area of contrast appears from the upper right side of the screen. The sensor does not pan to track the area of contrast, causing it to leave the field-of-view on the left side of the frame. 
+00:33-00:48: An area of contrast enters the field-of-view from the lower right side of the screen and leaves the field-of-view on the lower left side of the screen. The sensor pans to the left, but is unable to track the area of contrast.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 9fedb1373b50d856 — DOW-UAP-PR067, "Multiple Spherical UAP USO near Sub. [CALLSIGN] 2022/03/25 in and out of water"
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/9fedb1373b50d856
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Multiple Spherical UAP USO near Sub. [CALLSIGN] 2022/03/25 in and out of water,” is likely derived from an infrared sensor aboard a U.S. military platform. A user uploaded this video to a classified network in May 2024.
+
+Video Duration: 00:04:50
+Video Description:
+00:45-00:56: An area of contrast enters the field-of-view from the bottom left side of the screen and moves to the bottom right of the screen. The sensor pans to track the area of contrast. 
+00:57-01:10: A second area of contrast enters the field-of-view from the bottom right side of the screen. The sensor pans to keep both objects in its field-of-view, but the second object briefly leaves the field of view off the right side of the screen. The first area of contrast leaves the field-of-view off the right side of the frame, and the sensor pans to continue tracking the second object, which then appears from the middle of the left side of the frame.
+01:11-01:35: The sensor continues to pan to track the second area of contrast.
+01:36: The sensor zooms out, losing view of the second area of contrast.
+02:11-03:05: An area of contrast enters the field-of-view from the lower right side of the screen, moves off the left side of the screen, and the sensor pans to track it. The area of contrast reenters the field-of-view from the lower right side of the screen and the sensor continues to pan to track it.
+04:09-04:37: An area of contrast enters the field-of-view from the right side of the screen, crosses the field-of-view, and the sensor pans to track it.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### ea2e2a6496bbdbb1 — DOW-UAP-PR068, "IIR 1 666 S0151 23/Video Footage of Unidentified Aerial Phenomenon (UAP) captured by fifth generation aircraft on 20 Jan 23"
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/ea2e2a6496bbdbb1
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “IIR 1 666 S0151 23/Video Footage of Unidentified Aerial Phenomenon (UAP) captured by fifth generation aircraft on 20 Jan 23,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Northern Command area of responsibility in 2023. A user uploaded this video to a classified network in July 2023.
+
+Video Duration: 00:01:03
+Video Description:
+00:00-00:31: A sensor tracks an area of contrast, keeping it generally within the center of the field-of-view.
+00:32-01:03: The area of contrast briefly moves in and out of the field-of-view from the top of the frame as the sensor pans to track it.
+00:48: A second area of contrast becomes visible in the upper right quarter of the screen.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 0699b4948ba6fb90 — DOW-UAP-PR069, "F/A-18 FLIR UAP"
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/0699b4948ba6fb90
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “F/A-18 FLIR UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Northern Command area of responsibility in 2022. A user uploaded this video to a classified network in July 2023.
+
+Video Duration: 00:00:29
+Video Description: A sensor pans to track an area of contrast. At the 14 second mark, a reticle surrounds the area of contrast. At the 27 second mark, the reticle loses its track on the area of contrast.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### bff6df8420d4cbdc — DOW-UAP-PR070, "IIR 1 655 S0301 23/Eglin AFB Aircrew Observed Unidentified Aerial Phenomena (UAP) on 13 Feb 23"
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/bff6df8420d4cbdc
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “IIR 1 655 S0301 23/Eglin AFB Aircrew Observed Unidentified Aerial Phenomena (UAP) on 13 Feb 23,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Northern Command area of responsibility in 2023. A user uploaded this video to a classified network in March 2023.
+
+Video Duration: 00:00:30
+Video Description: A sensor pans to keep an area of contrast in the center of its field-of-view, cycling contrast modes multiple times. At the 22 second mark, the area of contrast loses distinctiveness against the background.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### b242f32347c819a5 — DOW-UAP-PR071, "USAF ANG F-16C (callsign [CALLSIGN]) Shoots Down UAP over Lake Huron with [Weapon System], 12 Feb 2023"
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/b242f32347c819a5
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “USAF ANG F-16C (callsign [CALLSIGN]) Shoots Down UAP over Lake Huron with [Weapon System], 12 Feb 2023,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Northern Command area of responsibility in 2023. A user uploaded this video to a classified network in February 2023.
+
+Video Duration: 00:00:46
+Video Description: At the 11 second mark, the sensor focuses on an area of contrast in the center of its field-of-view. At the 20 second mark, the footage appears to depict a kinetic interaction between two distinct areas of contrast, with the initial subject of the footage fragmenting in a radial displacement pattern that suggests a high-energy event.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 2a9f746d66a05666 — DOW-UAP-PR072, "ADMINISTRATIVE REVISION: IIR 1777 J0032 22 Kazakhstan - UAP in the vicinity of Karaganda International Airport"
+
+- Agency: Department of War
+- Date: 2022
+- URL: https://pursueindex.com/card/2a9f746d66a05666
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “ADMINISTRATIVE REVISION: IIR 1777 J0032 22 Kazakhstan - UAP in the vicinity of Karaganda International Airport,” is likely derived from a commercially available cellular device’s rear-facing camera in March 2022. A user uploaded this video to a classified network in April 2023. 
+
+Video Duration: 00:00:17
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+
+00:00-00:03: No Content.
+00:04-00:12: The video fades in from black to show a luminous phenomenon with trails of diminishing brightness extending from the center. The camera pans left and right, and zooms in on the phenomenon.
+00:13: Video fades to black.
+00:14-00:17: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### e07aead6d20b2925 — DOW-UAP-PR073, IIR 1 655 S0053 23/Several Unidentified Aerial Phenomenon Encountered In The Vicinity of Columbus OH"
+
+- Agency: Department of War
+- Date: 2022
+- URL: https://pursueindex.com/card/e07aead6d20b2925
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “IIR 1 655 S0053 23/Several Unidentified Aerial Phenomenon Encountered In The Vicinity of Columbus OH,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Northern Command area of responsibility in November 2022. A user uploaded this video to a classified network in March 2023.
+
+Video Duration: 00:01:28
+Video Description:
+00:00-00:04: No content.
+00:05-00:07: The sensor pans to center a small area of contrast within its field-of-view.
+00:11-00:37: The sensor cycles contrast modes and zoom levels while the area of contrast remains generally within the sensor field-of-view.
+00:38-00:41: The orientation of the sensor relative to the area of contrast causes the area of contrast to appear to rotate.
+00:42-01:14: A second area of contrast enters the frame from near the center of the top of the screen. It transits the sensor field-of-view, before becoming obscured by a redacted visual element of the sensor display.
+01:17: The initial area of contrast loses distinctiveness against the background.
+01:20: The sensor rotates, causing the second area of contrast to re-enter the scene before exiting the frame at the center of the top of the screen.
+01:23-01:28: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### cc72a9adcc562f7a — DOW-UAP-PR074, "[CALLSIGN] (Mission)HD_20220613"
+
+- Agency: Department of War
+- Date: 2022
+- URL: https://pursueindex.com/card/cc72a9adcc562f7a
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “[CALLSIGN] (Mission) HD_20220613,” is likely derived from an infrared sensor aboard a U.S. military platform operating in the United States Central Command area of responsibility in June 2022. A user uploaded this video to a classified network in June 2022.
+
+Video Duration: 00:04:45
+Video Description:
+00:00-00:10: The sensor pans from right to left tracking an area of contrast moving towards the center of the field-of-view, before losing distinctiveness against the background.
+00:11-00:14: The sensor zooms in. An area of contrast transits the sensor field-of-view, entering from the right and exiting from the left side of the frame.
+00:15-00:43: The sensor zooms out to track an area of contrast.  
+00:44-00:47: The sensor zooms in. An area of contrast transits the sensor field-of-view, entering from the right and exiting from the left side of the frame.
+00:48-01:05: The sensor cycles its zoom settings multiple times.
+01:06-01:13: A small area of contrast transits from the right to the center of the sensor field-of-view.
+01:14-01:18: The sensor zooms in on an area of contrast. The area of contrast transits from the right to the center of the frame while the sensor pans up.
+01:19-02:05: The sensor zooms and pans to track the area of contrast until it exits the field-of-view at the top of the display.
+02:06-03:42: No content.
+03:43-03:47: Several areas of contrast become visible near the center of the sensor field-of-view.
+03:48-03:50: No content.
+03:51-04:00: Four small areas of contrast become visible in the center of the sensor field-of-view. The sensor pans to track the areas of contrast.
+04:01-04:21: The sensor cycles its zoom level out and pans to the right to track an area of contrast in the bottom right of the field-of-view.
+04:22-04:39: The sensor cycles its zoom level to focus on an area of contrast multiple times.
+04:40-04:43: The sensor switches modalities and refocuses on an area of contrast centered in its field-of-view.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### bb61c203319b4b25 — DOW-UAP-PR075, "09JUN2021 [Platform] observed UAP in the ECS"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/bb61c203319b4b25
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “09JUN2021 [Platform] observed UAP in the ECS,” is likely derived from an infrared sensor aboard a U.S. military platform operating above the East China Sea in 2021. A user uploaded this video to a classified network in June 2021.
+
+Video Duration: 00:00:23
+Video Description:
+00:01-00:18: The sensor pans to track an area of contrast. At the 18 second mark, the sensor loses sight of the object.
+00:19-00:23: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 58402012053be609 — DOW-UAP-PR076, "03 January 2021 [CALLSIGN] (Mission) observes UAP"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/58402012053be609
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is “03 January 2021 [CALLSIGN] (Mission) observes UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in January 2021. A user uploaded this video to a classified network in January 2021.
+
+Video Duration: 00:04:57
+Video Description:
+00:00-01:51: No content.
+01:52-02:48: An area of contrast becomes visible near the center of the top half of the frame. The sensor pans to track the area of contrast, keeping it generally within the center of the field-of-view.
+02:49-02:55: The sensor zooms in. The area of contrast exits the frame in the bottom left of the display.
+02:55-04:57: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 22f4d050e1dad88c — DOW-UAP-PR077, "2 November 2020 [CALLSIGN] [CALLSIGN] Observes and tracks UAP 1 of 2"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/22f4d050e1dad88c
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is “2 November 2020 [CALLSIGN] [CALLSIGN] Observes and tracks UAP 1 of 2,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in November 2020. A user uploaded this video to a classified network in November 2020.
+
+Video Duration: 00:04:58
+Video Description:
+00:00-03:21: The sensor pans to keep a low area of contrast within the center of the field-of-view. The relative intensity of the area of contrast increases throughout the video.
+03:15-03:17: A second area of contrast transits the top right corner of the sensor field-of-view.
+03:22-04:58: The sensor pans from the first area of contrast to the second area of contrast and pans to keep it within the field-of-view.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+AARO Comment: DOW-UAP-PR077 and DOW-UAP-PR078 are not duplicates. Both videos depict highly similar subject matter, but are distinct.
+
+### d02f9eac223b1525 — DOW-UAP-PR078, "2 November 2020 [CALLSIGN] [CALLSIGN] Observes and tracks UAP 2 of 2"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/d02f9eac223b1525
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “2 November 2020 [CALLSIGN] [CALLSIGN] Observes and tracks UAP 2 of 2,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in November 2020. A user uploaded this video to a classified network in November 2020.
+
+Video Duration: 00:04:58
+Video Description:
+00:00-03:21: The sensor pans to keep a low area of contrast within the center of the field-of-view. The relative intensity of the area of contrast increases throughout the video.
+03:15-03:17: A second area of contrast transits the top right corner of the sensor field-of-view.
+03:22-04:58: The sensor pans from the first area of contrast to the second area of contrast and pans to keep it within the field-of-view.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+AARO Comment: DOW-UAP-PR077 and DOW-UAP-PR078 are not duplicates. Both videos depict highly similar subject matter, but are distinct.
+
+### 814d0aa44e632c73 — DOW-UAP-PR079, "29 October 2020 [CALLSIGN] (Mission) observes 3 fast moving UAP's"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/814d0aa44e632c73
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “29 October 2020 [CALLSIGN] (Mission) observes 3 fast moving UAP’s,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in October 2020. A user uploaded this video to a classified network in October 2020.
+
+Video Duration: 00:04:00
+Video Description:
+00:02-00:22: The sensor pans to track an area of contrast.
+00:23-00:28: The sensor zooms in.
+00:29-01:01: The sensor zooms out, panning to track an area of contrast.
+01:02-01:17: A second area of contrast enters the frame from the top left quarter of the screen. Both remain in the frame for approximately 15 seconds.
+01:18-1:41: The sensor pans to track the second area of contrast, causing the first to exit the frame at the bottom of the screen. The area of contrast remains generally within the center of the sensor field-of-view.
+01:42-1:58: The sensor pans and cycles its zoom level multiple times. No content.
+01:59-02:58: The sensor pans to track an area of contrast. The area of contrast becomes increasingly indistinct against the background.
+02:59-04:00: The sensor pans and cycles its zoom level multiple times. No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 62abad9fdfc1652e — DOW-UAP-PR080, "20 October 2020 [CALLSIGN] [CALLSIGN] Observes UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/62abad9fdfc1652e
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “20 October 2020 [CALLSIGN] [CALLSIGN] Observes UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in October 2020.
+
+Video Duration: 00:04:54
+Video Description:
+01:17-01:21: An area of contrast enters the sensor field-of-view from the top right of the screen. The sensor pans toward the object, then pans away. 
+02:45-02:46: An area of contrast transits the sensor field-of-view across the bottom right quarter to the bottom middle edge of the screen.
+03:12-03:13: An area of contrast transits the sensor field-of-view from the top right quarter to the bottom left quarter, after which the sensor changes modes and attempts to track the area of contrast.
+03:20-03:21: An area of contrast transits the sensor field-of-view from the top right quarter to the bottom left quarter, after which the sensor changes modes and attempts to track the area of contrast.
+03:35-03:36: An area of contrast transits the sensor field-of-view across the bottom right quarter, after which the sensor attempts to track the area of contrast.
+03:40-03:41: An area of contrast transits the sensor field-of-view across the bottom right quarter to the bottom middle edge of the screen, after which the sensor attempts to track the area of contrast.
+04:02-04:03: An area of contrast transits the sensor field-of-view across the bottom right quarter to the bottom middle edge of the screen, after which the sensor attempts to track the area of contrast.
+04:22-04:23: An area of contrast transits the sensor field-of-view across the bottom left quarter.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 2163031bf38f0a63 — DOW-UAP-PR081, "18 Oct 2020 [CALLSIGN] observes UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/2163031bf38f0a63
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “18 Oct 2020 [CALLSIGN] observes UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Africa Command area of responsibility in 2020. A user uploaded this video to a classified network in October 2020.
+
+Video Duration: 00:04:59
+Video Description:
+00:00-00:57: No content.
+00:58-01:03: An area of contrast transits the sensor field-of-view, entering from near the top left corner of the screen and exiting near the bottom right corner of the screen.
+01:04-04:59: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 44209964c97d2c53 — DOW-UAP-PR082, "16 OCT 2020 [CALLSIGN] views UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/44209964c97d2c53
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “16 OCT 2020 [CALLSIGN] views UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Africa Command area of responsibility in 2020. A user uploaded this video to a classified network in October 2020.
+
+Video Duration: 00:04:46
+Video Description:
+00:28-00:29: An area of contrast transits the frame from the middle left side of the frame to the upper right side of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### d8944e2bc6627e5d — DOW-UAP-PR083, "7 October 2020 [CALLSIGN] observes UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/d8944e2bc6627e5d
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “7 October 2020 [CALLSIGN] observes UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in October 2020. A user uploaded this video to a classified network in October 2020.
+Video Duration: 00:04:34
+Video Description:
+00:09-00:25: An area of contrast enters the right side of the sensor field-of-view. The sensor pans to track the area of contrast, keeping it generally within the center of the frame.
+00:26-03:20: The sensor cycles its zoom level multiple times, panning to track the area of contrast.
+03:21-04:08: The sensor cycles modalities and zoom levels multiple times to focus on a faint area of contrast.
+04:09: The area of contrast loses distinctiveness against the background.
+04:10-04:26: No content.
+04:27-04:34: An area of contrast appears on the right side of the sensor field-of-view, and the sensor pans to bring the area of contrast to the center of the display.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### d42052963cb29aaa — DOW-UAP-PR084, "17 Sept 2020 [CALLSIGN] observes UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/d42052963cb29aaa
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “17 Sept 2020 [CALLSIGN] observes UAP,” is likely derived from a full-motion video camera aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in September 2020.
+
+Video Duration: 00:04:13
+Video Description:
+00:00-00:24: No Content.
+00:25-00:27: An area of contrast enters from the lower right-hand side of the screen and exits the screen in the upper left.
+00:28-04:13 No Content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### a021a640e3108c35 — DOW-UAP-PR085, "16 Sept 2020 [CALLSIGN] [CALLSIGN] observes UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/a021a640e3108c35
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “16 Sept 2020 [CALLSIGN] [CALLSIGN] observes UAP,” is likely derived from a full-motion video camera aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in September 2020.
+Video Duration: 00:04:44
+Video Description:
+00:00-01:17: No Content.
+01:18-02:24: An area of contrast enters the bottom of the screen and moves up the screen as the sensor pans and zooms to hold it in the center of the frame.
+02:25-04:29: The sensor zooms in, with the area of contrast remaining generally within the center of the frame.
+04:30-04:44: The area of contrast leaves the field-of-view in the lower left-hand quarter of the screen.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 4b0bd5b1c75a0c6f — DOW-UAP-PR086, "UAP from Dec 2019 (East Coast)"
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/4b0bd5b1c75a0c6f
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “UAP from Dec 2019 (East Coast),” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Northern Command area of responsibility in 2019. A user uploaded this video to a classified network in September 2020.
+Video Duration: 00:00:34
+Video Description:
+00:00-00:02: The sensor pans to track an area of contrast.
+00:03-00:21: The sensor switches contrast modes while tracking an area of contrast.
+00:22-00:23: The sensor pans to track an area of contrast.
+00:24-00:34: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### aec4d4da8ac17636 — DOW-UAP-PR087, "05 September 2020 [CALLSIGN] UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/aec4d4da8ac17636
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “05 September 2020 [CALLSIGN] UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in September 2020.
+Video Duration: 00:04:54
+Video Description:
+00:00-01:22: No content.
+01:23-01:26: An area of contrast transits the screen, entering from the bottom and exiting the top of the frame.
+01:27-02:52: No content.
+02:53-02:56: An area of contrast transits the screen, entering from the bottom and exiting the top of the frame.
+02:57-04:21: No Content.
+04:22-04:26: An area of contrast transits the screen, entering from the bottom and exiting the top of the frame.
+04:27-04:54: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 4649af95e88b6643 — DOW-UAP-PR088, "31 AUG [CALLSIGN] [CALLSIGN] Observes UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/4649af95e88b6643
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “31 AUG 2020 [CALLSIGN] [CALLSIGN] Observes UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in August 2020.
+
+Video Duration: 00:04:58
+Video Description:
+00:00-01:21: No content.
+01:22-01:55: An area of contrast enters the field-of-view in the upper left corner of the screen, transits the frame, and exits the bottom of the screen.
+01:56-02:47: The sensor cycles its zoom level several times. An area of contrast becomes visible in the lower half of the screen.
+02:48-03:08: Another area of contrast enters the field-of-view from the left side of the screen.
+03:09-03:29: The sensor pans to track the second area of contrast. The first area of contrast exits the field-of-view at the left edge of the screen.
+03:30-04:58: Several areas of contrast enter and exit the field-of-view. The sensor remains focused on the second-appearing area of contrast.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### b2a7526ec9774d17 — DOW-UAP-PR089, "31 AUG [CALLSIGN] [CALLSIGN] Observes UAP part2"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/b2a7526ec9774d17
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “31 AUG 2020 [CALLSIGN] [CALLSIGN] Observes UAP part2,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in August 2020.
+
+Video Duration: 00:04:58
+Video Description:
+00:00-00:45: The sensor tracks an area of contrast near the center of the screen.
+00:46-01:09: Another area of contrast enters the field-of-view from the lower right side of the screen. The sensor pans to track both areas, but the second area of contrast exits the field-of-view.
+01:10-01:22: The sensor cycles contrast modes, causing the area of contrast to momentarily lose distinctiveness against the background.
+01:23-02:35: Several areas of contrast enter and exit the frame.
+02:36-02:41: The areas of contrast become indistinct against the background.
+02:42-03:22: The areas of contrast become distinguishable again.
+03:23-03:43: Several areas of contrast enter and exit the screen.
+03:44-03:48: The sensor pans to track the area of contrast.
+03:49-04:01: The area of contrast exits the sensor field of view from the right side of the frame.
+04:02-04:58: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 10d757c7b1bf6aa1 — DOW-UAP-PR090, "24 AUG 2020 [CALLSIGN] (Mission) Observes UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/10d757c7b1bf6aa1
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “24 AUG 2020 [CALLSIGN] (Mission) Observes UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in August 2020.
+
+Video Duration: 00:04:57
+Video Description:
+00:00-00:03: The sensor tracks an area of contrast as it moves down the left side of the screen.
+00:03-00:21: The sensor pans to track the area of contrast within the center of its field-of-view.
+00:22-01:04: The sensor zooms in on the area of contrast.
+01:05-01:14: The area of contrast exits and re-enters the field of view several times.
+01:15-04:57: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 4af74afe8dc054bc — DOW-UAP-PR091, "21 AUG [CALLSIGN] Observes UAP in Persian Gulf"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/4af74afe8dc054bc
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “21 AUG 2020 [CALLSIGN] Observes UAP in Persian Gulf,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in August 2020.
+
+Video Duration: 00:04:48
+Video Description:
+00:00-03:07: No content.
+03:08-03:10: The sensor zooms out. An area of contrast transits from the top of the screen to the bottom, exiting the frame.
+03:11-03:48: The sensor zooms out and back in. The sensor pans to track the area of contrast.
+03:49-04:48: The area of contrast becomes indistinguishable from the grain of the video and the sensor zooms out.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 9dfbbb6de5c73272 — DOW-UAP-PR092, "08 AUG 2020 [CALLSIGN] [CALLSIGN] UAP observation"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/9dfbbb6de5c73272
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “08 AUG 2020 [CALLSIGN] [CALLSIGN] UAP observation,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in August 2020.
+
+Video Duration: 00:04:52
+Video Description:
+00:00-00:47: No content.
+00:48-00:51: An area of contrast enters the field-of-view from the lower right side of the screen.
+00:52-00:53: The area of contrast exits the field-of-view from the lower left side of the screen.
+00:54-01:09: The sensor pans to track the area of contrast and hold it within the center of the screen.
+01:10-01:34: The sensor zooms in on the area of contrast.
+01:35-01:37: The sensor zooms in further. The area of contrast remains visible at the top of the screen.
+01:38-03:45: The sensor zooms out to track the area of contrast.
+03:46-03:50: The sensor zooms in. The area of contrast remains visible at the top of the screen.
+03:51-04:07: The sensor zooms out to track the area of contrast.
+04:08-04:25: The sensor changes visual settings, continuing to track the area of contrast.
+04:26-04:52: The sensor zooms out and in several times.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 40a4c3e0843b0de7 — DOW-UAP-PR093, "May 05 2020 Gulf of Arabia [CALLSIGN] (Platform) Dual UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/40a4c3e0843b0de7
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “May 05 2020 Gulf of Arabia [CALLSIGN] (Platform) Dual UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in July 2020.
+
+Video Duration: 00:00:30
+Video Description:
+00:00-00:07: The sensor pans to track an area of contrast.
+00:07-00:30: Several areas of contrast enter and exit the field-of-view. The sensor adjusts contrast settings.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+AARO Comment: DOW-UAP-PR093 and DOW-UAP-PR095 are not duplicates. Both videos share an uploader-defined title and depict highly similar subject matter, but are distinct.
+
+### 5f526642200e3985 — DOW-UAP-PR094, "[CALLSIGN] (Mission) - HD 2020-02-13"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/5f526642200e3985
+- Description: 46. DOW-UAP-PR094, “[CALLSIGN] (Mission) - HD 2020-02-13”
+
+On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “[CALLSIGN] (Mission) - HD 2020-02-13,” is likely derived from an electro-optical and infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in February 2020.
+
+Video Duration: 00:04:59
+Video Description:
+00:00-01:46: No content.
+01:47-01:51: An area of contrast enters the frame in the upper right corner and leaves the field-of-view on the left side of the screen.
+01:52-02:10: The sensor pans to track the area of contrast.
+02:11-02:17: The sensor zooms out. The area of contrast is visible in the lower right quarter of the screen.
+02:18-02:28: The sensor zooms in on the area of contrast.
+02:29-04:38: The sensor zooms in and out several times.
+04:40-04:43: The sensor changes modalities, causing the area of contrast to lose distinctiveness against the background.
+04:44-04:53: The sensor changes back to electro-optical collection, again rendering the area of contrast visible near the center of the screen.
+04:54-04:59: The sensor zooms in and out. The area of contrast is briefly visible in the upper left of the screen.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 804d5367a7e29ee0 — DOW-UAP-PR095, "May 05 2020 Gulf of Arabia [CALLSIGN] (Platform) Dual UAP"
+
+- Agency: Department of War
+- Date: 2020
+- URL: https://pursueindex.com/card/804d5367a7e29ee0
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “May 05 2020 Gulf of Arabia [CALLSIGN] (Platform) Dual UAP,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2020. A user uploaded this video to a classified network in May 2020.
+
+Video Duration: 00:04:49
+Video Description:
+00:00-00:16: The sensor tracks an area of contrast.
+00:17-00:20: The sensor zooms in on the area of contrast. At higher magnification, the area appears as multiple distinct areas of contrast.
+00:21-00:35: The sensor zooms in further. The areas of contrast move in and out of the field-of-view as the sensor pans to keep them in frame.
+00:36-00:54: The sensor zooms out.
+00:55-01:46: The sensor zooms in. The areas of contrast again become more distinct at higher magnification. The areas enter and exit the field-of-view as the sensor pans to keep them in frame.
+01:47-01:51: The areas of contrast leave the frame at the lower right edge of the screen.
+01:52-04:49: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+AARO Comment: DOW-UAP-PR093 and DOW-UAP-PR095 are not duplicates. Both videos share an uploader-defined title and depict highly similar subject matter, but are distinct.
+
+### 5f5e3ee158c91a63 — DOW-UAP-PR096, "HH11 03 July 2018 UAPs"
+
+- Agency: Department of War
+- Date: 2018
+- URL: https://pursueindex.com/card/5f5e3ee158c91a63
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “HH11 03 July 2018 UAPs,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2018. A user uploaded this video to a classified network in July 2020.
+
+Video Duration: 00:01:19
+Video Description:
+00:00-00:12: No Content.
+00:13-00:21: Two areas of contrast enter the lower right side of the screen and exit the bottom of the screen.
+00:13-00:29: The sensor pans to track the two areas of contrast, centering them generally within the center of the field-of-view.
+00:30-00:47: The sensor zooms in. One of the areas of contrast is no longer visible within the frame at this level of magnification. The area of contrast within the sensor field-of-view appears as three distinct areas of contrast in a generally straight line.
+00:47-00:58: The distance between the rightmost area of contrast and the center and left areas of contrast appears to increase. The center and left areas of contrast appear to remain at a roughly fixed distance from one another.
+00:59-01:19: Other areas of contrast enter the field-of-view from the top of the screen.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 23e7db6d552332e5 — DOW-UAP-PR097, "Hi-Res: [CALLSIGN] Observes UAP on 25SEP19 at 2135Z"
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/23e7db6d552332e5
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Hi-Res: [CALLSIGN] Observes UAP on 25SEP19 at 2135Z,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2019. A user uploaded this video to a classified network in October 2019.
+
+Video Duration: 00:04:59
+Video Description:
+00:00-00:33: No Content.
+00:34-00:36: An area of contrast enters the sensor field-of-view at the bottom of the screen.
+00:37-00:44: The sensor rotates clockwise and corrects slightly counterclockwise to center the area of contrast in the frame.
+00:37-01:37: The sensor cycles through several contrast and zoom levels while tracking the area of contrast.
+01:38-02:10: At a higher magnification level, the area of contrast appears as a several areas grouped together in the center of the field-of-view.
+02:11-03:06: The sensor changes contrast settings several times, causing the screen to flash black and white. The sensor continues to track the areas of contrast.
+03:07-04:59: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### f3ef3a248b605aa0 — DOW-UAP-PR098, "UFOs in formation over Persian Gulf?"
+
+- Agency: Department of War
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/f3ef3a248b605aa0
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “UFOs in formation over Persian Gulf?” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility. A user uploaded this video to a classified network in October 2019.
+
+Video Duration: 00:17:36
+Video Description:
+00:00-00:02: No Content.
+00:02-00:21: An area of contrast becomes visible. The sensor pans to track the area of contrast within the center of the field-of-view.
+00:22-01:59: The sensor zooms in on the area of contrast. At a higher level of magnification, the area appears as multiple distinct areas of contrast.
+02:00-02:02: The areas of contrast briefly leave the field-of-view.
+02:03-04:00: The sensor zooms in and out multiple times to track the area of contrast.
+04:01-04:26: The area of contrast becomes less distinguishable against the background. The sensor zooms in further.
+04:27-06:29: The sensor progressively zooms in on the area of contrast.
+06:30-13:17: The area of contrast is at times indistinguishable from the grain of the video. The sensor makes several contrast adjustments to compensate.
+13:18-16:22: The sensor zooms in and out several times.
+16:23-17:23: The area of contrast repeatedly exits and enters the frame.
+17:24-17:27: The sensor zooms out to track the area of contrast.
+17:27-17:36: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 7d5b9bff15c9a44d — DOW-UAP-PR099, "Hi-Res: [CALLSIGN] Observes UAP on 25SEP19 at 1715Z"
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/7d5b9bff15c9a44d
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Hi-Res: [CALLSIGN] Observes UAPs on 23SEP19 at 1715Z,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2019. A user uploaded this video to a classified network in November 2019.
+
+Video Duration: 00:04:51
+Video Description:
+00:00-00:44: No Content.
+00:45-00:46: An area of contrast enters the field-of-view on the left side of the frame and exits the bottom of the frame in the lower left corner.
+00:47-01:07: No Content.
+01:08-01:25: An area of contrast appears from the left side of the frame. The sensor pans to hold the object in the center of its field-of-view.
+01:26-01:45: The sensor changes visual settings and continues to track the area of contrast.
+01:46-01:47: Another area of contrast enters the scene from the bottom of the frame.
+01:47-01:55: The screen flashes black before the sensor continues tracking the areas of contrast. Multiple areas of contrast enter and exit the field-of-view during this period. The sensor pans to track them.
+04:00-04:51: The screen flashes black for before continuing to track an area of contrast.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
 ### 3893e5d0279db3b1 — FBI Photo A001
 
 - Agency: FBI
@@ -2015,6 +3083,49 @@ Excerpt (page 1):
 
 BE4/J. GRIMWED JSC-08053 SKYLAB 1/2 TECHNICAL CREW DEBRIEFING JUNE 30, 1973 PREPARED BY TRAINING OFFICE CREW TRAINING AND SIMULATION DIVISION NOTICE: This document may be exempt from public disclosure under the Freedom of Information Act (5 U.S.C. 552). Requests for its release to persons outside the U.S. Government should be handled under the provisions of NASA Policy Directive 1382.2. National Aeronautics and Space Administration LYNDON B. JOHNSON SPACE CENTER Houston, Texas [[IMAGE-DESCRIPTIO
 
+### 002eaa383e76a277 — NASA-UAP-D009, Apollo 17 Audio Excerpt, December 7, 1972
+
+- Agency: NASA
+- Date: 12/7/72
+- URL: https://pursueindex.com/card/002eaa383e76a277
+- Description: During the eleventh and final crewed mission in the Apollo program, Apollo 17 Commander Gene Cernan, Lunar Module Pilot Harrison Schmitt, and Command Module Pilot Ronald Evans report seeing small lights outside the Apollo spacecraft during transit to the moon. 
+The crew describe bright “particles” or “fragments” as being “jagged,” “angular,” and drifting near the Apollo spacecraft and the separated Saturn S-IVB stage. The Apollo 17 crew speculate that paint chips or ice chips are likely the source of these lights and note that they “twinkle” and move away from the Saturn S-IVB stage.
+
+### 1bc28d0e03b79e35 — NASA-UAP-D010, Mercury Atlas 9 Audio Excerpt, May 15, 1963
+
+- Agency: NASA
+- Date: 5/15/63
+- URL: https://pursueindex.com/card/1bc28d0e03b79e35
+- Description: Approximately one hour and 41 minutes into the final and longest flight of Project Mercury, Mercury-Atlas 9 mission (MA-9) Faith 7 Pilot L. Gordon Cooper Jr. notes that he sees “John’s fireflies,” referring to John Glenn’s term from the Mercury-Atlas 6 mission. NASA later determined that the “fireflies” are attributable to frozen condensation separating from the spacecraft body. The white, green-hued appearance of this phenomenon results from sunlight reflecting off frozen condensation.
+
+### ef779c3f0f7ba4d3 — NASA-UAP-D011, Mercury Atlas 9 Audio Excerpt, May 15, 1963
+
+- Agency: NASA
+- Date: 5/15/63
+- URL: https://pursueindex.com/card/ef779c3f0f7ba4d3
+- Description: During the final and longest flight of Project Mercury, Mercury-Atlas 9 mission (MA-9) Faith 7 Pilot L. Gordon Cooper Jr. describes the brilliant blue of sunrise beneath the haze layer of the Earth’s atmosphere. As he approaches sunrise, he describes small, luminous, brilliant white particles drifting away from the spacecraft. Cooper describes observing “fireflies” after deploying beacons, which are spherical mission-related equipment with xenon strobe lights.
+
+### 35e0a7cff95a3e93 — NASA-UAP-D012, Mercury Atlas 8 Audio Excerpt, October 3, 1962
+
+- Agency: NASA
+- Date: 10/3/62
+- URL: https://pursueindex.com/card/35e0a7cff95a3e93
+- Description: During the Mercury Atlas 8 mission, Sigma 7 pilot Walter M. “Wally” Schirra Jr. describes observing “little white objects that tend to come from the capsule itself and drift off.” Schirra later also refers to those objects as “particles” and “lathe shavings.” Schirra also describes seeing a burst of light in the window, whose source he cannot identify. He speculates that his observation corresponds with the moment the sun passes below the horizon during sunset.
+
+### 6b12c3ddc6a96008 — NASA-UAP-D013, Mercury Atlas 7, May 24, 1962
+
+- Agency: NASA
+- Date: 5/24/62
+- URL: https://pursueindex.com/card/6b12c3ddc6a96008
+- Description: During the fourth crewed spaceflight and second orbital flight of Project Mercury, Mercury-Atlas 7 (MA-7), Aurora 7 pilot Scott Carpenter describes white particles in view that appear to move at “random” and “look exactly like snowflakes.” He describes these phenomena as reflective, and that some seemed to move faster than the Aurora 7 spacecraft.
+
+### 01765a63bbd3f02f — NASA-UAP-D014, Mercury-Redstone 4, July 21, 1961
+
+- Agency: NASA
+- Date: 7/21/61
+- URL: https://pursueindex.com/card/01765a63bbd3f02f
+- Description: During the recovery of the fourth launch and second crewed spaceflight of Project Mercury, Mercury-Redstone 4 (MR-4) Liberty Bell 7, the recovery team discusses a dye pack in the water that did not activate.
+
 ### 303ad110cb5fa8b4 — NASA-UAP-VM001, Apollo 12, 1969
 
 - Agency: NASA
@@ -2158,78 +3269,6 @@ SECRET//NOFORM 2025, at approximately 1700 hours [WITNESS 1 (a senior US On inte
 Excerpt (page 1):
 
 "Orbs Launching Orbs" Location: Western U.S. Time of Day: Dusk (on two separate days) Three teams of two federal law enforcement special agents each (USPER1 through USPER6) independently describe seeing orange "orbs" in the sky emit/launch smaller red "orbs" in groups of two to four, with three being the general consensus. This is stated to have occurred at least five times. Each time, the orange orb would appear, launch red orbs, then disappear. The orange orb was only visible for one or two se
-
-### 7be223c345fecfdd — ODNI-UAP-D001, USPER Narrative - Senior USIC, 2026
-
-- Agency: Office of the Director of National Intelligence
-- Date: 5/22/26
-- URL: https://pursueindex.com/card/7be223c345fecfdd
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf
-- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
-
-Excerpt (page 1):
-
-In late 2025, during early evening daylight hours, I – a senior U.S. intelligence officer – along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter. Our mission was to investigate loud thuds heard in the mountains on the test range, which coincided with Unidentified Aerial Phenomena (UAP) sightings reported over the previous several nights. We aimed to search remote mountain areas for possible debris or objects that might explain the orb-like sightings. 
-
-### eae6c4d03ee4e66f — CIA-UAP-D001, Intelligence Information Report - USSR, 1973
-
-- Agency: Central Intelligence Agency
-- Date: 5/22/26
-- URL: https://pursueindex.com/card/eae6c4d03ee4e66f
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#CIA-UAP-D001_Intelligence_Information_Report_USSR_1973.pdf
-- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
-
-Excerpt (page 1):
-
-Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED. Crussified by Recorded Reporting Officer. Exempt from General Declassification Schedule of E.O. 11632 Ex ... impossible to determine date of automatic declassification. PAGE 1 U. . DIRECTORATE OF OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE REPORT NO. FIR K-311/01638+77 DATE DISTR. 20 December 1977 • ; . . . COUNTRY USSR November 1972-Novem
-
-### b20c658be70b0e4a — DOE-UAP-D001, PANTEX Image, 2026
-
-- Agency: Department of Energy
-- Date: 5/22/26
-- URL: https://pursueindex.com/card/b20c658be70b0e4a
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOE-UAP-D001_PANTEX_Image.pdf
-- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
-
-Excerpt (page 1):
-
-UCNI ParteX Managed and Operated by Consolidated Nuclear Security, LLC Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower • (b)(3) (UCNI) UCNI Page 5 of 6
-
-### ce343c85c98e89aa — DOE-UAP-D002, James Tuck Correspondence, undated
-
-- Agency: Department of Energy
-- Date: 5/22/26
-- URL: https://pursueindex.com/card/ce343c85c98e89aa
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOE-UAP-D002_JamesTuck_Correspondence.pdf
-- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
-
-Excerpt (page 1):
-
-A-83-001_2-1 BL 11-23-20 Dear Mr. Tuck: Im Derry That & Cannot fell Out The attacked forme since The times and dates of any Rightings escape me. I can However, like you that during the years 1948 through 1951 Reverale sightinge of Breen lighte Were made at Les alames. These threally occured during the early goart of the Hight, Hime to eleven, and were Usually use the Jenney Wouldins. I can recall several enstances of green light weaving in and out & Mountain years. This was all reported Is the p
-
-### 37a39b1959ee7737 — DOE-UAP-D003, Pajarito Astronomers, undated
-
-- Agency: Department of Energy
-- Date: 5/22/26
-- URL: https://pursueindex.com/card/37a39b1959ee7737
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOE-UAP-D003_Pajarito_Astronomers.pdf
-- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
-
-Excerpt (page 1):
-
-A-86-014-91-3 H. Borgman H-183 5/20/86 Pajarito Astronomers P.O. Box 1092, Los Alamos NM, 87544 MS K553 President MS E531 Vice President MS F665 Treesurer Sponsored by Club 1563 EHF-100-334 Tuesday, May 20, 1986 Dear Members, Our next meeting will be Thursday, May 29, 1986, in the Ranch Room at Fuller Lodge, at 7:30 p.m. Guest speaker will be Dr. John Warren of AT-6, whose topic will be "Why Should a Scientist be Concerned about UFO's?" To find the Ranch Room, go around (outside) to the south en
-
-### a6595ad20e876e57 — DOW-UAP-D017, General Correspondence of Sandia, 2026
-
-- Agency: Department of War
-- Date: 5/22/26
-- URL: https://pursueindex.com/card/a6595ad20e876e57
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/release_02_document_bundle.zip#DOW-UAP-D017_General_Correspondence_Of_Sandia.pdf
-- Description: Released in tranche 2 (2026-05-22). Operator editorial pending.
-
-Excerpt (page 1):
-
-this document consists of 2 pages, copy_____ of 4, series #. HEADQUARTERS, DETACHMENT D 1100TH USAF SPECIAL REPORTING GROUP Campbell Air Force Base Camp Campbell, Kentucky 7 April 1949 3331 SUBJECT: Security Inspection TO: Commanding General Sandia Base 230 Albuquerque, New Mexico Reference is made to secret letter, your headquarters, dated 1 April 1949, Subject: Security Inspection. 2. a. Guard Orders have been amended directing that the elec- tric gate be closed between 1700 hours until 0700 h
 
 ## Finds
 
