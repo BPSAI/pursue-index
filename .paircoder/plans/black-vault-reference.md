@@ -1,12 +1,17 @@
 ---
 id: black-vault-reference
 type: feature
-status: backlog
+status: deferred
 created: 2026-05-09
 updated: 2026-05-10
 priority: medium
 depends_on: [novelty-detection]
 ---
+
+## Outcome (2026-05-22)
+
+Prerequisite for autonomous-finds-pipeline (also deferred). Substantial multi-week integration with WordPress + static-PDF host. The novelty-detection use case it unlocks remains valuable but isn't on the critical path for any near-term sprint. Revisit when autonomous-finds becomes a priority.
+
 
 # Black Vault Reference Corpus
 

@@ -1,11 +1,16 @@
 ---
 id: diff-page-arbitrary-pair-selection
 type: feature
-status: backlog
+status: deferred
 created: 2026-05-13
 priority: medium
 depends_on: []
 ---
+
+## Outcome (2026-05-22)
+
+Small quality-of-life UI feature: two snapshot selectors + a timeline strip. The current default (newest-vs-prior) covers the most common question. Deferred because nothing about it is credibility-critical and there's bigger work in flight. Could land in a half-day Sprint when context allows; not a blocker for anything.
+
 
 # `/diff` page — arbitrary snapshot-pair selection + per-snapshot timeline
 

@@ -181,6 +181,28 @@ export async function serveR2Pdf(request, env, cardId) {
   });
 }
 
+// Sprint 4n followup: video route. Tranche-2 (2026-05-22) shipped 51
+// DOD MP4s into the same `PDFS` R2 bucket at key `<card_id>.mp4` (the
+// bucket name is historical — it serves all asset types now). Mirrors
+// `serveR2Pdf` exactly except for the key extension + content type +
+// not-found message. Cache policy matches `/pdf/<id>.pdf` because the
+// `<card_id>.mp4` key is the mutable current-pointer (same shape: a
+// silent same-URL-different-bytes overlay on a video would land at a
+// new `archive/<sha>.mp4` key but the `<card_id>.mp4` pointer rotates
+// to the new bytes). Reader-mode video tags + the gallery video lane
+// hit this route so they can frame-embed same-origin (war.gov DVIDS
+// iframes carry framing protection that blocks cross-origin embed in
+// some browsers).
+export async function serveR2Video(request, env, cardId) {
+  return serveR2Object(request, env, {
+    key: `${cardId}.mp4`,
+    filename: `${cardId}.mp4`,
+    contentType: "video/mp4",
+    cacheControl: MUTABLE_CACHE,
+    notFoundMessage: "Video not found",
+  });
+}
+
 /**
  * Serve preserved bytes from R2 key ``archive/<sha>.<ext>``.
  *
@@ -225,6 +247,27 @@ export async function tryHandlePdfRoute(request, env) {
     });
   }
   return serveR2Pdf(request, env, cardId);
+}
+
+/**
+ * Match `GET|HEAD /video/:card_id.mp4` and dispatch. Mirrors
+ * `tryHandlePdfRoute` shape so the dispatch chain in worker/index.js
+ * stays uniform. Returns null when the request isn't ours so the
+ * caller can fall through.
+ */
+export async function tryHandleVideoRoute(request, env) {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/video/")) return null;
+  if (!url.pathname.endsWith(".mp4")) return null;
+  const cardId = url.pathname.slice("/video/".length, -".mp4".length);
+  if (!CARD_ID_RE.test(cardId)) {
+    return new Response("invalid card_id", {
+      status: 400,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+  return serveR2Video(request, env, cardId);
 }
 
 /**

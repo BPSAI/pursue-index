@@ -1,11 +1,16 @@
 ---
 id: display-date-curation
 type: chore
-status: backlog
+status: superseded-by-pursue-curate
 created: 2026-05-11
 priority: medium
 depends_on: [curated-finds]
 ---
+
+## Outcome (2026-05-22)
+
+Operator-attended chore originally scoped here. Now belongs in pursue-curate as one of the per-surface suite specs (e.g., `suites/timeline-display-date.curate.yaml`). The pursue-curate agent provides the side-by-side review UI, durable verdict storage, and rule-pattern codification that this plan envisioned. Timeline display-date curation will land as Sprint 5e or 5f in the curate sprint sequence.
+
 
 # Display-date curation for /timeline + manifest hygiene
 

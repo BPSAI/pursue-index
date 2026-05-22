@@ -1,11 +1,16 @@
 ---
 id: clean-quality-review
 type: feature
-status: backlog
+status: shipped-backend-superseded-curate
 created: 2026-05-11
 priority: medium
 depends_on: [llm-cleaned-reading-text]
 ---
+
+## Outcome (2026-05-22)
+
+Backend shipped in Sprint 4l-A (commit 36ccd90): pursue_index/clean/qc/ module with schema, sidecar, judge prompt, runner, and `pursue clean qc run` CLI. 33 unit tests; arch clean. Pilot calibration (2026-05-21, $0.30 spend on 3 MISREPs) revealed that prompt-tuning a non-deterministic LLM judge to produce deterministic verdicts is a treadmill. The architectural pivot to pursue-curate (separate repo) supersedes the calibration approach with code-rules + statistical signals + LLM as candidate generator + operator interactive sessions. The judge backend remains usable as one signal among several in the curate pipeline.
+
 
 # LLM-cleaned text quality review engine
 

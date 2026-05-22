@@ -1,11 +1,16 @@
 ---
 id: autonomous-finds-pipeline
 type: feature
-status: backlog
+status: deferred
 created: 2026-05-10
 priority: medium
 depends_on: [black-vault-reference]
 ---
+
+## Outcome (2026-05-22)
+
+Big-bet feature. Depends on black-vault-reference (also deferred). Not urgent: cadence pressure (Reddit posts on new tranches) is well-served by the operator+agent interactive process we've been running, which produces higher-quality editorial work than a fully-autonomous pipeline would in the near term. Revisit once pursue-curate's rule library matures; the codified patterns there could feed an autonomous candidate-generator with a much higher ground-truth baseline than the original plan assumed.
+
 
 # Autonomous Finds Pipeline
 

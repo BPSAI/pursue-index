@@ -12,7 +12,7 @@
 
 import { handleRetrieve } from "./retrieve.js";
 import { handleChat } from "./chat.js";
-import { tryHandlePdfRoute, tryHandleArchiveRoute } from "./pdf.js";
+import { tryHandlePdfRoute, tryHandleVideoRoute, tryHandleArchiveRoute } from "./pdf.js";
 import {
   loadAliasIndex,
   parsePdfPath,
@@ -320,6 +320,17 @@ export default {
         }
       }
       return withSecurityHeaders(pdfResponse);
+    }
+
+    // Sprint 4n followup: video route. Same shape as /pdf/, different
+    // R2 key suffix. Serves the 51 tranche-2 DOD MP4s (Sprint 4m-B)
+    // and any future video bytes uploaded under <card_id>.mp4 in the
+    // PDFS bucket. Falls through to ASSETS if the card_id has no
+    // video at that key (returns the worker's notFoundMessage with a
+    // 404 status from serveR2Object).
+    const videoResponse = await tryHandleVideoRoute(request, env);
+    if (videoResponse) {
+      return withSecurityHeaders(videoResponse);
     }
 
     // Content-addressed archive route (Sprint 4g). Serves preserved

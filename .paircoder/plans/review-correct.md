@@ -1,10 +1,15 @@
 ---
 id: review-correct
 type: feature
-status: backlog
+status: superseded-by-pursue-curate
 created: 2026-05-08
 depends_on: [ocr-benchmark]
 ---
+
+## Outcome (2026-05-22)
+
+Superseded 2026-05-21 by the pursue-curate architecture plan (opsec-staging commit 52aee3a). pursue-curate IS the review+correct loop generalized across all verification surfaces (altered, clean-qc, timeline, future autonomous-finds). It implements the detection-signal scoring, /review UI, operator verdicts, and corrections flow described here — in a separate repo so the verification work stays out of the public-application repo.
+
 
 # Review + correct pipeline
 

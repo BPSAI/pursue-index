@@ -1,11 +1,16 @@
 ---
 id: incidents-map-clustering
 type: feature
-status: backlog
+status: deferred
 created: 2026-05-11
 priority: medium
 depends_on: []
 ---
+
+## Outcome (2026-05-22)
+
+New /map surface with geographic density clustering. Large feature, high cosmetic value but not load-bearing for credibility. Deferred to give pursue-curate room to mature first — once the operator-verified surface stabilizes, /map can be a marquee Sprint that ships alongside a Reddit post about geographic patterns in the corpus. Estimated 1-2 weeks when prioritized.
+
 
 # Incidents map — geographic density clustering against known features
 

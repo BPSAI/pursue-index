@@ -1,11 +1,16 @@
 ---
 id: pursue-vision-augment
 type: feature
-status: backlog
+status: partially-satisfied
 created: 2026-05-10
 priority: medium
 depends_on: []
 ---
+
+## Outcome (2026-05-22)
+
+Original goal was a second vision-extraction pass to complement the augmented-retrieval integration. Partially satisfied by: (1) Sprint 4j (2026-05-21): engine-matched Sonnet 4.6 OCR for the 70 altered pre-edit cards; (2) Sprint 4m (2026-05-22): Sonnet-only OCR for the 6 tranche-2 PDFs at the cleanup-pass output. Full Phase-2 corpus-wide re-OCR with operator prompts is no longer load-bearing — the existing Surya+LLM pipeline plus targeted Sonnet passes cover the high-value cases. Revisit if a future tranche surfaces a class of pages where the existing pipeline demonstrably underperforms.
+
 
 # Pursue-vision-augment (Phase 2 vision-extraction pass)
 
