@@ -79,7 +79,16 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
       })
       .then((d) => {
         if (d) {
-          setDocs(d);
+          // Filter out empty-text rows (cleanup-skipped pages preserved
+          // in pages.json with `text: ""` for provenance, but not
+          // searchable). This aligns the rendered count with the
+          // homepage's `RELEASE.ocrPageCount` which counts non-empty
+          // rows; otherwise the search page advertises 4,289 but the
+          // homepage advertises 4,288.
+          const usable = d.filter(
+            (r) => typeof r.text === "string" && r.text.length > 0,
+          );
+          setDocs(usable);
           setStatus("ready");
         }
       })
