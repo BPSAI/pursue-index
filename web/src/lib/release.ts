@@ -69,22 +69,40 @@ function countMatchingRows(
   predicate: (row: unknown) => boolean,
   fallback: number,
 ): number {
-  try {
-    const here = dirname(fileURLToPath(import.meta.url));
-    const path = resolve(here, relativePath);
-    if (!existsSync(path)) return fallback;
-    const text = readFileSync(path, "utf8");
-    const parsed = JSON.parse(text);
-    const list = listGetter(parsed);
-    if (!Array.isArray(list)) return fallback;
-    let n = 0;
-    for (const row of list) {
-      if (predicate(row)) n++;
+  // 2026-05-22 hotfix: previously this resolved `relativePath` against
+  // `import.meta.url` (the module location). Under Astro's Vite-driven
+  // build, `release.ts` gets compiled + executed from a chunk path inside
+  // `node_modules/.astro/` or `dist/_astro/`, so the relative-to-module
+  // lookup landed at a path that didn't exist and silently fell back to
+  // the literal — leaving the homepage showing 4,161 instead of the live
+  // 4,289 across the entire tranche-2 deploy.
+  //
+  // The build always runs from the `web/` directory (npm run build
+  // changes cwd before invoking astro), so resolving against
+  // `process.cwd()` is reliable. The import.meta.url path is kept as a
+  // secondary fallback for the rare case this module is consumed from a
+  // tool that runs from a different cwd.
+  const candidates = [
+    resolve(process.cwd(), relativePath.replace(/^\.\.\/\.\.\//, "")),
+    resolve(dirname(fileURLToPath(import.meta.url)), relativePath),
+  ];
+  for (const path of candidates) {
+    try {
+      if (!existsSync(path)) continue;
+      const text = readFileSync(path, "utf8");
+      const parsed = JSON.parse(text);
+      const list = listGetter(parsed);
+      if (!Array.isArray(list)) continue;
+      let n = 0;
+      for (const row of list) {
+        if (predicate(row)) n++;
+      }
+      if (n > 0) return n;
+    } catch {
+      // fall through to the next candidate
     }
-    return n > 0 ? n : fallback;
-  } catch {
-    return fallback;
   }
+  return fallback;
 }
 
 /**
