@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v4.4.2
 
       - name: Set up Python
-        uses: actions/setup-python@2935d44ca1e02f6c91dffa3afea7ed7f3e22aa9c  # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: "3.12"
 
@@ -63,7 +63,7 @@ jobs:
 
       - name: Open issue on failure
         if: failure()
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v8.0.0
+        uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0
         with:
           script: |
             const commit_sha = context.sha;
