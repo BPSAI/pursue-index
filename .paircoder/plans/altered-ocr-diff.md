@@ -1,5 +1,15 @@
 # Sprint 4h plan — OCR text-diff for the 79 altered cards
 
+> **Status (2026-05-22)**: shipped-then-paused. Sprint 4h shipped
+> 2026-05-20 (commit a7b3dae). The 79-card /altered/ surface went live
+> with OCR text-diff per card. Subsequently taken offline 2026-05-21
+> (Sprint 4k-recal) when operator spot-checks showed the algorithmic
+> content_changed classification produced false positives on OCR-rescan
+> noise. Operator review now happens via pursue-curate (separate repo);
+> verdicts will determine which cards return to the public surface. The
+> OCR-diff infrastructure itself remains in place; only the publication
+> of unverified verdicts was withdrawn.
+
 Captured 2026-05-20 after Sprint 4g merged. Converts the May-14
 redaction event from a true-but-unsurfaced integrity claim into a
 visible, citable "look exactly what they removed" surface.
