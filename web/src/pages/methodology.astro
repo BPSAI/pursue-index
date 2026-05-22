@@ -3,6 +3,11 @@ import Base from "../layouts/Base.astro";
 import { manifest, summary } from "../data/manifest-loader";
 import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
 import { RELEASE, formatPageCount } from "../lib/release";
+// Sprint 4l-D: aggregate stats from the clean-qc judge pass.
+// build_qc_summary.py writes an "empty" snapshot when no QC has run
+// yet, so this import always succeeds and the rendering branches on
+// total_pages_graded === 0 for the pending state.
+import qcSnapshotJson from "../../public/data/clean-qc-snapshot.json";
 
 const s = summary();
 const pageCountLabel = formatPageCount(RELEASE.ocrPageCount);
@@ -13,6 +18,26 @@ const pageCountLabel = formatPageCount(RELEASE.ocrPageCount);
 // rebuild instead of carrying a literal that goes stale on the next
 // corpus pass.
 const cleanedPageLabel = formatPageCount(RELEASE.cleanedPageCount);
+// Sprint 4l-D: clean-qc judge stats. Rendering branches on
+// total_pages_graded === 0 to show a "QC pending" state vs the
+// populated state after a corpus QC pass lands.
+interface QcSnapshot {
+  schema_version: number;
+  generated_at: string;
+  judge_model: string | null;
+  judge_prompt_sha256: string | null;
+  total_pages_graded: number;
+  graded_pass_count: number;
+  graded_soft_fail_count: number;
+  graded_hard_fail_count: number;
+  graded_not_applicable_count: number;
+  judge_skipped_count: number;
+  judge_skipped_by_reason: Record<string, number>;
+  cards_with_qc: number;
+  cards_listed_total: number;
+}
+const qcSnapshot = qcSnapshotJson as QcSnapshot;
+const qcRunYet = qcSnapshot.total_pages_graded > 0;
 const csvShort = manifest.csv_sha256.slice(0, 12);
 const csvFull = manifest.csv_sha256;
 const fetchedISO = manifest.fetched_at;
@@ -476,6 +501,84 @@ const methodologyJsonLd = [
         document's exact wording is the failure mode this section is here
         to warn against: when precision matters, quote Raw.
       </p>
+    </section>
+
+    {/* Sprint 4l-D: clean-quality LLM-judge layer. */}
+    <section id="clean-qc" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Cleaned-text quality review
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The cleanup pass scales to thousands of pages, which makes manual
+        spot-checking insufficient as a quality signal. Sprint 4l adds an
+        independent LLM judge that grades every cleaned page on eight
+        dimensions and writes a verdict to a per-card sidecar
+        (<code class="text-[color:var(--color-signal-cyan)]">pages_cleaned_qc.jsonl</code>).
+        The eight checks are:
+      </p>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] list-disc pl-6 space-y-1">
+        <li><strong class="text-[color:var(--color-text-bright)]">hallucinated_facts</strong> — any name, date, place, designator, or event in cleaned that doesn't appear in raw.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">fabricated_redactions</strong> — cleaned text where raw shows [REDACTED] / [ILLEGIBLE] / black bars.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">length_ratio</strong> — cleaned/raw character ratio; out-of-band ⇒ probable refusal or preamble leak.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">voice_match</strong> — does cleaned preserve the source's military / typewriter-era register without sliding into AI-marketing voice?</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">page_boundary_fidelity</strong> — cleaned references to adjacent pages not present in raw.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">ocr_artifact_handling</strong> — preservation of bracketed editorial markers from raw.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">verbatim_quotability</strong> — could a journalist quote cleaned as verbatim? Substantive divergence is a hard fail.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">interpretive_cleanups</strong> — count + examples of in-context character-level interpretation (e.g., the <code>1.48</code>→<code>1.4a</code> case from the manual spot-check). Not a fail; the count is the signal.</li>
+      </ul>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Each verdict comes back as <code class="text-[color:var(--color-signal-cyan)]">pass</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">soft_fail</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">hard_fail</code>,
+        <code class="text-[color:var(--color-signal-cyan)]">not_applicable</code>, or
+        <code class="text-[color:var(--color-signal-cyan)]">uncertain</code>, with severity and a span of evidence. The verdicts are aggregated into a per-page roll-up: any hard fail (or a <code>voice_match</code> at <code>critical</code> severity) ships-blocks the page; soft fails accumulate as a soft signal that flags pages for human review.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Discipline.</strong>{" "}
+        Calibration, not delegation. After every corpus QC pass the runner
+        flags a random sample (~20 pages) for operator re-check; if
+        operator-judge disagreement exceeds 10% on the sample, the judge
+        prompt needs work before the next pass is trusted.
+      </p>
+      {qcRunYet ? (
+        <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-3 font-mono text-xs space-y-2">
+          <div class="uppercase tracking-[0.2em] text-[10px] text-[color:var(--color-signal-green)]">
+            ● JUDGE PASS COMPLETE
+          </div>
+          <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+            Judge: <code class="text-[color:var(--color-text-bright)]">{qcSnapshot.judge_model}</code> ·
+            graded <strong class="text-[color:var(--color-text-bright)]">{qcSnapshot.total_pages_graded.toLocaleString()}</strong> pages across <strong class="text-[color:var(--color-text-bright)]">{qcSnapshot.cards_with_qc}</strong> cards
+            on <span class="text-[color:var(--color-text-bright)]">{qcSnapshot.generated_at.slice(0, 10)}</span>.
+          </p>
+          <ul class="text-[color:var(--color-text-dim)] space-y-1">
+            <li><span class="text-[color:var(--color-signal-green)]">●</span> <strong class="text-[color:var(--color-text-bright)]">{qcSnapshot.graded_pass_count.toLocaleString()}</strong> pass</li>
+            <li><span class="text-[color:var(--color-signal-amber)]">●</span> <strong class="text-[color:var(--color-text-bright)]">{qcSnapshot.graded_soft_fail_count.toLocaleString()}</strong> soft_fail — flagged for review</li>
+            <li><span class="text-[color:var(--color-signal-red)]">●</span> <strong class="text-[color:var(--color-text-bright)]">{qcSnapshot.graded_hard_fail_count.toLocaleString()}</strong> hard_fail — ship-blocker</li>
+            <li><span class="text-[color:var(--color-text-faint)]">●</span> <strong class="text-[color:var(--color-text-bright)]">{qcSnapshot.graded_not_applicable_count.toLocaleString()}</strong> not_applicable (skip pages, empty input)</li>
+            {qcSnapshot.judge_skipped_count > 0 && (
+              <li>
+                <span class="text-[color:var(--color-text-faint)]">●</span>{" "}
+                <strong class="text-[color:var(--color-text-bright)]">{qcSnapshot.judge_skipped_count}</strong> pages the judge declined to grade
+                (typically content-filter overlap with the cleaner)
+              </li>
+            )}
+          </ul>
+        </div>
+      ) : (
+        <div class="border border-[color:var(--color-signal-amber)]/40 bg-[color:var(--color-signal-amber)]/10 p-3 font-mono text-xs space-y-2">
+          <div class="uppercase tracking-[0.2em] text-[10px] text-[color:var(--color-signal-amber)]">
+            ● JUDGE PASS — PENDING
+          </div>
+          <p class="text-[color:var(--color-text-dim)] leading-relaxed">
+            The clean-quality judge backend is wired and tested but the
+            full-corpus pass hasn't been dispatched yet
+            (operator-attended; ~$40 in API spend at Sonnet 4.6 rates,
+            ~20 min wall-clock). When the pass runs, aggregate
+            verdicts populate this surface and per-page chips become
+            available in cleaned-mode reader views.
+          </p>
+        </div>
+      )}
     </section>
 
     {/* Idempotency */}

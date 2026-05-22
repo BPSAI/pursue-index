@@ -1,0 +1,15 @@
+{
+  "total_pages_graded": 0,
+  "graded_pass_count": 0,
+  "graded_soft_fail_count": 0,
+  "graded_hard_fail_count": 0,
+  "graded_not_applicable_count": 0,
+  "judge_skipped_count": 0,
+  "judge_skipped_by_reason": {},
+  "cards_with_qc": 0,
+  "judge_model": null,
+  "judge_prompt_sha256": null,
+  "schema_version": 1,
+  "generated_at": "2026-05-22T01:09:26.248761+00:00",
+  "cards_listed_total": 116
+}

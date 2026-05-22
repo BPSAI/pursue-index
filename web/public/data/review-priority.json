@@ -1,0 +1,4508 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T01:13:31.975492+00:00",
+  "total_pages": 500,
+  "corpus_total_pages": 4149,
+  "pages": [
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 91,
+      "review_priority": 0.5,
+      "ocr_confidence": 97.76547586097516,
+      "raw_sha256": "a29bb6fa23a0366d071e6075af4daa237c0803fe0e1a0d545fe5c2d396ecf704",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "page": 75,
+      "review_priority": 0.5,
+      "ocr_confidence": 99.16667949310593,
+      "raw_sha256": "f4ffc559b717951888af6d53818f614d5a1aebd485838f88edf5e1f4dd2764e0",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "page": 93,
+      "review_priority": 0.5,
+      "ocr_confidence": 98.57574165464928,
+      "raw_sha256": "759add70baa9b626da25b3f77fd7560d57ed093a5f144f9562afba01102bf286",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "page": 1,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "page": 2,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "page": 3,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "page": 4,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "page": 1,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "page": 2,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "page": 3,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "page": 4,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "page": 1,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "page": 2,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "page": 3,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "page": 4,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "page": 5,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "page": 6,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "page": 1,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "page": 2,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "page": 3,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "page": 4,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "page": 5,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "33cca99659328520",
+      "page": 1,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "33cca99659328520",
+      "page": 2,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "33cca99659328520",
+      "page": 3,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "33cca99659328520",
+      "page": 4,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "33cca99659328520",
+      "page": 5,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "33cca99659328520",
+      "page": 6,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "page": 1,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "page": 2,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "page": 3,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "page": 4,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "page": 5,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "page": 6,
+      "review_priority": 0.5,
+      "ocr_confidence": 100.0,
+      "raw_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "cleaned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "17a8cc07fd8c694f",
+      "page": 48,
+      "review_priority": 0.402,
+      "ocr_confidence": 70.51953159733857,
+      "raw_sha256": "bf2be260e381470d13686effd9235c9fdbf95838b12aeb01280ac70179c159b6",
+      "cleaned_sha256": "1db54dc304471c8974b26c92c5bc58f688fd93bc0f4baf41897bc9a9998077d1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "page": 93,
+      "review_priority": 0.3862,
+      "ocr_confidence": 82.71086152054431,
+      "raw_sha256": "dd4362861e9e23564b7bf67eedb041e89085f268c114497b45207adea26da208",
+      "cleaned_sha256": "9f17a0aa6fec6bc392ee0c02b26622cf04696e0ace941157f7318543da6c6c77",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "be226374e719c729",
+      "page": 1,
+      "review_priority": 0.3,
+      "ocr_confidence": 83.91523733274362,
+      "raw_sha256": "6068560da93339f5e2880c5dc4a7b1a95168c5d35f850abbebcf8c717dc880f8",
+      "cleaned_sha256": "f18234516d8d89d753b0ec48782252c71df5c31df899a1f946ad3065c2a98180",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "be226374e719c729",
+      "page": 72,
+      "review_priority": 0.3,
+      "ocr_confidence": 71.0345791468446,
+      "raw_sha256": "dc5e0950b11225aa640e45164494b73ddd411008ba20c09f624c6fb208b9b043",
+      "cleaned_sha256": "a6c1244f038ae61a1753373a1c6e322a1df3e071ea6e41f00dc5afe704e63a9a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "page": 22,
+      "review_priority": 0.3,
+      "ocr_confidence": 70.56392309027169,
+      "raw_sha256": "3c4aa58dd511d7268bf26d99ed3155778068c1553dfa464fe6842e899b17d48d",
+      "cleaned_sha256": "626e405f0aec3fb4f335b6e741ecce918094dfb8a3bdb79deaab676f003a7152",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "page": 32,
+      "review_priority": 0.3,
+      "ocr_confidence": 77.83205357005005,
+      "raw_sha256": "05fc900a036cd88b24ba1bb4eea0f52f2caabcaa16265bd6980d6db707d129af",
+      "cleaned_sha256": "861cde68773bcadf32746a0a6d8878235792259dbdc1153226f5a5190937b8c4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "page": 59,
+      "review_priority": 0.3,
+      "ocr_confidence": 73.07056639680441,
+      "raw_sha256": "66e2befe34c58ba2553d9969d4955045969f6c788ce8efa0d0fae87456de5a12",
+      "cleaned_sha256": "84ffe1d1cd9330f876e2911579da3e727facd68d889df81f689cad5cc876953b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "page": 186,
+      "review_priority": 0.3,
+      "ocr_confidence": 74.5236660259038,
+      "raw_sha256": "be0133c2950c63b8f7257de6bac96c59e5d3da6e13aee4710983d031cd80cb36",
+      "cleaned_sha256": "c8f48bf572d98696d89124a3e0b56d98aec955feadae66ac044179a5273b629a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "26b02d358ec20061",
+      "page": 2,
+      "review_priority": 0.3,
+      "ocr_confidence": 81.24172410454541,
+      "raw_sha256": "43ba8cb58e1fd8815f8637bc80306f051ef5d4a67e21bc914d0d94ad21d1008f",
+      "cleaned_sha256": "b802fe613bb5f39068311adb04cf8e548c54249e1415beea95335c5ab7c04343",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "page": 22,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.4715019345441,
+      "raw_sha256": "0e89608c8f81ecddfbc382df6f2b176ed4e6610d44f9e441cb230e0b8b590202",
+      "cleaned_sha256": "38d89aee4ec38ae0fb321a282734f5b18f4bf66cd69f5dc5b3bdf3bda407069f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "page": 104,
+      "review_priority": 0.3,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "61adb457288264a0f584f41e3d5c4d79c74aec4dac173cde7da3e52bb883a5fa",
+      "cleaned_sha256": "2292d69222034604af8e2fb70e45c81458ca019d985ea5a800bc8a1108bc0f3a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "page": 170,
+      "review_priority": 0.3,
+      "ocr_confidence": 80.33952725172398,
+      "raw_sha256": "68eb16158e6be84f419bc96118a6bea9958ec75d54672e6cf2fdabb88875f545",
+      "cleaned_sha256": "80f8d90b775937abb4dcfc88ac38907c0c877ec88ed5a44d2c27332266b64001",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "page": 166,
+      "review_priority": 0.3,
+      "ocr_confidence": 78.52281019027099,
+      "raw_sha256": "b542bfd7c54b36c0bdd3d07fe79ba4d7d6487d911d5ae6b9e86b008ddb0932ff",
+      "cleaned_sha256": "0c8ba0e6285fa367acfbde46eff68199f1d120e38b1a7b38bfef4dcd5e3b4d81",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "page": 201,
+      "review_priority": 0.3,
+      "ocr_confidence": 88.69047272991348,
+      "raw_sha256": "f8d48c81a1b2ea09b2fe8068c6e53e101722d72fde6b3f02e7727337b745f0ad",
+      "cleaned_sha256": "b7c0f590199ee3f6a0df7361ed5966cac24c71547749659110775f7ff0972a02",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "page": 32,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.67269936000089,
+      "raw_sha256": "894f45325bafea91c0e484ee143239b7333c5d8e9dd3636e80216ac51ca82845",
+      "cleaned_sha256": "9df2aa083e4fa6a7496f374e2de16c67f98162cab055417689f38fc85c596764",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "page": 99,
+      "review_priority": 0.3,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "9c6675ef2fb3991535d26b02650cf01db9a6aed52f6818bb653623a1c9875676",
+      "cleaned_sha256": "08029b4e32801437cc32ddac6d2a8771784c190503ca2bcbc182fa31388d68f6",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "page": 128,
+      "review_priority": 0.3,
+      "ocr_confidence": 70.1822360926299,
+      "raw_sha256": "ca1880bf3fdb7e551a611ef7947afb520709182fb8d1cb1b9083587cb74a7958",
+      "cleaned_sha256": "7cf413ad961dd68102214fbc58dcc6128154092ed6df264bc79c80ec65342467",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "page": 203,
+      "review_priority": 0.3,
+      "ocr_confidence": 71.40668772697619,
+      "raw_sha256": "5df355d9054342f3e9474616a372a3b8baf15b0006109c97e2531e1d8910e168",
+      "cleaned_sha256": "b5273559aabeed08857fc2e0803de3c9c6fa069011b4df488db96e1412c38cf0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "page": 89,
+      "review_priority": 0.3,
+      "ocr_confidence": 81.15315675674378,
+      "raw_sha256": "69fda5d1589f324c0d6417e7c4c92d691c914b480507d19b66fea1b0ce9a7ad6",
+      "cleaned_sha256": "fb5ca237769a874752551f139a31e27b3d4eae3cb2cca50913b653a058be67e3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "page": 170,
+      "review_priority": 0.3,
+      "ocr_confidence": 75.0,
+      "raw_sha256": "694a4d65b1455494e7e35fd44aedeb9c23d186071e96a484f12ff280ec6147bc",
+      "cleaned_sha256": "739a390c577219b964673ea12a52b140e8b199938a9d259d0fa4c9d54d9434f3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "page": 172,
+      "review_priority": 0.3,
+      "ocr_confidence": 77.62982159441965,
+      "raw_sha256": "29a3d320d7267b65e381cb7431927c9dba555ee808c0cb75a7da45f8c1cdb661",
+      "cleaned_sha256": "b6e1324e8de1a193c57919c65dc77bd756de7032c8da6023fc0de981280243f1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "page": 143,
+      "review_priority": 0.3,
+      "ocr_confidence": 35.0,
+      "raw_sha256": "2f8fb23a69439c577c1f0ec837e6b199981dc36e7d5107edaa5b5178d41e2b00",
+      "cleaned_sha256": "f82c1687d361e48b17a0c2e689de70f9ed194914ecb5593de54af96020746d45",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "page": 181,
+      "review_priority": 0.3,
+      "ocr_confidence": 73.51781910089198,
+      "raw_sha256": "c6516ccee038c08242a9637f03efed669367a4b950faaff74468f66273fa9418",
+      "cleaned_sha256": "eb79e19fc588d350a4df0356d16c42be1a6dad8b72a6f1d5addf945866262d4e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "page": 15,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.6466999783724,
+      "raw_sha256": "71966bfd0b57a24196f7c39357e829e67bc3e81dce96615859d762a1a670d7d6",
+      "cleaned_sha256": "d97a2337f056e14bcf471d679810b61587925e3b3b3df3a393eb75937cb008b9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "page": 142,
+      "review_priority": 0.3,
+      "ocr_confidence": 72.70709991416706,
+      "raw_sha256": "7127bdea2f1affb4a045b675085a149cd19bf599624ed7ee477c69b154527aa5",
+      "cleaned_sha256": "eb22810604b2f466509ae5d7ee1e12357ec6d9c8a074a1aa2f4f225dea3bda6b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 5,
+      "review_priority": 0.3,
+      "ocr_confidence": 78.67054267206554,
+      "raw_sha256": "9fffaa7e8bc278c28a599c3d08d5dd8596eb4a5bf71a87d620ed5c5879a334d9",
+      "cleaned_sha256": "be27baa08976cfbb0d7aca00d47b05882465ef565da80f7899014eee56d93412",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 9,
+      "review_priority": 0.3,
+      "ocr_confidence": 85.0,
+      "raw_sha256": "03be99c3254f3cd6f694fed48a8a0f514525353fe040b9c9cf6ee4d1fe70e1de",
+      "cleaned_sha256": "51c59a624ec6fd3177ef75821eb227a494717dd2ee72c6abb3efac059486e37d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 12,
+      "review_priority": 0.3,
+      "ocr_confidence": 72.19655278975323,
+      "raw_sha256": "1c5c56797bf6220067710c9dcd4d69cbfb43fb785fb643a24f0626d1da70cc57",
+      "cleaned_sha256": "f7bcb9501a4cef22254210ba78f2d5a8d35e05b7e7a0b98f2ff3af4f14f6bde2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 13,
+      "review_priority": 0.3,
+      "ocr_confidence": 83.92745112999236,
+      "raw_sha256": "6df6eb8520aa589eccf6f42a317abe584c4e26cd6e5fc83495a38e0c1ca7d19e",
+      "cleaned_sha256": "655cbb9138ad50db1020c895f6c078f730870fc1b171bae28027243d44cbe2df",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 14,
+      "review_priority": 0.3,
+      "ocr_confidence": 82.06698746082438,
+      "raw_sha256": "a0d44b8dac0b342d3c0a51df8d5c2b7ac36122a08555d5a694b13feddf91584b",
+      "cleaned_sha256": "aa5860c743db53f0c4aa33ede94ffa411117874c8743fee28389c0d41a40f1b3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 15,
+      "review_priority": 0.3,
+      "ocr_confidence": 78.46322665684788,
+      "raw_sha256": "cdff0086b36d5fd593257db8ca46409f75af6b1a268de0493891a5a94dc0562d",
+      "cleaned_sha256": "ad085cb1016194786a0ac52db08696112342dc13eb46d84dc87bb2271033e769",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 17,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.0,
+      "raw_sha256": "99181491b5ae108c6e3cd0f4ecd44f6c87bbf598ff094102ea8a7e00eb26e59b",
+      "cleaned_sha256": "ef7329b2588f7bf7a28bea259570b8083a7fc9aebbdb8bc12e96f8916985cf32",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 21,
+      "review_priority": 0.3,
+      "ocr_confidence": 76.7137618640215,
+      "raw_sha256": "60261a6d2ced531c9cb9d3b7bd9f0ff049ba157657671fd54a9fe31e0b28f476",
+      "cleaned_sha256": "eea502d87fcdcb9e3a9126173698ef38e1a92aca7e54ac38ec86d13267f14089",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 22,
+      "review_priority": 0.3,
+      "ocr_confidence": 81.91766916555763,
+      "raw_sha256": "73b52c71958d20a8cce535b5eec1895ae674766cf18df28f835535a9faad1d07",
+      "cleaned_sha256": "59080c5d40a5588efab8457310e9e42d1627b523305eee0022e706da54291508",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 23,
+      "review_priority": 0.3,
+      "ocr_confidence": 75.85131096890166,
+      "raw_sha256": "b5935ab8ac7037062884569a42705d5f5e18b490becc42be93c1322e30f975e5",
+      "cleaned_sha256": "acee61d6d3ece0e49ae1389c0d312d0aec6e748d697bc5a1534cd2e1b0394ece",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 29,
+      "review_priority": 0.3,
+      "ocr_confidence": 81.28937596412607,
+      "raw_sha256": "761863831db93cb0003bfc421d77288a555a49cfd84d7cfcc19e64359e0a7814",
+      "cleaned_sha256": "3838af768ce64a199e578378c1d910acec4478066d7e6edbe30b474a07e9b813",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 33,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.0,
+      "raw_sha256": "99181491b5ae108c6e3cd0f4ecd44f6c87bbf598ff094102ea8a7e00eb26e59b",
+      "cleaned_sha256": "ef7329b2588f7bf7a28bea259570b8083a7fc9aebbdb8bc12e96f8916985cf32",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 36,
+      "review_priority": 0.3,
+      "ocr_confidence": 76.45381675959642,
+      "raw_sha256": "a97c352a6a63c60a2aa3069bc2e8d5713977a38e016a20993e9151d3691bcc5b",
+      "cleaned_sha256": "801629a6b8561199ee07454ac3a7816892641b55a98eb02ca6aadacab64f7619",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 37,
+      "review_priority": 0.3,
+      "ocr_confidence": 78.41687729801308,
+      "raw_sha256": "45be00d01de7925412889558d6c0848b62b823b12010fb4e0eb39b73bc5b1ece",
+      "cleaned_sha256": "2ea0abf6a3f93ae42300f7cbcc07c02bca36b6c458872fe56ccd70733cf4f698",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 38,
+      "review_priority": 0.3,
+      "ocr_confidence": 82.2782159502689,
+      "raw_sha256": "ba1569fa14603102080b64560fd74658af9481d887a353e383f18cd296bb8d81",
+      "cleaned_sha256": "787a1c21c50c7634dfecf863dfa52ae8e5ae14237f3964d9df9bee6081d524b9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 39,
+      "review_priority": 0.3,
+      "ocr_confidence": 76.13291300680318,
+      "raw_sha256": "cac32bf30512afc666f8592ef045ef936e1d95fd675a9b877528104b58c85456",
+      "cleaned_sha256": "b42028507d9b90fb6c636723dea0430ba46e6bc2bee6addd23d4c67547cac9b5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 52,
+      "review_priority": 0.3,
+      "ocr_confidence": 76.59768233821217,
+      "raw_sha256": "5c503a7987ef16b785a3b181932f14bb48b730316905c825eb769f3f212600bd",
+      "cleaned_sha256": "be7163496f7439b47f881e43a6a925b35e3d4aca0280b4a2da5f8c80559a22c5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 53,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.50361226219721,
+      "raw_sha256": "b77a475397918756779dad60e1768e47fbd5f40bfb5a93b015acd740d75e0d05",
+      "cleaned_sha256": "f544dfe33426ae9753b8afa3e44ab15488bbd85a3efa84ab7a5392a8f9720157",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 57,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.0,
+      "raw_sha256": "a3e85ca4db1d02be9e5c4da848dc530b0fed4d729f0da196c5bc1e5fd160eb0d",
+      "cleaned_sha256": "51c59a624ec6fd3177ef75821eb227a494717dd2ee72c6abb3efac059486e37d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 60,
+      "review_priority": 0.3,
+      "ocr_confidence": 74.3000407786563,
+      "raw_sha256": "4237ef2dd0511be8b1c0b5dbb3cf23000bd64e86ead056b5e6986d57c098a504",
+      "cleaned_sha256": "f985ce5b90b283b46ba66b16969dd654794257dfe00b3b56426c79aec271687e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 61,
+      "review_priority": 0.3,
+      "ocr_confidence": 82.83308874498347,
+      "raw_sha256": "8bcdbc050a732af718e3ccd6706498bb0c7a3d06bb116512ead15caf62700b14",
+      "cleaned_sha256": "ee1feea49e755c85a4b42d0c001ad47e7313ca578fb403c5edf65b73fe3a95a1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 65,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.0,
+      "raw_sha256": "190ac8fdda9516ee15cfe338ebda2874c5da3cc3c09a198d950cc56b2981d768",
+      "cleaned_sha256": "51c59a624ec6fd3177ef75821eb227a494717dd2ee72c6abb3efac059486e37d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 68,
+      "review_priority": 0.3,
+      "ocr_confidence": 73.42174431077501,
+      "raw_sha256": "7bfbc57147b8e115682065ec2588ce6123c7a290747096eeee41742854a4053f",
+      "cleaned_sha256": "6196f40d28257f60d7ce334c453133b257e2a97bbf009d74cb1ad177f4b1eb0c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 69,
+      "review_priority": 0.3,
+      "ocr_confidence": 81.12846586966644,
+      "raw_sha256": "858d34d5e753b2e4e03af31da5a888b020ffc82711d48e139da83ed65a64f38f",
+      "cleaned_sha256": "6f1822d594139274f5b7254d00a096bc79709f09e75d3473f5a7881174812a03",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 71,
+      "review_priority": 0.3,
+      "ocr_confidence": 76.34323734453939,
+      "raw_sha256": "ce8ddd49771362f2b8b92db3ba8e99f67fdda7bea452abd82effa641b857a183",
+      "cleaned_sha256": "2fb91b44c7693a0c28da7b17f489188fef0f68f3649e877030f96d638385538c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 73,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.0,
+      "raw_sha256": "f55a95fe951d809e3dffecbe0c1df34327c4ea8cf59bd06962b7b1cf4360c808",
+      "cleaned_sha256": "51c59a624ec6fd3177ef75821eb227a494717dd2ee72c6abb3efac059486e37d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 77,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.80394668612296,
+      "raw_sha256": "43e12afbe4204d9f7cd080ab71d0c6cff6a1018fd374ebc0e79a5b84cccfa81d",
+      "cleaned_sha256": "0ba649864195587bb7aca26ee2d186ac1f914065ce6fd2ce1f06f49635144649",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 79,
+      "review_priority": 0.3,
+      "ocr_confidence": 79.87070152185015,
+      "raw_sha256": "fec15c18569bdca285d2e773402fb43f5e8664416c76b3064ebcab86c3b09d9f",
+      "cleaned_sha256": "e1bce71e51f5c218f3615d0711a0bf79e409e6f0b72ea7ab1daf422f2a6c3e41",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 85,
+      "review_priority": 0.3,
+      "ocr_confidence": 79.42310987234661,
+      "raw_sha256": "966d066379aeb607b8617d3556c2bc816f3aac283d69a71a277139a046f0b8e8",
+      "cleaned_sha256": "f077d22298f00dfb61e84fffcf9061c84d93d1170dde42fcffbb903476e9da69",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 92,
+      "review_priority": 0.3,
+      "ocr_confidence": 74.83168424868859,
+      "raw_sha256": "b7e2e0040bc27e4aa7f6f3449b923de3dddb403fd7be3266cff9c00e1e08cfa1",
+      "cleaned_sha256": "d965c150db5b26b956ae08b55251cc7d61006dbf9c9fe6cbd9132c6ca5c5e460",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 93,
+      "review_priority": 0.3,
+      "ocr_confidence": 82.27802064319751,
+      "raw_sha256": "d0c19e3d4a6b3423280c991fa1e36ce9c80f90e52dd805113cb386c019ccf115",
+      "cleaned_sha256": "8356c35996b9d5d1b73fb643ab39b737c9666c66bdbcf5e6b14808bf65d4ad94",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 94,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.94743708624192,
+      "raw_sha256": "504efc614a81baea4adaffc1ecee54655cd81e4466931894a4c16e8d9cb39fde",
+      "cleaned_sha256": "3a6982ac173b65d15cefd534758808dcccf95d8a33effe7535dc17bdc742a682",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 101,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.42965117364386,
+      "raw_sha256": "e3f8306a18da291d06134c8903ffb48ee803ad6f1a0fd112f9c499f70ad24455",
+      "cleaned_sha256": "a91487da7cdaa818de0e0b2d6594f0e99cca5567508e74e51ff0a6355d338da6",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 109,
+      "review_priority": 0.3,
+      "ocr_confidence": 80.64639442421921,
+      "raw_sha256": "3db8c3d256eb2453a94677194f37587dddb58c1a28cf0db57dad7b313aab5bf3",
+      "cleaned_sha256": "6472fcef30589382af5167b502f59fdbe2de77d613ab863609da04c96def6494",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 117,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.84955318428047,
+      "raw_sha256": "7ebd5743e812264a8c5d2293764c72f9fdc4e3b1891af944bf67d08cfff94299",
+      "cleaned_sha256": "b1ca9f0c3d6cac1ec9cec85bd720c5b0c3cbab033c7f7ef4391e90fc5adfbb41",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 118,
+      "review_priority": 0.3,
+      "ocr_confidence": 89.93117408254842,
+      "raw_sha256": "73a11afe817efacde7b89d2ee042e065c8b81a98ecaa790672b0a2ee38d17edb",
+      "cleaned_sha256": "b37ebd56654b85a4056504a69ea315c99819422c84ec6fea8e75543899dba112",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 122,
+      "review_priority": 0.3,
+      "ocr_confidence": 85.58954618732872,
+      "raw_sha256": "a2bfe7b51948bc139747b939dc12fbe7228584862e5d54da60b6f8beaeb22756",
+      "cleaned_sha256": "fdc2e483e829e031e112e825c636d9d3040933b441d1fc942684b4bb5272ad93",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 125,
+      "review_priority": 0.3,
+      "ocr_confidence": 81.247359262787,
+      "raw_sha256": "f7252adabdb2525a5852ad588e921bc801716a91f832f94f3cbaf989167c26f6",
+      "cleaned_sha256": "f1cf6e8b902d3003a18c30512250e76aa58739aeb875641e495c8f3548ba1a60",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 129,
+      "review_priority": 0.3,
+      "ocr_confidence": 95.0,
+      "raw_sha256": "04c1a32b8035ab7d220319cc530ecbb34fd47f92bb9443cc159b2fee75fca25f",
+      "cleaned_sha256": "ef7329b2588f7bf7a28bea259570b8083a7fc9aebbdb8bc12e96f8916985cf32",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 132,
+      "review_priority": 0.3,
+      "ocr_confidence": 73.86298046410677,
+      "raw_sha256": "43d1c8f9d56a240dfa12d0782f4d9a4e0b14341eb8f3cfc8e0920cc6e9e4e085",
+      "cleaned_sha256": "21508667cc04d481f3f09107b2db30f236c79afa2368b2af25ad91082647812c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 133,
+      "review_priority": 0.3,
+      "ocr_confidence": 86.57386865085948,
+      "raw_sha256": "05900e68c5cab5b2d82c97f8e54f004ff96d308294111e9c3faec9d5bc90a0f6",
+      "cleaned_sha256": "7508bd41d206cf3b748a26ce327a42e67ea694bf4b407946fd3f6b06379b4ece",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "page": 134,
+      "review_priority": 0.3,
+      "ocr_confidence": 80.62705234931175,
+      "raw_sha256": "6b698fbb3d21ee9935e50206954acba4f685615dd71ab8122ccbddc171262e8c",
+      "cleaned_sha256": "aa5860c743db53f0c4aa33ede94ffa411117874c8743fee28389c0d41a40f1b3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "page": 1,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.2624358418915,
+      "raw_sha256": "9b52a4d8fe1e5592cefbc91bf6bd09cdaeaabc2b1a1f397795877fa8f844172f",
+      "cleaned_sha256": "6d6a5c74ab8c7080c49ad47569ffabbeeb5b727934dfbc6e90d66a1a40ea47b0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "page": 1,
+      "review_priority": 0.3,
+      "ocr_confidence": 91.32632933716792,
+      "raw_sha256": "c49eba16e7deeda3ddc7d074f0905dd0eade5af2f86483b5a78853ae38b8786c",
+      "cleaned_sha256": "0d0d19faa3c493cd69535672c636e2650501de57afb7dca245cbafcd16f7f150",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "page": 1,
+      "review_priority": 0.3,
+      "ocr_confidence": 87.01126231742954,
+      "raw_sha256": "640ce4b732ad4d6b6ff422bbc1cabb942c77d4706fdc2975d9cc62417c4bfc5d",
+      "cleaned_sha256": "1c7e2909ba3fd672d80dbb8797a682af98aabcfad005d2e843ca3456b44eed58",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "page": 1,
+      "review_priority": 0.3,
+      "ocr_confidence": 84.95219167735841,
+      "raw_sha256": "f041657efa48483c467b7f00dd47518ef45d732df265459d4fd5f370ebda9b2a",
+      "cleaned_sha256": "ca9cb7cbd3b71583a610ea93f4357fdbc1752b02050be7de9f468a1ccda1de52",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "page": 198,
+      "review_priority": 0.112,
+      "ocr_confidence": 72.38877989317723,
+      "raw_sha256": "45dbbadb9c12853a4a4dc8ae06c641dadb02fedd990d442074361a1414358f7c",
+      "cleaned_sha256": "225590948749c5b85907714d6a52cab3b996c5b2b836128432b5944ad7b5d850",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "page": 130,
+      "review_priority": 0.0919,
+      "ocr_confidence": 71.81195800506286,
+      "raw_sha256": "0827fbd4c37f536c59e2e256fceda6805033ef5cf8d529fa08fc74e841723912",
+      "cleaned_sha256": "68e2510deab7ac8511050b3c8e1e3988d3f0f523ce73d5c8edac3f9947e2bae6",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "page": 65,
+      "review_priority": 0.0614,
+      "ocr_confidence": 82.06839723374264,
+      "raw_sha256": "23e40e0b9d0c274b1b4a8c9356767880b04191161d8518ce822a00b57d26decd",
+      "cleaned_sha256": "23e40e0b9d0c274b1b4a8c9356767880b04191161d8518ce822a00b57d26decd",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.48143118144806,
+      "raw_sha256": "3b65ec3205c42bde336628646b63075161187c6a6b4a1a9215cd107cba6dde33",
+      "cleaned_sha256": "c11b7d5abe10b1f331ffa9a169bb8565eb7a1fba6f11fa9f2c000750ccb1f782",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.22583268652157,
+      "raw_sha256": "251a4cad4b7f73110def8867f6f87d04f1ffd6ce956b43af540c9db1e04e040c",
+      "cleaned_sha256": "2b8d0738d31fb4a6aab3d3c14d00c91ca3b994f8f081809b1d24370e0bb34c00",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.02068612994333,
+      "raw_sha256": "ac44c30337fb38a73de505df0feba8eecabe6443a260ab29772da921965b5a32",
+      "cleaned_sha256": "4fbd69bda7d44b50f6a7abc6c6606bb597bc54cd9fdd54a6d709578e947b468d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.06396837370488,
+      "raw_sha256": "e751b28e5b071cd40a256b9539492e3fb6683c063decb61551e5d1214c21e4dc",
+      "cleaned_sha256": "941a6621fbcd47a3dce16506f04d10f572b0a5960b6490cdb738b1c48ba03463",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.31631755485306,
+      "raw_sha256": "3bb07c01c15490f7fbc074e38b2e97157e9467fc9686d231d1b3905b571eceb1",
+      "cleaned_sha256": "193c6dd29d713150eb629a35b47e5783863a635a8608407598cf9cfb9bab94fe",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.98139171919743,
+      "raw_sha256": "02c1e7aee9ff1b63c9cb7ce0a5bb8cbb4f4ad8cdfd1ea0d8f7f935aa340db307",
+      "cleaned_sha256": "83844d3ac95317e4493bbfa54fe7138aeb828685f8c18eac3ee4e618abe1f623",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.60857832460677,
+      "raw_sha256": "931ed42fc9494fb7963877131661e4137d64516d9d17aeb18b98381ab316b43e",
+      "cleaned_sha256": "9bd1ad2032aee8c4f36dee51f3f3eb30d702cc3de6b661e25d3f766f79dee595",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 8,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.57770430559351,
+      "raw_sha256": "7650c9b7e0bd429aa0bc10ee8db564f6ca2f28222c456df685f75134ba9e6832",
+      "cleaned_sha256": "1fc71a1fc31e856fcee8f9634103c71239517b6312125437152aa3bbac87140f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 9,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.46646335568393,
+      "raw_sha256": "4321690737096167c8b29fe4c73918beb723a314bd4e3a68903f1222a47a014e",
+      "cleaned_sha256": "398675d5af84d02526607c06e63c388a71624252c22f044f8dd841588f7e20c4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 10,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.5506708027715,
+      "raw_sha256": "fd02c020b5a89184885b89d208a1a421631fb5a99d85815622739bf55f10e7ac",
+      "cleaned_sha256": "0a1741f3108038060db58bf97c24a39cc15ac44e9ed36f876521b662bd44b7f0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 11,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.55797334726991,
+      "raw_sha256": "cf5d0f43c3ce310923d7fc1964e1b2a09528fc38233ca36db53a29afa824c0b9",
+      "cleaned_sha256": "2ce5fa31cc88dd13f845ac211118d3fa9c9995826a24e95384bc5f75d49789b7",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 12,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.5727491156891,
+      "raw_sha256": "8279a9e1348a73200fe7f9c062795f57d04e262dac41fe15c9e23ad81e3dc829",
+      "cleaned_sha256": "ff293f267a667d2e8cba635e511f9b722bd42a4ee931b86560c5cd94c4951856",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 13,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.1788284478695,
+      "raw_sha256": "b85c87f0dc2e0ed66936f9627aa2487300264a89af750f3459f7b334b6d719ed",
+      "cleaned_sha256": "c892e675320365a22f419974f1f9b24cb879bf98d7aee49851f8645d3355d185",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 14,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.26553011832472,
+      "raw_sha256": "ecee390aabcbd99bc2767995d60a2be6bb758b68e090244b5411d07b59856d12",
+      "cleaned_sha256": "5c880f7b4955ad2b390226ebd85b5e5d2612a2a129c6a85c83eb583f7b2468c4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 15,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.11407640525798,
+      "raw_sha256": "9d08aebfe0b10d98f86b0ed613331d6cd81b102cecb04b6d70821663ef0be076",
+      "cleaned_sha256": "ca5b33cac6e5fc44fbac5375986ba0d34a097534153b1791af722a0b2e54d984",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 16,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.47154982373831,
+      "raw_sha256": "ab0a415319f9b4f1124260f8b5a99d1af37f1a76a90f611f2184d6b4d33c59d2",
+      "cleaned_sha256": "8786af89ffb45627826df76930397b2659280b354e2f9afc79ec80aaf71d4284",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 17,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.97101361165481,
+      "raw_sha256": "04fdcac599cb7c18b9e33262f8b9479a12be6ace982cd2f5da09fb384673edb0",
+      "cleaned_sha256": "ec96b196a6ede4be0b9b9b2fb4291ff4a91a55a19ca3df239e79f209b9fc4c55",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 18,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.87830192991292,
+      "raw_sha256": "38d36458f997963d356428e873c560569b236b10afe4a35c70292b8effd8e168",
+      "cleaned_sha256": "68d5b61b0c1bc8139a55950b312f922820750585a10dfb242b5d088071d2bd5c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 19,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.16652547567692,
+      "raw_sha256": "746bed9c451637c6bade9f830c450c1f8111841d6fc9b207cdd605d2b5b1ba56",
+      "cleaned_sha256": "0fd32044ab8378e17d3349b81b951305206d75c88189ad202c19249b60d8763a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 20,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.27374106931859,
+      "raw_sha256": "99c2e24529a632d3db11b7aa7b725b3578311905914ba34465e81adb1e40c161",
+      "cleaned_sha256": "ee8594bf19bbba21c875b9957e3a69f7520e942a684e43d8039dfac411f2dc53",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 21,
+      "review_priority": 0.0,
+      "ocr_confidence": 84.1702266354781,
+      "raw_sha256": "35e3f18bd8a72c55e6a628341cb503a2cd8f24bfacbebb91c0d00724f2374ca1",
+      "cleaned_sha256": "718fd1501ea844a7dc0473e80c325edf112423377eb7a6036b52af89d2b44a40",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 22,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.70116132689617,
+      "raw_sha256": "3f7608e3820e75b2838febe97df986faea1b422d2787042505e85a6e9afb0b09",
+      "cleaned_sha256": "6c23c2de553bc670889e9cb587df5dbbb553e3632b7e6edd84c9f696c9a582ea",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 23,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.09086505901382,
+      "raw_sha256": "f469e6c4ab3536f879f2f50bd788b592f2142d91e43e655db54cb6b11f2c20fa",
+      "cleaned_sha256": "4a6a94cd2e60ebfa1737121ff804d5fa4700a01b22d5ed04415bddcef68c5004",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 24,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.63135525923953,
+      "raw_sha256": "778fc6f7033212b145fb59254706599405d02d6fb7d3d746e52cb9800bf1664b",
+      "cleaned_sha256": "6c81790f76d32629e6682d047cf4c8925922ca285fd7d433ff5386cc2b7cdf78",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 25,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.01143772703884,
+      "raw_sha256": "1c7de5b6e8b77991b6ab78edcbf832484ce88672f8c0f2fd84f556ebe695dc3d",
+      "cleaned_sha256": "cebc39ac19b9b5ef3f18e8a4e7c08b1225cdd6ff86b83a9bf856bda7bc1a47eb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 26,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.274265934657,
+      "raw_sha256": "405e17bf61583a87c187806427b777c303ae759bf50ffee91c54b68219db7343",
+      "cleaned_sha256": "3bcc78411a858b2de9a6917a904b0adead4e27484ce6d13f041ad5ecced0a65e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 27,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.08769137525387,
+      "raw_sha256": "310027667fac352f809549987392934245138110cf7ad24861888ff3ea9e6b89",
+      "cleaned_sha256": "310027667fac352f809549987392934245138110cf7ad24861888ff3ea9e6b89",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "page": 28,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.32363557319988,
+      "raw_sha256": "f43d0d372bb7247618bbd36266c47ba11ce4256f2110aa0bf28b4af9285afb05",
+      "cleaned_sha256": "d9f7da71b907d6d7e1315b7f0186637aa3de46f9111f1c4e9d8ba2f23b57a8a5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.57881511163983,
+      "raw_sha256": "645ce19cc8ae298f957eb62e270fcba12de76a38502e24373f4ec1e4d8e68351",
+      "cleaned_sha256": "8ceff98442e92cee22269af45d48a4afc94e2509cb5743119bc31d86d44ebe93",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.33033132347055,
+      "raw_sha256": "199c4cd0439b960a926ed805d5ee20c51edab52a344a08ff2d1ce3b33f3ad27f",
+      "cleaned_sha256": "8cd14eb13ff365618b7e7a76580a61c8161efd1a156cdd1e1ddc5eac5841acb5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.89320752724784,
+      "raw_sha256": "d3593928c88869d7e9f14fa121c1eaefe59a8c017c59474e56aae4bb494fe53d",
+      "cleaned_sha256": "d89234df1e569e40fc7d5c9bad01b7d3f08c44dcf9d6c75bb5c30b987d77f0e7",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.03401462651532,
+      "raw_sha256": "aa13ec155de8667e9ce1fc7182f41c4e00ce0ece7807c8a2929f387cf67a80c6",
+      "cleaned_sha256": "4aac85baf9fa48bdb88a5814b7b50dec1e54406d60568bb695a5d893d60f1abb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.70890844996235,
+      "raw_sha256": "e5360a28dc50fd5b8565e5e58b20fe059eba310a30726fca707b4c7a0513f538",
+      "cleaned_sha256": "98dc78d4536ad844511b2ecbfacb8350a9731163d06529b966325766c4278bf2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.10164569464327,
+      "raw_sha256": "d3e6a98af659996ae474709bab223d7a67963c6e259a952c90cbbc10d37a08ec",
+      "cleaned_sha256": "4657827bf63cd79808ac1845ff3aa2d8acf9bee72e183bff5bd3c0741f6284cb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.7370549152101,
+      "raw_sha256": "42fa9f458fdabf623b504ee7ff2b16e7a15f147fe8e755e8eff482504f013e98",
+      "cleaned_sha256": "0274a781ce977ad085d19a16879e7868d7fa465683dee61fc3edaa76be49aa14",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 8,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.15144055717485,
+      "raw_sha256": "153666ef055f6a1722578b92c9d651323bff3a5b22fa5bfbfd6f81465d1aa0bc",
+      "cleaned_sha256": "153666ef055f6a1722578b92c9d651323bff3a5b22fa5bfbfd6f81465d1aa0bc",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 9,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.23495665936598,
+      "raw_sha256": "5bc434210414b99ea14d5b6abf294de947a43b4fa0800ce52c50fb7e86fefa73",
+      "cleaned_sha256": "ff3b2f01869a61aeb46d968d71cb514e8abb190448aaaa618d7fca04c19e4db1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 10,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.30050877581164,
+      "raw_sha256": "0d02d3f11b5651e8017725025e96e07ccc1130bd37d6801d8e00889b21d3d324",
+      "cleaned_sha256": "b97ea021f17b9b5aaa02f36162ad20f11dd099b6399cd5215fe0e0a9435fd373",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 11,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.49919697906869,
+      "raw_sha256": "343316fb1e5f154fcecff5bd18435e40184595a3a3579d25a3bfb99bb17916ca",
+      "cleaned_sha256": "743425ac709f3eb9ac33fbe8133015b8a6e148e58fadf6fed66b76da80c937b0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 12,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.46334011944619,
+      "raw_sha256": "c226fab249b2458745d649fc30586f6d17a52c819bd4c5b8c776fe3c5304a872",
+      "cleaned_sha256": "718b3bfea9d17ead6f6d29e70004e2748870831ff636c7a3d1fcf9537d8baa66",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 13,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.71114593394478,
+      "raw_sha256": "9a9d02e45bde8de11449257c146574623fcc154c6596d670b78b41f7b3a7b057",
+      "cleaned_sha256": "ff5f3df149f53c060cc6b27bb0c241edd3835a3c0a3f0f1c1adfae2095300fcc",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 14,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.60433070315307,
+      "raw_sha256": "8aaad072bcf122d63ba2a04c65af6a765d035aff401d4df56ede5cb4090f89b3",
+      "cleaned_sha256": "64b7855c5107d60da187738422688a2405251680a6b5d10259e86c0ec7608d5f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 15,
+      "review_priority": 0.0,
+      "ocr_confidence": 82.79890746349172,
+      "raw_sha256": "089b98b12917b7cbcb8b5c55f5ed4b4d0003df927b9f92b0af30ee7e9bf9dd77",
+      "cleaned_sha256": "23098797fa6c2d04024cfdf492b97157c1b6b636ed13196adf82d43dbaf387db",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 16,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.81438541365986,
+      "raw_sha256": "c78f9cf33d8f94444391b100de61464685247e02bf5bfe4c98d67cbb28f7cd2e",
+      "cleaned_sha256": "c78f9cf33d8f94444391b100de61464685247e02bf5bfe4c98d67cbb28f7cd2e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 17,
+      "review_priority": 0.0,
+      "ocr_confidence": 87.33978519045858,
+      "raw_sha256": "eeb3b388eb416dc399f3f143dc877b2ec753118f64d531ef45e5a32115cc8591",
+      "cleaned_sha256": "0cbcca2d0813c67bfd428c5e672ff97c93d241ce989ed588ac2d33f1f2b6e548",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 18,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.39131927983382,
+      "raw_sha256": "e0f856a6507d120c3474a5f56d213bd4e711d37d34961135d8da784b962e4307",
+      "cleaned_sha256": "a0227e2ea1182697686c34e486db194ced38a78d6e3c0d69466855d726ab604d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 19,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.26408290291091,
+      "raw_sha256": "f0fab972904344e41e6a585c4a533b2330f19458a9c492b9b517801189d438d2",
+      "cleaned_sha256": "3f56536993ced6e6ace825dead8c1dbb34f76d49121adb4df0de5d7d43693f22",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 20,
+      "review_priority": 0.0,
+      "ocr_confidence": 81.85782048368637,
+      "raw_sha256": "5918c64616f1a2996bca3a4e076fad940669ff416fcbdef04f4ad5051f243d3a",
+      "cleaned_sha256": "8f1d9b991848b0f259d05fb43fc70b03ccd390c68f13286ed9e9b9e35c8d4dec",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 21,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.42107003455865,
+      "raw_sha256": "c578ae8d31a87abcc53349d176afbcd65ba5f32e63bfcd3a527abd554fbcd649",
+      "cleaned_sha256": "ffdc4efd2bc8afafe347e91f3ff9093991fef3d728319aefcd174c0290c914e4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 22,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.31645797814633,
+      "raw_sha256": "b4bb7420beecc583452d82349ae6f5aaf59bab938518386128aa230a01b2e004",
+      "cleaned_sha256": "652acab4f2470943019a07996b8dd6195ad341e25450ac91fc89256c9c9affb2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 23,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.18842227207513,
+      "raw_sha256": "f329a00b0ff00dcb860c480d8d24f057f7e645b198d96aedde642d43e060ba02",
+      "cleaned_sha256": "3eef76ea08680cb6a634f05378fcd16223617acb8722bb635eb6441d6a43e971",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 24,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.46652038109588,
+      "raw_sha256": "6402ecf6917f82a32a5d4be38f279242d9b087bff6e8e4d3be1fa9b18195fd45",
+      "cleaned_sha256": "6402ecf6917f82a32a5d4be38f279242d9b087bff6e8e4d3be1fa9b18195fd45",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 25,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.99699267229758,
+      "raw_sha256": "f4e602482c1826c69f1412f313db145db1f812c1cbca38e9b079c264cada5a1a",
+      "cleaned_sha256": "afd3d03fce38dbb380bbecec4eed24f3f734b9a0a492fb9a104c93a270babd84",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 26,
+      "review_priority": 0.0,
+      "ocr_confidence": 83.55065958503124,
+      "raw_sha256": "6b06cdacfac1f27e22f5a765df9d48cd9eba6bf5dea8e6bfa24114bebe239f58",
+      "cleaned_sha256": "4d198c39608e94bd38f74daa3649b3374b5c9d2ebaa97d53d402529b440654e1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 27,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.73076989145798,
+      "raw_sha256": "e87113318c3c4e8a2b988da80ee9db0e27c8d9c45de262071f1781f140354fd2",
+      "cleaned_sha256": "7630706aa351e8c393f9714d6d467b0ea42e25f19504ebc675a76c08445e2e54",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "page": 28,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.76369600123734,
+      "raw_sha256": "d83296e2835a928885061cde86e80e3dae8f3fb0c51bf47098634b4427e3064c",
+      "cleaned_sha256": "c985f2c20aeaa6cbafe03f4452d0033461b5575ddb5c3a401bf49e5c52e9b664",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.43909858238129,
+      "raw_sha256": "c0583bb3510cf0dc5f792ec6dcbeb74c2c09b538771d381d08bad8170e671a28",
+      "cleaned_sha256": "05e1c83d1ff79a02c0938170195efc4960a31efa94d6ca383f0fd6b8b7842f0e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.04032992779811,
+      "raw_sha256": "4286acfc6528c2578b8f8acf531176a49e5f82fc86df38d94d1b8aa559f50286",
+      "cleaned_sha256": "4286acfc6528c2578b8f8acf531176a49e5f82fc86df38d94d1b8aa559f50286",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.97319853048785,
+      "raw_sha256": "97b2c36c072043484ef0a13e1f585539858ef478875d1eda885e9b1c27f18c2c",
+      "cleaned_sha256": "2d2865e7286fce77fb947d13886f9f9ec25e0de638e98afccf46c9a9af7dc6f9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.22408958737266,
+      "raw_sha256": "05a7605d7374cda798ee071e4792929385727d3c274a976999962573450a37c8",
+      "cleaned_sha256": "985e9a32c3ad8ea830da6935dcf2ca7ccbe64a8d076783390ffe4fa8af649d84",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.7955767051929,
+      "raw_sha256": "7aa2ba08b6202439550017193935cce0fbc4328adcbbbd28886ff02e4c8ef08b",
+      "cleaned_sha256": "7aa2ba08b6202439550017193935cce0fbc4328adcbbbd28886ff02e4c8ef08b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 73.78619523799938,
+      "raw_sha256": "895958d7eca4c589dfdc2791002505d294f687a11a1286e0980305c2d8706bca",
+      "cleaned_sha256": "52d9978d5876d2732139b3bc77043dd56f640b6d49fbccb399af2ffc1e5ed584",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.13205304862983,
+      "raw_sha256": "d3d019e880662239575bc216efafc6cf0246e4f4f87e5d8ef348dbe148789ac5",
+      "cleaned_sha256": "a6e0f691d3e03bd08f025c274dd6c53496d6491c03001b6bca7dd64cf23905da",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 8,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.87301907813391,
+      "raw_sha256": "b0f18eac5a8798e770c2011d3f945d670b0964ce391581f6e160e66a6139a32b",
+      "cleaned_sha256": "62eee2a23dcc7d5702ae2ced2999e7e6c7b82eacea36ddb3476055b68b8d75b5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 9,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.09076315730515,
+      "raw_sha256": "207b744777dfb4005cb0e9970cb9870e5b0ff2fff1584195a2407fc8677836fd",
+      "cleaned_sha256": "243713730855b2563b54e598ef560c6f6fc927ecb30918077ba61a7a8dbbdb25",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 10,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.7074617664576,
+      "raw_sha256": "57b2ff2d94d5564f4407659e2ca768028247d9584b59d7aa0a53873c0df0ed61",
+      "cleaned_sha256": "32ba4a0a6e01a048fd86f3a0a2a3e13ad02a124a42b71d7cec9887389b49d095",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 11,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.67597499972442,
+      "raw_sha256": "14d2cc97b00bcd00d7204c78f1966519063cf3e5a877eb74f3568d3ca496b580",
+      "cleaned_sha256": "ad616c28a5b3c4b977cec598fe92d59d1969df14392263373ddbc5e06b5dd188",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 12,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.11991063574213,
+      "raw_sha256": "4e0a8e8f504b67456c3bbc9629873d5afa4a020c5a1640bf7173ee8d5a57702a",
+      "cleaned_sha256": "ece74dfca4b8e3d59261c6a4b18408e5440d17d66ac320c53fc58a142cb303ef",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 13,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.67584059019113,
+      "raw_sha256": "34fa84173024fb18fe9abc0dccf7907c229c1e62067400a6214ec8fabaf05c76",
+      "cleaned_sha256": "34fa84173024fb18fe9abc0dccf7907c229c1e62067400a6214ec8fabaf05c76",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 14,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.45775966914097,
+      "raw_sha256": "d7ba4ae73bdad70872f28541bf8b6c75e6bc46f15289c00783c040e67d212706",
+      "cleaned_sha256": "5c2036ff0f3f1b04e40bb858b15d07da65b0d26fe9e0037ecf6f5c1abf08a587",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 15,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.43238500052414,
+      "raw_sha256": "91b2b1f5e8199071c2054e536d0d91d05d940fbc6102be40d3d4b52259cc5eee",
+      "cleaned_sha256": "91b2b1f5e8199071c2054e536d0d91d05d940fbc6102be40d3d4b52259cc5eee",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 16,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.66347356749806,
+      "raw_sha256": "52b0896c135d7a7c1c82f8b39110ce1faf9fbb6e5e5aa3e8e256b03bb3cbde40",
+      "cleaned_sha256": "69a4e7101039518dff10a5534c2be4d43f7f7d52cfa14d0c4d2ab4556c9d8ace",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 17,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.62966158284189,
+      "raw_sha256": "c0c8e0f90e99bb60c1b477357c84e32d31d1e549e8eda218584d696fa551429a",
+      "cleaned_sha256": "55a1e0934fae77edbbc5112ddcfa592f7601f84dbe52e513914ee7af6ae11ea5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 18,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.90828175189748,
+      "raw_sha256": "5d0cbcfecab9f672539ea4df63e9fe7423ce35a71f1f7c047b5eaeb344a149b1",
+      "cleaned_sha256": "5d0cbcfecab9f672539ea4df63e9fe7423ce35a71f1f7c047b5eaeb344a149b1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 19,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.9630476300707,
+      "raw_sha256": "7815e562b65aa6f5d3df6d1fb696769362b53c0cf9f2b834a3741ca79fa5bad2",
+      "cleaned_sha256": "d39bb937f13ba86b1ea66d30a63a6622a2f85e8f42c74dab1e27551d25d66712",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 20,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.52750595963197,
+      "raw_sha256": "2800281d4d8e99500c8d30d7d62eb27282bfa7b8276dc7ca1b341124478374e1",
+      "cleaned_sha256": "25b1a00c148eab94e55be9693e7d09263a6e1171bee98137ddd62d247be19bbe",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 21,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.85688935754646,
+      "raw_sha256": "d0cae1132378ce160ae6eabe09b5802fa40b29146ee9294328e02cf46a6433a2",
+      "cleaned_sha256": "dd91576306d9ca2a3ad4377aaa2cd2a2e7fda844c07759d0ac24859a77fe316e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 22,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.15512608236415,
+      "raw_sha256": "353af5086c4aefa81cdb32ec2f1be29fffc30b92d9d4532e9dc277eacb61ea91",
+      "cleaned_sha256": "8937a6547bbe6a52fdde549a6df942b01a31fcfcddccc5a3d7ca46c65e725d57",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 23,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.94315613121941,
+      "raw_sha256": "cd073f605a405b833e992eab3091bc4d67a6c0ea869036e3332201316d23203e",
+      "cleaned_sha256": "cd073f605a405b833e992eab3091bc4d67a6c0ea869036e3332201316d23203e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 24,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.90337745614075,
+      "raw_sha256": "daa51ed8dc16b2e30e16a2ab9aac359687ddd6f84da8957f82cc87a3bf64f68e",
+      "cleaned_sha256": "daa51ed8dc16b2e30e16a2ab9aac359687ddd6f84da8957f82cc87a3bf64f68e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 25,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.20524227082069,
+      "raw_sha256": "d42701c517bc71f7f725dda0d7d16922fdf960a68464b53bb8129958a13c12d3",
+      "cleaned_sha256": "ca8335b6a26c73e8d41cf3d1738cb91a3fe3fb756ea0f40119f2ffe03757c491",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 26,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.08074815932532,
+      "raw_sha256": "b00e3b9eb6c138f5f571cf2c37852f4fa0323a85eab0c8e85e83fdb1f0ef6a70",
+      "cleaned_sha256": "febf61bb17b10b484905e357c72fe2139e7aadcd9a91470a0031300f83431919",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 27,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.72205442840364,
+      "raw_sha256": "e4a1b1635ef2491f14d997468c5ee88354f1ba0de1207faf95e9edb3f9857753",
+      "cleaned_sha256": "e4a1b1635ef2491f14d997468c5ee88354f1ba0de1207faf95e9edb3f9857753",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 28,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.81548528828363,
+      "raw_sha256": "e6e4b447df5b694e974325e040d06f5e516397b0e330463aab498bca573d58f9",
+      "cleaned_sha256": "45ea46e7e39cc6d23ffde47615b012d92b9aafba91a8421481cb658cedf34edb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 29,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.77011653184516,
+      "raw_sha256": "1594044be0fb854ddf5a6d867b4ae6dbc6e3afce0f2e6fe0dddd09074ee0eff2",
+      "cleaned_sha256": "156f3119823df4e7ee1ef718bd6fe2bf8b869bd01628f04428de922239e29574",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 30,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.57266095898876,
+      "raw_sha256": "2103cb4044f94d0feddf33336e7d84de40d920bd1f69dd99ad8c998442c555bc",
+      "cleaned_sha256": "3f886a3d42345ddb74e67d6c6ac163ed1372a35bf539fc930bc29e163745221a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 31,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.347241410554,
+      "raw_sha256": "e584c363a2d292aeb76bdb43db7c043b5270ec68590b4f0c475ce782aeed7e95",
+      "cleaned_sha256": "2caa073d037efcb2290699267ccac13d10bdaebbd4179678ca1be4921c7542bb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 32,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.46689135853492,
+      "raw_sha256": "de288e5744f53fba55096673f532f6031b451d9fd3ff05b96febb758ac6f96fb",
+      "cleaned_sha256": "57fbb72cee696310cf78dde8d25ce157c195e03e9c3d4f2f074aabebaceab3d9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 33,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.18659676191618,
+      "raw_sha256": "948373ab3dda6e1e1b4ce8e8de26118500a95ef1ad64406308a8965233e73a1c",
+      "cleaned_sha256": "ddb8a5a245b99cde1a0c03b5f17443cd66394f08d24ba1c82994492d9811f06c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 34,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.87640803779055,
+      "raw_sha256": "bc13eceaac84964a339b91b416a82a114258e29148739da18c12e850b7e7266a",
+      "cleaned_sha256": "76de289db67703cbaf0a9c1d3c1d8f448b9b0d754141540210627604a6fd6186",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 35,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.69038865404465,
+      "raw_sha256": "deed966a6a01889787340ae506addae0fa725ff8fe6d9a36f1d3e8f12f3afe3b",
+      "cleaned_sha256": "acbf84e6310d9d25377b1c536422e529039039883878713b34a6b173b5cef25b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 36,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.21852054338387,
+      "raw_sha256": "7f73d6af5e5c46006ab740e06797170af763c7a7ac370d27c190e2fad375f7be",
+      "cleaned_sha256": "3fa91ef3c590bf249feebc1d8494765e33bc8342cdb879254bd3dc2cdd035c47",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 37,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.3264978135138,
+      "raw_sha256": "1784b8b08d40ffabb496fd8c12f756e4893cf3c9b3d62978e16273f2b504a361",
+      "cleaned_sha256": "35f2a49008a97a9387c2c926596c25fb590f2dd52e1600285919d2be1b1312c2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 38,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.19686563243903,
+      "raw_sha256": "63208caa64ab95ae2579c4530c5f943467a7856aa717ed258f9e4a30d9c1382a",
+      "cleaned_sha256": "a1ffa2c8bbe96dfafa8dd61568a7bceb741b8374d19982c4fb48040c35d01f27",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 39,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.45658821272475,
+      "raw_sha256": "3d4a89f93e017d83ecf8c2dbe6269a313d2452e3df0d75c6e27ede4569caa355",
+      "cleaned_sha256": "2669a437a1b554917d0d0ad4a7c188ac1425e4906c39b7453baf8f82261a6825",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 40,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.13519628908493,
+      "raw_sha256": "9a3c342487e67723b819de0a3fc6221d5d66905c344f5e59b4e3ed8fb7273e79",
+      "cleaned_sha256": "61c39c8c0c9f7731cd3e9ca7a8cb38f510232147204f5631de63940af3702340",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 41,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.6860423941163,
+      "raw_sha256": "6a3c90d859fcc32ec7aee677c3ed1a84ec9fbe77379e9ec63523a248bcc5e477",
+      "cleaned_sha256": "57b7a09f7f239982c4921bb618236474a0f245a75683c11fb0c28aa25c0e62c8",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 42,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.65142951466495,
+      "raw_sha256": "fd1d94b2e0abc9eda8eb2df666e0b7aac3e23a2953bebbc653eb03b98802be54",
+      "cleaned_sha256": "4b78f8207130fe4b5c9607429d2e434bcbadfc008af09d58c781b3beff9c43f4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 43,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.98663530918029,
+      "raw_sha256": "f176843028dfeed25d951aa2ffbe06741926bcae57c2d72d26625b13fafbf724",
+      "cleaned_sha256": "f176843028dfeed25d951aa2ffbe06741926bcae57c2d72d26625b13fafbf724",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 44,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.41010058865372,
+      "raw_sha256": "d82064cf7f59d0f532259f7f2280a94e6c13321d6aeb17645c53a223b30e294b",
+      "cleaned_sha256": "c997d55e98bc68d093610f5f5010b8d561b70a5c70207ff4047f9b3557d4ef58",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 45,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.96092785184966,
+      "raw_sha256": "e52db58838dcb02afa1e04a638fb910133dbe8d3ffd8cd3069ebfe30fdb5fd39",
+      "cleaned_sha256": "e52db58838dcb02afa1e04a638fb910133dbe8d3ffd8cd3069ebfe30fdb5fd39",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 46,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.36235850911754,
+      "raw_sha256": "3ef2a588d76279839cf15d251b0f91ca0190c95bed535ea79d08289468e3cbfe",
+      "cleaned_sha256": "b3c1ab9c5cbce4e8c0987e2d640243a513b5f7ee1ec81cbb15d83e085e1903c2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 47,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.22396412194985,
+      "raw_sha256": "8354934818840ee90fa434e96ca548ef528188a8da16cf3eeb558287a95f5c82",
+      "cleaned_sha256": "fac73d75a8684b4cbd1faa441c1dcd64c8226994f85cd734a396faa1a4e723f8",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 48,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.29594513882708,
+      "raw_sha256": "0c04211ea699a545448e50017fe330132ef27b2d08749ac0f133ab251f75f94d",
+      "cleaned_sha256": "7b13a29bf10f0cc2643cdb68b2ad5cc9605d1b935e1fe06cd6a2b66023309de2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 49,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.69330028468715,
+      "raw_sha256": "a2deb5eed035057e4cbd382da606753bfa4cc1f2794573c0d59486b7be75ce3b",
+      "cleaned_sha256": "4dbe0bb361420fd99491b3cc3f52308d4c284d731d076a919a7e8dd0b6289f3d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 50,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.06111524000582,
+      "raw_sha256": "6202721f38a2f2401600c628f341e5871d187000f8b39093cfeb70ae3541d509",
+      "cleaned_sha256": "c5e01890db735ef55f8ac7333da3a58287e9711d02108a6fa3c6ba47881e8f5a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 51,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.39591124108821,
+      "raw_sha256": "ef952cd349731c5f5279ed5cf2ee6d486c959b705338610f9f14ff576e5d4a35",
+      "cleaned_sha256": "2e51191e2a30be59b32abbd5d8bf7f3a0b3a60147de82ce7db658d349b2f5e17",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 52,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.95156982278375,
+      "raw_sha256": "51a67ddd83d360bbcdc5932a6e22924196d9aee47d54608d5379dd41d6001a99",
+      "cleaned_sha256": "51a67ddd83d360bbcdc5932a6e22924196d9aee47d54608d5379dd41d6001a99",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 53,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.50250852028668,
+      "raw_sha256": "a702ca869be21a7cd104a76ec550ad11bbd354ca266cbebf297502e46437b967",
+      "cleaned_sha256": "b2dd8c4fabfbbdddeb92d60f215c77cdab300f6f19cce2a9eeaad4b4b787589a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 54,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.76721119719457,
+      "raw_sha256": "56cff1e0d9fc609dbbcc5c035c2a05233aabf3db22d82ec21e8843c548e5eb60",
+      "cleaned_sha256": "56cff1e0d9fc609dbbcc5c035c2a05233aabf3db22d82ec21e8843c548e5eb60",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 55,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.70061243343116,
+      "raw_sha256": "8597943a11ecf75e761f1a8eec981af600ccb1632dd340b0ce824584b40db8ef",
+      "cleaned_sha256": "071887e8f6fe884c489f420e53c965c5b613dd694d32c8ae8e35c2bbad44c684",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 56,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.55437166787897,
+      "raw_sha256": "f612deff7123434dc1551120e227a653b7f18779e9c1105f90d7bcb9d812962f",
+      "cleaned_sha256": "ecf5ad7c361531df746293fe1dabf67bf2f239452cb622f14f07c67c4d902a73",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 57,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.54521991705961,
+      "raw_sha256": "3475e4ddbc65e330787d0fb0fd56abec6796d53b080b9942971677389f6bdd3a",
+      "cleaned_sha256": "54061cd9e01ac91b3403fb935fd0ec0e0228146d7689305049815a3c53da631c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 58,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.28057043556798,
+      "raw_sha256": "c5adba89ebe6bcb550a969c2dd02118ff7b948997c6bdb01e432648dd5a45f39",
+      "cleaned_sha256": "537f0049d5dc606590e4a69fdce5b9c0b8eedcac68ea8cd9a95c6dcfcd9924c9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 59,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.85880079030447,
+      "raw_sha256": "80c41055cb218e59e17b635943ae5f97ff7d4a66671a6accc0cc4757f393d2f9",
+      "cleaned_sha256": "bc7a0a7dd250f0e744d3118b192a9021699a159be21b7fa37eca43898a1a02ae",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 60,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.78150189598534,
+      "raw_sha256": "514868c76b92cbf333239c5818a9b25e16f38ccea1fa136b127c4c01b683fb90",
+      "cleaned_sha256": "103ada6fa62d524b6990d0476679c5affdbc4792d1744e8610453b4d49951f6e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 61,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.17743472576562,
+      "raw_sha256": "47fc911f8dd6b50ba2117bc9ccc51b555f7752a174c93cae4cff732fb0438871",
+      "cleaned_sha256": "39836383fe55fe3dbacdf302946c99db9362338a0c4f25330a54ac4b89c19ee4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 62,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.31393394271109,
+      "raw_sha256": "b97ddf991d5ececb8cfd629e605fc7ae3e79adac339f848c8c0285d3d338ba0a",
+      "cleaned_sha256": "8a4783bdd77f252a1e5ed3948618a5ce88c1aeaf33b53b1470f49aae8ab62580",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 63,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.18240011857075,
+      "raw_sha256": "7b795962ec80eb1847afc8aeda488ea127df23fe84fe70948b67c84b56256337",
+      "cleaned_sha256": "3194233f796db5007222b865ff9507e66429fee5b681b1f9aa62e07fece3178b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 64,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.87643043823391,
+      "raw_sha256": "5c273cbdaf2a1714a1637c665f316865cb1b9cd2e4ae232f763c70b528efa4dc",
+      "cleaned_sha256": "ec49e576b5a5d14382fee3110418ec93dd4f54627c6e867b82ec3327ad06b5b3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 65,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.84520755463694,
+      "raw_sha256": "905cc20f8f52c4335858029405b6c475af5f0292b15f614bb1d106ab9f72fd8c",
+      "cleaned_sha256": "4a0b4f1bfc54d37cc7d29426d30722cf5dfe84fc9286fa76e3d374af6c520b6d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 66,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.98675065818277,
+      "raw_sha256": "8a8de0d96fd1a362e477005b22768ada36ff43887079c5e1642db039ee22990f",
+      "cleaned_sha256": "73b0e30d8c184c75b5d9fae3ffa9b35854d173df2ea796c610d4ee736a2b68b9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 67,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.70069457151386,
+      "raw_sha256": "15c79dd06e20d46627cbb3d45c38850fe8a7a9f8fe744480db24fc1437de8ce4",
+      "cleaned_sha256": "6fd398a0576d06b4cfb50d34d0922b43b4c1d75074813f2c12c8930688c017d1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 68,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.56009086306233,
+      "raw_sha256": "bb8f7cd488a27c6ef06c93153a05579e46b8f7d37434d2736343bfe2eaef5b0b",
+      "cleaned_sha256": "6684b4f114b5166557d15203a7034da4b597654fca8f9fdf55dfdffc2a74b127",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 69,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.17208384479437,
+      "raw_sha256": "c4f4e9473f4153526528cb02a52aff497b13efd5ba0be990fba37a6e18c1b897",
+      "cleaned_sha256": "36ab002d5e2f9c06818d77848b6a2b8868772e8d15260c6caed08c0fffa6e85f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 70,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.14899464094366,
+      "raw_sha256": "25ac610e84c80d9eb2e4d3c8a8bc8811e5d3eb6a1e268ee8fad22a605afa320f",
+      "cleaned_sha256": "2f662f68285b993113e193f7cafcd9b3cc6ef473e6d954a8d382ebaec53850c6",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 71,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.91776434468244,
+      "raw_sha256": "f0562aacb2d13db9318300da0344b9bd68e381b5aad8b373f418b3a3cdbae96f",
+      "cleaned_sha256": "f0562aacb2d13db9318300da0344b9bd68e381b5aad8b373f418b3a3cdbae96f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 72,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.72788476935595,
+      "raw_sha256": "686272d98b4a3ab295bb95233de8ac3b2a05b285e94e1ca170731a69a1dff872",
+      "cleaned_sha256": "f1994f295a551919e839e100af7d65d864a1768f315f333c5def6d6bf48c2575",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 73,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.16794317111129,
+      "raw_sha256": "016b94d5aa7d6cd8067351f520923e70fa4b420a11b9c9f721a0b2162e0540c5",
+      "cleaned_sha256": "1d3c07b78bcec2b6e8e9befef3247569b00042918160e618dde12e96c726de0f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 74,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.57327266143126,
+      "raw_sha256": "dc3d9499c9f45a22f623ce26d4c71f645677ab9ee93d618b68e784865bf5b744",
+      "cleaned_sha256": "157c042d324cc77c37408291e8e8adc6f3fab2bc63b770e400896bdcc816c32c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 75,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.06364561254108,
+      "raw_sha256": "9654c60bd7c1fcc8fbbe8b89aebdb62e0ddef40bcd8476370e31c83456bda052",
+      "cleaned_sha256": "3332fc95ac475d498666350a134403877ae537757daec3b16b2e387140b48d8b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 76,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.4426275446006,
+      "raw_sha256": "8eb1c3bd6141b42015c8d394efffe4081f2d6052242c5b161e0f443ac5acc254",
+      "cleaned_sha256": "8eb1c3bd6141b42015c8d394efffe4081f2d6052242c5b161e0f443ac5acc254",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 77,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.6665455028265,
+      "raw_sha256": "ef8462da0d1b1317b13adfa9164291085863ba5ab6308010a768c677ff670a71",
+      "cleaned_sha256": "ef8462da0d1b1317b13adfa9164291085863ba5ab6308010a768c677ff670a71",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 78,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.52535856891299,
+      "raw_sha256": "abd24e2ec320554f7e2665de8330476ce9cd7b79c61e933466b8f9024cdf09eb",
+      "cleaned_sha256": "c9215204fef31315e1062c1b24c88dab992bf35e72ea329adfb13774bf11617e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 79,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.73341236765715,
+      "raw_sha256": "02fa5e5936d3edb7b097b27589cb2b58eeda8a62f666e7aeb9c2164497e6bd31",
+      "cleaned_sha256": "02fa5e5936d3edb7b097b27589cb2b58eeda8a62f666e7aeb9c2164497e6bd31",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 80,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.5380433283613,
+      "raw_sha256": "0e037c9c8061e91891c9cc55f89ad6dc981f6ba431f754cba0a4f93f9d06adb1",
+      "cleaned_sha256": "62869660d2142fdd5bc776510839d41f6d99d510caa4352b75a732581f5ef856",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 81,
+      "review_priority": 0.0,
+      "ocr_confidence": 84.26778646470416,
+      "raw_sha256": "c865f237a2322db74c4455498b67cb6b23ddba5d1a1ba3df64f4f489971c8bfe",
+      "cleaned_sha256": "956447f34ddcf727e0afbe5bbb84af03916efc632a64694aa661a996955e20dd",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 82,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.29257112280295,
+      "raw_sha256": "012749410734452c0ba51eff1f31caa21a3f5d40c77fa6bcd64df0ffb0b892f7",
+      "cleaned_sha256": "f7a8113b932372ea90622e97708782003af29120f456024138718bcf2e7596a3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 83,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.54362338842532,
+      "raw_sha256": "37b824c47a5db44c44c591801406e2987f1d6fcc909f25d8af02fec8131d1b5e",
+      "cleaned_sha256": "8fecdeb243febfd315a615ada99552db7bca988bba50d3450ca5b73769089225",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 84,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.88833069492071,
+      "raw_sha256": "3002a08b6daf1014361907b5a08ca8de3a2a0944efed196fffb89d67bb79069e",
+      "cleaned_sha256": "a0f3d9ec6b87704ab6eda12649b28b04fb98c090c5242ff84246135c88ca4d92",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 85,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.76740946801519,
+      "raw_sha256": "18230c0f4d394533928a551abba7e354b6055d30f161dc0f3e376f9587c2b000",
+      "cleaned_sha256": "4f8ee8518a3e8943adddb9a95fb83c1ae571828e9329370b682a970aa2e94382",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 86,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.6608714856981,
+      "raw_sha256": "57622e6ccb73b2261a2274a0b3e4ad698eb4fee32bb9c416722d336d5f3aec35",
+      "cleaned_sha256": "4467c8aedcf9bd384d78f4de64f380b8d95c1067d50ad560b120a7383657a251",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 87,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.6671078371425,
+      "raw_sha256": "4c94fa2e2a779d0a1cd17e0cfc65e0b6564d70ec104bba70b36d34f9a8d25b7b",
+      "cleaned_sha256": "126641eb73738375b4471c9f8fbd0bfc39960b1925107751db99ca9ba6ef9350",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 88,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.12493343933251,
+      "raw_sha256": "6c3752d7a841fb4c69857e14d53bd0b5a49cf9c3386159b3ff69c54c663c9179",
+      "cleaned_sha256": "b88acc9d96d30a5bb44a79f27665ea6a5366b3aeaab15684502605f339640912",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 89,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.03072987730373,
+      "raw_sha256": "6655cd147a6c8750ef2847e198155ca046cc0e58ad5a8be3ac8fb39224611918",
+      "cleaned_sha256": "78de6c346af1d3e991448b1b37ac5aeea9b0db34e0a88b592034d1ca666a3d7f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 90,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.78556584797509,
+      "raw_sha256": "443540792296fcade2721639a7199004fe3aa40fafb16af4c1ace472bb18861f",
+      "cleaned_sha256": "a21354f57fb24d099f480114714a116e40e444804840c9d673568e31aaf918e5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 92,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.46480652511156,
+      "raw_sha256": "e75f471595325efbfe3ce0ba60d4c41e8258fefef30371ac7462ddb4d93dc3ad",
+      "cleaned_sha256": "013e9cd12b05b1cdb018bb1275f3b3178d0e28749752e18226f3349a01983bb2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 93,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.46486418183453,
+      "raw_sha256": "3866629bcf41d38c7c33c9cb275b8c8f0c24cbe58ff9b7999c7aaef6efb99597",
+      "cleaned_sha256": "7252be9f24301000be669b25e9bb0ead1f0541c6a3c8a83af054186165948790",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "page": 94,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.69453528270786,
+      "raw_sha256": "03ace31f16720b6c0b55ed892d86b36da612baa5cd1ff10470519be095b06b8c",
+      "cleaned_sha256": "a08042609270e748ab50188eb7eb6348e01b2a9efef64e851db409f542c48335",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.98554130920209,
+      "raw_sha256": "453e9ffc30ea61c00a4818cc7bb4a5bd71ebf17040db47c281620f4f57432f34",
+      "cleaned_sha256": "19ec5c6ce78be7c56ecd5f2b26aba257be8ba38fec9f9d911227ab230b1879e2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.47177099247801,
+      "raw_sha256": "13d8031b724c5e411944c31c669a653577e45fce5398fb028bd45915770df6d4",
+      "cleaned_sha256": "9fd38cca888e0150bc4eae7cc8a9379fd3119f1bcdab0dc6af2f5fc9a8c1057b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.03070914868893,
+      "raw_sha256": "1e9ac7677b9685855cfd70f8c9fd851f55ee7048264692312da75a67fa9ec821",
+      "cleaned_sha256": "4819d8597d29fe6b1a7e9b883cc9c127e1da7275b4327aa6a5af53d8810ddea0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 83.03334948801803,
+      "raw_sha256": "7eeea2acb03fea566f412fb0b3bb7440a3429648345dc5c694af72c6bf1fead8",
+      "cleaned_sha256": "38ba47cc04e50c1698fd684dda52730067e5727de373785b79b9ba6961acdec5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.62085032869057,
+      "raw_sha256": "4a6655f0d3a0699b1d072f5cda151c62dbab8986f30567bb462d63878785d847",
+      "cleaned_sha256": "b499b1bb1525ca713bda1cabb7fa3025fdc9efd0756d875592b1daf1b244e4f7",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 78.89770434903927,
+      "raw_sha256": "2194acf7419be84422d0225f937e1bb42f5cc6da5e33f096b00faf40dc965f12",
+      "cleaned_sha256": "4f4db2c10489e7c0e4502425ac93fe6621cc8eb5faaa18635b61a775d3f62461",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.10731623160436,
+      "raw_sha256": "bb606348b9176c50835723ddfe6e4f43734b2687689fdbaa5854704add2a5206",
+      "cleaned_sha256": "da2a014733a8b2a4d64299f5f2f5d8d9c7cfdd33aacea654dae25bb727b64002",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 8,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.69044868059498,
+      "raw_sha256": "f4609c3ce9b27b807fba1f71fae0ea5b625f34e25babab5d8bab67ece7a5a1f6",
+      "cleaned_sha256": "2d0f008c97d8e643d3d188ea4cbaaaf88ba0fe9c4a060a5ba7ad5d108818ecb3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 9,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.27489665719148,
+      "raw_sha256": "6aa3231e2b093f88c2d19a1344391e547c88b89e5eff9aba90d2b1db9de2c1ed",
+      "cleaned_sha256": "043b13abc3f07bcd2f09a1761e8b2b7e07c5e7c067d2f9bbbd893b0abb4f0b76",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 10,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.2604473217469,
+      "raw_sha256": "a9f3c7f69b3efa74a105257c997707ef75eb59e5ebfca0d8f541be1d28975e0e",
+      "cleaned_sha256": "2f6ccef784dac764e3ada4505e11b26062049b2d3a9a9cedb3feb6dafc48dfda",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 11,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.12185286843157,
+      "raw_sha256": "342c852bd189e40fa6969cff7f695f55538785dbdb5b50f8a67d781eb778f49f",
+      "cleaned_sha256": "eb96f1d4fe0a1db88dbbedcb11eec23f364ce9717a1b634be7e2b102ab19fd3c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 12,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.30069691704112,
+      "raw_sha256": "28cbe66f26c2c16cc38754026d9aa2a2255623fbe4642f44c13ee6cc0b25c423",
+      "cleaned_sha256": "79be1d050ea876216857f0cc850f6221654481bd4bd1769a90b267e57107b688",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 13,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.41724150188556,
+      "raw_sha256": "8ded3035d90ee7fbd5b477c42a05079538b1897fcf3f4d244d3f6e97edd6c896",
+      "cleaned_sha256": "260b5ca232184dcd932f5fb490c3440c6fcd51fb3674776fb7b6917cca127eb1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 14,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.66928950702098,
+      "raw_sha256": "94307a0373f1aed538bc81c04e8a60351f804bce04a32e24954dbbf147857aa9",
+      "cleaned_sha256": "7edf5f9268695fa74b226c188a76bbd0f66ce9d9404a9bf88766f8cf39ff8368",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 15,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.77785438048575,
+      "raw_sha256": "b0b4539550df1d0097891ca46f0c39e37bf81eb244ce2e628c3b4181f3bc85ad",
+      "cleaned_sha256": "940f433f6a267d24a4e2032186839395ad599a204acf80d7b342aec69ebf0230",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 16,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.59890903419198,
+      "raw_sha256": "d821bb67b115ed56d7cbc4eec08022199176e7d15ba0ff3b78d33c1268be8ebb",
+      "cleaned_sha256": "b2e0a79ec7bc1de529cc2998b9db4b4c6bbfad5fab239d12885954cc9c0d7276",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "page": 17,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.40264656123308,
+      "raw_sha256": "7592936930e783a6581720aa7929436d087d62c8952122769f701e1ed9d229d5",
+      "cleaned_sha256": "2a9ae28c9db5c3203564a0a57a7a9ccf2a8f3b4f59637f99993de0c1f77ba35a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 79.1378455917392,
+      "raw_sha256": "69fc1784e41f37f62d6726315621e130c141a4b08e5feb65b6a0385449f6c631",
+      "cleaned_sha256": "22c2609ec9bf523b5897c40d4cecfc07bd803ab49e9d248481b311b0627ec413",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 79.55380458350395,
+      "raw_sha256": "2a95899a703cb8b3e1fa8145da356ccbb0e05fa4c76b43b50555adfccde5af0d",
+      "cleaned_sha256": "d9a3202998dd69bb00817e6541a069a342901814ca05a8e591db996494f66a8a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.71575798339231,
+      "raw_sha256": "877c824e58802849befdae2c70226d8b1cba285ecb7abb1f97264e30843d899b",
+      "cleaned_sha256": "5b3032f65b2765a38c1e138839daf537887fb82757f0093d9e4dbdf81d6b5d10",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.17546356302512,
+      "raw_sha256": "09a93c82d2bf03ef7f4cdce4e0f1881f0192b599ebb184a8b1cc74c79c50a05e",
+      "cleaned_sha256": "2dc2cd836bc692d8af4bcde911118a47217e98a05211df17bcb8696b3787868d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.38758501880972,
+      "raw_sha256": "ddd556936c18f5b8fb56a6106f76044c8d371157efdb740b24ce6e9b807f93f9",
+      "cleaned_sha256": "77d8f4dc5f504018e9a26f00e4b70919d006be6d530c9555fa08a5197047d5e9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.93645405801263,
+      "raw_sha256": "1b89844a4298a281ea61775f8982971cb4049f92f85975a0f3f01c5735956ac3",
+      "cleaned_sha256": "1f047c2566ec58097f89595396001d4a22cde23a46c410058ef5d0af2cac6aa1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.10051136616806,
+      "raw_sha256": "605b94991aa52ecbba8178a138554c7ceed21e86d672bea07859b6615a3cbb41",
+      "cleaned_sha256": "400f8fd875e14adfbac53596f96e9dfcba34dbf9acfbcc7f0cbc0b982bdee371",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.95963045787202,
+      "raw_sha256": "fee50a82b0a4d47dc3f2454646030e195f0f2f0da733f920d477d4fa8435205b",
+      "cleaned_sha256": "0cc1a61a1fc674c289e00a1759aa5e918b139829c14847c6524ce583e3d63c73",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.5567127177046,
+      "raw_sha256": "f7676c9cbd7ebd0bc9dc9b86c9be802291832409865197f6e446b51aa6843a8a",
+      "cleaned_sha256": "9dceac4a7fa026984a054bfd1e8433dac61c77a7c255e8b361135bff42581b9c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.82296997770248,
+      "raw_sha256": "e6308ade69c7946dfb61c88257d7cbf116f2117367e861942fb734514f0884c7",
+      "cleaned_sha256": "4e4f54ec3c35658ee855359ee0316e307943585dad7e126a9f275a1b7bffa084",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.3287252431507,
+      "raw_sha256": "a7bb2fbd28f1a2ec86a07de564ad075d0d63bf445b51669b33a99693517e1fea",
+      "cleaned_sha256": "6346dd32c56b39bdad33d84ffee9ac26ea041ce4fe2080f6735dfd64101362e5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.40306659721392,
+      "raw_sha256": "7bbcf2faaa9022f7344af9b4fbbaf85a2bc6defba9da6d00fc2615f65db4c9b6",
+      "cleaned_sha256": "953e9d5249fa7410d399b323cc5b5f6bf8884edb9b9a930611ff2ea7e9341a50",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.55974985875268,
+      "raw_sha256": "2e49f5ff53d6d3a5dd98c8cd14a97a4f511b6d1466d49476ebdde4c37d040e28",
+      "cleaned_sha256": "e2846d192b1b8ad93c70611e4fa568580a6896fbc805532da7720e6b71ee2ed0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.2146141786139,
+      "raw_sha256": "317c2bff1b5a68ec8a1e30933ce8220a64219fd11b12833ed0fecd993088b6b6",
+      "cleaned_sha256": "126190b4c46b4f96bf2e7010844c9a7b6bddceae716883ccd0556d84a663612d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 8,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.37874904730985,
+      "raw_sha256": "25e40edcb1ea196f5242f0b1fbf9616c3f7dd31d8efc3eff649f32bd4fc37486",
+      "cleaned_sha256": "938b6c07014998b9e850295c7d3db78864140378d803962c138eea1412932004",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 9,
+      "review_priority": 0.0,
+      "ocr_confidence": 78.62590620868039,
+      "raw_sha256": "1fbb434b1a3681fc10baf89204f5f8a512556f1a1889d2283bcf4e8da4f2290f",
+      "cleaned_sha256": "3394ed445ab5d7c07ffe6c53410c89f71b6556d3ad2dec9e36bdc8d077442777",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "page": 10,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.36553815159913,
+      "raw_sha256": "09157d8fa5aa4a41b2b96a7d2edf0c973f4756a3b88067406a253914e5dcd89f",
+      "cleaned_sha256": "2d62525ac45678ff83203267c48182eb9bfbbda876f3ccb945c29423729bea07",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.18824800960905,
+      "raw_sha256": "b89c2fc135c2cf7dc81779426e7af54d3c34439f1fd98ce0dc1142f8effad5ee",
+      "cleaned_sha256": "3c728a375868a06ec6bc2c8556d6f2590c1585a646062b20087a6de4f126f873",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "263799888626bfaa29ea6a4ef12092278871030a98c988ab707cf0dfbd1377fb",
+      "cleaned_sha256": "3227b3da85d509725a01691efb332cf31a2229d0f7fdb4f1bdbaccaabde72435",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.62610281882286,
+      "raw_sha256": "952b004ebe9392392bd8a3a1f2e5107981c6ca2024c4ec6f313eac993538dac2",
+      "cleaned_sha256": "1e4a24a45e0b2721d196357fbb6989229e6baba003a9d9c37635965084341873",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.99915113496989,
+      "raw_sha256": "3a6bb095460aa25a34d4bba6d92b1a657b4b8366da0179de62b68fc4a9f473c6",
+      "cleaned_sha256": "fd52a6e8c41f45f9f6b3f75799f2804c305ee60daa199ef9420af7b5c36f1e24",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.43937198959661,
+      "raw_sha256": "ace3577be7cb21f542aaa0c9df1b8fd6be34d897be283827b72de3e3cc8cf9d4",
+      "cleaned_sha256": "6141ac4b6dcc40a4407ea1f168248746125fdb85b9a7fea524795d1ffe384a29",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.46237910056907,
+      "raw_sha256": "277402516f28b620f77b30d243fdc743b8c61164d17822770975f6984203acfd",
+      "cleaned_sha256": "c313256db26f4f338ab3f74f7064685e548bdd3241b77ca31ad94cc2cbcac438",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.18994252870812,
+      "raw_sha256": "1ecf86828d504b0096547b2f91c697558179eddc4efdbfd4821be0306d3d3d42",
+      "cleaned_sha256": "769c7b0c60421cc237753a74aab6241e9b0a5d1a997a3594c5911f93dbce3ad2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 8,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "36e53b69cd0a1fa450f2646c7ae12392e5cf99155f80d4c2e5e681b9c4da7087",
+      "cleaned_sha256": "36e53b69cd0a1fa450f2646c7ae12392e5cf99155f80d4c2e5e681b9c4da7087",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 9,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.45077269471061,
+      "raw_sha256": "c5e7b9810ace720b46d239ca53f7f34d84b3a7557f891d0df85576552f1e782f",
+      "cleaned_sha256": "7f2cb980105d6b334f4bf9ea8a5f528406e45e5dac36f0edad87508e2bdf4f95",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 10,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.63067239541432,
+      "raw_sha256": "78d29385d53998a3fbb652e98775a288244da8e3855b54dcc21321e3a1c44b69",
+      "cleaned_sha256": "8a531ee978a8bb0bd7d6620f7f57cdc31d819a6779b2264fda9612072b5c96ed",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 11,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.77642638433119,
+      "raw_sha256": "86d0322cd57a934cfd5a9de2f76fc84cf854741e60edbb3355d6b150c39d9ffa",
+      "cleaned_sha256": "dff6f5464a33a6760ffab393f685ad23b508be6e53d3a940650c002ddecbe642",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 12,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.37030998336421,
+      "raw_sha256": "79efc955152cbebe245510f9875ac8b56419fc83dbb63975776893675ca8a63c",
+      "cleaned_sha256": "4f2299b2aefc85d920030820abe58dcc5b46085b4da0cc59987471828d1ef2f4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 13,
+      "review_priority": 0.0,
+      "ocr_confidence": 35.0,
+      "raw_sha256": "0325f1a1f674ae84ca93d747942bf59daf21703fc41355eea90adda86d987eee",
+      "cleaned_sha256": "7f0d95271d061fef6f4dfa62d57e560dcd8743778ef4297300a814df3e63b654",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 14,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.798689863281,
+      "raw_sha256": "079aa178911358fcf502a56c3b0e47701a0ace5d096f2fd286c8536a3c3bbae4",
+      "cleaned_sha256": "fccbee05b2b17d478fe6752e5e7f8a35326f768c48f5d5606d94bb6620c6fa8a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 15,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.22203359970605,
+      "raw_sha256": "f11c549e6b3fbe1adc4ba46ae2e04387aa6ae0f9ecb4f56f5c6705bc78ac9ee8",
+      "cleaned_sha256": "fb6459edd87eeb064d7547a354083b297e33c37a0bc295590d5b75ae4d060379",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 16,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.76668935357787,
+      "raw_sha256": "3e57b08b259e1e0e68425631a8e06e3948c9103d9a6c621482acc5f155342164",
+      "cleaned_sha256": "1470a8bbe52f6c092699d1af853cbed734ccfb721d298c3a08b0c404ce6d103f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 17,
+      "review_priority": 0.0,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "43af564cc969b6f5cd605d1d279c18eb5fcbde2604d71103e0a13b5accbc3ffe",
+      "cleaned_sha256": "43af564cc969b6f5cd605d1d279c18eb5fcbde2604d71103e0a13b5accbc3ffe",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 18,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.70480321596622,
+      "raw_sha256": "90557237cd15c98d5869d5695d40f4a2769904bbd429eb55d8b1683890508754",
+      "cleaned_sha256": "2f5aafb8a9dfd7e1e7641a835f94417069dc699eb580af29624740c9581d3b64",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 19,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.99117112161538,
+      "raw_sha256": "28391c15db11d3d3e809bac728d59c3d5f1ad79f49d33fd0173abdc7747cc919",
+      "cleaned_sha256": "272cd18e759a8e5d3bf6b4acdd8c2b4f7a5805ecda9eee5f2274322258f6fb3c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 20,
+      "review_priority": 0.0,
+      "ocr_confidence": 80.9402947502878,
+      "raw_sha256": "658fcf945056c076d2b093ff7b9d894a655bb7b8c3676575628576c9aac4fd2d",
+      "cleaned_sha256": "096a955974ff7c3d0b74174b8b178e248e639b1f446969d5ceae857a4e6d3df1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 21,
+      "review_priority": 0.0,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "73885f017cfd9a35cafdbadb51170b4de152abfc265e193a7e9c2be8b2b5a74f",
+      "cleaned_sha256": "c193ad4cdd2a2018bb3c651b95ab5d889e1d58db132d9cbbde59fd675b3de52e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 22,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.82937057823517,
+      "raw_sha256": "7176b36524859b9af7baef8f529fb45324b25f7334df43442d516f8c439420c3",
+      "cleaned_sha256": "ed599d21eca9061a674183b25facd513efef971b51f3388978bb81241302dba1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 23,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.18262063747507,
+      "raw_sha256": "7db93d48bdee7861cdce70bb19bcd3577f2d56bc4d0a7aeedca8758234856204",
+      "cleaned_sha256": "bb9bf30c66e2c8537287caa73580f915de0179ffcba331cbaf41dbdac10058b4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 24,
+      "review_priority": 0.0,
+      "ocr_confidence": 65.0,
+      "raw_sha256": "8c9058185b2e2e09f036a94bdae5a574f8d06861953c25488938ec4dd02a6ad1",
+      "cleaned_sha256": "4b166c42ea301d60441a0c0d4d264296c6d949e271e9c1f30c59b9825d1369db",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 25,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.30116554215755,
+      "raw_sha256": "bbc75761b1d00aaaf26818493286129dd287539e3e7f4a844171bcd650e3e42c",
+      "cleaned_sha256": "5bf8f389774cff6d08f996d50d2fc941c2f70c14a5e03d9eedabd1d72c9b5fc5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 26,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.48939263812197,
+      "raw_sha256": "5dd6650e7e8b235cb06805d52285fe259bc0ca53785d5128546ba74cc34989d9",
+      "cleaned_sha256": "48e6efd2b9549e40708d25a4ec02053cfed0307aec303ae3388ab839c0813eb5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 27,
+      "review_priority": 0.0,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "e8da12de585ee5e9b735fd20c0c88ac093f52813447d14eb758c1780af049c3a",
+      "cleaned_sha256": "e8da12de585ee5e9b735fd20c0c88ac093f52813447d14eb758c1780af049c3a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 28,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.42812188130755,
+      "raw_sha256": "1221debb8a5160cc6bd08932eb825aca4dbaa13bd2a12d0976c455c0f335692d",
+      "cleaned_sha256": "0a72930818436fd6849c349fc5610ddac9cae4510f096a0a9fa379de65382832",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 29,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.36058680335749,
+      "raw_sha256": "41226d29eccf7a14bc304a66fc066736539aa8468784914c27b930ecf91f710b",
+      "cleaned_sha256": "404514182806685e790b10f9766d472276875ddd7d1760dc28d2840331ada68a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 30,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.29389979659831,
+      "raw_sha256": "afc67648dbe11b6d26f09554058608fe73cc20fb1e0ba1e247cd918cbc1c4fe2",
+      "cleaned_sha256": "839f92b3e5b8f83bdee91df324880968cba232fbd88c3897cb6622286855348b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 31,
+      "review_priority": 0.0,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "c985cee89ff3723785ca79e4b522ef290ce7847e0d9a754ecd9a7fc67c1ebf25",
+      "cleaned_sha256": "a4fcd8ca3fdee641d47b4d6cf5f2d6e82f7fc49f81d83ee126eb20b30c1ecad4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 32,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.74677028764327,
+      "raw_sha256": "59bda163d299ce7528e04ac334ae278a8f17516a1cdf741d08d1fb3b23351167",
+      "cleaned_sha256": "c8601cfcbcb1c45d13ce257cdc3da0ff580250f5530d2284ce6caa7863d70c92",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 33,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.128826735791,
+      "raw_sha256": "b8bc4a44d2580fa163646c4ecfca969781de492a2acaf50b644b7b7f64f83a01",
+      "cleaned_sha256": "cdb42a9828d0fbf758eb0438a0e1b56a1fc113be39d7806abf906403dd22273c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 34,
+      "review_priority": 0.0,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "9ac728bec7037f08ef9549fe3330b1edf1c00762bbb003ef87f5fd7ee301befc",
+      "cleaned_sha256": "9ac728bec7037f08ef9549fe3330b1edf1c00762bbb003ef87f5fd7ee301befc",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 35,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.20943422365232,
+      "raw_sha256": "8c4c515526d2e76627211eaae1ee7d0c9252ae5a5f255087d03ee689e0430370",
+      "cleaned_sha256": "a2ef0e3b58555b1771b0acdfc311b08b2ee3911d51ca4afa80ab526f2da1d34c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 36,
+      "review_priority": 0.0,
+      "ocr_confidence": 83.11869141561554,
+      "raw_sha256": "a03387d31f1d3b62547b1f4f146e56c773a1657b8ba451874c9fffa80750340d",
+      "cleaned_sha256": "b667fec66fd609307746fcea105ee0f67fe5f71b1e8c340cb3b09614a0542f9d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 37,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.54148262600907,
+      "raw_sha256": "bd58903f3426db8e5cdbbec4b590298eabddc14737aecca087427ec77bfe47d2",
+      "cleaned_sha256": "2c7d69242d04185aaecaf20f50a5ebbee054adfc7998f38e0fdf7d2df379ef71",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 38,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.16414339668536,
+      "raw_sha256": "731669905e2505bacca4887ff5a489fb27a589688e60357b93aae9bbf421cb9b",
+      "cleaned_sha256": "e55fb659c8acbaa190ccf59b35d5cab0cdfd0b1718ca86f71c0a3a3f5cb46681",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 39,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.4951628310782,
+      "raw_sha256": "8c6a16ac4d31f01e5d4dac999a740f15db1159cc13f06dbd176e0135d5c0b539",
+      "cleaned_sha256": "8fb5b05d963e81001853bda7e32af7f3eecfbae6da312d810558bbd66052b069",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 40,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.19911803214312,
+      "raw_sha256": "6a4f880f73a6cd7d3751c0bf47d231b1912bd3bcb9dba28f9e05ffdb22c730c9",
+      "cleaned_sha256": "64df8e96e1375168c8e1a12fe7b435bc151702fa2ac731449d5d493df70bb0d3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 41,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.5457921189696,
+      "raw_sha256": "daecacf4d5f00ec155d099e29f89655fc040649bf9893d5aef307a138c3cc3fd",
+      "cleaned_sha256": "bfb245a0e63d08c19fd31c8cb49b3ec64b2864d2db0e982ab823016e91a82bea",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 42,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "75f61ceab9bbe34e4e1d0f60f43c59e73b64faad08ff476ac4e5ef5281c50c63",
+      "cleaned_sha256": "75f61ceab9bbe34e4e1d0f60f43c59e73b64faad08ff476ac4e5ef5281c50c63",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 43,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.19753741731954,
+      "raw_sha256": "15efb6db9681104cdb11f4cd3c68d5fa35e871f7127112948d92ebb563b8f5e3",
+      "cleaned_sha256": "7bb35b60003231daf3ca493380dc198b106dbc22dd9579b72730f603ed99d93c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 44,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.90136301202236,
+      "raw_sha256": "0d3a8ff9f50d8d2ec235eec5f37c6330f6b4c854b6ca4f0815b319c35c040dce",
+      "cleaned_sha256": "cc2bf5cd378fc57786980808f804f1d893c9023d538f072aebbb381fe988cbbb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 45,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "ee194402a01e50aa28453da983f44409712749b27b4fe201291fa423c80461c2",
+      "cleaned_sha256": "ee194402a01e50aa28453da983f44409712749b27b4fe201291fa423c80461c2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 46,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.40546835217005,
+      "raw_sha256": "e229bb0c3ef04d565b7ae1466af6b722dd3de96db25c7df42e91401cf2fd49bf",
+      "cleaned_sha256": "cbc01ff71da11c20b188c00558f977e6a24dace4b13974f1cf02f36344489ba8",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 47,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "05a8efa0f0bb82693b863729f5ace63ae0f8d8e6a984b6369b1c614e3518fde5",
+      "cleaned_sha256": "05a8efa0f0bb82693b863729f5ace63ae0f8d8e6a984b6369b1c614e3518fde5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 48,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.45924036844112,
+      "raw_sha256": "2b079c390934867d0d287753dcc70c283078e90cdec3ba2059ee85869477c102",
+      "cleaned_sha256": "df59be9f67b73f3e13a6da746323a8fab7e9cf9708bb6c68dba2d2b0d7b529c5",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 49,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "47cb07ea8087da3a9b70d4058d2a1cd380f90262fb9ed479c8d7b7565a09fa7b",
+      "cleaned_sha256": "e73e769d461ed12c4908e7dd0c441d24b309b504e63447c40574cf70d02503a4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 50,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.10526299097793,
+      "raw_sha256": "eb80c87e5c36c67b0da7040870f30b05c14aff9765dbf99826cd7f13f2d76973",
+      "cleaned_sha256": "0d7a3917c4f4e967b64abb1408824b7a3d803310ca58385fe60bf27fdd705eb2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 51,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.47600336777508,
+      "raw_sha256": "9be00ef32211f83b5857f910b088e5875d416cea148e1508295539a3359fbd12",
+      "cleaned_sha256": "c24087efe8262f0732d18c215844aa467c728e206a526b590cd3060fd0514d36",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 52,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.7113894563693,
+      "raw_sha256": "0b2b19c33bd079e8c1b91c9aa1ba786ecb1e582851729788c0b9255026f021f8",
+      "cleaned_sha256": "71be4252ee4b2d4c4dcba2c628a8219a6aee7df76d9a7a3c8eda208847c7bb2e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 53,
+      "review_priority": 0.0,
+      "ocr_confidence": 70.80661980738574,
+      "raw_sha256": "b17c76e534f01cab7a01d3bae5e35af7d9efefcfe4c1ff0cfb1a1048fd7306d6",
+      "cleaned_sha256": "293b68d4da3c13411c6e94ff3f0f0bc3ead94c3ed665761ec8d090f2f7e8bf0c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 54,
+      "review_priority": 0.0,
+      "ocr_confidence": 84.98598743140539,
+      "raw_sha256": "f4e32068a253ed62551f501a91d29a88ef6646accd6563ec01f8ba91e01abf7a",
+      "cleaned_sha256": "447cc5f077d55779a7ee0139288c3de71fff0a0a8e45bed4fea0e4308881f07c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 55,
+      "review_priority": 0.0,
+      "ocr_confidence": 87.78737463348637,
+      "raw_sha256": "bbb359b055b66d915f6b1105e2a92afd3683083db16bfaf47e805127a6139ece",
+      "cleaned_sha256": "c37229bd7182ab9c7ef1fdbf365cf6d85439eb4bc45c07afdcd9b028498cee9f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 56,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.51811932763306,
+      "raw_sha256": "12c34991e9670340950c9a336c1b6a3281cc9f6b1f12b219504f7febcb19e5dd",
+      "cleaned_sha256": "8a437fe47d7a0de3bf32ed2a3d19621617454e3600dfdafd39d4aa07c94f0d9a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 57,
+      "review_priority": 0.0,
+      "ocr_confidence": 77.32678793470242,
+      "raw_sha256": "18f0d9f111be1e32a053daa2dd4329327546a364f150ea9455aec29551142eee",
+      "cleaned_sha256": "be1acaaf9c7edd7fd7b44eda5da4eedc5c129107fcb795b7081008849288b59d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 58,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.7924271799227,
+      "raw_sha256": "3fa8ed130a7d0c331ff013c1ec35f09bc3714527386c0e141a6085eedf2d0b40",
+      "cleaned_sha256": "286043f55e454a8c8dd9ecadeaf145d77a567ad19deb532ab40bced4660dda43",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 59,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "8471859840656c9f16ef51abc369cc21cb772a647eb94af79105e2fbe5ca3701",
+      "cleaned_sha256": "8471859840656c9f16ef51abc369cc21cb772a647eb94af79105e2fbe5ca3701",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 60,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.74162548821609,
+      "raw_sha256": "5bd9f966e18abe887d935f003c00a998c6657f9110323edb13db070ea810ddb9",
+      "cleaned_sha256": "e72e39409438d4268e821411be3393f4a38cca6d595df493538837fc60fadb6b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 61,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "18186b319ae99ff0b50a8304365974eb289c62fbcc6c340f478e79a215b06d09",
+      "cleaned_sha256": "18186b319ae99ff0b50a8304365974eb289c62fbcc6c340f478e79a215b06d09",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 62,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.86051486349389,
+      "raw_sha256": "55efb876029c5d2e08c222da03f2467028ffcf7a9d5acc69eba32dfc662089c2",
+      "cleaned_sha256": "c7cd22e0c9aafdf5bc67dc3790a0fcd17c0c9b8f5ab557e547b333f23774be20",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 63,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.90512910256506,
+      "raw_sha256": "04b954d1eeedcaa5291b168b68c8ca8931d07c578198eeb8ce21c4e5f4be3af4",
+      "cleaned_sha256": "439e399ddee948353e8ab7eb9e9d368328e4c718c64af3d328828b1e03aceb49",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 64,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.98726382422302,
+      "raw_sha256": "9cdb381bd193a237570af0313ae217677295621b05f0dfb36ecfa1d1697197cf",
+      "cleaned_sha256": "7fd0e99eab08ed31267ac6955249fe5babeb96e0264ca18c9ea2a2d883e88ba2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 65,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.47796375948234,
+      "raw_sha256": "355d8f04badf2ac52d9d967e4725a9001c6620b4ac9224b6cc31ca67e7c899f7",
+      "cleaned_sha256": "bab159e38af6b720bee321df7872e77bd47210df5eab206dac2631cf3e2cf812",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 66,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "493e321bf7e574a138bb7b5ba8b7a1de2accab72f9524c61e2f96578d44ee820",
+      "cleaned_sha256": "cfd5b11dbf3d070f2de404c8787618bc06442b8fbd49633e886336090c7a3acb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 67,
+      "review_priority": 0.0,
+      "ocr_confidence": 85.14238483812171,
+      "raw_sha256": "537037de4a3fae531cb800d7113222ccecccb347f911c98bbf226ccbf2722011",
+      "cleaned_sha256": "e790943310453cd7c16d6f3309131ed155b5712fdcd9f4d4d57d4b9bd92e5e08",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 68,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "888708690d7a4886adc464b3f7b60d8db3146657a6c9596aeaf51e9885cc578e",
+      "cleaned_sha256": "f0cc22b7595f92ff31c2e624f3a2e5fedfee083b0f90fd4ca04b6e65802ef4e1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 69,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.1301238542733,
+      "raw_sha256": "224d21fbf3671b87b90ba56e7580e7beed3dcb8fdc13f7328a33576ec41cdad0",
+      "cleaned_sha256": "34b4ffd5ec2a85c07d3ee816cb7de5e2ab4abae5f696f349f3b9480e3c923ca3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 70,
+      "review_priority": 0.0,
+      "ocr_confidence": 85.0,
+      "raw_sha256": "f4012c29c39c5f51f2ea8f0a6b7322102af541fbea7d4ef56d8c7a155ae080ef",
+      "cleaned_sha256": "d0ee6595f6c0845f561766a01eec856ee4ecaf30991baf38ff904690ff01373a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 71,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.17861579207259,
+      "raw_sha256": "e0560b49cf9bd1045c60d50b2bf2944765af4a6596b83408dd01d360cacbb3f6",
+      "cleaned_sha256": "29b1776ab47ab01acacbfcf1a32bc3f362afe509d89ec78eedfd12f216bc9ae6",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 72,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "66a8a2f1ee3624ab9d5a104db6991a3ee2bf76f188367733ba359457e84e6bf6",
+      "cleaned_sha256": "66a8a2f1ee3624ab9d5a104db6991a3ee2bf76f188367733ba359457e84e6bf6",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 73,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.0671420743567,
+      "raw_sha256": "596809d449855c13d24962b41a5b2b72d8647d8e5376a78375ea8321237abc9f",
+      "cleaned_sha256": "1e7593a4d36ab5c8cc41eeb9f716319a4fe327313d4c1f6d44de9726e9ba4436",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 74,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "076d6e4176bde62647647177c5198580b593574cfb2ad6abd9c7ceaf813a28e9",
+      "cleaned_sha256": "076d6e4176bde62647647177c5198580b593574cfb2ad6abd9c7ceaf813a28e9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 75,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.46106869277091,
+      "raw_sha256": "c65f826ade6a2c7041d0ad53ac2b9eba7b27bb99c2b51060a8b4a9b994da749a",
+      "cleaned_sha256": "d5ca88f353b22a908726af9f55e12c44e9eb0e128ebfe90e89f325b020763c39",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 76,
+      "review_priority": 0.0,
+      "ocr_confidence": 45.0,
+      "raw_sha256": "0be2598513557dd5fbeb43c341e70cbcfdebb401348e18be5c77982c6aa08dc4",
+      "cleaned_sha256": "b4ddd14498a0818e9e29d437e2f85b6be337186c95e3cd38a64321d26d4287e4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 77,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.85480661315836,
+      "raw_sha256": "9f3a599575ab3a6ee5bfe23b44235999bd1b7445719bf2341e24d71f2bb7eb54",
+      "cleaned_sha256": "ec8b59cc2b2b9f38ad2040f80b70c152d27ca1ec39b1bef580161144c868b8ba",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 78,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "b7d37ea1169817c7d849423210cebc737d2173567a4a8e0e981194a6a5c12431",
+      "cleaned_sha256": "b7d37ea1169817c7d849423210cebc737d2173567a4a8e0e981194a6a5c12431",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 79,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.35509027072978,
+      "raw_sha256": "5d5fe93a42d73b77bc4fb69e77d2b933a1bc00b36e4ad4e2ab09a84c0c45ac7c",
+      "cleaned_sha256": "321cbc02e234c46865ddca8d4894ec500417d1c2da7d3b4a3697c099fd9be4a1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 80,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.23116633954446,
+      "raw_sha256": "620e73074168e1cfe6e4c4746d63fc11f386ff0635c5c54071279e8d13d2c1c6",
+      "cleaned_sha256": "48f69210536c0e02084c84174eb451ab739494aa83e8a2d9b3a5d1fcee189ef4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 81,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.68421772935652,
+      "raw_sha256": "b2f0f448b8376504079117853e01ab1d34c4155c21c76e0b34abfae9e626576d",
+      "cleaned_sha256": "bdef747657dc74bde51fc9374cd5cb7cb46f05e4de839f1bd163ebbb51bd8088",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 82,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "e74ca76deec2e3b18b6aba3bfd21b944be284f54ed890d5702ea46f76efcaa56",
+      "cleaned_sha256": "e74ca76deec2e3b18b6aba3bfd21b944be284f54ed890d5702ea46f76efcaa56",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 83,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.02674727880128,
+      "raw_sha256": "7013daea49495d8fb6dd17e7789126d8a8a9b461d188f82620c050dba250e1bd",
+      "cleaned_sha256": "3dedee0cc707caa7bede0c81b8e0d0d529a53b26e3c34f8711991eb2a0ca32ec",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 84,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.4465417138577,
+      "raw_sha256": "aea4fa7b58be3ebb92f75f290703d4b90087005d9789ddd7f9b1fbd2f786b22b",
+      "cleaned_sha256": "9546943ee8debf108608d57d20a97509b313f788148cd73d187c55f858610668",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 85,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.2134200977035,
+      "raw_sha256": "4bd810cb32664cf0bfff8b3092a22884c9e2447dd793528cf1a86fc2fec6f59d",
+      "cleaned_sha256": "e44751ea962cf1ec3b2d48885a68fdb47fa4ab75920653bbf9cb32dd9855744f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 86,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.4297465626406,
+      "raw_sha256": "dc35ecc79f30d696aa129c64561435b7ae8356b1ee1b2e78bfaf37b04fe96fee",
+      "cleaned_sha256": "9cce98f64f337728b456dafd2915ae3e5a4e833640f7ca027992d60b87deb801",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 87,
+      "review_priority": 0.0,
+      "ocr_confidence": 85.0,
+      "raw_sha256": "7d18757cbeb22f64f25b3518bdf4966a76c07a1c664f381cbe4f2f0437bd273c",
+      "cleaned_sha256": "a950648c02546b5895b0c343f8df7a0c9505abe8994b5156470d0aa4c3f00607",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 88,
+      "review_priority": 0.0,
+      "ocr_confidence": 74.81788442019995,
+      "raw_sha256": "92574fc16559826f653ef36526685652a33190ec6955bde4b720385a80458079",
+      "cleaned_sha256": "d297c70223a009d8cb1d668ed2b0c9e6d9627f63a95e142bab487db39dab860c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 89,
+      "review_priority": 0.0,
+      "ocr_confidence": 77.61872962261168,
+      "raw_sha256": "1863e2cce1340c1a3b8d3f7e610919184da42de7a36e8b978985a1fc3f380502",
+      "cleaned_sha256": "c6841d745339c1c8a142e936c272f6a19317239e1a8f5091d9d9f0d0e1c1393c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 90,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.50076996591056,
+      "raw_sha256": "f33c73f0f9e24ff8c568836ff5bc4641c073e687963087ad3a5213ca1e53a055",
+      "cleaned_sha256": "3360658c6550a7283aa6c55c5d24d74292662b91f8456e75fe3c26be0d08dfab",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 91,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.38583185329405,
+      "raw_sha256": "9d8af1107db9409fbc83602db972f1806484d8b6e318ebbb792f92cc6d8b7e83",
+      "cleaned_sha256": "5711fa6a0b274e22fd07e3692658d09fbab430ab321b0e001e616b55cbe66667",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 92,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.37441308917549,
+      "raw_sha256": "7babcd2f27176c7744cfb259a2c782ad4451f189a665a5345573c2085d8fd86d",
+      "cleaned_sha256": "88de94b0976a0b4abbf874b955740e4ba8d2b36c90cb047f8db38c98832a8fc7",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 93,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.58831924807848,
+      "raw_sha256": "ba1071b6399f4c15bf978bd1bde485756b2fa1fa98c0c70cfe3812c4e7a282b5",
+      "cleaned_sha256": "99ce59e5bb8bc373d6619a1c4c8a0c87a6e9f1b3b381c46a2831a3552d40d45b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 94,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.61006147432732,
+      "raw_sha256": "2db20eba42a5337c98fc91889f686550cc2ae945a21621d4ed1036996e9ae8b4",
+      "cleaned_sha256": "2814d832efbae90e485f3400d4374ed741da793ec4b8aaf23eda444767a7c7d3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 95,
+      "review_priority": 0.0,
+      "ocr_confidence": 90.03914379240196,
+      "raw_sha256": "e901584dc1eda7ff6b0c750a4a5b10f2bfa3d94fd1c2a36d0748d558e28c4560",
+      "cleaned_sha256": "8566d459f3252be3ac4a0e5aa06a9c696989b5c0efcdd40e52f0567a02392540",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 96,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "a39984a8e734cb5bb9deb4f9c47a2c6eecd571c1ea5551219bac5f8b73caabf2",
+      "cleaned_sha256": "a39984a8e734cb5bb9deb4f9c47a2c6eecd571c1ea5551219bac5f8b73caabf2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 97,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.00646947896868,
+      "raw_sha256": "9f30189b57b21f3ab9df591529ef5984edeac4254d4c5310f1dcec2514e1fa4b",
+      "cleaned_sha256": "cd3b3cb4ae4e25f4eac2fb39a6deffa419b2db807fd05c6223ccd1b371dd59a7",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 98,
+      "review_priority": 0.0,
+      "ocr_confidence": 87.13920856995523,
+      "raw_sha256": "a5b34109a6189b8b0332c2311fa09761231ba0890bc56c11c7534148bb9e2dc1",
+      "cleaned_sha256": "a0df1a483b983f8bd0e3b98a1c1890f8f0b52545c6060f918f8e6635e916b70a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 99,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.76589707631383,
+      "raw_sha256": "7ca4ec4109e80c6b0f92355ed89298f810e9eace7fb7792a42621c5737a44d9e",
+      "cleaned_sha256": "65ea77781c6ca1599d8989c1ae6ecb6748dbcb8df70ef32ae1b5e0c061c0b304",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 100,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.79119228755314,
+      "raw_sha256": "04cfb6e6ee246ad1962a9d17b57f0ed5b582f5c71644cd53c6a2cbc6f7387b8a",
+      "cleaned_sha256": "b0ede4092a5760bb661416a887c863655c34c9eb40bcb344a318e0e7c51e746b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 101,
+      "review_priority": 0.0,
+      "ocr_confidence": 73.8183156959007,
+      "raw_sha256": "e152771651be5f38a7b66d37ec4b0e5945e4cd2ffe4e80776a2711e89ce23308",
+      "cleaned_sha256": "113a2b77542406fe117d7cd43a8afe434d4b60fb3bb24e25542899a79efec078",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 102,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "67c7e5c4244804244bbe9946d855d008ab5be1079d64c54d30193faaf2c97083",
+      "cleaned_sha256": "ad12b17564e9267d4c3ba2b3e4fbee0c85342b1f84d3bc6c49b3145f9c37cc57",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 103,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.18836988179412,
+      "raw_sha256": "e7e9a424da19c133bc1155fa74b566008fe002560521218559d7561ff81a16f3",
+      "cleaned_sha256": "0a2117f43118eec029ae86b49acc3025bb662792511cf0ceb4750897a6811834",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 104,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.28805098632796,
+      "raw_sha256": "c259c47984e0192d48fe6850c1737d694668e00748a0d14eaf1d0f48f7c89c92",
+      "cleaned_sha256": "35210a7aba354378417e58f4c43dce0d92849e9f8c67ccdf239a0e5dd1924644",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 105,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.92451128522886,
+      "raw_sha256": "dfc1b7a38b95cb040111aa1d606a7140d3ba0277c704dd91521de8863bc9a199",
+      "cleaned_sha256": "dfc1b7a38b95cb040111aa1d606a7140d3ba0277c704dd91521de8863bc9a199",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 106,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.509107507571,
+      "raw_sha256": "6051dcc94e7260aaf730167475323c395b5f0f527c2f7d4de933ddeb318abfe7",
+      "cleaned_sha256": "db70a0387cd15332f9a3d35f3eb05d59543811acde59a26382f2c9b392c21c99",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 107,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.41354095077116,
+      "raw_sha256": "d9f03f2c89a17d43202229db663f4deb5b8db7e641f0767135fdbab2dc7ba6f7",
+      "cleaned_sha256": "3466cad070ea286e348139a64cb2584e1ed7163c6b28897c1ec76cff9b526f5c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 108,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.73423018198831,
+      "raw_sha256": "99a006ed124c295e471b501dbd3c2b2712dc7e2741806aaafe5afec4013075a8",
+      "cleaned_sha256": "a18d3c0218948d805f8f3b91e16eda7a5da7927053cdac4139cad0091907f85d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 109,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.52367421026638,
+      "raw_sha256": "84d324f79c47dcf98cf31bdb9bf594a158a37fef4698ba22080f1a89a0d4a4e6",
+      "cleaned_sha256": "5f91e7beae08c32ea40cb84e96bce2f1c01311748a1d4e2c4ee1c389eb2fb12f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 110,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.34337248017661,
+      "raw_sha256": "1f372eb76ef30ed5bd53d1a0129268b8f5463d4fbf199989d6842ce6711a3309",
+      "cleaned_sha256": "60d7e53de89ea5d6380c79d57825b917514535d9e1490f31401d1b18d1010fc8",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 111,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.97371376741705,
+      "raw_sha256": "6ad538c20b4f1cfd4a57465697ea087213c8a18e6322df0650c7532bc1a2f2bb",
+      "cleaned_sha256": "0b4ae2cc547c0526f8b8cc532b69c0293a8fd228c96f1f4e226eaaca492b63e7",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 112,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.66532389838949,
+      "raw_sha256": "689b2001c58a3da5405bcbfacb9e9863dfbbe29ab9bdc0c9f43aae9f4c402335",
+      "cleaned_sha256": "b4b9e088c74a5033dedd5ccd44f8f472cacf052d5f780864a01fc6afa31b264d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 113,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.0563390395354,
+      "raw_sha256": "20c2223b41d36a0bba79f300669fac19316c5a8889e928e48079f54ef93751a5",
+      "cleaned_sha256": "fe84311d2638b52520cff86d772c6a0db557ab82689588466e8a97bceb01f106",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 114,
+      "review_priority": 0.0,
+      "ocr_confidence": 35.0,
+      "raw_sha256": "9d5361346f28d63ef31bd01513a70f7d86c455f460c6af8490b2fdbdb1962bfa",
+      "cleaned_sha256": "9d5361346f28d63ef31bd01513a70f7d86c455f460c6af8490b2fdbdb1962bfa",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 115,
+      "review_priority": 0.0,
+      "ocr_confidence": 87.45283061834095,
+      "raw_sha256": "f60301c4bdebbc448b66a7bb52baf1cf5c6c91f20da0858f333391a18e456718",
+      "cleaned_sha256": "ec943e21648020682e381bdf8f82ca8eba2112001b25ab8b997729cee7d41c82",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 116,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.34531814991597,
+      "raw_sha256": "ee7b8727ffd5341591668955db5f4d4e7ec333f2fcf1cbab851fbd3a14bdd74f",
+      "cleaned_sha256": "eac61064683819a58ba48a3af04769f0de3dda2fe7b50f9077fdb4b33cdccc32",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 117,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.23594609565642,
+      "raw_sha256": "f634c1e9ae979d1a47bed8500fa125c70ce99cf3da95fb924b19df15b4cbc478",
+      "cleaned_sha256": "babc135ef0047cacb561140039e1be82bae93146873607a676a790f551bcf69f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 118,
+      "review_priority": 0.0,
+      "ocr_confidence": 84.66799115296509,
+      "raw_sha256": "d08e1829e0cf4fc7b7c16bef20055bb2a5a00f174d80b4f474cc12345406ef36",
+      "cleaned_sha256": "8c74d9550a812dc807afc5bca9785bf40a2fe030b3ab4b955f981bae24a9da5a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 119,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "c58ebfaf08eaa0df11245091a9aecc5dd4587407031f59e918d1eedaa69a6e69",
+      "cleaned_sha256": "c58ebfaf08eaa0df11245091a9aecc5dd4587407031f59e918d1eedaa69a6e69",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 120,
+      "review_priority": 0.0,
+      "ocr_confidence": 78.69176544423226,
+      "raw_sha256": "3ecfefc97ce3db6e81125de647fbf473dae4c5d064a5e4cb9724eaf6bb25706b",
+      "cleaned_sha256": "3ecfefc97ce3db6e81125de647fbf473dae4c5d064a5e4cb9724eaf6bb25706b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 121,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.09024138051012,
+      "raw_sha256": "0331cecdb763e6594f22ac9b1dcbcfacdd7b2718da2f21ce0d1d97bc6499300d",
+      "cleaned_sha256": "1905fa8f508d685808c2540720a74d886c72bec887bde794e6fb64923671c549",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 122,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.24848928990411,
+      "raw_sha256": "1c4dd53498eaccfb92b20438b0f7c427ae806954177e0272a63f642604eb3c8e",
+      "cleaned_sha256": "dfa99c40c71a5ec91308aab4593a1b030d20389460fa97fc38af8fdfec75c566",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 123,
+      "review_priority": 0.0,
+      "ocr_confidence": 25.0,
+      "raw_sha256": "77adab52532b2fd2b8abaf8f103b9b21cf447a83d31a32f4f12054a74865c7dc",
+      "cleaned_sha256": "93cda732001e265e8c13d35286675098b461f411bea5deced8b1b48be64963fe",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 124,
+      "review_priority": 0.0,
+      "ocr_confidence": 87.12632020127586,
+      "raw_sha256": "0dad3a39cc5a31f21678460e0f3d97e5e217686a781da181f3de9e87a134e294",
+      "cleaned_sha256": "a406c027519192770054c3f009a45050a54720dc3077977db9d596a18a5b96ec",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 125,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "3b676dcb651e708fce415241e905a2aa65a8eb998168ee8362887fdce12c0cac",
+      "cleaned_sha256": "3b676dcb651e708fce415241e905a2aa65a8eb998168ee8362887fdce12c0cac",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 126,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.22820038000876,
+      "raw_sha256": "415460aa07b6f74db91ff5fd82e26ee4af7f27861d41292883b019031cd09caa",
+      "cleaned_sha256": "91f8b427d11e570c199bb3961dc6cf0a8c3b860eb6c46691a6e46f2d0ae634fc",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 127,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "1187bd5d7f7c6347f528e2a2ee4c7be2956c32ee72120ce337320ba0fc047c48",
+      "cleaned_sha256": "96627e8ded4cdc52fb414743d381772757fe992b512f7887cea5fe09e0af23b9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 128,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.03111058126137,
+      "raw_sha256": "9a6ae1aa604c09c8e2775dcace9d4196b803bfba31875b3d1aac7241e9f3a096",
+      "cleaned_sha256": "985d712634ed1283af4dff19f0c1466de03ce59c8e16ae305d05c9a8f83d4a38",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 129,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "0b4e616c7734c1b968e4ab12fca44c3ba2727fc1fa7be55c1d10274b4baca074",
+      "cleaned_sha256": "d1c64948be689ad6cd1dfdf970761e4a214b0656163445ddfc05b73aa9489165",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 130,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.70306797810606,
+      "raw_sha256": "899881cdc856cc83666a8ec558fa9e20fc87c4efb45514f8dd0a54f957af1017",
+      "cleaned_sha256": "4305be727f74341820c7f98e789d4b8aae31bb2192dbc34130d8e62e0bcdd957",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 131,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.68674035940704,
+      "raw_sha256": "fd700414aa6797fc88ad390bb633c3dd2a0ded98529bafed28d8d52cc8d35603",
+      "cleaned_sha256": "8c7721f447b7eb55a260fe53257e64423364dd66ada907e403b8d2bb91761d2d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 132,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.37362632482082,
+      "raw_sha256": "a10fdba85f605cc3ce3ff7566277f5e6b80c2936fe31516759484a7fed0d33d6",
+      "cleaned_sha256": "55151d4a8da4c6715d57db8ef0befd1f6a6d88a29c4293fde05a35d2aaad859e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 133,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.92585135753097,
+      "raw_sha256": "31975824bfde707a023f5f2425d84022fe6fefb5c1dc6c86d331ae9282313079",
+      "cleaned_sha256": "680605c242e7269de10c51d0d53dfd5e01751917a7bb17abc6d559aa9bc2404f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 134,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.43706634207875,
+      "raw_sha256": "2b69e43afbc1c2f52622e3fea8bc66166e059b9592be8cec69f7a638b5ec2fe7",
+      "cleaned_sha256": "d4a52e454761ed974353333199f7b3515ae8b401b9f81d6df5212942dbdc76b3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 135,
+      "review_priority": 0.0,
+      "ocr_confidence": 15.0,
+      "raw_sha256": "5b281fb55344e7c81b1899dbaedfc5606c30b54aca880ab065a9facf385ad671",
+      "cleaned_sha256": "e0a9d3b8f28dfdf6f61d307667e54c6ac11f9b6df17f3fd47e83a9ce1097386d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 136,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.1473013344882,
+      "raw_sha256": "a0e8c6239f08715038bb5b1993b13b4979a26dc1cc4ed05d7a3943c73746c751",
+      "cleaned_sha256": "3c2555dc06e191fe12496943118a7fbf45bdb98b54ba8870e22792545bbec4a4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 137,
+      "review_priority": 0.0,
+      "ocr_confidence": 81.46287378782164,
+      "raw_sha256": "a96309a0b2396d54f2100c1c8898430247c0873e02e6d0daec764fe2add98683",
+      "cleaned_sha256": "3d68cbe9befb6086ddeca9922dcd795239203514a848c7ddf7359f43a916f94a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 138,
+      "review_priority": 0.0,
+      "ocr_confidence": 81.20123022280201,
+      "raw_sha256": "b1823c759785a55ee38c658622a4e8cafa5f017c63af264f145dcb7e841b013a",
+      "cleaned_sha256": "7e35ad0c0e115fc01dda4c3380373b5b745e7300a49200e17dc1ac780fdbe558",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 139,
+      "review_priority": 0.0,
+      "ocr_confidence": 87.91012627631476,
+      "raw_sha256": "35b3d752bbb5a52b23317932e254b61460d916e0bb2780b18dc80ff9835b4823",
+      "cleaned_sha256": "e2015081482319bf6d15ef352b8087263f4447fdd8553de17b64fadf309eccfe",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 140,
+      "review_priority": 0.0,
+      "ocr_confidence": 86.48112135126314,
+      "raw_sha256": "2f0494602534f6758c050891410df1171edc2b4df7e29f0e1f54a930e830e17e",
+      "cleaned_sha256": "da4292392272081ed818f2242aadbfd3cd87fa0c1dac1077a1a48a53c03e82f2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 141,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.13281664972935,
+      "raw_sha256": "99f13350c5fce99b85a69039e1e9a8e00fad3f20a32f4f6583ab548477bb8600",
+      "cleaned_sha256": "658a7cc25bba4cc159afa69df3c17eb6877512bed515ec33fe1ebf8187f8176c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 142,
+      "review_priority": 0.0,
+      "ocr_confidence": 91.50587771027655,
+      "raw_sha256": "6e5552daf6543dc4fbd0ea97bf1fc3212c4a742ad144d3996da2d27250d4d670",
+      "cleaned_sha256": "53a1bd0022d817ab2f8ffc5d4e57b36a4880cc9e6b3ccfecb8679ffc16a02e82",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "page": 143,
+      "review_priority": 0.0,
+      "ocr_confidence": 20.0,
+      "raw_sha256": "a5d0889b9e9cb3e7834b7afdb06a95c76b96b8ea93e8221c969a12c8c16ef317",
+      "cleaned_sha256": "a5d0889b9e9cb3e7834b7afdb06a95c76b96b8ea93e8221c969a12c8c16ef317",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 1,
+      "review_priority": 0.0,
+      "ocr_confidence": 35.0,
+      "raw_sha256": "b8976bd3051c558d5fc35be9b5a176a8c539d2c316136eadda6bab4308e61344",
+      "cleaned_sha256": "a04eb8f1d53f49ee67906bd4b023c9681f66c8634c14f280edee87d471d91b4f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 2,
+      "review_priority": 0.0,
+      "ocr_confidence": 70.27912421556061,
+      "raw_sha256": "d206f75c2eb28506387df1662d2be1a249cde4d442bca06e894124dc81e5350f",
+      "cleaned_sha256": "7404ab79b4ae19cf743c9311325f6e4e6c42737cac2e4cc8a335c7906356f54a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 3,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.68730236222586,
+      "raw_sha256": "f79a9663d5c4fa47de0ea567343e2a6dbfd9988b0ee2eb1c82c21bb549805816",
+      "cleaned_sha256": "d209ec992a5ef01a07baaaaca6e0e10ee0bd122a4ee19adcff94b801f080d1aa",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 4,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.3601875811633,
+      "raw_sha256": "97c0dcaf60ec33b98ea2138f787de3b6bd469e970d6c8d9fa6b1feff851cd6a3",
+      "cleaned_sha256": "451a37f1f41c4af56dbb6e704324472d6db8463b12181bcb5a14517c33c70778",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 5,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.52930209597281,
+      "raw_sha256": "89989288372f3dc05bc75cc9fcf47cc9ac16e3eb5fe8d1f4ddec078fb8ecf07d",
+      "cleaned_sha256": "1d7ec862ea8e539d3d39e4a26e27d6b002ffd73d80a035194e69998615641b3a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 6,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.99921636487257,
+      "raw_sha256": "14068c36d4c0d69262ee67afae2c5139ae7b44d6890eb8b46558b1379ab905d2",
+      "cleaned_sha256": "c1b3c307bf01eba7117b71d1cd2abfdb15ae34cd3111eeb8212744c2c3e8a9b4",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 7,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.92418319490241,
+      "raw_sha256": "c9029d9ce0282f99fe094fa3b037cb13516e715fac1e068fb333291434402b0e",
+      "cleaned_sha256": "8444e1f0d8d1c2836f9769aba6c6063434621e3a1581a7682d1e4402ffe9bb41",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 8,
+      "review_priority": 0.0,
+      "ocr_confidence": 92.33167462914506,
+      "raw_sha256": "3832d60cd070602eecb3de84a731178b6ce258243a8f889c88167c2211c70835",
+      "cleaned_sha256": "2a490bdf2a30659a22be9d46513dd718306d436d741f9002f07f941bcf7fe156",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 9,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.73319429522573,
+      "raw_sha256": "7eaffa47c4a49278c969ad56f5864214b9fec9ea653bda684c3a50ed9d1db48f",
+      "cleaned_sha256": "26a439bcefdd3b5ecd98cf07b346161b3e6dada9f35ecb58b778c77536c6d6bc",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 10,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.63616146057691,
+      "raw_sha256": "1abccf7e3d5d5a410743fec99badbd2df01d899284f86e4ec082ed8e74a9b4d8",
+      "cleaned_sha256": "f9a285588f1b043034121ad963e642e31f99b1bf294d21ffc89218f29c6a3197",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 11,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.69084924613277,
+      "raw_sha256": "07bde1dd62f99f45a977cbfd926774faea328bcf416123efa6fa3a5d54730ecf",
+      "cleaned_sha256": "f0955ff8d34af11ee4c8b86a1e86649596629a9498093906f7ee0f6fded8fd79",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 12,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.27306191908826,
+      "raw_sha256": "22dd577fffd7994b8e781ca689593b2dbaca87c6473a1527554f322a001b99c0",
+      "cleaned_sha256": "9335f6158bed7d919d284e5c61f3e7bfe27385734ad533cf843d99184371ba07",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 13,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.70475878526611,
+      "raw_sha256": "52740a9b51e4e7e063a2cc96fb47e7681d60d3412e0b42fd858d1be7e76cb88b",
+      "cleaned_sha256": "2ecdb8e2d16670a835b0d1140110eda2cabdffaf4060912075b375f1d31b5b09",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 14,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.88596001494852,
+      "raw_sha256": "3bfbcf6fdcf482ddfcdfaa9a4c187d2ac150836d76c44130e820640f7e6c1e4b",
+      "cleaned_sha256": "49422135bd5dff142cf0436cc559b82b0c3bebd5f0f4bb49de10380eecf94eb1",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 15,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.3040065031374,
+      "raw_sha256": "00eb32ae8ecaeb38b5af0872164090bd4996c7fa2f5357676b78312c4cb9e421",
+      "cleaned_sha256": "aed9d19716c1d21e2422b395a7eebdb6ba4632b62ed0e675582aef72ce1be841",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 16,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.39920458208626,
+      "raw_sha256": "f3aba8a12602231e988bcd3be8280b49e2391dbc07df3922480378d6999603d5",
+      "cleaned_sha256": "c3a0be52dda0b7263c8efadd8b0a121cb05802320e572dd0a795fc33e07330f2",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 17,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.95226616905926,
+      "raw_sha256": "74b8b563a8e819d43828d6f1e557fa15cc2aba9cd242031a7892649c434b7aa0",
+      "cleaned_sha256": "6e95ced9e6ec6c063572275aee6fc4b15cc1f76e063fb77eeb0349eed3cffda0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 18,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.75173634860926,
+      "raw_sha256": "d55b9fa436d604413f48aa52c8179178841e7937b72e799156f373c90b831a6f",
+      "cleaned_sha256": "861488e583f99c11138ab745102e152586f2b59928c5a9a571b6e8dd6ed96c0d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 19,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.57267595766727,
+      "raw_sha256": "48561567178b4e0f1b9f85f82a427f7638664eba8892e7bce5d40d2be1c4a1cf",
+      "cleaned_sha256": "2b3889a7a055f2dc71b32348fccea645fbf8ca8188460f7be1e3cfa48ecc9888",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 20,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.5850172523024,
+      "raw_sha256": "af9f0f45aaf8c55b154e617d131596758faa8ec67653f043ae79d1ce27d697d5",
+      "cleaned_sha256": "1162b0cf3d99dc3b139d7037611de9479baba4c5ec419a193433223de39f340d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 21,
+      "review_priority": 0.0,
+      "ocr_confidence": 75.29993251071747,
+      "raw_sha256": "bfc143d8fc3279ae5a135bd01c01f77e602167ea72f7708a6f35973092e097b8",
+      "cleaned_sha256": "0cf2c0276af93a60968d97637c604da93bdaf6816f49bc354b612b729557eb69",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 22,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.11099340184072,
+      "raw_sha256": "e386bcfbda1e64379e8ea74119f9db108e9c60d12e3528614ced201281074252",
+      "cleaned_sha256": "ef39302d35e4fb192700f0487d5e9f384ac5bcd93a55fe6ce02cfe3c93fd9eb8",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 23,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.62402999842419,
+      "raw_sha256": "0fd62c9851a7e37fc79df0e4213259b0359ac06e2f45744db78f33de23c406f6",
+      "cleaned_sha256": "f19b910c7d118432fa8c88759c8432078d11447812bcecf3aae6ddd55d7eebfd",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 24,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.0607736204838,
+      "raw_sha256": "2204c3dd8660031baf48a570f4c288412c7b51e82e0894f53aa403be73450dc4",
+      "cleaned_sha256": "3a2471d8c8582e3072bb9aba23808bb26793d0720679ba01cf203ab177d005f3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 25,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.64470989850199,
+      "raw_sha256": "1520c752eabcc8cb8a3825abb1b40bad3b78757443c7a8fa26f6c1b8ca54d35f",
+      "cleaned_sha256": "d9eba9f8cfd273ce6b4247022cc4b26e440469b518d7fae3435d2d9261946cd7",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 26,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.68302200080466,
+      "raw_sha256": "80593e344e38f8168562ff299a1c3639a7016375f1b993c5517902fec1ac28a6",
+      "cleaned_sha256": "3432e2749c3c341ef2d2d45b9df9be093ac585d6dcefe484ad1597baa31b2cb3",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 27,
+      "review_priority": 0.0,
+      "ocr_confidence": 83.35604234342435,
+      "raw_sha256": "f30ffa5d489f1c330472c221e5a1102c4f7dcdbf8ebde503bf16bded9f5efccc",
+      "cleaned_sha256": "66b01204e508262894bf39a791daefbde8818046c2c1c74255fb4e5af3457f64",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 28,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.51229635620035,
+      "raw_sha256": "bc5fdebefca646756a6e4362385804b505d1e58db31ffe4b0bf60dee72c725af",
+      "cleaned_sha256": "b5a5bff3b12fa280d4fdf888bf02cff00c965da259baa34d73d2ac895fc8366a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 29,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.90584478582845,
+      "raw_sha256": "11d644f940d79930a740435187f5955540c78cf04455f128ef36103a59b1fd34",
+      "cleaned_sha256": "e240593aaa2411a7a09b1344e112422dacec5a5641b5cfaa7bf55cae3a0d8316",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 30,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.88096781756806,
+      "raw_sha256": "fb8365efbe2d42b5e95aafbf0fab673b86a57addc1370642f5595f36486dead3",
+      "cleaned_sha256": "3ad8b4351cd908c9b72dba866fcb9f359c519b69177dbf98d55fa1521fe9e380",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 31,
+      "review_priority": 0.0,
+      "ocr_confidence": 98.13824989972744,
+      "raw_sha256": "80b2603a640a1a92228057edf6af0b75839defac9daddd7de01e959b24ba86d0",
+      "cleaned_sha256": "c377c546477a317d6a8f4b9dbad14967e00cfd3de6218d9703907704e151ab30",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 32,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.58977845323821,
+      "raw_sha256": "4d7006c40327ad4e49d426aee6f264939e7bb4bccbfa9a383d5372c9f5dadf2c",
+      "cleaned_sha256": "aa99697205f3f97f33b590ce4d6e55a56c549947a507c0b8a4c88ec579f875fb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 33,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.0535407709089,
+      "raw_sha256": "18285b6348ee67c653894245798e99492e44aa5fb138a5be8922aeebbde24e73",
+      "cleaned_sha256": "492887d31fe6e5ba8a4a4abaa86e93a2fffd93c80b6136c7beca0f0e33f73940",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 34,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.02513011697204,
+      "raw_sha256": "040ea93e7a49873b7f8ced2e4e943dd87f6a9d5abe4f64289d7128ad0ae17f20",
+      "cleaned_sha256": "81f7e1959e5381b70f6523b5e2dbd78b84336e7358aad414042812f4898c303e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 35,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.1942377345006,
+      "raw_sha256": "c1c3ee492c71da05227dd8125e22bb9b286e685d58e5df111ac30a7697e1a052",
+      "cleaned_sha256": "171d1a63b5eddc2f2762c60ccc1bc1dc0b0a95ae846de2dfa2720cc8e44c8339",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 36,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.12492391137035,
+      "raw_sha256": "5c95e98b19bd30ae4b4b1d32801b07a76faabe625075ca90629eb058ad73bf85",
+      "cleaned_sha256": "b82a5a32022ff2af13073f4dc748736f3a8a566a150eb65c2614fb1684946806",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 37,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.65506513653565,
+      "raw_sha256": "58bfe9c7bd7842a4038da8ab81367fd8c48e907547597b84b16b7d9748c0665b",
+      "cleaned_sha256": "5c8075e2e03b47c442776df8f8b9842007b727d43ca08bb1ce751bdeb966f8a0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 38,
+      "review_priority": 0.0,
+      "ocr_confidence": 84.56710700016774,
+      "raw_sha256": "ffe4b3e434f03336bcfa4a52ff0541910c8f60d63620f713bb5cd196887f30c7",
+      "cleaned_sha256": "c26bc0722522207cce3d51e8196fbf3bcbb651a711bd134a68eb3b8a44d64885",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 39,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.21566098301028,
+      "raw_sha256": "0c31243804c89c6dcf9e67a9c3474ab83cb05e584e1041c9ebb3746aa2d41d28",
+      "cleaned_sha256": "6d1ea2bc8d96ba218858b90f51f00fe899dda12862d8db8021fe504fe865c871",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 40,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.55518490705218,
+      "raw_sha256": "9fa39c7233d2e2813ab428adfde0fcbbf901870483a6b6c22d19453173fbc1f3",
+      "cleaned_sha256": "6fc64a4e6dd87d015ccd10dfc59a46ba4d66ab4efd6f03894fca5c192bde2abd",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 41,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.92607999256043,
+      "raw_sha256": "0733c03696ac238afa4298266eab154a900d0e8df8ac08b90525582e4ec8337a",
+      "cleaned_sha256": "e217f504712a23106ad25f396a1103c4ca66197598bb9d8b9e3d275cc68454ee",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 42,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.08450258353125,
+      "raw_sha256": "472fd2dd3d5a2ea4c81c95cd438484ca98e1d21b4a218c3f86d9a10f7775596b",
+      "cleaned_sha256": "472fd2dd3d5a2ea4c81c95cd438484ca98e1d21b4a218c3f86d9a10f7775596b",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 43,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.49189136757624,
+      "raw_sha256": "a5759745689f56529c383e0b0fc53ec1adf96b677ece4be997f243e60a215fde",
+      "cleaned_sha256": "1d9d37971cf0631accdf9537432a236d70f8d5e3070275b110eb6c7d1b1dfc48",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 44,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.2231914084969,
+      "raw_sha256": "33cee724159f0e47697fbe8689d76edeb2816a9973c185570f8d5e9f7306a5bb",
+      "cleaned_sha256": "9354332d6d6c1fc8b2863aa1c899c8b3740182a521a8a02c398d079100117982",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 45,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.85914202675694,
+      "raw_sha256": "d70ddb18d2c6da508bc9ec074ba2a8eed6639ec67947fb4291004ad1cfaa8762",
+      "cleaned_sha256": "b9d4990041dc0a107c3002a9aa1aa5d73d98c0d731b128c003618fd059c6096f",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 46,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.20628029838448,
+      "raw_sha256": "aa21e9bc6e50f740e888b6af276280601ffb60edaa08a20b1866dc3bd2a44951",
+      "cleaned_sha256": "8ad67c96746f875ccaeb83800887b623705c99981d2664ad98b6ba9e54f1d1cf",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 47,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.69783768909998,
+      "raw_sha256": "d4d90c98e483e7def0897dcffae23265e2223519275e406d652bbafbfa0b3de1",
+      "cleaned_sha256": "7bea226375e003f430395d23743d3033ac1cb18e9fb29a77aae5afba9dc7bee0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 48,
+      "review_priority": 0.0,
+      "ocr_confidence": 89.9285718260365,
+      "raw_sha256": "c0745cb1f37903906bfc84dbd0abcc1fb68fd3142322a66f715fbdd632472b1c",
+      "cleaned_sha256": "1fdfec5d4facef6d42405e1d6ec6ce660cc054f40a3dab54cd40e179fe48bbaa",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 49,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.44586181708715,
+      "raw_sha256": "2c8cbd51ea08a43f5bfcbc86d99fe0c0782dba94327ad52ed04f61538ebe53c3",
+      "cleaned_sha256": "09b0051154621c3c6b74b56d3b79b3c5388e71e59d4ac19c5035ba229c43944c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 50,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.9381431867213,
+      "raw_sha256": "a21d1ed0eead3fc30b0a3292174cdc1f20b08363a3015e34bc7b813edadfa20f",
+      "cleaned_sha256": "f7f985f6f5ae8cec773e16bd2d8eda759b48de3c2e88789267aaa6a80136ec74",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 51,
+      "review_priority": 0.0,
+      "ocr_confidence": 71.10690853519372,
+      "raw_sha256": "0413e0831abf03f8b0fffca9377f358e2f84deede026c06dde2e6039c60e5ee5",
+      "cleaned_sha256": "2be7f5225fece221e1652deddd8fa74634efbf9f21f8fd724ef1cebb6132cb66",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 52,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.18802705883209,
+      "raw_sha256": "5d927b1dad0489f4fa1037c272f7f1ecd95d6eb472aa5e571b4b2f73a9034f0f",
+      "cleaned_sha256": "ab8ccaced4a60147d530c887240522a83b1a7ac3d1fa1b7a6e50dd60678da315",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 53,
+      "review_priority": 0.0,
+      "ocr_confidence": 87.34187752991225,
+      "raw_sha256": "5f7ff558caaeacd9389f485d65965f2d9269ce46016d6d93d69b2299f3354899",
+      "cleaned_sha256": "1d884158c70a8a52cf74a476bf8524a83298f72987016dc74c284e1c73cd35cc",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 54,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.60992452225378,
+      "raw_sha256": "95763e9c207c23a40de7b819f6a44ecd540d5b07dedac77df323572f03f61afd",
+      "cleaned_sha256": "b5009b06472434fa9a2aaccaa93cc1cf05e90a685d854725155c627e9b446c5e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 55,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.60794018052043,
+      "raw_sha256": "ce6c531fc09b77ef7840f7fefd37f9a66bd2cf74c8f3db76224c9758e8945d13",
+      "cleaned_sha256": "3ebf2eaa54dd94481ee3f0756101ba233237b9ddba047602452b593e9bf850e9",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 56,
+      "review_priority": 0.0,
+      "ocr_confidence": 88.39386593254287,
+      "raw_sha256": "e423cd5bcff43cac3fb195fc988717b3ee8c15d5c07d16ac0541386c9e27254e",
+      "cleaned_sha256": "bb7c3d3326b70666350d5c2a74593ebe509d6827256c95d804ae7f5c73bfaee0",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 57,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.32635423770536,
+      "raw_sha256": "0db3933e3e34a81d003005162797ea086655be54ca9ec347b7dea763592b844e",
+      "cleaned_sha256": "be755c6ef61a0d59f662c5fce1004dfd67456a1e084a5b8fecd3e076c8168d3c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 58,
+      "review_priority": 0.0,
+      "ocr_confidence": 97.06739979666325,
+      "raw_sha256": "7245f7934bb59b49ef31b5eea2ec56e86beaa8627e377d9ec63d4244dff4649f",
+      "cleaned_sha256": "a6b052dd69c1ef915397733c0287b314f39e303c349cd27f14b671f4337d3b6e",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 59,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.67211668835559,
+      "raw_sha256": "57692fe1f80c8c32c7adce4fda366db0fc02c1c7aef270110539fb3350e67e9d",
+      "cleaned_sha256": "57692fe1f80c8c32c7adce4fda366db0fc02c1c7aef270110539fb3350e67e9d",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 60,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.46139293999659,
+      "raw_sha256": "e8d54d2ac14e2bbc6ec2a77c2548f396aa8b466192b76487b113dc885baf8a5b",
+      "cleaned_sha256": "170bc58aebce96d75db7944976b1d91ec933beee5a5631ec6d2ab2f800a722bd",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 61,
+      "review_priority": 0.0,
+      "ocr_confidence": 94.54693369431081,
+      "raw_sha256": "054b5d42be0f7d28f28ba4d31748ceb883c7bb4ab53806816260b37db204075a",
+      "cleaned_sha256": "bb1e42699e9d279a2f5ed7e55c72cf7ca60a8360997d1978a6a35671adbe89fb",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 62,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.43685433795413,
+      "raw_sha256": "9080a36c65512bf074b8fc8beaf4a17004f5f0108a9c2b4c706a923363219c3c",
+      "cleaned_sha256": "348dda7992349166fde801096346a68229e3bebf8a0e738928e83f0341805bbc",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 63,
+      "review_priority": 0.0,
+      "ocr_confidence": 95.21591194400551,
+      "raw_sha256": "8bd24cad71f954906a9cd50eac43c51cfa05401bf2922d86e1cb74d07953d6bf",
+      "cleaned_sha256": "1f926301ffdf4ce0d1b599539685bacc328fc5fddefa9888fc98a1cc8963efdd",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 64,
+      "review_priority": 0.0,
+      "ocr_confidence": 99.87434717108313,
+      "raw_sha256": "36dc0b6655b0756f9a6bdf800e6c190f54c2fdeb5fae6760071ded56188c0697",
+      "cleaned_sha256": "9222761a8196edbc85fcfa709c899412af941a85d858ad9b4b4cdeb7eb6d515a",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 65,
+      "review_priority": 0.0,
+      "ocr_confidence": 93.29315560709654,
+      "raw_sha256": "06151b525c3423350dc257c50fcc38663c8bbc3c026a372ebebcd67758762323",
+      "cleaned_sha256": "8ae249750f3c4a0971ae726432a3d3a6a34fd98c2ca3c34387e0cc05b8189e7c",
+      "qc_verdict": null
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "page": 66,
+      "review_priority": 0.0,
+      "ocr_confidence": 96.40863399007526,
+      "raw_sha256": "94c221f587e9b8c95efeb8778e1fcbd233260d0444632d100ce61f07a05930c7",
+      "cleaned_sha256": "a9cc4e4d84a189569324880fa4e9ce0b2e59c664e207e1d9c5f35a57858cd360",
+      "qc_verdict": null
+    }
+  ]
+}
