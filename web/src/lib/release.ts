@@ -178,6 +178,14 @@ const lastTrancheDate = new Date(manifest.fetched_at)
   .slice(0, 10);
 
 export interface ReleaseConst {
+  /**
+   * Site version, source-of-truth for the "Research preview (vX.Y.Z)"
+   * banner + any other UI string that references the deployed release.
+   * Bumped manually as part of the release runbook (Phase 0 of the
+   * site-release-checklist: every minor tranche-promote bumps minor,
+   * patches bump patch). Pairs with the git tag pushed alongside.
+   */
+  version: string;
   /** Full 64-char sha256 of the current manifest CSV (tranche id). */
   currentTrancheId: string;
   /** First 12 chars of currentTrancheId — citable short identifier. */
@@ -201,9 +209,50 @@ export interface ReleaseConst {
   trancheCount: number;
   /** Full ISO-8601 fetched_at timestamp for the current manifest. */
   fetchedAtIso: string;
+  /**
+   * Per-engine page count breakdown across the corpus. Used by the
+   * /methodology page to surface the actual surya / llm-anthropic split
+   * instead of a hand-typed "~15%" approximation that drifted across
+   * tranches. Built from pages.json at module-eval time.
+   */
+  ocrEngineCounts: Record<string, number>;
+}
+
+function countByEngine(): Record<string, number> {
+  // Same path-resolution discipline as countOcrPages — process.cwd()
+  // first, import.meta.url fallback — so Astro's Vite chunking doesn't
+  // strand the lookup.
+  const fallback: Record<string, number> = { surya: 3654, "llm-anthropic": 635 };
+  const candidates = [
+    resolve(process.cwd(), "public/data/pages.json"),
+    resolve(dirname(fileURLToPath(import.meta.url)), "../../public/data/pages.json"),
+  ];
+  for (const path of candidates) {
+    try {
+      if (!existsSync(path)) continue;
+      const text = readFileSync(path, "utf8");
+      const parsed = JSON.parse(text) as Array<{ engine?: string; text?: string }>;
+      if (!Array.isArray(parsed)) continue;
+      const counts: Record<string, number> = {};
+      for (const row of parsed) {
+        if (!row || typeof row !== "object") continue;
+        if (typeof row.text !== "string" || row.text.length === 0) continue;
+        const e = typeof row.engine === "string" ? row.engine : "unknown";
+        counts[e] = (counts[e] ?? 0) + 1;
+      }
+      if (Object.keys(counts).length === 0) continue;
+      return counts;
+    } catch {
+      // fall through
+    }
+  }
+  return fallback;
 }
 
 export const RELEASE: ReleaseConst = {
+  // Bumped manually per release. v1.2.0 lands the tranche-2 promote
+  // (158 → 222 cards, 3 new agencies: ODNI / CIA / DOE).
+  version: "v1.2.0",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,
@@ -213,6 +262,7 @@ export const RELEASE: ReleaseConst = {
   release01Date: RELEASE_01_DATE,
   trancheCount: trancheCount(),
   fetchedAtIso: manifest.fetched_at,
+  ocrEngineCounts: countByEngine(),
 };
 
 /** Format a card count with thousands separators (`1,234`). */

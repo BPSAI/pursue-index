@@ -57,7 +57,11 @@ clean:
 # `make ship-ready` runs the full deterministic-AC chain pre-commit.
 
 .PHONY: ship-ready
-ship-ready: rebuild-derivatives registry-root snapshot-rotate test arch-check astro-build staleness
+# Order matters: astro-build BEFORE test so test_dist_dir_exists +
+# test_card_page_coverage can see the freshly-built dist tree.
+# (Caught 2026-05-22 on a clean rebuild — those integration tests
+# rely on web/dist being current.)
+ship-ready: rebuild-derivatives registry-root snapshot-rotate astro-build test arch-check staleness
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit + push."
 	@echo "  next: git add -A && git commit -m '...' && git push origin main"

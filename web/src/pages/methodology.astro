@@ -107,7 +107,7 @@ const methodologyJsonLd = [
         sections below (novelty, OCR, finds). */}
     <section id="research-preview" class="border border-[color:var(--color-signal-amber)]/50 bg-[color:var(--color-signal-amber)]/5 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
-        ▸ Research preview (v1.2.0)
+        ▸ Research preview ({RELEASE.version})
       </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         This site is a research preview. Raw transcripts, the manifest hash,
@@ -295,10 +295,81 @@ const methodologyJsonLd = [
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         Engine and per-page confidence are recorded in{" "}
         <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>{" "}
-        and surfaced in the OCR transcript on each card page. The live
-        search index covers {pageCountLabel} pages (Surya primary; LLM fallback on
-        the ~15% of pages where Surya scored below threshold) — see the
-        headline numbers in the benchmark section below.
+        and surfaced in the OCR transcript on each card page.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Current engine mix.</strong>{" "}
+        Across the {pageCountLabel} indexed pages, the live breakdown is:
+      </p>
+      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-3 font-mono text-[11px] space-y-1">
+        {Object.entries(RELEASE.ocrEngineCounts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([engine, count]) => {
+            const pct = ((count / Object.values(RELEASE.ocrEngineCounts).reduce((s, n) => s + n, 0)) * 100).toFixed(1);
+            return (
+              <div class="flex flex-wrap gap-x-4 gap-y-1">
+                <code class="text-[color:var(--color-signal-cyan)]">{engine}</code>
+                <span class="text-[color:var(--color-text-dim)]">
+                  {count.toLocaleString()} pages ({pct}%)
+                </span>
+              </div>
+            );
+          })}
+      </div>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The Surya-dominated split reflects the original Release-01 OCR
+        pass. The {RELEASE.ocrEngineCounts["llm-anthropic"]?.toLocaleString() ?? "~635"}{" "}
+        pages on the LLM-anthropic path are a mix of: (a) sub-confidence
+        fallbacks from the auto-mode pipeline (the original ~15% of
+        Release-01 pages where Surya scored below threshold), and (b) the
+        tranche-2 PDFs ingested 2026-05-22, which went through Sonnet 4.6
+        directly per the bake-off outcome below.
+      </p>
+
+      <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-bright)] pt-3">
+        ▸ Engine selection — Sprint 6.1 VLM bake-off (2026-05-18)
+      </h3>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        After Surya carried us through the v1.0 launch, an internal
+        bake-off compared every credible 2026-current OCR engine on a
+        25-page golden set drawn from the corpus — FBI carbon copies,
+        DOW MISREP forms, NASA crew debriefings, with HARD-tier
+        coverage of the worst pre-1960s typewriter material. Models
+        tested: Anthropic Sonnet 4.6 / Opus 4.7, OpenAI gpt-5.4 /
+        GPT-5.5 / o3 / o4-mini, Google Gemini 3.1 Pro, GLM-OCR (open
+        weights, local), Reducto (closed-source commercial).
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Outcome:
+        Sonnet 4.6 is the operated answer.</strong>{" "}
+        Capped-mean CER 20.1% on the golden set, median CER 1.6%; ~$53
+        to run the full corpus once. Why not the alternatives:
+      </p>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-1 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
+        <li><strong class="text-[color:var(--color-text-bright)]">Opus 4.7</strong> — materially worse on the same pages (cm-CER 20.2% vs 16.3% on the head-to-head 20); 7.2× more expensive (~$383); 1/25 content-filter trips.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">gpt-5.4</strong> — viable cost-shrunk fallback (~$28 full corpus, +1.2 pp cm-CER, 2.5× faster wall-clock). Kept in reserve for vendor-availability failover.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">o3 / GPT-5.5 / Sonnet+thinking</strong> — reasoning architectures regress on OCR (cross-vendor confirmation); HARD-tier worse than Sonnet baseline.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">Gemini 3.1 Pro</strong> — 4.6 pp behind Sonnet overall; 6.9 pp behind on HARD tier.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">Reducto</strong> — closed-source; Figure-block prose-description failure on 1/411 blocks; can't be operated by us.</li>
+        <li><strong class="text-[color:var(--color-text-bright)]">GLM-OCR (open weights)</strong> — retained as a local cross-witness signal ($0 marginal, ~3-min full corpus on a single 5090). Uncorrelated failure modes — LaTeX leakage on plain text, won't honor [REDACTED] sentinel — make it useful as a sanity check, not as the operated primary.</li>
+      </ul>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Other candidates surveyed, not benchmarked:</strong>{" "}
+        Chandra OCR 2 (5B local-runnable, 85.9% OmniDocBench, modified
+        OpenRAIL-M license with revenue conditions we wanted to think
+        through before shipping it as the operated answer); dots.mocr;
+        Infinity-Parser2-Pro (~34B MoE doesn't fit on a 5090 without
+        aggressive quantization); LightOnOCR-2; PaddleOCR-VL.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Engine roadmap.</strong>{" "}
+        Tranche-2 PDFs (5/22/26) were OCR'd Sonnet-direct. A full Sonnet
+        re-OCR pass over the {RELEASE.ocrEngineCounts["surya"]?.toLocaleString() ?? "~3,654"}{" "}
+        Surya-tagged legacy pages is planned in a subsequent sprint (~$37,
+        ~30-60 min wall) to bring the entire corpus onto the same engine
+        — sources will recompute, citations stable. Surya remains in the
+        repo (`pursue ocr run --engine surya`) for reproducibility and
+        as a CPU/GPU-only fallback if Anthropic API becomes unavailable.
       </p>
     </section>
 
