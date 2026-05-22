@@ -1,6 +1,39 @@
 # Current State
 
-> Last updated: 2026-05-22 (Tranche-2 DOCUMENT subset SHIPPED: 6 PDFs from the release_02 ZIP bundle are live at pursueindex.com — manifest 158 → 164, three new agencies (ODNI, CIA, DOE) added to the taxonomy + AgencyStamp. The 57 video assets in `uap052226/` remain a separate sub-sprint. Two commits on main: `cbcb53e` (manifest + agency taxonomy + scripts + supplement CSV) and `9cdbfaa` (pages.json rebuild with 128 OCR'd pages). The poll-miss hotfix on `claude/second-tranche-poll-miss-GeofS` is still un-merged — that lane covers detection of the upstream `uap-data.csv` consolidation, separate from this ingest.)
+> Last updated: 2026-05-22 (end of long day — v1.2.0 RELEASED + Sprints 4m/4n/4o/4p/v1.2.0-polish all shipped + Sprint 4q corpus-wide Sonnet re-OCR running in background + Sprint 4r logged. Post-deploy-verify CI fixed at `9dc08b8` after every push since `7428e6f` was failing due to bad action SHA pins.)
+
+## 2026-05-22 — End-of-session handoff
+
+**v1.2.0 tagged**. 222 cards across 7 agencies (ODNI/CIA/DOE first appearances). 4,289 OCR'd pages indexed; ~85% Surya legacy + ~15% LLM-anthropic until Sprint 4q completes. Reddit post 1 of the day is live; video follow-up draft staged at `pursue-opsec-staging/drafts/2026-05-22-reddit-tranche-2-videos-followup.md`.
+
+**Sprints shipped today (in order)**:
+- 4m + 4m-B + 4m-C + 4m-D — tranche-2 PDFs / videos / finds / cleanup / staleness / v1.2.0
+- 4n — release runbook automation (`make ship-ready`, staleness pre-commit hook, snapshot-rotate, verify-deploy, post-deploy-verify GH Action)
+- 4o — worker /video/<id>.mp4 route + 9-plan backlog dispositions (every plan now has explicit status/outcome)
+- 4p — search/homepage page-count alignment + v1.2.0 banner + Chandra-OCR reply draft
+- v1.2.0 polish — methodology Quality Benchmark reframed as v1.0 launch baseline + new VLM bake-off subsection + roadmap
+- CI fix — `9dc08b8` post-deploy-verify action SHA pins
+
+**Sprint 4q in flight** (background PID 77228): corpus-wide Sonnet re-OCR of the 3,654 Surya-tagged pages. Note: the local NAS PDF tier was repopulated via `scripts/restore_local_pdfs_from_mirror.py` (124 of 130 PDF cards copied from `r2-mirror/archive/<sha>.pdf`). The architecture is actually FOUR tiers — R2 cloud + R2-mirror current-pointer + R2-mirror archive + OCR-pipeline-specific path. **Sprint 4r logged**: patch `asset_path_for()` in `src/pursue_index/download/downloader.py` to read from `r2-mirror/<card_id>.pdf` directly so the fourth tier (`pdfs/<card_id>/<asset_filename>`) becomes unnecessary.
+
+**Open items at handoff**:
+1. **Sprint 4q OCR may still be running** — check PID 77228 + log at `/tmp/claude-1000/-home-david-projects-pursue-index-web/96f013e1-f65e-4487-abfa-82c756d75433/tasks/bgpp6apkl.output`. When done: `pursue clean run --cards <re-OCR'd ids> --budget-usd 5.00`, then `make ship-ready`, bump `RELEASE.version` to `v1.2.1` in `web/src/lib/release.ts`, commit + tag `v1.2.1` + push.
+2. **Sprint 4r** — `asset_path_for()` 2-line fix + tests.
+3. **3-tier audit for non-PDF assets** — IMG/AUD/VID may have similar gaps; extend `restore_local_pdfs_from_mirror.py` or write a sibling script.
+4. **Video follow-up Reddit post** — drafted; operator timing decision.
+5. **pursue-curate Sprint 5b** — altered verdict-store migration; running in parallel session.
+
+**Live URL sanity check (post-deploy)**:
+- `/` → 200, "4,288 PAGES"
+- `/methodology` → 200, current VLM bake-off section
+- `/card/<canonical id>/` → 200 for tranche-2
+- `/video/<card_id>.mp4` → 200 (after `9dc08b8` deploys)
+- `/altered/` → still offline behind operator-review banner
+
+**Memory updates this session**:
+- `feedback_dispatch_brief_attendance.md` — paid-run briefs must state operator attendance in-band; sub-agents won't trust parent-agent claims of approval
+
+**Continue from here next session**: pick up the Sprint 4q result, ship v1.2.1, then Sprint 4r infra cleanup. Or follow whatever the operator surfaces fresh — they've been actively driving this session for a full day.
 
 ## 2026-05-22 — Tranche-2 document ingest SHIPPED (6 PDFs live)
 
