@@ -1,6 +1,51 @@
 # Current State
 
-> Last updated: 2026-05-21 (Sprint 4k QC stack LANDED across `1db41e6` / `68f949b` / `a48d9d5` / `2df12a7`. 34/79 altered cards confirmed bytes-only presentation changes (43%); 36 confirmed visually_changed with real OCR diff; 9 asset_type_change. Sprint 4k-C cross-witness o4-mini OCR deferred — marginal value low after the classification stack. Operator reviewing live site before next sprint.)
+> Last updated: 2026-05-21 (Sprint 4l-A/D/E shipped clean-qc backend + methodology + review-priority. Pilot calibration showed prompt-tuning is the wrong shape. ARCHITECTURAL PIVOT — pursue-curate plan in opsec-staging `52aee3a`: new sibling repo for operator-attended interactive verification, code-as-law + statistical signals + LLM as candidate generator. Sprint 5a-5f sequence ready; awaiting operator approval.)
+
+## 2026-05-21 — Sprint 4l + architectural pivot
+
+### Sprint 4l-A/D/E SHIPPED — clean-quality LLM-judge layer
+
+| Sprint | Commit | What |
+|---|---|---|
+| 4l-A | `36ccd90` | clean-qc backend: schema + sidecar + prompt + judge + runner + CLI (`pursue clean qc run`). 33 unit tests; arch clean. |
+| 4l-D | `19b1979` | Methodology surface + `data/clean-qc-snapshot.json` + /methodology section. |
+| 4l-E | `19b1979` | Review-priority scoring + top-500 queue at `data/review-priority.json`. |
+
+Pilot dispatched on D23+D32+D33 (26 pages, ~$0.60 across 2 runs):
+- **Pilot 1** (strict prompt): 1 hard / 24 soft / 1 pass
+- **Pilot 2** (iterated prompt): 0 hard / 9 soft / 17 pass — better, but still over-strict on `verbatim_quotability` for character-level OCR fixes
+
+### Sprint 4l-X cancelled — replaced by pursue-curate architecture
+
+Operator's call: *"we are attempting to tune something inherently non-deterministic and make it so... Prompts are suggestions, code is law."*
+
+Path forward: **code rules** as deterministic layer + **statistical signals** + **LLM as candidate-generator on residual ambiguity** + **operator interactive sessions producing durable artifacts**.
+
+### Architectural plan — pursue-curate
+
+Authored at `pursue-opsec-staging/findings/2026-05-21-pursue-curate-architecture-plan.md` (commit `52aee3a`). Highlights:
+
+- **New sibling repo** to pursue-index + pursue-opsec
+- Subclasses BaseAgent (bpsai-agents v0.3.0); registers AgentCard via bpsai-a2a; closest pattern is Divona
+- NAS-shared store: `/mnt/nas/personal/pursue/curate/{verdicts,rules,sessions,published}/`
+- **Sprint 5a–5f sequence** (~2-3 weeks for first three sprints):
+  1. 5a: scaffolding (1-2d)
+  2. 5b: migrate /altered/ verdict store; **first Reddit-worthy post**
+  3. 5c: rule library v0.1
+  4. 5d: layered QC runner (corpus pass drops $40 → ~$5-15)
+  5. 5e: clean-qc operator review + per-page chips
+  6. 5f: abstraction pass for reusability
+
+### State of /altered/
+
+Surface remains OFFLINE. Operator-review tool at `pursueindex.com/altered-review/` is the bridge — verdicts in localStorage today; migrate to curate verdict store in Sprint 5b.
+
+### Pending
+
+- **Operator approval** to kick off Sprint 5a
+- Full corpus QC pass via current judge (~$40) deferred — right path is Sprint 5d layered approach
+- Sprint 4k-C cross-witness OCR still parked
 
 ## 2026-05-21 — Sprint 4k QC stack LANDED (4 commits)
 
