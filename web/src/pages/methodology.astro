@@ -906,16 +906,25 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
     {/* Benchmark — shipped */}
     <section id="benchmark" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
-        ▸ Quality benchmark
+        ▸ Quality benchmark — v1.0 launch baseline
       </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        A/B benchmark on a 5-PDF golden set covering the engine failure
-        modes: clean typewriter, faded FBI carbon, multi-column form,
-        redacted page, long debriefing. Truth proxy via the LLM with
-        explicit verbatim-transcription instructions; Tesseract and Surya
-        are scored against that truth. Median CER is the headline metric
-        because raw means are skewed by 1–2 hallucination outliers on
-        near-blank pages.
+        <strong class="text-[color:var(--color-text-bright)]">Historical
+        baseline (2026-05-08):</strong>{" "}
+        the engine-selection rationale that put Surya into production for
+        v1.0. For the current operated-answer choice (Sonnet 4.6) and the
+        full model-by-model comparison see the
+        <a href="#ocr-pipeline" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">
+        VLM bake-off subsection</a> in the OCR pipeline section above.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        The v1.0 A/B benchmark below ran on a 5-PDF golden set covering
+        engine failure modes: clean typewriter, faded FBI carbon, multi-
+        column form, redacted page, long debriefing. Truth proxy via the
+        LLM with explicit verbatim-transcription instructions; Tesseract
+        and Surya were scored against that truth. Median CER is the
+        headline metric because raw means are skewed by 1–2 hallucination
+        outliers on near-blank pages.
       </p>
       <div class="overflow-x-auto">
         <table class="font-mono text-[11px] w-full">
@@ -958,20 +967,34 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
         </table>
       </div>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        Surya is the deployed primary; the LLM fires on pages whose Surya
-        confidence falls below 70 (about 8% of the golden set; ~15% of the
-        full corpus). Live deployment:
-        <strong class="text-[color:var(--color-text-bright)]">{pageCountLabel} indexed pages</strong>
-        (Surya primary; LLM fallback on the ~15% of full-corpus pages
-        where Surya scored below threshold). Total cost of one full pipeline pass on
-        the corpus: <span class="text-[color:var(--color-signal-cyan)]">$1.71</span>{" "}
+        <strong class="text-[color:var(--color-text-bright)]">v1.0 launch decision:</strong>{" "}
+        Surya was the deployed primary at launch; the LLM fired on pages
+        whose Surya confidence fell below 70 (~8% of the golden set;
+        ~15% of the full launch corpus). Cost of one full pipeline pass
+        at v1.0 launch on the original 4,161-page corpus:
+        <span class="text-[color:var(--color-signal-cyan)]">$1.71</span>{" "}
         ($1.60 auto-mode LLM cleanup, $0.11 Voyage-3 embeddings).
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Current state ({RELEASE.version}):</strong>{" "}
+        The {pageCountLabel} indexed pages now break out per the live
+        engine-mix block above. Tranche-2 (5/22/26) PDFs were OCR'd
+        Sonnet-direct; a corpus-wide re-OCR pass to bring the legacy
+        Surya pages onto Sonnet is in flight and lands in v1.2.1.
+        Operational cost shifted accordingly — the v1.0 $1.71 figure
+        excluded the cleanup pass at scale and the Sonnet OCR rates;
+        current full-pipeline cost (Sonnet OCR + Haiku cleanup +
+        Voyage-3 embeddings) trends to ~$55 / full corpus pass.
       </p>
       <p class="text-[11px] text-[color:var(--color-text-dim)]">
         Per-page detail and the snapshot timestamps are in
         <code class="text-[color:var(--color-signal-cyan)]">data/benchmarks/</code>{" "}
-        in the repo. Run reproducibly with
-        <code class="text-[color:var(--color-signal-cyan)]">scripts/run_ocr_benchmark.py</code>.
+        in the repo. The v1.0 benchmark above runs reproducibly with
+        <code class="text-[color:var(--color-signal-cyan)]">scripts/run_ocr_benchmark.py</code>;{" "}
+        the May-18 VLM bake-off ran a 25-page golden set against the 9
+        models listed in the OCR-pipeline section above (Sonnet 4.6 vs
+        Opus 4.7 / gpt-5.4 / GPT-5.5 / o3 / o4-mini / Gemini 3.1 Pro /
+        GLM-OCR / Reducto).
       </p>
     </section>
 

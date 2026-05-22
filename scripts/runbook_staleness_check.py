@@ -115,6 +115,12 @@ _HISTORICAL_CONTEXT_MARKERS = (
     "earlier filename",
     "earlier name",
     "legacy",
+    "v1.0",          # v1.0 launch numbers (historical baseline)
+    "v1.1",
+    "launch",        # "at launch", "v1.0 launch baseline"
+    "original 4,",   # "original 4,161-page corpus" — explicit historical
+    "baseline",      # "v1.0 launch baseline"
+    "at the time",
 )
 
 
