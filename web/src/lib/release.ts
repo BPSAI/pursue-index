@@ -250,9 +250,9 @@ function countByEngine(): Record<string, number> {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.2.0 lands the tranche-2 promote
-  // (158 → 222 cards, 3 new agencies: ODNI / CIA / DOE).
-  version: "v1.2.0",
+  // Bumped manually per release. v1.2.1 re-OCRs the 15 worst-confidence
+  // Surya cards (210 pages, 14 Sprint 4q + 1 restore) with Sonnet 4.6.
+  version: "v1.2.1",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,

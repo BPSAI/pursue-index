@@ -1,6 +1,25 @@
 # Current State
 
-> Last updated: 2026-05-22 (end of long day — v1.2.0 RELEASED + Sprints 4m/4n/4o/4p/v1.2.0-polish all shipped + Sprint 4q corpus-wide Sonnet re-OCR running in background + Sprint 4r logged. Post-deploy-verify CI fixed at `9dc08b8` after every push since `7428e6f` was failing due to bad action SHA pins.)
+> Last updated: 2026-05-22 (v1.2.1 shipping — Sprint 4q rescoped from full-corpus to 15 worst-median-conf cards after diagnosing pursue ocr's serial 3 pages/min throughput; 09001c14 restored from mid-flight kill truncation; Sprint 4r-async logged as Task #32.)
+
+## 2026-05-22 — v1.2.1 ship (Sprint 4q rescoped + restore)
+
+**v1.2.1 ready to tag**. Re-OCR'd 210 pages across 15 cards with Sonnet 4.6:
+- 14 worst-median-confidence Surya cards (Sprint 4q rescoped): ~105 pages
+- 1 restored card (09001c14, DOW-UAP-D017 Sandia): 116 pages — its pages.jsonl was truncated to 0 bytes when the original full-corpus Sprint 4q OCR (PID 77228) was killed at 13:13 after diagnosing 3 pages/min serial throughput → ~19h ETA, not 30-90min
+- Engine breakdown now: 3,444 surya / 624 llm-anthropic / 221 llm (was 3,654 / 635 / 0)
+- Clean pass via Haiku 4.5: 15 cards, 210 pages, $0.67 spent (5.00 cap)
+- Pages count holds at 4,289 across 124 cards
+
+**Rescope rationale**: pursue ocr run is structurally serial (asyncio semaphore=1 for LLM engine, see `pipeline.py:_concurrency_for`). The `scripts/reocr_altered.py` ThreadPoolExecutor pattern proves card-level parallelism is fine against Anthropic's API. Sprint 4r-async (Task #32) bakes concurrency into the canonical pipeline so the deferred ~3,500 Surya pages become a ~5h run instead of ~19h.
+
+**Saved memory**: `project_pursue_ocr_serial_rate.md` — pursue ocr is ~3 pages/min serial; full-corpus = ~19h; reocr_altered.py has ThreadPoolExecutor pattern.
+
+**Next actions**:
+1. Push v1.2.1 + tag, run `make verify-deploy`
+2. Sprint 4r-async — wire `_concurrency_for("llm")` to `int(os.getenv("PURSUE_OCR_LLM_CONCURRENCY", "4"))`, add `--concurrency` CLI flag, TDD the semaphore behavior
+3. Deferred Sprint 4q-bulk — re-OCR remaining ~3,500 Surya pages with the new parallel pipeline (once Sprint 4r-async lands)
+4. Sprint 4r (the original) — `asset_path_for()` 2-line fix for the 4th-tier redundancy
 
 ## 2026-05-22 — End-of-session handoff
 

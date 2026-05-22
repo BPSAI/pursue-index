@@ -1,0 +1,37 @@
+{
+  "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
+  "fetched_at": "2026-05-22T14:05:20.884519Z",
+  "csv_sha256": "c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47",
+  "cards": [
+    {
+      "card_id": "09001c140b97a5db",
+      "title": "DOW-UAP-D017, UAP Reported at Sandia Base, 1948-1950",
+      "asset_type": "PDF",
+      "agency": "Department of War",
+      "release_date": "5/22/26",
+      "incident_date": "1948-1950",
+      "incident_location": "New Mexico",
+      "redacted": false,
+      "description": "This file contains 116 pages of documentation from the Armed Forces Special Weapons Program (AFSWP) \u2013 the direct, post-World War II successor to the Manhattan Project \u2013 and from the U.S. Air Force \u2013 relating to a series of sightings and investigations in Sandia, New Mexico, from 1948-1950. This file contains 209 sightings of \u201cgreen orbs,\u201d \u201cdiscs,\u201d and \u201cfireballs\u201d reported near the military base. Witnesses reported unidentified anomalous phenomena (UAP) maneuvering, flying out of sight, disappearing, or exploding. The documents also include the results of contemporary investigations into residual copper powder found in some areas where sightings were reported. A few of these investigations became the basis for Project Grudge, which collected reports of unidentified flying objects from various other military installations \u2013 also included in this collection.",
+      "asset_url": "https://www.war.gov/medialink/ufo/052226/release_02/documents/DOW-UAP-D017_General_Correspondence_Of_Sandia.pdf",
+      "asset_filename": "DOW-UAP-D017_General_Correspondence_Of_Sandia.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/052226/release_02/thumbnails/DOW-UAP-D017_General_Correspondence_Of_Sandia.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": null,
+      "video_pairing": null,
+      "image_alt_text": "A collection of UAP reports and documents from a national security site in New Mexico 1948-1950",
+      "image_virin": "260508-D-D0360-1053",
+      "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
+      "raw": {}
+    }
+  ]
+}
