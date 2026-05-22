@@ -12,9 +12,10 @@ Code: **<https://github.com/BPSAI/pursue-index>**
 
 ## What this is
 
-The DOW publishes the PURSUE corpus as a single CSV (`uap-csv.csv`) rendered
-inside a DataTables widget. That's fine for browsing one record at a time.
-It's useless for searching the actual contents of the documents.
+The DOW publishes the PURSUE corpus as a single CSV (currently `uap-data.csv`,
+rotated twice from earlier filenames as new releases landed) rendered inside
+a DataTables widget. That's fine for browsing one record at a time. It's
+useless for searching the actual contents of the documents.
 
 `pursue-index` is the first end-to-end pipeline and reader for that corpus:
 

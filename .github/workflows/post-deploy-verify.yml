@@ -1,0 +1,93 @@
+name: Post-deploy verify
+
+# Runs Phase 8 of the site-release runbook after every push to main:
+# waits for CF Pages to finish building (polls), then HEAD-checks
+# homepage / methodology / sample card pages on pursueindex.com. If
+# anything 4xx/5xx after the polling window, opens a `deploy-broken`
+# issue.
+#
+# This is the safety net that catches anything `make ship-ready`
+# missed — e.g., a worker-route change that builds locally but fails in
+# production, or a CF Pages env-var drift.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Override base URL (default https://pursueindex.com)"
+        required: false
+        default: "https://pursueindex.com"
+      max_wait_secs:
+        description: "Max polling time in seconds"
+        required: false
+        default: "600"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  # Only one verify per branch at a time; new pushes cancel in-progress
+  group: post-deploy-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Post-deploy URL verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v4.4.2
+
+      - name: Set up Python
+        uses: actions/setup-python@2935d44ca1e02f6c91dffa3afea7ed7f3e22aa9c  # v6.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Wait for CF Pages deploy
+        # CF Pages doesn't expose a webhook into GH Actions; the
+        # post-deploy verify polls until the deployed page reflects the
+        # commit, with a hard timeout from the workflow input.
+        run: |
+          sleep 120  # Initial soft wait for CF Pages to even start
+          echo "Initial 2-minute wait complete; starting polling verify..."
+
+      - name: Run verify-deploy
+        run: |
+          python scripts/runbook_verify_deploy.py \
+            --base-url "${{ inputs.base_url || 'https://pursueindex.com' }}" \
+            --max-wait-secs "${{ inputs.max_wait_secs || '600' }}"
+
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v8.0.0
+        with:
+          script: |
+            const commit_sha = context.sha;
+            const short = commit_sha.substring(0, 8);
+            const run_url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `post-deploy verify failed for commit ${short}.`,
+              ``,
+              `Workflow run: ${run_url}`,
+              ``,
+              `Likely causes:`,
+              `- CF Pages build failed or took >10 min`,
+              `- pages.json / manifest / cards-summary out of sync at deploy time`,
+              `- Worker route gap (e.g., new asset_type without route coverage)`,
+              ``,
+              `Next steps:`,
+              `1. Check the CF Pages dashboard for build errors`,
+              `2. Re-run the failing workflow if the build just took too long`,
+              `3. If failures persist, run \`make verify-deploy\` locally + investigate`,
+            ].join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `deploy-broken: post-deploy verify failed at ${short}`,
+              body: body,
+              labels: ['deploy-broken'],
+            });

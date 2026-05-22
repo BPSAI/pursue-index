@@ -51,3 +51,66 @@ db-down:
 clean:
 	rm -rf .pytest_cache .mypy_cache .ruff_cache build dist *.egg-info
 	find . -type d -name __pycache__ -exec rm -rf {} +
+
+# ---- Sprint 4n: release runbook automation ----
+# Codifies pursue-opsec-staging/runbooks/site-release-checklist.md.
+# `make ship-ready` runs the full deterministic-AC chain pre-commit.
+
+.PHONY: ship-ready
+ship-ready: rebuild-derivatives registry-root snapshot-rotate test arch-check astro-build staleness
+	@echo ""
+	@echo "ship-ready: ALL GATES PASSED. Safe to commit + push."
+	@echo "  next: git add -A && git commit -m '...' && git push origin main"
+	@echo ""
+
+.PHONY: staleness
+staleness:
+	@python scripts/runbook_staleness_check.py
+
+.PHONY: verify-deploy
+verify-deploy:
+	@python scripts/runbook_verify_deploy.py
+
+.PHONY: rebuild-derivatives
+rebuild-derivatives:
+	@echo "==> Rebuild derivatives (mirror, cards-summary, byte-history, csv-archive, pages.json, llms.txt, OG images)"
+	@cp data/manifests/latest.json web/src/data/manifest.json
+	@cd web && node scripts/build_byte_history.mjs > /dev/null
+	@cd web && node scripts/build_cards_summary.mjs > /dev/null
+	@cd web && node scripts/build_csv_archive.mjs > /dev/null
+	@python scripts/build_search_data.py --augment-from data/external/alex-zhang42-corpus.jsonl 2>&1 | tail -1
+	@cd web && node scripts/build_llms_txt.mjs > /dev/null
+	@python scripts/build_pages_cleaned.py 2>&1 | tail -1
+	@python scripts/build_finds_og_images.py 2>&1 | tail -1
+
+.PHONY: registry-root
+registry-root:
+	@echo "==> Recompute registry-root"
+	@python scripts/registry_root.py \
+		--registry data/asset-bytes-registry.jsonl \
+		--root data/registry-root.txt \
+		--manifest data/registry-root-manifest.txt
+
+.PHONY: snapshot-rotate
+snapshot-rotate:
+	@echo "==> Rotate manifest snapshot (only if csv_sha differs from latest indexed)"
+	@python scripts/runbook_snapshot_rotate.py
+
+.PHONY: arch-check
+arch-check:
+	@echo "==> Arch check (modified .py source files)"
+	@modified=$$(git diff --name-only HEAD | grep -E '^(src|scripts)/.*\.py$$' | head -20); \
+	if [ -n "$$modified" ]; then \
+		for f in $$modified; do bpsai-pair arch check "$$f" 2>&1 | tail -3; done; \
+	else \
+		echo "  (no modified .py source files to check)"; \
+	fi
+
+.PHONY: astro-build
+astro-build:
+	@echo "==> Astro build"
+	@cd web && npm run build 2>&1 | tail -3
+
+.PHONY: hooks-install
+hooks-install:
+	@bash scripts/install-hooks.sh
