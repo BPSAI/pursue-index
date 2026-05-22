@@ -155,13 +155,19 @@ def ocr_run(
         help="Re-OCR cards even if meta.json says status=ok. Required to "
         "re-run a card with a different engine.",
     ),
+    concurrency: int = typer.Option(
+        None,
+        "--concurrency",
+        help="Override card-level concurrency. LLM/auto default to 4 "
+        "(or PURSUE_OCR_LLM_CONCURRENCY env var). Set 1 to force serial.",
+    ),
 ) -> None:
     """OCR every PDF that hasn't been processed yet."""
     from pursue_index.ocr.pipeline import ocr_all  # lazy import
 
     settings.ensure_dirs()
     m = load_manifest(manifest)
-    asyncio.run(ocr_all(m, engine=engine, force=force))
+    asyncio.run(ocr_all(m, engine=engine, force=force, concurrency=concurrency))
 
 
 # ---------------------------------------------------------------------------

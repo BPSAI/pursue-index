@@ -1,6 +1,20 @@
 # Current State
 
-> Last updated: 2026-05-22 (v1.2.1 shipping — Sprint 4q rescoped from full-corpus to 15 worst-median-conf cards after diagnosing pursue ocr's serial 3 pages/min throughput; 09001c14 restored from mid-flight kill truncation; Sprint 4r-async logged as Task #32.)
+> Last updated: 2026-05-22 (v1.2.1 shipped + Sprint 4r-async landed — pursue ocr now parallelizes LLM/auto engines via PURSUE_OCR_LLM_CONCURRENCY env (default 4) and `--concurrency` CLI flag; 8 unit tests; deferred ~3,500-page re-OCR is now a ~5h run instead of ~19h.)
+
+## 2026-05-22 — Sprint 4r-async (card-level concurrency in pursue ocr)
+
+`pursue ocr run` no longer caps LLM/auto at concurrency=1. Touched:
+
+- `src/pursue_index/ocr/pipeline.py::_concurrency_for` — LLM/auto read `PURSUE_OCR_LLM_CONCURRENCY` env (default 4); surya stays at 1 (single GPU); tesseract unchanged
+- `src/pursue_index/ocr/pipeline.py::ocr_all` — new `concurrency: int | None = None` kwarg overrides the resolved value; logged in `ocr.start_all`
+- `src/pursue_index/cli/commands.py::ocr_run` — new `--concurrency` flag
+
+Tests: `tests/unit/test_ocr_concurrency.py` (8 unit tests across 4 TDD cycles, all pass). Full unit suite stays green at 816 passed.
+
+Throughput model: `scripts/reocr_altered.py` ThreadPoolExecutor pattern (proven at scale during Sprint 4h's 70-card altered re-OCR) is now the canonical default. At concurrency=4, the deferred ~3,500-page re-OCR becomes ~5h instead of ~19h. Operator override via env var or CLI flag.
+
+Pre-existing arch warnings noted (commands.py 350 lines + scrape_run_cmd 60-line function); not caused by this change.
 
 ## 2026-05-22 — v1.2.1 ship (Sprint 4q rescoped + restore)
 

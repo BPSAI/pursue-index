@@ -209,8 +209,12 @@ def _resolve_default_engine() -> EngineName:
 
 
 def _concurrency_for(engine: EngineName) -> int:
-    """Engine-aware concurrency. Surya/LLM serialize; tesseract parallelizes."""
-    if engine in ("surya", "llm", "auto"):
+    """Engine-aware concurrency. LLM/auto parallelize via ``PURSUE_OCR_LLM_CONCURRENCY``
+    (default 4 — Anthropic SDK handles its own retries); surya stays at 1
+    (single GPU can't truly parallelize); tesseract caps at cpu_count."""
+    if engine in ("llm", "auto"):
+        return int(os.getenv("PURSUE_OCR_LLM_CONCURRENCY", "4"))
+    if engine == "surya":
         return 1
     return min(4, os.cpu_count() or 1)
 
@@ -219,18 +223,27 @@ async def ocr_all(
     manifest: Manifest,
     engine: EngineName | None = None,
     force: bool = False,
+    concurrency: int | None = None,
 ) -> None:
     """OCR every PDF card in the manifest with bounded concurrency.
 
-    Tesseract is CPU-bound: cap at ``min(4, cpu_count)``. Surya/LLM/auto are
-    serialized so the GPU + API call stay un-thrashed. ``force=True`` re-OCRs
-    cards even if their ``meta.json`` says ``status=ok``.
+    Tesseract caps at ``min(4, cpu_count)``; surya stays at 1 (single GPU);
+    LLM/auto default to ``PURSUE_OCR_LLM_CONCURRENCY`` (=4). ``concurrency``
+    overrides everything when set — wired to ``pursue ocr run --concurrency``.
+    ``force=True`` re-OCRs cards even if their ``meta.json`` says ``status=ok``.
     """
     chosen = engine or _resolve_default_engine()
     pdf_cards = [c for c in manifest.cards if c.asset_type == "PDF"]
-    log.info("ocr.start_all", pdf_cards=len(pdf_cards), engine=chosen, force=force)
+    resolved_concurrency = concurrency if concurrency is not None else _concurrency_for(chosen)
+    log.info(
+        "ocr.start_all",
+        pdf_cards=len(pdf_cards),
+        engine=chosen,
+        force=force,
+        concurrency=resolved_concurrency,
+    )
 
-    sem = asyncio.Semaphore(_concurrency_for(chosen))
+    sem = asyncio.Semaphore(resolved_concurrency)
 
     async def _bounded(card: CardMetadata) -> None:
         pdf_path = asset_path_for(card)
