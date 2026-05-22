@@ -47,10 +47,36 @@ trailing commentary. Do not echo the input.
   }
 }
 
+CRITICAL FRAMING — the cleaner's job is FIXING OCR ERRORS. Single-character corrections, \
+classification marker corrections (CECRET→SECRET, NOFORM→NOFORN, DEL→REL, I VLT→FVEY), \
+ICAO/location code corrections (OMAM→OMAN), and item-number corrections (1.48→1.4a) are \
+the cleanup PERFORMING ITS FUNCTION CORRECTLY. These belong in interpretive_cleanups as a \
+descriptive count, NOT in hallucinated_facts or verbatim_quotability as failures.
+
+A true failure is the cleanup INVENTING a fact, sentence, or claim that has no corresponding \
+garbled equivalent anywhere in raw. If the underlying token IS in raw (just OCR-corrupted), \
+the cleanup correction is correct behavior.
+
 Verdict definitions:
 
-hallucinated_facts — Does CLEANED contain any name, date, place, designator, or event that \
-does not appear in RAW? Even a single confidently introduced fact = hard_fail.
+hallucinated_facts — Does CLEANED contain a SEMANTIC UNIT (a full name, date, place, \
+designator, event, or quantity) that is ABSENT FROM RAW IN ANY FORM, including as an \
+OCR-distorted variant?
+
+True hard_fail examples (these would be hallucinations):
+  - A person's name in cleaned with no garbled equivalent in raw
+  - A date in cleaned that has no token in raw resembling it
+  - A location asserted in cleaned that raw never mentioned in any form
+  - A full sentence the cleanup invented from no raw input
+
+NOT hallucinations (verdict = pass; counted in interpretive_cleanups):
+  - "CECRET" → "SECRET" — token IS in raw, just OCR-corrupted
+  - "NOFORM" → "NOFORN" — classification marker correction
+  - "OMAM" → "OMAN" — ICAO/location code correction
+  - "DEL TO USA" → "REL TO USA" — classification marker fix
+  - "I VLT" → "FVEY" — classification marker fix
+  - "1.48" → "1.4a" — single-character OCR fix in context
+  - any character-level substitution producing a recognizable English / domain term
 
 fabricated_redactions — Does CLEANED contain text in a region where RAW shows [REDACTED], \
 XXXXX, black-bar markers, or [ILLEGIBLE]? A single instance = hard_fail.
@@ -66,16 +92,37 @@ page_boundary_fidelity — Does CLEANED reference adjacent pages (e.g., "as disc
 page 7") that aren't in RAW? Soft_fail if so — cleanup leaked context across page boundary.
 
 ocr_artifact_handling — Did CLEANED preserve the bracketed editorial markers in RAW \
-([REDACTED], [ILLEGIBLE], page numbers, classification banners) exactly? Dropping any \
-= soft_fail.
+([REDACTED], [ILLEGIBLE], page numbers) AND recognizable classification banners (SECRET, \
+UNCLASSIFIED, NOFORN, FVEY, etc.) when they appear cleanly enough to recognize in raw? \
+Dropping any of THOSE recognizable markers = soft_fail. Dropping pure OCR noise — gibberish \
+lines that don't resolve to a recognizable marker, e.g. "O O O I I TIVOO Y TOLOR" — is \
+ALLOWED and NOT a fail. The cleaner's job includes removing scan artifacts.
 
-verbatim_quotability — If a journalist quoted CLEANED as verbatim from the document, would \
-they be accurate? Pass = yes, identical content. Soft_fail = minor punctuation / whitespace \
-drift. Hard_fail = substantive divergence.
+verbatim_quotability — If a journalist quoted CLEANED as verbatim, would they be \
+SUBSTANTIVELY accurate (same facts, claims, quantities, names, dates)?
+
+Pass = substantive content matches. The journalist would be accurate.
+
+Soft_fail = minor whitespace / punctuation drift that doesn't alter meaning.
+
+Hard_fail = a DIFFERENT fact, claim, name, date, or quantity that ISN'T an OCR-fix. \
+Example hard_fail: cleaned says "1972" where raw said "1979" with no OCR rationale. \
+Example pass: cleaned says "SECRET" where raw said "CECRET" — same underlying fact, OCR-fixed.
+
+OCR-error corrections (character-level fixes, classification marker corrections, ICAO codes) \
+do NOT count as quotability failures. Those are exactly the cleanup's job and the \
+journalist would be accurate about the underlying content.
 
 interpretive_cleanups — Count occurrences where CLEANED interprets ambiguous OCR characters \
-in context (e.g., RAW has "1.48" and CLEANED has "1.4a" because surrounding text suggests \
-the latter). Not a fail; the COUNT is the signal. List up to 5 examples.
+in context. This INCLUDES:
+  - Single-character corrections (1.48 → 1.4a, CECRET → SECRET)
+  - Classification marker corrections (NOFORM → NOFORN, DEL → REL, I VLT → FVEY)
+  - ICAO/location code corrections (OMAM → OMAN)
+  - Multi-character corrections where the underlying token is recognizable in raw
+
+This is a DESCRIPTIVE count, not a failure. Higher counts indicate the cleaner did more \
+work on this page; that's a quality-of-INPUT signal not a quality-of-output signal. List \
+up to 5 examples in the form "RAW '...' → CLEANED '...'".
 
 When RAW or CLEANED is empty, or marked with cleanup_skipped (e.g., content_filter, \
 length_divergence, empty_input), return "not_applicable" for every check.
