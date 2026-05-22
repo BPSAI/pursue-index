@@ -1784,7 +1784,7 @@ This video description is provided for informational purposes only. Readers shou
 - URL: https://pursueindex.com/card/0cccf7db865c827c
 - Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
 
-AARO assesses that this video, whose uploader-defined title is, “Spherical UAP [CALLSIGN] 2021/04/12 vid 1,” is likely derived from a color and infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in May 2024.
+AARO assesses that this video, whose uploader-defined title is, “Spherical UAP [CALLSIGN] 2021/04/12 vid 1,” is likely derived from a full-motion video camera and an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in May 2024.
 
 Video Duration: 00:04:49
 Video Description:
@@ -4551,7 +4551,7 @@ The Apollo 17 Technical Crew Debriefing is in the PURSUE archive. It's two pages
 
 ## Why this entry exists
 
-Of the 158 cards in the current PURSUE manifest (plus 3 more we preserve on /removed), the **Apollo 17 Technical Crew Debriefing** is one of the shortest — exactly two pages — and one of the most asked-about. Apollo astronauts are folkloric witnesses; the corner of the internet that cares about UAP often quotes Apollo crew members to imply concealed encounters.
+Of the 222 cards in the current PURSUE manifest (plus 3 more we preserve on /removed), the **Apollo 17 Technical Crew Debriefing** is one of the shortest — exactly two pages — and one of the most asked-about. Apollo astronauts are folkloric witnesses; the corner of the internet that cares about UAP often quotes Apollo crew members to imply concealed encounters.
 
 Anyone clicking into [the card](/card/0b298cfc9c65a4d6) deserves to know what the document actually contains. So:
 

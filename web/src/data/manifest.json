@@ -1,7 +1,7 @@
 {
   "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
-  "fetched_at": "2026-05-22T13:22:13.172782Z",
-  "csv_sha256": "f9ad3b8366e229cfdecb5feee9856f974e341df979943ce9368689cf42e91b8e",
+  "fetched_at": "2026-05-22T14:05:20.884519Z",
+  "csv_sha256": "c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47",
   "cards": [
     {
       "card_id": "d7c07f24a96f8bac",
@@ -3642,7 +3642,7 @@
       "incident_date": "2021",
       "incident_location": "CENTCOM",
       "redacted": true,
-      "description": "On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.\n\nAARO assesses that this video, whose uploader-defined title is, “Spherical UAP [CALLSIGN] 2021/04/12 vid 1,” is likely derived from a color and infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in May 2024.\n\nVideo Duration: 00:04:49\nVideo Description:\n00:00-04:49: The sensor pans and cycles zoom levels to track an area of contrast, keeping it generally within the center of the sensor field-of-view.\n\nThis video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.",
+      "description": "On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.\n\nAARO assesses that this video, whose uploader-defined title is, “Spherical UAP [CALLSIGN] 2021/04/12 vid 1,” is likely derived from a full-motion video camera and an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in May 2024.\n\nVideo Duration: 00:04:49\nVideo Description:\n00:00-04:49: The sensor pans and cycles zoom levels to track an area of contrast, keeping it generally within the center of the sensor field-of-view.\n\nThis video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.",
       "asset_url": null,
       "asset_filename": null,
       "modal_image_url": null,
