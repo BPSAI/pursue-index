@@ -32,16 +32,16 @@ Methodology is published. Numbers are reproducible from a clean clone.
 
 - **Custom domain.** [pursueindex.com](https://pursueindex.com) on Cloudflare
   Workers + Static Assets.
-- **Full-text + semantic search** across **4,161 OCR'd pages** spanning
-  the 116 PDF cards in PURSUE Release 01. MiniSearch lexical index +
+- **Full-text + semantic search** across **4,289 OCR'd pages** spanning
+  122 PDF cards from PURSUE Releases 01 and 02. MiniSearch lexical index +
   Voyage-3 embeddings, both browser-side; no server. The `/search` route
   adds a faceted filter rail (agency multi-select, incident-date range,
   redacted-only) over the lexical index; filter state round-trips through
   the URL so links are shareable.
-- **OCR pipeline.** Surya (GPU, transformer-based) primary, Anthropic vision
-  LLM fallback for pages whose Surya confidence falls below threshold. The
-  shipped index is **4,161 OCR'd pages** (Surya primary, LLM fallback for
-  sub-threshold pages).
+- **OCR pipeline.** Surya (GPU, transformer-based) primary for the legacy
+  corpus, Anthropic vision LLM fallback for pages whose Surya confidence
+  falls below threshold. Tranche-2 PDFs (5/22/26 release) were OCR'd via
+  the Anthropic vision path directly.
 - **Archive integrity.** Every CSV byte stream we fetch is committed
   content-addressed; prior manifests are rotated into per-snapshot JSON;
   every referenced PDF/IMG is mirrored into R2 keyed by `byte_sha256`;
@@ -246,7 +246,8 @@ cd web && npm install && npm run dev
 
 Public. Site is live at [pursueindex.com](https://pursueindex.com),
 the full pipeline (scrape → download → OCR → embed → serve) has run
-end-to-end against PURSUE Release 01, and the chat interface is open.
+end-to-end against PURSUE Releases 01 and 02 (222 cards across 7 agencies),
+and the chat interface is open.
 
 ## License
 

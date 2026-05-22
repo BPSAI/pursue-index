@@ -3272,7 +3272,362 @@ Excerpt (page 1):
 
 ## Finds
 
-21 curated reading guides authored from specific cards and pages.
+26 curated reading guides authored from specific cards and pages.
+
+### cia-uap-d001-ussr-1973-iir — A UAP Observation Inside a CIA Sary Shagan Collection Report (Summer 1973)
+
+- URL: https://pursueindex.com/finds/cia-uap-d001-ussr-1973-iir
+- Published: 2026-05-22
+- Cards: 0f469fcf6fb42875
+
+Card 0f469fcf6fb42875 is the first Central Intelligence Agency document indexed in PURSUE. It is an Intelligence Information Report (IIR) — raw collection, explicitly marked 'not finally evaluated intelligence' — describing the Sary Shagan Weapons Testing Range in the USSR, sourced from a former Soviet citizen who served there. The report's summary on page 1 catalogues facilities, security fencing, the regional headquarters V/Ch 03080, a warhead checkout unit V/Ch 03142, System-75 [SA-2] and System-300/Aldan [ABM-1 GALOSH] warhead details, rumored laser research — and, listed in the same sentence, 'an unidentified aerial phenomenon.' Section 14, spanning pages 2 and 3, records that observation: late summer 1973, at Site 7, a bright green circular object seen at roughly 70 degrees elevation, around which several green concentric circles formed and dissipated within minutes, with no sound. The historical interest is the embedding — a UAP report surfacing inside a standard Cold War collection product, not as a stand-alone study.
+
+## What the document is
+
+Card `0f469fcf6fb42875` is the first Central Intelligence Agency document on the PURSUE index. Three OCR'd pages. Report number **FIRK-311/01638-77**, with distribution date **20 December 1977** and a Date of Information window of **November 1972 – November 1973**. Country covered: **USSR**. Acquired in **Germany**. The source is described on the cover sheet as a former Soviet citizen who served at the location reported on. [cite: card 0f469fcf6fb42875 p.1 "former Soviet citizen"]
+
+The character of the document is stated explicitly at the top of page 1, in bold, above the subject line:
+
+> "THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE" [cite: card 0f469fcf6fb42875 p.1 "NOT FINALLY EVALUATED INTELLIGENCE"]
+
+That sentence is the document telling the reader what kind of intelligence object it is. An **Intelligence Information Report** (IIR) is a raw collection product — what a source said, transmitted from the field to the consumers in Washington, prior to evaluation, prior to corroboration, prior to integration into a finished analytical product. The header below it carries a **WARNING NOTICE — SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED** caveat. [cite: card 0f469fcf6fb42875 p.1 "SENSITIVE INTELLIGENCE SOURCES AND METHODS"]
+
+The subject of the report is **the Sary Shagan Weapons Testing Range**.
+
+## What the report is mostly about
+
+The page-1 summary catalogues, in order, the topics the source covered:
+
+> "This report provides limited information on the Sary Shagan weapons testing range, to include facilities, work areas, security fencing, the regional headquarters (V/Ch 03080), and a warhead checkout unit (V/Ch 03142). Also included is limited information on the following: System-75 [SA-2] and System-300/Aldan [ABM-1 GALOSH] warheads; rumored laser research; and an unidentified aerial phenomenon. End of Summary." [cite: card 0f469fcf6fb42875 p.1 "unidentified aerial phenomenon"]
+
+The body sections preserved in pages 2–3 walk through warhead details: System-300/Aldan checked at Site 4 then taken to Site 35 for launching, identified by field comment as the ABM-1/GALOSH (paragraph 10); warhead dimensions, weight, and cassette layouts for the System-300/Aldan and System-75 (paragraph 11); a hearsay note on laser-weapon experiments involving powerful antennas (paragraph 13). [cite: card 0f469fcf6fb42875 p.2 "ABM-1/GALOSH"]
+
+The UAP observation is paragraph 14. It begins on page 2 and continues onto page 3.
+
+## Section 14 — the observation itself
+
+The source's account, as recorded by the reporting officer:
+
+> "On one evening in late Summer 1973, Source observed an unidentified phenomenon at Site 7. While watching a sport competition between Canada and the USSR on television, he stepped outside for some air and observed an unidentified sharp (bright) green circular object or mass in the sky." [cite: card 0f469fcf6fb42875 p.3 "bright"]
+
+The geometry, as reported:
+
+> "The object was situated west of the site at an angle of sighting of approximately 70 degrees. The altitude of the object was undeterminable." [cite: card 0f469fcf6fb42875 p.3 "70"]
+
+A field comment notes that the sky was cloudless that evening and that the source believed the green mass would have been higher than cloud level, but could not estimate the diameter. [cite: card 0f469fcf6fb42875 p.3 "cloud level"]
+
+The evolution of the phenomenon:
+
+> "Within 10 to 15 seconds of observation, the green circle widened and within a brief period of time several green concentric circles formed around the mass. Within minutes the coloring disappeared. There was no sound, such as an explosion, associated with the phenomenon." [cite: card 0f469fcf6fb42875 p.3 "concentric circles"]
+
+A closing field comment:
+
+> "Source had no opinion as to what this phenomenon was. There was no resultant rumors. Source could not provide any further details." [cite: card 0f469fcf6fb42875 p.3 "no opinion"]
+
+That is the entirety of the UAP section. One paragraph. One observation. One unrecalled date in late summer 1973, anchored to a televised Canada-USSR sporting event. No follow-up. No interpretation. No corroboration in the document itself.
+
+## Why the embedding matters
+
+The historical interest of this card is not the observation in isolation — a single secondhand account, recalled years after the fact, of a green circular mass with concentric rings, is too thin to support its own conclusions, and the document does not ask it to. The interest is **what it is sitting inside of**.
+
+This is a CIA Directorate of Operations collection report from a former Soviet citizen who had walked the perimeter of the Sary Shagan range. The reporting officer collected detail on warhead diameters, cassette dimensions, ball-bearing counts in the System-75 fragmentation packages, the V/Ch military unit numbers for the regional headquarters and the warhead checkout unit. The same source, in the same debriefing, in the same numbered-paragraph sequence as the laser-research hearsay, mentioned an evening sighting that had stuck in his memory. The reporting officer wrote it down — verbatim enough that the OCR can recover the field comments without ambiguity — and the CIA distributed the report through the standard channels (NSA, DIA, STATE, FBI, NPIC and the rest are on the cover-sheet distribution list).
+
+The page-1 summary did not bury the observation. It catalogued it in the same sentence as the warhead and laser-research material. The document treats the UAP report as **one of the source's deliverables**, neither inflated into a headline nor dropped from the summary.
+
+That is the historical artifact: a single CIA-formatted line, in a 1977-distributed IIR on a Soviet ABM range, recording that a Soviet defector who served at Sary Shagan reported an unidentified aerial phenomenon as part of his standard debriefing. The phenomenon is not the subject of the report. It is **one entry in the source's catalogue of things he saw at the range**, transmitted with the same plumbing as the rest.
+
+## How to read this document
+
+A reader should hold three things at once:
+
+1. **It is raw collection.** The "NOT FINALLY EVALUATED INTELLIGENCE" stamp at the top of page 1 is not boilerplate; it is the document telling its consumers what it is. An IIR carries what the source said. It does not certify whether the source was right, whether the phenomenon was correctly identified, whether the date was correctly recalled, or whether the observation has any explanation natural, technical, or otherwise.
+2. **The DOI is November 1972 – November 1973; the distribution date is December 1977.** The source's recollection of "late summer 1973" was set down in a debriefing some years after the underlying event. Memory degrades; dates anchor to other dates (in this case, a televised sporting event). The temporal precision available from the document is "an evening in late summer 1973."
+3. **The source had no theory.** The report records, on the face of it, that the source offered no opinion on what the phenomenon was and that "no resultant rumors" followed. The CIA reporting officer did not propose an interpretation either. The document is a primary-surface record of an observation, nothing more.
+
+## What this is, and is not
+
+This is not a CIA UAP study. The CIA has not, in this document, opened an investigation into the observation. The CIA has done what its Directorate of Operations does — collected what a foreign source said while debriefing him on a topic of operational interest, and transmitted the collection to consumers — and the observation happens to be on the list.
+
+That is the editorial frame. The page-1 summary line — "and an unidentified aerial phenomenon" — is the single most informative phrase on the card, because it shows where in the intelligence cycle this kind of report can surface. It surfaces in collection. Whether anything was done with it after collection is not knowable from this document alone.
+
+## Provenance of this entry
+
+A code-assistant agent walked the three preserved OCR pages of `0f469fcf6fb42875`, verified the page-1 summary line, the "NOT FINALLY EVALUATED INTELLIGENCE" header, the paragraph 10/11/13 weapons-range content, and the paragraph 14 UAP observation against the OCR text (surya engine; page-3 confidence 97.9%, page-1 85.6%, page-2 88.4%), and reported the surface back. The editorial frame — that the historical interest lies in the embedding of the observation within a standard Cold War HUMINT collection product, not in the observation in isolation — is the operator's. The document is preserved at its primary surface; the reader can examine the IIR header, the summary line, and section 14 directly.
+
+### doe-uap-d001-pantex-image — DOE-UAP-D001 — A UCNI-Marked Pantex UAP Report, Enhanced by Sandia
+
+- URL: https://pursueindex.com/finds/doe-uap-d001-pantex-image
+- Published: 2026-05-22
+- Cards: aaafecbc47103f4b
+
+Card aaafecbc47103f4b is the public release of the back two pages (5 and 6 of 6) of a Department of Energy Pantex Unidentified Object Incident Report. The pages themselves contain almost no body text — they are the image-plate pages of the report — but their surface markings name three things the manifest description does not: the document's handling category (UCNI, Unclassified Controlled Nuclear Information), the FOIA exemption applied to the redaction ((b)(3) UCNI), and the laboratory that performed the image enhancement (Sandia National Labs). This is one of three DOE documents in the 5/22/26 tranche and the only one whose surface ties the incident to the nuclear-weapons assembly site itself.
+
+## What the card actually contains
+
+Card `aaafecbc47103f4b` is a two-page PDF: pages 5 and 6 of a six-page Pantex Unidentified Object Incident Report. The earlier pages of the report — the narrative — are not in the release. What is preserved are the image-plate pages and their captions.
+
+Pantex is the U.S. nuclear-weapons assembly and disassembly facility in Carson County, Texas, managed by Consolidated Nuclear Security, LLC. A UAP incident report from this site is in a different category from a general DOE sighting log: the site's security perimeter is one of the most monitored on the continent.
+
+## What the page surface names that the manifest description does not
+
+**UCNI handling.** Both released pages carry **UCNI** markings at the top and bottom of the page — Unclassified Controlled Nuclear Information. [cite: card aaafecbc47103f4b p.1 "UCNI"] UCNI is a DOE-specific handling category for unclassified information whose unauthorized dissemination could reasonably be expected to have an adverse effect on the health and safety of the public or common defense and security. It is not "classified" in the national-security sense — it is its own category, governed by the Atomic Energy Act. That this report was marked UCNI rather than left unmarked tells you something about how DOE itself classified the sensitivity of a UAP incident on the Pantex perimeter.
+
+**The (b)(3) exemption with UCNI cited as the underlying statute.** The first released page carries a redaction stamp citing **"(b)(3) (UCNI)"** [cite: card aaafecbc47103f4b p.1 "(b)(3) (UCNI)"] — FOIA exemption (b)(3) covers information specifically protected from disclosure by another statute. By citing UCNI as the (b)(3) hook, DOE is invoking the Atomic Energy Act as the statutory basis for the redaction, not the more familiar (b)(1) national-security exemption. This is the same legal mechanism the Department uses to control information about nuclear-weapons design.
+
+**Sandia National Labs performed the image enhancement.** The page-6 caption identifies the enhanced imagery as the product of Sandia, not Pantex itself: **"Sandia National Labs Enhanced Images of the Object."** [cite: card aaafecbc47103f4b p.2 "Sandia National Labs Enhanced Images"] The page-5 caption identifies the original source as a ground surveillance radar tower at the site: **"Image from Ground Surveillance Radar Tower."** [cite: card aaafecbc47103f4b p.1 "Ground Surveillance Radar Tower"] Two different DOE entities are therefore in the document chain: Pantex's ground-surveillance system is the sensor, and Sandia is the post-processor.
+
+## What the card does not contain
+
+The release does not include:
+
+- The date of the incident (the manifest entry's `incident_date` is null).
+- The narrative pages of the report (pages 1 through 4).
+- The pre-enhancement radar imagery (only the Sandia-enhanced product is on the released pages, and the images themselves are not OCR-recoverable as text).
+- The classification authority for the underlying UCNI determination.
+
+A reader who clicks through sees two image-plate pages with UCNI banners and the Consolidated Nuclear Security, LLC management stamp. The actual content of the incident — what was seen, when, by what sensor configuration, with what disposition — is in pages that were not released.
+
+## Why both fragments are in this archive
+
+The two released pages are thin in body text but the *handling surface* of a primary source is itself evidence. The presence of UCNI markings, the choice of (b)(3) UCNI as the redaction citation, and the naming of Sandia as the image-enhancement laboratory are three facts about how DOE processed this incident that survive on the released pages even though the narrative does not. A future release of the full six-page report would slot directly into this card's page sequence at pages 1–4.
+
+DOE-UAP-D001 is one of three DOE documents in the 5/22/26 release (alongside D002 and D003). It is the only one of the three whose surface ties a UAP incident to the Pantex perimeter and to Sandia's analytical chain.
+
+### doe-uap-d002-james-tuck-correspondence-1970s — James Tuck's UAP Correspondence (1970s)
+
+- URL: https://pursueindex.com/finds/doe-uap-d002-james-tuck-correspondence-1970s
+- Published: 2026-05-22
+- Cards: 8156067f7ff4b983
+
+DOE-UAP-D002 is the first Department of Energy document to enter this archive, and the first time the personal UAP correspondence of a Manhattan Project alumnus has been catalogued here. James L. Tuck — a British physicist who worked on the Manhattan Project at Los Alamos under Oppenheimer and later led the Project Sherwood early-fusion program — pursued unidentified aerial phenomena as a personal interest in the 1970s. The four pages preserved in this card include a Los Alamos security-officer's first-person recollection of green-light sightings on 'the Hill' between 1948 and 1951, Tuck's own 16 December 1970 letter requesting the simulated-atomic-bomb vortex recipe used in atmospheric tests referenced in the Condon Report, and a later ball-lightning exchange citing James McCampbell's UFOLOGY. The find is the who and the context, not a smoking-gun claim.
+
+## Why this card matters before its contents
+
+DOE-UAP-D002 is the first Department of Energy document to enter this index, and the first card in which a Manhattan Project alumnus's *personal* — not institutional — UAP correspondence is the primary material. The find is not a disclosure of classified knowledge. It is the documentary fact that **James L. Tuck pursued UAP as a private intellectual interest in the 1970s**, and corresponded with at least one Los Alamos security-force veteran and one ball-lightning correspondent about it.
+
+Tuck was a British-born physicist who joined the Manhattan Project at Los Alamos under Oppenheimer, and after the war led Project Sherwood — the Los Alamos plasma physics effort that founded U.S. controlled-fusion research. He was one of the most credentialed alumni of the wartime weapons program. His extant personal letters about UAP are therefore a small but historically substantive primary source for how scientists with that level of access read the phenomenon.
+
+The card is four pages. Two are a single inbound letter to Tuck recalling Los Alamos sightings from 1948–1951. One is a 16 December 1970 letter Tuck wrote out to the U.S. Army Engineering School. One is a later inbound letter on ball lightning.
+
+## The 1948–1951 Los Alamos sightings — a security officer's recollection
+
+Pages 1–2 of the card are a two-page response addressed *to* Tuck, signed by an individual whose name is redacted under (b)(6). The correspondent identifies themselves as a member of what they call the "Protection Force" — the Los Alamos site security force — during the period in question. The letter regrets they cannot answer Tuck's attached form on specific times and dates, then offers from memory:
+
+> "I can however, tell you that during the years 1948 through 1951 several sightings of green lights were made at Los Alamos. These usually occurred during the early part of the night, nine to eleven, and were usually near the Jemez Mountains." [cite: card 8156067f7ff4b983 p.1 "1948 through 1951"]
+
+The correspondent describes "green light weaving in and out of mountain peaks," notes that all sightings were "reported to the Protection Force Headquarters and should be a matter of record on their logs," and recalls one specific daylight event:
+
+> "I also recall one instance of five objects flying over Los Alamos in the afternoon. They were flying from southeast to northwest and appeared to be flying in formation." [cite: card 8156067f7ff4b983 p.1 "five objects"]
+
+They identify themselves (anonymously, via redaction) as one of "the five or six people" who saw those five objects, and name a second redacted Protection Force member Tuck might also contact. They close by suggesting that if Tuck can obtain access to the Protection Force logs for the period, the time-and-date data will be available there. [cite: card 8156067f7ff4b983 p.2 "Protection Force logs"]
+
+The 1948–1951 timeframe is the same window Dr. Lincoln LaPaz catalogued in his Seventh Report to the OSI 17th District, separately preserved in FBI 62-HQ-83894 Section 6 and discussed in the [LaPaz green fireballs entry](/finds/lapaz-green-fireballs-1948-1950). The Tuck correspondence does not add new sightings to that record; it documents that decades later, a security-force veteran was being asked about them by a senior Los Alamos physicist, and that the veteran's recollection of green lights near the Jemez at 2100–2300 hours is independently consistent with the LaPaz catalog.
+
+## Tuck's own 1970 letter — the Condon Report and an atmospheric-vortex recipe
+
+Page 3 is a single-page outbound letter on what appears to be Los Alamos letterhead ("P-DO" header), signed "James L. Tuck" and dated **16 December 1970**. It is addressed to a redacted recipient at the U.S. Army Engineering School, Fort Belvoir, Virginia, Department of Mechanical and Technical Equipment.
+
+The body is short and specific:
+
+> "As agreed in our telephone conversation of today's date, I would like to have the recipe that was used for the simulated atomic bomb demonstrations. We are interested in the large atmospheric vortices which are produced as reported in the book 'Scientific Study of Unidentified Flying Objects' by Dr. Edward U. Condon." [cite: card 8156067f7ff4b983 p.3 "large atmospheric vortices"]
+
+The reference is to the Condon Committee's 1968 *Scientific Study of Unidentified Flying Objects* — the University of Colorado study commissioned by the Air Force that recommended the closure of Project Blue Book. Tuck is asking the Army for the formula used to produce a controlled mushroom-cloud demonstration so he can study the *vortex* it generates. He is not asking about UFOs directly; he is asking about an atmospheric phenomenon discussed in a UFO study report.
+
+This is the most direct documentary evidence in the card of Tuck's personal research interest. He is a senior Los Alamos physicist requisitioning experimental material from a sister agency in order to follow up on a specific physical mechanism cited in the Condon Report. The letter is a working-scientist's request, not an opinion piece.
+
+## The ball-lightning exchange
+
+Page 4 is a one-page inbound letter, undated except for "November 28," addressed "Dear Jim" and signed under a (b)(6) redaction. The text references Tuck's "interesting report on ball Lightning" and encloses comments by James M. McCampbell from McCampbell's *UFOLOGY*, dated to 1976 — "appearing on the new non-fiction shelf at the Mesa Library, call number 629.1338 M125u." [cite: card 8156067f7ff4b983 p.4 "UFOLOGY"]
+
+The correspondent adds a personal aside on Einstein and the unified field theory. [cite: card 8156067f7ff4b983 p.4 "unified field theory"] The 1976 publication date of McCampbell's book places this letter no earlier than that year. The exchange documents that Tuck had himself prepared a report on ball lightning — a recurring scientific candidate for some UFO observations — and was sharing it with at least one correspondent in his personal network.
+
+## What the card does and does not establish
+
+The four pages establish, on the documentary record:
+
+- That James L. Tuck, a Los Alamos physicist of Manhattan Project rank, corresponded in the 1970s with at least one Los Alamos Protection Force veteran and one independent correspondent about UAP and related atmospheric phenomena.
+- That he wrote to the U.S. Army Engineering School on 16 December 1970 requesting experimental material specifically to study atmospheric vortices cited in the Condon Report.
+- That he authored or contributed a report on ball lightning circulated in his personal correspondence by 1976.
+- That a Los Alamos security-force veteran's first-person recollection of 1948–1951 green-light sightings near the Jemez Mountains exists in the document trail — consistent in date range and geography with the LaPaz green-fireball catalog separately documented in FBI 62-HQ-83894 Section 6.
+
+The four pages do **not** establish:
+
+- Anything about what Tuck knew or did not know through his Los Alamos classified access about UAP.
+- That his interest was an official program responsibility rather than a personal one. The letterhead on page 3 is Los Alamos institutional, but the framing of the request — and the personal-correspondence framing of pages 1–2 and 4 — fits a working scientist following a published-literature lead, not a tasked investigation.
+- The identity of any of the redacted correspondents.
+- Any institutional Department of Energy position on UAP. DOE-UAP-D002 is *personal* correspondence preserved in DOE custody, not a DOE policy document.
+
+## Why this card is in this archive
+
+It is in this archive because primary correspondence from a working Manhattan Project–era physicist about unidentified aerial phenomena is rare, brief, and historiographically substantive. The Tuck letters are not a revelation. They are documentation. They show that the question "what were the green lights over Los Alamos in 1948–1951" was being asked twenty years later by one of the people most credentialed to ask it, and that the answer trail led through the Condon Report, Project Sherwood–adjacent vortex physics, and ball-lightning literature rather than through any disclosure of classified holdings.
+
+For the institutional context of the 1948–1951 sightings the page-1 correspondent recalls, see the [LaPaz green fireballs entry](/finds/lapaz-green-fireballs-1948-1950). For the broader pattern of the FBI's 17th District file on the same period, see the [reader's guide to FBI 62-HQ-83894](/finds/fbi-62-hq-83894-readers-guide).
+
+### dow-uap-d017-sandia-1948-1950 — Sandia Base, AFSWP, and Project Grudge (1948–1950)
+
+- URL: https://pursueindex.com/finds/dow-uap-d017-sandia-1948-1950
+- Published: 2026-05-22
+- Cards: 09001c140b97a5db
+
+DOW-UAP-D017 is a 116-page file of general correspondence held at Sandia Base, New Mexico, by the Armed Forces Special Weapons Project — the direct post-WWII successor to the Manhattan Project — and the U.S. Air Force, dated 1948 through May 1950. The file contains a 17th District OSI summary listing 209 sightings of green fireballs, discs, and luminous objects in New Mexico, accompanied by the Mandelkorn trip report of 16 February 1949 in which Edward Teller, Norris Bradbury, John Manley, and Lincoln LaPaz convened at Los Alamos under the codename Project Grudge, and by W. D. Crozier's airborne-particulate collection report identifying copper-bearing particles in the air at Socorro following the fireball of 24 July 1949.
+
+## What the document is
+
+DOW-UAP-D017 (card `09001c140b97a5db`) is 116 pages of general correspondence drawn from the classified documents library of the **Armed Forces Special Weapons Project (AFSWP)** at Sandia Base, Albuquerque. AFSWP was the post-1947 successor organisation to the Manhattan Engineer District — the joint Army-Navy command responsible for the U.S. nuclear stockpile. The file collects intra-agency cables, OSI summaries, weather observations, particle-collection laboratory reports, and the minutes of a February 1949 Los Alamos conference, all relating to unidentified aerial phenomena observed over and around the New Mexico nuclear-weapons complex between December 1948 and May 1950.
+
+The institutional weight of the file is what distinguishes it. This is not a hobbyist collection or a public-relations dossier. It is the operating file of the agency holding custody of the U.S. nuclear stockpile, treating recurrent aerial phenomena near its installations as a matter requiring scientific attention. [cite: card 09001c140b97a5db p.21 "continued occurrence"]
+
+For the narrower scientific framing — Lincoln LaPaz's eleven catalogued differences from meteor behaviour — see the companion entry on the [LaPaz green-fireball reports](/finds/lapaz-green-fireballs-1948-1950). The present entry concerns the institutional record around those events: who else was reading LaPaz, what they were doing about it, and what physical evidence they were attempting to collect.
+
+## The 209-sighting tabulation
+
+Pages 23–60 are a CONFIDENTIAL columnar log: *Summary of Sightings of Unknown Aerial Phenomena, 17th District OSI*. The transmittal cover memo of 25 May 1950 from Lt. Col. Doyle Rees explains that the 17th District had assumed responsibility for collecting and reporting these observations since December 1948 at the direction of a multi-agency liaison meeting that included Fourth Army, AFSWP, the FBI, the Atomic Energy Commission, the University of California, the Air Force Scientific Advisory Board, AMC, and OSI. [cite: card 09001c140b97a5db p.20 "liaison meeting"]
+
+Each row records date, time, number and reliability of observers, general area, apparent direction of flight, apparent altitude, course (horizontal-to-vertical), colour, train, sound, shape, apparent size, apparent speed, and manner of disappearance. Each row terminates with an evaluation key: **(1)** Green Fireball Phenomena, **(2)** Disk or Variation, **(3)** Probable Meteor. The numbered observations run from January 1948 to May 1950 and reach #209 at the close of the table.
+
+Geographic coverage is dense and concentric on the weapons complex: Albuquerque, Sandia Base, Los Alamos, Kirtland AFB, Holloman AFB, Alamogordo, Tularosa, Roswell, Vaughn, Las Vegas (NM), Datil, Window Rock (AZ), El Paso, Camp Hood (TX), Farmington, and others. The reliability column is dominated by "R" (Reliable) entries, with many observers identified as Los Alamos security inspectors, military and commercial pilots, and OSI special agents.
+
+## Three incidents from the table
+
+The catalogue's entries are terse. A representative cross-section:
+
+- **Sighting #179, Los Alamos, 24 February 1950.** A single reliable observer reported an aluminium-coloured spherical object, "rather large," circling at considerable altitude before departing to the east between 1315 and 1400 hours. The phenomenon was evaluated as Green Fireball / Disk. [cite: card 09001c140b97a5db p.55 "Circled"]
+- **Sightings #191–192, Farmington, New Mexico, 16 March 1950.** Ten unknown-reliability observers reported a daylight formation of bright, luminous, tin-foil-like discs "turning on their axes and maneuvering up and down," from sizes ranging from one inch to six inches at arm's length, faster than conventional aircraft, in two distinct observations within an hour of each other. Both were evaluated as Disk or Variation. [cite: card 09001c140b97a5db p.57 "turned on their axis"]
+- **Sighting #200, Sandia Base, 21 March 1950.** A single unknown-reliability observer reported two silver round objects, dime-sized at arm's length, gradually fading from view at "excessive jet flight" speed about 45° above the horizon. Evaluated as Disk or Variation. [cite: card 09001c140b97a5db p.59 "2 objects"]
+
+These are unremarkable rows within the table. They are unremarkable specifically because the table contains two hundred-odd of them.
+
+## The Mandelkorn trip report (16 February 1949) — and Project Grudge
+
+The most consequential single document in the file is a four-page trip report dated 18 February 1949 by Commander Richard S. Mandelkorn, U.S.N., of AFSWP's Research and Development Division, Sandia Base. The report — Series B, Copy 1 in the Sandia Security and Intelligence Division — minutes a 16 February 1949 conference at Los Alamos convened to consider the green-fireball phenomena.
+
+The attendee list is the most striking feature of the document. For Los Alamos: **Norris E. Bradbury** (Director, Los Alamos), **Marshall Holloway**, **Fred Reines**, **John Manley**, **Edward Teller**, Elmo Morgan (AEC), Sidney Neuberger (Security), Maxwell (AFSS), and Hoyt. For Fourth Army: Major William A. Godsoe and Major Wynn. For USAF: Captain Neef. For the University of New Mexico: **Dr. Lincoln LaPaz**. For Sandia: Commander Mandelkorn. [cite: card 09001c140b97a5db p.90 "Bradbury"]
+
+Captain Neef opened the meeting by stating that "this question had been classified military SECRET under the name, Project 'Grudge', and that the investigation was now the primary responsibility of USAF, Air Materiel Command, T-2." [cite: card 09001c140b97a5db p.90 "Project &quot;Grudge&quot;"] This is one of the earliest extant institutional references to Project Grudge in U.S. government holdings.
+
+Teller's contribution is recorded in unusual detail. He calculated that an object moving at the observed velocity (~8 miles per second) at the observed altitude (~8 to 10 miles) and emitting the observed light output (~10¹⁴ ergs per second) would have to have a mass of roughly twenty grams — and would have produced a shock-wave noise easily audible ten kilometres from the source. No sound had been observed. Teller's tentative opinion, recorded by Mandelkorn, was that the green fireballs were "not material objects passing through the air" and that an explanation should be sought in "electronics and optics" rather than hydrodynamics. [cite: card 09001c140b97a5db p.92 "not material objects"] Bradbury demurred on the electronics hypothesis, observing that it would raise its own intractable problems.
+
+Mandelkorn's conclusion, written for distribution to Fourth Army G-2 and USAF, states: "It is my belief that these phenomena, particularly if there are any further incidents, are deserving of serious consideration until their source and meaning have been satisfactorily explained… there is cause for concern of the continued occurrences of unexplainable phenomena of this nature in the vicinity of sensitive installations." [cite: card 09001c140b97a5db p.93 "sensitive installations"]
+
+## The Crozier copper-particle collections
+
+The file's most concrete physical-trace evidence is W. D. Crozier and Ben K. Seely's 10 August 1949 report from the New Mexico School of Mines, *An Attempt to Collect Airborne Particles Associated with the Fireball of July 24, 1949*. Aerosol-impactment equipment processing 34 litres of air per minute, with rubeanic acid (dithiooxamide) applied to identify copper compounds, was used to make systematic collections at the School of Mines campus starting thirteen and a half hours after a fireball reportedly passed over Socorro at 8:26 p.m. on 24 July 1949.
+
+The collections registered positive copper indications, with particle counts in the smallest size range (1–15 microns) rising sharply some 35 hours after the fireball event. [cite: card 09001c140b97a5db p.6 "copper-bearing particles"] Crozier qualified the result heavily: "it seems very hazardous to draw any definite conclusion associating the copper-bearing particles collected with the fireball of July 24." But he noted the residuum of possibility and recommended continued airborne collection using equipment already on hand and proved in flight.
+
+A subsequent collecting trip (10 August 1949) covering nine locations on Highway 84 north of Highway 66 produced a single anomalous sample, R-104L, containing a large number of copper-bearing particles in a granular matrix unfamiliar to the laboratory. The collection taken immediately afterward at the same location showed practically no copper. Crozier's tentative conclusion: "no widespread significant dispersion of copper-bearing particles was present in the atmosphere in the region covered at the time the collections were made." [cite: card 09001c140b97a5db p.4 "copper-bearing particles"] The copper claim is therefore not a confident affirmative finding. It is a documented attempt by a working aerosol laboratory to falsify, and it produced one anomalous sample its authors could not source.
+
+The relevance for the broader file: LaPaz's Seventh Report noted that laboratory tests had identified the green fireballs' colour as consistent with copper-salt emission in a blowpipe flame, and the Crozier collections are the corresponding attempt to recover physical copper material from the air mass through which a fireball had passed.
+
+## What the file establishes
+
+DOW-UAP-D017 does not establish that the green fireballs, the discs, or the orbs observed near Sandia were exotic. It establishes a different set of facts:
+
+- Between December 1948 and May 1950, the 17th District OSI catalogued 209 reliable-to-unknown-reliability sightings of unidentified aerial phenomena concentrated within and immediately around the New Mexico nuclear-weapons complex.
+- The agency holding institutional custody of the U.S. nuclear stockpile — AFSWP, the Manhattan Project's direct organisational successor — kept the resulting paper trail in its own classified documents library, distributed Mandelkorn's trip report to its own Security and Intelligence Division, and was a formal participant in the multi-agency liaison structure responsible for the investigation.
+- On 16 February 1949, the Director of Los Alamos, three Manhattan Project veterans (Teller, Manley, Holloway), the discoverer of the neutrino (Reines), the Institute of Meteoritics director (LaPaz), AEC and security representatives, and Fourth Army and USAF intelligence officers sat in the same room at Los Alamos under the codename Project Grudge to consider what the phenomena were. Teller produced a back-of-envelope calculation on the spot.
+- A working aerosol laboratory at the New Mexico School of Mines was contracted to look for copper-bearing particles in the wake of fireball passes. The collections produced one anomalous sample its principal investigator declined to characterise.
+
+What the file does not establish is what the phenomena were. Mandelkorn explicitly leaves that question open. Teller leaves it open. LaPaz leaves it open. The 17th District leaves it open and recommends continued scientific study. The reader's takeaway is the institutional shape: the U.S. nuclear establishment, two years removed from Hiroshima, treated 209 recurrent aerial observations near its custody installations as a matter for documented work product — and Edward Teller treated it as worth a calculation.
+
+For the contemporaneous photograph-custody dispute in a parallel UAP file from the same period, see the [Rhodes photographs entry](/finds/rhodes-photographs-phoenix-1947). For LaPaz's own framing of the same phenomena as a problem in observational astronomy, see the [LaPaz green-fireball reports](/finds/lapaz-green-fireballs-1948-1950).
+
+### odni-uap-d001-usper-narrative — ODNI-UAP-D001 — The First-Person Narrative Behind the FBI FD-302
+
+- URL: https://pursueindex.com/finds/odni-uap-d001-usper-narrative
+- Published: 2026-05-22
+- Cards: fd342b7508668b0e, be533a4ab886eb11, 3893e5d0279db3b1, ba30b5fdb4f6d153, 93cbdaad1d4ac853, 04b9179a7637d6ad, 613dc8ef961f9399, 5a487c793b488382, c142741e8cafc659, 819e725592d1ba79, 1e63919cc6c3daf4, 67ab3ffef2aecf70, 0e3b3ec17a9ae021, 672ae7eab15481ff, 36bcfe2cfb5f3f54, b279eac8e49cf4fe, ccd932b4f40e8de7, 0d7a23b29e6de1bf, fd8286ffc6fbc1fb, af047a976bac0c89, 19d8e1d503211c84, 2b947223739f5bd4, 16fcb501de623b9c, 7d1b50162c29378a, 3a5445e8aa7985d4, 3b36f3dc3b51cf3b, f8bd1f11b7a2ae48, c568aea24f3aef31, eda0a3d37c6dbbc3, bdf033d4a47eaad3, c304734c04357887, dc9f45a9ec6feb00, a417f61b2dbd671f, 6ded7ef20ded84c7
+
+Card fd342b7508668b0e is the first ODNI-released document on the index: a two-page first-person narrative by a serving senior US intelligence official of a late-2025 UAP encounter near a sensitive military facility in the Western United States. It is the same incident the FBI FD-302 in card be533a4ab886eb11 records in third-person interview form — but ODNI released it without the FD-302's redactions: no [WITNESS], no [STATE PARTNER ORGANIZATION], no [BEARING], no [DATE] brackets. The manifest pairs it with twenty-four FBI photographs (A001–A008, B001–B024) and the USPER Statement card. This entry reads what the first-person grammar commits to that the FD-302 grammar does not, and notes what both still hold back.
+
+## What the document is
+
+Card `fd342b7508668b0e` is **"ODNI-UAP-D001, USPER Narrative, Senior USIC Official"** — a two-page first-person narrative carrying the Office of the Director of National Intelligence as releasing agency. The manifest characterizes it as "a first-hand account written by a currently serving (May 2026) senior U.S. intelligence official." The release date on the index is 2026-05-22 (Release 02); the incident date the document recounts is `Late 2025`, in the `Western United States`. The manifest records `redacted: false` — a flag that the rest of this entry treats as load-bearing.
+
+The narrative opens in the first-person voice:
+
+> "In late 2025, during early evening daylight hours, I — a senior U.S. intelligence officer — along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter." [cite: card fd342b7508668b0e p.1 "senior U.S. intelligence officer"]
+
+This is the same person whose account is summarized, in third-person and with every proper noun redacted, in card `be533a4ab886eb11` — the **FBI FD-302** already documented in this archive at [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb). The manifest's `pdf_pairing` field on `fd342b7508668b0e` lists, explicitly, "USPER Statement about UAP Sighting" alongside twenty-four FBI photographs (A001–A008, B001–B024). The pairing is declared by the corpus, not inferred.
+
+## What the first-person grammar commits to
+
+The FD-302 anonymizes by category — `[WITNESS 1 (a senior US intelligence official)]`, `[STATE PARTNER ORGANIZATION]`, `[FEDERAL PARTNER 4]`, `[MILITARY AIRCRAFT]`, `[CALL SIGN 1]`, `[DATE]`, `[BEARING]`, `[COORDINATES]`. The ODNI narrative carries none of those brackets. What it does *not* fill them in with is also part of how to read it.
+
+The narrative refers to:
+
+- **"I — a senior U.S. intelligence officer."** No agency, no service. The role descriptor matches the FD-302's `[WITNESS 1 (a senior US intelligence official)]` exactly. Which intelligence-community component the author sits inside is not stated. The redactor's category in the FD-302 was preserved as a self-description in the ODNI release.
+- **"A colleague and two pilots."** The FD-302's `[WITNESS 2 (a senior US intelligence official)]` and `[STATE PARTNER ORGANIZATION]`-employed aircrew. The ODNI text does not name them either.
+- **"Our Joint Operations Center (JOC)."** Named by acronym. The FD-302 has this as `[OPERATIONS CENTER]`. The narrative also references "the test range," "the mountain range," "a prearranged rendezvous point," "a prepositioned tanker on the range," and "base" — terrain by function, not by toponym.
+- **"Fighter jets… launched on a training mission in our operating area."** The FD-302's `five [MILITARY AIRCRAFT] from [REDACTED]`. The ODNI text says "fighter jets" by class but neither names the platform nor the operator, and gives a count only later ("the fighter jets") without restating "five."
+
+What the narrative *does* fill in that the FD-302 did not: the **time of day in absolute terms** ("early evening daylight hours" on departure; "the sun had set" before the radar hits; "After landing… I then entered the JOC for a quick debrief before driving home"), the **navigation profile** ("a low-altitude 'map of the earth' route through the mountain range"), the **rationale for descent** ("Multiple times, we spotted debris on the ground and descended for closer inspection. Each time, we determined it was remnants from rockets and other projectiles that had crashed during years of weapons testing on the range"), and the **terrain feature that occasioned an orbit** ("we discovered a large cave entrance with no visible end in sight. The terrain around the entrance offered no safe landing spot, so I instructed the pilot to orbit it several times for observation"). [cite: card fd342b7508668b0e p.1 "large cave entrance"]
+
+The FD-302 has none of these. They are details a first-person narrator volunteers; a third-person interview summary, written to a different purpose, does not.
+
+## The two grammars on the same observations
+
+The FD-302 records the LP/OP-relayed FLIR observation as `"super-hot,"` in quotation marks, attributed to a different federal partner. The ODNI narrative records the same observation from the helicopter perspective, in first-person, and quotes the LP/OP's words back:
+
+> "En route, ground teams reported spotting a UAP on FLIR, describing it as 'super-hot,' low to the ground, and moving east then south at high speed. The object then split into two and changed direction." [cite: card fd342b7508668b0e p.1 "super-hot"]
+
+The same quotation marks around `"super-hot"`; the same attribution to a ground team on FLIR. The FD-302 captures the relay as a transcription; the ODNI text captures it as something the narrator *heard over the radio* and recounts. Both grammars agree on the relayed phrase.
+
+The FD-302's 20-mile leg — `"LP/OP reported the orb gained elevation, came within ten feet of [CALL SIGN 1] and then headed east to [REDACTED]"` — is the ODNI narrative's:
+
+> "The ground team suddenly radioed that the object had risen from the ground, approached within ten feet of the helicopter, dropped below us, and then sped away. The pilots observed it through NVGs and saw it split into two as a smaller object emerged before it accelerated out of sight. We briefly pursued but broke off, unable to match its speed." [cite: card fd342b7508668b0e p.1 "ten feet of the helicopter"]
+
+Same ten-foot proximity, same break-off-from-pursuit, same speed-mismatch conclusion. The narrative resolves an ambiguity the FD-302 carried: the "ten feet" event was *radioed in by a ground team*, not observed by the narrator's own platform. ("The ground team suddenly radioed that the object had risen from the ground…") That matches the FD-302's structural attribution — the ten-foot proximity was an LP/OP-reported event, not a sensor observation from the helicopter itself — and the first-person voice makes the relay explicit.
+
+## The "T" formation, in the narrator's own words
+
+The FD-302 records the recurring observation language as `"flared up one at a time in a horizontal formation."` The ODNI narrative is more specific about one instance:
+
+> "Through NVGx, the pilots and I (using the naked eye) observed two large orbs flare up side by side, close to the helicopter — stationary and just above the rotor disk to our right. They were oval-shaped, orange with a white or yellow center, and emitted light in all directions. After a few seconds, a third orb flared up below the pair, followed by a fourth below that, forming a total of four or five in a 'T' formation under the original two. Moments later, they dimmed in reverse order, remaining stationary until they vanished from view. The entire event lasted 10-15 seconds." [cite: card fd342b7508668b0e p.2 "T"]
+
+The geometric description ("oval-shaped, orange with a white or yellow center"), the spatial-relative language ("just above the rotor disk to our right"), the formation count ("a total of four or five"), and the explicit pattern name ("'T' formation") are the narrator's own. The FD-302 captures the *grammar* of the recurring observation — flare-up, formation, sequential dim-down, 10-15 seconds — but not the formation-shape names. A reader can put the FD-302's structural-time-series treatment alongside the ODNI's geometric-prose treatment and see two different ways of writing down the same observed event.
+
+## The chase, as observed from the helicopter
+
+The closing paragraph of page 2 describes the fighter-jet portion of the timeline in the narrator's voice:
+
+> "We then spotted the fighter jets entering visual range at about 23,00 feet AGL, identifiable by their blinking navigation lights. As watched from afar, the same type of orbs appeared directly above the fighters. They flared up one at a time in a horizontal formation, matching the jets' speed and flight path. After 10-15 seconds, they dimmed sequentially and disappeared. This repeated several times as the jets transited the airspace and eventually landed. I remarked to the pilots that it seemed the same orbs we had encountered were now 'chasing' the fighters." [cite: card fd342b7508668b0e p.2 "chasing"]
+
+The FD-302 records the same interpretation in its closing-comments section as the witness's words: "The orbs appeared to break off from [CALL SIGN 1] and pursue the [MILITARY AIRCRAFT]." The ODNI narrative shows where that interpretation came from — a remark the narrator made aloud to the pilots, in the moment, with the word "chasing" placed in scare-quotes by the narrator himself. The phrasing is preserved across both documents at almost identical specificity.
+
+## What the unredacted narrative still does not say
+
+`redacted: false` in the manifest is true at the bracket level — there are no `[REDACTED]` tokens in the OCR text. It is not the same as "fully specified." The ODNI narrative declines to name:
+
+- **The narrator.** A senior US intelligence officer who, per the manifest description, was "currently serving (May 2026)" at the time of release. The narrative is a first-person account whose first-person voice does not include an introduction.
+- **The agency or service.** "Senior U.S. intelligence officer" is the only role descriptor used. The intelligence community spans civilian and uniformed components; the narrative does not say which side the narrator sits on.
+- **The colleague.** Referred to throughout as "my colleague." The FD-302's `[WITNESS 2 (a senior US intelligence official)]`.
+- **The pilots' operator.** "Two pilots" who switched to "Forward Looking Infrared (FLIR) and Night Vision Goggles (NVG)" at sunset. The FD-302 had this as `[STATE PARTNER ORGANIZATION]`. The ODNI narrative does not specify whether the pilots were military or civilian, federal or state.
+- **The facility.** The manifest field `incident_location` reads `Western United States`; the narrative uses functional terms ("the test range," "the JOC," "base") rather than a named installation.
+- **The date inside late 2025.** The opening phrase is "In late 2025." The FD-302's Zulu timestamps (1700, 1751, 2050, 2052, …, 2320) are absent from the ODNI text, which uses relative phrases ("After a brief search… After this encounter… Minutes later… After a few seconds").
+- **The fighter platform.** "Fighter jets" by class only; the FD-302's `[MILITARY AIRCRAFT]` with a count of five. The ODNI narrative does not restate the count.
+
+A reader holding both documents alongside each other can recover more of the operational picture than either supports alone — but a reader holding only one of them should hold its level of specificity at exactly where the document drew it.
+
+## The 24-photo evidence trail
+
+The manifest's `pdf_pairing` field on `fd342b7508668b0e` lists twenty-four FBI photographs by ID — eight A-series (A001–A008) and sixteen B-series (B001–B024) — alongside the USPER Statement. The A-series and B-series are continuous numerical sequences that the corpus delivered together with this narrative. One of them, **FBI Photo B7** (`ccd932b4f40e8de7`), is the grayscale FLIR-style frame already documented in [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb): a helicopter under a central crosshair reticle with 5/10/15 tick scales, OCR yielding only a corrupted system timestamp. The companion entry's reading of B7 — visually consistent with an LP/OP FLIR display imaging an in-air helicopter, with the manifest-described "second, smaller, dark circular object… visible below the reticle" — applies here without modification. The corpus now declares that frame to be paired with the present narrative; the editorial reading does not need to assert it.
+
+The remaining twenty-three frames in the A/B sequence are released alongside the narrative as a corpus-declared evidence package. This entry surfaces the existence of that pairing rather than re-deriving each frame's reading; per-frame OCR and description work belongs in the photo cards themselves and in any future entry that examines the A/B series as a sequence.
+
+## Three grammars, one incident
+
+With the ODNI narrative now on the index, the late-2025 helicopter-orb encounter is documented in this archive through three distinct document grammars:
+
+1. **First-person narrative (ODNI, card `fd342b7508668b0e`)** — the participant's own account, written in prose, two pages, no agency-internal redaction. Names sensors, geometry, terrain function, and the in-the-moment word "chasing."
+2. **Third-person interview summary (FBI FD-302, card `be533a4ab886eb11`)** — the agent's transcription of a witness debrief, three pages, SECRET//NOFORN, every proper noun in a redaction category. Names timestamps, personnel counts, sensor types, and the LP/OP's relayed `"super-hot."`
+3. **Imagery (FBI Photo A001–A008, B001–B024 — twenty-four cards)** — ground-team FLIR frames captured during the same exercise per the manifest pairing. The single per-frame examination on the index so far (B7 in the FD-302 entry) does not embed metadata beyond a corrupted system timestamp.
+
+The three grammars do not perfectly overlap. The FD-302's Zulu timestamps are not in the ODNI narrative; the ODNI narrative's "large cave entrance" is not in the FD-302; the photographs' per-frame embedded data is not in either document. They are useful as three readings of the same event because each grammar commits to a different set of details.
+
+## Provenance of this entry
+
+A code-assistant agent located and verified the document surface — the first-person opening, the role descriptor matching the FD-302's `[WITNESS 1]` token, the verbatim quotation marks around `"super-hot"` and `"chasing,"` the "T" formation language, the absence of redaction brackets, and the corpus-declared pairing of twenty-four FBI photographs and the USPER Statement — by reading the two preserved OCR pages of `fd342b7508668b0e` directly and the manifest entry for the card. The cross-reference to the FD-302 entry at [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb) is to an existing find in this archive on the third-person side of the same incident. The editorial frame — surfacing this card as a sibling-grammar to the existing FD-302 entry, and reading the unredacted first-person voice for what it commits to that the FD-302's redaction categories did not — is the operator's.
 
 ### apollo-11-debriefing — Apollo 11 Technical Crew Debriefing: Three Anomalous Observations and How the Crew Reasoned About Them
 

@@ -67,10 +67,13 @@ pursue-index/
 ## Data Source
 
 The DOW PURSUE page is a DataTables widget rendering a single CSV:
-`https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-csv.csv`. We fetch
-that CSV directly via `curl_cffi` with Chrome TLS impersonation (Akamai
-fingerprinting blocks naive httpx). The CSV URL is stable; DOW updates the
-file in place when new tranches drop.
+`https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv`
+(rotated twice: from `uap-csv.csv` to `uap-release001.csv` on 2026-05-12,
+then consolidated to `uap-data.csv` on 2026-05-22 when Release 02 landed).
+We fetch that CSV directly via `curl_cffi` with Chrome TLS impersonation
+(Akamai fingerprinting blocks naive httpx). DOW now keeps every release in
+one mutating canonical file rather than splitting each tranche under its
+own filename.
 
 CSV columns we consume: Redaction, Release Date, Title, Type (PDF/VID/IMG),
 Video Pairing, PDF Pairing, Description Blurb, DVIDS Video ID, Video Title,
