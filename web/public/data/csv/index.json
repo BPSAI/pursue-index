@@ -1,44 +1,50 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-21T23:38:10.397Z",
-  "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-release001.csv",
+  "generated_at": "2026-05-22T12:41:02.540Z",
+  "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "source_notes": "Distinct CSV versions are archived locally and exposed here for citation reproducibility. Each row's sha256 is the load-bearing identifier — verify any download with `shasum -a 256 <file>` against the filename or against this index's `sha256` field.",
   "csvs": [
     {
+      "sha256": "f9ad3b8366e229cfdecb5feee9856f974e341df979943ce9368689cf42e91b8e",
+      "bytes": 297933,
+      "archived_at": "2026-05-22T12:39:53.478Z",
+      "url": "/data/csv/f9ad3b8366e229cfdecb5feee9856f974e341df979943ce9368689cf42e91b8e.csv"
+    },
+    {
       "sha256": "f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543",
       "bytes": 193567,
-      "archived_at": "2026-05-20T16:43:03.058Z",
+      "archived_at": "2026-05-22T12:35:01.673Z",
       "url": "/data/csv/f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543.csv"
     },
     {
       "sha256": "c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1",
       "bytes": 193567,
-      "archived_at": "2026-05-14T23:31:39.394Z",
+      "archived_at": "2026-05-22T12:35:01.669Z",
       "url": "/data/csv/c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1.csv"
     },
     {
       "sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d",
       "bytes": 183125,
-      "archived_at": "2026-05-12T19:47:44.630Z",
+      "archived_at": "2026-05-22T12:35:01.669Z",
       "url": "/data/csv/65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d.csv"
+    },
+    {
+      "sha256": "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2",
+      "bytes": 185105,
+      "archived_at": "2026-05-22T12:35:01.667Z",
+      "url": "/data/csv/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.csv"
     },
     {
       "sha256": "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea",
       "bytes": 183626,
-      "archived_at": "2026-05-12T19:47:44.630Z",
+      "archived_at": "2026-05-22T12:35:01.667Z",
       "url": "/data/csv/4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea.csv"
     },
     {
       "sha256": "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731",
       "bytes": 180890,
-      "archived_at": "2026-05-12T01:41:21.222Z",
+      "archived_at": "2026-05-22T12:35:01.664Z",
       "url": "/data/csv/0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.csv"
-    },
-    {
-      "sha256": "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2",
-      "bytes": 185105,
-      "archived_at": "2026-05-12T01:41:21.221Z",
-      "url": "/data/csv/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.csv"
     }
   ]
 }

@@ -57,7 +57,7 @@ entries.sort((a, b) => (a.archived_at < b.archived_at ? 1 : -1));
 const index = {
   schema_version: 1,
   generated_at: new Date().toISOString(),
-  source_url: "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-release001.csv",
+  source_url: "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   source_notes:
     "Distinct CSV versions are archived locally and exposed here for " +
     "citation reproducibility. Each row's sha256 is the load-bearing " +

@@ -30,11 +30,18 @@ class Settings(BaseSettings):
     db_url: str = Field(default="postgresql+psycopg://pursue:pursue@localhost:5432/pursue")
 
     # ---- Scrape ----
-    # 2026-05-12: upstream renamed uap-csv.csv → uap-release001.csv (linked
-    # from war.gov/UFO/). The naming pattern suggests upstream is moving to
-    # explicit release versioning (release001 → release002 → ...) rather
-    # than mutating a single canonical CSV. The old URL now returns 404.
-    csv_url: HttpUrl = Field(default="https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-release001.csv")
+    # 2026-05-22: Release 02 landed overnight and the poll missed it: upstream
+    # did NOT continue the release001 → release002 naming pattern we guessed
+    # at on 2026-05-12. Instead they consolidated back to a single mutating
+    # canonical CSV at /Portals/1/Interactive/2026/UFO/uap-data.csv (the JS
+    # on war.gov/UFO/ now reads from this URL; release001.csv is still
+    # served but frozen at Release-01-only content, so our hash-stable
+    # comparison reported "unchanged" all night). The new URL holds every
+    # release: 158 rows from 5/8/26 (Release 01) + 64 rows from 5/22/26
+    # (Release 02). Going forward, additional tranches will surface as
+    # row-deltas on this single URL — exactly what the diff/poll machinery
+    # was originally built for.
+    csv_url: HttpUrl = Field(default="https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv")
     scrape_user_agent: str = ""  # empty → use the realistic Chrome UA in csv_fetcher
 
     # ---- Download ----
