@@ -19,6 +19,7 @@ from pursue_index.clean.runner import (
     CardReport,
     run_card,
 )
+from pursue_index.cli.clean_qc_cli import clean_qc_app
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 
@@ -43,6 +44,10 @@ clean_app = typer.Typer(
 def _clean_callback() -> None:
     """Anchor that forces typer to treat ``clean`` as a multi-command group."""
     return
+
+
+# Sprint 4l-A: attach the qc sub-app so ``pursue clean qc run`` works.
+clean_app.add_typer(clean_qc_app)
 
 
 # Default model: Haiku-4-5 per the plan. Cheaper than Sonnet by ~4x at
