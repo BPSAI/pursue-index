@@ -1,6 +1,44 @@
 # Current State
 
-> Last updated: 2026-05-22 (Release 02 landed overnight; poll missed it because upstream consolidated `release001.csv` → `uap-data.csv` rather than continuing the per-release filename pattern. Hotfix on `claude/second-tranche-poll-miss-GeofS`: URL config repointed, new sha `f9ad3b8366e2…` + 297KB CSV bytes captured in `data/raw/csv/`, last-known-sha advanced, methodology + build_csv_archive source_url updated. Heavy ingest still operator-attended — 64 new cards from 5/22/26 await download/OCR/embed.)
+> Last updated: 2026-05-22 (Tranche-2 DOCUMENT subset SHIPPED: 6 PDFs from the release_02 ZIP bundle are live at pursueindex.com — manifest 158 → 164, three new agencies (ODNI, CIA, DOE) added to the taxonomy + AgencyStamp. The 57 video assets in `uap052226/` remain a separate sub-sprint. Two commits on main: `cbcb53e` (manifest + agency taxonomy + scripts + supplement CSV) and `9cdbfaa` (pages.json rebuild with 128 OCR'd pages). The poll-miss hotfix on `claude/second-tranche-poll-miss-GeofS` is still un-merged — that lane covers detection of the upstream `uap-data.csv` consolidation, separate from this ingest.)
+
+## 2026-05-22 — Tranche-2 document ingest SHIPPED (6 PDFs live)
+
+Operator pulled the war.gov release_02 ZIP bundle out-of-band and asked for fastest-defensible ship. End-to-end:
+
+| Step | What landed |
+|---|---|
+| Manifest | `data/manifests/latest.json` + `web/src/data/manifest.json` 158 → 164 cards. Card_ids derived from `sha256(bundle_url#filename)[:16]` because tranche-2 ships as a ZIP with no per-file URL. |
+| R2 | All 6 PDFs uploaded to `pursue-pdfs` bucket at both archive (`archive/<sha>.pdf`) and current-version (`<card_id>.pdf`) keys; verified 200 via the worker's `/pdf/<card_id>.pdf` route. |
+| Registry | 6 new rows in `data/asset-bytes-registry.jsonl` with `source: "war.gov/release_02"`. |
+| Supplement CSV | `data/manifests/release_02_supplement.csv` synthesized (editorial; not load-bearing). |
+| Agency taxonomy | `web/src/components/AgencyStamp.astro` adds DOE / CIA / ODNI styles; `/methodology` updated. |
+| Astro build | 271 pages built; all 6 new card pages verified at `web/dist/card/<cid>/index.html`. |
+| OCR | 128 pages across 6 cards via `pursue ocr run --engine auto` (Surya primary + Sonnet 4.6 fallback). First DOW run failed at page 16 because `.env` parse errors at lines 53-57 aborted dotenv before `ANTHROPIC_API_KEY` at line 64; retried with explicit `export` — full 116 pages of DOW OCR'd cleanly. Sonnet cost effectively $0 (almost all pages hit the existing LLM cache from prior corpus runs). |
+| Search payload | `web/public/data/pages.json` rebuilt to 124 cards / 4,289 pages (was 4,161) with augment-from corpus. |
+| Deploy | Pushed `9cdbfaa`; CF Pages deployed; all 6 card pages now serve 200 at `https://pursueindex.com/card/<cid>`. |
+
+### The 6 new card_ids
+
+| card_id | designator | agency | pages |
+|---|---|---|---|
+| `7be223c345fecfdd` | ODNI-UAP-D001 | Office of the Director of National Intelligence | 2 |
+| `eae6c4d03ee4e66f` | CIA-UAP-D001 | Central Intelligence Agency | 3 |
+| `b20c658be70b0e4a` | DOE-UAP-D001 | Department of Energy | 2 |
+| `ce343c85c98e89aa` | DOE-UAP-D002 | Department of Energy | 4 |
+| `37a39b1959ee7737` | DOE-UAP-D003 | Department of Energy | 1 |
+| `a6595ad20e876e57` | DOW-UAP-D017 | Department of War | 116 |
+
+### Mid-flight correction worth recording
+
+First-pass card_ids were derived from a *guessed* lowercase-with-dashes URL pattern (`/medialink/ufo/release_2/<lowercase>.pdf`). After the operator corrected the canonical URL to the ZIP bundle + filename fragment, the ingest script + downstream artifacts (registry rows, R2 current-keys, pdf_dir, ocr_dir) were all re-derived. The OCR text dirs were renamed in place (PDF bytes are identical, so re-running OCR would have been wasteful). Six wrong-keyed R2 objects were deleted before the corrected keys were uploaded.
+
+### What's still pending
+
+- **Poll-miss hotfix branch** `claude/second-tranche-poll-miss-GeofS` is unmerged; it points the cron at `uap-data.csv` (the consolidated 222-row CSV). Independent of this document-ingest commit.
+- **57 DOD videos** in `uap052226/` — separate sub-sprint (different bundle URL).
+- **Operator editorial** on descriptions / display_date / incident_date for the 6 new cards.
+- **Snapshot file** for `/diff` page — no synthetic snapshot was created; when the upstream-CSV poll fetches `uap-data.csv` and a `pursue scrape run` lands, it will produce the snapshot naturally with all 64 cards in one shot.
 
 ## 2026-05-22 — Release 02 poll-miss hotfix
 
