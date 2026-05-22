@@ -1,8 +1,9 @@
-version: 2.25.3
+version: 2.25.4
 project:
   name: pursue-index
   description: Citable interface to U.S. DoW PURSUE Release 01 (UAP documents)
-  primary_goal: Ship a reproducible, citable archive of declassified UAP documents with full-text search, semantic atlas, and editorial reading guides
+  primary_goal: Ship a reproducible, citable archive of declassified UAP documents
+    with full-text search, semantic atlas, and editorial reading guides
   coverage_target: 80
 workflow:
   default_branch_type: feature
