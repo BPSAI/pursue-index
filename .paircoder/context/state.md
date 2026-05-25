@@ -1,6 +1,18 @@
 # Current State
 
-> Last updated: 2026-05-25 (v1.2.2 shipped — corpus-wide Sonnet 4.6 OCR + Haiku clean pass + Voyage-3 re-embed + /altered/ surface retired after operator review confirmed 0/70 content changes among the byte-altered candidates.)
+> Last updated: 2026-05-25 (v1.2.3 shipped — gallery IMAGES filter unions `asset_type=IMG` with a precomputed allow-list of PDF-wrapped photographs (B001-B024, FBI Composite Sketch, CENTCOM declass-header stills). Operator-driven fix: searching the gallery for "FBI Photo B2" previously missed all 24 B-series cards because they ship as `asset_type=PDF` despite being single-page photo content.)
+
+## 2026-05-25 — v1.2.3 ship (gallery photograph-content filter)
+
+`/gallery` IMAGES filter now surfaces 40 cards (14 `IMG` + 26 photo-content PDFs) instead of 14. The B-series operator-discoverability gap is closed.
+
+- `scripts/build_photo_card_index.py` — predicate `asset_type==PDF AND page_count==1 AND text<500 chars`; 11 unit tests
+- `web/src/data/photo-card-ids.json` — build-time artifact, sorted, deterministic; current count 26
+- `web/src/pages/gallery.astro` — imports + passes `photoPdfIds` prop
+- `web/src/components/GalleryIsland.tsx` — `buildFilters()` factory takes the allow-list; IMAGES predicate + badge count both union
+- `Makefile` — `rebuild-derivatives` runs the new script
+
+Asset-type field stays unchanged in the manifest (provenance integrity: re-scrapes won't fight us). The PHOTOGRAPHS lens is layered on top.
 
 ## 2026-05-25 — v1.2.2 ship (corpus-wide Sonnet + /altered/ retirement)
 

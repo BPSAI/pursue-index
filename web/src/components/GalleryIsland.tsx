@@ -4,6 +4,15 @@ import type { CardMetadata } from "../data/types";
 interface Props {
   cards: CardMetadata[];
   base: string;
+  /**
+   * Allow-list of `card_id`s that are PDF-wrapped photographs (B001-
+   * B024, FBI Composite Sketch, CENTCOM declass-header stills). The
+   * IMAGES filter unions these with `asset_type === "IMG"` so users
+   * looking for photographs find them all in one place. Empty array
+   * = same behavior as the legacy IMG-only filter.
+   * See scripts/build_photo_card_index.py for how the list is built.
+   */
+  photoPdfIds?: string[];
 }
 
 interface PostersIndex {
@@ -18,16 +27,30 @@ interface ThumbsIndex {
 
 type Filter = "all" | "image" | "video" | "document";
 
-const FILTERS: { key: Filter; label: string; predicate: (c: CardMetadata) => boolean }[] = [
-  { key: "all", label: "ALL", predicate: () => true },
-  { key: "image", label: "IMAGES", predicate: (c) => c.asset_type === "IMG" },
-  // Sprint 4f: AUD lumped with VID under "VIDEOS" lane — both are
-  // DVIDS-hosted, no asset_url, no thumb. A separate "AUDIO" lane
-  // would be UI noise at N=1 today; revisit if upstream adds more
-  // audio cards.
-  { key: "video", label: "VIDEOS", predicate: (c) => c.asset_type === "VID" || c.asset_type === "AUD" },
-  { key: "document", label: "DOCUMENTS", predicate: (c) => c.asset_type === "PDF" },
-];
+/**
+ * Build the FILTERS list, optionally extending the IMAGES predicate to
+ * also match a known allow-list of PDF-wrapped photographs (B001-B024,
+ * FBI Composite Sketch, CENTCOM declass-header stills). DOCUMENTS
+ * still shows ALL `asset_type=PDF` cards including those photo-PDFs —
+ * the filters are non-exclusive lenses, not partitions.
+ */
+function buildFilters(photoPdfIds: ReadonlySet<string>): {
+  key: Filter; label: string; predicate: (c: CardMetadata) => boolean;
+}[] {
+  return [
+    { key: "all", label: "ALL", predicate: () => true },
+    {
+      key: "image", label: "IMAGES",
+      predicate: (c) => c.asset_type === "IMG" || photoPdfIds.has(c.card_id),
+    },
+    // Sprint 4f: AUD lumped with VID under "VIDEOS" lane — both are
+    // DVIDS-hosted, no asset_url, no thumb. A separate "AUDIO" lane
+    // would be UI noise at N=1 today; revisit if upstream adds more
+    // audio cards.
+    { key: "video", label: "VIDEOS", predicate: (c) => c.asset_type === "VID" || c.asset_type === "AUD" },
+    { key: "document", label: "DOCUMENTS", predicate: (c) => c.asset_type === "PDF" },
+  ];
+}
 
 /**
  * Build the alt-text for a gallery tile image. Upstream-curated
@@ -238,10 +261,13 @@ function GalleryTile({
   );
 }
 
-export default function GalleryIsland({ cards, base }: Props) {
+export default function GalleryIsland({ cards, base, photoPdfIds = [] }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
   const [posters, setPosters] = useState<Record<string, string>>({});
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
+
+  const photoPdfSet = useMemo(() => new Set(photoPdfIds), [photoPdfIds]);
+  const FILTERS_LIVE = useMemo(() => buildFilters(photoPdfSet), [photoPdfSet]);
 
   // Lazy-load the poster + thumb indexes. 404 on either is acceptable
   // — tiles fall back to the placeholder. Each index is small
@@ -263,7 +289,7 @@ export default function GalleryIsland({ cards, base }: Props) {
   }, [base]);
 
   const visible = useMemo(() => {
-    const pred = FILTERS.find((f) => f.key === filter)?.predicate ?? (() => true);
+    const pred = FILTERS_LIVE.find((f) => f.key === filter)?.predicate ?? (() => true);
     // Stable sort: images first, then by year desc (newest first), then by title.
     return [...cards].filter(pred).sort((a, b) => {
       const ay = parseInt(tileYear(a), 10) || 0;
@@ -271,20 +297,24 @@ export default function GalleryIsland({ cards, base }: Props) {
       if (by !== ay) return by - ay;
       return a.title.localeCompare(b.title);
     });
-  }, [cards, filter]);
+  }, [cards, filter, FILTERS_LIVE]);
 
   const counts = useMemo(() => {
     const out: Record<Filter, number> = { all: 0, image: 0, video: 0, document: 0 };
     for (const c of cards) {
       out.all += 1;
-      if (c.asset_type === "IMG") out.image += 1;
+      // IMAGES count unions `asset_type=IMG` with the photo-PDF
+      // allow-list so the badge matches what the filter actually
+      // surfaces. Without this, the badge would say "14" but clicking
+      // through would render 40 tiles — user-confusing.
+      if (c.asset_type === "IMG" || photoPdfSet.has(c.card_id)) out.image += 1;
       // Sprint 4f: AUD counts toward the VIDEOS lane (DVIDS-hosted,
       // no asset_url, mirrors VID behavior).
       if (c.asset_type === "VID" || c.asset_type === "AUD") out.video += 1;
       if (c.asset_type === "PDF") out.document += 1;
     }
     return out;
-  }, [cards]);
+  }, [cards, photoPdfSet]);
 
   return (
     <div class="space-y-4">
@@ -293,7 +323,7 @@ export default function GalleryIsland({ cards, base }: Props) {
         aria-label="Gallery asset-type filter"
         class="inline-flex font-mono text-[11px] uppercase tracking-[0.15em] border border-[color:var(--color-border)]"
       >
-        {FILTERS.map((f, i) => (
+        {FILTERS_LIVE.map((f, i) => (
           <button
             key={f.key}
             type="button"

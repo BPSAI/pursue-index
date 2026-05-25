@@ -250,12 +250,13 @@ function countByEngine(): Record<string, number> {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.2.2 ships corpus-wide Sonnet 4.6
-  // OCR (3,500+ pages re-OCR'd via card-level concurrency), Haiku 4.5
-  // clean pass on the new text, Voyage-3 re-embed, and retirement of
-  // the /altered/ surface after operator review confirmed 0/70
-  // confirmed content edits across the byte-changed candidates.
-  version: "v1.2.2",
+  // Bumped manually per release. v1.2.3 — gallery IMAGES filter now
+  // unions `asset_type=IMG` with a precomputed allow-list of PDF-
+  // wrapped photographs (B001-B024, FBI Composite Sketch, CENTCOM
+  // declass-header stills). Operator-driven fix: searching the
+  // gallery for "FBI Photo B2" previously missed the B-series
+  // because those 24 cards ship as `asset_type=PDF`.
+  version: "v1.2.3",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,
