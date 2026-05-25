@@ -250,9 +250,12 @@ function countByEngine(): Record<string, number> {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.2.1 re-OCRs the 15 worst-confidence
-  // Surya cards (210 pages, 14 Sprint 4q + 1 restore) with Sonnet 4.6.
-  version: "v1.2.1",
+  // Bumped manually per release. v1.2.2 ships corpus-wide Sonnet 4.6
+  // OCR (3,500+ pages re-OCR'd via card-level concurrency), Haiku 4.5
+  // clean pass on the new text, Voyage-3 re-embed, and retirement of
+  // the /altered/ surface after operator review confirmed 0/70
+  // confirmed content edits across the byte-changed candidates.
+  version: "v1.2.2",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,

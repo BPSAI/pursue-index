@@ -406,13 +406,10 @@ const cardJsonLd = [
             </ul>
             <p class="text-[10px] text-[color:var(--color-text-faint)] space-y-1">
               <span class="block">
-                <a href={`/altered/${card.card_id}/`} class="text-[color:var(--color-signal-amber)] underline">
-                  See the exact text changes →
-                </a>
-              </span>
-              <span class="block">
-                See <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a> for the full
-                list of cards where upstream bytes changed under the same identifier.
+                Operator review (
+                <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a>
+                ) found these byte changes were re-encoding, re-scan, or rotation —
+                not content edits. The preserved bytes above are the receipt.
               </span>
             </p>
           </aside>

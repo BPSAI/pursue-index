@@ -9,14 +9,12 @@
 // uninteresting steady state and bundling it would inflate the JSON
 // ~3× for no consumer (~80 multi-sha cards out of ~230 rows).
 //
-// Two downstream consumers:
+// Downstream consumer:
 //
 //   * `web/src/pages/card/[card_id].astro` — renders the
 //     "edited upstream" banner above the iframe when an entry for
 //     the rendered card_id is present, linking the pre-edit version
 //     via /archive/<sha>.<ext> (the new worker route).
-//   * `web/src/pages/altered.astro` — listing page enumerating every
-//     affected card with size delta + dates + click-through.
 //
 // Stored in `web/src/data/` (Astro SSR-imports it at build time)
 // rather than `web/public/data/` because all consumption is build-

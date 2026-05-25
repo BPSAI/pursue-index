@@ -12,7 +12,7 @@
 - [Support](https://pursueindex.com/support): Operator contact + funding posture.
 - [API](https://pursueindex.com/api): Machine-readable endpoints (manifest, pages, embeddings).
 - [Removed](https://pursueindex.com/removed): Cards dropped entirely from the upstream manifest; bytes preserved here.
-- [Altered](https://pursueindex.com/altered): Cards where upstream re-published bytes under the same identifier; pre-edit version preserved + per-card OCR text diff.
+- [Altered](https://pursueindex.com/altered): Cards where upstream re-published bytes under the same identifier. Operator review confirmed 0 content edits; this surface now documents that finding. Bytes-changed receipts remain on each card page.
 
 ## Cards
 

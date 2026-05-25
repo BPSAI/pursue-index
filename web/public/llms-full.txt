@@ -101,7 +101,7 @@ Secret This document consists of 2 pages, copy 1 of 4, series #. HEADQUARTERS, D
 
 Excerpt (page 1):
 
-Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED. Crussified by Recorded Reporting Officer. Exempt from General Declassification Schedule of E.O. 11632 Ex ... impossible to determine date of automatic declassification. PAGE 1 U. . DIRECTORATE OF OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE REPORT NO. FIR K-311/01638+77 DATE DISTR. 20 December 1977 • ; . . . COUNTRY USSR November 1972-Novem
+Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED Classified by Recorded Reporting Officer. Exempt from General Declassification Schedule of E.O. 11652 E. Impossible to determine date of automatic declassification. DIRECTORATE OF PAGE 1 O OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE C O N F I D E N T I A L REPORT NO. FIK K-311/01638- DATE DISTR. 2C December 19 COUNTRY USSR DOI November 1972
 
 ### fd342b7508668b0e — ODNI-UAP-D001, USPER Narrative, Senior USIC Official
 
@@ -133,7 +133,7 @@ The NASA medical team considered whether similar phenomena reported by Apollo 11
 
 Excerpt (page 1):
 
-UCNI ParteX Managed and Operated by Consolidated Nuclear Security, LLC Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower • (b)(3) (UCNI) UCNI Page 5 of 6
+PanTEX Managed and Operated by Consolidated Nuclear Security, LLC ——UCNI—— Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower (b)(3) (UCNI) [REDACTED] ——UCNI—— Page 5 of 6
 
 ### 9e677b8697685311 — 18_100754_ General 1946-7_Vol_2
 
@@ -145,7 +145,7 @@ UCNI ParteX Managed and Operated by Consolidated Nuclear Security, LLC Pantex Un
 
 Excerpt (page 1):
 
-HqAMC Form No. 10-514 (Rev 10 Sep 46) WF-L-7 JAN 300M 47 DECLASSIFIED Authority: HEADQUARTERS NND 700188 BOTH ADDRESS IN REPLY AIR MATERIEL COMMAND COMMUNICATION AND EN- VELOPE TO COMMANDING GENERAL, AIR MATERIEL TSDIN/HMM/ig/6-4100 COMMAND, ATTENTION WRIGHT FIELD, DAYTON, OHIO FOLLOWING OFFICE SYMBOL: DEC 1 9 1947 TSDIN Flying Discs SUBJECT: Chief of Staff TO: United States Air Force Washington 25, D. C. ATTENTION: Director, Research & Development Major General L. C. Craigie Confirming the rece
+HqAMC Form No. 10-514 (Rev 10 Sep 46) WF-L-7 JAN 47 300M SECRET DECLASSIFIED SAVE Authority: HEADQUARTERS NND 700188 AIR MATERIEL COMMAND IN REPLY ADDRESS BOTH COMMUNICATION AND EN- VELOPE TO COMMANDING TSDIN/HMM/ig/6-4100 GENERAL, AIR MATERIEL WRIGHT FIELD, DAYTON, OHIO COMMAND, ATTENTION FOLLOWING OFFICE SYMBOL: TSDIN DEC 1 9 1947 SUBJECT: Flying Discs TO: Chief of Staff United States Air Force Washington 25, D. C. ATTENTION: Director, Research & Development Major General L. C. Craigie 1. Conf
 
 ### 9317a6ea91f7425c — 18_6369445_General_1948_Vol_1
 
@@ -157,7 +157,7 @@ HqAMC Form No. 10-514 (Rev 10 Sep 46) WF-L-7 JAN 300M 47 DECLASSIFIED Authority:
 
 Excerpt (page 1):
 
-AFCIR-CO/Lt Col Garrett/lwd/4544 DECLASSIFIED 14 June 48 ONEDCATIAL ILLIANDE Authority: NND 760191 Basic Ltr fm Hq. Eleventh Air Force, Harrisburg, Pa., dtd (undated), subj: Report of "Flying Discs" 1 9 JUN 1948 1st Ind. AFOIR-CO-5 (1-6-29) Dept. of the Air Force, Hq. USAF, Washington 25, D. C. TO: Commanding General, Air Materiel Command, Wright-Patterson Air Force Base, Dayton, Chio 15/00 m ATTN: MCI 4 Incls. n/c Ward P102375 HQ. USAF 1 5 JUN 1948 CAG-MAIL BRANCH 3. 2. 1. 5. 4. OFFICE SYMBOL G
+AFOIR-CO/Lt Col Garrett/lwd/4344 14 June 48 CONFIDENTIAL Basic Ltr fm Hq. Eleventh Air Force, Harrisburg, Pa., dtd (undated), subj: Report of "Flying Discs" AFOIR-CO-5 (1-6-29) 1st Ind. 1 5 JUN 1948 Dept. of the Air Force, Hq. USAF, Washington 25, D. C. TO: Commanding General, Air Materiel Command, Wright-Patterson Air Force Base, Dayton, Ohio ATTN: MCI 15/ oo O [ILLEGIBLE] 4 Incls. n/c w/[ILLEGIBLE] P102375 HQ. USAF 1 5 JUN 1948 CAS-MAIL BRANCH CONFIDENTIAL | OFFICE SYMBOL | 1. | 2. | 3. | 4. |
 
 ### 973c1f75f55d0d39 — 255_413270_UFO's_and_Defense_What_Should_we_Prepare_For
 
@@ -169,7 +169,7 @@ AFCIR-CO/Lt Col Garrett/lwd/4544 DECLASSIFIED 14 June 48 ONEDCATIAL ILLIANDE Aut
 
 Excerpt (page 1):
 
-4/30/2001 Carol Rosin and Jan Crpher 780 18 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Close-up of a brown paper folder or envelope flap. A large, dark ink-stamped or handwritten number "78078" is visible on the right side.
+Carol Rosin and Jan Cypher 4/30/2001 78078 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Close-up of a brown paper folder or envelope flap. A large, dark ink-stamped or handwritten number "78078" is visible on the right side.
 
 ### 7bd99ac64660258e — 331_120752_Numeric_Files_1944–1945_37153_German_Armament_Equipment_Documents
 
@@ -181,7 +181,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-DECLASSIFIED FILE COPY Authority: THE PERSON NAMED IN COLUMN TWO NND 947020 AIR STAFF SUPRELE HEADQUARENTS ALLIED EXPEDITIONARY FORCE (PORMARD) REF: - SHATE/A/TS.37153/A.2. 18 Tarch 1945. SUB: - Wight Phenonema. TO:- First Tactical Air Force (Prov. ) APO 374. US ARMY. 1. With reference to reports forwarded from the MIIth Tactical Air Command through your Headquarters on the subject of night phenemena (foorighter), and further to this Headquarters' letter of even reference dated Il February, a re
+DECLASSIFIED Authority: NND 947020 FILE COPY 63A AIR STAFF SUPREME HEADQUARTERS ALLIED EXPEDITIONARY FORCE (FORWARD) REF:- SHAEF/A/TS.37153/A.2. 18 March 1945. SUB:- Night Phenomena. TO:- First Tactical Air Force (Prov.), APO 374, US ARMY. 1. With reference to reports forwarded from the XIIth Tactical Air Command through your Headquarters on the subject of night phenomena (foofighter), and further to this Headquarters' letter of even reference dated 11 February, a reply has now been received fro
 
 ### 6bda02c546051f43 — 341_110448_Records_Relating_to_the_Collection_and_Dissemination_of_Intelligence_1948-1955-TS_CONT_No.2_2-5300-2-5399
 
@@ -193,7 +193,7 @@ DECLASSIFIED FILE COPY Authority: THE PERSON NAMED IN COLUMN TWO NND 947020 AIR 
 
 Excerpt (page 1):
 
-DECLASSIFIED Authority: TAN OF AN ET NND 843014 SECURITY INFORMATION Directorate of Intelligence Headquarters, U. S. Air Force 4B-854 Pentagon Washington 25, D. C. # . .. 4 7: All documents filed in numerical sequence according to Top Secret Control Number. No 11. 5300 99 Nov 60 IU SECURITY INFORMATION h<sub>1</sub> NW 90307 Docld:34714985 Page 1 -
+TOP SECRET SECURITY INFORMATION DECLASSIFIED Authority: NND 843014 Directorate of Intelligence Headquarters, U. S. Air Force 4B-854 Pentagon Washington 25, D. C. All documents filed in numerical sequence according to Top Secret Control Number. TS CONT. NO. 2-5300 - 2-5399 Nov 48 TOP SECRET SECURITY INFORMATION NW 90307 DocId:34714985 Page 1
 
 ### ed585fe68e3c4e7e — 341_110677_Numerical_File,_5-2500
 
@@ -205,7 +205,7 @@ DECLASSIFIED Authority: TAN OF AN ET NND 843014 SECURITY INFORMATION Directorate
 
 Excerpt (page 1):
 
-5-2500 9 -544 DECLASSIFIED SECRET Authority: NND 857013 THE SECRET NW 91377<br>Doold:34749008 Page 1 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A blank, light gray file folder divider sheet. The top left tab has the numbers "5-2500" printed on it. A second tab slightly to the right has the numbers "9-544" printed on it. The word "SECRET" is stamped in black ink near the top center and near the bottom center, with both instances crossed out by a horizontal line. In
+5-2500 9-544 [REDACTED] SECRET DECLASSIFIED Authority: NND 857013 [REDACTED] SECRET NW 91377 Doc ID 34749008 Page 1 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A blank, light gray file folder divider sheet. The top left tab has the numbers "5-2500" printed on it. A second tab slightly to the right has the numbers "9-544" printed on it. The word "SECRET" is stamped in black ink near the top center and near the bottom center, with both instances crossed out by a hori
 
 ### 218e167fbd265d91 — 342_HS1-416511228_319.1 Flying Discs 1949
 
@@ -217,7 +217,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-RESTRICTED DECLASSIFIED LOWRY FLIGHT SERVICE CENTER GRR/wiw Authority: LOWRY AIR FORCE BASE NW 91020 DENVER, COLORADO 9 January 1950 RY 319.1 Unidentified Flying Objects SUBJECT: TO: Commanding General Air Materiel Command Wright-Patterson Air Force Base, Ohio In compliance with Flight Service Regulation 200-4, dated 1. 2 November 1948, Subject: "Unidentified Flying Objects," the follow- ing report is submitted. 2. On the night of 6 January 1950, two objects were sighted over Kansas City, Kansas
+RESTRICTED LOWRY FLIGHT SERVICE CENTER GRR/wiw LOWRY AIR FORCE BASE DENVER, COLORADO RY 319.1 9 January 1950 SUBJECT: Unidentified Flying Objects TO: Commanding General Air Materiel Command Wright-Patterson Air Force Base, Ohio 1. In compliance with Flight Service Regulation 200-4, dated 2 November 1948, Subject: "Unidentified Flying Objects," the follow- ing report is submitted. 2. On the night of 6 January 1950, two objects were sighted over Kansas City, Kansas, and Olathe, Kansas. They appear
 
 ### 7fd3d2656cbc83a6 — 38_143685_box_Incident_Summaries_101-172
 
@@ -229,7 +229,7 @@ RESTRICTED DECLASSIFIED LOWRY FLIGHT SERVICE CENTER GRR/wiw Authority: LOWRY AIR
 
 Excerpt (page 1):
 
-DECLASSIFIED Authority: NND 917033 [ILLEGIBLE stamp/marking in upper left] [ILLEGIBLE stamp marked "SECRET" in upper right] WHITT #230 OP-27 Serial C016457 R/S S-2-200 Indat 1-29-19 Subject: Flying Discs FROM FILED U.S. ATTACHES - UNIDENTIFIED JUNED 2-27-50 [ILLEGIBLE redacted section at bottom] [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A brown paper envelope or file folder cover. It features a diagonal "SECRET" stamp crossed out with a line. Another "SECRET" sta
+DECLASSIFIED Authority: NND 917033 SECRET EXHIBIT #530 Op-57 Secret Serial CO196957 R/S S-CO200 dated 4-23-49 Subject: Flying Discs REPORT FILED W-5 AIRCRAFT - UNIDENTIFIED JONES 2-27-50 SECRET [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A brown paper envelope or file folder cover. It features a diagonal "SECRET" stamp crossed out with a line. Another "SECRET" stamp is visible near the top center. A white typed index card or label is affixed to the center.
 
 ### be226374e719c729 — 38_143685_box_Incident_Summaries_173-233
 
@@ -241,7 +241,7 @@ DECLASSIFIED Authority: NND 917033 [ILLEGIBLE stamp/marking in upper left] [ILLE
 
 Excerpt (page 1):
 
-THE RESERVE THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF TH DECLASSIFIED Authority: NND 917033 MEST Enclosures to R/5 -5 02378 of 5-9-99 Incident Summary Sheets 24 173-233 Ince. CONTRACTOR OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF TH
+DECLASSIFIED Authority: NND 917033 SECRET Enclosures to R/S -5 02378 of 3-9-49 Incident Summary Sheets 173 - 233 Incl. SECRET Secret R/S S-02378 of 3-9-49 EXHIBIT #529 Hqd Air Material Command Dayton Subject: Transmittal of Incident Summary Sheets 173 thru 233. REPORT FILED M-5 AIRCRAFT - UNIDENTIFIED JONES 2-27-50 SECRET Best Possible Image SECRET 22 MAR 1949 5-20300 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A scanned folder cover page with “SECRET” stamped at t
 
 ### b60b84a66715204a — 38_143685_box7_Incident_Summaries_1-100
 
@@ -253,7 +253,7 @@ THE RESERVE THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE PARTY OF THE
 
 Excerpt (page 1):
 
-DECLASSIFIED Authority NND 917033 [handwritten annotation in upper right: "Badley, 28 10/23/67"] CONFIDENTIAL [strikethrough lines crossing out text] [Several strikethrough redactions in middle of page] [Stamped in red]: 020240 300014 S79-1(126) CONFIDENTIAL [strikethrough lines] C15 [handwritten annotation in lower left area]
+DECLASSIFIED Authority: NND 917033 Puder in 90-[ILLEGIBLE] CONFIDENTIAL SECRET SECRET SECRET SECRET [ILLEGIBLE] B2024° 30014 578-1(126) CONFIDENTIAL 619 Encl 1 [ILLEGIBLE]
 
 ### 9e2c2621d67dde12 — 59_214434_SP 16 [7.18.1963]
 
@@ -265,7 +265,7 @@ DECLASSIFIED Authority NND 917033 [handwritten annotation in upper right: "Badle
 
 Excerpt (page 1):
 
-EXECUTIVE OFFICE OF THE PRESIDENT NATIONAL AERONAUTICS and SPACE COUNCIL WASHINGTON July 18, 1963 MRS. Date BV MEMORANDUM FOR Mr. Robert F. Packard Office of International Scientific Affairs Department of State Washington 25, D.C. SUBJECT: Thoughts on the Space Alien Race Question During recent discussions the question has occasionally, though rarely, arisen that perhaps we should consider the policy question of what to do if an alien intelligence is discovered in space. Some discussion of this 
+OFFICIAL USE ONLY EXECUTIVE OFFICE OF THE PRESIDENT N A T I O N A L A E R O N A U T I C S and S P A C E C O U N C I L WASHINGTON DECLASSIFIED NND 93955 1 By NARS, Date July 18, 1963 MEMORANDUM FOR Mr. Robert F. Packard Office of International Scientific Affairs Department of State Washington 25, D.C. SUBJECT: Thoughts on the Space Alien Race Question During recent discussions the question has occasionally, though rarely, arisen that perhaps we should consider the policy question of what to do if
 
 ### df43a479bc891969 — 59_64634_711.5612[7-2852
 
@@ -277,7 +277,7 @@ EXECUTIVE OFFICE OF THE PRESIDENT NATIONAL AERONAUTICS and SPACE COUNCIL WASHING
 
 Excerpt (page 1):
 
-A.F. July 28, 1952 MEMORANDUM Mr. Armstrong To: Paul Nitze asked me what the Air Force thought about the flying saucers, and I suspect that the others would be interested. I recommend, therefore, that you pass on the gist of the attached at the morning meeting tomorrow. Samford gave it to me at the IAC. F.H. Subsequently at limits so than I so have given the geste I Historial. Hi fall. Att. M DECLASSIFIED NND 852931
+A.F. SECRET July 28, 1952 MEMORANDUM To: Mr. Armstrong Paul Nitze asked me what the Air Force thought about the flying saucers, and I suspect that the others would be interested. I recommend, therefore, that you pass on the gist of the attached at the morning meeting tomorrow. Samford gave it to me at the IAC. F.H. Subsequently at lunch 5th floor Paul asked me about, so I have given the gist of this to Paul, Doc, Howland, McFall. Att. [handwritten notation on right margin: 7/1 5/2/3 4-2855] SECR
 
 ### 239d049dab8c81d5 — 65_HS1-101634279_100-DE-18221_Serial_844
 
@@ -289,7 +289,7 @@ A.F. July 28, 1952 MEMORANDUM Mr. Armstrong To: Paul Nitze asked me what the Air
 
 Excerpt (page 1):
 
-Declassification authority derived from FBI Automatic Declassification Screened by NARA (RF) STANDARD FORM NO. 64 Guide, issued May 24, 2007. 11-25-2025 FOIA # 90288 DOCID: 34715588 Office Memorandum • United States Government DATE: April 17, 1958 SAC. DETROIT TO SA ROBERT ROSS REYNOLDS FROM OBJECTS SUBJECT: DENTI EAVER. 15801 Decosta, Detroit, Michigan, Telephone DAVI No. KEnwood 5-7546, telephonically advised this office at 4:08 A.M., today, that he had just seen an object in the sky described
+STANDARD FORM NO. 64 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. Screened by NARA [RFI] 11-25-2025 FOIA # 90288 DOCID: 34715588 Office Memorandum • UNITED STATES GOVERNMENT TO : SAC, DETROIT DATE: April 17, 1958 FROM : SA ROBERT ROSS REYNOLDS SUBJECT: UNIDENTIFIED FLYING OBJECTS DAVID WEAVER, 15801 Decosta, Detroit, Michigan, Telephone No. KEnwood 6-7546, telephonically advised this office at 4:08 A.M., today, that he had just seen an object
 
 ### 26b02d358ec20061 — 65_HS1-101634279_100-DE-26505
 
@@ -301,7 +301,7 @@ Declassification authority derived from FBI Automatic Declassification Screened 
 
 Excerpt (page 1):
 
-FD-245 (REV. 1-21-80) Screened by NARA (RF) 11-19-2025 FOIA # 30290 DOCID: 34714592 II. S. Department of Instice Declassification authority derived from FBI Automatic Declassification Guide, ssued May 24, 2007 NOT BE REMOVED FROM OR ADDED TO THIS FILE) 0100 Class DE BUREAU 26505 Ĭ Case DETROIT FBI 8/08/374524 RRP000PJD9 RRP000PJD9 # 6 CEN Sub TRAL 8/08/ IGAIION V<sub>0</sub> RECORDS Se ___ rial # CENTER OPEN S 0 0 COPIEDFUR BY DATE COMPUTER TREQUESTERS FULL NAME MIMBER SERVALO (hares+, un: dual 
+FD-245 (REV. 1-21-80) Screened by NARA (RF) 11-19-2025 FOIA # 80290 DOCID: 3471459 U. S. Department of Justice MUST NOT BE REMOVED FROM OR ADDED TO THIS FILE Declassification authority derived from FBI Automatic Declassification Guide, Issued May 24, 2007 BUREAU of IGATION Class / Case # 0100 26505 DE - DETROIT FBI - CENTRAL RECORDS CENTER Sub Vol. 1 Serial # 1 OPEN 8/08/374524 RRP000PJ09 CLASSIFICATION NO. COPIED FOR FOIPA SERIALS REQUESTERS FULL NAME COMPUTER DATE BY NUMBER See also Nos. All C
 
 ### bcf2e688dfbc220d — 65_HS1-834228961_62-HQ-83894_Section_001
 
@@ -313,7 +313,7 @@ FD-245 (REV. 1-21-80) Screened by NARA (RF) 11-19-2025 FOIA # 30290 DOCID: 34714
 
 Excerpt (page 1):
 
-4-596 (Rev. 3-20-79) TMENT OF JUSTICE SERIALS 0062 Class / Case # 83 정 83894 . HEADQUARTERS FBI TQ-83894 ADDED OR TO 상 RRP003IXH5 CENTRAL Sub BUREAU 8/11/1274199 ŏ RECORDS Serial # IGATION CENT 4.00 贸 52 FI UARTERS SECTION - DO NOT DESTRUY FOIPA # 993087 OIPA PICKETT ST Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. Transfer - Call 3421 Use Care in Handling this File [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A s
+SECTION 1 SERIALS 1-52 62- HQ-83894 SECTION 1 SERIALS 1-52 *62-HQ-83894-1* DO NOT DESTROY FOIPA # 1366404 [Left side rotated text:] RTMENT OF JUSTICE MOVED FROM OR ADDED TO TH AL BUREAU OF ITIGATION QUARTERS PICKETT STREET SECRET Transfer - Call 3421 Use Care in Handling this File DO NOT DESTROY FOIPA # 293087 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 8389
 
 ### 4844321219e306af — 65_HS1-834228961_62-HQ-83894_Section_002
 
@@ -325,7 +325,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-4-896 (REV. 11-20-73) SERIAS 53-100 0062 83894 Class / Case # ह HQ - HEADQUARTERS of Justice nt FBI 12-63894 RRP003IXH3 CENTRAL RECORDS CENTER IS FILE Sub 8/11/1274197 6 2 53 Serial # JREAU 100 SECTION 2 FOIPA # 99308 NVESTIGATION Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. MAY 14 1977 BY USE CARE IN HANDLING THIS FILE PICKETT STREET Transfer-Call 3421 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A worn, tan/bro
+62- HQ-83894 SECTION 2 SERIALS 53-100 SECTION 2 SERIALS 53-100 COPIED: FOR FOIPA MAR 2, 1978 BY FINO [sticker: FROM OR ADDED TO THIS FILE] BUREAU [stamp: COPIED FOR FOIPA BY [ILLEGIBLE]] FEDERAL BUREAU OF INVESTIGATION [stamp: COPIED FOR FOIPA MAY 14 1977 BY [ILLEGIBLE]] DESTROY FOIPA # 9930[ILLEGIBLE] DO NOT DESTROY FOIPA # 1366404 USE CARE IN HANDLING THIS FILE PICKETT STREET Transfer-Call 3421 --- FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 2 53 
 
 ### 99c12a9c49a91750 — 65_HS1-834228961_62-HQ-83894_Section_003
 
@@ -337,7 +337,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. 196 (5-31-56) 0062 Class / Case # E SERIALS हर 83894 of Justice HEADQUARTERS FBI Ť. HQ-63894 Z Z Z Z Z Z Z Z Z Z Z Z Z Z Z Z Z Z Z 101-130 CENTRAL RECORDS CENTER Sub ROM OR ADDED TO THIS TILE! 8/11/12 S ₫ 74 1194 101 Serial # 33 BUREAU 130 SECTION 3 1 L L. ) 1 4 1 COPIED FOR FOIPA #389136 YW MAY 13 1977 PICKETT STREET No. 1)() USE CARE FOIPA # 993087 man reliable and MAR 1 1978 BY II allolu! Vall T
+Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. 596 (5-31-56) 8/11/12274194 RRP0030XH0 HQ FBI - CENTRAL RECORDS CENTER HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 3 101 130 SERIALS 101-130 62-HQ-83894 SECTION 3 [stamp] t of Justice [stamp] ROM OR ADDED TO THIS FILE: FOR FOIPA R334 1 BUREAU FOR FOIPA of JAN 19 1979 BY [illegible] INVESTIGATION DO NOT DESTROY SECTION 3 SERIALS 101-130 COPIED FOR FOIPA #389136 FOIPA MAY 13 1977 BY R348
 
 ### 5ecebc7c28a8d8c7 — 65_HS1-834228961_62-HQ-83894_Section_004
 
@@ -349,7 +349,7 @@ Declassification authority derived from FBI Automatic Declassification Guide, is
 
 Excerpt (page 1):
 
-Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. (5-31-56) SERIALS 怒 Class / Case # 0062 83894 동 nt of Justice HEADQUARTERS FB 12-83894 131-185 CENTRAL R FROM OR ADDED TO THIS .... Sub 8/1 274191 ECORDS CENTER ŏ 4 Serial # 131 BUREAU 185 SECTION 4 DEDIKU FOIPA # 993087 ESTIGATION COPIED FOR PC<br>C<br>C E.a. EXPENSE MAR 1 1978 BY 8471 COPIED FOR House) (1) CN 可用 TICK ET THIVE m recent. 005 USE CARE IN HANDLING THIS FILE Transfer-Gall 421 SHAW-WAL
+62- HQ-83894 SECTION 4 SERIALS 131-185 *62-HQ-83894-4* SECTION 4 SERIALS 131-185 PICKETT STREET COPIED FOR F O I P A MAR 1 1978 BY R471 nt of Justice FROM OR ADDED TO 1/[ILLEGIBLE] BUREAU of DESTROY FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 4 131 185 8/11/1274191 RRP003IXGX FOIPA# 993081 COPIED FOR [ILLEGIBLE] R55 [ILLEGIBLE] USE CARE IN HANDLING THIS FILE Transfer-Call 421 Declassification authority derived from FBI Automatic Declassification Gui
 
 ### b246c782b16be168 — 65_HS1-834228961_62-HQ-83894_Section_005
 
@@ -361,7 +361,7 @@ Declassification authority derived from FBI Automatic Declassification Guide, is
 
 Excerpt (page 1):
 
-Declassification authority derived 4-898 (REV. 11-20-73) from FBI Automatic Declassification Guide, issued May 24, 2007. 0062 Class / Case # SERIAS 돐 怒 83894 nent of Instice 噩 HEADQUARTERS HQ-83894 186-245 CENTRAL RECORDS ED FROM OR ADDED TO THIS FIL Sub 7/15/ ፩ 5 15510 186 Serial # CENTER BUREAU 245 SECTION 5 UEDIKU FOJPA # 993087 MAL INVESTIGATION PICKETT STREET 186 COPIED -245 USE CARE IN HANDLING THIS FILE Transfer-Call 3421
+4-898 (REV. 11-20-73) Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. SERIALS 62- HQ-83894 186-245 0062 83894 Class / Case # HQ - HEADQUARTERS FBI - CENTRAL RECORDS CENTER Sub Vol. Serial # 5 186 245 7/15/715510 RRPC096CU80 [ment of Justice] [VED FROM OR ADDED TO THIS FIL...] BUREAU SECTION 5 DESTROY of FOIPA # 993087 JAN 19 197[?] INVESTIGATION PICKETT STREET COPIED FOR FOIPA MAR 3 1978 BY [ILLEGIBLE] COPIED FOR FOIPA MAY 14 1977 BY [ILLEGIBLE]
 
 ### 13f86e95aed52840 — 65_HS1-834228961_62-HQ-83894_Section_006
 
@@ -373,7 +373,7 @@ Declassification authority derived 4-898 (REV. 11-20-73) from FBI Automatic Decl
 
 Excerpt (page 1):
 
-4-564 (12-22-55) Declassification authority derived 0062 Class / Case # from FBI Automatic Declassification OH<br>OH Guide, issued May 24, 2007. SERIALS R 83894 HEADQUARTERS FBI ment of Justice 1 12-83894 246-301 CENTRAL RECORDS Sub OVED FROM OR ADDED TO THIS FILE! 8/11 127 Vol. 0 4 88 246 Serial # 0 CENTER 301 SETTION 6 HOVE MAR 2 1978 3Y 3 STIGATION JAN 19.1979 APR 13 1977 BY 5 USE CARE IN HANDLING THIS FILE DO NOT Transfer-Call PESTROY FORFA# 993057 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-p
+62- HQ-83894 SECTION 6 SERIALS 246-301 *62-HQ-83894-6* Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. Department of Justice [ILLEGIBLE] MOVED FROM OR ADDED TO THIS FILE [ILLEGIBLE] D FOR BY BUREAU COPIED FOR SECTION 6 SERIALS 246-301 PARCEL [ILLEGIBLE] STREET FEDERAL BUREAU of INVESTIGATION MAN 2 1978 COPIED FOR F [ILLEGIBLE] A COPIED FOR F [ILLEGIBLE] A APR 1 3 1977 BY NOV [ILLEGIBLE] BAOH JAN 19 1979 3[ILLEGIBLE] COPIED FOR [ILLEGIBLE] 8/18 C
 
 ### f85532f0514320be — 65_HS1-834228961_62-HQ-83894_Section_007
 
@@ -385,7 +385,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-0062 83894 Class / Case # S<br>Q - HEADQUARTERS FBI - CENTRAL RECORDS CENTER nf Justice RRPOCSIXGS SERIALS 302-343 容 Sub 8/11/1274186 12-83894 7 302 Serial # 343 SECTION 7 JAN 19 1979 VESTIGAT Decial - 322, 320 COPIED FOR W W S APR 18 1977 BY R348 CN - DO NOT USE CABLE B THANOLY THE R FOIPA # 993087 Declassification authority derived from FBI Automatic Declassification Transfer-Gall Guide, issued May 24, 2007. 1 AHAW-WALKER 18-13553
+FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0032 83894 7 302 343 8/11/1274186 [BARCODE] t of Justice FROM OR ADDED TO THIS FILE COPIED FOI APR 23 1978 BY BUREAU 62- HQ-83894 SERIALS 302-343 SECTION 7 4860 COPIED FOR FOIPA JAN 19 1979 BY FO[ILLEGIBLE] INVESTIGATION COPIED FOR FOIPA MAY 14 1977 BY R[ILLEGIBLE] Serial .322, 370 COPIED FOR FOIPA APR 19 1977 BY R349 Serial 343 COPIED FOR FOIPA [DATE] 197[?] R[?-60] ED FOR IPA FILe SECTION 7 SERIALS 302-343 DO NOT D
 
 ### ad721de274bb7d6c — 65_HS1-834228961_62-HQ-83894_Section_008
 
@@ -397,7 +397,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-4-895 (REV. 11-20-73) 0062 Class / Case # SERIALS 344-384 3 容 83894 ent of Justice HEADQUARTERS FBI - HQ-83894 RRP003IXGQ CENTRAL RECORDS FROM OR ADDED TO THIS FIL Sub 8/11/1274184 √ <math>\infty</math> 344 Serial # CENTER 384 SECTION 8 FOIPA# 993087. STIGATION MARR NOV 3 1978 F 34 MAY 14 1977 BY MAY # 1811 BA 8 USE CARE IN HANDLING THIS FILE Du 358, 346 nster-Gall 3421 Declassification authority derived JAN 18 1979 BY F420 from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-
+62- HQ-83894 SECTION 8 SERIALS 344-384 *62-HQ-83894-8* SECTION 8 SERIALS 344-384 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007 Department of Justice [ILLEGIBLE] FROM OR ADDED TO THIS FIL[E] BUREAU DO NOT DESTROY FOIPA # 3930[ILLEGIBLE] COPIED INVESTIGATION FOIPA DO NOT DESTROY COPIED FOR FOIPA MAY 14 1977 BY [ILLEGIBLE] COPIED FOR FOIPA NOV 3 1976 BY [ILLEGIBLE] COPIED FOR FOIPA MAY 4 1977 BY [ILLEGIBLE] USE CARE IN HANDLING THIS FILE Du 358 3[
 
 ### 8bfd94484138d59b — 65_HS1-834228961_62-HQ-83894_Section_009
 
@@ -409,7 +409,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-REV. 13-20-73) 4-5年 0062 83894 Class / Case # HQ - HEADQUARTERS SERIALS 385-447 容 FB of Justice HQ-83894 RRP003IXGO JAN 19 15/3 CENTRAL RECORDS CENTER Sub THIS FIL ADDED FROM OR 8/11/1274182 6 9 385 Serial # BU 447 SECTION 9 MR 17 1976 BY Sevial 426 1 116 404718 FOIPA VESTIGATION FOR NOV 2 Z 0 FOR COPIED 34 FEB 28 1978 MAY 13 1911 DY 8232 FOIPA # 993087 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. Talbino water .. ranster-1:2 SHAW-WALKER [[IM
+FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 9 385 447 8/11/1274182 ment of Justice JAN 10 1976 VED FROM OR ADDED TO THIS FIL BUREAU COPIED FOR FO[IPA] APR 12 1976 BY 62 - HQ-83894 SERIALS 385-447 SECTION 9 DE[STROY] of Serial 426 FOIPA # 404718 406 COPIED FOR FOIPA NOV 2 BY INVESTIGATION COPIED FOR FOIPA FEB 28 1976 BY COPIED FOR FOIPA MAY 13 1971 BY R232 DO NOT DESTROY USE CARE IN HANDLING THIS FILE FOIPA # 993087 SECTION 9 SERIALS 385-447 Declassi
 
 ### 7d58f0cac741650a — 65_HS1-834228961_62-HQ-83894_Section_010
 
@@ -421,7 +421,7 @@ REV. 13-20-73) 4-5年 0062 83894 Class / Case # HQ - HEADQUARTERS SERIALS 385-44
 
 Excerpt (page 1):
 
-0062 Class / Case # HQ-HEADQUARTERS 타 62-HD-83894-10 GITTE Serials 83894 FBI - CENTRAL RECORDS CENTI RRP003IXGI Sub HQ-83894 8/11/1274176 F( 448- |----------------------------------- 10 NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE PERSON NAME OF THE P ш 448 Serial # h OPEN 띴 Sec. 1970 10 VESTI ICKETT STREET APR 26 1977 USE CARE IN HANDLING T
+SECTION 10 SERIALS 448-- ---- 62- HQ-83894 Sec. 10 Serials 448- [BARCODE] 62-HQ-83894-10 X FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 10 448 OPEN 8/11/1274176 [BARCODE] RRP003IXGI [Stamps visible:] COPIED FOR F O I A APR 26 1971 BY [ILLEGIBLE] FROM OR ADDED TO THIS F[ILE] OCT 23 1989 PICKETT STREET INVESTIGATION BUREAU COPIED FOR F O I A FEB 28 197[ILLEGIBLE] c 6/14/77 Serial 449 COPIED FOR F O I A NOV [ILLEGIBLE] 1976 BY [ILLEGIBLE] COPIED FOR f O
 
 ### 108379f8a86dbe9c — 65_HS1-834228961_62-HQ-83894_Serial_130
 
@@ -433,7 +433,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-. . . 62-83894-130 DECLASSIFIED Authority: NND 90986 HEADQUARTERS AIR DEFENSE COMMAND IN REPLY MITCHEL FIELD, NEW YORK REFER TO: 12 September 1947 Unidentified Flying Object SUBJECT: (Interview - Alpheus O. Powell) SUMMARY OF INFORMATION: The following information was received 12 August 1947 from Mr. Alpheus O. Powell, 28 Redwood Road, New Hyde Park, Long Island, relative to the sighting of a possible flying disc 4 August 1947. On 4 August 1947, Mr Powell, an Airlines Captain with Pan American A
+CONFIDENTIAL DECLASSIFIED Authority: NND 90986 62-83994-130 HEADQUARTERS AIR DEFENSE COMMAND MITCHEL FIELD, NEW YORK IN REPLY REFER TO: 12 September 1947 SUBJECT: Unidentified Flying Object (Interview - Alpheus O. Powell) SUMMARY OF INFORMATION: The following information was received 12 August 1947 from Mr. Alpheus O. Powell, 28 Redwood Road, New Hyde Park, Long Island, relative to the sighting of a possible flying disc 4 August 1947. On 4 August 1947, Mr Powell, an Airlines Captain with Pan Ame
 
 ### 67c2ef13cc69891c — 65_HS1-834228961_62-HQ-83894_Serial_153
 
@@ -445,7 +445,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-SERIAL 153 ONLY 62-HQ-33894 VOL1 FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # ONLY 153 0062 83894 1 8/11/1274168 RRP003IXGA Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007.
+62- HQ - 83894 VOL 1 SERIAL 153 ONLY FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 1 153 ONLY 8/11/1274168 [BARCODE] RRP0031XGA Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007.
 
 ### fa24eb58219a8dff — 65_HS1-834228961_62-HQ-83894_Serial_164
 
@@ -457,7 +457,7 @@ SERIAL 153 ONLY 62-HQ-33894 VOL1 FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS 
 
 Excerpt (page 1):
 
-타 0062 62-HQ-83894-EBF 164 Class / Case # HQ - HEADQUARTERS Serials EBF 164 83894 FBI - CENTRAL RECORDS CENTER 8/11/1274166 RRP003XG8 HQ-83894 Sub - Vol. 164 Serial # E III ONLY 質問的ななない。 BENEVE WITH BUT 国際国立なりなったのから $25 TAX IS NOT THE 留 DO NOT<br>DESTRE 0 . 0 FOIPA # 1 . . . 1112 Declassification authority derived from FBI Automatic Declassification 1 Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Photograph of a tan FBI Central Records Cen
+62- HQ-83894 Serials EBF 164 [BARCODE] 62-HQ-83894-EBF 164 EBF + ENCL BEHIND FILE 62-83894-164 DO NOT DESTROY # 033087 ┌─────────────────────────────────────┐ │ FBI - CENTRAL RECORDS CENTER │ │ │ │ HQ - HEADQUARTERS │ │ │ │ Class / Case # Sub Vol. Serial #│ │ │ │ 0062 83894 1 164 ONLY │ │ │ │ 8/11/1274166 │ │ [BARCODE] │ │ RRP003IXG8 │ └─────────────────────────────────────┘ DO NOT DESTROY FOIPA # 1142292 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24
 
 ### 4b68726be4af8ff9 — 65_HS1-834228961_62-HQ-83894_Serial_220
 
@@ -469,7 +469,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-62- HQ-83894 ENCL BEHIND FILE Serials EBF 220 EBF 62-HQ-83894-EBF 220 -220 438411 00 - 0 DO NOT<br>DESTROY 1 19 FOIPA# 1294932 . . FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Serial # Vol. Sub Class / Case # ONLY 220 1 0062 83894 8/11/1274164 Declassification authority derived from FBI Automatic Declassification RRP003IXG6 Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Scanned manila file folder cover with two adhesive labels and handwri
+62- HQ-83894 Serials EBF 220 [BARCODE] 62-HQ-83894-EBF 220 EBF + ENCL BEHIND FILE DO NOT DESTROY FOIPA# 1254-532 62-83894-220 FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 1 220 ONLY 8/11/1274164 [BARCODE] RRP003ING6 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Scanned manila file folder cover with two adhesive labels and ha
 
 ### 954d1e1944bc6d17 — 65_HS1-834228961_62-HQ-83894_Serial_403
 
@@ -481,7 +481,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-Berge. - - 65- HQ-83894 Serial 403 EBF 62-HD-83894-E403 FBI - CENTRAL RECORDS CENTER TON OC HQ - HEADQUARTERS ESTROY Serial # Vol. Class / Case # Sub DIPA#1142292 403 ONLY 0062 83894 9/18/226771 RRP00AI1WL Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A manila FBI records envelope with two white label stickers, handwritten and stamped text including “DO NOT DESTROY,” “6
+62- HQ-83894 Serial 403 EBF 02-HQ-83894-E403 X FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS DO NOT DESTROY Class / Case # Sub Vol. Serial # DIPA # 1142292 0062 83894 1 403 ONLY 9/18/226771 RRP00AI1WL 62 - 83894 - 403 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A manila FBI records envelope with two white label stickers, handwritten and stamped text including “DO NOT
 
 ### af42a6774881c110 — 65_HS1-834228961_62-HQ-83894_Serial_438
 
@@ -493,7 +493,7 @@ Berge. - - 65- HQ-83894 Serial 403 EBF 62-HD-83894-E403 FBI - CENTRAL RECORDS CE
 
 Excerpt (page 1):
 
-0062 83894 438-Only Vol. 1 FBI - CENTRAL RECORDS CENTER HQ-0000-86775B: HQ HQ - HEADQUARTERS Vol. Serial # Sub Class / Case # ONLY 438 0062 83894 8/11/1274161 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. RRP003IXG3 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Barcode with identifier below it: - A blue rectangular sticker is adhered to the bottom right corner of the file folder cover.
+0062 83894 Vol. 1 438 Only FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS HQ-0000-86775B: HQ Class / Case # Sub Vol. Serial # 0062 83894 1 438 ONLY 8/11/1274161 |||||||||||||||||||||||||||||||| RRP003IXG3 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Barcode with identifier below it: - A blue rectangular sticker is adhered to the bottom right corner of the file folder c
 
 ### f42c11ca158aeffc — 65_HS1-834228961_62-HQ-83894_Serial_449
 
@@ -505,7 +505,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-SERIAL 449- ONLY G2. HQ. 33394 Val FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Vol. Serial # Sub Class / Case # ONLY 449 0062 83894 1 8/11/1274157 RRP003IXFZ Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007.
+62-HQ-33394 Vol 1 SERIAL 449- ONLY FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 1 449 ONLY 8/11/1274157 |||||||||||||||||||||||||||||||| RRP003IXFZ Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007.
 
 ### e897e67f95bc1e1b — 65_HS1-834228961_62-HQ-83894_SUB_A
 
@@ -517,7 +517,7 @@ SERIAL 449- ONLY G2. HQ. 33394 Val FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTER
 
 Excerpt (page 1):
 
-Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. FD-245.1 (Rev. 1-4-99) U.S. Department of Justice 0062 딣 Class FBI / Case # HEADQUARTERS File 83894 CENTRAL No. Bureau D = ∞ Sub ᄁ ECORDS igation RRP003IXFT ⊸ CENTER Serial# OPEN Serials Volume Field Office Criminal Investigative Number and Administrative Files FOIPA Armed and Dangerous DO NOT DESTROY _ NCIC OCIS ELSUR Suicidal Escape Risk Financial Privacy Act Other _ See also Nos. _____ [[IMAGE-D
+Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. FD-245.1 (Rev. 1-4-99) U.S. Department of Justice FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # 0082 63894 Sub A Vol. 1 Serial # 1 OPEN 8/11/1274151 RRF0001XFT Bureau of Investigation File No. 002-8-3894-A Field Office Criminal Investigative and Administrative Files ___________ Armed and Dangerous ___________ FOIPA ___________ DO NOT DESTROY ___________ NCIC ___________ ELSUR ______
 
 ### 8156067f7ff4b983 — DOE-UAP-D002, James Tuck Correspondence, 1970s
 
@@ -529,7 +529,7 @@ Declassification authority derived from FBI Automatic Declassification Guide, is
 
 Excerpt (page 1):
 
-A-83-001_2-1 BL 11-23-20 Dear Mr. Tuck: Im Derry That & Cannot fell Out The attacked forme since The times and dates of any Rightings escape me. I can However, like you that during the years 1948 through 1951 Reverale sightinge of Breen lighte Were made at Les alames. These threally occured during the early goart of the Hight, Hime to eleven, and were Usually use the Jenney Wouldins. I can recall several enstances of green light weaving in and out & Mountain years. This was all reported Is the p
+A-83-001_2-1 BL 11-23-70 Dear Mr. Tuck: I'm sorry that I cannot fill out the attached form since the times and dates of any sightings escape me. I can however, tell you that during the years 1948 through 1951 several sightings of green lights were made at Los Alamos. These usually occured during the early part of the night, nine to eleven, and were usually in the Jemez Mountains. I can recall several instances of green lights weaving in and out of Mountain peaks. This was all reported to the Pro
 
 ### b1c6f5c4a7fbeee1 — DOE-UAP-D003, Pajarito Astronomers Invitation, 1986
 
@@ -541,7 +541,7 @@ A-83-001_2-1 BL 11-23-20 Dear Mr. Tuck: Im Derry That & Cannot fell Out The atta
 
 Excerpt (page 1):
 
-A-86-014-91-3 H. Borgman H-183 5/20/86 Pajarito Astronomers P.O. Box 1092, Los Alamos NM, 87544 MS K553 President MS E531 Vice President MS F665 Treesurer Sponsored by Club 1563 EHF-100-334 Tuesday, May 20, 1986 Dear Members, Our next meeting will be Thursday, May 29, 1986, in the Ranch Room at Fuller Lodge, at 7:30 p.m. Guest speaker will be Dr. John Warren of AT-6, whose topic will be "Why Should a Scientist be Concerned about UFO's?" To find the Ranch Room, go around (outside) to the south en
+A-86-014-91-3 4. Borgman H-183 5/20/86 Pajarito Astronomers P.O. Box 1092, Los Alamos NM, 87544 President [REDACTED] MS K553 Vice President [REDACTED] MS E531 Treasurer [REDACTED] MS F665 Sponsored by Club 1663 EHF-100-334 Tuesday, May 20, 1986 Dear Members, Our next meeting will be Thursday, May 29, 1986, in the Ranch Room at Fuller Lodge, at 7:30 p.m. Guest speaker will be Dr. John Warren of AT-6, whose topic will be "Why Should a Scientist be Concerned about UFO's?" To find the Ranch Room, go
 
 ### fd8bfb9481bcbdd3 — DOW-UAP-D003, Mission Report, Arabian Gulf, 2020
 
@@ -555,7 +555,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-)1.4a Misrep 8799515 Narrative (b)(1)1.4a, (b)(1)1.4c .4a Admin CLASSIFICATION • Classification: SECRET • Associated Caveats: (b)(1)1.4a • Classification Source (MS or Classification Guide ID): (b)(1)1.4a • Declassification Date (YYYYMMDD): 20480603 OPERATION • Operation: (b)(1)1.4a • Domain: (b)(1)1.4a • Operations Center: (b)(1)1.4a • Major Command (MAJCOM): AFCENT • Combatant Command (COCOM): (b)(1)1.4a MSGID • Report Type: MISREP • Originator (Unit or Squadron): (b)(1)1.4a • Submit Date (Aut
+(b)(1)1.4a Misrep 8799515 Narrative (b)(1)1.4a (b)(1)1.4a, (b)(1)1.4c [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] Admin CLASSIFICATION • Classification: SECRET • Associated Caveats: (b)(1)1.4a • Classification Source (MS or Classification Guide ID): (b)(1)1.4a • Declassification Date (YYYYMMDD): 20480603 OPERATION • Operation: (b)(1)1.4a • Domain: [REDACTED] • Operations Center: (b)(1)1.4a • Major Command (MAJCOM): AFCENT • Combat
 
 ### 4382ccbf2a39513d — DOW-UAP-D004, Mission Report, Arabian Gulf, 2020
 
@@ -569,7 +569,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-
+1.4(a) [REDACTED]
 
 ### b21122b1b7b2d953 — DOW-UAP-D005, Mission Report, Arabian Gulf, 2020
 
@@ -583,7 +583,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A solid black page. In the top left corner, the text "1.4(a)" is printed in large, bold, red font.
+1.4(a) [REDACTED] [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A solid black page. In the top left corner, the text "1.4(a)" is printed in large, bold, red font.
 
 ### f6d9556247ebeb2d — DOW-UAP-D006, Mission Report, Arabian Gulf, 2020
 
@@ -597,7 +597,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-
+1.4(a) [REDACTED]
 
 ### 6fc6419676926f13 — DOW-UAP-D007, Mission Report, Arabian Gulf, 2020
 
@@ -611,7 +611,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-
+1.4(a) [REDACTED]
 
 ### 33cca99659328520 — DOW-UAP-D008, Mission Report, Djibouti, 2025
 
@@ -625,7 +625,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-
+1.4(a) [REDACTED]
 
 ### c1c59236394f7b14 — DOW-UAP-D010, Mission Report, Middle East, May 2022
 
@@ -737,7 +737,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 12 September 2025 O O O I I TIVOO Y TOLOR Misrep undefined-9319618 Narrative (SECRET//REL TO USA, FVEY) AT 0015Z, TOOK OFF FROM AL DHAFRA 1.4a (OMAM). (SECRET//REL TO US/A, TVLT) AT 0030Z, 1.4a HANDED OVER FROM THE LRE. (SECRET//REL TO USA, I VLT) AT 0145Z, 1.48 RECEIVED A PROFESSIONAL GUARD CALL. SEE GUARD CALL LINE 1. SECRET//REL TO USA, FVEY) FROM 0150Z TO 2019Z, 1.4a COLLECTED SIGINT VIA AIRHANDLER. SECRET//REL 
+SECRET/NOFORN Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 12 September 2025 Misrep undefined-9319618 Narrative (SECRET/NOFORN) (SECRET//REL TO USA, FVEY) AT 0015Z, [1.4a] TOOK OFF FROM AL DHAFRA (OMAM). (SECRET//REL TO USA, FVEY) AT 0030Z, [1.4a] HANDED OVER FROM THE LRE. (SECRET//REL TO USA, FVEY) AT 0145Z, [1.4a] RECEIVED A PROFESSIONAL GUARD CALL. SEE GUARD CALL LINE 1. (SECRET//REL TO USA, FVEY) FROM 0150Z TO 2019Z, [1.4a] COLLECTED SIGINT VIA AIRHANDLER.
 
 ### 15d23b5f88df64fa — DOW-UAP-D025, Mission Report, Greece, January 2024
 
@@ -765,7 +765,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 24 October 2025 DECKET//NOT OK Misrep undefined-10055709 Narrative AT 2100Z, (b)(1)1.4a TOOK OFF FROM OMAM VIA SLR. (b)(1)1.4aPROCEEDED TO FRAGGED TASKING. AT 1822Z, (b)(1)1.4a WAS 7-LINED. (b)(1)1.4a DID NOT ARRIVE ON-STATION DUE TO WX RTB (SEE ON/OFF STATION 1). CONDUCTED A NON-INTERFERENCE BASIS TASKING (SEE NIB 1). AT 2256Z, (b)(1)1.4a CONDUCTED A NON-INTERFERENCE BASIS TASKING (SEE NIB 2). AT 0444Z, (b)(1 AT 04
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 24 October 2025 SECRET//NOFORN Misrep undefined-10055709 Narrative (SECRET//NOFORN) AT 2100Z, (b)(1)1.4a TOOK OFF FROM OMAM VIA SLR. (b)(1)1.4a PROCEEDED TO FRAGGED TASKING. AT 1822Z, (b)(1)1.4a WAS 7-LINED. (b)(1)1.4a DID NOT ARRIVE ON-STATION DUE TO WX RTB (SEE ON/OFF STATION 1). AT 2256Z, (b)(1)1.4a CONDUCTED A NON-INTERFERENCE BASIS TASKING (SEE NIB 1). AT 0444Z, (b)(1)1.4a CONDUCTED A NON-INTERFERENCE BASIS TAS
 
 ### 9151e15016109463 — DOW-UAP-D028, Mission Report, Iraq, September 2024
 
@@ -835,7 +835,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison Please do not use the purple 026 "submit" button above. Save and email the complete file manually Range Fouler Debrief Form (see below). Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Rank Last Name, First Name Squadron
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Please do not use the purple "submit" button above. Save and email the complete file manually (see below). Range Fouler Debrief Form Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Last Name, Fir
 
 ### a0f6663169c21caf — DOW-UAP-D042, Range Fouler Debrief, Japan, 2023
 
@@ -849,7 +849,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-A. Harrison button above. Save and email the complete file manually Range Fouler Debrief Form see below Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group!" please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Rank Last Name, First Name Squadron SIPR Email Address Crew Position 0-2 482 ATKS Pilot This information is
+Declassified by MG Richard A. Harrison USCENTCOM, Refer to Start "submit" button above. Save and Declassification Date: 2026 email the complete file manually Range Fouler Debrief Form FOUO / Privacy Act applies (see below). Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 bu
 
 ### cc33e8c352fc80ce — DOW-UAP-D044, Range Fouler Reporting Form, Gulf of Aden, October 2020
 
@@ -863,7 +863,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison Please do not use the purple submit" button above. Save and email the complete file manually Range Fouler Reporting Form (see below). Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Rank Last Name, First Name Squadron SI
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassification Date: 03/27/2026 Range Fouler Reporting Form Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group;" please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Last Name, First Name Rank Squadron SIPR Email Address Crew Position O-2 172 ATKS Oth
 
 ### 17a8cc07fd8c694f — DOW-UAP-D048, Department of the Air Force Report, 1996
 
@@ -875,7 +875,7 @@ Declassified by MG Richard A. Harrison Please do not use the purple submit" butt
 
 Excerpt (page 1):
 
-RESEARCH TRIANGLE INSTITUTE Contract No. FO4703-91-C-0112 RTI Report No. RTI/5180/77-43F September 10, 1996 Modeling Unlikely Space-Booster Failures in Risk Calculations Final Report Prepared for Department of the Air Force 45th Space Wing (AFSPC) Safety Office - 45 SW/SE Patrick AFB, FL 32925 and Department of the Air Force 30th Space Wing (AFSPC) 9961025 122 Safety Office - 30 SW/SE Vandenberg AFB, CA 93437 Distribution authorized to US Government agencies and their contractors to protect admi
+RESEARCH TRIANGLE INSTITUTE /RTI Contract No. FO4703-91-C-0112 RTI Report No. RTI/5180/77-43F September 10, 1996 Modeling Unlikely Space-Booster Failures in Risk Calculations Final Report Prepared for Department of the Air Force 45th Space Wing (AFSPC) Safety Office - 45 SW/SE Patrick AFB, FL 32925 and Department of the Air Force 19961025 122 30th Space Wing (AFSPC) Safety Office - 30 SW/SE Vandenberg AFB, CA 93437 Distribution authorized to US Government agencies and their contractors to protec
 
 ### 775d16ead1ec8fa1 — DOW-UAP-D049, Launch Summary, Vandenberg AFB, 2000
 
@@ -887,7 +887,7 @@ RESEARCH TRIANGLE INSTITUTE Contract No. FO4703-91-C-0112 RTI Report No. RTI/518
 
 Excerpt (page 1):
 
-VANDENBERG AFB LAUNCH SUMMARY 1958 - 2000 30th SPACE WING Office of History . • ٠ . [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - United States Air Force 30th Space Wing emblem. The emblem is a shield featuring a dark background with a stylized globe showing latitude and longitude lines. Two stylized aircraft or space vehicles are shown launching upward from behind the globe. Below the shield, a scroll or ribbon bears the text "30th SPACE WING". The emblem is positio
+VANDENBERG AFB LAUNCH SUMMARY 1958 - 2000 30th SPACE WING Office of History [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - United States Air Force 30th Space Wing emblem. The emblem is a shield featuring a dark background with a stylized globe showing latitude and longitude lines. Two stylized aircraft or space vehicles are shown launching upward from behind the globe. Below the shield, a scroll or ribbon bears the text "30th SPACE WING". The emblem is positioned on t
 
 ### 6d7faf71150107e9 — DOW-UAP-D050, Email Correspondence, INDOPACOM, April 2025
 
@@ -900,7 +900,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-I just got off the phone with the unit that flies 1.4(a) They said to me that the two lines listed are on the UNCLASSIFIED level and that adding in the AOR as INDOPACOM is also at the UNCLASSIFIED level. 6 PAROC Intel Data Analysis Technician Team Lead 12 AF / DET 3 CLASSIFICATION: SECRET//NOFORN Hello, Per our conversation, can you please confirm that the 1.4(a) tearlines below are at the UNCLASSIFIED level? Also, could you please confirm that we can use the AOR INDOPACOM. Thank vou. 1
+(b) (6) I just got off the phone with the unit that flies 1.4(a) They said to me that the two lines listed are on the UNCLASSIFIED level and that adding in the AOR as INDOPACOM is also at the UNCLASSIFIED level. (b) (6) PAROC Intel Data Analysis Technician Team Lead 12 AF / DET 3 (b) (6) (b) (6) CLASSIFICATION: SECRET//NOFORN Hello, Per our conversation, can you please confirm that the 1.4(a) tearlines below are at the UNCLASSIFIED level? Also, could you please confirm that we can use the AOR IN
 
 ### 71758de42a2df926 — DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023
 
@@ -913,7 +913,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Good morning! Thank you for your patience on this-- like I said, this was a first for me. Upon consulting internally here at HQ, our folks confirmed we do have the authority to process this as a derivative classification review, instead of a declassification request. Based upon the summary you provided below, I concur with using this at the UNCLASSIFIED level in your product. Consider your request approved. Please let me know if there's anything else I can do for you! Thanks, OSI CI Collections 
+[REDACTED] Good morning! Thank you for your patience on this-- like I said, this was a first for me. Upon consulting internally here at HQ, our folks confirmed we do have the authority to process this as a derivative classification review, instead of a declassification request. Based upon the summary you provided below, I concur with using this at the UNCLASSIFIED level in your product. Consider your request approved. Please let me know if there's anything else I can do for you! Thanks, [REDACTE
 
 ### a3f68d208681dc64 — DOW-UAP-D052, Email Correspondance, NA, August 2024
 
@@ -926,7 +926,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-CLASSIFICATION: SECRET//NOFORN Good morning, Below is the requested additional information (include the year) to the UNCLASS tear line. Let us know if you have any questions, comments or concerns. v/r PAROC Intel Data Analysis Technician 15 AF / DET 1 //UNCLASSIFIED// 31 OCT 24, U.S Aircraft observed a possible UAP. It appeared to be oval/orb 1
+(b) (6) CLASSIFICATION: SECRET//NOFORN Good morning, Below is the requested additional information (include the year) to the UNCLASS tear line. Let us know if you have any questions, comments or concerns. v/r (b) (6) PAROC Intel Data Analysis Technician 15 AF / DET 1 (b) (6) //UNCLASSIFIED// 31 OCT 24, U.S Aircraft observed a possible UAP. It appeared to be oval/orb 1
 
 ### 2201422e542ed597 — DOW-UAP-D054, Mission Report, Mediterranean Sea, NA
 
@@ -940,7 +940,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-
+1.4(a) [REDACTED]
 
 ### 669dd29723dd423f — DOW-UAP-D055, Mission Report, Syria, November 2016
 
@@ -954,7 +954,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A, Harrison USCENTCOM Chief of Staff SECRETIFICE TO USA, NATO Declassified on: 20 M 67.1 P-8A OBSERVES UNIDENTIFIED LOW-FLYING OBJECT 55 NM NORTHWEST OF LATAKIA, SYRIA 18 NOV 2016 FLIGHT PATH BLUF: While monitoring KCTG activity in the Eastern Mediterranean, P-8A, observed an unidentified low-flying object 55 nm northwest of Latakia from an unknown IFILS UDALOV DD-519 origin, traveling at approx 500KTS on a southeasterly heading outbound from KCTG, for ~2 minutes. RUSY
+SECRET//REL TO USA, NATO 67.1 P-8A OBSERVES UNIDENTIFIED LOW-FLYING OBJECT 55 NM NORTHWEST OF LATAKIA, SYRIA 18 NOV 2016 BLUF: While monitoring KCTG activity in the Eastern Mediterranean, P-8A, observed an unidentified low-flying object 55 nm northwest of Latakia from an unknown origin, traveling at approx 500KTS on a southeasterly heading outbound from KCTG, for ~2 minutes. Timeline (Z): ① (S//REL) 18/1310Z: P-8 observed a possible missile launch IVO 1,4a from an origin unknown detected via the
 
 ### 205f9d0f627074c3 — DOW-UAP-D056, Range Fouler Debrief, Arabian Sea, August 2020
 
@@ -968,7 +968,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison ISC Please do not use the purple Declassimit button above. Save and email the complete file manually Range Fouler Debrief Form (see below). Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Rank Last Name, First Name Squad
+Declassified by MG Richard A. Harrison Please do not use the purple USCENTCOM, Chief of Staff "submit" button above. Save and Declassified on 03/27/2026 email the complete file manually (see below). Range Fouler Debrief Form Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 b
 
 ### c2961d7ccb95ae45 — DOW-UAP-D057, Range Fouler Reporting Form, Gulf of Aden, September 2020
 
@@ -982,7 +982,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison ISC Please do not use the purple 'submit" button above. Save and email the complete file manually FOL Range Fouler Reporting Form (see below). Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group|" please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Rank Last Name, First Name Sq
+Declassified by MG Richard A. Harrison USCENTCOM, 01/16/2026 Please do not use the purple "submit" button above. Save and Declassified on Date 2026 FOUO email the complete file manually (see below). Range Fouler Reporting Form Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group" please report each on a separate form for data collection purposes. You should receive a response within 5 
 
 ### 9a3f23d9136eddf3 — DOW-UAP-D058, Range Fouler Debrief, NA, October 2020
 
@@ -996,7 +996,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison Please do not use the purple Declassified button above. Save and email the complete file manually Range Fouler Debrief Form (see below). Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Rank Last Name, First Name Squadron
+Declassified by MG Richard A. Harrison USCENTCOM, Chief of Staff Declassified on: 29 March 2021 Range Fouler Debrief Form Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Last Name, First Name Rank Squadron SIPR Email Address Crew Position O-3 77 EFS This info
 
 ### 39c999bd61b2e20f — DOW-UAP-D060, Mission Report, Arabian Gulf, August 2020
 
@@ -1010,7 +1010,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison JSCENTCOM Chief of Staff Declassified on: 20 March 2026 Misrep 4592219 Narrative AT 0337Z 1.4a TOOK OFF FROM OKAS. AT 0359Z, 1.4a HANDED OVER FROM THE LRE. FROM 0434Z TO 2300Z, 1,4a COLLECTED SIGINT VIA AIRHANDLER. FROM 0513Z TO 2256Z, 1.4a SUPPORTED NAVCENT TO OPERATION IVO ARABIAN 1.4a GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0726Z, 1.4a OBSERVED NOTEWORTHY ACTIVITY. SEE OBS LINE 1. AT 2256Z, 1.4a WAS CLEARED TO RTB. AT 0017Z, 1.4a HAND
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 20 March 2026 Misrep 4592219 Narrative [REDACTED] AT 0337Z, 1.4a TOOK OFF FROM OKAS. AT 0359Z, 1.4a HANDED OVER FROM THE LRE. FROM 0434Z TO 2300Z, 1.4a COLLECTED SIGINT VIA AIRHANDLER. FROM 0513Z TO 2256Z, 1.4a SUPPORTED NAVCENT TO OPERATION 1.4a IVO ARABIAN GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0726Z, 1.4a OBSERVED NOTEWORTHY ACTIVITY. SEE OBS LINE 1. AT 2256Z, 1.4a WAS CLEARED TO RTB. AT 0017
 
 ### a33faf4c40674462 — DOW-UAP-D061, Mission Report, Arabian Gulf, August 2020
 
@@ -1024,7 +1024,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A, Harrison USCENTCOM Chief of Staff Declassified on 22 January 2026 Misrep 4685903 Narrative AT 2307Z, 1.4a TOOK OFF FROM OKAS. AT 2320Z, 1.4a HANDED OVER FROM THE LRE. FROM 0003Z TO 1917Z, 1.4a COLLECTED SIGINT VIA AIRHANDLER. FROM 0041Z TO 1840Z, 1.4a SUPPORTED NAVCENT TO OPERATION IVO ARABIAN 1.4a GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0532Z, 1,48 RECEIVED A GUARD CALL. SEE GUARDCALL LINE 1. AT 1527Z, 1.4a OBSERVED 1X UNK FORMATION. SEE OBSERVA
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on 22 January 2026 Misrep 4685903 Narrative ([REDACTED] AT 2307Z, 1.4a TOOK OFF FROM OKAS. AT 2320Z, 1.4a HANDED OVER FROM THE LRE. FROM 0003Z TO 1917Z, 1.4a COLLECTED SIGINT VIA AIRHANDLER. FROM 0041Z TO 1840Z, 1.4a SUPPORTED NAVCENT TO OPERATION[ 1.4a ]IVO ARABIAN GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0532Z, 1.4a RECEIVED A GUARD CALL. SEE GUARDCALL LINE 1. AT 1527Z, 1.4a OBSERVED 1X UNK FORMATIO
 
 ### b8b5b17a6d70ef39 — DOW-UAP-D062, Mission Report, Strait of Hormuz, September 2020
 
@@ -1038,7 +1038,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 22 January 2026 Misrep 4782130 Narrative AT 2302Z, 1.4a TOOK OFF FROM OKAS. AT 2313Z, 1.4a HANDED OVER FROM THE LRE. FROM 2346Z TO 1902Z, 1.48 COLLECTED SIGINT VIA AIRHANDLER. FROM 0318Z TO 1829Z, 1.4a SUPPORTED NAVCENT FOR OPERATION IVO ARABIAN 1.4a GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0408Z, 1.48 RECEIVED A GUARD CALL. SEE GUARD CALL LINE 1. AT 0421Z, 1.48 RECEIVED A GUARD CALL. SEE GUARD CA
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 22 January 2026 [REDACTED] Misrep 4782130 Narrative [REDACTED] AT 2302Z, 1.4a TOOK OFF FROM OKAS. AT 2313Z, 1.4a HANDED OVER FROM THE LRE. FROM 2346Z TO 1902Z, 1.4a COLLECTED SIGINT VIA AIRHANDLER. FROM 0318Z TO 1829Z, 1.4a SUPPORTED NAVCENT FOR OPERATION 1.4a IVO ARABIAN GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0408Z, 1.4a RECEIVED A GUARD CALL. SEE GUARD CALL LINE 1. AT 0421Z, 1.4a RECEIVED A GU
 
 ### 8e727ae36892cba9 — DOW-UAP-D063, Mission Report, Strait of Hormuz, October 2020
 
@@ -1052,7 +1052,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison JSCENTCOM Chief of Staff Declassified on: 16 March 2026 OUO / Privacy Act applies Misrep 4871281 Narrative 1.4a FOOK OFF FROM OKAS. AT 2300Z 1.4a HANDED OVER FROM THE AT 2249Z, FROM 1319Z TO LRE. FROM 2338Z TO 0825Z, 1.4a 1855Z. FROM 0117Z TO 1835Z, 1.4a 1.4a SUPPORTED NAVCENT FOR OPERATION IVO ARABIAN GULF, STRAIT (b)(1)1.4a OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0727Z, 1.4a RECEIVED A GUARDCALL. SEE GUARDCALL LINE 1. AT 0854Z. 1.4a RECEIVED A GUAR
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 16 March 2026 FOUO / Privacy Act applies Misrep 4871281 Narrative [REDACTED] AT 2249Z, 1.4a TOOK OFF FROM OKAS. AT 2300Z, 1.4a HANDED OVER FROM THE LRE. FROM 2338Z TO 0825Z, 1.4a FROM 1319Z TO 1855Z, 1.4a FROM 0117Z TO 1835Z, 1.4a SUPPORTED NAVCENT FOR OPERATION (b)(1)1.4a IVO ARABIAN GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0727Z, 1.4a RECEIVED A GUARDCALL. SEE GUARDCALL LINE 1. AT 0854Z, 1.4a RE
 
 ### 2fecc4f3b434e64d — DOW-UAP-D064, Mission Report, Iran, November 2020
 
@@ -1066,7 +1066,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison JSCENTCOM Chief of Staff Declassified on: 16 March 2026 OUO / Privacy Act applies Misrep 5039166 Narrative AT 0608Z TOOK OFF FROM OKAS. AT 0618Z, 1.4a HANDED OVER FROM THE 1.4a LRE, FROM 0939Z TO 0153Z FROM 1015Z TO 1,40 0112Z 1.4a SUPPORTED NAVCENT FOR OPERATION IVO ARABIAN (b)(1)1.4a GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 1012Z 1.4a RECEIVED A GUARDCALL. SEE GUARDCALL LINE 1. AT 2143Z. 1.4a OBSERVED A UAP. SEE OBS LINE 1. AT 2148Z BSE
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 16 March 2026 FOUO / Privacy Act applies Misrep 5039166 Narrative [REDACTED] AT 0608Z 1.4a TOOK OFF FROM OKAS. AT 0618Z, 1.4a HANDED OVER FROM THE LRE. FROM 0939Z TO 0153Z 1.4a FROM 1015Z TO 0112Z 1.4a SUPPORTED NAVCENT FOR OPERATION (b)(1)1.4a IVO ARABIAN GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 1012Z 1.4a RECEIVED A GUARDCALL. SEE GUARDCALL LINE 1. AT 2143Z, 1.4a OBSERVED A UAP. SEE OBS LINE 1. 
 
 ### aef933642db8134a — DOW-UAP-D065, Mission Report, Arabian Gulf, July 2020
 
@@ -1080,7 +1080,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 16 March 2026 FOUO / Privacy Act applies Misrep 4472514 Narrative AT 0443Z. 1.4a FOOK OFF FROM OKAS. AT 0504Z HANDED OVER FROM THE 1.4a LRE. FROM 0631Z TO 0050Z. FROM 0552Z TO 1.48 0012Z SUPPORTED NAVCENT TO OPERATION 1.4a IVO ARABIAN (b)(1)1.4a GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0615, 1.48 RECEIVED A GUARD CALL. SEE GUARD CALL LINE 1. AT 1830 OBSERVED AN UNIDENTIFIED AERIAL PHENOMENON, SEE 
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 16 March 2026 FOUO / Privacy Act applies Misrep 4472514 Narrative [REDACTED] AT 0443Z, 1.4a TOOK OFF FROM OKAS. AT 0504Z, 1.4a HANDED OVER FROM THE LRE. FROM 0631Z TO 0050Z, 1.4a FROM 0552Z TO 0012Z, 1.4a SUPPORTED NAVCENT TO OPERATION [ (b)(1)1.4a ] IVO ARABIAN GULF, STRAIT OF HORMUZ AND GULF OF OMAN. SEE ISR LINE 1. AT 0615, 1.4a RECEIVED A GUARD CALL. SEE GUARD CALL LINE 1. AT 1830 OBSERVED AN UNIDENTIFIED AERIAL
 
 ### bbc494426d526bdc — DOW-UAP-D074, Mission Report, Syria, November 2023
 
@@ -1140,7 +1140,7 @@ This image description is provided for informational purposes only. Readers shou
 
 Excerpt (page 1):
 
-Recommendation by MG Richard A. Harrison USCENTCOM Chief of Staff Recommended on: 8 Oct 25 CLEARED For Open Publication Mar 10, 2026 Department of Defense OFFICE OF PREPUBLICATION AND SECURITY REVIEW r USCENTCOM MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 001 USCENTCOM Recommendation to AARO [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale aerial or sensor image with a cloudy textured background, a small bright point near the upper center circled in
+CLEARED For Open Publication Mar 10, 2026 Department of Defense OFFICE OF PREPUBLICATION AND SECURITY REVIEW Recommended by MG Richard A. Harrison USCENTCOM Chief of Staff Recommended on 8 Oct 25 [REDACTED] N USCENTCOM MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 001 USCENTCOM Recommendation to AARO [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale aerial or sensor image with a cloudy textured background, a small bright point near the upper center cir
 
 ### 43db2719407a7897 — DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022
 
@@ -1210,7 +1210,7 @@ This video description is provided for informational purposes only. Readers shou
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 12 September 2025 O O O I I TIVOO Y TOLOR Misrep undefined-9319618 Narrative (SECRET//REL TO USA, FVEY) AT 0015Z, TOOK OFF FROM AL DHAFRA 1.4a (OMAM). (SECRET//REL TO US/A, TVLT) AT 0030Z, 1.4a HANDED OVER FROM THE LRE. (SECRET//REL TO USA, I VLT) AT 0145Z, 1.48 RECEIVED A PROFESSIONAL GUARD CALL. SEE GUARD CALL LINE 1. SECRET//REL TO USA, FVEY) FROM 0150Z TO 2019Z, 1.4a COLLECTED SIGINT VIA AIRHANDLER. SECRET//REL 
+SECRET/NOFORN Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 12 September 2025 Misrep undefined-9319618 Narrative (SECRET/NOFORN) (SECRET//REL TO USA, FVEY) AT 0015Z, [1.4a] TOOK OFF FROM AL DHAFRA (OMAM). (SECRET//REL TO USA, FVEY) AT 0030Z, [1.4a] HANDED OVER FROM THE LRE. (SECRET//REL TO USA, FVEY) AT 0145Z, [1.4a] RECEIVED A PROFESSIONAL GUARD CALL. SEE GUARD CALL LINE 1. (SECRET//REL TO USA, FVEY) FROM 0150Z TO 2019Z, [1.4a] COLLECTED SIGINT VIA AIRHANDLER.
 
 ### d8e5687dc870892d — DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023
 
@@ -1232,7 +1232,7 @@ This video description is provided for informational purposes only. Readers shou
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 12 September 2025 O O O I I TIVOO Y TOLOR Misrep undefined-9319618 Narrative (SECRET//REL TO USA, FVEY) AT 0015Z, TOOK OFF FROM AL DHAFRA 1.4a (OMAM). (SECRET//REL TO US/A, TVLT) AT 0030Z, 1.4a HANDED OVER FROM THE LRE. (SECRET//REL TO USA, I VLT) AT 0145Z, 1.48 RECEIVED A PROFESSIONAL GUARD CALL. SEE GUARD CALL LINE 1. SECRET//REL TO USA, FVEY) FROM 0150Z TO 2019Z, 1.4a COLLECTED SIGINT VIA AIRHANDLER. SECRET//REL 
+SECRET/NOFORN Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 12 September 2025 Misrep undefined-9319618 Narrative (SECRET/NOFORN) (SECRET//REL TO USA, FVEY) AT 0015Z, [1.4a] TOOK OFF FROM AL DHAFRA (OMAM). (SECRET//REL TO USA, FVEY) AT 0030Z, [1.4a] HANDED OVER FROM THE LRE. (SECRET//REL TO USA, FVEY) AT 0145Z, [1.4a] RECEIVED A PROFESSIONAL GUARD CALL. SEE GUARD CALL LINE 1. (SECRET//REL TO USA, FVEY) FROM 0150Z TO 2019Z, [1.4a] COLLECTED SIGINT VIA AIRHANDLER.
 
 ### 5ffbe11403179567 — DOW-UAP-PR028, Unresolved UAP Report, Greece, January 2024
 
@@ -1377,7 +1377,7 @@ This video description is provided for informational purposes only. Readers shou
 
 Excerpt (page 1):
 
-Declassified by MG Richard A. Harrison Please do not use the purple 026 "submit" button above. Save and email the complete file manually Range Fouler Debrief Form (see below). Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Rank Last Name, First Name Squadron
+Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Please do not use the purple "submit" button above. Save and email the complete file manually (see below). Range Fouler Debrief Form Please complete this form to the best of your ability. If you do not have the requested information, please leave the field blank. If there was more than one "group," please report each on a separate form for data collection purposes. You should receive a response within 5 business days. Last Name, Fir
 
 ### 46d871c93e4585fd — DOW-UAP-PR037, Unresolved UAP Report, Middle East, 2020
 
@@ -2596,7 +2596,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-800 5 5 15 15 10 * - 12/31/99 18:11:19 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale infrared (IR) sensor still. A central white crosshair reticle with horizontal and vertical axes marked with numbered tick marks (5, 10, 15). A small, dark, point-like object is visible slightly above and to the right of the crosshair center. The background is a uniform, slightly textured gray field. A darker, mottled area suggesting distant terrain or a mountain ridge is vi
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:19 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale infrared (IR) sensor still. A central white crosshair reticle with horizontal and vertical axes marked with numbered tick marks (5, 10, 15). A small, dark, point-like object is visible slightly above and to the right of the crosshair center. The background is a uniform, slightly textured gray field. A d
 
 ### 67ab3ffef2aecf70 — FBI Photo B002
 
@@ -2610,7 +2610,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-• 15 5 15 10 5 10 ш 12/31/99 18:11:27 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome image with a central crosshair reticle and numbered tick marks, showing a small dark dot in the upper center-right sky; timestamp “12/31/99 18:11:27” at bottom left.
+15 10 5 5 10 15 12/31/99 18:11:27 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome image with a central crosshair reticle and numbered tick marks, showing a small dark dot in the upper center-right sky; timestamp “12/31/99 18:11:27” at bottom left.
 
 ### 0e3b3ec17a9ae021 — FBI Photo B003
 
@@ -2624,7 +2624,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-THE RESIDENCE THE PARTY OF PERSONS ASSESSED. 15 5 10 5 15 10 . 12/31/99 18:11:34 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy black-and-white infrared-style photograph with a centered crosshair/reticle overlay and tick marks, several black redaction bars across the image, and a timestamp reading “12/31/99 18:11:34” at lower left.
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] 12/31/99 18:11:34 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy black-and-white infrared-style photograph with a centered crosshair/reticle overlay and tick marks, several black redaction bars across the image, and a timestamp reading “12/31/99 18:11:34” at lower left.
 
 ### 672ae7eab15481ff — FBI Photo B004
 
@@ -2638,7 +2638,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-400 15 15 10 10 5 3 ю 12/31/99 18:12:16 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale night-vision style photograph with a central crosshair reticle and numeric scale markings, showing a small dark dot near the upper center-right; six black redaction bars obscure portions of the frame, and a timestamp “12/31/99 18:12:16” appears at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:12:16 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale night-vision style photograph with a central crosshair reticle and numeric scale markings, showing a small dark dot near the upper center-right; six black redaction bars obscure portions of the frame, and a timestamp “12/31/99 18:12:16” appears at bottom left.
 
 ### 36bcfe2cfb5f3f54 — FBI Photo B005
 
@@ -2652,7 +2652,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-5 Ė 15 15 10 10 100 12/31/99 18:12:20 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy, grayscale infrared (IR) or sensor still. A white crosshair reticle with graduated markings is centered on the screen. The horizontal axis of the reticle has numerical markings: 15, 10, 5, [center], 5, 10, 15. The vertical axis has unnumbered graduated tick marks. Several large, solid black rectangular redaction blocks obscure portions of the image, primarily on the left and 
+15 10 5 5 10 15 12/31/99 18:12:20 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy, grayscale infrared (IR) or sensor still. A white crosshair reticle with graduated markings is centered on the screen. The horizontal axis of the reticle has numerical markings: 15, 10, 5, [center], 5, 10, 15. The vertical axis has unnumbered graduated tick marks. Several large, solid black rectangular redaction blocks obscure portions of the image, primarily on the left and righ
 
 ### b279eac8e49cf4fe — FBI Photo B006
 
@@ -2680,7 +2680,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-DOM: 5 5 10 15 15 10 w 12/31/99 18:10:02 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale video frame of a helicopter in the upper center-right, overlaid with a central crosshair and tick-mark scale labeled 5, 10, and 15 on both horizontal sides, with timestamp “12/31/99 18:10:02” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:02 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale video frame of a helicopter in the upper center-right, overlaid with a central crosshair and tick-mark scale labeled 5, 10, and 15 on both horizontal sides, with timestamp “12/31/99 18:10:02” at bottom left.
 
 ### 0d7a23b29e6de1bf — FBI Photo B008
 
@@ -2694,7 +2694,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-NAME OF TAXABLE PARTY. 5 Ė 15 15 10 ٠ 12/31/99 18:10:18 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Infrared sensor still (BHOT/WHOT mode) showing a crosshair reticle with a central vertical line and horizontal scale marked from -15 to +15. A small, dark, circular object is visible just above the horizontal axis, slightly to the right of the central vertical line (near the +2 position on the horizontal scale). The background is a uniform gray tone. The bottom left 
+15 10 5 5 10 15 12/31/99 18:10:18 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Infrared sensor still (BHOT/WHOT mode) showing a crosshair reticle with a central vertical line and horizontal scale marked from -15 to +15. A small, dark, circular object is visible just above the horizontal axis, slightly to the right of the central vertical line (near the +2 position on the horizontal scale). The background is a uniform gray tone. The bottom left corner displays the ti
 
 ### fd8286ffc6fbc1fb — FBI Photo B009
 
@@ -2708,7 +2708,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-5 15 10 15 5 . 12/31/99 18:10:26 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style video frame with a centered crosshair and numbered horizontal/vertical tick marks, a small dark dot below left of center, and timestamp text “12/31/99 18:10:26” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:26 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style video frame with a centered crosshair and numbered horizontal/vertical tick marks, a small dark dot below left of center, and timestamp text “12/31/99 18:10:26” at bottom left.
 
 ### af047a976bac0c89 — FBI Photo B010
 
@@ -2722,7 +2722,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-5 10 5 10 15 15 . 12/31/99 18:10:50 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style photograph with a centered white crosshair and horizontal/vertical tick marks labeled 5, 10, and 15; a small dark dot appears just right of the vertical axis above center, with several black redaction bars overlaid around the edges and a timestamp reading “12/31/99 18:10:50” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:50 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style photograph with a centered white crosshair and horizontal/vertical tick marks labeled 5, 10, and 15; a small dark dot appears just right of the vertical axis above center, with several black redaction bars overlaid around the edges and a timestamp reading “12/31/99 18:1
 
 ### 19d8e1d503211c84 — FBI Photo B011
 
@@ -2736,7 +2736,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-15 5 5 15 10 exes 12/31/99 18:11:06 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grayscale surveillance-style photograph with a central crosshair and numbered tick marks, showing one small bright dot near the upper center-right and a timestamp reading “12/31/99 18:11:06” at the lower left.
+15 10 5 5 10 15 12/31/99 18:11:06 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grayscale surveillance-style photograph with a central crosshair and numbered tick marks, showing one small bright dot near the upper center-right and a timestamp reading “12/31/99 18:11:06” at the lower left.
 
 ### 2b947223739f5bd4 — FBI Photo B012
 
@@ -2750,7 +2750,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-20000000 10 5 15 15 1000 N. S. S. S. S. Street, etc., or other 12/31/99 18:11:12 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Monochrome infrared or thermal sensor still. The view is centered on a targeting reticle (crosshair) with graduated tick marks. The vertical axis is marked in increments of 5, with major labels at 5, 10, and 15. The horizontal axis is similarly marked. A small, distinct, dark anomalous object is visible in the upper-right quadrant of the reti
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:12 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Monochrome infrared or thermal sensor still. The view is centered on a targeting reticle (crosshair) with graduated tick marks. The vertical axis is marked in increments of 5, with major labels at 5, 10, and 15. The horizontal axis is similarly marked. A small, distinct, dark anomalous object is visible in the up
 
 ### 16fcb501de623b9c — FBI Photo B013
 
@@ -2764,7 +2764,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-۱ ٠ 1 ۰ 4 ۰ 1 З 3 12/31/99 18:19:54 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale surveillance-style image with a central crosshair and range marks labeled “3” on both sides, showing one small dark object near the center-right and a date/time stamp “12/31/99 18:19:54” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:54 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale surveillance-style image with a central crosshair and range marks labeled “3” on both sides, showing one small dark object near the center-right and a date/time stamp “12/31/99 18:19:54” at bottom left.
 
 ### 7d1b50162c29378a — FBI Photo B014
 
@@ -2806,7 +2806,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-1 ı ī п З 3 12/31/99 18:20:41 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale infrared-style photograph with targeting crosshairs centered on a small dark object and a smaller dot nearby; timestamp “12/31/99 18:20:41” at lower left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:41 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale infrared-style photograph with targeting crosshairs centered on a small dark object and a smaller dot nearby; timestamp “12/31/99 18:20:41” at lower left.
 
 ### f8bd1f11b7a2ae48 — FBI Photo B017
 
@@ -2820,7 +2820,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-۰ 1 4 I 2 З 3 12/31/99 18:20:48 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome infrared-style image with a central crosshair and numeric marks “3” on both sides, showing two small adjacent dark blobs near the center and a timestamp “12/31/99 18:20:48” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:48 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome infrared-style image with a central crosshair and numeric marks “3” on both sides, showing two small adjacent dark blobs near the center and a timestamp “12/31/99 18:20:48” at bottom left.
 
 ### c568aea24f3aef31 — FBI Photo B018
 
@@ -2834,7 +2834,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-. M ۰ 8 Z ۰ ì - 1 I A ۰ 1 1 я 1 4 ж 3 - . З 12/31/99 18:21:02 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale surveillance-style frame with a central crosshair and scale marks labeled “3” on left and right, showing two small dark adjacent spots near the center-right and a timestamp “12/31/99 18:21:02” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:21:02 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale surveillance-style frame with a central crosshair and scale marks labeled “3” on left and right, showing two small dark adjacent spots near the center-right and a timestamp “12/31/99 18:21:02” at bottom left.
 
 ### eda0a3d37c6dbbc3 — FBI Photo B019
 
@@ -2848,7 +2848,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-5 5 15 15 10 10 Sec. 1 12/31/99 18:18:53 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - IR / SWIR sensor still from a military targeting system. The display shows a central crosshair reticle with a vertical and horizontal scale. The horizontal scale is marked with numbers: 15, 10, 5, 0, 5, 10, 15. A small, dark, somewhat elongated object is positioned slightly above the horizontal crosshair, slightly left of the vertical crosshair. The background is a uniform grey ton
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 | 5 10 15 12/31/99 18:18:53 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - IR / SWIR sensor still from a military targeting system. The display shows a central crosshair reticle with a vertical and horizontal scale. The horizontal scale is marked with numbers: 15, 10, 5, 0, 5, 10, 15. A small, dark, somewhat elongated object is positioned slightly above the horizontal crosshair, sligh
 
 ### bdf033d4a47eaad3 — FBI Photo B020
 
@@ -2862,7 +2862,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-- 5 5 15 15 10 10 100 12/31/99 18:18:58 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome instrument-style image with a central crosshair reticle and numbered tick marks, showing one small dark object near the upper center-right of the reticle and a timestamp “12/31/99 18:18:58” at bottom left.
+15 10 5 5 10 15 12/31/99 18:18:58 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome instrument-style image with a central crosshair reticle and numbered tick marks, showing one small dark object near the upper center-right of the reticle and a timestamp “12/31/99 18:18:58” at bottom left.
 
 ### c304734c04357887 — FBI Photo B021
 
@@ -2876,7 +2876,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-5 5 15 15 10 10 . 12/31/99 18:19:06 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy grayscale video frame with a centered crosshair and numbered tick marks, showing one small dark object just right of center above the horizontal axis; several large black redaction bars obscure parts of the frame, and a timestamp reads “12/31/99 18:19:06” at bottom left.
+15 10 5 5 10 15 12/31/99 18:19:06 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy grayscale video frame with a centered crosshair and numbered tick marks, showing one small dark object just right of center above the horizontal axis; several large black redaction bars obscure parts of the frame, and a timestamp reads “12/31/99 18:19:06” at bottom left.
 
 ### dc9f45a9ec6feb00 — FBI Photo B022
 
@@ -2890,7 +2890,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-Ś 3 12/31/99 18:19:19 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale night-vision-style image with a central crosshair reticle and scale marks labeled “3” on both left and right; one small dark paired object appears near the upper-right of center, and a timestamp “12/31/99 18:19:19” is visible at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:19 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale night-vision-style image with a central crosshair reticle and scale marks labeled “3” on both left and right; one small dark paired object appears near the upper-right of center, and a timestamp “12/31/99 18:19:19” is visible at bottom left.
 
 ### a417f61b2dbd671f — FBI Photo B023
 
@@ -2904,7 +2904,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-З 3 12/31/99 18:19:33 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A black-and-white infrared sensor still, appearing to be from a Forward-Looking Infrared (FLIR) or similar targeting system. The image has a grainy, noisy texture with a uniform grey background. A white crosshair reticle with numbered "3" marks on the horizontal axis is centered in the frame. A small, dark, oblong or pill-shaped object is visible just to the right of the crosshair's vertical line, re
+3 3 12/31/99 18:19:33 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A black-and-white infrared sensor still, appearing to be from a Forward-Looking Infrared (FLIR) or similar targeting system. The image has a grainy, noisy texture with a uniform grey background. A white crosshair reticle with numbered "3" marks on the horizontal axis is centered in the frame. A small, dark, oblong or pill-shaped object is visible just to the right of the crosshair's vertical line, re
 
 ### 6ded7ef20ded84c7 — FBI Photo B024
 
@@ -2918,7 +2918,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-T H 1 T STATE OF STREET I . ۰ - п - - T З 3 12/31/99 18:19:40 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome surveillance-style image of a single small dark object near the center, overlaid with white crosshair reticles and the timestamp “12/31/99 18:19:40” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:40 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome surveillance-style image of a single small dark object near the center, overlaid with white crosshair reticles and the timestamp “12/31/99 18:19:40” at bottom left.
 
 ### 1701a0f307714921 — FBI September 2023 Sighting - Composite Sketch
 
@@ -2930,7 +2930,7 @@ T H 1 T STATE OF STREET I . ۰ - п - - T З 3 12/31/99 18:19:40 [[IMAGE-DESCRIP
 
 Excerpt (page 1):
 
-AND THE PERSON NAMED IN COLUMN [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Color photograph, likely digital or scanned print, depicting a grassy field under a clear blue sky. In the upper right quadrant, a metallic, gold/bronze-colored, disc-shaped object is positioned. The object is oval in the frame, with a smooth, reflective surface. A brilliant, starburst-like lens flare or light source emanates from behind the left side of the object, creating radiating blue a
+[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Color photograph, likely digital or scanned print, depicting a grassy field under a clear blue sky. In the upper right quadrant, a metallic, gold/bronze-colored, disc-shaped object is positioned. The object is oval in the frame, with a smooth, reflective surface. A brilliant, starburst-like lens flare or light source emanates from behind the left side of the object, creating radiating blue and white light rays across the 
 
 ### b03309df6758ab15 — FBI September 2023 Sighting - Serial 003
 
@@ -2942,7 +2942,7 @@ AND THE PERSON NAMED IN COLUMN [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-
 
 Excerpt (page 1):
 
--1 of 2- DEFICIAL RECORD FD-302 (Rev. 5-8-10) ertified FBI information system FEDERAL BUREAU OF INVESTIGATION Date of entry 2023, On September and interviewed and FBI Special Agent via Facetime video was at the time of the interview). After being advised of the ın identity of the interviewing agents and the nature of the interview, provided the following information: 2023 at around 9:00 am, was at On September driving east to a test site to acquire data for LiDAR testing with were driving an F15
+FD-302 (Rev. 5-8-10) - 1 of 2 - [REDACTED] / FEDERAL BUREAU OF INVESTIGATION Date of entry 10/[REDACTED]/2023 ( /[REDACTED] On September [REDACTED] 2023, [REDACTED] and [REDACTED] and FBI Special Agent [REDACTED] interviewed [REDACTED] [REDACTED] [REDACTED] via Facetime video ([REDACTED] was in [REDACTED] at the time of the interview). After being advised of the identity of the interviewing agents and the nature of the interview, [REDACTED] provided the following information: ( /[REDACTED][REDAC
 
 ### e93f6997811954dc — FBI September 2023 Sighting - Serial 004
 
@@ -2954,7 +2954,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
--1 of 2- OFFICIAL RECORD FD-302 (Rev. 5-8-10) ertified FBI information system FEDERAL BUREAU OF INVESTIGATION Date of entry 2023, On September and interviewed and FBI Special Agent office and cell), in Building the and supervisor sat in on the interview. After being advised of the identity of the interviewing agents and the nature of the interview, provided the following information: had been the at for years. 2023, September was with contractors On working on a special project with She had rest
+FD-302 (Rev. 5-8-10) - 1 of 2 - [REDACTED] / FEDERAL BUREAU OF INVESTIGATION Date of entry 10/[REDACTED]/2023 ( /[REDACTED] On September [REDACTED] 2023, [REDACTED] and [REDACTED] and FBI Special Agent [REDACTED] interviewed [REDACTED] [REDACTED] office and [REDACTED] cell), in Building [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] thee [REDACTED] and [REDACTED] supervisor sat in on the interview. After being advised of the identity of the interviewing agents and the nature of the inter
 
 ### 83aa439781e60e7b — FBI September 2023 Sighting - Serial 005
 
@@ -2966,7 +2966,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
--1 of 2- OFFICIAL RECORD FD-302 (Rev. 5-8-10) ertified FBI information system FEDERAL BUREAU OF INVESTIGATION /2023 Date of entry 2023, On September and interviewed and FBI Special Agent via Facetime video. а sat in on the interview with and were in at the time of the interview). After being advised of the identity of the interviewing agents and the nature of the provided the following information: interview, in the was a of He'd been an and had ten to fifteen hours as a drone pilot. since 2023 
+FD-302 (Rev. 5-8-10) - 1 of 2 - [REDACTED] FEDERAL BUREAU OF INVESTIGATION Date of entry 10/[REDACTED]/2023 ([REDACTED]/[REDACTED] On September [REDACTED] 2023, [REDACTED] and [REDACTED] and FBI Special Agent [REDACTED] interviewed [REDACTED] [REDACTED][@][REDACTED] via Facetime video. [REDACTED] a [REDACTED] with [REDACTED] sat in on the interview ([REDACTED] and [REDACTED] were in [REDACTED] at the time of the interview). After being advised of the identity of the interviewing agents and the n
 
 ### 5d9d3147f0b62d0c — NASA-UAP-D001, Apollo 12 Transcript, 1969
 
@@ -2982,7 +2982,7 @@ o	Mission Commander, Charles “Pete” Conrad, described observing floating deb
 
 Excerpt (page 1):
 
-1 Tape 90/3 Page 742 • .4 05 19 14 58 CC That's affirmative. We're ready for the E-MOD. -4 Œ ٠ 05 19 16 31 CC Intrepid, Houston. 05 19 16 35 CDR-LM Go. 05 19 16 37 CC If you will give us POO and ACCEPT, we'll give you a CSM state vector and RLS update. 4 4 . 05 19 16 45 CDR-LM You have POO and ACCEPT. ٠ 05 19 20 05 CMP Hello, Houston; Yankee Clipper. ſ CC 05 19 20 09 Yankee Clipper, Houston. Loud and clear. 05 19 20 14 Well, hello there, stranger. How are you? CMP 05 19 20 22 CC Morning, Dick. W
+Tape 90/3 Page 742 05 19 14 58 CC That's affirmative. We're ready for the E-MOD. 05 19 16 31 CC Intrepid, Houston. 05 19 16 35 CDR-LM Go. 05 19 16 37 CC If you will give us POO and ACCEPT, we'll give you a CSM state vector and RLS update. 05 19 16 45 CDR-LM You have POO and ACCEPT. 05 19 20 05 CMP Hello, Houston; Yankee Clipper. 05 19 20 09 CC Yankee Clipper, Houston. Loud and clear. 05 19 20 14 CMP Well, hello there, stranger. How are you? 05 19 20 22 CC Morning, Dick. We are fine. How are you?
 
 ### 78dc972c0c143d1e — NASA-UAP-D002, Apollo 17 Transcript, 1972
 
@@ -3000,7 +3000,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-Tape 5/2 CC Yes, we copied your V<sub>T</sub> and your EMS numbers, and we've got a number for you. Maneuver start time will be at 03 plus 33 plus 27. LMP Okay, we got you. Maneuver at 03:33:27. CC That's affirmative, Jack. LMP You guys didn't tell us we couldn't see anything going through the sunrise. (Laughter) Roger. CC 00 03 25 01 CC 17, Houston. We're making plans here for a space- craft SEP time of 03 plus 43. 03 plus 43. Roger. LMP 00 03 27 27 CC 17, Houston. We're copying cabin press of 
+Tape 5/2 CC Yes, we copied your V_T and your EMS numbers, and we've got a number for you. Maneuver start time will be at 03 plus 33 plus 27. LMP Okay, we got you. Maneuver at 03:33:27. CC That's affirmative, Jack. LMP You guys didn't tell us we couldn't see anything going through the sunrise. CC (Laughter) Roger. 00 03 25 01 CC 17, Houston. We're making plans here for a space- craft SEP time of 03 plus 43. LMP 03 plus 43. Roger. 00 03 27 27 CC 17, Houston. We're copying cabin press of 5.9 this t
 
 ### 48e4bc1bdb5a66e8 — NASA-UAP-D003, Gemini 7 Transcript, 1965
 
@@ -3036,7 +3036,7 @@ TAPE No. T-00763(R1b) "P.A.O. RELEASE COMMENTARY OF THE GT-7/6 FLIGHT." P.A.O. S
 
 Excerpt (page 1):
 
-94 251 pg8 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION APOLLO 11 TECHNICAL CREW DEBRIEFING 5 C. H. A. H. B. C. S. S. S. S. S. S. S. S. S. S. S. S. S. JULY 31, 1969 W. Ac. PREPARED BY: MISSION OPERATIONS BRANCH FLIGHT CREW SUPPORT DIVISION VOL. I GROUP 4 Downgraded at 3-year intervals; declassified after 12 years This material United States within the me and 794, the NOTICE: This document may be exempt from transmission person is prohibited by public disclosure under the Freedom of Infor- matio
+CONFIDENTIAL 94 251 pgs NASA NATIONAL AERONAUTICS AND SPACE ADMINISTRATION APOLLO 11 TECHNICAL CREW DEBRIEFING (U) CLASSIFICATION CHANGED TO U E.O. 11652 BY AUTHORITY 6/1/73 DATE 3-11-75 [signature] Gary D. Getts JULY 31, 1969 PREPARED BY: MISSION OPERATIONS BRANCH FLIGHT CREW SUPPORT DIVISION VOL. I ┌─────────────────────────────┐ │ GROUP 4 │ │ Downgraded at 3-year │ │ intervals; declassified │ │ after 12 years │ └─────────────────────────────┘ This material NOTICE: This document may be exempt 
 
 ### 63c47bad93af4c92 — NASA-UAP-D005, Apollo 17 Crew Debriefing for Science, 1973
 
@@ -3049,7 +3049,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-CB/R. A. PARKER MSC-07632 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION * APOLLO 17 CREW DEBRIEFING FOR SCIENCE JANUARY 8, 1973 PREPARED BY SCIENCE REQUIREMENTS BRANCH PLANETARY AND EARTH SCIENCES DIVISION INDEXING DATA DATE OPR PGM SUBJECT SIGNATOR LOC 1-8-73 MSC MSC-07632 B APO NS - MANNED SPACECRAFT CENTER HOUSTON, TEXAS HS1-481238 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - NASA logo (vector graphic of a blue circle with a chevron and stars, though rendered in 
+CB/R.A. PARKER MSC-07632 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION * APOLLO 17 CREW DEBRIEFING FOR SCIENCE JANUARY 8, 1973 PREPARED BY SCIENCE REQUIREMENTS BRANCH PLANETARY AND EARTH SCIENCES DIVISION INDEXING DATA DATE OPR # T PGM SUBJECT SIGNATOR LOC 1-8-73 MSC MSC-07632 B APO # NS OBO-44F MANNED SPACECRAFT CENTER HOUSTON, TEXAS HS1- 481238 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - NASA logo (vector graphic of a blue circle with a chevron and stars, though 
 
 ### 0b298cfc9c65a4d6 — NASA-UAP-D006, Apollo 17 Technical Crew Debriefing, 1973
 
@@ -3062,7 +3062,7 @@ CB/R. A. PARKER MSC-07632 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION * APOLLO
 
 Excerpt (page 1):
 
-26411 MSC-07631 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION NASA APOLLO 17 TECHNICAL CREW DEBRIEFING JANUARY 4, 1973 PREPARED BY TRAINING OFFICE CREW TRAINING AND SIMULATION DIVISION This document will automatically become declassified 90 days from the published date. NOTICE: This document may be exempt from public disclosure under the Freedom of Infor- mation Act (5 U.S.C. 552). Requests for its release to persons outside the U.S. Govern- ment should be handled under the provisions of NASA Po
+264 n. CONFIDENTIAL 1 MSC-07631 NASA NATIONAL AERONAUTICS AND SPACE ADMINISTRATION APOLLO 17 TECHNICAL CREW DEBRIEFING (U) JANUARY 4, 1973 PREPARED BY TRAINING OFFICE CREW TRAINING AND SIMULATION DIVISION This document will automatically become declassified 90 days from the published date. NOTICE: This document may be exempt from public disclosure under the Freedom of Infor- mation Act (5 U.S.C. 552). Requests for its release to persons outside the U.S. Govern- ment should be handled under the p
 
 ### 8bb54e0aec5e91ad — NASA-UAP-D007, Skylab Techincal Crew Debriefing 1973
 
@@ -3081,7 +3081,7 @@ o	Page 7-8. [Commander for Skylab 4, Gerald P. Carr] “One other area of unusua
 
 Excerpt (page 1):
 
-BE4/J. GRIMWED JSC-08053 SKYLAB 1/2 TECHNICAL CREW DEBRIEFING JUNE 30, 1973 PREPARED BY TRAINING OFFICE CREW TRAINING AND SIMULATION DIVISION NOTICE: This document may be exempt from public disclosure under the Freedom of Information Act (5 U.S.C. 552). Requests for its release to persons outside the U.S. Government should be handled under the provisions of NASA Policy Directive 1382.2. National Aeronautics and Space Administration LYNDON B. JOHNSON SPACE CENTER Houston, Texas [[IMAGE-DESCRIPTIO
+BE4 / J. Grimeco JSC-08053 SKYLAB 1/2 TECHNICAL CREW DEBRIEFING JUNE 30, 1973 PREPARED BY TRAINING OFFICE CREW TRAINING AND SIMULATION DIVISION NOTICE: This document may be exempt from public disclosure under the Freedom of Information Act (5 U.S.C. 552). Requests for its release to persons outside the U. S. Government should be handled under the provisions of NASA Policy Directive 1382.2. National Aeronautics and Space Administration LYNDON B. JOHNSON SPACE CENTER Houston, Texas [[IMAGE-DESCRIP
 
 ### 002eaa383e76a277 — NASA-UAP-D009, Apollo 17 Audio Excerpt, December 7, 1972
 
@@ -3193,7 +3193,7 @@ The cable concludes by characterizing the information provided by the NIO as “
 
 Excerpt (page 1):
 
-UNCLASSIFIED 3/2/2026 CSP-2025-00040 B-00002707027 "UNCLASSIFIED" UNCLASSIFIED MRN: 85 PORT MORESBY 199 Date/DTG: Jan 28, 1985 / 280000Z Jan 85 AMEMBASSY PORT MORESBY From: USCINCLANT ROUTINE Action: E.O.: Unknown TAGS: MARR, PP Reference: n/a PAPUA NEW GUINEA INQUIRY RE OVERFLIGHTS Subject: LIMITED OFFICIAL USE PAGE 01 PORT M 00199 280704Z ACTION PM-11 INFO OCT-00 COPY-01 ADS-00 INR-10 SS-00 CIAE-00 DODE-00 NSAE-00 EAP-00 /022 W -----026406 280708Z /12 O 280653Z JAN 85 FM AMEMBASSY PORT MORESBY
+UNCLASSIFIED CSP-2025-00040 B-00002707027 "UNCLASSIFIED" 3/2/2026 UNCLASSIFIED MRN: 85 PORT MORESBY 199 Date/DTG: Jan 28, 1985 / 280000Z Jan 85 From: AMEMBASSY PORT MORESBY Action: USCINCLANT ROUTINE E.O.: Unknown TAGS: MARR, PP Reference: n/a Subject: PAPUA NEW GUINEA INQUIRY RE OVERFLIGHTS LIMITED OFFICIAL USE PAGE 01 PORT M 00199 280704Z ACTION PM-11 INFO OCT-00 COPY-01 ADS-00 INR-10 SS-00 CIAE-00 DODE-00 NSAE-00 EAP-00 /022 W --------------------026406 280708Z /12 O 280653Z JAN 85 FM AMEMBAS
 
 ### 9877727cd0d1bbfe — State Department UAP Cable 002, Kazakhstan, January 31, 1994
 
@@ -3206,7 +3206,7 @@ On January 27, 1994 one Tajik pilot and three American citizens encountered an U
 
 Excerpt (page 1):
 
-UNCLASSIFIED CSP-2025-00040 B-00002707028 "UNCLASSIFIED" 3/2/2026 UNCLASSIFIED MRN: 94 DUSHANBE 259 Date/DTG: Jan 31, 1994 / 310000Z Jan 94 AMEMBASSY DUSHANBE From: Action: WASHDC, SECSTATE ROUTINE; MOSCOW, AMEMBASSY ROUTINE E.O.: Unknown TAGS: TSPA, EAIR, KZ, TI, TAJIK AIR, (RHODES, ED) Reference: n/a TAJIK AIR PILOTS REPORT UNIDENTIFIED FLYING OBJECT Subject: UNCLASSIFIED PAGE 01 DUSHAN 00259 310310Z ACTION OES-09 INFO LOG-00 AID-01 AMAD-01 OASY-00 DOTE-00 EAP-01 EB-01 EUR-01 FAAE-00 TEDE-00 I
+UNCLASSIFIED CSP-2025-00040 B-00002707028 "UNCLASSIFIED" 3/2/2026 UNCLASSIFIED MRN: 94 DUSHANBE 259 Date/DTG: Jan 31, 1994 / 310000Z Jan 94 From: AMEMBASSY DUSHANBE Action: WASHDC, SECSTATE ROUTINE; MOSCOW, AMEMBASSY ROUTINE E.O.: Unknown TAGS: TSPA, EAIR, KZ, TI, TAJIK AIR, (RHODES, ED) Reference: n/a Subject: TAJIK AIR PILOTS REPORT UNIDENTIFIED FLYING OBJECT UNCLASSIFIED PAGE 01 DUSHAN 00259 310310Z ACTION OES-09 INFO LOG-00 AID-01 AMAD-01 OASY-00 DOTE-00 EAP-01 EB-01 EUR-01 FAAE-00 TEDE-00 I
 
 ### ff30c985595153f3 — State Department UAP Cable 003, Tbilisi, Georgia, October 30, 2001
 
@@ -3218,7 +3218,7 @@ UNCLASSIFIED CSP-2025-00040 B-00002707028 "UNCLASSIFIED" 3/2/2026 UNCLASSIFIED M
 
 Excerpt (page 1):
 
-CONFIDENTIAL UNCLASSIFIED CONFIDENTIAL MRN: 01 MOSCOW 13169 Oct 30, 2001 / 300000Z Oct 01 Date/DTG: AMEMBASSY MOSCOW From: WASHDC, SECSTATE ROUTINE Action: E.O.: Unknown PREL, MARR, KCFE, UN, OSCE, GG, RS TAGS: (A) MOSCOW 13072 (B) TBILISI 3087 Reference: Subject: UFOS OVER GEORGIA: STRANGE ENCOUNTERS OF AN MFA KIND CONFIDENTIAL PTQ6889 PAGE 01 MOSCOW 13169 01 OF 02 301754Z ACTION 10-00 INFO LOG-00 NP-00 AID-00 ACQ-00 CIAE-00 DOEE-00 DOTE-00 SRPP-00 DS-00 EB-00 EUR-00 OIGO-00 FAAE-00 FBIE-00 VC-
+CONFIDENTIAL UNCLASSIFIED CONFIDENTIAL MRN: 01 MOSCOW 13169 Date/DTG: Oct 30, 2001 / 300000Z Oct 01 From: AMEMBASSY MOSCOW Action: WASHDC, SECSTATE ROUTINE E.O.: Unknown TAGS: PREL, MARR, KCFE, UN, OSCE, GG, RS Reference: (A) MOSCOW 13072 (B) TBILISI 3087 Subject: UFOS OVER GEORGIA: STRANGE ENCOUNTERS OF AN MFA KIND CONFIDENTIAL PTQ6889 PAGE 01 MOSCOW 13169 01 OF 02 301754Z ACTION IO-00 INFO LOG-00 NP-00 AID-00 ACQ-00 CIAE-00 DOEE-00 DOTE-00 SRPP-00 DS-00 EB-00 EUR-00 OIGO-00 FAAE-00 FBIE-00 VC-
 
 ### 5847028ebb855cf8 — State Department UAP Cable 004, Ashgabat, Turkmenistan, November 5, 2004
 
@@ -3230,7 +3230,7 @@ CONFIDENTIAL UNCLASSIFIED CONFIDENTIAL MRN: 01 MOSCOW 13169 Oct 30, 2001 / 30000
 
 Excerpt (page 1):
 
-UNCLASSIFIED SBU UNCLASSIFIED SBU MRN: 04 ASHGABAT 1028 Date/DTG: Nov 12, 2004 / 120851Z NOV 04 AMEMBASSY ASHGABAT From: Action: RUEHC/SECSTATE WASHDC ROUTINE E.O.: 12958 TAGS: AORC, TSPA, PREL, PGOV, EAID, OSCI, TX Captions: SENSITIVE Subject: TURKMENISTAN, CIVIL SOCIETY AND UFOS R 120851Z NOV 04 FM AMEMBASSY ASHGABAT TO RUEHC/SECSTATE WASHDC 5085 INFO RUCNCIS/CIS COLLECTIVE RUEHVEN/USMISSION USOSCE 1267 RUEHGV/USMISSION GENEVA 0905 RUEHBS/USEU BRUSSELS RUEAIIA/CIA WASHDC RUEKDIA/DIA WASHDC//DH
+UNCLASSIFIED SBU UNCLASSIFIED SBU [SEAL] MRN: 04 ASHGABAT 1028 Date/DTG: Nov 12, 2004 / 120851Z NOV 04 From: AMEMBASSY ASHGABAT Action: RUEHC/SECSTATE WASHDC ROUTINE E.O.: 12958 TAGS: AORC, TSPA, PREL, PGOV, EAID, OSCI, TX Captions: SENSITIVE Subject: TURKMENISTAN, CIVIL SOCIETY AND UFOS R 120851Z NOV 04 FM AMEMBASSY ASHGABAT TO RUEHC/SECSTATE WASHDC 5085 INFO RUCNCIS/CIS COLLECTIVE RUEHVEN/USMISSION USOSCE 1267 RUEHGV/USMISSION GENEVA 0905 RUEHBS/USEU BRUSSELS RUEAIIA/CIA WASHDC RUEKDIA/DIA WAS
 
 ### c48c078b811c0fd7 — State Department UAP Cable 005, Mexico, September 16, 2003
 
@@ -3242,7 +3242,7 @@ UNCLASSIFIED SBU UNCLASSIFIED SBU MRN: 04 ASHGABAT 1028 Date/DTG: Nov 12, 2004 /
 
 Excerpt (page 1):
 
-UNC LA SSIFIED UNCLASSIFIED SBU MRN: 23 MEXICO 2544 Date/DTG: Sep 16, 2023 / 160150Z SEP 23 AMEMBASSY MEXICO From: WASHDC, SECSTATE Routine Action: E.O: 13526 TAGS: PGOV, PREL, ASEC, TSPA, KJUS, KCRM, MX SENSITIVE Captions: Reference: A) 23 MEXICO 2468 B) 23 MEXICO 2166 C) 23 MEXICO 2346 (U) Mexico: Weekly Political Blotter, Sep 11-15 Subject: (U) Mexico: Weekly Political Blotter, Sep 11-15 1. (SBU) This edition of Mission Mexico's Political Blotter features: Ebrard Challenges MORENA Election, T
+UNCLASSIFIED UNCLASSIFIED SBU MRN: 23 MEXICO 2544 Date/DTG: Sep 16, 2023 / 160150Z SEP 23 From: AMEMBASSY MEXICO Action: WASHDC, SECSTATE Routine E.O: 13526 TAGS: PGOV, PREL, ASEC, TSPA, KJUS, KCRM, MX Captions: SENSITIVE Reference: A) 23 MEXICO 2468 B) 23 MEXICO 2166 C) 23 MEXICO 2346 Subject: (U) Mexico: Weekly Political Blotter, Sep 11-15 (U) Mexico: Weekly Political Blotter, Sep 11-15 1. (SBU) This edition of Mission Mexico's Political Blotter features: • Ebrard Challenges MORENA Election, T
 
 ### be533a4ab886eb11 — USPER Statement about UAP Sighting
 
@@ -3256,7 +3256,7 @@ The photos linked in the "Related Media" section are connected to a set of UAP e
 
 Excerpt (page 1):
 
-SECRET//NOFORM 2025, at approximately 1700 hours [WITNESS 1 (a senior US On intelligence official)], [FEDERAL PARTNER 1] and [FEDERAL PARTNER 2], accompanied by [WITNESS 2 (a senior US intelligence official)], and two pilots from [STATE PARTNER ORGANIZATION], departed the [OPERATIONS CENTER] ([COORDINATES]), ([FACILITY]) area via a [STATE PARTNER ORGANIZATION] helicopter (call sign main [CALL SIGN 1]) to conduct a daytime ariel search of the [MOUNTAIN RANGE NAME] west of [SITE CODE NAME] on [FAC
+SECRET//NOFORN On [REDACTED] 2025, at approximately 1700 hours [REDACTED] [WITNESS 1 (a senior US intelligence official)], [FEDERAL PARTNER 1] and [FEDERAL PARTNER 2], accompanied by [WITNESS 2 (a senior US intelligence official)], and two pilots from [STATE PARTNER ORGANIZATION], departed the [REDACTED] [OPERATIONS CENTER] ([COORDINATES]), [REDACTED] ([FACILITY]) main [REDACTED] area via a [STATE PARTNER ORGANIZATION] helicopter (call sign [CALL SIGN 1]) to conduct a daytime ariel search of the
 
 ### 8d0b85ce46109d06 — Western US Event
 
@@ -3268,7 +3268,7 @@ SECRET//NOFORM 2025, at approximately 1700 hours [WITNESS 1 (a senior US On inte
 
 Excerpt (page 1):
 
-"Orbs Launching Orbs" Location: Western U.S. Time of Day: Dusk (on two separate days) Three teams of two federal law enforcement special agents each (USPER1 through USPER6) independently describe seeing orange "orbs" in the sky emit/launch smaller red "orbs" in groups of two to four, with three being the general consensus. This is stated to have occurred at least five times. Each time, the orange orb would appear, launch red orbs, then disappear. The orange orb was only visible for one or two se
+"Orbs Launching Orbs" • Location: Western U.S. • Time of Day: Dusk (on two separate days) • Three teams of two federal law enforcement special agents each (USPER1 through USPER6) independently describe seeing orange "orbs" in the sky emit/launch smaller red "orbs" in groups of two to four, with three being the general consensus. This is stated to have occurred at least five times. Each time, the orange orb would appear, launch red orbs, then disappear. The orange orb was only visible for one or 
 
 ## Finds
 

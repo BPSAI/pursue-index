@@ -1,261 +1,115 @@
 ---
+/**
+ * /altered/ — operator-verification retirement notice.
+ *
+ * 79 cards in the corpus had their upstream bytes silently re-published
+ * under the same identifier between 2026-05-08 and 2026-05-22. The
+ * original surface treated those as "altered" and rendered per-card
+ * text diffs. Operator review of every byte-comparable card found
+ * 0 confirmed content edits — every byte-level difference reduced to
+ * a re-encoding, re-scan, page rotation, or internal-PDF metadata
+ * refresh on visually-identical content.
+ *
+ * What the original page rendered as "exact text changes" were OCR
+ * variance artifacts on visually-identical scans, not real upstream
+ * edits. This page replaces both the listing and the per-card diffs.
+ * The bytes-changed receipts remain on each card page (amber banner
+ * pointing to `/archive/<sha>.<ext>`); that's the substance of the
+ * integrity claim and it stays.
+ */
 import Base from "../layouts/Base.astro";
-import { cards } from "../data/manifest-loader";
-import byteHistoryJson from "../data/byte-history.json";
-import alteredDiffsJson from "../data/altered-diffs.json";
-import { itemListJsonLd, SITE_ORIGIN } from "../lib/seo";
-import { formatBytes, sizeDeltaPct } from "../lib/byte-display.ts";
-import {
-  buildAlteredRows,
-  type ByteHistoryEntry,
-} from "../lib/altered-helpers.ts";
+import bundle from "../data/verdict-bundle.json";
 
-type ClassificationEntry = {
-  class:
-    | "presentation_only"
-    | "content_changed"
-    | "no_text_layer"
-    | "asset_type_change";
-  visual_class?:
-    | "visually_identical"
-    | "visually_changed"
-    | "page_count_changed";
-};
+const stats = (bundle as { stats: Record<string, number> }).stats;
+const generatedAt = (bundle as { generated_at: string }).generated_at;
+const bundleVersion = (bundle as { bundle_schema_version: number }).bundle_schema_version;
 
-/** Resolve a card to its effective class for the listing — visual
- * subclass folds the no_text_layer cards into the broader presentation/
- * content buckets, and downgrades content_changed cards to
- * presentation_only when the perceptual hash confirms visual identity
- * (i.e., text-layer differences are internal-to-PDF and not visible). */
-function effectiveClass(entry: ClassificationEntry | undefined): string {
-  if (!entry) return "unknown";
-  if (entry.visual_class === "visually_identical") return "presentation_only";
-  if (entry.class === "no_text_layer" && entry.visual_class === "visually_changed") {
-    return "content_changed";
-  }
-  return entry.class;
-}
-
-const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
-const alteredRows = buildAlteredRows(byteHistory, cards);
-const classification = (alteredDiffsJson as { classification?: Record<string, ClassificationEntry> })
-  .classification ?? {};
-const classCounts = alteredRows.reduce(
-  (acc, row) => {
-    const cls = effectiveClass(classification[row.card_id]);
-    acc[cls] = (acc[cls] ?? 0) + 1;
-    return acc;
-  },
-  {} as Record<string, number>,
-);
-// Note: /altered.astro does not consume altered-diffs.json directly;
-// the per-card pages handle the wrapped shape in their own loader.
-
-// JSON-LD ItemList for crawler discoverability. Each entry points
-// at the card-detail page (where the banner + iframe + archived
-// link live) — NOT directly at the /archive/<sha> URL, because the
-// card page is the operator-curated context.
-const itemListLd = itemListJsonLd(
-  alteredRows.map((row) => ({
-    id: row.card_id,
-    name: row.title,
-    url: `${SITE_ORIGIN}/card/${row.card_id}/`,
-  })),
-);
+const title = "Operator review: 0 confirmed content changes";
+const description =
+  "Operator review of every card whose upstream bytes changed found 0 confirmed content edits across " +
+  `${stats.total_in_queue} candidates. Bytes-changed receipts remain on each card page.`;
 ---
-<Base title="ALTERED — PURSUE://INDEX" active="altered" jsonLd={itemListLd}>
-  <div class="space-y-6 max-w-5xl">
+
+<Base title={title} description={description} active="altered">
+  <main class="font-mono text-sm leading-relaxed max-w-3xl mx-auto px-4 py-12 space-y-6">
     <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
-      <div aria-hidden="true" class="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)] flex items-center gap-2">
-        <span class="text-[color:var(--color-text-faint)]">$</span>
-        <span>jq 'group_by(.card_id) | map(select(length &gt; 1))' data/asset-bytes-registry.jsonl</span>
-      </div>
-      <h1 class="text-2xl font-mono font-semibold tracking-tight text-[color:var(--color-text-bright)]">
-        ALTERED UPSTREAM &mdash; BOTH VERSIONS PRESERVED
+      <p class="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-text-faint)]">
+        /altered/ · retired 2026-05-25
+      </p>
+      <h1 class="text-2xl text-[color:var(--color-text-bright)]">
+        Operator review: <span class="text-[color:var(--color-signal-cyan)]">0</span> confirmed content changes
       </h1>
-      <p class="text-sm text-[color:var(--color-text)] max-w-3xl">
-        Cards where the source bytes at the upstream URL changed but the
-        listing kept the same identifier. Distinct from <a href="/removed/" class="text-[color:var(--color-signal-cyan)] underline">/removed</a>,
-        which lists cards that disappeared from the manifest entirely.
-        Every byte version we&apos;ve observed is preserved in R2 and
-        reachable at <code class="text-[color:var(--color-signal-cyan)]">/archive/&lt;byte_sha256&gt;.&lt;ext&gt;</code>
-        (content-addressed, immutable, served same-origin).
-      </p>
-      <p class="text-xs text-[color:var(--color-text-dim)] max-w-3xl pt-1">
-        Detection happens at fetch time:
-        <code class="text-[color:var(--color-signal-cyan)]">scripts/r2_archive_assets.py</code>
-        HEAD-checks every asset_url before re-downloading; a Content-Length
-        delta or upstream ETag change re-fetches, the new bytes get hashed,
-        and if the byte_sha256 differs from the prior pinned value a new
-        row appends to <code>data/asset-bytes-registry.jsonl</code> with
-        the new <code>archive_key</code>. The old archive_key is never
-        overwritten (IfNoneMatch guards on R2). This page enumerates
-        every card whose registry has &gt;1 entry.
-      </p>
     </header>
 
-    <section class="border-2 border-[color:var(--color-signal-red)]/70 bg-[color:var(--color-signal-red)]/10 p-4 font-mono text-xs space-y-3">
-      <div class="uppercase tracking-[0.2em] text-[11px] text-[color:var(--color-signal-red)] font-semibold">
-        ● /ALTERED/ OFFLINE — UNDER OPERATOR REVIEW
-      </div>
-      <p class="text-[color:var(--color-text-bright)] leading-relaxed">
-        This surface has been temporarily withdrawn. Automated classification of
-        "real upstream content edit" vs "scan / re-encoding / re-OCR noise" did
-        not survive eyeball QC — the operator spot-checked 15 cards classified
-        as content-changed and found ~0 of them showed any actual content
-        difference. The PDF text layer can change when upstream re-runs their
-        own OCR on the same visible content, and Sonnet OCR on byte-different
-        rescans is not deterministic enough to safely distinguish noise from
-        edit at the page-level.
+    <section class="space-y-4 text-[color:var(--color-text-dim)]">
+      <p>
+        <span class="text-[color:var(--color-text-bright)]">{stats.total_in_queue} cards</span>{" "}
+        in the corpus had their upstream bytes re-published under the same identifier
+        between 2026-05-08 and 2026-05-22. We treated those as potentially altered
+        and built a per-card diff surface to surface the changes.
       </p>
-      <p class="text-[color:var(--color-text-dim)] leading-relaxed">
-        Next step: an operator-review tool (forthcoming) will surface each
-        multi-sha card side-by-side so any "altered" claim is operator-verified
-        before publication. Cards that pass review will return to this page;
-        the byte-history banner on individual <code>/card/&lt;id&gt;/</code> pages
-        keeps surfacing the underlying fact "bytes changed upstream"
-        independent of the content-vs-noise question.
+      <p>
+        Operator review of every byte-comparable card found <span class="text-[color:var(--color-text-bright)]">
+        {stats.confirmed_content_change} confirmed content change{stats.confirmed_content_change === 1 ? "" : "s"}</span>.
+        Every byte-level difference reduced to a re-encoding, a re-scan, a page
+        rotation for readability, or an internal-PDF metadata refresh. The content
+        itself was not edited in any case the operator reviewed.
       </p>
-      <p class="text-[color:var(--color-text-faint)] leading-relaxed text-[11px]">
-        Existing per-card URLs (<code>/altered/&lt;card_id&gt;/</code>) still
-        resolve and are clearly marked "unconfirmed". The byte-history facts
-        — sha, file size, fetch dates, preserved archive links — are accurate
-        and continue to surface. Only the "real change" claim has been
-        withdrawn pending operator review.
+      <p>
+        What the original surface rendered as "exact text changes" were
+        OCR-variance artifacts on visually-identical content, not real upstream
+        edits. The diff pages are coming down because they were misleading on
+        interpretation, even though the bytes-changed receipt itself is accurate.
       </p>
     </section>
 
-    {false && alteredRows.length === 0 ? (
-      <p class="font-mono text-sm text-[color:var(--color-text-dim)]">
-        <span class="text-[color:var(--color-signal-green)]">[CLEAN]</span> No
-        upstream byte-edit events recorded.
-      </p>
-    ) : false && (
-      <section class="space-y-2">
-        <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)]">
-          <span class="text-[color:var(--color-signal-amber)]">{alteredRows.length}</span> card{alteredRows.length === 1 ? "" : "s"} affected
-        </div>
+    <section class="space-y-3 border border-[color:var(--color-border)] p-4 bg-[color:var(--color-bg-deep)]/40">
+      <h2 class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+        Verdict bundle (v{bundleVersion}, generated {generatedAt.slice(0, 10)})
+      </h2>
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+        <dt class="text-[color:var(--color-text-dim)]">Total reviewed</dt>
+        <dd class="text-[color:var(--color-text-bright)]">{stats.verdicts_emitted}</dd>
+        <dt class="text-[color:var(--color-text-dim)]">False positive (no content change)</dt>
+        <dd class="text-[color:var(--color-signal-cyan)]">{stats.false_positive}</dd>
+        <dt class="text-[color:var(--color-text-dim)]">Confirmed content change</dt>
+        <dd class="text-[color:var(--color-text-bright)]">{stats.confirmed_content_change}</dd>
+        <dt class="text-[color:var(--color-text-dim)]">Unsure</dt>
+        <dd class="text-[color:var(--color-text-bright)]">{stats.unsure}</dd>
+      </dl>
+    </section>
 
-        <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-3 font-mono text-[11px] text-[color:var(--color-text-dim)] leading-relaxed">
-          <div class="uppercase tracking-[0.2em] text-[10px] text-[color:var(--color-text-faint)] mb-2">
-            CHANGE CLASSIFICATION — text-layer + perceptual-hash analysis
-          </div>
-          <ul class="space-y-1">
-            <li>
-              <span class="text-[color:var(--color-signal-red)]">●</span>{" "}
-              <span class="text-[color:var(--color-text-bright)]">{classCounts.content_changed ?? 0}</span>{" "}
-              content_changed — text differs or visual hash diverges; real upstream edit
-            </li>
-            <li>
-              <span class="text-[color:var(--color-signal-green)]">●</span>{" "}
-              <span class="text-[color:var(--color-text-bright)]">{classCounts.presentation_only ?? 0}</span>{" "}
-              presentation_only — bytes changed but content didn't (re-encoding, font subset, metadata)
-            </li>
-            <li>
-              <span class="text-[color:var(--color-signal-amber)]">●</span>{" "}
-              <span class="text-[color:var(--color-text-bright)]">{classCounts.no_text_layer ?? 0}</span>{" "}
-              no_text_layer — image-only PDFs, visual classification still pending
-            </li>
-            <li>
-              <span class="text-[color:var(--color-text-faint)]">●</span>{" "}
-              <span class="text-[color:var(--color-text-bright)]">{classCounts.asset_type_change ?? 0}</span>{" "}
-              asset_type_change — upstream swapped asset type (e.g., video → PDF)
-            </li>
-          </ul>
-          <p class="text-[color:var(--color-text-faint)] text-[10px] mt-2">
-            Methodology: PDF text layer extracted via pypdfium2 and sha256-compared after
-            whitespace normalization (Sprint 4k-A); image-only PDFs additionally
-            compared via 64×64 perceptual-hash per page at 100 DPI (Sprint 4k-B).
-            Click any card for the per-card detail + verification numbers.
-          </p>
-        </div>
-        <div class="overflow-x-auto border border-[color:var(--color-border)]">
-          <table class="w-full font-mono text-xs">
-            <thead class="bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em]">
-              <tr>
-                <th class="text-left px-3 py-2 text-[10px]">CARD</th>
-                <th class="text-left px-3 py-2 text-[10px]">CLASS</th>
-                <th class="text-left px-3 py-2 text-[10px]">TYPE</th>
-                <th class="text-left px-3 py-2 text-[10px]">SIZE Δ</th>
-                <th class="text-left px-3 py-2 text-[10px]">FIRST SEEN</th>
-                <th class="text-left px-3 py-2 text-[10px]">LAST EDIT</th>
-                <th class="text-left px-3 py-2 text-[10px]">PRESERVED</th>
-              </tr>
-            </thead>
-            <tbody>
-              {alteredRows.map((row) => {
-                const cls = effectiveClass(classification[row.card_id]);
-                const clsColor =
-                  cls === "content_changed" ? "text-[color:var(--color-signal-red)]"
-                  : cls === "presentation_only" ? "text-[color:var(--color-signal-green)]"
-                  : cls === "no_text_layer" ? "text-[color:var(--color-signal-amber)]"
-                  : "text-[color:var(--color-text-faint)]";
-                const clsShort =
-                  cls === "content_changed" ? "content"
-                  : cls === "presentation_only" ? "presentation"
-                  : cls === "no_text_layer" ? "no-text-layer"
-                  : cls === "asset_type_change" ? "asset-swap"
-                  : "—";
-                return (
-                <tr class="border-t border-[color:var(--color-border)] hover:bg-[color:var(--color-bg-elevated)]/50">
-                  <td class="px-3 py-2">
-                    <a href={`${base}/card/${row.card_id}/`} class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)]">
-                      <code class="text-[10px]">{row.card_id}</code>
-                    </a>
-                    <div class="text-[color:var(--color-text-dim)] text-[10px] mt-0.5 max-w-md truncate" title={row.title}>
-                      {row.title}
-                    </div>
-                  </td>
-                  <td class={`px-3 py-2 text-[10px] whitespace-nowrap ${clsColor}`}>
-                    {clsShort}
-                  </td>
-                  <td class="px-3 py-2 text-[color:var(--color-text-faint)]">{row.asset_type}</td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <span class="text-[color:var(--color-text-dim)]">{formatBytes(row.oldest_entry.byte_size)}</span>
-                    <span class="text-[color:var(--color-text-faint)] mx-1">→</span>
-                    <span class="text-[color:var(--color-text-bright)]">{formatBytes(row.current_entry.byte_size)}</span>
-                    <span class="text-[color:var(--color-text-faint)] ml-1 text-[10px]">
-                      ({sizeDeltaPct(row.oldest_entry.byte_size, row.current_entry.byte_size)})
-                    </span>
-                  </td>
-                  <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap text-[10px]">
-                    {row.oldest_entry.fetched_at.slice(0, 10)}
-                  </td>
-                  <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap text-[10px]">
-                    {row.current_entry.fetched_at.slice(0, 10)}
-                  </td>
-                  <td class="px-3 py-2 space-y-1">
-                    <div>
-                      <a
-                        href={`/${row.oldest_entry.archive_key}`}
-                        class="text-[color:var(--color-signal-cyan)] hover:text-[color:var(--color-text-bright)] text-[10px]"
-                      >
-                        pre-edit bytes ↗
-                      </a>
-                      {row.total_versions > 2 && (
-                        <span class="text-[color:var(--color-text-faint)] text-[10px] ml-1">
-                          (+{row.total_versions - 2} more)
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <a
-                        href={`${base}/altered/${row.card_id}/`}
-                        class="text-[color:var(--color-signal-amber)] hover:text-[color:var(--color-text-bright)] text-[10px]"
-                      >
-                        text diff →
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    )}
-  </div>
+    <section class="space-y-3 text-[color:var(--color-text-dim)]">
+      <h2 class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+        What stays
+      </h2>
+      <ul class="list-disc list-inside space-y-1">
+        <li>
+          Per-card byte-history banner on every affected card page — amber
+          notice with links to preserved earlier versions.
+        </li>
+        <li>
+          Content-addressed archive at <code>/archive/&lt;sha&gt;.&lt;ext&gt;</code>{" "}
+          — the actual receipt; pre-edit bytes still reachable.
+        </li>
+        <li>
+          Source classifications and OCR comparisons remain in the repository at{" "}
+          <code>data/altered-classification.json</code> +{" "}
+          <code>data/altered-ocr/</code> for anyone re-running the analysis.
+        </li>
+      </ul>
+    </section>
+
+    <section class="space-y-3 text-[color:var(--color-text-dim)]">
+      <h2 class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+        Restoration policy
+      </h2>
+      <p>
+        If a future tranche surfaces a card with a <em>confirmed</em> content
+        change — verified by operator review against pre/post bytes — the
+        dynamic surface will be restored. Until then, this page is the
+        honest read.
+      </p>
+    </section>
+  </main>
 </Base>

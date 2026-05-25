@@ -1,6 +1,37 @@
 # Current State
 
-> Last updated: 2026-05-22 (v1.2.1 shipped + Sprint 4r-async landed — pursue ocr now parallelizes LLM/auto engines via PURSUE_OCR_LLM_CONCURRENCY env (default 4) and `--concurrency` CLI flag; 8 unit tests; deferred ~3,500-page re-OCR is now a ~5h run instead of ~19h.)
+> Last updated: 2026-05-25 (v1.2.2 shipped — corpus-wide Sonnet 4.6 OCR + Haiku clean pass + Voyage-3 re-embed + /altered/ surface retired after operator review confirmed 0/70 content changes among the byte-altered candidates.)
+
+## 2026-05-25 — v1.2.2 ship (corpus-wide Sonnet + /altered/ retirement)
+
+Three concurrent threads of work landed as one release:
+
+**1. Corpus-wide Sonnet 4.6 OCR** (Sprint 4q-bulk deferred). Card-level concurrency (Sprint 4r-async) made this tractable: ~3,500 Surya-tagged pages re-OCR'd against the operated VLM answer across ~6h wall, 117 cards now pure `llm` engine (Sonnet 4.6). 2 cards (`f85532f0514320be`, `7d58f0cac741650a` — FBI HQ 62-83894 sections 7 + 10) hit Anthropic's content-filter mid-OCR; backed up partial Sonnet output and re-ran via Surya, then merged per-page (`scripts/merge_partial_sonnet_with_surya.py` — Sonnet wins where present, Surya fills gaps). Mixed engine breakdown surfaces on the methodology page.
+
+**2. Haiku 4.5 clean pass** on the new Sonnet text: 86 stale cards, 2,942 pages, $7.59 spent. Re-built `web/public/data/pages-cleaned.json`.
+
+**3. Voyage-3 re-embed**: 4,231 pages embedded (full corpus + tranche-2 catch-up), 48 skipped, 1.9M tokens, $0.11. NAS vectors.bin grew 8MB → 44MB reflecting the new Sonnet-rich text.
+
+**4. /altered/ surface retired**. pursue-curate's operator-review tool (separate sibling repo) ran end-to-end on the 70 byte-comparable altered cards. **All 70 verdicts: `false_positive` — no content changes confirmed.** Every byte-level difference reduced to re-encoding, re-scan, page rotation, or internal-PDF metadata refresh. The original `/altered/` listing + per-card text-diff pages were misleading on interpretation (OCR variance ≠ content change), so they're coming down. Replaced with a single stub page documenting the 0/70 finding; bytes-changed receipts remain on each card page pointing to `/archive/<sha>.<ext>`.
+
+**Files retired**:
+- `web/src/pages/altered/[card_id].astro` — per-card diff pages (DELETED)
+- `web/src/pages/altered-review.astro` — operator-review tool (DELETED; pursue-curate replaces it)
+- `web/src/data/altered-diffs.json` — 9.3MB derived diff data (DELETED)
+- `web/src/lib/altered-helpers.ts` + tests (DELETED)
+- `scripts/build_altered_diffs.py` + matching tests + `scripts/altered_qc_sample_report.py` (DELETED)
+- `seo.ts::cardDiffDatasetJsonLd` + matching tests (DELETED)
+- `/altered` removed from nav
+
+**Files updated**:
+- `web/src/pages/altered.astro` — stub explaining the 0/70 finding, consumes new `verdict-bundle.json`
+- `web/src/data/verdict-bundle.json` — pursue-curate v2 published bundle (70 verdicts, all false_positive)
+- `web/src/pages/card/[card_id].astro` — banner copy updated, "see exact text changes" link removed, points to /altered/ stub instead
+- `web/src/pages/removed.astro` — copy updated to surface the 0/70 finding
+- `web/scripts/build_llms_txt.mjs` — /altered/ entry rephrased
+- `web/src/lib/release.ts` — bumped to v1.2.2
+
+**Restoration policy** if a future tranche surfaces a genuinely altered card: restore the dynamic surface. Until then, the stub is the honest read.
 
 ## 2026-05-22 — Sprint 4r-async (card-level concurrency in pursue ocr)
 
