@@ -124,6 +124,48 @@ def _maybe_load_augment(
     return lookup, provenance
 
 
+def _apply_image_observations_quarantine(
+    lookup: dict[tuple[str, int], list[str]] | None,
+    quarantine_index_path: Path | None,
+) -> dict[tuple[str, int], list[str]] | None:
+    """Drop augment_lookup entries for card_ids in the image-observations index.
+
+    Cards with operator-verified image observations supersede the alex-
+    zhang42 (Zhang) pass for those cards. Per the supersede policy in
+    pursue-opsec-staging/findings/2026-05-25-vision-augmentation-and-
+    image-observations-architecture.md, Zhang's IMAGE-DESCRIPTIONS block
+    must be excluded from chunks for these card_ids before embedding.
+
+    Returns the filtered lookup (or input unchanged when no quarantine
+    applies). Idempotent.
+    """
+    if lookup is None or quarantine_index_path is None:
+        return lookup
+    if not quarantine_index_path.exists():
+        return lookup
+    import json
+
+    try:
+        idx = json.loads(quarantine_index_path.read_text())
+    except json.JSONDecodeError:
+        console.print(
+            f"[yellow]warn:[/yellow] image-observations index "
+            f"{quarantine_index_path} is not valid JSON; ignoring quarantine"
+        )
+        return lookup
+    quarantined = set(idx.get("card_ids", []))
+    if not quarantined:
+        return lookup
+    filtered = {k: v for k, v in lookup.items() if k[0] not in quarantined}
+    dropped = len(lookup) - len(filtered)
+    console.print(
+        f"[cyan]quarantine:[/cyan] {dropped} Zhang augment entries dropped "
+        f"({len(quarantined)} card_ids in image-observations index, "
+        f"superseded by operator-verified observations)"
+    )
+    return filtered
+
+
 # Typer Options declared at module scope so the command function stays short.
 # Each Option's help string is the user-facing surface; the rest is plumbing.
 _OPT_MANIFEST = typer.Option(..., "--manifest", exists=True, dir_okay=False)
@@ -146,6 +188,16 @@ _OPT_MISS_RATE = typer.Option(
     help="Atlas join miss-rate ceiling (default 1%; must be in [0.0, 0.5] — "
     "higher values would silently disable the join quality gate).",
 )
+_OPT_IMAGE_OBS_INDEX = typer.Option(
+    Path("web/src/data/image-observations/index.json"),
+    "--image-observations-index",
+    exists=False, dir_okay=False,
+    help="Path to image-observations index JSON. Card_ids listed there have "
+    "operator-verified observations that supersede the augment-from pass; "
+    "the embed pipeline excludes Zhang's IMAGE-DESCRIPTIONS for those cards. "
+    "Default location is auto-discovered; pass an alternate path or a "
+    "non-existent path to disable quarantine.",
+)
 
 
 def _print_summary(summary: Any) -> None:
@@ -167,6 +219,7 @@ def embed_run_cmd(
     batch_size: int = _OPT_BATCH,
     augment_from: Path = _OPT_AUGMENT,
     augment_miss_rate_threshold: float = _OPT_MISS_RATE,
+    image_observations_index: Path = _OPT_IMAGE_OBS_INDEX,
 ) -> None:
     """Embed every OCR'd page that doesn't already have a current vector."""
     from pursue_index.embed import pipeline as embed_pipeline  # lazy
@@ -178,6 +231,9 @@ def embed_run_cmd(
     )
     augment_lookup, augmented_by = _maybe_load_augment(
         augment_from, m, augment_miss_rate_threshold
+    )
+    augment_lookup = _apply_image_observations_quarantine(
+        augment_lookup, image_observations_index
     )
     summary = embed_pipeline.embed_run(
         ocr_dir=settings.ocr_dir,

@@ -1,0 +1,70 @@
+{
+  "card_id": "3893e5d0279db3b1",
+  "title": "FBI Photo A001",
+  "virin": "260508-O-D0360-1021",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-05-25T17:00:00+00:00",
+  "session_id": "phase2-helicopter-case-2026-05-25",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-7",
+    "method": "direct-examination-via-claude-code",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+  },
+  "cluster_label": "helicopter-case-2025-imagery-a-series",
+  "cross_card_refs": [
+    "be533a4ab886eb11",
+    "fd342b7508668b0e"
+  ],
+  "sensor_system_note": "A-series \u2014 different sensor system from B-series. Small '+' reticle with horizontal tick row, NO timestamp visible, '5' scale mark only. A001-A006 are aerial terrain views (sensor pointed down at ground). A007 is the polarity-anomaly frame (sky background, bright specular target). A008 is sky background with normal dark-on-light polarity. Treat as adjacent-not-paired with B-series.",
+  "pages": [
+    {
+      "page": 1,
+      "timestamp_visible": null,
+      "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
+      "scale_markings": "'5' mark on horizontal axis only",
+      "tracked_object": {
+        "position_reticle_units": [
+          -1,
+          0
+        ],
+        "shape": "small dark dot",
+        "brightness": "dark-on-gray-tan"
+      },
+      "other_frame_features": {
+        "background": "faint ground/terrain (sandy/textured)",
+        "other_objects": null
+      },
+      "redaction_pattern": "7-8 bars distributed around frame",
+      "zhang_disagreements": [],
+      "observations": [
+        {
+          "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No timestamp visible on this frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Tracked object at reticle position [-1, 0]: small dark dot",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Background: faint ground/terrain (sandy/textured)",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "narrative_grounding": null
+    }
+  ]
+}

@@ -3272,7 +3272,179 @@ Excerpt (page 1):
 
 ## Finds
 
-26 curated reading guides authored from specific cards and pages.
+27 curated reading guides authored from specific cards and pages.
+
+### helicopter-case-2025-imagery — The Late-2025 Helicopter Case — Cross-Sensor Imagery Examined Directly
+
+- URL: https://pursueindex.com/finds/helicopter-case-2025-imagery
+- Published: 2026-05-25
+- Cards: be533a4ab886eb11, fd342b7508668b0e, 3893e5d0279db3b1, ba30b5fdb4f6d153, 93cbdaad1d4ac853, 04b9179a7637d6ad, 613dc8ef961f9399, 5a487c793b488382, c142741e8cafc659, 819e725592d1ba79, 1e63919cc6c3daf4, 67ab3ffef2aecf70, 0e3b3ec17a9ae021, 672ae7eab15481ff, 36bcfe2cfb5f3f54, b279eac8e49cf4fe, ccd932b4f40e8de7, 0d7a23b29e6de1bf, fd8286ffc6fbc1fb, af047a976bac0c89, 19d8e1d503211c84, 2b947223739f5bd4, 16fcb501de623b9c, 7d1b50162c29378a, 3a5445e8aa7985d4, 3b36f3dc3b51cf3b, f8bd1f11b7a2ae48, c568aea24f3aef31, eda0a3d37c6dbbc3, bdf033d4a47eaad3, c304734c04357887, dc9f45a9ec6feb00, a417f61b2dbd671f, 6ded7ef20ded84c7
+
+The same incident the FBI FD-302 (be533a4ab886eb11) and the ODNI USPER Narrative (fd342b7508668b0e) document in prose is paired by the manifest with 32 single-page image PDFs: 8 A-series and 24 B-series. This entry is the imagery-and-sensor-analysis companion to the two existing finds entries; it does not re-cover the document grammar work they already did. Direct first-hand examination of all 32 frames establishes that the A-series and B-series are different sensor systems (not modes of one sensor), that the B-series captures 11 minutes of operator-mediated observation in two bursts on a common factory-reset sensor clock, and that one frame pair (B006/B007) shows the host helicopter transiting the field of view while the ground sensor tracks an independent airborne object.
+
+## Companion to existing entries — what this is and is not
+
+This entry assumes the reader has the two existing finds entries on the same incident:
+
+- [/finds/fbi-usper-2025-super-hot-orb](/finds/fbi-usper-2025-super-hot-orb) — what the FBI FD-302 (`be533a4ab886eb11`) commits to and what its category-token redactions deliberately withhold.
+- [/finds/odni-uap-d001-usper-narrative](/finds/odni-uap-d001-usper-narrative) — the ODNI first-person narrative (`fd342b7508668b0e`) read against the FD-302 as the same observations in two document grammars.
+
+What this entry adds is **direct first-hand examination of every photograph in the paired imagery block**: 8 A-series PNGs (VIRIN `260508-O-D0360-1021` through `…-1028`) and 24 B-series single-page PDFs (`…-1029` through `…-1052`), rendered at native or 300 DPI and examined frame by frame. The two existing entries enumerate the cards and reference imagery in passing; the per-frame examination has not been done on the index before now.
+
+Three things this entry establishes that the existing two do not:
+
+1. **The A-series and B-series are different sensor systems**, not different modes of one sensor.
+2. **The B-series captures 11 minutes** of operator-mediated observation in two bursts (18:10:00–18:12:20 and 18:18:53–18:21:02 on the sensor's factory-reset internal clock) against a narrative encounter that the FD-302's timestamps place at roughly 1700–2320 (6 hours 20 minutes).
+3. **One frame pair (B006/B007) shows the host helicopter transiting the field of view** while the ground sensor stays locked on an independent airborne object — the strongest single piece of cross-platform evidence in the released corpus.
+
+Everything else this entry reports is supporting context for those three findings. Where this entry references the document narrative, it does so to anchor a sensor-claim — not to re-narrate the encounter. The narrative is in the linked entries above.
+
+## The manifest's declarative pairing
+
+The pairing of the 32 photographs to the two narrative documents is declared by the corpus, not inferred. The ODNI Narrative's card description states:
+
+> *"This account is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground, originally released on war.gov/UFO on May 8, 2026."* [cite: card fd342b7508668b0e p.1 "accompanied by infrared imagery"]
+
+And the FBI 302's card description states:
+
+> *"The photos linked in the 'Related Media' section are connected to a set of UAP encounters on a sensitive government testing installation in the Western US in 2025... The photos of UAP underneath the helicopter are from this same set of observations, taken through night vision devices by ground-based personnel."* [cite: card be533a4ab886eb11 p.1 "taken through night vision devices by ground-based personnel"]
+
+Both descriptions establish that the same exercise produced both narrative documents and the ground-team imagery. The companion [/finds/odni-uap-d001-usper-narrative](/finds/odni-uap-d001-usper-narrative) entry observes that *"the pairing is declared by the corpus, not inferred"* — that framing applies here without modification.
+
+The VIRIN sequence is consistent with that declarative pairing. The case-file VIRINs:
+
+```
+260508-O-D0360-1021 through 1028  →  FBI Photo A001 – A008  (8 cards, contiguous)
+260508-O-D0360-1029 through 1052  →  FBI Photo B001 – B024  (24 cards, contiguous)
+260508-O-D0360-1053 through 1056  →  FBI September 2023 Sighting (4 cards, separate incident — see §7)
+260508-O-D0360-1057              →  FBI 302 / USPER Statement
+260508-O-D0360-1058 through 1073  →  16 unrelated cards (NASA Apollo, CIA USSR 1973, etc.)
+260508-O-D0360-1074              →  ODNI USPER Narrative
+```
+
+The 32-card imagery block is contiguous; the FD-302 sits adjacent (with the four-card September 2023 sub-block between); the ODNI Narrative is 17 VIRINs further on, held back from Release 01 (8 May 2026) and released two weeks later in Release 02 (22 May 2026). The hold-and-release sequence is itself a finding worth recording: DOW catalogued the ODNI narrative alongside the Release 01 batch but withheld it from the May 8 release.
+
+A terminology note on what kind of imagery the B-series is: the FD-302's card description says it was taken *"through night vision devices"*. The FD-302 narrative text describes the LP/OP as using *"Forward Looking Infrared (FLIR) and Night Vision Goggles (NVG)"* — both. The B-series visual signature (large full-frame crosshair reticle, burned-in factory-reset HH:MM:SS timestamp, "15 10 5 | 5 10 15" or "3" scale display, dark-on-light polarity consistent with Black-Hot mode) is FLIR-consistent, not NVG-consistent. This entry uses "FLIR" throughout for the B-series; the card description's "night vision devices" appears to be a generic term covering both.
+
+## The A-series and B-series are different sensor systems
+
+Direct examination of all 32 frames established the following per-axis comparison:
+
+| Feature | A-series (A001–A008) | B-series (B001–B024) |
+|---|---|---|
+| Timestamp display | none visible | "12/31/99 HH:MM:SS" burned in, bottom-left |
+| Reticle | small "+" with horizontal tick row | large full-frame crosshair, vertical + horizontal ticks |
+| Scale markings | "5" mark on horizontal axis only | "15 10 5 \| 5 10 15" (burst 1, early burst 2) OR "3" (after operator zoom at B022) |
+| Outer framing | wide black border around image area | direct sensor edge to frame edge |
+| Redaction count | 7 to 8 bars distributed around frame | 6 bars + top solid bar, consistent across all 24 |
+| Background | aerial terrain (A001–A006) plus sky (A007, A008) | sky / atmosphere across all 24, terrain visible only at bottom of burst-1 frames |
+| Tracked-object polarity | dark on lighter background (A001–A006, A008); BRIGHT specular on darker background (A007 only) | dark on gray, consistent across all 24 |
+| Aspect ratio | 4:3 with significant outer black margin | 4:3 to sensor edge |
+
+These differences are not mode toggles within a single sensor — they represent different reticle hardware, different scale-display configuration, different timestamp subsystem, different output framing. Most consistent with **two different sensor platforms** cataloged together because they document the same case file, not because they share a sensor lineage.
+
+Within the A-series, A007 is the polarity outlier. It is the only A-frame with a bright specular target on a sky background; A001–A006 have dark targets on terrain backgrounds and A008 has a dark target on a sky background. The most defensible explanations for A007 — Black-Hot/White-Hot polarity toggle within the same sensor, or a sun-illuminated reflective object captured at a different time of day, or a frame from a different platform mistakenly grouped under the A-series — cannot be distinguished from imagery alone. The anomaly is recorded.
+
+The implication for finding-entry pairing: the A-series is **same-case, different-platform** evidence — not directly comparable per-frame with the B-series. The remainder of this entry treats the B-series as the primary imagery anchor and references the A-series only where the cross-platform contrast carries the argument.
+
+## The B-series: two bursts, one operator, an 11-minute window
+
+The B-series sensor clock is unset — the manifest description for every B-series card states the date *"is incorrect due to system date/time not being set"*[cite: card 1e63919cc6c3daf4 p.1 "The date in the image is incorrect"]. The HH:MM:SS resolution is preserved and can be read as relative time within the capture window. The 24 frames sort into two bursts:
+
+**Burst 1 — 18:10:00 to 18:12:20 (twelve frames, scale "15 10 5 | 5 10 15").** The sensor is angled down-and-out, with mountainous terrain visible at the lower portion of multiple frames (B003, B004, B005, B008, B009, B010, B011, B012; fainter terrain in B001 and B002). The tracked object appears as a single small dark point throughout the burst. The first two frames — **B006 at 18:10:00 and B007 at 18:10:02** — also show the host helicopter at the upper part of the frame. The helicopter drifts approximately 4.5 tick units between the two frames in 2 seconds while the tracked object holds its position. **The sensor is therefore not tracking the helicopter; it is stabilized on the tracked object, and the helicopter is passing through the field of view.** B005, the chronologically last burst-1 frame at 18:12:20, shows no clearly tracked object and a prominent mountain ridge silhouette at the bottom — either the operator lost track or the target exited the field of view.
+
+**6.5-minute gap (18:12:20 to 18:18:53).** No frames captured (or no frames released). The released corpus does not let us distinguish those two cases.
+
+**Burst 2 — 18:18:53 to 18:21:02 (twelve frames).** The sensor is angled up at sky throughout; no terrain visible in any burst-2 frame. The sensor has been deliberately repointed between bursts. Burst 2 opens at the same "15 10 5 | 5 10 15" scale (B019, B020, B021); between **B021 at 18:19:06 and B022 at 18:19:19** — a ~13-second window — the operator zooms in to scale "3", increasing magnification approximately five-fold. From B022 onward at the higher magnification, the tracked object **resolves as paired or multi-component**: two distinct dark blobs side-by-side, consistent across B014, B015, B017, B018, B022, with B016 showing a possible three-component cluster. The burst-1 frames at lower magnification never resolved paired structure.
+
+The mid-burst-2 zoom-in is operator-mediated observation, not passive monitoring. The decision to switch scales implies the operator wanted to characterize something specific; at higher magnification, that something resolved as multi-component. The B-series captures sustained, deliberate human-operator engagement with the target across the 11-minute window.
+
+The 11-minute window against the narrative timeline: the FD-302 has time-stamped events at 1700 (helicopter departure), 1751 (cavern entrance), 2050 (drop-off), 2052 (refuel run), 2141 (lifted off toward LP/OP), 2149 (LP/OP radar hits), 2202 (arrival at intercept; LP/OP relays "super-hot" orb), 2207 (military aircraft on training mission), 2218 (swarm spotted), 2227 (swarm lost; close-proximity oval orbs), 2228/2233/2241 (further sightings), 2249 (triangle formation), 2252 (5–6 orbs), 2257 (4 orbs over military aircraft), 2306–2320 (return). The B-series sensor clock is unset and cannot be mapped to any specific FD-302 timestamp without additional metadata. The most plausible mapping — that the 18:10–18:21 window falls inside the 2141–2320 FLIR-active phase — is supported by frame content (twilight ambient brightness, post-sunset gray sky) and is the simplest reading. The further mapping to a specific narrative sub-event (the 2202 LP/OP "super-hot" track, the 2207 splitting event, or another window) is operator-inferential and not uniquely entailed by the imagery.
+
+## What the imagery corroborates against the narrative
+
+Reading the imagery beside the FD-302 and the ODNI narrative, the following are corroborated at varying confidence levels:
+
+**Multi-sensor agreement on a thermally active airborne object.** The B-series objects appear dark on a gray background. In Black-Hot FLIR mode, the hottest objects display as the darkest pixels — so the B-series signatures are operationally consistent with the LP/OP's radio-relayed *"super-hot"* characterization[cite: card be533a4ab886eb11 p.1 "super-hot"] preserved in the FD-302. The witness's ODNI narrative describes the same object class observed visually by helicopter pilots through NVGs and by the witness with the naked eye[cite: card fd342b7508668b0e p.1 "they observed it through NVGs"]. Three independent observational channels converge on a hot, airborne, observable object.
+
+**Co-observation of the host helicopter and an independent tracked object.** B006 and B007 show both simultaneously: the helicopter is visibly in transit across the LP/OP's field of view while the ground sensor stays stabilized on a separate, smaller, lower-positioned target. This is the strongest single piece of cross-platform evidence in the released corpus. Whether the helicopter visible here is the witness's own [CALL SIGN 1] or the [CALL SIGN 2] helicopter the FD-302 also references[cite: card be533a4ab886eb11 p.1 "A second helicopter"] cannot be determined from imagery alone — the FD-302 names two aviation assets in the operating area.
+
+**Geographic ground-truth.** The ODNI narrative's *"mountains on the test range"*[cite: card fd342b7508668b0e p.1 "loud thuds heard in the mountains"] is confirmed by mountainous terrain visible in multiple burst-1 frames at the bottom of the field of view, where the sensor is angled down-and-out from what reads as a ground-based or low-elevation mount.
+
+**Twilight / post-sunset operational window.** The ambient brightness across the B-series — gray sky background sufficient to silhouette helicopter and mountain features against, but limited contrast within terrain or within the tracked object's surroundings — is consistent with the narrative's *"By this time, the sun had set"*[cite: card fd342b7508668b0e p.1 "By this time, the sun had set"] anchor for the FLIR/NVG transition. Frame content is most consistent with a winter or late-autumn Western US sky.
+
+**Multi-component object structure resolved at high magnification.** Five burst-2 frames at scale "3" (B014, B015, B017, B018, B022, with B016 showing a possible 3-component cluster) consistently resolve the tracked object as paired or multi-component, where burst-1 lower-magnification frames showed only a point source. The ODNI narrative reports that the object *"split into two as a smaller object emerged"*[cite: card fd342b7508668b0e p.1 "split into two as a smaller object emerged"]. The high-magnification imagery is consistent with that report. An alternative reading — that the object was always paired but unresolvable at the lower magnification — is equally consistent with the imagery alone.
+
+**Active operator-mediated observation.** The mid-burst-2 zoom-in (15/10/5 → "3" between B021 and B022) is deliberate operator action. The repointing between bursts (downward-and-out to upward sky) is another. The 11 minutes captured represent sustained, attentive engagement with the target.
+
+## What the imagery cannot resolve
+
+The ten-foot proximity claim is not directly corroborated by the imagery. The FD-302 records the LP/OP-relayed report that the orb *"gained elevation, came within ten feet of [CALL SIGN 1]"*[cite: card be533a4ab886eb11 p.2 "came within ten feet"] — but the FD-302 also notes that immediately before that relay, [CALL SIGN 1] *"searched the location with FLIR, NVG, and the naked eye but did not locate the orb"*. The ten-foot proximity is therefore ground-team-radioed information, not helicopter-side observation. The B-series imagery shows the helicopter and tracked object simultaneously in B006/B007, but apparent angular separation in 2D imagery does not translate to a real-world 3D distance without sensor range data — which the redaction bars on every frame appear to cover.
+
+The "orange" coloration in the witness narrative[cite: card fd342b7508668b0e p.2 "orange with a white or yellow center"] cannot be assessed from monochrome FLIR. The narrative asserts it as visual (naked-eye / NVG) observation; the FLIR records thermal signature, not color. The two are not contradictory — they describe different sensing modalities of the same object — but the imagery does not corroborate the color claim and does not need to.
+
+The kinematic claims — *"too fast for the helicopter in pursuit"*[cite: card be533a4ab886eb11 p.1 "too fast for the helicopter"], *"matching the jets' speed and flight path"* — fall outside the 11-minute B-series window. The fighter-orb interaction phase the narrative describes is later than any released frame.
+
+The "swarming," "T formation," and "triangle formation" sightings the narrative describes are not visible in any single B-series frame. Maximum resolved object count per frame is two (or three at B016's possible cluster). Either those events fall outside the 11-minute window, or the LP/OP sensor did not capture them, or the captures were not selected for release.
+
+## What the released corpus deliberately withholds
+
+The case-file documents establish that a sustained, multi-sensor, multi-platform, multi-witness UAP encounter occurred at a Western US sensitive facility in late 2025, with active JOC and federal-partner coordination. The released documents do not establish where, when precisely, who specifically (beyond a "senior US intelligence official"), or what the object was. Substantial supporting data exists by reference but is not in the corpus:
+
+- The JOC radar log the narrative anchors the intercept to (*"radar had detected hits several miles up range from our position"*[cite: card fd342b7508668b0e p.1 "radar had detected hits"])
+- The LP/OP ground team's own contemporaneous observation log
+- The host helicopter's own FLIR and NVG recordings (the narrative says *"the pilots observed it through NVGs and saw it split into two"* — those NVG recordings are not in the corpus)
+- The fighter aircraft's sensor returns during the orb-fighter interaction phase
+- The 302's referenced second helicopter ([CALL SIGN 2]) and the LP/OP team statements
+- The witness's JOC debrief notes referenced in the closing of the narrative
+- Specific date, location, agency identities, and operational coordinates — every proper noun in the FD-302 is redacted
+
+On the imagery side: 24 B-series frames span 11 minutes against an FD-302 timeline that puts the FLIR-active phase at 2141–2320 (1h 39m). If sensor capture was continuous during that phase, the released set represents under 12% of available imagery. The selection criterion is not stated by DOW. All 32 photos carry redaction bars covering the portions of the frame where sensor metadata (system identifiers, range information, coordinate data, mode settings) typically appears.
+
+The press attributions of specific months — "FBI Photo B2 = December 2025" (CNN) and "FBI Photo B20 = September 2025" (Leonard David) — are not supported by anything in the manifest, file metadata, or visible frame content. Both B002 and B020 PDFs were created within 25 minutes of each other on 7 May 2026 through the same Adobe Acrobat Paper Capture processing pipeline, and both card descriptions carry identical boilerplate with `incident_date` of "Late 2025". The contiguous VIRIN block, the 11-minute continuous sensor-clock window, and the identical manifest tagging are most consistent with a single incident; the press attributions to different months are not supported by anything in the released corpus and most parsimoniously read as press error.
+
+## What the case file does not conclude
+
+Across all 34 documents, no causal claim is made about the nature of the tracked object. The B-series and A-series card descriptions consistently state: *"The operator reported that they were unable to positively identify the UAP."*[cite: card 1e63919cc6c3daf4 p.1 "unable to positively identify"] The witness's interpretive language is preserved as interpretation throughout — the narrative's *"chasing"* the fighters is in the witness's own scare quotes; the FD-302 records the same framing as *"appeared to break off from [CALL SIGN 1] and pursue the [MILITARY AIRCRAFT]"*[cite: card be533a4ab886eb11 p.3 "appeared to break off"] as witness comment, not document finding. The "split into two as a smaller object emerged" is reported as observation; whether that constitutes *splitting* rather than two adjacent objects becoming visible is not asserted by either document.
+
+The B-series imagery establishes that an object was tracked by sensor for 11 minutes across two bursts with operator-mediated magnification changes. It cannot establish object range, absolute speed, or 3D position without sensor metadata that has been redacted. The "matching jets' speed and flight path" claim and the fighter-orb interaction phase fall outside the 11-minute imagery window.
+
+The documents collectively assert that there was something to be observed, that it was observed across multiple sensors and witnesses, that standard identification procedures did not resolve it, and that the institutional response was substantial. They do not assert what it was.
+
+## Adjacent-not-paired material
+
+Two pieces of nearby material are not folded into this finding and warrant separate treatment:
+
+**The FBI September 2023 Sighting block** (VIRINs `…-1053` through `…-1056`). Four cards: a composite sketch (`1701a0f307714921`) and three FD-302 interviews (Serial 003 `b03309df6758ab15`, Serial 004 `e93f6997811954dc`, Serial 005 `83aa439781e60e7b`). Direct examination confirms a separate incident: a 2023 ground-observer sighting of a *"cigar shaped object with an extremely bright light"*, *"intense diamond white light"*, *"500 to 3000 feet above the nearest tree line"*, *"almost hovering, slowly moving from east to west"*, witnessed by civilians and law-enforcement personnel and interviewed by FBI via FaceTime. Different date, witness type, platform, object morphology, and time-of-day characteristics from the helicopter case. Adjacent in the VIRIN block (one ingest batch) but distinct in incident, evidence type, and institutional posture. Future separate finds entry.
+
+**The DOW "Western US Event" 2023 slide deck** (the only narratively-titled file in Release 01). Multi-day federal law-enforcement encounter at a Western US location, distinct from both the September 2023 Sighting and the late-2025 helicopter case. Phenomenologically rhymes with the helicopter case (orange orbs, splitting/launching behavior, multi-witness federal personnel, Western US) but rests on different document sets. Worth a sibling entry treating the broader 2023–2025 Western US pattern as a potential through-line — but not in this entry.
+
+## Open questions
+
+- The origin of the 6.5-minute burst gap (continuous recording with 24 retained, or actual capture pause? Possibly more frames remain classified or unselected).
+- The physical interpretation of the two-blob morphology at high magnification (two separate objects, dual thermal signature on one, motion-blurred singleton — sub-pixel offset analysis on higher-resolution source imagery would help).
+- The A007 polarity inversion (Black-Hot/White-Hot toggle, different sensor mode, sun-illuminated reflective object, or a different platform's frame mistakenly grouped under the A-series).
+- The identity of the helicopter visible in B006/B007. Simplest reading is [CALL SIGN 1] arriving at the LP/OP-relayed intercept coordinates per the FD-302's 2202 hours entry. Alternative: [CALL SIGN 2], the second helicopter the FD-302 mentions in the operational area.
+- The press date attribution discrepancy (CNN's December 2025 for B2 vs Leonard David's September 2025 for B20). Most parsimoniously press error; cannot rule out that the press has access to source documents not yet recovered.
+- Real-world clock calibration of the sensor. The 12/31/99 factory display plus 18:10–18:21 wall time gives no absolute date. Further work could include astronomical calibration from any star positions in burst-2 sky frames, mountain silhouette geometry against known Western US ranges, or atmospheric scattering analysis for sun-position inference.
+
+## Provenance of this entry
+
+This entry is built on a three-pass methodology:
+
+**Pass 1 — Corpus mapping.** Identification of the 34-card case file via VIRIN block analysis, the manifest's `pdf_pairing` field on the two narrative cards, and the declarative pairing language in both card descriptions ("This account is accompanied by infrared imagery..." and "The photos linked... are connected to a set of UAP encounters...").
+
+**Pass 2 — Direct image examination.** All 32 imagery PDFs/PNGs were rendered (300 DPI for B-series PDFs, original PNG resolution for A-series) and examined directly. Per-frame structured observations were recorded into `web/src/data/image-observations/<card_id>.json` files (32 cards) plus an index. Those structured records — covering timestamp, scale, tracked object position and morphology, helicopter visibility, terrain visibility, redaction pattern, and disagreements with the prior augment-from VLM pass — are the canonical machine-readable source for the imagery claims in this entry. The embed and search pipeline quarantines the prior augment-from pass for these 32 cards in favor of the operator-verified observations.
+
+**Pass 3 — Cross-document corroboration.** Narrative claims from the FD-302 and the ODNI Narrative were mapped against the imagery observations and assigned verdicts (corroborated / indeterminate / not in window / not corroborated). The companion finds entries [/finds/fbi-usper-2025-super-hot-orb](/finds/fbi-usper-2025-super-hot-orb) and [/finds/odni-uap-d001-usper-narrative](/finds/odni-uap-d001-usper-narrative) handle the document-grammar work; this entry references their findings rather than re-deriving them.
+
+**What this entry treats as observation:** the imagery's visible content (objects, terrain, helicopter, timestamps, scale markings, redactions) and the narrative documents' explicit text. Cross-document agreement on observable phenomena.
+
+**What this entry treats as inference:** sensor angle from frame composition; twilight versus astronomical-darkness from background brightness; the mapping of the unset-clock 11-minute window onto a specific FD-302 sub-event; the identity of the helicopter visible in B006/B007 as [CALL SIGN 1] rather than [CALL SIGN 2]; the season ("winter or late autumn") from frame ambient brightness; single-incident origin from VIRIN block contiguity plus identical manifest tagging plus sensor signature consistency.
+
+**What this entry does not assert:** the nature of the observed object, the specific incident date or location beyond manifest-given "Late 2025" and "Western United States," any causal mechanism for the observed phenomena, or any conclusion about the underlying physics of what the operator was unable to positively identify.
+
+The augment-from VLM corpus that orients the index's gallery and reader-mode descriptions was used as initial pre-Pass-1 orientation. Direct examination during Pass 2 superseded it for the 32 cards covered here; the supersede is recorded in `web/src/data/image-observations/index.json` and applied in the embed pipeline. Per-frame observations from Pass 2 are committed to the repository alongside this entry and are the citable source for any imagery-derived claim above.
 
 ### cia-uap-d001-ussr-1973-iir — A UAP Observation Inside a CIA Sary Shagan Collection Report (Summer 1973)
 
@@ -3538,7 +3710,7 @@ For the contemporaneous photograph-custody dispute in a parallel UAP file from t
 - Published: 2026-05-22
 - Cards: fd342b7508668b0e, be533a4ab886eb11, 3893e5d0279db3b1, ba30b5fdb4f6d153, 93cbdaad1d4ac853, 04b9179a7637d6ad, 613dc8ef961f9399, 5a487c793b488382, c142741e8cafc659, 819e725592d1ba79, 1e63919cc6c3daf4, 67ab3ffef2aecf70, 0e3b3ec17a9ae021, 672ae7eab15481ff, 36bcfe2cfb5f3f54, b279eac8e49cf4fe, ccd932b4f40e8de7, 0d7a23b29e6de1bf, fd8286ffc6fbc1fb, af047a976bac0c89, 19d8e1d503211c84, 2b947223739f5bd4, 16fcb501de623b9c, 7d1b50162c29378a, 3a5445e8aa7985d4, 3b36f3dc3b51cf3b, f8bd1f11b7a2ae48, c568aea24f3aef31, eda0a3d37c6dbbc3, bdf033d4a47eaad3, c304734c04357887, dc9f45a9ec6feb00, a417f61b2dbd671f, 6ded7ef20ded84c7
 
-Card fd342b7508668b0e is the first ODNI-released document on the index: a two-page first-person narrative by a serving senior US intelligence official of a late-2025 UAP encounter near a sensitive military facility in the Western United States. It is the same incident the FBI FD-302 in card be533a4ab886eb11 records in third-person interview form — but ODNI released it without the FD-302's redactions: no [WITNESS], no [STATE PARTNER ORGANIZATION], no [BEARING], no [DATE] brackets. The manifest pairs it with twenty-four FBI photographs (A001–A008, B001–B024) and the USPER Statement card. This entry reads what the first-person grammar commits to that the FD-302 grammar does not, and notes what both still hold back.
+Card fd342b7508668b0e is the first ODNI-released document on the index: a two-page first-person narrative by a serving senior US intelligence official of a late-2025 UAP encounter near a sensitive military facility in the Western United States. It is the same incident the FBI FD-302 in card be533a4ab886eb11 records in third-person interview form — but ODNI released it without the FD-302's redactions: no [WITNESS], no [STATE PARTNER ORGANIZATION], no [BEARING], no [DATE] brackets. The manifest pairs it with thirty-two FBI photographs (A001–A008, B001–B024) and the USPER Statement card. This entry reads what the first-person grammar commits to that the FD-302 grammar does not, and notes what both still hold back.
 
 ## What the document is
 
@@ -3548,7 +3720,7 @@ The narrative opens in the first-person voice:
 
 > "In late 2025, during early evening daylight hours, I — a senior U.S. intelligence officer — along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter." [cite: card fd342b7508668b0e p.1 "senior U.S. intelligence officer"]
 
-This is the same person whose account is summarized, in third-person and with every proper noun redacted, in card `be533a4ab886eb11` — the **FBI FD-302** already documented in this archive at [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb). The manifest's `pdf_pairing` field on `fd342b7508668b0e` lists, explicitly, "USPER Statement about UAP Sighting" alongside twenty-four FBI photographs (A001–A008, B001–B024). The pairing is declared by the corpus, not inferred.
+This is the same person whose account is summarized, in third-person and with every proper noun redacted, in card `be533a4ab886eb11` — the **FBI FD-302** already documented in this archive at [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb). The manifest's `pdf_pairing` field on `fd342b7508668b0e` lists, explicitly, "USPER Statement about UAP Sighting" alongside thirty-two FBI photographs (A001–A008, B001–B024). The pairing is declared by the corpus, not inferred.
 
 ## What the first-person grammar commits to
 
@@ -3611,9 +3783,9 @@ A reader holding both documents alongside each other can recover more of the ope
 
 ## The 24-photo evidence trail
 
-The manifest's `pdf_pairing` field on `fd342b7508668b0e` lists twenty-four FBI photographs by ID — eight A-series (A001–A008) and sixteen B-series (B001–B024) — alongside the USPER Statement. The A-series and B-series are continuous numerical sequences that the corpus delivered together with this narrative. One of them, **FBI Photo B7** (`ccd932b4f40e8de7`), is the grayscale FLIR-style frame already documented in [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb): a helicopter under a central crosshair reticle with 5/10/15 tick scales, OCR yielding only a corrupted system timestamp. The companion entry's reading of B7 — visually consistent with an LP/OP FLIR display imaging an in-air helicopter, with the manifest-described "second, smaller, dark circular object… visible below the reticle" — applies here without modification. The corpus now declares that frame to be paired with the present narrative; the editorial reading does not need to assert it.
+The manifest's `pdf_pairing` field on `fd342b7508668b0e` lists thirty-two FBI photographs by ID — eight A-series (A001–A008) and twenty-four B-series (B001–B024) — alongside the USPER Statement. The A-series and B-series are continuous numerical sequences that the corpus delivered together with this narrative. One of them, **FBI Photo B7** (`ccd932b4f40e8de7`), is the grayscale FLIR-style frame already documented in [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb): a helicopter under a central crosshair reticle with 5/10/15 tick scales, OCR yielding only a corrupted system timestamp. The companion entry's reading of B7 — visually consistent with an LP/OP FLIR display imaging an in-air helicopter, with the manifest-described "second, smaller, dark circular object… visible below the reticle" — applies here without modification. The corpus now declares that frame to be paired with the present narrative; the editorial reading does not need to assert it.
 
-The remaining twenty-three frames in the A/B sequence are released alongside the narrative as a corpus-declared evidence package. This entry surfaces the existence of that pairing rather than re-deriving each frame's reading; per-frame OCR and description work belongs in the photo cards themselves and in any future entry that examines the A/B series as a sequence.
+The remaining thirty-one frames in the A/B sequence are released alongside the narrative as a corpus-declared evidence package. This entry surfaces the existence of that pairing rather than re-deriving each frame's reading; per-frame examination of all 32 photographs — including the sensor-system classification that splits the A-series from the B-series, the burst structure of the 24 B-frames, and what the imagery does and does not corroborate against this narrative — is in the companion finds entry at [/finds/helicopter-case-2025-imagery](/finds/helicopter-case-2025-imagery).
 
 ## Three grammars, one incident
 
@@ -3621,13 +3793,13 @@ With the ODNI narrative now on the index, the late-2025 helicopter-orb encounter
 
 1. **First-person narrative (ODNI, card `fd342b7508668b0e`)** — the participant's own account, written in prose, two pages, no agency-internal redaction. Names sensors, geometry, terrain function, and the in-the-moment word "chasing."
 2. **Third-person interview summary (FBI FD-302, card `be533a4ab886eb11`)** — the agent's transcription of a witness debrief, three pages, SECRET//NOFORN, every proper noun in a redaction category. Names timestamps, personnel counts, sensor types, and the LP/OP's relayed `"super-hot."`
-3. **Imagery (FBI Photo A001–A008, B001–B024 — twenty-four cards)** — ground-team FLIR frames captured during the same exercise per the manifest pairing. The single per-frame examination on the index so far (B7 in the FD-302 entry) does not embed metadata beyond a corrupted system timestamp.
+3. **Imagery (FBI Photo A001–A008, B001–B024 — thirty-two cards)** — ground-team FLIR frames captured during the same exercise per the manifest pairing. Per-frame direct examination of all 32 photographs — including the sensor-system classification that splits the A-series from the B-series, the burst structure of the 24 B-frames, and the operator-mediated mid-burst zoom-in — is in [/finds/helicopter-case-2025-imagery](/finds/helicopter-case-2025-imagery).
 
 The three grammars do not perfectly overlap. The FD-302's Zulu timestamps are not in the ODNI narrative; the ODNI narrative's "large cave entrance" is not in the FD-302; the photographs' per-frame embedded data is not in either document. They are useful as three readings of the same event because each grammar commits to a different set of details.
 
 ## Provenance of this entry
 
-A code-assistant agent located and verified the document surface — the first-person opening, the role descriptor matching the FD-302's `[WITNESS 1]` token, the verbatim quotation marks around `"super-hot"` and `"chasing,"` the "T" formation language, the absence of redaction brackets, and the corpus-declared pairing of twenty-four FBI photographs and the USPER Statement — by reading the two preserved OCR pages of `fd342b7508668b0e` directly and the manifest entry for the card. The cross-reference to the FD-302 entry at [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb) is to an existing find in this archive on the third-person side of the same incident. The editorial frame — surfacing this card as a sibling-grammar to the existing FD-302 entry, and reading the unredacted first-person voice for what it commits to that the FD-302's redaction categories did not — is the operator's.
+A code-assistant agent located and verified the document surface — the first-person opening, the role descriptor matching the FD-302's `[WITNESS 1]` token, the verbatim quotation marks around `"super-hot"` and `"chasing,"` the "T" formation language, the absence of redaction brackets, and the corpus-declared pairing of thirty-two FBI photographs and the USPER Statement — by reading the two preserved OCR pages of `fd342b7508668b0e` directly and the manifest entry for the card. The cross-reference to the FD-302 entry at [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb) is to an existing find in this archive on the third-person side of the same incident. The editorial frame — surfacing this card as a sibling-grammar to the existing FD-302 entry, and reading the unredacted first-person voice for what it commits to that the FD-302's redaction categories did not — is the operator's.
 
 ### apollo-11-debriefing — Apollo 11 Technical Crew Debriefing: Three Anomalous Observations and How the Crew Reasoned About Them
 
@@ -3929,7 +4101,9 @@ The two grammars also redact differently. A MISREP that records an Iranian guard
 
 Card `ccd932b4f40e8de7` is a single grayscale frame depicting a helicopter under a central crosshair reticle with tick scales — visually consistent with an LP/OP FLIR display imaging an in-air helicopter, though the document chain does not assert this. The image carries no embedded metadata except the corrupted system timestamp; OCR returns essentially nothing.
 
-The 302 and the photo are both FBI-released, both dated `Late 2025`, both carry `redacted: true`, and both depict a helicopter-adjacent UAP scenario. They are **not** structurally paired in the manifest's `pdf_pairing` field — they are not declared by the corpus to be the same incident, the way DOW MISREPs are paired to their AARO videos. Editorially they appear to be a 302 and its companion frame; structurally the corpus records them as two independent FBI Release 01 cards. The helicopter visible in the frame **could** be `[CALL SIGN 1]`, viewed through LP/OP's FLIR, with the manifest-described "second, smaller, dark circular object" being the orb described in the 302's narrative. The document chain does not say so, and this entry does not assert it.
+The 302 and the photo are both FBI-released, both dated `Late 2025`, both carry `redacted: true`, and both depict a helicopter-adjacent UAP scenario. At the time this entry was first published (12 May 2026), they were not structurally paired in the manifest's `pdf_pairing` field — they were not yet declared by the corpus to be the same incident, the way DOW MISREPs are paired to their AARO videos.
+
+**Update (25 May 2026):** With Release 02 on 22 May 2026, the corpus declared the pairing explicitly. The ODNI Narrative card description states the narrative *"is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground"*, and the FBI 302's own card description was updated to read *"The photos of UAP underneath the helicopter are from this same set of observations, taken through night vision devices by ground-based personnel."* The manifest's `pdf_pairing` field on both `be533a4ab886eb11` and `fd342b7508668b0e` now lists all 32 photographs (A001–A008 and B001–B024) plus each other. Per-frame direct examination of all 32 photographs — including the sensor-system classification that splits the A-series from the B-series and the burst structure of the 24 B-frames — is in the imagery-focused companion entry at [/finds/helicopter-case-2025-imagery](/finds/helicopter-case-2025-imagery). The first-person ODNI narrative read against the FD-302 grammar is at [/finds/odni-uap-d001-usper-narrative](/finds/odni-uap-d001-usper-narrative).
 
 ## What the document deliberately withholds
 

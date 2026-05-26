@@ -1,0 +1,76 @@
+{
+  "card_id": "c142741e8cafc659",
+  "title": "FBI Photo A007",
+  "virin": "260508-O-D0360-1027",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-05-25T17:00:00+00:00",
+  "session_id": "phase2-helicopter-case-2026-05-25",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-7",
+    "method": "direct-examination-via-claude-code",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+  },
+  "cluster_label": "helicopter-case-2025-imagery-a-series",
+  "cross_card_refs": [
+    "be533a4ab886eb11",
+    "fd342b7508668b0e"
+  ],
+  "sensor_system_note": "A-series \u2014 different sensor system from B-series. Small '+' reticle with horizontal tick row, NO timestamp visible, '5' scale mark only. A001-A006 are aerial terrain views (sensor pointed down at ground). A007 is the polarity-anomaly frame (sky background, bright specular target). A008 is sky background with normal dark-on-light polarity. Treat as adjacent-not-paired with B-series.",
+  "pages": [
+    {
+      "page": 1,
+      "timestamp_visible": null,
+      "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
+      "scale_markings": "'5' mark on horizontal axis only",
+      "tracked_object": {
+        "position_reticle_units": [
+          0,
+          -2
+        ],
+        "shape": "bright specular point with halo (suggests intense point source, possibly sun reflection or active emitter)",
+        "brightness": "LIGHT/WHITE-on-gray-blue (\u2605 polarity anomaly within A-series)"
+      },
+      "other_frame_features": {
+        "background": "SKY-like atmospheric background (\u2605 NOT terrain \u2014 significant departure from A001-A006)",
+        "other_objects": null
+      },
+      "redaction_pattern": "6+ bars",
+      "zhang_disagreements": [
+        {
+          "zhang_text": "(treated as part of the A-series ground-target group)",
+          "our_text": "polarity anomaly: A007 is the only A-frame with bright-on-dark target AND sky background instead of terrain. Possible explanations include WHOT/BHOT polarity inversion, different sensor mode, sun-illuminated reflective object, or different sensor entirely.",
+          "load_bearing": true
+        }
+      ],
+      "observations": [
+        {
+          "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No timestamp visible on this frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Tracked object at reticle position [0, -2]: bright specular point with halo (suggests intense point source, possibly sun reflection or active emitter)",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Background: SKY-like atmospheric background (\u2605 NOT terrain \u2014 significant departure from A001-A006)",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "narrative_grounding": null
+    }
+  ]
+}

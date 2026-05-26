@@ -1,0 +1,75 @@
+{
+  "card_id": "eda0a3d37c6dbbc3",
+  "title": "FBI Photo B019",
+  "virin": "260508-O-D0360-1047",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-05-25T17:00:00+00:00",
+  "session_id": "phase2-helicopter-case-2026-05-25",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-7",
+    "method": "direct-examination-via-claude-code",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+  },
+  "cluster_label": "helicopter-case-2025-imagery-b-series",
+  "cross_card_refs": [
+    "be533a4ab886eb11",
+    "fd342b7508668b0e"
+  ],
+  "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
+  "pages": [
+    {
+      "page": 1,
+      "timestamp_visible": "12/31/99 18:18:53",
+      "reticle_style": "large full-frame crosshair with white tick marks",
+      "scale_markings": "15 10 5 | 5 10 15",
+      "tracked_object": {
+        "position_reticle_units": [
+          0,
+          0
+        ],
+        "shape": "small ELONGATED dark shape (slightly wider than tall); possibly nascent paired structure but unresolved at this magnification",
+        "brightness": "dark-on-gray"
+      },
+      "other_frame_features": {
+        "helicopter_visible": false,
+        "helicopter_position": null,
+        "mountains_visible": false,
+        "mountains_description": null,
+        "other_objects": null,
+        "artifacts": null
+      },
+      "redaction_pattern": "6 bars + top + upper-left small artifact",
+      "zhang_disagreements": [],
+      "observations": [
+        {
+          "claim": "Timestamp '12/31/99 18:18:53' visible bottom-left of frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Tracked object at reticle position [0, 0]: small ELONGATED dark shape (slightly wider than tall); possibly nascent paired structure but unresolved at this magnification, dark-on-gray",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Helicopter not visible in this frame",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "cross_frame_notes": "Chronologically first frame of burst 2.",
+      "narrative_grounding": null
+    }
+  ]
+}

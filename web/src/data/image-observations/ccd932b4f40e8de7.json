@@ -1,0 +1,76 @@
+{
+  "card_id": "ccd932b4f40e8de7",
+  "title": "FBI Photo B007",
+  "virin": "260508-O-D0360-1035",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-05-25T17:00:00+00:00",
+  "session_id": "phase2-helicopter-case-2026-05-25",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-7",
+    "method": "direct-examination-via-claude-code",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+  },
+  "cluster_label": "helicopter-case-2025-imagery-b-series",
+  "cross_card_refs": [
+    "be533a4ab886eb11",
+    "fd342b7508668b0e"
+  ],
+  "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
+  "pages": [
+    {
+      "page": 1,
+      "timestamp_visible": "12/31/99 18:10:02",
+      "reticle_style": "large full-frame crosshair with white tick marks",
+      "scale_markings": "15 10 5 | 5 10 15",
+      "tracked_object": {
+        "position_reticle_units": [
+          1,
+          -7
+        ],
+        "shape": "point",
+        "brightness": "dark-on-gray",
+        "notes": "same speck position as B006 \u2014 sensor stabilized on this object"
+      },
+      "other_frame_features": {
+        "helicopter_visible": true,
+        "helicopter_position": "approximately (+5, +5); moved RIGHT and DOWN relative to B006 by ~4.5 tick units in 2 seconds; rotor/body silhouette clearer than in B006",
+        "mountains_visible": false,
+        "mountains_description": null,
+        "other_objects": null,
+        "artifacts": null
+      },
+      "redaction_pattern": "6 bars + top + upper-left artifact",
+      "zhang_disagreements": [],
+      "observations": [
+        {
+          "claim": "Timestamp '12/31/99 18:10:02' visible bottom-left of frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Tracked object at reticle position [1, -7]: point, dark-on-gray",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Helicopter visible: approximately (+5, +5); moved RIGHT and DOWN relative to B006 by ~4.5 tick units in 2 seconds; rotor/body silhouette clearer than in B006",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "cross_frame_notes": "Helicopter motion B006\u2192B007 confirms sensor is NOT tracking helicopter; sensor is stabilized on the speck below center (which holds position) while helicopter drifts through field of view.",
+      "narrative_grounding": null
+    }
+  ]
+}

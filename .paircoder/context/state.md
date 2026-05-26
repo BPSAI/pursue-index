@@ -1,6 +1,30 @@
 # Current State
 
-> Last updated: 2026-05-25 (v1.2.3 shipped — gallery IMAGES filter unions `asset_type=IMG` with a precomputed allow-list of PDF-wrapped photographs (B001-B024, FBI Composite Sketch, CENTCOM declass-header stills). Operator-driven fix: searching the gallery for "FBI Photo B2" previously missed all 24 B-series cards because they ship as `asset_type=PDF` despite being single-page photo content.)
+> Last updated: 2026-05-26 (v1.2.4 shipped — first per-frame direct-examination finds entry on the late-2025 helicopter case, plus 32 machine-readable image-observation bundles that supersede the prior augment-from VLM pass for those cards in the embed/search pipeline. Two existing entries on the same incident corrected and cross-linked.)
+
+## 2026-05-26 — v1.2.4 ship (helicopter-case imagery finds entry + image-observations bundle)
+
+New finds entry at `/finds/helicopter-case-2025-imagery` is the first per-frame direct-examination companion to the two existing entries on the late-2025 helicopter-orb incident (`fbi-usper-2025-orb` and `odni-uap-d001-usper-narrative`). All 32 photographs in the FBI imagery block — 8 A-series PNGs and 24 B-series single-page PDFs — were rendered and examined directly. Three substantive findings the existing entries did not have:
+
+- **A-series and B-series are different sensor systems**, not modes of one sensor. The pdf_pairing field that lists them together is FBI case-file cross-reference, not sensor lineage.
+- **The B-series captures 11 minutes** of operator-mediated observation in two bursts on a common factory-reset sensor clock. Mid-burst-2 zoom-in resolves the tracked object as multi-component at higher magnification.
+- **B006/B007 show the host helicopter transiting the LP/OP's field of view** while the ground sensor stays locked on an independent airborne object — cross-platform co-observation evidence.
+
+**Files landed (entry + supporting machine-readable data):**
+- `web/src/content/finds/helicopter-case-2025-imagery.mdx` — new entry, ~210 lines
+- `web/src/data/image-observations/<card_id>.json` × 32 — per-card structured observations
+- `web/src/data/image-observations/index.json` — roster + quarantine index
+- `src/pursue_index/cli/embed_cli.py` — quarantine hook: cards in the image-observations index drop the prior augment-from VLM block from embed payloads (per the supersede-and-quarantine policy in `pursue-opsec-staging/findings/2026-05-25-vision-augmentation-and-image-observations-architecture.md`)
+- `tests/unit/test_image_observations_quarantine.py` — 9 unit tests pinning the supersede behavior
+
+**Existing-entry corrections (the same incident now reads as a coherent triplet):**
+- `fbi-usper-2025-orb.mdx` — added "Update (25 May 2026)" callout: the stale "not paired in pdf_pairing" claim was true on the 12 May publication date but the pairing was declared by the corpus with Release 02. Reciprocal cross-links added.
+- `odni-uap-d001-usper-narrative.mdx` — arithmetic corrected (sixteen→twenty-four B-series; twenty-four→thirty-two total photos, six places). "24-photo evidence trail" section now points to the new entry for per-frame examination.
+
+**Architecture context:**
+This is the first applied case of the three-tier vision-augmentation plan landed at `pursue-opsec-staging/findings/2026-05-25-vision-augmentation-and-image-observations-architecture.md`. The 32 cards here are Tier 1 (load-bearing, agentic, narrative-aware) — operator-attended direct examination, not stateless API calls. The Zhang VLM pass is quarantined per-card via the embed-pipeline hook landed this release; quarantine is implemented as card-level filter on the augment_lookup dict before embedding. Tier 2 and Tier 3 work (bulk corpus passes) remain backlog.
+
+**Methodology disclosure:** the entry's Provenance section names the three-pass methodology (corpus mapping → direct examination → cross-document corroboration) explicitly and discloses the Zhang supersede policy. Per operator preference, methodology disclosure rides with the first artifact that depends on it, not as a standalone update.
 
 ## 2026-05-25 — v1.2.3 ship (gallery photograph-content filter)
 

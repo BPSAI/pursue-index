@@ -1,0 +1,86 @@
+{
+  "card_id": "b279eac8e49cf4fe",
+  "title": "FBI Photo B006",
+  "virin": "260508-O-D0360-1034",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-05-25T17:00:00+00:00",
+  "session_id": "phase2-helicopter-case-2026-05-25",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-7",
+    "method": "direct-examination-via-claude-code",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+  },
+  "cluster_label": "helicopter-case-2025-imagery-b-series",
+  "cross_card_refs": [
+    "be533a4ab886eb11",
+    "fd342b7508668b0e"
+  ],
+  "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
+  "pages": [
+    {
+      "page": 1,
+      "timestamp_visible": "12/31/99 18:10:00",
+      "reticle_style": "large full-frame crosshair with white tick marks",
+      "scale_markings": "15 10 5 | 5 10 15",
+      "tracked_object": {
+        "position_reticle_units": [
+          1,
+          -7
+        ],
+        "shape": "small dark speck well below center",
+        "brightness": "dark-on-gray"
+      },
+      "other_frame_features": {
+        "helicopter_visible": true,
+        "helicopter_position": "approximately (+0.5, +9) \u2014 top center, just right of vertical axis, just below the top redaction bar; rotor/body silhouette distinguishable",
+        "mountains_visible": true,
+        "mountains_description": "not clearly visible (top bar dominates upper frame)",
+        "other_objects": null,
+        "artifacts": null
+      },
+      "redaction_pattern": "6 bars + top + upper-left artifact",
+      "zhang_disagreements": [
+        {
+          "zhang_text": "one small dark object near top + smaller speck below center",
+          "our_text": "the 'small dark object near top' is a HELICOPTER (rotor/body silhouette clearly distinguishable). The tracked object is the speck below center, not the helicopter.",
+          "load_bearing": true
+        }
+      ],
+      "observations": [
+        {
+          "claim": "Timestamp '12/31/99 18:10:00' visible bottom-left of frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Tracked object at reticle position [1, -7]: small dark speck well below center, dark-on-gray",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Helicopter visible: approximately (+0.5, +9) \u2014 top center, just right of vertical axis, just below the top redaction bar; rotor/body silhouette distinguishable",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Mountainous terrain visible: not clearly visible (top bar dominates upper frame)",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "cross_frame_notes": null,
+      "narrative_grounding": null
+    }
+  ]
+}

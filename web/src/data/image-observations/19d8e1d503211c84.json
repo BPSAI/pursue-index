@@ -1,0 +1,87 @@
+{
+  "card_id": "19d8e1d503211c84",
+  "title": "FBI Photo B011",
+  "virin": "260508-O-D0360-1039",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-05-25T17:00:00+00:00",
+  "session_id": "phase2-helicopter-case-2026-05-25",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-7",
+    "method": "direct-examination-via-claude-code",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+  },
+  "cluster_label": "helicopter-case-2025-imagery-b-series",
+  "cross_card_refs": [
+    "be533a4ab886eb11",
+    "fd342b7508668b0e"
+  ],
+  "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
+  "pages": [
+    {
+      "page": 1,
+      "timestamp_visible": "12/31/99 18:11:06",
+      "reticle_style": "large full-frame crosshair with white tick marks",
+      "scale_markings": "15 10 5 | 5 10 15",
+      "tracked_object": {
+        "position_reticle_units": [
+          3,
+          2
+        ],
+        "shape": "point",
+        "brightness": "DARK-on-gray",
+        "notes": "Object is DARK on gray background, consistent with all other burst-1 frames"
+      },
+      "other_frame_features": {
+        "helicopter_visible": false,
+        "helicopter_position": null,
+        "mountains_visible": true,
+        "mountains_description": "lower right silhouette",
+        "other_objects": null,
+        "artifacts": null
+      },
+      "redaction_pattern": "6 bars + top",
+      "zhang_disagreements": [
+        {
+          "zhang_text": "small BRIGHT dot upper center-right",
+          "our_text": "object is DARK, not bright. Zhang misread polarity.",
+          "load_bearing": true
+        }
+      ],
+      "observations": [
+        {
+          "claim": "Timestamp '12/31/99 18:11:06' visible bottom-left of frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Tracked object at reticle position [3, 2]: point, DARK-on-gray",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Helicopter not visible in this frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Mountainous terrain visible: lower right silhouette",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "cross_frame_notes": null,
+      "narrative_grounding": null
+    }
+  ]
+}

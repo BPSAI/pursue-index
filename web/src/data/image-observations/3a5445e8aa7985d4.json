@@ -1,0 +1,75 @@
+{
+  "card_id": "3a5445e8aa7985d4",
+  "title": "FBI Photo B015",
+  "virin": "260508-O-D0360-1043",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-05-25T17:00:00+00:00",
+  "session_id": "phase2-helicopter-case-2026-05-25",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-7",
+    "method": "direct-examination-via-claude-code",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+  },
+  "cluster_label": "helicopter-case-2025-imagery-b-series",
+  "cross_card_refs": [
+    "be533a4ab886eb11",
+    "fd342b7508668b0e"
+  ],
+  "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
+  "pages": [
+    {
+      "page": 1,
+      "timestamp_visible": "12/31/99 18:20:22",
+      "reticle_style": "large full-frame crosshair with white tick marks",
+      "scale_markings": "3",
+      "tracked_object": {
+        "position_reticle_units": [
+          3,
+          2
+        ],
+        "shape": "PAIRED \u2014 two dark blobs similar to B014",
+        "brightness": "dark-on-gray"
+      },
+      "other_frame_features": {
+        "helicopter_visible": false,
+        "helicopter_position": null,
+        "mountains_visible": false,
+        "mountains_description": null,
+        "other_objects": null,
+        "artifacts": null
+      },
+      "redaction_pattern": "6 bars + top",
+      "zhang_disagreements": [],
+      "observations": [
+        {
+          "claim": "Timestamp '12/31/99 18:20:22' visible bottom-left of frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Scale markings: 3",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Tracked object at reticle position [3, 2]: PAIRED \u2014 two dark blobs similar to B014, dark-on-gray",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Helicopter not visible in this frame",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "cross_frame_notes": null,
+      "narrative_grounding": null
+    }
+  ]
+}

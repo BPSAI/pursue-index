@@ -250,13 +250,18 @@ function countByEngine(): Record<string, number> {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.2.3 — gallery IMAGES filter now
-  // unions `asset_type=IMG` with a precomputed allow-list of PDF-
-  // wrapped photographs (B001-B024, FBI Composite Sketch, CENTCOM
-  // declass-header stills). Operator-driven fix: searching the
-  // gallery for "FBI Photo B2" previously missed the B-series
-  // because those 24 cards ship as `asset_type=PDF`.
-  version: "v1.2.3",
+  // Bumped manually per release. v1.2.4 — new finds entry
+  // (helicopter-case-2025-imagery) lands the first per-frame
+  // direct examination of the 32-photo FBI imagery block paired
+  // to the late-2025 helicopter case; the two existing entries
+  // on the same incident (fbi-usper-2025-orb +
+  // odni-uap-d001-usper-narrative) get reciprocal cross-links
+  // and a stale "not paired in pdf_pairing" claim is corrected
+  // (the pairing was added with Release 02). Ships alongside
+  // 32 machine-readable image-observation bundles that supersede
+  // the prior augment-from VLM pass for these specific cards in
+  // the embed and search pipeline (quarantine hook in embed_cli).
+  version: "v1.2.4",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,
