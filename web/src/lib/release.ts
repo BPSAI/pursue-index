@@ -250,18 +250,14 @@ function countByEngine(): Record<string, number> {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.2.5 — tranche 6be2c64e ingest:
-  // ODNI-UAP-D001 narrative re-released by upstream with an inline
-  // typo-correction footnote (map-of-the-earth → nap-of-the-earth)
-  // plus pagination shift. New PDF bytes (sha bef126d8…, 58KB) and
-  // re-OCR'd / cleaned / embedded; old bytes (sha 87297ea7…, 34KB)
-  // preserved at content-addressed /archive/. Adjacent DOW-UAP-PR072
-  // got a description-only correction (Feb 2022 vs Mar 2022 upload
-  // date). No new cards. ODNI finds entry annotated with the
-  // upstream-correction footnote; first declared content correction
-  // we've seen, materially different class from the silent-edit
-  // event in May 2026.
-  version: "v1.2.5",
+  // Bumped manually per release. v1.2.6 — simplify the ODNI
+  // upstream-correction footnote: drop the "declared vs silent"
+  // taxonomy framing. Bytes changed is bytes changed regardless
+  // of upstream motive; the footnote now just reports the byte
+  // history and what the upstream change was. Architecture
+  // follow-up: un-retire /altered/ as a facts-only surface
+  // (queued, not in this release).
+  version: "v1.2.6",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,

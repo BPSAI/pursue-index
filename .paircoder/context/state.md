@@ -1,8 +1,16 @@
 # Current State
 
-> Last updated: 2026-05-27 (v1.2.5 shipped — tranche 6be2c64e ingest. ODNI-UAP-D001 narrative re-released upstream with an inline typo-correction footnote and a pagination shift; new PDF bytes archived, re-OCR'd + cleaned + embedded, finds entry annotated. First declared upstream content correction in the corpus's history; materially different class from the silent-edit event of May 2026. Registry root re-signed.)
+> Last updated: 2026-05-27 (v1.2.6 shipped — footnote-simplification follow-up to v1.2.5. The "declared vs silent" taxonomy framing on the ODNI typo-correction footnote was overthinking it; bytes changed is bytes changed, regardless of upstream motive. Footnote now just reports the byte history and what the change was. Architecture follow-up: un-retire /altered/ as a facts-only surface, queued for a future session.)
 
-## 2026-05-27 — v1.2.5 ship (declared upstream correction on ODNI-UAP-D001)
+## 2026-05-27 — v1.2.6 ship (footnote-simplification follow-up)
+
+Same-day correction to v1.2.5. The footnote I added to the ODNI finds entry yesterday introduced a "declared vs silent" taxonomy ("first declared upstream content correction…materially different class") that was editorially overreaching. The operator's pushback was correct: **bytes changed is bytes changed**, regardless of whether upstream explained the change or not. Filtering on motive is (a) editorial work we shouldn't be doing, and (b) trivially gameable by an attacker who writes "this was a typo fix" while substantively re-editing.
+
+The footnote now just reports the byte history and what the upstream change was — no taxonomy, no class-distinction.
+
+**Architecture follow-up (queued):** the /altered/ retirement in v1.2.2 was based on a real problem (per-card OCR text diffs were misleading — OCR variance on visually-identical pages, not real content changes). Removing the diffs was correct; taking down the entire surface was an overcorrection. The right model is /altered/ as a **facts-only listing** of cards with multi-sha byte history, with per-card detail showing byte_sha versions + fetched_at + size + content-addressed /archive/ links. Optional operator-verdict commentary attached but not gating. 79 May cards + this 1 ODNI card = 80 currently in byte-history.json. Not built this release; queued as a properly-scoped piece of work.
+
+## 2026-05-27 — v1.2.5 ship (upstream correction on ODNI-UAP-D001)
 
 Tranche `6be2c64e7605` detected by the 30-min poll on 2026-05-26 20:15 UTC. The probe-then-promote pattern revealed a minimal-footprint change:
 
