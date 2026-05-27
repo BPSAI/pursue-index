@@ -111,17 +111,11 @@ Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITI
 - Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf
 - Description: This document is a first-hand account written by a currently serving (May 2026) senior U.S. intelligence official. The official was part of a team investigating reports of unusual noises and sightings of unidentified anomalous phenomena in and near a sensitive U.S. military facility in late 2025. From the official’s vantage point as a helicopter passenger, the official recounts encountering unidentified “glowing orbs” both at close range and at a distance. The account describes an apparent high-speed object moving low to the ground, which appeared to split in two and accelerate away in two different directions. It also describes numerous higher-altitude “orbs,” some of which the official assessed to be in close proximity to the helicopter. This account is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground, originally released on war.gov/UFO on May 8, 2026.
 
+May 26, 2026, correction: The document originally posted to the PURSUE collection of UAP-related records on May 22, 2026, under the name “ODNI-UAP-D001, USPER Narrative, Senior USIC Official,” contained a typographic error in the second paragraph, describing a helicopter flight profile as “map-of-the-earth.” The correct military aviation term for this profile is “nap-of-the-earth.” This document has been updated to reflect this correction.
+
 Excerpt (page 1):
 
 In late 2025, during early evening daylight hours, I – a senior U.S. intelligence officer – along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter. Our mission was to investigate loud thuds heard in the mountains on the test range, which coincided with Unidentified Aerial Phenomena (UAP) sightings reported over the previous several nights. We aimed to search remote mountain areas for possible debris or objects that might explain the orb-like sightings. 
-
-### 9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969
-
-- Agency: NASA
-- Date: 1969
-- URL: https://pursueindex.com/card/9ed140b9186c20c5
-- Description: During a medical debriefing of the crew of the Apollo 12 mission, Commander Charles “Pete” Conrad, Command Module Pilot Richard “Dick” F. Gordon, and Lunar Module Pilot Alan L. Bean describe their observations of instances of light flashes or “streaks of lights.” The astronauts each reported that these experiences occurred in the dark as they tried to sleep.
-The NASA medical team considered whether similar phenomena reported by Apollo 11 Lunar Module Pilot Buzz Aldrin had been attributable to exposure of the retina by cosmic rays. NASA later determined that the phenomena reported by the Apollo 12 flight crew were internal to the astronauts’ vision rather than external light sources.
 
 ### aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery
 
@@ -134,6 +128,14 @@ The NASA medical team considered whether similar phenomena reported by Apollo 11
 Excerpt (page 1):
 
 PanTEX Managed and Operated by Consolidated Nuclear Security, LLC ——UCNI—— Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower (b)(3) (UCNI) [REDACTED] ——UCNI—— Page 5 of 6
+
+### 9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969
+
+- Agency: NASA
+- Date: 1969
+- URL: https://pursueindex.com/card/9ed140b9186c20c5
+- Description: During a medical debriefing of the crew of the Apollo 12 mission, Commander Charles “Pete” Conrad, Command Module Pilot Richard “Dick” F. Gordon, and Lunar Module Pilot Alan L. Bean describe their observations of instances of light flashes or “streaks of lights.” The astronauts each reported that these experiences occurred in the dark as they tried to sleep.
+The NASA medical team considered whether similar phenomena reported by Apollo 11 Lunar Module Pilot Buzz Aldrin had been attributable to exposure of the retina by cosmic rays. NASA later determined that the phenomena reported by the Apollo 12 flight crew were internal to the astronauts’ vision rather than external light sources.
 
 ### 9e677b8697685311 — 18_100754_ General 1946-7_Vol_2
 
@@ -1942,7 +1944,7 @@ This video description is provided for informational purposes only. Readers shou
 - URL: https://pursueindex.com/card/2a9f746d66a05666
 - Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
 
-AARO assesses that this video, whose uploader-defined title is, “ADMINISTRATIVE REVISION: IIR 1777 J0032 22 Kazakhstan - UAP in the vicinity of Karaganda International Airport,” is likely derived from a commercially available cellular device’s rear-facing camera in March 2022. A user uploaded this video to a classified network in April 2023. 
+AARO assesses that this video, whose uploader-defined title is, “ADMINISTRATIVE REVISION: IIR 1777 J0032 22 Kazakhstan - UAP in the vicinity of Karaganda International Airport,” is likely derived from a commercially available cellular device’s rear-facing camera in February 2022. A user uploaded this video to a classified network in April 2023. 
 
 Video Duration: 00:00:17
 Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
@@ -3733,7 +3735,7 @@ The narrative refers to:
 - **"Our Joint Operations Center (JOC)."** Named by acronym. The FD-302 has this as `[OPERATIONS CENTER]`. The narrative also references "the test range," "the mountain range," "a prearranged rendezvous point," "a prepositioned tanker on the range," and "base" — terrain by function, not by toponym.
 - **"Fighter jets… launched on a training mission in our operating area."** The FD-302's `five [MILITARY AIRCRAFT] from [REDACTED]`. The ODNI text says "fighter jets" by class but neither names the platform nor the operator, and gives a count only later ("the fighter jets") without restating "five."
 
-What the narrative *does* fill in that the FD-302 did not: the **time of day in absolute terms** ("early evening daylight hours" on departure; "the sun had set" before the radar hits; "After landing… I then entered the JOC for a quick debrief before driving home"), the **navigation profile** ("a low-altitude 'map of the earth' route through the mountain range"), the **rationale for descent** ("Multiple times, we spotted debris on the ground and descended for closer inspection. Each time, we determined it was remnants from rockets and other projectiles that had crashed during years of weapons testing on the range"), and the **terrain feature that occasioned an orbit** ("we discovered a large cave entrance with no visible end in sight. The terrain around the entrance offered no safe landing spot, so I instructed the pilot to orbit it several times for observation"). [cite: card fd342b7508668b0e p.1 "large cave entrance"]
+What the narrative *does* fill in that the FD-302 did not: the **time of day in absolute terms** ("early evening daylight hours" on departure; "the sun had set" before the radar hits; "After landing… I then entered the JOC for a quick debrief before driving home"), the **navigation profile** ("a low-altitude 'map of the earth'[^nap] route through the mountain range"), the **rationale for descent** ("Multiple times, we spotted debris on the ground and descended for closer inspection. Each time, we determined it was remnants from rockets and other projectiles that had crashed during years of weapons testing on the range"), and the **terrain feature that occasioned an orbit** ("we discovered a large cave entrance with no visible end in sight. The terrain around the entrance offered no safe landing spot, so I instructed the pilot to orbit it several times for observation"). [cite: card fd342b7508668b0e p.1 "large cave entrance"]
 
 The FD-302 has none of these. They are details a first-person narrator volunteers; a third-person interview summary, written to a different purpose, does not.
 
@@ -3800,6 +3802,8 @@ The three grammars do not perfectly overlap. The FD-302's Zulu timestamps are no
 ## Provenance of this entry
 
 A code-assistant agent located and verified the document surface — the first-person opening, the role descriptor matching the FD-302's `[WITNESS 1]` token, the verbatim quotation marks around `"super-hot"` and `"chasing,"` the "T" formation language, the absence of redaction brackets, and the corpus-declared pairing of thirty-two FBI photographs and the USPER Statement — by reading the two preserved OCR pages of `fd342b7508668b0e` directly and the manifest entry for the card. The cross-reference to the FD-302 entry at [/finds/fbi-usper-2025-orb](/finds/fbi-usper-2025-super-hot-orb) is to an existing find in this archive on the third-person side of the same incident. The editorial frame — surfacing this card as a sibling-grammar to the existing FD-302 entry, and reading the unredacted first-person voice for what it commits to that the FD-302's redaction categories did not — is the operator's.
+
+[^nap]: On 2026-05-26, ODNI updated this document with an inline footnote correcting the typographic error "map-of-the-earth" to "nap-of-the-earth," the standard military aviation term for low-altitude terrain-following flight (and a one-character mis-transcription in the original release). The quoted verbatim above ("map of the earth") is from the 2026-05-22 release captured by our archive at byte_sha `87297ea7…`; the corrected version is at byte_sha `bef126d8…`. Both are preserved at content-addressed `/archive/<sha>.pdf` URLs. No other text content changed in the May 26 revision — page 1 was re-paginated to make room for the inline correction note. This is the first **declared** upstream content correction we've seen since pursueindex.com launched; the prior 70-card silent-edit event in May 2026 (operator-reviewed to 0/70 confirmed content edits) was a different class of change. Worth surfacing distinctly.
 
 ### apollo-11-debriefing — Apollo 11 Technical Crew Debriefing: Three Anomalous Observations and How the Crew Reasoned About Them
 

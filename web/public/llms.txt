@@ -21,8 +21,8 @@
 - [09001c140b97a5db — DOW-UAP-D017, UAP Reported at Sandia Base, 1948-1950](https://pursueindex.com/card/09001c140b97a5db): Department of War (1948-1950).
 - [0f469fcf6fb42875 — CIA-UAP-D001, Intelligence Information Report, USSR, 1973](https://pursueindex.com/card/0f469fcf6fb42875): Central Intelligence Agency (12/20/73).
 - [fd342b7508668b0e — ODNI-UAP-D001, USPER Narrative, Senior USIC Official](https://pursueindex.com/card/fd342b7508668b0e): Office of the Director of National Intelligence (2025).
-- [9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969](https://pursueindex.com/card/9ed140b9186c20c5): NASA (1969).
 - [aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery](https://pursueindex.com/card/aaafecbc47103f4b): Department of Energy (5/22/26).
+- [9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969](https://pursueindex.com/card/9ed140b9186c20c5): NASA (1969).
 - [9e677b8697685311 — 18_100754_ General 1946-7_Vol_2](https://pursueindex.com/card/9e677b8697685311): Department of War (12/30/47).
 - [9317a6ea91f7425c — 18_6369445_General_1948_Vol_1](https://pursueindex.com/card/9317a6ea91f7425c): Department of War (6/15/48).
 - [973c1f75f55d0d39 — 255_413270_UFO's_and_Defense_What_Should_we_Prepare_For](https://pursueindex.com/card/973c1f75f55d0d39): NASA (5/8/26).

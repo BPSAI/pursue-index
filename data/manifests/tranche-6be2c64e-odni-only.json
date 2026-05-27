@@ -1,0 +1,37 @@
+{
+  "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
+  "fetched_at": "2026-05-27T13:48:27.811095Z",
+  "csv_sha256": "6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963",
+  "cards": [
+    {
+      "card_id": "fd342b7508668b0e",
+      "title": "ODNI-UAP-D001, USPER Narrative, Senior USIC Official",
+      "asset_type": "PDF",
+      "agency": "Office of the Director of National Intelligence",
+      "release_date": "5/22/26",
+      "incident_date": "2025",
+      "incident_location": "Western United States",
+      "redacted": false,
+      "description": "This document is a first-hand account written by a currently serving (May 2026) senior U.S. intelligence official. The official was part of a team investigating reports of unusual noises and sightings of unidentified anomalous phenomena in and near a sensitive U.S. military facility in late 2025. From the official\u2019s vantage point as a helicopter passenger, the official recounts encountering unidentified \u201cglowing orbs\u201d both at close range and at a distance. The account describes an apparent high-speed object moving low to the ground, which appeared to split in two and accelerate away in two different directions. It also describes numerous higher-altitude \u201corbs,\u201d some of which the official assessed to be in close proximity to the helicopter. This account is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground, originally released on war.gov/UFO on May 8, 2026.\n\nMay 26, 2026, correction: The document originally posted to the PURSUE collection of UAP-related records on May 22, 2026, under the name \u201cODNI-UAP-D001, USPER Narrative, Senior USIC Official,\u201d contained a typographic error in the second paragraph, describing a helicopter flight profile as \u201cmap-of-the-earth.\u201d The correct military aviation term for this profile is \u201cnap-of-the-earth.\u201d This document has been updated to reflect this correction.",
+      "asset_url": "https://www.war.gov/medialink/ufo/052226/release_02/documents/ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf",
+      "asset_filename": "ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf",
+      "modal_image_url": "https://www.war.gov/medialink/ufo/052226/release_02/thumbnails/ODNI-UAP-D001_USPER_Narrative_Senior_USIC.jpg",
+      "dvids_video_id": null,
+      "video_title": null,
+      "pdf_pairing": "FBI Photo A001 | FBI Photo A002 | FBI Photo A003 | FBI Photo A004 | FBI Photo A005 | FBI Photo A006 | FBI Photo A007 | FBI Photo A008 | FBI Photo B001 | FBI Photo B002 | FBI Photo B003 | FBI Photo B004 | FBI Photo B005 | FBI Photo B006 | FBI Photo B007 | FBI Photo B008 | FBI Photo B009 | FBI Photo B010 | FBI Photo B011 | FBI Photo B012 | FBI Photo B013 | FBI Photo B014 | FBI Photo B015 | FBI Photo B016 | FBI Photo B017 | FBI Photo B018 | FBI Photo B019 | FBI Photo B020 | FBI Photo B021 | FBI Photo B022 | FBI Photo B023 | FBI Photo B024 | USPER Statement about UAP Sighting",
+      "video_pairing": null,
+      "image_alt_text": "A first-hand narrative describing a UAP incident.",
+      "image_virin": "260508-O-D0360-1074",
+      "original_classification": null,
+      "display_date": null,
+      "display_date_range": null,
+      "display_date_evidence": null,
+      "display_date_evidence_card_ref": null,
+      "display_date_curator": null,
+      "display_date_approved_at": null,
+      "display_date_abstention": null,
+      "manifest_incident_date_raw": null,
+      "raw": {}
+    }
+  ]
+}

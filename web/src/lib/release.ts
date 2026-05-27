@@ -250,18 +250,18 @@ function countByEngine(): Record<string, number> {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.2.4 — new finds entry
-  // (helicopter-case-2025-imagery) lands the first per-frame
-  // direct examination of the 32-photo FBI imagery block paired
-  // to the late-2025 helicopter case; the two existing entries
-  // on the same incident (fbi-usper-2025-orb +
-  // odni-uap-d001-usper-narrative) get reciprocal cross-links
-  // and a stale "not paired in pdf_pairing" claim is corrected
-  // (the pairing was added with Release 02). Ships alongside
-  // 32 machine-readable image-observation bundles that supersede
-  // the prior augment-from VLM pass for these specific cards in
-  // the embed and search pipeline (quarantine hook in embed_cli).
-  version: "v1.2.4",
+  // Bumped manually per release. v1.2.5 — tranche 6be2c64e ingest:
+  // ODNI-UAP-D001 narrative re-released by upstream with an inline
+  // typo-correction footnote (map-of-the-earth → nap-of-the-earth)
+  // plus pagination shift. New PDF bytes (sha bef126d8…, 58KB) and
+  // re-OCR'd / cleaned / embedded; old bytes (sha 87297ea7…, 34KB)
+  // preserved at content-addressed /archive/. Adjacent DOW-UAP-PR072
+  // got a description-only correction (Feb 2022 vs Mar 2022 upload
+  // date). No new cards. ODNI finds entry annotated with the
+  // upstream-correction footnote; first declared content correction
+  // we've seen, materially different class from the silent-edit
+  // event in May 2026.
+  version: "v1.2.5",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,

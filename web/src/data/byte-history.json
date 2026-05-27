@@ -1409,6 +1409,24 @@
       "is_current": false
     }
   ],
+  "fd342b7508668b0e": [
+    {
+      "byte_sha256": "bef126d8702b94e760041d065bf4d6611443815a0e1ea671809bfd64319dbffb",
+      "byte_size": 58516,
+      "fetched_at": "2026-05-26T20:15:33.930588+00:00",
+      "archive_key": "archive/bef126d8702b94e760041d065bf4d6611443815a0e1ea671809bfd64319dbffb.pdf",
+      "asset_filename": "ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "87297ea7ad56473613924b4a11c1c88b42d99515b814c4a4f95d84d60013787e",
+      "byte_size": 34195,
+      "fetched_at": "2026-05-22T13:25:55.554706+00:00",
+      "archive_key": "archive/87297ea7ad56473613924b4a11c1c88b42d99515b814c4a4f95d84d60013787e.pdf",
+      "asset_filename": "ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf",
+      "is_current": false
+    }
+  ],
   "fd8286ffc6fbc1fb": [
     {
       "byte_sha256": "86017c6972e7e6e110d86be0667a324d28b8d6c3e37d9fdb8acedddf3fd9dd02",

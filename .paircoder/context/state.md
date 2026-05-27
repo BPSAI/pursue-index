@@ -1,6 +1,35 @@
 # Current State
 
-> Last updated: 2026-05-26 (v1.2.4 shipped — first per-frame direct-examination finds entry on the late-2025 helicopter case, plus 32 machine-readable image-observation bundles that supersede the prior augment-from VLM pass for those cards in the embed/search pipeline. Two existing entries on the same incident corrected and cross-linked.)
+> Last updated: 2026-05-27 (v1.2.5 shipped — tranche 6be2c64e ingest. ODNI-UAP-D001 narrative re-released upstream with an inline typo-correction footnote and a pagination shift; new PDF bytes archived, re-OCR'd + cleaned + embedded, finds entry annotated. First declared upstream content correction in the corpus's history; materially different class from the silent-edit event of May 2026. Registry root re-signed.)
+
+## 2026-05-27 — v1.2.5 ship (declared upstream correction on ODNI-UAP-D001)
+
+Tranche `6be2c64e7605` detected by the 30-min poll on 2026-05-26 20:15 UTC. The probe-then-promote pattern revealed a minimal-footprint change:
+
+- **0 cards added, 0 cards removed.** 222 cards in both manifests.
+- **2 cards with description-field corrections** in the manifest:
+  - `fd342b7508668b0e` (ODNI Narrative): description gained a "May 26, 2026, correction:" note flagging "map-of-the-earth" → "nap-of-the-earth" typo fix.
+  - `2a9f746d66a05666` (DOW-UAP-PR072): "March 2022" → "February 2022" upload-date correction.
+- **1 card with byte changes**: the ODNI PDF (`fd342b7508668b0e`) grew from `87297ea7…` (34,195 bytes) to `bef126d8…` (58,516 bytes) — a 71% increase. Direct examination confirmed the byte delta represents only: the typo correction itself (single-character fix plus hyphenation), an inline footnote within the PDF documenting the correction, a page-1→page-2 pagination shift to fit the footnote, and one trivial hyphenation update ("side by side" → "side-by-side"). No silent content changes, no redactions, no withheld text.
+
+This is the **first declared upstream content correction** the corpus has seen. Materially different class from the May-2026 silent-edit event (where 70 cards had byte changes that operator-reviewed to 0/70 confirmed content edits). The /altered/ surface, retired on v1.2.2 against the silent class, is not the right place to surface declared corrections — they belong in their own class. Worth surfacing distinctly in a future methodology iteration.
+
+**Files landed this release:**
+- `data/manifests/latest.json` — promoted to `csv_sha256: 6be2c64e7605…`; prior `c34754351cdf…` rotated into snapshots.
+- `data/registry-root.txt` + `data/registry-root-manifest.txt` — refreshed to root `592a1c6d28cf…` covering 294 registry rows.
+- `data/manifests/tranche-6be2c64e-odni-only.json` — small one-card manifest used to scope the OCR re-run.
+- `/mnt/nas/personal/pursue/r2-mirror/fd342b7508668b0e.pdf` — new bytes (current pointer).
+- `/mnt/nas/personal/pursue/r2-mirror/archive/bef126d8702b94e7…pdf` — content-addressed archive of new bytes; old `87297ea7…pdf` preserved alongside.
+- `/mnt/nas/personal/pursue/ocr/fd342b7508668b0e/` — re-OCR'd via Sonnet 4.6 (cache miss confirmed the byte change reached the rasterized pages) + Haiku clean pass.
+- Embeddings: 2 pages re-embedded via Voyage-3 (text_sha delta auto-detected).
+- `web/src/content/finds/odni-uap-d001-usper-narrative.mdx` — annotated with a `[^nap]` footnote explaining the upstream correction; verbatim quote of the original "map of the earth" preserved as faithful-to-source-at-time-of-publication. `updated:` field bumped to 2026-05-27.
+- New signed registry-root tag covering HEAD after the ingest.
+
+**Total spend:** ~$0.015 (Sonnet OCR ~$0.008 + Haiku clean ~$0.007 + Voyage embed ~$0.0001). Well under the typical tranche ingest cost.
+
+**Open issues closed by this release:**
+- `#77` tranche-detected: full ingest done.
+- (`#78` signing-stale was closed earlier in the day after the initial sign covering the CSV-only registry bump.)
 
 ## 2026-05-26 — v1.2.4 ship (helicopter-case imagery finds entry + image-observations bundle)
 
