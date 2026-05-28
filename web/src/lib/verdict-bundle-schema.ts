@@ -94,6 +94,19 @@ type VerdictRecordForStats = { category?: string };
  * consumers and a curate-side serializer bug that miscounts could
  * mislead them. Surface the mismatch loudly.
  *
+ * Scope of gating: the v2 vocabulary keys
+ * (re_processing / procedural_correction / content_change /
+ * unverified) + verdicts_emitted. The v1-vocab one-cycle alias
+ * keys (confirmed_content_change / false_positive / unsure /
+ * pending) are emitted by curate-side publish.py as a backcompat
+ * bridge and gated upstream there — INTENTIONALLY NOT re-checked
+ * here. Nayru PR #79 round-6 P2 #1 + Vaivora P2 #1: the v1 keys
+ * exist for downstream consumers that haven't migrated to keying
+ * on category. They'll be dropped from the bundle when curate
+ * bumps to the next major (per the one-cycle policy in
+ * curate/MIGRATION-v1-to-v2.md); the gate intentionally doesn't
+ * pin them so dropping them doesn't break this consumer.
+ *
  * Checks (each conditional on the relevant key being present so
  * older bundles without category breakdowns still parse):
  *   1. stats.verdicts_emitted matches Object.keys(verdicts).length

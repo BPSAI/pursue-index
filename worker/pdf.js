@@ -105,7 +105,11 @@ const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
  * (11% of byte-history) had `.mp4` archive_keys — without this entry
  * the /altered + card banners surfaced links that returned 400.
  */
-const ARCHIVE_EXT_TO_CONTENT_TYPE = {
+// Worker-served archive extensions. Single source of truth — the
+// consumer-side regex in web/src/lib/byte-display.ts imports this
+// at build time (via the colocated test) so the two sides can't
+// drift. Nayru PR #79 round-6 P1.
+export const ARCHIVE_EXT_TO_CONTENT_TYPE = {
   pdf: "application/pdf",
   png: "image/png",
   jpg: "image/jpeg",

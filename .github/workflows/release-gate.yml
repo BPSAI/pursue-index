@@ -48,11 +48,15 @@ on:
       - "data/asset-bytes-registry.jsonl"
       - "web/src/data/byte-history.json"
       - "web/src/data/verdict-bundle.json"
-      # Vaivora PR #79 round-4 P1 #2: the lib files that encode the
-      # consumer contract (schema gates, archive-key validator,
-      # category whitelist) need to fire the gate too. A pure-code
-      # change to EXPECTED_BUNDLE_SCHEMA or the regex would otherwise
-      # bypass the very test suite that verifies it.
+      # Vaivora PR #79 round-4 P1 #2: schema-gate-relevant lib +
+      # build-script files. A pure-code change to
+      # EXPECTED_BUNDLE_SCHEMA / EXPECTED_VERDICT_SCHEMA, the
+      # V2_CATEGORIES vocab, the archive-key regex, or the
+      # exclusion builder would otherwise bypass the very test
+      # suite that verifies them. Not every web/src/lib/** file is
+      # listed — manifest-loader.ts intentionally fires via
+      # manifest.json changes since it's a thin re-exporter (per
+      # Vaivora round-6 P2 #3).
       - "web/src/lib/verdict-bundle*.ts"
       - "web/src/lib/byte-display.ts"
       - "web/scripts/build_byte_history.mjs"

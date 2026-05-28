@@ -83,6 +83,13 @@ export function buildByteHistory(rows, exclusionKeys = new Set()) {
   for (const row of rows) {
     const cardId = row.card_id;
     if (!cardId) continue;
+    // Nayru PR #79 round-6 P2 #5: a row with missing byte_sha256
+    // produced the exclusion key `${cardId}|undefined`, never
+    // matched any operator-curated entry, and passed through
+    // silently — only caught downstream by the URL-stability
+    // invariant. Skip the row at the source so the registry-shape
+    // assumption is enforced here.
+    if (!row.byte_sha256) continue;
     if (exclusionKeys.has(`${cardId}|${row.byte_sha256}`)) continue;
     const list = byCard.get(cardId) ?? [];
     list.push({

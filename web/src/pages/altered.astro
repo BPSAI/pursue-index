@@ -112,6 +112,18 @@ const totalCards = rows.length;
 // byte-history.json and the bundle disagree about which cards
 // exist (today they agree at 71 each; tomorrow they might not).
 // Single source of truth = the rendered rows.
+//
+// Note on "unverified" (Vaivora PR #79 round-6 P2 #2): the pill's
+// `unverified` counts byte-history rows the consumer renders
+// without an operator category — bundle.stats.unverified counts
+// curate-side queue rows without an emitted verdict. Today both
+// = 0; if they ever desync (a byte-history card with no bundle
+// verdict), the pill reflects the rendered listing's
+// denominator; bundle.stats reflects curate's queue. The
+// symmetric-drift test in build_byte_history.test.mjs allows
+// unverdicted byte-history entries by design — pill takes
+// precedence on /altered/ because it's what the operator-facing
+// table shows.
 function countByCategory(cat: string | null): number {
   if (cat === null) return rows.filter((r) => r.category === null).length;
   return rows.filter((r) => r.category === cat).length;

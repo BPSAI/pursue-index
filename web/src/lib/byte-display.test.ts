@@ -2,12 +2,18 @@ import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  _ARCHIVE_EXT_ALLOWLIST,
   archiveHrefFromKey,
   categoryClass,
   categorySlug,
   formatBytes,
   sizeDeltaPct,
 } from "./byte-display.ts";
+
+// Imported from the worker so the lockstep test below pins the
+// two allowlists to agree byte-for-byte. Any drift fails CI before
+// it can ship a build/runtime mismatch (Nayru PR #79 round-6 P1).
+import { ARCHIVE_EXT_TO_CONTENT_TYPE } from "../../../worker/pdf.js";
 
 describe("formatBytes", () => {
   test("bytes below 1KB render as B", () => {
@@ -105,6 +111,36 @@ describe("archiveHrefFromKey", () => {
   test("rejects missing extension", () => {
     const sha = "d".repeat(64);
     assert.throws(() => archiveHrefFromKey(`archive/${sha}`));
+  });
+
+  test("allowlist matches worker's ARCHIVE_EXT_TO_CONTENT_TYPE byte-for-byte", () => {
+    // Nayru PR #79 round-6 P1: the consumer-side regex and the
+    // worker's content-type map MUST stay in lockstep. A unilateral
+    // edit on either side would otherwise let an extension pass
+    // the build but 404 at runtime (or vice versa). This test
+    // imports both sources of truth and asserts the union matches.
+    const workerExts = new Set(Object.keys(ARCHIVE_EXT_TO_CONTENT_TYPE));
+    const consumerExts = new Set(_ARCHIVE_EXT_ALLOWLIST);
+    assert.deepEqual(
+      [...workerExts].sort(),
+      [...consumerExts].sort(),
+      `extension allowlist drift between worker (${[...workerExts].sort()}) ` +
+      `and consumer (${[...consumerExts].sort()}). Update BOTH ` +
+      `worker/pdf.js:ARCHIVE_EXT_TO_CONTENT_TYPE AND ` +
+      `web/src/lib/byte-display.ts:ARCHIVE_KEY_PATTERN + _ARCHIVE_EXT_ALLOWLIST.`,
+    );
+  });
+
+  test("regex accepts every extension in the allowlist", () => {
+    // Smoke-check the regex parses every entry. Catches a mismatch
+    // between _ARCHIVE_EXT_ALLOWLIST and the inline pattern.
+    const sha = "1".repeat(64);
+    for (const ext of _ARCHIVE_EXT_ALLOWLIST) {
+      assert.doesNotThrow(
+        () => archiveHrefFromKey(`archive/${sha}.${ext}`),
+        `regex should accept .${ext}`,
+      );
+    }
   });
 
   test("rejects out-of-allowlist extensions (.exe, .html, typo'd .pfd)", () => {

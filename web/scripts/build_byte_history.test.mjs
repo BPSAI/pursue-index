@@ -169,11 +169,13 @@ describe("loadExclusionKeys + exclusion filtering", () => {
 // hard fail. The release-pipeline CI runs with this set so a CI
 // misconfig that strips data/asset-bytes-registry.jsonl can't silently
 // pass the invariant gates that depend on it. Local + fresh-clone
-// runs (no env var) still skip cleanly. Nayru PR #79 round-2 P1-1 +
-// Vaivora P2-6.
+// runs (no env var) get a true skip (via node:test's t.skip) so the
+// test summary distinguishes "ran and passed" from "couldn't run."
+// Nayru PR #79 round-6 P2 #3 — prior shape returned silently and
+// the suite reported PASS for a test that never executed.
 const STRICT_INVARIANTS = process.env.PURSUE_STRICT_INVARIANTS === "1";
 
-function _missingDataSkip(label, path) {
+function _missingDataSkip(t, label, path) {
   if (STRICT_INVARIANTS) {
     throw new Error(
       `[strict-invariants] required data file missing at ${path} — ` +
@@ -181,10 +183,28 @@ function _missingDataSkip(label, path) {
       `for fresh-clone runs that legitimately don't have data/.`,
     );
   }
-  console.warn(
-    `[byte-history.test] ${label}: data file missing at ${path} — ` +
-    `skipping. Set PURSUE_STRICT_INVARIANTS=1 to fail-loud in CI.`,
+  t.skip(
+    `${label}: data file missing at ${path}. ` +
+    `Set PURSUE_STRICT_INVARIANTS=1 to fail-loud in CI.`,
   );
+}
+
+/**
+ * Wrap JSON.parse with file-path context — Nayru PR #79 round-6 P2 #4.
+ * A SyntaxError from a malformed data file should name the file, not
+ * just the parse failure. Used by the four invariant tests in this
+ * file (URL-stability, stale-exclusion, bundle/byte-history symmetry,
+ * byte-history/manifest).
+ */
+function _readJson(path) {
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch (err) {
+    throw new Error(
+      `[byte-history.test] failed to parse ${path}: ` +
+      `${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 }
 
 describe("registry invariant — URL-stability across non-excluded entries", () => {
@@ -196,13 +216,13 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
   // under an existing card_id, this test fails before anything ships
   // and the operator decides whether to add an exclusion entry or
   // investigate the pipeline regression.
-  test("every card_id in the live registry has one distinct asset_url (after exclusions)", () => {
+  test("every card_id in the live registry has one distinct asset_url (after exclusions)", (t) => {
     if (!existsSync(REGISTRY_PATH)) {
-      _missingDataSkip("URL-stability invariant", REGISTRY_PATH);
+      _missingDataSkip(t, "URL-stability invariant", REGISTRY_PATH);
       return;
     }
     const exclusionKeys = existsSync(EXCLUSIONS_PATH)
-      ? loadExclusionKeys(JSON.parse(readFileSync(EXCLUSIONS_PATH, "utf-8")))
+      ? loadExclusionKeys(_readJson(EXCLUSIONS_PATH))
       : new Set();
     const text = readFileSync(REGISTRY_PATH, "utf-8");
     const urlsByCard = new Map();
@@ -232,19 +252,19 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
     );
   });
 
-  test("every exclusion entry corresponds to a real registry row (no stale exclusions)", () => {
+  test("every exclusion entry corresponds to a real registry row (no stale exclusions)", (t) => {
     // Nayru PR #79 round-3 P2: name the actually-missing path so
     // CI diagnostics don't claim the wrong file when only one of
     // the two is absent.
     if (!existsSync(EXCLUSIONS_PATH)) {
-      _missingDataSkip("stale-exclusion check", EXCLUSIONS_PATH);
+      _missingDataSkip(t, "stale-exclusion check", EXCLUSIONS_PATH);
       return;
     }
     if (!existsSync(REGISTRY_PATH)) {
-      _missingDataSkip("stale-exclusion check", REGISTRY_PATH);
+      _missingDataSkip(t, "stale-exclusion check", REGISTRY_PATH);
       return;
     }
-    const doc = JSON.parse(readFileSync(EXCLUSIONS_PATH, "utf-8"));
+    const doc = _readJson(EXCLUSIONS_PATH);
     const registryKeys = new Set();
     const text = readFileSync(REGISTRY_PATH, "utf-8");
     for (const line of text.split("\n")) {
@@ -282,18 +302,18 @@ describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
   // bundle's stats.verdicts_emitted silently desync. Today both
   // sides match at 71/71; this test pins that contract.
 
-  test("every verdict in the bundle has a matching byte-history entry", () => {
+  test("every verdict in the bundle has a matching byte-history entry", (t) => {
     // Nayru PR #79 round-4 P2 #2: name the actually-missing path.
     if (!existsSync(BUNDLE_PATH)) {
-      _missingDataSkip("bundle/byte-history symmetry", BUNDLE_PATH);
+      _missingDataSkip(t, "bundle/byte-history symmetry", BUNDLE_PATH);
       return;
     }
     if (!existsSync(BYTE_HISTORY_PATH)) {
-      _missingDataSkip("bundle/byte-history symmetry", BYTE_HISTORY_PATH);
+      _missingDataSkip(t, "bundle/byte-history symmetry", BYTE_HISTORY_PATH);
       return;
     }
-    const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
-    const byteHistory = JSON.parse(readFileSync(BYTE_HISTORY_PATH, "utf-8"));
+    const bundle = _readJson(BUNDLE_PATH);
+    const byteHistory = _readJson(BYTE_HISTORY_PATH);
     const bhKeys = new Set(Object.keys(byteHistory));
     const orphanVerdicts = [];
     for (const cardId of Object.keys(bundle.verdicts ?? {})) {
@@ -328,17 +348,17 @@ describe("byte-history ⊆ manifest invariant", () => {
   // since been removed from the manifest, /altered/<id>/ would
   // render but the "see /card/<id>/" cross-link would 404. Pin the
   // invariant so a future drift fails CI loudly.
-  test("every byte-history card_id is a current manifest card", () => {
+  test("every byte-history card_id is a current manifest card", (t) => {
     if (!existsSync(BYTE_HISTORY_PATH)) {
-      _missingDataSkip("byte-history/manifest invariant", BYTE_HISTORY_PATH);
+      _missingDataSkip(t, "byte-history/manifest invariant", BYTE_HISTORY_PATH);
       return;
     }
     if (!existsSync(MANIFEST_PATH)) {
-      _missingDataSkip("byte-history/manifest invariant", MANIFEST_PATH);
+      _missingDataSkip(t, "byte-history/manifest invariant", MANIFEST_PATH);
       return;
     }
-    const byteHistory = JSON.parse(readFileSync(BYTE_HISTORY_PATH, "utf-8"));
-    const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf-8"));
+    const byteHistory = _readJson(BYTE_HISTORY_PATH);
+    const manifest = _readJson(MANIFEST_PATH);
     const manifestIds = new Set(
       (manifest.cards ?? []).map((c) => c.card_id).filter(Boolean),
     );

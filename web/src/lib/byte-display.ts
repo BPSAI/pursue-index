@@ -5,6 +5,8 @@
 // `< 1024*1024` boundaries, and the sign convention are all pinned
 // by the co-located tests.
 
+import { V2_CATEGORY_SET } from "./verdict-bundle-schema.ts";
+
 /**
  * Human-readable byte count. Boundaries: < 1KB → bytes, < 1MB → KB
  * with one decimal, otherwise MB with two decimals. No locale-aware
@@ -34,12 +36,17 @@ export function sizeDeltaPct(prior: number, current: number): string {
   return `${sign}${pct.toFixed(1)}%`;
 }
 
-// Tightened extension class to the allowlist the worker actually
-// serves (Laverna PR #79 round-5 P2-1 / Vaivora P2 #2). Prior
-// `[a-z0-9]+` would have passed `.exe`, `.html`, or `.pfd` (typo
-// of .pdf) which the worker then 404s on. Add a new extension here
-// in lockstep with the worker's allowlist.
-const ARCHIVE_KEY_PATTERN = /^archive\/[0-9a-f]{64}\.(pdf|mp4|jpg|png|webp)$/;
+// Allowlist mirrors worker/pdf.js:ARCHIVE_EXT_TO_CONTENT_TYPE. The
+// lockstep test in byte-display.test.ts imports both sides and
+// asserts the union matches, so a unilateral edit on either side
+// fails CI before drift can ship (Nayru PR #79 round-6 P1 — prior
+// allowlist had drifted, omitting `jpeg` + `gif`).
+const ARCHIVE_KEY_PATTERN =
+  /^archive\/[0-9a-f]{64}\.(pdf|png|jpg|jpeg|gif|webp|mp4)$/;
+// Exported for the cross-module lockstep test only.
+export const _ARCHIVE_EXT_ALLOWLIST: ReadonlySet<string> = new Set([
+  "pdf", "png", "jpg", "jpeg", "gif", "webp", "mp4",
+]);
 
 /**
  * Convert a registry ``archive_key`` to its public URL path.
@@ -65,12 +72,9 @@ export function archiveHrefFromKey(key: string): string {
 /**
  * Whitelist of valid v2 category strings rendered into CSS class
  * names by the /altered/ pages. Vaivora PR #79 round-5 P1 #1:
- * single source of truth lives in verdict-bundle-schema.ts —
- * imported here so the render-gate and the schema-gate can't drift
- * when curate adds a category.
+ * single source of truth lives in verdict-bundle-schema.ts.
+ * V2_CATEGORY_SET imported at the top of this module.
  */
-import { V2_CATEGORY_SET } from "./verdict-bundle-schema.ts";
-
 export function categoryClass(category: string | null | undefined): string {
   if (category && V2_CATEGORY_SET.has(category)) {
     return `altered-cat-${category}`;
