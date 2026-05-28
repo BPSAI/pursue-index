@@ -8,27 +8,20 @@
 
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { buildByteHistory, loadExclusionKeys } from "./build_byte_history.mjs";
 
+// Nayru PR #79 round-9 P2 #1: dead imports/helpers removed.
+// `mkdirSync`, `writeFileSync`, `rmSync`, `tmpdir`, `join`,
+// `makeTmpDir`, `writeRegistry` were leftovers from an earlier
+// sketch before the tests pivoted to consuming the live registry.
+
 const _here = dirname(fileURLToPath(import.meta.url));
 const REGISTRY_PATH = resolve(_here, "../../data/asset-bytes-registry.jsonl");
 const EXCLUSIONS_PATH = resolve(_here, "../../data/byte-history-exclusions.json");
-
-function makeTmpDir() {
-  const dir = join(tmpdir(), `byte-history-test-${Math.random().toString(36).slice(2)}`);
-  mkdirSync(dir, { recursive: true });
-  return dir;
-}
-
-function writeRegistry(path, rows) {
-  const lines = rows.map((r) => JSON.stringify(r)).join("\n") + "\n";
-  writeFileSync(path, lines, "utf-8");
-}
 
 describe("buildByteHistory — pure transform", () => {
   test("includes only cards with >1 byte_sha", () => {
@@ -168,6 +161,39 @@ describe("loadExclusionKeys + exclusion filtering", () => {
       }),
       /card_id/,
     );
+  });
+
+  test("loadExclusionKeys rejects unknown keys (typo catcher)", () => {
+    // Vaivora PR #79 round-9 P2 #4: a typo'd audit field
+    // (`superseded_irl` vs `superseded_url`) would otherwise be
+    // silently accepted because the required fields are correct.
+    // Throws naming the offending key + the allowlist.
+    assert.throws(
+      () => loadExclusionKeys({
+        exclusions: [{
+          card_id: "abc",
+          byte_sha256: "f".repeat(64),
+          superseded_irl: "https://example/x",  // typo
+        }],
+      }),
+      /superseded_irl/,
+    );
+  });
+
+  test("loadExclusionKeys accepts entries with all audit fields", () => {
+    // Sanity: the canonical shape used in
+    // data/byte-history-exclusions.json passes.
+    const keys = loadExclusionKeys({
+      exclusions: [{
+        card_id: "abc",
+        byte_sha256: "f".repeat(64),
+        fetched_at: "2026-05-11T17:46:04+00:00",
+        superseded_url: "https://www.dvidshub.net/video/1006080",
+        reason: "pipeline-evolution-misroute",
+        opsec_ref: "findings/2026-05-28-pipeline-byte-misroute-9-cards.md",
+      }],
+    });
+    assert.equal(keys.size, 1);
   });
 
   test("buildByteHistory drops excluded entries", () => {

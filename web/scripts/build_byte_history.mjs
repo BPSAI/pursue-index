@@ -43,6 +43,18 @@ const OUT = resolve(here, "../src/data/byte-history.json");
  * alterations). The registry itself stays untouched (append-only
  * invariant); exclusion is declarative and reviewable in git.
  */
+// Required: matching key shape. Audit context: meaningful for
+// human review but NOT consulted by the filter — validated for
+// presence only so a missing field doesn't silently degrade the
+// audit trail (Vaivora PR #79 round-9 P2 #4).
+const _EXCLUSION_REQUIRED_KEYS = new Set(["card_id", "byte_sha256"]);
+const _EXCLUSION_AUDIT_KEYS = new Set([
+  "fetched_at", "superseded_url", "reason", "opsec_ref",
+]);
+const _EXCLUSION_KNOWN_KEYS = new Set([
+  ..._EXCLUSION_REQUIRED_KEYS, ..._EXCLUSION_AUDIT_KEYS,
+]);
+
 export function loadExclusionKeys(exclusionDoc) {
   if (!exclusionDoc || !Array.isArray(exclusionDoc.exclusions)) return new Set();
   const keys = new Set();
@@ -52,11 +64,9 @@ export function loadExclusionKeys(exclusionDoc) {
       // entries. The exclusions file is operator-authored
       // build-time input — a typo like `byte_sha265` would
       // otherwise silently let a misroute back into
-      // byte-history.json (the URL-stability invariant catches
-      // it one step downstream, but the message is confusing).
-      // Throwing here names the offending entry directly.
-      // Identifiers only — a valid byte_sha256 would make the
-      // line ~150 chars (round-4 P2 #5).
+      // byte-history.json. Throwing here names the offending
+      // entry directly. Identifiers only — a valid byte_sha256
+      // would make the line ~150 chars (round-4 P2 #5).
       throw new Error(
         `[build_byte_history] exclusion entry [${idx}] is malformed — ` +
         `card_id=${JSON.stringify(ex.card_id ?? null)}, ` +
@@ -64,6 +74,34 @@ export function loadExclusionKeys(exclusionDoc) {
         `keys=${JSON.stringify(Object.keys(ex))}. ` +
         `Both card_id and byte_sha256 are required. Fix the entry in ` +
         `data/byte-history-exclusions.json and re-run.`,
+      );
+    }
+    // Vaivora PR #79 round-9 P2 #4: catch typo'd audit fields
+    // before they accumulate. Nayru PR #79 round-9 P2 #4: a
+    // typo'd `byte_sha265` would otherwise be silently ignored
+    // (the matching keys are correct so the entry "works", but
+    // the typo'd field clutters the audit trail).
+    const unknownKeys = Object.keys(ex).filter((k) => !_EXCLUSION_KNOWN_KEYS.has(k));
+    if (unknownKeys.length > 0) {
+      throw new Error(
+        `[build_byte_history] exclusion entry [${idx}] for card ` +
+        `${ex.card_id} has unknown key(s) ${JSON.stringify(unknownKeys)}. ` +
+        `Allowed keys: ${JSON.stringify([..._EXCLUSION_KNOWN_KEYS])}. ` +
+        `Check for typos (e.g., byte_sha265 vs byte_sha256) and fix ` +
+        `data/byte-history-exclusions.json.`,
+      );
+    }
+    // Audit fields presence-check (not value-check — the value is
+    // operator-attested context). Warn rather than throw so the
+    // build doesn't break on a partial-context entry; the
+    // _description field in the JSON says these are for review.
+    const missingAudit = [..._EXCLUSION_AUDIT_KEYS].filter((k) => !(k in ex));
+    if (missingAudit.length > 0) {
+      console.warn(
+        `[build_byte_history] exclusion entry [${idx}] for card ` +
+        `${ex.card_id} is missing audit field(s) ` +
+        `${JSON.stringify(missingAudit)}. The build proceeds, but the ` +
+        `audit trail in data/byte-history-exclusions.json is incomplete.`,
       );
     }
     keys.add(`${ex.card_id}|${ex.byte_sha256}`);

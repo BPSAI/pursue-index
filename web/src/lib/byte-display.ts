@@ -36,17 +36,21 @@ export function sizeDeltaPct(prior: number, current: number): string {
   return `${sign}${pct.toFixed(1)}%`;
 }
 
-// Allowlist mirrors worker/pdf.js:ARCHIVE_EXT_TO_CONTENT_TYPE. The
-// lockstep test in byte-display.test.ts imports both sides and
-// asserts the union matches, so a unilateral edit on either side
-// fails CI before drift can ship (Nayru PR #79 round-6 P1 — prior
-// allowlist had drifted, omitting `jpeg` + `gif`).
-const ARCHIVE_KEY_PATTERN =
-  /^archive\/[0-9a-f]{64}\.(pdf|png|jpg|jpeg|gif|webp|mp4)$/;
-// Exported for the cross-module lockstep test only.
+// Single source of truth for the consumer-side archive extension
+// allowlist. The regex is built from this Set so a maintainer can't
+// add to one without the other (Nayru PR #79 round-9 P2 #2 — prior
+// shape encoded the list twice and a regex-only addition would
+// silently work but never get covered by the lockstep test).
+// Mirrors worker/pdf.js:ARCHIVE_EXT_TO_CONTENT_TYPE. The lockstep
+// test in byte-display.test.ts imports both sides and asserts the
+// union matches, so a unilateral edit on either side fails CI
+// before drift can ship.
 export const _ARCHIVE_EXT_ALLOWLIST: ReadonlySet<string> = new Set([
   "pdf", "png", "jpg", "jpeg", "gif", "webp", "mp4",
 ]);
+const ARCHIVE_KEY_PATTERN = new RegExp(
+  `^archive\\/[0-9a-f]{64}\\.(${[..._ARCHIVE_EXT_ALLOWLIST].join("|")})$`,
+);
 
 /**
  * Convert a registry ``archive_key`` to its public URL path.
