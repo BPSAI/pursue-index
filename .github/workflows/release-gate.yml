@@ -74,9 +74,17 @@ on:
       # refactor pill filters, change cross-link targets, or remove
       # categoryClass() calls should fire the gate even if no data
       # or lib file changes.
+      #
+      # GitHub Actions paths use minimatch glob syntax where `[...]`
+      # is a character class. Literal square brackets in Astro
+      # dynamic-route filenames must be matched via a wildcard
+      # instead of escaped — using `card/*.astro` since the card/
+      # directory contains exactly one file. Same for altered/**
+      # (which catches `altered/[card_id].astro` via the `**` glob
+      # without the brackets appearing in the pattern itself).
       - "web/src/pages/altered.astro"
       - "web/src/pages/altered/**"
-      - "web/src/pages/card/[card_id].astro"
+      - "web/src/pages/card/*.astro"
       # Nayru PR #79 round-5 P2 #4: a PR that edits the gate itself
       # should fire the gate. Otherwise editing this file is the one
       # untestable change in the repo.
