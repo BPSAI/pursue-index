@@ -48,19 +48,23 @@ export function loadExclusionKeys(exclusionDoc) {
   const keys = new Set();
   for (const [idx, ex] of exclusionDoc.exclusions.entries()) {
     if (!ex.card_id || !ex.byte_sha256) {
-      // Nayru PR #79 round-3 P2: silent drop on malformed entries
-      // let a hand-edited typo leave a misroute in the output
-      // because the stale-exclusion test catches extras, not
-      // missing fields. Surface it loudly in build logs.
-      // Round-4 P2 #5: log identifiers, not the whole entry —
-      // a valid byte_sha256 makes the line ~150 chars otherwise.
-      console.warn(
-        `[build_byte_history] exclusion entry [${idx}] skipping — ` +
+      // Nayru PR #79 round-7 P1: fail-closed on malformed
+      // entries. The exclusions file is operator-authored
+      // build-time input — a typo like `byte_sha265` would
+      // otherwise silently let a misroute back into
+      // byte-history.json (the URL-stability invariant catches
+      // it one step downstream, but the message is confusing).
+      // Throwing here names the offending entry directly.
+      // Identifiers only — a valid byte_sha256 would make the
+      // line ~150 chars (round-4 P2 #5).
+      throw new Error(
+        `[build_byte_history] exclusion entry [${idx}] is malformed — ` +
         `card_id=${JSON.stringify(ex.card_id ?? null)}, ` +
         `has_byte_sha256=${!!ex.byte_sha256}, ` +
-        `keys=${JSON.stringify(Object.keys(ex))}`,
+        `keys=${JSON.stringify(Object.keys(ex))}. ` +
+        `Both card_id and byte_sha256 are required. Fix the entry in ` +
+        `data/byte-history-exclusions.json and re-run.`,
       );
-      continue;
     }
     keys.add(`${ex.card_id}|${ex.byte_sha256}`);
   }

@@ -145,10 +145,29 @@ describe("loadExclusionKeys + exclusion filtering", () => {
     assert.ok(keys.has(`def|${"e".repeat(64)}`));
   });
 
-  test("loadExclusionKeys handles missing or malformed input", () => {
+  test("loadExclusionKeys handles missing or malformed top-level input", () => {
+    // Null / empty / non-array exclusions → empty Set (no entries to process).
     assert.equal(loadExclusionKeys(null).size, 0);
     assert.equal(loadExclusionKeys({}).size, 0);
     assert.equal(loadExclusionKeys({ exclusions: "not-an-array" }).size, 0);
+  });
+
+  test("loadExclusionKeys throws on malformed entry (fail-closed)", () => {
+    // Nayru PR #79 round-7 P1: operator-authored build input.
+    // A typo'd field (`byte_sha265`) would otherwise silently
+    // let a misroute back into byte-history.json.
+    assert.throws(
+      () => loadExclusionKeys({
+        exclusions: [{ card_id: "abc", byte_sha265: "f".repeat(64) }],
+      }),
+      /malformed/,
+    );
+    assert.throws(
+      () => loadExclusionKeys({
+        exclusions: [{ byte_sha256: "f".repeat(64) }],
+      }),
+      /card_id/,
+    );
   });
 
   test("buildByteHistory drops excluded entries", () => {
@@ -175,6 +194,30 @@ describe("loadExclusionKeys + exclusion filtering", () => {
 // the suite reported PASS for a test that never executed.
 const STRICT_INVARIANTS = process.env.PURSUE_STRICT_INVARIANTS === "1";
 
+/**
+ * Skip the calling test when a required data file is missing —
+ * or, under PURSUE_STRICT_INVARIANTS=1, throw to convert the skip
+ * into a CI hard-fail.
+ *
+ * IMPORTANT: ``t.skip()`` marks the test skipped but does NOT
+ * terminate the function body. The caller MUST ``return``
+ * immediately after invoking this helper. Don't remove the
+ * ``return`` thinking it's dead code — the test body still
+ * executes otherwise, and the assertions throw on missing data
+ * inside a "skipped" test. Nayru PR #79 round-7 P2 #2: making
+ * this contract explicit so a future contributor doesn't trip on
+ * it.
+ *
+ * Usage pattern (every caller in this file follows it):
+ *
+ *     test("...", (t) => {
+ *       if (!existsSync(PATH)) {
+ *         _missingDataSkip(t, "label", PATH);
+ *         return;  // ← load-bearing
+ *       }
+ *       // ... assertions
+ *     });
+ */
 function _missingDataSkip(t, label, path) {
   if (STRICT_INVARIANTS) {
     throw new Error(

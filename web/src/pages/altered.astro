@@ -137,8 +137,13 @@ const pillCounts = {
 
 function rationalePreview(text: string): string {
   if (!text) return "";
-  if (text.length <= RATIONALE_PREVIEW_CHARS) return text;
-  return text.slice(0, RATIONALE_PREVIEW_CHARS).trimEnd() + "…";
+  // Collapse whitespace before slicing — Nayru PR #79 round-7 P2:
+  // raw operator rationale can contain newlines that would inject a
+  // line break into the inline <span> if sliced mid-line. Normalize
+  // first so the preview is a single clean line.
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= RATIONALE_PREVIEW_CHARS) return normalized;
+  return normalized.slice(0, RATIONALE_PREVIEW_CHARS).trimEnd() + "…";
 }
 
 const title = `Altered — ${totalCards} cards with upstream byte changes`;

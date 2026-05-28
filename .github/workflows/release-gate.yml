@@ -61,6 +61,13 @@ on:
       - "web/src/lib/byte-display.ts"
       - "web/scripts/build_byte_history.mjs"
       - "web/scripts/build_byte_history.test.mjs"
+      # Vaivora PR #79 round-7 P1: the lockstep test in
+      # web/src/lib/byte-display.test.ts imports
+      # ARCHIVE_EXT_TO_CONTENT_TYPE from worker/pdf.js. A PR
+      # touching only the worker map would otherwise bypass the
+      # test that pins it against the consumer regex. Add
+      # worker/pdf.js to the path filter so the gate fires.
+      - "worker/pdf.js"
       # Vaivora PR #79 round-5 P2 #1: Astro page changes that
       # refactor pill filters, change cross-link targets, or remove
       # categoryClass() calls should fire the gate even if no data

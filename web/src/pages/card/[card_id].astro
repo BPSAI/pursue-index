@@ -293,7 +293,10 @@ const banner = (() => {
   if (!verdictForThisCard?.category) {
     return { category: null as string | null, rationalePreview: "(pending)" };
   }
-  const rat = verdictForThisCard.rationale ?? "";
+  // Collapse whitespace before slicing — Nayru PR #79 round-7 P2:
+  // operator rationale may contain newlines that would inject line
+  // breaks into the inline banner <span>. Normalize first.
+  const rat = (verdictForThisCard.rationale ?? "").replace(/\s+/g, " ").trim();
   const preview = rat.length > RATIONALE_BANNER_CHARS
     ? rat.slice(0, RATIONALE_BANNER_CHARS).trimEnd() + "…"
     : rat;
