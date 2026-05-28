@@ -210,6 +210,47 @@ const methodologyJsonLd = [
       </p>
     </section>
 
+    {/* Altered surface — bytes-changed-as-fact framing (ALTR Phase 2) */}
+    <section id="altered" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Altered surface (bytes-changed)
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Our integrity claim is that we preserve every version of every
+        upstream document we capture. When bytes change for a card that
+        remained in the upstream manifest, we record both versions and
+        surface the change at{" "}
+        <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered/</a>.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Whether a particular byte change was editorially distorting,
+        procedurally non-destructive, or trivial re-processing is{" "}
+        <em>operator-attached commentary</em> on each card — surfaced
+        as a category and a freeform rationale, but never as a gate
+        that hides cards. The category vocabulary:
+      </p>
+      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] list-disc list-inside space-y-1 pl-2">
+        <li><code class="text-[color:var(--color-signal-cyan)]">re_processing</code> — bytes changed, no visible content change (re-encoding, re-render, format conversion, font subsetting, embedded metadata changes a reader can't see).</li>
+        <li><code class="text-[color:var(--color-signal-amber)]">procedural_correction</code> — non-destructive change to improve usability or correctness (rotation for readability, declared typo fix, re-scan for image quality) — text or layout did change but not editorially distorting.</li>
+        <li><code style="color: #ef6a5b;">content_change</code> — content actually changed in a way that matters editorially (new redactions, paragraphs added/removed, dates or named entities edited, substantive rewrites declared or otherwise).</li>
+      </ul>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Filterable, not load-bearing on hiding. Both versions of every
+        byte-changed file are preserved at content-addressed{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">/archive/&lt;sha&gt;.&lt;ext&gt;</code>{" "}
+        URLs regardless of category.
+      </p>
+      <p class="text-xs leading-relaxed text-[color:var(--color-text-dim)]">
+        Historical note: <code>/altered/</code> was retired in v1.2.2
+        because the original per-card OCR text diffs were misleading
+        — they captured OCR variance on visually-identical scans, not
+        real upstream edits. The bytes-changed receipt itself is
+        accurate; v1.3.0 restores the surface as a facts-only listing
+        with operator-attached categories in place of the misleading
+        diffs.
+      </p>
+    </section>
+
     {/* Scrape */}
     <section id="scrape" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
