@@ -130,6 +130,18 @@ function main() {
   if (existsSync(EXCLUSIONS)) {
     const exclusionDoc = JSON.parse(readFileSync(EXCLUSIONS, "utf-8"));
     exclusionKeys = loadExclusionKeys(exclusionDoc);
+  } else {
+    // Nayru PR #79 round-2 P2-2: a silent no-op when the exclusions
+    // file is missing makes accidental `git rm` look like a clean
+    // build. Stderr log surfaces it in CI without failing the
+    // build (the URL-stability invariant test will fail-closed
+    // separately if the bad output would actually re-introduce
+    // misroute cards).
+    console.warn(
+      `[build_byte_history] no exclusions file at ${EXCLUSIONS}; ` +
+      `processing all registry rows. If this is unexpected, restore ` +
+      `data/byte-history-exclusions.json.`,
+    );
   }
   const history = buildByteHistory(rows, exclusionKeys);
   mkdirSync(dirname(OUT), { recursive: true });

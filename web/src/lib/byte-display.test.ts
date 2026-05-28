@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   archiveHrefFromKey,
   categoryClass,
+  categorySlug,
   formatBytes,
   sizeDeltaPct,
 } from "./byte-display.ts";
@@ -141,5 +142,28 @@ describe("categoryClass", () => {
     // producing a stray class attribute. Laverna PR #79 P2-2.
     assert.equal(categoryClass("content_change; color: red"), "altered-cat-unknown");
     assert.equal(categoryClass("<script>alert(1)</script>"), "altered-cat-unknown");
+  });
+});
+
+describe("categorySlug", () => {
+  test("each v2 category passes through unchanged", () => {
+    assert.equal(categorySlug("re_processing"), "re_processing");
+    assert.equal(categorySlug("procedural_correction"), "procedural_correction");
+    assert.equal(categorySlug("content_change"), "content_change");
+  });
+
+  test("null / undefined / garbage fall back to 'unverified'", () => {
+    // 'unverified' matches the pill button's data-filter value.
+    assert.equal(categorySlug(null), "unverified");
+    assert.equal(categorySlug(undefined), "unverified");
+    assert.equal(categorySlug(""), "unverified");
+    assert.equal(categorySlug("contant_change"), "unverified");
+  });
+
+  test("rejects v1-vocab values (don't leak into the data attribute)", () => {
+    // The pill filter only knows the v2 categories + unverified.
+    // A v1-leakage row would otherwise be unfilterable except via 'all'.
+    assert.equal(categorySlug("false_positive"), "unverified");
+    assert.equal(categorySlug("confirmed_content_change"), "unverified");
   });
 });

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "_description": "Entries in data/asset-bytes-registry.jsonl that web/scripts/build_byte_history.mjs should skip when producing web/src/data/byte-history.json. Used when the registry contains fetches that the operator has determined were misroutes or pipeline-evolution events rather than upstream document alterations. The registry stays untouched (append-only invariant); exclusion is declarative and reviewable in git. See opsec_ref per entry.",
+  "_description": "Entries in data/asset-bytes-registry.jsonl that web/scripts/build_byte_history.mjs should skip when producing web/src/data/byte-history.json. The MATCH KEY is (card_id, byte_sha256) only — `fetched_at` and `superseded_url` per entry are present for human review and audit context but are NOT consulted by the builder's filter. Used when the registry contains fetches that the operator has determined were misroutes or pipeline-evolution events rather than upstream document alterations. The registry stays untouched (append-only invariant); exclusion is declarative and reviewable in git. See opsec_ref per entry.",
   "exclusions": [
     {
       "card_id": "3746998b8c506e5c",

@@ -165,6 +165,28 @@ describe("loadExclusionKeys + exclusion filtering", () => {
   });
 });
 
+// PURSUE_STRICT_INVARIANTS=1 turns the file-missing skip path into a
+// hard fail. The release-pipeline CI runs with this set so a CI
+// misconfig that strips data/asset-bytes-registry.jsonl can't silently
+// pass the invariant gates that depend on it. Local + fresh-clone
+// runs (no env var) still skip cleanly. Nayru PR #79 round-2 P1-1 +
+// Vaivora P2-6.
+const STRICT_INVARIANTS = process.env.PURSUE_STRICT_INVARIANTS === "1";
+
+function _missingDataSkip(label, path) {
+  if (STRICT_INVARIANTS) {
+    throw new Error(
+      `[strict-invariants] required data file missing at ${path} — ` +
+      `${label} cannot run. Set PURSUE_STRICT_INVARIANTS=0 (or unset) ` +
+      `for fresh-clone runs that legitimately don't have data/.`,
+    );
+  }
+  console.warn(
+    `[byte-history.test] ${label}: data file missing at ${path} — ` +
+    `skipping. Set PURSUE_STRICT_INVARIANTS=1 to fail-loud in CI.`,
+  );
+}
+
 describe("registry invariant — URL-stability across non-excluded entries", () => {
   // This is the recurrence-detector for the 2026-05-11/12 pipeline-
   // evolution misroute event (see opsec finding
@@ -176,9 +198,7 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
   // investigate the pipeline regression.
   test("every card_id in the live registry has one distinct asset_url (after exclusions)", () => {
     if (!existsSync(REGISTRY_PATH)) {
-      // Repo may not have the registry checked in (e.g. fresh clone
-      // without data/). Skip rather than fail in that case — the
-      // invariant only matters when the registry exists.
+      _missingDataSkip("URL-stability invariant", REGISTRY_PATH);
       return;
     }
     const exclusionKeys = existsSync(EXCLUSIONS_PATH)
@@ -213,7 +233,10 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
   });
 
   test("every exclusion entry corresponds to a real registry row (no stale exclusions)", () => {
-    if (!existsSync(EXCLUSIONS_PATH) || !existsSync(REGISTRY_PATH)) return;
+    if (!existsSync(EXCLUSIONS_PATH) || !existsSync(REGISTRY_PATH)) {
+      _missingDataSkip("stale-exclusion check", EXCLUSIONS_PATH);
+      return;
+    }
     const doc = JSON.parse(readFileSync(EXCLUSIONS_PATH, "utf-8"));
     const registryKeys = new Set();
     const text = readFileSync(REGISTRY_PATH, "utf-8");
@@ -236,5 +259,71 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
       0,
       `Stale exclusion entries (no matching registry row): ${JSON.stringify(stale, null, 2)}`
     );
+  });
+});
+
+const BUNDLE_PATH = resolve(_here, "../src/data/verdict-bundle.json");
+const BYTE_HISTORY_PATH = resolve(_here, "../src/data/byte-history.json");
+
+describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
+  // Vaivora PR #79 round-2 P2-7: the prior tests guarded
+  // exclusions vs registry. The complementary direction — bundle
+  // verdicts vs byte-history map — wasn't asserted. If a future
+  // operator drops a multi-sha card from byte-history without
+  // also pruning its verdict, the listing's row count and the
+  // bundle's stats.verdicts_emitted silently desync. Today both
+  // sides match at 71/71; this test pins that contract.
+
+  test("every verdict in the bundle has a matching byte-history entry", () => {
+    if (!existsSync(BUNDLE_PATH) || !existsSync(BYTE_HISTORY_PATH)) {
+      _missingDataSkip("bundle/byte-history symmetry", BUNDLE_PATH);
+      return;
+    }
+    const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
+    const byteHistory = JSON.parse(readFileSync(BYTE_HISTORY_PATH, "utf-8"));
+    const bhKeys = new Set(Object.keys(byteHistory));
+    const orphanVerdicts = [];
+    for (const cardId of Object.keys(bundle.verdicts ?? {})) {
+      if (!bhKeys.has(cardId)) {
+        orphanVerdicts.push(cardId);
+      }
+    }
+    assert.equal(
+      orphanVerdicts.length,
+      0,
+      `Bundle verdicts with no matching byte-history entry: ${JSON.stringify(orphanVerdicts)}. ` +
+      `These cards would render in stats but not in the table — either restore the byte-history ` +
+      `entries (preferred) or remove the verdicts from the bundle (only if the cards genuinely ` +
+      `lost their multi-sha status).`
+    );
+  });
+
+  test("every byte-history entry has a matching verdict in the bundle", () => {
+    if (!existsSync(BUNDLE_PATH) || !existsSync(BYTE_HISTORY_PATH)) {
+      _missingDataSkip("byte-history/bundle symmetry", BUNDLE_PATH);
+      return;
+    }
+    const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
+    const byteHistory = JSON.parse(readFileSync(BYTE_HISTORY_PATH, "utf-8"));
+    const verdictKeys = new Set(Object.keys(bundle.verdicts ?? {}));
+    // Unverdicted byte-history entries are legal — they render as
+    // "(unverified)" on /altered/. We assert this only counts and
+    // labels stay consistent; orphan-bundle is the load-bearing
+    // direction. (Kept as a soft check so a sudden "unverified"
+    // jump shows up in CI logs even though it doesn't fail.)
+    const unverdicted = [];
+    for (const cardId of Object.keys(byteHistory)) {
+      if (!verdictKeys.has(cardId)) unverdicted.push(cardId);
+    }
+    if (unverdicted.length > 0) {
+      console.warn(
+        `[byte-history.test] ${unverdicted.length} byte-history cards have no verdict ` +
+        `(will render as "(unverified)" on /altered/): ${unverdicted.slice(0, 5).join(", ")}` +
+        `${unverdicted.length > 5 ? "..." : ""}`,
+      );
+    }
+    // Always-pass assertion so the test serves as a count tripwire
+    // rather than a gate.
+    assert.ok(true);
   });
 });

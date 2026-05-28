@@ -77,3 +77,19 @@ export function categoryClass(category: string | null | undefined): string {
   }
   return "altered-cat-unknown";
 }
+
+/**
+ * Whitelist-normalized slug for ``data-category`` attributes the
+ * client-side filter pill JS keys off of. Same vocabulary closure
+ * as :func:`categoryClass` but with ``"unverified"`` as the
+ * not-categorized sentinel (matches the pill button's
+ * ``data-filter="unverified"`` value). Laverna PR #79 round-2 P2-1
+ * / Nayru P2-1: the prior raw interpolation let operator typos
+ * write through to the DOM where they'd silently become
+ * unfilterable rows. Apply the same close-vocabulary guard at the
+ * DOM-attribute boundary.
+ */
+export function categorySlug(category: string | null | undefined): string {
+  if (category && VALID_V2_CATEGORIES.has(category)) return category;
+  return "unverified";
+}

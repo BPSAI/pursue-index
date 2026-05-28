@@ -22,30 +22,20 @@
  * Source plan: pursue-opsec/findings/2026-05-27-altered-surface-un-retirement-and-verdict-vocabulary.md
  */
 import Base from "../layouts/Base.astro";
-import bundle from "../data/verdict-bundle.json";
 import byteHistoryJson from "../data/byte-history.json";
 import { manifest } from "../data/manifest-loader";
 import {
   archiveHrefFromKey,
   categoryClass,
+  categorySlug,
   formatBytes,
   sizeDeltaPct,
 } from "../lib/byte-display";
+import { loadVerdictBundle } from "../lib/verdict-bundle";
 
-// Vaivora PR #79 P2-1: assert the bundle schema version the consumer
-// was written against. Fails the build loudly if a future v3 bundle
-// lands without a matching consumer rewrite, instead of silently
-// misrendering. Bump in lockstep with curate's bundle_schema_version.
-const EXPECTED_BUNDLE_SCHEMA = 2;
-if ((bundle as { bundle_schema_version: number }).bundle_schema_version !== EXPECTED_BUNDLE_SCHEMA) {
-  throw new Error(
-    `verdict-bundle.json bundle_schema_version is ` +
-    `${(bundle as { bundle_schema_version: number }).bundle_schema_version}; ` +
-    `consumer expects ${EXPECTED_BUNDLE_SCHEMA}. Update altered.astro + ` +
-    `altered/[card_id].astro to match the new bundle shape, then bump ` +
-    `EXPECTED_BUNDLE_SCHEMA here.`,
-  );
-}
+// Bundle schema-version gate now lives in the loader (Vaivora PR #79
+// round-2 P1-2: was previously inline + one-sided across consumers).
+const bundle = loadVerdictBundle();
 
 type ByteHistoryEntry = {
   byte_sha256: string;
@@ -63,10 +53,9 @@ type VerdictRecord = {
 };
 
 const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
-const verdicts = (bundle as { verdicts: Record<string, VerdictRecord> }).verdicts;
-const stats = (bundle as { stats: Record<string, number> }).stats;
-const generatedAt = (bundle as { generated_at: string }).generated_at;
-const bundleSchemaVersion = (bundle as { bundle_schema_version: number }).bundle_schema_version;
+const verdicts = bundle.verdicts as Record<string, VerdictRecord>;
+const generatedAt = bundle.generated_at;
+const bundleSchemaVersion = bundle.bundle_schema_version;
 
 const titleMap = new Map<string, string>(
   manifest.cards.map((c) => [c.card_id, c.title ?? ""]),
@@ -219,7 +208,7 @@ const description =
             {rows.map((row) => (
               <tr
                 class="border-t border-[color:var(--color-border)] hover:bg-[color:var(--color-bg-deep)]/30"
-                data-category={row.category ?? "unverified"}
+                data-category={categorySlug(row.category)}
               >
                 <td class="px-3 py-2 align-top">
                   <a href={`/altered/${row.cardId}/`} class="text-[color:var(--color-signal-cyan)] underline">
@@ -268,22 +257,6 @@ const description =
       </p>
     </section>
   </main>
-
-  <style is:global>
-    .altered-pill {
-      background: transparent;
-      color: var(--color-text-dim);
-      cursor: pointer;
-      transition: border-color 120ms;
-    }
-    .altered-pill-active {
-      color: var(--color-text-bright);
-      border-color: var(--color-signal-cyan) !important;
-    }
-    .altered-cat-re_processing { color: var(--color-signal-cyan); }
-    .altered-cat-procedural_correction { color: var(--color-signal-amber); }
-    .altered-cat-content_change { color: var(--color-signal-red, #ef6a5b); }
-  </style>
 
   <script>
     /* Client-side filter pills: toggle row visibility by data-category.

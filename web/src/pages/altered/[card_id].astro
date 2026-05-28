@@ -15,7 +15,6 @@
  * §"Per-card detail page (/altered/<card_id>/)".
  */
 import Base from "../../layouts/Base.astro";
-import bundle from "../../data/verdict-bundle.json";
 import byteHistoryJson from "../../data/byte-history.json";
 import { manifest } from "../../data/manifest-loader";
 import {
@@ -24,6 +23,13 @@ import {
   formatBytes,
   sizeDeltaPct,
 } from "../../lib/byte-display";
+import { loadVerdictBundle } from "../../lib/verdict-bundle";
+
+// Shared loader applies the bundle_schema_version assert (Vaivora
+// PR #79 round-2 P1-2 — previously the detail page silently
+// degraded on a schema bump; now fails the build alongside the
+// listing page).
+const bundle = loadVerdictBundle();
 
 type ByteHistoryEntry = {
   byte_sha256: string;
@@ -43,7 +49,7 @@ type VerdictRecord = {
 };
 
 const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
-const verdicts = (bundle as { verdicts: Record<string, VerdictRecord> }).verdicts;
+const verdicts = bundle.verdicts as Record<string, VerdictRecord>;
 
 export function getStaticPaths() {
   // One detail page per multi-sha card in byte-history.json. Cards
@@ -142,6 +148,12 @@ const description =
               category:
             </span>{" "}
             <code class={`text-xs ${categoryClass(verdict.category)}`}>{verdict.category}</code>
+            {verdict.verdict && (
+              <span class="ml-3 text-[10px] text-[color:var(--color-text-faint)]">
+                <span class="uppercase tracking-[0.2em]">v1 verdict (deprecated):</span>{" "}
+                <code class="text-[10px]">{verdict.verdict}</code>
+              </span>
+            )}
           </p>
           {verdict.rationale && (
             <p class="text-xs text-[color:var(--color-text-dim)] leading-relaxed whitespace-pre-line">
@@ -154,6 +166,14 @@ const description =
               {verdict.decided_at.slice(0, 19).replace("T", " ")} UTC
             </p>
           )}
+          <p class="text-[10px] text-[color:var(--color-text-faint)]">
+            <em>category</em> is the operator's v2 attestation;{" "}
+            <em>v1 verdict</em> is the deprecated one-cycle backcompat field — a
+            <code class="text-[10px]"> procedural_correction</code> card with a declared
+            upstream typo correction will carry <code class="text-[10px]">verdict: false_positive</code>
+            (v1 binary framing: "not an unauthorized content edit") even though the bytes
+            and a few characters of text did change. <em>category</em> is the authoritative read.
+          </p>
         </div>
       ) : (
         <p class="text-xs text-[color:var(--color-text-dim)]">
@@ -179,9 +199,4 @@ const description =
     </section>
   </main>
 
-  <style is:global>
-    .altered-cat-re_processing { color: var(--color-signal-cyan); }
-    .altered-cat-procedural_correction { color: var(--color-signal-amber); }
-    .altered-cat-content_change { color: var(--color-signal-red, #ef6a5b); }
-  </style>
 </Base>

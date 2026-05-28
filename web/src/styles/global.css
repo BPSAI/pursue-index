@@ -671,3 +671,29 @@ summary:focus-visible {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* =========================================================================
+   /altered/ category color rules + filter pill styling.
+
+   Originally duplicated in altered.astro and altered/[card_id].astro
+   <style is:global> blocks (Vaivora PR #79 round-2 P2-3 / Nayru P2-4).
+   Moved here so a fourth v2 category (or a color tweak) lands in one
+   place. The `categoryClass()` helper in lib/byte-display.ts builds
+   the class names from the same vocabulary the curate schema enforces.
+   ========================================================================= */
+
+.altered-cat-re_processing { color: var(--color-signal-cyan); }
+.altered-cat-procedural_correction { color: var(--color-signal-amber); }
+.altered-cat-content_change { color: var(--color-signal-red); }
+.altered-cat-unknown { color: var(--color-text-faint); }
+
+.altered-pill {
+  background: transparent;
+  color: var(--color-text-dim);
+  cursor: pointer;
+  transition: border-color 120ms;
+}
+.altered-pill-active {
+  color: var(--color-text-bright);
+  border-color: var(--color-signal-cyan) !important;
+}
