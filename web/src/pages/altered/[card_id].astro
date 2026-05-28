@@ -18,7 +18,12 @@ import Base from "../../layouts/Base.astro";
 import bundle from "../../data/verdict-bundle.json";
 import byteHistoryJson from "../../data/byte-history.json";
 import { manifest } from "../../data/manifest-loader";
-import { formatBytes, sizeDeltaPct } from "../../lib/byte-display";
+import {
+  archiveHrefFromKey,
+  categoryClass,
+  formatBytes,
+  sizeDeltaPct,
+} from "../../lib/byte-display";
 
 type ByteHistoryEntry = {
   byte_sha256: string;
@@ -66,10 +71,6 @@ const latest = history[0];
 const first = history[history.length - 1];
 const sizeDelta = sizeDeltaPct(first.byte_size, latest.byte_size);
 
-function archiveHref(archiveKey: string): string {
-  return `/${archiveKey}`;
-}
-
 const pageTitle = `/altered/${cardId.slice(0, 12)}… · byte-history`;
 const description =
   `Byte-history for card ${cardId}: ${history.length} preserved version${history.length === 1 ? "" : "s"}, ` +
@@ -99,7 +100,7 @@ const description =
           <li class="space-y-1">
             <div class="flex flex-wrap items-baseline gap-2">
               <code class="text-xs text-[color:var(--color-signal-cyan)]">
-                <a href={archiveHref(entry.archive_key)} class="underline hover:text-[color:var(--color-text-bright)]">
+                <a href={archiveHrefFromKey(entry.archive_key)} class="underline hover:text-[color:var(--color-text-bright)]">
                   {entry.byte_sha256.slice(0, 16)}…
                 </a>
               </code>
@@ -140,7 +141,7 @@ const description =
             <span class="text-[10px] text-[color:var(--color-text-faint)] uppercase tracking-[0.2em]">
               category:
             </span>{" "}
-            <code class={`text-xs altered-cat-${verdict.category}`}>{verdict.category}</code>
+            <code class={`text-xs ${categoryClass(verdict.category)}`}>{verdict.category}</code>
           </p>
           {verdict.rationale && (
             <p class="text-xs text-[color:var(--color-text-dim)] leading-relaxed whitespace-pre-line">

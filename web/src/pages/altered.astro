@@ -25,7 +25,27 @@ import Base from "../layouts/Base.astro";
 import bundle from "../data/verdict-bundle.json";
 import byteHistoryJson from "../data/byte-history.json";
 import { manifest } from "../data/manifest-loader";
-import { formatBytes, sizeDeltaPct } from "../lib/byte-display";
+import {
+  archiveHrefFromKey,
+  categoryClass,
+  formatBytes,
+  sizeDeltaPct,
+} from "../lib/byte-display";
+
+// Vaivora PR #79 P2-1: assert the bundle schema version the consumer
+// was written against. Fails the build loudly if a future v3 bundle
+// lands without a matching consumer rewrite, instead of silently
+// misrendering. Bump in lockstep with curate's bundle_schema_version.
+const EXPECTED_BUNDLE_SCHEMA = 2;
+if ((bundle as { bundle_schema_version: number }).bundle_schema_version !== EXPECTED_BUNDLE_SCHEMA) {
+  throw new Error(
+    `verdict-bundle.json bundle_schema_version is ` +
+    `${(bundle as { bundle_schema_version: number }).bundle_schema_version}; ` +
+    `consumer expects ${EXPECTED_BUNDLE_SCHEMA}. Update altered.astro + ` +
+    `altered/[card_id].astro to match the new bundle shape, then bump ` +
+    `EXPECTED_BUNDLE_SCHEMA here.`,
+  );
+}
 
 type ByteHistoryEntry = {
   byte_sha256: string;
@@ -97,10 +117,22 @@ const rows: AlteredRow[] = Object.entries(byteHistory)
 
 const totalCards = rows.length;
 
-function archiveHref(archiveKey: string): string {
-  // archive_key shape: "archive/<sha>.<ext>" → "/archive/<sha>.<ext>"
-  return `/${archiveKey}`;
+// Vaivora PR #79 P1-1/P1-2: pill counts MUST derive from the same
+// source as the table rows, not from bundle.stats. Otherwise the
+// pill labels and the filterable row set can drift if
+// byte-history.json and the bundle disagree about which cards
+// exist (today they agree at 71 each; tomorrow they might not).
+// Single source of truth = the rendered rows.
+function countByCategory(cat: string | null): number {
+  if (cat === null) return rows.filter((r) => r.category === null).length;
+  return rows.filter((r) => r.category === cat).length;
 }
+const pillCounts = {
+  re_processing: countByCategory("re_processing"),
+  procedural_correction: countByCategory("procedural_correction"),
+  content_change: countByCategory("content_change"),
+  unverified: countByCategory(null),
+};
 
 function rationalePreview(text: string): string {
   if (!text) return "";
@@ -152,16 +184,16 @@ const description =
           all · {totalCards}
         </button>
         <button type="button" data-filter="re_processing" class="altered-pill px-3 py-1 text-xs border border-[color:var(--color-border)] hover:border-[color:var(--color-border-bright)]">
-          re_processing · {stats.re_processing}
+          re_processing · {pillCounts.re_processing}
         </button>
         <button type="button" data-filter="procedural_correction" class="altered-pill px-3 py-1 text-xs border border-[color:var(--color-border)] hover:border-[color:var(--color-border-bright)]">
-          procedural_correction · {stats.procedural_correction}
+          procedural_correction · {pillCounts.procedural_correction}
         </button>
         <button type="button" data-filter="content_change" class="altered-pill px-3 py-1 text-xs border border-[color:var(--color-border)] hover:border-[color:var(--color-border-bright)]">
-          content_change · {stats.content_change}
+          content_change · {pillCounts.content_change}
         </button>
         <button type="button" data-filter="unverified" class="altered-pill px-3 py-1 text-xs border border-[color:var(--color-border)] hover:border-[color:var(--color-border-bright)]">
-          unverified · {stats.unverified}
+          unverified · {pillCounts.unverified}
         </button>
       </div>
       <p class="text-[10px] text-[color:var(--color-text-faint)]">
@@ -200,11 +232,11 @@ const description =
                   </a>
                 </td>
                 <td class="px-3 py-2 align-top">
-                  <a href={archiveHref(row.firstArchiveKey)} class="text-[color:var(--color-signal-cyan)] underline">
+                  <a href={archiveHrefFromKey(row.firstArchiveKey)} class="text-[color:var(--color-signal-cyan)] underline">
                     <code class="text-[10px]">{row.firstSha.slice(0, 8)}</code>
                   </a>
                   <span class="text-[color:var(--color-text-faint)]"> → </span>
-                  <a href={archiveHref(row.latestArchiveKey)} class="text-[color:var(--color-signal-cyan)] underline">
+                  <a href={archiveHrefFromKey(row.latestArchiveKey)} class="text-[color:var(--color-signal-cyan)] underline">
                     <code class="text-[10px]">{row.latestSha.slice(0, 8)}</code>
                   </a>
                 </td>
@@ -217,7 +249,7 @@ const description =
                 </td>
                 <td class="px-3 py-2 align-top">
                   {row.category ? (
-                    <code class={`text-[10px] altered-cat-${row.category}`}>{row.category}</code>
+                    <code class={`text-[10px] ${categoryClass(row.category)}`}>{row.category}</code>
                   ) : (
                     <em class="text-[10px] text-[color:var(--color-text-faint)]">(unverified)</em>
                   )}
