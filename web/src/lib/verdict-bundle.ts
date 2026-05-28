@@ -17,10 +17,12 @@ import bundleJson from "../data/verdict-bundle.json";
 
 import {
   EXPECTED_BUNDLE_SCHEMA,
+  EXPECTED_VERDICT_SCHEMA,
   assertBundleSchema,
+  assertBundleStatsConsistent,
 } from "./verdict-bundle-schema";
 
-export { EXPECTED_BUNDLE_SCHEMA };
+export { EXPECTED_BUNDLE_SCHEMA, EXPECTED_VERDICT_SCHEMA };
 
 type VerdictRecord = {
   card_id: string;
@@ -48,5 +50,6 @@ export type VerdictBundle = {
 export function loadVerdictBundle(): VerdictBundle {
   const bundle = bundleJson as VerdictBundle;
   assertBundleSchema(bundle);
+  assertBundleStatsConsistent(bundle);
   return bundle;
 }

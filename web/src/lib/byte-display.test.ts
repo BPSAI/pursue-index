@@ -123,25 +123,25 @@ describe("categoryClass", () => {
     assert.equal(categoryClass("content_change"), "altered-cat-content_change");
   });
 
-  test("null / undefined / unknown fall back to altered-cat-unknown", () => {
-    assert.equal(categoryClass(null), "altered-cat-unknown");
-    assert.equal(categoryClass(undefined), "altered-cat-unknown");
-    assert.equal(categoryClass("garbage"), "altered-cat-unknown");
-    assert.equal(categoryClass(""), "altered-cat-unknown");
+  test("null / undefined / unknown fall back to altered-cat-unverified", () => {
+    assert.equal(categoryClass(null), "altered-cat-unverified");
+    assert.equal(categoryClass(undefined), "altered-cat-unverified");
+    assert.equal(categoryClass("garbage"), "altered-cat-unverified");
+    assert.equal(categoryClass(""), "altered-cat-unverified");
   });
 
   test("rejects v1-vocab values (defense-in-depth: schema bumped)", () => {
     // confirmed_content_change / false_positive / unsure are v1 verdicts,
     // not v2 categories. Don't render them as a category-class.
-    assert.equal(categoryClass("confirmed_content_change"), "altered-cat-unknown");
-    assert.equal(categoryClass("false_positive"), "altered-cat-unknown");
+    assert.equal(categoryClass("confirmed_content_change"), "altered-cat-unverified");
+    assert.equal(categoryClass("false_positive"), "altered-cat-unverified");
   });
 
   test("guards against CSS-injection-shaped strings", () => {
     // The whitelist closes off any operator-typo string from
     // producing a stray class attribute. Laverna PR #79 P2-2.
-    assert.equal(categoryClass("content_change; color: red"), "altered-cat-unknown");
-    assert.equal(categoryClass("<script>alert(1)</script>"), "altered-cat-unknown");
+    assert.equal(categoryClass("content_change; color: red"), "altered-cat-unverified");
+    assert.equal(categoryClass("<script>alert(1)</script>"), "altered-cat-unverified");
   });
 });
 

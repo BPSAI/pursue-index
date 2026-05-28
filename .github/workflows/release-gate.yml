@@ -38,7 +38,16 @@ on:
       - "web/public/data/snapshots/**"
       - "data/card-aliases.json"
       - "web/src/content/finds/**"
-      - "web/src/data/altered-diffs.json"
+      # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
+      # bundle, mutating byte-history, or editing the exclusion file
+      # all need the URL-stability / stale-exclusion / bundle-symmetry
+      # invariants to fire before deploy. Replaced the stale
+      # `web/src/data/altered-diffs.json` entry (file retired in
+      # v1.2.2). Vaivora PR #79 round-3 P1 #2.
+      - "data/byte-history-exclusions.json"
+      - "data/asset-bytes-registry.jsonl"
+      - "web/src/data/byte-history.json"
+      - "web/src/data/verdict-bundle.json"
   workflow_dispatch:
 
 permissions:
@@ -85,13 +94,6 @@ jobs:
         # and bot-opened entries pass through this gate identically.
         run: pytest tests/unit/test_finds_validator.py -v
 
-      - name: 5c — Size gate on altered-diffs.json
-        # The diff payload is SSR-imported by /altered/<card_id>.astro.
-        # A future tranche tripling the corpus would OOM the Astro
-        # build. Trip the gate at ~2x growth so the operator can switch
-        # to keyed-per-card JSON before deploy breaks (Sprint 4i #7).
-        run: pytest tests/unit/test_altered_diffs_size.py -v
-
       # ---------------------------------------------------------------
       # Build-dependent gates — need npm + Astro to produce web/dist/.
       # ---------------------------------------------------------------
@@ -105,11 +107,31 @@ jobs:
       - name: Install web deps + build
         # `npm ci` is reproducible from the committed lockfile; `npm
         # install` would float minor versions. Build output lands in
-        # web/dist/ for the coverage tests below.
+        # web/dist/ for the test-api-page snapshot + the coverage
+        # tests below. Astro evaluates loadVerdictBundle() at module
+        # scope so a bundle_schema_version mismatch fails this step
+        # loudly.
         working-directory: web
         run: |
           npm ci
           npm run build
+
+      - name: 5c — Node tests with strict invariants
+        # ALTR Phase 2 (Vaivora PR #79 round-3 P1 #1): the
+        # URL-stability / stale-exclusion / bundle-symmetry /
+        # byte-history-vs-manifest tests are the recurrence-detector
+        # gates for the 2026-05-11 pipeline misroute event and the
+        # follow-on schema drift. PURSUE_STRICT_INVARIANTS=1 turns
+        # the file-missing skip path in those tests into a hard fail
+        # so CI can't pass on stripped data. Runs after `npm run
+        # build` because test:api-page is a dist/-snapshot test.
+        # (Replaces the prior step 5c which ran the now-deleted
+        # test_altered_diffs_size.py against a file retired in
+        # v1.2.2.)
+        working-directory: web
+        env:
+          PURSUE_STRICT_INVARIANTS: "1"
+        run: npm test
 
       - name: 6a — Card-page coverage (every manifest card_id → dist page)
         run: pytest tests/integration/test_card_page_coverage.py -v

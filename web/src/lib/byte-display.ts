@@ -75,7 +75,12 @@ export function categoryClass(category: string | null | undefined): string {
   if (category && VALID_V2_CATEGORIES.has(category)) {
     return `altered-cat-${category}`;
   }
-  return "altered-cat-unknown";
+  // Fallback aligns with categorySlug() — single vocabulary across
+  // the CSS class binding and the data-category filter slot. Nayru
+  // PR #79 round-3 P1: prior fallback was `altered-cat-unknown`
+  // which mismatched the slug's `unverified`, so a v1-leakage row
+  // had a coloured class that didn't match its filter token.
+  return "altered-cat-unverified";
 }
 
 /**

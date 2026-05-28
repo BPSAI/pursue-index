@@ -685,7 +685,10 @@ summary:focus-visible {
 .altered-cat-re_processing { color: var(--color-signal-cyan); }
 .altered-cat-procedural_correction { color: var(--color-signal-amber); }
 .altered-cat-content_change { color: var(--color-signal-red); }
-.altered-cat-unknown { color: var(--color-text-faint); }
+/* Fallback shared by categoryClass + categorySlug for v1-leakage /
+   no-category rows. Single vocab across CSS class binding and the
+   data-category filter slot — Nayru PR #79 round-3 P1. */
+.altered-cat-unverified { color: var(--color-text-faint); }
 
 .altered-pill {
   background: transparent;

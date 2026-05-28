@@ -46,8 +46,18 @@ const OUT = resolve(here, "../src/data/byte-history.json");
 export function loadExclusionKeys(exclusionDoc) {
   if (!exclusionDoc || !Array.isArray(exclusionDoc.exclusions)) return new Set();
   const keys = new Set();
-  for (const ex of exclusionDoc.exclusions) {
-    if (!ex.card_id || !ex.byte_sha256) continue;
+  for (const [idx, ex] of exclusionDoc.exclusions.entries()) {
+    if (!ex.card_id || !ex.byte_sha256) {
+      // Nayru PR #79 round-3 P2: silent drop on malformed entries
+      // let a hand-edited typo leave a misroute in the output
+      // because the stale-exclusion test catches extras, not
+      // missing fields. Surface it loudly in build logs.
+      console.warn(
+        `[build_byte_history] exclusion entry [${idx}] missing required ` +
+        `field(s) (card_id, byte_sha256) — skipping: ${JSON.stringify(ex)}`,
+      );
+      continue;
+    }
     keys.add(`${ex.card_id}|${ex.byte_sha256}`);
   }
   return keys;
@@ -128,7 +138,19 @@ function main() {
   const rows = parseJsonl(text);
   let exclusionKeys = new Set();
   if (existsSync(EXCLUSIONS)) {
-    const exclusionDoc = JSON.parse(readFileSync(EXCLUSIONS, "utf-8"));
+    let exclusionDoc;
+    try {
+      exclusionDoc = JSON.parse(readFileSync(EXCLUSIONS, "utf-8"));
+    } catch (err) {
+      // Laverna PR #79 round-3 P2: a bare SyntaxError stack from
+      // a malformed exclusions file is hard to triage. Surface the
+      // path + cause before re-raising so the failure message names
+      // the file.
+      throw new Error(
+        `[build_byte_history] failed to parse exclusions file at ` +
+        `${EXCLUSIONS}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
     exclusionKeys = loadExclusionKeys(exclusionDoc);
   } else {
     // Nayru PR #79 round-2 P2-2: a silent no-op when the exclusions

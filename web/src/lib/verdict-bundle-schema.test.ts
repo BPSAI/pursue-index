@@ -7,7 +7,9 @@ import assert from "node:assert/strict";
 // covered by `npm run build`.
 import {
   EXPECTED_BUNDLE_SCHEMA,
+  EXPECTED_VERDICT_SCHEMA,
   assertBundleSchema,
+  assertBundleStatsConsistent,
 } from "./verdict-bundle-schema.ts";
 
 describe("assertBundleSchema — gate", () => {
@@ -46,5 +48,71 @@ describe("assertBundleSchema — gate", () => {
     // Pinned so a v3 bundle landing without a consumer rewrite
     // fails the build loudly with a clear remediation pointer.
     assert.throws(() => assertBundleSchema({ bundle_schema_version: 3 }));
+  });
+
+  test("verdict_schema_version is gated when present", () => {
+    // Vaivora PR #79 round-3 P2 #4: prior gate only checked the
+    // bundle envelope version. A curate change that bumps only
+    // the per-record schema (new mandatory field) would have
+    // slipped past.
+    assert.throws(() =>
+      assertBundleSchema({ bundle_schema_version: 2, verdict_schema_version: 3 }),
+    );
+    assert.throws(() =>
+      assertBundleSchema({ bundle_schema_version: 2, verdict_schema_version: 1 }),
+    );
+  });
+
+  test("verdict_schema_version absent is tolerated (back-compat)", () => {
+    // Older bundles may not carry the per-record version field.
+    assert.doesNotThrow(() =>
+      assertBundleSchema({ bundle_schema_version: 2 }),
+    );
+  });
+
+  test("EXPECTED_VERDICT_SCHEMA pins the per-record expected version", () => {
+    assert.equal(EXPECTED_VERDICT_SCHEMA, 2);
+  });
+});
+
+describe("assertBundleStatsConsistent — serializer drift detector", () => {
+  test("accepts matching declared + actual counts", () => {
+    assert.doesNotThrow(() =>
+      assertBundleStatsConsistent({
+        stats: { verdicts_emitted: 2 },
+        verdicts: { a: {}, b: {} },
+      }),
+    );
+  });
+
+  test("throws when declared > actual (extra count)", () => {
+    try {
+      assertBundleStatsConsistent({
+        stats: { verdicts_emitted: 3 },
+        verdicts: { a: {} },
+      });
+      assert.fail("expected stats drift to throw");
+    } catch (e) {
+      assert.match(String(e), /verdicts_emitted=3/);
+      assert.match(String(e), /actually contains 1/);
+    }
+  });
+
+  test("throws when declared < actual (missing count)", () => {
+    assert.throws(() =>
+      assertBundleStatsConsistent({
+        stats: { verdicts_emitted: 0 },
+        verdicts: { a: {}, b: {} },
+      }),
+    );
+  });
+
+  test("tolerates missing verdicts_emitted (older bundles)", () => {
+    assert.doesNotThrow(() =>
+      assertBundleStatsConsistent({
+        stats: {},
+        verdicts: { a: {}, b: {} },
+      }),
+    );
   });
 });

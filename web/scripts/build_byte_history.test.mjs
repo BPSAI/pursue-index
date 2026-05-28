@@ -233,8 +233,15 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
   });
 
   test("every exclusion entry corresponds to a real registry row (no stale exclusions)", () => {
-    if (!existsSync(EXCLUSIONS_PATH) || !existsSync(REGISTRY_PATH)) {
+    // Nayru PR #79 round-3 P2: name the actually-missing path so
+    // CI diagnostics don't claim the wrong file when only one of
+    // the two is absent.
+    if (!existsSync(EXCLUSIONS_PATH)) {
       _missingDataSkip("stale-exclusion check", EXCLUSIONS_PATH);
+      return;
+    }
+    if (!existsSync(REGISTRY_PATH)) {
+      _missingDataSkip("stale-exclusion check", REGISTRY_PATH);
       return;
     }
     const doc = JSON.parse(readFileSync(EXCLUSIONS_PATH, "utf-8"));
@@ -264,6 +271,7 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
 
 const BUNDLE_PATH = resolve(_here, "../src/data/verdict-bundle.json");
 const BYTE_HISTORY_PATH = resolve(_here, "../src/data/byte-history.json");
+const MANIFEST_PATH = resolve(_here, "../src/data/manifest.json");
 
 describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
   // Vaivora PR #79 round-2 P2-7: the prior tests guarded
@@ -325,5 +333,44 @@ describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
     // Always-pass assertion so the test serves as a count tripwire
     // rather than a gate.
     assert.ok(true);
+  });
+});
+
+describe("byte-history ⊆ manifest invariant", () => {
+  // Vaivora PR #79 round-3 P2 #6: altered/[card_id].astro generates
+  // routes from byteHistory keys; card/[card_id].astro generates
+  // from manifest. If a registry row ever points at a card that's
+  // since been removed from the manifest, /altered/<id>/ would
+  // render but the "see /card/<id>/" cross-link would 404. Pin the
+  // invariant so a future drift fails CI loudly.
+  test("every byte-history card_id is a current manifest card", () => {
+    if (!existsSync(BYTE_HISTORY_PATH)) {
+      _missingDataSkip("byte-history/manifest invariant", BYTE_HISTORY_PATH);
+      return;
+    }
+    if (!existsSync(MANIFEST_PATH)) {
+      _missingDataSkip("byte-history/manifest invariant", MANIFEST_PATH);
+      return;
+    }
+    const byteHistory = JSON.parse(readFileSync(BYTE_HISTORY_PATH, "utf-8"));
+    const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf-8"));
+    const manifestIds = new Set(
+      (manifest.cards ?? []).map((c) => c.card_id).filter(Boolean),
+    );
+    const orphans = [];
+    for (const cardId of Object.keys(byteHistory)) {
+      if (!manifestIds.has(cardId)) orphans.push(cardId);
+    }
+    assert.equal(
+      orphans.length,
+      0,
+      `byte-history.json has ${orphans.length} card_id(s) not in manifest.json: ` +
+      `${JSON.stringify(orphans)}. The /altered/<card_id>/ detail page renders ` +
+      `for these but its "see /card/<card_id>/" cross-link 404s. Either: (a) ` +
+      `restore the manifest entries (preferred if the cards are still ` +
+      `upstream-published), (b) add an exclusion to ` +
+      `data/byte-history-exclusions.json (if the registry rows are misroutes), ` +
+      `or (c) prune the registry rows (rare — invokes append-only break).`,
+    );
   });
 });
