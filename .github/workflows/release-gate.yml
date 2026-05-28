@@ -48,6 +48,15 @@ on:
       - "data/asset-bytes-registry.jsonl"
       - "web/src/data/byte-history.json"
       - "web/src/data/verdict-bundle.json"
+      # Vaivora PR #79 round-4 P1 #2: the lib files that encode the
+      # consumer contract (schema gates, archive-key validator,
+      # category whitelist) need to fire the gate too. A pure-code
+      # change to EXPECTED_BUNDLE_SCHEMA or the regex would otherwise
+      # bypass the very test suite that verifies it.
+      - "web/src/lib/verdict-bundle*.ts"
+      - "web/src/lib/byte-display.ts"
+      - "web/scripts/build_byte_history.mjs"
+      - "web/scripts/build_byte_history.test.mjs"
   workflow_dispatch:
 
 permissions:
@@ -108,30 +117,32 @@ jobs:
         # `npm ci` is reproducible from the committed lockfile; `npm
         # install` would float minor versions. Build output lands in
         # web/dist/ for the test-api-page snapshot + the coverage
-        # tests below. Astro evaluates loadVerdictBundle() at module
-        # scope so a bundle_schema_version mismatch fails this step
-        # loudly.
+        # tests below. The verdict-bundle.ts module runs
+        # assertBundleSchema + assertBundleStatsConsistent at module
+        # scope on first import (Vaivora PR #79 round-4 P1 #1 — the
+        # asserts moved OUT of loadVerdictBundle() so they fire on
+        # import regardless of consumer call patterns); a bundle
+        # drift fails this step loudly.
         working-directory: web
         run: |
           npm ci
           npm run build
 
-      - name: 5c — Node tests with strict invariants
-        # ALTR Phase 2 (Vaivora PR #79 round-3 P1 #1): the
-        # URL-stability / stale-exclusion / bundle-symmetry /
-        # byte-history-vs-manifest tests are the recurrence-detector
-        # gates for the 2026-05-11 pipeline misroute event and the
-        # follow-on schema drift. PURSUE_STRICT_INVARIANTS=1 turns
-        # the file-missing skip path in those tests into a hard fail
-        # so CI can't pass on stripped data. Runs after `npm run
-        # build` because test:api-page is a dist/-snapshot test.
-        # (Replaces the prior step 5c which ran the now-deleted
-        # test_altered_diffs_size.py against a file retired in
-        # v1.2.2.)
+      - name: 5c — ALTR invariant tests (strict mode)
+        # The URL-stability / stale-exclusion / bundle-symmetry /
+        # byte-history-vs-manifest / schema-gate tests are the
+        # recurrence-detector gates for the 2026-05-11 pipeline
+        # misroute event and the follow-on schema drift.
+        # PURSUE_STRICT_INVARIANTS=1 turns the file-missing skip
+        # path in the byte-history tests into a hard fail so CI
+        # can't pass on stripped data. Scoped to test:byte-history
+        # + test:lib only (Nayru PR #79 round-4 P1): no point
+        # re-running test:api-page or the build-script unit tests
+        # here — they cover unrelated surfaces.
         working-directory: web
         env:
           PURSUE_STRICT_INVARIANTS: "1"
-        run: npm test
+        run: npm run test:byte-history && npm run test:lib
 
       - name: 6a — Card-page coverage (every manifest card_id → dist page)
         run: pytest tests/integration/test_card_page_coverage.py -v

@@ -283,8 +283,13 @@ describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
   // sides match at 71/71; this test pins that contract.
 
   test("every verdict in the bundle has a matching byte-history entry", () => {
-    if (!existsSync(BUNDLE_PATH) || !existsSync(BYTE_HISTORY_PATH)) {
+    // Nayru PR #79 round-4 P2 #2: name the actually-missing path.
+    if (!existsSync(BUNDLE_PATH)) {
       _missingDataSkip("bundle/byte-history symmetry", BUNDLE_PATH);
+      return;
+    }
+    if (!existsSync(BYTE_HISTORY_PATH)) {
+      _missingDataSkip("bundle/byte-history symmetry", BYTE_HISTORY_PATH);
       return;
     }
     const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
@@ -306,34 +311,14 @@ describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
     );
   });
 
-  test("every byte-history entry has a matching verdict in the bundle", () => {
-    if (!existsSync(BUNDLE_PATH) || !existsSync(BYTE_HISTORY_PATH)) {
-      _missingDataSkip("byte-history/bundle symmetry", BUNDLE_PATH);
-      return;
-    }
-    const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
-    const byteHistory = JSON.parse(readFileSync(BYTE_HISTORY_PATH, "utf-8"));
-    const verdictKeys = new Set(Object.keys(bundle.verdicts ?? {}));
-    // Unverdicted byte-history entries are legal — they render as
-    // "(unverified)" on /altered/. We assert this only counts and
-    // labels stay consistent; orphan-bundle is the load-bearing
-    // direction. (Kept as a soft check so a sudden "unverified"
-    // jump shows up in CI logs even though it doesn't fail.)
-    const unverdicted = [];
-    for (const cardId of Object.keys(byteHistory)) {
-      if (!verdictKeys.has(cardId)) unverdicted.push(cardId);
-    }
-    if (unverdicted.length > 0) {
-      console.warn(
-        `[byte-history.test] ${unverdicted.length} byte-history cards have no verdict ` +
-        `(will render as "(unverified)" on /altered/): ${unverdicted.slice(0, 5).join(", ")}` +
-        `${unverdicted.length > 5 ? "..." : ""}`,
-      );
-    }
-    // Always-pass assertion so the test serves as a count tripwire
-    // rather than a gate.
-    assert.ok(true);
-  });
+  // The reverse-direction "byte-history → bundle" tripwire was
+  // dropped (Nayru PR #79 round-4 P2 #3, Vaivora P2 #6): a test
+  // that ends with `assert.ok(true)` after a warning provides no
+  // signal in test-summary output and reads as a gate it isn't.
+  // Unverdicted byte-history entries are legal (they render as
+  // "(unverified)" on /altered/), so there's nothing to assert.
+  // If `/altered/` is later promoted to require 100% verdict
+  // coverage, add a hard fail here.
 });
 
 describe("byte-history ⊆ manifest invariant", () => {

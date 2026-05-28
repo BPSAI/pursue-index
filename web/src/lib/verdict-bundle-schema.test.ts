@@ -115,4 +115,66 @@ describe("assertBundleStatsConsistent — serializer drift detector", () => {
       }),
     );
   });
+
+  test("category breakdown matches verdict records", () => {
+    assert.doesNotThrow(() =>
+      assertBundleStatsConsistent({
+        stats: {
+          verdicts_emitted: 3,
+          re_processing: 2,
+          procedural_correction: 1,
+          content_change: 0,
+        },
+        verdicts: {
+          a: { category: "re_processing" },
+          b: { category: "re_processing" },
+          c: { category: "procedural_correction" },
+        },
+      }),
+    );
+  });
+
+  test("throws when category bucket overstates", () => {
+    // Nayru PR #79 round-4 P2 #4: serializer that miscategorizes
+    // (bumps procedural_correction without changing a record's
+    // category field) now fails the gate.
+    try {
+      assertBundleStatsConsistent({
+        stats: { procedural_correction: 5 },
+        verdicts: { a: { category: "procedural_correction" } },
+      });
+      assert.fail("expected category drift to throw");
+    } catch (e) {
+      assert.match(String(e), /procedural_correction=5/);
+      assert.match(String(e), /actually contains 1/);
+    }
+  });
+
+  test("throws when category counts sum > verdicts_emitted (double-count)", () => {
+    assert.throws(() =>
+      assertBundleStatsConsistent({
+        stats: {
+          verdicts_emitted: 2,
+          re_processing: 2,
+          procedural_correction: 2,
+          content_change: 0,
+        },
+        verdicts: {
+          a: { category: "re_processing" },
+          b: { category: "re_processing" },
+        },
+      }),
+    );
+  });
+
+  test("tolerates missing category counters (older bundles, partial stats)", () => {
+    // Conditional-on-presence: bundles that only carry
+    // verdicts_emitted still pass the gate.
+    assert.doesNotThrow(() =>
+      assertBundleStatsConsistent({
+        stats: { verdicts_emitted: 1 },
+        verdicts: { a: { category: "re_processing" } },
+      }),
+    );
+  });
 });

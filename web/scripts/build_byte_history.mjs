@@ -52,9 +52,13 @@ export function loadExclusionKeys(exclusionDoc) {
       // let a hand-edited typo leave a misroute in the output
       // because the stale-exclusion test catches extras, not
       // missing fields. Surface it loudly in build logs.
+      // Round-4 P2 #5: log identifiers, not the whole entry —
+      // a valid byte_sha256 makes the line ~150 chars otherwise.
       console.warn(
-        `[build_byte_history] exclusion entry [${idx}] missing required ` +
-        `field(s) (card_id, byte_sha256) — skipping: ${JSON.stringify(ex)}`,
+        `[build_byte_history] exclusion entry [${idx}] skipping — ` +
+        `card_id=${JSON.stringify(ex.card_id ?? null)}, ` +
+        `has_byte_sha256=${!!ex.byte_sha256}, ` +
+        `keys=${JSON.stringify(Object.keys(ex))}`,
       );
       continue;
     }

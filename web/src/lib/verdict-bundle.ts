@@ -42,14 +42,22 @@ export type VerdictBundle = {
   verdicts: Record<string, VerdictRecord>;
 };
 
+// Module-scope assertions: fire on first import, regardless of when
+// or how a consumer calls loadVerdictBundle(). Vaivora PR #79
+// round-4 P1 #1: the prior shape ran the asserts inside the loader
+// function, so a future refactor that lazy-evaluated the call (e.g.
+// inside a memoized helper) could have silently bypassed the gate.
+// Module-scope runs them once at build time and caches the result.
+const _bundle = bundleJson as VerdictBundle;
+assertBundleSchema(_bundle);
+assertBundleStatsConsistent(_bundle);
+
 /**
- * Read the bundle with the schema-version check applied. Build-time
- * call only — Astro evaluates this at static-generation, so a bad
- * bundle fails the build rather than the deploy.
+ * Read the (already-validated) bundle. Build-time call only — Astro
+ * evaluates the import at static-generation, so a bad bundle fails
+ * the build rather than the deploy. The schema/stats asserts above
+ * fire at module-load; this function is just a typed accessor.
  */
 export function loadVerdictBundle(): VerdictBundle {
-  const bundle = bundleJson as VerdictBundle;
-  assertBundleSchema(bundle);
-  assertBundleStatsConsistent(bundle);
-  return bundle;
+  return _bundle;
 }

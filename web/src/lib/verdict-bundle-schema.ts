@@ -50,28 +50,74 @@ export function assertBundleSchema(bundle: {
   }
 }
 
+const _V2_CATEGORY_KEYS = ["re_processing", "procedural_correction", "content_change"] as const;
+
+type StatsShape = {
+  verdicts_emitted?: number;
+  re_processing?: number;
+  procedural_correction?: number;
+  content_change?: number;
+};
+
+type VerdictRecordForStats = { category?: string };
+
 /**
- * Build-time sanity that bundle.stats.verdicts_emitted hasn't drifted
- * from the actual number of verdicts shipped. Cheap belt over the
- * schema-version gate — Vaivora PR #79 round-3 P2 #5: now that pill
- * counts re-derive from rendered rows, bundle.stats is no longer
- * load-bearing in any consumer, but a curate-side serializer bug
- * that miscounts could still mislead any external consumer reading
- * the bundle. Surface the mismatch loudly.
+ * Build-time sanity that bundle.stats hasn't drifted from the actual
+ * shape of bundle.verdicts. Cheap belt over the schema-version gate
+ * — Vaivora PR #79 round-3 P2 #5 + Nayru round-4 P2 #4: pill counts
+ * re-derive from rendered rows so stats isn't load-bearing in our
+ * consumer, but the bundle is the public contract for external
+ * consumers and a curate-side serializer bug that miscounts could
+ * mislead them. Surface the mismatch loudly.
+ *
+ * Checks (each conditional on the relevant key being present so
+ * older bundles without category breakdowns still parse):
+ *   1. stats.verdicts_emitted matches Object.keys(verdicts).length
+ *   2. stats.<category> matches count of verdicts with that category
+ *   3. Σ(category counts) does not exceed verdicts_emitted (records
+ *      can have categories outside the v2 vocab and those land in
+ *      "unknown"; we don't enforce equality here, just that we
+ *      didn't over-count)
  */
 export function assertBundleStatsConsistent(bundle: {
-  stats: { verdicts_emitted?: number };
-  verdicts: Record<string, unknown>;
+  stats: StatsShape;
+  verdicts: Record<string, VerdictRecordForStats>;
 }): void {
+  const verdicts = bundle.verdicts ?? {};
+  const verdictsList = Object.values(verdicts);
+  const actualTotal = verdictsList.length;
   const declared = bundle.stats?.verdicts_emitted;
-  const actual = Object.keys(bundle.verdicts ?? {}).length;
-  if (declared !== undefined && declared !== actual) {
+  if (declared !== undefined && declared !== actualTotal) {
     throw new Error(
       `verdict-bundle.json stats.verdicts_emitted=${declared} but the ` +
-      `bundle actually contains ${actual} verdict record(s). The curate-side ` +
-      `serializer in publish.py:_altered_stats has drifted from the verdict ` +
-      `iterator. Re-run the bundle publish + spot-check the count before ` +
-      `merging.`,
+      `bundle actually contains ${actualTotal} verdict record(s). The ` +
+      `curate-side serializer in publish.py:_altered_stats has drifted ` +
+      `from the verdict iterator. Re-run the bundle publish + spot-check ` +
+      `the count before merging.`,
+    );
+  }
+  for (const cat of _V2_CATEGORY_KEYS) {
+    const declaredCat = bundle.stats?.[cat];
+    if (declaredCat === undefined) continue;
+    const actualCat = verdictsList.filter((v) => v.category === cat).length;
+    if (declaredCat !== actualCat) {
+      throw new Error(
+        `verdict-bundle.json stats.${cat}=${declaredCat} but the bundle ` +
+        `actually contains ${actualCat} record(s) with that category. The ` +
+        `curate-side serializer's category counter has drifted from the ` +
+        `record set. Re-publish the bundle and recheck.`,
+      );
+    }
+  }
+  const sumCategories = _V2_CATEGORY_KEYS.reduce(
+    (n, k) => n + (bundle.stats?.[k] ?? 0),
+    0,
+  );
+  if (sumCategories > actualTotal) {
+    throw new Error(
+      `verdict-bundle.json category counts sum to ${sumCategories} which ` +
+      `exceeds verdicts_emitted=${actualTotal}. A record is being counted ` +
+      `in more than one category bucket — curate publish.py drift.`,
     );
   }
 }
