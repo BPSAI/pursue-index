@@ -167,17 +167,28 @@ function main() {
       );
     }
     exclusionKeys = loadExclusionKeys(exclusionDoc);
-  } else {
-    // Nayru PR #79 round-2 P2-2: a silent no-op when the exclusions
-    // file is missing makes accidental `git rm` look like a clean
-    // build. Stderr log surfaces it in CI without failing the
-    // build (the URL-stability invariant test will fail-closed
-    // separately if the bad output would actually re-introduce
-    // misroute cards).
+  } else if (process.env.PURSUE_ALLOW_NO_EXCLUSIONS === "1") {
+    // Fresh-clone escape hatch — explicit opt-in. Operator-curated
+    // exclusions are a load-bearing input (filtering 9 misroute
+    // cards out of byte-history.json); a silent miss would re-
+    // introduce them.
     console.warn(
       `[build_byte_history] no exclusions file at ${EXCLUSIONS}; ` +
-      `processing all registry rows. If this is unexpected, restore ` +
-      `data/byte-history-exclusions.json.`,
+      `processing all registry rows (PURSUE_ALLOW_NO_EXCLUSIONS=1).`,
+    );
+  } else {
+    // Nayru PR #79 round-8 P1 #2: prior shape warned-and-continued
+    // when the exclusions file was missing — accidental `git rm`
+    // produced a silently-bad byte-history.json locally (URL-
+    // stability invariant catches it in CI, but local builds
+    // shipped misroute cards). Fail-closed at the source unless
+    // PURSUE_ALLOW_NO_EXCLUSIONS=1.
+    throw new Error(
+      `[build_byte_history] required exclusions file missing at ` +
+      `${EXCLUSIONS}. Restore data/byte-history-exclusions.json or ` +
+      `set PURSUE_ALLOW_NO_EXCLUSIONS=1 to build without exclusions ` +
+      `(fresh-clone / intentional removal only — the URL-stability ` +
+      `invariant in build_byte_history.test.mjs will still fire).`,
     );
   }
   const history = buildByteHistory(rows, exclusionKeys);

@@ -195,30 +195,31 @@ describe("loadExclusionKeys + exclusion filtering", () => {
 const STRICT_INVARIANTS = process.env.PURSUE_STRICT_INVARIANTS === "1";
 
 /**
- * Skip the calling test when a required data file is missing —
- * or, under PURSUE_STRICT_INVARIANTS=1, throw to convert the skip
- * into a CI hard-fail.
+ * Higher-order test wrapper: defines a test that requires one or
+ * more data files, and either skips (fresh-clone) or hard-fails
+ * (PURSUE_STRICT_INVARIANTS=1) when any are missing.
  *
- * IMPORTANT: ``t.skip()`` marks the test skipped but does NOT
- * terminate the function body. The caller MUST ``return``
- * immediately after invoking this helper. Don't remove the
- * ``return`` thinking it's dead code — the test body still
- * executes otherwise, and the assertions throw on missing data
- * inside a "skipped" test. Nayru PR #79 round-7 P2 #2: making
- * this contract explicit so a future contributor doesn't trip on
- * it.
+ * Nayru PR #79 round-8 P1 #1: prior shape exposed a "load-bearing
+ * `return` after `t.skip()`" contract that a future contributor
+ * could trip on. Wrapping the body in a closure means the skip
+ * path can't fall through to the assertions — the assertions
+ * literally don't execute when the skip fires.
  *
- * Usage pattern (every caller in this file follows it):
+ *     testWithDataFiles(
+ *       "every card_id ... single distinct asset_url",
+ *       "URL-stability invariant",
+ *       [REGISTRY_PATH],
+ *       (t) => {
+ *         // ... assertions
+ *       },
+ *     );
  *
- *     test("...", (t) => {
- *       if (!existsSync(PATH)) {
- *         _missingDataSkip(t, "label", PATH);
- *         return;  // ← load-bearing
- *       }
- *       // ... assertions
- *     });
+ * Replaces the lower-level `_missingDataSkip(t, label, path); return;`
+ * pattern. The helper is still exported as `_assertOrSkipMissingData`
+ * for callers that want manual control, but new tests should prefer
+ * the wrapper.
  */
-function _missingDataSkip(t, label, path) {
+function _assertOrSkipMissingData(t, label, path) {
   if (STRICT_INVARIANTS) {
     throw new Error(
       `[strict-invariants] required data file missing at ${path} — ` +
@@ -230,6 +231,19 @@ function _missingDataSkip(t, label, path) {
     `${label}: data file missing at ${path}. ` +
     `Set PURSUE_STRICT_INVARIANTS=1 to fail-loud in CI.`,
   );
+}
+
+function testWithDataFiles(name, label, paths, body) {
+  test(name, (t) => {
+    for (const p of paths) {
+      if (!existsSync(p)) {
+        _assertOrSkipMissingData(t, label, p);
+        // Wrapper-owned return — callers can't accidentally remove it.
+        return;
+      }
+    }
+    body(t);
+  });
 }
 
 /**
@@ -259,77 +273,89 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
   // under an existing card_id, this test fails before anything ships
   // and the operator decides whether to add an exclusion entry or
   // investigate the pipeline regression.
-  test("every card_id in the live registry has one distinct asset_url (after exclusions)", (t) => {
-    if (!existsSync(REGISTRY_PATH)) {
-      _missingDataSkip(t, "URL-stability invariant", REGISTRY_PATH);
-      return;
+  // Nayru PR #79 round-8 P2 #3: wrap JSON.parse(line) so a malformed
+  // registry row names the file + line index, not just position N.
+  function _parseRegistryLine(path, line, idx) {
+    try {
+      return JSON.parse(line);
+    } catch (err) {
+      throw new Error(
+        `[byte-history.test] failed to parse JSONL ${path} line ${idx + 1}: ` +
+        `${err instanceof Error ? err.message : String(err)}`,
+      );
     }
-    const exclusionKeys = existsSync(EXCLUSIONS_PATH)
-      ? loadExclusionKeys(_readJson(EXCLUSIONS_PATH))
-      : new Set();
-    const text = readFileSync(REGISTRY_PATH, "utf-8");
-    const urlsByCard = new Map();
-    for (const line of text.split("\n")) {
-      if (!line.trim()) continue;
-      const row = JSON.parse(line);
-      const cid = row.card_id;
-      if (!cid) continue;
-      if (exclusionKeys.has(`${cid}|${row.byte_sha256}`)) continue;
-      const set = urlsByCard.get(cid) ?? new Set();
-      set.add(row.asset_url);
-      urlsByCard.set(cid, set);
-    }
-    const offenders = [];
-    for (const [cid, urls] of urlsByCard) {
-      if (urls.size > 1) {
-        offenders.push({ card_id: cid, urls: [...urls] });
-      }
-    }
-    assert.equal(
-      offenders.length,
-      0,
-      `Cards with multiple asset_urls (after exclusions): ${JSON.stringify(offenders, null, 2)}\n\n` +
-      `If this fires for a new card, the pipeline registered a different URL under an existing card_id. ` +
-      `Either add an entry to data/byte-history-exclusions.json (with operator justification + opsec_ref) ` +
-      `or investigate the pipeline. See findings/2026-05-28-pipeline-byte-misroute-9-cards.md in pursue-opsec for the prior incident.`
-    );
-  });
+  }
 
-  test("every exclusion entry corresponds to a real registry row (no stale exclusions)", (t) => {
-    // Nayru PR #79 round-3 P2: name the actually-missing path so
-    // CI diagnostics don't claim the wrong file when only one of
-    // the two is absent.
-    if (!existsSync(EXCLUSIONS_PATH)) {
-      _missingDataSkip(t, "stale-exclusion check", EXCLUSIONS_PATH);
-      return;
-    }
-    if (!existsSync(REGISTRY_PATH)) {
-      _missingDataSkip(t, "stale-exclusion check", REGISTRY_PATH);
-      return;
-    }
-    const doc = _readJson(EXCLUSIONS_PATH);
-    const registryKeys = new Set();
-    const text = readFileSync(REGISTRY_PATH, "utf-8");
-    for (const line of text.split("\n")) {
-      if (!line.trim()) continue;
-      const row = JSON.parse(line);
-      if (row.card_id && row.byte_sha256) {
-        registryKeys.add(`${row.card_id}|${row.byte_sha256}`);
+  testWithDataFiles(
+    "every card_id in the live registry has one distinct asset_url (after exclusions)",
+    "URL-stability invariant",
+    [REGISTRY_PATH],
+    () => {
+      const exclusionKeys = existsSync(EXCLUSIONS_PATH)
+        ? loadExclusionKeys(_readJson(EXCLUSIONS_PATH))
+        : new Set();
+      const text = readFileSync(REGISTRY_PATH, "utf-8");
+      const urlsByCard = new Map();
+      const lines = text.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+        const row = _parseRegistryLine(REGISTRY_PATH, line, i);
+        const cid = row.card_id;
+        if (!cid) continue;
+        if (exclusionKeys.has(`${cid}|${row.byte_sha256}`)) continue;
+        const set = urlsByCard.get(cid) ?? new Set();
+        set.add(row.asset_url);
+        urlsByCard.set(cid, set);
       }
-    }
-    const stale = [];
-    for (const ex of doc.exclusions || []) {
-      const key = `${ex.card_id}|${ex.byte_sha256}`;
-      if (!registryKeys.has(key)) {
-        stale.push(ex);
+      const offenders = [];
+      for (const [cid, urls] of urlsByCard) {
+        if (urls.size > 1) {
+          offenders.push({ card_id: cid, urls: [...urls] });
+        }
       }
-    }
-    assert.equal(
-      stale.length,
-      0,
-      `Stale exclusion entries (no matching registry row): ${JSON.stringify(stale, null, 2)}`
-    );
-  });
+      assert.equal(
+        offenders.length,
+        0,
+        `Cards with multiple asset_urls (after exclusions): ${JSON.stringify(offenders, null, 2)}\n\n` +
+        `If this fires for a new card, the pipeline registered a different URL under an existing card_id. ` +
+        `Either add an entry to data/byte-history-exclusions.json (with operator justification + opsec_ref) ` +
+        `or investigate the pipeline. See findings/2026-05-28-pipeline-byte-misroute-9-cards.md in pursue-opsec for the prior incident.`
+      );
+    },
+  );
+
+  testWithDataFiles(
+    "every exclusion entry corresponds to a real registry row (no stale exclusions)",
+    "stale-exclusion check",
+    [EXCLUSIONS_PATH, REGISTRY_PATH],
+    () => {
+      const doc = _readJson(EXCLUSIONS_PATH);
+      const registryKeys = new Set();
+      const text = readFileSync(REGISTRY_PATH, "utf-8");
+      const lines = text.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+        const row = _parseRegistryLine(REGISTRY_PATH, line, i);
+        if (row.card_id && row.byte_sha256) {
+          registryKeys.add(`${row.card_id}|${row.byte_sha256}`);
+        }
+      }
+      const stale = [];
+      for (const ex of doc.exclusions || []) {
+        const key = `${ex.card_id}|${ex.byte_sha256}`;
+        if (!registryKeys.has(key)) {
+          stale.push(ex);
+        }
+      }
+      assert.equal(
+        stale.length,
+        0,
+        `Stale exclusion entries (no matching registry row): ${JSON.stringify(stale, null, 2)}`
+      );
+    },
+  );
 });
 
 const BUNDLE_PATH = resolve(_here, "../src/data/verdict-bundle.json");
@@ -345,34 +371,30 @@ describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
   // bundle's stats.verdicts_emitted silently desync. Today both
   // sides match at 71/71; this test pins that contract.
 
-  test("every verdict in the bundle has a matching byte-history entry", (t) => {
-    // Nayru PR #79 round-4 P2 #2: name the actually-missing path.
-    if (!existsSync(BUNDLE_PATH)) {
-      _missingDataSkip(t, "bundle/byte-history symmetry", BUNDLE_PATH);
-      return;
-    }
-    if (!existsSync(BYTE_HISTORY_PATH)) {
-      _missingDataSkip(t, "bundle/byte-history symmetry", BYTE_HISTORY_PATH);
-      return;
-    }
-    const bundle = _readJson(BUNDLE_PATH);
-    const byteHistory = _readJson(BYTE_HISTORY_PATH);
-    const bhKeys = new Set(Object.keys(byteHistory));
-    const orphanVerdicts = [];
-    for (const cardId of Object.keys(bundle.verdicts ?? {})) {
-      if (!bhKeys.has(cardId)) {
-        orphanVerdicts.push(cardId);
+  testWithDataFiles(
+    "every verdict in the bundle has a matching byte-history entry",
+    "bundle/byte-history symmetry",
+    [BUNDLE_PATH, BYTE_HISTORY_PATH],
+    () => {
+      const bundle = _readJson(BUNDLE_PATH);
+      const byteHistory = _readJson(BYTE_HISTORY_PATH);
+      const bhKeys = new Set(Object.keys(byteHistory));
+      const orphanVerdicts = [];
+      for (const cardId of Object.keys(bundle.verdicts ?? {})) {
+        if (!bhKeys.has(cardId)) {
+          orphanVerdicts.push(cardId);
+        }
       }
-    }
-    assert.equal(
-      orphanVerdicts.length,
-      0,
-      `Bundle verdicts with no matching byte-history entry: ${JSON.stringify(orphanVerdicts)}. ` +
-      `These cards would render in stats but not in the table — either restore the byte-history ` +
-      `entries (preferred) or remove the verdicts from the bundle (only if the cards genuinely ` +
-      `lost their multi-sha status).`
-    );
-  });
+      assert.equal(
+        orphanVerdicts.length,
+        0,
+        `Bundle verdicts with no matching byte-history entry: ${JSON.stringify(orphanVerdicts)}. ` +
+        `These cards would render in stats but not in the table — either restore the byte-history ` +
+        `entries (preferred) or remove the verdicts from the bundle (only if the cards genuinely ` +
+        `lost their multi-sha status).`
+      );
+    },
+  );
 
   // The reverse-direction "byte-history → bundle" tripwire was
   // dropped (Nayru PR #79 round-4 P2 #3, Vaivora P2 #6): a test
@@ -391,34 +413,31 @@ describe("byte-history ⊆ manifest invariant", () => {
   // since been removed from the manifest, /altered/<id>/ would
   // render but the "see /card/<id>/" cross-link would 404. Pin the
   // invariant so a future drift fails CI loudly.
-  test("every byte-history card_id is a current manifest card", (t) => {
-    if (!existsSync(BYTE_HISTORY_PATH)) {
-      _missingDataSkip(t, "byte-history/manifest invariant", BYTE_HISTORY_PATH);
-      return;
-    }
-    if (!existsSync(MANIFEST_PATH)) {
-      _missingDataSkip(t, "byte-history/manifest invariant", MANIFEST_PATH);
-      return;
-    }
-    const byteHistory = _readJson(BYTE_HISTORY_PATH);
-    const manifest = _readJson(MANIFEST_PATH);
-    const manifestIds = new Set(
-      (manifest.cards ?? []).map((c) => c.card_id).filter(Boolean),
-    );
-    const orphans = [];
-    for (const cardId of Object.keys(byteHistory)) {
-      if (!manifestIds.has(cardId)) orphans.push(cardId);
-    }
-    assert.equal(
-      orphans.length,
-      0,
-      `byte-history.json has ${orphans.length} card_id(s) not in manifest.json: ` +
-      `${JSON.stringify(orphans)}. The /altered/<card_id>/ detail page renders ` +
-      `for these but its "see /card/<card_id>/" cross-link 404s. Either: (a) ` +
-      `restore the manifest entries (preferred if the cards are still ` +
-      `upstream-published), (b) add an exclusion to ` +
-      `data/byte-history-exclusions.json (if the registry rows are misroutes), ` +
-      `or (c) prune the registry rows (rare — invokes append-only break).`,
-    );
-  });
+  testWithDataFiles(
+    "every byte-history card_id is a current manifest card",
+    "byte-history/manifest invariant",
+    [BYTE_HISTORY_PATH, MANIFEST_PATH],
+    () => {
+      const byteHistory = _readJson(BYTE_HISTORY_PATH);
+      const manifest = _readJson(MANIFEST_PATH);
+      const manifestIds = new Set(
+        (manifest.cards ?? []).map((c) => c.card_id).filter(Boolean),
+      );
+      const orphans = [];
+      for (const cardId of Object.keys(byteHistory)) {
+        if (!manifestIds.has(cardId)) orphans.push(cardId);
+      }
+      assert.equal(
+        orphans.length,
+        0,
+        `byte-history.json has ${orphans.length} card_id(s) not in manifest.json: ` +
+        `${JSON.stringify(orphans)}. The /altered/<card_id>/ detail page renders ` +
+        `for these but its "see /card/<card_id>/" cross-link 404s. Either: (a) ` +
+        `restore the manifest entries (preferred if the cards are still ` +
+        `upstream-published), (b) add an exclusion to ` +
+        `data/byte-history-exclusions.json (if the registry rows are misroutes), ` +
+        `or (c) prune the registry rows (rare — invokes append-only break).`,
+      );
+    },
+  );
 });
