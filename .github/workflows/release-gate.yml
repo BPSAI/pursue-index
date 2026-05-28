@@ -57,6 +57,17 @@ on:
       - "web/src/lib/byte-display.ts"
       - "web/scripts/build_byte_history.mjs"
       - "web/scripts/build_byte_history.test.mjs"
+      # Vaivora PR #79 round-5 P2 #1: Astro page changes that
+      # refactor pill filters, change cross-link targets, or remove
+      # categoryClass() calls should fire the gate even if no data
+      # or lib file changes.
+      - "web/src/pages/altered.astro"
+      - "web/src/pages/altered/**"
+      - "web/src/pages/card/[card_id].astro"
+      # Nayru PR #79 round-5 P2 #4: a PR that edits the gate itself
+      # should fire the gate. Otherwise editing this file is the one
+      # untestable change in the repo.
+      - ".github/workflows/release-gate.yml"
   workflow_dispatch:
 
 permissions:

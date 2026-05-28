@@ -16,6 +16,26 @@
 export const EXPECTED_BUNDLE_SCHEMA = 2;
 export const EXPECTED_VERDICT_SCHEMA = 2;
 
+/**
+ * Single source of truth for the v2 category vocabulary across the
+ * web consumer. Vaivora PR #79 round-5 P1 #1: previously duplicated
+ * in byte-display.ts's `VALID_V2_CATEGORIES`; the two lists had to
+ * be updated in lockstep when curate added a category, otherwise
+ * the render-gate and the schema-gate could drift independently.
+ *
+ * Pin in lockstep with curate's ``AlteredCategoryV2`` Literal in
+ * ``src/curate/verdict_models.py``. Both ends of the cross-repo
+ * contract must agree — see the source plan §Sequencing.
+ */
+export const V2_CATEGORIES = [
+  "re_processing",
+  "procedural_correction",
+  "content_change",
+] as const;
+
+export type V2Category = (typeof V2_CATEGORIES)[number];
+export const V2_CATEGORY_SET: ReadonlySet<string> = new Set(V2_CATEGORIES);
+
 export function assertBundleSchema(bundle: {
   bundle_schema_version: number;
   verdict_schema_version?: number;
@@ -50,13 +70,17 @@ export function assertBundleSchema(bundle: {
   }
 }
 
-const _V2_CATEGORY_KEYS = ["re_processing", "procedural_correction", "content_change"] as const;
+// V2_CATEGORY_KEYS is the same list as V2_CATEGORIES; kept as an
+// alias for the stats-check sites that read category names as
+// object keys for clarity at the call site.
+const V2_CATEGORY_KEYS = V2_CATEGORIES;
 
 type StatsShape = {
   verdicts_emitted?: number;
   re_processing?: number;
   procedural_correction?: number;
   content_change?: number;
+  unverified?: number;
 };
 
 type VerdictRecordForStats = { category?: string };
@@ -96,7 +120,7 @@ export function assertBundleStatsConsistent(bundle: {
       `the count before merging.`,
     );
   }
-  for (const cat of _V2_CATEGORY_KEYS) {
+  for (const cat of V2_CATEGORY_KEYS) {
     const declaredCat = bundle.stats?.[cat];
     if (declaredCat === undefined) continue;
     const actualCat = verdictsList.filter((v) => v.category === cat).length;
@@ -109,7 +133,7 @@ export function assertBundleStatsConsistent(bundle: {
       );
     }
   }
-  const sumCategories = _V2_CATEGORY_KEYS.reduce(
+  const sumCategories = V2_CATEGORY_KEYS.reduce(
     (n, k) => n + (bundle.stats?.[k] ?? 0),
     0,
   );
@@ -119,5 +143,54 @@ export function assertBundleStatsConsistent(bundle: {
       `exceeds verdicts_emitted=${actualTotal}. A record is being counted ` +
       `in more than one category bucket — curate publish.py drift.`,
     );
+  }
+  // Vaivora PR #79 round-5 P1 #2: close the closed-vocab contract.
+  // The bundle and the consumer agree that `category` is in the v2
+  // vocabulary; any value outside it indicates curate added a
+  // category without bumping verdict_schema_version. Catch it here
+  // before the page renders the record as "(unverified)" and the
+  // listing pill silently miscategorizes it.
+  const offenders: Array<{ card_id: string; category: string }> = [];
+  for (const [cardId, v] of Object.entries(verdicts)) {
+    if (v.category === undefined) continue;
+    if (!V2_CATEGORY_SET.has(v.category)) {
+      offenders.push({ card_id: cardId, category: v.category });
+    }
+  }
+  if (offenders.length > 0) {
+    throw new Error(
+      `verdict-bundle.json contains ${offenders.length} record(s) with ` +
+      `category values outside the v2 vocabulary ` +
+      `${JSON.stringify([...V2_CATEGORIES])}: ` +
+      `${JSON.stringify(offenders.slice(0, 5))}${offenders.length > 5 ? "..." : ""}. ` +
+      `Either: (a) curate.AlteredCategoryV2 was extended without bumping ` +
+      `EXPECTED_VERDICT_SCHEMA — coordinate the bump across repos; or ` +
+      `(b) a record has corrupted category data — re-author through the ` +
+      `curate web UI.`,
+    );
+  }
+  // Vaivora PR #79 round-5 P1 #3: gate stats.unverified the same as
+  // the categorical counters. Today the bundle ships
+  // stats.unverified for cards in queue without a verdict (curate-
+  // side semantic). External consumers reading the bundle directly
+  // shouldn't see a number that doesn't match what's actually in
+  // the verdicts dict + queue context. Conditional on presence so
+  // older bundles still parse.
+  const declaredUnverified = bundle.stats?.unverified;
+  if (declaredUnverified !== undefined) {
+    // The bundle's `unverified` is "queue rows without an emitted
+    // verdict" — curate computes it from byte-history.json vs
+    // verdicts. The consumer doesn't have queue context here, but
+    // we CAN sanity-check that stats.unverified + verdicts_emitted
+    // doesn't exceed any plausible queue size embedded in the
+    // bundle. Cheapest gate: assert unverified is a non-negative
+    // integer. Anything more requires cross-referencing
+    // byte-history.json, which is the symmetric-drift test's job.
+    if (!Number.isInteger(declaredUnverified) || declaredUnverified < 0) {
+      throw new Error(
+        `verdict-bundle.json stats.unverified=${declaredUnverified} ` +
+        `must be a non-negative integer.`,
+      );
+    }
   }
 }

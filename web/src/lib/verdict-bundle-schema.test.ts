@@ -8,6 +8,8 @@ import assert from "node:assert/strict";
 import {
   EXPECTED_BUNDLE_SCHEMA,
   EXPECTED_VERDICT_SCHEMA,
+  V2_CATEGORIES,
+  V2_CATEGORY_SET,
   assertBundleSchema,
   assertBundleStatsConsistent,
 } from "./verdict-bundle-schema.ts";
@@ -176,5 +178,82 @@ describe("assertBundleStatsConsistent — serializer drift detector", () => {
         verdicts: { a: { category: "re_processing" } },
       }),
     );
+  });
+
+  test("rejects record with unknown category value (closed-vocab gate)", () => {
+    // Vaivora PR #79 round-5 P1 #2: closes the gap where a curate-
+    // side addition (e.g. `editorial_change`) without a schema
+    // version bump would have rendered as "(unverified)" instead
+    // of failing the build.
+    try {
+      assertBundleStatsConsistent({
+        stats: { verdicts_emitted: 1 },
+        verdicts: { a: { category: "editorial_change" } },
+      });
+      assert.fail("expected unknown category to throw");
+    } catch (e) {
+      assert.match(String(e), /editorial_change/);
+      assert.match(String(e), /EXPECTED_VERDICT_SCHEMA/);
+    }
+  });
+
+  test("accepts records with undefined category (v1-leakage allowed)", () => {
+    // Defense-in-depth: a v1-shaped record without a category
+    // field is allowed (it lands in the consumer's `unverified`
+    // bucket). The vocab gate only fires for records that DECLARE
+    // a category outside the v2 vocab.
+    assert.doesNotThrow(() =>
+      assertBundleStatsConsistent({
+        stats: { verdicts_emitted: 1 },
+        verdicts: { a: {} },
+      }),
+    );
+  });
+
+  test("rejects stats.unverified that's not a non-negative integer", () => {
+    // Vaivora PR #79 round-5 P1 #3.
+    assert.throws(() =>
+      assertBundleStatsConsistent({
+        stats: { unverified: -1 },
+        verdicts: {},
+      }),
+    );
+    assert.throws(() =>
+      assertBundleStatsConsistent({
+        // @ts-expect-error testing runtime guard against wrong type
+        stats: { unverified: 1.5 },
+        verdicts: {},
+      }),
+    );
+  });
+
+  test("accepts stats.unverified=0 (current bundle state)", () => {
+    assert.doesNotThrow(() =>
+      assertBundleStatsConsistent({
+        stats: { unverified: 0, verdicts_emitted: 1 },
+        verdicts: { a: { category: "re_processing" } },
+      }),
+    );
+  });
+});
+
+describe("V2_CATEGORIES — single source of truth", () => {
+  test("V2_CATEGORIES is the three v2 vocab values", () => {
+    // Vaivora PR #79 round-5 P1 #1: tripwire so a curate-side
+    // category addition without coordinated update here fails
+    // the test, drawing attention to the cross-repo lockstep
+    // contract.
+    assert.deepEqual([...V2_CATEGORIES], [
+      "re_processing",
+      "procedural_correction",
+      "content_change",
+    ]);
+  });
+
+  test("V2_CATEGORY_SET is consistent with V2_CATEGORIES", () => {
+    assert.equal(V2_CATEGORY_SET.size, V2_CATEGORIES.length);
+    for (const c of V2_CATEGORIES) {
+      assert.ok(V2_CATEGORY_SET.has(c));
+    }
   });
 });

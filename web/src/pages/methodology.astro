@@ -232,7 +232,7 @@ const methodologyJsonLd = [
       <ul class="text-sm leading-relaxed text-[color:var(--color-text)] list-disc list-inside space-y-1 pl-2">
         <li><code class="text-[color:var(--color-signal-cyan)]">re_processing</code> — bytes changed, no visible content change (re-encoding, re-render, format conversion, font subsetting, embedded metadata changes a reader can't see).</li>
         <li><code class="text-[color:var(--color-signal-amber)]">procedural_correction</code> — non-destructive change to improve usability or correctness (rotation for readability, declared typo fix, re-scan for image quality) — text or layout did change but not editorially distorting.</li>
-        <li><code style="color: #ef6a5b;">content_change</code> — content actually changed in a way that matters editorially (new redactions, paragraphs added/removed, dates or named entities edited, substantive rewrites declared or otherwise).</li>
+        <li><code class="text-[color:var(--color-signal-red)]">content_change</code> — content actually changed in a way that matters editorially (new redactions, paragraphs added/removed, dates or named entities edited, substantive rewrites declared or otherwise).</li>
       </ul>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         Filterable, not load-bearing on hiding. Both versions of every

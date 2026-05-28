@@ -107,6 +107,17 @@ describe("archiveHrefFromKey", () => {
     assert.throws(() => archiveHrefFromKey(`archive/${sha}`));
   });
 
+  test("rejects out-of-allowlist extensions (.exe, .html, typo'd .pfd)", () => {
+    // Laverna PR #79 round-5 P2-1 / Vaivora P2 #2: regex narrowed
+    // from `[a-z0-9]+` to a worker-served allowlist. Catches both
+    // attacker-shaped extensions and operator typos that produce
+    // 404s instead of failing the build.
+    const sha = "e".repeat(64);
+    assert.throws(() => archiveHrefFromKey(`archive/${sha}.exe`));
+    assert.throws(() => archiveHrefFromKey(`archive/${sha}.html`));
+    assert.throws(() => archiveHrefFromKey(`archive/${sha}.pfd`));
+  });
+
   test("error message names the bad key", () => {
     try {
       archiveHrefFromKey("garbage");

@@ -34,7 +34,12 @@ export function sizeDeltaPct(prior: number, current: number): string {
   return `${sign}${pct.toFixed(1)}%`;
 }
 
-const ARCHIVE_KEY_PATTERN = /^archive\/[0-9a-f]{64}\.[a-z0-9]+$/;
+// Tightened extension class to the allowlist the worker actually
+// serves (Laverna PR #79 round-5 P2-1 / Vaivora P2 #2). Prior
+// `[a-z0-9]+` would have passed `.exe`, `.html`, or `.pfd` (typo
+// of .pdf) which the worker then 404s on. Add a new extension here
+// in lockstep with the worker's allowlist.
+const ARCHIVE_KEY_PATTERN = /^archive\/[0-9a-f]{64}\.(pdf|mp4|jpg|png|webp)$/;
 
 /**
  * Convert a registry ``archive_key`` to its public URL path.
@@ -59,20 +64,15 @@ export function archiveHrefFromKey(key: string): string {
 
 /**
  * Whitelist of valid v2 category strings rendered into CSS class
- * names by the /altered/ pages. Operator-attested data is closed-
- * vocabulary at the schema layer (AlteredCategoryV2 Literal in
- * pursue-curate), but the consumer doesn't import that schema —
- * Laverna PR #79 P2-2: guard at the rendering boundary so a future
- * typo can't silently break the class binding.
+ * names by the /altered/ pages. Vaivora PR #79 round-5 P1 #1:
+ * single source of truth lives in verdict-bundle-schema.ts —
+ * imported here so the render-gate and the schema-gate can't drift
+ * when curate adds a category.
  */
-const VALID_V2_CATEGORIES = new Set([
-  "re_processing",
-  "procedural_correction",
-  "content_change",
-]);
+import { V2_CATEGORY_SET } from "./verdict-bundle-schema.ts";
 
 export function categoryClass(category: string | null | undefined): string {
-  if (category && VALID_V2_CATEGORIES.has(category)) {
+  if (category && V2_CATEGORY_SET.has(category)) {
     return `altered-cat-${category}`;
   }
   // Fallback aligns with categorySlug() — single vocabulary across
@@ -95,6 +95,6 @@ export function categoryClass(category: string | null | undefined): string {
  * DOM-attribute boundary.
  */
 export function categorySlug(category: string | null | undefined): string {
-  if (category && VALID_V2_CATEGORIES.has(category)) return category;
+  if (category && V2_CATEGORY_SET.has(category)) return category;
   return "unverified";
 }

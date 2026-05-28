@@ -20,7 +20,7 @@ import {
   EXPECTED_VERDICT_SCHEMA,
   assertBundleSchema,
   assertBundleStatsConsistent,
-} from "./verdict-bundle-schema";
+} from "./verdict-bundle-schema.ts";
 
 export { EXPECTED_BUNDLE_SCHEMA, EXPECTED_VERDICT_SCHEMA };
 
