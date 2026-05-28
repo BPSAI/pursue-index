@@ -96,16 +96,30 @@ const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 /** Allowed extensions for the /archive/ route. Strict allowlist to
  * prevent serving arbitrary R2 keys (e.g., scripts, executables).
  *
- * Tracks the asset-bytes-registry. Today's preserved formats (audit
- * via ``jq -r '.archive_key' data/asset-bytes-registry.jsonl | grep
- * -oE '\\.[a-zA-Z0-9]+$' | sort | uniq -c``): 188 PDFs, 28 MP4s, 8
- * PNGs, 6 JPGs.
+ * Currently-mapped formats:
+ *   - pdf  application/pdf  (188 today — primary archive type)
+ *   - mp4  video/mp4        (28 today — added PR #71 after Codex
+ *                            flagged 9 cards with .mp4 archive_keys
+ *                            were 400ing in /altered + card banners)
+ *   - png  image/png        (8 today)
+ *   - jpg  image/jpeg       (6 today)
+ *   - jpeg image/jpeg       (0 today — allowlisted for future scrapes
+ *                            that report ``.jpeg`` rather than ``.jpg``)
+ *   - gif  image/gif        (0 today — allowlisted defensively for
+ *                            historical image formats)
+ *   - webp image/webp       (0 today — allowlisted for modern image
+ *                            scrapes / re-encoded archives)
  *
- * MP4 added in the PR #71 fix-pass after Codex flagged that 9 cards
- * (11% of byte-history) had `.mp4` archive_keys — without this entry
- * the /altered + card banners surfaced links that returned 400.
+ * Audit registry distribution via:
+ *   jq -r '.archive_key' data/asset-bytes-registry.jsonl \
+ *     | grep -oE '\.[a-zA-Z0-9]+$' | sort | uniq -c
+ *
+ * Single source of truth — the consumer-side regex in
+ * web/src/lib/byte-display.ts imports this at build time (via the
+ * colocated test) so the two sides can't drift. Nayru PR #79
+ * round-6 P1 / round-7 P2 (docstring expansion).
  */
-const ARCHIVE_EXT_TO_CONTENT_TYPE = {
+export const ARCHIVE_EXT_TO_CONTENT_TYPE = {
   pdf: "application/pdf",
   png: "image/png",
   jpg: "image/jpeg",

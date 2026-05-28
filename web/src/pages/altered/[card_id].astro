@@ -1,0 +1,202 @@
+---
+/**
+ * /altered/<card_id>/ — per-card byte-history detail page.
+ *
+ * Replaces the deleted v1.2.2-era per-card diff pages. Renders the
+ * byte_sha timeline plus operator commentary (category + freeform
+ * rationale) for one multi-sha card.
+ *
+ * NO OCR text diffs — those were the misleading part of the v1.2.2
+ * surface and stay retired. A reader who wants to compare OCR text
+ * between byte versions can fetch each /archive/<sha>.<ext> URL
+ * directly and run their own comparison.
+ *
+ * Source plan: pursue-opsec/findings/2026-05-27-altered-surface-un-retirement-and-verdict-vocabulary.md
+ * §"Per-card detail page (/altered/<card_id>/)".
+ */
+import Base from "../../layouts/Base.astro";
+import byteHistoryJson from "../../data/byte-history.json";
+import { manifest } from "../../data/manifest-loader";
+import {
+  archiveHrefFromKey,
+  categoryClass,
+  formatBytes,
+  sizeDeltaPct,
+} from "../../lib/byte-display";
+import { loadVerdictBundle } from "../../lib/verdict-bundle";
+
+// Shared loader applies the bundle_schema_version assert (Vaivora
+// PR #79 round-2 P1-2 — previously the detail page silently
+// degraded on a schema bump; now fails the build alongside the
+// listing page).
+const bundle = loadVerdictBundle();
+
+type ByteHistoryEntry = {
+  byte_sha256: string;
+  byte_size: number;
+  fetched_at: string;
+  archive_key: string;
+  asset_filename: string | null;
+  is_current: boolean;
+};
+
+type VerdictRecord = {
+  card_id: string;
+  category?: string;
+  rationale?: string;
+  decided_at?: string;
+  operator?: string;
+};
+
+const byteHistory = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
+const verdicts = bundle.verdicts as Record<string, VerdictRecord>;
+
+export function getStaticPaths() {
+  // One detail page per multi-sha card in byte-history.json. Cards
+  // without a verdict still get a page — the "(operator review
+  // pending)" framing is part of the surface's facts-only design.
+  const bh = byteHistoryJson as Record<string, ByteHistoryEntry[]>;
+  return Object.keys(bh).map((cardId) => ({
+    params: { card_id: cardId },
+    props: { cardId },
+  }));
+}
+
+interface Props {
+  cardId: string;
+}
+
+const { cardId } = Astro.props as Props;
+const history = byteHistory[cardId];
+const verdict = verdicts[cardId];
+const card = manifest.cards.find((c) => c.card_id === cardId);
+const titleStr = card?.title ?? "(unknown)";
+
+// History is newest-first per build_byte_history.mjs.
+const latest = history[0];
+const first = history[history.length - 1];
+const sizeDelta = sizeDeltaPct(first.byte_size, latest.byte_size);
+
+const pageTitle = `/altered/${cardId.slice(0, 12)}… · byte-history`;
+const description =
+  `Byte-history for card ${cardId}: ${history.length} preserved version${history.length === 1 ? "" : "s"}, ` +
+  `${verdict?.category ? `operator category ${verdict.category}` : "operator review pending"}.`;
+---
+
+<Base title={pageTitle} description={description} active="altered">
+  <main class="font-mono text-sm leading-relaxed max-w-3xl mx-auto px-4 py-12 space-y-6">
+    <header class="space-y-2 border-b border-[color:var(--color-border)] pb-4">
+      <p class="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-text-faint)]">
+        <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a>{" "}
+        / <code class="text-[10px]">{cardId}</code>
+      </p>
+      <h1 class="text-xl text-[color:var(--color-text-bright)]">{titleStr}</h1>
+      <p class="text-[10px] text-[color:var(--color-text-faint)]">
+        {history.length} preserved version{history.length === 1 ? "" : "s"} ·{" "}
+        {formatBytes(first.byte_size)} → {formatBytes(latest.byte_size)} ({sizeDelta})
+      </p>
+    </header>
+
+    <section class="space-y-3">
+      <h2 class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+        Byte-history timeline
+      </h2>
+      <ol class="space-y-2 border-l border-[color:var(--color-border)] pl-4">
+        {history.map((entry, idx) => (
+          <li class="space-y-1">
+            <div class="flex flex-wrap items-baseline gap-2">
+              <code class="text-xs text-[color:var(--color-signal-cyan)]">
+                <a href={archiveHrefFromKey(entry.archive_key)} class="underline hover:text-[color:var(--color-text-bright)]">
+                  {entry.byte_sha256.slice(0, 16)}…
+                </a>
+              </code>
+              {entry.is_current && (
+                <span class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
+                  ● current
+                </span>
+              )}
+              {idx === history.length - 1 && history.length > 1 && (
+                <span class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+                  first observed
+                </span>
+              )}
+            </div>
+            <p class="text-[10px] text-[color:var(--color-text-dim)]">
+              fetched {entry.fetched_at.slice(0, 19).replace("T", " ")} UTC ·{" "}
+              {formatBytes(entry.byte_size)}
+              {entry.asset_filename && (
+                <span class="text-[color:var(--color-text-faint)]"> · {entry.asset_filename}</span>
+              )}
+            </p>
+          </li>
+        ))}
+      </ol>
+      <p class="text-[10px] text-[color:var(--color-text-faint)]">
+        All byte versions are content-addressed at <code>/archive/&lt;sha&gt;.&lt;ext&gt;</code> — the
+        integrity claim is that every version we ever captured is still reachable here.
+      </p>
+    </section>
+
+    <section class="space-y-3 border border-[color:var(--color-border)] p-4 bg-[color:var(--color-bg-deep)]/40">
+      <h2 class="text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)]">
+        Operator commentary
+      </h2>
+      {verdict?.category ? (
+        <div class="space-y-2">
+          <p>
+            <span class="text-[10px] text-[color:var(--color-text-faint)] uppercase tracking-[0.2em]">
+              category:
+            </span>{" "}
+            <code class={`text-xs ${categoryClass(verdict.category)}`}>{verdict.category}</code>
+            {verdict.verdict && (
+              <span class="ml-3 text-[10px] text-[color:var(--color-text-faint)]">
+                <span class="uppercase tracking-[0.2em]">v1 verdict (deprecated):</span>{" "}
+                <code class="text-[10px]">{verdict.verdict}</code>
+              </span>
+            )}
+          </p>
+          {verdict.rationale && (
+            <p class="text-xs text-[color:var(--color-text-dim)] leading-relaxed whitespace-pre-line">
+              {verdict.rationale}
+            </p>
+          )}
+          {verdict.decided_at && (
+            <p class="text-[10px] text-[color:var(--color-text-faint)]">
+              attested by {verdict.operator ?? "primary"} at{" "}
+              {verdict.decided_at.slice(0, 19).replace("T", " ")} UTC
+            </p>
+          )}
+          <p class="text-[10px] text-[color:var(--color-text-faint)]">
+            <em>category</em> is the operator's v2 attestation;{" "}
+            <em>v1 verdict</em> is the deprecated one-cycle backcompat field — a
+            <code class="text-[10px]"> procedural_correction</code> card with a declared
+            upstream typo correction will carry <code class="text-[10px]">verdict: false_positive</code>
+            (v1 binary framing: "not an unauthorized content edit") even though the bytes
+            and a few characters of text did change. <em>category</em> is the authoritative read.
+          </p>
+        </div>
+      ) : (
+        <p class="text-xs text-[color:var(--color-text-dim)]">
+          <em>(operator review pending)</em>
+        </p>
+      )}
+    </section>
+
+    <section class="space-y-2 text-[color:var(--color-text-dim)]">
+      <p class="text-xs">
+        For the current OCR text and reader-mode view of this card, see{" "}
+        <a href={`/card/${cardId}/`} class="text-[color:var(--color-signal-cyan)] underline">
+          /card/{cardId}/
+        </a>.
+      </p>
+      <p class="text-[10px] text-[color:var(--color-text-faint)]">
+        This page intentionally does not render OCR text diffs between byte versions.
+        The v1.2.2 retirement of /altered/ correctly removed those — OCR variance on
+        visually-identical scans was being rendered as "exact text changes." If you
+        want to compare OCR between two versions, fetch each <code>/archive/&lt;sha&gt;.&lt;ext&gt;</code>{" "}
+        URL and run your own comparison.
+      </p>
+    </section>
+  </main>
+
+</Base>

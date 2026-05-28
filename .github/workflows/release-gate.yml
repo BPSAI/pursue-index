@@ -38,7 +38,49 @@ on:
       - "web/public/data/snapshots/**"
       - "data/card-aliases.json"
       - "web/src/content/finds/**"
-      - "web/src/data/altered-diffs.json"
+      # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
+      # bundle, mutating byte-history, or editing the exclusion file
+      # all need the URL-stability / stale-exclusion / bundle-symmetry
+      # invariants to fire before deploy. Replaced the stale
+      # `web/src/data/altered-diffs.json` entry (file retired in
+      # v1.2.2). Vaivora PR #79 round-3 P1 #2.
+      - "data/byte-history-exclusions.json"
+      - "data/asset-bytes-registry.jsonl"
+      - "web/src/data/byte-history.json"
+      - "web/src/data/verdict-bundle.json"
+      # Vaivora PR #79 round-4 P1 #2: schema-gate-relevant lib +
+      # build-script files. A pure-code change to
+      # EXPECTED_BUNDLE_SCHEMA / EXPECTED_VERDICT_SCHEMA, the
+      # V2_CATEGORIES vocab, the archive-key regex, or the
+      # exclusion builder would otherwise bypass the very test
+      # suite that verifies them. Not every web/src/lib/** file is
+      # listed — manifest-loader.ts intentionally fires via
+      # manifest.json changes since it's a thin re-exporter (per
+      # Vaivora round-6 P2 #3).
+      - "web/src/lib/verdict-bundle*.ts"
+      - "web/src/lib/byte-display.ts"
+      - "web/scripts/build_byte_history.mjs"
+      - "web/scripts/build_byte_history.test.mjs"
+      # Vaivora PR #79 round-7 P1 + round-9 P1 #1: the lockstep
+      # test in web/src/lib/byte-display.test.ts imports
+      # ARCHIVE_EXT_TO_CONTENT_TYPE from worker/pdf.js. Use a
+      # broader glob (was the exact path) so a future refactor
+      # that moves the constant to a sibling worker/*.js file
+      # (e.g., worker/contracts/archive-mime.js) keeps firing the
+      # gate. Worker is small; over-triggering cost is negligible
+      # vs. the silent-drift risk.
+      - "worker/**/*.js"
+      # Vaivora PR #79 round-5 P2 #1: Astro page changes that
+      # refactor pill filters, change cross-link targets, or remove
+      # categoryClass() calls should fire the gate even if no data
+      # or lib file changes.
+      - "web/src/pages/altered.astro"
+      - "web/src/pages/altered/**"
+      - "web/src/pages/card/[card_id].astro"
+      # Nayru PR #79 round-5 P2 #4: a PR that edits the gate itself
+      # should fire the gate. Otherwise editing this file is the one
+      # untestable change in the repo.
+      - ".github/workflows/release-gate.yml"
   workflow_dispatch:
 
 permissions:
@@ -85,31 +127,53 @@ jobs:
         # and bot-opened entries pass through this gate identically.
         run: pytest tests/unit/test_finds_validator.py -v
 
-      - name: 5c — Size gate on altered-diffs.json
-        # The diff payload is SSR-imported by /altered/<card_id>.astro.
-        # A future tranche tripling the corpus would OOM the Astro
-        # build. Trip the gate at ~2x growth so the operator can switch
-        # to keyed-per-card JSON before deploy breaks (Sprint 4i #7).
-        run: pytest tests/unit/test_altered_diffs_size.py -v
-
       # ---------------------------------------------------------------
       # Build-dependent gates — need npm + Astro to produce web/dist/.
       # ---------------------------------------------------------------
       # actions/setup-node v6.4.0 — pinned to SHA per SEC-001.
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
-          node-version: "20"
+          # Vaivora PR #79 round-8 P0: bumped from "20" to match
+          # web/package.json:engines ">=22.12.0". The new step 5c
+          # invokes `npm run test:lib` which runs
+          # `node --test src/lib/*.ts` files — native TypeScript
+          # stripping needs Node ≥22.6 (default ≥22.18). The old
+          # gate never ran test:lib so this is the first time the
+          # mismatch would have fired.
+          node-version: "22.12"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
       - name: Install web deps + build
         # `npm ci` is reproducible from the committed lockfile; `npm
         # install` would float minor versions. Build output lands in
-        # web/dist/ for the coverage tests below.
+        # web/dist/ for the test-api-page snapshot + the coverage
+        # tests below. The verdict-bundle.ts module runs
+        # assertBundleSchema + assertBundleStatsConsistent at module
+        # scope on first import (Vaivora PR #79 round-4 P1 #1 — the
+        # asserts moved OUT of loadVerdictBundle() so they fire on
+        # import regardless of consumer call patterns); a bundle
+        # drift fails this step loudly.
         working-directory: web
         run: |
           npm ci
           npm run build
+
+      - name: 5c — ALTR invariant tests (strict mode)
+        # The URL-stability / stale-exclusion / bundle-symmetry /
+        # byte-history-vs-manifest / schema-gate tests are the
+        # recurrence-detector gates for the 2026-05-11 pipeline
+        # misroute event and the follow-on schema drift.
+        # PURSUE_STRICT_INVARIANTS=1 turns the file-missing skip
+        # path in the byte-history tests into a hard fail so CI
+        # can't pass on stripped data. Scoped to test:byte-history
+        # + test:lib only (Nayru PR #79 round-4 P1): no point
+        # re-running test:api-page or the build-script unit tests
+        # here — they cover unrelated surfaces.
+        working-directory: web
+        env:
+          PURSUE_STRICT_INVARIANTS: "1"
+        run: npm run test:byte-history && npm run test:lib
 
       - name: 6a — Card-page coverage (every manifest card_id → dist page)
         run: pytest tests/integration/test_card_page_coverage.py -v

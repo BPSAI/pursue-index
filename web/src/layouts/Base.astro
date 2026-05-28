@@ -147,6 +147,11 @@ const navItems = [
   { href: `${base}/atlas`, label: "ATLAS", key: "atlas" },
   { href: `${base}/timeline`, label: "TIMELINE", key: "timeline" },
   { href: `${base}/diff`, label: "DIFF", key: "diff" },
+  // ALTR Phase 2 (v1.3.0) — restored /altered/ as a facts-only
+  // listing. Codex PR #79 P3: the page passed active="altered"
+  // but had no navItems entry, so the surface was reachable
+  // only by direct URL or per-card banner links.
+  { href: `${base}/altered`, label: "ALTERED", key: "altered" },
   { href: `${base}/removed`, label: "REMOVED", key: "removed" },
   { href: `${base}/about`, label: "ABOUT", key: "about" },
   { href: `${base}/methodology`, label: "METHODOLOGY", key: "methodology" },

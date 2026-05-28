@@ -12,7 +12,13 @@ import {
   breadcrumbJsonLd,
   SITE_ORIGIN,
 } from "../../lib/seo";
-import { formatBytes, sizeDeltaPct } from "../../lib/byte-display.ts";
+import {
+  archiveHrefFromKey,
+  categoryClass,
+  formatBytes,
+  sizeDeltaPct,
+} from "../../lib/byte-display.ts";
+import { loadVerdictBundle } from "../../lib/verdict-bundle.ts";
 // Native ES imports for build-time data (matches diff.astro + the
 // timeline.astro fix on 2026-05-15; the readFileSync pattern was
 // unreliable on the Cloudflare Pages build context).
@@ -23,6 +29,13 @@ import displayDatesJson from "../../../../data/display_dates.json";
 // byte_sha256 in the asset-bytes-registry. Drives the "bytes changed
 // upstream" banner below.
 import byteHistoryJson from "../../data/byte-history.json";
+// Sprint 5c (ALTR Phase 2): operator commentary for the byte-history
+// banner. Replaces the prior card-non-specific "re-encoding, re-scan,
+// or rotation" prose with the per-card category + rationale preview.
+// loadVerdictBundle applies the bundle_schema_version assert (Vaivora
+// PR #79 round-2 P1-2). Direct JSON import without the gate would
+// silently degrade if curate ever ships v3 without coordinated rewrite.
+const verdictBundleData = loadVerdictBundle();
 
 // Page-1 OCR text snippet for the DigitalDocument JSON-LD body. Read
 // once at module-evaluation time from pages.json via fs (not ES
@@ -260,11 +273,35 @@ const currentByteEntry = hasByteEdits ? byteHistory[0] : null;
 const priorByteEntries = hasByteEdits ? byteHistory.slice(1) : [];
 const mostRecentEditDate = currentByteEntry?.fetched_at?.slice(0, 10) ?? "";
 
-function archiveHrefFromKey(key: string): string {
-  // archive_key in registry has the form ``archive/<sha>.<ext>``.
-  // The worker route is mounted at ``/archive/<sha>.<ext>``.
-  return `/${key}`;
-}
+// archiveHrefFromKey now imported from byte-display.ts — Vaivora
+// PR #79 round-2 P1-1 / Laverna P2-1: the local stub was permissive
+// (just prepended "/"), so a malformed archive_key produced a
+// build-time error on /altered/* pages but a broken-link runtime
+// artifact on /card/<id>/. Shared regex-validated helper enforces
+// the same shape contract across all three consumers.
+
+// ALTR Phase 2: per-card operator commentary from the v3 verdict
+// bundle. Source plan §"Card-detail page banner update" — replaces
+// the prior overreaching card-non-specific prose with the card's
+// own category + first ~120 chars of rationale, or "(pending)" if
+// no verdict exists for this card_id.
+const RATIONALE_BANNER_CHARS = 120;
+const verdictForThisCard = (
+  verdictBundleData.verdicts as Record<string, { category?: string; rationale?: string }>
+)[card.card_id];
+const banner = (() => {
+  if (!verdictForThisCard?.category) {
+    return { category: null as string | null, rationalePreview: "(pending)" };
+  }
+  // Collapse whitespace before slicing — Nayru PR #79 round-7 P2:
+  // operator rationale may contain newlines that would inject line
+  // breaks into the inline banner <span>. Normalize first.
+  const rat = (verdictForThisCard.rationale ?? "").replace(/\s+/g, " ").trim();
+  const preview = rat.length > RATIONALE_BANNER_CHARS
+    ? rat.slice(0, RATIONALE_BANNER_CHARS).trimEnd() + "…"
+    : rat;
+  return { category: verdictForThisCard.category, rationalePreview: preview };
+})();
 
 const pageTitle = `${card.title.slice(0, 60)}${card.title.length > 60 ? "…" : ""} — PURSUE://INDEX`;
 
@@ -406,10 +443,22 @@ const cardJsonLd = [
             </ul>
             <p class="text-[10px] text-[color:var(--color-text-faint)] space-y-1">
               <span class="block">
-                Operator review (
-                <a href="/altered/" class="text-[color:var(--color-signal-cyan)] underline">/altered</a>
-                ) found these byte changes were re-encoding, re-scan, or rotation —
-                not content edits. The preserved bytes above are the receipt.
+                See{" "}
+                <a href={`/altered/${card.card_id}/`} class="text-[color:var(--color-signal-cyan)] underline">
+                  /altered/{card.card_id.slice(0, 12)}…
+                </a>{" "}
+                for the full byte history.
+                {banner.category ? (
+                  <span>
+                    {" "}Operator commentary on this card:{" "}
+                    <code class={`text-[10px] ${categoryClass(banner.category)}`}>{banner.category}</code>
+                    {banner.rationalePreview && (
+                      <span class="text-[color:var(--color-text-dim)]"> — {banner.rationalePreview}</span>
+                    )}
+                  </span>
+                ) : (
+                  <span> Operator commentary: <em>{banner.rationalePreview}</em>.</span>
+                )}
               </span>
             </p>
           </aside>

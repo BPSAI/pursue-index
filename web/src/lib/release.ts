@@ -250,14 +250,18 @@ function countByEngine(): Record<string, number> {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.2.6 — simplify the ODNI
-  // upstream-correction footnote: drop the "declared vs silent"
-  // taxonomy framing. Bytes changed is bytes changed regardless
-  // of upstream motive; the footnote now just reports the byte
-  // history and what the upstream change was. Architecture
-  // follow-up: un-retire /altered/ as a facts-only surface
-  // (queued, not in this release).
-  version: "v1.2.6",
+  // Bumped manually per release. v1.3.0 — un-retire /altered/ as a
+  // facts-only surface. Listing page restored at /altered/ (71 cards
+  // with upstream byte changes since first capture); per-card detail
+  // pages at /altered/<card_id>/ with byte-history timeline +
+  // operator-attached category commentary (re_processing /
+  // procedural_correction / content_change). Card-detail banner
+  // updated with card-specific commentary preview pointing at the
+  // detail page. Methodology page documents the bytes-changed-as-
+  // fact framing. Source plan: pursue-opsec/findings/
+  // 2026-05-27-altered-surface-un-retirement-and-verdict-vocabulary.md.
+  // Minor bump (not a patch) since this restores a public surface.
+  version: "v1.3.0",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,

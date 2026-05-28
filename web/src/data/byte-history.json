@@ -269,24 +269,6 @@
       "is_current": false
     }
   ],
-  "3746998b8c506e5c": [
-    {
-      "byte_sha256": "7078d96f334dbf396e0e0a141f943009fe2191cd20842e16ee381bcbc2776c43",
-      "byte_size": 897434,
-      "fetched_at": "2026-05-12T02:20:14.650911+00:00",
-      "archive_key": "archive/7078d96f334dbf396e0e0a141f943009fe2191cd20842e16ee381bcbc2776c43.pdf",
-      "asset_filename": "dow-uap-d33-mission-report-greece-october-2023.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "34eb85ab42bb6ce5d376c02fd2db4eee0211864ed3bcd8a8247a08fe0da8c99e",
-      "byte_size": 198248609,
-      "fetched_at": "2026-05-11T17:46:04+00:00",
-      "archive_key": "archive/34eb85ab42bb6ce5d376c02fd2db4eee0211864ed3bcd8a8247a08fe0da8c99e.mp4",
-      "asset_filename": "DOD_111689011.mp4",
-      "is_current": false
-    }
-  ],
   "3a5445e8aa7985d4": [
     {
       "byte_sha256": "92e6279262cc580978f5fd2bf9a0d1f1eb0e22326e6c2354fec861f174c7d611",
@@ -320,42 +302,6 @@
       "fetched_at": "2026-05-12T02:22:24.069150+00:00",
       "archive_key": "archive/76bc12588922fca7ef9019f1c809a07e3a159cb1d789013f6acbfcd893935b6a.pdf",
       "asset_filename": "fbi-photo-b16.pdf",
-      "is_current": false
-    }
-  ],
-  "43db2719407a7897": [
-    {
-      "byte_sha256": "1822564fbae08f152ad4541c8d067a6ec3b6014c4b4eb8209604e1facb5e1bb3",
-      "byte_size": 7463660,
-      "fetched_at": "2026-05-12T02:19:50.794556+00:00",
-      "archive_key": "archive/1822564fbae08f152ad4541c8d067a6ec3b6014c4b4eb8209604e1facb5e1bb3.pdf",
-      "asset_filename": "dow-uap-d14-mission-report-iraq-may-2022.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "af62b4e40a2eb0fd39f98093be2a6ae50271a011e7d5caca2119b26aaabc1212",
-      "byte_size": 12752210,
-      "fetched_at": "2026-05-11T17:45:44+00:00",
-      "archive_key": "archive/af62b4e40a2eb0fd39f98093be2a6ae50271a011e7d5caca2119b26aaabc1212.mp4",
-      "asset_filename": "DOD_111688762.mp4",
-      "is_current": false
-    }
-  ],
-  "4555d94dd6067f57": [
-    {
-      "byte_sha256": "b3b3f023d70bcce3178de9fe6a019ea6db5e5145bc7e28a49308442e190ef817",
-      "byte_size": 6999240,
-      "fetched_at": "2026-05-12T02:19:53.368470+00:00",
-      "archive_key": "archive/b3b3f023d70bcce3178de9fe6a019ea6db5e5145bc7e28a49308442e190ef817.pdf",
-      "asset_filename": "dow-uap-d16-mission-report-syria-july-2022.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "17106a65c823fb0c4c55f41be31f863f18300bd858f536726ea6f9f3cf35ac8c",
-      "byte_size": 3982264,
-      "fetched_at": "2026-05-11T17:45:46+00:00",
-      "archive_key": "archive/17106a65c823fb0c4c55f41be31f863f18300bd858f536726ea6f9f3cf35ac8c.mp4",
-      "asset_filename": "DOD_111688775.mp4",
       "is_current": false
     }
   ],
@@ -647,24 +593,6 @@
       "is_current": false
     }
   ],
-  "88a20bf256ccce7a": [
-    {
-      "byte_sha256": "90b353682ba2181149054d0911b7553e58e959438dd4de531a06fc387a332f85",
-      "byte_size": 342668,
-      "fetched_at": "2026-05-12T02:20:18.609529+00:00",
-      "archive_key": "archive/90b353682ba2181149054d0911b7553e58e959438dd4de531a06fc387a332f85.pdf",
-      "asset_filename": "dow-uap-d38-range-fouler-debrief-middle-east-may-2020.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "5f32ce0126de2c9571f2af368b2629c15b4f1cb3582700641ef31c1d1a8ceac8",
-      "byte_size": 142686223,
-      "fetched_at": "2026-05-11T17:46:10+00:00",
-      "archive_key": "archive/5f32ce0126de2c9571f2af368b2629c15b4f1cb3582700641ef31c1d1a8ceac8.mp4",
-      "asset_filename": "DOD_111689030.mp4",
-      "is_current": false
-    }
-  ],
   "8bb54e0aec5e91ad": [
     {
       "byte_sha256": "61f7e6594e7ab6959503214c73a2a591dc231a14ba92df8e36d0bb0a0fbd6691",
@@ -806,24 +734,6 @@
       "fetched_at": "2026-05-12T02:23:26.897565+00:00",
       "archive_key": "archive/64847feac6a309a847a39689ed2036e556f35a253189c7b9b33bd9d40b26b239.pdf",
       "asset_filename": "dos-uap-d2-cable-2-kazakhstan-january-1994.pdf",
-      "is_current": false
-    }
-  ],
-  "9961adf6adf1010b": [
-    {
-      "byte_sha256": "4752dd830144b21c3055a2fea8b44c551445b41622c27db64fb0fa07c2dcd93d",
-      "byte_size": 3673697,
-      "fetched_at": "2026-05-12T02:19:55.632670+00:00",
-      "archive_key": "archive/4752dd830144b21c3055a2fea8b44c551445b41622c27db64fb0fa07c2dcd93d.pdf",
-      "asset_filename": "dow-uap-d18-mission-report-iraq-december-2022.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "d6a177a7004837546b8e3ea12ad0e632d9c31eabca427e05ae6eb9d4e4493f47",
-      "byte_size": 5300653,
-      "fetched_at": "2026-05-11T17:45:46+00:00",
-      "archive_key": "archive/d6a177a7004837546b8e3ea12ad0e632d9c31eabca427e05ae6eb9d4e4493f47.mp4",
-      "asset_filename": "DOD_111688809.mp4",
       "is_current": false
     }
   ],
@@ -1079,24 +989,6 @@
       "is_current": false
     }
   ],
-  "c1c59236394f7b14": [
-    {
-      "byte_sha256": "f9deed9063306b0c45a5a0f6b754db6967f7dc3a0ed66097f154be4b0f033399",
-      "byte_size": 663290,
-      "fetched_at": "2026-05-12T02:19:46.202853+00:00",
-      "archive_key": "archive/f9deed9063306b0c45a5a0f6b754db6967f7dc3a0ed66097f154be4b0f033399.pdf",
-      "asset_filename": "dow-uap-d10-mission-report-middle-east-may-2022.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "a38432ae56298abadf50de06103a6fbd591ea539e124ab1db25a4a511468cfb6",
-      "byte_size": 6814452,
-      "fetched_at": "2026-05-11T17:45:44+00:00",
-      "archive_key": "archive/a38432ae56298abadf50de06103a6fbd591ea539e124ab1db25a4a511468cfb6.mp4",
-      "asset_filename": "DOD_111688723.mp4",
-      "is_current": false
-    }
-  ],
   "c48c078b811c0fd7": [
     {
       "byte_sha256": "257e2388f838975fcee0b00a381059e903e64018b7aafb7a12e5392437154f5f",
@@ -1133,24 +1025,6 @@
       "is_current": false
     }
   ],
-  "c788c17e8cc32230": [
-    {
-      "byte_sha256": "b4f4f4ce6dc7687a543905990671f999cd6c5a9e579159bfda501bf6d04f4445",
-      "byte_size": 1415369,
-      "fetched_at": "2026-05-12T02:20:16.573791+00:00",
-      "archive_key": "archive/b4f4f4ce6dc7687a543905990671f999cd6c5a9e579159bfda501bf6d04f4445.pdf",
-      "asset_filename": "dow-uap-d35-mission-report-greece-october-2023.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "670077e60bca959cde784ae1595688d645397804d811a7f5a85912c60045d471",
-      "byte_size": 2406930,
-      "fetched_at": "2026-05-11T17:46:06+00:00",
-      "archive_key": "archive/670077e60bca959cde784ae1595688d645397804d811a7f5a85912c60045d471.mp4",
-      "asset_filename": "DOD_111689022.mp4",
-      "is_current": false
-    }
-  ],
   "ccd932b4f40e8de7": [
     {
       "byte_sha256": "829f0a7381883c14261023832fedb51259a06d50eae7ba13ca21b9b9c5b45713",
@@ -1166,32 +1040,6 @@
       "fetched_at": "2026-05-12T02:22:51.512045+00:00",
       "archive_key": "archive/4f3122c323c6c0b6ef1bb12cefc623d7488b03fe1c5161f4ea4e111b91347684.pdf",
       "asset_filename": "fbi-photo-b7.pdf",
-      "is_current": false
-    }
-  ],
-  "d8e5687dc870892d": [
-    {
-      "byte_sha256": "ea1cd5296143f378db533066b524c32c1ecfbfd43d74ec6be7d832c20fa271bb",
-      "byte_size": 1324277,
-      "fetched_at": "2026-05-12T02:20:01.628722+00:00",
-      "archive_key": "archive/ea1cd5296143f378db533066b524c32c1ecfbfd43d74ec6be7d832c20fa271bb.pdf",
-      "asset_filename": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "3c510fe34677a0784c656105b9653ce3039d83de46f929f1ee6d6fb820ce3b8c",
-      "byte_size": 155885289,
-      "fetched_at": "2026-05-11T17:45:52+00:00",
-      "archive_key": "archive/3c510fe34677a0784c656105b9653ce3039d83de46f929f1ee6d6fb820ce3b8c.mp4",
-      "asset_filename": "DOD_111688825.mp4",
-      "is_current": false
-    },
-    {
-      "byte_sha256": "46fdeec860cdaa6b27b6fcc51d0b7e045347d494832cdc65f2038e702eaa58aa",
-      "byte_size": 27493716,
-      "fetched_at": "2026-05-11T17:45:46+00:00",
-      "archive_key": "archive/46fdeec860cdaa6b27b6fcc51d0b7e045347d494832cdc65f2038e702eaa58aa.mp4",
-      "asset_filename": "DOD_111688816.mp4",
       "is_current": false
     }
   ],
@@ -1264,40 +1112,6 @@
       "fetched_at": "2026-05-12T02:23:38.882148+00:00",
       "archive_key": "archive/4f462fefe8f38e6445f652067ff0ba418e6b0d4f38ce73b5c8190e857fe352ed.pdf",
       "asset_filename": "serial-3_redacted.pdf",
-      "is_current": false
-    }
-  ],
-  "ea029a05470b8f4e": [
-    {
-      "byte_sha256": "fd4deb1e48fcfa7fd2370b6459877882e6d6fdd0226ecaa881a45fba690172df",
-      "byte_size": 651740,
-      "fetched_at": "2026-05-12T02:20:12.521075+00:00",
-      "archive_key": "archive/fd4deb1e48fcfa7fd2370b6459877882e6d6fdd0226ecaa881a45fba690172df.pdf",
-      "asset_filename": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
-      "is_current": true
-    },
-    {
-      "byte_sha256": "74bd47f0b608c19367b673ba186071db725719eebc7c7b251b8ef2b944c6427e",
-      "byte_size": 1834659,
-      "fetched_at": "2026-05-11T17:45:56+00:00",
-      "archive_key": "archive/74bd47f0b608c19367b673ba186071db725719eebc7c7b251b8ef2b944c6427e.mp4",
-      "asset_filename": "DOD_111688997.mp4",
-      "is_current": false
-    },
-    {
-      "byte_sha256": "5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9",
-      "byte_size": 426911,
-      "fetched_at": "2026-05-11T17:45:56+00:00",
-      "archive_key": "archive/5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9.mp4",
-      "asset_filename": "DOD_111689005.mp4",
-      "is_current": false
-    },
-    {
-      "byte_sha256": "3862ae94ef113a44814a6cc0362ac689333580afd1a307005f51abd0d4b9e3df",
-      "byte_size": 644525,
-      "fetched_at": "2026-05-11T17:45:56+00:00",
-      "archive_key": "archive/3862ae94ef113a44814a6cc0362ac689333580afd1a307005f51abd0d4b9e3df.mp4",
-      "asset_filename": "DOD_111688970.mp4",
       "is_current": false
     }
   ],
