@@ -8,11 +8,16 @@
 
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { buildByteHistory } from "./build_byte_history.mjs";
+import { buildByteHistory, loadExclusionKeys } from "./build_byte_history.mjs";
+
+const _here = dirname(fileURLToPath(import.meta.url));
+const REGISTRY_PATH = resolve(_here, "../../data/asset-bytes-registry.jsonl");
+const EXCLUSIONS_PATH = resolve(_here, "../../data/byte-history-exclusions.json");
 
 function makeTmpDir() {
   const dir = join(tmpdir(), `byte-history-test-${Math.random().toString(36).slice(2)}`);
@@ -122,5 +127,114 @@ describe("buildByteHistory — live registry shape", () => {
     };
     const out = buildByteHistory([row, { ...row, byte_sha256: "b".repeat(64), fetched_at: "2026-05-14T00:00:00Z" }]);
     assert.equal(out["7d58f0cac741650a"].length, 2);
+  });
+});
+
+describe("loadExclusionKeys + exclusion filtering", () => {
+  test("loadExclusionKeys produces card_id|byte_sha256 keys", () => {
+    const doc = {
+      version: 1,
+      exclusions: [
+        { card_id: "abc", byte_sha256: "f".repeat(64) },
+        { card_id: "def", byte_sha256: "e".repeat(64) },
+      ],
+    };
+    const keys = loadExclusionKeys(doc);
+    assert.equal(keys.size, 2);
+    assert.ok(keys.has(`abc|${"f".repeat(64)}`));
+    assert.ok(keys.has(`def|${"e".repeat(64)}`));
+  });
+
+  test("loadExclusionKeys handles missing or malformed input", () => {
+    assert.equal(loadExclusionKeys(null).size, 0);
+    assert.equal(loadExclusionKeys({}).size, 0);
+    assert.equal(loadExclusionKeys({ exclusions: "not-an-array" }).size, 0);
+  });
+
+  test("buildByteHistory drops excluded entries", () => {
+    const rows = [
+      { card_id: "x", byte_sha256: "a".repeat(64), byte_size: 100, fetched_at: "2026-05-11T00:00:00Z", archive_key: "archive/a.mp4", asset_filename: "v.mp4" },
+      { card_id: "x", byte_sha256: "b".repeat(64), byte_size: 200, fetched_at: "2026-05-12T00:00:00Z", archive_key: "archive/b.pdf", asset_filename: "p.pdf" },
+    ];
+    // Without exclusion: card "x" is multi-sha, appears.
+    assert.ok(buildByteHistory(rows).x);
+    // With the mp4 excluded: card "x" becomes single-sha → drops out.
+    const keys = new Set([`x|${"a".repeat(64)}`]);
+    const out = buildByteHistory(rows, keys);
+    assert.ok(!out.x, "card with only one remaining entry should drop out of multi-sha map");
+  });
+});
+
+describe("registry invariant — URL-stability across non-excluded entries", () => {
+  // This is the recurrence-detector for the 2026-05-11/12 pipeline-
+  // evolution misroute event (see opsec finding
+  // 2026-05-28-pipeline-byte-misroute-9-cards.md). Every card_id in
+  // the registry should have exactly one distinct asset_url across all
+  // non-excluded fetches. If a future event registers a different URL
+  // under an existing card_id, this test fails before anything ships
+  // and the operator decides whether to add an exclusion entry or
+  // investigate the pipeline regression.
+  test("every card_id in the live registry has one distinct asset_url (after exclusions)", () => {
+    if (!existsSync(REGISTRY_PATH)) {
+      // Repo may not have the registry checked in (e.g. fresh clone
+      // without data/). Skip rather than fail in that case — the
+      // invariant only matters when the registry exists.
+      return;
+    }
+    const exclusionKeys = existsSync(EXCLUSIONS_PATH)
+      ? loadExclusionKeys(JSON.parse(readFileSync(EXCLUSIONS_PATH, "utf-8")))
+      : new Set();
+    const text = readFileSync(REGISTRY_PATH, "utf-8");
+    const urlsByCard = new Map();
+    for (const line of text.split("\n")) {
+      if (!line.trim()) continue;
+      const row = JSON.parse(line);
+      const cid = row.card_id;
+      if (!cid) continue;
+      if (exclusionKeys.has(`${cid}|${row.byte_sha256}`)) continue;
+      const set = urlsByCard.get(cid) ?? new Set();
+      set.add(row.asset_url);
+      urlsByCard.set(cid, set);
+    }
+    const offenders = [];
+    for (const [cid, urls] of urlsByCard) {
+      if (urls.size > 1) {
+        offenders.push({ card_id: cid, urls: [...urls] });
+      }
+    }
+    assert.equal(
+      offenders.length,
+      0,
+      `Cards with multiple asset_urls (after exclusions): ${JSON.stringify(offenders, null, 2)}\n\n` +
+      `If this fires for a new card, the pipeline registered a different URL under an existing card_id. ` +
+      `Either add an entry to data/byte-history-exclusions.json (with operator justification + opsec_ref) ` +
+      `or investigate the pipeline. See findings/2026-05-28-pipeline-byte-misroute-9-cards.md in pursue-opsec for the prior incident.`
+    );
+  });
+
+  test("every exclusion entry corresponds to a real registry row (no stale exclusions)", () => {
+    if (!existsSync(EXCLUSIONS_PATH) || !existsSync(REGISTRY_PATH)) return;
+    const doc = JSON.parse(readFileSync(EXCLUSIONS_PATH, "utf-8"));
+    const registryKeys = new Set();
+    const text = readFileSync(REGISTRY_PATH, "utf-8");
+    for (const line of text.split("\n")) {
+      if (!line.trim()) continue;
+      const row = JSON.parse(line);
+      if (row.card_id && row.byte_sha256) {
+        registryKeys.add(`${row.card_id}|${row.byte_sha256}`);
+      }
+    }
+    const stale = [];
+    for (const ex of doc.exclusions || []) {
+      const key = `${ex.card_id}|${ex.byte_sha256}`;
+      if (!registryKeys.has(key)) {
+        stale.push(ex);
+      }
+    }
+    assert.equal(
+      stale.length,
+      0,
+      `Stale exclusion entries (no matching registry row): ${JSON.stringify(stale, null, 2)}`
+    );
   });
 });

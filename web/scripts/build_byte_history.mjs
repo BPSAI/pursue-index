@@ -24,13 +24,34 @@
 // output (sorted keys + entries) so the prebuild hook doesn't
 // produce spurious dirty diffs.
 
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REGISTRY = resolve(here, "../../data/asset-bytes-registry.jsonl");
+const EXCLUSIONS = resolve(here, "../../data/byte-history-exclusions.json");
 const OUT = resolve(here, "../src/data/byte-history.json");
+
+/**
+ * Build a Set of "<card_id>|<byte_sha256>" keys from the exclusion
+ * file. Entries matching a key are dropped before building the
+ * card_id → entries map.
+ *
+ * Used to suppress registry rows the operator has determined were
+ * misroutes or pipeline-evolution events (not real upstream byte
+ * alterations). The registry itself stays untouched (append-only
+ * invariant); exclusion is declarative and reviewable in git.
+ */
+export function loadExclusionKeys(exclusionDoc) {
+  if (!exclusionDoc || !Array.isArray(exclusionDoc.exclusions)) return new Set();
+  const keys = new Set();
+  for (const ex of exclusionDoc.exclusions) {
+    if (!ex.card_id || !ex.byte_sha256) continue;
+    keys.add(`${ex.card_id}|${ex.byte_sha256}`);
+  }
+  return keys;
+}
 
 /**
  * Pure transform: take a list of registry rows, return the card_id →
@@ -38,12 +59,17 @@ const OUT = resolve(here, "../src/data/byte-history.json");
  *
  * Entries within each card are newest-first by ``fetched_at`` so the
  * first entry is the current-pointer version.
+ *
+ * Rows matching an entry in ``exclusionKeys`` (Set of
+ * ``"<card_id>|<byte_sha256>"`` strings) are skipped — used for
+ * pipeline-evolution misroutes that aren't real upstream alterations.
  */
-export function buildByteHistory(rows) {
+export function buildByteHistory(rows, exclusionKeys = new Set()) {
   const byCard = new Map();
   for (const row of rows) {
     const cardId = row.card_id;
     if (!cardId) continue;
+    if (exclusionKeys.has(`${cardId}|${row.byte_sha256}`)) continue;
     const list = byCard.get(cardId) ?? [];
     list.push({
       byte_sha256: row.byte_sha256,
@@ -100,7 +126,12 @@ function parseJsonl(text) {
 function main() {
   const text = readFileSync(REGISTRY, "utf-8");
   const rows = parseJsonl(text);
-  const history = buildByteHistory(rows);
+  let exclusionKeys = new Set();
+  if (existsSync(EXCLUSIONS)) {
+    const exclusionDoc = JSON.parse(readFileSync(EXCLUSIONS, "utf-8"));
+    exclusionKeys = loadExclusionKeys(exclusionDoc);
+  }
+  const history = buildByteHistory(rows, exclusionKeys);
   mkdirSync(dirname(OUT), { recursive: true });
   // Sorted-key stable encoding for byte-stable output across runs.
   // 2-space indent — same as cards-summary; the file is small (~80

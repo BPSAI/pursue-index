@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "_description": "Entries in data/asset-bytes-registry.jsonl that web/scripts/build_byte_history.mjs should skip when producing web/src/data/byte-history.json. Used when the registry contains fetches that the operator has determined were misroutes or pipeline-evolution events rather than upstream document alterations. The registry stays untouched (append-only invariant); exclusion is declarative and reviewable in git. See opsec_ref per entry.",
+  "exclusions": [
+    {
+      "card_id": "3746998b8c506e5c",
+      "byte_sha256": "34eb85ab42bb6ce5d376c02fd2db4eee0211864ed3bcd8a8247a08fe0da8c99e",
+      "fetched_at": "2026-05-11T17:46:04+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006080",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "43db2719407a7897",
+      "byte_sha256": "af62b4e40a2eb0fd39f98093be2a6ae50271a011e7d5caca2119b26aaabc1212",
+      "fetched_at": "2026-05-11T17:45:44+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006059",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "4555d94dd6067f57",
+      "byte_sha256": "17106a65c823fb0c4c55f41be31f863f18300bd858f536726ea6f9f3cf35ac8c",
+      "fetched_at": "2026-05-11T17:45:46+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006060",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "88a20bf256ccce7a",
+      "byte_sha256": "5f32ce0126de2c9571f2af368b2629c15b4f1cb3582700641ef31c1d1a8ceac8",
+      "fetched_at": "2026-05-11T17:46:10+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006083",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "9961adf6adf1010b",
+      "byte_sha256": "d6a177a7004837546b8e3ea12ad0e632d9c31eabca427e05ae6eb9d4e4493f47",
+      "fetched_at": "2026-05-11T17:45:46+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006062",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "c1c59236394f7b14",
+      "byte_sha256": "a38432ae56298abadf50de06103a6fbd591ea539e124ab1db25a4a511468cfb6",
+      "fetched_at": "2026-05-11T17:45:44+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006056",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "c788c17e8cc32230",
+      "byte_sha256": "670077e60bca959cde784ae1595688d645397804d811a7f5a85912c60045d471",
+      "fetched_at": "2026-05-11T17:46:06+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006082",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "d8e5687dc870892d",
+      "byte_sha256": "46fdeec860cdaa6b27b6fcc51d0b7e045347d494832cdc65f2038e702eaa58aa",
+      "fetched_at": "2026-05-11T17:45:46+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006063",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "d8e5687dc870892d",
+      "byte_sha256": "3c510fe34677a0784c656105b9653ce3039d83de46f929f1ee6d6fb820ce3b8c",
+      "fetched_at": "2026-05-11T17:45:52+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006067",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "byte_sha256": "3862ae94ef113a44814a6cc0362ac689333580afd1a307005f51abd0d4b9e3df",
+      "fetched_at": "2026-05-11T17:45:56+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006076",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "byte_sha256": "74bd47f0b608c19367b673ba186071db725719eebc7c7b251b8ef2b944c6427e",
+      "fetched_at": "2026-05-11T17:45:56+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006078",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "byte_sha256": "5bdc888fd25014c5519d625764233f66ee0214bfa48c1670aff5d7c00029a5d9",
+      "fetched_at": "2026-05-11T17:45:56+00:00",
+      "superseded_url": "https://www.dvidshub.net/video/1006079",
+      "reason": "pipeline-evolution-misroute",
+      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+    }
+  ]
+}
