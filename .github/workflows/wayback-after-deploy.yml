@@ -62,13 +62,28 @@ on:
 permissions:
   contents: write   # commit-back wayback-history.json
 
+# 2026-05-29 incident fix: cancel-in-progress: true so a burst of
+# release events (e.g. backfilling multiple missing release tags at
+# once) doesn't serialize N redundant runs through this group. Only
+# the latest release-snapshot has informational value; earlier ones
+# in a burst are obsolete the moment the next release ships.
+# Previous `false` setting let 8 release events from a 19-second
+# backfill window queue 7 runs behind the first, burning 11h 15m of
+# GHA runtime across two surviving runs. See
+# `findings/2026-05-29-wayback-workflow-11h-burn.md` in pursue-opsec.
 concurrency:
   group: wayback-after-deploy
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   wayback-save:
     runs-on: ubuntu-latest
+    # 2026-05-29 incident fix: cap runaway runs at 6h. The 325-URL
+    # sitemap at ~60s per Wayback /save/ call ≈ 5.5h per run today;
+    # 6h gives headroom while preventing the unbounded burn pattern
+    # the incident exposed. If a future run hits this, investigate
+    # Wayback latency / sitemap growth before raising.
+    timeout-minutes: 360
     steps:
       # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -96,7 +111,15 @@ jobs:
       - name: Submit live sitemap URLs to Wayback
         # The script reads the live sitemap-index from pursueindex.com
         # (post-deploy), filters out URLs saved within the last 24 h,
-        # and submits the rest at 2 s/URL. ~180 URLs * 2 s ≈ 6 min.
+        # and submits the rest with a 2s between-request delay.
+        #
+        # 2026-05-29 incident: real-world runtime is ~5.5h, not 6 min.
+        # The 2-second delay is the BETWEEN-REQUEST pause; Wayback's
+        # /save/ endpoint actually performs the archive and averages
+        # ~60s per call at current load (325 URLs × ~60s = ~5h 30m).
+        # The job-level timeout-minutes: 360 caps a stuck run at 6h
+        # so an unexpected latency spike can't burn beyond a known
+        # budget.
         # H3: per-URL failures surface as ``::warning::`` annotations
         # but do NOT mark the step as failed.
         run: |
@@ -115,13 +138,23 @@ jobs:
         # (per-URL failure should not lose freshness state).
         # H4: ``git pull --rebase`` before push avoids races with other
         # workflows that also write to main (mirrors verify-assets-daily).
-        # Codex re-review P1 (2026-05-17): rebase MUST happen BEFORE
-        # ``git add`` — Git refuses to rebase with an uncommitted index
-        # (``cannot pull with rebase: Your index contains uncommitted
-        # changes``). Order: sync tree (rebase) → stage → check → commit
-        # → push. The wayback-history.json file is untracked or modified
-        # at this point; rebase doesn't touch it because it operates on
-        # committed history only.
+        #
+        # 2026-05-29 incident fix: ``git pull --rebase --autostash``.
+        # The previous "Codex re-review P1 (2026-05-17)" fix asserted
+        # "rebase MUST happen BEFORE ``git add`` because rebase doesn't
+        # touch it because it operates on committed history only." That
+        # claim is wrong: ``git pull --rebase`` refuses to start when the
+        # working tree has unstaged changes — regardless of which files
+        # are dirty. The wayback_save.py script writes data/wayback-
+        # history.json incrementally during the run (so partial runs
+        # don't lose freshness state), leaving the file modified-
+        # unstaged when the script exits. The previous fix solved the
+        # wrong case (staged-index from running ``git add`` before
+        # rebase); the actual bug is the unstaged write the script
+        # itself creates. ``--autostash`` lets git stash the working-
+        # tree change, run the rebase, then re-apply — the standard fix
+        # for "I have local changes and need to sync with main."
+        # See findings/2026-05-29-wayback-workflow-11h-burn.md in opsec.
         if: always()
         run: |
           git config user.name "github-actions[bot]"
@@ -134,7 +167,7 @@ jobs:
             echo "[wayback] no history file produced this run; nothing to commit"
             exit 0
           fi
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add data/wayback-history.json
           if git diff --cached --quiet; then
             echo "[wayback] no history change; nothing to commit"
