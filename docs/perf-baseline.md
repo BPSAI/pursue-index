@@ -307,3 +307,77 @@ API usage." If the post-deploy Lighthouse Best Practices score
 regresses, the next move is to make the beacon optional via the
 existing `PUBLIC_CF_ANALYTICS_TOKEN` env var (already token-conditional
 in `Base.astro`), giving us a kill switch without code changes.
+
+## 2026-06-02 audit pass (static diagnosis, no Lighthouse re-run)
+
+Asked to "run the Sprint 2 Lighthouse diagnosis" as part of a roadmap
+cleanup pass; on opening this file discovered Sprint 2 + 2.1 + 4b F/G
+were all already shipped and all six perf targets already met or
+beaten. Re-ran the static-analysis legs of the original diagnosis
+(hydration directives, dist sizes, data-asset sizes, deprecated-API
+scan) against current `main` (commit `17e98cf`) to confirm no
+regressions.
+
+### Verified intact
+
+- **Homepage hydration architecture unchanged.** `web/src/pages/index.astro`
+  still uses `<HomepageSearch client:idle>` and `<CardExplorer client:visible>`.
+  No new always-hydrated islands added on `/` since Sprint 2.
+- **Worker-side cache policy in place.** `worker/index.js::CACHE_POLICY`
+  + `withCacheHeaders()` still applied; the `web/public/_headers`
+  no-op trap from the original Sprint 2 fix is fully migrated.
+- **es2022 build target in place** (`web/astro.config.mjs:31`).
+- **Deprecated-API kill switch in place.** `PUBLIC_CF_ANALYTICS_TOKEN`
+  token-conditional gating in `Base.astro:134`.
+
+### Current dist sizes (local `npm run build` artifacts on disk)
+
+| Artifact | Sprint 4b F (2026-05-17) | 2026-06-02 | Change | Notes |
+|---|---:|---:|---:|---|
+| `dist/index.html` | 25.9 KB | 68 KB | +162% | Still 90% smaller than pre-Sprint-2 695 KB; growth tracks card count 158 → 222 in server-rendered grid stubs |
+| `_astro/HomepageSearch.*.js` | 1.8 KB | 4.0 KB | +122% | Tiny absolute size; bundling overhead inclusive of preact runtime |
+| `_astro/CardExplorer.*.js` | 9.8 KB | 12 KB | +22% | Deferred via `client:visible`; not on critical path |
+| `public/data/cards-summary.json` | 252 KB | 372 KB | +48% | Deferred via `client:visible` fetch; CF-edge-cached |
+| `public/data/pages.json` | 7.1 MB | 8.2 MB | +15% | Off homepage critical path entirely (search route only) |
+
+All growth is corpus-driven (158 → 222 cards across tranches 4-8); no
+architectural regression in critical-path bytes.
+
+### Forward-looking concerns (not regressions)
+
+- **cards-summary.json growth ratio.** Grew 48% for a 41% card-count
+  bump. Roughly linear. At ~500 cards (~125% more growth) the file
+  would approach 1 MB. Still client:visible-deferred so not LCP-relevant,
+  but worth keeping an eye on for the post-`client:visible` fetch
+  latency on slow APAC connections. If it crosses 1 MB consider a
+  pagination/projection in `build_cards_summary.mjs`.
+- **pages.json growth ratio.** 7.1 MB → 8.2 MB (+15%) for the same
+  corpus expansion. Already kept off `/`'s critical path; the
+  `/search` route pays for it on first interaction. Indirect concern:
+  MiniSearch index build cost on `/search` scales with this file.
+- **Largest hydrated chunk: `regl-scatterplot.esm.*.js` at 220 KB.**
+  Loaded only on `/atlas` (operator-attended exploration UI). Not on
+  homepage critical path. Mentioned for inventory completeness.
+
+### Status — Sprint 2 closed
+
+All Sprint 2 (+ 2.1 + 4b F/G) targets met or beaten in the 2026-05-17
+field measurement and the architecture remains intact 16 days later.
+The single Sprint 4 item still open is the **literal-ID bypass in
+chat retrieval** (worker/) — flagged in the 2026-05-16 roadmap
+under "Sprint 4 — Small-batch polish + Wayback" but requires
+operator design input on the detection patterns (16-hex card_ids,
+D## patterns) and ranking integration, so it stayed out of this
+autonomous cleanup pass.
+
+### What would force a re-diagnosis
+
+- A new `client:load` directive on `/` (would re-introduce eager
+  hydration on the LCP path).
+- A new `import` of `pages.json` or `MiniSearch` directly from
+  `HomepageSearch.tsx` or `CardExplorer.tsx`.
+- A reported field-data regression in Search Console / CrUX.
+- An operator change of the homepage hero to a hydration-heavy
+  component.
+
+None observed in the 2026-05-18 → 2026-06-02 window.
