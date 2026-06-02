@@ -113,6 +113,7 @@ agent_pack.tgz
 /.paircoder/.cli_version
 /.paircoder/telemetry/telemetry.jsonl
 /.paircoder/telemetry/audit.jsonl
+/.paircoder/telemetry/bootstrap_audit.jsonl
 /.paircoder/telemetry/session_snapshot.json
 /.paircoder/feedback/calibration.json
 /.paircoder/time-tracking-cache.json
