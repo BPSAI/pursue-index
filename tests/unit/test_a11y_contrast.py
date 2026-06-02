@@ -142,14 +142,17 @@ def test_token_table_matches_global_css() -> None:
 # ---------------------------------------------------------------------------
 # Drift guard, extended: catches token consumers OUTSIDE global.css that
 # could go stale silently. The original guard only walked global.css; the
-# vaivora cross-cutting review (2026-05-12) flagged that web/public/og.svg
-# and web/src/components/atlas-helpers.ts hard-code the same hex literals
-# and were missed during the WCAG bump. Extends the guard to those files.
+# vaivora cross-cutting review (2026-05-12) flagged that atlas-helpers.ts
+# hard-codes the same hex literals and was missed during the WCAG bump.
+# Extends the guard to atlas-helpers.ts (web/public/og.svg was the other
+# original consumer; deleted 2026-06-02 per Sprint 4 follow-up — it was
+# unreferenced and carried stale tranche numbers that drifted on every
+# corpus update; live OG image is now web/public/og.png from
+# scripts/build_og_image.py).
 # ---------------------------------------------------------------------------
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 EXTERNAL_TOKEN_CONSUMERS = [
-    _REPO_ROOT / "web" / "public" / "og.svg",
     _REPO_ROOT / "web" / "src" / "components" / "atlas-helpers.ts",
 ]
 # The OLD literals that should no longer appear as fill/color usage in any
@@ -173,8 +176,7 @@ def test_external_token_consumers_have_no_retired_literals() -> None:
         text = path.read_text(encoding="utf-8").lower()
         # Per-file: filter out exempt-via-comment hits by checking whether
         # the literal appears in a comment-only line. For the atlas-helpers
-        # case the literal is on a `*` JSDoc line; for og.svg there is no
-        # comment context for these hexes.
+        # case the literal is on a `*` JSDoc line.
         hits: list[str] = []
         for lit in RETIRED_LITERALS:
             if lit not in text:

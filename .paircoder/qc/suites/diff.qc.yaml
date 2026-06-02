@@ -1,9 +1,10 @@
 name: "Diff — populated comparison against immediate-prior snapshot"
 description: |
   The /diff page compares the current manifest against the most recent
-  PRIOR snapshot under /data/snapshots/. As of 2026-05-15 we have five
+  PRIOR snapshot under /data/snapshots/. As of 2026-06-02 we have eight
   snapshots committed (596cc188, 0d7e9ba1, 65572b38, 4a35f5596951,
-  c9cc83fcaf43) so the page renders a populated comparison by default.
+  c9cc83fcaf43, f75e2f7d, c3475435, 6be2c64e) so the page renders a
+  populated comparison by default.
 
   History — earlier behavior compared against the OLDEST snapshot
   (Release 01 baseline), which produced a cumulative changelog
@@ -13,11 +14,12 @@ description: |
   (.paircoder/plans/diff-page-arbitrary-pair-selection.md) layers
   selectors + a timeline strip on top of this default — still queued.
 
-  Most recent comparison (c9cc83fcaf43 vs 4a35f5596951) is metadata-
-  only: 0 added, 0 removed, 122 field-only changes. So expect the
-  page to render but with no added/removed sections — or with an
-  in-brand "no card changes in this tranche" indicator if the UI
-  surfaces that distinction.
+  Tranche-pair sha references are derived from web/public/data/snapshots/
+  index.json at the time this suite is run. Per-tranche cardinality
+  assertions ("how many cards added in this delta") were removed
+  2026-06-02 (Sprint 4 follow-up) because they require operator
+  re-tuning every tranche cut — the shape-stable assertions in
+  scenarios 1 + 2 already pin the load-bearing behavior.
 tags: [regression, ui]
 preconditions:
   - "App accessible at ${base_url}"
@@ -30,29 +32,31 @@ scenarios:
       - verify: "Heading reads 'TRANCHE DIFF' or 'Tranche diff'"
       - verify: "Page shows either Added / Removed sections (with card titles linking to /card/[id]) OR an in-brand 'no card changes in this tranche' indicator"
       - verify: "Loading state ('LOADING SNAPSHOTS' or similar) was visible briefly then resolved"
-      - check_console: "No errors. A 404 on /data/snapshots/index.json is NOT expected here (the file exists with 5 entries)"
+      - check_console: "No errors. A 404 on /data/snapshots/index.json is NOT expected here (the file exists with 8 entries)"
 
   - name: "Comparison is against immediate-prior snapshot, not Release 01 baseline"
-    # The snapshot reference renders uppercase as 'VS4A35F5596951...JSON' due to
-    # CSS text-transform on the comparison label. Match case-insensitively.
+    # The snapshot reference renders uppercase due to CSS text-transform on
+    # the comparison label. Match case-insensitively. The specific sha to
+    # verify is the SECOND-TO-LAST entry in web/public/data/snapshots/index.json
+    # (per the index.at(-2) selection in commit ef4d2ae). As of 2026-06-02
+    # that's c34754351cdf24d2 (immediate-prior to current 6be2c64e760534a5).
     steps:
       - navigate: "${base_url}/diff"
       - wait: "2"
-      - verify: "Snapshot reference shown on the page contains sha prefix '4a35f55' (case-insensitive; rendered as '4A35F55' in the uppercased comparison label) — this is the immediate-prior snapshot to current c9cc83fcaf43"
+      - verify: "Snapshot reference shown on the page contains sha prefix 'c3475435' (case-insensitive; rendered as 'C3475435' in the uppercased comparison label) — this is the immediate-prior snapshot to current 6be2c64e760534a5"
       - verify: "Comparison does NOT contain sha prefix '596cc188' (case-insensitive). That would indicate the page is still comparing against Release 01 baseline — the bug fixed in commit ef4d2ae."
 
-  - name: "No card content changes between c9cc83fcaf43 and 4a35f5596951"
-    # Both tranches are metadata-only (alt-text + VIRIN backfill on
-    # c9cc83, title-format normalization on 4a35f5). card_id set is
-    # identical between them.
-    #
-    # Rendered shape: 'ADDED' label + '(0)' count below it, then a
-    # '── NONE ──' separator. Same for REMOVED. The verify text below
-    # accepts either '(0)' or ': 0' or 'NONE' patterns to stay robust
-    # against future styling tweaks.
+  - name: "Added / Removed sections render in expected shape (no cardinality pin)"
+    # Sprint 4 follow-up 2026-06-02: scenario 3 previously asserted
+    # "No card content changes between c9cc83fcaf43 and 4a35f5596951"
+    # with ~122 field-only changes -- specific to a tranche pair that
+    # no longer exists in the active comparison window. Per-tranche
+    # cardinality is inherently brittle; the shape-stable replacement
+    # below verifies the section structure regardless of the actual
+    # numbers.
     steps:
       - navigate: "${base_url}/diff"
       - wait: "2"
-      - verify: "Added section shows zero cards — either '(0)', ': 0', or a 'NONE' indicator"
-      - verify: "Removed section shows zero cards — either '(0)', ': 0', or a 'NONE' indicator"
-      - verify: "If a 'field-only changes' indicator is present, it shows ~122 cards changed (alt-text + VIRIN backfill). Note 2026-05-15: this indicator is NOT currently surfaced on prod — known gap tracked in the diff-page-arbitrary-pair-selection plan, not a regression. Skip this verify if absent."
+      - verify: "An 'ADDED' label is present (followed by a count in any format: '(N)', ': N', or 'NONE')"
+      - verify: "A 'REMOVED' label is present (followed by a count in any format: '(N)', ': N', or 'NONE')"
+      - verify: "If both ADDED and REMOVED show NONE / (0), the page does not crash or show a 'no data' error — a metadata-only tranche is a legitimate state"
