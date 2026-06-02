@@ -14,12 +14,17 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-# Bracketed header for the alex-zhang42/ufo-pursue-open-atlas image-
+# Bracketed header for the AlexZhangji/ufo-pursue-open-atlas image-
 # description block. Bracketing keeps it human-readable in chat snippets
 # and makes ``worker/retrieve.js::makeSnippet`` naturally center on it
 # when the query matches inside an image tag.
+#
+# Note: his GitHub username is `AlexZhangji`; his HuggingFace dataset
+# is published under `alex-zhang42` (different per-platform handles).
+# This marker uses the GitHub-style slug because the GitHub repo is
+# the canonical source.
 AUGMENT_BLOCK_HEADER = (
-    "[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]]"
+    "[[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]]"
 )
 
 
