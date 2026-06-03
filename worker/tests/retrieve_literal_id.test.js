@@ -9,16 +9,24 @@
 //
 // Detection patterns:
 //   * 16-hex card_id   (`/\b[a-f0-9]{16}\b/g` case-insensitive)
+//   * AGENCY-D/PR/VM slug  (Sprint 4 follow-up, Option C — see
+//     findings/2026-06-02-chat-retrieval-d-pattern-bypass-and-telemetry-gap.md
+//     for the decision rationale)
 //
-// (We deliberately do NOT detect ad-hoc patterns like `D##` or
-// `pursue-NNN` — those don't exist in this project; the index is
-// canonically 16-hex.)
+// (We deliberately do NOT detect ad-hoc patterns like bare `D##`
+// without an agency prefix — those are inherently ambiguous across
+// agencies (`D001` appears as DOE-UAP-D001, CIA-UAP-D001, AND
+// ODNI-UAP-D001), and semantic embedding handles them well when
+// surrounding context is present.)
 
 import { describe, test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 
 import { retrievePassages, _resetCaches } from "../retrieve.js";
-import { extractLiteralCardIds } from "../retrieve.js";
+import {
+  extractLiteralCardIds,
+  extractLiteralSlugs,
+} from "../retrieve.js";
 
 // Same float16 packing helpers as retrieve_handler.test.js. Copied
 // (rather than imported) so this test file stays self-contained — it
@@ -269,5 +277,221 @@ describe("retrievePassages — literal-ID bypass", () => {
     // by the cap even though it would have qualified semantically.
     assert.equal(out[0].card_id, "aaaaaaaaaaaaaaaa");
     assert.equal(out[1].card_id, "bbbbbbbbbbbbbbbb");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Sprint 4 follow-up — D-pattern slug bypass (Option C).
+//
+// Detect agency-prefixed slugs like DOW-UAP-D017 / CIA-UAP-D001 /
+// NASA-UAP-VM001 in the user query; canonicalize separator + UAP
+// noise away; look up against a slug→card_id index built from titles
+// at corpus-load time. Bare codes ("D017") without an agency prefix
+// are deliberately NOT detected — they're ambiguous (D001 maps to
+// three different agencies) and semantic embedding handles them well
+// when surrounding context is present.
+//
+// Decision lineage:
+//   findings/2026-06-02-chat-retrieval-d-pattern-bypass-and-telemetry-gap.md
+// ---------------------------------------------------------------------------
+
+describe("extractLiteralSlugs", () => {
+  test("returns empty for queries with no slug pattern", () => {
+    assert.deepEqual(extractLiteralSlugs("what's in roswell?"), []);
+  });
+
+  test("extracts a full dashed slug, canonicalized to AGENCY-CODE form", () => {
+    // Title-form slug `DOW-UAP-D017` canonicalizes by dropping the
+    // UAP middle token (it's noise — every code in the corpus is
+    // UAP-themed) and collapsing separators to single dashes.
+    assert.deepEqual(
+      extractLiteralSlugs("what's in DOW-UAP-D017?"),
+      ["DOW-D017"],
+    );
+  });
+
+  test("space-separated variant is NOT matched (false-positive guard)", () => {
+    // Space separator would let `[A-Z]{2,5}` case-insensitively
+    // match English words ("tell", "about", "DOW") and pollute
+    // results with `ABOUT-D017`-style spurious extractions. The
+    // dash/slash-only separator gives clean discrimination.
+    assert.deepEqual(extractLiteralSlugs("show me DOW UAP D017"), []);
+  });
+
+  test("slash-separated variant matches", () => {
+    assert.deepEqual(
+      extractLiteralSlugs("see DOW/UAP/D017 for context"),
+      ["DOW-D017"],
+    );
+  });
+
+  test("lowercase input normalizes to uppercase canonical form", () => {
+    assert.deepEqual(
+      extractLiteralSlugs("dow-uap-d017 has more"),
+      ["DOW-D017"],
+    );
+  });
+
+  test("agency + code with UAP omitted still matches", () => {
+    // `DOW-D017` (no UAP middle) is a legitimate user shortening.
+    assert.deepEqual(
+      extractLiteralSlugs("compare DOW-D017 to my notes"),
+      ["DOW-D017"],
+    );
+  });
+
+  test("multiple distinct slugs preserved in order, deduped", () => {
+    const out = extractLiteralSlugs(
+      "compare DOW-UAP-D017 to CIA-UAP-D001 and back to DOW-UAP-D017",
+    );
+    assert.deepEqual(out, ["DOW-D017", "CIA-D001"]);
+  });
+
+  test("works for PR and VM code prefixes too, not just D", () => {
+    const out = extractLiteralSlugs(
+      "DOW-UAP-PR050 vs NASA-UAP-VM001 — which is older?",
+    );
+    assert.deepEqual(out, ["DOW-PR050", "NASA-VM001"]);
+  });
+
+  test("bare code without agency prefix is REJECTED (false-positive guard)", () => {
+    // The whole point of Option C is to require an agency token.
+    // `D017` alone is ambiguous and semantic embedding handles it.
+    assert.deepEqual(extractLiteralSlugs("tell me about D017"), []);
+    assert.deepEqual(extractLiteralSlugs("PR050 chapter 3"), []);
+    assert.deepEqual(extractLiteralSlugs("VM001 details"), []);
+  });
+
+  test("D-Day and similar non-code patterns do not match", () => {
+    // The regex requires `[A-Z]{2,5}` + separator + optional `UAP-` +
+    // (D|PR|VM) + digits. `D-Day` has `D` (1 char, below the agency
+    // minimum) and no digits after `Day`. No match.
+    assert.deepEqual(extractLiteralSlugs("I read about D-Day at length"), []);
+  });
+
+  test("trailing-punctuation does not break the boundary", () => {
+    assert.deepEqual(
+      extractLiteralSlugs("see DOW-UAP-D017."),
+      ["DOW-D017"],
+    );
+    assert.deepEqual(
+      extractLiteralSlugs("DOW-UAP-D017, page 3"),
+      ["DOW-D017"],
+    );
+  });
+});
+
+describe("retrievePassages — D-pattern slug bypass", () => {
+  // Build a corpus where card-a (ID aaaa…) has a recognizable slug
+  // in its title. A query that mentions the slug but is otherwise
+  // unrelated should still surface card-a in the lead.
+  const rows = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+  ];
+  const ID_A = "aaaaaaaaaaaaaaaa";
+  const ID_B = "bbbbbbbbbbbbbbbb";
+  const ID_C = "cccccccccccccccc";
+  const indexPages = [
+    [ID_A, 1],
+    [ID_B, 1],
+    [ID_C, 1],
+  ];
+  const pagesArr = [
+    {
+      id: `${ID_A}-p1`,
+      card_id: ID_A,
+      page: 1,
+      title: "DOW-UAP-D017, UAP Reported at Sandia Base, 1948-1950",
+      text: "Sandia testimony, page one",
+    },
+    {
+      id: `${ID_B}-p1`,
+      card_id: ID_B,
+      page: 1,
+      title: "CIA-UAP-D001, Intelligence Information Report, USSR, 1973",
+      text: "Roswell file",
+    },
+    {
+      id: `${ID_C}-p1`,
+      card_id: ID_C,
+      page: 1,
+      title: "ODNI document with no recognizable slug",
+      text: "Other",
+    },
+  ];
+
+  test("slug in query → exact-match card prepended to semantic results", async () => {
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0]);
+    // Query semantically aligns with row 1 (card-b = Roswell), but
+    // mentions card-a's DOW-UAP-D017 slug — card-a should lead.
+    const out = await retrievePassages(
+      "what's in DOW-UAP-D017 about Roswell?",
+      8,
+      env,
+      embedFn,
+    );
+    assert.ok(out.length >= 2, `expected ≥2 hits, got ${out.length}`);
+    assert.equal(out[0].card_id, ID_A, "slug-matched card leads");
+    assert.equal(out[1].card_id, ID_B, "semantic Roswell hit follows");
+  });
+
+  test("loose-slug variants (dash, slash, lowercase, no-UAP) all resolve", async () => {
+    for (const variant of [
+      "what's in DOW-UAP-D017?",
+      "what's in dow-uap-d017?",
+      "what's in DOW-D017?",
+      "what's in dow/uap/d017?",
+    ]) {
+      const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0]);
+      _resetCaches();
+      const out = await retrievePassages(variant, 8, env, embedFn);
+      assert.ok(out.length >= 2, `${variant}: expected ≥2 hits`);
+      assert.equal(out[0].card_id, ID_A, `${variant}: slug-matched card leads`);
+    }
+  });
+
+  test("unknown slug → behavior unchanged (semantic-only)", async () => {
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0]);
+    const out = await retrievePassages(
+      "tell me about ABC-UAP-D999",
+      8,
+      env,
+      embedFn,
+    );
+    // Slug regex matches; lookup misses (no such card); semantic lane
+    // produces the row-1 cosine hit only.
+    assert.equal(out.length, 1, "semantic lane returns one hit");
+    assert.equal(out[0].card_id, ID_B);
+  });
+
+  test("bare code without agency prefix does NOT trigger the bypass", async () => {
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0]);
+    // `D017` alone — should fall straight to semantic; card-a must
+    // NOT appear in the lead despite owning that code.
+    const out = await retrievePassages(
+      "tell me about D017",
+      8,
+      env,
+      embedFn,
+    );
+    assert.equal(out.length, 1, "no slug match → semantic-only");
+    assert.equal(out[0].card_id, ID_B, "semantic winner is card-b");
+  });
+
+  test("slug + hex in the same query → both lead, hex first by order", async () => {
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 0, 1]);
+    // Reference card-b by hex AND card-a by slug. Mention order:
+    // hex first → hex leads, slug follows, then semantic tail (card-c).
+    const out = await retrievePassages(
+      `see ${ID_B} and DOW-UAP-D017 for context`,
+      8,
+      env,
+      embedFn,
+    );
+    assert.ok(out.length >= 3, `expected ≥3 hits, got ${out.length}`);
+    assert.equal(out[0].card_id, ID_B, "hex hit leads (mentioned first)");
+    assert.equal(out[1].card_id, ID_A, "slug hit follows");
   });
 });

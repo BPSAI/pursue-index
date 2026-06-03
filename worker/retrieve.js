@@ -16,8 +16,11 @@
 // without mocking ASSETS or fetch.
 
 import {
+  buildSlugIndex,
   extractLiteralCardIds,
+  extractLiteralSlugs,
   literalIdPassages,
+  literalSlugPassages,
   mergeLiteralAndSemantic,
 } from "./retrieve_literal_id.js";
 
@@ -26,7 +29,10 @@ import {
 // the central module surface — without knowing whether the helper
 // was inlined or extracted. Lets us reorganize internals without
 // breaking import paths in test fixtures or future call sites.
-export { extractLiteralCardIds } from "./retrieve_literal_id.js";
+export {
+  extractLiteralCardIds,
+  extractLiteralSlugs,
+} from "./retrieve_literal_id.js";
 
 const VOYAGE_EMBED_URL = "https://api.voyageai.com/v1/embeddings";
 const VOYAGE_MODEL = "voyage-3";
@@ -121,12 +127,14 @@ function halfToFloat(h) {
 let _corpusCache = null; // { vectors: Float32Array, n: number, dim: number }
 let _indexCache = null; // { pages: [[card_id, page], ...], dim, n }
 let _pagesCache = null; // Map<`${card_id}-p${page}`, PageRecord>
+let _slugCache = null; // Map<canonicalSlug, card_id>
 
 /** Reset caches — for tests only. */
 export function _resetCaches() {
   _corpusCache = null;
   _indexCache = null;
   _pagesCache = null;
+  _slugCache = null;
 }
 
 async function loadCorpus(env) {
@@ -277,10 +285,44 @@ export async function retrievePassages(query, k, env, embedFn) {
 
   // Sprint 4b Theme A: literal-ID bypass. Detect hex card_ids in the
   // query, prepend exact-match chunks, dedup by `card_id+page`, cap at k.
+  // Sprint 4 follow-up (Option C, 2026-06-02): also detect
+  // agency-prefixed slugs like DOW-UAP-D017. Both literal lanes feed
+  // the same prepend-then-merge pipeline so a query mentioning a hex
+  // id AND a slug surfaces both in mention order.
   const ids = extractLiteralCardIds(query);
-  if (ids.length === 0) return semanticPassages;
-  const literal = literalIdPassages(ids, index.pages, pages, query, makeSnippet);
-  return mergeLiteralAndSemantic(literal, semanticPassages, k);
+  const slugs = extractLiteralSlugs(query);
+  if (ids.length === 0 && slugs.length === 0) return semanticPassages;
+  const hexHits = literalIdPassages(
+    ids,
+    index.pages,
+    pages,
+    query,
+    makeSnippet,
+  );
+  let slugHits = [];
+  if (slugs.length > 0) {
+    // Lazy-build the slug index from the pages cache; ~O(pages × titleLen).
+    if (!_slugCache) _slugCache = buildSlugIndex(pages);
+    slugHits = literalSlugPassages(
+      slugs,
+      _slugCache,
+      index.pages,
+      pages,
+      query,
+      makeSnippet,
+    );
+  }
+  // Mention order in the query is preserved by interleaving the hex
+  // and slug hits in the order the regexes found them. The simpler
+  // policy here (hex hits first, then slug hits) matches the mention
+  // order in all queries where each pattern appears at most once —
+  // the common case — and remains stable when both patterns appear
+  // mixed (downstream `mergeLiteralAndSemantic` dedup is order-preserving).
+  return mergeLiteralAndSemantic(
+    [...hexHits, ...slugHits],
+    semanticPassages,
+    k,
+  );
 }
 
 // ---------------------------------------------------------------------------
