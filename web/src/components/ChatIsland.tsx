@@ -151,6 +151,12 @@ export default function ChatIsland({ base, cards }: Props) {
     setBusy(true);
     setPhase("RETRIEVING");
     setInput("");
+    // A new turn re-engages auto-scroll: the user just chose to send, so
+    // they want to see the answer. Without this, if they'd scrolled up to
+    // read an earlier message (stickToBottom=false) the next response
+    // would stream entirely off-screen until they manually scrolled back
+    // down (Codex PR #82 P2).
+    setStickToBottom(true);
 
     const userMsg: Message = { role: "user", text: query, citations: [], status: "done" };
     const asstMsg: Message = { role: "assistant", text: "", citations: [], status: "streaming" };
