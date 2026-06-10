@@ -223,6 +223,23 @@ test("fieldOnlyChanges: featured unchanged true→true → no change", () => {
   assert.equal(fieldOnlyChanges([a], [b]).length, 0);
 });
 
+test("fieldOnlyChanges: redacted absent (old snapshot) vs redacted=false → NOT a spurious change", () => {
+  // `redacted` joined the boolean-normalized fields alongside `featured`,
+  // so it gets the same undefined≡false treatment. Guards the (desirable)
+  // behavior change to a pre-existing field — a snapshot that predates an
+  // always-present `redacted` must not flood the diff against an explicit
+  // false.
+  const prev = card("aaa", "T");
+  delete (prev as { redacted?: boolean }).redacted;
+  const sameFalse = card("aaa", "T", { redacted: false });
+  assert.equal(fieldOnlyChanges([prev], [sameFalse]).length, 0);
+
+  const nowTrue = card("aaa", "T", { redacted: true });
+  const out = fieldOnlyChanges([prev], [nowTrue]);
+  assert.equal(out.length, 1);
+  assert.ok(out[0].fields.includes("redacted"));
+});
+
 test("fieldOnlyChanges: pre-Featured snapshot (field absent) vs featured=false → NOT a spurious change", () => {
   // Snapshots taken before the Featured column lack the field entirely
   // (undefined). Comparing against a new snapshot's explicit `false`

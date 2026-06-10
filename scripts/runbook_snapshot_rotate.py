@@ -33,6 +33,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+# Expose the src-layout package so the shared snapshot-index writer is
+# importable when this runbook is invoked directly (matches the
+# sys.path-injection pattern in scripts/poll_pursue.py).
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+from pursue_index.scrape.snapshots import write_public_index  # noqa: E402
+
 LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 SNAPSHOTS_PIPELINE = _REPO_ROOT / "data" / "manifests" / "snapshots"
 SNAPSHOTS_WEB = _REPO_ROOT / "web" / "public" / "data" / "snapshots"
@@ -65,25 +71,9 @@ def _web_index_load() -> list[str]:
     return [e if isinstance(e, str) else e["filename"] for e in raw]
 
 
-def _web_index_dump(filenames: list[str]) -> list[dict[str, object]]:
-    """Build the enriched web-index payload from a filename list, reading
-    each snapshot's fetched_at + card_count so the /diff selectors can
-    label snapshots without fetching them. Sorted oldest→newest."""
-    entries: list[tuple[str, dict[str, object]]] = []
-    for fname in filenames:
-        try:
-            data = json.loads((SNAPSHOTS_WEB / fname).read_text())
-            fetched_at = data.get("fetched_at") or ""
-            card_count = len(data.get("cards", []))
-        except Exception:
-            fetched_at = ""
-            card_count = 0
-        entries.append((
-            fetched_at,
-            {"filename": fname, "fetched_at": fetched_at, "card_count": card_count},
-        ))
-    entries.sort(key=lambda e: e[0])
-    return [obj for _, obj in entries]
+# The enriched web-index payload is built + written by the shared
+# ``write_public_index`` (pursue_index.scrape.snapshots) so this recovery
+# path stays byte-identical to the scrape-run + ingest paths.
 
 
 def _backfill_missing_pipeline_entries(idx: dict) -> dict:
@@ -176,13 +166,12 @@ def rotate(manifest: dict) -> tuple[bool, str]:
     web_idx.sort(key=lambda fn: (SNAPSHOTS_WEB / fn).stat().st_mtime
                  if (SNAPSHOTS_WEB / fn).exists() else 0)
 
-    # Persist both indexes
+    # Persist the pipeline index here; the web index goes through the
+    # shared writer so its shape + serialization match every other path.
     (SNAPSHOTS_PIPELINE / "index.json").write_text(
         json.dumps(pipeline_idx, indent=2, ensure_ascii=False)
     )
-    (SNAPSHOTS_WEB / "index.json").write_text(
-        json.dumps(_web_index_dump(web_idx), indent=2, ensure_ascii=False)
-    )
+    write_public_index(SNAPSHOTS_WEB)
 
     if not rotated:
         msgs.append(f"  no-op (sha {sha[:12]} already in both indexes)")
