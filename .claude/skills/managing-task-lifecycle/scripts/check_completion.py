@@ -160,7 +160,7 @@ def main():
     if all_passed:
         print("✓ Ready for completion!")
         print("\nNext steps:")
-        print(f"  1. bpsai-pair ttask done TRELLO-XX --summary '...' --list 'Deployed/Done'")
+        print("  1. bpsai-pair ttask done TRELLO-XX --summary '...' --list 'Deployed/Done'")
         print(f"  2. bpsai-pair task update {task_id} --status done")
         sys.exit(0)
     else:

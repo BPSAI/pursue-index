@@ -880,17 +880,17 @@ project:
   coverage_target: 80
 
 models:
-  navigator: claude-opus-4-5
-  driver: claude-sonnet-4-5
-  reviewer: claude-sonnet-4-5
+  navigator: claude-opus-4-8
+  driver: claude-opus-4-8
+  reviewer: claude-sonnet-4-6
 
 routing:
   by_complexity:
     trivial:   { max_score: 20,  model: claude-haiku-4-5 }
     simple:    { max_score: 40,  model: claude-haiku-4-5 }
-    moderate:  { max_score: 60,  model: claude-sonnet-4-5 }
-    complex:   { max_score: 80,  model: claude-opus-4-5 }
-    epic:      { max_score: 100, model: claude-opus-4-5 }
+    moderate:  { max_score: 60,  model: claude-sonnet-4-6 }
+    complex:   { max_score: 80,  model: claude-opus-4-8 }
+    epic:      { max_score: 100, model: claude-opus-4-8 }
 
 token_budget:
   warning_threshold: 75

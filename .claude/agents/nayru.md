@@ -52,13 +52,6 @@ git diff main...HEAD -- path/to/file.py
 - Are edge cases handled?
 - Are error conditions handled?
 - Is the logic correct?
-- **Data provenance**: if the code consumes data from multiple
-  sources (especially anything that compares, diffs, or aggregates),
-  verify the inputs are provenance-compatible — same model / engine /
-  version / prompt / DPI / format. A `model_id`, `version`, or
-  `generated_at` field on each input should be inspected and matched.
-  Incompatible provenance produces meaningful-looking but incorrect
-  output; flag as P0.
 
 ### 3. Check Tests
 - Are there tests for new functionality?
