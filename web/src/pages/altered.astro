@@ -207,7 +207,13 @@ const description =
       </p>
     </section>
 
-    <section class="space-y-2">
+    {/* The 7-column table needs more width than the max-w-6xl prose
+        column. On xl+ break the table section out of that cap (up to
+        88rem, but never past the viewport so it can't force a page-
+        level horizontal scrollbar) and center it; below xl it stays
+        within the parent and the title/rationale columns wrap so the
+        overflow-scroll is a rare fallback, not the default. */}
+    <section class="space-y-2 xl:w-[88rem] xl:max-w-[calc(100vw-2rem)] xl:relative xl:left-1/2 xl:-translate-x-1/2">
       <div class="overflow-x-auto border border-[color:var(--color-border)]">
         <table class="w-full text-xs">
           <thead class="bg-[color:var(--color-bg-deep)]/60">
@@ -232,7 +238,7 @@ const description =
                     <code class="text-[10px]">{row.cardId.slice(0, 12)}…</code>
                   </a>
                 </td>
-                <td class="px-3 py-2 align-top text-[color:var(--color-text-bright)]">
+                <td class="px-3 py-2 align-top text-[color:var(--color-text-bright)] max-w-[22rem] break-words">
                   <a href={`/card/${row.cardId}/`} class="hover:text-[color:var(--color-signal-cyan)]">
                     {row.title}
                   </a>
@@ -260,7 +266,7 @@ const description =
                     <em class="text-[10px] text-[color:var(--color-text-faint)]">(unverified)</em>
                   )}
                 </td>
-                <td class="px-3 py-2 align-top text-[10px] text-[color:var(--color-text-dim)]">
+                <td class="px-3 py-2 align-top text-[10px] text-[color:var(--color-text-dim)] max-w-[26rem] break-words whitespace-normal">
                   {row.rationale ? rationalePreview(row.rationale) : <span class="text-[color:var(--color-text-faint)]">—</span>}
                 </td>
               </tr>
