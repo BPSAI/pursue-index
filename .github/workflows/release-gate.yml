@@ -107,10 +107,14 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python test deps
-        # Lean: only pytest is needed for the unit + integration tests
-        # this gate runs. They don't import anything from the pipeline
-        # itself — pure stdlib + pytest.
-        run: pip install pytest
+        # Most gates are pure stdlib + pytest, but test_finds_validator.py
+        # imports ``pursue_index.finds_validator``, and the package
+        # __init__ pulls structlog + pydantic settings — so a pytest-only
+        # install ModuleNotFoundErrors on collection (red since
+        # 2026-05-28). Install the package (editable). Still far faster
+        # than the downstream npm install + Astro build, so the fail-fast
+        # ordering of these cheap gates holds.
+        run: pip install -e . pytest
 
       # ---------------------------------------------------------------
       # Cheap unit gates — run first so we fail fast before npm install.
