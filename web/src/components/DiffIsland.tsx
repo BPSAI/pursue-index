@@ -4,9 +4,11 @@ import {
   buildDiffParams,
   diffWithAliases,
   fieldOnlyChanges,
+  normalizeSnapshotIndex,
   parseDiffParams,
   resolveAliases,
   selectDefaultPair,
+  type SnapshotIndexMeta,
 } from "./diff-helpers.ts";
 import DiffTimeline from "./DiffTimeline.tsx";
 
@@ -48,6 +50,10 @@ export default function DiffIsland({ current, base, aliases }: Props) {
 
   // index = chronologically-sorted snapshot filenames from index.json.
   const [index, setIndex] = useState<string[] | null>(null);
+  // indexMeta = filename → label metadata (date, card count) carried by
+  // the enriched index.json, so selectors label every snapshot without
+  // first lazily fetching its full manifest (no more "?? cards").
+  const [indexMeta, setIndexMeta] = useState<Record<string, SnapshotIndexMeta>>({});
   // snapshots = filename → loaded Manifest. Lazy: only populated as needed.
   const [snapshots, setSnapshots] = useState<Record<string, Manifest>>({});
   // selectedFrom / selectedTo = filenames. `to` may be a real snapshot OR the
@@ -74,9 +80,15 @@ export default function DiffIsland({ current, base, aliases }: Props) {
       .then((r) => {
         if (r.status === 404) return [];
         if (!r.ok) throw new Error(`snapshots index: HTTP ${r.status}`);
-        return r.json() as Promise<string[]>;
+        return r.json() as Promise<unknown>;
       })
-      .then((data: string[]) => setIndex(data))
+      .then((data: unknown) => {
+        // Tolerant of both the legacy bare-filename list and the
+        // enriched {filename, fetched_at, card_count} objects.
+        const { filenames, meta } = normalizeSnapshotIndex(data);
+        setIndex(filenames);
+        setIndexMeta(meta);
+      })
       .catch((e) => {
         setIndex([]);
         setError(String(e));
@@ -194,8 +206,11 @@ export default function DiffIsland({ current, base, aliases }: Props) {
   const options: SnapshotMeta[] = [
     ...index.map((f) => ({
       filename: f,
-      fetched_at: snapshots[f]?.fetched_at,
-      card_count: snapshots[f]?.cards.length,
+      // Prefer the index's label metadata; fall back to a manifest
+      // already loaded by a prior selection. Either path avoids the
+      // "?? cards" placeholder for snapshots that haven't been fetched.
+      fetched_at: indexMeta[f]?.fetched_at ?? snapshots[f]?.fetched_at,
+      card_count: indexMeta[f]?.card_count ?? snapshots[f]?.cards.length,
     })),
     { filename: CURRENT_SENTINEL, fetched_at: current.fetched_at, card_count: current.cards.length },
   ];

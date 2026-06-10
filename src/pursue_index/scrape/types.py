@@ -32,6 +32,12 @@ class CardMetadata(BaseModel):
     redacted: bool = False
     description: str | None = None
 
+    # Upstream "feature this card" flag (added upstream 2026-06-10 in
+    # tranche a62a76884e52 — the CSV's leading ``Featured`` column carries
+    # "YES" on a curated subset). Defaults False; snapshots predating the
+    # column parse as not-featured.
+    featured: bool = False
+
     # Asset locations
     asset_url: HttpUrl | None = None
     asset_filename: str | None = None

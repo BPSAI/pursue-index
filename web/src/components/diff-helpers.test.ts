@@ -19,6 +19,7 @@ import {
   diffWithAliases,
   fieldOnlyChanges,
   selectDefaultPair,
+  normalizeSnapshotIndex,
 } from "./diff-helpers.ts";
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
 
@@ -129,6 +130,7 @@ function card(id: string, title: string, extras: Partial<CardMetadata> = {}): Ca
     image_alt_text: null,
     image_virin: null,
     original_classification: null,
+    featured: false,
     ...extras,
   };
 }
@@ -205,4 +207,93 @@ test("fieldOnlyChanges: ignores cards present in only one side (those are add/re
   const a = card("aaa", "A");
   const b = card("bbb", "B");
   assert.equal(fieldOnlyChanges([a], [b]).length, 0);
+});
+
+test("fieldOnlyChanges: featured flips false→true → reported", () => {
+  const a = card("aaa", "T", { featured: false });
+  const b = card("aaa", "T", { featured: true });
+  const out = fieldOnlyChanges([a], [b]);
+  assert.equal(out.length, 1);
+  assert.ok(out[0].fields.includes("featured"));
+});
+
+test("fieldOnlyChanges: featured unchanged true→true → no change", () => {
+  const a = card("aaa", "T", { featured: true });
+  const b = card("aaa", "T", { featured: true });
+  assert.equal(fieldOnlyChanges([a], [b]).length, 0);
+});
+
+test("fieldOnlyChanges: redacted absent (old snapshot) vs redacted=false → NOT a spurious change", () => {
+  // `redacted` joined the boolean-normalized fields alongside `featured`,
+  // so it gets the same undefined≡false treatment. Guards the (desirable)
+  // behavior change to a pre-existing field — a snapshot that predates an
+  // always-present `redacted` must not flood the diff against an explicit
+  // false.
+  const prev = card("aaa", "T");
+  delete (prev as { redacted?: boolean }).redacted;
+  const sameFalse = card("aaa", "T", { redacted: false });
+  assert.equal(fieldOnlyChanges([prev], [sameFalse]).length, 0);
+
+  const nowTrue = card("aaa", "T", { redacted: true });
+  const out = fieldOnlyChanges([prev], [nowTrue]);
+  assert.equal(out.length, 1);
+  assert.ok(out[0].fields.includes("redacted"));
+});
+
+test("fieldOnlyChanges: pre-Featured snapshot (field absent) vs featured=false → NOT a spurious change", () => {
+  // Snapshots taken before the Featured column lack the field entirely
+  // (undefined). Comparing against a new snapshot's explicit `false`
+  // must NOT register as a change, or every non-featured card would
+  // flood the diff. Only a real flip to `true` should surface.
+  const prev = card("aaa", "T");
+  delete (prev as { featured?: boolean }).featured; // simulate old wire shape
+  const sameFalse = card("aaa", "T", { featured: false });
+  assert.equal(fieldOnlyChanges([prev], [sameFalse]).length, 0);
+
+  const nowTrue = card("aaa", "T", { featured: true });
+  const out = fieldOnlyChanges([prev], [nowTrue]);
+  assert.equal(out.length, 1);
+  assert.ok(out[0].fields.includes("featured"));
+});
+
+// --- normalizeSnapshotIndex ---
+// The web snapshot index historically shipped as a bare filename list
+// (string[]); the enriched form carries per-snapshot label metadata so
+// the /diff selectors don't render "?? cards" until a snapshot is
+// lazily fetched. normalizeSnapshotIndex tolerates BOTH so a deploy
+// straddling the format change never breaks the page.
+
+test("normalizeSnapshotIndex: legacy string[] → filenames, empty meta", () => {
+  const out = normalizeSnapshotIndex(["a.json", "b.json"]);
+  assert.deepEqual(out.filenames, ["a.json", "b.json"]);
+  assert.deepEqual(out.meta, {});
+});
+
+test("normalizeSnapshotIndex: enriched objects → filenames + per-file meta", () => {
+  const out = normalizeSnapshotIndex([
+    { filename: "a.json", fetched_at: "2026-05-27T13:48:27Z", card_count: 222 },
+    { filename: "b.json", fetched_at: "2026-06-10T16:17:15Z", card_count: 222 },
+  ]);
+  assert.deepEqual(out.filenames, ["a.json", "b.json"]);
+  assert.equal(out.meta["a.json"].fetched_at, "2026-05-27T13:48:27Z");
+  assert.equal(out.meta["a.json"].card_count, 222);
+  assert.equal(out.meta["b.json"].fetched_at, "2026-06-10T16:17:15Z");
+});
+
+test("normalizeSnapshotIndex: object missing optional fields → filename kept, meta fields undefined", () => {
+  const out = normalizeSnapshotIndex([{ filename: "a.json" }]);
+  assert.deepEqual(out.filenames, ["a.json"]);
+  assert.equal(out.meta["a.json"].fetched_at, undefined);
+  assert.equal(out.meta["a.json"].card_count, undefined);
+});
+
+test("normalizeSnapshotIndex: null / non-array → empty result (defensive)", () => {
+  assert.deepEqual(normalizeSnapshotIndex(null), { filenames: [], meta: {} });
+  assert.deepEqual(normalizeSnapshotIndex(undefined), { filenames: [], meta: {} });
+  assert.deepEqual(normalizeSnapshotIndex({}), { filenames: [], meta: {} });
+});
+
+test("normalizeSnapshotIndex: drops entries with no usable filename", () => {
+  const out = normalizeSnapshotIndex(["a.json", { fetched_at: "x" }, { filename: "" }, 42]);
+  assert.deepEqual(out.filenames, ["a.json"]);
 });

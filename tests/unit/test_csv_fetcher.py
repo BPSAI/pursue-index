@@ -149,6 +149,38 @@ def test_image_alt_text_and_virin_not_duplicated_in_raw() -> None:
     assert "Image VIRIN" not in cards[0].raw
 
 
+# Tranche a62a76884e52 (2026-06-10) added a leading ``Featured`` column;
+# upstream flags a small set of cards with "YES", the rest empty. Parser
+# reads by header name (DictReader) so the inserted leading column does
+# not shift other fields; ``Featured`` is promoted to a typed bool.
+_CSV_WITH_FEATURED = (
+    "﻿Featured,Redaction,Release Date,Title,Type,Video Pairing,PDF Pairing,"
+    "Description Blurb,DVIDS Video ID,Video Title,Agency,Incident Date,"
+    "Incident Location,PDF | Image Link,Modal Image,Image Alt Text,Image VIRIN\r\n"
+    'YES,,5/22/26,"Featured Card",PDF,,,Brief.,,,CIA,1973,USSR,'
+    "https://www.war.gov/feat.pdf,,,\r\n"
+    ',,5/22/26,"Plain Card",PDF,,,Brief.,,,DOE,1969,"Amarillo, TX",'
+    "https://www.war.gov/plain.pdf,,,\r\n"
+).encode("utf-8")
+
+
+def test_parse_csv_captures_featured_flag() -> None:
+    cards = parse_csv(_CSV_WITH_FEATURED)
+    assert len(cards) == 2
+    featured, plain = cards
+    assert featured.featured is True
+    assert plain.featured is False
+    # Promoted to a typed field → must not also leak into raw.
+    assert "Featured" not in featured.raw
+
+
+def test_featured_defaults_false_on_legacy_csv_without_column() -> None:
+    """A CSV predating the Featured column parses cleanly with
+    featured=False (absence = not featured)."""
+    cards = parse_csv(_SAMPLE_CSV)
+    assert all(c.featured is False for c in cards)
+
+
 _CSV_WITH_CLASSIFICATIONS = (
     "﻿Redaction,Release Date,Title,Type,Video Pairing,PDF Pairing,"
     "Description Blurb,DVIDS Video ID,Video Title,Agency,Incident Date,"

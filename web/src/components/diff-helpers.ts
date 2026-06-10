@@ -37,6 +37,55 @@ export function buildDiffParams(from: string | null, to: string | null): string 
   return params.toString();
 }
 
+// --- Snapshot index normalization -----------------------------------
+
+export interface SnapshotIndexMeta {
+  fetched_at?: string;
+  card_count?: number;
+}
+
+export interface NormalizedSnapshotIndex {
+  /** Chronologically-ordered snapshot filenames (the legacy shape). */
+  filenames: string[];
+  /** filename → label metadata, when the enriched index supplies it. */
+  meta: Record<string, SnapshotIndexMeta>;
+}
+
+/**
+ * Accept either the legacy bare ``string[]`` snapshot index or the
+ * enriched ``Array<{filename, fetched_at?, card_count?}>`` form and
+ * return both the ordered filename list (so every existing consumer
+ * keeps working unchanged) and a filename→meta map (so the selectors
+ * can label a snapshot without lazily fetching its full manifest).
+ *
+ * Tolerant by construction: a deploy where the published index is
+ * still the old flat list yields empty meta (selectors fall back to
+ * the loaded-manifest count), and malformed entries are dropped rather
+ * than throwing — this runs client-side against fetched JSON.
+ */
+export function normalizeSnapshotIndex(raw: unknown): NormalizedSnapshotIndex {
+  const filenames: string[] = [];
+  const meta: Record<string, SnapshotIndexMeta> = {};
+  if (!Array.isArray(raw)) return { filenames, meta };
+  for (const entry of raw) {
+    if (typeof entry === "string") {
+      if (entry) filenames.push(entry);
+      continue;
+    }
+    if (entry && typeof entry === "object") {
+      const filename = (entry as { filename?: unknown }).filename;
+      if (typeof filename !== "string" || !filename) continue;
+      filenames.push(filename);
+      const e = entry as { fetched_at?: unknown; card_count?: unknown };
+      meta[filename] = {
+        fetched_at: typeof e.fetched_at === "string" ? e.fetched_at : undefined,
+        card_count: typeof e.card_count === "number" ? e.card_count : undefined,
+      };
+    }
+  }
+  return { filenames, meta };
+}
+
 // --- Default snapshot pair ------------------------------------------
 
 export function selectDefaultPair(index: string[]): { from: string | null; to: string | null } {
@@ -154,6 +203,7 @@ const _COMPARED_FIELDS: Array<keyof CardMetadata> = [
   "incident_date",
   "incident_location",
   "redacted",
+  "featured",
   "description",
   "asset_url",
   "asset_filename",
@@ -162,6 +212,13 @@ const _COMPARED_FIELDS: Array<keyof CardMetadata> = [
   "image_virin",
   "original_classification",
 ];
+
+// Boolean fields are compared by truthiness so a snapshot predating the
+// field (value absent → undefined) reads equal to an explicit `false`.
+// Without this, adding `featured` would flag every non-featured card as
+// "changed" the first time a post-column snapshot is diffed against a
+// pre-column one.
+const _BOOLEAN_FIELDS = new Set<keyof CardMetadata>(["redacted", "featured"]);
 
 export interface FieldChange {
   card_id: string;
@@ -176,7 +233,12 @@ export function fieldOnlyChanges(prev: CardMetadata[], curr: CardMetadata[]): Fi
     if (!p) continue; // present only in curr → that's an "added", handled elsewhere
     const fields: string[] = [];
     for (const f of _COMPARED_FIELDS) {
-      if ((p as any)[f] !== (c as any)[f]) fields.push(f);
+      const pv = (p as any)[f];
+      const cv = (c as any)[f];
+      const changed = _BOOLEAN_FIELDS.has(f)
+        ? Boolean(pv) !== Boolean(cv)
+        : pv !== cv;
+      if (changed) fields.push(f);
     }
     if (fields.length > 0) {
       out.push({ card_id: c.card_id, fields });

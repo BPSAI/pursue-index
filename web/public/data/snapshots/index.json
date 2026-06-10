@@ -1,10 +1,42 @@
 [
-  "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json",
-  "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.json",
-  "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d.json",
-  "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea.json",
-  "c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1.json",
-  "f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543.json",
-  "c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47.json",
-  "6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963.json"
+  {
+    "filename": "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json",
+    "fetched_at": "2026-05-08T21:00:46.185453Z",
+    "card_count": 161
+  },
+  {
+    "filename": "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.json",
+    "fetched_at": "2026-05-11T23:35:44.396085Z",
+    "card_count": 158
+  },
+  {
+    "filename": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d.json",
+    "fetched_at": "2026-05-12T20:20:14.710913Z",
+    "card_count": 158
+  },
+  {
+    "filename": "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea.json",
+    "fetched_at": "2026-05-13T03:46:08.624879Z",
+    "card_count": 158
+  },
+  {
+    "filename": "c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1.json",
+    "fetched_at": "2026-05-15T04:53:46.845092Z",
+    "card_count": 158
+  },
+  {
+    "filename": "f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543.json",
+    "fetched_at": "2026-05-20T17:33:52.882319Z",
+    "card_count": 158
+  },
+  {
+    "filename": "c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47.json",
+    "fetched_at": "2026-05-22T14:05:20.884519Z",
+    "card_count": 222
+  },
+  {
+    "filename": "6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963.json",
+    "fetched_at": "2026-05-27T13:48:27.811095Z",
+    "card_count": 222
+  }
 ]

@@ -89,6 +89,45 @@ def rotate_to_snapshot(
     return snapshot_path
 
 
+def build_public_index(public_dir: Path) -> list[dict[str, Any]]:
+    """Build the enriched web snapshot index — ``[{filename, fetched_at,
+    card_count}]`` sorted oldest→newest by ``fetched_at``.
+
+    Single source of truth for the SHAPE + ORDER of
+    ``web/public/data/snapshots/index.json``. Every writer (scrape-run
+    rotate, ingest/promote mirror, recovery runbook) funnels through this
+    so no path can silently regress the index back to a bare filename
+    list — which would revert the /diff selector labels to "?? cards"
+    (PR #82 review P1). The metadata lets DiffIsland label every snapshot
+    without first lazily fetching its full manifest.
+    """
+    entries: list[dict[str, Any]] = []
+    for path in sorted(public_dir.glob("*.json")):
+        if path.name == "index.json":
+            continue
+        try:
+            m = _read_json(path)
+        except (OSError, json.JSONDecodeError):
+            continue
+        entries.append(
+            {
+                "filename": path.name,
+                "fetched_at": m.get("fetched_at") or "",
+                "card_count": len(m.get("cards", [])),
+            }
+        )
+    entries.sort(key=lambda e: e["fetched_at"])
+    return entries
+
+
+def write_public_index(public_dir: Path) -> None:
+    """Atomically write the enriched web snapshot index. The ONE writer
+    every path uses, so the committed file stays byte-stable regardless
+    of which path last touched it (PR #82 review P2: three writers had
+    three serialization styles, churning the file)."""
+    _atomic_write_json(public_dir / "index.json", build_public_index(public_dir))
+
+
 def _rebuild_index(canonical_dir: Path, public_dir: Path) -> None:
     entries: list[dict[str, Any]] = []
     for path in sorted(canonical_dir.glob("*.json")):
@@ -105,11 +144,9 @@ def _rebuild_index(canonical_dir: Path, public_dir: Path) -> None:
         )
     # Canonical index: full metadata for offline tooling.
     _atomic_write_json(canonical_dir / "index.json", {"snapshots": entries})
-    # Public index: filenames only — DiffIsland's contract.
-    _atomic_write_json(
-        public_dir / "index.json",
-        [e["filename"] for e in entries],
-    )
+    # Public index: enriched objects via the shared writer (DiffIsland's
+    # contract — labels need fetched_at + card_count).
+    write_public_index(public_dir)
 
 
 def detect_removals(

@@ -10,8 +10,9 @@ build_manifest` directly) bypass it.
 
 Updates BOTH indexes:
 - `data/manifests/snapshots/index.json` (pipeline-side, rich objects)
-- `web/public/data/snapshots/index.json` (web-side, flat filename list
-  the /diff page reads)
+- `web/public/data/snapshots/index.json` (web-side, enriched
+  {filename, fetched_at, card_count} objects the /diff page reads — the
+  metadata lets the selectors label each snapshot without fetching it)
 
 Also copies the snapshot file into both
 `data/manifests/snapshots/<sha>.json` and
@@ -32,6 +33,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+# Expose the src-layout package so the shared snapshot-index writer is
+# importable when this runbook is invoked directly (matches the
+# sys.path-injection pattern in scripts/poll_pursue.py).
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+from pursue_index.scrape.snapshots import write_public_index  # noqa: E402
+
 LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 SNAPSHOTS_PIPELINE = _REPO_ROOT / "data" / "manifests" / "snapshots"
 SNAPSHOTS_WEB = _REPO_ROOT / "web" / "public" / "data" / "snapshots"
@@ -53,10 +60,20 @@ def _pipeline_index_load() -> dict:
 
 
 def _web_index_load() -> list[str]:
+    """Return web-index filenames, tolerant of both the legacy bare-string
+    list and the enriched {filename, ...} object list. Internal rotation
+    logic keys on filenames; the enriched metadata is rebuilt on write by
+    ``_web_index_dump``."""
     p = SNAPSHOTS_WEB / "index.json"
     if not p.exists():
         return []
-    return json.loads(p.read_text())
+    raw = json.loads(p.read_text())
+    return [e if isinstance(e, str) else e["filename"] for e in raw]
+
+
+# The enriched web-index payload is built + written by the shared
+# ``write_public_index`` (pursue_index.scrape.snapshots) so this recovery
+# path stays byte-identical to the scrape-run + ingest paths.
 
 
 def _backfill_missing_pipeline_entries(idx: dict) -> dict:
@@ -149,13 +166,12 @@ def rotate(manifest: dict) -> tuple[bool, str]:
     web_idx.sort(key=lambda fn: (SNAPSHOTS_WEB / fn).stat().st_mtime
                  if (SNAPSHOTS_WEB / fn).exists() else 0)
 
-    # Persist both indexes
+    # Persist the pipeline index here; the web index goes through the
+    # shared writer so its shape + serialization match every other path.
     (SNAPSHOTS_PIPELINE / "index.json").write_text(
         json.dumps(pipeline_idx, indent=2, ensure_ascii=False)
     )
-    (SNAPSHOTS_WEB / "index.json").write_text(
-        json.dumps(web_idx, indent=2, ensure_ascii=False)
-    )
+    write_public_index(SNAPSHOTS_WEB)
 
     if not rotated:
         msgs.append(f"  no-op (sha {sha[:12]} already in both indexes)")

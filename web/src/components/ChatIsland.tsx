@@ -34,6 +34,7 @@ import {
 } from "./search-filters.ts";
 import { FilterContextBanner } from "./search-result-chrome.tsx";
 import type { CardMetadata } from "../data/types.ts";
+import { shouldStickToBottom } from "./chat-scroll.ts";
 
 interface Props {
   base: string;
@@ -73,6 +74,10 @@ export default function ChatIsland({ base, cards }: Props) {
   const [phase, setPhase] = useState<"" | "RETRIEVING" | "GENERATING">("");
   const [showSettings, setShowSettings] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
+  // Whether streamed deltas should keep auto-scrolling the transcript.
+  // True at start; flips to false when the user scrolls up to re-read,
+  // back to true when they return to the bottom. See chat-scroll.ts.
+  const [stickToBottom, setStickToBottom] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -114,12 +119,20 @@ export default function ChatIsland({ base, cards }: Props) {
     return new AnthropicServerProvider();
   }, [config]);
 
-  // Auto-scroll on new messages / streaming deltas.
+  // Auto-scroll on new messages / streaming deltas, but only while the
+  // user is at (or near) the bottom. If they've scrolled up to re-read
+  // earlier content, leave them where they are — don't fight the read.
   useEffect(() => {
-    if (scrollRef.current) {
+    if (stickToBottom && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, stickToBottom]);
+
+  const onTranscriptScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setStickToBottom(shouldStickToBottom(el.scrollHeight, el.scrollTop, el.clientHeight));
+  };
 
   // Esc closes settings.
   useEffect(() => {
@@ -138,6 +151,12 @@ export default function ChatIsland({ base, cards }: Props) {
     setBusy(true);
     setPhase("RETRIEVING");
     setInput("");
+    // A new turn re-engages auto-scroll: the user just chose to send, so
+    // they want to see the answer. Without this, if they'd scrolled up to
+    // read an earlier message (stickToBottom=false) the next response
+    // would stream entirely off-screen until they manually scrolled back
+    // down (Codex PR #82 P2).
+    setStickToBottom(true);
 
     const userMsg: Message = { role: "user", text: query, citations: [], status: "done" };
     const asstMsg: Message = { role: "assistant", text: "", citations: [], status: "streaming" };
@@ -280,6 +299,7 @@ export default function ChatIsland({ base, cards }: Props) {
           announced without being chatty about every text delta. */}
       <div
         ref={scrollRef}
+        onScroll={onTranscriptScroll}
         role="log"
         aria-live="polite"
         aria-label="Chat transcript"
@@ -398,15 +418,15 @@ function AssistantMessage({ msg, base }: { msg: Message; base: string }) {
           <span class="text-[color:var(--color-signal-amber)]">[ABSTAINED]</span>
         )}
       </div>
+      {msg.citations && msg.citations.length > 0 && (
+        <CitationList citations={msg.citations} base={base} />
+      )}
       <div class="font-mono text-sm leading-relaxed text-[color:var(--color-text-bright)] whitespace-pre-wrap">
         {segmentWithCitations(msg.text || "", msg.citations || [], base)}
         {msg.status === "streaming" && <span class="pi-caret"></span>}
       </div>
       {msg.status === "error" && msg.errorMessage && (
         <ErrorBlock message={msg.errorMessage} />
-      )}
-      {msg.citations && msg.citations.length > 0 && (
-        <CitationList citations={msg.citations} base={base} />
       )}
     </div>
   );

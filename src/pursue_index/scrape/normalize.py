@@ -66,6 +66,16 @@ def parse_redacted(value: object) -> bool:
     return s.lower() in {"true", "yes", "y", "1"}
 
 
+def parse_featured(value: object) -> bool:
+    """The ``Featured`` column (added upstream 2026-06-10 in tranche
+    a62a76884e52) carries ``YES`` on featured cards and is empty
+    otherwise. Absent/empty = not featured."""
+    s = clean_str(value)
+    if not s:
+        return False
+    return s.lower() in {"true", "yes", "y", "1"}
+
+
 def filename_from_url(url: str | None) -> str | None:
     if not url:
         return None

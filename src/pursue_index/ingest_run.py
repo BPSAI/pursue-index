@@ -35,6 +35,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from pursue_index.scrape.snapshots import write_public_index
+
 # Operator-local builders invoked from promote_snapshot as part of the
 # release-pipeline-gate lockstep refresh. Both are idempotent and
 # graceful-skip when local inputs (operator's .mp4s, NAS PDFs) are
@@ -69,26 +71,12 @@ def _mirror_snapshot_to_web(
         return
     target = web_snapshots_dir / f"{snapshot_sha}.json"
     shutil.copyfile(snapshot_path, target)
-    # Rebuild the index from the on-disk listing so any prior snapshot
-    # added through other means (operator manual copy, hot-fix) stays
-    # in the listing.
-    files = sorted(
-        f.name for f in web_snapshots_dir.glob("*.json") if f.name != "index.json"
-    )
-    # Order entries by csv `fetched_at` so /diff shows oldest → newest
-    # (matches the pipeline-side index.json convention).
-    entries: list[tuple[str, str]] = []
-    for fname in files:
-        try:
-            data = json.loads((web_snapshots_dir / fname).read_text())
-            entries.append((data.get("fetched_at") or "", fname))
-        except Exception:
-            entries.append(("", fname))
-    entries.sort()
-    listing = [name for _, name in entries]
-    (web_snapshots_dir / "index.json").write_text(
-        json.dumps(listing, indent=2) + "\n"
-    )
+    # Refresh the index from the on-disk listing (so any prior snapshot
+    # added through other means stays listed) via the shared writer —
+    # the ONE source of truth for the enriched {filename, fetched_at,
+    # card_count} shape the /diff selectors need. Using it here keeps
+    # this path byte-identical to the scrape-run + runbook paths.
+    write_public_index(web_snapshots_dir)
 
 
 def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
