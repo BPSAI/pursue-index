@@ -253,6 +253,24 @@ def test_snapshot_job_runs_only_on_detected_change() -> None:
     assert "changed" in if_clause
 
 
+def test_snapshot_job_survives_unrelated_poll_failure() -> None:
+    """The poll job deliberately ``exit 1``s on a PDF-health-sentinel failure
+    (an independent surveillance lane). With a bare ``needs: poll`` gate,
+    GitHub treats the job ``if`` as implicitly ``success() && …`` — so a
+    CSV-changed run where only the PDF lane failed would SKIP the snapshot,
+    losing the credential-free snapshot for exactly the detected change this
+    job exists to preserve. The gate must use ``always()`` to decouple from
+    the poll job's overall result while still gating on the detected change.
+    (Codex PR #84 P2.)"""
+    if_clause = str(_load_jobs()["snapshot"].get("if", ""))
+    assert "always()" in if_clause, (
+        "snapshot job `if` must use always() so an unrelated poll-step "
+        "failure (e.g. PDF health) does not skip the snapshot"
+    )
+    # Still gated on the detected change — always() must not run it on no-change.
+    assert "needs.poll.outputs.status" in if_clause and "changed" in if_clause
+
+
 def test_snapshot_job_runs_generator_and_commits() -> None:
     """AC2 — a step invokes the T6.1 generator script and a step commits
     the snapshot + diff JSON. Like pdf_health, it runs the bare script
