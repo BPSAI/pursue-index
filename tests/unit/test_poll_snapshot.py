@@ -112,6 +112,43 @@ def test_rotates_prior_latest_into_snapshots(tmp_path: Path) -> None:
     assert (canonical / f"{prior_sha}.json").exists()
 
 
+def test_existing_snapshot_is_immutable_on_rerun(tmp_path: Path) -> None:
+    """Content-addressed ``<sha>.json`` is immutable: a rerun for the same
+    CSV must not rewrite an existing snapshot (a fresh build would churn
+    ``fetched_at`` + the index ordering). Mirrors ``rotate_to_snapshot``'s
+    idempotency for the new-side writer. (Codex PR #83 P2.)
+    """
+    latest, canonical, public = _dirs(tmp_path)
+    _seed_latest(latest, _csv([_row("Case 0001", _URL1)]))
+    new_raw = _csv([_row("Case 0001", _URL1), _row("Case 0002", _URL2)])
+    new_sha = build_manifest(new_raw, parse_csv(new_raw), _SOURCE_URL).csv_sha256
+
+    generate_snapshot_diff(
+        new_raw,
+        source_url=_SOURCE_URL,
+        latest_path=latest,
+        canonical_dir=canonical,
+        public_dir=public,
+    )
+
+    # Stamp a sentinel into the content-addressed snapshot to detect any rewrite.
+    sentinel = b'{"sentinel": "immutable"}'
+    (canonical / f"{new_sha}.json").write_bytes(sentinel)
+    (public / f"{new_sha}.json").write_bytes(sentinel)
+
+    # Re-run for the SAME csv — the existing snapshot must be left untouched.
+    generate_snapshot_diff(
+        new_raw,
+        source_url=_SOURCE_URL,
+        latest_path=latest,
+        canonical_dir=canonical,
+        public_dir=public,
+    )
+
+    assert (canonical / f"{new_sha}.json").read_bytes() == sentinel
+    assert (public / f"{new_sha}.json").read_bytes() == sentinel
+
+
 def test_detects_removed_card(tmp_path: Path) -> None:
     latest, canonical, public = _dirs(tmp_path)
     _seed_latest(latest, _csv([_row("Case 0001", _URL1), _row("Case 0002", _URL2)]))

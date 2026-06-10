@@ -102,10 +102,20 @@ def _write_new_snapshot(
     """
     canonical_dir.mkdir(parents=True, exist_ok=True)
     public_dir.mkdir(parents=True, exist_ok=True)
-    payload = manifest.model_dump_json(indent=2, by_alias=True).encode("utf-8")
     name = f"{manifest.csv_sha256}.json"
-    (canonical_dir / name).write_bytes(payload)
-    (public_dir / name).write_bytes(payload)
+    canonical_path = canonical_dir / name
+    public_path = public_dir / name
+    if canonical_path.exists():
+        # Content-addressed snapshots are immutable: a rerun for the same
+        # csv_sha must not rewrite an existing <sha>.json (a fresh build
+        # would churn fetched_at + the index ordering). Mirror
+        # rotate_to_snapshot's idempotency — only backfill a missing mirror.
+        if not public_path.exists():
+            public_path.write_bytes(canonical_path.read_bytes())
+        return
+    payload = manifest.model_dump_json(indent=2, by_alias=True).encode("utf-8")
+    canonical_path.write_bytes(payload)
+    public_path.write_bytes(payload)
     _rebuild_index(canonical_dir, public_dir)
 
 
