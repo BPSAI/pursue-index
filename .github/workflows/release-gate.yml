@@ -146,13 +146,16 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           # Vaivora PR #79 round-8 P0: bumped from "20" to match
-          # web/package.json:engines ">=22.12.0". The new step 5c
-          # invokes `npm run test:lib` which runs
-          # `node --test src/lib/*.ts` files — native TypeScript
-          # stripping needs Node ≥22.6 (default ≥22.18). The old
-          # gate never ran test:lib so this is the first time the
-          # mismatch would have fired.
-          node-version: "22.12"
+          # web/package.json:engines ">=22.12.0". The step 5c invokes
+          # `npm run test:lib` which runs `node --test src/lib/*.ts` —
+          # native TypeScript stripping is on by default only at Node
+          # ≥22.18. "22.12" (the prior pin) is below that threshold, so
+          # test:lib ERR_UNKNOWN_FILE_EXTENSION'd on every .ts test —
+          # the second reason release-gate was red since 2026-05-28
+          # (the first, the missing package install, masked it via
+          # fail-fast). Pin ≥22.18 so stripping is default, matching the
+          # comment's own stated requirement and the Node 24 local dev env.
+          node-version: "22.18"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
