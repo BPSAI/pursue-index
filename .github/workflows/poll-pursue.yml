@@ -417,7 +417,14 @@ jobs:
   # ==================================================================
   snapshot:
     needs: poll
-    if: needs.poll.outputs.status == 'changed'
+    # `always()` is load-bearing: without it GitHub treats this job `if` as
+    # implicitly `success() && …`, so a CSV-changed run where a LATER,
+    # INDEPENDENT poll step failed (e.g. the PDF-health sentinel trips the
+    # poll job's `Propagate failure exit code` step) would SKIP this job —
+    # losing the credential-free snapshot for exactly the detected change it
+    # exists to preserve. We decouple from the poll job's overall result but
+    # still gate strictly on the detected-change output. (Codex PR #84 P2.)
+    if: always() && needs.poll.outputs.status == 'changed'
     runs-on: ubuntu-latest
     permissions:
       contents: write   # commit snapshot + diff JSON to main
