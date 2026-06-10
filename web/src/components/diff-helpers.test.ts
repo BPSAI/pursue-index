@@ -130,6 +130,7 @@ function card(id: string, title: string, extras: Partial<CardMetadata> = {}): Ca
     image_alt_text: null,
     image_virin: null,
     original_classification: null,
+    featured: false,
     ...extras,
   };
 }
@@ -206,6 +207,36 @@ test("fieldOnlyChanges: ignores cards present in only one side (those are add/re
   const a = card("aaa", "A");
   const b = card("bbb", "B");
   assert.equal(fieldOnlyChanges([a], [b]).length, 0);
+});
+
+test("fieldOnlyChanges: featured flips false→true → reported", () => {
+  const a = card("aaa", "T", { featured: false });
+  const b = card("aaa", "T", { featured: true });
+  const out = fieldOnlyChanges([a], [b]);
+  assert.equal(out.length, 1);
+  assert.ok(out[0].fields.includes("featured"));
+});
+
+test("fieldOnlyChanges: featured unchanged true→true → no change", () => {
+  const a = card("aaa", "T", { featured: true });
+  const b = card("aaa", "T", { featured: true });
+  assert.equal(fieldOnlyChanges([a], [b]).length, 0);
+});
+
+test("fieldOnlyChanges: pre-Featured snapshot (field absent) vs featured=false → NOT a spurious change", () => {
+  // Snapshots taken before the Featured column lack the field entirely
+  // (undefined). Comparing against a new snapshot's explicit `false`
+  // must NOT register as a change, or every non-featured card would
+  // flood the diff. Only a real flip to `true` should surface.
+  const prev = card("aaa", "T");
+  delete (prev as { featured?: boolean }).featured; // simulate old wire shape
+  const sameFalse = card("aaa", "T", { featured: false });
+  assert.equal(fieldOnlyChanges([prev], [sameFalse]).length, 0);
+
+  const nowTrue = card("aaa", "T", { featured: true });
+  const out = fieldOnlyChanges([prev], [nowTrue]);
+  assert.equal(out.length, 1);
+  assert.ok(out[0].fields.includes("featured"));
 });
 
 // --- normalizeSnapshotIndex ---

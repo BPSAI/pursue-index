@@ -30,6 +30,7 @@ from pursue_index.scrape.normalize import (
     extract_classification,
     filename_from_url,
     normalize_asset_type,
+    parse_featured,
     parse_redacted,
     stable_card_id,
 )
@@ -124,6 +125,7 @@ def _row_to_card(row: dict[str, str]) -> CardMetadata:
         incident_date=clean_str(row.get("Incident Date")),
         incident_location=clean_str(row.get("Incident Location")),
         redacted=parse_redacted(row.get("Redaction")),
+        featured=parse_featured(row.get("Featured")),
         description=clean_str(row.get("Description Blurb")),
         asset_url=asset_url,
         asset_filename=filename_from_url(asset_url),
@@ -140,6 +142,7 @@ def _row_to_card(row: dict[str, str]) -> CardMetadata:
 
 
 _MAPPED_KEYS = {
+    "Featured",
     "Redaction",
     "Release Date",
     "Title",

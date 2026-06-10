@@ -11,6 +11,10 @@ export interface CardMetadata {
   incident_date: string | null;
   incident_location: string | null;
   redacted: boolean;
+  // Upstream "feature this card" flag (added in tranche a62a76884e52,
+  // 2026-06-10 — the CSV's leading "Featured" column). Snapshots taken
+  // before the column lack this field; treat its absence as false.
+  featured?: boolean;
   description: string | null;
   asset_url: string | null;
   asset_filename: string | null;

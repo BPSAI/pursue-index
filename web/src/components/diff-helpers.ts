@@ -203,6 +203,7 @@ const _COMPARED_FIELDS: Array<keyof CardMetadata> = [
   "incident_date",
   "incident_location",
   "redacted",
+  "featured",
   "description",
   "asset_url",
   "asset_filename",
@@ -211,6 +212,13 @@ const _COMPARED_FIELDS: Array<keyof CardMetadata> = [
   "image_virin",
   "original_classification",
 ];
+
+// Boolean fields are compared by truthiness so a snapshot predating the
+// field (value absent → undefined) reads equal to an explicit `false`.
+// Without this, adding `featured` would flag every non-featured card as
+// "changed" the first time a post-column snapshot is diffed against a
+// pre-column one.
+const _BOOLEAN_FIELDS = new Set<keyof CardMetadata>(["redacted", "featured"]);
 
 export interface FieldChange {
   card_id: string;
@@ -225,7 +233,12 @@ export function fieldOnlyChanges(prev: CardMetadata[], curr: CardMetadata[]): Fi
     if (!p) continue; // present only in curr → that's an "added", handled elsewhere
     const fields: string[] = [];
     for (const f of _COMPARED_FIELDS) {
-      if ((p as any)[f] !== (c as any)[f]) fields.push(f);
+      const pv = (p as any)[f];
+      const cv = (c as any)[f];
+      const changed = _BOOLEAN_FIELDS.has(f)
+        ? Boolean(pv) !== Boolean(cv)
+        : pv !== cv;
+      if (changed) fields.push(f);
     }
     if (fields.length > 0) {
       out.push({ card_id: c.card_id, fields });

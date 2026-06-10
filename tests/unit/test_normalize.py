@@ -9,6 +9,7 @@ from pursue_index.scrape.normalize import (
     clean_title,
     filename_from_url,
     normalize_asset_type,
+    parse_featured,
     parse_redacted,
     stable_card_id,
 )
@@ -62,6 +63,16 @@ def test_parse_redacted() -> None:
     assert parse_redacted("") is False
     assert parse_redacted(None) is False
     assert parse_redacted("False") is False  # CSV doesn't actually use False
+
+
+def test_parse_featured() -> None:
+    # The upstream "Featured" column (added 2026-06-10 in tranche
+    # a62a76884e52) carries "YES" on featured cards, empty otherwise.
+    assert parse_featured("YES") is True
+    assert parse_featured("yes") is True
+    assert parse_featured("") is False
+    assert parse_featured(None) is False
+    assert parse_featured("TRUE") is True  # defensive: tolerate truthy variants
 
 
 def test_filename_from_url() -> None:
