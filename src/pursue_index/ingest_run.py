@@ -76,16 +76,26 @@ def _mirror_snapshot_to_web(
         f.name for f in web_snapshots_dir.glob("*.json") if f.name != "index.json"
     )
     # Order entries by csv `fetched_at` so /diff shows oldest → newest
-    # (matches the pipeline-side index.json convention).
-    entries: list[tuple[str, str]] = []
+    # (matches the pipeline-side index.json convention). Each entry is an
+    # enriched {filename, fetched_at, card_count} object so the /diff
+    # selectors can label a snapshot (date + card count) without first
+    # lazily fetching its full manifest — otherwise every unselected
+    # option renders "?? cards" until clicked.
+    entries: list[tuple[str, dict[str, object]]] = []
     for fname in files:
         try:
             data = json.loads((web_snapshots_dir / fname).read_text())
-            entries.append((data.get("fetched_at") or "", fname))
+            fetched_at = data.get("fetched_at") or ""
+            card_count = len(data.get("cards", []))
         except Exception:
-            entries.append(("", fname))
-    entries.sort()
-    listing = [name for _, name in entries]
+            fetched_at = ""
+            card_count = 0
+        entries.append((
+            fetched_at,
+            {"filename": fname, "fetched_at": fetched_at, "card_count": card_count},
+        ))
+    entries.sort(key=lambda e: e[0])
+    listing = [obj for _, obj in entries]
     (web_snapshots_dir / "index.json").write_text(
         json.dumps(listing, indent=2) + "\n"
     )

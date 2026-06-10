@@ -133,7 +133,13 @@ def test_promote_snapshot_mirrors_to_web_snapshots_dir(tmp_path: Path) -> None:
 
 
 def test_promote_snapshot_rebuilds_web_snapshots_index(tmp_path: Path) -> None:
-    """index.json reflects every snapshot on disk after promotion."""
+    """index.json reflects every snapshot on disk after promotion.
+
+    The web index carries enriched ``{filename, fetched_at, card_count}``
+    objects so the /diff selectors can label each snapshot (date + card
+    count) without first lazily fetching its full manifest — otherwise
+    every unselected option renders "?? cards".
+    """
     import json as _json
     repo_root = _build_repo(tmp_path)
     web_snapshots = repo_root / "web" / "public" / "data" / "snapshots"
@@ -152,16 +158,22 @@ def test_promote_snapshot_rebuilds_web_snapshots_index(tmp_path: Path) -> None:
     snapshot.write_text(_json.dumps({
         "csv_sha256": new_sha,
         "fetched_at": "2026-05-12T20:00:00Z",
-        "cards": [],
+        "cards": [{"card_id": "a"}, {"card_id": "b"}],
     }))
     manifest = pipeline / "latest.json"
     promote_snapshot(snapshot, manifest)
 
     index_data = _json.loads((web_snapshots / "index.json").read_text())
-    assert prior.name in index_data
-    assert f"{new_sha}.json" in index_data
+    by_name = {e["filename"]: e for e in index_data}
+    assert prior.name in by_name
+    assert f"{new_sha}.json" in by_name
+    # Enriched label metadata is present and correct.
+    assert by_name[prior.name]["card_count"] == 0
+    assert by_name[f"{new_sha}.json"]["card_count"] == 2
+    assert by_name[f"{new_sha}.json"]["fetched_at"] == "2026-05-12T20:00:00Z"
     # Ordering: oldest fetched_at first, newest last (matches /diff convention).
-    assert index_data.index(prior.name) < index_data.index(f"{new_sha}.json")
+    order = [e["filename"] for e in index_data]
+    assert order.index(prior.name) < order.index(f"{new_sha}.json")
 
 
 def test_promote_snapshot_skips_web_snapshots_when_dir_absent(tmp_path: Path) -> None:

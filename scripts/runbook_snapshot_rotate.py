@@ -10,8 +10,9 @@ build_manifest` directly) bypass it.
 
 Updates BOTH indexes:
 - `data/manifests/snapshots/index.json` (pipeline-side, rich objects)
-- `web/public/data/snapshots/index.json` (web-side, flat filename list
-  the /diff page reads)
+- `web/public/data/snapshots/index.json` (web-side, enriched
+  {filename, fetched_at, card_count} objects the /diff page reads — the
+  metadata lets the selectors label each snapshot without fetching it)
 
 Also copies the snapshot file into both
 `data/manifests/snapshots/<sha>.json` and
@@ -53,10 +54,36 @@ def _pipeline_index_load() -> dict:
 
 
 def _web_index_load() -> list[str]:
+    """Return web-index filenames, tolerant of both the legacy bare-string
+    list and the enriched {filename, ...} object list. Internal rotation
+    logic keys on filenames; the enriched metadata is rebuilt on write by
+    ``_web_index_dump``."""
     p = SNAPSHOTS_WEB / "index.json"
     if not p.exists():
         return []
-    return json.loads(p.read_text())
+    raw = json.loads(p.read_text())
+    return [e if isinstance(e, str) else e["filename"] for e in raw]
+
+
+def _web_index_dump(filenames: list[str]) -> list[dict[str, object]]:
+    """Build the enriched web-index payload from a filename list, reading
+    each snapshot's fetched_at + card_count so the /diff selectors can
+    label snapshots without fetching them. Sorted oldest→newest."""
+    entries: list[tuple[str, dict[str, object]]] = []
+    for fname in filenames:
+        try:
+            data = json.loads((SNAPSHOTS_WEB / fname).read_text())
+            fetched_at = data.get("fetched_at") or ""
+            card_count = len(data.get("cards", []))
+        except Exception:
+            fetched_at = ""
+            card_count = 0
+        entries.append((
+            fetched_at,
+            {"filename": fname, "fetched_at": fetched_at, "card_count": card_count},
+        ))
+    entries.sort(key=lambda e: e[0])
+    return [obj for _, obj in entries]
 
 
 def _backfill_missing_pipeline_entries(idx: dict) -> dict:
@@ -154,7 +181,7 @@ def rotate(manifest: dict) -> tuple[bool, str]:
         json.dumps(pipeline_idx, indent=2, ensure_ascii=False)
     )
     (SNAPSHOTS_WEB / "index.json").write_text(
-        json.dumps(web_idx, indent=2, ensure_ascii=False)
+        json.dumps(_web_index_dump(web_idx), indent=2, ensure_ascii=False)
     )
 
     if not rotated:

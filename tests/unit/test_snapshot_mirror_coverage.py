@@ -86,7 +86,11 @@ def test_web_snapshot_index_covers_web_snapshot_files() -> None:
     `<sha>.json` files actually present on the web side."""
     if not _WEB_SNAPSHOTS_INDEX.is_file():
         pytest.fail(f"missing {_WEB_SNAPSHOTS_INDEX}")
-    listed = set(json.loads(_WEB_SNAPSHOTS_INDEX.read_text()))
+    # The index ships enriched {filename, fetched_at, card_count} objects
+    # (so /diff selectors can label snapshots without fetching them), but
+    # tolerate the legacy bare-string shape during any straddling deploy.
+    raw = json.loads(_WEB_SNAPSHOTS_INDEX.read_text())
+    listed = {e if isinstance(e, str) else e["filename"] for e in raw}
     present = _snapshot_files(_WEB_SNAPSHOTS)
     only_listed = listed - present
     only_present = present - listed

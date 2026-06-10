@@ -19,6 +19,7 @@ import {
   diffWithAliases,
   fieldOnlyChanges,
   selectDefaultPair,
+  normalizeSnapshotIndex,
 } from "./diff-helpers.ts";
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
 
@@ -205,4 +206,46 @@ test("fieldOnlyChanges: ignores cards present in only one side (those are add/re
   const a = card("aaa", "A");
   const b = card("bbb", "B");
   assert.equal(fieldOnlyChanges([a], [b]).length, 0);
+});
+
+// --- normalizeSnapshotIndex ---
+// The web snapshot index historically shipped as a bare filename list
+// (string[]); the enriched form carries per-snapshot label metadata so
+// the /diff selectors don't render "?? cards" until a snapshot is
+// lazily fetched. normalizeSnapshotIndex tolerates BOTH so a deploy
+// straddling the format change never breaks the page.
+
+test("normalizeSnapshotIndex: legacy string[] → filenames, empty meta", () => {
+  const out = normalizeSnapshotIndex(["a.json", "b.json"]);
+  assert.deepEqual(out.filenames, ["a.json", "b.json"]);
+  assert.deepEqual(out.meta, {});
+});
+
+test("normalizeSnapshotIndex: enriched objects → filenames + per-file meta", () => {
+  const out = normalizeSnapshotIndex([
+    { filename: "a.json", fetched_at: "2026-05-27T13:48:27Z", card_count: 222 },
+    { filename: "b.json", fetched_at: "2026-06-10T16:17:15Z", card_count: 222 },
+  ]);
+  assert.deepEqual(out.filenames, ["a.json", "b.json"]);
+  assert.equal(out.meta["a.json"].fetched_at, "2026-05-27T13:48:27Z");
+  assert.equal(out.meta["a.json"].card_count, 222);
+  assert.equal(out.meta["b.json"].fetched_at, "2026-06-10T16:17:15Z");
+});
+
+test("normalizeSnapshotIndex: object missing optional fields → filename kept, meta fields undefined", () => {
+  const out = normalizeSnapshotIndex([{ filename: "a.json" }]);
+  assert.deepEqual(out.filenames, ["a.json"]);
+  assert.equal(out.meta["a.json"].fetched_at, undefined);
+  assert.equal(out.meta["a.json"].card_count, undefined);
+});
+
+test("normalizeSnapshotIndex: null / non-array → empty result (defensive)", () => {
+  assert.deepEqual(normalizeSnapshotIndex(null), { filenames: [], meta: {} });
+  assert.deepEqual(normalizeSnapshotIndex(undefined), { filenames: [], meta: {} });
+  assert.deepEqual(normalizeSnapshotIndex({}), { filenames: [], meta: {} });
+});
+
+test("normalizeSnapshotIndex: drops entries with no usable filename", () => {
+  const out = normalizeSnapshotIndex(["a.json", { fetched_at: "x" }, { filename: "" }, 42]);
+  assert.deepEqual(out.filenames, ["a.json"]);
 });
