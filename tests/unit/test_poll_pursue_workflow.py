@@ -31,10 +31,29 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = REPO_ROOT / ".github" / "workflows" / "poll-pursue.yml"
 
 
+def _load_jobs() -> dict:
+    """Return the workflow's full ``jobs`` map."""
+    return yaml.safe_load(WORKFLOW.read_text())["jobs"]
+
+
 def _load_steps() -> list[dict]:
     """Return the poll job's step list for ordered assertions."""
-    data = yaml.safe_load(WORKFLOW.read_text())
-    return data["jobs"]["poll"]["steps"]
+    return _load_jobs()["poll"]["steps"]
+
+
+def _contains_token(node: object, token: str) -> bool:
+    """True if ``token`` appears anywhere in the parsed (comment-free)
+    structure ``node`` — keys, scalar values, nested lists/dicts. Used to
+    prove a secret name is *absent* from a job's parsed body (comments are
+    stripped by ``safe_load``, so a documenting ``# ... R2_ACCESS_KEY_ID``
+    header can't produce a false positive)."""
+    if isinstance(node, dict):
+        return any(
+            token in str(k) or _contains_token(v, token) for k, v in node.items()
+        )
+    if isinstance(node, list):
+        return any(_contains_token(v, token) for v in node)
+    return token in str(node)
 
 
 def _step_index(steps: list[dict], needle: str) -> int:
@@ -197,3 +216,91 @@ def test_pdf_health_step_invokes_dedicated_script() -> None:
     pdf_idx = _step_index(steps, "Run PDF-fetch health check")
     run_block = steps[pdf_idx].get("run", "")
     assert "scripts/pdf_health_check.py" in run_block
+
+
+# ---------------------------------------------------------------------------
+# Snapshot + diff lane (Sprint 6, T6.2). The credential-free generator job.
+# ---------------------------------------------------------------------------
+
+
+def test_snapshot_job_exists() -> None:
+    """The offline snapshot+diff generator runs as its OWN job, not a
+    step welded into the credentialed `poll` job — that separation is
+    what keeps R2/CF secrets out of the generator's runner."""
+    jobs = _load_jobs()
+    assert "snapshot" in jobs, "snapshot job missing from workflow"
+
+
+def test_snapshot_job_has_no_r2_cf_secrets() -> None:
+    """AC1 — the snapshot job's body must contain NO R2/CF write
+    credentials. Scans the whole parsed job (job + step env, run blocks),
+    a superset of the `env:` block the AC names. Comments are stripped by
+    safe_load, so the documenting header naming these secrets can't trip
+    this."""
+    snapshot = _load_jobs()["snapshot"]
+    for secret in ("R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "CF_ACCOUNT_ID"):
+        assert not _contains_token(snapshot, secret), (
+            f"snapshot job must not reference {secret} (credential isolation)"
+        )
+
+
+def test_snapshot_job_runs_only_on_detected_change() -> None:
+    """AC2 — gated on the poll job's `status == 'changed'` output. On an
+    unchanged/failed poll there is no new side to snapshot."""
+    snapshot = _load_jobs()["snapshot"]
+    if_clause = str(snapshot.get("if", ""))
+    assert "needs.poll.outputs.status" in if_clause
+    assert "changed" in if_clause
+
+
+def test_snapshot_job_runs_generator_and_commits() -> None:
+    """AC2 — a step invokes the T6.1 generator script and a step commits
+    the snapshot + diff JSON. Like pdf_health, it runs the bare script
+    (lean requirements-poll.txt has no typer/rich)."""
+    steps = _load_jobs()["snapshot"]["steps"]
+    blob = " ".join(str(s.get("run", "")) for s in steps)
+    assert "scripts/poll_snapshot.py" in blob, "snapshot job must run the T6.1 generator"
+    assert "git commit" in blob and "git push" in blob, "snapshot job must commit + push"
+    # The committed artifacts are the canonical + public snapshot mirrors.
+    assert "data/manifests/snapshots" in blob
+    assert "web/public/data/snapshots" in blob
+
+
+def test_snapshot_job_serializes_on_registry_writers_group() -> None:
+    """Serialization: the snapshot job pushes to main, so it must not race
+    the poll job's sha/bytes commit. Cross-run serialization comes from the
+    workflow-level `pursue-registry-writers` concurrency group (the whole
+    workflow is bound to it); intra-run ordering comes from `needs: poll`,
+    which also makes the poll outputs available. A redundant job-level
+    concurrency of the SAME group is deliberately omitted — it would
+    deadlock against the workflow-level lock."""
+    data = yaml.safe_load(WORKFLOW.read_text())
+    assert data["concurrency"]["group"] == "pursue-registry-writers"
+    snapshot = data["jobs"]["snapshot"]
+    needs = snapshot.get("needs", [])
+    needs = [needs] if isinstance(needs, str) else needs
+    assert "poll" in needs, "snapshot job must `needs: poll` to serialize after it"
+
+
+def test_poll_job_exposes_outputs_for_snapshot() -> None:
+    """For `needs.poll.outputs.*` to resolve, the poll job must promote its
+    step outputs to job-level outputs. Without this the snapshot gate is
+    always empty and never fires."""
+    poll = _load_jobs()["poll"]
+    outputs = poll.get("outputs", {})
+    assert "status" in outputs, "poll job must expose `status` output"
+    assert "new_sha" in outputs, "poll job must expose `new_sha` output"
+
+
+def test_snapshot_job_credential_isolation_documented() -> None:
+    """AC4 — a header comment must document WHY the job is credential-
+    isolated (comments are stripped by safe_load, so assert on raw text,
+    in the region above the `snapshot:` job key)."""
+    text = WORKFLOW.read_text()
+    job_pos = text.find("\n  snapshot:")
+    assert job_pos > 0, "snapshot job key not found"
+    header = text[:job_pos]
+    # The most recent comment block before the job must explain isolation.
+    tail = header[-1600:]
+    assert "credential" in tail.lower()
+    assert "R2" in tail and "isolat" in tail.lower()
