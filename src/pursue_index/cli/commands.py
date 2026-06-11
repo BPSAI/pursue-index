@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -12,7 +11,8 @@ from rich.table import Table
 
 from pursue_index import get_logger
 from pursue_index.config import settings
-from pursue_index.scrape import fetch_raw_csv, load_manifest, run as scrape_run, save_manifest
+from pursue_index.scrape import fetch_raw_csv, load_manifest, save_manifest
+from pursue_index.scrape import run as scrape_run
 
 log = get_logger(__name__)
 console = Console()
@@ -97,78 +97,18 @@ def scrape_run_cmd(
 
     _print_manifest_summary(manifest)
     console.print(f"\n[green]✔[/green] Manifest written to {out_path}")
-    if diff["snapshot"]:
-        console.print(
-            f"[dim]Prior manifest rotated to snapshot:[/dim] "
-            f"{diff['snapshot']}"
-        )
-    if diff["added"]:
-        console.print(f"[cyan]+[/cyan] {diff['added']} new card(s)")
-    if diff["removed"]:
-        console.print(
-            f"[red]![/red] [bold]{diff['removed']} card(s) REMOVED "
-            f"upstream[/bold] — logged to data/removed-cards.jsonl"
-        )
-        for title in diff["removed_titles"]:
-            console.print(f"  [red]-[/red] {title}")
+    _print_scrape_diff(diff)
 
 
 # ---------------------------------------------------------------------------
-# download
+# download + ocr
 # ---------------------------------------------------------------------------
-download_app = typer.Typer(name="download", help="Download assets referenced by a manifest.")
+# Split into ``download_ocr_cli.py`` (same rationale as embed_app/ops_app) to
+# keep this module slim; that module also owns the T6.5 ``--worklist`` scoping.
+from pursue_index.cli.download_ocr_cli import download_app, ocr_app  # noqa: E402
+
 app.add_typer(download_app)
-
-
-@download_app.command("run")
-def download_run(
-    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
-) -> None:
-    """Download every PDF/IMG (and optionally video) referenced by ``manifest``."""
-    from pursue_index.download.downloader import download_all  # lazy import
-
-    settings.ensure_dirs()
-    m = load_manifest(manifest)
-    asyncio.run(download_all(m))
-
-
-# ---------------------------------------------------------------------------
-# ocr
-# ---------------------------------------------------------------------------
-ocr_app = typer.Typer(name="ocr", help="OCR downloaded PDFs.")
 app.add_typer(ocr_app)
-
-
-@ocr_app.command("run")
-def ocr_run(
-    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
-    engine: str = typer.Option(
-        None,
-        "--engine",
-        help="OCR engine: 'tesseract' (CPU), 'surya' (GPU), 'llm' "
-        "(Anthropic vision), or 'auto' (primary + LLM fallback for "
-        "low-confidence pages). Defaults to PURSUE_OCR_ENGINE.",
-    ),
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Re-OCR cards even if meta.json says status=ok. Required to "
-        "re-run a card with a different engine.",
-    ),
-    concurrency: int = typer.Option(
-        None,
-        "--concurrency",
-        help="Override card-level concurrency. LLM/auto default to 4 "
-        "(or PURSUE_OCR_LLM_CONCURRENCY env var). Set 1 to force serial.",
-    ),
-) -> None:
-    """OCR every PDF that hasn't been processed yet."""
-    from pursue_index.ocr.pipeline import ocr_all  # lazy import
-
-    settings.ensure_dirs()
-    m = load_manifest(manifest)
-    asyncio.run(ocr_all(m, engine=engine, force=force, concurrency=concurrency))
-
 
 # ---------------------------------------------------------------------------
 # embed
@@ -319,6 +259,21 @@ def serve(
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
+def _print_scrape_diff(diff: dict[str, object]) -> None:
+    """Render the rotate / added / removed summary lines for ``scrape run``."""
+    if diff["snapshot"]:
+        console.print(f"[dim]Prior manifest rotated to snapshot:[/dim] {diff['snapshot']}")
+    if diff["added"]:
+        console.print(f"[cyan]+[/cyan] {diff['added']} new card(s)")
+    if diff["removed"]:
+        console.print(
+            f"[red]![/red] [bold]{diff['removed']} card(s) REMOVED "
+            f"upstream[/bold] — logged to data/removed-cards.jsonl"
+        )
+        for title in diff["removed_titles"]:
+            console.print(f"  [red]-[/red] {title}")
+
+
 def _print_manifest_summary(manifest) -> None:
     by_agency: dict[str, int] = {}
     by_type: dict[str, int] = {}

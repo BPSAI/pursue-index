@@ -41,7 +41,7 @@ class Embedder(Protocol):
 
     ``usd_per_million_tokens`` lets each adapter own the rate the pipeline
     uses for cost-cap math — Voyage and OpenAI charge different rates and
-    silently using one for the other understates cost by ~2×.
+    silently using one for the other understates cost by ~2x.
     """
 
     model: str
@@ -126,9 +126,17 @@ def _select_new_rows(
     index_path: Path,
     limit: int | None,
     augment_lookup: dict[tuple[str, int], list[str]] | None = None,
+    only_cards: set[str] | None = None,
 ) -> tuple[list[PageRow], list[PageRow], int]:
-    """Walk OCR output and partition into (new, all, prior_dim)."""
+    """Walk OCR output and partition into (new, all, prior_dim).
+
+    ``only_cards`` (the T6.5 worklist) scopes the walk to those card_ids before
+    the new/seen partition, so a tranche run embeds only its new cards. ``None``
+    embeds the whole OCR dir (the full-corpus escape hatch).
+    """
     all_rows = iter_card_pages(ocr_dir, augment_lookup=augment_lookup)
+    if only_cards is not None:
+        all_rows = [r for r in all_rows if r.card_id in only_cards]
     seen, prior_dim = load_existing_index(index_path)
     new_rows = [r for r in all_rows if (r.card_id, r.page, r.text_sha) not in seen]
     if limit is not None:
@@ -241,18 +249,20 @@ def embed_run(
     usd_per_million_tokens: float | None = None,
     augment_lookup: dict[tuple[str, int], list[str]] | None = None,
     augmented_by: dict[str, str] | None = None,
+    only_cards: set[str] | None = None,
 ) -> EmbedSummary:
     """Walk OCR output, embed new pages, append to vectors.bin + index.json.
 
     ``augment_lookup`` injects alex-zhang42 image tags before text_sha
     (see ``atlas_join.load_atlas_index``); ``augmented_by`` records the
     dataset/revision provenance into index.json. ``usd_per_million_tokens``
-    overrides the adapter's published rate for cost-cap math.
+    overrides the adapter's published rate for cost-cap math. ``only_cards``
+    (the T6.5 worklist) scopes the run to those card_ids; ``None`` is full-corpus.
     """
     model_id = embedder.model
     vectors_path, index_path = _prepare_paths(out_root, model_id)
     new_rows, all_rows, prior_dim = _select_new_rows(
-        ocr_dir, index_path, limit, augment_lookup=augment_lookup
+        ocr_dir, index_path, limit, augment_lookup=augment_lookup, only_cards=only_cards
     )
     skipped = len(all_rows) - len(new_rows)
     summary = EmbedSummary(

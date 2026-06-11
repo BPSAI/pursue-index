@@ -126,6 +126,11 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
 ignore = ["E501"]
 
+[tool.ruff.lint.flake8-bugbear]
+# Typer's CLI idiom puts typer.Option/Argument calls in argument defaults; they
+# are immutable sentinels, not the mutable-default footgun B008 targets.
+extend-immutable-calls = ["typer.Option", "typer.Argument"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
