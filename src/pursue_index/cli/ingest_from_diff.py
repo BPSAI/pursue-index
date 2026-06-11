@@ -45,16 +45,21 @@ def write_worklist_file(path: Path, card_ids: list[str], tranche: str) -> None:
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def run_scoped_stages(manifest: Path, worklist: Path) -> None:
+def run_scoped_stages(manifest: Path, worklist: Path, *, cost_cap_usd: float | None = None) -> None:
     """Drive download -> ocr -> embed scoped to ``worklist`` (T6.5 executors).
 
     Calls the executor functions directly (rather than shelling out) so the
     real ``--worklist`` subsetting runs and the deep stage functions remain
-    monkeypatch-able in tests. Uses each executor's documented defaults.
+    monkeypatch-able in tests. The non-cost-cap embed defaults are sourced from
+    ``embed_cli``'s own ``typer.Option`` defaults (single source of truth — they
+    can't silently diverge from a manual ``pursue embed run``). ``cost_cap_usd``
+    is the operator escape hatch for a large tranche; ``None`` uses the embed
+    default.
     """
+    from pursue_index.cli import embed_cli
     from pursue_index.cli.download_ocr_cli import download_run, ocr_run
-    from pursue_index.cli.embed_cli import embed_run_cmd
 
+    cap = cost_cap_usd if cost_cap_usd is not None else embed_cli._OPT_COST_CAP.default
     download_run(manifest=manifest, worklist=worklist)
     ocr_run(
         manifest=manifest,
@@ -63,17 +68,17 @@ def run_scoped_stages(manifest: Path, worklist: Path) -> None:
         concurrency=None,
         worklist=worklist,
     )
-    embed_run_cmd(
+    embed_cli.embed_run_cmd(
         manifest=manifest,
         provider=None,
         model=None,
         limit=None,
-        cost_cap_usd=1.0,
+        cost_cap_usd=cap,
         usd_per_million_tokens=None,
-        batch_size=64,
+        batch_size=embed_cli._OPT_BATCH.default,
         augment_from=None,
-        augment_miss_rate_threshold=0.01,
-        image_observations_index=Path("web/src/data/image-observations/index.json"),
+        augment_miss_rate_threshold=embed_cli._OPT_MISS_RATE.default,
+        image_observations_index=embed_cli._OPT_IMAGE_OBS_INDEX.default,
         worklist=worklist,
     )
 
@@ -85,11 +90,14 @@ def execute_from_diff(
     manifest: Path,
     worklist: Path,
     dry_run: bool,
+    cost_cap_usd: float | None = None,
 ) -> None:
     """Print the work-list (always) and, unless ``dry_run``, run scoped stages.
 
     A metadata-only tranche (empty work-list) prints a notice and runs nothing
     even without ``--dry-run`` -- there is no new content to OCR/embed.
+    ``cost_cap_usd`` overrides the embed stage's cost cap (operator escape hatch
+    for a large tranche).
     """
     card_ids = scoped_card_ids(summary)
     typer.echo("")
@@ -106,4 +114,4 @@ def execute_from_diff(
     write_worklist_file(worklist, card_ids, tranche)
     typer.echo("")
     typer.echo(f"wrote work-list -> {worklist}; running scoped download -> ocr -> embed")
-    run_scoped_stages(manifest, worklist)
+    run_scoped_stages(manifest, worklist, cost_cap_usd=cost_cap_usd)

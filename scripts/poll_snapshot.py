@@ -46,7 +46,10 @@ from pursue_index.scrape.poll_snapshot import (  # noqa: E402
 )
 
 DEFAULT_LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
-DEFAULT_DIFF_OUT = _REPO_ROOT / "data" / "manifests" / "snapshots" / "latest-diff.json"
+# Diffs live in a SIBLING dir of snapshots/, never inside it: the ingest
+# snapshot-locator globs snapshots/<sha>*.json and the index rebuild globs
+# snapshots/*.json — a diff artifact inside snapshots/ would collide with both.
+DEFAULT_DIFF_OUT = _REPO_ROOT / "data" / "manifests" / "diffs" / "latest-diff.json"
 DEFAULT_SOURCE_URL = "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv"
 
 

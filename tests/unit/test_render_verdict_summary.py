@@ -117,3 +117,22 @@ def test_artifact_shape_needs_review() -> None:
     assert art["field_changes"] == 1
     assert art["new_columns"] == ["Tranche"]
     assert art["new_sha"] == "deadbeef"
+
+
+def test_render_sanitizes_malicious_column_names() -> None:
+    """Regression: new column names come from the upstream CSV header
+    (attacker-tunable). Backticks/newlines must be stripped so they can't break
+    out of the markdown inline-code span and inject content; length is bounded."""
+    evil = "evil`)`\n## injected heading\n" + "x" * 200
+    summary = render_verdict_summary(_diff(new_columns=[evil]))
+    lines = summary.splitlines()
+    # The injected `##` can't become a real markdown heading: no line STARTS
+    # with it (the column text is confined to the single "new columns:" line,
+    # inside a code span, where `##` renders literally and harmlessly).
+    assert not any(ln.lstrip().startswith("#") for ln in lines)
+    # No backtick from the column survives to break out of the inline-code span.
+    assert "`)`" not in summary
+    # The column renders on ONE bounded line (newlines stripped, length capped).
+    col_render_line = next(ln for ln in lines if "new columns:" in ln)
+    assert len(col_render_line) < 160  # bounded, not 200+ chars
+    assert "…" in col_render_line  # truncation marker present for the long name

@@ -396,3 +396,38 @@ def test_snapshot_job_credential_isolation_documented() -> None:
     tail = header[-1600:]
     assert "credential" in tail.lower()
     assert "R2" in tail and "isolat" in tail.lower()
+
+
+def test_snapshot_diff_artifact_lives_outside_snapshots_dir() -> None:
+    """Regression (cross-module P0/P1): the diff+verdict artifact must NOT be
+    written inside data/manifests/snapshots/. The ingest snapshot-locator globs
+    snapshots/<sha>*.json (would promote the diff as latest.json) and
+    _rebuild_index globs snapshots/*.json (would pollute the canonical index)."""
+    blob = " ".join(str(s.get("run", "")) for s in _snapshot_steps())
+    tokens = blob.split()
+    diff_out = tokens[tokens.index("--diff-out") + 1].strip('"').strip("'")
+    assert "data/manifests/snapshots" not in diff_out, (
+        "diff artifact must be a sibling of snapshots/, not inside it"
+    )
+
+
+def test_snapshot_job_has_issues_write_permission() -> None:
+    """The verdict-comment step calls `gh issue comment`; the job-level
+    permissions block overrides the workflow default, so it must grant
+    issues: write or the comment 403s in CI."""
+    perms = _load_jobs()["snapshot"].get("permissions", {})
+    assert perms.get("issues") == "write", (
+        "snapshot job needs issues: write for the gh issue comment step"
+    )
+
+
+def test_verdict_step_uses_rest_list_not_search() -> None:
+    """Regression: locate the just-created issue via the immediately-consistent
+    REST list (--json), not gh's eventually-consistent --search (which lags
+    issue creation by seconds-to-minutes and would silently drop the verdict)."""
+    steps = _snapshot_steps()
+    run_block = str(steps[_step_index(steps, "Append verdict")].get("run", ""))
+    assert "--json" in run_block, "verdict lookup must use the REST list (--json)"
+    assert "--search" not in run_block, (
+        "verdict lookup must NOT use --search (eventually-consistent index)"
+    )

@@ -61,6 +61,18 @@ def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[st
     }
 
 
+def _safe_inline(text: str, *, limit: int = 80) -> str:
+    """Sanitize an upstream-derived string for a markdown inline-code span.
+
+    New column names come from the upstream CSV header (attacker-tunable). Drop
+    backticks and newlines (which would break out of the `code` span and inject
+    markdown) and bound the length so a pathological header can't blow up the
+    issue comment.
+    """
+    cleaned = text.replace("`", "").replace("\n", " ").replace("\r", " ").strip()
+    return cleaned[:limit] + "…" if len(cleaned) > limit else cleaned
+
+
 def render_verdict_summary(diff: SnapshotDiffResult) -> str:
     """Render the verdict + counts as operator-facing markdown (T6.4).
 
@@ -72,7 +84,7 @@ def render_verdict_summary(diff: SnapshotDiffResult) -> str:
     cols = list(diff.new_columns)
     col_line = f"* new columns: {len(cols)}"
     if cols:
-        col_line += " — " + ", ".join(f"`{c}`" for c in cols)
+        col_line += " — " + ", ".join(f"`{_safe_inline(c)}`" for c in cols)
     return (
         f"**Tranche verdict: `{verdict}`**\n\n"
         f"* added: {len(diff.added)}\n"

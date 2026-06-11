@@ -428,6 +428,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write   # commit snapshot + diff JSON to main
+      issues: write     # append the verdict comment to the tranche-detected issue
     # NOTE: no `env:` with R2_*/CF_* secrets here, by design (see header).
     steps:
       # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
@@ -467,22 +468,25 @@ jobs:
         run: |
           python scripts/poll_snapshot.py \
             --csv "data/raw/csv/${NEW_SHA}.csv" \
-            --diff-out "data/manifests/snapshots/${NEW_SHA}.diff.json" \
+            --diff-out "data/manifests/diffs/${NEW_SHA}.json" \
             --summary-out "verdict-summary.md"
 
       - name: Commit snapshot + diff
         # Commit both the canonical (data/manifests/snapshots) and public
         # (web/public/data/snapshots) mirrors + their refreshed index.json,
         # plus the T6.4 diff+verdict JSON artifact (under
-        # data/manifests/snapshots/<new_sha>.diff.json). Rebase before push to
-        # absorb any concurrent advance of main, the same fast-forward
-        # discipline the poll job's commit steps use.
+        # data/manifests/diffs/<new_sha>.json — DELIBERATELY a sibling of
+        # snapshots/, NOT inside it: the ingest snapshot-locator globs
+        # snapshots/<sha>*.json and would otherwise grab the diff artifact and
+        # promote it as latest.json). Rebase before push to absorb any
+        # concurrent advance of main, the same fast-forward discipline the poll
+        # job's commit steps use.
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/manifests/snapshots web/public/data/snapshots
+          git add data/manifests/snapshots web/public/data/snapshots data/manifests/diffs
           if ! git diff --cached --quiet; then
             git commit -m "chore(poll): snapshot + diff for ${NEW_SHA:0:12}"
             git pull --rebase origin main
@@ -508,10 +512,15 @@ jobs:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
           short_sha="${NEW_SHA:0:12}"
+          # Locate via the REST list (--json) + client-side title filter, NOT
+          # gh's query-based search: that hits the search API, which lags issue
+          # creation by seconds-to-minutes, and the poll job opened this issue
+          # moments ago. The REST list is immediately consistent.
           issue=$(gh issue list \
             --label tranche-detected --state open \
-            --search "$short_sha in:title" \
-            --json number --jq '.[0].number' 2>/dev/null || echo "")
+            --json number,title \
+            --jq "map(select(.title | contains(\"$short_sha\"))) | .[0].number // empty" \
+            2>/dev/null || echo "")
           if [ -z "$issue" ]; then
             echo "No open tranche-detected issue for $short_sha; skipping verdict comment."
             exit 0

@@ -64,6 +64,29 @@ _OPT_SKIP_AUDIT = typer.Option(
     "--skip-audit",
     help="Skip the TOCTOU re-fetch audit. NOT RECOMMENDED — use only with explicit reason.",
 )
+_OPT_FROM_DIFF_COST_CAP = typer.Option(
+    None,
+    "--cost-cap-usd",
+    help="With --from-diff: override the embed stage cost cap (USD) so a large "
+    "tranche isn't blocked at the default cap. Omit to use the embed default.",
+)
+_OPT_FROM_DIFF = typer.Option(
+    False,
+    "--from-diff",
+    help="One-command path: export the scoped work-list from the tranche-diff "
+    "and run the scoped download -> ocr -> embed stages (T6.5 --worklist).",
+)
+_OPT_DRY_RUN = typer.Option(
+    False,
+    "--dry-run",
+    help="With --from-diff: print the work-list (the card_ids that would be "
+    "OCR'd/embedded) WITHOUT running any stage or spending budget.",
+)
+_OPT_WORKLIST_OUT = typer.Option(
+    DEFAULT_WORKLIST,
+    "--worklist",
+    help="Where --from-diff writes the scoped card_id list the executors read.",
+)
 
 
 def _fetch_byte_sha_via_curl(url: str) -> str | None:
@@ -270,23 +293,10 @@ def run_cmd(
     snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
     manifest: Path = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest"),
     diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
-    from_diff: bool = typer.Option(
-        False,
-        "--from-diff",
-        help="One-command path: export the scoped work-list from the tranche-diff "
-        "and run the scoped download -> ocr -> embed stages (T6.5 --worklist).",
-    ),
-    dry_run: bool = typer.Option(
-        False,
-        "--dry-run",
-        help="With --from-diff: print the work-list (the card_ids that would be "
-        "OCR'd/embedded) WITHOUT running any stage or spending budget.",
-    ),
-    worklist: Path = typer.Option(
-        DEFAULT_WORKLIST,
-        "--worklist",
-        help="Where --from-diff writes the scoped card_id list the executors read.",
-    ),
+    from_diff: bool = _OPT_FROM_DIFF,
+    dry_run: bool = _OPT_DRY_RUN,
+    worklist: Path = _OPT_WORKLIST_OUT,
+    cost_cap_usd: float = _OPT_FROM_DIFF_COST_CAP,
 ) -> None:
     """Promote an approved tranche to the deployed manifest + report next steps.
 
@@ -310,6 +320,7 @@ def run_cmd(
             manifest=manifest,
             worklist=worklist,
             dry_run=dry_run,
+            cost_cap_usd=cost_cap_usd,
         )
         return
     typer.echo("")

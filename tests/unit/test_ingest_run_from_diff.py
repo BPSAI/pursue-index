@@ -75,6 +75,7 @@ def _patch_stage_executors(monkeypatch, seen: dict) -> None:
 
     def fake_embed_run(**kwargs):
         seen.setdefault("embed", []).append(kwargs.get("only_cards"))
+        seen.setdefault("embed_cost_cap", []).append(kwargs.get("cost_cap_usd"))
         return SimpleNamespace(embedded=0, skipped=0, total_tokens=0, cards_seen=0)
 
     monkeypatch.setattr(
@@ -197,3 +198,47 @@ def test_non_dry_metadata_only_runs_no_stage(tmp_path, monkeypatch) -> None:
     )
     assert res.exit_code == 0, res.output
     assert seen == {}
+
+
+def test_cost_cap_defaults_to_embed_default(tmp_path, monkeypatch) -> None:
+    """Without --cost-cap-usd, the embed stage gets embed_cli's own default
+    (sourced from _OPT_COST_CAP, not a divergent hardcode)."""
+    from pursue_index.cli import embed_cli
+
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, _new_content_two_cards())
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot), "--from-diff",
+         "--worklist", str(tmp_path / "wl.txt")],
+    )
+    assert res.exit_code == 0, res.output
+    assert seen["embed_cost_cap"] == [embed_cli._OPT_COST_CAP.default]
+
+
+def test_cost_cap_override_threads_to_embed(tmp_path, monkeypatch) -> None:
+    """--cost-cap-usd is the operator escape hatch for a large tranche; it must
+    reach the embed stage."""
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, _new_content_two_cards())
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot), "--from-diff",
+         "--worklist", str(tmp_path / "wl.txt"), "--cost-cap-usd", "50"],
+    )
+    assert res.exit_code == 0, res.output
+    assert seen["embed_cost_cap"] == [50.0]
