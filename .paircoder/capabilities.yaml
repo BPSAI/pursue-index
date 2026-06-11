@@ -1,7 +1,7 @@
 # Capability Manifest
 # This file tells LLMs (Claude Code, Codex CLI, etc.) what they can do and when
 
-version: "2.26.1"
+version: "2.27.1"
 name: paircoder
 description: |
   AI pair programming framework with planning, skills, and context management.

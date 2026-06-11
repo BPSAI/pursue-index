@@ -1,4 +1,4 @@
-version: 2.26.1
+version: 2.27.1
 project:
   name: pursue-index
   description: Citable interface to U.S. DoW PURSUE Release 01 (UAP documents)

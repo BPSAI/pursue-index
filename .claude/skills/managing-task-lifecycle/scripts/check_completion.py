@@ -4,9 +4,9 @@
 Usage: python check_completion.py TASK-XXX
 """
 
-import re
 import subprocess
 import sys
+import re
 from pathlib import Path
 
 _AC_CHECKED = re.compile(r"^\s*-\s*\[x\]\s*(.+)$")
@@ -79,7 +79,7 @@ def run_command(cmd: list[str]) -> tuple[bool, str]:
 
 def check_tests() -> tuple[bool, str]:
     """Check if tests pass."""
-    success, _output = run_command(["pytest", "-v", "--tb=short"])
+    success, output = run_command(["pytest", "-v", "--tb=short"])
     if success:
         return True, "All tests pass"
     return False, "Tests failing"
@@ -87,7 +87,7 @@ def check_tests() -> tuple[bool, str]:
 
 def check_linting() -> tuple[bool, str]:
     """Check if linting passes."""
-    success, _output = run_command(["ruff", "check", "."])
+    success, output = run_command(["ruff", "check", "."])
     if success:
         return True, "Linting passes"
     return False, "Linting errors found"

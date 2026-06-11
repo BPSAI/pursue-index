@@ -1,5 +1,15 @@
 # Claude Code Instructions
 
+<!-- >>> paircoder managed -->
+<!--
+  Everything between the paircoder-managed fences is CANONICAL and owned by
+  bpsai-pair. `bpsai-pair upgrade` RESETS this region to the template -- any
+  edits you make inside the fences will be lost. CLAUDE.md is deliberately
+  thin: the ONLY operator-owned section is `## Project-Specific Notes` below
+  the closing fence. Custom sections added anywhere else will be OVERWRITTEN on
+  upgrade -- put detailed project content in `.paircoder/context/` instead.
+-->
+
 > **bpsai-pair** — AI-augmented pair programming framework
 
 ---
@@ -38,17 +48,18 @@ Use Skill tool with skill: "implementing-with-tdd"
 - Batch multiple task completions before updating
 - Claim a task is complete without documenting it in state.md
 
-### 2. Follow Trello Completion Workflow
+### 2. Follow the Task Completion Workflow
 
-When completing tasks with Trello cards:
-1. `bpsai-pair ttask done TRELLO-XX --summary "..."`
-   - ✓ Checks acceptance criteria
-   - ✓ Moves card to Done list
-   - ✓ Auto-updates local task file
+Complete tasks with the provider-agnostic command (works regardless of PM provider):
+1. `bpsai-pair task update <id> --status done`
+   - ✓ Checks acceptance criteria (when strict AC verification is enabled)
+   - ✓ Updates the local task file
    - ✓ Runs completion hooks (updates state.md)
 
-**DO NOT** use `task update --status done` for Trello-linked tasks.
-The `ttask done` command handles everything automatically.
+**Only if this project uses a PM provider AND the task is linked to a card**
+(e.g. Trello), use the PM-aware command instead so the card moves too:
+1. `bpsai-pair ttask done <CARD-ID> --summary "..."` — checks AC, moves the
+   card to Done, updates the local task file, and runs the completion hooks.
 
 **Bypasses (audited):**
 - `--no-strict`: Skip AC check (logged to bypass_log.jsonl)
@@ -65,17 +76,20 @@ The `ttask done` command handles everything automatically.
 
 ---
 
-## ⚠️ BEFORE ANY TRELLO OPERATIONS
+## Project-Management (PM) Operations
 
-**MANDATORY:** Before creating plans, syncing to Trello, or updating cards:
+This project's PM provider is set by `pm.provider` in `.paircoder/config.yaml`.
+**Default is `none`** — tasks live as local files and complete with
+`bpsai-pair task update <id> --status done`. No board setup needed.
 
-1. **Configure your board** — Run `bpsai-pair trello use-board <board-id>` to set your active board
-2. **Set project defaults** — Configure your project name, stack, and repo URL in `.paircoder/config.yaml`
-3. **Use valid values** — Only use dropdown values that exist on your Trello board
+**Only if a PM provider is configured** do the provider steps apply:
 
-**NEVER:**
-- Create new custom field dropdown values without checking the board first
-- Use `maintenance` as plan type (use `chore`)
+- **Trello** — before syncing/updating cards:
+  1. **Configure your board** — `bpsai-pair trello use-board <board-id>`
+  2. **Set project defaults** — project name, stack, repo URL in `.paircoder/config.yaml`
+  3. **Use valid values** — only dropdown values that exist on your board; don't invent new ones.
+
+**NEVER** use `maintenance` as a plan type — use `chore`.
 
 ---
 
@@ -175,17 +189,15 @@ When you see these patterns, use the corresponding skill:
 
 **⚠️ This is a NON-NEGOTIABLE requirement. See top of this document.**
 
-1. **Trello** (if card exists): `bpsai-pair ttask done TRELLO-XX --summary "..."`
-   - This automatically updates local task file and runs completion hooks
-2. **Non-Trello tasks only**: `bpsai-pair task update <id> --status done`
-3. **IMMEDIATELY update** `.paircoder/context/state.md`:
+1. **Complete the task**: `bpsai-pair task update <id> --status done`
+   (checks AC, updates the local task file, runs completion hooks)
+   - **If linked to a PM card** (e.g. Trello): use `bpsai-pair ttask done <CARD-ID> --summary "..."` instead, so the card moves too.
+2. **IMMEDIATELY update** `.paircoder/context/state.md`:
    - Mark task as done in task list (✓)
    - Add session entry under "What Was Just Done"
    - Update "What's Next"
 
 **You are NOT done until state.md is updated.**
-
-## Project-Specific Notes
 
 ## Slash Commands
 
@@ -244,3 +256,6 @@ bpsai-pair pack
 ```
 
 ---
+<!-- <<< paircoder managed -->
+
+## Project-Specific Notes

@@ -138,6 +138,20 @@ For each task:
    - Acceptance Criteria (checkboxes)
    - Verification commands
 
+   **Wiring ACs (required for any new capability).** Unit behavior alone is
+   not enough — code can be written, unit-tested, and never actually wired in
+   (a green test over a dead feature). For each new capability, at least one AC
+   must name:
+   - its **call site** — where it is instantiated/invoked/registered (e.g.
+     "registered on the `arch` Typer app", "called from `run_preflight_gate`");
+   - its **configuration source** — what flag/config/env enables it, and its
+     default;
+   - its **failure modes** — what it does on bad/missing input (raises? exits
+     non-zero? logs and continues?).
+
+   Advisory check: `bpsai-pair arch check-wiring` flags public symbols/modules
+   that look written-but-unwired. Treat its findings as candidates to confirm.
+
 ### Step 8: Sync to Provider
 
 **PM provider mode:**
