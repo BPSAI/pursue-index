@@ -456,15 +456,27 @@ jobs:
         # sha to the T6.1 generator, which rotates latest.json -> the prior
         # snapshot and writes the new snapshot (both mirrors). No network,
         # no credential — see scripts/poll_snapshot.py.
+        #
+        # T6.4: --diff-out persists the diff+verdict JSON artifact
+        # (classify_tranche verdict + added/removed/new-column counts, keyed
+        # by new_sha) so the commit step can ship it and the verdict-comment
+        # step can read it back. --summary-out emits the operator-facing
+        # markdown the comment step posts onto the existing issue.
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
-        run: python scripts/poll_snapshot.py --csv "data/raw/csv/${NEW_SHA}.csv"
+        run: |
+          python scripts/poll_snapshot.py \
+            --csv "data/raw/csv/${NEW_SHA}.csv" \
+            --diff-out "data/manifests/snapshots/${NEW_SHA}.diff.json" \
+            --summary-out "verdict-summary.md"
 
       - name: Commit snapshot + diff
         # Commit both the canonical (data/manifests/snapshots) and public
-        # (web/public/data/snapshots) mirrors + their refreshed index.json.
-        # Rebase before push to absorb any concurrent advance of main, the
-        # same fast-forward discipline the poll job's commit steps use.
+        # (web/public/data/snapshots) mirrors + their refreshed index.json,
+        # plus the T6.4 diff+verdict JSON artifact (under
+        # data/manifests/snapshots/<new_sha>.diff.json). Rebase before push to
+        # absorb any concurrent advance of main, the same fast-forward
+        # discipline the poll job's commit steps use.
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
@@ -478,3 +490,30 @@ jobs:
           else
             echo "No snapshot changes to commit."
           fi
+
+      - name: Append verdict to tranche-detected issue
+        # T6.4: surface the classify_tranche verdict to the operator. The
+        # early tranche-detected alert (opened in the poll job) intentionally
+        # lacks the diff — the diff only exists after THIS job runs the
+        # generator. So we APPEND the verdict here, never recreate the issue
+        # (a `gh issue create` would duplicate the alert and collapse the
+        # credential-isolation job split). Locate the existing open issue by
+        # the new_sha embedded in its title, then comment the rendered
+        # markdown summary. `continue-on-error` so a transient gh hiccup
+        # can't lose the just-committed snapshot.
+        if: needs.poll.outputs.is_bootstrap == 'false'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          short_sha="${NEW_SHA:0:12}"
+          issue=$(gh issue list \
+            --label tranche-detected --state open \
+            --search "$short_sha in:title" \
+            --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -z "$issue" ]; then
+            echo "No open tranche-detected issue for $short_sha; skipping verdict comment."
+            exit 0
+          fi
+          gh issue comment "$issue" --body-file verdict-summary.md

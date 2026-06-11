@@ -310,6 +310,80 @@ def test_poll_job_exposes_outputs_for_snapshot() -> None:
     assert "new_sha" in outputs, "poll job must expose `new_sha` output"
 
 
+# ---------------------------------------------------------------------------
+# Surface the classify_tranche verdict (Sprint 6, T6.4). The snapshot job
+# computes the verdict, commits a diff+verdict JSON artifact, and appends the
+# verdict to the existing tranche-detected issue located by new_sha.
+# ---------------------------------------------------------------------------
+
+
+def _snapshot_steps() -> list[dict]:
+    return _load_jobs()["snapshot"]["steps"]
+
+
+def test_snapshot_generate_step_writes_diff_artifact() -> None:
+    """AC1 — the generate step must pass ``--diff-out`` so the T6.1 generator
+    persists the diff+verdict JSON artifact (not just the kv log line)."""
+    blob = " ".join(str(s.get("run", "")) for s in _snapshot_steps())
+    assert "scripts/poll_snapshot.py" in blob
+    assert "--diff-out" in blob, "generate step must write the verdict artifact"
+
+
+def test_snapshot_commit_step_includes_diff_artifact() -> None:
+    """AC1 — the diff+verdict JSON must be committed alongside the snapshot
+    mirrors. The committed artifact path must be the same one written via
+    --diff-out (a single source of truth, not two divergent paths)."""
+    steps = _snapshot_steps()
+    blob = " ".join(str(s.get("run", "")) for s in steps)
+    # Pull the --diff-out path and assert it's both written and git-added.
+    tokens = blob.split()
+    diff_out = tokens[tokens.index("--diff-out") + 1].strip('"').strip("'")
+    assert diff_out, "no --diff-out path found"
+    # The committed mirror dir that holds the artifact must be git-added.
+    assert "git add" in blob
+    # The artifact path (or its parent dir) must appear in a git add.
+    add_region = blob.split("git add", 1)[1]
+    parent = diff_out.rsplit("/", 1)[0]
+    assert diff_out in add_region or parent in add_region, (
+        "diff+verdict artifact must be committed (git add of its path/dir)"
+    )
+
+
+def test_snapshot_job_comments_verdict_on_issue_by_new_sha() -> None:
+    """AC2 — a step appends the verdict to the existing tranche-detected
+    issue, located by new_sha (gh issue list + gh issue comment/edit).
+    Tested structurally — no live GitHub call."""
+    steps = _snapshot_steps()
+    idx = _step_index(steps, "Append verdict")
+    assert idx >= 0, "snapshot job missing a verdict-comment step"
+    step = steps[idx]
+    run_block = str(step.get("run", ""))
+    # Locates the issue by new_sha, then comments/edits it.
+    assert "new_sha" in str(step.get("env", "")) + run_block, (
+        "verdict step must locate the issue by new_sha"
+    )
+    assert "gh issue list" in run_block, "must locate the existing issue"
+    assert "gh issue comment" in run_block or "gh issue edit" in run_block, (
+        "verdict step must append to the existing issue (comment/edit)"
+    )
+    # The comment must carry the verdict artifact / rendered summary.
+    assert "diff" in run_block.lower() or "verdict" in run_block.lower()
+
+
+def test_snapshot_verdict_step_keeps_early_alert_intact() -> None:
+    """The verdict is ADDED to the existing issue, not a replacement for the
+    early tranche-detected alert: the verdict step must NOT call
+    ``gh issue create`` (that would open a duplicate / collapse the
+    credential-isolation job split)."""
+    steps = _snapshot_steps()
+    idx = _step_index(steps, "Append verdict")
+    assert idx >= 0
+    run_block = str(steps[idx].get("run", ""))
+    assert "gh issue create" not in run_block, (
+        "verdict step must append to the existing issue, not create a new one"
+    )
+
+
 def test_snapshot_job_credential_isolation_documented() -> None:
     """AC4 — a header comment must document WHY the job is credential-
     isolated (comments are stripped by safe_load, so assert on raw text,

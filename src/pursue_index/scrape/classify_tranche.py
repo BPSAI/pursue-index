@@ -26,7 +26,7 @@ the whole result and consumes T6.1's output directly.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
 
@@ -42,3 +42,41 @@ def classify_tranche(diff: SnapshotDiffResult) -> TrancheVerdict:
     if diff.added or diff.removed or diff.new_columns:
         return "needs-review"
     return "benign"
+
+
+def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[str, Any]:
+    """Build the diff+verdict JSON payload the snapshot job commits (T6.4).
+
+    Pure: just the verdict + structural counts (and the new column names),
+    keyed by ``new_sha`` so it can be located against the detected change.
+    No I/O — the caller serializes + writes it.
+    """
+    return {
+        "new_sha": new_sha,
+        "verdict": classify_tranche(diff),
+        "added": len(diff.added),
+        "removed": len(diff.removed),
+        "field_changes": len(diff.field_changes),
+        "new_columns": list(diff.new_columns),
+    }
+
+
+def render_verdict_summary(diff: SnapshotDiffResult) -> str:
+    """Render the verdict + counts as operator-facing markdown (T6.4).
+
+    Pure formatter (no GitHub / no I/O) so it is unit-testable. The snapshot
+    job posts this onto the existing ``tranche-detected`` issue once the diff
+    is ready.
+    """
+    verdict = classify_tranche(diff)
+    cols = list(diff.new_columns)
+    col_line = f"* new columns: {len(cols)}"
+    if cols:
+        col_line += " — " + ", ".join(f"`{c}`" for c in cols)
+    return (
+        f"**Tranche verdict: `{verdict}`**\n\n"
+        f"* added: {len(diff.added)}\n"
+        f"* removed: {len(diff.removed)}\n"
+        f"* field changes: {len(diff.field_changes)}\n"
+        f"{col_line}\n"
+    )
