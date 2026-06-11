@@ -31,10 +31,29 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = REPO_ROOT / ".github" / "workflows" / "poll-pursue.yml"
 
 
+def _load_jobs() -> dict:
+    """Return the workflow's full ``jobs`` map."""
+    return yaml.safe_load(WORKFLOW.read_text())["jobs"]
+
+
 def _load_steps() -> list[dict]:
     """Return the poll job's step list for ordered assertions."""
-    data = yaml.safe_load(WORKFLOW.read_text())
-    return data["jobs"]["poll"]["steps"]
+    return _load_jobs()["poll"]["steps"]
+
+
+def _contains_token(node: object, token: str) -> bool:
+    """True if ``token`` appears anywhere in the parsed (comment-free)
+    structure ``node`` — keys, scalar values, nested lists/dicts. Used to
+    prove a secret name is *absent* from a job's parsed body (comments are
+    stripped by ``safe_load``, so a documenting ``# ... R2_ACCESS_KEY_ID``
+    header can't produce a false positive)."""
+    if isinstance(node, dict):
+        return any(
+            token in str(k) or _contains_token(v, token) for k, v in node.items()
+        )
+    if isinstance(node, list):
+        return any(_contains_token(v, token) for v in node)
+    return token in str(node)
 
 
 def _step_index(steps: list[dict], needle: str) -> int:
@@ -197,3 +216,237 @@ def test_pdf_health_step_invokes_dedicated_script() -> None:
     pdf_idx = _step_index(steps, "Run PDF-fetch health check")
     run_block = steps[pdf_idx].get("run", "")
     assert "scripts/pdf_health_check.py" in run_block
+
+
+# ---------------------------------------------------------------------------
+# Snapshot + diff lane (Sprint 6, T6.2). The credential-free generator job.
+# ---------------------------------------------------------------------------
+
+
+def test_snapshot_job_exists() -> None:
+    """The offline snapshot+diff generator runs as its OWN job, not a
+    step welded into the credentialed `poll` job — that separation is
+    what keeps R2/CF secrets out of the generator's runner."""
+    jobs = _load_jobs()
+    assert "snapshot" in jobs, "snapshot job missing from workflow"
+
+
+def test_snapshot_job_has_no_r2_cf_secrets() -> None:
+    """AC1 — the snapshot job's body must contain NO R2/CF write
+    credentials. Scans the whole parsed job (job + step env, run blocks),
+    a superset of the `env:` block the AC names. Comments are stripped by
+    safe_load, so the documenting header naming these secrets can't trip
+    this."""
+    snapshot = _load_jobs()["snapshot"]
+    for secret in ("R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "CF_ACCOUNT_ID"):
+        assert not _contains_token(snapshot, secret), (
+            f"snapshot job must not reference {secret} (credential isolation)"
+        )
+
+
+def test_snapshot_job_runs_only_on_detected_change() -> None:
+    """AC2 — gated on the poll job's `status == 'changed'` output. On an
+    unchanged/failed poll there is no new side to snapshot."""
+    snapshot = _load_jobs()["snapshot"]
+    if_clause = str(snapshot.get("if", ""))
+    assert "needs.poll.outputs.status" in if_clause
+    assert "changed" in if_clause
+
+
+def test_snapshot_job_survives_unrelated_poll_failure() -> None:
+    """The poll job deliberately ``exit 1``s on a PDF-health-sentinel failure
+    (an independent surveillance lane). With a bare ``needs: poll`` gate,
+    GitHub treats the job ``if`` as implicitly ``success() && …`` — so a
+    CSV-changed run where only the PDF lane failed would SKIP the snapshot,
+    losing the credential-free snapshot for exactly the detected change this
+    job exists to preserve. The gate must use ``always()`` to decouple from
+    the poll job's overall result while still gating on the detected change.
+    (Codex PR #84 P2.)"""
+    if_clause = str(_load_jobs()["snapshot"].get("if", ""))
+    assert "always()" in if_clause, (
+        "snapshot job `if` must use always() so an unrelated poll-step "
+        "failure (e.g. PDF health) does not skip the snapshot"
+    )
+    # Still gated on the detected change — always() must not run it on no-change.
+    assert "needs.poll.outputs.status" in if_clause and "changed" in if_clause
+
+
+def test_snapshot_job_runs_generator_and_commits() -> None:
+    """AC2 — a step invokes the T6.1 generator script and a step commits
+    the snapshot + diff JSON. Like pdf_health, it runs the bare script
+    (lean requirements-poll.txt has no typer/rich)."""
+    steps = _load_jobs()["snapshot"]["steps"]
+    blob = " ".join(str(s.get("run", "")) for s in steps)
+    assert "scripts/poll_snapshot.py" in blob, "snapshot job must run the T6.1 generator"
+    assert "git commit" in blob and "git push" in blob, "snapshot job must commit + push"
+    # The committed artifacts are the canonical + public snapshot mirrors.
+    assert "data/manifests/snapshots" in blob
+    assert "web/public/data/snapshots" in blob
+
+
+def test_snapshot_job_serializes_on_registry_writers_group() -> None:
+    """Serialization: the snapshot job pushes to main, so it must not race
+    the poll job's sha/bytes commit. Cross-run serialization comes from the
+    workflow-level `pursue-registry-writers` concurrency group (the whole
+    workflow is bound to it); intra-run ordering comes from `needs: poll`,
+    which also makes the poll outputs available. A redundant job-level
+    concurrency of the SAME group is deliberately omitted — it would
+    deadlock against the workflow-level lock."""
+    data = yaml.safe_load(WORKFLOW.read_text())
+    assert data["concurrency"]["group"] == "pursue-registry-writers"
+    snapshot = data["jobs"]["snapshot"]
+    needs = snapshot.get("needs", [])
+    needs = [needs] if isinstance(needs, str) else needs
+    assert "poll" in needs, "snapshot job must `needs: poll` to serialize after it"
+
+
+def test_poll_job_exposes_outputs_for_snapshot() -> None:
+    """For `needs.poll.outputs.*` to resolve, the poll job must promote its
+    step outputs to job-level outputs. Without this the snapshot gate is
+    always empty and never fires."""
+    poll = _load_jobs()["poll"]
+    outputs = poll.get("outputs", {})
+    assert "status" in outputs, "poll job must expose `status` output"
+    assert "new_sha" in outputs, "poll job must expose `new_sha` output"
+
+
+# ---------------------------------------------------------------------------
+# Surface the classify_tranche verdict (Sprint 6, T6.4). The snapshot job
+# computes the verdict, commits a diff+verdict JSON artifact, and appends the
+# verdict to the existing tranche-detected issue located by new_sha.
+# ---------------------------------------------------------------------------
+
+
+def _snapshot_steps() -> list[dict]:
+    return _load_jobs()["snapshot"]["steps"]
+
+
+def test_snapshot_generate_step_writes_diff_artifact() -> None:
+    """AC1 — the generate step must pass ``--diff-out`` so the T6.1 generator
+    persists the diff+verdict JSON artifact (not just the kv log line)."""
+    blob = " ".join(str(s.get("run", "")) for s in _snapshot_steps())
+    assert "scripts/poll_snapshot.py" in blob
+    assert "--diff-out" in blob, "generate step must write the verdict artifact"
+
+
+def test_snapshot_commit_step_includes_diff_artifact() -> None:
+    """AC1 — the diff+verdict JSON must be committed alongside the snapshot
+    mirrors. The committed artifact path must be the same one written via
+    --diff-out (a single source of truth, not two divergent paths)."""
+    steps = _snapshot_steps()
+    blob = " ".join(str(s.get("run", "")) for s in steps)
+    # Pull the --diff-out path and assert it's both written and git-added.
+    tokens = blob.split()
+    diff_out = tokens[tokens.index("--diff-out") + 1].strip('"').strip("'")
+    assert diff_out, "no --diff-out path found"
+    # The committed mirror dir that holds the artifact must be git-added.
+    assert "git add" in blob
+    # The artifact path (or its parent dir) must appear in a git add.
+    add_region = blob.split("git add", 1)[1]
+    parent = diff_out.rsplit("/", 1)[0]
+    assert diff_out in add_region or parent in add_region, (
+        "diff+verdict artifact must be committed (git add of its path/dir)"
+    )
+
+
+def test_snapshot_job_comments_verdict_on_issue_by_new_sha() -> None:
+    """AC2 — a step appends the verdict to the existing tranche-detected
+    issue, located by new_sha (gh issue list + gh issue comment/edit).
+    Tested structurally — no live GitHub call."""
+    steps = _snapshot_steps()
+    idx = _step_index(steps, "Append verdict")
+    assert idx >= 0, "snapshot job missing a verdict-comment step"
+    step = steps[idx]
+    run_block = str(step.get("run", ""))
+    # Locates the issue by new_sha, then comments/edits it.
+    assert "new_sha" in str(step.get("env", "")) + run_block, (
+        "verdict step must locate the issue by new_sha"
+    )
+    assert "gh issue list" in run_block, "must locate the existing issue"
+    assert "gh issue comment" in run_block or "gh issue edit" in run_block, (
+        "verdict step must append to the existing issue (comment/edit)"
+    )
+    # The comment must carry the verdict artifact / rendered summary.
+    assert "diff" in run_block.lower() or "verdict" in run_block.lower()
+
+
+def test_snapshot_verdict_step_keeps_early_alert_intact() -> None:
+    """The verdict is ADDED to the existing issue, not a replacement for the
+    early tranche-detected alert: the verdict step must NOT call
+    ``gh issue create`` (that would open a duplicate / collapse the
+    credential-isolation job split)."""
+    steps = _snapshot_steps()
+    idx = _step_index(steps, "Append verdict")
+    assert idx >= 0
+    run_block = str(steps[idx].get("run", ""))
+    assert "gh issue create" not in run_block, (
+        "verdict step must append to the existing issue, not create a new one"
+    )
+
+
+def test_snapshot_job_credential_isolation_documented() -> None:
+    """AC4 — a header comment must document WHY the job is credential-
+    isolated (comments are stripped by safe_load, so assert on raw text,
+    in the region above the `snapshot:` job key)."""
+    text = WORKFLOW.read_text()
+    job_pos = text.find("\n  snapshot:")
+    assert job_pos > 0, "snapshot job key not found"
+    header = text[:job_pos]
+    # The most recent comment block before the job must explain isolation.
+    tail = header[-1600:]
+    assert "credential" in tail.lower()
+    assert "R2" in tail and "isolat" in tail.lower()
+
+
+def test_snapshot_diff_artifact_lives_outside_snapshots_dir() -> None:
+    """Regression (cross-module P0/P1): the diff+verdict artifact must NOT be
+    written inside data/manifests/snapshots/. The ingest snapshot-locator globs
+    snapshots/<sha>*.json (would promote the diff as latest.json) and
+    _rebuild_index globs snapshots/*.json (would pollute the canonical index)."""
+    blob = " ".join(str(s.get("run", "")) for s in _snapshot_steps())
+    tokens = blob.split()
+    diff_out = tokens[tokens.index("--diff-out") + 1].strip('"').strip("'")
+    assert "data/manifests/snapshots" not in diff_out, (
+        "diff artifact must be a sibling of snapshots/, not inside it"
+    )
+
+
+def test_snapshot_job_has_issues_write_permission() -> None:
+    """The verdict-comment step calls `gh issue comment`; the job-level
+    permissions block overrides the workflow default, so it must grant
+    issues: write or the comment 403s in CI."""
+    perms = _load_jobs()["snapshot"].get("permissions", {})
+    assert perms.get("issues") == "write", (
+        "snapshot job needs issues: write for the gh issue comment step"
+    )
+
+
+def test_verdict_step_uses_rest_list_not_search() -> None:
+    """Regression: locate the just-created issue via the immediately-consistent
+    REST list (--json), not gh's eventually-consistent --search (which lags
+    issue creation by seconds-to-minutes and would silently drop the verdict)."""
+    steps = _snapshot_steps()
+    run_block = str(steps[_step_index(steps, "Append verdict")].get("run", ""))
+    assert "--json" in run_block, "verdict lookup must use the REST list (--json)"
+    assert "--search" not in run_block, (
+        "verdict lookup must NOT use --search (eventually-consistent index)"
+    )
+
+
+def test_snapshot_generate_step_guards_missing_csv() -> None:
+    """Vaivora P2: the generate step must skip-with-warning, not FileNotFoundError,
+    if the poll CSV commit never landed despite status=='changed'."""
+    steps = _snapshot_steps()
+    run_block = str(steps[_step_index(steps, "Generate snapshot")].get("run", ""))
+    assert "! -f" in run_block, "generate step must guard on the CSV file's presence"
+    assert "data/raw/csv/${NEW_SHA}.csv" in run_block
+    assert "exit 0" in run_block, "missing CSV must be a graceful skip, not a hard error"
+
+
+def test_verdict_lookup_passes_sha_as_jq_arg_with_limit() -> None:
+    """Laverna P2-1 + Vaivora P2: locate the issue by passing short_sha to jq as
+    DATA (--arg), never interpolated into the jq program text, and bound the list."""
+    steps = _snapshot_steps()
+    run_block = str(steps[_step_index(steps, "Append verdict")].get("run", ""))
+    assert "--arg s" in run_block, "short_sha must reach jq via --arg (data, not program)"
+    assert "--limit" in run_block, "gh issue list must bound results (default is 30)"

@@ -14,6 +14,7 @@ from typing import Any
 import typer
 from rich.console import Console
 
+from pursue_index.cli.worklist import worklist_card_ids
 from pursue_index.config import settings
 from pursue_index.scrape import Manifest, load_manifest
 
@@ -172,6 +173,14 @@ _OPT_MANIFEST = typer.Option(..., "--manifest", exists=True, dir_okay=False)
 _OPT_PROVIDER = typer.Option(None, "--provider", help="voyage|openai")
 _OPT_MODEL = typer.Option(None, "--model", help="Embedding model id")
 _OPT_LIMIT = typer.Option(None, "--limit", help="Embed at most N new pages")
+_OPT_WORKLIST = typer.Option(
+    None,
+    "--worklist",
+    exists=True,
+    dir_okay=False,
+    help="Scope the run to the card_ids in this file (one per line). Omit to "
+    "embed the whole OCR dir (the escape hatch). Written by `ingest run --from-diff`.",
+)
 _OPT_COST_CAP = typer.Option(1.0, "--cost-cap-usd", help="Abort if est cost > cap")
 _OPT_RATE = typer.Option(None, "--usd-per-million-tokens", help="Override $/Mtok")
 _OPT_BATCH = typer.Option(64, "--batch-size", help="Texts per provider call")
@@ -220,6 +229,7 @@ def embed_run_cmd(
     augment_from: Path = _OPT_AUGMENT,
     augment_miss_rate_threshold: float = _OPT_MISS_RATE,
     image_observations_index: Path = _OPT_IMAGE_OBS_INDEX,
+    worklist: Path = _OPT_WORKLIST,
 ) -> None:
     """Embed every OCR'd page that doesn't already have a current vector."""
     from pursue_index.embed import pipeline as embed_pipeline  # lazy
@@ -245,5 +255,6 @@ def embed_run_cmd(
         usd_per_million_tokens=usd_per_million_tokens,
         augment_lookup=augment_lookup,
         augmented_by=augmented_by,
+        only_cards=worklist_card_ids(worklist),
     )
     _print_summary(summary)

@@ -74,6 +74,15 @@ concurrency:
 jobs:
   poll:
     runs-on: ubuntu-latest
+    # Promote the poll step's outputs to job level so the downstream
+    # `snapshot` job (T6.2) can gate on a detected change and read the
+    # new sha. Without this block, `needs.poll.outputs.*` resolves empty
+    # and the snapshot lane would never fire.
+    outputs:
+      status: ${{ steps.poll.outputs.status }}
+      new_sha: ${{ steps.poll.outputs.new_sha }}
+      old_sha: ${{ steps.poll.outputs.old_sha }}
+      is_bootstrap: ${{ steps.poll.outputs.is_bootstrap }}
     steps:
       # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -373,3 +382,161 @@ jobs:
         # surveillance lanes was actively broken.
         if: steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure' || steps.pdf_health.outcome == 'failure'
         run: exit 1
+
+  # ==================================================================
+  # Snapshot + diff lane (Sprint 6, T6.2) — CREDENTIAL-ISOLATED.
+  #
+  # On a detected CSV change, runs the T6.1 offline generator
+  # (scripts/poll_snapshot.py) to materialize BOTH sides of the
+  # DiffIsland diff — it rotates the prior data/manifests/latest.json
+  # into snapshots/<old_sha>.json and writes the new
+  # snapshots/<new_sha>.json (canonical + public mirrors) — then
+  # commits those JSON artifacts to main.
+  #
+  # WHY A SEPARATE JOB (the load-bearing hardening rationale):
+  # this lane runs as its own job with NO R2_ACCESS_KEY_ID /
+  # R2_SECRET_ACCESS_KEY / CF_ACCOUNT_ID anywhere in its env. The
+  # asset-archive lane in the `poll` job above needs those R2/CF write
+  # credentials to push PDF/IMG bytes to the bucket; this snapshot lane
+  # only reads the already-committed CSV bytes and writes JSON manifests
+  # back to git. Splitting it into a distinct job/runner guarantees —
+  # structurally, not by convention — that a supply-chain compromise of
+  # the lean poll-deps lane (requirements-poll.txt) cannot reach the R2
+  # bucket: the bucket secrets are simply not present in this runner's
+  # environment. Same isolation logic that keeps the credentialed
+  # archive step gated and pinned (SEC-001/002), applied at job scope.
+  #
+  # SERIALIZATION: the whole workflow is already bound to the
+  # `pursue-registry-writers` concurrency group (top-level `concurrency:`),
+  # so this job is serialized across runs against the other
+  # registry-writing workflows. Intra-run ordering against the poll job's
+  # own sha/bytes push comes from `needs: poll` (which also exposes the
+  # poll outputs). A job-level `concurrency:` re-declaring the SAME group
+  # is deliberately NOT added — it would deadlock against the
+  # workflow-level lock the run already holds.
+  # ==================================================================
+  snapshot:
+    needs: poll
+    # `always()` is load-bearing: without it GitHub treats this job `if` as
+    # implicitly `success() && …`, so a CSV-changed run where a LATER,
+    # INDEPENDENT poll step failed (e.g. the PDF-health sentinel trips the
+    # poll job's `Propagate failure exit code` step) would SKIP this job —
+    # losing the credential-free snapshot for exactly the detected change it
+    # exists to preserve. We decouple from the poll job's overall result but
+    # still gate strictly on the detected-change output. (Codex PR #84 P2.)
+    if: always() && needs.poll.outputs.status == 'changed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # commit snapshot + diff JSON to main
+      issues: write     # append the verdict comment to the tranche-detected issue
+    # NOTE: no `env:` with R2_*/CF_* secrets here, by design (see header).
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          # Check out the tip of main, not the stale cron SHA: the poll
+          # job just pushed data/raw/csv/<new_sha>.csv + the sha file, and
+          # we need those committed bytes as the generator's input.
+          ref: main
+          fetch-depth: 1
+
+      # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal scrape deps
+        # Same lean, hash-locked install as the poll step (SEC-002) — the
+        # generator needs only pydantic + the scrape package, no typer/rich.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements-poll.txt
+
+      - name: Generate snapshot + diff
+        # Bytes-in, files-out: feeds the committed CSV for the detected
+        # sha to the T6.1 generator, which rotates latest.json -> the prior
+        # snapshot and writes the new snapshot (both mirrors). No network,
+        # no credential — see scripts/poll_snapshot.py.
+        #
+        # T6.4: --diff-out persists the diff+verdict JSON artifact
+        # (classify_tranche verdict + added/removed/new-column counts, keyed
+        # by new_sha) so the commit step can ship it and the verdict-comment
+        # step can read it back. --summary-out emits the operator-facing
+        # markdown the comment step posts onto the existing issue.
+        env:
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          # status=='changed' is emitted by the poll SCRIPT before the later
+          # "Commit new sha + CSV bytes" step pushes the bytes. If that push
+          # failed (rejected after rebase retries), the CSV isn't on main and
+          # the generator would FileNotFoundError. Skip-with-warning instead of
+          # a red job — the early tranche-detected alert still stands (Vaivora P2).
+          if [ ! -f "data/raw/csv/${NEW_SHA}.csv" ]; then
+            echo "::warning::data/raw/csv/${NEW_SHA}.csv not on main (poll CSV commit may have failed despite status=changed); skipping snapshot + verdict."
+            exit 0
+          fi
+          python scripts/poll_snapshot.py \
+            --csv "data/raw/csv/${NEW_SHA}.csv" \
+            --diff-out "data/manifests/diffs/${NEW_SHA}.json" \
+            --summary-out "verdict-summary.md"
+
+      - name: Commit snapshot + diff
+        # Commit both the canonical (data/manifests/snapshots) and public
+        # (web/public/data/snapshots) mirrors + their refreshed index.json,
+        # plus the T6.4 diff+verdict JSON artifact (under
+        # data/manifests/diffs/<new_sha>.json — DELIBERATELY a sibling of
+        # snapshots/, NOT inside it: the ingest snapshot-locator globs
+        # snapshots/<sha>*.json and would otherwise grab the diff artifact and
+        # promote it as latest.json). Rebase before push to absorb any
+        # concurrent advance of main, the same fast-forward discipline the poll
+        # job's commit steps use.
+        env:
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/manifests/snapshots web/public/data/snapshots data/manifests/diffs
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(poll): snapshot + diff for ${NEW_SHA:0:12}"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No snapshot changes to commit."
+          fi
+
+      - name: Append verdict to tranche-detected issue
+        # T6.4: surface the classify_tranche verdict to the operator. The
+        # early tranche-detected alert (opened in the poll job) intentionally
+        # lacks the diff — the diff only exists after THIS job runs the
+        # generator. So we APPEND the verdict here, never recreate the issue
+        # (a `gh issue create` would duplicate the alert and collapse the
+        # credential-isolation job split). Locate the existing open issue by
+        # the new_sha embedded in its title, then comment the rendered
+        # markdown summary. `continue-on-error` so a transient gh hiccup
+        # can't lose the just-committed snapshot.
+        if: needs.poll.outputs.is_bootstrap == 'false'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          short_sha="${NEW_SHA:0:12}"
+          # Locate via the REST list (--json) + client-side title filter, NOT
+          # gh's query-based search: that hits the search API, which lags issue
+          # creation by seconds-to-minutes, and the poll job opened this issue
+          # moments ago. The REST list is immediately consistent.
+          # Pass short_sha as DATA to jq (--arg), never interpolated into the jq
+          # program text: it's hex today, but --arg hardens against any future
+          # non-hash provenance (jq injection). --limit 100 so a backlog of open
+          # tranche-detected issues can't push the just-created one out of view.
+          issue=$(gh issue list \
+            --label tranche-detected --state open --limit 100 \
+            --json number,title 2>/dev/null \
+            | jq -r --arg s "$short_sha" \
+                'map(select(.title | contains($s))) | .[0].number // empty' \
+            2>/dev/null || echo "")
+          if [ -z "$issue" ]; then
+            echo "No open tranche-detected issue for $short_sha; skipping verdict comment."
+            exit 0
+          fi
+          gh issue comment "$issue" --body-file verdict-summary.md
