@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
+from urllib.parse import urlparse
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -25,6 +26,28 @@ from pursue_index.config import settings
 from pursue_index.scrape.types import CardMetadata, Manifest
 
 log = get_logger(__name__)
+
+# Asset bytes are only ever served from the official DoW host. Validate the
+# asset_url scheme + host before fetching so a compromised/spoofed upstream CSV
+# (or a tampered asset_url on an otherwise operator-approved tranche) can't turn
+# the download fan-out into an SSRF / arbitrary-fetch primitive — the
+# `ingest run --from-diff` path automates this fetch behind an approval gate
+# that attests tranche legitimacy, not per-URL safety.
+_ALLOWED_ASSET_SCHEMES = frozenset({"https"})
+_ALLOWED_ASSET_HOSTS = frozenset({"www.war.gov", "war.gov"})
+
+
+def _is_allowed_asset_url(url: str) -> bool:
+    """True iff ``url`` is an https URL on the official-host allowlist.
+
+    Uses ``hostname`` (lowercased, no userinfo/port) for an exact host match,
+    so suffix-spoofs like ``www.war.gov.evil.com`` are rejected.
+    """
+    parsed = urlparse(url)
+    return (
+        parsed.scheme in _ALLOWED_ASSET_SCHEMES
+        and parsed.hostname in _ALLOWED_ASSET_HOSTS
+    )
 
 
 def asset_path_for(card: CardMetadata) -> Path | None:
@@ -69,6 +92,15 @@ async def _download_one(client: httpx.AsyncClient, card: CardMetadata) -> Path |
     if target.exists() and target.stat().st_size > 0:
         log.info("download.skip.exists", card_id=card.card_id, path=str(target))
         return target
+
+    if not _is_allowed_asset_url(str(card.asset_url)):
+        # Skip (don't raise — @retry would just hammer it) an off-allowlist URL.
+        log.warning(
+            "download.skip.disallowed_url",
+            card_id=card.card_id,
+            url=str(card.asset_url),
+        )
+        return None
 
     log.info(
         "download.start",
