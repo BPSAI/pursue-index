@@ -466,6 +466,15 @@ jobs:
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
+          # status=='changed' is emitted by the poll SCRIPT before the later
+          # "Commit new sha + CSV bytes" step pushes the bytes. If that push
+          # failed (rejected after rebase retries), the CSV isn't on main and
+          # the generator would FileNotFoundError. Skip-with-warning instead of
+          # a red job — the early tranche-detected alert still stands (Vaivora P2).
+          if [ ! -f "data/raw/csv/${NEW_SHA}.csv" ]; then
+            echo "::warning::data/raw/csv/${NEW_SHA}.csv not on main (poll CSV commit may have failed despite status=changed); skipping snapshot + verdict."
+            exit 0
+          fi
           python scripts/poll_snapshot.py \
             --csv "data/raw/csv/${NEW_SHA}.csv" \
             --diff-out "data/manifests/diffs/${NEW_SHA}.json" \
@@ -516,10 +525,15 @@ jobs:
           # gh's query-based search: that hits the search API, which lags issue
           # creation by seconds-to-minutes, and the poll job opened this issue
           # moments ago. The REST list is immediately consistent.
+          # Pass short_sha as DATA to jq (--arg), never interpolated into the jq
+          # program text: it's hex today, but --arg hardens against any future
+          # non-hash provenance (jq injection). --limit 100 so a backlog of open
+          # tranche-detected issues can't push the just-created one out of view.
           issue=$(gh issue list \
-            --label tranche-detected --state open \
-            --json number,title \
-            --jq "map(select(.title | contains(\"$short_sha\"))) | .[0].number // empty" \
+            --label tranche-detected --state open --limit 100 \
+            --json number,title 2>/dev/null \
+            | jq -r --arg s "$short_sha" \
+                'map(select(.title | contains($s))) | .[0].number // empty' \
             2>/dev/null || echo "")
           if [ -z "$issue" ]; then
             echo "No open tranche-detected issue for $short_sha; skipping verdict comment."

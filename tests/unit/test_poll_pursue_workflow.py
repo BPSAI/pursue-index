@@ -431,3 +431,22 @@ def test_verdict_step_uses_rest_list_not_search() -> None:
     assert "--search" not in run_block, (
         "verdict lookup must NOT use --search (eventually-consistent index)"
     )
+
+
+def test_snapshot_generate_step_guards_missing_csv() -> None:
+    """Vaivora P2: the generate step must skip-with-warning, not FileNotFoundError,
+    if the poll CSV commit never landed despite status=='changed'."""
+    steps = _snapshot_steps()
+    run_block = str(steps[_step_index(steps, "Generate snapshot")].get("run", ""))
+    assert "! -f" in run_block, "generate step must guard on the CSV file's presence"
+    assert "data/raw/csv/${NEW_SHA}.csv" in run_block
+    assert "exit 0" in run_block, "missing CSV must be a graceful skip, not a hard error"
+
+
+def test_verdict_lookup_passes_sha_as_jq_arg_with_limit() -> None:
+    """Laverna P2-1 + Vaivora P2: locate the issue by passing short_sha to jq as
+    DATA (--arg), never interpolated into the jq program text, and bound the list."""
+    steps = _snapshot_steps()
+    run_block = str(steps[_step_index(steps, "Append verdict")].get("run", ""))
+    assert "--arg s" in run_block, "short_sha must reach jq via --arg (data, not program)"
+    assert "--limit" in run_block, "gh issue list must bound results (default is 30)"

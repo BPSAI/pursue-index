@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.scrape.csv_fetcher import _MAPPED_KEYS, build_manifest, parse_csv
-from pursue_index.scrape.manifest import load_manifest
+from pursue_index.scrape.manifest import load_manifest, save_manifest
 from pursue_index.scrape.snapshots import (
     DEFAULT_CANONICAL_DIR,
     DEFAULT_PUBLIC_DIR,
@@ -112,10 +112,17 @@ def _write_new_snapshot(
         # rotate_to_snapshot's idempotency — only backfill a missing mirror.
         if not public_path.exists():
             public_path.write_bytes(canonical_path.read_bytes())
+            # Refresh the public index too: a restored mirror file that the
+            # index doesn't enumerate is a canonical/public inconsistency
+            # DiffIsland would trip on (Vaivora P2).
+            _rebuild_index(canonical_dir, public_dir)
         return
-    payload = manifest.model_dump_json(indent=2, by_alias=True).encode("utf-8")
-    canonical_path.write_bytes(payload)
-    public_path.write_bytes(payload)
+    # save_manifest is the SINGLE serializer for snapshot bytes — DiffIsland
+    # reads snapshots written by BOTH this CI lane and a local scrape-run
+    # rotation, so a forked serializer here could silently drift (Vaivora P1).
+    # Write canonical via save_manifest, then mirror the exact bytes to public.
+    save_manifest(manifest, canonical_path)
+    public_path.write_bytes(canonical_path.read_bytes())
     _rebuild_index(canonical_dir, public_dir)
 
 

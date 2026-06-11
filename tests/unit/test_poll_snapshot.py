@@ -250,3 +250,47 @@ def test_makes_no_network_call(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
         public_dir=public,
     )
     assert [c.title for c in result.added] == ["Case 0002"]
+
+
+def test_new_side_snapshot_bytes_match_save_manifest(tmp_path: Path) -> None:
+    """Vaivora P1: the new-side snapshot writer must produce byte-identical
+    output to ``save_manifest``. DiffIsland reads snapshots written by BOTH this
+    CI writer and a local ``scrape run`` rotation, so a forked serializer here
+    could silently drift with no test catching it."""
+    from pursue_index.scrape.poll_snapshot import _write_new_snapshot
+
+    raw = _csv([_row("Case 0001", _URL1)])
+    manifest = build_manifest(raw, parse_csv(raw), _SOURCE_URL)
+    canonical, public = tmp_path / "canon", tmp_path / "pub"
+    _write_new_snapshot(manifest, canonical, public)
+    ref = tmp_path / "ref.json"
+    save_manifest(manifest, ref)
+    sha = manifest.csv_sha256
+    assert (canonical / f"{sha}.json").read_bytes() == ref.read_bytes()
+    # The public mirror is an exact byte copy of canonical.
+    assert (public / f"{sha}.json").read_bytes() == (canonical / f"{sha}.json").read_bytes()
+
+
+def test_backfill_missing_public_mirror_refreshes_index(tmp_path: Path) -> None:
+    """Vaivora P2: restoring a missing public mirror file on an immutable rerun
+    must ALSO refresh the public index.json, else DiffIsland sees a snapshot
+    file its index doesn't enumerate."""
+    latest, canonical, public = _dirs(tmp_path)
+    _seed_latest(latest, _csv([_row("Case 0001", _URL1)]))
+    new_raw = _csv([_row("Case 0001", _URL1), _row("Case 0002", _URL2)])
+    new_sha = build_manifest(new_raw, parse_csv(new_raw), _SOURCE_URL).csv_sha256
+    generate_snapshot_diff(
+        new_raw, source_url=_SOURCE_URL, latest_path=latest,
+        canonical_dir=canonical, public_dir=public,
+    )
+    # Simulate a partial-mirror state: the public <sha>.json is gone and the
+    # public index was rebuilt without it.
+    (public / f"{new_sha}.json").unlink()
+    (public / "index.json").write_text("[]", encoding="utf-8")
+    # Re-run for the SAME csv: the immutable branch backfills the mirror...
+    generate_snapshot_diff(
+        new_raw, source_url=_SOURCE_URL, latest_path=latest,
+        canonical_dir=canonical, public_dir=public,
+    )
+    assert (public / f"{new_sha}.json").exists()  # mirror restored
+    assert new_sha in (public / "index.json").read_text()  # ...AND re-enumerated
