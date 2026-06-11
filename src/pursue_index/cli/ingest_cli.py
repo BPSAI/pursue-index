@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import sys
 from pathlib import Path
 
 import typer
@@ -53,6 +52,18 @@ DEFAULT_DIFF_DIR = _REPO_ROOT / ".paircoder" / "plans"
 DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
 DEFAULT_LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_WORKLIST = _REPO_ROOT / "data" / "ingest-worklist.txt"
+
+_OPT_APPROVE_RENAME = typer.Option(
+    None,
+    "--approve-rename",
+    help="Repeatable. Format: <new_card_id>=<old_card_id>. Each flag promotes a Class C "
+    "quarantined card into an operator_manual alias.",
+)
+_OPT_SKIP_AUDIT = typer.Option(
+    False,
+    "--skip-audit",
+    help="Skip the TOCTOU re-fetch audit. NOT RECOMMENDED — use only with explicit reason.",
+)
 
 
 def _fetch_byte_sha_via_curl(url: str) -> str | None:
@@ -184,20 +195,12 @@ def _run_pre_approval_audit(
 def approve_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
     note: str = typer.Option(..., "--note", help="Operator rationale; recorded in the audit log."),
-    approve_rename: list[str] = typer.Option(
-        None,
-        "--approve-rename",
-        help="Repeatable. Format: <new_card_id>=<old_card_id>. Each flag promotes a Class C quarantined card into an operator_manual alias.",
-    ),
+    approve_rename: list[str] = _OPT_APPROVE_RENAME,
     log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
     aliases: Path = typer.Option(DEFAULT_ALIASES, "--aliases"),
     diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
     snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
-    skip_audit: bool = typer.Option(
-        False,
-        "--skip-audit",
-        help="Skip the TOCTOU re-fetch audit. NOT RECOMMENDED — use only with explicit reason.",
-    ),
+    skip_audit: bool = _OPT_SKIP_AUDIT,
 ) -> None:
     """Record an approval row + materialize the approved aliases.
 
@@ -212,7 +215,7 @@ def approve_cmd(
         manual_renames = parse_rename_flags(approve_rename or [])
     except ValueError as exc:
         typer.echo(f"refusing to approve — invalid --approve-rename: {exc}", err=True)
-        raise typer.Exit(2)
+        raise typer.Exit(2) from exc
 
     enriched = _enrich_with_provenance(auto_renames + manual_renames, tranche)
     audit_results = _run_pre_approval_audit(
