@@ -25,6 +25,7 @@ from pathlib import Path
 
 import typer
 
+from pursue_index.cli.ingest_from_diff import execute_from_diff
 from pursue_index.ingest import (
     append_aliases,
     auto_approve_renames,
@@ -51,6 +52,7 @@ DEFAULT_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
 DEFAULT_DIFF_DIR = _REPO_ROOT / ".paircoder" / "plans"
 DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
 DEFAULT_LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
+DEFAULT_WORKLIST = _REPO_ROOT / "data" / "ingest-worklist.txt"
 
 
 def _fetch_byte_sha_via_curl(url: str) -> str | None:
@@ -236,21 +238,10 @@ def approve_cmd(
     _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary)
 
 
-@ingest_app.command("run")
-def run_cmd(
-    tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
-    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
-    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
-    manifest: Path = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest"),
-    diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
-) -> None:
-    """Promote an approved tranche to the deployed manifest + report next steps.
-
-    Refuses if the tranche is not approved. Promotes the snapshot to
-    data/manifests/latest.json. Identifies downstream pipeline work
-    (download/ocr/embed) required by any new content in the tranche
-    and prints copy-paste-ready next-step commands.
-    """
+def _resolve_approved_snapshot(
+    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path
+) -> Path:
+    """Gate + snapshot resolution for ``run``. Raises typer.Exit on failure."""
     if not is_tranche_approved(log, tranche):
         typer.echo(
             f"refusing to ingest — tranche {tranche[:12]} is not approved.\n"
@@ -266,10 +257,58 @@ def run_cmd(
             err=True,
         )
         raise typer.Exit(2)
+    return snapshot
+
+
+@ingest_app.command("run")
+def run_cmd(
+    tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
+    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
+    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
+    manifest: Path = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest"),
+    diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
+    from_diff: bool = typer.Option(
+        False,
+        "--from-diff",
+        help="One-command path: export the scoped work-list from the tranche-diff "
+        "and run the scoped download -> ocr -> embed stages (T6.5 --worklist).",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="With --from-diff: print the work-list (the card_ids that would be "
+        "OCR'd/embedded) WITHOUT running any stage or spending budget.",
+    ),
+    worklist: Path = typer.Option(
+        DEFAULT_WORKLIST,
+        "--worklist",
+        help="Where --from-diff writes the scoped card_id list the executors read.",
+    ),
+) -> None:
+    """Promote an approved tranche to the deployed manifest + report next steps.
+
+    Refuses if the tranche is not approved. Promotes the snapshot to
+    data/manifests/latest.json. Identifies downstream pipeline work
+    (download/ocr/embed) required by any new content in the tranche.
+
+    By default it prints copy-paste-ready next-step commands. With
+    ``--from-diff`` it instead exports the scoped work-list and drives the
+    scoped stages itself; ``--dry-run`` shows the work-list without spending.
+    """
+    snapshot = _resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
     diff_payload = _load_diff_or_exit(tranche, diff_dir)
     summary = summarize_ingest_work(diff_payload)
     promote_snapshot(snapshot, manifest)
     typer.echo(f"promoted snapshot to {manifest}")
+    if from_diff:
+        execute_from_diff(
+            summary,
+            tranche=tranche,
+            manifest=manifest,
+            worklist=worklist,
+            dry_run=dry_run,
+        )
+        return
     typer.echo("")
     typer.echo(render_next_steps(summary))
 
