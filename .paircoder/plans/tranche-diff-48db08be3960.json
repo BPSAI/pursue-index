@@ -1,0 +1,2682 @@
+{
+  "tranche_sha256": "48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04",
+  "prior_manifest_sha": "6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 63,
+    "quarantined": 1,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 9,
+    "removed": 1,
+    "field_only_changes": 209
+  },
+  "renames_confirmed": [],
+  "new_content": [
+    {
+      "new_card_id": "076e3a3c73273efe",
+      "title": "CIA-UAP-011, The Sary Shagan Weapons Testing Range",
+      "asset_filename": "CIA-UAP-011-The_Sary_Shagan_Weapons_Testing_Range.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-011-The_Sary_Shagan_Weapons_Testing_Range.pdf",
+      "byte_sha256": "b5a4f68efde9027964d44f4b6f1d0c83a57d44a842c3030f2fd8a58e5f115baf"
+    },
+    {
+      "new_card_id": "0afe3cfea622505c",
+      "title": "FBI-UAP-D016, Digital Rendering, Narrative Statement 2-1, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D016_Digital-Rendering_Incident-2-1_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D016_Digital-Rendering_Incident-2-1_Western-US-Event_2023.jpg",
+      "byte_sha256": "b1e7c92ade168f3fee8e9a29bd44a4adb9101f00660510ca97b03e2c89d17b79"
+    },
+    {
+      "new_card_id": "0f025bcbd048e738",
+      "title": "FBI-UAP-D005, FD-1057-04, Northeastern United States, 2024",
+      "asset_filename": "FBI-UAP-D005_FD-1057-04_Northeastern-US_2024.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D005_FD-1057-04_Northeastern-US_2024.pdf",
+      "byte_sha256": "c33b63109ce1e9d53f700c00d05728cb53bd17d863b1e2e81a40486ceb9f978e"
+    },
+    {
+      "new_card_id": "260eb5f4eba61b65",
+      "title": "FBI-UAP-D018, Digital Rendering, Narrative Statement 2-3, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D018_Digital-Rendering_Incident-2-3_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D018_Digital-Rendering_Incident-2-3_Western-US-Event_2023.jpg",
+      "byte_sha256": "8bd2f3385d375a75b20abd211bc3e2f232d5fe7c418b3cad457ec571cd1ec10b"
+    },
+    {
+      "new_card_id": "29f1035b2cdde6b7",
+      "title": "CIA-UAP-009, Unknown Flying Objects Observed Over Budapest",
+      "asset_filename": "CIA-UAP-009-UNKNOWN-FLYING_OBJECTS_OBERVED_OVER_BUDAPEST.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-009-UNKNOWN-FLYING_OBJECTS_OBERVED_OVER_BUDAPEST.pdf",
+      "byte_sha256": "d2ff89273ce8bf19a5e9962b210e3954d4e0153ac493a5c9d8c2c140af6a5c17"
+    },
+    {
+      "new_card_id": "2cd799fd0c70eda2",
+      "title": "FBI-UAP-D001, FD-302, Unresolved UAP Report, Colorado Springs, 2022",
+      "asset_filename": "FBI-UAP-D001_FD-302_Unresolved-UAP-Report_ColoradoSprings_2022.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D001_FD-302_Unresolved-UAP-Report_ColoradoSprings_2022.pdf",
+      "byte_sha256": "22528109268e1ed19d3a10f35d91b66077b674315c283e3ba6e3714743c41f4f"
+    },
+    {
+      "new_card_id": "31064dd56886eae1",
+      "title": "FBI-UAP-D008, FD-1057-07, Northeastern United States, 2024",
+      "asset_filename": "FBI-UAP-D008_FD-1057-07_Northeastern-US_2024.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D008_FD-1057-07_Northeastern-US_2024.pdf",
+      "byte_sha256": "abcbc0042ec0f228c81cff200fb59f82f8b8b1374e8c4e5d0e8b2f32160bef8b"
+    },
+    {
+      "new_card_id": "323b9443e6f5ea56",
+      "title": "DOW-UAP-D078, Notional Map: Western United States Event",
+      "asset_filename": "DOW-UAP-D078_Notional-Map_Western-United-States-Event.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D078_Notional-Map_Western-United-States-Event.pdf",
+      "byte_sha256": "284e470d213a798271fd7ade00d345cd17d4d5fca154db1e3ca5a04f34cc3bbe"
+    },
+    {
+      "new_card_id": "38ee227f22a33772",
+      "title": "CIA-UAP-006, Sighting Of Unconventional Aircraft",
+      "asset_filename": "CIA-UAP-006_Sighting_of_Unconventional_Aircraft.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-006_Sighting_of_Unconventional_Aircraft.pdf",
+      "byte_sha256": "eaa9a2e8a96ab61bf2a4e1bac1a68b6a896f2fec16fb2b11a158072d9e9ba58e"
+    },
+    {
+      "new_card_id": "45588f73ddfaad6d",
+      "title": "FBI-UAP-D020, Digital Rendering, Narrative Statement 2-5, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D020_Digital-Rendering_Incident-2-5_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D020_Digital-Rendering_Incident-2-5_Western-US-Event_2023.jpg",
+      "byte_sha256": "124dc78af9a98b747074f7abcc01bdf6ebd0bf65afbe43a1b4ffa4a9dd175932"
+    },
+    {
+      "new_card_id": "464f81c988dcee9e",
+      "title": "FBI-UAP-D003, Digital Rendering, Unresolved UAP Report, Colorado Springs, 2022",
+      "asset_filename": "FBI-UAP-D003_Digital-Rendering_Unresolved-UAP-Report_ColoradoSprings_2022.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D003_Digital-Rendering_Unresolved-UAP-Report_ColoradoSprings_2022.pdf",
+      "byte_sha256": "e067ec3753f24fbe26501a3932bce900124efea19ce5f949368f1b74d95fb53d"
+    },
+    {
+      "new_card_id": "4825c416e6afe557",
+      "title": "CIA-UAP-010, Report on Conversations with Soviet Scientists on Subject of Unidentified Flying Objects in the USSR",
+      "asset_filename": "CIA-UAP-010_REPORT_ON_CONVERSATIONS_WITH_SOVIET_SCIENTISTS_ON_SUBJECT_OF_UNIDENTIFIED_FLYING_OBJECTS_IS_THE_USSR.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-010_REPORT_ON_CONVERSATIONS_WITH_SOVIET_SCIENTISTS_ON_SUBJECT_OF_UNIDENTIFIED_FLYING_OBJECTS_IS_THE_USSR.pdf",
+      "byte_sha256": "3abdbd131944fb847ec6eda8bf7f3f12684812bec71ea27c22ab5c3bb2ed4eb9"
+    },
+    {
+      "new_card_id": "48502ae871d53621",
+      "title": "DOW-UAP-D086, USNavy-Report-of-Flying-Discs_1948",
+      "asset_filename": "DOW-UAP-D086_USNavy-Report-of-Flying-Discs_1948.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D086_USNavy-Report-of-Flying-Discs_1948.pdf",
+      "byte_sha256": "f96457d53f3cd65aec3fc539e7138cc42a5ea962654a83c75abbd0f13d54383c"
+    },
+    {
+      "new_card_id": "56bd12ff7be6f4ee",
+      "title": "NASA-UAP-D016, Preliminary Gemini 4 Crew Debriefing, Part I, 1965",
+      "asset_filename": "NASA-UAP-D016_Preliminary-Gemini-4-Crew-Debriefing_Part1_1965.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D016_Preliminary-Gemini-4-Crew-Debriefing_Part1_1965.pdf",
+      "byte_sha256": "ca596a44820b275f3e3ba41ddabd9ed8f124b68f8c3207d4c34d8afb1a48a94c"
+    },
+    {
+      "new_card_id": "5a1026673150b72f",
+      "title": "CIA-UAP-005, German Scientist's Article on 'Flying Discs'",
+      "asset_filename": "CIA-UAP-005-GERMAN_SCIENTISTS_ ARTICLE_ON_FLYING_DISCS.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-005-GERMAN_SCIENTISTS_%20ARTICLE_ON_FLYING_DISCS.pdf",
+      "byte_sha256": "85e84eb491e2331aebecb0ea021eb64d67795dc4c25197ca293ddfcffc81dee9"
+    },
+    {
+      "new_card_id": "6058b5fa79221835",
+      "title": "FBI-UAP-D014, Digital Rendering, Narrative Statement 1-1, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D014_Digital-Rendering_Incident-1-1_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D014_Digital-Rendering_Incident-1-1_Western-US-Event_2023.jpg",
+      "byte_sha256": "0d38bc499e9bd038abac04160b5480c24b08e9c7e27156b41b8128025fc02ccf"
+    },
+    {
+      "new_card_id": "626d8e51b2efc972",
+      "title": "CIA-UAP-014, British activity in the Field of \"Unidentified Flying Objects\"",
+      "asset_filename": "CIA-UAP-014_British_Activity_in_the_Field_of_Unidentified_Flying_Objects.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-014_British_Activity_in_the_Field_of_Unidentified_Flying_Objects.pdf",
+      "byte_sha256": "a1eefc277c9c98450d4d5cf6dde3e191184a38db541b82a767804ab503926a6c"
+    },
+    {
+      "new_card_id": "662eb9fef6e109d2",
+      "title": "NASA-UAP-D019, Gemini 5 Technical Debriefing, Part I, 1965",
+      "asset_filename": "NASA-UAP-D019_Gemini-5-Technical-Debriefing_Part1_1965.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D019_Gemini-5-Technical-Debriefing_Part1_1965.pdf",
+      "byte_sha256": "fd3b139e6b9ad4e3b697561f1712541e54668617fe8be72f9214124e4325c793"
+    },
+    {
+      "new_card_id": "765a28effad5ab93",
+      "title": "NASA-UAP-D015, Astronaut Scientific Debriefings, 1962-1963",
+      "asset_filename": "NASA-UAP-D015_Astronaut-Scientific-Debriefings_1962-1963.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D015_Astronaut-Scientific-Debriefings_1962-1963.pdf",
+      "byte_sha256": "35e904ddb6652ca72281ff13cf00f71d9563aab3672e399273335215bebb5184"
+    },
+    {
+      "new_card_id": "774ebdca92c34892",
+      "title": "CIA-UAP-016, Sightings of Unidentified Flying Objects in Ladakh, Nepal, Sikkim and Bhutan",
+      "asset_filename": "CIA-UAP-016-Sightings_of_Unidentified_Flying_Ojbects_in_Ladakh_Nepal_Sikkim_and_Bhutan.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-016-Sightings_of_Unidentified_Flying_Ojbects_in_Ladakh_Nepal_Sikkim_and_Bhutan.pdf",
+      "byte_sha256": "c6c33cf9f578f24210e3d6454139f20279d025f6d25b4bc6bf3cc3d27865e7fe"
+    },
+    {
+      "new_card_id": "7838ea3bee6bd8a7",
+      "title": "FBI-UAP-D009, FD-302-67, \u201cNortheastern Orb Sighting,\u201d 2026",
+      "asset_filename": "FBI-UAP-D009_FD-302-67_Northeastern-Orb-Sighting_2026.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D009_FD-302-67_Northeastern-Orb-Sighting_2026.pdf",
+      "byte_sha256": "b5513dea063f469efff564cf92a72e088e325e03211f2fd85fbaee5d6ed7f4c4"
+    },
+    {
+      "new_card_id": "7a47542be1be6d1f",
+      "title": "CIA-UAP-004, CASE 17708 (CLOSED) and DR. Leon Davidson",
+      "asset_filename": "CIA-UAP-004-CASE_17708_CLOSED_AND_DR_LEON_DAVIDSON.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-004-CASE_17708_CLOSED_AND_DR_LEON_DAVIDSON.pdf",
+      "byte_sha256": "3e03f61e60ce007256731bcb7119d15829cee3d532b21336c7c06177c19414c8"
+    },
+    {
+      "new_card_id": "7c0e38a8a433ebaa",
+      "title": "USG-UAP-D001, Congressional, White House, UFO-related Constituent Correspondence, 1998",
+      "asset_filename": "USG-UAP-D001_Congress-WhiteHouse-UFO-Correspondence_1998.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/USG-UAP-D001_Congress-WhiteHouse-UFO-Correspondence_1998.pdf",
+      "byte_sha256": "3393d62c92d9a5ad76155535caddf39cf9e76f5f19716ebfc851ba2b86b0ae3a"
+    },
+    {
+      "new_card_id": "811e54fbf8cff4cc",
+      "title": "CIA-UAP-002, Scientific Advisory Panel on Unidentified Flying Objects, Report, 1952-1953",
+      "asset_filename": "CIA-UAP-002_Scientific-Advisory-Panel-on-Unidentified-Flying-Objects_Report_1952-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-002_Scientific-Advisory-Panel-on-Unidentified-Flying-Objects_Report_1952-1953.pdf",
+      "byte_sha256": "a56e49ed5dd5fbb00b70101762b3eb9bb6148aeb380163ece648d377dfa5e5c7"
+    },
+    {
+      "new_card_id": "8533936c8107767b",
+      "title": "CIA-UAP-017, Placement on High Alert Due to Perceived Aggressive Foreign Posturing",
+      "asset_filename": "CIA-UAP-017_Placement_on_High_Alert_Due_to_Perceived_Aggressive_Foreign_Posturing.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-017_Placement_on_High_Alert_Due_to_Perceived_Aggressive_Foreign_Posturing.pdf",
+      "byte_sha256": "4332ebe48c3fcb1ef53e9186d90f38142e8465f553388a5d8dff277c87a92b16"
+    },
+    {
+      "new_card_id": "859cda8991e45dd7",
+      "title": "CIA-UAP-008, Speculative Paper By N Kardashev and A Sakharov on Charged Mass in Space at Conference on Origins Of Life, Armenia, 6-8 September 1971/Low Scientific Level Of Other Soviet Papers",
+      "asset_filename": "CIA-UAP-008_SPECULATIVE_PAPER_BY_N_KARDASHEV_AND_A_SAKHAROV.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-008_SPECULATIVE_PAPER_BY_N_KARDASHEV_AND_A_SAKHAROV.pdf",
+      "byte_sha256": "3e8ee13c5fa8d61a646144adcf3469b728339c11d6303a1f1b98f1ef1827799e"
+    },
+    {
+      "new_card_id": "878ff82834953ea7",
+      "title": "CIA-UAP-007, Current Status Of Unidentified Flying Objects (UFO) Project.",
+      "asset_filename": "CIA-UAP-007_Current_Status_of_Unidentified_Flying_Objects_UFO_Project.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-007_Current_Status_of_Unidentified_Flying_Objects_UFO_Project.pdf",
+      "byte_sha256": "855a0d73d1e9c0fc1b8999aee6fd4186f1539c1b7f7f3d60c4ed60ea35dd35f8"
+    },
+    {
+      "new_card_id": "88479e3245f9bf15",
+      "title": "DOW-UAP-D077, AARO Unresolved Case Analysis Update: Western United States Event",
+      "asset_filename": "DOW-UAP-D077_Unresolved-Case-Analysis-Update_Western-United-States-Event.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D077_Unresolved-Case-Analysis-Update_Western-United-States-Event.pdf",
+      "byte_sha256": "5eb571dbfd4faa81c2b52266e0e0ea933cde481325f8548aefac5b9b09eb42d1"
+    },
+    {
+      "new_card_id": "8aba1dc72a19b94a",
+      "title": "CIA-UAP-012, Combating Fatigue In Crewmembers",
+      "asset_filename": "CIA-UAP-012-Combatting_Fatigue_in_Crewmembers.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-012-Combatting_Fatigue_in_Crewmembers.pdf",
+      "byte_sha256": "490841ebe7487b3e7386ca5fa22c256b678fafa58aa79fae925bf9fe72771c28"
+    },
+    {
+      "new_card_id": "8dfcf1050947c6d3",
+      "title": "CIA-UAP-003, The Central Intelligence Agency and Overhead Reconnaissance; The U-2 and OXCART Programs, 1954-1974",
+      "asset_filename": "CIA-UAP-003-THE_CENTRAL_INTELLIGENCE_AGENCY_AND_OVERHEAD_RECONNAISSANCE-THE_U-2_AND_OXCART_PROGRAMS_1954-1974.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-003-THE_CENTRAL_INTELLIGENCE_AGENCY_AND_OVERHEAD_RECONNAISSANCE-THE_U-2_AND_OXCART_PROGRAMS_1954-1974.pdf",
+      "byte_sha256": "3a11822b45f559acc6063304bdbf16977a21dc86ca3a7a743c1a60e40f98b8d1"
+    },
+    {
+      "new_card_id": "8e4cbdbd3583feba",
+      "title": "FBI-UAP-D002, FD-1057, Unresolved UAP Report, Colorado Springs, 2022",
+      "asset_filename": "FBI-UAP-D002_FD-1057_Unresolved-UAP-Report_ColoradoSprings_2022.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D002_FD-1057_Unresolved-UAP-Report_ColoradoSprings_2022.pdf",
+      "byte_sha256": "f73ffa1579ecc8916492166021bac801e421f058779127e8bb4bf1ded02cc3a1"
+    },
+    {
+      "new_card_id": "907982561e907539",
+      "title": "DOW-UAP-D083, Narrative Statement 5, Western United States Event, 2023",
+      "asset_filename": "DoW-UAP-D083_Narrative-5_Western-US-Event.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D083_Narrative-5_Western-US-Event.pdf",
+      "byte_sha256": "ad70e6d8f9091d432dd89d9cd803734c0a297f16cb211311feb609fb435ff360"
+    },
+    {
+      "new_card_id": "91887620fa8361e5",
+      "title": "CIA-UAP-018, Report of Unusual Flying Object Sightings and Attendant Scientific Activity",
+      "asset_filename": "CIA-UAP-018_Report_of_Unusual_Flying_Object_Sightings_and_Attendant_Scientific_Activity.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-018_Report_of_Unusual_Flying_Object_Sightings_and_Attendant_Scientific_Activity.pdf",
+      "byte_sha256": "1f6d1a95647dbd14d34534db4c71654e4b437c61a160df24fc142ef60790b730"
+    },
+    {
+      "new_card_id": "98c1575170956515",
+      "title": "DOW-UAP-D087, U.S. Air Force Analysis of Flying Objects in the United States, 1-100",
+      "asset_filename": "DOW-UAP-D087_US-AirForce_Analysis-of-Flying-Objects-in-the-US_1-100.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D087_US-AirForce_Analysis-of-Flying-Objects-in-the-US_1-100.pdf",
+      "byte_sha256": "8004ab172820cb1e35c195b32badf6ede8b5cf12d27c474e54c8788bc14815a9"
+    },
+    {
+      "new_card_id": "a0ec63eff6d4d643",
+      "title": "FBI-UAP-D022, Digital Rendering, Narrative Statement 2-6, Western United States Event, 2026",
+      "asset_filename": "FBI-UAP-D022_Digital-Rendering_Incident-2-6_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D022_Digital-Rendering_Incident-2-6_Western-US-Event_2023.jpg",
+      "byte_sha256": "8bb0b7c69f8b7c2aa154c455b5918b871cf42bc96559fadda1433ba4d0d727bd"
+    },
+    {
+      "new_card_id": "a14bb8678727f0c0",
+      "title": "FBI-UAP-D006, FD-1057-05, Northeastern United States, 2024",
+      "asset_filename": "FBI-UAP-D006_FD-1057-05_Northeastern-US_2024.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D006_FD-1057-05_Northeastern-US_2024.pdf",
+      "byte_sha256": "953c2aa10c0e560ea11b131cc64ef6962671649eec743cf3ab0f24698c0fc1b7"
+    },
+    {
+      "new_card_id": "a3672ccd47d5503a",
+      "title": "NASA-UAP-D022, Gemini 9 Debriefing, 1966",
+      "asset_filename": "NASA-UAP-D022_Gemini-9-Debriefing_1966.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D022_Gemini-9-Debriefing_1966.pdf",
+      "byte_sha256": "971d604c8a91acb14a05b818e07f1c6530faf73845dd98f3cdbe0ede6d85c4b8"
+    },
+    {
+      "new_card_id": "a4f1672d4f893c75",
+      "title": "DOW-UAP-D088, U.S. Air Force Analysis of Flying Objects in the United States, 101-172",
+      "asset_filename": "DOW-UAP-D088_US-AirForce_Analysis-of-Flying-Objects-in-the-US_101-172.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D088_US-AirForce_Analysis-of-Flying-Objects-in-the-US_101-172.pdf",
+      "byte_sha256": "0d53232bd0d23672c053bbdac4241e5693eae4d156b8c709e109de31191da117"
+    },
+    {
+      "new_card_id": "a814dead4ae07667",
+      "title": "FBI-UAP-D013, Washington State \u2018UFO\u2019 Investigation, 1952-1960",
+      "asset_filename": "FBI-UAP-D013_WA-UFO-Investigation_1952-1960.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D013_WA-UFO-Investigation_1952-1960.pdf",
+      "byte_sha256": "50f1e4af35a5c630f283e10be33e17935ee9e61672506571267248ed2f4583ce"
+    },
+    {
+      "new_card_id": "a83dedef9d19fcb5",
+      "title": "DOW-UAP-D085_Transmission-of-CIA-Scientific-Advisory-Panel-Rept_1953",
+      "asset_filename": "DOW-UAP-D085_Transmission-of-CIA-Scientific-Advisory-Panel-Rept_1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D085_Transmission-of-CIA-Scientific-Advisory-Panel-Rept_1953.pdf",
+      "byte_sha256": "43f3553b900cf8cceab5575edc33e14e6b6e980764ae78f979be664829efb089"
+    },
+    {
+      "new_card_id": "a86f79c3de423c13",
+      "title": "FBI-UAP-D017, Digital Rendering, Narrative Statement 2-2, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D017_Digital-Rendering_Incident-2-2_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D017_Digital-Rendering_Incident-2-2_Western-US-Event_2023.jpg",
+      "byte_sha256": "915709912f3612b41870ff6513dd3820d1f6f7b02cf09481f4128cd15b62b6f3"
+    },
+    {
+      "new_card_id": "a8ec637d35fd011e",
+      "title": "CIA-UAP-015, Project Blue Book Special Report No. 14 (Analysis of Reports of Unidentified Aerial Objects)",
+      "asset_filename": "CIA-UAP-015-Project_Blue_Book_Special_Report_No_14.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-015-Project_Blue_Book_Special_Report_No_14.pdf",
+      "byte_sha256": "90e05e77fc088c29758c2ddda514c0c12f317e5686ee213d348db2f9da152ee3"
+    },
+    {
+      "new_card_id": "ad63a61ed36f167c",
+      "title": "CIA-UAP-013, Report of Unusual Flying Object Sightings and Attendant Scientific Activity",
+      "asset_filename": "CIA-UAP-013-Report_of_Unusual_Flying_Object_Sightings_and_Attendant_Scientific_Activity.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-013-Report_of_Unusual_Flying_Object_Sightings_and_Attendant_Scientific_Activity.pdf",
+      "byte_sha256": "6004fb66d76ccf50c3f0729bd218efcd4485395e8491e88b1bf257fc2ea36733"
+    },
+    {
+      "new_card_id": "b869fd5353d5c853",
+      "title": "DOW-UAP-D084, US Army-Flying-Saucer-Study_1949",
+      "asset_filename": "DOW-UAP-D084_USArmy-Flying-Saucer-Study_1949.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D084_USArmy-Flying-Saucer-Study_1949.pdf",
+      "byte_sha256": "b2e4554e261e980c10251e927942300342081109a50b4ef61dc37946deade80f"
+    },
+    {
+      "new_card_id": "bf08008b8a1aa79e",
+      "title": "DOW-UAP-D082, Narrative Statement 4, Western United States Event, 2023",
+      "asset_filename": "DoW-UAP-D082_Narrative-4_Western-US-Event.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D082_Narrative-4_Western-US-Event.pdf",
+      "byte_sha256": "d522d9a289caaa7b2c9143bc1e80aa37764066791097824ffeb898b500200e1e"
+    },
+    {
+      "new_card_id": "c2da7eaaedbf533a",
+      "title": "DOW-UAP-D079, Narrative Statement 1, Western United States Event, 2023",
+      "asset_filename": "DoW-UAP-D079_Narrative-1_Western-US-Event.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D079_Narrative-1_Western-US-Event.pdf",
+      "byte_sha256": "670dbdbe40e70fa5f46485273d8f2c0eef7e604a7487416343ebec8bfc5f30c1"
+    },
+    {
+      "new_card_id": "c8d89f235e487961",
+      "title": "NASA-UAP-D018, Gemini 4 Experiment Debriefing, 1967",
+      "asset_filename": "NASA-UAP-D018_Gemini-4_Experiment-Debriefing_1967.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D018_Gemini-4_Experiment-Debriefing_1967.pdf",
+      "byte_sha256": "5f073d6c4ae822a8213d56fbccef9d14a82e6b75bc318dbe2ccfe9c5945ddeee"
+    },
+    {
+      "new_card_id": "ccb9a10f4d8b2c3d",
+      "title": "DOW-UAP-D081, Narrative Statement 3, Western United States Event, 2023",
+      "asset_filename": "DoW-UAP-D081_Narrative-3_Western-US-Event.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D081_Narrative-3_Western-US-Event.pdf",
+      "byte_sha256": "3c369f9660a3528455b6140d03dfef6bc94b1cf430b85ce26938e5adf1dd1e9d"
+    },
+    {
+      "new_card_id": "ce9a5971eec321e8",
+      "title": "FBI-UAP-D007, FD-1057-06, Northeastern United States, 2024",
+      "asset_filename": "FBI-UAP-D007_FD-1057-06_Northeastern-US_2024.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D007_FD-1057-06_Northeastern-US_2024.pdf",
+      "byte_sha256": "f5cfb310e3064e34c55c4b1a256285da71050915ff3559ea70529b101f248c5c"
+    },
+    {
+      "new_card_id": "cf19931bc3e5efda",
+      "title": "FBI-UAP-D021, Digital Rendering, Narrative Statement 1-3, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D021_Digital-Rendering_Incident-1-3_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D021_Digital-Rendering_Incident-1-3_Western-US-Event_2023.jpg",
+      "byte_sha256": "d767f2f41f24abef90d3f10f858acb879b8c2d295afd9e7b31b6d5b8e42ba32d"
+    },
+    {
+      "new_card_id": "d1f561b646aaed40",
+      "title": "FBI-UAP-D019, Digital Rendering, Narrative Statement 2-4, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D019_Digital-Rendering_Incident-2-4_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D019_Digital-Rendering_Incident-2-4_Western-US-Event_2023.jpg",
+      "byte_sha256": "623e02b31165d3a59f50ac19169d381750f00f79fedb3a3f762f5e1fc23e4c3d"
+    },
+    {
+      "new_card_id": "d7538e35ff11c7d3",
+      "title": "FBI-UAP-D011, D/FBI Correspondence Referral, 1949",
+      "asset_filename": "FBI-UAP-D011_DFBI-Correspondence-Referral_1949.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D011_DFBI-Correspondence-Referral_1949.pdf",
+      "byte_sha256": "aaf14409fe2a6b8577345394b399e8ccfa36a0571c6205eb6b5da82b53e6876b"
+    },
+    {
+      "new_card_id": "d7f72a4106a917f6",
+      "title": "DOW-UAP-D080, Narrative Statement 2, Western United States Event, 2023",
+      "asset_filename": "DoW-UAP-D080_Narrative-2_Western-US-Event.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D080_Narrative-2_Western-US-Event.pdf",
+      "byte_sha256": "2b011f25bb6fed4870766506b5799374cb3589d747c29e4227bab99ee779665b"
+    },
+    {
+      "new_card_id": "d983745c9c3a4709",
+      "title": "FBI-UAP-D010, FD-302-71, \u201cNortheastern Orb Sighting,\u201d 2026",
+      "asset_filename": "FBI-UAP-D010_FD-302-71_Northeastern-Orb-Sighting_2026.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D010_FD-302-71_Northeastern-Orb-Sighting_2026.pdf",
+      "byte_sha256": "b612cbe81c33546e3cea6f047ada247df054cbb294a84977d4600a0c72ffeb4d"
+    },
+    {
+      "new_card_id": "df252334c73a9019",
+      "title": "FBI-UAP-D012, Newark Field Office, 1952-1967",
+      "asset_filename": "FBI-UAP-D012_Newark-Field-Office_1952-1967.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D012_Newark-Field-Office_1952-1967.pdf",
+      "byte_sha256": "04195d918cf49bc4d32b050060f12dbd16bac2cb79b83e2d70b63543a1b68630"
+    },
+    {
+      "new_card_id": "e18cac08048b6c28",
+      "title": "NASA-UAP-D021, Gemini 7 Technical Debriefing, 1965",
+      "asset_filename": "NASA-UAP-D021_Gemini-7-Technical-Debriefing_1965.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D021_Gemini-7-Technical-Debriefing_1965.pdf",
+      "byte_sha256": "e192e501e6be5c87ead3793856245b07d2749682a211b3bd977d58bb22cd60c7"
+    },
+    {
+      "new_card_id": "e2371ff7657d231e",
+      "title": "CIA-UAP-019, Australian Dept of Defense Scientific and Intel Aspects of the UFO Problem",
+      "asset_filename": "CIA-UAP-019-Australian_Dept_of_Defense_Scientific_and_Intel_Aspects_of_the_UFO_Problem.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-019-Australian_Dept_of_Defense_Scientific_and_Intel_Aspects_of_the_UFO_Problem.pdf",
+      "byte_sha256": "a91a8665371816b5463dff7de2f1c4c02ac449ba122d088b2898592c82dba9dc"
+    },
+    {
+      "new_card_id": "e418f6fe8d2a4595",
+      "title": "FBI-UAP-D015, Digital Rendering, Narrative Statement 1-2, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D015_Digital-Rendering_Incident-1-2_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D015_Digital-Rendering_Incident-1-2_Western-US-Event_2023.jpg",
+      "byte_sha256": "1a963146cfb52cdfec75068f2996dec57125ed1e7af883a124ff9ee040d9abb7"
+    },
+    {
+      "new_card_id": "e6d06ce60662cdcf",
+      "title": "NASA-UAP-D017, Preliminary Gemini 4 Crew Debriefing, Part II, 1965",
+      "asset_filename": "NASA-UAP-D017_Preliminary-Gemini-4-Crew-Debriefing_Part2_1965.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D017_Preliminary-Gemini-4-Crew-Debriefing_Part2_1965.pdf",
+      "byte_sha256": "2be20f887d364078d11c7340380c21800348ac84beb5722c5932ef0be3e57c57"
+    },
+    {
+      "new_card_id": "ea18e274b06b352e",
+      "title": "ICA-UAP-D001, Analysis: Colorado Springs UAP Incident, 2022",
+      "asset_filename": "ICA-UAP-D001_Analysis_Colorado-Springs-UAP-Incident.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/ICA-UAP-D001_Analysis_Colorado-Springs-UAP-Incident.pdf",
+      "byte_sha256": "b98b58a326ea413b5fd332ba56e81869bf83e2606a744335882d0115f8d77158"
+    },
+    {
+      "new_card_id": "f6935b10dea56aa5",
+      "title": "NASA-UAP-D020, Gemini 5 Technical Debriefing, Part II, 1965",
+      "asset_filename": "NASA-UAP-D020_Gemini-5-Technical-Debriefing_Part2_1965.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D020_Gemini-5-Technical-Debriefing_Part2_1965.pdf",
+      "byte_sha256": "a54a4d12ac77b4f7ef5bbfc6ccd81f06c91168746c7bb176c554d23f6eb859b2"
+    },
+    {
+      "new_card_id": "fb116547cbbf33d4",
+      "title": "FBI-UAP-D004, FD-1057-02, Northeastern United States, 2024",
+      "asset_filename": "FBI-UAP-D004_FD-1057-02_Northeastern-US_2024.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D004_FD-1057-02_Northeastern-US_2024.pdf",
+      "byte_sha256": "24438d15d989c8b1dc90087c6babd258981a3a1bc16d8fd17e0e44d366561da7"
+    },
+    {
+      "new_card_id": "fc9cb08cad327063",
+      "title": "FBI-UAP-D023, Digital Rendering, Narrative Statement 2-7, Western United States Event, 2023",
+      "asset_filename": "FBI-UAP-D023_Digital-Rendering_Incident-2-7_Western-US-Event_2023.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D023_Digital-Rendering_Incident-2-7_Western-US-Event_2023.jpg",
+      "byte_sha256": "b18ca8af0477d1c5c551abead71a795b15eb3f71f62b531bee869a00551e78dd"
+    }
+  ],
+  "quarantined": [
+    {
+      "new_card_id": "cf4f6f5ebf7dfd51",
+      "new_title": "DOW-UAP-PR053, \"Cigar Shaped or Fast Spherical UAP clip 15 OCT 22\"",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "79325f4e62f8f9b9"
+      ],
+      "matches": [
+        {
+          "card_id": "79325f4e62f8f9b9",
+          "title": "DOW-UAP-PR053, \"Cigar Shaped or Fast Sherical UAP clip 15 OCT 22\"",
+          "reasons": [
+            "same agency + same incident_date (2022)",
+            "same incident_location (CENTCOM)",
+            "matching numeric id 53"
+          ],
+          "strength": 3
+        }
+      ]
+    }
+  ],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [
+    {
+      "new_card_id": "2b80b41d1b25a46f",
+      "new_title": "FBI-UAP-PR002, \u201cRed Orb Rotation,\u201d Northeastern United States, 2022",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "26dff3974b8e84fd15586c94f52602ea2d66648107e8c39fd3a6c168c0720565",
+      "pinned_fetched_at": "2026-06-12T15:19:31.093824+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "41ba3dea9b211d5c",
+      "new_title": "FBI-UAP-PR006, Digital Recreation, Narrative Statement 3-2, Western United States Event, 2023",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "d377b6c92f8d4d825d75f3efcb951392102c14dd970b8286d094f0e43e6ba517",
+      "pinned_fetched_at": "2026-06-12T15:19:34.035161+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "56c379b8fb673028",
+      "new_title": "FBI-UAP-PR004, \u201cNortheastern Orb Sighting,\u201d 2025",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "89f99552bb7859d7e2827d314fe4fbe111d0921669dcf73f228b0f83cc3be607",
+      "pinned_fetched_at": "2026-06-12T15:19:39.498977+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "5ef405481cb69a03",
+      "new_title": "NASA-UAP-D024, \u201cApollo 16 Scientific Debriefing\u201d",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "204216be8113b7cf20f3a67a760396e8203c72edc8a3577041b142e5bebbc242",
+      "pinned_fetched_at": "2026-06-12T15:20:59.352066+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "79efc12f4c2ebae9",
+      "new_title": "NASA-UAP-D023, Interview Excerpt with Astronaut Gordon Cooper, 1962",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "a8b2961d1642a99db07221560c851e66ed4a06fcac317999862a2c8f9b584039",
+      "pinned_fetched_at": "2026-06-12T15:21:04.356600+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "a7455a1d0c406174",
+      "new_title": "NASA-UAP-D025, \u201cApollo 16 Scientific Debriefing\u201d",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "d63112652616253e883fbd696fe80f6712612b3080b2089f38e7be07b6ee9973",
+      "pinned_fetched_at": "2026-06-12T15:21:40.534040+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "b771e5a588793b5d",
+      "new_title": "FBI-UAP-PR005, Digital Recreation, Narrative Statement 3-1, Western United States Event, 2023",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "af1aa57de0904b0517be0c13e574b5414ceffc1d8ed3537100af33229fd0a789",
+      "pinned_fetched_at": "2026-06-12T15:21:44.617925+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "bbd205a2256b39c9",
+      "new_title": "FBI-UAP-PR003, \u201cOrbs Over the Pond,\u201d 2024",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "975119e9fa08e69b130b2a2213c4b3300ed220e886ac03d82d7cb5c91ccee6df",
+      "pinned_fetched_at": "2026-06-12T15:21:52.005876+00:00",
+      "new_byte_sha256": null
+    },
+    {
+      "new_card_id": "fcbd7e953ec292de",
+      "new_title": "FBI-UAP-PR001, \u201cTriangle Orbs,\u201d Northeastern United States, 2021",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "pinned_byte_sha256": "de1c5acc0b6a3c93eb5625ee1239e169461240d9e3b10306391eb740485c54ef",
+      "pinned_fetched_at": "2026-06-12T15:21:58.269353+00:00",
+      "new_byte_sha256": null
+    }
+  ],
+  "removed": [
+    {
+      "card_id": "79325f4e62f8f9b9",
+      "title": "DOW-UAP-PR053, \"Cigar Shaped or Fast Sherical UAP clip 15 OCT 22\"",
+      "asset_url": null,
+      "asset_filename": null
+    }
+  ],
+  "field_only_changes": [
+    {
+      "card_id": "002eaa383e76a277",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "01765a63bbd3f02f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "034173b3a4641614",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "03b017d5b76f3a7e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "0499d6dc86c848d6",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "04b9179a7637d6ad",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "0699b4948ba6fb90",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "085c019c9899db9b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "09001c140b97a5db",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "09fef4b135f48798",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "0b298cfc9c65a4d6",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "0cccf7db865c827c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "0d7a23b29e6de1bf",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "0e3b3ec17a9ae021",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "0f469fcf6fb42875",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "108379f8a86dbe9c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "10d757c7b1bf6aa1",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "15d23b5f88df64fa",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "167f6a21c7238d0c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "1701a0f307714921",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "17a8cc07fd8c694f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "19b18b71420602c5",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "1b522e779e72877c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "1bc28d0e03b79e35",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "1e63919cc6c3daf4",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "205f9d0f627074c3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "2163031bf38f0a63",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "22f4d050e1dad88c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "239d049dab8c81d5",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "23e7db6d552332e5",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "26b02d358ec20061",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "2a9f746d66a05666",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "2b6de60628336eb8",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "2fecc4f3b434e64d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "303ad110cb5fa8b4",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "33cca99659328520",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "34f3278ad20d348f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "35e0a7cff95a3e93",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "36bcfe2cfb5f3f54",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "3746998b8c506e5c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "3893e5d0279db3b1",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "39c999bd61b2e20f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "3a0d83f3e51179db",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "3deb237b1d68e203",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "40a4c3e0843b0de7",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "414f485a5a580d74",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "42158cfc89c7ab84",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "43db2719407a7897",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "44209964c97d2c53",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4555d94dd6067f57",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4649af95e88b6643",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "46d871c93e4585fd",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "47cb76adb62d7e44",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4844321219e306af",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "48e4bc1bdb5a66e8",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4af74afe8dc054bc",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4b0bd5b1c75a0c6f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4b68726be4af8ff9",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "57e9cc7f9942e2cf",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "58402012053be609",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "5847028ebb855cf8",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "5a487c793b488382",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "5d9d3147f0b62d0c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "5ecebc7c28a8d8c7",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "5f526642200e3985",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "5f5e3ee158c91a63",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "5ffbe11403179567",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "613dc8ef961f9399",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "62abad9fdfc1652e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "63c47bad93af4c92",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "669dd29723dd423f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "672ae7eab15481ff",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "67ab3ffef2aecf70",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "67c2ef13cc69891c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "6b12c3ddc6a96008",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "6d7faf71150107e9",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "71758de42a2df926",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "76780f0336af79e1",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "775d16ead1ec8fa1",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "784dc42f885dc12e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "78dc972c0c143d1e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7aede23a09ee4c6b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7c49f1a10e1d45ec",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7d5b9bff15c9a44d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "804d5367a7e29ee0",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "814d0aa44e632c73",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8156067f7ff4b983",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "819e725592d1ba79",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "83aa439781e60e7b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "852224ee097b52cf",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "86c966cdd1f9f31a",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "88a20bf256ccce7a",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8bb54e0aec5e91ad",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        },
+        {
+          "field": "title",
+          "old": "NASA-UAP-D007, Skylab Techincal Crew Debriefing 1973",
+          "new": "NASA-UAP-D007, Skylab Technical Crew Debriefing 1973"
+        }
+      ]
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8d0b85ce46109d06",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        },
+        {
+          "field": "video_pairing",
+          "old": null,
+          "new": "DOW-UAP-D077 | DOW-UAP-D078 | DOW-UAP-D079 | DOW-UAP-D080 | DOW-UAP-D081 | DOW-UAP-D082 | DOW-UAP-D083 | FBI-UAP-D014 | FBI-UAP-D015 | FBI-UAP-D016 | FBI-UAP-D017 | FBI-UAP-D018 | FBI-UAP-D019 | FBI-UAP-D020 | FBI-UAP-D021 | FBI-UAP-D022 | FBI-UAP-D023 | FBI-UAP-PR005 | FBI-UAP-PR006"
+        }
+      ]
+    },
+    {
+      "card_id": "8d3833f36d05ec03",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8e727ae36892cba9",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8f354cf1d1f821f0",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8f68a0b98c4647ab",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9151e15016109463",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "93cbdaad1d4ac853",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9532749afe2d4273",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "954d1e1944bc6d17",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9877727cd0d1bbfe",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9961adf6adf1010b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9a0a2d62e9f47eb8",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9a3f23d9136eddf3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9dfbbb6de5c73272",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9e2c2621d67dde12",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9ed140b9186c20c5",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9fdc75d250206f65",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "9fedb1373b50d856",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "a021a640e3108c35",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "a0f6663169c21caf",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "a33faf4c40674462",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "a3f68d208681dc64",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        },
+        {
+          "field": "title",
+          "old": "DOW-UAP-D052, Email Correspondance, NA, August 2024",
+          "new": "DOW-UAP-D052, Email Correspondence, NA, August 2024"
+        }
+      ]
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "a7ec8e0ae80d9061",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "aa638778a043c89c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "aaafecbc47103f4b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ad721de274bb7d6c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "aec4d4da8ac17636",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "aef933642db8134a",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "af42a6774881c110",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b03309df6758ab15",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b1c6f5c4a7fbeee1",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b242f32347c819a5",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b279eac8e49cf4fe",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b2a7526ec9774d17",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b4dc3f79f7616313",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b6549669cd12c33f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b8b5b17a6d70ef39",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ba30b5fdb4f6d153",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "bb61c203319b4b25",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "bbc494426d526bdc",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "bd9411951868bc3e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "be226374e719c729",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "be533a4ab886eb11",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "bff6df8420d4cbdc",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c142741e8cafc659",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c1c59236394f7b14",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c2961d7ccb95ae45",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c304734c04357887",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c48c078b811c0fd7",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c4da38582fc64334",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c5850afb384c768b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "c788c17e8cc32230",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "cc33e8c352fc80ce",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "cc72a9adcc562f7a",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ccd932b4f40e8de7",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "cd8858cf829e6ef7",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "cf5c53c84485c70d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d02f9eac223b1525",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d14e0371a5bf0f5e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d42052963cb29aaa",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d6efb186cd925560",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d7c07f24a96f8bac",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d8944e2bc6627e5d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d8e5687dc870892d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "df43a479bc891969",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "e04b05b132f03e28",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "e07aead6d20b2925",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "e897e67f95bc1e1b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "e924a48f55719a0d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "e93f6997811954dc",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ea2e2a6496bbdbb1",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ef779c3f0f7ba4d3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "f3ef3a248b605aa0",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "f42c11ca158aeffc",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "f8810c11687af675",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "fd342b7508668b0e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "fd8286ffc6fbc1fb",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "fd8bfb9481bcbdd3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ff30c985595153f3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": null,
+          "new": false
+        }
+      ]
+    }
+  ]
+}

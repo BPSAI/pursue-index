@@ -119,6 +119,13 @@
       "note": "transient mid-state where Section 6 had no asset_url (0d7e9ba1 tranche); points at canonical Section 6 card_id",
       "established": "2026-05-12T22:08:29.348436+00:00",
       "tranche_sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d"
+    },
+    {
+      "old_card_id": "79325f4e62f8f9b9",
+      "new_card_id": "cf4f6f5ebf7dfd51",
+      "method": "operator_manual",
+      "established": "2026-06-12T17:23:59.783253+00:00",
+      "tranche_sha256": "48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04"
     }
   ]
 }
