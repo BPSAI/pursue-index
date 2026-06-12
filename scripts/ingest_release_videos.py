@@ -51,6 +51,8 @@ from _ingest_tranche2_helpers import (  # noqa: E402
 )
 from _video_ingest_core import (  # noqa: E402
     DVIDS_ASSET_TYPES,
+    is_valid_card_id,
+    is_valid_dvids_id,
     match_cards_to_files,
     select_av_cards,
 )
@@ -71,12 +73,16 @@ DEFAULT_NAS = Path("/mnt/nas/personal/pursue/r2-mirror/archive")
 DEFAULT_BUCKET = "pursue-pdfs"
 DEFAULT_SOURCE_LABEL = "war.gov (DVIDS videos+audio)"
 
+# Cap the DVIDS page read so a spoofed/oversized response can't exhaust memory
+# (an HTML page is well under this). PR #90 review P1.
+_MAX_DVIDS_BYTES = 8 * 1024 * 1024
+
 
 def _fetch_dvids(url: str, timeout: float = 20.0) -> str | None:
     try:
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.read().decode("utf-8", errors="replace")
+            return resp.read(_MAX_DVIDS_BYTES).decode("utf-8", errors="replace")
     except Exception as exc:
         print(f"[ingest] dvids fetch fail {url}: {exc}")
         return None
@@ -89,6 +95,9 @@ def resolve_dod_filename(card: Any) -> str | None:
     under ``/audio/``. Try the video page first (covers VID + most AUD),
     then fall back to the audio page so AUD cards still resolve.
     """
+    if not is_valid_dvids_id(card.dvids_video_id):
+        print(f"[ingest] {card.card_id}: invalid dvids_video_id; skip")
+        return None
     fn = scrape_dod_filename(card.dvids_video_id)
     if fn:
         return fn
@@ -112,6 +121,11 @@ def ingest_one(
 ) -> str:
     """Return one of: 'skipped', 'uploaded', 'failed'."""
     card_id = card.card_id
+    if not is_valid_card_id(card_id):
+        # card_id becomes an R2/NAS object key; reject anything but lowercase hex
+        # so a malformed manifest value can't write to an unintended key/path.
+        print(f"[ingest] {card_id!r}: invalid card_id (not hex); fail")
+        return "failed"
     if card_id in skip_card_ids:
         print(f"[ingest] {card_id}: already in registry; skip")
         return "skipped"

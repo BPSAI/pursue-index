@@ -29,6 +29,23 @@ _DOD_ID_RE = re.compile(r"DOD_(\d{8,12})")
 # must be ingested from operator-downloaded local files rather than fetched.
 DVIDS_ASSET_TYPES = ("VID", "AUD")
 
+# Manifest values that get interpolated into a request URL (dvids_video_id) or an
+# R2/NAS object key (card_id) are validated before use. The manifest is trusted
+# today, but it is auto-populated from an upstream CSV scrape, so a stray
+# ``../`` / ``?`` / ``/`` must not be able to retarget a fetch or write key.
+_DVIDS_ID_RE = re.compile(r"^\d+$")
+_CARD_ID_RE = re.compile(r"^[0-9a-f]{8,64}$")
+
+
+def is_valid_dvids_id(value: str | None) -> bool:
+    """True iff ``value`` is a bare numeric DVIDS id (safe to URL-interpolate)."""
+    return bool(value) and _DVIDS_ID_RE.match(value) is not None
+
+
+def is_valid_card_id(value: str | None) -> bool:
+    """True iff ``value`` is a lowercase-hex card_id (safe as an object key)."""
+    return bool(value) and _CARD_ID_RE.match(value) is not None
+
 
 def dod_id(name: str | None) -> str | None:
     """Extract the numeric DOD asset id from a filename or page reference.

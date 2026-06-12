@@ -110,6 +110,27 @@ def test_match_reports_unmatched_card_when_file_absent():
     assert unmatched_files == files
 
 
+# --- input validation (PR #90 review: dvids_video_id / card_id guards) ---
+
+
+def test_is_valid_dvids_id():
+    assert core.is_valid_dvids_id("1010263") is True
+    assert core.is_valid_dvids_id("") is False
+    assert core.is_valid_dvids_id(None) is False
+    assert core.is_valid_dvids_id("1010263/../etc") is False
+    assert core.is_valid_dvids_id("1010263?x=1") is False
+    assert core.is_valid_dvids_id("abc") is False
+
+
+def test_is_valid_card_id():
+    assert core.is_valid_card_id("8dfcf1050947c6d3") is True
+    assert core.is_valid_card_id("../../etc/passwd") is False
+    assert core.is_valid_card_id("card/with/slash") is False
+    assert core.is_valid_card_id("") is False
+    assert core.is_valid_card_id(None) is False
+    assert core.is_valid_card_id("UPPER123") is False  # card_ids are lowercase hex
+
+
 def test_match_reports_unmatched_file_when_no_card_claims_it():
     cards = [FakeCard("vid1", "VID", "6/12/26", "1010263")]
     files = [
