@@ -97,6 +97,61 @@ export function selectDefaultPair(index: string[]): { from: string | null; to: s
   return { from: index[index.length - 2], to: index[index.length - 1] };
 }
 
+/**
+ * Recency-aware default pair, accounting for ``latest.json`` (the @current
+ * sentinel) relative to the snapshots.
+ *
+ * The snapshot index is chronological oldest→newest by ``fetched_at``;
+ * ``currentFetchedAt`` is latest.json's own ``fetched_at``. Before Sprint 6 a
+ * scrape made latest.json the newest state, so "append @current as newest" held.
+ * The Sprint 6 poll/snapshot job now writes a snapshot the moment a tranche is
+ * detected — BEFORE it is ingested/promoted — so the newest snapshot can be
+ * newer than latest.json. Naively treating @current as newest then inverts the
+ * default diff (the incoming cards render as "removed").
+ *
+ * Order by recency so the latest tranche always reads as ADDITIONS:
+ *   - @current strictly newer than the newest snapshot → (newest snapshot → @current)
+ *   - otherwise — a pending un-ingested tranche (newest snapshot ahead of
+ *     latest.json), OR the normal post-promotion case where @current equals the
+ *     newest snapshot — default to the two newest snapshots.
+ */
+export function selectDefaultPairWithCurrent(
+  index: string[],
+  meta: Record<string, SnapshotIndexMeta>,
+  currentFetchedAt: string | undefined,
+  currentSentinel: string,
+): { from: string | null; to: string | null } {
+  if (index.length === 0) return { from: null, to: currentSentinel };
+  const newest = index[index.length - 1];
+  const newestAt = meta[newest]?.fetched_at;
+  // Compare by instant, not lexically: fetched_at is normally UTC ``Z`` but a
+  // timezone offset (``+02:00``) or differing precision would silently mis-order
+  // a string compare — and direction is exactly what this selector exists to fix.
+  const currentNewer =
+    !!currentFetchedAt && (!newestAt || tsMillis(currentFetchedAt) > tsMillis(newestAt));
+  if (currentNewer) {
+    return { from: newest, to: currentSentinel };
+  }
+  // @current is older-or-equal (a pending un-ingested tranche, or post-promotion
+  // equality). With ≥2 snapshots the two newest read old→new. With a single
+  // snapshot there is no second one to pair, so pair against @current rather than
+  // returning a null ``from`` (which leaves DiffIsland stuck loading): a pending
+  // tranche reads @current→snapshot (additions); otherwise snapshot→@current.
+  if (index.length === 1) {
+    const snapshotNewer =
+      !!currentFetchedAt && !!newestAt && tsMillis(newestAt) > tsMillis(currentFetchedAt);
+    return snapshotNewer
+      ? { from: currentSentinel, to: newest }
+      : { from: newest, to: currentSentinel };
+  }
+  return selectDefaultPair(index);
+}
+
+/** Parse an ISO-8601 timestamp to epoch millis for instant comparison. */
+function tsMillis(ts: string): number {
+  return Date.parse(ts);
+}
+
 // --- Alias resolver -------------------------------------------------
 
 export interface ResolvedAlias {
