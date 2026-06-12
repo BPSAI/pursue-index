@@ -294,18 +294,19 @@ export function formatOcrEngineLabel(counts: Record<string, number>): string {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.3.0 — un-retire /altered/ as a
-  // facts-only surface. Listing page restored at /altered/ (71 cards
-  // with upstream byte changes since first capture); per-card detail
-  // pages at /altered/<card_id>/ with byte-history timeline +
-  // operator-attached category commentary (re_processing /
-  // procedural_correction / content_change). Card-detail banner
-  // updated with card-specific commentary preview pointing at the
-  // detail page. Methodology page documents the bytes-changed-as-
-  // fact framing. Source plan: pursue-opsec/findings/
-  // 2026-05-27-altered-surface-un-retirement-and-verdict-vocabulary.md.
-  // Minor bump (not a patch) since this restores a public surface.
-  version: "v1.3.0",
+  // Bumped manually per release. v1.4.0 — Release 3 (6/12/26): 72 new
+  // cards, corpus 222 -> 294 (CIA 18, DoW 12, FBI 29, NASA 11, ICA 1,
+  // USG 1), incl. the first FBI orb videos + NASA Apollo audio. First
+  // full poll -> ingest pipeline run end-to-end. Also: data-driven OCR-
+  // engine credit (corpus now ~91% Claude Sonnet 4.6), refreshed model
+  // picker (Opus 4.8 / Fable 5), and a site-wide staleness sweep.
+  // Minor bump since it adds a major content release + new media types.
+  //
+  // v1.3.0 — un-retire /altered/ as a facts-only surface (71 byte-changed
+  // cards): listing at /altered/, per-card byte-history timelines, operator
+  // commentary. Plan: pursue-opsec/findings/2026-05-27-altered-surface-
+  // un-retirement-and-verdict-vocabulary.md.
+  version: "v1.4.0",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,

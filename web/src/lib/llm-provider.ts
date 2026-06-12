@@ -281,7 +281,7 @@ export class AnthropicBYOKProvider implements LLMProvider {
  * the BYOK provider; the server provider relies on the Worker doing
  * this same translation.
  */
-async function* parseAnthropicSSE(
+export async function* parseAnthropicSSE(
   body: ReadableStream<Uint8Array>,
   signal?: AbortSignal,
 ): AsyncIterable<Chunk> {
@@ -289,6 +289,12 @@ async function* parseAnthropicSSE(
   const decoder = new TextDecoder();
   let buf = "";
   let usage: TokenUsage = {};
+  // Track the terminal stop_reason + whether any text streamed, so a
+  // safety refusal (HTTP 200, stop_reason "refusal", empty/partial content —
+  // Claude Fable 5's classifiers, and any model's own refusals) surfaces a
+  // message instead of a silent blank reply.
+  let stopReason: string | undefined;
+  let emittedText = false;
   try {
     while (true) {
       if (signal?.aborted) throw new DOMException("aborted", "AbortError");
@@ -302,15 +308,26 @@ async function* parseAnthropicSSE(
         const evt = parseSSEBlock(block);
         if (!evt) continue;
         if (evt.event === "content_block_delta" && evt.data?.delta?.text) {
+          emittedText = true;
           yield { type: "text", delta: evt.data.delta.text as string };
         } else if (evt.event === "message_start" && evt.data?.message?.usage) {
           usage.input_tokens = evt.data.message.usage.input_tokens;
-        } else if (evt.event === "message_delta" && evt.data?.usage) {
-          if (evt.data.usage.output_tokens) {
+        } else if (evt.event === "message_delta") {
+          if (evt.data?.delta?.stop_reason) {
+            stopReason = evt.data.delta.stop_reason as string;
+          }
+          if (evt.data?.usage?.output_tokens) {
             usage.output_tokens = evt.data.usage.output_tokens;
           }
         }
       }
+    }
+    if (stopReason === "refusal" && !emittedText) {
+      yield {
+        type: "error",
+        message:
+          "The model declined to answer this request (safety refusal). Try rephrasing, or pick a different model in Settings.",
+      };
     }
   } finally {
     reader.releaseLock();
