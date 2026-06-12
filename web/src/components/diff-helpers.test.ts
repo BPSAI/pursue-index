@@ -19,6 +19,7 @@ import {
   diffWithAliases,
   fieldOnlyChanges,
   selectDefaultPair,
+  selectDefaultPairWithCurrent,
   normalizeSnapshotIndex,
 } from "./diff-helpers.ts";
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
@@ -71,6 +72,62 @@ test("selectDefaultPair: 2+ entries → from = second-to-last, to = last", () =>
   const out = selectDefaultPair(["a.json", "b.json", "c.json"]);
   assert.equal(out.from, "b.json");
   assert.equal(out.to, "c.json");
+});
+
+// --- selectDefaultPairWithCurrent (recency-aware default) ---
+
+const SENT = "@current";
+
+test("selectDefaultPairWithCurrent: empty index → compare against @current", () => {
+  assert.deepEqual(
+    selectDefaultPairWithCurrent([], {}, "2026-06-12T00:00:00Z", SENT),
+    { from: null, to: SENT },
+  );
+});
+
+test("selectDefaultPairWithCurrent: @current newer than newest snapshot → (newest, @current)", () => {
+  const index = ["a.json", "b.json"];
+  const meta = { "b.json": { fetched_at: "2026-05-27T00:00:00Z" } };
+  // latest.json scraped AFTER the newest snapshot (normal pre-ingest scrape).
+  const out = selectDefaultPairWithCurrent(index, meta, "2026-06-01T00:00:00Z", SENT);
+  assert.deepEqual(out, { from: "b.json", to: SENT });
+});
+
+test("selectDefaultPairWithCurrent: pending tranche (newest snapshot NEWER than @current) → two newest snapshots", () => {
+  // The Release-3 regression: the detected snapshot is newer than latest.json
+  // (not yet ingested). Must read old→new (additions), NOT snapshot→@current.
+  const index = ["6be2.json", "5216.json"]; // chronological oldest→newest
+  const meta = {
+    "6be2.json": { fetched_at: "2026-05-27T13:48:27Z", card_count: 222 },
+    "5216.json": { fetched_at: "2026-06-12T12:07:04Z", card_count: 294 },
+  };
+  // latest.json is still the 6be2 state (May 27) — behind the new snapshot.
+  const out = selectDefaultPairWithCurrent(index, meta, "2026-05-27T13:48:27Z", SENT);
+  assert.deepEqual(out, { from: "6be2.json", to: "5216.json" });
+});
+
+test("selectDefaultPairWithCurrent: post-promotion (@current == newest snapshot fetched_at) → two newest snapshots", () => {
+  const index = ["6be2.json", "5216.json"];
+  const meta = {
+    "6be2.json": { fetched_at: "2026-05-27T13:48:27Z" },
+    "5216.json": { fetched_at: "2026-06-12T12:07:04Z" },
+  };
+  // After ingest, latest.json == newest snapshot (equal fetched_at, not newer).
+  const out = selectDefaultPairWithCurrent(index, meta, "2026-06-12T12:07:04Z", SENT);
+  assert.deepEqual(out, { from: "6be2.json", to: "5216.json" });
+});
+
+test("selectDefaultPairWithCurrent: missing newest meta + a current ts → falls back to (newest, @current)", () => {
+  // No fetched_at known for the newest snapshot: prefer the dated @current.
+  const out = selectDefaultPairWithCurrent(["a.json", "b.json"], {}, "2026-06-12T00:00:00Z", SENT);
+  assert.deepEqual(out, { from: "b.json", to: SENT });
+});
+
+test("selectDefaultPairWithCurrent: no current fetched_at → two newest snapshots", () => {
+  const index = ["a.json", "b.json"];
+  const meta = { "b.json": { fetched_at: "2026-05-27T00:00:00Z" } };
+  const out = selectDefaultPairWithCurrent(index, meta, undefined, SENT);
+  assert.deepEqual(out, { from: "a.json", to: "b.json" });
 });
 
 // --- resolveAliases ---

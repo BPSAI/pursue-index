@@ -7,7 +7,7 @@ import {
   normalizeSnapshotIndex,
   parseDiffParams,
   resolveAliases,
-  selectDefaultPair,
+  selectDefaultPairWithCurrent,
   type SnapshotIndexMeta,
 } from "./diff-helpers.ts";
 import DiffTimeline from "./DiffTimeline.tsx";
@@ -106,13 +106,20 @@ export default function DiffIsland({ current, base, aliases }: Props) {
       setSelectedTo(fromUrl.to!);
       return;
     }
-    // Default: compare immediate-prior snapshot vs current (latest.json).
-    // We use the synthetic sentinel on the right so the page renders
-    // even when latest.json doesn't have its own entry in the index.
-    const { from } = selectDefaultPair([...index, CURRENT_SENTINEL]);
+    // Default: show the latest tranche as additions, recency-aware. A detected
+    // tranche's snapshot is written BEFORE it's ingested/promoted, so it can be
+    // newer than latest.json — the naive "@current is always newest" default
+    // then inverts the diff (incoming cards read as "removed"). The helper
+    // orders old→new by fetched_at.
+    const { from, to } = selectDefaultPairWithCurrent(
+      index,
+      indexMeta,
+      current?.fetched_at,
+      CURRENT_SENTINEL,
+    );
     setSelectedFrom(from ?? null);
-    setSelectedTo(CURRENT_SENTINEL);
-  }, [index]);
+    setSelectedTo(to ?? CURRENT_SENTINEL);
+  }, [index, indexMeta, current]);
 
   // ---- Sync URL when selection changes ----
   useEffect(() => {
