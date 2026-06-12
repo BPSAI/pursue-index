@@ -18,7 +18,11 @@ export interface BYOKConfig {
 }
 
 export const DEFAULT_MODEL = "claude-sonnet-4-6";
-export const AVAILABLE_MODELS = ["claude-sonnet-4-6", "claude-opus-4-7"];
+export const AVAILABLE_MODELS = [
+  "claude-sonnet-4-6",
+  "claude-opus-4-8",
+  "claude-fable-5",
+];
 
 export function loadBYOKConfig(): BYOKConfig {
   if (typeof localStorage === "undefined") {

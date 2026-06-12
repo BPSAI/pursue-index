@@ -464,9 +464,11 @@ const methodologyJsonLd = [
         inside FBI files. Blurry carbon-copy scans where Surya and the
         LLM fallback both abstain. Rubber-stamped redaction markers and
         case-disposition stamps that read as glyphs to OCR but as
-        meaningful flags to a vision model. As of 2026-05-12,
-        <strong class="text-[color:var(--color-text-bright)]">1,132 of our 4,127 embedded pages (~27%)</strong>
-        carry an augmented description block alongside the OCR text.
+        meaningful flags to a vision model. As of 2026-06-12,
+        <strong class="text-[color:var(--color-text-bright)]">~1,200 pages</strong>
+        across the {pageCountLabel} OCR pages carry an augmented description
+        block alongside the OCR text — concentrated on the image-heavy and
+        low-OCR-yield pages, with coverage diluting as the corpus grows.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">How provenance is labeled.</strong>
@@ -592,7 +594,7 @@ const methodologyJsonLd = [
         <strong class="text-[color:var(--color-text-bright)]">
           Skip rate, full corpus.
         </strong>{" "}
-        The 2026-05-12 full-corpus cleanup pass produced cleaned text for
+        The full-corpus cleanup pass produced cleaned text for
         <strong class="text-[color:var(--color-text-bright)]">{cleanedPageLabel} of {pageCountLabel}</strong>{" "}
         OCR pages —
         <strong class="text-[color:var(--color-text-bright)]">50 pages</strong>{" "}
@@ -1055,9 +1057,10 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">Current state ({RELEASE.version}):</strong>{" "}
         The {pageCountLabel} indexed pages now break out per the live
-        engine-mix block above. Tranche-2 (5/22/26) PDFs were OCR'd
-        Sonnet-direct; a corpus-wide re-OCR pass to bring the legacy
-        Surya pages onto Sonnet is in flight and lands in v1.2.1.
+        engine-mix block above. Every tranche from 5/22/26 onward (incl.
+        Release-03, 6/12/26) was OCR'd Sonnet-direct, and the corpus-wide
+        re-OCR pass bringing the legacy Surya pages onto Sonnet has largely
+        landed (Surya now ~3% of pages, tail pending).
         Operational cost shifted accordingly — the v1.0 $1.71 figure
         excluded the cleanup pass at scale and the Sonnet OCR rates;
         current full-pipeline cost (Sonnet OCR + Haiku cleanup +
