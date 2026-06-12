@@ -124,10 +124,32 @@ export function selectDefaultPairWithCurrent(
   if (index.length === 0) return { from: null, to: currentSentinel };
   const newest = index[index.length - 1];
   const newestAt = meta[newest]?.fetched_at;
-  if (currentFetchedAt && (!newestAt || currentFetchedAt > newestAt)) {
+  // Compare by instant, not lexically: fetched_at is normally UTC ``Z`` but a
+  // timezone offset (``+02:00``) or differing precision would silently mis-order
+  // a string compare — and direction is exactly what this selector exists to fix.
+  const currentNewer =
+    !!currentFetchedAt && (!newestAt || tsMillis(currentFetchedAt) > tsMillis(newestAt));
+  if (currentNewer) {
     return { from: newest, to: currentSentinel };
   }
+  // @current is older-or-equal (a pending un-ingested tranche, or post-promotion
+  // equality). With ≥2 snapshots the two newest read old→new. With a single
+  // snapshot there is no second one to pair, so pair against @current rather than
+  // returning a null ``from`` (which leaves DiffIsland stuck loading): a pending
+  // tranche reads @current→snapshot (additions); otherwise snapshot→@current.
+  if (index.length === 1) {
+    const snapshotNewer =
+      !!currentFetchedAt && !!newestAt && tsMillis(newestAt) > tsMillis(currentFetchedAt);
+    return snapshotNewer
+      ? { from: currentSentinel, to: newest }
+      : { from: newest, to: currentSentinel };
+  }
   return selectDefaultPair(index);
+}
+
+/** Parse an ISO-8601 timestamp to epoch millis for instant comparison. */
+function tsMillis(ts: string): number {
+  return Date.parse(ts);
 }
 
 // --- Alias resolver -------------------------------------------------

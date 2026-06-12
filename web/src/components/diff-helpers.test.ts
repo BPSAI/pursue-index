@@ -130,6 +130,45 @@ test("selectDefaultPairWithCurrent: no current fetched_at → two newest snapsho
   assert.deepEqual(out, { from: "a.json", to: "b.json" });
 });
 
+// --- single-snapshot histories: never return a null `from` (DiffIsland would
+//     hang in the loading state). Codex P2 / PR #88. ---
+
+test("selectDefaultPairWithCurrent: single snapshot, @current newer → (snapshot, @current)", () => {
+  const meta = { "s.json": { fetched_at: "2026-05-27T00:00:00Z" } };
+  const out = selectDefaultPairWithCurrent(["s.json"], meta, "2026-06-01T00:00:00Z", SENT);
+  assert.deepEqual(out, { from: "s.json", to: SENT });
+});
+
+test("selectDefaultPairWithCurrent: single snapshot pending (snapshot newer than @current) → (@current, snapshot)", () => {
+  // First-ever tranche before any ingest: one snapshot, newer than latest.json.
+  // Must render old→new (additions), never {from:null}.
+  const meta = { "s.json": { fetched_at: "2026-06-12T12:07:04Z", card_count: 294 } };
+  const out = selectDefaultPairWithCurrent(["s.json"], meta, "2026-05-27T13:48:27Z", SENT);
+  assert.deepEqual(out, { from: SENT, to: "s.json" });
+});
+
+test("selectDefaultPairWithCurrent: single snapshot, @current equal → (snapshot, @current)", () => {
+  const meta = { "s.json": { fetched_at: "2026-06-12T12:07:04Z" } };
+  const out = selectDefaultPairWithCurrent(["s.json"], meta, "2026-06-12T12:07:04Z", SENT);
+  assert.deepEqual(out, { from: "s.json", to: SENT });
+});
+
+test("selectDefaultPairWithCurrent: single snapshot, no current fetched_at → (snapshot, @current)", () => {
+  const meta = { "s.json": { fetched_at: "2026-05-27T00:00:00Z" } };
+  const out = selectDefaultPairWithCurrent(["s.json"], meta, undefined, SENT);
+  assert.deepEqual(out, { from: "s.json", to: SENT });
+});
+
+test("selectDefaultPairWithCurrent: non-UTC offset timestamps compared by instant, not lexically", () => {
+  // current = 2026-06-11T20:00Z (older), newest snapshot = 2026-06-11T23:00Z.
+  // Lexicographically "2026-06-12T01:00:00+05:00" > "...23:00:00Z" would WRONGLY
+  // treat @current as newer; by instant it is older → two newest snapshots.
+  const index = ["a.json", "b.json"];
+  const meta = { "b.json": { fetched_at: "2026-06-11T23:00:00Z" } };
+  const out = selectDefaultPairWithCurrent(index, meta, "2026-06-12T01:00:00+05:00", SENT);
+  assert.deepEqual(out, { from: "a.json", to: "b.json" });
+});
+
 // --- resolveAliases ---
 
 test("resolveAliases: empty input → empty map", () => {
