@@ -216,6 +216,13 @@ export interface ReleaseConst {
    * tranches. Built from pages.json at module-eval time.
    */
   ocrEngineCounts: Record<string, number>;
+  /**
+   * Human-facing OCR-engine credit derived from ``ocrEngineCounts`` — the
+   * dominant engine(s) by real page share, primary first. Replaces the
+   * hardcoded "Surya + LLM-fallback" hero label that went stale when the
+   * VLM bake-off moved the operated engine to Claude Sonnet 4.6.
+   */
+  ocrEngineLabel: string;
 }
 
 function countByEngine(): Record<string, number> {
@@ -249,6 +256,43 @@ function countByEngine(): Record<string, number> {
   return fallback;
 }
 
+/** Map raw OCR engine keys (pages.json `engine` field) to display names. */
+const OCR_ENGINE_DISPLAY: Record<string, string> = {
+  llm: "Claude Sonnet 4.6",
+  "llm-anthropic": "Claude Sonnet 4.6",
+  surya: "Surya",
+  tesseract: "Tesseract",
+};
+
+/**
+ * Data-driven OCR-engine credit. Sums real per-engine page counts, maps
+ * to display names, and names the engine(s) carrying ≥10% of the corpus,
+ * largest first (max two). Single-/dominant-engine corpora still surface
+ * their primary. `"unknown"` and zero-count engines are ignored; an empty
+ * tally falls back to a safe generic label.
+ *
+ * This is the source of the hero/about OCR credit: when the operated
+ * engine changes (as it did from Surya → Claude Sonnet 4.6 at the bake-off),
+ * the label follows the actual page data instead of going stale.
+ */
+export function formatOcrEngineLabel(counts: Record<string, number>): string {
+  const byName: Record<string, number> = {};
+  let total = 0;
+  for (const [engine, n] of Object.entries(counts)) {
+    if (!n || n <= 0 || engine === "unknown") continue;
+    const name = OCR_ENGINE_DISPLAY[engine] ?? engine;
+    byName[name] = (byName[name] ?? 0) + n;
+    total += n;
+  }
+  if (total === 0) return "multiple engines";
+  const ranked = Object.entries(byName).sort(
+    (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
+  );
+  const named = ranked.filter(([, n]) => n / total >= 0.1).map(([name]) => name);
+  if (named.length === 0) named.push(ranked[0][0]);
+  return named.slice(0, 2).join(" + ");
+}
+
 export const RELEASE: ReleaseConst = {
   // Bumped manually per release. v1.3.0 — un-retire /altered/ as a
   // facts-only surface. Listing page restored at /altered/ (71 cards
@@ -272,6 +316,7 @@ export const RELEASE: ReleaseConst = {
   trancheCount: trancheCount(),
   fetchedAtIso: manifest.fetched_at,
   ocrEngineCounts: countByEngine(),
+  ocrEngineLabel: formatOcrEngineLabel(countByEngine()),
 };
 
 /** Format a card count with thousands separators (`1,234`). */

@@ -15,6 +15,7 @@ import {
   RELEASE,
   formatCardCount,
   formatPageCount,
+  formatOcrEngineLabel,
 } from "./release.ts";
 
 test("RELEASE exposes a stable shape for build-time constants", () => {
@@ -99,4 +100,50 @@ test("formatPageCount produces a thousands-separated string", () => {
   assert.equal(formatPageCount(4161), "4,161");
   assert.equal(formatPageCount(999), "999");
   assert.equal(formatPageCount(1000000), "1,000,000");
+});
+
+// formatOcrEngineLabel — data-driven hero attribution (replaces the
+// hardcoded "Surya + LLM-fallback" that went stale after the bake-off
+// switched the operated engine to Claude Sonnet 4.6).
+
+test("formatOcrEngineLabel: current corpus (llm-dominant) reads Sonnet primary", () => {
+  // 91% llm, with small tesseract/surya/llm-anthropic tails → only the
+  // dominant engine clears the share threshold.
+  assert.equal(
+    formatOcrEngineLabel({ llm: 7127, tesseract: 402, surya: 240, "llm-anthropic": 3 }),
+    "Claude Sonnet 4.6",
+  );
+});
+
+test("formatOcrEngineLabel: maps engine keys to display names, primary first", () => {
+  // A genuine split (both ≥ threshold) names both, larger first.
+  assert.equal(
+    formatOcrEngineLabel({ llm: 5000, surya: 3000 }),
+    "Claude Sonnet 4.6 + Surya",
+  );
+});
+
+test("formatOcrEngineLabel: data-driven — surya-dominant corpus reads Surya first", () => {
+  assert.equal(
+    formatOcrEngineLabel({ surya: 5000, llm: 1500 }),
+    "Surya + Claude Sonnet 4.6",
+  );
+});
+
+test("formatOcrEngineLabel: collapses llm + llm-anthropic into one Sonnet credit", () => {
+  assert.equal(formatOcrEngineLabel({ llm: 50, "llm-anthropic": 50 }), "Claude Sonnet 4.6");
+});
+
+test("formatOcrEngineLabel: ignores unknown + single-engine corpus shows that engine", () => {
+  assert.equal(formatOcrEngineLabel({ surya: 100, unknown: 9999 }), "Surya");
+});
+
+test("formatOcrEngineLabel: empty/zero counts → safe generic label", () => {
+  assert.equal(formatOcrEngineLabel({}), "multiple engines");
+  assert.equal(formatOcrEngineLabel({ llm: 0 }), "multiple engines");
+});
+
+test("RELEASE.ocrEngineLabel is a non-empty string crediting the primary engine", () => {
+  assert.equal(typeof RELEASE.ocrEngineLabel, "string");
+  assert.ok(RELEASE.ocrEngineLabel.length > 0);
 });

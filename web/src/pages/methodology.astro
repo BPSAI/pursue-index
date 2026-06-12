@@ -320,13 +320,13 @@ const methodologyJsonLd = [
             <tr class="border-b border-[color:var(--color-border)]">
               <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">surya</td>
               <td class="py-2 pr-4">GPU</td>
-              <td class="py-2 pr-4">Transformer-based; deployed primary; much better on faded source than CPU baselines</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">Requires CUDA hardware; larger model footprint</td>
+              <td class="py-2 pr-4">Transformer-based; the Release-01 launch engine; much better on faded source than CPU baselines</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">Requires CUDA hardware; superseded as primary by the bake-off below</td>
             </tr>
             <tr class="border-b border-[color:var(--color-border)]">
-              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">llm (anthropic vision)</td>
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">llm (Claude Sonnet 4.6)</td>
               <td class="py-2 pr-4">API</td>
-              <td class="py-2 pr-4">Fallback for low-confidence pages; reads the page image directly</td>
+              <td class="py-2 pr-4">Operated primary since the 2026-05 bake-off; reads the page image directly</td>
               <td class="py-2 text-[color:var(--color-text-dim)]">~$0.10 / 15pp at Sonnet rates; rate-limited; not deterministic</td>
             </tr>
             <tr>
@@ -339,10 +339,13 @@ const methodologyJsonLd = [
         </table>
       </div>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        In <code class="text-[color:var(--color-signal-cyan)]">engine="auto"</code>
-        mode, Surya runs first; pages whose mean confidence falls below
-        threshold are re-OCR'd by the LLM fallback from the original page
-        image — not from the broken Surya text. The two outputs are
+        The operated pipeline now runs{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">engine="llm"</code>{" "}
+        (Claude Sonnet 4.6) directly per the bake-off below. The original{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">engine="auto"</code>{" "}
+        path — Surya first, with the LLM re-OCR'ing sub-confidence pages
+        from the original page image, not from broken Surya text — remains
+        available as a legacy/fallback mode; either way the two engines are
         independent extractions of the same source pixels.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
@@ -370,13 +373,17 @@ const methodologyJsonLd = [
           })}
       </div>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        The Surya-dominated split reflects the original Release-01 OCR
-        pass. The {RELEASE.ocrEngineCounts["llm-anthropic"]?.toLocaleString() ?? "~635"}{" "}
-        pages on the LLM-anthropic path are a mix of: (a) sub-confidence
-        fallbacks from the auto-mode pipeline (the original ~15% of
-        Release-01 pages where Surya scored below threshold), and (b) the
-        tranche-2 PDFs ingested 2026-05-22, which went through Sonnet 4.6
-        directly per the bake-off outcome below.
+        The split is now <strong class="text-[color:var(--color-text-bright)]">Sonnet-dominated</strong>:
+        the bulk of pages carry the <code class="text-[color:var(--color-signal-cyan)]">llm</code>{" "}
+        (Claude Sonnet 4.6) engine, from the Sonnet re-OCR pass plus every
+        tranche from 5/22/26 onward (incl. Release-03, 6/12/26) OCR'd
+        Sonnet-direct. The residual <code class="text-[color:var(--color-signal-cyan)]">surya</code>{" "}
+        pages are legacy Release-01 extractions; the small{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">tesseract</code>{" "}
+        count is the CPU fallback used where the LLM path tripped an output
+        content filter (a CIA overhead-reconnaissance history). Engine and
+        per-page confidence are recorded per page, so the credit follows the
+        data rather than a hand-typed label.
       </p>
 
       <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-bright)] pt-3">
@@ -416,13 +423,13 @@ const methodologyJsonLd = [
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">Engine roadmap.</strong>{" "}
-        Tranche-2 PDFs (5/22/26) were OCR'd Sonnet-direct. A full Sonnet
-        re-OCR pass over the {RELEASE.ocrEngineCounts["surya"]?.toLocaleString() ?? "~3,654"}{" "}
-        Surya-tagged legacy pages is planned in a subsequent sprint (~$37,
-        ~30-60 min wall) to bring the entire corpus onto the same engine
-        — sources will recompute, citations stable. Surya remains in the
-        repo (`pursue ocr run --engine surya`) for reproducibility and
-        as a CPU/GPU-only fallback if Anthropic API becomes unavailable.
+        Every tranche from 5/22/26 onward was OCR'd Sonnet-direct, and the
+        Sonnet re-OCR pass over the legacy Surya pages has largely landed —
+        down to {RELEASE.ocrEngineCounts["surya"]?.toLocaleString() ?? "~240"}{" "}
+        Surya-tagged pages, with the tail to be cleared in a subsequent pass
+        (sources recompute, citations stable). Surya remains in the repo
+        (`pursue ocr run --engine surya`) for reproducibility and as a
+        CPU/GPU fallback if the Anthropic API becomes unavailable.
       </p>
     </section>
 
