@@ -88,6 +88,15 @@ embed = [
     "voyageai>=0.3",
     "numpy>=2.0",
 ]
+r2 = [
+    # boto3 S3 client for the R2 archive uploads in the operator-local
+    # asset-ingest scripts (scripts/ingest_release_videos.py and the
+    # opsec-side r2_upload_videos.py). Not a runtime/web dependency — only
+    # the operator-attended A/V ingest path touches R2 from Python. Declared
+    # so the upload path is reproducible after a venv rebuild rather than
+    # relying on an ad-hoc install.
+    "boto3>=1.34",
+]
 build-tools = [
     # Build-time only — used by ``scripts/build_atlas_layout.py`` to produce
     # ``web/public/data/atlas-layout.json`` for the /atlas semantic browser.
