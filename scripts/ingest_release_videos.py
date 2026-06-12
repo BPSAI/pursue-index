@@ -1,37 +1,35 @@
-"""One-shot ingest for tranche-2 DOD MP4s (2026-05-22).
+"""Release-aware ingest for DVIDS-hosted video/audio assets.
 
-Operator placed 57 MP4 files in ``~/Desktop/uap052226/``. The tranche-2
-VID cards in the manifest have ``asset_url=None`` (war.gov never
-surfaced direct video links for the May 22 release), so the operator's
-local files ARE the canonical bytes.
+VID and AUD cards have ``asset_url=None`` — war.gov never surfaces direct
+links, so the bytes live on DVIDS and the operator's local downloads ARE
+the canonical bytes. This script maps each release's A/V cards to the
+operator's downloaded ``.mp4`` files (by DOD asset id), then stages each
+to NAS + uploads to R2 (content-addressed ``archive/<sha>.mp4`` +
+``<card_id>.mp4`` current-pointer) and appends a registry row.
 
-This script:
+Originally a one-shot for tranche-2 (2026-05-22, VID-only); generalized to
+any release via ``--release-date`` / ``--desktop`` and to include AUD.
+Selection + DOD-id file matching live in ``_video_ingest_core`` (unit
+tested, network-free); this file is the network + R2/NAS orchestration.
 
-  1. Scrapes every tranche-2 VID card's DVIDS page to discover its
-     ``DOD_<id>.mp4`` filename (reuses the same helper from
-     ``build_video_posters.py``).
-  2. Matches each desktop MP4 against a card by ``DOD_<id>.mp4``.
-  3. For each matched card:
-       a. Computes sha256 + byte_size.
-       b. HEADs ``<card_id>.mp4`` in R2; SKIPs if size already matches.
-       c. Copies to NAS at ``<NAS>/archive/<sha>.mp4`` (idempotent).
-       d. Uploads to R2 at ``archive/<sha>.mp4`` (immutable, content-
-          addressed) AND ``<card_id>.mp4`` (current-pointer).
-       e. Appends one row to ``data/asset-bytes-registry.jsonl``.
-  4. Reports unmatched desktop files and unmatched manifest cards.
+Idempotent — HEAD-checks R2 + dedupes the registry before each upload.
 
-Idempotent — re-runs HEAD-check before each upload and registry append.
+Run from repo root, e.g. for Release 3:
+    python scripts/ingest_release_videos.py \
+        --release-date 6/12/26 \
+        --desktop ~/Desktop/uap_videos_061226/AARO061226 \
+        --env ../pursue-opsec-staging/.env \
+        --source-label "war.gov/release_03 (DVIDS videos+audio)"
 
-Run from repo root:
-    python scripts/ingest_tranche2_videos.py
-
-Then run ``scripts/registry_root.py`` to refresh the Merkle root.
+Then run ``scripts/registry_root.py`` to refresh the Merkle root and
+``scripts/build_video_posters.py`` for poster frames.
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -51,73 +49,54 @@ from _ingest_tranche2_helpers import (  # noqa: E402
     sha256_file,
     stage_to_nas,
 )
+from _video_ingest_core import (  # noqa: E402
+    DVIDS_ASSET_TYPES,
+    match_cards_to_files,
+    select_av_cards,
+)
 
 ensure_src_on_path(_REPO_ROOT)
-from build_video_posters import scrape_dod_filename  # noqa: E402
+from build_video_posters import (  # noqa: E402
+    DOD_FILENAME_RE,
+    USER_AGENT,
+    scrape_dod_filename,
+)
+
 from pursue_index.scrape.manifest import load_manifest  # noqa: E402
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
-DEFAULT_DESKTOP = Path.home() / "Desktop" / "uap052226"
+DEFAULT_ENV = _REPO_ROOT / ".env"
 DEFAULT_NAS = Path("/mnt/nas/personal/pursue/r2-mirror/archive")
 DEFAULT_BUCKET = "pursue-pdfs"
-SOURCE_LABEL = "war.gov/release_02 (cloudfront videos bundle)"
+DEFAULT_SOURCE_LABEL = "war.gov (DVIDS videos+audio)"
 
 
-def resolve_card_to_dod(card_id: str, dvids_id: str) -> str | None:
-    """Wrap the public DVIDS scrape so we can log every miss."""
-    fn = scrape_dod_filename(dvids_id)
-    if not fn:
-        print(f"[ingest] {card_id}: DVIDS {dvids_id} returned no DOD filename")
+def _fetch_dvids(url: str, timeout: float = 20.0) -> str | None:
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read().decode("utf-8", errors="replace")
+    except Exception as exc:
+        print(f"[ingest] dvids fetch fail {url}: {exc}")
         return None
-    return fn
 
 
-def build_card_to_file_map(
-    cards: list[Any], desktop_dir: Path
-) -> tuple[dict[str, tuple[Any, Path]], list[str], list[Path]]:
-    """Return (matched, unmatched_cards, unmatched_files).
+def resolve_dod_filename(card: Any) -> str | None:
+    """Resolve a card's ``dvids_video_id`` to its ``DOD_<id>.mp4`` filename.
 
-    ``matched`` maps card_id -> (card, local_mp4_path).
+    DVIDS serves most assets under ``/video/``; audio-only items can live
+    under ``/audio/``. Try the video page first (covers VID + most AUD),
+    then fall back to the audio page so AUD cards still resolve.
     """
-    available_files = {p.name: p for p in desktop_dir.glob("*.mp4")}
-    matched: dict[str, tuple[Any, Path]] = {}
-    unmatched_cards: list[str] = []
-    matched_filenames: set[str] = set()
-
-    for card in cards:
-        if not card.dvids_video_id:
-            unmatched_cards.append(card.card_id)
-            continue
-        dod_fn = resolve_card_to_dod(card.card_id, card.dvids_video_id)
-        if not dod_fn:
-            unmatched_cards.append(card.card_id)
-            continue
-        # Operator desktop files include the `video_2605_` prefix; match
-        # by the DOD_<id>.mp4 suffix.
-        hit = next(
-            (
-                (fname, fpath)
-                for fname, fpath in available_files.items()
-                if fname.endswith(dod_fn)
-            ),
-            None,
-        )
-        if not hit:
-            unmatched_cards.append(card.card_id)
-            print(
-                f"[ingest] {card.card_id}: DVIDS {card.dvids_video_id} "
-                f"-> {dod_fn} not in desktop dir"
-            )
-            continue
-        fname, fpath = hit
-        matched[card.card_id] = (card, fpath)
-        matched_filenames.add(fname)
-
-    unmatched_files = [
-        p for fname, p in available_files.items() if fname not in matched_filenames
-    ]
-    return matched, unmatched_cards, unmatched_files
+    fn = scrape_dod_filename(card.dvids_video_id)
+    if fn:
+        return fn
+    body = _fetch_dvids(f"https://www.dvidshub.net/audio/{card.dvids_video_id}")
+    if not body:
+        return None
+    m = DOD_FILENAME_RE.search(body)
+    return m.group(0) if m else None
 
 
 def ingest_one(
@@ -128,6 +107,7 @@ def ingest_one(
     bucket: str,
     nas_dir: Path,
     registry_path: Path,
+    source_label: str,
     skip_card_ids: set[str],
 ) -> str:
     """Return one of: 'skipped', 'uploaded', 'failed'."""
@@ -154,7 +134,7 @@ def ingest_one(
             return "failed"
 
     entry = build_registry_entry(
-        card, local_path, sha, size, archive_key, current_key, SOURCE_LABEL
+        card, local_path, sha, size, archive_key, current_key, source_label
     )
     append_registry(registry_path, entry)
     print(
@@ -162,33 +142,6 @@ def ingest_one(
         f"current={current_key}"
     )
     return "uploaded"
-
-
-def _parse_args(argv: list[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
-    parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
-    parser.add_argument("--desktop", type=Path, default=DEFAULT_DESKTOP)
-    parser.add_argument("--nas", type=Path, default=DEFAULT_NAS)
-    parser.add_argument("--bucket", type=str, default=DEFAULT_BUCKET)
-    parser.add_argument(
-        "--release-date",
-        default="5/22/26",
-        help="Manifest release_date to filter tranche-2 cards.",
-    )
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Compute mapping; do not upload."
-    )
-    return parser.parse_args(argv)
-
-
-def _select_cards(manifest_path: Path, release_date: str) -> list[Any]:
-    manifest = load_manifest(manifest_path)
-    return [
-        c
-        for c in manifest.cards
-        if c.asset_type == "VID" and c.release_date == release_date
-    ]
 
 
 def _run_ingest_loop(
@@ -207,6 +160,7 @@ def _run_ingest_loop(
             bucket=args.bucket,
             nas_dir=args.nas,
             registry_path=args.registry,
+            source_label=args.source_label,
             skip_card_ids=skip,
         )
         counts[result] += 1
@@ -253,16 +207,41 @@ def _print_summary(
             print(f"  {cid}")
 
 
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    parser.add_argument("--env", type=Path, default=DEFAULT_ENV)
+    parser.add_argument("--desktop", type=Path, required=True)
+    parser.add_argument("--nas", type=Path, default=DEFAULT_NAS)
+    parser.add_argument("--bucket", type=str, default=DEFAULT_BUCKET)
+    parser.add_argument("--source-label", default=DEFAULT_SOURCE_LABEL)
+    parser.add_argument(
+        "--release-date", required=True, help="Manifest release_date to ingest."
+    )
+    parser.add_argument(
+        "--asset-types",
+        default=",".join(DVIDS_ASSET_TYPES),
+        help="Comma-separated asset types to ingest (default VID,AUD).",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Compute mapping; do not upload."
+    )
+    return parser.parse_args(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
-    env = read_env_file(_REPO_ROOT / ".env")
-    vid_cards = _select_cards(args.manifest, args.release_date)
-    print(f"[ingest] tranche-2 VID cards in manifest: {len(vid_cards)}")
+    env = read_env_file(args.env)
+    asset_types = tuple(t.strip() for t in args.asset_types.split(",") if t.strip())
+    manifest = load_manifest(args.manifest)
+    cards = select_av_cards(manifest.cards, args.release_date, asset_types)
+    print(f"[ingest] {args.release_date} A/V cards ({asset_types}): {len(cards)}")
     desktop_mp4s = sorted(args.desktop.glob("*.mp4"))
     print(f"[ingest] desktop MP4s: {len(desktop_mp4s)}")
 
-    matched, unmatched_cards, unmatched_files = build_card_to_file_map(
-        vid_cards, args.desktop
+    matched, unmatched_cards, unmatched_files = match_cards_to_files(
+        cards, desktop_mp4s, resolve_dod_filename
     )
     print(
         f"[ingest] mapping: {len(matched)} matched / "
