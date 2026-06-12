@@ -175,9 +175,12 @@ def build_registry_entry(
         if "video_2605_" in local_path.name
         else local_path.name
     )
+    # AUD cards live under the DVIDS /audio/ path; VID (and the tranche-2
+    # default) under /video/.
+    dvids_kind = "audio" if getattr(card, "asset_type", "VID") == "AUD" else "video"
     return {
         "card_id": card.card_id,
-        "asset_url": f"https://www.dvidshub.net/video/{card.dvids_video_id}",
+        "asset_url": f"https://www.dvidshub.net/{dvids_kind}/{card.dvids_video_id}",
         "asset_filename": local_path.name,
         "byte_sha256": sha,
         "byte_size": size,
