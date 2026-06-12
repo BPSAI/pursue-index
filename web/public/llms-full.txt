@@ -30,112 +30,124 @@ Cite the original DOW PDF for the contents of a source document. Cite this site 
 
 ## Cards
 
-222 cards across the current corpus. Each card has a canonical URL on this site and a 
+294 cards across the current corpus. Each card has a canonical URL on this site and a 
 `sameAs` link back to its war.gov artifact. Where OCR text is available, the first page's text is included verbatim below (truncated to ~500 characters).
 
-### d7c07f24a96f8bac — DOW-UAP-PR050, "4 UAP Formation Iran 26 Aug 2022 over water [CALLSIGN]"
+### 8533936c8107767b — CIA-UAP-017, Placement on High Alert Due to Perceived Aggressive Foreign Posturing
+
+- Agency: CIA
+- Date: July, 2008
+- URL: https://pursueindex.com/card/8533936c8107767b
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-017_Placement_on_High_Alert_Due_to_Perceived_Aggressive_Foreign_Posturing.pdf
+- Description: A never before released July 2008 report on a UFO sighting at the Harare International Airport. Individuals debated if the sighting was an advanced reconnaissance device of a foreign government or of extraterrestrial origins.
+
+Excerpt (page 1):
+
+Trident https://www.trident.cia/DisplayDocument.do?documentView=original Approved for Release 2026 Under Section 1842 of the National Defense Authorization Act for Fiscal Year 2024 SECRET//NOFORN S E C R E T NOFORN 031710Z CIA WASHINGTON DC 455482 TO: WHITE HOUSE SITUATION ROOM WASHINGTON DC, DNI WASHINGTON DC, SECSTATE WASHINGTON DC//INR/DSITA//, NGA NAVY YARD WASHINGTON DC, DIA WASHINGTON DC, JOINT STAFF WASHINGTON DC, DA AMHS WASHINGTON DC, DA WASHINGTON DC, ONI WASHINGTON DC, CNO WASHINGTON 
+
+### b869fd5353d5c853 — DOW-UAP-D084, US Army-Flying-Saucer-Study_1949
 
 - Agency: Department of War
+- Date: 6/12/26
+- URL: https://pursueindex.com/card/b869fd5353d5c853
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D084_USArmy-Flying-Saucer-Study_1949.pdf
+- Description: This file contains an Evaluation Study of the Phenomenon (Flying Saucers) prepared at the request of the Plans & Operations Divisions of the General Staff, U.S. Army (P&O, GSUSA) to determine if the origin could be traced to natural phenomena or the activities of a foreign power.
+
+Excerpt (page 1):
+
+DECLASSIFIED Authority: NND 803133 NW [REDACTED] Doc#[ILLEGIBLE] Page 1
+
+### 8e4cbdbd3583feba — FBI-UAP-D002, FD-1057, Unresolved UAP Report, Colorado Springs, 2022
+
+- Agency: FBI
 - Date: 2022
-- URL: https://pursueindex.com/card/d7c07f24a96f8bac
-- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
-
-AARO assesses that this video, whose uploader-defined title is, “4 UAP Formation Iran 26 Aug 2022 over water [CALLSIGN],” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2022. A user uploaded this video to a classified network in June 2024.
-
-Video Duration: 00:00:20
-Video Description:
-00:01-00:04: Four areas of contrast transit the sensor field-of-view, entering from the lower third of the left side of the screen and exiting near the center of the bottom of the frame.
-00:05-00:06: An area of contrast enters the sensor field-of-view from the top left corner of the screen.
-
-This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
-
-### d6efb186cd925560 — DOW-UAP-PR051, "Syrian UAP instant acceleration"
-
-- Agency: Department of War
-- Date: 2021
-- URL: https://pursueindex.com/card/d6efb186cd925560
-- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
-
-AARO assesses that this video, whose uploader-defined title is, “Syrian UAP instant acceleration,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in June 2024.
-
-Video Duration: 00:05:02
-Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
-00:01-00:19: The sensor pans to maintain the position of an area of contrast within the center of the frame.
-00:20-00:21: The sensor stops tracking the area of contrast, causing it to rapidly exit the right side of the frame.
-00:22-00:27: No content.
-00:27-00:29 A black screen appears featuring the phrase “white edge threshold enhancement in attempt to highlight UAP shape. Original clip excerpt at 100% speed.” 
-00:30-00:50: The video replays with digital alterations applied.
-00:51-00:53: A black screen appears featuring the phrase “50% speed.”
-00:54-01:05: The video replays with digital alterations applied.
-01:06-01:08: A black screen appears featuring the phrase “25% speed.”
-01:09-01:35: The video replays with digital alterations applied.
-01:36-01:41: A black screen appears featuring the phrase “B/W values inverted, picture zoomed”
-01:42-02:03: The video replays with digital alterations applied.
-02:04-02:09: A black screen appears featuring the phrase “full original clip TRT: 2:52”
-02:10-03:49: The video replays, showing additional footage of the area of contrast at its original resolution on a far zoom.
-03:50-04:02: The sensor rapidly zooms in and out.
-04:03-04:28: The sensor focuses and zooms in, locking a reticle around the area of contrast.
-04:29-5:01: The video replays 00:20-00:21, the period in which the sensor stops tracking the area of contrast, causing it to rapidly exit the right side of the frame.
-
-This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
-
-### 09001c140b97a5db — DOW-UAP-D017, UAP Reported at Sandia Base, 1948-1950
-
-- Agency: Department of War
-- Date: 1948-1950
-- URL: https://pursueindex.com/card/09001c140b97a5db
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOW-UAP-D017_General_Correspondence_Of_Sandia.pdf
-- Description: This file contains 116 pages of documentation from the Armed Forces Special Weapons Program (AFSWP) – the direct, post-World War II successor to the Manhattan Project – and from the U.S. Air Force – relating to a series of sightings and investigations in Sandia, New Mexico, from 1948-1950. This file contains 209 sightings of “green orbs,” “discs,” and “fireballs” reported near the military base. Witnesses reported unidentified anomalous phenomena (UAP) maneuvering, flying out of sight, disappearing, or exploding. The documents also include the results of contemporary investigations into residual copper powder found in some areas where sightings were reported. A few of these investigations became the basis for Project Grudge, which collected reports of unidentified flying objects from various other military installations – also included in this collection.
+- URL: https://pursueindex.com/card/8e4cbdbd3583feba
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D002_FD-1057_Unresolved-UAP-Report_ColoradoSprings_2022.pdf
+- Description: This document is an FBI FD-1057, a form the Federal Bureau of Investigation (FBI) uses to record investigative activity. This FD-1057 contains a first-hand narrative description of unidentified anomalous phenomena (UAP) reported near Colorado Springs, Colorado. The interviewee provided this statement to FBI special agents to aid in producing a digital artistic interpretation of the incident.
 
 Excerpt (page 1):
 
-Secret This document consists of 2 pages, copy 1 of 4, series #. HEADQUARTERS, DETACHMENT D 1100TH USAF SPECIAL REPORTING GROUP Campbell Air Force Base Camp Campbell, Kentucky 333.1 7 April 1949 SUBJECT: Security Inspection TO: Commanding General Sandia Base Albuquerque, New Mexico 1. Reference is made to secret letter, your headquarters, dated 1 April 1949, Subject: Security Inspection. 2. a. Guard Orders have been amended directing that the elec- tric gate be closed between 1700 hours until 07
+FD-1057 (Rev. 5-8-10) OFFICIAL RECORD [REDACTED] Document participants have digitally signed. All signatures have been verified by a FEDERAL BUREAU OF INVESTIGATION certified FBI information system. Electronic Communication Title: [REDACTED] Forensic sketch interview of Date: 07/[REDACTED]/2024 [REDACTED] on 7-[REDACTED]-24 From: [REDACTED] [REDACTED] Contact: [REDACTED] [REDACTED] Approved By: A/SSA [REDACTED] Drafted By: [REDACTED] Case ID #: [REDACTED] [REDACTED] [REDACTED] [REDACTED] Synopsi
 
-### 0f469fcf6fb42875 — CIA-UAP-D001, Intelligence Information Report, USSR, 1973
+### 464f81c988dcee9e — FBI-UAP-D003, Digital Rendering, Unresolved UAP Report, Colorado Springs, 2022
 
-- Agency: Central Intelligence Agency
-- Date: 12/20/73
-- URL: https://pursueindex.com/card/0f469fcf6fb42875
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/CIA-UAP-D001_Intelligence_Information_Report_USSR_1973.pdf
-- Description: This document is a Central Intelligence Agency (CIA) intelligence information report (IIR) that describes human intelligence gathering activities in the Union of Soviet Socialist Republics (USSR). This report characterizes its content as informational, not as finally evaluated intelligence. In section 14 of this document, the source describes an incident occurring in summer of 1973, where he allegedly observed an airborne, luminous, bright green, unidentified object. The source described concentric circles forming around the phenomenon over a period of several minutes, before it dissipated. The source also stated that no sound attended the observation. The source offered no opinion on the nature of the phenomenon and was unable to provide further details regarding the incident.
+- Agency: FBI
+- Date: 2022
+- URL: https://pursueindex.com/card/464f81c988dcee9e
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D003_Digital-Rendering_Unresolved-UAP-Report_ColoradoSprings_2022.pdf
+- Description: This image is an artistic interpretation of a 2022 incident potentially involving unidentified anomalous phenomena (UAP) reported near Colorado Springs, Colorado. This image is derived from the first-hand narrative description contained in “FBI-UAP-D002, FD-1057, Unresolved UAP Report, Colorado Springs, 2022”.
 
-Excerpt (page 1):
+### 7838ea3bee6bd8a7 — FBI-UAP-D009, FD-302-67, “Northeastern Orb Sighting,” 2026
 
-Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED Classified by Recorded Reporting Officer. Exempt from General Declassification Schedule of E.O. 11652 E. Impossible to determine date of automatic declassification. DIRECTORATE OF PAGE 1 O OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE C O N F I D E N T I A L REPORT NO. FIK K-311/01638- DATE DISTR. 2C December 19 COUNTRY USSR DOI November 1972
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/7838ea3bee6bd8a7
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D009_FD-302-67_Northeastern-Orb-Sighting_2026.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation uses to record interviews. This FD-302 records a February 2026 interview with a U.S. person, in which they described incidents potentially involving unidentified anomalous phenomena. 
 
-### fd342b7508668b0e — ODNI-UAP-D001, USPER Narrative, Senior USIC Official
-
-- Agency: Office of the Director of National Intelligence
-- Date: 2025
-- URL: https://pursueindex.com/card/fd342b7508668b0e
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf
-- Description: This document is a first-hand account written by a currently serving (May 2026) senior U.S. intelligence official. The official was part of a team investigating reports of unusual noises and sightings of unidentified anomalous phenomena in and near a sensitive U.S. military facility in late 2025. From the official’s vantage point as a helicopter passenger, the official recounts encountering unidentified “glowing orbs” both at close range and at a distance. The account describes an apparent high-speed object moving low to the ground, which appeared to split in two and accelerate away in two different directions. It also describes numerous higher-altitude “orbs,” some of which the official assessed to be in close proximity to the helicopter. This account is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground, originally released on war.gov/UFO on May 8, 2026.
-
-May 26, 2026, correction: The document originally posted to the PURSUE collection of UAP-related records on May 22, 2026, under the name “ODNI-UAP-D001, USPER Narrative, Senior USIC Official,” contained a typographic error in the second paragraph, describing a helicopter flight profile as “map-of-the-earth.” The correct military aviation term for this profile is “nap-of-the-earth.” This document has been updated to reflect this correction.
+ The subject matter described in files FBI-UAP-D009 and FBI-UAP-D010 and depicted in the video footage FBI-UAP-PR004 corresponds to reports originating from the same general area in the northeastern United States.
 
 Excerpt (page 1):
 
-In late 2025, during early evening daylight hours, I – a senior U.S. intelligence officer – along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter. Our mission was to investigate loud thuds heard in the mountains on the test range, which coincided with Unidentified Aerial Phenomena (UAP) sightings reported over the previous several nights. We aimed to search remote mountain areas for possible debris or objects that might explain the orb-like sightings. 
+- 1 of 2 - FD-302 (Rev. 5-8-10) FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED] On February [REDACTED], 2026, [REDACTED], email address: [REDACTED], [REDACTED] [REDACTED] [REDACTED], was interviewed by [REDACTED] [REDACTED] [REDACTED], [REDACTED] [REDACTED], [REDACTED] [REDACTED] and [REDACTED] [REDACTED] [REDACTED] via videoconference on Microsoft Teams. Also present for the interview was [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED]
 
-### aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery
+### d983745c9c3a4709 — FBI-UAP-D010, FD-302-71, “Northeastern Orb Sighting,” 2026
 
-- Agency: Department of Energy
-- Date: 5/22/26
-- URL: https://pursueindex.com/card/aaafecbc47103f4b
-- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOE-UAP-D001_PANTEX_Image.pdf
-- Description: A Pantex Unidentified Object Incident Report that includes an enhanced image from ground surveillance radar tower.
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/d983745c9c3a4709
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D010_FD-302-71_Northeastern-Orb-Sighting_2026.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation uses to record interviews. This FD-302 records an interview with a U.S. person regarding their first-hand account of an incident potentially involving unidentified anomalous phenomena. 
+
+ The subject matter described in files FBI-UAP-D009 and FBI-UAP-D010 and depicted in the video footage FBI-UAP-PR004 corresponds to reports originating from the same general area in the northeastern United States.
 
 Excerpt (page 1):
 
-PanTEX Managed and Operated by Consolidated Nuclear Security, LLC ——UCNI—— Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower (b)(3) (UCNI) [REDACTED] ——UCNI—— Page 5 of 6
+FD-302 (Rev. 5-8-10) - 1 of 2 - OFFICIAL RECORD FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED] [REDACTED] On [REDACTED] [REDACTED] was interviewed along with [REDACTED] , [REDACTED] , at [REDACTED] [REDACTED] [REDACTED] [REDACTED] . After being advised of the identity of the interviewing agents and the nature of the interview, [REDACTED] provided the following information: On [REDACTED] [REDACTED] , [REDACTED] arrived home in the evening around 9:15pm. Once parking in the driveway, [RE
 
-### 9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969
+### d7538e35ff11c7d3 — FBI-UAP-D011, D/FBI Correspondence Referral, 1949
 
-- Agency: NASA
-- Date: 1969
-- URL: https://pursueindex.com/card/9ed140b9186c20c5
-- Description: During a medical debriefing of the crew of the Apollo 12 mission, Commander Charles “Pete” Conrad, Command Module Pilot Richard “Dick” F. Gordon, and Lunar Module Pilot Alan L. Bean describe their observations of instances of light flashes or “streaks of lights.” The astronauts each reported that these experiences occurred in the dark as they tried to sleep.
-The NASA medical team considered whether similar phenomena reported by Apollo 11 Lunar Module Pilot Buzz Aldrin had been attributable to exposure of the retina by cosmic rays. NASA later determined that the phenomena reported by the Apollo 12 flight crew were internal to the astronauts’ vision rather than external light sources.
+- Agency: FBI
+- Date: 1949
+- URL: https://pursueindex.com/card/d7538e35ff11c7d3
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D011_DFBI-Correspondence-Referral_1949.pdf
+- Description: This collection of documents contains correspondence between the Director of the Federal Bureau of Investigation (FBI), J. Edgar Hoover, and Rev. Charles Barnes concerning Barnes’ account of an incident potentially involving unidentified anomalous phenomena (UAP). Rev. Barnes described observing four beams of light “converging in the Cascade Mountains,” at an altitude of approximately 10,000 feet, with a “great explosion” visible at the convergence point of those beams for at least ten minutes. Director Hoover replied to Rev. Barnes thanking him for his letter and informing him that he had forwarded it to the Atomic Energy Commission (AEC). Director Hoover conveyed to the AEC that Rev. Barnes believed that the event may relate to a military or scientific experiment within the commission’s purview.
+
+Excerpt (page 1):
+
+A-890 (3-31-66) U. S. Department of Justice (MATERIAL MUST NOT BE REMOVED FROM OR FORWARDED THIS Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007 COPIED FOR FOIPA REQUESTED BY COUA[ILLEGIBLE] FEB 7 1980 COPIED BY ________51 FEDERAL BUREAU ENTIRE FILE REVIEWED FOR HISTORICAL DECLASSIFICATION of CLASSIFIED INFORMATION ENCLOSED 318 345 770 INVESTIGATION serial: 109 COPIED FOR F O I P A MAR 1 1978 BY 67 USE CARE IN HANDLING THIS FILE Transfer-Call 342
+
+### bbd205a2256b39c9 — FBI-UAP-PR003, “Orbs Over the Pond,” 2024
+
+- Agency: FBI
+- Date: October, 2024
+- URL: https://pursueindex.com/card/bbd205a2256b39c9
+- Description: In October 2024, at approximately 1851 local time in the northeastern United States, an eyewitness observed a light source below the horizon, hovering above a pond at an estimated distance of 2,700 feet. The luminous object resembled a “plasma-like sphere” intermittently changing shape and luminosity. At times, the primary light source appeared to separate into smaller luminous points. A luminous point below the primary source hovered just above the water and did not appear consistent with a surface reflection. The object remained generally stationary for approximately 45 minutes before disappearing. The eyewitness did not hear any sound from the objects. This video was captured by a private citizen on an iPhone and subsequently analyzed and authenticated by the U.S. Government. To protect the individual’s privacy, the footage has been cropped. Apart from this privacy-protective measure, no edits, enhancements, or alterations have been made to the visual content.  
+
+ The description above is derived from statements provided to the Federal Bureau of Investigation (FBI) by an eyewitness to the event. The FBI assesses the individual who reported this event as highly credible. The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+### 56c379b8fb673028 — FBI-UAP-PR004, “Northeastern Orb Sighting,” 2025
+
+- Agency: FBI
+- Date: July, 2025
+- URL: https://pursueindex.com/card/56c379b8fb673028
+- Description: In July 2025, at approximately 2100 local time in the northeastern United States, an eyewitness observed an intense bright light in their backyard as they parked their car upon returning home from work. The light was hovering approximately 25 feet off the ground, below a tree line near the center of their backyard, at an estimated distance of 90 feet. The eyewitness exited their vehicle briefly before retrieving their phone to record the event. The spouse of the eyewitness came outside to assess the situation. The spouse also witnessed the light, describing it as a “brilliant red sphere” about one meter in diameter. The center of the red sphere appeared to be a white plasma “sun” about the size of a basketball. The orb slowly rose and moved to the left, and both eyewitnesses observed a second, identical orb, hovering above the other orb.  
+
+The eyewitness then began recording the event using an iPhone 14 Pro Max, capturing the footage depicted in this video. As the eyewitness began recording, the orbs moved westward together above a nearby tree line. The witnesses described the orbs’ motion as silent and smooth, and as moving in tandem as though they were flying in formation or tethered together. As the orbs moved out of sight, both eyewitnesses saw them appear to merge. The eyewitnesses estimated that the orbs moved from their initial position before disappearing from view at an estimated distance of 75 yards. This observation occurred within 25 miles of the “Triangle Orbs,” “Red Orb Rotation,” and “Orbs Over the Pond,” sightings at a location well known to them, which is sparsely populated. 
+
+ The description above is derived from statements provided to the Federal Bureau of Investigation (FBI) by eyewitnesses to the event. The FBI assesses the individuals who reported this event as credible. The subject matter described in files FBI-UAP-D009 through FBI-UAP-D010 and depicted in the video footage FBI-UAP-PR004 corresponds to reports originating from the same general area in the northeastern United States.
+
+### ea18e274b06b352e — ICA-UAP-D001, Analysis: Colorado Springs UAP Incident, 2022
+
+- Agency: Intelligence Community Agency
+- Date: 2022
+- URL: https://pursueindex.com/card/ea18e274b06b352e
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/ICA-UAP-D001_Analysis_Colorado-Springs-UAP-Incident.pdf
+- Description: This document contains analysis by an All-domain Anomaly Resolution Office (AARO) Intelligence Community (IC) partner to account for a 2022 incident involving an airborne object near Colorado Springs, Colorado. U.S. military service members reported the incident to AARO in 2023. AARO’s IC partner assessed, with low confidence, that the reported phenomenon, which observers characterized as resembling an “angular, non-symmetrical potato,” was attributable to sunlight backscattering, where sunlight reflecting from mountain snow cover illuminated the underside of low-altitude clouds. This low-confidence assessment contributes to AARO’s consideration of the incident, which remains unresolved as of June 2026.
+
+Excerpt (page 1):
+
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] **SUBJECT:** [REDACTED] USA/Colorado: An Airborne Object Over Cheyenne Mountain in February 2022 was Possible Backscattering of Sunlight [REDACTED] [REDACTED] page 1 of 4
 
 ### 9e677b8697685311 — 18_100754_ General 1946-7_Vol_2
 
@@ -171,7 +183,7 @@ AFOIR-CO/Lt Col Garrett/lwd/4344 14 June 48 CONFIDENTIAL Basic Ltr fm Hq. Eleven
 
 Excerpt (page 1):
 
-Carol Rosin and Jan Cypher 4/30/2001 78078 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Close-up of a brown paper folder or envelope flap. A large, dark ink-stamped or handwritten number "78078" is visible on the right side.
+Carol Rosin and Jan Cypher 4/30/2001 78078 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Close-up of a brown paper folder or envelope flap. A large, dark ink-stamped or handwritten number "78078" is visible on the right side.
 
 ### 7bd99ac64660258e — 331_120752_Numeric_Files_1944–1945_37153_German_Armament_Equipment_Documents
 
@@ -207,7 +219,7 @@ TOP SECRET SECURITY INFORMATION DECLASSIFIED Authority: NND 843014 Directorate o
 
 Excerpt (page 1):
 
-5-2500 9-544 [REDACTED] SECRET DECLASSIFIED Authority: NND 857013 [REDACTED] SECRET NW 91377 Doc ID 34749008 Page 1 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A blank, light gray file folder divider sheet. The top left tab has the numbers "5-2500" printed on it. A second tab slightly to the right has the numbers "9-544" printed on it. The word "SECRET" is stamped in black ink near the top center and near the bottom center, with both instances crossed out by a hori
+5-2500 9-544 [REDACTED] SECRET DECLASSIFIED Authority: NND 857013 [REDACTED] SECRET NW 91377 Doc ID 34749008 Page 1 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A blank, light gray file folder divider sheet. The top left tab has the numbers "5-2500" printed on it. A second tab slightly to the right has the numbers "9-544" printed on it. The word "SECRET" is stamped in black ink near the top center and near the bottom center, with both instances crossed out by a horiz
 
 ### 218e167fbd265d91 — 342_HS1-416511228_319.1 Flying Discs 1949
 
@@ -231,7 +243,7 @@ RESTRICTED LOWRY FLIGHT SERVICE CENTER GRR/wiw LOWRY AIR FORCE BASE DENVER, COLO
 
 Excerpt (page 1):
 
-DECLASSIFIED Authority: NND 917033 SECRET EXHIBIT #530 Op-57 Secret Serial CO196957 R/S S-CO200 dated 4-23-49 Subject: Flying Discs REPORT FILED W-5 AIRCRAFT - UNIDENTIFIED JONES 2-27-50 SECRET [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A brown paper envelope or file folder cover. It features a diagonal "SECRET" stamp crossed out with a line. Another "SECRET" stamp is visible near the top center. A white typed index card or label is affixed to the center.
+DECLASSIFIED Authority: NND 917033 SECRET EXHIBIT #530 Op-57 Secret Serial CO196957 R/S S-CO200 dated 4-23-49 Subject: Flying Discs REPORT FILED W-5 AIRCRAFT - UNIDENTIFIED JONES 2-27-50 SECRET [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A brown paper envelope or file folder cover. It features a diagonal "SECRET" stamp crossed out with a line. Another "SECRET" stamp is visible near the top center. A white typed index card or label is affixed to the center.
 
 ### be226374e719c729 — 38_143685_box_Incident_Summaries_173-233
 
@@ -243,7 +255,7 @@ DECLASSIFIED Authority: NND 917033 SECRET EXHIBIT #530 Op-57 Secret Serial CO196
 
 Excerpt (page 1):
 
-DECLASSIFIED Authority: NND 917033 SECRET Enclosures to R/S -5 02378 of 3-9-49 Incident Summary Sheets 173 - 233 Incl. SECRET Secret R/S S-02378 of 3-9-49 EXHIBIT #529 Hqd Air Material Command Dayton Subject: Transmittal of Incident Summary Sheets 173 thru 233. REPORT FILED M-5 AIRCRAFT - UNIDENTIFIED JONES 2-27-50 SECRET Best Possible Image SECRET 22 MAR 1949 5-20300 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A scanned folder cover page with “SECRET” stamped at t
+DECLASSIFIED Authority: NND 917033 SECRET Enclosures to R/S -5 02378 of 3-9-49 Incident Summary Sheets 173 - 233 Incl. SECRET Secret R/S S-02378 of 3-9-49 EXHIBIT #529 Hqd Air Material Command Dayton Subject: Transmittal of Incident Summary Sheets 173 thru 233. REPORT FILED M-5 AIRCRAFT - UNIDENTIFIED JONES 2-27-50 SECRET Best Possible Image SECRET 22 MAR 1949 5-20300 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A scanned folder cover page with “SECRET” stamped at to
 
 ### b60b84a66715204a — 38_143685_box7_Incident_Summaries_1-100
 
@@ -471,7 +483,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-62- HQ-83894 Serials EBF 220 [BARCODE] 62-HQ-83894-EBF 220 EBF + ENCL BEHIND FILE DO NOT DESTROY FOIPA# 1254-532 62-83894-220 FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 1 220 ONLY 8/11/1274164 [BARCODE] RRP003ING6 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Scanned manila file folder cover with two adhesive labels and ha
+62- HQ-83894 Serials EBF 220 [BARCODE] 62-HQ-83894-EBF 220 EBF + ENCL BEHIND FILE DO NOT DESTROY FOIPA# 1254-532 62-83894-220 FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # Sub Vol. Serial # 0062 83894 1 220 ONLY 8/11/1274164 [BARCODE] RRP003ING6 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Scanned manila file folder cover with two adhesive labels and han
 
 ### 954d1e1944bc6d17 — 65_HS1-834228961_62-HQ-83894_Serial_403
 
@@ -483,7 +495,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-62- HQ-83894 Serial 403 EBF 02-HQ-83894-E403 X FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS DO NOT DESTROY Class / Case # Sub Vol. Serial # DIPA # 1142292 0062 83894 1 403 ONLY 9/18/226771 RRP00AI1WL 62 - 83894 - 403 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A manila FBI records envelope with two white label stickers, handwritten and stamped text including “DO NOT
+62- HQ-83894 Serial 403 EBF 02-HQ-83894-E403 X FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS DO NOT DESTROY Class / Case # Sub Vol. Serial # DIPA # 1142292 0062 83894 1 403 ONLY 9/18/226771 RRP00AI1WL 62 - 83894 - 403 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A manila FBI records envelope with two white label stickers, handwritten and stamped text including “DO NOT 
 
 ### af42a6774881c110 — 65_HS1-834228961_62-HQ-83894_Serial_438
 
@@ -495,7 +507,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-0062 83894 Vol. 1 438 Only FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS HQ-0000-86775B: HQ Class / Case # Sub Vol. Serial # 0062 83894 1 438 ONLY 8/11/1274161 |||||||||||||||||||||||||||||||| RRP003IXG3 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Barcode with identifier below it: - A blue rectangular sticker is adhered to the bottom right corner of the file folder c
+0062 83894 Vol. 1 438 Only FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS HQ-0000-86775B: HQ Class / Case # Sub Vol. Serial # 0062 83894 1 438 ONLY 8/11/1274161 |||||||||||||||||||||||||||||||| RRP003IXG3 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Barcode with identifier below it: - A blue rectangular sticker is adhered to the bottom right corner of the file folder co
 
 ### f42c11ca158aeffc — 65_HS1-834228961_62-HQ-83894_Serial_449
 
@@ -520,6 +532,236 @@ Excerpt (page 1):
 Excerpt (page 1):
 
 Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. FD-245.1 (Rev. 1-4-99) U.S. Department of Justice FBI - CENTRAL RECORDS CENTER HQ - HEADQUARTERS Class / Case # 0082 63894 Sub A Vol. 1 Serial # 1 OPEN 8/11/1274151 RRF0001XFT Bureau of Investigation File No. 002-8-3894-A Field Office Criminal Investigative and Administrative Files ___________ Armed and Dangerous ___________ FOIPA ___________ DO NOT DESTROY ___________ NCIC ___________ ELSUR ______
+
+### 811e54fbf8cff4cc — CIA-UAP-002, Scientific Advisory Panel on Unidentified Flying Objects, Report, 1952-1953
+
+- Agency: CIA
+- Date: 1952-1953
+- URL: https://pursueindex.com/card/811e54fbf8cff4cc
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-002_Scientific-Advisory-Panel-on-Unidentified-Flying-Objects_Report_1952-1953.pdf
+- Description: This file contains correspondence and reports dated 1952–1953 from the Scientific Advisory Panel on Unidentified Flying Objects, convened by the CIA’s Office of Scientific Intelligence. The panel’s primary conclusion was that “flying saucers” did not pose a direct physical threat to the national security of the United States. The panel found no evidence that these phenomena were attributable to hostile foreign artifacts or indicated a need to revise existing scientific concepts. 
+
+However, the panel identified a significant indirect threat stemming from the public’s fascination with the subject. The panel concluded that the high volume of reports, encouraged by a "sensationalist press," could overwhelm and clog vital intelligence and communication channels, potentially distracting from genuine threats. Furthermore, they warned that a “morbid national psychology” could be exploited by adversaries to incite “hysterical behavior and harmful distrust of duly constituted authority.” To mitigate these risks, the panel recommended an official policy of “debunking” to “strip the UFO subject of its mystery,” alongside a training initiative for military personnel to better recognize and filter out misidentified objects, thereby reducing communication “noise” and allowing the national security apparatus to focus on more "legitimate defense concerns."
+
+Excerpt (page 1):
+
+HS/HC 475 Flying Objects DECLASSIFIED Authority: NND 917075 RG 263 CIA E FOLDER 90 10
+
+### 8dfcf1050947c6d3 — CIA-UAP-003, The Central Intelligence Agency and Overhead Reconnaissance; The U-2 and OXCART Programs, 1954-1974
+
+- Agency: CIA
+- Date: 1954-1974
+- URL: https://pursueindex.com/card/8dfcf1050947c6d3
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-003-THE_CENTRAL_INTELLIGENCE_AGENCY_AND_OVERHEAD_RECONNAISSANCE-THE_U-2_AND_OXCART_PROGRAMS_1954-1974.pdf
+- Description: This CIA History Staff document chronicles the complete history of the U-2 and OXCART (A-12) high-altitude reconnaissance aircraft programs from 1954 to 1974, detailing their development, operations over the Soviet Union and other targets worldwide, the famous downing of Francis Gary Powers in 1960, organizational reforms following that incident, and the eventual transfer of operations from CIA to Air Force control. A more redacted version of this document has been available on CIA's public website.
+
+Excerpt (page 1):
+
+App tovee. fo cae | xr Release Socret NOFORN ¢ Pavel’ fata Pe SS BS =] THE CENTRAL JNTELLIGENCE AGENCY AND QVERHEAD # REC ONNAISSANCE | The U-2 and OXCART Pregame, 1954 - 1974 rm Gregory W. f Padlow and Donald E. Welzenbach |g.
+
+### 7a47542be1be6d1f — CIA-UAP-004, CASE 17708 (CLOSED) and DR. Leon Davidson
+
+- Agency: CIA
+- Date: 1958
+- URL: https://pursueindex.com/card/7a47542be1be6d1f
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-004-CASE_17708_CLOSED_AND_DR_LEON_DAVIDSON.pdf
+- Description: This 1958 CIA memorandum discussing a phone conversation with Dr. Leon Davidson regarding concerns about a destroyed "space message and its transmitter." A redacted version of this memorandum has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Chief, Contact Division 9 January 1958 FOR : Support Branch CHI-58-17 Chief, Chicago Office S - 49559 Case 17708 (Closed) and Dr. Leon Davidson REF : WA 26643, and Connell, Lohmann, LaMountain Telecon of 8 Jan 58 1. We have contacted Dr. Davidson by telephone advising him that we cannot resolve his problem concerning the space message and its transmitter because records on the matter have been destroyed by the evaluating agency. Davidson accepted this statement with the
+
+### 5a1026673150b72f — CIA-UAP-005, German Scientist's Article on 'Flying Discs'
+
+- Agency: CIA
+- Date: 1950
+- URL: https://pursueindex.com/card/5a1026673150b72f
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-005-GERMAN_SCIENTISTS_%20ARTICLE_ON_FLYING_DISCS.pdf
+- Description: This 1950 CIA Information Report from Chile discusses a German scientist's article theorizing that "Flying Discs" could be explained as a new type of aircraft based on aerodynamic principles developed in German research facilities during and after WWI, using rotating cylinders or gas-turbines to create lift through boundary layer manipulation, rather than conventional wings. A redacted version of this report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 1 200 WE, his . 051 inal CLASSIFICATION ——[REDACTED]—— CENTRAL INTELLIGENCE AGENCY REPORT NO. SO DE-27143 INFORMATION REPORT CD NO. COUNTRY Chile/Germany DATE DISTR. 31 July 1950 SUBJECT German Scientist's Article on "Flying Discs" NO. OF PAGES 1 PLACE ACQUIRED Chile, Santiago Return to CIA Library NO. OF ENCLS. 1 (LISTED BELOW) DATE OF INFO. Prior to mid-1950 SUPPLEMENT TO REPORT NO. -------------------------------------------------------------------------------- GRADI
+
+### 38ee227f22a33772 — CIA-UAP-006, Sighting Of Unconventional Aircraft
+
+- Agency: CIA
+- Date: November, 1955
+- URL: https://pursueindex.com/card/38ee227f22a33772
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-006_Sighting_of_Unconventional_Aircraft.pdf
+- Description: This CIA information report from November 1955 describes a US national's eyewitness account of triangular aircraft with wing lights launch at a steep angle from an airfield near Baku, Azerbaijan on October 4, 1955. A redacted version of this report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Sen. Grussell 4 F O [ILLEGIBLE] SEE BOTTOM OF PAGE FOR ADDITIONAL SPECIAL CONTROLS, IF ANY D 3-2 7456 S-E-C-R-E-T INFORMATION REPORT PREPARED AND DISSEMINATED BY CENTRAL INTELLIGENCE AGENCY This material contains information affecting the National Defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C. Secs. 793 and 794, the transmission or revelation of which in any manner to an unauthorized person is prohibited by law. COUNTRY REPORT NO
+
+### 878ff82834953ea7 — CIA-UAP-007, Current Status Of Unidentified Flying Objects (UFO) Project.
+
+- Agency: CIA
+- Date: December, 1953
+- URL: https://pursueindex.com/card/878ff82834953ea7
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-007_Current_Status_of_Unidentified_Flying_Objects_UFO_Project.pdf
+- Description: This December 1953 memorandum provides a status update on the Air Force's UFO project activities, including ongoing intelligence operations, equipment procurement for photographing UFOs, and Canada’s establishment of a "laboratory" for recording observable phenomena. A more redacted version of this memorandum has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 SECRET 17 December 1953 MEMORANDUM TO: Assistant Director, Scientific Intelligence FROM : Chief, Physics and Electronics Division, SI SUBJECT : Current Status of Unidentified Flying Objects (UFOB) Project. 1. In accordance with the verbal request of Mr. Brent, Exec/SI, on 30 November, the following resume of the current status of unidenti- fied flying objects activities has been prepared. 2. P&E Division assumed responsibility for the OSI project on unidentified flying 
+
+### 859cda8991e45dd7 — CIA-UAP-008, Speculative Paper By N Kardashev and A Sakharov on Charged Mass in Space at Conference on Origins Of Life, Armenia, 6-8 September 1971/Low Scientific Level Of Other Soviet Papers
+
+- Agency: CIA
+- Date: 1972
+- URL: https://pursueindex.com/card/859cda8991e45dd7
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-008_SPECULATIVE_PAPER_BY_N_KARDASHEV_AND_A_SAKHAROV.pdf
+- Description: This 1972 CIA Intelligence Information Report summarizes a US attendee's observations of a speculative paper regarding charged mass behavior in space presented by Soviet scientists N.S. Kardashev and A. Sakharov at a conference in Armenia. A more redacted version of this report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Intelligence Information Report This material contains information affecting the National Defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C. Secs. 793 and 794, the transmission or revelation of which in any manner to an unauthorized person is prohibited by law. DIRECTORATE OF INTELLIGENCE -C-O-N-F-I-D-E-N-T-I-A-L- COUNTRY USSR REPORT NO. OO-B-321/07709-72. SUBJECT Speculative Paper by N Kardashev and DATE DISTR. 10 Apr 72 A Sakharov 
+
+### 29f1035b2cdde6b7 — CIA-UAP-009, Unknown Flying Objects Observed Over Budapest
+
+- Agency: CIA
+- Date: 1957
+- URL: https://pursueindex.com/card/29f1035b2cdde6b7
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-009-UNKNOWN-FLYING_OBJECTS_OBERVED_OVER_BUDAPEST.pdf
+- Description: This is a 1957 CIA Information Report regarding UFO sightings over Budapest. A more redacted version of this report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+[REDACTED HEADER BANNER] FBI [ILLEGIBLE AGENCY HEADER] [ILLEGIBLE OFFICE] TO: [ILLEGIBLE] FROM: [ILLEGIBLE] SUBJECT: [ILLEGIBLE] Internal Security - Russia [ILLEGIBLE] DATE: [ILLEGIBLE] April [ILLEGIBLE] [ILLEGIBLE reference numbers and routing information] [PARAGRAPH 1 - ILLEGIBLE] [PARAGRAPH 2 - ILLEGIBLE] 1. [ILLEGIBLE paragraph text - multiple lines of faded typewritten content] 2. [ILLEGIBLE paragraph text - multiple lines of faded typewritten content] 3. [ILLEGIBLE paragraph text - multipl
+
+### 4825c416e6afe557 — CIA-UAP-010, Report on Conversations with Soviet Scientists on Subject of Unidentified Flying Objects in the USSR
+
+- Agency: CIA
+- Date: August, 1967
+- URL: https://pursueindex.com/card/4825c416e6afe557
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-010_REPORT_ON_CONVERSATIONS_WITH_SOVIET_SCIENTISTS_ON_SUBJECT_OF_UNIDENTIFIED_FLYING_OBJECTS_IS_THE_USSR.pdf
+- Description: This CIA document from August 1967 reports on conversations about UFO sightings with Soviet scientists during a US astrophysicist's trip to the USSR.
+
+Excerpt (page 1):
+
+Approved for Release 2026 INFORMATION REPORT 01 AUG 1967 CENTRAL INTELLIGENCE AGENCY This material contains information affecting the National Defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C. Secs. 793 and 794, the transmission or revelation of which in any manner to an unauthorized person is prohibited by law. CONTROLLED DISSEM -C-O-N-F-I-D-E-N-T-I-A-L- NO DISSEM ABROAD COUNTRY USSR < REPORT NO. OO-B-321/23490-67 SUBJECT Report on Conversations With Soviet
+
+### 076e3a3c73273efe — CIA-UAP-011, The Sary Shagan Weapons Testing Range
+
+- Agency: CIA
+- Date: December, 1973
+- URL: https://pursueindex.com/card/076e3a3c73273efe
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-011-The_Sary_Shagan_Weapons_Testing_Range.pdf
+- Description: This CIA Intelligence Information Report from December 1973 provides information on the Soviet Sary Shagan Weapons Testing Range, including details about its facilities, weapons systems (System-75 SA-2 and System-300/Aldan warheads), rumored laser weapon research, and unidentified aerial phenomenon observed at the site. A more redacted version of this report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED Classified by Recorded Reporting Officer. Exempt from General Declassification Schedule of I.O. 11652 E- Impossible to determine date of automatic declassification. DIRECTORATE OF PAGE 1 O OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE C O N F I D E N T I A L REPORT NO. FIR K-311/01638- DATE DISTR. 2 0 December 19 COUNTRY USSR DOI November 197
+
+### 8aba1dc72a19b94a — CIA-UAP-012, Combating Fatigue In Crewmembers
+
+- Agency: CIA
+- Date: November, 1976
+- URL: https://pursueindex.com/card/8aba1dc72a19b94a
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-012-Combatting_Fatigue_in_Crewmembers.pdf
+- Description: This November 1976 CIA Foreign Intelligence Information Report summarizes Soviet Aeroflot's involvement in aerospace medical research, including their methods for combating crew fatigue through physical conditioning, automated biological testing equipment that measures vital signs in 1-3 minutes, and discussions about UFO phenomena with a Soviet radiation biologist. A more redacted version of this report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 CONFIDENTIAL Domestic Collection Division Foreign Intelligence Information Report DIRECTORATE OF OPERATIONS COUNTRY USSR DCD REPORT NO. OO-B-321/33474-76 SUBJECT Combating Fatigue in Crewmembers/ DATE DISTR. 16 November 1976 Aeroflot Work Cycles/Use of Drugs/ Biological Effects of Aircraft Noise/ NO. PAGES 4 Radiation Research/UFO Phenomena/ Prototype Pilot Biological Psychomotor REFERENCES Testing Equipment/Celestial Navigation/ Night Vision Testing DATE OF INFO THIS I
+
+### ad63a61ed36f167c — CIA-UAP-013, Report of Unusual Flying Object Sightings and Attendant Scientific Activity
+
+- Agency: CIA
+- Date: 1956
+- URL: https://pursueindex.com/card/ad63a61ed36f167c
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-013-Report_of_Unusual_Flying_Object_Sightings_and_Attendant_Scientific_Activity.pdf
+- Description: This 1956 CIA Information Report describes flying object sightings reported by a Budapest-based sub-source, including a sketch showing the objects' suspected formation and flight path between Budapest and Moscow. A more redacted version of this report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 ' 845025 SEE BOTTOM OF PAGE FOR ADDITIONAL SPECIAL CONTROLS, IF ANY CONFIDENTIAL INFORMATION REPORT This material contains information affecting the National Defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C. PREPARED AND DISSEMINATED BY Secs. 793 and 794, the transmission or revelation of which in any manner to an unauthorized per- CENTRAL INTELLIGENCE AGENCY son is prohibited by law. D450298 COUNTRY REPORT NO. Hungary 00— B-93674 S
+
+### 626d8e51b2efc972 — CIA-UAP-014, British activity in the Field of "Unidentified Flying Objects"
+
+- Agency: CIA
+- Date: December, 1952
+- URL: https://pursueindex.com/card/626d8e51b2efc972
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-014_British_Activity_in_the_Field_of_Unidentified_Flying_Objects.pdf
+- Description: A December 1952 Memo on the activities the British are taking to identify UFOs. The memo references a UFO sighting at an RAF field seen by high officials and RAF pilots. A more redacted version of the memo has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Under Section 1842 of the National Defense Authorization Act for Fiscal Year 2024 SECRET Security Information lern ly 18 December 1952 Strong - 12/31/52 Chansley 12/22/52 Durash 23de 52 MEMORANDUM FOR RECORD SUBJECT: British Activity in the field of "Unidentified Flying Objects" 1. On 15 December, the recently arrived messenger from Britain reported the following. He had talked with R. V. Jones and [REDACTED] 2. The British have had a standing committee created about si
+
+### a8ec637d35fd011e — CIA-UAP-015, Project Blue Book Special Report No. 14 (Analysis of Reports of Unidentified Aerial Objects)
+
+- Agency: CIA
+- Date: 6/12/26
+- URL: https://pursueindex.com/card/a8ec637d35fd011e
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-015-Project_Blue_Book_Special_Report_No_14.pdf
+- Description: This is the USAF Project Blue Book with a CIA cover sheet stating the document is "Official Record Copy." With the exception of the handwritten note on the first page, the content of this document has been available on CIA's public website.
+
+Excerpt (page 1):
+
+FORM 2250 Approved for Release 2026 Under Section 1842 of the National Defense --(42)-- 6-64 Authorization Act for Fiscal Year 2024 2, 5[ILLEGIBLE]= 2[ILLEGIBLE]3 315 pages (PLACE FORM 490 HERE) OFFICIAL RECORD CO[ILLEGIBLE] Reviewed by RjWarsh 11/21/54 The [ILLEGIBLE] Agenc[ILLEGIBLE] Clipped items new in acco[ILLEGIBLE] in computer addition[ILLEGIBLE] Records[ILLEGIBLE] RETURN IMMEDIATELY AFTER USE TO THE CIA ARCHIVES AND RECORDS CENTER
+
+### 774ebdca92c34892 — CIA-UAP-016, Sightings of Unidentified Flying Objects in Ladakh, Nepal, Sikkim and Bhutan
+
+- Agency: CIA
+- Date: 1968
+- URL: https://pursueindex.com/card/774ebdca92c34892
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-016-Sightings_of_Unidentified_Flying_Ojbects_in_Ladakh_Nepal_Sikkim_and_Bhutan.pdf
+- Description: A 1968 report about UFO sightings in Ladakh, Nepal, Sikkim and Bhutan. Seven UFO sightings are listed that took place between 19 Feb. to 25 Mar. 1968. A more redacted version of the report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Under Section 1842 of the National Defense Authorization Act for Fiscal Year 2024 [PHOTOGRAPH OF MAN AT PODIUM] He is convinced UFO's are intelligently controlled from Outer Space—Donald E. Keyoe, director of the National Investigations Committee on Aerial Phenomena. [PHOTOGRAPH OF MAN WITH GLASSES] He will try to find out—Dr. Edward Condon, former head of the National Bureau of Standards and recently named director of the Air Force- sponsored civilian investigation of 
+
+### 91887620fa8361e5 — CIA-UAP-018, Report of Unusual Flying Object Sightings and Attendant Scientific Activity
+
+- Agency: CIA
+- Date: 1955
+- URL: https://pursueindex.com/card/91887620fa8361e5
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-018_Report_of_Unusual_Flying_Object_Sightings_and_Attendant_Scientific_Activity.pdf
+- Description: A 1955 report on a UFO sighting in Hungary. The information came from a letter between Hungarian relatives, living in the USA and Budapest. A more redacted version of the report has been available on CIA's public website.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Under Section 1842 of the National Defense Authorization Act for Fiscal Year 2024 ' 845029 SEE BOTTOM OF PAGE FOR ADDITIONAL SPECIAL CONTROLS, IF ANY CONFIDENTIAL INFORMATION REPORT This material contains information affecting the National Defense of the United States within the meaning of the Espionage Laws, Title 18, U.S.C. PREPARED AND DISSEMINATED BY Secs. 793 and 794, the transmission or revelation of which in any manner to an unauthorized per- CENTRAL INTELLIGENCE
+
+### e2371ff7657d231e — CIA-UAP-019, Australian Dept of Defense Scientific and Intel Aspects of the UFO Problem
+
+- Agency: CIA
+- Date: 1971
+- URL: https://pursueindex.com/card/e2371ff7657d231e
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/CIA-UAP-019-Australian_Dept_of_Defense_Scientific_and_Intel_Aspects_of_the_UFO_Problem.pdf
+- Description: Dated to 1971, an Australian review of the USAF Project Blue Book. This document was released by the National Archives of Australia.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Under Section 1842 of the National Defense Authorization Act for Fiscal Year 2024 Form No. 81 Introduced May, 1966 / DEPARTMENT OF DEFENCE FILE CLOSED Subsequent correspondence has been placed on File No: [ILLEGIBLE] 6216/66
+
+### 0f469fcf6fb42875 — CIA-UAP-D001, Intelligence Information Report, USSR, 1973
+
+- Agency: Central Intelligence Agency
+- Date: 12/20/73
+- URL: https://pursueindex.com/card/0f469fcf6fb42875
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/CIA-UAP-D001_Intelligence_Information_Report_USSR_1973.pdf
+- Description: This document is a Central Intelligence Agency (CIA) intelligence information report (IIR) that describes human intelligence gathering activities in the Union of Soviet Socialist Republics (USSR). This report characterizes its content as informational, not as finally evaluated intelligence. In section 14 of this document, the source describes an incident occurring in summer of 1973, where he allegedly observed an airborne, luminous, bright green, unidentified object. The source described concentric circles forming around the phenomenon over a period of several minutes, before it dissipated. The source also stated that no sound attended the observation. The source offered no opinion on the nature of the phenomenon and was unable to provide further details regarding the incident.
+
+Excerpt (page 1):
+
+Approved for Release 2026 Intelligence Information Report WARNING NOTICE SENSITIVE INTELLIGENCE SOURCES AND METHODS INVOLVED Classified by Recorded Reporting Officer. Exempt from General Declassification Schedule of E.O. 11652 E. Impossible to determine date of automatic declassification. DIRECTORATE OF PAGE 1 O OPERATIONS THIS IS AN INFORMATION REPORT, NOT FINALLY EVALUATED INTELLIGENCE C O N F I D E N T I A L REPORT NO. FIK K-311/01638- DATE DISTR. 2C December 19 COUNTRY USSR DOI November 1972
+
+### aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery
+
+- Agency: Department of Energy
+- Date: 5/22/26
+- URL: https://pursueindex.com/card/aaafecbc47103f4b
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOE-UAP-D001_PANTEX_Image.pdf
+- Description: A Pantex Unidentified Object Incident Report that includes an enhanced image from ground surveillance radar tower.
+
+Excerpt (page 1):
+
+PanTEX Managed and Operated by Consolidated Nuclear Security, LLC ——UCNI—— Pantex Unidentified Object Incident Report Image from Ground Surveillance Radar Tower (b)(3) (UCNI) [REDACTED] ——UCNI—— Page 5 of 6
 
 ### 8156067f7ff4b983 — DOE-UAP-D002, James Tuck Correspondence, 1970s
 
@@ -585,7 +827,7 @@ All descriptive and estimative language contained in this report reflects the re
 
 Excerpt (page 1):
 
-1.4(a) [REDACTED] [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A solid black page. In the top left corner, the text "1.4(a)" is printed in large, bold, red font.
+1.4(a) [REDACTED] [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A solid black page. In the top left corner, the text "1.4(a)" is printed in large, bold, red font.
 
 ### f6d9556247ebeb2d — DOW-UAP-D006, Mission Report, Arabian Gulf, 2020
 
@@ -684,6 +926,18 @@ All descriptive and estimative language contained in this report reflects the re
 Excerpt (page 1):
 
 Declassified by MG Richard A. Harrison USCENTCOM Chief of Staff Declassified on: 8 October 2025 ——SECRET//NOFORN—— Misrep undefined-7816710 Narrative (SECRET//REL TO USA, FVEY) AT 301639ZJUL22, TF CHOSIN TASKED[ 1.4a ] WITH IMINT VIA 7 LINE. AT 301822ZJUL22, [1.4a] DEPARTED MUWAFFAQ SALTI AB (OJMS). AT 301829ZJUL22, [1.4a] HANDED OVER FROM THE LRE. AT 301925ZJUL22, [1.4a] BEGAN SIGINT COLLECT. AT 302028ZJUL22, [1.4a] ARRIVED ON STATION AND CHECKED IN WITH TF CHOSIN STA TO PERFORM IMINT IVO 37SFU
+
+### 09001c140b97a5db — DOW-UAP-D017, UAP Reported at Sandia Base, 1948-1950
+
+- Agency: Department of War
+- Date: 1948-1950
+- URL: https://pursueindex.com/card/09001c140b97a5db
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/DOW-UAP-D017_General_Correspondence_Of_Sandia.pdf
+- Description: This file contains 116 pages of documentation from the Armed Forces Special Weapons Program (AFSWP) – the direct, post-World War II successor to the Manhattan Project – and from the U.S. Air Force – relating to a series of sightings and investigations in Sandia, New Mexico, from 1948-1950. This file contains 209 sightings of “green orbs,” “discs,” and “fireballs” reported near the military base. Witnesses reported unidentified anomalous phenomena (UAP) maneuvering, flying out of sight, disappearing, or exploding. The documents also include the results of contemporary investigations into residual copper powder found in some areas where sightings were reported. A few of these investigations became the basis for Project Grudge, which collected reports of unidentified flying objects from various other military installations – also included in this collection.
+
+Excerpt (page 1):
+
+Secret This document consists of 2 pages, copy 1 of 4, series #. HEADQUARTERS, DETACHMENT D 1100TH USAF SPECIAL REPORTING GROUP Campbell Air Force Base Camp Campbell, Kentucky 333.1 7 April 1949 SUBJECT: Security Inspection TO: Commanding General Sandia Base Albuquerque, New Mexico 1. Reference is made to secret letter, your headquarters, dated 1 April 1949, Subject: Security Inspection. 2. a. Guard Orders have been amended directing that the elec- tric gate be closed between 1700 hours until 07
 
 ### 9961adf6adf1010b — DOW-UAP-D018, Mission Report, Iraq, December 2022
 
@@ -889,7 +1143,7 @@ RESEARCH TRIANGLE INSTITUTE /RTI Contract No. FO4703-91-C-0112 RTI Report No. RT
 
 Excerpt (page 1):
 
-VANDENBERG AFB LAUNCH SUMMARY 1958 - 2000 30th SPACE WING Office of History [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - United States Air Force 30th Space Wing emblem. The emblem is a shield featuring a dark background with a stylized globe showing latitude and longitude lines. Two stylized aircraft or space vehicles are shown launching upward from behind the globe. Below the shield, a scroll or ribbon bears the text "30th SPACE WING". The emblem is positioned on t
+VANDENBERG AFB LAUNCH SUMMARY 1958 - 2000 30th SPACE WING Office of History [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - United States Air Force 30th Space Wing emblem. The emblem is a shield featuring a dark background with a stylized globe showing latitude and longitude lines. Two stylized aircraft or space vehicles are shown launching upward from behind the globe. Below the shield, a scroll or ribbon bears the text "30th SPACE WING". The emblem is positioned on th
 
 ### 6d7faf71150107e9 — DOW-UAP-D050, Email Correspondence, INDOPACOM, April 2025
 
@@ -917,7 +1171,7 @@ Excerpt (page 1):
 
 [REDACTED] Good morning! Thank you for your patience on this-- like I said, this was a first for me. Upon consulting internally here at HQ, our folks confirmed we do have the authority to process this as a derivative classification review, instead of a declassification request. Based upon the summary you provided below, I concur with using this at the UNCLASSIFIED level in your product. Consider your request approved. Please let me know if there's anything else I can do for you! Thanks, [REDACTE
 
-### a3f68d208681dc64 — DOW-UAP-D052, Email Correspondance, NA, August 2024
+### a3f68d208681dc64 — DOW-UAP-D052, Email Correspondence, NA, August 2024
 
 - Agency: Department of War
 - Date: 10/31/24
@@ -1112,6 +1366,138 @@ Excerpt (page 1):
 
 Recommendation by MG Brandon R. Tegtmeier USCENTCOM Chief of Staff Recommended on: 2 June 2025 SECRET/REL TO USA, FVEY FOUO / Privacy Act applies Misrep 10194673 Narrative (S//REL TO USA, FVEY) TAIL NUMBER [ 1.4a ] [ 1.4a ] TOOK OFF FROM [ 1.4a ] AT 140222ZJUL24 VIA [ 1.4a ] AND ARRIVED ON STATION AT 140300ZJUL24. [ 1.4a ] UTILIZED [ 1.4a ] THROUGHOUT MISSION BETWEEN HANDOVER AND HANDBACK. FROM 140334ZJUL24 TO 140925ZJUL24 [ 1.4a ] CONDUCTED TARGET DEVELOPMENT ISO NAVCENT IVO 38P MT 51[ 1.4a ]11
 
+### 88479e3245f9bf15 — DOW-UAP-D077, AARO Unresolved Case Analysis Update: Western United States Event
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/88479e3245f9bf15
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D077_Unresolved-Case-Analysis-Update_Western-United-States-Event.pdf
+- Description: This memorandum summarizes the All-domain Anomaly Resolution Office’s (AARO) ongoing analysis of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in 2023. As of June 2026, the case remains unresolved.
+
+Excerpt (page 1):
+
+UNCLASSIFIED OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY 05 JUNE 2026 MEMORANDUM FOR RECORD SUBJECT: All-domain Anomaly Resolution Office (AARO) Unidentified Anomalous Phenomena (UAP) Case Analysis Update: Western U.S. Event "Orbs Launching Orbs" References: (a) https://www.war.gov/ufo/#Western-US-Event, Incident 1 of 4, VIRIN: 260508- D-D0360-1052, 08-MAY 2026. 1. Executive Summary. This memorandum summarizes the All-domain Anom
+
+### 323b9443e6f5ea56 — DOW-UAP-D078, Notional Map: Western United States Event
+
+- Agency: Department of War
+- Date: October, 2023
+- URL: https://pursueindex.com/card/323b9443e6f5ea56
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D078_Notional-Map_Western-United-States-Event.pdf
+- Description: This image is a notional representation of four incidents reportedly involving unidentified anomalous phenomena in the western United States, as seen from above. This illustration depicts multiple incidents reported by U.S. federal law enforcement special agents over a period of several days in October 2023.
+
+Excerpt (page 1):
+
+UNCLASSIFIED This image is a notional representation of four incidents reportedly involving unidentified anomalous phenomena (UAP) in the western United States, as seen from above. This illustration depicts multiple incidents reported by U.S. federal law enforcement special agents over a period of several days in October 2023. Incident 1: "Orbs Launching Orbs" Agents reported observing multiple instances of an orange "mother orb" "launching" smaller red "orbs." Incident 2: "Fiery Orb" Agents rep
+
+### c2da7eaaedbf533a — DOW-UAP-D079, Narrative Statement 1, Western United States Event, 2023
+
+- Agency: Department of War
+- Date: October, 2023
+- URL: https://pursueindex.com/card/c2da7eaaedbf533a
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D079_Narrative-1_Western-US-Event.pdf
+- Description: This memorandum presents the first-hand narrative from Witness 1 provided to the All-domain Anomaly Resolution Office (AARO). Witness 1 was one of several United States (U.S.) federal law enforcement special agents who reported observing unidentified anomalous phenomena (UAP) over a period of two days in October 2023 in the western United States.
+
+Excerpt (page 1):
+
+UNCLASSIFIED OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY 02 June 2026 MEMORANDUM FOR RECORD SUBJECT: Narrative from Witness 1 - Western U.S. Event References: (a) https://www.war.gov/ufo/#Western-US-Event,VIRIN: 260508-D-D0360-1052, 08-MAY 2026. 1. Executive Summary. This memorandum presents the first-hand narrative from Witness 1 provided to the All- domain Anomaly Resolution Office (AARO). Witness 1 was one of several United St
+
+### d7f72a4106a917f6 — DOW-UAP-D080, Narrative Statement 2, Western United States Event, 2023
+
+- Agency: Department of War
+- Date: October, 2023
+- URL: https://pursueindex.com/card/d7f72a4106a917f6
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D080_Narrative-2_Western-US-Event.pdf
+- Description: This memorandum presents the first-hand narrative from Witness 2 provided to the All-domain Anomaly Resolution Office (AARO). Witness 2 was one of several United States (U.S.) federal law enforcement special agents who reported observing unidentified anomalous phenomena (UAP) over a period of two days in October 2023 in the western United States.
+
+Excerpt (page 1):
+
+UNCLASSIFIED OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY 02 June 2026 MEMORANDUM FOR RECORD SUBJECT: Narrative from Witness 2 - Western U.S. Event References: (a) https://www.war.gov/ufo/#Western-US-Event,VIRIN: 260508-D-D0360-1052, 08-MAY 2026. 1. Executive Summary. This memorandum presents the first-hand narrative from Witness 2 provided to the All- domain Anomaly Resolution Office (AARO). Witness 2 was one of several United St
+
+### ccb9a10f4d8b2c3d — DOW-UAP-D081, Narrative Statement 3, Western United States Event, 2023
+
+- Agency: Department of War
+- Date: October, 2023
+- URL: https://pursueindex.com/card/ccb9a10f4d8b2c3d
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D081_Narrative-3_Western-US-Event.pdf
+- Description: This memorandum presents the first-hand narrative from Witness 3 provided to the All-domain Anomaly Resolution Office (AARO). Witness 3 was one of several United States (U.S.) federal law enforcement special agents who reported observing unidentified anomalous phenomena (UAP) over a period of two days in October 2023 in the western United States.
+
+Excerpt (page 1):
+
+UNCLASSIFIED OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY 02 June 2026 MEMORANDUM FOR RECORD SUBJECT: Narrative from Witness 3 - Western U.S. Event References: (a) https://www.war.gov/ufo/#Western-US-Event,VIRIN: 260508-D-D0360-1052, 08-MAY 2026. 1. Executive Summary. This memorandum presents the first-hand narrative from Witness 3 provided to the All- domain Anomaly Resolution Office (AARO). Witness 3 was one of several United St
+
+### bf08008b8a1aa79e — DOW-UAP-D082, Narrative Statement 4, Western United States Event, 2023
+
+- Agency: Department of War
+- Date: October, 2023
+- URL: https://pursueindex.com/card/bf08008b8a1aa79e
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D082_Narrative-4_Western-US-Event.pdf
+- Description: This memorandum presents the first-hand narrative from Witness 4 provided to the All-domain Anomaly Resolution Office (AARO). Witness 4 was one of several United States (U.S.) federal law enforcement special agents who reported observing unidentified anomalous phenomena (UAP) over a period of two days in October 2023 in the western United States.
+
+Excerpt (page 1):
+
+UNCLASSIFIED OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY 02 June 2026 MEMORANDUM FOR RECORD SUBJECT: Narrative from Witness 4 - Western U.S. Event References: (a) https://www.war.gov/ufo/#Western-US-Event,VIRIN: 260508-D-D0360-1052, 08-MAY 2026. 1. Executive Summary. This memorandum presents the first-hand narrative from Witness 4 provided to the All- domain Anomaly Resolution Office (AARO). Witness 4 was one of several United St
+
+### 907982561e907539 — DOW-UAP-D083, Narrative Statement 5, Western United States Event, 2023
+
+- Agency: Department of War
+- Date: October, 2023
+- URL: https://pursueindex.com/card/907982561e907539
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DoW-UAP-D083_Narrative-5_Western-US-Event.pdf
+- Description: This memorandum presents the first-hand narrative from Witness 5 provided to the All-domain Anomaly Resolution Office (AARO). Witness 5 was one of several United States (U.S.) federal law enforcement special agents who reported observing unidentified anomalous phenomena (UAP) over a period of two days in October 2023 in the western United States.
+
+Excerpt (page 1):
+
+UNCLASSIFIED OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY 02 JUNE 2026 MEMORANDUM FOR RECORD SUBJECT: Narrative from Witness 5 - Western U.S. Event References: (a) https://www.war.gov/ufo/#Western-US-Event,VIRIN: 260508-D-D0360-1052, 08-MAY 2026. 1. Executive Summary. This memorandum presents the first-hand narrative from Witness 5 provided to the All- domain Anomaly Resolution Office (AARO). Witness 5 was one of several United St
+
+### a83dedef9d19fcb5 — DOW-UAP-D085_Transmission-of-CIA-Scientific-Advisory-Panel-Rept_1953
+
+- Agency: Department of War
+- Date: 1953
+- URL: https://pursueindex.com/card/a83dedef9d19fcb5
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D085_Transmission-of-CIA-Scientific-Advisory-Panel-Rept_1953.pdf
+- Description: This file contains a copy of the CIA's 1953 "Report of the Scientific Panel on Unidentified Flying Objects" that was sent to the Secretary of Defense.
+
+Excerpt (page 1):
+
+CD 000.92 1953 DECLASSIFIED Authority: NND 823015 NW 9172 Doc ID 04748472 Page 1
+
+### 48502ae871d53621 — DOW-UAP-D086, USNavy-Report-of-Flying-Discs_1948
+
+- Agency: Department of War
+- Date: 6/12/26
+- URL: https://pursueindex.com/card/48502ae871d53621
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D086_USNavy-Report-of-Flying-Discs_1948.pdf
+- Description: This document is a memorandum from the Commandant of the 5th Naval District, and it cites a memorandum related to "flying discs" from the Chief of Naval Operations. The memorandum requests that naval stations report incidents to the nearest Air Force command and to the Naval District Intelligence Office.
+
+Excerpt (page 1):
+
+DECLASSIFIED Authority: NND 740185 Secret 1948 DATE CLOSED Office, Chief Army Field Forces Secret A. G. Files FILE NO. 000.9 BINDER NO. 1 NW 91215 DocId:34746269 Page 1
+
+### 98c1575170956515 — DOW-UAP-D087, U.S. Air Force Analysis of Flying Objects in the United States, 1-100
+
+- Agency: Department of War
+- Date: 6/12/26
+- URL: https://pursueindex.com/card/98c1575170956515
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D087_US-AirForce_Analysis-of-Flying-Objects-in-the-US_1-100.pdf
+- Description: Includes a "Check-List - Unidentified Flying Objects" that contains details about the incident. Many summaries also include witness lists or statements and other narrative reports or descriptions.
+
+Excerpt (page 1):
+
+SECRET DECLASSIFIED Authority: NND 917033 1 - 100 SECRET Secret R/S S-03537 dated 3-14-49 EXHIBIT #528 BACR-CD, Wright Field Dayton Subj: Incident Summaries of Unidentified Flying Objects; Forwarding of (Enclosures thereto) REPORT FILED M-5 AIRCRAFT - UNIDENTIFIED 2-27-50 JONES SECRET P 958 S-11380 SECRET
+
+### a4f1672d4f893c75 — DOW-UAP-D088, U.S. Air Force Analysis of Flying Objects in the United States, 101-172
+
+- Agency: Department of War
+- Date: 6/12/26
+- URL: https://pursueindex.com/card/a4f1672d4f893c75
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/DOW-UAP-D088_US-AirForce_Analysis-of-Flying-Objects-in-the-US_101-172.pdf
+- Description: Includes a "Check-List - Unidentified Flying Objects" that contains details about the incident. Many summaries also include witness lists or statements and other narrative reports or descriptions.
+
+Excerpt (page 1):
+
+SECRET [ILLEGIBLE] MARY LISTS Incident Summaries 101 - 172 Incl. DECLASSIFIED Authority: NND 917033 SECRET P 958 4.22 S-18350 4 01 0114
+
 ### c1c59236394f7b14 — DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022
 
 - Agency: Department of War
@@ -1142,7 +1528,7 @@ This image description is provided for informational purposes only. Readers shou
 
 Excerpt (page 1):
 
-CLEARED For Open Publication Mar 10, 2026 Department of Defense OFFICE OF PREPUBLICATION AND SECURITY REVIEW Recommended by MG Richard A. Harrison USCENTCOM Chief of Staff Recommended on 8 Oct 25 [REDACTED] N USCENTCOM MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 001 USCENTCOM Recommendation to AARO [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale aerial or sensor image with a cloudy textured background, a small bright point near the upper center cir
+CLEARED For Open Publication Mar 10, 2026 Department of Defense OFFICE OF PREPUBLICATION AND SECURITY REVIEW Recommended by MG Richard A. Harrison USCENTCOM Chief of Staff Recommended on 8 Oct 25 [REDACTED] N USCENTCOM MDR 25-0094 thru MDR 25-0099 / JS-250710-TM8S 10/17/25 001 USCENTCOM Recommendation to AARO [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale aerial or sensor image with a cloudy textured background, a small bright point near the upper center circ
 
 ### 43db2719407a7897 — DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022
 
@@ -1564,6 +1950,52 @@ Video Description:
 
 This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
 
+### d7c07f24a96f8bac — DOW-UAP-PR050, "4 UAP Formation Iran 26 Aug 2022 over water [CALLSIGN]"
+
+- Agency: Department of War
+- Date: 2022
+- URL: https://pursueindex.com/card/d7c07f24a96f8bac
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “4 UAP Formation Iran 26 Aug 2022 over water [CALLSIGN],” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2022. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:00:20
+Video Description:
+00:01-00:04: Four areas of contrast transit the sensor field-of-view, entering from the lower third of the left side of the screen and exiting near the center of the bottom of the frame.
+00:05-00:06: An area of contrast enters the sensor field-of-view from the top left corner of the screen.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### d6efb186cd925560 — DOW-UAP-PR051, "Syrian UAP instant acceleration"
+
+- Agency: Department of War
+- Date: 2021
+- URL: https://pursueindex.com/card/d6efb186cd925560
+- Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
+
+AARO assesses that this video, whose uploader-defined title is, “Syrian UAP instant acceleration,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in 2021. A user uploaded this video to a classified network in June 2024.
+
+Video Duration: 00:05:02
+Video Description: This media was digitally altered prior to its upload to a classified network, and is presented as received.
+00:01-00:19: The sensor pans to maintain the position of an area of contrast within the center of the frame.
+00:20-00:21: The sensor stops tracking the area of contrast, causing it to rapidly exit the right side of the frame.
+00:22-00:27: No content.
+00:27-00:29 A black screen appears featuring the phrase “white edge threshold enhancement in attempt to highlight UAP shape. Original clip excerpt at 100% speed.” 
+00:30-00:50: The video replays with digital alterations applied.
+00:51-00:53: A black screen appears featuring the phrase “50% speed.”
+00:54-01:05: The video replays with digital alterations applied.
+01:06-01:08: A black screen appears featuring the phrase “25% speed.”
+01:09-01:35: The video replays with digital alterations applied.
+01:36-01:41: A black screen appears featuring the phrase “B/W values inverted, picture zoomed”
+01:42-02:03: The video replays with digital alterations applied.
+02:04-02:09: A black screen appears featuring the phrase “full original clip TRT: 2:52”
+02:10-03:49: The video replays, showing additional footage of the area of contrast at its original resolution on a far zoom.
+03:50-04:02: The sensor rapidly zooms in and out.
+04:03-04:28: The sensor focuses and zooms in, locking a reticle around the area of contrast.
+04:29-5:01: The video replays 00:20-00:21, the period in which the sensor stops tracking the area of contrast, causing it to rapidly exit the right side of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
 ### 76780f0336af79e1 — DOW-UAP-PR052, "UAP USO Formation [CALLSIGN] (Mission)"
 
 - Agency: Department of War
@@ -1585,11 +2017,11 @@ Video Description: This media was digitally altered prior to its upload to a cla
 
 This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
 
-### 79325f4e62f8f9b9 — DOW-UAP-PR053, "Cigar Shaped or Fast Sherical UAP clip 15 OCT 22"
+### cf4f6f5ebf7dfd51 — DOW-UAP-PR053, "Cigar Shaped or Fast Spherical UAP clip 15 OCT 22"
 
 - Agency: Department of War
 - Date: 2022
-- URL: https://pursueindex.com/card/79325f4e62f8f9b9
+- URL: https://pursueindex.com/card/cf4f6f5ebf7dfd51
 - Description: On March 6, 2026, eight members of the U.S. House of Representatives requested access to 51 potentially UAP-related records allegedly held by the Department of War and the Intelligence Community. The All-domain Anomaly Resolution Office (AARO) identified a collection of responsive materials held on a classified network. Many of these materials lack a substantiated chain-of-custody.
 
 AARO assesses that this video, whose uploader-defined title is, “Cigar Shaped or Fast Spherical UAP clip 15 OCT 22,” is likely derived from an infrared sensor aboard a U.S. military platform operating within the United States Central Command area of responsibility in October 2022. A user uploaded this video to a classified network in June 2024.
@@ -2598,7 +3030,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:19 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale infrared (IR) sensor still. A central white crosshair reticle with horizontal and vertical axes marked with numbered tick marks (5, 10, 15). A small, dark, point-like object is visible slightly above and to the right of the crosshair center. The background is a uniform, slightly textured gray field. A d
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:19 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale infrared (IR) sensor still. A central white crosshair reticle with horizontal and vertical axes marked with numbered tick marks (5, 10, 15). A small, dark, point-like object is visible slightly above and to the right of the crosshair center. The background is a uniform, slightly textured gray field. A da
 
 ### 67ab3ffef2aecf70 — FBI Photo B002
 
@@ -2612,7 +3044,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-15 10 5 5 10 15 12/31/99 18:11:27 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome image with a central crosshair reticle and numbered tick marks, showing a small dark dot in the upper center-right sky; timestamp “12/31/99 18:11:27” at bottom left.
+15 10 5 5 10 15 12/31/99 18:11:27 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome image with a central crosshair reticle and numbered tick marks, showing a small dark dot in the upper center-right sky; timestamp “12/31/99 18:11:27” at bottom left.
 
 ### 0e3b3ec17a9ae021 — FBI Photo B003
 
@@ -2626,7 +3058,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] 12/31/99 18:11:34 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy black-and-white infrared-style photograph with a centered crosshair/reticle overlay and tick marks, several black redaction bars across the image, and a timestamp reading “12/31/99 18:11:34” at lower left.
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] 12/31/99 18:11:34 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy black-and-white infrared-style photograph with a centered crosshair/reticle overlay and tick marks, several black redaction bars across the image, and a timestamp reading “12/31/99 18:11:34” at lower left.
 
 ### 672ae7eab15481ff — FBI Photo B004
 
@@ -2640,7 +3072,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:12:16 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale night-vision style photograph with a central crosshair reticle and numeric scale markings, showing a small dark dot near the upper center-right; six black redaction bars obscure portions of the frame, and a timestamp “12/31/99 18:12:16” appears at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:12:16 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale night-vision style photograph with a central crosshair reticle and numeric scale markings, showing a small dark dot near the upper center-right; six black redaction bars obscure portions of the frame, and a timestamp “12/31/99 18:12:16” appears at bottom left.
 
 ### 36bcfe2cfb5f3f54 — FBI Photo B005
 
@@ -2654,7 +3086,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-15 10 5 5 10 15 12/31/99 18:12:20 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy, grayscale infrared (IR) or sensor still. A white crosshair reticle with graduated markings is centered on the screen. The horizontal axis of the reticle has numerical markings: 15, 10, 5, [center], 5, 10, 15. The vertical axis has unnumbered graduated tick marks. Several large, solid black rectangular redaction blocks obscure portions of the image, primarily on the left and righ
+15 10 5 5 10 15 12/31/99 18:12:20 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy, grayscale infrared (IR) or sensor still. A white crosshair reticle with graduated markings is centered on the screen. The horizontal axis of the reticle has numerical markings: 15, 10, 5, [center], 5, 10, 15. The vertical axis has unnumbered graduated tick marks. Several large, solid black rectangular redaction blocks obscure portions of the image, primarily on the left and right
 
 ### b279eac8e49cf4fe — FBI Photo B006
 
@@ -2668,7 +3100,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:00 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome surveillance-style photograph of the sky with a central crosshair reticle and numeric tick marks, showing one small dark object near the top center and a second smaller dark speck below center; timestamp “12/31/99 18:10:00” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:00 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome surveillance-style photograph of the sky with a central crosshair reticle and numeric tick marks, showing one small dark object near the top center and a second smaller dark speck below center; timestamp “12/31/99 18:10:00” at bottom left.
 
 ### ccd932b4f40e8de7 — FBI Photo B007
 
@@ -2682,7 +3114,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:02 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale video frame of a helicopter in the upper center-right, overlaid with a central crosshair and tick-mark scale labeled 5, 10, and 15 on both horizontal sides, with timestamp “12/31/99 18:10:02” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:02 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale video frame of a helicopter in the upper center-right, overlaid with a central crosshair and tick-mark scale labeled 5, 10, and 15 on both horizontal sides, with timestamp “12/31/99 18:10:02” at bottom left.
 
 ### 0d7a23b29e6de1bf — FBI Photo B008
 
@@ -2696,7 +3128,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-15 10 5 5 10 15 12/31/99 18:10:18 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Infrared sensor still (BHOT/WHOT mode) showing a crosshair reticle with a central vertical line and horizontal scale marked from -15 to +15. A small, dark, circular object is visible just above the horizontal axis, slightly to the right of the central vertical line (near the +2 position on the horizontal scale). The background is a uniform gray tone. The bottom left corner displays the ti
+15 10 5 5 10 15 12/31/99 18:10:18 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Infrared sensor still (BHOT/WHOT mode) showing a crosshair reticle with a central vertical line and horizontal scale marked from -15 to +15. A small, dark, circular object is visible just above the horizontal axis, slightly to the right of the central vertical line (near the +2 position on the horizontal scale). The background is a uniform gray tone. The bottom left corner displays the tim
 
 ### fd8286ffc6fbc1fb — FBI Photo B009
 
@@ -2710,7 +3142,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:26 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style video frame with a centered crosshair and numbered horizontal/vertical tick marks, a small dark dot below left of center, and timestamp text “12/31/99 18:10:26” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:26 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style video frame with a centered crosshair and numbered horizontal/vertical tick marks, a small dark dot below left of center, and timestamp text “12/31/99 18:10:26” at bottom left.
 
 ### af047a976bac0c89 — FBI Photo B010
 
@@ -2724,7 +3156,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:50 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style photograph with a centered white crosshair and horizontal/vertical tick marks labeled 5, 10, and 15; a small dark dot appears just right of the vertical axis above center, with several black redaction bars overlaid around the edges and a timestamp reading “12/31/99 18:1
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:10:50 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy infrared-style photograph with a centered white crosshair and horizontal/vertical tick marks labeled 5, 10, and 15; a small dark dot appears just right of the vertical axis above center, with several black redaction bars overlaid around the edges and a timestamp reading “12/31/99 18:10
 
 ### 19d8e1d503211c84 — FBI Photo B011
 
@@ -2738,7 +3170,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-15 10 5 5 10 15 12/31/99 18:11:06 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grayscale surveillance-style photograph with a central crosshair and numbered tick marks, showing one small bright dot near the upper center-right and a timestamp reading “12/31/99 18:11:06” at the lower left.
+15 10 5 5 10 15 12/31/99 18:11:06 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A grayscale surveillance-style photograph with a central crosshair and numbered tick marks, showing one small bright dot near the upper center-right and a timestamp reading “12/31/99 18:11:06” at the lower left.
 
 ### 2b947223739f5bd4 — FBI Photo B012
 
@@ -2752,7 +3184,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:12 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Monochrome infrared or thermal sensor still. The view is centered on a targeting reticle (crosshair) with graduated tick marks. The vertical axis is marked in increments of 5, with major labels at 5, 10, and 15. The horizontal axis is similarly marked. A small, distinct, dark anomalous object is visible in the up
+[REDACTED] [REDACTED] [REDACTED] 15 10 5 5 10 15 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:11:12 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Monochrome infrared or thermal sensor still. The view is centered on a targeting reticle (crosshair) with graduated tick marks. The vertical axis is marked in increments of 5, with major labels at 5, 10, and 15. The horizontal axis is similarly marked. A small, distinct, dark anomalous object is visible in the upp
 
 ### 16fcb501de623b9c — FBI Photo B013
 
@@ -2766,7 +3198,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:54 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale surveillance-style image with a central crosshair and range marks labeled “3” on both sides, showing one small dark object near the center-right and a date/time stamp “12/31/99 18:19:54” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:54 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale surveillance-style image with a central crosshair and range marks labeled “3” on both sides, showing one small dark object near the center-right and a date/time stamp “12/31/99 18:19:54” at bottom left.
 
 ### 7d1b50162c29378a — FBI Photo B014
 
@@ -2780,7 +3212,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:08 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale surveillance-style image with a central crosshair overlay and two small dark objects near the center-right, plus timestamp “12/31/99 18:20:08” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:08 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale surveillance-style image with a central crosshair overlay and two small dark objects near the center-right, plus timestamp “12/31/99 18:20:08” at bottom left.
 
 ### 3a5445e8aa7985d4 — FBI Photo B015
 
@@ -2794,7 +3226,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] 12/31/99 18:20:22 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale night-vision style photograph of a small dark object near the center-right, appearing as two adjacent dark blobs, with a white crosshair and a horizontal scale labeled “3” at both ends; timestamp “12/31/99 18:20:22” in the lower left.
+[REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] 12/31/99 18:20:22 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale night-vision style photograph of a small dark object near the center-right, appearing as two adjacent dark blobs, with a white crosshair and a horizontal scale labeled “3” at both ends; timestamp “12/31/99 18:20:22” in the lower left.
 
 ### 3b36f3dc3b51cf3b — FBI Photo B016
 
@@ -2808,7 +3240,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:41 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale infrared-style photograph with targeting crosshairs centered on a small dark object and a smaller dot nearby; timestamp “12/31/99 18:20:41” at lower left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:41 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale infrared-style photograph with targeting crosshairs centered on a small dark object and a smaller dot nearby; timestamp “12/31/99 18:20:41” at lower left.
 
 ### f8bd1f11b7a2ae48 — FBI Photo B017
 
@@ -2822,7 +3254,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:48 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome infrared-style image with a central crosshair and numeric marks “3” on both sides, showing two small adjacent dark blobs near the center and a timestamp “12/31/99 18:20:48” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:48 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome infrared-style image with a central crosshair and numeric marks “3” on both sides, showing two small adjacent dark blobs near the center and a timestamp “12/31/99 18:20:48” at bottom left.
 
 ### c568aea24f3aef31 — FBI Photo B018
 
@@ -2836,7 +3268,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:21:02 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale surveillance-style frame with a central crosshair and scale marks labeled “3” on left and right, showing two small dark adjacent spots near the center-right and a timestamp “12/31/99 18:21:02” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:21:02 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grayscale surveillance-style frame with a central crosshair and scale marks labeled “3” on left and right, showing two small dark adjacent spots near the center-right and a timestamp “12/31/99 18:21:02” at bottom left.
 
 ### eda0a3d37c6dbbc3 — FBI Photo B019
 
@@ -2850,7 +3282,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 | 5 10 15 12/31/99 18:18:53 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - IR / SWIR sensor still from a military targeting system. The display shows a central crosshair reticle with a vertical and horizontal scale. The horizontal scale is marked with numbers: 15, 10, 5, 0, 5, 10, 15. A small, dark, somewhat elongated object is positioned slightly above the horizontal crosshair, sligh
+[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 15 10 5 | 5 10 15 12/31/99 18:18:53 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - IR / SWIR sensor still from a military targeting system. The display shows a central crosshair reticle with a vertical and horizontal scale. The horizontal scale is marked with numbers: 15, 10, 5, 0, 5, 10, 15. A small, dark, somewhat elongated object is positioned slightly above the horizontal crosshair, slight
 
 ### bdf033d4a47eaad3 — FBI Photo B020
 
@@ -2864,7 +3296,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-15 10 5 5 10 15 12/31/99 18:18:58 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome instrument-style image with a central crosshair reticle and numbered tick marks, showing one small dark object near the upper center-right of the reticle and a timestamp “12/31/99 18:18:58” at bottom left.
+15 10 5 5 10 15 12/31/99 18:18:58 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome instrument-style image with a central crosshair reticle and numbered tick marks, showing one small dark object near the upper center-right of the reticle and a timestamp “12/31/99 18:18:58” at bottom left.
 
 ### c304734c04357887 — FBI Photo B021
 
@@ -2878,7 +3310,7 @@ Narrative Description: The monochrome image displays a grainy texture with a cen
 
 Excerpt (page 1):
 
-15 10 5 5 10 15 12/31/99 18:19:06 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy grayscale video frame with a centered crosshair and numbered tick marks, showing one small dark object just right of center above the horizontal axis; several large black redaction bars obscure parts of the frame, and a timestamp reads “12/31/99 18:19:06” at bottom left.
+15 10 5 5 10 15 12/31/99 18:19:06 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A grainy grayscale video frame with a centered crosshair and numbered tick marks, showing one small dark object just right of center above the horizontal axis; several large black redaction bars obscure parts of the frame, and a timestamp reads “12/31/99 18:19:06” at bottom left.
 
 ### dc9f45a9ec6feb00 — FBI Photo B022
 
@@ -2892,7 +3324,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:19 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale night-vision-style image with a central crosshair reticle and scale marks labeled “3” on both left and right; one small dark paired object appears near the upper-right of center, and a timestamp “12/31/99 18:19:19” is visible at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:19 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy grayscale night-vision-style image with a central crosshair reticle and scale marks labeled “3” on both left and right; one small dark paired object appears near the upper-right of center, and a timestamp “12/31/99 18:19:19” is visible at bottom left.
 
 ### a417f61b2dbd671f — FBI Photo B023
 
@@ -2906,7 +3338,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-3 3 12/31/99 18:19:33 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - A black-and-white infrared sensor still, appearing to be from a Forward-Looking Infrared (FLIR) or similar targeting system. The image has a grainy, noisy texture with a uniform grey background. A white crosshair reticle with numbered "3" marks on the horizontal axis is centered in the frame. A small, dark, oblong or pill-shaped object is visible just to the right of the crosshair's vertical line, re
+3 3 12/31/99 18:19:33 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - A black-and-white infrared sensor still, appearing to be from a Forward-Looking Infrared (FLIR) or similar targeting system. The image has a grainy, noisy texture with a uniform grey background. A white crosshair reticle with numbered "3" marks on the horizontal axis is centered in the frame. A small, dark, oblong or pill-shaped object is visible just to the right of the crosshair's vertical line, res
 
 ### 6ded7ef20ded84c7 — FBI Photo B024
 
@@ -2920,7 +3352,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:40 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome surveillance-style image of a single small dark object near the center, overlaid with white crosshair reticles and the timestamp “12/31/99 18:19:40” at bottom left.
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:19:40 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Grainy monochrome surveillance-style image of a single small dark object near the center, overlaid with white crosshair reticles and the timestamp “12/31/99 18:19:40” at bottom left.
 
 ### 1701a0f307714921 — FBI September 2023 Sighting - Composite Sketch
 
@@ -2932,7 +3364,7 @@ Excerpt (page 1):
 
 Excerpt (page 1):
 
-[[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - Color photograph, likely digital or scanned print, depicting a grassy field under a clear blue sky. In the upper right quadrant, a metallic, gold/bronze-colored, disc-shaped object is positioned. The object is oval in the frame, with a smooth, reflective surface. A brilliant, starburst-like lens flare or light source emanates from behind the left side of the object, creating radiating blue and white light rays across the 
+[[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - Color photograph, likely digital or scanned print, depicting a grassy field under a clear blue sky. In the upper right quadrant, a metallic, gold/bronze-colored, disc-shaped object is positioned. The object is oval in the frame, with a smooth, reflective surface. A brilliant, starburst-like lens flare or light source emanates from behind the left side of the object, creating radiating blue and white light rays across the s
 
 ### b03309df6758ab15 — FBI September 2023 Sighting - Serial 003
 
@@ -2969,6 +3401,224 @@ FD-302 (Rev. 5-8-10) - 1 of 2 - [REDACTED] / FEDERAL BUREAU OF INVESTIGATION Dat
 Excerpt (page 1):
 
 FD-302 (Rev. 5-8-10) - 1 of 2 - [REDACTED] FEDERAL BUREAU OF INVESTIGATION Date of entry 10/[REDACTED]/2023 ([REDACTED]/[REDACTED] On September [REDACTED] 2023, [REDACTED] and [REDACTED] and FBI Special Agent [REDACTED] interviewed [REDACTED] [REDACTED][@][REDACTED] via Facetime video. [REDACTED] a [REDACTED] with [REDACTED] sat in on the interview ([REDACTED] and [REDACTED] were in [REDACTED] at the time of the interview). After being advised of the identity of the interviewing agents and the n
+
+### 2cd799fd0c70eda2 — FBI-UAP-D001, FD-302, Unresolved UAP Report, Colorado Springs, 2022
+
+- Agency: FBI
+- Date: February, 2022
+- URL: https://pursueindex.com/card/2cd799fd0c70eda2
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D001_FD-302_Unresolved-UAP-Report_ColoradoSprings_2022.pdf
+- Description: This document is a Federal Bureau of Investigation (FBI) FD-302, a form the FBI uses to record interviews. This FD-302 contains a summary of an interview with a U.S. military service member in March 2025 regarding a February 2022 incident potentially involving unidentified anomalous phenomena (UAP). The individual described the phenomenon as being “bean shaped,” “matte white” or “off-white” in color, with a surface covered in “intersecting lines or ridges which formed an abstract polygon pattern.” The individual described the phenomenon as “motionless” and that “no sound could be heard coming from it.” FBI Note: AARO has since been in contact with the interviewee to conduct subsequent interviews to inform its analysis of this incident.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) -1 of 2- OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Date of entry 04/[REDACTED]/2025 [REDACTED] On March [REDACTED] 2025, [REDACTED] was interviewed via Microsoft Teams by Special Agent (SA) [REDACTED], and Supervisory Special Agent (SSA) [REDACTED] Also present for the interview was [REDACTED] [REDACTED] After being advised of the identity of the interv
+
+### fb116547cbbf33d4 — FBI-UAP-D004, FD-1057-02, Northeastern United States, 2024
+
+- Agency: FBI
+- Date: October, 2024
+- URL: https://pursueindex.com/card/fb116547cbbf33d4
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D004_FD-1057-02_Northeastern-US_2024.pdf
+- Description: This document is an FBI FD-1057, a form the Federal Bureau of Investigation (FBI) uses to record investigative activity. This FD-1057 documents the FBI’s contact with a U.S. person in October 2024, during which FBI special agents collected video footage and gathered information regarding the circumstances surrounding its capture. The U.S. person captured the video footage in the same general location as the incidents described in documents. 
+
+The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+Excerpt (page 1):
+
+FD-1057 (Rev. 5-8-10) [REDACTED] OFFICIAL RECORD [ILLEGIBLE small text] FEDERAL BUREAU OF INVESTIGATION Electronic Communication Title: [REDACTED] Contact with [REDACTED] [REDACTED] Date: 10/[REDACTED]/2024 From: [REDACTED] [REDACTED] Contact: [REDACTED] [REDACTED] [REDACTED] Approved By: [REDACTED] Drafted By: [REDACTED] [REDACTED] Case ID #: [REDACTED] [REDACTED] Unidentified Aerial Phenomenon (UAP) - [REDACTED] [REDACTED] Unidentified Anomalous Phenomenon (UAP) [REDACTED] Division; [REDACTED]
+
+### 0f025bcbd048e738 — FBI-UAP-D005, FD-1057-04, Northeastern United States, 2024
+
+- Agency: FBI
+- Date: October, 2024
+- URL: https://pursueindex.com/card/0f025bcbd048e738
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D005_FD-1057-04_Northeastern-US_2024.pdf
+- Description: This document is an FBI FD-1057, a form the Federal Bureau of Investigation (FBI) uses to record investigative activity. This FD-1057 documents an October 2024 interview with a US person regarding several incidents potentially involving unidentified anomalous phenomena in the northeastern United States over the previous three years. 
+
+The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+Excerpt (page 1):
+
+FD-1057 (Rev. 5-8-10) OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Electronic Communication Title: [REDACTED] Interview of [REDACTED] [REDACTED] Date: 10/[REDACTED]/2024 From: [REDACTED] Contact: [REDACTED] [REDACTED] Approved By: [REDACTED] Drafted By: [REDACTED] Case ID #: [REDACTED] [REDACTED] Unidentified Aerial Phenomenon (UAP) - [REDACTED] [REDACTED] Unidentified Anomalo
+
+### a14bb8678727f0c0 — FBI-UAP-D006, FD-1057-05, Northeastern United States, 2024
+
+- Agency: FBI
+- Date: November, 2024
+- URL: https://pursueindex.com/card/a14bb8678727f0c0
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D006_FD-1057-05_Northeastern-US_2024.pdf
+- Description: This document is an FBI FD-1057, a form the Federal Bureau of Investigation (FBI) uses to record investigative activity. This FD-1057 documents a November 2024 site survey of a location where a U.S. person reported observing unidentified anomalous phenomena multiple times over the previous three years. 
+
+The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+Excerpt (page 1):
+
+FD-1057 (Rev. 5-8-10) [REDACTED] OFFICIAL RECORD Document participants have digitally signed All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Electronic Communication Title: [REDACTED] Site survey of [REDACTED] Date: 11/[REDACTED]/2024 CC: [REDACTED] From: [REDACTED] [REDACTED] Contact: [REDACTED] Approved By: [REDACTED] Drafted By: [REDACTED] Case ID #: [REDACTED] [REDACTED] Unidentified Aerial Phenomenon (UAP) - [REDACTED] Synopsis: [REDA
+
+### ce9a5971eec321e8 — FBI-UAP-D007, FD-1057-06, Northeastern United States, 2024
+
+- Agency: FBI
+- Date: November, 2024
+- URL: https://pursueindex.com/card/ce9a5971eec321e8
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D007_FD-1057-06_Northeastern-US_2024.pdf
+- Description: This document is an FBI FD-1057, a form the Federal Bureau of Investigation (FBI) uses to record investigative activity. This FBI FD-1057 documents first-hand observations made by two FBI special agents’ during the course of an ongoing investigation in November 2024. 
+
+The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+Excerpt (page 1):
+
+FD-1057 (Rev. 5-8-10) OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Electronic Communication Title: [REDACTED] UAP Observations at [REDACTED] Date: 11/[REDACTED]/2024 [REDACTED] [REDACTED] From: [REDACTED] Contact: [REDACTED] [REDACTED] [REDACTED] Approved By: [REDACTED] Drafted By: [REDACTED] [REDACTED] [REDACTED] Case ID #: [REDACTED] [REDACTED] Unidentified Aerial Phenomenon
+
+### 31064dd56886eae1 — FBI-UAP-D008, FD-1057-07, Northeastern United States, 2024
+
+- Agency: FBI
+- Date: December, 2024
+- URL: https://pursueindex.com/card/31064dd56886eae1
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D008_FD-1057-07_Northeastern-US_2024.pdf
+- Description: This document is an FBI FD-1057, a form the Federal Bureau of Investigation (FBI) uses to record investigative activity. This FBI FD-1057 documents a December 2024 site survey of a location where two FBI special agents had previously observed unidentified anomalous phenomena. 
+
+ The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+Excerpt (page 1):
+
+FD-1057 (Rev. 5-8-10) OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Electronic Communication Title: [REDACTED] Site survey of [REDACTED] [REDACTED] Date: 12/[REDACTED]/2024 From: [REDACTED] [REDACTED] 1 Contact: [REDACTED] [REDACTED] Approved By: [REDACTED] Drafted By: [REDACTED] Case ID #: [REDACTED] [REDACTED]Unidentified Aerial Phenomenon (UAP) - [REDACTED] Synopsis: [REDACT
+
+### df252334c73a9019 — FBI-UAP-D012, Newark Field Office, 1952-1967
+
+- Agency: FBI
+- Date: August 1952-1967
+- URL: https://pursueindex.com/card/df252334c73a9019
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D012_Newark-Field-Office_1952-1967.pdf
+- Description: This file details a special inquiry by the Federal Bureau of Investigation’s Newark Field Office of various reported sightings of unidentified flying objects (UFOs) in and near New Jersey between August 1952 and January 1967. These files include memoranda and correspondence between the FBI and the U.S. Air Force regarding UFO sightings, as well as public correspondence concerning various UFO-focused groups.
+
+Excerpt (page 1):
+
+FD-245 (REV. 1-21-80) Declassification authority derived from FBI Automatic Declassification Guide, issued May 24, 2007. U. S. Department of Justice (MATERIAL MUST NOT BE REMOVED FROM OR ADDED TO THIS FILE) FEDERAL BUREAU of INVESTIGATION Bureau File Number CLASSIFICATION NO. [ILLEGIBLE] 36998 Serials Volume Number COPIED FOR FOIPA SERIALS | REQUESTERS FULL NAME | COMPUTER NUMBER | DATE | BY See also Nos. All | Charest, Michael R. | 245,979 | 6-3-85 | dee NEWARK FILE FRONT IS TO BE MAINTAINED NW
+
+### a814dead4ae07667 — FBI-UAP-D013, Washington State ‘UFO’ Investigation, 1952-1960
+
+- Agency: FBI
+- Date: July 1952-1960
+- URL: https://pursueindex.com/card/a814dead4ae07667
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D013_WA-UFO-Investigation_1952-1960.pdf
+- Description: This file details an investigation of various sightings of Unidentified Flying Objects (UFOs) in Washington state between July 1952 and August 1960. This file includes memoranda and correspondence between the Federal Bureau of Investigation and the U.S. Air Force regarding UFO sightings.
+
+Excerpt (page 1):
+
+Form No. 1—D. of I. U. S. Department of Justice (MATERIAL MUST NOT BE REMOVED FROM OR ADDED TO THIS FILE) FEDERAL BUREAU of INVESTIGATION Whole File DO NOT DESTROY WITHOUT CONSULTING FOI/PA COORDINATOR 190-87 SEATTLE FILE NO. 100-18945 REVIEWED ON 4/84 FOR FOI/PA 190-306 See also Nos. ........................... ........................... ........................... ........................... ........................... ........................... U. S. GOVERNMENT PRINTING OFFICE 16—52991-1 NW
+
+### 6058b5fa79221835 — FBI-UAP-D014, Digital Rendering, Narrative Statement 1-1, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/6058b5fa79221835
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D014_Digital-Rendering_Incident-1-1_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D079. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### e418f6fe8d2a4595 — FBI-UAP-D015, Digital Rendering, Narrative Statement 1-2, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/e418f6fe8d2a4595
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D015_Digital-Rendering_Incident-1-2_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D079. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### 0afe3cfea622505c — FBI-UAP-D016, Digital Rendering, Narrative Statement 2-1, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/0afe3cfea622505c
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D016_Digital-Rendering_Incident-2-1_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### a86f79c3de423c13 — FBI-UAP-D017, Digital Rendering, Narrative Statement 2-2, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/a86f79c3de423c13
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D017_Digital-Rendering_Incident-2-2_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### 260eb5f4eba61b65 — FBI-UAP-D018, Digital Rendering, Narrative Statement 2-3, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/260eb5f4eba61b65
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D018_Digital-Rendering_Incident-2-3_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### d1f561b646aaed40 — FBI-UAP-D019, Digital Rendering, Narrative Statement 2-4, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/d1f561b646aaed40
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D019_Digital-Rendering_Incident-2-4_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### 45588f73ddfaad6d — FBI-UAP-D020, Digital Rendering, Narrative Statement 2-5, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/45588f73ddfaad6d
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D020_Digital-Rendering_Incident-2-5_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### cf19931bc3e5efda — FBI-UAP-D021, Digital Rendering, Narrative Statement 1-3, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/cf19931bc3e5efda
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D021_Digital-Rendering_Incident-1-3_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D079. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### a0ec63eff6d4d643 — FBI-UAP-D022, Digital Rendering, Narrative Statement 2-6, Western United States Event, 2026
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/a0ec63eff6d4d643
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D022_Digital-Rendering_Incident-2-6_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### fc9cb08cad327063 — FBI-UAP-D023, Digital Rendering, Narrative Statement 2-7, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/fc9cb08cad327063
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D023_Digital-Rendering_Incident-2-7_Western-US-Event_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
+
+### fcbd7e953ec292de — FBI-UAP-PR001, “Triangle Orbs,” Northeastern United States, 2021
+
+- Agency: FBI
+- Date: November, 2021
+- URL: https://pursueindex.com/card/fcbd7e953ec292de
+- Description: In November 2021, at approximately 0500 local time in the northeastern United States, an  eyewitness observed a bright light source near the horizon at an estimated distance of  2,000 feet. The light source initially appeared as a single intense luminous object before resolving into multiple lights exhibiting erratic rotational motion relative to one another. The object slowly moved laterally from left to right during the encounter. The eyewitness captured the video with a hand-held iPhone 12 Pro, resulting in unintended camera movement. The location was well known to the eyewitness and is sparsely populated.  
+ 
+The description above is derived from statements provided to the Federal Bureau of Investigation (FBI) by the eyewitness to the event. The FBI assesses the individual who reported this event as highly credible. The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+### 2b80b41d1b25a46f — FBI-UAP-PR002, “Red Orb Rotation,” Northeastern United States, 2022
+
+- Agency: FBI
+- Date: March, 2022
+- URL: https://pursueindex.com/card/2b80b41d1b25a46f
+- Description: In March 2022, at approximately 1920 local time in the northeastern United States, an eyewitness observed two bright red luminous light sources hovering near the horizon at an estimated distance of 2,500 feet. Both luminous objects maintained generally stationary positions throughout the encounter. The lower light source appeared to rotate slowly relative to the upper light source, moving from an apparent 6 o’clock position to slightly beyond the apparent 9 o’clock position. The eyewitness did not hear any sounds from the light sources. The eyewitness captured this video using an iPhone 12 Pro at a location well known to them, which is sparsely populated.  
+
+ The description above is derived from statements provided to the Federal Bureau of Investigation (FBI) by an eyewitness to the event. The FBI assesses the individual who reported this event as highly credible. The subject matter described in files FBI-UAP-D004 through FBI-UAP-D008 and depicted in the video footage FBI-UAP-PR001 through FBI-UAP-PR003 corresponds to reports originating from the same general area in the northeastern United States.
+
+### b771e5a588793b5d — FBI-UAP-PR005, Digital Recreation, Narrative Statement 3-1, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/b771e5a588793b5d
+- Description: This video is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This digital recreation is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D081. The Federal Bureau of Investigation prepared this digital recreation at the request of the Department of War in 2026
+
+### 41ba3dea9b211d5c — FBI-UAP-PR006, Digital Recreation, Narrative Statement 3-2, Western United States Event, 2023
+
+- Agency: FBI
+- Date: October, 2023
+- URL: https://pursueindex.com/card/41ba3dea9b211d5c
+- Description: This video is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This digital recreation is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D081. The Federal Bureau of Investigation prepared this digital recreation at the request of the Department of War in 2026
 
 ### 5d9d3147f0b62d0c — NASA-UAP-D001, Apollo 12 Transcript, 1969
 
@@ -3051,7 +3701,7 @@ CONFIDENTIAL 94 251 pgs NASA NATIONAL AERONAUTICS AND SPACE ADMINISTRATION APOLL
 
 Excerpt (page 1):
 
-CB/R.A. PARKER MSC-07632 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION * APOLLO 17 CREW DEBRIEFING FOR SCIENCE JANUARY 8, 1973 PREPARED BY SCIENCE REQUIREMENTS BRANCH PLANETARY AND EARTH SCIENCES DIVISION INDEXING DATA DATE OPR # T PGM SUBJECT SIGNATOR LOC 1-8-73 MSC MSC-07632 B APO # NS OBO-44F MANNED SPACECRAFT CENTER HOUSTON, TEXAS HS1- 481238 [[IMAGE-DESCRIPTIONS via alex-zhang42/ufo-pursue-open-atlas, mimo-v2.5]] - NASA logo (vector graphic of a blue circle with a chevron and stars, though 
+CB/R.A. PARKER MSC-07632 NATIONAL AERONAUTICS AND SPACE ADMINISTRATION * APOLLO 17 CREW DEBRIEFING FOR SCIENCE JANUARY 8, 1973 PREPARED BY SCIENCE REQUIREMENTS BRANCH PLANETARY AND EARTH SCIENCES DIVISION INDEXING DATA DATE OPR # T PGM SUBJECT SIGNATOR LOC 1-8-73 MSC MSC-07632 B APO # NS OBO-44F MANNED SPACECRAFT CENTER HOUSTON, TEXAS HS1- 481238 [[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]] - NASA logo (vector graphic of a blue circle with a chevron and stars, though r
 
 ### 0b298cfc9c65a4d6 — NASA-UAP-D006, Apollo 17 Technical Crew Debriefing, 1973
 
@@ -3066,7 +3716,7 @@ Excerpt (page 1):
 
 264 n. CONFIDENTIAL 1 MSC-07631 NASA NATIONAL AERONAUTICS AND SPACE ADMINISTRATION APOLLO 17 TECHNICAL CREW DEBRIEFING (U) JANUARY 4, 1973 PREPARED BY TRAINING OFFICE CREW TRAINING AND SIMULATION DIVISION This document will automatically become declassified 90 days from the published date. NOTICE: This document may be exempt from public disclosure under the Freedom of Infor- mation Act (5 U.S.C. 552). Requests for its release to persons outside the U.S. Govern- ment should be handled under the p
 
-### 8bb54e0aec5e91ad — NASA-UAP-D007, Skylab Techincal Crew Debriefing 1973
+### 8bb54e0aec5e91ad — NASA-UAP-D007, Skylab Technical Crew Debriefing 1973
 
 - Agency: NASA
 - Date: 1973
@@ -3084,6 +3734,14 @@ o	Page 7-8. [Commander for Skylab 4, Gerald P. Carr] “One other area of unusua
 Excerpt (page 1):
 
 BE4 / J. Grimeco JSC-08053 SKYLAB 1/2 TECHNICAL CREW DEBRIEFING JUNE 30, 1973 PREPARED BY TRAINING OFFICE CREW TRAINING AND SIMULATION DIVISION NOTICE: This document may be exempt from public disclosure under the Freedom of Information Act (5 U.S.C. 552). Requests for its release to persons outside the U. S. Government should be handled under the provisions of NASA Policy Directive 1382.2. National Aeronautics and Space Administration LYNDON B. JOHNSON SPACE CENTER Houston, Texas [[IMAGE-DESCRIP
+
+### 9ed140b9186c20c5 — NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969
+
+- Agency: NASA
+- Date: 1969
+- URL: https://pursueindex.com/card/9ed140b9186c20c5
+- Description: During a medical debriefing of the crew of the Apollo 12 mission, Commander Charles “Pete” Conrad, Command Module Pilot Richard “Dick” F. Gordon, and Lunar Module Pilot Alan L. Bean describe their observations of instances of light flashes or “streaks of lights.” The astronauts each reported that these experiences occurred in the dark as they tried to sleep.
+The NASA medical team considered whether similar phenomena reported by Apollo 11 Lunar Module Pilot Buzz Aldrin had been attributable to exposure of the retina by cosmic rays. NASA later determined that the phenomena reported by the Apollo 12 flight crew were internal to the astronauts’ vision rather than external light sources.
 
 ### 002eaa383e76a277 — NASA-UAP-D009, Apollo 17 Audio Excerpt, December 7, 1972
 
@@ -3127,6 +3785,123 @@ The crew describe bright “particles” or “fragments” as being “jagged,�
 - Date: 7/21/61
 - URL: https://pursueindex.com/card/01765a63bbd3f02f
 - Description: During the recovery of the fourth launch and second crewed spaceflight of Project Mercury, Mercury-Redstone 4 (MR-4) Liberty Bell 7, the recovery team discusses a dye pack in the water that did not activate.
+
+### 765a28effad5ab93 — NASA-UAP-D015, Astronaut Scientific Debriefings, 1962-1963
+
+- Agency: NASA
+- Date: 1962-1963
+- URL: https://pursueindex.com/card/765a28effad5ab93
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D015_Astronaut-Scientific-Debriefings_1962-1963.pdf
+- Description: This file contains memoranda, correspondence, reports, and other materials relating to contemporary scientific interest in investigating the nature of luminous phenomena reported by astronauts John Glenn and Walter Schirra during spaceflight. This collection includes transcripts from NASA interviews and debriefings with both astronauts regarding those observations. It also contains details relating to scientific observations of atmospheric phenomena, including brief descriptions of luminous particles, experiences while aboard spacecraft, and circa 1955 theoretical analysis of meteoric particles entering the atmosphere. Pages 34-35, 55-56, 57-63, 64-113, and 122-127 feature content relevant to the PURSUE initiative.
+
+Excerpt (page 1):
+
+Miss Reeves x20593
+
+### 56bd12ff7be6f4ee — NASA-UAP-D016, Preliminary Gemini 4 Crew Debriefing, Part I, 1965
+
+- Agency: NASA
+- Date: 6/9/65
+- URL: https://pursueindex.com/card/56bd12ff7be6f4ee
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D016_Preliminary-Gemini-4-Crew-Debriefing_Part1_1965.pdf
+- Description: This document is a preliminary transcript (Part I) derived from voice recordings of the Gemini 4 flight crew debriefing taken aboard the recovery ship, USS Wasp, on June 9, 1965. Astronaut Ed White recounts seeing “sparkles” during the flight.
+
+Excerpt (page 1):
+
+DECLASSIFIED Authority: NW 91526 82 [REDACTED] CLASSIFICATION CHANGE To UNCLASSIFIED By authority of EO 11652, 6-1-72 38 Changed by a Benjacen Date NOV 20 1973 42 100 MU 114 PRELIMINARY GT-4 FLIGHT CREW DEBRIEFING TRANSCRIPT PART I Prepared By Spacecraft Operations Branch Flight Crew Support Division June 16, 1965 This material contains information affecting the national defense of the United States within the meaning of the Espionage Laws, Title 18. U. S. C Section 793 and 794, the transmission
+
+### e6d06ce60662cdcf — NASA-UAP-D017, Preliminary Gemini 4 Crew Debriefing, Part II, 1965
+
+- Agency: NASA
+- Date: 6/9/65
+- URL: https://pursueindex.com/card/e6d06ce60662cdcf
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D017_Preliminary-Gemini-4-Crew-Debriefing_Part2_1965.pdf
+- Description: This document is a preliminary transcript (Part II) derived from voice recordings of the Gemini 4 flight crew debriefing taken aboard the recovery ship, USS Wasp, on June 9, 1965. Part II of this document contains the “Visual Sightings” section of the debriefing (pages 196-224), where astronauts James McDivitt and Edward White describe their observations while aboard the spacecraft.
+
+Excerpt (page 1):
+
+DECLASSIFIED Authority: NW 91526 [REDACTED] 65 ┌─────────────────────────────────────────┐ │ CLASSIFICATION CHANGE │ │To UNCLASSIFIED │ │By authority of EO 11652, 6-1-72 │ │Changed by [ILLEGIBLE] Date NOV 2 0 1973│ └─────────────────────────────────────────┘ PRELIMINARY GT-4 FLIGHT CREW DEBRIEFING TRANSCRIPT PART II Prepared By Spacecraft Operations Branch Flight Crew Support Division June 18, 1965 This material contains information affecting the national defense of the United States within the 
+
+### c8d89f235e487961 — NASA-UAP-D018, Gemini 4 Experiment Debriefing, 1967
+
+- Agency: NASA
+- Date: June 3-7, 1965
+- URL: https://pursueindex.com/card/c8d89f235e487961
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D018_Gemini-4_Experiment-Debriefing_1967.pdf
+- Description: Gemini IV was the second crewed mission of the Gemini series. Astronauts James McDivitt and Edward White successfully completed the four-day flight between June 3 and June 7, 1965. The mission included the first American spacewalk. This collection of documents contains a transcription of the astronauts recounting their observations of bright particles outside the spacecraft, dated circa June 25, 1967, on pages 78-81, and page 101.
+
+Excerpt (page 1):
+
+NATIONAL AERONAUTICS AND SPACE ADMINISTRATION ROUTING SLIP MAIL CODE NAME Action Approval Records Call Me Concurrence File Information Investigate and Advise Note and Forward Note and Return Per Request Per Telephone Conversation Recommendation See Me Signature Circulate and Destroy Memos for photographic (Films) release from Gemini 4, Hq to MSC & vice versa NAME J. Gill TEL. NO. (or code) & EXT. CODE (or other designation) DATE 6/18/71 NASA FORM 26 APR 69 PREVIOUS EDITIONS MAY BE USED GPO : 196
+
+### 662eb9fef6e109d2 — NASA-UAP-D019, Gemini 5 Technical Debriefing, Part I, 1965
+
+- Agency: NASA
+- Date: August 2 - September 2, 1965
+- URL: https://pursueindex.com/card/662eb9fef6e109d2
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D019_Gemini-5-Technical-Debriefing_Part1_1965.pdf
+- Description: This document is a preliminary transcript (Part I) derived from voice recordings of the Gemini 5 flight crew technical debriefing. NASA conducted this debriefing between August 30, 1965, and September 2, 1965, at the Crew Quarters, Cape Kennedy, Florida.
+
+Excerpt (page 1):
+
+DECLASSIFIED Authority: NW 91526 CONFIDENTIAL 19 ┌────────────────────────────────────────┐ │ CLASSIFICATION CHANGE │ │To UNCLASSIFIED │ │By authority of EO 11652, 6-1-72 │ │Changed by G. Benjamin Date NOV 20 │ 1973 └────────────────────────────────────────┘ GEMINI V TECHNICAL DEBRIEFING (U) Part 1 NOTICE: This document may be exempt from public disclosure under the Freedom of Infor- mation Act (5 U.S.C. 552). Requests for its re- lease to persons outside the U. S. Government should be handled u
+
+### f6935b10dea56aa5 — NASA-UAP-D020, Gemini 5 Technical Debriefing, Part II, 1965
+
+- Agency: NASA
+- Date: August 30 - September 2, 1965
+- URL: https://pursueindex.com/card/f6935b10dea56aa5
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D020_Gemini-5-Technical-Debriefing_Part2_1965.pdf
+- Description: This document is a preliminary transcript (Part II) derived from voice recordings of the Gemini 5 flight crew technical debriefing. NASA conducted this debriefing between August 30, 1965, and September 2, 1965, at the Crew Quarters, Cape Kennedy, Florida. Astronauts L. Gordon Cooper and Charles “Pete” Conrad described observing debris and “snow” and “all sorts of glittering pieces of this, that and the other thing” in the “Visual Sightings” section of the document (pages 157-220).
+
+Excerpt (page 1):
+
+NORTH CONFIDENTIAL 22 DECLASSIFIED Authority: NW 91526 GEMINI V Technical Debriefing Part II CLASSIFICATION CHANGE To UNCLASSIFIED By authority of EO 11652 6-1-72 Changed by [ILLEGIBLE] Date NOV 2 0 1973 NOTICE: This document may be exempt from public disclosure under the Freedom of Infor- mation Act (5 U.S.C. 552). Requests for its re- lease to persons outside the U. S. Government should be handled under the provisions of NASA Policy Directive 1382.2. THIS MATERIAL CONTAINS INFORMATION AFFECTIN
+
+### e18cac08048b6c28 — NASA-UAP-D021, Gemini 7 Technical Debriefing, 1965
+
+- Agency: NASA
+- Date: December 19-21, 1965
+- URL: https://pursueindex.com/card/e18cac08048b6c28
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D021_Gemini-7-Technical-Debriefing_1965.pdf
+- Description: This document is a preliminary transcript derived from voice recordings of the Gemini 7 flight crew debriefing conducted December 19-21, 1965, at the Crew Quarters, Cape Kennedy, Florida. Lights and flashes are mentioned and there is discussion about having proper illumination for vehicle docking. Borman and Lovell discuss celestial and terrestrial observational anomalies and note sightings of Mercury, meteors, aurora, and lightning. They also discuss not being able to see any stars once the Sun comes up.
+
+Excerpt (page 1):
+
+189 CONFIDENTIAL DECLASSIFIED Authority: NW 91526 CLASSIFICATION CHANGE To UNCLASSIFIED By authority of E.O 11652, 6-1-72 Changed by [ILLEGIBLE] Date NOV 9 1973 GEMINI VII TECHNICAL DEBRIEFING December 23, 1965 NOTICE: This document may be exempt from public disclosure under the Freedom of Infor- mation Act (5 U.S.C. 552). Requests for its re- lease to persons outside the U. S. Government should be handled under the provisions of NASA Policy Directive 1382.2. CONFIDENTIAL
+
+### a3672ccd47d5503a — NASA-UAP-D022, Gemini 9 Debriefing, 1966
+
+- Agency: NASA
+- Date: June 3-6, 1966
+- URL: https://pursueindex.com/card/a3672ccd47d5503a
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/NASA-UAP-D022_Gemini-9-Debriefing_1966.pdf
+- Description: Gemini IX (renamed Gemini IX-A) was the seventh crewed flight of the Gemini series, launched on June 3, 1966. The mission’s primary objectives included a spacewalk and multiple scientific and medical experiments. This document, dated June 16, 1966, is a transcript of a NASA debriefing of astronauts Thomas Stafford and Eugene Cernan. Pages 2-5 of this document contain the astronauts’ accounts of their observations of “flashing lights” and “sparkles” during the mission.
+
+Excerpt (page 1):
+
+NASA ROUTING SLIP CODE NAME (if necessary) ACTION APPROVAL CONCURRENCE 1. Shirley ✓ FILE INFORMATION 2. INVESTIGATE AND ADVISE NOTE AND FORWARD 3. NOTE AND RETURN PER REQUEST 4. RECOMMENDATION SEE ME 5. SIGNATURE REPLY FOR SIGNATURE OF: 6. 7. REMARKS: Gemini IX Debriefing notes Summary writeup FROM: CODE: NAME: DATE: JRf 10/18 NASA Form 26 (Rev. Jan. 1963) U.S. GOVERNMENT PRINTING OFFICE : 1963 OF—671845
+
+### 79efc12f4c2ebae9 — NASA-UAP-D023, Interview Excerpt with Astronaut Gordon Cooper, 1962
+
+- Agency: NASA
+- Date: November, 1962
+- URL: https://pursueindex.com/card/79efc12f4c2ebae9
+- Description: In November 1962, journalist Walter Cronkite interviewed astronaut Gordon Cooper. In this excerpt from that interview, Cronkite asks Cooper about his views regarding the nature of unidentified flying objects, having previously expressed an interest in the subject. Cooper opines that “a large number of exceptionally well-qualified people have seen objects” without a “logical explanation” and speculates on the existence of other planets with “a livable atmosphere” and that maybe there are “some type of human life” out there. Interview was conducted in November 1962.
+
+### 5ef405481cb69a03 — NASA-UAP-D024, “Apollo 16 Scientific Debriefing”
+
+- Agency: NASA
+- Date: 6/12/26
+- URL: https://pursueindex.com/card/5ef405481cb69a03
+- Description: This debriefing includes presentations from principal investigators of various Apollo experiments. The principal investigators describe preliminary results of their work to educate the Apollo crews about what they’ve obtained from Apollo 16 to help prepare for Apollo 17. They also describe anomalies, such as a “flash” that was observed that had not yet been reported. The flash is mentioned beginning at 25:15.
+
+### a7455a1d0c406174 — NASA-UAP-D025, “Apollo 16 Scientific Debriefing”
+
+- Agency: NASA
+- Date: 6/12/26
+- URL: https://pursueindex.com/card/a7455a1d0c406174
+- Description: At 32:41, the speaker makes an off-handed comment, “Could be an alien starbase or something, I don’t know” when discussing correlations between experimental data sets.
 
 ### 303ad110cb5fa8b4 — NASA-UAP-VM001, Apollo 12, 1969
 
@@ -3182,6 +3957,20 @@ This image has been modified from its original state to assist viewers in identi
 - URL: https://pursueindex.com/card/3deb237b1d68e203
 - Source: https://www.war.gov/medialink/ufo/release_1/nasa-uap-vm6-apollo-17-1972.jpg
 - Description: As part of the review of historical UAP materials under PURSUE, DOW has opened a case to investigate the accompanying NASA photograph from the Apollo 17 mission, taken December 1972. The image contains three “dots” in a triangular formation in the lower right quadrant of the lunar sky that is clearly visible upon magnification of the image. While this photo has been previously released and discussed by keen observers, there is no consensus about the nature of the anomaly. New preliminary US government analysis suggests the image feature is potentially the result of a physical object in the scene. Additionally, as part of this investigation, the government has obtained the original film from the Apollo 17 mission and the results of the full NASA and DOW analysis will be released when completed.
+
+### fd342b7508668b0e — ODNI-UAP-D001, USPER Narrative, Senior USIC Official
+
+- Agency: Office of the Director of National Intelligence
+- Date: 2025
+- URL: https://pursueindex.com/card/fd342b7508668b0e
+- Source: https://www.war.gov/medialink/ufo/052226/release_02/documents/ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf
+- Description: This document is a first-hand account written by a currently serving (May 2026) senior U.S. intelligence official. The official was part of a team investigating reports of unusual noises and sightings of unidentified anomalous phenomena in and near a sensitive U.S. military facility in late 2025. From the official’s vantage point as a helicopter passenger, the official recounts encountering unidentified “glowing orbs” both at close range and at a distance. The account describes an apparent high-speed object moving low to the ground, which appeared to split in two and accelerate away in two different directions. It also describes numerous higher-altitude “orbs,” some of which the official assessed to be in close proximity to the helicopter. This account is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground, originally released on war.gov/UFO on May 8, 2026.
+
+May 26, 2026, correction: The document originally posted to the PURSUE collection of UAP-related records on May 22, 2026, under the name “ODNI-UAP-D001, USPER Narrative, Senior USIC Official,” contained a typographic error in the second paragraph, describing a helicopter flight profile as “map-of-the-earth.” The correct military aviation term for this profile is “nap-of-the-earth.” This document has been updated to reflect this correction.
+
+Excerpt (page 1):
+
+In late 2025, during early evening daylight hours, I – a senior U.S. intelligence officer – along with a colleague and two pilots, departed our Joint Operations Center (JOC) in a helicopter. Our mission was to investigate loud thuds heard in the mountains on the test range, which coincided with Unidentified Aerial Phenomena (UAP) sightings reported over the previous several nights. We aimed to search remote mountain areas for possible debris or objects that might explain the orb-like sightings. 
 
 ### 8f354cf1d1f821f0 — State Department UAP Cable 001, Papua New Guinea, January 28, 1985
 
@@ -3245,6 +4034,18 @@ UNCLASSIFIED SBU UNCLASSIFIED SBU [SEAL] MRN: 04 ASHGABAT 1028 Date/DTG: Nov 12,
 Excerpt (page 1):
 
 UNCLASSIFIED UNCLASSIFIED SBU MRN: 23 MEXICO 2544 Date/DTG: Sep 16, 2023 / 160150Z SEP 23 From: AMEMBASSY MEXICO Action: WASHDC, SECSTATE Routine E.O: 13526 TAGS: PGOV, PREL, ASEC, TSPA, KJUS, KCRM, MX Captions: SENSITIVE Reference: A) 23 MEXICO 2468 B) 23 MEXICO 2166 C) 23 MEXICO 2346 Subject: (U) Mexico: Weekly Political Blotter, Sep 11-15 (U) Mexico: Weekly Political Blotter, Sep 11-15 1. (SBU) This edition of Mission Mexico's Political Blotter features: • Ebrard Challenges MORENA Election, T
+
+### 7c0e38a8a433ebaa — USG-UAP-D001, Congressional, White House, UFO-related Constituent Correspondence, 1998
+
+- Agency: U.S. Government
+- Date: 1998
+- URL: https://pursueindex.com/card/7c0e38a8a433ebaa
+- Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/USG-UAP-D001_Congress-WhiteHouse-UFO-Correspondence_1998.pdf
+- Description: This collection of documents, primarily from 1998, contains draft and final correspondence from the White House and the offices of members of Congress responding to constituent inquiries about Unidentified Flying Objects, or “UFOs.” These inquiries cover a diverse range of topics, including alleged UFO sightings by NASA astronauts, questions regarding the authenticity of photos collected during U.S. missions to Mars, alleged improper withholding of information by the U.S. Government, questions regarding the appropriateness of “UFO-related” governmental spending, and calls for congressional hearings regarding the nature and existence of “UFOs.” The official responses consistently state that, circa 1998, the U.S. Government is not aware of evidence supporting the existence of extraterrestrial technology, and that NASA does not actively investigate “UFOs.” The collection includes references to materials of both confirmed and unconfirmed authenticity, as provided by constituents, as well as references to historical, scientific literature addressing specific “UFO” sighting claims.
+
+Excerpt (page 1):
+
+1320.4 Aeronautics:UFO
 
 ### be533a4ab886eb11 — USPER Statement about UAP Sighting
 
