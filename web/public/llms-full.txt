@@ -4075,7 +4075,195 @@ Excerpt (page 1):
 
 ## Finds
 
-27 curated reading guides authored from specific cards and pages.
+29 curated reading guides authored from specific cards and pages.
+
+### robertson-panel-1953-strip-special-status — The 1953 Robertson Panel — The Order to 'Strip UFOs of Their Special Status,' Declassified in Duplicate
+
+- URL: https://pursueindex.com/finds/robertson-panel-1953-strip-special-status
+- Published: 2026-06-12
+- Cards: 811e54fbf8cff4cc, a83dedef9d19fcb5
+
+Two cards in Release 3 hold the same Cold-War policy document from different agency files: CIA-UAP-002 (the CIA transmittal and recommendations) and DOW-UAP-D085 (the War Department copy). Both record the 1953 Scientific Advisory Panel — convened at the direction of DCI Walter Bedell Smith, known in the literature as the Robertson Panel — which found 'no evidence' that UFOs were 'foreign artifacts capable of hostile acts,' yet recommended that national security agencies 'strip the Unidentified Flying Objects of the special status they have been given' through public education, training, and debunking. This entry reads the document that set U.S. UFO posture for a generation — and pairs naturally with the modern case it foreshadows.
+
+## What the documents are
+
+The same 1953 policy document surfaces in Release 3 from two different agency files,
+which is itself worth noting:
+
+- **CIA-UAP-002** (`811e54fbf8cff4cc`) — the CIA transmittal and recommendations memorandum covering the report of the "Panel of Scientific Consultants on the subject of 'Unidentified Flying Objects.'" [cite: card 811e54fbf8cff4cc p.2 "Panel of Scientific Consultants"]
+- **DOW-UAP-D085** (`a83dedef9d19fcb5`) — the War Department's transmittal copy of the same report. [cite: card a83dedef9d19fcb5 p.2 "Panel of Scientists"]
+
+The panel was not an academic exercise. It was convened at the top of the intelligence
+community:
+
+> "This panel was convened at the direction of General Smith, following the recommendation of the Intelligence Advisory Committee." [cite: card 811e54fbf8cff4cc p.3 "direction of General Smith"]
+
+"General Smith" is Walter Bedell Smith, then Director of Central Intelligence. In the
+UFO literature the group is known as the **Robertson Panel**, after its chair, physicist
+H. P. Robertson; it met in January 1953 in the wake of the 1952 sighting wave that had
+flooded official reporting channels.
+
+## The finding: no threat
+
+On the question it was convened to answer, the panel was unambiguous. It "met to evaluate
+any possible threat to national security posed by Unidentified Flying Objects" [cite: card 811e54fbf8cff4cc p.8 "possible threat to national security"] and concluded there was none of the kind a hostile-power explanation would require:
+
+> "...residuum of cases which indicates phenomena which are attributable to foreign artifacts capable of hostile acts, and that there is no evidence that the phenomena indicate a need for the r[evision of current scientific concepts]." [cite: card 811e54fbf8cff4cc p.8 "foreign artifacts capable of hostile acts"]
+
+No foreign artifacts. No hostile acts. No need to revise physics. If the document stopped
+there it would be a forgettable null result.
+
+## The twist: the *reporting* is the threat
+
+It does not stop there. The panel relocates the danger — from the objects to the public's
+attention to them:
+
+> "...the continued emphasis on the reporting of these phenomena does, in these parlous times, result in a threat to the orderly functi[oning]..." [cite: card 811e54fbf8cff4cc p.8 "continued emphasis on the reporting"]
+
+The concern is channel saturation and, beyond it, psychology. The memorandum's most
+quoted line frames the real worry as a *morale* and *information-warfare* problem, not an
+aerospace one:
+
+> "...the cultivation of a morbid national psychology in which skillful hostile propaganda could induce hysterical behavior and harmful distrust of duly constituted authority." [cite: card 811e54fbf8cff4cc p.9 "morbid national psychology"]
+
+## The recommendation: strip the subject of its status
+
+From that premise follows the line this document is remembered for:
+
+> "...that the national security agencies take immediate steps to strip the Unidentified Flying Objects of the special status they have been given and the aura of mystery they have unfortunate[ly acquired]." [cite: card 811e54fbf8cff4cc p.9 "strip the Unidentified Flying Objects of the special status"]
+
+The mechanism is explicit in the War Department copy: not investigation, but management —
+"policies on intelligence, training, and public education designed to prepare the material
+defenses and the morale of the country." [cite: card a83dedef9d19fcb5 p.7 "training, and public education"] This is the origin point of the official posture that would define the subject for decades: debunk, de-emphasize, defuse.
+
+## Read in duplicate, and in sequence
+
+Two things make this release of an already-historic document worth a second look. First,
+it appears in **both** the CIA and War Department files — the same "strip the special
+status" recommendation, the same "morbid national psychology" framing, declassified from
+two agency contexts at once. [cite: card a83dedef9d19fcb5 p.7 "strip the Unidentified Flying Objects of the special status"]
+
+Second, the Department of War published it in the same tranche as a 2023 case its own
+analysts could not close — see [the Western U.S. Event](/finds/western-united-states-event-october-2023),
+where AARO records ~40 percent of the reported phenomena as lacking a plausible
+explanation. The 70-year-old order to strip such cases of their "special status," sitting
+beside a present-day case the government itself files as unresolved.
+
+## What it is, and isn't
+
+This is a policy document, not evidence of a craft — and it is important not to overread
+it. The panel did not conclude that something was being hidden; it concluded that the
+*subject* should be deprived of official mystique to protect reporting channels and public
+morale in a Cold-War threat environment. That is a defensible national-security judgment
+on its own terms. What the document also is, plainly and in the government's own words, is
+the institutional root of the "debunk it" reflex — a deliberate decision that the official
+relationship to UFOs would be one of perception management. Every quote above is from the
+released text and hash-pinned to the two cards for verification.
+
+### western-united-states-event-october-2023 — The Western U.S. Event — Six Federal Agents, Two Days, and the 40 Percent AARO Couldn't Explain
+
+- URL: https://pursueindex.com/finds/western-united-states-event-october-2023
+- Published: 2026-06-12
+- Cards: 88479e3245f9bf15, 323b9443e6f5ea56, c2da7eaaedbf533a, d7f72a4106a917f6, ccb9a10f4d8b2c3d, bf08008b8a1aa79e, 907982561e907539
+
+Release 3 carries a self-contained investigation — DOW-UAP-D077 through D083 — of an October 2023 event in the western United States. AARO's own case analysis (D077) states that six federal law enforcement special agents reported 'orbs launching other orbs' over two days, walks each conventional hypothesis (flares, drones, celestial bodies, aircraft exhaust), and concludes that ~40 percent of the reported phenomena 'lack a plausible explanation' and that the case 'remains unresolved' as of June 2026. The five witness statements (D079–D083) are the agents in their own words. This entry reads what the documents commit to — and what they explicitly leave open.
+
+## What the documents are
+
+Most entries in this archive walk a single card. This one walks seven, because the
+Department of War released them as a set — a complete case file for one event:
+
+- **DOW-UAP-D077** (`88479e3245f9bf15`) — *AARO Unresolved Case Analysis Update: Western United States Event*, a memorandum from the Office of the Under Secretary of War, Intelligence and Security, dated 05 June 2026.
+- **DOW-UAP-D078** (`323b9443e6f5ea56`) — a *notional map* keying the event into four named incidents.
+- **DOW-UAP-D079 → D083** (`c2da7eaaedbf533a`, `d7f72a4106a917f6`, `ccb9a10f4d8b2c3d`, `bf08008b8a1aa79e`, `907982561e907539`) — five *Narrative from Witness* memoranda, each authored by one of the witnessing agents.
+
+The frame is set in the first sentence of the analysis:
+
+> "Over a period of two days in October 2023, six federal law enforcement special agents reported observing 'orbs launching other orbs,' near..." [cite: card 88479e3245f9bf15 p.1 "six federal law enforcement special agents"]
+
+The precise location is withheld — the witness narratives record the coordinates as
+`[REDACTED]`. What is *not* withheld is the government's own verdict on the case, stated
+up front: it "remains unresolved." [cite: card 88479e3245f9bf15 p.1 "remains unresolved"]
+
+## The four incidents
+
+The notional map (D078) decomposes the event into four reported incidents over several
+days, the first of which is the one that names the case:
+
+> "Incident 1: 'Orbs Launching Orbs' — Agents reported observing multiple instances of an orange 'mother orb' 'launching' smaller red..." [cite: card 323b9443e6f5ea56 p.1 "Orbs Launching Orbs"]
+
+The remaining incidents catalog a "Fiery Orb" and two kite-form objects. [cite: card 323b9443e6f5ea56 p.1 "Fiery Orb"] The map is explicitly "notional" — a scaffold for reading the five narratives, not a survey-grade plot.
+
+## What AARO did with it
+
+The analysis is not a believer's document, and it is not a debunk. It is a hypothesis
+walk. AARO deconflicted the reports against military flight logs, radar, and ADS-B
+tracking, and then took each conventional explanation in turn — ruling some out,
+rating others partially plausible:
+
+- **Misidentified military aircraft exhaust** — ruled out. [cite: card 88479e3245f9bf15 p.2 "Ruled Out"]
+- **Military aircraft dispensing flares** — partially plausible: "Historical flight logs confirm that U.S. military aircraft" were operating in the area. [cite: card 88479e3245f9bf15 p.3 "Dispensing Flares"]
+- **Misidentified celestial bodies** — considered for the "loitering" observations, assessed as unlikely under the area's light-pollution conditions. [cite: card 88479e3245f9bf15 p.4 "celestial bodies"]
+
+The flare hypothesis covers a majority of the observations. It does not cover the rest.
+The load-bearing sentence of the whole release sits on page 2:
+
+> "Approximately 40 percent of the reported phenomena lack a plausible explanation..." [cite: card 88479e3245f9bf15 p.2 "40 percent of the reported phenomena"]
+
+For that residual, AARO records that radar and ADS-B "indicate that no known" tracked
+aircraft were present, and files a pending hypothesis it labels in the analysts' own
+words:
+
+> "Unrecognized Technology (Pending)" [cite: card 88479e3245f9bf15 p.4 "Unrecognized Technology"]
+
+"Pending" is doing real work there. The document does not assert exotic origin; it
+records that the conventional explanations it tested do not close the case, and leaves
+the category open.
+
+## The agents, in their own words
+
+The five witness narratives are first-person memoranda for record. They are worth reading
+because the descriptions are specific, mutually consistent on the central event, and
+careful — these are people trained to write reports, hedging where they're unsure.
+
+**The launch.** Two separate witnesses describe the "mother orb" expelling smaller orbs.
+Witness 2:
+
+> "...it expelled three or four red lights from it. The red lights accelerated instantly and maneuvered with perfect, smooth coordination..." [cite: card d7f72a4106a917f6 p.1 "expelled three or four red lights"]
+
+Witness 3, independently:
+
+> "...it expelled three smaller red orbs. The expulsion appeared to be mechanical." [cite: card ccb9a10f4d8b2c3d p.1 "appeared to"]
+
+Witness 2 then reaches for an analogy and immediately qualifies it: the deployment
+"looked like a mix of mechanical deployment and biological division; it appeared too
+smooth" — and notes it "did not appear to be a defensive countermeasure." [cite: card d7f72a4106a917f6 p.2 "mechanical deployment and biological division"] That is the texture of the whole file: reaching for a familiar referent, then flagging the part that doesn't fit it.
+
+**The kite.** Witness 1 describes a different object — a translucent, kite-like form:
+
+> "It was almost like looking at something through water where it was not completely clear." [cite: card c2da7eaaedbf533a p.2 "through water"]
+
+**The filament.** Witness 5 records a physical-residue detail that recurs in older UAP
+case literature ("angel hair"): a fine, cobweb-like material seen floating in association
+with the event.
+
+> "...an identical cobweb floating nearby, but floating and flowing down toward the..." [cite: card 907982561e907539 p.3 "identical cobweb"]
+
+## What this is, and isn't
+
+Read as a set, the file is unusual for three reasons. It is **recent** (October 2023,
+analyzed June 2026). It is **multi-witness** by trained federal observers, with five
+independent first-person narratives rather than a single account. And it is **officially
+open** — the Department of War's own analysis records ~40 percent of the phenomena as
+lacking a plausible explanation and the case as unresolved, after deconfliction against
+the government's own flight, radar, and ADS-B data.
+
+None of that makes it extraterrestrial, and the documents are scrupulous about not
+claiming it does — "Unrecognized Technology" is logged as *pending*, not concluded. What
+the file does establish, on the government's own letterhead, is narrower and harder to
+wave off: there is a 2023 multi-witness event that the agency tasked with explaining it
+cannot, yet, fully explain. Everything above is quoted from the released documents and
+hash-pinned to the cards for verification.
 
 ### helicopter-case-2025-imagery — The Late-2025 Helicopter Case — Cross-Sensor Imagery Examined Directly
 
