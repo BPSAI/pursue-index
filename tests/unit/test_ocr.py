@@ -65,6 +65,34 @@ def _write_fake_pdf(path: Path, content: bytes = b"%PDF-1.4 fake\n") -> None:
     path.write_bytes(content)
 
 
+def test_ocr_card_without_engine_uses_configured_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """ocr_card with no explicit engine must defer to settings.ocr_engine, NOT
+    silently fall to tesseract. (Closes the hardcoded DEFAULT_ENGINE footgun
+    surfaced in S7.1: production always passes an explicit engine, but a direct
+    caller that omitted it would have gotten tesseract regardless of config.)"""
+    from pursue_index.ocr import llm as ocr_llm
+
+    monkeypatch.setattr(ocr_pipeline.settings, "ocr_engine", "llm")
+
+    def fake_rasterize(path: Path, dpi: int) -> Iterator[object]:
+        yield object()
+
+    monkeypatch.setattr(ocr_pipeline, "rasterize_pdf", fake_rasterize)
+    monkeypatch.setattr(ocr_llm, "ocr_image", lambda _img: ("llm page", 90.0))
+
+    card = _pdf_card()
+    pdf_path = tmp_path / "src.pdf"
+    _write_fake_pdf(pdf_path)
+    out_dir = tmp_path / "ocr" / card.card_id
+
+    ocr_card(card, pdf_path, out_dir, dpi=300)  # no engine= → resolves to settings
+
+    meta: dict[str, Any] = json.loads((out_dir / "meta.json").read_text())
+    assert meta["engine"] == "llm", "omitting engine must use the configured engine, not tesseract"
+
+
 def test_ocr_card_writes_pages_jsonl_and_meta(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -75,7 +103,7 @@ def test_ocr_card_writes_pages_jsonl_and_meta(
     out_dir = tmp_path / "ocr" / card.card_id
     _write_fake_pdf(pdf_path)
 
-    did_work = ocr_card(card, pdf_path, out_dir, dpi=300)
+    did_work = ocr_card(card, pdf_path, out_dir, dpi=300, engine="tesseract")
 
     assert did_work is True
     pages_path = out_dir / "pages.jsonl"
@@ -153,7 +181,7 @@ def test_ocr_card_records_partial_failure(
     out_dir = tmp_path / "ocr" / card.card_id
     _write_fake_pdf(pdf_path)
 
-    did_work = ocr_card(card, pdf_path, out_dir, dpi=300)
+    did_work = ocr_card(card, pdf_path, out_dir, dpi=300, engine="tesseract")
 
     assert did_work is True  # we did try
     meta = json.loads((out_dir / "meta.json").read_text())
