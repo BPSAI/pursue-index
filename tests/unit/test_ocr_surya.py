@@ -218,10 +218,13 @@ def test_ocr_card_with_surya_engine_writes_surya_in_outputs(
     assert meta["page_count"] == 2
 
 
-def test_ocr_card_default_engine_still_tesseract(
+def test_ocr_card_explicit_tesseract_engine(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Default engine remains tesseract when caller doesn't pass ``engine``."""
+    """engine='tesseract' produces tesseract provenance. (The implicit default
+    now resolves to settings.ocr_engine — see
+    test_ocr.py::test_ocr_card_without_engine_uses_configured_default — so this
+    pins the explicit tesseract path rather than the old hardcoded default.)"""
 
     def fake_rasterize(path: Path, dpi: int) -> Iterator[object]:
         yield object()
@@ -236,7 +239,7 @@ def test_ocr_card_default_engine_still_tesseract(
     out_dir = tmp_path / "ocr" / card.card_id
     _write_fake_pdf(pdf_path)
 
-    ocr_card(card, pdf_path, out_dir, dpi=300)
+    ocr_card(card, pdf_path, out_dir, dpi=300, engine="tesseract")
 
     rows = [
         json.loads(line)

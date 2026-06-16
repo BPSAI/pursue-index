@@ -45,7 +45,16 @@ marginalia, and handwritten annotations).
 
 Transcribe every page VERBATIM:
 - Preserve original line breaks, spacing, and capitalization.
-- Mark any redacted region (black bar, white-out, or "REDACTED" stamp) as [REDACTED].
+- Mark a BLANK redacted region (black bar, white-out, or "REDACTED" stamp with no visible \
+text) as [REDACTED]. If a redaction instead prints a FOIA exemption code in place of the \
+withheld text (e.g. (b)(1), (b)(3), (b)(6), 1.4a), transcribe that code VERBATIM where it \
+appears — the printed code is the redaction marker; do not add a [REDACTED] wrapper around it.
+- A colored strike-through or line drawn over a still-legible classification marking \
+(e.g. (SECRET//REL TO USA, FVEY), (S//RELIDO)) is a DECLASSIFICATION annotation, NOT a \
+redaction. Transcribe the marking verbatim as content; do not mark it [REDACTED].
+- Transcribe only what is physically visible on THIS page. If text is covered (e.g. by a \
+label or sticker) or otherwise unreadable, mark it [ILLEGIBLE]. Do NOT fill it in from memory, \
+from repeated boilerplate, or from outside knowledge — even if you "know" what a standard marking says.
 - Mark any portion you cannot read with reasonable certainty as [ILLEGIBLE].
 - Do not summarize, paraphrase, translate, or correct apparent typos.
 - Do not add commentary.
@@ -83,6 +92,21 @@ def _image_hash(img: Image.Image) -> str:
     rgb = img if img.mode == "RGB" else img.convert("RGB")
     rgb.save(buf, format="PNG", optimize=False, compress_level=0)
     return hashlib.sha256(buf.getvalue()).hexdigest()
+
+
+def _prompt_version() -> str:
+    """Short hash of the active system prompt.
+
+    Folded into the cache key so a prompt-contract change busts the
+    image-content cache — otherwise re-OCR would silently return the
+    transcription produced under the OLD prompt.
+    """
+    return hashlib.sha256(_SYSTEM_PROMPT.encode("utf-8")).hexdigest()[:8]
+
+
+def _cache_key(img: Image.Image) -> str:
+    """Cache key = image content hash + prompt version (prompt-aware)."""
+    return f"{_image_hash(img)}-p{_prompt_version()}"
 
 
 def _resize_for_vision(img: Image.Image) -> Image.Image:
@@ -211,7 +235,7 @@ def ocr_image_with_usage(
     Use this variant from cost-capped runs (``scripts/reocr_altered.py``).
     Use ``ocr_image`` if you only need the text + confidence.
     """
-    sha = _image_hash(img)
+    sha = _cache_key(img)
     cached = _load_cached(sha)
     if cached is not None:
         log.info("ocr.llm.cache_hit", sha=sha[:12])

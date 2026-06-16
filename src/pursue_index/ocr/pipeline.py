@@ -100,10 +100,12 @@ def _run_engine(
     pdf_path: Path,
     pages_path: Path,
     dpi: int,
-    engine: EngineName = DEFAULT_ENGINE,
+    engine: EngineName | None = None,
     primary_engine: EngineName | None = None,
 ) -> tuple[int, str | None]:
     """Stream pages.jsonl out of the engine. Returns (page_count, error_or_None)."""
+    if engine is None:
+        engine = _resolve_default_engine()
     if engine == "auto":
         chosen_primary = ocr_auto.resolve_primary_engine(primary_engine)
         run_primary = _engine_ocr_image(chosen_primary)
@@ -155,7 +157,7 @@ def ocr_card(
     pdf_path: Path,
     out_dir: Path,
     dpi: int = 300,
-    engine: EngineName = DEFAULT_ENGINE,
+    engine: EngineName | None = None,
     force: bool = False,
     primary_engine: EngineName | None = None,
 ) -> bool:
@@ -174,6 +176,7 @@ def ocr_card(
     with existing OCR output is re-processed. ``primary_engine`` only
     applies when ``engine="auto"``.
     """
+    engine = engine or _resolve_default_engine()
     if not force and _is_done(out_dir):
         log.info("ocr.skip.done", card_id=card.card_id)
         return False
@@ -189,10 +192,9 @@ def ocr_card(
     page_count, error = _run_engine(
         pdf_path, out_dir / "pages.jsonl", dpi, engine, primary_engine
     )
-    finished_at = datetime.now(UTC)
-
     meta = _build_meta(
-        card, engine, primary_engine, pdf_bytes, page_count, started_at, finished_at, error
+        card, engine, primary_engine, pdf_bytes, page_count,
+        started_at, datetime.now(UTC), error,
     )
     if error is not None:
         log.error("ocr.fail", card_id=card.card_id, error=error)
