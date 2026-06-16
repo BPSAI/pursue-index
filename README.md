@@ -151,7 +151,7 @@ with the upstream CSV available, any reader can rebuild the entire index:
 ```bash
 pursue scrape run                                        # writes manifests/latest.json + archives raw CSV
 pursue download run --manifest data/manifests/latest.json
-pursue ocr run --manifest data/manifests/latest.json --engine auto
+pursue ocr run --manifest data/manifests/latest.json --engine llm   # operated primary (Sonnet 4.6); use --engine auto for the Surya/Tesseract+LLM-cleanup variant
 pursue embed run --manifest data/manifests/latest.json
 ```
 
@@ -242,7 +242,7 @@ $EDITOR .env   # at minimum: PURSUE_DATA_ROOT, ANTHROPIC_API_KEY, VOYAGE_API_KEY
 # Run the pipeline
 pursue scrape run
 pursue download run --manifest data/manifests/latest.json
-pursue ocr run --manifest data/manifests/latest.json --engine auto
+pursue ocr run --manifest data/manifests/latest.json --engine llm   # operated primary (Sonnet 4.6); use --engine auto for the Surya/Tesseract+LLM-cleanup variant
 pursue embed run --manifest data/manifests/latest.json
 
 # Build and preview the site
