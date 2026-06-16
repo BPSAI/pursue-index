@@ -21,8 +21,9 @@ useless for searching the actual contents of the documents.
 
 1. Snapshot the upstream CSV and pin its SHA-256 in a hash-stable manifest.
 2. Fetch every referenced PDF / image idempotently into content-addressable storage.
-3. OCR every PDF page through a GPU pipeline (Surya) with an LLM fallback for
-   low-confidence pages, recording per-page engine + confidence in `pages.jsonl`.
+3. OCR every PDF page with Claude Sonnet 4.6 vision (the operated primary,
+   chosen via a published bake-off), recording per-page engine + confidence in
+   `pages.jsonl`. Surya (GPU) and Tesseract (CPU) remain as fallback engines.
 4. Build an in-browser search index over the OCR transcripts.
 5. Serve the result as a static site with mandatory citations on every claim.
 
@@ -33,16 +34,18 @@ Methodology is published. Numbers are reproducible from a clean clone.
 
 - **Custom domain.** [pursueindex.com](https://pursueindex.com) on Cloudflare
   Workers + Static Assets.
-- **Full-text + semantic search** across **4,289 OCR'd pages** spanning
-  122 PDF cards from PURSUE Releases 01 and 02. MiniSearch lexical index +
+- **Full-text + semantic search** across **~7,800 OCR'd pages** spanning
+  **175 PDF cards** (294 total cards incl. video/audio/image) from PURSUE
+  Releases 01–03. MiniSearch lexical index +
   Voyage-3 embeddings, both browser-side; no server. The `/search` route
   adds a faceted filter rail (agency multi-select, incident-date range,
   redacted-only) over the lexical index; filter state round-trips through
   the URL so links are shareable.
-- **OCR pipeline.** Surya (GPU, transformer-based) primary for the legacy
-  corpus, Anthropic vision LLM fallback for pages whose Surya confidence
-  falls below threshold. Tranche-2 PDFs (5/22/26 release) were OCR'd via
-  the Anthropic vision path directly.
+- **OCR pipeline.** Claude Sonnet 4.6 vision is the operated primary (chosen
+  via a published bake-off; ~92% of the corpus). Surya (GPU) and Tesseract
+  (CPU) remain as legacy/fallback engines — Tesseract is the no-content-filter
+  fallback for the rare page Sonnet's output filter blocks. Per-page engine +
+  confidence are recorded in `pages.jsonl`.
 - **Archive integrity.** Every CSV byte stream we fetch is committed
   content-addressed; prior manifests are rotated into per-snapshot JSON;
   every referenced PDF/IMG is mirrored into R2 keyed by `byte_sha256`;
@@ -63,8 +66,9 @@ Methodology is published. Numbers are reproducible from a clean clone.
   resolves to a primary-source page.
 - **Published quality benchmark.** Five-PDF golden set covering the engine
   failure modes (clean typewriter / faded carbon / multi-column / redacted /
-  long debriefing). Surya median CER **6.1%** vs Tesseract **40.4%** vs the
-  LLM truth proxy. See [`docs/ocr-benchmark.md`](docs/ocr-benchmark.md) and
+  long debriefing). The May-2026 bake-off (re-validated 2026-06) compared every
+  credible engine; **Claude Sonnet 4.6 is the operated answer** (best on the
+  degraded golden set). See [`docs/ocr-benchmark.md`](docs/ocr-benchmark.md) and
   [/methodology](https://pursueindex.com/methodology).
 - **Tranche diff.** Every CSV byte stream we fetch is committed at
   `data/raw/csv/<sha>.csv` and the prior manifest is rotated into
@@ -129,7 +133,7 @@ hash-pinned)             (NAS)    payload
 |----------|----------|---------------------------------------------------------------|
 | scrape   | shipped  | `data/manifests/latest.json` (SHA-256-pinned, version-controlled) |
 | download | shipped  | `{pdfs,images,videos}/{card_id}/{filename}` on NAS            |
-| ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — Surya + LLM fallback |
+| ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — Sonnet 4.6 primary + Surya/Tesseract fallback |
 | embed    | shipped  | Voyage-3 embeddings, ~8.5MB float16 in-browser payload         |
 | serve    | shipped  | Astro static build deployed to Cloudflare Workers              |
 
@@ -164,16 +168,17 @@ changes are detectable in O(bytes-of-CSV).
 | Layer        | Choice                                                     |
 |--------------|------------------------------------------------------------|
 | Pipeline     | Python 3.12, Typer CLI, Pydantic settings                  |
-| OCR primary  | [Surya](https://github.com/datalab-to/surya) on CUDA       |
-| OCR fallback | Anthropic vision (Haiku-4.5 default; Sonnet-4.6 available) |
+| OCR primary  | Anthropic vision — **Claude Sonnet 4.6** (operated)        |
+| OCR fallback | [Surya](https://github.com/datalab-to/surya) on CUDA; Tesseract (CPU) |
 | Embeddings   | Voyage-3 (`voyage-3-large`)                                |
 | Frontend     | Astro + Preact + Tailwind v4                               |
 | Hosting      | Cloudflare Workers + Static Assets                         |
 | Storage      | NAS for bulk artifacts; Git for manifests                  |
 
-The full corpus pipeline pass — Surya OCR + auto-mode LLM cleanup on the 624
-sub-threshold pages + Voyage-3 embeddings — costs **under $2** end to end at
-current API rates. See `docs/ocr-benchmark.md` for the breakdown.
+The operated corpus OCR pass — Claude Sonnet 4.6 vision per page + Voyage-3
+embeddings — runs **~$53 for the full corpus** at current API rates (the prior
+Surya-primary + auto-mode-LLM-cleanup pass was cheaper but lower quality on
+degraded scans). See `docs/ocr-benchmark.md` for the breakdown.
 
 ## Storage split
 
@@ -205,7 +210,7 @@ pursue-index/
 ├── src/pursue_index/
 │   ├── scrape/          # CSV fetch + parse + manifest
 │   ├── download/        # Asset retrieval, content-addressable storage
-│   ├── ocr/             # Surya + LLM-fallback pipeline → pages.jsonl
+│   ├── ocr/             # OCR pipeline (Sonnet 4.6 primary, Surya/Tesseract fallback) → pages.jsonl
 │   ├── embed/           # Voyage-3 embeddings + in-browser payload
 │   ├── index/           # SQLAlchemy models for forensic ingest (optional)
 │   ├── cli/             # Typer CLI (`pursue`)
@@ -221,7 +226,8 @@ pursue-index/
 
 ## Quickstart (developers)
 
-Requires Python 3.12+, an NVIDIA GPU with current CUDA toolkit (for Surya),
+Requires Python 3.12+ (the operated Sonnet OCR is API-only; an NVIDIA GPU +
+CUDA toolkit is only needed for the Surya fallback / local models),
 an Anthropic API key (for the OCR LLM fallback), and a Voyage AI API key
 (for embeddings).
 
@@ -247,7 +253,7 @@ cd web && npm install && npm run dev
 
 Public. Site is live at [pursueindex.com](https://pursueindex.com),
 the full pipeline (scrape → download → OCR → embed → serve) has run
-end-to-end against PURSUE Releases 01 and 02 (222 cards across 7 agencies),
+end-to-end against PURSUE Releases 01–03 (294 cards across 7 agencies),
 and the chat interface is open.
 
 ## License
