@@ -161,9 +161,35 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          # Only open issue when the last commit was the verify's.
+          # Only consider runs where the verify step appended rows.
           if ! git log -1 --pretty=%s | grep -q "byte-verify caught"; then
-            echo "No silent overlay detected on this run."
+            echo "No registry rows appended on this run."
+            exit 0
+          fi
+          # Classify the appended rows. A release promote that archives
+          # brand-new asset_urls for the first time is NOT a same-URL
+          # overlay — only an EXISTING asset_url reappearing under a new
+          # byte_sha256 is the threat. Firing on every appended row
+          # false-fires after each promote and erodes signal on this
+          # channel (see scripts/classify_overlay.py).
+          git show HEAD^:data/asset-bytes-registry.jsonl > /tmp/prior-registry.jsonl 2>/dev/null || : > /tmp/prior-registry.jsonl
+          git show HEAD:data/asset-bytes-registry.jsonl  > /tmp/current-registry.jsonl 2>/dev/null || : > /tmp/current-registry.jsonl
+          # Fail LOUD, never silent: if the classifier errors or emits no
+          # summary line, surface it rather than letting an empty result
+          # default overlays to 0 and swallow a possible real overlay.
+          if ! classify=$(python scripts/classify_overlay.py /tmp/prior-registry.jsonl /tmp/current-registry.jsonl); then
+            echo "::error::classify_overlay.py exited non-zero; failing loud rather than swallowing a possible overlay."
+            exit 1
+          fi
+          echo "$classify"
+          if ! printf '%s\n' "$classify" | grep -q '^overlay-classify '; then
+            echo "::error::classify_overlay.py produced no summary line; failing loud."
+            exit 1
+          fi
+          overlays=$(printf '%s\n' "$classify" | sed -n 's/^overlay-classify overlays=\([0-9]*\).*/\1/p')
+          net_new=$(printf '%s\n' "$classify" | sed -n 's/.*net_new=\([0-9]*\).*/\1/p')
+          if [ "${overlays:-0}" -eq 0 ]; then
+            echo "No overlay: archived ${net_new:-0} net-new asset(s) this run (informational, no issue)."
             exit 0
           fi
           gh label create silent-overlay-detected \
@@ -176,16 +202,11 @@ jobs:
             echo "Open issue #${existing} already tracking; skipping."
             exit 0
           fi
-          # Enumerate the exact rows this run added, not just the tail
-          # of the file — concurrent registry writers can interleave
-          # appends and a tail-slice may not contain the newly-added
-          # rows. `git diff HEAD^ HEAD` reads from the just-committed
-          # diff, which is the precise set this run produced.
-          added=$(git diff HEAD^ HEAD -- data/asset-bytes-registry.jsonl 2>/dev/null | grep -c '^+{' || echo "?")
+          overlay_detail=$(printf '%s\n' "$classify" | grep '^overlay	' | cut -f2- | sed 's/^/- /')
           gh issue create \
             --title "[integrity] Silent same-URL-different-bytes overlay detected" \
             --label "silent-overlay-detected" \
-            --body "The daily verify workflow caught upstream bytes changing under a stable URL. ${added} new row(s) landed in data/asset-bytes-registry.jsonl this run. Run log: $RUN_URL"
+            --body "$(printf 'The daily verify workflow caught %s asset_url(s) reappearing under a NEW byte_sha256 (bytes changed under a stable URL) this run:\n\n%s\n\nRun log: %s' "$overlays" "$overlay_detail" "$RUN_URL")"
 
       - name: Open issue when preserved tampering detected
         # Different threat from silent-overlay-detected: a preserved
