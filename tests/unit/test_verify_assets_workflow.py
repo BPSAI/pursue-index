@@ -49,3 +49,12 @@ def test_overlay_step_still_dedupes_and_creates_issue_on_real_overlay() -> None:
     assert "gh issue create" in run
     assert "silent-overlay-detected" in run
     assert "--label silent-overlay-detected --state open" in run  # dedup guard
+
+
+def test_overlay_step_fails_loud_not_open_on_classifier_error() -> None:
+    """A classifier crash / missing summary must fail the step, not silently
+    default overlays to 0 and swallow a possible overlay (tamper-detection)."""
+    run = _silent_overlay_step()["run"]
+    assert "if ! classify=$(python scripts/classify_overlay.py" in run
+    assert "grep -q '^overlay-classify '" in run
+    assert run.count("exit 1") >= 2  # crash guard + missing-summary guard

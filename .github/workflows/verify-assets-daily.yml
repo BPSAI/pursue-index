@@ -174,8 +174,18 @@ jobs:
           # channel (see scripts/classify_overlay.py).
           git show HEAD^:data/asset-bytes-registry.jsonl > /tmp/prior-registry.jsonl 2>/dev/null || : > /tmp/prior-registry.jsonl
           git show HEAD:data/asset-bytes-registry.jsonl  > /tmp/current-registry.jsonl 2>/dev/null || : > /tmp/current-registry.jsonl
-          classify=$(python scripts/classify_overlay.py /tmp/prior-registry.jsonl /tmp/current-registry.jsonl)
+          # Fail LOUD, never silent: if the classifier errors or emits no
+          # summary line, surface it rather than letting an empty result
+          # default overlays to 0 and swallow a possible real overlay.
+          if ! classify=$(python scripts/classify_overlay.py /tmp/prior-registry.jsonl /tmp/current-registry.jsonl); then
+            echo "::error::classify_overlay.py exited non-zero; failing loud rather than swallowing a possible overlay."
+            exit 1
+          fi
           echo "$classify"
+          if ! printf '%s\n' "$classify" | grep -q '^overlay-classify '; then
+            echo "::error::classify_overlay.py produced no summary line; failing loud."
+            exit 1
+          fi
           overlays=$(printf '%s\n' "$classify" | sed -n 's/^overlay-classify overlays=\([0-9]*\).*/\1/p')
           net_new=$(printf '%s\n' "$classify" | sed -n 's/.*net_new=\([0-9]*\).*/\1/p')
           if [ "${overlays:-0}" -eq 0 ]; then

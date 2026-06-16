@@ -73,13 +73,35 @@ def _read_jsonl(path: str) -> list[dict]:
     rows: list[dict] = []
     try:
         with open(path, encoding="utf-8") as fh:
-            for line in fh:
+            for lineno, line in enumerate(fh, start=1):
                 line = line.strip()
-                if line:
+                if not line:
+                    continue
+                # Per-line guard: a single malformed row must NOT crash the
+                # classifier. A crash would exit non-zero, the workflow would
+                # read an empty result, default overlays to 0, and silently
+                # swallow a real overlay — fail-open on a tamper-detection
+                # channel. Skip + warn to stderr (visible in the run log).
+                try:
                     rows.append(json.loads(line))
+                except json.JSONDecodeError as exc:
+                    print(
+                        f"classify_overlay: skipping malformed line {lineno} in {path}: {exc}",
+                        file=sys.stderr,
+                    )
     except FileNotFoundError:
         return []
     return rows
+
+
+def _sanitize(value: object) -> str:
+    """Flatten a field for the tab-delimited overlay line + issue body.
+
+    Strips tab/CR/LF so a crafted ``asset_url`` (the threat is upstream
+    swapping bytes under a stable URL) can't break the line format or inject
+    extra markdown lines into the created issue.
+    """
+    return str(value).replace("\t", " ").replace("\r", " ").replace("\n", " ")
 
 
 def main(argv: list[str]) -> int:
@@ -99,7 +121,12 @@ def main(argv: list[str]) -> int:
     result = classify_overlay_rows(prior, current)
     print(f"overlay-classify overlays={len(result.overlays)} net_new={len(result.net_new)}")
     for r in result.overlays:
-        print(f"overlay\t{r.get('card_id','')}\t{r.get('asset_url','')}\t{r.get('byte_sha256','')}")
+        print(
+            "overlay\t"
+            f"{_sanitize(r.get('card_id', ''))}\t"
+            f"{_sanitize(r.get('asset_url', ''))}\t"
+            f"{_sanitize(r.get('byte_sha256', ''))}"
+        )
     return 0
 
 
