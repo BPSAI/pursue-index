@@ -56,6 +56,24 @@ def test_non_filter_error_is_not_swallowed(
         ocr_llm.ocr_image(Image.new("RGB", (8, 8)))
 
 
+class _StatusError(Exception):
+    def __init__(self, msg: str, status: int) -> None:
+        super().__init__(msg)
+        self.status_code = status
+
+
+def test_non_400_echoing_filter_text_is_not_misclassified(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A non-400 error whose body merely echoes 'output blocked' must NOT be
+    routed to dots — it propagates as itself (the 400-status gate)."""
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path / "c")
+    exc = _StatusError("500 server error: output blocked (echoed input)", 500)
+    monkeypatch.setattr(ocr_llm, "_get_anthropic_client", lambda: _RaisingClient(exc))
+    with pytest.raises(_StatusError):
+        ocr_llm.ocr_image(Image.new("RGB", (8, 8)))
+
+
 # --- runner: per-page fallback ---------------------------------------------
 def _three_pages(_p: Path, _dpi: int) -> Iterator[Image.Image]:
     for _ in range(3):

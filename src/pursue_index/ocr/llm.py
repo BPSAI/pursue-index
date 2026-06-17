@@ -47,9 +47,16 @@ class ContentFilterError(Exception):
 def _is_content_filter_error(exc: Exception) -> bool:
     """True if ``exc`` is Anthropic's output-content-filter 400.
 
-    Message-based (no anthropic import needed): the SDK raises
-    ``BadRequestError: ... 'Output blocked by content filtering policy'``.
+    The SDK has no distinct content-filter error type — it raises
+    ``BadRequestError`` (``status_code == 400``) with the message
+    ``'Output blocked by content filtering policy'``. So we require BOTH the
+    400 status (when the SDK exposes it) AND the filter phrasing, to avoid
+    routing some other 400 whose body merely echoes these words to the dots
+    fallback. No anthropic import needed (duck-typed on ``status_code``).
     """
+    status = getattr(exc, "status_code", None)
+    if status not in (None, 400):
+        return False
     msg = str(exc).lower()
     return "content filtering" in msg or "output blocked" in msg
 
