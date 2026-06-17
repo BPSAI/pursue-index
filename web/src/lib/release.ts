@@ -262,6 +262,7 @@ const OCR_ENGINE_DISPLAY: Record<string, string> = {
   "llm-anthropic": "Claude Sonnet 4.6",
   surya: "Surya",
   tesseract: "Tesseract",
+  dots: "dots.mocr",
 };
 
 /**
