@@ -53,8 +53,9 @@ def ocr_run(
         None,
         "--engine",
         help="OCR engine: 'tesseract' (CPU), 'surya' (GPU), 'llm' "
-        "(Anthropic vision), or 'auto' (primary + LLM fallback for "
-        "low-confidence pages). Defaults to PURSUE_OCR_ENGINE.",
+        "(Anthropic vision), 'dots' (local dots.mocr backstop, no content "
+        "filter — needs PURSUE_DOTS_PYTHON), or 'auto' (primary + LLM "
+        "fallback for low-confidence pages). Defaults to PURSUE_OCR_ENGINE.",
     ),
     force: bool = typer.Option(
         False,

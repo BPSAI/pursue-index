@@ -30,6 +30,7 @@ from pursue_index import get_logger
 from pursue_index.config import settings
 from pursue_index.download.downloader import asset_path_for
 from pursue_index.ocr import auto as ocr_auto
+from pursue_index.ocr import dots as ocr_dots
 from pursue_index.ocr import llm as ocr_llm
 from pursue_index.ocr import runners as ocr_runners
 from pursue_index.ocr import surya as ocr_surya
@@ -88,6 +89,8 @@ def _engine_ocr_image(engine: EngineName):  # type: ignore[no-untyped-def]
         return lambda img: ocr_image(img)
     if engine == "llm":
         return lambda img: ocr_llm.ocr_image(img)
+    if engine == "dots":
+        return lambda img: ocr_dots.ocr_image(img)
     raise ValueError(f"Unknown OCR engine: {engine!r}")
 
 
@@ -207,7 +210,7 @@ def ocr_card(
 def _resolve_default_engine() -> EngineName:
     """``PURSUE_OCR_ENGINE`` → engine name."""
     cfg = settings.ocr_engine
-    return cfg if cfg in ("surya", "tesseract", "llm", "auto") else DEFAULT_ENGINE
+    return cfg if cfg in ("surya", "tesseract", "llm", "dots", "auto") else DEFAULT_ENGINE
 
 
 def _concurrency_for(engine: EngineName) -> int:
@@ -216,7 +219,10 @@ def _concurrency_for(engine: EngineName) -> int:
     (single GPU can't truly parallelize); tesseract caps at cpu_count."""
     if engine in ("llm", "auto"):
         return int(os.getenv("PURSUE_OCR_LLM_CONCURRENCY", "4"))
-    if engine == "surya":
+    if engine in ("surya", "dots"):
+        # surya: single GPU. dots: a single persistent GPU worker with one
+        # stdin/stdout channel — concurrent calls would interleave and corrupt
+        # the line protocol.
         return 1
     return min(4, os.cpu_count() or 1)
 

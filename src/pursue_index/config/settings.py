@@ -54,7 +54,9 @@ class Settings(BaseSettings):
     # ``surya`` runs the GPU transformer-OCR adapter (requires the [gpu] extra).
     # ``auto`` runs the primary engine (surya if installed, else tesseract) and
     # re-OCRs pages with confidence < ``ocr_llm_threshold`` via the LLM fallback.
-    ocr_engine: Literal["tesseract", "surya", "llm", "auto"] = "auto"
+    # ``dots`` is the local content-filter backstop (dots.mocr via the isolated
+    # venv; used where the llm engine 400s on Anthropic's output filter).
+    ocr_engine: Literal["tesseract", "surya", "llm", "dots", "auto"] = "auto"
     ocr_dpi: int = 300
     tesseract_bin: str = "/usr/bin/tesseract"
 
