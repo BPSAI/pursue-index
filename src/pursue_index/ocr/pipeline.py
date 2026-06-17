@@ -115,6 +115,8 @@ def _run_engine(
         return ocr_runners.run_auto_engine(
             pdf_path, pages_path, dpi, chosen_primary, run_primary, _rasterize
         )
+    if engine == "llm-dots":
+        return ocr_runners.run_llm_dots_fallback(pdf_path, pages_path, dpi, _rasterize)
     run_ocr = _engine_ocr_image(engine)
     return ocr_runners.run_single_engine(
         pdf_path, pages_path, dpi, engine, run_ocr, _rasterize
@@ -210,14 +212,17 @@ def ocr_card(
 def _resolve_default_engine() -> EngineName:
     """``PURSUE_OCR_ENGINE`` → engine name."""
     cfg = settings.ocr_engine
-    return cfg if cfg in ("surya", "tesseract", "llm", "dots", "auto") else DEFAULT_ENGINE
+    return cfg if cfg in ("surya", "tesseract", "llm", "dots", "llm-dots", "auto") else DEFAULT_ENGINE
 
 
 def _concurrency_for(engine: EngineName) -> int:
     """Engine-aware concurrency. LLM/auto parallelize via ``PURSUE_OCR_LLM_CONCURRENCY``
     (default 4 — Anthropic SDK handles its own retries); surya stays at 1
     (single GPU can't truly parallelize); tesseract caps at cpu_count."""
-    if engine in ("llm", "auto"):
+    if engine in ("llm", "auto", "llm-dots"):
+        # llm-dots: llm calls parallelize like llm; the rare dots fallback
+        # serializes on the worker lock (ocr.dots._lock), so card-level
+        # concurrency is safe.
         return int(os.getenv("PURSUE_OCR_LLM_CONCURRENCY", "4"))
     if engine in ("surya", "dots"):
         # surya: single GPU. dots: a single persistent GPU worker with one

@@ -56,7 +56,9 @@ class Settings(BaseSettings):
     # re-OCRs pages with confidence < ``ocr_llm_threshold`` via the LLM fallback.
     # ``dots`` is the local content-filter backstop (dots.mocr via the isolated
     # venv; used where the llm engine 400s on Anthropic's output filter).
-    ocr_engine: Literal["tesseract", "surya", "llm", "dots", "auto"] = "auto"
+    # ``llm-dots`` = llm primary with a per-page dots fallback on a 400 (so a
+    # mixed doc keeps Sonnet everywhere except a filter-blocked page).
+    ocr_engine: Literal["tesseract", "surya", "llm", "dots", "llm-dots", "auto"] = "auto"
     ocr_dpi: int = 300
     tesseract_bin: str = "/usr/bin/tesseract"
 

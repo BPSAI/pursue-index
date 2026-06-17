@@ -19,7 +19,9 @@ from PIL import Image
 from pursue_index import get_logger
 from pursue_index.config import settings
 from pursue_index.ocr import auto as ocr_auto
+from pursue_index.ocr import dots as ocr_dots
 from pursue_index.ocr import llm as ocr_llm
+from pursue_index.ocr.llm import ContentFilterError
 
 if TYPE_CHECKING:
     pass
@@ -56,8 +58,49 @@ def run_single_engine(
                     + "\n"
                 )
                 page_count += 1
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return page_count, f"{type(exc).__name__}: {exc}"
+    return page_count, None
+
+
+def run_llm_dots_fallback(
+    pdf_path: Path,
+    pages_path: Path,
+    dpi: int,
+    rasterize: PageIter,
+) -> tuple[int, str | None]:
+    """LLM (Sonnet) per page; on Anthropic's content-filter 400, fall back to
+    the local dots.mocr backstop for THAT page — no card abort.
+
+    Per-page ``engine`` tag is ``llm`` normally, ``dots`` for a filter-blocked
+    page, so a mixed doc (e.g. one sensitive page in an otherwise-clean card)
+    keeps Sonnet everywhere except the blocked page. Other (non-filter) errors
+    still propagate and fail the card, as before.
+    """
+    page_count = 0
+    fallback_pages = 0
+    try:
+        with pages_path.open("w") as fh:
+            for page_idx, img in enumerate(rasterize(pdf_path, dpi), start=1):
+                try:
+                    text, conf = ocr_llm.ocr_image(img)
+                    engine = "llm"
+                except ContentFilterError:
+                    log.warning("ocr.llm_dots.fallback", page=page_idx)
+                    text, conf = ocr_dots.ocr_image(img)
+                    engine = "dots"
+                    fallback_pages += 1
+                fh.write(
+                    json.dumps(
+                        {"page": page_idx, "text": text, "confidence": conf, "engine": engine}
+                    )
+                    + "\n"
+                )
+                page_count += 1
+    except Exception as exc:
+        return page_count, f"{type(exc).__name__}: {exc}"
+    if fallback_pages:
+        log.info("ocr.llm_dots.done", pages=page_count, dots_fallback=fallback_pages)
     return page_count, None
 
 
@@ -90,6 +133,6 @@ def run_auto_engine(
                 )
                 fh.write(json.dumps(row) + "\n")
                 page_count += 1
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return page_count, f"{type(exc).__name__}: {exc}"
     return page_count, None
