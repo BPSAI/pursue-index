@@ -35,6 +35,24 @@ log = get_logger(__name__)
 
 _client: Any = None
 
+
+class ContentFilterError(Exception):
+    """Anthropic's output content filter blocked the page (HTTP 400).
+
+    Distinct from other API errors so callers (the llm→dots fallback runner)
+    can route just this case to the local backstop instead of failing the card.
+    """
+
+
+def _is_content_filter_error(exc: Exception) -> bool:
+    """True if ``exc`` is Anthropic's output-content-filter 400.
+
+    Message-based (no anthropic import needed): the SDK raises
+    ``BadRequestError: ... 'Output blocked by content filtering policy'``.
+    """
+    msg = str(exc).lower()
+    return "content filtering" in msg or "output blocked" in msg
+
 # Anthropic vision API rejects images > 5 MB base64-encoded. Cap the longest
 # edge so high-DPI rasters get downscaled before the encode step.
 _MAX_IMAGE_EDGE_PX = 1568
@@ -215,7 +233,13 @@ def _ocr_image_anthropic(
     client = _get_anthropic_client()
     request = _build_request(_image_to_b64(img))
     log.info("ocr.llm.call", provider="anthropic", model=settings.ocr_llm_model, sha=sha[:12])
-    response = client.messages.create(**request)
+    try:
+        response = client.messages.create(**request)
+    except Exception as exc:
+        if _is_content_filter_error(exc):
+            log.warning("ocr.llm.content_filter", model=settings.ocr_llm_model, sha=sha[:12])
+            raise ContentFilterError(str(exc)) from exc
+        raise
     _log_usage(response.usage)
     raw = response.content[0].text if response.content else ""
     text, confidence = parse_response(raw)

@@ -29,6 +29,7 @@ import json
 import os
 import subprocess
 import tempfile
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -44,6 +45,10 @@ log = get_logger(__name__)
 _DOTS_CONFIDENCE = 70.0
 
 _worker: _DotsWorker | None = None
+# The persistent worker has a single stdin/stdout channel. Serialize all access
+# so concurrent callers (e.g. several cards in the llm→dots fallback run hitting
+# a content-filter page at once) can't interleave and corrupt the line protocol.
+_lock = threading.Lock()
 
 
 def _worker_script_default() -> str:
@@ -130,9 +135,11 @@ def ocr_image(img: Image.Image) -> tuple[str, float]:
     """Return ``(text, confidence)`` for a single page image via dots.mocr.
 
     Lazily starts the persistent worker on first call (model loads once), then
-    reuses it for every subsequent page in the run.
+    reuses it for every subsequent page in the run. Thread-safe: access to the
+    single worker channel is serialized under ``_lock``.
     """
-    return _get_worker().ocr(img)
+    with _lock:
+        return _get_worker().ocr(img)
 
 
 def shutdown() -> None:
