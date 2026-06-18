@@ -140,6 +140,38 @@ def test_unaugmented_run_emits_plain_ocr_text(tmp_path: Path) -> None:
     assert "IMAGE-DESCRIPTIONS" not in docs[0]["text"]
 
 
+def test_card_not_in_manifest_is_skipped(tmp_path: Path) -> None:
+    """A card with OCR on disk but absent from the manifest (e.g. an
+    upstream-removed re-encode whose live successor carries the content) must
+    NOT enter the public search index — else it's a search hit with no page."""
+    ocr_dir = tmp_path / "ocr"
+    out_path = tmp_path / "pages.json"
+    _stage_card(ocr_dir, "ff30c985595153f3", [(1, "kept page")])
+    _stage_card(ocr_dir, "dead0000deadbeef", [(1, "removed-card page")])
+    _stage_manifest(
+        tmp_path / "manifests",
+        [
+            {
+                "card_id": "ff30c985595153f3",
+                "title": "T",
+                "asset_url": "https://www.war.gov/medialink/ufo/x.pdf",
+            }
+        ],
+    )
+
+    mod = _load_script_module()
+    rc = mod.build(
+        ocr_dir=ocr_dir,
+        manifest_path=tmp_path / "manifests" / "latest.json",
+        out_path=out_path,
+        embeddings_root=tmp_path / "embeddings",
+        embed_model="voyage-3",
+    )
+    assert rc == 0
+    docs = json.loads(out_path.read_text())
+    assert [d["card_id"] for d in docs] == ["ff30c985595153f3"]
+
+
 def _stage_one_card_setup(tmp_path: Path) -> Path:
     """Stage a card + manifest + augmented index.json + corpus.
 
