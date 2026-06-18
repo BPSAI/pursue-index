@@ -135,7 +135,15 @@ def _walk_card_pages(
         if meta.get("status") != "ok":
             continue
         card_id = card_dir.name
-        title = titles_by_id.get(card_id, "(unknown)")
+        title = titles_by_id.get(card_id)
+        if title is None:
+            # Card not in the current manifest (e.g. an upstream-removed
+            # re-encode whose live successor card_id now carries the content):
+            # its OCR dir lingers on NAS but it must not enter the public
+            # search index — the site renders cards only from the manifest, so
+            # an indexed-but-unlisted card is a search result with no page.
+            print(f"  skip (not in manifest): {card_id}", file=sys.stderr)
+            continue
         cards_seen += 1
         docs.extend(
             _emit_card_pages(card_id, title, pages_path, augment_lookup)
