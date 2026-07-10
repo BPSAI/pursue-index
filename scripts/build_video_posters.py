@@ -231,15 +231,18 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     manifest = load_manifest(args.manifest)
-    vid_cards = [c for c in manifest.cards if c.asset_type == "VID"]
-    print(f"[posters] {len(vid_cards)} VID cards in manifest")
+    # AUD items are DVIDS audio wrapped in an mp4 that runs a static agency
+    # logo card (e.g. the NASA logo on the Apollo debriefings), so a poster
+    # frame is just as valid a thumbnail for them as for VID clips.
+    poster_cards = [c for c in manifest.cards if c.asset_type in ("VID", "AUD")]
+    print(f"[posters] {len(poster_cards)} VID/AUD cards in manifest")
 
     index_path = args.posters_dir / "index.json"
     mapping = load_index(index_path)
 
     counts = {"posters_kept": 0, "posters_new": 0, "skip_no_dod": 0, "skip_no_file": 0, "skip_ffmpeg": 0}
 
-    for card in vid_cards:
+    for card in poster_cards:
         _process_one_poster(card, args, mapping, counts)
 
     save_index(index_path, mapping)
