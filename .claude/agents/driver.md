@@ -4,7 +4,7 @@ description: Implementation specialist. Use for writing code, running tests, and
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
 memory: project
-permissionMode: default
+permissionMode: manual
 skills:
   - implementing-with-tdd
   - managing-task-lifecycle

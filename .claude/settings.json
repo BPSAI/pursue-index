@@ -160,5 +160,8 @@
     "type": "command",
     "command": "bpsai-pair-statusline",
     "padding": 0
+  },
+  "env": {
+    "OTEL_LOG_ASSISTANT_RESPONSES": "0"
   }
 }

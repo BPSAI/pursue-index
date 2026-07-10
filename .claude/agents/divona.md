@@ -5,7 +5,7 @@ description: QC testing specialist. Runs interactive browser-based regression te
 tools: Read, Grep, Glob, Bash
 model: sonnet
 memory: project
-permissionMode: default
+permissionMode: manual
 skills:
   - running-qc
 agent-roles:

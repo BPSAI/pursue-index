@@ -58,7 +58,10 @@ bpsai-pair feedback status
 
 Use intelligence data for:
 - Token estimates for complexity scoring
-- Model recommendations per task type
+- Model recommendations per task type — `bpsai-pair calibration
+  recommend-model --task-type <type> --complexity <n> [--cross-module]`
+  (MR3.2 — calibration `recommended_model` when the store has enough
+  samples, else the ratified doctrine table)
 - Effort-level validation (S/M/L)
 - Cross-repo impact detection
 
@@ -133,10 +136,12 @@ For each task:
        --priority <P0|P1|P2|P3>
    ```
 
-2. **Write task content** to `.paircoder/tasks/T<sprint>.<seq>.task.md` with:
+2. **Resolve the per-task model** (MR3.2, see Step 2 above), then
+   **write task content** to `.paircoder/tasks/T<sprint>.<seq>.task.md` with:
    - Objective, Files to Update, Implementation Plan
    - Acceptance Criteria (checkboxes)
    - Verification commands
+   - `model:` frontmatter set from the `recommend-model` output
 
    **Wiring ACs (required for any new capability).** Unit behavior alone is
    not enough — code can be written, unit-tested, and never actually wired in

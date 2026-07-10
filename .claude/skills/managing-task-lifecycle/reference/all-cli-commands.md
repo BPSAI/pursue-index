@@ -1,1046 +1,708 @@
 # PairCoder CLI Complete Reference
 
-> Updated: 2026-02-05 | Version: 2.13.0 | 200+ commands
+> **This file is generated. Do not edit by hand.**
+> Regenerate with: `python tools/cli/scripts/generate_cli_reference.py`
+> Source of truth: the installed `bpsai-pair` Typer app (`bpsai_pair.cli:app`)
+> bpsai-pair 2.30.0 | 266 commands across 47 groups
+
+---
 
 ## Contents
 
-- [Command Groups Overview](#command-groups-overview)
-- [Core Commands](#core-commands)
-- [Preset Commands](#preset-commands)
-- [Planning Commands](#planning-commands)
-- [Task Commands](#task-commands)
-- [Sprint Commands](#sprint-commands)
-- [Skills Commands](#skills-commands)
-- [Orchestration Commands](#orchestration-commands)
-- [Intent Commands](#intent-commands)
-- [GitHub Commands](#github-commands)
-- [Standup Commands](#standup-commands)
-- [Metrics Commands](#metrics-commands)
-- [Budget Commands](#budget-commands)
-- [Timer Commands](#timer-commands)
-- [Benchmark Commands](#benchmark-commands)
-- [Cache Commands](#cache-commands)
-- [Session Commands](#session-commands)
-- [Compaction Commands](#compaction-commands)
-- [Security Commands](#security-commands)
-- [Migrate Commands](#migrate-commands)
-- [Trello Commands](#trello-commands)
-- [Trello Task Commands (ttask)](#trello-task-commands-ttask)
-- [MCP Commands](#mcp-commands)
+- [Top-Level Commands](#top-level-commands)
+- [Arch Commands](#arch-commands)
 - [Audit Commands](#audit-commands)
-- [State Commands](#state-commands)
-- [Release Commands](#release-commands)
-- [Template Commands](#template-commands)
-- [Subagent Commands](#subagent-commands)
-- [Gaps Commands](#gaps-commands)
+- [Benchmark Commands](#benchmark-commands)
+- [Budget Commands](#budget-commands)
+- [Cache Commands](#cache-commands)
+- [Calibration Commands](#calibration-commands)
+- [Compaction Commands](#compaction-commands)
 - [Config Commands](#config-commands)
 - [Containment Commands](#containment-commands)
 - [Enforce Commands](#enforce-commands)
-- [Arch Commands](#arch-commands)
-- [Telemetry Commands](#telemetry-commands)
 - [Feedback Commands](#feedback-commands)
-- [Workspace Commands (Pro+)](#workspace-commands-pro)
-- [Configuration](#configuration)
-- [Environment Variables](#environment-variables)
-- [Common Workflows](#common-workflows)
+- [Fleet Commands](#fleet-commands)
+- [Gaps Commands](#gaps-commands)
+- [Github Commands](#github-commands)
+- [Intent Commands](#intent-commands)
+- [License Commands](#license-commands)
+- [MCP Commands](#mcp-commands)
+- [Metrics Commands](#metrics-commands)
+- [Migrate Commands](#migrate-commands)
+- [Orchestrate Commands](#orchestrate-commands)
+- [Plan Commands](#plan-commands)
+- [PM Commands](#pm-commands)
+- [Preset Commands](#preset-commands)
+- [QA Commands](#qa-commands)
+- [QC Commands](#qc-commands)
+- [Query Commands](#query-commands)
+- [Release Commands](#release-commands)
+- [Review Commands](#review-commands)
+- [Security Commands](#security-commands)
+- [Session Commands](#session-commands)
+- [Setup Commands](#setup-commands)
+- [Skill Commands](#skill-commands)
+- [Sprint Commands](#sprint-commands)
+- [Standup Commands](#standup-commands)
+- [State Commands](#state-commands)
+- [Subagent Commands](#subagent-commands)
+- [Subscription Commands](#subscription-commands)
+- [Support Commands](#support-commands)
+- [System Commands](#system-commands)
+- [Task Commands](#task-commands)
+- [Telemetry Commands](#telemetry-commands)
+- [Template Commands](#template-commands)
+- [Timer Commands](#timer-commands)
+- [Trello Commands](#trello-commands)
+- [Ttask Commands](#ttask-commands)
+- [Workspace Commands](#workspace-commands)
 
 ---
 
 ## Command Groups Overview
 
-| Group | Purpose | Count |
-|-------|---------|-------|
-| Core | init, feature, pack, status, validate, ci, context-sync, contained-auto | 8 |
-| Preset | Project presets | 4 |
-| Planning | plan new/list/show/tasks/status/sync-trello/add-task/estimate | 8 |
-| Task | Local task file management | 11 |
-| Sprint | Sprint lifecycle management | 2 |
-| Skills | Skill management and export | 7 |
-| Orchestration | Multi-agent orchestration | 6 |
-| Intent | Natural language intent detection | 3 |
-| GitHub | GitHub PR integration | 7 |
-| Standup | Generate standup summaries | 2 |
-| Metrics | Token/cost tracking | 9 |
-| Budget | Token budget management | 3 |
-| Timer | Time tracking | 5 |
-| Benchmark | Agent benchmarking | 4 |
-| Cache | Context caching | 3 |
-| Session | Session management | 2 |
-| Compaction | Context compaction recovery | 5 |
-| Security | Security scanning | 4 |
-| Migrate | Migration commands | 2 |
-| Trello | Trello board configuration | 10 |
-| ttask | Trello card operations | 7 |
-| MCP | MCP server for Claude Desktop | 3 |
-| Audit | Workflow bypass auditing | 3 |
-| State | Task execution state machine | 5 |
-| Release | Release management | 3 |
-| Template | Cookiecutter template management | 2 |
-| Subagent | Claude Code subagent management | 1 |
-| Gaps | Unified gap detection | 4 |
-| Config | Configuration validation | 3 |
-| Containment | Containment checkpoint management | 3 |
-| Enforce | Enforcement gates for hooks | 2 |
-| Arch | Architecture enforcement | 2 |
-| Upgrade | Version upgrades | 1 |
-| Telemetry | Session telemetry collection and export | 3 |
-| Feedback | Calibration and estimation feedback loop | 4 |
-| Workspace | Multi-project workspace management (Pro+) | 3 |
-| License (ext) | Extended license commands | 5 |
-| **Total** | | **200+** |
+| Group | Commands |
+|-------|----------|
+| Top-Level | 15 |
+| Arch | 7 |
+| Audit | 3 |
+| Benchmark | 6 |
+| Budget | 4 |
+| Cache | 3 |
+| Calibration | 2 |
+| Compaction | 5 |
+| Config | 6 |
+| Containment | 4 |
+| Enforce | 3 |
+| Feedback | 4 |
+| Fleet | 2 |
+| Gaps | 4 |
+| Github | 8 |
+| Intent | 3 |
+| License | 10 |
+| MCP | 3 |
+| Metrics | 9 |
+| Migrate | 1 |
+| Orchestrate | 8 |
+| Plan | 10 |
+| PM | 19 |
+| Preset | 3 |
+| QA | 4 |
+| QC | 4 |
+| Query | 6 |
+| Release | 6 |
+| Review | 5 |
+| Security | 4 |
+| Session | 3 |
+| Setup | 1 |
+| Skill | 9 |
+| Sprint | 2 |
+| Standup | 2 |
+| State | 6 |
+| Subagent | 1 |
+| Subscription | 2 |
+| Support | 4 |
+| System | 1 |
+| Task | 13 |
+| Telemetry | 8 |
+| Template | 2 |
+| Timer | 5 |
+| Trello | 18 |
+| Ttask | 9 |
+| Workspace | 9 |
+| **Total** | **266** |
 
 ---
 
-## Core Commands
-
-| Command | Description |
-|---------|-------------|
-| `init [path] [--preset]` | Initialize repo with PairCoder structure |
-| `feature <name>` | Create feature branch with context |
-| `pack [--lite]` | Package context for AI agents |
-| `context-sync` | Update the context loop |
-| `status` | Show current context and recent changes |
-| `validate` | Check repo structure and consistency |
-| `ci` | Run local CI checks (tests + linting) |
-| `contained-auto [task] [-y]` | Start contained autonomous session |
-
-### Examples
-
-```bash
-# Initialize new project
-bpsai-pair init my-project --preset bps
-
-# Create feature branch
-bpsai-pair feature add-auth --type feature --primary "Add authentication"
-
-# Package context (lite for Codex 32KB limit)
-bpsai-pair pack --lite --out context.tgz
-
-# Check status
-bpsai-pair status
-
-# Start contained autonomous session
-bpsai-pair contained-auto              # Interactive
-bpsai-pair contained-auto T1.4        # With specific task
-bpsai-pair contained-auto -y           # Skip confirmation
-```
-
----
-
-## Preset Commands
-
-| Command | Description |
-|---------|-------------|
-| `preset list` | List available presets |
-| `preset show <name>` | Show preset details |
-| `preset preview <name>` | Preview generated config |
-| `init --preset <name>` | Initialize with preset |
-
-**Available Presets:** python-cli, python-api, react, fullstack, library, minimal, autonomous, bps
-
-### Examples
-
-```bash
-bpsai-pair preset list
-bpsai-pair preset show bps
-bpsai-pair preset preview autonomous
-bpsai-pair init my-project --preset bps
-```
-
----
-
-## Planning Commands
-
-| Command | Description |
-|---------|-------------|
-| `plan new <slug>` | Create a new plan |
-| `plan list` | List all plans |
-| `plan show <id>` | Show plan details |
-| `plan tasks <id>` | List tasks for a plan |
-| `plan status [id]` | Show progress with task breakdown |
-| `plan sync-trello <id>` | Sync tasks to Trello board |
-| `plan add-task <id>` | Add a task to a plan |
-| `plan estimate <id>` | Estimate plan token cost |
-
-### Examples
-
-```bash
-# Create feature plan
-bpsai-pair plan new my-feature --type feature --title "My Feature"
-
-# Show plan with progress
-bpsai-pair plan status plan-2025-12-my-feature
-
-# Sync to Trello
-bpsai-pair plan sync-trello plan-2025-12-my-feature --dry-run
-bpsai-pair plan sync-trello plan-2025-12-my-feature --target-list "Planned/Ready"
-```
-
----
-
-## Task Commands
-
-| Command | Description |
-|---------|-------------|
-| `task list` | List all tasks |
-| `task show <id>` | Show task details |
-| `task update <id> --status` | Update task status (fires hooks) |
-| `task next` | Get next recommended task |
-| `task next --start` | Auto-start next task |
-| `task auto-next` | Full auto-assignment with Trello |
-| `task archive` | Archive completed tasks |
-| `task restore <id>` | Restore from archive |
-| `task list-archived` | List archived tasks |
-| `task cleanup` | Clean old archives |
-| `task changelog-preview` | Preview changelog entry |
-
-### Examples
-
-```bash
-# Get and start next task
-bpsai-pair task next --start
-
-# Update task status (fires hooks)
-bpsai-pair task update TASK-001 --status in_progress
-bpsai-pair task update TASK-001 --status done
-
-# Archive completed tasks
-bpsai-pair task archive --completed
-bpsai-pair task changelog-preview --since 2025-12-01
-```
-
----
-
-## Sprint Commands
-
-| Command | Description |
-|---------|-------------|
-| `sprint list [--plan]` | List sprints in a plan |
-| `sprint complete <sprint-id> [--skip-checklist --reason]` | Complete sprint with checklist verification |
-
-### Examples
-
-```bash
-# List sprints in active plan
-bpsai-pair sprint list
-
-# List sprints in specific plan
-bpsai-pair sprint list --plan plan-2025-12-feature
-
-# Complete sprint with checklist verification
-bpsai-pair sprint complete sprint-17
-
-# Skip checklist (requires reason, logged for audit)
-bpsai-pair sprint complete sprint-17 --skip-checklist --reason "Hotfix deployment"
-```
-
----
-
-## Skills Commands
-
-| Command | Description |
-|---------|-------------|
-| `skill list` | List all skills |
-| `skill validate [name]` | Validate skill format against spec |
-| `skill export <name> [--format --all --dry-run]` | Export to Cursor/Continue/Windsurf/Codex/ChatGPT |
-| `skill install <source> [--overwrite --name --personal]` | Install skill from URL/path |
-| `skill suggest` | AI-powered skill suggestions |
-| `skill gaps` | Detect missing skills from patterns |
-| `skill generate <name>` | Generate skill from detected gap |
-
-### Examples
-
-```bash
-# List and validate
-bpsai-pair skill list
-bpsai-pair skill validate
-bpsai-pair skill validate designing-and-implementing
-
-# Export to other platforms
-bpsai-pair skill export my-skill --format cursor
-bpsai-pair skill export --all --format windsurf
-bpsai-pair skill export my-skill --format continue --dry-run
-
-# Install from URL or path
-bpsai-pair skill install https://example.com/skill.tar.gz
-bpsai-pair skill install ./my-skill/
-
-# AI-powered suggestions
-bpsai-pair skill suggest
-bpsai-pair skill gaps
-bpsai-pair skill generate gap-name
-```
-
----
-
-## Orchestration Commands
-
-| Command | Description |
-|---------|-------------|
-| `orchestrate task <id>` | Route task to best agent |
-| `orchestrate analyze <id>` | Analyze task complexity |
-| `orchestrate handoff <id>` | Create handoff package |
-| `orchestrate auto-run` | Run single task workflow |
-| `orchestrate auto-session` | Run autonomous session |
-| `orchestrate workflow-status` | Show current workflow state |
-
-### Examples
-
-```bash
-# Analyze task complexity
-bpsai-pair orchestrate analyze TASK-001
-
-# Create handoff for another agent
-bpsai-pair orchestrate handoff TASK-001 \
-  --from claude-code --to codex \
-  --progress "Completed step 1 and 2"
-
-# Run autonomous session
-bpsai-pair orchestrate auto-session --max-tasks 3
-```
-
----
-
-## Intent Commands
-
-| Command                       | Description |
-|-------------------------------|-------------|
-| `intent detect <text>`        | Detect work intent from text |
-| `intent should-plan <text>`   | Check if planning needed |
-| `intent suggest-skill <text>` | Suggest appropriate workflow |
-
-### Examples
-
-```bash
-bpsai-pair intent detect "fix the login bug"
-# Output: bugfix
-
-bpsai-pair intent should-plan "refactor the database layer"
-# Output: true
-
-bpsai-pair intent suggest-skill "review the PR"
-# Output: reviewing-code
-```
-
----
-
-## GitHub Commands
-
-| Command | Description |
-|---------|-------------|
-| `github status` | Check GitHub connection |
-| `github create` | Create a pull request |
-| `github list` | List pull requests |
-| `github merge <pr>` | Merge PR and update task |
-| `github link <task>` | Link task to PR |
-| `github auto-pr` | Auto-create PR from branch |
-| `github archive-merged` | Archive tasks for merged PRs |
-
-### Examples
-
-```bash
-# Auto-create PR from branch (detects TASK-xxx)
-bpsai-pair github auto-pr
-bpsai-pair github auto-pr --no-draft
-
-# Archive all tasks for merged PRs
-bpsai-pair github archive-merged --all
-```
-
----
-
-## Standup Commands
-
-| Command | Description |
-|---------|-------------|
-| `standup generate` | Generate daily summary |
-| `standup post` | Post summary to Trello |
-
-### Examples
-
-```bash
-bpsai-pair standup generate --format slack
-bpsai-pair standup generate --since 48  # Last 48 hours
-bpsai-pair standup post
-```
-
----
-
-## Metrics Commands
-
-| Command | Description |
-|---------|-------------|
-| `metrics summary` | Show metrics for time period |
-| `metrics task <id>` | Show metrics for a task |
-| `metrics breakdown` | Cost breakdown by dimension |
-| `metrics budget` | Show budget status |
-| `metrics export` | Export metrics to file |
-| `metrics velocity` | Show velocity metrics |
-| `metrics burndown` | Show burndown chart data |
-| `metrics accuracy` | Show estimation accuracy |
-| `metrics tokens` | Show token usage |
-
-### Examples
-
-```bash
-bpsai-pair metrics summary
-bpsai-pair metrics breakdown --by model
-bpsai-pair metrics export --format csv --output metrics.csv
-```
-
----
-
-## Budget Commands
-
-| Command | Description |
-|---------|-------------|
-| `budget estimate` | Estimate task token cost |
-| `budget status` | Show current budget usage |
-| `budget check` | Check if task fits budget |
-
-### Examples
-
-```bash
-bpsai-pair budget status
-bpsai-pair budget estimate TASK-001
-bpsai-pair budget check --task TASK-001
-```
-
----
-
-## Timer Commands
-
-| Command | Description |
-|---------|-------------|
-| `timer start <task>` | Start timer for a task |
-| `timer stop` | Stop current timer |
-| `timer status` | Show current timer |
-| `timer show <task>` | Show time entries |
-| `timer summary` | Show time summary |
-
-### Examples
-
-```bash
-bpsai-pair timer start TASK-001
-bpsai-pair timer status
-bpsai-pair timer stop
-bpsai-pair timer summary --plan plan-2025-12-feature
-```
-
----
-
-## Benchmark Commands
-
-| Command | Description |
-|---------|-------------|
-| `benchmark run` | Run benchmark suite |
-| `benchmark results` | View results |
-| `benchmark compare` | Compare agents |
-| `benchmark list` | List benchmarks |
-
-### Examples
-
-```bash
-bpsai-pair benchmark run --suite default
-bpsai-pair benchmark results --latest
-bpsai-pair benchmark compare claude-code codex
-```
-
----
-
-## Cache Commands
-
-| Command | Description |
-|---------|-------------|
-| `cache stats` | Show cache statistics |
-| `cache clear` | Clear context cache |
-| `cache invalidate <file>` | Invalidate specific file |
-
-### Examples
-
-```bash
-bpsai-pair cache stats
-bpsai-pair cache clear
-bpsai-pair cache invalidate .paircoder/context/state.md
-```
-
----
-
-## Session Commands
-
-| Command | Description |
-|---------|-------------|
-| `session check` | Check session status (quiet mode for hooks) |
-| `session status` | Show detailed session info with budget |
-
-### Examples
-
-```bash
-bpsai-pair session check --quiet
-bpsai-pair session status
-```
-
----
-
-## Compaction Commands
-
-| Command | Description |
-|---------|-------------|
-| `compaction snapshot save` | Save context snapshot |
-| `compaction snapshot list` | List snapshots |
-| `compaction check` | Check for compaction events |
-| `compaction recover` | Recover from compaction |
-| `compaction cleanup` | Clean old snapshots |
-
-### Examples
-
-```bash
-bpsai-pair compaction snapshot save --trigger "manual"
-bpsai-pair compaction snapshot list
-bpsai-pair compaction check
-bpsai-pair compaction recover
-bpsai-pair compaction cleanup --older-than 7
-```
-
----
-
-## Security Commands
-
-| Command | Description |
-|---------|-------------|
-| `security scan-secrets` | Scan for leaked secrets |
-| `security pre-commit` | Run pre-commit checks |
-| `security install-hook` | Install git hooks |
-| `security scan-deps` | Scan dependency vulnerabilities |
-
-### Examples
-
-```bash
-bpsai-pair security scan-secrets --staged
-bpsai-pair security scan-deps
-bpsai-pair security install-hook
-```
-
----
-
-## Migrate Commands
-
-| Command | Description |
-|---------|-------------|
-| `migrate` | Run pending migrations |
-| `migrate status` | Show migration status |
-
-### Examples
-
-```bash
-bpsai-pair migrate status
-bpsai-pair migrate
-```
-
----
-
-## Trello Commands
-
-| Command | Description |
-|---------|-------------|
-| `trello connect` | Connect to Trello |
-| `trello status` | Check connection |
-| `trello disconnect` | Remove credentials |
-| `trello boards` | List available boards |
-| `trello use-board <id>` | Set active board |
-| `trello lists` | Show board lists |
-| `trello config` | View/modify config |
-| `trello progress <task>` | Post progress comment |
-| `trello webhook serve` | Start webhook server |
-| `trello webhook status` | Check webhook status |
-
-### Examples
-
-```bash
-bpsai-pair trello connect
-bpsai-pair trello boards
-bpsai-pair trello use-board 694176ebf4b9d27c6e7a0e73
-bpsai-pair trello status
-bpsai-pair trello progress TASK-001 --completed "Feature done"
-```
-
----
-
-## Trello Task Commands (ttask)
-
-| Command | Description |
-|---------|-------------|
-| `ttask list` | List tasks from board |
-| `ttask show <id>` | Show task details |
-| `ttask start <id> [--budget-override]` | Start working on task (checks budget) |
-| `ttask done <id> --summary [--no-strict]` | Complete task (strict AC check by default) |
-| `ttask block <id> --reason` | Mark as blocked |
-| `ttask comment <id>` | Add comment |
-| `ttask move <id>` | Move to different list |
-
-### Examples
-
-```bash
-# List and show
-bpsai-pair ttask list
-bpsai-pair ttask list --list "In Progress"
-bpsai-pair ttask show TRELLO-abc123
-
-# Lifecycle
-bpsai-pair ttask start TRELLO-abc123
-bpsai-pair ttask start TRELLO-abc123 --budget-override  # Override budget warning (logged)
-bpsai-pair ttask done TRELLO-abc123 --summary "Implemented feature" --list "Deployed/Done"
-bpsai-pair ttask done TRELLO-abc123 --summary "Done" --no-strict  # Skip AC check (logged)
-bpsai-pair ttask block TRELLO-abc123 --reason "Waiting for API"
-
-# Comments
-bpsai-pair ttask comment TRELLO-abc123 "50% complete"
-```
-
-### When to Use `task` vs `ttask`
-
-| Scenario | Command |
-|----------|---------|
-| Working with local task files | `task` |
-| Need hooks to fire (timer, state.md) | `task update` |
-| Working directly with Trello cards | `ttask` |
-| Adding progress comments to cards | `ttask comment` |
-| Card doesn't have local task file | `ttask` |
-| Card has linked local task | Either works |
-
-**Recommended workflow:**
-- Use `task update` for status changes (fires all hooks)
-- Use `ttask comment` for progress notes
-- Use `ttask` commands when Trello is your only source
-
----
-
-## MCP Commands
-
-| Command | Description |
-|---------|-------------|
-| `mcp serve` | Start MCP server (stdio transport) |
-| `mcp tools` | List available tools |
-| `mcp test <tool>` | Test tool locally |
-
-### Examples
-
-```bash
-bpsai-pair mcp serve
-bpsai-pair mcp tools
-bpsai-pair mcp test paircoder_task_list
-```
-
-### Available MCP Tools (13)
-
-| Tool | Description |
-|------|-------------|
-| `paircoder_task_list` | List tasks with filters |
-| `paircoder_task_next` | Get next recommended task |
-| `paircoder_task_start` | Start a task |
-| `paircoder_task_complete` | Complete a task |
-| `paircoder_context_read` | Read project context |
-| `paircoder_plan_status` | Get plan progress |
-| `paircoder_plan_list` | List available plans |
-| `paircoder_orchestrate_analyze` | Analyze task complexity |
-| `paircoder_orchestrate_handoff` | Create handoff package |
-| `paircoder_metrics_record` | Record token usage |
-| `paircoder_metrics_summary` | Get metrics summary |
-| `paircoder_trello_sync_plan` | Sync plan to Trello |
-| `paircoder_trello_update_card` | Update Trello card |
-
----
-
-## Audit Commands
-
-| Command | Description |
-|---------|-------------|
-| `audit bypasses` | Show recent workflow bypasses |
-| `audit summary` | Show bypass summary by type and command |
-| `audit clear` | Clear bypass log (dev/testing only) |
-
-### Examples
-
-```bash
-# View recent bypasses (default: last 7 days)
-bpsai-pair audit bypasses
-bpsai-pair audit bypasses --days 30
-
-# Filter by bypass type
-bpsai-pair audit bypasses --type budget_override
-bpsai-pair audit bypasses --type no_strict
-bpsai-pair audit bypasses --type local_only
-
-# Export as JSON
-bpsai-pair audit bypasses --json
-
-# View summary breakdown
-bpsai-pair audit summary
-bpsai-pair audit summary --days 14
-```
-
----
-
-## State Commands
-
-| Command | Description |
-|---------|-------------|
-| `state show <task>` | Show current execution state and valid transitions |
-| `state list` | List all tracked task states |
-| `state history [task]` | View state transition history |
-| `state reset <task>` | Reset task to NOT_STARTED state |
-| `state advance <task> <state>` | Manually advance task to a new state |
-
-### Examples
-
-```bash
-# Show task state and valid transitions
-bpsai-pair state show T1.1
-
-# List all tracked states
-bpsai-pair state list
-bpsai-pair state list --status in_progress
-
-# View transition history
-bpsai-pair state history
-bpsai-pair state history T1.1
-bpsai-pair state history --limit 50
-
-# Reset a task (e.g., to redo it)
-bpsai-pair state reset T1.1
-bpsai-pair state reset T1.1 --yes  # Skip confirmation
-
-# Manually advance state (only valid transitions allowed)
-bpsai-pair state advance T1.1 budget_checked
-bpsai-pair state advance T1.1 in_progress --reason "Starting work"
-```
-
----
-
-## Release Commands
-
-| Command | Description |
-|---------|-------------|
-| `release plan` | Generate release preparation tasks |
-| `release checklist` | Show the release preparation checklist |
-| `release prep` | Verify release readiness and generate tasks for missing items |
-
-### Examples
-
-```bash
-bpsai-pair release checklist
-bpsai-pair release prep --version 2.9.4
-bpsai-pair release plan --version 2.9.4
-```
-
----
-
-## Template Commands
-
-| Command | Description |
-|---------|-------------|
-| `template check` | Check for drift between source files and cookiecutter template |
-| `template list` | List files tracked for template sync |
-
-### Examples
-
-```bash
-bpsai-pair template list
-bpsai-pair template check
-bpsai-pair template check --fix  # Auto-sync drifted files
-```
-
----
-
-## Subagent Commands
-
-| Command | Description |
-|---------|-------------|
-| `subagent gaps` | List detected subagent gaps from session history |
-
-### Examples
-
-```bash
-bpsai-pair subagent gaps
-```
-
----
-
-## Gaps Commands
-
-| Command | Description |
-|---------|-------------|
-| `gaps detect` | Detect and classify all gaps from session history |
-| `gaps list` | List all classified gaps |
-| `gaps show <id>` | Show detailed classification for a specific gap |
-| `gaps check <id>` | Check quality gates for a specific gap |
-
-### Examples
-
-```bash
-bpsai-pair gaps detect
-bpsai-pair gaps list
-bpsai-pair gaps show GAP-001
-bpsai-pair gaps check GAP-001
-```
-
----
-
-## Config Commands
-
-| Command | Description |
-|---------|-------------|
-| `config validate` | Validate config against preset template |
-| `config update` | Update config with missing sections from preset |
-| `config show [section]` | Show current config or a specific section |
-
-### Examples
-
-```bash
-bpsai-pair config validate
-bpsai-pair config show
-bpsai-pair config show enforcement
-bpsai-pair config update --preset bps
-```
-
----
-
-## Containment Commands
-
-| Command | Description |
-|---------|-------------|
-| `containment rollback` | Rollback to a containment checkpoint |
-| `containment list` | List containment checkpoints |
-| `containment cleanup` | Remove old containment checkpoints |
-
-### Examples
-
-```bash
-bpsai-pair containment list
-bpsai-pair containment rollback checkpoint-2026-01-21
-bpsai-pair containment cleanup --older-than 7
-```
-
----
-
-## Enforce Commands
-
-| Command | Description |
-|---------|-------------|
-| `enforce task-edit` | Enforce task edit rules for PreToolUse hook |
-| `enforce state-edit` | Enforce state.md edit rules for PreToolUse hook |
-
-### Examples
-
-```bash
-# These are typically called by Claude Code hooks, not manually
-bpsai-pair enforce task-edit --file .paircoder/tasks/T1.1.task.md
-bpsai-pair enforce state-edit --file .paircoder/context/state.md
-```
+## Top-Level Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `ci --json` | Run local CI checks (cross-platform). | `--json` |
+| `contained-auto [task] --skip-checkpoint --yes --channels` | Start a contained autonomous session. | `--skip-checkpoint`, `--yes`, `--channels` |
+| `context-sync --overall --last --next --blockers --json --auto --quiet` | Update the Context Loop in /context/state.md. | `--overall`, `--last`, `--next`, `--blockers`, `--json`, `--auto`, `--quiet` |
+| `doctor --json --fix` | Run holistic health check on your PairCoder environment. | `--json`, `--fix` |
+| `engage [backlog] --sprint --dry-run --json --max-parallel --skip-planning --resume --resume-run --create-branch --branch --preserve-failed-branch --provider --strict-targets` | Parse a backlog and autonomously execute the sprint. | `--sprint`, `--dry-run`, `--json`, `--max-parallel`, `--skip-planning`, `--resume`, `--resume-run`, `--create-branch`, `--branch`, `--preserve-failed-branch`, `--provider`, `--strict-targets` |
+| `feature <name> --primary --phase --force --type` | Create feature branch and scaffold context (cross-platform). | `--primary`, `--phase`, `--force`, `--type` |
+| `init [template] --interactive --preset --name --goal` | Initialize repo with governance, context, prompts, scripts, and workflows. | `--interactive`, `--preset`, `--name`, `--goal` |
+| `pack --out --extra --dry-run --list --lite --json` | Create agent context package (cross-platform). | `--out`, `--extra`, `--dry-run`, `--list`, `--lite`, `--json` |
+| `preflight [path] --quick --verbose` | Run tests with CI-matching environment. | `--quick`, `--verbose` |
+| `prime-learn [insight] --no-push --category --yes --reject` | Capture an insight, synthesize it, and append to prime-knowledge YAML. | `--no-push`, `--category`, `--yes`, `--reject` |
+| `scan-deps [path] --fail-on --verbose --json --no-cache` | Scan dependencies for vulnerabilities (shortcut for 'security scan-deps'). | `--fail-on`, `--verbose`, `--json`, `--no-cache` |
+| `scan-secrets [path] --staged --diff --verbose --json` | Scan for secrets and credentials (shortcut for 'security scan-secrets'). | `--staged`, `--diff`, `--verbose`, `--json` |
+| `status --json` | Show current context loop status and recent changes. | `--json` |
+| `sweep --since --staged --working --json --category --confidence --fix --deep` | Sweep for dead code in recent changes. | `--since`, `--staged`, `--working`, `--json`, `--category`, `--confidence`, `--fix`, `--deep` |
+| `validate --fix --json` | Validate repo structure and context consistency. | `--fix`, `--json` |
 
 ---
 
 ## Arch Commands
 
-| Command | Description |
-|---------|-------------|
-| `arch check [paths]` | Check architecture constraints |
-| `arch suggest-split <file>` | Suggest how to split a large file into smaller modules |
-
-### Examples
-
-```bash
-# Check specific files
-bpsai-pair arch check src/services/task.py
-
-# Check all modified files
-bpsai-pair arch check
-
-# Get split suggestions for large files
-bpsai-pair arch suggest-split src/services/large_module.py
-```
+| Command | Description | Options |
+|---------|-------------|---------|
+| `arch check [path] --staged --fix --strict` | Check architecture constraints. | `--staged`, `--fix`, `--strict` |
+| `arch check-encoding [path] --strict` | Flag text-mode file I/O that omits an explicit ``encoding=`` (#373). | `--strict` |
+| `arch check-model-ids [path] --strict` | Flag hardcoded ``claude-*`` model-id literals outside the registry (RE.6). | `--strict` |
+| `arch check-subprocess [path] --strict` | Flag raw subprocess.run/Popen/etc. | `--strict` |
+| `arch check-wiring [path] --strict --generate-baseline` | Flag public symbols/modules written but never wired in (#384). | `--strict`, `--generate-baseline` |
+| `arch headroom [path] --threshold --strict` | Report files APPROACHING their architecture caps (#416). | `--threshold`, `--strict` |
+| `arch suggest-split <file_path>` | Suggest how to split a large file into smaller modules. |  |
 
 ---
 
-## Configuration
+## Audit Commands
 
-### Config File Location
-
-`.paircoder/config.yaml`
-
-### Key Settings
-
-```yaml
-version: "2.8"
-
-project:
-  name: "my-project"
-  description: "Project description"
-  primary_goal: "Main objective"
-  coverage_target: 80
-
-models:
-  navigator: claude-opus-4-8
-  driver: claude-opus-4-8
-  reviewer: claude-sonnet-4-6
-
-routing:
-  by_complexity:
-    trivial:   { max_score: 20,  model: claude-haiku-4-5 }
-    simple:    { max_score: 40,  model: claude-haiku-4-5 }
-    moderate:  { max_score: 60,  model: claude-sonnet-4-6 }
-    complex:   { max_score: 80,  model: claude-opus-4-8 }
-    epic:      { max_score: 100, model: claude-opus-4-8 }
-
-token_budget:
-  warning_threshold: 75
-  critical_threshold: 90
-
-hooks:
-  enabled: true
-  on_task_start:
-    - check_token_budget
-    - start_timer
-    - sync_trello
-    - update_state
-  on_task_complete:
-    - stop_timer
-    - record_metrics
-    - sync_trello
-    - update_state
-    - check_unblocked
-  on_task_block:
-    - sync_trello
-    - update_state
-
-trello:
-  enabled: true
-  board_id: "your-board-id"
-
-enforcement:
-  state_machine: false          # Enable formal task state transitions
-  strict_ac_verification: true  # Require AC items checked before completion
-  require_budget_check: true    # Check budget before starting tasks
-  block_no_hooks: true          # Block --no-hooks in strict mode
-```
-
-### Enforcement Settings
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `state_machine` | `false` | Enable formal state transitions for tasks |
-| `strict_ac_verification` | `true` | Require all AC items checked before `ttask done` |
-| `require_budget_check` | `true` | Run budget check before starting tasks |
-| `block_no_hooks` | `true` | Block --no-hooks flag in strict mode |
-
-Bypasses (`--no-strict`, `--budget-override`, `--local-only`) are logged to `.paircoder/history/bypass_log.jsonl`.
+| Command | Description | Options |
+|---------|-------------|---------|
+| `audit bypasses --days --limit --type --json` | Show recent workflow bypasses. | `--days`, `--limit`, `--type`, `--json` |
+| `audit clear --yes` | Clear bypass log (for development/testing only). | `--yes` |
+| `audit summary --days` | Show bypass summary by type and command. | `--days` |
 
 ---
 
-## Environment Variables
+## Benchmark Commands
 
-| Variable | Purpose |
-|----------|---------|
-| `TRELLO_API_KEY` | Trello API key |
-| `TRELLO_TOKEN` | Trello OAuth token |
-| `GITHUB_TOKEN` | GitHub personal access token |
-| `TOGGL_API_TOKEN` | Toggl time tracking token |
-| `PAIRCODER_CONFIG` | Override config file path |
-
----
-
-## Common Workflows
-
-### Start of Day
-
-```bash
-bpsai-pair status           # Check current state
-bpsai-pair task list        # See pending tasks
-bpsai-pair task next        # Find what to work on
-bpsai-pair task update TASK-XXX --status in_progress
-```
-
-### During Work (Progress Updates)
-
-```bash
-bpsai-pair ttask comment TASK-XXX "Completed API, starting tests"
-```
-
-### End of Task
-
-```bash
-pytest -v                   # Run tests
-git add -A
-git commit -m "feat: TASK-XXX - description"
-bpsai-pair task update TASK-XXX --status done
-bpsai-pair task next        # See what's next
-```
-
-### End of Day
-
-```bash
-bpsai-pair standup generate # Generate summary
-git push                    # Push changes
-```
-
-### Sprint Planning
-
-```bash
-bpsai-pair plan new sprint-15 --type feature --title "Security & Sandboxing"
-# Add tasks to plan...
-bpsai-pair plan sync-trello plan-2025-12-sprint-15-security
-bpsai-pair trello status    # Verify cards created
-```
-
-### Working Directly with Trello
-
-```bash
-bpsai-pair ttask list --agent             # Show AI-assigned cards
-bpsai-pair ttask start TRELLO-abc123      # Start card
-# ... do work ...
-bpsai-pair ttask done TRELLO-abc123 --summary "Feature complete" --list "Deployed/Done"
-```
-
-### Exporting Skills
-
-```bash
-# Export to Cursor
-bpsai-pair skill export --all --format cursor
-
-# Export to Windsurf
-bpsai-pair skill export my-skill --format windsurf
-
-# Preview export
-bpsai-pair skill export my-skill --format continue --dry-run
-```
+| Command | Description | Options |
+|---------|-------------|---------|
+| `benchmark compare --baseline --challenger --id` | Compare two agents. | `--baseline`, `--challenger`, `--id` |
+| `benchmark list` | List available benchmarks. |  |
+| `benchmark matrix-run --include-paid --results-dir --ollama-model --auto-seed --json` | Run the bpsai-framework benchmark matrix via subprocess. | `--include-paid`, `--results-dir`, `--ollama-model`, `--auto-seed`, `--json` |
+| `benchmark results --id --latest --json` | View benchmark results. | `--id`, `--latest`, `--json` |
+| `benchmark run --only --agents --iterations --dry-run` | Run benchmarks. | `--only`, `--agents`, `--iterations`, `--dry-run` |
+| `benchmark seed <path> --run-id --json` | Seed local calibration from a PC2.2 benchmark matrix. | `--run-id`, `--json` |
 
 ---
 
-## Telemetry Commands
+## Budget Commands
 
-| Command | Description |
-|---------|-------------|
-| `telemetry status` | Show telemetry collection status and privacy level |
-| `telemetry config` | Configure telemetry privacy and retention settings |
-| `telemetry export [--format json\|jsonl\|csv] [--anonymize] [--since DATE] [--until DATE]` | Export telemetry data |
+| Command | Description | Options |
+|---------|-------------|---------|
+| `budget check <task_id> --threshold --model --json` | Pre-flight budget check for a task. | `--threshold`, `--model`, `--json` |
+| `budget estimate [task_id] --file --model --json` | Estimate token usage for a task or files. | `--file`, `--model`, `--json` |
+| `budget programmatic --by --json` | Report month-to-date programmatic API spend vs. | `--by`, `--json` |
+| `budget status --model --json` | Show current session budget status. | `--model`, `--json` |
+
+---
+
+## Cache Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `cache clear --confirm` | Clear the context cache. | `--confirm` |
+| `cache invalidate <file_path>` | Invalidate cache for a specific file. |  |
+| `cache stats --json` | Show cache statistics. | `--json` |
+
+---
+
+## Calibration Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `calibration recommend-model --task-type --complexity --cross-module --json` | Recommend a plan-time ``model:`` for a task (MR3.2). | `--task-type`, `--complexity`, `--cross-module`, `--json` |
+| `calibration report --json` | Recompute calibration and report per task_type x model stats + drift. | `--json` |
+
+---
+
+## Compaction Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `compaction check` | Check if compaction recently occurred. |  |
+| `compaction cleanup --keep` | Remove old compaction snapshots. | `--keep` |
+| `compaction recover` | Recover context after compaction. |  |
+| `compaction snapshot list` | List available compaction snapshots. |  |
+| `compaction snapshot save --trigger --reason --quiet` | Save a compaction snapshot with current context. | `--trigger`, `--reason`, `--quiet` |
+
+---
+
+## Config Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `config prefs get <key>` | Get a user preference value. |  |
+| `config prefs list` | List all user preferences. |  |
+| `config prefs set <key> <value>` | Set a user preference. |  |
+| `config show [section]` | Show current config or a specific section. |  |
+| `config update --preset --dry-run` | Update config with missing sections from preset. | `--preset`, `--dry-run` |
+| `config validate --preset --json` | Validate config against preset template. | `--preset`, `--json` |
+
+---
+
+## Containment Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `containment cleanup --keep` | Remove old containment checkpoints. | `--keep` |
+| `containment list` | List containment checkpoints. |  |
+| `containment rollback [checkpoint] --dry-run --force --pop-stash` | Rollback to a containment checkpoint. | `--dry-run`, `--force`, `--pop-stash` |
+| `containment status --json` | Show containment configuration and active session status. | `--json` |
+
+---
+
+## Enforce Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `enforce containment --file --operation` | Enforce containment tiers for PreToolUse hook. | `--file`, `--operation` |
+| `enforce state-edit --file --new-content` | Enforce state.md edit rules for PreToolUse hook. | `--file`, `--new-content` |
+| `enforce task-edit --file --new-content --old-content` | Enforce task edit rules for PreToolUse hook. | `--file`, `--new-content`, `--old-content` |
 
 ---
 
 ## Feedback Commands
 
-| Command | Description |
-|---------|-------------|
-| `feedback status` | Show calibration health, per-type estimates, anomalies |
-| `feedback accuracy [--period DAYS]` | Show estimated vs actual performance metrics |
-| `feedback calibrate` | Trigger recalibration from telemetry data |
-| `feedback query <type> [--json]` | Get token/duration/effort/model estimates for a task type |
+| Command | Description | Options |
+|---------|-------------|---------|
+| `feedback accuracy --days --json` | Compare estimated vs actual performance. | `--days`, `--json` |
+| `feedback calibrate --json` | Trigger recalibration from telemetry data. | `--json` |
+| `feedback query <task_type> --json` | Get estimates for a specific task type. | `--json` |
+| `feedback status --json` | Show calibration health and statistics. | `--json` |
 
 ---
 
-## Workspace Commands (Pro+)
+## Fleet Commands
 
-| Command | Description |
-|---------|-------------|
-| `workspace init [--name NAME] [--projects name:path,...] [--scan] [--force] [--json]` | Initialize workspace config |
-| `workspace status [--json]` | Show workspace config, project states, agent teams |
-| `workspace pull [project] [--rebase] [--json]` | Pull latest for workspace projects |
+| Command | Description | Options |
+|---------|-------------|---------|
+| `fleet audit --branches --issues --json` | Report merged-residue branches and unclosed-but-referenced issues across every workspace repo... | `--branches`, `--issues`, `--json` |
+| `fleet check --upgrade --commit --json` | Check bpsai-pair version compliance across workspace repos. | `--upgrade`, `--commit`, `--json` |
+
+---
+
+## Gaps Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `gaps check <gap_id> --json` | Check quality gates for a specific gap. | `--json` |
+| `gaps detect --json --analyze --with-gates` | Detect and classify all gaps from session history. | `--json`, `--analyze`, `--with-gates` |
+| `gaps list --type --json` | List all classified gaps. | `--type`, `--json` |
+| `gaps show <gap_id>` | Show detailed classification for a specific gap. |  |
+
+---
+
+## Github Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `github archive-merged [pr_number] --all --limit` | Archive tasks whose PRs have been merged. | `--all`, `--limit` |
+| `github auto-pr --draft` | Auto-create PR for current branch if it has a task ID. | `--draft` |
+| `github create --task --summary --draft --base` | Create a PR for a task. | `--task`, `--summary`, `--draft`, `--base` |
+| `github link <task_id> --pr` | Link a task to a PR (update PR title). | `--pr` |
+| `github list --state --task-only --json` | List pull requests. | `--state`, `--task-only`, `--json` |
+| `github merge <pr_number> --method --no-delete --auto-next` | Merge a PR and optionally assign next task. | `--method`, `--no-delete`, `--auto-next` |
+| `github pr [pr_number] --json` | Show PR status for current branch or specific PR. | `--json` |
+| `github status --json` | Check GitHub connection status. | `--json` |
+
+---
+
+## Intent Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `intent detect <text> --json` | Detect work intent from text. | `--json` |
+| `intent should-plan <text> --json` | Check if text should trigger planning mode. | `--json` |
+| `intent suggest-flow <text>` | Suggest appropriate flow for text. |  |
+
+---
+
+## License Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `license activate --name --json` | Activate this machine on your license. | `--name`, `--json` |
+| `license clear-cache --json` | Clear cached license validation data. | `--json` |
+| `license deactivate --machine-id --yes --json` | Deactivate a machine from your license. | `--machine-id`, `--yes`, `--json` |
+| `license features --json` | List available features for current tier. | `--json` |
+| `license install <license_file> --force --activate --no-activate` | Install a license file to ~/.paircoder/license.json. | `--force`, `--activate`, `--no-activate` |
+| `license machine-id --full --json` | Display this machine's unique identifier. | `--full`, `--json` |
+| `license machines --json --full` | List all machines activated on your license. | `--json`, `--full` |
+| `license path --json` | Show license file location. | `--json` |
+| `license status --json` | Show current license status. | `--json` |
+| `license verify-key --api-url --json` | Verify CLI public key matches API's keypair. | `--api-url`, `--json` |
+
+---
+
+## MCP Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `mcp serve --transport --port --verbose` | Start MCP server for Claude and other MCP-compatible agents. | `--transport`, `--port`, `--verbose` |
+| `mcp test <tool> [input_json] --json` | Test an MCP tool locally. | `--json` |
+| `mcp tools --json` | List available MCP tools. | `--json` |
+
+---
+
+## Metrics Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `metrics accuracy --json` | Show estimation accuracy report. | `--json` |
+| `metrics breakdown --by --json` | Show cost breakdown by dimension. | `--by`, `--json` |
+| `metrics budget --json` | Show budget status. | `--json` |
+| `metrics burndown --sprint --start --end --json` | Generate burndown chart data for a sprint. | `--sprint`, `--start`, `--end`, `--json` |
+| `metrics export --output --format` | Export metrics to file. | `--output`, `--format` |
+| `metrics summary --json` | Show metrics summary from telemetry data. | `--json` |
+| `metrics task <task_id> --json` | Show metrics for a specific task. | `--json` |
+| `metrics tokens --json` | Show token estimation accuracy report. | `--json` |
+| `metrics velocity --weeks --json` | Show velocity metrics for project planning. | `--weeks`, `--json` |
+
+---
+
+## Migrate Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `migrate status` | Show current PairCoder version status. |  |
+
+---
+
+## Orchestrate Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `orchestrate analyze <task_id> --json` | Analyze a task and show routing decision. | `--json` |
+| `orchestrate auto-run [task_id] --plan --pr --test --json` | Run autonomous workflow for a single task. | `--plan`, `--pr`, `--test`, `--json` |
+| `orchestrate auto-session --plan --max --pr --json` | Run autonomous session processing multiple tasks. | `--plan`, `--max`, `--pr`, `--json` |
+| `orchestrate evaluate <event> --agent-id --agent-type --quiet` | Evaluate orchestration stop conditions; outputs JSON for CC hooks. | `--agent-id`, `--agent-type`, `--quiet` |
+| `orchestrate handoff <task_id> --to --summary --out` | Create a handoff package for another agent. | `--to`, `--summary`, `--out` |
+| `orchestrate select-agent <task_id> --prefer --json` | Select the best specialized agent for a task. | `--prefer`, `--json` |
+| `orchestrate task <task_id> --prefer --max-cost --dry-run --json` | Orchestrate a task to the best agent. | `--prefer`, `--max-cost`, `--dry-run`, `--json` |
+| `orchestrate workflow-status --json` | Show current autonomous workflow status. | `--json` |
+
+---
+
+## Plan Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `plan add-task <plan_id> --id --title --type --priority --complexity --sprint` | Add a task to a plan. | `--id`, `--title`, `--type`, `--priority`, `--complexity`, `--sprint` |
+| `plan complete <plan_id> --force` | Mark a plan as complete. | `--force` |
+| `plan estimate <plan_id> --threshold --json --show-tasks` | Estimate token usage for a plan and suggest batching if needed. | `--threshold`, `--json`, `--show-tasks` |
+| `plan list --status --json` | List all plans. | `--status`, `--json` |
+| `plan new <slug> --type --title --skill --flow --goal --scope --feature-id --total-cx` | Create a new plan. | `--type`, `--title`, `--skill`, `--flow`, `--goal`, `--scope`, `--feature-id`, `--total-cx` |
+| `plan show <plan_id> --json` | Show details of a specific plan. | `--json` |
+| `plan status [plan_id] --verbose --json` | Show plan status with sprint/task breakdown. | `--verbose`, `--json` |
+| `plan sync-pm <plan_id> --board --target-list --create-lists --link --apply-defaults --only-new --fire-ready --dry-run --json` | Sync plan tasks to PM provider (or Trello directly). | `--board`, `--target-list`, `--create-lists`, `--link`, `--apply-defaults`, `--only-new`, `--fire-ready`, `--dry-run`, `--json` |
+| `plan sync-trello <plan_id> --board --target-list --create-lists --link --apply-defaults --only-new --fire-ready --dry-run --json` | Sync plan tasks to PM provider (or Trello directly). (DEPRECATED) | `--board`, `--target-list`, `--create-lists`, `--link`, `--apply-defaults`, `--only-new`, `--fire-ready`, `--dry-run`, `--json` |
+| `plan tasks <plan_id> --status --json` | List tasks for a specific plan. | `--status`, `--json` |
+
+---
+
+## PM Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `pm action <action_name> <item_id>` | Execute a button action on a work item. |  |
+| `pm block <item_id> --reason` | Block a work item with a reason. | `--reason` |
+| `pm check <item_id> <checklist_item_id> --uncheck` | Check or uncheck a checklist item. | `--uncheck` |
+| `pm children <parent_id>` | List children of a work item. |  |
+| `pm comment <item_id> <message>` | Add a comment to a work item. |  |
+| `pm config` | Show resolved PM workflow configuration. |  |
+| `pm create --type --title --parent` | Create a new work item via the PM provider. | `--type`, `--title`, `--parent` |
+| `pm diagnostics` | Run PM provider diagnostics. |  |
+| `pm done <item_id> --summary --strict` | Complete a work item (move to done). | `--summary`, `--strict` |
+| `pm link <parent_id> <child_ids>` | Link child items to a parent (set parent-child relationship). |  |
+| `pm move <item_id> --status` | Move a work item to a new status. | `--status` |
+| `pm set-field <item_id> --field --value` | Set a custom field on a work item. | `--field`, `--value` |
+| `pm sprint complete <plan_id> --carry-forward` | Complete a sprint — evaluate tasks and produce summary. | `--carry-forward` |
+| `pm sprint start <plan_id>` | Start a sprint (mark plan as in-progress). |  |
+| `pm start <item_id>` | Start a work item (move to in_progress). |  |
+| `pm status` | Show PM provider connection status. |  |
+| `pm sync` | Sync local tasks to the PM provider. |  |
+| `pm tree <root_id>` | Display hierarchy tree of a work item. |  |
+| `pm unlink <child_id>` | Remove parent relationship from an item. |  |
+
+---
+
+## Preset Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `preset list --json` | List available configuration presets. | `--json` |
+| `preset preview <name> --name --goal` | Preview the config.yaml that would be generated. | `--name`, `--goal` |
+| `preset show <name> --json` | Show details for a specific preset. | `--json` |
+
+---
+
+## QA Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `qa init` | [DEPRECATED] Use 'bpsai-pair qc init'. |  |
+| `qa list --tags --json` | [DEPRECATED] Use 'bpsai-pair qc list'. | `--tags`, `--json` |
+| `qa report --json` | [DEPRECATED] Use 'bpsai-pair qc report'. | `--json` |
+| `qa validate --json` | [DEPRECATED] Use 'bpsai-pair qc validate'. | `--json` |
+
+---
+
+## QC Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `qc init` | Initialize QC directory structure with example config and suite. |  |
+| `qc list --tags --json` | List discovered QC test suites. | `--tags`, `--json` |
+| `qc report --json` | Display results from the last QC run. | `--json` |
+| `qc validate --json` | Validate all QC suite specs. | `--json` |
+
+---
+
+## Query Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `query metrics <name> --task-type --days --json` | Query metrics (success rates, estimation accuracy, agent performance). | `--task-type`, `--days`, `--json` |
+| `query qc-trends --suite --env --json` | Query QC historical trends and flaky scenarios. | `--suite`, `--env`, `--json` |
+| `query skill <name> --format --root` | Execute a query skill and output results. | `--format`, `--root` |
+| `query state <key> --json` | Query project state (active tasks, current plan). | `--json` |
+| `query task-state --task-id --plan-id --state --json` | Query task state transitions (pending → in_progress → done). | `--task-id`, `--plan-id`, `--state`, `--json` |
+| `query tasks --status --json` | Query tasks with optional status filter. | `--status`, `--json` |
+
+---
+
+## Release Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `release checklist` | Show the release preparation checklist. |  |
+| `release plan --sprint --version --create` | Generate release preparation tasks. | `--sprint`, `--version`, `--create` |
+| `release prep --since --create-tasks --skip-tests` | Verify release readiness and generate tasks for missing items. | `--since`, `--create-tasks`, `--skip-tests` |
+| `release record-phase89 --website-repo --fleet-verified` | Record Phase 8/9 completion. | `--website-repo`, `--fleet-verified` |
+| `release validate-versions --fix` | Check version consistency across config files. | `--fix` |
+| `release verify-phase89` | Fail closed if the Phase 8/9 (website+fleet) completion artifact is missing or stale relative to... |  |
+
+---
+
+## Review Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `review auto [query] --json` | Auto-route a review request to the correct subcommand. | `--json` |
+| `review branch --base --json` | Review the current branch diff against base (pre-PR validation). | `--base`, `--json` |
+| `review pr <number> --post --json` | Review a GitHub PR by number. | `--post`, `--json` |
+| `review sprint <sprint_id> --json` | Fleet review for a cross-repo sprint: review every touched repo's PR, audit cross-repo contracts,... | `--json` |
+| `review task [task_id] --json` | Review a single task's changes. | `--json` |
+
+---
+
+## Security Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `security install-hook --overwrite` | Install pre-commit hook for secret scanning. | `--overwrite` |
+| `security pre-commit --json` | Run secret scan as a pre-commit hook. | `--json` |
+| `security scan-deps [path] --fail-on --verbose --json --no-cache` | Scan dependencies for known vulnerabilities. | `--fail-on`, `--verbose`, `--json`, `--no-cache` |
+| `security scan-secrets [path] --staged --diff --verbose --json` | Scan for secrets and credentials in code. | `--staged`, `--diff`, `--verbose`, `--json` |
+
+---
+
+## Session Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `session check --force --quiet` | Check session state and display context if new session. | `--force`, `--quiet` |
+| `session set-role <role>` | Set the active agent role for status line display. |  |
+| `session status --budget` | Show current session status including token budget. | `--budget` |
+
+---
+
+## Setup Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `setup statusline --theme --remove --preview` | Configure the PairCoder status line for Claude Code. | `--theme`, `--remove`, `--preview` |
+
+---
+
+## Skill Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `skill export [skill_name] --format --all --dry-run` | Export skills to other AI coding tool formats. | `--format`, `--all`, `--dry-run` |
+| `skill gaps --json --clear --analyze` | List detected skill gaps from session history. | `--json`, `--clear`, `--analyze` |
+| `skill generate [gap_id] --auto-approve --overwrite --preview` | Generate a skill from a detected gap. | `--auto-approve`, `--overwrite`, `--preview` |
+| `skill install <source> --project --personal --name --overwrite` | Install a skill from URL or local path. | `--project`, `--personal`, `--name`, `--overwrite` |
+| `skill list --json` | List all skills in .claude/skills/. | `--json` |
+| `skill recommend --top --format --verbose` | Recommend skills based on intelligence signals. | `--top`, `--format`, `--verbose` |
+| `skill score [skill_name] --json` | Score skills on quality dimensions. | `--json` |
+| `skill suggest --json --create --min` | Analyze session history and suggest new skills. | `--json`, `--create`, `--min` |
+| `skill validate [skill_name] --fix --json` | Validate skills against Anthropic specs. | `--fix`, `--json` |
+
+---
+
+## Sprint Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `sprint complete <sprint_id> --skip-checklist --reason --plan --archive` | Complete a sprint with checklist verification and optional archival. | `--skip-checklist`, `--reason`, `--plan`, `--archive` |
+| `sprint list --plan` | List sprints in a plan. | `--plan` |
+
+---
+
+## Standup Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `standup generate --plan --since --format --output` | Generate a daily standup summary. | `--plan`, `--since`, `--format`, `--output` |
+| `standup post --plan --since` | Post standup summary to Trello board's Notes list. | `--plan`, `--since` |
+
+---
+
+## State Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `state advance <task_id> <to_state> --reason` | Manually advance task to a new state. | `--reason` |
+| `state history [task_id] --limit` | Show state transition history. | `--limit` |
+| `state list --status` | List all tracked task states. | `--status` |
+| `state reset <task_id> --yes` | Reset a task to NOT_STARTED state. | `--yes` |
+| `state show <task_id>` | Show current execution state for a task. |  |
+| `state validate --quiet --task --full` | Validate that tasks marked done in state.md are actually complete. | `--quiet`, `--task`, `--full` |
+
+---
+
+## Subagent Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `subagent gaps --json --clear --analyze` | List detected subagent gaps from session history. | `--json`, `--clear`, `--analyze` |
+
+---
+
+## Subscription Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `subscription manage --no-browser --return-url --json` | Open the Stripe Billing Portal to manage your subscription. | `--no-browser`, `--return-url`, `--json` |
+| `subscription status --json` | Show your subscription status. | `--json` |
+
+---
+
+## Support Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `support create --type --title --description --json` | Create a support ticket with auto-attached system info. | `--type`, `--title`, `--description`, `--json` |
+| `support list --status --json` | List your support tickets. | `--status`, `--json` |
+| `support open --no-browser --verbose` | Open support portal with auto-login. | `--no-browser`, `--verbose` |
+| `support show <ticket_id> --json` | Show a specific support ticket with comments. | `--json` |
+
+---
+
+## System Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `system info --json` | Show local environment info (version, Python, OS) for bug reports. | `--json` |
+
+---
+
+## Task Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `task ac <task_id> --plan` | Show acceptance criteria status for a task. | `--plan` |
+| `task archive [task_ids] --completed --sprint --plan --version --no-changelog --dry-run` | Archive completed tasks. | `--completed`, `--sprint`, `--plan`, `--version`, `--no-changelog`, `--dry-run` |
+| `task auto-next --plan` | Automatically assign and start the next pending task. | `--plan` |
+| `task changelog-preview --sprint --plan --version` | Preview changelog entry for tasks. | `--sprint`, `--plan`, `--version` |
+| `task check <task_id> [item_text] --uncheck --plan` | Check or uncheck acceptance criteria items. | `--uncheck`, `--plan` |
+| `task cleanup --retention --dry-run` | Clean up old archived tasks. | `--retention`, `--dry-run` |
+| `task done <task_id> --plan --no-hooks` | Mark a task as done (updates task file + runs consistency check). | `--plan`, `--no-hooks` |
+| `task list --plan --status --json` | List tasks. | `--plan`, `--status`, `--json` |
+| `task list-archived --plan --json` | List archived tasks. | `--plan`, `--json` |
+| `task next --start` | Show the next task to work on. | `--start` |
+| `task restore <task_id> --plan` | Restore a task from archive. | `--plan` |
+| `task show <task_id> --plan` | Show details of a specific task. | `--plan` |
+| `task update <task_id> --status --plan --no-hooks --skip-state-check --resync --local-only --reason --strict --force-local --auto-check --allow-dirty` | Update a task's status. | `--status`, `--plan`, `--no-hooks`, `--skip-state-check`, `--resync`, `--local-only`, `--reason`, `--strict`, `--force-local`, `--auto-check`, `--allow-dirty` |
+
+---
+
+## Telemetry Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `telemetry aggregate --workspace --format --output --since --include-garbage --json` | Aggregate telemetry across all repos in a workspace. | `--workspace`, `--format`, `--output`, `--since`, `--include-garbage`, `--json` |
+| `telemetry config --enable --disable --privacy --retention --json` | Configure telemetry settings. | `--enable`, `--disable`, `--privacy`, `--retention`, `--json` |
+| `telemetry export --format --output --since --until --task-type --anonymize` | Export telemetry data for analysis or backup. | `--format`, `--output`, `--since`, `--until`, `--task-type`, `--anonymize` |
+| `telemetry log-failure --trigger --quiet` | Log an API failure signal to telemetry. | `--trigger`, `--quiet` |
+| `telemetry log-session-end --outcome-summary --stop-reason --session-id --quiet` | Log a session_end (info) signal. | `--outcome-summary`, `--stop-reason`, `--session-id`, `--quiet` |
+| `telemetry log-subagent-outcome --stop-reason --agent-id --agent-type --session-id --quiet` | Log a subagent_outcome (info) signal. | `--stop-reason`, `--agent-id`, `--agent-type`, `--session-id`, `--quiet` |
+| `telemetry recover <archive_dir> --dry-run --project` | Recover historical telemetry from Claude session archives. | `--dry-run`, `--project` |
+| `telemetry status --json` | Show telemetry collection status and statistics. | `--json` |
+
+---
+
+## Template Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `template check --fail-on-drift --fix --verbose` | Check for drift between source files and cookie cutter template. | `--fail-on-drift`, `--fix`, `--verbose` |
+| `template list` | List files tracked for template sync. |  |
+
+---
+
+## Timer Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `timer show <task_id> --json` | Show time entries for a task. | `--json` |
+| `timer start <task_id> --description` | Start a timer for a task. | `--description` |
+| `timer status` | Show current timer status. |  |
+| `timer stop` | Stop the current timer. |  |
+| `timer summary --plan --json` | Show time summary across tasks. | `--plan`, `--json` |
+
+---
+
+## Trello Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `trello apply-defaults <card_id>` | Apply project default values to a Trello card. |  |
+| `trello boards --json` | List available Trello boards. | `--json` |
+| `trello config --show --set-list --set-field --agent` | View or modify Trello configuration. | `--show`, `--set-list`, `--set-field`, `--agent` |
+| `trello connect --api-key --token` | Connect to Trello (validates and stores credentials). | `--api-key`, `--token` |
+| `trello disconnect` | Remove stored Trello credentials. |  |
+| `trello fields --board --refresh --json` | Show custom fields and their valid options for a board. | `--board`, `--refresh`, `--json` |
+| `trello init-board --name --from-template --keep-cards --set-active` | Create a new Trello board from a template. | `--name`, `--from-template`, `--keep-cards`, `--set-active` |
+| `trello list-fields` | List all custom fields on the active board (table format). |  |
+| `trello lists` | Show lists on the active board. |  |
+| `trello progress <task_id> [message] --blocked --waiting --step --started --completed --review --agent` | Post a progress comment to a Trello card. | `--blocked`, `--waiting`, `--step`, `--started`, `--completed`, `--review`, `--agent` |
+| `trello set-field <card_id> --project --stack --status --effort --repo-url --field --value` | Set custom field values on a Trello card. | `--project`, `--stack`, `--status`, `--effort`, `--repo-url`, `--field`, `--value` |
+| `trello status` | Check Trello connection status. |  |
+| `trello sync --from-trello --preview --list` | Sync tasks between Trello and local files. | `--from-trello`, `--preview`, `--list` |
+| `trello use-board <board_id>` | Set the active Trello board for this project. |  |
+| `trello webhook delete <webhook_id>` | Delete a registered webhook. |  |
+| `trello webhook list` | List all registered webhooks for the current token. |  |
+| `trello webhook register <callback_url> --board` | Register a webhook with Trello. | `--board` |
+| `trello webhook serve --host --port --agent --auto-assign --verbose` | Start the Trello webhook server with agent assignment. | `--host`, `--port`, `--agent`, `--auto-assign`, `--verbose` |
+
+---
+
+## Ttask Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `ttask block <card_id> --reason` | Mark a task as blocked. | `--reason` |
+| `ttask check <task_id> <item_text> --checklist` | Check off a checklist item as complete. | `--checklist` |
+| `ttask comment <task_id> <message>` | Add a progress comment to a task. |  |
+| `ttask done <card_id> --summary --list --auto-check --strict --allow-dirty` | Complete a task (moves to Done list). | `--summary`, `--list`, `--auto-check`, `--strict`, `--allow-dirty` |
+| `ttask list --list --agent --status` | List tasks from Trello board. | `--list`, `--agent`, `--status` |
+| `ttask move <card_id> --list` | Move a task to a different list. | `--list` |
+| `ttask show <card_id>` | Show task details from Trello. |  |
+| `ttask start <card_id> --summary --budget-override` | Start working on a task (moves to In Progress). | `--summary`, `--budget-override` |
+| `ttask uncheck <task_id> <item_text> --checklist` | Uncheck a checklist item (mark as incomplete). | `--checklist` |
+
+---
+
+## Workspace Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `workspace audit <project> --fix --json` | Run a full audit of a sibling project. | `--fix`, `--json` |
+| `workspace check-impact --since --json` | Check contract changes and their cross-repo impact. | `--since`, `--json` |
+| `workspace index --topic --json` | Query the workspace document index by topic. | `--topic`, `--json` |
+| `workspace init --name --projects --scan --no-scan --force --json` | Initialize a new workspace configuration. | `--name`, `--projects`, `--scan`, `--no-scan`, `--force`, `--json` |
+| `workspace init-project [name] --all --force --dry-run --json --no-claude` | Initialize a project in the workspace with PairCoder scaffolding. | `--all`, `--force`, `--dry-run`, `--json`, `--no-claude` |
+| `workspace pull [project] --rebase --json` | Pull latest changes from remote for workspace projects. | `--rebase`, `--json` |
+| `workspace setup-permissions --dry-run --force --json` | Generate .claude/settings.local.json from workspace config. | `--dry-run`, `--force`, `--json` |
+| `workspace status --json` | Show workspace configuration and project states. | `--json` |
+| `workspace validate --repo --json` | Validate the covering workspace config (CI-usable). | `--repo`, `--json` |

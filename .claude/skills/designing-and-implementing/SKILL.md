@@ -36,6 +36,12 @@ bpsai-pair plan new <slug> --type feature --title "Title"
 
 ### 4. Add Tasks
 
+Resolve the per-task model before writing the file (MR3.2 — single-source
+doctrine, calibration-aware):
+```bash
+bpsai-pair calibration recommend-model --task-type <type> --complexity <n> [--cross-module]
+```
+
 Task format in `.paircoder/tasks/`:
 ```yaml
 ---
@@ -44,6 +50,7 @@ title: Task title
 status: pending
 priority: P0  # P0=must, P1=should, P2=nice
 complexity: 30  # 10-100 scale
+model: claude-sonnet-5  # from `calibration recommend-model` above
 ---
 
 ## Objective

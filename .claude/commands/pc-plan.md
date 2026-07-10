@@ -29,5 +29,6 @@ Else:
 - Plan types: `feature` | `bugfix` | `refactor` | `chore` (NOT `maintenance`)
 - Task IDs: `T<sprint>.<seq>` format (e.g., T1.1)
 - Task file content must be written directly - `plan add-task` only accepts metadata
+- Every task gets a `model:` from `bpsai-pair calibration recommend-model` (MR3.2 — see the planning skill's task template)
 - Always update state.md after planning
 - Set your project defaults in `.paircoder/config.yaml`

@@ -114,7 +114,13 @@ For each task:
        --priority <P0|P1|P2|P3>
    ```
 
-2. **Write task content** directly to the file:
+2. **Resolve the per-task model** (MR3.2 — single-source doctrine,
+   calibration-aware when the store has enough samples):
+   ```bash
+   bpsai-pair calibration recommend-model --task-type <type> --complexity <n> [--cross-module]
+   ```
+
+3. **Write task content** directly to the file:
    ```bash
    # File: .paircoder/tasks/<plan-slug>/T<sprint>.<seq>.task.md
    ```
@@ -135,6 +141,7 @@ status: pending
 priority: P1
 complexity: 35
 plan: plan-slug
+model: claude-sonnet-5  # from `calibration recommend-model` above
 ---
 
 # Objective
