@@ -59,8 +59,8 @@ from _video_ingest_core import (  # noqa: E402
 
 ensure_src_on_path(_REPO_ROOT)
 from build_video_posters import (  # noqa: E402
-    DOD_FILENAME_RE,
     USER_AGENT,
+    extract_dod_filename,
     scrape_dod_filename,
 )
 
@@ -104,8 +104,7 @@ def resolve_dod_filename(card: Any) -> str | None:
     body = _fetch_dvids(f"https://www.dvidshub.net/audio/{card.dvids_video_id}")
     if not body:
         return None
-    m = DOD_FILENAME_RE.search(body)
-    return m.group(0) if m else None
+    return extract_dod_filename(body)
 
 
 def ingest_one(

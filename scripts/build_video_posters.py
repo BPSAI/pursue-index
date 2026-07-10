@@ -39,10 +39,9 @@ import json
 import re
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 from typing import Any
-
-import urllib.request
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SRC = _REPO_ROOT / "src"
@@ -55,7 +54,23 @@ DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_VIDEO_DIR = Path.home() / "Desktop" / "PERSUE" / "uapvideos"
 DEFAULT_POSTERS_DIR = _REPO_ROOT / "web" / "public" / "data" / "video-posters"
 
-DOD_FILENAME_RE = re.compile(r"DOD_(\d{8,12})\.mp4")
+# Match the DOD asset id in ANY surface form the DVIDS page uses: a bare
+# ``DOD_<id>.mp4`` download link (VID pages), a resolution-suffixed CDN URL
+# ``DOD_<id>-1920x1080-9000k.mp4`` or a dotted ``DOD_<id>.0000001`` reference
+# (AUD pages only carry these). Callers normalize the captured id back to the
+# operator's canonical ``DOD_<id>.mp4`` filename via ``extract_dod_filename``.
+DOD_FILENAME_RE = re.compile(r"DOD_(\d{8,12})")
+
+
+def extract_dod_filename(body: str) -> str | None:
+    """Return the canonical ``DOD_<id>.mp4`` for the first DOD id in ``body``.
+
+    Normalizes every DVIDS surface form (bare, CDN resolution-suffixed, dotted
+    sequence) to the clean filename the operator's downloaded files use, so the
+    id matches whether it was scraped from a VID or an AUD page.
+    """
+    m = DOD_FILENAME_RE.search(body)
+    return f"DOD_{m.group(1)}.mp4" if m else None
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
@@ -72,13 +87,12 @@ def scrape_dod_filename(dvids_video_id: str, timeout: float = 20.0) -> str | Non
     url = f"https://www.dvidshub.net/video/{dvids_video_id}"
     try:
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             body = resp.read().decode("utf-8", errors="replace")
     except Exception as exc:
         print(f"[posters] dvids fetch fail {dvids_video_id}: {exc}")
         return None
-    m = DOD_FILENAME_RE.search(body)
-    return m.group(0) if m else None
+    return extract_dod_filename(body)
 
 
 def video_duration_seconds(path: Path) -> float | None:
@@ -163,6 +177,48 @@ def save_index(path: Path, mapping: dict[str, str]) -> None:
     path.write_text(json.dumps(payload, indent=2))
 
 
+def _process_one_poster(
+    card: Any,
+    args: argparse.Namespace,
+    mapping: dict[str, str],
+    counts: dict[str, int],
+) -> None:
+    """Resolve, download-match and poster one VID card; mutate mapping/counts."""
+    if not card.dvids_video_id:
+        print(f"[posters] {card.card_id}: no dvids_video_id; skipping")
+        counts["skip_no_dod"] += 1
+        return
+
+    poster_path = args.posters_dir / f"{card.card_id}.jpg"
+    if poster_path.exists() and poster_path.stat().st_size > 0:
+        mapping[card.card_id] = poster_path.name
+        counts["posters_kept"] += 1
+        return
+
+    dod_filename = scrape_dod_filename(card.dvids_video_id)
+    if not dod_filename:
+        counts["skip_no_dod"] += 1
+        return
+
+    video_file = args.video_dir / dod_filename
+    if not video_file.exists():
+        print(
+            f"[posters] {card.card_id}: dvids={card.dvids_video_id} "
+            f"→ {dod_filename} NOT in local dir"
+        )
+        counts["skip_no_file"] += 1
+        return
+
+    ok = extract_poster(video_file, poster_path)
+    if not ok:
+        counts["skip_ffmpeg"] += 1
+        return
+    mapping[card.card_id] = poster_path.name
+    size = poster_path.stat().st_size
+    print(f"[posters] new: {card.card_id} ← {dod_filename} ({size:,} B)")
+    counts["posters_new"] += 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
@@ -184,42 +240,7 @@ def main(argv: list[str] | None = None) -> int:
     counts = {"posters_kept": 0, "posters_new": 0, "skip_no_dod": 0, "skip_no_file": 0, "skip_ffmpeg": 0}
 
     for card in vid_cards:
-        if not card.dvids_video_id:
-            print(f"[posters] {card.card_id}: no dvids_video_id; skipping")
-            counts["skip_no_dod"] += 1
-            continue
-
-        poster_path = args.posters_dir / f"{card.card_id}.jpg"
-        if poster_path.exists() and poster_path.stat().st_size > 0:
-            mapping[card.card_id] = poster_path.name
-            counts["posters_kept"] += 1
-            continue
-
-        dod_filename = scrape_dod_filename(card.dvids_video_id)
-        if not dod_filename:
-            counts["skip_no_dod"] += 1
-            continue
-
-        video_file = args.video_dir / dod_filename
-        if not video_file.exists():
-            print(
-                f"[posters] {card.card_id}: dvids={card.dvids_video_id} "
-                f"→ {dod_filename} NOT in local dir"
-            )
-            counts["skip_no_file"] += 1
-            continue
-
-        ok = extract_poster(video_file, poster_path)
-        if not ok:
-            counts["skip_ffmpeg"] += 1
-            continue
-        mapping[card.card_id] = poster_path.name
-        size = poster_path.stat().st_size
-        print(
-            f"[posters] new: {card.card_id} ← {dod_filename} "
-            f"({size:,} B)"
-        )
-        counts["posters_new"] += 1
+        _process_one_poster(card, args, mapping, counts)
 
     save_index(index_path, mapping)
     print(
