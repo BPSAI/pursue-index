@@ -1,0 +1,424 @@
+{
+  "tranche_sha256": "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1",
+  "prior_manifest_sha": "48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 40,
+    "quarantined": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 0,
+    "field_only_changes": 12
+  },
+  "renames_confirmed": [],
+  "new_content": [
+    {
+      "new_card_id": "02fa613f21662149",
+      "title": "DOW-UAP-D090, Range Fouler Debrief, Eastern United States, 2019",
+      "asset_filename": "DOW-UAP-D090_Range-Fouler-Debrief_Eastern-US_2019.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D090_Range-Fouler-Debrief_Eastern-US_2019.pdf",
+      "byte_sha256": "1bd82107a638e44f4f6011aaf6fb323bcdd36334a59980a5c19a5aad9ff69b52"
+    },
+    {
+      "new_card_id": "042b3e178a68a19c",
+      "title": "DOW-UAP-D089, Range Fouler Debrief, Eastern United States, 2020",
+      "asset_filename": "DOW-UAP-D089_Range-Fouler-Debrief_Eastern-US_2020.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D089_Range-Fouler-Debrief_Eastern-US_2020.pdf",
+      "byte_sha256": "3ad2058e00a44e2bb5453648be0eac0dd1a2ff40deeeb2707a19cc59b11ee685"
+    },
+    {
+      "new_card_id": "051a07582a23df10",
+      "title": "DOW-UAP-D097, Project Sign Progress Report, 1948",
+      "asset_filename": "DOW-UAP-D097_Project-Sign-Progress-Report_1948.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D097_Project-Sign-Progress-Report_1948.pdf",
+      "byte_sha256": "4e191615a53faf81a49721ec594aee5f8c909026348a830025329d847a857e60"
+    },
+    {
+      "new_card_id": "07214d7d1343a4b4",
+      "title": "NASA-UAP-D032, STS-80 Unidentified Object Image 3, 1996",
+      "asset_filename": "NASA-UAP-D032_STS-80-Unidentified-Object-Image3_1996.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D032_STS-80-Unidentified-Object-Image3_1996.jpg",
+      "byte_sha256": "ce516248f7256442dead32720b80481d0a39c2c167a95b0643295bcb7c5803e7"
+    },
+    {
+      "new_card_id": "09aba3bd555a2a03",
+      "title": "DOW-UAP-PR107, Unresolved UAP Report, Eastern United States, 2020",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "12ae49ccbb59bb04",
+      "title": "DOW-UAP-PR110, Unresolved UAP Report, Eastern United States, 2020",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "1c2287cdf770e344",
+      "title": "DOW-UAP-D096, Correspondence Relating to Project Blue Book, 1955",
+      "asset_filename": "DOW-UAP-D096_Correspondence-Relating-to-Project-Blue-Book_1955.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D096_Correspondence-Relating-to-Project-Blue-Book_1955.pdf",
+      "byte_sha256": "2c64dc1cd88ac9717cad81ecee9518af9310bebf5fc51596b85737374e2bf4cf"
+    },
+    {
+      "new_card_id": "213ab63a7aefa8fd",
+      "title": "DOW-UAP-D093, Analysis of Flying Object Incidents in the United States, 1948",
+      "asset_filename": "DOW-UAP-D093_Analysis-of-Flying-Object-Incidents-in-the-US_1948.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D093_Analysis-of-Flying-Object-Incidents-in-the-US_1948.pdf",
+      "byte_sha256": "6a94a4548eac7933948fad4706e161c6a251bf5eaa9d05d70981b40cb1e80745"
+    },
+    {
+      "new_card_id": "24f4178ed9082f2c",
+      "title": "DOW-UAP-D091, Range Fouler Debrief, Atlantic Ocean, 2020",
+      "asset_filename": "DOW-UAP-D091_Range-Fouler-Debrief_Atlantic-Ocean_2020.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D091_Range-Fouler-Debrief_Atlantic-Ocean_2020.pdf",
+      "byte_sha256": "d13ab718a436af2d13d1e3060e49239528b174829ba4ea89003f27da3ea3d7be"
+    },
+    {
+      "new_card_id": "2681dbf5da52e042",
+      "title": "NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996",
+      "asset_filename": "NASA-UAP-D030_STS-80-Unidentified-Object-Image1_1996.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D030_STS-80-Unidentified-Object-Image1_1996.jpg",
+      "byte_sha256": "470fd8bd96a25532e57bb5d97c2ca64e81651970a179b0bec3d7aed625ae6a2f"
+    },
+    {
+      "new_card_id": "2b98fd7cde9b31bc",
+      "title": "CIA-UAP-D020, Memorandum on Unconventional Aircraft Sightings, 1955",
+      "asset_filename": "CIA-UAP-D020_Memorandum-on-Unconventional-Aircraft-Sightings_1955.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/CIA-UAP-D020_Memorandum-on-Unconventional-Aircraft-Sightings_1955.pdf",
+      "byte_sha256": "973be877f06b55373da6c7a1022ca25345fdeb7864414fe4ae29d83ef963b7e9"
+    },
+    {
+      "new_card_id": "2d67ff61a60197c1",
+      "title": "DOW-UAP-PR103, Unresolved UAP Report, East China Sea, 2024",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "5193addba248e2e6",
+      "title": "DOW-UAP-PR101, Unresolved UAP Report, South China Sea, 2024",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "5e7c32c5682fc491",
+      "title": "DOW-UAP-PR114, Unresolved UAP Report, Atlantic Ocean, 2016",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "645f4e5fb99f3a03",
+      "title": "DOW-UAP-PR100, Unresolved UAP Report, Yellow Sea, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "69f1874d972fb44c",
+      "title": "NASA-UAP-D027, Apollo 14 Debriefing (Continued), 1971",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "7e0b4624ee81788e",
+      "title": "DOE-UAP-D005, Pantex Unidentified Object Incident Report, 2015",
+      "asset_filename": "DOE-UAP-D005_Pantex-Unidentified-Object-Incident-Report_2015.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOE-UAP-D005_Pantex-Unidentified-Object-Incident-Report_2015.pdf",
+      "byte_sha256": "249cd9f5b85c4a92dc819d65e1dad180744479d1c8a68ebbc202ade66facbcbb"
+    },
+    {
+      "new_card_id": "81a3947abfb387af",
+      "title": "DOE-UAP-D004, Los Alamos Conference on Aerial Phenomena, 1949",
+      "asset_filename": "DOE-UAP-D004_Los-Alamos-Conference-on-Aerial-Phenomena_1949.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOE-UAP-D004_Los-Alamos-Conference-on-Aerial-Phenomena_1949.pdf",
+      "byte_sha256": "64f70db72f3747cfdc512f78f16b0ac33a0876b39dbf7dddf07ab870ba1b1a47"
+    },
+    {
+      "new_card_id": "83710a4764f1d256",
+      "title": "DOW-UAP-PR105, Unresolved UAP Report, East China Sea, 2025",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "8c22358135a85824",
+      "title": "DOW-UAP-D092, Department of the Air Force Committee to Review Project Bluebook, 1966-1967",
+      "asset_filename": "DOW-UAP-D092_DAF-Committee-to-Review-Project-Bluebook_1966-1967.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D092_DAF-Committee-to-Review-Project-Bluebook_1966-1967.pdf",
+      "byte_sha256": "9c774fcb34ca56cf1b8da8bfe0413f42c6014c096215966c0fd919be5d77ec52"
+    },
+    {
+      "new_card_id": "8c4dcc4cb8f0126f",
+      "title": "DOW-UAP-PR108, Unresolved UAP Report, Western United States, 2020",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "90a8c6493f04d6e3",
+      "title": "NASA-UAP-D031, STS-80 Unidentified Object Image 2, 1996",
+      "asset_filename": "NASA-UAP-D031_STS-80-Unidentified-Object-Image2_1996.jpg",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D031_STS-80-Unidentified-Object-Image2_1996.jpg",
+      "byte_sha256": "4733b16c778046f805e7d32a8a0f891b88e3e22fa32c7595ce3e0065f985e9bf"
+    },
+    {
+      "new_card_id": "92b2d78bb19ee094",
+      "title": "DOW-UAP-D095, Joint U.S.-Canadian Aviation Projects and UFO Sighting Reports, 1954-1955",
+      "asset_filename": "DOW-UAP-D095_Joint-US-Canadian-Aviation-Projects-and-UFO-Sighting-Reports_1954-1955.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D095_Joint-US-Canadian-Aviation-Projects-and-UFO-Sighting-Reports_1954-1955.pdf",
+      "byte_sha256": "9c7629703ed55608b29000e490ac91be260e6088587f9048d7412593233878f9"
+    },
+    {
+      "new_card_id": "99c19cd85911e400",
+      "title": "DOW-UAP-PR109, Unresolved UAP Report, Eastern United States, 2015",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "a0c6bbafa1b45010",
+      "title": "DOW-UAP-PR024, Unresolved UAP Report, Middle East, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "a878d3e7a9cae5be",
+      "title": "DOW-UAP-PR116, Unresolved UAP Report, Atlantic Ocean, 2020",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "aa2e4d84861d5006",
+      "title": "NASA-UAP-D029, Apollo 17 Crew Medical Debriefing (Continued), 1972",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "ae5a00986bae42be",
+      "title": "DOW-UAP-PR111, Unresolved UAP Report, Eastern United States, 2020",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "b0fa7140b0776b42",
+      "title": "DOW-UAP-D094, Analysis of Flying Object Incidents in the United States, 1949",
+      "asset_filename": "DOW-UAP-D094_Analysis-of-Flying-Object-Incidents-in-the-US_1949.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D094_Analysis-of-Flying-Object-Incidents-in-the-US_1949.pdf",
+      "byte_sha256": "59a30983288868000d7c82bf863a2af475834ad14b984fbe9e4b8bd521aaa1cb"
+    },
+    {
+      "new_card_id": "b27e6c5aaf095d57",
+      "title": "DOW-UAP-PR030, Unresolved UAP Report, Middle East, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "bd0ac2e91db204dd",
+      "title": "DOW-UAP-PR102, Unresolved UAP Report, East China Sea, 2024",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "bec4cc1e81a258eb",
+      "title": "DOW-UAP-PR113, Unresolved UAP Report, Western United States, 1996",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "c86ed74d472f44e2",
+      "title": "DOW-UAP-PR104, Unresolved UAP Report, Yellow Sea, 2025",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "ca537f49a429b502",
+      "title": "DOW-UAP-PR115, Unresolved UAP Report, Gulf of America, 2019",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "e07c4debd3995e21",
+      "title": "DOW-UAP-PR106, Unresolved UAP Report, Eastern United States, 2020",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "e277f0b4d0fa62b9",
+      "title": "CIA-UAP-D021, Analysis of Unconventional Aircraft Sightings, 1955",
+      "asset_filename": "CIA-UAP-D021_Analysis-of-Unconventional-Aircraft-Sightings_1955.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/CIA-UAP-D021_Analysis-of-Unconventional-Aircraft-Sightings_1955.pdf",
+      "byte_sha256": "e2640e79f3733d5ed3e8aebd510f130f5601555f306eefee5e1c08a24d002ad0"
+    },
+    {
+      "new_card_id": "ed534f618f0c3501",
+      "title": "NASA-UAP-D028, Apollo 17 Crew Medical Debriefing, 1972",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "f101096677191bf4",
+      "title": "DOW-UAP-PR112, Unresolved UAP Report, Eastern United States, 2019",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "fab845f51c10fdc0",
+      "title": "FBI-UAP-D014, Correspondence Relating to UFO Sightings, 1967, 1974",
+      "asset_filename": "FBI-UAP-D014_Correspondence-Relating-to-UFO-Sightings_1967_1974.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/071026/release_04/documents/FBI-UAP-D014_Correspondence-Relating-to-UFO-Sightings_1967_1974.pdf",
+      "byte_sha256": "e91344aaa3cae8760bb695db30416048d94d333d3cf8e616dfd878ef60731379"
+    },
+    {
+      "new_card_id": "ffd9dfd4bceb163f",
+      "title": "NASA-UAP-D026, Apollo 14 Debriefing, 1971",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    }
+  ],
+  "quarantined": [],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [],
+  "field_only_changes": [
+    {
+      "card_id": "0f469fcf6fb42875",
+      "diffs": [
+        {
+          "field": "agency",
+          "old": "Central Intelligence Agency",
+          "new": "CIA"
+        }
+      ]
+    },
+    {
+      "card_id": "464f81c988dcee9e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "56c379b8fb673028",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7838ea3bee6bd8a7",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8533936c8107767b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "8e4cbdbd3583feba",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "aaafecbc47103f4b",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "DOE-UAP-D005"
+        }
+      ]
+    },
+    {
+      "card_id": "b869fd5353d5c853",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "bbd205a2256b39c9",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d7538e35ff11c7d3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d983745c9c3a4709",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ea18e274b06b352e",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    }
+  ]
+}

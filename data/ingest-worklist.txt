@@ -1,0 +1,19 @@
+# worklist for tranche 13e730c18d6e (pursue ingest run --from-diff)
+# 17 card_id(s) scoped from the tranche-diff
+02fa613f21662149
+042b3e178a68a19c
+051a07582a23df10
+07214d7d1343a4b4
+1c2287cdf770e344
+213ab63a7aefa8fd
+24f4178ed9082f2c
+2681dbf5da52e042
+2b98fd7cde9b31bc
+7e0b4624ee81788e
+81a3947abfb387af
+8c22358135a85824
+90a8c6493f04d6e3
+92b2d78bb19ee094
+b0fa7140b0776b42
+e277f0b4d0fa62b9
+fab845f51c10fdc0
