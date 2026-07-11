@@ -11,7 +11,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from pursue_index.scrape.classify_tranche import classify_tranche
+from pursue_index.scrape.classify_tranche import classify_tranche, render_verdict_summary
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
 from pursue_index.scrape.types import CardMetadata
 
@@ -87,3 +87,16 @@ def test_module_has_no_io_or_network_imports() -> None:
     blob = " ".join(imported).lower()
     for forbidden in ("fetch_raw_csv", "http", "boto", "r2", "requests", "registry", "csv_fetcher"):
         assert forbidden not in blob, f"classify_tranche must not import {forbidden!r}"
+
+
+def test_render_verdict_summary_appends_ship_footer_only_with_tranche() -> None:
+    """T-ship: the alert surfaces the ship-tranche command when the sha is given,
+    and stays backward-compatible (verdict-only) when it is not."""
+    d = _diff(added=["a", "b"], field_changes=["c"])
+    sha = "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1"
+    with_footer = render_verdict_summary(d, tranche=sha)
+    without = render_verdict_summary(d)
+    assert "/ship-tranche 13e730c18d6ea586" in with_footer
+    assert "$" in with_footer  # cost estimate surfaced
+    assert "/ship-tranche" not in without
+    assert "Tranche verdict:" in without

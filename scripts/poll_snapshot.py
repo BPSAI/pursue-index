@@ -107,7 +107,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.summary_out is not None:
         args.summary_out.parent.mkdir(parents=True, exist_ok=True)
         args.summary_out.write_text(
-            render_verdict_summary(result), encoding="utf-8"
+            render_verdict_summary(result, tranche=new_sha), encoding="utf-8"
         )
     cols = ",".join(result.new_columns) or "-"
     print(
