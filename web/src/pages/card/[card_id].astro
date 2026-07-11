@@ -29,6 +29,18 @@ import displayDatesJson from "../../../../data/display_dates.json";
 // byte_sha256 in the asset-bytes-registry. Drives the "bytes changed
 // upstream" banner below.
 import byteHistoryJson from "../../data/byte-history.json";
+// A/V playback: allow-list of card_ids whose media bytes live in our own
+// R2 bucket (pursue-pdfs) under the `<card_id>.mp4` current-pointer key,
+// served same-origin + Range-enabled at /video/<card_id>.mp4 (see
+// worker/pdf.js::serveR2Video). Built from the asset-bytes registry by
+// scripts/build_video_card_index.py. DVIDS removed the upstream source
+// videos in 2026-07, so R2 is now the primary player; DVIDS survives only
+// as an optional "external source" link. Cards NOT in this set (e.g.
+// Release 1 videos, never ingested) fall back to the legacy DVIDS embed.
+import videoCardIdsJson from "../../data/video-card-ids.json";
+// Poster frames extracted from the VID bytes (scripts/build_video_posters.py),
+// keyed card_id → filename under /data/video-posters/. AUD cards have none.
+import videoPostersJson from "../../../public/data/video-posters/index.json";
 // Sprint 5c (ALTR Phase 2): operator commentary for the byte-history
 // banner. Replaces the prior card-non-specific "re-encoding, re-scan,
 // or rotation" prose with the per-card category + rationale preview.
@@ -237,12 +249,33 @@ const facts: Fact[] = [
 ];
 
 const isPdf = card.asset_type === "PDF" && !!card.asset_url;
-const isVideo = card.asset_type === "VID" && !!card.dvids_video_id;
+const isVideo = card.asset_type === "VID";
 // Sprint 4f: AUD cards share the DVIDS-id field today (the upstream
 // CSV uses the same "DVIDS Video ID" column for both video and audio).
 // DVIDS itself has a separate /audio/embed/<id> path that points at
 // the audio player.
-const isAudio = card.asset_type === "AUD" && !!card.dvids_video_id;
+const isAudio = card.asset_type === "AUD";
+
+// A/V playback resolution. The media bytes for most A/V cards live in
+// our R2 bucket at the `<card_id>.mp4` current-pointer key and stream
+// same-origin (Range-enabled) from /video/<card_id>.mp4. That is now
+// the PRIMARY player — DVIDS 404'd the upstream sources in 2026-07 and
+// the operator requires serving from our own pipeline. `dvids_video_id`
+// remains only as an optional "external source" link. Cards without R2
+// bytes (not in the allow-list — e.g. Release 1 videos never ingested)
+// fall back to the legacy DVIDS embed iframe so they don't render a
+// broken same-origin <video>/<audio>.
+const r2VideoCardIds = new Set((videoCardIdsJson as { card_ids: string[] }).card_ids);
+const hasR2Media = r2VideoCardIds.has(card.card_id);
+// The R2 key is `<card_id>.mp4` for BOTH video and audio (audio bytes
+// ship in an mp4 container), so the same /video/ route serves both; the
+// element (<video> vs <audio>) is what differs.
+const r2MediaSrc = `/video/${card.card_id}.mp4`;
+const videoPosters: Record<string, string> =
+  (videoPostersJson as { posters?: Record<string, string> }).posters ?? {};
+const videoPosterSrc = videoPosters[card.card_id]
+  ? `/data/video-posters/${videoPosters[card.card_id]}`
+  : undefined;
 
 // Sprint 4g: byte-history lookup for the "bytes changed upstream"
 // banner. Present only when the asset-bytes-registry has >1 entry
@@ -512,40 +545,79 @@ const cardJsonLd = [
         ) : isVideo ? (
           <div class="space-y-2">
             <div class="border border-[color:var(--color-border)] bg-black relative overflow-hidden">
-              <iframe
-                src={`https://www.dvidshub.net/video/embed/${card.dvids_video_id}`}
-                title={`Video: ${card.title}`}
-                allowfullscreen
-                referrerpolicy="no-referrer"
-                class="w-full aspect-video bg-black"
-                loading="lazy"
-              ></iframe>
+              {hasR2Media ? (
+                /* Primary player: our own R2 bytes, streamed same-origin
+                   (Range-enabled) from /video/<card_id>.mp4 via
+                   worker/pdf.js::serveR2Video. Replaces the DVIDS embed
+                   iframe — DVIDS 404'd the upstream sources in 2026-07. */
+                <video
+                  controls
+                  preload="metadata"
+                  playsinline
+                  poster={videoPosterSrc}
+                  title={`Video: ${card.title}`}
+                  class="w-full aspect-video bg-black"
+                >
+                  <source src={r2MediaSrc} type="video/mp4" />
+                  Your browser can’t play this video.{" "}
+                  <a href={r2MediaSrc} class="underline">Download the MP4</a>.
+                </video>
+              ) : (
+                /* Fallback: card has no R2 bytes yet (e.g. Release 1
+                   videos never ingested) — legacy DVIDS embed. */
+                <iframe
+                  src={`https://www.dvidshub.net/video/embed/${card.dvids_video_id}`}
+                  title={`Video: ${card.title}`}
+                  allowfullscreen
+                  referrerpolicy="no-referrer"
+                  class="w-full aspect-video bg-black"
+                  loading="lazy"
+                ></iframe>
+              )}
             </div>
-            <div class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em]">
-              <a
-                href={`https://www.dvidshub.net/video/${card.dvids_video_id}`}
-                target="_blank"
-                rel="noreferrer"
-                class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
-              >
-                Open on DVIDS ↗
-              </a>
-              <span class="text-[color:var(--color-text-faint)]">
-                DVIDS id: <code class="text-[color:var(--color-signal-violet)]">{card.dvids_video_id}</code>
-              </span>
-            </div>
+            {card.dvids_video_id && (
+              <div class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em]">
+                <a
+                  href={`https://www.dvidshub.net/video/${card.dvids_video_id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
+                >
+                  {hasR2Media ? "External source: DVIDS ↗" : "Open on DVIDS ↗"}
+                </a>
+                <span class="text-[color:var(--color-text-faint)]">
+                  DVIDS id: <code class="text-[color:var(--color-signal-violet)]">{card.dvids_video_id}</code>
+                </span>
+              </div>
+            )}
           </div>
         ) : isAudio ? (
           <div class="space-y-2">
             <div class="border border-[color:var(--color-border)] bg-black relative overflow-hidden">
-              <iframe
-                src={`https://www.dvidshub.net/audio/embed/${card.dvids_video_id}`}
-                title={`Audio: ${card.title}`}
-                referrerpolicy="no-referrer"
-                class="w-full h-[180px] bg-black"
-                loading="lazy"
-              ></iframe>
+              {hasR2Media ? (
+                /* Primary player: R2 audio bytes (mp4 container) served
+                   same-origin, Range-enabled, from /video/<card_id>.mp4. */
+                <audio
+                  controls
+                  preload="metadata"
+                  title={`Audio: ${card.title}`}
+                  class="w-full block p-4"
+                >
+                  <source src={r2MediaSrc} type="audio/mp4" />
+                  Your browser can’t play this audio.{" "}
+                  <a href={r2MediaSrc} class="underline">Download the file</a>.
+                </audio>
+              ) : (
+                <iframe
+                  src={`https://www.dvidshub.net/audio/embed/${card.dvids_video_id}`}
+                  title={`Audio: ${card.title}`}
+                  referrerpolicy="no-referrer"
+                  class="w-full h-[180px] bg-black"
+                  loading="lazy"
+                ></iframe>
+              )}
             </div>
+            {card.dvids_video_id && (
             <div class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em]">
               <a
                 href={`https://www.dvidshub.net/audio/${card.dvids_video_id}`}
@@ -553,12 +625,13 @@ const cardJsonLd = [
                 rel="noreferrer"
                 class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
               >
-                Open on DVIDS ↗
+                {hasR2Media ? "External source: DVIDS ↗" : "Open on DVIDS ↗"}
               </a>
               <span class="text-[color:var(--color-text-faint)]">
                 DVIDS id: <code class="text-[color:var(--color-signal-amber)]">{card.dvids_video_id}</code>
               </span>
             </div>
+            )}
           </div>
         ) : card.modal_image_url && card.asset_type !== "VID" && card.asset_type !== "AUD" ? (
           <div class="border border-[color:var(--color-border)] bg-black/40 p-2 relative scanlines-soft">

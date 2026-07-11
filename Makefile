@@ -86,6 +86,7 @@ rebuild-derivatives:
 	@cd web && node scripts/build_llms_txt.mjs > /dev/null
 	@python scripts/build_pages_cleaned.py 2>&1 | tail -1
 	@python scripts/build_photo_card_index.py 2>&1 | tail -1
+	@python scripts/build_video_card_index.py 2>&1 | tail -1
 	@python scripts/build_finds_og_images.py 2>&1 | tail -1
 
 .PHONY: registry-root

@@ -110,14 +110,19 @@ const CSP_VALUE = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https://www.war.gov data:",
   "font-src 'self' data:",
-  // DVIDS embed player for VID cards (operator-noted 2026-05-12: VID
-  // cards have no asset_url, so playback uses the DVIDS public embed
-  // iframe — same source the war.gov upstream display uses). DVIDS is
-  // a DoD-operated public-affairs distribution hub; the embed player
-  // serves the same media file the card_id's dvids_video_id resolves
-  // to. Adding to frame-src so the iframe is permitted; falls back to
-  // an "Open on DVIDS ↗" link if the embed iframe is ever broken or
-  // blocked by the DVIDS side.
+  // A/V playback: <video>/<audio> on card-detail pages stream the media
+  // bytes same-origin from our own R2 mirror at /video/<card_id>.mp4
+  // (see worker/pdf.js::serveR2Video). default-src 'self' already covers
+  // this, but we pin media-src 'self' explicitly so a future default-src
+  // refactor can't silently break playback (same rationale as the
+  // explicit object-src 'none' below).
+  "media-src 'self'",
+  // DVIDS embed player — now a FALLBACK ONLY. DVIDS removed/404'd the
+  // upstream source assets in 2026-07, so R2 (media-src 'self' above) is
+  // the primary player. The DVIDS iframe still renders for A/V cards
+  // whose bytes were never ingested into R2 (e.g. Release 1 videos), and
+  // an "External source: DVIDS ↗" link is kept for cite-of-record. When
+  // every A/V card has R2 bytes this frame-src entry can drop to 'self'.
   "frame-src 'self' https://www.dvidshub.net",
   "connect-src 'self' https://api.anthropic.com https://api.voyageai.com https://cloudflareinsights.com",
   "frame-ancestors 'self'",

@@ -131,4 +131,19 @@ describe("withSecurityHeaders", () => {
       `frame-src must include 'self' (got: ${frameSrc})`,
     );
   });
+
+  // A/V cards play from our own R2 mirror via same-origin <video>/<audio>
+  // at /video/<card_id>.mp4 (DVIDS 404'd the upstream sources in 2026-07).
+  // media-src is pinned to 'self' so a future default-src refactor can't
+  // silently break playback. Regression-lock the same-origin posture.
+  test("CSP media-src is 'self' (R2-served <video>/<audio> playback)", () => {
+    const r = withSecurityHeaders(new Response("ok"));
+    const csp = r.headers.get("Content-Security-Policy") ?? "";
+    const mediaSrc = getCspDirective(csp, "media-src");
+    assert.ok(mediaSrc, "CSP must contain a media-src directive");
+    assert.ok(
+      mediaSrc.includes("'self'"),
+      `media-src must include 'self' (got: ${mediaSrc})`,
+    );
+  });
 });
