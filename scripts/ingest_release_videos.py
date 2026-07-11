@@ -39,6 +39,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT / "scripts"))
 from _ingest_tranche2_helpers import (  # noqa: E402
     already_archived_card_ids,
+    already_current_pointer_card_ids,
     append_registry,
     build_registry_entry,
     ensure_src_on_path,
@@ -53,6 +54,7 @@ from _video_ingest_core import (  # noqa: E402
     DVIDS_ASSET_TYPES,
     is_valid_card_id,
     is_valid_dvids_id,
+    match_cards_by_dvids_id,
     match_cards_to_files,
     select_av_cards,
 )
@@ -225,7 +227,20 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--env", type=Path, default=DEFAULT_ENV)
-    parser.add_argument("--desktop", type=Path, required=True)
+    parser.add_argument(
+        "--desktop",
+        type=Path,
+        help="Dir of operator DOD-named downloads (DVIDS-scrape matching).",
+    )
+    parser.add_argument(
+        "--source-by-dvids",
+        type=Path,
+        help=(
+            "Dir of files named <dvids_video_id>.mp4 (e.g. NAS r2-mirror). "
+            "Maps directly by DVIDS id, skipping the (now-404) DVIDS scrape. "
+            "Mutually exclusive with --desktop."
+        ),
+    )
     parser.add_argument("--nas", type=Path, default=DEFAULT_NAS)
     parser.add_argument("--bucket", type=str, default=DEFAULT_BUCKET)
     parser.add_argument("--source-label", default=DEFAULT_SOURCE_LABEL)
@@ -243,19 +258,31 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _resolve_matching(
+    args: argparse.Namespace, cards: list[Any]
+) -> tuple[dict[str, tuple[Any, Path]], list[str], list[Path]]:
+    """Pick the matcher: direct DVIDS-id (NAS) or DOD-scrape (desktop)."""
+    if args.source_by_dvids:
+        src_mp4s = sorted(args.source_by_dvids.glob("*.mp4"))
+        print(f"[ingest] source-by-dvids MP4s: {len(src_mp4s)}")
+        return match_cards_by_dvids_id(cards, src_mp4s)
+    desktop_mp4s = sorted(args.desktop.glob("*.mp4"))
+    print(f"[ingest] desktop MP4s: {len(desktop_mp4s)}")
+    return match_cards_to_files(cards, desktop_mp4s, resolve_dod_filename)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
+    if bool(args.desktop) == bool(args.source_by_dvids):
+        print("[ingest] provide exactly one of --desktop / --source-by-dvids")
+        return 2
     env = read_env_file(args.env)
     asset_types = tuple(t.strip() for t in args.asset_types.split(",") if t.strip())
     manifest = load_manifest(args.manifest)
     cards = select_av_cards(manifest.cards, args.release_date, asset_types)
     print(f"[ingest] {args.release_date} A/V cards ({asset_types}): {len(cards)}")
-    desktop_mp4s = sorted(args.desktop.glob("*.mp4"))
-    print(f"[ingest] desktop MP4s: {len(desktop_mp4s)}")
 
-    matched, unmatched_cards, unmatched_files = match_cards_to_files(
-        cards, desktop_mp4s, resolve_dod_filename
-    )
+    matched, unmatched_cards, unmatched_files = _resolve_matching(args, cards)
     print(
         f"[ingest] mapping: {len(matched)} matched / "
         f"{len(unmatched_cards)} cards-without-file / "
@@ -266,8 +293,15 @@ def main(argv: list[str] | None = None) -> int:
         return _print_dry_run(matched, unmatched_cards, unmatched_files)
 
     client = make_r2_client(env)
-    skip = already_archived_card_ids(args.registry)
-    print(f"[ingest] registry has {len(skip)} existing card_ids with mp4 rows")
+    # In source-by-dvids mode the bytes are commonly already archived (older
+    # archive-only ingests), so skip only cards that already serve an mp4
+    # *current pointer* — otherwise archive-only cards can never be flipped to
+    # the R2 player. Desktop mode keeps the original (archive-or-current) skip.
+    if args.source_by_dvids:
+        skip = already_current_pointer_card_ids(args.registry)
+    else:
+        skip = already_archived_card_ids(args.registry)
+    print(f"[ingest] registry has {len(skip)} existing card_ids to skip")
     counts = _run_ingest_loop(matched, client, args, skip)
     _print_summary(counts, unmatched_cards, unmatched_files)
     return 0 if counts["failed"] == 0 else 1

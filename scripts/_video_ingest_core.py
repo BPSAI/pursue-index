@@ -113,3 +113,41 @@ def match_cards_to_files(
 
     unmatched_files = [p for fid, p in files_by_id.items() if fid not in used_ids]
     return matched, unmatched_cards, unmatched_files
+
+
+def match_cards_by_dvids_id(
+    cards: list[Any],
+    source_files: list[Path],
+) -> tuple[dict[str, tuple[Any, Path]], list[str], list[Path]]:
+    """Map cards to source files named ``<dvids_video_id>.mp4``.
+
+    Used when the canonical bytes are already staged keyed by DVIDS
+    video id (e.g. the Release-1 NAS ``r2-mirror`` set) rather than as
+    DOD-named desktop downloads. Deliberately avoids the DVIDS page
+    scrape: the DVIDS source pages 404'd in 2026-07, so the
+    scrape-based ``match_cards_to_files`` can no longer resolve these.
+
+    A file matches a card iff its stem equals the card's (validated)
+    ``dvids_video_id``. When several cards share a ``card_id`` (a PDF
+    card that also carries multiple video clips), the last card in
+    iteration order wins the current pointer — mirroring
+    ``match_cards_to_files``' last-wins dedup.
+    """
+    files_by_id: dict[str, Path] = {}
+    for p in source_files:
+        files_by_id.setdefault(p.stem, p)
+
+    matched: dict[str, tuple[Any, Path]] = {}
+    unmatched_cards: list[str] = []
+    used_ids: set[str] = set()
+
+    for card in cards:
+        vid = card.dvids_video_id
+        if not is_valid_dvids_id(vid) or vid not in files_by_id:
+            unmatched_cards.append(card.card_id)
+            continue
+        matched[card.card_id] = (card, files_by_id[vid])
+        used_ids.add(vid)
+
+    unmatched_files = [p for fid, p in files_by_id.items() if fid not in used_ids]
+    return matched, unmatched_cards, unmatched_files

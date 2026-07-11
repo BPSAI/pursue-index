@@ -110,6 +110,56 @@ def test_match_reports_unmatched_card_when_file_absent():
     assert unmatched_files == files
 
 
+# --- match_cards_by_dvids_id (NAS files named <dvids_video_id>.mp4) -----
+
+
+def test_match_by_dvids_id_maps_stem_to_card():
+    cards = [FakeCard("vid1", "VID", "5/8/26", "1006056")]
+    files = [Path("/nas/1006056.mp4")]
+    matched, unmatched_cards, unmatched_files = core.match_cards_by_dvids_id(
+        cards, files
+    )
+    assert matched == {"vid1": (cards[0], files[0])}
+    assert unmatched_cards == []
+    assert unmatched_files == []
+
+
+def test_match_by_dvids_id_reports_card_without_file():
+    cards = [FakeCard("vid1", "VID", "5/8/26", "1006056")]
+    files = [Path("/nas/9999999.mp4")]
+    matched, unmatched_cards, unmatched_files = core.match_cards_by_dvids_id(
+        cards, files
+    )
+    assert matched == {}
+    assert unmatched_cards == ["vid1"]
+    assert [p.name for p in unmatched_files] == ["9999999.mp4"]
+
+
+def test_match_by_dvids_id_rejects_invalid_dvids_id():
+    cards = [FakeCard("vid1", "VID", "5/8/26", "../etc")]
+    matched, unmatched_cards, _ = core.match_cards_by_dvids_id(
+        cards, [Path("/nas/1006056.mp4")]
+    )
+    assert matched == {}
+    assert unmatched_cards == ["vid1"]
+
+
+def test_match_by_dvids_id_last_wins_for_shared_card_id():
+    # A PDF card that also carries multiple video clips shares one card_id;
+    # the last clip in iteration order wins the current pointer.
+    cards = [
+        FakeCard("shared", "VID", "5/8/26", "1006063"),
+        FakeCard("shared", "VID", "5/8/26", "1006067"),
+    ]
+    files = [Path("/nas/1006063.mp4"), Path("/nas/1006067.mp4")]
+    matched, unmatched_cards, unmatched_files = core.match_cards_by_dvids_id(
+        cards, files
+    )
+    assert matched == {"shared": (cards[1], files[1])}
+    assert unmatched_cards == []
+    assert unmatched_files == []
+
+
 # --- input validation (PR #90 review: dvids_video_id / card_id guards) ---
 
 

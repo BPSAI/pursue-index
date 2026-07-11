@@ -127,6 +127,32 @@ def already_archived_card_ids(registry_path: Path) -> set[str]:
     return done
 
 
+def already_current_pointer_card_ids(registry_path: Path) -> set[str]:
+    """Return card_ids that already have an ``<card_id>.mp4`` current pointer.
+
+    Narrower than ``already_archived_card_ids``: a card whose bytes are
+    archived but whose ``current_key`` is null/non-mp4 (e.g. a PDF+video
+    card serving only ``<card_id>.pdf``) is NOT counted, so re-ingest can
+    add the mp4 current pointer that makes it playable at ``/video/``.
+    """
+    done: set[str] = set()
+    if not registry_path.exists():
+        return done
+    with registry_path.open() as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            ck = row.get("current_key") or ""
+            if ck.endswith(".mp4") and row.get("card_id"):
+                done.add(row["card_id"])
+    return done
+
+
 def stage_to_nas(local_path: Path, sha: str, size: int, nas_dir: Path) -> Path:
     """Mirror the file to ``<NAS>/<sha>.mp4`` content-addressed."""
     nas_dir.mkdir(parents=True, exist_ok=True)
