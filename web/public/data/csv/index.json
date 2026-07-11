@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-11T18:29:48.905Z",
+  "generated_at": "2026-07-11T19:32:27.947Z",
   "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "source_notes": "Distinct CSV versions are archived locally and exposed here for citation reproducibility. Each row's sha256 is the load-bearing identifier — verify any download with `shasum -a 256 <file>` against the filename or against this index's `sha256` field.",
   "csvs": [

@@ -4243,6 +4243,10 @@ BE4 / J. Grimeco JSC-08053 SKYLAB 1/2 TECHNICAL CREW DEBRIEFING JUNE 30, 1973 PR
 - Description: During a medical debriefing of the crew of the Apollo 12 mission, Commander Charles “Pete” Conrad, Command Module Pilot Richard “Dick” F. Gordon, and Lunar Module Pilot Alan L. Bean describe their observations of instances of light flashes or “streaks of lights.” The astronauts each reported that these experiences occurred in the dark as they tried to sleep.
 The NASA medical team considered whether similar phenomena reported by Apollo 11 Lunar Module Pilot Buzz Aldrin had been attributable to exposure of the retina by cosmic rays. NASA later determined that the phenomena reported by the Apollo 12 flight crew were internal to the astronauts’ vision rather than external light sources.
 
+Excerpt (page 1):
+
+Speaker A: Listen, we read this paragraph in here about these, quote, coronal discharges that you guys were seeing, and that completely stops us. Tell us how this came about and who talked to you about it and what you saw. Speaker B: Somebody reported it on one of the earlier flights that some guy up— I got the letter, there's paperwork somewhere, and he shipped it down to me at the About 2 things, where the VHF radio noises, which could be discharged from someplace in space, and the other one w
+
 ### 002eaa383e76a277 — NASA-UAP-D009, Apollo 17 Audio Excerpt, December 7, 1972
 
 - Agency: NASA
@@ -4251,12 +4255,20 @@ The NASA medical team considered whether similar phenomena reported by Apollo 11
 - Description: During the eleventh and final crewed mission in the Apollo program, Apollo 17 Commander Gene Cernan, Lunar Module Pilot Harrison Schmitt, and Command Module Pilot Ronald Evans report seeing small lights outside the Apollo spacecraft during transit to the moon. 
 The crew describe bright “particles” or “fragments” as being “jagged,” “angular,” and drifting near the Apollo spacecraft and the separated Saturn S-IVB stage. The Apollo 17 crew speculate that paint chips or ice chips are likely the source of these lights and note that they “twinkle” and move away from the Saturn S-IVB stage.
 
+Excerpt (page 1):
+
+Speaker A: We've got a few very bright particles or fragments or something that go drifting by as we maneuver. Speaker B: Roger, understand. Speaker A: There's a whole bunch of big ones out my window down there, just bright. Looks like the 4th of July out Ron's window. Yeah, now you can see some of them in shape. They're very jagged, angular fragments. Speaker B: Roger. They look like fluid of some sort. Speaker A: Not to me. They look like pieces of something. Speaker B: Roger. Speaker A: They'
+
 ### 1bc28d0e03b79e35 — NASA-UAP-D010, Mercury Atlas 9 Audio Excerpt, May 15, 1963
 
 - Agency: NASA
 - Date: 5/15/63
 - URL: https://pursueindex.com/card/1bc28d0e03b79e35
 - Description: Approximately one hour and 41 minutes into the final and longest flight of Project Mercury, Mercury-Atlas 9 mission (MA-9) Faith 7 Pilot L. Gordon Cooper Jr. notes that he sees “John’s fireflies,” referring to John Glenn’s term from the Mercury-Atlas 6 mission. NASA later determined that the “fireflies” are attributable to frozen condensation separating from the spacecraft body. The white, green-hued appearance of this phenomenon results from sunlight reflecting off frozen condensation.
+
+Excerpt (page 1):
+
+Speaker A: Huh. And now at 1 hour, at this time, I now have 1 hour and 21 minutes, and I am observing John's fireflies drifting away from me. I can observe them sort of departing from the spacecraft. And drifting out to the rear. I can see some of them a considerable distance out to the rear. Sun is coming up behind me. I'm beginning to get the glow on the clouds. Fireflies appear to be white, very whitish, with almost a green like real fireflies. Fireflies appear to be white, very whitish, with
 
 ### ef779c3f0f7ba4d3 — NASA-UAP-D011, Mercury Atlas 9 Audio Excerpt, May 15, 1963
 
@@ -4265,12 +4277,20 @@ The crew describe bright “particles” or “fragments” as being “jagged,�
 - URL: https://pursueindex.com/card/ef779c3f0f7ba4d3
 - Description: During the final and longest flight of Project Mercury, Mercury-Atlas 9 mission (MA-9) Faith 7 Pilot L. Gordon Cooper Jr. describes the brilliant blue of sunrise beneath the haze layer of the Earth’s atmosphere. As he approaches sunrise, he describes small, luminous, brilliant white particles drifting away from the spacecraft. Cooper describes observing “fireflies” after deploying beacons, which are spherical mission-related equipment with xenon strobe lights.
 
+Excerpt (page 1):
+
+Speaker A: And I'm beginning to get the brilliant blue of sun rising in the east. Bright blue band underneath all this haze layer. I can see the haze layer and the bright band of light demarcation coming underneath it. It's quite distinctive. There's a faint noise to it. That's where there are clouds apparently. Roger, Hawaii, Phase 7, reading you loud and clear. Speaker B: Roger, Hawaii, Phase 7, reading you loud and clear. Speaker A: Roger, understand. Roger, I'm just small end forward, 180-de
+
 ### 35e0a7cff95a3e93 — NASA-UAP-D012, Mercury Atlas 8 Audio Excerpt, October 3, 1962
 
 - Agency: NASA
 - Date: 10/3/62
 - URL: https://pursueindex.com/card/35e0a7cff95a3e93
 - Description: During the Mercury Atlas 8 mission, Sigma 7 pilot Walter M. “Wally” Schirra Jr. describes observing “little white objects that tend to come from the capsule itself and drift off.” Schirra later also refers to those objects as “particles” and “lathe shavings.” Schirra also describes seeing a burst of light in the window, whose source he cannot identify. He speculates that his observation corresponds with the moment the sun passes below the horizon during sunset.
+
+Excerpt (page 1):
+
+Speaker A: I have some pretty stars in sight and also have the little white objects that seem to come from the capsule itself and drift off. And if they are a yaw check, it's fantastic. I suspect that the star I see is Arcturus. It would be very interesting if it is neither. Roger. It is one of the white objects. So I had 2 stars that were staying quite still. The white object actually looked like it came toward me, but it wasn't. You can actually see the particle there flying off, and as John d
 
 ### 6b12c3ddc6a96008 — NASA-UAP-D013, Mercury Atlas 7, May 24, 1962
 
@@ -4279,12 +4299,20 @@ The crew describe bright “particles” or “fragments” as being “jagged,�
 - URL: https://pursueindex.com/card/6b12c3ddc6a96008
 - Description: During the fourth crewed spaceflight and second orbital flight of Project Mercury, Mercury-Atlas 7 (MA-7), Aurora 7 pilot Scott Carpenter describes white particles in view that appear to move at “random” and “look exactly like snowflakes.” He describes these phenomena as reflective, and that some seemed to move faster than the Aurora 7 spacecraft.
 
+Excerpt (page 1):
+
+Speaker A: I have some more of the white particles in view below the capsule. They appear to be traveling exactly my speed. There is one drifting off. It's going faster than I am, as a matter of fact. Roger. Understand. I haven't seen the great numbers of these particles, but I've seen a few of them. Their motion is random. They look exactly like snowflakes to me. Roger. Have you tried returning? Negative. Let me get within scanner limits first. Say again. I must adjust my attitude Uh, to within
+
 ### 01765a63bbd3f02f — NASA-UAP-D014, Mercury-Redstone 4, July 21, 1961
 
 - Agency: NASA
 - Date: 7/21/61
 - URL: https://pursueindex.com/card/01765a63bbd3f02f
 - Description: During the recovery of the fourth launch and second crewed spaceflight of Project Mercury, Mercury-Redstone 4 (MR-4) Liberty Bell 7, the recovery team discusses a dye pack in the water that did not activate.
+
+Excerpt (page 1):
+
+Speaker A: Basic COIN on the left there. Basic COIN is correct, Will. There's an object on the line in the water. It's about 160 degrees. The United States Marine people suspected it was a dye marker that didn't activate. I'd say it's about 3/4 of a mile out from the capsule after the liftoff. We can take a check on it later.
 
 ### 765a28effad5ab93 — NASA-UAP-D015, Astronaut Scientific Debriefings, 1962-1963
 
@@ -4619,7 +4647,93 @@ Excerpt (page 1):
 
 ## Finds
 
-35 curated reading guides authored from specific cards and pages.
+37 curated reading guides authored from specific cards and pages.
+
+### apollo-12-light-flashes — Apollo 12's 'Coronal Discharges': The Missing Middle of the Light-Flash Story
+
+- URL: https://pursueindex.com/finds/apollo-12-light-flashes
+- Published: 2026-07-11
+- Cards: 9ed140b9186c20c5
+
+Card 9ed140b9186c20c5 (NASA-UAP-D008, Apollo 12 Medical Debriefing, 1969) preserves the Apollo 12 crew — Conrad, Gordon, and Bean — walking a medical interviewer through the light-flash phenomenon that appears in the debriefing paperwork under the heading 'coronal discharges.' The crew describes flashes and streaks seen with eyes closed in the dark, insists the effect is single-eye and internal rather than external, distinguishes two kinds ('the particle either strikes the eyeball perpendicular or it discharges parallel'), and the interviewer connects it to the ongoing cosmic-ray search that ran 'clear back in Mercury.' Between the Apollo 11 crew discovering the flashes in July 1969 and the Apollo 14 crew running controlled tests on them in 1971, this is the same phenomenon on the record a third time, in November 1969, from the second crew to see it.
+
+## What this document is
+
+Card `9ed140b9186c20c5` (**NASA-UAP-D008**) is an audio excerpt from the **Apollo 12 post-mission medical debriefing** — the tape labelled "Tape 12, 1969." Apollo 12 flew in November 1969, four months after Apollo 11, with **Charles "Pete" Conrad**, **Richard "Dick" Gordon**, and **Alan "Al" Bean** aboard. All three men are named on the tape ("Pete," "Dick," "Al"), which fixes the crew even where the recording does not fix the individual speaker.
+
+For roughly eight minutes the excerpt is a single, continuous exchange about one thing: the light flashes. An interviewer opens by reading a phrase back to the crew from the written debriefing:
+
+> "we read this paragraph in here about these, quote, coronal discharges that you guys were seeing, and that completely stops us." [cite: card 9ed140b9186c20c5 p.1 "coronal discharges"]
+
+"Coronal discharges" is the crew's-paperwork name for what the archive elsewhere calls the Apollo light flashes. The rest of the excerpt is the crew explaining, in unpolished first-person, what those flashes actually were.
+
+A note on how this transcript was produced, because it governs every attribution below: unlike the Apollo 14 debriefs — which were **true two-channel** audio with the crew on one channel and the interviewers on the other — this Apollo 12 tape is a **single-channel** recording. The speaker labels here come from automated diarization guessing voices apart within one mixed track, and that guess is **not reliable**: it collapses three astronauts and at least one interviewer into two labels that drift. So this entry does not assign lines to individual astronauts, and it treats even the crew-versus-interviewer split as an inference from *content* (who is asking, who is describing) rather than a fact of the recording. Where the text is garbled the quotes below avoid it.
+
+## "Not something external to you"
+
+The single most important claim the crew makes is that the flashes are inside the observer. Asked how the effect behaves, a crew member is emphatic that it is one eye at a time, not both:
+
+> "It's not a discharge that you see in both eyes. You're really seeing it with one eye or the other eye." 
+
+and states the conclusion the whole exchange keeps circling:
+
+> "it's a phenomenon that you're not seeing with both eyes. It's not something external to you, it's something that's internal." 
+
+That is the same conclusion the Apollo 14 crew would reach, out loud, two years later — "definitely within the eye." Here it arrives faster and rougher, but it is the same finding: the flashes are not light in the cabin, they are events in the visual system.
+
+## Two kinds: the flash and the streak
+
+The crew had already, informally, built the taxonomy that the Apollo 14 session would refine. They distinguish two forms and even offer a mechanism for the difference:
+
+> "We had 2 kinds. I guess the particle either strikes the eyeball perpendicular or it discharges parallel." [cite: card 9ed140b9186c20c5 p.1 "the particle either strikes the eyeball perpendicular or it discharges parallel"]
+
+> "we'd get either a flash like that or we'd get a streak." 
+
+The interviewer draws them out on the geometry. The streaks had a consistent orientation and travel — "the ones I saw were horizontal," [cite: card 9ed140b9186c20c5 p.2 "the ones I saw were horizontal"] and one crew member had the impression a streak "went from right to left no matter which eye it was in." [cite: card 9ed140b9186c20c5 p.2 "it went from right to left no matter which eye it was in"] The point events, by contrast, were central and brief — "it was just like a pinpoint of light went and closed again," [cite: card 9ed140b9186c20c5 p.2 "it was just like a pinpoint of light went and closed again"] which the interviewer paraphrases back as "like somebody was flashing a light at you." [cite: card 9ed140b9186c20c5 p.2 "Like somebody was flashing a light at you"]
+
+This is the streak-and-pinpoint vocabulary the Apollo 14 crew would later formalize into streaks, pinpoints, and novas — caught here at an earlier, blunter stage of the same descriptive project.
+
+## An eye bias — this time to the left
+
+There is a small, striking echo of the Apollo 14 record. The Apollo 14 session's strongest evidence was a **right-eye** bias the crew felt as a left-eye bias. In this Apollo 12 tape a crew member reports the opposite felt bias for himself:
+
+> "I for some reason got them more with my left eye than my right eye, but I could tell which eye it was when I was concentrating on it." [cite: card 9ed140b9186c20c5 p.1 "got them more with my left eye than my right eye"]
+
+The Apollo 12 debrief has no tallied count to check that impression against — the systematic eye-count that made the Apollo 14 record so unusual does not exist here. What it has is the raw subjective report, offered with the honest hedge that it took concentration to localize the eye at all.
+
+## The crew tests "external"
+
+Like the Apollo 11 and Apollo 14 crews, the Apollo 12 crew reasoned their way past the obvious alternatives. They note that an earlier explanation on the table had been penetration of the spacecraft:
+
+> "They thought it was something penetrating the spacecraft." [cite: card 9ed140b9186c20c5 p.1 "They thought it was something penetrating the spacecraft"]
+
+— and that the effect did not depend on the eyes being open or on darkness adaptation in any simple way: down in the dark sleeping station, "It wouldn't make any difference whether my eyes were open or closed."  The crew also flags that the effect was cross-checked between all three of them — that what one man reported was "the exact phenomenon all 3 of us saw." [cite: card 9ed140b9186c20c5 p.1 "What Pete described is the exact phenomenon all 3 of us saw"]
+
+## The interviewer's half: a cosmic-ray search that predates Apollo
+
+What makes this excerpt more than a third eyewitness account is the interviewer's side of it. The medical questioner is not hearing about this cold — he places it inside an existing physiological research program:
+
+> "we've been looking for cosmic rays, you know, cosmic ray strikes and heavy particles, heavy nuclei that go through." 
+
+and dates that program:
+
+> "we started clear back in Mercury" — taking photographs of the retina "to see if you could see streaks across the retina." [cite: card 9ed140b9186c20c5 p.1 "we started clear back in Mercury"]
+
+He even reasons about why the search had failed: the retina heals too fast to catch the damage after the fact, so "The only way you're ever going to see it is if you photograph it right after a particle goes by."  One crew member had earlier relayed that a correspondent told him this was, in any case, "a perfectly known phenomenon" — "You can get to across your eye from gamma rays or something." [cite: card 9ed140b9186c20c5 p.1 "You can get to across your eye from gamma rays or something"] The crew's own summary is blunter: "Apparently it's a completely known phenomenon." 
+
+That is the historically interesting part. By November 1969 the flight-medicine side already had a cosmic-ray hypothesis and a retinal-imaging history reaching back to Mercury — and here it is being matched, in real time, against three astronauts who had just spent ten days watching the flashes happen.
+
+## Where it sits in the arc
+
+This archive can now show the Apollo light-flash phenomenon across four crews, and Apollo 12 is the piece that was missing from the middle. On the [Apollo 11 debriefing](/finds/apollo-11-debriefing) (July 1969) the crew is *discovering* the flashes — Aldrin noticing them with the lights out, Armstrong reasoning to "a neutron or some kind of an atomic particle." In this Apollo 12 debrief (November 1969) the *second* crew to fly confirms the effect independently, names it "coronal discharges," and states plainly that it is internal, not external. On the [Apollo 14 light-flash session](/finds/apollo-14-light-flashes) (1971) the crew and a medical team *measure* it — eye-bias tallies, coincidence timing, a dark-adaptation test — and conclude "definitely within the eye." On the [Apollo 17 debriefing](/finds/apollo-17) (1972) it is a formal experimental target, ALFMED. Apollo 12 is the second data point on that curve: no instrument, no tally, but a whole crew independently reproducing the observation and reaching the same internal-not-external conclusion, five months before Apollo 14 would nail it down.
+
+## A note on method and its limits
+
+Two cautions attach to everything above. First, the recording is single-channel, so the speaker labels are an automated guess and this entry deliberately keeps individual-astronaut attribution out of it — where the text says "a crew member," which of Conrad, Gordon, or Bean is speaking is not recoverable from the audio. Second, the transcript is a careful automated reading of an aged 1969 tape with real garbles in it (a few phrases are plainly mistranscribed and are not quoted here); a reader checking a quote against the audio should treat the transcript as a reading, not a canonical record.
+
+## Provenance of this entry
+
+A code-assistant agent transcribed the audio card via automated speech-to-text with a NASA/Apollo term bias, integrated it into the archive's citable page format, and drafted this entry from the transcript; the editorial frame and the decision to surface the card are the operator's. Every quotation is anchored with `` to a verbatim substring of the integrated transcript for the page it appears on. The agent was asked to characterize what the tape records the crew and the interviewer doing, and to keep individual-astronaut attribution out of it given the single-channel audio; it was not asked to render, and this entry does not render, any judgment about what the light flashes mean for any external claim.
 
 ### apollo-14-light-flashes — Apollo 14's Light-Flash Session: A Crew Debriefing That Reads Like an Experiment
 
@@ -4720,6 +4834,82 @@ Everything above rests on the crew-versus-interviewer channel split, which is re
 ## Provenance of this entry
 
 A code-assistant agent tightened the two channel-separated transcripts, re-integrated them into the archive's citable page format, and drafted this entry from the cleaned text; the editorial frame and the decision to surface the pair are the operator's. Every quotation here is anchored with `` to a verbatim substring of the tightened transcript for the page it appears on. The agent was asked to characterize what the documents record the crew and the interviewers doing, and to keep individual-astronaut attribution out of it; it was not asked to render, and this entry does not render, any judgment about what the light flashes mean for any external claim.
+
+### mercury-fireflies — The Mercury 'Fireflies': Four Flights, One Resolved Mystery, on the Original Air-to-Ground Tapes
+
+- URL: https://pursueindex.com/finds/mercury-fireflies
+- Published: 2026-07-11
+- Cards: 6b12c3ddc6a96008, 35e0a7cff95a3e93, 1bc28d0e03b79e35, ef779c3f0f7ba4d3
+
+Four NASA audio cards — 6b12c3ddc6a96008 (Carpenter, Aurora 7, May 1962), 35e0a7cff95a3e93 (Schirra, Sigma 7, October 1962), and 1bc28d0e03b79e35 / ef779c3f0f7ba4d3 (Cooper, Faith 7, May 1963) — preserve the Mercury 'fireflies' across the last three orbital Mercury flights. The phenomenon was first reported by John Glenn on Friendship 7 in February 1962: a cloud of glowing particles outside the capsule at orbital sunrise. These excerpts capture the resolution. Carpenter watches particles that 'look exactly like snowflakes'; Schirra sees 'little white objects that seem to come from the capsule itself'; Cooper reports 'John's fireflies' drifting away and, decisively, 'each time I fire a pitch-down thruster, I get a shower of these little fireflies.' The tapes record trained observers converging on the correct explanation — frost and debris shed by the spacecraft — that later became the textbook account.
+
+## What these documents are
+
+Four cards in the archive hold air-to-ground audio from the final three orbital flights of Project Mercury:
+
+- `6b12c3ddc6a96008` (**NASA-UAP-D013**) — **Scott Carpenter**, *Aurora 7* (MA-7), May 24, 1962
+- `35e0a7cff95a3e93` (**NASA-UAP-D012**) — **Wally Schirra**, *Sigma 7* (MA-8), October 3, 1962
+- `1bc28d0e03b79e35` (**NASA-UAP-D010**) and `ef779c3f0f7ba4d3` (**NASA-UAP-D011**) — **Gordon Cooper**, *Faith 7* (MA-9), May 15, 1963
+
+They belong to the same story, which begins on a flight not in this set. On February 20, 1962, on *Friendship 7*, **John Glenn** became the first American to orbit the Earth and reported, at his first orbital sunrise, that the capsule was surrounded by a cloud of tiny luminous particles. He called them **"fireflies,"** and for a few hours they were a genuine open question — thousands of glowing specks outside a spacecraft, drifting with it, of unknown origin. These four cards are what the government's UAP release preserves of what happened next: the same phenomenon, seen and reasoned about on the three flights that followed Glenn's.
+
+Two of these tapes (the two Cooper cards) came off the recording as waveform-distinct stereo but carry the same air-to-ground program on both channels; all four were transcribed as single-channel audio. The speaker labels are automated and, on the mission-loop excerpts, mostly separate the astronaut from the capsule communicator ("CAPCOM"). Attribution below rests on the mission each card belongs to — the astronaut named on the flight — not on the automated labels.
+
+## Carpenter: "they look exactly like snowflakes"
+
+The resolution effectively arrives on the very next flight. Scott Carpenter, on *Aurora 7* three months after Glenn, sees the same particles and reaches immediately for the analogy that turned out to be right:
+
+> "I have some more of the white particles in view below the capsule. They appear to be traveling exactly my speed." [cite: card 6b12c3ddc6a96008 p.1 "white particles in view below the capsule"]
+
+> "Their motion is random. They look exactly like snowflakes to me." [cite: card 6b12c3ddc6a96008 p.1 "They look exactly like snowflakes to me"]
+
+Houston reads it back to confirm the word, and Carpenter re-confirms it on a second sighting — "They definitely look like snowflakes this time." [cite: card 6b12c3ddc6a96008 p.1 "They definitely look like snowflakes this time"] "Snowflakes" is not a throwaway image. Carpenter is the astronaut who, in the popular history of Mercury, is credited with cracking the firefly puzzle — the particles were frost and ice crystals shed from the skin of the capsule, knocked loose and lit by the low sun. The word he keeps choosing on the tape is the explanation.
+
+## Schirra: "seem to come from the capsule itself"
+
+Wally Schirra, on *Sigma 7* five months later, supplies the other half of the answer — where the particles come from:
+
+> "I have some pretty stars in sight and also have the little white objects that seem to come from the capsule itself and drift off." [cite: card 35e0a7cff95a3e93 p.1 "seem to come from the capsule itself"]
+
+That single clause — *come from the capsule itself* — is the whole resolution stated as an observation rather than a theory. Schirra explicitly connects it to Glenn's original report, borrowing Glenn's own description of the particles' shape:
+
+> "You can actually see the particle there flying off, and as John described it as a lathe shaving. That's a very good description of it." [cite: card 35e0a7cff95a3e93 p.1 "as John described it as a lathe shaving"]
+
+Schirra's excerpt is not entirely tidy — he also notes, honestly, an unexplained moment: "Getting a real burst of light in the window, and I really don't know what it is."  It is worth leaving that in. The same astronaut who has just calmly located the "fireflies" as capsule shedding also flags a thing he genuinely cannot account for, and does not pretend otherwise. That is the texture of a real observer at work, not a tidied-up narrative.
+
+## Cooper: "John's fireflies," and the thruster that makes them
+
+Gordon Cooper, on *Faith 7* a year after Glenn, closes the loop twice over. First he names the phenomenon after its discoverer, treating it as an established feature of the flight:
+
+> "I am observing John's fireflies drifting away from me. I can observe them sort of departing from the spacecraft." 
+
+> "Fireflies appear to be white, very whitish, with almost a green like real fireflies." [cite: card 1bc28d0e03b79e35 p.1 "Fireflies appear to be white, very whitish, with almost a green like real fireflies"]
+
+Then, in the second Cooper excerpt, he does something none of the earlier reports quite managed — he *produces* the particles on command, tying them directly to the spacecraft:
+
+> "Each time I fire a pitch-down thruster, I get a shower of these little fireflies." [cite: card ef779c3f0f7ba4d3 p.2 "I get a shower of these little fireflies"]
+
+A shower of "fireflies" on every thruster firing is about as clean a demonstration of spacecraft origin as an astronaut could offer without a laboratory: the particles are not out there in space, they are being shaken off the vehicle. Earlier in the same pass Cooper describes them under changing light as "small luminescent particles drift away from you," [cite: card ef779c3f0f7ba4d3 p.1 "These small luminescent particles drift away from you"] appearing in that light "brilliant white without any green at all in them." [cite: card ef779c3f0f7ba4d3 p.1 "brilliant white without any green at all in them"] (The Cooper excerpts are unambiguously his flight — the CAPCOM, Wally Schirra, addresses him on the loop by name: "Gordon, this is Wally." [cite: card ef779c3f0f7ba4d3 p.1 "Gordon, this is Wally"])
+
+## A second light on the same tape — this one identified
+
+Cooper's *Faith 7* excerpt also contains a different bright object, and it is a useful contrast because Cooper knows exactly what it is. MA-9 carried a **flashing-beacon experiment** — a small sphere ejected from the capsule with a xenon strobe, to test whether an astronaut could acquire a flashing light in orbit. Cooper spends part of the pass hunting for it — "I've been looking for the flashing beacons"  — and then finds it:
+
+> "There's light in sight. It is below me... it is flashing now. It is the light. It's quite bright, quite discernible... appears to be about 10 to 12 miles away." [cite: card ef779c3f0f7ba4d3 p.2 "it is flashing now. It is the light"]
+
+On the same tape, then, are two lights: the "fireflies," initially unexplained and resolved by observation into capsule debris, and the flashing beacon, a bright unfamiliar light that is nonetheless fully identified because Cooper deployed it himself. The pairing is the whole editorial point of the Mercury firefly record: a strange light in space is not, by itself, a mystery; it is a question, and these astronauts answered theirs.
+
+## Why surface these
+
+The Mercury fireflies are a **resolved** phenomenon — the standard account, that they were ice and frost particles shed from the capsule and lit by the sun, is exactly what these four astronauts are describing as they watch. That is precisely why the cards are worth surfacing. Included in a government UAP release, they could read as four astronauts reporting an unexplained luminous swarm. Heard in sequence, they are the opposite: a mystery being *closed*, on the record, by the observers themselves — Carpenter's "snowflakes," Schirra's "from the capsule itself," Cooper's thruster-triggered "shower." The archive keeps them for the same reason it keeps the [Apollo 11 debriefing](/finds/apollo-11-debriefing)'s sun-glint "laser" and the [Apollo 17 debriefing](/finds/apollo-17)'s three identified phenomena: they show trained observers handling the unexplained well. They are the Mercury-era companion to the Apollo light-flash cluster — the [Apollo 12](/finds/apollo-12-light-flashes) and [Apollo 14](/finds/apollo-14-light-flashes) crews reasoning their way to "internal, not external," a decade of astronauts reasoning carefully about lights they could not immediately place.
+
+## A note on method and its limits
+
+These are aged 1962–63 mission tapes transcribed by automated speech-to-text; the readings are careful but not canonical, and a few numeric read-backs and cross-talk passages are imperfectly transcribed and are not quoted here. Card assignment to a named astronaut is by mission, which is secure; the automated speaker labels within each tape are not relied upon for attribution.
+
+## Provenance of this entry
+
+A code-assistant agent transcribed the four audio cards via automated speech-to-text with a NASA/Mercury term bias, integrated them into the archive's citable page format, and drafted this entry from the transcripts; the editorial frame and the decision to group and surface the four cards are the operator's. Every quotation is anchored with `` to a verbatim substring of the integrated transcript for the page it appears on. The agent was asked to characterize what the tapes record the astronauts observing and concluding; it was not asked to render, and this entry does not render, any judgment beyond what the astronauts themselves say on the recordings.
 
 ### air-intelligence-study-203-1948 — Air Intelligence Study No. 203 (1948) — The TOP SECRET Analysis That Would Not Rule Out 'Foreign Origin'
 
