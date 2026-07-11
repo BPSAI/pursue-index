@@ -6,10 +6,11 @@ engine, pdf hash/size, timestamps). Idempotent: a card with
 ``meta.json["status"] == "ok"`` is skipped on re-runs (use ``force=True``
 to override).
 
-The ``ocr_image`` seam is engine-agnostic — Tesseract (CPU, default), Surya
-(GPU, in ``ocr/surya.py``), and the LLM fallback (``ocr/llm.py``) plug into
-the same shape. ``engine="auto"`` runs the primary engine then re-OCRs any
-page with confidence < ``settings.ocr_llm_threshold`` via the LLM.
+The ``ocr_image`` seam is engine-agnostic — the LLM adapter (``ocr/llm.py``,
+Sonnet 4.6 vision) and the dots.mocr backstop (``ocr/dots.py``) plug into the
+same shape as the retired Tesseract/Surya adapters. The operated engine is
+``engine="llm-dots"``: Sonnet per page, with a per-page dots.mocr fallback
+when Anthropic's output filter 400s a page.
 """
 
 from __future__ import annotations
@@ -39,7 +40,10 @@ from pursue_index.scrape.types import CardMetadata, Manifest
 log = get_logger(__name__)
 
 EngineName = str
-DEFAULT_ENGINE: EngineName = "tesseract"
+# The operated engine: Sonnet 4.6 vision per page + local dots.mocr as the
+# content-filter (HTTP 400) backstop. Default here so an unset/invalid
+# PURSUE_OCR_ENGINE can't silently run a retired engine (tesseract/surya/auto).
+DEFAULT_ENGINE: EngineName = "llm-dots"
 
 
 def rasterize_pdf(path: Path, dpi: int) -> Iterator[Image.Image]:
@@ -169,13 +173,11 @@ def ocr_card(
     """Run OCR over a PDF; write pages.jsonl + meta.json. Idempotent.
 
     Returns ``True`` if OCR ran (success or failure), ``False`` if skipped.
-    The ``engine`` selects which adapter runs:
-
-    - ``"tesseract"`` (default, CPU)
-    - ``"surya"`` (GPU)
-    - ``"llm"`` (Anthropic vision)
-    - ``"auto"`` — run primary (``primary_engine`` or surya/tesseract via
-      auto-detect), re-OCR low-confidence pages via the LLM fallback.
+    The ``engine`` selects which adapter runs; the default resolves to
+    ``PURSUE_OCR_ENGINE`` → the operated ``"llm-dots"`` (Sonnet 4.6 vision +
+    local dots.mocr content-filter backstop). ``"llm"``/``"dots"`` run those
+    halves standalone; ``"tesseract"``/``"surya"``/``"auto"`` are retired
+    (adapters kept for reproducibility, not operated).
 
     ``force=True`` bypasses the ``meta.json`` idempotency check so a card
     with existing OCR output is re-processed. ``primary_engine`` only

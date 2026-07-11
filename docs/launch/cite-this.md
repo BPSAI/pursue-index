@@ -65,9 +65,11 @@ that explicit. OCR is imperfect and the transcript is a derivative work:
 > *PURSUE Index* OCR transcript, card `<card_id>`, p. `<n>`, OCR engine
 > `<engine>` (confidence `<conf>`). https://pursueindex.com/card/`<card_id>`#page-`<n>`
 
-`<engine>` is one of `surya`, `llm-anthropic`, or `tesseract` (legacy);
-`<conf>` is the page-level mean confidence. Both are surfaced inline on
-each card page.
+`<engine>` reflects the operated `llm-dots` engine: `llm` / `llm-anthropic`
+(Claude Sonnet 4.6 vision) for the page, or `dots` (local dots.mocr) where
+Sonnet's content filter blocked the page; `assemblyai` for AUD (audio)
+transcripts. `surya` and `tesseract` are legacy/retired. `<conf>` is the
+page-level mean confidence. Both are surfaced inline on each card page.
 
 When the OCR is wrong and the original PDF text is correct, cite the
 original PDF and not us. We'd rather you do that than carry our error
@@ -137,9 +139,9 @@ Methodology: pursueindex.com/methodology
 **Methodology angle:**
 
 ```
-We OCR'd the entire DOW PURSUE UAP corpus (4,161 pages) for under $2:
-Surya GPU primary, Anthropic vision fallback on sub-threshold pages.
-Surya median CER 6.1% vs Tesseract 40.4%. pursueindex.com/methodology
+We OCR'd the entire DOW PURSUE UAP corpus (4,161 pages) with the llm-dots
+engine: Claude Sonnet 4.6 vision per page, plus local dots.mocr as the
+content-filter backstop. pursueindex.com/methodology
 ```
 
 **Primary-source angle:**

@@ -21,9 +21,11 @@ useless for searching the actual contents of the documents.
 
 1. Snapshot the upstream CSV and pin its SHA-256 in a hash-stable manifest.
 2. Fetch every referenced PDF / image idempotently into content-addressable storage.
-3. OCR every PDF page with Claude Sonnet 4.6 vision (the operated primary,
-   chosen via a published bake-off), recording per-page engine + confidence in
-   `pages.jsonl`. Surya (GPU) and Tesseract (CPU) remain as fallback engines.
+3. OCR every PDF page with the `llm-dots` engine — Claude Sonnet 4.6 vision as
+   the operated primary (chosen via a published bake-off), with local dots.mocr
+   as the content-filter (HTTP 400) backstop for the rare page Sonnet's output
+   filter blocks — recording per-page engine + confidence in `pages.jsonl`.
+   AUD (audio) cards are transcribed by AssemblyAI.
 4. Build an in-browser search index over the OCR transcripts.
 5. Serve the result as a static site with mandatory citations on every claim.
 
@@ -41,11 +43,12 @@ Methodology is published. Numbers are reproducible from a clean clone.
   adds a faceted filter rail (agency multi-select, incident-date range,
   redacted-only) over the lexical index; filter state round-trips through
   the URL so links are shareable.
-- **OCR pipeline.** Claude Sonnet 4.6 vision is the operated primary (chosen
-  via a published bake-off; ~92% of the corpus). Surya (GPU) and Tesseract
-  (CPU) remain as legacy/fallback engines — Tesseract is the no-content-filter
-  fallback for the rare page Sonnet's output filter blocks. Per-page engine +
-  confidence are recorded in `pages.jsonl`.
+- **OCR pipeline.** The operated engine is `llm-dots`: Claude Sonnet 4.6 vision
+  as the per-page primary (chosen via a published bake-off), with local
+  dots.mocr as the content-filter (HTTP 400) backstop for the rare page
+  Sonnet's output filter blocks. Per-page engine + confidence are recorded in
+  `pages.jsonl`. AUD (audio) cards are transcribed by AssemblyAI. (Surya and
+  Tesseract are retired.)
 - **Archive integrity.** Every CSV byte stream we fetch is committed
   content-addressed; prior manifests are rotated into per-snapshot JSON;
   every referenced PDF/IMG is mirrored into R2 keyed by `byte_sha256`;
@@ -133,7 +136,7 @@ hash-pinned)             (NAS)    payload
 |----------|----------|---------------------------------------------------------------|
 | scrape   | shipped  | `data/manifests/latest.json` (SHA-256-pinned, version-controlled) |
 | download | shipped  | `{pdfs,images,videos}/{card_id}/{filename}` on NAS            |
-| ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — Sonnet 4.6 primary + Surya/Tesseract fallback |
+| ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — `llm-dots`: Sonnet 4.6 primary + dots.mocr content-filter backstop; AUD via AssemblyAI |
 | embed    | shipped  | Voyage-3 embeddings, ~8.5MB float16 in-browser payload         |
 | serve    | shipped  | Astro static build deployed to Cloudflare Workers              |
 
@@ -151,7 +154,7 @@ with the upstream CSV available, any reader can rebuild the entire index:
 ```bash
 pursue scrape run                                        # writes manifests/latest.json + archives raw CSV
 pursue download run --manifest data/manifests/latest.json
-pursue ocr run --manifest data/manifests/latest.json --engine llm   # operated primary (Sonnet 4.6); use --engine auto for the Surya/Tesseract+LLM-cleanup variant
+pursue ocr run --manifest data/manifests/latest.json --engine llm-dots   # operated engine: Sonnet 4.6 primary + dots.mocr content-filter backstop
 pursue embed run --manifest data/manifests/latest.json
 ```
 
@@ -168,15 +171,17 @@ changes are detectable in O(bytes-of-CSV).
 | Layer        | Choice                                                     |
 |--------------|------------------------------------------------------------|
 | Pipeline     | Python 3.12, Typer CLI, Pydantic settings                  |
-| OCR primary  | Anthropic vision — **Claude Sonnet 4.6** (operated)        |
-| OCR fallback | [Surya](https://github.com/datalab-to/surya) on CUDA; Tesseract (CPU) |
+| OCR engine   | `llm-dots` — Anthropic vision **Claude Sonnet 4.6** primary |
+| OCR backstop | local **dots.mocr** for content-filter (HTTP 400) pages    |
+| Audio (AUD)  | **AssemblyAI** transcription                               |
 | Embeddings   | Voyage-3 (`voyage-3-large`)                                |
 | Frontend     | Astro + Preact + Tailwind v4                               |
 | Hosting      | Cloudflare Workers + Static Assets                         |
 | Storage      | NAS for bulk artifacts; Git for manifests                  |
 
-The operated corpus OCR pass — Claude Sonnet 4.6 vision per page + Voyage-3
-embeddings — runs **~$53 for the full corpus** at current API rates (the prior
+The operated corpus OCR pass — `llm-dots` (Claude Sonnet 4.6 vision per page,
+with local dots.mocr backstopping content-filter pages) + Voyage-3 embeddings —
+runs **~$53 for the full corpus** at current API rates (the retired
 Surya-primary + auto-mode-LLM-cleanup pass was cheaper but lower quality on
 degraded scans). See `docs/ocr-benchmark.md` for the breakdown.
 
@@ -200,8 +205,8 @@ produced them.
 - Manifest carries `csv_sha256` (hash of raw CSV bytes) for cheap
   upstream-change detection.
 - Each stage skips work it's already done for unchanged `card_id`s.
-- Auto-mode OCR re-runs LLM cleanup only on pages whose primary-engine
-  confidence is below threshold; previously-cleaned pages are not re-billed.
+- The `llm-dots` engine re-OCRs a page via the local dots.mocr backstop only
+  when Sonnet's output filter 400s it; previously-OCR'd pages are not re-billed.
 
 ## Repo layout
 
@@ -210,7 +215,7 @@ pursue-index/
 ├── src/pursue_index/
 │   ├── scrape/          # CSV fetch + parse + manifest
 │   ├── download/        # Asset retrieval, content-addressable storage
-│   ├── ocr/             # OCR pipeline (Sonnet 4.6 primary, Surya/Tesseract fallback) → pages.jsonl
+│   ├── ocr/             # OCR pipeline (llm-dots: Sonnet 4.6 primary + dots.mocr backstop) → pages.jsonl
 │   ├── embed/           # Voyage-3 embeddings + in-browser payload
 │   ├── index/           # SQLAlchemy models for forensic ingest (optional)
 │   ├── cli/             # Typer CLI (`pursue`)
@@ -226,10 +231,14 @@ pursue-index/
 
 ## Quickstart (developers)
 
-Requires Python 3.12+ (the operated Sonnet OCR is API-only; an NVIDIA GPU +
-CUDA toolkit is only needed for the Surya fallback / local models),
-an Anthropic API key (for the OCR LLM fallback), and a Voyage AI API key
-(for embeddings).
+Requires Python 3.12+, an Anthropic API key (the operated `llm-dots` engine's
+Sonnet 4.6 vision pass is API-only), and a Voyage AI API key (for embeddings).
+
+The `llm-dots` content-filter backstop (local **dots.mocr**) needs its own
+**isolated venv** — dots.mocr's dependencies conflict with the main install.
+Create that venv separately and point `PURSUE_DOTS_PYTHON` at its `python`; when
+it is unset the backstop cannot run and content-filtered pages will fail. (The
+retired Surya engine also needed an NVIDIA GPU + CUDA toolkit; not operated.)
 
 ```bash
 # Bootstrap a venv and install
@@ -237,12 +246,12 @@ make install
 
 # Copy and edit config
 cp .env.example .env
-$EDITOR .env   # at minimum: PURSUE_DATA_ROOT, ANTHROPIC_API_KEY, VOYAGE_API_KEY
+$EDITOR .env   # at minimum: PURSUE_DATA_ROOT, ANTHROPIC_API_KEY, VOYAGE_API_KEY, PURSUE_DOTS_PYTHON
 
 # Run the pipeline
 pursue scrape run
 pursue download run --manifest data/manifests/latest.json
-pursue ocr run --manifest data/manifests/latest.json --engine llm   # operated primary (Sonnet 4.6); use --engine auto for the Surya/Tesseract+LLM-cleanup variant
+pursue ocr run --manifest data/manifests/latest.json --engine llm-dots   # operated engine: Sonnet 4.6 primary + dots.mocr content-filter backstop
 pursue embed run --manifest data/manifests/latest.json
 
 # Build and preview the site

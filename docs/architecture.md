@@ -60,29 +60,29 @@ Not every PURSUE entry is a PDF. Of the 158 in PURSUE Release 01 (as of tranche 
 
 ## OCR strategy
 
-Historical FBI scans vary wildly in quality, so the pipeline supports
-three engines behind a common interface. The deployed primary is Surya;
-an LLM-vision fallback fires on pages whose Surya confidence falls
-below threshold. Tesseract remains available as a CLI option for
-CPU-only hosts but is not used in the deployed corpus. The engine seam
-in `ocr/pipeline.py` (`rasterize_pdf`, `ocr_image`, `_run_engine`) is
-engine-agnostic so additional engines can land without disturbing
-orchestration.
+Historical FBI scans vary wildly in quality. The operated engine is
+`llm-dots`: **Claude Sonnet 4.6** vision reads every page, with local
+**dots.mocr** as a per-page content-filter (HTTP 400) backstop. The
+engine seam in `ocr/pipeline.py` (`rasterize_pdf`, `ocr_image`,
+`_run_engine`) is engine-agnostic so additional engines can land
+without disturbing orchestration.
 
-- **Surya** (deployed default on the GPU host) — transformer-based,
-  CUDA. Median CER 6.1% on the golden set vs Tesseract's 40.4%; see
-  `docs/ocr-benchmark.md`.
-- **LLM extraction (Anthropic Haiku 4.5)** — fallback for pages with
-  Surya confidence below 70. Re-OCRs from the page image, not from
-  the broken Surya text.
-- **Tesseract** — CPU baseline. Available via `--engine tesseract`
-  for hosts without a CUDA GPU; not used in production.
+- **Claude Sonnet 4.6 vision** (operated primary, `--engine llm`) —
+  reads each page image directly. Chosen via the published bake-off
+  (`docs/ocr-benchmark.md`) for its accuracy on degraded scans. Plain
+  `--engine llm` 400s on the rare page Anthropic's output filter blocks,
+  which is why the operated engine is `llm-dots`, not `llm`.
+- **dots.mocr** (`--engine dots`, and the backstop half of `llm-dots`) —
+  local model run in an **isolated venv** (`PURSUE_DOTS_PYTHON`). Re-OCRs
+  exactly the pages Sonnet's filter 400s, so a mixed doc keeps Sonnet
+  everywhere except the filter-blocked page.
+- **AssemblyAI** — transcribes AUD (audio) cards.
+- **Retired** (do not operate): Surya, Tesseract, and the old `auto`
+  resolver / Haiku 4.5 fallback.
 
-In `auto` mode (`resolve_primary_engine`), Surya runs first when the
-`[gpu]` extra is installed; Tesseract is the fallback primary
-otherwise. Either way, pages with mean confidence below the LLM
-threshold are re-extracted via Anthropic vision from the original
-page image. Engine + confidence are recorded per page in `pages.jsonl`.
+Under `llm-dots`, Sonnet reads every page and dots.mocr backstops only the
+filter-blocked ones. Engine + confidence are recorded per page in
+`pages.jsonl`.
 
 ## Search
 
@@ -107,7 +107,7 @@ The CSV URL is stable; DOW updates the file in place when new tranches drop.
 ```bash
 pursue scrape run                          # writes data/manifests/latest.json + archives raw CSV
 pursue download run --manifest data/manifests/latest.json
-pursue ocr run --manifest data/manifests/latest.json --engine auto
+pursue ocr run --manifest data/manifests/latest.json --engine llm-dots
 pursue embed run --manifest data/manifests/latest.json --augment-from data/external/alex-zhang42-corpus.jsonl
 ```
 

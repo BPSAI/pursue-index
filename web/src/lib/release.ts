@@ -260,9 +260,13 @@ function countByEngine(): Record<string, number> {
 const OCR_ENGINE_DISPLAY: Record<string, string> = {
   llm: "Claude Sonnet 4.6",
   "llm-anthropic": "Claude Sonnet 4.6",
+  "llm-dots": "Claude Sonnet 4.6",
+  dots: "dots.mocr",
+  assemblyai: "AssemblyAI (audio transcript)",
+  // Retired engines — kept only so historical page-data rows still map to a
+  // display name rather than a raw key; not operated on any current tranche.
   surya: "Surya",
   tesseract: "Tesseract",
-  dots: "dots.mocr",
 };
 
 /**

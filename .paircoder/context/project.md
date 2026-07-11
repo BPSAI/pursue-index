@@ -36,7 +36,7 @@ pursue-index/
 ├── src/pursue_index/
 │   ├── scrape/                 # CSV fetch (curl_cffi w/ Chrome TLS) + manifest
 │   ├── download/               # Asset retrieval (httpx + tenacity, content-addressable)
-│   ├── ocr/                    # Surya GPU + LLM-fallback (auto-mode); engine seam
+│   ├── ocr/                    # llm-dots: Sonnet 4.6 primary + dots.mocr backstop; engine seam
 │   ├── embed/                  # Voyage-3 embeddings + in-browser payload
 │   ├── novelty/                # Cosine top-1 vs reference index → disclosure status
 │   ├── index/                  # SQLAlchemy models (forensic ingest, optional)
@@ -57,7 +57,7 @@ pursue-index/
 - **CLI:** Typer + Rich
 - **Settings:** pydantic + pydantic-settings (env-driven, `PURSUE_*` prefix)
 - **HTTP:** httpx + tenacity (downloads); curl_cffi w/ Chrome TLS (scrape)
-- **OCR:** Surya (GPU primary) + Anthropic vision (LLM fallback) + Tesseract (legacy)
+- **OCR:** llm-dots (Sonnet 4.6 per-page primary + local dots.mocr content-filter backstop); AUD via AssemblyAI
 - **Embeddings:** Voyage-3 (`voyage-3-large`, 1024d, float16 in-browser)
 - **Frontend:** Astro 6 + Preact + Tailwind v4 (CSS-first @theme tokens) + MiniSearch
 - **Worker:** Cloudflare Workers + Static Assets, KV namespace `CHAT_KV`
@@ -96,8 +96,8 @@ and are committed.
 
 `card_id = sha256(asset_url || title)[:16]`. The manifest carries
 `csv_sha256` so upstream changes are detectable in O(bytes-of-CSV).
-Auto-mode OCR re-runs LLM cleanup only on pages whose primary-engine
-confidence is below threshold; previously-cleaned pages are not re-billed.
+The llm-dots engine re-OCRs a page via the local dots.mocr backstop only when
+Sonnet's content filter 400s it; previously-OCR'd pages are not re-billed.
 
 ## Key Constraints
 

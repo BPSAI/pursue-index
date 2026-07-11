@@ -152,11 +152,13 @@ OCR engine <engine> (confidence <conf>).
 https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
       <p class="text-sm text-[color:var(--color-text)]">
         <code class="text-[color:var(--color-signal-cyan)]">{"<engine>"}</code>{" "}
-        is the engine that produced the page —{" "}
-        <code class="text-[color:var(--color-signal-amber)]">llm</code>{" "}
-        (Claude Sonnet 4.6, the primary engine), <code>surya</code>, or{" "}
-        <code>tesseract</code> on the current corpus; all surface inline on
-        each card page. When
+        is the engine that produced the page. The operated engine is{" "}
+        <code class="text-[color:var(--color-signal-amber)]">llm-dots</code>:{" "}
+        <code>llm</code> (Claude Sonnet 4.6 vision, the primary) for the page,
+        or <code>dots</code> (local dots.mocr) where Sonnet's content filter
+        blocked it; <code>assemblyai</code> for audio cards. (<code>surya</code>{" "}
+        and <code>tesseract</code> are retired, on legacy pages only.) All
+        surface inline on each card page. When
         the OCR is wrong and the original PDF text is correct, cite the
         original PDF and not us.
       </p>

@@ -22,8 +22,24 @@ if str(_SRC) not in sys.path:
 from pursue_index.ingest_run import (  # noqa: E402
     locate_snapshot,
     promote_snapshot,
+    render_next_steps,
     summarize_ingest_work,
 )
+
+
+def test_render_next_steps_ocr_uses_operated_engine() -> None:
+    """The post-tranche runbook must instruct the operator to run the operated
+    engine (llm-dots), never the retired 'auto' resolver."""
+    summary = {
+        "needs_download": ["card1"],
+        "needs_ocr": ["card1"],
+        "needs_embed": ["card1"],
+        "needs_inspection": [],
+        "metadata_only": False,
+    }
+    steps = render_next_steps(summary)
+    assert "--engine llm-dots" in steps
+    assert "--engine auto" not in steps
 
 
 def test_locate_snapshot_finds_full_sha_match(tmp_path: Path) -> None:

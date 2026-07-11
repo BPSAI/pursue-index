@@ -1,10 +1,10 @@
 """Cache-aware auto-mode upgrade for an existing primary-engine pages.jsonl.
 
-Production ``pursue ocr run --engine auto --force`` re-rasterizes and
-re-OCRs every page. When the corpus already has a clean primary-engine
-pass on disk (e.g. the 116-card Surya snapshot), we want a cheaper path
-that leaves above-threshold pages untouched and only re-OCRs the
-sub-threshold ones via the LLM fallback.
+A ``pursue ocr run --engine auto --force`` (the retired auto mode)
+re-rasterizes and re-OCRs every page. When the corpus already has a clean
+primary-engine pass on disk (e.g. the 116-card Surya snapshot), we want a
+cheaper path that leaves above-threshold pages untouched and only re-OCRs
+the sub-threshold ones via the LLM fallback.
 
 This module owns that upgrade. ``upgrade_pages_jsonl`` reads the
 existing rows, renders only the low-confidence pages from the source

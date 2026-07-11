@@ -1,6 +1,25 @@
 # Current State
 
-> Last updated: 2026-05-27 (v1.2.6 shipped — footnote-simplification follow-up to v1.2.5. The "declared vs silent" taxonomy framing on the ODNI typo-correction footnote was overthinking it; bytes changed is bytes changed, regardless of upstream motive. Footnote now just reports the byte history and what the change was. Architecture follow-up: un-retire /altered/ as a facts-only surface, queued for a future session.)
+> Last updated: 2026-07-11 (engine-identity correction pass staged on branch `fix/engine-identity-copy` — see entry below. Not pushed/deployed.)
+
+## 2026-07-11 — engine-identity correction pass (branch `fix/engine-identity-copy`, staged, not pushed)
+
+Corrected every stale OCR-engine claim across code, config, docs, and site copy to the operated reality: the engine is **`llm-dots`** — Claude **Sonnet 4.6** vision per page + local **dots.mocr** as the content-filter (HTTP 400) backstop (concurrency 8); **AssemblyAI** transcribes AUD cards. Retired as current claims: **surya, tesseract, auto, and the old "Haiku 4.5 fallback"** (Haiku remains only as the separate text-clean model, which is out of scope here).
+
+**TDD code changes (tests written first, red→green):**
+- `config/settings.py` — default `ocr_engine` `"auto"` → `"llm-dots"`.
+- `ocr/pipeline.py` — `DEFAULT_ENGINE` `"tesseract"` → `"llm-dots"`; module + `ocr_card` docstrings rewritten.
+- `ingest_run.py` — post-tranche runbook line now emits `--engine llm-dots`.
+- `web/src/lib/release.ts` — `OCR_ENGINE_DISPLAY` gains `assemblyai` ("AssemblyAI (audio transcript)") + `llm-dots`.
+- New tests: `test_ocr.py` (DEFAULT_ENGINE, resolver fallback, Settings default), `test_ingest_run.py` (render_next_steps engine), `release.test.ts` (assemblyai label). All green; full changed-module suites pass. `arch check` clean (only pre-existing >200-line file-size warnings).
+
+**Docs/config/site copy (no tests, build verified):** `.env.example` (default llm-dots + `PURSUE_OCR_LLM_CONCURRENCY=8`, `PURSUE_DOTS_PYTHON=`), `README.md`, `docs/architecture.md`, `docs/launch/cite-this.md`, `.paircoder/context/project.md`, and `web/src/pages/{methodology,about,cite}.astro`. `cd web && npm run build` passes (464 pages).
+
+**Out of scope (left as-is per instructions):** the 27%/4,127-page augmentation stats, clean-qc "every page" claim, DVIDS→R2 A/V copy, the alex-zhang augmentation/marker. Historical bake-off narrative + benchmark table kept (labeled retired/launch-baseline).
+
+**Found beyond the report:** `src/pursue_index/index/models.py:84` — the optional forensic-ingest Postgres `cards.ocr_engine` column still defaults to `"tesseract"`. Not on the deployed read path and changing it is a schema-default/migration decision, so left untouched — flagged for operator review.
+
+## 2026-05-27 — v1.2.6 ship (footnote-simplification follow-up)
 
 ## 2026-05-27 — v1.2.6 ship (footnote-simplification follow-up)
 

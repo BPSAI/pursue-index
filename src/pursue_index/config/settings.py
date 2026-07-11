@@ -51,14 +51,15 @@ class Settings(BaseSettings):
     download_videos: bool = False
 
     # ---- OCR ----
-    # ``surya`` runs the GPU transformer-OCR adapter (requires the [gpu] extra).
-    # ``auto`` runs the primary engine (surya if installed, else tesseract) and
-    # re-OCRs pages with confidence < ``ocr_llm_threshold`` via the LLM fallback.
-    # ``dots`` is the local content-filter backstop (dots.mocr via the isolated
-    # venv; used where the llm engine 400s on Anthropic's output filter).
-    # ``llm-dots`` = llm primary with a per-page dots fallback on a 400 (so a
-    # mixed doc keeps Sonnet everywhere except a filter-blocked page).
-    ocr_engine: Literal["tesseract", "surya", "llm", "dots", "llm-dots", "auto"] = "auto"
+    # ``llm-dots`` is the OPERATED engine: Claude Sonnet 4.6 vision per page,
+    # PLUS local dots.mocr (the ``dots`` engine) as the content-filter (HTTP
+    # 400) backstop — a mixed doc keeps Sonnet everywhere except a filter-
+    # blocked page, which the isolated dots.mocr venv re-OCRs.
+    # ``llm`` = Sonnet without the dots backstop (acceptable, but plain ``llm``
+    # 400s on content-filter pages, so it is NOT the operated primary).
+    # ``dots`` runs the local dots.mocr backstop standalone.
+    # ``tesseract``, ``surya`` and ``auto`` are RETIRED — do not operate them.
+    ocr_engine: Literal["tesseract", "surya", "llm", "dots", "llm-dots", "auto"] = "llm-dots"
     ocr_dpi: int = 300
     tesseract_bin: str = "/usr/bin/tesseract"
 

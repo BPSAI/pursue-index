@@ -19,6 +19,32 @@ from pursue_index.ocr.pipeline import ocr_card
 from pursue_index.scrape.types import CardMetadata
 
 
+def test_default_engine_is_llm_dots() -> None:
+    """The module-level DEFAULT_ENGINE must be the operated engine (llm-dots),
+    so an unset/invalid PURSUE_OCR_ENGINE can't silently run a retired engine
+    (tesseract). See engine-identity correction pass."""
+    assert ocr_pipeline.DEFAULT_ENGINE == "llm-dots"
+
+
+def test_resolve_default_engine_falls_back_to_llm_dots(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An invalid configured engine resolves to llm-dots, not tesseract."""
+    monkeypatch.setattr(ocr_pipeline.settings, "ocr_engine", "not-a-real-engine")
+    assert ocr_pipeline._resolve_default_engine() == "llm-dots"
+
+
+def test_settings_default_ocr_engine_is_llm_dots(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A freshly constructed Settings defaults ocr_engine to llm-dots (the
+    operated engine), not the retired 'auto' resolver."""
+    from pursue_index.config.settings import Settings
+
+    monkeypatch.delenv("PURSUE_OCR_ENGINE", raising=False)
+    assert Settings().ocr_engine == "llm-dots"
+
+
 def _pdf_card(card_id: str = "abc1234567890def") -> CardMetadata:
     return CardMetadata(
         card_id=card_id,

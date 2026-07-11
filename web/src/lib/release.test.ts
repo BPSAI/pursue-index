@@ -138,6 +138,15 @@ test("formatOcrEngineLabel: ignores unknown + single-engine corpus shows that en
   assert.equal(formatOcrEngineLabel({ surya: 100, unknown: 9999 }), "Surya");
 });
 
+test("formatOcrEngineLabel: assemblyai maps to a labelled audio-transcript name", () => {
+  // AUD cards are transcribed by AssemblyAI; the live engine-mix block must
+  // render a display name for the `assemblyai` engine key, not a raw row.
+  assert.equal(
+    formatOcrEngineLabel({ assemblyai: 5000 }),
+    "AssemblyAI (audio transcript)",
+  );
+});
+
 test("formatOcrEngineLabel: empty/zero counts → safe generic label", () => {
   assert.equal(formatOcrEngineLabel({}), "multiple engines");
   assert.equal(formatOcrEngineLabel({ llm: 0 }), "multiple engines");

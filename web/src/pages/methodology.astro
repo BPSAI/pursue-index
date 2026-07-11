@@ -303,8 +303,10 @@ const methodologyJsonLd = [
         →
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        Three engines sit behind a common interface. Each page is rasterized
-        once and routed to one of:
+        The operated engine is <code class="text-[color:var(--color-signal-cyan)]">llm-dots</code>:
+        Claude Sonnet 4.6 vision reads every page, with local dots.mocr as the
+        content-filter backstop. Several engines sit behind a common interface;
+        each page is rasterized once and routed to one of:
       </p>
       <div class="overflow-x-auto">
         <table class="w-full text-xs font-mono border-collapse">
@@ -318,35 +320,42 @@ const methodologyJsonLd = [
           </thead>
           <tbody class="text-[color:var(--color-text)]">
             <tr class="border-b border-[color:var(--color-border)]">
-              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">surya</td>
-              <td class="py-2 pr-4">GPU</td>
-              <td class="py-2 pr-4">Transformer-based; the Release-01 launch engine; much better on faded source than CPU baselines</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">Requires CUDA hardware; superseded as primary by the bake-off below</td>
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">llm-dots (operated)</td>
+              <td class="py-2 pr-4">API + local</td>
+              <td class="py-2 pr-4">The operated engine: Claude Sonnet 4.6 vision reads every page, with local dots.mocr backstopping the rare page Sonnet's output filter blocks</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">~$0.10 / 15pp at Sonnet rates; rate-limited; dots backstop needs an isolated venv</td>
             </tr>
             <tr class="border-b border-[color:var(--color-border)]">
               <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">llm (Claude Sonnet 4.6)</td>
               <td class="py-2 pr-4">API</td>
-              <td class="py-2 pr-4">Operated primary since the 2026-05 bake-off; reads the page image directly</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">~$0.10 / 15pp at Sonnet rates; rate-limited; not deterministic</td>
+              <td class="py-2 pr-4">The Sonnet vision pass on its own — reads the page image directly; the primary half of llm-dots</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">Plain <code>--engine llm</code> 400s on content-filter pages, which is why the operated engine is llm-dots</td>
+            </tr>
+            <tr class="border-b border-[color:var(--color-border)]">
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">dots (dots.mocr)</td>
+              <td class="py-2 pr-4">local</td>
+              <td class="py-2 pr-4">The content-filter (HTTP 400) backstop: re-OCRs exactly the pages Sonnet's output filter blocks, run in an isolated venv</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">Local model; used only where the LLM path is filter-blocked</td>
             </tr>
             <tr>
-              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">tesseract</td>
-              <td class="py-2 pr-4">CPU</td>
-              <td class="py-2 pr-4">The original dev baseline (deprecated; see benchmark below). Available via <code>--engine tesseract</code> for CPU-only hosts; in the deployed corpus it appears only as the content-filter fallback on a single document (see the engine mix below)</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">Struggles on faded / multi-column / handwritten pages</td>
+              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">assemblyai</td>
+              <td class="py-2 pr-4">API</td>
+              <td class="py-2 pr-4">Transcribes AUD (audio) cards</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">surya (GPU) and tesseract (CPU) are retired — legacy Release-01 page data only</td>
             </tr>
           </tbody>
         </table>
       </div>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        The operated pipeline now runs{" "}
-        <code class="text-[color:var(--color-signal-cyan)]">engine="llm"</code>{" "}
-        (Claude Sonnet 4.6) directly per the bake-off below. The original{" "}
+        The operated pipeline runs{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">engine="llm-dots"</code>:
+        Claude Sonnet 4.6 vision reads every page, and local dots.mocr re-OCRs
+        the rare page Sonnet's output content filter blocks (an HTTP 400), so a
+        mixed document keeps Sonnet everywhere except the filter-blocked page.
+        The retired{" "}
         <code class="text-[color:var(--color-signal-cyan)]">engine="auto"</code>{" "}
-        path — Surya first, with the LLM re-OCR'ing sub-confidence pages
-        from the original page image, not from broken Surya text — remains
-        available as a legacy/fallback mode; either way the two engines are
-        independent extractions of the same source pixels.
+        path (Surya-primary + LLM re-OCR of sub-confidence pages) is no longer
+        operated.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         Engine and per-page confidence are recorded in{" "}
@@ -378,12 +387,12 @@ const methodologyJsonLd = [
         (Claude Sonnet 4.6) engine, from the Sonnet re-OCR pass plus every
         tranche from 5/22/26 onward (incl. Release-03, 6/12/26) OCR'd
         Sonnet-direct. The residual <code class="text-[color:var(--color-signal-cyan)]">surya</code>{" "}
-        pages are legacy Release-01 extractions; the small{" "}
-        <code class="text-[color:var(--color-signal-cyan)]">tesseract</code>{" "}
-        count is the CPU fallback used where the LLM path tripped an output
-        content filter (a CIA overhead-reconnaissance history). Engine and
-        per-page confidence are recorded per page, so the credit follows the
-        data rather than a hand-typed label.
+        pages are legacy Release-01 extractions (surya is retired); the small{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">dots</code>{" "}
+        count is the local dots.mocr content-filter backstop, used where
+        Sonnet's output filter blocked the page (a CIA overhead-reconnaissance
+        history). Engine and per-page confidence are recorded per page, so the
+        credit follows the data rather than a hand-typed label.
       </p>
 
       <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-bright)] pt-3">
@@ -427,9 +436,11 @@ const methodologyJsonLd = [
         Sonnet re-OCR pass over the legacy Surya pages has largely landed —
         down to {RELEASE.ocrEngineCounts["surya"]?.toLocaleString() ?? "~240"}{" "}
         Surya-tagged pages, with the tail to be cleared in a subsequent pass
-        (sources recompute, citations stable). Surya remains in the repo
-        (`pursue ocr run --engine surya`) for reproducibility and as a
-        CPU/GPU fallback if the Anthropic API becomes unavailable.
+        (sources recompute, citations stable). The operated engine is now
+        <code class="text-[color:var(--color-signal-cyan)]">llm-dots</code>{" "}
+        (Sonnet 4.6 primary + local dots.mocr as the content-filter backstop);
+        the retired Surya adapter remains in the repo
+        (`pursue ocr run --engine surya`) for reproducibility only.
       </p>
     </section>
 
@@ -461,8 +472,8 @@ const methodologyJsonLd = [
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">What OCR underrepresents.</strong>
         Photographs embedded inside IMG-type cards. Hand-drawn sketches
-        inside FBI files. Blurry carbon-copy scans where Surya and the
-        LLM fallback both abstain. Rubber-stamped redaction markers and
+        inside FBI files. Blurry carbon-copy scans where Sonnet 4.6 and the
+        dots.mocr backstop both abstain. Rubber-stamped redaction markers and
         case-disposition stamps that read as glyphs to OCR but as
         meaningful flags to a vision model. As of 2026-06-12,
         <strong class="text-[color:var(--color-text-bright)]">~1,200 pages</strong>
@@ -475,10 +486,13 @@ const methodologyJsonLd = [
         Provenance is recorded internally — the OCR sidecars
         (<code class="font-mono text-xs">pages.jsonl</code>) carry an
         <code class="text-[color:var(--color-signal-cyan)]">engine</code>
-        field per page with one of
-        <code class="text-[color:var(--color-signal-cyan)]">surya</code> |
-        <code class="text-[color:var(--color-signal-cyan)]">anthropic-vision</code> |
-        <code class="text-[color:var(--color-signal-cyan)]">augmented-vlm</code>,
+        field per page — under the operated llm-dots engine, one of
+        <code class="text-[color:var(--color-signal-cyan)]">llm</code> |
+        <code class="text-[color:var(--color-signal-cyan)]">dots</code> |
+        <code class="text-[color:var(--color-signal-cyan)]">assemblyai</code>
+        (audio), plus <code class="text-[color:var(--color-signal-cyan)]">augmented-vlm</code>
+        for augmented descriptions and legacy
+        <code class="text-[color:var(--color-signal-cyan)]">surya</code> on retired pages,
         and the embedding index
         (<code class="font-mono text-xs">embed_index.json</code>) carries
         an
@@ -794,10 +808,11 @@ const methodologyJsonLd = [
         </li>
         <li>
           <span class="text-[color:var(--color-text-bright)]">No transcription guessing.</span>
-          When Surya scores below the confidence threshold, the LLM
-          fallback re-OCRs from the page image — it is not a "rewrite"
-          of the broken Surya text. The two engines see the same pixels
-          independently.
+          Under the operated <code class="text-[color:var(--color-signal-cyan)]">llm-dots</code>{" "}
+          engine, Sonnet 4.6 reads the page image directly; on the rare page
+          its output filter blocks, the local dots.mocr backstop re-OCRs from
+          the same image — not a "rewrite" of broken text. Each engine sees the
+          source pixels independently.
         </li>
         <li>
           <span class="text-[color:var(--color-text-bright)]">No redaction inference.</span>
@@ -826,9 +841,9 @@ const methodologyJsonLd = [
       <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
         <li>
           <span class="text-[color:var(--color-text-bright)]">Faded scans.</span>
-          The 1947–1968 FBI material varies wildly in scan quality. Surya
-          and the LLM fallback handle the worst pages much better than
-          baseline OCR but are not perfect.
+          The 1947–1968 FBI material varies wildly in scan quality. Claude
+          Sonnet 4.6 vision (the llm-dots primary) handles the worst pages
+          much better than baseline OCR but is not perfect.
         </li>
         <li>
           <span class="text-[color:var(--color-text-bright)]">Reading order.</span>
@@ -1063,8 +1078,9 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
         landed (Surya now ~3% of pages, tail pending).
         Operational cost shifted accordingly — the v1.0 $1.71 figure
         excluded the cleanup pass at scale and the Sonnet OCR rates;
-        current full-pipeline cost (Sonnet OCR + Haiku cleanup +
-        Voyage-3 embeddings) trends to ~$55 / full corpus pass.
+        current full-pipeline cost (llm-dots OCR — Sonnet 4.6 + dots.mocr
+        content-filter backstop — plus Haiku text-clean + Voyage-3
+        embeddings) trends to ~$55 / full corpus pass.
       </p>
       <p class="text-[11px] text-[color:var(--color-text-dim)]">
         Per-page detail and the snapshot timestamps are in

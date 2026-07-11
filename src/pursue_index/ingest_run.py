@@ -218,7 +218,7 @@ def render_next_steps(summary: dict[str, Any]) -> str:
         ids = " ".join(summary["needs_download"])
         lines.append("New content detected — run the full pipeline against the new manifest:")
         lines.append(f"  pursue download run --manifest data/manifests/latest.json")
-        lines.append(f"  pursue ocr run --manifest data/manifests/latest.json --engine auto")
+        lines.append(f"  pursue ocr run --manifest data/manifests/latest.json --engine llm-dots")
         lines.append(f"  pursue embed run --manifest data/manifests/latest.json")
         lines.append(f"  # Affected card_ids: {ids}")
     if summary["needs_inspection"]:
