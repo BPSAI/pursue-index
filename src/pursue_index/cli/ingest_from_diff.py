@@ -45,7 +45,15 @@ def write_worklist_file(path: Path, card_ids: list[str], tranche: str) -> None:
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def run_scoped_stages(manifest: Path, worklist: Path, *, cost_cap_usd: float | None = None) -> None:
+def run_scoped_stages(
+    manifest: Path,
+    worklist: Path,
+    *,
+    engine: str | None = None,
+    force: bool = False,
+    concurrency: int | None = None,
+    cost_cap_usd: float | None = None,
+) -> None:
     """Drive download -> ocr -> embed scoped to ``worklist`` (T6.5 executors).
 
     Calls the executor functions directly (rather than shelling out) so the
@@ -54,7 +62,10 @@ def run_scoped_stages(manifest: Path, worklist: Path, *, cost_cap_usd: float | N
     ``embed_cli``'s own ``typer.Option`` defaults (single source of truth — they
     can't silently diverge from a manual ``pursue embed run``). ``cost_cap_usd``
     is the operator escape hatch for a large tranche; ``None`` uses the embed
-    default.
+    default. ``engine``/``force``/``concurrency`` pass through to the OCR stage so
+    the one-command path can run the operated forced all-Sonnet config
+    (``--engine llm-dots --force --concurrency 8``); defaults keep the prior
+    contract.
     """
     from pursue_index.cli import embed_cli
     from pursue_index.cli.download_ocr_cli import download_run, ocr_run
@@ -63,9 +74,9 @@ def run_scoped_stages(manifest: Path, worklist: Path, *, cost_cap_usd: float | N
     download_run(manifest=manifest, worklist=worklist)
     ocr_run(
         manifest=manifest,
-        engine=None,
-        force=False,
-        concurrency=None,
+        engine=engine,
+        force=force,
+        concurrency=concurrency,
         worklist=worklist,
     )
     embed_cli.embed_run_cmd(
@@ -90,6 +101,9 @@ def execute_from_diff(
     manifest: Path,
     worklist: Path,
     dry_run: bool,
+    engine: str | None = None,
+    force: bool = False,
+    concurrency: int | None = None,
     cost_cap_usd: float | None = None,
 ) -> None:
     """Print the work-list (always) and, unless ``dry_run``, run scoped stages.
@@ -114,4 +128,11 @@ def execute_from_diff(
     write_worklist_file(worklist, card_ids, tranche)
     typer.echo("")
     typer.echo(f"wrote work-list -> {worklist}; running scoped download -> ocr -> embed")
-    run_scoped_stages(manifest, worklist, cost_cap_usd=cost_cap_usd)
+    run_scoped_stages(
+        manifest,
+        worklist,
+        engine=engine,
+        force=force,
+        concurrency=concurrency,
+        cost_cap_usd=cost_cap_usd,
+    )
