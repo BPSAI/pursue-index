@@ -1,0 +1,56 @@
+{
+  "card_id": "1701a0f307714921",
+  "title": "FBI September 2023 Sighting - Composite Sketch",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 1,
+      "image_type": "color digital composite illustration (photo-based composite with digitally rendered object and light effect)",
+      "description": "A color digital composite image in landscape orientation showing an outdoor daytime scene. The lower portion depicts a grassy field of green and yellow-green grass extending to a dense tree line along the horizon. A paved light-gray concrete path or roadway enters from the lower-left corner and runs diagonally toward the lower left edge, with a patch of gravel or broken pavement beside it. Small dark objects, possibly boxes or shrubs, are visible in the mid-field near the tree line. The upper portion of the image is a graduated blue sky, darker at the top and lighter toward the horizon. In the upper-right quadrant, the composite shows an elongated, lens-shaped or cigar/ellipse-shaped object with a metallic golden-brown, reflective surface, oriented horizontally and tilted slightly. Adjacent to and partially overlapping the left end of the object is a bright white-and-blue radial burst of light with rays emanating outward, creating a starburst or flare effect against the sky. No text, captions, stamps, handwriting, dates, redaction bars, or other markings are visible on the page.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is a digital composite combining a photographic outdoor landscape with a rendered elliptical object and a light-burst effect",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground depicts a grassy field, a concrete path entering from the lower left, and a dense tree line at the horizon under a blue sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "An elongated lens/ellipse-shaped object with a metallic golden-brown surface is depicted in the upper-right sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright white and blue radial starburst light effect overlaps the left end of the depicted object",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text, stamps, or markings are present on the page",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

@@ -82,14 +82,12 @@ def _embed_new_rows(
     starting_offset: int,
     starting_dim: int,
     summary: EmbedSummary,
-    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
 ) -> tuple[bytes, list[IndexRow], int]:
     """Run new_rows through the embedder; return (bytes, index_rows, dim).
 
-    ``augment_lookup`` is consulted only to decide which new rows get
-    their ``augmented=True`` flag flipped — a row is augmented iff its
-    ``(card_id, page)`` was in the lookup, meaning the IMAGE-DESCRIPTIONS
-    block actually changed the hashed text.
+    New rows are never marked ``augmented`` — the alex-zhang42 augment pass
+    that set that flag was retired 2026-07-11 (the flag remains only to READ
+    indexes that still carry augmented rows from before the retirement).
     """
     new_index_rows: list[IndexRow] = []
     accumulated = bytearray()
@@ -103,17 +101,12 @@ def _embed_new_rows(
         chunk = vectors_to_bytes(result.vectors)
         for i, page_row in enumerate(batch):
             offset = starting_offset + len(accumulated) + i * dim * 4
-            is_augmented = (
-                augment_lookup is not None
-                and (page_row.card_id, page_row.page) in augment_lookup
-            )
             new_index_rows.append(
                 IndexRow(
                     card_id=page_row.card_id,
                     page=page_row.page,
                     text_sha=page_row.text_sha,
                     offset=offset,
-                    augmented=is_augmented,
                 )
             )
         accumulated.extend(chunk)
@@ -125,16 +118,17 @@ def _select_new_rows(
     ocr_dir: Path,
     index_path: Path,
     limit: int | None,
-    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
     only_cards: set[str] | None = None,
+    obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> tuple[list[PageRow], list[PageRow], int]:
     """Walk OCR output and partition into (new, all, prior_dim).
 
     ``only_cards`` (the T6.5 worklist) scopes the walk to those card_ids before
     the new/seen partition, so a tranche run embeds only its new cards. ``None``
-    embeds the whole OCR dir (the full-corpus escape hatch).
+    embeds the whole OCR dir (the full-corpus escape hatch). ``obs_lookup``
+    supplies our own vision text for image-only pages (see ``iter_card_pages``).
     """
-    all_rows = iter_card_pages(ocr_dir, augment_lookup=augment_lookup)
+    all_rows = iter_card_pages(ocr_dir, obs_lookup=obs_lookup)
     if only_cards is not None:
         all_rows = [r for r in all_rows if r.card_id in only_cards]
     seen, prior_dim = load_existing_index(index_path)
@@ -247,22 +241,25 @@ def embed_run(
     limit: int | None = None,
     cost_cap_usd: float = DEFAULT_COST_CAP_USD,
     usd_per_million_tokens: float | None = None,
-    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
     augmented_by: dict[str, str] | None = None,
     only_cards: set[str] | None = None,
+    obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> EmbedSummary:
     """Walk OCR output, embed new pages, append to vectors.bin + index.json.
 
-    ``augment_lookup`` injects alex-zhang42 image tags before text_sha
-    (see ``atlas_join.load_atlas_index``); ``augmented_by`` records the
-    dataset/revision provenance into index.json. ``usd_per_million_tokens``
-    overrides the adapter's published rate for cost-cap math. ``only_cards``
-    (the T6.5 worklist) scopes the run to those card_ids; ``None`` is full-corpus.
+    ``augmented_by`` records dataset/revision provenance into index.json (a
+    format field retained for indexes written before the alex-zhang42 augment
+    was retired on 2026-07-11). ``usd_per_million_tokens`` overrides the
+    adapter's published rate for cost-cap math. ``only_cards`` (the T6.5
+    worklist) scopes the run to those card_ids; ``None`` is full-corpus.
+    ``obs_lookup`` supplies our own vision text for image-only pages so they
+    embed instead of being dropped (see ``iter_card_pages``).
     """
     model_id = embedder.model
     vectors_path, index_path = _prepare_paths(out_root, model_id)
     new_rows, all_rows, prior_dim = _select_new_rows(
-        ocr_dir, index_path, limit, augment_lookup=augment_lookup, only_cards=only_cards
+        ocr_dir, index_path, limit,
+        only_cards=only_cards, obs_lookup=obs_lookup,
     )
     skipped = len(all_rows) - len(new_rows)
     summary = EmbedSummary(
@@ -277,7 +274,6 @@ def embed_run(
     next_offset = vectors_path.stat().st_size if vectors_path.exists() else 0
     new_bytes, new_index_rows, dim = _embed_new_rows(
         new_rows, embedder, batch_size, next_offset, prior_dim, summary,
-        augment_lookup=augment_lookup,
     )
     _persist(
         vectors_path, index_path, model_id, dim, new_bytes, new_index_rows,

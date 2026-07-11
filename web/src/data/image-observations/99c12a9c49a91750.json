@@ -1,0 +1,61 @@
+{
+  "card_id": "99c12a9c49a91750",
+  "title": "65_HS1-834228961_62-HQ-83894_Section_003",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 126,
+      "image_type": "color scan of a blank sheet (aged construction/manila paper)",
+      "description": "The page is a scan of a blank, uniformly colored sheet of aged paper in a warm orange/amber (manila or construction-paper) tone. The scan is framed by a solid black border on all sides. Near the top of the sheet are two punched holes (two-hole punch) spaced apart, each showing dark shadow interiors. Faint gray smudge or pencil marks appear just below each hole. The paper surface shows subtle mottling and light vertical crease lines running down the sheet, and the bottom edge has a rough, frayed/torn deckle appearance. A very faint darker smudge is visible near the lower-center of the sheet. No printed text, stamps, captions, or imagery are legible anywhere on the page.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The sheet is blank with no legible printed or handwritten text",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Two punched holes are present near the top of the sheet (two-hole punch)",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The paper is a warm orange/amber tone consistent with aged manila or construction paper",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The bottom edge appears frayed or torn",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Faint smudges/marks appear below the punch holes and near the lower-center",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image is bordered by a solid black frame",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

@@ -136,10 +136,6 @@ def test_ocr_run_worklist_scopes_to_listed(tmp_path, monkeypatch) -> None:
 
 def _stub_embed_cli(monkeypatch, seen: dict) -> None:
     monkeypatch.setattr("pursue_index.cli.embed_cli._make_embedder", lambda *a, **k: object())
-    monkeypatch.setattr("pursue_index.cli.embed_cli._maybe_load_augment", lambda *a, **k: ({}, {}))
-    monkeypatch.setattr(
-        "pursue_index.cli.embed_cli._apply_image_observations_quarantine", lambda a, b: a
-    )
 
     def fake_embed_run(**kwargs):
         seen["only_cards"] = kwargs.get("only_cards")

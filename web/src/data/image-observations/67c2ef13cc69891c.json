@@ -1,0 +1,61 @@
+{
+  "card_id": "67c2ef13cc69891c",
+  "title": "65_HS1-834228961_62-HQ-83894_Serial_153",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 6,
+      "image_type": "black-and-white photograph",
+      "description": "A black-and-white photograph with a white border, showing an outdoor daytime scene of a small town or institutional/military-style residential complex viewed from a slightly elevated position. In the foreground is a paved road or open lot with a curb; a small dark structure appears at the lower right corner. The middle ground contains several single-story light-colored buildings with pitched gable roofs, resembling barracks, cottages, or utility buildings, arranged along the far side of the road. Shrubs, low vegetation, and a few trees are interspersed among the buildings. A prominent wooden utility pole with multiple crossarms and insulators stands near the center of the image, with power/telephone lines radiating diagonally across the sky. In the background is a range of low rolling hills or mountains beneath an overcast, grainy gray sky. The photograph shows heavy surface damage: numerous white scratches, creases, and emulsion cracks run across the sky and lower portion. A distinct white looping/curled mark (resembling a light-leak or scratch shaped like a stylized number or hook) is visible in the lower right area over the buildings. A faint band of lighter tone crosses horizontally through the upper sky, indicating a crease or emulsion defect. No printed text, caption, stamp, or handwriting is legible on the image.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is a black-and-white photograph with a white paper border.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The scene depicts single-story light-colored buildings with pitched roofs along a road, with a central utility pole and power lines.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Low hills or mountains appear in the background beneath a gray sky.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The photograph surface has extensive white scratches, creases, and emulsion cracks, including a horizontal band across the upper sky.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A white curled loop-shaped mark is present in the lower right portion over the buildings.",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text, stamps, or handwriting appear on the page.",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

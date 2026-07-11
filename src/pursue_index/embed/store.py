@@ -14,19 +14,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-# Bracketed header for the AlexZhangji/ufo-pursue-open-atlas image-
-# description block. Bracketing keeps it human-readable in chat snippets
-# and makes ``worker/retrieve.js::makeSnippet`` naturally center on it
-# when the query matches inside an image tag.
-#
-# Note: his GitHub username is `AlexZhangji`; his HuggingFace dataset
-# is published under `alex-zhang42` (different per-platform handles).
-# This marker uses the GitHub-style slug because the GitHub repo is
-# the canonical source.
-AUGMENT_BLOCK_HEADER = (
-    "[[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]]"
-)
-
 
 @dataclass
 class PageRow:
@@ -42,11 +29,12 @@ class IndexRow:
     page: int
     text_sha: str
     offset: int
-    # True iff this row was hashed against text that included the
-    # alex-zhang42 IMAGE-DESCRIPTIONS block. Lets the build/publish step
-    # dedupe by ``(card_id, page)`` keeping the augmented sibling when
-    # both an un-augmented prior row and a new augmented row coexist
-    # (vaivora cross-cutting blocker #3).
+    # Vestigial on-disk format field. It once marked rows hashed against the
+    # retired alex-zhang42 IMAGE-DESCRIPTIONS augment (retired 2026-07-11) so
+    # the build/publish dedupe could keep the augmented sibling. No new row is
+    # ever augmented now; the field and the dedupe it drives are retained only
+    # to correctly READ any index still carrying augmented rows from before the
+    # retirement, and default to False.
     augmented: bool = False
 
 
@@ -73,14 +61,14 @@ def text_sha(text: str) -> str:
 
 def iter_card_pages(
     ocr_dir: Path,
-    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
+    obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> list[PageRow]:
     """Walk OCR output, yielding ok-status pages in deterministic order.
 
-    ``augment_lookup`` is the optional alex-zhang42 image-tag join (see
-    ``pursue_index.embed.atlas_join.load_atlas_index``); when provided,
-    pages whose ``(card_id, page)`` is in the lookup get the IMAGE-
-    DESCRIPTIONS block appended before ``text_sha`` is computed.
+    ``obs_lookup`` (see ``image_observations.load_observation_text``) supplies
+    our own vision-pass text for genuinely image-only pages: when a page's base
+    OCR is empty AND its ``(card_id, page)`` is in the lookup, that text becomes
+    the page's searchable content instead of the page being dropped.
     """
     rows: list[PageRow] = []
     if not ocr_dir.exists():
@@ -100,56 +88,40 @@ def iter_card_pages(
             continue
         rows.extend(
             _read_card_pages(
-                card_dir.name, pages_path, augment_lookup=augment_lookup
+                card_dir.name, pages_path, obs_lookup=obs_lookup
             )
         )
     return rows
-
-
-def _augment_text(text: str, image_tags: list[str]) -> str:
-    """Append the bracketed IMAGE-DESCRIPTIONS block. Pure helper.
-
-    Format is one bullet per tag; the bracket label tells downstream
-    consumers (chat prompt, snippet builder) which lines came from the
-    VLM vs our OCR.
-    """
-    if not image_tags:
-        return text
-    bullets = "\n".join(f"- {tag}" for tag in image_tags)
-    return f"{text}\n\n{AUGMENT_BLOCK_HEADER}\n{bullets}"
 
 
 def _read_card_pages(
     card_id: str,
     pages_path: Path,
     *,
-    augment_lookup: dict[tuple[str, int], list[str]] | None = None,
+    obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> list[PageRow]:
     """Yield non-empty PageRows. Pages with empty/whitespace-only text are
     dropped — Voyage rejects empty input strings with HTTP 400, and pages
     with no readable OCR content (near-blank scans the LLM marked
     ``[ILLEGIBLE]`` only, or simply blank) wouldn't contribute useful
-    retrieval signal anyway. Their absence from the embed index is the
-    correct behavior: the chat retrieval surface should never surface them.
+    retrieval signal anyway.
 
-    When ``augment_lookup`` is provided, each page's text gets the
-    IMAGE-DESCRIPTIONS block appended *before* ``text_sha`` is computed,
-    so the augmented row is content-addressed distinctly from the
-    un-augmented baseline (the existing idempotency layer treats it as a
-    new row).
+    Exception: when ``obs_lookup`` carries our own vision-pass text for an
+    empty-OCR page (a genuinely image-only page — a photograph, illustration,
+    or blank archival cover), that text becomes the page's content instead of
+    the page being dropped. This is the only searchable text such pages have.
     """
     rows: list[PageRow] = []
     with pages_path.open() as fh:
         for line in fh:
             row = json.loads(line)
             text = row.get("text", "") or ""
-            if not text.strip():
-                continue
             page = int(row["page"])
-            if augment_lookup is not None:
-                tags = augment_lookup.get((card_id, page))
-                if tags:
-                    text = _augment_text(text, tags)
+            if not text.strip():
+                obs = obs_lookup.get((card_id, page)) if obs_lookup else None
+                if not obs:
+                    continue
+                text = obs
             rows.append(
                 PageRow(
                     card_id=card_id,

@@ -1,0 +1,51 @@
+{
+  "card_id": "7d58f0cac741650a",
+  "title": "65_HS1-834228961_62-HQ-83894_Section_010",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 48,
+      "image_type": "black-and-white scan of a blank/near-blank sheet of paper",
+      "description": "The page is a scan of a mostly blank sheet of paper surrounded by a solid black border (the scanner background). The paper surface shows a mottled, cloudy gray texture typical of aged or thin paper, with uneven tonal patches distributed across the sheet. Faint, indistinct show-through of text or imagery from the reverse side is visible in the center-lower portion of the page, appearing as ghosted vertical strokes and lines, but nothing is legible. No captions, stamps, handwriting, or printed text can be read on this side. Near the bottom edge there are several dark blotches and ink/toner spots: two rounded solid black droplet-shaped marks (one left of center, one right of center), plus scattered small dark specks and flecks toward the lower-right corner. The overall condition suggests a thin or translucent sheet showing bleed-through from another page.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page is essentially blank with no legible text or markings",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Faint ghosted show-through of text/imagery from the reverse side is visible in the lower-center area",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Several dark ink or toner blotches and specks appear near the bottom of the page",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sheet is framed by a solid black scanner-background border",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

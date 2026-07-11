@@ -76,13 +76,13 @@ const methodologyJsonLd = [
   }),
   // Sprint 4b Theme E4: expanded from one selector to three. The lede
   // (what this page covers) + the provenance section (the integrity
-  // story) + the augmented-retrieval section (the project
+  // story) + the image-observations section (the project
   // differentiator). All three anchor IDs are stable section ids
   // that map directly to TOC entries on the page.
   speakableJsonLd([
     "#methodology-lede",
     "#provenance",
-    "#augmented-retrieval",
+    "#image-observations",
   ]),
   breadcrumbJsonLd([
     { name: "Index", url: "/" },
@@ -444,87 +444,69 @@ const methodologyJsonLd = [
       </p>
     </section>
 
-    {/* Augmented retrieval — promoted from a buried "Related Work" mention
-        to a top-section differentiator. Positioned right after the OCR
-        pipeline because it answers "what about the ~27% of pages OCR alone
-        underrepresents?" — i.e. it pairs conceptually with OCR. The
-        load-bearing claim is provenance discipline: internal sidecars
-        carry an engine field per page, and augmented chunks carry an
-        inline [[IMAGE-DESCRIPTIONS via …]] marker that travels into
-        /api/retrieve snippet/page_text fields. We never blend OCR text
-        and VLM descriptions silently. The bottom Related Work section
-        points UP to this anchor rather than restating it. */}
-    <section id="augmented-retrieval" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+    {/* Image observations — our own vision pass over image-only pages.
+        Positioned right after the OCR pipeline because it answers "what
+        about pages that are pure imagery, where OCR reads nothing?" The
+        load-bearing claim is provenance discipline: our vision description
+        carries an inline [[IMAGE-OBSERVATIONS via pursue vision pass, …]]
+        marker that travels into /api/retrieve snippet/page_text fields, and
+        it is only ever used where base OCR is empty — we never blend OCR
+        text and a model's description of the same page. (Superseded an
+        earlier integration of Alex Zhang's open VLM dataset; see Related
+        Work.) The bottom Related Work section points UP to this anchor. */}
+    <section id="image-observations" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
-        ▸ Augmented retrieval
+        ▸ Image observations
       </h2>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        <strong class="text-[color:var(--color-text-bright)]">augmented retrieval</strong>
-        — for ~27% of pages where text OCR alone underrepresents the source,
-        we integrate the
-        <a href="https://github.com/AlexZhangji/ufo-pursue-open-atlas" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">AlexZhangji/ufo-pursue-open-atlas</a>
-        project's vision-language descriptions of photographs, sketches,
-        rubber stamps, and handwritten marginalia. Provenance is labeled
-        per source: every retrieved chunk discloses whether it came from
-        text OCR or augmented description. The two corpora stay distinct
-        in our index; we never blend them silently.
+        <strong class="text-[color:var(--color-text-bright)]">image observations</strong>
+        — some pages carry no machine-readable text at all: a photograph, a
+        hand-drawn or composite sketch, a diagram, or a blank archival folder
+        cover. OCR returns nothing for them. For these genuinely image-only
+        pages we run our own vision pass — a faithful, literal,
+        operator-reviewed description generated with
+        <strong class="text-[color:var(--color-text-bright)]">Claude Opus (claude-opus-4-8)</strong>
+        — and use that description as the page's searchable text. It is used
+        only where base OCR is empty; a page that already has readable OCR
+        keeps its OCR verbatim. We never blend the two.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        <strong class="text-[color:var(--color-text-bright)]">What OCR underrepresents.</strong>
-        Photographs embedded inside IMG-type cards. Hand-drawn sketches
-        inside FBI files. Blurry carbon-copy scans where Sonnet 4.6 and the
-        dots.mocr backstop both abstain. Rubber-stamped redaction markers and
-        case-disposition stamps that read as glyphs to OCR but as
-        meaningful flags to a vision model. As of 2026-06-12,
-        <strong class="text-[color:var(--color-text-bright)]">~1,200 pages</strong>
-        across the {pageCountLabel} OCR pages carry an augmented description
-        block alongside the OCR text — concentrated on the image-heavy and
-        low-OCR-yield pages, with coverage diluting as the corpus grows.
+        <strong class="text-[color:var(--color-text-bright)]">What OCR can't read.</strong>
+        Photographs of physical models and artifacts inside FBI case files.
+        Hand-drawn and digitally composited sketches of reported objects.
+        Cover sheets and blank dividers that scan as pure imagery. For each
+        such page we render the source image from the archival PDF and
+        describe exactly what is visible — transcribing any stamps or
+        captions verbatim, and never asserting the nature or authenticity of
+        a depicted object. Coverage is deliberately narrow: it is the small
+        residual of pages that would otherwise be unsearchable, not a blanket
+        pass over the corpus.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">Operator-reviewed observations.</strong>
+        A cluster of gun-camera and released-imagery cards (the late-2025
+        helicopter–orb case) additionally carries structured, operator-verified
+        image observations — reticle style, sensor-clock timestamps, tracked-object
+        position — where the visual detail is load-bearing for the analysis.
+        Those observations are recorded as machine-readable sidecars for
+        provenance and are surfaced in the relevant finds entry.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">How provenance is labeled.</strong>
-        Provenance is recorded internally — the OCR sidecars
-        (<code class="font-mono text-xs">pages.jsonl</code>) carry an
-        <code class="text-[color:var(--color-signal-cyan)]">engine</code>
-        field per page — under the operated llm-dots engine, one of
-        <code class="text-[color:var(--color-signal-cyan)]">llm</code> |
-        <code class="text-[color:var(--color-signal-cyan)]">dots</code> |
-        <code class="text-[color:var(--color-signal-cyan)]">assemblyai</code>
-        (audio), plus <code class="text-[color:var(--color-signal-cyan)]">augmented-vlm</code>
-        for augmented descriptions and legacy
-        <code class="text-[color:var(--color-signal-cyan)]">surya</code> on retired pages,
-        and the embedding index
-        (<code class="font-mono text-xs">embed_index.json</code>) carries
-        an
-        <code class="font-mono text-xs">augmented_by</code> block
-        recording the augmenting dataset, revision, and content hash. The
-        public
-        <code class="font-mono text-xs">/api/retrieve</code> response
-        surfaces this provenance <em>inline</em>: augmented-VLM chunks
-        include a
-        <code class="font-mono text-xs">[[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]]</code>
-        source label embedded directly in the
+        Each image-observation sidecar records our pass explicitly — model
+        (<code class="text-[color:var(--color-signal-cyan)]">claude-opus-4-8</code>),
+        method, and the operator decision. The description carries an inline
+        <code class="font-mono text-xs">[[IMAGE-OBSERVATIONS via pursue vision pass, claude-opus-4-8]]</code>
+        marker embedded directly in the
         <code class="text-[color:var(--color-signal-cyan)]">snippet</code> and
         <code class="text-[color:var(--color-signal-cyan)]">page_text</code>
-        fields. Consumers parsing those fields can distinguish OCR vs
-        augmented-origin passages by matching the inline marker, and the
-        chat treats augmented chunks as cite-eligible context but
-        distinguishes them in citation form so a reader can always tell
-        whether a quoted line came from the document's text or from a
-        vision-language description of the document's image content. A
-        structured per-hit
-        <code class="text-[color:var(--color-signal-cyan)]">engine</code>
-        field on
-        <code class="font-mono text-xs">/api/retrieve</code> responses is
-        a planned but unshipped addition.
-      </p>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        Because the
-        <code class="font-mono text-xs">[[IMAGE-DESCRIPTIONS via …]]</code>
-        marker is embedded in the OCR text itself, the disambiguation is
-        visible in raw transcripts too, not just in API responses. See
+        fields returned by
+        <code class="font-mono text-xs">/api/retrieve</code>, so a reader can
+        always tell a passage came from our vision pass rather than from the
+        document's own text. Because the marker lives in the searchable text
+        itself, the disambiguation is visible in raw transcripts too. See
         <a href="/cite" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">citation guidance</a>
-        for how to credit the two sources when quoting augmented text.
+        for how to credit an image-observation passage.
       </p>
     </section>
 
@@ -916,11 +898,13 @@ const methodologyJsonLd = [
         public-domain mirror can look like.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        For how Alex's vision-language descriptions are integrated into
-        our retrieve index — coverage, provenance labeling, and citation
-        disambiguation — see
-        <a href="#augmented-retrieval" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">▸ Augmented retrieval</a>
-        above.
+        Early on we integrated Alex's vision-language descriptions directly
+        into our retrieve index for image-heavy pages. We have since retired
+        that integration and built our own operator-reviewed vision pass in
+        its place — see
+        <a href="#image-observations" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">▸ Image observations</a>
+        above. Alex's dataset remains an independent, citable open release;
+        we no longer consume it in the pipeline.
       </p>
     </section>
 

@@ -1,0 +1,109 @@
+{
+  "card_id": "bcf2e688dfbc220d",
+  "title": "65_HS1-834228961_62-HQ-83894_Section_001",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 88,
+      "image_type": "black-and-white photograph",
+      "description": "A black-and-white photographic print mounted against a solid black backing, occupying nearly the full frame. The photograph shows a single manufactured object photographed against a plain light gray studio backdrop with a soft curved gradient of shadow behind it. The object is disc-shaped or lens-shaped in profile, oriented horizontally with its widest axis running left to right. The lower body is a smooth, symmetrical convex dome with a metallic or painted surface bearing subtle scratches and reflections. Along the lower rim are several dark rectangular slots or vents evenly spaced. From the right side a straight cylindrical rod or spindle projects outward, likely a mounting shaft. Rising from the top left portion of the disc is a tall, dark, curved vertical fin or vane resembling a shark-fin or sail shape, with a smooth rounded leading edge and lighter worn or scuffed patches on its surface. The object rests such that the fin points upward-left and the disc body extends to the right. The photographic print has a white border. Visible damage includes a crease or scratch at the lower left corner and light surface handling marks. No text, captions, stamps, or handwriting are visible on the page.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is a black-and-white photograph mounted on black backing with a white print border",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The photograph depicts a disc- or lens-shaped model object with a tall curved fin rising from its upper surface",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A straight cylindrical rod projects from the right side of the object, consistent with a mounting shaft",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Dark rectangular slots or vents are visible along the lower rim of the disc",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The object is photographed against a plain gray studio backdrop with curved shadow gradient",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The print shows handling damage including a crease at the lower left corner",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text, stamps, or handwriting appears on the page",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "page": 90,
+      "image_type": "black-and-white photograph",
+      "description": "A black-and-white photograph, printed with a white border and mounted against a dark background, showing a single circular metallic object photographed face-on. The disc-shaped object dominates the frame and appears to be a heavy, dished or domed metal plate or cover. Around its circumference runs a raised rim or flange. Set into the outer portion of the disc are a series of triangular or wedge-shaped cutouts/slots (dark recessed triangles) arranged radially around the perimeter, giving a fan or gear-like appearance. Small dark spots (bolt holes or rivets) are visible near the rim at intervals. At the center of the disc is a raised circular boss or hub with a dark central hole or recess, surrounded by small mounting points. The surface of the disc shows scratches, mottled texture, staining, and wear, indicating a used or aged metal object with a rough cast or worked surface. A short cylindrical rod or bar protrudes from the lower-left edge of the disc, extending outward beyond the rim. The object casts a shadow onto the flat gray surface behind it, suggesting it is resting on or leaning against a plain backdrop under directional lighting.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The photograph depicts a single circular metallic disc-shaped object with a raised rim",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The disc has multiple triangular/wedge-shaped recessed slots arranged radially around its perimeter",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A raised central hub with a dark central hole is located at the middle of the disc",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A short rod or bar protrudes from the lower-left edge of the disc",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The metal surface shows scratches, staining, and mottled wear",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The print has a white border and shows emulsion damage/spots in the lower-left corner",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No visible text, captions, stamps, or handwriting appear on the page",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

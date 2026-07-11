@@ -1,0 +1,94 @@
+{
+  "card_id": "4844321219e306af",
+  "title": "65_HS1-834228961_62-HQ-83894_Section_002",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 81,
+      "image_type": "black-and-white photograph",
+      "description": "A black-and-white photograph with a wide black border, showing a studio or tabletop arrangement. Dominating the upper portion of the frame is a circular, disc-shaped object photographed face-on. The disc has a light gray, mottled surface with visible streaks, smudges, and darker markings, and its rim appears slightly raised or beveled. A small protrusion or handle-like fitting is visible near the right edge of the disc. The disc rests or is propped against a lighter rectangular panel (appearing as a backdrop or card) that occupies the upper background, set against surrounding darker/black areas. Below the disc, in the lower half of the frame, is a light-toned flat surface (a table or sheet). On this surface at left sits a small dark rectangular object, possibly a plaque, photograph, or metal plate, with an indistinct lighter form at its center. Faint marks or smudges appear on the light surface toward the lower center. The photograph shows contrast variation, a pinhole or small light spot near the upper right, and the overall condition includes the heavy dark border framing the image.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The photograph depicts a circular disc-shaped object shown face-on with a mottled light gray surface",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small protrusion or fitting is visible near the right edge of the disc",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The disc is positioned against a lighter rectangular backdrop panel in the upper background",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small dark rectangular object rests on the light lower surface at left",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image is a black-and-white photograph with a wide black border",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text or markings are visible on the page",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "page": 89,
+      "image_type": "black-and-white photograph with white border, mounted/scanned against a black background",
+      "description": "A black-and-white photograph, bordered in white and set against a solid black scan background. The image shows a small tabletop assembly resting on a light-colored, flat, circular disc-shaped base or platter placed on a dark surface. The disc has a smooth, pale upper surface with a metallic, ridged (concentric-ringed) circular hub at its center, giving a saucer-like or turntable appearance. Mounted atop and around the central hub are various small mechanical and electrical components: a dark upright rectangular block or transformer-like box at the rear left with fine wires trailing from it; a spark-plug-like cylindrical component standing vertically near center; a coiled spring or helical coil at the right; and additional dark irregular fittings and connectors toward the right and lower-right of the disc. Numerous thin wires or filaments run loosely across and above the assembly, connecting the components. A small clip or block sits on the disc surface at the lower left. The lighting is directional, casting shadows to the right and rear against a plain gradient wall/backdrop. In the upper right of the photo border there appear to be faint handwritten marks or a small tick. The background at left shows faint rectangular shapes (possibly other objects or wall features).",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The photograph is black-and-white with a white border scanned against a black field.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image depicts a small mechanical/electrical apparatus built on a flat circular disc-shaped base with a central ridged metallic hub.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Components visible include an upright dark box, a spark-plug-like cylinder, a coiled spring, various fittings, and multiple thin trailing wires.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "There appear to be faint handwritten marks near the upper-right border, but no legible text is present.",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The object rests on a dark surface with a plain lighter backdrop and directional shadows.",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

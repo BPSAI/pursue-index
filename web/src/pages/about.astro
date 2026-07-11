@@ -19,7 +19,7 @@ const aboutJsonLd = [
   }),
   // Sprint 4b Theme E4: expanded from one selector to three so a
   // voice-assistant read covers the project framing (lede) + the
-  // augmented-retrieval differentiator + the motivation. Each
+  // image-observations differentiator + the motivation. Each
   // selector targets a stable anchored paragraph so future page
   // restructuring breaks the link visibly rather than silently.
   speakableJsonLd(["#about-lede", "#about-augmented", "#about-why"]),
@@ -66,27 +66,25 @@ const aboutJsonLd = [
       </p>
     </section>
 
-    {/* Augmented retrieval callout — condensed version of the
-        /methodology#augmented-retrieval section. Surfaced on /about
+    {/* Image observations callout — condensed version of the
+        /methodology#image-observations section. Surfaced on /about
         because it's a project differentiator that a casual visitor
         landing on /about should see without having to click into
-        methodology. Keep the figure (~27%) in sync with the methodology
-        section and embed_index.json (1,132 / 4,127 embedded pages
-        currently). */}
+        methodology. Deliberately unquantified — it covers only the small
+        residual of genuinely image-only pages. */}
     <section class="border border-[color:var(--color-signal-green)]/40 bg-[color:var(--color-signal-green)]/5 p-5 space-y-3">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
-        ▸ Augmented retrieval
+        ▸ Image observations
       </h2>
       <p id="about-augmented" class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        For ~27% of pages where text OCR alone underrepresents the source,
-        we integrate vision-language descriptions of photographs, sketches,
-        rubber stamps, and handwritten marginalia from a parallel research
-        project,
-        <a href="https://github.com/AlexZhangji/ufo-pursue-open-atlas" target="_blank" rel="noreferrer" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">AlexZhangji/ufo-pursue-open-atlas</a>.
-        Every retrieved chunk is provenance-labeled so a reader can tell
-        whether a quoted line came from text OCR or augmented description;
-        the two corpora stay distinct in our index and are never blended
-        silently. <a href="/methodology#augmented-retrieval" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">Methodology →</a>
+        Some pages carry no machine-readable text at all — a photograph, a
+        sketch, a blank archival folder cover. For those genuinely image-only
+        pages, our own operator-reviewed vision pass (Claude Opus) supplies a
+        faithful, literal description as the page's searchable text. It is
+        used only where base OCR is empty, and every such chunk is
+        provenance-labeled so a reader can always tell a passage came from our
+        vision pass rather than the document's own text.
+        <a href="/methodology#image-observations" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">Methodology →</a>
       </p>
     </section>
 

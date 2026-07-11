@@ -82,7 +82,7 @@ rebuild-derivatives:
 	@cd web && node scripts/build_byte_history.mjs > /dev/null
 	@cd web && node scripts/build_cards_summary.mjs > /dev/null
 	@cd web && node scripts/build_csv_archive.mjs > /dev/null
-	@python scripts/build_search_data.py --augment-from data/external/alex-zhang42-corpus.jsonl 2>&1 | tail -1
+	@python scripts/build_search_data.py 2>&1 | tail -1
 	@cd web && node scripts/build_llms_txt.mjs > /dev/null
 	@python scripts/build_pages_cleaned.py 2>&1 | tail -1
 	@python scripts/build_photo_card_index.py 2>&1 | tail -1

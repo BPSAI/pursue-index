@@ -1,0 +1,56 @@
+{
+  "card_id": "8bfd94484138d59b",
+  "title": "65_HS1-834228961_62-HQ-83894_Section_009",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 270,
+      "image_type": "black-and-white scan of a blank paper page",
+      "description": "The page is a scan of an essentially blank sheet of paper, mounted against a solid black background that frames all four edges. The paper surface is off-white to pale cream with mottled tonal variation and faint grayish smudging spread across the field, consistent with aging, foxing, or scan artifacts. There is no body text, caption, or printed content. Near the top of the page are two prominent dark irregular blotches or hole-punch marks: one located left of center and one right of center. Along the upper-left corner there is a scattered cluster of small dark specks, spots, and short dash-like marks. A few additional isolated dark specks appear in the upper-left quadrant and along the upper-right edge. A short dark vertical mark or tab intrudes from the right edge near the vertical midpoint. No legible text, stamps, signatures, or handwriting are present.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page is blank with no printed or handwritten text",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Two dark blotches/hole-punch marks appear near the top of the page, one left of center and one right of center",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A cluster of small dark specks and dashes is visible in the upper-left corner",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The paper shows mottled discoloration and gray smudging consistent with aging or scanning",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The scan is framed by a solid black background on all sides",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

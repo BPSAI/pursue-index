@@ -76,8 +76,6 @@ def run_scoped_stages(manifest: Path, worklist: Path, *, cost_cap_usd: float | N
         cost_cap_usd=cap,
         usd_per_million_tokens=None,
         batch_size=embed_cli._OPT_BATCH.default,
-        augment_from=None,
-        augment_miss_rate_threshold=embed_cli._OPT_MISS_RATE.default,
         image_observations_index=embed_cli._OPT_IMAGE_OBS_INDEX.default,
         worklist=worklist,
     )

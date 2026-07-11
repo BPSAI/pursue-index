@@ -1,0 +1,56 @@
+{
+  "card_id": "5ecebc7c28a8d8c7",
+  "title": "65_HS1-834228961_62-HQ-83894_Section_004",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-07-11T00:00:00+00:00",
+  "session_id": "retire-zhang-corpus-2026-07-11",
+  "prior_pass": {
+    "source": "alex-zhang42/ufo-pursue-open-atlas",
+    "model": "mimo-v2.5",
+    "quarantined": true,
+    "retired": true
+  },
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-claude-code",
+    "context": "residual-image-only-pages-on-zhang-corpus-retirement",
+    "page_render": "source PDF on NAS via pdftoppm -r 150"
+  },
+  "provenance_note": "Genuinely image-only page(s): zero base OCR under the llm-dots engine across pages.jsonl / pages_cleaned.jsonl. After retiring the Zhang augment corpus, this operator-reviewed vision pass supplies the page's only searchable description.",
+  "pages": [
+    {
+      "page": 93,
+      "image_type": "color scan of a blank manila folder or envelope cover",
+      "description": "The page is a scan of a blank, aged manila-colored (tan/orange-brown) paper or card stock document, likely the cover or back of a file folder or envelope, set against a solid black background. The surface is uniformly buff/tan with no printed or handwritten text visible. The top edge shows creasing, tearing, and a fold with a slightly darker overlapping flap area near the upper right. The right side has a vertical fold or seam running down its length, with a strip of clear or translucent adhesive tape applied over a torn/creased area near the lower right, showing wrinkling and light reflection. Two round punched holes (for a two-hole file fastener) are located along the lower portion of the page, spaced apart horizontally. A faint smudge or mark is visible near the upper center. Small dark specks and marks appear at the lower left. The lower right corner has a notch or cut-out. General condition shows wear, creasing, edge damage, and discoloration consistent with age.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page is a blank manila/tan folder or envelope cover with no printed or handwritten text",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Two round punched file-fastener holes are present along the lower portion",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A strip of translucent adhesive tape is applied over a torn area at the lower right",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The top edge shows tearing, creasing, and a folded overlapping flap",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The document is set against a solid black scan background",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}

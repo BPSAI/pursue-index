@@ -9,16 +9,14 @@ Run after ``pursue ocr run`` completes::
 
     python scripts/build_search_data.py
 
-When the embed pipeline ran with ``--augment-from`` (i.e. the deployed
-``embeddings/{model}/index.json`` carries an ``augmented_by`` block),
-this script must apply the same atlas-join lookup and append the
-``[[IMAGE-DESCRIPTIONS via ...]]`` block to each matching page's
-``text``. Otherwise the chat prompt + citation snippets read straight
-from un-augmented OCR while the vectors retrieve against augmented text
-(vaivora cross-cutting blocker #1)::
-
-    python scripts/build_search_data.py \
-        --augment-from data/external/alex-zhang42-corpus.jsonl
+Genuinely image-only pages (a photograph, illustration, or blank archival
+cover — zero base OCR) receive our own operator-reviewed vision-pass
+description as their searchable ``text``, drawn from the image-observations
+sidecars (see ``pursue_index.embed.image_observations``). This keeps the
+static search payload in parity with the embed vectors, which draw the same
+text for those pages. (The external alex-zhang42 VLM augment corpus this
+script once consumed via ``--augment-from`` was retired 2026-07-11; its file
+remains on NAS as a cold-storage reference but is no longer read.)
 
 The output file is intentionally not committed (data/ derivatives belong
 on the NAS); CI rebuilds it on each deploy from the OCR output that
@@ -41,8 +39,8 @@ from pursue_index.config import settings  # noqa: E402
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
-DEFAULT_AUGMENT_CORPUS = (
-    REPO_ROOT / "data" / "external" / "alex-zhang42-corpus.jsonl"
+DEFAULT_IMAGE_OBS_INDEX = (
+    REPO_ROOT / "web" / "src" / "data" / "image-observations" / "index.json"
 )
 
 # Surya emits <b>...</b> and <u>...</u> markup even with math_mode=False; the
@@ -55,60 +53,6 @@ def _clean_text(text: str) -> str:
     return _SURYA_TAG_RE.sub("", text)
 
 
-def _read_index_augmentation(
-    embeddings_root: Path, embed_model: str
-) -> dict | None:
-    """Return the embed run's ``augmented_by`` block, or ``None``.
-
-    Probes ``{embeddings_root}/{embed_model}/index.json``. The block's
-    presence is the signal that the search payload must apply the
-    image-tag lookup; its absence means the payload is plain OCR text.
-    """
-    idx_path = embeddings_root / embed_model / "index.json"
-    if not idx_path.exists():
-        return None
-    payload = json.loads(idx_path.read_text())
-    return payload.get("augmented_by")
-
-
-def _build_augment_lookup(
-    augment_corpus: Path,
-    manifest_path: Path,
-    miss_rate_threshold: float,
-) -> dict[tuple[str, int], list[str]]:
-    """Reuse the embed pipeline's atlas_join to mirror its lookup table.
-
-    Critical: this must match what ``embed/store.py::_augment_text`` saw
-    so the text in ``pages.json`` is byte-equivalent to the text the
-    embed run hashed. Anything else and the chat prompt won't match
-    its retrieval slots.
-    """
-    from pursue_index.embed.atlas_join import load_atlas_index
-    from pursue_index.scrape import load_manifest
-
-    manifest = load_manifest(manifest_path)
-    return load_atlas_index(
-        augment_corpus, manifest, miss_rate_threshold=miss_rate_threshold
-    )
-
-
-def _maybe_augment_text(
-    card_id: str,
-    page: int,
-    text: str,
-    augment_lookup: dict[tuple[str, int], list[str]] | None,
-) -> str:
-    """Apply the same IMAGE-DESCRIPTIONS block embed/store.py applies."""
-    if augment_lookup is None:
-        return text
-    tags = augment_lookup.get((card_id, page))
-    if not tags:
-        return text
-    from pursue_index.embed.store import _augment_text
-
-    return _augment_text(text, tags)
-
-
 def _load_titles(manifest_path: Path) -> dict[str, str]:
     manifest = json.loads(manifest_path.read_text())
     return {c["card_id"]: c["title"] for c in manifest["cards"]}
@@ -117,7 +61,7 @@ def _load_titles(manifest_path: Path) -> dict[str, str]:
 def _walk_card_pages(
     ocr_dir: Path,
     titles_by_id: dict[str, str],
-    augment_lookup: dict[tuple[str, int], list[str]] | None,
+    obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> tuple[list[dict[str, object]], int]:
     """Walk OCR cards and emit per-page docs. Returns (docs, cards_seen)."""
     docs: list[dict[str, object]] = []
@@ -145,25 +89,40 @@ def _walk_card_pages(
             print(f"  skip (not in manifest): {card_id}", file=sys.stderr)
             continue
         cards_seen += 1
-        docs.extend(
-            _emit_card_pages(card_id, title, pages_path, augment_lookup)
-        )
+        docs.extend(_emit_card_pages(card_id, title, pages_path, obs_lookup))
     return docs, cards_seen
+
+
+def _resolve_page_text(
+    card_id: str,
+    page: int,
+    raw_text: str,
+    obs_lookup: dict[tuple[str, int], str] | None,
+) -> str:
+    """Base OCR, or — for a genuinely image-only page (empty base OCR) — our own
+    operator-reviewed vision-pass text, kept byte-identical to what the embed
+    run hashed for that page so keyword and vector retrieval stay in parity."""
+    base = _clean_text(raw_text)
+    if not base.strip() and obs_lookup:
+        obs = obs_lookup.get((card_id, page))
+        if obs:
+            return obs
+    return base
 
 
 def _emit_card_pages(
     card_id: str,
     title: str,
     pages_path: Path,
-    augment_lookup: dict[tuple[str, int], list[str]] | None,
+    obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> list[dict[str, object]]:
     out: list[dict[str, object]] = []
     with pages_path.open() as fh:
         for line in fh:
             row = json.loads(line)
             page = int(row["page"])
-            text = _maybe_augment_text(
-                card_id, page, _clean_text(row["text"]), augment_lookup
+            text = _resolve_page_text(
+                card_id, page, row["text"], obs_lookup
             )
             out.append(
                 {
@@ -179,59 +138,39 @@ def _emit_card_pages(
     return out
 
 
-def _resolve_augment_lookup(
-    embeddings_root: Path,
-    embed_model: str,
-    augment_corpus: Path | None,
-    manifest_path: Path,
-    augment_miss_rate_threshold: float,
-) -> dict[tuple[str, int], list[str]] | None:
-    """Resolve the augment lookup OR raise on the bridge-script bug."""
-    augmented_by = _read_index_augmentation(embeddings_root, embed_model)
-    if augmented_by is None:
+def _load_obs_lookup(
+    index_path: Path | None,
+) -> dict[tuple[str, int], str] | None:
+    """Vision-pass text for image-only pages, or ``None`` when unavailable."""
+    if index_path is None or not index_path.exists():
         return None
-    if augment_corpus is None:
-        raise RuntimeError(
-            f"embeddings/{embed_model}/index.json declares augmentation "
-            f"({augmented_by.get('dataset', '?')}) but no --augment-from "
-            f"corpus was supplied. Refusing to write pages.json that's "
-            f"out of sync with the deployed vectors. Pass the same "
-            f"corpus path the embed run used."
-        )
-    return _build_augment_lookup(
-        augment_corpus, manifest_path, augment_miss_rate_threshold
-    )
+    from pursue_index.embed.image_observations import load_observation_text
+
+    return load_observation_text(index_path) or None
 
 
 def build(
     ocr_dir: Path,
     manifest_path: Path,
     out_path: Path,
-    embeddings_root: Path,
-    embed_model: str,
-    augment_corpus: Path | None = None,
-    augment_miss_rate_threshold: float = 0.01,
+    image_obs_index: Path | None = None,
 ) -> int:
     """Materialize the search payload. Returns process exit code."""
     if not manifest_path.exists():
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
         return 1
-    augment_lookup = _resolve_augment_lookup(
-        embeddings_root, embed_model, augment_corpus, manifest_path,
-        augment_miss_rate_threshold,
-    )
+    obs_lookup = _load_obs_lookup(image_obs_index)
     titles_by_id = _load_titles(manifest_path)
-    docs, cards_seen = _walk_card_pages(
-        ocr_dir, titles_by_id, augment_lookup
-    )
+    docs, cards_seen = _walk_card_pages(ocr_dir, titles_by_id, obs_lookup)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(docs, ensure_ascii=False))
     size_mb = out_path.stat().st_size / (1024 * 1024)
-    augmented_pages = sum(
-        1 for d in docs if "IMAGE-DESCRIPTIONS" in str(d["text"])
+    obs_pages = sum(
+        1 for d in docs if "IMAGE-OBSERVATIONS" in str(d["text"])
     )
     extra = (
-        f"; {augmented_pages} pages augmented" if augment_lookup else ""
+        f"; {obs_pages} image-only pages carry vision-pass text"
+        if obs_pages else ""
     )
     print(
         f"wrote {out_path} ({size_mb:.1f} MB): {cards_seen} cards, "
@@ -255,34 +194,20 @@ def main() -> int:
         help="Where to write web/public/data/pages.json.",
     )
     parser.add_argument(
-        "--embeddings-root", type=Path, default=settings.embeddings_dir,
-        help="Per-model embed output root (used to detect augmentation).",
-    )
-    parser.add_argument(
-        "--embed-model", default=settings.embed_model,
-        help="Embed model id (matches the embed-stage directory).",
-    )
-    parser.add_argument(
-        "--augment-from", type=Path, default=None,
+        "--image-observations-index", type=Path,
+        default=DEFAULT_IMAGE_OBS_INDEX,
         help=(
-            "alex-zhang42 corpus.jsonl path. Required when "
-            "embeddings/<model>/index.json carries augmented_by — "
-            "otherwise pages.json would be out of sync with the vectors."
+            "image-observations index.json. Image-only pages (zero base OCR) "
+            "listed there receive our own vision-pass description as their "
+            "searchable text. Pass a non-existent path to disable."
         ),
-    )
-    parser.add_argument(
-        "--augment-miss-rate-threshold", type=float, default=0.01,
-        help="Atlas join miss-rate ceiling (default 1%%).",
     )
     args = parser.parse_args()
     return build(
         ocr_dir=args.ocr_dir,
         manifest_path=args.manifest,
         out_path=args.out,
-        embeddings_root=args.embeddings_root,
-        embed_model=args.embed_model,
-        augment_corpus=args.augment_from,
-        augment_miss_rate_threshold=args.augment_miss_rate_threshold,
+        image_obs_index=args.image_observations_index,
     )
 
 

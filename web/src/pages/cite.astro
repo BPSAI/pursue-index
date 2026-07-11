@@ -196,24 +196,25 @@ https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
 
     <section class="space-y-3">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
-        ▸ Citing an IMAGE-DESCRIPTIONS snippet
+        ▸ Citing an IMAGE-OBSERVATIONS snippet
       </h2>
       <p class="text-sm text-[color:var(--color-text)]">
         When a search snippet you quote is bracketed with
-        <code class="font-mono text-xs">[[IMAGE-DESCRIPTIONS via AlexZhangji/ufo-pursue-open-atlas, mimo-v2.5]]</code>,
-        the words inside that block were written by Alex Zhang's VLM
-        pipeline, not our OCR. Honest provenance means citing both
-        projects: ours for the retrieval surface and the page anchor,
-        Alex's for the description text itself.
+        <code class="font-mono text-xs">[[IMAGE-OBSERVATIONS via pursue vision pass, claude-opus-4-8]]</code>,
+        the words inside that block are our own vision-pass description of an
+        image-only page (a photograph, sketch, or blank cover), not the
+        document's text and not our OCR. Cite it as an image observation so a
+        reader can tell it apart from a transcribed line.
       </p>
-      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index card <card_id>, p. <n>, image description.
-Image text via Zhang, A. (2026). ufo-pursue-open-atlas (CC0).
-https://huggingface.co/datasets/alex-zhang42/ufo-pursue-open-atlas
+      <pre class="bg-[color:var(--color-bg-elevated)] border border-[color:var(--color-border)] p-4 font-mono text-[12px] text-[color:var(--color-text-bright)] overflow-x-auto whitespace-pre-wrap"><code>{`PURSUE Index card <card_id>, p. <n>, image observation
+(pursue vision pass, claude-opus-4-8).
 https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
       <p class="text-sm text-[color:var(--color-text)]">
-        See <a href="/methodology#related" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology#related</a>
-        for how the augmentation works and why we keep both attributions
-        on every augmented snippet.
+        See <a href="/methodology#image-observations" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">▸ Image observations</a>
+        for how the vision pass works and how it is labeled on every snippet.
+        (An earlier version integrated Alex Zhang's open VLM dataset; that
+        integration has been retired — see
+        <a href="/methodology#related" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology#related</a>.)
       </p>
     </section>
 

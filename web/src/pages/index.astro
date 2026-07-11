@@ -121,10 +121,10 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
     </section>
 
     {/* ===== Brief framing — one sentence, tighter than /about =====
-        Second paragraph names the augmented-retrieval integration. The
-        ~27% figure matches /methodology's ▸ Augmented retrieval section
-        and embed_index.json's `augmented_by` accounting (1,132 / 4,127
-        embedded pages). Keep that single source of truth — don't drift. */}
+        Second paragraph names the image-observations vision pass. Kept
+        deliberately unquantified: it covers only the small residual of
+        genuinely image-only pages, not a fixed share of the corpus. See
+        /methodology's ▸ Image observations section. */}
     <section class="max-w-3xl space-y-3">
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <span class="font-mono text-[color:var(--color-signal-cyan)]">pursueindex</span>
@@ -138,17 +138,14 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
         >More →</a>
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text-dim)]">
-        <span class="font-mono text-[color:var(--color-signal-green)]">Augmented for what OCR can't read.</span>
-        For ~27% of pages, we integrate vision-language descriptions of
-        photographs, sketches, and marginalia from a parallel research
-        project (<a
-          href="https://github.com/AlexZhangji/ufo-pursue-open-atlas"
-          target="_blank"
-          rel="noreferrer"
-          class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
-        >AlexZhangji/ufo-pursue-open-atlas</a>) — provenance-labeled per chunk, never blended silently.
+        <span class="font-mono text-[color:var(--color-signal-green)]">For what OCR can't read.</span>
+        Some pages are pure imagery — a photograph, a sketch, a blank folder
+        cover — with no machine-readable text. For those, our own
+        operator-reviewed vision pass (Claude Opus) supplies a faithful,
+        literal description as the page's searchable text — provenance-labeled
+        per chunk, and only ever where base OCR is empty.
         <a
-          href={`${base}/methodology#augmented-retrieval`}
+          href={`${base}/methodology#image-observations`}
           class="ml-1 text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"
         >How →</a>
       </p>

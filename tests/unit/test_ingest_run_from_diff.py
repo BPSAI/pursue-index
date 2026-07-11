@@ -83,13 +83,6 @@ def _patch_stage_executors(monkeypatch, seen: dict) -> None:
     )
     monkeypatch.setattr("pursue_index.ocr.pipeline.ocr_all", fake_ocr_all)
     monkeypatch.setattr("pursue_index.cli.embed_cli._make_embedder", lambda *a, **k: object())
-    monkeypatch.setattr(
-        "pursue_index.cli.embed_cli._maybe_load_augment", lambda *a, **k: ({}, {})
-    )
-    monkeypatch.setattr(
-        "pursue_index.cli.embed_cli._apply_image_observations_quarantine",
-        lambda a, b: a,
-    )
     monkeypatch.setattr("pursue_index.embed.pipeline.embed_run", fake_embed_run)
 
 
