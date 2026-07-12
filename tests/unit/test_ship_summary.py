@@ -47,3 +47,19 @@ def test_summary_metadata_only_tranche_notes_no_ingest():
     assert "0" in s
     low = s.lower()
     assert "metadata" in low or "no " in low
+
+
+def test_summary_lists_scoped_worklist_card_ids_when_given():
+    """The operator should see WHICH cards, not only how many (the worklist)."""
+    ids = [f"card{i:02d}" for i in range(3)]
+    s = _summary(scoped_count=3, scoped_ids=ids)
+    for cid in ids:
+        assert cid in s
+
+
+def test_summary_caps_worklist_and_notes_remainder():
+    ids = [f"card{i:02d}" for i in range(40)]
+    s = _summary(scoped_count=40, scoped_ids=ids)
+    # First few are shown; an overflow-count note appears rather than 40 lines.
+    assert "card00" in s
+    assert "more" in s.lower()

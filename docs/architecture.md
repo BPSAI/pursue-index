@@ -22,7 +22,7 @@ CSV columns we consume:
 | Video Pairing       | Free-text reference to a paired video card                     |
 | PDF Pairing         | Free-text reference to a paired PDF card                       |
 | Description Blurb   | Full case description (what the modal shows on the page)       |
-| DVIDS Video ID      | Present on video entries; uses DVIDS streaming API             |
+| DVIDS Video ID      | Present on video/audio entries; citable DVIDS provenance id (playback served from our R2 archive) |
 | Video Title         |                                                                |
 | Agency              | DOW / FBI / NASA / DOS                                         |
 | Incident Date       | "N/A" treated as null                                          |
@@ -56,7 +56,7 @@ Not every PURSUE entry is a PDF. Of the 158 in PURSUE Release 01 (as of tranche 
 
 - **PDFs**: download → OCR → index. Standard flow.
 - **Images**: download → store. Future: vision analysis (the DOW shipped these as raw infrared stills; OCR isn't useful but visual feature extraction may be).
-- **Videos**: hosted on DVIDS, requires a separate API to resolve a download URL. Off by default (`PURSUE_DOWNLOAD_VIDEOS=false`); when on, we fetch via DVIDS API and optionally pull captions/transcripts.
+- **Videos & audio**: fetched via the DVIDS API to resolve a download URL, then archived into our Cloudflare R2 (content-addressed `archive/<sha>.mp4` + a `<card_id>.mp4` current-pointer) and served from there — DVIDS remains only the citable provenance source (the public video page), not the playback path. Download is off by default (`PURSUE_DOWNLOAD_VIDEOS=false`). Audio is transcribed via AssemblyAI/Aurora.
 
 ## OCR strategy
 

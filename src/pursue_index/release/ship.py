@@ -62,6 +62,23 @@ def estimate_cost_usd(*, cards: int | None = None, pages: int | None = None) -> 
     return round(pages * (_OCR_USD_PER_PAGE + _EMBED_USD_PER_PAGE), 2)
 
 
+_WORKLIST_PREVIEW_CAP = 15  # cap the inline card-id list so a big tranche stays readable
+
+
+def _worklist_lines(scoped_ids: list[str] | None) -> list[str]:
+    """A capped, credential-free preview of the scoped card_ids (the worklist)."""
+    if not scoped_ids:
+        return []
+    shown = scoped_ids[:_WORKLIST_PREVIEW_CAP]
+    out = ["", "<details><summary>scoped card_ids</summary>", ""]
+    out += [f"* `{cid}`" for cid in shown]
+    remainder = len(scoped_ids) - len(shown)
+    if remainder > 0:
+        out.append(f"* … and {remainder} more")
+    out.append("</details>")
+    return out
+
+
 def build_tranche_ready_summary(
     *,
     tranche: str,
@@ -71,12 +88,15 @@ def build_tranche_ready_summary(
     field_changes: int,
     new_columns: int,
     scoped_count: int,
+    scoped_ids: list[str] | None = None,
 ) -> str:
     """Markdown the poll alert appends so the operator sees WHAT to run.
 
     Credential-free (no page counts pre-download, so the cost is a per-card
     estimate; ``scoped_count`` is the new-card upper bound, exact OCR scope
-    comes from the ``--from-diff --dry-run`` preview). Includes a copy-paste
+    comes from the ``--from-diff --dry-run`` preview). When ``scoped_ids`` is
+    given, a capped preview of the actual card_ids (the work-list) is folded in
+    so the operator sees which cards, not only how many. Includes a copy-paste
     ``/ship-tranche <sha>`` block.
     """
     n = scoped_count
@@ -91,6 +111,7 @@ def build_tranche_ready_summary(
         lines.append("_(metadata-only tranche — no cards to OCR/embed; promote-only)_")
     else:
         lines.append(f"**Est. OCR+embed cost:** ~${estimate_cost_usd(cards=n):.2f} (rough)")
+        lines += _worklist_lines(scoped_ids)
     lines += [
         "",
         "**Run the operated release** — drives approve → OCR "

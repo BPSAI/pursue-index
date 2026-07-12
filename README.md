@@ -55,8 +55,10 @@ Methodology is published. Numbers are reproducible from a clean clone.
   a daily byte-verify cron opens an issue on any silent
   same-URL-different-bytes overlay.
 - **/gallery surface.** Image + video tile browse alongside textual
-  /search and spatial /atlas. Tiles use real DVIDS poster frames for
-  videos and page-1 WebP thumbnails for PDFs. Type filters + year
+  /search and spatial /atlas. Tiles use poster frames drawn from our
+  R2 video archive (the A/V itself streams from R2, content-addressed;
+  DVIDS is the citable provenance source, not the playback path) and
+  page-1 WebP thumbnails for PDFs. Type filters + year
   buckets; ~3.1 MB total static assets.
 - **/removed surface.** Index of cards we preserved here after the
   upstream version was pulled, swapped, or rewritten. Each entry points
@@ -125,11 +127,11 @@ Methodology is published. Numbers are reproducible from a clean clone.
 ## Pipeline
 
 ```
-scrape  ─►  download  ─►  ocr  ─►  embed  ─►  serve
-   │           │            │        │          │
-manifest    PDFs/IMGs    pages    voyage-3    static site
-(JSON,      (NAS, CAS)   .jsonl   float16     (CF Workers)
-hash-pinned)             (NAS)    payload
+scrape  ─►  download  ─►  ocr  ─►  clean-qc  ─►  embed  ─►  serve
+   │           │           │          │            │          │
+manifest    PDFs/IMGs    pages    curate QC     voyage-3   static site
+(JSON,      (NAS, CAS)   .jsonl   (rules →      float16    (CF Workers)
+hash-pinned)             (NAS)    Sonnet judge) payload
 ```
 
 | Stage    | Status   | Output                                                        |
@@ -137,6 +139,7 @@ hash-pinned)             (NAS)    payload
 | scrape   | shipped  | `data/manifests/latest.json` (SHA-256-pinned, version-controlled) |
 | download | shipped  | `{pdfs,images,videos}/{card_id}/{filename}` on NAS            |
 | ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — `llm-dots`: Sonnet 4.6 primary + dots.mocr content-filter backstop; AUD via AssemblyAI |
+| clean-qc | shipped  | operator-attended QC/methodology pass (rules → signal → Sonnet judge) over freshly-OCR'd pages; run in the sibling `pursue-curate` repo, then publish |
 | embed    | shipped  | Voyage-3 embeddings, ~8.5MB float16 in-browser payload         |
 | serve    | shipped  | Astro static build deployed to Cloudflare Workers              |
 

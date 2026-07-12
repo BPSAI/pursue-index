@@ -32,15 +32,23 @@ $ARGUMENTS
 3. **HUMAN GATE #1 — approval.** Present the summary. Get explicit "yes". Then:
    `pursue ingest approve --tranche $SHA --note "<operator note>"` (runs the TOCTOU re-audit).
 4. **VERIFY-BEFORE-SPEND (the guard).** Before any OCR, confirm the operated
-   methodology or REFUSE:
+   methodology + the 3-tier storage contract, or REFUSE:
    ```
-   pursue ingest run --tranche $SHA --from-diff --dry-run   # scope + promote-preview, no spend
+   pursue storage verify   # NAS + main R2 (pursue-pdfs) + backup R2 (pursue-pdfs-backup) all configured
+   pursue ingest run --tranche $SHA --from-diff --dry-run   # scope + WRITES data/ingest-worklist.txt, no spend
    python -c "import os; from pursue_index.release.ship import preflight_ocr; \
      r=preflight_ocr(engine='llm-dots', concurrency=8, anthropic_key_present=bool(os.environ.get('ANTHROPIC_API_KEY'))); \
      print(r); import sys; sys.exit(0 if r.ok else 1)"
    ```
    If the preflight fails (engine not llm-dots/llm, concurrency < 8, or no key), STOP and fix — do not spend.
-5. **Promote:** `pursue ingest run --tranche $SHA` (deterministic, no spend).
+   `pursue storage verify` exits non-zero if any tier is unconfigured; note its
+   same-account-backup WARNING (backup R2 shares the primary CF account today —
+   not true DR; see `../pursue-opsec-staging/findings/2026-07-12-same-account-r2-backup.md`).
+   The `--from-diff --dry-run` step MATERIALIZES `data/ingest-worklist.txt` for
+   the detected tranche (credential-free, no spend) so the OCR step below runs on
+   the RIGHT card set — do not skip it (Codex #101 P1).
+5. **Promote:** `pursue ingest run --tranche $SHA` (deterministic, no spend). Does
+   NOT rewrite the worklist — step 4's dry-run already wrote it for this tranche.
 6. **OCR (the spend):** `pursue ocr run --manifest data/manifests/latest.json --worklist data/ingest-worklist.txt --engine llm-dots --concurrency 8 --force`.
    **Read the first log lines and confirm `engine=llm-dots` / `model=claude-sonnet-4-6` — kill immediately on `auto`/`tesseract`.**
 7. **curate QC:** in `../pursue-curate`, `curate clean-qc run --cards <worklist ids>` then `curate publish clean-qc --version <N>` (reads OCR off the shared `PURSUE_DATA_ROOT` NAS). QC/methodology bundle — this is a real operated stage, not optional.

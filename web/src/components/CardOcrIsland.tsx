@@ -154,11 +154,10 @@ function emptyStateCopy(assetType?: string): string {
   if (assetType === "VID") {
     return "No OCR — this is a VID card; see the source asset above.";
   }
-  // Sprint 4f: AUD cards also have no OCR (DVIDS-hosted audio).
-  // Audio transcription is a future workstream; for now the card's
-  // description field carries the human-readable context.
+  // AUD cards have no page OCR; the audio streams from our R2 archive
+  // and is transcribed via AssemblyAI/Aurora when a transcript is present.
   if (assetType === "AUD") {
-    return "No OCR — this is an AUD card; see the DVIDS audio embed above.";
+    return "No OCR — this is an AUD card; the audio is served from our archive above.";
   }
   return "No OCR pages were extracted for this card. The source asset above is the canonical reference.";
 }

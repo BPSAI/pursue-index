@@ -105,5 +105,6 @@ def render_verdict_summary(diff: SnapshotDiffResult, *, tranche: str | None = No
             field_changes=len(diff.field_changes),
             new_columns=len(cols),
             scoped_count=len(diff.added),
+            scoped_ids=[getattr(c, "card_id", c) for c in diff.added],
         )
     return body

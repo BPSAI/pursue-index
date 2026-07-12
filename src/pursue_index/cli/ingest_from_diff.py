@@ -15,6 +15,7 @@ file format is the plain ``card_id``-per-line contract the T6.5 executors read.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -92,6 +93,39 @@ def run_scoped_stages(
     )
 
 
+def _enforce_ocr_preflight(engine: str | None, concurrency: int | None) -> None:
+    """Verify-before-spend gate for the ``--from-diff`` spend path (Codex #101 P2).
+
+    The scoped OCR stage below is a real spend. Before it runs we consult the
+    same ``preflight_ocr`` guard the ``/ship-tranche`` command uses, resolving
+    ``engine``/``concurrency`` from the operated env vars when the flags are
+    omitted. This closes the gap where a direct ``pursue ingest run --from-diff``
+    (or a stale ``PURSUE_OCR_ENGINE=auto`` env) could spend on the retired
+    tesseract path with no refusal. Raises ``typer.Exit(1)`` on any violation.
+    """
+    from pursue_index.release.ship import preflight_ocr
+
+    eng = engine or os.environ.get("PURSUE_OCR_ENGINE")
+    conc = concurrency
+    if conc is None:
+        raw = os.environ.get("PURSUE_OCR_LLM_CONCURRENCY")
+        conc = int(raw) if raw and raw.isdigit() else None
+    result = preflight_ocr(
+        engine=eng,
+        concurrency=conc,
+        anthropic_key_present=bool(os.environ.get("ANTHROPIC_API_KEY")),
+    )
+    if not result.ok:
+        for err in result.errors:
+            typer.echo(f"[preflight] {err}", err=True)
+        typer.echo(
+            "refusing to spend on OCR — the operated methodology is not satisfied "
+            "(pass --engine llm-dots --concurrency 8, or fix the env). See above.",
+            err=True,
+        )
+        raise typer.Exit(1)
+
+
 def execute_from_diff(
     summary: dict[str, Any],
     *,
@@ -106,10 +140,12 @@ def execute_from_diff(
 ) -> None:
     """Print the work-list (always) and, unless ``dry_run``, run scoped stages.
 
-    A metadata-only tranche (empty work-list) prints a notice and runs nothing
-    even without ``--dry-run`` -- there is no new content to OCR/embed.
-    ``cost_cap_usd`` overrides the embed stage's cost cap (operator escape hatch
-    for a large tranche).
+    A metadata-only tranche runs nothing. ``--dry-run`` still MATERIALIZES the
+    work-list file (credential-free, no spend) so a separately-invoked OCR step
+    gets the right card set — the ``/ship-tranche`` flow relies on this (Codex
+    #101 P1). The non-dry spend path first enforces the ``preflight_ocr``
+    verify-before-spend gate (Codex #101 P2). ``cost_cap_usd`` overrides the
+    embed cost cap.
     """
     card_ids = scoped_card_ids(summary)
     typer.echo("")
@@ -120,9 +156,14 @@ def execute_from_diff(
         typer.echo("  (none -- metadata-only tranche; no scoped stages to run)")
         return
     if dry_run:
+        write_worklist_file(worklist, card_ids, tranche)
         typer.echo("")
-        typer.echo("--dry-run: stages NOT executed. Re-run without --dry-run to ingest.")
+        typer.echo(
+            f"--dry-run: wrote work-list -> {worklist} (no spend); "
+            "stages NOT executed. Re-run without --dry-run to ingest."
+        )
         return
+    _enforce_ocr_preflight(engine, concurrency)
     write_worklist_file(worklist, card_ids, tranche)
     typer.echo("")
     typer.echo(f"wrote work-list -> {worklist}; running scoped download -> ocr -> embed")
