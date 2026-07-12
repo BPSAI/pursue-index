@@ -200,7 +200,7 @@ function GalleryTile({
             )}
             {card.dvids_video_id && (
               <span class="font-mono text-[9px] text-[color:var(--color-text-faint)] tracking-wide">
-                DVIDS {card.dvids_video_id}
+                src: DVIDS {card.dvids_video_id}
               </span>
             )}
           </div>

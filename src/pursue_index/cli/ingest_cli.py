@@ -297,6 +297,15 @@ def run_cmd(
     dry_run: bool = _OPT_DRY_RUN,
     worklist: Path = _OPT_WORKLIST_OUT,
     cost_cap_usd: float = _OPT_FROM_DIFF_COST_CAP,
+    engine: str = typer.Option(
+        None, "--engine", help="With --from-diff: OCR engine passthrough (operated: llm-dots)."
+    ),
+    force: bool = typer.Option(
+        False, "--force", help="With --from-diff: force re-OCR (overwrite status=ok)."
+    ),
+    concurrency: int = typer.Option(
+        None, "--concurrency", help="With --from-diff: OCR concurrency passthrough (operated: 8)."
+    ),
 ) -> None:
     """Promote an approved tranche to the deployed manifest + report next steps.
 
@@ -320,6 +329,9 @@ def run_cmd(
             manifest=manifest,
             worklist=worklist,
             dry_run=dry_run,
+            engine=engine,
+            force=force,
+            concurrency=concurrency,
             cost_cap_usd=cost_cap_usd,
         )
         return

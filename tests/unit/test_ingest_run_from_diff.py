@@ -120,25 +120,71 @@ def _common_args(diff_dir: Path, manifest: Path, snapshot: Path) -> list[str]:
     ]
 
 
-def test_dry_run_prints_worklist_and_runs_no_stage(tmp_path, monkeypatch) -> None:
+def _operated(monkeypatch) -> list[str]:
+    """Set the operated OCR env key + return the operated engine/concurrency flags.
+
+    The --from-diff spend path now enforces preflight_ocr (Codex #101 P2), so a
+    spend test must present the operated config + an ANTHROPIC_API_KEY.
+    """
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    return ["--engine", "llm-dots", "--concurrency", "8"]
+
+
+def test_dry_run_writes_worklist_and_runs_no_stage(tmp_path, monkeypatch) -> None:
     diff_dir = tmp_path / "plans"
     _write_diff(diff_dir, _TRANCHE, _new_content_two_cards())
     snapshot = tmp_path / "snap.json"
     snapshot.write_text("{}", encoding="utf-8")
     manifest = _write_manifest(tmp_path)
+    worklist = tmp_path / "worklist.txt"
     _patch_gate_and_promote(monkeypatch, snapshot)
     seen: dict = {}
     _patch_stage_executors(monkeypatch, seen)
 
     res = runner.invoke(
         ingest_app,
-        [*_common_args(diff_dir, manifest, snapshot), "--from-diff", "--dry-run"],
+        [*_common_args(diff_dir, manifest, snapshot),
+         "--from-diff", "--dry-run", "--worklist", str(worklist)],
     )
     assert res.exit_code == 0, res.output
     assert "newcard1" in res.output
     assert "newcard2" in res.output
-    # No stage may run under --dry-run.
+    # Codex #101 P1: dry-run MATERIALIZES the worklist (credential-free) so a
+    # later separately-invoked OCR step consumes the right card set...
+    assert worklist.exists()
+    written = [
+        ln.strip()
+        for ln in worklist.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    assert written == ["newcard1", "newcard2"]
+    # ...but no stage may run under --dry-run.
     assert seen == {}
+
+
+def test_from_diff_refuses_spend_when_engine_not_operated(tmp_path, monkeypatch) -> None:
+    """Codex #101 P2: a non-dry --from-diff with a retired engine must refuse
+    BEFORE any stage runs (verify-before-spend), even with a key present."""
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, _new_content_two_cards())
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    monkeypatch.delenv("PURSUE_OCR_ENGINE", raising=False)
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot), "--from-diff",
+         "--engine", "tesseract", "--concurrency", "8",
+         "--worklist", str(tmp_path / "wl.txt")],
+    )
+    assert res.exit_code == 1, res.output
+    assert "refusing to spend" in res.output.lower()
+    assert seen == {}  # no download/ocr/embed ran
 
 
 def test_non_dry_writes_worklist_and_runs_scoped_stages(tmp_path, monkeypatch) -> None:
@@ -154,7 +200,8 @@ def test_non_dry_writes_worklist_and_runs_scoped_stages(tmp_path, monkeypatch) -
 
     res = runner.invoke(
         ingest_app,
-        [*_common_args(diff_dir, manifest, snapshot), "--from-diff", "--worklist", str(worklist)],
+        [*_common_args(diff_dir, manifest, snapshot), "--from-diff",
+         *_operated(monkeypatch), "--worklist", str(worklist)],
     )
     assert res.exit_code == 0, res.output
 
@@ -210,7 +257,7 @@ def test_cost_cap_defaults_to_embed_default(tmp_path, monkeypatch) -> None:
     res = runner.invoke(
         ingest_app,
         [*_common_args(diff_dir, manifest, snapshot), "--from-diff",
-         "--worklist", str(tmp_path / "wl.txt")],
+         *_operated(monkeypatch), "--worklist", str(tmp_path / "wl.txt")],
     )
     assert res.exit_code == 0, res.output
     assert seen["embed_cost_cap"] == [embed_cli._OPT_COST_CAP.default]
@@ -231,6 +278,7 @@ def test_cost_cap_override_threads_to_embed(tmp_path, monkeypatch) -> None:
     res = runner.invoke(
         ingest_app,
         [*_common_args(diff_dir, manifest, snapshot), "--from-diff",
+         *_operated(monkeypatch),
          "--worklist", str(tmp_path / "wl.txt"), "--cost-cap-usd", "50"],
     )
     assert res.exit_code == 0, res.output

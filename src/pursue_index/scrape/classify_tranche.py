@@ -73,22 +73,38 @@ def _safe_inline(text: str, *, limit: int = 80) -> str:
     return cleaned[:limit] + "…" if len(cleaned) > limit else cleaned
 
 
-def render_verdict_summary(diff: SnapshotDiffResult) -> str:
+def render_verdict_summary(diff: SnapshotDiffResult, *, tranche: str | None = None) -> str:
     """Render the verdict + counts as operator-facing markdown (T6.4).
 
     Pure formatter (no GitHub / no I/O) so it is unit-testable. The snapshot
     job posts this onto the existing ``tranche-detected`` issue once the diff
-    is ready.
+    is ready. When ``tranche`` (the csv_sha256) is given, appends the actionable
+    ship-tranche footer (work-list size, cost estimate, copy-paste
+    ``/ship-tranche <sha>``) so the alert says WHAT to run, not just the verdict.
     """
     verdict = classify_tranche(diff)
     cols = list(diff.new_columns)
     col_line = f"* new columns: {len(cols)}"
     if cols:
         col_line += " — " + ", ".join(f"`{_safe_inline(c)}`" for c in cols)
-    return (
+    body = (
         f"**Tranche verdict: `{verdict}`**\n\n"
         f"* added: {len(diff.added)}\n"
         f"* removed: {len(diff.removed)}\n"
         f"* field changes: {len(diff.field_changes)}\n"
         f"{col_line}\n"
     )
+    if tranche:
+        from pursue_index.release.ship import build_tranche_ready_summary
+
+        body += "\n" + build_tranche_ready_summary(
+            tranche=tranche,
+            verdict=verdict,
+            added=len(diff.added),
+            removed=len(diff.removed),
+            field_changes=len(diff.field_changes),
+            new_columns=len(cols),
+            scoped_count=len(diff.added),
+            scoped_ids=[getattr(c, "card_id", c) for c in diff.added],
+        )
+    return body

@@ -9,10 +9,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pursue_index import get_logger
+from pursue_index import get_logger, scrape
 from pursue_index.config import settings
-from pursue_index.scrape import fetch_raw_csv, load_manifest, save_manifest
-from pursue_index.scrape import run as scrape_run
 
 log = get_logger(__name__)
 console = Console()
@@ -40,7 +38,7 @@ def scrape_fetch_raw(
 ) -> None:
     """Download the raw CSV without parsing — useful for diagnostics or archiving."""
     settings.ensure_dirs()
-    raw = fetch_raw_csv()
+    raw = scrape.fetch_raw_csv()
 
     if out is None:
         ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
@@ -79,13 +77,13 @@ def scrape_run_cmd(
     out_path = out or (settings.manifests_dir / "latest.json")
 
     if archive_csv:
-        raw = fetch_raw_csv()
+        raw = scrape.fetch_raw_csv()
         ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         archive_path = settings.csv_archive_dir / f"uap-csv-{ts}.csv"
         archive_path.write_bytes(raw)
         log.info("scrape.csv.archived", path=str(archive_path))
 
-    manifest = scrape_run()
+    manifest = scrape.run()
 
     # Rotate the prior latest.json + detect removals BEFORE the new
     # manifest overwrites it. Uses the pydantic model_dump for the diff
@@ -93,7 +91,7 @@ def scrape_run_cmd(
     # JSON bytes — same shape.
     diff = rotate_and_diff(out_path, manifest.model_dump(by_alias=True))
 
-    save_manifest(manifest, out_path)
+    scrape.save_manifest(manifest, out_path)
 
     _print_manifest_summary(manifest)
     console.print(f"\n[green]✔[/green] Manifest written to {out_path}")
@@ -144,6 +142,14 @@ app.add_typer(ops_app)
 from pursue_index.cli.ingest_cli import ingest_app  # noqa: E402
 
 app.add_typer(ingest_app)
+
+
+# ---------------------------------------------------------------------------
+# storage (3-tier durability contract preflight)
+# ---------------------------------------------------------------------------
+from pursue_index.cli.storage_cli import storage_app  # noqa: E402
+
+app.add_typer(storage_app)
 
 
 # ---------------------------------------------------------------------------
@@ -202,7 +208,7 @@ def novelty_compute(
     from pursue_index.novelty.pipeline import compute_novelty
 
     settings.ensure_dirs()
-    load_manifest(manifest)
+    scrape.load_manifest(manifest)
     pursue_embed_dir = _resolve_pursue_embed_dir(model)
     chosen_archive = archive_id or reference.parent.parent.name
     report = compute_novelty(
@@ -233,7 +239,7 @@ def index_ingest(
     """Ingest manifest + OCR output into Postgres."""
     from pursue_index.index.ingest import ingest_all  # lazy import
 
-    m = load_manifest(manifest)
+    m = scrape.load_manifest(manifest)
     ingest_all(m)
 
 

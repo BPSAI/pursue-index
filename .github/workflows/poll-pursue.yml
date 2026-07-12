@@ -504,6 +504,26 @@ jobs:
             echo "No snapshot changes to commit."
           fi
 
+      # ==================================================================
+      # AUTO vs OPERATOR-ATTENDED — the never-again credential boundary.
+      #
+      # What CI auto-does (credential-free, this job): detect the tranche →
+      # generate snapshot + diff → classify verdict → append the RICH
+      # actionable surface (work-list card_ids, card counts, ~$ OCR+embed
+      # estimate, and a copy-paste `/ship-tranche <sha>` block) via
+      # render_verdict_summary(..., tranche=new_sha). This is the "surface
+      # what changed" half of the goal.
+      #
+      # What STAYS operator-attended (never in CI): the spend + the deploy.
+      # The download → OCR (llm-dots/8) → curate clean-qc → embed stages need
+      # Anthropic/Voyage spend credentials + the NAS mount + R2 write keys, and
+      # the deploy is a live push to main. Those run ONLY on the operator's
+      # `/ship-tranche` path (which re-runs preflight_ocr verify-before-spend
+      # and `pursue storage verify`). We deliberately do NOT run the scoped
+      # ingest stages here and do NOT add any spend/deploy credential to this
+      # runner — the snapshot job's credential isolation (see the job header)
+      # is load-bearing. CI scopes + surfaces; the operator spends + ships.
+      # ==================================================================
       - name: Append verdict to tranche-detected issue
         # T6.4: surface the classify_tranche verdict to the operator. The
         # early tranche-detected alert (opened in the poll job) intentionally
