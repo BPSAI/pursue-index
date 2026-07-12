@@ -323,9 +323,11 @@ def test_persist_drops_unaugmented_prior_when_new_row_is_augmented(
     assert len(page2) == 1 and not page2[0].get("augmented", False)
 
 
-def test_persist_preserves_augmented_by_across_runs(tmp_path: Path) -> None:
-    """A subsequent run that doesn't re-pass ``augmented_by`` must not strip a
-    prior index's provenance block (Codex P2 back-compat)."""
+def test_persist_does_not_resurrect_retired_augmented_by(tmp_path: Path) -> None:
+    """After the alex-zhang42 augment retirement (2026-07-12), a subsequent run
+    that doesn't re-pass ``augmented_by`` must NOT inherit the prior index's
+    stale provenance block — it writes none, so the retired dataset can't
+    silently persist across runs."""
     ocr_dir = tmp_path / "ocr"
     out_root = tmp_path / "embeddings"
     _write_card_pages(ocr_dir, "card_aaa", ["page one"])
@@ -347,7 +349,7 @@ def test_persist_preserves_augmented_by_across_runs(tmp_path: Path) -> None:
         ocr_dir=ocr_dir, out_root=out_root, embedder=FakeEmbedder()
     )
     index = json.loads((out_root / "voyage-3" / "index.json").read_text())
-    assert index.get("augmented_by") == augmented_by
+    assert "augmented_by" not in index
 
 
 def test_persist_overrides_augmented_by_when_explicitly_passed(tmp_path: Path) -> None:

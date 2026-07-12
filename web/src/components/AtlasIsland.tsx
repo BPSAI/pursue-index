@@ -56,7 +56,6 @@ interface Layout {
   model_id: string;
   n: number;
   points: AtlasPoint[];
-  augmented_by?: { dataset?: string; revision?: string; sha256?: string };
 }
 
 interface Props {

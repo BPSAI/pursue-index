@@ -154,15 +154,13 @@ def _write_embeddings_with_augmentation(
     (out_dir / "index.json").write_text(json.dumps(payload))
 
 
-def test_build_embed_data_propagates_augmented_by(
+def test_build_embed_data_drops_augmented_by(
     tmp_path: Path,
 ) -> None:
-    """When the source ``index.json`` carries ``augmented_by``, the
-    deployed ``embed_index.json`` must too (vaivora blocker #2).
-
-    Provenance dies in transit if ``_write_index`` strips it; the worker
-    and the cite.astro page rely on this block to identify augmented
-    pages downstream.
+    """After the alex-zhang42 augment retirement (2026-07-12), the deployed
+    ``embed_index.json`` carries NO ``augmented_by`` block even if a legacy
+    source ``index.json`` still has one — the build no longer propagates it,
+    so a stale retired-dataset provenance can't leak into the web payload.
     """
     embeddings_root = tmp_path / "embeddings"
     web_root = tmp_path / "web"
@@ -192,7 +190,7 @@ def test_build_embed_data_propagates_augmented_by(
     idx = json.loads(
         (web_root / "public" / "data" / "embed_index.json").read_text()
     )
-    assert idx["augmented_by"] == augmented_by
+    assert "augmented_by" not in idx
 
 
 def test_build_embed_data_omits_augmented_by_when_source_lacks_it(

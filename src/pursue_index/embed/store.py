@@ -165,24 +165,6 @@ def load_prior_index_rows(index_path: Path) -> list[IndexRow]:
     ]
 
 
-def load_existing_augmented_by(index_path: Path) -> dict[str, str] | None:
-    """Return the prior index's ``augmented_by`` block, or ``None`` if the
-    index doesn't exist or never carried provenance. Used by the pipeline
-    to preserve forensic provenance across subsequent runs that don't
-    re-pass ``--augment-from`` (Codex P2).
-    """
-    if not index_path.exists():
-        return None
-    try:
-        prior = json.loads(index_path.read_text())
-    except json.JSONDecodeError:
-        return None
-    block = prior.get("augmented_by")
-    if not isinstance(block, dict):
-        return None
-    return {str(k): str(v) for k, v in block.items()}
-
-
 def vectors_to_bytes(vectors: list[list[float]]) -> bytes:
     """Serialize [N, D] float32 little-endian, contiguous."""
     flat: list[float] = []
@@ -199,9 +181,10 @@ def write_index(
     *,
     augmented_by: dict[str, str] | None = None,
 ) -> None:
-    """Write the index.json sidecar. ``augmented_by`` is included only
-    when the run injected external context (alex-zhang42 image tags); its
-    presence is the forensic signal that augmentation happened.
+    """Write the index.json sidecar. ``augmented_by`` is included only when a
+    run explicitly passes it (external-context provenance). The alex-zhang42
+    image-tag augmentation that once set it was retired 2026-07-12; runs no
+    longer resurrect a prior index's block, so a plain run writes none.
     """
     payload: dict[str, object] = {
         "model_id": model_id,

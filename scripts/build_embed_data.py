@@ -108,10 +108,6 @@ def _write_index(idx_path: Path, index: dict, kept_rows: list[dict]) -> None:
         "n": len(kept_rows),
         "pages": _compact_pages(kept_rows),
     }
-    # Provenance is end-to-end: preserve ``augmented_by`` from the source
-    # ``index.json`` into the deployed ``embed_index.json`` (vaivora #2).
-    if "augmented_by" in index:
-        payload["augmented_by"] = index["augmented_by"]
     idx_path.write_text(json.dumps(payload))
 
 
