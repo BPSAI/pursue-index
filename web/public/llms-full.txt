@@ -3830,6 +3830,10 @@ FD-1057 (Rev. 5-8-10) OFFICIAL RECORD [REDACTED] Document participants have digi
 - Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D003_Digital-Rendering_Unresolved-UAP-Report_ColoradoSprings_2022.pdf
 - Description: This image is an artistic interpretation of a 2022 incident potentially involving unidentified anomalous phenomena (UAP) reported near Colorado Springs, Colorado. This image is derived from the first-hand narrative description contained in “FBI-UAP-D002, FD-1057, Unresolved UAP Report, Colorado Springs, 2022”.
 
+Excerpt (page 1):
+
+[[IMAGE-OBSERVATIONS via pursue vision pass, claude-opus-4-8]] A wide horizontal color photograph depicting a mountainous landscape under a clear blue sky that gradates from darker blue at the top to lighter blue near the horizon. A large mountain ridge with rocky, forested slopes in shades of brown, gray, and dark green dominates the middle and left portions of the image. At the base of the mountains lies a valley containing a spread-out low-rise development of buildings, houses, and structures
+
 ### fb116547cbbf33d4 — FBI-UAP-D004, FD-1057-02, Northeastern United States, 2024
 
 - Agency: FBI

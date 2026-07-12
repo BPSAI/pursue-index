@@ -1,0 +1,56 @@
+{
+ "card_id": "464f81c988dcee9e",
+ "title": "FBI-UAP-D003, Digital Rendering, Unresolved UAP Report, Colorado Springs, 2022",
+ "schema_version": 1,
+ "operator": "primary",
+ "decided_at": "2026-07-12T00:00:00+00:00",
+ "session_id": "image-only-gap-2026-07-12",
+ "prior_pass": null,
+ "our_pass": {
+  "model": "claude-opus-4-8",
+  "method": "direct-vision-examination-via-claude-code",
+  "context": "pre-existing-image-only-gap-outside-zhang-residual",
+  "page_render": "source PDF on NAS via pdftoppm -r 150"
+ },
+ "provenance_note": "Genuinely image-only page: zero base OCR under the llm engine. This page was NEVER part of the alex-zhang42 augment corpus (a separate, pre-existing image-only gap surfaced during the Zhang retirement); this operator-reviewed vision pass supplies the page's only searchable description.",
+ "pages": [
+  {
+   "page": 1,
+   "image_type": "Digital rendering / photo composite of landscape",
+   "description": "A wide horizontal color photograph depicting a mountainous landscape under a clear blue sky that gradates from darker blue at the top to lighter blue near the horizon. A large mountain ridge with rocky, forested slopes in shades of brown, gray, and dark green dominates the middle and left portions of the image. At the base of the mountains lies a valley containing a spread-out low-rise development of buildings, houses, and structures in white, tan, and gray tones, interspersed with green trees and vegetation. In the foreground is a grassy area with green and yellowish vegetation, a metal guardrail running horizontally across the lower portion, and a paved gray road or surface at the very bottom. Superimposed in the upper-center-right area of the sky is a white, rounded, lens-shaped or pebble-like object with a faceted or cellular textured surface, appearing digitally added and floating above the mountain. No text is visible anywhere in the image.",
+   "visible_text": "",
+   "observations": [
+    {
+     "claim": "The image shows a mountain range with rocky and forested slopes",
+     "kind": "observation",
+     "confidence": "high"
+    },
+    {
+     "claim": "A low-rise urban or suburban development spreads across the valley at the base of the mountains",
+     "kind": "observation",
+     "confidence": "high"
+    },
+    {
+     "claim": "A metal guardrail and paved surface appear in the foreground",
+     "kind": "observation",
+     "confidence": "high"
+    },
+    {
+     "claim": "A white rounded faceted object is superimposed in the sky and appears digitally composited",
+     "kind": "observation",
+     "confidence": "high"
+    },
+    {
+     "claim": "The sky is clear blue with a gradient from dark to light",
+     "kind": "observation",
+     "confidence": "high"
+    },
+    {
+     "claim": "No legible text or markings are present",
+     "kind": "observation",
+     "confidence": "high"
+    }
+   ]
+  }
+ ]
+}
