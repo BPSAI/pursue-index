@@ -51,19 +51,30 @@ $ARGUMENTS
    NOT rewrite the worklist — step 4's dry-run already wrote it for this tranche.
 6. **OCR (the spend):** `pursue ocr run --manifest data/manifests/latest.json --worklist data/ingest-worklist.txt --engine llm-dots --concurrency 8 --force`.
    **Read the first log lines and confirm `engine=llm-dots` / `model=claude-sonnet-4-6` — kill immediately on `auto`/`tesseract`.**
-7. **curate QC:** in `../pursue-curate`, `curate clean-qc run --cards <worklist ids>` then `curate publish clean-qc --version <N>` (reads OCR off the shared `PURSUE_DATA_ROOT` NAS). QC/methodology bundle — this is a real operated stage, not optional.
-8. **Embed:** `pursue embed run --manifest data/manifests/latest.json --worklist data/ingest-worklist.txt` (voyage-3, re-embeds changed pages).
-9. **Ship-ready gate:** `make ship-ready`. Confirm astro built (~pages) and `cd web && npm run test` = 18/0. (Note: `make test` runs pytest under the .venv only if activated — validate the web tests explicitly.)
-10. **HUMAN GATE #2 — deploy.** Show the diff + build/test results. On "yes":
+7. **PDF r2-mirror + verify (before clean-qc):** the curate clean-qc judge
+   renders page images from the NAS-local `r2-mirror/archive/<pdf_sha256>.pdf`.
+   A normal ingest uploads PDFs to R2 but does NOT stage that local copy (the
+   Release-4 gap → silent `missing_page_image`). Stage them, then gate:
+   ```
+   pursue storage mirror-pdfs  --worklist data/ingest-worklist.txt   # idempotent, sha-verified copy
+   pursue storage verify-mirror --worklist data/ingest-worklist.txt  # fail-fast; exits non-zero if any missing
+   ```
+   `mirror-pdfs` is a no-op for already-mirrored cards. If `verify-mirror`
+   fails, STOP — do not run clean-qc until every in-scope PDF card resolves its
+   `r2-mirror/archive/<sha>.pdf`, or the judge produces silent misses.
+8. **curate QC:** in `../pursue-curate`, `curate clean-qc run --cards <worklist ids>` then `curate publish clean-qc --version <N>` (reads OCR off the shared `PURSUE_DATA_ROOT` NAS). QC/methodology bundle — this is a real operated stage, not optional.
+9. **Embed:** `pursue embed run --manifest data/manifests/latest.json --worklist data/ingest-worklist.txt` (voyage-3, re-embeds changed pages).
+10. **Ship-ready gate:** `make ship-ready`. Confirm astro built (~pages) and `cd web && npm run test` = 18/0. (Note: `make test` runs pytest under the .venv only if activated — validate the web tests explicitly.)
+11. **HUMAN GATE #2 — deploy.** Show the diff + build/test results. On "yes":
     commit + `git push origin main`. The push IS the deploy (native CF Workers
     Builds) and auto-fires close-tranche, registry-root, post-deploy-verify, indexnow.
     Then purge/confirm the live card count (edge cache may lag).
-11. **Finds + tag:** fan out finds reviewers over the new cards → publish quote-verified,
+12. **Finds + tag:** fan out finds reviewers over the new cards → publish quote-verified,
     cross-linked `/finds` (astro build re-validates every `<Cite>`), then
     `git tag vX.Y.Z && gh release create vX.Y.Z --latest` (both — a tag alone is not the release).
-12. **Record:** update `pursue-opsec-staging/.paircoder/context/state.md` + write the finds digest.
+13. **Record:** update `pursue-opsec-staging/.paircoder/context/state.md` + write the finds digest.
 
 ## Gates (MANDATORY)
-- **Approval** (step 3) and **deploy** (step 10) require explicit human "yes" — these are the spend and the outward-facing, hard-to-reverse actions.
+- **Approval** (step 3) and **deploy** (step 11) require explicit human "yes" — these are the spend and the outward-facing, hard-to-reverse actions.
 - **Never** move the OCR/embed spend or CF deploy into CI — the poll workflow's credential isolation is load-bearing.
 - If running headless with no human to approve, STOP after step 4 and report.

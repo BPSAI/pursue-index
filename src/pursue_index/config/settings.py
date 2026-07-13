@@ -117,6 +117,12 @@ class Settings(BaseSettings):
         """Root of per-model embedding outputs. Sibling of ``ocr_dir``."""
         return self.data_root / "embeddings"
 
+    @property
+    def r2_mirror_dir(self) -> Path:
+        """NAS-local mirror of the R2 ``archive/`` prefix. The curate clean-qc
+        judge renders page images from ``r2_mirror_dir/archive/<sha>.<ext>``."""
+        return self.data_root / "r2-mirror"
+
     def ensure_dirs(self) -> None:
         for d in (
             self.manifests_dir,
