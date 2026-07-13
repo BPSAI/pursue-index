@@ -1,5 +1,13 @@
 """Join the alex-zhang42 VLM corpus to our scrape manifest by card_id.
 
+.. deprecated:: 2026-07-11
+    RETIRED. The alex-zhang42 augment corpus is no longer part of the operated
+    retrieval pipeline (replaced by our own Opus-4.8 image-observations vision
+    pass; ``--augment-from`` stripped from ``pursue embed run``). This joiner is
+    retained for historical reproducibility only — do NOT re-enable it in the
+    embed path.
+
+
 The dataset (`alex-zhang42/ufo-pursue-open-atlas`) ships per-page records
 with a ``source_url`` field that mirrors war.gov's PDF URL. Our scrape
 stage hashes ``asset_url`` (or ``title`` as fallback) into a 16-hex

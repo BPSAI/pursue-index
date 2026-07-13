@@ -1,8 +1,15 @@
 # OCR benchmark — 2026-05-09
 
-> _Note: the corpus has grown to 4,161 pages since this run via the_
-> _2026-05-12 replacement-card pipeline; the engine choice and per-page_
-> _economics scale linearly. See state.md for current counts._
+> ⚠️ **RETIRED LAUNCH-BASELINE — NOT the operated engine.** This 2026-05-09
+> bake-off (Tesseract / Surya / Anthropic Haiku-4.5) recommended an
+> `auto:surya+llm-anthropic` default. That recommendation is **superseded**.
+> The operated engine is **`llm-dots`** — Claude Sonnet 4.6 vision per page +
+> local `dots.mocr` as the content-filter (HTTP 400) backstop, concurrency 8.
+> **Tesseract, Surya, and `auto` are retired.** Kept for historical economics
+> only; do not read the "recommended default" lines below as current guidance.
+
+> _Note: the corpus has grown well past this run (see state.md for current_
+> _counts); the per-page economics scale linearly._
 
 > Methodology: 5 cards × first 5 pages × 3 engines (Tesseract, Surya, Anthropic
 > Haiku-4.5 vision). The LLM transcription is used as the assumed-correct
@@ -263,16 +270,19 @@ Extrapolating to the full 4153-page corpus:
 - At Haiku-4.5 (~$0.0041/page): **~$1.36 total**
 - At Sonnet-4.6 (~13× Haiku per-token blend): ~$17.67
 
-**Auto-mode is worth running on the full corpus** — at Haiku rates it's well
-under a dollar, fits the LLM budget, and the lift on the worst pages is real.
+**Auto-mode was worth running on the full corpus** at launch — at Haiku rates
+it's well under a dollar, fits the LLM budget, and the lift on the worst pages
+is real. _(Historical: the operated engine is now `llm-dots`; see the banner._
+_at the top of this file.)_
 The pages Surya struggles with on this corpus aren't redacted text (it reads
 around the bars cleanly) — they're heavily-faded carbon-copy pages where Surya
 sometimes hallucinates plausible-but-wrong text instead of staying silent
 (see card `13f86e95aed52840` page 3 in the per-card detail below: the LLM
 correctly emits `[ILLEGIBLE]`, Surya emits a coherent-looking string that
 isn't on the page). The auto-mode threshold of 70 catches those (Surya
-self-rated low when in trouble) and the LLM cleans them up. The
-`auto:surya+llm-anthropic` engine is the recommended default.
+self-rated low when in trouble) and the LLM cleans them up. _(At launch the
+`auto:surya+llm-anthropic` engine was the recommended default; it is now_
+_retired in favour of `llm-dots` — see the banner at the top of this file.)_
 
 **One nuance:** the LLM's self-reported confidence on the golden set
 (76.8) is *lower* than Surya's (85.3). That's

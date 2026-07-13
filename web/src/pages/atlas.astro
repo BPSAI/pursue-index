@@ -3,9 +3,11 @@ import Base from "../layouts/Base.astro";
 import AtlasIsland from "../components/AtlasIsland.tsx";
 import AtlasAccessibleBrowser from "../components/AtlasAccessibleBrowser.tsx";
 import { cards, summary } from "../data/manifest-loader";
+import { RELEASE, formatPageCount } from "../lib/release";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const s = summary();
+const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
 
 // Build the canvas long-summary string from the same manifest-derived
 // agency counts the visualization itself colors by. Renders inside
@@ -18,7 +20,7 @@ const canvasLongSummary = `2D semantic projection of ${s.total.toLocaleString()}
 
 <Base
   title="ATLAS — PURSUE://INDEX"
-  description="2D semantic browser of 4,127 OCR'd pages from the DOW PURSUE UAP releases. UMAP projection of voyage-3 embeddings; click any dot to open the source page."
+  description={`2D semantic browser of ${ocrPageCountLabel} OCR'd pages from the DOW PURSUE UAP releases. UMAP projection of voyage-3 embeddings; click any dot to open the source page.`}
   active="atlas"
 >
   <div class="space-y-6">

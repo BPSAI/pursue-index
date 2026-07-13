@@ -299,7 +299,16 @@ export function formatOcrEngineLabel(counts: Record<string, number>): string {
 }
 
 export const RELEASE: ReleaseConst = {
-  // Bumped manually per release. v1.4.0 — Release 3 (6/12/26): 72 new
+  // Bumped manually per release. v1.5.0 — Release 4 (7/10/26): 334-card
+  // corpus, 8 finds live. A/V self-served from our R2 (116 cards); 11 NASA
+  // audio cards transcribed (AssemblyAI). alex-zhang42 augment corpus RETIRED
+  // — replaced by our own Opus-4.8 image-observations vision pass on residual
+  // image-only pages. OCR engine = llm-dots (Sonnet 4.6 + local dots.mocr,
+  // concurrency 8). never-again turnkey shipped (/ship-tranche + preflight_ocr
+  // + storage contract + poll auto-surface). clean-qc bundle refreshed to 136
+  // cards. PDF r2-mirror gap closed. Sonnet 5 migration deferred (needs bench).
+  //
+  // v1.4.0 — Release 3 (6/12/26): 72 new
   // cards, corpus 222 -> 294 (CIA 18, DoW 12, FBI 29, NASA 11, ICA 1,
   // USG 1), incl. the first FBI orb videos + NASA Apollo audio. First
   // full poll -> ingest pipeline run end-to-end. Also: data-driven OCR-
@@ -311,7 +320,7 @@ export const RELEASE: ReleaseConst = {
   // cards): listing at /altered/, per-card byte-history timelines, operator
   // commentary. Plan: pursue-opsec/findings/2026-05-27-altered-surface-
   // un-retirement-and-verdict-vocabulary.md.
-  version: "v1.4.0",
+  version: "v1.5.0",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),
   cardCount: manifest.cards.length,

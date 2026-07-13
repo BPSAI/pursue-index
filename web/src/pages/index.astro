@@ -98,8 +98,8 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
       <div class="mt-6 sm:mt-8 mx-auto w-full sm:max-w-2xl lg:max-w-3xl">
         {/* Sprint 2 perf-pass: the homepage hero used to mount the full
             SearchIsland with `client:load`, which fetched the 7.1 MB
-            pages.json + built a MiniSearch index of ~4,127 docs on
-            EVERY homepage visit — the LCP-path asset in APAC, the
+            pages.json + built a MiniSearch index of the full page
+            corpus on EVERY homepage visit — the LCP-path asset in APAC, the
             dominant TBT contributor. Replaced with a shortcut input
             that redirects to /search?q=… and lets that route pay
             hydration honestly. `client:idle` because the input itself

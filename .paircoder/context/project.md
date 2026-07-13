@@ -16,12 +16,17 @@ source CSV.
 ## Pipeline
 
 ```
-scrape  →  download  →  ocr  →  embed  →  serve
-  │           │          │       │         │
-  manifest    PDFs/IMGs  text    voyage    static site +
-  (JSON,      (NAS, CAS) .jsonl  float16   Cloudflare Worker
-  hash-pinned)           (NAS)   payload   (RAG chat backend)
+scrape  →  download  →  ocr  →  clean-qc  →  embed  →  serve
+  │           │          │         │          │         │
+  manifest    PDFs/IMGs  text    LLM-judge   voyage    static site +
+  (JSON,      /A-V       .jsonl  QC pass     float16   Cloudflare Worker
+  hash-pinned)(NAS,CAS)  (NAS)   (curate)    payload   (RAG chat backend)
 ```
+
+AUD (audio) cards branch off `ocr` into an AssemblyAI transcription path;
+A/V is self-served from our R2 (DVIDS is the cited provenance source, not
+the playback path). `clean-qc` is the operator-attended LLM-judge QC stage
+run in pursue-curate over freshly-OCR'd pages before embed/publish.
 
 Each stage is independently runnable via the `pursue` CLI and idempotent
 against a content-hashed manifest. Re-running on an unchanged manifest is

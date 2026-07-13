@@ -1,5 +1,13 @@
 """Rebuild ``data/external/alex-zhang42-corpus.jsonl`` from the upstream HF parquet.
 
+.. deprecated:: 2026-07-11
+    RETIRED. The alex-zhang42 augment corpus is no longer part of the operated
+    pipeline — it was replaced by our own Opus-4.8 image-observations vision
+    pass over residual image-only pages, and ``--augment-from`` was stripped
+    from ``pursue embed run``. This script is kept for historical
+    reproducibility only; do NOT wire its output back into the embed index.
+
+
 Requires ``huggingface_hub`` and ``pyarrow`` (not core deps; install with
 ``pip install huggingface_hub pyarrow`` before running).
 

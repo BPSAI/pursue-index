@@ -52,11 +52,11 @@ def ocr_run(
     engine: str = typer.Option(
         None,
         "--engine",
-        help="OCR engine: 'tesseract' (CPU), 'surya' (GPU), 'llm' "
-        "(Anthropic vision), 'dots' (local dots.mocr backstop, no content "
-        "filter — needs PURSUE_DOTS_PYTHON), 'llm-dots' (llm primary + per-page "
-        "dots fallback on a content-filter 400), or 'auto' (primary + LLM "
-        "fallback for low-confidence pages). Defaults to PURSUE_OCR_ENGINE.",
+        help="OCR engine. Operated: 'llm-dots' (Sonnet 4.6 vision primary + "
+        "per-page local dots.mocr fallback on a content-filter 400 — needs "
+        "PURSUE_DOTS_PYTHON). Also selectable: 'dots' (dots.mocr alone), 'llm' "
+        "(Anthropic vision alone). Retired (do not use): 'tesseract', 'surya', "
+        "'auto'. Defaults to PURSUE_OCR_ENGINE (llm-dots).",
     ),
     force: bool = typer.Option(
         False,
@@ -67,7 +67,7 @@ def ocr_run(
     concurrency: int = typer.Option(
         None,
         "--concurrency",
-        help="Override card-level concurrency. LLM/auto default to 4 "
+        help="Override card-level concurrency. llm-dots defaults to 8 "
         "(or PURSUE_OCR_LLM_CONCURRENCY env var). Set 1 to force serial.",
     ),
     worklist: Path = _OPT_WORKLIST,

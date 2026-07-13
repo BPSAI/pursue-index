@@ -108,7 +108,7 @@ The CSV URL is stable; DOW updates the file in place when new tranches drop.
 pursue scrape run                          # writes data/manifests/latest.json + archives raw CSV
 pursue download run --manifest data/manifests/latest.json
 pursue ocr run --manifest data/manifests/latest.json --engine llm-dots
-pursue embed run --manifest data/manifests/latest.json --augment-from data/external/alex-zhang42-corpus.jsonl
+pursue embed run --manifest data/manifests/latest.json
 ```
 
 Each stage skips work it's already done for unchanged `card_id`s. The CSV archive (`data/raw/csv/<sha>.csv`, content-addressed and committed) gives us a forensic trail of how the source has evolved over time, independent of the manifests we generate.
@@ -126,7 +126,7 @@ will reference deduped rows that don't exist in the deployed payload.
 | # | Script                              | Reads                                                | Writes                                            |
 |---|-------------------------------------|------------------------------------------------------|---------------------------------------------------|
 | 1 | `pursue embed run`                  | OCR pages + manifest                                 | `{embeddings_root}/{model}/{vectors.bin,index.json}` |
-| 2 | `scripts/build_search_data.py`      | OCR + augment lookup                                 | `web/public/data/pages.json`                      |
+| 2 | `scripts/build_search_data.py`      | OCR pages                                            | `web/public/data/pages.json`                      |
 | 3 | `scripts/build_embed_data.py`       | embed root                                           | `web/public/data/{embeddings.bin,embed_index.json}` (float16) |
 | 4 | `scripts/build_atlas_layout.py`     | embed root (float32) **or** deployed payload (float16) | `web/public/data/atlas-layout.json`               |
 | 5 | `scripts/build_novelty_data.py`     | embed root + reference index                         | `web/public/data/novelty.json`                    |
