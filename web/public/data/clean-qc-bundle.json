@@ -222,10 +222,6 @@
       "page_count": 178
     },
     {
-      "card_id": "80e36017873c19a1",
-      "page_count": 6
-    },
-    {
       "card_id": "8156067f7ff4b983",
       "page_count": 4
     },
@@ -320,10 +316,6 @@
     {
       "card_id": "a417f61b2dbd671f",
       "page_count": 1
-    },
-    {
-      "card_id": "aa3097b4c549a67a",
-      "page_count": 6
     },
     {
       "card_id": "aaafecbc47103f4b",
@@ -496,21 +488,77 @@
     {
       "card_id": "ff30c985595153f3",
       "page_count": 5
+    },
+    {
+      "card_id": "81a3947abfb387af",
+      "page_count": 25
+    },
+    {
+      "card_id": "b0fa7140b0776b42",
+      "page_count": 34
+    },
+    {
+      "card_id": "051a07582a23df10",
+      "page_count": 45
+    },
+    {
+      "card_id": "2b98fd7cde9b31bc",
+      "page_count": 3
+    },
+    {
+      "card_id": "e277f0b4d0fa62b9",
+      "page_count": 4
+    },
+    {
+      "card_id": "7e0b4624ee81788e",
+      "page_count": 7
+    },
+    {
+      "card_id": "042b3e178a68a19c",
+      "page_count": 2
+    },
+    {
+      "card_id": "02fa613f21662149",
+      "page_count": 2
+    },
+    {
+      "card_id": "24f4178ed9082f2c",
+      "page_count": 2
+    },
+    {
+      "card_id": "8c22358135a85824",
+      "page_count": 85
+    },
+    {
+      "card_id": "213ab63a7aefa8fd",
+      "page_count": 67
+    },
+    {
+      "card_id": "92b2d78bb19ee094",
+      "page_count": 57
+    },
+    {
+      "card_id": "1c2287cdf770e344",
+      "page_count": 220
+    },
+    {
+      "card_id": "fab845f51c10fdc0",
+      "page_count": 5
     }
   ],
-  "generated_at": "2026-06-06T13:56:42+00:00",
+  "generated_at": "2026-07-13T14:00:44+00:00",
   "judge_model": "claude-sonnet-4-6",
   "runner_version": "0.2.0",
   "stats": {
-    "baseline_cost_usd": 102.936,
-    "est_total_cost_usd": 73.492197,
-    "judge_calls": 4198,
-    "judge_ok": 2076,
+    "baseline_cost_usd": 116.04,
+    "est_total_cost_usd": 82.463793,
+    "judge_calls": 4739,
+    "judge_ok": 2360,
     "no_corrections": 0,
-    "operator_review": 2213,
+    "operator_review": 2475,
     "rule_applied": 0,
     "savings_pct": 29,
-    "savings_usd": 29.443803000000003,
-    "total_pages": 4289
+    "savings_usd": 33.57620700000001,
+    "total_pages": 4835
   }
 }
