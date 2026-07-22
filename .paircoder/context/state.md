@@ -15,7 +15,7 @@ Public site live at <https://pursueindex.com> (Cloudflare Workers + Static
 Assets). Repo is public: `BPSAI/pursue-index`, Apache-2.0. **v1.5.0 shipped.**
 
 **Corpus / releases**
-- **Release 4 ingested and live — 334 cards.** 8 curated `/finds` entries live.
+- **Release 4 ingested and live — 334 cards.** 37 curated `/finds` entries live.
 - **A/V self-served from our R2** (116 A/V cards). DVIDS is the cited provenance
   source, **not** the playback path — the old DVIDS iframe/embed is retired.
 - **11 NASA audio (AUD) cards transcribed** via AssemblyAI and searchable
@@ -56,33 +56,16 @@ content-hashed manifest (`card_id = sha256(asset_url || title)[:16]`).
 
 ## What's Next
 
-### Active
-- _Nothing in flight._ R4 shipped and live; turnkey ship path deployed.
+**Forward planning is orchestrated from opsec.** All open work for this repo is
+tracked (tiered, prioritized) in the master fleet backlog:
+`~/projects/pursue/pursue-opsec-staging/plans/backlogs/BACKLOG.md`. Do not
+maintain a separate ranked backlog here — it drifts.
 
-### Open work (this repo, ranked)
-- **P1 — plans/ housekeeping follow-through.** Shipped/superseded plans archived
-  under `.paircoder/plans/archive/`; tranche-diff run artifacts moved to
-  `data/tranche-diffs/`. (Done in this pass — see below.)
-- **P2 — Black Vault reference corpus** (`plans/black-vault-reference.md`).
-  Novelty detection still runs on the 10-passage synthetic placeholder; replace
-  with a real FOIA prior-disclosure archive. Refresh the plan's Surya-era cost
-  model first (engine is now llm-dots).
-- **P2 — Incidents map clustering** (`plans/incidents-map-clustering.md`).
-  Geographic density visualization; never built. Depends on display-date
-  phase-4 for era-slicing.
-- **P2 — Display-date phase 4** (`plans/display-date-curation.md`). Operator
-  review of ~156 agent-proposed display dates (~45-75 min). Phases 1-3 shipped;
-  `/timeline` is live. Unblocks the map's era-slicing.
-- **P2 — `/altered` facts-only rebuild.** The old per-card OCR-diff surface was
-  retired (v1.2.2); a facts-only byte-history listing is the correctly-scoped
-  successor. Check the orphan `web/src/pages/altered/[card_id].astro` still on
-  disk. (See archive entry 2026-05-27 v1.2.6.)
-
-### Operator / flagged
-- **`src/pursue_index/index/models.py:84`** — the optional forensic-ingest
-  Postgres `cards.ocr_engine` column still defaults to `"tesseract"`. Off the
-  deployed read path; changing it is a schema-default/migration decision left
-  for the operator.
+Detailed technical plans for this repo's open items stay in-repo (code cites
+them by path) and are linked from `BACKLOG.md`:
+- `.paircoder/plans/black-vault-reference.md` — novelty reference corpus (T1.1)
+- `.paircoder/plans/display-date-curation.md` — display-date phase 4 (T3.2)
+- `.paircoder/plans/incidents-map-clustering.md` — `/map` surface (T3.3)
 
 ## Known dark code
 
