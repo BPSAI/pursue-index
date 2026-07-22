@@ -10,9 +10,6 @@
  *   resolveAliases                     — card-aliases.json → terminal-id resolver
  *   diffWithAliases                    — rename-aware add/remove/renamed grouping
  *   fieldOnlyChanges                   — cards present in both snapshots with diff'd fields
- *
- * See ``.paircoder/plans/diff-page-arbitrary-pair-selection.md`` for
- * the broader UX context.
  */
 
 import type { AliasEntry, CardMetadata } from "../data/types.ts";

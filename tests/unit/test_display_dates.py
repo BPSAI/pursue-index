@@ -5,8 +5,7 @@ date entries per card_id. After CSV parsing, ``merge_display_dates``
 applies the overlay to the parsed cards, preserving the original CSV
 incident_date in ``manifest_incident_date_raw`` for audit.
 
-Schema per row (mirrors the plan in
-``.paircoder/plans/display-date-curation.md``):
+Schema per row:
 
   card_id                          : str   — required
   display_date                     : str | null  — YYYY-MM-DD or YYYY

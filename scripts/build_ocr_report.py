@@ -253,8 +253,7 @@ def _build_md(bench, results, snapshot, surya_snapshot, agg, worst, bench_path):
 
 > Methodology: 5 cards × first 5 pages × 3 engines (Tesseract, Surya, Anthropic
 > Haiku-4.5 vision). The LLM transcription is used as the assumed-correct
-> truth proxy per `.paircoder/plans/ocr-benchmark.md`'s open question on
-> truth-set transcription; CER/WER for Tesseract and Surya are scored against
+> truth proxy for truth-set transcription;CER/WER for Tesseract and Surya are scored against
 > it. Comparing the LLM engine's output against itself is meaningless and we
 > don't try. Full per-page detail in [`{rel}`](../{rel}).
 

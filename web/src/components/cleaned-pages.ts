@@ -1,8 +1,7 @@
 /**
  * Pure helpers for the `Cleaned` reader-mode overlay.
  *
- * Loads + filters the lazily-fetched `web/public/data/pages-cleaned.json`
- * (Option C in `.paircoder/plans/llm-cleaned-reading-text.md`) to the
+ * Loads + filters the lazily-fetched `web/public/data/pages-cleaned.json` to the
  * pages relevant to the active card. Idempotent + side-effect-free so it
  * can be unit-tested without `fetch`.
  *

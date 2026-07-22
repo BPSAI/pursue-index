@@ -7,7 +7,7 @@ new card_id into one of three classes, and emits a structured report
 for operator approval before `pursue ingest run` promotes the new
 tranche into the deployed corpus state.
 
-The three classes (per `.paircoder/plans/card-rename-handling.md`):
+The three classes:
 
   * Class A — confirmed rename. New `(asset_url, title)` produces a
     new card_id, but the fetched bytes hash to a byte_sha256 already

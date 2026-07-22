@@ -2,8 +2,7 @@ import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 
 // /finds — curated reading guides authored from specific cards/pages.
-// See .paircoder/plans/curated-finds.md for the editorial standards
-// these entries must meet before publish.
+// Entries must meet the /finds editorial standards before publish.
 const finds = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/finds" }),
   schema: z.object({

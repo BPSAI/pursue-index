@@ -1,7 +1,6 @@
 """Writer agent that drafts curated ``display_date`` proposals per card.
 
-Phase 2 of the display-date-curation plan
-(`.paircoder/plans/display-date-curation.md`). Reads the current
+Reads the current
 manifest + OCR pages.json, sends each card to Sonnet 4.6 with an
 editorial-bar prompt that REQUIRES cited evidence, and writes
 proposals to ``data/display_dates_proposals.jsonl`` for the operator

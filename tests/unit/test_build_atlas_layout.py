@@ -3,8 +3,7 @@
 The script reads the native embedding root (float32 ``vectors.bin`` +
 ``index.json``), runs UMAP for a 2D projection, joins agency from the
 manifest by ``card_id``, and writes
-``web/public/data/atlas-layout.json``. The shape is documented in
-``.paircoder/plans/semantic-browser.md``.
+``web/public/data/atlas-layout.json``.
 """
 
 from __future__ import annotations

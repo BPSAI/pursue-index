@@ -56,8 +56,7 @@ export const DISCLOSURE_TONE: Record<
  * synthetic placeholder, NOT a real prior-disclosure archive. When
  * Black Vault integration lands, callers can swap this constant (or
  * pass `archiveId` to `disclosurePillLabel`) to update every chip on
- * the site in one place. See `.paircoder/plans/black-vault-reference.md`
- * for the integration plan.
+ * the site in one place.
  */
 export const CORPUS_QUALIFIER = "(against preview corpus)";
 
