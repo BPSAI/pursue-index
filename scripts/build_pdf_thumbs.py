@@ -1,7 +1,6 @@
 """Render page 1 of each PDF in the manifest to a WebP thumbnail.
 
-Pipeline for the Gallery Phase 2 unlock (.paircoder/plans/visual-
-browse-surface.md, T?.5). Each PDF card gets a tile in the gallery
+Pipeline for the Gallery Phase 2 unlock. Each PDF card gets a tile in the gallery
 DOCUMENTS tab; the tile shows the first page of the document.
 
 Strategy:

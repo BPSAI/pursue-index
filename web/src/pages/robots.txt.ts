@@ -3,9 +3,8 @@
  *
  * Replaces the static `web/public/robots.txt` with a generated body
  * that names every AI crawler explicitly. Content generation lives in
- * `../lib/robots.ts` so it can be unit-tested. See
- * `.paircoder/plans/sprint-roadmap-2026-05-16.md` for the policy
- * (explicit AI-bot allowlist) this implements.
+ * `../lib/robots.ts` so it can be unit-tested. Implements the explicit
+ * AI-bot allowlist policy.
  */
 
 import type { APIRoute } from "astro";
