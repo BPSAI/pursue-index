@@ -3,13 +3,14 @@
 > **This file is generated. Do not edit by hand.**
 > Regenerate with: `python tools/cli/scripts/generate_cli_reference.py`
 > Source of truth: the installed `bpsai-pair` Typer app (`bpsai_pair.cli:app`)
-> bpsai-pair 2.30.0 | 266 commands across 47 groups
+> bpsai-pair 2.35.2 | 284 commands across 48 groups
 
 ---
 
 ## Contents
 
 - [Top-Level Commands](#top-level-commands)
+- [Advisory Commands](#advisory-commands)
 - [Arch Commands](#arch-commands)
 - [Audit Commands](#audit-commands)
 - [Benchmark Commands](#benchmark-commands)
@@ -63,19 +64,20 @@
 
 | Group | Commands |
 |-------|----------|
-| Top-Level | 15 |
-| Arch | 7 |
+| Top-Level | 17 |
+| Advisory | 1 |
+| Arch | 9 |
 | Audit | 3 |
 | Benchmark | 6 |
 | Budget | 4 |
 | Cache | 3 |
-| Calibration | 2 |
+| Calibration | 3 |
 | Compaction | 5 |
-| Config | 6 |
+| Config | 7 |
 | Containment | 4 |
 | Enforce | 3 |
 | Feedback | 4 |
-| Fleet | 2 |
+| Fleet | 3 |
 | Gaps | 4 |
 | Github | 8 |
 | Intent | 3 |
@@ -84,13 +86,13 @@
 | Metrics | 9 |
 | Migrate | 1 |
 | Orchestrate | 8 |
-| Plan | 10 |
-| PM | 19 |
+| Plan | 12 |
+| PM | 20 |
 | Preset | 3 |
 | QA | 4 |
 | QC | 4 |
 | Query | 6 |
-| Release | 6 |
+| Release | 9 |
 | Review | 5 |
 | Security | 4 |
 | Session | 3 |
@@ -103,14 +105,14 @@
 | Subscription | 2 |
 | Support | 4 |
 | System | 1 |
-| Task | 13 |
-| Telemetry | 8 |
+| Task | 14 |
+| Telemetry | 10 |
 | Template | 2 |
 | Timer | 5 |
 | Trello | 18 |
 | Ttask | 9 |
-| Workspace | 9 |
-| **Total** | **266** |
+| Workspace | 10 |
+| **Total** | **284** |
 
 ---
 
@@ -122,9 +124,9 @@
 | `contained-auto [task] --skip-checkpoint --yes --channels` | Start a contained autonomous session. | `--skip-checkpoint`, `--yes`, `--channels` |
 | `context-sync --overall --last --next --blockers --json --auto --quiet` | Update the Context Loop in /context/state.md. | `--overall`, `--last`, `--next`, `--blockers`, `--json`, `--auto`, `--quiet` |
 | `doctor --json --fix` | Run holistic health check on your PairCoder environment. | `--json`, `--fix` |
-| `engage [backlog] --sprint --dry-run --json --max-parallel --skip-planning --resume --resume-run --create-branch --branch --preserve-failed-branch --provider --strict-targets` | Parse a backlog and autonomously execute the sprint. | `--sprint`, `--dry-run`, `--json`, `--max-parallel`, `--skip-planning`, `--resume`, `--resume-run`, `--create-branch`, `--branch`, `--preserve-failed-branch`, `--provider`, `--strict-targets` |
+| `engage [backlog] --sprint --dry-run --json --max-parallel --skip-planning --resume --resume-run --create-branch --branch --reuse-branch --preserve-failed-branch --provider --strict-targets --target-repo --reason --no-worktree` | Parse a backlog and autonomously execute the sprint. | `--sprint`, `--dry-run`, `--json`, `--max-parallel`, `--skip-planning`, `--resume`, `--resume-run`, `--create-branch`, `--branch`, `--reuse-branch`, `--preserve-failed-branch`, `--provider`, `--strict-targets`, `--target-repo`, `--reason`, `--no-worktree` |
 | `feature <name> --primary --phase --force --type` | Create feature branch and scaffold context (cross-platform). | `--primary`, `--phase`, `--force`, `--type` |
-| `init [template] --interactive --preset --name --goal` | Initialize repo with governance, context, prompts, scripts, and workflows. | `--interactive`, `--preset`, `--name`, `--goal` |
+| `init [template] --interactive --preset --name --goal --no-seeds` | Initialize repo with governance, context, prompts, scripts, and workflows. | `--interactive`, `--preset`, `--name`, `--goal`, `--no-seeds` |
 | `pack --out --extra --dry-run --list --lite --json` | Create agent context package (cross-platform). | `--out`, `--extra`, `--dry-run`, `--list`, `--lite`, `--json` |
 | `preflight [path] --quick --verbose` | Run tests with CI-matching environment. | `--quick`, `--verbose` |
 | `prime-learn [insight] --no-push --category --yes --reject` | Capture an insight, synthesize it, and append to prime-knowledge YAML. | `--no-push`, `--category`, `--yes`, `--reject` |
@@ -132,7 +134,17 @@
 | `scan-secrets [path] --staged --diff --verbose --json` | Scan for secrets and credentials (shortcut for 'security scan-secrets'). | `--staged`, `--diff`, `--verbose`, `--json` |
 | `status --json` | Show current context loop status and recent changes. | `--json` |
 | `sweep --since --staged --working --json --category --confidence --fix --deep` | Sweep for dead code in recent changes. | `--since`, `--staged`, `--working`, `--json`, `--category`, `--confidence`, `--fix`, `--deep` |
+| `upgrade --dry-run --skills --agents --commands --docs --config --force --auto --commit --no-seeds` | Upgrade existing v2.x project with latest content | `--dry-run`, `--skills`, `--agents`, `--commands`, `--docs`, `--config`, `--force`, `--auto`, `--commit`, `--no-seeds` |
 | `validate --fix --json` | Validate repo structure and context consistency. | `--fix`, `--json` |
+| `wizard --port --no-browser --demo --force --edit` | Setup wizard commands | `--port`, `--no-browser`, `--demo`, `--force`, `--edit` |
+
+---
+
+## Advisory Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `advisory scan [input_file] --package --repo --json --fail-on-impact` | Scan fleet repos against an advisory's affected-package list. | `--package`, `--repo`, `--json`, `--fail-on-impact` |
 
 ---
 
@@ -142,7 +154,9 @@
 |---------|-------------|---------|
 | `arch check [path] --staged --fix --strict` | Check architecture constraints. | `--staged`, `--fix`, `--strict` |
 | `arch check-encoding [path] --strict` | Flag text-mode file I/O that omits an explicit ``encoding=`` (#373). | `--strict` |
+| `arch check-handler-length [path] --strict --generate-baseline` | Flag @app.command/@app.callback handlers over the configured line cap... | `--strict`, `--generate-baseline` |
 | `arch check-model-ids [path] --strict` | Flag hardcoded ``claude-*`` model-id literals outside the registry (RE.6). | `--strict` |
+| `arch check-provenance [path] --strict --generate-baseline` | Flag task-ID/security-finding/issue-PR/reviewer-attribution references baked into comments and... | `--strict`, `--generate-baseline` |
 | `arch check-subprocess [path] --strict` | Flag raw subprocess.run/Popen/etc. | `--strict` |
 | `arch check-wiring [path] --strict --generate-baseline` | Flag public symbols/modules written but never wired in (#384). | `--strict`, `--generate-baseline` |
 | `arch headroom [path] --threshold --strict` | Report files APPROACHING their architecture caps (#416). | `--threshold`, `--strict` |
@@ -166,7 +180,7 @@
 |---------|-------------|---------|
 | `benchmark compare --baseline --challenger --id` | Compare two agents. | `--baseline`, `--challenger`, `--id` |
 | `benchmark list` | List available benchmarks. |  |
-| `benchmark matrix-run --include-paid --results-dir --ollama-model --auto-seed --json` | Run the bpsai-framework benchmark matrix via subprocess. | `--include-paid`, `--results-dir`, `--ollama-model`, `--auto-seed`, `--json` |
+| `benchmark matrix-run --include-paid --results-dir --ollama-model --auto-seed --json` | Run the native 5x5 benchmark matrix (BM.3 -- no bpsai-framework dependency, issue #79 teardown... | `--include-paid`, `--results-dir`, `--ollama-model`, `--auto-seed`, `--json` |
 | `benchmark results --id --latest --json` | View benchmark results. | `--id`, `--latest`, `--json` |
 | `benchmark run --only --agents --iterations --dry-run` | Run benchmarks. | `--only`, `--agents`, `--iterations`, `--dry-run` |
 | `benchmark seed <path> --run-id --json` | Seed local calibration from a PC2.2 benchmark matrix. | `--run-id`, `--json` |
@@ -198,6 +212,7 @@
 
 | Command | Description | Options |
 |---------|-------------|---------|
+| `calibration pin --write --delete --force --json` | Show current effective per-task-type token estimates with provenance, and optionally pin them as... | `--write`, `--delete`, `--force`, `--json` |
 | `calibration recommend-model --task-type --complexity --cross-module --json` | Recommend a plan-time ``model:`` for a task (MR3.2). | `--task-type`, `--complexity`, `--cross-module`, `--json` |
 | `calibration report --json` | Recompute calibration and report per task_type x model stats + drift. | `--json` |
 
@@ -222,6 +237,7 @@
 | `config prefs get <key>` | Get a user preference value. |  |
 | `config prefs list` | List all user preferences. |  |
 | `config prefs set <key> <value>` | Set a user preference. |  |
+| `config provider [name] --list` | Print env-var presets for LLM providers (HE Path A) | `--list` |
 | `config show [section]` | Show current config or a specific section. |  |
 | `config update --preset --dry-run` | Update config with missing sections from preset. | `--preset`, `--dry-run` |
 | `config validate --preset --json` | Validate config against preset template. | `--preset`, `--json` |
@@ -265,6 +281,7 @@
 | Command | Description | Options |
 |---------|-------------|---------|
 | `fleet audit --branches --issues --json` | Report merged-residue branches and unclosed-but-referenced issues across every workspace repo... | `--branches`, `--issues`, `--json` |
+| `fleet audit-workflow-md` | Report repos with a stack-inappropriate or diverged workflow.md. |  |
 | `fleet check --upgrade --commit --json` | Check bpsai-pair version compliance across workspace repos. | `--upgrade`, `--commit`, `--json` |
 
 ---
@@ -377,7 +394,9 @@
 |---------|-------------|---------|
 | `plan add-task <plan_id> --id --title --type --priority --complexity --sprint` | Add a task to a plan. | `--id`, `--title`, `--type`, `--priority`, `--complexity`, `--sprint` |
 | `plan complete <plan_id> --force` | Mark a plan as complete. | `--force` |
+| `plan ensure-from-backlog <backlog> --plan-id` | Ensure a plan record exists for a drafted backlog (idempotent). | `--plan-id` |
 | `plan estimate <plan_id> --threshold --json --show-tasks` | Estimate token usage for a plan and suggest batching if needed. | `--threshold`, `--json`, `--show-tasks` |
+| `plan feasibility <plan_id> --task --json --override` | Evaluate the five-term feasibility envelope for a plan (or one task). | `--task`, `--json`, `--override` |
 | `plan list --status --json` | List all plans. | `--status`, `--json` |
 | `plan new <slug> --type --title --skill --flow --goal --scope --feature-id --total-cx` | Create a new plan. | `--type`, `--title`, `--skill`, `--flow`, `--goal`, `--scope`, `--feature-id`, `--total-cx` |
 | `plan show <plan_id> --json` | Show details of a specific plan. | `--json` |
@@ -402,6 +421,7 @@
 | `pm diagnostics` | Run PM provider diagnostics. |  |
 | `pm done <item_id> --summary --strict` | Complete a work item (move to done). | `--summary`, `--strict` |
 | `pm link <parent_id> <child_ids>` | Link child items to a parent (set parent-child relationship). |  |
+| `pm migrate --dry-run` | Migrate from task-centric to backlog-centric PM structure. | `--dry-run` |
 | `pm move <item_id> --status` | Move a work item to a new status. | `--status` |
 | `pm set-field <item_id> --field --value` | Set a custom field on a work item. | `--field`, `--value` |
 | `pm sprint complete <plan_id> --carry-forward` | Complete a sprint — evaluate tasks and produce summary. | `--carry-forward` |
@@ -466,8 +486,11 @@
 | `release checklist` | Show the release preparation checklist. |  |
 | `release plan --sprint --version --create` | Generate release preparation tasks. | `--sprint`, `--version`, `--create` |
 | `release prep --since --create-tasks --skip-tests` | Verify release readiness and generate tasks for missing items. | `--since`, `--create-tasks`, `--skip-tests` |
+| `release record-docs-drift` | Record the Phase 8.5 docs-drift report. |  |
 | `release record-phase89 --website-repo --fleet-verified` | Record Phase 8/9 completion. | `--website-repo`, `--fleet-verified` |
 | `release validate-versions --fix` | Check version consistency across config files. | `--fix` |
+| `release verify-docs-drift --bypass --reason` | Fail closed if the Phase 8.5 docs-drift report artifact is missing or stale relative to the... | `--bypass`, `--reason` |
+| `release verify-notes --website-repo` | Fail closed if the release's public notes (website changelog, GH release body, README What's New)... | `--website-repo` |
 | `release verify-phase89` | Fail closed if the Phase 8/9 (website+fleet) completion artifact is missing or stale relative to... |  |
 
 ---
@@ -610,9 +633,10 @@
 | `task list --plan --status --json` | List tasks. | `--plan`, `--status`, `--json` |
 | `task list-archived --plan --json` | List archived tasks. | `--plan`, `--json` |
 | `task next --start` | Show the next task to work on. | `--start` |
+| `task reconcile --from-merged --base --dry-run` | Batch-reconcile stale `in_progress` task files against merged lane history. | `--from-merged`, `--base`, `--dry-run` |
 | `task restore <task_id> --plan` | Restore a task from archive. | `--plan` |
 | `task show <task_id> --plan` | Show details of a specific task. | `--plan` |
-| `task update <task_id> --status --plan --no-hooks --skip-state-check --resync --local-only --reason --strict --force-local --auto-check --allow-dirty` | Update a task's status. | `--status`, `--plan`, `--no-hooks`, `--skip-state-check`, `--resync`, `--local-only`, `--reason`, `--strict`, `--force-local`, `--auto-check`, `--allow-dirty` |
+| `task update <task_id> --status --plan --no-hooks --skip-state-check --resync --local-only --reason --strict --force-local --auto-check --allow-dirty --role` | Update a task's status. | `--status`, `--plan`, `--no-hooks`, `--skip-state-check`, `--resync`, `--local-only`, `--reason`, `--strict`, `--force-local`, `--auto-check`, `--allow-dirty`, `--role` |
 
 ---
 
@@ -621,6 +645,8 @@
 | Command | Description | Options |
 |---------|-------------|---------|
 | `telemetry aggregate --workspace --format --output --since --include-garbage --json` | Aggregate telemetry across all repos in a workspace. | `--workspace`, `--format`, `--output`, `--since`, `--include-garbage`, `--json` |
+| `telemetry archive-pre-t1 --json` | Archive pre-T1 telemetry and restart the audit hash chain. | `--json` |
+| `telemetry backfill-failure-taxonomy --force` | Seed signals.jsonl with the run-exit failure-mode taxonomy's backfill corpus (PB.14, #564) -- a... | `--force` |
 | `telemetry config --enable --disable --privacy --retention --json` | Configure telemetry settings. | `--enable`, `--disable`, `--privacy`, `--retention`, `--json` |
 | `telemetry export --format --output --since --until --task-type --anonymize` | Export telemetry data for analysis or backup. | `--format`, `--output`, `--since`, `--until`, `--task-type`, `--anonymize` |
 | `telemetry log-failure --trigger --quiet` | Log an API failure signal to telemetry. | `--trigger`, `--quiet` |
@@ -684,7 +710,7 @@
 | `ttask block <card_id> --reason` | Mark a task as blocked. | `--reason` |
 | `ttask check <task_id> <item_text> --checklist` | Check off a checklist item as complete. | `--checklist` |
 | `ttask comment <task_id> <message>` | Add a progress comment to a task. |  |
-| `ttask done <card_id> --summary --list --auto-check --strict --allow-dirty` | Complete a task (moves to Done list). | `--summary`, `--list`, `--auto-check`, `--strict`, `--allow-dirty` |
+| `ttask done <card_id> --summary --list --auto-check --strict --allow-dirty --role` | Complete a task (moves to Done list). | `--summary`, `--list`, `--auto-check`, `--strict`, `--allow-dirty`, `--role` |
 | `ttask list --list --agent --status` | List tasks from Trello board. | `--list`, `--agent`, `--status` |
 | `ttask move <card_id> --list` | Move a task to a different list. | `--list` |
 | `ttask show <card_id>` | Show task details from Trello. |  |
@@ -703,6 +729,7 @@
 | `workspace init --name --projects --scan --no-scan --force --json` | Initialize a new workspace configuration. | `--name`, `--projects`, `--scan`, `--no-scan`, `--force`, `--json` |
 | `workspace init-project [name] --all --force --dry-run --json --no-claude` | Initialize a project in the workspace with PairCoder scaffolding. | `--all`, `--force`, `--dry-run`, `--json`, `--no-claude` |
 | `workspace pull [project] --rebase --json` | Pull latest changes from remote for workspace projects. | `--rebase`, `--json` |
+| `workspace repos <workspace_id> --all --json` | List the repos declared by the covering workspace config. | `--all`, `--json` |
 | `workspace setup-permissions --dry-run --force --json` | Generate .claude/settings.local.json from workspace config. | `--dry-run`, `--force`, `--json` |
 | `workspace status --json` | Show workspace configuration and project states. | `--json` |
 | `workspace validate --repo --json` | Validate the covering workspace config (CI-usable). | `--repo`, `--json` |

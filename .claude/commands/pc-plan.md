@@ -17,10 +17,8 @@ If budget >80%, warn user before proceeding.
 
 ## Execute Workflow
 
-If Trello connected:
-  → Use `.claude/skills/planning-with-trello/SKILL.md`
-Else:
-  → Use `.claude/skills/designing-and-implementing/SKILL.md`
+Use `.claude/skills/planning-with-pm/SKILL.md` — its provider-detection tree
+handles PM providers, Trello compat mode, and local-only planning.
 
 **Input**: $ARGUMENTS
 

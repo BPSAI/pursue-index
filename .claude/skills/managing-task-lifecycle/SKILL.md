@@ -26,7 +26,12 @@ Is Trello connected? (check: bpsai-pair trello status)
 │   ├── Complete: bpsai-pair ttask done TRELLO-XX --summary "..." --list "Deployed/Done"
 │   └── Block:    bpsai-pair ttask block TRELLO-XX --reason "..."
 │
-└── NO → Use `task update` commands
+├── NO, but a generic PM provider is set (check: bpsai-pair pm status) → Use `pm` commands
+│   ├── Start:    bpsai-pair pm start ITEM-XX
+│   ├── Complete: bpsai-pair pm done ITEM-XX --summary "..."
+│   └── Block:    bpsai-pair pm block ITEM-XX --reason "..."
+│
+└── NO (local/none) → Use `task update` commands
     ├── Start:    bpsai-pair task update TASK-XXX --status in_progress
     ├── Complete: bpsai-pair task update TASK-XXX --status done
     └── Block:    bpsai-pair task update TASK-XXX --status blocked
@@ -80,7 +85,7 @@ Identify ALL acceptance criteria - these MUST be completed before marking done.
 
 When you start via CLI, these fire automatically:
 - `start_timer` - Begins time tracking
-- `sync_trello` - Moves card to "In Progress"
+- `sync_pm` - Moves card to "In Progress"
 - `update_state` - Updates state.md current focus
 - `check_token_budget` - Warns if task exceeds budget
 
@@ -238,7 +243,7 @@ These fire automatically:
 - `stop_timer` - Stops timer, records duration
 - `record_metrics` - Records token usage and costs
 - `record_velocity` - Tracks sprint velocity
-- `sync_trello` - Moves card to "Deployed/Done"
+- `sync_pm` - Moves card to "Deployed/Done"
 - `update_state` - Updates state.md
 - `check_unblocked` - Identifies newly unblocked tasks
 
@@ -257,7 +262,7 @@ bpsai-pair task update <task-id> --status blocked
 ```
 
 Hooks fired:
-- `sync_trello` - Moves card to "Issues/Tech Debt"
+- `sync_pm` - Moves card to "Issues/Tech Debt"
 - `update_state` - Updates state.md
 
 ---
@@ -322,7 +327,7 @@ Tasks automatically transition from Intake/Backlog to Planned/Ready when they me
 - Skip with `--no-fire-ready` flag
 
 **What Happens:**
-- `sync_trello` hook moves card from Intake/Backlog to Planned/Ready
+- `sync_pm` hook moves card from Intake/Backlog to Planned/Ready
 - `update_state` hook updates state.md
 
 **Enforcement:**
@@ -352,6 +357,7 @@ pytest tests/
 bpsai-pair ttask done TRELLO-XX --strict --summary "..." --list "Deployed/Done"
 bpsai-pair context-sync --last "T1.1: Done" --next "T1.2"
 ```
+- `--role driver|navigator` (default driver; stamps telemetry archetype for the session role that ran the work)
 
 ---
 
@@ -363,6 +369,7 @@ bpsai-pair context-sync --last "T1.1: Done" --next "T1.2"
 |--------|---------|
 | Start task | `bpsai-pair task update TASK-XXX --status in_progress` |
 | Complete task | `bpsai-pair task update TASK-XXX --status done` |
+| Set completion role | `bpsai-pair task update TASK-XXX --status done --role driver\|navigator` (default driver) |
 | Block task | `bpsai-pair task update TASK-XXX --status blocked` |
 | Show next task | `bpsai-pair task next` |
 | Auto-assign next | `bpsai-pair task auto-next` |
@@ -377,6 +384,7 @@ bpsai-pair context-sync --last "T1.1: Done" --next "T1.2"
 | Show card details | `bpsai-pair ttask show TRELLO-XX`                                                 |
 | Start card | `bpsai-pair ttask start TRELLO-XX`                                                |
 | **Complete card** | `bpsai-pair ttask done TRELLO-XX --strict --summary "..." --list "Deployed/Done"` |
+| Set completion role | `bpsai-pair ttask done TRELLO-XX --role driver\|navigator` (default driver)      |
 | Check AC item | `bpsai-pair ttask check TRELLO-XX "item text"`                                    |
 | Add comment | `bpsai-pair ttask comment TRELLO-XX "message"`                                    |
 | Block card | `bpsai-pair ttask block TRELLO-XX --reason "why"`                                 |

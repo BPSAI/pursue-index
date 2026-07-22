@@ -67,8 +67,9 @@ model: claude-sonnet-5  # from `calibration recommend-model` above
 ### 5. Sync to Trello
 
 ```bash
-bpsai-pair plan sync-trello <plan-id> --target-list "Planned/Ready"
+bpsai-pair plan sync-pm <plan-id> --target-list "Planned/Ready"
 ```
+(`sync-trello` is a deprecated alias)
 
 ### 6. Implement Each Task
 

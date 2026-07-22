@@ -162,7 +162,6 @@ Skills in `.claude/skills/` are auto-discovered by Claude Code:
 | `reviewing-code` | Code review workflow |
 | `finishing-branches` | Branch completion |
 | `managing-task-lifecycle` | Task workflow with Trello |
-| `planning-with-trello` | Planning with Trello integration |
 | `planning-with-pm` | Planning with provider-agnostic PM |
 | `creating-skills` | Skill creation guide |
 | `architecting-modules` | Module decomposition and file size management |
@@ -180,10 +179,11 @@ When you see these patterns, use the corresponding skill:
 | "review", "check", "look at" | `reviewing-code` |
 | "done", "finished", "ready to merge" | `finishing-branches` |
 
-> **Note:** `managing-task-lifecycle`, `planning-with-trello`, `running-qc`,
-> and `auditing-sibling-projects` are slash-only after T44.11b (DMI). Invoke
-> them via `/start-task`, `/pc-plan`, `/run-qc`, and `/pc-audit-sibling`
-> respectively — natural-language triggers will not auto-invoke.
+> **Note:** `managing-task-lifecycle`, `running-qc`, and
+> `auditing-sibling-projects` are slash-only after T44.11b (DMI). Invoke
+> them via `/start-task`, `/run-qc`, and `/pc-audit-sibling` respectively —
+> natural-language triggers will not auto-invoke. `/pc-plan` routes to
+> `planning-with-pm`, which is model-invocable.
 
 ## After Completing Work
 
