@@ -3,16 +3,16 @@
 <!-- paircoder:state:begin -->
 ## Active Plan
 
-**Plan:** None yet
-**Status:** Ready to start
+**Plan:** Orchestrated from opsec — `pursue-opsec-staging/plans/backlogs/BACKLOG.md`
+**Status:** Launch push (research-preview → launch); Launch Sprint 1 in progress
 
 ## What Was Just Done
 
-- Nothing yet
+- Launch Sprint 1 hygiene: stale site-copy purge, comment-path hygiene, plan-doc consolidation to opsec.
 
 ## What's Next
 
-1. Define your first task
+1. Fleet backlog: `pursue-opsec-staging/plans/backlogs/BACKLOG.md` (this repo's items are tiered there).
 
 ## Blockers
 
@@ -80,11 +80,11 @@ tracked (tiered, prioritized) in the master fleet backlog:
 `~/projects/pursue/pursue-opsec-staging/plans/backlogs/BACKLOG.md`. Do not
 maintain a separate ranked backlog here — it drifts.
 
-Detailed technical plans for this repo's open items stay in-repo (code cites
-them by path) and are linked from `BACKLOG.md`:
-- `.paircoder/plans/black-vault-reference.md` — novelty reference corpus (T1.1)
-- `.paircoder/plans/display-date-curation.md` — display-date phase 4 (T3.2)
-- `.paircoder/plans/incidents-map-clustering.md` — `/map` surface (T3.3)
+Detailed technical plans for this repo's open items live in opsec under
+`plans/specs/` (consolidated with the backlog) and are linked from `BACKLOG.md`:
+- `plans/specs/black-vault-reference.md` — novelty reference corpus (T1.1)
+- `plans/specs/display-date-curation.md` — display-date phase 4 (T3.2)
+- `plans/specs/incidents-map-clustering.md` — `/map` surface (T3.3)
 
 ## Known dark code
 
