@@ -152,7 +152,7 @@ function pickEntryFields(p) {
     display_date_evidence: p.display_date_evidence || null,
     display_date_evidence_card_ref: p.display_date_evidence_card_ref || null,
     display_date_abstention: p.display_date_abstention || null,
-    display_date_curator: 'operator',
+    display_date_curator: 'operator-buschleague',
     display_date_approved_at: new Date().toISOString(),
   };
 }
@@ -181,7 +181,7 @@ async function submitEdit(e) {
   entry.display_date = form.display_date.value.trim() || null;
   entry.display_date_evidence = form.display_date_evidence.value.trim() || null;
   entry.display_date_evidence_card_ref = form.display_date_evidence_card_ref.value.trim() || null;
-  entry.display_date_curator = 'operator';
+  entry.display_date_curator = 'operator-buschleague';
   const r = await fetch('/api/decide', { method:'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ card_id: p.card_id, action: 'accept', entry }) });
   const j = await r.json();
   if (j.error) { alert(j.error); return; }

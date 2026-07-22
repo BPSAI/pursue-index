@@ -12,7 +12,7 @@ Schema per row:
   display_date_range               : [start, end] | null  — ISO 8601
   display_date_evidence            : str | null  — verbatim source span
   display_date_evidence_card_ref   : str | null  — <card_id>#page-N
-  display_date_curator             : str | null  — "operator" or "agent-sonnet-4-6"
+  display_date_curator             : str | null  — "operator-buschleague" or "agent-sonnet-4-6"
   display_date_approved_at         : str | null  — ISO 8601 timestamp
   display_date_abstention          : str | null  — when display_date is null
 """
@@ -64,7 +64,7 @@ def test_load_display_dates_parses_well_formed_file(tmp_path):
                 "display_date": "2023-10-24",
                 "display_date_evidence": "MISREP DTG 240015:00ZOCT23, p1",
                 "display_date_evidence_card_ref": "abc1234567890def#page-1",
-                "display_date_curator": "operator",
+                "display_date_curator": "operator-buschleague",
                 "display_date_approved_at": "2026-05-15T10:00:00Z",
             }
         ]
@@ -86,7 +86,7 @@ def test_load_display_dates_handles_abstention_entry(tmp_path):
                 "display_date": None,
                 "display_date_abstention": "FBI omnibus file covers 1947-1968; no single document date",
                 "display_date_evidence": "FBI declassification stamp May 24, 2007",
-                "display_date_curator": "operator",
+                "display_date_curator": "operator-buschleague",
                 "display_date_approved_at": "2026-05-15T10:00:00Z",
             }
         ]
@@ -110,7 +110,7 @@ def test_merge_preserves_original_incident_date_as_raw():
             card_id=cards[0].card_id,
             display_date="2023-10-24",
             display_date_evidence="MISREP DTG 240015:00ZOCT23",
-            display_date_curator="operator",
+            display_date_curator="operator-buschleague",
             display_date_approved_at="2026-05-15T10:00:00Z",
         )
     }
@@ -128,7 +128,7 @@ def test_merge_leaves_cards_without_overlay_untouched():
         cards[0].card_id: DisplayDateEntry(
             card_id=cards[0].card_id,
             display_date="2023-10-24",
-            display_date_curator="operator",
+            display_date_curator="operator-buschleague",
             display_date_approved_at="2026-05-15T10:00:00Z",
         )
     }
@@ -163,7 +163,7 @@ def test_merge_applies_full_provenance_fields():
             display_date_range=("2023-10-24", "2023-10-24"),
             display_date_evidence="MISREP DTG 240015:00ZOCT23, p1",
             display_date_evidence_card_ref=f"{cards[0].card_id}#page-1",
-            display_date_curator="operator",
+            display_date_curator="operator-buschleague",
             display_date_approved_at="2026-05-15T10:00:00Z",
         )
     }
@@ -173,7 +173,7 @@ def test_merge_applies_full_provenance_fields():
     assert c.display_date_range == ("2023-10-24", "2023-10-24")
     assert c.display_date_evidence == "MISREP DTG 240015:00ZOCT23, p1"
     assert c.display_date_evidence_card_ref == f"{cards[0].card_id}#page-1"
-    assert c.display_date_curator == "operator"
+    assert c.display_date_curator == "operator-buschleague"
 
 
 def test_merge_applies_abstention():
