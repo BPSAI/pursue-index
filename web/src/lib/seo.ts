@@ -4,8 +4,7 @@
  * Each function in this module returns a plain JS object that the
  * `JsonLd.astro` component serializes into a `<script type="application/ld+json">`
  * tag. The schema choices are oriented for AI Overviews / LLM-citation
- * surfacing (the GEO discipline documented in
- * `.paircoder/plans/sprint-roadmap-2026-05-16.md`), not for traditional
+ * surfacing (the GEO discipline), not for traditional
  * SEO ranking signals.
  *
  * **Posture:** pursue-index is a primary-source archive. NO marketing

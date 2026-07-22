@@ -1,7 +1,7 @@
 """Build the curated alt-titles index for duplicate-card-id cohorts.
 
-Per .paircoder/plans/duplicate-card-ids-discovery.md (Option 1 — accept
-the collapse, surface alt-titles in the UI):
+Accepts the collapse of duplicate card-ids and surfaces alt-titles in
+the UI:
 
 Upstream's PURSUE CSV occasionally lists the same `asset_url` (one
 PDF) under multiple "card" entries with different titles and

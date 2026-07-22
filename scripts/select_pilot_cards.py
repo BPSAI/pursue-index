@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Pick the 30-card pilot sample for the LLM cleanup pass.
 
-Selection contract (per `.paircoder/plans/llm-cleaned-reading-text.md`
-and the implementation brief):
+Selection contract:
 
   - 10 cards with high page count (long FBI sections)
   - 10 cards with medium page count (DOW MISREPs)

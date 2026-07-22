@@ -171,7 +171,7 @@ class _Handler(BaseHTTPRequestHandler):
             if not entry.get("card_id"):
                 entry["card_id"] = card_id
             entry.setdefault("display_date_approved_at", datetime.now(timezone.utc).isoformat())
-            entry.setdefault("display_date_curator", "operator-david")
+            entry.setdefault("display_date_curator", "operator-buschleague")
             curated[card_id] = entry
             _save_curated(self.curated_path, curated)
             self._json({"ok": True, "saved": True})

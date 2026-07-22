@@ -5,9 +5,8 @@ import type { CardMetadata } from "../data/types";
  * Screen-reader / keyboard accessible alternative to the regl-scatterplot
  * canvas on /atlas.
  *
- * The plan (`.paircoder/plans/accessibility-audit-and-remediation.md`,
- * § "/atlas accessible alternative") calls for a parallel surface — not
- * a retrofit of the canvas itself — that shares the same data origin as
+ * A parallel browse surface — not a retrofit of the canvas itself —
+ * that shares the same data origin as
  * the visualization and is reachable on every viewport (NOT mobile-only).
  *
  * This component renders the corpus as a sortable HTML table with

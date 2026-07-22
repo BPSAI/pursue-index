@@ -49,6 +49,5 @@ class OpenAIAdapter:
     ) -> EmbedResult:
         raise NotImplementedError(
             "OpenAI embedding adapter is a stub for v1; use the Voyage adapter "
-            "(set PURSUE_EMBED_PROVIDER=voyage). Track wiring in "
-            "`.paircoder/plans/embed-stage.md`."
+            "(set PURSUE_EMBED_PROVIDER=voyage)."
         )

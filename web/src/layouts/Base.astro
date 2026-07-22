@@ -14,10 +14,7 @@ interface Props {
   title?: string;
   description?: string;
   active?: "index" | "search" | "chat" | "diff" | "removed" | "altered" | "about" | "methodology" | "cite" | "support" | "finds" | "atlas" | "gallery" | null;
-  /**
-   * Pre-launch: every page is noindex/nofollow until we flip the default.
-   * FIXME(launch): flip noindex default to false once we're ready for SE indexing.
-   */
+  /** Whether to add noindex/nofollow to the page. Defaults to false. */
   noindex?: boolean;
   /**
    * Optional override for the OG image; defaults to /og.png.
@@ -168,7 +165,6 @@ const navItems = [
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0a0d12" />
 
-    {/* FIXME(launch): flip noindex default to false in Base.astro Props */}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <link rel="canonical" href={canonicalUrl} />

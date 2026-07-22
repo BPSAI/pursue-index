@@ -69,8 +69,7 @@ class CardMetadata(BaseModel):
     # "Unclassified" — or None when upstream didn't say (most cards).
     original_classification: str | None = None
 
-    # Curated display-date overlay (operator-approved per
-    # .paircoder/plans/display-date-curation.md). Applied AFTER CSV
+    # Curated display-date overlay (operator-approved). Applied AFTER CSV
     # parsing by ``merge_display_dates``. The upstream CSV's
     # incident_date is preserved separately in manifest_incident_date_raw
     # so the audit trail survives the merge.

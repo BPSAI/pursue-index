@@ -13,9 +13,8 @@ per card with cited evidence, stored in
 preserving the original CSV value in ``manifest_incident_date_raw``
 for audit. Cards without an overlay row are untouched.
 
-See ``.paircoder/plans/display-date-curation.md`` for the full
-editorial bar (every entry carries cited evidence; document body
-wins on conflicts; abstentions are first-class).
+Editorial bar: every entry carries cited evidence; document body
+wins on conflicts; abstentions are first-class.
 """
 
 from __future__ import annotations

@@ -181,3 +181,6 @@ docs/launch/journalist-outreach.md
 .paircoder/history/benchmarks/matrix/**
 .paircoder/telemetry/**
 # <<< paircoder managed
+
+# paircoder-internal gate-bypass audit log — not Pursue project data, keep out of the public repo
+data/audit-log.jsonl
