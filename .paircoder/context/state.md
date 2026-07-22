@@ -1,5 +1,24 @@
 # Current State
 
+<!-- paircoder:state:begin -->
+## Active Plan
+
+**Plan:** None yet
+**Status:** Ready to start
+
+## What Was Just Done
+
+- Nothing yet
+
+## What's Next
+
+1. Define your first task
+
+## Blockers
+
+None
+<!-- paircoder:state:end -->
+
 > Last updated: 2026-07-13 (doc-hygiene pass — state.md rebuilt, plans/ tidied,
 > residual engine/stat staleness fixed). Engine-identity correction pass is
 > merged to `main` (commit `1fb853f`), not staged.

@@ -1,7 +1,7 @@
 # Capability Manifest
 # This file tells LLMs (Claude Code, Codex CLI, etc.) what they can do and when
 
-version: "2.30.0"
+version: "2.35.2"
 name: paircoder
 description: |
   AI pair programming framework with planning, skills, and context management.
@@ -64,7 +64,6 @@ capabilities:
       - finishing-branches         # Branch completion and PR creation
       - implementing-with-tdd      # Test-driven development
       - managing-task-lifecycle    # Task workflow with Trello
-      - planning-with-trello       # Sprint planning with Trello sync
       - auditing-sibling-projects  # Cross-repo contract detection
       - running-qc                 # Browser-based QC testing
       - planning-with-pm           # Provider-agnostic PM planning
@@ -456,7 +455,7 @@ skill_triggers:
       - "create plan"
       - "sprint"
       - "backlog"
-    suggested_skill: planning-with-trello
+    suggested_skill: planning-with-pm
 
   - trigger: "user_releasing"
     patterns:

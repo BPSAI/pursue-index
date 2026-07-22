@@ -28,7 +28,7 @@ bpsai-pair pm status
 | Output | Mode | Commands |
 |--------|------|----------|
 | `Provider: <name> (healthy)` | PM provider | Use `pm` commands |
-| `No PM provider configured` + Trello in config | Trello compat | Use `ttask` / `plan sync-trello` |
+| `No PM provider configured` + Trello in config | Trello compat | Use `ttask` / `plan sync-pm` |
 | `No PM provider configured` + no Trello | Local-only | Skip sync steps |
 
 ```bash
@@ -108,7 +108,7 @@ When total complexity triggers Epic scope, the suggested sprint count is calcula
 ### Step 5: Budget Check
 
 ```bash
-bpsai-pair budget check --estimated-tokens <total_estimate>
+bpsai-pair budget check <task-id>
 ```
 
 If budget check fails: reduce scope, split plans, or get explicit user approval.
@@ -167,8 +167,8 @@ bpsai-pair pm sync
 
 **Trello compat mode:**
 ```bash
-bpsai-pair plan sync-trello <plan-id> --dry-run
-bpsai-pair plan sync-trello <plan-id>
+bpsai-pair plan sync-pm <plan-id> --dry-run
+bpsai-pair plan sync-pm <plan-id>
 ```
 
 **Local-only mode:** Skip this step.
