@@ -99,7 +99,7 @@ jobs:
         # `npm ci` not `npm install` — same posture as deploy-cf.yml.
         # Wrangler is declared in `web/package.json` devDependencies.
         working-directory: web
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Probe CF token via wrangler whoami
         id: whoami
