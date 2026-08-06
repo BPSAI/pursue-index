@@ -1,6 +1,6 @@
 """Courteous sitemap fetcher + XML parsing (PV1.4).
 
-The source catalogue is enumerated from the sitemap indexes leaked via
+The source catalogue is enumerated from the sitemap indexes published via
 ``documents3.theblackvault.com/robots.txt``. This module is the only thing that
 touches the network, and it is deliberately narrow:
 
@@ -16,7 +16,8 @@ touches the network, and it is deliberately narrow:
   there is no retry loop that would keep pounding a host that is rate-limiting us.
 
 The parsers turn ``robots.txt`` and sitemap XML into plain rows. XML is parsed
-with a DTD refused up front, so a hostile listing cannot trigger entity
+with any DTD or entity declaration refused anywhere in the document, so a
+hostile listing cannot trigger entity
 expansion.
 
 The ``get``/``sleep`` callables are injected so the whole thing is exercised in
@@ -45,7 +46,8 @@ __all__ = [
     "parse_url_entries",
 ]
 
-#: The leaked enumeration path (spec §2b): robots.txt exposes four sitemap indexes.
+#: The published enumeration path (spec §2b): robots.txt advertises four sitemap
+#: indexes. This is standard discovery metadata a site publishes for crawlers.
 DEFAULT_ROBOTS_URL = "https://documents3.theblackvault.com/robots.txt"
 
 #: Courtesy spacing between sequential requests, in seconds.
@@ -164,8 +166,14 @@ def _parse_xml(text: str) -> ET.Element:
     A sitemap never carries a ``<!DOCTYPE>``; refusing one neutralises
     entity-expansion ("billion laughs") before the parser ever sees it.
     """
-    head = text.lstrip()[:2048].upper()
-    if "<!DOCTYPE" in head or "<!ENTITY" in head:
+    # Scan the WHOLE document, not a leading window. The previous guard read
+    # `text.lstrip()[:2048]`, and an XML prolog may carry arbitrarily long
+    # comments before `<!DOCTYPE>` — so an oversized leading comment slid the
+    # declaration past the window and entity expansion proceeded anyway.
+    # A raw `<!DOCTYPE`/`<!ENTITY` can only be markup here: inside a <loc> both
+    # would arrive escaped, so a full-text scan carries no false-positive risk.
+    upper = text.upper()
+    if "<!DOCTYPE" in upper or "<!ENTITY" in upper:
         raise SitemapFetchError("refusing sitemap XML with a DTD/entity declaration")
     try:
         return ET.fromstring(text)

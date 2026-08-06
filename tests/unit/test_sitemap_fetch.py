@@ -3,7 +3,7 @@
 The fetcher's whole discipline is captured here: it fetches *listings only*
 (``robots.txt`` and sitemap ``.xml`` — never a PDF or any other asset), it
 spaces requests out sequentially, and on any non-2xx it **aborts with a clear
-message** rather than retrying in a loop. The parsers turn the leaked
+message** rather than retrying in a loop. The parsers turn the published
 ``robots.txt`` and the sitemap XML into plain URL/last-modified rows without
 resolving any external entity.
 """
@@ -14,6 +14,7 @@ from typing import NamedTuple
 
 import pytest
 
+from pursue_index import sitemap_fetch
 from pursue_index.sitemap_fetch import (
     DEFAULT_ROBOTS_URL,
     CourteousFetcher,
@@ -197,3 +198,42 @@ def test_xml_with_a_doctype_is_rejected_not_expanded() -> None:
     )
     with pytest.raises(SitemapFetchError):
         parse_url_entries(hostile)
+
+
+# --- security audit follow-ups (engage sprint, 2026-08-06) -------------------
+
+
+def test_dtd_hidden_behind_a_long_comment_is_still_refused() -> None:
+    """Audit finding 2: the guard scanned only `text.lstrip()[:2048]`.
+
+    A well-formed XML prolog may carry arbitrarily long comments before
+    `<!DOCTYPE>`, so an oversized leading comment slid the declaration past the
+    window and entity expansion proceeded — while the module docstring claimed
+    it could not.
+    """
+    hidden = (
+        '<?xml version="1.0"?>\n'
+        + "<!-- " + ("A" * 4096) + " -->\n"
+        + '<!DOCTYPE lol [<!ENTITY a "boom">]>\n'
+        + "<urlset><url><loc>https://example.test/x</loc></url></urlset>"
+    )
+
+    with pytest.raises(sitemap_fetch.SitemapFetchError, match="DTD"):
+        sitemap_fetch._parse_xml(hidden)
+
+
+def test_entity_declaration_anywhere_is_refused() -> None:
+    payload = "<urlset>" + ("<!-- pad -->" * 500) + '<!ENTITY x "y">' + "</urlset>"
+
+    with pytest.raises(sitemap_fetch.SitemapFetchError, match="DTD"):
+        sitemap_fetch._parse_xml(payload)
+
+
+def test_a_clean_sitemap_still_parses() -> None:
+    clean = (
+        '<?xml version="1.0"?>\n<!-- ordinary comment -->\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        "<url><loc>https://example.test/a.pdf</loc></url></urlset>"
+    )
+
+    assert sitemap_fetch._parse_xml(clean) is not None

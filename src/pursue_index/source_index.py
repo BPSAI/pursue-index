@@ -1,7 +1,7 @@
 """Sitemap-derived source catalogue (spec §2 and §3, §7 step 3; PV1.4).
 
 A local index of *candidate* prior-disclosure sources, enumerated from the four
-sitemap indexes leaked via ``documents3.theblackvault.com/robots.txt`` (spec
+sitemap indexes published via ``documents3.theblackvault.com/robots.txt`` (spec
 §2b: 157,628 URLs, of which the UFO-relevant slice is ~8,000). One row per URL:
 its filename, HTTP ``Last-Modified``, and an inferred agency and era.
 
@@ -284,17 +284,24 @@ def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
 
 
 def _default_get(url: str) -> httpx.Response:
-    """Live HTTP GET for a listing — one request, courteous UA, no retries."""
+    """Live HTTP GET for a listing — one request, courteous UA, no retries.
+
+    ``follow_redirects=False`` is load-bearing. ``_fetchable`` pins every URL to
+    the ``robots.txt`` host BEFORE the request, but a redirect is followed after
+    that check — so following them let a tampered index or a hostile host steer
+    us off-host anyway, defeating the pin this module claims to enforce. A 3xx
+    is now surfaced to the caller, which aborts on any non-2xx.
+    """
     return httpx.get(
         url,
         timeout=30.0,
-        follow_redirects=True,
+        follow_redirects=False,
         headers={"User-Agent": "pursue-index-source-catalogue/1.0 (provenance Phase A; index only)"},
     )
 
 
 def main() -> int:
-    """CLI: enumerate the leaked sitemaps live → the tracked artifact.
+    """CLI: enumerate the published sitemap indexes live → the tracked artifact.
 
     This is the operator's regeneration step; it makes real (but courteous,
     listing-only) requests. On a non-2xx it aborts with a clear message rather

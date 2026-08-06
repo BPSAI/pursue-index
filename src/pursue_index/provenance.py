@@ -95,6 +95,25 @@ def _require_text(value: object, field_name: str, message: str) -> None:
         raise ValueError(message)
 
 
+
+_ALLOWED_URL_SCHEMES = ("http://", "https://")
+
+
+def _require_web_url(value: str, field: str) -> None:
+    """Reject any artifact URL that is not plain http(s).
+
+    These records exist to become citations on a public page, and
+    ``artifact_url`` is populated verbatim from third-party sitemap ``<loc>``
+    values. A ``javascript:`` or ``data:`` URL that only had to be non-blank
+    would survive into the published artifact — a stored-XSS / malicious-link
+    vector queued for the moment anything renders it. Validate at construction,
+    which is the one place every path goes through.
+    """
+    if not value.lower().startswith(_ALLOWED_URL_SCHEMES):
+        raise ValueError(
+            f"{field} must use an http:// or https:// scheme, got {value!r}"
+        )
+
 @dataclass(frozen=True)
 class ProvenanceClaim:
     """A dated, sourced assertion that a release (or its content) is not new.
@@ -124,6 +143,7 @@ class ProvenanceClaim:
         _require_text(
             self.artifact_url, "artifact_url", "a provenance claim requires a source artifact URL"
         )
+        _require_web_url(self.artifact_url, "artifact_url")
         if not isinstance(self.established_date, date):
             raise TypeError("a provenance claim requires an establishing date; none was given")
         if not isinstance(self.date_basis, DateBasis):

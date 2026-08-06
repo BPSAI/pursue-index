@@ -184,3 +184,19 @@ def test_extract_identifiers_deduplicates() -> None:
     }
     values = [(i.kind, i.value) for i in extract_identifiers(card)]
     assert len(values) == len(set(values))
+
+
+def test_crest_pattern_does_not_backtrack_quadratically() -> None:
+    """Audit finding 3: `[0-9A-Z]{2,}[0-9A-Z]*` — two unbounded quantifiers over
+    the same class, adjacent. Measured 3.1s on a 16k failing match, and the input
+    is the government CSV description/title, which is externally controlled."""
+    import time
+
+    from pursue_index.identifiers import extract_identifiers
+
+    hostile = {"description": "CIA-RDP" + ("A" * 20000) + "_"}
+    start = time.perf_counter()
+    extract_identifiers(hostile)
+    elapsed = time.perf_counter() - start
+
+    assert elapsed < 0.5, f"pathological backtracking: {elapsed:.2f}s"

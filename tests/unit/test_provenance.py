@@ -210,3 +210,18 @@ def test_negative_result_round_trips_without_search_date():
 def test_from_dict_rejects_unknown_kind():
     with pytest.raises(ValueError, match="kind"):
         from_dict({"kind": "wishful_thinking"})
+
+
+def test_claim_rejects_a_non_http_artifact_url() -> None:
+    """Audit finding 4: `artifact_url` came verbatim from a third-party sitemap
+    `<loc>` and only non-blankness was checked. These records exist to become
+    /methodology citations, so a `javascript:` or `data:` URL is a queued
+    stored-XSS vector — reject at construction, not at render."""
+    for hostile in ("javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "file:///etc/passwd"):
+        with pytest.raises(ValueError, match="scheme"):
+            _claim(artifact_url=hostile)
+
+
+def test_claim_accepts_http_and_https() -> None:
+    for ok in ("https://vault.fbi.gov/UFO", "http://www.ufoevidence.org/topics/Cometa.htm"):
+        assert _claim(artifact_url=ok).artifact_url == ok

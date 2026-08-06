@@ -68,7 +68,11 @@ _FBI_FILE_RE = re.compile(r"\b(\d{1,3}-HQ-\d{3,7}(?:-\d{1,5})?)\b", re.IGNORECAS
 
 # CIA CREST document IDs always start ``CIA-RDP`` (our own ``CIA-UAP-…`` card
 # labels deliberately do not match).
-_CIA_CREST_RE = re.compile(r"\bCIA-RDP[0-9A-Z]{2,}[0-9A-Z]*(?:-\d{1,3})?\b", re.IGNORECASE)
+# NOTE: no trailing `[0-9A-Z]*` after `{2,}` — two adjacent unbounded
+# quantifiers over the same class backtrack quadratically on a failing
+# match (3.1s at 16k chars), and this runs over externally-controlled
+# government CSV description/title text.
+_CIA_CREST_RE = re.compile(r"\bCIA-RDP[0-9A-Z]{2,}(?:-\d{1,3})?\b", re.IGNORECASE)
 
 # Project Blue Book, then a case number nearby.
 _BLUE_BOOK_RE = re.compile(
