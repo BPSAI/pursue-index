@@ -74,7 +74,7 @@ jobs:
         # script invokes from web/node_modules/.bin/. Without this step
         # the script would have to fetch wrangler at runtime, which
         # leaks supply-chain control to npm's "current" tag.
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Build web/dist
         working-directory: web

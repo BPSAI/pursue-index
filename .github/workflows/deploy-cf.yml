@@ -107,7 +107,7 @@ jobs:
 
       - name: Install web deps (npm ci, exact lockfile)
         working-directory: web
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Sync manifest into web/src/data (mirror of data/manifests/latest.json)
         # The web build imports `web/src/data/manifest.json`, which is a

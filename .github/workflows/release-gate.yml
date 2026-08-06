@@ -171,7 +171,7 @@ jobs:
         # drift fails this step loudly.
         working-directory: web
         run: |
-          npm ci
+          npm ci --ignore-scripts
           npm run build
 
       - name: 5c — ALTR invariant tests (strict mode)
