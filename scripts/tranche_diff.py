@@ -32,12 +32,15 @@ Also reports:
   * Field-only changes (same card_id, different metadata fields)
 
 Outputs:
-  * `.paircoder/plans/tranche-diff-<csv_sha>.json` — machine-readable
-  * `.paircoder/plans/tranche-diff-<csv_sha>.md`   — operator-readable
+  * `data/tranche-diffs/tranche-diff-<csv_sha>.json` — machine-readable
+  * `data/tranche-diffs/tranche-diff-<csv_sha>.md`   — operator-readable
 
-Both files are committed by the poll workflow alongside the new CSV
-sha so the report becomes a permanent receipt of how each tranche
-was classified at detection time.
+Both files are committed alongside the new CSV sha so the report
+becomes a permanent receipt of how each tranche was classified at
+detection time. `pursue ingest approve` reads the JSON back from the
+same directory and refuses approval if any byte-sha has moved since,
+so the output location must stay tracked and must match
+`ingest_cli.DEFAULT_DIFF_DIR`.
 """
 
 from __future__ import annotations
@@ -66,7 +69,9 @@ from r2_archive_assets import load_registry  # noqa: E402
 
 DEFAULT_OLD_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
-DEFAULT_OUT_DIR = _REPO_ROOT / ".paircoder" / "plans"
+# Receipts are a permanent record, so they must live in a TRACKED directory.
+# `.paircoder/` is gitignored — writing here would drop them silently.
+DEFAULT_OUT_DIR = _REPO_ROOT / "data" / "tranche-diffs"
 
 
 def _fetch_byte_sha_via_curl(url: str) -> str | None:

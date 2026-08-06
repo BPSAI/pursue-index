@@ -48,7 +48,9 @@ from pursue_index.post_ingest_audit import (
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_APPROVAL_LOG = _REPO_ROOT / "data" / "tranche-approval-log.jsonl"
 DEFAULT_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
-DEFAULT_DIFF_DIR = _REPO_ROOT / ".paircoder" / "plans"
+# Must match scripts/tranche_diff.py::DEFAULT_OUT_DIR, and must be tracked —
+# `.paircoder/` is gitignored, so receipts written there never get committed.
+DEFAULT_DIFF_DIR = _REPO_ROOT / "data" / "tranche-diffs"
 DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
 DEFAULT_LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_WORKLIST = _REPO_ROOT / "data" / "ingest-worklist.txt"

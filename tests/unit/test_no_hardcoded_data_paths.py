@@ -81,8 +81,19 @@ def test_no_operator_specific_absolute_paths_in_source() -> None:
 # single parser in common, and a path in a comment is just as published as one
 # in code (the first version of this guard was Python-only and missed a NAS
 # path sitting in an Astro frontmatter comment).
-_WEB_SOURCE_DIRS = ("web/src", "worker", "scripts", ".github")
-_WEB_SOURCE_SUFFIXES = (".astro", ".ts", ".tsx", ".js", ".jsx", ".sh", ".yml", ".yaml", ".jsonc")
+_WEB_SOURCE_DIRS = ("web/src", "web/src/content", "worker", "scripts", ".github")
+_WEB_SOURCE_SUFFIXES = (
+    ".astro",
+    ".mdx",  # renderable content collections — published like .astro
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".sh",
+    ".yml",
+    ".yaml",
+    ".jsonc",
+)
 
 
 def _web_source_files() -> list[Path]:

@@ -243,7 +243,10 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
             "Mutually exclusive with --desktop."
         ),
     )
-    parser.add_argument("--nas", type=Path, default=DEFAULT_NAS)
+    # Default is resolved in main(), AFTER --env is read: read_env_file() returns
+    # a dict and never exports into the process environment, so a default bound
+    # here could not see a PURSUE_DATA_ROOT supplied via --env.
+    parser.add_argument("--nas", type=Path, default=None)
     parser.add_argument("--bucket", type=str, default=DEFAULT_BUCKET)
     parser.add_argument("--source-label", default=DEFAULT_SOURCE_LABEL)
     parser.add_argument(
@@ -273,12 +276,33 @@ def _resolve_matching(
     return match_cards_to_files(cards, desktop_mp4s, resolve_dod_filename)
 
 
+def resolve_nas_dir(*, nas_arg: Path | None, env: dict[str, str]) -> Path:
+    """Where A/V bytes stage on the NAS durability tier.
+
+    Precedence: an explicit ``--nas`` wins; otherwise ``PURSUE_DATA_ROOT`` from
+    the ``--env`` file the operator named; otherwise the process-level settings
+    root. The env-file step matters because the documented invocation passes
+    configuration via ``--env`` rather than exporting it, and ``read_env_file``
+    only returns a dict — nothing it reads reaches ``settings``. Without this,
+    omitting ``--nas`` would stage under ``./data`` and silently leave the NAS
+    tier of the storage contract unwritten.
+    """
+    if nas_arg is not None:
+        return nas_arg
+    root = env.get("PURSUE_DATA_ROOT")
+    if root:
+        return Path(root) / "r2-mirror" / "archive"
+    return DEFAULT_NAS
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if bool(args.desktop) == bool(args.source_by_dvids):
         print("[ingest] provide exactly one of --desktop / --source-by-dvids")
         return 2
     env = read_env_file(args.env)
+    args.nas = resolve_nas_dir(nas_arg=args.nas, env=env)
+    print(f"[ingest] NAS archive dir: {args.nas}")
     asset_types = tuple(t.strip() for t in args.asset_types.split(",") if t.strip())
     manifest = load_manifest(args.manifest)
     cards = select_av_cards(manifest.cards, args.release_date, asset_types)

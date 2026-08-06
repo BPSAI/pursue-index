@@ -259,3 +259,19 @@ bpsai-pair pack
 <!-- <<< paircoder managed -->
 
 ## Project-Specific Notes
+
+### The paircoder scaffolding referenced above is operator-local
+
+This is a **public** repository. `.paircoder/` and `.claude/` are deliberately
+**not tracked** here — they carried internal working state, infrastructure paths,
+and runbooks referencing private sibling repositories.
+
+Everything the managed section above tells you to read or update —
+`.paircoder/context/state.md`, `.paircoder/capabilities.yaml`, `.claude/skills/`,
+`.claude/commands/` — lives on the operator's machine and is version-controlled
+in the private ops repository. It is simply not published here.
+
+In a clean public checkout those files are absent, and that is expected, not a
+fault to repair. Do not recreate them here and do not commit them. In the
+operator's environment they are present as usual and the instructions above
+apply unchanged.
