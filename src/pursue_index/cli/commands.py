@@ -153,6 +153,14 @@ app.add_typer(storage_app)
 
 
 # ---------------------------------------------------------------------------
+# provenance (Phase-A coverage report — read-only, publishes nothing)
+# ---------------------------------------------------------------------------
+from pursue_index.cli.provenance_cli import provenance_app  # noqa: E402
+
+app.add_typer(provenance_app)
+
+
+# ---------------------------------------------------------------------------
 # novelty
 # ---------------------------------------------------------------------------
 novelty_app = typer.Typer(
