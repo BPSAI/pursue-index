@@ -120,5 +120,8 @@ def build_tranche_ready_summary(
         "```",
         f"/ship-tranche {tranche}",
         "```",
+        "_`/ship-tranche` is an operator-local driver, not a command published "
+        "in this repository. The stage sequence above is the contract — running "
+        "those stages explicitly is equivalent._",
     ]
     return "\n".join(lines)
