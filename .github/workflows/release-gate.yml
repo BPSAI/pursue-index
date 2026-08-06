@@ -38,6 +38,14 @@ on:
       - "web/public/data/snapshots/**"
       - "data/card-aliases.json"
       - "web/src/content/finds/**"
+      # LS1.4 — GEO discovery surfaces and the generator that emits them.
+      # A manifest change already fires this workflow (see above), which is
+      # what catches a tranche landing without a regeneration; these entries
+      # additionally catch a hand-edit of the files or a generator change.
+      - "web/public/llms.txt"
+      - "web/public/llms-full.txt"
+      - "scripts/build_llms_txt.py"
+      - "src/pursue_index/geo/**"
       # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
       # bundle, mutating byte-history, or editing the exclusion file
       # all need the URL-stability / stale-exclusion / bundle-symmetry
@@ -124,6 +132,15 @@ jobs:
         # dirs in sync; index.json covers web side; paired snapshots
         # byte-equal. All four invariants in one test file.
         run: pytest tests/unit/test_snapshot_mirror_coverage.py -v
+
+      - name: 4b — GEO discovery metadata freshness (LS1.4)
+        # llms.txt / llms-full.txt describe the corpus to model crawlers. They
+        # were hand-maintained, so a tranche that added cards left them
+        # advertising the previous release with nothing to catch it. The
+        # provenance line each carries is compared against the manifest; a
+        # mismatch means regenerate with `python scripts/build_llms_txt.py`.
+        # Credential-free and offline — reads only committed files.
+        run: python scripts/build_llms_txt.py --check
 
       - name: 5 — Citation resolution (every <Cite> in /finds)
         # Existing test; included here for the single-status-check
