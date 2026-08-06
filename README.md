@@ -121,8 +121,9 @@ Methodology is published. Numbers are reproducible from a clean clone.
   table at v1.
 - **Review-and-correct pipeline.** Post-launch, accept community
   corrections on OCR transcripts via GitHub issues; flow them back into
-  the index. Plan in
-  [`.paircoder/plans/review-correct.md`](.paircoder/plans/review-correct.md).
+  the index. Corrections are scored for likely-error pages, surfaced for
+  operator review, and applied back into the search index and chat
+  retrieval.
 
 ## Pipeline
 
@@ -299,6 +300,6 @@ test-driven development at each stage.
 ## Contributing
 
 Issues from existing GitHub users are welcome — bugs, OCR-transcript
-corrections against specific pages, methodology questions. The plan
-for the full review-and-correct workflow lives in
-[`.paircoder/plans/review-correct.md`](.paircoder/plans/review-correct.md).
+corrections against specific pages, methodology questions. For a
+transcript correction, cite the card and page so the claim can be
+checked against the archived source bytes.
