@@ -35,12 +35,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT / "src"))
+
+from pursue_index.config import settings  # noqa: E402
+
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
-DEFAULT_OCR_ROOT = Path("/mnt/nas/personal/pursue/ocr")
+# Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
+DEFAULT_OCR_ROOT = settings.ocr_dir
 DEFAULT_OUT = REPO_ROOT / "web" / "src" / "data" / "photo-card-ids.json"
 
 # Threshold for "page is image, not text". See module docstring for the

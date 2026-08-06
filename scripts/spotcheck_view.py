@@ -12,7 +12,13 @@ import pathlib
 import sys
 import textwrap
 
-ROOT = pathlib.Path("/mnt/nas/personal/pursue/ocr")
+_REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+from pursue_index.config import settings  # noqa: E402
+
+# Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
+ROOT = settings.ocr_dir
 
 
 def find_row(path: pathlib.Path, page: int) -> dict | None:

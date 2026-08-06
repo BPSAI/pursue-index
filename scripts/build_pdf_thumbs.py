@@ -23,7 +23,7 @@ Output structure:
   web/public/data/thumbs/index.json   {thumbs: {card_id: filename}, count: N}
 
 Manifest source: data/manifests/latest.json (PDF cards only).
-PDF location: /mnt/nas/personal/pursue/pdfs/<card_id>/<asset_filename>.
+PDF location: <PURSUE_DATA_ROOT>/pdfs/<card_id>/<asset_filename>.
 Falls back to skipping with a warning when the local PDF is absent
 (operator hasn't downloaded that card yet).
 
@@ -50,10 +50,12 @@ _SRC = _REPO_ROOT / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
+from pursue_index.config import settings  # noqa: E402
 from pursue_index.scrape.manifest import load_manifest  # noqa: E402
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
-DEFAULT_PDF_ROOT = Path("/mnt/nas/personal/pursue/pdfs")
+# Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
+DEFAULT_PDF_ROOT = settings.pdf_dir
 DEFAULT_THUMBS_DIR = _REPO_ROOT / "web" / "public" / "data" / "thumbs"
 DEFAULT_THUMB_WIDTH = 480
 DEFAULT_QUALITY = 80
