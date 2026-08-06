@@ -168,8 +168,8 @@ def test_parse_existing_excerpts_recovers_published_text() -> None:
     )
 
     assert parse_existing_excerpts(doc) == {
-        "aaaa1111bbbb2222": "ALPHA TEXT",
-        "cccc3333dddd4444": "BETA TEXT",
+        ("aaaa1111bbbb2222", "First"): "ALPHA TEXT",
+        ("cccc3333dddd4444", "Second"): "BETA TEXT",
     }
 
 
@@ -179,8 +179,11 @@ def test_parse_existing_excerpts_skips_cards_without_one() -> None:
     assert parse_existing_excerpts(doc) == {}
 
 
+_KEY = ("aaaa1111bbbb2222", "First")
+
+
 def test_resolve_excerpt_prefers_live_ocr() -> None:
-    assert resolve_excerpt("aaaa1111bbbb2222", live="FRESH", published={"aaaa1111bbbb2222": "OLD"}) == "FRESH"
+    assert resolve_excerpt(_KEY, live="FRESH", published={_KEY: "OLD"}) == "FRESH"
 
 
 def test_resolve_excerpt_falls_back_to_published_when_ocr_is_unreachable() -> None:
@@ -190,11 +193,11 @@ def test_resolve_excerpt_falls_back_to_published_when_ocr_is_unreachable() -> No
     machine running the generator; dropping it would silently shrink the
     published corpus description.
     """
-    assert resolve_excerpt("aaaa1111bbbb2222", live=None, published={"aaaa1111bbbb2222": "OLD"}) == "OLD"
+    assert resolve_excerpt(_KEY, live=None, published={_KEY: "OLD"}) == "OLD"
 
 
 def test_resolve_excerpt_returns_none_when_neither_source_has_text() -> None:
-    assert resolve_excerpt("aaaa1111bbbb2222", live=None, published={}) is None
+    assert resolve_excerpt(_KEY, live=None, published={}) is None
 
 
 # --------------------------------------------------------------------------
@@ -317,4 +320,39 @@ def test_parse_existing_excerpts_does_not_steal_a_later_cards_excerpt() -> None:
         "### cccc3333dddd4444 — Has one\n\nExcerpt (page 1):\n\nBETA TEXT\n"
     )
 
-    assert parse_existing_excerpts(doc) == {"cccc3333dddd4444": "BETA TEXT"}
+    assert parse_existing_excerpts(doc) == {("cccc3333dddd4444", "Has one"): "BETA TEXT"}
+
+
+# --------------------------------------------------------------------------
+# Duplicate card_ids (Codex #116 P1)
+# --------------------------------------------------------------------------
+
+
+def test_excerpts_are_keyed_per_row_not_per_card_id() -> None:
+    """9 card_ids in the manifest cover multiple rows (a PDF plus A/V rows).
+
+    Keying by card_id alone collapses them, so an excerpt published for one row
+    marks every row sharing that id as already-published — re-introducing the
+    misattribution `should_include_excerpt` exists to prevent.
+    """
+    doc = (
+        "## Cards\n\n"
+        "### aaaa1111bbbb2222 — Mission Report\n\nExcerpt (page 1):\n\nPDF TEXT\n\n"
+        "### aaaa1111bbbb2222 — Unresolved UAP Report\n\n- Agency: X\n"
+    )
+
+    parsed = parse_existing_excerpts(doc)
+
+    assert parsed == {("aaaa1111bbbb2222", "Mission Report"): "PDF TEXT"}
+    assert ("aaaa1111bbbb2222", "Unresolved UAP Report") not in parsed
+
+
+def test_resolve_excerpt_does_not_leak_across_rows_sharing_a_card_id() -> None:
+    published = {("aaaa1111bbbb2222", "Mission Report"): "PDF TEXT"}
+
+    assert (
+        resolve_excerpt(
+            ("aaaa1111bbbb2222", "Unresolved UAP Report"), live=None, published=published
+        )
+        is None
+    )

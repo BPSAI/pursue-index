@@ -111,12 +111,13 @@ def render_documents(manifest: dict, *, ocr_dir: Path) -> dict[Path, str]:
             card,
             excerpt=(
                 resolve_excerpt(
-                    card["card_id"],
+                    (card["card_id"], card["title"]),
                     live=first_page_excerpt(card["card_id"], ocr_dir=ocr_dir),
                     published=published,
                 )
                 if should_include_excerpt(
-                    card, already_published=card["card_id"] in published
+                    card,
+                    already_published=(card["card_id"], card["title"]) in published,
                 )
                 else None
             ),
@@ -147,7 +148,21 @@ def main(argv: list[str] | None = None) -> int:
     ocr_dir = args.ocr_dir or settings.ocr_dir
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
 
+    rendered = render_documents(manifest, ocr_dir=ocr_dir)
+
     if args.check:
+        # Compare RENDERED CONTENT, not just the provenance line. Card metadata
+        # can change without moving the count or the upstream csv_sha256 — a
+        # curated display_date overlay does exactly that — and a hand-edit moves
+        # neither. Rendering and diffing catches all three.
+        #
+        # Safe without the NAS mounted: with no live OCR every excerpt falls
+        # back to the published text, so the render is deterministic in CI.
+        stale = [
+            path.name
+            for path, new in rendered.items()
+            if path.read_text(encoding="utf-8") != new
+        ]
         result = check_geo_freshness(
             card_count=len(manifest["cards"]),
             csv_sha256=manifest["csv_sha256"],
@@ -155,10 +170,18 @@ def main(argv: list[str] | None = None) -> int:
                 p.name: p.read_text(encoding="utf-8") for p in (LLMS_TXT, LLMS_FULL_TXT)
             },
         )
+        if stale:
+            print(
+                "GEO discovery metadata is STALE — regenerate with "
+                "`python scripts/build_llms_txt.py`:"
+            )
+            for name in stale:
+                print(f"  * {name}: rendered output differs from the committed file")
+            for problem in result.problems:
+                print(f"  * {problem}")
+            return 1
         print(render_freshness_report(result))
         return 0 if result.ok else 1
-
-    rendered = render_documents(manifest, ocr_dir=ocr_dir)
 
     if args.diff:
         for path, new in rendered.items():

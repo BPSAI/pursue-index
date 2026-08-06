@@ -99,20 +99,26 @@ def build_cards_intro(*, card_count: int) -> str:
 # LATER card's excerpt and steal it. That silently reattributes primary-source
 # text to the wrong document.
 _EXCERPT_RE = re.compile(
-    r"^###\s+(?P<card_id>[0-9a-f]{16})\s(?:(?!^###\s).)*?"
+    r"^###\s+(?P<card_id>[0-9a-f]{16})\s+—\s+(?P<title>[^\n]*)\n(?:(?!^###\s).)*?"
     r"^Excerpt \(page \d+\):\n\n(?P<text>(?:(?!^###\s).)*?)(?=\n\n###\s|\n\n##\s|\Z)",
     re.MULTILINE | re.DOTALL,
 )
 
 
-def parse_existing_excerpts(document: str) -> dict[str, str]:
-    """Recover already-published excerpts, keyed by card_id.
+def parse_existing_excerpts(document: str) -> dict[tuple[str, str], str]:
+    """Recover already-published excerpts, keyed by ``(card_id, title)``.
+
+    Keyed per ROW, not per card_id: nine card_ids in the manifest cover several
+    rows each (a mission-report PDF plus the A/V rows that share its identifier,
+    because ``card_id`` is content-addressed from the asset URL). Keying by
+    card_id alone collapses them, so an excerpt published for one row would mark
+    every sibling row as already-published.
 
     Trailing newlines are structural and stripped; a trailing *space* is not —
     it can be the last character of a fixed-width cut and must round-trip.
     """
     return {
-        m.group("card_id"): m.group("text").rstrip("\n")
+        (m.group("card_id"), m.group("title").strip()): m.group("text").rstrip("\n")
         for m in _EXCERPT_RE.finditer(document)
     }
 
@@ -136,7 +142,7 @@ def should_include_excerpt(card: Mapping[str, Any], *, already_published: bool) 
 
 
 def resolve_excerpt(
-    card_id: str, *, live: str | None, published: Mapping[str, str]
+    key: tuple[str, str], *, live: str | None, published: Mapping[tuple[str, str], str]
 ) -> str | None:
     """Live OCR when available, otherwise whatever is already published.
 
@@ -146,7 +152,7 @@ def resolve_excerpt(
     live text but falling back to published text means a thin mount refreshes
     what it can and leaves the rest intact, instead of deleting it.
     """
-    return live or published.get(card_id) or None
+    return live or published.get(key) or None
 
 
 def render_card_detail(card: Mapping[str, Any], *, excerpt: str | None) -> str:
