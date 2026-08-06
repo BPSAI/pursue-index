@@ -99,7 +99,7 @@ def _require_text(value: object, field_name: str, message: str) -> None:
 _ALLOWED_URL_SCHEMES = ("http://", "https://")
 
 
-def _require_web_url(value: str, field: str) -> None:
+def require_web_url(value: str, field: str) -> None:
     """Reject any artifact URL that is not plain http(s).
 
     These records exist to become citations on a public page, and
@@ -143,7 +143,7 @@ class ProvenanceClaim:
         _require_text(
             self.artifact_url, "artifact_url", "a provenance claim requires a source artifact URL"
         )
-        _require_web_url(self.artifact_url, "artifact_url")
+        require_web_url(self.artifact_url, "artifact_url")
         if not isinstance(self.established_date, date):
             raise TypeError("a provenance claim requires an establishing date; none was given")
         if not isinstance(self.date_basis, DateBasis):

@@ -31,7 +31,7 @@ from datetime import date
 from enum import StrEnum
 from typing import Any
 
-from pursue_index.provenance import POSITIVE_TIERS, DateBasis, ProvenanceTier
+from pursue_index.provenance import POSITIVE_TIERS, DateBasis, ProvenanceTier, require_web_url
 
 __all__ = [
     "ResolutionSource",
@@ -94,6 +94,13 @@ class ResolvedClaim:
             raise TypeError("established_date must be a date")
 
     def _check_evidence(self) -> None:
+        # Shared with ProvenanceClaim rather than re-implemented: this type is
+        # the one the identifier resolver populates, with `artifact_url` taken
+        # verbatim from a third-party sitemap <loc>, and it serialises into the
+        # artifact intended to back public citations. Guarding only the sibling
+        # class left this path wide open (caught on security re-audit).
+        if self.artifact_url.strip():
+            require_web_url(self.artifact_url, "artifact_url")
         if self.tier in _STRONG_TIERS:
             if not self.artifact_url.strip():
                 raise ValueError(f"tier {self.tier.value!r} requires a source artifact URL")
