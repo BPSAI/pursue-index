@@ -4,6 +4,8 @@ Citable archive of the U.S. Department of War PURSUE UAP document releases.
 Source documents are public-domain U.S. Government work; the indexing layer (manifest, OCR transcripts, search) is Apache-2.0.
 Canonical site: https://pursueindex.com
 
+> Manifest: 334 cards · csv_sha256 13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1
+
 ## Project overview
 
 URL: https://pursueindex.com/
