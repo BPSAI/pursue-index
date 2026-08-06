@@ -77,6 +77,45 @@ def test_no_operator_specific_absolute_paths_in_source() -> None:
     )
 
 
+# Non-Python source that ships in the repo. Scanned as text — these have no
+# single parser in common, and a path in a comment is just as published as one
+# in code (the first version of this guard was Python-only and missed a NAS
+# path sitting in an Astro frontmatter comment).
+_WEB_SOURCE_DIRS = ("web/src", "worker", "scripts", ".github")
+_WEB_SOURCE_SUFFIXES = (".astro", ".ts", ".tsx", ".js", ".jsx", ".sh", ".yml", ".yaml", ".jsonc")
+
+
+def _web_source_files() -> list[Path]:
+    files: list[Path] = []
+    for rel in _WEB_SOURCE_DIRS:
+        root = _REPO_ROOT / rel
+        if not root.is_dir():
+            continue
+        files.extend(
+            p
+            for p in root.rglob("*")
+            if p.suffix in _WEB_SOURCE_SUFFIXES and "node_modules" not in p.parts
+        )
+    return sorted(files)
+
+
+def test_no_operator_specific_absolute_paths_in_web_source() -> None:
+    offenders: list[str] = []
+    for path in _web_source_files():
+        for lineno, line in enumerate(
+            path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1
+        ):
+            if _OPERATOR_PATH.search(line):
+                rel = path.relative_to(_REPO_ROOT)
+                offenders.append(f"{rel}:{lineno}: {line.strip()}")
+
+    assert not offenders, (
+        "Operator-specific absolute paths appear in non-Python source. Refer to "
+        "`<PURSUE_DATA_ROOT>` instead of one machine's mount point:\n  "
+        + "\n  ".join(offenders)
+    )
+
+
 # Each script's default asset location, and the settings property it must track.
 _SCRIPT_DEFAULTS = (
     ("merge_partial_sonnet_with_surya", "NAS_OCR_ROOT", "ocr_dir"),
