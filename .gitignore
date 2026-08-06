@@ -106,22 +106,13 @@ tools/cli/build/
 agent_pack.tgz
 *.pyc
 
-/.paircoder/data/
-/.paircoder/feedback
-/.paircoder/history/
-/.paircoder/cache/
-/.paircoder/.cli_version
-/.paircoder/telemetry/telemetry.jsonl
-/.paircoder/telemetry/audit.jsonl
-/.paircoder/telemetry/bootstrap_audit.jsonl
-/.paircoder/telemetry/session_snapshot.json
-/.paircoder/feedback/calibration.json
-/.paircoder/time-tracking-cache.json
-/.paircoder/session.json
-/.paircoder/routing_decision_*.json
+# Internal AI-pair scaffolding — operator-local tooling, not project source.
+# Untracked from the public repo: it carried internal working state, private
+# sibling-repo paths, infrastructure topology and per-run spend figures.
+# Files remain on the operator's disk; they are simply not published.
+/.paircoder/
+/.claude/
 
-# Sub-agent worktrees (transient; the branches are the source of truth)
-.claude/worktrees/
 
 # Sprint 4b Theme B — IndexNow key file. Lives at data/indexnow-key.txt
 # locally for dry-runs; the production value lives in the GitHub Actions
@@ -140,15 +131,8 @@ agent_pack.tgz
 /web/dist/indexnow-placeholder.txt
 
 
-
-
-# Local-only agent memory (operationally sensitive notes that shouldn't
-# ship to a public repo)
-.claude/agent-memory/driver/feedback_oauth_for_anthropic.md
-
 # Launch comms drafts — kept locally only (the operator has working copies)
 docs/launch/journalist-outreach.md
-/.paircoder/qc/reports/
 
 # Locally-generated /altered/ QC sample report (Sprint 4k-QC). Pure
 # convenience artifact: a random-sample-per-bucket markdown summary
@@ -158,29 +142,12 @@ docs/launch/journalist-outreach.md
 # underlying data change.
 /data/altered-qc-report.md
 
-# Agent-internal memory: notes, audits, and working state from
-# specialized subagents. Useful locally for cross-session continuity,
-# but contains internal jargon, absolute paths, and occasional
-# credential fragments — keep out of the public repo.
-/.claude/agent-memory/
-
 # Claude Code's harness creates a per-cwd `.claude/` scope; when an
 # agent runs with `cwd=web/` (Astro tooling) the harness mirrors a
 # subset of `.claude/` state there (mostly `agent-memory/`). Same
 # rationale as the root-level rule above — local-only, never imported.
 /web/.claude/
 
-# Per-session scheduler lock the harness drops at the project root.
-# Process-local; never relevant to source.
-/.claude/scheduled_tasks.lock
-
-# >>> paircoder managed
-.paircoder/.cli_version
-.paircoder/cache/**
-.paircoder/feedback/calibration.json
-.paircoder/history/benchmarks/matrix/**
-.paircoder/telemetry/**
-# <<< paircoder managed
 
 # paircoder-internal gate-bypass audit log — not Pursue project data, keep out of the public repo
 data/audit-log.jsonl

@@ -101,5 +101,4 @@ paths.
 If reproducibility for outside researchers becomes a priority,
 publishing the cache as a separate `pursue-index-ocr-cache` release
 artifact (or as an entry in the asset-bytes-registry) is the recommended
-escape hatch — see also `.paircoder/plans/autonomous-finds-pipeline.md`
-for the broader public-reproducibility posture.
+escape hatch.
