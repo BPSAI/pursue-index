@@ -14,7 +14,7 @@ from pursue_index.config import settings
 runner = CliRunner()
 
 _OK_ENV = {
-    "PURSUE_DATA_ROOT": "/mnt/nas/personal/pursue",
+    "PURSUE_DATA_ROOT": "/srv/pursue-data",
     "R2_ACCOUNT_ID": "acct-primary",
     "R2_ACCESS_KEY_ID": "ak",
     "R2_SECRET_ACCESS_KEY": "sk",

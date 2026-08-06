@@ -30,7 +30,13 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-NAS_OCR_ROOT = Path("/mnt/nas/personal/pursue/ocr")
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+from pursue_index.config import settings  # noqa: E402
+
+# Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
+NAS_OCR_ROOT = settings.ocr_dir
 
 
 def _load_jsonl(path: Path) -> list[dict]:

@@ -25,8 +25,10 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from pursue_index.clean.qc.priority import score_page  # noqa: E402
+from pursue_index.config import settings  # noqa: E402
 
-DEFAULT_OCR_DIR = Path("/mnt/nas/personal/pursue/ocr")
+# Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
+DEFAULT_OCR_DIR = settings.ocr_dir
 DEFAULT_OUT = _REPO_ROOT / "web" / "public" / "data" / "review-priority.json"
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 

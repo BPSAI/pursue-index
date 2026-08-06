@@ -35,9 +35,15 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-NAS_ROOT = Path("/mnt/nas/personal/pursue")
-PDFS_DIR = NAS_ROOT / "pdfs"
-MIRROR_DIR = NAS_ROOT / "r2-mirror" / "archive"
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+from pursue_index.config import settings  # noqa: E402
+
+# Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
+NAS_ROOT = settings.data_root
+PDFS_DIR = settings.pdf_dir
+MIRROR_DIR = settings.r2_mirror_dir / "archive"
 REGISTRY = Path(__file__).resolve().parent.parent / "data" / "asset-bytes-registry.jsonl"
 
 

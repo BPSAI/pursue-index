@@ -66,12 +66,14 @@ from build_video_posters import (  # noqa: E402
     scrape_dod_filename,
 )
 
+from pursue_index.config import settings  # noqa: E402
 from pursue_index.scrape.manifest import load_manifest  # noqa: E402
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_ENV = _REPO_ROOT / ".env"
-DEFAULT_NAS = Path("/mnt/nas/personal/pursue/r2-mirror/archive")
+# Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
+DEFAULT_NAS = settings.r2_mirror_dir / "archive"
 DEFAULT_BUCKET = "pursue-pdfs"
 DEFAULT_SOURCE_LABEL = "war.gov (DVIDS videos+audio)"
 

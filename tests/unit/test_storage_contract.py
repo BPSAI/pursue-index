@@ -20,7 +20,7 @@ from pursue_index.storage.contract import (
 def _full_env(*, same_account: bool = True) -> dict[str, str]:
     backup_acct = "acct-primary" if same_account else "acct-backup"
     return {
-        "PURSUE_DATA_ROOT": "/mnt/nas/personal/pursue",
+        "PURSUE_DATA_ROOT": "/srv/pursue-data",
         "R2_ACCOUNT_ID": "acct-primary",
         "R2_ACCESS_KEY_ID": "ak",
         "R2_SECRET_ACCESS_KEY": "sk",
