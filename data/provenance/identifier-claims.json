@@ -1,0 +1,27 @@
+{
+  "schema": "identifier-resolver-claims/v1",
+  "source_manifest": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
+  "csv_sha256": "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1",
+  "catalogue_entries": 0,
+  "card_count": 334,
+  "claim_count": 1,
+  "tier_counts": {
+    "content_previously_published": 1
+  },
+  "needs_page_image_comparison": 0,
+  "claims": [
+    {
+      "kind": "resolved_claim",
+      "card_id": "973c1f75f55d0d39",
+      "tier": "content_previously_published",
+      "source": "government_description",
+      "identifier_kind": "",
+      "identifier_value": "",
+      "artifact_url": "",
+      "established_date": null,
+      "date_basis": null,
+      "prior_publication": "the French magazine VDS",
+      "needs_page_image_comparison": false
+    }
+  ]
+}
