@@ -1,3 +1,8 @@
+# Interpreter for repo scripts. Bare `python` resolves to whichever venv is
+# active in the caller's shell; these targets depend on this repo's deps, so
+# default to the repo venv. Override with `make PYTHON=... <target>`.
+PYTHON ?= .venv/bin/python
+
 .PHONY: install install-dev scrape-inspect scrape download ocr ingest serve \
         test lint typecheck fmt db-up db-down clean
 
@@ -69,11 +74,11 @@ ship-ready: rebuild-derivatives registry-root snapshot-rotate astro-build test a
 
 .PHONY: staleness
 staleness:
-	@python scripts/runbook_staleness_check.py
+	@$(PYTHON) scripts/runbook_staleness_check.py
 
 .PHONY: verify-deploy
 verify-deploy:
-	@python scripts/runbook_verify_deploy.py
+	@$(PYTHON) scripts/runbook_verify_deploy.py
 
 .PHONY: rebuild-derivatives
 rebuild-derivatives:
@@ -82,17 +87,17 @@ rebuild-derivatives:
 	@cd web && node scripts/build_byte_history.mjs > /dev/null
 	@cd web && node scripts/build_cards_summary.mjs > /dev/null
 	@cd web && node scripts/build_csv_archive.mjs > /dev/null
-	@python scripts/build_search_data.py 2>&1 | tail -1
+	@$(PYTHON) scripts/build_search_data.py 2>&1 | tail -1
 	@# LS1.4 superseded build_llms_txt.mjs with the Python generator, which is
 	@# what release-gate step 4b checks (`build_llms_txt.py --check`). The .mjs
 	@# emits no provenance line, so leaving it here silently reverted the
 	@# gate-required output and reddened CI on every release that ran the
 	@# generator before `make ship-ready`, exactly as the runbook said to.
-	@python scripts/build_llms_txt.py 2>&1 | tail -1
-	@python scripts/build_pages_cleaned.py 2>&1 | tail -1
-	@python scripts/build_photo_card_index.py 2>&1 | tail -1
-	@python scripts/build_video_card_index.py 2>&1 | tail -1
-	@python scripts/build_finds_og_images.py 2>&1 | tail -1
+	@$(PYTHON) scripts/build_llms_txt.py 2>&1 | tail -1
+	@$(PYTHON) scripts/build_pages_cleaned.py 2>&1 | tail -1
+	@$(PYTHON) scripts/build_photo_card_index.py 2>&1 | tail -1
+	@$(PYTHON) scripts/build_video_card_index.py 2>&1 | tail -1
+	@$(PYTHON) scripts/build_finds_og_images.py 2>&1 | tail -1
 	@# Derived retrieval/browse payloads that feed /chat, /search, /atlas and
 	@# the gallery. These generators worked but nothing invoked them, so the
 	@# deployed embed_index.json / atlas-layout.json / video-posters tracked
@@ -111,14 +116,14 @@ rebuild-derivatives:
 	@# Requires the NAS embed root + r2-mirror (present in the operator ship
 	@# env; same precondition as embed above).
 	@echo "==> Propagate derived payloads (embed / posters / atlas)"
-	@python scripts/build_embed_data.py
-	@python scripts/build_video_posters.py
-	@python scripts/build_atlas_layout.py
+	@$(PYTHON) scripts/build_embed_data.py
+	@$(PYTHON) scripts/build_video_posters.py
+	@$(PYTHON) scripts/build_atlas_layout.py
 
 .PHONY: registry-root
 registry-root:
 	@echo "==> Recompute registry-root"
-	@python scripts/registry_root.py \
+	@$(PYTHON) scripts/registry_root.py \
 		--registry data/asset-bytes-registry.jsonl \
 		--root data/registry-root.txt \
 		--manifest data/registry-root-manifest.txt
@@ -126,7 +131,7 @@ registry-root:
 .PHONY: snapshot-rotate
 snapshot-rotate:
 	@echo "==> Rotate manifest snapshot (only if csv_sha differs from latest indexed)"
-	@python scripts/runbook_snapshot_rotate.py
+	@$(PYTHON) scripts/runbook_snapshot_rotate.py
 
 .PHONY: arch-check
 arch-check:
