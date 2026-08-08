@@ -8,7 +8,13 @@ pure (str/dict → str) — testable without filesystem or network.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
+
+# A run of newlines, with or without carriage returns, and any horizontal
+# whitespace hugging it — collapsed whole so a CRLF or a blank line between
+# paragraphs does not leave a double space behind.
+_NEWLINE_RUN = re.compile(r"[ \t]*(?:\r?\n)+[ \t]*")
 
 
 def render_json(diff: dict[str, Any]) -> str:
@@ -18,13 +24,22 @@ def render_json(diff: dict[str, Any]) -> str:
 def _esc(text: str) -> str:
     """Escape upstream free text for interpolation into the receipt.
 
-    Titles and filenames come from the government CSV verbatim and do
-    contain pipes. An unescaped one opens a new table cell, shifting
-    every column after it, so the receipt describes a row it did not
-    read. Escaping in the non-table sections too keeps one rule for all
-    interpolated upstream text.
+    Two characters in the government CSV's free text break the markdown
+    structure around them, and only one of them is hypothetical:
+
+    * newlines, which 1,813 descriptions carry. A raw one ends the table
+      row mid-cell and reflows the columns after it as body text, and in
+      the heading/list sections it ends the list item and turns the rest
+      into a paragraph. Runs collapse to a single space.
+    * pipes, which open a new table cell and shift every column after
+      it. None have appeared upstream so far; the escape is cheap and the
+      column shift would be silent.
+
+    Applied to every interpolated upstream string, in the table sections
+    and the heading/list sections alike, so there is one rule to reason
+    about rather than a per-section exemption to remember.
     """
-    return text.replace("|", "\\|")
+    return _NEWLINE_RUN.sub(" ", text).replace("|", "\\|")
 
 
 def _md_summary(s: dict[str, int]) -> str:
@@ -59,16 +74,18 @@ def _md_quarantined(rows: list[dict[str, Any]]) -> str:
         return "_None._\n"
     out: list[str] = []
     for r in rows:
-        out.append(f"### `{r['new_card_id']}` — {r.get('new_title') or '(no title)'}")
+        out.append(
+            f"### `{r['new_card_id']}` — {_esc(r.get('new_title') or '(no title)')}"
+        )
         out.append(f"- new byte_sha256: `{(r.get('new_byte_sha256') or 'unknown')[:24]}…`")
-        out.append(f"- new asset_filename: `{r.get('new_asset_filename') or ''}`")
+        out.append(f"- new asset_filename: `{_esc(r.get('new_asset_filename') or '')}`")
         matches = r.get("matches", [])
         if matches:
             out.append("- candidate matches (ranked by signal strength — more reasons firing = stronger):")
             for m in matches:
                 stars = "★" * min(m["strength"], 4)
-                reasons = "; ".join(m["reasons"])
-                title = m.get("title") or "(no title)"
+                reasons = _esc("; ".join(m["reasons"]))
+                title = _esc(m.get("title") or "(no title)")
                 out.append(f"  - {stars} `{m['card_id']}` — {title} — _{reasons}_")
         else:
             # Backwards-compat for older diff payloads.
@@ -142,14 +159,16 @@ def _md_restored(rows: list[dict[str, Any]]) -> str:
         return "_None._\n"
     out: list[str] = []
     for r in rows:
-        out.append(f"### `{r['new_card_id']}` — {r.get('new_title') or '(no title)'}")
+        out.append(
+            f"### `{r['new_card_id']}` — {_esc(r.get('new_title') or '(no title)')}"
+        )
         out.append(
             f"- pinned byte_sha256: `{(r.get('pinned_byte_sha256') or '')[:24]}…` "
             f"(recorded {r.get('pinned_fetched_at') or '?'})"
         )
         new_sha = r.get("new_byte_sha256")
         out.append(f"- new byte_sha256: `{(new_sha or 'unknown')[:24]}…`")
-        out.append(f"- new asset_url: `{r.get('new_asset_url') or ''}`")
+        out.append(f"- new asset_url: `{_esc(r.get('new_asset_url') or '')}`")
         out.append("")
     return "\n".join(out)
 

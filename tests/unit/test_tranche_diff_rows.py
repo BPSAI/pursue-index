@@ -138,6 +138,46 @@ def test_a_pipe_in_a_field_value_is_escaped_in_the_receipt() -> None:
     assert "Mission \\| Report" in md
 
 
+def test_a_newline_in_a_title_does_not_break_the_row_changes_table() -> None:
+    # 1,813 upstream descriptions carry newlines — unlike pipes, which have
+    # never actually appeared. A raw newline ends the table row mid-cell, so
+    # the remaining columns render as body text under the table.
+    old = [_pdf("jj10"), _vid("jj10", "1000080")]
+    new = [*old, _vid("jj10", "1000081", title="PR1000081\nGreece\r\n2023")]
+    md = render_markdown(_diff(old, new))
+    line = _line_with(md, "1000081")
+    assert "PR1000081 Greece 2023" in line
+    assert line.count("|") == 6, line
+
+
+def test_a_newline_in_a_field_value_is_collapsed_in_the_receipt() -> None:
+    old = [_pdf("kk11")]
+    new = [_pdf("kk11", title="Mission\nReport")]
+    md = render_markdown(_diff(old, new))
+    assert "Mission Report" in md
+    assert "Mission\nReport" not in md
+
+
+def test_a_newline_in_a_quarantined_title_stays_on_one_list_item() -> None:
+    # The quarantined and restored sections interpolate upstream text into
+    # markdown headings and list items, where a newline silently ends the
+    # item and reflows the rest as a paragraph.
+    diff = _diff([], [])
+    diff["quarantined"] = [
+        {
+            "new_card_id": "ll12",
+            "new_title": "Mission\nReport",
+            "new_byte_sha256": "f" * 64,
+            "new_asset_filename": "a\nb.pdf",
+            "matches": [],
+        }
+    ]
+    md = render_markdown(diff)
+    assert "Mission Report" in md
+    assert "Mission\nReport" not in md
+    assert "a b.pdf" in md
+
+
 def test_removed_duplicate_id_is_described_by_its_pdf_row() -> None:
     # The VID row comes last, so a last-wins dict describes this removal
     # with the video's title and filename instead of the document's.
