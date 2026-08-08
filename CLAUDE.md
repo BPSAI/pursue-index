@@ -256,6 +256,20 @@ bpsai-pair pack
 ```
 
 ---
+
+## Standing Dispatch Authorization
+
+Orchestration-shaped work — `engage` invocations, workflow dispatch, and background task execution — is pre-authorized for this project. When you invoke a command like:
+
+```
+engage backlog-sprint-28.md
+```
+
+This constitutes explicit authorization for background dispatch. The PairCoder framework will execute the named orchestration workflow in the background. Do not execute these workflows inline in this chat session; use the CLI invocation instead.
+
+**Escape hatch (audited):** There is no `engage`-specific hook entry to remove — the `UserPromptSubmit` entry in `.claude/settings.json` runs the shared `command_intent_gate.py`, whose `command_intents.json` table also covers `review` command shapes; removing the hook entry itself would disable that protection too. To opt out of `engage`'s contract injection specifically, remove the `"id": "engage"` row from `.claude/hooks/command_intents.json`'s `intents` array (leave the `review-*` rows intact). That file lives under `.claude/hooks/`, one of the payload subtrees re-pinned on every `bpsai-pair release pin-payload`/upgrade, so the deletion is visible in `git diff` and gets re-asserted the same way — opting out stays a conscious, visible choice.
+
+---
 <!-- <<< paircoder managed -->
 
 ## Project-Specific Notes
