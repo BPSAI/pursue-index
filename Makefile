@@ -93,19 +93,27 @@ rebuild-derivatives:
 	@python scripts/build_photo_card_index.py 2>&1 | tail -1
 	@python scripts/build_video_card_index.py 2>&1 | tail -1
 	@python scripts/build_finds_og_images.py 2>&1 | tail -1
-	@# Derived retrieval/browse payloads that feed /chat, /search, /atlas,
-	@# /disclosure and the gallery. These were built by working generators
-	@# nothing invoked (T47.8), so the deployed embed_index.json / atlas-
-	@# layout.json / novelty.json / video-posters lagged the live manifest by
-	@# whole releases. No `| tail` here: a builder that exits non-zero must
-	@# fail the target loudly (piping to tail masks the exit code), and their
-	@# output is a line or two anyway. Requires the NAS embed root + r2-mirror
-	@# (present in the operator ship env; same precondition as embed above).
-	@echo "==> Propagate derived payloads (embed / atlas / novelty / posters)"
+	@# Derived retrieval/browse payloads that feed /chat, /search, /atlas and
+	@# the gallery. These generators worked but nothing invoked them, so the
+	@# deployed embed_index.json / atlas-layout.json / video-posters tracked
+	@# the manifest only when someone remembered to run them by hand.
+	@#
+	@# No `| tail` here: piping masks the exit code, and a builder that exits
+	@# non-zero must fail the target rather than leave a stale payload behind.
+	@# Their output is a line or two anyway.
+	@#
+	@# Order is load-bearing. atlas runs LAST because it is the one with
+	@# optional imports (the projection stack) and so the one most likely to
+	@# be missing a dependency; embed and posters must have already landed
+	@# when it does, or an atlas that cannot import leaves them unbuilt too.
+	@# embed precedes atlas because atlas projects the embed index.
+	@#
+	@# Requires the NAS embed root + r2-mirror (present in the operator ship
+	@# env; same precondition as embed above).
+	@echo "==> Propagate derived payloads (embed / posters / atlas)"
 	@python scripts/build_embed_data.py
-	@python scripts/build_atlas_layout.py
-	@python scripts/build_novelty_data.py
 	@python scripts/build_video_posters.py
+	@python scripts/build_atlas_layout.py
 
 .PHONY: registry-root
 registry-root:

@@ -108,11 +108,9 @@ def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
         PDFs; idempotent (only new/changed cards regenerate).
 
     The heavier embedding-derived payloads (`build_embed_data.py`,
-    `build_atlas_layout.py`, `build_novelty_data.py`, `build_search_data.py`)
-    are NOT run here — they depend on the embed/OCR/novelty stages that a
-    metadata-only promote does not touch. `make rebuild-derivatives` (run
-    during `make ship-ready`, after embed) propagates those; see
-    `ship-tranche.md`.
+    `build_atlas_layout.py`, `build_search_data.py`) are NOT run here — they
+    depend on the embed and OCR stages that a metadata-only promote does not
+    touch. `make rebuild-derivatives`, run after embed, propagates those.
     """
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(snapshot_path, manifest_path)
@@ -144,8 +142,8 @@ def _report_builder_result(
 
     Previously the ``CompletedProcess`` was discarded entirely, so a
     non-zero exit (a missing r2-mirror, a crashed generator) left no
-    trace and the derived payload silently went stale — the exact
-    orphaned-builder failure T47.8 closes. A non-zero exit is reported
+    trace and the derived payload silently went stale. A non-zero exit
+    is reported
     loudly but does NOT raise: the manifest mirror already happened and
     an operator-local builder must not roll it back.
     """
@@ -247,9 +245,11 @@ def render_next_steps(summary: dict[str, Any]) -> str:
     if summary["needs_download"]:
         ids = " ".join(summary["needs_download"])
         lines.append("New content detected — run the full pipeline against the new manifest:")
-        lines.append(f"  pursue download run --manifest data/manifests/latest.json")
-        lines.append(f"  pursue ocr run --manifest data/manifests/latest.json --engine llm-dots")
-        lines.append(f"  pursue embed run --manifest data/manifests/latest.json")
+        lines.append("  pursue download run --manifest data/manifests/latest.json")
+        lines.append(
+            "  pursue ocr run --manifest data/manifests/latest.json --engine llm-dots"
+        )
+        lines.append("  pursue embed run --manifest data/manifests/latest.json")
         lines.append(f"  # Affected card_ids: {ids}")
     if summary["needs_inspection"]:
         ids = " ".join(summary["needs_inspection"])
