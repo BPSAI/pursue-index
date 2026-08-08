@@ -544,21 +544,109 @@
     {
       "card_id": "fab845f51c10fdc0",
       "page_count": 5
+    },
+    {
+      "card_id": "06c5cecc4018786c",
+      "page_count": 6
+    },
+    {
+      "card_id": "09ab9032c16fbaa2",
+      "page_count": 1
+    },
+    {
+      "card_id": "0aa52db3ec97c002",
+      "page_count": 2
+    },
+    {
+      "card_id": "0e40c556fc072f29",
+      "page_count": 2
+    },
+    {
+      "card_id": "4cf7750d0dd1edd3",
+      "page_count": 1
+    },
+    {
+      "card_id": "4ea340f612c3f8c2",
+      "page_count": 3
+    },
+    {
+      "card_id": "64b4b5770a796616",
+      "page_count": 2
+    },
+    {
+      "card_id": "78312c1c607632c6",
+      "page_count": 3
+    },
+    {
+      "card_id": "7b2fec96cf493ed7",
+      "page_count": 6
+    },
+    {
+      "card_id": "87a17be77dae3d9f",
+      "page_count": 1
+    },
+    {
+      "card_id": "942f77cebc0a64c6",
+      "page_count": 2
+    },
+    {
+      "card_id": "96f4d5e8c8f90ee5",
+      "page_count": 3
+    },
+    {
+      "card_id": "98a873861e250b9e",
+      "page_count": 3
+    },
+    {
+      "card_id": "adf867b347d0d376",
+      "page_count": 5
+    },
+    {
+      "card_id": "b3cb1b38bffcb4eb",
+      "page_count": 3
+    },
+    {
+      "card_id": "b77560f5f255a661",
+      "page_count": 23
+    },
+    {
+      "card_id": "bcb9232007cbebf4",
+      "page_count": 3
+    },
+    {
+      "card_id": "c97db00a65aa4abe",
+      "page_count": 2
+    },
+    {
+      "card_id": "d973d98ce1f1f852",
+      "page_count": 7
+    },
+    {
+      "card_id": "da533c72f476d84f",
+      "page_count": 245
+    },
+    {
+      "card_id": "ea1e7c4a981bdd8b",
+      "page_count": 1
+    },
+    {
+      "card_id": "fad6007114b5eb63",
+      "page_count": 8
     }
   ],
-  "generated_at": "2026-08-06T19:13:32+00:00",
+  "generated_at": "2026-08-08T06:16:59+00:00",
   "judge_model": "claude-sonnet-4-6",
   "runner_version": "0.2.0",
   "stats": {
-    "baseline_cost_usd": 116.04,
-    "est_total_cost_usd": 82.537248,
-    "judge_calls": 4744,
-    "judge_ok": 2365,
+    "baseline_cost_usd": 124.008,
+    "est_total_cost_usd": 87.723099,
+    "judge_calls": 5074,
+    "judge_ok": 2567,
     "no_corrections": 0,
-    "operator_review": 2470,
+    "operator_review": 2600,
     "rule_applied": 0,
     "savings_pct": 29,
-    "savings_usd": 33.502752,
-    "total_pages": 4835
+    "savings_usd": 36.28490099999999,
+    "total_pages": 5167
   }
 }

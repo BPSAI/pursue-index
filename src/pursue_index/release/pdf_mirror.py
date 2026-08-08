@@ -32,6 +32,13 @@ _META_NAME = "meta.json"
 _ARCHIVE_SUBDIR = "archive"
 _CHUNK = 1 << 20
 
+# Asset types that have no PDF and are therefore outside this gate's remit.
+# IMG cards carry a .jpg and are covered by the vision path at embed time;
+# VID/AUD bytes are staged by the A/V ingest. Anything NOT listed here --
+# including an unknown card or an absent asset_type -- stays in scope, so
+# the gate fails closed rather than silently skipping a real PDF card.
+_NON_PDF_ASSET_TYPES = frozenset({"IMG", "VID", "AUD"})
+
 
 @dataclass(frozen=True)
 class CardMirrorPlan:
@@ -150,6 +157,43 @@ def _execute_plan(plan: CardMirrorPlan) -> tuple[str, str | None]:
         return "error", "post-copy sha verification failed"
     tmp.replace(target)
     return "mirrored", None
+
+
+def select_pdf_cards(
+    card_ids: list[str], manifest_cards: list[dict]
+) -> tuple[list[str], dict[str, str]]:
+    """Split a tranche worklist into PDF cards and reported non-PDF skips.
+
+    A worklist is the whole tranche scope, not just its PDFs. Handing IMG/VID/AUD
+    cards to a PDF mirror gate fails them for lacking a PDF they were never
+    supposed to have. Returns ``(in_scope, skipped)`` where ``skipped`` maps
+    card_id -> asset_type so the caller can report every exclusion — a silent
+    skip here would look exactly like coverage.
+
+    Fails closed: a card absent from the manifest, or one whose ``asset_type``
+    is missing, stays IN scope and is gated normally.
+
+    Scope is decided per-ID across ALL of that id's manifest rows, because the
+    government's CSV genuinely repeats a card_id -- 9 ids carry a PDF row plus
+    one or more VID rows (a mission report and its footage). Keying by id alone
+    kept whichever row came last and dropped those PDFs from the gate.
+    """
+    types: dict[str, set[str | None]] = {}
+    for card in manifest_cards:
+        card_id = card.get("card_id")
+        if card_id:
+            types.setdefault(card_id, set()).add(card.get("asset_type"))
+    in_scope: list[str] = []
+    skipped: dict[str, str] = {}
+    for card_id in card_ids:
+        seen = types.get(card_id)
+        # Skip only when the id is known AND every one of its rows is non-PDF.
+        if seen and seen <= _NON_PDF_ASSET_TYPES:
+            # Report every type the id carries, so a multi-row skip is legible.
+            skipped[card_id] = "+".join(sorted(str(t) for t in seen))
+        else:
+            in_scope.append(card_id)
+    return in_scope, skipped
 
 
 def run_pdf_mirror(

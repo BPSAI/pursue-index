@@ -83,7 +83,12 @@ rebuild-derivatives:
 	@cd web && node scripts/build_cards_summary.mjs > /dev/null
 	@cd web && node scripts/build_csv_archive.mjs > /dev/null
 	@python scripts/build_search_data.py 2>&1 | tail -1
-	@cd web && node scripts/build_llms_txt.mjs > /dev/null
+	@# LS1.4 superseded build_llms_txt.mjs with the Python generator, which is
+	@# what release-gate step 4b checks (`build_llms_txt.py --check`). The .mjs
+	@# emits no provenance line, so leaving it here silently reverted the
+	@# gate-required output and reddened CI on every release that ran the
+	@# generator before `make ship-ready`, exactly as the runbook said to.
+	@python scripts/build_llms_txt.py 2>&1 | tail -1
 	@python scripts/build_pages_cleaned.py 2>&1 | tail -1
 	@python scripts/build_photo_card_index.py 2>&1 | tail -1
 	@python scripts/build_video_card_index.py 2>&1 | tail -1

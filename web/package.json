@@ -8,16 +8,15 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/build_byte_history.mjs && node scripts/build_cards_summary.mjs && node scripts/build_llms_txt.mjs && node scripts/build_csv_archive.mjs",
+    "prebuild": "node scripts/build_byte_history.mjs && node scripts/build_cards_summary.mjs && node scripts/build_csv_archive.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "test:api-page": "node scripts/test-api-page.mjs",
     "test:lib": "node --test src/lib/release.test.ts src/lib/seo.test.ts src/lib/robots.test.ts src/lib/byte-display.test.ts src/lib/verdict-bundle-schema.test.ts src/lib/llm-provider.test.ts src/components/homepage-search.test.ts src/components/card-summary-loader.test.ts src/components/chat-scroll.test.ts src/components/diff-helpers.test.ts",
-    "test:llms": "node --test scripts/build_llms_txt.test.mjs",
     "test:cards-summary": "node --test scripts/build_cards_summary.test.mjs",
     "test:byte-history": "node --test scripts/build_byte_history.test.mjs",
-    "test": "npm run test:api-page && npm run test:lib && npm run test:llms && npm run test:cards-summary && npm run test:byte-history"
+    "test": "npm run test:api-page && npm run test:lib && npm run test:cards-summary && npm run test:byte-history"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.4",

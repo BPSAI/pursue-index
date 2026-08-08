@@ -4,7 +4,7 @@
 > Primary-source documents, OCR transcripts, page-level citations.
 > Source: https://pursueindex.com
 
-> Manifest: 334 cards · csv_sha256 13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1
+> Manifest: 375 cards · csv_sha256 5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7
 
 ## Meta
 
@@ -18,16 +18,15 @@
 
 ## Cards
 
-- [81a3947abfb387af — DOE-UAP-D004, Los Alamos Conference on Aerial Phenomena, 1949](https://pursueindex.com/card/81a3947abfb387af): Department of Energy (3/22/49).
-- [b0fa7140b0776b42 — DOW-UAP-D094, Analysis of Flying Object Incidents in the United States, 1949](https://pursueindex.com/card/b0fa7140b0776b42): Department of War (4/28/49).
-- [051a07582a23df10 — DOW-UAP-D097, Project Sign Progress Report, 1948](https://pursueindex.com/card/051a07582a23df10): Department of War (1948).
-- [c86ed74d472f44e2 — DOW-UAP-PR104, Unresolved UAP Report, Yellow Sea, 2025](https://pursueindex.com/card/c86ed74d472f44e2): Department of War (2025).
-- [83710a4764f1d256 — DOW-UAP-PR105, Unresolved UAP Report, East China Sea, 2025](https://pursueindex.com/card/83710a4764f1d256): Department of War (2025).
-- [bec4cc1e81a258eb — DOW-UAP-PR113, Unresolved UAP Report, Western United States, 1996](https://pursueindex.com/card/bec4cc1e81a258eb): Department of War (1996).
-- [ca537f49a429b502 — DOW-UAP-PR115, Unresolved UAP Report, Gulf of America, 2019](https://pursueindex.com/card/ca537f49a429b502): Department of War (2019).
-- [2681dbf5da52e042 — NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996](https://pursueindex.com/card/2681dbf5da52e042): NASA (1996).
-- [90a8c6493f04d6e3 — NASA-UAP-D031, STS-80 Unidentified Object Image 2, 1996](https://pursueindex.com/card/90a8c6493f04d6e3): NASA (1996).
-- [07214d7d1343a4b4 — NASA-UAP-D032, STS-80 Unidentified Object Image 3, 1996](https://pursueindex.com/card/07214d7d1343a4b4): NASA (1996).
+- [b77560f5f255a661 — DOW-UAP-D098, Film Analysis of Unidentified Objects, 1953](https://pursueindex.com/card/b77560f5f255a661): Department of War (1950, 1952).
+- [7be8e1bf34990b50 — FBI-UAP-D025, Digital Rendering, “Airborne Triangle,” 2002](https://pursueindex.com/card/7be8e1bf34990b50): FBI (2002).
+- [adf867b347d0d376 — FBI-UAP-D027, Digital Rendering, “Dark Translucent Triangle,” 2023](https://pursueindex.com/card/adf867b347d0d376): FBI (2023).
+- [979639dbe9247069 — FBI-UAP-D029, Digital Rendering, “Dark Triangle with Lights,” 2011](https://pursueindex.com/card/979639dbe9247069): FBI (2011).
+- [db390eba790bd5cd — FBI-UAP-D031, Digital Rendering, “Large Triangle with Red Lights,” 2023](https://pursueindex.com/card/db390eba790bd5cd): FBI (2023).
+- [4cf7750d0dd1edd3 — FBI-UAP-D038, Digital Rendering 1, “Multiple Red Lights,” 2026](https://pursueindex.com/card/4cf7750d0dd1edd3): FBI (2026).
+- [bcb9232007cbebf4 — FBI-UAP-D039, Digital Rendering 2, “Multiple Red Lights,” 2026](https://pursueindex.com/card/bcb9232007cbebf4): FBI (2026).
+- [06c5cecc4018786c — FBI-UAP-D041, Digital Rendering 1, “Multiple Red Lights,” 2026](https://pursueindex.com/card/06c5cecc4018786c): FBI (2026).
+- [87a17be77dae3d9f — FBI-UAP-D042, Digital Rendering 2, “Multiple Red Lights,” 2026](https://pursueindex.com/card/87a17be77dae3d9f): FBI (2026).
 - [9e677b8697685311 — 18_100754_ General 1946-7_Vol_2](https://pursueindex.com/card/9e677b8697685311): Department of War (12/30/47).
 - [9317a6ea91f7425c — 18_6369445_General_1948_Vol_1](https://pursueindex.com/card/9317a6ea91f7425c): Department of War (6/15/48).
 - [973c1f75f55d0d39 — 255_413270_UFO's_and_Defense_What_Should_we_Prepare_For](https://pursueindex.com/card/973c1f75f55d0d39): NASA (5/8/26).
@@ -81,10 +80,15 @@
 - [0f469fcf6fb42875 — CIA-UAP-D001, Intelligence Information Report, USSR, 1973](https://pursueindex.com/card/0f469fcf6fb42875): CIA (12/20/73).
 - [2b98fd7cde9b31bc — CIA-UAP-D020, Memorandum on Unconventional Aircraft Sightings, 1955](https://pursueindex.com/card/2b98fd7cde9b31bc): CIA (1955).
 - [e277f0b4d0fa62b9 — CIA-UAP-D021, Analysis of Unconventional Aircraft Sightings, 1955](https://pursueindex.com/card/e277f0b4d0fa62b9): CIA (1955).
+- [7b2fec96cf493ed7 — CIA-UAP-D022, Unidentified Flying Object Reported near Puerto Rico, 1965](https://pursueindex.com/card/7b2fec96cf493ed7): CIA (2/1/65).
+- [64b4b5770a796616 — CIA-UAP-D023, Briefing Notes for Mr. Walter Elder](https://pursueindex.com/card/64b4b5770a796616): CIA (Undated).
 - [aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery](https://pursueindex.com/card/aaafecbc47103f4b): Department of Energy (5/22/26).
 - [8156067f7ff4b983 — DOE-UAP-D002, James Tuck Correspondence, 1970s](https://pursueindex.com/card/8156067f7ff4b983): Department of Energy (1970s).
 - [b1c6f5c4a7fbeee1 — DOE-UAP-D003, Pajarito Astronomers Invitation, 1986](https://pursueindex.com/card/b1c6f5c4a7fbeee1): Department of Energy (5/20/86).
+- [81a3947abfb387af — DOE-UAP-D004, Los Alamos Conference on Aerial Phenomena, 1949](https://pursueindex.com/card/81a3947abfb387af): Department of Energy (3/22/49).
 - [7e0b4624ee81788e — DOE-UAP-D005, Pantex Unidentified Object Incident Report, 2015](https://pursueindex.com/card/7e0b4624ee81788e): Department of Energy (9/1/15).
+- [09ab9032c16fbaa2 — DOS-UAP-D001, Diplomatic Cable, Brazil, November 14, 1963](https://pursueindex.com/card/09ab9032c16fbaa2): Department of State (11/14/63).
+- [942f77cebc0a64c6 — DOS-UAP-D002, Diplomatic Cable, Brazil, November 20, 1963](https://pursueindex.com/card/942f77cebc0a64c6): Department of State (11/20/63).
 - [fd8bfb9481bcbdd3 — DOW-UAP-D003, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/fd8bfb9481bcbdd3): Department of War (5/8/26).
 - [4382ccbf2a39513d — DOW-UAP-D004, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/4382ccbf2a39513d): Department of War (5/8/26).
 - [b21122b1b7b2d953 — DOW-UAP-D005, Mission Report, Arabian Gulf, 2020](https://pursueindex.com/card/b21122b1b7b2d953): Department of War (5/8/26).
@@ -144,8 +148,13 @@
 - [24f4178ed9082f2c — DOW-UAP-D091, Range Fouler Debrief, Atlantic Ocean, 2020](https://pursueindex.com/card/24f4178ed9082f2c): Department of War (2020).
 - [8c22358135a85824 — DOW-UAP-D092, Department of the Air Force Committee to Review Project Bluebook, 1966-1967](https://pursueindex.com/card/8c22358135a85824): Department of War (4/17/67).
 - [213ab63a7aefa8fd — DOW-UAP-D093, Analysis of Flying Object Incidents in the United States, 1948](https://pursueindex.com/card/213ab63a7aefa8fd): Department of War (12/10/48).
+- [b0fa7140b0776b42 — DOW-UAP-D094, Analysis of Flying Object Incidents in the United States, 1949](https://pursueindex.com/card/b0fa7140b0776b42): Department of War (4/28/49).
 - [92b2d78bb19ee094 — DOW-UAP-D095, Joint U.S.-Canadian Aviation Projects and UFO Sighting Reports, 1954-1955](https://pursueindex.com/card/92b2d78bb19ee094): Department of War (1955).
 - [1c2287cdf770e344 — DOW-UAP-D096, Correspondence Relating to Project Blue Book, 1955](https://pursueindex.com/card/1c2287cdf770e344): Department of War (1955).
+- [051a07582a23df10 — DOW-UAP-D097, Project Sign Progress Report, 1948](https://pursueindex.com/card/051a07582a23df10): Department of War (1948).
+- [fad6007114b5eb63 — DOW-UAP-D099, Intelligence Review of “Ghost Rocket” Incidents, 1947](https://pursueindex.com/card/fad6007114b5eb63): Department of War (1/9/47).
+- [da533c72f476d84f — DOW-UAP-D100, Air Materiel Command Report on Unidentified Flying Objects, 1947-1948](https://pursueindex.com/card/da533c72f476d84f): Department of War (1947-1948).
+- [d973d98ce1f1f852 — DOW-UAP-D101, Intelligence Information Report, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/d973d98ce1f1f852): Department of War (9/8/21).
 - [c1c59236394f7b14 — DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022](https://pursueindex.com/card/c1c59236394f7b14): Department of War (5/8/26).
 - [1b522e779e72877c — DOW-UAP-PR020, Unresolved UAP Report, Kuwait, May 2022](https://pursueindex.com/card/1b522e779e72877c): Department of War (5/8/26).
 - [43db2719407a7897 — DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022](https://pursueindex.com/card/43db2719407a7897): Department of War (5/8/26).
@@ -231,6 +240,8 @@
 - [5193addba248e2e6 — DOW-UAP-PR101, Unresolved UAP Report, South China Sea, 2024](https://pursueindex.com/card/5193addba248e2e6): Department of War (2024).
 - [bd0ac2e91db204dd — DOW-UAP-PR102, Unresolved UAP Report, East China Sea, 2024](https://pursueindex.com/card/bd0ac2e91db204dd): Department of War (2024).
 - [2d67ff61a60197c1 — DOW-UAP-PR103, Unresolved UAP Report, East China Sea, 2024](https://pursueindex.com/card/2d67ff61a60197c1): Department of War (2024).
+- [c86ed74d472f44e2 — DOW-UAP-PR104, Unresolved UAP Report, Yellow Sea, 2025](https://pursueindex.com/card/c86ed74d472f44e2): Department of War (2025).
+- [83710a4764f1d256 — DOW-UAP-PR105, Unresolved UAP Report, East China Sea, 2025](https://pursueindex.com/card/83710a4764f1d256): Department of War (2025).
 - [e07c4debd3995e21 — DOW-UAP-PR106, Unresolved UAP Report, Eastern United States, 2020](https://pursueindex.com/card/e07c4debd3995e21): Department of War (2020).
 - [09aba3bd555a2a03 — DOW-UAP-PR107, Unresolved UAP Report, Eastern United States, 2020](https://pursueindex.com/card/09aba3bd555a2a03): Department of War (2020).
 - [8c4dcc4cb8f0126f — DOW-UAP-PR108, Unresolved UAP Report, Western United States, 2020](https://pursueindex.com/card/8c4dcc4cb8f0126f): Department of War (2020).
@@ -238,8 +249,26 @@
 - [12ae49ccbb59bb04 — DOW-UAP-PR110, Unresolved UAP Report, Eastern United States, 2020](https://pursueindex.com/card/12ae49ccbb59bb04): Department of War (2020).
 - [ae5a00986bae42be — DOW-UAP-PR111, Unresolved UAP Report, Eastern United States, 2020](https://pursueindex.com/card/ae5a00986bae42be): Department of War (2020).
 - [f101096677191bf4 — DOW-UAP-PR112, Unresolved UAP Report, Eastern United States, 2019](https://pursueindex.com/card/f101096677191bf4): Department of War (2019).
+- [bec4cc1e81a258eb — DOW-UAP-PR113, Unresolved UAP Report, Western United States, 1996](https://pursueindex.com/card/bec4cc1e81a258eb): Department of War (1996).
 - [5e7c32c5682fc491 — DOW-UAP-PR114, Unresolved UAP Report, Atlantic Ocean, 2016](https://pursueindex.com/card/5e7c32c5682fc491): Department of War (2016).
+- [ca537f49a429b502 — DOW-UAP-PR115, Unresolved UAP Report, Gulf of America, 2019](https://pursueindex.com/card/ca537f49a429b502): Department of War (2019).
 - [a878d3e7a9cae5be — DOW-UAP-PR116, Unresolved UAP Report, Atlantic Ocean, 2020](https://pursueindex.com/card/a878d3e7a9cae5be): Department of War (2020).
+- [66aa3ed8dece9d00 — DOW-UAP-PR117, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/66aa3ed8dece9d00): Department of War (9/8/21).
+- [c9ce3532ab1da4db — DOW-UAP-PR118, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/c9ce3532ab1da4db): Department of War (9/8/21).
+- [6e05a612ac25118f — DOW-UAP-PR119, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/6e05a612ac25118f): Department of War (9/8/21).
+- [11913b109df5d044 — DOW-UAP-PR120, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/11913b109df5d044): Department of War (9/8/21).
+- [0cb19530b1379e8c — DOW-UAP-PR121, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/0cb19530b1379e8c): Department of War (9/8/21).
+- [7c5da8ac3a325589 — DOW-UAP-PR122, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/7c5da8ac3a325589): Department of War (9/8/21).
+- [da746aeac188479d — DOW-UAP-PR123, Unresolved UAP Report, Pacific Ocean, 2019](https://pursueindex.com/card/da746aeac188479d): Department of War (2019).
+- [fa01f053b19d1511 — DOW-UAP-PR124, Unresolved UAP Report, Pacific Ocean, 2019](https://pursueindex.com/card/fa01f053b19d1511): Department of War (2019).
+- [ff28c2957fe10ad3 — DOW-UAP-PR125, Unresolved UAP Report, Pacific Ocean, 2019](https://pursueindex.com/card/ff28c2957fe10ad3): Department of War (2019).
+- [b496575fcd6e393d — DOW-UAP-PR126, Unresolved UAP Report, Pacific Ocean, 2019](https://pursueindex.com/card/b496575fcd6e393d): Department of War (2019).
+- [1e5e506cfdc6e993 — DOW-UAP-PR127, Unresolved UAP Report, Pacific Ocean, 2019](https://pursueindex.com/card/1e5e506cfdc6e993): Department of War (2019).
+- [83de7afa55d15b09 — DOW-UAP-PR134, Unresolved UAP Report, Middle East, 2025](https://pursueindex.com/card/83de7afa55d15b09): Department of War (2025).
+- [5f5553c56c931b34 — DOW-UAP-PR136, Unresolved UAP Report, Middle East, 2023](https://pursueindex.com/card/5f5553c56c931b34): Department of War (2023).
+- [c50be3b65e2340d6 — DOW-UAP-PR142, Unresolved UAP Report, Middle East, 2025](https://pursueindex.com/card/c50be3b65e2340d6): Department of War (2025).
+- [09fb644cefa66f93 — DOW-UAP-PR149, Unresolved UAP Report, Middle East, 2023](https://pursueindex.com/card/09fb644cefa66f93): Department of War (2023).
+- [ea1e7c4a981bdd8b — EOP-UAP-D001, NASC Inquiry into Bahia, Brazil Incident, November 13, 1963](https://pursueindex.com/card/ea1e7c4a981bdd8b): Executive Office of the President (11/13/63).
 - [3893e5d0279db3b1 — FBI Photo A001](https://pursueindex.com/card/3893e5d0279db3b1): FBI (Late 2025).
 - [ba30b5fdb4f6d153 — FBI Photo A002](https://pursueindex.com/card/ba30b5fdb4f6d153): FBI (Late 2025).
 - [93cbdaad1d4ac853 — FBI Photo A003](https://pursueindex.com/card/93cbdaad1d4ac853): FBI (Late 2025).
@@ -300,12 +329,21 @@
 - [cf19931bc3e5efda — FBI-UAP-D021, Digital Rendering, Narrative Statement 1-3, Western United States Event, 2023](https://pursueindex.com/card/cf19931bc3e5efda): FBI (October, 2023).
 - [a0ec63eff6d4d643 — FBI-UAP-D022, Digital Rendering, Narrative Statement 2-6, Western United States Event, 2026](https://pursueindex.com/card/a0ec63eff6d4d643): FBI (October, 2023).
 - [fc9cb08cad327063 — FBI-UAP-D023, Digital Rendering, Narrative Statement 2-7, Western United States Event, 2023](https://pursueindex.com/card/fc9cb08cad327063): FBI (October, 2023).
+- [78312c1c607632c6 — FBI-UAP-D024, FD-302, “Airborne Lights and Triangle,” 2002, 2023-2024](https://pursueindex.com/card/78312c1c607632c6): FBI (2002, 2023-2024).
+- [4ea340f612c3f8c2 — FBI-UAP-D026, FD-302, “Dark Translucent Triangle,” 2023](https://pursueindex.com/card/4ea340f612c3f8c2): FBI (2023).
+- [b3cb1b38bffcb4eb — FBI-UAP-D028, FD-302, “Dark Triangle with Lights,” 2011](https://pursueindex.com/card/b3cb1b38bffcb4eb): FBI (2011).
+- [96f4d5e8c8f90ee5 — FBI-UAP-D030, FD-302, “Large Triangle with Red Lights,” 2023](https://pursueindex.com/card/96f4d5e8c8f90ee5): FBI (2023).
+- [0aa52db3ec97c002 — FBI-UAP-D032, FD-302, “Slow-moving Objects,” 2026](https://pursueindex.com/card/0aa52db3ec97c002): FBI (2026).
+- [0e40c556fc072f29 — FBI-UAP-D033, FD-302, “Thermally Elevated Aerial Object,” 2026](https://pursueindex.com/card/0e40c556fc072f29): FBI (2026).
+- [98a873861e250b9e — FBI-UAP-D037, FD-302, “Multiple Red Lights,” 2026](https://pursueindex.com/card/98a873861e250b9e): FBI (2026).
+- [c97db00a65aa4abe — FBI-UAP-D040, FD-302, “Multiple Red Lights,” 2026](https://pursueindex.com/card/c97db00a65aa4abe): FBI (2026).
 - [fcbd7e953ec292de — FBI-UAP-PR001, “Triangle Orbs,” Northeastern United States, 2021](https://pursueindex.com/card/fcbd7e953ec292de): FBI (November, 2021).
 - [2b80b41d1b25a46f — FBI-UAP-PR002, “Red Orb Rotation,” Northeastern United States, 2022](https://pursueindex.com/card/2b80b41d1b25a46f): FBI (March, 2022).
 - [bbd205a2256b39c9 — FBI-UAP-PR003, “Orbs Over the Pond,” 2024](https://pursueindex.com/card/bbd205a2256b39c9): FBI (October, 2024).
 - [56c379b8fb673028 — FBI-UAP-PR004, “Northeastern Orb Sighting,” 2025](https://pursueindex.com/card/56c379b8fb673028): FBI (July, 2025).
 - [b771e5a588793b5d — FBI-UAP-PR005, Digital Recreation, Narrative Statement 3-1, Western United States Event, 2023](https://pursueindex.com/card/b771e5a588793b5d): FBI (October, 2023).
 - [41ba3dea9b211d5c — FBI-UAP-PR006, Digital Recreation, Narrative Statement 3-2, Western United States Event, 2023](https://pursueindex.com/card/41ba3dea9b211d5c): FBI (October, 2023).
+- [f634a8f291eb0280 — FBI-UAP-PR007, “Slow-moving Objects,” 2026](https://pursueindex.com/card/f634a8f291eb0280): FBI (2026).
 - [ea18e274b06b352e — ICA-UAP-D001, Analysis: Colorado Springs UAP Incident, 2022](https://pursueindex.com/card/ea18e274b06b352e): Intelligence Community Agency (2022).
 - [5d9d3147f0b62d0c — NASA-UAP-D001, Apollo 12 Transcript, 1969](https://pursueindex.com/card/5d9d3147f0b62d0c): NASA (1969).
 - [78dc972c0c143d1e — NASA-UAP-D002, Apollo 17 Transcript, 1972](https://pursueindex.com/card/78dc972c0c143d1e): NASA (1972).
@@ -337,6 +375,9 @@
 - [69f1874d972fb44c — NASA-UAP-D027, Apollo 14 Debriefing (Continued), 1971](https://pursueindex.com/card/69f1874d972fb44c): NASA (2/18/71).
 - [ed534f618f0c3501 — NASA-UAP-D028, Apollo 17 Crew Medical Debriefing, 1972](https://pursueindex.com/card/ed534f618f0c3501): NASA (12/21/72).
 - [aa2e4d84861d5006 — NASA-UAP-D029, Apollo 17 Crew Medical Debriefing (Continued), 1972](https://pursueindex.com/card/aa2e4d84861d5006): NASA (12/21/72).
+- [2681dbf5da52e042 — NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996](https://pursueindex.com/card/2681dbf5da52e042): NASA (1996).
+- [90a8c6493f04d6e3 — NASA-UAP-D031, STS-80 Unidentified Object Image 2, 1996](https://pursueindex.com/card/90a8c6493f04d6e3): NASA (1996).
+- [07214d7d1343a4b4 — NASA-UAP-D032, STS-80 Unidentified Object Image 3, 1996](https://pursueindex.com/card/07214d7d1343a4b4): NASA (1996).
 - [303ad110cb5fa8b4 — NASA-UAP-VM001, Apollo 12, 1969](https://pursueindex.com/card/303ad110cb5fa8b4): NASA (1969).
 - [bd9411951868bc3e — NASA-UAP-VM002, Apollo 12, 1969](https://pursueindex.com/card/bd9411951868bc3e): NASA (1969).
 - [19b18b71420602c5 — NASA-UAP-VM003, Apollo 12, 1969](https://pursueindex.com/card/19b18b71420602c5): NASA (1969).

@@ -19,8 +19,10 @@ from pursue_index.release.pdf_mirror import (
     render_mirror_report,
     render_preflight,
     run_pdf_mirror,
+    select_pdf_cards,
     verify_pdf_mirror,
 )
+from pursue_index.scrape import load_manifest
 from pursue_index.storage.contract import (
     render_contract_summary,
     verify_storage_contract,
@@ -52,6 +54,31 @@ def verify_cmd() -> None:
     raise typer.Exit(0 if result.ok else 1)
 
 
+def _pdf_scope(worklist: Path) -> list[str]:
+    """Worklist card_ids narrowed to PDF cards, echoing every exclusion.
+
+    A tranche worklist covers the whole tranche — IMG/VID/AUD cards included.
+    Those have no PDF, so gating them here fails them for lacking something
+    they never had. Skips are printed, never silent: an unreported skip reads
+    exactly like coverage.
+    """
+    card_ids = read_worklist(worklist)
+    manifest = load_manifest(settings.manifests_dir / "latest.json")
+    in_scope, skipped = select_pdf_cards(
+        card_ids, [c.model_dump() for c in manifest.cards]
+    )
+    if skipped:
+        by_type: dict[str, int] = {}
+        for asset_type in skipped.values():
+            by_type[asset_type] = by_type.get(asset_type, 0) + 1
+        detail = ", ".join(f"{n}×{t}" for t, n in sorted(by_type.items()))
+        typer.echo(
+            f"[scope] {len(in_scope)}/{len(card_ids)} worklist cards are PDF; "
+            f"skipped {len(skipped)} non-PDF ({detail}) — no PDF to mirror."
+        )
+    return in_scope
+
+
 @storage_app.command("mirror-pdfs")
 def mirror_pdfs_cmd(worklist: Path = _WORKLIST_OPT) -> None:
     """Content-address each in-scope card's PDF into ``r2-mirror/archive/``.
@@ -60,7 +87,7 @@ def mirror_pdfs_cmd(worklist: Path = _WORKLIST_OPT) -> None:
     OCR and BEFORE curate clean-qc. Exit non-zero if any card fails to mirror.
     """
     report = run_pdf_mirror(
-        read_worklist(worklist),
+        _pdf_scope(worklist),
         ocr_root=settings.ocr_dir,
         pdfs_root=settings.pdf_dir,
         mirror_root=settings.r2_mirror_dir,
@@ -77,7 +104,7 @@ def verify_mirror_cmd(worklist: Path = _WORKLIST_OPT) -> None:
     errors loudly instead of producing silent ``missing_page_image`` verdicts.
     """
     pf = verify_pdf_mirror(
-        read_worklist(worklist),
+        _pdf_scope(worklist),
         ocr_root=settings.ocr_dir,
         mirror_root=settings.r2_mirror_dir,
     )

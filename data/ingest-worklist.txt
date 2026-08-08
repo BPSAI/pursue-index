@@ -1,19 +1,27 @@
-# worklist for tranche 13e730c18d6e (pursue ingest run --from-diff)
-# 17 card_id(s) scoped from the tranche-diff
-02fa613f21662149
-042b3e178a68a19c
-051a07582a23df10
-07214d7d1343a4b4
-1c2287cdf770e344
-213ab63a7aefa8fd
-24f4178ed9082f2c
-2681dbf5da52e042
-2b98fd7cde9b31bc
-7e0b4624ee81788e
-81a3947abfb387af
-8c22358135a85824
-90a8c6493f04d6e3
-92b2d78bb19ee094
-b0fa7140b0776b42
-e277f0b4d0fa62b9
-fab845f51c10fdc0
+# worklist for tranche 5f5698f13224 (pursue ingest run --from-diff)
+# 25 card_id(s) scoped from the tranche-diff
+06c5cecc4018786c
+09ab9032c16fbaa2
+0aa52db3ec97c002
+0e40c556fc072f29
+4cf7750d0dd1edd3
+4ea340f612c3f8c2
+64b4b5770a796616
+78312c1c607632c6
+7b2fec96cf493ed7
+7be8e1bf34990b50
+87a17be77dae3d9f
+942f77cebc0a64c6
+96f4d5e8c8f90ee5
+979639dbe9247069
+98a873861e250b9e
+adf867b347d0d376
+b3cb1b38bffcb4eb
+b77560f5f255a661
+bcb9232007cbebf4
+c97db00a65aa4abe
+d973d98ce1f1f852
+da533c72f476d84f
+db390eba790bd5cd
+ea1e7c4a981bdd8b
+fad6007114b5eb63
