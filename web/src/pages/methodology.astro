@@ -3,128 +3,39 @@ import Base from "../layouts/Base.astro";
 import { manifest, summary } from "../data/manifest-loader";
 import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
 import { RELEASE, formatPageCount } from "../lib/release";
+import {
+  countOcrCards,
+  describeSuryaMigration,
+  readCleanupStats,
+  readSidecarModelBreakdown,
+} from "../lib/methodology-data";
 import cleanQcBundleJson from "../../public/data/clean-qc-bundle.json";
 
-import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const s = summary();
 const pageCountLabel = formatPageCount(RELEASE.ocrPageCount);
-// Sprint 4b Theme E2: cleanedPageCount is the build-time count of
-// pages where the LLM cleanup pass produced usable text (the rest
-// preserve their raw OCR rows but carry a `skip_reason`). Templated
-// here so the methodology prose tracks pages-cleaned.json on every
-// rebuild instead of carrying a literal that goes stale on the next
-// corpus pass.
-const cleanedPageLabel = formatPageCount(RELEASE.cleanedPageCount);
 
-// Cleanup pass coverage — count cards and pages that went through the
-// cleanup pass. The cleanup only covers a subset of the corpus (not all cards
-// have sufficient OCR'd text to clean), so we report coverage over the
-// cards actually covered, not the full corpus.
-function getCleanupStats() {
-  // Try to read pages-cleaned.json to get real stats
-  const candidates = [
-    resolve(process.cwd(), "public/data/pages-cleaned.json"),
-    resolve(dirname(fileURLToPath(import.meta.url)), "../../public/data/pages-cleaned.json"),
-  ];
-
-  for (const path of candidates) {
-    try {
-      if (!existsSync(path)) continue;
-      const text = readFileSync(path, "utf8");
-      const data = JSON.parse(text) as {
-        pages?: Array<{ card_id?: string; text?: string }>;
-      };
-      if (!Array.isArray(data.pages)) continue;
-
-      const cardsSet = new Set<string>();
-      let cleanedCount = 0;
-
-      data.pages.forEach((p) => {
-        if (p.card_id) cardsSet.add(p.card_id);
-        if (typeof p.text === "string" && p.text.length > 0) {
-          cleanedCount++;
-        }
-      });
-
-      const totalPagesInPass = data.pages.length;
-      const skippedCount = totalPagesInPass - cleanedCount;
-
-      return {
-        cardsWithCleaned: cardsSet.size,
-        totalCleanedPages: cleanedCount,
-        totalPagesInCleanupPass: totalPagesInPass,
-        skippedPages: skippedCount,
-      };
-    } catch {
-      // fall through
-    }
-  }
-
-  // Fallback if file can't be read at build time
-  return {
-    cardsWithCleaned: 160,
-    totalCleanedPages: 5144,
-    totalPagesInCleanupPass: 5179,
-    skippedPages: 35,
-  };
-}
-
-const cleanupStats = getCleanupStats();
-
-// Image-observation sidecar model attribution — count the real per-model split
-// instead of asserting a single hardcoded model.
-function getSidecarModelBreakdown() {
-  const candidates = [
-    resolve(process.cwd(), "src/data/image-observations"),
-    resolve(dirname(fileURLToPath(import.meta.url)), "../data/image-observations"),
-  ];
-
-  for (const dirPath of candidates) {
-    try {
-      if (!existsSync(dirPath)) continue;
-      const files = readdirSync(dirPath).filter((f) => f.endsWith(".json"));
-      if (files.length === 0) continue;
-
-      const modelCounts: Record<string, number> = {};
-
-      files.forEach((file) => {
-        try {
-          const path = resolve(dirPath, file);
-          const text = readFileSync(path, "utf8");
-          const data = JSON.parse(text) as {
-            our_pass?: { model?: string };
-          };
-          if (data.our_pass?.model) {
-            const model = data.our_pass.model;
-            modelCounts[model] = (modelCounts[model] ?? 0) + 1;
-          }
-        } catch {
-          // skip malformed files
-        }
-      });
-
-      if (Object.keys(modelCounts).length > 0) {
-        return { modelCounts, total: files.length };
-      }
-    } catch {
-      // fall through
-    }
-  }
-
-  // Fallback: empirically observed from 42 sidecars
-  return {
-    modelCounts: {
-      "claude-opus-4-7": 32,
-      "claude-opus-4-8": 10,
-    },
-    total: 42,
-  };
-}
-
-const sidecarModelBreakdown = getSidecarModelBreakdown();
+// Every corpus figure below is derived from the repo's own data at build
+// time. The readers throw when an input is missing, so a build that cannot
+// derive a number fails rather than publishing a remembered one. Astro
+// resolves this module from two working directories, hence the candidates.
+const here = dirname(fileURLToPath(import.meta.url));
+const cleanupStats = readCleanupStats([
+  resolve(process.cwd(), "public/data/pages-cleaned.json"),
+  resolve(here, "../../public/data/pages-cleaned.json"),
+]);
+const sidecarModelBreakdown = readSidecarModelBreakdown([
+  resolve(process.cwd(), "src/data/image-observations"),
+  resolve(here, "../data/image-observations"),
+]);
+const ocrCardCount = countOcrCards([
+  resolve(process.cwd(), "public/data/pages.json"),
+  resolve(here, "../../public/data/pages.json"),
+]);
+const suryaPageCount = RELEASE.ocrEngineCounts["surya"] ?? 0;
+const suryaSentence = describeSuryaMigration(suryaPageCount);
 
 // Sprint 5d.1 + Option A escalation policy: every cleaned page
 // gets cross-checked against its source image by Sonnet vision.
@@ -497,8 +408,7 @@ const methodologyJsonLd = [
         the bulk of pages carry the <code class="text-[color:var(--color-signal-cyan)]">llm</code>{" "}
         (Claude Sonnet 4.6) engine, from the Sonnet re-OCR pass plus every
         tranche from 5/22/26 onward (incl. Release-03, 6/12/26) OCR'd
-        Sonnet-direct. The residual <code class="text-[color:var(--color-signal-cyan)]">surya</code>{" "}
-        pages are legacy Release-01 extractions (surya is retired); the small{" "}
+        Sonnet-direct. The small{" "}
         <code class="text-[color:var(--color-signal-cyan)]">dots</code>{" "}
         count is the local dots.mocr content-filter backstop, used where
         Sonnet's output filter blocked the page (a CIA overhead-reconnaissance
@@ -543,15 +453,10 @@ const methodologyJsonLd = [
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">Engine roadmap.</strong>{" "}
-        Every tranche from 5/22/26 onward was OCR'd Sonnet-direct, and the
-        Sonnet re-OCR pass over the legacy Surya pages has largely landed —
-        down to {RELEASE.ocrEngineCounts["surya"]?.toLocaleString() ?? "0"}{" "}
-        Surya-tagged pages, with the tail to be cleared in a subsequent pass
-        (sources recompute, citations stable). The operated engine is now
+        Every tranche from 5/22/26 onward was OCR'd Sonnet-direct. {suryaSentence}{" "}
+        The operated engine is
         <code class="text-[color:var(--color-signal-cyan)]">llm-dots</code>{" "}
-        (Sonnet 4.6 primary + local dots.mocr as the content-filter backstop);
-        the retired Surya adapter remains in the repo
-        (`pursue ocr run --engine surya`) for reproducibility only.
+        (Sonnet 4.6 primary + local dots.mocr as the content-filter backstop).
       </p>
     </section>
 
@@ -708,14 +613,28 @@ const methodologyJsonLd = [
         <strong class="text-[color:var(--color-text-bright)]">
           {((cleanupStats.skippedPages / cleanupStats.totalPagesInCleanupPass) * 100).toFixed(2)}%
         </strong>{" "}
-        skip rate. The skipped pages had empty source OCR and are preserved unchanged
-        in the cleaned mirror. Coverage is deliberately narrow — the cleanup
-        pass runs only against cards with sufficient raw OCR text; most new
-        tranches (image-heavy or metadata-only) skip the cleanup stage entirely.
-        The full pass cost{" "}
-        <strong class="text-[color:var(--color-text-bright)]">~$8.55</strong>{" "}
-        in Anthropic API spend at Haiku 4.5 rates, plus ~$0.02 for the
-        2026-05-12 replacement-card re-clean.
+        skip rate. Each skipped page is recorded with the reason it was
+        skipped, and every one is preserved unchanged in the cleaned mirror:
+      </p>
+      <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg-elevated)] p-3 font-mono text-[11px] space-y-1">
+        {cleanupStats.skipCauses.map(({ cause, count }) => (
+          <div class="flex flex-wrap gap-x-4 gap-y-1">
+            <code class="text-[color:var(--color-signal-cyan)]">{cause}</code>
+            <span class="text-[color:var(--color-text-dim)]">
+              {count.toLocaleString()} {count === 1 ? "page" : "pages"}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <code class="text-[color:var(--color-signal-cyan)]">empty_input</code>{" "}
+        is a page whose source OCR was empty;{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">length_divergence</code>{" "}
+        is a cleaned output too far from the raw text in length to accept;{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">content_filter</code>{" "}
+        is a page the model's output filter refused. The cleanup pass
+        currently covers {cleanupStats.cardsWithCleaned} of {ocrCardCount}{" "}
+        OCR'd cards; the remaining cards are pending a subsequent pass.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">
@@ -1165,9 +1084,7 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
         <strong class="text-[color:var(--color-text-bright)]">Current state ({RELEASE.version}):</strong>{" "}
         The {pageCountLabel} indexed pages now break out per the live
         engine-mix block above. Every tranche from 5/22/26 onward (incl.
-        Release-03, 6/12/26) was OCR'd Sonnet-direct, and the corpus-wide
-        re-OCR pass bringing the legacy Surya pages onto Sonnet has largely
-        landed (Surya now ~3% of pages, tail pending).
+        Release-03, 6/12/26) was OCR'd Sonnet-direct. {suryaSentence}{" "}
         Operational cost shifted accordingly — the v1.0 $1.71 figure
         excluded the cleanup pass at scale and the Sonnet OCR rates;
         current full-pipeline cost (llm-dots OCR — Sonnet 4.6 + dots.mocr

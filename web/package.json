@@ -13,7 +13,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "test:api-page": "node scripts/test-api-page.mjs",
-    "test:lib": "node --test src/lib/release.test.ts src/lib/seo.test.ts src/lib/robots.test.ts src/lib/byte-display.test.ts src/lib/verdict-bundle-schema.test.ts src/lib/llm-provider.test.ts src/lib/methodology-claims.test.ts src/components/homepage-search.test.ts src/components/card-summary-loader.test.ts src/components/chat-scroll.test.ts src/components/diff-helpers.test.ts src/components/row-pairing.test.ts src/components/row-pairing-fixture.test.ts",
+    "test:lib": "node --test src/lib/release.test.ts src/lib/seo.test.ts src/lib/robots.test.ts src/lib/byte-display.test.ts src/lib/verdict-bundle-schema.test.ts src/lib/llm-provider.test.ts src/lib/methodology-claims.test.ts src/lib/methodology-data.test.ts src/components/homepage-search.test.ts src/components/card-summary-loader.test.ts src/components/chat-scroll.test.ts src/components/diff-helpers.test.ts src/components/row-pairing.test.ts src/components/row-pairing-fixture.test.ts",
     "test:cards-summary": "node --test scripts/build_cards_summary.test.mjs",
     "test:byte-history": "node --test scripts/build_byte_history.test.mjs",
     "test": "npm run test:api-page && npm run test:lib && npm run test:cards-summary && npm run test:byte-history"
