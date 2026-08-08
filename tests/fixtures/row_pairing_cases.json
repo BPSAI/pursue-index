@@ -2,7 +2,7 @@
   "description": "Shared row-pairing cases for the /diff page (web/src/components/row-pairing.ts) and the tranche receipt generator (src/pursue_index/tranche_rows.py). Both implementations must produce identical pairings for every case here, so the published site and the committed receipt describe a tranche the same way. Rows are indexes into each case's `prev`/`curr` arrays; `expected_pairs` and `expected_unpaired` are compared as sorted sets, so pairing must not depend on row order. A card_id may legitimately carry several rows (a PDF row plus one or more VID rows) — that is the upstream CSV's shape and is never deduped.",
   "cases": [
     {
-      "name": "pdf_row_pairs_with_pdf_row_never_with_a_vid_row",
+      "name": "pdf_and_vid_rows_bucket_apart_on_video_title_so_each_pairs_with_its_own_kind",
       "prev": [
         {"card_id": "aa11", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/a.pdf", "dvids_video_id": null, "video_title": null},
         {"card_id": "aa11", "asset_type": "VID", "title": "PR001", "asset_url": "https://x/a.pdf", "dvids_video_id": "1000001", "video_title": "Unresolved UAP Report"}
@@ -151,6 +151,18 @@
         {"side": "prev", "index": 0},
         {"side": "curr", "index": 1}
       ]
+    },
+    {
+      "name": "lone_pdf_and_lone_vid_sharing_an_identity_key_pair_and_report_asset_type",
+      "comment": "The ambiguous collision, pinned. A card_id whose only prev row is a PDF and whose only curr row is a VID, both carrying the same dvids_video_id and no video_title, share an identity key — so they bucket together and pair in the bucket zip, which runs BEFORE the same-asset_type leftover rule. Two readings are available: one row whose asset_type mutated, or a withdrawal plus an addition. We choose the first, because it is the reading that reports the change: the pair emits asset_type in its changed fields, whereas splitting them into two unpaired rows says only that one row left and another arrived, and never names the field that moved. The leftover rule's asset_type gate is not a contradiction of this — it governs only rows whose identity keys DIFFER, where nothing but asset_type would be left to match on.",
+      "prev": [
+        {"card_id": "rr88", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/r.pdf", "dvids_video_id": "1006110", "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "rr88", "asset_type": "VID", "title": "Mission Report", "asset_url": "https://x/r.pdf", "dvids_video_id": "1006110", "video_title": null}
+      ],
+      "expected_pairs": [[0, 0]],
+      "expected_unpaired": []
     }
   ],
   "reporting_description": "Pairing is only half the agreement: once two rows pair, both sides must also REPORT the same changed fields, or a mutation reaches the receipt while the site renders nothing for it. Each case lists, per card_id, the field names both implementations must emit — Python `field_diff` (src/pursue_index/tranche.py) and TypeScript `fieldOnlyChanges` (web/src/components/diff-helpers.ts). Rows here carry only fields both sides compare, so the two sets are directly comparable.",

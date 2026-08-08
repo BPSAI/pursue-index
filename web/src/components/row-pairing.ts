@@ -28,13 +28,30 @@
  *      a group AND the two carry the same asset_type, they are paired: a
  *      mutation of a keying field is a change to report, not a reason to
  *      stop reporting. Leftovers of differing asset_type are a
- *      withdrawal plus an addition, not one mutated row. That gate is
- *      what guarantees a PDF row is never compared field-by-field
- *      against a VID row — bucketing alone does not, because a PDF row
- *      and its VID sibling share a dvids_video_id.
+ *      withdrawal plus an addition, not one mutated row.
  *   5. Anything still unmatched is returned as an unpaired row, tagged
  *      with its side, so a row appearing or disappearing under an
  *      existing card_id is visible rather than dropped.
+ *
+ * What the asset_type gate in rule 4 does and does not cover: it applies
+ * only to the leftover pass, where the two candidates' identity keys
+ * DIFFER and asset_type is the last thing left to match on. It is not a
+ * guard against cross-type comparison in general, and rule 2 does not
+ * provide one either — rows pair inside a bucket because they share
+ * `(dvids_video_id, video_title)`, and asset_type is not consulted there.
+ * So two rows of different asset_type that share an identity key (a lone
+ * PDF row and a lone VID row under one card_id, both carrying the same
+ * dvids_video_id and no video_title) do pair, and the field diff reports
+ * asset_type as the changed field.
+ *
+ * That is deliberate, not a leak: it is how an asset_type mutation on one
+ * upstream identity gets reported at all. Splitting such a pair into a
+ * withdrawal and an addition would say a row left and another arrived
+ * without ever naming the field that moved, and would stop reporting the
+ * real VID→AUD reclassifications the shared fixture pins. In the 9
+ * duplicate groups a PDF row and its VID sibling do NOT collide this way:
+ * they share a dvids_video_id but bucket apart on video_title, which
+ * upstream sets on the VID row and leaves empty on the PDF row.
  *
  * Row order within a group carries no meaning upstream, so pairing never
  * depends on it: reordering identical rows produces no diff.
@@ -188,6 +205,13 @@ export function describeUnpairedRow(entry: UnpairedRow): UnpairedRowDisplay {
   // A PDF row in a duplicate group carries its VID sibling's
   // dvids_video_id (see the pairing rules above), so keying this on the
   // field alone labelled document rows with a video's identifier.
+  //
+  // Site behaviour only, and deliberately narrower than the receipt: this
+  // picks the ONE detail a reader should identify the row by, and on a PDF
+  // row that is not a video id. The tranche receipt still prints the row's
+  // dvids_video_id in its own labelled column, where the column header says
+  // what the value is and no such confusion is possible. Suppressing it
+  // here is not hiding the field — do not "fix" the two into agreement.
   const detail =
     row.dvids_video_id && _DVIDS_ASSET_TYPES.has(row.asset_type)
       ? `dvids ${row.dvids_video_id}`

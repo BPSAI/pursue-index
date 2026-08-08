@@ -30,13 +30,30 @@ Pairing rules:
      keying field is itself a change to report. Two or more leftovers
      per side are ambiguous, and leftovers of differing asset_type are a
      withdrawal plus an addition rather than one mutated row; both stay
-     unpaired rather than being matched by guesswork. This asset_type
-     gate is what guarantees a PDF row is never compared field-by-field
-     against a VID row -- bucketing alone does not, because a PDF row
-     and its VID sibling share a dvids_video_id.
+     unpaired rather than being matched by guesswork.
   5. Anything still unmatched is returned as an unpaired row tagged with
      its side, so a row appearing or disappearing under an existing
      card_id stays visible.
+
+What the asset_type gate in rule 4 does and does not cover: it applies
+only to the leftover pass, where the two candidates' identity keys
+DIFFER and asset_type is the last thing left to match on. It is not a
+guard against cross-type comparison in general, and rule 2 does not
+provide one either. Rows pair in a bucket because they share
+`(dvids_video_id, video_title)`, and asset_type is not consulted there.
+So two rows of different asset_type that share an identity key -- a lone
+PDF row and a lone VID row under one card_id, both carrying the same
+dvids_video_id and no video_title -- do pair, and the field diff reports
+asset_type as the changed field.
+
+That is deliberate, not a leak: it is how an asset_type mutation on one
+upstream identity gets reported at all. Splitting such a pair into a
+withdrawal and an addition would say a row left and another arrived
+without ever naming the field that moved, and would stop reporting the
+real VID->AUD reclassifications the fixture pins. In the 9 duplicate
+groups a PDF row and its VID sibling do NOT collide this way: they share
+a dvids_video_id but bucket apart on video_title, which upstream sets on
+the VID row and leaves empty on the PDF row.
 
 Row order within a group carries no upstream meaning, so pairing never
 depends on it: reordering identical rows produces no diff.
