@@ -15,6 +15,18 @@ def render_json(diff: dict[str, Any]) -> str:
     return json.dumps(diff, indent=2, sort_keys=False)
 
 
+def _esc(text: str) -> str:
+    """Escape upstream free text for interpolation into the receipt.
+
+    Titles and filenames come from the government CSV verbatim and do
+    contain pipes. An unescaped one opens a new table cell, shifting
+    every column after it, so the receipt describes a row it did not
+    read. Escaping in the non-table sections too keeps one rule for all
+    interpolated upstream text.
+    """
+    return text.replace("|", "\\|")
+
+
 def _md_summary(s: dict[str, int]) -> str:
     return (
         f"- **{s['renames_confirmed']}** confirmed renames (Class A — safe to alias)\n"
@@ -37,7 +49,7 @@ def _md_rename_rows(rows: list[dict[str, Any]]) -> str:
         out.append(
             f"| `{r['old_card_id']}` | `{r['new_card_id']}` | "
             f"`{(r.get('byte_sha256') or '')[:12]}…` | "
-            f"{(r.get('new_title') or '')[:80]} |"
+            f"{_esc((r.get('new_title') or '')[:80])} |"
         )
     return "\n".join(out) + "\n"
 
@@ -98,8 +110,8 @@ def _md_removed_with_backlinks(
     out.append("|---|---|---|---|")
     for r in removed:
         cid = r["card_id"]
-        title = (r.get("title") or "")[:80]
-        filename = (r.get("asset_filename") or "")[:80]
+        title = _esc((r.get("title") or "")[:80])
+        filename = _esc((r.get("asset_filename") or "")[:80])
         candidates = rename_candidates.get(cid, [])
         if candidates:
             cell = "<br>".join(
@@ -119,7 +131,7 @@ def _md_simple_rows(rows: list[dict[str, Any]], cols: list[tuple[str, str]]) -> 
     sep = "| " + " | ".join("---" for _ in cols) + " |"
     body = []
     for r in rows:
-        cells = [str(r.get(k, "") or "")[:80] for k, _ in cols]
+        cells = [_esc(str(r.get(k, "") or "")[:80]) for k, _ in cols]
         body.append("| " + " | ".join(f"`{c}`" if k in ("new_card_id", "card_id") else c
                                        for c, (k, _) in zip(cells, cols)) + " |")
     return "\n".join([header, sep] + body) + "\n"
@@ -149,7 +161,10 @@ def _md_field_changes(rows: list[dict[str, Any]]) -> str:
     for r in rows:
         out.append(f"### `{r['card_id']}`")
         for d in r["diffs"]:
-            out.append(f"- **{d['field']}**: `{str(d['old'])[:60]}` → `{str(d['new'])[:60]}`")
+            out.append(
+                f"- **{d['field']}**: `{_esc(str(d['old'])[:60])}` → "
+                f"`{_esc(str(d['new'])[:60])}`"
+            )
         out.append("")
     return "\n".join(out)
 
@@ -166,7 +181,8 @@ def _md_row_changes(rows: list[dict[str, Any]]) -> str:
         for row in r["rows"]:
             out.append(
                 f"| `{r['card_id']}` | {row['side']} | {row.get('asset_type') or ''} | "
-                f"`{row.get('dvids_video_id') or ''}` | {(row.get('title') or '')[:80]} |"
+                f"`{row.get('dvids_video_id') or ''}` | "
+                f"{_esc((row.get('title') or '')[:80])} |"
             )
     return "\n".join(out) + "\n"
 

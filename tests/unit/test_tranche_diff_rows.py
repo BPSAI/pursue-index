@@ -49,8 +49,12 @@ def _row(card_id: str, **kw: Any) -> dict[str, Any]:
 
 
 def _pdf(card_id: str, **kw: Any) -> dict[str, Any]:
-    return _row(card_id, asset_type="PDF", title="Mission Report",
-                asset_url=_PDF_URL, asset_filename="d32.pdf", **kw)
+    fields = {
+        "asset_type": "PDF", "title": "Mission Report",
+        "asset_url": _PDF_URL, "asset_filename": "d32.pdf",
+    }
+    fields.update(kw)
+    return _row(card_id, **fields)
 
 
 def _vid(card_id: str, dvids: str, **kw: Any) -> dict[str, Any]:
@@ -110,6 +114,28 @@ def test_row_changes_render_into_the_markdown_receipt() -> None:
     assert "Row-level changes" in md
     assert "dd44" in md
     assert "1000031" in md
+
+
+def _line_with(md: str, needle: str) -> str:
+    return next(line for line in md.splitlines() if needle in line)
+
+
+def test_a_pipe_in_a_title_does_not_break_the_row_changes_table() -> None:
+    # Upstream titles are free text and do contain pipes. An unescaped one
+    # opens a new table cell, shifting every column after it.
+    old = [_pdf("hh88"), _vid("hh88", "1000070")]
+    new = [*old, _vid("hh88", "1000071", title="PR1000071 | Greece | 2023")]
+    md = render_markdown(_diff(old, new))
+    line = _line_with(md, "1000071")
+    assert line.count("|") - line.count("\\|") == 6, line
+    assert "\\|" in line
+
+
+def test_a_pipe_in_a_field_value_is_escaped_in_the_receipt() -> None:
+    old = [_pdf("ii99")]
+    new = [_pdf("ii99", title="Mission | Report")]
+    md = render_markdown(_diff(old, new))
+    assert "Mission \\| Report" in md
 
 
 def test_removed_duplicate_id_is_described_by_its_pdf_row() -> None:
