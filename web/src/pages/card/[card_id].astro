@@ -252,8 +252,11 @@ const isPdf = card.asset_type === "PDF" && !!card.asset_url;
 const isVideo = card.asset_type === "VID";
 // Sprint 4f: AUD cards share the DVIDS-id field today (the upstream
 // CSV uses the same "DVIDS Video ID" column for both video and audio).
-// DVIDS itself has a separate /audio/embed/<id> path that points at
-// the audio player.
+// DVIDS has NO working /audio/ path for these: an "audio" release is an
+// mp4 carrying a static image and lives at /video/<id> like the rest
+// (verified 2026-08-08 — /audio/<id> and /audio/embed/<id> both 404 on
+// every AUD card we hold). Link and embed both use /video/; only the
+// player element differs, gated on asset_type below.
 const isAudio = card.asset_type === "AUD";
 
 // A/V playback resolution. The media bytes for most A/V cards live in
@@ -609,7 +612,7 @@ const cardJsonLd = [
                 </audio>
               ) : (
                 <iframe
-                  src={`https://www.dvidshub.net/audio/embed/${card.dvids_video_id}`}
+                  src={`https://www.dvidshub.net/video/embed/${card.dvids_video_id}`}
                   title={`Audio: ${card.title}`}
                   referrerpolicy="no-referrer"
                   class="w-full h-[180px] bg-black"
@@ -620,7 +623,7 @@ const cardJsonLd = [
             {card.dvids_video_id && (
             <div class="flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.15em]">
               <a
-                href={`https://www.dvidshub.net/audio/${card.dvids_video_id}`}
+                href={`https://www.dvidshub.net/video/${card.dvids_video_id}`}
                 target="_blank"
                 rel="noreferrer"
                 class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"

@@ -201,12 +201,16 @@ def build_registry_entry(
         if "video_2605_" in local_path.name
         else local_path.name
     )
-    # AUD cards live under the DVIDS /audio/ path; VID (and the tranche-2
-    # default) under /video/.
-    dvids_kind = "audio" if getattr(card, "asset_type", "VID") == "AUD" else "video"
+    # DVIDS serves every one of these assets under /video/<id>, including the
+    # ones the government catalogues as AUD -- an "audio" release is an mp4
+    # carrying a static image, so it lives on the video path like the rest.
+    # Deriving the segment from asset_type produced a 404 for all 15 AUD cards
+    # (verified 2026-08-08: /audio/<id> and /audio/embed/<id> both 404,
+    # /video/ forms both 200). asset_type is left alone -- it mirrors the
+    # government's own categorisation; only this derived URL is ours to fix.
     return {
         "card_id": card.card_id,
-        "asset_url": f"https://www.dvidshub.net/{dvids_kind}/{card.dvids_video_id}",
+        "asset_url": f"https://www.dvidshub.net/video/{card.dvids_video_id}",
         "asset_filename": local_path.name,
         "byte_sha256": sha,
         "byte_size": size,

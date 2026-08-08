@@ -102,13 +102,11 @@ def resolve_dod_filename(card: Any) -> str | None:
     if not is_valid_dvids_id(card.dvids_video_id):
         print(f"[ingest] {card.card_id}: invalid dvids_video_id; skip")
         return None
-    fn = scrape_dod_filename(card.dvids_video_id)
-    if fn:
-        return fn
-    body = _fetch_dvids(f"https://www.dvidshub.net/audio/{card.dvids_video_id}")
-    if not body:
-        return None
-    return extract_dod_filename(body)
+    # No /audio/ fallback: DVIDS serves AUD assets on the SAME /video/<id>
+    # page as everything else (verified 2026-08-08 — /audio/<id> 404s for
+    # every AUD card we hold). scrape_dod_filename already hits /video/, so
+    # the old fallback could only ever fetch a 404 and return None.
+    return scrape_dod_filename(card.dvids_video_id)
 
 
 def ingest_one(

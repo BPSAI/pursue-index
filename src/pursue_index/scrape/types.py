@@ -48,9 +48,11 @@ class CardMetadata(BaseModel):
     # manifests + the upstream CSV column "DVIDS Video ID" — but the
     # value now also carries DVIDS audio IDs for AUD cards. The
     # value space is shared (DVIDS IDs are content-type-agnostic on
-    # their end); only the embed path differs (/video/embed/<id> vs
-    # /audio/embed/<id>). Read sites should gate on ``asset_type``,
-    # not on field-name semantics.
+    # their end). The path does NOT differ: DVIDS serves AUD assets from
+    # /video/<id> and /video/embed/<id> like everything else, because an
+    # "audio" release is an mp4 carrying a static image. The /audio/
+    # forms 404 (verified 2026-08-08). Read sites should gate on
+    # ``asset_type`` to choose the PLAYER, never to build the URL.
     dvids_video_id: str | None = None
     video_title: str | None = None
 
