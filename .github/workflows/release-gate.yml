@@ -11,15 +11,18 @@ name: Release gate — deploy-side coherence
 #   "The volume is such that you will always use context, so a
 #    deterministic checklist and gated AC are the answer."
 #
-# This workflow IS that gated AC. Six checks (some are existing tests,
+# This workflow IS that gated AC. Seven checks (some are existing tests,
 # some are new for this gate):
 #
 #   1. Manifest coherence    — latest.json == web/src/data/manifest.json
 #   2. Snapshot mirror       — pipeline + web snapshot dirs in sync
 #   3. Snapshot index drift  — index.json matches filesystem
 #   4. Snapshot byte parity  — paired snapshots are byte-equal
-#   5. Citation resolution   — every <Cite> in /finds resolves
-#   6. Build + coverage      — npm run build + every card has a page
+#   5. Payload coverage      — every derived payload under
+#                              web/public/data/ covers the entries the
+#                              manifest and pages.json make eligible
+#   6. Citation resolution   — every <Cite> in /finds resolves
+#   7. Build + coverage      — npm run build + every card has a page
 #                            + every alias terminal has a page
 #
 # Each step fails fast with an actionable one-line message so the
@@ -46,6 +49,20 @@ on:
       - "web/public/llms-full.txt"
       - "scripts/build_llms_txt.py"
       - "src/pursue_index/geo/**"
+      # T47.11 — the derived payloads the coverage gate checks, plus the
+      # predicate declarations and the gate itself. A manifest change
+      # already fires this workflow, which is what catches a tranche
+      # landing without a rebuild; these entries additionally catch a
+      # hand-edited payload, a re-OCR that changes pages.json, or a
+      # predicate edit that would quietly widen an exclusion.
+      - "web/public/data/embed_index.json"
+      - "web/public/data/atlas-layout.json"
+      - "web/public/data/video-posters/index.json"
+      - "web/public/data/thumbs/index.json"
+      - "web/public/data/pages.json"
+      - "tests/support/payload_coverage.py"
+      - "tests/support/payload_specs.py"
+      - "tests/integration/test_derived_payload_coverage.py"
       # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
       # bundle, mutating byte-history, or editing the exclusion file
       # all need the URL-stability / stale-exclusion / bundle-symmetry
@@ -141,6 +158,20 @@ jobs:
         # mismatch means regenerate with `python scripts/build_llms_txt.py`.
         # Credential-free and offline — reads only committed files.
         run: python scripts/build_llms_txt.py --check
+
+      - name: 4c — Derived payload coverage (every payload covers the manifest)
+        # T47.11. Freshness was gated for some surfaces; coverage was
+        # gated for none — no shipped artifact was ever asserted to
+        # cover the sources it is derived from, so a tranche could land
+        # green while search, the atlas, posters and thumbnails still
+        # described the previous release. Parametrized over the specs in
+        # tests/support/payload_specs.py, where each payload's
+        # eligibility predicate (and what it legitimately excludes) is
+        # written down in one place. Reads only committed files —
+        # latest.json and pages.json — so it needs no credentials, no
+        # NAS mount and no network, and runs here with the cheap gates
+        # rather than after the Astro build.
+        run: pytest tests/integration/test_derived_payload_coverage.py -v
 
       - name: 5 — Citation resolution (every <Cite> in /finds)
         # Existing test; included here for the single-status-check
