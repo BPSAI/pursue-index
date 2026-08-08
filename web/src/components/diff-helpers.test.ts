@@ -18,6 +18,7 @@ import {
   resolveAliases,
   diffWithAliases,
   fieldOnlyChanges,
+  pairRowsByCardId,
   selectDefaultPair,
   selectDefaultPairWithCurrent,
   normalizeSnapshotIndex,
@@ -350,6 +351,155 @@ test("fieldOnlyChanges: pre-Featured snapshot (field absent) vs featured=false �
   const out = fieldOnlyChanges([prev], [nowTrue]);
   assert.equal(out.length, 1);
   assert.ok(out[0].fields.includes("featured"));
+});
+
+// --- fieldOnlyChanges + pairRowsByCardId: duplicate card_id groups ---
+//
+// 9 ids in the 375-card manifest carry a PDF row plus one or more VID
+// rows under the SAME card_id. Keying a Map by card_id (last row wins)
+// and then diffing every curr row against that one survivor compares a
+// VID row to a PDF row and fabricates field changes — "a video retitled
+// into a PDF". These fixtures are built from the real duplicate ids in
+// snapshot 5f5698f1 (verified against data/manifests/snapshots/).
+
+// ea029a05470b8f4e — 1 PDF + 3 VID rows; the 3 VID rows share an
+// identical (asset_url, asset_type, video_title) key and differ only by
+// title (PR031 / PR032 / PR033), so they must be paired positionally.
+const EA_URL =
+  "https://www.war.gov/medialink/ufo/release_1/dow-uap-d32-mission-report,-syria-october-2024.pdf";
+function ea029aRows(): CardMetadata[] {
+  const vt = "Unresolved UAP Report, Syria, October 2024";
+  return [
+    card("ea029a05470b8f4e", "DOW-UAP-D032, Mission Report, Syria, October 2024", {
+      asset_type: "PDF", asset_url: EA_URL, video_title: null, incident_location: "Syria",
+    }),
+    card("ea029a05470b8f4e", "DOW-UAP-PR031, Unresolved UAP Report, Syria, October 2024", {
+      asset_type: "VID", asset_url: EA_URL, video_title: vt, incident_location: "Syria",
+    }),
+    card("ea029a05470b8f4e", "DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024", {
+      asset_type: "VID", asset_url: EA_URL, video_title: vt, incident_location: "Syria",
+    }),
+    card("ea029a05470b8f4e", "DOW-UAP-PR033, Unresolved UAP Report, Syria, October 2024", {
+      asset_type: "VID", asset_url: EA_URL, video_title: vt, incident_location: "Syria",
+    }),
+  ];
+}
+
+// d8e5687dc870892d — 1 PDF + 2 VID rows (PR026 / PR027, identical key).
+const D8_URL =
+  "https://www.war.gov/medialink/ufo/release_1/dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf";
+function d8e56Rows(): CardMetadata[] {
+  const vt = "Unresolved UAP Report, United Arab Emirates, October 2023";
+  return [
+    card("d8e5687dc870892d", "DOW-UAP-D023, Mission Report, United Arab Emirates, October 2023", {
+      asset_type: "PDF", asset_url: D8_URL, video_title: null, incident_location: "Arabian Gulf",
+    }),
+    card("d8e5687dc870892d", "DOW-UAP-PR026, Unresolved UAP Report, United Arab Emirates, October 2023", {
+      asset_type: "VID", asset_url: D8_URL, video_title: vt, incident_location: "United Arab Emirates",
+    }),
+    card("d8e5687dc870892d", "DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023", {
+      asset_type: "VID", asset_url: D8_URL, video_title: vt, incident_location: "United Arab Emirates",
+    }),
+  ];
+}
+
+// c1c59236394f7b14 — the 2-row shape: 1 PDF + 1 VID. Live, the buggy
+// map diffed this id's VID row against its PDF row and asserted title,
+// asset_type, incident_date, incident_location and description all
+// changed — the exact regression this task fixes.
+const C1_URL =
+  "https://www.war.gov/medialink/ufo/release_1/dow-uap-d10-mission-report-middle-east-may-2022.pdf";
+function c1c59Rows(): CardMetadata[] {
+  return [
+    card("c1c59236394f7b14", "DOW-UAP-D010, Mission Report, Middle East, May 2022", {
+      asset_type: "PDF", asset_url: C1_URL, video_title: null, incident_location: "Iraq",
+    }),
+    card("c1c59236394f7b14", "DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022", {
+      asset_type: "VID", asset_url: C1_URL,
+      video_title: "Unresolved UAP Report, Middle East, May 2022", incident_location: "Middle East",
+    }),
+  ];
+}
+
+test("fieldOnlyChanges: duplicate id (ea029a05, 4 rows) diffed against itself → 0 changes", () => {
+  // Regression: the id-keyed map compared the PDF row and the first two
+  // VID rows against the last VID row, fabricating title changes.
+  assert.deepEqual(fieldOnlyChanges(ea029aRows(), ea029aRows()), []);
+});
+
+test("fieldOnlyChanges: duplicate id (d8e5687d, 3 rows) diffed against itself → 0 changes", () => {
+  assert.deepEqual(fieldOnlyChanges(d8e56Rows(), d8e56Rows()), []);
+});
+
+test("fieldOnlyChanges: duplicate id (c1c59236, 2 rows PDF+VID) diffed against itself → 0 changes", () => {
+  // The live symptom: a video 'retitled into a PDF'. A PDF row must only
+  // ever be compared to a PDF row, so self-diff is empty.
+  assert.deepEqual(fieldOnlyChanges(c1c59Rows(), c1c59Rows()), []);
+});
+
+test("fieldOnlyChanges: PDF row is only compared to PDF row, never to the VID row", () => {
+  // Change ONLY the PDF row's title on the curr side. The result must
+  // report a title change and NOTHING else — in particular never
+  // asset_type or video_title, which would leak in if PDF were paired
+  // with VID.
+  const prev = c1c59Rows();
+  const curr = c1c59Rows();
+  curr[0] = { ...curr[0], title: "DOW-UAP-D010, Mission Report, Middle East, May 2022 (rev)" };
+  const out = fieldOnlyChanges(prev, curr);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].card_id, "c1c59236394f7b14");
+  assert.deepEqual(out[0].fields, ["title"]);
+});
+
+test("fieldOnlyChanges: a change on one of several identical-key VID rows is paired positionally", () => {
+  // The 3 ea029a05 VID rows share an identical pairing key. Changing the
+  // middle VID row's incident_location must surface incident_location
+  // (and nothing spurious like title, which stays put under positional
+  // pairing PR032↔PR032).
+  const prev = ea029aRows();
+  const curr = ea029aRows();
+  curr[2] = { ...curr[2], incident_location: "Türkiye" };
+  const out = fieldOnlyChanges(prev, curr);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].card_id, "ea029a05470b8f4e");
+  assert.deepEqual(out[0].fields, ["incident_location"]);
+});
+
+test("pairRowsByCardId: ea029a05 group pairs all 4 rows (PDF↔PDF, 3 VID↔VID) with 0 unpaired", () => {
+  const { pairs, unpaired } = pairRowsByCardId(ea029aRows(), ea029aRows());
+  assert.equal(pairs.length, 4);
+  assert.equal(unpaired.length, 0);
+  // Every pair must be like-for-like on asset_type — never PDF↔VID.
+  for (const p of pairs) assert.equal(p.prev.asset_type, p.curr.asset_type);
+});
+
+test("pairRowsByCardId: a dropped VID row is reported as unpaired (side prev), never dropped", () => {
+  const prev = ea029aRows(); // 4 rows
+  const curr = ea029aRows().slice(0, 3); // curr lost the last VID row
+  const { pairs, unpaired } = pairRowsByCardId(prev, curr);
+  assert.equal(pairs.length, 3);
+  assert.equal(unpaired.length, 1);
+  assert.equal(unpaired[0].side, "prev");
+  assert.equal(unpaired[0].card_id, "ea029a05470b8f4e");
+  assert.equal(unpaired[0].row.asset_type, "VID");
+});
+
+test("pairRowsByCardId: an added row is reported as unpaired (side curr), never dropped", () => {
+  const prev = d8e56Rows().slice(0, 2); // PDF + 1 VID
+  const curr = d8e56Rows(); // PDF + 2 VID → one extra
+  const { pairs, unpaired } = pairRowsByCardId(prev, curr);
+  assert.equal(pairs.length, 2);
+  assert.equal(unpaired.length, 1);
+  assert.equal(unpaired[0].side, "curr");
+  assert.equal(unpaired[0].card_id, "d8e5687dc870892d");
+});
+
+test("pairRowsByCardId: card_id present on only one side is not reported here (add/remove, not a pairing)", () => {
+  const prev = [card("only-prev", "P")];
+  const curr = [card("only-curr", "C")];
+  const { pairs, unpaired } = pairRowsByCardId(prev, curr);
+  assert.deepEqual(pairs, []);
+  assert.deepEqual(unpaired, []);
 });
 
 // --- normalizeSnapshotIndex ---
