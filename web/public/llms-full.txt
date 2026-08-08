@@ -4,8 +4,6 @@ Citable archive of the U.S. Department of War PURSUE UAP document releases.
 Source documents are public-domain U.S. Government work; the indexing layer (manifest, OCR transcripts, search) is Apache-2.0.
 Canonical site: https://pursueindex.com
 
-> Manifest: 334 cards · csv_sha256 13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1
-
 ## Project overview
 
 URL: https://pursueindex.com/
@@ -32,129 +30,92 @@ Cite the original DOW PDF for the contents of a source document. Cite this site 
 
 ## Cards
 
-334 cards across the current corpus. Each card has a canonical URL on this site and a 
+375 cards across the current corpus. Each card has a canonical URL on this site and a 
 `sameAs` link back to its war.gov artifact. Where OCR text is available, the first page's text is included verbatim below (truncated to ~500 characters).
 
-### 81a3947abfb387af — DOE-UAP-D004, Los Alamos Conference on Aerial Phenomena, 1949
+### b77560f5f255a661 — DOW-UAP-D098, Film Analysis of Unidentified Objects, 1953
 
-- Agency: Department of Energy
-- Date: 3/22/49
-- URL: https://pursueindex.com/card/81a3947abfb387af
-- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/DOE-UAP-D004_Los-Alamos-Conference-on-Aerial-Phenomena_1949.pdf
-- Description: This document is a transcript of a 1949 conference held at Los Alamos Scientific Laboratory (now Los Alamos National Laboratory), Los Alamos, New Mexico. Attendees included several eminent scientists and physicists, many of whom had contributed to the development of the first nuclear weapons during the Manhattan Project. The purpose of the conference was to discuss and gather hypotheses to account for the nature and origin of a phenomenon involving “green fireballs” that had been reported over a period of several months in the vicinity of the laboratory. The group did not come to a consensus on a likely attribution for the phenomenon, though a leading hypothesis was that the observations may have been related to meteors entering the atmosphere at a shallow angle and high altitude. Dr. Edward Teller suggested that if not a “material body,” an “electron phenomenon” might be the cause, while Dr. Lincoln LaPaz, an expert specializing in meteorics, expressed that “nothing like this, to [his] knowledge, has ever been observed in the case of meteorite drops.”
+- Agency: Department of War
+- Date: 1950, 1952
+- URL: https://pursueindex.com/card/b77560f5f255a661
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/DOW-UAP-D098_Film-Analysis-of-Unidentified-Objects_1953.pdf
+- Description: This file contains a memorandum relating to the U.S. Naval Photographic Interpretation Center’s assessment of two films allegedly depicting unidentified airborne objects, captured in Montana and Utah in 1950 and 1952, respectively. The file documents the Center’s analytic process, assumptions that constrained its confidence level, tentative conclusions, and recommendations for future research. The Center assessed, generally, that the objects depicted in the film demonstrated characteristics that were inconsistent with those of natural phenomena or commonly known aerospace technologies. The memorandum documents the Center’s recommendation for a more well-resourced investigation to corroborate its presumptive findings, citing a lack of funding and personnel. The accompanying charts compare the film’s luminosity with the apparent angular size of the phenomena, using contemporary mathematical modeling and photogrammetric analysis techniques.
 
 Excerpt (page 1):
 
-SECRET TRANSMITTAL UNITED STATES ATOMIC ENERGY COMMISSION LOS ALAMOS, NEW MEXICO DECLASSIFIED ADDRESS REPLY TO: Authority: MANAGER, SANTA FE DIRECTED OPERATIONS U. S. ATOMIC ENERGY COMMISSION NND 58378 P. O. BOX 1539 LOS ALAMOS, NEW MEXICO AND REFER TO: SFD-3-1 March 22, 1949 R & D ROUTING ┌──────┬──────┬────────┐ │ │ INFO │ ACTION │ INITIALS ├──────┼──────┼────────┤ │DIRE CTOR │ │ ├──────┼──────┼────────┤ │DEPUTY│ ✓ │ │ │EXECUTIVE │ │ ☛02 ├──────┼──────┼────────┤ │ "E" │ │ │ ├──────┼──────┼────
+DECLASSIFIED Authority: NND 67905 CONFIDENTIAL BUAER ROUTE SHEET NAVAER-141A (REV. 5-52) DIVISION | RTG. & ACT. | DATE RECD. | RELD. | INIT. || DIVISION | RTG. & ACT. | DATE RECD. | RELD. | INIT. || DIVISION | RTG. & ACT. | DATE RECD. | RELD. | INIT. CHIEF OF BUAER (AER) | | | | || AERO. STOS. GP. (AG) | | | | || ASS'T CHIEF FOR MTL. & SERVICES (4) | | | 5 | 4 AIDE (A) | | | | || AIRBORNE EQUIP. (AE) | | | | || DEP. ASST. CHIEF GENERAL INSP. (GI) | | | | || | | | | || CONTRACTS (CT) ASST. RES. T
 
-### b0fa7140b0776b42 — DOW-UAP-D094, Analysis of Flying Object Incidents in the United States, 1949
+### 7be8e1bf34990b50 — FBI-UAP-D025, Digital Rendering, “Airborne Triangle,” 2002
 
-- Agency: Department of War
-- Date: 4/28/49
-- URL: https://pursueindex.com/card/b0fa7140b0776b42
-- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D094_Analysis-of-Flying-Object-Incidents-in-the-US_1949.pdf
-- Description: This file contains a U.S. Air Force (USAF) Air Intelligence Division study, “Analysis of Flying Object Incidents in the United States,” Study No. 203, dated 04/28/1949. The analysis includes an assessment of various reported unidentified flying object (UFO) incidents and theories to account for their nature and origin. Overall, the study assesses that “it appears that some object has been seen; however, the identification of that object cannot be readily accomplished.” The study offers that two “reasonable” origins might account for the phenomena: technologies of a domestic or foreign origin. It also suggests that, if foreign, it is prudent for the United States to assume that UFO observations are attributable to scientific, military, or intelligence activities of the Soviet Union, and, in that case, to take seriously the threat such objects may pose. The file also contains selected contemporary UFO reports and examples of experimental “flying wing” type aircraft planforms that might account for certain commonly reported UFO characteristics.
+- Agency: FBI
+- Date: 2002
+- URL: https://pursueindex.com/card/7be8e1bf34990b50
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D025_Digital-Rendering_Airborne-Triangle_2002.jpg
+- Description: This image is an artistic interpretation of a reported incident above Bagram Air Force Base, Afghanistan, potentially involving unidentified anomalous phenomena (UAP) in June 2002. This image is based upon a first-hand description provided by a former military service member, as described in FBI-UAP-D024. The Federal Bureau of Investigation prepared this digital rendering as a visual aid in 2026 in support of the PURSUE initiative.
 
-AARO Comment: This file appears to be a later revision of the file contained in DOW-UAP-D093, whose content is substantively similar.
+### adf867b347d0d376 — FBI-UAP-D027, Digital Rendering, “Dark Translucent Triangle,” 2023
+
+- Agency: FBI
+- Date: 2023
+- URL: https://pursueindex.com/card/adf867b347d0d376
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D027_Digital-Rendering_Dark-Translucent-Triangle_2023.pdf
+- Description: This image is an artistic interpretation of a reported incident near Colorado Springs, Colorado, potentially involving unidentified anomalous phenomena (UAP) in October 2023. This image is based upon a first-hand description provided by a former Department of War employee, as described in FBI-UAP-D026. The Federal Bureau of Investigation prepared this digital rendering in 2026 as a visual aid in support of the PURSUE initiative.
+
+### 979639dbe9247069 — FBI-UAP-D029, Digital Rendering, “Dark Triangle with Lights,” 2011
+
+- Agency: FBI
+- Date: 2011
+- URL: https://pursueindex.com/card/979639dbe9247069
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D029_Digital-Rendering_Dark-Triangle-with-Lights_2011.jpg
+- Description: This image is an artistic interpretation of a reported incident potentially involving unidentified anomalous phenomena (UAP) in June or July of 2011. This image is based upon a first-hand description provided by two former U.S. military service members, as described in FBI-UAP-D028. The Federal Bureau of Investigation prepared this digital rendering in 2026 as a visual aid in support of the PURSUE initiative.
+
+### db390eba790bd5cd — FBI-UAP-D031, Digital Rendering, “Large Triangle with Red Lights,” 2023
+
+- Agency: FBI
+- Date: 2023
+- URL: https://pursueindex.com/card/db390eba790bd5cd
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D031_Digital-Rendering_Large-Triangle-with-Red-Lights_2023.jpg
+- Description: This image is an artistic interpretation of a reported incident potentially involving unidentified anomalous phenomena (UAP) near Colorado Springs, Colorado in 2023. This image is based upon a first-hand description provided by a U.S. Person, as described in FBI-UAP-D030. The Federal Bureau of Investigation prepared this digital rendering in 2026 as a visual aid in support of the PURSUE initiative.
+
+### 4cf7750d0dd1edd3 — FBI-UAP-D038, Digital Rendering 1, “Multiple Red Lights,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/4cf7750d0dd1edd3
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D038_Digital-Rendering-1_Multiple-Red-Lights_2026.pdf
+- Description: This image is an artistic interpretation of a reported incident potentially involving unidentified anomalous phenomena (UAP) in the western United States in 2026. This image is based upon a first-hand description provided by two U.S. persons, as described in FBI-UAP-D037. The Federal Bureau of Investigation prepared this digital rendering in 2026 as a visual aid in support of the PURSUE initiative.
+
+### bcb9232007cbebf4 — FBI-UAP-D039, Digital Rendering 2, “Multiple Red Lights,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/bcb9232007cbebf4
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D039_Digital-Rendering-2_Multiple-Red-Lights_2026.pdf
+- Description: This image is an artistic interpretation of a reported incident potentially involving unidentified anomalous phenomena (UAP) in the western United States in 2026. This image is based upon a first-hand description provided by two U.S. persons, as described in FBI-UAP-D037. The Federal Bureau of Investigation prepared this digital rendering in 2026 as a visual aid in support of the PURSUE initiative.
 
 Excerpt (page 1):
 
-2-7341 DECLASSIFIED Authority: NND 857011 NW 9176 Doc ID: 04749008 Page 1
+[ILLEGIBLE] distance 70 m [ILLEGIBLE] distance 400m focus 1.8mm 2024/03/28 2300
 
-### 051a07582a23df10 — DOW-UAP-D097, Project Sign Progress Report, 1948
+### 06c5cecc4018786c — FBI-UAP-D041, Digital Rendering 1, “Multiple Red Lights,” 2026
 
-- Agency: Department of War
-- Date: 1948
-- URL: https://pursueindex.com/card/051a07582a23df10
-- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D097_Project-Sign-Progress-Report_1948.pdf
-- Description: This file contains an initial report from the Air Materiel Command regarding Project Sign. Project Sign was a 1948-1949 U.S. Air Force program to investigate the nature and origin of unidentified flying objects (UFO). The report details 100 UFO sightings from 1947-1948. The file also contains an article excerpted from “The Aeroplane,” an aviation-focused periodical magazine published between 1911 and 1968, titled “The Biology of the Flying Saucer.”
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/06c5cecc4018786c
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D041_Digital-Rendering-1_Multiple-Red-Lights_2026.pdf
+- Description: This image is an artistic interpretation of a reported incident potentially involving unidentified anomalous phenomena (UAP) in the western United States in 2026. This image is based upon a first-hand description provided by two U.S. persons, as described in FBI-UAP-D040. The Federal Bureau of Investigation (FBI) prepared this digital rendering in 2026 as a visual aid in support of the PURSUE initiative.
+
+### 87a17be77dae3d9f — FBI-UAP-D042, Digital Rendering 2, “Multiple Red Lights,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/87a17be77dae3d9f
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D042_Digital-Rendering-2_Multiple-Red-Lights_2026.pdf
+- Description: This image is an artistic interpretation of a reported incident potentially involving unidentified anomalous phenomena (UAP) in the western United States in 2026. This image is based upon a first-hand description provided by two U.S. persons, as described in FBI-UAP-D040. The Federal Bureau of Investigation prepared this digital rendering in 2026 as a visual aid in support of the PURSUE initiative.
 
 Excerpt (page 1):
 
-CONFIDENTIAL HEADQUARTERS AIR MATERIEL COMMAND MCIA/JCB/amb Wright-Patterson Air Force Base MCIA Dayton, Ohio 23 APR 1948 SUBJECT: Project "SIGN" TO: Chief of Staff United States Air Force Washington 25, D. C. ATTN: Director of Intelligence 1. This is an initial report on unidentified flying objects as directed by Hq, USAF letter dated 30 December 1947, signed by General L. C. Craigie, subject: "Flying Discs". Quarterly reports will be submitted beginning 1 July 1948. 2. As a result of this lett
-
-### c86ed74d472f44e2 — DOW-UAP-PR104, Unresolved UAP Report, Yellow Sea, 2025
-
-- Agency: Department of War
-- Date: 2025
-- URL: https://pursueindex.com/card/c86ed74d472f44e2
-- Description: The United States Indo-Pacific Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 18 seconds of video footage from an infrared sensor aboard a U.S. military platform in 2025.
-
-Video Description: 
-00:01-00:15: The sensor pans to track an area of contrast resembling a six-pointed star, keeping it generally centered within the center of the screen.
-
-This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
-
-### 83710a4764f1d256 — DOW-UAP-PR105, Unresolved UAP Report, East China Sea, 2025
-
-- Agency: Department of War
-- Date: 2025
-- URL: https://pursueindex.com/card/83710a4764f1d256
-- Description: The United States Indo-Pacific Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 5 minutes of video footage from an infrared sensor aboard a U.S. military platform in 2025.
-
-Video Description: 
-00:01-00:14: The sensor pans to track an area of contrast, keeping it generally centered within the center of the frame.
-00:15-00:19: The sensor adjusts, and the image is momentarily overlaid with black rectangular areas.
-00:20-1:34: The sensor pans to track an area of contrast, keeping it generally centered within the center of the frame. Portions of the area of contrast intermittently lose distinctiveness against the background throughout this segment.
-01:35-02:05: The sensor zooms in, panning from right to left to track the area of contrast. The area of contrast exits the scene from the right edge of the frame several times. 
-02:06-04:59: The sensor zooms out and in several times, and pans the field-of-view against the background. No content.
-
-This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
-
-### bec4cc1e81a258eb — DOW-UAP-PR113, Unresolved UAP Report, Western United States, 1996
-
-- Agency: Department of War
-- Date: 1996
-- URL: https://pursueindex.com/card/bec4cc1e81a258eb
-- Description: The United States Navy Unidentified Anomalous Phenomena Task Force (UAPTF) transferred this media to the All-domain Anomaly Resolution Office (AARO) in 2022. The video contains 2 minutes and 57 seconds of footage likely captured by an infrared sensor aboard a U.S. military platform in 1996.
-
-Video Description: No formal data handling practices for UAP-related records existed at the time this media was reported to the UAPTF. This media was digitally altered before being reported to the UAPTF, and is presented as it was received by AARO.
-00:01-00:13: No content.
-00:14-00:17: An area of contrast transits the sensor field-of-view, entering near the upper right corner and exiting near the lower left corner of the frame.
-00:18-01:21: The footage repeats frame-by-frame.
-01:22-02:13: The footage repeats at a slower playback speed.
-02:14-02:56: The footage holds on a frame extracted from the first 17 seconds of the video.
-
-This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
-
-### ca537f49a429b502 — DOW-UAP-PR115, Unresolved UAP Report, Gulf of America, 2019
-
-- Agency: Department of War
-- Date: 2019
-- URL: https://pursueindex.com/card/ca537f49a429b502
-- Description: The United States Air Force submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 8 seconds of video footage from an infrared sensor aboard a U.S. military platform in 2019.
-
-00:01-00:02: An area of contrast is visible near the center of the sensor field-of-view, partially obscured by visual elements of the heads-up display.
-00:03-00:06: The sensor zooms and pans to track the area of contrast, which visually flickers in the display.
-00:07-00:08: No content.
-
-This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
-
-AARO Comment: Infrared sensor systems capture information within a specific range of electromagnetic wavelengths. When a tracked source’s temperature is similar to that of the surrounding environment, it can visually blend into the background or appear to flicker due to dynamic contrast adjustments applied by the system’s auto-gain control filters.
-
-### 2681dbf5da52e042 — NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996
-
-- Agency: NASA
-- Date: 1996
-- URL: https://pursueindex.com/card/2681dbf5da52e042
-- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D030_STS-80-Unidentified-Object-Image1_1996.jpg
-- Description: During STS-80, between November 19 and December 7, 1996, astronauts aboard Space Shuttle Columbia captured a series of three images of an unidentified object in low-Earth orbit. In the first photograph, the object is visible near the center of the frame, to the right of the limb of the Earth.
-
-### 90a8c6493f04d6e3 — NASA-UAP-D031, STS-80 Unidentified Object Image 2, 1996
-
-- Agency: NASA
-- Date: 1996
-- URL: https://pursueindex.com/card/90a8c6493f04d6e3
-- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D031_STS-80-Unidentified-Object-Image2_1996.jpg
-- Description: During STS-80, between November 19 and December 7, 1996, astronauts aboard Space Shuttle Columbia captured a series of three images of an unidentified object in low-Earth orbit. In the second photograph, the object is visible near the center of the frame, to the right of the limb of the Earth. It appears to have rotated or tumbled about its major axis, which is consistent with the behavior of a free-floating object.
-
-### 07214d7d1343a4b4 — NASA-UAP-D032, STS-80 Unidentified Object Image 3, 1996
-
-- Agency: NASA
-- Date: 1996
-- URL: https://pursueindex.com/card/07214d7d1343a4b4
-- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D032_STS-80-Unidentified-Object-Image3_1996.jpg
-- Description: During STS-80, between November 19 and December 7, 1996, astronauts aboard Space Shuttle Columbia captured a series of three images of an unidentified object in low-Earth orbit. In the third photograph, the object is visible near the center of the frame, superimposed against the Earth. It appears to have continued along a trajectory passing between Columbia and the Earth.
+[ILLEGIBLE] [ILLEGIBLE] [ILLEGIBLE] 1,[ILLEGIBLE]
 
 ### 9e677b8697685311 — 18_100754_ General 1946-7_Vol_2
 
@@ -794,6 +755,34 @@ Excerpt (page 1):
 
 TOP SECRET Approved for Release 2026 1 8 [illegible] 1955 SIGNATURE RECORD AND COVER SHEET ASD - 6a[illegible] [illegible] A4 DOCUMENT DESCRIPTION REGISTRY SOURCE CIA CONTROL NO. 1154 69 [illegible] DATE DOCUMENT RECEIVED DOC. NO. DOC. DATE [illegible] 2, [illegible] COPY NO. [illegible] LOGGED BY NUMBER OF PAGES NUMBER OF ATTACHMENTS HB ATTENTION: This form will be placed on top of and attached to each Top Secret document received by the Central Intel- ligence Agency or classified Top Secret wi
 
+### 7b2fec96cf493ed7 — CIA-UAP-D022, Unidentified Flying Object Reported near Puerto Rico, 1965
+
+- Agency: CIA
+- Date: 2/1/65
+- URL: https://pursueindex.com/card/7b2fec96cf493ed7
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/CIA-UAP-D022_Unidentified-Flying-Object-Reported-near-Puerto-Rico_1965.pdf
+- Description: This file contains Central Intelligence Agency (CIA) memoranda exchanged between the Assistant Director for Special Activities (AD/SA) and the Assistant Director for Scientific Intelligence (AD/SI) regarding an incident allegedly involving unidentified aircraft in the vicinity of Puerto Rico. The AD/SI was then-responsible for analyzing foreign scientific advancements and technological threats, such as Soviet nuclear, chemical, and ballistic missile capabilities. The AD/SA managed the CIA’s classified overhead reconnaissance operations, including the deployment of advanced aircraft like the U-2 and A-12 OXCART. Together, these offices ensured the United States could both gather critical intelligence over contested territories and accurately evaluate the technical capabilities of foreign adversaries during the Cold War.
+
+The memoranda refer to an incident on November 19, 1964, in which a U.S. Naval aviator described observing an unidentified object as “delta-shaped, about the size of a jet fighter.” The pilot visually estimated the object’s velocity as Mach 3 (approximately 2,200 mph). A corresponding track from an AN/SPS-49 radar system aboard a U.S. Navy guided missile destroyer in the area, USS Gyatt, measured the object’s speed at 3,800 knots (approximately 4,373 mph). The memoranda indicate that, in the opinion of the AD/SI, the object was conceivably associated with foreign intelligence gathering activities, citing active missile testing within the AFWR, or Atlantic Fleet Weapons Range, as being an attractive reconnaissance target. The AD/SA and AD/SI also ruled out domestic experimental aircraft, such as the YF-12A OXCART, as a potential attribution.
+
+Excerpt (page 1):
+
+Approved for Release 2026 TOP SECRET [REDACTED]RET C[REDACTED]DENTIAL UNCLASSIFIED ( SECURITY CLASSIFICATION OF ATTACHED MATERIAL SHOULD BE CIRCLED TOP AND BOTTOM ) ACTION SHEET DATE REC'D IN IC IC # DESCRIPTION OF ATTACHED MATERIAL: TYPE OF MATERIAL DATED . FROM TO ; SUBJECT . DELIVERED TO DEADLINE DATE FOLLOW-UP DATE DIVISION ROUTING TO DATE ACTION REQUIRED INIT. COMMENTS* 1. EO/S1 [handwritten initials] 2. a. D5[?] 3. ': 4. . . 5. 6. : INSTRUCTIONS: Under each comment a line should * If comme
+
+### 64b4b5770a796616 — CIA-UAP-D023, Briefing Notes for Mr. Walter Elder
+
+- Agency: CIA
+- Date: Undated
+- URL: https://pursueindex.com/card/64b4b5770a796616
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/CIA-UAP-D023_Briefing-Notes-for-Mr-Walter-Elder.pdf
+- Description: This document contains briefing material prepared for Mr. Walter N. Elder, Executive Assistant to the Director of the Central Intelligence Agency (CIA), regarding a November 19, 1964, incident allegedly involving unidentified aircraft in the vicinity of Puerto Rico. The previous entry in this collection, CIA-UAP-D022, contains CIA memoranda on the same subject matter. The briefing includes additional details regarding that incident, including a characterization of the meteorological conditions and sensing capabilities of nearby U.S. military collection systems.
+
+The briefing states that a radar system aboard USS Gyatt, a guided missile destroyer operating in the vicinity, detected a contact tracking more than 3,800 knots (approximately 4,373 mph) over a period of 21 minutes. The briefing contains visual estimates regarding the phenomenon’s apparent capabilities from the pilot of an F-8 Crusader who was present during the incident.
+
+Excerpt (page 1):
+
+SECRET SECRET urgent BRIEFING NOTES FOR MR. WALTER N. ELDER UNIDENTIFIED OBJECT FLYING IN THE VICINITY OF PUERTO RICO ON 16, 17, 18, 19, AND 24 NOVEMBER 1. On 19 November, the U. S. S. Gyatt picked up on its radar a contact tracking in excess of 3,800 knots. At this time the Gyatt was working an F-8 (Crusader) Fighter Aircraft at 35,000 feet when a high- altitude, high-speed object was detected. The object slowed and steadied down, maintaining a position to the fighter at nine o'clock, about nin
+
 ### aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery
 
 - Agency: Department of Energy
@@ -830,6 +819,18 @@ Excerpt (page 1):
 
 A-86-014-91-3 4. Borgman H-183 5/20/86 Pajarito Astronomers P.O. Box 1092, Los Alamos NM, 87544 President [REDACTED] MS K553 Vice President [REDACTED] MS E531 Treasurer [REDACTED] MS F665 Sponsored by Club 1663 EHF-100-334 Tuesday, May 20, 1986 Dear Members, Our next meeting will be Thursday, May 29, 1986, in the Ranch Room at Fuller Lodge, at 7:30 p.m. Guest speaker will be Dr. John Warren of AT-6, whose topic will be "Why Should a Scientist be Concerned about UFO's?" To find the Ranch Room, go
 
+### 81a3947abfb387af — DOE-UAP-D004, Los Alamos Conference on Aerial Phenomena, 1949
+
+- Agency: Department of Energy
+- Date: 3/22/49
+- URL: https://pursueindex.com/card/81a3947abfb387af
+- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/DOE-UAP-D004_Los-Alamos-Conference-on-Aerial-Phenomena_1949.pdf
+- Description: This document is a transcript of a 1949 conference held at Los Alamos Scientific Laboratory (now Los Alamos National Laboratory), Los Alamos, New Mexico. Attendees included several eminent scientists and physicists, many of whom had contributed to the development of the first nuclear weapons during the Manhattan Project. The purpose of the conference was to discuss and gather hypotheses to account for the nature and origin of a phenomenon involving “green fireballs” that had been reported over a period of several months in the vicinity of the laboratory. The group did not come to a consensus on a likely attribution for the phenomenon, though a leading hypothesis was that the observations may have been related to meteors entering the atmosphere at a shallow angle and high altitude. Dr. Edward Teller suggested that if not a “material body,” an “electron phenomenon” might be the cause, while Dr. Lincoln LaPaz, an expert specializing in meteorics, expressed that “nothing like this, to [his] knowledge, has ever been observed in the case of meteorite drops.”
+
+Excerpt (page 1):
+
+SECRET TRANSMITTAL UNITED STATES ATOMIC ENERGY COMMISSION LOS ALAMOS, NEW MEXICO DECLASSIFIED ADDRESS REPLY TO: Authority: MANAGER, SANTA FE DIRECTED OPERATIONS U. S. ATOMIC ENERGY COMMISSION NND 58378 P. O. BOX 1539 LOS ALAMOS, NEW MEXICO AND REFER TO: SFD-3-1 March 22, 1949 R & D ROUTING ┌──────┬──────┬────────┐ │ │ INFO │ ACTION │ INITIALS ├──────┼──────┼────────┤ │DIRE CTOR │ │ ├──────┼──────┼────────┤ │DEPUTY│ ✓ │ │ │EXECUTIVE │ │ ☛02 ├──────┼──────┼────────┤ │ "E" │ │ │ ├──────┼──────┼────
+
 ### 7e0b4624ee81788e — DOE-UAP-D005, Pantex Unidentified Object Incident Report, 2015
 
 - Agency: Department of Energy
@@ -841,6 +842,34 @@ A-86-014-91-3 4. Borgman H-183 5/20/86 Pajarito Astronomers P.O. Box 1092, Los A
 Excerpt (page 1):
 
 Unclassified Controlled Nuclear Information CNS | consolidated | nuclear security, llc PANTEX PLANT | Y-12 NATIONAL SECURITY COMPLEX P.O. Box 30020 Office 806.477.3918 Amarillo, TX 79120-0020 Fax 806.477.5690 .SEP 0 9 2015 [REDACTED] Deputy Assistant Manager for Safeguards & Security NNSA Production Office Post Office Box 2050 Oak Ridge, Tennessee 37831-8009 Dear [REDACTED]: **Pantex Unidentified Object Report** Enclosed for your review is the complete report for the Pantex Unidentified Object t
+
+### 09ab9032c16fbaa2 — DOS-UAP-D001, Diplomatic Cable, Brazil, November 14, 1963
+
+- Agency: Department of State
+- Date: 11/14/63
+- URL: https://pursueindex.com/card/09ab9032c16fbaa2
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/DOS-UAP-D001_Diplomatic-Cable_Brazil_November-14-1963.pdf
+- Description: This document is a U.S. Department of State diplomatic cable from the U.S. Embassy in Rio de Janeiro, Brazil to the Office of the Secretary of State in Washington, D.C., on November 14, 1963. This cable documents an effort by the Embassy to verify that the Department had assessed certain content published in a local newspaper as inauthentic, following a discussion on a poor-quality telephone connection the previous night.
+
+To ensure both offices were referencing the same reporting, the cable cites descriptive language paraphrased from the press, namely a “large metal manned balloon” and a “dead crewman aboard wearing [a] uniform or spacesuit with strange markings.” The cable concludes with the embassy’s understanding that an object assessed to be a weather balloon had been reported in the vicinity, but that no such object had been found to have crashed. A follow-on correspondence regarding the alleged incident is included in this collection under the title “DOS-UAP-D002.”
+
+Excerpt (page 1):
+
+ACTION COPY PERMANENT RECORD COPY INCOMING TELEGRAM Department of State 59 59 UNCLASSIFIED Action SCI Info G ESA129SUA075 0 0 9 7 0 1 ARA RR RUEHC IO DE RUESUA 264 14/1740Z 1963 NOV 14 PM 1 85 P ZNR 12-3 USIA R 141522Z NSC RM AMEMBASSY RIODEJANEIRO SP 14 B INR TO RUEHC/SECSTATE WASHDC CIA ZEN/AMCONSUL SALVADOR NSA STATE GRNC NSF BT RMR UNCLAS ACTION SALVADOR 94 INFO DEPT 1054 FROM RIO FOURTEENTH DEPARTMENT PASS DEFENSE AND NASA FROM SCIATT SIMONPIETRI SINCE RADIOTELEPHONE CONNECTION LAST NIGHT W
+
+### 942f77cebc0a64c6 — DOS-UAP-D002, Diplomatic Cable, Brazil, November 20, 1963
+
+- Agency: Department of State
+- Date: 11/20/63
+- URL: https://pursueindex.com/card/942f77cebc0a64c6
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/DOS-UAP-D002_Diplomatic-Cable_Brazil_November-20-1963.pdf
+- Description: This document is a U.S. Department of State diplomatic cable from the U.S. Embassy in Rio de Janeiro, Brazil to the Office of the Secretary of State in Washington, D.C., on November 20, 1963. This cable relays the findings of the scientific attaché at the American Consulate in Salvador, Bahia, Brazil, that a widely reported incident allegedly involving a crashed unidentified object was unsubstantiated, characterizing the reports as a fabrication originating in Rio de Janeiro.
+
+The Consulate cites a lack of contemporary local reporting regarding the alleged incident, as well as contradictory reporting from local newspapers after the fact, as evidence that the published claims are unsubstantiated. The Consulate also cites a statement from the Brazilian Ministry of Aeronautics categorically denying that there was “any “strange object” in Conde [Bahia].” This correspondence follows a previous exchange between the Embassy and the Department of State, included in this collection under the title “DOS-UAP-D001.”
+
+Excerpt (page 1):
+
+ORIGIN/ACTION SKI 4 RM/R REP AF ARA EUR FE 4 NEA CU INR 5 E P IO 1 L FBO AID 31P 1 AGR COM FRB INT LAB TAR NASA XMB AIR 4 5 ARMY CIA NAVY 5 10 5 OSD USIA NSA 15 8 3 301 NSFNSC 2 2 6 DEPARTMENT OF STATE AIRGRAM SP 16 BRAZ 44 FOR RM USE ONLY A-628 UNCLASSIFIED NO. 1963 NOV 24 HANDLING INDICATORS TO : DEPARTMENT OF STATE NOT2D-NO BOTTOM INFO : Amconsul SALVADOR DEPARTMENTXORXSTATE RM/AN Department: Pass copies Defense, NASA & DIST BRANCH V 2 0 1963 ILC FROM : Amembassy RIO DE JANEIRO DATE: November
 
 ### fd8bfb9481bcbdd3 — DOW-UAP-D003, Mission Report, Arabian Gulf, 2020
 
@@ -1639,6 +1668,20 @@ Excerpt (page 1):
 
 DECLASSIFIED Authority: NND 857011 TOP SECRET AIR INTELLIGENCE DIVISION STUDY (DI/USAF-ONI) 2 6167 ANALYSIS OF FLYING OBJECT INCIDENTS IN THE UNITED STATES Dir. USAF DECLASSIFIED STUDY No. 203 10 DECEMBER 1948 TOP SECRET
 
+### b0fa7140b0776b42 — DOW-UAP-D094, Analysis of Flying Object Incidents in the United States, 1949
+
+- Agency: Department of War
+- Date: 4/28/49
+- URL: https://pursueindex.com/card/b0fa7140b0776b42
+- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D094_Analysis-of-Flying-Object-Incidents-in-the-US_1949.pdf
+- Description: This file contains a U.S. Air Force (USAF) Air Intelligence Division study, “Analysis of Flying Object Incidents in the United States,” Study No. 203, dated 04/28/1949. The analysis includes an assessment of various reported unidentified flying object (UFO) incidents and theories to account for their nature and origin. Overall, the study assesses that “it appears that some object has been seen; however, the identification of that object cannot be readily accomplished.” The study offers that two “reasonable” origins might account for the phenomena: technologies of a domestic or foreign origin. It also suggests that, if foreign, it is prudent for the United States to assume that UFO observations are attributable to scientific, military, or intelligence activities of the Soviet Union, and, in that case, to take seriously the threat such objects may pose. The file also contains selected contemporary UFO reports and examples of experimental “flying wing” type aircraft planforms that might account for certain commonly reported UFO characteristics.
+
+AARO Comment: This file appears to be a later revision of the file contained in DOW-UAP-D093, whose content is substantively similar.
+
+Excerpt (page 1):
+
+2-7341 DECLASSIFIED Authority: NND 857011 NW 9176 Doc ID: 04749008 Page 1
+
 ### 92b2d78bb19ee094 — DOW-UAP-D095, Joint U.S.-Canadian Aviation Projects and UFO Sighting Reports, 1954-1955
 
 - Agency: Department of War
@@ -1666,6 +1709,64 @@ SECRET INT 2-2-7 UNIDENTIFIED FLYING OBJECTS (UFO DECLASSIFIED Authority: NND 97
 Excerpt (page 1):
 
 CONFIDENTIAL INT 2-2-7 UNIDENTIFIED FLYING OBJECTS (UFO) DECLASSIFIED Authority: NND 974373 NW 31198 DocID:94749775 Page 1
+
+### 051a07582a23df10 — DOW-UAP-D097, Project Sign Progress Report, 1948
+
+- Agency: Department of War
+- Date: 1948
+- URL: https://pursueindex.com/card/051a07582a23df10
+- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/DOW-UAP-D097_Project-Sign-Progress-Report_1948.pdf
+- Description: This file contains an initial report from the Air Materiel Command regarding Project Sign. Project Sign was a 1948-1949 U.S. Air Force program to investigate the nature and origin of unidentified flying objects (UFO). The report details 100 UFO sightings from 1947-1948. The file also contains an article excerpted from “The Aeroplane,” an aviation-focused periodical magazine published between 1911 and 1968, titled “The Biology of the Flying Saucer.”
+
+Excerpt (page 1):
+
+CONFIDENTIAL HEADQUARTERS AIR MATERIEL COMMAND MCIA/JCB/amb Wright-Patterson Air Force Base MCIA Dayton, Ohio 23 APR 1948 SUBJECT: Project "SIGN" TO: Chief of Staff United States Air Force Washington 25, D. C. ATTN: Director of Intelligence 1. This is an initial report on unidentified flying objects as directed by Hq, USAF letter dated 30 December 1947, signed by General L. C. Craigie, subject: "Flying Discs". Quarterly reports will be submitted beginning 1 July 1948. 2. As a result of this lett
+
+### fad6007114b5eb63 — DOW-UAP-D099, Intelligence Review of “Ghost Rocket” Incidents, 1947
+
+- Agency: Department of War
+- Date: 1/9/47
+- URL: https://pursueindex.com/card/fad6007114b5eb63
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/DOW-UAP-D099_Intelligence-Review-of-Ghost-Rocket-Incidents_1947.pdf
+- Description: This document is a U.S. Department of War General Staff intelligence review assessing incidents involving unidentified “Ghost Rockets” reported over Sweden and other Scandinavian countries beginning in May 1946. The review includes an analysis of observational reports, statements from the Swedish government, and reporting from the U.S. military attaché in Stockholm. The review highlights the inconclusive nature of the contemporary evidence available to substantiate reports from civilian and military observers. 
+
+The review also documents a change in the public stance of the Swedish Defense Staff, which privately attributed the objects to Soviet V-1 missile tests launched from Peenemünde. Peenemünde is a then-occupied municipality in northeastern Germany that had been associated with the development of the V-1 and V-2 rocket program during World War II. The Swedish assessment publicly shifted from an unknown technological origin to one of a “celestial origin.” The review suggests that this shift was a deliberate effort to avoid diplomatic conflict with the Soviet Union. The report’s final assessment concludes that while most reported incidents were likely misidentified natural phenomena, the “best evidence” suggested a small number of “real incidents” involving low-flying V-1 type missiles, likely attributable to Soviet tests of captured German technology.
+
+Excerpt (page 1):
+
+SECRET 0/7 959328 Copy No. 597 INTELLIGENCE REVIEW 9 Jan 1947 Number 47/3 RECORDED M/[ILLEGIBLE] Int. Br. 2 0 JAN 1947 INTELLIGENCE DIVISION, WDGS WAR DEPARTMENT • WASHINGTON, D. C. DECLASSIFIED Authority NND58658 By BKT , NARA, Date 6/16/26 SECRET
+
+### da533c72f476d84f — DOW-UAP-D100, Air Materiel Command Report on Unidentified Flying Objects, 1947-1948
+
+- Agency: Department of War
+- Date: 1947-1948
+- URL: https://pursueindex.com/card/da533c72f476d84f
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/DOW-UAP-D100_Air-Materiel-Command-Report-on-UFOs_1947-1948.pdf
+- Description: This file is a collection of U.S. Government memoranda and correspondence relating to “Project Sign,” a 1948 U.S. Air Force program to investigate reports of high-performance airborne objects. The documents characterize some of these reports as being consistent with “real” objects rather than fabrications or resulting from perceptual errors. The U.S. Air Force cites the reported characteristics of the phenomena, e.g., high speed and maneuverability, as exceeding known performance envelopes of U.S. military aircraft and thereby presenting a potential national security threat, if validated. This potential threat prompted the Air Force to call on the Air Materiel Command (AMC), the Service’s Major Command for logistics and procurement from 1946 to 1961, to gather further evidence to assess the validity of the reports. The Air Force emphasized that there was an “imperative need” for such evidence to enable appropriate countermeasures. The stated urgency of this request reflects the strategic environment of the early Cold War, a period characterized by heightened national defense concerns amid rapid global advancements in aerospace design and development. In framing the call for an investigation, the Air Force noted that sustained public interest and persistent inquiries from the press may eventually require an official statement in response.
+
+AMC’s investigation found that observers were generally not mistaken when reporting that they had seen an airborne object, but that their characterizations of those objects as unusual was likely a reflection of the “limits of their personal experience.” It identified “a great many” of the objects reported with a rounded appearance as “weather or upper air scientific balloons of some type.” It also identified several cases in which the reported objects were most likely celestial phenomena, such as Venus. AMC found that a small number of reports lacked a “reasonable everyday explanation,” but that “so far, no physical evidence of the existence of the unidentified sightings has been obtained.” AMC expressly considered whether the phenomena may have been “vehicles from another planet,” but found no evidence supporting such an origin. Ultimately, AMC found that “there is as yet no conclusive proof that unidentified flying objects, other than those which are known to be balloons, are real aircraft.” In light of these findings, AMC recommended that the Department of War should avoid publicly commenting on the subject of “flying discs.” Responding to the Air Force’s anticipated concerns regarding public interest in the subject, AMC recommended that the Department should reply in terms that minimize the investigation’s inconclusive findings, focusing on positive determinations in cases assessed to be weather balloons and celestial phenomena.
+
+Excerpt (page 1):
+
+DECLASSIFIED Authority: NND 57563 AFOIN/Maj Gen Cabell/mcm/9613/3 Nov 48 SECRET 3 NOV 1948 SUBJECT: Flying Object Incidents in the United States TO: Commanding General, Air Materiel Command Wright-Patterson Air Force Base Dayton, Ohio 1. By letter dated 30 December 1947 from the Director of Research and Development, Headquarters USAF, your Headquarters was required to establish Project "SIGN". A 680 2. The conclusion appears inescapable that some type of flying object has been observed. Identifi
+
+### d973d98ce1f1f852 — DOW-UAP-D101, Intelligence Information Report, Unresolved UAP Report, Gulf of Oman, 2021
+
+- Agency: Department of War
+- Date: 9/8/21
+- URL: https://pursueindex.com/card/d973d98ce1f1f852
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/DOW-UAP-D101_IIR_Unresolved-UAP-Report-Gulf-of-Oman_2021.pdf
+- Description: This document is an Intelligence Information Report (IIR), the primary standardized format utilized by the Department of War, military services, and the broader Intelligence Community to disseminate unevaluated intelligence information derived from human sources (HUMINT), open sources, and field collection activities. IIRs are not finished intelligence products; they serve as inputs for subsequent all-source intelligence assessments. This report accompanies the footage contained within DOW-UAP-PR117 through DOW-UAP-PR122.
+
+This report documents an observation by the aircrew of a U.S. Special Operations Forces (USSOF) AC-130 Gunship on September 8, 2021, during a nighttime live-fire training exercise over the Gulf of Oman. The aircrew reported first observing two unidentified anomalous phenomena (UAP) after dropping a water-activated flare. The report describes the UAP as stationary, approximately four feet in diameter, 0-20 feet above the water’s surface.
+
+Throughout the training sortie, the aircrew reported observing approximately 25 instances involving similar phenomena via infrared sensor, describing them as “cold orbs.” Aircrew visual estimates of the UAP’s apparent speed range from 250 to 1,300 miles per hour. The report characterizes the UAP’s behavior as “maneuvering aggressively,” “flying in various formations,” and appearing to react to deployments of the aircraft’s onboard weapons systems. The aircrew stated that they were unable to capture video footage of the phenomena because the aircraft’s digital video recorder was not functioning during the incident.
+
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+6/1/22, 11:23 AM Record Preview Declassified by MG Richard A. Harrison Document View XML USCENTCOM Chief of Staff Declassified on: 20 March 2026 [REDACTED] IIR - Intelligence Information Report O Print X Close —Core Metadata— IIR NUMBER: 3024(i) COLLECTOR COLLECTOR NAME COLLECTOR NUMBER AFSOC A2OX - MOTHERSHIP 6500 OVERALL CLASSIFICATION: [REDACTED] PRIMARY KEY 50005165458 VERSION NUMBER 1 ORIGINATING SYSTEM NAME 1.4(c) ORIGINATING SYSTEM ID LAST MODIFICATION SYSTEM: CREATE DATE 2022-04-27T13:29
 
 ### c1c59236394f7b14 — DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022
 
@@ -3205,6 +3306,34 @@ Video Description:
 
 This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
 
+### c86ed74d472f44e2 — DOW-UAP-PR104, Unresolved UAP Report, Yellow Sea, 2025
+
+- Agency: Department of War
+- Date: 2025
+- URL: https://pursueindex.com/card/c86ed74d472f44e2
+- Description: The United States Indo-Pacific Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 18 seconds of video footage from an infrared sensor aboard a U.S. military platform in 2025.
+
+Video Description: 
+00:01-00:15: The sensor pans to track an area of contrast resembling a six-pointed star, keeping it generally centered within the center of the screen.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 83710a4764f1d256 — DOW-UAP-PR105, Unresolved UAP Report, East China Sea, 2025
+
+- Agency: Department of War
+- Date: 2025
+- URL: https://pursueindex.com/card/83710a4764f1d256
+- Description: The United States Indo-Pacific Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 5 minutes of video footage from an infrared sensor aboard a U.S. military platform in 2025.
+
+Video Description: 
+00:01-00:14: The sensor pans to track an area of contrast, keeping it generally centered within the center of the frame.
+00:15-00:19: The sensor adjusts, and the image is momentarily overlaid with black rectangular areas.
+00:20-1:34: The sensor pans to track an area of contrast, keeping it generally centered within the center of the frame. Portions of the area of contrast intermittently lose distinctiveness against the background throughout this segment.
+01:35-02:05: The sensor zooms in, panning from right to left to track the area of contrast. The area of contrast exits the scene from the right edge of the frame several times. 
+02:06-04:59: The sensor zooms out and in several times, and pans the field-of-view against the background. No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
 ### e07c4debd3995e21 — DOW-UAP-PR106, Unresolved UAP Report, Eastern United States, 2020
 
 - Agency: Department of War
@@ -3309,6 +3438,22 @@ Video Description:
 
 This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
 
+### bec4cc1e81a258eb — DOW-UAP-PR113, Unresolved UAP Report, Western United States, 1996
+
+- Agency: Department of War
+- Date: 1996
+- URL: https://pursueindex.com/card/bec4cc1e81a258eb
+- Description: The United States Navy Unidentified Anomalous Phenomena Task Force (UAPTF) transferred this media to the All-domain Anomaly Resolution Office (AARO) in 2022. The video contains 2 minutes and 57 seconds of footage likely captured by an infrared sensor aboard a U.S. military platform in 1996.
+
+Video Description: No formal data handling practices for UAP-related records existed at the time this media was reported to the UAPTF. This media was digitally altered before being reported to the UAPTF, and is presented as it was received by AARO.
+00:01-00:13: No content.
+00:14-00:17: An area of contrast transits the sensor field-of-view, entering near the upper right corner and exiting near the lower left corner of the frame.
+00:18-01:21: The footage repeats frame-by-frame.
+01:22-02:13: The footage repeats at a slower playback speed.
+02:14-02:56: The footage holds on a frame extracted from the first 17 seconds of the video.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
 ### 5e7c32c5682fc491 — DOW-UAP-PR114, Unresolved UAP Report, Atlantic Ocean, 2016
 
 - Agency: Department of War
@@ -3324,6 +3469,21 @@ Video Description:
 
 This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
 
+### ca537f49a429b502 — DOW-UAP-PR115, Unresolved UAP Report, Gulf of America, 2019
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/ca537f49a429b502
+- Description: The United States Air Force submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 8 seconds of video footage from an infrared sensor aboard a U.S. military platform in 2019.
+
+00:01-00:02: An area of contrast is visible near the center of the sensor field-of-view, partially obscured by visual elements of the heads-up display.
+00:03-00:06: The sensor zooms and pans to track the area of contrast, which visually flickers in the display.
+00:07-00:08: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+AARO Comment: Infrared sensor systems capture information within a specific range of electromagnetic wavelengths. When a tracked source’s temperature is similar to that of the surrounding environment, it can visually blend into the background or appear to flicker due to dynamic contrast adjustments applied by the system’s auto-gain control filters.
+
 ### a878d3e7a9cae5be — DOW-UAP-PR116, Unresolved UAP Report, Atlantic Ocean, 2020
 
 - Agency: Department of War
@@ -3335,6 +3495,277 @@ Video Description:
 00:01-00:32: The sensor zooms and pans to keep an area of contrast generally within the center of the frame.
 
 This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 66aa3ed8dece9d00 — DOW-UAP-PR117, Unresolved UAP Report, Gulf of Oman, 2021
+
+- Agency: Department of War
+- Date: 9/8/21
+- URL: https://pursueindex.com/card/66aa3ed8dece9d00
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 16 seconds of video footage. This footage is a secondary capture, recorded via a cellular device, of an infrared sensor display aboard a U.S. Special Operations Forces AC-130J Gunship. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR117 through DOW-UAP-PR122 was captured contemporaneously. An accompanying Intelligence Information Report, DOW-UAP-D101, describes the phenomena as “cold orbs” approximately four feet in diameter. 
+
+Video description:
+
+00:00-00:16: An area of contrast remains generally within the center of the sensor field-of-view. 
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### c9ce3532ab1da4db — DOW-UAP-PR118, Unresolved UAP Report, Gulf of Oman, 2021
+
+- Agency: Department of War
+- Date: 9/8/21
+- URL: https://pursueindex.com/card/c9ce3532ab1da4db
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 30 seconds of video footage. This footage is a secondary capture, recorded via a cellular device, of an infrared sensor display aboard a U.S. Special Operations Forces AC-130J Gunship. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR117 through DOW-UAP-PR122 was captured contemporaneously. An accompanying Intelligence Information Report, DOW-UAP-D101, describes the phenomena as “cold orbs” approximately four feet in diameter.
+
+Video description: 
+
+00:00-00:30: An area of contrast remains generally within the center of the sensor field-of-view, momentarily exiting the bottom of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 6e05a612ac25118f — DOW-UAP-PR119, Unresolved UAP Report, Gulf of Oman, 2021
+
+- Agency: Department of War
+- Date: 9/8/21
+- URL: https://pursueindex.com/card/6e05a612ac25118f
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of two seconds of video footage. This footage is a secondary capture, recorded via a cellular device, of an infrared sensor display aboard a U.S. Special Operations Forces AC-130J Gunship. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR117 through DOW-UAP-PR122 was captured contemporaneously. An accompanying Intelligence Information Report, DOW-UAP-D101, describes the phenomena as “cold orbs” approximately four feet in diameter.
+
+Video description: 
+
+00:00-00:02: An area of contrast remains generally within the center of the sensor field-of-view. 
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 11913b109df5d044 — DOW-UAP-PR120, Unresolved UAP Report, Gulf of Oman, 2021
+
+- Agency: Department of War
+- Date: 9/8/21
+- URL: https://pursueindex.com/card/11913b109df5d044
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 13 seconds of video footage. This footage is a secondary capture, recorded via a cellular device, of an infrared sensor display aboard a U.S. Special Operations Forces AC-130J Gunship. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR117 through DOW-UAP-PR122 was captured contemporaneously. An accompanying Intelligence Information Report, DOW-UAP-D101, describes the phenomena as “cold orbs” approximately four feet in diameter.
+
+Video description: 
+
+00:00-00:08: An area of contrast remains generally within the center of the sensor field-of-view. Visual elements of the sensor display enter and exit the frame throughout the duration of the video.
+
+00:08-00:13: The sensor changes modalities twice and the area of contrast loses distinctiveness against the background. 
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 0cb19530b1379e8c — DOW-UAP-PR121, Unresolved UAP Report, Gulf of Oman, 2021
+
+- Agency: Department of War
+- Date: 9/8/21
+- URL: https://pursueindex.com/card/0cb19530b1379e8c
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 34 seconds of video footage. This footage is a secondary capture, recorded via a cellular device, of an infrared sensor display aboard a U.S. Special Operations Forces AC-130J Gunship. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR117 through DOW-UAP-PR122 was captured contemporaneously. An accompanying Intelligence Information Report, DOW-UAP-D101, describes the phenomena as “cold orbs” approximately four feet in diameter.
+
+Video description:
+
+00:00-00:12: An area of contrast remains generally within the center of the sensor field-of-view. Visual elements of the sensor display enter and exit the frame throughout the duration of the video.
+
+00:13-00:18: A relatively larger area of contrast transits from the bottom of the frame to the top of the sensor’s field-of-view, then re-enters from the top left to the bottom left of the frame. The relatively smaller area of contrast exits the bottom of the frame, and re-enters from the upper-right quarter of the frame.
+
+00:19-00:34: The sensor adjusts, and an area of contrast enters the sensor field-of-view from the top of the frame, and remains generally within the center of the frame.
+
+AARO Comment: This video footage significantly overlaps in content with DOW-UAP-PR122. 
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 7c5da8ac3a325589 — DOW-UAP-PR122, Unresolved UAP Report, Gulf of Oman, 2021
+
+- Agency: Department of War
+- Date: 9/8/21
+- URL: https://pursueindex.com/card/7c5da8ac3a325589
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 26 seconds of video footage. This footage is a secondary capture, recorded via a cellular device, of an infrared sensor display aboard a U.S. Special Operations Forces AC-130J Gunship. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR117 through DOW-UAP-PR122 was captured contemporaneously. An accompanying Intelligence Information Report, DOW-UAP-D101, describes the phenomena as “cold orbs” approximately four feet in diameter.
+
+Video description: 
+
+00:00-00:05: An area of contrast remains generally within the center of the sensor field-of-view. Visual elements of the sensor display enter and exit the frame throughout the duration of the video.
+
+00:06-00:07: A relatively larger area of contrast transits from the bottom of the frame to the top of the sensor’s field-of-view, then re-enters from the top left to the bottom left of the frame. The relatively smaller area of contrast exits the bottom of the frame, and re-enters from the upper-right quarter of the frame.
+
+00:08-00:26: The sensor adjusts, and an area of contrast enters the sensor field-of-view from the top of the frame, and remains generally within the center of the frame.
+
+AARO Comment: This video footage significantly overlaps in content with DOW-UAP-PR121. 
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### da746aeac188479d — DOW-UAP-PR123, Unresolved UAP Report, Pacific Ocean, 2019
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/da746aeac188479d
+- Description: The United States Navy Unidentified Anomalous Phenomena Task Force (UAPTF) transferred this media to the All-domain Anomaly Resolution Office (AARO) in 2022. The video contains 1 minute and 4 seconds of footage. This footage is a secondary capture, recorded via a hand-held recording device, of an infrared sensor display aboard a U.S. military platform. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR123 through DOW-UAP-PR127 was captured contemporaneously. This media was digitally altered before being reported to AARO, and is presented as it was received.
+
+Video description: 
+
+00:00-00:03: An area of contrast is visible near the center of the frame. 
+
+00:04-00:07: The area of contrast loses distinctiveness against the background.
+
+00:08-00:25: An area of contrast becomes visible near the center of the frame. The sensor pans and zooms in to focus on the area of contrast, keeping it generally within the center of the frame.  
+
+00:25-01:04: The area of contrast remains generally centered within the sensor field-of-view. 
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### fa01f053b19d1511 — DOW-UAP-PR124, Unresolved UAP Report, Pacific Ocean, 2019
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/fa01f053b19d1511
+- Description: The United States Navy Unidentified Anomalous Phenomena Task Force (UAPTF) transferred this media to the All-domain Anomaly Resolution Office (AARO) in 2022. The video contains 53 seconds of footage. This footage is a secondary capture, recorded via a hand-held recording device, of an infrared sensor display aboard a U.S. military platform. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR123 through DOW-UAP-PR127 was captured contemporaneously. This media was digitally altered before being reported to AARO, and is presented as it was received.
+
+Video description: 
+
+00:00-00:01: An area of contrast remains generally centered within the sensor field-of-view. 
+
+00:02-00:29: The sensor zooms in on the area of contrast.
+
+00:30-00:53: The area of contrast loses distinctiveness against the background.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### ff28c2957fe10ad3 — DOW-UAP-PR125, Unresolved UAP Report, Pacific Ocean, 2019
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/ff28c2957fe10ad3
+- Description: The United States Navy Unidentified Anomalous Phenomena Task Force (UAPTF) transferred this media to the All-domain Anomaly Resolution Office (AARO) in 2022. The video contains 28 seconds of footage. This footage is a secondary capture, recorded via a hand-held recording device, of an infrared sensor display aboard a U.S. military platform. This footage does not represent native primary sensor data, and the secondary recording method introduces limitations in fidelity, resolution, and overall visual quality. Artifacts inherent to filming a screen, such as blurring or flickering, may be present. The footage contained within DOW-UAP-PR123 through DOW-UAP-PR127 was captured contemporaneously. This media was digitally altered before being reported to AARO, and is presented as it was received.
+
+Video description: 
+
+00:00-00:05: An area of contrast remains generally centered within the sensor field-of-view. 
+
+00:06-00:09: The area of contrast tracks left within the sensor field-of-view. 
+
+00:10-00:15: The area of contrast loses distinctiveness against the background.
+
+00:16-00:22: An area of contrast appears in the sensor field-of-view. The sensor pans to track it, keeping it generally within the center of the frame.  
+
+00:23-00:28: The area of contrast remains generally centered within the sensor field-of-view.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### b496575fcd6e393d — DOW-UAP-PR126, Unresolved UAP Report, Pacific Ocean, 2019
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/b496575fcd6e393d
+- Description: The United States Navy Unidentified Anomalous Phenomena Task Force (UAPTF) transferred this media to the All-domain Anomaly Resolution Office (AARO) in 2022. The video contains 2 minutes and 32 seconds of footage captured via hand-held recording device by a U.S. military service member in 2019. Low-light conditions at the time of capture influence the overall visual quality of the footage. The footage contained within DOW-UAP-PR123 through DOW-UAP-PR127 was captured contemporaneously. This media was digitally altered before being reported to AARO, and is presented as it was received.
+
+Video description: 
+
+00:00-00:08: The camera pans against the background, bringing two apparent light sources into frame from the top left corner. The recording device focuses on the light sources, keeping them generally within the center of the frame.
+
+00:09-00:53: The camera pans against the background. As the camera pans, it repeatedly brings several apparent light sources into and out of the frame. 
+
+00:54-01:23: The sensor zooms in on the light source in the lower left quarter of the frame, focusing to bring it into the center of the field-of-view. 
+
+01:24-02:32: The sensor zooms out and continues to pan to track apparent light sources. As the camera pans, it repeatedly brings several apparent light sources into and out of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 1e5e506cfdc6e993 — DOW-UAP-PR127, Unresolved UAP Report, Pacific Ocean, 2019
+
+- Agency: Department of War
+- Date: 2019
+- URL: https://pursueindex.com/card/1e5e506cfdc6e993
+- Description: The United States Navy Unidentified Anomalous Phenomena Task Force (UAPTF) transferred this media to the All-domain Anomaly Resolution Office (AARO) in 2022. The video contains 2 minutes and 29 seconds of footage captured via a hand-held recording device by a U.S. military service member in 2019. Low-light conditions at the time of capture influence the overall visual quality of the footage. The footage contained within DOW-UAP-PR123 through DOW-UAP-PR127 was captured contemporaneously. This media was digitally altered before being reported to AARO, and is presented as it was received. 
+
+Video description: 
+
+00:00-00:17: The camera pans to track an apparent light source.
+
+00:18-00:26: No content.
+
+00:27-00:43: The camera pans to track an apparent light source.
+
+00:44-00:47: No content.
+
+00:47-00:49: The camera pans to track an apparent light source.
+
+00:50-00:52: No content.
+
+00:53-00:57: The camera pans to track an apparent light source.
+
+00:57-01:02: No content.
+
+01:02-02:28: The camera pans to track an apparent light source.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 83de7afa55d15b09 — DOW-UAP-PR134, Unresolved UAP Report, Middle East, 2025
+
+- Agency: Department of War
+- Date: 2025
+- URL: https://pursueindex.com/card/83de7afa55d15b09
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 1 minute and 39 seconds of video footage from an electro-optical and infrared sensor aboard a U.S. military platform in 2025.
+
+Video description: 
+
+00:00-01:39: The sensor pans to track an area of contrast from left to right across the background, keeping it generally centered within the frame. The sensor adjusts collection mode and level of magnification several times.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 5f5553c56c931b34 — DOW-UAP-PR136, Unresolved UAP Report, Middle East, 2023
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/5f5553c56c931b34
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 30 seconds of video footage from an infrared sensor aboard a U.S. military platform in 2023.
+
+Video description: 
+
+00:00-00:08: The sensor pans to track an area of contrast, keeping it generally centered within the frame. The sensor is partially occluded by a component of the platform passing in front of it, obscuring the background.
+
+00:09-00:33: The sensor zooms in on the area of contrast. A reticle briefly surrounds the area of contrast. The sensor is occluded by a component of the platform, obscuring the display.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### c50be3b65e2340d6 — DOW-UAP-PR142, Unresolved UAP Report, Middle East, 2025
+
+- Agency: Department of War
+- Date: 2025
+- URL: https://pursueindex.com/card/c50be3b65e2340d6
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 14 seconds of video footage from an infrared sensor aboard a U.S. military platform in 2025.
+
+Video description: 
+
+00:00-00:04: No content.
+
+00:05-00:08: An area of contrast enters the sensor field-of-view from the left edge, transits from left to right, and exits the right edge of the frame. 
+
+00:09-00:14: No content.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 09fb644cefa66f93 — DOW-UAP-PR149, Unresolved UAP Report, Middle East, 2023
+
+- Agency: Department of War
+- Date: 2023
+- URL: https://pursueindex.com/card/09fb644cefa66f93
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office (AARO) consisting of 51 seconds of video footage from an infrared sensor aboard a U.S. military platform in 2023.
+
+Video description: 
+
+00:00-00:04: An area of contrast transits the frame from the bottom right edge to the lower left edge of the sensor field-of-view.
+
+00:05-00:51: The sensor pans to track the area of contrast, keeping it generally within the center of the frame.
+
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### ea1e7c4a981bdd8b — EOP-UAP-D001, NASC Inquiry into Bahia, Brazil Incident, November 13, 1963
+
+- Agency: Executive Office of the President
+- Date: 11/13/63
+- URL: https://pursueindex.com/card/ea1e7c4a981bdd8b
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/EOP-UAP-D001_NASC-Inquiry-into-Bahia-Brazil-Incident_November-13-1963.pdf
+- Description: This document is a Central Intelligence Agency (CIA) Foreign Broadcast Information Service (FBIS) wire report dated November 9, 1963, tracking a local Portuguese-language radio broadcast from Rio de Janeiro, Brazil, regarding an alleged crash of a “large metal sphere” containing a deceased occupant in Conde, Bahia, Brazil. This FBIS report is excerpted from the files of Edward C. Welsh, Executive Secretary of the National Aeronautics and Space Council (NASC). NASC was a cabinet-level advisory body within the Executive Office of the President responsible for coordinating U.S. space policy from 1958 to 1973.
+
+Handwritten annotations dated November 13, 1963, document a communication between officials at NASC and the U.S. Department of State. The note records a NASC request to a State Department official to query the U.S. Embassy in Rio de Janeiro for local verification of the reporting. This inter-agency request precedes a subsequent diplomatic cable sent by the Embassy the following day, cataloged in this collection under the title “DOS-UAP-D001.”
+
+Excerpt (page 1):
+
+SHELDON a Curious report. Please return, to me. [ILLEGIBLE] CSS [ILLEGIBLE] FBIS 03 RIO DE JANEIRO RADIO TUPI IN PORTUGUESE 2330 8 NOV 63 W (TEXT) REPORTS FROM THE MUNICIPALITY OF CONDE, IN BAIA, SAY A LARGE METAL SPHERE FELL IN THE CENTER OF THE CITY, GOUGING A HOLE FOUR METERS DEEP. THE MYSTERIOUS SPHERE HAS WINDOW SHAPED OPENINGS COVERED WITH THICK GLASS. INSIDE IS A HUMAN BODY DRESSED IN HEAVY CLOTHING BEARING INSCRIPTIONS WHICH CANNOT BE DECIPHERED. THE POPULATION OF CONDE IS INTRIGUED, AND
 
 ### 3893e5d0279db3b1 — FBI Photo A001
 
@@ -4062,6 +4493,102 @@ U. S. Department of Justice (MATERIAL MUST NOT BE REMOVED FROM OR ADDED TO THIS 
 - Source: https://www.war.gov/medialink/ufo/061226/release_03/documents/FBI-UAP-D023_Digital-Rendering_Incident-2-7_Western-US-Event_2023.jpg
 - Description: This image is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This image is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D080. The Federal Bureau of Investigation prepared this digital rendering at the request of the Department of War in 2026.
 
+### 78312c1c607632c6 — FBI-UAP-D024, FD-302, “Airborne Lights and Triangle,” 2002, 2023-2024
+
+- Agency: FBI
+- Date: 2002, 2023-2024
+- URL: https://pursueindex.com/card/78312c1c607632c6
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D024_FD-302_Airborne-Lights-and-Triangle_2002_2023-2024.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a March 2024 interview with a former U.S. military pilot, in which the interviewee describes several incidents potentially involving unidentified anomalous phenomena (UAP) in 2023 and 2024. The interviewee also recalls a 2002 incident potentially involving UAP, while deployed as a military reservist in Afghanistan. An FBI digital rendering based upon the observer’s description accompanies this document, under the title FBI-UAP-D025.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) -1 of 3- OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Date of entry 04/[REDACTED]/2024 On March [REDACTED] 2024 [REDACTED] phone number [REDACTED], residing in [REDACTED] [REDACTED] , was interviewed [REDACTED] by Supervisory Special Agent [REDACTED] , Special Agent (SA) [REDACTED] and SA [REDACTED] . Also attending the meeting was [REDACTED] [REDACTED] [R
+
+### 4ea340f612c3f8c2 — FBI-UAP-D026, FD-302, “Dark Translucent Triangle,” 2023
+
+- Agency: FBI
+- Date: 2023
+- URL: https://pursueindex.com/card/4ea340f612c3f8c2
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D026_FD-302_Dark-Translucent-Triangle_2023.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a January 2026 interview with a former employee of the Department of War, in which the interviewee describes an incident potentially involving unidentified anomalous phenomena (UAP) in Colorado Springs, Colorado, in October 2023. An FBI digital rendering based upon the observer’s description accompanies this document, under the title FBI-UAP-D027.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) -1 of 3- FEDERAL BUREAU OF INVESTIGATION OFFICIAL RECORD Date of entry 01/[REDACTED]/2026 On January [REDACTED], 2026 [REDACTED] was interviewed [REDACTED] by Special Agent [REDACTED], Task Force Officer [REDACTED], Intelligence Analyst [REDACTED], and Supervisory Special Agent [REDACTED] [REDACTED]. After being advised of the identity of the interviewing agents and the nature of the interview, [REDACTED] provided the following information: [REDACTED] [REDACTED] [REDACTED] [
+
+### b3cb1b38bffcb4eb — FBI-UAP-D028, FD-302, “Dark Triangle with Lights,” 2011
+
+- Agency: FBI
+- Date: 2011
+- URL: https://pursueindex.com/card/b3cb1b38bffcb4eb
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D028_FD-302_Dark-Triangle-with-Lights_2011.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records an April 2025 interview with two former U.S. military service members, in which the interviewees describe an incident potentially involving unidentified anomalous phenomena (UAP) in June or July of 2011. An FBI digital rendering based upon the observers’ descriptions accompanies this document, under the title FBI-UAP-D029.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) -1 of 3- OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Date of entry 05/[REDACTED]/2025 On April [REDACTED], 2025 [REDACTED] and [REDACTED] were interviewed [REDACTED] [REDACTED] by Supervisory Special Agent (SSA) [REDACTED], Special Agent (SA) [REDACTED], and Task Force Officer (TFO) [REDACTED] Also attending the meeting was [REDACTED] [REDACTED] [REDACTED
+
+### 96f4d5e8c8f90ee5 — FBI-UAP-D030, FD-302, “Large Triangle with Red Lights,” 2023
+
+- Agency: FBI
+- Date: 2023
+- URL: https://pursueindex.com/card/96f4d5e8c8f90ee5
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D030_FD-302_Large-Triangle-with-Red-Lights_2023.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records an October 2025 interview with a U.S. Person, in which the interviewee describes an incident potentially involving unidentified anomalous phenomena (UAP) in Colorado Springs, Colorado, in October 2023. An FBI digital rendering based upon the observer’s description accompanies this document, under the title FBI-UAP-D031.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) -1 of 3- FEDERAL BUREAU OF INVESTIGATION OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. Date of entry 10/[REDACTED]/2025 On October [REDACTED], 2025 [REDACTED] was interviewed [REDACTED] by Supervisory Special Agent (SSA) [REDACTED] Special Agent (SA) [REDACTED] [REDACTED], and Task Force Officer (TFO) [REDACTED] After being advised of the identity of the interviewing agents and the nature
+
+### 0aa52db3ec97c002 — FBI-UAP-D032, FD-302, “Slow-moving Objects,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/0aa52db3ec97c002
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D032_FD-302_Slow-moving-Objects_2026.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 interview with a U.S. Government Special Agent, in which the interviewee describes an incident potentially involving unidentified anomalous phenomena (UAP) in the western United States, at approximately 4:00 PM local time, in 2026. This FD-302 is accompanied by video footage captured during the incident, under the title FBI-UAP-PR007.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) - 1 of 2 - OFFICIAL RECORD FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED] 2026 [REDACTED] Special Agent [REDACTED], [REDACTED] telephone number [REDACTED] , email address [REDACTED] was interviewed at [REDACTED] [REDACTED] [REDACTED] Agent [REDACTED] , email address [REDACTED] participated in the interview. After being advised of the identities of the interviewers and nature of the interview, [REDACTED] provided the following information: [REDACTED] [REDACTED] [RED
+
+### 0e40c556fc072f29 — FBI-UAP-D033, FD-302, “Thermally Elevated Aerial Object,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/0e40c556fc072f29
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D033_FD-302_Thermally-Elevated-Aerial-Object_2026.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 interview with a U.S. Government Special Agent, in which the interviewee describes an incident potentially involving unidentified anomalous phenomena (UAP) in the western United States, at approximately 9:00 PM local time, in 2026.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) - 1 of 2 - [REDACTED] OFFICIAL RECORD Document participants have digitally signed. All signatures have been verified by a certified FBI information system. FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED] [REDACTED] On or about [REDACTED]/2026, FBI [REDACTED], [REDACTED] [REDACTED] received from [REDACTED] [REDACTED] Special Agent [REDACTED] a written statement signed by [REDACTED] Special Agent [REDACTED]. The statement will be attached to this FD-302 and is provide
+
+### 98a873861e250b9e — FBI-UAP-D037, FD-302, “Multiple Red Lights,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/98a873861e250b9e
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D037_FD-302_Multiple-Red-Lights_2026.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 interview with a U.S. person, in which the interviewee describes three incidents potentially involving unidentified anomalous phenomena (UAP) in the western United States occurring within a 5-hour period in 2026. A second individual who was present at the time also provided an interview, recorded in this collection as “FBI-UAP-D040.” Two FBI digital renderings based upon the observer’s descriptions accompany this document, under the titles FBI-UAP-D038 and FBI-UAP-D039.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) - 1 of 3 - FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED]/2026 On [REDACTED], 2026, [REDACTED] [REDACTED] was interviewed by Federal Bureau of Investigation (FBI) Special Agent (SA) [REDACTED], [REDACTED] SA [REDACTED] and [REDACTED] . After being advised on the identities of the interviewing agents, [REDACTED] provided the following information: Prior to his current role as [REDACTED] had previously worked for [REDACTED] was at [REDACTED] to support the [REDACTED]
+
+### c97db00a65aa4abe — FBI-UAP-D040, FD-302, “Multiple Red Lights,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/c97db00a65aa4abe
+- Source: https://www.war.gov/medialink/ufo/release_05/Aug_07/documents/FBI-UAP-D040_FD-302_Multiple-Red-Lights_2026.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 telephonic interview with a U.S. person, in which the interviewee describes two incidents potentially involving unidentified anomalous phenomena (UAP) in the western United States in 2026. A second individual who was present during the incidents at the time also provided an interview, recorded in this collection as “FBI-UAP-D037.” Two FBI digital renderings based upon the observers’ descriptions accompany this document, under the titles FBI-UAP-D041 and FBI-UAP-D042.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) - 1 of 2 - OFFICIAL RECORD FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED] 2026 On [REDACTED] 2026, [REDACTED] [REDACTED] was interviewed telephonically by Federal Bureau of Investigation (FBI) Special Agent (SA) [REDACTED]. After being advised of the identity of the interviewing agent, [REDACTED] provided the following information: [REDACTED] [REDACTED] arrived at [REDACTED] on [REDACTED], 2026 to support the [REDACTED] On [REDACTED] 2026, [REDACTED] left the [REDA
+
 ### fcbd7e953ec292de — FBI-UAP-PR001, “Triangle Orbs,” Northeastern United States, 2021
 
 - Agency: FBI
@@ -4113,6 +4640,13 @@ The eyewitness then began recording the event using an iPhone 14 Pro Max, captur
 - Date: October, 2023
 - URL: https://pursueindex.com/card/41ba3dea9b211d5c
 - Description: This video is an artistic interpretation of a reported incident near a sensitive national security site in the western United States involving unidentified anomalous phenomena (UAP) over a period of two days in October 2023. This digital recreation is based upon a first-hand description provided by a federal law enforcement special agent, as described in DOW-UAP-D081. The Federal Bureau of Investigation prepared this digital recreation at the request of the Department of War in 2026
+
+### f634a8f291eb0280 — FBI-UAP-PR007, “Slow-moving Objects,” 2026
+
+- Agency: FBI
+- Date: 2026
+- URL: https://pursueindex.com/card/f634a8f291eb0280
+- Description: A U.S. Government Special Agent captured this video footage via hand-held optical thermal imaging device during a 2026 incident in the western United States, as described in FBI-UAP-D032. The footage features two, slow-moving “black-hot” areas of contrast, visible in infrared imaging.
 
 ### ea18e274b06b352e — ICA-UAP-D001, Analysis: Colorado Springs UAP Incident, 2022
 
@@ -4480,6 +5014,30 @@ Speaker A: We're picking up at 12-0, liftoff around the Moon dock. And again, we
 Excerpt (page 1):
 
 Speaker A: Okay. This is tape number 14, continuation of Section 23.0 with Jack Schmidt. Okay. Flight data file, CSM. Generally, I have nothing but praise for the flight data file, both vehicles. There were very, very few things that one could have asked for to improve that data file for Apollo 17, at any rate. One comment on the flight plan supplement. We had split pages for a number of the logging, medical and food logging, and that probably was a mistake. I think the idea was fairly good init
+
+### 2681dbf5da52e042 — NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996
+
+- Agency: NASA
+- Date: 1996
+- URL: https://pursueindex.com/card/2681dbf5da52e042
+- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D030_STS-80-Unidentified-Object-Image1_1996.jpg
+- Description: During STS-80, between November 19 and December 7, 1996, astronauts aboard Space Shuttle Columbia captured a series of three images of an unidentified object in low-Earth orbit. In the first photograph, the object is visible near the center of the frame, to the right of the limb of the Earth.
+
+### 90a8c6493f04d6e3 — NASA-UAP-D031, STS-80 Unidentified Object Image 2, 1996
+
+- Agency: NASA
+- Date: 1996
+- URL: https://pursueindex.com/card/90a8c6493f04d6e3
+- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D031_STS-80-Unidentified-Object-Image2_1996.jpg
+- Description: During STS-80, between November 19 and December 7, 1996, astronauts aboard Space Shuttle Columbia captured a series of three images of an unidentified object in low-Earth orbit. In the second photograph, the object is visible near the center of the frame, to the right of the limb of the Earth. It appears to have rotated or tumbled about its major axis, which is consistent with the behavior of a free-floating object.
+
+### 07214d7d1343a4b4 — NASA-UAP-D032, STS-80 Unidentified Object Image 3, 1996
+
+- Agency: NASA
+- Date: 1996
+- URL: https://pursueindex.com/card/07214d7d1343a4b4
+- Source: https://www.war.gov/medialink/ufo/071026/release_04/documents/NASA-UAP-D032_STS-80-Unidentified-Object-Image3_1996.jpg
+- Description: During STS-80, between November 19 and December 7, 1996, astronauts aboard Space Shuttle Columbia captured a series of three images of an unidentified object in low-Earth orbit. In the third photograph, the object is visible near the center of the frame, superimposed against the Earth. It appears to have continued along a trajectory passing between Columbia and the Earth.
 
 ### 303ad110cb5fa8b4 — NASA-UAP-VM001, Apollo 12, 1969
 
