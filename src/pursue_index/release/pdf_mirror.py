@@ -32,6 +32,13 @@ _META_NAME = "meta.json"
 _ARCHIVE_SUBDIR = "archive"
 _CHUNK = 1 << 20
 
+# Asset types that have no PDF and are therefore outside this gate's remit.
+# IMG cards carry a .jpg and are covered by the vision path at embed time;
+# VID/AUD bytes are staged by the A/V ingest. Anything NOT listed here --
+# including an unknown card or an absent asset_type -- stays in scope, so
+# the gate fails closed rather than silently skipping a real PDF card.
+_NON_PDF_ASSET_TYPES = frozenset({"IMG", "VID", "AUD"})
+
 
 @dataclass(frozen=True)
 class CardMirrorPlan:
@@ -150,6 +157,36 @@ def _execute_plan(plan: CardMirrorPlan) -> tuple[str, str | None]:
         return "error", "post-copy sha verification failed"
     tmp.replace(target)
     return "mirrored", None
+
+
+def select_pdf_cards(
+    card_ids: list[str], manifest_cards: list[dict]
+) -> tuple[list[str], dict[str, str]]:
+    """Split a tranche worklist into PDF cards and reported non-PDF skips.
+
+    A worklist is the whole tranche scope, not just its PDFs. Handing IMG/VID/AUD
+    cards to a PDF mirror gate fails them for lacking a PDF they were never
+    supposed to have. Returns ``(in_scope, skipped)`` where ``skipped`` maps
+    card_id -> asset_type so the caller can report every exclusion — a silent
+    skip here would look exactly like coverage.
+
+    Fails closed: a card absent from the manifest, or one whose ``asset_type``
+    is missing, stays IN scope and is gated normally.
+    """
+    types = {
+        c.get("card_id"): c.get("asset_type")
+        for c in manifest_cards
+        if c.get("card_id")
+    }
+    in_scope: list[str] = []
+    skipped: dict[str, str] = {}
+    for card_id in card_ids:
+        asset_type = types.get(card_id)
+        if asset_type in _NON_PDF_ASSET_TYPES:
+            skipped[card_id] = str(asset_type)
+        else:
+            in_scope.append(card_id)
+    return in_scope, skipped
 
 
 def run_pdf_mirror(

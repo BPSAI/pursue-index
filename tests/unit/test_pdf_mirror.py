@@ -148,3 +148,104 @@ def test_verify_fails_when_meta_missing(tmp_path: Path) -> None:
     )
     assert not pf.ok
     assert "cardA" in pf.missing
+
+
+# --- worklist scoping (Release-5) -----------------------------------------
+#
+# The gate iterated the WHOLE worklist and demanded an
+# ``r2-mirror/archive/<sha>.pdf`` for every card in it. A tranche worklist
+# also carries IMG/VID/AUD cards, which have no PDF and are never OCR'd
+# (the OCR stage reports ``pdf_cards=N``), so the preflight failed on cards
+# that were never in its remit. Release 5 was the gate's first run against a
+# worklist containing IMG cards -- R4's mirror was staged by hand.
+#
+# Scoping must fail CLOSED: a card the manifest doesn't cover, or one whose
+# asset_type is absent, stays in scope. Only an explicitly non-PDF asset_type
+# is skipped, and skips are always reported -- never silent.
+
+
+def _manifest(**by_id: str) -> list[dict[str, str]]:
+    return [{"card_id": cid, "asset_type": t} for cid, t in by_id.items()]
+
+
+def test_select_keeps_pdf_cards_and_skips_img() -> None:
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    in_scope, skipped = select_pdf_cards(
+        ["pdf1", "img1", "pdf2"],
+        _manifest(pdf1="PDF", img1="IMG", pdf2="PDF"),
+    )
+    assert in_scope == ["pdf1", "pdf2"]
+    assert skipped == {"img1": "IMG"}
+
+
+def test_select_skips_video_and_audio_cards() -> None:
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    in_scope, skipped = select_pdf_cards(
+        ["vid1", "aud1", "pdf1"],
+        _manifest(vid1="VID", aud1="AUD", pdf1="PDF"),
+    )
+    assert in_scope == ["pdf1"]
+    assert skipped == {"vid1": "VID", "aud1": "AUD"}
+
+
+def test_select_fails_closed_for_card_absent_from_manifest() -> None:
+    """An unknown card stays in scope: never silently drop what we can't classify."""
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    in_scope, skipped = select_pdf_cards(["ghost"], _manifest(other="PDF"))
+    assert in_scope == ["ghost"]
+    assert skipped == {}
+
+
+def test_select_fails_closed_when_asset_type_missing() -> None:
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    in_scope, skipped = select_pdf_cards(
+        ["untyped"], [{"card_id": "untyped", "asset_type": None}]
+    )
+    assert in_scope == ["untyped"]
+    assert skipped == {}
+
+
+def test_select_preserves_worklist_order() -> None:
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    in_scope, _ = select_pdf_cards(
+        ["z", "img", "a"], _manifest(z="PDF", img="IMG", a="PDF")
+    )
+    assert in_scope == ["z", "a"]
+
+
+def test_verify_passes_when_only_skipped_cards_lack_mirrors(tmp_path: Path) -> None:
+    """The end-to-end shape of the Release-5 failure: 1 PDF mirrored, 1 IMG card
+    with no PDF anywhere. Scoped correctly, the preflight is green."""
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    _seed_card(tmp_path, "pdf1")
+    run_pdf_mirror(["pdf1"], **_paths(tmp_path))
+
+    in_scope, skipped = select_pdf_cards(
+        ["pdf1", "img1"], _manifest(pdf1="PDF", img1="IMG")
+    )
+    pf = verify_pdf_mirror(
+        in_scope, ocr_root=tmp_path / "ocr", mirror_root=tmp_path / "r2-mirror"
+    )
+    assert pf.ok is True
+    assert skipped == {"img1": "IMG"}
+
+
+def test_verify_still_fails_for_unmirrored_pdf_card(tmp_path: Path) -> None:
+    """Scoping must not weaken the gate: a real PDF card missing its mirror
+    still fails, even in a batch that also contains skipped IMG cards."""
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    _seed_card(tmp_path, "pdf1")  # meta + source, but never mirrored
+
+    in_scope, _ = select_pdf_cards(["pdf1", "img1"], _manifest(pdf1="PDF", img1="IMG"))
+    pf = verify_pdf_mirror(
+        in_scope, ocr_root=tmp_path / "ocr", mirror_root=tmp_path / "r2-mirror"
+    )
+    assert pf.ok is False
+    assert pf.missing == ["pdf1"]
