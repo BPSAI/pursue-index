@@ -29,6 +29,9 @@ import {
   buildGroupedSnapshotOptions,
   formatUpstreamSnapshotLabel,
   formatPromotedStateLabel,
+  DIFF_SKIP_FIELDS,
+  FIELD_LABELS,
+  formatFieldLabel,
 } from "./diff-helpers.ts";
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
 
@@ -574,6 +577,93 @@ test("fieldOnlyChanges: a change on one of several identical-key VID rows is pai
   assert.equal(out.length, 1);
   assert.equal(out[0].card_id, "ea029a05470b8f4e");
   assert.deepEqual(out[0].fields, ["incident_location"]);
+});
+
+// --- T47.4: skip-set semantics (was a 15-field allowlist) ----------------
+//
+// The allowlist silently dropped 107 real upstream changes across the
+// corpus history: pdf_pairing (86), video_pairing (17), dvids_video_id
+// (4) — never in `_COMPARED_FIELDS`, so a change to any of them rendered
+// as no change at all on this page. Skip-set semantics compare
+// everything except an explicit skip set, so a field is surfaced unless
+// someone deliberately excludes it.
+
+test("fieldOnlyChanges: DIFF_SKIP_FIELDS matches tranche.py's field_diff skip set exactly", () => {
+  const pySrc = readFileSync(
+    new URL("../../../src/pursue_index/tranche.py", import.meta.url),
+    "utf-8",
+  );
+  const match = /skip\s*=\s*\{([^}]*)\}/.exec(pySrc);
+  assert.ok(match, "tranche.py must still define its field_diff skip set as `skip = {...}`");
+  const pyFields = new Set(
+    Array.from(match[1].matchAll(/"([^"]+)"/g)).map((m) => m[1]),
+  );
+  assert.ok(pyFields.size > 0, "regex must actually find quoted field names");
+  assert.deepEqual(
+    DIFF_SKIP_FIELDS,
+    pyFields,
+    "the site's skip set has drifted from tranche.py's — keep them identical",
+  );
+});
+
+test("fieldOnlyChanges: pdf_pairing change surfaces (previously silently dropped)", () => {
+  const a = card("aaa", "T", { pdf_pairing: null });
+  const b = card("aaa", "T", { pdf_pairing: "some-video-id" });
+  const out = fieldOnlyChanges([a], [b]);
+  assert.equal(out.length, 1);
+  assert.deepEqual(out[0].fields, ["pdf_pairing"]);
+});
+
+test("fieldOnlyChanges: video_pairing change surfaces (previously silently dropped)", () => {
+  const a = card("aaa", "T", { video_pairing: null });
+  const b = card("aaa", "T", { video_pairing: "some-pdf-id" });
+  const out = fieldOnlyChanges([a], [b]);
+  assert.equal(out.length, 1);
+  assert.deepEqual(out[0].fields, ["video_pairing"]);
+});
+
+test("fieldOnlyChanges: dvids_video_id change on a non-keying pair surfaces", () => {
+  // dvids_video_id is also a row-pairing key (row-pairing.ts), but a
+  // solo PDF row (no video_title siblings) still bucket-pairs 1:1 across
+  // snapshots, so a dvids_video_id mutation reaches the field diff here
+  // rather than only showing up as an add/remove of an unpaired row.
+  const a = card("aaa", "T", { dvids_video_id: "111" });
+  const b = card("aaa", "T", { dvids_video_id: "222" });
+  const out = fieldOnlyChanges([a], [b]);
+  assert.equal(out.length, 1);
+  assert.deepEqual(out[0].fields, ["dvids_video_id"]);
+});
+
+test("fieldOnlyChanges: card_id and raw are never reported even though they'd differ if compared", () => {
+  // card_id is the pairing key so it can never itself differ within a
+  // pair; this pins that the skip set still excludes it explicitly
+  // rather than relying on that incidental fact.
+  const a = card("aaa", "T");
+  const b = card("aaa", "T");
+  assert.deepEqual(fieldOnlyChanges([a], [b]), []);
+});
+
+// --- formatFieldLabel ---
+
+test("formatFieldLabel: every CardMetadata field the diff can surface has a readable label", () => {
+  const sample = card("aaa", "T");
+  for (const field of Object.keys(sample)) {
+    if (DIFF_SKIP_FIELDS.has(field)) continue;
+    assert.ok(
+      Object.prototype.hasOwnProperty.call(FIELD_LABELS, field),
+      `FIELD_LABELS is missing an entry for "${field}"`,
+    );
+  }
+});
+
+test("formatFieldLabel: previously-never-displayed fields render readably, not as raw snake_case", () => {
+  assert.equal(formatFieldLabel("pdf_pairing"), "PDF pairing");
+  assert.equal(formatFieldLabel("video_pairing"), "Video pairing");
+  assert.equal(formatFieldLabel("dvids_video_id"), "DVIDS video ID");
+});
+
+test("formatFieldLabel: unknown field falls back to the raw key rather than throwing", () => {
+  assert.equal(formatFieldLabel("some_future_column"), "some_future_column");
 });
 
 test("pairRowsByCardId: ea029a05 group pairs all 4 rows (PDF↔PDF, 3 VID↔VID) with 0 unpaired", () => {

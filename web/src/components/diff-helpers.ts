@@ -381,33 +381,21 @@ export function diffWithAliases(
 
 // --- Field-only changes --------------------------------------------
 
-// Fields we surface when they change between snapshots. Order matters
-// for the display string the UI builds from `fields`.
-const _COMPARED_FIELDS: Array<keyof CardMetadata> = [
-  "title",
-  "asset_type",
-  "agency",
-  "release_date",
-  "incident_date",
-  "incident_location",
-  "redacted",
-  "featured",
-  "description",
-  "asset_url",
-  "asset_filename",
-  "modal_image_url",
-  "image_alt_text",
-  "image_virin",
-  "original_classification",
-  // The two row-identity keys. They are also the fields rows bucket by
-  // (see row-pairing.ts), so a mutation of either moves a row into the
-  // 1-vs-1 leftover pass and pairs there — which means it reaches this
-  // comparison rather than showing up as an unpaired row. Without them
-  // here an upstream retitle or video-id change renders as no change at
-  // all on this page while the committed receipt reports it.
-  "video_title",
-  "dvids_video_id",
-];
+// Fields excluded from the field-level diff, mirroring `tranche.py`'s
+// `field_diff` skip set exactly (`diff-helpers.test.ts` asserts the two
+// stay identical). This used to be inverted — a hand-maintained allowlist
+// of ~15 fields — which meant a new upstream CSV column, or one nobody
+// had added to the list yet, was silently never diffed. That dropped 107
+// real changes across the corpus history (`pdf_pairing` 86, `video_pairing`
+// 17, `dvids_video_id` 4) before this was caught (T47.4). Skip-set
+// semantics surface a new field by default instead of hiding it by default.
+//
+// `card_id` is the pairing key, not a mutable field. `raw` doesn't exist on
+// the TS `CardMetadata` shape (it's a Python-side forward-compat dict,
+// always empty on the wire — see the NOTE on `CardMetadata` in
+// `data/types.ts`), so it never appears in `Object.keys()` here; it stays
+// in the set only so this literally matches `tranche.py`'s.
+export const DIFF_SKIP_FIELDS = new Set<string>(["card_id", "raw"]);
 
 // Boolean fields are compared by truthiness so a snapshot predating the
 // field (value absent → undefined) reads equal to an explicit `false`.
@@ -424,25 +412,69 @@ export interface FieldChange {
 export function fieldOnlyChanges(prev: CardMetadata[], curr: CardMetadata[]): FieldChange[] {
   const { pairs } = pairRowsByCardId(prev, curr);
   // A card_id may contribute several pairs (PDF + VID rows); union the
-  // changed fields per card_id, preserving _COMPARED_FIELDS order and
-  // first-seen order across pairs, so the UI shows one entry per card.
-  const changedByCard = new Map<string, string[]>();
+  // changed fields per card_id across pairs, so the UI shows one entry
+  // per card.
+  const changedByCard = new Map<string, Set<string>>();
   for (const { card_id, prev: p, curr: c } of pairs) {
-    for (const f of _COMPARED_FIELDS) {
+    // Compare every field either row carries, not a fixed allowlist —
+    // mirrors `tranche.py::field_diff`'s `set(old) | set(new)` union, so
+    // a field present on only one side (a snapshot predating a new
+    // column) is still checked rather than skipped outright.
+    const keys = new Set([...Object.keys(p), ...Object.keys(c)]);
+    for (const f of keys) {
+      if (DIFF_SKIP_FIELDS.has(f)) continue;
       const pv = (p as any)[f];
       const cv = (c as any)[f];
-      const changed = _BOOLEAN_FIELDS.has(f)
+      const changed = _BOOLEAN_FIELDS.has(f as keyof CardMetadata)
         ? Boolean(pv) !== Boolean(cv)
         : pv !== cv;
       if (!changed) continue;
-      const fields = changedByCard.get(card_id) ?? [];
-      if (!fields.includes(f)) fields.push(f);
+      const fields = changedByCard.get(card_id) ?? new Set<string>();
+      fields.add(f);
       changedByCard.set(card_id, fields);
     }
   }
   const out: FieldChange[] = [];
   for (const [card_id, fields] of changedByCard) {
-    if (fields.length > 0) out.push({ card_id, fields });
+    if (fields.size > 0) out.push({ card_id, fields: [...fields].sort() });
   }
   return out;
+}
+
+// Human-readable label for a diffed field, keyed by the manifest's
+// snake_case column name. Skip-set semantics (above) mean the diff can
+// now surface any CardMetadata field, including ones that were never
+// wired up for display before (`pdf_pairing`, `video_pairing`) — those
+// read badly as raw snake_case, so every field gets an explicit label
+// rather than leaving the newly-surfaced ones unformatted.
+export const FIELD_LABELS: Record<string, string> = {
+  title: "Title",
+  asset_type: "Asset type",
+  agency: "Agency",
+  release_date: "Release date",
+  incident_date: "Incident date",
+  incident_location: "Incident location",
+  redacted: "Redacted",
+  featured: "Featured",
+  description: "Description",
+  asset_url: "Asset URL",
+  asset_filename: "Asset filename",
+  modal_image_url: "Modal image URL",
+  dvids_video_id: "DVIDS video ID",
+  video_title: "Video title",
+  pdf_pairing: "PDF pairing",
+  video_pairing: "Video pairing",
+  image_alt_text: "Image alt text",
+  image_virin: "Image VIRIN",
+  original_classification: "Original classification",
+};
+
+/**
+ * Render a diffed field key readably. Falls back to the raw key for
+ * anything not in `FIELD_LABELS` — e.g. a future upstream column the
+ * skip-set inversion surfaces before this map is updated — so an
+ * unlabeled field degrades to its snake_case name rather than vanishing.
+ */
+export function formatFieldLabel(field: string): string {
+  return FIELD_LABELS[field] ?? field;
 }

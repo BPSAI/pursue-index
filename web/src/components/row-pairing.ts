@@ -20,8 +20,9 @@
  *      carries dvids_video_id 1006080, as does its VID row). What
  *      buckets those two apart is video_title, which upstream sets on
  *      the VID row and leaves empty on the PDF row.
- *   3. A change to a keying field is itself reported by the diff (both
- *      fields are in `_COMPARED_FIELDS`), and a change to any other
+ *   3. A change to a keying field is itself reported by the diff (neither
+ *      is in the diff's skip set — see `DIFF_SKIP_FIELDS` in
+ *      diff-helpers.ts), and a change to any other
  *      field (asset_type, asset_url, title, …) cannot prevent its own
  *      row from pairing.
  *   4. If bucketing leaves exactly one prev row and one curr row over in
@@ -93,7 +94,7 @@ export function groupByCardId(rows: CardMetadata[]): Map<string, CardMetadata[]>
  * Bucket key for pairing rows *within* a card_id group.
  *
  * The two keying fields are reported by the field diff like any other
- * (they are in `_COMPARED_FIELDS`); a mutation of one moves its row into
+ * (neither is in the diff's skip set); a mutation of one moves its row into
  * the 1-vs-1 leftover pass, which pairs it so the mutation is reported
  * rather than swallowed. A change to any other field cannot move a row
  * out of its bucket at all (see rule 3 above).

@@ -5,6 +5,7 @@ import {
   buildGroupedSnapshotOptions,
   diffWithAliases,
   fieldOnlyChanges,
+  formatFieldLabel,
   formatPromotedStateLabel,
   formatSnapshotTimestamp,
   formatUpstreamSnapshotLabel,
@@ -532,7 +533,7 @@ function FieldChangedSection({
                 <span class="text-[color:var(--color-signal-amber)]">~</span>
                 <code class="text-[color:var(--color-signal-cyan)] text-[10px]">{fc.card_id.slice(0, 12)}</code>
                 <span class="text-[color:var(--color-text-faint)] text-[10px]">→</span>
-                <span class="text-[color:var(--color-text)] text-[10px]">{fc.fields.join(", ")}</span>
+                <span class="text-[color:var(--color-text)] text-[10px]">{fc.fields.map(formatFieldLabel).join(", ")}</span>
               </a>
             </li>
           ))}
