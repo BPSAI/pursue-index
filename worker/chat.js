@@ -232,12 +232,7 @@ function liveAnthropicSSEResponse({ query, passages, citations, ck, kv, env, opt
           console.error("anthropic upstream error", apiRes.status, fullBody);
           controller.enqueue(
             sseFrame("error", {
-              message:
-                apiRes.status === 401 || apiRes.status === 403
-                  ? "Upstream LLM provider rejected the request. Try BYOK."
-                  : apiRes.status === 429
-                    ? "Upstream LLM provider is rate-limiting. Try again shortly or use BYOK."
-                    : "Upstream LLM provider returned an error. Try again shortly.",
+              message: clientErrorMessage(apiRes.status),
               status: apiRes.status,
             }),
           );
@@ -266,15 +261,37 @@ function liveAnthropicSSEResponse({ query, passages, citations, ck, kv, env, opt
         );
         controller.close();
       } catch (err) {
-        console.error("chat stream error", err);
+        // Same rule as the upstream-status branch above: the full error is
+        // for the log, the client gets the sanitized message. An internal
+        // error string can name KV keys, bindings and other server detail
+        // that a public endpoint has no business handing to a browser.
+        console.error("[chat] stream error", err);
         controller.enqueue(
-          sseFrame("error", { message: String(err.message || err) }),
+          sseFrame("error", { message: clientErrorMessage(err?.status) }),
         );
         controller.close();
       }
     },
   });
   return sseResponse(stream);
+}
+
+/**
+ * The only error text /api/chat ever sends a browser.
+ *
+ * Keyed on the upstream HTTP status where there is one; everything else —
+ * including any error raised inside this worker — collapses to the generic
+ * message. Nothing derived from an exception's own text reaches the client.
+ */
+function clientErrorMessage(status) {
+  if (status === 401 || status === 403) {
+    return "Upstream LLM provider rejected the request. Try BYOK.";
+  }
+  if (status === 429) {
+    return "Upstream LLM provider is rate-limiting. Try again shortly or use BYOK.";
+  }
+  if (status) return "Upstream LLM provider returned an error. Try again shortly.";
+  return "The answer stream failed. Try again shortly.";
 }
 
 /** Charge and cache a stream that drained normally. */
@@ -299,12 +316,20 @@ async function recordCompletedSpend({ kv, day, ck, usage, fullText, usageParsed 
   await writeCache(kv, ck, { text: fullText, usage, model: DEFAULT_MODEL });
 }
 
-/** Charge a stream that failed before it could report usage. */
+/** Charge a stream that failed before it finished. */
 async function recordAbortedSpend({ kv, day, error, usage }) {
-  const usd = fallbackCostUsd();
+  // A stream can fail after Anthropic already reported its token counts —
+  // message_delta arrives before message_stop, so a drop in that gap leaves
+  // real metered usage behind. Charge whichever is larger: the estimate is a
+  // floor for what we could not measure, not a substitute for what we did.
+  const usageParsed = usage?.input_tokens > 0 && usage?.output_tokens > 0;
+  const usd = usageParsed
+    ? Math.max(fallbackCostUsd(), costUsd(usage))
+    : fallbackCostUsd();
   const { spent } = await recordSpend(kv, day, usd);
   console.warn(
-    "[chat] stream ended before usage was reported — charged fallback estimate " +
+    "[chat] stream ended before it completed — charged " +
+      (usageParsed ? "the greater of metered usage and the estimate " : "the fallback estimate ") +
       JSON.stringify({
         day,
         usd,

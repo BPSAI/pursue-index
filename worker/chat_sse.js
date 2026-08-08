@@ -41,7 +41,6 @@ export async function pipeAnthropicSSE(controller, anthropicBody, onDone, onAbor
   let buf = "";
   let usage = { input_tokens: 0, output_tokens: 0 };
   let fullText = "";
-  let completed = false;
   try {
     while (true) {
       const { value, done } = await reader.read();
@@ -66,7 +65,6 @@ export async function pipeAnthropicSSE(controller, anthropicBody, onDone, onAbor
         }
       }
     }
-    completed = true;
   } catch (err) {
     // The call was billed whether or not its stream drained, so accounting
     // runs here before the error propagates. A failure inside the callback
@@ -80,12 +78,25 @@ export async function pipeAnthropicSSE(controller, anthropicBody, onDone, onAbor
     }
     throw err;
   }
-  if (!completed) return;
   // Fail-closed accounting signal — see the doc comment above. Both counts
   // must be positive for the usage to be trusted; anything else is a fault.
   const usageParsed = usage.input_tokens > 0 && usage.output_tokens > 0;
   controller.enqueue(sseFrame("done", { usage }));
-  if (onDone) await onDone({ usage, fullText, usageParsed });
+  if (onDone) {
+    // The client already has its answer and its done frame. Accounting runs
+    // after both, so a failure here is a bookkeeping loss to log — not a
+    // failed request. Letting it throw would surface an error frame after
+    // the done frame to a client whose answer arrived intact, and would
+    // bury the real cause under the caller's generic stream-error path.
+    try {
+      await onDone({ usage, fullText, usageParsed });
+    } catch (accountingErr) {
+      console.error(
+        "[chat] spend accounting failed after a completed stream — the call was billed but not recorded",
+        accountingErr,
+      );
+    }
+  }
 }
 
 function parseSSEBlock(block) {

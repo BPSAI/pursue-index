@@ -14,7 +14,10 @@ import { handleChat } from "../chat.js";
 import { pipeAnthropicSSE } from "../chat_sse.js";
 import { _resetCaches } from "../retrieve.js";
 import { anthropicSSEResponse } from "./fixtures/anthropic_sse.js";
-import { anthropicSSETruncatedResponse } from "./fixtures/anthropic_sse_truncated.js";
+import {
+  anthropicSSETruncatedResponse,
+  anthropicSSEUsageThenFailureResponse,
+} from "./fixtures/anthropic_sse_truncated.js";
 
 function makeKV() {
   const store = new Map();
@@ -32,6 +35,33 @@ function makeKV() {
       store.delete(key);
     },
   };
+}
+
+/** A KV whose writes to a chosen key prefix reject, as a real KV can. */
+function makeFailingKV(failPrefix) {
+  const kv = makeKV();
+  const put = kv.put.bind(kv);
+  kv.put = async (key, value, opts) => {
+    if (key.startsWith(failPrefix)) throw new Error(`KV put failed: ${key}`);
+    return put(key, value, opts);
+  };
+  return kv;
+}
+
+/** The SSE event names a client saw, in order. */
+function frameEvents(sseText) {
+  return [...sseText.matchAll(/^event: (.+)$/gm)].map((m) => m[1]);
+}
+
+/** The data payloads of one SSE event name. */
+function frameData(sseText, event) {
+  const out = [];
+  for (const block of sseText.split("\n\n")) {
+    const name = /^event: (.+)$/m.exec(block);
+    const data = /^data: (.*)$/m.exec(block);
+    if (name && data && name[1] === event) out.push(JSON.parse(data[1]));
+  }
+  return out;
 }
 
 function makeAssetsEnv() {
@@ -204,6 +234,57 @@ describe("handleChat spend accounting", () => {
     assert.ok(Math.abs(spentUsd(kv) - 0.0105) < 1e-9, `got ${spentUsd(kv)}`);
   });
 
+  test("a stream that reported usage before failing is charged the metered cost", async () => {
+    const kv = makeKV();
+    const env = {
+      ...makeAssetsEnv(),
+      CHAT_KV: kv,
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const opts = {
+      embedFn: async () => new Float32Array([1, 0, 0]),
+      anthropicFetch: async () =>
+        anthropicSSEUsageThenFailureResponse("Roswell appears in", {
+          inputTokens: 100_000,
+          outputTokens: 1_000,
+        }),
+    };
+    await captureLogs(async () => {
+      const r = await handleChat(makeChatRequest("5.5.5.8"), env, opts);
+      await r.text();
+    });
+    // 100k in @ $3/Mtok + 1k out @ $15/Mtok = $0.315 — well above the
+    // $0.07536 estimate, which is a floor for unknown usage, not a cap.
+    assert.ok(Math.abs(spentUsd(kv) - 0.315) < 1e-9, `got ${spentUsd(kv)}`);
+  });
+
+  test("a small metered cost on a failed stream is still floored at the estimate", async () => {
+    const kv = makeKV();
+    const env = {
+      ...makeAssetsEnv(),
+      CHAT_KV: kv,
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const opts = {
+      embedFn: async () => new Float32Array([1, 0, 0]),
+      anthropicFetch: async () =>
+        anthropicSSEUsageThenFailureResponse("Roswell appears in", {
+          inputTokens: 100,
+          outputTokens: 50,
+        }),
+    };
+    await captureLogs(async () => {
+      const r = await handleChat(makeChatRequest("5.5.5.9"), env, opts);
+      await r.text();
+    });
+    // Metered $0.00105, estimate $0.07536: an interrupted stream can have
+    // been billed for work whose tokens never reached us, so the estimate
+    // holds as the floor.
+    assert.ok(Math.abs(spentUsd(kv) - 0.07536) < 1e-9, `got ${spentUsd(kv)}`);
+  });
+
   test("an unbound CHAT_KV is warned about, not silently skipped", async () => {
     const env = {
       ...makeAssetsEnv(),
@@ -221,6 +302,90 @@ describe("handleChat spend accounting", () => {
     assert.ok(
       lines.warn.some((l) => l.includes("CHAT_KV")),
       "an unbound CHAT_KV disables rate limiting, the budget cap and spend accounting — say so",
+    );
+  });
+});
+
+// Accounting runs after the client has already been told the stream is
+// done. A failure there is a bookkeeping loss to log — it is not a failed
+// answer, and it must not be reported to a client whose answer arrived.
+describe("accounting failures after the stream completed", () => {
+  function envWith(kv) {
+    return {
+      ...makeAssetsEnv(),
+      CHAT_KV: kv,
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+  }
+
+  test("a spend-write failure on the success path is logged, not sent to the client", async () => {
+    const kv = makeFailingKV("spend:");
+    const opts = {
+      embedFn: async () => new Float32Array([1, 0, 0]),
+      anthropicFetch: async () => anthropicSSEResponse("Roswell appears in [card-a:1]."),
+    };
+    const { result: sse, lines } = await captureLogs(async () => {
+      const r = await handleChat(makeChatRequest("5.5.6.1"), envWith(kv), opts);
+      return await r.text();
+    });
+    const events = frameEvents(sse);
+    assert.ok(events.includes("done"), "the answer completed, so the done frame is owed");
+    assert.ok(
+      !events.includes("error"),
+      `no error frame after done — got ${JSON.stringify(events)}`,
+    );
+    assert.ok(
+      [...lines.error, ...lines.warn].some((l) => l.includes("[chat]")),
+      "an unrecorded charge must be visible in the logs under the [chat] prefix",
+    );
+  });
+
+  test("a spend-write failure on the abort path is logged and the stream still fails", async () => {
+    const kv = makeFailingKV("spend:");
+    const opts = {
+      embedFn: async () => new Float32Array([1, 0, 0]),
+      anthropicFetch: async () =>
+        anthropicSSETruncatedResponse("Roswell appears in", { chunksBeforeFailure: 2 }),
+    };
+    const { result: sse, lines } = await captureLogs(async () => {
+      const r = await handleChat(makeChatRequest("5.5.6.2"), envWith(kv), opts);
+      return await r.text();
+    });
+    assert.ok(
+      frameEvents(sse).includes("error"),
+      "the read genuinely failed, so the client is told the request failed",
+    );
+    assert.ok(
+      lines.error.some((l) => l.includes("[chat]")),
+      "the lost charge must be logged under the [chat] prefix",
+    );
+  });
+
+  test("the client-facing error message carries no internal detail", async () => {
+    const kv = makeFailingKV("spend:");
+    const opts = {
+      embedFn: async () => new Float32Array([1, 0, 0]),
+      anthropicFetch: async () =>
+        anthropicSSETruncatedResponse("Roswell appears in", { chunksBeforeFailure: 2 }),
+    };
+    const { result: sse, lines } = await captureLogs(async () => {
+      const r = await handleChat(makeChatRequest("5.5.6.3"), envWith(kv), opts);
+      return await r.text();
+    });
+    const messages = frameData(sse, "error").map((d) => d.message);
+    assert.equal(messages.length, 1);
+    for (const needle of ["KV put failed", "spend:", "network connection lost"]) {
+      assert.ok(
+        !messages[0].includes(needle),
+        `client message leaked internal detail (${needle}): ${messages[0]}`,
+      );
+    }
+    assert.ok(messages[0].length > 0, "the client still gets a message it can render");
+    // The detail the operator needs stays server-side.
+    assert.ok(
+      lines.error.some((l) => l.includes("network connection lost")),
+      "the underlying error must still be logged in full",
     );
   });
 });
