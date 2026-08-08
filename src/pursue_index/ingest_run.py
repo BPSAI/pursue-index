@@ -108,9 +108,10 @@ def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
         PDFs; idempotent (only new/changed cards regenerate).
 
     The heavier embedding-derived payloads (`build_embed_data.py`,
-    `build_atlas_layout.py`, `build_search_data.py`) are NOT run here — they
-    depend on the embed and OCR stages that a metadata-only promote does not
-    touch. `make rebuild-derivatives`, run after embed, propagates those.
+    `build_novelty_data.py`, `build_atlas_layout.py`, `build_search_data.py`)
+    are NOT run here — they depend on the embed and OCR stages that a
+    metadata-only promote does not touch. `make rebuild-derivatives`, run
+    after embed, propagates those.
     """
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(snapshot_path, manifest_path)

@@ -109,14 +109,18 @@ rebuild-derivatives:
 	@#
 	@# Order is load-bearing. atlas runs LAST because it is the one with
 	@# optional imports (the projection stack) and so the one most likely to
-	@# be missing a dependency; embed and posters must have already landed
-	@# when it does, or an atlas that cannot import leaves them unbuilt too.
-	@# embed precedes atlas because atlas projects the embed index.
+	@# be missing a dependency; embed, novelty and posters must have already
+	@# landed when it does, or an atlas that cannot import leaves them unbuilt
+	@# too. embed precedes atlas because atlas projects the embed index.
+	@# novelty (stdlib-only: it compacts the `pursue novelty compute` sidecar
+	@# into web/public/data/novelty.json) and posters are robust, so they run
+	@# ahead of the fragile atlas; novelty is what feeds /disclosure.
 	@#
 	@# Requires the NAS embed root + r2-mirror (present in the operator ship
 	@# env; same precondition as embed above).
-	@echo "==> Propagate derived payloads (embed / posters / atlas)"
+	@echo "==> Propagate derived payloads (embed / novelty / posters / atlas)"
 	@$(PYTHON) scripts/build_embed_data.py
+	@$(PYTHON) scripts/build_novelty_data.py
 	@$(PYTHON) scripts/build_video_posters.py
 	@$(PYTHON) scripts/build_atlas_layout.py
 
