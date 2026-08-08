@@ -122,9 +122,12 @@ export async function checkBudget(kv, day = utcDay()) {
   return { allowed: spent < DAILY_BUDGET_USD, spent };
 }
 
+// Returns the new running cumulative so callers can log/observe daily
+// accounting rather than infer it from a runaway bill.
 export async function recordSpend(kv, day, usd) {
   const key = budgetKey(day);
   const current = parseFloat((await kv.get(key)) || "0");
   const next = current + Math.max(0, usd);
   await kv.put(key, String(next), { expirationTtl: CACHE_TTL_SECONDS * 2 });
+  return { spent: next };
 }

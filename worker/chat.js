@@ -42,6 +42,16 @@ const MAX_TOKENS = 1024;
 const PRICE_INPUT = 3.0;
 const PRICE_OUTPUT = 15.0;
 
+// Fail-closed fallback: what to charge when the upstream usage report can't
+// be parsed. We must NEVER account an unparseable/absent usage as $0 — that
+// is exactly the failure that lets a moved API shape run the daily cap
+// unbounded on a public endpoint. The estimate is a deliberate upper bound on
+// a single call: the largest output the model can emit (MAX_TOKENS) plus a
+// generous input allowance for the system prompt + up to 8 retrieved
+// passages. Erring high protects the cap; a real call costs less.
+const FALLBACK_INPUT_TOKENS = 20_000;
+const FALLBACK_OUTPUT_TOKENS = MAX_TOKENS;
+
 export async function handleChat(request, env, opts = {}) {
   if (request.method !== "POST") {
     return jsonResponse({ error: "method not allowed" }, 405);
@@ -223,13 +233,34 @@ function liveAnthropicSSEResponse({ query, passages, citations, ck, kv, env, opt
           controller.close();
           return;
         }
-        await pipeAnthropicSSE(controller, apiRes.body, async ({ usage, fullText }) => {
+        await pipeAnthropicSSE(controller, apiRes.body, async ({ usage, fullText, usageParsed }) => {
           // Stream completed — record the dollar spend and cache the
           // answer. The rate counter was already incremented in
           // handleChat's main flow before this stream was constructed.
           if (kv) {
-            const usd = costUsd(usage);
-            await recordSpend(kv, day, usd);
+            // Fail closed: if the upstream usage shape moved (or was
+            // absent), charge a conservative estimate rather than $0 so the
+            // daily cap still converges instead of silently never tripping.
+            const usd = usageParsed ? costUsd(usage) : fallbackCostUsd();
+            const { spent } = await recordSpend(kv, day, usd);
+            // Make daily accounting observable: a silent zero should be
+            // visible in logs, not inferred from a runaway bill.
+            console.log(
+              "[chat] spend recorded " +
+                JSON.stringify({
+                  day,
+                  usd,
+                  cumulative: spent,
+                  usage_parsed: usageParsed,
+                  usage,
+                }),
+            );
+            if (!usageParsed) {
+              console.warn(
+                "[chat] anthropic usage unparseable — charged fallback estimate " +
+                  JSON.stringify({ day, usd, cumulative: spent, usage }),
+              );
+            }
             await writeCache(kv, ck, {
               text: fullText,
               usage,
@@ -274,6 +305,16 @@ function costUsd(usage) {
   const inTok = usage?.input_tokens || 0;
   const outTok = usage?.output_tokens || 0;
   return (inTok * PRICE_INPUT + outTok * PRICE_OUTPUT) / 1_000_000;
+}
+
+// Conservative upper-bound charge for a call whose usage couldn't be parsed.
+// Non-zero by construction so an unaccountable call still advances the cap.
+function fallbackCostUsd() {
+  return (
+    (FALLBACK_INPUT_TOKENS * PRICE_INPUT +
+      FALLBACK_OUTPUT_TOKENS * PRICE_OUTPUT) /
+    1_000_000
+  );
 }
 
 function jsonResponse(payload, status = 200) {

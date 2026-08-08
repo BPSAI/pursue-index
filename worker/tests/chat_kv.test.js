@@ -134,4 +134,12 @@ describe("checkBudget + recordSpend", () => {
     const r = await checkBudget(kv, "2026-05-10");
     assert.equal(r.allowed, true);
   });
+
+  test("recordSpend returns the running cumulative so accounting is observable", async () => {
+    const day = "2026-05-11";
+    const a = await recordSpend(kv, day, 1.5);
+    assert.equal(a.spent, 1.5);
+    const b = await recordSpend(kv, day, 2.25);
+    assert.equal(b.spent, 3.75);
+  });
 });

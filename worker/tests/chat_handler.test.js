@@ -10,6 +10,10 @@ import assert from "node:assert/strict";
 import { handleChat } from "../chat.js";
 import { _resetCaches } from "../retrieve.js";
 import { RATE_LIMIT, DAILY_BUDGET_USD } from "../chat_kv.js";
+import {
+  anthropicSSEResponse,
+  anthropicSSEMovedUsageResponse,
+} from "./fixtures/anthropic_sse.js";
 
 function makeKV() {
   const store = new Map();
@@ -81,27 +85,11 @@ function floatToHalf(f) {
   return (sign << 15) | (exp << 10) | (frac & 0x3ff);
 }
 
+// Canonical, well-formed Anthropic streaming response. Lives in
+// tests/fixtures/anthropic_sse.js alongside its provenance record and the
+// "usage fields moved" variant used by the fail-closed test below.
 function fakeAnthropicSSEResponse(text) {
-  // Encode a minimal Anthropic streaming response with one content_block_delta.
-  const events = [
-    `event: message_start\ndata: ${JSON.stringify({ type: "message_start", message: { id: "m1", model: "claude-sonnet-4-6", usage: { input_tokens: 100, output_tokens: 0 } } })}\n\n`,
-    `event: content_block_start\ndata: ${JSON.stringify({ type: "content_block_start", index: 0, content_block: { type: "text", text: "" } })}\n\n`,
-    `event: content_block_delta\ndata: ${JSON.stringify({ type: "content_block_delta", index: 0, delta: { type: "text_delta", text: text } })}\n\n`,
-    `event: content_block_stop\ndata: ${JSON.stringify({ type: "content_block_stop", index: 0 })}\n\n`,
-    `event: message_delta\ndata: ${JSON.stringify({ type: "message_delta", usage: { output_tokens: 50 } })}\n\n`,
-    `event: message_stop\ndata: ${JSON.stringify({ type: "message_stop" })}\n\n`,
-  ];
-  const body = new ReadableStream({
-    start(c) {
-      const enc = new TextEncoder();
-      for (const e of events) c.enqueue(enc.encode(e));
-      c.close();
-    },
-  });
-  return new Response(body, {
-    status: 200,
-    headers: { "Content-Type": "text/event-stream" },
-  });
+  return anthropicSSEResponse(text);
 }
 
 function makeChatRequest({ ip = "1.1.1.1", body } = {}) {
@@ -312,5 +300,79 @@ describe("handleChat", () => {
     const text = await r.text();
     assert.match(text, /not address|no documents/i);
     assert.match(text, /event: done/);
+  });
+
+  test("fail closed: moved usage shape is charged non-zero and the cap engages", async () => {
+    const kv = makeKV();
+    // Pre-spend to a hair under the cap. A correctly fail-closed charge for
+    // one unaccountable call must be enough to push cumulative spend over the
+    // ceiling; the buggy $0 charge would leave us under it and never trip.
+    const day = new Date().toISOString().slice(0, 10);
+    await kv.put("spend:" + day, String(DAILY_BUDGET_USD - 0.001));
+    const env = {
+      ...makeAssetsEnv(),
+      CHAT_KV: kv,
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const opts = {
+      embedFn: async () => new Float32Array([1, 0, 0]),
+      // Upstream is healthy and streams a full answer, but its usage fields
+      // have moved to a location the parser doesn't read.
+      anthropicFetch: async () =>
+        anthropicSSEMovedUsageResponse("Roswell appears in [card-a:1]."),
+    };
+
+    // First call goes through (budget still had a sliver) and completes.
+    const r1 = await handleChat(makeChatRequest({ ip: "8.8.8.8" }), env, opts);
+    assert.equal(r1.status, 200);
+    await r1.text();
+
+    // The unaccountable call was charged a conservative non-zero estimate,
+    // NOT $0 — cumulative spend must now exceed the cap.
+    const spent = parseFloat(kv._store.get("spend:" + day));
+    assert.ok(
+      spent > DAILY_BUDGET_USD,
+      `expected fail-closed charge to push spend over ${DAILY_BUDGET_USD}, got ${spent}`,
+    );
+
+    // ...so the very next request is refused by the daily cap.
+    const r2 = await handleChat(makeChatRequest({ ip: "8.8.8.9" }), env, opts);
+    assert.equal(r2.status, 503);
+  });
+
+  test("daily accounting is observable: spend is logged with running total", async () => {
+    const kv = makeKV();
+    const env = {
+      ...makeAssetsEnv(),
+      CHAT_KV: kv,
+      VOYAGE_API_KEY: "v",
+      ANTHROPIC_API_KEY: "a",
+    };
+    const opts = {
+      embedFn: async () => new Float32Array([1, 0, 0]),
+      anthropicFetch: async () =>
+        anthropicSSEMovedUsageResponse("Roswell appears in [card-a:1]."),
+    };
+
+    const logs = [];
+    const origLog = console.log;
+    const origWarn = console.warn;
+    console.log = (...a) => logs.push(a.join(" "));
+    console.warn = (...a) => logs.push(a.join(" "));
+    try {
+      const r = await handleChat(makeChatRequest({ ip: "8.8.8.10" }), env, opts);
+      await r.text();
+    } finally {
+      console.log = origLog;
+      console.warn = origWarn;
+    }
+
+    const joined = logs.join("\n");
+    // A silent zero must be visible, not inferred: the recorded spend and its
+    // running cumulative are logged, and the unparseable usage is flagged.
+    assert.match(joined, /spend recorded/i);
+    assert.match(joined, /cumulative/i);
+    assert.match(joined, /unparseable|fallback|usage_parsed/i);
   });
 });

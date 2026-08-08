@@ -19,8 +19,16 @@ export function sseFrame(event, data) {
 
 /**
  * Pipe an Anthropic SSE response body through to the client SSE stream,
- * extracting text deltas and usage info. Calls `onDone({usage, fullText})`
- * once the upstream stream completes (used to record cache + spend).
+ * extracting text deltas and usage info. Calls
+ * `onDone({usage, fullText, usageParsed})` once the upstream stream
+ * completes (used to record cache + spend).
+ *
+ * `usageParsed` is the fail-closed signal for cost accounting: a genuinely
+ * completed Anthropic call always reports positive input AND output token
+ * counts. If either is still zero once the stream drains, the upstream usage
+ * shape has moved (or was absent) and the caller must NOT read that as a
+ * real, free ($0) call — otherwise a silent shape change lets the daily
+ * spend cap run unbounded. See worker/chat.js's onDone callback.
  */
 export async function pipeAnthropicSSE(controller, anthropicBody, onDone) {
   const reader = anthropicBody.getReader();
@@ -51,8 +59,11 @@ export async function pipeAnthropicSSE(controller, anthropicBody, onDone) {
       }
     }
   }
+  // Fail-closed accounting signal — see the doc comment above. Both counts
+  // must be positive for the usage to be trusted; anything else is a fault.
+  const usageParsed = usage.input_tokens > 0 && usage.output_tokens > 0;
   controller.enqueue(sseFrame("done", { usage }));
-  if (onDone) await onDone({ usage, fullText });
+  if (onDone) await onDone({ usage, fullText, usageParsed });
 }
 
 function parseSSEBlock(block) {
