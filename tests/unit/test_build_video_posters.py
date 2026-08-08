@@ -201,6 +201,164 @@ def test_build_skips_card_without_bytes_but_still_succeeds(tmp_path: Path):
     assert not (posters / "vid2.jpg").exists()
 
 
+def _stub_extract_recording(mod) -> list[Path]:
+    """Stub ``extract_poster`` and record the source mp4 of every call."""
+    calls: list[Path] = []
+
+    def _fake(video: Path, out_jpg: Path, at_fraction: float = 0.1) -> bool:
+        calls.append(video)
+        out_jpg.parent.mkdir(parents=True, exist_ok=True)
+        out_jpg.write_bytes(b"\xff\xd8\xff" + video.stem.encode())
+        return True
+
+    mod.extract_poster = _fake
+    return calls
+
+
+def test_build_refreshes_poster_when_source_sha_changes(tmp_path: Path):
+    """A card re-ingested with new bytes gets a new poster, not the stale one.
+
+    Coverage counting the stale file as covered is what made this invisible:
+    the poster is present, so the card reports covered while showing a frame
+    from bytes the site no longer serves.
+    """
+    mod = _load_module()
+    calls = _stub_extract_recording(mod)
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, [("vid1", "VID")])
+    reg = tmp_path / "registry.jsonl"
+    _write_registry(
+        reg,
+        [{"card_id": "vid1", "byte_sha256": "NEWSHA", "current_key": "vid1.mp4"}],
+    )
+    mirror = tmp_path / "r2-mirror"
+    _mirror_mp4(mirror, "NEWSHA")
+    posters = tmp_path / "posters"
+    posters.mkdir()
+    (posters / "vid1.jpg").write_bytes(b"\xff\xd8\xffstale")
+    (posters / "index.json").write_text(
+        json.dumps(
+            {
+                "posters": {"vid1": "vid1.jpg"},
+                "sources": {"vid1": "OLDSHA"},
+                "count": 1,
+            }
+        )
+    )
+
+    rc = mod.build(
+        manifest_path=manifest,
+        registry_path=reg,
+        mirror_root=mirror,
+        posters_dir=posters,
+    )
+    assert rc == 0
+    assert [c.stem for c in calls] == ["NEWSHA"]
+    assert (posters / "vid1.jpg").read_bytes() != b"\xff\xd8\xffstale"
+    index = json.loads((posters / "index.json").read_text())
+    assert index["sources"]["vid1"] == "NEWSHA"
+
+
+def test_build_keeps_poster_when_source_sha_unchanged(tmp_path: Path):
+    """Unchanged bytes stay idempotent: no re-extract, no rewritten file."""
+    mod = _load_module()
+    calls = _stub_extract_recording(mod)
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, [("vid1", "VID")])
+    reg = tmp_path / "registry.jsonl"
+    _write_registry(
+        reg, [{"card_id": "vid1", "byte_sha256": "SAMESHA", "current_key": "vid1.mp4"}]
+    )
+    mirror = tmp_path / "r2-mirror"
+    _mirror_mp4(mirror, "SAMESHA")
+    posters = tmp_path / "posters"
+    posters.mkdir()
+    (posters / "vid1.jpg").write_bytes(b"\xff\xd8\xffcurrent")
+    (posters / "index.json").write_text(
+        json.dumps(
+            {
+                "posters": {"vid1": "vid1.jpg"},
+                "sources": {"vid1": "SAMESHA"},
+                "count": 1,
+            }
+        )
+    )
+
+    rc = mod.build(
+        manifest_path=manifest,
+        registry_path=reg,
+        mirror_root=mirror,
+        posters_dir=posters,
+    )
+    assert rc == 0
+    assert calls == []
+    assert (posters / "vid1.jpg").read_bytes() == b"\xff\xd8\xffcurrent"
+    index = json.loads((posters / "index.json").read_text())
+    assert index["sources"] == {"vid1": "SAMESHA"}
+
+
+def test_build_records_source_sha_for_newly_generated_posters(tmp_path: Path):
+    """A first-time poster records the sha it came from, so the next run can
+    tell whether it is still current."""
+    mod = _load_module()
+    _stub_extract_recording(mod)
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, [("vid1", "VID")])
+    reg = tmp_path / "registry.jsonl"
+    _write_registry(
+        reg, [{"card_id": "vid1", "byte_sha256": "s1", "current_key": "vid1.mp4"}]
+    )
+    mirror = tmp_path / "r2-mirror"
+    _mirror_mp4(mirror, "s1")
+    posters = tmp_path / "posters"
+
+    rc = mod.build(
+        manifest_path=manifest,
+        registry_path=reg,
+        mirror_root=mirror,
+        posters_dir=posters,
+    )
+    assert rc == 0
+    index = json.loads((posters / "index.json").read_text())
+    assert index["sources"] == {"vid1": "s1"}
+
+
+def test_build_prunes_orphan_source_sha_entries(tmp_path: Path):
+    """Pruning a departed card drops its recorded sha along with its poster."""
+    mod = _load_module()
+    _stub_extract_recording(mod)
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, [("vid1", "VID")])
+    reg = tmp_path / "registry.jsonl"
+    _write_registry(
+        reg, [{"card_id": "vid1", "byte_sha256": "s1", "current_key": "vid1.mp4"}]
+    )
+    mirror = tmp_path / "r2-mirror"
+    _mirror_mp4(mirror, "s1")
+    posters = tmp_path / "posters"
+    posters.mkdir()
+    (posters / "gone.jpg").write_bytes(b"\xff\xd8\xff")
+    (posters / "index.json").write_text(
+        json.dumps(
+            {
+                "posters": {"gone": "gone.jpg"},
+                "sources": {"gone": "sha_gone"},
+                "count": 1,
+            }
+        )
+    )
+
+    rc = mod.build(
+        manifest_path=manifest,
+        registry_path=reg,
+        mirror_root=mirror,
+        posters_dir=posters,
+    )
+    assert rc == 0
+    index = json.loads((posters / "index.json").read_text())
+    assert "gone" not in index["sources"]
+
+
 def test_main_returns_1_when_mirror_root_missing(tmp_path: Path):
     mod = _load_module()
     manifest = tmp_path / "manifest.json"

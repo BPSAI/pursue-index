@@ -17,10 +17,18 @@ Flow, per VID/AUD card in ``data/manifests/latest.json``:
   3. Use ffmpeg to extract a poster frame at ~10% of duration (skips
      leader frames, captures actual content).
   4. Write the JPG to ``web/public/data/video-posters/<card_id>.jpg`` and
-     maintain the sibling ``index.json`` (card_id → poster filename) the
-     GalleryIsland reads.
+     maintain the sibling ``index.json``: ``posters`` (card_id → poster
+     filename) is what the GalleryIsland reads, and ``sources`` (card_id →
+     the byte_sha256 the frame was extracted from) is what makes step 3
+     skippable without going stale.
   5. Prune posters + index entries keyed to card_ids that are no longer
      A/V cards in the manifest (e.g. after a rename-heavy tranche).
+
+Idempotent, but on the source bytes rather than on the filename: a card is
+re-extracted when the registry's current sha differs from the one recorded
+in ``sources``, so re-ingesting a card with new bytes refreshes its poster.
+Checking only whether ``<card_id>.jpg`` exists would report such a card as
+covered while it kept showing a frame of the superseded bytes.
 
 Auto-invoked: ``make rebuild-derivatives`` runs this as one of the four
 derived-payload builders, and ``ingest_run.promote_snapshot`` runs it on
@@ -163,19 +171,34 @@ def extract_poster(video: Path, out_jpg: Path, at_fraction: float = 0.1) -> bool
         return False
 
 
-def load_index(path: Path) -> dict[str, str]:
+def _read_index(path: Path) -> dict:
     if not path.exists():
         return {}
     try:
         data = json.loads(path.read_text())
     except json.JSONDecodeError:
         return {}
-    return dict(data.get("posters", {}))
+    return data if isinstance(data, dict) else {}
 
 
-def save_index(path: Path, mapping: dict[str, str]) -> None:
+def load_index(path: Path) -> dict[str, str]:
+    """The ``card_id → poster filename`` map the gallery reads."""
+    return dict(_read_index(path).get("posters", {}))
+
+
+def load_source_shas(path: Path) -> dict[str, str]:
+    """The ``card_id → byte_sha256`` the poster on disk was extracted from.
+
+    Absent for an index written before posters recorded their source, in
+    which case every card reads as stale and is regenerated once.
+    """
+    return dict(_read_index(path).get("sources", {}))
+
+
+def save_index(path: Path, mapping: dict[str, str], sources: dict[str, str]) -> None:
     payload = {
         "posters": mapping,
+        "sources": sources,
         "count": len(mapping),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -187,7 +210,9 @@ def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
 
     Only rows whose ``current_key`` is an ``.mp4`` current-pointer are the
     canonical A/V bytes we serve. A card re-ingested with new bytes has a
-    later row; last row wins so the poster tracks the current asset.
+    later row, and last row wins, so this map always names the bytes the
+    site currently serves — which is what makes the poster on disk
+    checkable against them.
     """
     out: dict[str, str] = {}
     if not registry_path.exists():
@@ -214,24 +239,49 @@ def _resolve_mirror_mp4(mirror_root: Path, sha: str) -> Path | None:
     return path if path.is_file() else None
 
 
+def _poster_is_current(poster_path: Path, recorded_sha: str | None, sha: str) -> bool:
+    """Is the poster on disk the one extracted from the bytes we serve now?
+
+    Presence alone is not the question. A card re-ingested with new bytes
+    keeps its card_id and its poster filename, so an existence check reads
+    a poster of the superseded bytes as current and the card reports
+    covered forever. The recorded source sha is what distinguishes them.
+    """
+    if not (poster_path.exists() and poster_path.stat().st_size > 0):
+        return False
+    return recorded_sha == sha
+
+
 def _generate_one_poster(
     card_id: str,
     sha_map: dict[str, str],
     mirror_root: Path,
     posters_dir: Path,
-    mapping: dict[str, str],
+    state: tuple[dict[str, str], dict[str, str]],
     counts: dict[str, int],
 ) -> None:
-    """Poster one A/V card from its mirrored R2 bytes; mutate mapping/counts."""
+    """Poster one A/V card from its mirrored R2 bytes; mutate state/counts.
+
+    ``state`` is the ``(mapping, sources)`` pair persisted to index.json.
+    """
+    mapping, sources = state
     poster_path = posters_dir / f"{card_id}.jpg"
-    if poster_path.exists() and poster_path.stat().st_size > 0:
-        mapping[card_id] = poster_path.name
-        counts["kept"] += 1
-        return
+    existing = poster_path.exists() and poster_path.stat().st_size > 0
     sha = sha_map.get(card_id)
     if not sha:
+        if existing:
+            # No registry row to check against; the poster we already have
+            # is the best available answer, so keep it rather than delete
+            # coverage we cannot re-derive.
+            mapping[card_id] = poster_path.name
+            counts["kept"] += 1
+            return
         print(f"[posters] {card_id}: no <card_id>.mp4 registry row; skipping")
         counts["skip_no_sha"] += 1
+        return
+    if _poster_is_current(poster_path, sources.get(card_id), sha):
+        mapping[card_id] = poster_path.name
+        counts["kept"] += 1
         return
     mp4 = _resolve_mirror_mp4(mirror_root, sha)
     if mp4 is None:
@@ -242,25 +292,34 @@ def _generate_one_poster(
         counts["skip_ffmpeg"] += 1
         return
     mapping[card_id] = poster_path.name
-    counts["new"] += 1
-    print(f"[posters] new: {card_id} ← archive/{sha[:12]}….mp4 "
+    sources[card_id] = sha
+    counts["refreshed" if existing else "new"] += 1
+    verb = "refreshed" if existing else "new"
+    print(f"[posters] {verb}: {card_id} ← archive/{sha[:12]}….mp4 "
           f"({poster_path.stat().st_size:,} B)")
 
 
 def _prune_orphans(
-    posters_dir: Path, valid_ids: set[str], mapping: dict[str, str]
+    posters_dir: Path,
+    valid_ids: set[str],
+    mapping: dict[str, str],
+    sources: dict[str, str] | None = None,
 ) -> list[str]:
     """Drop index entries + JPGs keyed to card_ids that are no longer A/V cards.
 
-    Covers both the mapping and any stray ``<card_id>.jpg`` on disk (a poster
-    whose card was renamed/removed lingers otherwise), so coverage counts
-    reflect only live cards.
+    Covers the mapping, the recorded source shas, and any stray
+    ``<card_id>.jpg`` on disk (a poster whose card was renamed/removed
+    lingers otherwise), so coverage counts reflect only live cards.
     """
+    sources = {} if sources is None else sources
     removed: list[str] = []
     for cid in list(mapping):
         if cid not in valid_ids:
             mapping.pop(cid, None)
             removed.append(cid)
+    for cid in list(sources):
+        if cid not in valid_ids:
+            sources.pop(cid, None)
     for jpg in sorted(posters_dir.glob("*.jpg")):
         if jpg.stem not in valid_ids:
             jpg.unlink()
@@ -288,17 +347,26 @@ def build(
     posters_dir.mkdir(parents=True, exist_ok=True)
     index_path = posters_dir / "index.json"
     mapping = load_index(index_path)
-    counts = {"kept": 0, "new": 0, "skip_no_sha": 0, "skip_no_bytes": 0, "skip_ffmpeg": 0}
+    sources = load_source_shas(index_path)
+    counts = {
+        "kept": 0,
+        "new": 0,
+        "refreshed": 0,
+        "skip_no_sha": 0,
+        "skip_no_bytes": 0,
+        "skip_ffmpeg": 0,
+    }
 
     for card_id in sorted(valid_ids):
         _generate_one_poster(
-            card_id, sha_map, mirror_root, posters_dir, mapping, counts
+            card_id, sha_map, mirror_root, posters_dir, (mapping, sources), counts
         )
-    removed = _prune_orphans(posters_dir, valid_ids, mapping)
+    removed = _prune_orphans(posters_dir, valid_ids, mapping, sources)
 
-    save_index(index_path, mapping)
+    save_index(index_path, mapping, sources)
     print(
-        f"[posters] done: new={counts['new']} kept={counts['kept']} "
+        f"[posters] done: new={counts['new']} refreshed={counts['refreshed']} "
+        f"kept={counts['kept']} "
         f"pruned={len(removed)} skip_no_sha={counts['skip_no_sha']} "
         f"skip_no_bytes={counts['skip_no_bytes']} skip_ffmpeg={counts['skip_ffmpeg']}"
     )
