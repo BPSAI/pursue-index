@@ -38,12 +38,13 @@ from typing import Any
 from pursue_index.scrape.snapshots import write_public_index
 
 # Operator-local builders invoked from promote_snapshot as part of the
-# release-pipeline-gate lockstep refresh. Both are idempotent and
-# graceful-skip when local inputs (operator's .mp4s, NAS PDFs) are
-# missing — they print a `no_local_*=N` summary and exit 0. Adding
-# them here closes the "operator forgot to re-key posters after a
-# rename-heavy tranche" class of bug captured in commits 9b9b40d /
-# 076ef78 / ffeeddd on 2026-05-12.
+# release-pipeline-gate lockstep refresh. Both are idempotent. posters now
+# sources A/V frames from the mirrored R2 bytes (r2-mirror/archive/<sha>.mp4)
+# and exits 1 only when that mirror root is absent; per-card gaps are logged
+# and skipped. Their output + exit code are surfaced (not discarded) by
+# _report_builder_result. Adding them here closes the "operator forgot to
+# re-key posters after a rename-heavy tranche" class of bug captured in
+# commits 9b9b40d / 076ef78 / ffeeddd on 2026-05-12.
 _OPERATOR_LOCAL_BUILDERS = (
     "build_video_posters.py",
     "build_pdf_thumbs.py",
@@ -99,21 +100,19 @@ def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
     missing thumbs, stale /diff). This function now updates all three
     atomically so a future ingest can't silently desync.
 
-    NOT auto-invoked here (operator-local dependencies):
-      - `build_video_posters.py` — needs operator's .mp4 files; if
-        card_ids changed via rename, posters keyed under old card_ids
-        need re-keying. Operator runs locally after a rename-heavy
-        tranche.
-      - `build_pdf_thumbs.py` — needs PDFs on the NAS; idempotent so
-        running it after every ingest is cheap (only new/changed cards
-        regenerate). Operator runs locally.
-      - `build_search_data.py`, `build_atlas_layout.py`,
-        `build_embed_data.py` — derived from pages.json + embeddings.bin
-        which only change when OCR/embed stages run.
+    Auto-invoked after the mirror (`_run_operator_local_builders`):
+      - `build_video_posters.py` — rebuilds A/V posters from the mirrored
+        R2 bytes (`r2-mirror/archive/<sha>.mp4`), re-keyed to current
+        card_ids and orphan-pruned; no operator .mp4/Desktop dependency.
+      - `build_pdf_thumbs.py` — renders PDF gallery thumbnails from NAS
+        PDFs; idempotent (only new/changed cards regenerate).
 
-    The follow-up plan in `pursue-opsec/findings/2026-05-12-release-pipeline-gate.md`
-    proposes a deterministic checklist + GitHub Action to cover ALL of
-    the above as gated AC before any deploy.
+    The heavier embedding-derived payloads (`build_embed_data.py`,
+    `build_atlas_layout.py`, `build_novelty_data.py`, `build_search_data.py`)
+    are NOT run here — they depend on the embed/OCR/novelty stages that a
+    metadata-only promote does not touch. `make rebuild-derivatives` (run
+    during `make ship-ready`, after embed) propagates those; see
+    `ship-tranche.md`.
     """
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(snapshot_path, manifest_path)
@@ -138,13 +137,42 @@ def _mirror_to_deploy_surfaces(snapshot_path: Path, repo_root: Path) -> None:
         _mirror_snapshot_to_web(snapshot_path, snapshot_sha, web_snapshots)
 
 
-def _run_operator_local_builders(repo_root: Path) -> None:
-    """Invoke the operator-local poster + thumb builders after a mirror.
+def _report_builder_result(
+    builder: str, result: subprocess.CompletedProcess[str]
+) -> None:
+    """Surface a builder's captured stdout/stderr + exit code.
 
-    Both scripts are idempotent and graceful-skip on missing local
-    inputs (operator's .mp4 sources, NAS PDFs) — they print a
-    `no_local_*=N` summary and exit 0 in that case. A non-zero exit
-    from either builder is logged + tolerated so a buggy or
+    Previously the ``CompletedProcess`` was discarded entirely, so a
+    non-zero exit (a missing r2-mirror, a crashed generator) left no
+    trace and the derived payload silently went stale — the exact
+    orphaned-builder failure T47.8 closes. A non-zero exit is reported
+    loudly but does NOT raise: the manifest mirror already happened and
+    an operator-local builder must not roll it back.
+    """
+    out = (result.stdout or "").strip()
+    err = (result.stderr or "").strip()
+    if out:
+        print(f"[ingest] {builder} stdout:\n{out}")
+    if err:
+        print(f"[ingest] {builder} stderr:\n{err}")
+    if result.returncode != 0:
+        print(
+            f"[ingest] WARNING: builder {builder} exited {result.returncode} "
+            "— derived payload may be stale; investigate (promotion stands)."
+        )
+    else:
+        print(f"[ingest] {builder}: ok (exit 0)")
+
+
+def _run_operator_local_builders(repo_root: Path) -> None:
+    """Invoke the poster + PDF-thumb builders after a mirror, surfacing output.
+
+    ``build_video_posters`` rebuilds A/V posters from the mirrored R2 bytes
+    (``r2-mirror/archive/<sha>.mp4``); ``build_pdf_thumbs`` renders PDF
+    gallery thumbnails from NAS-local PDFs. Both are idempotent. Their
+    stdout/stderr and exit codes are now PRINTED via
+    ``_report_builder_result`` rather than captured-and-discarded, so a real
+    failure is visible. Failures are tolerated (no raise) so a buggy or
     misconfigured builder can't block manifest promotion.
 
     No-op when scripts/ doesn't exist on disk (fresh / partial
@@ -158,17 +186,19 @@ def _run_operator_local_builders(repo_root: Path) -> None:
         if not script.is_file():
             continue
         try:
-            subprocess.run(
+            result = subprocess.run(
                 [sys.executable, str(script)],
                 check=False,
                 capture_output=True,
                 text=True,
                 cwd=str(repo_root),
             )
-        except OSError:
+        except OSError as exc:
             # Subprocess machinery unavailable (extremely unusual; e.g.
-            # restricted CI runner). Don't fail the manifest promote.
+            # restricted CI runner). Surface it; don't fail the promote.
+            print(f"[ingest] builder {builder} could not start: {exc}")
             continue
+        _report_builder_result(builder, result)
 
 
 def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:
