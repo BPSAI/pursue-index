@@ -15,9 +15,10 @@ Wire shape::
 
 ``random_state=42`` is pinned for reproducibility. ``--from-published``
 reads the deployed float16 payload as a CI / airgap fallback (small
-nonzero precision delta vs native float32). Pipeline helpers
-(``_load_native_vectors``, ``_select_rows``, ``_filter_vectors``) mirror
-``scripts/build_embed_data.py`` for matching post-augmentation dedupe.
+nonzero precision delta vs native float32). Row selection is shared with
+``scripts/build_embed_data.py`` (``pursue_index.embed.publish``) so the
+atlas plots exactly the rows the chat payload publishes: one per
+``(card_id, page)``, and only for pages with text in ``pages.json``.
 """
 
 from __future__ import annotations
@@ -34,6 +35,11 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
+
+from pursue_index.embed.publish import (  # noqa: E402
+    load_embed_eligible_keys,
+    select_publish_rows,
+)
 
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
@@ -103,27 +109,15 @@ def _load_native_vectors(in_dir: Path) -> tuple[np.ndarray, dict[str, Any]]:
     return arr, index
 
 
-def _dedupe_rows(rows: list[dict]) -> list[dict]:
-    """Drop un-augmented rows whose ``(card_id, page)`` has an augmented sibling.
+def _select_rows(
+    index: dict[str, Any], eligible: set[tuple[str, int]]
+) -> list[dict[str, Any]]:
+    """Offset-sorted, publish-eligible, one row per ``(card_id, page)``.
 
-    Mirrors ``scripts/build_embed_data.py`` so atlas points and the
-    published embedding payload reference the same row set.
+    Shares ``select_publish_rows`` with ``scripts/build_embed_data.py`` so
+    atlas points and the published embedding payload reference the same rows.
     """
-    augmented_keys = {
-        (r["card_id"], int(r["page"])) for r in rows if r.get("augmented")
-    }
-    return [
-        r
-        for r in rows
-        if r.get("augmented")
-        or (r["card_id"], int(r["page"])) not in augmented_keys
-    ]
-
-
-def _select_rows(index: dict[str, Any]) -> list[dict[str, Any]]:
-    """Return offset-sorted rows after orphan-row dedupe."""
-    rows = sorted(index["pages"], key=lambda r: r["offset"])
-    return _dedupe_rows(rows)
+    return select_publish_rows(index["pages"], eligible)
 
 
 def _filter_vectors(arr: np.ndarray, kept_rows: list[dict], dim: int) -> np.ndarray:
@@ -265,6 +259,7 @@ def _load_source(
 def _project_and_normalize(
     arr: np.ndarray,
     index: dict[str, Any],
+    eligible: set[tuple[str, int]],
     *,
     n_neighbors: int,
     min_dist: float,
@@ -276,7 +271,7 @@ def _project_and_normalize(
     so regl-scatterplot's default unit-square camera frames the cluster.
     """
     dim = int(index["dim"])
-    kept_rows = _select_rows(index)
+    kept_rows = _select_rows(index, eligible)
     filtered = _filter_vectors(arr, kept_rows, dim)
     coords = _project_2d(
         filtered,
@@ -297,13 +292,23 @@ def build(
     min_dist: float = 0.1,
     random_state: int = 42,
     from_published: Path | None = None,
+    pages_json: Path | None = None,
 ) -> int:
     """Build ``atlas-layout.json``. Returns 0 on success, non-zero on failure.
 
     Default source is the native embed root; pass ``from_published``
     pointing at ``web/public/data/`` for the deployed float16 payload
-    fallback (negligible UMAP-precision delta).
+    fallback (negligible UMAP-precision delta). ``pages_json`` supplies the
+    publish-eligibility gate and defaults to the source directory's copy.
     """
+    pages_path = pages_json or ((from_published or out_dir) / "pages.json")
+    if not pages_path.exists():
+        print(
+            f"pages.json missing at {pages_path}; cannot check publish "
+            "eligibility. Build it first (scripts/build_search_data.py).",
+            file=sys.stderr,
+        )
+        return 1
     loaded = _load_source(
         embeddings_root=embeddings_root,
         model_id=model_id,
@@ -315,6 +320,7 @@ def build(
     kept_rows, coords = _project_and_normalize(
         arr,
         index,
+        load_embed_eligible_keys(pages_path),
         n_neighbors=n_neighbors,
         min_dist=min_dist,
         random_state=random_state,
@@ -374,6 +380,12 @@ def _build_parser(default_embeddings_root: Path, default_model: str) -> argparse
         default=None,
         help="Read deployed float16 payload from this dir (web/public/data).",
     )
+    p.add_argument(
+        "--pages-json",
+        type=Path,
+        default=None,
+        help="pages.json used for publish eligibility (default: source dir).",
+    )
     return p
 
 
@@ -391,6 +403,7 @@ def main() -> int:
         min_dist=args.min_dist,
         random_state=args.random_state,
         from_published=args.from_published,
+        pages_json=args.pages_json,
     )
 
 

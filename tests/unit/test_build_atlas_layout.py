@@ -65,6 +65,38 @@ def _write_native_embeddings(
     (out_dir / "index.json").write_text(json.dumps(payload))
 
 
+def _write_pages_json(
+    out_dir: Path,
+    keys: list[tuple[str, int]],
+    *,
+    empty_text: set[tuple[str, int]] | None = None,
+) -> None:
+    """Stage the ``pages.json`` the publish-eligibility gate reads.
+
+    The atlas plots the same row set the chat payload publishes, so it
+    applies the same gate: a page is eligible only if ``pages.json`` carries
+    non-empty text for it.
+    """
+    blank = empty_text or set()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "pages.json").write_text(
+        json.dumps([
+            {
+                "card_id": card_id,
+                "page": page,
+                "title": f"{card_id} page {page}",
+                "text": "" if (card_id, page) in blank else "readable ocr",
+            }
+            for card_id, page in keys
+        ])
+    )
+
+
+def _index_keys(in_dir: Path) -> list[tuple[str, int]]:
+    index = json.loads((in_dir / "index.json").read_text())
+    return sorted({(r["card_id"], int(r["page"])) for r in index["pages"]})
+
+
 def _write_manifest(path: Path, agencies: dict[str, str]) -> None:
     """Write a minimal manifest mapping card_id → agency."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -121,6 +153,7 @@ def _seed_inputs(tmp_path: Path, *, n_cards: int = 6) -> tuple[Path, Path, Path]
     }
     _write_manifest(manifest, agencies)
     out_dir = tmp_path / "web" / "public" / "data"
+    _write_pages_json(out_dir, _index_keys(embed_root / "voyage-3"))
     return embed_root, manifest, out_dir
 
 
@@ -163,6 +196,7 @@ def test_build_is_deterministic_under_fixed_seed(tmp_path: Path) -> None:
             out_dir=out,
             n_neighbors=2,
             random_state=42,
+            pages_json=out_dir / "pages.json",
         )
     a = json.loads((out_a / "atlas-layout.json").read_text())["points"]
     b = json.loads((out_b / "atlas-layout.json").read_text())["points"]
@@ -220,6 +254,7 @@ def test_build_preserves_augmented_by_provenance(tmp_path: Path) -> None:
     manifest = tmp_path / "manifests" / "latest.json"
     _write_manifest(manifest, {f"card_{i:03d}": "FBI" for i in range(2)})
     out_dir = tmp_path / "web" / "public" / "data"
+    _write_pages_json(out_dir, _index_keys(embed_root / "voyage-3"))
     mod = _load_script_module()
     mod.build(
         embeddings_root=embed_root,
@@ -257,6 +292,7 @@ def test_build_from_published_payload(tmp_path: Path) -> None:
             }
         )
     )
+    _write_pages_json(web_data, [(cid, page) for cid, page in pages])
     manifest = tmp_path / "manifests" / "latest.json"
     _write_manifest(manifest, {f"card_{i:03d}": "FBI" for i in range(n // 2)})
     out_dir = tmp_path / "out"
@@ -455,9 +491,9 @@ def test_build_writes_normalized_coords_into_atlas_layout(tmp_path: Path) -> Non
     assert max(span_x, span_y) == pytest.approx(2.0, abs=1e-3)
 
 
-def test_select_rows_dedupes_augmented_siblings() -> None:
-    """Same dedupe rule as ``build_embed_data.py``: when an un-augmented
-    row and an augmented row share ``(card_id, page)``, keep the augmented.
+def test_select_rows_keeps_the_latest_row_per_page() -> None:
+    """Same rule as ``build_embed_data.py``: when two rows share
+    ``(card_id, page)``, the later one in store order wins.
 
     Verified directly against ``_select_rows`` rather than end-to-end so
     the test doesn't have to feed UMAP a degenerate two-point input
@@ -467,16 +503,65 @@ def test_select_rows_dedupes_augmented_siblings() -> None:
     rows = [
         {"card_id": "card_000", "page": 1, "text_sha": "a", "offset": 0},
         {"card_id": "card_001", "page": 1, "text_sha": "b", "offset": 16},
-        # Augmented sibling of the first row — should win.
-        {
-            "card_id": "card_000",
-            "page": 1,
-            "text_sha": "c",
-            "offset": 32,
-            "augmented": True,
-        },
+        # Re-embedded (card_000, 1) — supersedes the row at offset 0.
+        {"card_id": "card_000", "page": 1, "text_sha": "c", "offset": 32},
     ]
-    kept = mod._select_rows({"pages": rows})
-    keys = {(r["card_id"], int(r["page"]), bool(r.get("augmented"))) for r in kept}
-    assert keys == {("card_000", 1, True), ("card_001", 1, False)}
-    assert len(kept) == 2
+    eligible = {("card_000", 1), ("card_001", 1)}
+    kept = mod._select_rows({"pages": rows}, eligible)
+    assert [(r["card_id"], r["text_sha"]) for r in kept] == [
+        ("card_001", "b"),
+        ("card_000", "c"),
+    ]
+
+
+def test_select_rows_drops_pages_that_are_not_publish_eligible() -> None:
+    mod = _load_script_module()
+    rows = [
+        {"card_id": "card_000", "page": 1, "text_sha": "a", "offset": 0},
+        {"card_id": "gone_card", "page": 1, "text_sha": "b", "offset": 16},
+    ]
+    kept = mod._select_rows({"pages": rows}, {("card_000", 1)})
+    assert [r["card_id"] for r in kept] == ["card_000"]
+
+
+def test_build_plots_only_publish_eligible_pages(tmp_path: Path) -> None:
+    """The atlas must plot the same rows the chat payload publishes, so a
+    page with no text in ``pages.json`` gets no point."""
+    embed_root, manifest, out_dir = _seed_inputs(tmp_path)
+    keys = _index_keys(embed_root / "voyage-3")
+    _write_pages_json(out_dir, keys, empty_text={keys[0], keys[1]})
+    mod = _load_script_module()
+    rc = mod.build(
+        embeddings_root=embed_root,
+        model_id="voyage-3",
+        manifest_path=manifest,
+        out_dir=out_dir,
+        n_neighbors=2,
+        random_state=42,
+    )
+    assert rc == 0
+    layout = json.loads((out_dir / "atlas-layout.json").read_text())
+    assert layout["n"] == 10
+    plotted = {(p["card_id"], p["page"]) for p in layout["points"]}
+    assert keys[0] not in plotted and keys[1] not in plotted
+
+
+def test_build_fails_when_pages_json_missing(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Without ``pages.json`` the eligibility gate cannot run, so the build
+    stops rather than plotting an ungated row set."""
+    embed_root, manifest, out_dir = _seed_inputs(tmp_path)
+    (out_dir / "pages.json").unlink()
+    mod = _load_script_module()
+    rc = mod.build(
+        embeddings_root=embed_root,
+        model_id="voyage-3",
+        manifest_path=manifest,
+        out_dir=out_dir,
+        n_neighbors=2,
+        random_state=42,
+    )
+    assert rc == 1
+    assert "pages.json" in capsys.readouterr().err
+    assert not (out_dir / "atlas-layout.json").exists()
