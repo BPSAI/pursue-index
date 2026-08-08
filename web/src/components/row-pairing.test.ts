@@ -204,6 +204,7 @@ test("describeUnpairedRow: a PDF row is not described by a video id", () => {
   const vid = cards.find(
     (c) => c.card_id === pdf.card_id && c.asset_type === "VID" && c.dvids_video_id,
   )!;
+  assert.ok(vid, "the PDF row's card_id still has a VID row carrying a dvids_video_id");
   const vidOut = describeUnpairedRow({ card_id: vid.card_id, side: "curr", row: vid });
   assert.ok(vidOut.detail.includes(`dvids ${vid.dvids_video_id}`));
 });

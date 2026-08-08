@@ -335,9 +335,14 @@ describe("accounting failures after the stream completed", () => {
       !events.includes("error"),
       `no error frame after done — got ${JSON.stringify(events)}`,
     );
+    // Match the specific message, not the prefix: every log this worker
+    // writes carries `[chat]`, so a prefix check passes on an unrelated
+    // line and would keep passing if the accounting log were dropped.
     assert.ok(
-      [...lines.error, ...lines.warn].some((l) => l.includes("[chat]")),
-      "an unrecorded charge must be visible in the logs under the [chat] prefix",
+      [...lines.error, ...lines.warn].some((l) =>
+        l.includes("spend accounting failed after a completed stream"),
+      ),
+      "an unrecorded charge on the success path must name itself in the logs",
     );
   });
 
@@ -357,8 +362,8 @@ describe("accounting failures after the stream completed", () => {
       "the read genuinely failed, so the client is told the request failed",
     );
     assert.ok(
-      lines.error.some((l) => l.includes("[chat]")),
-      "the lost charge must be logged under the [chat] prefix",
+      lines.error.some((l) => l.includes("spend accounting failed after a read error")),
+      "the lost charge on the abort path must name itself in the logs",
     );
   });
 

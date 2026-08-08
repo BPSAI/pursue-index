@@ -1,13 +1,19 @@
-// Fixture: an Anthropic streaming response whose body fails mid-read.
+// Fixtures: Anthropic streaming responses whose body fails mid-read.
 //
-// Models the real failure the worker has to survive: the API call was made
-// and billed, some SSE chunks arrived, and then the read errored — a reset
-// connection, an upstream timeout, or a client that went away. The stream
-// never reaches `message_delta`, so no usage counts are available and the
-// normal completion callback never runs.
+// Both model the real failure the worker has to survive — the API call was
+// made and billed, some SSE chunks arrived, and then the read errored (a
+// reset connection, an upstream timeout, a client that went away) — and they
+// differ in how much the worker learned before it happened:
+//
+//   * `anthropicSSETruncatedResponse` never reaches `message_delta`, so no
+//     usage counts are available and the normal completion callback never
+//     runs.
+//   * `anthropicSSEUsageThenFailureResponse` delivers `message_delta` with
+//     its usage counts and then fails, so the worker knows exactly what it
+//     owes for a stream the client never saw the end of.
 //
 // Shape source: same 2023-06-01 streaming schema as anthropic_sse.js; the
-// event prefix here is a truncation of that canonical sequence.
+// event sequences here are prefixes of that canonical sequence.
 
 export function anthropicSSETruncatedResponse(
   text,
