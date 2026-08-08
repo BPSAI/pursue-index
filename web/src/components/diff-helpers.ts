@@ -360,48 +360,74 @@ export function diffWithAliases(
     }
   }
 
-  // Row-level churn within a card_id present on both sides: a duplicate
-  // id (PDF row + VID row(s)) can lose or gain individual rows upstream
-  // while the id itself survives. Map.has(card_id) above is a set check
-  // and is blind to that — the id being present on both sides is enough
-  // to skip it entirely, so the dropped/added rows vanished. Reuse
-  // pairRowsByCardId's `unpaired` — the SAME stable row key T47.1
-  // established — so a row that pairs (including via the 1-vs-1
-  // leftover rule) is never double-counted here as both added and
-  // removed.
-  const { unpaired } = pairRowsByCardId(prev, curr);
-  for (const u of unpaired) {
-    if (absorbedFromPrev.has(u.card_id)) continue; // rows of a renamed-away id
-    if (u.side === "curr") added.push(u.row);
-    else removed.push(u.row);
-  }
-
+  // Deliberately NOT folded in here: row-level churn within a card_id
+  // present on both sides. A duplicate id (PDF row + VID row(s)) can lose
+  // or gain individual rows upstream while the id itself survives, and
+  // that churn IS reported — by `unpairedRowEntries`, which the /diff page
+  // renders as its own ROW-LEVEL CHANGES section.
+  //
+  // `added`/`removed` mean a card_id entered or left the corpus. REMOVED
+  // carries the /removed surface's semantics and its entries link to /card
+  // pages, so a surviving card listed there reads as a departure while
+  // linking to a page that still exists — and, having also been rendered
+  // under ROW-LEVEL CHANGES, appears on the page twice. The receipt
+  // (`tranche_diff.py`) has always counted whole-card departures here and
+  // reported row churn under `row_changes`; this keeps the two agreeing.
   return { added, removed, renamed };
 }
 
 // --- Field-only changes --------------------------------------------
 
 // Fields excluded from the field-level diff, mirroring `tranche.py`'s
-// `field_diff` skip set exactly (`diff-helpers.test.ts` asserts the two
-// stay identical). This used to be inverted — a hand-maintained allowlist
+// `DIFF_SKIP_FIELDS` exactly (`diff-helpers.test.ts` asserts the two stay
+// identical; `LOCAL_CURATION_FIELDS` below is the second, separately
+// pinned exclusion — `field_diff` skips the union of both).
+// This used to be inverted — a hand-maintained allowlist
 // of ~15 fields — which meant a new upstream CSV column, or one nobody
 // had added to the list yet, was silently never diffed. That dropped 107
 // real changes across the corpus history (`pdf_pairing` 86, `video_pairing`
 // 17, `dvids_video_id` 4) before this was caught (T47.4). Skip-set
 // semantics surface a new field by default instead of hiding it by default.
 //
-// `card_id` is the pairing key, not a mutable field. `raw` doesn't exist on
-// the TS `CardMetadata` shape (it's a Python-side forward-compat dict,
-// always empty on the wire — see the NOTE on `CardMetadata` in
-// `data/types.ts`), so it never appears in `Object.keys()` here; it stays
-// in the set only so this literally matches `tranche.py`'s.
+// `card_id` is the pairing key, not a mutable field. `raw` carries
+// upstream CSV metadata that is allowed to wobble; it IS present on the
+// fetched snapshot JSON and therefore does appear in `Object.keys()`
+// below — this loop reads the parsed wire objects, not the declared
+// `CardMetadata` interface, so the TS type says nothing about which keys
+// are enumerable at runtime. `raw` is excluded because it is in this set,
+// and for no other reason.
 export const DIFF_SKIP_FIELDS = new Set<string>(["card_id", "raw"]);
+
+// Fields written by OUR curation pipeline, not by war.gov. Kept as a
+// separate named set rather than folded into `DIFF_SKIP_FIELDS` because
+// the two exclusions are made for different reasons and are pinned
+// separately against their `tranche.py` twins: `DIFF_SKIP_FIELDS` is the
+// pairing key plus volatile upstream metadata, while these describe
+// editorial work this project performed.
+//
+// /diff is a page about government edits. A snapshot captured after a
+// curation pass differs from one captured before on every card a curator
+// touched, and rendering those differences there attributes our own
+// display-date decisions to the agency that published the document.
+// They are surfaced on the card's provenance view instead, where the
+// curator, timestamp and evidence are shown as ours.
+export const LOCAL_CURATION_FIELDS = new Set<string>([
+  "display_date",
+  "display_date_range",
+  "display_date_abstention",
+  "display_date_approved_at",
+  "display_date_curator",
+  "display_date_evidence",
+  "display_date_evidence_card_ref",
+  "manifest_incident_date_raw",
+]);
 
 // Boolean fields are compared by truthiness so a snapshot predating the
 // field (value absent → undefined) reads equal to an explicit `false`.
 // Without this, adding `featured` would flag every non-featured card as
 // "changed" the first time a post-column snapshot is diffed against a
-// pre-column one.
+// pre-column one. `tranche.py` carries the identical rule (its own
+// `_BOOLEAN_FIELDS`); the shared fixture pins the two in agreement.
 const _BOOLEAN_FIELDS = new Set<keyof CardMetadata>(["redacted", "featured"]);
 
 export interface FieldChange {
@@ -422,9 +448,16 @@ export function fieldOnlyChanges(prev: CardMetadata[], curr: CardMetadata[]): Fi
     // column) is still checked rather than skipped outright.
     const keys = new Set([...Object.keys(p), ...Object.keys(c)]);
     for (const f of keys) {
-      if (DIFF_SKIP_FIELDS.has(f)) continue;
-      const pv = (p as any)[f];
-      const cv = (c as any)[f];
+      if (DIFF_SKIP_FIELDS.has(f) || LOCAL_CURATION_FIELDS.has(f)) continue;
+      // Normalize absent to null on BOTH sides before comparing, so a key
+      // missing from one row reads the same as one explicitly serialized
+      // null — exactly what `tranche.py::field_diff` gets for free from
+      // `dict.get()`. Without this, `undefined !== null` and every snapshot
+      // schema addition (an older snapshot lacks the column; a newer one
+      // carries it as null on rows with no value) fabricated a change per
+      // row per new column across the whole corpus history.
+      const pv = (p as any)[f] ?? null;
+      const cv = (c as any)[f] ?? null;
       const changed = _BOOLEAN_FIELDS.has(f as keyof CardMetadata)
         ? Boolean(pv) !== Boolean(cv)
         : pv !== cv;

@@ -20,6 +20,7 @@ import {
   diffWithAliases,
   fieldOnlyChanges,
   pairRowsByCardId,
+  unpairedRowEntries,
   selectDefaultPair,
   selectDefaultPairWithCurrent,
   normalizeSnapshotIndex,
@@ -30,6 +31,7 @@ import {
   formatUpstreamSnapshotLabel,
   formatPromotedStateLabel,
   DIFF_SKIP_FIELDS,
+  LOCAL_CURATION_FIELDS,
   FIELD_LABELS,
   formatFieldLabel,
 } from "./diff-helpers.ts";
@@ -284,18 +286,29 @@ test("diffWithAliases: alias whose terminal not in curr stays in removed", () =>
   assert.equal(out.renamed.length, 0);
 });
 
-// --- diffWithAliases: added/removed as a row multiset (T47.3) ----------
+// --- row churn under a surviving card_id belongs to ROW-LEVEL CHANGES ---
 //
-// The old loops decided added/removed purely by Map.has(card_id) — a
-// set. A duplicate card_id backed by a PDF row plus VID row(s) that
-// loses (or gains) a row upstream while the id itself survives is
-// invisible to that check: `prevById.has(c.card_id)` and
-// `currById.has(c.card_id)` are both true, so the row-level churn never
-// reaches `added`/`removed` at all. Fixed by folding in
-// `pairRowsByCardId`'s `unpaired` — the SAME stable row key T47.1
-// established — for card_ids present on both sides.
+// T47.3 established the row-truth claim: a duplicate card_id backed by a
+// PDF row plus VID row(s) can lose or gain an individual row upstream
+// while the id itself survives, and `Map.has(card_id)` — a set check — is
+// blind to that, so the churn used to vanish from the page entirely. That
+// claim stands and is pinned below.
+//
+// What changed is WHICH section owns those rows. T47.3 folded them into
+// `diff.removed`/`diff.added`, but ADDED/REMOVED means a card_id entered
+// or left the corpus — REMOVED is the same semantics the /removed surface
+// publishes, and its entries link to /card pages. Folding row churn in
+// made surviving cards render as REMOVED while linking to pages that
+// still exist, AND rendered the same rows a second time under ROW-LEVEL
+// CHANGES, while the receipt still counted whole-card removals only (site
+// 6 vs receipt 3 on 596cc188→0d7e9ba1).
+//
+// So the two sections divide the work: `diffWithAliases` reports whole
+// card_ids entering/leaving; `unpairedRowEntries` owns row churn within a
+// surviving card_id. Nothing appears in both, and between them every
+// disappearance is still surfaced.
 
-test("diffWithAliases: duplicate card_id survives but loses a row → the lost row is removed, not silently dropped (T47.3)", () => {
+test("row churn: duplicate card_id survives but loses a row → the lost row is an unpaired row, not a card removal", () => {
   const pdf = card("dup1", "PDF row", { asset_type: "PDF", asset_url: "u", video_title: null });
   const vidA = card("dup1", "VID A", {
     asset_type: "VID", asset_url: "u", video_title: "vt", dvids_video_id: "1",
@@ -306,12 +319,16 @@ test("diffWithAliases: duplicate card_id survives but loses a row → the lost r
   const prev = [pdf, vidA, vidB];
   const curr = [pdf, vidA]; // vidB dropped upstream; dup1 itself still present
   const out = diffWithAliases(prev, curr, {});
-  assert.equal(out.removed.length, 1);
-  assert.equal(out.removed[0], vidB);
+  assert.equal(out.removed.length, 0, "dup1 is still in the corpus — not a removal");
   assert.equal(out.added.length, 0);
+  // The row-truth claim T47.3 pinned: the dropped row is still surfaced.
+  const rows = unpairedRowEntries(prev, curr);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].side, "prev");
+  assert.equal(rows[0].row, vidB);
 });
 
-test("diffWithAliases: duplicate card_id survives but gains a row → the new row is added (T47.3)", () => {
+test("row churn: duplicate card_id survives but gains a row → the new row is an unpaired row, not a card addition", () => {
   const pdf = card("dup2", "PDF row", { asset_type: "PDF", asset_url: "u", video_title: null });
   const vidA = card("dup2", "VID A", {
     asset_type: "VID", asset_url: "u", video_title: "vt", dvids_video_id: "1",
@@ -322,17 +339,21 @@ test("diffWithAliases: duplicate card_id survives but gains a row → the new ro
   const prev = [pdf, vidA];
   const curr = [pdf, vidA, vidB]; // vidB appears upstream
   const out = diffWithAliases(prev, curr, {});
-  assert.equal(out.added.length, 1);
-  assert.equal(out.added[0], vidB);
+  assert.equal(out.added.length, 0, "dup2 was already in the corpus — not an addition");
   assert.equal(out.removed.length, 0);
+  const rows = unpairedRowEntries(prev, curr);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].side, "curr");
+  assert.equal(rows[0].row, vidB);
 });
 
-test("diffWithAliases: single-row-id whose keying field mutates still pairs via the leftover rule → no added/removed (T47.3, unchanged from today)", () => {
+test("row churn: single-row-id whose keying field mutates still pairs via the leftover rule → nothing in either section", () => {
   const prevRow = card("dup3", "row", { asset_type: "VID", asset_url: "u", video_title: "old title" });
   const currRow = card("dup3", "row", { asset_type: "VID", asset_url: "u", video_title: "new title" });
   const out = diffWithAliases([prevRow], [currRow], {});
   assert.equal(out.added.length, 0);
   assert.equal(out.removed.length, 0);
+  assert.equal(unpairedRowEntries([prevRow], [currRow]).length, 0);
 });
 
 // --- T47.3: real-snapshot regression pins --------------------------------
@@ -351,26 +372,66 @@ function loadSnapshotCards(filename: string): CardMetadata[] {
   return (JSON.parse(raw) as { cards: CardMetadata[] }).cards;
 }
 
-test("diffWithAliases regression: 596cc188 -> 0d7e9ba1 real snapshots report 6 removals, not 3 (T47.3)", () => {
-  const prev = loadSnapshotCards(
-    "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json",
-  );
-  const curr = loadSnapshotCards(
-    "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.json",
-  );
+function pair596to0d7e(): { prev: CardMetadata[]; curr: CardMetadata[] } {
+  return {
+    prev: loadSnapshotCards(
+      "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json",
+    ),
+    curr: loadSnapshotCards(
+      "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.json",
+    ),
+  };
+}
+
+test("regression 596cc188 -> 0d7e9ba1: REMOVED counts whole-card departures only — 3, matching the receipt", () => {
+  const { prev, curr } = pair596to0d7e();
   const out = diffWithAliases(prev, curr, {});
-  assert.equal(
-    out.removed.length,
-    6,
-    "3 whole-card removals + 2 dropped ea029a05 VID rows + 1 dropped d8e5687d VID row",
-  );
+  assert.equal(out.removed.length, 3, "3 card_ids left the corpus");
   assert.equal(out.added.length, 3);
-  const removedIdCounts = out.removed.reduce<Record<string, number>>((acc, c) => {
-    acc[c.card_id] = (acc[c.card_id] ?? 0) + 1;
+  // ea029a05 and d8e5687d both survive this tranche — they lost rows, not
+  // their card. A REMOVED entry for either would link to a /card page that
+  // still exists.
+  const removedIds = new Set(out.removed.map((c) => c.card_id));
+  assert.ok(!removedIds.has("ea029a05470b8f4e"));
+  assert.ok(!removedIds.has("d8e5687dc870892d"));
+});
+
+test("regression 596cc188 -> 0d7e9ba1: ROW-LEVEL CHANGES owns the 3 withdrawn rows of surviving cards", () => {
+  const { prev, curr } = pair596to0d7e();
+  const withdrawn = unpairedRowEntries(prev, curr).filter((u) => u.side === "prev");
+  assert.equal(withdrawn.length, 3);
+  const counts = withdrawn.reduce<Record<string, number>>((acc, u) => {
+    acc[u.card_id] = (acc[u.card_id] ?? 0) + 1;
     return acc;
   }, {});
-  assert.equal(removedIdCounts["ea029a05470b8f4e"], 2);
-  assert.equal(removedIdCounts["d8e5687dc870892d"], 1);
+  assert.equal(counts["ea029a05470b8f4e"], 2);
+  assert.equal(counts["d8e5687dc870892d"], 1);
+});
+
+test("regression 596cc188 -> 0d7e9ba1: all 6 disappearances still surface, 3+3 across the two sections", () => {
+  // The row-truth claim T47.3 established, restated against the section
+  // split: no disappearance was lost by moving row churn out of REMOVED.
+  const { prev, curr } = pair596to0d7e();
+  const removed = diffWithAliases(prev, curr, {}).removed;
+  const withdrawn = unpairedRowEntries(prev, curr).filter((u) => u.side === "prev");
+  assert.equal(removed.length + withdrawn.length, 6);
+});
+
+test("regression 596cc188 -> 0d7e9ba1: the two sections never render the same row twice", () => {
+  // The double-render this pin exists to prevent: a row reachable from
+  // both REMOVED and ROW-LEVEL CHANGES appeared on the page twice.
+  const { prev, curr } = pair596to0d7e();
+  const removedRows = new Set<CardMetadata>(diffWithAliases(prev, curr, {}).removed);
+  const rowChangeRows = unpairedRowEntries(prev, curr).map((u) => u.row);
+  for (const row of rowChangeRows) {
+    assert.ok(!removedRows.has(row), `row of ${row.card_id} is in both sections`);
+  }
+  // …and no card_id spans the two sections either, so a reader never sees
+  // one card described as both departed and merely churned.
+  const removedIds = new Set([...removedRows].map((c) => c.card_id));
+  for (const u of unpairedRowEntries(prev, curr)) {
+    assert.ok(!removedIds.has(u.card_id), `${u.card_id} appears in both sections`);
+  }
 });
 
 test("diffWithAliases regression: single-row-id tranche (0d7e9ba1 -> 65572b38) counts unchanged from today's output (T47.3)", () => {
@@ -588,22 +649,50 @@ test("fieldOnlyChanges: a change on one of several identical-key VID rows is pai
 // everything except an explicit skip set, so a field is surfaced unless
 // someone deliberately excludes it.
 
-test("fieldOnlyChanges: DIFF_SKIP_FIELDS matches tranche.py's field_diff skip set exactly", () => {
-  const pySrc = readFileSync(
-    new URL("../../../src/pursue_index/tranche.py", import.meta.url),
-    "utf-8",
-  );
-  const match = /skip\s*=\s*\{([^}]*)\}/.exec(pySrc);
-  assert.ok(match, "tranche.py must still define its field_diff skip set as `skip = {...}`");
-  const pyFields = new Set(
-    Array.from(match[1].matchAll(/"([^"]+)"/g)).map((m) => m[1]),
-  );
-  assert.ok(pyFields.size > 0, "regex must actually find quoted field names");
+/**
+ * Read a module-level `NAME = { "a", "b", ... }` set literal out of
+ * `tranche.py`. Both exclusion sets are pinned this way rather than by
+ * duplicating their members here, so adding a field on the Python side
+ * without adding it on this one fails loudly instead of silently making
+ * the receipt and the page describe a tranche differently.
+ */
+function pyFieldSet(pySrc: string, name: string): Set<string> {
+  const match = new RegExp(`^${name}\\s*=\\s*\\{([^}]*)\\}`, "m").exec(pySrc);
+  assert.ok(match, `tranche.py must still define ${name} as a module-level set literal`);
+  const fields = new Set(Array.from(match[1].matchAll(/"([^"]+)"/g)).map((m) => m[1]));
+  assert.ok(fields.size > 0, `regex must actually find quoted field names in ${name}`);
+  return fields;
+}
+
+function tranchePySource(): string {
+  return readFileSync(new URL("../../../src/pursue_index/tranche.py", import.meta.url), "utf-8");
+}
+
+test("fieldOnlyChanges: DIFF_SKIP_FIELDS matches tranche.py's DIFF_SKIP_FIELDS exactly", () => {
   assert.deepEqual(
     DIFF_SKIP_FIELDS,
-    pyFields,
+    pyFieldSet(tranchePySource(), "DIFF_SKIP_FIELDS"),
     "the site's skip set has drifted from tranche.py's — keep them identical",
   );
+});
+
+test("fieldOnlyChanges: LOCAL_CURATION_FIELDS matches tranche.py's LOCAL_CURATION_FIELDS exactly", () => {
+  assert.deepEqual(
+    LOCAL_CURATION_FIELDS,
+    pyFieldSet(tranchePySource(), "LOCAL_CURATION_FIELDS"),
+    "the site's curation-field set has drifted from tranche.py's — keep them identical",
+  );
+});
+
+test("fieldOnlyChanges: the two exclusion sets stay disjoint and separately named", () => {
+  // They are excluded for different reasons (pairing key + volatile
+  // upstream metadata vs. our own editorial writes), and the receipt's
+  // rationale comments are keyed to that split. A field drifting into
+  // both would make either set's stated reason untrue for it.
+  for (const f of LOCAL_CURATION_FIELDS) {
+    assert.ok(!DIFF_SKIP_FIELDS.has(f), `${f} belongs to exactly one exclusion set`);
+  }
+  assert.ok(LOCAL_CURATION_FIELDS.size > 0 && DIFF_SKIP_FIELDS.size > 0);
 });
 
 test("fieldOnlyChanges: pdf_pairing change surfaces (previously silently dropped)", () => {
@@ -634,6 +723,74 @@ test("fieldOnlyChanges: dvids_video_id change on a non-keying pair surfaces", ()
   assert.deepEqual(out[0].fields, ["dvids_video_id"]);
 });
 
+// --- absent-vs-null parity with tranche.py (P0, post-T47.4) --------------
+//
+// `field_diff` reads both sides with `dict.get()`, so a key that is absent
+// on one side and explicitly `null` on the other compares EQUAL. The
+// union-of-keys loop here compared the raw values, and `undefined !== null`,
+// so every snapshot schema addition — a manifest rebuilt after a new column
+// exists carries it as `null` on rows with no value, while the older
+// snapshot simply lacks the key — fabricated one "change" per row per new
+// column on every historical pair.
+
+test("fieldOnlyChanges: a field absent on prev and explicitly null on curr is not a change", () => {
+  const a = card("aaa", "T");
+  delete (a as Record<string, unknown>).original_classification;
+  const b = card("aaa", "T", { original_classification: null });
+  assert.deepEqual(fieldOnlyChanges([a], [b]), []);
+});
+
+test("fieldOnlyChanges: a field explicitly null on prev and absent on curr is not a change", () => {
+  const a = card("aaa", "T", { original_classification: null });
+  const b = card("aaa", "T");
+  delete (b as Record<string, unknown>).original_classification;
+  assert.deepEqual(fieldOnlyChanges([a], [b]), []);
+});
+
+test("fieldOnlyChanges: a field absent on prev and given a real value on curr is still a change", () => {
+  // The absent==null rule must not swallow a genuine introduction of a
+  // value — only the null/undefined serialization difference.
+  const a = card("aaa", "T");
+  delete (a as Record<string, unknown>).original_classification;
+  const b = card("aaa", "T", { original_classification: "SECRET" });
+  const out = fieldOnlyChanges([a], [b]);
+  assert.equal(out.length, 1);
+  assert.deepEqual(out[0].fields, ["original_classification"]);
+});
+
+// --- locally-curated fields are not upstream change (P0, post-T47.4) -----
+//
+// /diff describes what war.gov edited. The display_date_* family and
+// `manifest_incident_date_raw` are written by OUR curation pipeline, so a
+// snapshot taken after a curation pass differs from one taken before on
+// every card we touched — hundreds of entries on a page whose whole claim
+// is that it reports government edits.
+
+test("fieldOnlyChanges: a display_date curated by us is not reported as an upstream change", () => {
+  const a = card("aaa", "T", { display_date: null } as Partial<CardMetadata>);
+  const b = card("aaa", "T", { display_date: "2023-10-24" } as Partial<CardMetadata>);
+  assert.deepEqual(fieldOnlyChanges([a], [b]), []);
+});
+
+test("fieldOnlyChanges: every LOCAL_CURATION_FIELDS entry is excluded", () => {
+  for (const field of LOCAL_CURATION_FIELDS) {
+    const a = card("aaa", "T", { [field]: null } as Partial<CardMetadata>);
+    const b = card("aaa", "T", { [field]: "curated-value" } as Partial<CardMetadata>);
+    assert.deepEqual(fieldOnlyChanges([a], [b]), [], `${field} must not be reported`);
+  }
+});
+
+test("fieldOnlyChanges: a real upstream edit still reports alongside a curation field", () => {
+  const a = card("aaa", "T", { display_date: null, incident_location: "Iraq" } as Partial<CardMetadata>);
+  const b = card("aaa", "T", {
+    display_date: "2023-10-24",
+    incident_location: "Syria",
+  } as Partial<CardMetadata>);
+  const out = fieldOnlyChanges([a], [b]);
+  assert.equal(out.length, 1);
+  assert.deepEqual(out[0].fields, ["incident_location"]);
+});
+
 test("fieldOnlyChanges: card_id and raw are never reported even though they'd differ if compared", () => {
   // card_id is the pairing key so it can never itself differ within a
   // pair; this pins that the skip set still excludes it explicitly
@@ -645,15 +802,30 @@ test("fieldOnlyChanges: card_id and raw are never reported even though they'd di
 
 // --- formatFieldLabel ---
 
-test("formatFieldLabel: every CardMetadata field the diff can surface has a readable label", () => {
-  const sample = card("aaa", "T");
-  for (const field of Object.keys(sample)) {
-    if (DIFF_SKIP_FIELDS.has(field)) continue;
-    assert.ok(
-      Object.prototype.hasOwnProperty.call(FIELD_LABELS, field),
-      `FIELD_LABELS is missing an entry for "${field}"`,
-    );
-  }
+test("formatFieldLabel: every field the real manifest can surface has a readable label", () => {
+  // Pinned against the key union of the published manifest, NOT the
+  // hand-written `card()` helper this used to iterate. The helper is a
+  // copy of the fields someone remembered, so it agreed with FIELD_LABELS
+  // by construction and could never report a gap; `fieldOnlyChanges`
+  // enumerates the keys of the fetched JSON, so only the real payload
+  // says which fields the page can actually render.
+  const manifest = JSON.parse(
+    readFileSync(new URL("../../../data/manifests/latest.json", import.meta.url), "utf-8"),
+  ) as { cards: Array<Record<string, unknown>> };
+  assert.ok(manifest.cards.length > 0, "manifest must be non-empty for this pin to mean anything");
+  const keys = new Set<string>();
+  for (const row of manifest.cards) for (const k of Object.keys(row)) keys.add(k);
+  const unlabeled = [...keys].filter(
+    (f) =>
+      !DIFF_SKIP_FIELDS.has(f) &&
+      !LOCAL_CURATION_FIELDS.has(f) &&
+      !Object.prototype.hasOwnProperty.call(FIELD_LABELS, f),
+  );
+  assert.deepEqual(
+    unlabeled.sort(),
+    [],
+    "manifest fields with no FIELD_LABELS entry — label them, or exclude them deliberately",
+  );
 });
 
 test("formatFieldLabel: previously-never-displayed fields render readably, not as raw snake_case", () => {

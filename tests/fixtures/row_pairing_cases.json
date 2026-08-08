@@ -206,6 +206,39 @@
         {"card_id": "qq77", "asset_type": "VID", "title": "PR073", "asset_url": "https://x/q.pdf", "dvids_video_id": "1006105", "video_title": "Unresolved UAP Report"}
       ],
       "expected_changed_fields": {}
+    },
+    {
+      "name": "introducing_a_boolean_column_is_not_a_change_on_rows_that_lack_it",
+      "comment": "Boolean fields compare by truthiness. The snapshot predating a boolean column has no value for it (absent, or null once re-serialized); the snapshot after it carries an explicit false on every row that is not flagged. Reporting that as an edit flags the entire corpus the first time a post-column snapshot is diffed against a pre-column one — 210 cards on 6be2c64e->5216a20b alone. TypeScript had this rule from the start; Python compared None != False and reported all of them.",
+      "prev": [
+        {"card_id": "tt00", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/t.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "tt00", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/t.pdf", "dvids_video_id": null, "video_title": null, "featured": false}
+      ],
+      "expected_changed_fields": {}
+    },
+    {
+      "name": "a_boolean_actually_being_set_is_still_reported",
+      "comment": "The truthiness rule must narrow to the introduction case only: false->true is a real editorial act upstream and has to reach both the page and the receipt.",
+      "prev": [
+        {"card_id": "uu11", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/u.pdf", "dvids_video_id": null, "video_title": null, "featured": false}
+      ],
+      "curr": [
+        {"card_id": "uu11", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/u.pdf", "dvids_video_id": null, "video_title": null, "featured": true}
+      ],
+      "expected_changed_fields": {"uu11": ["featured"]}
+    },
+    {
+      "name": "a_field_absent_on_one_side_and_explicitly_null_on_the_other_is_not_a_change",
+      "comment": "Snapshot schemas grow: a manifest rebuilt after a new column exists carries the column explicitly null on every row that has no value, while the older snapshot simply lacks the key. That is an absent-vs-null difference in the serialization, not an upstream edit, and neither side may report it. Python compares with dict.get(), so absent and null were already equal there; the TypeScript union-of-keys loop compared `undefined !== null` and reported a change, which fabricated one entry per row per newly-added column across every historical pair.",
+      "prev": [
+        {"card_id": "ss99", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/s.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "ss99", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/s.pdf", "dvids_video_id": null, "video_title": null, "original_classification": null}
+      ],
+      "expected_changed_fields": {}
     }
   ]
 }
