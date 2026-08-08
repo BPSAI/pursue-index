@@ -188,6 +188,111 @@ export function resolveAliases(rawAliases: AliasEntry[]): AliasMap {
   return out;
 }
 
+// --- Snapshot option formatting (upstream vs. our promoted state) ---
+//
+// The /diff selectors must never render `latest.json` (our promoted state)
+// in the same `sha8 · date · count` grammar as a real upstream (war.gov)
+// snapshot — CURRENT carrying today's date and a matching card count reads
+// as if the government dropped a second manifest. It didn't; we promoted
+// one. These helpers keep upstream snapshots and the single promoted-state
+// entry structurally separate and give the promoted entry a label that
+// names its source instead of carrying its own standalone date.
+
+/** Strip the `.json` suffix and truncate to the sha8 prefix used throughout the UI. */
+export function shaPrefix(filename: string): string {
+  return filename.replace(/\.json$/i, "").slice(0, 8);
+}
+
+/**
+ * Format an ISO timestamp with minute-precision time, not just a date.
+ * War.gov genuinely double-drops on the same day (2026-06-12 has two
+ * snapshots); a date-only label makes them indistinguishable without
+ * reading sha prefixes.
+ */
+export function formatSnapshotTimestamp(iso?: string): string {
+  if (!iso) return "—";
+  return `${iso.slice(0, 16).replace("T", " ")}Z`;
+}
+
+export interface SnapshotOptionMeta {
+  filename: string;
+  fetched_at?: string;
+  card_count?: number;
+}
+
+/** The synthetic `@current` entry, relabelled as our promoted state. */
+export interface PromotedStateOption {
+  filename: string;
+  fetched_at?: string;
+  card_count?: number;
+  /** The upstream snapshot filename `@current` was promoted from, or null if unresolved. */
+  promotedFrom: string | null;
+}
+
+export interface GroupedSnapshotOptions {
+  upstream: SnapshotOptionMeta[];
+  promoted: PromotedStateOption;
+}
+
+/**
+ * Find the upstream snapshot `@current` was promoted from. Snapshot
+ * filenames are `${csv_sha256}.json` (see `poll_snapshot.py`), so the
+ * match is exact identity — never a heuristic on date or card count, both
+ * of which can coincide with an unrelated snapshot.
+ */
+export function findPromotedFromFilename(
+  index: string[],
+  currentCsvSha256: string | undefined,
+): string | null {
+  if (!currentCsvSha256) return null;
+  return index.find((f) => f.replace(/\.json$/i, "") === currentCsvSha256) ?? null;
+}
+
+/**
+ * Build the grouped option list for the /diff selectors: one upstream
+ * (war.gov) entry per index filename, plus exactly one promoted-state
+ * entry for `@current` — never conflated into a single flat list the way
+ * the old `[...index, @current]` array was.
+ */
+export function buildGroupedSnapshotOptions(
+  index: string[],
+  meta: Record<string, SnapshotIndexMeta>,
+  current: { fetched_at?: string; card_count?: number; csv_sha256?: string },
+  currentSentinel: string,
+): GroupedSnapshotOptions {
+  const upstream = index.map((f) => ({
+    filename: f,
+    fetched_at: meta[f]?.fetched_at,
+    card_count: meta[f]?.card_count,
+  }));
+  return {
+    upstream,
+    promoted: {
+      filename: currentSentinel,
+      fetched_at: current.fetched_at,
+      card_count: current.card_count,
+      promotedFrom: findPromotedFromFilename(index, current.csv_sha256),
+    },
+  };
+}
+
+/** Label grammar for an upstream (war.gov) snapshot option: `sha8 · date time · N cards`. */
+export function formatUpstreamSnapshotLabel(o: SnapshotOptionMeta): string {
+  const count = o.card_count != null ? `${o.card_count} cards` : "?? cards";
+  return `${shaPrefix(o.filename)} · ${formatSnapshotTimestamp(o.fetched_at)} · ${count}`;
+}
+
+/**
+ * Label grammar for the promoted-state option: names the upstream snapshot
+ * it was promoted from instead of carrying its own standalone date, so it
+ * never reads as a second war.gov drop.
+ */
+export function formatPromotedStateLabel(o: PromotedStateOption): string {
+  const from = o.promotedFrom ? shaPrefix(o.promotedFrom) : "unresolved";
+  const count = o.card_count != null ? `${o.card_count} cards` : "?? cards";
+  return `PROMOTED STATE · from ${from} · ${count}`;
+}
+
 // --- Diff with alias collapsing ------------------------------------
 
 export interface DiffResult {

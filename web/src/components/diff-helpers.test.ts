@@ -12,6 +12,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   parseDiffParams,
   buildDiffParams,
@@ -22,6 +23,12 @@ import {
   selectDefaultPair,
   selectDefaultPairWithCurrent,
   normalizeSnapshotIndex,
+  shaPrefix,
+  formatSnapshotTimestamp,
+  findPromotedFromFilename,
+  buildGroupedSnapshotOptions,
+  formatUpstreamSnapshotLabel,
+  formatPromotedStateLabel,
 } from "./diff-helpers.ts";
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
 
@@ -542,4 +549,156 @@ test("normalizeSnapshotIndex: null / non-array → empty result (defensive)", ()
 test("normalizeSnapshotIndex: drops entries with no usable filename", () => {
   const out = normalizeSnapshotIndex(["a.json", { fetched_at: "x" }, { filename: "" }, 42]);
   assert.deepEqual(out.filenames, ["a.json"]);
+});
+
+// --- shaPrefix / formatSnapshotTimestamp ------------------------------
+
+test("shaPrefix: strips .json and truncates to 8 chars", () => {
+  assert.equal(shaPrefix("5216a20bc3419802ebbcc6716e0deede3e873bafbbe273e3a0e4e31f1acd0125.json"), "5216a20b");
+});
+
+test("formatSnapshotTimestamp: includes minute-precision time, not just date", () => {
+  assert.equal(formatSnapshotTimestamp("2026-06-12T12:07:04.089105Z"), "2026-06-12 12:07Z");
+});
+
+test("formatSnapshotTimestamp: distinguishes the two 2026-06-12 double-drop snapshots", () => {
+  const a = formatSnapshotTimestamp("2026-06-12T12:07:04.089105Z");
+  const b = formatSnapshotTimestamp("2026-06-12T15:04:42.063222Z");
+  assert.notEqual(a, b);
+});
+
+test("formatSnapshotTimestamp: undefined → em dash placeholder", () => {
+  assert.equal(formatSnapshotTimestamp(undefined), "—");
+});
+
+// --- findPromotedFromFilename ------------------------------------------
+// Filenames are `${csv_sha256}.json` (poll_snapshot.py) — matching on that
+// exact identity means the promoted-state label never guesses from date or
+// card count, both of which can collide with an unrelated snapshot (the
+// war.gov double-drop on 2026-06-12).
+
+test("findPromotedFromFilename: matches the snapshot whose filename is current's csv_sha256", () => {
+  const index = ["aaa.json", "bbb222.json"];
+  assert.equal(findPromotedFromFilename(index, "bbb222"), "bbb222.json");
+});
+
+test("findPromotedFromFilename: no matching snapshot → null", () => {
+  assert.equal(findPromotedFromFilename(["aaa.json"], "zzz"), null);
+});
+
+test("findPromotedFromFilename: current has no csv_sha256 → null", () => {
+  assert.equal(findPromotedFromFilename(["aaa.json"], undefined), null);
+});
+
+// --- buildGroupedSnapshotOptions / label formatters ---------------------
+// The option list must never conflate upstream (war.gov) snapshots with our
+// promoted state the way the old flat `[...index, @current]` array did.
+
+test("buildGroupedSnapshotOptions: one upstream entry per index filename", () => {
+  const index = ["a.json", "b.json"];
+  const meta = {
+    "a.json": { fetched_at: "2026-05-01T00:00:00Z", card_count: 10 },
+    "b.json": { fetched_at: "2026-05-02T00:00:00Z", card_count: 12 },
+  };
+  const grouped = buildGroupedSnapshotOptions(
+    index,
+    meta,
+    { fetched_at: "2026-05-03T00:00:00Z", card_count: 12, csv_sha256: "b" },
+    "@current",
+  );
+  assert.equal(grouped.upstream.length, 2);
+  assert.deepEqual(grouped.upstream.map((o) => o.filename), ["a.json", "b.json"]);
+});
+
+test("buildGroupedSnapshotOptions: exactly one promoted entry, never merged into upstream", () => {
+  const grouped = buildGroupedSnapshotOptions(
+    ["a.json"],
+    { "a.json": { fetched_at: "2026-05-01T00:00:00Z", card_count: 10 } },
+    { fetched_at: "2026-05-02T00:00:00Z", card_count: 10, csv_sha256: "a" },
+    "@current",
+  );
+  assert.equal(grouped.promoted.filename, "@current");
+  assert.ok(!grouped.upstream.some((o) => o.filename === "@current"));
+});
+
+test("buildGroupedSnapshotOptions: promoted entry names the snapshot it was promoted from", () => {
+  const grouped = buildGroupedSnapshotOptions(
+    ["aaa.json", "bbb.json"],
+    {
+      "aaa.json": { fetched_at: "2026-05-01T00:00:00Z", card_count: 10 },
+      "bbb.json": { fetched_at: "2026-05-02T00:00:00Z", card_count: 12 },
+    },
+    { fetched_at: "2026-05-03T00:00:00Z", card_count: 12, csv_sha256: "bbb" },
+    "@current",
+  );
+  assert.equal(grouped.promoted.promotedFrom, "bbb.json");
+});
+
+test("buildGroupedSnapshotOptions: unresolved promotion → promotedFrom null (never fabricated)", () => {
+  const grouped = buildGroupedSnapshotOptions(
+    ["aaa.json"],
+    { "aaa.json": { fetched_at: "2026-05-01T00:00:00Z", card_count: 10 } },
+    { fetched_at: "2026-05-03T00:00:00Z", card_count: 999, csv_sha256: "unmatched" },
+    "@current",
+  );
+  assert.equal(grouped.promoted.promotedFrom, null);
+});
+
+test("formatUpstreamSnapshotLabel: sha8 · date time · N cards", () => {
+  const label = formatUpstreamSnapshotLabel({
+    filename: "5216a20bc3419802ebbcc6716e0deede3e873bafbbe273e3a0e4e31f1acd0125.json",
+    fetched_at: "2026-06-12T12:07:04.089105Z",
+    card_count: 294,
+  });
+  assert.equal(label, "5216a20b · 2026-06-12 12:07Z · 294 cards");
+});
+
+test("formatPromotedStateLabel: names the promotion source, no standalone date", () => {
+  const label = formatPromotedStateLabel({
+    filename: "@current",
+    fetched_at: "2026-08-07T11:46:47.222422Z",
+    card_count: 375,
+    promotedFrom: "5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7.json",
+  });
+  assert.equal(label, "PROMOTED STATE · from 5f5698f1 · 375 cards");
+  // The bug this fixes: CURRENT carrying its own date reads as a second
+  // war.gov drop. The promoted-state label must never carry one.
+  assert.ok(!label.includes("2026-08-07"));
+});
+
+test("formatPromotedStateLabel: unresolved promotion still never fabricates a date", () => {
+  const label = formatPromotedStateLabel({
+    filename: "@current",
+    fetched_at: "2026-08-07T11:46:47.222422Z",
+    card_count: 375,
+    promotedFrom: null,
+  });
+  assert.ok(!label.includes("2026-08-07"));
+  assert.match(label, /unresolved/);
+});
+
+// --- AC pin: real data/manifests/snapshots/index.json -------------------
+
+test("buildGroupedSnapshotOptions: real index.json → exactly one upstream entry per file, plus one promoted entry", () => {
+  const raw = JSON.parse(
+    readFileSync(new URL("../../../data/manifests/snapshots/index.json", import.meta.url), "utf-8"),
+  ) as { snapshots: Array<{ filename: string; fetched_at: string; card_count: number }> };
+  assert.ok(raw.snapshots.length > 0, "fixture must actually contain snapshots");
+
+  const { filenames, meta } = normalizeSnapshotIndex(raw.snapshots);
+  assert.equal(filenames.length, raw.snapshots.length);
+
+  const grouped = buildGroupedSnapshotOptions(
+    filenames,
+    meta,
+    { fetched_at: "2026-08-07T11:46:47.222422Z", card_count: 375, csv_sha256: "unused-for-this-pin" },
+    "@current",
+  );
+  assert.equal(grouped.upstream.length, raw.snapshots.length);
+  assert.deepEqual(
+    grouped.upstream.map((o) => o.filename),
+    raw.snapshots.map((s) => s.filename),
+  );
+  assert.ok(!grouped.upstream.some((o) => o.filename === "@current"));
+  assert.equal(grouped.promoted.filename, "@current");
 });

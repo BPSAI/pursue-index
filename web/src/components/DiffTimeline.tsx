@@ -1,4 +1,5 @@
 import type { Manifest } from "../data/types";
+import { formatSnapshotTimestamp, shaPrefix } from "./diff-helpers.ts";
 
 interface Props {
   // Chronologically-sorted snapshot filenames (oldest → newest).
@@ -8,20 +9,14 @@ interface Props {
   // The synthetic "@current" entry that represents latest.json.
   currentFilename: string;
   currentManifest: Manifest;
+  // The upstream snapshot filename @current was promoted from, or null if
+  // unresolved — named in the tooltip instead of a standalone date.
+  promotedFrom: string | null;
   // Currently selected pair (filenames). May include the @current sentinel.
   selectedFrom: string | null;
   selectedTo: string | null;
   // Click handler: receives a filename, sets right=that, left=its prior.
   onJump: (right: string) => void;
-}
-
-function shaPrefix(filename: string): string {
-  return filename.replace(/\.json$/i, "").slice(0, 8);
-}
-
-function dateLabel(iso?: string): string {
-  if (!iso) return "—";
-  return iso.slice(0, 10);
 }
 
 /**
@@ -40,6 +35,7 @@ export default function DiffTimeline({
   loaded,
   currentFilename,
   currentManifest,
+  promotedFrom,
   selectedFrom,
   selectedTo,
   onJump,
@@ -67,11 +63,16 @@ export default function DiffTimeline({
               ? "var(--color-signal-amber)"
               : "var(--color-text-faint)";
 
-          const tooltip = [
-            isCurrent ? "CURRENT" : shaPrefix(f),
-            m ? dateLabel(m.fetched_at) : "(not loaded)",
-            m ? `${m.cards.length} cards` : "",
-          ].filter(Boolean).join(" · ");
+          // The promoted-state tick names its source instead of carrying a
+          // standalone date — the same grammar as the selector labels, so
+          // it never reads as a second war.gov drop.
+          const tooltip = isCurrent
+            ? ["PROMOTED STATE", promotedFrom ? `from ${shaPrefix(promotedFrom)}` : null, m ? `${m.cards.length} cards` : null]
+                .filter(Boolean)
+                .join(" · ")
+            : [shaPrefix(f), m ? formatSnapshotTimestamp(m.fetched_at) : "(not loaded)", m ? `${m.cards.length} cards` : ""]
+                .filter(Boolean)
+                .join(" · ");
 
           return (
             <li class="flex items-center gap-1">
@@ -79,7 +80,7 @@ export default function DiffTimeline({
                 type="button"
                 onClick={() => onJump(f)}
                 title={tooltip}
-                aria-label={`Jump to ${isCurrent ? "current" : shaPrefix(f)}`}
+                aria-label={`Jump to ${isCurrent ? "promoted state" : shaPrefix(f)}`}
                 class={`relative h-2 w-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-signal-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-bg)]`}
                 style={`background: ${tickColor}; box-shadow: ${isSelected ? `0 0 8px ${tickColor}` : "none"}`}
               />
@@ -95,7 +96,7 @@ export default function DiffTimeline({
         })}
       </ol>
       <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-faint)] pt-2">
-        {index.length + 1} snapshots
+        {index.length} upstream snapshot{index.length === 1 ? "" : "s"} + promoted state
         <span class="mx-2 text-[color:var(--color-text-faint)]">·</span>
         <span class="text-[color:var(--color-signal-amber)]">●</span> from
         <span class="mx-2 text-[color:var(--color-text-faint)]">·</span>
