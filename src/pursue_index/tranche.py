@@ -21,6 +21,24 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from pursue_index.tranche_rows import (
+    pair_rows_by_card_id,
+    pair_rows_by_identity,
+    pair_rows_with_leftovers,
+)
+
+__all__ = [
+    "build_byte_sha_index",
+    "extract_numeric_id",
+    "field_diff",
+    "find_title_continuity",
+    "levenshtein",
+    "pair_rows_by_card_id",
+    "pair_rows_by_identity",
+    "pair_rows_with_leftovers",
+    "row_changes",
+]
+
 _NUMERIC_ID_RE = re.compile(r"-(?:D|VM|PR|VID)0*(\d+)\b")
 _FILENAME_LEVENSHTEIN_THRESHOLD = 8
 _N_A_VALUES = {"", "N/A", "n/a", None}
@@ -163,56 +181,6 @@ def build_byte_sha_index(
     return {sha: list(dict.fromkeys(ids)) for sha, ids in out.items()}
 
 
-_ROW_IDENTITY_FIELDS = ("asset_url", "asset_type", "video_title")
-
-
-def _row_identity_key(row: dict[str, Any]) -> tuple[Any, ...]:
-    """Stable identity key for pairing rows *within* one card_id group.
-
-    A PDF row (`video_title` None) and a VID row never share a key, so a
-    PDF row is only ever paired with a PDF row. Rows that genuinely
-    collide on this key -- e.g. several VID rows sharing one asset_url
-    -- are paired positionally, in encounter order.
-    """
-    return tuple(row.get(f) for f in _ROW_IDENTITY_FIELDS)
-
-
-def pair_rows_by_identity(
-    old_rows: list[dict[str, Any]], new_rows: list[dict[str, Any]]
-) -> list[tuple[dict[str, Any], dict[str, Any]]]:
-    """Pair rows sharing one card_id across two manifest sides.
-
-    A single card_id can carry several manifest rows -- a PDF row plus
-    one or more VID rows (9 such ids live in the 375-card manifest).
-    Keying a plain dict by card_id (last row wins) and diffing every new
-    row against that one survivor compares a VID row to a PDF row and
-    fabricates field changes ("a video retitled into a PDF"). Bucket
-    each side by `_row_identity_key` and pair same-bucket rows
-    positionally instead -- like is always paired with like.
-
-    A row with no counterpart on the other side (added/dropped within
-    the group) is simply excluded from the pairing -- there is nothing
-    to diff it against.
-    """
-    old_buckets: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
-    for row in old_rows:
-        old_buckets.setdefault(_row_identity_key(row), []).append(row)
-    new_buckets: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
-    for row in new_rows:
-        new_buckets.setdefault(_row_identity_key(row), []).append(row)
-
-    pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
-    for key, o_rows in old_buckets.items():
-        n_rows = new_buckets.get(key)
-        if not n_rows:
-            continue
-        # Buckets often differ in length (a dropped/added VID row) --
-        # zip() truncates to the shorter side by design here; the
-        # leftover rows have no counterpart to pair with.
-        pairs.extend(zip(o_rows, n_rows, strict=False))
-    return pairs
-
-
 def field_diff(
     old_rows: list[dict[str, Any]], new_rows: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
@@ -220,12 +188,15 @@ def field_diff(
 
     `old_rows`/`new_rows` are ALL the manifest rows for a single card_id
     on each side (a card_id backed by only one row per side is simply a
-    one-element list). Rows are paired via `pair_rows_by_identity`
+    one-element list). Rows are paired by `pair_rows_by_identity`
     (PDF-to-PDF, VID-to-VID -- never collapsed to "last row wins" before
-    diffing, which would compare mismatched rows and fabricate or hide
-    changes). Each pair is diffed independently and the changed fields
-    are unioned across pairs -- a field that changed on ANY paired row
-    is reported once, keeping the first pair's old/new values.
+    diffing, which would compare mismatched rows). Each pair is diffed
+    independently and the changed fields are unioned across pairs -- a
+    field that changed on ANY paired row is reported once, keeping the
+    first pair's old/new values.
+
+    Rows left unpaired (added to or withdrawn from the card_id) carry no
+    field-level diff; `row_changes` reports them.
 
     Skips `card_id` itself and a few volatile/derived fields that
     aren't editorially load-bearing (`raw` carries upstream CSV
@@ -242,3 +213,27 @@ def field_diff(
             if ov != nv:
                 changed[k] = {"field": k, "old": ov, "new": nv}
     return [changed[k] for k in sorted(changed)]
+
+
+def row_changes(
+    old_rows: list[dict[str, Any]], new_rows: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Rows one card_id gained or lost between two manifests.
+
+    Returns `{"side", "asset_type", "title", "asset_url",
+    "dvids_video_id"}` entries, `side` being "removed" for a row present
+    only in `old_rows` and "added" for one present only in `new_rows`.
+    A card_id whose row set is unchanged returns an empty list.
+    """
+    _, left_old, left_new = pair_rows_with_leftovers(old_rows, new_rows)
+    return [
+        {
+            "side": side,
+            "asset_type": row.get("asset_type"),
+            "title": row.get("title"),
+            "asset_url": row.get("asset_url"),
+            "dvids_video_id": row.get("dvids_video_id"),
+        }
+        for side, rows in (("removed", left_old), ("added", left_new))
+        for row in rows
+    ]

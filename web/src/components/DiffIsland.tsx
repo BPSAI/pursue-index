@@ -13,9 +13,12 @@ import {
   resolveAliases,
   selectDefaultPairWithCurrent,
   shaPrefix,
+  unpairedRowEntries,
   type SnapshotIndexMeta,
   type SnapshotOptionMeta,
+  type UnpairedRow,
 } from "./diff-helpers.ts";
+import DiffRowChanges from "./DiffRowChanges.tsx";
 import DiffTimeline from "./DiffTimeline.tsx";
 
 interface Props {
@@ -164,6 +167,16 @@ export default function DiffIsland({ current, base, aliases }: Props) {
     return fieldOnlyChanges(fromM.cards, toM.cards);
   }, [selectedFrom, selectedTo, snapshots]);
 
+  // Rows a card_id gained or lost. These carry no field-level diff — the
+  // row has no counterpart to diff against — so without their own section
+  // a card that gains or loses one of its rows would render as no change.
+  const rowChanges = useMemo(() => {
+    const fromM = manifestFor(selectedFrom);
+    const toM = manifestFor(selectedTo);
+    if (!fromM || !toM) return null;
+    return unpairedRowEntries(fromM.cards, toM.cards);
+  }, [selectedFrom, selectedTo, snapshots]);
+
   // ---- Render branches -------------------------------------------------
 
   if (index === null) {
@@ -228,7 +241,7 @@ export default function DiffIsland({ current, base, aliases }: Props) {
     setSelectedTo(selectedFrom);
   }
 
-  const bothLoaded = diffResult != null && fieldChanges != null;
+  const bothLoaded = diffResult != null && fieldChanges != null && rowChanges != null;
 
   function onJump(right: string) {
     // Click on a tick → set selectedTo = right, selectedFrom = prior in chronological order.
@@ -323,6 +336,7 @@ export default function DiffIsland({ current, base, aliases }: Props) {
         <DiffBody
           diff={diffResult!}
           fieldChanges={fieldChanges!}
+          rowChanges={rowChanges!}
           fromMeta={fromMeta}
           toMeta={toMeta}
           base={base}
@@ -367,6 +381,7 @@ function MetaHeaderLabel({
 function DiffBody({
   diff,
   fieldChanges,
+  rowChanges,
   fromMeta,
   toMeta,
   base,
@@ -375,6 +390,7 @@ function DiffBody({
 }: {
   diff: ReturnType<typeof diffWithAliases>;
   fieldChanges: ReturnType<typeof fieldOnlyChanges>;
+  rowChanges: UnpairedRow[];
   fromMeta: SnapshotMeta | null;
   toMeta: SnapshotMeta | null;
   base: string;
@@ -400,6 +416,7 @@ function DiffBody({
       <DiffSection title="REMOVED" cards={diff.removed} tone="red" base={base} />
       <RenamedSection renamed={diff.renamed} base={base} />
       <FieldChangedSection fieldChanges={fieldChanges} base={base} />
+      <DiffRowChanges rows={rowChanges} base={base} />
     </div>
   );
 }

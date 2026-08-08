@@ -10,9 +10,24 @@
  *   resolveAliases                     — card-aliases.json → terminal-id resolver
  *   diffWithAliases                    — rename-aware add/remove/renamed grouping
  *   fieldOnlyChanges                   — cards present in both snapshots with diff'd fields
+ *   pairRowsByCardId / unpairedRowEntries — re-exported from `row-pairing.ts`
  */
 
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
+import { pairRowsByCardId } from "./row-pairing.ts";
+
+// Re-exported so the /diff island and its tests keep a single import
+// site for the diff surface; the pairing rules themselves live in
+// `row-pairing.ts`.
+export {
+  describeUnpairedRow,
+  pairRowsByCardId,
+  unpairedRowEntries,
+  type CardIdPairing,
+  type RowPair,
+  type UnpairedRow,
+  type UnpairedRowDisplay,
+} from "./row-pairing.ts";
 
 // --- URL state -------------------------------------------------------
 
@@ -380,100 +395,6 @@ const _BOOLEAN_FIELDS = new Set<keyof CardMetadata>(["redacted", "featured"]);
 export interface FieldChange {
   card_id: string;
   fields: string[];
-}
-
-/** A prev↔curr row pairing within a single card_id group. */
-export interface RowPair {
-  card_id: string;
-  prev: CardMetadata;
-  curr: CardMetadata;
-}
-
-/** A manifest row that had no counterpart on the other side of the diff. */
-export interface UnpairedRow {
-  card_id: string;
-  side: "prev" | "curr";
-  row: CardMetadata;
-}
-
-export interface CardIdPairing {
-  pairs: RowPair[];
-  unpaired: UnpairedRow[];
-}
-
-/** Group manifest rows by card_id, preserving each id's row order. */
-function groupByCardId(rows: CardMetadata[]): Map<string, CardMetadata[]> {
-  const groups = new Map<string, CardMetadata[]>();
-  for (const c of rows) {
-    const g = groups.get(c.card_id);
-    if (g) g.push(c);
-    else groups.set(c.card_id, [c]);
-  }
-  return groups;
-}
-
-/**
- * Stable identity key for pairing rows *within* a card_id group. A PDF
- * row (video_title null) and a VID row never share a key, so a PDF row is
- * only ever paired with a PDF row. Rows that genuinely collide on this
- * key (e.g. ea029a05470b8f4e's 3 VID rows) are paired positionally.
- */
-function identityKey(c: CardMetadata): string {
-  return JSON.stringify([c.asset_url ?? null, c.asset_type ?? null, c.video_title ?? null]);
-}
-
-/** Bucket a group's rows by identity key, preserving encounter order. */
-function bucketByKey(rows: CardMetadata[]): Map<string, CardMetadata[]> {
-  const buckets = new Map<string, CardMetadata[]>();
-  for (const c of rows) {
-    const k = identityKey(c);
-    const b = buckets.get(k);
-    if (b) b.push(c);
-    else buckets.set(k, [c]);
-  }
-  return buckets;
-}
-
-/**
- * Pair rows that share a card_id across two snapshots.
- *
- * A single card_id can carry several manifest rows — a PDF row plus one
- * or more VID rows (9 such ids live in the 375-card manifest). Keying a
- * plain Map by card_id (last row wins) and then diffing every curr row
- * against that one survivor compares a VID row to a PDF row and
- * fabricates field changes ("a video retitled into a PDF").
- *
- * Instead, group each side by card_id and, within a group, bucket rows
- * by ``(asset_url, asset_type, video_title)`` so like is paired with
- * like. Rows sharing a key are paired positionally within their bucket;
- * any row with no counterpart is returned in ``unpaired`` — reported,
- * never silently dropped. The manifest itself is never mutated, deduped
- * or collapsed.
- *
- * card_ids present on only one side are NOT emitted here: those are
- * add/remove events (see ``diffWithAliases``), not field changes.
- */
-export function pairRowsByCardId(prev: CardMetadata[], curr: CardMetadata[]): CardIdPairing {
-  const prevGroups = groupByCardId(prev);
-  const currGroups = groupByCardId(curr);
-  const pairs: RowPair[] = [];
-  const unpaired: UnpairedRow[] = [];
-
-  for (const [cardId, prevRows] of prevGroups) {
-    const currRows = currGroups.get(cardId);
-    if (!currRows) continue; // whole card_id absent from curr → a removal
-    const prevBuckets = bucketByKey(prevRows);
-    const currBuckets = bucketByKey(currRows);
-    for (const key of new Set([...prevBuckets.keys(), ...currBuckets.keys()])) {
-      const p = prevBuckets.get(key) ?? [];
-      const c = currBuckets.get(key) ?? [];
-      const paired = Math.min(p.length, c.length);
-      for (let i = 0; i < paired; i++) pairs.push({ card_id: cardId, prev: p[i], curr: c[i] });
-      for (let i = paired; i < p.length; i++) unpaired.push({ card_id: cardId, side: "prev", row: p[i] });
-      for (let i = paired; i < c.length; i++) unpaired.push({ card_id: cardId, side: "curr", row: c[i] });
-    }
-  }
-  return { pairs, unpaired };
 }
 
 export function fieldOnlyChanges(prev: CardMetadata[], curr: CardMetadata[]): FieldChange[] {

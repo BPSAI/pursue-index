@@ -25,6 +25,7 @@ def _md_summary(s: dict[str, int]) -> str:
         f"- **{s.get('restored_unknown', 0)}** restorations with unknown bytes (no asset_url to verify)\n"
         f"- **{s['removed']}** removed upstream (no rename match)\n"
         f"- **{s['field_only_changes']}** field-only changes on existing cards\n"
+        f"- **{s.get('row_changes', 0)}** existing cards with a row added or withdrawn\n"
     )
 
 
@@ -153,6 +154,23 @@ def _md_field_changes(rows: list[dict[str, Any]]) -> str:
     return "\n".join(out)
 
 
+def _md_row_changes(rows: list[dict[str, Any]]) -> str:
+    """Rows a card_id gained or lost. Only paired rows produce a
+    field-level diff, so this section is where a card that gained a
+    fourth video or lost one of its videos shows up."""
+    if not rows:
+        return "_None._\n"
+    out = ["| card_id | change | asset_type | dvids_video_id | title |",
+           "|---|---|---|---|---|"]
+    for r in rows:
+        for row in r["rows"]:
+            out.append(
+                f"| `{r['card_id']}` | {row['side']} | {row.get('asset_type') or ''} | "
+                f"`{row.get('dvids_video_id') or ''}` | {(row.get('title') or '')[:80]} |"
+            )
+    return "\n".join(out) + "\n"
+
+
 def render_markdown(diff: dict[str, Any]) -> str:
     s = diff["summary"]
     parts = [
@@ -194,5 +212,8 @@ def render_markdown(diff: dict[str, Any]) -> str:
         "## Field-only changes (same card_id, different metadata)",
         "",
         _md_field_changes(diff["field_only_changes"]),
+        "## Row-level changes (same card_id, a row added or withdrawn)",
+        "",
+        _md_row_changes(diff.get("row_changes", [])),
     ]
     return "\n".join(parts)

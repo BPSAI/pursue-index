@@ -23,9 +23,9 @@ for p in (_SRC, _SCRIPTS):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
-from pursue_index.tranche import field_diff, pair_rows_by_identity  # noqa: E402
-
 import tranche_diff  # noqa: E402
+
+from pursue_index.tranche import field_diff, pair_rows_by_identity  # noqa: E402
 
 
 def _card(card_id: str, **kw) -> dict:
