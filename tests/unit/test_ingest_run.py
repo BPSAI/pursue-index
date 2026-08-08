@@ -291,6 +291,41 @@ def test_promote_snapshot_tolerates_builder_failure(
     assert manifest.read_text() == snapshot.read_text()
 
 
+def test_promote_snapshot_surfaces_builder_output_and_exit_code(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A builder's stdout/stderr and non-zero exit code must be SURFACED
+    (printed), not captured-and-discarded — a silently-swallowed exit code
+    is how the orphaned-builder regression hid. Still no raise: promotion
+    stands regardless of an operator-local builder's outcome.
+    """
+    import json as _json
+    import subprocess
+
+    repo_root, _ = _build_repo_with_scripts(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "abc" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    def _fake_run(cmd, *args, **kwargs):
+        return subprocess.CompletedProcess(
+            cmd, 1, stdout="wrote payload\n", stderr="r2 mirror root not found\n"
+        )
+
+    monkeypatch.setattr(subprocess, "run", _fake_run)
+    promote_snapshot(snapshot, manifest)  # must not raise
+
+    out = capsys.readouterr().out
+    assert "wrote payload" in out, "builder stdout must be surfaced"
+    assert "r2 mirror root not found" in out, "builder stderr must be surfaced"
+    assert "1" in out and "exited" in out.lower(), "non-zero exit code must be surfaced"
+
+
 def test_promote_snapshot_skips_builders_when_scripts_absent(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

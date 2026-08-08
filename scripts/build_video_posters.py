@@ -1,35 +1,41 @@
-"""Extract poster frames from operator-downloaded DVIDS .mp4 files.
+"""Extract poster frames from our archived R2 A/V bytes.
 
-The PURSUE upstream listing carries `dvids_video_id` (a 7-digit DVIDS
-asset identifier like 1006119) for video cards but does NOT carry a
-direct download URL or thumbnail. The operator downloaded the 28
-videos to ``~/Desktop/PERSUE/uapvideos/DOD_<dod_media_id>.mp4`` where
-``dod_media_id`` is an 8-9 digit identifier that does NOT match the
-DVIDS video id.
+Every VID/AUD card the site serves already has its canonical .mp4 bytes
+in the three-tier archive: content-addressed in R2 as
+``archive/<byte_sha256>.mp4`` (plus a ``<card_id>.mp4`` current-pointer)
+and staged to the NAS-local mirror ``<PURSUE_DATA_ROOT>/r2-mirror/
+archive/<byte_sha256>.mp4`` by the A/V ingest. This builder reads those
+mirrored R2 bytes — NOT a DVIDS scrape and NOT the operator's Desktop —
+so it covers ALL A/V cards (131 as of Release 5), on any machine with the
+NAS mounted, credential-free (identical pattern to ``release/pdf_mirror``).
 
-This script bridges the two:
+Flow, per VID/AUD card in ``data/manifests/latest.json``:
 
-  1. For each VID card in the manifest, scrape the public DVIDS web
-     page (``https://www.dvidshub.net/video/<dvids_video_id>``) for
-     the ``DOD_<id>.mp4`` filename.
-  2. Match that filename against the operator's local video directory.
+  1. Resolve ``card_id → byte_sha256`` from ``data/asset-bytes-registry.jsonl``
+     (the row whose ``current_key`` is ``<card_id>.mp4``; last row wins).
+  2. Locate ``<mirror_root>/archive/<byte_sha256>.mp4``.
   3. Use ffmpeg to extract a poster frame at ~10% of duration (skips
      leader frames, captures actual content).
-  4. Write the JPG to ``web/public/data/video-posters/<card_id>.jpg``.
-  5. Maintain ``web/public/data/video-posters/index.json`` mapping
-     card_id → poster filename so the GalleryIsland can render
-     real posters in place of the placeholder.
+  4. Write the JPG to ``web/public/data/video-posters/<card_id>.jpg`` and
+     maintain the sibling ``index.json`` (card_id → poster filename) the
+     GalleryIsland reads.
+  5. Prune posters + index entries keyed to card_ids that are no longer
+     A/V cards in the manifest (e.g. after a rename-heavy tranche).
 
-Idempotency: skips cards whose poster already exists and is non-zero.
-Re-runs are safe.
+Auto-invoked: ``make rebuild-derivatives`` runs this as one of the four
+derived-payload builders, and ``ingest_run.promote_snapshot`` runs it on
+every manifest promote. It is no longer an operator-only manual step.
 
-Failure modes (all soft):
-  * DVIDS page returns no DOD_<id>.mp4 match → log + skip card
-  * Local file missing → log + skip
-  * ffmpeg failure → log + skip
+Exit codes: returns 1 (loud failure) when the R2 mirror root is absent —
+a misconfiguration the caller must fix, not silently tolerate. Per-card
+gaps (no registry row, missing mirror byte, ffmpeg error) are counted and
+logged but do not fail the run; the summary reports every skip.
 
-The script does NOT mutate the manifest; the gallery reads the
-sidecar JSON. Keeps the canonical manifest aligned with upstream.
+The script does NOT mutate the manifest; the gallery reads the sidecar
+JSON. The ``extract_dod_filename`` / ``scrape_dod_filename`` helpers below
+are retained ONLY for ``scripts/ingest_release_videos.py`` (the A/V ingest
+matcher that maps cards to operator-supplied files); poster generation no
+longer touches DVIDS.
 """
 
 from __future__ import annotations
@@ -41,7 +47,6 @@ import subprocess
 import sys
 import urllib.request
 from pathlib import Path
-from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SRC = _REPO_ROOT / "src"
@@ -51,7 +56,7 @@ if str(_SRC) not in sys.path:
 from pursue_index.scrape.manifest import load_manifest  # noqa: E402
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
-DEFAULT_VIDEO_DIR = Path.home() / "Desktop" / "PERSUE" / "uapvideos"
+DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_POSTERS_DIR = _REPO_ROOT / "web" / "public" / "data" / "video-posters"
 
 # Match the DOD asset id in ANY surface form the DVIDS page uses: a bare
@@ -177,84 +182,160 @@ def save_index(path: Path, mapping: dict[str, str]) -> None:
     path.write_text(json.dumps(payload, indent=2))
 
 
-def _process_one_poster(
-    card: Any,
-    args: argparse.Namespace,
+def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
+    """Map ``card_id → byte_sha256`` for every ``<card_id>.mp4`` registry row.
+
+    Only rows whose ``current_key`` is an ``.mp4`` current-pointer are the
+    canonical A/V bytes we serve. A card re-ingested with new bytes has a
+    later row; last row wins so the poster tracks the current asset.
+    """
+    out: dict[str, str] = {}
+    if not registry_path.exists():
+        return out
+    for raw in registry_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not (row.get("current_key") or "").endswith(".mp4"):
+            continue
+        cid, sha = row.get("card_id"), row.get("byte_sha256")
+        if cid and sha:
+            out[cid] = sha
+    return out
+
+
+def _resolve_mirror_mp4(mirror_root: Path, sha: str) -> Path | None:
+    """The NAS-local mirror of the R2 ``archive/<sha>.mp4`` object, or None."""
+    path = mirror_root / "archive" / f"{sha}.mp4"
+    return path if path.is_file() else None
+
+
+def _generate_one_poster(
+    card_id: str,
+    sha_map: dict[str, str],
+    mirror_root: Path,
+    posters_dir: Path,
     mapping: dict[str, str],
     counts: dict[str, int],
 ) -> None:
-    """Resolve, download-match and poster one VID card; mutate mapping/counts."""
-    if not card.dvids_video_id:
-        print(f"[posters] {card.card_id}: no dvids_video_id; skipping")
-        counts["skip_no_dod"] += 1
-        return
-
-    poster_path = args.posters_dir / f"{card.card_id}.jpg"
+    """Poster one A/V card from its mirrored R2 bytes; mutate mapping/counts."""
+    poster_path = posters_dir / f"{card_id}.jpg"
     if poster_path.exists() and poster_path.stat().st_size > 0:
-        mapping[card.card_id] = poster_path.name
-        counts["posters_kept"] += 1
+        mapping[card_id] = poster_path.name
+        counts["kept"] += 1
         return
-
-    dod_filename = scrape_dod_filename(card.dvids_video_id)
-    if not dod_filename:
-        counts["skip_no_dod"] += 1
+    sha = sha_map.get(card_id)
+    if not sha:
+        print(f"[posters] {card_id}: no <card_id>.mp4 registry row; skipping")
+        counts["skip_no_sha"] += 1
         return
-
-    video_file = args.video_dir / dod_filename
-    if not video_file.exists():
-        print(
-            f"[posters] {card.card_id}: dvids={card.dvids_video_id} "
-            f"→ {dod_filename} NOT in local dir"
-        )
-        counts["skip_no_file"] += 1
+    mp4 = _resolve_mirror_mp4(mirror_root, sha)
+    if mp4 is None:
+        print(f"[posters] {card_id}: r2 mirror byte archive/{sha[:12]}….mp4 absent")
+        counts["skip_no_bytes"] += 1
         return
-
-    ok = extract_poster(video_file, poster_path)
-    if not ok:
+    if not extract_poster(mp4, poster_path):
         counts["skip_ffmpeg"] += 1
         return
-    mapping[card.card_id] = poster_path.name
-    size = poster_path.stat().st_size
-    print(f"[posters] new: {card.card_id} ← {dod_filename} ({size:,} B)")
-    counts["posters_new"] += 1
+    mapping[card_id] = poster_path.name
+    counts["new"] += 1
+    print(f"[posters] new: {card_id} ← archive/{sha[:12]}….mp4 "
+          f"({poster_path.stat().st_size:,} B)")
+
+
+def _prune_orphans(
+    posters_dir: Path, valid_ids: set[str], mapping: dict[str, str]
+) -> list[str]:
+    """Drop index entries + JPGs keyed to card_ids that are no longer A/V cards.
+
+    Covers both the mapping and any stray ``<card_id>.jpg`` on disk (a poster
+    whose card was renamed/removed lingers otherwise), so coverage counts
+    reflect only live cards.
+    """
+    removed: list[str] = []
+    for cid in list(mapping):
+        if cid not in valid_ids:
+            mapping.pop(cid, None)
+            removed.append(cid)
+    for jpg in sorted(posters_dir.glob("*.jpg")):
+        if jpg.stem not in valid_ids:
+            jpg.unlink()
+            if jpg.stem not in removed:
+                removed.append(jpg.stem)
+    return removed
+
+
+def build(
+    *,
+    manifest_path: Path,
+    registry_path: Path,
+    mirror_root: Path,
+    posters_dir: Path,
+) -> int:
+    """Rebuild every A/V card's poster from mirrored R2 bytes; prune orphans."""
+    manifest = load_manifest(manifest_path)
+    # AUD items are DVIDS audio wrapped in an mp4 that runs a static agency
+    # logo card (e.g. the NASA logo on the Apollo debriefings), so a poster
+    # frame is just as valid a thumbnail for them as for VID clips.
+    valid_ids = {c.card_id for c in manifest.cards if c.asset_type in ("VID", "AUD")}
+    print(f"[posters] {len(valid_ids)} VID/AUD cards in manifest")
+    sha_map = load_registry_sha_map(registry_path)
+
+    posters_dir.mkdir(parents=True, exist_ok=True)
+    index_path = posters_dir / "index.json"
+    mapping = load_index(index_path)
+    counts = {"kept": 0, "new": 0, "skip_no_sha": 0, "skip_no_bytes": 0, "skip_ffmpeg": 0}
+
+    for card_id in sorted(valid_ids):
+        _generate_one_poster(
+            card_id, sha_map, mirror_root, posters_dir, mapping, counts
+        )
+    removed = _prune_orphans(posters_dir, valid_ids, mapping)
+
+    save_index(index_path, mapping)
+    print(
+        f"[posters] done: new={counts['new']} kept={counts['kept']} "
+        f"pruned={len(removed)} skip_no_sha={counts['skip_no_sha']} "
+        f"skip_no_bytes={counts['skip_no_bytes']} skip_ffmpeg={counts['skip_ffmpeg']}"
+    )
+    print(
+        f"[posters] index.json: {len(mapping)}/{len(valid_ids)} A/V cards covered"
+    )
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
-    parser.add_argument("--video-dir", type=Path, default=DEFAULT_VIDEO_DIR)
+    parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    parser.add_argument(
+        "--mirror-root",
+        type=Path,
+        default=None,
+        help="R2 mirror root (default: <PURSUE_DATA_ROOT>/r2-mirror).",
+    )
     parser.add_argument("--posters-dir", type=Path, default=DEFAULT_POSTERS_DIR)
     args = parser.parse_args(argv)
 
-    if not args.video_dir.exists():
-        print(f"[posters] video dir not found: {args.video_dir}")
+    mirror_root = args.mirror_root
+    if mirror_root is None:
+        from pursue_index.config import settings  # lazy: avoid .env at import
+
+        mirror_root = settings.data_root / "r2-mirror"
+    if not mirror_root.exists():
+        print(f"[posters] r2 mirror root not found: {mirror_root}")
         return 1
 
-    manifest = load_manifest(args.manifest)
-    # AUD items are DVIDS audio wrapped in an mp4 that runs a static agency
-    # logo card (e.g. the NASA logo on the Apollo debriefings), so a poster
-    # frame is just as valid a thumbnail for them as for VID clips.
-    poster_cards = [c for c in manifest.cards if c.asset_type in ("VID", "AUD")]
-    print(f"[posters] {len(poster_cards)} VID/AUD cards in manifest")
-
-    index_path = args.posters_dir / "index.json"
-    mapping = load_index(index_path)
-
-    counts = {"posters_kept": 0, "posters_new": 0, "skip_no_dod": 0, "skip_no_file": 0, "skip_ffmpeg": 0}
-
-    for card in poster_cards:
-        _process_one_poster(card, args, mapping, counts)
-
-    save_index(index_path, mapping)
-    print(
-        f"[posters] done: new={counts['posters_new']} "
-        f"kept={counts['posters_kept']} "
-        f"skip_no_dod={counts['skip_no_dod']} "
-        f"skip_no_file={counts['skip_no_file']} "
-        f"skip_ffmpeg={counts['skip_ffmpeg']}"
+    return build(
+        manifest_path=args.manifest,
+        registry_path=args.registry,
+        mirror_root=mirror_root,
+        posters_dir=args.posters_dir,
     )
-    print(f"[posters] index.json: {len(mapping)} card→poster mappings")
-    return 0
 
 
 if __name__ == "__main__":

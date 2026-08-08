@@ -93,6 +93,19 @@ rebuild-derivatives:
 	@python scripts/build_photo_card_index.py 2>&1 | tail -1
 	@python scripts/build_video_card_index.py 2>&1 | tail -1
 	@python scripts/build_finds_og_images.py 2>&1 | tail -1
+	@# Derived retrieval/browse payloads that feed /chat, /search, /atlas,
+	@# /disclosure and the gallery. These were built by working generators
+	@# nothing invoked (T47.8), so the deployed embed_index.json / atlas-
+	@# layout.json / novelty.json / video-posters lagged the live manifest by
+	@# whole releases. No `| tail` here: a builder that exits non-zero must
+	@# fail the target loudly (piping to tail masks the exit code), and their
+	@# output is a line or two anyway. Requires the NAS embed root + r2-mirror
+	@# (present in the operator ship env; same precondition as embed above).
+	@echo "==> Propagate derived payloads (embed / atlas / novelty / posters)"
+	@python scripts/build_embed_data.py
+	@python scripts/build_atlas_layout.py
+	@python scripts/build_novelty_data.py
+	@python scripts/build_video_posters.py
 
 .PHONY: registry-root
 registry-root:
