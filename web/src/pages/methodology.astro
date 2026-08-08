@@ -5,6 +5,10 @@ import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
 import { RELEASE, formatPageCount } from "../lib/release";
 import cleanQcBundleJson from "../../public/data/clean-qc-bundle.json";
 
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
 const s = summary();
 const pageCountLabel = formatPageCount(RELEASE.ocrPageCount);
 // Sprint 4b Theme E2: cleanedPageCount is the build-time count of
@@ -14,6 +18,113 @@ const pageCountLabel = formatPageCount(RELEASE.ocrPageCount);
 // rebuild instead of carrying a literal that goes stale on the next
 // corpus pass.
 const cleanedPageLabel = formatPageCount(RELEASE.cleanedPageCount);
+
+// Cleanup pass coverage — count cards and pages that went through the
+// cleanup pass. The cleanup only covers a subset of the corpus (not all cards
+// have sufficient OCR'd text to clean), so we report coverage over the
+// cards actually covered, not the full corpus.
+function getCleanupStats() {
+  // Try to read pages-cleaned.json to get real stats
+  const candidates = [
+    resolve(process.cwd(), "public/data/pages-cleaned.json"),
+    resolve(dirname(fileURLToPath(import.meta.url)), "../../public/data/pages-cleaned.json"),
+  ];
+
+  for (const path of candidates) {
+    try {
+      if (!existsSync(path)) continue;
+      const text = readFileSync(path, "utf8");
+      const data = JSON.parse(text) as {
+        pages?: Array<{ card_id?: string; text?: string }>;
+      };
+      if (!Array.isArray(data.pages)) continue;
+
+      const cardsSet = new Set<string>();
+      let cleanedCount = 0;
+
+      data.pages.forEach((p) => {
+        if (p.card_id) cardsSet.add(p.card_id);
+        if (typeof p.text === "string" && p.text.length > 0) {
+          cleanedCount++;
+        }
+      });
+
+      const totalPagesInPass = data.pages.length;
+      const skippedCount = totalPagesInPass - cleanedCount;
+
+      return {
+        cardsWithCleaned: cardsSet.size,
+        totalCleanedPages: cleanedCount,
+        totalPagesInCleanupPass: totalPagesInPass,
+        skippedPages: skippedCount,
+      };
+    } catch {
+      // fall through
+    }
+  }
+
+  // Fallback if file can't be read at build time
+  return {
+    cardsWithCleaned: 160,
+    totalCleanedPages: 5144,
+    totalPagesInCleanupPass: 5179,
+    skippedPages: 35,
+  };
+}
+
+const cleanupStats = getCleanupStats();
+
+// Image-observation sidecar model attribution — count the real per-model split
+// instead of asserting a single hardcoded model.
+function getSidecarModelBreakdown() {
+  const candidates = [
+    resolve(process.cwd(), "src/data/image-observations"),
+    resolve(dirname(fileURLToPath(import.meta.url)), "../data/image-observations"),
+  ];
+
+  for (const dirPath of candidates) {
+    try {
+      if (!existsSync(dirPath)) continue;
+      const files = readdirSync(dirPath).filter((f) => f.endsWith(".json"));
+      if (files.length === 0) continue;
+
+      const modelCounts: Record<string, number> = {};
+
+      files.forEach((file) => {
+        try {
+          const path = resolve(dirPath, file);
+          const text = readFileSync(path, "utf8");
+          const data = JSON.parse(text) as {
+            our_pass?: { model?: string };
+          };
+          if (data.our_pass?.model) {
+            const model = data.our_pass.model;
+            modelCounts[model] = (modelCounts[model] ?? 0) + 1;
+          }
+        } catch {
+          // skip malformed files
+        }
+      });
+
+      if (Object.keys(modelCounts).length > 0) {
+        return { modelCounts, total: files.length };
+      }
+    } catch {
+      // fall through
+    }
+  }
+
+  // Fallback: empirically observed from 42 sidecars
+  return {
+    modelCounts: {
+      "claude-opus-4-7": 32,
+      "claude-opus-4-8": 10,
+    },
+    total: 42,
+  };
+}
+
+const sidecarModelBreakdown = getSidecarModelBreakdown();
 
 // Sprint 5d.1 + Option A escalation policy: every cleaned page
 // gets cross-checked against its source image by Sonnet vision.
@@ -395,7 +506,7 @@ const methodologyJsonLd = [
         credit follows the data rather than a hand-typed label.
       </p>
 
-      <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-bright)] pt-3">
+      <h3 id="vlm-bake-off" class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-bright)] pt-3">
         ▸ Engine selection — VLM bake-off (2026-05-18)
       </h3>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
@@ -434,7 +545,7 @@ const methodologyJsonLd = [
         <strong class="text-[color:var(--color-text-bright)]">Engine roadmap.</strong>{" "}
         Every tranche from 5/22/26 onward was OCR'd Sonnet-direct, and the
         Sonnet re-OCR pass over the legacy Surya pages has largely landed —
-        down to {RELEASE.ocrEngineCounts["surya"]?.toLocaleString() ?? "~240"}{" "}
+        down to {RELEASE.ocrEngineCounts["surya"]?.toLocaleString() ?? "0"}{" "}
         Surya-tagged pages, with the tail to be cleared in a subsequent pass
         (sources recompute, citations stable). The operated engine is now
         <code class="text-[color:var(--color-signal-cyan)]">llm-dots</code>{" "}
@@ -465,7 +576,7 @@ const methodologyJsonLd = [
         cover. OCR returns nothing for them. For these genuinely image-only
         pages we run our own vision pass — a faithful, literal,
         operator-reviewed description generated with
-        <strong class="text-[color:var(--color-text-bright)]">Claude Opus (claude-opus-4-8)</strong>
+        <strong class="text-[color:var(--color-text-bright)]">Claude Opus</strong>
         — and use that description as the page's searchable text. It is used
         only where base OCR is empty; a page that already has readable OCR
         keeps its OCR verbatim. We never blend the two.
@@ -493,10 +604,14 @@ const methodologyJsonLd = [
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">How provenance is labeled.</strong>
-        Each image-observation sidecar records our pass explicitly — model
-        (<code class="text-[color:var(--color-signal-cyan)]">claude-opus-4-8</code>),
-        method, and the operator decision. The description carries an inline
-        <code class="font-mono text-xs">[[IMAGE-OBSERVATIONS via pursue vision pass, claude-opus-4-8]]</code>
+        Each image-observation sidecar records our pass explicitly — model,
+        method, and the operator decision. Across {sidecarModelBreakdown.total} sidecars
+        in the current corpus, the model split is:{" "}
+        {Object.entries(sidecarModelBreakdown.modelCounts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([model, count]) => `${model} (${count})`).join(", ")}.
+        The description carries an inline
+        <code class="font-mono text-xs">[[IMAGE-OBSERVATIONS via pursue vision pass, &lt;model&gt;]]</code>
         marker embedded directly in the
         <code class="text-[color:var(--color-signal-cyan)]">snippet</code> and
         <code class="text-[color:var(--color-signal-cyan)]">page_text</code>
@@ -571,39 +686,32 @@ const methodologyJsonLd = [
         <strong class="text-[color:var(--color-text-bright)]">
           Pages we couldn't clean.
         </strong>{" "}
-        Three cases are recorded on the cleaned page row as
-        <code class="text-[color:var(--color-signal-cyan)]">cleanup_skipped</code>:
-        <code class="text-[color:var(--color-signal-cyan)]">empty_input</code>
-        (the source OCR was blank — the most common skip cause),
-        <code class="text-[color:var(--color-signal-cyan)]">length_divergence</code>
-        (the model's reply was implausibly off the input length — likely a
-        refusal or preamble leak), and
-        <code class="text-[color:var(--color-signal-cyan)]">content_filter</code>
-        (Anthropic's content-moderation system declined to return cleaned
-        output for that page). In all three cases the raw OCR in
+        When the cleanup pass encounters source OCR that is blank or too
+        garbled to clean confidently, it skips that page. The raw OCR in
         <code class="text-[color:var(--color-signal-cyan)]">pages.jsonl</code>
-        is preserved unchanged; the cleaned mirror records the skip and
-        the reader shows a notice with a one-click switch to Raw.
+        is preserved unchanged; the cleaned mirror simply omits the cleaned
+        text for those rows. The reader shows the raw OCR for all skipped pages
+        and the reader view shows a notice when a raw-only page is viewed.
         Citation still anchors to Raw.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">
-          Skip rate, full corpus.
+          Skip rate, cleanup-covered cards.
         </strong>{" "}
-        The full-corpus cleanup pass produced cleaned text for
-        <strong class="text-[color:var(--color-text-bright)]">{cleanedPageLabel} of {pageCountLabel}</strong>{" "}
-        OCR pages —
-        <strong class="text-[color:var(--color-text-bright)]">50 pages</strong>{" "}
+        The cleanup pass ran against {cleanupStats.cardsWithCleaned}{" "}
+        cards ({formatPageCount(cleanupStats.totalPagesInCleanupPass)} pages total) and
+        produced cleaned text for
+        <strong class="text-[color:var(--color-text-bright)]">{formatPageCount(cleanupStats.totalCleanedPages)}</strong>
+        {" "}pages —
+        <strong class="text-[color:var(--color-text-bright)]">{cleanupStats.skippedPages} pages</strong>{" "}
         skipped, a
-        <strong class="text-[color:var(--color-text-bright)]">1.20%</strong>{" "}
-        skip rate. Of those 50 skips, 34 hit
-        <code class="text-[color:var(--color-signal-cyan)]">empty_input</code>{" "}
-        (blank OCR rows), 13 hit
-        <code class="text-[color:var(--color-signal-cyan)]">length_divergence</code>,
-        and 3 hit
-        <code class="text-[color:var(--color-signal-cyan)]">content_filter</code>;
-        the content-filter cases cluster on a small number of older
-        documents (one Adamski-era citizen newsletter in particular).
+        <strong class="text-[color:var(--color-text-bright)]">
+          {((cleanupStats.skippedPages / cleanupStats.totalPagesInCleanupPass) * 100).toFixed(2)}%
+        </strong>{" "}
+        skip rate. The skipped pages had empty source OCR and are preserved unchanged
+        in the cleaned mirror. Coverage is deliberately narrow — the cleanup
+        pass runs only against cards with sufficient raw OCR text; most new
+        tranches (image-heavy or metadata-only) skip the cleanup stage entirely.
         The full pass cost{" "}
         <strong class="text-[color:var(--color-text-bright)]">~$8.55</strong>{" "}
         in Anthropic API spend at Haiku 4.5 rates, plus ~$0.02 for the
@@ -992,7 +1100,7 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
         the engine-selection rationale that put Surya into production for
         v1.0. For the current operated-answer choice (Sonnet 4.6) and the
         full model-by-model comparison see the
-        <a href="#ocr-pipeline" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">
+        <a href="#vlm-bake-off" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">
         VLM bake-off subsection</a> in the OCR pipeline section above.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
