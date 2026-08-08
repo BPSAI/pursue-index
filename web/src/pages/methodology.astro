@@ -4,9 +4,12 @@ import { manifest, summary } from "../data/manifest-loader";
 import { articleJsonLd, speakableJsonLd, breadcrumbJsonLd } from "../lib/seo";
 import { RELEASE, formatPageCount } from "../lib/release";
 import {
-  countOcrCards,
+  cleanupCoverage,
+  describeRetiredEngines,
   describeSuryaMigration,
+  describeSuryaMigrationBrief,
   readCleanupStats,
+  readOcrCardIds,
   readSidecarModelBreakdown,
 } from "../lib/methodology-data";
 import cleanQcBundleJson from "../../public/data/clean-qc-bundle.json";
@@ -30,12 +33,20 @@ const sidecarModelBreakdown = readSidecarModelBreakdown([
   resolve(process.cwd(), "src/data/image-observations"),
   resolve(here, "../data/image-observations"),
 ]);
-const ocrCardCount = countOcrCards([
+// Coverage is the intersection of two separately-read populations: the cards
+// the cleanup pass looked at, and the cards carrying OCR text. Neither
+// contains the other, so their totals are not comparable on their own.
+const ocrCardIds = readOcrCardIds([
   resolve(process.cwd(), "public/data/pages.json"),
   resolve(here, "../../public/data/pages.json"),
 ]);
+const coverage = cleanupCoverage(cleanupStats.cardIds, ocrCardIds);
 const suryaPageCount = RELEASE.ocrEngineCounts["surya"] ?? 0;
 const suryaSentence = describeSuryaMigration(suryaPageCount);
+// The benchmark-history section states the same migration position; it reads
+// from the same count in shorter words rather than repeating the paragraph.
+const suryaSentenceBrief = describeSuryaMigrationBrief(suryaPageCount);
+const retiredEnginesNote = describeRetiredEngines(RELEASE.ocrEngineCounts);
 
 // Sprint 5d.1 + Option A escalation policy: every cleaned page
 // gets cross-checked against its source image by Sonnet vision.
@@ -363,7 +374,7 @@ const methodologyJsonLd = [
               <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">assemblyai</td>
               <td class="py-2 pr-4">API</td>
               <td class="py-2 pr-4">Transcribes AUD (audio) cards</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">surya (GPU) and tesseract (CPU) are retired — legacy Release-01 page data only</td>
+              <td class="py-2 text-[color:var(--color-text-dim)]">{retiredEnginesNote}</td>
             </tr>
           </tbody>
         </table>
@@ -603,9 +614,10 @@ const methodologyJsonLd = [
         <strong class="text-[color:var(--color-text-bright)]">
           Skip rate, cleanup-covered cards.
         </strong>{" "}
-        The cleanup pass ran against {cleanupStats.cardsWithCleaned}{" "}
-        cards ({formatPageCount(cleanupStats.totalPagesInCleanupPass)} pages total) and
-        produced cleaned text for
+        The cleanup pass ran against {cleanupStats.cardsInCleanupPass}{" "}
+        cards ({formatPageCount(cleanupStats.totalPagesInCleanupPass)} pages total),
+        left {cleanupStats.cardsWithCleanedText} of them with at least one
+        cleaned page, and produced cleaned text for
         <strong class="text-[color:var(--color-text-bright)]">{formatPageCount(cleanupStats.totalCleanedPages)}</strong>
         {" "}pages —
         <strong class="text-[color:var(--color-text-bright)]">{cleanupStats.skippedPages} pages</strong>{" "}
@@ -633,8 +645,15 @@ const methodologyJsonLd = [
         is a cleaned output too far from the raw text in length to accept;{" "}
         <code class="text-[color:var(--color-signal-cyan)]">content_filter</code>{" "}
         is a page the model's output filter refused. The cleanup pass
-        currently covers {cleanupStats.cardsWithCleaned} of {ocrCardCount}{" "}
-        OCR'd cards; the remaining cards are pending a subsequent pass.
+        currently covers {coverage.covered} of the {coverage.ocrCards}{" "}
+        cards carrying OCR text; the rest are pending a subsequent pass.
+        {coverage.outsideOcr > 0 && (
+          <>
+            {" "}The pass looked at {coverage.cleanupCards} cards in all: the
+            other {coverage.outsideOcr} carry no OCR text at all, so they sit
+            outside the population that figure is measured against.
+          </>
+        )}
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">
@@ -1084,7 +1103,7 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
         <strong class="text-[color:var(--color-text-bright)]">Current state ({RELEASE.version}):</strong>{" "}
         The {pageCountLabel} indexed pages now break out per the live
         engine-mix block above. Every tranche from 5/22/26 onward (incl.
-        Release-03, 6/12/26) was OCR'd Sonnet-direct. {suryaSentence}{" "}
+        Release-03, 6/12/26) was OCR'd Sonnet-direct. {suryaSentenceBrief}{" "}
         Operational cost shifted accordingly — the v1.0 $1.71 figure
         excluded the cleanup pass at scale and the Sonnet OCR rates;
         current full-pipeline cost (llm-dots OCR — Sonnet 4.6 + dots.mocr

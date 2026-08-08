@@ -21,8 +21,15 @@ export interface SkipCause {
 }
 
 export interface CleanupStats {
-  /** Cards represented in the cleanup pass. */
-  cardsWithCleaned: number;
+  /**
+   * Cards the cleanup pass looked at — every card with a row in the cleaned
+   * mirror, whether or not any of its pages came back cleaned.
+   */
+  cardsInCleanupPass: number;
+  /** Of those, the cards that came back with at least one cleaned page. */
+  cardsWithCleanedText: number;
+  /** The card_ids behind `cardsInCleanupPass`, for comparing populations. */
+  cardIds: string[];
   /** Pages the cleanup pass looked at. */
   totalPagesInCleanupPass: number;
   /** Pages it produced cleaned text for. */
@@ -66,6 +73,7 @@ export function readCleanupStats(candidates: string[]): CleanupStats {
   }
 
   const cards = new Set<string>();
+  const cardsCleaned = new Set<string>();
   const causes = new Map<string, number>();
   let cleaned = 0;
   for (const page of data.pages) {
@@ -73,6 +81,7 @@ export function readCleanupStats(candidates: string[]): CleanupStats {
     const hasText = typeof page.text === "string" && page.text.length > 0;
     if (hasText) {
       cleaned += 1;
+      if (page.card_id) cardsCleaned.add(page.card_id);
       continue;
     }
     const cause = page.cleanup_skipped || "unrecorded";
@@ -80,7 +89,9 @@ export function readCleanupStats(candidates: string[]): CleanupStats {
   }
 
   return {
-    cardsWithCleaned: cards.size,
+    cardsInCleanupPass: cards.size,
+    cardsWithCleanedText: cardsCleaned.size,
+    cardIds: [...cards],
     totalPagesInCleanupPass: data.pages.length,
     totalCleanedPages: cleaned,
     skippedPages: data.pages.length - cleaned,
@@ -124,7 +135,7 @@ export function readSidecarModelBreakdown(candidates: string[]): SidecarModelBre
 }
 
 /** Distinct cards carrying at least one OCR'd page, from `pages.json`. */
-export function countOcrCards(candidates: string[]): number {
+export function readOcrCardIds(candidates: string[]): Set<string> {
   const path = firstExisting(candidates, "pages.json");
   const rows = readJson<Array<{ card_id?: string; text?: string }>>(path, "pages.json");
   if (!Array.isArray(rows)) throw new Error(`pages.json at ${path} is not an array`);
@@ -134,7 +145,45 @@ export function countOcrCards(candidates: string[]): number {
       cards.add(row.card_id);
     }
   }
-  return cards.size;
+  return cards;
+}
+
+/** How much of the OCR'd corpus the cleanup pass has reached. */
+export interface CleanupCoverage {
+  /** Cards in BOTH populations — the honest coverage figure. */
+  covered: number;
+  /** Cards the cleanup pass looked at. */
+  cleanupCards: number;
+  /** Cards carrying OCR text. */
+  ocrCards: number;
+  /** Cleanup-pass cards carrying no OCR text at all, so outside that set. */
+  outsideOcr: number;
+}
+
+/**
+ * Compare the two populations rather than the two totals.
+ *
+ * They come from different files and neither contains the other: the cleanup
+ * pass reads the cleaned mirror, the OCR count reads `pages.json`, and a card
+ * can sit in the pass with every page empty. Stating "{cleanupCards} of
+ * {ocrCards}" therefore mixes populations and can even exceed 100%; the
+ * intersection is the only figure that makes "X of Y" a true sentence.
+ */
+export function cleanupCoverage(
+  cleanupCardIds: Iterable<string>,
+  ocrCardIds: Set<string>,
+): CleanupCoverage {
+  const cleanup = new Set(cleanupCardIds);
+  let covered = 0;
+  for (const id of cleanup) {
+    if (ocrCardIds.has(id)) covered += 1;
+  }
+  return {
+    covered,
+    cleanupCards: cleanup.size,
+    ocrCards: ocrCardIds.size,
+    outsideOcr: cleanup.size - covered,
+  };
 }
 
 /**
@@ -154,5 +203,41 @@ export function describeSuryaMigration(suryaPages: number): string {
     "Release-01 extractions predating the migration. The retired Surya " +
     "adapter stays in the repo (`pursue ocr run --engine surya`) for " +
     "reproducibility only."
+  );
+}
+
+/**
+ * The same migration state, for the section that states it a second time.
+ *
+ * Both renderings come from the one page count, so they cannot drift apart;
+ * phrasing them differently keeps the page from printing an identical
+ * paragraph twice.
+ */
+export function describeSuryaMigrationBrief(suryaPages: number): string {
+  if (suryaPages <= 0) return "No page in that mix is tagged surya.";
+  return `Surya still accounts for ${suryaPages.toLocaleString()} of those pages.`;
+}
+
+/**
+ * Footnote for the retired engines in the engine table.
+ *
+ * Read from the live engine mix rather than asserted: the note used to say
+ * the retired engines covered "legacy Release-01 page data" on a page that
+ * elsewhere reported no such pages left.
+ */
+export function describeRetiredEngines(engineCounts: Record<string, number>): string {
+  const remaining = ["surya", "tesseract"]
+    .map((engine) => ({ engine, count: engineCounts[engine] ?? 0 }))
+    .filter((e) => e.count > 0);
+  if (remaining.length === 0) {
+    return (
+      "surya (GPU) and tesseract (CPU) are retired — no pages in the " +
+      "corpus are tagged with either"
+    );
+  }
+  const parts = remaining.map((e) => `${e.count.toLocaleString()} ${e.engine}`);
+  return (
+    "surya (GPU) and tesseract (CPU) are retired — " +
+    `${parts.join(", ")} pages remain, legacy Release-01 extractions`
   );
 }

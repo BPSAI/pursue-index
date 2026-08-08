@@ -13,9 +13,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  countOcrCards,
+  cleanupCoverage,
+  describeRetiredEngines,
   describeSuryaMigration,
+  describeSuryaMigrationBrief,
   readCleanupStats,
+  readOcrCardIds,
   readSidecarModelBreakdown,
 } from "./methodology-data.ts";
 
@@ -37,10 +40,36 @@ test("readCleanupStats: totals and skip causes are derived from pages-cleaned.js
     raw.pages.filter((p) => typeof p.text === "string" && p.text.length > 0).length,
   );
   assert.equal(
-    stats.cardsWithCleaned,
+    stats.cardsInCleanupPass,
     new Set(raw.pages.map((p) => p.card_id).filter(Boolean)).size,
   );
   assert.equal(stats.skippedPages, stats.totalPagesInCleanupPass - stats.totalCleanedPages);
+});
+
+test("readCleanupStats: cards looked at and cards cleaned are counted separately", () => {
+  // A card can enter the pass and leave with every page skipped. Counting
+  // those as "cleaned" overstates coverage, which is what the page used to do.
+  const raw = JSON.parse(readFileSync(PAGES_CLEANED, "utf8")) as {
+    pages: Array<{ card_id?: string; text?: string }>;
+  };
+  const stats = readCleanupStats([PAGES_CLEANED]);
+  assert.equal(
+    stats.cardsWithCleanedText,
+    new Set(
+      raw.pages
+        .filter((p) => p.card_id && typeof p.text === "string" && p.text.length > 0)
+        .map((p) => p.card_id),
+    ).size,
+  );
+  assert.ok(
+    stats.cardsWithCleanedText <= stats.cardsInCleanupPass,
+    "a card cannot be cleaned without entering the pass",
+  );
+  assert.deepEqual(
+    [...stats.cardIds].sort(),
+    [...new Set(raw.pages.map((p) => p.card_id).filter(Boolean))].sort(),
+    "cardIds must be the population the counts are taken from",
+  );
 });
 
 test("readCleanupStats: every skipped page is attributed to a cause", () => {
@@ -90,21 +119,44 @@ test("readSidecarModelBreakdown: unreadable directory throws", () => {
   assert.throws(() => readSidecarModelBreakdown(["/nonexistent/image-observations"]), /sidecar/i);
 });
 
-// --- countOcrCards ----------------------------------------------------
+// --- readOcrCardIds ---------------------------------------------------
 
-test("countOcrCards: counts distinct cards with OCR text", () => {
+test("readOcrCardIds: the distinct cards carrying OCR text", () => {
   const rows = JSON.parse(readFileSync(PAGES, "utf8")) as Array<{
     card_id?: string;
     text?: string;
   }>;
   const expected = new Set(
     rows.filter((r) => typeof r.text === "string" && r.text.length > 0).map((r) => r.card_id),
-  ).size;
-  assert.equal(countOcrCards([PAGES]), expected);
+  );
+  assert.deepEqual([...readOcrCardIds([PAGES])].sort(), [...expected].sort());
 });
 
-test("countOcrCards: unreadable input throws", () => {
-  assert.throws(() => countOcrCards(["/nonexistent/pages.json"]), /pages\.json/);
+test("readOcrCardIds: unreadable input throws", () => {
+  assert.throws(() => readOcrCardIds(["/nonexistent/pages.json"]), /pages\.json/);
+});
+
+// --- cleanupCoverage --------------------------------------------------
+
+test("cleanupCoverage: coverage is the intersection, not the smaller count", () => {
+  // The two populations are read from different files and neither contains
+  // the other: a card can be in the cleanup pass with no OCR text at all.
+  const cov = cleanupCoverage(["a", "b", "x"], new Set(["a", "b", "c", "d"]));
+  assert.equal(cov.covered, 2);
+  assert.equal(cov.cleanupCards, 3);
+  assert.equal(cov.ocrCards, 4);
+  assert.equal(cov.outsideOcr, 1, "the card with no OCR text is not covered by anything");
+});
+
+test("cleanupCoverage: the rendered pair is subset-consistent by construction", () => {
+  // "{covered} of {ocrCards}" is only a true sentence if covered can never
+  // exceed ocrCards — which it cannot, being an intersection with that set.
+  const stats = readCleanupStats([PAGES_CLEANED]);
+  const cov = cleanupCoverage(stats.cardIds, readOcrCardIds([PAGES]));
+  assert.ok(cov.covered <= cov.ocrCards, `${cov.covered} of ${cov.ocrCards} is not a subset`);
+  assert.ok(cov.covered <= cov.cleanupCards);
+  assert.equal(cov.outsideOcr, cov.cleanupCards - cov.covered);
+  assert.ok(cov.covered > 0, "the page states a real coverage figure");
 });
 
 // --- describeSuryaMigration ------------------------------------------
@@ -120,4 +172,36 @@ test("describeSuryaMigration: remaining surya pages are stated with their count"
   const s = describeSuryaMigration(1234);
   assert.match(s, /1,234/);
   assert.ok(!/complete/i.test(s), `must not claim completion while pages remain: ${s}`);
+});
+
+// --- describeSuryaMigrationBrief -------------------------------------
+
+test("describeSuryaMigrationBrief: says the same thing as the long form, in its own words", () => {
+  // The page states the migration's position twice, in two sections. Rendered
+  // from one count, phrased differently, so the two can never disagree and a
+  // reader does not meet the identical paragraph twice.
+  for (const pages of [0, 1234]) {
+    const brief = describeSuryaMigrationBrief(pages);
+    assert.notEqual(brief, describeSuryaMigration(pages));
+    assert.ok(brief.length < describeSuryaMigration(pages).length);
+  }
+  assert.match(describeSuryaMigrationBrief(0), /no .*surya/i);
+  assert.match(describeSuryaMigrationBrief(1234), /1,234/);
+});
+
+// --- describeRetiredEngines ------------------------------------------
+
+test("describeRetiredEngines: an empty count is stated, not called legacy data", () => {
+  // The engine table used to footnote surya/tesseract as "legacy Release-01
+  // page data only" while the same page said no surya-tagged pages remain.
+  const note = describeRetiredEngines({ llm: 8233, dots: 406 });
+  assert.match(note, /retired/i);
+  assert.ok(!/legacy/i.test(note), `nothing legacy remains to point at: ${note}`);
+});
+
+test("describeRetiredEngines: pages still tagged with a retired engine are counted", () => {
+  const note = describeRetiredEngines({ llm: 10, surya: 1234, tesseract: 7 });
+  assert.match(note, /1,234/);
+  assert.match(note, /7/);
+  assert.match(note, /legacy/i);
 });
