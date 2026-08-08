@@ -244,14 +244,29 @@ def _build_removed_list(
     ]
 
 
+def _group_by_card_id(cards: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Group manifest cards by card_id, preserving each id's row order.
+
+    A card_id can be backed by several manifest rows (a PDF row plus one
+    or more VID rows). A plain `{c["card_id"]: c for c in cards}`
+    comprehension keeps only the last row per id -- this groups instead,
+    so `field_diff` can pair every row rather than silently dropping all
+    but one.
+    """
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for c in cards:
+        groups.setdefault(c["card_id"], []).append(c)
+    return groups
+
+
 def _build_field_only_changes(
     unchanged_ids: set[str],
-    old_by_id: dict[str, dict[str, Any]],
-    new_by_id: dict[str, dict[str, Any]],
+    old_groups: dict[str, list[dict[str, Any]]],
+    new_groups: dict[str, list[dict[str, Any]]],
 ) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for cid in sorted(unchanged_ids):
-        diffs = field_diff(old_by_id[cid], new_by_id[cid])
+        diffs = field_diff(old_groups[cid], new_groups[cid])
         if diffs:
             out.append({"card_id": cid, "diffs": diffs})
     return out
@@ -285,7 +300,9 @@ def diff_tranches(
     )
     matched_old_ids = buckets.pop("matched_old_ids")
     removed = _build_removed_list(removed_ids, matched_old_ids, old_by_id)
-    field_only_changes = _build_field_only_changes(unchanged_ids, old_by_id, new_by_id)
+    old_groups = _group_by_card_id(old_manifest.get("cards", []))
+    new_groups = _group_by_card_id(new_manifest.get("cards", []))
+    field_only_changes = _build_field_only_changes(unchanged_ids, old_groups, new_groups)
 
     return {
         "tranche_sha256": new_manifest.get("csv_sha256"),

@@ -126,16 +126,29 @@ def _write_new_snapshot(
     _rebuild_index(canonical_dir, public_dir)
 
 
+def _group_by_card_id(cards: list[CardMetadata]) -> dict[str, list[dict[str, Any]]]:
+    """Group cards by card_id (JSON-mode dumps), preserving row order.
+
+    A card_id can be backed by several manifest rows (a PDF row plus one
+    or more VID rows) -- a last-wins `{card_id: card}` map would drop all
+    but one row per id before diffing.
+    """
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for c in cards:
+        groups.setdefault(c.card_id, []).append(c.model_dump(mode="json", by_alias=True))
+    return groups
+
+
 def _field_changes(prior: Manifest, new: Manifest) -> list[dict[str, Any]]:
     """Per-card field diffs for card_ids present in both manifests, reusing
     the tranche-diff ``field_diff`` comparison. JSON-mode dumps so URLs and
     datetimes compare as the strings they serialize to in the snapshot.
     """
-    prior_by_id = {c.card_id: c.model_dump(mode="json", by_alias=True) for c in prior.cards}
-    new_by_id = {c.card_id: c.model_dump(mode="json", by_alias=True) for c in new.cards}
+    prior_groups = _group_by_card_id(prior.cards)
+    new_groups = _group_by_card_id(new.cards)
     out: list[dict[str, Any]] = []
-    for cid in sorted(set(prior_by_id) & set(new_by_id)):
-        diffs = field_diff(prior_by_id[cid], new_by_id[cid])
+    for cid in sorted(set(prior_groups) & set(new_groups)):
+        diffs = field_diff(prior_groups[cid], new_groups[cid])
         if diffs:
             out.append({"card_id": cid, "diffs": diffs})
     return out

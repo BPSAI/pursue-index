@@ -108,6 +108,7 @@ def _card(card_id: str, **kw) -> dict:
         "incident_location": None,
         "asset_filename": None,
         "asset_url": None,
+        "video_title": None,
     }
     base.update(kw)
     return base
