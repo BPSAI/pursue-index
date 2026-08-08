@@ -135,6 +135,65 @@
       ],
       "expected_pairs": [[0, 2], [1, 0], [2, 1]],
       "expected_unpaired": []
+    },
+    {
+      "name": "withdrawn_pdf_and_added_vid_are_two_row_changes_not_one_pair",
+      "prev": [
+        {"card_id": "mm33", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006080", "video_title": null},
+        {"card_id": "mm33", "asset_type": "VID", "title": "PR060", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006080", "video_title": "Unresolved UAP Report — Greece, October 2023"}
+      ],
+      "curr": [
+        {"card_id": "mm33", "asset_type": "VID", "title": "PR060", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006080", "video_title": "Unresolved UAP Report — Greece, October 2023"},
+        {"card_id": "mm33", "asset_type": "VID", "title": "PR061", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006090", "video_title": "Unresolved UAP Report — November 2023"}
+      ],
+      "expected_pairs": [[1, 0]],
+      "expected_unpaired": [
+        {"side": "prev", "index": 0},
+        {"side": "curr", "index": 1}
+      ]
+    }
+  ],
+  "reporting_description": "Pairing is only half the agreement: once two rows pair, both sides must also REPORT the same changed fields, or a mutation reaches the receipt while the site renders nothing for it. Each case lists, per card_id, the field names both implementations must emit — Python `field_diff` (src/pursue_index/tranche.py) and TypeScript `fieldOnlyChanges` (web/src/components/diff-helpers.ts). Rows here carry only fields both sides compare, so the two sets are directly comparable.",
+  "reporting_cases": [
+    {
+      "name": "video_title_mutation_is_reported_not_silently_repaired",
+      "prev": [
+        {"card_id": "nn44", "asset_type": "VID", "title": "PR070", "asset_url": "https://x/n.pdf", "dvids_video_id": "1006100", "video_title": "Unresolved UAP Report, Greece, October 2023"}
+      ],
+      "curr": [
+        {"card_id": "nn44", "asset_type": "VID", "title": "PR070", "asset_url": "https://x/n.pdf", "dvids_video_id": "1006100", "video_title": "Unresolved UAP Report, Greece, November 2023"}
+      ],
+      "expected_changed_fields": {"nn44": ["video_title"]}
+    },
+    {
+      "name": "dvids_video_id_mutation_is_reported_not_silently_repaired",
+      "prev": [
+        {"card_id": "oo55", "asset_type": "VID", "title": "PR071", "asset_url": "https://x/o.pdf", "dvids_video_id": "1006101", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "oo55", "asset_type": "VID", "title": "PR071", "asset_url": "https://x/o.pdf", "dvids_video_id": "1006102", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_changed_fields": {"oo55": ["dvids_video_id"]}
+    },
+    {
+      "name": "a_keying_field_and_a_plain_field_moving_together_are_both_reported",
+      "prev": [
+        {"card_id": "pp66", "asset_type": "VID", "title": "PR072", "asset_url": "https://x/p.pdf", "dvids_video_id": "1006103", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "pp66", "asset_type": "VID", "title": "PR072 (rev)", "asset_url": "https://x/p.pdf", "dvids_video_id": "1006104", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_changed_fields": {"pp66": ["dvids_video_id", "title"]}
+    },
+    {
+      "name": "rows_that_did_not_move_report_nothing",
+      "prev": [
+        {"card_id": "qq77", "asset_type": "VID", "title": "PR073", "asset_url": "https://x/q.pdf", "dvids_video_id": "1006105", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "qq77", "asset_type": "VID", "title": "PR073", "asset_url": "https://x/q.pdf", "dvids_video_id": "1006105", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_changed_fields": {}
     }
   ]
 }

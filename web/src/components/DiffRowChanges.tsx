@@ -32,12 +32,15 @@ export default function DiffRowChanges({
             typically a video attached to, or withdrawn from, an existing document.
           </p>
           <ul class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 divide-y divide-[color:var(--color-border)] font-mono text-xs max-h-96 overflow-y-auto">
-            {rows.map((entry) => {
+            {rows.map((entry, i) => {
               const d = describeUnpairedRow(entry);
               const color =
                 d.verb === "ADDED" ? "--color-signal-green" : "--color-signal-red";
               return (
-                <li class="px-3 py-1.5 hover:bg-[color:var(--color-bg-elevated)]">
+                <li
+                  key={`${d.cardId}:${entry.side}:${d.detail}:${i}`}
+                  class="px-3 py-1.5 hover:bg-[color:var(--color-bg-elevated)]"
+                >
                   <a href={`${base}/card/${d.cardId}`} class="flex items-baseline gap-3 flex-wrap">
                     <span class={`text-[color:var(${color})]`}>{d.symbol}</span>
                     <span class={`text-[10px] uppercase tracking-[0.15em] text-[color:var(${color})] w-20 shrink-0`}>

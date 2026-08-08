@@ -383,6 +383,14 @@ const _COMPARED_FIELDS: Array<keyof CardMetadata> = [
   "image_alt_text",
   "image_virin",
   "original_classification",
+  // The two row-identity keys. They are also the fields rows bucket by
+  // (see row-pairing.ts), so a mutation of either moves a row into the
+  // 1-vs-1 leftover pass and pairs there — which means it reaches this
+  // comparison rather than showing up as an unpaired row. Without them
+  // here an upstream retitle or video-id change renders as no change at
+  // all on this page while the committed receipt reports it.
+  "video_title",
+  "dvids_video_id",
 ];
 
 // Boolean fields are compared by truthiness so a snapshot predating the

@@ -13,19 +13,27 @@ Pairing rules:
 
   1. Rows only ever pair inside the same card_id group.
   2. Inside a group, rows bucket by `(dvids_video_id, video_title)`.
-     dvids_video_id is the upstream identifier for a video/audio row and
-     distinguishes rows that are otherwise identical (the three VID rows
-     under ea029a05470b8f4e share asset_url and video_title); a PDF row
-     carries neither, so it buckets separately and is only ever compared
-     against another PDF row.
+     dvids_video_id distinguishes rows that are otherwise identical (the
+     three VID rows under ea029a05470b8f4e share asset_url and
+     video_title). It does NOT separate a PDF row from its VID sibling:
+     in all 9 duplicate groups the PDF row carries the same
+     dvids_video_id as the VID row (3746998b8c506e5c's PDF row carries
+     dvids_video_id 1006080, as does its VID row). What buckets those
+     two apart is video_title, which upstream sets on the VID row and
+     leaves empty on the PDF row.
   3. Neither keying field is one that the field diff can hide behind:
      a change to any other field -- asset_type, asset_url, title -- can
      never stop its own row from pairing, and a change to a keying field
      is caught by rule 4.
-  4. If bucketing leaves exactly one row over on each side of a group,
-     those two pair: a mutation of a keying field is itself a change to
-     report. Two or more leftovers per side are ambiguous and stay
-     unpaired rather than being matched by guesswork.
+  4. If bucketing leaves exactly one row over on each side of a group
+     AND the two carry the same asset_type, they pair: a mutation of a
+     keying field is itself a change to report. Two or more leftovers
+     per side are ambiguous, and leftovers of differing asset_type are a
+     withdrawal plus an addition rather than one mutated row; both stay
+     unpaired rather than being matched by guesswork. This asset_type
+     gate is what guarantees a PDF row is never compared field-by-field
+     against a VID row -- bucketing alone does not, because a PDF row
+     and its VID sibling share a dvids_video_id.
   5. Anything still unmatched is returned as an unpaired row tagged with
      its side, so a row appearing or disappearing under an existing
      card_id stays visible.
@@ -75,7 +83,11 @@ def pair_rows_with_leftovers(
         pairs.extend(zip(o_rows[:n], n_rows[:n], strict=True))
         left_old.extend(o_rows[n:])
         left_new.extend(n_rows[n:])
-    if len(left_old) == 1 and len(left_new) == 1:
+    if (
+        len(left_old) == 1
+        and len(left_new) == 1
+        and left_old[0].get("asset_type") == left_new[0].get("asset_type")
+    ):
         pairs.append((left_old[0], left_new[0]))
         return pairs, [], []
     return pairs, left_old, left_new

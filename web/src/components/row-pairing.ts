@@ -12,17 +12,26 @@
  *
  *   1. Rows only ever pair inside the same card_id group.
  *   2. Inside a group, rows bucket by ``(dvids_video_id, video_title)``.
- *      dvids_video_id is the upstream identifier for a video/audio row
- *      and distinguishes rows that are otherwise identical (the three
- *      VID rows under ea029a05470b8f4e share asset_url and video_title);
- *      a PDF row carries neither, so it buckets separately from the
- *      VID rows and is only ever compared to another PDF row.
- *   3. Neither keying field is one the diff reports on the site, so a
- *      change to any reported field (asset_type, asset_url, title, …)
- *      cannot prevent its own row from pairing.
- *   4. If bucketing leaves exactly one prev row and one curr row over
- *      in a group, those two are paired: a mutation of a keying field
- *      itself is a change to report, not a reason to stop reporting.
+ *      dvids_video_id distinguishes rows that are otherwise identical
+ *      (the three VID rows under ea029a05470b8f4e share asset_url and
+ *      video_title). It does NOT separate a PDF row from its VID
+ *      sibling: in all 9 duplicate groups the PDF row carries the same
+ *      dvids_video_id as the VID row (3746998b8c506e5c's PDF row
+ *      carries dvids_video_id 1006080, as does its VID row). What
+ *      buckets those two apart is video_title, which upstream sets on
+ *      the VID row and leaves empty on the PDF row.
+ *   3. A change to a keying field is itself reported by the diff (both
+ *      fields are in `_COMPARED_FIELDS`), and a change to any other
+ *      field (asset_type, asset_url, title, …) cannot prevent its own
+ *      row from pairing.
+ *   4. If bucketing leaves exactly one prev row and one curr row over in
+ *      a group AND the two carry the same asset_type, they are paired: a
+ *      mutation of a keying field is a change to report, not a reason to
+ *      stop reporting. Leftovers of differing asset_type are a
+ *      withdrawal plus an addition, not one mutated row. That gate is
+ *      what guarantees a PDF row is never compared field-by-field
+ *      against a VID row — bucketing alone does not, because a PDF row
+ *      and its VID sibling share a dvids_video_id.
  *   5. Anything still unmatched is returned as an unpaired row, tagged
  *      with its side, so a row appearing or disappearing under an
  *      existing card_id is visible rather than dropped.
@@ -64,9 +73,13 @@ export function groupByCardId(rows: CardMetadata[]): Map<string, CardMetadata[]>
 }
 
 /**
- * Bucket key for pairing rows *within* a card_id group. Built only from
- * fields the field-diff does not report, so a reported field changing can
- * never hide its own row (see rule 3 above).
+ * Bucket key for pairing rows *within* a card_id group.
+ *
+ * The two keying fields are reported by the field diff like any other
+ * (they are in `_COMPARED_FIELDS`); a mutation of one moves its row into
+ * the 1-vs-1 leftover pass, which pairs it so the mutation is reported
+ * rather than swallowed. A change to any other field cannot move a row
+ * out of its bucket at all (see rule 3 above).
  */
 export function rowIdentityKey(c: CardMetadata): string {
   return JSON.stringify([c.dvids_video_id ?? null, c.video_title ?? null]);
@@ -103,10 +116,16 @@ function pairGroup(
     leftoverPrev.push(...p.slice(n));
     leftoverCurr.push(...c.slice(n));
   }
-  // Exactly one leftover on each side is unambiguous: same row, mutated
-  // keying field. More than one on either side is ambiguous, so those
-  // rows are reported as unpaired rather than matched by guesswork.
-  if (leftoverPrev.length === 1 && leftoverCurr.length === 1) {
+  // Exactly one leftover on each side, both of the same asset_type, is
+  // unambiguous: same row, mutated keying field. More than one on either
+  // side is ambiguous, and leftovers of different asset_types are a
+  // withdrawal plus an addition, not one mutated row — those are reported
+  // as unpaired rather than matched by guesswork.
+  if (
+    leftoverPrev.length === 1 &&
+    leftoverCurr.length === 1 &&
+    leftoverPrev[0].asset_type === leftoverCurr[0].asset_type
+  ) {
     pairs.push({ card_id: cardId, prev: leftoverPrev[0], curr: leftoverCurr[0] });
     return;
   }
@@ -157,15 +176,22 @@ export interface UnpairedRowDisplay {
   symbol: "+" | "−";
   assetType: string;
   title: string;
-  /** Identifying detail: the upstream video id when there is one, else the asset filename or URL. */
+  /** Identifying detail: the upstream video id on a video/audio row, else the asset filename or URL. */
   detail: string;
 }
 
+/** Asset types whose rows the upstream dvids_video_id actually identifies. */
+const _DVIDS_ASSET_TYPES = new Set(["VID", "AUD"]);
+
 export function describeUnpairedRow(entry: UnpairedRow): UnpairedRowDisplay {
   const { row } = entry;
-  const detail = row.dvids_video_id
-    ? `dvids ${row.dvids_video_id}`
-    : (row.asset_filename ?? row.asset_url ?? row.asset_type ?? "row");
+  // A PDF row in a duplicate group carries its VID sibling's
+  // dvids_video_id (see the pairing rules above), so keying this on the
+  // field alone labelled document rows with a video's identifier.
+  const detail =
+    row.dvids_video_id && _DVIDS_ASSET_TYPES.has(row.asset_type)
+      ? `dvids ${row.dvids_video_id}`
+      : (row.asset_filename ?? row.asset_url ?? row.asset_type ?? "row");
   return {
     cardId: entry.card_id,
     verb: entry.side === "curr" ? "ADDED" : "WITHDRAWN",

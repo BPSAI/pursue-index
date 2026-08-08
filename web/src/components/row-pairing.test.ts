@@ -188,3 +188,34 @@ test("describeUnpairedRow: a row with no dvids_video_id still gets a detail stri
   assert.ok(out.detail.length > 0);
   assert.ok(!out.detail.includes("null"));
 });
+
+test("describeUnpairedRow: a PDF row is not described by a video id", () => {
+  // In all 9 duplicate groups the PDF row carries its VID sibling's
+  // dvids_video_id, so keying the detail on that field alone labelled
+  // document rows "dvids 1006078" — an identifier for the video beside them.
+  const cards = loadByPrefix("5f5698f1");
+  const pdf = cards.find((c) => c.asset_type === "PDF" && c.dvids_video_id)!;
+  assert.ok(pdf, "the manifest still has a PDF row carrying a dvids_video_id");
+  const out = describeUnpairedRow({ card_id: pdf.card_id, side: "curr", row: pdf });
+  assert.ok(!out.detail.includes("dvids"), `PDF row described as a video: ${out.detail}`);
+  assert.ok(out.detail.length > 0, "the row still needs an identifying detail");
+
+  // The video row beside it keeps the id — that is what identifies it.
+  const vid = cards.find(
+    (c) => c.card_id === pdf.card_id && c.asset_type === "VID" && c.dvids_video_id,
+  )!;
+  const vidOut = describeUnpairedRow({ card_id: vid.card_id, side: "curr", row: vid });
+  assert.ok(vidOut.detail.includes(`dvids ${vid.dvids_video_id}`));
+});
+
+test("DiffRowChanges: the mapped list items carry keys", () => {
+  // A source check, not a render: `node --test` strips types but does not
+  // transform JSX, so the component cannot be executed here. Preact needs a
+  // key on every element produced by a .map() or it reuses DOM nodes across
+  // re-renders by position — the row-changes list re-renders whenever the
+  // diff's snapshot selection changes.
+  const src = readFileSync(new URL("./DiffRowChanges.tsx", import.meta.url), "utf-8");
+  const mapped = /rows\.map\([\s\S]*?<li\b[^>]*>/.exec(src);
+  assert.ok(mapped, "the component still renders its rows through a .map()");
+  assert.match(mapped[0], /<li\b[^>]*\skey=/, "mapped <li> needs a key prop");
+});
