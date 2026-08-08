@@ -360,6 +360,22 @@ export function diffWithAliases(
     }
   }
 
+  // Row-level churn within a card_id present on both sides: a duplicate
+  // id (PDF row + VID row(s)) can lose or gain individual rows upstream
+  // while the id itself survives. Map.has(card_id) above is a set check
+  // and is blind to that — the id being present on both sides is enough
+  // to skip it entirely, so the dropped/added rows vanished. Reuse
+  // pairRowsByCardId's `unpaired` — the SAME stable row key T47.1
+  // established — so a row that pairs (including via the 1-vs-1
+  // leftover rule) is never double-counted here as both added and
+  // removed.
+  const { unpaired } = pairRowsByCardId(prev, curr);
+  for (const u of unpaired) {
+    if (absorbedFromPrev.has(u.card_id)) continue; // rows of a renamed-away id
+    if (u.side === "curr") added.push(u.row);
+    else removed.push(u.row);
+  }
+
   return { added, removed, renamed };
 }
 

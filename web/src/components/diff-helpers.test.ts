@@ -281,6 +281,110 @@ test("diffWithAliases: alias whose terminal not in curr stays in removed", () =>
   assert.equal(out.renamed.length, 0);
 });
 
+// --- diffWithAliases: added/removed as a row multiset (T47.3) ----------
+//
+// The old loops decided added/removed purely by Map.has(card_id) — a
+// set. A duplicate card_id backed by a PDF row plus VID row(s) that
+// loses (or gains) a row upstream while the id itself survives is
+// invisible to that check: `prevById.has(c.card_id)` and
+// `currById.has(c.card_id)` are both true, so the row-level churn never
+// reaches `added`/`removed` at all. Fixed by folding in
+// `pairRowsByCardId`'s `unpaired` — the SAME stable row key T47.1
+// established — for card_ids present on both sides.
+
+test("diffWithAliases: duplicate card_id survives but loses a row → the lost row is removed, not silently dropped (T47.3)", () => {
+  const pdf = card("dup1", "PDF row", { asset_type: "PDF", asset_url: "u", video_title: null });
+  const vidA = card("dup1", "VID A", {
+    asset_type: "VID", asset_url: "u", video_title: "vt", dvids_video_id: "1",
+  });
+  const vidB = card("dup1", "VID B", {
+    asset_type: "VID", asset_url: "u", video_title: "vt", dvids_video_id: "2",
+  });
+  const prev = [pdf, vidA, vidB];
+  const curr = [pdf, vidA]; // vidB dropped upstream; dup1 itself still present
+  const out = diffWithAliases(prev, curr, {});
+  assert.equal(out.removed.length, 1);
+  assert.equal(out.removed[0], vidB);
+  assert.equal(out.added.length, 0);
+});
+
+test("diffWithAliases: duplicate card_id survives but gains a row → the new row is added (T47.3)", () => {
+  const pdf = card("dup2", "PDF row", { asset_type: "PDF", asset_url: "u", video_title: null });
+  const vidA = card("dup2", "VID A", {
+    asset_type: "VID", asset_url: "u", video_title: "vt", dvids_video_id: "1",
+  });
+  const vidB = card("dup2", "VID B", {
+    asset_type: "VID", asset_url: "u", video_title: "vt", dvids_video_id: "2",
+  });
+  const prev = [pdf, vidA];
+  const curr = [pdf, vidA, vidB]; // vidB appears upstream
+  const out = diffWithAliases(prev, curr, {});
+  assert.equal(out.added.length, 1);
+  assert.equal(out.added[0], vidB);
+  assert.equal(out.removed.length, 0);
+});
+
+test("diffWithAliases: single-row-id whose keying field mutates still pairs via the leftover rule → no added/removed (T47.3, unchanged from today)", () => {
+  const prevRow = card("dup3", "row", { asset_type: "VID", asset_url: "u", video_title: "old title" });
+  const currRow = card("dup3", "row", { asset_type: "VID", asset_url: "u", video_title: "new title" });
+  const out = diffWithAliases([prevRow], [currRow], {});
+  assert.equal(out.added.length, 0);
+  assert.equal(out.removed.length, 0);
+});
+
+// --- T47.3: real-snapshot regression pins --------------------------------
+//
+// `596cc1881... -> 0d7e9ba1d5...` is the historical pair the bug was
+// verified against: ea029a05470b8f4e drops from 6 rows to 4 (2 VID rows
+// gone) and d8e5687dc870892d drops from 4 rows to 3 (1 VID row gone),
+// while both card_ids survive. The old id-set diff reported only the 3
+// card_ids that vanished entirely; the true removal count is 6.
+
+function loadSnapshotCards(filename: string): CardMetadata[] {
+  const raw = readFileSync(
+    new URL(`../../../data/manifests/snapshots/${filename}`, import.meta.url),
+    "utf-8",
+  );
+  return (JSON.parse(raw) as { cards: CardMetadata[] }).cards;
+}
+
+test("diffWithAliases regression: 596cc188 -> 0d7e9ba1 real snapshots report 6 removals, not 3 (T47.3)", () => {
+  const prev = loadSnapshotCards(
+    "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.json",
+  );
+  const curr = loadSnapshotCards(
+    "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.json",
+  );
+  const out = diffWithAliases(prev, curr, {});
+  assert.equal(
+    out.removed.length,
+    6,
+    "3 whole-card removals + 2 dropped ea029a05 VID rows + 1 dropped d8e5687d VID row",
+  );
+  assert.equal(out.added.length, 3);
+  const removedIdCounts = out.removed.reduce<Record<string, number>>((acc, c) => {
+    acc[c.card_id] = (acc[c.card_id] ?? 0) + 1;
+    return acc;
+  }, {});
+  assert.equal(removedIdCounts["ea029a05470b8f4e"], 2);
+  assert.equal(removedIdCounts["d8e5687dc870892d"], 1);
+});
+
+test("diffWithAliases regression: single-row-id tranche (0d7e9ba1 -> 65572b38) counts unchanged from today's output (T47.3)", () => {
+  // This pair carries real add/remove churn (17/17) but no duplicate
+  // card_id ever changes row count across it — a control pin proving the
+  // row-multiset fix does not perturb the common single-row-id case.
+  const prev = loadSnapshotCards(
+    "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.json",
+  );
+  const curr = loadSnapshotCards(
+    "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d.json",
+  );
+  const out = diffWithAliases(prev, curr, {});
+  assert.equal(out.removed.length, 17);
+  assert.equal(out.added.length, 17);
+});
+
 // --- fieldOnlyChanges ---
 
 test("fieldOnlyChanges: same cards same fields → 0 changes", () => {
