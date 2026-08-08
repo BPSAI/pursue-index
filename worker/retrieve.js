@@ -23,6 +23,7 @@ import {
   literalSlugPassages,
   mergeLiteralAndSemantic,
 } from "./retrieve_literal_id.js";
+import { buildPassage } from "./retrieve_passage.js";
 
 // Re-export from the extracted helper module so callers (tests,
 // adjacent worker modules) can keep importing from `retrieve.js` —
@@ -270,18 +271,21 @@ export async function retrievePassages(query, k, env, embedFn) {
   const hits = cosineTopK(queryVec, corpus.vectors, k, index.n).filter(
     (h) => h.score >= SCORE_THRESHOLD,
   );
-  const semanticPassages = hits.map((h) => {
-    const [card_id, page] = index.pages[h.index];
-    const pageRec = pages.get(`${card_id}-p${page}`);
-    return {
-      card_id,
-      page,
-      title: pageRec?.title || "",
-      snippet: makeSnippet(pageRec?.text || "", query),
-      score: h.score,
-      page_text: pageRec?.text || "",
-    };
-  });
+  // `buildPassage` returns null for a hit whose pages.json record is
+  // missing or textless — a citation built from one would be blank.
+  const semanticPassages = hits
+    .map((h) => {
+      const [card_id, page] = index.pages[h.index];
+      return buildPassage({
+        card_id,
+        page,
+        pageRec: pages.get(`${card_id}-p${page}`),
+        query,
+        score: h.score,
+        makeSnippetFn: makeSnippet,
+      });
+    })
+    .filter((p) => p !== null);
 
   // Sprint 4b Theme A: literal-ID bypass. Detect hex card_ids in the
   // query, prepend exact-match chunks, dedup by `card_id+page`, cap at k.

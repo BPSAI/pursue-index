@@ -6,7 +6,9 @@ batches the texts through a configurable embedder, and writes
 endian) plus ``index.json`` (per-row card_id/page/text_sha/offset).
 
 Idempotent: a row keyed by ``(card_id, page, model_id, text_sha)`` is
-only embedded once across runs; an unchanged corpus is a no-op.
+only embedded once across runs; an unchanged corpus is a no-op. When a
+page's text does change, the fresh row supersedes the prior row for that
+``(card_id, page)`` — ``index.json`` holds one row per page.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ from pathlib import Path
 from typing import Protocol
 
 from pursue_index import get_logger
+from pursue_index.embed.publish import dedupe_latest_wins
 from pursue_index.embed.store import (
     EmbedSummary,
     IndexRow,
@@ -82,12 +85,7 @@ def _embed_new_rows(
     starting_dim: int,
     summary: EmbedSummary,
 ) -> tuple[bytes, list[IndexRow], int]:
-    """Run new_rows through the embedder; return (bytes, index_rows, dim).
-
-    New rows are never marked ``augmented`` — the alex-zhang42 augment pass
-    that set that flag was retired 2026-07-11 (the flag remains only to READ
-    indexes that still carry augmented rows from before the retirement).
-    """
+    """Run new_rows through the embedder; return (bytes, index_rows, dim)."""
     new_index_rows: list[IndexRow] = []
     accumulated = bytearray()
     dim = starting_dim
@@ -148,21 +146,15 @@ def _persist(
 ) -> list[IndexRow]:
     """Append ``new_bytes`` to vectors, then rewrite ``index.json``.
 
-    Two invariants beyond the obvious append:
+    The index holds one row per ``(card_id, page)``. Because the store is
+    keyed on ``(card_id, page, text_sha)``, a re-OCR'd page arrives as a new
+    row rather than an update, so writing prior + new unfiltered would leave
+    the superseded row in place and let retrieval cite a stale page-version.
+    Prior and new rows are concatenated in store order and reduced
+    latest-wins, which both supersedes the prior row for a re-embedded page
+    and collapses duplicates an earlier run already accumulated.
 
-    * **Codex P1 — orphan-row drop.** When ``new_index_rows`` includes
-      augmented siblings, the un-augmented prior row for the same
-      ``(card_id, page)`` is dropped from the index. Without this, the
-      embed root keeps both copies and retrieval over the embed root sees
-      duplicate vectors per page (the deploy-side dedupe in
-      ``build_embed_data.py`` only fires at publish time).
-    * **Codex P2 — preserve provenance across runs.** A subsequent
-      ``pursue embed run`` without ``--augment-from`` would otherwise
-      silently strip ``augmented_by`` even when prior rows are still
-      augmented. We default to the prior index's ``augmented_by`` unless
-      the current invocation explicitly passes a new one.
-
-    The vector bytes for dropped rows remain on disk (they're already
+    The vector bytes for superseded rows remain on disk (they're already
     appended at this point); only the index reference is removed.
     Compaction is a separate concern.
     """
@@ -170,14 +162,9 @@ def _persist(
         fh.write(new_bytes)
 
     prior_rows = load_prior_index_rows(index_path)
-    augmented_keys = {
-        (r.card_id, r.page) for r in new_index_rows if r.augmented
-    }
-    if augmented_keys:
-        prior_rows = [
-            r for r in prior_rows if (r.card_id, r.page) not in augmented_keys
-        ]
-    all_index_rows = prior_rows + new_index_rows
+    all_index_rows = dedupe_latest_wins(
+        prior_rows + new_index_rows, lambda r: (r.card_id, r.page)
+    )
 
     # No augment resurrection: the alex-zhang42 augment corpus was retired
     # (2026-07-12); a run that doesn't explicitly pass ``augmented_by`` writes

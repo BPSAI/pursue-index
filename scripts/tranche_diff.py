@@ -61,8 +61,14 @@ for _p in (_SRC, _SCRIPTS):
 
 from pursue_index.tranche import (  # noqa: E402
     build_byte_sha_index,
-    field_diff,
     find_title_continuity,
+)
+from pursue_index.tranche_manifest import (  # noqa: E402
+    build_field_only_changes,
+    build_removed_list,
+    build_row_changes,
+    display_rows_by_card_id,
+    group_by_card_id,
 )
 from pursue_index.tranche_report import render_json, render_markdown  # noqa: E402
 from r2_archive_assets import load_registry  # noqa: E402
@@ -228,35 +234,6 @@ def _classify_added_cards(
     return buckets
 
 
-def _build_removed_list(
-    removed_ids: set[str],
-    matched_old_ids: set[str],
-    old_by_id: dict[str, dict[str, Any]],
-) -> list[dict[str, Any]]:
-    return [
-        {
-            "card_id": oid,
-            "title": old_by_id[oid].get("title"),
-            "asset_url": old_by_id[oid].get("asset_url"),
-            "asset_filename": old_by_id[oid].get("asset_filename"),
-        }
-        for oid in sorted(removed_ids) if oid not in matched_old_ids
-    ]
-
-
-def _build_field_only_changes(
-    unchanged_ids: set[str],
-    old_by_id: dict[str, dict[str, Any]],
-    new_by_id: dict[str, dict[str, Any]],
-) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    for cid in sorted(unchanged_ids):
-        diffs = field_diff(old_by_id[cid], new_by_id[cid])
-        if diffs:
-            out.append({"card_id": cid, "diffs": diffs})
-    return out
-
-
 def diff_tranches(
     old_manifest: dict[str, Any],
     new_manifest: dict[str, Any],
@@ -271,8 +248,14 @@ def diff_tranches(
     """
     if fetch_byte_sha is None:
         fetch_byte_sha = _fetch_byte_sha_via_curl
-    old_by_id = {c["card_id"]: c for c in old_manifest.get("cards", [])}
-    new_by_id = {c["card_id"]: c for c in new_manifest.get("cards", [])}
+    old_groups = group_by_card_id(old_manifest.get("cards", []))
+    new_groups = group_by_card_id(new_manifest.get("cards", []))
+    # A card_id can be backed by several rows; the PDF row is the one
+    # that describes the card in add/remove reports and the one whose
+    # asset_url is hashed. Keying a dict by card_id would keep whichever
+    # row came last, describing a document by one of its videos.
+    old_by_id = display_rows_by_card_id(old_manifest.get("cards", []))
+    new_by_id = display_rows_by_card_id(new_manifest.get("cards", []))
     removed_ids = set(old_by_id) - set(new_by_id)
     added_ids = set(new_by_id) - set(old_by_id)
     unchanged_ids = set(old_by_id) & set(new_by_id)
@@ -284,8 +267,9 @@ def diff_tranches(
         registry, fetch_byte_sha,
     )
     matched_old_ids = buckets.pop("matched_old_ids")
-    removed = _build_removed_list(removed_ids, matched_old_ids, old_by_id)
-    field_only_changes = _build_field_only_changes(unchanged_ids, old_by_id, new_by_id)
+    removed = build_removed_list(removed_ids, matched_old_ids, old_by_id)
+    field_only_changes = build_field_only_changes(unchanged_ids, old_groups, new_groups)
+    row_change_list = build_row_changes(unchanged_ids, old_groups, new_groups)
 
     return {
         "tranche_sha256": new_manifest.get("csv_sha256"),
@@ -299,10 +283,12 @@ def diff_tranches(
             "restored_unknown": len(buckets["restored_unknown"]),
             "removed": len(removed),
             "field_only_changes": len(field_only_changes),
+            "row_changes": len(row_change_list),
         },
         **buckets,
         "removed": removed,
         "field_only_changes": field_only_changes,
+        "row_changes": row_change_list,
     }
 
 

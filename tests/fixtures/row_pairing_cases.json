@@ -1,0 +1,244 @@
+{
+  "description": "Shared row-pairing cases for the /diff page (web/src/components/row-pairing.ts) and the tranche receipt generator (src/pursue_index/tranche_rows.py). Both implementations must produce identical pairings for every case here, so the published site and the committed receipt describe a tranche the same way. Rows are indexes into each case's `prev`/`curr` arrays; `expected_pairs` and `expected_unpaired` are compared as sorted sets, so pairing must not depend on row order. A card_id may legitimately carry several rows (a PDF row plus one or more VID rows) — that is the upstream CSV's shape and is never deduped.",
+  "cases": [
+    {
+      "name": "pdf_and_vid_rows_bucket_apart_on_video_title_so_each_pairs_with_its_own_kind",
+      "prev": [
+        {"card_id": "aa11", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/a.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "aa11", "asset_type": "VID", "title": "PR001", "asset_url": "https://x/a.pdf", "dvids_video_id": "1000001", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "aa11", "asset_type": "VID", "title": "PR001", "asset_url": "https://x/a.pdf", "dvids_video_id": "1000001", "video_title": "Unresolved UAP Report"},
+        {"card_id": "aa11", "asset_type": "PDF", "title": "Mission Report (rev)", "asset_url": "https://x/a.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "expected_pairs": [[0, 1], [1, 0]],
+      "expected_unpaired": []
+    },
+    {
+      "name": "identical_vid_rows_reordered_pair_by_dvids_video_id",
+      "prev": [
+        {"card_id": "bb22", "asset_type": "VID", "title": "PR031", "asset_url": "https://x/b.pdf", "dvids_video_id": "1006076", "video_title": "Unresolved UAP Report"},
+        {"card_id": "bb22", "asset_type": "VID", "title": "PR032", "asset_url": "https://x/b.pdf", "dvids_video_id": "1006078", "video_title": "Unresolved UAP Report"},
+        {"card_id": "bb22", "asset_type": "VID", "title": "PR033", "asset_url": "https://x/b.pdf", "dvids_video_id": "1006079", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "bb22", "asset_type": "VID", "title": "PR033", "asset_url": "https://x/b.pdf", "dvids_video_id": "1006079", "video_title": "Unresolved UAP Report"},
+        {"card_id": "bb22", "asset_type": "VID", "title": "PR032", "asset_url": "https://x/b.pdf", "dvids_video_id": "1006078", "video_title": "Unresolved UAP Report"},
+        {"card_id": "bb22", "asset_type": "VID", "title": "PR031", "asset_url": "https://x/b.pdf", "dvids_video_id": "1006076", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_pairs": [[0, 2], [1, 1], [2, 0]],
+      "expected_unpaired": []
+    },
+    {
+      "name": "asset_type_change_still_pairs_so_the_change_is_reportable",
+      "prev": [
+        {"card_id": "cc33", "asset_type": "VID", "title": "Gemini 7 Audio Excerpt", "asset_url": null, "dvids_video_id": "1006119", "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "cc33", "asset_type": "AUD", "title": "Gemini 7 Audio Excerpt", "asset_url": null, "dvids_video_id": "1006119", "video_title": null}
+      ],
+      "expected_pairs": [[0, 0]],
+      "expected_unpaired": []
+    },
+    {
+      "name": "asset_url_change_still_pairs_so_the_change_is_reportable",
+      "prev": [
+        {"card_id": "dd44", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/old.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "dd44", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/new.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "expected_pairs": [[0, 0]],
+      "expected_unpaired": []
+    },
+    {
+      "name": "single_leftover_on_each_side_pairs_when_a_keying_field_moves",
+      "prev": [
+        {"card_id": "ee55", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/e.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "ee55", "asset_type": "VID", "title": "PR010", "asset_url": "https://x/e.pdf", "dvids_video_id": "1000010", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "ee55", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/e.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "ee55", "asset_type": "VID", "title": "PR010", "asset_url": "https://x/e.pdf", "dvids_video_id": "1000011", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_pairs": [[0, 0], [1, 1]],
+      "expected_unpaired": []
+    },
+    {
+      "name": "added_vid_row_under_an_existing_card_id_is_unpaired_on_curr",
+      "prev": [
+        {"card_id": "ff66", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/f.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "ff66", "asset_type": "VID", "title": "PR020", "asset_url": "https://x/f.pdf", "dvids_video_id": "1000020", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "ff66", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/f.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "ff66", "asset_type": "VID", "title": "PR020", "asset_url": "https://x/f.pdf", "dvids_video_id": "1000020", "video_title": "Unresolved UAP Report"},
+        {"card_id": "ff66", "asset_type": "VID", "title": "PR021", "asset_url": "https://x/f.pdf", "dvids_video_id": "1000021", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_pairs": [[0, 0], [1, 1]],
+      "expected_unpaired": [{"side": "curr", "index": 2}]
+    },
+    {
+      "name": "withdrawn_vid_row_under_an_existing_card_id_is_unpaired_on_prev",
+      "prev": [
+        {"card_id": "gg77", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/g.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "gg77", "asset_type": "VID", "title": "PR030", "asset_url": "https://x/g.pdf", "dvids_video_id": "1000030", "video_title": "Unresolved UAP Report"},
+        {"card_id": "gg77", "asset_type": "VID", "title": "PR031", "asset_url": "https://x/g.pdf", "dvids_video_id": "1000031", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "gg77", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/g.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "gg77", "asset_type": "VID", "title": "PR030", "asset_url": "https://x/g.pdf", "dvids_video_id": "1000030", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_pairs": [[0, 0], [1, 1]],
+      "expected_unpaired": [{"side": "prev", "index": 2}]
+    },
+    {
+      "name": "two_leftovers_per_side_are_ambiguous_and_stay_unpaired",
+      "prev": [
+        {"card_id": "hh88", "asset_type": "VID", "title": "PR040", "asset_url": "https://x/h.pdf", "dvids_video_id": "1000040", "video_title": "Unresolved UAP Report"},
+        {"card_id": "hh88", "asset_type": "VID", "title": "PR041", "asset_url": "https://x/h.pdf", "dvids_video_id": "1000041", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "hh88", "asset_type": "VID", "title": "PR040", "asset_url": "https://x/h.pdf", "dvids_video_id": "1000042", "video_title": "Unresolved UAP Report"},
+        {"card_id": "hh88", "asset_type": "VID", "title": "PR041", "asset_url": "https://x/h.pdf", "dvids_video_id": "1000043", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_pairs": [],
+      "expected_unpaired": [
+        {"side": "prev", "index": 0},
+        {"side": "prev", "index": 1},
+        {"side": "curr", "index": 0},
+        {"side": "curr", "index": 1}
+      ]
+    },
+    {
+      "name": "card_id_present_on_one_side_only_is_an_add_or_remove_not_a_pairing",
+      "prev": [
+        {"card_id": "ii99", "asset_type": "PDF", "title": "Gone", "asset_url": "https://x/i.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "jj00", "asset_type": "PDF", "title": "New", "asset_url": "https://x/j.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "expected_pairs": [],
+      "expected_unpaired": []
+    },
+    {
+      "name": "several_card_ids_pair_independently_of_each_other",
+      "prev": [
+        {"card_id": "kk11", "asset_type": "PDF", "title": "Report K", "asset_url": "https://x/k.pdf", "dvids_video_id": null, "video_title": null},
+        {"card_id": "ll22", "asset_type": "VID", "title": "PR050", "asset_url": "https://x/l.pdf", "dvids_video_id": "1000050", "video_title": "Unresolved UAP Report"},
+        {"card_id": "kk11", "asset_type": "VID", "title": "PR051", "asset_url": "https://x/k.pdf", "dvids_video_id": "1000051", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "ll22", "asset_type": "VID", "title": "PR050", "asset_url": "https://x/l.pdf", "dvids_video_id": "1000050", "video_title": "Unresolved UAP Report"},
+        {"card_id": "kk11", "asset_type": "VID", "title": "PR051", "asset_url": "https://x/k.pdf", "dvids_video_id": "1000051", "video_title": "Unresolved UAP Report"},
+        {"card_id": "kk11", "asset_type": "PDF", "title": "Report K", "asset_url": "https://x/k.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "expected_pairs": [[0, 2], [1, 0], [2, 1]],
+      "expected_unpaired": []
+    },
+    {
+      "name": "withdrawn_pdf_and_added_vid_are_two_row_changes_not_one_pair",
+      "prev": [
+        {"card_id": "mm33", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006080", "video_title": null},
+        {"card_id": "mm33", "asset_type": "VID", "title": "PR060", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006080", "video_title": "Unresolved UAP Report — Greece, October 2023"}
+      ],
+      "curr": [
+        {"card_id": "mm33", "asset_type": "VID", "title": "PR060", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006080", "video_title": "Unresolved UAP Report — Greece, October 2023"},
+        {"card_id": "mm33", "asset_type": "VID", "title": "PR061", "asset_url": "https://x/m.pdf", "dvids_video_id": "1006090", "video_title": "Unresolved UAP Report — November 2023"}
+      ],
+      "expected_pairs": [[1, 0]],
+      "expected_unpaired": [
+        {"side": "prev", "index": 0},
+        {"side": "curr", "index": 1}
+      ]
+    },
+    {
+      "name": "lone_pdf_and_lone_vid_sharing_an_identity_key_pair_and_report_asset_type",
+      "comment": "The ambiguous collision, pinned. A card_id whose only prev row is a PDF and whose only curr row is a VID, both carrying the same dvids_video_id and no video_title, share an identity key — so they bucket together and pair in the bucket zip, which runs BEFORE the same-asset_type leftover rule. Two readings are available: one row whose asset_type mutated, or a withdrawal plus an addition. We choose the first, because it is the reading that reports the change: the pair emits asset_type in its changed fields, whereas splitting them into two unpaired rows says only that one row left and another arrived, and never names the field that moved. The leftover rule's asset_type gate is not a contradiction of this — it governs only rows whose identity keys DIFFER, where nothing but asset_type would be left to match on.",
+      "prev": [
+        {"card_id": "rr88", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/r.pdf", "dvids_video_id": "1006110", "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "rr88", "asset_type": "VID", "title": "Mission Report", "asset_url": "https://x/r.pdf", "dvids_video_id": "1006110", "video_title": null}
+      ],
+      "expected_pairs": [[0, 0]],
+      "expected_unpaired": []
+    }
+  ],
+  "reporting_description": "Pairing is only half the agreement: once two rows pair, both sides must also REPORT the same changed fields, or a mutation reaches the receipt while the site renders nothing for it. Each case lists, per card_id, the field names both implementations must emit — Python `field_diff` (src/pursue_index/tranche.py) and TypeScript `fieldOnlyChanges` (web/src/components/diff-helpers.ts). Rows here carry only fields both sides compare, so the two sets are directly comparable.",
+  "reporting_cases": [
+    {
+      "name": "video_title_mutation_is_reported_not_silently_repaired",
+      "prev": [
+        {"card_id": "nn44", "asset_type": "VID", "title": "PR070", "asset_url": "https://x/n.pdf", "dvids_video_id": "1006100", "video_title": "Unresolved UAP Report, Greece, October 2023"}
+      ],
+      "curr": [
+        {"card_id": "nn44", "asset_type": "VID", "title": "PR070", "asset_url": "https://x/n.pdf", "dvids_video_id": "1006100", "video_title": "Unresolved UAP Report, Greece, November 2023"}
+      ],
+      "expected_changed_fields": {"nn44": ["video_title"]}
+    },
+    {
+      "name": "dvids_video_id_mutation_is_reported_not_silently_repaired",
+      "prev": [
+        {"card_id": "oo55", "asset_type": "VID", "title": "PR071", "asset_url": "https://x/o.pdf", "dvids_video_id": "1006101", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "oo55", "asset_type": "VID", "title": "PR071", "asset_url": "https://x/o.pdf", "dvids_video_id": "1006102", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_changed_fields": {"oo55": ["dvids_video_id"]}
+    },
+    {
+      "name": "a_keying_field_and_a_plain_field_moving_together_are_both_reported",
+      "prev": [
+        {"card_id": "pp66", "asset_type": "VID", "title": "PR072", "asset_url": "https://x/p.pdf", "dvids_video_id": "1006103", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "pp66", "asset_type": "VID", "title": "PR072 (rev)", "asset_url": "https://x/p.pdf", "dvids_video_id": "1006104", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_changed_fields": {"pp66": ["dvids_video_id", "title"]}
+    },
+    {
+      "name": "rows_that_did_not_move_report_nothing",
+      "prev": [
+        {"card_id": "qq77", "asset_type": "VID", "title": "PR073", "asset_url": "https://x/q.pdf", "dvids_video_id": "1006105", "video_title": "Unresolved UAP Report"}
+      ],
+      "curr": [
+        {"card_id": "qq77", "asset_type": "VID", "title": "PR073", "asset_url": "https://x/q.pdf", "dvids_video_id": "1006105", "video_title": "Unresolved UAP Report"}
+      ],
+      "expected_changed_fields": {}
+    },
+    {
+      "name": "introducing_a_boolean_column_is_not_a_change_on_rows_that_lack_it",
+      "comment": "Boolean fields compare by truthiness. The snapshot predating a boolean column has no value for it (absent, or null once re-serialized); the snapshot after it carries an explicit false on every row that is not flagged. Reporting that as an edit flags the entire corpus the first time a post-column snapshot is diffed against a pre-column one — 210 cards on 6be2c64e->5216a20b alone. TypeScript had this rule from the start; Python compared None != False and reported all of them.",
+      "prev": [
+        {"card_id": "tt00", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/t.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "tt00", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/t.pdf", "dvids_video_id": null, "video_title": null, "featured": false}
+      ],
+      "expected_changed_fields": {}
+    },
+    {
+      "name": "a_boolean_actually_being_set_is_still_reported",
+      "comment": "The truthiness rule must narrow to the introduction case only: false->true is a real editorial act upstream and has to reach both the page and the receipt.",
+      "prev": [
+        {"card_id": "uu11", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/u.pdf", "dvids_video_id": null, "video_title": null, "featured": false}
+      ],
+      "curr": [
+        {"card_id": "uu11", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/u.pdf", "dvids_video_id": null, "video_title": null, "featured": true}
+      ],
+      "expected_changed_fields": {"uu11": ["featured"]}
+    },
+    {
+      "name": "a_field_absent_on_one_side_and_explicitly_null_on_the_other_is_not_a_change",
+      "comment": "Snapshot schemas grow: a manifest rebuilt after a new column exists carries the column explicitly null on every row that has no value, while the older snapshot simply lacks the key. That is an absent-vs-null difference in the serialization, not an upstream edit, and neither side may report it. Python compares with dict.get(), so absent and null were already equal there; the TypeScript union-of-keys loop compared `undefined !== null` and reported a change, which fabricated one entry per row per newly-added column across every historical pair.",
+      "prev": [
+        {"card_id": "ss99", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/s.pdf", "dvids_video_id": null, "video_title": null}
+      ],
+      "curr": [
+        {"card_id": "ss99", "asset_type": "PDF", "title": "Mission Report", "asset_url": "https://x/s.pdf", "dvids_video_id": null, "video_title": null, "original_classification": null}
+      ],
+      "expected_changed_fields": {}
+    }
+  ]
+}

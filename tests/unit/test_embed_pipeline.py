@@ -283,19 +283,43 @@ def test_embed_run_respects_explicit_usd_override(tmp_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Retained back-compat: the ``augmented`` orphan-drop and ``augmented_by``
-# provenance persist/preserve behavior still governs reading an index written
-# before the alex-zhang42 augment was retired (2026-07-11). No new run ever
-# produces augmented rows, so these exercise ``_persist`` directly.
+# One row per (card_id, page): a re-embedded page supersedes its prior row
+# rather than accumulating alongside it, and an index that already carries
+# accumulated duplicates collapses to the newest row on the next write.
 # ---------------------------------------------------------------------------
 
 
-def test_persist_drops_unaugmented_prior_when_new_row_is_augmented(
-    tmp_path: Path,
-) -> None:
-    """When ``_persist`` writes an augmented row for a (card_id, page), any
-    prior un-augmented row for that page is dropped so retrieval doesn't see
-    duplicate vectors — the dedupe that a legacy augmented index still needs."""
+def test_re_embedding_changed_page_text_leaves_one_row(tmp_path: Path) -> None:
+    """Re-OCR changes a page's text, so the next run embeds it again. The
+    index must carry the new row only — not the new row alongside the old."""
+    ocr_dir = tmp_path / "ocr"
+    out_root = tmp_path / "embeddings"
+    index_path = out_root / "voyage-3" / "index.json"
+
+    _write_card_pages(ocr_dir, "card_aaa", ["original page text", "page two"])
+    embed_pipeline.embed_run(
+        ocr_dir=ocr_dir, out_root=out_root, embedder=FakeEmbedder()
+    )
+    before = json.loads(index_path.read_text())["pages"]
+    old_sha = next(r["text_sha"] for r in before if r["page"] == 1)
+
+    _write_card_pages(ocr_dir, "card_aaa", ["re-ocr'd page text", "page two"])
+    summary = embed_pipeline.embed_run(
+        ocr_dir=ocr_dir, out_root=out_root, embedder=FakeEmbedder()
+    )
+
+    assert summary.embedded == 1
+    payload = json.loads(index_path.read_text())
+    rows = payload["pages"]
+    page1 = [r for r in rows if r["card_id"] == "card_aaa" and r["page"] == 1]
+    assert len(page1) == 1
+    assert page1[0]["text_sha"] != old_sha
+    assert payload["n"] == len(rows) == 2
+
+
+def test_persist_supersedes_prior_row_for_the_same_page(tmp_path: Path) -> None:
+    """A new row for a (card_id, page) replaces the prior row; untouched
+    pages keep theirs."""
     from pursue_index.embed.store import IndexRow, write_index
 
     out = tmp_path / "voyage-3"
@@ -303,24 +327,52 @@ def test_persist_drops_unaugmented_prior_when_new_row_is_augmented(
     vectors = out / "vectors.bin"
     vectors.write_bytes(b"\x00" * 32)
     index = out / "index.json"
-    # Prior un-augmented rows for pages 1 and 2.
     write_index(index, "voyage-3", 4, [
         IndexRow(card_id="card_aaa", page=1, text_sha="sha_old", offset=0),
         IndexRow(card_id="card_aaa", page=2, text_sha="sha2", offset=16),
     ])
-    # Persist a new augmented row for page 1 (different text_sha).
     new_row = IndexRow(
-        card_id="card_aaa", page=1, text_sha="sha_new", offset=32,
-        augmented=True,
+        card_id="card_aaa", page=1, text_sha="sha_new", offset=32
     )
     embed_pipeline._persist(
         vectors, index, "voyage-3", 4, b"\x00" * 16, [new_row]
     )
     rows = json.loads(index.read_text())["pages"]
-    page1 = [r for r in rows if r["page"] == 1]
-    assert len(page1) == 1 and page1[0].get("augmented") is True
-    page2 = [r for r in rows if r["page"] == 2]
-    assert len(page2) == 1 and not page2[0].get("augmented", False)
+    assert [(r["page"], r["text_sha"]) for r in rows] == [
+        (2, "sha2"),
+        (1, "sha_new"),
+    ]
+
+
+def test_persist_collapses_duplicates_already_in_the_index(
+    tmp_path: Path,
+) -> None:
+    """An index that accumulated duplicates before this rule existed collapses
+    to the newest row per page (latest by store order) on the next write."""
+    from pursue_index.embed.store import IndexRow, write_index
+
+    out = tmp_path / "voyage-3"
+    out.mkdir(parents=True)
+    vectors = out / "vectors.bin"
+    vectors.write_bytes(b"\x00" * 48)
+    index = out / "index.json"
+    write_index(index, "voyage-3", 4, [
+        IndexRow(card_id="card_aaa", page=1, text_sha="sha_v1", offset=0),
+        IndexRow(card_id="card_aaa", page=1, text_sha="sha_v2", offset=16),
+        IndexRow(card_id="card_bbb", page=1, text_sha="sha_b", offset=32),
+    ])
+    new_row = IndexRow(card_id="card_ccc", page=1, text_sha="sha_c", offset=48)
+    embed_pipeline._persist(
+        vectors, index, "voyage-3", 4, b"\x00" * 16, [new_row]
+    )
+    payload = json.loads(index.read_text())
+    keys = [(r["card_id"], r["page"], r["text_sha"]) for r in payload["pages"]]
+    assert keys == [
+        ("card_aaa", 1, "sha_v2"),
+        ("card_bbb", 1, "sha_b"),
+        ("card_ccc", 1, "sha_c"),
+    ]
+    assert payload["n"] == 3
 
 
 def test_persist_does_not_resurrect_retired_augmented_by(tmp_path: Path) -> None:

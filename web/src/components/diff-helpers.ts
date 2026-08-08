@@ -10,9 +10,24 @@
  *   resolveAliases                     — card-aliases.json → terminal-id resolver
  *   diffWithAliases                    — rename-aware add/remove/renamed grouping
  *   fieldOnlyChanges                   — cards present in both snapshots with diff'd fields
+ *   pairRowsByCardId / unpairedRowEntries — re-exported from `row-pairing.ts`
  */
 
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
+import { pairRowsByCardId } from "./row-pairing.ts";
+
+// Re-exported so the /diff island and its tests keep a single import
+// site for the diff surface; the pairing rules themselves live in
+// `row-pairing.ts`.
+export {
+  describeUnpairedRow,
+  pairRowsByCardId,
+  unpairedRowEntries,
+  type CardIdPairing,
+  type RowPair,
+  type UnpairedRow,
+  type UnpairedRowDisplay,
+} from "./row-pairing.ts";
 
 // --- URL state -------------------------------------------------------
 
@@ -188,6 +203,111 @@ export function resolveAliases(rawAliases: AliasEntry[]): AliasMap {
   return out;
 }
 
+// --- Snapshot option formatting (upstream vs. our promoted state) ---
+//
+// The /diff selectors must never render `latest.json` (our promoted state)
+// in the same `sha8 · date · count` grammar as a real upstream (war.gov)
+// snapshot — CURRENT carrying today's date and a matching card count reads
+// as if the government dropped a second manifest. It didn't; we promoted
+// one. These helpers keep upstream snapshots and the single promoted-state
+// entry structurally separate and give the promoted entry a label that
+// names its source instead of carrying its own standalone date.
+
+/** Strip the `.json` suffix and truncate to the sha8 prefix used throughout the UI. */
+export function shaPrefix(filename: string): string {
+  return filename.replace(/\.json$/i, "").slice(0, 8);
+}
+
+/**
+ * Format an ISO timestamp with minute-precision time, not just a date.
+ * War.gov genuinely double-drops on the same day (2026-06-12 has two
+ * snapshots); a date-only label makes them indistinguishable without
+ * reading sha prefixes.
+ */
+export function formatSnapshotTimestamp(iso?: string): string {
+  if (!iso) return "—";
+  return `${iso.slice(0, 16).replace("T", " ")}Z`;
+}
+
+export interface SnapshotOptionMeta {
+  filename: string;
+  fetched_at?: string;
+  card_count?: number;
+}
+
+/** The synthetic `@current` entry, relabelled as our promoted state. */
+export interface PromotedStateOption {
+  filename: string;
+  fetched_at?: string;
+  card_count?: number;
+  /** The upstream snapshot filename `@current` was promoted from, or null if unresolved. */
+  promotedFrom: string | null;
+}
+
+export interface GroupedSnapshotOptions {
+  upstream: SnapshotOptionMeta[];
+  promoted: PromotedStateOption;
+}
+
+/**
+ * Find the upstream snapshot `@current` was promoted from. Snapshot
+ * filenames are `${csv_sha256}.json` (see `poll_snapshot.py`), so the
+ * match is exact identity — never a heuristic on date or card count, both
+ * of which can coincide with an unrelated snapshot.
+ */
+export function findPromotedFromFilename(
+  index: string[],
+  currentCsvSha256: string | undefined,
+): string | null {
+  if (!currentCsvSha256) return null;
+  return index.find((f) => f.replace(/\.json$/i, "") === currentCsvSha256) ?? null;
+}
+
+/**
+ * Build the grouped option list for the /diff selectors: one upstream
+ * (war.gov) entry per index filename, plus exactly one promoted-state
+ * entry for `@current` — never conflated into a single flat list the way
+ * the old `[...index, @current]` array was.
+ */
+export function buildGroupedSnapshotOptions(
+  index: string[],
+  meta: Record<string, SnapshotIndexMeta>,
+  current: { fetched_at?: string; card_count?: number; csv_sha256?: string },
+  currentSentinel: string,
+): GroupedSnapshotOptions {
+  const upstream = index.map((f) => ({
+    filename: f,
+    fetched_at: meta[f]?.fetched_at,
+    card_count: meta[f]?.card_count,
+  }));
+  return {
+    upstream,
+    promoted: {
+      filename: currentSentinel,
+      fetched_at: current.fetched_at,
+      card_count: current.card_count,
+      promotedFrom: findPromotedFromFilename(index, current.csv_sha256),
+    },
+  };
+}
+
+/** Label grammar for an upstream (war.gov) snapshot option: `sha8 · date time · N cards`. */
+export function formatUpstreamSnapshotLabel(o: SnapshotOptionMeta): string {
+  const count = o.card_count != null ? `${o.card_count} cards` : "?? cards";
+  return `${shaPrefix(o.filename)} · ${formatSnapshotTimestamp(o.fetched_at)} · ${count}`;
+}
+
+/**
+ * Label grammar for the promoted-state option: names the upstream snapshot
+ * it was promoted from instead of carrying its own standalone date, so it
+ * never reads as a second war.gov drop.
+ */
+export function formatPromotedStateLabel(o: PromotedStateOption): string {
+  const from = o.promotedFrom ? shaPrefix(o.promotedFrom) : "unresolved";
+  const count = o.card_count != null ? `${o.card_count} cards` : "?? cards";
+  return `PROMOTED STATE · from ${from} · ${count}`;
+}
+
 // --- Diff with alias collapsing ------------------------------------
 
 export interface DiffResult {
@@ -240,36 +360,74 @@ export function diffWithAliases(
     }
   }
 
+  // Deliberately NOT folded in here: row-level churn within a card_id
+  // present on both sides. A duplicate id (PDF row + VID row(s)) can lose
+  // or gain individual rows upstream while the id itself survives, and
+  // that churn IS reported — by `unpairedRowEntries`, which the /diff page
+  // renders as its own ROW-LEVEL CHANGES section.
+  //
+  // `added`/`removed` mean a card_id entered or left the corpus. REMOVED
+  // carries the /removed surface's semantics and its entries link to /card
+  // pages, so a surviving card listed there reads as a departure while
+  // linking to a page that still exists — and, having also been rendered
+  // under ROW-LEVEL CHANGES, appears on the page twice. The receipt
+  // (`tranche_diff.py`) has always counted whole-card departures here and
+  // reported row churn under `row_changes`; this keeps the two agreeing.
   return { added, removed, renamed };
 }
 
 // --- Field-only changes --------------------------------------------
 
-// Fields we surface when they change between snapshots. Order matters
-// for the display string the UI builds from `fields`.
-const _COMPARED_FIELDS: Array<keyof CardMetadata> = [
-  "title",
-  "asset_type",
-  "agency",
-  "release_date",
-  "incident_date",
-  "incident_location",
-  "redacted",
-  "featured",
-  "description",
-  "asset_url",
-  "asset_filename",
-  "modal_image_url",
-  "image_alt_text",
-  "image_virin",
-  "original_classification",
-];
+// Fields excluded from the field-level diff, mirroring `tranche.py`'s
+// `DIFF_SKIP_FIELDS` exactly (`diff-helpers.test.ts` asserts the two stay
+// identical; `LOCAL_CURATION_FIELDS` below is the second, separately
+// pinned exclusion — `field_diff` skips the union of both).
+// This used to be inverted — a hand-maintained allowlist
+// of ~15 fields — which meant a new upstream CSV column, or one nobody
+// had added to the list yet, was silently never diffed. That dropped 107
+// real changes across the corpus history (`pdf_pairing` 86, `video_pairing`
+// 17, `dvids_video_id` 4) before this was caught (T47.4). Skip-set
+// semantics surface a new field by default instead of hiding it by default.
+//
+// `card_id` is the pairing key, not a mutable field. `raw` carries
+// upstream CSV metadata that is allowed to wobble; it IS present on the
+// fetched snapshot JSON and therefore does appear in `Object.keys()`
+// below — this loop reads the parsed wire objects, not the declared
+// `CardMetadata` interface, so the TS type says nothing about which keys
+// are enumerable at runtime. `raw` is excluded because it is in this set,
+// and for no other reason.
+export const DIFF_SKIP_FIELDS = new Set<string>(["card_id", "raw"]);
+
+// Fields written by OUR curation pipeline, not by war.gov. Kept as a
+// separate named set rather than folded into `DIFF_SKIP_FIELDS` because
+// the two exclusions are made for different reasons and are pinned
+// separately against their `tranche.py` twins: `DIFF_SKIP_FIELDS` is the
+// pairing key plus volatile upstream metadata, while these describe
+// editorial work this project performed.
+//
+// /diff is a page about government edits. A snapshot captured after a
+// curation pass differs from one captured before on every card a curator
+// touched, and rendering those differences there attributes our own
+// display-date decisions to the agency that published the document.
+// They are surfaced on the card's provenance view instead, where the
+// curator, timestamp and evidence are shown as ours.
+export const LOCAL_CURATION_FIELDS = new Set<string>([
+  "display_date",
+  "display_date_range",
+  "display_date_abstention",
+  "display_date_approved_at",
+  "display_date_curator",
+  "display_date_evidence",
+  "display_date_evidence_card_ref",
+  "manifest_incident_date_raw",
+]);
 
 // Boolean fields are compared by truthiness so a snapshot predating the
 // field (value absent → undefined) reads equal to an explicit `false`.
 // Without this, adding `featured` would flag every non-featured card as
 // "changed" the first time a post-column snapshot is diffed against a
-// pre-column one.
+// pre-column one. `tranche.py` carries the identical rule (its own
+// `_BOOLEAN_FIELDS`); the shared fixture pins the two in agreement.
 const _BOOLEAN_FIELDS = new Set<keyof CardMetadata>(["redacted", "featured"]);
 
 export interface FieldChange {
@@ -278,23 +436,78 @@ export interface FieldChange {
 }
 
 export function fieldOnlyChanges(prev: CardMetadata[], curr: CardMetadata[]): FieldChange[] {
-  const prevById = new Map(prev.map((c) => [c.card_id, c]));
-  const out: FieldChange[] = [];
-  for (const c of curr) {
-    const p = prevById.get(c.card_id);
-    if (!p) continue; // present only in curr → that's an "added", handled elsewhere
-    const fields: string[] = [];
-    for (const f of _COMPARED_FIELDS) {
-      const pv = (p as any)[f];
-      const cv = (c as any)[f];
-      const changed = _BOOLEAN_FIELDS.has(f)
+  const { pairs } = pairRowsByCardId(prev, curr);
+  // A card_id may contribute several pairs (PDF + VID rows); union the
+  // changed fields per card_id across pairs, so the UI shows one entry
+  // per card.
+  const changedByCard = new Map<string, Set<string>>();
+  for (const { card_id, prev: p, curr: c } of pairs) {
+    // Compare every field either row carries, not a fixed allowlist —
+    // mirrors `tranche.py::field_diff`'s `set(old) | set(new)` union, so
+    // a field present on only one side (a snapshot predating a new
+    // column) is still checked rather than skipped outright.
+    const keys = new Set([...Object.keys(p), ...Object.keys(c)]);
+    for (const f of keys) {
+      if (DIFF_SKIP_FIELDS.has(f) || LOCAL_CURATION_FIELDS.has(f)) continue;
+      // Normalize absent to null on BOTH sides before comparing, so a key
+      // missing from one row reads the same as one explicitly serialized
+      // null — exactly what `tranche.py::field_diff` gets for free from
+      // `dict.get()`. Without this, `undefined !== null` and every snapshot
+      // schema addition (an older snapshot lacks the column; a newer one
+      // carries it as null on rows with no value) fabricated a change per
+      // row per new column across the whole corpus history.
+      const pv = (p as any)[f] ?? null;
+      const cv = (c as any)[f] ?? null;
+      const changed = _BOOLEAN_FIELDS.has(f as keyof CardMetadata)
         ? Boolean(pv) !== Boolean(cv)
         : pv !== cv;
-      if (changed) fields.push(f);
-    }
-    if (fields.length > 0) {
-      out.push({ card_id: c.card_id, fields });
+      if (!changed) continue;
+      const fields = changedByCard.get(card_id) ?? new Set<string>();
+      fields.add(f);
+      changedByCard.set(card_id, fields);
     }
   }
+  const out: FieldChange[] = [];
+  for (const [card_id, fields] of changedByCard) {
+    if (fields.size > 0) out.push({ card_id, fields: [...fields].sort() });
+  }
   return out;
+}
+
+// Human-readable label for a diffed field, keyed by the manifest's
+// snake_case column name. Skip-set semantics (above) mean the diff can
+// now surface any CardMetadata field, including ones that were never
+// wired up for display before (`pdf_pairing`, `video_pairing`) — those
+// read badly as raw snake_case, so every field gets an explicit label
+// rather than leaving the newly-surfaced ones unformatted.
+export const FIELD_LABELS: Record<string, string> = {
+  title: "Title",
+  asset_type: "Asset type",
+  agency: "Agency",
+  release_date: "Release date",
+  incident_date: "Incident date",
+  incident_location: "Incident location",
+  redacted: "Redacted",
+  featured: "Featured",
+  description: "Description",
+  asset_url: "Asset URL",
+  asset_filename: "Asset filename",
+  modal_image_url: "Modal image URL",
+  dvids_video_id: "DVIDS video ID",
+  video_title: "Video title",
+  pdf_pairing: "PDF pairing",
+  video_pairing: "Video pairing",
+  image_alt_text: "Image alt text",
+  image_virin: "Image VIRIN",
+  original_classification: "Original classification",
+};
+
+/**
+ * Render a diffed field key readably. Falls back to the raw key for
+ * anything not in `FIELD_LABELS` — e.g. a future upstream column the
+ * skip-set inversion surfaces before this map is updated — so an
+ * unlabeled field degrades to its snake_case name rather than vanishing.
+ */
+export function formatFieldLabel(field: string): string {
+  return FIELD_LABELS[field] ?? field;
 }

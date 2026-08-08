@@ -8,11 +8,38 @@ pure (str/dict → str) — testable without filesystem or network.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
+
+# A run of newlines, with or without carriage returns, and any horizontal
+# whitespace hugging it — collapsed whole so a CRLF or a blank line between
+# paragraphs does not leave a double space behind.
+_NEWLINE_RUN = re.compile(r"[ \t]*(?:\r?\n)+[ \t]*")
 
 
 def render_json(diff: dict[str, Any]) -> str:
     return json.dumps(diff, indent=2, sort_keys=False)
+
+
+def _esc(text: str) -> str:
+    """Escape upstream free text for interpolation into the receipt.
+
+    Two characters in the government CSV's free text break the markdown
+    structure around them, and only one of them is hypothetical:
+
+    * newlines, which 1,813 descriptions carry. A raw one ends the table
+      row mid-cell and reflows the columns after it as body text, and in
+      the heading/list sections it ends the list item and turns the rest
+      into a paragraph. Runs collapse to a single space.
+    * pipes, which open a new table cell and shift every column after
+      it. None have appeared upstream so far; the escape is cheap and the
+      column shift would be silent.
+
+    Applied to every interpolated upstream string, in the table sections
+    and the heading/list sections alike, so there is one rule to reason
+    about rather than a per-section exemption to remember.
+    """
+    return _NEWLINE_RUN.sub(" ", text).replace("|", "\\|")
 
 
 def _md_summary(s: dict[str, int]) -> str:
@@ -25,6 +52,7 @@ def _md_summary(s: dict[str, int]) -> str:
         f"- **{s.get('restored_unknown', 0)}** restorations with unknown bytes (no asset_url to verify)\n"
         f"- **{s['removed']}** removed upstream (no rename match)\n"
         f"- **{s['field_only_changes']}** field-only changes on existing cards\n"
+        f"- **{s.get('row_changes', 0)}** existing cards with a row added or withdrawn\n"
     )
 
 
@@ -36,7 +64,7 @@ def _md_rename_rows(rows: list[dict[str, Any]]) -> str:
         out.append(
             f"| `{r['old_card_id']}` | `{r['new_card_id']}` | "
             f"`{(r.get('byte_sha256') or '')[:12]}…` | "
-            f"{(r.get('new_title') or '')[:80]} |"
+            f"{_esc((r.get('new_title') or '')[:80])} |"
         )
     return "\n".join(out) + "\n"
 
@@ -46,16 +74,18 @@ def _md_quarantined(rows: list[dict[str, Any]]) -> str:
         return "_None._\n"
     out: list[str] = []
     for r in rows:
-        out.append(f"### `{r['new_card_id']}` — {r.get('new_title') or '(no title)'}")
+        out.append(
+            f"### `{r['new_card_id']}` — {_esc(r.get('new_title') or '(no title)')}"
+        )
         out.append(f"- new byte_sha256: `{(r.get('new_byte_sha256') or 'unknown')[:24]}…`")
-        out.append(f"- new asset_filename: `{r.get('new_asset_filename') or ''}`")
+        out.append(f"- new asset_filename: `{_esc(r.get('new_asset_filename') or '')}`")
         matches = r.get("matches", [])
         if matches:
             out.append("- candidate matches (ranked by signal strength — more reasons firing = stronger):")
             for m in matches:
                 stars = "★" * min(m["strength"], 4)
-                reasons = "; ".join(m["reasons"])
-                title = m.get("title") or "(no title)"
+                reasons = _esc("; ".join(m["reasons"]))
+                title = _esc(m.get("title") or "(no title)")
                 out.append(f"  - {stars} `{m['card_id']}` — {title} — _{reasons}_")
         else:
             # Backwards-compat for older diff payloads.
@@ -97,8 +127,8 @@ def _md_removed_with_backlinks(
     out.append("|---|---|---|---|")
     for r in removed:
         cid = r["card_id"]
-        title = (r.get("title") or "")[:80]
-        filename = (r.get("asset_filename") or "")[:80]
+        title = _esc((r.get("title") or "")[:80])
+        filename = _esc((r.get("asset_filename") or "")[:80])
         candidates = rename_candidates.get(cid, [])
         if candidates:
             cell = "<br>".join(
@@ -118,7 +148,7 @@ def _md_simple_rows(rows: list[dict[str, Any]], cols: list[tuple[str, str]]) -> 
     sep = "| " + " | ".join("---" for _ in cols) + " |"
     body = []
     for r in rows:
-        cells = [str(r.get(k, "") or "")[:80] for k, _ in cols]
+        cells = [_esc(str(r.get(k, "") or "")[:80]) for k, _ in cols]
         body.append("| " + " | ".join(f"`{c}`" if k in ("new_card_id", "card_id") else c
                                        for c, (k, _) in zip(cells, cols)) + " |")
     return "\n".join([header, sep] + body) + "\n"
@@ -129,14 +159,16 @@ def _md_restored(rows: list[dict[str, Any]]) -> str:
         return "_None._\n"
     out: list[str] = []
     for r in rows:
-        out.append(f"### `{r['new_card_id']}` — {r.get('new_title') or '(no title)'}")
+        out.append(
+            f"### `{r['new_card_id']}` — {_esc(r.get('new_title') or '(no title)')}"
+        )
         out.append(
             f"- pinned byte_sha256: `{(r.get('pinned_byte_sha256') or '')[:24]}…` "
             f"(recorded {r.get('pinned_fetched_at') or '?'})"
         )
         new_sha = r.get("new_byte_sha256")
         out.append(f"- new byte_sha256: `{(new_sha or 'unknown')[:24]}…`")
-        out.append(f"- new asset_url: `{r.get('new_asset_url') or ''}`")
+        out.append(f"- new asset_url: `{_esc(r.get('new_asset_url') or '')}`")
         out.append("")
     return "\n".join(out)
 
@@ -148,9 +180,30 @@ def _md_field_changes(rows: list[dict[str, Any]]) -> str:
     for r in rows:
         out.append(f"### `{r['card_id']}`")
         for d in r["diffs"]:
-            out.append(f"- **{d['field']}**: `{str(d['old'])[:60]}` → `{str(d['new'])[:60]}`")
+            out.append(
+                f"- **{d['field']}**: `{_esc(str(d['old'])[:60])}` → "
+                f"`{_esc(str(d['new'])[:60])}`"
+            )
         out.append("")
     return "\n".join(out)
+
+
+def _md_row_changes(rows: list[dict[str, Any]]) -> str:
+    """Rows a card_id gained or lost. Only paired rows produce a
+    field-level diff, so this section is where a card that gained a
+    fourth video or lost one of its videos shows up."""
+    if not rows:
+        return "_None._\n"
+    out = ["| card_id | change | asset_type | dvids_video_id | title |",
+           "|---|---|---|---|---|"]
+    for r in rows:
+        for row in r["rows"]:
+            out.append(
+                f"| `{r['card_id']}` | {row['side']} | {row.get('asset_type') or ''} | "
+                f"`{row.get('dvids_video_id') or ''}` | "
+                f"{_esc((row.get('title') or '')[:80])} |"
+            )
+    return "\n".join(out) + "\n"
 
 
 def render_markdown(diff: dict[str, Any]) -> str:
@@ -194,5 +247,8 @@ def render_markdown(diff: dict[str, Any]) -> str:
         "## Field-only changes (same card_id, different metadata)",
         "",
         _md_field_changes(diff["field_only_changes"]),
+        "## Row-level changes (same card_id, a row added or withdrawn)",
+        "",
+        _md_row_changes(diff.get("row_changes", [])),
     ]
     return "\n".join(parts)

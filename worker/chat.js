@@ -42,6 +42,16 @@ const MAX_TOKENS = 1024;
 const PRICE_INPUT = 3.0;
 const PRICE_OUTPUT = 15.0;
 
+// Fail-closed fallback: what to charge when the upstream usage report can't
+// be parsed. We must NEVER account an unparseable/absent usage as $0 — that
+// is exactly the failure that lets a moved API shape run the daily cap
+// unbounded on a public endpoint. The estimate is a deliberate upper bound on
+// a single call: the largest output the model can emit (MAX_TOKENS) plus a
+// generous input allowance for the system prompt + up to 8 retrieved
+// passages. Erring high protects the cap; a real call costs less.
+const FALLBACK_INPUT_TOKENS = 20_000;
+const FALLBACK_OUTPUT_TOKENS = MAX_TOKENS;
+
 export async function handleChat(request, env, opts = {}) {
   if (request.method !== "POST") {
     return jsonResponse({ error: "method not allowed" }, 405);
@@ -61,6 +71,17 @@ export async function handleChat(request, env, opts = {}) {
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
   const day = utcDay();
   const kv = env.CHAT_KV;
+  if (!kv) {
+    // Every accounting call below is a no-op without the namespace, so an
+    // unbound binding means this request is rate-limited by nothing, capped
+    // by nothing, and billed to no counter. Say so rather than skipping
+    // silently — a misconfigured deploy otherwise looks exactly like a
+    // healthy one until the invoice arrives.
+    console.warn(
+      "[chat] CHAT_KV is not bound — rate limiting, the daily budget cap and " +
+        "spend accounting are all disabled for this request",
+    );
+  }
 
   // Step 2: per-IP rate limit — read-only check, no increment yet.
   // Abstention shortcuts and cache hits skip the increment entirely
@@ -211,43 +232,112 @@ function liveAnthropicSSEResponse({ query, passages, citations, ck, kv, env, opt
           console.error("anthropic upstream error", apiRes.status, fullBody);
           controller.enqueue(
             sseFrame("error", {
-              message:
-                apiRes.status === 401 || apiRes.status === 403
-                  ? "Upstream LLM provider rejected the request. Try BYOK."
-                  : apiRes.status === 429
-                    ? "Upstream LLM provider is rate-limiting. Try again shortly or use BYOK."
-                    : "Upstream LLM provider returned an error. Try again shortly.",
+              message: clientErrorMessage(apiRes.status),
               status: apiRes.status,
             }),
           );
           controller.close();
           return;
         }
-        await pipeAnthropicSSE(controller, apiRes.body, async ({ usage, fullText }) => {
-          // Stream completed — record the dollar spend and cache the
-          // answer. The rate counter was already incremented in
-          // handleChat's main flow before this stream was constructed.
-          if (kv) {
-            const usd = costUsd(usage);
-            await recordSpend(kv, day, usd);
-            await writeCache(kv, ck, {
-              text: fullText,
-              usage,
-              model: DEFAULT_MODEL,
-            });
-          }
-        });
+        await pipeAnthropicSSE(
+          controller,
+          apiRes.body,
+          async (result) => {
+            // Stream completed — record the dollar spend and cache the
+            // answer. The rate counter was already incremented in
+            // handleChat's main flow before this stream was constructed.
+            if (!kv) return;
+            await recordCompletedSpend({ kv, day, ck, ...result });
+          },
+          async ({ error, usage }) => {
+            // The stream failed part-way. Anthropic billed the call the
+            // moment it answered, so it is charged here at the same
+            // conservative estimate an unparseable usage block gets —
+            // never $0, which would let a run of dropped connections
+            // spend past the daily cap without the cap ever tripping.
+            if (!kv) return;
+            await recordAbortedSpend({ kv, day, error, usage });
+          },
+        );
         controller.close();
       } catch (err) {
-        console.error("chat stream error", err);
+        // Same rule as the upstream-status branch above: the full error is
+        // for the log, the client gets the sanitized message. An internal
+        // error string can name KV keys, bindings and other server detail
+        // that a public endpoint has no business handing to a browser.
+        console.error("[chat] stream error", err);
         controller.enqueue(
-          sseFrame("error", { message: String(err.message || err) }),
+          sseFrame("error", { message: clientErrorMessage(err?.status) }),
         );
         controller.close();
       }
     },
   });
   return sseResponse(stream);
+}
+
+/**
+ * The only error text /api/chat ever sends a browser.
+ *
+ * Keyed on the upstream HTTP status where there is one; everything else —
+ * including any error raised inside this worker — collapses to the generic
+ * message. Nothing derived from an exception's own text reaches the client.
+ */
+function clientErrorMessage(status) {
+  if (status === 401 || status === 403) {
+    return "Upstream LLM provider rejected the request. Try BYOK.";
+  }
+  if (status === 429) {
+    return "Upstream LLM provider is rate-limiting. Try again shortly or use BYOK.";
+  }
+  if (status) return "Upstream LLM provider returned an error. Try again shortly.";
+  return "The answer stream failed. Try again shortly.";
+}
+
+/** Charge and cache a stream that drained normally. */
+async function recordCompletedSpend({ kv, day, ck, usage, fullText, usageParsed }) {
+  // Fail closed: if the upstream usage shape moved (or was absent), charge a
+  // conservative estimate rather than $0 so the daily cap still converges
+  // instead of silently never tripping.
+  const usd = usageParsed ? costUsd(usage) : fallbackCostUsd();
+  const { spent } = await recordSpend(kv, day, usd);
+  // Make daily accounting observable: a silent zero should be visible in
+  // logs, not inferred from a runaway bill.
+  console.log(
+    "[chat] spend recorded " +
+      JSON.stringify({ day, usd, cumulative: spent, usage_parsed: usageParsed, usage }),
+  );
+  if (!usageParsed) {
+    console.warn(
+      "[chat] anthropic usage unparseable — charged fallback estimate " +
+        JSON.stringify({ day, usd, cumulative: spent, usage }),
+    );
+  }
+  await writeCache(kv, ck, { text: fullText, usage, model: DEFAULT_MODEL });
+}
+
+/** Charge a stream that failed before it finished. */
+async function recordAbortedSpend({ kv, day, error, usage }) {
+  // A stream can fail after Anthropic already reported its token counts —
+  // message_delta arrives before message_stop, so a drop in that gap leaves
+  // real metered usage behind. Charge whichever is larger: the estimate is a
+  // floor for what we could not measure, not a substitute for what we did.
+  const usageParsed = usage?.input_tokens > 0 && usage?.output_tokens > 0;
+  const usd = usageParsed
+    ? Math.max(fallbackCostUsd(), costUsd(usage))
+    : fallbackCostUsd();
+  const { spent } = await recordSpend(kv, day, usd);
+  console.warn(
+    "[chat] stream ended before it completed — charged " +
+      (usageParsed ? "the greater of metered usage and the estimate " : "the fallback estimate ") +
+      JSON.stringify({
+        day,
+        usd,
+        cumulative: spent,
+        usage,
+        error: String(error?.message || error),
+      }),
+  );
 }
 
 function sseResponse(stream) {
@@ -274,6 +364,16 @@ function costUsd(usage) {
   const inTok = usage?.input_tokens || 0;
   const outTok = usage?.output_tokens || 0;
   return (inTok * PRICE_INPUT + outTok * PRICE_OUTPUT) / 1_000_000;
+}
+
+// Conservative upper-bound charge for a call whose usage couldn't be parsed.
+// Non-zero by construction so an unaccountable call still advances the cap.
+function fallbackCostUsd() {
+  return (
+    (FALLBACK_INPUT_TOKENS * PRICE_INPUT +
+      FALLBACK_OUTPUT_TOKENS * PRICE_OUTPUT) /
+    1_000_000
+  );
 }
 
 function jsonResponse(payload, status = 200) {

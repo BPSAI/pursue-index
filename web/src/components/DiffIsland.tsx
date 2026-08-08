@@ -2,14 +2,24 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import type { AliasEntry, CardMetadata, Manifest } from "../data/types";
 import {
   buildDiffParams,
+  buildGroupedSnapshotOptions,
   diffWithAliases,
   fieldOnlyChanges,
+  formatFieldLabel,
+  formatPromotedStateLabel,
+  formatSnapshotTimestamp,
+  formatUpstreamSnapshotLabel,
   normalizeSnapshotIndex,
   parseDiffParams,
   resolveAliases,
   selectDefaultPairWithCurrent,
+  shaPrefix,
+  unpairedRowEntries,
   type SnapshotIndexMeta,
+  type SnapshotOptionMeta,
+  type UnpairedRow,
 } from "./diff-helpers.ts";
+import DiffRowChanges from "./DiffRowChanges.tsx";
 import DiffTimeline from "./DiffTimeline.tsx";
 
 interface Props {
@@ -23,27 +33,7 @@ interface Snapshot {
   manifest: Manifest;
 }
 
-interface SnapshotMeta {
-  filename: string;
-  fetched_at?: string;
-  card_count?: number;
-  csv_sha?: string;
-}
-
-function shaPrefix(filename: string): string {
-  return filename.replace(/\.json$/i, "").slice(0, 8);
-}
-
-function dateLabel(iso?: string): string {
-  if (!iso) return "—";
-  return iso.slice(0, 10);
-}
-
-function snapshotLabel(meta: SnapshotMeta): string {
-  const date = meta.fetched_at ? dateLabel(meta.fetched_at) : "—";
-  const count = meta.card_count != null ? `${meta.card_count} cards` : "?? cards";
-  return `${shaPrefix(meta.filename)} · ${date} · ${count}`;
-}
+type SnapshotMeta = SnapshotOptionMeta;
 
 export default function DiffIsland({ current, base, aliases }: Props) {
   const aliasMap = useMemo(() => resolveAliases(aliases ?? []), [aliases]);
@@ -178,6 +168,16 @@ export default function DiffIsland({ current, base, aliases }: Props) {
     return fieldOnlyChanges(fromM.cards, toM.cards);
   }, [selectedFrom, selectedTo, snapshots]);
 
+  // Rows a card_id gained or lost. These carry no field-level diff — the
+  // row has no counterpart to diff against — so without their own section
+  // a card that gains or loses one of its rows would render as no change.
+  const rowChanges = useMemo(() => {
+    const fromM = manifestFor(selectedFrom);
+    const toM = manifestFor(selectedTo);
+    if (!fromM || !toM) return null;
+    return unpairedRowEntries(fromM.cards, toM.cards);
+  }, [selectedFrom, selectedTo, snapshots]);
+
   // ---- Render branches -------------------------------------------------
 
   if (index === null) {
@@ -210,17 +210,24 @@ export default function DiffIsland({ current, base, aliases }: Props) {
     );
   }
 
-  const options: SnapshotMeta[] = [
-    ...index.map((f) => ({
-      filename: f,
-      // Prefer the index's label metadata; fall back to a manifest
-      // already loaded by a prior selection. Either path avoids the
-      // "?? cards" placeholder for snapshots that haven't been fetched.
+  // Prefer the index's label metadata; fall back to a manifest already
+  // loaded by a prior selection. Either path avoids the "?? cards"
+  // placeholder for snapshots that haven't been fetched.
+  const mergedMeta: Record<string, SnapshotIndexMeta> = {};
+  for (const f of index) {
+    mergedMeta[f] = {
       fetched_at: indexMeta[f]?.fetched_at ?? snapshots[f]?.fetched_at,
       card_count: indexMeta[f]?.card_count ?? snapshots[f]?.cards.length,
-    })),
-    { filename: CURRENT_SENTINEL, fetched_at: current.fetched_at, card_count: current.cards.length },
-  ];
+    };
+  }
+  // Upstream (war.gov) snapshots, structurally separate from the single
+  // promoted-state entry — never conflated into one flat list.
+  const grouped = buildGroupedSnapshotOptions(
+    index,
+    mergedMeta,
+    { fetched_at: current.fetched_at, card_count: current.cards.length, csv_sha256: current.csv_sha256 },
+    CURRENT_SENTINEL,
+  );
 
   function onChange(side: "from" | "to") {
     return (e: Event) => {
@@ -235,7 +242,7 @@ export default function DiffIsland({ current, base, aliases }: Props) {
     setSelectedTo(selectedFrom);
   }
 
-  const bothLoaded = diffResult != null && fieldChanges != null;
+  const bothLoaded = diffResult != null && fieldChanges != null && rowChanges != null;
 
   function onJump(right: string) {
     // Click on a tick → set selectedTo = right, selectedFrom = prior in chronological order.
@@ -255,6 +262,7 @@ export default function DiffIsland({ current, base, aliases }: Props) {
         loaded={snapshots}
         currentFilename={CURRENT_SENTINEL}
         currentManifest={current}
+        promotedFrom={grouped.promoted.promotedFrom}
         selectedFrom={selectedFrom}
         selectedTo={selectedTo}
         onJump={onJump}
@@ -271,11 +279,18 @@ export default function DiffIsland({ current, base, aliases }: Props) {
             class="bg-[color:var(--color-bg-deep)] text-[color:var(--color-text-bright)] border border-[color:var(--color-border)] px-2 py-1.5 font-mono text-xs min-w-[18rem]"
           >
             <option value="">— select snapshot —</option>
-            {options.map((o) => (
-              <option value={o.filename} disabled={o.filename === selectedTo}>
-                {o.filename === CURRENT_SENTINEL ? `CURRENT · ${snapshotLabel(o).slice(snapshotLabel(o).indexOf("·") + 2)}` : snapshotLabel(o)}
+            <optgroup label="UPSTREAM (WAR.GOV)">
+              {grouped.upstream.map((o) => (
+                <option value={o.filename} disabled={o.filename === selectedTo}>
+                  {formatUpstreamSnapshotLabel(o)}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="OUR PROMOTED STATE">
+              <option value={grouped.promoted.filename} disabled={grouped.promoted.filename === selectedTo}>
+                {formatPromotedStateLabel(grouped.promoted)}
               </option>
-            ))}
+            </optgroup>
           </select>
         </div>
         <button
@@ -297,11 +312,18 @@ export default function DiffIsland({ current, base, aliases }: Props) {
             class="bg-[color:var(--color-bg-deep)] text-[color:var(--color-text-bright)] border border-[color:var(--color-border)] px-2 py-1.5 font-mono text-xs min-w-[18rem]"
           >
             <option value="">— select snapshot —</option>
-            {options.map((o) => (
-              <option value={o.filename} disabled={o.filename === selectedFrom}>
-                {o.filename === CURRENT_SENTINEL ? `CURRENT · ${snapshotLabel(o).slice(snapshotLabel(o).indexOf("·") + 2)}` : snapshotLabel(o)}
+            <optgroup label="UPSTREAM (WAR.GOV)">
+              {grouped.upstream.map((o) => (
+                <option value={o.filename} disabled={o.filename === selectedFrom}>
+                  {formatUpstreamSnapshotLabel(o)}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="OUR PROMOTED STATE">
+              <option value={grouped.promoted.filename} disabled={grouped.promoted.filename === selectedFrom}>
+                {formatPromotedStateLabel(grouped.promoted)}
               </option>
-            ))}
+            </optgroup>
           </select>
         </div>
       </div>
@@ -315,39 +337,87 @@ export default function DiffIsland({ current, base, aliases }: Props) {
         <DiffBody
           diff={diffResult!}
           fieldChanges={fieldChanges!}
+          rowChanges={rowChanges!}
           fromMeta={fromMeta}
           toMeta={toMeta}
           base={base}
+          currentSentinel={CURRENT_SENTINEL}
+          promotedFrom={grouped.promoted.promotedFrom}
         />
       )}
     </div>
   );
 }
 
+// Header label for a FROM/TO slot: a real upstream snapshot gets its usual
+// sha8 · date-time · count grammar; the promoted-state slot names its
+// source instead of carrying a standalone date (same rationale as the
+// selector labels above).
+function MetaHeaderLabel({
+  meta,
+  currentSentinel,
+  promotedFrom,
+}: {
+  meta: SnapshotMeta;
+  currentSentinel: string;
+  promotedFrom: string | null;
+}) {
+  if (meta.filename === currentSentinel) {
+    const from = promotedFrom ? shaPrefix(promotedFrom) : "unresolved";
+    return (
+      <>
+        <code class="text-[color:var(--color-signal-cyan)]">PROMOTED STATE</code> (from{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">{from}</code> · {meta.card_count} cards)
+      </>
+    );
+  }
+  return (
+    <>
+      <code class="text-[color:var(--color-signal-cyan)]">{shaPrefix(meta.filename)}</code> (
+      {formatSnapshotTimestamp(meta.fetched_at)} · {meta.card_count} cards)
+    </>
+  );
+}
+
 function DiffBody({
   diff,
   fieldChanges,
+  rowChanges,
   fromMeta,
   toMeta,
   base,
+  currentSentinel,
+  promotedFrom,
 }: {
   diff: ReturnType<typeof diffWithAliases>;
   fieldChanges: ReturnType<typeof fieldOnlyChanges>;
+  rowChanges: UnpairedRow[];
   fromMeta: SnapshotMeta | null;
   toMeta: SnapshotMeta | null;
   base: string;
+  currentSentinel: string;
+  promotedFrom: string | null;
 }) {
   return (
     <div class="space-y-6">
       <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-text-dim)] border-b border-[color:var(--color-border)] pb-2">
-        {fromMeta && <span>FROM <code class="text-[color:var(--color-signal-cyan)]">{shaPrefix(fromMeta.filename)}</code> ({dateLabel(fromMeta.fetched_at)} · {fromMeta.card_count} cards)</span>}
+        {fromMeta && (
+          <span>
+            FROM <MetaHeaderLabel meta={fromMeta} currentSentinel={currentSentinel} promotedFrom={promotedFrom} />
+          </span>
+        )}
         <span class="mx-2 text-[color:var(--color-text-faint)]">→</span>
-        {toMeta && <span>TO <code class="text-[color:var(--color-signal-cyan)]">{shaPrefix(toMeta.filename)}</code> ({dateLabel(toMeta.fetched_at)} · {toMeta.card_count} cards)</span>}
+        {toMeta && (
+          <span>
+            TO <MetaHeaderLabel meta={toMeta} currentSentinel={currentSentinel} promotedFrom={promotedFrom} />
+          </span>
+        )}
       </div>
       <DiffSection title="ADDED" cards={diff.added} tone="green" base={base} />
       <DiffSection title="REMOVED" cards={diff.removed} tone="red" base={base} />
       <RenamedSection renamed={diff.renamed} base={base} />
       <FieldChangedSection fieldChanges={fieldChanges} base={base} />
+      <DiffRowChanges rows={rowChanges} base={base} />
     </div>
   );
 }
@@ -463,7 +533,7 @@ function FieldChangedSection({
                 <span class="text-[color:var(--color-signal-amber)]">~</span>
                 <code class="text-[color:var(--color-signal-cyan)] text-[10px]">{fc.card_id.slice(0, 12)}</code>
                 <span class="text-[color:var(--color-text-faint)] text-[10px]">→</span>
-                <span class="text-[color:var(--color-text)] text-[10px]">{fc.fields.join(", ")}</span>
+                <span class="text-[color:var(--color-text)] text-[10px]">{fc.fields.map(formatFieldLabel).join(", ")}</span>
               </a>
             </li>
           ))}

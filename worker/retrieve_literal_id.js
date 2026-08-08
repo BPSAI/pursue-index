@@ -11,6 +11,8 @@
 // `retrieve.js` to keep that file under the 400-line maintainability
 // threshold even though the worker tree isn't Python-arch-checked.
 
+import { buildPassage } from "./retrieve_passage.js";
+
 // 16-hex card_id pattern with word-boundary anchors. `\b` treats
 // `0-9a-f_` as word chars, which correctly rejects 15/17-hex strings
 // (the boundary fails on one side for those lengths) and embedded
@@ -86,19 +88,19 @@ export function literalIdPassages(ids, indexPages, pagesMap, query, makeSnippetF
     for (let i = 0; i < indexPages.length; i += 1) {
       const [card_id, page] = indexPages[i];
       if (card_id === id) {
-        const pageRec = pagesMap.get(`${card_id}-p${page}`);
-        out.push({
+        // Score sentinel: 1.0 puts the literal-ID hit ahead of any
+        // realistic cosine score. Downstream consumers that surface
+        // scores should treat ≥1.0 as "exact-match by ID, not by
+        // similarity" rather than a confidence number.
+        const passage = buildPassage({
           card_id,
           page,
-          title: pageRec?.title || "",
-          snippet: makeSnippetFn(pageRec?.text || "", query),
-          // Score sentinel: 1.0 puts the literal-ID hit ahead of any
-          // realistic cosine score. Downstream consumers that surface
-          // scores should treat ≥1.0 as "exact-match by ID, not by
-          // similarity" rather than a confidence number.
+          pageRec: pagesMap.get(`${card_id}-p${page}`),
+          query,
           score: 1.0,
-          page_text: pageRec?.text || "",
+          makeSnippetFn,
         });
+        if (passage) out.push(passage);
         break;
       }
     }
@@ -263,15 +265,15 @@ export function literalSlugPassages(
     for (let i = 0; i < indexPages.length; i += 1) {
       const [card_id, page] = indexPages[i];
       if (card_id === cardId) {
-        const pageRec = pagesMap.get(`${card_id}-p${page}`);
-        out.push({
+        const passage = buildPassage({
           card_id,
           page,
-          title: pageRec?.title || "",
-          snippet: makeSnippetFn(pageRec?.text || "", query),
+          pageRec: pagesMap.get(`${card_id}-p${page}`),
+          query,
           score: 1.0,
-          page_text: pageRec?.text || "",
+          makeSnippetFn,
         });
+        if (passage) out.push(passage);
         break;
       }
     }

@@ -21,9 +21,63 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from pursue_index.tranche_rows import (
+    pair_rows_by_card_id,
+    pair_rows_by_identity,
+    pair_rows_with_leftovers,
+)
+
+__all__ = [
+    "DIFF_SKIP_FIELDS",
+    "LOCAL_CURATION_FIELDS",
+    "build_byte_sha_index",
+    "extract_numeric_id",
+    "field_diff",
+    "find_title_continuity",
+    "levenshtein",
+    "pair_rows_by_card_id",
+    "pair_rows_by_identity",
+    "pair_rows_with_leftovers",
+    "row_changes",
+]
+
 _NUMERIC_ID_RE = re.compile(r"-(?:D|VM|PR|VID)0*(\d+)\b")
 _FILENAME_LEVENSHTEIN_THRESHOLD = 8
 _N_A_VALUES = {"", "N/A", "n/a", None}
+
+# Fields `field_diff` never reports. `card_id` is the pairing key, not a
+# mutable field; `raw` carries upstream CSV metadata that is allowed to
+# wobble. The /diff page keeps an identical set (`DIFF_SKIP_FIELDS` in
+# web/src/components/diff-helpers.ts) and a test pins the two equal, so
+# the published page and the committed receipt exclude the same fields.
+DIFF_SKIP_FIELDS = {"card_id", "raw"}
+
+# Fields written by OUR curation pipeline rather than by war.gov. Kept
+# separate from `DIFF_SKIP_FIELDS` because the reason differs: those are
+# the pairing key and volatile upstream metadata, these are this
+# project's own editorial work. A tranche receipt describes what the
+# agency changed, so a curator approving a display date must not appear
+# in it as an upstream edit. The /diff page holds the identical set
+# (`LOCAL_CURATION_FIELDS`), pinned equal by the same test.
+LOCAL_CURATION_FIELDS = {
+    "display_date",
+    "display_date_range",
+    "display_date_abstention",
+    "display_date_approved_at",
+    "display_date_curator",
+    "display_date_evidence",
+    "display_date_evidence_card_ref",
+    "manifest_incident_date_raw",
+}
+
+# Boolean fields are compared by truthiness so a snapshot predating the
+# field (value absent -> None) reads equal to an explicit False. Without
+# this, adding `featured` flags every non-featured card as "changed" the
+# first time a post-column snapshot is diffed against a pre-column one.
+# Ported from the /diff page's `_BOOLEAN_FIELDS`, which carried the rule
+# from the start; the receipt did not, and reported 210 introductions on
+# 6be2c64e->5216a20b that the page correctly reported as none.
+_BOOLEAN_FIELDS = {"redacted", "featured"}
 
 
 def levenshtein(a: str, b: str) -> int:
@@ -163,21 +217,73 @@ def build_byte_sha_index(
     return {sha: list(dict.fromkeys(ids)) for sha, ids in out.items()}
 
 
-def field_diff(old: dict[str, Any], new: dict[str, Any]) -> list[dict[str, Any]]:
-    """Field-by-field diff for cards sharing the same card_id.
+def field_diff(
+    old_rows: list[dict[str, Any]], new_rows: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Field-by-field diff across every row pair sharing one card_id.
 
-    Skips `card_id` itself and a few volatile/derived fields that
-    aren't editorially load-bearing (`raw` carries upstream CSV
-    metadata that's allowed to wobble). Returns a list of
-    `{field, old, new}` dicts.
+    `old_rows`/`new_rows` are ALL the manifest rows for a single card_id
+    on each side (a card_id backed by only one row per side is simply a
+    one-element list). Rows are paired by `pair_rows_by_identity`
+    (PDF-to-PDF, VID-to-VID -- never collapsed to "last row wins" before
+    diffing, which would compare mismatched rows). Each pair is diffed
+    independently and the changed fields are unioned across pairs -- a
+    field that changed on ANY paired row is reported once, keeping the
+    first pair's old/new values.
+
+    Rows left unpaired (added to or withdrawn from the card_id) carry no
+    field-level diff; `row_changes` reports them.
+
+    Skips `DIFF_SKIP_FIELDS` (the pairing key and volatile upstream
+    metadata) and `LOCAL_CURATION_FIELDS` (this project's own editorial
+    writes, which are not upstream edits). Returns a list of
+    `{field, old, new}` dicts, sorted by field name.
     """
-    skip = {"card_id", "raw"}
-    diffs: list[dict[str, Any]] = []
-    all_keys = set(old) | set(new)
-    for k in sorted(all_keys):
-        if k in skip:
-            continue
-        ov, nv = old.get(k), new.get(k)
-        if ov != nv:
-            diffs.append({"field": k, "old": ov, "new": nv})
-    return diffs
+    skip = DIFF_SKIP_FIELDS | LOCAL_CURATION_FIELDS
+    changed: dict[str, dict[str, Any]] = {}
+    for old, new in pair_rows_by_identity(old_rows, new_rows):
+        for k in set(old) | set(new):
+            if k in skip or k in changed:
+                continue
+            ov, nv = old.get(k), new.get(k)
+            if _values_differ(k, ov, nv):
+                changed[k] = {"field": k, "old": ov, "new": nv}
+    return [changed[k] for k in sorted(changed)]
+
+
+def _values_differ(field: str, old_value: Any, new_value: Any) -> bool:
+    """Whether two paired-row values count as a reportable change.
+
+    Booleans compare by truthiness (see `_BOOLEAN_FIELDS`); everything
+    else compares exactly, so an empty string becoming None stays a
+    reportable deletion. `field_diff`'s callers read both sides with
+    `dict.get()`, which already makes an absent key equal to an explicit
+    None — the /diff page reproduces that with a `?? null` normalization.
+    """
+    if field in _BOOLEAN_FIELDS:
+        return bool(old_value) != bool(new_value)
+    return old_value != new_value
+
+
+def row_changes(
+    old_rows: list[dict[str, Any]], new_rows: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Rows one card_id gained or lost between two manifests.
+
+    Returns `{"side", "asset_type", "title", "asset_url",
+    "dvids_video_id"}` entries, `side` being "removed" for a row present
+    only in `old_rows` and "added" for one present only in `new_rows`.
+    A card_id whose row set is unchanged returns an empty list.
+    """
+    _, left_old, left_new = pair_rows_with_leftovers(old_rows, new_rows)
+    return [
+        {
+            "side": side,
+            "asset_type": row.get("asset_type"),
+            "title": row.get("title"),
+            "asset_url": row.get("asset_url"),
+            "dvids_video_id": row.get("dvids_video_id"),
+        }
+        for side, rows in (("removed", left_old), ("added", left_new))
+        for row in rows
+    ]

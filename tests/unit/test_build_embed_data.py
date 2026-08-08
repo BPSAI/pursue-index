@@ -54,6 +54,40 @@ def _write_embeddings(out_dir: Path, vectors: list[list[float]]) -> None:
     )
 
 
+def _write_pages_json(
+    out_dir: Path,
+    keys: list[tuple[str, int]],
+    *,
+    empty_text: set[tuple[str, int]] | None = None,
+) -> None:
+    """Stage the ``pages.json`` the publish gate reads.
+
+    Only pages with non-empty text are embed-eligible, so tests declare the
+    key set they expect to survive (and, via ``empty_text``, the ones that
+    exist but carry no readable OCR).
+    """
+    blank = empty_text or set()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "pages.json").write_text(
+        json.dumps([
+            {
+                "card_id": card_id,
+                "page": page,
+                "title": f"{card_id} page {page}",
+                "text": "" if (card_id, page) in blank else "readable ocr",
+            }
+            for card_id, page in keys
+        ])
+    )
+
+
+def _mirror_pages_json(in_dir: Path, out_dir: Path) -> None:
+    """Declare every row in the staged embed index eligible."""
+    index = json.loads((in_dir / "index.json").read_text())
+    keys = [(r["card_id"], int(r["page"])) for r in index["pages"]]
+    _write_pages_json(out_dir, sorted(set(keys)))
+
+
 def test_build_embed_data_writes_float16_binary(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -66,6 +100,9 @@ def test_build_embed_data_writes_float16_binary(
             [0.5, 0.6, 0.7, 0.8],
             [0.9, 1.0, -0.1, -0.2],
         ],
+    )
+    _mirror_pages_json(
+        embeddings_root / "voyage-3", web_root / "public" / "data"
     )
 
     mod = _load_script_module()
@@ -107,6 +144,9 @@ def test_build_embed_data_logs_size_warning_when_large(
     _write_embeddings(
         embeddings_root / "voyage-3",
         [[0.1] * 1024 for _ in range(6)],
+    )
+    _mirror_pages_json(
+        embeddings_root / "voyage-3", web_root / "public" / "data"
     )
 
     mod = _load_script_module()
@@ -179,6 +219,9 @@ def test_build_embed_data_drops_augmented_by(
         [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8]],
         augmented_by=augmented_by,
     )
+    _mirror_pages_json(
+        embeddings_root / "voyage-3", web_root / "public" / "data"
+    )
 
     mod = _load_script_module()
     rc = mod.build(
@@ -203,6 +246,9 @@ def test_build_embed_data_omits_augmented_by_when_source_lacks_it(
         embeddings_root / "voyage-3",
         [[0.1, 0.2, 0.3, 0.4]],
     )
+    _mirror_pages_json(
+        embeddings_root / "voyage-3", web_root / "public" / "data"
+    )
     mod = _load_script_module()
     rc = mod.build(
         embeddings_root=embeddings_root,
@@ -216,18 +262,15 @@ def test_build_embed_data_omits_augmented_by_when_source_lacks_it(
     assert "augmented_by" not in idx
 
 
-def _stage_orphan_drift_fixture(embeddings_root: Path) -> None:
-    """Two rows for ``(c0, 1)`` (un-augmented prior + augmented sibling)
-    plus one untouched ``(c1, 2)`` row — exactly the shape vaivora's
-    blocker #3 describes.
+def _stage_superseded_page_fixture(embeddings_root: Path) -> None:
+    """Two rows for ``(c0, 1)`` — a re-OCR'd page's prior and current row —
+    plus one untouched ``(c1, 2)`` row. Store order (ascending offset) makes
+    the second ``(c0, 1)`` row the current one.
     """
     rows = [
-        {"card_id": "c0", "page": 1, "text_sha": "a" * 64, "offset": 0,
-         "augmented": False},
-        {"card_id": "c0", "page": 1, "text_sha": "b" * 64, "offset": 16,
-         "augmented": True},
-        {"card_id": "c1", "page": 2, "text_sha": "c" * 64, "offset": 32,
-         "augmented": False},
+        {"card_id": "c0", "page": 1, "text_sha": "a" * 64, "offset": 0},
+        {"card_id": "c0", "page": 1, "text_sha": "b" * 64, "offset": 16},
+        {"card_id": "c1", "page": 2, "text_sha": "c" * 64, "offset": 32},
     ]
     _write_embeddings_with_augmentation(
         embeddings_root / "voyage-3",
@@ -237,46 +280,100 @@ def _stage_orphan_drift_fixture(embeddings_root: Path) -> None:
             [0.9, 1.0, 1.1, 1.2],
             [0.5, 0.6, 0.7, 0.8],
         ],
-        augmented_by={
-            "dataset": "alex-zhang42/ufo-pursue-open-atlas",
-            "revision": "rev",
-            "sha256": "d" * 64,
-        },
     )
 
 
-def test_build_embed_data_drops_orphan_unaugmented_rows(
-    tmp_path: Path,
-) -> None:
-    """When two rows share ``(card_id, page)``, keep only the augmented one.
+def test_build_embed_data_publishes_one_row_per_page(tmp_path: Path) -> None:
+    """When two rows share ``(card_id, page)``, publish the later one only.
 
-    Per vaivora blocker #3: after an augmented run, both the prior
-    un-augmented row and the new augmented row sit in ``index.json``.
-    Shipping both would double the top-k slot count for those pages.
+    The embed store appends a fresh row when a page is re-OCR'd, so both the
+    superseded and the current row sit in ``index.json``. Shipping both wastes
+    top-k slots and lets retrieval cite a stale page-version.
     """
     import numpy as np
 
     embeddings_root = tmp_path / "embeddings"
-    web_root = tmp_path / "web"
-    _stage_orphan_drift_fixture(embeddings_root)
+    out_dir = tmp_path / "web" / "public" / "data"
+    _stage_superseded_page_fixture(embeddings_root)
+    _write_pages_json(out_dir, [("c0", 1), ("c1", 2)])
 
     mod = _load_script_module()
     rc = mod.build(
-        embeddings_root=embeddings_root,
-        model_id="voyage-3",
-        out_dir=web_root / "public" / "data",
+        embeddings_root=embeddings_root, model_id="voyage-3", out_dir=out_dir
     )
     assert rc == 0
-    idx = json.loads(
-        (web_root / "public" / "data" / "embed_index.json").read_text()
-    )
-    # Only 2 rows survive: the augmented (c0, 1) and the un-augmented (c1, 2).
+    idx = json.loads((out_dir / "embed_index.json").read_text())
     assert idx["n"] == 2
     assert idx["pages"] == [["c0", 1], ["c1", 2]]
     # The binary file must shrink in lockstep — 2 rows × 4 dims × 2 bytes.
-    bin_path = web_root / "public" / "data" / "embeddings.bin"
+    bin_path = out_dir / "embeddings.bin"
     assert bin_path.stat().st_size == 2 * 4 * 2
-    # The kept (c0, 1) vector must be the augmented one (0.9, 1.0, 1.1, 1.2),
-    # not the un-augmented prior (0.1, 0.2, 0.3, 0.4).
+    # The kept (c0, 1) vector must be the later one (0.9, 1.0, 1.1, 1.2),
+    # not the superseded prior (0.1, 0.2, 0.3, 0.4).
     arr = np.frombuffer(bin_path.read_bytes(), dtype="<f2").reshape(2, 4)
     assert pytest.approx(float(arr[0, 0]), abs=1e-2) == 0.9
+
+
+def test_build_embed_data_excludes_pages_with_empty_text(tmp_path: Path) -> None:
+    """A page whose ``pages.json`` entry carries no text is embed-ineligible:
+    retrieval has nothing to build a snippet from."""
+    embeddings_root = tmp_path / "embeddings"
+    out_dir = tmp_path / "web" / "public" / "data"
+    _write_embeddings(
+        embeddings_root / "voyage-3",
+        [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8]],
+    )
+    _write_pages_json(
+        out_dir,
+        [("card_000", 1), ("card_000", 2)],
+        empty_text={("card_000", 2)},
+    )
+
+    mod = _load_script_module()
+    rc = mod.build(
+        embeddings_root=embeddings_root, model_id="voyage-3", out_dir=out_dir
+    )
+    assert rc == 0
+    idx = json.loads((out_dir / "embed_index.json").read_text())
+    assert idx["pages"] == [["card_000", 1]]
+    assert (out_dir / "embeddings.bin").stat().st_size == 1 * 4 * 2
+
+
+def test_build_embed_data_excludes_rows_absent_from_pages_json(
+    tmp_path: Path,
+) -> None:
+    """A card that left the corpus keeps its rows in the append-only store;
+    those rows must not reach the published index."""
+    embeddings_root = tmp_path / "embeddings"
+    out_dir = tmp_path / "web" / "public" / "data"
+    _write_embeddings(
+        embeddings_root / "voyage-3",
+        [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8]],
+    )
+    _write_pages_json(out_dir, [("card_000", 1)])
+
+    mod = _load_script_module()
+    rc = mod.build(
+        embeddings_root=embeddings_root, model_id="voyage-3", out_dir=out_dir
+    )
+    assert rc == 0
+    idx = json.loads((out_dir / "embed_index.json").read_text())
+    assert idx["pages"] == [["card_000", 1]]
+
+
+def test_build_embed_data_fails_when_pages_json_missing(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Without ``pages.json`` the eligibility gate cannot run, so the build
+    stops rather than publishing an ungated index."""
+    embeddings_root = tmp_path / "embeddings"
+    out_dir = tmp_path / "web" / "public" / "data"
+    _write_embeddings(embeddings_root / "voyage-3", [[0.1, 0.2, 0.3, 0.4]])
+
+    mod = _load_script_module()
+    rc = mod.build(
+        embeddings_root=embeddings_root, model_id="voyage-3", out_dir=out_dir
+    )
+    assert rc == 1
+    assert "pages.json" in capsys.readouterr().err
+    assert not (out_dir / "embed_index.json").exists()

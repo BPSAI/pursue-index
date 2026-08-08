@@ -124,6 +124,60 @@ describe("retrievePassages", () => {
     assert.equal(out[1].card_id, "b");
   });
 
+  test("skips a hit whose page record is missing, and logs it", async () => {
+    // The index row survives but pages.json has no entry for it — the
+    // shape a superseded or withdrawn row leaves behind. Emitting it
+    // would produce a citation with a blank title and snippet.
+    const rows = [
+      [1, 0, 0],
+      [0, 1, 0],
+    ];
+    const indexPages = [["ghost", 1], ["b", 1]];
+    const pagesArr = [
+      { id: "b-p1", card_id: "b", page: 1, title: "B", text: "Roswell file" },
+    ];
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [1, 0, 0]);
+    const warnings = [];
+    const realWarn = console.warn;
+    console.warn = (...args) => warnings.push(args.join(" "));
+    try {
+      const out = await retrievePassages("q", 8, env, embedFn);
+      assert.equal(out.length, 0, "the only in-threshold hit was skipped");
+      assert.equal(warnings.length, 1);
+      assert.match(warnings[0], /ghost-p1/);
+    } finally {
+      console.warn = realWarn;
+    }
+  });
+
+  test("never emits a citation with an empty title or snippet", async () => {
+    const rows = [
+      [1, 0, 0],
+      [0.9, 0.1, 0],
+      [0.8, 0.2, 0],
+    ];
+    const indexPages = [["a", 1], ["b", 1], ["c", 1]];
+    const pagesArr = [
+      { id: "a-p1", card_id: "a", page: 1, title: "", text: "no title here" },
+      { id: "b-p1", card_id: "b", page: 1, title: "B", text: "   " },
+      { id: "c-p1", card_id: "c", page: 1, title: "C", text: "readable text" },
+    ];
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [1, 0, 0]);
+    const realWarn = console.warn;
+    console.warn = () => {};
+    try {
+      const out = await retrievePassages("q", 8, env, embedFn);
+      assert.equal(out.length, 1);
+      assert.equal(out[0].card_id, "c");
+      for (const p of out) {
+        assert.ok(p.title.trim().length > 0);
+        assert.ok(p.snippet.trim().length > 0);
+      }
+    } finally {
+      console.warn = realWarn;
+    }
+  });
+
   test("returns empty array if no hit clears threshold", async () => {
     const rows = [
       [0, 1, 0],

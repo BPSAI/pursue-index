@@ -12,7 +12,13 @@ chat island can mmap:
   where ``pages`` is the compact list-of-lists ``[[card_id, page], ...]``
   (offsets dropped — array index is the row number).
 
-Run after ``pursue embed run`` completes::
+The published index holds exactly one row per ``(card_id, page)``, and only
+for pages ``pages.json`` carries non-empty text for: the store is append-only
+(a re-OCR'd page adds a row rather than replacing one) and retrieval reads
+titles and snippets out of ``pages.json``, so a row without text there could
+only ever produce a blank citation.
+
+Run after ``pursue embed run`` and ``scripts/build_search_data.py``::
 
     python scripts/build_embed_data.py
 """
@@ -31,6 +37,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402
+from pursue_index.embed.publish import (  # noqa: E402
+    load_embed_eligible_keys,
+    select_publish_rows,
+)
 
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_WARN_BYTES = 10 * 1024 * 1024  # 10 MB — chat-interface plan threshold
@@ -40,12 +50,11 @@ def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
     """Read vectors.bin into a contiguous float32 [total, dim] array.
 
     ``total`` is derived from the actual file size, not ``index["n"]``.
-    After an augmented embed run, the embed root's ``index.json`` drops
-    un-augmented prior rows for any (card_id, page) that now has an
-    augmented sibling (Codex P1 fix in ``pipeline._persist``), but those
-    orphan vector bytes remain on disk. The kept rows index into this
-    larger array via their original ``offset``; ``_filter_vectors``
-    slices to only the kept rows downstream.
+    The embed store is append-only, so a re-embedded page leaves its
+    superseded vector bytes on disk even after ``pipeline._persist`` drops
+    the index reference. The kept rows index into this larger array via
+    their original ``offset``; ``_filter_vectors`` slices to only the kept
+    rows downstream.
     """
     index = json.loads((in_dir / "index.json").read_text())
     dim = int(index["dim"])
@@ -64,30 +73,9 @@ def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
     return arr, index
 
 
-def _dedupe_rows(rows: list[dict]) -> list[dict]:
-    """Drop un-augmented rows whose ``(card_id, page)`` has an augmented sibling.
-
-    Per vaivora cross-cutting blocker #3: after an augmented embed run,
-    ``index.json`` carries both the prior un-augmented row and the new
-    augmented row for every re-embedded page. Shipping both wastes top-k
-    slots and roughly doubles ``vectors.bin`` size for those pages. The
-    deployed payload picks the augmented row whenever both exist; rows
-    without an augmented sibling pass through untouched.
-    """
-    augmented_keys = {
-        (r["card_id"], int(r["page"])) for r in rows if r.get("augmented")
-    }
-    return [
-        r for r in rows
-        if r.get("augmented")
-        or (r["card_id"], int(r["page"])) not in augmented_keys
-    ]
-
-
-def _select_rows(index: dict) -> list[dict]:
-    """Return offset-sorted rows after orphan-row dedupe."""
-    rows = sorted(index["pages"], key=lambda r: r["offset"])
-    return _dedupe_rows(rows)
+def _select_rows(index: dict, eligible: set[tuple[str, int]]) -> list[dict]:
+    """Offset-sorted, publish-eligible, one row per ``(card_id, page)``."""
+    return select_publish_rows(index["pages"], eligible)
 
 
 def _compact_pages(rows: list[dict]) -> list[list]:
@@ -130,15 +118,24 @@ def build(
     model_id: str,
     out_dir: Path,
     warn_threshold_bytes: int = DEFAULT_WARN_BYTES,
+    pages_json: Path | None = None,
 ) -> int:
     in_dir = embeddings_root / model_id
     if not (in_dir / "index.json").exists():
         print(f"index.json missing in {in_dir}", file=sys.stderr)
         return 1
+    pages_path = pages_json or (out_dir / "pages.json")
+    if not pages_path.exists():
+        print(
+            f"pages.json missing at {pages_path}; cannot check publish "
+            "eligibility. Build it first (scripts/build_search_data.py).",
+            file=sys.stderr,
+        )
+        return 1
 
     arr, index = _read_vectors(in_dir)
     dim = int(index["dim"])
-    kept_rows = _select_rows(index)
+    kept_rows = _select_rows(index, load_embed_eligible_keys(pages_path))
     arr = _filter_vectors(arr, kept_rows, dim)
     arr_f16 = arr.astype(np.float16)
 
@@ -155,7 +152,8 @@ def build(
     dropped = int(index["n"]) - len(kept_rows)
     print(
         f"wrote {bin_path} ({size_mb:.2f} MB, {arr.shape[0]} vectors × "
-        f"{arr.shape[1]} dims float16; dropped {dropped} orphan rows)"
+        f"{arr.shape[1]} dims float16; dropped {dropped} superseded or "
+        "ineligible rows)"
     )
     print(f"wrote {idx_path}")
     _maybe_warn(size, warn_threshold_bytes)
@@ -179,11 +177,18 @@ def main() -> int:
         default=DEFAULT_OUT_DIR,
         help="Where to write embeddings.bin + embed_index.json.",
     )
+    parser.add_argument(
+        "--pages-json",
+        type=Path,
+        default=None,
+        help="pages.json used for publish eligibility (default: out-dir).",
+    )
     args = parser.parse_args()
     return build(
         embeddings_root=args.embeddings_root,
         model_id=args.model,
         out_dir=args.out_dir,
+        pages_json=args.pages_json,
     )
 
 
