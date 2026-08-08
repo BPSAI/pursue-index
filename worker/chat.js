@@ -71,6 +71,17 @@ export async function handleChat(request, env, opts = {}) {
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
   const day = utcDay();
   const kv = env.CHAT_KV;
+  if (!kv) {
+    // Every accounting call below is a no-op without the namespace, so an
+    // unbound binding means this request is rate-limited by nothing, capped
+    // by nothing, and billed to no counter. Say so rather than skipping
+    // silently — a misconfigured deploy otherwise looks exactly like a
+    // healthy one until the invoice arrives.
+    console.warn(
+      "[chat] CHAT_KV is not bound — rate limiting, the daily budget cap and " +
+        "spend accounting are all disabled for this request",
+    );
+  }
 
   // Step 2: per-IP rate limit — read-only check, no increment yet.
   // Abstention shortcuts and cache hits skip the increment entirely
@@ -233,41 +244,26 @@ function liveAnthropicSSEResponse({ query, passages, citations, ck, kv, env, opt
           controller.close();
           return;
         }
-        await pipeAnthropicSSE(controller, apiRes.body, async ({ usage, fullText, usageParsed }) => {
-          // Stream completed — record the dollar spend and cache the
-          // answer. The rate counter was already incremented in
-          // handleChat's main flow before this stream was constructed.
-          if (kv) {
-            // Fail closed: if the upstream usage shape moved (or was
-            // absent), charge a conservative estimate rather than $0 so the
-            // daily cap still converges instead of silently never tripping.
-            const usd = usageParsed ? costUsd(usage) : fallbackCostUsd();
-            const { spent } = await recordSpend(kv, day, usd);
-            // Make daily accounting observable: a silent zero should be
-            // visible in logs, not inferred from a runaway bill.
-            console.log(
-              "[chat] spend recorded " +
-                JSON.stringify({
-                  day,
-                  usd,
-                  cumulative: spent,
-                  usage_parsed: usageParsed,
-                  usage,
-                }),
-            );
-            if (!usageParsed) {
-              console.warn(
-                "[chat] anthropic usage unparseable — charged fallback estimate " +
-                  JSON.stringify({ day, usd, cumulative: spent, usage }),
-              );
-            }
-            await writeCache(kv, ck, {
-              text: fullText,
-              usage,
-              model: DEFAULT_MODEL,
-            });
-          }
-        });
+        await pipeAnthropicSSE(
+          controller,
+          apiRes.body,
+          async (result) => {
+            // Stream completed — record the dollar spend and cache the
+            // answer. The rate counter was already incremented in
+            // handleChat's main flow before this stream was constructed.
+            if (!kv) return;
+            await recordCompletedSpend({ kv, day, ck, ...result });
+          },
+          async ({ error, usage }) => {
+            // The stream failed part-way. Anthropic billed the call the
+            // moment it answered, so it is charged here at the same
+            // conservative estimate an unparseable usage block gets —
+            // never $0, which would let a run of dropped connections
+            // spend past the daily cap without the cap ever tripping.
+            if (!kv) return;
+            await recordAbortedSpend({ kv, day, error, usage });
+          },
+        );
         controller.close();
       } catch (err) {
         console.error("chat stream error", err);
@@ -279,6 +275,44 @@ function liveAnthropicSSEResponse({ query, passages, citations, ck, kv, env, opt
     },
   });
   return sseResponse(stream);
+}
+
+/** Charge and cache a stream that drained normally. */
+async function recordCompletedSpend({ kv, day, ck, usage, fullText, usageParsed }) {
+  // Fail closed: if the upstream usage shape moved (or was absent), charge a
+  // conservative estimate rather than $0 so the daily cap still converges
+  // instead of silently never tripping.
+  const usd = usageParsed ? costUsd(usage) : fallbackCostUsd();
+  const { spent } = await recordSpend(kv, day, usd);
+  // Make daily accounting observable: a silent zero should be visible in
+  // logs, not inferred from a runaway bill.
+  console.log(
+    "[chat] spend recorded " +
+      JSON.stringify({ day, usd, cumulative: spent, usage_parsed: usageParsed, usage }),
+  );
+  if (!usageParsed) {
+    console.warn(
+      "[chat] anthropic usage unparseable — charged fallback estimate " +
+        JSON.stringify({ day, usd, cumulative: spent, usage }),
+    );
+  }
+  await writeCache(kv, ck, { text: fullText, usage, model: DEFAULT_MODEL });
+}
+
+/** Charge a stream that failed before it could report usage. */
+async function recordAbortedSpend({ kv, day, error, usage }) {
+  const usd = fallbackCostUsd();
+  const { spent } = await recordSpend(kv, day, usd);
+  console.warn(
+    "[chat] stream ended before usage was reported — charged fallback estimate " +
+      JSON.stringify({
+        day,
+        usd,
+        cumulative: spent,
+        usage,
+        error: String(error?.message || error),
+      }),
+  );
 }
 
 function sseResponse(stream) {
