@@ -4,6 +4,8 @@
 > Primary-source documents, OCR transcripts, page-level citations.
 > Source: https://pursueindex.com
 
+> Manifest: 375 cards · csv_sha256 5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7
+
 ## Meta
 
 - [Methodology](https://pursueindex.com/methodology): How the corpus is fetched, hashed, OCR'd, and made reproducible.

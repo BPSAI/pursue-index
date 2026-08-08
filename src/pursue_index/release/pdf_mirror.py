@@ -172,18 +172,25 @@ def select_pdf_cards(
 
     Fails closed: a card absent from the manifest, or one whose ``asset_type``
     is missing, stays IN scope and is gated normally.
+
+    Scope is decided per-ID across ALL of that id's manifest rows, because the
+    government's CSV genuinely repeats a card_id -- 9 ids carry a PDF row plus
+    one or more VID rows (a mission report and its footage). Keying by id alone
+    kept whichever row came last and dropped those PDFs from the gate.
     """
-    types = {
-        c.get("card_id"): c.get("asset_type")
-        for c in manifest_cards
-        if c.get("card_id")
-    }
+    types: dict[str, set[str | None]] = {}
+    for card in manifest_cards:
+        card_id = card.get("card_id")
+        if card_id:
+            types.setdefault(card_id, set()).add(card.get("asset_type"))
     in_scope: list[str] = []
     skipped: dict[str, str] = {}
     for card_id in card_ids:
-        asset_type = types.get(card_id)
-        if asset_type in _NON_PDF_ASSET_TYPES:
-            skipped[card_id] = str(asset_type)
+        seen = types.get(card_id)
+        # Skip only when the id is known AND every one of its rows is non-PDF.
+        if seen and seen <= _NON_PDF_ASSET_TYPES:
+            # Report every type the id carries, so a multi-row skip is legible.
+            skipped[card_id] = "+".join(sorted(str(t) for t in seen))
         else:
             in_scope.append(card_id)
     return in_scope, skipped

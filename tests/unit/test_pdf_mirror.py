@@ -249,3 +249,52 @@ def test_verify_still_fails_for_unmirrored_pdf_card(tmp_path: Path) -> None:
     )
     assert pf.ok is False
     assert pf.missing == ["pdf1"]
+
+
+# --- duplicate card_ids (Codex #120 P2) -------------------------------
+#
+# The government's CSV genuinely repeats a card_id across rows: 9 ids in the
+# 375-card manifest carry a PDF row AND one or more VID rows (a mission
+# report plus its footage). That is upstream reality and is never deduped.
+#
+# Building {card_id: asset_type} kept the LAST row's type, so those ids
+# resolved to VID and were dropped from the mirror gate -- a PDF card
+# silently skipped by the guard that exists to stop silent judge misses.
+# Scope must be per-ID across ALL its rows: in scope if ANY row is a PDF.
+
+
+def _rows(*pairs: tuple[str, str]) -> list[dict[str, str]]:
+    return [{"card_id": cid, "asset_type": t} for cid, t in pairs]
+
+
+def test_duplicate_id_with_pdf_and_vid_rows_stays_in_scope() -> None:
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    in_scope, skipped = select_pdf_cards(
+        ["c1c59236394f7b14"],
+        _rows(("c1c59236394f7b14", "PDF"), ("c1c59236394f7b14", "VID")),
+    )
+    assert in_scope == ["c1c59236394f7b14"]
+    assert skipped == {}
+
+
+def test_pdf_row_wins_regardless_of_row_order() -> None:
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    for rows in (
+        _rows(("x", "PDF"), ("x", "VID"), ("x", "VID")),
+        _rows(("x", "VID"), ("x", "VID"), ("x", "PDF")),
+    ):
+        in_scope, skipped = select_pdf_cards(["x"], rows)
+        assert in_scope == ["x"], f"dropped a PDF card for row order {rows}"
+        assert skipped == {}
+
+
+def test_id_whose_every_row_is_non_pdf_is_still_skipped() -> None:
+    """The exclusion must survive: a genuinely PDF-less id stays out."""
+    from pursue_index.release.pdf_mirror import select_pdf_cards
+
+    in_scope, skipped = select_pdf_cards(["v"], _rows(("v", "VID"), ("v", "AUD")))
+    assert in_scope == []
+    # Every type the id carries is reported, so a multi-row skip is legible.
+    assert skipped == {"v": "AUD+VID"}
