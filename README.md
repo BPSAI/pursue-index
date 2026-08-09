@@ -85,14 +85,6 @@ Methodology is published. Numbers are reproducible from a clean clone.
   [/support](https://pursueindex.com/support), and a small set of
   curated [/finds](https://pursueindex.com/finds) entries — primary-source
   reading guides written against specific pages of specific cards.
-- **Novelty detection (machinery + UI).** `pursue novelty compute` runs
-  cosine top-1 vs a reference embedding index and tags each card as
-  `novel` / `partial` / `previously-disclosed`. The index page has a
-  DISCLOSURE filter chip; the card detail page has a Provenance panel
-  showing the top-3 reference matches. Currently shipping with a small
-  synthetic placeholder reference corpus (10 hand-crafted public-domain
-  passages from Roswell 1947, Project Blue Book, the Hottel memo, etc.) —
-  full Black Vault integration is on the post-launch backlog.
 - **2D semantic browser.** [/atlas](https://pursueindex.com/atlas) projects
   every OCR'd page from the 1024-dim Voyage-3 embedding space into 2D via
   UMAP (`random_state=42`). 4,127 dots, color-coded by agency, pan / zoom
@@ -107,10 +99,6 @@ Methodology is published. Numbers are reproducible from a clean clone.
 
 - **Curated finds expansion.** More hand-authored reading guides; current
   set is intentionally small to set the editorial bar.
-- **Black Vault reference corpus.** Acquire + OCR + embed the canonical
-  prior-disclosure FOIA archive (~100k–500k pages) so the novelty
-  detection moves from "methodology demo" to "real coverage measurement"
-  for every card.
 - **Auto-poll for new tranches — Layer 2.** Layer 1 (lightweight cron
   poll detecting upstream CSV changes, every 30 minutes) is shipped in
   [`.github/workflows/poll-pursue.yml`](.github/workflows/poll-pursue.yml);

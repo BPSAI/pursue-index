@@ -149,7 +149,7 @@ const methodologyJsonLd = [
         framing up front so readers know which research-preview numbers to
         read as provisional. Linked from the site-wide topbar
         [RESEARCH PREVIEW] badge; deeper detail lives in the per-surface
-        sections below (novelty, OCR, finds). */}
+        sections below (OCR, finds). */}
     <section id="research-preview" class="border border-[color:var(--color-signal-amber)]/50 bg-[color:var(--color-signal-amber)]/5 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-amber)]">
         ▸ Research preview ({RELEASE.version})
@@ -161,17 +161,6 @@ const methodologyJsonLd = [
         will be refined as the project matures:
       </p>
       <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
-        <li>
-          <span class="text-[color:var(--color-text-bright)]">Novelty detection.</span>
-          Currently runs against a small synthetic placeholder reference
-          corpus of 10 hand-crafted public-domain passages. A
-          community-research-resource integration is in progress that
-          replaces the placeholder with a substantial prior-disclosure
-          archive — see the
-          <a href="#novelty" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">provenance / novelty detection</a>
-          section below for thresholds, status rules, and reference-corpus
-          roadmap.
-        </li>
         <li>
           <span class="text-[color:var(--color-text-bright)]">Editorial /finds.</span>
           The reading guides reflect the current curatorial bar; coverage
@@ -188,9 +177,7 @@ const methodologyJsonLd = [
       </ul>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         The "research preview" label will be revised as each surface
-        reaches maturity. Per-card disclosure-status chips carry an inline
-        <code class="text-[color:var(--color-signal-cyan)]">(against preview corpus)</code>
-        qualifier until the reference-corpus integration lands.
+        reaches maturity.
       </p>
     </section>
 
@@ -985,7 +972,7 @@ const methodologyJsonLd = [
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         Why 2D and not 3D: pan + zoom on a plane is muscle memory; 3D
-        rotation is novelty. The atlas is meant to be a
+        rotation adds friction without adding legibility. The atlas is meant to be a
         <em>navigation surface</em>, not a showpiece. Mobile especially
         benefits — at viewport widths below 400px we drop the canvas
         entirely and render a k-means cluster list instead.
@@ -1119,97 +1106,6 @@ pursue embed run     # writes the in-browser embeddings payload`}</code></pre>
         models listed in the OCR-pipeline section above (Sonnet 4.6 vs
         Opus 4.7 / gpt-5.4 / GPT-5.5 / o3 / o4-mini / Gemini 3.1 Pro /
         GLM-OCR / Reducto).
-      </p>
-    </section>
-
-    {/* Provenance / Novelty */}
-    <section id="novelty" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
-      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
-        ▸ Provenance / novelty detection
-      </h2>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        For each PURSUE page, we run cosine top-1 similarity against a
-        reference embedding index of prior public-archive UAP material. The
-        top-1 score per page rolls up to a card-level{" "}
-        <code class="text-[color:var(--color-signal-cyan)]">disclosure_status</code>{" "}
-        of <em>novel</em>, <em>partial</em>, or <em>previously-disclosed</em>.
-        Both sides are embedded with the same model
-        (<code class="text-[color:var(--color-signal-cyan)]">voyage-3</code>,
-        1024d) so cosines are comparable.
-      </p>
-      <div class="overflow-x-auto">
-        <table class="w-full text-xs font-mono border-collapse">
-          <thead>
-            <tr class="border-b border-[color:var(--color-border-bright)] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] text-[10px]">
-              <th class="text-left py-2 pr-4">Status</th>
-              <th class="text-left py-2 pr-4">Rule</th>
-              <th class="text-left py-2">Interpretation</th>
-            </tr>
-          </thead>
-          <tbody class="text-[color:var(--color-text)]">
-            <tr class="border-b border-[color:var(--color-border)]">
-              <td class="py-2 pr-4 text-[color:var(--color-signal-green)]">novel</td>
-              <td class="py-2 pr-4">&gt;70% of pages have top-1 cosine &lt; 0.70</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">No close prior-disclosure match found</td>
-            </tr>
-            <tr class="border-b border-[color:var(--color-border)]">
-              <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">partial</td>
-              <td class="py-2 pr-4">mixed — neither rule above triggers</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">Some pages overlap with prior material; some don't</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-4 text-[color:var(--color-signal-cyan)]">previously-disclosed</td>
-              <td class="py-2 pr-4">&gt;70% of pages have top-1 cosine ≥ 0.85</td>
-              <td class="py-2 text-[color:var(--color-text-dim)]">Substantial overlap with material in the reference corpus</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        The 0.85 / 0.70 thresholds are starting points. They'll be tuned
-        against a manual spot-check of 50 random pages once the real
-        Black Vault reference corpus lands and the noise floor is
-        empirically known.
-      </p>
-      <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-text-bright)] pt-2">
-        Reference corpora
-      </h3>
-      <ul class="text-sm leading-relaxed text-[color:var(--color-text)] space-y-2 pl-5 list-disc marker:text-[color:var(--color-text-faint)]">
-        <li>
-          <span class="text-[color:var(--color-signal-amber)] font-semibold">v1 launch — placeholder.</span>{" "}
-          The currently-integrated reference corpus is a small synthetic
-          placeholder of 10 hand-crafted public-domain UFO-adjacent text
-          passages (Roswell 1947 press releases, Project Blue Book final
-          report, Hottel memo, RB-47 1957, Malmstrom 1967, Condon Report
-          1969, AAWSAP 2017). This is a <em>methodology demo</em>, not a
-          real coverage measurement. Card pages whose top-1 match scores
-          high against this placeholder are pages that semantically resemble
-          well-known prior-disclosure material — but the absence of a match
-          here does <em>not</em> mean the page is genuinely new, only that
-          it doesn't resemble these 10 passages.
-        </li>
-        <li>
-          <span class="text-[color:var(--color-text-bright)]">Post-launch — Black Vault.</span>{" "}
-          The novelty-detection plan calls for the Black Vault as the v1
-          real reference (the canonical prior-disclosure FOIA archive on
-          the order of 100k–500k pages). Acquiring + OCR'ing + embedding
-          the bulk archive is a separate operational task. Once integrated,
-          every existing card automatically gets a meaningful disclosure
-          status without any user-facing change.
-        </li>
-        <li>
-          <span class="text-[color:var(--color-text-bright)]">Backlog.</span>{" "}
-          NICAP case files; AAWSAP/AATIP leaked materials (tagged
-          separately as "leaked, not officially declassified"); CIA
-          CREST records that touch UAP topics; Project Blue Book archive.
-        </li>
-      </ul>
-      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        The card detail page surfaces a Provenance panel showing the
-        top-3 closest reference matches with cosine score, reference
-        archive id, and source document id. Every "previously-disclosed"
-        tag is therefore receipt-backed — no invisible algorithmic
-        verdicts.
       </p>
     </section>
 

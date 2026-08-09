@@ -187,7 +187,7 @@ const CACHE_POLICY = [
     cacheControl: "public, max-age=31536000, immutable",
   },
   // /data/<file>.json — corpus payloads (pages.json, manifest.json,
-  // novelty.json, embed_index.json, atlas-layout.json, snapshot diffs).
+  // embed_index.json, atlas-layout.json, snapshot diffs).
   // Filenames are NOT content-hashed; refreshes on each tranche deploy.
   // 1h fresh + 24h stale-while-revalidate covers most user sessions
   // and balances against the 30-min upstream poll cadence.
