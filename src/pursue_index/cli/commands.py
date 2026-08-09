@@ -118,6 +118,16 @@ from pursue_index.cli.embed_cli import embed_app  # noqa: E402
 app.add_typer(embed_app)
 
 # ---------------------------------------------------------------------------
+# vision (per-tranche image-observation generator — pipeline stage 7)
+# ---------------------------------------------------------------------------
+# Same split rationale as embed_app/ops_app: keep this module slim. The default
+# `vision run` is a verify-before-spend preflight; live spend is operator-
+# attended (see cli/vision_cli.py).
+from pursue_index.cli.vision_cli import vision_app  # noqa: E402
+
+app.add_typer(vision_app)
+
+# ---------------------------------------------------------------------------
 # clean (LLM cleanup of OCR text — pilot-gated)
 # ---------------------------------------------------------------------------
 # Same split rationale as embed_app/ops_app: keep this module slim. The
