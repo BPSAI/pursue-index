@@ -97,7 +97,7 @@ def _load_sidecar(obs_dir: Path, card_id: str) -> dict | None:
     if not sidecar.exists():
         return None
     try:
-        return json.loads(sidecar.read_text())
+        return json.loads(sidecar.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return None
 
@@ -115,7 +115,7 @@ def load_observation_text(
     if not index_path.exists():
         return {}
     try:
-        index = json.loads(index_path.read_text())
+        index = json.loads(index_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return {}
     obs_dir = obs_dir or index_path.parent

@@ -1,4 +1,4 @@
-"""``pursue av-fetch run`` — the A/V direct-fetch stage (pipeline stage 5).
+"""``pursue av-fetch run`` — the A/V direct-fetch stage (pipeline stage 3).
 
 Automates the operator's manual DVIDS download: resolve each in-scope VID/AUD
 card's DOD asset file URL and download it, via the same curl_cffi

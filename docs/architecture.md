@@ -32,14 +32,22 @@ CSV columns we consume:
 
 ## Stages
 
-| # | Stage    | Inputs                | Outputs                              | Status |
-|---|----------|-----------------------|--------------------------------------|--------|
-| 1 | scrape   | DOW CSV               | `manifest.json`                      | ✅ shipped |
-| 2 | download | manifest              | PDFs/IMGs in `data/{pdfs,images}/`   | ✅ shipped |
-| 3 | ocr      | PDFs                  | `pages.jsonl` per card               | ✅ shipped |
-| 4 | vision   | IMGs + image-only pages | Observation sidecar per card        | ✅ shipped |
-| 5 | embed    | manifest + OCR + observations | Voyage-3 float16 browser payload | ✅ shipped |
-| 6 | serve    | embed payload + worker | Static site + Cloudflare Worker chat | ✅ shipped |
+This numbering is the one every stage refers to, in code and in docs.
+
+| # | Stage      | Inputs                  | Outputs                              | Status |
+|---|------------|-------------------------|--------------------------------------|--------|
+| 1 | scrape     | DOW CSV                 | `manifest.json`                      | ✅ shipped |
+| 2 | download   | manifest                | PDFs/IMGs in `data/{pdfs,images}/`   | ✅ shipped |
+| 3 | av-fetch   | manifest (VID/AUD rows) | `DOD_<id>.mp4` in the staging dir    | ✅ shipped |
+| 4 | ocr        | PDFs                    | `pages.jsonl` per card               | ✅ shipped |
+| 5 | clean-qc   | OCR'd pages             | cleaned reading text + QC verdicts   | ✅ shipped |
+| 6 | vision     | IMGs + image-only pages | Observation sidecar per card         | ✅ shipped |
+| 7 | transcribe | staged AUD audio        | `pages.jsonl` per audio card         | ⚙️ preflight shipped; bulk pass operator-attended |
+| 8 | embed      | OCR + transcripts + observations | Voyage-3 float16 browser payload | ✅ shipped |
+| 9 | serve      | embed payload + worker  | Static site + Cloudflare Worker chat | ✅ shipped |
+
+Stage 5 runs in the sibling `pursue-curate` repo over freshly-OCR'd pages and
+publishes its bundle back here.
 
 The 30-minute CSV poll drives a parallel **archive** lane: per-fetch CSV bytes are committed content-addressed, prior manifests rotate into `data/manifests/snapshots/<csv_sha>.json`, and every referenced PDF/IMG asset is mirrored into R2 keyed by `byte_sha256`. A daily verify cron catches silent upstream overlays.
 
@@ -57,7 +65,7 @@ Not every PURSUE entry is a PDF. Of the 158 in PURSUE Release 01 (as of tranche 
 
 - **PDFs**: download → OCR → index. Standard flow.
 - **Images**: download → store → vision. The DOW shipped many of these as raw infrared stills, where OCR has nothing to read, so a vision pass examines the image itself and writes an observation sidecar per card. The same pass covers image-only PDF pages — pages whose OCR text is empty. `pursue vision run` previews eligible-vs-produced coverage by default and examines images only when explicitly asked to; the embed payload carries the observations alongside page text so image content is searchable.
-- **Videos & audio**: fetched via the DVIDS API to resolve a download URL, then archived into our Cloudflare R2 (content-addressed `archive/<sha>.mp4` + a `<card_id>.mp4` current-pointer) and served from there — DVIDS remains only the citable provenance source (the public video page), not the playback path. Download is off by default (`PURSUE_DOWNLOAD_VIDEOS=false`). Audio is transcribed via AssemblyAI/Aurora.
+- **Videos & audio**: fetched via the DVIDS API to resolve a download URL, then archived into our Cloudflare R2 (content-addressed `archive/<sha>.mp4` + a `<card_id>.mp4` current-pointer) and served from there — DVIDS remains only the citable provenance source (the public video page), not the playback path. Download is off by default (`PURSUE_DOWNLOAD_VIDEOS=false`). Audio is transcribed via AssemblyAI.
 
 ## OCR strategy
 

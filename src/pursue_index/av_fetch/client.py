@@ -57,12 +57,13 @@ _DOD_ID_RE = re.compile(r"DOD_(\d{8,12})")
 # absolute URL in one of these schemes.
 _FETCHABLE_SCHEMES = ("http", "https")
 
-# A page serves its media either from its own domain or from the delivery
-# network that domain publishes through. The page domain is derived from
-# the page being scraped (see ``check_asset_url``); the delivery domain
-# cannot be — it is a different registrable domain from the page's — so it
-# is named once here.
-ASSET_DELIVERY_HOST_SUFFIXES = ("cloudfront.net",)
+# A page serves its media either from its own site or from a delivery host
+# that site publishes through. The site is derived from the page being
+# scraped (see ``check_asset_url``); a delivery host cannot be — it is a
+# different domain from the page's — so each one is named here in full. A
+# delivery network is shared infrastructure, so naming the whole host rather
+# than its network's suffix keeps the check to the media this site publishes.
+ASSET_DELIVERY_HOSTS = ("d34w7g4gy10iej.cloudfront.net",)
 
 # Ceiling on the bytes read for a single asset. Release A/V assets measured
 # on the 2026-08-09 probe were single- and double-digit megabytes, so this
@@ -106,19 +107,24 @@ def _host_matches(host: str, suffix: str) -> bool:
     return host == suffix or host.endswith("." + suffix)
 
 
-def _registrable_domain(host: str) -> str:
-    """The last two labels of ``host`` — the domain a site publishes under."""
-    labels = host.split(".")
-    return ".".join(labels[-2:]) if len(labels) >= 2 else host
+def _site_domain(host: str) -> str:
+    """``host`` without a leading ``www`` label — the site it belongs to.
+
+    Derived by dropping that one label rather than by keeping a fixed number
+    of trailing labels, so the answer never widens to a domain the page's
+    operator does not hold: a site under a multi-part public suffix
+    (``example.co.uk``) yields itself, not the suffix.
+    """
+    return host[4:] if host.startswith("www.") else host
 
 
 def check_asset_url(url: str, *, page_url: str) -> str | None:
     """Return why ``url`` is not a usable asset reference, else ``None``.
 
     An asset reference is usable when it is an absolute http(s) URL whose
-    host is the domain serving ``page_url`` — derived from the page being
-    scraped, not assumed — or the delivery network that domain publishes
-    its media through.
+    host is the site serving ``page_url`` — derived from the page being
+    scraped, not assumed — or one of the delivery hosts that site publishes
+    its media through, each named in full.
     """
     parsed = urlparse(url)
     if not parsed.scheme:
@@ -128,11 +134,10 @@ def check_asset_url(url: str, *, page_url: str) -> str | None:
     if not parsed.netloc:
         return f"asset url is not an absolute url: {url!r}"
     host = (parsed.hostname or "").lower()
-    page_host = (urlparse(page_url).hostname or "").lower()
-    expected = (_registrable_domain(page_host),) + ASSET_DELIVERY_HOST_SUFFIXES
-    if not any(_host_matches(host, suffix) for suffix in expected):
-        return f"asset url host is not an expected asset host: {host!r}"
-    return None
+    site = _site_domain((urlparse(page_url).hostname or "").lower())
+    if _host_matches(host, site) or host in ASSET_DELIVERY_HOSTS:
+        return None
+    return f"asset url host is not an expected asset host: {host!r}"
 
 
 def fetch_dvids_page(

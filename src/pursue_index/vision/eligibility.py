@@ -62,7 +62,7 @@ def image_only_pages(pages_path: Path) -> list[int]:
     if not pages_path.exists():
         return []
     out: list[int] = []
-    with pages_path.open() as fh:
+    with pages_path.open(encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:

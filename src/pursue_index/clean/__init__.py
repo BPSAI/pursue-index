@@ -9,14 +9,13 @@ canonical text for citation; cleaned text is opt-in via the reader UI's
 
 from __future__ import annotations
 
-# Spend ceiling shared by the clean pass and its QC pass.
+# Default spend ceiling shared by the clean pass and its QC pass.
 #
-# Both stages default to every PDF card in the manifest, so both are sized by
-# the same unit of work: one release tranche. The ceiling is a backstop against
-# a runaway pass, not a throttle — it is set generously enough that a tranche
-# finishes in a single run, and each stage fails closed the moment it is
-# reached rather than carrying on. Any run can name its own with
-# ``--budget-usd``.
+# The value is a fail-closed backstop, not a throttle: it exists so that a
+# pass which stops making progress — retrying, looping, or handed far more
+# work than intended — ends by itself instead of running unbounded. Each
+# stage stops the moment the ceiling is reached rather than carrying on, and
+# any run can state its own with ``--budget-usd``.
 #
 # One constant rather than one per stage, so a bare invocation of either stage
 # is capped the same way and the two cannot come to mean different things.

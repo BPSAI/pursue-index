@@ -1,4 +1,4 @@
-"""Vision observation stage (pipeline stage 7).
+"""Vision observation stage (pipeline stage 6).
 
 Generates operator-reviewed image-observation sidecars for the two kinds of
 content no OCR engine can turn into searchable text:

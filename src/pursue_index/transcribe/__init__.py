@@ -1,1 +1,1 @@
-"""Transcription stage (pipeline stage 8): direct AssemblyAI, AUD only."""
+"""Transcription stage (pipeline stage 7): direct AssemblyAI, AUD only."""

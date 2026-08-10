@@ -85,7 +85,7 @@ def iter_card_pages(
         if not (meta_path.exists() and pages_path.exists()):
             continue
         try:
-            meta = json.loads(meta_path.read_text())
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             continue
         if meta.get("status") != "ok":
@@ -128,7 +128,7 @@ def _read_card_pages(
     the page being dropped. This is the only searchable text such pages have.
     """
     rows: list[PageRow] = []
-    with pages_path.open() as fh:
+    with pages_path.open(encoding="utf-8") as fh:
         for line in fh:
             row = json.loads(line)
             text = row.get("text", "") or ""
@@ -156,7 +156,7 @@ def load_existing_index(
     if not index_path.exists():
         return {}, 0
     try:
-        idx = json.loads(index_path.read_text())
+        idx = json.loads(index_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return {}, 0
     seen: dict[tuple[str, int, str], int] = {}
@@ -168,7 +168,7 @@ def load_existing_index(
 def load_prior_index_rows(index_path: Path) -> list[IndexRow]:
     if not index_path.exists():
         return []
-    prior = json.loads(index_path.read_text())
+    prior = json.loads(index_path.read_text(encoding="utf-8"))
     return [
         IndexRow(
             card_id=r["card_id"],
@@ -211,7 +211,7 @@ def write_index(
     }
     if augmented_by is not None:
         payload["augmented_by"] = augmented_by
-    index_path.write_text(json.dumps(payload, indent=2))
+    index_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def _index_row_to_dict(r: IndexRow) -> dict[str, object]:

@@ -1,4 +1,4 @@
-"""Eligibility selection for the vision stage (pipeline stage 7).
+"""Eligibility selection for the vision stage (pipeline stage 6).
 
 Eligible = IMG-card assets + genuinely image-only PDF pages (zero base OCR,
 the same predicate the embed path uses in ``embed.store._read_card_pages``).

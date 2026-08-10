@@ -54,7 +54,7 @@ def _clean_text(text: str) -> str:
 
 
 def _load_titles(manifest_path: Path) -> dict[str, str]:
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     return {c["card_id"]: c["title"] for c in manifest["cards"]}
 
 
@@ -80,7 +80,7 @@ def _walk_card_pages(
         pages_path = card_dir / "pages.jsonl"
         if not (meta_path.exists() and pages_path.exists()):
             continue
-        meta = json.loads(meta_path.read_text())
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
         if meta.get("status") != "ok":
             continue
         card_id = card_dir.name
@@ -162,7 +162,7 @@ def _emit_card_pages(
     obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> list[dict[str, object]]:
     out: list[dict[str, object]] = []
-    with pages_path.open() as fh:
+    with pages_path.open(encoding="utf-8") as fh:
         for line in fh:
             row = json.loads(line)
             page = int(row["page"])
@@ -208,7 +208,7 @@ def build(
     titles_by_id = _load_titles(manifest_path)
     docs, cards_seen = _walk_card_pages(ocr_dir, titles_by_id, obs_lookup)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(docs, ensure_ascii=False))
+    out_path.write_text(json.dumps(docs, ensure_ascii=False), encoding="utf-8")
     size_mb = out_path.stat().st_size / (1024 * 1024)
     obs_pages = sum(
         1 for d in docs if "IMAGE-OBSERVATIONS" in str(d["text"])

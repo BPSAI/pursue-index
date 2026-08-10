@@ -19,7 +19,7 @@ from pydantic import BaseModel, ConfigDict
 # Method/context strings recorded in ``our_pass`` for provenance, matching the
 # July residual-pages artifact's vocabulary.
 _METHOD = "direct-vision-examination-via-pursue-vision"
-_DEFAULT_CONTEXT = "vision-observation-generator-stage-7"
+_DEFAULT_CONTEXT = "vision-observation-generator"
 
 
 class Observation(BaseModel):

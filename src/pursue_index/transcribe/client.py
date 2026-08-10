@@ -31,6 +31,11 @@ log = get_logger(__name__)
 _BASE_URL = "https://api.assemblyai.com/v2"
 DEFAULT_POLL_INTERVAL_S = 5.0
 DEFAULT_POLL_TIMEOUT_S = 1800.0  # 30 min hard cap — never polls forever
+# Consecutive unusable status answers tolerated before polling gives up. A
+# submitted job's status endpoint answers many times over the job's life, so
+# this is sized to ride out a short interruption while still ending on a
+# persistent one; the wall-clock deadline bounds the total either way.
+DEFAULT_MAX_POLL_RETRIES = 5
 
 # Every request states the deadline it expects to finish within, so no call
 # in this stage inherits an HTTP-library default sized for small JSON.
@@ -149,6 +154,33 @@ def submit_transcript(
     return str(transcript_id)
 
 
+def _poll_once(
+    transcript_id: str,
+    key: str,
+    get: HttpGet,
+    request_timeout_s: float,
+) -> tuple[dict[str, Any] | None, str | None]:
+    """One status request. Returns ``(data, reason)``; exactly one is set.
+
+    ``reason`` states why an answer was unusable — an unexpected status code
+    or a transport-level failure — so the caller can spend a retry against it
+    and, once the budget is gone, report what it was spent on.
+    """
+    try:
+        resp = get(
+            f"{_BASE_URL}/transcript/{transcript_id}",
+            headers=_headers(key),
+            timeout=request_timeout_s,
+        )
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except Exception as exc:
+        return None, f"poll failed: {type(exc).__name__}"
+    if resp.status_code != 200:
+        return None, f"poll failed: HTTP {resp.status_code}"
+    return dict(resp.json()), None
+
+
 def poll_transcript(
     transcript_id: str,
     *,
@@ -157,31 +189,46 @@ def poll_transcript(
     poll_interval_s: float = DEFAULT_POLL_INTERVAL_S,
     timeout_s: float = DEFAULT_POLL_TIMEOUT_S,
     request_timeout_s: float = DEFAULT_REQUEST_TIMEOUT_S,
+    max_poll_retries: int = DEFAULT_MAX_POLL_RETRIES,
     sleep: Callable[[float], None] = time.sleep,
     now: Callable[[], float] = time.monotonic,
 ) -> dict[str, Any]:
-    """Poll until ``completed``/``error`` or the hard timeout.
+    """Poll until ``completed``/``error``, the retry budget, or the deadline.
 
-    ``timeout_s`` is a wall-clock deadline enforced every iteration — this
-    never polls forever, even if AAI's job status never reaches a terminal
-    state.
+    Two independent bounds apply, and neither substitutes for the other:
+
+    * ``timeout_s`` is a wall-clock deadline enforced every iteration — this
+      never polls forever, even if the job's status never reaches a terminal
+      state.
+    * ``max_poll_retries`` bounds consecutive unusable status answers. The job
+      is already submitted and its status endpoint answers many times over its
+      life, so one unusable answer part-way through is not a reason to drop
+      it. The budget resets on every usable answer and, once spent, the last
+      reason is raised.
     """
     key = api_key or _api_key()
     deadline = now() + timeout_s
+    retries_left = max_poll_retries
     while True:
-        resp = get(
-            f"{_BASE_URL}/transcript/{transcript_id}",
-            headers=_headers(key),
-            timeout=request_timeout_s,
-        )
-        if resp.status_code != 200:
-            raise SubmitError(f"poll failed: HTTP {resp.status_code}")
-        data: dict[str, Any] = resp.json()
-        status = data.get("status")
-        if status == "completed":
-            return data
-        if status == "error":
-            raise TranscriptFailedError(str(data.get("error") or "unknown AAI error"))
+        data, reason = _poll_once(transcript_id, key, get, request_timeout_s)
+        if reason is not None:
+            if retries_left <= 0:
+                raise SubmitError(reason)
+            retries_left -= 1
+            log.warning(
+                "transcribe.poll.retrying",
+                transcript_id=transcript_id, reason=reason, retries_left=retries_left,
+            )
+        else:
+            retries_left = max_poll_retries
+            assert data is not None
+            status = data.get("status")
+            if status == "completed":
+                return data
+            if status == "error":
+                raise TranscriptFailedError(
+                    str(data.get("error") or "unknown AAI error")
+                )
         if now() >= deadline:
             raise PollTimeoutError(
                 f"transcript {transcript_id} did not complete within {timeout_s}s"

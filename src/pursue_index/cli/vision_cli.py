@@ -1,4 +1,4 @@
-"""``pursue vision run`` — the vision observation stage (pipeline stage 7).
+"""``pursue vision run`` — the vision observation stage (pipeline stage 6).
 
 Split out of ``commands.py`` (same rationale as ``embed_cli`` / ``ops_cli``) to
 keep that module under its size budget. ``commands.py`` re-attaches

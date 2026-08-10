@@ -1,4 +1,4 @@
-"""A/V direct-fetch stage (pipeline stage 5): DOD id -> file URL -> staged bytes.
+"""A/V direct-fetch stage (pipeline stage 3): DOD id -> file URL -> staged bytes.
 
 Automates the operator's manual DVIDS download step. ``client`` resolves a
 card's ``dvids_video_id`` to its direct DOD asset file URL (via the same

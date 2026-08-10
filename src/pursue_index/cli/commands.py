@@ -118,7 +118,7 @@ from pursue_index.cli.embed_cli import embed_app  # noqa: E402
 app.add_typer(embed_app)
 
 # ---------------------------------------------------------------------------
-# vision (per-tranche image-observation generator — pipeline stage 7)
+# vision (per-tranche image-observation generator — pipeline stage 6)
 # ---------------------------------------------------------------------------
 # Same split rationale as embed_app/ops_app: keep this module slim. The default
 # `vision run` is a verify-before-spend preflight; live spend is operator-
@@ -128,7 +128,7 @@ from pursue_index.cli.vision_cli import vision_app  # noqa: E402
 app.add_typer(vision_app)
 
 # ---------------------------------------------------------------------------
-# av-fetch (DVIDS A/V direct-fetch stage — pipeline stage 5)
+# av-fetch (DVIDS A/V direct-fetch stage — pipeline stage 3)
 # ---------------------------------------------------------------------------
 # Same split rationale as embed_app/ops_app: keep this module slim. Automates
 # the operator's manual DVIDS download step; output feeds
@@ -138,7 +138,7 @@ from pursue_index.cli.av_fetch_cli import av_fetch_app  # noqa: E402
 app.add_typer(av_fetch_app)
 
 # ---------------------------------------------------------------------------
-# transcribe (direct AssemblyAI transcription, AUD only — pipeline stage 8)
+# transcribe (direct AssemblyAI transcription, AUD only — pipeline stage 7)
 # ---------------------------------------------------------------------------
 # Same split rationale as embed_app/ops_app: keep this module slim. The
 # default `transcribe run` is a verify-before-spend preflight; live spend is
