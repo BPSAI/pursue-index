@@ -187,9 +187,12 @@ def test_extract_identifiers_deduplicates() -> None:
 
 
 def test_crest_pattern_does_not_backtrack_quadratically() -> None:
-    """Audit finding 3: `[0-9A-Z]{2,}[0-9A-Z]*` — two unbounded quantifiers over
-    the same class, adjacent. Measured 3.1s on a 16k failing match, and the input
-    is the government CSV description/title, which is externally controlled."""
+    """Extraction stays linear on a long non-matching run.
+
+    The input is a whole CSV description or title, so the pattern must not pair
+    adjacent unbounded quantifiers over one character class: that shape costs
+    seconds on a few kilobytes that never match.
+    """
     import time
 
     from pursue_index.identifiers import extract_identifiers

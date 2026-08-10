@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any
 
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from pursue_index.text_control import console_text
@@ -45,12 +46,16 @@ def print_scrape_diff(diff: dict[str, Any]) -> None:
 
 
 def _counts_table(title: str, column: str, counts: dict[str, int]) -> Table:
-    """A two-column count table, most numerous first, labels rendered as text."""
+    """A two-column count table, most numerous first, labels rendered as text.
+
+    A cell renders markup the same way a printed line does, so an agency name —
+    CSV text like every other label here — goes through both layers.
+    """
     table = Table(title=title)
     table.add_column(column)
     table.add_column("Count", justify="right")
     for label, count in sorted(counts.items(), key=lambda kv: -kv[1]):
-        table.add_row(console_text(label), str(count))
+        table.add_row(escape(console_text(label)), str(count))
     return table
 
 

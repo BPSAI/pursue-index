@@ -200,16 +200,16 @@ def test_xml_with_a_doctype_is_rejected_not_expanded() -> None:
         parse_url_entries(hostile)
 
 
-# --- security audit follow-ups (engage sprint, 2026-08-06) -------------------
+# --- declaration handling across the whole prolog ---------------------------
 
 
 def test_dtd_hidden_behind_a_long_comment_is_still_refused() -> None:
-    """Audit finding 2: the guard scanned only `text.lstrip()[:2048]`.
+    """A doctype is refused wherever it sits in the prolog.
 
-    A well-formed XML prolog may carry arbitrarily long comments before
-    `<!DOCTYPE>`, so an oversized leading comment slid the declaration past the
-    window and entity expansion proceeded — while the module docstring claimed
-    it could not.
+    A well-formed XML prolog may carry arbitrarily long comments ahead of
+    `<!DOCTYPE>`, so the check reads the whole prolog rather than a fixed
+    leading window — the module promises no entity expansion, and that promise
+    cannot depend on where the declaration happens to fall.
     """
     hidden = (
         '<?xml version="1.0"?>\n'

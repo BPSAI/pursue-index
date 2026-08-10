@@ -35,6 +35,26 @@ def _captured(monkeypatch, module) -> Console:
     return console
 
 
+def _terminal(monkeypatch, module) -> Console:
+    """A console that emits real terminal sequences, so a sink is asked the hard question."""
+    console = Console(file=io.StringIO(), width=200, force_terminal=True)
+    monkeypatch.setattr(module, "console", console)
+    return console
+
+
+class _SummaryCard:
+    def __init__(self, agency: str) -> None:
+        self.agency = agency
+        self.asset_type = "PDF"
+        self.redacted = False
+
+
+class _SummaryManifest:
+    def __init__(self, agency: str) -> None:
+        self.cards = [_SummaryCard(agency)]
+        self.card_count = 1
+
+
 def _outcome(title: str) -> CardOutcome:
     return CardOutcome(
         card_id="c1",
@@ -123,3 +143,18 @@ def test_an_ordinary_removed_title_is_unchanged(monkeypatch) -> None:
     console = _captured(monkeypatch, scrape_output)
     scrape_output.print_scrape_diff(_diff("DOW-UAP-D027, Mission Report"))
     assert "DOW-UAP-D027, Mission Report" in console.file.getvalue()
+
+
+def test_an_agency_label_in_a_table_prints_as_text(monkeypatch) -> None:
+    """A table cell is a sink like any other: the agency name is CSV text, not markup."""
+    console = _terminal(monkeypatch, scrape_output)
+    scrape_output.print_manifest_summary(_SummaryManifest(_MARKUP_TITLE))
+    output = console.file.getvalue()
+    assert "\x1b]8;;" not in output
+    assert "war.gov release" in output
+
+
+def test_an_ordinary_agency_label_is_unchanged(monkeypatch) -> None:
+    console = _terminal(monkeypatch, scrape_output)
+    scrape_output.print_manifest_summary(_SummaryManifest("Department of Energy"))
+    assert "Department of Energy" in console.file.getvalue()
