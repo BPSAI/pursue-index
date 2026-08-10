@@ -13,9 +13,10 @@ snippet:
   claim without a network call.
 * **The catalogue.** FBI, Blue Book and other identifiers resolve against the
   PV1.4 sitemap catalogue (:class:`~pursue_index.source_index.SourceEntry`): a
-  match on filename/URL gives the artifact, and the row's own last-modified
-  value gives the date, read in the syntax the row's ``date_basis`` names and
-  reported under that same basis. A row that supplies no readable date supplies
+  match on filename/URL, inside the collection that issues the identifier,
+  gives the artifact, and the row's own last-modified value gives the date,
+  read in the syntax the row's ``date_basis`` names and reported under that
+  same basis. A row that supplies no readable date supplies
   no honest one either, so it is skipped — and a dated row evidences a *prior*
   release only when it falls strictly before the card's own release date.
 * **The government description.** COMETA-style content that is public but whose
@@ -47,6 +48,7 @@ from urllib.parse import urlparse
 
 from pursue_index.catalogue_dates import card_release_date, entry_established_date
 from pursue_index.catalogue_load import load_catalogue
+from pursue_index.identifier_collections import entry_in_identifier_collection
 from pursue_index.identifiers import Identifier, IdentifierKind, extract_identifiers
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
@@ -181,7 +183,15 @@ def _match_targets(ident: Identifier, entry: SourceEntry) -> tuple[str, ...]:
 
 
 def _entry_matches(ident: Identifier, entry: SourceEntry) -> bool:
-    """True iff the catalogue entry is the archive naming ``ident``'s document."""
+    """True iff the catalogue entry is the archive naming ``ident``'s document.
+
+    Both questions have to answer yes: the row has to sit in an archive that
+    could hold this identifier's family at all (a bare case number is a case
+    number only inside the collection that issues it), and the identifier has
+    to name the row's document there.
+    """
+    if not entry_in_identifier_collection(ident, entry):
+        return False
     pattern = _value_pattern(ident.value)
     if pattern is None:
         return False

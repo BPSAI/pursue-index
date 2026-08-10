@@ -117,6 +117,9 @@ _AGENCY_BY_SEGMENT: dict[str, str] = {
     "nasa": "nasa",
     "odni": "odni",
     "dod": "dod",
+    "nara": "nara",
+    "archives": "nara",
+    "nationalarchives": "nara",
     "projectbluebook": "project_blue_book",
     "bluebook": "project_blue_book",
 }

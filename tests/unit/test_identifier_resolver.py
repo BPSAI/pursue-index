@@ -32,7 +32,7 @@ from pursue_index.identifier_resolver import (
 from pursue_index.identifiers import IdentifierKind
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
-from pursue_index.source_index import SourceEntry
+from pursue_index.source_index import SourceEntry, infer_agency
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
@@ -50,13 +50,14 @@ def _card_by_title(fragment: str) -> dict:
 
 
 def _entry(url: str, last_modified: str | None) -> SourceEntry:
+    """A catalogue row for ``url``, with the agency inferred as the build does."""
     from urllib.parse import urlparse
 
     return SourceEntry(
         url=url,
         filename=urlparse(url).path.rsplit("/", 1)[-1],
         last_modified=last_modified,
-        agency="unknown",
+        agency=infer_agency(url),
         era="undated",
         era_year=None,
         date_basis=DateBasis.HTTP_LAST_MODIFIED,

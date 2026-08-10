@@ -13,6 +13,10 @@ properties decide what counts as naming it:
 * **A bare number needs length to name anything.** "Case 14" or "NAID 413" are
   short enough to coincide with the incidental numerals in any filename, so
   below the floor a purely-numeric value resolves nothing.
+* **A bare number means what it means inside its own collection.** "Case 10073"
+  is a Blue Book case number in the Blue Book collection and a coincidence of
+  digits anywhere else, so a numeric identifier is matched only against rows the
+  catalogue places in that identifier's own archive.
 """
 
 from __future__ import annotations
@@ -24,15 +28,16 @@ import pytest
 from pursue_index.identifier_resolver import resolve_card
 from pursue_index.identifiers import IdentifierKind
 from pursue_index.provenance import DateBasis
-from pursue_index.source_index import SourceEntry
+from pursue_index.source_index import SourceEntry, infer_agency
 
 
 def _entry(url: str, last_modified: str = "Mon, 01 Jun 2015 08:00:00 GMT") -> SourceEntry:
+    """A catalogue row for ``url``, with the agency inferred as the build does."""
     return SourceEntry(
         url=url,
         filename=urlparse(url).path.rsplit("/", 1)[-1],
         last_modified=last_modified,
-        agency="unknown",
+        agency=infer_agency(url),
         era="undated",
         era_year=None,
         date_basis=DateBasis.HTTP_LAST_MODIFIED,
@@ -120,5 +125,64 @@ def test_purely_numeric_values_below_the_floor_resolve_nothing(value: str) -> No
         "title": f"Record NAID {value} in this file",
         "release_date": "5/8/26",
     }
-    catalogue = [_entry(f"https://documents.theblackvault.com/fbi/{value}.pdf")]
+    catalogue = [_entry(f"https://documents.theblackvault.com/nara/{value}.pdf")]
     assert resolve_card(card, catalogue=catalogue) == []
+
+
+# --------------------------------------------------------------------------
+# A numeric identifier is scoped to the collection that issues it.
+# --------------------------------------------------------------------------
+
+
+def test_a_case_number_does_not_match_a_filename_in_another_collection() -> None:
+    """The same digits in another agency's file name a different document.
+
+    A Blue Book case number is a number the Blue Book collection issues; an FBI
+    file that happens to carry the same standalone digits is that archive's own
+    numbering. Only the collection the identifier belongs to can say which
+    document the number names, so a row from any other one is not a match.
+    """
+    card = {
+        "card_id": "bb-10073",
+        "title": "Project Blue Book Case No. 10073 report",
+        "release_date": "5/8/26",
+    }
+    catalogue = [_entry("https://documents.theblackvault.com/fbi/case-10073.pdf")]
+    assert resolve_card(card, catalogue=catalogue) == []
+
+
+def test_the_same_filename_in_its_own_collection_is_a_match() -> None:
+    """The scope removes other collections, not the identifier family."""
+    card = {
+        "card_id": "bb-10073",
+        "title": "Project Blue Book Case No. 10073 report",
+        "release_date": "5/8/26",
+    }
+    url = "https://documents.theblackvault.com/projectbluebook/case-10073.pdf"
+    claims = resolve_card(card, catalogue=[_entry(url)])
+    assert len(claims) == 1
+    assert claims[0].identifier_kind == IdentifierKind.BLUE_BOOK_CASE.value
+    assert claims[0].artifact_url == url
+
+
+def test_a_naid_does_not_match_a_document_held_by_another_agency() -> None:
+    """A NAID names a record in the National Archives catalog and nowhere else."""
+    card = {
+        "card_id": "naid-413270",
+        "title": "Record NAID 413270 in this file",
+        "release_date": "5/8/26",
+    }
+    catalogue = [_entry("https://documents.theblackvault.com/fbi/rpt-413270.pdf")]
+    assert resolve_card(card, catalogue=catalogue) == []
+
+
+def test_a_naid_matches_a_document_in_the_national_archives_collection() -> None:
+    card = {
+        "card_id": "naid-413270",
+        "title": "Record NAID 413270 in this file",
+        "release_date": "5/8/26",
+    }
+    url = "https://documents.theblackvault.com/nara/rpt-413270.pdf"
+    claims = resolve_card(card, catalogue=[_entry(url)])
+    assert len(claims) == 1
+    assert claims[0].identifier_kind == IdentifierKind.NAID.value
