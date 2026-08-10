@@ -26,10 +26,13 @@ Pure dataclasses and (de)serialisation. No I/O.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date
 from enum import StrEnum
 from typing import Any, ClassVar
+
+from pursue_index.text_control import strip_control_chars
 
 __all__ = [
     "NO_PRIOR_RELEASE_DISCLAIMER",
@@ -40,6 +43,8 @@ __all__ = [
     "ProvenanceResult",
     "ProvenanceTier",
     "from_dict",
+    "is_citable_prior_source",
+    "require_web_url",
 ]
 
 
@@ -99,20 +104,78 @@ def _require_text(value: object, field_name: str, message: str) -> None:
 _ALLOWED_URL_SCHEMES = ("http://", "https://")
 
 
-def require_web_url(value: str, field: str) -> None:
-    """Reject any artifact URL that is not plain http(s).
+def require_web_url(value: object, field: str) -> None:
+    """Require an absolute http(s) URL — the only kind a reader can follow.
 
-    These records exist to become citations on a public page, and
-    ``artifact_url`` is populated verbatim from third-party sitemap ``<loc>``
-    values. A ``javascript:`` or ``data:`` URL that only had to be non-blank
-    would survive into the published artifact — a stored-XSS / malicious-link
-    vector queued for the moment anything renders it. Validate at construction,
-    which is the one place every path goes through.
+    These records exist to become citations on a public page, and the value is
+    copied verbatim from third-party sitemap ``<loc>`` text or stored JSON, so
+    it arrives as whatever that source held. Two things make a value usable: it
+    has to be text at all, and it has to name a web address. Both are settled
+    here, at construction — the one place every path into a record goes through.
     """
+    if not isinstance(value, str):
+        raise ValueError(f"{field} must be a string URL, got {type(value).__name__}")
     if not value.lower().startswith(_ALLOWED_URL_SCHEMES):
         raise ValueError(
             f"{field} must use an http:// or https:// scheme, got {value!r}"
         )
+
+
+#: A ``scheme:`` prefix and everything after it. The scheme grammar is RFC 3986's:
+#: a letter, then letters, digits and ``+ - .``.
+_SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.\-]*:(.*)$", re.DOTALL)
+
+
+def _uri_payload(text: str) -> str | None:
+    """The part after a ``scheme:`` prefix, or ``None`` when there is no scheme.
+
+    A colon is ordinary punctuation in prose, and the tokens these rules capture
+    are prose: ``Time:`` and ``Time: The Weekly Magazine`` are an outlet name
+    with a clause's colon attached, not a URI in a ``time`` scheme. A colon
+    introduces a scheme only when what follows is URI-shaped — a ``//``
+    authority, or a payload that begins immediately with a non-space character.
+    """
+    match = _SCHEME_RE.match(text)
+    if match is None:
+        return None
+    payload = match.group(1)
+    if payload.startswith("//") or (payload and not payload[0].isspace()):
+        return payload
+    return None
+
+
+def is_citable_prior_source(value: str) -> bool:
+    """True when ``value`` is something a reader can follow, as written.
+
+    A prior source is read out of CSV prose and published as the pointer a
+    reader is given, so three shapes qualify and are kept verbatim: a plain
+    outlet name ("COMETA report", "Time:"), a bare domain ("dvidshub.net"), and
+    an absolute http(s) URL.
+
+    Three shapes name no address a reader could follow, so they never become
+    one:
+
+    * A URI in another scheme — ``data:``, ``file:``, ``javascript:``. Only
+      http(s) is an address a reader has any way to open.
+    * A protocol-relative ``//host/path``. It states a host but leaves the
+      scheme to whatever renders it, so the value itself is not the address; a
+      citation writes the address out in full.
+    * A value that is only URI-shaped once characters with no text of their own
+      are removed. Those characters are removed *before* the value is read, so a
+      scheme split across a tab is recognised as the scheme it names — but a URL
+      a reader can follow is the exact characters they would type, so a value
+      that needs the removal to become one is not that URL.
+    """
+    text = value.strip()
+    normalized = strip_control_chars(text).strip()
+    if normalized.startswith("//"):
+        return False
+    if _uri_payload(normalized) is None:
+        return True
+    if normalized != text:
+        return False
+    return normalized.lower().startswith(_ALLOWED_URL_SCHEMES)
+
 
 @dataclass(frozen=True)
 class ProvenanceClaim:

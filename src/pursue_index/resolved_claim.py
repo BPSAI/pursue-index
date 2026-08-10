@@ -18,6 +18,10 @@ constructor, the honesty rules the resolver must never violate:
   the *content* is public, not that *this record* was released, so it may rest
   on a named prior publication rather than a fetchable artifact — and its date
   may be absent when the source gives only a year.
+* **Both citable fields point somewhere a reader can go.** ``artifact_url`` is
+  an absolute web address; ``prior_publication`` may also be an outlet name or a
+  bare domain, since that is what the government's prose supplies. Neither may
+  be a value that names no address at all.
 * **The page-image flag belongs to the partial tier.** The "compare page
   images later" flag is meaningful only for ``previously_released_in_part``.
 
@@ -31,7 +35,13 @@ from datetime import date
 from enum import StrEnum
 from typing import Any
 
-from pursue_index.provenance import POSITIVE_TIERS, DateBasis, ProvenanceTier, require_web_url
+from pursue_index.provenance import (
+    POSITIVE_TIERS,
+    DateBasis,
+    ProvenanceTier,
+    is_citable_prior_source,
+    require_web_url,
+)
 
 __all__ = [
     "ResolutionSource",
@@ -94,13 +104,21 @@ class ResolvedClaim:
             raise TypeError("established_date must be a date")
 
     def _check_evidence(self) -> None:
-        # Shared with ProvenanceClaim rather than re-implemented: this type is
-        # the one the identifier resolver populates, with `artifact_url` taken
-        # verbatim from a third-party sitemap <loc>, and it serialises into the
-        # artifact intended to back public citations. Guarding only the sibling
-        # class left this path wide open (caught on security re-audit).
+        # Both citable fields answer the same question — "can a reader follow
+        # this?" — and they answer it with the shared rules rather than local
+        # copies, so this type and `ProvenanceClaim` stay in step. `artifact_url`
+        # arrives verbatim from a third-party sitemap <loc> and must be an
+        # absolute web address; `prior_publication` arrives from CSV prose and
+        # may instead be an outlet name or a bare domain, which is what
+        # `is_citable_prior_source` allows and `require_web_url` does not.
         if self.artifact_url.strip():
             require_web_url(self.artifact_url, "artifact_url")
+        if self.prior_publication.strip() and not is_citable_prior_source(self.prior_publication):
+            raise ValueError(
+                "prior_publication is published as the pointer a reader is given, "
+                "so it must be an outlet name, a bare domain or an absolute "
+                f"http(s) URL; {self.prior_publication!r} is none of those"
+            )
         if self.tier in _STRONG_TIERS:
             if not self.artifact_url.strip():
                 raise ValueError(f"tier {self.tier.value!r} requires a source artifact URL")

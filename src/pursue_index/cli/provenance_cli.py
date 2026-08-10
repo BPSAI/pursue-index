@@ -15,6 +15,7 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from pursue_index.provenance_report import (
@@ -23,6 +24,7 @@ from pursue_index.provenance_report import (
     build_report,
     load_catalogue,
 )
+from pursue_index.text_control import console_text
 
 console = Console()
 
@@ -77,7 +79,13 @@ def _print_unresolved(report: CoverageReport) -> None:
         f"(by era: {report.unresolved_by_era})"
     )
     for outcome in report.unresolved_cards():
-        console.print(f"  [dim]{outcome.era}[/dim]  {outcome.card_id}  {outcome.title}")
+        # Era, card_id and title are all government-CSV text, printed as the
+        # characters they contain: console_text drops the control bytes a
+        # terminal would read as instructions, and escape() hands the result to
+        # rich as data rather than as its markup language.
+        era = console_text(outcome.era)
+        card_id = console_text(outcome.card_id)
+        console.print(f"  [dim]{escape(era)}[/dim]  {escape(card_id)}  {escape(console_text(outcome.title))}")
 
 
 @provenance_app.command("report")

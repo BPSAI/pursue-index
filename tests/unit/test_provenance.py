@@ -213,13 +213,16 @@ def test_from_dict_rejects_unknown_kind():
 
 
 def test_claim_rejects_a_non_http_artifact_url() -> None:
-    """Audit finding 4: `artifact_url` came verbatim from a third-party sitemap
-    `<loc>` and only non-blankness was checked. These records exist to become
-    /methodology citations, so a `javascript:` or `data:` URL is a queued
-    stored-XSS vector — reject at construction, not at render."""
-    for hostile in ("javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "file:///etc/passwd"):
+    """`artifact_url` is the address a citation points at, so it names one.
+
+    The value arrives verbatim from a third-party sitemap `<loc>`, and these
+    records exist to become /methodology citations. Only an absolute http(s)
+    URL is something a reader can open, and the question is settled at
+    construction — the one place every path into a record goes through — rather
+    than left to whatever renders it."""
+    for value in ("javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "file:///etc/passwd"):
         with pytest.raises(ValueError, match="scheme"):
-            _claim(artifact_url=hostile)
+            _claim(artifact_url=value)
 
 
 def test_claim_accepts_http_and_https() -> None:

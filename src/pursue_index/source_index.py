@@ -43,7 +43,7 @@ import httpx
 
 from pursue_index.era_dates import parse_year
 from pursue_index.era_models import era_for_year
-from pursue_index.provenance import DateBasis
+from pursue_index.provenance import DateBasis, require_web_url
 from pursue_index.sitemap_fetch import (
     DEFAULT_ROBOTS_URL,
     CourteousFetcher,
@@ -56,6 +56,7 @@ from pursue_index.sitemap_fetch import (
 )
 
 __all__ = [
+    "INVALID_URL_EXCLUSION_REASON",
     "OUTPUT_PATH",
     "UFOFILES_EXCLUSION_REASON",
     "Catalogue",
@@ -63,6 +64,7 @@ __all__ = [
     "build_catalogue",
     "build_catalogue_from_fetcher",
     "build_output",
+    "entries_from_rows",
     "entry_from_url",
     "infer_agency",
     "infer_era",
@@ -85,6 +87,13 @@ UFOFILES_EXCLUSION_REASON = (
     "PURSUE releases themselves (73/73 matched files postdate their PURSUE "
     "release; zero precede it). Indexing it as a candidate prior-disclosure "
     "source would report PURSUE's own material as previously disclosed."
+)
+
+#: Why a row can be dropped for its URL alone — published beside the count.
+INVALID_URL_EXCLUSION_REASON = (
+    "Dropped: a sitemap <loc> is a third-party string and a catalogue row is one "
+    "hop from a citation, so a row whose URL is not plain http(s) is excluded "
+    "rather than carried into the artifact."
 )
 
 _SCHEMA = "sitemap-source-index/v1"
@@ -159,6 +168,19 @@ class SourceEntry:
     era_year: int | None
     date_basis: DateBasis = DateBasis.HTTP_LAST_MODIFIED
 
+    def __post_init__(self) -> None:
+        """A row is only usable when its URL is an address a reader can follow.
+
+        ``url`` comes verbatim from a third-party sitemap ``<loc>`` and is one
+        hop upstream of a citation — the resolver copies a matched row's URL
+        into a claim's ``artifact_url``. Establishing that at the row means the
+        rule holds for every path into the catalogue, including the stored
+        artifact, rather than only at claim construction. Callers enumerating
+        third-party input drop the row instead of propagating the error (see
+        :func:`entry_from_url`).
+        """
+        require_web_url(self.url, "url")
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "url": self.url,
@@ -183,18 +205,47 @@ class SourceEntry:
         )
 
 
-def entry_from_url(loc: str, lastmod: str | None) -> SourceEntry:
-    """Build a :class:`SourceEntry` from a sitemap ``<loc>`` + ``<lastmod>``."""
-    filename = urlparse(loc).path.rstrip("/").rsplit("/", 1)[-1]
+def entry_from_url(loc: str, lastmod: str | None) -> SourceEntry | None:
+    """Build a :class:`SourceEntry` from a sitemap ``<loc>``, or ``None``.
+
+    A ``<loc>`` that is not an http(s) URL yields ``None`` so the caller can drop
+    and count it. Enumeration runs over ~150k third-party URLs, so a row the
+    catalogue cannot use is worth exactly that row — never the whole build — and
+    a dropped row is counted rather than silently absent.
+    """
     era, year = infer_era(loc)
-    return SourceEntry(
-        url=loc,
-        filename=filename,
-        last_modified=lastmod,
-        agency=infer_agency(loc),
-        era=era,
-        era_year=year,
-    )
+    try:
+        return SourceEntry(
+            url=loc,
+            filename=urlparse(loc).path.rstrip("/").rsplit("/", 1)[-1],
+            last_modified=lastmod,
+            agency=infer_agency(loc),
+            era=era,
+            era_year=year,
+        )
+    except ValueError:
+        return None
+
+
+def entries_from_rows(rows: Iterable[dict[str, Any]]) -> tuple[list[SourceEntry], int]:
+    """Deserialise stored catalogue rows, dropping and counting unusable ones.
+
+    A written artifact is an input on the next run, so it gets the same
+    treatment as a live sitemap: a row that cannot yield an entry is skipped and
+    counted, never fatal. "Cannot yield an entry" covers every shape JSON
+    permits — a row that is not a mapping, a missing field, a ``url`` that is
+    not text, and a ``url`` that is text but not a web address — because a
+    stored artifact is edited by hand and written by future producers, and the
+    load's contract is to return the rows it *can* read.
+    """
+    entries: list[SourceEntry] = []
+    dropped = 0
+    for row in rows:
+        try:
+            entries.append(SourceEntry.from_dict(row))
+        except (ValueError, KeyError, TypeError):
+            dropped += 1
+    return entries, dropped
 
 
 @dataclass(frozen=True)
@@ -205,6 +256,7 @@ class Catalogue:
     total_urls: int
     excluded_ufofiles: int
     sitemap_index_urls: tuple[str, ...] = field(default_factory=tuple)
+    excluded_invalid_url: int = 0
 
 
 def build_catalogue(
@@ -219,26 +271,33 @@ def build_catalogue(
     entries: list[SourceEntry] = []
     total = 0
     excluded = 0
+    invalid = 0
     for row in rows:
         total += 1
         if is_ufofiles(row.loc):
             excluded += 1
             continue
-        entries.append(entry_from_url(row.loc, row.lastmod))
+        entry = entry_from_url(row.loc, row.lastmod)
+        if entry is None:
+            invalid += 1
+            continue
+        entries.append(entry)
     return Catalogue(
         entries=tuple(entries),
         total_urls=total,
         excluded_ufofiles=excluded,
         sitemap_index_urls=tuple(sitemap_index_urls),
+        excluded_invalid_url=invalid,
     )
 
 
 def _fetchable(url: str, host: str | None) -> bool:
     """A URL is followed only if it is a listing *on the enumerated host*.
 
-    The sitemap indexes are third-party controlled; keeping the fetch fan-out
-    pinned to the ``robots.txt`` host stops a tampered index from steering us
-    off-scope (cf. the SSRF guard on the asset downloader).
+    The enumeration's scope is one host's published sitemaps, and the URLs that
+    name its children come from those sitemaps themselves. Pinning every fetch
+    to the ``robots.txt`` host keeps the scope decided here rather than by the
+    documents being read — the same rule the asset downloader applies.
     """
     return is_listing_url(url) and urlparse(url).hostname == host
 
@@ -247,8 +306,8 @@ def build_catalogue_from_fetcher(fetcher: CourteousFetcher, robots_url: str) -> 
     """Enumerate robots → sitemap indexes → sitemaps → rows, and assemble.
 
     Only listings *on the robots host* are ever fetched (the ``fetcher`` also
-    refuses non-listings), so no PDF is downloaded and the fan-out cannot be
-    steered off-host by a tampered index. Off-host or non-listing children are
+    refuses non-listings), so no PDF is downloaded and the enumeration stays on
+    the host it set out to enumerate. Off-host or non-listing children are
     skipped rather than fetched.
     """
     host = urlparse(robots_url).hostname
@@ -276,6 +335,10 @@ def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
             "count": catalogue.excluded_ufofiles,
             "reason": UFOFILES_EXCLUSION_REASON,
         },
+        "invalid_urls_excluded": {
+            "count": catalogue.excluded_invalid_url,
+            "reason": INVALID_URL_EXCLUSION_REASON,
+        },
         "entry_count": len(catalogue.entries),
         "agency_counts": dict(Counter(e.agency for e in catalogue.entries)),
         "era_counts": dict(Counter(e.era for e in catalogue.entries)),
@@ -286,11 +349,11 @@ def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
 def _default_get(url: str) -> httpx.Response:
     """Live HTTP GET for a listing — one request, courteous UA, no retries.
 
-    ``follow_redirects=False`` is load-bearing. ``_fetchable`` pins every URL to
-    the ``robots.txt`` host BEFORE the request, but a redirect is followed after
-    that check — so following them let a tampered index or a hostile host steer
-    us off-host anyway, defeating the pin this module claims to enforce. A 3xx
-    is now surfaced to the caller, which aborts on any non-2xx.
+    ``follow_redirects=False`` is load-bearing. ``_fetchable`` decides the host
+    before the request is made; a redirect is decided by the response, after
+    that check, so following one would move the scope decision out of this
+    module and into the server. A 3xx is surfaced to the caller instead, which
+    aborts on any non-2xx.
     """
     return httpx.get(
         url,

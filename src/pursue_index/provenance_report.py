@@ -29,20 +29,17 @@ all rendering and the read-only guard. No web payload is ever touched.
 
 from __future__ import annotations
 
-import json
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
+from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
+from pursue_index.claim_precedence import POSITIVE_TIER_PRECEDENCE, primary_positive_tier
 from pursue_index.era_bucketing import classify_card
 from pursue_index.era_models import Era
-from pursue_index.identifier_resolver import resolve_card
 from pursue_index.provenance import ProvenanceTier
-from pursue_index.source_index import OUTPUT_PATH as SOURCE_INDEX_PATH
-from pursue_index.source_index import SourceEntry
-from pursue_index.tier0_sweep import detect_claim as detect_tier0_claim
+from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 
 __all__ = [
     "POSITIVE_TIER_PRECEDENCE",
@@ -51,6 +48,7 @@ __all__ = [
     "UNRESOLVED",
     "CardOutcome",
     "CoverageReport",
+    "LoadedCatalogue",
     "build_report",
     "classify",
     "load_catalogue",
@@ -61,49 +59,6 @@ __all__ = [
 RESOLVED_BY_CLAIM = "claim"
 RESOLVED_BY_ERA = "era"
 UNRESOLVED = "unresolved"
-
-#: When a card carries more than one positive tier, the strongest wins as its
-#: primary tier. ``previously_released`` (the whole file is established) outranks
-#: ``previously_released_in_part`` (only part is), which outranks the weaker
-#: ``content_previously_published`` (the content, not this record, is public).
-POSITIVE_TIER_PRECEDENCE: tuple[ProvenanceTier, ...] = (
-    ProvenanceTier.PREVIOUSLY_RELEASED,
-    ProvenanceTier.PREVIOUSLY_RELEASED_IN_PART,
-    ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
-)
-
-
-def load_catalogue(repo_root: Path) -> list[SourceEntry]:
-    """Load the PV1.4 sitemap catalogue if built, else an empty list.
-
-    CREST and content-published resolutions need no catalogue, so a clean
-    checkout that never ran the (live) catalogue build still reports honestly.
-    """
-    path = repo_root / SOURCE_INDEX_PATH
-    if not path.exists():
-        return []
-    data = json.loads(path.read_text())
-    return [SourceEntry.from_dict(row) for row in data.get("entries", [])]
-
-
-def _positive_tiers(card: dict[str, Any], catalogue: Sequence[SourceEntry]) -> set[ProvenanceTier]:
-    """Every positive prior-release tier the chain asserts for one card."""
-    tiers: set[ProvenanceTier] = set()
-    tier0 = detect_tier0_claim(card)
-    if tier0 is not None:
-        tiers.add(tier0.tier)
-    for claim in resolve_card(card, catalogue=catalogue):
-        tiers.add(claim.tier)
-    return tiers
-
-
-def _primary_tier(tiers: set[ProvenanceTier]) -> ProvenanceTier | None:
-    """The strongest tier among a card's positive claims, or ``None``."""
-    for tier in POSITIVE_TIER_PRECEDENCE:
-        if tier in tiers:
-            return tier
-    return None
-
 
 @dataclass(frozen=True)
 class CardOutcome:
@@ -131,7 +86,7 @@ class CardOutcome:
 
 def classify(card: dict[str, Any], catalogue: Sequence[SourceEntry] = ()) -> CardOutcome:
     """Resolve one card through the chain and place it in exactly one route."""
-    primary = _primary_tier(_positive_tiers(card, catalogue))
+    primary = primary_positive_tier(card, catalogue)
     card_era = classify_card(card)
     if primary is not None:
         resolved_by = RESOLVED_BY_CLAIM
@@ -162,6 +117,8 @@ class CoverageReport:
     page_image_flagged: int
     unresolved_by_era: dict[str, int]
     outcomes: tuple[CardOutcome, ...]
+    catalogue_entries: int = 0
+    catalogue_rows_dropped: int = 0
 
     def unresolved_cards(self) -> list[CardOutcome]:
         """The cards no route resolved — what Phase B would have to reach."""
@@ -176,15 +133,29 @@ class CoverageReport:
             "tier_counts": self.tier_counts,
             "page_image_flagged": self.page_image_flagged,
             "unresolved_by_era": self.unresolved_by_era,
+            "catalogue_entries": self.catalogue_entries,
+            "catalogue_rows_dropped": {
+                "count": self.catalogue_rows_dropped,
+                "reason": INVALID_URL_EXCLUSION_REASON,
+            },
             "unresolved_cards": [o.to_dict() for o in self.unresolved_cards()],
         }
 
 
 def build_report(
-    manifest: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+    manifest: dict[str, Any],
+    catalogue: Sequence[SourceEntry] | LoadedCatalogue = (),
 ) -> CoverageReport:
-    """Run the chain over every card and aggregate the coverage split."""
-    outcomes = [classify(card, catalogue) for card in manifest.get("cards", [])]
+    """Run the chain over every card and aggregate the coverage split.
+
+    ``catalogue`` may be a plain sequence of entries or a
+    :class:`~pursue_index.catalogue_load.LoadedCatalogue`. The loaded form also
+    carries how many stored rows could not be read, and the report publishes
+    that: a coverage figure is a statement about how much was searched, so the
+    part of the catalogue that was unreadable belongs in it.
+    """
+    loaded = catalogue if isinstance(catalogue, LoadedCatalogue) else LoadedCatalogue(list(catalogue), 0)
+    outcomes = [classify(card, loaded.entries) for card in manifest.get("cards", [])]
     routes = Counter(o.resolved_by for o in outcomes)
     tier_counts = Counter(o.primary_tier for o in outcomes if o.primary_tier is not None)
     unresolved_by_era = Counter(o.era for o in outcomes if o.resolved_by == UNRESOLVED)
@@ -197,4 +168,6 @@ def build_report(
         page_image_flagged=sum(1 for o in outcomes if o.needs_page_image_comparison),
         unresolved_by_era=dict(sorted(unresolved_by_era.items())),
         outcomes=tuple(outcomes),
+        catalogue_entries=len(loaded.entries),
+        catalogue_rows_dropped=loaded.dropped_rows,
     )

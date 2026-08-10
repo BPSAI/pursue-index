@@ -43,10 +43,16 @@ from datetime import date
 from pathlib import Path
 from typing import Any, NamedTuple
 
-from pursue_index.provenance import POSITIVE_TIERS, DateBasis, ProvenanceTier
+from pursue_index.provenance import (
+    POSITIVE_TIERS,
+    DateBasis,
+    ProvenanceTier,
+    is_citable_prior_source,
+)
 
 __all__ = [
     "OUTPUT_PATH",
+    "SweepResult",
     "Tier0Claim",
     "build_output",
     "detect_claim",
@@ -66,6 +72,14 @@ _MONTHS = {
     "december": 12,
 }
 _DATE_RE = re.compile(r"([A-Z][a-z]+)\s+(\d{1,2}),\s+(\d{4})")
+
+#: Why a matched rule can yield no claim — published beside the count.
+UNCITABLE_PRIOR_SOURCE_REASON = (
+    "No claim: the description asserts a prior release but the source it names "
+    "is not an address a reader can follow, and a Tier-0 claim is published as "
+    "a pointer to that source. Naming a different source from a weaker rule "
+    "would attribute the release to something the description did not say."
+)
 
 
 @dataclass(frozen=True)
@@ -101,6 +115,12 @@ class Tier0Claim:
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"a Tier-0 claim requires non-blank {name}")
+        if not is_citable_prior_source(self.prior_source):
+            raise ValueError(
+                "prior_source is published as the pointer a reader is given, so it "
+                "must be an outlet name, a bare domain or an absolute http(s) URL; "
+                f"{self.prior_source!r} is none of those"
+            )
         if (self.stated_date is None) != (self.date_basis is None):
             raise ValueError("stated_date and date_basis must be set together or not at all")
 
@@ -193,56 +213,117 @@ def _parse_stated_date(text: str) -> date | None:
     return date(int(match.group(3)), month, int(match.group(2)))
 
 
-def _prior_source(rule: _Rule, match: re.Match[str]) -> str:
-    if rule.prior_source_group is not None:
-        return match.group(rule.prior_source_group).strip()
-    assert rule.prior_source is not None  # one of the two is always set
-    return rule.prior_source
+def _prior_source(rule: _Rule, match: re.Match[str]) -> str | None:
+    """The prior source this match names, or ``None`` if it names no address.
+
+    A rule either carries a static label or reads one out of the description. A
+    captured token has to be something a reader can follow to be published as
+    the prior source, so one that is not yields ``None`` — and the caller emits
+    no claim rather than a claim pointing somewhere unreachable.
+    """
+    if rule.prior_source_group is None:
+        return rule.prior_source
+    captured = match.group(rule.prior_source_group).strip()
+    return captured if is_citable_prior_source(captured) else None
+
+
+def _first_match(description: str) -> tuple[_Rule, re.Match[str]] | None:
+    """The most specific prior-release phrasing this description asserts.
+
+    ``_RULES`` runs most-specific first, so the first hit is the card's reading:
+    it fixes both the tier and the source the government pointed at. That makes
+    it the *only* reading — a later rule describes a different assertion, and
+    pairing its tier with this card would state something the description does
+    not.
+    """
+    for rule in _RULES:
+        match = rule.pattern.search(description)
+        if match is not None:
+            return rule, match
+    return None
+
+
+def _claim_from(
+    card: dict[str, Any], rule: _Rule, match: re.Match[str], prior_source: str
+) -> Tier0Claim:
+    """Build the claim a matched rule establishes, evidence kept verbatim."""
+    description = card.get("description") or ""
+    stated_date = _parse_stated_date(match.group(0)) if rule.date_group else None
+    return Tier0Claim(
+        card_id=str(card.get("card_id") or card.get("title") or ""),
+        identifier=str(card.get("asset_filename") or card.get("title") or card.get("card_id") or ""),
+        title=str(card.get("title") or ""),
+        tier=rule.tier,
+        evidence=_sentence_containing(description, match.start(), match.end()),
+        prior_source=prior_source,
+        stated_date=stated_date,
+        date_basis=DateBasis.PUBLISHER_DATE if stated_date else None,
+    )
+
+
+class _Detection(NamedTuple):
+    """One card's outcome: its claim, or the fact that its source was unnamed."""
+
+    claim: Tier0Claim | None
+    uncitable_prior_source: bool
+
+
+def _detect(card: dict[str, Any]) -> _Detection:
+    """Read one card: the claim it asserts, or why it asserts none."""
+    description = card.get("description") or ""
+    if not description.strip():
+        return _Detection(None, False)
+    found = _first_match(description)
+    if found is None:
+        return _Detection(None, False)
+    rule, match = found
+    prior_source = _prior_source(rule, match)
+    if prior_source is None:
+        return _Detection(None, True)
+    return _Detection(_claim_from(card, rule, match, prior_source), False)
 
 
 def detect_claim(card: dict[str, Any]) -> Tier0Claim | None:
     """Return the Tier-0 claim a card's description asserts, or ``None``.
 
     Precision over recall: only a concrete prior-release / declassification
-    assertion yields a claim. The first matching rule wins.
+    assertion yields a claim, and only when the source it names is one a reader
+    can follow. The first matching rule is the card's reading.
     """
-    description = card.get("description") or ""
-    if not description.strip():
-        return None
-    for rule in _RULES:
-        match = rule.pattern.search(description)
-        if match is None:
-            continue
-        stated_date = _parse_stated_date(match.group(0)) if rule.date_group else None
-        return Tier0Claim(
-            card_id=str(card.get("card_id") or card.get("title") or ""),
-            identifier=str(card.get("asset_filename") or card.get("title") or card.get("card_id") or ""),
-            title=str(card.get("title") or ""),
-            tier=rule.tier,
-            evidence=_sentence_containing(description, match.start(), match.end()),
-            prior_source=_prior_source(rule, match),
-            stated_date=stated_date,
-            date_basis=DateBasis.PUBLISHER_DATE if stated_date else None,
-        )
-    return None
+    return _detect(card).claim
 
 
-def sweep(manifest: dict[str, Any]) -> list[Tier0Claim]:
+class SweepResult(NamedTuple):
+    """One pass over a manifest: the claims, and the cards left without one.
+
+    ``uncitable_prior_source`` counts the cards whose description does assert a
+    prior release but names a source no reader can follow. They carry no claim,
+    and the count travels with the claims so the artifact says how many cards
+    are in that position.
+    """
+
+    claims: list[Tier0Claim]
+    uncitable_prior_source: int
+
+
+def sweep(manifest: dict[str, Any]) -> SweepResult:
     """Emit a Tier-0 claim for every card whose description asserts one."""
-    claims = []
+    claims: list[Tier0Claim] = []
+    uncitable = 0
     for card in manifest.get("cards", []):
-        claim = detect_claim(card)
-        if claim is not None:
-            claims.append(claim)
-    return claims
+        detection = _detect(card)
+        if detection.claim is not None:
+            claims.append(detection.claim)
+        uncitable += int(detection.uncitable_prior_source)
+    return SweepResult(claims, uncitable)
 
 
-def sweep_file(path: Path) -> list[Tier0Claim]:
+def sweep_file(path: Path) -> SweepResult:
     """Load a manifest JSON file and sweep it."""
     return sweep(json.loads(Path(path).read_text()))
 
 
-def build_output(manifest: dict[str, Any], claims: list[Tier0Claim]) -> dict[str, Any]:
+def build_output(manifest: dict[str, Any], result: SweepResult) -> dict[str, Any]:
     """Assemble the tracked artifact: manifest provenance + the claims."""
     return {
         "schema": _SCHEMA,
@@ -250,8 +331,12 @@ def build_output(manifest: dict[str, Any], claims: list[Tier0Claim]) -> dict[str
         "source_manifest": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
         "card_count": len(manifest.get("cards", [])),
-        "claim_count": len(claims),
-        "claims": [claim.to_dict() for claim in claims],
+        "claim_count": len(result.claims),
+        "uncitable_prior_source_skipped": {
+            "count": result.uncitable_prior_source,
+            "reason": UNCITABLE_PRIOR_SOURCE_REASON,
+        },
+        "claims": [claim.to_dict() for claim in result.claims],
     }
 
 
@@ -261,10 +346,14 @@ def main() -> int:
     manifest_path = repo_root / "data" / "manifests" / "latest.json"
     out_path = repo_root / OUTPUT_PATH
     manifest = json.loads(manifest_path.read_text())
-    claims = sweep(manifest)
+    result = sweep(manifest)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(build_output(manifest, claims), indent=2) + "\n")
-    print(f"tier-0 sweep: {len(claims)} claim(s) from {len(manifest.get('cards', []))} cards")
+    out_path.write_text(json.dumps(build_output(manifest, result), indent=2) + "\n")
+    print(
+        f"tier-0 sweep: {len(result.claims)} claim(s) from "
+        f"{len(manifest.get('cards', []))} cards"
+    )
+    print(f"  {result.uncitable_prior_source} card(s) skipped: the named prior source is not an address")
     print(f"  wrote {out_path.relative_to(repo_root)}")
     return 0
 

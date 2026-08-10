@@ -39,18 +39,20 @@ from collections.abc import Sequence
 from dataclasses import replace
 from datetime import date
 from email.utils import parsedate_to_datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
+from urllib.parse import urlparse
 
+from pursue_index.catalogue_load import load_catalogue
 from pursue_index.identifiers import Identifier, IdentifierKind, extract_identifiers
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
-from pursue_index.source_index import OUTPUT_PATH as CATALOGUE_PATH
-from pursue_index.source_index import SourceEntry
+from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 from pursue_index.tier0_sweep import detect_claim as detect_tier0_claim
 
 __all__ = [
     "CREST_ONLINE_RELEASE",
+    "MIN_NUMERIC_IDENTIFIER_DIGITS",
     "OUTPUT_PATH",
     "build_output",
     "is_omnibus_subset",
@@ -68,12 +70,41 @@ OUTPUT_PATH = Path("data") / "provenance" / "identifier-claims.json"
 #: public publisher date every genuine ``CIA-RDP…`` document inherits.
 CREST_ONLINE_RELEASE = date(2017, 1, 17)
 
+#: A purely-numeric identifier shorter than this resolves nothing. A short bare
+#: number is indistinguishable from the incidental numerals archives put in paths
+#: and filenames — a year, a box, a page count, a batch — so it cannot name a
+#: document on its own. The floor does cost real matches: Project Blue Book case
+#: numbers run from 1 to about 12,618, so most of that range is four digits or
+#: fewer and falls below it. That is the trade this resolver chooses, because a
+#: claim cites a specific artifact by URL: a missed match leaves a card for a
+#: later phase, while a wrong one publishes a citation to a document that has
+#: nothing to do with the card.
+MIN_NUMERIC_IDENTIFIER_DIGITS = 5
+
+#: Identifier families whose values are bare numbers, and so carry no structure
+#: that could distinguish them from an archive's own numbering.
+_NUMERIC_IDENTIFIER_KINDS = frozenset({IdentifierKind.BLUE_BOOK_CASE, IdentifierKind.NAID})
+
 _SCHEMA = "identifier-resolver-claims/v1"
 
 # A card that is a numbered *section* / *part* of a larger file, or whose own
 # description concedes it is partial, is an omnibus subset.
 _OMNIBUS_SECTION_RE = re.compile(r"(?<![a-z])(?:section|part)[\s_]*\d+", re.IGNORECASE)
 _OMNIBUS_PHRASES = ("some pages missing", "partially posted", "partial release")
+
+
+def _too_short_to_identify(value: str) -> bool:
+    """True for a purely-numeric value too short to name a document.
+
+    A bounded-token match still lets a short number match freely when it *is*
+    its own token — ``case 14`` against a ``/2020/14/`` path segment, ``NAID
+    413`` against ``rpt-413.pdf``. Archive paths and filenames are full of short
+    numerals that mean something else entirely, and a bare number carries no
+    structure to tell the two apart, so below
+    :data:`MIN_NUMERIC_IDENTIFIER_DIGITS` a numeric value resolves nothing.
+    """
+    digits = re.sub(r"[^0-9]", "", value)
+    return digits == re.sub(r"[^a-z0-9]", "", value.lower()) and len(digits) < MIN_NUMERIC_IDENTIFIER_DIGITS
 
 
 def _value_pattern(value: str) -> re.Pattern[str] | None:
@@ -85,6 +116,8 @@ def _value_pattern(value: str) -> re.Pattern[str] | None:
     NAID number from substring-matching an unrelated catalogue URL and emitting
     a false citation on a citable archive.
     """
+    if _too_short_to_identify(value):
+        return None
     runs = re.findall(r"[a-z0-9]+", value.lower())
     if not runs:
         return None
@@ -126,12 +159,40 @@ def resolve_crest(card: dict[str, Any], ident: Identifier) -> ResolvedClaim:
     )
 
 
-def _entry_matches(value: str, entry: SourceEntry) -> bool:
-    pattern = _value_pattern(value)
+def _match_targets(ident: Identifier, entry: SourceEntry) -> tuple[str, ...]:
+    """The parts of a catalogue entry that can name the document it points to.
+
+    The filename stem always can: it is the archive's name for that document.
+    Whether a *directory* can depends on the identifier family.
+
+    A structured file number — ``62-HQ-83894``, ``CIA-RDP81-…`` — carries its
+    own agency and series, so it means the same thing wherever an archive writes
+    it. An archive that gives such a number a directory of its own has named the
+    file, and the documents filed directly beneath it are that file; a generic
+    filename like ``cover-letter.pdf`` describes the page rather than the case,
+    so refusing the directory would mean refusing a match the archive stated.
+    Only the *last* directory counts: a segment further up names the collection
+    the document sits in, not the document.
+
+    A purely-numeric identifier gets no such reach. Archive paths number years,
+    boxes and batches (``/2020/14/``), so a bare number standing as a directory
+    is as likely to be one of those as it is to be a case number — and there is
+    nothing in the value to tell them apart. For those, the filename is the
+    only evidence.
+    """
+    stem = PurePosixPath(entry.filename).stem.lower()
+    if ident.kind in _NUMERIC_IDENTIFIER_KINDS:
+        return (stem,)
+    parents = PurePosixPath(urlparse(entry.url).path).parent
+    return (stem, parents.name.lower())
+
+
+def _entry_matches(ident: Identifier, entry: SourceEntry) -> bool:
+    """True iff the catalogue entry is the archive naming ``ident``'s document."""
+    pattern = _value_pattern(ident.value)
     if pattern is None:
         return False
-    haystack = f"{entry.url}\n{entry.filename}".lower()
-    return pattern.search(haystack) is not None
+    return any(target and pattern.search(target) is not None for target in _match_targets(ident, entry))
 
 
 def resolve_against_catalogue(
@@ -141,23 +202,31 @@ def resolve_against_catalogue(
 
     A match needs a datable ``Last-Modified``; without one there is no honest
     establishing date, so the entry is skipped rather than dated by a guess.
+
+    A row the claim constructor refuses costs that row only: the search
+    continues to the next entry. Rows are validated where they are built, so
+    this is the layer beneath that — proportionality if one ever arrives
+    unvalidated, since ``classify`` calls this across the whole corpus.
     """
     for entry in catalogue:
-        if not _entry_matches(ident.value, entry):
+        if not _entry_matches(ident, entry):
             continue
         established = _parse_http_date(entry.last_modified)
         if established is None:
             continue
-        return ResolvedClaim(
-            card_id=str(card.get("card_id") or ""),
-            tier=ProvenanceTier.PREVIOUSLY_RELEASED,
-            source=ResolutionSource.CATALOGUE,
-            identifier_kind=ident.kind.value,
-            identifier_value=ident.value,
-            artifact_url=entry.url,
-            established_date=established,
-            date_basis=DateBasis.HTTP_LAST_MODIFIED,
-        )
+        try:
+            return ResolvedClaim(
+                card_id=str(card.get("card_id") or ""),
+                tier=ProvenanceTier.PREVIOUSLY_RELEASED,
+                source=ResolutionSource.CATALOGUE,
+                identifier_kind=ident.kind.value,
+                identifier_value=ident.value,
+                artifact_url=entry.url,
+                established_date=established,
+                date_basis=DateBasis.HTTP_LAST_MODIFIED,
+            )
+        except ValueError:
+            continue
     return None
 
 
@@ -225,14 +294,27 @@ def resolve_card(
 
 
 def build_output(
-    manifest: dict[str, Any], claims: Sequence[ResolvedClaim], catalogue_entries: int
+    manifest: dict[str, Any],
+    claims: Sequence[ResolvedClaim],
+    catalogue_entries: int,
+    catalogue_rows_dropped: int = 0,
 ) -> dict[str, Any]:
-    """Assemble the tracked artifact: resolver provenance + the claims."""
+    """Assemble the tracked artifact: resolver provenance + the claims.
+
+    ``catalogue_rows_dropped`` says how much of the stored catalogue could not
+    be read. A resolver's output is only as complete as the surface it searched,
+    so that figure travels in the artifact rather than only on the console that
+    produced it.
+    """
     return {
         "schema": _SCHEMA,
         "source_manifest": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
         "catalogue_entries": catalogue_entries,
+        "catalogue_rows_dropped": {
+            "count": catalogue_rows_dropped,
+            "reason": INVALID_URL_EXCLUSION_REASON,
+        },
         "card_count": len(manifest.get("cards", [])),
         "claim_count": len(claims),
         "tier_counts": dict(Counter(c.tier.value for c in claims)),
@@ -241,32 +323,28 @@ def build_output(
     }
 
 
-def _load_catalogue(path: Path) -> list[SourceEntry]:
-    """Load PV1.4 catalogue entries if the artifact exists, else empty."""
-    if not path.exists():
-        return []
-    data = json.loads(path.read_text())
-    return [SourceEntry.from_dict(row) for row in data.get("entries", [])]
-
-
 def main() -> int:
     """CLI: resolve ``data/manifests/latest.json`` -> the tracked artifact.
 
     Resolves against the PV1.4 catalogue when ``source-index.json`` is present;
     CREST and content-published resolutions need no catalogue, so COMETA still
     resolves in a clean checkout that has never run the (live) catalogue build.
+    The catalogue is read through the shared loader, so this artifact rests on
+    exactly the rows the era pass and the coverage report rest on.
     """
     repo_root = Path(__file__).resolve().parents[2]
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
-    catalogue = _load_catalogue(repo_root / CATALOGUE_PATH)
+    catalogue = load_catalogue(repo_root)
     claims: list[ResolvedClaim] = []
     for card in manifest.get("cards", []):
-        claims.extend(resolve_card(card, catalogue=catalogue))
+        claims.extend(resolve_card(card, catalogue=catalogue.entries))
     out_path = repo_root / OUTPUT_PATH
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(build_output(manifest, claims, len(catalogue)), indent=2) + "\n")
+    output = build_output(manifest, claims, len(catalogue.entries), catalogue.dropped_rows)
+    out_path.write_text(json.dumps(output, indent=2) + "\n")
     print(f"identifier resolver: {len(claims)} claim(s) from {len(manifest.get('cards', []))} cards")
-    print(f"  catalogue entries: {len(catalogue)}")
+    print(f"  catalogue entries: {len(catalogue.entries)}")
+    print(f"  catalogue rows skipped: {catalogue.dropped_rows}")
     print(f"  wrote {out_path.relative_to(repo_root)}")
     return 0
 

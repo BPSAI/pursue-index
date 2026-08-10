@@ -3,12 +3,17 @@
   "source_manifest": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "csv_sha256": "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1",
   "card_count": 334,
+  "catalogue_entries": 0,
+  "catalogue_rows_dropped": {
+    "count": 0,
+    "reason": "Dropped: a sitemap <loc> is a third-party string and a catalogue row is one hop from a citation, so a row whose URL is not plain http(s) is excluded rather than carried into the artifact."
+  },
   "era_counts": {
-    "2015_plus": 171,
+    "2015_plus": 168,
     "1990_2014": 12,
     "1970_1989": 19,
     "pre_1970": 60,
-    "undated": 72
+    "undated": 75
   },
   "agency_counts": {
     "CIA": 21,
@@ -30,23 +35,23 @@
       "undated": 36
     },
     "current": {
-      "2015_plus": 171,
+      "2015_plus": 168,
       "1990_2014": 12,
       "1970_1989": 19,
       "pre_1970": 60,
-      "undated": 72
+      "undated": 75
     },
     "delta": {
-      "2015_plus": -35,
+      "2015_plus": -38,
       "1990_2014": -1,
       "1970_1989": 0,
       "pre_1970": 0,
-      "undated": 36
+      "undated": 39
     },
     "matches_reference": false,
-    "note": "\u00a74a was computed against a manifest with display-date curation applied; this manifest carries a curated display_date for only a handful of cards, so undated cards that \u00a74a dated via display_date surface here as triage. release_date (the war.gov publication date) is never used as a document era."
+    "note": "Two causes account for the undated delta, and they are separate. (1) Display-date curation: \u00a74a was computed against a manifest with that curation applied, and this manifest carries a curated display_date for only a handful of cards, so cards \u00a74a dated via display_date surface here as triage. (2) Two-digit years: a two-digit year states no century, so this stage reads one through a pivot and accepts the result only when a four-digit year elsewhere on the same card states the same year \u2014 a card whose only date is an uncorroborated two-digit year is undated here for that reason rather than for the first. In both cases release_date (the war.gov publication date) is never used as a document era."
   },
-  "no_prior_release_count": 171,
+  "no_prior_release_count": 166,
   "no_prior_release": [
     {
       "kind": "era_no_prior_release",
@@ -88,20 +93,6 @@
       "date_source": "incident_date",
       "established_date": "2019",
       "rationale": "This document is dated 2019 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
-      "card_id": "7e0b4624ee81788e",
-      "identifier": "DOE-UAP-D005_Pantex-Unidentified-Object-Incident-Report_2015.pdf",
-      "title": "DOE-UAP-D005, Pantex Unidentified Object Incident Report, 2015",
-      "agency": "Department of Energy",
-      "established_year": 2015,
-      "date_source": "incident_date",
-      "established_date": "9/1/15",
-      "rationale": "This document is dated 2015 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
       "disclaimer": "absence of a prior release is not established"
     },
     {
@@ -234,20 +225,6 @@
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
       "era": "2015_plus",
-      "card_id": "3a0d83f3e51179db",
-      "identifier": "dow-uap-d27-mission-report-united-arab-emirates-october-2023.pdf",
-      "title": "DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023",
-      "agency": "Department of War",
-      "established_year": 2024,
-      "date_source": "incident_date",
-      "established_date": "6/7/24",
-      "rationale": "This document is dated 2024 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
       "card_id": "9151e15016109463",
       "identifier": "dow-uap-d28-mission-report-east-china-sea-2024.pdf",
       "title": "DOW-UAP-D028, Mission Report, Iraq, September 2024",
@@ -318,20 +295,6 @@
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
       "era": "2015_plus",
-      "card_id": "a0f6663169c21caf",
-      "identifier": "dow-uap-d42-range-fouler-debrief-japan-2023.pdf",
-      "title": "DOW-UAP-D042, Range Fouler Debrief, Japan, 2023",
-      "agency": "Department of War",
-      "established_year": 2020,
-      "date_source": "incident_date",
-      "established_date": "8/31/20",
-      "rationale": "This document is dated 2020 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
       "card_id": "cc33e8c352fc80ce",
       "identifier": "dow-uap-d44-range-fouler-arabian-sea-october-2020.pdf",
       "title": "DOW-UAP-D044, Range Fouler Reporting Form, Gulf of Aden, October 2020",
@@ -354,20 +317,6 @@
       "date_source": "incident_date",
       "established_date": "4/10/2025-4/11/2025",
       "rationale": "This document is dated 2025 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
-      "card_id": "71758de42a2df926",
-      "identifier": "dow-uap-d51-email-correspondence-pacific-time-zone-march-2023.pdf",
-      "title": "DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023",
-      "agency": "Department of War",
-      "established_year": 2026,
-      "date_source": "incident_date",
-      "established_date": "3/23/26",
-      "rationale": "This document is dated 2026 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
       "disclaimer": "absence of a prior release is not established"
     },
     {
@@ -2404,20 +2353,6 @@
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
       "era": "2015_plus",
-      "card_id": "fd342b7508668b0e",
-      "identifier": "ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf",
-      "title": "ODNI-UAP-D001, USPER Narrative, Senior USIC Official",
-      "agency": "Office of the Director of National Intelligence",
-      "established_year": 2025,
-      "date_source": "incident_date",
-      "established_date": "2025",
-      "rationale": "This document is dated 2025 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
       "card_id": "be533a4ab886eb11",
       "identifier": "usper-statement-redacted.pdf",
       "title": "USPER Statement about UAP Sighting",
@@ -2443,7 +2378,36 @@
       "disclaimer": "absence of a prior release is not established"
     }
   ],
-  "undated_triage_count": 72,
+  "superseded_by_claim_count": 2,
+  "superseded_by_claim": [
+    {
+      "card_id": "7e0b4624ee81788e",
+      "identifier": "DOE-UAP-D005_Pantex-Unidentified-Object-Incident-Report_2015.pdf",
+      "title": "DOE-UAP-D005, Pantex Unidentified Object Incident Report, 2015",
+      "agency": "Department of Energy",
+      "era": "2015_plus",
+      "era_year": 2015,
+      "date_source": "incident_date",
+      "superseding_tier": "previously_released_in_part",
+      "superseding_source": "war.gov CSV manifest description",
+      "superseding_evidence": "Pages 5 and 6 of this report were originally released under the PURSUE initiative in a more redacted form on May 22, 2026.",
+      "reason": "A positive prior-release claim was found for this card, so the era-based no-prior-release conclusion does not apply: the claim is evidence the record did appear before this archive was assembled."
+    },
+    {
+      "card_id": "fd342b7508668b0e",
+      "identifier": "ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf",
+      "title": "ODNI-UAP-D001, USPER Narrative, Senior USIC Official",
+      "agency": "Office of the Director of National Intelligence",
+      "era": "2015_plus",
+      "era_year": 2025,
+      "date_source": "incident_date",
+      "superseding_tier": "previously_released",
+      "superseding_source": "war.gov CSV manifest description",
+      "superseding_evidence": "This account is accompanied by infrared imagery taken during the same exercise by other federal officials from the ground, originally released on war.gov/UFO on May 8, 2026.",
+      "reason": "A positive prior-release claim was found for this card, so the era-based no-prior-release conclusion does not apply: the claim is evidence the record did appear before this archive was assembled."
+    }
+  ],
+  "undated_triage_count": 75,
   "undated_triage": [
     {
       "card_id": "973c1f75f55d0d39",
@@ -2801,6 +2765,42 @@
       "available_dates": {
         "display_date": null,
         "incident_date": null,
+        "release_date": "5/8/26"
+      },
+      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
+    },
+    {
+      "card_id": "3a0d83f3e51179db",
+      "identifier": "dow-uap-d27-mission-report-united-arab-emirates-october-2023.pdf",
+      "title": "DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023",
+      "agency": "Department of War",
+      "available_dates": {
+        "display_date": null,
+        "incident_date": "6/7/24",
+        "release_date": "5/8/26"
+      },
+      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
+    },
+    {
+      "card_id": "a0f6663169c21caf",
+      "identifier": "dow-uap-d42-range-fouler-debrief-japan-2023.pdf",
+      "title": "DOW-UAP-D042, Range Fouler Debrief, Japan, 2023",
+      "agency": "Department of War",
+      "available_dates": {
+        "display_date": null,
+        "incident_date": "8/31/20",
+        "release_date": "5/8/26"
+      },
+      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
+    },
+    {
+      "card_id": "71758de42a2df926",
+      "identifier": "dow-uap-d51-email-correspondence-pacific-time-zone-march-2023.pdf",
+      "title": "DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023",
+      "agency": "Department of War",
+      "available_dates": {
+        "display_date": null,
+        "incident_date": "3/23/26",
         "release_date": "5/8/26"
       },
       "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
@@ -3437,9 +3437,9 @@
       "title": "255_413270_UFO's_and_Defense_What_Should_we_Prepare_For",
       "agency": "NASA",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "7bd99ac64660258e",
@@ -3487,9 +3487,9 @@
       "title": "38_143685_box_Incident_Summaries_101-172",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "be226374e719c729",
@@ -3497,9 +3497,9 @@
       "title": "38_143685_box_Incident_Summaries_173-233",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "b60b84a66715204a",
@@ -3507,9 +3507,9 @@
       "title": "38_143685_box7_Incident_Summaries_1-100",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "9e2c2621d67dde12",
@@ -3557,9 +3557,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_001",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "4844321219e306af",
@@ -3567,9 +3567,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_002",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "99c12a9c49a91750",
@@ -3577,9 +3577,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_003",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "5ecebc7c28a8d8c7",
@@ -3587,9 +3587,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_004",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "b246c782b16be168",
@@ -3597,9 +3597,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_005",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "13f86e95aed52840",
@@ -3607,9 +3607,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_006",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "f85532f0514320be",
@@ -3617,9 +3617,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_007",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "ad721de274bb7d6c",
@@ -3627,9 +3627,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_008",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "8bfd94484138d59b",
@@ -3637,9 +3637,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_009",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "7d58f0cac741650a",
@@ -3647,9 +3647,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Section_010",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "108379f8a86dbe9c",
@@ -3657,9 +3657,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Serial_130",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "67c2ef13cc69891c",
@@ -3667,9 +3667,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Serial_153",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "fa24eb58219a8dff",
@@ -3677,9 +3677,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Serial_164",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "4b68726be4af8ff9",
@@ -3687,9 +3687,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Serial_220",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "954d1e1944bc6d17",
@@ -3697,9 +3697,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Serial_403",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "af42a6774881c110",
@@ -3707,9 +3707,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Serial_438",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "f42c11ca158aeffc",
@@ -3717,9 +3717,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_Serial_449",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "e897e67f95bc1e1b",
@@ -3727,9 +3727,9 @@
       "title": "65_HS1-834228961_62-HQ-83894_SUB_A",
       "agency": "FBI",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "811e54fbf8cff4cc",
@@ -3867,9 +3867,9 @@
       "title": "CIA-UAP-015, Project Blue Book Special Report No. 14 (Analysis of Reports of Unidentified Aerial Objects)",
       "agency": "CIA",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "6/12/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "774ebdca92c34892",
@@ -3947,9 +3947,9 @@
       "title": "DOE-UAP-D001, Enhanced PANTEX Imagery",
       "agency": "Department of Energy",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/22/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "8156067f7ff4b983",
@@ -3987,9 +3987,9 @@
       "title": "DOW-UAP-D003, Mission Report, Arabian Gulf, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "4382ccbf2a39513d",
@@ -3997,9 +3997,9 @@
       "title": "DOW-UAP-D004, Mission Report, Arabian Gulf, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "b21122b1b7b2d953",
@@ -4007,9 +4007,9 @@
       "title": "DOW-UAP-D005, Mission Report, Arabian Gulf, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "f6d9556247ebeb2d",
@@ -4017,9 +4017,9 @@
       "title": "DOW-UAP-D006, Mission Report, Arabian Gulf, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "6fc6419676926f13",
@@ -4027,9 +4027,9 @@
       "title": "DOW-UAP-D007, Mission Report, Arabian Gulf, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "33cca99659328520",
@@ -4037,9 +4037,9 @@
       "title": "DOW-UAP-D008, Mission Report, Djibouti, 2025",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "c1c59236394f7b14",
@@ -4146,10 +4146,10 @@
       "identifier": "dow-uap-d27-mission-report-united-arab-emirates-october-2023.pdf",
       "title": "DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023",
       "agency": "Department of War",
-      "era": "2015_plus",
-      "year": 2024,
-      "date_source": "incident_date",
-      "raw_date": "6/7/24"
+      "era": "undated",
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "9151e15016109463",
@@ -4206,10 +4206,10 @@
       "identifier": "dow-uap-d42-range-fouler-debrief-japan-2023.pdf",
       "title": "DOW-UAP-D042, Range Fouler Debrief, Japan, 2023",
       "agency": "Department of War",
-      "era": "2015_plus",
-      "year": 2020,
-      "date_source": "incident_date",
-      "raw_date": "8/31/20"
+      "era": "undated",
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "cc33e8c352fc80ce",
@@ -4256,10 +4256,10 @@
       "identifier": "dow-uap-d51-email-correspondence-pacific-time-zone-march-2023.pdf",
       "title": "DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023",
       "agency": "Department of War",
-      "era": "2015_plus",
-      "year": 2026,
-      "date_source": "incident_date",
-      "raw_date": "3/23/26"
+      "era": "undated",
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "a3f68d208681dc64",
@@ -4277,9 +4277,9 @@
       "title": "DOW-UAP-D054, Mission Report, Mediterranean Sea, NA",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "669dd29723dd423f",
@@ -4477,9 +4477,9 @@
       "title": "DOW-UAP-D084, US Army-Flying-Saucer-Study_1949",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "6/12/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "a83dedef9d19fcb5",
@@ -4497,9 +4497,9 @@
       "title": "DOW-UAP-D086, USNavy-Report-of-Flying-Discs_1948",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "6/12/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "98c1575170956515",
@@ -4507,9 +4507,9 @@
       "title": "DOW-UAP-D087, U.S. Air Force Analysis of Flying Objects in the United States, 1-100",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "6/12/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "a4f1672d4f893c75",
@@ -4517,9 +4517,9 @@
       "title": "DOW-UAP-D088, U.S. Air Force Analysis of Flying Objects in the United States, 101-172",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "6/12/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "042b3e178a68a19c",
@@ -4597,9 +4597,9 @@
       "title": "DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "1b522e779e72877c",
@@ -4607,9 +4607,9 @@
       "title": "DOW-UAP-PR020, Unresolved UAP Report, Kuwait, May 2022",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "43db2719407a7897",
@@ -4617,9 +4617,9 @@
       "title": "DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "4555d94dd6067f57",
@@ -4627,9 +4627,9 @@
       "title": "DOW-UAP-PR022, Unresolved UAP Report, Syria, July 2022",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "9961adf6adf1010b",
@@ -4637,9 +4637,9 @@
       "title": "DOW-UAP-PR023, Unresolved UAP Report, Iraq, December 2022",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "a0c6bbafa1b45010",
@@ -4657,9 +4657,9 @@
       "title": "DOW-UAP-PR026, Unresolved UAP Report, United Arab Emirates, October 2023",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -4667,9 +4667,9 @@
       "title": "DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "5ffbe11403179567",
@@ -4677,9 +4677,9 @@
       "title": "DOW-UAP-PR028, Unresolved UAP Report, Greece, January 2024",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "aa638778a043c89c",
@@ -4687,9 +4687,9 @@
       "title": "DOW-UAP-PR029, Unresolved UAP Report, United Arab Emirates, June 2024",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "b27e6c5aaf095d57",
@@ -4707,9 +4707,9 @@
       "title": "DOW-UAP-PR031, Unresolved UAP Report, Syria, October 2024",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -4717,9 +4717,9 @@
       "title": "DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -4727,9 +4727,9 @@
       "title": "DOW-UAP-PR033, Unresolved UAP Report, Syria, October 2024",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "3746998b8c506e5c",
@@ -4737,9 +4737,9 @@
       "title": "DOW-UAP-PR034, Unresolved UAP Report, Greece, October 2023",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "c788c17e8cc32230",
@@ -4747,9 +4747,9 @@
       "title": "DOW-UAP-PR035, Unresolved UAP Report, Greece, October 2023",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "88a20bf256ccce7a",
@@ -4757,9 +4757,9 @@
       "title": "DOW-UAP-PR036, Unresolved UAP Report, Middle East, May 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "46d871c93e4585fd",
@@ -4767,9 +4767,9 @@
       "title": "DOW-UAP-PR037, Unresolved UAP Report, Middle East, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "9532749afe2d4273",
@@ -4777,9 +4777,9 @@
       "title": "DOW-UAP-PR038, Unresolved UAP Report, Middle East, 2013",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "e924a48f55719a0d",
@@ -4787,9 +4787,9 @@
       "title": "DOW-UAP-PR039, Unresolved UAP Report, Middle East, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "0499d6dc86c848d6",
@@ -4797,9 +4797,9 @@
       "title": "DOW-UAP-PR040, Unresolved UAP Report, Middle East, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "cf5c53c84485c70d",
@@ -4807,9 +4807,9 @@
       "title": "DOW-UAP-PR041, Unresolved UAP Report, Middle East, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "c4da38582fc64334",
@@ -4817,9 +4817,9 @@
       "title": "DOW-UAP-PR042, Unresolved UAP Report, Middle East, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "7aede23a09ee4c6b",
@@ -4827,9 +4827,9 @@
       "title": "DOW-UAP-PR043, Unresolved UAP Report, Africa, 2025",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "42158cfc89c7ab84",
@@ -4837,9 +4837,9 @@
       "title": "DOW-UAP-PR044, Unresolved UAP Report, Middle East, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "2b6de60628336eb8",
@@ -4847,9 +4847,9 @@
       "title": "DOW-UAP-PR045, Unresolved UAP Report, Middle East, 2020",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "9fdc75d250206f65",
@@ -4857,9 +4857,9 @@
       "title": "DOW-UAP-PR046, Unresolved UAP Report, INDOPACOM, 2024",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "86c966cdd1f9f31a",
@@ -4867,9 +4867,9 @@
       "title": "DOW-UAP-PR047, Unresolved UAP Report, INDOPACOM, 2023",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "c5850afb384c768b",
@@ -4877,9 +4877,9 @@
       "title": "DOW-UAP-PR048, Unresolved UAP Report, INDOPACOM, 2024",
       "agency": "Department of War",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "5/8/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "8d3833f36d05ec03",
@@ -6447,9 +6447,9 @@
       "title": "NASA-UAP-D024, \u201cApollo 16 Scientific Debriefing\u201d",
       "agency": "NASA",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "6/12/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "a7455a1d0c406174",
@@ -6457,9 +6457,9 @@
       "title": "NASA-UAP-D025, \u201cApollo 16 Scientific Debriefing\u201d",
       "agency": "NASA",
       "era": "undated",
-      "year": 2026,
-      "date_source": "release_date",
-      "raw_date": "6/12/26"
+      "year": null,
+      "date_source": null,
+      "raw_date": null
     },
     {
       "card_id": "ffd9dfd4bceb163f",

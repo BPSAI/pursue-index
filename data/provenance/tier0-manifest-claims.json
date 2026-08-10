@@ -5,6 +5,10 @@
   "csv_sha256": "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1",
   "card_count": 334,
   "claim_count": 23,
+  "uncitable_prior_source_skipped": {
+    "count": 0,
+    "reason": "No claim: the description asserts a prior release but the source it names is not an address a reader can follow, and a Tier-0 claim is published as a pointer to that source. Naming a different source from a weaker rule would attribute the release to something the description did not say."
+  },
   "claims": [
     {
       "kind": "tier0_manifest_claim",

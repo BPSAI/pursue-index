@@ -62,8 +62,11 @@ def test_real_manifest_coverage_matches_the_chain() -> None:
     """The committed manifest resolves to a stable, known coverage split."""
     report = build_report(_manifest())
     assert report.resolved_by_claim == 23
-    assert report.resolved_by_era == 169
-    assert report.unresolved == 142
+    # Three cards carry a two-digit incident date that no four-digit year on the
+    # card corroborates; they are undated rather than modern, so they sit in
+    # unresolved (triage) instead of taking an era-based negative.
+    assert report.resolved_by_era == 166
+    assert report.unresolved == 145
     assert report.page_image_flagged == 19
     assert report.tier_counts == {
         "previously_released": 3,

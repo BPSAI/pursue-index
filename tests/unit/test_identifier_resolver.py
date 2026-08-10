@@ -310,30 +310,30 @@ def test_build_output_reports_counts_and_catalogue_state() -> None:
     )
 
 
-# --- re-audit follow-up: fix #4 was incomplete -------------------------------
+# --- a resolved claim's artifact_url is an address a reader can follow -------
 
 
-def test_resolved_claim_rejects_a_hostile_url_scheme() -> None:
-    """The first fix guarded `ProvenanceClaim` but not this sibling type.
+def test_resolved_claim_requires_a_web_url_for_its_artifact() -> None:
+    """`ResolvedClaim` answers the same URL question as `ProvenanceClaim`.
 
-    `ResolvedClaim` is the one the identifier resolver actually populates, with
-    `artifact_url=entry.url` taken verbatim from a third-party sitemap `<loc>`.
-    It serialises into `data/provenance/identifier-claims.json`, the artifact
-    meant to back public /methodology citations — so an unvalidated
-    `javascript:` URL is a stored-XSS vector waiting on a renderer.
+    This is the type the identifier resolver populates, with
+    `artifact_url=entry.url` taken verbatim from a third-party sitemap `<loc>`,
+    and it serialises into `data/provenance/identifier-claims.json` — the
+    artifact meant to back public /methodology citations. A citation points at
+    something a reader can open, so only an absolute http(s) URL qualifies.
     """
     from datetime import date
 
     from pursue_index.provenance import DateBasis, ProvenanceTier
     from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
-    for hostile in ("javascript:alert(1)//.pdf", "data:text/html;base64,PHM+", "file:///etc/passwd"):
+    for value in ("javascript:alert(1)//.pdf", "data:text/html;base64,PHM+", "file:///etc/passwd"):
         with pytest.raises(ValueError, match="scheme"):
             ResolvedClaim(
                 card_id="TEST-1",
                 tier=ProvenanceTier.PREVIOUSLY_RELEASED,
                 source=ResolutionSource.CATALOGUE,
-                artifact_url=hostile,
+                artifact_url=value,
                 established_date=date(2020, 5, 30),
                 date_basis=DateBasis.HTTP_LAST_MODIFIED,
             )
@@ -356,7 +356,7 @@ def test_resolved_claim_still_accepts_https_and_a_blank_optional_url() -> None:
     assert ok.artifact_url == "https://vault.fbi.gov/UFO"
 
 
-def test_hostile_scheme_is_rejected_on_deserialisation_too() -> None:
+def test_a_non_web_scheme_is_refused_on_deserialisation_too() -> None:
     from pursue_index.resolved_claim import ResolvedClaim
 
     with pytest.raises(ValueError, match="scheme"):

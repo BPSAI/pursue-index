@@ -195,7 +195,7 @@ def test_ordinary_card_produces_no_claim() -> None:
 def test_sweep_claims_are_all_positive_tiers_and_verbatim() -> None:
     cards = _cards()
     by_id = {c["card_id"]: c for c in cards}
-    claims = sweep(_manifest())
+    claims = sweep(_manifest()).claims
     assert claims  # the manifest is known to carry prior-release language
     for claim in claims:
         assert claim.tier in POSITIVE_TIERS
@@ -206,13 +206,13 @@ def test_sweep_claims_are_all_positive_tiers_and_verbatim() -> None:
 
 
 def test_sweep_file_matches_in_memory_sweep() -> None:
-    from_file = sweep_file(_MANIFEST)
-    in_memory = sweep(_manifest())
+    from_file = sweep_file(_MANIFEST).claims
+    in_memory = sweep(_manifest()).claims
     assert [c.card_id for c in from_file] == [c.card_id for c in in_memory]
 
 
 def test_sweep_includes_all_eighteen_fbi_rows() -> None:
-    claims = sweep(_manifest())
+    claims = sweep(_manifest()).claims
     fbi = [c for c in claims if c.tier is ProvenanceTier.PREVIOUSLY_RELEASED_IN_PART]
     fbi_titles = [c for c in claims if "62-HQ-83894" in c.title]
     assert len(fbi_titles) >= 18
@@ -227,8 +227,9 @@ def test_sweep_includes_all_eighteen_fbi_rows() -> None:
 
 def test_build_output_preserves_manifest_provenance_and_counts() -> None:
     manifest = _manifest()
-    claims = sweep(manifest)
-    out = build_output(manifest, claims)
+    result = sweep(manifest)
+    claims = result.claims
+    out = build_output(manifest, result)
     assert out["claim_count"] == len(claims)
     assert out["card_count"] == len(manifest["cards"])
     assert out["csv_sha256"] == manifest.get("csv_sha256")
