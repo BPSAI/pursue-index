@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import pytest
 
+from pursue_index.provenance import DateBasis
 from pursue_index.sitemap_fetch import UrlRow
 from pursue_index.source_index import (
     SourceEntry,
@@ -36,6 +37,7 @@ _GOOD_ROW: dict[str, object] = {
     "agency": "fbi",
     "era": "undated",
     "era_year": None,
+    "date_basis": DateBasis.SITEMAP_LASTMOD.value,
 }
 
 
@@ -49,6 +51,7 @@ def test_a_catalogue_row_refuses_a_non_web_url(url: str) -> None:
             agency="unknown",
             era="undated",
             era_year=None,
+            date_basis=DateBasis.SITEMAP_LASTMOD,
         )
 
 

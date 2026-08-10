@@ -19,6 +19,7 @@ from __future__ import annotations
 from datetime import date
 
 from pursue_index.identifier_resolver import resolve_card
+from pursue_index.provenance import DateBasis
 from pursue_index.source_index import SourceEntry
 
 _LAST_MODIFIED = "Mon, 01 Jun 2015 08:00:00 GMT"
@@ -32,6 +33,7 @@ def _entry(url: str) -> SourceEntry:
         agency="unknown",
         era="undated",
         era_year=None,
+        date_basis=DateBasis.HTTP_LAST_MODIFIED,
     )
 
 
@@ -74,6 +76,7 @@ def test_an_undatable_row_is_still_skipped_before_the_url_is_reached() -> None:
         agency=entry.agency,
         era=entry.era,
         era_year=entry.era_year,
+        date_basis=entry.date_basis,
     )
     card = {"card_id": "fbi3", "title": "The 62-HQ-83894 case file records"}
     assert resolve_card(card, catalogue=[undatable]) == []

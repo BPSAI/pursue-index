@@ -1,17 +1,19 @@
 """Tests for the sitemap-derived source catalogue (PV1.4).
 
 The catalogue is the local index of *candidate* prior-disclosure sources — one
-row per URL with its filename, HTTP ``Last-Modified``, and an inferred agency
-and era. Three disciplines are load-bearing and covered here:
+row per URL with its filename, the sitemap's last-modified value and the basis
+that value rests on, and an inferred agency and era. Three disciplines are
+load-bearing and covered here:
 
 * **The ``UFOFiles/`` tree is excluded** (spec §2a): it holds only mirrors of
   the PURSUE releases and would poison the candidate set.
 * **No PDF is ever fetched.** The whole build runs through the courteous
   fetcher, which only ever touches listings; the ``<loc>`` PDF URLs are
   *recorded*, never requested.
-* **A ``Last-Modified`` is stored as ``http-last-modified``, never as a
-  publication date** (spec §6d: these values are bulk-migration mtimes). Era is
-  inferred from the path/filename instead, independently of the mtime.
+* **A last-modified value is stored under the basis it came from, never as a
+  publication date** (spec §6d: these values are bulk-migration mtimes). Rows
+  built from sitemaps carry ``sitemap_lastmod``. Era is inferred from the
+  path/filename instead, independently of the mtime.
 """
 
 from __future__ import annotations
@@ -85,29 +87,30 @@ def test_infer_era_undated_when_no_year() -> None:
 
 
 # --------------------------------------------------------------------------
-# SourceEntry — a row, with last-modified pinned to http-last-modified.
+# SourceEntry — a row that states the basis its last-modified value rests on.
 # --------------------------------------------------------------------------
 
 
-def test_entry_records_filename_and_http_last_modified_basis() -> None:
+def test_entry_records_filename_and_sitemap_lastmod_basis() -> None:
     entry = entry_from_url(
         "https://host/cbp/2021/incident-report.pdf",
-        "Sat, 30 May 2020 09:12:00 GMT",
+        "2020-05-30T09:12:00Z",
     )
     assert entry.filename == "incident-report.pdf"
     assert entry.agency == "cbp"
     assert entry.era == "2015_plus"
     assert entry.era_year == 2021
-    assert entry.last_modified == "Sat, 30 May 2020 09:12:00 GMT"
-    # The mtime is never a publication date — it is pinned to the HTTP basis.
-    assert entry.date_basis is DateBasis.HTTP_LAST_MODIFIED
+    assert entry.last_modified == "2020-05-30T09:12:00Z"
+    # The mtime is never a publication date, and the row states where the value
+    # came from: the sitemap's <lastmod> element, which reads as ISO 8601.
+    assert entry.date_basis is DateBasis.SITEMAP_LASTMOD
 
 
 def test_entry_roundtrips_through_dict() -> None:
     entry = entry_from_url("https://host/cbp/report.pdf", None)
     restored = SourceEntry.from_dict(entry.to_dict())
     assert restored == entry
-    assert entry.to_dict()["date_basis"] == DateBasis.HTTP_LAST_MODIFIED.value
+    assert entry.to_dict()["date_basis"] == DateBasis.SITEMAP_LASTMOD.value
 
 
 # --------------------------------------------------------------------------
@@ -253,14 +256,14 @@ def test_end_to_end_never_follows_an_off_host_sitemap() -> None:
     assert [e.agency for e in catalogue.entries] == ["cbp"]
 
 
-def test_end_to_end_entries_carry_inferred_agency_era_and_http_basis() -> None:
+def test_end_to_end_entries_carry_inferred_agency_era_and_sitemap_basis() -> None:
     _net, catalogue = _build_from_fixtures()
     by_agency = {e.agency: e for e in catalogue.entries}
     assert by_agency["cbp"].era == "2015_plus"
     assert by_agency["cbp"].era_year == 2021
     assert by_agency["project_blue_book"].era == "pre_1970"
     for entry in catalogue.entries:
-        assert entry.date_basis is DateBasis.HTTP_LAST_MODIFIED
+        assert entry.date_basis is DateBasis.SITEMAP_LASTMOD
 
 
 # --------------------------------------------------------------------------
@@ -276,5 +279,5 @@ def test_build_output_is_json_serialisable_and_carries_exclusion_reason() -> Non
     assert restored["ufofiles_excluded"]["count"] == 1
     assert "§2a" in restored["ufofiles_excluded"]["reason"]
     assert restored["entry_count"] == 2
-    assert restored["date_basis"] == DateBasis.HTTP_LAST_MODIFIED.value
+    assert restored["date_basis"] == DateBasis.SITEMAP_LASTMOD.value
     assert len(restored["entries"]) == 2

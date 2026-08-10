@@ -23,7 +23,7 @@ import pytest
 
 from pursue_index.era_bucketing import bucket, build_output
 from pursue_index.era_models import CardEra, Era
-from pursue_index.provenance import ProvenanceTier
+from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.provenance_report import RESOLVED_BY_CLAIM, classify
 from pursue_index.source_index import SourceEntry
 
@@ -163,6 +163,7 @@ def _catalogue_entry() -> SourceEntry:
         agency="fbi",
         era="undated",
         era_year=None,
+        date_basis=DateBasis.HTTP_LAST_MODIFIED,
     )
 
 

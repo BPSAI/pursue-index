@@ -23,6 +23,7 @@ import pytest
 
 from pursue_index.identifier_resolver import resolve_card
 from pursue_index.identifiers import IdentifierKind
+from pursue_index.provenance import DateBasis
 from pursue_index.source_index import SourceEntry
 
 
@@ -34,6 +35,7 @@ def _entry(url: str, last_modified: str = "Mon, 01 Jun 2015 08:00:00 GMT") -> So
         agency="unknown",
         era="undated",
         era_year=None,
+        date_basis=DateBasis.HTTP_LAST_MODIFIED,
     )
 
 

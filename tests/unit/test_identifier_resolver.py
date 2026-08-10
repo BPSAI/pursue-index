@@ -59,6 +59,7 @@ def _entry(url: str, last_modified: str | None) -> SourceEntry:
         agency="unknown",
         era="undated",
         era_year=None,
+        date_basis=DateBasis.HTTP_LAST_MODIFIED,
     )
 
 

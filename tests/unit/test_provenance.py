@@ -75,10 +75,16 @@ def test_positive_tiers_exclude_the_negative_outcome():
     assert ProvenanceTier.NO_PRIOR_RELEASE_FOUND not in POSITIVE_TIERS
 
 
-def test_date_basis_distinguishes_the_four_sources():
-    """date_basis never conflates the four ways an establishing date arises."""
+def test_date_basis_distinguishes_every_source_a_date_can_come_from():
+    """date_basis never conflates the ways an establishing date arises.
+
+    A sitemap ``<lastmod>`` and an HTTP ``Last-Modified`` header are separate
+    members: they arrive from different places and are written in different
+    syntaxes, so a record that names one is stating which evidence it holds.
+    """
     assert {b.value for b in DateBasis} == {
         "wayback_first_capture",
+        "sitemap_lastmod",
         "http_last_modified",
         "publisher_date",
         "pdf_creation_date",

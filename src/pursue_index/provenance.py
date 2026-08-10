@@ -74,14 +74,23 @@ POSITIVE_TIERS: frozenset[ProvenanceTier] = frozenset(
 
 
 class DateBasis(StrEnum):
-    """How an establishing date was derived — the four are never conflated.
+    """How an establishing date was derived — the bases are never conflated.
 
-    A Wayback first-capture timestamp, an HTTP ``Last-Modified`` header, a
-    publisher-stated date and a PDF's internal ``CreationDate`` are evidence of
-    very different strength; the consumer must always know which one it holds.
+    A Wayback first-capture timestamp, a sitemap ``<lastmod>``, an HTTP
+    ``Last-Modified`` header, a publisher-stated date and a PDF's internal
+    ``CreationDate`` are evidence of very different strength; the consumer must
+    always know which one it holds.
+
+    ``SITEMAP_LASTMOD`` and ``HTTP_LAST_MODIFIED`` are close cousins — neither
+    is a publication date — but they are separate members because they arrive
+    from different places and are written in different syntaxes: a sitemap
+    ``<lastmod>`` element is ISO 8601, a ``Last-Modified`` response header is
+    the RFC 7231 date syntax. A record that names one of them is stating where
+    its value came from, so it is also stating how the value reads.
     """
 
     WAYBACK_FIRST_CAPTURE = "wayback_first_capture"
+    SITEMAP_LASTMOD = "sitemap_lastmod"
     HTTP_LAST_MODIFIED = "http_last_modified"
     PUBLISHER_DATE = "publisher_date"
     PDF_CREATION_DATE = "pdf_creation_date"

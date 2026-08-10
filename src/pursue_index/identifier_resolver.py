@@ -13,8 +13,10 @@ snippet:
   claim without a network call.
 * **The catalogue.** FBI, Blue Book and other identifiers resolve against the
   PV1.4 sitemap catalogue (:class:`~pursue_index.source_index.SourceEntry`): a
-  match on filename/URL gives the artifact and an ``http_last_modified`` date.
-  No ``Last-Modified`` header means no honest date, so that entry is skipped.
+  match on filename/URL gives the artifact, and the row's own last-modified
+  value gives the date, read in the syntax the row's ``date_basis`` names and
+  reported under that same basis. A row that supplies no readable date supplies
+  no honest one either, so it is skipped.
 * **The government description.** COMETA-style content that is public but whose
   *specific record's* release is unestablished emits
   ``content_previously_published`` (spec §6c), read from the highest-authority
@@ -38,11 +40,11 @@ from collections import Counter
 from collections.abc import Sequence
 from dataclasses import replace
 from datetime import date
-from email.utils import parsedate_to_datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import urlparse
 
+from pursue_index.catalogue_dates import entry_established_date
 from pursue_index.catalogue_load import load_catalogue
 from pursue_index.identifiers import Identifier, IdentifierKind, extract_identifiers
 from pursue_index.provenance import DateBasis, ProvenanceTier
@@ -125,16 +127,6 @@ def _value_pattern(value: str) -> re.Pattern[str] | None:
     return re.compile(rf"(?<![a-z0-9]){body}(?![a-z0-9])")
 
 
-def _parse_http_date(value: str | None) -> date | None:
-    """Parse an HTTP ``Last-Modified`` header to a date, or ``None``."""
-    if not value:
-        return None
-    try:
-        return parsedate_to_datetime(value).date()
-    except (TypeError, ValueError):
-        return None
-
-
 def is_omnibus_subset(card: dict[str, Any]) -> bool:
     """True iff the card is a subset of a larger (omnibus) file."""
     title = str(card.get("title") or "")
@@ -200,8 +192,10 @@ def resolve_against_catalogue(
 ) -> ResolvedClaim | None:
     """Resolve an identifier against the PV1.4 catalogue, or ``None``.
 
-    A match needs a datable ``Last-Modified``; without one there is no honest
-    establishing date, so the entry is skipped rather than dated by a guess.
+    A match needs a date it can read from the row, in the syntax the row's own
+    basis names; without one there is no honest establishing date, so the entry
+    is skipped rather than dated by a guess. The claim reports that same basis,
+    because a claim states the footing it rests on rather than a nearby one.
 
     A row the claim constructor refuses costs that row only: the search
     continues to the next entry. Rows are validated where they are built, so
@@ -211,7 +205,7 @@ def resolve_against_catalogue(
     for entry in catalogue:
         if not _entry_matches(ident, entry):
             continue
-        established = _parse_http_date(entry.last_modified)
+        established = entry_established_date(entry)
         if established is None:
             continue
         try:
@@ -223,7 +217,7 @@ def resolve_against_catalogue(
                 identifier_value=ident.value,
                 artifact_url=entry.url,
                 established_date=established,
-                date_basis=DateBasis.HTTP_LAST_MODIFIED,
+                date_basis=entry.date_basis,
             )
         except ValueError:
             continue

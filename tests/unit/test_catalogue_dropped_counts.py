@@ -33,6 +33,7 @@ _GOOD_ROW = {
     "agency": "fbi",
     "era": "undated",
     "era_year": None,
+    "date_basis": "http_last_modified",
 }
 _MANIFEST = {"cards": [{"card_id": "c1", "title": "A routine transmittal, 2023",
                         "incident_date": "2023", "agency": "DOW"}]}

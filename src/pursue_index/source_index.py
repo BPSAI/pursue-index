@@ -3,7 +3,8 @@
 A local index of *candidate* prior-disclosure sources, enumerated from the four
 sitemap indexes published via ``documents3.theblackvault.com/robots.txt`` (spec
 §2b: 157,628 URLs, of which the UFO-relevant slice is ~8,000). One row per URL:
-its filename, HTTP ``Last-Modified``, and an inferred agency and era.
+its filename, the sitemap's last-modified value and the basis that value rests
+on, and an inferred agency and era.
 
 **Index only.** Nothing here downloads a byte of the documents themselves. The
 enumeration runs through :class:`~pursue_index.sitemap_fetch.CourteousFetcher`,
@@ -18,11 +19,12 @@ Three disciplines carry the doctrine:
   disclosed" reference it would report PURSUE's own material as previously
   disclosed and poison the candidate set. So :func:`is_ufofiles` drops it, and
   the count dropped is recorded in the artifact.
-* **A ``Last-Modified`` is never a publication date — spec §6d.** Those values
-  cluster in a five-minute window on 2020-05-30; they date "existed on this host
-  by", not publication. Every row pins its ``last_modified`` to
-  ``date_basis = http_last_modified`` and the *era* is inferred from the
-  path/filename instead — independently of the mtime.
+* **A last-modified value is never a publication date — spec §6d.** Those
+  values cluster in a five-minute window on 2020-05-30; they date "existed on
+  this host by", not publication. Every row states the basis its value rests on
+  — ``sitemap_lastmod`` for the ``<lastmod>`` element these rows are built from
+  — and the *era* is inferred from the path/filename instead, independently of
+  the mtime.
 * **Era is inferred, not asserted.** A four-digit year in the path yields an era
   bucket (reusing PV1.3's :func:`~pursue_index.era_models.era_for_year`); absent
   one, the row is ``undated``. This is a weak, best-effort hint for triage, not
@@ -155,9 +157,14 @@ def infer_era(url: str) -> tuple[str, int | None]:
 class SourceEntry:
     """One catalogue row: a candidate source URL and what we can infer about it.
 
-    ``last_modified`` is the HTTP header verbatim (or ``None``); ``date_basis``
-    is fixed to :attr:`DateBasis.HTTP_LAST_MODIFIED` so the value can never be
-    mistaken for a publication date (spec §6d).
+    ``last_modified`` is the upstream value verbatim (or ``None``) and
+    ``date_basis`` says where that value came from: a sitemap ``<lastmod>``
+    element (:attr:`DateBasis.SITEMAP_LASTMOD`) or a ``Last-Modified`` response
+    header (:attr:`DateBasis.HTTP_LAST_MODIFIED`). Neither is a publication
+    date (spec §6d) — the basis is stated so a consumer knows which evidence it
+    holds and, since the two routes are written in different syntaxes, how to
+    read the value. Every row states its basis; there is no default, so no row
+    can carry a value under a basis nobody chose for it.
     """
 
     url: str
@@ -166,7 +173,7 @@ class SourceEntry:
     agency: str
     era: str
     era_year: int | None
-    date_basis: DateBasis = DateBasis.HTTP_LAST_MODIFIED
+    date_basis: DateBasis
 
     def __post_init__(self) -> None:
         """A row is only usable when its URL is an address a reader can follow.
@@ -201,12 +208,16 @@ class SourceEntry:
             agency=data["agency"],
             era=data["era"],
             era_year=data.get("era_year"),
-            date_basis=DateBasis(data.get("date_basis", DateBasis.HTTP_LAST_MODIFIED.value)),
+            date_basis=DateBasis(data["date_basis"]),
         )
 
 
 def entry_from_url(loc: str, lastmod: str | None) -> SourceEntry | None:
     """Build a :class:`SourceEntry` from a sitemap ``<loc>``, or ``None``.
+
+    ``lastmod`` is the sitemap's ``<lastmod>`` element, so the row is built with
+    :attr:`DateBasis.SITEMAP_LASTMOD` — the basis this route actually supplies,
+    and the one that says the value reads as ISO 8601.
 
     A ``<loc>`` that is not an http(s) URL yields ``None`` so the caller can drop
     and count it. Enumeration runs over ~150k third-party URLs, so a row the
@@ -222,6 +233,7 @@ def entry_from_url(loc: str, lastmod: str | None) -> SourceEntry | None:
             agency=infer_agency(loc),
             era=era,
             era_year=year,
+            date_basis=DateBasis.SITEMAP_LASTMOD,
         )
     except ValueError:
         return None
@@ -329,7 +341,7 @@ def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
         "schema": _SCHEMA,
         "robots_url": robots_url,
         "sitemap_index_urls": list(catalogue.sitemap_index_urls),
-        "date_basis": DateBasis.HTTP_LAST_MODIFIED.value,
+        "date_basis": DateBasis.SITEMAP_LASTMOD.value,
         "total_urls_seen": catalogue.total_urls,
         "ufofiles_excluded": {
             "count": catalogue.excluded_ufofiles,
