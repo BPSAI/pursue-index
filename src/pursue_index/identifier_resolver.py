@@ -16,7 +16,8 @@ snippet:
   match on filename/URL gives the artifact, and the row's own last-modified
   value gives the date, read in the syntax the row's ``date_basis`` names and
   reported under that same basis. A row that supplies no readable date supplies
-  no honest one either, so it is skipped.
+  no honest one either, so it is skipped — and a dated row evidences a *prior*
+  release only when it falls strictly before the card's own release date.
 * **The government description.** COMETA-style content that is public but whose
   *specific record's* release is unestablished emits
   ``content_previously_published`` (spec §6c), read from the highest-authority
@@ -44,7 +45,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import urlparse
 
-from pursue_index.catalogue_dates import entry_established_date
+from pursue_index.catalogue_dates import card_release_date, entry_established_date
 from pursue_index.catalogue_load import load_catalogue
 from pursue_index.identifiers import Identifier, IdentifierKind, extract_identifiers
 from pursue_index.provenance import DateBasis, ProvenanceTier
@@ -197,16 +198,28 @@ def resolve_against_catalogue(
     is skipped rather than dated by a guess. The claim reports that same basis,
     because a claim states the footing it rests on rather than a nearby one.
 
+    A dated match also has to be *prior*. The catalogue is enumerated live from
+    a third-party host, so it holds rows of every vintage in whatever order the
+    sitemaps list them — including copies of material published after the
+    release under examination. Only a row dated strictly before the card's own
+    release date evidences a release that came first; a row that is not is one
+    candidate declined, and the search moves to the rest. A card whose release
+    date cannot be read offers nothing to compare against, so catalogue
+    evidence yields it no dated claim.
+
     A row the claim constructor refuses costs that row only: the search
     continues to the next entry. Rows are validated where they are built, so
     this is the layer beneath that — proportionality if one ever arrives
     unvalidated, since ``classify`` calls this across the whole corpus.
     """
+    released = card_release_date(card)
+    if released is None:
+        return None
     for entry in catalogue:
         if not _entry_matches(ident, entry):
             continue
         established = entry_established_date(entry)
-        if established is None:
+        if established is None or established >= released:
             continue
         try:
             return ResolvedClaim(

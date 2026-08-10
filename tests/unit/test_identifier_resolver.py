@@ -91,7 +91,7 @@ def test_crest_id_resolves_to_readingroom_artifact_with_date_basis() -> None:
 
 
 def test_fbi_file_resolves_against_catalogue_with_http_date_basis() -> None:
-    card = {"card_id": "fbi1", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi1", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [
         _entry("https://documents.theblackvault.com/fbi/62-hq-83894.pdf", "Wed, 30 May 2018 10:00:00 GMT"),
     ]
@@ -108,7 +108,7 @@ def test_fbi_file_resolves_against_catalogue_with_http_date_basis() -> None:
 def test_short_case_number_does_not_substring_match_an_unrelated_url() -> None:
     # A bare case number must be a bounded token, not any substring — else a
     # short number would emit a false citation against an unrelated artifact.
-    card = {"card_id": "bb2", "title": "Project Blue Book Case No. 10073 report"}
+    card = {"card_id": "bb2", "title": "Project Blue Book Case No. 10073 report", "release_date": "5/8/26"}
     catalogue = [
         _entry("https://documents.theblackvault.com/misc/file-2010073-x.pdf", "Mon, 01 Jun 2015 08:00:00 GMT"),
     ]
@@ -116,7 +116,7 @@ def test_short_case_number_does_not_substring_match_an_unrelated_url() -> None:
 
 
 def test_fbi_file_matches_across_separator_variants() -> None:
-    card = {"card_id": "fbi9", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi9", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [
         _entry("https://documents.theblackvault.com/fbi/62_hq_83894_section_1.pdf", "Wed, 30 May 2018 10:00:00 GMT"),
     ]
@@ -126,7 +126,7 @@ def test_fbi_file_matches_across_separator_variants() -> None:
 
 
 def test_blue_book_case_resolves_against_catalogue() -> None:
-    card = {"card_id": "bb1", "title": "Project Blue Book Case No. 10073 report"}
+    card = {"card_id": "bb1", "title": "Project Blue Book Case No. 10073 report", "release_date": "5/8/26"}
     catalogue = [
         _entry("https://documents.theblackvault.com/bluebook/case-10073.pdf", "Mon, 01 Jun 2015 08:00:00 GMT"),
     ]
@@ -142,14 +142,14 @@ def test_blue_book_case_resolves_against_catalogue() -> None:
 
 
 def test_identifier_with_no_artifact_produces_no_claim() -> None:
-    card = {"card_id": "fbi2", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi2", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     # Empty catalogue, no CREST id -> nothing resolves -> no claim.
     assert resolve_card(card, catalogue=[]) == []
 
 
 def test_catalogue_entry_without_a_date_is_not_claimed() -> None:
     # No Last-Modified => we cannot date the claim honestly => skip it.
-    card = {"card_id": "fbi3", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi3", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/fbi/62-hq-83894.pdf", None)]
     assert resolve_against_catalogue(card, next(iter(_extract(card))), catalogue) is None
 
@@ -210,7 +210,11 @@ def test_omnibus_section_is_detected() -> None:
 
 
 def test_omnibus_subset_downgrades_previously_released_to_in_part() -> None:
-    card = {"card_id": "sec", "title": "62-HQ-83894 Section 001 of the case file"}
+    card = {
+        "card_id": "sec",
+        "title": "62-HQ-83894 Section 001 of the case file",
+        "release_date": "5/8/26",
+    }
     catalogue = [
         _entry("https://documents.theblackvault.com/fbi/62-hq-83894.pdf", "Wed, 30 May 2018 10:00:00 GMT"),
     ]

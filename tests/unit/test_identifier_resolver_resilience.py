@@ -49,7 +49,7 @@ def _unvalidated(entry: SourceEntry) -> SourceEntry:
 
 
 def test_a_row_that_cannot_make_an_honest_claim_costs_only_that_claim() -> None:
-    card = {"card_id": "fbi1", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi1", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [
         _unvalidated(_entry("https://documents.theblackvault.com/fbi/62-hq-83894.pdf")),
         _entry("https://documents.theblackvault.com/fbi/62-hq-83894-part2.pdf"),
@@ -61,7 +61,7 @@ def test_a_row_that_cannot_make_an_honest_claim_costs_only_that_claim() -> None:
 
 
 def test_an_unusable_row_alone_yields_no_claim_rather_than_an_error() -> None:
-    card = {"card_id": "fbi2", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi2", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [_unvalidated(_entry("https://documents.theblackvault.com/fbi/62-hq-83894.pdf"))]
     assert resolve_card(card, catalogue=catalogue) == []
 
@@ -78,12 +78,12 @@ def test_an_undatable_row_is_still_skipped_before_the_url_is_reached() -> None:
         era_year=entry.era_year,
         date_basis=entry.date_basis,
     )
-    card = {"card_id": "fbi3", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi3", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     assert resolve_card(card, catalogue=[undatable]) == []
 
 
 def test_a_valid_row_still_dates_its_claim() -> None:
-    card = {"card_id": "fbi4", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi4", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/fbi/62-hq-83894.pdf")]
     claims = resolve_card(card, catalogue=catalogue)
     assert len(claims) == 1

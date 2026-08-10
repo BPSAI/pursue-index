@@ -41,21 +41,21 @@ def _entry(url: str, last_modified: str = "Mon, 01 Jun 2015 08:00:00 GMT") -> So
 
 def test_short_blue_book_case_does_not_match_a_date_shaped_path_segment() -> None:
     """``/2020/14/`` is a path segment, not case 14."""
-    card = {"card_id": "bb-14", "title": "Project Blue Book Case 14 summary"}
+    card = {"card_id": "bb-14", "title": "Project Blue Book Case 14 summary", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/cia/2020/14/annual-budget-memo.pdf")]
     assert resolve_card(card, catalogue=catalogue) == []
 
 
 def test_short_naid_does_not_match_a_number_inside_a_filename() -> None:
     """``NAID 413`` must not cite ``rpt-413.pdf``."""
-    card = {"card_id": "naid-413", "title": "Record NAID 413 referenced in the file"}
+    card = {"card_id": "naid-413", "title": "Record NAID 413 referenced in the file", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/fbi/reports/rpt-413.pdf")]
     assert resolve_card(card, catalogue=catalogue) == []
 
 
 def test_a_long_enough_case_number_still_resolves_from_the_filename() -> None:
     """The floor removes short numbers, not the identifier family."""
-    card = {"card_id": "bb-10073", "title": "Project Blue Book Case No. 10073 report"}
+    card = {"card_id": "bb-10073", "title": "Project Blue Book Case No. 10073 report", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/bluebook/case-10073.pdf")]
     claims = resolve_card(card, catalogue=catalogue)
     assert len(claims) == 1
@@ -71,7 +71,7 @@ def test_a_structured_identifier_naming_the_last_directory_is_a_match() -> None:
     called ``62-hq-83894`` is the file number and nothing else, so the
     directory names the artifact as surely as the filename would.
     """
-    card = {"card_id": "fbi-path", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi-path", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     url = "https://documents.theblackvault.com/fbi/62-hq-83894/cover-letter.pdf"
     claims = resolve_card(card, catalogue=[_entry(url)])
     assert len(claims) == 1
@@ -85,7 +85,7 @@ def test_only_the_last_directory_segment_counts() -> None:
     document, so the file number describes the shelf rather than the page — the
     document is one of many below it and is not the one the card cites.
     """
-    card = {"card_id": "fbi-deep", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi-deep", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/fbi/62-hq-83894/1965/memo.pdf")]
     assert resolve_card(card, catalogue=catalogue) == []
 
@@ -99,14 +99,14 @@ def test_a_numeric_identifier_still_matches_on_the_filename_only() -> None:
     number off an unrelated artifact that a directory happens to share digits
     with.
     """
-    card = {"card_id": "bb-10073", "title": "Project Blue Book Case No. 10073 report"}
+    card = {"card_id": "bb-10073", "title": "Project Blue Book Case No. 10073 report", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/bluebook/10073/summary.pdf")]
     assert resolve_card(card, catalogue=catalogue) == []
 
 
 def test_the_filename_extension_is_not_part_of_the_stem() -> None:
     """A match must survive stripping the suffix — and not be created by it."""
-    card = {"card_id": "fbi-stem", "title": "The 62-HQ-83894 case file records"}
+    card = {"card_id": "fbi-stem", "title": "The 62-HQ-83894 case file records", "release_date": "5/8/26"}
     catalogue = [_entry("https://documents.theblackvault.com/fbi/62-hq-83894.pdf")]
     claims = resolve_card(card, catalogue=catalogue)
     assert len(claims) == 1
@@ -115,6 +115,10 @@ def test_the_filename_extension_is_not_part_of_the_stem() -> None:
 
 @pytest.mark.parametrize("value", ["14", "413", "1234"])
 def test_purely_numeric_values_below_the_floor_resolve_nothing(value: str) -> None:
-    card = {"card_id": f"naid-{value}", "title": f"Record NAID {value} in this file"}
+    card = {
+        "card_id": f"naid-{value}",
+        "title": f"Record NAID {value} in this file",
+        "release_date": "5/8/26",
+    }
     catalogue = [_entry(f"https://documents.theblackvault.com/fbi/{value}.pdf")]
     assert resolve_card(card, catalogue=catalogue) == []

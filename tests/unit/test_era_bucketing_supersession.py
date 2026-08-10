@@ -178,6 +178,7 @@ def _catalogue_only_card() -> dict:
         card_id="modern-catalogue",
         title="The 62-HQ-83894 case file records, 2023",
         description="A routine transmittal.",
+        release_date="5/8/26",
     )
 
 
