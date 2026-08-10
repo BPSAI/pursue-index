@@ -62,13 +62,50 @@ def validate_sidecar(data: dict[str, Any]) -> Sidecar:
     return Sidecar.model_validate(data)
 
 
+def normalize_observations(value: Any) -> list[dict[str, Any]]:
+    """The entries of ``value`` that satisfy the ``Observation`` contract.
+
+    An observation is an object carrying a non-empty ``claim``; that is what
+    the sidecar schema defines and what the searchable text renders. Anything
+    else in the list — a bare string, an object with no claim — carries nothing
+    a reader could retrieve and is left out, so a reply whose shape differs
+    from the requested one still yields a valid page. Extra keys are kept, and
+    ``kind`` defaults to the ordinary observation kind.
+    """
+    entries: list[dict[str, Any]] = []
+    for entry in value if isinstance(value, list) else []:
+        if not isinstance(entry, dict):
+            continue
+        claim = str(entry.get("claim", "") or "").strip()
+        if not claim:
+            continue
+        normalized = dict(entry)
+        normalized["claim"] = claim
+        normalized.setdefault("kind", "observation")
+        entries.append(normalized)
+    return entries
+
+
+def page_has_content(page: dict[str, Any]) -> bool:
+    """True when a page entry carries text a reader could retrieve.
+
+    A page contributes content through its prose, its transcribed visible
+    text, or at least one observation. A page with none of the three describes
+    nothing, so it is not something coverage can be counted from.
+    """
+    for key in ("description", "visible_text"):
+        if str(page.get(key, "") or "").strip():
+            return True
+    return bool(page.get("observations"))
+
+
 def _normalize_page(page: dict[str, Any], page_no: int | None = None) -> dict[str, Any]:
-    """Ensure a page dict carries a ``page`` number and an ``observations`` list."""
+    """Ensure a page dict carries a ``page`` number and valid ``observations``."""
     out = dict(page)
     if page_no is not None:
         out["page"] = page_no
     out.setdefault("page", page.get("page"))
-    out.setdefault("observations", [])
+    out["observations"] = normalize_observations(out.get("observations"))
     return out
 
 

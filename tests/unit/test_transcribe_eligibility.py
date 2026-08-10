@@ -1,7 +1,8 @@
 """Eligibility selection for the transcribe stage — AUD rows only.
 
 VID is never transcribed (radar/FLIR has nothing to transcribe); a VID row
-present anywhere in the manifest/worklist must be provably excluded.
+present anywhere in the manifest must be provably excluded. Row-awareness and
+release scoping are covered in ``test_transcribe_eligibility_rows``.
 """
 
 from __future__ import annotations
@@ -36,13 +37,7 @@ def test_select_eligible_includes_aud_and_excludes_vid() -> None:
     assert [i.card_id for i in items] == ["aud1"]
 
 
-def test_select_eligible_scopes_to_worklist() -> None:
-    m = _manifest([_card("aud1", "AUD"), _card("aud2", "AUD")])
-    items = select_eligible(m, {"aud2"})
-    assert [i.card_id for i in items] == ["aud2"]
-
-
-def test_select_eligible_none_worklist_is_full_corpus_escape_hatch() -> None:
+def test_select_eligible_none_release_date_is_full_corpus_escape_hatch() -> None:
     m = _manifest([_card("aud1", "AUD"), _card("aud2", "AUD")])
     items = select_eligible(m, None)
     assert {i.card_id for i in items} == {"aud1", "aud2"}

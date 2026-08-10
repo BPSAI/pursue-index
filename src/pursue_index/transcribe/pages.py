@@ -62,13 +62,48 @@ def _render_block(chunk: list[dict[str, Any]]) -> str:
     return "\n\n".join(blocks)
 
 
-def build_pages_rows(utterances: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def build_pages_rows(
+    utterances: list[dict[str, Any]], start_page: int = 1
+) -> list[dict[str, Any]]:
     """Rows in the exact ``pages.jsonl`` shape OCR output already uses:
-    ``{page, text, confidence, engine}``."""
+    ``{page, text, confidence, engine}``.
+
+    ``start_page`` continues an existing card's numbering, so the rows a
+    second AUD row of the same card_id contributes carry page numbers of
+    their own rather than repeating the first row's.
+    """
     return [
         {"page": n, "text": text, "confidence": 100.0, "engine": "assemblyai"}
-        for n, text in enumerate(paginate_utterances(utterances), start=1)
+        for n, text in enumerate(paginate_utterances(utterances), start=start_page)
     ]
+
+
+def _existing_page_count(pages_path: Path) -> int:
+    """How many page rows a card directory already carries."""
+    if not pages_path.exists():
+        return 0
+    text = pages_path.read_text(encoding="utf-8")
+    return sum(1 for line in text.splitlines() if line.strip())
+
+
+def _read_meta(meta_path: Path) -> dict[str, Any]:
+    """The card's existing meta, or an empty dict when there is none to read."""
+    if not meta_path.exists():
+        return {}
+    try:
+        data = json.loads(meta_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _merged_rows(
+    prior: list[dict[str, Any]], entry: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """``prior`` with ``entry`` replacing the same row_key, else appended."""
+    out = [r for r in prior if r.get("row_key") != entry["row_key"]]
+    out.append(entry)
+    return out
 
 
 def write_transcript_sidecar(
@@ -76,28 +111,54 @@ def write_transcript_sidecar(
     out_dir: Path,
     utterances: list[dict[str, Any]],
     *,
+    row_key: str = "",
     multichannel: bool,
     audio_duration_s: float | None,
     speakers: list[str],
     source: str,
 ) -> int:
-    """Write ``<out_dir>/<card_id>/{pages.jsonl,meta.json}``. Returns page count."""
+    """Append one row's transcript to ``<out_dir>/<card_id>/``. Returns page count.
+
+    A card_id can be backed by more than one AUD row, and all of a card's rows
+    share the one card directory the reader path consumes, so pages are
+    appended and numbered continuously across rows. ``meta.json`` records a
+    ``rows`` entry per transcribed row — the unit the coverage gate counts — so
+    a covered row is distinguishable from an uncovered sibling.
+
+    A row whose transcript carries no utterances contributes no pages and is
+    recorded with ``pages: 0``: the call returned, but the row has no content
+    and stays outstanding. ``status`` is ``ok`` only once the card carries at
+    least one page, which is also the condition the reader path gates on.
+    """
     card_dir = out_dir / card_id
     card_dir.mkdir(parents=True, exist_ok=True)
-    rows = build_pages_rows(utterances)
-    with (card_dir / "pages.jsonl").open("w", encoding="utf-8") as fh:
+    pages_path = card_dir / "pages.jsonl"
+    meta_path = card_dir / "meta.json"
+
+    start_page = _existing_page_count(pages_path) + 1
+    rows = build_pages_rows(utterances, start_page=start_page)
+    with pages_path.open("a", encoding="utf-8") as fh:
         for row in rows:
             fh.write(json.dumps(row) + "\n")
-    meta = {
-        "card_id": card_id,
-        "engine": "assemblyai",
-        "status": "ok",
-        "page_count": len(rows),
+
+    prior = _read_meta(meta_path)
+    entry = {
+        "row_key": row_key,
         "source": source,
         "multichannel": multichannel,
         "audio_duration_s": audio_duration_s,
         "speakers": speakers,
+        "pages": len(rows),
+    }
+    merged = _merged_rows(list(prior.get("rows", [])), entry)
+    total_pages = start_page - 1 + len(rows)
+    meta = {
+        "card_id": card_id,
+        "engine": "assemblyai",
+        "status": "ok" if total_pages else "empty",
+        "page_count": total_pages,
+        "rows": merged,
         "finished_at": datetime.now(UTC).isoformat(),
     }
-    (card_dir / "meta.json").write_text(json.dumps(meta, indent=2))
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return len(rows)

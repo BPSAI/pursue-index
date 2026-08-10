@@ -1,14 +1,23 @@
-"""Run orchestration + coverage gate for the transcribe stage (pipeline
-stage 8). Identical shape to ``vision.run`` (T48.4).
+"""Run orchestration + coverage gate for the transcribe stage.
 
 ``preflight_coverage`` compares eligible-vs-produced with zero spend — the
 verify-before-spend gate the CLI runs by default. ``run_transcribe``
 produces (or skips already-produced) sidecars for eligible items using
 injected ``transcribe_fn``/``probe_fn`` seams, so tests drive it without any
 live AAI call, ffprobe binary, or audio file. The coverage contract is
-``produced ⊇ eligible(worklist)``; the report exposes the shortfall the CLI
+``produced ⊇ eligible(scope)``; the report exposes the shortfall the CLI
 turns into a non-zero exit. Per-item failures are skip-and-count: one bad
 card never aborts the run.
+
+Coverage is counted per ``(card_id, row_key)`` — the eligible *row*, not the
+card. A card_id can be backed by more than one AUD row, and one row's
+transcript never stands in for another's. The shortfall is a list rather than
+a set difference so the report always names as many outstanding units as there
+are outstanding rows.
+
+A transcript that carries no utterances is its own outcome: the call returned,
+but the row has no content, so it is recorded as empty and stays outstanding
+rather than counting toward coverage.
 """
 
 from __future__ import annotations
@@ -20,7 +29,11 @@ from pathlib import Path
 
 from pursue_index import get_logger
 from pursue_index.transcribe.client import TranscriptResult
-from pursue_index.transcribe.eligibility import EligibleItem, audio_path_for
+from pursue_index.transcribe.eligibility import (
+    CoverageKey,
+    EligibleItem,
+    audio_path_for,
+)
 from pursue_index.transcribe.pages import write_transcript_sidecar
 
 log = get_logger(__name__)
@@ -31,16 +44,18 @@ ProbeFn = Callable[[Path], bool]
 
 @dataclass
 class TranscribeRunReport:
-    """Eligible-vs-produced coverage for a transcribe run, plus failures."""
+    """Eligible-vs-produced coverage for a transcribe run, plus its outcomes."""
 
-    eligible: list[str]
-    produced: list[str] = field(default_factory=list)
-    failed: list[tuple[str, str]] = field(default_factory=list)
+    eligible: list[CoverageKey]
+    produced: list[CoverageKey] = field(default_factory=list)
+    failed: list[tuple[CoverageKey, str]] = field(default_factory=list)
+    empty: list[CoverageKey] = field(default_factory=list)
 
     @property
-    def missing(self) -> set[str]:
-        """Eligible card_ids with no produced sidecar (the shortfall)."""
-        return set(self.eligible) - set(self.produced)
+    def missing(self) -> list[CoverageKey]:
+        """Eligible rows with no transcript content (the shortfall)."""
+        done = set(self.produced)
+        return [key for key in self.eligible if key not in done]
 
     @property
     def ok(self) -> bool:
@@ -48,28 +63,45 @@ class TranscribeRunReport:
         return not self.missing
 
 
-def produced_card_ids(out_dir: Path, eligible_ids: set[str]) -> set[str]:
-    """Eligible card_ids that already have an ``ok`` transcript sidecar."""
-    produced: set[str] = set()
-    for card_id in eligible_ids:
+def _covered_rows(meta: dict[str, object], card_id: str) -> set[CoverageKey]:
+    """The ``(card_id, row_key)`` units one card's meta reports as carrying text.
+
+    A row entry counts only when it contributed pages. A meta with no ``rows``
+    block describes a card written as a single row, so an ``ok`` status there
+    covers that card's one row.
+    """
+    rows = meta.get("rows")
+    if isinstance(rows, list):
+        return {
+            (card_id, str(r.get("row_key", "") or ""))
+            for r in rows
+            if isinstance(r, dict) and int(r.get("pages", 0) or 0) > 0
+        }
+    return {(card_id, "")} if meta.get("status") == "ok" else set()
+
+
+def produced_rows(out_dir: Path, card_ids: set[str]) -> set[CoverageKey]:
+    """Every eligible ``(card_id, row_key)`` already carrying transcript text."""
+    produced: set[CoverageKey] = set()
+    for card_id in card_ids:
         meta_path = out_dir / card_id / "meta.json"
         if not meta_path.exists():
             continue
         try:
-            meta = json.loads(meta_path.read_text())
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             continue
-        if meta.get("status") == "ok":
-            produced.add(card_id)
+        if isinstance(meta, dict):
+            produced |= _covered_rows(meta, card_id)
     return produced
 
 
 def preflight_coverage(items: list[EligibleItem], out_dir: Path) -> TranscribeRunReport:
     """Report eligible-vs-produced without spending anything."""
-    eligible = [i.card_id for i in items]
-    produced = produced_card_ids(out_dir, set(eligible))
+    eligible = [i.coverage_key for i in items]
+    produced = produced_rows(out_dir, {i.card_id for i in items})
     return TranscribeRunReport(
-        eligible=eligible, produced=[c for c in eligible if c in produced]
+        eligible=eligible, produced=[k for k in eligible if k in produced]
     )
 
 
@@ -80,27 +112,39 @@ def _transcribe_one(
     *,
     transcribe_fn: TranscribeFn,
     probe_fn: ProbeFn,
-) -> tuple[str, str] | None:
-    """Produce one card's sidecar. Returns ``(card_id, error)`` on failure,
-    ``None`` on success. Never raises — all failure modes are captured."""
+) -> tuple[str | None, bool]:
+    """Produce one row's transcript.
+
+    Returns ``(error, produced_pages)``: ``error`` is a stated reason on
+    failure and ``None`` otherwise, and ``produced_pages`` says whether the
+    transcript carried any content. Never raises — all failure modes are
+    captured so one row never aborts the run.
+    """
     path = audio_path_for(item, audio_dir)
     if not path.exists():
-        return item.card_id, f"audio file not found: {path}"
+        return f"audio file not found: {path}", False
     try:
         multichannel = probe_fn(path)
         result = transcribe_fn(path, multichannel=multichannel)
     except Exception as exc:  # per-item skip-and-count, never abort the run
-        log.warning("transcribe.item.failed", card_id=item.card_id, error=str(exc))
-        return item.card_id, str(exc)
-    write_transcript_sidecar(
+        log.warning(
+            "transcribe.item.failed",
+            card_id=item.card_id, row_key=item.row_key, error=str(exc),
+        )
+        return str(exc), False
+    pages = write_transcript_sidecar(
         item.card_id, out_dir, result.utterances,
+        row_key=item.row_key,
         multichannel=result.multichannel,
         audio_duration_s=result.audio_duration_s,
         speakers=result.speakers,
         source=path.name,
     )
-    log.info("transcribe.card.written", card_id=item.card_id)
-    return None
+    log.info(
+        "transcribe.row.written",
+        card_id=item.card_id, row_key=item.row_key, pages=pages,
+    )
+    return None, pages > 0
 
 
 def run_transcribe(
@@ -111,26 +155,29 @@ def run_transcribe(
     transcribe_fn: TranscribeFn,
     probe_fn: ProbeFn,
 ) -> TranscribeRunReport:
-    """Produce sidecars for eligible ``items``, then report coverage.
+    """Produce transcripts for eligible ``items``, then report coverage.
 
-    Idempotent: a card already carrying an ``ok`` sidecar is skipped (no
-    AAI call). Failures are per-item skip-and-count — one bad card never
-    aborts the rest, but ``report.missing``/``report.ok`` surface the
-    shortfall for a non-zero CLI exit.
+    Idempotent: a row already carrying transcript text is skipped (no AAI
+    call). Failures and empty transcripts are per-row outcomes — neither
+    aborts the rest, and both leave their row outstanding in
+    ``report.missing``/``report.ok`` for a non-zero CLI exit.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
-    eligible_ids = {i.card_id for i in items}
-    produced = produced_card_ids(out_dir, eligible_ids)
-    failed: list[tuple[str, str]] = []
+    produced = produced_rows(out_dir, {i.card_id for i in items})
+    failed: list[tuple[CoverageKey, str]] = []
+    empty: list[CoverageKey] = []
     for item in items:
-        if item.card_id in produced:
+        if item.coverage_key in produced:
             continue
-        outcome = _transcribe_one(
+        error, has_pages = _transcribe_one(
             item, audio_dir, out_dir, transcribe_fn=transcribe_fn, probe_fn=probe_fn
         )
-        if outcome is not None:
-            failed.append(outcome)
+        if error is not None:
+            failed.append((item.coverage_key, error))
+        elif not has_pages:
+            empty.append(item.coverage_key)
 
     report = preflight_coverage(items, out_dir)
     report.failed = failed
+    report.empty = empty
     return report

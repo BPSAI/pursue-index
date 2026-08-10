@@ -63,12 +63,17 @@ def _walk_card_pages(
     titles_by_id: dict[str, str],
     obs_lookup: dict[tuple[str, int], str] | None = None,
 ) -> tuple[list[dict[str, object]], int]:
-    """Walk OCR cards and emit per-page docs. Returns (docs, cards_seen)."""
+    """Walk OCR cards and emit per-page docs. Returns (docs, cards_seen).
+
+    A card with no OCR output at all — an image card, which has no document to
+    read — is emitted afterwards from its observation sidecar alone, since this
+    walk can never reach it and that text is the whole of its searchable
+    content.
+    """
     docs: list[dict[str, object]] = []
     cards_seen = 0
-    if not ocr_dir.exists():
-        return docs, cards_seen
-    for card_dir in sorted(ocr_dir.iterdir()):
+    ocr_card_ids: set[str] = set()
+    for card_dir in sorted(ocr_dir.iterdir()) if ocr_dir.exists() else []:
         if not card_dir.is_dir():
             continue
         meta_path = card_dir / "meta.json"
@@ -88,9 +93,49 @@ def _walk_card_pages(
             # an indexed-but-unlisted card is a search result with no page.
             print(f"  skip (not in manifest): {card_id}", file=sys.stderr)
             continue
+        ocr_card_ids.add(card_id)
         cards_seen += 1
         docs.extend(_emit_card_pages(card_id, title, pages_path, obs_lookup))
-    return docs, cards_seen
+
+    image_docs, image_cards = _emit_observation_only_pages(
+        obs_lookup, ocr_card_ids, titles_by_id
+    )
+    return docs + image_docs, cards_seen + image_cards
+
+
+def _emit_observation_only_pages(
+    obs_lookup: dict[tuple[str, int], str] | None,
+    ocr_card_ids: set[str],
+    titles_by_id: dict[str, str],
+) -> tuple[list[dict[str, object]], int]:
+    """Docs for cards whose only searchable text is an observation.
+
+    A card absent from the current manifest is skipped for the same reason the
+    OCR walk skips one: the site renders cards from the manifest, so an indexed
+    card with no page is a search result a reader cannot open.
+    """
+    from pursue_index.embed.image_observations import observation_only_pages
+
+    docs: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for card_id, page, text in observation_only_pages(obs_lookup, ocr_card_ids):
+        title = titles_by_id.get(card_id)
+        if title is None:
+            print(f"  skip (not in manifest): {card_id}", file=sys.stderr)
+            continue
+        seen.add(card_id)
+        docs.append(
+            {
+                "id": f"{card_id}-p{page}",
+                "card_id": card_id,
+                "page": page,
+                "title": title,
+                "text": text,
+                "engine": "vision-observations",
+                "confidence": 100,
+            }
+        )
+    return docs, len(seen)
 
 
 def _resolve_page_text(

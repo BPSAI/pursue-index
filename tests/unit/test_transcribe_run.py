@@ -1,12 +1,12 @@
 """Run orchestration + coverage gate for the transcribe stage.
 
 ``preflight_coverage`` compares eligible-vs-produced with zero spend — the
-verify-before-spend gate the CLI runs by default (identical shape to
-``vision.run.preflight_coverage``, T48.4). ``run_transcribe`` produces
-sidecars for eligible items using injected ``transcribe_fn``/``probe_fn``
-seams, so tests never hit AAI or a real audio file. Per-item failures are
-skip-and-count: one bad card never aborts the run, but the report's
-``missing``/``ok`` surface the shortfall.
+verify-before-spend gate the CLI runs by default, in the same shape as
+``vision.run.preflight_coverage``. ``run_transcribe`` produces sidecars for
+eligible rows using injected ``transcribe_fn``/``probe_fn`` seams, so tests
+never hit AAI or a real audio file. Per-row failures are skip-and-count: one
+bad row never aborts the run, but the report's ``missing``/``ok`` surface the
+shortfall.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from pursue_index.transcribe.client import TranscriptResult
 from pursue_index.transcribe.eligibility import EligibleItem
 from pursue_index.transcribe.run import (
     preflight_coverage,
-    produced_card_ids,
+    produced_rows,
     run_transcribe,
 )
 
@@ -48,31 +48,33 @@ def _make_audio(audio_dir: Path, card_id: str) -> None:
 def test_preflight_reports_shortfall_without_spending(tmp_path: Path) -> None:
     report = preflight_coverage([_item("aud1")], tmp_path)
     assert not report.ok
-    assert report.missing == {"aud1"}
+    assert report.missing == [("aud1", "")]
     assert list(tmp_path.glob("*")) == []  # preflight never writes anything
 
 
 def test_preflight_passes_when_covered(tmp_path: Path) -> None:
     card_dir = tmp_path / "aud1"
     card_dir.mkdir()
-    (card_dir / "meta.json").write_text(json.dumps({"card_id": "aud1", "status": "ok"}))
+    (card_dir / "meta.json").write_text(
+        json.dumps({"card_id": "aud1", "status": "ok", "page_count": 1})
+    )
     report = preflight_coverage([_item("aud1")], tmp_path)
     assert report.ok
     assert not report.missing
 
 
-def test_produced_card_ids_ignores_failed_status(tmp_path: Path) -> None:
+def test_produced_rows_ignores_failed_status(tmp_path: Path) -> None:
     card_dir = tmp_path / "aud1"
     card_dir.mkdir()
     (card_dir / "meta.json").write_text(json.dumps({"card_id": "aud1", "status": "failed"}))
-    assert produced_card_ids(tmp_path, {"aud1"}) == set()
+    assert produced_rows(tmp_path, {"aud1"}) == set()
 
 
-def test_produced_card_ids_ignores_malformed_meta(tmp_path: Path) -> None:
+def test_produced_rows_ignores_malformed_meta(tmp_path: Path) -> None:
     card_dir = tmp_path / "aud1"
     card_dir.mkdir()
     (card_dir / "meta.json").write_text("not json")
-    assert produced_card_ids(tmp_path, {"aud1"}) == set()
+    assert produced_rows(tmp_path, {"aud1"}) == set()
 
 
 # --- run_transcribe --------------------------------------------------------
@@ -129,10 +131,10 @@ def test_run_transcribe_skip_and_count_on_failure_never_aborts_run(tmp_path: Pat
         transcribe_fn=flaky_transcribe, probe_fn=lambda path: False,
     )
     assert not report.ok
-    assert report.missing == {"aud1"}
+    assert report.missing == [("aud1", "")]
     assert (out_dir / "aud2" / "meta.json").exists()
     assert not (out_dir / "aud1").exists()
-    assert report.failed == [("aud1", "AAI transcript failed: bad audio format")]
+    assert report.failed == [(("aud1", ""), "AAI transcript failed: bad audio format")]
 
 
 def test_run_transcribe_skips_missing_audio_file_as_a_failure(tmp_path: Path) -> None:
@@ -145,7 +147,7 @@ def test_run_transcribe_skips_missing_audio_file_as_a_failure(tmp_path: Path) ->
         probe_fn=lambda path: False,
     )
     assert not report.ok
-    assert report.missing == {"aud1"}
+    assert report.missing == [("aud1", "")]
 
 
 def test_run_transcribe_uses_probe_fn_to_set_multichannel(tmp_path: Path) -> None:

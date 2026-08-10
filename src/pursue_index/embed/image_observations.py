@@ -68,6 +68,30 @@ def render_page_text(page: dict, model: str = DEFAULT_MODEL) -> str:
     return "\n\n".join(parts)
 
 
+def observation_only_pages(
+    obs_lookup: dict[tuple[str, int], str] | None,
+    ocr_card_ids: set[str],
+) -> list[tuple[str, int, str]]:
+    """``(card_id, page, text)`` for pages whose only text is an observation.
+
+    An image card carries no document to read, so it never gets a card
+    directory under the OCR root and the ordinary walk cannot reach it. Its
+    observation text is the whole of its searchable content, so it is emitted
+    from here instead. Cards that DO have OCR output are excluded: their pages
+    come from the walk, which already substitutes observation text for an
+    empty page, and emitting them twice would put the same page in the payload
+    under two texts. Returned in card_id then page order so a rebuild is
+    deterministic.
+    """
+    if not obs_lookup:
+        return []
+    return [
+        (card_id, page, text)
+        for (card_id, page), text in sorted(obs_lookup.items())
+        if card_id not in ocr_card_ids
+    ]
+
+
 def _load_sidecar(obs_dir: Path, card_id: str) -> dict | None:
     sidecar = obs_dir / f"{card_id}.json"
     if not sidecar.exists():

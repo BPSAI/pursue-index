@@ -32,6 +32,7 @@ from rich.console import Console
 
 from pursue_index.cli.worklist import worklist_card_ids
 from pursue_index.config import settings
+from pursue_index.config.project_root import resolve_relative_data_root
 from pursue_index.scrape import load_manifest
 from pursue_index.vision import client, render
 from pursue_index.vision.eligibility import EligibleItem, select_eligible
@@ -46,9 +47,33 @@ _OPT_WORKLIST = typer.Option(
     help="Scope the run to the card_ids in this file (one per line). Omit to "
     "cover the full manifest (the escape hatch).",
 )
+_OBSERVATIONS_SUBPATH = Path("web") / "src" / "data" / "image-observations"
+
+
+def default_observations_dir() -> Path:
+    """The sidecar directory, anchored to the checkout it belongs to.
+
+    The sidecars are committed inside the checkout, so this answer has to be
+    the same wherever the CLI is invoked from: a run started in a subdirectory
+    must see the sidecars a run started at the root sees. Resolution uses the
+    same anchor the data root uses (``config.project_root``) — the project
+    sentinel beside this package, identity-checked — and falls back to the
+    working directory when the package is installed rather than checked out,
+    which is the same answer a relative default has always given there.
+    """
+    import pursue_index
+
+    return resolve_relative_data_root(
+        _OBSERVATIONS_SUBPATH,
+        package_dir=Path(pursue_index.__file__).parent,
+        cwd=Path.cwd(),
+    )
+
+
 _OPT_OUT = typer.Option(
-    Path("web/src/data/image-observations"), "--out",
-    help="Directory of per-card observation sidecars (<card_id>.json).",
+    None, "--out",
+    help="Directory of per-card observation sidecars (<card_id>.json). "
+    "Defaults to the checkout's image-observations directory.",
 )
 _OPT_LIVE_SMOKE = typer.Option(
     None, "--live-smoke",
@@ -74,6 +99,13 @@ def _print_report(report: VisionRunReport) -> None:
         )
         for (card_id, row_key, page), reason in report.failures:
             console.print(f"  [red]-[/red] {_unit_label(card_id, row_key, page)}: {reason}")
+    if report.empty:
+        console.print(
+            f"[red]![/red] {len(report.empty)} item(s) were examined but described "
+            f"nothing and remain uncovered:"
+        )
+        for card_id, row_key, page in report.empty:
+            console.print(f"  [red]-[/red] {_unit_label(card_id, row_key, page)}")
     if report.missing:
         console.print(
             f"[red]![/red] {len(report.missing)} eligible item(s) have no "
@@ -108,6 +140,8 @@ def _run_live_smoke(items: list[EligibleItem], out: Path, card_id: str) -> None:
         f"[green]✔[/green] live-smoke examined {len(scoped)} item(s) for {card_id}"
     )
     _print_report(report)
+    if not report.ok:
+        raise typer.Exit(code=1)
 
 
 def _run_bulk(items: list[EligibleItem], out: Path) -> None:
@@ -149,6 +183,7 @@ def vision_run(
     m = load_manifest(manifest)
     ids = worklist_card_ids(worklist)
     items = select_eligible(m, ids, settings.ocr_dir)
+    out = out or default_observations_dir()
 
     if live_smoke:
         _run_live_smoke(items, out, live_smoke)

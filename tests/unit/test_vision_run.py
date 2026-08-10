@@ -78,8 +78,10 @@ def test_produced_pages_scans_existing_sidecars(tmp_path: Path) -> None:
                 "card_id": "cardX",
                 "schema_version": 1,
                 "our_pass": {"model": "claude-opus-4-8"},
-                "pages": [{"page": 1, "observations": []},
-                          {"page": 4, "observations": []}],
+                "pages": [
+                    {"page": 1, "observations": [{"claim": "A claim"}]},
+                    {"page": 4, "observations": [{"claim": "Another claim"}]},
+                ],
             }
         )
     )
@@ -103,7 +105,7 @@ def test_preflight_passes_when_covered(tmp_path: Path) -> None:
                 "card_id": "imgA",
                 "schema_version": 1,
                 "our_pass": {"model": "claude-opus-4-8"},
-                "pages": [{"page": 1, "observations": []}],
+                "pages": [{"page": 1, "observations": [{"claim": "A claim"}]}],
             }
         )
     )

@@ -66,8 +66,16 @@ def test_write_transcript_sidecar_writes_pages_jsonl_and_meta(tmp_path: Path) ->
     assert meta["engine"] == "assemblyai"
     assert meta["card_id"] == "aud1"
     assert meta["page_count"] == 1
-    assert meta["speakers"] == ["A", "B"]
-    assert meta["audio_duration_s"] == 42.5
+    assert meta["rows"] == [
+        {
+            "row_key": "",
+            "source": "aud1.mp4",
+            "multichannel": False,
+            "audio_duration_s": 42.5,
+            "speakers": ["A", "B"],
+            "pages": 1,
+        }
+    ]
 
     rows = [json.loads(line) for line in (card_dir / "pages.jsonl").read_text().splitlines()]
     assert rows[0]["page"] == 1

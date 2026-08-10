@@ -21,6 +21,7 @@ from typing import Any
 from PIL import Image
 
 from pursue_index import get_logger
+from pursue_index.vision.sidecar import normalize_observations
 
 log = get_logger(__name__)
 
@@ -113,7 +114,11 @@ def _parse_response(raw: str) -> dict[str, Any]:
     """Parse the model's JSON reply into an examination dict.
 
     Tolerates a fenced code block; falls back to a bare-description dict so a
-    non-JSON reply still yields a usable (if minimal) observation page.
+    non-JSON reply still yields a usable (if minimal) observation page. The
+    ``observations`` list is normalized to the entries the sidecar schema
+    defines, so a reply whose shape differs from the requested one becomes a
+    valid page here rather than reaching the schema unchecked. A page that
+    ends up describing nothing is left for the run to record as such.
     """
     text = raw.strip()
     if text.startswith("```"):
@@ -127,7 +132,7 @@ def _parse_response(raw: str) -> dict[str, Any]:
                 "visible_text": "", "observations": []}
     data: dict[str, Any] = dict(parsed) if isinstance(parsed, dict) else {}
     data.setdefault("description", raw.strip() if not data else "")
-    data.setdefault("observations", [])
+    data["observations"] = normalize_observations(data.get("observations"))
     return data
 
 

@@ -58,7 +58,7 @@ def test_preflight_passes_when_covered(tmp_path: Path, monkeypatch) -> None:
             {
                 "card_id": "imgA", "schema_version": 1,
                 "our_pass": {"model": "claude-opus-4-8"},
-                "pages": [{"page": 1, "observations": []}],
+                "pages": [{"page": 1, "observations": [{"claim": "A claim"}]}],
             }
         )
     )
@@ -139,9 +139,8 @@ def test_bulk_run_produces_a_sidecar_for_every_eligible_item(
         ["vision", "run", "--manifest", str(manifest), "--out", str(out), "--run"],
     )
     assert result.exit_code == 0, result.output
-    assert {p.name for p in out.glob("*.json")} == {
-        "imgA.json", "imgB.json", "imgC.json"
-    }
+    sidecars = {p.name for p in out.glob("*.json") if p.name != "index.json"}
+    assert sidecars == {"imgA.json", "imgB.json", "imgC.json"}
     assert "3 produced / 3 eligible" in result.stdout
 
 
