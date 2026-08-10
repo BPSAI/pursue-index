@@ -1,15 +1,14 @@
 """A/V direct-fetch stage (pipeline stage 3): DOD id -> file URL -> staged bytes.
 
 Automates the operator's manual DVIDS download step. ``client`` resolves a
-card's ``dvids_video_id`` to its direct DOD asset file URL (via the same
-curl_cffi Chrome-impersonation client used for war.gov) and fetches the
+card's ``dvids_video_id`` to its direct DOD asset file URL (through the same
+HTTP client every other public fetch in this project uses) and retrieves the
 bytes; ``select`` scopes a manifest to a release's A/V rows; ``fetch``
 orchestrates the two into a staging directory consumed unchanged by
 ``scripts/ingest_release_videos.py --desktop`` (the existing DOD-id matcher).
 
-Probed 2026-08-09 (T48.5): a real ``/video/<id>`` page fetch and the direct
-asset GET both succeeded (200, not CDN-blocked) for a VID and an AUD asset —
-see the task summary for the full probe record.
+Staging into that existing directory shape is what lets this stage replace the
+manual step without touching the ingest script that follows it.
 """
 
 from __future__ import annotations

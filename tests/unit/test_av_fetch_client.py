@@ -1,17 +1,15 @@
 """Tests for ``pursue_index.av_fetch.client`` — DVIDS page + asset fetch.
 
-The probe run for T48.5 confirmed: DVIDS ``/video/<id>`` pages fetch fine via
-the same curl_cffi Chrome-impersonation client used for war.gov
-(``csv_fetcher.http_get``), and the direct DOD asset URL embedded in the page
-markup (a ``<source ... type='video/mp4'>`` tag) is not CDN-blocked — a real
-GET against it returned 200 / ``binary/octet-stream`` / 6,814,452 bytes for a
-VID asset and 200 / ``binary/octet-stream`` / 19,126,276 bytes for an AUD
-asset, both resolved via ``/video/<id>`` (never ``/audio/<id>``).
+A ``/video/<id>`` page carries its media as a ``<source ... type='video/mp4'>``
+tag alongside an HLS source and a differently-hosted thumbnail, so extracting
+the right URL from real markup is a property worth pinning. Both VID and AUD
+assets resolve through ``/video/<id>``; the ``/audio/<id>`` forms do not
+exist.
 
-These tests pin the two seams pure-logic can cover without a network call:
-extracting the mp4 asset URL from real page markup, and the fetch functions
-going through ``csv_fetcher.http_get`` (monkeypatched) so a future TLS-gate
-shift trips this stage in lockstep with the CSV/PDF health checks.
+These tests cover the two seams reachable without a network call: extracting
+the mp4 asset URL from real page markup, and both fetch functions going
+through ``csv_fetcher.http_get`` (monkeypatched), which is what keeps this
+stage on the same client as the CSV and PDF health checks.
 """
 
 from __future__ import annotations
@@ -20,8 +18,8 @@ import pytest
 
 from pursue_index.av_fetch import client
 
-# Real markup captured from the T48.5 probe (2026-08-09): dvidshub.net/video/1006056
-# (VID) and dvidshub.net/video/1006119 (AUD) both carry this exact <source> shape.
+# Real markup from the public /video/<id> pages: the VID and AUD pages both
+# carry this exact <source> shape, so one extraction rule serves both.
 _VID_PAGE_BODY = (
     '<source src="/video/1006056.m3u8" type="application/x-mpegURL" />'
     '                <source src="https://d34w7g4gy10iej.cloudfront.net/video/'

@@ -1,13 +1,13 @@
-"""The novelty-detection surface (T48.2) has been removed as ordinary
-product evolution: the reference corpus was a static synthetic
-placeholder for an abandoned design, never a real coverage measurement.
+"""The novelty-detection surface has been removed as ordinary product
+evolution: the reference corpus was a static synthetic placeholder for a
+design that was not carried forward, never a real coverage measurement.
 
-This is a regression guard, not a feature test — it asserts the backend
-pipeline, its builders, its synthetic source data, and the served
-payload are actually gone, and stay gone. The frontend chip UI
-(`CardProvenance.tsx`, `NoveltyFilter.ts`, the `disclosure_status` types)
-is explicitly salvaged for T48.3 to re-point at a future data source and
-is NOT covered by this test.
+This is a regression guard, not a feature test. It asserts that the whole
+surface stays gone — the backend pipeline, its builders, its source data, the
+served payload, and the reader-facing panels and filter that presented the
+comparison. A panel with no payload behind it is a promise the site cannot
+keep, so the frontend is covered here alongside the backend rather than left
+to drift back in.
 """
 
 from __future__ import annotations
@@ -38,6 +38,20 @@ def test_synthetic_reference_and_sidecar_data_are_gone():
 
 def test_served_payload_is_gone():
     assert not (REPO_ROOT / "web" / "public" / "data" / "novelty.json").exists()
+
+
+def test_reader_facing_surfaces_are_gone():
+    """No panel, filter or type describing a comparison the site cannot make."""
+    components = REPO_ROOT / "web" / "src" / "components"
+    assert not (components / "CardProvenance.tsx").exists()
+    assert not (components / "NoveltyFilter.ts").exists()
+    for path in (
+        components / "CardExplorer.tsx",
+        REPO_ROOT / "web" / "src" / "data" / "types.ts",
+        REPO_ROOT / "web" / "src" / "pages" / "card" / "[card_id].astro",
+    ):
+        assert "novelty" not in path.read_text(encoding="utf-8").lower(), path
+        assert "disclosure" not in path.read_text(encoding="utf-8").lower(), path
 
 
 def test_cli_has_no_novelty_command():

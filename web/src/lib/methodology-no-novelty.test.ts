@@ -1,12 +1,12 @@
 /**
- * The novelty-detection surface (T48.2) is removed as ordinary product
- * evolution — the reference corpus was a static synthetic placeholder
- * for an abandoned design. This guards against novelty vocabulary
- * (the "Provenance / novelty detection" section, the research-preview
- * caveat bullet, the disclosure-status threshold table) drifting back
- * into the page. The chip UI / data plumbing that reads a novelty
- * payload if one is present is salvaged elsewhere and out of scope
- * here — this only covers the page's prose.
+ * The novelty-detection surface is removed as ordinary product evolution —
+ * the reference corpus was a static synthetic placeholder for a design that
+ * was not carried forward. This guards against novelty vocabulary (the
+ * "Provenance / novelty detection" section, the research-preview caveat
+ * bullet, the disclosure-status threshold table) drifting back into the
+ * methodology page, which is the only thing this file covers; the components
+ * that presented the comparison are gone, and their absence is guarded on the
+ * Python side.
  */
 
 import { test } from "node:test";

@@ -1,10 +1,9 @@
 """Tests for ``pursue_index.transcribe.client`` — the direct AssemblyAI client.
 
-Own key from ``ASSEMBLYAI_API_KEY`` (never any Aurora service path), bounded
-polling with a hard timeout, and a small error taxonomy so a per-item failure
-in ``transcribe.run`` carries a clear reason. Built directly against AAI's
-public REST API via injected ``post``/``get`` seams — no real HTTP, no
-``assemblyai`` SDK import, no network in tests.
+Covers the key read from ``ASSEMBLYAI_API_KEY``, bounded polling, and the
+small error taxonomy that lets a per-row failure in ``transcribe.run`` carry a
+clear reason. Every call goes through injected ``post``/``get`` seams — no
+real HTTP, no ``assemblyai`` SDK import, no network in tests.
 """
 
 from __future__ import annotations

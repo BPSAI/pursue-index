@@ -1,11 +1,10 @@
 """``pursue av-fetch run`` — the A/V direct-fetch stage (pipeline stage 3).
 
 Automates the operator's manual DVIDS download: resolve each in-scope VID/AUD
-card's DOD asset file URL and download it, via the same curl_cffi
-Chrome-impersonation client used for war.gov (probed 2026-08-09, see T48.5's
-task summary). Output lands in ``--staging-dir`` named ``DOD_<id>.mp4`` — the
-exact filename convention ``scripts/ingest_release_videos.py --desktop``
-already consumes, unchanged.
+card's DOD asset file URL and retrieve it, through the same HTTP client every
+other public fetch in this project uses. Output lands in ``--staging-dir``
+named ``DOD_<id>.mp4`` — the exact filename convention
+``scripts/ingest_release_videos.py --desktop`` already consumes, unchanged.
 
 Split out of ``commands.py`` (same rationale as ``vision_cli``/``embed_cli``)
 to keep that module slim.

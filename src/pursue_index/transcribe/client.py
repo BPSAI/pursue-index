@@ -1,13 +1,16 @@
 """Direct AssemblyAI client — own key, bounded poll, small error taxonomy.
 
-Built directly against AssemblyAI's public REST API (upload, submit, poll)
-via ``httpx``, using OUR OWN ``ASSEMBLYAI_API_KEY`` — never any Aurora
-service path. Crib note: mirrors the shape of a bounded-poll batch
-transcription client (submit -> poll with a hard wall-clock timeout -> map
-terminal states to a small error taxonomy) without importing Aurora code;
-this is an independent implementation against AAI's documented REST
-endpoints, exercised in tests only through injected ``post``/``get``/
-``sleep``/``now`` seams — no live call, no ``assemblyai`` SDK dependency.
+Built against AssemblyAI's public REST API (upload, submit, poll) via
+``httpx``, authenticated with this project's own ``ASSEMBLYAI_API_KEY``. The
+three calls are the whole surface, so the SDK would add a dependency without
+adding capability; going straight to the documented endpoints also keeps the
+seams injectable. Batch transcription is asynchronous, so the client submits,
+then polls under two independent bounds — a wall-clock deadline and a retry
+budget — and maps terminal states to a small error taxonomy the run layer can
+report per row.
+
+Tests drive it entirely through injected ``post``/``get``/``sleep``/``now``
+seams: no live call, and no ``assemblyai`` SDK dependency.
 
 The mp4 uploads AS-IS (no audio-extraction step) — ``upload_audio`` sends
 the file's raw bytes unchanged.

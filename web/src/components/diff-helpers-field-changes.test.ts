@@ -9,7 +9,7 @@
  * (the project's web-side test convention — see existing
  * `atlas-helpers.test.ts` for the same pattern).
  *
- * Split out of `diff-helpers.test.ts` (T48.10) along its existing
+ * Split out of `diff-helpers.test.ts` along its existing
  * `// --- section ---` seams — see the sibling `diff-helpers-pairing.test.ts`
  * and `diff-helpers-report.test.ts` for the rest of that file's coverage.
  * Row fixtures shared across the split live in `diff-test-fixtures.ts`.

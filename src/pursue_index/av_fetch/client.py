@@ -1,19 +1,20 @@
-"""DVIDS page + direct asset fetch — reuses the war.gov Chrome-impersonation seam.
+"""DVIDS page + direct asset fetch — one HTTP client shared with the CSV path.
 
 DVIDS ``/video/<id>`` pages and the DOD asset bytes they embed are fetched
-through ``csv_fetcher.http_get`` (curl_cffi, ``impersonate="chrome"``) — the
-SAME client war.gov itself is fetched through. Probed 2026-08-09 for T48.5: a
-plain client gets 403'd by TLS fingerprinting on gated hosts elsewhere in this
-project, but Chrome-impersonated curl_cffi reached both the DVIDS page and its
-CDN-hosted asset cleanly (200 / not blocked). Public reuse seam mirrors
+through ``csv_fetcher.http_get`` (curl_cffi with a browser-equivalent client
+profile) — the same client every other public fetch in this project uses. A
+single client is a compatibility requirement: these hosts serve the pages a
+browser sees, so the fetch has to present what a browser presents, and using
+one client means a change in what these hosts expect shows up in the CSV and
+PDF health checks at the same time rather than only here. The seam mirrors
 ``pdf_health.py``: tests monkeypatch ``csv_fetcher.http_get`` to inject fake
 transports.
 
 The asset GET is bounded on both ends. The URL taken off the page is
 checked to be an absolute http(s) reference on a host the page is expected
-to serve media from — the page's own domain, derived from the page being
-scraped, or the delivery network it publishes media through — and the same
-check is applied to the response's final URL, so the bytes are known to
+to serve media from — the site serving the page, derived from the page being
+scraped, or one of the delivery hosts it publishes media through — and the
+same check is applied to the response's final URL, so the bytes are known to
 have come from an expected host however many hops the response took. The
 body is read in chunks against a byte ceiling, so an oversized response is
 left unread past the limit rather than taken in whole and measured after.
@@ -35,8 +36,9 @@ from pursue_index.scrape import csv_fetcher
 
 log = get_logger(__name__)
 
-# Re-use the CSV fetcher's Chrome impersonation profile so a TLS/header gating
-# shift trips this stage in lockstep with the CSV and PDF health checks.
+# The same client profile the CSV fetcher uses, so a change in what these
+# hosts expect of a client shows up in the CSV and PDF health checks at the
+# same time as it shows up here, rather than only here.
 _IMPERSONATE = "chrome"
 
 _DVIDS_PAGE_URL = "https://www.dvidshub.net/video/{dvids_video_id}"
@@ -65,12 +67,11 @@ _FETCHABLE_SCHEMES = ("http", "https")
 # than its network's suffix keeps the check to the media this site publishes.
 ASSET_DELIVERY_HOSTS = ("d34w7g4gy10iej.cloudfront.net",)
 
-# Ceiling on the bytes read for a single asset. Release A/V assets measured
-# on the 2026-08-09 probe were single- and double-digit megabytes, so this
-# sits roughly two orders of magnitude above one and never stands in the
-# way of a real asset; it bounds what one item can read into memory. It is
-# applied as the body arrives, so a response larger than this is left
-# unread past the limit rather than being taken in whole and measured after.
+# Ceiling on the bytes read for a single asset. Release A/V assets run to
+# single- and double-digit megabytes, so this sits well above one and never
+# stands in the way of a real asset; it bounds what one item can read into
+# memory. It is applied as the body arrives, so a response larger than this
+# is left unread past the limit rather than taken in whole and measured after.
 MAX_ASSET_BYTES = 2 * 1024 * 1024 * 1024
 
 # How much of a streamed body is pulled per read.

@@ -1,8 +1,8 @@
 """Tests for ``pursue_index.av_fetch.fetch`` — the direct-fetch stage.
 
-Fully mocked HTTP (injected ``page_fetch``/``asset_fetch`` seams) per T48.5's
-AC: no live network call in the suite. Covers both VID and AUD rows (DVIDS
-serves AUD at ``/video/<id>`` too — asset_type never changes the URL), the
+HTTP is injected throughout (``page_fetch``/``asset_fetch`` seams), so the
+suite makes no network call. Covers both VID and AUD rows (DVIDS serves AUD at
+``/video/<id>`` too — asset_type never changes the URL), the
 skip-and-count-never-silent failure contract, and the handoff to the existing
 DOD-id matcher (``scripts/_video_ingest_core.match_cards_to_files``)
 unchanged.
@@ -174,7 +174,7 @@ def test_fetch_one_fails_when_no_dod_url_on_page(tmp_path: Path) -> None:
 
 
 def test_fetch_one_fails_on_non_video_content_type(tmp_path: Path) -> None:
-    """A CDN block that still returns 200 with an HTML body must not be staged."""
+    """An HTML body under a 200 is not media, whatever the URL promised."""
     card = FakeCard("c7", "VID", "1006056")
     page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
     asset_fetch = _assets(
@@ -182,7 +182,7 @@ def test_fetch_one_fails_on_non_video_content_type(tmp_path: Path) -> None:
             "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
                 200,
                 "text/html",
-                b"<html>blocked</html>",
+                b"<html>an html page, not media</html>",
             )
         }
     )

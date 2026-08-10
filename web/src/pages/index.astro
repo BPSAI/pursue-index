@@ -162,8 +162,8 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
         </h2>
       </header>
       {/* Sprint 2 perf-pass: was `client:load` — the explorer hydrated
-          eagerly and parsed the 158-card props blob + fetched
-          novelty.json on every visit. The card grid lives BELOW the
+          eagerly and parsed the 158-card props blob on every visit.
+          The card grid lives BELOW the
           fold on mobile (search hero takes the viewport), so
           `client:visible` defers hydration until the user scrolls
           there. CLS-safe because the server-rendered output already
