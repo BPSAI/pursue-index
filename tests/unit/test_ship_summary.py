@@ -7,7 +7,10 @@ builder produces the missing actionable block, credential-free.
 
 from __future__ import annotations
 
-from pursue_index.release.ship import build_tranche_ready_summary
+from pursue_index.release.ship import (
+    OPERATED_STAGE_SEQUENCE,
+    build_tranche_ready_summary,
+)
 
 
 def _summary(**over):
@@ -55,6 +58,36 @@ def test_summary_lists_scoped_worklist_card_ids_when_given():
     s = _summary(scoped_count=3, scoped_ids=ids)
     for cid in ids:
         assert cid in s
+
+
+def _stage_position(name: str) -> int:
+    """Where a stage sits in the operated sequence, matched on its leading word."""
+    for i, stage in enumerate(OPERATED_STAGE_SEQUENCE):
+        if stage.split()[0].lower() == name:
+            return i
+    raise AssertionError(f"{name!r} is not in the operated stage sequence")
+
+
+def test_operated_sequence_runs_approve_through_ship_ready():
+    """The tranche contract begins at approve and ends at ship-ready."""
+    assert _stage_position("approve") == 0
+    assert OPERATED_STAGE_SEQUENCE[-1] == "ship-ready"
+
+
+def test_vision_runs_after_ocr_and_before_embed():
+    """Vision is an operator-attended spend stage that feeds the embed payload.
+
+    It reads page images, so it follows OCR; the embed payload carries its
+    observations alongside page text, so it precedes embed.
+    """
+    assert _stage_position("ocr") < _stage_position("vision") < _stage_position("embed")
+
+
+def test_summary_names_every_operated_stage_in_order():
+    """The operator-facing block spells out the whole sequence, in sequence."""
+    block = _summary().split("**Run the operated release**", 1)[1]
+    positions = [block.index(stage) for stage in OPERATED_STAGE_SEQUENCE]
+    assert positions == sorted(positions)
 
 
 def test_summary_caps_worklist_and_notes_remainder():

@@ -14,6 +14,7 @@ from rich.console import Console
 from rich.table import Table
 
 from pursue_index import get_logger
+from pursue_index.clean import TRANCHE_SPEND_CEILING_USD
 from pursue_index.clean.runner import (
     BudgetExceededError,
     CardReport,
@@ -56,9 +57,11 @@ clean_app.add_typer(clean_qc_app)
 # errors" — verified via the pilot before any corpus-wide run.
 DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 
-# Default pilot budget — explicit gate per the plan. Operator overrides
-# for the full corpus run.
-DEFAULT_BUDGET_USD = 0.50
+# The clean pass runs under the shared tranche ceiling and fails closed at it:
+# the run stops the moment the ceiling is reached rather than carrying on. Any
+# run can set its own with --budget-usd. See ``pursue_index.clean`` for why the
+# clean pass and its QC pass answer to the same value.
+DEFAULT_BUDGET_USD = TRANCHE_SPEND_CEILING_USD
 
 
 def _resolve_cards(

@@ -85,14 +85,6 @@ Methodology is published. Numbers are reproducible from a clean clone.
   [/support](https://pursueindex.com/support), and a small set of
   curated [/finds](https://pursueindex.com/finds) entries — primary-source
   reading guides written against specific pages of specific cards.
-- **Novelty detection (machinery + UI).** `pursue novelty compute` runs
-  cosine top-1 vs a reference embedding index and tags each card as
-  `novel` / `partial` / `previously-disclosed`. The index page has a
-  DISCLOSURE filter chip; the card detail page has a Provenance panel
-  showing the top-3 reference matches. Currently shipping with a small
-  synthetic placeholder reference corpus (10 hand-crafted public-domain
-  passages from Roswell 1947, Project Blue Book, the Hottel memo, etc.) —
-  full Black Vault integration is on the post-launch backlog.
 - **2D semantic browser.** [/atlas](https://pursueindex.com/atlas) projects
   every OCR'd page from the 1024-dim Voyage-3 embedding space into 2D via
   UMAP (`random_state=42`). 4,127 dots, color-coded by agency, pan / zoom
@@ -107,10 +99,6 @@ Methodology is published. Numbers are reproducible from a clean clone.
 
 - **Curated finds expansion.** More hand-authored reading guides; current
   set is intentionally small to set the editorial bar.
-- **Black Vault reference corpus.** Acquire + OCR + embed the canonical
-  prior-disclosure FOIA archive (~100k–500k pages) so the novelty
-  detection moves from "methodology demo" to "real coverage measurement"
-  for every card.
 - **Auto-poll for new tranches — Layer 2.** Layer 1 (lightweight cron
   poll detecting upstream CSV changes, every 30 minutes) is shipped in
   [`.github/workflows/poll-pursue.yml`](.github/workflows/poll-pursue.yml);
@@ -141,6 +129,8 @@ hash-pinned)             (NAS)    Sonnet judge) payload
 | download | shipped  | `{pdfs,images,videos}/{card_id}/{filename}` on NAS            |
 | ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — `llm-dots`: Sonnet 4.6 primary + dots.mocr content-filter backstop; AUD via AssemblyAI |
 | clean-qc | shipped  | operator-attended QC/methodology pass (rules → signal → Sonnet judge) over freshly-OCR'd pages; run in the sibling `pursue-curate` repo, then publish |
+| vision   | shipped  | `web/src/data/image-observations/{card_id}.json` — Opus-4.8 observation sidecars for IMG-card assets + image-only PDF pages; a verify-before-spend preflight gates coverage, the spend is operator-attended |
+| transcribe | shipped | `ocr/{card_id}/{pages.jsonl, meta.json}` — AssemblyAI diarized transcript for AUD cards (uploaded as-is, `speaker_labels`, `multichannel` set from a channel probe); a verify-before-spend preflight gates coverage, the spend is operator-attended |
 | embed    | shipped  | Voyage-3 embeddings, ~8.5MB float16 in-browser payload         |
 | serve    | shipped  | Astro static build deployed to Cloudflare Workers              |
 
@@ -159,6 +149,8 @@ with the upstream CSV available, any reader can rebuild the entire index:
 pursue scrape run                                        # writes manifests/latest.json + archives raw CSV
 pursue download run --manifest data/manifests/latest.json
 pursue ocr run --manifest data/manifests/latest.json --engine llm-dots   # operated engine: Sonnet 4.6 primary + dots.mocr content-filter backstop
+pursue vision run --manifest data/manifests/latest.json                  # verify-before-spend preflight: image-observation coverage (no spend); exits non-zero on shortfall
+pursue transcribe run --manifest data/manifests/latest.json --audio-dir <dir>  # verify-before-spend preflight: AUD transcript coverage (no spend); exits non-zero on shortfall
 pursue embed run --manifest data/manifests/latest.json
 ```
 
@@ -220,6 +212,8 @@ pursue-index/
 │   ├── scrape/          # CSV fetch + parse + manifest
 │   ├── download/        # Asset retrieval, content-addressable storage
 │   ├── ocr/             # OCR pipeline (llm-dots: Sonnet 4.6 primary + dots.mocr backstop) → pages.jsonl
+│   ├── vision/          # Vision observation stage (Opus-4.8) for IMG assets + image-only pages → sidecars
+│   ├── transcribe/      # AssemblyAI transcription stage for AUD cards → ocr/{card_id}/pages.jsonl
 │   ├── embed/           # Voyage-3 embeddings + in-browser payload
 │   ├── index/           # SQLAlchemy models for forensic ingest (optional)
 │   ├── cli/             # Typer CLI (`pursue`)
@@ -256,6 +250,8 @@ $EDITOR .env   # at minimum: PURSUE_DATA_ROOT, ANTHROPIC_API_KEY, VOYAGE_API_KEY
 pursue scrape run
 pursue download run --manifest data/manifests/latest.json
 pursue ocr run --manifest data/manifests/latest.json --engine llm-dots   # operated engine: Sonnet 4.6 primary + dots.mocr content-filter backstop
+pursue vision run --manifest data/manifests/latest.json                  # verify-before-spend preflight: image-observation coverage (no spend); exits non-zero on shortfall
+pursue transcribe run --manifest data/manifests/latest.json --audio-dir <dir>  # verify-before-spend preflight: AUD transcript coverage (no spend); exits non-zero on shortfall
 pursue embed run --manifest data/manifests/latest.json
 
 # Build and preview the site

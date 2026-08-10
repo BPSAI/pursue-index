@@ -5,8 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, HttpUrl
+from pydantic import Field, HttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from pursue_index.config.project_root import resolve_relative_data_root
 
 
 class Settings(BaseSettings):
@@ -85,6 +87,28 @@ class Settings(BaseSettings):
     # ---- Logging ----
     log_level: str = "INFO"
     log_format: Literal["console", "json"] = "console"
+
+    # ---- Path resolution ----
+    @field_validator("data_root", mode="after")
+    @classmethod
+    def resolve_data_root(cls, v: Path) -> Path:
+        """Resolve a relative data_root to the checkout it belongs to.
+
+        A relative data_root (the default) resolves against the source
+        checkout ``pursue_index`` was imported from, so `pursue clean run`
+        works identically from any subdirectory. The checkout is located
+        by the project sentinel beside the package rather than by counting
+        parent directories, so an installed package — which has no
+        checkout — resolves against the working directory instead of
+        landing beside the installed package files. See
+        :mod:`pursue_index.config.project_root`.
+        """
+        if v.is_absolute():
+            return v
+        import pursue_index
+        return resolve_relative_data_root(
+            v, package_dir=Path(pursue_index.__file__).parent, cwd=Path.cwd()
+        )
 
     # ---- Derived paths ----
     @property

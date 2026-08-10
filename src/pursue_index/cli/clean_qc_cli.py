@@ -14,6 +14,7 @@ from rich.console import Console
 from rich.table import Table
 
 from pursue_index import get_logger
+from pursue_index.clean import TRANCHE_SPEND_CEILING_USD
 from pursue_index.clean.qc import runner as qc_runner
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
@@ -35,13 +36,14 @@ def _qc_callback() -> None:
     return
 
 
-# Judge model: Sonnet 4.6 per the plan. ~$0.010/page; ~$40 corpus run.
-# Haiku 4.5 is the budget alternative but unmeasured for judge quality.
+# Judge model: Sonnet 4.6. Haiku 4.5 is the cheaper alternative but is
+# unmeasured for judge quality, so the judge stays pinned here in code.
 DEFAULT_JUDGE_MODEL = "claude-sonnet-4-6"
 
-# Pilot budget — explicit gate per the plan. Operator overrides for the
-# full corpus run.
-DEFAULT_BUDGET_USD = 0.50
+# The QC pass grades every PDF card in the manifest, the same unit of work the
+# clean pass covers, so it runs under the same tranche ceiling and fails closed
+# at it. See ``pursue_index.clean`` for why the value is shared.
+DEFAULT_BUDGET_USD = TRANCHE_SPEND_CEILING_USD
 
 
 def _resolve_cards(

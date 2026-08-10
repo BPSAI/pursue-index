@@ -169,11 +169,9 @@ function Caveat({ archiveId }: { archiveId: string }) {
   if (archiveId !== "synthetic-placeholder") return null;
   return (
     <p class="text-[11px] font-mono text-[color:var(--color-text-faint)] border-t border-[color:var(--color-border)] pt-2 leading-relaxed">
-      Reference corpus: small synthetic placeholder. Full Black Vault
-      integration (the canonical prior-disclosure FOIA archive) is in flight
-      post-launch — see the{" "}
+      Reference corpus: small synthetic placeholder — see the{" "}
       <a
-        href={`/methodology#novelty`}
+        href={`/methodology`}
         class="text-[color:var(--color-signal-cyan)] underline"
       >
         methodology page

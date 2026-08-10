@@ -37,8 +37,9 @@ CSV columns we consume:
 | 1 | scrape   | DOW CSV               | `manifest.json`                      | ✅ shipped |
 | 2 | download | manifest              | PDFs/IMGs in `data/{pdfs,images}/`   | ✅ shipped |
 | 3 | ocr      | PDFs                  | `pages.jsonl` per card               | ✅ shipped |
-| 4 | embed    | manifest + OCR output | Voyage-3 float16 browser payload     | ✅ shipped |
-| 5 | serve    | embed payload + worker | Static site + Cloudflare Worker chat | ✅ shipped |
+| 4 | vision   | IMGs + image-only pages | Observation sidecar per card        | ✅ shipped |
+| 5 | embed    | manifest + OCR + observations | Voyage-3 float16 browser payload | ✅ shipped |
+| 6 | serve    | embed payload + worker | Static site + Cloudflare Worker chat | ✅ shipped |
 
 The 30-minute CSV poll drives a parallel **archive** lane: per-fetch CSV bytes are committed content-addressed, prior manifests rotate into `data/manifests/snapshots/<csv_sha>.json`, and every referenced PDF/IMG asset is mirrored into R2 keyed by `byte_sha256`. A daily verify cron catches silent upstream overlays.
 
@@ -55,7 +56,7 @@ Every stage is idempotent against a content-hashed manifest. The manifest carrie
 Not every PURSUE entry is a PDF. Of the 158 in PURSUE Release 01 (as of tranche 65572b38, 2026-05-12): 116 PDFs, 28 videos, 14 images.
 
 - **PDFs**: download → OCR → index. Standard flow.
-- **Images**: download → store. Future: vision analysis (the DOW shipped these as raw infrared stills; OCR isn't useful but visual feature extraction may be).
+- **Images**: download → store → vision. The DOW shipped many of these as raw infrared stills, where OCR has nothing to read, so a vision pass examines the image itself and writes an observation sidecar per card. The same pass covers image-only PDF pages — pages whose OCR text is empty. `pursue vision run` previews eligible-vs-produced coverage by default and examines images only when explicitly asked to; the embed payload carries the observations alongside page text so image content is searchable.
 - **Videos & audio**: fetched via the DVIDS API to resolve a download URL, then archived into our Cloudflare R2 (content-addressed `archive/<sha>.mp4` + a `<card_id>.mp4` current-pointer) and served from there — DVIDS remains only the citable provenance source (the public video page), not the playback path. Download is off by default (`PURSUE_DOWNLOAD_VIDEOS=false`). Audio is transcribed via AssemblyAI/Aurora.
 
 ## OCR strategy
@@ -129,8 +130,7 @@ will reference deduped rows that don't exist in the deployed payload.
 | 2 | `scripts/build_search_data.py`      | OCR pages                                            | `web/public/data/pages.json`                      |
 | 3 | `scripts/build_embed_data.py`       | embed root                                           | `web/public/data/{embeddings.bin,embed_index.json}` (float16) |
 | 4 | `scripts/build_atlas_layout.py`     | embed root (float32) **or** deployed payload (float16) | `web/public/data/atlas-layout.json`               |
-| 5 | `scripts/build_novelty_data.py`     | embed root + reference index                         | `web/public/data/novelty.json`                    |
-| 6 | `cd web && npm run build`           | all of the above                                     | `web/dist/` (Cloudflare Workers static assets)    |
+| 5 | `cd web && npm run build`           | all of the above                                     | `web/dist/` (Cloudflare Workers static assets)    |
 
 `build_atlas_layout.py` prefers the native float32 `vectors.bin` because
 UMAP is sensitive to the float16 → float32 round-trip (the deployed
@@ -139,7 +139,7 @@ isn't mounted (CI / clean clones), pass `--from-published web/public/data/`
 to read the deployed float16 payload — accept the small precision delta
 versus refusing to build.
 
-**Order matters.** A fresh `pursue embed run` invalidates 2–5;
+**Order matters.** A fresh `pursue embed run` invalidates 2–4;
 re-deploying the site without re-running them ships dotted UMAP coords
 pointing at deduped rows that are gone from `pages.json`. `random_state=42`
 keeps the atlas layout reproducible across machines, so re-runs of step

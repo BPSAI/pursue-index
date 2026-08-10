@@ -16,6 +16,22 @@ OCR_ENGINE_OF_RECORD = "llm-dots"  # Sonnet 4.6 per page + local dots on a conte
 OCR_ENGINES_ACCEPTED = ("llm-dots", "llm")  # tesseract / surya / auto are retired
 OCR_CONCURRENCY_OF_RECORD = 8  # NOT the download concurrency (4)
 
+# --- the operated stage sequence (the contract an operator follows) ---
+# Every tranche runs these stages, in this order. `vision` sits with the other
+# operator-attended spend stages: it reads page images, so it follows OCR, and
+# the embed payload carries its observations alongside page text, so it
+# precedes embed. Stages are named here once and rendered from here, so the
+# published contract and this constant cannot describe different releases.
+OPERATED_STAGE_SEQUENCE = (
+    "approve",
+    f"OCR `--engine {OCR_ENGINE_OF_RECORD} "
+    f"--concurrency {OCR_CONCURRENCY_OF_RECORD} --force`",
+    "vision",
+    "curate clean-qc",
+    "embed",
+    "ship-ready",
+)
+
 # order-of-magnitude per-page costs for the estimate (honest, not billing-exact)
 _OCR_USD_PER_PAGE = 0.012      # Sonnet 4.6 vision OCR, avg page
 _EMBED_USD_PER_PAGE = 0.00004  # voyage-3
@@ -114,9 +130,9 @@ def build_tranche_ready_summary(
         lines += _worklist_lines(scoped_ids)
     lines += [
         "",
-        "**Run the operated release** — drives approve → OCR "
-        "`--engine llm-dots --concurrency 8 --force` → curate clean-qc → embed → "
-        "ship-ready, with a verify-before-spend engine check:",
+        "**Run the operated release** — drives "
+        + " → ".join(OPERATED_STAGE_SEQUENCE)
+        + ", with a verify-before-spend engine check:",
         "```",
         f"/ship-tranche {tranche}",
         "```",

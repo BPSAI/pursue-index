@@ -244,3 +244,66 @@ def test_clean_run_dry_run_does_not_invoke_runner(
     )
     assert result.exit_code == 0, result.stdout
     assert _patch_runner == []
+
+
+def test_clean_run_default_budget_is_the_shared_tranche_ceiling(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _patch_runner,
+) -> None:
+    """The clean pass takes its ceiling from the one shared constant."""
+    from pursue_index.clean import TRANCHE_SPEND_CEILING_USD
+    from pursue_index.cli import clean_cli
+    assert clean_cli.DEFAULT_BUDGET_USD == TRANCHE_SPEND_CEILING_USD
+
+
+def test_clean_run_bare_invocation_uses_the_default_ceiling(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _patch_runner,
+) -> None:
+    """A bare `pursue clean run` is capped by the default ceiling."""
+    from pursue_index.config import settings
+    monkeypatch.setattr(settings, "data_root", tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    _write_manifest(manifest_path, ["c1"])
+    _seed_pages(tmp_path / "ocr", "c1", [{"page": 1, "text": "x"}])
+
+    result = runner_cli.invoke(
+        clean_app,
+        ["run", "--manifest", str(manifest_path)],
+    )
+    from pursue_index.clean import TRANCHE_SPEND_CEILING_USD
+    assert result.exit_code == 0, result.stdout
+    assert len(_patch_runner) == 1
+    assert _patch_runner[0]["budget_usd"] == TRANCHE_SPEND_CEILING_USD
+
+
+def test_clean_run_budget_cap_still_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reaching the ceiling stops the run: it fails closed, never permissive."""
+    from pursue_index.config import settings
+    monkeypatch.setattr(settings, "data_root", tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    _write_manifest(manifest_path, ["c1", "c2"])
+    _seed_pages(tmp_path / "ocr", "c1", [{"page": 1, "text": "x"}])
+    _seed_pages(tmp_path / "ocr", "c2", [{"page": 1, "text": "y"}])
+
+    def fake_run_card(**kwargs):
+        if kwargs["card_id"] == "c1":
+            return clean_runner.CardReport(
+                card_id="c1", pages_cleaned=1, pages_skipped=0,
+                cost_usd=7.9, input_tokens=100, output_tokens=80,
+                cache_read_tokens=0,
+            )
+        # The second card is where the running total crosses the ceiling.
+        raise clean_runner.BudgetExceededError(
+            "Cost cap $8.00 exceeded after page 1 of card c2"
+        )
+
+    monkeypatch.setattr("pursue_index.cli.clean_cli.run_card", fake_run_card)
+
+    result = runner_cli.invoke(
+        clean_app,
+        ["run", "--manifest", str(manifest_path)],
+    )
+    # Must exit with code 2 (budget exceeded), not 0
+    assert result.exit_code == 2, result.stdout
+    assert "BUDGET EXCEEDED" in result.stdout
