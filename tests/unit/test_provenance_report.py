@@ -50,7 +50,7 @@ def _manifest() -> dict:
 
 def test_every_card_is_resolved_by_exactly_one_route() -> None:
     report = build_report(_manifest())
-    assert report.card_count == 334
+    assert report.card_count == len(_manifest()["cards"])
     assert (
         report.resolved_by_claim + report.resolved_by_era + report.unresolved
         == report.card_count
@@ -59,14 +59,18 @@ def test_every_card_is_resolved_by_exactly_one_route() -> None:
 
 
 def test_real_manifest_coverage_matches_the_chain() -> None:
-    """The committed manifest resolves to a stable, known coverage split."""
+    """The committed manifest resolves to a stable, known coverage split.
+
+    These figures are pinned against the currently promoted manifest and are
+    updated as part of a release promote when the corpus grows.
+    """
     report = build_report(_manifest())
     assert report.resolved_by_claim == 23
-    # Three cards carry a two-digit incident date that no four-digit year on the
-    # card corroborates; they are undated rather than modern, so they sit in
+    # Cards carrying a two-digit incident date that no four-digit year on the
+    # card corroborates are undated rather than modern, so they sit in
     # unresolved (triage) instead of taking an era-based negative.
-    assert report.resolved_by_era == 166
-    assert report.unresolved == 145
+    assert report.resolved_by_era == 195
+    assert report.unresolved == 157
     assert report.page_image_flagged == 19
     assert report.tier_counts == {
         "previously_released": 3,
@@ -185,7 +189,7 @@ def test_card_outcome_round_trips_through_to_dict() -> None:
 def test_cli_prints_the_coverage_split() -> None:
     res = runner.invoke(app, ["provenance", "report"])
     assert res.exit_code == 0, res.output
-    assert "334" in res.output
+    assert str(len(_manifest()["cards"])) in res.output
     # The two routes appear as separately labelled lines.
     assert "claim" in res.output.lower()
     assert "era" in res.output.lower()
@@ -207,7 +211,7 @@ def test_cli_optional_json_out_writes_outside_web(tmp_path) -> None:
     res = runner.invoke(app, ["provenance", "report", "--json-out", str(out)])
     assert res.exit_code == 0, res.output
     payload = json.loads(out.read_text())
-    assert payload["card_count"] == 334
+    assert payload["card_count"] == len(_manifest()["cards"])
     assert payload["resolved_by_claim"] + payload["resolved_by_era"] + payload[
         "unresolved"
     ] == payload["card_count"]
