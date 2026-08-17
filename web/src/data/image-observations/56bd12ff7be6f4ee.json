@@ -1,0 +1,43 @@
+{
+  "card_id": "56bd12ff7be6f4ee",
+  "title": "NASA-UAP-D016, Preliminary Gemini 4 Crew Debriefing, Part I, 1965",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:20:11.759144+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "scanned blank document page",
+      "description": "A nearly blank, off-white or cream-colored paper page with no printed or handwritten text. Small dark ink marks or specks appear along the left edge, including a cluster near the upper-left and lower-left areas. A small dark mark is visible in the upper-right corner. Faint smudges and light shadowing appear vertically down the center and toward the edges, consistent with scanning of an aged sheet.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page contains no legible printed or handwritten text",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "There are small dark ink specks near the left edge of the page",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small dark mark appears in the upper-right corner",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The paper is off-white or cream colored with faint shadowing",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 339,
+      "row_key": ""
+    }
+  ]
+}

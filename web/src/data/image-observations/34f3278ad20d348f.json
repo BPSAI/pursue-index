@@ -1,0 +1,63 @@
+{
+  "card_id": "34f3278ad20d348f",
+  "title": "NASA-UAP-VM004, Apollo 12, 1969",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:22:32.269186+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "annotated black-and-white lunar surface photograph with color inset overlay",
+      "description": "The photograph shows a bright, cratered and rocky ground surface in the lower portion, resembling a lunar or barren landscape, with a smooth lighter plain rising to a horizon line beneath a dark, nearly black sky. In the lower left, the silhouette of a photographer or figure casts a long shadow across the terrain, along with another long shadow extending diagonally toward the center. Several reticle cross marks (fiducials) typical of Hasselblad camera photography are visible across the surface. In the upper portion, a small yellow rectangle in the dark sky is connected by yellow lines to a larger magnified inset box on the right, which shows an enlarged grainy view of a small bright point of light against the dark sky.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A human figure's shadow appears in the lower left of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Cross-shaped reticle fiducial marks are visible across the surface",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A yellow rectangle outline is drawn in the dark upper sky area",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Yellow lines connect the small rectangle to a larger inset box on the right",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The magnified inset box contains a small bright point of light",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The ground surface is rocky, cratered, and appears barren",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark and nearly black with no stars visible outside the inset",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Long diagonal shadows extend across the terrain",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

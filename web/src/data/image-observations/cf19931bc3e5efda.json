@@ -1,0 +1,53 @@
+{
+  "card_id": "cf19931bc3e5efda",
+  "title": "FBI-UAP-D021, Digital Rendering, Narrative Statement 1-3, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:18:04.149731+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color nighttime landscape photograph (digitally composited)",
+      "description": "A dark desert landscape at night with a deep blue sky containing a few faint stars. A large glowing orange-red spherical object, resembling a full moon or sun, sits low against rocky terrain on the right-center of the image. Layered, eroded rock formations and hills fill the middle ground, with jagged dark mountain ridges silhouetted behind them on the left. Low scrub brush, grasses, and desert vegetation cover the foreground. A curved two-lane paved road with a faint center line winds from the lower right through the lower portion of the scene.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A bright orange-red circular glowing object is positioned in the right-center of the image against rocky terrain",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A curved paved road runs through the lower right portion of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark blue with a few small light points resembling stars",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Layered, eroded rock formations occupy the middle ground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Low shrubs and grasses cover the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Dark mountain ridges are silhouetted along the left horizon",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

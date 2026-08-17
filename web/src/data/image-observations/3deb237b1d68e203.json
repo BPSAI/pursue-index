@@ -1,0 +1,63 @@
+{
+  "card_id": "3deb237b1d68e203",
+  "title": "NASA-UAP-VM006, Apollo 17, 1972",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:22:54.032743+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph with digital annotation overlay",
+      "description": "A lunar surface photograph showing a gray, rolling landscape with rounded hills or mountains along the horizon and a dark, nearly black sky above. The foreground consists of undulating regolith terrain with scattered rocks and small craters. Several small cross-shaped reseau (fiducial) marks are distributed across the scene in a grid pattern. A dark silhouette of an object, possibly part of the spacecraft or equipment, appears in the lower left. In the upper right area of the black sky, a yellow square outline encloses a zoomed-in, pixelated inset showing a dark noisy region with two small bluish points of light; yellow lines connect this magnified box to a tiny yellow square located near the horizon at the right side of the terrain.",
+      "visible_text": "32",
+      "observations": [
+        {
+          "claim": "The image shows a gray lunar-like surface with rounded hills on the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark, nearly black, with no visible stars in the main frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Multiple small cross-shaped fiducial marks are visible across the terrain",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A yellow square outline in the upper right encloses a pixelated magnified inset",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The inset contains two small bluish points of light",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Yellow lines connect the large inset box to a small yellow square near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark silhouette appears in the lower-left foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The number '32' is faintly visible in the lower foreground terrain",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

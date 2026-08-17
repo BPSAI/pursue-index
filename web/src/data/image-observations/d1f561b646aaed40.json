@@ -1,0 +1,53 @@
+{
+  "card_id": "d1f561b646aaed40",
+  "title": "FBI-UAP-D019, Digital Rendering, Narrative Statement 2-4, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:17:47.381080+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "digital nighttime illustration/composite",
+      "description": "A dark nighttime scene shows two human figures seen from behind, standing on flat ground in the lower-left foreground, outlined with a soft yellowish glow. The figure on the left appears taller and wears a jacket and pants; the figure on the right is slightly shorter. Behind them is a low, rolling ridge or hillside silhouetted against a deep blue star-filled sky. In the sky at right, near the horizon, there is a row of four small bright red dots followed by a single larger glowing yellowish-white orb. Numerous small white stars are scattered across the upper portion of the image.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two human figures are shown from behind in the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The figures have a faint yellow glowing outline",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Four small red dots and one larger yellowish orb appear in the sky at right",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The background sky is dark blue and filled with white star points",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A low hill or ridge silhouette runs across the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The left figure is taller than the right figure",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

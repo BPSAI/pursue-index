@@ -1,0 +1,53 @@
+{
+  "card_id": "45588f73ddfaad6d",
+  "title": "FBI-UAP-D020, Digital Rendering, Narrative Statement 2-5, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:17:55.983124+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "digital illustration / composite night scene",
+      "description": "A nighttime desert or hilly landscape rendered in a dark blue palette with a star-filled sky. In the foreground stand two human silhouettes seen from behind, outlined with a faint yellowish glow; the left figure is taller and appears to wear a jacket and jeans, while the right figure is shorter. Both face away toward the horizon. Along the horizon over the ridge of low mountains there is a horizontal row of four glowing red-orange dots and, at the far right, a single larger round yellowish glowing orb resembling the moon or a bright light. The lower portion of the image shows rocky terrain and dark ground.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two human silhouettes stand in the foreground viewed from behind",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "There are four red glowing dots in a horizontal line near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A larger yellowish round glowing orb appears at the far right of the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark blue and filled with numerous small white stars",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A low mountain ridge separates the sky from the darker foreground terrain",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The two figures are outlined with a faint yellow-green glow",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "card_id": "19b18b71420602c5",
+  "title": "NASA-UAP-VM003, Apollo 12, 1969",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:22:21.567169+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph with digital annotation overlay",
+      "description": "A photograph of a barren lunar-like surface under a very dark greenish-black sky. The foreground shows a gray, cratered and rippled ground with scattered rocks, and the long dark shadow of a person (photographer) cast across the terrain toward the viewer. Small cross-shaped reticle marks (fiducial crosses) are distributed across the scene, indicating a Hasselblad camera frame. The horizon is bright with a diffuse glow near its center. In the upper portion of the frame, a small bright point of light appears in the sky just above the horizon, enclosed by a small yellow square; two yellow lines connect it to a larger yellow-bordered inset box in the upper center, which shows a magnified, grainy view of the point of light resolving into a white dot with a faint red spot above it against the dark noisy background.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image shows a gray cratered surface resembling lunar terrain",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A person's shadow extends across the foreground toward the camera",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Cross-shaped reticle fiducial marks appear across the frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A yellow square and connecting lines highlight a bright point of light in the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A larger yellow-bordered inset shows a magnified grainy view of the light with white and red spots",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is very dark greenish-black with a bright glow along the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "There is no legible text in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

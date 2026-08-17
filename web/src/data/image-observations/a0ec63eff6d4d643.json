@@ -1,0 +1,63 @@
+{
+  "card_id": "a0ec63eff6d4d643",
+  "title": "FBI-UAP-D022, Digital Rendering, Narrative Statement 2-6, Western United States Event, 2026",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:19:35.889792+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph (nighttime interior car scene)",
+      "description": "A dark, dimly lit view from the back seat of a car at night, looking forward through the windshield. On the left, a person wearing glasses sits in the driver's seat with one hand on the steering wheel, seen in profile from behind. On the right, a second person with long hair sits in the front passenger seat, seen from behind. Between and above them a rearview mirror is visible mounted near the top of the windshield. Through the windshield a straight road with dashed centerline markings extends into the distance toward a dark hill or ridge under a faint dusk or night sky. A bright, blurred round glow (a light source or bright spot) appears in the upper-center area above the road. Headlamps illuminate the pavement ahead. The seats and car interior are silhouetted in warm, low light.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two people are seated in the front of a vehicle, viewed from behind",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The driver on the left wears glasses",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A hand rests on the steering wheel",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A rearview mirror is visible near the top of the windshield",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A road with a dashed centerline is visible through the windshield",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright blurred round light appears in the upper-center of the scene",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The scene is set at night or dusk with low ambient lighting",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark hill or ridge is visible on the horizon ahead",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

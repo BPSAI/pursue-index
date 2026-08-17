@@ -1,0 +1,53 @@
+{
+  "card_id": "fc9cb08cad327063",
+  "title": "FBI-UAP-D023, Digital Rendering, Narrative Statement 2-7, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:19:43.787005+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "digital illustration / composite nighttime scene",
+      "description": "A dark nighttime desert scene showing two silhouetted human figures standing on a dirt road facing away from the viewer toward a range of mountains under a deep blue sky. Five glowing red-orange lights are arranged in a curved arc in the sky above the mountain ridge. In the lower left corner is the partial silhouette of a car with a reflective metallic surface. Two pairs of small white lights (resembling headlights) are visible in the mid-ground at the base of the mountains. The terrain is barren and rocky, with a winding pale dirt path leading into the distance. There is faint semi-transparent watermark text near the right-center of the image.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two silhouetted human figures stand facing away from the camera",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Five red-orange glowing lights form an arc in the sky above a mountain range",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A partial car silhouette occupies the lower left corner",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Two pairs of small white lights appear at the base of the mountains",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A faint watermark is present near the right-center of the image",
+          "kind": "observation",
+          "confidence": "low"
+        },
+        {
+          "claim": "The scene depicts a barren desert with a winding dirt path",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

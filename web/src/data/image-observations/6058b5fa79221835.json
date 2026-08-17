@@ -1,0 +1,58 @@
+{
+  "card_id": "6058b5fa79221835",
+  "title": "FBI-UAP-D014, Digital Rendering, Narrative Statement 1-1, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:17:02.601893+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color digital photograph with composite elements",
+      "description": "A nighttime desert landscape scene showing a straight dirt or gravel road receding toward the horizon at the center of the frame. The road is flanked by scrubby vegetation, grasses, and desert plants including what appears to be a yucca on the left. Dark silhouetted hills or low mountains rise on both sides of the road, framing a gap where a faint band of pale yellow-orange twilight glows near the horizon. The sky above is deep blue to nearly black with scattered stars and faint clouds. In the upper right portion of the sky hovers a glowing orange-red circular object resembling a moon or orb, and to its left are three small red dots arranged in a horizontal row.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A straight light-colored road runs from the foreground to the center horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Dark silhouetted hills flank both sides of the road",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A glowing orange-red circular orb appears in the upper right sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Three small red dots are arranged in a row to the left of the orange orb",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark blue with visible stars and a band of pale twilight near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Desert scrub vegetation and grasses line both sides of the road",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

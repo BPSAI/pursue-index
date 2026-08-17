@@ -1,0 +1,58 @@
+{
+  "card_id": "e418f6fe8d2a4595",
+  "title": "FBI-UAP-D015, Digital Rendering, Narrative Statement 1-2, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:17:12.808055+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color nighttime landscape photograph (digitally altered)",
+      "description": "A twilight desert landscape showing a straight gravel or dirt road receding toward a gap between two dark silhouetted hills in the center distance. The road surface reflects a faint light and narrows to a vanishing point at the horizon where a band of pale yellow-orange glow marks the sky above the hills. Flanking the road are scrubby desert vegetation, low bushes, grasses, and a yucca or agave plant in the left foreground. The sky is deep blue with a scattering of small star-like specks and hazy lighter clouds. In the upper-left portion of the sky floats a small round orange-red glowing object with mottled texture, accompanied to its left by three smaller red dots arranged vertically. No people or vehicles are visible.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A dirt/gravel road runs from the foreground to a gap between two hills in the distance",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Two dark silhouetted hills or mountains flank the center horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small orange-red glowing round object appears in the upper-left sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Three small red dots are arranged vertically to the left of the orange object",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a yellow-orange glow near the horizon indicating dusk or dawn",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Desert scrub vegetation and a yucca/agave plant are visible in the foreground",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Small star-like specks are scattered across the darker upper sky",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}
