@@ -7,9 +7,9 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
-from rich.table import Table
 
 from pursue_index import get_logger, scrape
+from pursue_index.cli.scrape_output import print_manifest_summary, print_scrape_diff
 from pursue_index.config import settings
 
 log = get_logger(__name__)
@@ -93,9 +93,9 @@ def scrape_run_cmd(
 
     scrape.save_manifest(manifest, out_path)
 
-    _print_manifest_summary(manifest)
+    print_manifest_summary(manifest)
     console.print(f"\n[green]✔[/green] Manifest written to {out_path}")
-    _print_scrape_diff(diff)
+    print_scrape_diff(diff)
 
 
 # ---------------------------------------------------------------------------
@@ -150,6 +150,14 @@ app.add_typer(ingest_app)
 from pursue_index.cli.storage_cli import storage_app  # noqa: E402
 
 app.add_typer(storage_app)
+
+
+# ---------------------------------------------------------------------------
+# provenance (Phase-A coverage report — read-only, publishes nothing)
+# ---------------------------------------------------------------------------
+from pursue_index.cli.provenance_cli import provenance_app  # noqa: E402
+
+app.add_typer(provenance_app)
 
 
 # ---------------------------------------------------------------------------
@@ -260,51 +268,6 @@ def serve(
         port=port or settings.api_port,
         reload=False,
     )
-
-
-# ---------------------------------------------------------------------------
-# helpers
-# ---------------------------------------------------------------------------
-def _print_scrape_diff(diff: dict[str, object]) -> None:
-    """Render the rotate / added / removed summary lines for ``scrape run``."""
-    if diff["snapshot"]:
-        console.print(f"[dim]Prior manifest rotated to snapshot:[/dim] {diff['snapshot']}")
-    if diff["added"]:
-        console.print(f"[cyan]+[/cyan] {diff['added']} new card(s)")
-    if diff["removed"]:
-        console.print(
-            f"[red]![/red] [bold]{diff['removed']} card(s) REMOVED "
-            f"upstream[/bold] — logged to data/removed-cards.jsonl"
-        )
-        for title in diff["removed_titles"]:
-            console.print(f"  [red]-[/red] {title}")
-
-
-def _print_manifest_summary(manifest) -> None:
-    by_agency: dict[str, int] = {}
-    by_type: dict[str, int] = {}
-    redacted = 0
-    for c in manifest.cards:
-        by_agency[c.agency] = by_agency.get(c.agency, 0) + 1
-        by_type[c.asset_type] = by_type.get(c.asset_type, 0) + 1
-        if c.redacted:
-            redacted += 1
-
-    summary = Table(title=f"Manifest summary — {manifest.card_count} cards")
-    summary.add_column("Agency")
-    summary.add_column("Count", justify="right")
-    for agency, count in sorted(by_agency.items(), key=lambda kv: -kv[1]):
-        summary.add_row(agency, str(count))
-    console.print(summary)
-
-    by_type_table = Table(title="By asset type")
-    by_type_table.add_column("Type")
-    by_type_table.add_column("Count", justify="right")
-    for t, count in sorted(by_type.items(), key=lambda kv: -kv[1]):
-        by_type_table.add_row(t, str(count))
-    console.print(by_type_table)
-
-    console.print(f"Redacted: [bold]{redacted}[/bold] / {manifest.card_count}")
 
 
 if __name__ == "__main__":

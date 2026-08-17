@@ -17,6 +17,7 @@ from pursue_index import get_logger
 from pursue_index.clean.qc import runner as qc_runner
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
+from pursue_index.text_control import console_text
 
 log = get_logger(__name__)
 console = Console()
@@ -63,7 +64,7 @@ def _print_dry_run(card_ids: list[str], budget: float, model: str) -> None:
         f"with judge [bold]{model}[/bold] under a ${budget:.2f} cap."
     )
     for cid in card_ids[:10]:
-        console.print(f"  - {cid}")
+        console.print(f"  - {console_text(cid)}")
     if len(card_ids) > 10:
         console.print(f"  ... +{len(card_ids) - 10} more")
 
@@ -77,7 +78,7 @@ def _print_summary(reports: list[qc_runner.CardQcReport], total_cost: float) -> 
     table.add_column("Cost", justify="right")
     for r in reports:
         table.add_row(
-            r.card_id, str(r.pages_graded), str(r.pages_skipped),
+            console_text(r.card_id), str(r.pages_graded), str(r.pages_skipped),
             str(r.pages_skipped_judge), f"${r.cost_usd:.4f}",
         )
     console.print(table)
@@ -89,7 +90,7 @@ def _run_one_card(card_id: str, model: str, budget_usd: float) -> qc_runner.Card
     qc_path = settings.ocr_dir / card_id / "pages_cleaned_qc.jsonl"
     if not cleaned_path.exists():
         console.print(
-            f"[yellow]skip[/yellow] {card_id}: no pages_cleaned.jsonl on disk"
+            f"[yellow]skip[/yellow] {console_text(card_id)}: no pages_cleaned.jsonl on disk"
         )
         return qc_runner.CardQcReport(
             card_id=card_id, pages_graded=0, pages_skipped=0,
