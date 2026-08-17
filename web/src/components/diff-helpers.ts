@@ -379,9 +379,9 @@ export function diffWithAliases(
 // --- Field-only changes --------------------------------------------
 
 // Fields excluded from the field-level diff, mirroring `tranche.py`'s
-// `DIFF_SKIP_FIELDS` exactly (`diff-helpers.test.ts` asserts the two stay
-// identical; `LOCAL_CURATION_FIELDS` below is the second, separately
-// pinned exclusion — `field_diff` skips the union of both).
+// `DIFF_SKIP_FIELDS` exactly (`diff-helpers-field-changes.test.ts` asserts
+// the two stay identical; `LOCAL_CURATION_FIELDS` below is the second,
+// separately pinned exclusion — `field_diff` skips the union of both).
 // This used to be inverted — a hand-maintained allowlist
 // of ~15 fields — which meant a new upstream CSV column, or one nobody
 // had added to the list yet, was silently never diffed. That dropped 107

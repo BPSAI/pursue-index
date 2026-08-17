@@ -14,6 +14,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from pursue_index.embed.image_observations import observation_only_pages
+
 
 @dataclass
 class PageRow:
@@ -66,14 +68,16 @@ def iter_card_pages(
     """Walk OCR output, yielding ok-status pages in deterministic order.
 
     ``obs_lookup`` (see ``image_observations.load_observation_text``) supplies
-    our own vision-pass text for genuinely image-only pages: when a page's base
-    OCR is empty AND its ``(card_id, page)`` is in the lookup, that text becomes
-    the page's searchable content instead of the page being dropped.
+    our own vision-pass text for genuinely image-only pages, and does so on two
+    paths. Within an OCR'd card, a page whose base OCR is empty takes that text
+    instead of being dropped. A card with no OCR output at all — an image card,
+    which has no document to read — is emitted from the lookup alone, since the
+    walk below can never reach it and the observation text is the whole of its
+    searchable content.
     """
     rows: list[PageRow] = []
-    if not ocr_dir.exists():
-        return rows
-    for card_dir in sorted(ocr_dir.iterdir()):
+    ocr_card_ids: set[str] = set()
+    for card_dir in sorted(ocr_dir.iterdir()) if ocr_dir.exists() else []:
         if not card_dir.is_dir():
             continue
         meta_path = card_dir / "meta.json"
@@ -81,17 +85,29 @@ def iter_card_pages(
         if not (meta_path.exists() and pages_path.exists()):
             continue
         try:
-            meta = json.loads(meta_path.read_text())
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             continue
         if meta.get("status") != "ok":
             continue
+        ocr_card_ids.add(card_dir.name)
         rows.extend(
             _read_card_pages(
                 card_dir.name, pages_path, obs_lookup=obs_lookup
             )
         )
+    rows.extend(_observation_only_rows(obs_lookup, ocr_card_ids))
     return rows
+
+
+def _observation_only_rows(
+    obs_lookup: dict[tuple[str, int], str] | None, ocr_card_ids: set[str]
+) -> list[PageRow]:
+    """Page rows for cards whose only searchable text is an observation."""
+    return [
+        PageRow(card_id=card_id, page=page, text=text, text_sha=text_sha(text))
+        for card_id, page, text in observation_only_pages(obs_lookup, ocr_card_ids)
+    ]
 
 
 def _read_card_pages(
@@ -112,7 +128,7 @@ def _read_card_pages(
     the page being dropped. This is the only searchable text such pages have.
     """
     rows: list[PageRow] = []
-    with pages_path.open() as fh:
+    with pages_path.open(encoding="utf-8") as fh:
         for line in fh:
             row = json.loads(line)
             text = row.get("text", "") or ""
@@ -140,7 +156,7 @@ def load_existing_index(
     if not index_path.exists():
         return {}, 0
     try:
-        idx = json.loads(index_path.read_text())
+        idx = json.loads(index_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return {}, 0
     seen: dict[tuple[str, int, str], int] = {}
@@ -152,7 +168,7 @@ def load_existing_index(
 def load_prior_index_rows(index_path: Path) -> list[IndexRow]:
     if not index_path.exists():
         return []
-    prior = json.loads(index_path.read_text())
+    prior = json.loads(index_path.read_text(encoding="utf-8"))
     return [
         IndexRow(
             card_id=r["card_id"],
@@ -195,7 +211,7 @@ def write_index(
     }
     if augmented_by is not None:
         payload["augmented_by"] = augmented_by
-    index_path.write_text(json.dumps(payload, indent=2))
+    index_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def _index_row_to_dict(r: IndexRow) -> dict[str, object]:

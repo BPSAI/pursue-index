@@ -67,8 +67,8 @@ def ocr_run(
     concurrency: int = typer.Option(
         None,
         "--concurrency",
-        help="Override card-level concurrency. llm-dots defaults to 8 "
-        "(or PURSUE_OCR_LLM_CONCURRENCY env var). Set 1 to force serial.",
+        help="Override card-level concurrency. Operated: --engine llm-dots --concurrency 8 "
+        "(also PURSUE_OCR_LLM_CONCURRENCY env var); defaults to 8 if unset. Set 1 to force serial.",
     ),
     worklist: Path = _OPT_WORKLIST,
 ) -> None:

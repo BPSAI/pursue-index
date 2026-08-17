@@ -155,7 +155,7 @@ function emptyStateCopy(assetType?: string): string {
     return "No OCR — this is a VID card; see the source asset above.";
   }
   // AUD cards have no page OCR; the audio streams from our R2 archive
-  // and is transcribed via AssemblyAI/Aurora when a transcript is present.
+  // and is transcribed via AssemblyAI when a transcript is present.
   if (assetType === "AUD") {
     return "No OCR — this is an AUD card; the audio is served from our archive above.";
   }

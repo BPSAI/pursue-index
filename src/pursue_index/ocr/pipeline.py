@@ -219,13 +219,14 @@ def _resolve_default_engine() -> EngineName:
 
 def _concurrency_for(engine: EngineName) -> int:
     """Engine-aware concurrency. LLM/auto parallelize via ``PURSUE_OCR_LLM_CONCURRENCY``
-    (default 4 — Anthropic SDK handles its own retries); surya stays at 1
+    (default 8 — the operated value, verified in logs before spend); surya stays at 1
     (single GPU can't truly parallelize); tesseract caps at cpu_count."""
     if engine in ("llm", "auto", "llm-dots"):
         # llm-dots: llm calls parallelize like llm; the rare dots fallback
         # serializes on the worker lock (ocr.dots._lock), so card-level
-        # concurrency is safe.
-        return int(os.getenv("PURSUE_OCR_LLM_CONCURRENCY", "4"))
+        # concurrency is safe. Default matches the operated `--concurrency 8`
+        # config; PURSUE_OCR_LLM_CONCURRENCY env var still wins for testing.
+        return int(os.getenv("PURSUE_OCR_LLM_CONCURRENCY", "8"))
     if engine in ("surya", "dots"):
         # surya: single GPU. dots: a single persistent GPU worker with one
         # stdin/stdout channel — concurrent calls would interleave and corrupt
@@ -243,8 +244,8 @@ async def ocr_all(
     """OCR every PDF card in the manifest with bounded concurrency.
 
     Tesseract caps at ``min(4, cpu_count)``; surya stays at 1 (single GPU);
-    LLM/auto default to ``PURSUE_OCR_LLM_CONCURRENCY`` (=4). ``concurrency``
-    overrides everything when set — wired to ``pursue ocr run --concurrency``.
+    LLM/auto default to ``PURSUE_OCR_LLM_CONCURRENCY`` (=8, the operated value).
+    ``concurrency`` overrides everything when set — wired to ``pursue ocr run --concurrency``.
     ``force=True`` re-OCRs cards even if their ``meta.json`` says ``status=ok``.
     """
     chosen = engine or _resolve_default_engine()

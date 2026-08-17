@@ -1,16 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { CardMetadata } from "../data/types";
 import { loadCardsSummary } from "./card-summary-loader";
-import {
-  DISCLOSURE_TONE,
-  EMPTY_NOVELTY,
-  corpusTag,
-  disclosurePillLabel,
-  loadNovelty,
-  passesDisclosureFilter,
-  type DisclosureFilter,
-  type NoveltyState,
-} from "./NoveltyFilter";
 
 interface Props {
   /**
@@ -105,23 +95,9 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
   const [query, setQuery] = useState("");
   const [agency, setAgency] = useState<string>("");
   const [type, setType] = useState<string>("");
-  const [disclosure, setDisclosure] = useState<DisclosureFilter>("");
   const [redactedOnly, setRedactedOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>("title");
   const [view, setView] = useState<ViewMode>("cards");
-  const [novelty, setNovelty] = useState<NoveltyState>(EMPTY_NOVELTY);
-
-  // Fetch novelty payload once on mount. Failure is silent — the filter
-  // disables and pills don't render when `available` stays false.
-  useEffect(() => {
-    let cancelled = false;
-    loadNovelty(base).then((n) => {
-      if (!cancelled) setNovelty(n);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [base]);
 
   // Effect-ordering guard: the URL-sync effect must NOT run on the very
   // first render (state is still defaults), or it will overwrite the hash
@@ -139,10 +115,6 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
       if (params.get("agency")) setAgency(params.get("agency")!);
       if (params.get("type")) setType(params.get("type")!);
       if (params.get("redacted") === "1") setRedactedOnly(true);
-      const d = params.get("disclosure");
-      if (d === "novel" || d === "partial" || d === "previously-disclosed") {
-        setDisclosure(d);
-      }
       const s = params.get("sort");
       if (s === "release" || s === "incident" || s === "type") setSort(s);
       const v = params.get("view");
@@ -159,13 +131,12 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
     if (agency) params.set("agency", agency);
     if (type) params.set("type", type);
     if (redactedOnly) params.set("redacted", "1");
-    if (disclosure) params.set("disclosure", disclosure);
     if (sort !== "title") params.set("sort", sort);
     if (view !== "cards") params.set("view", view);
     const next = params.toString();
     const url = next ? `#${next}` : window.location.pathname;
     history.replaceState(null, "", url);
-  }, [query, agency, type, redactedOnly, disclosure, sort, view]);
+  }, [query, agency, type, redactedOnly, sort, view]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -173,7 +144,6 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
       if (agency && c.agency !== agency) return false;
       if (type && c.asset_type !== type) return false;
       if (redactedOnly && !c.redacted) return false;
-      if (!passesDisclosureFilter(c.card_id, disclosure, novelty)) return false;
       if (q) {
         const hay =
           `${c.title} ${c.description ?? ""} ${c.incident_location ?? ""}`.toLowerCase();
@@ -193,7 +163,7 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
           return a.title.localeCompare(b.title);
       }
     });
-  }, [resolvedCards, query, agency, type, redactedOnly, disclosure, novelty, sort]);
+  }, [resolvedCards, query, agency, type, redactedOnly, sort]);
 
   return (
     <div class="space-y-6">
@@ -206,9 +176,6 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
         setType={setType}
         redactedOnly={redactedOnly}
         setRedactedOnly={setRedactedOnly}
-        disclosure={disclosure}
-        setDisclosure={setDisclosure}
-        disclosureAvailable={novelty.available}
         sort={sort}
         setSort={setSort}
         agencies={agencies}
@@ -235,7 +202,7 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
       </div>
 
       {view === "cards" ? (
-        <CardGrid filtered={filtered} base={base} novelty={novelty} />
+        <CardGrid filtered={filtered} base={base} />
       ) : (
         <TableView filtered={filtered} base={base} />
       )}
@@ -264,9 +231,6 @@ interface FiltersProps {
   setType: (v: string) => void;
   redactedOnly: boolean;
   setRedactedOnly: (v: boolean) => void;
-  disclosure: DisclosureFilter;
-  setDisclosure: (v: DisclosureFilter) => void;
-  disclosureAvailable: boolean;
   sort: SortKey;
   setSort: (v: SortKey) => void;
   agencies: string[];
@@ -274,7 +238,7 @@ interface FiltersProps {
 
 function Filters(p: FiltersProps) {
   return (
-    <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto_auto] lg:items-end">
+    <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:items-end">
       <div>
         <label class="block text-[10px] font-mono uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-1.5">
           QUERY
@@ -289,18 +253,6 @@ function Filters(p: FiltersProps) {
       </div>
       <Selector label="AGENCY" value={p.agency} onChange={p.setAgency} options={["", ...p.agencies]} />
       <Selector label="TYPE" value={p.type} onChange={p.setType} options={["", "PDF", "IMG", "VID", "AUD"]} />
-      <Selector
-        label="DISCLOSURE"
-        value={p.disclosure}
-        onChange={(v) => p.setDisclosure(v as DisclosureFilter)}
-        options={["", "novel", "partial", "previously-disclosed"]}
-        disabled={!p.disclosureAvailable}
-        title={
-          p.disclosureAvailable
-            ? undefined
-            : "novelty comparison not yet computed for this corpus"
-        }
-      />
       <Selector
         label="SORT"
         value={p.sort}
@@ -342,37 +294,12 @@ function ViewToggle({ view, setView }: { view: ViewMode; setView: (v: ViewMode) 
   );
 }
 
-function DisclosurePill({
-  status,
-  archiveId,
-}: {
-  status: keyof typeof DISCLOSURE_TONE;
-  archiveId?: string;
-}) {
-  const tone = DISCLOSURE_TONE[status];
-  if (!tone) return null;
-  const label = disclosurePillLabel(status, archiveId);
-  return (
-    <span
-      data-corpus={corpusTag(archiveId)}
-      class={`inline-flex items-baseline gap-1 text-[9px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 border ${tone.bg} ${tone.fg} ${tone.border}`}
-    >
-      <span>{label.status}</span>
-      <span class="text-[7px] tracking-[0.1em] opacity-70 normal-case">
-        {label.qualifier}
-      </span>
-    </span>
-  );
-}
-
 function CardGrid({
   filtered,
   base,
-  novelty,
 }: {
   filtered: CardMetadata[];
   base: string;
-  novelty: NoveltyState;
 }) {
   return (
     <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -388,12 +315,6 @@ function CardGrid({
                 <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-[color:var(--color-signal-red)] font-semibold">
                   REDACTED
                 </span>
-              )}
-              {novelty.available && novelty.cards[c.card_id] && (
-                <DisclosurePill
-                  status={novelty.cards[c.card_id].disclosure_status}
-                  archiveId={novelty.archiveId}
-                />
               )}
               <span class="ml-auto text-[10px] font-mono text-[color:var(--color-text-faint)]">
                 {c.card_id.slice(0, 8)}

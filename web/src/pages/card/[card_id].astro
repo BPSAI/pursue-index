@@ -1,7 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
 import CardOcrIsland from "../../components/CardOcrIsland.tsx";
-import CardProvenance from "../../components/CardProvenance.tsx";
 import AgencyStamp from "../../components/AgencyStamp.astro";
 import CardRemovedPage from "../../components/CardRemovedPage.astro";
 import { getCollection } from "astro:content";
@@ -805,11 +804,6 @@ const cardJsonLd = [
         assetType={card.asset_type}
         assetUrl={card.asset_url}
       />
-    </section>
-
-    {/* Provenance — novelty / "previously-disclosed" matches against the reference corpus */}
-    <section class="space-y-3 pt-2" id="provenance">
-      <CardProvenance client:load cardId={card.card_id} base={base} />
     </section>
   </article>
 

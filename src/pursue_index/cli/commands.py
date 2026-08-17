@@ -118,6 +118,36 @@ from pursue_index.cli.embed_cli import embed_app  # noqa: E402
 app.add_typer(embed_app)
 
 # ---------------------------------------------------------------------------
+# vision (per-tranche image-observation generator — pipeline stage 6)
+# ---------------------------------------------------------------------------
+# Same split rationale as embed_app/ops_app: keep this module slim. The default
+# `vision run` is a verify-before-spend preflight; live spend is operator-
+# attended (see cli/vision_cli.py).
+from pursue_index.cli.vision_cli import vision_app  # noqa: E402
+
+app.add_typer(vision_app)
+
+# ---------------------------------------------------------------------------
+# av-fetch (DVIDS A/V direct-fetch stage — pipeline stage 3)
+# ---------------------------------------------------------------------------
+# Same split rationale as embed_app/ops_app: keep this module slim. Automates
+# the operator's manual DVIDS download step; output feeds
+# scripts/ingest_release_videos.py --desktop unchanged.
+from pursue_index.cli.av_fetch_cli import av_fetch_app  # noqa: E402
+
+app.add_typer(av_fetch_app)
+
+# ---------------------------------------------------------------------------
+# transcribe (direct AssemblyAI transcription, AUD only — pipeline stage 7)
+# ---------------------------------------------------------------------------
+# Same split rationale as embed_app/ops_app: keep this module slim. The
+# default `transcribe run` is a verify-before-spend preflight; live spend is
+# operator-attended (see cli/transcribe_cli.py).
+from pursue_index.cli.transcribe_cli import transcribe_app  # noqa: E402
+
+app.add_typer(transcribe_app)
+
+# ---------------------------------------------------------------------------
 # clean (LLM cleanup of OCR text — pilot-gated)
 # ---------------------------------------------------------------------------
 # Same split rationale as embed_app/ops_app: keep this module slim. The
@@ -161,113 +191,13 @@ app.add_typer(provenance_app)
 
 
 # ---------------------------------------------------------------------------
-# novelty
+# index + serve (Postgres/API runtime)
 # ---------------------------------------------------------------------------
-novelty_app = typer.Typer(
-    name="novelty",
-    help="Compare PURSUE embeddings against a prior-disclosure reference corpus.",
-)
-app.add_typer(novelty_app)
+# Same split rationale as embed_app/ops_app: keep this module slim.
+from pursue_index.cli.index_serve_cli import index_app, serve  # noqa: E402
 
-
-def _resolve_pursue_embed_dir(model: str | None) -> Path:
-    chosen_model = model or settings.embed_model
-    pursue_embed_dir = settings.embeddings_dir / chosen_model
-    if not (pursue_embed_dir / "index.json").exists():
-        console.print(
-            f"[red]error:[/red] no PURSUE embed index at {pursue_embed_dir}; "
-            "run 'pursue embed run' first."
-        )
-        raise typer.Exit(code=2)
-    return pursue_embed_dir
-
-
-@novelty_app.command("compute")
-def novelty_compute(
-    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
-    reference: Path = typer.Option(
-        ...,
-        "--reference",
-        help="Path to the per-model reference embed dir (e.g. "
-        "data/reference/synthetic/embeddings/voyage-3).",
-    ),
-    archive_id: str = typer.Option(
-        None,
-        "--archive-id",
-        help="Identifier for the reference corpus (defaults to its parent dir name).",
-    ),
-    out: Path = typer.Option(
-        Path("data/novelty/latest.json"),
-        "--out",
-        help="Sidecar JSON output path (default: data/novelty/latest.json).",
-    ),
-    threshold_high: float = typer.Option(
-        0.85, "--threshold-high", help="Cosine threshold for previously-disclosed."
-    ),
-    threshold_partial: float = typer.Option(
-        0.70, "--threshold-partial", help="Cosine threshold below which pages are novel."
-    ),
-    model: str = typer.Option(
-        None, "--model", help="Embedding model id (defaults to PURSUE_EMBED_MODEL)."
-    ),
-) -> None:
-    """Run cosine top-1 + aggregation, writing the disclosure sidecar."""
-    from pursue_index.novelty.aggregate import Thresholds  # lazy
-    from pursue_index.novelty.pipeline import compute_novelty
-
-    settings.ensure_dirs()
-    scrape.load_manifest(manifest)
-    pursue_embed_dir = _resolve_pursue_embed_dir(model)
-    chosen_archive = archive_id or reference.parent.parent.name
-    report = compute_novelty(
-        pursue_embed_dir=pursue_embed_dir,
-        reference_embed_dir=reference,
-        archive_id=chosen_archive,
-        out_path=out,
-        thresholds=Thresholds(high=threshold_high, partial=threshold_partial),
-    )
-    console.print(
-        f"[green]✔[/green] novelty: {report.cards_processed} cards, "
-        f"{report.pages_compared} pages compared against archive "
-        f"[bold]{report.archive_id}[/bold] → {out}"
-    )
-
-
-# ---------------------------------------------------------------------------
-# index
-# ---------------------------------------------------------------------------
-index_app = typer.Typer(name="index", help="Postgres ingest + search.")
 app.add_typer(index_app)
-
-
-@index_app.command("ingest")
-def index_ingest(
-    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
-) -> None:
-    """Ingest manifest + OCR output into Postgres."""
-    from pursue_index.index.ingest import ingest_all  # lazy import
-
-    m = scrape.load_manifest(manifest)
-    ingest_all(m)
-
-
-# ---------------------------------------------------------------------------
-# serve
-# ---------------------------------------------------------------------------
-@app.command("serve")
-def serve(
-    host: str = typer.Option(None, "--host"),
-    port: int = typer.Option(None, "--port"),
-) -> None:
-    """Run the FastAPI search service."""
-    import uvicorn
-
-    uvicorn.run(
-        "pursue_index.api.main:app",
-        host=host or settings.api_host,
-        port=port or settings.api_port,
-        reload=False,
-    )
+app.command("serve")(serve)
 
 
 if __name__ == "__main__":
