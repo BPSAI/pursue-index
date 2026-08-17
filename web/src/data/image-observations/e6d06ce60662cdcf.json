@@ -1,0 +1,82 @@
+{
+  "card_id": "e6d06ce60662cdcf",
+  "title": "NASA-UAP-D017, Preliminary Gemini 4 Crew Debriefing, Part II, 1965",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:20:42.312728+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "blank aged paper page (scanned)",
+      "description": "A nearly blank, cream-to-yellowish aged paper page with no visible text or figures. The upper-right corner shows a dark triangular mark, likely a torn or folded corner. Small dark specks and faint smudges appear scattered near the top edge and along the right margin. The page edges are slightly irregular, and a subtle darker vertical shadow runs down the right side near the binding.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page is largely blank with no legible text",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark triangular mark is present in the top-right corner",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Small dark specks appear near the top edge of the page",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The paper has a yellowed, aged appearance",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The page edges are irregular and slightly frayed",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 2,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank aged paper page (scanned document)",
+      "description": "A nearly blank off-white or cream-colored page with an aged, slightly discolored surface. There are faint smudges and light gray marks near the top center and bottom center. Along the left margin are several small dark dots or punch marks, possibly binding holes or ink specks. A dark horizontal band runs along the bottom edge and a thin darker line appears at the top right corner, likely scanning artifacts or shadows. No legible text is present.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page is essentially blank with no legible text",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "There are small dark dots along the left margin",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A dark band runs along the bottom edge of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The paper appears aged and cream-colored",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Faint smudges appear near the top center of the page",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 289,
+      "row_key": ""
+    }
+  ]
+}

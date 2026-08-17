@@ -1,0 +1,48 @@
+{
+  "card_id": "7be8e1bf34990b50",
+  "title": "FBI-UAP-D025, Digital Rendering, \u201cAirborne Triangle,\u201d 2002",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:14:24.967501+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color night-sky photograph with overlay",
+      "description": "A dark astrophotograph of a dense starfield, showing numerous white and faintly colored stars scattered across a black background with a subtle brownish nebulous band suggesting the Milky Way in the lower and left portions. A large solid black downward-pointing triangle occupies the center of the image, obscuring the sky behind it, with its base along the top edge and its apex near the bottom center. The visible star field remains in the triangular corners of the frame.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A large black inverted triangle covers the center of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The background contains many small point-like stars",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A faint brownish nebulous haze is visible in the lower and left regions",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image has visible grain or noise consistent with a dark exposure",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

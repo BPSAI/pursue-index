@@ -1,0 +1,48 @@
+{
+  "card_id": "e18cac08048b6c28",
+  "title": "NASA-UAP-D021, Gemini 7 Technical Debriefing, 1965",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:21:00.160696+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "scanned blank document page",
+      "description": "A nearly blank off-white or cream-colored page with no legible text or imagery. There are faint smudges and lighter rectangular areas near the top center and bottom center that may be traces of removed or faded content. Four small dark ink marks or dots appear in a vertical alignment along the left margin. A faint vertical line and small tick marks appear along the right edge, and the page edges show slight scanning shadows.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page is predominantly blank with a cream or off-white background",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present anywhere on the page",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Four small dark ink marks appear along the left margin",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Faint lighter rectangular smudges appear near the top and bottom center",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A faint vertical line with tick marks appears along the right edge",
+          "kind": "observation",
+          "confidence": "low"
+        }
+      ],
+      "page": 221,
+      "row_key": ""
+    }
+  ]
+}

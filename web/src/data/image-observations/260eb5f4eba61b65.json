@@ -1,0 +1,58 @@
+{
+  "card_id": "260eb5f4eba61b65",
+  "title": "FBI-UAP-D018, Digital Rendering, Narrative Statement 2-3, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:17:38.137920+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "digital illustration / composite nighttime scene",
+      "description": "A dark nocturnal landscape scene showing two human figures in silhouette, seen from behind, standing on a foreground ridge or plateau. Both figures are outlined with a faint yellowish glow along their edges; the left figure appears taller and wears a jacket and pants, while the right figure appears shorter. They face toward a low range of rocky hills or mountains that stretch across the middle of the image. The sky above is deep blue-black and filled with many small stars. In the upper right portion of the sky hovers a bright glowing orb with a yellow outer halo and a red-orange center, appearing luminous against the dark sky. The overall lighting is dim, suggesting nighttime in a desert or arid environment.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two human figures are shown in silhouette from behind",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Both figures have a faint yellow glowing outline along their edges",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A glowing orb with a yellow halo and red center appears in the upper right sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark blue-black and contains numerous stars",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A range of low rocky hills spans the middle of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The left figure is taller than the right figure",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "card_id": "213ab63a7aefa8fd",
+  "title": "DOW-UAP-D093, Analysis of Flying Object Incidents in the United States, 1948",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:16:52.601438+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "scanned blank document page",
+      "description": "A largely blank, off-white or cream-colored sheet of paper photographed or scanned against a slightly darker background. The paper shows subtle wrinkles, creases, and mottled discoloration, particularly toward the lower portion and right side. Along the left edge there are three dark punched holes (binder holes) with some brownish staining and smudging around them. Faint ghosting or bleed-through of text may be visible on the right side but no characters are legible. The left and right margins show darker vertical edges consistent with a scan of a bound or shadowed page.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The page is essentially blank with no legible printed or handwritten text",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Three dark punched holes are aligned vertically along the left edge",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Brownish staining and smudging surrounds the upper and lower punched holes",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The paper is off-white or cream colored with visible wrinkles and creases",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Faint mottled discoloration appears on the right and lower portions of the sheet",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 2,
+      "row_key": ""
+    }
+  ]
+}

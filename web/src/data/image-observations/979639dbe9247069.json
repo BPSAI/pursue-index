@@ -1,0 +1,53 @@
+{
+  "card_id": "979639dbe9247069",
+  "title": "FBI-UAP-D029, Digital Rendering, \u201cDark Triangle with Lights,\u201d 2011",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:15:25.976060+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "digital illustration / composite night scene",
+      "description": "A dark nighttime scene rendered in blues and blacks showing a star-filled sky. In the upper portion, a large triangular craft is silhouetted with three bright circular white lights, one at each corner (two upper corners and one bottom point). In the foreground stands the silhouette of a person seen from behind, appearing to look up toward the triangle, outlined with a faint blue rim light. To the left is the silhouette of an old pickup truck. Trees and rooflines of houses form dark silhouettes along the lower horizon. Numerous small white specks representing stars fill the sky.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A triangular craft with three glowing lights appears in the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A human figure is silhouetted in the foreground facing away from the viewer",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "An old pickup truck silhouette is on the left side of the image",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Trees and house rooflines form dark silhouettes along the lower horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is filled with small white dots resembling stars",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The overall color palette is dark blue and black",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

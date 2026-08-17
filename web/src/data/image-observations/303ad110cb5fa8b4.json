@@ -1,0 +1,58 @@
+{
+  "card_id": "303ad110cb5fa8b4",
+  "title": "NASA-UAP-VM001, Apollo 12, 1969",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:21:59.281419+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "annotated color photograph (lunar surface scene with magnified inset)",
+      "description": "A photograph shows a gray, rocky lunar-like surface stretching to a horizon in the upper third, above which is a dark greenish-black sky. In the foreground the long shadow of a photographer or figure with equipment is cast across the textured, rock-strewn ground. Several small black cross-hair reticle marks are visible across the surface. A yellow rectangular box near the horizon marks a small feature, and lines connect it to a large magnified inset in the upper portion of the image, showing an enlarged pixelated area containing a faint vertical bright blue streak or smudge against the dark background. No legible text is present.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A yellow rectangular outline appears near the horizon line at right of center",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A larger yellow-bordered inset in the upper area shows a magnified, pixelated region",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The magnified inset contains a faint vertical blue streak",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground shows a shadow of a figure cast across rocky ground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Small black cross-shaped reticle marks are distributed across the surface",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky above the horizon is dark greenish-black",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

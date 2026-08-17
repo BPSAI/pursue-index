@@ -1,0 +1,53 @@
+{
+  "card_id": "2681dbf5da52e042",
+  "title": "NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:21:09.883016+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph (35mm film frame)",
+      "description": "A photograph apparently taken through a spacecraft window, showing the curved edge of Earth's limb at left with a bright bluish-white cloud-covered surface fading into the dark blackness of space toward the center. The right portion of the frame is dominated by dark interior structures, framing hardware, and reflections, including a rounded window edge, cables or panels, and a light-colored object with a label near the upper right that resembles stowed items or a plastic-wrapped package. A small bright elongated white spot appears in the mid-left dark region against the black of space. Red frame-edge markings (film sprocket numbering) appear along the left border.",
+      "visible_text": "18 0 67",
+      "observations": [
+        {
+          "claim": "The left half of the image shows a bright curved planetary limb transitioning to black space",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Red numerals reading '18', '0', and '67' appear vertically along the left edge",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Dark interior hardware and framing occupy the right portion of the frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small bright elongated white spot is visible in the dark central region",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A rounded window or porthole edge is visible at far right",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A light-colored plastic-wrapped object with a label is near the upper right",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

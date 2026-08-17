@@ -1,0 +1,234 @@
+{
+  "card_id": "adf867b347d0d376",
+  "title": "FBI-UAP-D027, Digital Rendering, \u201cDark Translucent Triangle,\u201d 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:15:18.156391+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color nighttime photograph",
+      "description": "A nighttime outdoor scene shows two dark silhouetted human heads and shoulders in the foreground lower center, appearing to be seen from behind as they face a backyard. Behind them is a wooden privacy fence lit by warm light, revealing vertical wood plank sections that enclose a grassy yard tinted green. Beyond the fence stand several two-story residential houses with sloped roofs, gables, and multiple windows, appearing dark against the sky. The upper portion of the image is dominated by a dark, gradient night sky transitioning from a warm orange-brown glow near the horizon to deep blue-black at the top, with faint specks that could be stars. A faint diagonal light streak appears in the upper right corner. The image has a rough, dashed border frame around all edges.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two dark human head-and-shoulder silhouettes appear in the lower center foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A wooden vertical-plank fence runs across the middle of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Several two-story houses are visible behind the fence",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark with an orange-brown glow near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The grass in the yard appears green under artificial light",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A faint diagonal light streak is visible in the upper right corner",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image has a dashed border along its edges",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    },
+    {
+      "image_type": "color digital illustration / composite night scene",
+      "description": "A nighttime backyard scene rendered in dark tones. In the foreground, two human figures are shown from behind as black silhouettes: one on the left with a rounder head and one on the right with longer hair and what appears to be a hoop earring, both appearing to look upward. They stand on a dimly lit green lawn enclosed by a wooden picket fence that runs across the middle of the image. Beyond the fence are several two-story suburban houses in silhouette against a gradient sky that shifts from orange-brown near the horizon to dark blue-purple overhead, with faint scattered star-like points. In the upper portion of the sky is a bright, blurry, elongated oval object made of parallel glowing streaks, resembling an unidentified aerial light. The overall image has a dark border with a rough dashed edge.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two human figures appear in silhouette in the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A wooden fence spans horizontally across the middle of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Multiple two-story houses are visible behind the fence",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright blurry elongated object with parallel streaks appears in the upper sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a gradient from orange near the horizon to dark blue at the top",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The right-hand figure appears to have a hoop earring",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The lawn in the foreground is green",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 2,
+      "row_key": ""
+    },
+    {
+      "image_type": "color digital illustration / composite nighttime scene",
+      "description": "A nighttime backyard scene rendered in dark tones. In the foreground, two people are shown as black silhouettes from the shoulders up, one on the left with short hair and one on the right with longer hair, both facing away toward the sky. Behind them is a wooden picket fence enclosing a grassy yard, with the fence and grass faintly illuminated in warm and greenish light. Beyond the fence are the dark silhouettes of two-story suburban houses with pitched roofs and a few visible windows. The upper portion of the image is a dark sky graduating from a brownish glow near the horizon to deep blue-black at the top, scattered with faint star-like points. Near the center of the sky hovers a small, bright, disc- or dome-shaped object with horizontal banding, appearing as a glowing light source.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two human head-and-shoulder silhouettes appear in the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A wooden fence spans the middle of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Silhouettes of multi-story houses appear behind the fence",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright disc-shaped object hovers in the night sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky has a gradient from brown near the horizon to dark blue at the top",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Faint star-like points are scattered across the upper sky",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 3,
+      "row_key": ""
+    },
+    {
+      "image_type": "color nighttime photograph (digitally composited)",
+      "description": "A nighttime scene shot from a backyard looking up at a dark sky. In the foreground, two human figures are shown in near-total silhouette from behind, appearing as head and shoulder shapes; the left figure has short hair and the right figure has longer, wavy hair. Behind them is a wooden picket-style fence that spans the width of the image, lit warmly from below or by ambient light so its planks appear amber and brown. Beyond the fence are the dark silhouettes of two-story suburban houses with pitched roofs and a few faintly lit windows. The upper portion of the frame is a gradient sky, darker blue-purple at the top fading to a warmer orange-brown glow near the horizon, with faint scattered points that could be stars. In the sky above the houses, slightly left of center, is a small, blurry, elongated pale object that appears to be a saucer or disc-like shape. Patches of green grass are visible at the very bottom near the figures. The image has a rough, torn or perforated border around all edges.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two silhouetted human head-and-shoulder figures appear in the foreground facing away from the camera",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A wooden fence spans the width of the image behind the figures",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Silhouettes of multiple two-story houses are visible beyond the fence",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small blurry pale disc-shaped object is visible in the sky above the houses",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The sky shows a gradient from dark blue-purple at top to orange near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a ragged, perforated border around its edges",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 4,
+      "row_key": ""
+    },
+    {
+      "image_type": "color digital nighttime photograph or composite illustration",
+      "description": "A nighttime scene viewed from a residential backyard looking outward. In the foreground are two dark human silhouettes seen from behind, one on the left with a rounded head and shoulders and one on the right with longer hair, both unlit against a patch of green-lit grass. Behind them runs a tall wooden privacy fence made of vertical planks, illuminated with a warm brownish glow. Beyond the fence are the dark rooflines and upper stories of several two-story suburban houses with visible windows and siding. The sky above transitions from a warm orange-brown glow near the horizon to a dark bluish-purple at the top, with faint scattered points that resemble stars. Near the center of the image, above the fence and between the houses, hovers a small pale vertical elongated object with faint linear striping. The image has a rough dashed border around its edges.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two dark human silhouettes are in the foreground facing away from the viewer",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A tall vertical-plank wooden fence spans the middle of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Two-story houses with windows are visible behind the fence",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small pale elongated object hovers in the sky near the center above the horizon",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The sky gradient goes from orange near the horizon to dark blue-purple at top",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a dashed or torn-edge border",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A patch of green-tinted grass is lit in the lower foreground",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 5,
+      "row_key": ""
+    }
+  ]
+}

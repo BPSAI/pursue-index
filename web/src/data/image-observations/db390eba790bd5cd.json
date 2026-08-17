@@ -1,0 +1,53 @@
+{
+  "card_id": "db390eba790bd5cd",
+  "title": "FBI-UAP-D031, Digital Rendering, \u201cLarge Triangle with Red Lights,\u201d 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:15:35.468584+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "digitally composited nighttime photograph/illustration",
+      "description": "A wide nighttime scene showing a star-filled dark blue sky over a parking lot. In the upper portion of the sky hovers a dark triangular or boomerang-shaped craft with three glowing red-orange lights positioned at its points. Below, a parking lot contains numerous parked cars and SUVs illuminated dimly. A tall street lamp stands near the center-right, casting a bluish-white cone of light downward. Additional distant light poles and glowing spots appear on the left and right sides. Low hills or ridgelines and small trees form the horizon, with sparse vegetation in the foreground. The overall lighting is dark with a bluish tone.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A dark triangular craft with three red-orange lights is depicted in the upper sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is filled with numerous small white star-like points",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A tall street lamp emits a cone of bluish-white light in the center-right",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Multiple parked cars and SUVs are visible in a parking lot in the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Low hills or ridgelines form the horizon behind the parking lot",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

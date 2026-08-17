@@ -1,0 +1,53 @@
+{
+  "card_id": "07214d7d1343a4b4",
+  "title": "NASA-UAP-D032, STS-80 Unidentified Object Image 3, 1996",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:13:51.802551+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph (from film, with sprocket-edge frame markings)",
+      "description": "A photograph apparently taken from orbit showing the curved edge of Earth against the black of space in the upper portion. The planet's surface is largely obscured by white and blue-white cloud cover, with a bright thin atmospheric limb along the horizon. The lower portion of the frame is dark and shows the interior of a spacecraft, including part of a window frame, reflections, and a curved structural element with lighter panels on the right side. A small dark rectangular label with faint text sits at the lower right. Red frame numbers appear along the left edge of the image, and the image is bordered by black film margins on left and right.",
+      "visible_text": "95 0 35",
+      "observations": [
+        {
+          "claim": "The curved limb of a planet with cloud cover is visible in the upper half",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Black space occupies the region below the planet's horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Red numerals reading '95', '0', and '35' appear vertically along the left margin",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The lower portion shows a dark spacecraft interior with a window frame and reflections",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A small dark label with faint text is located in the lower right",
+          "kind": "observation",
+          "confidence": "low"
+        },
+        {
+          "claim": "Black film borders frame the left and right edges of the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

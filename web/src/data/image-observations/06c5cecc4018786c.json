@@ -1,0 +1,273 @@
+{
+  "card_id": "06c5cecc4018786c",
+  "title": "FBI-UAP-D041, Digital Rendering 1, \u201cMultiple Red Lights,\u201d 2026",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:16:44.269841+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph (nighttime/twilight desert scene)",
+      "description": "A dim twilight desert landscape under a gradient sky that shades from dark blue at the top to lighter teal near the horizon. In the mid-ground are rugged rocky boulder formations and a range of mountains, with faint reddish-brown light illuminating the upper mountain slopes. The foreground is flat scrubland dotted with low desert brush and a faint dirt path curving through it. On the left, a dark silhouetted SUV or crossover vehicle is parked, seen in profile, with visible wheels, windows, and side mirror. A single human figure stands in silhouette near the center of the frame, facing away toward the mountains. In the sky above the mountains hovers a small cluster of three glowing red-orange lights arranged in a triangular grouping.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A cluster of three glowing red-orange lights appears in the sky above the mountains",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark silhouetted vehicle is parked on the left side of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A single human figure stands in silhouette near the center facing away from the camera",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The background contains rocky boulder formations and a mountain range",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a gradient from dark blue at top to teal near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Low desert brush is scattered across the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The scene appears to be at dusk or nighttime with low light",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    },
+    {
+      "image_type": "color photograph (likely digitally composited)",
+      "description": "A twilight desert landscape under a gradient blue sky. In the middle distance, rugged rock formations and scrub brush cover the terrain, with a mountain range along the horizon whose peaks catch faint reddish light. In the sky above the mountains hover two glowing red objects, each formed of three clustered circular lights arranged in a triangular pattern. On the left side of the frame is the dark silhouette of a parked SUV shown in profile with a visible wheel and side windows. Standing to the right of the vehicle is the dark silhouette of a person facing away from the camera, looking toward the glowing lights. The foreground and lower portion of the image are in deep shadow.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two red glowing objects appear in the sky, each made of three clustered lights",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark silhouette of a person stands facing away toward the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark SUV-type vehicle is parked on the left side of the frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A mountain range spans the horizon with rocky formations in the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The scene is lit as dusk or night with a gradient blue sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Desert scrub brush covers the middle-ground terrain",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 2,
+      "row_key": ""
+    },
+    {
+      "image_type": "color digital photograph (likely composited)",
+      "description": "A twilight desert landscape with a gradient dark blue sky transitioning toward the horizon. In the middle distance are rugged rock formations and boulders, with a mountain range receding into the background. The foreground is open scrubland dotted with dry brush. On the left, a dark SUV or hatchback vehicle is parked in silhouette. In the center foreground stands a lone human figure in silhouette, seen from behind, facing the mountains. In the sky above the mountains hover three glowing red-orange objects, each composed of a cluster of three small circular lights forming a triangular pattern.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Three glowing red light clusters float in the sky above the mountains",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Each glowing object consists of three small circular lights arranged in a triangle",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark vehicle is parked on the left side of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A single human figure stands in silhouette in the center foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The setting is a desert with rock formations and a mountain range",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a dusk/twilight gradient",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 3,
+      "row_key": ""
+    },
+    {
+      "image_type": "color digital photograph or composite (nighttime desert scene)",
+      "description": "A dusk or nighttime desert landscape under a deep blue gradient sky. In the foreground left, a dark SUV is parked in silhouette with one wheel and side windows visible. A person stands in silhouette to the right of the vehicle, facing away toward the distance. The middle ground is a flat desert plain covered with low shrubs and scattered rounded boulder formations. Beyond it rise a range of mountains with reddish-brown rocky slopes catching faint light. In the sky above the mountains hover four glowing red-orange light clusters, each composed of three small dots arranged in a triangular pattern, appearing luminous against the dim sky.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A dark SUV is parked in silhouette on the left side of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A single human figure stands in silhouette near the center-left, facing away",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Four red-orange glowing light clusters hover in the sky above the mountains",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Each glowing cluster appears made of three small dots in a triangular arrangement",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A mountain range with rocky slopes runs across the background",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The desert plain contains scattered boulders and low shrubs",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is a dark blue gradient consistent with dusk or night",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 4,
+      "row_key": ""
+    },
+    {
+      "image_type": "color digital photograph (composite/illustration)",
+      "description": "A dusk or twilight desert landscape scene with a gradient sky transitioning from dark blue at the top to a lighter teal near the horizon. In the background are rugged mountain ranges and clusters of large boulders and rock formations. The mid-ground is a flat desert plain covered in low scrub brush and sagebrush. On the left side, a dark SUV is parked, viewed from the side, with visible windows and wheels. A silhouetted human figure stands in the center-foreground facing away toward the mountains. In the sky above the mountains hover five glowing red-orange circular objects, each containing a cluster of three smaller dots arranged in a triangular pattern.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Five glowing red-orange circular objects are positioned in the sky above the mountains",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Each glowing object contains three smaller dots in a triangular arrangement",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark SUV is parked on the left side of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A silhouetted human figure stands in the foreground facing away from the camera",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The scene depicts a desert landscape with scrub brush and rock formations",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Mountains are visible along the horizon in the background",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a gradient from dark blue to teal indicating twilight lighting",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 5,
+      "row_key": ""
+    },
+    {
+      "image_type": "color digital photograph or composite (nighttime desert scene)",
+      "description": "A dusk or nighttime desert landscape with a gradient blue sky darkening toward the top. In the mid-ground are rugged rock formations and a mountain range whose upper ridges catch faint warm light. The foreground is dark scrubland with low desert brush. On the left side is the silhouette of a dark SUV or crossover vehicle seen in profile, with a visible wheel and side windows. Near the center a person stands in silhouette facing away from the camera toward the mountains. In the sky above the mountains are six glowing red-orange circular lights arranged in a loose horizontal cluster, each showing an internal three-lobed or trefoil-like pattern. No text is visible.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Six glowing red-orange lights appear in the sky above the mountains",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Each light contains a three-lobed internal pattern",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A dark SUV-type vehicle is silhouetted on the left side of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A single human figure stands in silhouette in the center foreground facing away",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Rocky boulder formations and a mountain range span the mid-ground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a gradient from lighter blue near the horizon to darker at the top",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground consists of dark desert brush and scrubland",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 6,
+      "row_key": ""
+    }
+  ]
+}

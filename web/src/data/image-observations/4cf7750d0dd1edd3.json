@@ -1,0 +1,53 @@
+{
+  "card_id": "4cf7750d0dd1edd3",
+  "title": "FBI-UAP-D038, Digital Rendering 1, \u201cMultiple Red Lights,\u201d 2026",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:15:44.481022+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color digital illustration / composite image",
+      "description": "A dusk or dawn desert scene in warm orange and brown tones. In the foreground left stands the dark silhouette of a person seen from behind, wearing a jacket and light-colored pants, facing toward distant mountains. To the left is the dark rear silhouette of a vehicle showing red tail-light and marker-light details. The ground is sandy desert terrain dotted with scattered shrubs and dry brush. In the middle distance are ridged mountains lit warmly along their crests, fading into hazy layers. The sky is a gradient of yellow near the horizon to muted purple-gray above. Two glowing reddish-orange oval shapes hover in the sky to the upper right, above the mountains.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A person is shown in silhouette from behind facing the mountains",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Two glowing red-orange oval objects appear in the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark vehicle with red tail lights is on the left side of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The terrain is a desert with scattered low shrubs",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Mountains are lit warmly along their upper edges under a hazy sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a gradient from yellow to purple-gray",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

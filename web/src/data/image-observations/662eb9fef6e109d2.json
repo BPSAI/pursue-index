@@ -1,0 +1,67 @@
+{
+  "card_id": "662eb9fef6e109d2",
+  "title": "NASA-UAP-D019, Gemini 5 Technical Debriefing, Part I, 1965",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:20:52.218012+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "blank scanned page fragment",
+      "description": "A very wide, short image consisting almost entirely of a pale cream or off-white background with faint tonal variations. There are subtle lighter and slightly darker streaks across the surface, suggesting a blank or nearly blank scanned paper. No text, figures, or distinct objects are visible.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is predominantly a uniform off-white or cream color.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present in the image.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Faint tonal streaks are visible across the surface.",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image has a very wide and short aspect ratio.",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 102,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank or near-blank scanned page",
+      "description": "The image is almost entirely white with no discernible content. Faint, very light beige or off-white lines are barely visible near the top and along the right edge, suggesting the faint outline of a border or box, but no text, figures, or distinct objects are present.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is predominantly white/blank",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Faint light-colored lines appear near the top and right edges",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "No legible text is present",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 103,
+      "row_key": ""
+    }
+  ]
+}

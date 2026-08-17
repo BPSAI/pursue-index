@@ -1,0 +1,53 @@
+{
+  "card_id": "a86f79c3de423c13",
+  "title": "FBI-UAP-D017, Digital Rendering, Narrative Statement 2-2, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:17:29.094801+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "digital illustration / composite nighttime scene",
+      "description": "A dark nighttime landscape shows two human figures seen from behind, standing side by side in the left-center foreground and outlined with a soft yellow-green glow. Both figures appear to be adults; the left one is slightly taller and wears what looks like a jacket, while the right one wears a top and pants. They face toward a low range of brown, rocky hills that stretch across the middle of the frame. Above the hills is a deep blue star-filled sky with numerous scattered white dots representing stars, and a small bright yellow-white circular light resembling a moon in the upper right area. The foreground ground is very dark with faint bluish highlights.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two human figures stand in the foreground viewed from behind",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The figures are outlined with a soft glowing rim light",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A range of brown rocky hills spans the middle of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is dark blue and filled with many small star-like points",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright round light resembling a moon appears in the upper right",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The left figure appears taller than the right figure",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

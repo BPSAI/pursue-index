@@ -1,0 +1,53 @@
+{
+  "card_id": "90a8c6493f04d6e3",
+  "title": "NASA-UAP-D031, STS-80 Unidentified Object Image 2, 1996",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:21:18.180857+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph (35mm film frame)",
+      "description": "A photograph taken through a spacecraft window showing the curved limb of Earth against the black of space on the left half of the frame; the planet's surface appears as blue and white cloud-covered ocean and atmosphere. The right half of the image is dominated by a dark window frame and interior structures, with reflections and glare visible on the glass. A small white triangular shape floats near the center. In the lower right corner a partial reflection of a human face is faintly visible. The film frame has red numeric markers along the left edge.",
+      "visible_text": "8 0 52",
+      "observations": [
+        {
+          "claim": "The curved edge of a planet is visible on the left portion of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Blue and white cloud patterns cover the visible planet surface",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark window frame occupies the right side of the frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Red numeric characters appear along the left edge of the frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A partial human face reflection is faintly visible in the lower right corner",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A small white triangular shape is near the center of the image",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

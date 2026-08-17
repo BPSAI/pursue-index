@@ -1,0 +1,58 @@
+{
+  "card_id": "bd9411951868bc3e",
+  "title": "NASA-UAP-VM002, Apollo 12, 1969",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:22:10.725505+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "annotated color photograph (lunar surface with magnified insets)",
+      "description": "A photograph of a barren, gray lunar-like surface fills the lower portion of the frame beneath a dark, nearly black sky. The regolith is cratered and strewn with small rocks, sloping gently toward a bright, flat horizon. Reticle cross-marks (fiducial crosses) are distributed across the scene. In the lower right, the elongated dark shadow of a standing human figure (appearing to wear a helmet or headgear) is cast across the ground. The top of the composite contains two yellow-outlined magnification boxes labeled 'Area 1' and 'Area 2', each connected by yellow lines to small corresponding boxes near the horizon in the sky region. Area 1 shows a plain dark field, while Area 2 shows a dark field with a few faint bluish specks or dots. The overall image has a dark teal/green cast.",
+      "visible_text": "Area 1 Area 2",
+      "observations": [
+        {
+          "claim": "The image includes two yellow-bordered inset boxes labeled 'Area 1' and 'Area 2'",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark humanoid shadow is cast across the ground in the lower right",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The ground surface is gray, cratered, and rocky resembling lunar regolith",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Reticle cross marks are visible across the terrain",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The Area 2 magnified inset contains faint bluish dots against a dark background",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The sky above the horizon is dark and nearly featureless",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The overall photograph has a teal/green color cast",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

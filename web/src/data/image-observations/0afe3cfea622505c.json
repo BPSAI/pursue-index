@@ -1,0 +1,53 @@
+{
+  "card_id": "0afe3cfea622505c",
+  "title": "FBI-UAP-D016, Digital Rendering, Narrative Statement 2-1, Western United States Event, 2023",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:17:20.742337+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color digital illustration / composite night scene",
+      "description": "A nighttime landscape scene showing two human figures in silhouette standing in the foreground, viewed from behind, their outlines traced with a faint yellowish glow. Both figures appear to be standing with arms at their sides facing away toward a distant terrain. Behind them is a range of low, rolling desert-like hills or mountains rendered in dark brown tones. The upper portion of the image is a deep blue star-filled night sky scattered with numerous small white points of light. A single bright, glowing yellow-white spherical object sits in the right portion of the sky above the horizon, larger and more luminous than the surrounding stars. The overall lighting is dark and shadowy.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "Two silhouetted human figures stand in the foreground seen from behind",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The figures' outlines are highlighted with a faint yellow-green glow",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A star-filled dark blue night sky fills the upper portion of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A single bright glowing round yellow object appears in the right side of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Dark hills or mountains form the horizon behind the figures",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}

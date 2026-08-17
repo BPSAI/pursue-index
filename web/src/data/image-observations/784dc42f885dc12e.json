@@ -1,0 +1,58 @@
+{
+  "card_id": "784dc42f885dc12e",
+  "title": "NASA-UAP-VM005, Apollo 12, 1969",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-08-17T23:22:42.719192+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "annotated composite of a photograph with magnified inset boxes",
+      "description": "The lower portion shows a black-and-white photograph of a barren, cratered gray landscape with scattered rocks and a diagonal shadow extending across the surface, resembling a lunar or planetary surface, with a bright horizon line and dark sky above. Small cross-shaped reticle marks (fiducials) are visible across the terrain. The upper portion of the image, against the dark sky, contains five yellow-outlined square inset boxes labeled 'Area 1' through 'Area 5' with thin yellow leader lines connecting each box to a small point in the sky. Each inset displays a magnified, grainy view of a faint bluish or whitish point of light or blob against a dark background; Area 5's inset is the largest and shows a vertical elongated white and bluish smudge.",
+      "visible_text": "Area 1 Area 2 Area 3 Area 4 Area 5",
+      "observations": [
+        {
+          "claim": "There are five yellow-bordered inset boxes labeled Area 1 through Area 5",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The lower image is a grayscale view of a rocky, cratered surface with a horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A dark diagonal shadow crosses the lower foreground of the landscape",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Cross-shaped fiducial reticle marks appear on the landscape",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Each inset shows a faint bluish or whitish point of light against a dark sky",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The Area 5 inset is the largest box and shows an elongated white-blue smudge",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Yellow leader lines connect each inset box to a location in the sky",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    }
+  ]
+}
