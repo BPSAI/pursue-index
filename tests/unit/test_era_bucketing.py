@@ -30,6 +30,17 @@ from pursue_index.provenance import NO_PRIOR_RELEASE_DISCLAIMER, ProvenanceTier
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
+#: The committed snapshot the §4a reference table was computed from. The
+#: anchor test pins the parser + era boundaries against this fixed input;
+#: ``latest.json`` grows with every release and is reconciled via deltas
+#: instead (see ``_reconciliation``).
+_SNAPSHOT_4A = (
+    _REPO_ROOT
+    / "data"
+    / "manifests"
+    / "snapshots"
+    / "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1.json"
+)
 
 
 def _manifest() -> dict:
@@ -196,9 +207,10 @@ def test_real_manifest_every_card_bucketed() -> None:
 
 
 def test_real_manifest_historical_anchors_match_4a() -> None:
-    # pre-1970 and 1970-1989 are fully incident-dated in the corpus, so they
-    # reproduce the §4a reference exactly and pin the parser + boundaries.
-    counts = bucket(_manifest()).era_counts
+    # pre-1970 and 1970-1989 are fully incident-dated in the §4a-era corpus,
+    # so bucketing its committed snapshot reproduces the reference exactly and
+    # pins the parser + boundaries independent of later corpus growth.
+    counts = bucket(json.loads(_SNAPSHOT_4A.read_text())).era_counts
     assert counts["pre_1970"] == REFERENCE_4A["pre_1970"]
     assert counts["1970_1989"] == REFERENCE_4A["1970_1989"]
 
