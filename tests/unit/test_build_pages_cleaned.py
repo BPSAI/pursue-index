@@ -103,7 +103,7 @@ def test_build_handles_empty_ocr_dir(tmp_path: Path) -> None:
 
 
 def test_build_raises_when_rows_have_mixed_model_id(tmp_path: Path) -> None:
-    """nayru P3 #7 / vaivora P2 #2: ``meta.model_id`` is taken from the
+    """``meta.model_id`` is taken from the
     first row, so a build that mixes runs across models would silently
     misrepresent provenance. Force the operator to choose by asserting
     homogeneity — a mixed build is not a valid pilot artifact.
@@ -161,7 +161,7 @@ def test_build_raises_when_rows_have_mixed_prompt_sha256(tmp_path: Path) -> None
 def test_build_dedupes_repeated_rows_keeping_latest_generated_at(
     tmp_path: Path,
 ) -> None:
-    """Codex P1: ``pages_cleaned.jsonl`` is append-only, so a re-run after
+    """``pages_cleaned.jsonl`` is append-only, so a re-run after
     a prompt bump produces two rows for the same (card_id, page). The
     build script must emit only the most-recent row per page.
     """
@@ -208,7 +208,7 @@ def test_build_dedupes_repeated_rows_keeping_latest_generated_at(
 def test_build_preserves_length_divergence_rows_with_empty_text(
     tmp_path: Path,
 ) -> None:
-    """Codex P1 follow-up: ``length_divergence`` rows must STAY in the
+    """``length_divergence`` rows must STAY in the
     cleaned mirror so the UI's array-indexed pagination
     (``pages[activePage-1]`` in ``CardReaderView``) keeps page-N in the
     cleaned mirror pointing at the same source page as page-N in
@@ -260,7 +260,7 @@ def test_build_preserves_length_divergence_rows_with_empty_text(
 def test_build_page_index_matches_raw_mirror_for_array_pagination(
     tmp_path: Path,
 ) -> None:
-    """Codex P1 follow-up: the UI paginates by array index
+    """The UI paginates by array index
     (``pages[activePage-1]`` in ``CardReaderView``) so any dropped row
     shifts later pages by 1 and mis-routes deep links like ``#page-7``.
 
@@ -326,7 +326,7 @@ def _alignment_fixture_rows() -> list[dict]:
 def test_build_recomputes_output_sha256_when_clearing_length_divergence_text(
     tmp_path: Path,
 ) -> None:
-    """Codex P1: when ``_sanitize_row_for_mirror`` clears ``text_cleaned``
+    """When ``_sanitize_row_for_mirror`` clears ``text_cleaned``
     for ``length_divergence`` rows, the row's ``output_sha256`` — computed
     at runner time against the raw OCR fallback — must be recomputed so
     it matches the shipped (now empty) text. Otherwise the provenance
@@ -373,7 +373,7 @@ def test_build_recomputes_output_sha256_when_clearing_length_divergence_text(
 def test_dedupe_skips_rows_with_non_numeric_page(
     tmp_path: Path, capsys: object,
 ) -> None:
-    """Codex P2: a single corrupt row (non-numeric ``page``) must not
+    """A single corrupt row (non-numeric ``page``) must not
     abort the entire mirror build. ``_iter_sidecar`` already tolerates
     corrupt JSON lines by skipping them — the dedup pass should follow
     the same convention. The function must log a structured warning and
@@ -502,7 +502,7 @@ def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
 
 
 def test_cleanup_skip_reasons_constant_stays_aligned_with_ts_side() -> None:
-    """vaivora P2 #8: the canonical list of ``cleanup_skipped`` reasons
+    """The canonical list of ``cleanup_skipped`` reasons
     lives on both sides of the JSON boundary (Python `build_pages_cleaned.py`
     and TS `cleaned-pages.ts`). Pin the Python side here so a future
     fourth reason forces both sides to be updated together — if TS adds

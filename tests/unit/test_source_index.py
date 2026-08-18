@@ -1,4 +1,4 @@
-"""Tests for the sitemap-derived source catalogue (PV1.4).
+"""Tests for the sitemap-derived source catalogue.
 
 The catalogue is the local index of *candidate* prior-disclosure sources — one
 row per URL with its filename, the sitemap's last-modified value and the basis

@@ -7,7 +7,7 @@ unchanged input is a skip via ``should_skip``.
 
 Pure I/O + row shaping — no Anthropic SDK, no settings dependency — so
 this file is import-safe for the build script and the tests. The
-runner imports the I/O helpers from here (nayru P2 #3) so it stays
+runner imports the I/O helpers from here so it stays
 focused on orchestration.
 """
 
@@ -120,10 +120,9 @@ def should_skip(
 
     Skip semantics (per the runner's idempotency contract): a sidecar row
     is reusable only when ``(input, model, prompt)`` all match. A bump in
-    any one of them invalidates the cache and forces a re-clean — this is
-    what nayru P1 / Codex P1 flagged on PR #37: previously the helper
-    only compared ``input_sha256``, so a prompt-only change would silently
-    keep stale rows.
+    any one of them invalidates the cache and forces a re-clean (PR #37):
+    previously the helper only compared ``input_sha256``, so a
+    prompt-only change would silently keep stale rows.
 
     A row missing ``input_sha256`` (or, when supplied, a missing
     ``model_id`` / ``prompt_sha256``) is treated as un-skippable: legacy

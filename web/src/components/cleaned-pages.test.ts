@@ -69,7 +69,7 @@ test("filterCleanedPages: null payload → empty (handles fetch failure)", () =>
 });
 
 test("filterCleanedPages: propagates cleanup_skipped flag on skipped pages", () => {
-  // Codex P1 follow-up: the build script now preserves rows with
+  // The build script now preserves rows with
   // `cleanup_skipped` set ("empty_input", "length_divergence", or
   // "content_filter") so pages-cleaned.json keeps the same page
   // sequence as pages.json. The flag must reach the UI so it can render
@@ -106,7 +106,7 @@ test("filterCleanedPages: propagates cleanup_skipped flag on skipped pages", () 
 });
 
 test("requiresUiNotice: gates the cleanup-notice render path", () => {
-  // vaivora P0: the CardCleanedView forwarder and CardReaderView render
+  // The CardCleanedView forwarder and CardReaderView render
   // branch must agree on which skip reasons require a notice. Funnel
   // both call sites through this predicate so a future fourth reason
   // is a single-line opt-in (or omission).

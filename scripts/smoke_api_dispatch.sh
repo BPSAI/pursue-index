@@ -45,7 +45,7 @@
 # Local-failure UX: on non-zero exit the wrangler dev log is also
 # preserved at `/tmp/wrangler-smoke-last.log` and the path is printed to
 # stderr, so a developer who scrolled past the in-band tail can still
-# inspect the full log after the script exits (vaivora PR #19 review #4).
+# inspect the full log after the script exits.
 #
 # See also: web/scripts/test-api-page.mjs — the static-HTML snapshot test
 # that asserts the /api docs page contents. This smoke script asserts
@@ -57,8 +57,8 @@
 # `web/` before this script so the pinned wrangler devDependency is
 # present. Locally, run `(cd web && npm ci)` first.
 #
-# .dev.vars caveat (laverna PR #19 review SEC-LOW-002): wrangler dev
-# binds local secrets from `web/.dev.vars` if present. Do NOT keep live
+# .dev.vars caveat: wrangler dev binds local secrets from
+# `web/.dev.vars` if present. Do NOT keep live
 # Voyage / Anthropic / Cloudflare keys in `.dev.vars` while running this
 # smoke test — on assertion failure the cleanup trap dumps the last 80
 # lines of the wrangler dev log to stderr (and to the kept-log path
@@ -66,8 +66,8 @@
 # would land in those bytes. CI runs in `--local` mode with no real
 # `.dev.vars`, so this is a local-dev hazard only.
 #
-# Parity caveat (vaivora PR #19 review #5): `wrangler dev --local`
-# emulates the Worker via miniflare, which does NOT exercise prod-edge
+# Parity caveat: `wrangler dev --local` emulates the Worker via
+# miniflare, which does NOT exercise prod-edge
 # behaviors that include OPTIONS/CORS preflight handling and the
 # `not_found_handling: "404-page"` semantics declared in `wrangler.jsonc`.
 # Those surfaces are covered by the Worker unit tests in
@@ -132,8 +132,7 @@ cleanup() {
     log "wrangler dev log (last 80 lines):"
     tail -n 80 "${WRANGLER_LOG}" >&2 || true
     # Also preserve the full log to a stable path for local-dev repro
-    # (vaivora #4) and for the CI upload-artifact step (nayru P1 #2,
-    # gated on SMOKE_KEEP_LOG).
+    # and for the CI upload-artifact step (gated on SMOKE_KEEP_LOG).
     if [[ -f "${WRANGLER_LOG}" ]]; then
       cp "${WRANGLER_LOG}" "${KEPT_LOG_PATH}" 2>/dev/null || true
       log "full wrangler log preserved at ${KEPT_LOG_PATH}"
@@ -176,8 +175,8 @@ log "starting wrangler dev on port ${PORT} (log: ${WRANGLER_LOG})"
 # .wrangler cache. We invoke the locally-installed wrangler binary
 # directly from web/node_modules/.bin/ rather than fetching at runtime,
 # so the version is whatever web/package.json + web/package-lock.json
-# have pinned (laverna SEC-MED-001, nayru P1 #1, codex P2). cwd is the
-# repo root so `wrangler.jsonc`'s relative paths resolve correctly.
+# have pinned. cwd is the repo root so `wrangler.jsonc`'s relative
+# paths resolve correctly.
 WRANGLER_BIN="${REPO_ROOT}/web/node_modules/.bin/wrangler"
 (
   cd "${REPO_ROOT}"
@@ -193,9 +192,9 @@ WRANGLER_PID=$!
 # Poll /api/ until it returns 200 or we time out. We poll the docs page
 # rather than `/` because /api/ is what the contract test cares about,
 # and a 200 there means assets are wired AND the dispatcher is up.
-# `--max-time 5` per probe (nayru P1 #3): a hung connection cannot eat
-# the entire startup budget on a single iteration; we'll loop and try
-# again instead.
+# `--max-time 5` per probe: a hung connection cannot eat the entire
+# startup budget on a single iteration; we'll loop and try again
+# instead.
 log "waiting up to ${STARTUP_TIMEOUT_SECS}s for ${HOST}/api/ to return 200"
 deadline=$(( $(date +%s) + STARTUP_TIMEOUT_SECS ))
 ready=0
@@ -225,8 +224,8 @@ log "wrangler dev ready"
 #
 # `extra_args` is expanded with the `${arr[@]+"${arr[@]}"}` idiom rather
 # than the bare `"${arr[@]}"` so that an empty array under `set -u` does
-# NOT trip "unbound variable" on macOS bash 3.2 (nayru P1 #4). bash 4.4+
-# tolerates the bare form; this idiom is portable across both.
+# NOT trip "unbound variable" on macOS bash 3.2. bash 4.4+ tolerates
+# the bare form; this idiom is portable across both.
 assert_response() {
   local label="$1"
   local method="$2"
@@ -278,7 +277,7 @@ assert_response() {
 # Assert the body does NOT contain a needle AND that Content-Type starts
 # with the given prefix (or skip the CT check if "" is passed). Used for
 # the negative assertion that /api/bogus must NOT carry the Worker's JSON
-# 404 shape and MUST be ASSETS-served HTML (nayru P2 #8).
+# 404 shape and MUST be ASSETS-served HTML.
 assert_body_excludes() {
   local label="$1"
   local method="$2"
@@ -346,7 +345,7 @@ assert_response "1. /api/ serves docs page" \
 #    -L because Astro may 308-redirect to /api/; either way the final
 #    landing must be the docs page with status 200. `--max-redirs 3`
 #    bounds the redirect chain so a misconfigured Astro redirect loop
-#    can't masquerade as a dispatch problem (nayru P1 #5).
+#    can't masquerade as a dispatch problem.
 assert_response "2. /api (bare) serves docs page" \
   GET "/api" 200 "PURSUE://INDEX" -L --max-redirs 3
 
@@ -364,8 +363,8 @@ assert_response "4. POST /api/chat empty -> 400" \
 # 5. /api/bogus -> 404 from ASSETS, NOT the Worker's `{"error":"not found"}`
 #    JSON body. We check status==404 AND that the body does not contain
 #    the Worker's JSON shape AND that Content-Type starts with text/html
-#    (nayru P2 #8) — the contract is "ASSETS-served HTML, not Worker-
-#    served JSON," and substring exclusion alone is fragile (a future
+#    — the contract is "ASSETS-served HTML, not Worker-served JSON,"
+#    and substring exclusion alone is fragile (a future
 #    Astro 404 could coincidentally avoid the substring).
 assert_response "5a. /api/bogus -> 404 status" \
   GET "/api/bogus" 404

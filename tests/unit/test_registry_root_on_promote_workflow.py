@@ -1,6 +1,6 @@
 """Tests for ``.github/workflows/registry-root-on-promote.yml``.
 
-Sprint 4e Phase 3. Locks the structural invariants:
+Locks the structural invariants:
 
 * Trigger covers BOTH the registry and the root file (a direct edit
   to either should surface drift on the next push).
@@ -40,7 +40,7 @@ def test_workflow_yaml_parses() -> None:
 def test_trigger_covers_registry_root_file_and_manifest() -> None:
     """All three commitment files are triggers — a tamper attack
     might touch any of registry, root.txt, or the manifest receipt.
-    vaivora M1: manifest path was previously missing."""
+    The manifest path was previously missing."""
     workflow = _load()
     on_block = workflow.get(True) or workflow.get("on")
     push = on_block["push"]

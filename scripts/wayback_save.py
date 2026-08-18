@@ -116,8 +116,8 @@ def load_history(path: Path) -> dict[str, datetime]:
 def save_history(path: Path, history: dict[str, datetime]) -> None:
     """Persist the history as ISO-8601 strings.
 
-    M1 (Codex P2): write-temp-then-rename so a partial write can't
-    corrupt the on-disk file. ``Path.replace`` is atomic on POSIX
+    Write-temp-then-rename so a partial write can't corrupt the
+    on-disk file. ``Path.replace`` is atomic on POSIX
     (and on Windows since 3.3 via ``MoveFileExW(REPLACE_EXISTING)``).
     """
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -213,8 +213,8 @@ def _expand_sitemap_index(
 def _collect_urls(args: argparse.Namespace) -> list[str]:
     """Resolve the source URL list from CLI args.
 
-    H1 (vaivora P1): ``args.sitemap`` is typed as ``str`` at the
-    argparse layer — typing it as Path silently collapses ``https://``
+    ``args.sitemap`` is typed as ``str`` at the argparse layer —
+    typing it as Path silently collapses ``https://``
     to ``https:/`` because ``pathlib.Path`` normalizes consecutive
     slashes. The str type keeps the URL form intact so the http branch
     of ``_read_sitemap_text`` activates.
@@ -231,8 +231,8 @@ def _filter_dead_origins(
 ) -> list[str]:
     """Drop URLs whose origin HEAD returns 4xx/5xx.
 
-    H5 (laverna): wires ``should_skip_origin_status`` into the plan so
-    dead pointers never reach the Wayback queue. ``--skip-origin-check``
+    Wires ``should_skip_origin_status`` into the plan so dead
+    pointers never reach the Wayback queue. ``--skip-origin-check``
     bypasses this for cases where the operator wants to archive a
     known-removed URL (race: capture in Wayback before it's also
     expunged there).

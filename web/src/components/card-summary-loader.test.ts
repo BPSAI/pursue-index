@@ -1,12 +1,12 @@
 /**
  * Tests for the CardExplorer runtime card-summary loader.
  *
- * Sprint 4b Codex P1 + nayru-P1#4: when CardExplorer hydrates without a
+ * When CardExplorer hydrates without a
  * `cards` prop it fetches `/data/cards-summary.json` to populate the
  * grid. Two things were under-tested before the fix-pass:
  *
  *   1. The browser should honor the Worker's Cache-Control header
- *      (1h fresh + 24h stale-while-revalidate from Sprint 2.1).
+ *      (1h fresh + 24h stale-while-revalidate).
  *      `cache: "force-cache"` short-circuits that policy and silently
  *      pins stale payloads across tranches. `cache: "default"` is the
  *      right knob for "use the response's cache headers verbatim."
@@ -69,8 +69,8 @@ afterEach(() => {
 // --- fetch options ----------------------------------------------------
 
 test('CARD_SUMMARY_FETCH_OPTIONS uses cache: "default" (honor Worker Cache-Control)', () => {
-  // Codex P2: `cache: "default"` lets the browser respect the Worker's
-  // 1h-fresh + 24h-SWR policy from Sprint 2.1; `"force-cache"` would
+  // `cache: "default"` lets the browser respect the Worker's
+  // 1h-fresh + 24h-SWR policy; `"force-cache"` would
   // silently pin stale payloads across tranches.
   assert.equal(CARD_SUMMARY_FETCH_OPTIONS.cache, "default");
 });
@@ -106,7 +106,7 @@ test('loadCardsSummary forwards cache: "default" to fetch', async () => {
   assert.equal(_calls[0].options?.cache, "default");
 });
 
-// --- failure modes (nayru P1#4) --------------------------------------
+// --- failure modes -----------------------------------------------------
 
 test("loadCardsSummary resolves to [] when fetch rejects (network error)", async () => {
   installRejectingFetch(new Error("network down"));

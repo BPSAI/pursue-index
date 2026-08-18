@@ -5,8 +5,8 @@
  * MiniSearch index — that lives on `/search`. Submitting from the
  * homepage redirects to `/search?q=<encoded query>` and lets that
  * route pay the hydration cost (pages.json fetch + MiniSearch build)
- * honestly. Sprint 2 perf-pass — moves the 7.1 MB pages.json fetch
- * off the homepage's critical path.
+ * honestly. This moves the 7.1 MB pages.json fetch off the homepage's
+ * critical path.
  *
  * Kept in a separate module so the URL-building logic stays
  * unit-testable under `node --test` without spinning up jsdom for

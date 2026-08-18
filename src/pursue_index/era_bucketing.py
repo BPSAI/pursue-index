@@ -1,4 +1,4 @@
-"""Era and agency bucketing (spec §4a / §5, PV1.3).
+"""Era and agency bucketing (spec §4a / §5).
 
 A record cannot appear in an archive assembled before it existed. Most of the
 corpus is modern operational material — mission reports, range-fouler debriefs,
@@ -213,7 +213,7 @@ def bucket(
     receive a negative: the claim is evidence the era inference would contradict.
     Those cards are listed in ``superseded`` with the claim that outranked them.
 
-    ``catalogue`` is the same PV1.4 catalogue the coverage report resolves
+    ``catalogue`` is the same catalogue the coverage report resolves
     against, and it is passed to the same precedence helper. It is optional
     because the Tier-0 and CREST routes need none — but a card whose *only*
     positive claim is a catalogue match is exactly the card the two artifacts

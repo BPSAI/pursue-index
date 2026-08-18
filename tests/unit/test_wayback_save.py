@@ -197,7 +197,7 @@ def test_save_history_is_atomic_on_partial_write(
 ) -> None:
     """If the write of the tempfile fails, the original file is left intact.
 
-    M1 (Codex P2): replace ``path.write_text`` with write-temp-then-rename
+    Replace ``path.write_text`` with write-temp-then-rename
     so a crashed write can't leave a half-serialized JSON behind. We
     simulate the crash by patching ``Path.replace`` to raise after the
     temp file has been written; the original target file must be unchanged.
@@ -232,9 +232,9 @@ def test_save_history_is_atomic_on_partial_write(
 def test_load_history_recovers_from_corrupt_json(
     tmp_path: Path, capsys
 ) -> None:
-    """M2 (Codex P2): unreadable JSON returns ``{}`` + emits a warning.
+    """Unreadable JSON returns ``{}`` + emits a warning.
 
-    A crashed write (pre-M1) could leave a half-serialized JSON behind.
+    A crashed write (before the write-temp-then-rename fix) could leave a half-serialized JSON behind.
     Wrapping json.loads in try/except means the next run starts from an
     empty history rather than crashing on the corrupt file.
     """

@@ -1,6 +1,6 @@
 """Tests for ``scripts/indexnow_ping.py``.
 
-Sprint 4b Theme B. After every CF Workers Builds deploy that touches a
+After every CF Workers Builds deploy that touches a
 render-affecting path, the post-deploy workflow submits the live
 sitemap URLs to IndexNow so Bing/Yandex (and ChatGPT-search via Bing)
 pick up changes within minutes instead of days.
@@ -55,7 +55,7 @@ def test_parse_sitemap_urls_returns_loc_values() -> None:
 def test_expand_sitemap_index_depth_one(
     monkeypatch: Any, tmp_path: Path
 ) -> None:
-    """nayru P1#1: ``_expand_sitemap_index`` follows ONE level, not two.
+    """``_expand_sitemap_index`` follows ONE level, not two.
 
     The docstring promises depth-one expansion: a top-level
     sitemap-index whose entries point at child urlsets is expanded
@@ -211,7 +211,7 @@ def test_resolve_key_returns_none_when_neither_source_present(
 def test_resolve_key_whitespace_only_env_falls_through_to_file(
     monkeypatch: Any, tmp_path: Path
 ) -> None:
-    """nayru P1#2: ``INDEXNOW_KEY=' \\t\\n'`` must NOT count as a real key.
+    """``INDEXNOW_KEY=' \\t\\n'`` must NOT count as a real key.
 
     A whitespace-only env var (e.g. an accidentally-misconfigured CI
     secret that contains only newline padding) used to return ``''``

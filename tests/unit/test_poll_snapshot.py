@@ -1,4 +1,4 @@
-"""Offline snapshot + diff generator (T6.1).
+"""Offline snapshot + diff generator.
 
 The credential-free poll lane fetches the CSV bytes elsewhere and hands
 them to ``generate_snapshot_diff`` — a network-free, R2-free entry point
@@ -116,7 +116,7 @@ def test_existing_snapshot_is_immutable_on_rerun(tmp_path: Path) -> None:
     """Content-addressed ``<sha>.json`` is immutable: a rerun for the same
     CSV must not rewrite an existing snapshot (a fresh build would churn
     ``fetched_at`` + the index ordering). Mirrors ``rotate_to_snapshot``'s
-    idempotency for the new-side writer. (Codex PR #83 P2.)
+    idempotency for the new-side writer.
     """
     latest, canonical, public = _dirs(tmp_path)
     _seed_latest(latest, _csv([_row("Case 0001", _URL1)]))
@@ -253,7 +253,7 @@ def test_makes_no_network_call(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
 
 
 def test_new_side_snapshot_bytes_match_save_manifest(tmp_path: Path) -> None:
-    """Vaivora P1: the new-side snapshot writer must produce byte-identical
+    """The new-side snapshot writer must produce byte-identical
     output to ``save_manifest``. DiffIsland reads snapshots written by BOTH this
     CI writer and a local ``scrape run`` rotation, so a forked serializer here
     could silently drift with no test catching it."""
@@ -272,7 +272,7 @@ def test_new_side_snapshot_bytes_match_save_manifest(tmp_path: Path) -> None:
 
 
 def test_backfill_missing_public_mirror_refreshes_index(tmp_path: Path) -> None:
-    """Vaivora P2: restoring a missing public mirror file on an immutable rerun
+    """Restoring a missing public mirror file on an immutable rerun
     must ALSO refresh the public index.json, else DiffIsland sees a snapshot
     file its index doesn't enumerate."""
     latest, canonical, public = _dirs(tmp_path)

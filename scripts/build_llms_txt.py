@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate the manifest-derived sections of llms.txt / llms-full.txt (LS1.4).
+"""Regenerate the manifest-derived sections of llms.txt / llms-full.txt.
 
 These two discovery surfaces were hand-maintained, so a tranche that added cards
 left them describing the previous release with nothing to catch it. This script

@@ -1,7 +1,7 @@
 """One-shot OCR pass over the PRE-edit byte versions of the altered
-cards (Sprint 4j narrow scope).
+cards (narrow scope follow-up).
 
-Background: Sprint 4h's `reocr_altered.py` produced post-edit OCR for
+Background: `reocr_altered.py` produced post-edit OCR for
 the 70 PDF cards whose upstream bytes were silently re-published. The
 diff-builder compared that against the pre-existing
 `web/public/data/pages-cleaned.json`, which was produced earlier by a
@@ -149,7 +149,8 @@ def ocr_card(
     pages_jsonl = out_dir / card_id / "pages.jsonl"
     pdf_bytes = target["pdf_path"].read_bytes()
     images = rasterize(pdf_bytes)
-    # Repair any torn-write before resuming (Sprint 4h fix-pass pattern).
+    # Repair any torn-write before resuming (matches the canonical
+    # OCR pass's fix-pass pattern).
     start_page = truncate_jsonl_to_valid_prefix(pages_jsonl)
     if start_page > len(images):
         print(

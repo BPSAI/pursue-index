@@ -156,7 +156,7 @@ def _count_pixels(
 def test_declassified_stamp_renders_red_pixels(
     tmp_path: Path, ctx: OgImageContext
 ) -> None:
-    """nayru P1 #4 — assert the DECLASSIFIED stamp is actually drawn.
+    """Assert the DECLASSIFIED stamp is actually drawn.
     The stamp is `(212, 49, 58)` red placed in the upper-right quadrant.
     A future refactor that drops ``layers.declassified_stamp(im)`` from
     the orchestrator must fail this test (not only byte-stability)."""
@@ -242,7 +242,7 @@ def test_base_astro_validates_ogimage_against_protocol_relative_and_bare() -> No
 def test_base_astro_og_url_bound_to_astro_url() -> None:
     """``og:url`` must be derived from ``Astro.url``, not hardcoded —
     a future refactor that fixes it to ``/`` would otherwise pass
-    every existing test (vaivora #2). Assert the binding."""
+    every existing test. Assert the binding."""
     src = BASE_LAYOUT.read_text()
     assert "Astro.url.pathname" in src
     # canonicalUrl is the variable that flows into og:url and the
@@ -251,7 +251,7 @@ def test_base_astro_og_url_bound_to_astro_url() -> None:
 
 
 def test_base_astro_alt_text_is_consistent_across_og_and_twitter() -> None:
-    """nayru P2 #5 — ``og:image:alt`` and ``twitter:image:alt`` must
+    """``og:image:alt`` and ``twitter:image:alt`` must
     use the same alt text so social previews are consistent. We grep
     for a single ``ogImageAlt`` variable bound to both tags."""
     src = BASE_LAYOUT.read_text()
@@ -262,7 +262,7 @@ def test_base_astro_alt_text_is_consistent_across_og_and_twitter() -> None:
 def test_build_og_image_script_handles_out_path_outside_repo(
     tmp_path: Path,
 ) -> None:
-    """Codex P2 — ``args.out.relative_to(REPO_ROOT)`` raises ``ValueError``
+    """``args.out.relative_to(REPO_ROOT)`` raises ``ValueError``
     when the user passes ``--out /tmp/og.png`` (or any absolute path
     outside the repo root). The script must fall back to ``str(args.out)``
     for the success print so successful renders aren't reported as
@@ -291,7 +291,7 @@ def test_build_og_image_script_handles_out_path_outside_repo(
 
 
 def test_deploy_cf_workflow_regenerates_og_image() -> None:
-    """vaivora #10 — manifest bumps must not silently drift the OG card.
+    """Manifest bumps must not silently drift the OG card.
     The deploy workflow has to call ``build_og_image.py`` as a pre-build
     step so cards/sha updates flow into the rendered PNG automatically.
 
@@ -315,7 +315,7 @@ def test_deploy_cf_workflow_regenerates_og_image() -> None:
 
 
 def test_build_og_image_script_marks_default_pages_with_todo() -> None:
-    """nayru P2 #6 — the placeholder ``DEFAULT_PAGES = 4153`` must
+    """The placeholder ``DEFAULT_PAGES = 4153`` must
     carry a ``TODO`` marker so it's grep-able once the page-count
     source lands."""
     script = (REPO_ROOT / "scripts" / "build_og_image.py").read_text()

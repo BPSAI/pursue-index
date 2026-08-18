@@ -1,4 +1,4 @@
-"""Tests for ``scripts/reocr_altered.py`` (Sprint 4h Phase 1).
+"""Tests for ``scripts/reocr_altered.py``.
 
 The script OCRs the 70 post-edit byte versions for cards whose
 upstream bytes were silently re-published on 2026-05-14 (the May-14
@@ -118,7 +118,7 @@ def test_resume_from_page_returns_1_on_corrupt_file(tmp_path: Path) -> None:
     treats a corrupt file as "start over" — the caller is expected to
     call ``truncate_jsonl_to_valid_prefix`` before appending, otherwise
     the corrupt prefix persists and every rerun re-spends the full
-    per-card API budget (Codex PR #72 P1)."""
+    per-card API budget."""
     path = tmp_path / "pages.jsonl"
     path.write_text(
         json.dumps({"page": 1, "text": "x", "confidence": 0.9}) + "\n{torn"
@@ -129,7 +129,7 @@ def test_resume_from_page_returns_1_on_corrupt_file(tmp_path: Path) -> None:
 
 
 def test_truncate_jsonl_to_valid_prefix_keeps_good_lines(tmp_path: Path) -> None:
-    """Codex PR #72 P1: the torn-write repair path. File has 3 valid
+    """The torn-write repair path. File has 3 valid
     lines + 1 torn → truncate to the 3 valid lines + return page 4
     (the next-to-OCR). Subsequent appends land in the right place."""
     path = tmp_path / "pages.jsonl"
@@ -289,7 +289,7 @@ def test_ocr_card_resumes_from_partial(
 def test_ocr_card_repairs_torn_jsonl_before_resuming(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Codex PR #72 P1 integration: ``ocr_card`` calls
+    """Integration: ``ocr_card`` calls
     ``truncate_jsonl_to_valid_prefix`` before the page loop, so a
     torn-write file produced by a prior interrupted run gets
     repaired in place. Without this, the resume path was a budget

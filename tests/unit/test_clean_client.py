@@ -130,7 +130,7 @@ def test_clean_page_passes_raw_text_as_user_message(
 def test_clean_page_wraps_user_content_in_ocr_document_tags(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """laverna SEC-003: user content is wrapped in <ocr_document> tags so
+    """User content is wrapped in <ocr_document> tags so
     text inside the OCR (which can read like instructions) is fenced
     off from the system role. The system prompt acknowledges the tags
     and tells the model not to follow directives within them.
@@ -221,7 +221,7 @@ class _FakeNonTextBlock:
 def test_clean_page_concatenates_multiple_text_blocks(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Codex P2: Anthropic responses can carry multiple ``TextBlock``
+    """Anthropic responses can carry multiple ``TextBlock``
     entries in ``response.content``. Reading only ``content[0].text``
     silently drops the rest, truncating the cleaned transcript when
     the model split its reply across blocks (e.g. after a thinking
@@ -317,7 +317,7 @@ def test_clean_page_handles_empty_content(
 
 
 def test_estimate_cost_cache_creation_is_125_percent_input_rate() -> None:
-    """nayru P2 #4: Anthropic ephemeral cache writes are billed at 1.25x
+    """Anthropic ephemeral cache writes are billed at 1.25x
     the regular input rate, not 1.0x. PR #37 had it wrong; cost
     estimates were ~25% under-billed for the first call in a window.
     """
@@ -434,7 +434,7 @@ def _make_bad_request_error_with_type(error_type: str) -> Exception:
 def test_is_content_filter_error_detects_type_field(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """nayru P2 #1: belt-and-suspenders detection — also match against
+    """Belt-and-suspenders detection — also match against
     ``error.type`` in the body dict, not just the message substring.
 
     Anthropic's SDK could move the human-readable phrase out of the
@@ -469,7 +469,7 @@ def test_is_content_filter_error_returns_false_for_unrelated_400(
 def test_content_filtered_error_message_is_sanitized(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """laverna P2 CF-001: the public-facing exception message must not
+    """The public-facing exception message must not
     embed the raw SDK repr (which carries request_id, HTTP status, the
     full body dict, etc.).
 

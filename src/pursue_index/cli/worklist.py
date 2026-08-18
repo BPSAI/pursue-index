@@ -1,8 +1,8 @@
-"""Shared ``--worklist`` helpers for the heavy ingest executors (Sprint 6, T6.5).
+"""Shared ``--worklist`` helpers for the heavy ingest executors.
 
 A *worklist* is a plain-text file of card_ids (one per line; blanks and
 ``#`` comments ignored) that scopes ``download``/``ocr``/``embed`` to a detected
-tranche's genuinely-new cards instead of the full ~222-card corpus. T6.6's
+tranche's genuinely-new cards instead of the full ~222-card corpus.
 ``pursue ingest run --from-diff`` writes this file from ``summarize_ingest_work``.
 
 ``download``/``ocr`` are manifest-driven, so ``apply_worklist`` subsets

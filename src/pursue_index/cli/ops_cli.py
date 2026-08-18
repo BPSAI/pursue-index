@@ -26,7 +26,7 @@ ops_app = typer.Typer(
 )
 
 
-# Verification (vaivora P2#4): ``embed_app`` next door also has a single
+# Verification: ``embed_app`` next door also has a single
 # command and no callback. It works because nothing invokes ``embed_app``
 # directly — its tests all go through the parent ``app`` via
 # ``app.add_typer(embed_app)``, which preserves the subcommand grouping.

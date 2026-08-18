@@ -1,7 +1,7 @@
 """Restore the NAS canonical PDF tree (`pdfs/<card_id>/<asset_filename>`)
 from the R2 content-addressed mirror (`r2-mirror/archive/<sha>.pdf`).
 
-Sprint 4q-prep, 2026-05-22. Diagnosed during Sprint 4q dispatch:
+2026-05-22. Diagnosed during a dispatch pass:
 only 6 of 122 PDF cards had local NAS copies. The other 116 lived
 only on R2 + R2-mirror (content-addressed). Three-tier archive
 contract requires all three; this script remediates.

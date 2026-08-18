@@ -71,7 +71,7 @@ export default function CardCleanedView({
       </p>
     );
   }
-  // vaivora P2 #3: align fallback to the canonical date-suffixed model
+  // Align fallback to the canonical date-suffixed model
   // id used in clean_cli.py and methodology.astro. Without the suffix
   // the citation footer breaks reproducibility hygiene if payload meta
   // is ever missing.
@@ -82,7 +82,7 @@ export default function CardCleanedView({
         pages={cleanedPages.map((p) => ({
           page: p.page,
           text: p.text,
-          // vaivora P0 fix: forward the skip reason so the reader
+          // Forward the skip reason so the reader
           // renders the appropriate notice instead of falling through
           // to the generic `[BLANK]` message. Gated via
           // `requiresUiNotice` so both `length_divergence` and

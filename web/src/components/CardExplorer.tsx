@@ -5,8 +5,8 @@ import { loadCardsSummary } from "./card-summary-loader";
 interface Props {
   /**
    * Card list. When omitted, CardExplorer fetches
-   * `${base}/data/cards-summary.json` on hydration. Sprint 4b Theme F:
-   * the homepage no longer passes this prop, dropping 440 KB of inline
+   * `${base}/data/cards-summary.json` on hydration. The homepage no
+   * longer passes this prop, dropping 440 KB of inline
    * HTML-encoded JSON from dist/index.html. Other callers (tests,
    * future server-rendered surfaces) can still pass cards directly.
    */
@@ -36,7 +36,7 @@ const TYPE_TONE: Record<string, { bg: string; text: string; border: string; labe
     border: "border-[color:var(--color-signal-violet)]/40",
     label: "VID",
   },
-  // Sprint 4f: upstream relabeled the NASA Gemini 7 audio card from
+  // Upstream relabeled the NASA Gemini 7 audio card from
   // VID → AUD in tranche f75e2f7. Audio is DVIDS-hosted like video;
   // a distinct badge keeps the filter UI honest.
   AUD: {
@@ -60,7 +60,7 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 export default function CardExplorer({ cards: cardsProp, base }: Props) {
-  // Sprint 4b Theme F: when `cards` is omitted, fetch the slim summary
+  // When `cards` is omitted, fetch the slim summary
   // on hydration. `null` is the "fetch hasn't resolved yet" sentinel —
   // distinct from `[]` (resolved-but-empty) so the record counter can
   // hide the `0 / 0 RECORDS` flash that would otherwise render between
@@ -186,7 +186,7 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
             resolves. `cards === null` means "hydration ran but the
             fetch hasn't completed" — render an unobtrusive
             placeholder so the row keeps its height (CLS guard) but
-            the misleading zero doesn't appear. nayru P1#4. */}
+            the misleading zero doesn't appear. */}
         <div class="text-[11px] font-mono uppercase tracking-[0.18em] text-[color:var(--color-text-dim)]">
           {cards === null ? (
             <span class="text-[color:var(--color-text-faint)]">LOADING…</span>
@@ -211,7 +211,7 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
           it flashes during the brief pre-fetch window where
           `resolvedCards` is `[]` and `filtered.length === 0` looks
           like a user-facing "no results" state when it's actually a
-          hydration state. nayru P1#4. */}
+          hydration state. */}
       {cards !== null && filtered.length === 0 && (
         <div class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 p-8 text-center font-mono text-sm text-[color:var(--color-text-dim)]">
           <span class="text-[color:var(--color-signal-amber)]">[NO MATCH]</span>

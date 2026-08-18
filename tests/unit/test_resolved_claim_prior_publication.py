@@ -1,4 +1,4 @@
-"""Tests for the second citable field on a resolved claim (spec §6c, PV1.5).
+"""Tests for the second citable field on a resolved claim (spec §6c).
 
 ``content_previously_published`` may rest on a named prior publication instead
 of a fetchable artifact, so ``prior_publication`` is the one field on a resolved

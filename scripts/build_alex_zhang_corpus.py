@@ -52,7 +52,7 @@ OUT_REVISION = OUT_DIR / "alex-zhang42-corpus.revision"
 # The upstream HF revision this script was written against. A re-run
 # against a different HEAD is an explicit operator decision, not an
 # accident: bump this constant in the same commit that updates the
-# sidecars + JSONL. SEC-003 fail-closed posture: the `.revision` sidecar
+# sidecars + JSONL. Fail-closed posture: the `.revision` sidecar
 # alone isn't enough — it gets rewritten alongside the JSONL on every
 # run, so the safety check has to live in code that the developer reads.
 PINNED_REVISION = "b0f0c79924b88d339846aa9fc4283958fe15682b"

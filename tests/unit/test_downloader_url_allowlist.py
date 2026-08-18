@@ -1,4 +1,4 @@
-"""Asset-URL allowlist for the download stage (Sprint 6 review hardening).
+"""Asset-URL allowlist for the download stage.
 
 ``download_all`` fetches ``card.asset_url`` from the upstream war.gov CSV. A
 compromised/spoofed upstream — or an operator-approved tranche whose asset URLs

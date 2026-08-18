@@ -1,6 +1,6 @@
 """Tests for ``.github/workflows/indexnow-after-deploy.yml``.
 
-Sprint 4b Theme B companion to the wayback-after-deploy workflow test.
+Companion to the wayback-after-deploy workflow test.
 Locks in the structural invariants:
 
 * Path filter is narrowed from ``web/**`` to only paths that affect the
@@ -26,7 +26,7 @@ WORKFLOW = REPO_ROOT / ".github" / "workflows" / "indexnow-after-deploy.yml"
 def _load() -> dict:
     """Load the workflow YAML.
 
-    nayru P2#6: PyYAML pre-2.0 maps the bare ``on:`` key (YAML
+    PyYAML pre-2.0 maps the bare ``on:`` key (YAML
     boolean-style) to Python ``True`` rather than the string ``"on"``.
     The unquoted ``on:`` in GitHub workflow files is treated as the
     boolean literal, so callers must look up the trigger block via

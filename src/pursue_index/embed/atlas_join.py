@@ -144,10 +144,9 @@ def _enforce_miss_rate(
 def _validate_threshold(threshold: float) -> None:
     """Reject thresholds outside ``[0.0, MAX_MISS_RATE_THRESHOLD]``.
 
-    A threshold of 1.0 silently disables the join quality gate — the
-    fail-open posture flagged in laverna SEC-002. We clamp at the call
-    boundary so every code path (CLI flag, programmatic caller) gets the
-    same protection.
+    A threshold of 1.0 silently disables the join quality gate — a
+    fail-open posture. We clamp at the call boundary so every code path
+    (CLI flag, programmatic caller) gets the same protection.
     """
     if threshold < 0.0 or threshold > MAX_MISS_RATE_THRESHOLD:
         raise ValueError(

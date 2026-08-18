@@ -9,9 +9,10 @@ tolerance, the upstream change was visually identical to the eye
 (re-encoded JPEG, different scanner color profile, etc.) — no real
 content change. Otherwise the visual difference is real.
 
-This is the Sprint 4k-B complement to 4k-A: 4k-A used the embedded
-text layer where available; this fills in the 56 cards that have no
-text layer because the source is image-only.
+This is the visual complement to ``classify_altered_changes.py``,
+which used the embedded text layer where available; this fills in
+the 56 cards that have no text layer because the source is
+image-only.
 
 Output: extends ``data/altered-classification.json`` with a
 ``visual_class`` and per-card stats. Schema is additive so the file
@@ -40,7 +41,7 @@ _HASH_SIZE = 64
 # Per-page bit-diff threshold: pre/post hashes are considered "visually
 # equivalent" if the Hamming distance is < this.
 #
-# Calibration (Sprint 4k-recal, against operator eyeball verification):
+# Calibration (against operator eyeball verification):
 #   - `48e4bc1bdb5a66e8` at max bit-diff 131/4096 → operator confirmed
 #     zero visible change (handwritten memo, scan re-encoding noise).
 #   - `e93f6997811954dc` at max bit-diff 294/4096 → operator confirmed
@@ -130,7 +131,7 @@ def classify_card_visually(
     *, card_id: str, entry: dict, byte_history: dict, archive_dir: Path
 ) -> dict[str, Any] | None:
     """Process one card visually. Originally targeted no_text_layer
-    cards only, but also runs on content_changed cards (Sprint 4k-QC
+    cards only, but also runs on content_changed cards (per QC
     feedback): some text-layer differences are pure whitespace /
     tokenization shifts internal to the PDF; if the rendered images
     are visually identical, the effective classification is

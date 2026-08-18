@@ -1,4 +1,4 @@
-"""Tests for ``scripts/classify_no_text_layer_visually.py`` (Sprint 4k-B).
+"""Tests for ``scripts/classify_no_text_layer_visually.py``.
 
 Pins hash output shape, Hamming-distance arithmetic, and the
 control-flow branches in `classify_card_visually` that don't require

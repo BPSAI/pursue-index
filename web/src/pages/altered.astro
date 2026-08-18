@@ -33,8 +33,8 @@ import {
 } from "../lib/byte-display";
 import { loadVerdictBundle } from "../lib/verdict-bundle";
 
-// Bundle schema-version gate now lives in the loader (Vaivora PR #79
-// round-2 P1-2: was previously inline + one-sided across consumers).
+// Bundle schema-version gate now lives in the loader (PR #79: was
+// previously inline + one-sided across consumers).
 const bundle = loadVerdictBundle();
 
 type ByteHistoryEntry = {
@@ -106,14 +106,14 @@ const rows: AlteredRow[] = Object.entries(byteHistory)
 
 const totalCards = rows.length;
 
-// Vaivora PR #79 P1-1/P1-2: pill counts MUST derive from the same
+// PR #79: pill counts MUST derive from the same
 // source as the table rows, not from bundle.stats. Otherwise the
 // pill labels and the filterable row set can drift if
 // byte-history.json and the bundle disagree about which cards
 // exist (today they agree at 71 each; tomorrow they might not).
 // Single source of truth = the rendered rows.
 //
-// Note on "unverified" (Vaivora PR #79 round-6 P2 #2): the pill's
+// Note on "unverified" (PR #79): the pill's
 // `unverified` counts byte-history rows the consumer renders
 // without an operator category — bundle.stats.unverified counts
 // curate-side queue rows without an emitted verdict. Today both
@@ -137,7 +137,7 @@ const pillCounts = {
 
 function rationalePreview(text: string): string {
   if (!text) return "";
-  // Collapse whitespace before slicing — Nayru PR #79 round-7 P2:
+  // Collapse whitespace before slicing — PR #79:
   // raw operator rationale can contain newlines that would inject a
   // line break into the inline <span> if sliced mid-line. Normalize
   // first so the preview is a single clean line.

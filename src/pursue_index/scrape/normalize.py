@@ -43,7 +43,7 @@ def clean_title(value: object) -> str:
 def normalize_asset_type(value: object) -> AssetType:
     """Normalize the ``Type`` column to a known asset type.
 
-    AUD added Sprint 4f after upstream relabeled the NASA Gemini 7
+    AUD added after upstream relabeled the NASA Gemini 7
     audio card (card_id 167f6a21c7238d0c) from VID → AUD between
     tranche c9cc83fcaf43 and f75e2f7de0ff. AUD semantics mirror VID:
     DVIDS-hosted, no asset_url, metadata-only card. The download +

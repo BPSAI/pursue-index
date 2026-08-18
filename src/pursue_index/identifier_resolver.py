@@ -1,4 +1,4 @@
-"""Resolve card identifiers to typed provenance claims (spec §6, PV1.5).
+"""Resolve card identifiers to typed provenance claims (spec §6).
 
 The resolver takes the identifiers extracted by
 :mod:`pursue_index.identifiers` and turns each into a
@@ -12,7 +12,7 @@ snippet:
   a widely reported public fact). That yields a dated ``previously_released``
   claim without a network call.
 * **The catalogue.** FBI, Blue Book and other identifiers resolve against the
-  PV1.4 sitemap catalogue (:class:`~pursue_index.source_index.SourceEntry`): a
+  sitemap catalogue (:class:`~pursue_index.source_index.SourceEntry`): a
   match on filename/URL, inside the collection that issues the identifier,
   gives the artifact, and the row's own last-modified value gives the date,
   read in the syntax the row's ``date_basis`` names and reported under that
@@ -22,7 +22,7 @@ snippet:
 * **The government description.** COMETA-style content that is public but whose
   *specific record's* release is unestablished emits
   ``content_previously_published`` (spec §6c), read from the highest-authority
-  source — the government's own CSV wording, via PV1.2's Tier-0 detector.
+  source — the government's own CSV wording, via the Tier-0 detector.
 
 Two lines the resolver never crosses:
 
@@ -201,7 +201,7 @@ def _entry_matches(ident: Identifier, entry: SourceEntry) -> bool:
 def resolve_against_catalogue(
     card: dict[str, Any], ident: Identifier, catalogue: Sequence[SourceEntry]
 ) -> ResolvedClaim | None:
-    """Resolve an identifier against the PV1.4 catalogue, or ``None``.
+    """Resolve an identifier against the catalogue, or ``None``.
 
     A match needs a date it can read from the row, in the syntax the row's own
     basis names; without one there is no honest establishing date, so the entry
@@ -250,7 +250,7 @@ def resolve_against_catalogue(
 def resolve_content_published(card: dict[str, Any]) -> ResolvedClaim | None:
     """Emit a ``content_previously_published`` claim from the government wording.
 
-    Uses PV1.2's Tier-0 detector: only when the government's own description
+    Uses the Tier-0 detector: only when the government's own description
     concedes the *content* was previously published (the COMETA case, spec §6c)
     — never that *this record* was released.
     """
@@ -343,7 +343,7 @@ def build_output(
 def main() -> int:
     """CLI: resolve ``data/manifests/latest.json`` -> the tracked artifact.
 
-    Resolves against the PV1.4 catalogue when ``source-index.json`` is present;
+    Resolves against the catalogue when ``source-index.json`` is present;
     CREST and content-published resolutions need no catalogue, so COMETA still
     resolves in a clean checkout that has never run the (live) catalogue build.
     The catalogue is read through the shared loader, so this artifact rests on

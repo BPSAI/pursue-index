@@ -1,6 +1,6 @@
 """Tests for ``pursue_index.download.downloader.asset_path_for``.
 
-Sprint 4f. Locks the fail-closed contract for unknown / no-bytes
+Locks the fail-closed contract for unknown / no-bytes
 asset types — added alongside AUD support so the next new asset
 type (whatever upstream introduces next) also degrades safely
 without KeyErroring through the pipeline.
@@ -53,7 +53,7 @@ def test_asset_path_for_aud_returns_none() -> None:
 
 
 def test_asset_path_for_aud_with_asset_url_still_returns_none() -> None:
-    """nayru P1.5 / laverna P3-002: lock the ``.get()`` fail-closed
+    """Lock the ``.get()`` fail-closed
     path for AUD specifically. The prior AUD test only exercised the
     no-url short-circuit. If a future sprint adds an AUD card with
     asset_url + asset_filename (or upstream changes), the type→dir
@@ -76,7 +76,7 @@ def test_asset_path_for_vid_returns_none_when_no_asset_url() -> None:
 
 
 def test_asset_path_for_unknown_type_returns_none_not_keyerror() -> None:
-    """Sprint 4f: fail-closed posture. A future schema change that
+    """Fail-closed posture. A future schema change that
     introduces (say) 'GLB' or 'WAV' must NOT KeyError through the
     pipeline before the parser is updated to know about it. ``.get()``
     on the type→dir map returns None for unknown types, which

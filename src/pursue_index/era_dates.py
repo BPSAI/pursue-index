@@ -1,4 +1,4 @@
-"""Era-year resolution over the existing display-date precedence (PV1.3).
+"""Era-year resolution over the existing display-date precedence.
 
 Era bucketing (spec §4a) needs one number per card: the year the *document*
 belongs to. That year is read from the same date fields the rest of the archive
@@ -57,7 +57,7 @@ __all__ = [
     "resolve_era_date",
 ]
 
-#: Date fields consulted for era, highest precedence first (spec §4a / PV1.3).
+#: Date fields consulted for era, highest precedence first (spec §4a).
 ERA_PRECEDENCE: tuple[str, ...] = ("display_date", "incident_date", "release_date")
 
 #: Card fields whose four-digit years may corroborate a pivoted two-digit year.

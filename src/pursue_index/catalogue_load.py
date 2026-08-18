@@ -1,6 +1,6 @@
 """Reading the stored source catalogue, once, for every stage that resolves.
 
-Three stages resolve cards against the PV1.4 sitemap catalogue: the identifier
+Three stages resolve cards against the sitemap catalogue: the identifier
 resolver, the era bucketing pass and the coverage report. They read the same
 tracked artifact, and they have to read it the same way — the same row
 validation, the same drop-and-count bookkeeping, the same answer to "how many

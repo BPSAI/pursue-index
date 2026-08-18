@@ -1,4 +1,4 @@
-"""Tests for the Sprint 4e Phase 4 additions to
+"""Tests for the tag-verify additions to
 ``.github/workflows/verify-assets-daily.yml``.
 
 Locks the structural invariants of the new tag-verify lane:
@@ -15,7 +15,7 @@ Locks the structural invariants of the new tag-verify lane:
   are configured for the verify step.
 
 The existing lanes (silent-overlay + preserved-tampered) are not
-re-pinned here; this file is scoped to the Sprint 4e additions only.
+re-pinned here; this file is scoped to the tag-verify additions only.
 """
 
 from __future__ import annotations
@@ -68,7 +68,7 @@ def test_signing_verify_step_exists_with_id_signing() -> None:
 
 
 def test_signing_verify_step_pins_to_operator_secret() -> None:
-    """Codex P1 #3: ``.verification.verified == true`` only confirms
+    """``.verification.verified == true`` only confirms
     "valid against ANY GitHub-registered signing key" — a repo:write
     attacker with their own registered Signing key can satisfy that.
     Pin verification to exactly the operator key via the
@@ -83,8 +83,8 @@ def test_signing_verify_step_pins_to_operator_secret() -> None:
     assert "$OPERATOR_ALLOWED_SIGNERS" in cmd
     assert "trusted-signers.txt" in cmd
     # Verification is git tag -v against the SECRET's allowed-signers,
-    # NOT gh api .verification.verified (the previous design which
-    # Codex P1 #3 flagged as too permissive).
+    # NOT gh api .verification.verified (the previous design was
+    # flagged as too permissive).
     assert "git -c gpg.format=ssh" in cmd
     assert "gpg.ssh.allowedSignersFile=" in cmd
     assert "tag -v" in cmd
@@ -106,7 +106,7 @@ def test_signing_verify_step_emits_unconfigured_state_when_secret_unset() -> Non
 
 
 def test_signing_verify_step_binds_to_current_registry_root() -> None:
-    """Codex P1 #1: a valid signed tag pointing at an older
+    """A valid signed tag pointing at an older
     registry-root.txt MUST NOT pass verification — that would leave
     current state unsigned. The step compares the signed tag's
     registry-root.txt against the current HEAD's file.
@@ -147,7 +147,7 @@ def test_signing_failure_issue_uses_signing_failure_label() -> None:
 
 
 def test_signing_stale_issue_step_exists_with_distinct_label() -> None:
-    """Codex P1 #1 + bot-driven update flow: a valid-but-stale tag
+    """A valid-but-stale tag
     (HEAD root differs from signed root) gets its own
     ``signing-stale`` label, distinct from ``signing-failure``.
     Operator response is different — sign a fresh tag, not roll

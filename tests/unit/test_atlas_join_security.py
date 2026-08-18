@@ -1,11 +1,11 @@
 """Security/integrity tests for ``embed.atlas_join``.
 
-These cover the failure modes the security review (laverna) and
-cross-cutting review (nayru) called out:
+These cover the failure modes the security and cross-cutting reviews
+called out:
 
 - SEC-001: sha256 sidecar must be verified before parsing
 - SEC-002: miss-rate threshold must be clamped to a sane upper bound
-- nayru P1: empty/missing ``source_url`` must raise, not silently miss
+- empty/missing ``source_url`` must raise, not silently miss
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def _write_corpus_with_sidecar(
 def test_load_atlas_index_rejects_threshold_above_half() -> None:
     """``miss_rate_threshold`` >0.5 disables the join safety net entirely.
 
-    Per laverna SEC-002: passing ``1.0`` would silently accept 100% misses
+    Per SEC-002: passing ``1.0`` would silently accept 100% misses
     and continue with zero augmentation. Fail-closed by raising on input.
     """
     body = (
@@ -117,15 +117,15 @@ def test_load_atlas_index_accepts_threshold_at_upper_bound(
     assert ("ff30c985595153f3", 1) in index
 
 
-# ----- nayru P1: empty/missing source_url --------------------------------
+# ----- empty/missing source_url -------------------------------------------
 
 
 def test_load_atlas_index_raises_on_empty_source_url(tmp_path: Path) -> None:
     """An empty ``source_url`` is a malformed record; must raise, not miss.
 
     Previously this silently hashed the empty string, never matched a card,
-    and was counted as a miss against the threshold. Per nayru's review,
-    that's diagnostically wrong — surface it as an error instead.
+    and was counted as a miss against the threshold. That's diagnostically
+    wrong — surface it as an error instead.
     """
     body = '{"source_url":"","page_num":1,"image_tags":["a"]}\n'
     corpus = _write_corpus_with_sidecar(tmp_path, body)
@@ -151,7 +151,7 @@ def test_load_atlas_index_raises_on_missing_source_url(tmp_path: Path) -> None:
 def test_load_atlas_index_verifies_sha256_sidecar(tmp_path: Path) -> None:
     """A tampered corpus.jsonl must trip a hash mismatch error before parse.
 
-    Per laverna SEC-001: this is the data trust boundary. A missing or
+    Per SEC-001: this is the data trust boundary. A missing or
     mismatched sidecar means the source has changed; refuse to proceed.
     """
     body = (

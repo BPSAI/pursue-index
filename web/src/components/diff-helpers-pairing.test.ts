@@ -138,7 +138,7 @@ test("selectDefaultPairWithCurrent: no current fetched_at → two newest snapsho
 });
 
 // --- single-snapshot histories: never return a null `from` (DiffIsland would
-//     hang in the loading state). Codex P2 / PR #88. ---
+//     hang in the loading state). PR #88. ---
 
 test("selectDefaultPairWithCurrent: single snapshot, @current newer → (snapshot, @current)", () => {
   const meta = { "s.json": { fetched_at: "2026-05-27T00:00:00Z" } };
@@ -256,13 +256,13 @@ test("diffWithAliases: alias whose terminal not in curr stays in removed", () =>
 
 // --- row churn under a surviving card_id belongs to ROW-LEVEL CHANGES ---
 //
-// T47.3 established the row-truth claim: a duplicate card_id backed by a
+// The row-truth claim: a duplicate card_id backed by a
 // PDF row plus VID row(s) can lose or gain an individual row upstream
 // while the id itself survives, and `Map.has(card_id)` — a set check — is
 // blind to that, so the churn used to vanish from the page entirely. That
 // claim stands and is pinned below.
 //
-// What changed is WHICH section owns those rows. T47.3 folded them into
+// What changed is WHICH section owns those rows. This fix folded them into
 // `diff.removed`/`diff.added`, but ADDED/REMOVED means a card_id entered
 // or left the corpus — REMOVED is the same semantics the /removed surface
 // publishes, and its entries link to /card pages. Folding row churn in
@@ -289,7 +289,7 @@ test("row churn: duplicate card_id survives but loses a row → the lost row is 
   const out = diffWithAliases(prev, curr, {});
   assert.equal(out.removed.length, 0, "dup1 is still in the corpus — not a removal");
   assert.equal(out.added.length, 0);
-  // The row-truth claim T47.3 pinned: the dropped row is still surfaced.
+  // The row-truth claim pinned above: the dropped row is still surfaced.
   const rows = unpairedRowEntries(prev, curr);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].side, "prev");
@@ -324,7 +324,7 @@ test("row churn: single-row-id whose keying field mutates still pairs via the le
   assert.equal(unpairedRowEntries([prevRow], [currRow]).length, 0);
 });
 
-// --- T47.3: real-snapshot regression pins --------------------------------
+// --- real-snapshot regression pins -----------------------------------
 //
 // `596cc1881... -> 0d7e9ba1d5...` is the historical pair the bug was
 // verified against: ea029a05470b8f4e drops from 6 rows to 4 (2 VID rows
@@ -377,7 +377,7 @@ test("regression 596cc188 -> 0d7e9ba1: ROW-LEVEL CHANGES owns the 3 withdrawn ro
 });
 
 test("regression 596cc188 -> 0d7e9ba1: all 6 disappearances still surface, 3+3 across the two sections", () => {
-  // The row-truth claim T47.3 established, restated against the section
+  // The row-truth claim established above, restated against the section
   // split: no disappearance was lost by moving row churn out of REMOVED.
   const { prev, curr } = pair596to0d7e();
   const removed = diffWithAliases(prev, curr, {}).removed;
@@ -402,7 +402,7 @@ test("regression 596cc188 -> 0d7e9ba1: the two sections never render the same ro
   }
 });
 
-test("diffWithAliases regression: single-row-id tranche (0d7e9ba1 -> 65572b38) counts unchanged from today's output (T47.3)", () => {
+test("diffWithAliases regression: single-row-id tranche (0d7e9ba1 -> 65572b38) counts unchanged from today's output", () => {
   // This pair carries real add/remove churn (17/17) but no duplicate
   // card_id ever changes row count across it — a control pin proving the
   // row-multiset fix does not perturb the common single-row-id case.

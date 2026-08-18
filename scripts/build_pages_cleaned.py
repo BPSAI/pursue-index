@@ -45,7 +45,7 @@ from pursue_index.config import settings  # noqa: E402
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
 
-# vaivora P2 #8: canonical list of ``cleanup_skipped`` reasons. Mirrors
+# Canonical list of ``cleanup_skipped`` reasons. Mirrors
 # the TS-side ``CLEANUP_SKIP_REASONS`` in
 # ``web/src/components/cleaned-pages.ts`` — single-source-of-truth on
 # each side of the JSON boundary so a future fourth reason is a
@@ -90,18 +90,18 @@ def _dedupe_latest_per_page(
 ) -> list[dict]:
     """Keep one row per page, latest by (generated_at, file order).
 
-    Codex P1: append-only sidecars accumulate duplicates after re-runs.
-    Codex P2: tolerate corrupt rows whose ``page`` is missing or
-    non-numeric — log a structured warning to stderr and skip, matching
+    Append-only sidecars accumulate duplicates after re-runs. Also
+    tolerate corrupt rows whose ``page`` is missing or non-numeric —
+    log a structured warning to stderr and skip, matching
     ``_iter_sidecar``'s "skip bad JSON, don't crash the build" stance.
     """
     by_page: dict[int, dict] = {}
     for idx, row in enumerate(rows):
-        # A missing ``page`` field is a corrupt row, not page 0 — closes
-        # the Codex P2 follow-up (issue #38). Treating absence as 0
-        # used to silently emit garbage rows into pages-cleaned.json
-        # at page 0 and break the index-by-page-N navigation contract
-        # in CardReaderView. Skip + log instead.
+        # A missing ``page`` field is a corrupt row, not page 0 (issue
+        # #38). Treating absence as 0 used to silently emit garbage
+        # rows into pages-cleaned.json at page 0 and break the
+        # index-by-page-N navigation contract in CardReaderView. Skip
+        # + log instead.
         raw_page = row.get("page")
         if raw_page is None:
             print(
@@ -132,8 +132,8 @@ def _dedupe_latest_per_page(
 def _sanitize_row_for_mirror(row: dict) -> dict:
     """Return a copy of ``row`` safe to ship in the cleaned mirror.
 
-    Codex P1 follow-up: ALL rows are now preserved regardless of
-    ``cleanup_skipped`` value, so ``pages-cleaned.json`` keeps the same
+    ALL rows are now preserved regardless of ``cleanup_skipped``
+    value, so ``pages-cleaned.json`` keeps the same
     page sequence as ``pages.json``. The UI paginates by array index
     (``pages[activePage-1]`` in ``CardReaderView``) — dropping any row
     shifts every later page's position and breaks deep links like
@@ -153,7 +153,7 @@ def _sanitize_row_for_mirror(row: dict) -> dict:
     label. Cost-of-defense: one extra hash per filtered row, which is
     rare enough not to matter.
 
-    Codex P1: the runner stored ``output_sha256`` against the raw OCR
+    The runner stored ``output_sha256`` against the raw OCR
     fallback. After we clear ``text_cleaned`` we MUST recompute
     ``output_sha256`` against the new (empty) text — otherwise the
     shipped row violates the provenance contract that ``output_sha256``
@@ -174,9 +174,9 @@ def _walk_sidecars(
 ) -> tuple[list[dict], list[str]]:
     """Return ``(pages_list, cards_covered)`` — deduped + sanitized.
 
-    Codex P1: dedupes to one row per page (latest generated_at wins).
-    Codex P1 follow-up: ALL rows ship regardless of ``cleanup_skipped``
-    value, so page-N in pages-cleaned.json keeps pointing at the same
+    Dedupes to one row per page (latest generated_at wins). ALL rows
+    ship regardless of ``cleanup_skipped`` value, so page-N in
+    pages-cleaned.json keeps pointing at the same
     source page as page-N in pages.json (the UI paginates by array
     index). ``length_divergence`` rows have ``text_cleaned`` cleared so
     raw OCR never ships under the cleaned label —
@@ -247,8 +247,8 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
 def _assert_homogeneous_provenance(pages: list[dict]) -> None:
     """Fail loudly when model_id or prompt_sha256 varies across rows.
 
-    nayru P3 #7 / vaivora P2 #2: meta records a single value from the
-    first row, so a mixed build would misrepresent provenance.
+    Meta records a single value from the first row, so a mixed build
+    would misrepresent provenance.
     """
     if not pages:
         return

@@ -124,7 +124,7 @@ def test_parse_frontmatter_unescapes_single_quotes(tmp_path: Path) -> None:
     assert fm.title == "O'Connor Report"
 
 
-# --- inline YAML list (Codex P2) -----------------------------------------
+# --- inline YAML list -----------------------------------------------------
 
 
 def test_parse_frontmatter_inline_card_list(tmp_path: Path) -> None:

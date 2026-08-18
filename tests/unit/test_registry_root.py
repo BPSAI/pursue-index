@@ -1,7 +1,7 @@
 """Tests for ``scripts/registry_root.py`` — Merkle-root commitment over
 ``data/asset-bytes-registry.jsonl``.
 
-Sprint 4e Phase 1. The script canonicalizes each registry row, hashes
+The script canonicalizes each registry row, hashes
 each canonical encoding to a leaf, builds a binary Merkle tree
 (duplicate-last for odd counts, Bitcoin-style), and writes the root +
 a human-readable manifest to ``data/registry-root.txt`` +
@@ -144,7 +144,7 @@ def test_merkle_root_rejects_2nd_preimage_via_compute_registry_root(
     """End-to-end: a registry with N rows and a registry where the
     last row is duplicated produce DIFFERENT roots under the
     end-to-end ``compute_registry_root`` path. This locks the
-    attack scenario laverna P1 + nayru H1.1 identified.
+    2nd-preimage attack scenario.
     """
     rows = [
         {"card_id": "a", "fetched_at": "2026-05-01T00:00:00Z"},
@@ -267,7 +267,7 @@ def test_compute_registry_root_handles_row_without_fetched_at(tmp_path: Path) ->
 def test_compute_registry_root_handles_null_fetched_at(tmp_path: Path) -> None:
     """A row with ``"fetched_at": null`` (JSON null → Python None)
     must surface as ``(unknown)`` rather than the literal string
-    ``"None"`` (nayru M1.3). Today no row has a null fetched_at;
+    ``"None"``. Today no row has a null fetched_at;
     forward-looking infrastructure.
     """
     rows = [{"card_id": "null-ts", "fetched_at": None}]
@@ -278,7 +278,7 @@ def test_compute_registry_root_handles_null_fetched_at(tmp_path: Path) -> None:
 
 
 def test_canonicalize_row_rejects_nan_and_infinity() -> None:
-    """laverna P2: NaN/Infinity produce non-standard JSON that's not
+    """NaN/Infinity produce non-standard JSON that's not
     cross-platform reproducible. ``allow_nan=False`` makes this
     fail loud at canonicalization time rather than silently producing
     bytes a non-Python verifier can't reproduce.
@@ -292,7 +292,7 @@ def test_canonicalize_row_rejects_nan_and_infinity() -> None:
 
 
 def test_read_registry_rows_is_publicly_importable() -> None:
-    """nayru M2.1: was ``_read_registry_rows`` (underscore = private)
+    """Was ``_read_registry_rows`` (underscore = private)
     but ``verify_registry_root`` reaches into it as if it were
     public. Rename to ``read_registry_rows`` so the public contract
     is honest. Tests pin the new name; old name removed so callers

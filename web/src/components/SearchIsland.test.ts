@@ -137,7 +137,7 @@ test("hasMatchSegment handles empty regex (no query)", () => {
 // Cycle 4: buildSearchIndexOptions is the single config factory shared by
 // /search and /atlas. The override hook lets atlas plug a wider doc shape
 // in without redeclaring the shared options (boost / prefix / no-fuzzy).
-// vaivora P0 on PR #29 — keep configs structurally locked, not by comment.
+// PR #29 — keep configs structurally locked, not by comment.
 // ---------------------------------------------------------------------------
 
 test("buildSearchIndexOptions returns the canonical defaults when no overrides", () => {

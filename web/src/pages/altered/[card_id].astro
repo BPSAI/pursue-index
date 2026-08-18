@@ -25,10 +25,9 @@ import {
 } from "../../lib/byte-display";
 import { loadVerdictBundle } from "../../lib/verdict-bundle";
 
-// Shared loader applies the bundle_schema_version assert (Vaivora
-// PR #79 round-2 P1-2 — previously the detail page silently
-// degraded on a schema bump; now fails the build alongside the
-// listing page).
+// Shared loader applies the bundle_schema_version assert (PR #79 —
+// previously the detail page silently degraded on a schema bump;
+// now fails the build alongside the listing page).
 const bundle = loadVerdictBundle();
 
 type ByteHistoryEntry = {

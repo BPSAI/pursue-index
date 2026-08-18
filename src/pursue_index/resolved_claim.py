@@ -1,7 +1,7 @@
-"""The typed claim the identifier resolver emits (spec §5, §6, PV1.5).
+"""The typed claim the identifier resolver emits (spec §5, §6).
 
 A :class:`ResolvedClaim` is the resolver's output: a *positive* provenance
-assertion backed by a resolved artifact. It reuses PV1.1's
+assertion backed by a resolved artifact. It reuses the existing
 :class:`~pursue_index.provenance.ProvenanceTier` taxonomy and enforces, in its
 constructor, the honesty rules the resolver must never violate:
 

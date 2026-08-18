@@ -1,6 +1,6 @@
 """Tests for ``scripts/verify_registry_root.py``.
 
-Sprint 4e Phase 2. The verifier re-derives the Merkle root from the
+The verifier re-derives the Merkle root from the
 current registry and compares it to ``data/registry-root.txt``.
 
 * Match: exit 0 with a one-line ``::notice::`` confirming the count
@@ -203,7 +203,7 @@ def test_main_mismatch_reports_divergence_when_signed_source_provided(
 def test_main_missing_registry_exits_nonzero_with_actionable_message(
     tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:
-    """nayru M1.1: a missing registry file used to surface as a bare
+    """A missing registry file used to surface as a bare
     Python traceback. Wrap in ``::error::`` with a clear "check path"
     nudge so the operator doesn't have to parse a stack trace.
     """
@@ -227,7 +227,7 @@ def test_main_missing_registry_exits_nonzero_with_actionable_message(
 def test_main_malformed_signed_source_emits_warning_not_crash(
     tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:
-    """nayru M1.2: ``git show <tag>:...`` can deliver truncated bytes
+    """``git show <tag>:...`` can deliver truncated bytes
     on a network blip. Don't crash with a ValueError stack trace;
     degrade to "skip divergence locator" with a clear warning.
     """

@@ -114,9 +114,9 @@ export function selectDefaultPair(index: string[]): { from: string | null; to: s
  * sentinel) relative to the snapshots.
  *
  * The snapshot index is chronological oldest→newest by ``fetched_at``;
- * ``currentFetchedAt`` is latest.json's own ``fetched_at``. Before Sprint 6 a
+ * ``currentFetchedAt`` is latest.json's own ``fetched_at``. Previously a
  * scrape made latest.json the newest state, so "append @current as newest" held.
- * The Sprint 6 poll/snapshot job now writes a snapshot the moment a tranche is
+ * The poll/snapshot job now writes a snapshot the moment a tranche is
  * detected — BEFORE it is ingested/promoted — so the newest snapshot can be
  * newer than latest.json. Naively treating @current as newest then inverts the
  * default diff (the incoming cards render as "removed").
@@ -386,7 +386,7 @@ export function diffWithAliases(
 // of ~15 fields — which meant a new upstream CSV column, or one nobody
 // had added to the list yet, was silently never diffed. That dropped 107
 // real changes across the corpus history (`pdf_pairing` 86, `video_pairing`
-// 17, `dvids_video_id` 4) before this was caught (T47.4). Skip-set
+// 17, `dvids_video_id` 4) before this was caught. Skip-set
 // semantics surface a new field by default instead of hiding it by default.
 //
 // `card_id` is the pairing key, not a mutable field. `raw` carries

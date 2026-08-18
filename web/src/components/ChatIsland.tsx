@@ -84,7 +84,7 @@ export default function ChatIsland({ base, cards }: Props) {
 
   // Pull filter state from the URL on mount so a `/chat?agency=FBI&from=…`
   // link scopes the displayed citation list. LLM context is unaffected — the
-  // worker's /api/retrieve has no filter awareness yet (vaivora F10).
+  // worker's /api/retrieve has no filter awareness yet.
   useEffect(() => {
     if (cards && cards.length > 0) {
       setFilters(parseFiltersFromQuery(window.location.search));
@@ -155,7 +155,7 @@ export default function ChatIsland({ base, cards }: Props) {
     // they want to see the answer. Without this, if they'd scrolled up to
     // read an earlier message (stickToBottom=false) the next response
     // would stream entirely off-screen until they manually scrolled back
-    // down (Codex PR #82 P2).
+    // down (PR #82).
     setStickToBottom(true);
 
     const userMsg: Message = { role: "user", text: query, citations: [], status: "done" };
@@ -320,7 +320,7 @@ export default function ChatIsland({ base, cards }: Props) {
       </div>
       {/* Phase indicator sits OUTSIDE the role="log" container — nested
           live regions can double-announce on some screen readers
-          (vaivora P1, 2026-05-12). Sibling placement keeps polite
+          (2026-05-12). Sibling placement keeps polite
           phase transitions distinct from transcript appends. */}
       {busy && (
         <p

@@ -111,7 +111,7 @@ def load_registry(path: Path) -> dict[str, list[dict[str, Any]]]:
     failing JSON parse is skipped, not raised. The registry is
     append-only + content-addressed and is committed by multiple
     workflows; a single corrupt mid-write line shouldn't take down
-    every subsequent run (nayru P0).
+    every subsequent run.
     """
     if not path.exists():
         return {}
@@ -239,7 +239,7 @@ def _process_card(
     if any(r.get("byte_sha256") == byte_sha for r in rows):
         return "unchanged"
 
-    # Allowlist extensions before building R2 keys (laverna SEC-003):
+    # Allowlist extensions before building R2 keys:
     # asset_filename comes from the upstream CSV, not the operator —
     # a crafted upstream filename could otherwise inject characters
     # that R2 interprets as path separators (slashes via Path.suffix
@@ -334,7 +334,7 @@ def _record_or_dryrun(
     # Use the CLI-supplied registry path, not the module default —
     # tests/dev runs that pass `--registry /tmp/test.jsonl` previously
     # *read* from the test file but *wrote* to the production registry,
-    # a high-blast-radius footgun (nayru P1).
+    # a high-blast-radius footgun.
     append_registry(registry_path, entry)
     label = "archive-hit" if archive_hit else "new"
     print(

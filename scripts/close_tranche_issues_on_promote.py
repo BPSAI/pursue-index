@@ -49,8 +49,7 @@ from typing import Callable
 # Mirror of the cross-script-import pattern used in
 # ``r2_verify_preserved.py``: scripts/ isn't on sys.path under
 # ``python scripts/<name>.py``, so we explicitly add it so the shared
-# SEC-003 ``truncate_error`` helper from ``_poll_gh_io`` can be
-# reused here.
+# ``truncate_error`` helper from ``_poll_gh_io`` can be reused here.
 _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
@@ -124,7 +123,7 @@ def _run_gh(args: list[str]) -> tuple[int, str, str]:
     Wrapped so tests can monkeypatch the IO boundary without touching
     the orchestration logic in ``main``. stderr is surfaced so callers
     can include the gh diagnostic in ``::warning::`` annotations
-    (Codex PR #67 P1).
+    (PR #67).
     """
     proc = subprocess.run(
         ["gh", *args],
@@ -153,7 +152,7 @@ class GhCommandFailed(RuntimeError):
 # churn" scenario. 1000 covers that with margin and still fits in a
 # single gh-list page (gh paginates above 1000 anyway). Below this, the
 # closer would silently truncate older issues out of the match set and
-# leave them open forever. (nayru/vaivora M3)
+# leave them open forever.
 _GH_LIST_LIMIT = "1000"
 
 
@@ -173,16 +172,16 @@ def _list_open_tranche_issues(run_gh: _GhRunner) -> list[dict]:
         ]
     )
     if rc != 0:
-        # Codex P1: don't mask gh failures as no-match. Auth errors,
-        # rate limits, transient 5xx, etc. need to be visible to
-        # operators or stale issues accumulate silently. nayru H2:
-        # include BOTH rc and stderr — they're independent diagnostic
-        # facts (rc-only failures with empty stderr happen on network
-        # drops; stderr-rich failures still need rc for grep-ability).
-        # laverna SEC-P1-001: cap stderr at 500 chars per the repo's
-        # SEC-003 pattern. Defangs the surface where gh "hint" lines
-        # could echo back bearer-token fragments on auth failure, and
-        # bounds annotation-log blowup under a rate-limit storm.
+        # Don't mask gh failures as no-match. Auth errors, rate
+        # limits, transient 5xx, etc. need to be visible to operators
+        # or stale issues accumulate silently. Include BOTH rc and
+        # stderr — they're independent diagnostic facts (rc-only
+        # failures with empty stderr happen on network drops;
+        # stderr-rich failures still need rc for grep-ability). Cap
+        # stderr at 500 chars. Defangs the surface where gh "hint"
+        # lines could echo back bearer-token fragments on auth
+        # failure, and bounds annotation-log blowup under a
+        # rate-limit storm.
         raise GhCommandFailed(
             f"rc={rc}: {truncate_error(err.strip()) if err.strip() else '(no stderr)'}"
         )
@@ -205,22 +204,22 @@ def _close_with_comment(
     """Comment on the issue, then close it. Returns True only when
     BOTH commands succeed.
 
-    Codex P2: previously the rc of either call was ignored and
-    ``main()`` always reported success — a real failure produced a
-    misleading ``::notice::closed`` log line. If the comment fails we
-    do NOT proceed to close (the operator-facing announcement is part
-    of the contract; orphaning the close is worse than leaving the
-    issue open one more day).
+    Previously the rc of either call was ignored and ``main()`` always
+    reported success — a real failure produced a misleading
+    ``::notice::closed`` log line. If the comment fails we do NOT
+    proceed to close (the operator-facing announcement is part of the
+    contract; orphaning the close is worse than leaving the issue
+    open one more day).
 
-    nayru M4: warning messages name the tranche short-sha so a
-    multi-match failure log surfaces which tranche each failure
-    belongs to without forcing the operator to cross-reference issue
-    number → body manually.
+    Warning messages name the tranche short-sha so a multi-match
+    failure log surfaces which tranche each failure belongs to
+    without forcing the operator to cross-reference issue number →
+    body manually.
     """
     short = promoted_sha[:12]
     rc_c, _, err_c = run_gh(["issue", "comment", str(number), "--body", comment])
     if rc_c != 0:
-        # laverna SEC-P1-001: truncate stderr per SEC-003.
+        # Truncate stderr to bound log size.
         print(
             f"::warning::gh issue comment #{number} (tranche `{short}`) failed"
             f" (rc={rc_c}): {truncate_error(err_c.strip())}"
@@ -267,13 +266,13 @@ def _close_matches(
     """Comment + close every matching issue, emitting ``::notice::`` on
     success and ``::warning::`` on per-call failure. Extracted from
     ``main()`` to keep that function under the 50-line architecture
-    ceiling (nayru/arch-check H1).
+    ceiling.
     """
     short = promoted_sha[:12]
     for issue in matches:
         number = issue.get("number")
         if not isinstance(number, int):
-            # nayru M5: gh's JSON schema isn't pinned; log if a future
+            # gh's JSON schema isn't pinned; log if a future
             # response shape ever serializes issue numbers as strings.
             print(f"::warning::skipping issue with non-int number: {number!r}")
             continue
@@ -290,8 +289,8 @@ def _close_matches(
             # issues will close on the next promote.
             print("::warning::gh CLI disappeared mid-run; bailing")
             return
-        # Codex P2: only announce the close when both gh calls
-        # succeeded. ``_close_with_comment`` has already emitted a
+        # Only announce the close when both gh calls succeeded.
+        # ``_close_with_comment`` has already emitted a
         # ``::warning::`` for the specific subcommand that failed.
         if closed:
             print(f"::notice::closed #{number} for tranche `{short}`")
@@ -312,10 +311,9 @@ def main(argv: list[str] | None = None) -> int:
         print("::warning::gh CLI not available; skipping auto-close")
         return 0
     except GhCommandFailed as exc:
-        # Codex P1: distinguish a real gh failure (auth, rate limit,
-        # transient API blip) from a legitimate no-match. Surface as a
-        # warning so the operator can investigate; never fail the
-        # workflow.
+        # Distinguish a real gh failure (auth, rate limit, transient
+        # API blip) from a legitimate no-match. Surface as a warning
+        # so the operator can investigate; never fail the workflow.
         print(f"::warning::gh issue list failed; skipping auto-close: {exc}")
         return 0
     matches = find_matching_issues(issues, promoted)

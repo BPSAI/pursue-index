@@ -1,4 +1,4 @@
-"""Tests for claim precedence over the era negative (spec §5, PV1.3/PV1.6).
+"""Tests for claim precedence over the era negative (spec §5).
 
 The 2015+ era negative rests on "a record cannot appear in an archive assembled
 before it existed". A positive prior-release claim on the same card is direct

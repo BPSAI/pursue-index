@@ -24,7 +24,7 @@ def _seed_card(ocr_dir: Path, card_id: str, *, pages: int, conf: float) -> None:
 
 
 def test_pick_buckets_backfills_when_buckets_overlap(tmp_path: Path) -> None:
-    """Codex P2: bucket merge dedupes across high/medium/degraded but
+    """Bucket merge dedupes across high/medium/degraded but
     doesn't replenish, so an overlap (e.g. a high-page card that's also
     among the most degraded) yields fewer than 30 cards. The selector
     must backfill from unused candidates so the pilot always runs at
@@ -69,7 +69,7 @@ def test_pick_buckets_does_not_invent_cards_when_pool_too_small(
 
 
 def test_zero_confidence_card_lands_in_degraded_bucket(tmp_path: Path) -> None:
-    """Codex P1: a card whose pages are ALL zero-confidence is the most
+    """A card whose pages are ALL zero-confidence is the most
     degraded card possible — the OCR engine couldn't read anything. The
     selector must include it (mean_confidence == 0.0) rather than filter
     it out, so the pilot's degraded bucket can find genuinely-broken
@@ -103,7 +103,7 @@ def test_zero_confidence_card_lands_in_degraded_bucket(tmp_path: Path) -> None:
 
 
 def test_read_card_stats_skips_malformed_jsonl_lines(tmp_path: Path) -> None:
-    """Codex P2: a single truncated/corrupt JSONL line must not crash the
+    """A single truncated/corrupt JSONL line must not crash the
     selector. ``_read_card_stats`` must skip the malformed line, log a
     structured warning, and process the remaining valid lines so the
     pilot can always be generated even with a slightly damaged sidecar.

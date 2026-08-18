@@ -114,7 +114,7 @@ export const FULL_OPACITY = 1.0;
  * ``points.map(pointToScatterplotRow)`` initial-draw call site renders
  * all-shown; the search-redraw effect passes 0 for non-matching points.
  * Using the same row builder in both paths keeps the tuple shape (and
- * the ``colorBy`` / ``opacityBy`` slot semantics) in one place — vaivora P2.
+ * the ``colorBy`` / ``opacityBy`` slot semantics) in one place.
  */
 export function pointToScatterplotRow(
   p: AtlasPoint,
@@ -134,8 +134,7 @@ export function pointToScatterplotRow(
  *
  * Encodes ``cardId`` defensively (``encodeURIComponent``); today's IDs
  * are sha256[:16] hex so the encode is a no-op, but this hardens any
- * future flow that surfaces a non-hex token through the same helper
- * (laverna SEC-003).
+ * future flow that surfaces a non-hex token through the same helper.
  */
 export function buildCardHref(base: string, cardId: string, page: number): string {
   return `${base}/card/${encodeURIComponent(cardId)}#page-${page}`;
@@ -148,7 +147,7 @@ export function buildCardHref(base: string, cardId: string, page: number): strin
  * Configuration is sourced from ``buildSearchIndexOptions`` in
  * ``search-result-highlight.ts`` — the same factory ``SearchIsland`` uses
  * — so the same input lights up the same set of rows on /search and
- * /atlas (vaivora P1: search-relevance divergence; vaivora P0 on PR #29:
+ * /atlas — avoiding search-relevance divergence (PR #29:
  * the prior comment-only contract was drift-prone, the shared factory
  * makes the lockstep structural). Atlas overrides ``storeFields`` to keep
  * only the render-array index, since it doesn't need card_id/page on the

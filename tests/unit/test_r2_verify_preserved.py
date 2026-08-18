@@ -137,12 +137,12 @@ def test_verify_skips_non_preserved_rows() -> None:
 
 
 def test_verify_skips_row_missing_archive_key(capsys) -> None:
-    """Sprint 4a fix-pass (nayru coverage gap): a preserved row that
+    """A preserved row that
     lacks ``archive_key`` is skipped with a warning, not a KeyError.
 
     Registry rows are merged from multiple writers (the daily ingest,
     operator-triggered re-pins, the Section 6 reaffirmation script).
-    A row produced by a pre-Sprint-4a writer might lack the
+    A row produced by an older writer might lack the
     ``archive_key`` field even though ``preserved=True``. The verify
     must surface that as a triageable warning rather than crash the
     daily integrity sweep.
@@ -171,7 +171,7 @@ def test_verify_skips_row_missing_archive_key(capsys) -> None:
 def test_verify_reads_archive_key_not_current_key() -> None:
     """The verify must read archive/<sha>.<ext>, not current_key.
 
-    Sprint 4a (2026-05-17): The Section 6 (2026-05-14 preserved-pin
+    2026-05-17: The Section 6 (2026-05-14 preserved-pin
     reaffirmation) policy means current_key legitimately serves NEW
     upstream bytes while the OLD preserved bytes live at
     archive/<preserved_sha>.<ext>. Reading current_key produces
@@ -228,7 +228,7 @@ def test_verify_section6_reaffirmation_no_longer_false_positives() -> None:
 def test_verify_mismatch_report_uses_archive_key_field() -> None:
     """When a mismatch fires, the report names archive_key (not current_key).
 
-    Renamed in Sprint 4a so an operator reading the issue body sees
+    Renamed so an operator reading the issue body sees
     the actual key that failed — the immutable preservation copy at
     archive/<sha>.<ext> — not the mutable current-pointer.
     """
@@ -272,17 +272,16 @@ def test_verify_uses_most_recent_registry_row_per_card() -> None:
     assert report["mismatch"] == []
 
 
-# --- Sprint 4b Theme C — video row coverage ---------------------------
+# --- video row coverage ------------------------------------------------
 #
 # VID cards live at DVIDS, not war.gov. The bytes were preserved into
 # R2 once (when first ingested) but VID rows in the registry carry no
 # ``current_key`` (the worker serves video via DVIDS iframe, not from
 # R2). They DO carry an ``archive_key`` and a ``byte_sha256`` — the
-# preservation copy is real and verifiable. The pre-Sprint-4b verify
+# preservation copy is real and verifiable. The older verify
 # only considered rows with ``preserved=True`` and silently dropped
 # every VID row (none of which carry that flag — see the existing 28
-# rows in data/asset-bytes-registry.jsonl). That's the gap this theme
-# closes.
+# rows in data/asset-bytes-registry.jsonl). That's the gap this closes.
 
 
 def _vid_row(card_id: str = "vid-1", byte_sha: str | None = None) -> dict:
@@ -311,10 +310,10 @@ def _vid_row(card_id: str = "vid-1", byte_sha: str | None = None) -> dict:
 def test_verify_walks_video_rows_even_without_preserved_flag() -> None:
     """VID rows (no current_key, no preserved flag) must still be verified.
 
-    Pre-Sprint-4b: ``_latest_preserved_row`` only returned rows where
+    Previously, ``_latest_preserved_row`` only returned rows where
     ``preserved is True``. VID rows have neither ``current_key`` nor
     ``preserved=True``, so the verify silently skipped all 28 of them.
-    Post-Sprint-4b: a row lacking ``current_key`` is treated as an
+    Now, a row lacking ``current_key`` is treated as an
     implicit preservation row (the worker doesn't serve it; R2 is the
     only canonical bytes home).
     """
@@ -351,9 +350,9 @@ def test_verify_flags_video_byte_sha_mismatch() -> None:
 
 
 def test_verify_walks_vid_row_with_explicit_preserved_false() -> None:
-    """nayru P2#3: ``preserved=False`` row WITHOUT ``current_key`` still walked.
+    """``preserved=False`` row WITHOUT ``current_key`` still walked.
 
-    The Sprint 4b Theme C eligibility rule is:
+    The eligibility rule is:
 
         row.get('preserved') is True or row.get('current_key') is None
 

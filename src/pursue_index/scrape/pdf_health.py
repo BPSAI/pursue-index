@@ -117,12 +117,12 @@ def check_pdf_health(url: str) -> HealthOk | HealthFail:
 # (``ops_cli.pdf_health_cmd``) emit two stable line formats the workflow
 # log greps without re-parsing JSON. Centralizing the f-strings here:
 #
-# * keeps the two callers from drifting (vaivora P1#2)
+# * keeps the two callers from drifting
 # * sanitizes error tokens so a multi-word ``ValueError: no PDF cards``
 #   message can't break ``awk``/``cut`` consumers that split on
-#   whitespace (nayru P1#1)
+#   whitespace
 # * redacts WAF debug headers (cf-ray, x-akamai-*, x-check-cacheable,
-#   via:*) before they land in the public Actions log (laverna SEC-002)
+#   via:*) before they land in the public Actions log
 
 
 # Compiled once at import time. Match common WAF/CDN debug header

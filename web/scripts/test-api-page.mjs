@@ -14,8 +14,8 @@
 //   2. Backward (CONSTANT_ASSERTIONS): worker constants change but doc
 //      doesn't → test fails. Imports the actual values from
 //      `worker/chat_kv.js` and `worker/chat.js` so a constant flip on
-//      the worker side surfaces here loudly. Closes the gap flagged by
-//      vaivora's PR-4 review (snapshot caught only forward drift).
+//      the worker side surfaces here loudly. Closes the gap flagged in
+//      PR #4 review (snapshot caught only forward drift).
 //
 // See also: `scripts/smoke_api_dispatch.sh` — the integration smoke
 // that asserts the *dispatch behavior* of /api/* (Worker handlers vs.
@@ -48,7 +48,7 @@ const REQUIRED_FRAGMENTS = [
   "Citation contract",
   "Errors",
   "License",
-  // CORS — outcome framing, not bypass mechanics (laverna MED-001)
+  // CORS — outcome framing, not bypass mechanics
   "pursueindex.com",
   "www.pursueindex.com",
   "supported",
@@ -60,16 +60,16 @@ const REQUIRED_FRAGMENTS = [
   "event: text",
   "event: done",
   "event: error",
-  // SSE event-done flags (nayru P2 #1)
+  // SSE event-done flags
   "cached: true",
   "abstained: true",
-  // 429 body shape + retry semantics (laverna LOW-001 / nayru P2 #3)
+  // 429 body shape + retry semantics
   "current count",
   "Retry-After",
-  // 405 row (nayru P2 #2)
+  // 405 row
   "405",
   "method not allowed",
-  // model-name caveat (laverna LOW-003) — phrase survives Astro whitespace
+  // model-name caveat — phrase survives Astro whitespace
   "exact model may be",
   "worker/chat.js",
   "DEFAULT_MODEL",

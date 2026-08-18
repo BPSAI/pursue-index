@@ -5,7 +5,7 @@ script's ``main()`` is the only network-touching path and is exercised
 manually via the weekly cron job (and operator dispatch); the helpers
 below carry the meaningful logic.
 
-Sprint 4a fix-pass (L5, Codex P2): CF Managed drift detection — if
+CF Managed drift detection — if
 Cloudflare expands the upstream Managed bot list, our hardcoded
 ``CF_MANAGED_BOTS`` const drifts and the rendered robots.txt either
 duplicates lines (CF added a bot) or silently omits them (CF removed

@@ -17,7 +17,7 @@ from pursue_index.clean import runner as clean_runner
 
 runner_cli = CliRunner()
 
-# After vaivora P2 #1: ``clean_app`` now has a no-op callback, matching
+# ``clean_app`` now has a no-op callback, matching
 # ``ops_cli``. This forces typer to keep the sub-app as a multi-command
 # group regardless of how it's invoked, so the ``run`` token is now
 # required in test invocations as well as in production
@@ -144,7 +144,7 @@ def test_clean_run_honors_limit_flag(
 def test_clean_run_exits_with_code_2_when_runner_raises_budget_exceeded(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """nayru P2 #5: when the runner raises BudgetExceededError mid-card,
+    """When the runner raises BudgetExceededError mid-card,
     the CLI must exit 2 (distinct from runtime error code 1) AND print
     the partial summary so the operator sees what was spent before the
     abort. Previously we trusted the implementation; now there's a
@@ -184,7 +184,7 @@ def test_clean_run_exits_with_code_2_when_runner_raises_budget_exceeded(
 def test_clean_run_summary_includes_partial_card_spend_after_budget_abort(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Codex P1 follow-up: when ``BudgetExceededError`` fires mid-card, the
+    """When ``BudgetExceededError`` fires mid-card, the
     partial spend already incurred on the in-progress card must show up in
     the printed summary. Previously the CLI added ``report.cost_usd`` only
     after a clean return, so the abort path under-reported total spend by

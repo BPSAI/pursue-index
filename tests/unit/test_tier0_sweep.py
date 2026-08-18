@@ -1,11 +1,11 @@
-"""Tests for the Tier-0 government-CSV provenance sweep (spec §5, PV1.2).
+"""Tests for the Tier-0 government-CSV provenance sweep (spec §5).
 
 The releasing agency's own description field is the highest-authority
 provenance source available and it is already ingested in every manifest.
 This sweep reads ``data/manifests/latest.json`` and, for every card whose
 description *asserts* a prior release, FOIA history or declassification,
 emits a typed Tier-0 claim that reuses the :class:`ProvenanceTier` taxonomy
-from PV1.1 and preserves the government's wording **verbatim** as evidence.
+and preserves the government's wording **verbatim** as evidence.
 
 The bar is precision over recall: a description that merely uses a word like
 "released" (in "never before released") or "previously" (in "previously

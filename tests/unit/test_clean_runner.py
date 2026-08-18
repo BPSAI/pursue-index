@@ -120,7 +120,7 @@ def test_run_card_skips_pages_already_in_sidecar(
 def test_run_card_does_not_skip_when_prompt_sha256_changes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Regression for nayru P1 / Codex P1: a prompt bump must invalidate
+    """Regression: a prompt bump must invalidate
     cached rows even when ``input_sha256`` matches.
 
     Prior behaviour was to skip on input-sha-only match, so a prompt
@@ -209,7 +209,7 @@ def test_run_card_aborts_when_running_cost_exceeds_budget(
 def test_budget_exceeded_error_carries_partial_card_spend(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Codex P1 follow-up: when the runner raises mid-card, the in-progress
+    """Follow-up: when the runner raises mid-card, the in-progress
     card has already incurred N pages of cost on the sidecar. The exception
     must surface that partial spend (``partial_cost_usd``) and the
     in-progress card id so the CLI can fold it into the running total
@@ -256,7 +256,7 @@ def test_budget_exceeded_error_carries_partial_card_spend(
 def test_run_card_falls_back_when_cleaned_output_is_too_short(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """nayru P1 / laverna SEC-001: model returning a refusal or near-empty
+    """A model returning a refusal or near-empty
     string would clobber valid OCR. Guard: ratio < 0.2 → keep raw OCR
     text, flag the row as ``cleanup_skipped="length_divergence"``.
     """
@@ -355,7 +355,7 @@ def test_run_card_keeps_cleaned_output_when_ratio_is_in_band(
 def test_run_card_skips_empty_ocr_pages_without_calling_model(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Codex P2: empty raw OCR text is empty-in/empty-out, not a length
+    """Empty raw OCR text is empty-in/empty-out, not a length
     divergence. Special-case at the top of the per-page loop: don't call
     the model, write a sidecar row flagged ``cleanup_skipped="empty_input"``,
     and count the page as skipped (not cleaned).
@@ -493,7 +493,7 @@ def _capture_runner_warnings(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, 
 def test_run_card_logs_request_id_at_runner_site_on_content_filter(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """nayru P2 #2: the runner-site warning binds ``request_id`` from
+    """The runner-site warning binds ``request_id`` from
     the exception so post-mortem correlation between (card_id, page)
     and the Anthropic-side log happens in a single log scope.
 

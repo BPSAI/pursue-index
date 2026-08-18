@@ -1,4 +1,4 @@
-"""Card identifier extraction with the false-NAID guard (spec §6, PV1.5).
+"""Card identifier extraction with the false-NAID guard (spec §6).
 
 Cards carry identifiers that *can* be resolved against public archives — FBI
 file and serial numbers, CIA CREST ``CIA-RDP…`` document IDs, Project Blue Book

@@ -224,7 +224,7 @@ test("readPageFromQuery: returns null without throwing for genuinely odd input (
 
 test("promotedCardUrl: only ?page=N → /card/<id>#page-N (drops the query)", () => {
   // External link with no hash: promote the query to a hash and drop
-  // the now-redundant `?page=N`. Fixes laverna SEC-004 / nayru P1 #3.
+  // the now-redundant `?page=N`.
   assert.equal(
     promotedCardUrl("/card/abc", "?page=5", ""),
     "/card/abc#page-5",
@@ -239,7 +239,7 @@ test("promotedCardUrl: keeps non-page query params when promoting", () => {
   );
 });
 
-test("promotedCardUrl: ?page=5#page-5 → /card/<id>#page-5 (vaivora P1 #11)", () => {
+test("promotedCardUrl: ?page=5#page-5 → /card/<id>#page-5 (hash already present)", () => {
   // Atlas link arrives with both forms. Hash is already authoritative;
   // strip the redundant query so the canonical URL is what the user copies.
   assert.equal(

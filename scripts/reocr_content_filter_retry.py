@@ -1,5 +1,5 @@
-"""One-shot OCR retry via OpenAI o4-mini for the 2 Sprint 4h cards
-that tripped Sonnet 4.6's content filter (Sprint 4i #1).
+"""One-shot OCR retry via OpenAI o4-mini for the 2 cards
+that tripped Sonnet 4.6's content filter during the canonical OCR pass.
 
 Targets, resume points (matches the existing ``pages.jsonl`` state on
 disk; the script appends pages ``resume_from`` onwards):
@@ -7,8 +7,8 @@ disk; the script appends pages ``resume_from`` onwards):
 - ``7d58f0cac741650a`` — resume from page 88 of 184 (97 pages remaining).
 - ``f85532f0514320be`` — resume from page 75 of 205 (131 pages remaining).
 
-Why this exists: Sprint 4h's canonical OCR pass (Sonnet 4.6 single-pass)
-ran into Anthropic's content filter on these 2 cards. The Sprint 4h
+Why this exists: the canonical OCR pass (Sonnet 4.6 single-pass)
+ran into Anthropic's content filter on these 2 cards. Its
 banner correctly surfaces partial OCR as truncation; this script is the
 retry that uses a different model family (OpenAI o4-mini) whose filter
 footprint may pass where Anthropic's didn't.
@@ -78,8 +78,8 @@ _DEFAULT_TARGETS_POST = [
     },
 ]
 
-# Sprint 4j follow-up: the pre-edit version of the same content-filter
-# card also tripped Sonnet on pages 90+ during the corpus alignment run.
+# Follow-up: the pre-edit version of the same content-filter card
+# also tripped Sonnet on pages 90+ during the corpus alignment run.
 # Bytes come from the local NAS r2-mirror (no R2 fetch).
 _DEFAULT_TARGETS_PRE = [
     {
@@ -190,8 +190,8 @@ def existing_max_page(jsonl: Path) -> int:
 
 
 def _load_pdf_bytes(target: dict, nas_archive: Path | None, r2_client: Any) -> bytes:
-    """Prefer local NAS bytes when path is available (Sprint 4j pre-edit
-    retry); fall back to R2 fetch for the original Sprint 4i path."""
+    """Prefer local NAS bytes when path is available (pre-edit
+    retry); fall back to R2 fetch for the original post-edit path."""
     if nas_archive is not None:
         nas_pdf = nas_archive / f"{target['byte_sha256']}.pdf"
         if nas_pdf.exists():
@@ -302,8 +302,8 @@ def _build_args_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--pre",
         action="store_true",
-        help="Run the pre-edit retry targets (Sprint 4j follow-up). Default "
-        "is the post-edit targets (Sprint 4i #1).",
+        help="Run the pre-edit retry targets (follow-up pass). Default "
+        "is the post-edit targets.",
     )
     parser.add_argument(
         "--nas-archive",

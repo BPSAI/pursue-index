@@ -1,4 +1,4 @@
-"""Tests for the courteous sitemap fetcher + XML parsing (PV1.4).
+"""Tests for the courteous sitemap fetcher + XML parsing.
 
 The fetcher's whole discipline is captured here: it fetches *listings only*
 (``robots.txt`` and sitemap ``.xml`` — never a PDF or any other asset), it

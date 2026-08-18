@@ -1,4 +1,4 @@
-"""Tests for what a Tier-0 sweep does with a source it cannot name (PV1.2).
+"""Tests for what a Tier-0 sweep does with a source it cannot name.
 
 The rules are ordered most-specific first and the first one to match settles
 what the description asserts. That match is the reading of the card: it fixes

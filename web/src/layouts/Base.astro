@@ -55,7 +55,7 @@ const {
 } = Astro.props;
 
 // Site-wide JSON-LD blocks (rendered on every page): Organization +
-// WebSite (with SearchAction) + Dataset. Per Sprint 1 GEO foundation.
+// WebSite (with SearchAction) + Dataset. Part of the GEO foundation.
 // Page-specific schemas (DigitalDocument, Article, BreadcrumbList,
 // Speakable) come in via the `jsonLd` prop and are appended below.
 const siteJsonLd: JsonLdObject[] = [
@@ -102,7 +102,7 @@ function resolveOgImageUrl(raw: string | undefined): string {
 
 const ogImageUrl = resolveOgImageUrl(ogImage);
 // Derive the MIME type from the resolved URL so per-route JPEG/WebP
-// overrides are labeled correctly (Codex P2). Defaults to image/png
+// overrides are labeled correctly. Defaults to image/png
 // for the bundled card.
 const _ogImageExt = ogImageUrl.split("?")[0].split("#")[0].toLowerCase().split(".").pop() ?? "png";
 const ogImageType =
@@ -119,7 +119,7 @@ const ogImageType =
 // Assets (our deploy path) bypasses that injection — SEOPTIMER
 // detected "Cloudflare Browser Insights" via tech fingerprint while
 // view-source on the deployed HTML showed no script tag, confirming
-// the gap. Sprint 4a (2026-05-17) wires the beacon explicitly. The
+// the gap. This (2026-05-17) wires the beacon explicitly. The
 // token is read from PUBLIC_CF_ANALYTICS_TOKEN at build time; the
 // CSP already allows static.cloudflareinsights.com (script-src) and
 // cloudflareinsights.com (connect-src) — see worker/index.js.
@@ -144,10 +144,10 @@ const navItems = [
   { href: `${base}/atlas`, label: "ATLAS", key: "atlas" },
   { href: `${base}/timeline`, label: "TIMELINE", key: "timeline" },
   { href: `${base}/diff`, label: "DIFF", key: "diff" },
-  // ALTR Phase 2 (v1.3.0) — restored /altered/ as a facts-only
-  // listing. Codex PR #79 P3: the page passed active="altered"
-  // but had no navItems entry, so the surface was reachable
-  // only by direct URL or per-card banner links.
+  // (v1.3.0) — restored /altered/ as a facts-only listing. PR #79:
+  // the page passed active="altered" but had no navItems entry,
+  // so the surface was reachable only by direct URL or per-card
+  // banner links.
   { href: `${base}/altered`, label: "ALTERED", key: "altered" },
   { href: `${base}/removed`, label: "REMOVED", key: "removed" },
   { href: `${base}/about`, label: "ABOUT", key: "about" },
@@ -192,10 +192,10 @@ const navItems = [
         when an account handle is added: <meta name="twitter:site" content="@..." /> */}
 
     {/* JSON-LD schemas — site-wide + page-specific. See web/src/lib/seo.ts
-        and the Sprint 1 GEO foundation plan. */}
+        and the GEO foundation plan. */}
     <JsonLd data={allJsonLd} />
 
-    {/* Cloudflare Web Analytics — Sprint 4a (2026-05-17). Workers
+    {/* Cloudflare Web Analytics — added 2026-05-17. Workers
         Static Assets bypasses CF Pages' HTML-rewriter beacon injection,
         so we wire it explicitly. Token-conditional: skipped when
         PUBLIC_CF_ANALYTICS_TOKEN is unset (local dev, preview builds

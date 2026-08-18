@@ -295,9 +295,9 @@ def test_ocr_image_handles_strict_json_with_braces_in_text(
 
 
 # ---------------------------------------------------------------------------
-# Sprint 4i #2 — envelope-artifact recovery (unescaped inner quotes)
+# envelope-artifact recovery (unescaped inner quotes)
 # ---------------------------------------------------------------------------
-# Sprint 4h surfaced a class of malformed responses: the model wraps OCR
+# A class of malformed responses: the model wraps OCR
 # text in a JSON envelope (``{"text": "...", "confidence": N}``) but
 # leaves inner double-quotes unescaped — typically from stamps or quoted
 # names on the source page. ``json.loads`` rejects them; ``raw_decode``
@@ -404,7 +404,7 @@ def test_parse_response_falls_through_when_envelope_pattern_absent(
 
 
 # ---------------------------------------------------------------------------
-# Sprint 4i #4 — ocr_image_with_usage returns real token counts
+# ocr_image_with_usage returns real token counts
 # ---------------------------------------------------------------------------
 # scripts/reocr_altered.py previously estimated 1500/600 tokens per page
 # (~21% under-counted vs reality). Expose actual usage so the cost cap

@@ -1,13 +1,13 @@
 # OCR cache reproducibility
 
-> Last updated: 2026-05-21 (Sprint 4i #5)
+> Last updated: 2026-05-21
 
 ## Why this matters
 
 OCR runs (`pursue ocr run`, `scripts/reocr_altered.py`) cache every
 per-page Anthropic vision call to disk by image-content sha256. A
-cache hit costs $0; a cache miss costs ~$0.013 per page. The Sprint
-4h `reocr_altered` run spent **$46.24** across 3,425 page OCRs. A
+cache hit costs $0; a cache miss costs ~$0.013 per page. The
+`reocr_altered` run spent **$46.24** across 3,425 page OCRs. A
 fresh checkout on a different host would re-spend that $46 without
 the cache.
 
@@ -56,7 +56,7 @@ print(f'{cache}: exists={cache.exists()}, '
 "
 ```
 
-Expect ~3,400 cache files for the current Sprint 4h corpus.
+Expect ~3,400 cache files for the current corpus.
 
 ### 2. Re-run with `--max-spend-usd 0` for cache-only mode
 

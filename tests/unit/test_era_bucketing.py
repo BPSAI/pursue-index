@@ -1,4 +1,4 @@
-"""Tests for era + agency bucketing (spec §4a/§5, PV1.3).
+"""Tests for era + agency bucketing (spec §4a/§5).
 
 Every card is assigned an era and an agency from the display-date precedence.
 The 2015+ set receives a ``no_prior_release_found`` record carrying its era

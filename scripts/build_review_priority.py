@@ -1,6 +1,6 @@
 """Aggregate per-page review-priority scores into a single JSON.
 
-Sprint 4l-E. Reads ``pages.jsonl`` + ``pages_cleaned.jsonl`` (+ optional
+Reads ``pages.jsonl`` + ``pages_cleaned.jsonl`` (+ optional
 ``pages_cleaned_qc.jsonl`` when present), computes
 ``pursue_index.clean.qc.priority.score_page`` per page, and writes a
 sorted-descending top-K queue to

@@ -1,4 +1,4 @@
-"""LS1.4 — GEO discovery metadata must not drift between tranches.
+"""GEO discovery metadata must not drift between tranches.
 
 `llms.txt` and `llms-full.txt` are hand-maintained today: nothing regenerates
 them and nothing checks them, so a tranche that adds cards silently leaves them
@@ -324,7 +324,7 @@ def test_parse_existing_excerpts_does_not_steal_a_later_cards_excerpt() -> None:
 
 
 # --------------------------------------------------------------------------
-# Duplicate card_ids (Codex #116 P1)
+# Duplicate card_ids
 # --------------------------------------------------------------------------
 
 

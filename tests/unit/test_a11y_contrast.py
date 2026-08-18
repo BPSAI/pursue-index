@@ -141,11 +141,11 @@ def test_token_table_matches_global_css() -> None:
 
 # ---------------------------------------------------------------------------
 # Drift guard, extended: catches token consumers OUTSIDE global.css that
-# could go stale silently. The original guard only walked global.css; the
-# vaivora cross-cutting review (2026-05-12) flagged that atlas-helpers.ts
+# could go stale silently. The original guard only walked global.css; a
+# cross-cutting review (2026-05-12) flagged that atlas-helpers.ts
 # hard-codes the same hex literals and was missed during the WCAG bump.
 # Extends the guard to atlas-helpers.ts (web/public/og.svg was the other
-# original consumer; deleted 2026-06-02 per Sprint 4 follow-up — it was
+# original consumer; deleted 2026-06-02 — it was
 # unreferenced and carried stale tranche numbers that drifted on every
 # corpus update; live OG image is now web/public/og.png from
 # scripts/build_og_image.py).

@@ -1,4 +1,4 @@
-"""Tests for era-year resolution over the display-date precedence (PV1.3).
+"""Tests for era-year resolution over the display-date precedence.
 
 The manifest's date fields are heterogeneous — bare years, ``M/D/YY``,
 ``M/D/YYYY``, ``Month, YYYY``, ranges and prose. :func:`parse_year` must pull

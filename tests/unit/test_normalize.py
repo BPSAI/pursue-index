@@ -37,7 +37,7 @@ def test_normalize_asset_type_handles_trailing_space() -> None:
 
 
 def test_normalize_asset_type_accepts_aud() -> None:
-    """Sprint 4f: upstream relabeled the NASA Gemini 7 audio card
+    """Upstream relabeled the NASA Gemini 7 audio card
     (card_id 167f6a21c7238d0c) from VID → AUD between tranche
     c9cc83fcaf43 and f75e2f7de0ff. Parser must accept AUD as a
     first-class asset type — same DVIDS-hosted metadata-only

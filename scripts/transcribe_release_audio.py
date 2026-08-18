@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Diarized transcription of release AUD cards via AssemblyAI.
 
-Reuses BPSAI Aurora's AssemblyAI batch-diarization approach (Mike's build on
-`aurora-function-app` @ dev: `assemblyai_client.AssemblyAI_Client` +
+Reuses BPSAI Aurora's AssemblyAI batch-diarization approach (adapted from a
+sibling transcription service's pattern on `aurora-function-app` @ dev:
+`assemblyai_client.AssemblyAI_Client` +
 `transcription/diarize.DiarizedSegment` / `format_diarized_segments`), adapted
 for pursue: pass a LOCAL audio path straight to the SDK (no Azure SAS URL), and
 add the domain tuning Aurora's meeting-audio build omits — a NASA/Apollo

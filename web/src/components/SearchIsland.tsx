@@ -336,7 +336,7 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
             : [];
           // Boolean-coerce: `snippet` is a string and JSX would otherwise
           // render an empty `""` falsy-but-defined branch when `&&` short-
-          // circuits on it. (nayru P1 on PR #29.)
+          // circuits on it. (PR #29.)
           const showSnippet = Boolean(snippet) && hasMatchSegment(snippetSegments);
           const linkQuery = encodeURIComponent(query.trim());
           const href = `${base}/card/${r.card_id}?q=${linkQuery}#page-${r.page}`;

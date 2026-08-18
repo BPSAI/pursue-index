@@ -120,7 +120,7 @@ def _select_new_rows(
 ) -> tuple[list[PageRow], list[PageRow], int]:
     """Walk OCR output and partition into (new, all, prior_dim).
 
-    ``only_cards`` (the T6.5 worklist) scopes the walk to those card_ids before
+    ``only_cards`` (the download worklist) scopes the walk to those card_ids before
     the new/seen partition, so a tranche run embeds only its new cards. ``None``
     embeds the whole OCR dir (the full-corpus escape hatch). ``obs_lookup``
     supplies our own vision text for image-only pages (see ``iter_card_pages``).
@@ -236,7 +236,7 @@ def embed_run(
     ``augmented_by`` records dataset/revision provenance into index.json (a
     format field retained for indexes written before the alex-zhang42 augment
     was retired on 2026-07-11). ``usd_per_million_tokens`` overrides the
-    adapter's published rate for cost-cap math. ``only_cards`` (the T6.5
+    adapter's published rate for cost-cap math. ``only_cards`` (the
     worklist) scopes the run to those card_ids; ``None`` is full-corpus.
     ``obs_lookup`` supplies our own vision text for image-only pages so they
     embed instead of being dropped (see ``iter_card_pages``).

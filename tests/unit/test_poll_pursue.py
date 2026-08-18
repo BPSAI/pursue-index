@@ -484,7 +484,7 @@ def test_seeds_from_manifest_when_state_file_missing(
     """If the state file is missing but a manifest is reachable with an
     in-band ``csv_sha256``, seed the comparison from the manifest. This
     avoids a spurious bootstrap when the operator has run ``pursue
-    scrape run`` manually but never seeded the .txt file. (vaivora P1#1)
+    scrape run`` manually but never seeded the .txt file.
     """
     sha_a = poll_pursue.sha256_hex(_BODY_A)
     _stub_fetch(monkeypatch, _BODY_A)
