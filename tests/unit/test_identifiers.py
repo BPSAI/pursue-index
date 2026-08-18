@@ -1,4 +1,4 @@
-"""Tests for identifier extraction and the false-NAID guard (PV1.5).
+"""Tests for identifier extraction and the false-NAID guard.
 
 The load-bearing behaviour here is the *guard*: the ``255_`` / ``331_`` /
 ``341_`` prefixes in our card titles are record-group + box/folder finding-aid

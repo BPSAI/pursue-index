@@ -1,4 +1,4 @@
-"""Tests for the prior-source capture in a Tier-0 claim (spec §5, PV1.2).
+"""Tests for the prior-source capture in a Tier-0 claim (spec §5).
 
 ``originally released on <source> on <date>`` captures whatever token the CSV
 put there, and that token lands in a tracked artifact as the named prior source

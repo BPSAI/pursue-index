@@ -27,7 +27,7 @@ export interface CleanedPage {
   output_sha256: string;
   generated_at: string;
   /**
-   * Codex P1 follow-up: when set, the cleanup pass did not produce
+   * When set, the cleanup pass did not produce
    * usable cleaned text for this page. Row is still emitted so
    * (card_id, page) coverage in `pages-cleaned.json` keeps the same
    * page sequence as `pages.json` — the UI paginates by array index

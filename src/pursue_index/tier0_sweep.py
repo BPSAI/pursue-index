@@ -1,4 +1,4 @@
-"""Tier-0 sweep of the government's own CSV descriptions (spec §5, PV1.2).
+"""Tier-0 sweep of the government's own CSV descriptions (spec §5).
 
 The releasing agency's description field is the highest-authority provenance
 source available, and it is already ingested in every manifest. When war.gov's
@@ -11,10 +11,10 @@ is fetched or built.
 So this stage reads ``data/manifests/latest.json`` and, for every card whose
 description **asserts** a prior release, FOIA history or declassification,
 emits a :class:`Tier0Claim`. The claim reuses the :class:`ProvenanceTier`
-taxonomy from PV1.1 and preserves the government's wording *verbatim* as its
+taxonomy and preserves the government's wording *verbatim* as its
 evidence — never paraphrased.
 
-Two deliberate restraints, both flowing from PV1.1's doctrine:
+Two deliberate restraints, both flowing from that doctrine:
 
 * **Precision over recall.** A description that merely contains a word like
   "released" (in "never before released") or "previously" (in "previously

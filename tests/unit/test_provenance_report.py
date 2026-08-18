@@ -1,7 +1,7 @@
-"""Provenance coverage report over the full resolution chain (PV1.6).
+"""Provenance coverage report over the full resolution chain.
 
-The report runs PV1.2 (Tier-0 sweep), PV1.3 (era bucketing) and PV1.5
-(identifier resolver) together and answers one question: how much of the
+The report runs the Tier-0 sweep, era bucketing, and the
+identifier resolver together and answers one question: how much of the
 corpus did Phase A resolve, and how? It draws a line the `/methodology` exit
 condition depends on — **cards resolved by a prior-release claim are never
 conflated with cards resolved by era alone**:

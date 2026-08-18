@@ -125,7 +125,7 @@ def _fetch_or_failed(ts: str) -> bytes | Failed:
     """Run the upstream fetch, returning the body or a Failed result.
 
     ``KeyboardInterrupt`` and ``SystemExit`` propagate (they are not
-    poll failures and shouldn't open a real GitHub issue). (nayru P2 #7)
+    poll failures and shouldn't open a real GitHub issue).
     """
     try:
         return fetch_raw_csv()

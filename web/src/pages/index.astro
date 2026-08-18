@@ -10,7 +10,7 @@ const s = summary();
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const fetchedDate = new Date(s.fetchedAt).toISOString().slice(0, 10);
 
-// Sprint 4b Codex-P1 fix: the CardExplorer card grid hydrates from a
+// Fix: the CardExplorer card grid hydrates from a
 // runtime fetch of /data/cards-summary.json — crawlers without JS would
 // see an empty grid. Inject a schema.org ItemList in <head> at SSR
 // time so the canonical card enumeration is in the static HTML
@@ -96,7 +96,7 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
           eye is drawn to the input on first paint. mx-auto + max-w caps the
           width on desktop while letting it go full-bleed on mobile. */}
       <div class="mt-6 sm:mt-8 mx-auto w-full sm:max-w-2xl lg:max-w-3xl">
-        {/* Sprint 2 perf-pass: the homepage hero used to mount the full
+        {/* The homepage hero used to mount the full
             SearchIsland with `client:load`, which fetched the 7.1 MB
             pages.json + built a MiniSearch index of the full page
             corpus on EVERY homepage visit — the LCP-path asset in APAC, the
@@ -161,7 +161,7 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
           </span>
         </h2>
       </header>
-      {/* Sprint 2 perf-pass: was `client:load` — the explorer hydrated
+      {/* Was `client:load` — the explorer hydrated
           eagerly and parsed the 158-card props blob on every visit.
           The card grid lives BELOW the
           fold on mobile (search hero takes the viewport), so
@@ -171,7 +171,7 @@ const ocrPageCountLabel = formatPageCount(RELEASE.ocrPageCount);
           the grid is `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
           with intrinsic li sizing.
 
-          Sprint 4b Theme F: dropped the `cards` prop. CardExplorer
+          Dropped the `cards` prop. CardExplorer
           fetches /data/cards-summary.json on hydration (prebuild
           generates the file from manifest.json). This removes a
           ~440 KB HTML-encoded JSON blob from dist/index.html. The

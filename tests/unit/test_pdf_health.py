@@ -237,7 +237,7 @@ def test_format_fail_replaces_internal_whitespace_with_underscores() -> None:
 def test_format_fail_redacts_cf_ray_substring() -> None:
     """WAF debug headers (cf-ray, x-akamai-*, x-check-cacheable, via:*) can
     contain operator-internal info we don't want in the public Actions
-    log. Redact known patterns before printing. (laverna SEC-002)"""
+    log. Redact known patterns before printing."""
     result = pdf_health.HealthFail(
         url="https://www.war.gov/x.pdf",
         status=403,

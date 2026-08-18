@@ -156,7 +156,7 @@ test("fieldOnlyChanges: a change on one of several identical-key VID rows is pai
   assert.deepEqual(out[0].fields, ["incident_location"]);
 });
 
-// --- T47.4: skip-set semantics (was a 15-field allowlist) ----------------
+// --- skip-set semantics (was a 15-field allowlist) ------------------------
 //
 // The allowlist silently dropped 107 real upstream changes across the
 // corpus history: pdf_pairing (86), video_pairing (17), dvids_video_id
@@ -239,7 +239,7 @@ test("fieldOnlyChanges: dvids_video_id change on a non-keying pair surfaces", ()
   assert.deepEqual(out[0].fields, ["dvids_video_id"]);
 });
 
-// --- absent-vs-null parity with tranche.py (P0, post-T47.4) --------------
+// --- absent-vs-null parity with tranche.py --------------------------------
 //
 // `field_diff` reads both sides with `dict.get()`, so a key that is absent
 // on one side and explicitly `null` on the other compares EQUAL. The
@@ -274,7 +274,7 @@ test("fieldOnlyChanges: a field absent on prev and given a real value on curr is
   assert.deepEqual(out[0].fields, ["original_classification"]);
 });
 
-// --- locally-curated fields are not upstream change (P0, post-T47.4) -----
+// --- locally-curated fields are not upstream change -----------------------
 //
 // /diff describes what war.gov edited. The display_date_* family and
 // `manifest_incident_date_raw` are written by OUR curation pipeline, so a

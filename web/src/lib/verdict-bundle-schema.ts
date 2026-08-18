@@ -4,7 +4,7 @@
  * Kept separate from ``verdict-bundle.ts`` (which imports the actual
  * JSON for Astro's build-time consumption) so Node's native test
  * runner can exercise the gate logic without needing JSON import
- * attributes. Vaivora PR #79 round-2 P1-2 — the gate has to be
+ * attributes. PR #79 — the gate has to be
  * testable in isolation so the contract is verifiable independently
  * of any committed bundle.
  *
@@ -18,7 +18,7 @@ export const EXPECTED_VERDICT_SCHEMA = 2;
 
 /**
  * Single source of truth for the v2 category vocabulary across the
- * web consumer. Vaivora PR #79 round-5 P1 #1: previously duplicated
+ * web consumer. PR #79: previously duplicated
  * in byte-display.ts's `VALID_V2_CATEGORIES`; the two lists had to
  * be updated in lockstep when curate added a category, otherwise
  * the render-gate and the schema-gate could drift independently.
@@ -50,8 +50,8 @@ export function assertBundleSchema(bundle: {
       `in web/src/lib/verdict-bundle-schema.ts.`,
     );
   }
-  // Vaivora PR #79 round-3 P2 #4: gate the per-verdict schema too.
-  // The two dimensions can drift independently (vaivora PR #3 P2
+  // PR #79: gate the per-verdict schema too.
+  // The two dimensions can drift independently (PR #3
   // in pursue-curate); a future curate change that bumps only the
   // inner schema (e.g., a new mandatory per-verdict field) would
   // otherwise slip through the bundle-version gate.
@@ -88,7 +88,7 @@ type VerdictRecordForStats = { category?: string };
 /**
  * Build-time sanity that bundle.stats hasn't drifted from the actual
  * shape of bundle.verdicts. Cheap belt over the schema-version gate
- * — Vaivora PR #79 round-3 P2 #5 + Nayru round-4 P2 #4: pill counts
+ * — pill counts
  * re-derive from rendered rows so stats isn't load-bearing in our
  * consumer, but the bundle is the public contract for external
  * consumers and a curate-side serializer bug that miscounts could
@@ -100,7 +100,7 @@ type VerdictRecordForStats = { category?: string };
  * keys (confirmed_content_change / false_positive / unsure /
  * pending) are emitted by curate-side publish.py as a backcompat
  * bridge and gated upstream there — INTENTIONALLY NOT re-checked
- * here. Nayru PR #79 round-6 P2 #1 + Vaivora P2 #1: the v1 keys
+ * here. The v1 keys
  * exist for downstream consumers that haven't migrated to keying
  * on category. They'll be dropped from the bundle when curate
  * bumps to the next major (per the one-cycle policy in
@@ -157,7 +157,7 @@ export function assertBundleStatsConsistent(bundle: {
       `in more than one category bucket — curate publish.py drift.`,
     );
   }
-  // Vaivora PR #79 round-5 P1 #2: close the closed-vocab contract.
+  // Close the closed-vocab contract.
   // The bundle and the consumer agree that `category` is in the v2
   // vocabulary; any value outside it indicates curate added a
   // category without bumping verdict_schema_version. Catch it here
@@ -182,7 +182,7 @@ export function assertBundleStatsConsistent(bundle: {
       `curate web UI.`,
     );
   }
-  // Vaivora PR #79 round-5 P1 #3: gate stats.unverified the same as
+  // Gate stats.unverified the same as
   // the categorical counters. Today the bundle ships
   // stats.unverified for cards in queue without a verdict (curate-
   // side semantic). External consumers reading the bundle directly

@@ -10,7 +10,7 @@
  *      fuzzy/prefix/boost is caught here, not in the browser. The override
  *      hook is what keeps atlas (different doc shape, narrower storeFields)
  *      structurally locked to the same boost/prefix/no-fuzzy policy as
- *      /search — vaivora P0 on PR #29.
+ *      /search (PR #29).
  *   2. `highlightSegments` — thin wrapper over `splitWithRegex` for use in
  *      JSX (title and snippet both go through it). Re-exported so the call
  *      site has one import for "render this string with highlights".
@@ -52,7 +52,7 @@ export interface SearchIndexOverrides {
  *     only loosely matched). Both /search and /atlas drop it — the shared
  *     factory is what keeps that guarantee structurally locked across
  *     surfaces, replacing the prior "must stay in lockstep" comment-only
- *     contract that PR #29 reviewers (vaivora P0) flagged as drift-prone.
+ *     contract that PR #29 review flagged as drift-prone.
  *
  * The factory only manages *construction* options. Per-search options
  * (e.g. `combineWith: "AND"`) stay at the call site where the query lives.

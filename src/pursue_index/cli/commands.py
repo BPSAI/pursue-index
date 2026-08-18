@@ -102,7 +102,7 @@ def scrape_run_cmd(
 # download + ocr
 # ---------------------------------------------------------------------------
 # Split into ``download_ocr_cli.py`` (same rationale as embed_app/ops_app) to
-# keep this module slim; that module also owns the T6.5 ``--worklist`` scoping.
+# keep this module slim; that module also owns the ``--worklist`` scoping.
 from pursue_index.cli.download_ocr_cli import download_app, ocr_app  # noqa: E402
 
 app.add_typer(download_app)

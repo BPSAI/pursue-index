@@ -20,7 +20,7 @@ const photoPdfIds = (photoCardIds as { card_ids: string[] }).card_ids;
 // scripts/build_pdf_thumbs.py); when no thumbnail exists yet the
 // PDF tile falls back to a generic document placeholder.
 //
-// Deduplicate by card_id (vaivora P0): the manifest contains 158 rows
+// Deduplicate by card_id: the manifest contains 158 rows
 // but only ~146 unique card_ids — PR-series videos share the parent
 // MISREP's content-addressed card_id (e.g., PR26+PR27 collide on
 // d8e5687dc870892d for D23, PR31+PR32+PR33 on ea029a05470b8f4e for
@@ -29,7 +29,7 @@ const photoPdfIds = (photoCardIds as { card_ids: string[] }).card_ids;
 // First-row-wins matches the video-poster extractor's behavior.
 const _seenCardIds = new Set<string>();
 const galleryCards = manifest.cards.filter((c) => {
-  // Sprint 4f: AUD added to the allow-list — GalleryIsland's VIDEOS
+  // AUD added to the allow-list — GalleryIsland's VIDEOS
   // lane predicate unions VID and AUD, but a card has to pass this
   // page-level filter first to reach the island. Without this, AUD
   // cards are invisible on /gallery despite all the AUD wiring in

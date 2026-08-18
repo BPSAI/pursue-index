@@ -1,8 +1,8 @@
-"""``pursue ingest run --from-diff`` work-list export + scoped-stage driver (T6.6).
+"""``pursue ingest run --from-diff`` work-list export + scoped-stage driver.
 
 The operator's one-command path after a ``needs-review`` tranche clears the
 gate: turn the tranche-diff into the scoped card-set, show it (``--dry-run``)
-or run it (download -> ocr -> embed via the T6.5 ``--worklist`` path).
+or run it (download -> ocr -> embed via the ``--worklist`` path).
 
 Work-list contents: the union of ``summarize_ingest_work``'s
 ``needs_download`` / ``needs_ocr`` / ``needs_embed`` lists, de-duplicated with
@@ -10,7 +10,7 @@ first-seen order preserved. Those three lists are the same Class-B set today
 (each stage depends on the prior stage's output for the same new-asset cards),
 but unioning is forward-safe if they ever diverge -- and each scoped executor
 already skips-if-exists internally, so a superset work-list is harmless. The
-file format is the plain ``card_id``-per-line contract the T6.5 executors read.
+file format is the plain ``card_id``-per-line contract the executors read.
 """
 
 from __future__ import annotations
@@ -55,7 +55,7 @@ def run_scoped_stages(
     concurrency: int | None = None,
     cost_cap_usd: float | None = None,
 ) -> None:
-    """Drive download -> ocr -> embed scoped to ``worklist`` (T6.5 executors).
+    """Drive download -> ocr -> embed scoped to ``worklist``.
 
     Calls the executor functions directly (rather than shelling out) so the
     real ``--worklist`` subsetting runs and the deep stage functions remain
@@ -94,7 +94,7 @@ def run_scoped_stages(
 
 
 def _enforce_ocr_preflight(engine: str | None, concurrency: int | None) -> None:
-    """Verify-before-spend gate for the ``--from-diff`` spend path (Codex #101 P2).
+    """Verify-before-spend gate for the ``--from-diff`` spend path.
 
     The scoped OCR stage below is a real spend. Before it runs we consult the
     same ``preflight_ocr`` guard the ``/ship-tranche`` command uses, resolving
@@ -142,9 +142,9 @@ def execute_from_diff(
 
     A metadata-only tranche runs nothing. ``--dry-run`` still MATERIALIZES the
     work-list file (credential-free, no spend) so a separately-invoked OCR step
-    gets the right card set — the ``/ship-tranche`` flow relies on this (Codex
-    #101 P1). The non-dry spend path first enforces the ``preflight_ocr``
-    verify-before-spend gate (Codex #101 P2). ``cost_cap_usd`` overrides the
+    gets the right card set — the ``/ship-tranche`` flow relies on this. The
+    non-dry spend path first enforces the ``preflight_ocr``
+    verify-before-spend gate. ``cost_cap_usd`` overrides the
     embed cost cap.
     """
     card_ids = scoped_card_ids(summary)

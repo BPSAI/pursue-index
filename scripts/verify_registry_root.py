@@ -1,6 +1,6 @@
 """Verify ``data/registry-root.txt`` matches the current registry.
 
-Sprint 4e Phase 2 (per
+Phase 2 (per
 ``pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md``
 §5.1 #2).
 
@@ -99,7 +99,7 @@ def _report_divergence(
     """Walk the two leaf lists and surface the first divergent index +
     row counts. Side-effects: ``print()`` only.
 
-    Catches malformed signed-source bytes (nayru M1.2) — `git show
+    Catches malformed signed-source bytes — `git show
     <tag>:...` output can be partially truncated by a network blip
     or a buggy redirect. Don't crash; degrade to "row counts only"
     with a clear warning.
@@ -165,9 +165,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         recomputed, row_count, first_ts, last_ts = compute_registry_root(args.registry)
     except FileNotFoundError:
-        # nayru M1.1: missing registry file gets a stack trace today.
-        # Surface as an actionable ::error:: instead so the operator
-        # can fix --registry pathing without parsing a traceback.
+        # A missing registry file gets a stack trace today. Surface
+        # as an actionable ::error:: instead so the operator can fix
+        # --registry pathing without parsing a traceback.
         print(
             f"::error::registry file not found at {args.registry};"
             " check --registry path"

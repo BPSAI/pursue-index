@@ -91,7 +91,7 @@ def test_commit_step_rebases_before_push() -> None:
 
 
 def test_commit_step_rebases_before_staging() -> None:
-    """Codex re-review P1 (2026-05-17): rebase before stage.
+    """Rebase before stage (2026-05-17).
 
     Git refuses to rebase with an uncommitted index — ``cannot pull
     with rebase: Your index contains uncommitted changes``. The
@@ -109,7 +109,7 @@ def test_commit_step_rebases_before_staging() -> None:
     assert rebase_idx >= 0, "expected `git pull --rebase` in commit step"
     assert add_idx >= 0, "expected `git add` in commit step"
     assert rebase_idx < add_idx, (
-        "Codex P1: `git pull --rebase` must precede `git add` so the "
+        "`git pull --rebase` must precede `git add` so the "
         "rebase runs on a clean index (git refuses rebase with staged "
         "changes)"
     )
@@ -118,7 +118,7 @@ def test_commit_step_rebases_before_staging() -> None:
 def test_commit_step_guards_against_missing_history_file() -> None:
     """Hotfix 2026-05-17: guard `git add` on missing history file.
 
-    The first real run of the workflow (Sprint 4a merge 21886ca)
+    The first real run of the workflow (merge 21886ca)
     failed with ``fatal: pathspec 'data/wayback-history.json' did not
     match any files`` because the sitemap fetch was 403'd by CF (UA
     blocked) — wayback_save.py exits 0 with no history file created,
@@ -148,7 +148,7 @@ def test_commit_step_guards_against_missing_history_file() -> None:
 
 
 def test_triggers_are_release_cron_and_dispatch_only() -> None:
-    """Sprint 4c cadence change (2026-05-17): no push trigger.
+    """Cadence change (2026-05-17): no push trigger.
 
     Operator removed the per-push trigger because Wayback's actual
     wall-clock is 30-90 min per run (Wayback's save endpoint takes
@@ -187,7 +187,7 @@ def test_triggers_are_release_cron_and_dispatch_only() -> None:
 
     # Regression guard: no per-push trigger
     assert "push" not in on_block, (
-        "Sprint 4c removed the `push` trigger to bound GHA minute cost; "
+        "The `push` trigger was removed to bound GHA minute cost; "
         "do not re-introduce without reading the cadence-change rationale "
         "in the workflow file's header comment"
     )

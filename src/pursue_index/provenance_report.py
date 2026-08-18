@@ -1,7 +1,7 @@
-"""Provenance coverage report over the full resolution chain (spec §5, PV1.6).
+"""Provenance coverage report over the full resolution chain (spec §5).
 
-Phase A resolves the corpus with three stages: PV1.2's Tier-0 sweep of the
-government's own descriptions, PV1.3's era bucketing, and PV1.5's identifier
+Phase A resolves the corpus with three stages: the Tier-0 sweep of the
+government's own descriptions, era bucketing, and the identifier
 resolver. This module runs all three over a manifest and reports *coverage* —
 how many of the cards each route resolved — so the `/methodology` exit
 condition can be judged: did Phase A answer enough of the corpus, or is the

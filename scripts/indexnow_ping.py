@@ -1,6 +1,6 @@
 """Submit pursue-index URLs to IndexNow.
 
-Sprint 4b Theme B. After every CF Workers Builds deploy that touches a
+After every CF Workers Builds deploy that touches a
 render-affecting path, this script POSTs the live sitemap URLs to
 ``https://api.indexnow.org/indexnow`` so Bing / Yandex (and ChatGPT-
 search via Bing) discover changes within minutes instead of days.
@@ -36,8 +36,8 @@ Key source resolution order:
   3. None → graceful exit 0 with a one-line message; operator hasn't
      generated the key yet.
 
-The key is not really secret in the SEC-001 sense — it ships publicly
-at ``/{key}.txt`` for ownership verification, and possession of the key
+The key is not really secret in the sense that matters — it ships
+publicly at ``/{key}.txt`` for ownership verification, and possession of the key
 only lets a holder push that URL list to that exact host (no read or
 write access to anything else). But we still keep it out of the repo
 because rotating it requires re-uploading the ownership file too, and
@@ -77,7 +77,7 @@ the key, IndexNow verifies ownership, and the workflow's post-deploy
 ping starts populating Bing / Yandex / ChatGPT-search within minutes
 of each tranche update. Spec at ``https://www.indexnow.org/documentation``.
 
-Sprint 4b fix-pass (nayru P2#5) moved this runbook here from a
+A fix-pass moved this runbook here from a
 ``web/public/indexnow-placeholder.txt`` stub. The stub had to ship at a
 public URL to exist; serving "no key set" page-content to crawlers
 was the wrong public posture even pre-launch.
@@ -158,7 +158,7 @@ def resolve_key(file_path: Path | None) -> str | None:
     secret is injected via ``secrets.INDEXNOW_KEY``). Falls back to a
     local gitignored file at ``file_path``. None → graceful exit.
 
-    Whitespace-only sources are treated as "no key set" (nayru P1#2):
+    Whitespace-only sources are treated as "no key set":
     stripping AFTER the truthiness check used to return ``""`` from a
     misconfigured CI secret containing only newline padding, which
     silently POSTed an empty key to IndexNow and failed verification

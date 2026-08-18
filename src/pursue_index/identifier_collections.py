@@ -1,4 +1,4 @@
-"""Which archive a card identifier can be looked for in (spec §6, PV1.5).
+"""Which archive a card identifier can be looked for in (spec §6).
 
 An identifier is a name only inside the numbering system that issued it. Two of
 the families this pipeline resolves are bare numbers — a Project Blue Book case

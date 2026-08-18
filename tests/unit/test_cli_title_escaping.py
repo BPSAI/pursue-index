@@ -1,4 +1,4 @@
-"""Console sinks render corpus text as the characters it contains (PV1.6).
+"""Console sinks render corpus text as the characters it contains.
 
 Card titles, agencies and identifiers are the government's own CSV text, and a
 console is asked to *print* them, not to act on them. Two layers of a terminal

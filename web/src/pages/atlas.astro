@@ -54,7 +54,7 @@ const canvasLongSummary = `2D semantic projection of ${s.total.toLocaleString()}
       ``atlas-layout.json`` ~340 KB + ``pages.json`` ~7 MB) to when the
       user actually scrolls the canvas into view. The canvas typically
       sits below the hero on mobile, so paying for a ~7 MB hydration on
-      initial paint was wasted bandwidth (nayru #8).
+      initial paint was wasted bandwidth.
 
       A11y: the WebGL canvas is opaque to screen readers by design.
       We provide a programmatic summary via the .sr-only paragraph

@@ -242,10 +242,10 @@ test("speakableJsonLd requires at least one selector (defensive)", () => {
 
 // ---------------- ItemList (crawler-visible card enumeration) ----------------
 //
-// Sprint 4b Codex P1: the homepage dropped its inline cards prop to cut
+// The homepage dropped its inline cards prop to cut
 // DOM size from 695 KB → 26 KB, and CardExplorer now fetches
 // /data/cards-summary.json at runtime. AI crawlers + search engines
-// without JS execution would see EMPTY cards — regressing the Sprint 1
+// without JS execution would see EMPTY cards — regressing the earlier
 // GEO win. ItemList JSON-LD enumerates card_id + title + canonical URL
 // at SSR time so crawlers parse the structured-data block as the
 // canonical card enumeration. Users still get the runtime-fetched grid.

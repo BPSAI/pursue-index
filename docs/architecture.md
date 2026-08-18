@@ -4,7 +4,7 @@
 
 1. Build a complete, searchable index of every PURSUE entry released by DOW.
 2. Re-run incrementally as new tranches drop. The DOW publishes a single CSV that gets updated in place; we snapshot it on each run and diff against prior snapshots.
-3. Make every stage independently runnable and assertable — PairCoder will enforce stage contracts.
+3. Make every stage independently runnable and assertable — automated tooling enforces stage contracts.
 4. Keep the data layer separate from the code: PDFs, images, video, OCR artifacts, and CSV archives all live on the NAS. The repo carries code, manifest JSON, and DB schema.
 
 ## Data source
@@ -186,8 +186,8 @@ preference:
    CF Workers Builds was confirmed reliably triggering on push, since
    running both paths on every push doubled the Version IDs in the
    Cloudflare Versions list and doubled the `deploy-failure` issue
-   noise for no functional gain (vaivora flagged the dual-pipeline
-   concurrency caveat in PR #18 review). Run it from the Actions UI
+   noise for no functional gain (the dual-pipeline concurrency
+   caveat was flagged in the PR #18 review). Run it from the Actions UI
    ("Run workflow") whenever the dashboard pipeline stalls. On
    failure it opens or updates a `deploy-failure` issue keyed off the
    run URL; with auto-firing disabled, an open issue persists until
@@ -209,7 +209,7 @@ fallback deploy uses. With the deploy workflow flipped to manual-only
 a rotated-but-not-updated token would otherwise sit broken until the
 next manual deploy attempt. The health check opens or updates a
 `cf-token-health-failure` issue on probe failure, mirroring the
-`deploy-failure` issue pattern. Recommended by laverna in the PR #24
+`deploy-failure` issue pattern. Recommended in the PR #24
 security review.
 
 ### /api/* dispatch contract

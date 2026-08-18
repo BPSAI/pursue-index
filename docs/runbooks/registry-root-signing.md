@@ -1,6 +1,6 @@
 # Operator runbook — registry-root signing
 
-Sprint 4e tier-2 signing layer. Read alongside
+Tier-2 signing layer. Read alongside
 `pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md`.
 
 ## What this is
@@ -39,7 +39,7 @@ Three previous trust-anchor designs were rejected:
 2. **`gh api .verification.verified`** — only confirms "valid
    signature against ANY GitHub-registered Signing key". A
    repo:write attacker with their *own* registered Signing key
-   passes this check (Codex P1 #3, PR #68).
+   passes this check (PR #68).
 3. **Pubkey fetched from `https://github.com/<owner>.keys`** —
    same hole as (2) if the attacker is a collaborator.
 
@@ -205,7 +205,7 @@ The bumped registry and the root file are not in sync. Three paths:
    `python scripts/registry_root.py`. Re-run it, commit the
    freshly-bumped root file, and push.
 2. **A bot writer landed a registry row without refreshing the
-   root.** This should not happen after Sprint 4e — both
+   root.** This should not happen — both
    `poll-pursue.yml` and `verify-assets-daily.yml` commit steps
    now run `registry_root.py` before staging. But if a future PR
    introduces a third registry writer that misses this step, this

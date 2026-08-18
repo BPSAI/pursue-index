@@ -1,4 +1,4 @@
-// Tests for build_cards_summary.mjs — the Sprint 4b Theme F prebuild
+// Tests for build_cards_summary.mjs — the prebuild
 // that emits web/public/data/cards-summary.json for CardExplorer's
 // runtime fetch.
 //
@@ -99,7 +99,7 @@ test("preserves null fields rather than coercing to undefined", () => {
 });
 
 test("aborts with non-zero exit when manifest.cards is not an array", () => {
-  // nayru P1#5: schema sanity. A malformed manifest (e.g. cards
+  // Schema sanity. A malformed manifest (e.g. cards
   // somehow serialized as an object or null) must produce a clear,
   // immediate failure rather than ``TypeError: ... map is not a
   // function`` deep in slimCard. We exercise the script via

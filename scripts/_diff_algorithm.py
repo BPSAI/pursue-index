@@ -14,13 +14,13 @@ import re
 _SENTENCE_SPLITTER = re.compile(r"(?<=[.!?])\s+")
 _WORD_RE = re.compile(r"\b\w+\b")
 
-# Sprint 4k-D: when a SequenceMatcher "replace" op pairs sentences
-# whose character-level similarity exceeds this ratio, collapse the
-# pair to a single ``modified`` segment instead of removed+added.
-# Catches in-place edits (single redaction marker inserted, typo fix,
+# When a SequenceMatcher "replace" op pairs sentences whose
+# character-level similarity exceeds this ratio, collapse the pair
+# to a single ``modified`` segment instead of removed+added. Catches
+# in-place edits (single redaction marker inserted, typo fix,
 # punctuation tweak) without losing the "this sentence changed" signal.
-# Threshold tuned against the Sprint 4j corpus: 0.85 keeps real edits
-# distinct while collapsing OCR-drift-style near-matches.
+# Threshold tuned against the corpus: 0.85 keeps real edits distinct
+# while collapsing OCR-drift-style near-matches.
 _MODIFIED_SIMILARITY_THRESHOLD = 0.85
 
 
@@ -52,8 +52,8 @@ def _emit_replace(
     survives.
 
     The pairing is positional within the slice. Longer side's leftovers
-    fall back to wholesale removed/added (Sprint 4k-D — see threshold
-    docstring at module top)."""
+    fall back to wholesale removed/added (see threshold docstring at
+    module top)."""
     pair_count = min(len(pre_slice), len(post_slice))
     for k in range(pair_count):
         ratio = difflib.SequenceMatcher(

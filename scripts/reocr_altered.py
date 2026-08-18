@@ -1,8 +1,8 @@
-"""OCR the post-edit byte versions for the 70 multi-sha PDF cards
-(Sprint 4h Phase 1).
+"""OCR the post-edit byte versions for the 70 multi-sha PDF cards.
 
-Background: Sprint 4g exposed 79 cards whose upstream bytes were
-silently re-published under the same card_ids (mostly 2026-05-14).
+Background: an earlier audit pass exposed 79 cards whose upstream
+bytes were silently re-published under the same card_ids (mostly
+2026-05-14).
 The /altered table + per-card banners + /archive/<sha>.<ext> route
 make the preserved bytes reachable, but visitors still have to
 compare PDFs manually to see what changed.
@@ -29,7 +29,7 @@ Idempotent + resumable: re-running the script skips cards whose
 mid-card from the highest page number recorded so far. Operator can
 interrupt and resume without re-spending on completed pages.
 
-Cost-capped: ``--max-spend-usd`` (default $90 per state.md Sprint 6.2
+Cost-capped: ``--max-spend-usd`` (default $90 per the planned budget
 envelope) raises ``CostCapExceededError`` mid-run so a budget overrun
 fails loud rather than silently consuming the cap.
 
@@ -149,13 +149,13 @@ def ocr_card(
     pages_jsonl = out_dir / card_id / "pages.jsonl"
     pdf_bytes = _r2_fetch_pdf(r2_client, target["archive_key"])
     images = rasterize(pdf_bytes)
-    # Codex PR #72 P1: repair any torn-write prefix BEFORE resuming,
-    # otherwise resume_from_page returns 1 forever and we re-spend the
-    # full per-card budget on every rerun.
+    # Repair any torn-write prefix BEFORE resuming, otherwise
+    # resume_from_page returns 1 forever and we re-spend the full
+    # per-card budget on every rerun.
     start_page = truncate_jsonl_to_valid_prefix(pages_jsonl)
     if start_page > len(images):
-        # nayru M2: not silent — could mask a PDF that truncated
-        # upstream after we last OCR'd it.
+        # Not silent — could mask a PDF that truncated upstream
+        # after we last OCR'd it.
         print(
             f"::notice::card {card_id} already complete"
             f" ({start_page - 1} pages on disk, {len(images)} rendered)"
@@ -195,8 +195,8 @@ def _build_real_dependencies(cost_cap_usd: float) -> tuple[Any, Callable, Callab
 
     def ocr_image(img: Any) -> tuple:
         # Use the with-usage variant so the tracker sees real SDK
-        # numbers (Sprint 4i #4 — replaces the hardcoded 1500/600
-        # estimate that under-counted by ~21% on the Sprint 4h run).
+        # numbers — replaces the hardcoded 1500/600 estimate that
+        # under-counted by ~21% on the canonical OCR run.
         # Cache hits return zero-usage, so tracker never double-counts.
         text, confidence, usage = pursue_ocr_llm.ocr_image_with_usage(img)
         tracker.add(

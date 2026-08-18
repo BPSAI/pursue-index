@@ -1,4 +1,4 @@
-"""Courteous sitemap fetcher + XML parsing (PV1.4).
+"""Courteous sitemap fetcher + XML parsing.
 
 The source catalogue is enumerated from the sitemap indexes published via
 ``documents3.theblackvault.com/robots.txt``. This module is the only thing that

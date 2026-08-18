@@ -5,7 +5,7 @@
  * can be unit-tested without spinning up Astro. The builder takes the
  * site origin + a sitemap URL and returns the textual robots.txt body.
  *
- * Sprint 1.1 (2026-05-17) — replaced the single allow-all AI_CRAWLERS
+ * (2026-05-17) — replaced the single allow-all AI_CRAWLERS
  * list with a typed Allow/Block split that mirrors the operator's
  * stated policy: surface our content (search bots, user-fetchers,
  * archivers) is Allow; training-data ingestion (LLM pretraining
@@ -188,7 +188,7 @@ test("critical surface bots are in AI_ALLOW", () => {
 // --- Rendered output --------------------------------------------------
 
 test("buildRobotsTxt emits a Disallow / block for every NON-CF-managed AI_BLOCK entry", () => {
-  // Sprint 4a (2026-05-17): bots in CF_MANAGED_BOTS are intentionally
+  // (2026-05-17): bots in CF_MANAGED_BOTS are intentionally
   // filtered out of the rendered body to avoid duplicate User-agent
   // lines with CF's Managed robots.txt. The rendered body must still
   // emit Disallow blocks for the non-overlap set (PanguBot, TikTok
@@ -241,7 +241,7 @@ test("buildRobotsTxt orders AI_BLOCK entries before AI_ALLOW entries", () => {
   // blocks first means a training crawler reading top-down hits its
   // own rule before hitting any other Allow rule. The first BLOCK
   // entry we render is the first non-CF-managed bot (CF Managed bots
-  // are filtered out at render time per Sprint 4a).
+  // are filtered out at render time).
   const body = buildRobotsTxt({ siteOrigin: "https://pursueindex.com" });
   const cfSet = new Set(CF_MANAGED_BOTS.map((n) => n.toLowerCase()));
   const firstRenderedBlock = AI_BLOCK.find((n) => !cfSet.has(n.toLowerCase()));
@@ -256,9 +256,9 @@ test("buildRobotsTxt orders AI_BLOCK entries before AI_ALLOW entries", () => {
 });
 
 test("buildRobotsTxt distinguishes Allow/Disallow correctly for paired bot families", () => {
-  // The whole point of Sprint 1.1: a vendor's user bot and its
+  // The whole point of the Allow/Block split: a vendor's user bot and its
   // training bot must end up on opposite sides of the policy. Spot
-  // check the pairs that survive Sprint 4a's CF-managed dedupe.
+  // check the pairs that survive the CF-managed dedupe.
   // Disallow-side pairs whose training bot is in CF_MANAGED_BOTS
   // (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended,
   // Amazonbot, Meta-ExternalAgent) are now handled by CF Managed
@@ -292,7 +292,7 @@ test("buildRobotsTxt distinguishes Allow/Disallow correctly for paired bot famil
 });
 
 test("buildRobotsTxt no longer emits a wildcard or /api/ Disallow (CF Managed handles them)", () => {
-  // Sprint 4a (2026-05-17): the wildcard `User-agent: *` block and
+  // (2026-05-17): the wildcard `User-agent: *` block and
   // its `Disallow: /api/` directive were duplicates of CF Managed's
   // canonical wildcard. Removed; CF Managed is now the source-of-
   // truth wildcard. /api/ remains protected by worker routing.
@@ -325,7 +325,7 @@ test("buildRobotsTxt accepts a custom siteOrigin", () => {
 });
 
 test("buildRobotsTxt issues exactly one Allow/Disallow rule per emitted bot", () => {
-  // Sprint 4a (2026-05-17): wildcard removed; rendered counts are:
+  // (2026-05-17): wildcard removed; rendered counts are:
   //   Allow: /     = AI_ALLOW.length     (no wildcard Allow)
   //   Disallow: /  = effectiveBlockList  (CF-managed bots filtered out)
   //   Disallow: /api/ = 0                (CF Managed renders the wildcard)
@@ -354,7 +354,7 @@ test("buildRobotsTxt issues exactly one Allow/Disallow rule per emitted bot", ()
   );
 });
 
-// --- Sprint 4a B4: CF-managed dedupe ---------------------------------
+// --- CF-managed dedupe -------------------------------------------------
 //
 // Cloudflare's Managed robots.txt prepends a Disallow for a set of
 // well-known AI/training bots. View-source on
@@ -362,7 +362,7 @@ test("buildRobotsTxt issues exactly one Allow/Disallow rule per emitted bot", ()
 // duplicated 8 of those entries (GPTBot, ClaudeBot, Google-Extended,
 // CCBot, Bytespider, Applebot-Extended, Amazonbot, wildcard *).
 // RFC 9309 first-match wins so the duplicates were functionally a
-// no-op, but Lighthouse SEO flagged them. The Sprint 4a change drops
+// no-op, but Lighthouse SEO flagged them. The dedupe change drops
 // the bots in CF_MANAGED_BOTS from OUR rendered AI_BLOCK so the
 // rendered robots.txt is free of duplicates.
 
@@ -437,7 +437,7 @@ test("rendered robots.txt still contains non-CF-managed AI_BLOCK bots", () => {
 });
 
 test("AI_ALLOW survives the CF_MANAGED_BOTS filter (filter applies to AI_BLOCK only)", () => {
-  // Sprint 4a fix-pass (nayru coverage gap): if a vendor's user/search
+  // fix-pass: if a vendor's user/search
   // bot is later added to CF_MANAGED_BOTS (e.g., CF expands to also
   // disallow `Applebot` or `Bingbot` upstream), the AI_ALLOW Allow
   // block must remain rendered — CF Managed disallows-by-default, so
@@ -477,7 +477,7 @@ test("AI_ALLOW survives the CF_MANAGED_BOTS filter (filter applies to AI_BLOCK o
 
 test("rendered robots.txt no longer contains the wildcard User-agent: * block", () => {
   // CF Managed renders the canonical wildcard with Allow: / and
-  // Content-Signal directives; our wildcard duplicated it. Sprint 4a
+  // Content-Signal directives; our wildcard duplicated it. This change
   // removes ours entirely. /api/ remains protected by CF's wildcard
   // semantics (RFC 9309 first-match) — if the operator later wants
   // an explicit /api/ Disallow, it must be carried by a NAMED

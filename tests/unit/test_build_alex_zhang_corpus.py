@@ -5,7 +5,7 @@ needs ``huggingface_hub`` + ``pyarrow`` which are not core deps. The
 tests below import the module via ``importlib`` so they can run on a
 core install: only the constants and the ``main()`` flow are exercised.
 
-Per laverna SEC-003, the script must hardcode the pinned HF revision
+Per SEC-003, the script must hardcode the pinned HF revision
 and refuse to silently ingest a different upstream HEAD.
 """
 
@@ -77,7 +77,7 @@ def test_script_declares_pinned_revision_constant(
     """A ``PINNED_REVISION`` constant must exist and match the committed
     ``data/external/alex-zhang42-corpus.revision`` sidecar.
 
-    Per laverna SEC-003: the revision lives in code, not just in a
+    Per SEC-003: the revision lives in code, not just in a
     sidecar that a re-run could silently overwrite.
     """
     _stub_hf_modules(monkeypatch, head_sha="anything")

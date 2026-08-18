@@ -1,7 +1,7 @@
-"""Tests for the ``scripts/poll_snapshot.py`` CLI shell (T6.4).
+"""Tests for the ``scripts/poll_snapshot.py`` CLI shell.
 
 The shell wraps ``generate_snapshot_diff`` for the credential-free GH
-Actions snapshot job. T6.4 adds a diff+verdict JSON artifact: on a detected
+Actions snapshot job, adding a diff+verdict JSON artifact: on a detected
 change the script must persist (verdict + added/removed/field-change counts +
 new column names) keyed by new_sha, so the snapshot job can commit it and the
 gh-comment step can read the verdict back.

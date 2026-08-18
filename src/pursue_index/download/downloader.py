@@ -59,7 +59,7 @@ def asset_path_for(card: CardMetadata) -> Path | None:
         null asset_url today).
       * No ``asset_filename``.
       * Unknown ``asset_type`` (AUD without a configured download
-        target — Sprint 4f). ``.get()`` instead of ``[]`` so a future
+        target). ``.get()`` instead of ``[]`` so a future
         asset type that lands upstream without a corresponding
         settings entry fails-closed (skipped) rather than KeyErroring
         through the pipeline.

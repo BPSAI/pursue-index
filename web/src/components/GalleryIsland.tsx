@@ -43,7 +43,7 @@ function buildFilters(photoPdfIds: ReadonlySet<string>): {
       key: "image", label: "IMAGES",
       predicate: (c) => c.asset_type === "IMG" || photoPdfIds.has(c.card_id),
     },
-    // Sprint 4f: AUD lumped with VID under "VIDEOS" lane — both are
+    // AUD is lumped with VID under "VIDEOS" lane — both are
     // DVIDS-hosted, no asset_url, no thumb. A separate "AUDIO" lane
     // would be UI noise at N=1 today; revisit if upstream adds more
     // audio cards.
@@ -107,7 +107,7 @@ function GalleryTile({
   thumbUrl: string | null;
 }) {
   const isImage = card.asset_type === "IMG";
-  // Sprint 4f: VID and AUD both render through the no-poster
+  // VID and AUD both render through the no-poster
   // DVIDS-embed shape since DVIDS-hosted audio doesn't ship a poster
   // image. ``isVideo`` keeps its name for diff-readability; the tile
   // label below uses ``card.asset_type`` so AUD shows up as AUD.
@@ -308,7 +308,7 @@ export default function GalleryIsland({ cards, base, photoPdfIds = [] }: Props) 
       // surfaces. Without this, the badge would say "14" but clicking
       // through would render 40 tiles — user-confusing.
       if (c.asset_type === "IMG" || photoPdfSet.has(c.card_id)) out.image += 1;
-      // Sprint 4f: AUD counts toward the VIDEOS lane (DVIDS-hosted,
+      // AUD counts toward the VIDEOS lane (DVIDS-hosted,
       // no asset_url, mirrors VID behavior).
       if (c.asset_type === "VID" || c.asset_type === "AUD") out.video += 1;
       if (c.asset_type === "PDF") out.document += 1;

@@ -59,7 +59,7 @@ test("ocrPageCount is a positive integer (build-time corpus stat)", () => {
 });
 
 test("cleanedPageCount is a positive integer and ≤ ocrPageCount", () => {
-  // Sprint 4b Theme E2: cleanedPageCount is the number of OCR'd
+  // cleanedPageCount is the number of OCR'd
   // pages that the LLM-cleanup pass produced usable cleaned text for.
   // Always ≤ ocrPageCount because some pages skip cleaning
   // (content_filter, refusal, etc.).

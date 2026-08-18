@@ -30,9 +30,9 @@ from pursue_index.clean.prompt import (
 log = get_logger(__name__)
 
 
-# Length-divergence guard (nayru P1 / laverna SEC-001): cleaned output
-# outside [0.2x, 2.0x] of the raw input is implausible for "fix OCR
-# errors only" — refusal / preamble leak / silent drop. Fall back to raw.
+# Length-divergence guard: cleaned output outside [0.2x, 2.0x] of the raw
+# input is implausible for "fix OCR errors only" — refusal / preamble
+# leak / silent drop. Fall back to raw.
 _LENGTH_RATIO_MIN = 0.2
 _LENGTH_RATIO_MAX = 2.0
 
@@ -44,12 +44,11 @@ class BudgetExceededError(RuntimeError):
     is appended row-by-row, so the next ``run_card`` call resumes cleanly
     via the idempotency check).
 
-    Codex P1 follow-up: carries ``partial_cost_usd`` (the spend on the
-    in-progress card before the cap tripped), ``card_id``, and
-    ``pages_cleaned`` so the CLI can fold the partial spend into the
-    printed summary. Without these, the summary under-reports total spend
-    by the partial-card amount and the operator may overspend on the next
-    invocation.
+    Carries ``partial_cost_usd`` (the spend on the in-progress card
+    before the cap tripped), ``card_id``, and ``pages_cleaned`` so the
+    CLI can fold the partial spend into the printed summary. Without
+    these, the summary under-reports total spend by the partial-card
+    amount and the operator may overspend on the next invocation.
     """
 
     def __init__(
@@ -90,9 +89,9 @@ def _accumulate_usage(totals: list[Usage], one: Usage) -> None:
 
     Side-effect-only: callers read the running total via ``totals[0]``
     after the call (the 1-elem list is just a closure trick to dodge
-    Python's name-binding rules). nayru P3 #6: the prior signature
-    returned the new total, but the only caller discarded it; trimmed
-    the return so the contract reads honestly.
+    Python's name-binding rules). The prior signature returned the new
+    total, but the only caller discarded it; trimmed the return so the
+    contract reads honestly.
     """
     prev = totals[0]
     totals[0] = Usage(
@@ -149,8 +148,7 @@ class _CardLoopState:
     """Mutable accumulator for the per-page loop. Internal only.
 
     ``start_cost`` is the running total at card entry — used to compute
-    partial-card spend when the budget cap trips mid-card (Codex P1
-    follow-up).
+    partial-card spend when the budget cap trips mid-card.
     """
 
     cost: float
@@ -202,9 +200,9 @@ def _try_clean_or_skip(
         )
         state.cleaned += 1
     except ContentFilteredError as exc:
-        # nayru P2 #2: bind request_id at the runner site so the per-
-        # card-page correlation (card_id, page) ↔ Anthropic request_id
-        # lives in a single log scope. The client already emits
+        # Bind request_id at the runner site so the per-card-page
+        # correlation (card_id, page) ↔ Anthropic request_id lives in a
+        # single log scope. The client already emits
         # ``clean.llm.content_filtered`` at the SDK boundary; this
         # runner-site warning gives operator post-mortems all the
         # context they need without having to join across log streams.
@@ -237,7 +235,7 @@ def _process_page(
     ):
         state.skipped += 1
         return
-    # Codex P2: empty raw OCR is empty-in/empty-out — skip the model call
+    # Empty raw OCR is empty-in/empty-out — skip the model call
     # and record a clean-flagged row for provenance. Calling the model on
     # an empty payload would trip the length-divergence guard with
     # misleading provenance ("length_divergence" reads like a refusal).

@@ -1,4 +1,4 @@
-"""`pursue provenance report` — Phase-A coverage summary (PV1.6).
+"""`pursue provenance report` — Phase-A coverage summary.
 
 A thin, read-only CLI over :mod:`pursue_index.provenance_report`. It runs the
 resolution chain (Tier-0 sweep + era bucketing + identifier resolver) and prints

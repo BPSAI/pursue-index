@@ -25,7 +25,7 @@ ZERO_USAGE: dict[str, int] = {
     "cache_creation_tokens": 0,
 }
 
-# Envelope-recovery regex pair (Sprint 4i #2). The model occasionally
+# Envelope-recovery regex pair. The model occasionally
 # returns ``{"text": "...", "confidence": N}`` with unescaped inner
 # double-quotes (typically from stamps or quoted names on the source
 # page), which defeats both ``json.loads`` and ``raw_decode``. The

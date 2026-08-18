@@ -2,7 +2,7 @@
 
 These tests monkey-patch ``urllib.request.urlopen`` and exercise the
 top-level ``main()`` and ``_collect_urls()`` paths end-to-end. They
-cover the bug findings raised in Codex / nayru / vaivora review of
+cover the bug findings raised in review of
 PR #65:
 
 * H1 — ``--sitemap`` accepts a https:// URL string without Path-collapse.
@@ -62,7 +62,7 @@ def _fake_resp(body: bytes, status: int = 200) -> MagicMock:
 
 
 def test_collect_urls_accepts_https_sitemap_arg_without_path_collapse() -> None:
-    """H1 (vaivora P1): ``--sitemap https://...`` must not collapse to ``https:/...``.
+    """H1: ``--sitemap https://...`` must not collapse to ``https:/...``.
 
     The prior version typed args.sitemap as Path, so argparse silently
     rewrote ``https://`` to ``https:/`` (Path normalization). The fix
@@ -97,7 +97,7 @@ def test_collect_urls_accepts_https_sitemap_arg_without_path_collapse() -> None:
 
 
 def test_run_plan_per_url_failures_return_exit_zero(tmp_path: Path) -> None:
-    """H3 (Codex P1): mixed 200/429 results in exit 0; 200 entry persisted.
+    """H3: mixed 200/429 results in exit 0; 200 entry persisted.
 
     Per-URL failures (429, timeout, 404) are expected and recoverable on
     the next run. Reserving exit 1 for catastrophic failure means the
@@ -181,7 +181,7 @@ def test_run_plan_emits_warning_annotation_for_failures(
 
 
 def test_run_plan_skips_dead_origin_urls(tmp_path: Path) -> None:
-    """H5 (laverna): a 404-at-origin URL is not submitted to Wayback.
+    """H5: a 404-at-origin URL is not submitted to Wayback.
 
     The script HEADs the origin URL first; if the origin returns 4xx/5xx,
     ``should_skip_origin_status`` is True and we skip the Wayback POST.

@@ -76,7 +76,7 @@ _OPT_FROM_DIFF = typer.Option(
     False,
     "--from-diff",
     help="One-command path: export the scoped work-list from the tranche-diff "
-    "and run the scoped download -> ocr -> embed stages (T6.5 --worklist).",
+    "and run the scoped download -> ocr -> embed stages via --worklist.",
 )
 _OPT_DRY_RUN = typer.Option(
     False,

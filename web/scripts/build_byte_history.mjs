@@ -2,7 +2,7 @@
 // Build web/src/data/byte-history.json — the build-time card_id →
 // byte-history map.
 //
-// Sprint 4g Phase 3. Reads `data/asset-bytes-registry.jsonl` (the
+// Reads `data/asset-bytes-registry.jsonl` (the
 // append-only log of every preserved asset's byte_sha256 + archive_key)
 // and emits a card_id → ordered list of byte-history entries. Only
 // cards with >1 byte_sha appear — the single-sha case is the
@@ -46,7 +46,7 @@ const OUT = resolve(here, "../src/data/byte-history.json");
 // Required: matching key shape. Audit context: meaningful for
 // human review but NOT consulted by the filter — validated for
 // presence only so a missing field doesn't silently degrade the
-// audit trail (Vaivora PR #79 round-9 P2 #4).
+// audit trail (PR #79).
 const _EXCLUSION_REQUIRED_KEYS = new Set(["card_id", "byte_sha256"]);
 const _EXCLUSION_AUDIT_KEYS = new Set([
   "fetched_at", "superseded_url", "reason", "opsec_ref",
@@ -60,13 +60,12 @@ export function loadExclusionKeys(exclusionDoc) {
   const keys = new Set();
   for (const [idx, ex] of exclusionDoc.exclusions.entries()) {
     if (!ex.card_id || !ex.byte_sha256) {
-      // Nayru PR #79 round-7 P1: fail-closed on malformed
-      // entries. The exclusions file is operator-authored
-      // build-time input — a typo like `byte_sha265` would
-      // otherwise silently let a misroute back into
-      // byte-history.json. Throwing here names the offending
+      // Fail-closed on malformed entries (PR #79). The exclusions
+      // file is operator-authored build-time input — a typo like
+      // `byte_sha265` would otherwise silently let a misroute back
+      // into byte-history.json. Throwing here names the offending
       // entry directly. Identifiers only — a valid byte_sha256
-      // would make the line ~150 chars (round-4 P2 #5).
+      // would make the line ~150 chars.
       throw new Error(
         `[build_byte_history] exclusion entry [${idx}] is malformed — ` +
         `card_id=${JSON.stringify(ex.card_id ?? null)}, ` +
@@ -76,8 +75,7 @@ export function loadExclusionKeys(exclusionDoc) {
         `data/byte-history-exclusions.json and re-run.`,
       );
     }
-    // Vaivora PR #79 round-9 P2 #4: catch typo'd audit fields
-    // before they accumulate. Nayru PR #79 round-9 P2 #4: a
+    // Catch typo'd audit fields before they accumulate (PR #79). A
     // typo'd `byte_sha265` would otherwise be silently ignored
     // (the matching keys are correct so the entry "works", but
     // the typo'd field clutters the audit trail).
@@ -125,7 +123,7 @@ export function buildByteHistory(rows, exclusionKeys = new Set()) {
   for (const row of rows) {
     const cardId = row.card_id;
     if (!cardId) continue;
-    // Nayru PR #79 round-6 P2 #5: a row with missing byte_sha256
+    // A row with missing byte_sha256 (PR #79)
     // produced the exclusion key `${cardId}|undefined`, never
     // matched any operator-curated entry, and passed through
     // silently — only caught downstream by the URL-stability
@@ -153,7 +151,7 @@ export function buildByteHistory(rows, exclusionKeys = new Set()) {
     // Newest-first by fetched_at. ISO-8601 strings sort lexically so
     // a plain string compare is correct.
     //
-    // Comparator MUST return 0 on equal keys (Codex P2 / PR #71): the
+    // Comparator MUST return 0 on equal keys (PR #71): the
     // prior `< ? 1 : -1` shape worked coincidentally under ES2019+
     // stable-sort but violated the sort-comparator contract — equal
     // timestamps were treated as a > b in both directions. Fall back
@@ -195,7 +193,7 @@ function main() {
     try {
       exclusionDoc = JSON.parse(readFileSync(EXCLUSIONS, "utf-8"));
     } catch (err) {
-      // Laverna PR #79 round-3 P2: a bare SyntaxError stack from
+      // A bare SyntaxError stack from
       // a malformed exclusions file is hard to triage. Surface the
       // path + cause before re-raising so the failure message names
       // the file.
@@ -215,7 +213,7 @@ function main() {
       `processing all registry rows (PURSUE_ALLOW_NO_EXCLUSIONS=1).`,
     );
   } else {
-    // Nayru PR #79 round-8 P1 #2: prior shape warned-and-continued
+    // Prior shape warned-and-continued
     // when the exclusions file was missing — accidental `git rm`
     // produced a silently-bad byte-history.json locally (URL-
     // stability invariant catches it in CI, but local builds

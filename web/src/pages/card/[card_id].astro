@@ -23,7 +23,7 @@ import { loadVerdictBundle } from "../../lib/verdict-bundle.ts";
 // unreliable on the Cloudflare Pages build context).
 import cardAltTitlesJson from "../../../../data/card_alt_titles.json";
 import displayDatesJson from "../../../../data/display_dates.json";
-// Sprint 4g: build-time byte-history map. Keyed card_id → newest-first
+// Build-time byte-history map. Keyed card_id → newest-first
 // list of archived byte versions, present only for cards with >1
 // byte_sha256 in the asset-bytes-registry. Drives the "bytes changed
 // upstream" banner below.
@@ -40,12 +40,12 @@ import videoCardIdsJson from "../../data/video-card-ids.json";
 // Poster frames extracted from the VID bytes (scripts/build_video_posters.py),
 // keyed card_id → filename under /data/video-posters/. AUD cards have none.
 import videoPostersJson from "../../../public/data/video-posters/index.json";
-// Sprint 5c (ALTR Phase 2): operator commentary for the byte-history
-// banner. Replaces the prior card-non-specific "re-encoding, re-scan,
-// or rotation" prose with the per-card category + rationale preview.
-// loadVerdictBundle applies the bundle_schema_version assert (Vaivora
-// PR #79 round-2 P1-2). Direct JSON import without the gate would
-// silently degrade if curate ever ships v3 without coordinated rewrite.
+// Operator commentary for the byte-history banner. Replaces the prior
+// card-non-specific "re-encoding, re-scan, or rotation" prose with the
+// per-card category + rationale preview. loadVerdictBundle applies the
+// bundle_schema_version assert (PR #79). Direct JSON import without the
+// gate would silently degrade if curate ever ships v3 without
+// coordinated rewrite.
 const verdictBundleData = loadVerdictBundle();
 
 // Page-1 OCR text snippet for the DigitalDocument JSON-LD body. Read
@@ -138,7 +138,7 @@ export function getStaticPaths() {
   return paths;
 }
 
-// Sprint 4k-followup: card may be null when this route is generated
+// Card may be null when this route is generated
 // for a card that was removed upstream. In that case `removedRecord`
 // is populated and the template body short-circuits to
 // `<CardRemovedPage>` near the bottom. Use the removed record's card
@@ -153,7 +153,7 @@ const isRemoved = removedRecord !== null;
 const removedArchiveKey: string | null = isRemoved
   ? (() => {
       const bhEntries = (byteHistoryJson as Record<string, any[]>)[card.card_id] ?? [];
-      // Newest first per Sprint 4g; the oldest preserved entry is the
+      // Newest first; the oldest preserved entry is the
       // bytes captured before removal.
       const oldest = bhEntries[bhEntries.length - 1];
       return oldest?.archive_key ?? null;
@@ -200,7 +200,7 @@ const TYPE_COLORS: Record<string, { fg: string; bg: string; border: string }> = 
     bg: "bg-[color:var(--color-signal-violet)]/10",
     border: "border-[color:var(--color-signal-violet)]/40",
   },
-  // Sprint 4f: amber matches CardExplorer.TYPE_TONE + GalleryIsland
+  // Amber matches CardExplorer.TYPE_TONE + GalleryIsland
   // tile icon + the audio embed's DVIDS-id code styling below.
   AUD: {
     fg: "text-[color:var(--color-signal-amber)]",
@@ -249,7 +249,7 @@ const facts: Fact[] = [
 
 const isPdf = card.asset_type === "PDF" && !!card.asset_url;
 const isVideo = card.asset_type === "VID";
-// Sprint 4f: AUD cards share the DVIDS-id field today (the upstream
+// AUD cards share the DVIDS-id field today (the upstream
 // CSV uses the same "DVIDS Video ID" column for both video and audio).
 // DVIDS has NO working /audio/ path for these: an "audio" release is an
 // mp4 carrying a static image and lives at /video/<id> like the rest
@@ -279,7 +279,7 @@ const videoPosterSrc = videoPosters[card.card_id]
   ? `/data/video-posters/${videoPosters[card.card_id]}`
   : undefined;
 
-// Sprint 4g: byte-history lookup for the "bytes changed upstream"
+// Byte-history lookup for the "bytes changed upstream"
 // banner. Present only when the asset-bytes-registry has >1 entry
 // for this card_id — i.e., upstream silently re-published the bytes
 // at the same URL. Entries are newest-first; index 0 is the current
@@ -308,15 +308,15 @@ const currentByteEntry = hasByteEdits ? byteHistory[0] : null;
 const priorByteEntries = hasByteEdits ? byteHistory.slice(1) : [];
 const mostRecentEditDate = currentByteEntry?.fetched_at?.slice(0, 10) ?? "";
 
-// archiveHrefFromKey now imported from byte-display.ts — Vaivora
-// PR #79 round-2 P1-1 / Laverna P2-1: the local stub was permissive
+// archiveHrefFromKey now imported from byte-display.ts — PR #79:
+// the local stub was permissive
 // (just prepended "/"), so a malformed archive_key produced a
 // build-time error on /altered/* pages but a broken-link runtime
 // artifact on /card/<id>/. Shared regex-validated helper enforces
 // the same shape contract across all three consumers.
 
-// ALTR Phase 2: per-card operator commentary from the v3 verdict
-// bundle. Source plan §"Card-detail page banner update" — replaces
+// Per-card operator commentary from the v3 verdict bundle. Source
+// plan §"Card-detail page banner update" — replaces
 // the prior overreaching card-non-specific prose with the card's
 // own category + first ~120 chars of rationale, or "(pending)" if
 // no verdict exists for this card_id.
@@ -328,8 +328,8 @@ const banner = (() => {
   if (!verdictForThisCard?.category) {
     return { category: null as string | null, rationalePreview: "(pending)" };
   }
-  // Collapse whitespace before slicing — Nayru PR #79 round-7 P2:
-  // operator rationale may contain newlines that would inject line
+  // Collapse whitespace before slicing — PR #79: operator rationale
+  // may contain newlines that would inject line
   // breaks into the inline banner <span>. Normalize first.
   const rat = (verdictForThisCard.rationale ?? "").replace(/\s+/g, " ").trim();
   const preview = rat.length > RATIONALE_BANNER_CHARS
@@ -429,7 +429,7 @@ const cardJsonLd = [
           <span class="text-[color:var(--color-signal-green)]">▸</span> SOURCE
         </h2>
 
-        {/* Sprint 4g: bytes-changed banner. Fires when the
+        {/* Bytes-changed banner. Fires when the
             asset-bytes-registry shows >1 byte_sha256 for this card —
             i.e., upstream silently re-published at the same URL. The
             iframe below shows the current bytes; the preserved
@@ -511,7 +511,7 @@ const cardJsonLd = [
             </div>
             {/* No `sandbox` attribute on this iframe — intentional, see below.
 
-                Originally (PR #27, laverna SEC-001) we shipped this iframe
+                Originally (PR #27) we shipped this iframe
                 with `sandbox="allow-scripts allow-same-origin"` so a hostile
                 PDF could not escape via top-navigation / popups / forms.
                 Chrome 147 (May 2026) changed PDFium's iframe behavior:

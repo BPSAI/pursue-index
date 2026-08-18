@@ -13,7 +13,7 @@
  *   - the user is in raw mode (CardReaderView is not rendered, so its
  *     hashchange listener isn't installed — only this one fires).
  *
- * On the layered hashchange design (nayru P1 #4): when reader mode is
+ * On the layered hashchange design: when reader mode is
  * active, BOTH this listener AND CardReaderView's listener fire on the
  * same event. The second is a no-op (the `current === target` guard in
  * `nextIframeSrc` prevents a duplicate write). Keeping both is intentional

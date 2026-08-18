@@ -1,4 +1,4 @@
-"""Defence in depth: one unusable catalogue row costs one claim (PV1.5/PV1.6).
+"""Defence in depth: one unusable catalogue row costs one claim.
 
 Catalogue rows are validated where they are built — at
 :class:`~pursue_index.source_index.SourceEntry` — so in the ordinary course of a

@@ -1,4 +1,4 @@
-"""Tests for the identifier resolver and its typed claims (PV1.5).
+"""Tests for the identifier resolver and its typed claims.
 
 The resolver turns extracted identifiers into typed provenance claims, but only
 when they resolve to a real artifact — a catalogue entry or a known public

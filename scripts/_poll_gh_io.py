@@ -23,7 +23,7 @@ from typing import Protocol
 # can carry interpolated URLs (with credentials), file paths, or env
 # values that would otherwise leak straight into a public issue body.
 # 500 chars is enough for an HTTP status + headline message, not enough
-# for a full traceback. (SEC-003)
+# for a full traceback.
 ERROR_MAX_LEN = 500
 
 

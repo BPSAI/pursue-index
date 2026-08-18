@@ -2,7 +2,7 @@
 full-Surya `pages.jsonl` produced by a follow-up surya re-OCR. Per-page,
 prefer the Sonnet row; fall back to Surya where Sonnet didn't reach.
 
-Sprint 4q deferred re-OCR (2026-05-22 → 2026-05-23): two FBI HQ
+Deferred re-OCR (2026-05-22 → 2026-05-23): two FBI HQ
 62-83894 series cards hit Anthropic's content-filter policy mid-OCR
 after Sonnet had successfully transcribed the first 74 (resp. 87)
 pages. We backed up the partial Sonnet output, re-ran the cards with

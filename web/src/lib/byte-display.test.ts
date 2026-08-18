@@ -12,7 +12,7 @@ import {
 
 // Imported from the worker so the lockstep test below pins the
 // two allowlists to agree byte-for-byte. Any drift fails CI before
-// it can ship a build/runtime mismatch (Nayru PR #79 round-6 P1).
+// it can ship a build/runtime mismatch (PR #79).
 import { ARCHIVE_EXT_TO_CONTENT_TYPE } from "../../../worker/pdf.js";
 
 describe("formatBytes", () => {
@@ -114,7 +114,7 @@ describe("archiveHrefFromKey", () => {
   });
 
   test("allowlist matches worker's ARCHIVE_EXT_TO_CONTENT_TYPE byte-for-byte", () => {
-    // Nayru PR #79 round-6 P1: the consumer-side regex and the
+    // PR #79: the consumer-side regex and the
     // worker's content-type map MUST stay in lockstep. A unilateral
     // edit on either side would otherwise let an extension pass
     // the build but 404 at runtime (or vice versa). This test
@@ -144,7 +144,7 @@ describe("archiveHrefFromKey", () => {
   });
 
   test("rejects out-of-allowlist extensions (.exe, .html, typo'd .pfd)", () => {
-    // Laverna PR #79 round-5 P2-1 / Vaivora P2 #2: regex narrowed
+    // PR #79: regex narrowed
     // from `[a-z0-9]+` to a worker-served allowlist. Catches both
     // attacker-shaped extensions and operator typos that produce
     // 404s instead of failing the build.
@@ -186,7 +186,7 @@ describe("categoryClass", () => {
 
   test("guards against CSS-injection-shaped strings", () => {
     // The whitelist closes off any operator-typo string from
-    // producing a stray class attribute. Laverna PR #79 P2-2.
+    // producing a stray class attribute (PR #79).
     assert.equal(categoryClass("content_change; color: red"), "altered-cat-unverified");
     assert.equal(categoryClass("<script>alert(1)</script>"), "altered-cat-unverified");
   });

@@ -2,7 +2,7 @@
 
 Split out of ``commands.py`` (same rationale as ``embed_cli`` / ``ops_cli``) to
 keep that module under its import/size budget — and the natural home for the
-T6.5 ``--worklist`` scoping wired into both heavy stages here. The CLI surface is
+``--worklist`` scoping wired into both heavy stages here. The CLI surface is
 unchanged: ``commands.py`` re-attaches ``download_app`` / ``ocr_app``.
 """
 

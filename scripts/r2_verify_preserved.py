@@ -9,7 +9,7 @@ home is R2 alone:
   * ``/removed`` cards — their upstream URL is, by definition, no
     longer authoritative (404 or serving a replacement file). The
     preservation copy in R2 is what citations resolve against.
-  * Video (DVIDS) cards — Sprint 4b Theme C. VID registry rows carry
+  * Video (DVIDS) cards. VID registry rows carry
     ``archive_key`` but no ``current_key`` (the worker serves video
     via DVIDS iframe, not from R2). The preservation copy in R2 is
     still the integrity-bearing artifact; this verify covers it.
@@ -78,10 +78,10 @@ def _latest_preserved_row(
     * No ``current_key`` field — the row describes a VID or other
       asset whose canonical bytes home is R2 alone (the worker doesn't
       serve videos from R2 — DVIDS iframe handles the player — but R2
-      still holds the immutable preservation copy keyed by sha). Sprint
-      4b Theme C: the daily byte-verify cron previously walked PDFs/
-      images via the manifest-walk lane and SKIPPED video registry rows
-      here because they aren't flagged ``preserved=True``. Treating
+      still holds the immutable preservation copy keyed by sha). The
+      daily byte-verify cron previously walked PDFs/images via the
+      manifest-walk lane and SKIPPED video registry rows here
+      because they aren't flagged ``preserved=True``. Treating
       no-current_key as implicit preservation closes that gap.
 
     Rows with a ``current_key`` and no ``preserved=True`` are
@@ -133,9 +133,9 @@ def _check_one_row(
     Returns the mismatch payload alongside when status is ``"mismatch"`` so
     the caller can append to its report.
     """
-    # Sprint 4a fix-pass: tolerate legacy rows lacking archive_key
-    # (pre-Sprint-4a writer schemas). Skip + warn rather than crash
-    # the daily integrity sweep.
+    # Tolerate legacy rows lacking archive_key (older writer
+    # schemas). Skip + warn rather than crash the daily integrity
+    # sweep.
     archive_key = row.get("archive_key")
     if archive_key is None:
         print(
@@ -172,7 +172,7 @@ def verify_preserved(
     """Walk every preserved card in the registry and check R2 bytes.
 
     Returns: ``{"ok": [card_id,...], "mismatch": [{...},...],
-    "missing": [card_id,...]}``. Sprint 4a (2026-05-17): verifies the
+    "missing": [card_id,...]}``. As of 2026-05-17, verifies the
     immutable archive copy at ``archive/<sha>.<ext>``, not the mutable
     current-pointer. See module docstring for Section 6 reaffirmation
     context (Issues #61, #64).

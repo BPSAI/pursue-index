@@ -30,7 +30,7 @@ from typing import Any
 # code paths and never reach this function.
 _ARCHIVE_KEY_PDF_RE = re.compile(r"^archive/[a-f0-9]{64}\.pdf$")
 
-# Sonnet 4.6 pricing per Anthropic (Sprint 4h kick-off, 2026-05-20):
+# Sonnet 4.6 pricing per Anthropic (as of 2026-05-20):
 # $3/MTok input, $15/MTok output.
 SONNET_46_INPUT_USD_PER_MTOK = 3.0
 SONNET_46_OUTPUT_USD_PER_MTOK = 15.0
@@ -111,7 +111,7 @@ def resume_from_page(jsonl_path: Path) -> int:
     Callers that intend to append to the file should call
     ``truncate_jsonl_to_valid_prefix`` first — otherwise a torn line
     permanently traps every rerun at page 1, re-spending API budget
-    indefinitely (Codex PR #72 P1).
+    indefinitely.
     """
     if not jsonl_path.is_file():
         return 1
@@ -138,7 +138,7 @@ def truncate_jsonl_to_valid_prefix(jsonl_path: Path) -> int:
     prefix of valid JSON lines, returning the next-page-to-OCR (i.e.,
     ``max(valid page) + 1``).
 
-    Codex PR #72 P1 fix: a torn write leaves a malformed line.
+    A torn write leaves a malformed line.
     ``resume_from_page`` returns 1 (safe but lossy) and any subsequent
     appends would land BEHIND the malformed line — meaning the
     corrupt prefix persists forever and every later rerun re-OCRs
@@ -185,7 +185,7 @@ def fetch_r2_pdf(client: Any, archive_key: str, bucket: str = "pursue-pdfs") -> 
 
     Validates ``archive_key`` shape before the boto3 call so a corrupted
     byte-history entry surfaces as a typed ``ValueError`` here instead
-    of a confusing ``NoSuchKey`` from R2 (Sprint 4i #8, laverna P3).
+    of a confusing ``NoSuchKey`` from R2.
     """
     if not _ARCHIVE_KEY_PDF_RE.match(archive_key):
         raise ValueError(
@@ -197,7 +197,7 @@ def fetch_r2_pdf(client: Any, archive_key: str, bucket: str = "pursue-pdfs") -> 
 
 
 def append_jsonl(path: Path, row: dict) -> None:
-    """Append one row. nayru M1: dropped fsync — the resume_from_page
+    """Append one row. Dropped fsync — the resume_from_page
     handler restarts cleanly on torn-write JSON parse failure, so
     flush() is sufficient and avoids 3,425 fsyncs per OCR run."""
     path.parent.mkdir(parents=True, exist_ok=True)

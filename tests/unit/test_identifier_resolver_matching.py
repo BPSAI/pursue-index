@@ -1,4 +1,4 @@
-"""Tests for what a catalogue match is allowed to rest on (spec §6, PV1.5).
+"""Tests for what a catalogue match is allowed to rest on (spec §6).
 
 A catalogue match produces a dated ``previously_released`` claim against a named
 artifact, so a match has to be the archive naming *this* document. Two

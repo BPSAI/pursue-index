@@ -113,8 +113,8 @@ test("buildCardHref emits hash-only URL with no ?page= squat", () => {
 test("buildCardHref encodes the card_id defensively", () => {
   // Card IDs are sha256[:16] hex by spec, so encoding is a no-op today.
   // We still encode to harden against any future flow that surfaces a
-  // user-supplied or non-hex token through the same helper (laverna
-  // SEC-003 — cheap insurance).
+  // user-supplied or non-hex token through the same helper — cheap
+  // insurance.
   const dirty = "weird/value with spaces&page=999";
   const href = buildCardHref("/b", dirty, 1);
   // The whole card_id segment is encoded as a single path component.
@@ -131,7 +131,7 @@ test("buildAtlasMiniSearch indexes title + text and supports prefix search", () 
   // their MiniSearch config from `buildSearchIndexOptions` (boost: title,
   // prefix, NO fuzzy) so the same query in the /atlas filter and the
   // /search input lights up the same rows. The shared factory replaces the
-  // prior "must stay in lockstep" comment contract (vaivora P0 on PR #29).
+  // prior "must stay in lockstep" comment contract (PR #29).
   const points: AtlasPoint[] = [
     { card_id: "a", page: 1, x: 0, y: 0, agency: "FBI" },
     { card_id: "a", page: 2, x: 0, y: 0, agency: "FBI" },
@@ -179,8 +179,7 @@ test("DIM_OPACITY and FULL_OPACITY are stable", () => {
   // The opacity[] lookup table baked into createScatterplot relies on
   // these specific values. Changing them changes the visual contract;
   // pinning here forces an intentional test-diff if a future PR alters them
-  // (laverna P3 + nayru P2 on PR #31 — both reviewers independently flagged
-  // that the prior tests asserted the slot-3 selector index but never the
+  // (PR #31 — the prior tests asserted the slot-3 selector index but never the
   // literal opacity values, so a silent drift from 0.15 → 0.5 would slip
   // through CI).
   assert.equal(DIM_OPACITY, 0.15);
@@ -188,7 +187,7 @@ test("DIM_OPACITY and FULL_OPACITY are stable", () => {
 });
 
 test("pointToScatterplotRow opacityIndex param is type-narrowed to 0|1", () => {
-  // vaivora P3 on PR #31: the `0 | 1` narrowing is the type-level guard
+  // PR #31: the `0 | 1` narrowing is the type-level guard
   // that prevents a future caller from passing a raw opacity value (e.g.
   // 0.15) into slot 3 — the exact bug class that `floor(0.15 * 1) === 0`
   // happened to mask before this PR. If this `@ts-expect-error` stops

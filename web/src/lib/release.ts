@@ -54,7 +54,7 @@ function trancheCount(): number {
  * `predicate`. Returns `fallback` on any failure: file missing, parse
  * error, list-shape mismatch, predicate-matched-zero-rows.
  *
- * nayru P2#4: extracted from the previously-near-duplicate
+ * Extracted from the previously-near-duplicate
  * `countOcrPages` / `countCleanedPages` so the file-read +
  * fallback-on-error scaffolding lives in one place. New builders that
  * count manifest-derived rows should plumb through here.
@@ -137,7 +137,7 @@ function countOcrPages(): number {
 /**
  * Count successfully-cleaned pages from public/data/pages-cleaned.json.
  *
- * Sprint 4b Theme E2: methodology.astro carried a literal `4,111 of
+ * methodology.astro carried a literal `4,111 of
  * 4,161` prose that drifts on every full-corpus cleanup pass. The
  * right-hand number was already templated via `formatPageCount(RELEASE.ocrPageCount)`;
  * this constant adds a build-time source for the left-hand number so

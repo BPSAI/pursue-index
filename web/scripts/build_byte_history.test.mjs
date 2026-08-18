@@ -1,6 +1,6 @@
 // Tests for build_byte_history.mjs.
 //
-// Sprint 4g Phase 3. The script reads data/asset-bytes-registry.jsonl
+// The script reads data/asset-bytes-registry.jsonl
 // and emits a card_id → ordered byte-history map for the card-detail
 // banner + the /altered page. Only cards with >1 byte_sha appear in
 // the output — the on-page banner only fires on those, and bundling
@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 import { buildByteHistory, loadExclusionKeys } from "./build_byte_history.mjs";
 
-// Nayru PR #79 round-9 P2 #1: dead imports/helpers removed.
+// Dead imports/helpers removed (PR #79).
 // `mkdirSync`, `writeFileSync`, `rmSync`, `tmpdir`, `join`,
 // `makeTmpDir`, `writeRegistry` were leftovers from an earlier
 // sketch before the tests pivoted to consuming the live registry.
@@ -76,7 +76,7 @@ describe("buildByteHistory — pure transform", () => {
   });
 
   test("comparator returns 0 on equal keys (sort contract)", () => {
-    // Codex P2 / PR #71: the prior comparator `< ? 1 : -1` never
+    // PR #71: the prior comparator `< ? 1 : -1` never
     // returned 0. ES2019+ stable-sort masked the contract violation,
     // but the tie-breaker still needs to be deterministic so two
     // entries at the same fetched_at don't flip across runtimes /
@@ -146,7 +146,7 @@ describe("loadExclusionKeys + exclusion filtering", () => {
   });
 
   test("loadExclusionKeys throws on malformed entry (fail-closed)", () => {
-    // Nayru PR #79 round-7 P1: operator-authored build input.
+    // Operator-authored build input (PR #79).
     // A typo'd field (`byte_sha265`) would otherwise silently
     // let a misroute back into byte-history.json.
     assert.throws(
@@ -164,7 +164,7 @@ describe("loadExclusionKeys + exclusion filtering", () => {
   });
 
   test("loadExclusionKeys rejects unknown keys (typo catcher)", () => {
-    // Vaivora PR #79 round-9 P2 #4: a typo'd audit field
+    // A typo'd audit field (PR #79)
     // (`superseded_irl` vs `superseded_url`) would otherwise be
     // silently accepted because the required fields are correct.
     // Throws naming the offending key + the allowlist.
@@ -216,7 +216,7 @@ describe("loadExclusionKeys + exclusion filtering", () => {
 // pass the invariant gates that depend on it. Local + fresh-clone
 // runs (no env var) get a true skip (via node:test's t.skip) so the
 // test summary distinguishes "ran and passed" from "couldn't run."
-// Nayru PR #79 round-6 P2 #3 — prior shape returned silently and
+// A prior shape returned silently and (PR #79)
 // the suite reported PASS for a test that never executed.
 const STRICT_INVARIANTS = process.env.PURSUE_STRICT_INVARIANTS === "1";
 
@@ -225,7 +225,7 @@ const STRICT_INVARIANTS = process.env.PURSUE_STRICT_INVARIANTS === "1";
  * more data files, and either skips (fresh-clone) or hard-fails
  * (PURSUE_STRICT_INVARIANTS=1) when any are missing.
  *
- * Nayru PR #79 round-8 P1 #1: prior shape exposed a "load-bearing
+ * A prior shape exposed a "load-bearing (PR #79)
  * `return` after `t.skip()`" contract that a future contributor
  * could trip on. Wrapping the body in a closure means the skip
  * path can't fall through to the assertions — the assertions
@@ -273,7 +273,7 @@ function testWithDataFiles(name, label, paths, body) {
 }
 
 /**
- * Wrap JSON.parse with file-path context — Nayru PR #79 round-6 P2 #4.
+ * Wrap JSON.parse with file-path context (PR #79).
  * A SyntaxError from a malformed data file should name the file, not
  * just the parse failure. Used by the four invariant tests in this
  * file (URL-stability, stale-exclusion, bundle/byte-history symmetry,
@@ -299,7 +299,7 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
   // under an existing card_id, this test fails before anything ships
   // and the operator decides whether to add an exclusion entry or
   // investigate the pipeline regression.
-  // Nayru PR #79 round-8 P2 #3: wrap JSON.parse(line) so a malformed
+  // Wrap JSON.parse(line) so a malformed (PR #79)
   // registry row names the file + line index, not just position N.
   function _parseRegistryLine(path, line, idx) {
     try {
@@ -389,7 +389,7 @@ const BYTE_HISTORY_PATH = resolve(_here, "../src/data/byte-history.json");
 const MANIFEST_PATH = resolve(_here, "../src/data/manifest.json");
 
 describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
-  // Vaivora PR #79 round-2 P2-7: the prior tests guarded
+  // The prior tests guarded (PR #79)
   // exclusions vs registry. The complementary direction — bundle
   // verdicts vs byte-history map — wasn't asserted. If a future
   // operator drops a multi-sha card from byte-history without
@@ -423,7 +423,7 @@ describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
   );
 
   // The reverse-direction "byte-history → bundle" tripwire was
-  // dropped (Nayru PR #79 round-4 P2 #3, Vaivora P2 #6): a test
+  // dropped (PR #79): a test
   // that ends with `assert.ok(true)` after a warning provides no
   // signal in test-summary output and reads as a gate it isn't.
   // Unverdicted byte-history entries are legal (they render as
@@ -433,7 +433,7 @@ describe("verdict-bundle ↔ byte-history symmetric drift check", () => {
 });
 
 describe("byte-history ⊆ manifest invariant", () => {
-  // Vaivora PR #79 round-3 P2 #6: altered/[card_id].astro generates
+  // altered/[card_id].astro generates (PR #79)
   // routes from byteHistory keys; card/[card_id].astro generates
   // from manifest. If a registry row ever points at a card that's
   // since been removed from the manifest, /altered/<id>/ would

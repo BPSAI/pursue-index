@@ -1,4 +1,4 @@
-"""Sitemap-derived source catalogue (spec §2 and §3, §7 step 3; PV1.4).
+"""Sitemap-derived source catalogue (spec §2 and §3, §7 step 3).
 
 A local index of *candidate* prior-disclosure sources, enumerated from the four
 sitemap indexes published via ``documents3.theblackvault.com/robots.txt`` (spec
@@ -26,7 +26,7 @@ Three disciplines carry the doctrine:
   — and the *era* is inferred from the path/filename instead, independently of
   the mtime.
 * **Era is inferred, not asserted.** A four-digit year in the path yields an era
-  bucket (reusing PV1.3's :func:`~pursue_index.era_models.era_for_year`); absent
+  bucket (reusing :func:`~pursue_index.era_models.era_for_year`); absent
   one, the row is ``undated``. This is a weak, best-effort hint for triage, not
   a provenance claim.
 """
@@ -146,7 +146,7 @@ def infer_agency(url: str) -> str:
 def infer_era(url: str) -> tuple[str, int | None]:
     """Infer an era slug + year from a four-digit year in the path.
 
-    Reuses PV1.3's era buckets. Absent a defensible year the row is ``undated``.
+    Reuses the existing era buckets. Absent a defensible year the row is ``undated``.
     This is a weak triage hint derived from the path — **never** from the
     ``Last-Modified`` mtime, which is not a document era (spec §6d).
     """

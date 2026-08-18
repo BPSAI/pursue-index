@@ -53,7 +53,7 @@ class ContentFilteredError(Exception):
 # side doesn't reopen the pilot-crashing edge case.
 _CONTENT_FILTER_MARKERS = ("content filtering", "content_filter")
 
-# Structured-field fingerprints: nayru P2 #1 — also match against the
+# Structured-field fingerprints: also match against the
 # ``body.error.type`` field as a belt-and-suspenders signal in case a
 # future SDK release moves the human-readable phrase out of the rendered
 # exception message while keeping the structured type stable. Both
@@ -72,7 +72,7 @@ _CONTENT_FILTER_PUBLIC_MESSAGE = (
 
 # Haiku-4-5 pricing per the plan: $0.80/M in, $4/M out, $0.08/M cache-read
 # (cache-read is 1/10th input). Cache-creation (ephemeral) is billed at
-# 1.25x the input rate (nayru P2 #4 — was previously coded as 1.0x,
+# 1.25x the input rate (was previously coded as 1.0x,
 # under-billing the first call in each cache window by ~25%).
 _RATE_INPUT_PER_M = 0.80
 _RATE_OUTPUT_PER_M = 4.00
@@ -108,7 +108,7 @@ def _get_client() -> Any:
 def _build_request(raw_text: str, model_id: str) -> dict[str, Any]:
     """Build the ``messages.create`` kwargs with cache_control on system.
 
-    User content is wrapped in ``<ocr_document>`` tags (laverna SEC-003)
+    User content is wrapped in ``<ocr_document>`` tags
     so OCR text that reads like instructions ("Disregard prior
     directives...") is structurally fenced off from the assistant's
     instructions. The system prompt acknowledges the tags so the model
@@ -137,7 +137,7 @@ def _build_request(raw_text: str, model_id: str) -> dict[str, Any]:
 def _extract_text(content: Any) -> str:
     """Concatenate all text blocks from a ``messages.create`` response.
 
-    Codex P2: ``response.content`` is a list and can carry multiple
+    ``response.content`` is a list and can carry multiple
     ``TextBlock`` entries (e.g. when the model splits its reply, or
     after a thinking block). Reading only ``content[0].text`` silently
     drops everything after the first block — that truncates long
@@ -181,7 +181,7 @@ def _is_content_filter_error(exc: Exception) -> bool:
     Detection runs on three signals (belt-and-suspenders):
       1. ``str(exc)`` — covers the SDK's default repr.
       2. ``body.error.message`` — the structured human-readable phrase.
-      3. ``body.error.type`` — the structured type field (nayru P2 #1).
+      3. ``body.error.type`` — the structured type field.
 
     Anthropic could move the phrase out of the rendered exception
     message (localisation, wording tweak) while keeping the structured
@@ -221,9 +221,9 @@ def _invoke_messages_create(client: Any, request: dict[str, Any], model_id: str,
                 model=model_id, input_chars=input_chars,
                 request_id=request_id,
             )
-            # laverna P2 CF-001: pass a static summary as the public-
-            # facing message; keep request_id + the raw SDK exception
-            # detail in the structured warning above and on the
+            # Pass a static summary as the public-facing message; keep
+            # request_id + the raw SDK exception detail in the
+            # structured warning above and on the
             # exception attribute / __cause__ chain. The original
             # BadRequestError is preserved via ``from exc`` for
             # post-mortem; the rendered str() of ContentFilteredError

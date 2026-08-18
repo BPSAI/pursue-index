@@ -170,7 +170,7 @@ def _write_embeddings_with_augmentation(
     """Helper: write a synthetic embed root with explicit page rows.
 
     Lets a test stage two rows for the same ``(card_id, page)`` (one
-    augmented, one un-augmented) to exercise vaivora's orphan-drop
+    augmented, one un-augmented) to exercise the orphan-drop
     finding.
     """
     import struct as _struct

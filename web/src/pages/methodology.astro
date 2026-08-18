@@ -48,8 +48,8 @@ const suryaSentence = describeSuryaMigration(suryaPageCount);
 const suryaSentenceBrief = describeSuryaMigrationBrief(suryaPageCount);
 const retiredEnginesNote = describeRetiredEngines(RELEASE.ocrEngineCounts);
 
-// Sprint 5d.1 + Option A escalation policy: every cleaned page
-// gets cross-checked against its source image by Sonnet vision.
+// Escalation policy: every cleaned page gets cross-checked against
+// its source image by Sonnet vision.
 // Bundle lands here via `cp <PURSUE_DATA_ROOT>/curate/
 // published/v<N>/clean-qc-bundle.json web/public/data/`.
 // Restored 2026-06-06 after the 2026-06-05 full-corpus sweep
@@ -107,7 +107,7 @@ const methodologyJsonLd = [
       tags: ["methodology", "reproducibility", "provenance"],
     },
   }),
-  // Sprint 4b Theme E4: expanded from one selector to three. The lede
+  // Expanded from one selector to three. The lede
   // (what this page covers) + the provenance section (the integrity
   // story) + the image-observations section (the project
   // differentiator). All three anchor IDs are stable section ids
@@ -242,7 +242,7 @@ const methodologyJsonLd = [
       </p>
     </section>
 
-    {/* Altered surface — bytes-changed-as-fact framing (ALTR Phase 2) */}
+    {/* Altered surface — bytes-changed-as-fact framing */}
     <section id="altered" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
         ▸ Altered surface (bytes-changed)
@@ -669,7 +669,7 @@ const methodologyJsonLd = [
       </p>
     </section>
 
-    {/* Sprint 5d.1 + Option A: every cleaned page cross-checked
+    {/* Every cleaned page cross-checked
         against the source image by Sonnet vision. Bundle generated
         by `curate publish clean-qc` and copied to web/public/data/
         manually after each sweep. */}

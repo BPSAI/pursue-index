@@ -1,4 +1,4 @@
-"""Offline snapshot + diff generator CLI (Sprint 6, T6.1).
+"""Offline snapshot + diff generator CLI.
 
 Thin shell over ``pursue_index.scrape.poll_snapshot.generate_snapshot_diff``
 for the credential-free poll lane. Reads already-fetched CSV bytes from a
@@ -20,7 +20,7 @@ Output (stable kv format the workflow log can grep):
 When ``--diff-out`` is given, also writes a diff+verdict JSON artifact
 (verdict + added/removed/field-change counts + new column names, keyed by
 new_sha) — the snapshot job commits this and the gh-comment step reads the
-verdict back onto the ``tranche-detected`` issue (T6.4).
+verdict back onto the ``tranche-detected`` issue.
 """
 
 from __future__ import annotations
@@ -67,13 +67,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--diff-out",
         type=Path,
         default=None,
-        help="Write the diff+verdict JSON artifact here (T6.4). Skipped if omitted.",
+        help="Write the diff+verdict JSON artifact here. Skipped if omitted.",
     )
     parser.add_argument(
         "--summary-out",
         type=Path,
         default=None,
-        help="Write the rendered verdict markdown here (T6.4). Skipped if omitted.",
+        help="Write the rendered verdict markdown here. Skipped if omitted.",
     )
     parser.add_argument("--canonical-dir", type=Path, default=None)
     parser.add_argument("--public-dir", type=Path, default=None)

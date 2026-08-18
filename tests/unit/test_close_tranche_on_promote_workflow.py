@@ -1,6 +1,6 @@
 """Tests for ``.github/workflows/close-tranche-on-promote.yml``.
 
-Sprint 4d. Locks in the structural invariants:
+Locks in the structural invariants:
 
 * Trigger is narrowed to ``data/manifests/latest.json`` (so unrelated
   main pushes don't fire) plus ``workflow_dispatch`` for manual re-runs.
@@ -79,7 +79,7 @@ def test_concurrency_group_prevents_overlap() -> None:
     """A second promote landing within seconds of the first should
     queue (or skip), not race the first's close.
 
-    nayru M1: ``cancel-in-progress: false`` is load-bearing here — a
+    ``cancel-in-progress: false`` is load-bearing here — a
     flip to True would let a fast second push cancel the first run
     mid-close, leaving an issue partially-commented or
     not-closed-but-commented. Pin it explicitly so a future

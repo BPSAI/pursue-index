@@ -43,7 +43,7 @@ project's credibility as an archive:
 - The CSP, HSTS, security-headers posture (these are defenses, and
   documenting them is part of the defense)
 
-A reviewer agent (nayru/laverna/vaivora or human) doing a pass
+A reviewer (automated or human) doing a pass
 against this repo should default to filing security-relevant findings
 in `pursue-opsec` rather than on the public issue tracker. If unsure
 which side of the line a finding sits on, file privately first and
@@ -206,7 +206,7 @@ describes the *what* and links here for the *why*.
 **Why this is acceptable:**
 
 - **No user-input → eval path.** Source scan of `web/src/` and
-  `worker/` (laverna PR #25 audit) found zero call sites passing
+  `worker/` (PR #25 audit) found zero call sites passing
   user-supplied content to `eval()`, `new Function()`, or
   `setTimeout(string)`. LLM output in `ChatIsland.tsx` is rendered as
   Preact text, never as code. The only eval consumer is

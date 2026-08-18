@@ -1,4 +1,4 @@
-"""Per-page review-priority scoring (Sprint 4l-E).
+"""Per-page review-priority scoring.
 
 Composes available signals — OCR confidence, raw/cleaned length
 divergence, gibberish density, optional judge verdict — into a 0-1

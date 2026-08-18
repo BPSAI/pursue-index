@@ -19,8 +19,8 @@ import {
  * regl-scatterplot/README.md ~line 106). The initial draw packs `1.0`
  * into slot 3 for every row; without these explicit hints, regl can
  * lock valueB as a single-bucket categorical column and the opacity
- * gradient silently fails when search later mixes 1.0/0.15 values
- * (nayru P1). These are draw() options, not createScatterplot config
+ * gradient silently fails when search later mixes 1.0/0.15 values.
+ * These are draw() options, not createScatterplot config
  * (README §scatterplot.draw, lines 352-353).
  */
 const SCATTERPLOT_DATA_TYPES = {
@@ -127,7 +127,7 @@ export default function AtlasIsland({ base }: Props) {
   // Track viewport width so the resize-into-scatterplot effect below
   // can push `set({width, height})` updates into the WebGL viewport on
   // window resize. Without this, a desktop resize leaves the WebGL
-  // viewport stretched and hit-testing offset (Codex-1).
+  // viewport stretched and hit-testing offset.
   useEffect(() => {
     const onResize = () => setWidth(window.innerWidth);
     onResize();
@@ -146,7 +146,7 @@ export default function AtlasIsland({ base }: Props) {
 
   // Push width changes into the regl-scatterplot instance — without
   // this, a desktop window resize leaves the WebGL viewport stretched
-  // and hit-testing offset (Codex-1). regl-scatterplot's docs require
+  // and hit-testing offset. regl-scatterplot's docs require
   // explicit ``set({width, height})`` on canvas resize.
   useEffect(() => {
     const sp = scatterplotRef.current;
@@ -168,8 +168,7 @@ export default function AtlasIsland({ base }: Props) {
   // Build the MiniSearch index once when docs land. Re-runs only when
   // points or doc set changes — keystrokes hit the cached index, not a
   // fresh build. Replaces the naive substring filter so /atlas search
-  // lights up the same set of rows /search does for the same input
-  // (vaivora P1).
+  // lights up the same set of rows /search does for the same input.
   const atlasIndex = useMemo<AtlasMiniSearch | null>(() => {
     if (!layout) return null;
     return buildAtlasMiniSearch(layout.points, (p) =>
@@ -185,7 +184,7 @@ export default function AtlasIsland({ base }: Props) {
     // Clear any prior mount error before retrying. Without this, a transient
     // failure followed by a viewport-mode change that retriggers the effect
     // would leave the [ATLAS UNAVAILABLE] overlay covering a freshly-mounted
-    // live canvas. (Codex P2 on PR #25.)
+    // live canvas. (PR #25.)
     setMountError(null);
     let cancelled = false;
     let scatterplot: {
@@ -256,9 +255,9 @@ export default function AtlasIsland({ base }: Props) {
         // compile error, GPU buffer upload reject) propagates into the
         // outer `.catch` and triggers the mount-error overlay. A bare
         // `void scatterplot.draw(rows)` would discard the rejection and
-        // leave the user staring at an empty bordered box (nayru P1 #2).
+        // leave the user staring at an empty bordered box.
         // SCATTERPLOT_DATA_TYPES pins z/w classification so the
-        // all-1.0 initial draw doesn't misautodetect (nayru P1 #1).
+        // all-1.0 initial draw doesn't misautodetect.
         await scatterplot.draw(rows, SCATTERPLOT_DATA_TYPES);
         scatterplotRef.current = scatterplot;
       })
@@ -286,9 +285,8 @@ export default function AtlasIsland({ base }: Props) {
   // Re-color on (debounced) query change: matched indices keep full
   // opacity, others dim. The cheapest way is a fresh draw with a new
   // fourth-column (opacity-ish) value per row. Driven off
-  // ``debouncedQuery`` so each keystroke doesn't re-upload 4,119 rows
-  // (nayru #5). Search is via the MiniSearch index for parity with
-  // /search (vaivora P1).
+  // ``debouncedQuery`` so each keystroke doesn't re-upload 4,119 rows.
+  // Search is via the MiniSearch index for parity with /search.
   useEffect(() => {
     const sp = scatterplotRef.current;
     if (!sp || !layout || !atlasIndex) return;
@@ -297,7 +295,7 @@ export default function AtlasIsland({ base }: Props) {
     );
     // Same row builder as the initial mount draw — `pointToScatterplotRow`
     // owns the tuple shape so the `colorBy: "valueA"` / `opacityBy: "valueB"`
-    // slot semantics live in one place (vaivora P2). Slot 3 is a SELECTOR
+    // slot semantics live in one place. Slot 3 is a SELECTOR
     // INDEX (0 or 1) into the `opacity: [DIM_OPACITY, FULL_OPACITY]` lookup
     // table on the createScatterplot config: 1 for matches (bright), 0 for
     // non-matches (dim).
@@ -306,7 +304,7 @@ export default function AtlasIsland({ base }: Props) {
     );
     // Re-pass the data-type hints on every redraw — without them, the
     // initial categorical/continuous classification can be re-detected
-    // on each draw (nayru P1).
+    // on each draw.
     void sp.draw(rows, SCATTERPLOT_DATA_TYPES);
   }, [debouncedQuery, layout, atlasIndex]);
 
@@ -377,7 +375,7 @@ export default function AtlasIsland({ base }: Props) {
         <AtlasLegend />
         {mountError !== null && (
           // Fully opaque so a half-rendered canvas behind doesn't bleed
-          // through (nayru P2 #5). Using `bg-deep` (no /90 alpha) keeps
+          // through. Using `bg-deep` (no /90 alpha) keeps
           // the overlay readable regardless of canvas state at the
           // moment of failure.
           <div class="absolute inset-0 flex items-center justify-center p-4 text-center bg-[color:var(--color-bg-deep)]">

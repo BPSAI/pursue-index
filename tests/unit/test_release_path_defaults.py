@@ -1,10 +1,10 @@
 """Release-path defaults must survive the scaffolding untracking (index #112).
 
-Two regressions this locks down, both raised by Codex review after #112/#113:
+Two regressions this locks down, both found after #112/#113:
 
 1. Tranche-diff receipts are a permanent record — the artifact `ingest approve`
-   checks bytes against. Producer and consumer both defaulted to
-   `.paircoder/plans/`, which #112 added to `.gitignore`. Writing receipts into
+   checks bytes against. Producer and consumer both defaulted to a
+   directory that #112 added to `.gitignore`. Writing receipts into
    an ignored directory loses them silently: `git add -A` skips them and a
    fresh checkout cannot approve the tranche from the defaults.
 

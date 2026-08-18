@@ -1,12 +1,12 @@
 # Performance baseline
 
-> Tracks Lighthouse scores, regressions, and the Sprint 2 perf-pass
-> intervention. Sprint 2 work targets the homepage (`/`) specifically;
+> Tracks Lighthouse scores, regressions, and the 2026-05-16 perf-pass
+> intervention. That work targets the homepage (`/`) specifically;
 > other surfaces (`/search`, `/atlas`, `/chat`) are out-of-scope this
 > pass — they need search/scatterplot/embeddings to function and pay
 > for them honestly when the user opts in by visiting that route.
 
-## Sprint 2 baseline — 2026-05-16 (mobile, pre-fix)
+## Baseline — 2026-05-16 (mobile, pre-fix)
 
 | Region | Score | FCP | LCP | TBT | CLS |
 |---|---|---|---|---|---|
@@ -20,7 +20,7 @@
 - Total transferred: 2.34 MB; resource size: 8.26 MB; 18 requests.
 - Accessibility 100, CLS 0.03, Best Practices 82, SEO 92.
 
-## Diagnostic findings (2026-05-16, Sprint 2 dispatch)
+## Diagnostic findings (2026-05-16)
 
 Investigated the homepage build artifacts under `web/dist/`. Three
 root causes, ranked by impact:
@@ -84,9 +84,9 @@ immutable` for the CF edge cache to fill in APAC.
 
 Not investigated this pass; the Lighthouse audit name doesn't tell
 us which API. Will fall out of the bundle-reduction pass below. If it
-persists post-Sprint-2, log it as a Sprint 4 follow-up.
+persists after this fix, log it as a follow-up.
 
-## Sprint 2 fixes (applied)
+## Fixes applied (2026-05-16)
 
 ### Phase 2 — TBT quick wins
 
@@ -189,12 +189,12 @@ NA/EU regions should see similar absolute improvement (TBT 6.5–9s
 → <600ms) but their LCP was already acceptable (1.3–1.9s), so
 their score gain will be primarily TBT-driven.
 
-## Post-Sprint-2.1 baseline — 2026-05-17 (mobile, all six regions)
+## Post-cache-fix baseline — 2026-05-17 (mobile, all six regions)
 
-Measured ~5 min after `5840303` (Sprint 2.1 cache-headers Worker fix)
-landed on main and CF edge cache filled. Sprint 2.1 finished the
-work Sprint 2 started: the `web/public/_headers` file Sprint 2
-shipped turned out to be a no-op under Workers Static Assets with
+Measured ~5 min after `5840303` (the cache-headers Worker fix)
+landed on main and CF edge cache filled. That commit finished the
+work the initial perf-pass started: the `web/public/_headers` file
+it shipped turned out to be a no-op under Workers Static Assets with
 `run_worker_first: true`, so the headers were moved into
 `worker/index.js::CACHE_POLICY` and applied via `withCacheHeaders()`.
 
@@ -220,28 +220,28 @@ shipped turned out to be a no-op under Workers Static Assets with
 | CLS | ≤ 0.03 | 0 (all regions) | 0 | **BEATEN** (was 0.03, now 0) |
 | Resource size | < 3 MB | 826 KB | 826 KB | **BEATEN** by 3.6× |
 
-All six Sprint 2 perf targets met or beaten. The APAC catastrophe is
+All six perf targets met or beaten. The APAC catastrophe is
 fully resolved — Japan moved 37 → 90 (+53), Australia 37 → 93 (+56),
 Finland 44 → 93 (+49). NA/EU regions moved 69/70 → 92/95 driven by
 TBT going from 6.5–9s → 272–414ms.
 
 ### Reference
 
-- Sprint 2 (initial perf-pass): commit `7dfb008` — pages.json off
+- Initial perf-pass: commit `7dfb008` — pages.json off
   homepage critical path, CardExplorer deferred to `client:visible`,
   HomepageSearch island ~1.8 KB.
-- Sprint 2.1 (cache-headers Worker fix): commit `5840303` — moved
+- Cache-headers Worker fix: commit `5840303` — moved
   `_headers` directives into `worker/index.js::CACHE_POLICY` so
   Workers Static Assets actually honors them. The 8.26 MB → 826 KB
   resource-size win is primarily this commit; the LCP regional fix
-  is the Sprint 2 hero-deferral + Sprint 2.1 edge-cache filling.
+  is the hero-deferral above + this commit's edge-cache filling.
 
 ## Verification plan
 
 The fixes above are landed on branch `sprint-2-lighthouse`. They
 **cannot be fully verified locally**; Lighthouse mobile-regional
 scores require a real deploy to pursueindex.com so PageSpeed
-Insights can run from each region. Sprint 2 + 2.1 ran through this
+Insights can run from each region. That work ran through this
 plan; the post-fix table above captures the result.
 
 ## Operator-action items (deferred to operator)
@@ -255,11 +255,11 @@ plan; the post-fix table above captures the result.
 3. **Re-run Lighthouse from the six baseline regions** after
    deploy; fill the post-fix row in this file.
 
-## Sprint 4b — DOM size + deprecated-API trace (2026-05-17)
+## DOM size + deprecated-API trace (2026-05-17)
 
 ### F. CardExplorer 676 KB inline-blob removal
 
-Sprint 2 left the homepage's `<CardExplorer client:visible>` island
+The initial perf-pass left the homepage's `<CardExplorer client:visible>` island
 inlining all 158 cards as a 676 KB HTML-encoded JSON blob in
 `dist/index.html`. Lighthouse "Avoid an excessive DOM size" audit
 flagged it; the prior fix-pass deferred hydration (`client:visible`)
@@ -275,7 +275,7 @@ cards.
 - Before: 695 203 bytes (with the 158-card props blob).
 - After: 25 915 bytes (a 96% reduction).
 - The 252 KB JSON file ships as a separate static asset, CF-edge-
-  cached under the existing `/data/*.json` rule from Sprint 2.1
+  cached under the existing `/data/*.json` rule
   (`public, max-age=3600, stale-while-revalidate=86400`).
 - Gzipped wire size of the JSON: ~50 KB.
 
@@ -287,19 +287,19 @@ Card grid stays below the fold on mobile; LCP path unchanged.
 
 ### G. "Uses deprecated APIs" — trace + diagnosis
 
-The Sprint 2 baseline section noted this Best Practices flag without
+The baseline section above noted this Best Practices flag without
 naming the API. After auditing our own source tree (no `unload`,
 `document.write`, sync XHR, deprecated CSS), the only remaining
 candidates are third-party:
 
 1. **Cloudflare Insights beacon** (`static.cloudflareinsights.com/beacon.min.js`,
-   wired in Sprint 4a). Inspected with DevTools after the next deploy.
+   wired in an earlier pass). Inspected with DevTools after the next deploy.
 2. **regl-scatterplot** — only loaded on `/atlas`, not the homepage.
    Homepage Lighthouse runs would not flag it.
 3. **Preact runtime** — unlikely; Preact's minified runtime tracks
    modern API surfaces and we're on `preact ^10.29.1`.
 
-**Status:** the flag persists post-Sprint-4b only if Cloudflare's
+**Status:** the flag persists after this fix only if Cloudflare's
 beacon ships a `performance.webkitNow` / `XMLHttpRequest.onload` style
 deprecation. That's out of our control — closing this audit item as
 "third-party-owned; pursueindex source code is free of deprecated
@@ -310,10 +310,11 @@ in `Base.astro`), giving us a kill switch without code changes.
 
 ## 2026-06-02 audit pass (static diagnosis, no Lighthouse re-run)
 
-Asked to "run the Sprint 2 Lighthouse diagnosis" as part of a roadmap
-cleanup pass; on opening this file discovered Sprint 2 + 2.1 + 4b F/G
-were all already shipped and all six perf targets already met or
-beaten. Re-ran the static-analysis legs of the original diagnosis
+Asked to "run the original Lighthouse diagnosis" as part of a roadmap
+cleanup pass; on opening this file discovered the perf-pass, the
+cache-headers fix, and the DOM-size follow-up (F/G) were all already
+shipped and all six perf targets already met or beaten. Re-ran the
+static-analysis legs of the original diagnosis
 (hydration directives, dist sizes, data-asset sizes, deprecated-API
 scan) against current `main` (commit `17e98cf`) to confirm no
 regressions.
@@ -322,19 +323,19 @@ regressions.
 
 - **Homepage hydration architecture unchanged.** `web/src/pages/index.astro`
   still uses `<HomepageSearch client:idle>` and `<CardExplorer client:visible>`.
-  No new always-hydrated islands added on `/` since Sprint 2.
+  No new always-hydrated islands added on `/` since the initial perf-pass.
 - **Worker-side cache policy in place.** `worker/index.js::CACHE_POLICY`
   + `withCacheHeaders()` still applied; the `web/public/_headers`
-  no-op trap from the original Sprint 2 fix is fully migrated.
+  no-op trap from the original fix is fully migrated.
 - **es2022 build target in place** (`web/astro.config.mjs:31`).
 - **Deprecated-API kill switch in place.** `PUBLIC_CF_ANALYTICS_TOKEN`
   token-conditional gating in `Base.astro:134`.
 
 ### Current dist sizes (local `npm run build` artifacts on disk)
 
-| Artifact | Sprint 4b F (2026-05-17) | 2026-06-02 | Change | Notes |
+| Artifact | 2026-05-17 | 2026-06-02 | Change | Notes |
 |---|---:|---:|---:|---|
-| `dist/index.html` | 25.9 KB | 68 KB | +162% | Still 90% smaller than pre-Sprint-2 695 KB; growth tracks card count 158 → 222 in server-rendered grid stubs |
+| `dist/index.html` | 25.9 KB | 68 KB | +162% | Still 90% smaller than the pre-fix 695 KB; growth tracks card count 158 → 222 in server-rendered grid stubs |
 | `_astro/HomepageSearch.*.js` | 1.8 KB | 4.0 KB | +122% | Tiny absolute size; bundling overhead inclusive of preact runtime |
 | `_astro/CardExplorer.*.js` | 9.8 KB | 12 KB | +22% | Deferred via `client:visible`; not on critical path |
 | `public/data/cards-summary.json` | 252 KB | 372 KB | +48% | Deferred via `client:visible` fetch; CF-edge-cached |
@@ -359,16 +360,16 @@ architectural regression in critical-path bytes.
   Loaded only on `/atlas` (operator-attended exploration UI). Not on
   homepage critical path. Mentioned for inventory completeness.
 
-### Status — Sprint 2 closed
+### Status — closed
 
-All Sprint 2 (+ 2.1 + 4b F/G) targets met or beaten in the 2026-05-17
-field measurement and the architecture remains intact 16 days later.
-The single Sprint 4 item still open is the **literal-ID bypass in
-chat retrieval** (worker/) — flagged in the 2026-05-16 roadmap
-under "Sprint 4 — Small-batch polish + Wayback" but requires
-operator design input on the detection patterns (16-hex card_ids,
-D## patterns) and ranking integration, so it stayed out of this
-autonomous cleanup pass.
+All targets from the perf-pass (+ cache-fix + DOM-size F/G) met or
+beaten in the 2026-05-17 field measurement and the architecture
+remains intact 16 days later. The single item still open is the
+**literal-ID bypass in chat retrieval** (worker/) — flagged in the
+2026-05-16 roadmap under the small-batch polish + Wayback follow-up
+work but requires operator design input on the detection patterns
+(16-hex card_ids, D## patterns) and ranking integration, so it
+stayed out of this autonomous cleanup pass.
 
 ### What would force a re-diagnosis
 

@@ -3,8 +3,7 @@
 These tests are not integration tests — the smoke script's runtime
 behavior is covered by the workflow itself when `wrangler dev` is
 spun up in CI. What this file pins is the *hardening contract* added
-in response to the PR #19 review (laverna MED-001, nayru P1 #1-#5,
-nayru P2 #6-#8, vaivora #2-#5, codex P1/P2):
+in response to the PR #19 review:
 
     1. wrangler is a pinned devDependency of `web/` (not pulled at CI
        runtime via `npx --yes wrangler`).
@@ -67,7 +66,7 @@ def test_wrangler_pinned_as_web_dev_dependency() -> None:
     assert "wrangler" in dev_deps, (
         "wrangler must be a devDependency of web/ so the smoke harness "
         "uses the lockfile-pinned version, not whatever is current on "
-        "npm at CI run time (laverna MED-001, nayru P1 #1, codex P2)."
+        "npm at CI run time."
     )
 
 
@@ -77,7 +76,7 @@ def test_smoke_script_does_not_use_npx_yes_wrangler(smoke_script_text: str) -> N
     # --yes makes the supply-chain posture explicit.
     assert "npx --yes wrangler" not in smoke_script_text, (
         "Drop `--yes` once wrangler is a pinned devDep; bare `npx wrangler` "
-        "resolves from web/node_modules/.bin (laverna MED-001, nayru P1 #1)."
+        "resolves from web/node_modules/.bin."
     )
 
 
@@ -92,7 +91,7 @@ def test_workflow_runs_npm_ci_before_smoke(workflow_text: str) -> None:
     assert smoke_run_pos != -1, "Workflow must run the smoke script."
     assert npm_ci_pos < smoke_run_pos, (
         "`npm ci` must run before the smoke step so the pinned wrangler "
-        "is installed (laverna MED-001, nayru P1 #1)."
+        "is installed."
     )
 
 
@@ -102,14 +101,13 @@ def test_workflow_runs_npm_ci_before_smoke(workflow_text: str) -> None:
 def test_smoke_script_honors_keep_log_env(smoke_script_text: str) -> None:
     assert "SMOKE_KEEP_LOG" in smoke_script_text, (
         "Script must honor SMOKE_KEEP_LOG=1 so the workflow can copy the "
-        "log out before teardown deletes it (nayru P1 #2)."
+        "log out before teardown deletes it."
     )
 
 
 def test_workflow_uploads_wrangler_log_on_failure(workflow_text: str) -> None:
     assert "upload-artifact" in workflow_text, (
-        "Workflow must upload-artifact the wrangler log on failure "
-        "(nayru P1 #2)."
+        "Workflow must upload-artifact the wrangler log on failure."
     )
     assert "SMOKE_KEEP_LOG" in workflow_text, (
         "Workflow must set SMOKE_KEEP_LOG=1 on the smoke step so the log "
@@ -128,8 +126,7 @@ def test_readiness_curl_has_max_time(smoke_script_text: str) -> None:
     readiness_window = readiness_window.split("wrangler dev ready")[0]
     assert "--max-time" in readiness_window, (
         "Readiness poll curl must set --max-time so a hung connection "
-        "cannot eat the entire startup budget on one iteration "
-        "(nayru P1 #3)."
+        "cannot eat the entire startup budget on one iteration."
     )
 
 
@@ -142,7 +139,7 @@ def test_empty_array_expansion_uses_bash32_idiom(smoke_script_text: str) -> None
     # `${extra_args[@]+"${extra_args[@]}"}`.
     assert "${extra_args[@]+" in smoke_script_text, (
         "extra_args expansion must use the ${arr[@]+...} guard idiom for "
-        "bash-3.2 compat under `set -u` (nayru P1 #4)."
+        "bash-3.2 compat under `set -u`."
     )
 
 
@@ -154,7 +151,7 @@ def test_follow_redirects_assertion_has_max_redirs(smoke_script_text: str) -> No
     # adjacent `--max-redirs N` flag prevents an unbounded redirect chain
     # from masking a dispatch problem.
     assert "--max-redirs" in smoke_script_text, (
-        "The -L curl in assertion 2 must set --max-redirs (nayru P1 #5)."
+        "The -L curl in assertion 2 must set --max-redirs."
     )
 
 
@@ -164,8 +161,7 @@ def test_follow_redirects_assertion_has_max_redirs(smoke_script_text: str) -> No
 def test_workflow_paths_includes_astro_config(workflow_text: str) -> None:
     assert "web/astro.config.mjs" in workflow_text, (
         "paths: filter must include web/astro.config.mjs — astro config "
-        "controls trailingSlash semantics that assertion #2 depends on "
-        "(nayru P2 #6, codex P1)."
+        "controls trailingSlash semantics that assertion #2 depends on."
     )
 
 
@@ -173,8 +169,7 @@ def test_workflow_paths_includes_web_package_files(workflow_text: str) -> None:
     assert "web/package.json" in workflow_text
     assert "web/package-lock.json" in workflow_text, (
         "paths: filter must include web/package*.json — they control "
-        "what builds web/dist/api/index.html, the smoke's own input "
-        "(nayru P2 #6)."
+        "what builds web/dist/api/index.html, the smoke's own input."
     )
 
 
@@ -193,9 +188,9 @@ def test_mktemp_invocations_have_failure_handling(smoke_script_text: str) -> Non
     has_persist_guard = (
         "||" in persist_window or "${PERSIST_DIR:?}" in smoke_script_text
     )
-    assert has_log_guard, "WRANGLER_LOG mktemp must have failure handling (nayru P2 #7)"
+    assert has_log_guard, "WRANGLER_LOG mktemp must have failure handling"
     assert has_persist_guard, (
-        "PERSIST_DIR mktemp must have failure handling (nayru P2 #7)"
+        "PERSIST_DIR mktemp must have failure handling"
     )
 
 
@@ -207,8 +202,7 @@ def test_assertion_5_checks_content_type_html(smoke_script_text: str) -> None:
     # body-excludes check is fragile on its own; pair it with a
     # Content-Type assertion that the response is text/html.
     assert "text/html" in smoke_script_text, (
-        "Assertion 5 must also assert Content-Type starts with text/html "
-        "(nayru P2 #8)."
+        "Assertion 5 must also assert Content-Type starts with text/html."
     )
 
 
@@ -225,7 +219,7 @@ def test_script_has_set_e(smoke_script_text: str) -> None:
         or "set -eu" in head
         or "set -euo" in head
     )
-    assert has_set_e, "Script must include `set -e` (laverna LOW-001)"
+    assert has_set_e, "Script must include `set -e`"
 
 
 # --- Finding 10: .dev.vars secrets caveat in script header ----------------
@@ -234,8 +228,7 @@ def test_script_has_set_e(smoke_script_text: str) -> None:
 def test_script_header_documents_dev_vars_caveat(smoke_script_text: str) -> None:
     head = "\n".join(smoke_script_text.splitlines()[:80])
     assert ".dev.vars" in head, (
-        "Script header must document the .dev.vars secrets caveat "
-        "(laverna LOW-002)."
+        "Script header must document the .dev.vars secrets caveat."
     )
 
 
@@ -246,15 +239,13 @@ def test_web_api_page_test_references_smoke_script() -> None:
     text = WEB_TEST_API.read_text(encoding="utf-8")
     assert "smoke_api_dispatch.sh" in text, (
         "web/scripts/test-api-page.mjs must reference scripts/smoke_api_dispatch.sh "
-        "so future editors find both halves of the /api contract test "
-        "(vaivora #2)."
+        "so future editors find both halves of the /api contract test."
     )
 
 
 def test_smoke_script_references_test_api_page(smoke_script_text: str) -> None:
     assert "test-api-page.mjs" in smoke_script_text, (
-        "smoke script must reference web/scripts/test-api-page.mjs "
-        "(vaivora #2)."
+        "smoke script must reference web/scripts/test-api-page.mjs."
     )
 
 
@@ -276,7 +267,7 @@ def test_worker_api_paths_references_smoke_script() -> None:
     assert "smoke_api_dispatch.sh" in window, (
         "Comment block above WORKER_API_PATHS must reference "
         "scripts/smoke_api_dispatch.sh so adding a route prompts a "
-        "smoke-assertion update (vaivora #3)."
+        "smoke-assertion update."
     )
 
 
@@ -289,7 +280,7 @@ def test_failure_preserves_log_to_tmp(smoke_script_text: str) -> None:
     # who lost their scrollback has something to inspect.
     assert "wrangler-smoke-last.log" in smoke_script_text, (
         "On non-zero exit, the smoke script must preserve the log to "
-        "/tmp/wrangler-smoke-last.log and print the path (vaivora #4)."
+        "/tmp/wrangler-smoke-last.log and print the path."
     )
 
 
@@ -305,6 +296,5 @@ def test_script_documents_wrangler_dev_parity_gap(smoke_script_text: str) -> Non
         kw in head for kw in ("CORS", "OPTIONS", "404-page", "parity", "miniflare")
     )
     assert has_parity_note, (
-        "Script header must document wrangler-dev vs prod parity gaps "
-        "(vaivora #5)."
+        "Script header must document wrangler-dev vs prod parity gaps."
     )

@@ -1,6 +1,6 @@
-"""Lightweight tranche verdict (Sprint 6, T6.3).
+"""Lightweight tranche verdict.
 
-A pure, metadata-only classifier over a T6.1 :class:`SnapshotDiffResult`.
+A pure, metadata-only classifier over a :class:`SnapshotDiffResult`.
 It decides whether a detected snapshot change is benign (no human attention
 needed) or warrants review, using only the manifest-level diff — card counts
 and new CSV columns. There is **no LLM, no I/O, no network, and no R2 /
@@ -9,7 +9,7 @@ diff alone.
 
 This is intentionally NOT the heavy classifier in ``scripts/tranche_diff.py``
 (the byte-fetching A/B/C/restoration analysis that hits the network and the
-registry). T6.3 keys only on:
+registry). The verdict keys only on:
 
   * ``diff.added``    — cards present in the new snapshot but not the prior
   * ``diff.removed``  — cards present in the prior snapshot but not the new
@@ -21,7 +21,7 @@ addition do.
 
 Note: the backlog phrased this as ``classify_tranche(diff, new_columns)``, but
 ``SnapshotDiffResult`` already carries ``new_columns``, so the function takes
-the whole result and consumes T6.1's output directly.
+the whole result and consumes the snapshot diff's output directly.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def classify_tranche(diff: SnapshotDiffResult) -> TrancheVerdict:
 
 
 def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[str, Any]:
-    """Build the diff+verdict JSON payload the snapshot job commits (T6.4).
+    """Build the diff+verdict JSON payload the snapshot job commits.
 
     Pure: just the verdict + structural counts (and the new column names),
     keyed by ``new_sha`` so it can be located against the detected change.
@@ -74,7 +74,7 @@ def _safe_inline(text: str, *, limit: int = 80) -> str:
 
 
 def render_verdict_summary(diff: SnapshotDiffResult, *, tranche: str | None = None) -> str:
-    """Render the verdict + counts as operator-facing markdown (T6.4).
+    """Render the verdict + counts as operator-facing markdown.
 
     Pure formatter (no GitHub / no I/O) so it is unit-testable. The snapshot
     job posts this onto the existing ``tranche-detected`` issue once the diff

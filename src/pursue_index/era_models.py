@@ -1,10 +1,10 @@
-"""Era vocabulary and the 2015+ negative record (spec §4a/§5, PV1.3).
+"""Era vocabulary and the 2015+ negative record (spec §4a/§5).
 
 The types the bucketing stage produces. :class:`Era` is the five-way §4a
 taxonomy; :class:`CardEra` is one card's era+agency assignment with the date it
 was read from; :class:`EraNoPriorRelease` is the ``no_prior_release_found``
-record a 2015+ card receives — reusing PV1.1's tier and disclaimer but resting
-on the document's *era* rather than a search of external sources.
+record a 2015+ card receives — reusing the existing tier and disclaimer but
+resting on the document's *era* rather than a search of external sources.
 
 Pure dataclasses + labels; no I/O. Kept apart from
 :mod:`pursue_index.era_bucketing` so both stay small and single-purpose.
@@ -114,7 +114,7 @@ class EraNoPriorRelease:
 
     Its basis is the document's era, so it carries the establishing year, the
     manifest field that year was read from, and a ``rationale`` that states the
-    era reasoning and the standing §5 disclaimer. It reuses PV1.1's
+    era reasoning and the standing §5 disclaimer. It reuses the existing
     ``NO_PRIOR_RELEASE_FOUND`` tier and disclaimer, but is *not* a claim of
     novelty — only 2015+ cards may hold one.
     """

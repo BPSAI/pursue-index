@@ -47,7 +47,7 @@ export function readPageFromHash(hash: string | null | undefined): number | null
 /**
  * Parse `?page=N` from a URL query string. Returns null when absent or
  * malformed. Forward-compat hook: nothing in the corpus currently emits
- * `?page=N`, but external citation sources (or future Trello cards) might,
+ * `?page=N`, but external citation sources (or future work) might,
  * so the reader normalizes both forms onto the same active-page state.
  *
  * No try/catch: `URLSearchParams` does not throw on malformed input —
@@ -147,7 +147,7 @@ export function pdfPageHref(assetUrl: string | null | undefined, page: number): 
   return `${base}#${parts.join("&")}`;
 }
 
-// `buildPdfIframeSrc` was removed: it had no runtime consumer (vaivora P2 #13).
+// `buildPdfIframeSrc` was removed: it had no runtime consumer.
 // `nextIframeSrc` in pdf-iframe-sync.ts is the single source of truth for
 // PDF iframe URL construction.
 

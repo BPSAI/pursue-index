@@ -16,7 +16,7 @@ const finds = defineCollection({
     updated: z.coerce.date().optional(),
     draft: z.boolean().default(false),
     /**
-     * Sprint 4b Theme E3: optional author byline. When set,
+     * Optional author byline. When set,
      * `articleJsonLd()` surfaces it as the schema:Person author; when
      * absent, the builder falls back to the default "pursue-index"
      * publisher attribution. Add this to a `/finds` frontmatter when

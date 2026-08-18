@@ -1,6 +1,6 @@
 """Merkle-root commitment over ``data/asset-bytes-registry.jsonl``.
 
-Sprint 4e Phase 1 (per
+Phase 1 (per
 ``pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md``).
 
 The registry is a JSONL log of every preserved asset's
@@ -66,8 +66,8 @@ def canonicalize_row(row: dict) -> bytes:
     ``\\uXXXX`` would make canonical bytes Python-version-sensitive
     (escapes lowercase changed across versions historically).
     ``allow_nan=False`` rejects ``NaN``/``Infinity`` — non-standard
-    JSON, Python-only, cross-verifier-fatal (laverna P2). UTF-8
-    encoding lands the final bytes.
+    JSON, Python-only, cross-verifier-fatal. UTF-8 encoding lands the
+    final bytes.
 
     Compatible with RFC 8785 on the subset of types this registry
     uses today (``str``/``int``/``bool`` only). Future schema
@@ -120,8 +120,7 @@ def read_registry_rows(registry_path: Path) -> list[dict]:
     data). Raises ValueError with a row number on the first malformed
     line so the operator can fix it without scanning the whole file.
 
-    Public per nayru M2.1 — the verifier module depends on this
-    contract.
+    Public — the verifier module depends on this contract.
     """
     rows: list[dict] = []
     text = registry_path.read_text(encoding="utf-8")
@@ -146,7 +145,7 @@ def _fetched_at_or_unknown(row: dict) -> str:
     """Return ``row['fetched_at']`` if it's a non-empty string, else
     ``(unknown)``. Distinct from ``.get(default=...)`` because we
     want explicit-null in the registry to map to ``(unknown)``, not
-    to the literal string ``"None"`` (nayru M1.3).
+    to the literal string ``"None"``.
     """
     value = row.get("fetched_at")
     return value if isinstance(value, str) and value else "(unknown)"
@@ -178,7 +177,7 @@ def write_root_files(
 ) -> None:
     """Write the two output files. Atomic-write via temp + rename so a
     crash mid-write can't leave a half-flushed root file lying around
-    (mirrors the wayback_save M1 fix-pass from Sprint 4a)."""
+    (mirrors the wayback_save fix-pass pattern)."""
     root_path.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write_text(root_path, root_hex + "\n")
     manifest_line = f"{root_hex}\t{row_count}\t{first_ts}\t{last_ts}\n"
@@ -186,9 +185,9 @@ def write_root_files(
 
 
 def _atomic_write_text(path: Path, content: str) -> None:
-    # encoding=utf-8 explicit per project convention + nayru M1.4 —
-    # platform default is utf-8 on the runner but explicit pins the
-    # contract against a future runner-image change.
+    # encoding=utf-8 explicit per project convention — platform
+    # default is utf-8 on the runner but explicit pins the contract
+    # against a future runner-image change.
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(content, encoding="utf-8")
     tmp.replace(path)

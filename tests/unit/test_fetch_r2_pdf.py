@@ -1,5 +1,4 @@
-"""Defense-in-depth tests for ``fetch_r2_pdf`` archive_key validation
-(Sprint 4i #8 — laverna P3).
+"""Defense-in-depth tests for ``fetch_r2_pdf`` archive_key validation.
 
 The function consumes ``archive_key`` from byte-history.json and forwards
 straight into boto3 ``get_object``. The data is currently trustworthy

@@ -54,8 +54,8 @@ def _read_card_stats(ocr_dir: Path, card_id: str) -> _CardStat | None:
             line = line.strip()
             if not line:
                 continue
-            # Codex P2: tolerate a truncated/corrupt JSONL line rather
-            # than crashing the selector. Skip with a structured warning
+            # Tolerate a truncated/corrupt JSONL line rather than
+            # crashing the selector. Skip with a structured warning
             # and continue with the remaining lines.
             try:
                 row = json.loads(line)
@@ -67,10 +67,10 @@ def _read_card_stats(ocr_dir: Path, card_id: str) -> _CardStat | None:
                 )
                 continue
             conf = row.get("confidence")
-            # Codex P1: keep zero-confidence pages. They are not noise —
-            # they're exactly the "OCR couldn't read this" signal the
-            # degraded bucket needs to surface. Filter only entries
-            # missing or non-numeric ``confidence`` values.
+            # Keep zero-confidence pages. They are not noise — they're
+            # exactly the "OCR couldn't read this" signal the degraded
+            # bucket needs to surface. Filter only entries missing or
+            # non-numeric ``confidence`` values.
             if isinstance(conf, (int, float)):
                 confidences.append(float(conf))
     if not confidences:
@@ -103,9 +103,9 @@ def _pick_buckets(stats: list[_CardStat]) -> list[str]:
     Deterministic ordering: each bucket sorted by ``card_id`` after the
     primary criterion, so re-runs across machines pick the same sample.
 
-    Codex P2 backfill: deduping across overlapping buckets can drop the
-    result below the pilot target (e.g. a high-page card that's also
-    among the most degraded gets counted once). After the bucket-merge
+    Deduping across overlapping buckets can drop the result below the
+    pilot target (e.g. a high-page card that's also among the most
+    degraded gets counted once). After the bucket-merge
     pass, fill remaining slots from the broader pool — first by walking
     each bucket beyond the initial top-10 cut, then (last resort) any
     unused card sorted by ``card_id`` — to land on exactly
@@ -131,8 +131,8 @@ def _pick_buckets(stats: list[_CardStat]) -> list[str]:
         return picked[:_TARGET_PILOT_SIZE]
     # Backfill: round-robin across bucket tails so the 10+10+10
     # distribution intent survives even when buckets overlap heavily
-    # (closes issue #39 — Codex P2 finding). The previous loop
-    # drained `high_pages` entirely before moving to `medium_pages`,
+    # (closes issue #39). The previous loop drained `high_pages`
+    # entirely before moving to `medium_pages`,
     # which over-represented one bucket whenever top-10s overlapped.
     tails = [
         [s for s in high_pages if s.card_id not in seen],

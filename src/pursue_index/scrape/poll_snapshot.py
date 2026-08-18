@@ -1,4 +1,4 @@
-"""Offline snapshot + diff generator from raw CSV bytes (Sprint 6, T6.1).
+"""Offline snapshot + diff generator from raw CSV bytes.
 
 The credential-free poll lane fetches the upstream CSV bytes elsewhere
 (no R2, no CLI) and hands them here. ``generate_snapshot_diff`` is a
@@ -114,12 +114,12 @@ def _write_new_snapshot(
             public_path.write_bytes(canonical_path.read_bytes())
             # Refresh the public index too: a restored mirror file that the
             # index doesn't enumerate is a canonical/public inconsistency
-            # DiffIsland would trip on (Vaivora P2).
+            # DiffIsland would trip on.
             _rebuild_index(canonical_dir, public_dir)
         return
     # save_manifest is the SINGLE serializer for snapshot bytes — DiffIsland
     # reads snapshots written by BOTH this CI lane and a local scrape-run
-    # rotation, so a forked serializer here could silently drift (Vaivora P1).
+    # rotation, so a forked serializer here could silently drift.
     # Write canonical via save_manifest, then mirror the exact bytes to public.
     save_manifest(manifest, canonical_path)
     public_path.write_bytes(canonical_path.read_bytes())

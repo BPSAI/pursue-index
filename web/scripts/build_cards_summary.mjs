@@ -2,7 +2,7 @@
 // Build web/public/data/cards-summary.json — the runtime fetch payload
 // for CardExplorer.
 //
-// Sprint 4b Theme F. Before this script, the homepage inlined the
+// Before this script, the homepage inlined the
 // full 158-card serialized props of <CardExplorer client:visible> in
 // dist/index.html as a 676 KB HTML-encoded JSON blob. Lighthouse
 // flagged "Avoid an excessive DOM size" as the headline Best
@@ -18,7 +18,7 @@
 //   2. <CardExplorer client:visible> no longer receives `cards` as a
 //      prop — it fetches /data/cards-summary.json on hydration. CF
 //      edge cache handles the static file under the existing
-//      Cache-Control rule for /data/*.json (Sprint 2.1).
+//      Cache-Control rule for /data/*.json.
 //   3. The HTML blob drops by ~440 KB; the JSON payload moves from
 //      "every-character-HTML-encoded once" to "served as-is, gzipped
 //      once, edge-cached".
@@ -39,7 +39,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const MANIFEST = resolve(here, "../src/data/manifest.json");
 const OUT = resolve(here, "../public/data/cards-summary.json");
 
-// Sprint 4b Theme F: explicit allowlist of fields CardExplorer uses.
+// Explicit allowlist of fields CardExplorer uses.
 // Drops `raw` (always empty per types.ts comment) and keeps the bundle
 // lean. If a new field is added to types.ts and CardExplorer needs it,
 // add it here too — the build will silently exclude unknown fields,
@@ -72,7 +72,7 @@ function slimCard(card) {
     // Preserve nulls / falsey strings exactly — the React types pin
     // each field as `T | null`, and dropping `undefined` to `null`
     // keeps the type contract on the client side. The `??` shorthand
-    // (nayru NIT#4) preserves explicit `null` and only substitutes
+    // preserves explicit `null` and only substitutes
     // when the value is missing or `undefined`. Empty strings, `0`,
     // and `false` round-trip unchanged.
     out[k] = card[k] ?? null;
@@ -83,7 +83,7 @@ function slimCard(card) {
 const raw = readFileSync(MANIFEST, "utf8");
 const manifest = JSON.parse(raw);
 
-// Schema sanity (nayru P1#5): a malformed manifest must abort the
+// Schema sanity: a malformed manifest must abort the
 // build with a clear, named error rather than crashing somewhere
 // downstream with ``TypeError: manifest.cards.map is not a function``.
 // The most likely shapes for accidental breakage are ``null``

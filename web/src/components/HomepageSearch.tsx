@@ -15,7 +15,7 @@ import { buildSearchHref } from "./homepage-search.ts";
  * On submit it redirects to `/search?q=<query>` and lets the search
  * route pay the hydration cost honestly.
  *
- * Sprint 2 perf-pass — see `docs/perf-baseline.md`.
+ * See `docs/perf-baseline.md` for the performance rationale.
  */
 interface Props {
   base: string;

@@ -36,7 +36,7 @@ def _write_jsonl_with_sha256(path: Path, body: str) -> None:
     """Write a JSONL fixture and its companion ``.sha256`` sidecar.
 
     ``load_atlas_index`` verifies the sha256 sidecar before parsing
-    (laverna SEC-001 fail-closed), so any test fixture written at
+    (fail-closed), so any test fixture written at
     runtime needs both files alongside.
     """
     path.write_text(body)

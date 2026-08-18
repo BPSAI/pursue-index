@@ -74,7 +74,7 @@ def test_poll_pursue_yaml_parses() -> None:
     plain ``safe_load`` succeeds even when the trigger block is empty
     or malformed. Drill into the trigger map to confirm both
     ``schedule`` and ``workflow_dispatch`` are present and the cron
-    expression is non-empty. (nayru P1#2)
+    expression is non-empty.
     """
     data = yaml.safe_load(WORKFLOW.read_text())
 
@@ -113,7 +113,7 @@ def test_pdf_health_step_is_continue_on_error() -> None:
 
 
 def test_pdf_health_runs_regardless_of_earlier_failures() -> None:
-    """Codex P2 review (2026-05-10): without an explicit `if`, GitHub's
+    """2026-05-10: without an explicit `if`, GitHub's
     default `success()` gate skips this step if any earlier non-
     continue-on-error step (like `gh issue create` for CSV) failed.
     That defeats the entire independent-PDF-surveillance design.
@@ -186,7 +186,7 @@ def test_pdf_health_issue_step_has_dedup_guard() -> None:
     """Without a search-before-create guard, every failing 6h cron tick
     opens a *new* pdf-health-failure issue. After 24 hours of an outage
     the operator has 4 duplicate issues and the alert lane is noisy
-    enough to be ignored. (laverna SEC-001)
+    enough to be ignored.
 
     The guard pattern: ``gh issue list --label pdf-health-failure
     --state open ...`` must appear before ``gh issue create`` within
@@ -219,7 +219,7 @@ def test_pdf_health_step_invokes_dedicated_script() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Snapshot + diff lane (Sprint 6, T6.2). The credential-free generator job.
+# Snapshot + diff lane. The credential-free generator job.
 # ---------------------------------------------------------------------------
 
 
@@ -260,8 +260,7 @@ def test_snapshot_job_survives_unrelated_poll_failure() -> None:
     CSV-changed run where only the PDF lane failed would SKIP the snapshot,
     losing the credential-free snapshot for exactly the detected change this
     job exists to preserve. The gate must use ``always()`` to decouple from
-    the poll job's overall result while still gating on the detected change.
-    (Codex PR #84 P2.)"""
+    the poll job's overall result while still gating on the detected change."""
     if_clause = str(_load_jobs()["snapshot"].get("if", ""))
     assert "always()" in if_clause, (
         "snapshot job `if` must use always() so an unrelated poll-step "
@@ -272,12 +271,12 @@ def test_snapshot_job_survives_unrelated_poll_failure() -> None:
 
 
 def test_snapshot_job_runs_generator_and_commits() -> None:
-    """AC2 — a step invokes the T6.1 generator script and a step commits
+    """AC2 — a step invokes the generator script and a step commits
     the snapshot + diff JSON. Like pdf_health, it runs the bare script
     (lean requirements-poll.txt has no typer/rich)."""
     steps = _load_jobs()["snapshot"]["steps"]
     blob = " ".join(str(s.get("run", "")) for s in steps)
-    assert "scripts/poll_snapshot.py" in blob, "snapshot job must run the T6.1 generator"
+    assert "scripts/poll_snapshot.py" in blob, "snapshot job must run the generator"
     assert "git commit" in blob and "git push" in blob, "snapshot job must commit + push"
     # The committed artifacts are the canonical + public snapshot mirrors.
     assert "data/manifests/snapshots" in blob
@@ -311,7 +310,7 @@ def test_poll_job_exposes_outputs_for_snapshot() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Surface the classify_tranche verdict (Sprint 6, T6.4). The snapshot job
+# Surface the classify_tranche verdict. The snapshot job
 # computes the verdict, commits a diff+verdict JSON artifact, and appends the
 # verdict to the existing tranche-detected issue located by new_sha.
 # ---------------------------------------------------------------------------
@@ -322,7 +321,7 @@ def _snapshot_steps() -> list[dict]:
 
 
 def test_snapshot_generate_step_writes_diff_artifact() -> None:
-    """AC1 — the generate step must pass ``--diff-out`` so the T6.1 generator
+    """AC1 — the generate step must pass ``--diff-out`` so the generator
     persists the diff+verdict JSON artifact (not just the kv log line)."""
     blob = " ".join(str(s.get("run", "")) for s in _snapshot_steps())
     assert "scripts/poll_snapshot.py" in blob
@@ -434,7 +433,7 @@ def test_verdict_step_uses_rest_list_not_search() -> None:
 
 
 def test_snapshot_generate_step_guards_missing_csv() -> None:
-    """Vaivora P2: the generate step must skip-with-warning, not FileNotFoundError,
+    """The generate step must skip-with-warning, not FileNotFoundError,
     if the poll CSV commit never landed despite status=='changed'."""
     steps = _snapshot_steps()
     run_block = str(steps[_step_index(steps, "Generate snapshot")].get("run", ""))
@@ -444,7 +443,7 @@ def test_snapshot_generate_step_guards_missing_csv() -> None:
 
 
 def test_verdict_lookup_passes_sha_as_jq_arg_with_limit() -> None:
-    """Laverna P2-1 + Vaivora P2: locate the issue by passing short_sha to jq as
+    """Locate the issue by passing short_sha to jq as
     DATA (--arg), never interpolated into the jq program text, and bound the list."""
     steps = _snapshot_steps()
     run_block = str(steps[_step_index(steps, "Append verdict")].get("run", ""))

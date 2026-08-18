@@ -172,7 +172,7 @@ def _rebuild_removed_json(
     (``/data/removed-cards.json``); the canonical write target is the
     JSONL log. Without this rebuild step the JSONL would grow on
     every detected removal but the public surface would silently fall
-    behind (vaivora P1). Re-derive on every ``log_removals`` call so
+    behind. Re-derive on every ``log_removals`` call so
     the two are always in sync.
 
     The JSON wrapper shape ``{removed: [...]}`` is what the existing
@@ -210,7 +210,7 @@ def log_removals(
 
     After appending, derives the public JSON snapshot the RemovedIsland
     consumes so the UI surface tracks the canonical JSONL log
-    automatically (vaivora P1 — previously the public JSON was hand-
+    automatically (previously the public JSON was hand-
     authored and would silently drift on the next detected removal).
     """
     if not removed:

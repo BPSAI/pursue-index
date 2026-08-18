@@ -27,7 +27,7 @@
 #
 # Earlier trust-anchor designs that were rejected:
 #  * gh api .verification.verified — accepts ANY GitHub-registered
-#    Signing key, including an attacker's own (Codex P1 #3, PR #68).
+#    Signing key, including an attacker's own (PR #68).
 #  * github.com/<owner>.keys URL fetch — same hole.
 #
 # This file remains as reader convenience for local-laptop

@@ -75,7 +75,7 @@ DEFAULT_REMOVED = _REPO_ROOT / "web" / "public" / "data" / "removed-cards.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_BUCKET = "pursue-pdfs"
 
-# Same allowlist as r2_archive_assets (laverna SEC-003). Anything
+# Same allowlist as r2_archive_assets. Anything
 # outside the allowlist falls back to "pdf" — see the comment in
 # r2_archive_assets._process_card for the threat model.
 _ALLOWED_EXTS = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}

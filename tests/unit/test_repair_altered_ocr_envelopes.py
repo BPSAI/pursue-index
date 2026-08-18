@@ -1,6 +1,6 @@
 """Tests for `scripts/repair_altered_ocr_envelopes.py`.
 
-Sprint 4h-hotfix. The Anthropic vision OCR sometimes returns its
+The Anthropic vision OCR sometimes returns its
 output inside a JSON envelope (``{"text": "...", "confidence": 99}``)
 that fails to parse because inner double-quotes aren't escaped.
 `_parse_response` in the canonical OCR module falls back to

@@ -35,7 +35,7 @@ clean_app = typer.Typer(
 )
 
 
-# vaivora P2 #1 alignment: ``ops_cli`` uses a no-op callback to keep typer
+# Alignment: ``ops_cli`` uses a no-op callback to keep typer
 # treating the sub-app as a multi-command group under both invocation
 # paths (direct ``runner.invoke(clean_app, ...)`` in tests vs.
 # ``app.add_typer(clean_app)`` in the parent CLI). Without this anchor,
@@ -48,7 +48,7 @@ def _clean_callback() -> None:
     return
 
 
-# Sprint 4l-A: attach the qc sub-app so ``pursue clean qc run`` works.
+# Attach the qc sub-app so ``pursue clean qc run`` works.
 clean_app.add_typer(clean_qc_app)
 
 
@@ -139,9 +139,9 @@ def _fold_partial_spend(
 ) -> float:
     """Fold the in-progress card's partial spend into the summary.
 
-    Codex P1 follow-up: when ``BudgetExceededError`` fires mid-card, the
-    in-progress card has already written pages to the sidecar and spent
-    real dollars. Without this fold-in, the abort summary under-reports
+    When ``BudgetExceededError`` fires mid-card, the in-progress card has
+    already written pages to the sidecar and spent real dollars. Without
+    this fold-in, the abort summary under-reports
     total spend and an operator may overspend on the next invocation.
     Returns the updated running-cost total.
     """

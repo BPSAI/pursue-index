@@ -1,5 +1,5 @@
 """One-shot repair for OCR-envelope artifact in
-``data/altered-ocr/<card_id>/pages.jsonl`` (Sprint 4h-hotfix).
+``data/altered-ocr/<card_id>/pages.jsonl`` (hotfix).
 
 The Anthropic vision model occasionally returns the OCR text inside
 a JSON envelope (``{"text": "...", "confidence": 99}``) but with

@@ -1,7 +1,7 @@
 """Discriminated-union result types for the upstream poll.
 
 Lives in its own module so ``poll_pursue.py`` stays under the 200-line
-warning threshold (nayru P2). The three frozen dataclasses pin the
+warning threshold. The three frozen dataclasses pin the
 contract between ``poll()`` and the workflow's ``$GITHUB_OUTPUT``
 serializer in ``_poll_gh_io.py``.
 """

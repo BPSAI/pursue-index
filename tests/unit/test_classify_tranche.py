@@ -1,6 +1,6 @@
-"""Unit tests for the lightweight tranche verdict (Sprint 6, T6.3).
+"""Unit tests for the lightweight tranche verdict.
 
-``classify_tranche`` is a pure, metadata-only verdict over a T6.1
+``classify_tranche`` is a pure, metadata-only verdict over a
 ``SnapshotDiffResult`` — no LLM, no I/O, no network, no R2/byte-sha
 registry. It must NOT be confused with the heavy A/B/C/restoration
 classifier in ``scripts/tranche_diff.py`` (which fetches bytes).
@@ -56,7 +56,7 @@ def test_field_only_change_is_benign() -> None:
     """field_changes alone (0 added / 0 removed / no new column) stays benign.
 
     The verdict keys ONLY on added/removed/new-column — a metadata edit to an
-    existing card is not promotion-worthy. Pinned per the T6.3 grounding.
+    existing card is not promotion-worthy.
     """
     field_changes = [{"card_id": "c0", "diffs": [{"field": "title", "old": "a", "new": "b"}]}]
     assert classify_tranche(_diff(field_changes=field_changes)) == "benign"

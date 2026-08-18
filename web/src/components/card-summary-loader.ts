@@ -2,7 +2,7 @@
  * Runtime loader for the cards-summary payload that CardExplorer
  * hydrates with.
  *
- * Sprint 4b Theme F dropped the inline `cards` prop on the homepage to
+ * Dropping the inline `cards` prop on the homepage
  * cut DOM size from 695 KB → 26 KB. CardExplorer now fetches
  * `web/public/data/cards-summary.json` on hydration. The Worker's
  * Cache-Control policy (`worker/index.js::CACHE_POLICY`, the
@@ -20,10 +20,10 @@ import type { CardMetadata } from "../data/types";
 /**
  * Fetch options for the cards-summary request.
  *
- * Codex P2 (Sprint 4b fix-pass): `cache: "default"` lets the browser
+ * `cache: "default"` lets the browser
  * honor the Worker's Cache-Control header verbatim — the 1h-fresh +
  * 24h-SWR policy stamped by `withCacheHeaders` on the `/data/*.json`
- * rule (Sprint 2.1). `"force-cache"` ignores SWR and silently pins
+ * rule. `"force-cache"` ignores SWR and silently pins
  * stale payloads across tranche promotions, which would be wrong
  * here: the file changes on every tranche.
  */

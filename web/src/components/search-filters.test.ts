@@ -331,7 +331,7 @@ test("parseFiltersFromQuery: rejects calendrically-invalid dates that pass the r
 });
 
 test("filtersToQueryString: agency names containing commas survive a round-trip", () => {
-  // F4 (P2): "DEPT, OF X".split(",") used to corrupt names. Encoding the
+  // "DEPT, OF X".split(",") used to corrupt names. Encoding the
   // delimiter (we use %2C inside an entry, comma between entries) keeps
   // round-trips lossless.
   const original: SearchFilters = {
@@ -344,7 +344,7 @@ test("filtersToQueryString: agency names containing commas survive a round-trip"
 });
 
 test("EMPTY_FILTERS: outer object is frozen so callers can't reassign properties", () => {
-  // F6 (P2): the previous `Object.freeze(...) as SearchFilters` cast lost the
+  // The previous `Object.freeze(...) as SearchFilters` cast lost the
   // readonly typing. The exported type is now `Readonly<SearchFilters>` (and
   // a deep freeze is applied so the agencies array can't be mutated either),
   // pinning the contract in both the type system and at runtime.

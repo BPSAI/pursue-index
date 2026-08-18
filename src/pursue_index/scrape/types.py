@@ -43,7 +43,7 @@ class CardMetadata(BaseModel):
     asset_filename: str | None = None
     modal_image_url: HttpUrl | None = None
 
-    # DVIDS-hosted media (video + audio per Sprint 4f). Field name
+    # DVIDS-hosted media (video + audio). Field name
     # retained as ``dvids_video_id`` for backwards-compat with prior
     # manifests + the upstream CSV column "DVIDS Video ID" — but the
     # value now also carries DVIDS audio IDs for AUD cards. The

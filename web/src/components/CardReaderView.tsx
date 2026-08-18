@@ -13,7 +13,7 @@ export interface ReaderPage {
   text: string;
   /**
    * When set, this page's cleanup pass did not produce usable cleaned
-   * text. Codex P1 follow-up: the row is preserved in the cleaned
+   * text. The row is preserved in the cleaned
    * mirror for page-N alignment with the raw mirror; this flag tells
    * the renderer to surface the appropriate notice instead of an
    * empty article.
@@ -74,8 +74,7 @@ export default function CardReaderView({
   // A debounced iframe-sync handle, lazily built once per mount. Why
   // debounce: setting `iframe.src` is a navigation in Chrome/WebKit even
   // when only the fragment changes — j/j/j would otherwise trigger three
-  // PDF re-fetches + flashes. 250ms collapses bursts into a single write
-  // (nayru P1 #1).
+  // PDF re-fetches + flashes. 250ms collapses bursts into a single write.
   const syncIframeRef = useRef<((page: number) => void) | null>(null);
 
   type Action = { type: "set"; page: number };

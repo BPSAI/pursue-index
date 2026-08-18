@@ -1,4 +1,4 @@
-"""Tests for catalogue-row validation at construction (spec §2/§6, PV1.4).
+"""Tests for catalogue-row validation at construction (spec §2/§6).
 
 Every ``<loc>`` in a sitemap is a third-party string, and a catalogue row is one
 hop upstream of a citation: the resolver turns a matched row's URL into a claim's

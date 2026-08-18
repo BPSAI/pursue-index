@@ -95,7 +95,7 @@ def test_parse_new_sha_picks_first_when_body_has_two() -> None:
     # also begins with ``* new_sha:`` (e.g. amended body, follow-up
     # edit), the parser takes the first one — the canonical
     # announcement is always the first matching line in the body.
-    # nayru L3: both candidate lines start with ``* new_sha:`` so the
+    # Both candidate lines start with ``* new_sha:`` so the
     # test legitimately exercises first-match ordering, not just the
     # ``^`` anchor.
     body = (
@@ -109,7 +109,7 @@ def test_parse_new_sha_picks_first_when_body_has_two() -> None:
 
 
 def test_parse_new_sha_round_trips_changed_issue_body() -> None:
-    """vaivora H1: lock the producer/consumer contract end-to-end.
+    """Lock the producer/consumer contract end-to-end.
 
     ``scripts/_poll_gh_io.changed_issue_body`` is the canonical emitter
     for ``tranche-detected`` issue bodies. The closer's parser must be
@@ -222,7 +222,7 @@ class _FakeGh:
     Captures commands the script invokes so tests can assert on them.
     Returns issue payloads via the ``list_response`` constructor arg.
     Per-subcommand rc + stderr knobs let tests simulate gh failures
-    (auth error, rate limit, transient API blip) — Codex PR #67 P1/P2.
+    (auth error, rate limit, transient API blip).
     """
 
     def __init__(
@@ -359,17 +359,17 @@ def test_main_closes_multiple_matching_issues(
     assert closed == ["70", "71"]
 
 
-# ----------------- Codex PR #67 P1/P2: surface gh failures -----------------
+# ----------------- surface gh failures --------------------------------------
 
 
 def test_main_gh_list_nonzero_emits_warning_and_skips_close(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """P1: a non-zero rc from `gh issue list` (auth, rate limit, API blip)
+    """A non-zero rc from `gh issue list` (auth, rate limit, API blip)
     must surface as ``::warning::`` so operators notice — not be silently
     indistinguishable from a legitimate no-match.
 
-    nayru H3: assert BOTH the operator-readable stderr text AND the rc
+    Assert BOTH the operator-readable stderr text AND the rc
     reach the warning — these are independent diagnostic facts and a
     future refactor that drops either would still pass without these
     pins.
@@ -396,7 +396,7 @@ def test_main_gh_list_nonzero_emits_warning_and_skips_close(
 def test_main_gh_list_nonzero_with_empty_stderr_still_includes_rc(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """nayru H2: rc-only failures (network drop with no stderr text)
+    """rc-only failures (network drop with no stderr text)
     must still produce a usable warning. Without the rc, the operator
     has nothing to grep on.
     """
@@ -416,7 +416,7 @@ def test_main_gh_list_nonzero_with_empty_stderr_still_includes_rc(
 def test_main_gh_close_nonzero_emits_warning_not_notice(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """P2: when `gh issue close` returns non-zero (the comment succeeded
+    """When `gh issue close` returns non-zero (the comment succeeded
     but the close didn't, e.g. lost a race), we must NOT emit
     ``::notice::closed`` — that would lie about the state. Emit a
     ``::warning::`` instead.
@@ -434,12 +434,12 @@ def test_main_gh_close_nonzero_emits_warning_not_notice(
     out = capsys.readouterr().out
     assert "::warning::" in out
     assert "close" in out
-    # nayru H3: stderr text reaches the warning so the operator can
+    # stderr text reaches the warning so the operator can
     # tell "already closed" (benign race) apart from real auth/perm
     # failures without re-running the workflow.
     assert "422" in out
     assert "already closed" in out
-    # nayru M4: tranche short-sha is included so multi-match failure
+    # tranche short-sha is included so multi-match failure
     # logs are self-describing.
     assert sha[:12] in out
     # We never tell the operator the issue was closed when it wasn't.
@@ -449,7 +449,7 @@ def test_main_gh_close_nonzero_emits_warning_not_notice(
 def test_main_gh_comment_failure_skips_close_and_warns(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """P2 (contributor case): when `gh issue comment` fails, we should
+    """(contributor case): when `gh issue comment` fails, we should
     NOT proceed to close the issue (that would orphan the close
     without the announcement). We also must NOT emit
     ``::notice::closed``.
@@ -467,7 +467,7 @@ def test_main_gh_comment_failure_skips_close_and_warns(
     out = capsys.readouterr().out
     assert "::warning::" in out
     assert "comment" in out
-    # nayru H3 + M4: stderr text + tranche short-sha both surface.
+    # stderr text + tranche short-sha both surface.
     assert "403" in out
     assert "Resource not accessible" in out
     assert sha[:12] in out
@@ -479,7 +479,7 @@ def test_main_gh_comment_failure_skips_close_and_warns(
 def test_main_gh_list_unbounded_stderr_is_truncated(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """laverna SEC-P1-001 + repo SEC-003: bound the size of gh stderr
+    """Per SEC-003: bound the size of gh stderr
     surfaced in ``::warning::`` annotations to 500 chars (plus the
     explicit ``...[truncated]`` marker). Defangs the surface where a
     gh hint line could echo a bearer-token fragment on auth failure
@@ -507,7 +507,7 @@ def test_main_gh_list_unbounded_stderr_is_truncated(
 def test_main_gh_close_unbounded_stderr_is_truncated(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """laverna SEC-P1-001: same truncation applies to per-issue close
+    """Same truncation applies to per-issue close
     failures, not just the list-level path.
     """
     sha = "c9cc83fcaf43bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
@@ -527,7 +527,7 @@ def test_main_gh_close_unbounded_stderr_is_truncated(
 def test_main_logs_warning_for_non_int_issue_number(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
-    """nayru M5: gh's JSON schema isn't pinned. If a future response
+    """gh's JSON schema isn't pinned. If a future response
     shape ever serializes issue numbers as strings, the closer must
     emit a ``::warning::`` rather than silently leaving the issue
     open.

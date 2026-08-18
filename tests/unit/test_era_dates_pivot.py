@@ -1,4 +1,4 @@
-"""Tests for the two-digit-year pivot guard (PV1.3, spec §4a/§5).
+"""Tests for the two-digit-year pivot guard (spec §4a/§5).
 
 ``M/D/YY`` carries no century. Expanding ``/29`` to 2029 rather than 1929 is a
 convention, not evidence, and the 2015+ side of that convention is exactly the

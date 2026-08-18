@@ -82,7 +82,7 @@ def test_should_skip_when_row_is_missing_input_sha() -> None:
 def test_should_skip_requires_matching_model_id_when_provided() -> None:
     """Model bump invalidates the skip even if input is unchanged.
 
-    Reviewer-flagged regression (nayru P1 / Codex P1): a prompt or model
+    A prompt or model
     change must NOT silently re-use a cached row, since the cleaned text
     will diverge. The runner's docstring promises this; the sidecar
     helper must enforce it.

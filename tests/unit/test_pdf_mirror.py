@@ -251,7 +251,7 @@ def test_verify_still_fails_for_unmirrored_pdf_card(tmp_path: Path) -> None:
     assert pf.missing == ["pdf1"]
 
 
-# --- duplicate card_ids (Codex #120 P2) -------------------------------
+# --- duplicate card_ids -------------------------------------------------
 #
 # The government's CSV genuinely repeats a card_id across rows: 9 ids in the
 # 375-card manifest carry a PDF row AND one or more VID rows (a mission

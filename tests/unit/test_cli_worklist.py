@@ -1,4 +1,4 @@
-"""--worklist scoping for the heavy ingest executors (Sprint 6, T6.5).
+"""--worklist scoping for the heavy ingest executors.
 
 A detected tranche should re-ingest only the genuinely new cards, not blindly
 re-sweep the full ~222-card corpus. download/ocr are manifest-driven, so the

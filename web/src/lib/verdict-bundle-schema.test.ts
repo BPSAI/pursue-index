@@ -53,7 +53,7 @@ describe("assertBundleSchema — gate", () => {
   });
 
   test("verdict_schema_version is gated when present", () => {
-    // Vaivora PR #79 round-3 P2 #4: prior gate only checked the
+    // Prior gate only checked the
     // bundle envelope version. A curate change that bumps only
     // the per-record schema (new mandatory field) would have
     // slipped past.
@@ -137,7 +137,7 @@ describe("assertBundleStatsConsistent — serializer drift detector", () => {
   });
 
   test("throws when category bucket overstates", () => {
-    // Nayru PR #79 round-4 P2 #4: serializer that miscategorizes
+    // A serializer that miscategorizes
     // (bumps procedural_correction without changing a record's
     // category field) now fails the gate.
     try {
@@ -181,7 +181,7 @@ describe("assertBundleStatsConsistent — serializer drift detector", () => {
   });
 
   test("rejects record with unknown category value (closed-vocab gate)", () => {
-    // Vaivora PR #79 round-5 P1 #2: closes the gap where a curate-
+    // Closes the gap where a curate-
     // side addition (e.g. `editorial_change`) without a schema
     // version bump would have rendered as "(unverified)" instead
     // of failing the build.
@@ -211,7 +211,6 @@ describe("assertBundleStatsConsistent — serializer drift detector", () => {
   });
 
   test("rejects stats.unverified that's not a non-negative integer", () => {
-    // Vaivora PR #79 round-5 P1 #3.
     assert.throws(() =>
       assertBundleStatsConsistent({
         stats: { unverified: -1 },
@@ -239,7 +238,7 @@ describe("assertBundleStatsConsistent — serializer drift detector", () => {
 
 describe("V2_CATEGORIES — single source of truth", () => {
   test("V2_CATEGORIES is the three v2 vocab values", () => {
-    // Vaivora PR #79 round-5 P1 #1: tripwire so a curate-side
+    // Tripwire so a curate-side
     // category addition without coordinated update here fails
     // the test, drawing attention to the cross-repo lockstep
     // contract.

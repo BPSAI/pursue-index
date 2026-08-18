@@ -5,8 +5,8 @@ Output: ``data/altered-classification.json`` mapping each altered
 card to a change-class that the /altered/<card_id>/ page surfaces
 alongside (or instead of) the OCR diff.
 
-Why this exists: the Sprint 4j engine-matched OCR diff is materially
-cleaner than the pre-Sprint-4j Haiku-vs-Sonnet diff, but Sonnet OCR
+Why this exists: the engine-matched OCR diff is materially
+cleaner than the earlier Haiku-vs-Sonnet diff, but Sonnet OCR
 of two byte-different PDFs is still non-deterministic — different
 rasterized pixels produce subtly different OCR text even when the
 embedded content didn't change. The PDF text layer is the

@@ -1,6 +1,6 @@
-"""Unit tests for the pure verdict render helper + artifact builder (T6.4).
+"""Unit tests for the pure verdict render helper + artifact builder.
 
-T6.4 surfaces the T6.3 ``classify_tranche`` verdict in the operator's view of
+Surfaces the ``classify_tranche`` verdict in the operator's view of
 a detected tranche. Two PURE helpers live next to ``classify_tranche``:
 
 * ``render_verdict_summary`` — verdict + added/removed/new-column counts ->

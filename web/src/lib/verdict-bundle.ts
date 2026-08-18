@@ -43,8 +43,8 @@ export type VerdictBundle = {
 };
 
 // Module-scope assertions: fire on first import, regardless of when
-// or how a consumer calls loadVerdictBundle(). Vaivora PR #79
-// round-4 P1 #1: the prior shape ran the asserts inside the loader
+// or how a consumer calls loadVerdictBundle(). PR #79: the prior
+// shape ran the asserts inside the loader
 // function, so a future refactor that lazy-evaluated the call (e.g.
 // inside a memoized helper) could have silently bypassed the gate.
 // Module-scope runs them once at build time and caches the result.
