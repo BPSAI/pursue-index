@@ -66,11 +66,18 @@ clean:
 # test_card_page_coverage can see the freshly-built dist tree.
 # (Caught 2026-05-22 on a clean rebuild — those integration tests
 # rely on web/dist being current.)
-ship-ready: rebuild-derivatives registry-root snapshot-rotate astro-build test arch-check staleness
+ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build test arch-check staleness
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit + push."
 	@echo "  next: git add -A && git commit -m '...' && git push origin main"
 	@echo ""
+
+# First prerequisite of ship-ready: refuse a release before spending build time
+# on it when an AUD card has no transcript, a VID/AUD card has no registered
+# bytes, or a transcript is channel-duplicated. Repo + data root only.
+.PHONY: release-completeness
+release-completeness:
+	@$(PYTHON) scripts/check_release_completeness.py
 
 .PHONY: staleness
 staleness:
