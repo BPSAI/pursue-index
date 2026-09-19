@@ -18,11 +18,14 @@ import json
 from pathlib import Path
 
 from pursue_index.embed.pipeline import iter_card_pages
+from pursue_index.transcribe.client import TranscriptResult
+from pursue_index.transcribe.eligibility import EligibleItem
 from pursue_index.transcribe.pages import (
     build_pages_rows,
     paginate_utterances,
     write_transcript_sidecar,
 )
+from pursue_index.transcribe.run import looks_channel_duplicated, run_transcribe
 
 _UTTERANCES = [
     {"speaker": "A", "text": "Houston, Tranquility Base here.", "start": 0, "end": 100},
@@ -95,3 +98,81 @@ def test_written_sidecar_is_read_unchanged_by_the_real_embed_loader(tmp_path: Pa
     assert rows[0].card_id == "aud1"
     assert rows[0].page == 1
     assert "Speaker A" in rows[0].text
+
+
+# --- channel-duplication guard (dual-mono regression) ----------------------
+
+
+def _dual_mono_utterances(words: int = 40) -> list[dict]:
+    """The dual-mono signature: every word arrives once per channel, as its own
+    one-word utterance, so consecutive utterances repeat the same text."""
+    out: list[dict] = []
+    for i in range(words):
+        for ch in ("1", "2"):
+            out.append(
+                {"speaker": ch, "text": f"word{i}", "start": i * 10, "end": i * 10 + 9,
+                 "channel": ch}
+            )
+    return out
+
+
+def test_looks_channel_duplicated_flags_one_word_per_utterance_duplicates() -> None:
+    assert looks_channel_duplicated(_dual_mono_utterances()) is True
+
+
+def test_looks_channel_duplicated_ignores_ordinary_diarized_transcript() -> None:
+    utterances = [
+        {"speaker": "A" if i % 2 == 0 else "B",
+         "text": f"This is a full sentence number {i} spoken by someone.",
+         "start": i, "end": i + 1}
+        for i in range(40)
+    ]
+    assert looks_channel_duplicated(utterances) is False
+
+
+def test_looks_channel_duplicated_ignores_one_word_utterances_without_repeats() -> None:
+    utterances = [
+        {"speaker": "A", "text": f"word{i}", "start": i, "end": i + 1} for i in range(40)
+    ]
+    assert looks_channel_duplicated(utterances) is False
+
+
+def test_looks_channel_duplicated_ignores_a_short_transcript() -> None:
+    """A brief exchange ("Yes." / "Yes.") is too little evidence to reject."""
+    utterances = [
+        {"speaker": "A", "text": "Yes", "start": 0, "end": 1},
+        {"speaker": "B", "text": "Yes", "start": 1, "end": 2},
+    ]
+    assert looks_channel_duplicated(utterances) is False
+
+
+def test_looks_channel_duplicated_false_for_no_utterances() -> None:
+    assert looks_channel_duplicated([]) is False
+
+
+def test_run_transcribe_rejects_a_channel_duplicated_transcript_and_writes_nothing(
+    tmp_path: Path,
+) -> None:
+    """Fail closed: the dual-mono shape is never written as sidecars, and the
+    reason names the probe decision that led to it."""
+    audio_dir = tmp_path / "audio"
+    audio_dir.mkdir()
+    (audio_dir / "aud1.mp4").write_bytes(b"fake mp4")
+    out = tmp_path / "ocr"
+    duplicated = TranscriptResult(
+        utterances=_dual_mono_utterances(), audio_duration_s=60.0,
+        speakers=["1", "2"], multichannel=True, raw={},
+    )
+    item = EligibleItem(card_id="aud1", title="T aud1", dvids_video_id="123")
+
+    report = run_transcribe(
+        [item], audio_dir, out,
+        transcribe_fn=lambda path, **kw: duplicated,
+        probe_fn=lambda path: True,
+    )
+
+    assert report.ok is False
+    assert not (out / "aud1").exists()
+    ((_, reason),) = report.failed
+    assert "channel-duplicated" in reason
+    assert "multichannel=True" in reason

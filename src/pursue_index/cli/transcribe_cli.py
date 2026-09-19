@@ -16,6 +16,11 @@ and no source audio needed. ``--live-smoke <card_id>`` is the ONLY live path:
 it transcribes a single card so the AAI client/probe/sidecar chain can be
 smoke-tested end-to-end without corpus spend. The bulk pass is
 operator-attended, invoked directly against ``transcribe.run.run_transcribe``.
+
+``--resume-job-id <id>`` (with ``--live-smoke``) is the manual recovery path for
+a job AssemblyAI created but whose submit answer was lost: it skips the upload,
+the submit and the channel probe, polls the existing job, and writes the same
+sidecars through the normal writer.
 """
 
 from __future__ import annotations
@@ -27,9 +32,11 @@ from rich.console import Console
 
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
-from pursue_index.transcribe import client, probe
+from pursue_index.transcribe import _wire, client, probe
 from pursue_index.transcribe.eligibility import EligibleItem, select_eligible
+from pursue_index.transcribe.result import TranscriptResult
 from pursue_index.transcribe.run import (
+    TranscribeFn,
     TranscribeRunReport,
     preflight_coverage,
     run_transcribe,
@@ -61,6 +68,13 @@ _OPT_LIVE_SMOKE = typer.Option(
     help="THE ONLY LIVE PATH. Transcribe exactly one card_id via AssemblyAI "
     "and write its sidecar — a single-file smoke test. CI never passes this.",
 )
+_OPT_RESUME_JOB_ID = typer.Option(
+    None, "--resume-job-id",
+    help="With --live-smoke: skip upload and submit, poll this existing "
+    "AssemblyAI transcript id, and write the same sidecars. Recovery path for "
+    "a submit that timed out after the job was created. --audio-dir must still "
+    "hold the card's audio file (its name is recorded as the sidecar source).",
+)
 
 
 def _unit_label(card_id: str, row_key: str) -> str:
@@ -91,14 +105,33 @@ def _print_report(report: TranscribeRunReport) -> None:
         console.print(f"  [red]x[/red] {_unit_label(card_id, row_key)}: {error}")
 
 
-def _live_transcribe_fn(path: Path, *, multichannel: bool) -> client.TranscriptResult:
+def _live_transcribe_fn(path: Path, *, multichannel: bool) -> TranscriptResult:
     return client.transcribe_file(path, multichannel=multichannel)
 
 
+def _resumed_transcribe_fn(job_id: str) -> TranscribeFn:
+    """Poll the existing ``job_id`` instead of uploading and submitting."""
+
+    def fn(path: Path, *, multichannel: bool) -> TranscriptResult:
+        return client.resume_transcript(job_id)
+
+    return fn
+
+
+def _no_probe(path: Path) -> bool:
+    """Resume never probes; the result reports the multichannel the job ran with."""
+    return False
+
+
 def _run_live_smoke(
-    items: list[EligibleItem], audio_dir: Path | None, out: Path, card_id: str
+    items: list[EligibleItem],
+    audio_dir: Path | None,
+    out: Path,
+    card_id: str,
+    resume_job_id: str | None = None,
 ) -> None:
-    """Transcribe a single card (the smoke target) via the live AAI client."""
+    """Transcribe a single card (the smoke target) via the live AAI client, or
+    finish an already-created job when ``resume_job_id`` is given."""
     if audio_dir is None:
         console.print("[red]error:[/red] --live-smoke reads source audio; pass --audio-dir.")
         raise typer.Exit(code=2)
@@ -108,8 +141,9 @@ def _run_live_smoke(
         raise typer.Exit(code=2)
     report = run_transcribe(
         scoped, audio_dir, out,
-        transcribe_fn=_live_transcribe_fn,
-        probe_fn=probe.is_stereo,
+        transcribe_fn=_resumed_transcribe_fn(resume_job_id) if resume_job_id
+        else _live_transcribe_fn,
+        probe_fn=_no_probe if resume_job_id else probe.is_stereo,
     )
     console.print(
         f"[green]✔[/green] live-smoke wrote {len(report.produced)} row(s) for {card_id}"
@@ -126,18 +160,32 @@ def transcribe_run(
     audio_dir: Path = _OPT_AUDIO_DIR,
     out: Path = _OPT_OUT,
     live_smoke: str = _OPT_LIVE_SMOKE,
+    resume_job_id: str = _OPT_RESUME_JOB_ID,
 ) -> None:
     """Preflight coverage (default) or a single-card live smoke (``--live-smoke``).
 
     Default: no spend — reports eligible-vs-produced and exits non-zero on a
     shortfall so a release gate can block on uncovered AUD content.
+
+    ``--resume-job-id <id>`` (only with ``--live-smoke``) recovers a job whose
+    submit timed out: it polls that existing transcript instead of uploading
+    and submitting again, then writes the same sidecars.
     """
+    if resume_job_id is not None and not _wire.is_valid_job_id(resume_job_id):
+        console.print(
+            "[red]error:[/red] --resume-job-id must be an opaque id matching "
+            "[A-Za-z0-9_-]{8,128}."
+        )
+        raise typer.Exit(code=2)
+    if resume_job_id and not live_smoke:
+        console.print("[red]error:[/red] --resume-job-id requires --live-smoke <card_id>.")
+        raise typer.Exit(code=2)
     m = load_manifest(manifest)
     items = select_eligible(m, release_date)
     out_dir = out or settings.ocr_dir
 
     if live_smoke:
-        _run_live_smoke(items, audio_dir, out_dir, live_smoke)
+        _run_live_smoke(items, audio_dir, out_dir, live_smoke, resume_job_id)
         return
 
     report = preflight_coverage(items, out_dir)
