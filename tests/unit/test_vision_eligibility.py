@@ -173,3 +173,29 @@ def test_eligible_item_is_hashable() -> None:
         card_id="a", page=1, kind="img_card", image_path=Path("x"), title="t"
     )
     assert item in {item}
+
+
+def test_eligible_image_observation_card_ids_includes_img_cards() -> None:
+    """Card IDs eligible for image observations include all IMG cards."""
+    from pursue_index.vision.eligibility import eligible_image_observation_card_ids
+
+    manifest = {"cards": [_img_card("img1"), _img_card("img2"), _pdf_card("pdf1")]}
+    pages = []
+
+    result = eligible_image_observation_card_ids({"manifest": manifest, "pages": pages})
+    assert result == {"img1", "img2"}
+
+
+def test_eligible_image_observation_card_ids_includes_pdfs_with_empty_pages() -> None:
+    """Card IDs eligible for image observations include PDFs with image-only pages."""
+    from pursue_index.vision.eligibility import eligible_image_observation_card_ids
+
+    manifest = {"cards": [_img_card("img1"), _pdf_card("pdf1"), _pdf_card("pdf2")]}
+    pages = [
+        {"card_id": "pdf1", "page": 1, "text": "has text"},
+        {"card_id": "pdf1", "page": 2, "text": ""},  # image-only
+        {"card_id": "pdf2", "page": 1, "text": "   "},  # image-only
+    ]
+
+    result = eligible_image_observation_card_ids({"manifest": manifest, "pages": pages})
+    assert result == {"img1", "pdf1", "pdf2"}

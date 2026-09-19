@@ -22,6 +22,7 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 from tests.support.payload_coverage import Key, PayloadSpec
+from pursue_index.vision import eligible_image_observation_card_ids
 
 MANIFEST = "data/manifests/latest.json"
 PAGES = "web/public/data/pages.json"
@@ -30,6 +31,7 @@ EMBED_INDEX = "web/public/data/embed_index.json"
 ATLAS_LAYOUT = "web/public/data/atlas-layout.json"
 VIDEO_POSTERS = "web/public/data/video-posters/index.json"
 THUMBS = "web/public/data/thumbs/index.json"
+IMAGE_OBSERVATIONS = "web/src/data/image-observations/index.json"
 
 #: Asset types whose cards get a poster frame.
 AV_ASSET_TYPES = ("VID", "AUD")
@@ -84,6 +86,11 @@ def _shipped_thumb_cards(doc: Any) -> set[Key]:
 
 def _shipped_page_cards(doc: Any) -> set[Key]:
     return {p["card_id"] for p in doc}
+
+
+def _shipped_image_observation_cards(doc: Any) -> set[Key]:
+    """Extract card_ids from the image observations index."""
+    return set(doc.get("card_ids", []))
 
 
 SPECS: tuple[PayloadSpec, ...] = (
@@ -159,6 +166,21 @@ SPECS: tuple[PayloadSpec, ...] = (
         rationale=(
             "structural sanity only: every card_id present in pages.json "
             "must exist in the manifest (OCR coverage is gated operationally)"
+        ),
+    ),
+    # Image observations: IMG cards + PDFs with image-only pages. The spec
+    # asserts complete coverage with no stale entries.
+    PayloadSpec(
+        payload=IMAGE_OBSERVATIONS,
+        sources=(MANIFEST, PAGES),
+        eligible=lambda s: eligible_image_observation_card_ids({"manifest": s[MANIFEST], "pages": s[PAGES]}),
+        shipped=_shipped_image_observation_cards,
+        require_no_missing=True,
+        require_no_extra=True,
+        key_label="card_id",
+        rationale=(
+            "every IMG card in the manifest and every PDF card with "
+            "image-only pages (pages with empty/whitespace text)"
         ),
     ),
 )
