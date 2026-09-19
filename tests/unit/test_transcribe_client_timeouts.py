@@ -140,14 +140,14 @@ def test_find_submitted_transcript_matches_on_audio_url() -> None:
             {
                 "transcripts": [
                     {"id": "other", "audio_url": "https://cdn.aai/upload/zzz"},
-                    {"id": "mine", "audio_url": _UPLOAD_URL},
+                    {"id": "mine-12345", "audio_url": _UPLOAD_URL},
                 ]
             },
         )
 
     found = client.find_submitted_transcript(_UPLOAD_URL, api_key="k", get=fake_get)
 
-    assert found == "mine"
+    assert found == "mine-12345"
     assert str(captured["url"]).endswith("/v2/transcript")
     assert captured["timeout"] == client.DEFAULT_REQUEST_TIMEOUT_S
     assert "limit" in dict(captured["params"])  # type: ignore[call-overload]
@@ -176,7 +176,7 @@ def test_submit_timeout_lists_adopts_and_polls_the_created_job(tmp_path: Path) -
         if url.endswith("/transcript"):
             calls.append("list")
             return _resp(
-                200, {"transcripts": [{"id": "orphan-1", "audio_url": _UPLOAD_URL}]}
+                200, {"transcripts": [{"id": "orphan-12345", "audio_url": _UPLOAD_URL}]}
             )
         calls.append(f"poll:{url.rsplit('/', 1)[-1]}")
         return _resp(200, _completed())
@@ -186,7 +186,7 @@ def test_submit_timeout_lists_adopts_and_polls_the_created_job(tmp_path: Path) -
         sleep=lambda s: None,
     )
 
-    assert calls == ["upload", "submit", "list", "poll:orphan-1"]
+    assert calls == ["upload", "submit", "list", "poll:orphan-12345"]
     assert [u["text"] for u in result.utterances] == ["hello"]
 
 
@@ -202,7 +202,7 @@ def test_submit_timeout_retries_the_list_before_giving_up(tmp_path: Path) -> Non
     def fake_get(url: str, **kwargs: object) -> httpx.Response:
         if url.endswith("/transcript"):
             lists["n"] += 1
-            found = [{"id": "late", "audio_url": _UPLOAD_URL}] if lists["n"] >= 2 else []
+            found = [{"id": "late-12345", "audio_url": _UPLOAD_URL}] if lists["n"] >= 2 else []
             return _resp(200, {"transcripts": found})
         return _resp(200, _completed())
 
@@ -268,3 +268,14 @@ def test_non_timeout_submit_failure_is_not_recovered_by_listing(tmp_path: Path) 
             sleep=lambda s: None,
         )
     assert listed == []
+
+
+def test_find_submitted_transcript_rejects_a_malformed_listed_id() -> None:
+    """An id that is not an opaque token never reaches a poll URL."""
+    def fake_get(url: str, **kwargs: object) -> httpx.Response:
+        return _resp(
+            200, {"transcripts": [{"id": "../../x/../y1234", "audio_url": _UPLOAD_URL}]}
+        )
+
+    with pytest.raises(client.InvalidJobIdError):
+        client.find_submitted_transcript(_UPLOAD_URL, api_key="k", get=fake_get)

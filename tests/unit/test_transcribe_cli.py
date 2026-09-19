@@ -14,6 +14,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from pursue_index.cli.commands import app
@@ -196,11 +197,11 @@ def test_live_smoke_resume_job_id_skips_upload_and_submit_and_writes_sidecars(
             "--audio-dir", str(audio_dir),
             "--out", str(out),
             "--live-smoke", "aud1",
-            "--resume-job-id", "job-123",
+            "--resume-job-id", "job-12345678",
         ],
     )
     assert result.exit_code == 0, result.stdout
-    assert resumed == ["job-123"]
+    assert resumed == ["job-12345678"]
     meta = json.loads((out / "aud1" / "meta.json").read_text())
     assert meta["status"] == "ok"
     assert (out / "aud1" / "pages.jsonl").exists()
@@ -216,7 +217,7 @@ def test_resume_job_id_without_live_smoke_is_a_usage_error(tmp_path: Path) -> No
             "transcribe", "run",
             "--manifest", str(manifest),
             "--out", str(tmp_path / "ocr"),
-            "--resume-job-id", "job-123",
+            "--resume-job-id", "job-12345678",
         ],
     )
     assert result.exit_code == 2
@@ -225,3 +226,43 @@ def test_resume_job_id_without_live_smoke_is_a_usage_error(tmp_path: Path) -> No
 def test_resume_job_id_is_documented_in_help() -> None:
     result = runner.invoke(app, ["transcribe", "run", "--help"])
     assert "--resume-job-id" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "bad_id",
+    ["", " ", "job 12345678", "abc/../def12345", "../../etc/passwd", "job12345678?x=1",
+     "job12345678#frag", "..", "short", "a" * 129, "job-12345678\n"],
+)
+def test_resume_job_id_rejects_a_non_token_before_any_network_call(
+    tmp_path: Path, monkeypatch, bad_id: str
+) -> None:
+    """The id is interpolated into a request URL, so anything but an opaque
+    token exits non-zero naming the option, before any AssemblyAI call."""
+    import pursue_index.transcribe.client as client_mod
+
+    def boom(*_a, **_kw):
+        raise AssertionError("no network call may happen for an invalid id")
+
+    monkeypatch.setattr(client_mod, "resume_transcript", boom)
+    monkeypatch.setattr(client_mod, "poll_transcript", boom)
+    monkeypatch.setattr(client_mod, "transcribe_file", boom)
+
+    audio_dir = tmp_path / "audio"
+    audio_dir.mkdir()
+    (audio_dir / "aud1.mp4").write_bytes(b"fake mp4")
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_aud_card("aud1")])
+    result = runner.invoke(
+        app,
+        [
+            "transcribe", "run",
+            "--manifest", str(manifest),
+            "--audio-dir", str(audio_dir),
+            "--out", str(tmp_path / "ocr"),
+            "--live-smoke", "aud1",
+            "--resume-job-id", bad_id,
+        ],
+    )
+    assert result.exit_code != 0
+    assert "--resume-job-id" in result.stdout
+    assert not (tmp_path / "ocr" / "aud1").exists()

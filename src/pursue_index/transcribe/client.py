@@ -33,6 +33,7 @@ from pursue_index.transcribe._wire import DEFAULT_REQUEST_TIMEOUT_S
 # re-exported here: ``client`` is the surface callers import them from.
 from pursue_index.transcribe.errors import (  # noqa: F401
     ApiKeyMissingError,
+    InvalidJobIdError,
     PollTimeoutError,
     SubmitError,
     TranscribeError,
@@ -271,8 +272,10 @@ def resume_transcript(
 
     The manual recovery path for a job whose submit answer was lost. The
     ``multichannel`` reported is the one the job actually ran with, read back
-    from AssemblyAI rather than assumed.
+    from AssemblyAI rather than assumed. ``transcript_id`` must be an opaque
+    token (``InvalidJobIdError`` otherwise); it is checked before any request.
     """
+    _wire.require_job_id(transcript_id)
     key = api_key or _api_key()
     data = poll_transcript(
         transcript_id, api_key=key, get=get,

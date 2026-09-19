@@ -32,7 +32,7 @@ from rich.console import Console
 
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
-from pursue_index.transcribe import client, probe
+from pursue_index.transcribe import _wire, client, probe
 from pursue_index.transcribe.eligibility import EligibleItem, select_eligible
 from pursue_index.transcribe.result import TranscriptResult
 from pursue_index.transcribe.run import (
@@ -171,6 +171,12 @@ def transcribe_run(
     submit timed out: it polls that existing transcript instead of uploading
     and submitting again, then writes the same sidecars.
     """
+    if resume_job_id is not None and not _wire.is_valid_job_id(resume_job_id):
+        console.print(
+            "[red]error:[/red] --resume-job-id must be an opaque id matching "
+            "[A-Za-z0-9_-]{8,128}."
+        )
+        raise typer.Exit(code=2)
     if resume_job_id and not live_smoke:
         console.print("[red]error:[/red] --resume-job-id requires --live-smoke <card_id>.")
         raise typer.Exit(code=2)

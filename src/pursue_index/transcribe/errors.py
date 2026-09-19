@@ -30,3 +30,7 @@ class PollTimeoutError(TranscribeError):
 
 class TranscriptFailedError(TranscribeError):
     """AssemblyAI itself reported the transcript job as failed."""
+
+
+class InvalidJobIdError(TranscribeError, ValueError):
+    """A transcript id is not an opaque token, so it must not reach a request URL."""

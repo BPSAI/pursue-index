@@ -16,6 +16,7 @@ from pursue_index.transcribe._wire import (
     BASE_URL,
     DEFAULT_REQUEST_TIMEOUT_S,
     headers,
+    require_job_id,
 )
 from pursue_index.transcribe._wire import api_key as resolve_api_key
 from pursue_index.transcribe.errors import SubmitError
@@ -53,7 +54,7 @@ def find_submitted_transcript(
         raise SubmitError(f"list failed: HTTP {resp.status_code}")
     for item in resp.json().get("transcripts") or []:
         if item.get("audio_url") == upload_url and item.get("id"):
-            return str(item["id"])
+            return require_job_id(str(item["id"]))
     return None
 
 
