@@ -573,3 +573,60 @@ def test_fetch_one_card_id_link_is_hard_linked_or_symlink(tmp_path: Path) -> Non
     else:
         # Hard link: same inode
         assert dod_path.stat().st_ino == card_path.stat().st_ino
+
+
+def test_fetch_one_creates_link_for_second_row_of_same_card_id(tmp_path: Path) -> None:
+    """Each row with same card_id but different dvids_id creates its own DOD link."""
+    card1 = FakeCard("c1", "AUD", "1006056")
+    card2 = FakeCard("c1", "AUD", "1006119")  # Same card_id, different dvids_id
+
+    page_fetch = _pages({
+        "1006056": (200, _VID_PAGE_BODY),
+        "1006119": (200, _AUD_PAGE_BODY),
+    })
+    asset_fetch = _assets({
+        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
+            200, "binary/octet-stream", _ASSET_BYTES,
+        ),
+        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111689232/DOD_111689232.mp4": (
+            200, "binary/octet-stream", _ASSET_BYTES + b"y",
+        ),
+    })
+
+    item1 = fetch_one(card1, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
+    item2 = fetch_one(card2, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
+
+    # Both rows create DOD files and the card_id link
+    dod_path_1 = tmp_path / "DOD_111688723.mp4"
+    dod_path_2 = tmp_path / "DOD_111689232.mp4"
+    card_path = tmp_path / "c1.mp4"
+
+    assert dod_path_1.exists()
+    assert dod_path_2.exists()
+    assert card_path.exists()
+    # The card_path link points to one of the DOD files (most recently created)
+    assert card_path.read_bytes() in [_ASSET_BYTES, _ASSET_BYTES + b"y"]
+
+
+def test_fetch_one_makes_link_idempotent_when_already_correct(tmp_path: Path) -> None:
+    """Re-fetching doesn't error if the link already exists and is correct."""
+    card = FakeCard("c1", "VID", "1006056")
+    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
+    asset_fetch = _assets({
+        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
+            200, "binary/octet-stream", _ASSET_BYTES,
+        )
+    })
+
+    item1 = fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
+    item2 = fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
+
+    # Both calls should succeed and result in the same files
+    assert item1.status == "fetched"
+    assert item2.status == "skipped_existing"
+
+    dod_path = tmp_path / "DOD_111688723.mp4"
+    card_path = tmp_path / "c1.mp4"
+
+    assert dod_path.exists()
+    assert card_path.exists()
