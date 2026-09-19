@@ -283,3 +283,129 @@ def test_cost_cap_override_threads_to_embed(tmp_path, monkeypatch) -> None:
     )
     assert res.exit_code == 0, res.output
     assert seen["embed_cost_cap"] == [50.0]
+
+
+# --- A/V worklist handling ---
+
+
+def _new_content_mixed() -> list[dict]:
+    """2 PDF, 2 VID, 1 AUD for mixed PDF/A/V testing."""
+    return [
+        {"new_card_id": "pdf1", "title": "PDF 1", "asset_url": "https://x/a.pdf", "asset_type": "PDF", "release_date": "2026-03-15"},
+        {"new_card_id": "pdf2", "title": "PDF 2", "asset_url": "https://x/b.pdf", "asset_type": "PDF", "release_date": "2026-03-15"},
+        {"new_card_id": "vid1", "title": "Video 1", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+        {"new_card_id": "vid2", "title": "Video 2", "asset_url": "https://x/b.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+        {"new_card_id": "aud1", "title": "Audio 1", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-03-15"},
+    ]
+
+
+def test_dry_run_writes_both_pdf_and_av_worklists(tmp_path, monkeypatch) -> None:
+    """--dry-run with mixed PDF/A/V content writes both worklist.txt and worklist-av.txt."""
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, _new_content_mixed())
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    worklist = tmp_path / "worklist.txt"
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot),
+         "--from-diff", "--dry-run", "--worklist", str(worklist)],
+    )
+    assert res.exit_code == 0, res.output
+
+    # Check PDF worklist
+    assert worklist.exists(), f"PDF worklist not created at {worklist}"
+    pdf_lines = [
+        ln.strip()
+        for ln in worklist.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    assert pdf_lines == ["pdf1", "pdf2"], f"Expected ['pdf1', 'pdf2'], got {pdf_lines}"
+
+    # Check A/V worklist
+    av_worklist = worklist.parent / "worklist-av.txt"
+    assert av_worklist.exists(), f"A/V worklist not created at {av_worklist}"
+    av_lines = [
+        ln.strip()
+        for ln in av_worklist.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    assert av_lines == ["vid1", "vid2", "aud1"], f"Expected ['vid1', 'vid2', 'aud1'], got {av_lines}"
+
+    # No stages ran
+    assert seen == {}
+
+
+def test_dry_run_pdf_only_no_av_worklist(tmp_path, monkeypatch) -> None:
+    """--dry-run with PDF-only content writes only worklist.txt, not worklist-av.txt."""
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, _new_content_two_cards())
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    worklist = tmp_path / "worklist.txt"
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot),
+         "--from-diff", "--dry-run", "--worklist", str(worklist)],
+    )
+    assert res.exit_code == 0, res.output
+
+    # Check PDF worklist exists
+    assert worklist.exists()
+    pdf_lines = [
+        ln.strip()
+        for ln in worklist.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    assert pdf_lines == ["newcard1", "newcard2"]
+
+    # A/V worklist should NOT exist
+    av_worklist = worklist.parent / "worklist-av.txt"
+    assert not av_worklist.exists(), f"A/V worklist should not exist, but found at {av_worklist}"
+
+
+def test_dry_run_av_only_no_pdf_worklist(tmp_path, monkeypatch) -> None:
+    """--dry-run with A/V-only content writes only worklist-av.txt, not worklist.txt."""
+    diff_dir = tmp_path / "plans"
+    av_only = [
+        {"new_card_id": "vid1", "title": "Video 1", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+        {"new_card_id": "aud1", "title": "Audio 1", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-03-15"},
+    ]
+    _write_diff(diff_dir, _TRANCHE, av_only)
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    worklist = tmp_path / "worklist.txt"
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot),
+         "--from-diff", "--dry-run", "--worklist", str(worklist)],
+    )
+    assert res.exit_code == 0, res.output
+
+    # PDF worklist should NOT exist
+    assert not worklist.exists(), f"PDF worklist should not exist"
+
+    # A/V worklist should exist
+    av_worklist = worklist.parent / "worklist-av.txt"
+    assert av_worklist.exists(), f"A/V worklist not created at {av_worklist}"
+    av_lines = [
+        ln.strip()
+        for ln in av_worklist.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    assert av_lines == ["vid1", "aud1"]
