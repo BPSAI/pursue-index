@@ -13,8 +13,8 @@ from pursue_index.config import settings
 
 runner = CliRunner()
 
+# PURSUE_DATA_ROOT is filled in per test: verify now stats it, so it must exist.
 _OK_ENV = {
-    "PURSUE_DATA_ROOT": "/srv/pursue-data",
     "R2_ACCOUNT_ID": "acct-primary",
     "R2_ACCESS_KEY_ID": "ak",
     "R2_SECRET_ACCESS_KEY": "sk",
@@ -25,26 +25,29 @@ _OK_ENV = {
 }
 
 
-def test_verify_exit_zero_when_all_tiers_configured(monkeypatch) -> None:
+def _configure(monkeypatch, data_root: Path) -> None:
     for k, v in _OK_ENV.items():
         monkeypatch.setenv(k, v)
+    monkeypatch.setenv("PURSUE_DATA_ROOT", str(data_root))
+
+
+def test_verify_exit_zero_when_all_tiers_configured(monkeypatch, tmp_path) -> None:
+    _configure(monkeypatch, tmp_path)
     res = runner.invoke(app, ["storage", "verify"])
     assert res.exit_code == 0, res.output
     assert "pursue-pdfs-backup" in res.output
 
 
-def test_verify_exit_nonzero_when_backup_tier_missing(monkeypatch) -> None:
-    for k, v in _OK_ENV.items():
-        monkeypatch.setenv(k, v)
+def test_verify_exit_nonzero_when_backup_tier_missing(monkeypatch, tmp_path) -> None:
+    _configure(monkeypatch, tmp_path)
     monkeypatch.delenv("BACKUP_R2_ACCESS_KEY_ID", raising=False)
     res = runner.invoke(app, ["storage", "verify"])
     assert res.exit_code == 1, res.output
     assert "MISSING" in res.output
 
 
-def test_verify_warns_on_same_account_backup(monkeypatch) -> None:
-    for k, v in _OK_ENV.items():
-        monkeypatch.setenv(k, v)
+def test_verify_warns_on_same_account_backup(monkeypatch, tmp_path) -> None:
+    _configure(monkeypatch, tmp_path)
     monkeypatch.setenv("BACKUP_R2_ACCOUNT_ID", "acct-primary")
     res = runner.invoke(app, ["storage", "verify"])
     # Same-account is a warning, not a hard failure — still exit 0.

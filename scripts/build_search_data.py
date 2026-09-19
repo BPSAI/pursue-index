@@ -36,9 +36,19 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402
+from pursue_index.release.shrink_guard import (  # noqa: E402
+    add_shrink_args,
+    committed_pages_card_ids,
+    enforce,
+    find_shrink,
+    find_uncovered,
+    ocr_dir_error,
+    shrink_reason,
+)
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
+DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
 DEFAULT_IMAGE_OBS_INDEX = (
     REPO_ROOT / "web" / "src" / "data" / "image-observations" / "index.json"
 )
@@ -53,9 +63,9 @@ def _clean_text(text: str) -> str:
     return _SURYA_TAG_RE.sub("", text)
 
 
-def _load_titles(manifest_path: Path) -> dict[str, str]:
+def _load_manifest_cards(manifest_path: Path) -> list[dict[str, object]]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    return {c["card_id"]: c["title"] for c in manifest["cards"]}
+    return list(manifest["cards"])
 
 
 def _walk_card_pages(
@@ -199,14 +209,37 @@ def build(
     manifest_path: Path,
     out_path: Path,
     image_obs_index: Path | None = None,
+    *,
+    allow_shrink_reason: str | None = None,
+    audit_log: Path = DEFAULT_AUDIT_LOG,
 ) -> int:
-    """Materialize the search payload. Returns process exit code."""
+    """Materialize the search payload. Returns process exit code.
+
+    Refuses (exit 1, payload untouched) when the rebuild would shrink the
+    payload already at ``out_path`` or leave a manifest card without text; see
+    ``pursue_index.release.shrink_guard``.
+    """
     if not manifest_path.exists():
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
         return 1
+    unreadable = ocr_dir_error(ocr_dir)
+    if unreadable:
+        print(f"cannot read the OCR data root: {unreadable}", file=sys.stderr)
+        return 1
     obs_lookup = _load_obs_lookup(image_obs_index)
-    titles_by_id = _load_titles(manifest_path)
+    manifest_cards = _load_manifest_cards(manifest_path)
+    titles_by_id = {str(c["card_id"]): str(c["title"]) for c in manifest_cards}
     docs, cards_seen = _walk_card_pages(ocr_dir, titles_by_id, obs_lookup)
+    rebuilt_ids = {str(d["card_id"]) for d in docs}
+    rc = enforce(
+        "build_search_data.py",
+        find_shrink(committed_pages_card_ids(out_path), rebuilt_ids),
+        find_uncovered(manifest_cards, rebuilt_ids),
+        allow_reason=allow_shrink_reason,
+        audit_log=audit_log,
+    )
+    if rc:
+        return rc
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(docs, ensure_ascii=False), encoding="utf-8")
     size_mb = out_path.stat().st_size / (1024 * 1024)
@@ -247,12 +280,15 @@ def main() -> int:
             "searchable text. Pass a non-existent path to disable."
         ),
     )
+    add_shrink_args(parser, "pages.json")
     args = parser.parse_args()
+    allow_shrink_reason = shrink_reason(parser, args)
     return build(
         ocr_dir=args.ocr_dir,
         manifest_path=args.manifest,
         out_path=args.out,
         image_obs_index=args.image_observations_index,
+        allow_shrink_reason=allow_shrink_reason,
     )
 
 

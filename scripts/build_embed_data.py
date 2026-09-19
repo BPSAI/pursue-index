@@ -41,8 +41,20 @@ from pursue_index.embed.publish import (  # noqa: E402
     load_embed_eligible_keys,
     select_publish_rows,
 )
+from pursue_index.release.shrink_guard import (  # noqa: E402
+    add_shrink_args,
+    committed_embed_card_ids,
+    enforce,
+    find_shrink,
+    find_uncovered,
+    ocr_covered_ids,
+    ocr_dir_error,
+    shrink_reason,
+)
 
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
+DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
+DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
 DEFAULT_WARN_BYTES = 10 * 1024 * 1024  # 10 MB — chat-interface plan threshold
 
 
@@ -113,12 +125,48 @@ def _maybe_warn(size: int, threshold: int) -> None:
     print(f"warn: payload {size_mb:.1f} MB exceeds threshold; revisit retrieval")
 
 
+def _guard(
+    kept_rows: list[dict],
+    idx_path: Path,
+    manifest_path: Path | None,
+    ocr_dir: Path | None,
+    allow_shrink_reason: str | None,
+    audit_log: Path,
+) -> int:
+    """Refuse a rebuild that shrinks the committed ``embed_index.json``.
+
+    The manifest-coverage rule needs both ``manifest_path`` and ``ocr_dir``;
+    without them only the shrink comparison runs.
+    """
+    rebuilt_ids = {str(r["card_id"]) for r in kept_rows}
+    uncovered: list[str] = []
+    if manifest_path is not None and ocr_dir is not None:
+        unreadable = ocr_dir_error(ocr_dir)
+        if unreadable:
+            print(f"cannot read the OCR data root: {unreadable}", file=sys.stderr)
+            return 1
+        cards = json.loads(manifest_path.read_text(encoding="utf-8"))["cards"]
+        uncovered = find_uncovered(cards, ocr_covered_ids(ocr_dir))
+    return enforce(
+        "build_embed_data.py",
+        find_shrink(committed_embed_card_ids(idx_path), rebuilt_ids),
+        uncovered,
+        allow_reason=allow_shrink_reason,
+        audit_log=audit_log,
+    )
+
+
 def build(
     embeddings_root: Path,
     model_id: str,
     out_dir: Path,
     warn_threshold_bytes: int = DEFAULT_WARN_BYTES,
     pages_json: Path | None = None,
+    *,
+    manifest_path: Path | None = None,
+    ocr_dir: Path | None = None,
+    allow_shrink_reason: str | None = None,
+    audit_log: Path = DEFAULT_AUDIT_LOG,
 ) -> int:
     in_dir = embeddings_root / model_id
     if not (in_dir / "index.json").exists():
@@ -136,12 +184,17 @@ def build(
     arr, index = _read_vectors(in_dir)
     dim = int(index["dim"])
     kept_rows = _select_rows(index, load_embed_eligible_keys(pages_path))
+    idx_path = out_dir / "embed_index.json"
+    rc = _guard(
+        kept_rows, idx_path, manifest_path, ocr_dir, allow_shrink_reason, audit_log
+    )
+    if rc:
+        return rc
     arr = _filter_vectors(arr, kept_rows, dim)
     arr_f16 = arr.astype(np.float16)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     bin_path = out_dir / "embeddings.bin"
-    idx_path = out_dir / "embed_index.json"
 
     # Little-endian float16 — explicit dtype keeps platform endianness sane.
     bin_path.write_bytes(arr_f16.astype("<f2").tobytes(order="C"))
@@ -183,12 +236,25 @@ def main() -> int:
         default=None,
         help="pages.json used for publish eligibility (default: out-dir).",
     )
+    parser.add_argument(
+        "--manifest", type=Path, default=DEFAULT_MANIFEST_PATH,
+        help="Manifest whose text-bearing cards must have OCR/transcript pages.",
+    )
+    parser.add_argument(
+        "--ocr-dir", type=Path, default=settings.ocr_dir,
+        help="Data-root OCR dir checked for manifest-card coverage.",
+    )
+    add_shrink_args(parser, "embed_index.json")
     args = parser.parse_args()
+    allow_shrink_reason = shrink_reason(parser, args)
     return build(
         embeddings_root=args.embeddings_root,
         model_id=args.model,
         out_dir=args.out_dir,
         pages_json=args.pages_json,
+        manifest_path=args.manifest,
+        ocr_dir=args.ocr_dir,
+        allow_shrink_reason=allow_shrink_reason,
     )
 
 
