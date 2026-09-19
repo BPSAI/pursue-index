@@ -8,6 +8,7 @@ Credential-free: checks env-key presence only, never reads secret values.
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -27,6 +28,12 @@ from pursue_index.storage.contract import (
     render_contract_summary,
     verify_storage_contract,
 )
+from pursue_index.storage.data_root import (
+    DataRootProbe,
+    ocr_coverage,
+    probe_data_root,
+    render_data_root_lines,
+)
 
 _WORKLIST_OPT = typer.Option(
     ...,
@@ -44,14 +51,35 @@ storage_app = typer.Typer(
 def verify_cmd() -> None:
     """Verify all three storage tiers are configured; surface the DR risk.
 
-    Exit 0 iff every tier resolves its configuring env keys. The same-account
-    backup risk is printed as a WARNING but does not fail the check (it is a
-    durability-posture finding needing an operator decision, not a
-    misconfiguration).
+    Exit 0 iff every tier resolves its configuring env keys AND the data root
+    is reachable (a ``stat`` of ``PURSUE_DATA_ROOT`` — configured is not the
+    same as mounted). The same-account backup risk is printed as a WARNING but
+    does not fail the check (it is a durability-posture finding needing an
+    operator decision, not a misconfiguration). OCR coverage
+    (``<manifest cards with pages.jsonl>/<manifest cards>``) is reported for a
+    mounted root so a thin root is visible before a derivative rebuild.
     """
     result = verify_storage_contract(os.environ)
+    probe = probe_data_root(os.environ)
     typer.echo(render_contract_summary(result))
-    raise typer.Exit(0 if result.ok else 1)
+    typer.echo("")
+    for line in render_data_root_lines(probe, _coverage(probe)):
+        typer.echo(line)
+    unreachable = probe.configured and not probe.mounted
+    if unreachable:
+        typer.echo(f"ERROR: data root {probe.root} is configured but not reachable.")
+    raise typer.Exit(0 if result.ok and not unreachable else 1)
+
+
+def _coverage(probe: DataRootProbe) -> tuple[int, int] | None:
+    """OCR coverage of the mounted root, or ``None`` if it cannot be measured."""
+    manifest_path = settings.manifests_dir / "latest.json"
+    if probe.root is None or not probe.mounted or not manifest_path.exists():
+        return None
+    # Raw JSON, like the derivative builders: a preflight must not fail on a
+    # manifest-schema field it never reads.
+    cards = json.loads(manifest_path.read_text(encoding="utf-8"))["cards"]
+    return ocr_coverage(probe.root / "ocr", cards)
 
 
 def _pdf_scope(worklist: Path) -> list[str]:
