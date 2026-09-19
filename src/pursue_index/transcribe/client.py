@@ -18,20 +18,39 @@ the file's raw bytes unchanged.
 
 from __future__ import annotations
 
-import os
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import httpx
 
 from pursue_index import get_logger
+from pursue_index.transcribe import _wire
+from pursue_index.transcribe._wire import DEFAULT_REQUEST_TIMEOUT_S
+
+# The error taxonomy and ``TranscriptResult`` live in their own modules and are
+# re-exported here: ``client`` is the surface callers import them from.
+from pursue_index.transcribe.errors import (  # noqa: F401
+    ApiKeyMissingError,
+    PollTimeoutError,
+    SubmitError,
+    TranscribeError,
+    TranscriptFailedError,
+    UploadError,
+)
+from pursue_index.transcribe.recovery import (  # noqa: F401
+    adopt_timed_out_submit,
+    find_submitted_transcript,
+)
+from pursue_index.transcribe.result import TranscriptResult, result_from
 
 log = get_logger(__name__)
 
-_BASE_URL = "https://api.assemblyai.com/v2"
+_BASE_URL = _wire.BASE_URL
+_api_key = _wire.api_key
+_headers = _wire.headers
+
 DEFAULT_POLL_INTERVAL_S = 5.0
 DEFAULT_POLL_TIMEOUT_S = 1800.0  # 30 min hard cap — never polls forever
 # Consecutive unusable status answers tolerated before polling gives up. A
@@ -42,62 +61,19 @@ DEFAULT_MAX_POLL_RETRIES = 5
 
 # Every request states the deadline it expects to finish within, so no call
 # in this stage inherits an HTTP-library default sized for small JSON.
-# Submit and poll exchange a few hundred bytes and answer quickly.
-DEFAULT_REQUEST_TIMEOUT_S = 60.0
+# Poll and list exchange a few hundred bytes and answer quickly.
+# Submit is a small request too, but AssemblyAI can take well over a minute to
+# answer it for a large upload; a deadline sized for a status round trip cut it
+# off after the job already existed. It gets its own, larger bound.
+DEFAULT_SUBMIT_TIMEOUT_S = 300.0
 # The upload sends a whole A/V asset — tens of megabytes — in one request,
 # so its deadline is sized for the body to go out over an ordinary link
 # rather than for a round trip.
 DEFAULT_UPLOAD_TIMEOUT_S = 1800.0
 
 
-class TranscribeError(Exception):
-    """Base of the AAI client's error taxonomy."""
-
-
-class ApiKeyMissingError(TranscribeError):
-    """``ASSEMBLYAI_API_KEY`` isn't set in the environment."""
-
-
-class UploadError(TranscribeError):
-    """The upload request failed or returned an unusable response."""
-
-
-class SubmitError(TranscribeError):
-    """Job submission/status-poll HTTP call failed or was malformed."""
-
-
-class PollTimeoutError(TranscribeError):
-    """Polling exceeded the hard timeout before reaching a terminal state."""
-
-
-class TranscriptFailedError(TranscribeError):
-    """AssemblyAI itself reported the transcript job as failed."""
-
-
-@dataclass(frozen=True)
-class TranscriptResult:
-    """A completed transcript, normalized for the sidecar writer."""
-
-    utterances: list[dict[str, Any]]
-    audio_duration_s: float | None
-    speakers: list[str]
-    multichannel: bool
-    raw: dict[str, Any]
-
-
 HttpPost = Callable[..., httpx.Response]
 HttpGet = Callable[..., httpx.Response]
-
-
-def _api_key() -> str:
-    key = os.environ.get("ASSEMBLYAI_API_KEY")
-    if not key:
-        raise ApiKeyMissingError("ASSEMBLYAI_API_KEY not set")
-    return key
-
-
-def _headers(key: str) -> dict[str, str]:
-    return {"authorization": key}
 
 
 def upload_audio(
@@ -134,7 +110,7 @@ def submit_transcript(
     multichannel: bool,
     api_key: str | None = None,
     post: HttpPost = httpx.post,
-    timeout_s: float = DEFAULT_REQUEST_TIMEOUT_S,
+    timeout_s: float = DEFAULT_SUBMIT_TIMEOUT_S,
 ) -> str:
     """Submit a diarized transcription job; return the transcript id."""
     key = api_key or _api_key()
@@ -239,21 +215,6 @@ def poll_transcript(
         sleep(poll_interval_s)
 
 
-def _parse_utterances(data: dict[str, Any]) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    for u in data.get("utterances") or []:
-        out.append(
-            {
-                "speaker": str(u.get("speaker")) if u.get("speaker") is not None else "",
-                "text": u.get("text", ""),
-                "start": u.get("start"),
-                "end": u.get("end"),
-                "channel": str(u["channel"]) if u.get("channel") is not None else None,
-            }
-        )
-    return out
-
-
 def transcribe_file(
     path: Path,
     *,
@@ -267,23 +228,54 @@ def transcribe_file(
 ) -> TranscriptResult:
     """Upload -> submit -> bounded-poll one mp4. Uploads the file as-is (no
     audio-extraction step); ``multichannel`` is decided by the caller (a
-    channel probe), never guessed here."""
+    channel probe), never guessed here.
+
+    If the submit call times out, the job may already exist on AssemblyAI's
+    side, so it is looked up by the upload URL and polled rather than raised
+    and re-paid; only when no such job is found does the timeout surface.
+    """
     key = api_key or _api_key()
     upload_url = upload_audio(path, api_key=key, post=post)
-    transcript_id = submit_transcript(
-        upload_url, multichannel=multichannel, api_key=key, post=post
-    )
+    try:
+        transcript_id = submit_transcript(
+            upload_url, multichannel=multichannel, api_key=key, post=post
+        )
+    except httpx.TimeoutException as exc:
+        adopted = adopt_timed_out_submit(
+            upload_url, key=key, get=get, sleep=sleep, poll_interval_s=poll_interval_s
+        )
+        if adopted is None:
+            raise SubmitError(
+                "submit timed out and no job was found for the uploaded audio"
+            ) from exc
+        log.warning("transcribe.submit.adopted_after_timeout", transcript_id=adopted)
+        transcript_id = adopted
     log.info("transcribe.submitted", transcript_id=transcript_id, multichannel=multichannel)
     data = poll_transcript(
         transcript_id, api_key=key, get=get,
         poll_interval_s=poll_interval_s, timeout_s=timeout_s, sleep=sleep,
     )
-    utterances = _parse_utterances(data)
-    speakers = sorted({u["speaker"] for u in utterances if u["speaker"]})
-    return TranscriptResult(
-        utterances=utterances,
-        audio_duration_s=data.get("audio_duration"),
-        speakers=speakers,
-        multichannel=multichannel,
-        raw=data,
+    return result_from(data, multichannel=multichannel)
+
+
+def resume_transcript(
+    transcript_id: str,
+    *,
+    api_key: str | None = None,
+    get: HttpGet = httpx.get,
+    poll_interval_s: float = DEFAULT_POLL_INTERVAL_S,
+    timeout_s: float = DEFAULT_POLL_TIMEOUT_S,
+    sleep: Callable[[float], None] = time.sleep,
+) -> TranscriptResult:
+    """Poll an already-submitted job to completion — no upload, no submit.
+
+    The manual recovery path for a job whose submit answer was lost. The
+    ``multichannel`` reported is the one the job actually ran with, read back
+    from AssemblyAI rather than assumed.
+    """
+    key = api_key or _api_key()
+    data = poll_transcript(
+        transcript_id, api_key=key, get=get,
+        poll_interval_s=poll_interval_s, timeout_s=timeout_s, sleep=sleep,
     )
+    return result_from(data, multichannel=bool(data.get("multichannel")))

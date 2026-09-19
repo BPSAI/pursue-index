@@ -154,3 +154,74 @@ def test_live_smoke_vid_card_is_not_eligible(tmp_path: Path) -> None:
         ],
     )
     assert result.exit_code != 0
+
+
+def test_live_smoke_resume_job_id_skips_upload_and_submit_and_writes_sidecars(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """--resume-job-id polls an existing job and writes the same sidecars via
+    the normal writer; upload, submit and the channel probe never run."""
+    import pursue_index.transcribe.client as client_mod
+    import pursue_index.transcribe.probe as probe_mod
+
+    resumed: list[str] = []
+
+    def fake_resume(job_id, **_kw):
+        resumed.append(job_id)
+        return client_mod.TranscriptResult(
+            utterances=[{"speaker": "A", "text": "recovered", "start": 0, "end": 100}],
+            audio_duration_s=2.0, speakers=["A"], multichannel=False, raw={},
+        )
+
+    def boom(*_a, **_kw):
+        raise AssertionError("must not run on the resume path")
+
+    monkeypatch.setattr(client_mod, "resume_transcript", fake_resume)
+    monkeypatch.setattr(client_mod, "transcribe_file", boom)
+    monkeypatch.setattr(client_mod, "upload_audio", boom)
+    monkeypatch.setattr(client_mod, "submit_transcript", boom)
+    monkeypatch.setattr(probe_mod, "is_stereo", boom)
+
+    audio_dir = tmp_path / "audio"
+    audio_dir.mkdir()
+    (audio_dir / "aud1.mp4").write_bytes(b"fake mp4")
+    out = tmp_path / "ocr"
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_aud_card("aud1")])
+    result = runner.invoke(
+        app,
+        [
+            "transcribe", "run",
+            "--manifest", str(manifest),
+            "--audio-dir", str(audio_dir),
+            "--out", str(out),
+            "--live-smoke", "aud1",
+            "--resume-job-id", "job-123",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout
+    assert resumed == ["job-123"]
+    meta = json.loads((out / "aud1" / "meta.json").read_text())
+    assert meta["status"] == "ok"
+    assert (out / "aud1" / "pages.jsonl").exists()
+    assert "recovered" in (out / "aud1" / "pages.jsonl").read_text()
+
+
+def test_resume_job_id_without_live_smoke_is_a_usage_error(tmp_path: Path) -> None:
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_aud_card("aud1")])
+    result = runner.invoke(
+        app,
+        [
+            "transcribe", "run",
+            "--manifest", str(manifest),
+            "--out", str(tmp_path / "ocr"),
+            "--resume-job-id", "job-123",
+        ],
+    )
+    assert result.exit_code == 2
+
+
+def test_resume_job_id_is_documented_in_help() -> None:
+    result = runner.invoke(app, ["transcribe", "run", "--help"])
+    assert "--resume-job-id" in result.stdout

@@ -18,6 +18,11 @@ are outstanding rows.
 A transcript that carries no utterances is its own outcome: the call returned,
 but the row has no content, so it is recorded as empty and stays outstanding
 rather than counting toward coverage.
+
+A transcript whose utterances are single words repeated back to back is the
+signature of a dual-mono file that was sent as ``multichannel`` (every word
+returned once per channel). ``looks_channel_duplicated`` rejects it before any
+sidecar is written, so that shape can never reach the reader path.
 """
 
 from __future__ import annotations
@@ -25,21 +30,50 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from itertools import pairwise
 from pathlib import Path
 
 from pursue_index import get_logger
-from pursue_index.transcribe.client import TranscriptResult
 from pursue_index.transcribe.eligibility import (
     CoverageKey,
     EligibleItem,
     audio_path_for,
 )
 from pursue_index.transcribe.pages import write_transcript_sidecar
+from pursue_index.transcribe.result import TranscriptResult
 
 log = get_logger(__name__)
 
 TranscribeFn = Callable[..., TranscriptResult]
 ProbeFn = Callable[[Path], bool]
+
+# Evidence needed before a transcript is judged channel-duplicated: enough
+# utterances that a stray "Yes." / "Yes." exchange can't trip it, mostly
+# one-word, and a large share of them repeating their predecessor's text.
+_DUP_MIN_UTTERANCES = 10
+_DUP_ONE_WORD_SHARE = 0.9
+_DUP_REPEAT_SHARE = 0.4
+
+
+def _normalized_words(text: object) -> list[str]:
+    return [w for w in str(text or "").casefold().split() if w.strip(".,?!;:\"'-")]
+
+
+def looks_channel_duplicated(utterances: list[dict[str, object]]) -> bool:
+    """True when ``utterances`` carry the dual-mono signature: nearly all
+    one-word, and many repeating the previous utterance's text.
+
+    A file with two identical channels sent as ``multichannel`` comes back with
+    each word once per channel. Real speech is not shaped like that, so this is
+    a safe fail-closed check on a finished transcript.
+    """
+    n = len(utterances)
+    if n < _DUP_MIN_UTTERANCES:
+        return False
+    words = [_normalized_words(u.get("text")) for u in utterances]
+    one_word = sum(1 for w in words if len(w) == 1)
+    repeats = sum(1 for prev, cur in pairwise(words) if prev and prev == cur)
+    return one_word / n >= _DUP_ONE_WORD_SHARE and repeats / (n - 1) >= _DUP_REPEAT_SHARE
 
 
 @dataclass
@@ -132,6 +166,19 @@ def _transcribe_one(
             card_id=item.card_id, row_key=item.row_key, error=str(exc),
         )
         return str(exc), False
+    if looks_channel_duplicated(result.utterances):
+        error = (
+            "transcript looks channel-duplicated (one word per utterance, each repeated): "
+            f"probe decision was multichannel={multichannel}, job ran "
+            f"multichannel={result.multichannel}; the audio is likely dual-mono. "
+            "Nothing written."
+        )
+        log.warning(
+            "transcribe.item.channel_duplicated",
+            card_id=item.card_id, row_key=item.row_key,
+            probe_multichannel=multichannel, job_multichannel=result.multichannel,
+        )
+        return error, False
     pages = write_transcript_sidecar(
         item.card_id, out_dir, result.utterances,
         row_key=item.row_key,

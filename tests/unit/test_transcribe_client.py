@@ -255,3 +255,50 @@ def test_transcribe_file_uploads_mp4_bytes_unchanged_no_extraction_step(
         sleep=lambda s: None,
     )
     assert captured["content"] == original_bytes
+
+
+# --- resume an existing job ------------------------------------------------
+
+
+def test_resume_transcript_polls_existing_job_without_upload_or_submit() -> None:
+    polled: list[str] = []
+
+    def fake_get(url: str, **kwargs: object) -> httpx.Response:
+        polled.append(url)
+        return _resp(
+            200,
+            {
+                "status": "completed",
+                "audio_duration": 9.5,
+                "multichannel": False,
+                "utterances": [
+                    {"speaker": "A", "text": "hello", "start": 0, "end": 100},
+                    {"speaker": "B", "text": "hi", "start": 100, "end": 200},
+                ],
+            },
+        )
+
+    result = client.resume_transcript(
+        "tid-9", api_key="k", get=fake_get, sleep=lambda s: None
+    )
+
+    assert polled == ["https://api.assemblyai.com/v2/transcript/tid-9"]
+    assert result.audio_duration_s == 9.5
+    assert result.multichannel is False
+    assert result.speakers == ["A", "B"]
+
+
+def test_resume_transcript_reports_the_multichannel_the_job_ran_with() -> None:
+    def fake_get(url: str, **kwargs: object) -> httpx.Response:
+        return _resp(200, {"status": "completed", "multichannel": True, "utterances": []})
+
+    result = client.resume_transcript("tid-9", api_key="k", get=fake_get, sleep=lambda s: None)
+    assert result.multichannel is True
+
+
+def test_resume_transcript_surfaces_a_failed_job() -> None:
+    def fake_get(url: str, **kwargs: object) -> httpx.Response:
+        return _resp(200, {"status": "error", "error": "bad audio"})
+
+    with pytest.raises(client.TranscriptFailedError, match="bad audio"):
+        client.resume_transcript("tid-9", api_key="k", get=fake_get, sleep=lambda s: None)
