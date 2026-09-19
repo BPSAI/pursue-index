@@ -517,3 +517,59 @@ def test_fetch_worklist_output_consumed_unchanged_by_existing_matcher(
     assert matched["card-aud"][1] == tmp_path / "DOD_111689232.mp4"
     assert unmatched_cards == []
     assert unmatched_files == []
+
+
+# --- Cycle 1: av-fetch creates card_id hard link ---
+
+
+def test_fetch_one_creates_card_id_hard_link(tmp_path: Path) -> None:
+    """After fetching, both DOD_<id>.mp4 and <card_id>.mp4 exist, linked."""
+    card = FakeCard("c1", "VID", "1006056")
+    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
+    asset_fetch = _assets(
+        {
+            "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
+                200,
+                "binary/octet-stream",
+                _ASSET_BYTES,
+            )
+        }
+    )
+
+    item = fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
+
+    assert item.status == "fetched"
+    dod_path = tmp_path / "DOD_111688723.mp4"
+    card_path = tmp_path / "c1.mp4"
+
+    assert dod_path.exists()
+    assert card_path.exists()
+    assert dod_path.read_bytes() == _ASSET_BYTES
+    assert card_path.read_bytes() == _ASSET_BYTES
+
+
+def test_fetch_one_card_id_link_is_hard_linked_or_symlink(tmp_path: Path) -> None:
+    """The card_id file is linked (hard or sym) to the DOD file."""
+    card = FakeCard("c1", "VID", "1006056")
+    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
+    asset_fetch = _assets(
+        {
+            "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
+                200,
+                "binary/octet-stream",
+                _ASSET_BYTES,
+            )
+        }
+    )
+
+    fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
+
+    dod_path = tmp_path / "DOD_111688723.mp4"
+    card_path = tmp_path / "c1.mp4"
+
+    # Either a hard link (same inode) or a symlink
+    if card_path.is_symlink():
+        assert card_path.resolve() == dod_path.resolve()
+    else:
+        # Hard link: same inode
+        assert dod_path.stat().st_ino == card_path.stat().st_ino

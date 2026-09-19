@@ -23,6 +23,7 @@ so the caller can exit non-zero on a shortfall.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -118,6 +119,17 @@ def _write_staged(dest: Path, body: bytes) -> None:
     tmp.replace(dest)
 
 
+def _create_card_link(dod_path: Path, card_id: str) -> None:
+    """Create a hard link (or symlink) with card_id name pointing to dod_path."""
+    link_path = dod_path.parent / f"{card_id}.mp4"
+    if link_path.exists():
+        return
+    try:
+        os.link(dod_path, link_path)
+    except (OSError, NotImplementedError):
+        link_path.symlink_to(dod_path.name)
+
+
 def _resolve_asset_url(
     card_id: str, dvids_id: str, asset_type: str, page_fetch: PageFetch
 ) -> tuple[str, str] | AVFetchItem:
@@ -164,7 +176,8 @@ def _fetch_and_stage(
 
     The bytes are staged only once they are bounded, arrived from an
     expected asset host, carry an expected content-type, and open with the
-    MP4 box marker.
+    MP4 box marker. Also creates a hard link (or symlink) with the card_id
+    name for the transcribe stage to find.
     """
     fetched = asset_fetch(asset_url, page_url=client.dvids_page_url(dvids_id))
     if fetched is None:
@@ -201,6 +214,7 @@ def _fetch_and_stage(
         )
 
     _write_staged(dest, body)
+    _create_card_link(dest, card_id)
     log.info(
         "av_fetch.item.fetched", card_id=card_id, dvids_video_id=dvids_id, bytes=len(body)
     )

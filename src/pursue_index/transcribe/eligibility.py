@@ -109,6 +109,22 @@ def audio_path_for(item: EligibleItem, audio_dir: Path) -> Path:
     so an operator can stage the same file this stage will later archive under.
     Rows sharing a card_id each get their own file, named with the row key, so
     two rows can never resolve to one set of bytes.
+
+    When both the card_id.mp4 (new av-fetch naming) and DOD_<id>.mp4 (legacy)
+    exist, prefers card_id.mp4. Falls back to DOD_<id>.mp4 if card_id.mp4
+    doesn't exist, for backward compatibility with pre-hardlink staging dirs.
     """
     stem = item.card_id if not item.row_key else f"{item.card_id}-{item.row_key}"
-    return audio_dir / f"{stem}.mp4"
+    preferred = audio_dir / f"{stem}.mp4"
+
+    if preferred.exists():
+        return preferred
+
+    # Fall back to DOD_<id>.mp4 if card_id.mp4 doesn't exist (legacy compatibility)
+    if item.dvids_video_id:
+        fallback = audio_dir / f"DOD_{item.dvids_video_id}.mp4"
+        if fallback.exists():
+            return fallback
+
+    # Neither exists, return the preferred path (card_id.mp4)
+    return preferred

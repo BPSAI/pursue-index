@@ -60,3 +60,35 @@ def test_audio_path_for_is_card_id_named_in_audio_dir() -> None:
     item = select_eligible(m, None)[0]
     path = audio_path_for(item, Path("/tmp/audio"))
     assert path == Path("/tmp/audio/aud1.mp4")
+
+
+def test_audio_path_for_prefers_card_id_mp4_when_both_exist(tmp_path: Path) -> None:
+    """audio_path_for returns card_id.mp4 when both card_id and DOD versions exist."""
+    m = _manifest([_card("aud1", "AUD", dvids_video_id="1234567")])
+    item = select_eligible(m, None)[0]
+
+    # Both files exist
+    card_path = tmp_path / "aud1.mp4"
+    dod_path = tmp_path / "DOD_1234567.mp4"
+    card_path.write_bytes(b"card data")
+    dod_path.write_bytes(b"dod data")
+
+    path = audio_path_for(item, tmp_path)
+    # Should prefer card_id.mp4
+    assert path == card_path
+    assert path.read_bytes() == b"card data"
+
+
+def test_audio_path_for_falls_back_to_dod_name(tmp_path: Path) -> None:
+    """audio_path_for falls back to DOD_<id>.mp4 when card_id.mp4 doesn't exist."""
+    m = _manifest([_card("aud1", "AUD", dvids_video_id="1234567")])
+    item = select_eligible(m, None)[0]
+
+    # Only DOD file exists
+    dod_path = tmp_path / "DOD_1234567.mp4"
+    dod_path.write_bytes(b"dod data")
+
+    path = audio_path_for(item, tmp_path)
+    # Should resolve to the DOD file since card_id doesn't exist
+    assert path == dod_path
+    assert path.read_bytes() == b"dod data"
