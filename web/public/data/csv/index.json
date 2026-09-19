@@ -1,92 +1,110 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-08T21:02:11.972Z",
+  "generated_at": "2026-09-19T22:01:18.686Z",
   "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "source_notes": "Distinct CSV versions are archived locally and exposed here for citation reproducibility. Each row's sha256 is the load-bearing identifier — verify any download with `shasum -a 256 <file>` against the filename or against this index's `sha256` field.",
   "csvs": [
     {
-      "sha256": "5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7",
-      "bytes": 472945,
-      "archived_at": "2026-08-08T07:03:45.575Z",
-      "url": "/data/csv/5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7.csv"
-    },
-    {
-      "sha256": "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1",
-      "bytes": 416714,
-      "archived_at": "2026-07-10T13:34:34.569Z",
-      "url": "/data/csv/13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1.csv"
-    },
-    {
-      "sha256": "48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04",
-      "bytes": 366389,
-      "archived_at": "2026-06-12T17:21:26.568Z",
-      "url": "/data/csv/48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04.csv"
-    },
-    {
-      "sha256": "5216a20bc3419802ebbcc6716e0deede3e873bafbbe273e3a0e4e31f1acd0125",
-      "bytes": 366387,
-      "archived_at": "2026-06-12T13:49:37.724Z",
-      "url": "/data/csv/5216a20bc3419802ebbcc6716e0deede3e873bafbbe273e3a0e4e31f1acd0125.csv"
-    },
-    {
-      "sha256": "a62a76884e52c13662fc3df108c29ea0da150fd07293938ddcba09a6aecbe709",
-      "bytes": 298667,
-      "archived_at": "2026-06-10T19:13:28.672Z",
-      "url": "/data/csv/a62a76884e52c13662fc3df108c29ea0da150fd07293938ddcba09a6aecbe709.csv"
-    },
-    {
-      "sha256": "6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963",
-      "bytes": 298415,
-      "archived_at": "2026-05-27T13:43:50.997Z",
-      "url": "/data/csv/6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963.csv"
-    },
-    {
-      "sha256": "c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47",
-      "bytes": 297955,
-      "archived_at": "2026-05-22T13:53:36.718Z",
-      "url": "/data/csv/c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47.csv"
-    },
-    {
       "sha256": "f9ad3b8366e229cfdecb5feee9856f974e341df979943ce9368689cf42e91b8e",
       "bytes": 297933,
-      "archived_at": "2026-05-22T13:20:37.968Z",
+      "archived_at": "2026-09-19T13:30:28.329Z",
       "url": "/data/csv/f9ad3b8366e229cfdecb5feee9856f974e341df979943ce9368689cf42e91b8e.csv"
     },
     {
       "sha256": "f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543",
       "bytes": 193567,
-      "archived_at": "2026-05-20T16:43:03.058Z",
+      "archived_at": "2026-09-19T13:30:28.329Z",
       "url": "/data/csv/f75e2f7de0ffb79622fbb005e436558f6581573c5370df4b0185f6a800226543.csv"
     },
     {
       "sha256": "c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1",
       "bytes": 193567,
-      "archived_at": "2026-05-14T23:31:39.394Z",
+      "archived_at": "2026-09-19T13:30:28.329Z",
       "url": "/data/csv/c9cc83fcaf431a9a2c970d970f2b41c7679b182ebc19dc01e79fd9c2c98956d1.csv"
+    },
+    {
+      "sha256": "c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47",
+      "bytes": 297955,
+      "archived_at": "2026-09-19T13:30:28.328Z",
+      "url": "/data/csv/c34754351cdf24d2d919721c3544cbfd5e4a8b457438ddce28fbd62e5f074b47.csv"
+    },
+    {
+      "sha256": "a62a76884e52c13662fc3df108c29ea0da150fd07293938ddcba09a6aecbe709",
+      "bytes": 298667,
+      "archived_at": "2026-09-19T13:30:28.328Z",
+      "url": "/data/csv/a62a76884e52c13662fc3df108c29ea0da150fd07293938ddcba09a6aecbe709.csv"
+    },
+    {
+      "sha256": "8d4232f3777f063835ac9ece3a7e1a0f3783a77be295dfcb1298bf1631d51c11",
+      "bytes": 645574,
+      "archived_at": "2026-09-19T13:30:28.328Z",
+      "url": "/data/csv/8d4232f3777f063835ac9ece3a7e1a0f3783a77be295dfcb1298bf1631d51c11.csv"
+    },
+    {
+      "sha256": "6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963",
+      "bytes": 298415,
+      "archived_at": "2026-09-19T13:30:28.327Z",
+      "url": "/data/csv/6be2c64e760534a567e13ebaac939bf2cea3bd9de4864d9ae98c5c8b5df1b963.csv"
     },
     {
       "sha256": "65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d",
       "bytes": 183125,
-      "archived_at": "2026-05-12T19:47:44.630Z",
+      "archived_at": "2026-09-19T13:30:28.326Z",
       "url": "/data/csv/65572b38d27c3bc1af2c3206614913d4d491aea2b0d7d883e2334eaff3a44a8d.csv"
     },
     {
-      "sha256": "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea",
-      "bytes": 183626,
-      "archived_at": "2026-05-12T19:47:44.630Z",
-      "url": "/data/csv/4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea.csv"
-    },
-    {
-      "sha256": "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731",
-      "bytes": 180890,
-      "archived_at": "2026-05-12T01:41:21.222Z",
-      "url": "/data/csv/0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.csv"
+      "sha256": "5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7",
+      "bytes": 472945,
+      "archived_at": "2026-09-19T13:30:28.326Z",
+      "url": "/data/csv/5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7.csv"
     },
     {
       "sha256": "596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2",
       "bytes": 185105,
-      "archived_at": "2026-05-12T01:41:21.221Z",
+      "archived_at": "2026-09-19T13:30:28.325Z",
       "url": "/data/csv/596cc1881aa97d2fa49a45edab14d60802616e73ce125d286120e00d967cafa2.csv"
+    },
+    {
+      "sha256": "5216a20bc3419802ebbcc6716e0deede3e873bafbbe273e3a0e4e31f1acd0125",
+      "bytes": 366387,
+      "archived_at": "2026-09-19T13:30:28.325Z",
+      "url": "/data/csv/5216a20bc3419802ebbcc6716e0deede3e873bafbbe273e3a0e4e31f1acd0125.csv"
+    },
+    {
+      "sha256": "4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea",
+      "bytes": 183626,
+      "archived_at": "2026-09-19T13:30:28.325Z",
+      "url": "/data/csv/4a35f5596951a0cb86823040e6329199b02ba2a3e6b01572dd6707e5df5aa4ea.csv"
+    },
+    {
+      "sha256": "48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04",
+      "bytes": 366389,
+      "archived_at": "2026-09-19T13:30:28.324Z",
+      "url": "/data/csv/48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04.csv"
+    },
+    {
+      "sha256": "302d2f20289d4f12effed6fdedbcfd2ab4355776b6f9b79e770c3145a3e4e0c7",
+      "bytes": 645577,
+      "archived_at": "2026-09-19T13:30:28.323Z",
+      "url": "/data/csv/302d2f20289d4f12effed6fdedbcfd2ab4355776b6f9b79e770c3145a3e4e0c7.csv"
+    },
+    {
+      "sha256": "19e6dd7a69d5c41c30bc3d9302462e922c6225cf18649298b329e68918e28a20",
+      "bytes": 646408,
+      "archived_at": "2026-09-19T13:30:28.322Z",
+      "url": "/data/csv/19e6dd7a69d5c41c30bc3d9302462e922c6225cf18649298b329e68918e28a20.csv"
+    },
+    {
+      "sha256": "13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1",
+      "bytes": 416714,
+      "archived_at": "2026-09-19T13:30:28.320Z",
+      "url": "/data/csv/13e730c18d6ea586bcb9b58984481b093f3e4802c33b0f9281258ee786f8abd1.csv"
+    },
+    {
+      "sha256": "0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731",
+      "bytes": 180890,
+      "archived_at": "2026-09-19T13:30:28.319Z",
+      "url": "/data/csv/0d7e9ba1d51cded2d4839aac3b65d9ff14f56861c8338a57bbef50c8071d6731.csv"
     }
   ]
 }
