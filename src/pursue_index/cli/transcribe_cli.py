@@ -34,6 +34,7 @@ from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 from pursue_index.transcribe import _wire, client, probe
 from pursue_index.transcribe.eligibility import EligibleItem, select_eligible
+from pursue_index.transcribe.pages import repaginate_sidecar
 from pursue_index.transcribe.result import TranscriptResult
 from pursue_index.transcribe.run import (
     TranscribeFn,
@@ -192,3 +193,19 @@ def transcribe_run(
     _print_report(report)
     if not report.ok:
         raise typer.Exit(code=1)
+
+
+@transcribe_app.command("repage")
+def transcribe_repage(
+    card: str = typer.Option(..., "--card", help="Card ID to re-paginate"),
+    out: Path = _OPT_OUT,
+) -> None:
+    """Re-paginate an existing transcript sidecar using smaller page sizes.
+
+    Reads the stored utterances from the sidecar's meta.json and rewrites
+    pages.jsonl with the new pagination. Idempotent: running twice produces
+    the same result. Updates meta.json with new page_count.
+    """
+    out_dir = out or settings.ocr_dir
+    repaginate_sidecar(out_dir, card)
+    console.print(f"[green]✔[/green] re-paged {card}")

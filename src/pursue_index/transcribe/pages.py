@@ -28,6 +28,8 @@ from pathlib import Path
 from typing import Any
 
 _UTTERANCES_PER_PAGE = 12  # citation granularity: a page is ~a dozen turns
+_DEFAULT_CHAR_BUDGET = 2500  # citation-sized: ~2.5k characters per page
+_DEFAULT_DURATION_BUDGET_S = 120.0  # ~2 minutes per page
 
 
 def _speaker_label(raw: str) -> str:
@@ -35,12 +37,56 @@ def _speaker_label(raw: str) -> str:
 
 
 def paginate_utterances(
-    utterances: list[dict[str, Any]], per_page: int = _UTTERANCES_PER_PAGE
+    utterances: list[dict[str, Any]],
+    per_page: int | None = None,
+    char_budget: int = _DEFAULT_CHAR_BUDGET,
+    duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
 ) -> list[str]:
-    """Group utterances into speaker-labeled text blocks, one string per page."""
+    """Group utterances into speaker-labeled text blocks, one string per page.
+
+    If per_page is given, uses the legacy count-based grouping.
+    Otherwise, groups by size budget: fits utterances until char or duration limit
+    is hit, whichever comes first. Never splits a single utterance across pages.
+    """
+    if per_page is not None:
+        pages: list[str] = []
+        for i in range(0, len(utterances), per_page):
+            pages.append(_render_block(utterances[i : i + per_page]))
+        return pages
+
+    return _paginate_by_budget(utterances, char_budget, duration_budget_s)
+
+
+def _paginate_by_budget(
+    utterances: list[dict[str, Any]], char_budget: int, duration_budget_s: float
+) -> list[str]:
+    """Paginate by character and duration budgets; whichever limit hits first."""
     pages: list[str] = []
-    for i in range(0, len(utterances), per_page):
-        pages.append(_render_block(utterances[i : i + per_page]))
+    current_chunk: list[dict[str, Any]] = []
+    current_chars = 0
+    current_duration = 0.0
+
+    for u in utterances:
+        u_text = str(u.get("text", "")).strip()
+        u_chars = len(u_text)
+        u_duration = u.get("end", 0) - u.get("start", 0)
+
+        if current_chunk and (
+            current_chars + u_chars > char_budget
+            or current_duration + u_duration > duration_budget_s
+        ):
+            pages.append(_render_block(current_chunk))
+            current_chunk = []
+            current_chars = 0
+            current_duration = 0.0
+
+        current_chunk.append(u)
+        current_chars += u_chars
+        current_duration += u_duration
+
+    if current_chunk:
+        pages.append(_render_block(current_chunk))
+
     return pages
 
 
@@ -63,7 +109,10 @@ def _render_block(chunk: list[dict[str, Any]]) -> str:
 
 
 def build_pages_rows(
-    utterances: list[dict[str, Any]], start_page: int = 1
+    utterances: list[dict[str, Any]],
+    start_page: int = 1,
+    char_budget: int = _DEFAULT_CHAR_BUDGET,
+    duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
 ) -> list[dict[str, Any]]:
     """Rows in the exact ``pages.jsonl`` shape OCR output already uses:
     ``{page, text, confidence, engine}``.
@@ -74,7 +123,10 @@ def build_pages_rows(
     """
     return [
         {"page": n, "text": text, "confidence": 100.0, "engine": "assemblyai"}
-        for n, text in enumerate(paginate_utterances(utterances), start=start_page)
+        for n, text in enumerate(
+            paginate_utterances(utterances, char_budget=char_budget, duration_budget_s=duration_budget_s),
+            start=start_page
+        )
     ]
 
 
@@ -106,6 +158,45 @@ def _merged_rows(
     return out
 
 
+def _build_meta(
+    card_id: str,
+    prior: dict[str, Any],
+    row_key: str,
+    source: str,
+    multichannel: bool,
+    audio_duration_s: float | None,
+    speakers: list[str],
+    utterances: list[dict[str, Any]],
+    total_pages: int,
+    num_new_rows: int,
+    char_budget: int,
+    duration_budget_s: float,
+) -> dict[str, Any]:
+    """Build the meta.json structure for a transcript sidecar."""
+    entry = {
+        "row_key": row_key,
+        "source": source,
+        "multichannel": multichannel,
+        "audio_duration_s": audio_duration_s,
+        "speakers": speakers,
+        "pages": num_new_rows,
+    }
+    merged = _merged_rows(list(prior.get("rows", [])), entry)
+    utterances_list = prior.get("utterances", [])
+    utterances_list.extend(utterances)
+    return {
+        "card_id": card_id,
+        "engine": "assemblyai",
+        "status": "ok" if total_pages else "empty",
+        "page_count": total_pages,
+        "rows": merged,
+        "utterances": utterances_list,
+        "char_budget": char_budget,
+        "duration_budget_s": duration_budget_s,
+        "finished_at": datetime.now(UTC).isoformat(),
+    }
+
+
 def write_transcript_sidecar(
     card_id: str,
     out_dir: Path,
@@ -116,6 +207,8 @@ def write_transcript_sidecar(
     audio_duration_s: float | None,
     speakers: list[str],
     source: str,
+    char_budget: int = _DEFAULT_CHAR_BUDGET,
+    duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
 ) -> int:
     """Append one row's transcript to ``<out_dir>/<card_id>/``. Returns page count.
 
@@ -136,29 +229,59 @@ def write_transcript_sidecar(
     meta_path = card_dir / "meta.json"
 
     start_page = _existing_page_count(pages_path) + 1
-    rows = build_pages_rows(utterances, start_page=start_page)
+    rows = build_pages_rows(
+        utterances, start_page=start_page,
+        char_budget=char_budget, duration_budget_s=duration_budget_s,
+    )
     with pages_path.open("a", encoding="utf-8") as fh:
         for row in rows:
             fh.write(json.dumps(row) + "\n")
 
     prior = _read_meta(meta_path)
-    entry = {
-        "row_key": row_key,
-        "source": source,
-        "multichannel": multichannel,
-        "audio_duration_s": audio_duration_s,
-        "speakers": speakers,
-        "pages": len(rows),
-    }
-    merged = _merged_rows(list(prior.get("rows", [])), entry)
     total_pages = start_page - 1 + len(rows)
-    meta = {
-        "card_id": card_id,
-        "engine": "assemblyai",
-        "status": "ok" if total_pages else "empty",
-        "page_count": total_pages,
-        "rows": merged,
-        "finished_at": datetime.now(UTC).isoformat(),
-    }
+    meta = _build_meta(
+        card_id, prior, row_key, source, multichannel, audio_duration_s,
+        speakers, utterances, total_pages, len(rows), char_budget, duration_budget_s,
+    )
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return len(rows)
+
+
+def repaginate_sidecar(
+    out_dir: Path,
+    card_id: str,
+    char_budget: int = _DEFAULT_CHAR_BUDGET,
+    duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
+) -> None:
+    """Re-paginate an existing sidecar in place, using stored utterances.
+
+    Idempotent: running twice produces the same result.
+    Updates meta.json with new page_count.
+    """
+    card_dir = out_dir / card_id
+    meta_path = card_dir / "meta.json"
+
+    meta = _read_meta(meta_path)
+    if not meta or "utterances" not in meta:
+        return
+
+    utterances = meta.get("utterances", [])
+    if not utterances:
+        return
+
+    rows = build_pages_rows(
+        utterances, start_page=1,
+        char_budget=char_budget, duration_budget_s=duration_budget_s,
+    )
+
+    pages_path = card_dir / "pages.jsonl"
+    pages_path.write_text("", encoding="utf-8")
+    with pages_path.open("a", encoding="utf-8") as fh:
+        for row in rows:
+            fh.write(json.dumps(row) + "\n")
+
+    meta["page_count"] = len(rows)
+    meta["char_budget"] = char_budget
+    meta["duration_budget_s"] = duration_budget_s
+    meta["finished_at"] = datetime.now(UTC).isoformat()
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
