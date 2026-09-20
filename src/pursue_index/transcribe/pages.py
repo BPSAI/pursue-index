@@ -36,6 +36,7 @@ from pursue_index.transcribe.utterances_store import (
 _UTTERANCES_PER_PAGE = 12  # citation granularity: a page is ~a dozen turns
 _DEFAULT_CHAR_BUDGET = 2500  # citation-sized: ~2.5k characters per page
 _DEFAULT_DURATION_BUDGET_S = 120.0  # ~2 minutes per page
+_MS_PER_S = 1000.0  # utterance start/end are AssemblyAI milliseconds
 
 
 def _speaker_label(raw: str) -> str:
@@ -63,6 +64,17 @@ def paginate_utterances(
     return _paginate_by_budget(utterances, char_budget, duration_budget_s)
 
 
+def _duration_s(utterance: dict[str, Any]) -> float:
+    """An utterance's length in seconds, from its stored millisecond bounds.
+
+    A missing or null bound counts as 0, so a malformed utterance adds no
+    duration rather than raising.
+    """
+    start_ms = utterance.get("start") or 0
+    end_ms = utterance.get("end") or 0
+    return (end_ms - start_ms) / _MS_PER_S
+
+
 def _paginate_by_budget(
     utterances: list[dict[str, Any]], char_budget: int, duration_budget_s: float
 ) -> list[str]:
@@ -75,7 +87,7 @@ def _paginate_by_budget(
     for u in utterances:
         u_text = str(u.get("text", "")).strip()
         u_chars = len(u_text)
-        u_duration = u.get("end", 0) - u.get("start", 0)
+        u_duration = _duration_s(u)
 
         if current_chunk and (
             current_chars + u_chars > char_budget

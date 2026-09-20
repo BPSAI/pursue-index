@@ -372,8 +372,8 @@ def test_sixty_minute_fixture_produces_20_to_40_pages(tmp_path: Path) -> None:
         {
             "speaker": "A" if i % 2 == 0 else "B",
             "text": "This is a sample utterance. " * 7,
-            "start": i * 12,
-            "end": i * 12 + 12,
+            "start": i * 12_000,  # AssemblyAI reports milliseconds
+            "end": i * 12_000 + 12_000,
         }
         for i in range(300)
     ]
@@ -392,3 +392,59 @@ def test_sixty_minute_fixture_produces_20_to_40_pages(tmp_path: Path) -> None:
     assert total_duration >= 3600
     assert 50000 < total_chars < 100000
     assert 20 <= page_count <= 40
+
+
+def test_parse_utterances_treats_a_missing_start_or_end_as_zero() -> None:
+    from pursue_index.transcribe.result import parse_utterances
+
+    parsed = parse_utterances(
+        {"utterances": [{"speaker": "A", "text": "hi"}, {"speaker": "B", "text": "yo", "start": None, "end": 900}]}
+    )
+    assert [(u["start"], u["end"]) for u in parsed] == [(0.0, 0.0), (0.0, 900)]
+
+
+def test_paginate_tolerates_stored_utterances_with_null_times() -> None:
+    utterances = [
+        {"speaker": "A", "text": "one", "start": None, "end": None},
+        {"speaker": "A", "text": "two", "start": 500, "end": None},
+    ]
+    assert len(paginate_utterances(utterances)) == 1
+
+
+def test_duration_budget_is_seconds_against_millisecond_utterances() -> None:
+    """Two 70 s utterances exceed a 120 s budget; two 7 s ones do not."""
+    long = [{"speaker": "A", "text": "x", "start": i * 70_000, "end": (i + 1) * 70_000} for i in range(2)]
+    short = [{"speaker": "A", "text": "x", "start": i * 7_000, "end": (i + 1) * 7_000} for i in range(2)]
+    assert len(paginate_utterances(long, duration_budget_s=120.0)) == 2
+    assert len(paginate_utterances(short, duration_budget_s=120.0)) == 1
+
+
+def test_existing_five_page_sidecar_with_raw_millisecond_utterances_stays_readable(
+    tmp_path: Path,
+) -> None:
+    """A sidecar written before the unit fix: 5 one-utterance pages, ms times."""
+    card_dir = tmp_path / "ocr" / "aud1"
+    card_dir.mkdir(parents=True)
+    utterances = [
+        {"speaker": "A", "text": f"line {i}", "start": i * 10_000, "end": i * 10_000 + 9_000}
+        for i in range(5)
+    ]
+    (card_dir / "utterances.jsonl").write_text(
+        "".join(json.dumps(u) + "\n" for u in utterances), encoding="utf-8"
+    )
+    (card_dir / "pages.jsonl").write_text(
+        "".join(
+            json.dumps({"page": i + 1, "text": f"Speaker A: line {i}", "confidence": 100.0, "engine": "assemblyai"})
+            + "\n"
+            for i in range(5)
+        ),
+        encoding="utf-8",
+    )
+    (card_dir / "meta.json").write_text(
+        json.dumps({"card_id": "aud1", "status": "ok", "page_count": 5, "utterances_file": "utterances.jsonl"}),
+        encoding="utf-8",
+    )
+    assert len(iter_card_pages(tmp_path / "ocr")) == 5
+    repaginate_sidecar(tmp_path / "ocr", "aud1")
+    meta = json.loads((card_dir / "meta.json").read_text())
+    assert meta["page_count"] == 1  # 5 x 9 s fits one 120 s page
