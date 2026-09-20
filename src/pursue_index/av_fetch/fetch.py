@@ -31,6 +31,7 @@ from typing import Any
 
 from pursue_index import get_logger
 from pursue_index.av_fetch import client
+from pursue_index.transcribe.eligibility import CARD_LINK_DIR, row_keys_for
 
 log = get_logger(__name__)
 
@@ -119,9 +120,17 @@ def _write_staged(dest: Path, body: bytes) -> None:
     tmp.replace(dest)
 
 
-def _create_card_link(dod_path: Path, card_id: str) -> None:
-    """Create a hard link (or symlink) with card_id name pointing to dod_path."""
-    link_path = dod_path.parent / f"{card_id}.mp4"
+def _create_card_link(dod_path: Path, card_id: str, row_key: str = "") -> None:
+    """Link ``<staging>/by-card/<card_id>[-<row_key>].mp4`` to ``dod_path``.
+
+    The link stays out of the staging dir's top level, which the DOD-id
+    matcher globs. A row of a multi-row card carries its row key, so rows
+    never share a name.
+    """
+    link_dir = dod_path.parent / CARD_LINK_DIR
+    link_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"{card_id}-{row_key}" if row_key else card_id
+    link_path = link_dir / f"{stem}.mp4"
     if link_path.is_symlink() and not link_path.exists():
         link_path.unlink()
     if link_path.exists():
@@ -129,7 +138,7 @@ def _create_card_link(dod_path: Path, card_id: str) -> None:
     try:
         os.link(dod_path, link_path)
     except (OSError, NotImplementedError):
-        link_path.symlink_to(dod_path.name)
+        link_path.symlink_to(Path("..") / dod_path.name)
 
 
 def _resolve_asset_url(
@@ -173,6 +182,7 @@ def _fetch_and_stage(
     asset_url: str,
     dest: Path,
     asset_fetch: AssetFetch,
+    row_key: str = "",
 ) -> AVFetchItem:
     """GET ``asset_url``, verify it, and write ``dest`` — or return a failure.
 
@@ -216,7 +226,7 @@ def _fetch_and_stage(
         )
 
     _write_staged(dest, body)
-    _create_card_link(dest, card_id)
+    _create_card_link(dest, card_id, row_key)
     log.info(
         "av_fetch.item.fetched", card_id=card_id, dvids_video_id=dvids_id, bytes=len(body)
     )
@@ -232,6 +242,7 @@ def fetch_one(
     *,
     page_fetch: PageFetch,
     asset_fetch: AssetFetch,
+    row_key: str = "",
 ) -> AVFetchItem:
     """Fetch one card's A/V bytes into ``staging_dir``. Never raises."""
     card_id = card.card_id
@@ -250,12 +261,31 @@ def fetch_one(
 
     dest = _dest_path(staging_dir, dod_id)
     if dest.exists() and dest.stat().st_size > 0:
+        _create_card_link(dest, card_id, row_key)
         return AVFetchItem(
             card_id, dvids_id, asset_type, "skipped_existing",
             path=dest, byte_size=dest.stat().st_size,
         )
 
-    return _fetch_and_stage(card_id, dvids_id, asset_type, asset_url, dest, asset_fetch)
+    return _fetch_and_stage(
+        card_id, dvids_id, asset_type, asset_url, dest, asset_fetch, row_key
+    )
+
+
+def _row_keys_by_position(cards: list[Any]) -> list[str]:
+    """A row key per card, assigned within each (card_id, asset_type) group.
+
+    Uses the transcribe stage's rule, so the link a row is staged under is the
+    one ``audio_path_for`` looks for: empty for a card with one row, else keyed.
+    """
+    groups: dict[tuple[str, str], list[int]] = {}
+    for position, card in enumerate(cards):
+        groups.setdefault((card.card_id, card.asset_type), []).append(position)
+    keys = [""] * len(cards)
+    for positions in groups.values():
+        for position, key in zip(positions, row_keys_for([cards[i] for i in positions]), strict=True):
+            keys[position] = key
+    return keys
 
 
 def fetch_worklist(
@@ -267,9 +297,10 @@ def fetch_worklist(
 ) -> AVFetchReport:
     """Fetch every card's A/V bytes into ``staging_dir``. Skip-and-count only —
     one item's failure never aborts the rest."""
+    row_keys = _row_keys_by_position(cards)
     items = [
-        fetch_one(c, staging_dir, page_fetch=page_fetch, asset_fetch=asset_fetch)
-        for c in cards
+        fetch_one(c, staging_dir, page_fetch=page_fetch, asset_fetch=asset_fetch, row_key=key)
+        for c, key in zip(cards, row_keys, strict=True)
     ]
     report = AVFetchReport(items=items)
     log.info(

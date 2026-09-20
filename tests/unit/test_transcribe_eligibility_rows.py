@@ -65,7 +65,7 @@ def test_single_row_card_keeps_the_plain_card_id_naming() -> None:
     item = select_eligible(m, None)[0]
     assert item.row_key == ""
     assert item.coverage_key == ("aud1", "")
-    assert audio_path_for(item, Path("/audio")) == Path("/audio/aud1.mp4")
+    assert audio_path_for(item, Path("/audio")) == Path("/audio/by-card/aud1.mp4")
 
 
 def test_release_date_scopes_selection_to_that_release() -> None:

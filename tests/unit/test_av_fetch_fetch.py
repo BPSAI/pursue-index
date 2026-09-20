@@ -16,55 +16,19 @@ from pathlib import Path
 
 from pursue_index.av_fetch.client import AssetResponse
 from pursue_index.av_fetch.fetch import AVFetchReport, fetch_one, fetch_worklist
+from tests.support.av_fetch_fakes import (
+    _ASSET_BYTES,
+    _AUD_PAGE_BODY,
+    _VID_PAGE_BODY,
+    FakeCard,
+    _assets,
+    _pages,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _SCRIPTS = _REPO_ROOT / "scripts"
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
-
-
-@dataclass
-class FakeCard:
-    card_id: str
-    asset_type: str
-    dvids_video_id: str | None
-
-
-_VID_PAGE_BODY = (
-    '<source src="/video/1006056.m3u8" type="application/x-mpegURL" />'
-    '<source src="https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/'
-    'DOD_111688723.mp4" type=\'video/mp4; codecs="avc1"\' />'
-)
-_AUD_PAGE_BODY = (
-    '<source src="/video/1006119.m3u8" type="application/x-mpegURL" />'
-    '<source src="https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111689232/'
-    'DOD_111689232.mp4" type=\'video/mp4; codecs="avc1"\' />'
-)
-_ASSET_BYTES = b"\x00\x00\x00\x1cftypM4V " + b"x" * 100
-
-
-def _pages(mapping: dict[str, tuple[int, str] | None]):
-    def _fetch(dvids_video_id: str):
-        return mapping.get(dvids_video_id)
-
-    return _fetch
-
-
-def _assets(mapping: dict[str, tuple[int, str | None, bytes] | None]):
-    """Asset-fetch seam: tuples in the mapping become AssetResponses.
-
-    ``None`` still means a transport error. The seam takes ``page_url`` the
-    way the real client does, so the stage's call shape is exercised.
-    """
-
-    def _fetch(url: str, **kwargs: object):
-        found = mapping.get(url)
-        if found is None:
-            return None
-        status, content_type, body = found
-        return AssetResponse(status, content_type, body)
-
-    return _fetch
 
 
 # --- fetch_one: happy path ------------------------------------------------
@@ -517,157 +481,3 @@ def test_fetch_worklist_output_consumed_unchanged_by_existing_matcher(
     assert matched["card-aud"][1] == tmp_path / "DOD_111689232.mp4"
     assert unmatched_cards == []
     assert unmatched_files == []
-
-
-# --- Cycle 1: av-fetch creates card_id hard link ---
-
-
-def test_fetch_one_creates_card_id_hard_link(tmp_path: Path) -> None:
-    """After fetching, both DOD_<id>.mp4 and <card_id>.mp4 exist, linked."""
-    card = FakeCard("c1", "VID", "1006056")
-    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
-    asset_fetch = _assets(
-        {
-            "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
-                200,
-                "binary/octet-stream",
-                _ASSET_BYTES,
-            )
-        }
-    )
-
-    item = fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
-
-    assert item.status == "fetched"
-    dod_path = tmp_path / "DOD_111688723.mp4"
-    card_path = tmp_path / "c1.mp4"
-
-    assert dod_path.exists()
-    assert card_path.exists()
-    assert dod_path.read_bytes() == _ASSET_BYTES
-    assert card_path.read_bytes() == _ASSET_BYTES
-
-
-def test_fetch_one_card_id_link_is_hard_linked_or_symlink(tmp_path: Path) -> None:
-    """The card_id file is linked (hard or sym) to the DOD file."""
-    card = FakeCard("c1", "VID", "1006056")
-    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
-    asset_fetch = _assets(
-        {
-            "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
-                200,
-                "binary/octet-stream",
-                _ASSET_BYTES,
-            )
-        }
-    )
-
-    fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
-
-    dod_path = tmp_path / "DOD_111688723.mp4"
-    card_path = tmp_path / "c1.mp4"
-
-    # Either a hard link (same inode) or a symlink
-    if card_path.is_symlink():
-        assert card_path.resolve() == dod_path.resolve()
-    else:
-        # Hard link: same inode
-        assert dod_path.stat().st_ino == card_path.stat().st_ino
-
-
-def test_fetch_one_creates_link_for_second_row_of_same_card_id(tmp_path: Path) -> None:
-    """Each row with same card_id but different dvids_id creates its own DOD link."""
-    card1 = FakeCard("c1", "AUD", "1006056")
-    card2 = FakeCard("c1", "AUD", "1006119")  # Same card_id, different dvids_id
-
-    page_fetch = _pages({
-        "1006056": (200, _VID_PAGE_BODY),
-        "1006119": (200, _AUD_PAGE_BODY),
-    })
-    asset_fetch = _assets({
-        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
-            200, "binary/octet-stream", _ASSET_BYTES,
-        ),
-        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111689232/DOD_111689232.mp4": (
-            200, "binary/octet-stream", _ASSET_BYTES + b"y",
-        ),
-    })
-
-    item1 = fetch_one(card1, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
-    item2 = fetch_one(card2, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
-
-    # Both rows create DOD files and the card_id link
-    dod_path_1 = tmp_path / "DOD_111688723.mp4"
-    dod_path_2 = tmp_path / "DOD_111689232.mp4"
-    card_path = tmp_path / "c1.mp4"
-
-    assert dod_path_1.exists()
-    assert dod_path_2.exists()
-    assert card_path.exists()
-    # The card_path link points to one of the DOD files (most recently created)
-    assert card_path.read_bytes() in [_ASSET_BYTES, _ASSET_BYTES + b"y"]
-
-
-def test_fetch_one_makes_link_idempotent_when_already_correct(tmp_path: Path) -> None:
-    """Re-fetching doesn't error if the link already exists and is correct."""
-    card = FakeCard("c1", "VID", "1006056")
-    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
-    asset_fetch = _assets({
-        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
-            200, "binary/octet-stream", _ASSET_BYTES,
-        )
-    })
-
-    item1 = fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
-    item2 = fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
-
-    # Both calls should succeed and result in the same files
-    assert item1.status == "fetched"
-    assert item2.status == "skipped_existing"
-
-    dod_path = tmp_path / "DOD_111688723.mp4"
-    card_path = tmp_path / "c1.mp4"
-
-    assert dod_path.exists()
-    assert card_path.exists()
-
-
-# --- card link: pre-existing entries at the link path ---------------------
-
-
-def _fetch_with_card_link(tmp_path: Path):
-    card = FakeCard("c1", "VID", "1006056")
-    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
-    asset_fetch = _assets({
-        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
-            200, "binary/octet-stream", _ASSET_BYTES,
-        )
-    })
-    return fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
-
-
-def test_fetch_one_replaces_a_dangling_card_link(tmp_path: Path) -> None:
-    """A dangling symlink at <card_id>.mp4 is replaced, not a reason to abort."""
-    card_path = tmp_path / "c1.mp4"
-    card_path.symlink_to("DOD_gone.mp4")
-    assert card_path.is_symlink() and not card_path.exists()
-
-    item = _fetch_with_card_link(tmp_path)
-
-    assert item.status == "fetched"
-    assert card_path.exists()
-    assert card_path.read_bytes() == _ASSET_BYTES
-
-
-def test_fetch_one_leaves_a_working_card_link_alone(tmp_path: Path) -> None:
-    """A card link that already resolves to bytes is not rewritten."""
-    other = tmp_path / "DOD_other.mp4"
-    other.write_bytes(b"existing")
-    card_path = tmp_path / "c1.mp4"
-    card_path.symlink_to(other.name)
-
-    item = _fetch_with_card_link(tmp_path)
-
-    assert item.status == "fetched"
-    assert card_path.is_symlink()
-    assert card_path.read_bytes() == b"existing"

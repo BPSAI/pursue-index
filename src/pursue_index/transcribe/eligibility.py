@@ -19,8 +19,10 @@ the same rows by the same field.
 from __future__ import annotations
 
 from collections import OrderedDict
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from pursue_index import get_logger
 from pursue_index.scrape.types import CardMetadata, Manifest
@@ -28,6 +30,10 @@ from pursue_index.scrape.types import CardMetadata, Manifest
 log = get_logger(__name__)
 
 CoverageKey = tuple[str, str]
+
+#: Subdirectory of the audio staging dir holding ``<card_id>[-<row_key>].mp4``
+#: links. Kept off the top level, which the DOD-id matcher globs.
+CARD_LINK_DIR = "by-card"
 
 
 @dataclass(frozen=True)
@@ -70,6 +76,11 @@ def _row_keys(rows: list[CardMetadata]) -> list[str]:
         seen.add(key)
         keys.append(key)
     return keys
+
+
+def row_keys_for(rows: Sequence[Any]) -> list[str]:
+    """Row keys for the rows of one card_id, as the transcribe stage assigns them."""
+    return _row_keys(list(rows))
 
 
 def select_eligible(
@@ -127,7 +138,9 @@ def link_problem(path: Path, audio_dir: Path) -> str | None:
 def audio_path_for(item: EligibleItem, audio_dir: Path) -> Path:
     """Local mp4 path for ``item``, one file per eligible row.
 
-    A card_id backed by one AUD row reads ``<audio_dir>/<card_id>.mp4``, the
+    A card_id backed by one AUD row reads ``<audio_dir>/by-card/<card_id>.mp4``
+    (a top-level ``<card_id>.mp4`` staged by hand or by an older fetch is still
+    read), the
     R2 current-pointer naming convention already used for ingested A/V bytes
     (``ingest_release_videos.ingest_one``'s ``current_key = f"{card_id}.mp4"``),
     so an operator can stage the same file this stage will later archive under.
@@ -142,14 +155,16 @@ def audio_path_for(item: EligibleItem, audio_dir: Path) -> Path:
     is logged and skipped, so the DOD_<id>.mp4 file is used instead.
     """
     stem = item.card_id if not item.row_key else f"{item.card_id}-{item.row_key}"
-    preferred = audio_dir / f"{stem}.mp4"
-    candidates = [preferred]
+    preferred = audio_dir / CARD_LINK_DIR / f"{stem}.mp4"
+    candidates = [preferred, audio_dir / f"{stem}.mp4"]
     if item.dvids_video_id:
         candidates.append(audio_dir / f"DOD_{item.dvids_video_id}.mp4")
 
+    rejected: Path | None = None
     for candidate in candidates:
         problem = link_problem(candidate, audio_dir)
         if problem:
+            rejected = rejected or candidate
             log.warning(
                 "transcribe.audio_link.rejected",
                 card_id=item.card_id, path=str(candidate), reason=problem,
@@ -158,5 +173,6 @@ def audio_path_for(item: EligibleItem, audio_dir: Path) -> Path:
         if candidate.is_file():
             return candidate
 
-    # Nothing usable staged: return the preferred path (card_id.mp4)
-    return preferred
+    # Nothing usable staged: return the first rejected link so the caller can
+    # report why, else the preferred path.
+    return rejected or preferred

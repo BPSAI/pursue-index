@@ -62,7 +62,7 @@ def test_audio_path_for_is_card_id_named_in_audio_dir() -> None:
     m = _manifest([_card("aud1", "AUD")])
     item = select_eligible(m, None)[0]
     path = audio_path_for(item, Path("/tmp/audio"))
-    assert path == Path("/tmp/audio/aud1.mp4")
+    assert path == Path("/tmp/audio/by-card/aud1.mp4")
 
 
 def test_audio_path_for_prefers_card_id_mp4_when_both_exist(tmp_path: Path) -> None:
