@@ -247,6 +247,28 @@ def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def render_av_next_steps(summary: dict[str, Any]) -> list[str]:
+    """The A/V pipeline commands: one fetch/transcribe block per release date.
+
+    ``vision`` and ``clean`` cover the whole manifest, so they follow the
+    per-date blocks once. Empty when the tranche has no A/V rows.
+    """
+    if not summary["needs_av_fetch"]:
+        return []
+    manifest = "data/manifests/latest.json"
+    release_dates = summary.get("av_release_dates") or ["UNKNOWN"]
+    lines = [f"A/V content detected ({len(summary['needs_av_fetch'])} card_id(s)) — run A/V pipeline:"]
+    for date in release_dates:
+        lines.append(f"  pursue av-fetch run --release-date {date} --manifest {manifest}")
+        lines.append(f"  python scripts/ingest_release_videos.py --release-date {date}")
+        lines.append(f"  pursue transcribe run --release-date {date} --manifest {manifest}")
+    lines.append(f"  pursue vision run --manifest {manifest}")
+    lines.append(f"  pursue clean run --manifest {manifest}")
+    lines.append(f"  pursue clean-qc run --manifest {manifest}")
+    lines.append(f"  # Affected A/V card_ids: {' '.join(summary['needs_av_fetch'])}")
+    return lines
+
+
 def render_next_steps(summary: dict[str, Any]) -> str:
     """Operator-facing instructions: what to run next, in order."""
     lines: list[str] = []
@@ -266,21 +288,11 @@ def render_next_steps(summary: dict[str, Any]) -> str:
         )
         lines.append("  pursue embed run --manifest data/manifests/latest.json")
         lines.append(f"  # Affected card_ids: {ids}")
-    if summary["needs_av_fetch"]:
-        av_count = len(summary["needs_av_fetch"])
-        release_dates = summary.get("av_release_dates", [])
-        release_date = release_dates[0] if release_dates else "UNKNOWN"
+    av_steps = render_av_next_steps(summary)
+    if av_steps:
         if lines:
             lines.append("")
-        lines.append(f"A/V content detected ({av_count} card_id(s)) — run A/V pipeline:")
-        lines.append(f"  pursue av-fetch run --release-date {release_date} --manifest data/manifests/latest.json")
-        lines.append(f"  python scripts/ingest_release_videos.py --release-date {release_date}")
-        lines.append(f"  pursue transcribe run --release-date {release_date} --manifest data/manifests/latest.json")
-        lines.append("  pursue vision run --manifest data/manifests/latest.json")
-        lines.append("  pursue clean run --manifest data/manifests/latest.json")
-        lines.append("  pursue clean-qc run --manifest data/manifests/latest.json")
-        ids = " ".join(summary["needs_av_fetch"])
-        lines.append(f"  # Affected A/V card_ids: {ids}")
+        lines.extend(av_steps)
     if summary["needs_inspection"]:
         ids = " ".join(summary["needs_inspection"])
         lines.append("")

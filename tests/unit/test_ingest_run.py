@@ -586,6 +586,24 @@ def test_render_next_steps_pdf_and_av_together() -> None:
     assert "--release-date 2026-03-20" in steps
 
 
+def test_render_next_steps_prints_one_av_block_per_release_date() -> None:
+    summary = {
+        "needs_download": [],
+        "needs_ocr": [],
+        "needs_embed": [],
+        "needs_av_fetch": ["vid1", "aud1"],
+        "av_release_dates": ["2026-03-15", "2026-04-02"],
+        "needs_inspection": [],
+        "metadata_only": False,
+    }
+    steps = render_next_steps(summary)
+    for date in ("2026-03-15", "2026-04-02"):
+        assert f"pursue av-fetch run --release-date {date}" in steps
+        assert f"ingest_release_videos.py --release-date {date}" in steps
+        assert f"pursue transcribe run --release-date {date}" in steps
+    assert steps.count("pursue vision run") == 1
+
+
 # --- Regression tests: PDF worklist must remain byte-identical ---
 
 

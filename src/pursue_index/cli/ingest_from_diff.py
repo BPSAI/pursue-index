@@ -21,6 +21,8 @@ from typing import Any
 
 import typer
 
+from pursue_index.ingest_run import render_av_next_steps
+
 
 def scoped_card_ids(summary: dict[str, Any]) -> list[str]:
     """Union of needs_download/needs_ocr/needs_embed, first-seen order kept."""
@@ -42,12 +44,11 @@ def scoped_av_card_ids(summary: dict[str, Any]) -> list[str]:
 def write_worklist_file(path: Path, card_ids: list[str], tranche: str, suffix: str = "") -> None:
     """Write the scoped card_ids to ``path`` (one per line, with a header).
 
-    If suffix is provided (e.g. "-av"), it's inserted before ".txt" in the filename.
+    If suffix is provided (e.g. "-av"), it's inserted between the file's stem
+    and its extension.
     """
     if suffix:
-        # Inject suffix before .txt extension
-        base = path.name.replace(".txt", f"{suffix}.txt")
-        path = path.parent / base
+        path = path.with_name(path.stem + suffix + path.suffix)
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         f"# worklist for tranche {tranche[:12]} (pursue ingest run --from-diff)",
@@ -164,9 +165,12 @@ def _print_worklists(
 def _write_worklists(
     card_ids: list[str], av_card_ids: list[str], worklist: Path, tranche: str
 ) -> None:
-    """Write both PDF and A/V worklist files."""
-    if card_ids:
-        write_worklist_file(worklist, card_ids, tranche)
+    """Write both PDF and A/V worklist files.
+
+    The PDF list is written even when empty, so a list left by an earlier
+    tranche can never be read as this one's scope.
+    """
+    write_worklist_file(worklist, card_ids, tranche)
     if av_card_ids:
         write_worklist_file(worklist, av_card_ids, tranche, suffix="-av")
 
@@ -210,17 +214,25 @@ def execute_from_diff(
             f"--dry-run: wrote work-list(s) -> {worklist.parent} (no spend); "
             "stages NOT executed. Re-run without --dry-run to ingest."
         )
-        return
+    elif not card_ids:
+        _write_worklists(card_ids, av_card_ids, worklist, tranche)
+        typer.echo("")
+        typer.echo("0 PDF/IMG cards — PDF stages skipped")
+    else:
+        _enforce_ocr_preflight(engine, concurrency)
+        _write_worklists(card_ids, av_card_ids, worklist, tranche)
+        typer.echo("")
+        typer.echo("wrote work-list(s); running scoped download -> ocr -> embed")
+        run_scoped_stages(
+            manifest,
+            worklist,
+            engine=engine,
+            force=force,
+            concurrency=concurrency,
+            cost_cap_usd=cost_cap_usd,
+        )
 
-    _enforce_ocr_preflight(engine, concurrency)
-    _write_worklists(card_ids, av_card_ids, worklist, tranche)
-    typer.echo("")
-    typer.echo(f"wrote work-list(s); running scoped download -> ocr -> embed")
-    run_scoped_stages(
-        manifest,
-        worklist,
-        engine=engine,
-        force=force,
-        concurrency=concurrency,
-        cost_cap_usd=cost_cap_usd,
-    )
+    av_steps = render_av_next_steps(summary)
+    if av_steps:
+        typer.echo("")
+        typer.echo("\n".join(av_steps))

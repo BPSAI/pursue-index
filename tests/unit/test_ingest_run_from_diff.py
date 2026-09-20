@@ -42,6 +42,14 @@ def _write_diff(diff_dir: Path, sha: str, new_content: list[dict]) -> Path:
     return p
 
 
+def _ids(path: Path) -> list[str]:
+    return [
+        ln.strip()
+        for ln in path.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+
+
 def _new_content_two_cards() -> list[dict]:
     return [
         {"new_card_id": "newcard1", "title": "X", "asset_url": "https://x/a.pdf"},
@@ -374,8 +382,8 @@ def test_dry_run_pdf_only_no_av_worklist(tmp_path, monkeypatch) -> None:
     assert not av_worklist.exists(), f"A/V worklist should not exist, but found at {av_worklist}"
 
 
-def test_dry_run_av_only_no_pdf_worklist(tmp_path, monkeypatch) -> None:
-    """--dry-run with A/V-only content writes only worklist-av.txt, not worklist.txt."""
+def test_dry_run_av_only_writes_empty_pdf_worklist(tmp_path, monkeypatch) -> None:
+    """--dry-run with A/V-only content writes worklist-av.txt and an empty worklist.txt."""
     diff_dir = tmp_path / "plans"
     av_only = [
         {"new_card_id": "vid1", "title": "Video 1", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
@@ -397,8 +405,9 @@ def test_dry_run_av_only_no_pdf_worklist(tmp_path, monkeypatch) -> None:
     )
     assert res.exit_code == 0, res.output
 
-    # PDF worklist should NOT exist
-    assert not worklist.exists(), f"PDF worklist should not exist"
+    # PDF worklist is written empty, so a stale one can never be picked up
+    assert worklist.exists()
+    assert _ids(worklist) == []
 
     # A/V worklist should exist
     av_worklist = worklist.parent / "worklist-av.txt"
@@ -409,3 +418,53 @@ def test_dry_run_av_only_no_pdf_worklist(tmp_path, monkeypatch) -> None:
         if ln.strip() and not ln.strip().startswith("#")
     ]
     assert av_lines == ["vid1", "aud1"]
+
+
+def _av_only_content() -> list[dict]:
+    return [
+        {"new_card_id": "vid1", "title": "V", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+        {"new_card_id": "aud1", "title": "A", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-04-02"},
+    ]
+
+
+def test_non_dry_av_only_tranche_skips_pdf_stages_and_writes_empty_worklist(
+    tmp_path, monkeypatch
+) -> None:
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, _av_only_content())
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    worklist = tmp_path / "worklist.txt"
+    # A stale list from an earlier tranche must not survive.
+    worklist.write_text("oldcard\n", encoding="utf-8")
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+    # No operated env: the OCR preflight must not even run without PDF cards.
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("PURSUE_OCR_ENGINE", raising=False)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot), "--from-diff",
+         "--worklist", str(worklist)],
+    )
+    assert res.exit_code == 0, res.output
+
+    assert seen == {}  # no download / ocr / embed
+    assert _ids(worklist) == []
+    assert _ids(tmp_path / "worklist-av.txt") == ["vid1", "aud1"]
+    assert "0 PDF/IMG cards — PDF stages skipped" in res.output
+    assert "pursue av-fetch run --release-date 2026-03-15" in res.output
+    assert "pursue av-fetch run --release-date 2026-04-02" in res.output
+
+
+def test_av_worklist_name_is_derived_without_string_replace(tmp_path) -> None:
+    from pursue_index.cli.ingest_from_diff import write_worklist_file
+
+    write_worklist_file(tmp_path / "wl.txt.d" / "list.txt", ["a"], "t" * 12, suffix="-av")
+    write_worklist_file(tmp_path / "plain", ["b"], "t" * 12, suffix="-av")
+    assert (tmp_path / "wl.txt.d" / "list-av.txt").exists()
+    assert (tmp_path / "plain-av").exists()
+    assert not (tmp_path / "plain").exists()
