@@ -195,7 +195,7 @@ bundle-copy:
 		fi; \
 		bundle="$$v_dir/clean-qc-bundle.json"; \
 		if [ -f "$$bundle" ]; then \
-			dest="web/public/data/clean-qc-bundle.json"; \
+			dest="$${BUNDLE_DEST:-web/public/data/clean-qc-bundle.json}"; \
 			mkdir -p "$$(dirname "$$dest")"; \
 			src_bytes=$$(wc -c < "$$bundle"); \
 			cp "$$bundle" "$$dest"; \

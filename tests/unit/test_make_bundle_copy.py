@@ -41,7 +41,11 @@ def test_bundle_copy_fails_when_source_missing(tmp_path: Path) -> None:
 
 
 def test_bundle_copy_copies_file_and_prints_bytes(tmp_path: Path) -> None:
-    """bundle-copy should copy the bundle and print byte counts."""
+    """bundle-copy should copy the bundle and print byte counts.
+
+    The copy targets a temporary destination through ``BUNDLE_DEST`` so the
+    tracked bundle under ``web/public/data`` is never touched by the suite.
+    """
     nas_root = tmp_path / "nas-root"
     nas_root.mkdir()
 
@@ -55,26 +59,32 @@ def test_bundle_copy_copies_file_and_prints_bytes(tmp_path: Path) -> None:
 
     source_bytes = len(source_bundle.read_bytes())
 
-    # Create web/public/data directory if it doesn't exist
-    web_data_dir = Path.cwd() / "web" / "public" / "data"
-    web_data_dir.mkdir(parents=True, exist_ok=True)
+    tracked = Path.cwd() / "web" / "public" / "data" / "clean-qc-bundle.json"
+    tracked_before = tracked.read_bytes() if tracked.exists() else None
+    dest_bundle = tmp_path / "out" / "clean-qc-bundle.json"
 
-    # Set up environment
-    env = {"PURSUE_DATA_ROOT": str(nas_root)}
+    env = {"PURSUE_DATA_ROOT": str(nas_root), "BUNDLE_DEST": str(dest_bundle)}
 
-    result = subprocess.run(
-        ["make", "bundle-copy"],
-        cwd=Path.cwd(),
-        env={**dict(subprocess.os.environ), **env},
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            ["make", "bundle-copy"],
+            cwd=Path.cwd(),
+            env={**dict(subprocess.os.environ), **env},
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        # Put the tracked file back if an ignored override let the copy hit it.
+        if tracked_before is not None and tracked.read_bytes() != tracked_before:
+            tracked.write_bytes(tracked_before)
+            tracked_clobbered = True
+        else:
+            tracked_clobbered = False
 
-    # Should succeed
+    assert not tracked_clobbered, "bundle-copy overwrote the tracked bundle"
     assert result.returncode == 0, f"bundle-copy failed: {result.stderr}"
 
-    # Check that the file was copied
-    dest_bundle = web_data_dir / "clean-qc-bundle.json"
+    # Check that the file was copied to the override destination
     assert dest_bundle.exists(), f"Bundle not copied to {dest_bundle}"
 
     # Verify content matches
@@ -84,3 +94,7 @@ def test_bundle_copy_copies_file_and_prints_bytes(tmp_path: Path) -> None:
     # Check that byte count was printed
     assert str(source_bytes) in result.stdout or str(source_bytes) in result.stderr, \
         f"Byte count {source_bytes} not printed in output"
+
+    # The tracked bundle is byte-identical to what it was before the run
+    after = tracked.read_bytes() if tracked.exists() else None
+    assert after == tracked_before
