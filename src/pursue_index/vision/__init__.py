@@ -21,6 +21,5 @@ verify-before-spend preflight (eligible-vs-produced coverage, no API calls).
 from __future__ import annotations
 
 from pursue_index.vision.client import VISION_MODEL
-from pursue_index.vision.eligibility import eligible_image_observation_card_ids
 
-__all__ = ["VISION_MODEL", "eligible_image_observation_card_ids"]
+__all__ = ["VISION_MODEL"]

@@ -17,10 +17,8 @@ from __future__ import annotations
 
 import json
 from collections import Counter, OrderedDict
-from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import CardMetadata, Manifest
@@ -170,33 +168,3 @@ def select_eligible(
         for card, row_key in zip(rows, _row_keys(rows), strict=True):
             items.extend(_items_for_row(card, row_key, ocr_dir))
     return items
-
-
-def eligible_image_observation_card_ids(
-    sources: Mapping[str, Any],
-) -> set[str]:
-    """Card IDs that should have image observations.
-
-    Eligible set: all IMG cards in the manifest plus all PDF cards with
-    image-only pages (pages with empty/whitespace text in pages.json).
-    This predicate is used by the payload coverage spec for image observations.
-    """
-    manifest = sources["manifest"]
-    pages = sources.get("pages", [])
-
-    # All IMG cards (handle both dict and Pydantic models)
-    img_cards = set()
-    for c in manifest["cards"]:
-        asset_type = c["asset_type"] if isinstance(c, dict) else c.asset_type
-        if asset_type == "IMG":
-            card_id = c["card_id"] if isinstance(c, dict) else c.card_id
-            img_cards.add(card_id)
-
-    # PDF cards with image-only pages (pages with no text)
-    pdf_image_pages = {
-        p["card_id"]
-        for p in pages
-        if not (p.get("text") or "").strip()
-    }
-
-    return img_cards | pdf_image_pages

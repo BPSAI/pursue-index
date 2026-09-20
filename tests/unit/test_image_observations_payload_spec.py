@@ -1,151 +1,119 @@
-"""Tests for image observations payload coverage spec.
+"""Coverage spec for the image-observations index.
 
-Demonstrates that:
-1. The spec correctly identifies missing IMG cards
-2. The eligibility predicate is imported from vision module (not duplicated)
-3. The spec is integrated into the coverage gate
+The spec's eligible set comes from the vision stage's own selection
+(``select_eligible``), never from a second copy of the rule, and never from
+``pages.json`` — which is itself built from the index, so deriving eligibility
+from it would be circular.
 """
 
 from __future__ import annotations
 
+import copy
 import json
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import pytest
 
-from pursue_index.vision import eligible_image_observation_card_ids
+from pursue_index.scrape.types import CardMetadata, Manifest
+from pursue_index.vision.eligibility import select_eligible
+from tests.support import payload_specs
 from tests.support.payload_coverage import evaluate, json_loader
-from tests.support.payload_specs import SPECS
+from tests.support.payload_specs import IMAGE_OBSERVATIONS, MANIFEST, PAGES, SPECS
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+SPEC = next(s for s in SPECS if s.payload == IMAGE_OBSERVATIONS)
 
 
-def test_eligibility_function_is_imported_from_vision_module() -> None:
-    """The spec reuses the vision module's eligibility predicate."""
-    from tests.support import payload_specs
-
-    # Verify the function is actually imported, not duplicated locally
-    assert hasattr(payload_specs, 'eligible_image_observation_card_ids')
-    assert payload_specs.eligible_image_observation_card_ids is eligible_image_observation_card_ids
-
-
-def test_spec_for_image_observations_exists() -> None:
-    """The image observations spec is registered in SPECS."""
-    specs_by_payload = {s.payload: s for s in SPECS}
-    assert "web/src/data/image-observations/index.json" in specs_by_payload
-
-
-def test_missing_img_card_fails_spec(tmp_path: Path) -> None:
-    """When an IMG card is missing from index.json, the spec fails and names it."""
-    # Create minimal test data
-    manifest = {
-        "cards": [
-            {"card_id": "img_card_1", "asset_type": "IMG"},
-            {"card_id": "img_card_2", "asset_type": "IMG"},
-        ]
-    }
-
-    # index.json is missing img_card_2
-    index_data = {
-        "schema_version": 1,
-        "card_ids": ["img_card_1"]
-    }
-
-    # Create temporary files
-    manifest_file = tmp_path / "manifest.json"
-    manifest_file.write_text(json.dumps(manifest))
-
-    pages_file = tmp_path / "pages.json"
-    pages_file.write_text(json.dumps([]))
-
-    index_file = tmp_path / "index.json"
-    index_file.write_text(json.dumps(index_data))
-
-    # Build the spec and evaluate against test data
-    spec = next(s for s in SPECS if s.payload == "web/src/data/image-observations/index.json")
-
-    # Manually evaluate with test data
-    def test_loader(rel_path: str) -> Any:
-        if rel_path == "data/manifests/latest.json":
-            return manifest
-        if rel_path == "web/public/data/pages.json":
-            return []
-        if rel_path == "web/src/data/image-observations/index.json":
-            return index_data
-        raise ValueError(f"Unknown path: {rel_path}")
-
-    # Patch the spec temporarily to use test paths
-    from unittest.mock import patch
-
-    test_spec = type(spec)(
-        payload="test-payload",
-        sources=("test-manifest", "test-pages"),
-        eligible=lambda s: eligible_image_observation_card_ids({"manifest": s["test-manifest"], "pages": s["test-pages"]}),
-        shipped=spec.shipped,
-        require_no_missing=spec.require_no_missing,
-        require_no_extra=spec.require_no_extra,
-        key_label=spec.key_label,
-        rationale=spec.rationale,
+def _card(card_id: str, asset_type: str) -> CardMetadata:
+    return CardMetadata(
+        card_id=card_id,
+        title=card_id,
+        asset_type=asset_type,
+        agency="FBI",
+        asset_url=f"https://media.defense.gov/{card_id}",
+        asset_filename=f"{card_id}.bin",
     )
 
-    # Create custom loader
-    sources = {
-        "test-manifest": manifest,
-        "test-pages": [],
-        "test-payload": index_data,
-    }
 
-    eligible = test_spec.eligible(sources)
-    shipped = test_spec.shipped(index_data)
-
-    # Verify missing card is detected
-    assert "img_card_2" in eligible
-    assert "img_card_2" not in shipped
-    assert "img_card_1" in eligible
-    assert "img_card_1" in shipped
+def _manifest_dict(cards: list[CardMetadata]) -> dict:
+    manifest = Manifest(
+        source_url="https://www.war.gov/uap-csv.csv",
+        fetched_at=datetime.now(UTC),
+        csv_sha256="0" * 64,
+        cards=cards,
+    )
+    return manifest.model_dump(mode="json")
 
 
-def test_stale_entry_in_index_fails_spec() -> None:
-    """When index.json has an entry not in manifest, spec fails (require_no_extra=True)."""
-    spec = next(s for s in SPECS if s.payload == "web/src/data/image-observations/index.json")
-
-    # Simulate test data where manifest has 1 IMG card but index has 2
-    manifest = {"cards": [{"card_id": "img_1", "asset_type": "IMG"}]}
-    pages = []
-
-    # index.json has a stale card_id not in manifest
-    index_data = {"schema_version": 1, "card_ids": ["img_1", "unknown_card"]}
-
-    sources = {
-        "data/manifests/latest.json": manifest,
-        "web/public/data/pages.json": pages,
-        "web/src/data/image-observations/index.json": index_data,
-    }
-
-    eligible = spec.eligible(sources)
-    shipped = spec.shipped(index_data)
-
-    # Verify stale entry is detected
-    assert eligible == {"img_1"}
-    assert shipped == {"img_1", "unknown_card"}
-    assert "unknown_card" not in eligible
-    assert "unknown_card" in shipped
+def _write_ocr(ocr_dir: Path, card_id: str, texts: list[str]) -> None:
+    card_dir = ocr_dir / card_id
+    card_dir.mkdir(parents=True)
+    rows = [{"page": n, "text": text} for n, text in enumerate(texts, start=1)]
+    (card_dir / "pages.jsonl").write_text(
+        "".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8"
+    )
 
 
-def test_spec_requires_both_no_missing_and_no_extra() -> None:
-    """The spec enforces both require_no_missing and require_no_extra."""
-    spec = next(s for s in SPECS if s.payload == "web/src/data/image-observations/index.json")
-
-    assert spec.require_no_missing is True, "Spec should require no missing entries"
-    assert spec.require_no_extra is True, "Spec should require no extra entries"
+def test_spec_uses_the_vision_stage_predicate() -> None:
+    assert payload_specs.select_eligible is select_eligible
+    assert not hasattr(payload_specs, "eligible_image_observation_card_ids")
 
 
-def test_sources_are_manifest_and_pages() -> None:
-    """The spec reads committed files: manifest and pages.json."""
-    spec = next(s for s in SPECS if s.payload == "web/src/data/image-observations/index.json")
+def test_spec_does_not_derive_eligibility_from_pages_json() -> None:
+    assert PAGES not in SPEC.sources
+    assert SPEC.sources == (MANIFEST,)
 
-    assert "data/manifests/latest.json" in spec.sources
-    assert "web/public/data/pages.json" in spec.sources
-    # Verify no environment-dependent or network paths
-    for source in spec.sources:
-        assert not source.startswith("$"), f"Source should not use env vars: {source}"
-        assert "://" not in source, f"Source should not be a URL: {source}"
+
+def test_eligible_set_follows_asset_type(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(payload_specs, "_vision_ocr_dir", lambda: tmp_path)
+    _write_ocr(tmp_path, "pdf_blank", ["text", "  "])
+    _write_ocr(tmp_path, "pdf_text", ["text"])
+    # A non-PDF card with an empty OCR page must not be eligible.
+    _write_ocr(tmp_path, "vid_blank", [""])
+    manifest = _manifest_dict(
+        [
+            _card("img1", "IMG"),
+            _card("pdf_blank", "PDF"),
+            _card("pdf_text", "PDF"),
+            _card("vid_blank", "VID"),
+            _card("aud1", "AUD"),
+        ]
+    )
+    assert SPEC.eligible({MANIFEST: manifest}) == {"img1", "pdf_blank"}
+
+
+def test_missing_eligible_card_fails_the_spec(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(payload_specs, "_vision_ocr_dir", lambda: tmp_path)
+    manifest = _manifest_dict([_card("img1", "IMG"), _card("img2", "IMG")])
+    docs = {MANIFEST: manifest, IMAGE_OBSERVATIONS: {"card_ids": ["img1"]}}
+    result = evaluate(SPEC, docs.__getitem__)
+    assert result.missing == ["img2"]
+    assert not result.ok
+
+
+def test_spec_passes_on_the_shipped_index() -> None:
+    result = evaluate(SPEC, json_loader(REPO_ROOT))
+    assert result.ok, result.missing
+    assert result.eligible_count > 0
+
+
+def test_spec_fails_when_one_eligible_id_is_removed() -> None:
+    load = json_loader(REPO_ROOT)
+    index = copy.deepcopy(load(IMAGE_OBSERVATIONS))
+    victim = sorted(SPEC.eligible({MANIFEST: load(MANIFEST)}))[0]
+    index["card_ids"].remove(victim)
+    docs = {MANIFEST: load(MANIFEST), IMAGE_OBSERVATIONS: index}
+    result = evaluate(SPEC, docs.__getitem__)
+    assert result.missing == [victim]
+
+
+def test_shipped_index_names_only_image_or_pdf_manifest_cards() -> None:
+    """Extras cannot be judged against OCR output CI does not have, but every
+    listed card must still be an IMG or PDF card in the manifest."""
+    load = json_loader(REPO_ROOT)
+    types = {}
+    for card in load(MANIFEST)["cards"]:
+        types.setdefault(card["card_id"], set()).add(card["asset_type"])
+    for card_id in load(IMAGE_OBSERVATIONS)["card_ids"]:
+        assert types.get(card_id, set()) & {"IMG", "PDF"}, card_id
