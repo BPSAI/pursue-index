@@ -41,7 +41,7 @@ def test_gate_mirror_lists_all_six_test_files() -> None:
 
 
 def test_ship_ready_depends_on_gate_mirror() -> None:
-    """The ship-ready target depends on gate-mirror (not test)."""
+    """The ship-ready target depends on gate-mirror."""
     makefile = (REPO_ROOT / "Makefile").read_text()
     # Find the ship-ready target line.
     for line in makefile.split("\n"):
@@ -54,6 +54,39 @@ def test_ship_ready_depends_on_gate_mirror() -> None:
             break
     else:
         raise AssertionError("ship-ready target not found in Makefile")
+
+
+def _ship_ready_prereqs() -> list[str]:
+    for line in (REPO_ROOT / "Makefile").read_text().splitlines():
+        if line.startswith("ship-ready:"):
+            return line.split(":", 1)[1].split()
+    raise AssertionError("ship-ready target not found in Makefile")
+
+
+def test_ship_ready_depends_on_test() -> None:
+    """No CI job runs the unit suite, so ship-ready must."""
+    assert "test" in _ship_ready_prereqs()
+
+
+def test_ship_ready_prerequisite_order() -> None:
+    """The unit suite runs after the build it may read, before the CI mirror."""
+    assert _ship_ready_prereqs() == [
+        "release-completeness",
+        "rebuild-derivatives",
+        "registry-root",
+        "snapshot-rotate",
+        "astro-build",
+        "test",
+        "gate-mirror",
+        "arch-check",
+        "staleness",
+    ]
+
+
+def test_test_target_uses_the_repo_interpreter() -> None:
+    makefile = (REPO_ROOT / "Makefile").read_text()
+    recipe = makefile.split("\ntest:\n", 1)[1].split("\n", 2)[0]
+    assert recipe.strip() == "$(PYTHON) -m pytest"
 
 
 def test_gate_mirror_no_stale_test_references() -> None:

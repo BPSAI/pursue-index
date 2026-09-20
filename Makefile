@@ -34,7 +34,7 @@ serve:
 
 # ---- dev quality ----
 test:
-	pytest
+	$(PYTHON) -m pytest
 
 lint:
 	ruff check src tests
@@ -62,11 +62,12 @@ clean:
 # `make ship-ready` runs the full deterministic-AC chain pre-commit.
 
 .PHONY: ship-ready
-# Order matters: astro-build BEFORE gate-mirror so test_dist_dir_exists +
-# test_card_page_coverage can see the freshly-built dist tree.
+# Order matters: astro-build BEFORE test/gate-mirror so test_dist_dir_exists +
+# test_card_page_coverage can see the freshly-built dist tree. `test` is here
+# because no CI job runs the unit suite; gate-mirror then mirrors release-gate.
 # (Caught 2026-05-22 on a clean rebuild — those integration tests
 # rely on web/dist being current.)
-ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build gate-mirror arch-check staleness
+ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build test gate-mirror arch-check staleness
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
 	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
