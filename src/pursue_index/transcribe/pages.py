@@ -27,6 +27,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from pursue_index.transcribe.utterances_store import (
+    UTTERANCES_FILE,
+    append_utterances,
+    read_utterances,
+)
+
 _UTTERANCES_PER_PAGE = 12  # citation granularity: a page is ~a dozen turns
 _DEFAULT_CHAR_BUDGET = 2500  # citation-sized: ~2.5k characters per page
 _DEFAULT_DURATION_BUDGET_S = 120.0  # ~2 minutes per page
@@ -166,7 +172,6 @@ def _build_meta(
     multichannel: bool,
     audio_duration_s: float | None,
     speakers: list[str],
-    utterances: list[dict[str, Any]],
     total_pages: int,
     num_new_rows: int,
     char_budget: int,
@@ -182,15 +187,13 @@ def _build_meta(
         "pages": num_new_rows,
     }
     merged = _merged_rows(list(prior.get("rows", [])), entry)
-    utterances_list = prior.get("utterances", [])
-    utterances_list.extend(utterances)
     return {
         "card_id": card_id,
         "engine": "assemblyai",
         "status": "ok" if total_pages else "empty",
         "page_count": total_pages,
         "rows": merged,
-        "utterances": utterances_list,
+        "utterances_file": UTTERANCES_FILE,
         "char_budget": char_budget,
         "duration_budget_s": duration_budget_s,
         "finished_at": datetime.now(UTC).isoformat(),
@@ -238,10 +241,11 @@ def write_transcript_sidecar(
             fh.write(json.dumps(row) + "\n")
 
     prior = _read_meta(meta_path)
+    append_utterances(card_dir, prior, utterances)
     total_pages = start_page - 1 + len(rows)
     meta = _build_meta(
         card_id, prior, row_key, source, multichannel, audio_duration_s,
-        speakers, utterances, total_pages, len(rows), char_budget, duration_budget_s,
+        speakers, total_pages, len(rows), char_budget, duration_budget_s,
     )
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return len(rows)
@@ -255,6 +259,9 @@ def repaginate_sidecar(
 ) -> None:
     """Re-paginate an existing sidecar in place, using stored utterances.
 
+    Utterances come from the sidecar's ``utterances.jsonl``, or from inline
+    ``meta["utterances"]`` for sidecars written before that file existed.
+
     Idempotent: running twice produces the same result.
     Updates meta.json with new page_count.
     """
@@ -262,10 +269,10 @@ def repaginate_sidecar(
     meta_path = card_dir / "meta.json"
 
     meta = _read_meta(meta_path)
-    if not meta or "utterances" not in meta:
+    if not meta:
         return
 
-    utterances = meta.get("utterances", [])
+    utterances = read_utterances(card_dir, meta)
     if not utterances:
         return
 

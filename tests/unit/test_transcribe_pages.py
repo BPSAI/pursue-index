@@ -272,6 +272,99 @@ def test_repaginate_sidecar_is_idempotent(tmp_path: Path) -> None:
     assert rows1 == rows2
 
 
+def _read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text().splitlines()]
+
+
+def _numbered(n: int, start: int = 0) -> list[dict]:
+    return [
+        {"speaker": "A", "text": f"sentence {i}", "start": i * 10, "end": i * 10 + 9}
+        for i in range(start, start + n)
+    ]
+
+
+def test_write_stores_utterances_once_in_a_sibling_file(tmp_path: Path) -> None:
+    out_dir = tmp_path / "ocr"
+    write_transcript_sidecar(
+        "aud1", out_dir, _numbered(5),
+        multichannel=False, audio_duration_s=50, speakers=["A"], source="aud1.mp4",
+    )
+
+    meta = json.loads((out_dir / "aud1" / "meta.json").read_text())
+    assert "utterances" not in meta
+    assert meta["utterances_file"] == "utterances.jsonl"
+    assert _read_jsonl(out_dir / "aud1" / "utterances.jsonl") == _numbered(5)
+
+
+def test_second_row_appends_to_the_utterances_file(tmp_path: Path) -> None:
+    out_dir = tmp_path / "ocr"
+    for row_key, start in (("r1", 0), ("r2", 5)):
+        write_transcript_sidecar(
+            "aud1", out_dir, _numbered(5, start), row_key=row_key,
+            multichannel=False, audio_duration_s=50, speakers=["A"], source="aud1.mp4",
+        )
+
+    assert _read_jsonl(out_dir / "aud1" / "utterances.jsonl") == _numbered(10)
+
+
+def test_repaginate_reads_utterances_from_the_sidecar_file(tmp_path: Path) -> None:
+    out_dir = tmp_path / "ocr"
+    write_transcript_sidecar(
+        "aud1", out_dir, _numbered(20),
+        multichannel=False, audio_duration_s=200, speakers=["A"], source="aud1.mp4",
+    )
+    old_count = json.loads((out_dir / "aud1" / "meta.json").read_text())["page_count"]
+
+    repaginate_sidecar(out_dir, "aud1", char_budget=100)
+
+    meta = json.loads((out_dir / "aud1" / "meta.json").read_text())
+    assert "utterances" not in meta
+    assert meta["page_count"] > old_count
+    assert len(_read_jsonl(out_dir / "aud1" / "pages.jsonl")) == meta["page_count"]
+
+
+def _legacy_sidecar(out_dir: Path, utterances: list[dict]) -> Path:
+    """A sidecar written before utterances moved to their own file."""
+    card_dir = out_dir / "aud1"
+    card_dir.mkdir(parents=True)
+    (card_dir / "pages.jsonl").write_text(
+        json.dumps({"page": 1, "text": "old"}) + "\n", encoding="utf-8"
+    )
+    (card_dir / "meta.json").write_text(
+        json.dumps({
+            "card_id": "aud1", "status": "ok", "page_count": 1,
+            "rows": [{"row_key": "", "pages": 1}], "utterances": utterances,
+        }),
+        encoding="utf-8",
+    )
+    return card_dir
+
+
+def test_repaginate_falls_back_to_inline_utterances_in_legacy_meta(tmp_path: Path) -> None:
+    out_dir = tmp_path / "ocr"
+    _legacy_sidecar(out_dir, _numbered(20))
+
+    repaginate_sidecar(out_dir, "aud1", char_budget=100)
+
+    meta = json.loads((out_dir / "aud1" / "meta.json").read_text())
+    assert meta["page_count"] > 1
+    assert len(_read_jsonl(out_dir / "aud1" / "pages.jsonl")) == meta["page_count"]
+
+
+def test_write_onto_legacy_sidecar_moves_inline_utterances_to_the_file(tmp_path: Path) -> None:
+    out_dir = tmp_path / "ocr"
+    card_dir = _legacy_sidecar(out_dir, _numbered(3))
+
+    write_transcript_sidecar(
+        "aud1", out_dir, _numbered(2, 3), row_key="r2",
+        multichannel=False, audio_duration_s=50, speakers=["A"], source="aud1.mp4",
+    )
+
+    meta = json.loads((card_dir / "meta.json").read_text())
+    assert "utterances" not in meta
+    assert _read_jsonl(card_dir / "utterances.jsonl") == _numbered(5)
+
+
 def test_sixty_minute_fixture_produces_20_to_40_pages(tmp_path: Path) -> None:
     """60 minutes of audio with ~60k chars should paginate to 20-40 pages."""
     out_dir = tmp_path / "ocr"
