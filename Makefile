@@ -34,7 +34,7 @@ serve:
 
 # ---- dev quality ----
 test:
-	pytest
+	$(PYTHON) -m pytest
 
 lint:
 	ruff check src tests
@@ -62,15 +62,34 @@ clean:
 # `make ship-ready` runs the full deterministic-AC chain pre-commit.
 
 .PHONY: ship-ready
-# Order matters: astro-build BEFORE test so test_dist_dir_exists +
-# test_card_page_coverage can see the freshly-built dist tree.
+# Order matters: astro-build BEFORE test/gate-mirror so test_dist_dir_exists +
+# test_card_page_coverage can see the freshly-built dist tree. `test` is here
+# because no CI job runs the unit suite; gate-mirror then mirrors release-gate.
 # (Caught 2026-05-22 on a clean rebuild — those integration tests
 # rely on web/dist being current.)
-ship-ready: rebuild-derivatives registry-root snapshot-rotate astro-build test arch-check staleness
+ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build test gate-mirror arch-check staleness
 	@echo ""
-	@echo "ship-ready: ALL GATES PASSED. Safe to commit + push."
-	@echo "  next: git add -A && git commit -m '...' && git push origin main"
+	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
+	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
 	@echo ""
+
+# First prerequisite of ship-ready: refuse a release before spending build time
+# on it when an AUD card has no transcript, a VID/AUD card has no registered
+# bytes, or a transcript is channel-duplicated. Repo + data root only.
+.PHONY: release-completeness
+release-completeness:
+	@$(PYTHON) scripts/check_release_completeness.py
+
+.PHONY: gate-mirror
+# Local mirror of CI release-gate checks: snapshot mirror coverage, finds citations,
+# finds validator, card page coverage, alias destinations, derived payload coverage.
+gate-mirror:
+	$(PYTHON) -m pytest tests/unit/test_snapshot_mirror_coverage.py \
+	       tests/unit/test_finds_citations.py \
+	       tests/unit/test_finds_validator.py \
+	       tests/integration/test_card_page_coverage.py \
+	       tests/integration/test_alias_destinations.py \
+	       tests/integration/test_derived_payload_coverage.py
 
 .PHONY: staleness
 staleness:
@@ -80,6 +99,12 @@ staleness:
 verify-deploy:
 	@$(PYTHON) scripts/runbook_verify_deploy.py
 
+# Passed to the builders that guard against a shrinking corpus (pages.json,
+# embed_index.json). Empty by default: a shrink fails the target. To accept one
+# on purpose (audited in data/audit-log.jsonl):
+#   make rebuild-derivatives SHRINK_ARGS='--allow-shrink --reason "why"'
+SHRINK_ARGS ?=
+
 .PHONY: rebuild-derivatives
 rebuild-derivatives:
 	@echo "==> Rebuild derivatives (mirror, cards-summary, byte-history, csv-archive, pages.json, llms.txt, OG images)"
@@ -87,7 +112,11 @@ rebuild-derivatives:
 	@cd web && node scripts/build_byte_history.mjs > /dev/null
 	@cd web && node scripts/build_cards_summary.mjs > /dev/null
 	@cd web && node scripts/build_csv_archive.mjs > /dev/null
-	@$(PYTHON) scripts/build_search_data.py 2>&1 | tail -1
+	@# build_search_data refuses a shrinking corpus (exit 1, ids on stderr). A
+	@# bare `| tail -1` would report tail's status and hide the ids, so capture
+	@# the output, fail on the builder's own status, and show only the summary
+	@# line on success.
+	@out=$$($(PYTHON) scripts/build_search_data.py $(SHRINK_ARGS) 2>&1) || { echo "$$out"; exit 1; }; echo "$$out" | tail -1
 	@# LS1.4 superseded build_llms_txt.mjs with the Python generator, which is
 	@# what release-gate step 4b checks (`build_llms_txt.py --check`). The .mjs
 	@# emits no provenance line, so leaving it here silently reverted the
@@ -116,7 +145,7 @@ rebuild-derivatives:
 	@# Requires the NAS embed root + r2-mirror (present in the operator ship
 	@# env; same precondition as embed above).
 	@echo "==> Propagate derived payloads (embed / posters / atlas)"
-	@$(PYTHON) scripts/build_embed_data.py
+	@$(PYTHON) scripts/build_embed_data.py $(SHRINK_ARGS)
 	@$(PYTHON) scripts/build_video_posters.py
 	@$(PYTHON) scripts/build_atlas_layout.py
 
@@ -151,3 +180,36 @@ astro-build:
 .PHONY: hooks-install
 hooks-install:
 	@bash scripts/install-hooks.sh
+
+# ---- Release artifacts ----
+.PHONY: bundle-copy
+bundle-copy:
+	@if [ -z "$$PURSUE_DATA_ROOT" ]; then \
+		echo "bundle-copy: PURSUE_DATA_ROOT not set"; \
+		exit 1; \
+	fi
+	@nas_root="$$PURSUE_DATA_ROOT"; \
+	v_dir=""; best=-1; \
+	for d in "$$nas_root/published"/v[0-9]*; do \
+		n="$${d##*/v}"; \
+		case "$$n" in ""|*[!0-9]*) continue;; esac; \
+		if [ -d "$$d" ] && [ "$$n" -gt "$$best" ]; then best="$$n"; v_dir="$$d"; fi; \
+	done; \
+	if [ -z "$$v_dir" ]; then \
+		echo "bundle-copy: no published version directories found in $$nas_root/published"; \
+		exit 1; \
+	fi; \
+	bundle="$$v_dir/clean-qc-bundle.json"; \
+	if [ -f "$$bundle" ]; then \
+		dest="$${BUNDLE_DEST:-web/public/data/clean-qc-bundle.json}"; \
+		mkdir -p "$$(dirname "$$dest")"; \
+		src_bytes=$$(wc -c < "$$bundle"); \
+		cp "$$bundle" "$$dest"; \
+		dest_bytes=$$(wc -c < "$$dest"); \
+		echo "bundle-copy: copied $$bundle"; \
+		echo "  source: $$src_bytes bytes"; \
+		echo "  dest: $$dest_bytes bytes"; \
+		exit 0; \
+	fi; \
+	echo "bundle-copy: clean-qc-bundle.json not found in $$v_dir"; \
+	exit 1

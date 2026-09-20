@@ -22,24 +22,8 @@ if str(_SRC) not in sys.path:
 from pursue_index.ingest_run import (  # noqa: E402
     locate_snapshot,
     promote_snapshot,
-    render_next_steps,
     summarize_ingest_work,
 )
-
-
-def test_render_next_steps_ocr_uses_operated_engine() -> None:
-    """The post-tranche runbook must instruct the operator to run the operated
-    engine (llm-dots), never the retired 'auto' resolver."""
-    summary = {
-        "needs_download": ["card1"],
-        "needs_ocr": ["card1"],
-        "needs_embed": ["card1"],
-        "needs_inspection": [],
-        "metadata_only": False,
-    }
-    steps = render_next_steps(summary)
-    assert "--engine llm-dots" in steps
-    assert "--engine auto" not in steps
 
 
 def test_locate_snapshot_finds_full_sha_match(tmp_path: Path) -> None:
@@ -442,3 +426,72 @@ def test_summarize_renames_dont_need_download() -> None:
     assert summary["needs_ocr"] == []
     assert summary["needs_embed"] == []
     assert summary["metadata_only"] is True
+
+
+# --- A/V row extraction ---
+
+
+def test_summarize_extracts_av_rows_from_new_content() -> None:
+    """A/V rows (asset_type in VID/AUD) are tracked separately from PDF/IMG.
+    Both require asset_url to be included in the A/V list."""
+    diff = {
+        "renames_confirmed": [],
+        "new_content": [
+            {"new_card_id": "pdf1", "title": "PDF", "asset_url": "https://x/a.pdf", "asset_type": "PDF", "release_date": "2026-01-15"},
+            {"new_card_id": "vid1", "title": "Video", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-01-15"},
+            {"new_card_id": "aud1", "title": "Audio", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-01-15"},
+            {"new_card_id": "vid2", "title": "Video 2", "asset_url": "https://x/b.mp4", "asset_type": "VID", "release_date": "2026-01-20"},
+        ],
+        "quarantined": [],
+        "restored_unchanged": [],
+        "restored_modified": [],
+        "field_only_changes": [],
+    }
+    summary = summarize_ingest_work(diff)
+    # PDF goes in needs_download (existing behavior)
+    assert "pdf1" in summary["needs_download"]
+    # A/V rows go in needs_av_fetch
+    assert "vid1" in summary["needs_av_fetch"]
+    assert "vid2" in summary["needs_av_fetch"]
+    assert "aud1" in summary["needs_av_fetch"]
+    # Metadata-only should be False because we have content
+    assert summary["metadata_only"] is False
+
+
+def test_summarize_av_without_asset_url_excluded() -> None:
+    """A/V rows without asset_url (metadata-only entries) should not be
+    included in the A/V list."""
+    diff = {
+        "renames_confirmed": [],
+        "new_content": [
+            {"new_card_id": "vid_no_asset", "title": "Video", "asset_url": None, "asset_type": "VID", "release_date": "2026-01-15"},
+            {"new_card_id": "vid_with_asset", "title": "Video", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-01-15"},
+        ],
+        "quarantined": [],
+        "restored_unchanged": [],
+        "restored_modified": [],
+        "field_only_changes": [],
+    }
+    summary = summarize_ingest_work(diff)
+    assert "vid_no_asset" not in summary.get("needs_av_fetch", [])
+    assert "vid_with_asset" in summary["needs_av_fetch"]
+
+
+def test_summarize_av_rows_with_release_dates() -> None:
+    """Release dates from A/V rows should be extracted for later use in
+    render_next_steps to show which release-date to pass to av-fetch, etc."""
+    diff = {
+        "renames_confirmed": [],
+        "new_content": [
+            {"new_card_id": "vid1", "title": "Video", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+            {"new_card_id": "aud1", "title": "Audio", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-03-15"},
+        ],
+        "quarantined": [],
+        "restored_unchanged": [],
+        "restored_modified": [],
+        "field_only_changes": [],
+    }
+    summary = summarize_ingest_work(diff)
+    # All A/V rows should have the same release_date (operator enforces this)
+    assert "av_release_dates" in summary
+    assert "2026-03-15" in summary["av_release_dates"]

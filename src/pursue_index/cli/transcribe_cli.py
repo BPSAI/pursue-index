@@ -33,7 +33,9 @@ from rich.console import Console
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 from pursue_index.transcribe import _wire, client, probe
+from pursue_index.transcribe.anchors import citation_anchors
 from pursue_index.transcribe.eligibility import EligibleItem, select_eligible
+from pursue_index.transcribe.repage import repaginate_sidecar
 from pursue_index.transcribe.result import TranscriptResult
 from pursue_index.transcribe.run import (
     TranscribeFn,
@@ -41,6 +43,8 @@ from pursue_index.transcribe.run import (
     preflight_coverage,
     run_transcribe,
 )
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 transcribe_app = typer.Typer(
     name="transcribe", help="Diarized transcription for AUD content (AUD only)."
@@ -192,3 +196,37 @@ def transcribe_run(
     _print_report(report)
     if not report.ok:
         raise typer.Exit(code=1)
+
+
+@transcribe_app.command("repage")
+def transcribe_repage(
+    card: str = typer.Option(..., "--card", help="Card ID to re-paginate"),
+    out: Path = _OPT_OUT,
+    force: bool = typer.Option(
+        False, "--force",
+        help="Re-paginate even though pages.json or a find already cites this card's pages.",
+    ),
+) -> None:
+    """Re-paginate an existing transcript sidecar using smaller page sizes.
+
+    Reads the stored utterances from the sidecar and rewrites pages.jsonl with
+    the new pagination. Idempotent: running twice produces the same result.
+    Updates meta.json with the new page_count and per-row page counts.
+
+    Page numbers are citation anchors, so this refuses a card whose pages
+    are already in the committed pages.json or cited by a find, unless
+    ``--force`` is given.
+    """
+    out_dir = out or settings.ocr_dir
+    anchors = [] if force else citation_anchors(card, _REPO_ROOT)
+    if anchors:
+        console.print(f"[red]refusing to re-page {card}: its page numbers are already cited[/red]")
+        for anchor in anchors:
+            console.print(f"  {anchor}")
+        console.print("Re-paging moves those anchors. Pass --force to do it anyway.")
+        raise typer.Exit(code=2)
+    skipped = repaginate_sidecar(out_dir, card)
+    if skipped:
+        console.print(f"[yellow]skipped[/yellow] ({skipped}): {card}")
+        return
+    console.print(f"[green]✔[/green] re-paged {card}")

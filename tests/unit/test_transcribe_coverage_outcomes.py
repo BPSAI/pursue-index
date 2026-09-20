@@ -39,7 +39,9 @@ def _spoken(text: str) -> list[dict[str, object]]:
 
 def _stage_audio(audio_dir: Path, item: EligibleItem) -> None:
     audio_dir.mkdir(parents=True, exist_ok=True)
-    audio_path_for(item, audio_dir).write_bytes(b"fake mp4")
+    path = audio_path_for(item, audio_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"fake mp4")
 
 
 def test_transcript_with_no_utterances_leaves_the_row_outstanding(

@@ -10,6 +10,9 @@ Two properties are load-bearing:
 * **Committed sources only.** Predicates read ``data/manifests/latest.json``
   and ``web/public/data/pages.json`` — both tracked in the repo — so the
   gate runs in credential-free CI with no NAS mount, no network, no env.
+  The one exception is the image-observations spec, which also reads local
+  OCR output when present and covers only what the manifest alone can say
+  when it is not.
 * **The manifest is never deduped.** Upstream legitimately repeats
   card_ids across rows (a card can appear with several asset rows). The
   predicates count DISTINCT card_ids for the payload's key set; the
@@ -19,8 +22,12 @@ Two properties are load-bearing:
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from pathlib import Path
 from typing import Any
 
+from pursue_index.config import settings
+from pursue_index.scrape.types import Manifest
+from pursue_index.vision.eligibility import select_eligible
 from tests.support.payload_coverage import Key, PayloadSpec
 
 MANIFEST = "data/manifests/latest.json"
@@ -30,6 +37,7 @@ EMBED_INDEX = "web/public/data/embed_index.json"
 ATLAS_LAYOUT = "web/public/data/atlas-layout.json"
 VIDEO_POSTERS = "web/public/data/video-posters/index.json"
 THUMBS = "web/public/data/thumbs/index.json"
+IMAGE_OBSERVATIONS = "web/src/data/image-observations/index.json"
 
 #: Asset types whose cards get a poster frame.
 AV_ASSET_TYPES = ("VID", "AUD")
@@ -84,6 +92,28 @@ def _shipped_thumb_cards(doc: Any) -> set[Key]:
 
 def _shipped_page_cards(doc: Any) -> set[Key]:
     return {p["card_id"] for p in doc}
+
+
+def _vision_ocr_dir() -> Path:
+    """Where the vision stage reads OCR output; absent in credential-free CI."""
+    return settings.ocr_dir
+
+
+def _eligible_image_observation_cards(sources: Mapping[str, Any]) -> set[Key]:
+    """Card ids the vision stage would examine, by its own selection.
+
+    IMG cards come from the manifest alone. A PDF card counts only once OCR
+    output shows it has an image-only page, so where that output is absent
+    only the IMG cards are known — which is why the spec below checks
+    coverage and not extras.
+    """
+    manifest = Manifest.model_validate(sources[MANIFEST])
+    return {i.card_id for i in select_eligible(manifest, None, _vision_ocr_dir())}
+
+
+def _shipped_image_observation_cards(doc: Any) -> set[Key]:
+    """Extract card_ids from the image observations index."""
+    return set(doc.get("card_ids", []))
 
 
 SPECS: tuple[PayloadSpec, ...] = (
@@ -159,6 +189,23 @@ SPECS: tuple[PayloadSpec, ...] = (
         rationale=(
             "structural sanity only: every card_id present in pages.json "
             "must exist in the manifest (OCR coverage is gated operationally)"
+        ),
+    ),
+    # Image observations: coverage of what the vision stage would examine.
+    # Not pages.json: it is built from this index, so it cannot say what
+    # the index should hold. Extras are not asserted because the PDF half of
+    # the eligible set needs OCR output that credential-free CI lacks.
+    PayloadSpec(
+        payload=IMAGE_OBSERVATIONS,
+        sources=(MANIFEST,),
+        eligible=_eligible_image_observation_cards,
+        shipped=_shipped_image_observation_cards,
+        require_no_missing=True,
+        require_no_extra=False,
+        key_label="card_id",
+        rationale=(
+            "every IMG card, and every PDF card with an image-only OCR page, "
+            "as selected by the vision stage (select_eligible)"
         ),
     ),
 )

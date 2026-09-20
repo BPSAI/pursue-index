@@ -30,6 +30,7 @@ from typing import Any
 
 from pursue_index import get_logger
 from pursue_index.av_fetch import client
+from pursue_index.av_fetch.card_links import create_card_link, row_keys_by_position
 
 log = get_logger(__name__)
 
@@ -216,6 +217,7 @@ def fetch_one(
     *,
     page_fetch: PageFetch,
     asset_fetch: AssetFetch,
+    row_key: str = "",
 ) -> AVFetchItem:
     """Fetch one card's A/V bytes into ``staging_dir``. Never raises."""
     card_id = card.card_id
@@ -234,12 +236,16 @@ def fetch_one(
 
     dest = _dest_path(staging_dir, dod_id)
     if dest.exists() and dest.stat().st_size > 0:
+        create_card_link(dest, card_id, row_key)
         return AVFetchItem(
             card_id, dvids_id, asset_type, "skipped_existing",
             path=dest, byte_size=dest.stat().st_size,
         )
 
-    return _fetch_and_stage(card_id, dvids_id, asset_type, asset_url, dest, asset_fetch)
+    item = _fetch_and_stage(card_id, dvids_id, asset_type, asset_url, dest, asset_fetch)
+    if item.status == "fetched":
+        create_card_link(dest, card_id, row_key)
+    return item
 
 
 def fetch_worklist(
@@ -251,9 +257,10 @@ def fetch_worklist(
 ) -> AVFetchReport:
     """Fetch every card's A/V bytes into ``staging_dir``. Skip-and-count only —
     one item's failure never aborts the rest."""
+    row_keys = row_keys_by_position(cards)
     items = [
-        fetch_one(c, staging_dir, page_fetch=page_fetch, asset_fetch=asset_fetch)
-        for c in cards
+        fetch_one(c, staging_dir, page_fetch=page_fetch, asset_fetch=asset_fetch, row_key=key)
+        for c, key in zip(cards, row_keys, strict=True)
     ]
     report = AVFetchReport(items=items)
     log.info(
