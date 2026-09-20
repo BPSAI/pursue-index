@@ -122,6 +122,8 @@ def _write_staged(dest: Path, body: bytes) -> None:
 def _create_card_link(dod_path: Path, card_id: str) -> None:
     """Create a hard link (or symlink) with card_id name pointing to dod_path."""
     link_path = dod_path.parent / f"{card_id}.mp4"
+    if link_path.is_symlink() and not link_path.exists():
+        link_path.unlink()
     if link_path.exists():
         return
     try:

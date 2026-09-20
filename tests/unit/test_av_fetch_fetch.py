@@ -630,3 +630,44 @@ def test_fetch_one_makes_link_idempotent_when_already_correct(tmp_path: Path) ->
 
     assert dod_path.exists()
     assert card_path.exists()
+
+
+# --- card link: pre-existing entries at the link path ---------------------
+
+
+def _fetch_with_card_link(tmp_path: Path):
+    card = FakeCard("c1", "VID", "1006056")
+    page_fetch = _pages({"1006056": (200, _VID_PAGE_BODY)})
+    asset_fetch = _assets({
+        "https://d34w7g4gy10iej.cloudfront.net/video/2605/DOD_111688723/DOD_111688723.mp4": (
+            200, "binary/octet-stream", _ASSET_BYTES,
+        )
+    })
+    return fetch_one(card, tmp_path, page_fetch=page_fetch, asset_fetch=asset_fetch)
+
+
+def test_fetch_one_replaces_a_dangling_card_link(tmp_path: Path) -> None:
+    """A dangling symlink at <card_id>.mp4 is replaced, not a reason to abort."""
+    card_path = tmp_path / "c1.mp4"
+    card_path.symlink_to("DOD_gone.mp4")
+    assert card_path.is_symlink() and not card_path.exists()
+
+    item = _fetch_with_card_link(tmp_path)
+
+    assert item.status == "fetched"
+    assert card_path.exists()
+    assert card_path.read_bytes() == _ASSET_BYTES
+
+
+def test_fetch_one_leaves_a_working_card_link_alone(tmp_path: Path) -> None:
+    """A card link that already resolves to bytes is not rewritten."""
+    other = tmp_path / "DOD_other.mp4"
+    other.write_bytes(b"existing")
+    card_path = tmp_path / "c1.mp4"
+    card_path.symlink_to(other.name)
+
+    item = _fetch_with_card_link(tmp_path)
+
+    assert item.status == "fetched"
+    assert card_path.is_symlink()
+    assert card_path.read_bytes() == b"existing"
