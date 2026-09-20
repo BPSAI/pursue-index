@@ -29,6 +29,8 @@ Decision matrix (per tranche-diff classification):
 from __future__ import annotations
 
 import json
+import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -247,6 +249,20 @@ def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+# The manifest states release_date as M/D/YY (``5/8/26``); M/D/YYYY is read
+# too. It is upstream CSV text that gets printed into copy-paste shell
+# commands, so only that shape is echoed.
+_RELEASE_DATE_RE = re.compile(r"\d{1,2}/\d{1,2}/(?:\d{2}|\d{4})")
+_RELEASE_DATE_UNAVAILABLE = "<release_date unavailable: not a date>"
+
+
+def _release_date_arg(value: str) -> str:
+    """Shell-safe ``--release-date`` argument for a manifest release_date."""
+    if not _RELEASE_DATE_RE.fullmatch(value):
+        value = _RELEASE_DATE_UNAVAILABLE
+    return shlex.quote(value)
+
+
 def render_av_next_steps(summary: dict[str, Any]) -> list[str]:
     """The A/V pipeline commands: one fetch/transcribe block per release date.
 
@@ -258,7 +274,8 @@ def render_av_next_steps(summary: dict[str, Any]) -> list[str]:
     manifest = "data/manifests/latest.json"
     release_dates = summary.get("av_release_dates") or ["UNKNOWN"]
     lines = [f"A/V content detected ({len(summary['needs_av_fetch'])} card_id(s)) — run A/V pipeline:"]
-    for date in release_dates:
+    for release_date in release_dates:
+        date = _release_date_arg(release_date)
         lines.append(f"  pursue av-fetch run --release-date {date} --manifest {manifest}")
         lines.append(f"  python scripts/ingest_release_videos.py --release-date {date}")
         lines.append(f"  pursue transcribe run --release-date {date} --manifest {manifest}")

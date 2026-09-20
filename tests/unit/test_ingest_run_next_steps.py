@@ -50,14 +50,14 @@ def test_render_next_steps_av_rows_prints_av_commands() -> None:
         "needs_ocr": [],
         "needs_embed": [],
         "needs_av_fetch": ["vid1", "vid2", "aud1"],
-        "av_release_dates": ["2026-03-15"],
+        "av_release_dates": ["3/15/26"],
         "needs_inspection": [],
         "metadata_only": False,
     }
     steps = render_next_steps(summary)
     # Should include av-fetch
     assert "pursue av-fetch run" in steps
-    assert "--release-date 2026-03-15" in steps
+    assert "--release-date 3/15/26" in steps
     # Should include ingest_release_videos.py
     assert "ingest_release_videos.py" in steps
     # Should include transcribe
@@ -93,7 +93,7 @@ def test_render_next_steps_pdf_and_av_together() -> None:
         "needs_ocr": ["pdf1"],
         "needs_embed": ["pdf1"],
         "needs_av_fetch": ["vid1", "aud1"],
-        "av_release_dates": ["2026-03-20"],
+        "av_release_dates": ["3/20/26"],
         "needs_inspection": [],
         "metadata_only": False,
     }
@@ -106,7 +106,7 @@ def test_render_next_steps_pdf_and_av_together() -> None:
     assert "pursue av-fetch run" in steps
     assert "pursue transcribe run" in steps
     # Both should mention the release date
-    assert "--release-date 2026-03-20" in steps
+    assert "--release-date 3/20/26" in steps
 
 
 def test_render_next_steps_prints_one_av_block_per_release_date() -> None:
@@ -115,12 +115,12 @@ def test_render_next_steps_prints_one_av_block_per_release_date() -> None:
         "needs_ocr": [],
         "needs_embed": [],
         "needs_av_fetch": ["vid1", "aud1"],
-        "av_release_dates": ["2026-03-15", "2026-04-02"],
+        "av_release_dates": ["3/15/26", "4/2/26"],
         "needs_inspection": [],
         "metadata_only": False,
     }
     steps = render_next_steps(summary)
-    for date in ("2026-03-15", "2026-04-02"):
+    for date in ("3/15/26", "4/2/26"):
         assert f"pursue av-fetch run --release-date {date}" in steps
         assert f"ingest_release_videos.py --release-date {date}" in steps
         assert f"pursue transcribe run --release-date {date}" in steps
@@ -180,3 +180,52 @@ def test_render_next_steps_pdf_only_unchanged() -> None:
     lines = steps.split("\n")
     av_lines = [line for line in lines if "A/V" in line]
     assert len(av_lines) == 0, f"Should not have A/V section, found: {av_lines}"
+
+
+# --- release_date is upstream CSV text: validate it, quote it ---
+
+
+def _av_summary(release_dates: list[str]) -> dict:
+    return {
+        "needs_download": [],
+        "needs_ocr": [],
+        "needs_embed": [],
+        "needs_av_fetch": ["vid1"],
+        "av_release_dates": release_dates,
+        "needs_inspection": [],
+        "metadata_only": False,
+    }
+
+
+def test_render_next_steps_accepts_manifest_date_shapes() -> None:
+    for date in ("5/8/26", "12/31/2026"):
+        steps = render_next_steps(_av_summary([date]))
+        assert f"pursue av-fetch run --release-date {date} " in steps
+        assert "release_date unavailable" not in steps
+
+
+def test_render_next_steps_rejects_shell_text_in_release_date() -> None:
+    hostile = '5/8/26"; rm -rf ~; echo "'
+    steps = render_next_steps(_av_summary([hostile]))
+    assert "<release_date unavailable: not a date>" in steps
+    assert "rm -rf" not in steps
+    assert hostile not in steps
+    # The block still prints its remaining commands.
+    assert "pursue av-fetch run" in steps
+    assert "pursue transcribe run" in steps
+    assert "pursue vision run" in steps
+
+
+def test_render_next_steps_quotes_the_release_date_argument() -> None:
+    """A rejected value must not reach the shell as separate words: the
+    placeholder is quoted, so the line is one argument per option."""
+    steps = render_next_steps(_av_summary(["$(id)"]))
+    assert "--release-date '<release_date unavailable: not a date>' " in steps
+
+
+def test_render_next_steps_keeps_one_block_per_date_when_one_is_invalid() -> None:
+    steps = render_next_steps(_av_summary(["5/8/26", "x; reboot"]))
+    assert steps.count("pursue av-fetch run") == 2
+    assert steps.count("pursue transcribe run") == 2
+    assert "reboot" not in steps
+    assert "--release-date 5/8/26 " in steps

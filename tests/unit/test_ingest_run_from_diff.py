@@ -422,8 +422,8 @@ def test_dry_run_av_only_writes_empty_pdf_worklist(tmp_path, monkeypatch) -> Non
 
 def _av_only_content() -> list[dict]:
     return [
-        {"new_card_id": "vid1", "title": "V", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
-        {"new_card_id": "aud1", "title": "A", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-04-02"},
+        {"new_card_id": "vid1", "title": "V", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "3/15/26"},
+        {"new_card_id": "aud1", "title": "A", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "4/2/26"},
     ]
 
 
@@ -456,8 +456,8 @@ def test_non_dry_av_only_tranche_skips_pdf_stages_and_writes_empty_worklist(
     assert _ids(worklist) == []
     assert _ids(tmp_path / "worklist-av.txt") == ["vid1", "aud1"]
     assert "0 PDF/IMG cards — PDF stages skipped" in res.output
-    assert "pursue av-fetch run --release-date 2026-03-15" in res.output
-    assert "pursue av-fetch run --release-date 2026-04-02" in res.output
+    assert "pursue av-fetch run --release-date 3/15/26" in res.output
+    assert "pursue av-fetch run --release-date 4/2/26" in res.output
 
 
 def test_av_worklist_name_is_derived_without_string_replace(tmp_path) -> None:
