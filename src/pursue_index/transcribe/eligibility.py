@@ -22,7 +22,10 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 
+from pursue_index import get_logger
 from pursue_index.scrape.types import CardMetadata, Manifest
+
+log = get_logger(__name__)
 
 CoverageKey = tuple[str, str]
 
@@ -100,6 +103,27 @@ def _eligible_item(card: CardMetadata, row_key: str) -> EligibleItem:
     )
 
 
+def link_problem(path: Path, audio_dir: Path) -> str | None:
+    """Why the symlink at ``path`` is not usable staged audio, else ``None``.
+
+    Only symlinks are vetted. A link must resolve to a regular file inside
+    ``audio_dir``; a dangling link, a link to a directory, or a link that
+    leaves the audio dir (a stale or hand-made pointer) is rejected so the
+    stage never reads bytes it was not staged with.
+    """
+    if not path.is_symlink():
+        return None
+    try:
+        target = path.resolve(strict=True)
+    except (OSError, RuntimeError):
+        return "dangling symlink"
+    if not target.is_relative_to(audio_dir.resolve()):
+        return f"symlink resolves outside {audio_dir}"
+    if not target.is_file():
+        return "symlink target is not a regular file"
+    return None
+
+
 def audio_path_for(item: EligibleItem, audio_dir: Path) -> Path:
     """Local mp4 path for ``item``, one file per eligible row.
 
@@ -113,18 +137,26 @@ def audio_path_for(item: EligibleItem, audio_dir: Path) -> Path:
     When both the card_id.mp4 (new av-fetch naming) and DOD_<id>.mp4 (legacy)
     exist, prefers card_id.mp4. Falls back to DOD_<id>.mp4 if card_id.mp4
     doesn't exist, for backward compatibility with pre-hardlink staging dirs.
+
+    A candidate that is a symlink must pass ``link_problem``; a rejected link
+    is logged and skipped, so the DOD_<id>.mp4 file is used instead.
     """
     stem = item.card_id if not item.row_key else f"{item.card_id}-{item.row_key}"
     preferred = audio_dir / f"{stem}.mp4"
-
-    if preferred.exists():
-        return preferred
-
-    # Fall back to DOD_<id>.mp4 if card_id.mp4 doesn't exist (legacy compatibility)
+    candidates = [preferred]
     if item.dvids_video_id:
-        fallback = audio_dir / f"DOD_{item.dvids_video_id}.mp4"
-        if fallback.exists():
-            return fallback
+        candidates.append(audio_dir / f"DOD_{item.dvids_video_id}.mp4")
 
-    # Neither exists, return the preferred path (card_id.mp4)
+    for candidate in candidates:
+        problem = link_problem(candidate, audio_dir)
+        if problem:
+            log.warning(
+                "transcribe.audio_link.rejected",
+                card_id=item.card_id, path=str(candidate), reason=problem,
+            )
+            continue
+        if candidate.is_file():
+            return candidate
+
+    # Nothing usable staged: return the preferred path (card_id.mp4)
     return preferred
