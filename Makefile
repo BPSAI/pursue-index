@@ -62,11 +62,11 @@ clean:
 # `make ship-ready` runs the full deterministic-AC chain pre-commit.
 
 .PHONY: ship-ready
-# Order matters: astro-build BEFORE test so test_dist_dir_exists +
+# Order matters: astro-build BEFORE gate-mirror so test_dist_dir_exists +
 # test_card_page_coverage can see the freshly-built dist tree.
 # (Caught 2026-05-22 on a clean rebuild — those integration tests
 # rely on web/dist being current.)
-ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build test arch-check staleness
+ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build gate-mirror arch-check staleness
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
 	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
@@ -78,6 +78,17 @@ ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rota
 .PHONY: release-completeness
 release-completeness:
 	@$(PYTHON) scripts/check_release_completeness.py
+
+.PHONY: gate-mirror
+# Local mirror of CI release-gate checks: snapshot mirror coverage, finds citations,
+# finds validator, card page coverage, alias destinations, derived payload coverage.
+gate-mirror:
+	$(PYTHON) -m pytest tests/unit/test_snapshot_mirror_coverage.py \
+	       tests/unit/test_finds_citations.py \
+	       tests/unit/test_finds_validator.py \
+	       tests/integration/test_card_page_coverage.py \
+	       tests/integration/test_alias_destinations.py \
+	       tests/integration/test_derived_payload_coverage.py
 
 .PHONY: staleness
 staleness:
