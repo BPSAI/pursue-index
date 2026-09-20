@@ -68,8 +68,8 @@ clean:
 # rely on web/dist being current.)
 ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build test arch-check staleness
 	@echo ""
-	@echo "ship-ready: ALL GATES PASSED. Safe to commit + push."
-	@echo "  next: git add -A && git commit -m '...' && git push origin main"
+	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
+	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
 	@echo ""
 
 # First prerequisite of ship-ready: refuse a release before spending build time
@@ -168,3 +168,32 @@ astro-build:
 .PHONY: hooks-install
 hooks-install:
 	@bash scripts/install-hooks.sh
+
+# ---- Release artifacts ----
+.PHONY: bundle-copy
+bundle-copy:
+	@if [ -z "$$PURSUE_DATA_ROOT" ]; then \
+		echo "bundle-copy: PURSUE_DATA_ROOT not set"; \
+		exit 1; \
+	fi
+	@nas_root="$$PURSUE_DATA_ROOT"; \
+	for v_dir in "$$nas_root/published"/v*; do \
+		if [ ! -d "$$v_dir" ]; then \
+			echo "bundle-copy: no published version directories found in $$nas_root/published"; \
+			exit 1; \
+		fi; \
+		bundle="$$v_dir/clean-qc-bundle.json"; \
+		if [ -f "$$bundle" ]; then \
+			dest="web/public/data/clean-qc-bundle.json"; \
+			mkdir -p "$$(dirname "$$dest")"; \
+			src_bytes=$$(wc -c < "$$bundle"); \
+			cp "$$bundle" "$$dest"; \
+			dest_bytes=$$(wc -c < "$$dest"); \
+			echo "bundle-copy: copied $$bundle"; \
+			echo "  source: $$src_bytes bytes"; \
+			echo "  dest: $$dest_bytes bytes"; \
+			exit 0; \
+		fi; \
+	done; \
+	echo "bundle-copy: clean-qc-bundle.json not found in $$nas_root/published/v*/"; \
+	exit 1

@@ -36,6 +36,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 TARGET_FILES = [
     "README.md",
     ".paircoder/context/project.md",
+    ".claude/commands/ship-tranche.md",
     "web/src/pages/*.astro",
     "web/src/components/*.astro",
     "web/src/components/*.tsx",
@@ -97,6 +98,10 @@ _PATTERNS = [
     (
         r"\bRelease\s+01\s+only\b",
         "stale 'Release 01 only' claim — tranche-2 has landed",
+    ),
+    (
+        r"git\s+push\s+origin\s+main",
+        "git push origin main instruction in runbook",
     ),
 ]
 
