@@ -23,7 +23,6 @@ so the caller can exit non-zero on a shortfall.
 
 from __future__ import annotations
 
-import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -31,7 +30,7 @@ from typing import Any
 
 from pursue_index import get_logger
 from pursue_index.av_fetch import client
-from pursue_index.transcribe.eligibility import CARD_LINK_DIR, row_keys_for
+from pursue_index.av_fetch.card_links import create_card_link, row_keys_by_position
 
 log = get_logger(__name__)
 
@@ -120,27 +119,6 @@ def _write_staged(dest: Path, body: bytes) -> None:
     tmp.replace(dest)
 
 
-def _create_card_link(dod_path: Path, card_id: str, row_key: str = "") -> None:
-    """Link ``<staging>/by-card/<card_id>[-<row_key>].mp4`` to ``dod_path``.
-
-    The link stays out of the staging dir's top level, which the DOD-id
-    matcher globs. A row of a multi-row card carries its row key, so rows
-    never share a name.
-    """
-    link_dir = dod_path.parent / CARD_LINK_DIR
-    link_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{card_id}-{row_key}" if row_key else card_id
-    link_path = link_dir / f"{stem}.mp4"
-    if link_path.is_symlink() and not link_path.exists():
-        link_path.unlink()
-    if link_path.exists():
-        return
-    try:
-        os.link(dod_path, link_path)
-    except (OSError, NotImplementedError):
-        link_path.symlink_to(Path("..") / dod_path.name)
-
-
 def _resolve_asset_url(
     card_id: str, dvids_id: str, asset_type: str, page_fetch: PageFetch
 ) -> tuple[str, str] | AVFetchItem:
@@ -182,14 +160,12 @@ def _fetch_and_stage(
     asset_url: str,
     dest: Path,
     asset_fetch: AssetFetch,
-    row_key: str = "",
 ) -> AVFetchItem:
     """GET ``asset_url``, verify it, and write ``dest`` — or return a failure.
 
     The bytes are staged only once they are bounded, arrived from an
     expected asset host, carry an expected content-type, and open with the
-    MP4 box marker. Also creates a hard link (or symlink) with the card_id
-    name for the transcribe stage to find.
+    MP4 box marker.
     """
     fetched = asset_fetch(asset_url, page_url=client.dvids_page_url(dvids_id))
     if fetched is None:
@@ -226,7 +202,6 @@ def _fetch_and_stage(
         )
 
     _write_staged(dest, body)
-    _create_card_link(dest, card_id, row_key)
     log.info(
         "av_fetch.item.fetched", card_id=card_id, dvids_video_id=dvids_id, bytes=len(body)
     )
@@ -261,31 +236,16 @@ def fetch_one(
 
     dest = _dest_path(staging_dir, dod_id)
     if dest.exists() and dest.stat().st_size > 0:
-        _create_card_link(dest, card_id, row_key)
+        create_card_link(dest, card_id, row_key)
         return AVFetchItem(
             card_id, dvids_id, asset_type, "skipped_existing",
             path=dest, byte_size=dest.stat().st_size,
         )
 
-    return _fetch_and_stage(
-        card_id, dvids_id, asset_type, asset_url, dest, asset_fetch, row_key
-    )
-
-
-def _row_keys_by_position(cards: list[Any]) -> list[str]:
-    """A row key per card, assigned within each (card_id, asset_type) group.
-
-    Uses the transcribe stage's rule, so the link a row is staged under is the
-    one ``audio_path_for`` looks for: empty for a card with one row, else keyed.
-    """
-    groups: dict[tuple[str, str], list[int]] = {}
-    for position, card in enumerate(cards):
-        groups.setdefault((card.card_id, card.asset_type), []).append(position)
-    keys = [""] * len(cards)
-    for positions in groups.values():
-        for position, key in zip(positions, row_keys_for([cards[i] for i in positions]), strict=True):
-            keys[position] = key
-    return keys
+    item = _fetch_and_stage(card_id, dvids_id, asset_type, asset_url, dest, asset_fetch)
+    if item.status == "fetched":
+        create_card_link(dest, card_id, row_key)
+    return item
 
 
 def fetch_worklist(
@@ -297,7 +257,7 @@ def fetch_worklist(
 ) -> AVFetchReport:
     """Fetch every card's A/V bytes into ``staging_dir``. Skip-and-count only —
     one item's failure never aborts the rest."""
-    row_keys = _row_keys_by_position(cards)
+    row_keys = row_keys_by_position(cards)
     items = [
         fetch_one(c, staging_dir, page_fetch=page_fetch, asset_fetch=asset_fetch, row_key=key)
         for c, key in zip(cards, row_keys, strict=True)

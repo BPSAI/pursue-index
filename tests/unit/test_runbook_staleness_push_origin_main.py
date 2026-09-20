@@ -8,8 +8,6 @@ tranche branch and open a PR to main.
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from scripts.runbook_staleness_check import _check_file
 
 

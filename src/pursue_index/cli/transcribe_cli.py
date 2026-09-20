@@ -35,7 +35,7 @@ from pursue_index.scrape import load_manifest
 from pursue_index.transcribe import _wire, client, probe
 from pursue_index.transcribe.anchors import citation_anchors
 from pursue_index.transcribe.eligibility import EligibleItem, select_eligible
-from pursue_index.transcribe.pages import repaginate_sidecar
+from pursue_index.transcribe.repage import repaginate_sidecar
 from pursue_index.transcribe.result import TranscriptResult
 from pursue_index.transcribe.run import (
     TranscribeFn,

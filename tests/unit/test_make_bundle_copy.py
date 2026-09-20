@@ -4,8 +4,6 @@ import json
 import subprocess
 from pathlib import Path
 
-import pytest
-
 
 def test_bundle_copy_requires_nas_root(tmp_path: Path) -> None:
     """bundle-copy should fail when PURSUE_DATA_ROOT is not set."""

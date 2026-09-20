@@ -23,9 +23,9 @@ from pursue_index.transcribe.eligibility import EligibleItem
 from pursue_index.transcribe.pages import (
     build_pages_rows,
     paginate_utterances,
-    repaginate_sidecar,
     write_transcript_sidecar,
 )
+from pursue_index.transcribe.repage import repaginate_sidecar
 from pursue_index.transcribe.run import looks_channel_duplicated, run_transcribe
 
 _UTTERANCES = [

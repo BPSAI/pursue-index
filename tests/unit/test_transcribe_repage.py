@@ -11,12 +11,9 @@ from typer.testing import CliRunner
 
 from pursue_index.cli import transcribe_cli
 from pursue_index.cli.commands import app
-from pursue_index.transcribe import pages as pages_mod
-from pursue_index.transcribe.pages import (
-    build_pages_rows,
-    repaginate_sidecar,
-    write_transcript_sidecar,
-)
+from pursue_index.transcribe import repage as repage_mod
+from pursue_index.transcribe.pages import build_pages_rows, write_transcript_sidecar
+from pursue_index.transcribe.repage import repaginate_sidecar
 
 runner = CliRunner()
 
@@ -72,13 +69,13 @@ def test_repaginate_writes_pages_through_a_temp_file_and_replace(
     out_dir = tmp_path / "ocr"
     _write(out_dir)
     calls: list[tuple[str, str]] = []
-    real = pages_mod.os.replace
+    real = repage_mod.os.replace
 
     def spy(src, dst):
         calls.append((Path(src).name, Path(dst).name))
         return real(src, dst)
 
-    monkeypatch.setattr(pages_mod.os, "replace", spy)
+    monkeypatch.setattr(repage_mod.os, "replace", spy)
 
     repaginate_sidecar(out_dir, "aud1", char_budget=25)
 
@@ -99,7 +96,7 @@ def test_repaginate_keeps_the_old_pages_when_the_write_fails(
     def boom(src, dst):
         raise OSError("disk full")
 
-    monkeypatch.setattr(pages_mod.os, "replace", boom)
+    monkeypatch.setattr(repage_mod.os, "replace", boom)
     with pytest.raises(OSError):
         repaginate_sidecar(out_dir, "aud1", char_budget=25)
 
