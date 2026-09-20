@@ -98,3 +98,47 @@ def test_bundle_copy_copies_file_and_prints_bytes(tmp_path: Path) -> None:
     # The tracked bundle is byte-identical to what it was before the run
     after = tracked.read_bytes() if tracked.exists() else None
     assert after == tracked_before
+
+
+def _stage_versions(nas_root: Path, versions: dict[str, str | None]) -> None:
+    for name, payload in versions.items():
+        v_dir = nas_root / "published" / name
+        v_dir.mkdir(parents=True)
+        if payload is not None:
+            (v_dir / "clean-qc-bundle.json").write_text(payload, encoding="utf-8")
+
+
+def _bundle_copy(nas_root: Path, dest: Path) -> subprocess.CompletedProcess[str]:
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    return subprocess.run(
+        ["make", "bundle-copy"],
+        cwd=repo_root,
+        env={**dict(subprocess.os.environ), "PURSUE_DATA_ROOT": str(nas_root), "BUNDLE_DEST": str(dest)},
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_bundle_copy_picks_the_highest_version_numerically(tmp_path: Path) -> None:
+    """v10 is newer than v2, though it sorts before it as text."""
+    nas_root = tmp_path / "nas-root"
+    _stage_versions(nas_root, {"v1": '"one"', "v2": '"two"', "v10": '"ten"'})
+    dest = tmp_path / "out" / "bundle.json"
+
+    result = _bundle_copy(nas_root, dest)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert dest.read_text(encoding="utf-8") == '"ten"'
+    assert "published/v10/" in result.stdout
+
+
+def test_bundle_copy_fails_rather_than_use_an_older_version(tmp_path: Path) -> None:
+    """The newest version lacking a bundle is an error, not a reason to ship v2's."""
+    nas_root = tmp_path / "nas-root"
+    _stage_versions(nas_root, {"v2": '"two"', "v10": None})
+    dest = tmp_path / "bundle.json"
+
+    result = _bundle_copy(nas_root, dest)
+
+    assert result.returncode != 0
+    assert not dest.exists()

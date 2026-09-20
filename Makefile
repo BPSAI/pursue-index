@@ -189,23 +189,27 @@ bundle-copy:
 		exit 1; \
 	fi
 	@nas_root="$$PURSUE_DATA_ROOT"; \
-	for v_dir in "$$nas_root/published"/v*; do \
-		if [ ! -d "$$v_dir" ]; then \
-			echo "bundle-copy: no published version directories found in $$nas_root/published"; \
-			exit 1; \
-		fi; \
-		bundle="$$v_dir/clean-qc-bundle.json"; \
-		if [ -f "$$bundle" ]; then \
-			dest="$${BUNDLE_DEST:-web/public/data/clean-qc-bundle.json}"; \
-			mkdir -p "$$(dirname "$$dest")"; \
-			src_bytes=$$(wc -c < "$$bundle"); \
-			cp "$$bundle" "$$dest"; \
-			dest_bytes=$$(wc -c < "$$dest"); \
-			echo "bundle-copy: copied $$bundle"; \
-			echo "  source: $$src_bytes bytes"; \
-			echo "  dest: $$dest_bytes bytes"; \
-			exit 0; \
-		fi; \
+	v_dir=""; best=-1; \
+	for d in "$$nas_root/published"/v[0-9]*; do \
+		n="$${d##*/v}"; \
+		case "$$n" in ""|*[!0-9]*) continue;; esac; \
+		if [ -d "$$d" ] && [ "$$n" -gt "$$best" ]; then best="$$n"; v_dir="$$d"; fi; \
 	done; \
-	echo "bundle-copy: clean-qc-bundle.json not found in $$nas_root/published/v*/"; \
+	if [ -z "$$v_dir" ]; then \
+		echo "bundle-copy: no published version directories found in $$nas_root/published"; \
+		exit 1; \
+	fi; \
+	bundle="$$v_dir/clean-qc-bundle.json"; \
+	if [ -f "$$bundle" ]; then \
+		dest="$${BUNDLE_DEST:-web/public/data/clean-qc-bundle.json}"; \
+		mkdir -p "$$(dirname "$$dest")"; \
+		src_bytes=$$(wc -c < "$$bundle"); \
+		cp "$$bundle" "$$dest"; \
+		dest_bytes=$$(wc -c < "$$dest"); \
+		echo "bundle-copy: copied $$bundle"; \
+		echo "  source: $$src_bytes bytes"; \
+		echo "  dest: $$dest_bytes bytes"; \
+		exit 0; \
+	fi; \
+	echo "bundle-copy: clean-qc-bundle.json not found in $$v_dir"; \
 	exit 1
