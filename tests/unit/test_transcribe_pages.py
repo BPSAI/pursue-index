@@ -117,6 +117,7 @@ def test_write_transcript_sidecar_writes_pages_jsonl_and_meta(tmp_path: Path) ->
             "audio_duration_s": 42.5,
             "speakers": ["A", "B"],
             "pages": 1,
+            "utterances": 3,
         }
     ]
 

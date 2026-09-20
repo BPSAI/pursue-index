@@ -23,6 +23,7 @@ utterances into ~a-dozen-turn blocks) matches that script's
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -188,6 +189,7 @@ def _build_meta(
     num_new_rows: int,
     char_budget: int,
     duration_budget_s: float,
+    num_utterances: int,
 ) -> dict[str, Any]:
     """Build the meta.json structure for a transcript sidecar."""
     entry = {
@@ -197,6 +199,7 @@ def _build_meta(
         "audio_duration_s": audio_duration_s,
         "speakers": speakers,
         "pages": num_new_rows,
+        "utterances": num_utterances,
     }
     merged = _merged_rows(list(prior.get("rows", [])), entry)
     return {
@@ -258,9 +261,40 @@ def write_transcript_sidecar(
     meta = _build_meta(
         card_id, prior, row_key, source, multichannel, audio_duration_s,
         speakers, total_pages, len(rows), char_budget, duration_budget_s,
+        len(utterances),
     )
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return len(rows)
+
+
+def _row_slices(
+    rows_meta: list[dict[str, Any]], utterances: list[dict[str, Any]]
+) -> list[list[dict[str, Any]]] | None:
+    """The stored utterances split per transcribed row, or ``None`` if unknown.
+
+    Utterances are stored flat in row order; each ``rows`` entry records how
+    many it contributed. A single-row card needs no counts.
+    """
+    if len(rows_meta) <= 1:
+        return [utterances]
+    counts = [r.get("utterances") for r in rows_meta]
+    if any(not isinstance(c, int) for c in counts) or sum(counts) != len(utterances):
+        return None
+    slices, at = [], 0
+    for count in counts:
+        slices.append(utterances[at : at + count])
+        at += count
+    return slices
+
+
+def _write_pages_atomically(pages_path: Path, rows: list[dict[str, Any]]) -> None:
+    """Replace ``pages.jsonl`` via a temp file, so a failure keeps the old pages."""
+    tmp = pages_path.with_name(pages_path.name + ".tmp")
+    try:
+        tmp.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+        os.replace(tmp, pages_path)
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def repaginate_sidecar(
@@ -268,39 +302,46 @@ def repaginate_sidecar(
     card_id: str,
     char_budget: int = _DEFAULT_CHAR_BUDGET,
     duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
-) -> None:
+) -> str | None:
     """Re-paginate an existing sidecar in place, using stored utterances.
 
     Utterances come from the sidecar's ``utterances.jsonl``, or from inline
     ``meta["utterances"]`` for sidecars written before that file existed.
+    Each row is paginated on its own, numbering continuing across rows, and
+    its ``rows[].pages`` is recomputed.
 
-    Idempotent: running twice produces the same result.
-    Updates meta.json with new page_count.
+    Returns ``None`` when the sidecar was rewritten, else the reason it was
+    skipped. Idempotent: running twice produces the same result.
     """
     card_dir = out_dir / card_id
     meta_path = card_dir / "meta.json"
 
     meta = _read_meta(meta_path)
-    if not meta:
-        return
-
-    utterances = read_utterances(card_dir, meta)
+    utterances = read_utterances(card_dir, meta) if meta else []
     if not utterances:
-        return
+        return "no utterances stored"
+    rows_meta = [dict(r) for r in meta.get("rows", [])]
+    slices = _row_slices(rows_meta, utterances)
+    if slices is None:
+        return "row boundaries were not recorded for this multi-row card"
 
-    rows = build_pages_rows(
-        utterances, start_page=1,
-        char_budget=char_budget, duration_budget_s=duration_budget_s,
-    )
+    rows: list[dict[str, Any]] = []
+    for i, chunk in enumerate(slices):
+        new = build_pages_rows(
+            chunk, start_page=len(rows) + 1,
+            char_budget=char_budget, duration_budget_s=duration_budget_s,
+        )
+        rows.extend(new)
+        if rows_meta:
+            rows_meta[i]["pages"] = len(new)
 
-    pages_path = card_dir / "pages.jsonl"
-    pages_path.write_text("", encoding="utf-8")
-    with pages_path.open("a", encoding="utf-8") as fh:
-        for row in rows:
-            fh.write(json.dumps(row) + "\n")
+    _write_pages_atomically(card_dir / "pages.jsonl", rows)
 
+    if rows_meta:
+        meta["rows"] = rows_meta
     meta["page_count"] = len(rows)
     meta["char_budget"] = char_budget
     meta["duration_budget_s"] = duration_budget_s
     meta["finished_at"] = datetime.now(UTC).isoformat()
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    return None
