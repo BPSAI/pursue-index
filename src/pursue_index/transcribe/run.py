@@ -38,6 +38,7 @@ from pursue_index.transcribe.eligibility import (
     CoverageKey,
     EligibleItem,
     audio_path_for,
+    link_problem,
 )
 from pursue_index.transcribe.pages import write_transcript_sidecar
 from pursue_index.transcribe.result import TranscriptResult
@@ -155,6 +156,8 @@ def _transcribe_one(
     captured so one row never aborts the run.
     """
     path = audio_path_for(item, audio_dir)
+    if problem := link_problem(path, audio_dir):
+        return f"audio file rejected: {path}: {problem}", False
     if not path.exists():
         return f"audio file not found: {path}", False
     try:

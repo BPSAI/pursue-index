@@ -29,6 +29,8 @@ Decision matrix (per tranche-diff classification):
 from __future__ import annotations
 
 import json
+import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -203,17 +205,30 @@ def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:
     """Identify which downstream stages need to run for this tranche.
 
     Returns a dict with:
-      - needs_download: [card_id, ...] — Class B cards with asset_url
+      - needs_download: [card_id, ...] — Class B cards with asset_url (PDF/IMG)
       - needs_ocr: [card_id, ...] — same set (OCR depends on downloaded bytes)
       - needs_embed: [card_id, ...] — same set (embed depends on OCR'd text)
+      - needs_av_fetch: [card_id, ...] — VID/AUD cards with asset_url
+      - av_release_dates: {release_date, ...} — unique release dates from A/V rows
       - needs_inspection: [card_id, ...] — restored_modified entries
       - metadata_only: bool — True when all the lists above are empty
     """
     needs_download: list[str] = []
+    needs_av_fetch: list[str] = []
+    av_release_dates: set[str] = set()
+
     for r in diff.get("new_content", []) or []:
-        if r.get("asset_url"):
+        if not r.get("asset_url"):
+            continue
+        asset_type = r.get("asset_type", "")
+        if asset_type in ("VID", "AUD"):
+            needs_av_fetch.append(r["new_card_id"])
+            if release_date := r.get("release_date"):
+                av_release_dates.add(release_date)
+        else:
             needs_download.append(r["new_card_id"])
-    # OCR and embed follow the same set: each requires the prior stage's
+
+    # OCR and embed follow the PDF/IMG set: each requires the prior stage's
     # output, all driven by the same "downloaded a new asset" trigger.
     needs_ocr = list(needs_download)
     needs_embed = list(needs_download)
@@ -221,15 +236,54 @@ def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:
         r["new_card_id"] for r in diff.get("restored_modified", []) or []
     ]
     metadata_only = not (
-        needs_download or needs_ocr or needs_embed or needs_inspection
+        needs_download or needs_ocr or needs_embed or needs_av_fetch or needs_inspection
     )
     return {
         "needs_download": needs_download,
         "needs_ocr": needs_ocr,
         "needs_embed": needs_embed,
+        "needs_av_fetch": needs_av_fetch,
+        "av_release_dates": sorted(av_release_dates),
         "needs_inspection": needs_inspection,
         "metadata_only": metadata_only,
     }
+
+
+# The manifest states release_date as M/D/YY (``5/8/26``); M/D/YYYY is read
+# too. It is upstream CSV text that gets printed into copy-paste shell
+# commands, so only that shape is echoed.
+_RELEASE_DATE_RE = re.compile(r"\d{1,2}/\d{1,2}/(?:\d{2}|\d{4})")
+_RELEASE_DATE_UNAVAILABLE = "<release_date unavailable: not a date>"
+
+
+def _release_date_arg(value: str) -> str:
+    """Shell-safe ``--release-date`` argument for a manifest release_date."""
+    if not _RELEASE_DATE_RE.fullmatch(value):
+        value = _RELEASE_DATE_UNAVAILABLE
+    return shlex.quote(value)
+
+
+def render_av_next_steps(summary: dict[str, Any]) -> list[str]:
+    """The A/V pipeline commands: one fetch/transcribe block per release date.
+
+    ``vision`` and ``clean`` cover the whole manifest, so they follow the
+    per-date blocks once. Empty when the tranche has no A/V rows.
+    """
+    if not summary["needs_av_fetch"]:
+        return []
+    manifest = "data/manifests/latest.json"
+    release_dates = summary.get("av_release_dates") or ["UNKNOWN"]
+    lines = [f"A/V content detected ({len(summary['needs_av_fetch'])} card_id(s)) — run A/V pipeline:"]
+    for release_date in release_dates:
+        date = _release_date_arg(release_date)
+        lines.append(f"  pursue av-fetch run --release-date {date} --manifest {manifest}")
+        lines.append(f"  python scripts/ingest_release_videos.py --release-date {date}")
+        lines.append(f"  pursue transcribe run --release-date {date} --manifest {manifest}")
+    lines.append(f"  pursue vision run --manifest {manifest}")
+    lines.append(f"  pursue clean run --manifest {manifest}")
+    lines.append(f"  pursue clean-qc run --manifest {manifest}")
+    lines.append(f"  # Affected A/V card_ids: {' '.join(summary['needs_av_fetch'])}")
+    return lines
 
 
 def render_next_steps(summary: dict[str, Any]) -> str:
@@ -251,6 +305,11 @@ def render_next_steps(summary: dict[str, Any]) -> str:
         )
         lines.append("  pursue embed run --manifest data/manifests/latest.json")
         lines.append(f"  # Affected card_ids: {ids}")
+    av_steps = render_av_next_steps(summary)
+    if av_steps:
+        if lines:
+            lines.append("")
+        lines.extend(av_steps)
     if summary["needs_inspection"]:
         ids = " ".join(summary["needs_inspection"])
         lines.append("")

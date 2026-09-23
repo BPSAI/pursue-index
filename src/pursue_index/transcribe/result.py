@@ -24,8 +24,8 @@ def parse_utterances(data: dict[str, Any]) -> list[dict[str, Any]]:
             {
                 "speaker": str(u.get("speaker")) if u.get("speaker") is not None else "",
                 "text": u.get("text", ""),
-                "start": u.get("start"),
-                "end": u.get("end"),
+                "start": u.get("start") or 0.0,  # milliseconds; absent means 0
+                "end": u.get("end") or 0.0,
                 "channel": str(u["channel"]) if u.get("channel") is not None else None,
             }
         )

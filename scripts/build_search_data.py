@@ -28,17 +28,29 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+from _search_pages import emit_card_pages, emit_observation_only_pages  # noqa: E402
 
 from pursue_index.config import settings  # noqa: E402
+from pursue_index.release.shrink_guard import (  # noqa: E402
+    add_shrink_args,
+    committed_pages_card_ids,
+    enforce,
+    find_shrink,
+    find_uncovered,
+    ocr_dir_error,
+    shrink_reason,
+)
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
+DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
 DEFAULT_IMAGE_OBS_INDEX = (
     REPO_ROOT / "web" / "src" / "data" / "image-observations" / "index.json"
 )
@@ -46,16 +58,9 @@ DEFAULT_IMAGE_OBS_INDEX = (
 # Surya emits <b>...</b> and <u>...</u> markup even with math_mode=False; the
 # corpus has no markup semantics, so strip these tags from the search payload
 # (text between the tags is preserved). Tracked as ocr-gpu-surya follow-up #2.
-_SURYA_TAG_RE = re.compile(r"</?(?:b|u|i)>")
-
-
-def _clean_text(text: str) -> str:
-    return _SURYA_TAG_RE.sub("", text)
-
-
-def _load_titles(manifest_path: Path) -> dict[str, str]:
+def _load_manifest_cards(manifest_path: Path) -> list[dict[str, object]]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    return {c["card_id"]: c["title"] for c in manifest["cards"]}
+    return list(manifest["cards"])
 
 
 def _walk_card_pages(
@@ -95,92 +100,12 @@ def _walk_card_pages(
             continue
         ocr_card_ids.add(card_id)
         cards_seen += 1
-        docs.extend(_emit_card_pages(card_id, title, pages_path, obs_lookup))
+        docs.extend(emit_card_pages(card_id, title, pages_path, obs_lookup))
 
-    image_docs, image_cards = _emit_observation_only_pages(
+    image_docs, image_cards = emit_observation_only_pages(
         obs_lookup, ocr_card_ids, titles_by_id
     )
     return docs + image_docs, cards_seen + image_cards
-
-
-def _emit_observation_only_pages(
-    obs_lookup: dict[tuple[str, int], str] | None,
-    ocr_card_ids: set[str],
-    titles_by_id: dict[str, str],
-) -> tuple[list[dict[str, object]], int]:
-    """Docs for cards whose only searchable text is an observation.
-
-    A card absent from the current manifest is skipped for the same reason the
-    OCR walk skips one: the site renders cards from the manifest, so an indexed
-    card with no page is a search result a reader cannot open.
-    """
-    from pursue_index.embed.image_observations import observation_only_pages
-
-    docs: list[dict[str, object]] = []
-    seen: set[str] = set()
-    for card_id, page, text in observation_only_pages(obs_lookup, ocr_card_ids):
-        title = titles_by_id.get(card_id)
-        if title is None:
-            print(f"  skip (not in manifest): {card_id}", file=sys.stderr)
-            continue
-        seen.add(card_id)
-        docs.append(
-            {
-                "id": f"{card_id}-p{page}",
-                "card_id": card_id,
-                "page": page,
-                "title": title,
-                "text": text,
-                "engine": "vision-observations",
-                "confidence": 100,
-            }
-        )
-    return docs, len(seen)
-
-
-def _resolve_page_text(
-    card_id: str,
-    page: int,
-    raw_text: str,
-    obs_lookup: dict[tuple[str, int], str] | None,
-) -> str:
-    """Base OCR, or — for a genuinely image-only page (empty base OCR) — our own
-    operator-reviewed vision-pass text, kept byte-identical to what the embed
-    run hashed for that page so keyword and vector retrieval stay in parity."""
-    base = _clean_text(raw_text)
-    if not base.strip() and obs_lookup:
-        obs = obs_lookup.get((card_id, page))
-        if obs:
-            return obs
-    return base
-
-
-def _emit_card_pages(
-    card_id: str,
-    title: str,
-    pages_path: Path,
-    obs_lookup: dict[tuple[str, int], str] | None = None,
-) -> list[dict[str, object]]:
-    out: list[dict[str, object]] = []
-    with pages_path.open(encoding="utf-8") as fh:
-        for line in fh:
-            row = json.loads(line)
-            page = int(row["page"])
-            text = _resolve_page_text(
-                card_id, page, row["text"], obs_lookup
-            )
-            out.append(
-                {
-                    "id": f"{card_id}-p{page}",
-                    "card_id": card_id,
-                    "page": page,
-                    "title": title,
-                    "text": text,
-                    "engine": row.get("engine", "unknown"),
-                    "confidence": row.get("confidence", 0),
-                }
-            )
-    return out
 
 
 def _load_obs_lookup(
@@ -199,14 +124,37 @@ def build(
     manifest_path: Path,
     out_path: Path,
     image_obs_index: Path | None = None,
+    *,
+    allow_shrink_reason: str | None = None,
+    audit_log: Path = DEFAULT_AUDIT_LOG,
 ) -> int:
-    """Materialize the search payload. Returns process exit code."""
+    """Materialize the search payload. Returns process exit code.
+
+    Refuses (exit 1, payload untouched) when the rebuild would shrink the
+    payload already at ``out_path`` or leave a manifest card without text; see
+    ``pursue_index.release.shrink_guard``.
+    """
     if not manifest_path.exists():
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
         return 1
+    unreadable = ocr_dir_error(ocr_dir)
+    if unreadable:
+        print(f"cannot read the OCR data root: {unreadable}", file=sys.stderr)
+        return 1
     obs_lookup = _load_obs_lookup(image_obs_index)
-    titles_by_id = _load_titles(manifest_path)
+    manifest_cards = _load_manifest_cards(manifest_path)
+    titles_by_id = {str(c["card_id"]): str(c["title"]) for c in manifest_cards}
     docs, cards_seen = _walk_card_pages(ocr_dir, titles_by_id, obs_lookup)
+    rebuilt_ids = {str(d["card_id"]) for d in docs}
+    rc = enforce(
+        "build_search_data.py",
+        find_shrink(committed_pages_card_ids(out_path), rebuilt_ids),
+        find_uncovered(manifest_cards, rebuilt_ids),
+        allow_reason=allow_shrink_reason,
+        audit_log=audit_log,
+    )
+    if rc:
+        return rc
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(docs, ensure_ascii=False), encoding="utf-8")
     size_mb = out_path.stat().st_size / (1024 * 1024)
@@ -247,12 +195,15 @@ def main() -> int:
             "searchable text. Pass a non-existent path to disable."
         ),
     )
+    add_shrink_args(parser, "pages.json")
     args = parser.parse_args()
+    allow_shrink_reason = shrink_reason(parser, args)
     return build(
         ocr_dir=args.ocr_dir,
         manifest_path=args.manifest,
         out_path=args.out,
         image_obs_index=args.image_observations_index,
+        allow_shrink_reason=allow_shrink_reason,
     )
 
 

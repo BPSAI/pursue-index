@@ -51,15 +51,19 @@ Use Skill tool with skill: "implementing-with-tdd"
 ### 2. Follow the Task Completion Workflow
 
 Complete tasks with the provider-agnostic command (works regardless of PM provider):
-1. `bpsai-pair task update <id> --status done`
+1. `bpsai-pair task update <id> --status done --conflicts-encountered none`
    - ✓ Checks acceptance criteria (when strict AC verification is enabled)
    - ✓ Updates the local task file
    - ✓ Runs completion hooks (updates state.md)
 
 **Only if this project uses a PM provider AND the task is linked to a card**
 (e.g. Trello), use the PM-aware command instead so the card moves too:
-1. `bpsai-pair ttask done <CARD-ID> --summary "..."` — checks AC, moves the
+1. `bpsai-pair ttask done <CARD-ID> --summary "..." --conflicts-encountered none` — checks AC, moves the
    card to Done, updates the local task file, and runs the completion hooks.
+
+`--conflicts-encountered` (`none`, or a list of the tensions you resolved) is
+required at completion — see `.claude/commands/start-task.md` for the full
+semantics and the fail-closed arming date.
 
 **Bypasses (audited):**
 - `--no-strict`: Skip AC check (logged to bypass_log.jsonl)
@@ -189,9 +193,10 @@ When you see these patterns, use the corresponding skill:
 
 **⚠️ This is a NON-NEGOTIABLE requirement. See top of this document.**
 
-1. **Complete the task**: `bpsai-pair task update <id> --status done`
-   (checks AC, updates the local task file, runs completion hooks)
-   - **If linked to a PM card** (e.g. Trello): use `bpsai-pair ttask done <CARD-ID> --summary "..."` instead, so the card moves too.
+1. **Complete the task**: `bpsai-pair task update <id> --status done --conflicts-encountered none`
+   (checks AC, updates the local task file, runs completion hooks; see
+   `.claude/commands/start-task.md` for `--conflicts-encountered` semantics)
+   - **If linked to a PM card** (e.g. Trello): use `bpsai-pair ttask done <CARD-ID> --summary "..." --conflicts-encountered none` instead, so the card moves too.
 2. **IMMEDIATELY update** `.paircoder/context/state.md`:
    - Mark task as done in task list (✓)
    - Add session entry under "What Was Just Done"
@@ -229,8 +234,8 @@ bpsai-pair plan show <id>
 
 # Tasks
 bpsai-pair task list --plan <id>
-# For non-Trello tasks:
-bpsai-pair task update <id> --status done
+# For non-Trello tasks (--conflicts-encountered required; see start-task.md):
+bpsai-pair task update <id> --status done --conflicts-encountered none
 # For Trello-linked tasks - use ttask done instead (handles local update)
 # Emergency local-only update (audited):
 bpsai-pair task update <id> --status done --local-only --reason "..."
@@ -254,6 +259,24 @@ bpsai-pair budget check --task <id>
 bpsai-pair context-sync --last "..." --next "..."
 bpsai-pair pack
 ```
+
+---
+
+## Orchestration — dispatch, don't implement
+
+Once a fix is scoped, **dispatch it to a right-sized driver agent**; keep triage, decisions,
+verification, review-gating and merges for yourself (seed-03 `dispatch-dont-implement`). This
+applies to **review-fix loops** as much as to feature work: an orchestrator that runs its own
+rounds of review findings spends the context its judgement needs on work a driver does better.
+
+The one real constraint is **single-writer**: if the orchestrating session has been pushing to the
+PR branch (or owns a file like `state.md` by convention), hand the branch over cleanly and stop
+pushing rather than interleaving commits with the agent.
+
+**Landing a code PR has a predicate** — native review on the final head, every P-level finding
+dispositioned, zero unanswered reviewer threads on that head, CI green on that head. It is written
+out, with reviewer-seat rationing, stop conditions and CI-spend rules, in
+`docs/orchestration/review-landing.md`. Read it before asking for a review or a merge.
 
 ---
 

@@ -27,7 +27,15 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from pursue_index.transcribe.utterances_store import (
+    UTTERANCES_FILE,
+    append_utterances,
+)
+
 _UTTERANCES_PER_PAGE = 12  # citation granularity: a page is ~a dozen turns
+_DEFAULT_CHAR_BUDGET = 2500  # citation-sized: ~2.5k characters per page
+_DEFAULT_DURATION_BUDGET_S = 120.0  # ~2 minutes per page
+_MS_PER_S = 1000.0  # utterance start/end are AssemblyAI milliseconds
 
 
 def _speaker_label(raw: str) -> str:
@@ -35,12 +43,67 @@ def _speaker_label(raw: str) -> str:
 
 
 def paginate_utterances(
-    utterances: list[dict[str, Any]], per_page: int = _UTTERANCES_PER_PAGE
+    utterances: list[dict[str, Any]],
+    per_page: int | None = None,
+    char_budget: int = _DEFAULT_CHAR_BUDGET,
+    duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
 ) -> list[str]:
-    """Group utterances into speaker-labeled text blocks, one string per page."""
+    """Group utterances into speaker-labeled text blocks, one string per page.
+
+    If per_page is given, uses the legacy count-based grouping.
+    Otherwise, groups by size budget: fits utterances until char or duration limit
+    is hit, whichever comes first. Never splits a single utterance across pages.
+    """
+    if per_page is not None:
+        pages: list[str] = []
+        for i in range(0, len(utterances), per_page):
+            pages.append(_render_block(utterances[i : i + per_page]))
+        return pages
+
+    return _paginate_by_budget(utterances, char_budget, duration_budget_s)
+
+
+def _duration_s(utterance: dict[str, Any]) -> float:
+    """An utterance's length in seconds, from its stored millisecond bounds.
+
+    A missing or null bound counts as 0, so a malformed utterance adds no
+    duration rather than raising.
+    """
+    start_ms = utterance.get("start") or 0
+    end_ms = utterance.get("end") or 0
+    return (end_ms - start_ms) / _MS_PER_S
+
+
+def _paginate_by_budget(
+    utterances: list[dict[str, Any]], char_budget: int, duration_budget_s: float
+) -> list[str]:
+    """Paginate by character and duration budgets; whichever limit hits first."""
     pages: list[str] = []
-    for i in range(0, len(utterances), per_page):
-        pages.append(_render_block(utterances[i : i + per_page]))
+    current_chunk: list[dict[str, Any]] = []
+    current_chars = 0
+    current_duration = 0.0
+
+    for u in utterances:
+        u_text = str(u.get("text", "")).strip()
+        u_chars = len(u_text)
+        u_duration = _duration_s(u)
+
+        if current_chunk and (
+            current_chars + u_chars > char_budget
+            or current_duration + u_duration > duration_budget_s
+        ):
+            pages.append(_render_block(current_chunk))
+            current_chunk = []
+            current_chars = 0
+            current_duration = 0.0
+
+        current_chunk.append(u)
+        current_chars += u_chars
+        current_duration += u_duration
+
+    if current_chunk:
+        pages.append(_render_block(current_chunk))
+
     return pages
 
 
@@ -63,7 +126,10 @@ def _render_block(chunk: list[dict[str, Any]]) -> str:
 
 
 def build_pages_rows(
-    utterances: list[dict[str, Any]], start_page: int = 1
+    utterances: list[dict[str, Any]],
+    start_page: int = 1,
+    char_budget: int = _DEFAULT_CHAR_BUDGET,
+    duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
 ) -> list[dict[str, Any]]:
     """Rows in the exact ``pages.jsonl`` shape OCR output already uses:
     ``{page, text, confidence, engine}``.
@@ -74,7 +140,10 @@ def build_pages_rows(
     """
     return [
         {"page": n, "text": text, "confidence": 100.0, "engine": "assemblyai"}
-        for n, text in enumerate(paginate_utterances(utterances), start=start_page)
+        for n, text in enumerate(
+            paginate_utterances(utterances, char_budget=char_budget, duration_budget_s=duration_budget_s),
+            start=start_page
+        )
     ]
 
 
@@ -106,6 +175,44 @@ def _merged_rows(
     return out
 
 
+def _build_meta(
+    card_id: str,
+    prior: dict[str, Any],
+    row_key: str,
+    source: str,
+    multichannel: bool,
+    audio_duration_s: float | None,
+    speakers: list[str],
+    total_pages: int,
+    num_new_rows: int,
+    char_budget: int,
+    duration_budget_s: float,
+    num_utterances: int,
+) -> dict[str, Any]:
+    """Build the meta.json structure for a transcript sidecar."""
+    entry = {
+        "row_key": row_key,
+        "source": source,
+        "multichannel": multichannel,
+        "audio_duration_s": audio_duration_s,
+        "speakers": speakers,
+        "pages": num_new_rows,
+        "utterances": num_utterances,
+    }
+    merged = _merged_rows(list(prior.get("rows", [])), entry)
+    return {
+        "card_id": card_id,
+        "engine": "assemblyai",
+        "status": "ok" if total_pages else "empty",
+        "page_count": total_pages,
+        "rows": merged,
+        "utterances_file": UTTERANCES_FILE,
+        "char_budget": char_budget,
+        "duration_budget_s": duration_budget_s,
+        "finished_at": datetime.now(UTC).isoformat(),
+    }
+
+
 def write_transcript_sidecar(
     card_id: str,
     out_dir: Path,
@@ -116,6 +223,8 @@ def write_transcript_sidecar(
     audio_duration_s: float | None,
     speakers: list[str],
     source: str,
+    char_budget: int = _DEFAULT_CHAR_BUDGET,
+    duration_budget_s: float = _DEFAULT_DURATION_BUDGET_S,
 ) -> int:
     """Append one row's transcript to ``<out_dir>/<card_id>/``. Returns page count.
 
@@ -136,29 +245,21 @@ def write_transcript_sidecar(
     meta_path = card_dir / "meta.json"
 
     start_page = _existing_page_count(pages_path) + 1
-    rows = build_pages_rows(utterances, start_page=start_page)
+    rows = build_pages_rows(
+        utterances, start_page=start_page,
+        char_budget=char_budget, duration_budget_s=duration_budget_s,
+    )
     with pages_path.open("a", encoding="utf-8") as fh:
         for row in rows:
             fh.write(json.dumps(row) + "\n")
 
     prior = _read_meta(meta_path)
-    entry = {
-        "row_key": row_key,
-        "source": source,
-        "multichannel": multichannel,
-        "audio_duration_s": audio_duration_s,
-        "speakers": speakers,
-        "pages": len(rows),
-    }
-    merged = _merged_rows(list(prior.get("rows", [])), entry)
+    append_utterances(card_dir, prior, utterances)
     total_pages = start_page - 1 + len(rows)
-    meta = {
-        "card_id": card_id,
-        "engine": "assemblyai",
-        "status": "ok" if total_pages else "empty",
-        "page_count": total_pages,
-        "rows": merged,
-        "finished_at": datetime.now(UTC).isoformat(),
-    }
+    meta = _build_meta(
+        card_id, prior, row_key, source, multichannel, audio_duration_s,
+        speakers, total_pages, len(rows), char_budget, duration_budget_s,
+        len(utterances),
+    )
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return len(rows)
