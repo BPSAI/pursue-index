@@ -501,6 +501,30 @@ def test_build_skips_cards_without_sidecars(tmp_path: Path) -> None:
     assert payload["meta"]["cards_covered"] == ["c1"]
 
 
+def test_build_excludes_sidecars_for_cards_absent_from_manifest(
+    tmp_path: Path,
+) -> None:
+    """A card pruned from the manifest keeps its sidecar on disk; the
+    manifest, not the directory walk, decides what ships."""
+    ocr_dir = tmp_path / "ocr"
+    for cid in ("c1", "pruned"):
+        _write_sidecar(
+            ocr_dir / cid / "pages_cleaned.jsonl",
+            [{"page": 1, "card_id": cid, "text_cleaned": "x",
+              "model_id": "m", "input_sha256": "0" * 64}],
+        )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    assert payload["meta"]["cards_covered"] == ["c1"]
+    assert {p["card_id"] for p in payload["pages"]} == {"c1"}
+
+
 def test_cleanup_skip_reasons_constant_stays_aligned_with_ts_side() -> None:
     """The canonical list of ``cleanup_skipped`` reasons
     lives on both sides of the JSON boundary (Python `build_pages_cleaned.py`
