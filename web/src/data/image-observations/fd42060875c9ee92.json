@@ -1,0 +1,38 @@
+{
+  "card_id": "fd42060875c9ee92",
+  "title": "DOW-UAP-D145, AAWSAP DIRD, Aneutronic Fusion Propulsion I, November 2010",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-09-19T17:34:24.582644+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "blank white image",
+      "description": "The image appears to be entirely blank, consisting of a uniform white field with no discernible content, markings, text, figures, or variation in tone.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is uniformly white with no visible content",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No figures, photographs, or illustrations are visible",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 2,
+      "row_key": ""
+    }
+  ]
+}

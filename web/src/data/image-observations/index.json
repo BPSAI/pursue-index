@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_at": "2026-07-11T00:00:00+00:00",
   "session_id": "phase2-helicopter-case-2026-05-25",
-  "card_count": 71,
+  "card_count": 74,
   "card_ids": [
     "04b9179a7637d6ad",
     "0d7a23b29e6de1bf",
@@ -74,7 +74,10 @@
     "19b18b71420602c5",
     "34f3278ad20d348f",
     "784dc42f885dc12e",
-    "3deb237b1d68e203"
+    "3deb237b1d68e203",
+    "fd42060875c9ee92",
+    "052b7e0358386432",
+    "aca09795e3f15ada"
   ],
   "clusters": {
     "helicopter-case-2025-imagery-a-series": [

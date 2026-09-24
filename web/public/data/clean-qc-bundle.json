@@ -632,21 +632,467 @@
     {
       "card_id": "fad6007114b5eb63",
       "page_count": 8
+    },
+    {
+      "card_id": "022308e774bc2f25",
+      "page_count": 6
+    },
+    {
+      "card_id": "036bef3a429ef20f",
+      "page_count": 1
+    },
+    {
+      "card_id": "052b7e0358386432",
+      "page_count": 31
+    },
+    {
+      "card_id": "076e3a3c73273efe",
+      "page_count": 3
+    },
+    {
+      "card_id": "0824ea3832738511",
+      "page_count": 46
+    },
+    {
+      "card_id": "0f025bcbd048e738",
+      "page_count": 3
+    },
+    {
+      "card_id": "171b0f8c71e0ae7d",
+      "page_count": 38
+    },
+    {
+      "card_id": "1b4f11abb8ce89e0",
+      "page_count": 45
+    },
+    {
+      "card_id": "1c87b710594da1f8",
+      "page_count": 17
+    },
+    {
+      "card_id": "1cc0bf60aba6d0eb",
+      "page_count": 35
+    },
+    {
+      "card_id": "1f5dcf09c3bcc614",
+      "page_count": 8
+    },
+    {
+      "card_id": "22e9a98032b28fc5",
+      "page_count": 42
+    },
+    {
+      "card_id": "28f551c3ef1a3d55",
+      "page_count": 16
+    },
+    {
+      "card_id": "29f1035b2cdde6b7",
+      "page_count": 1
+    },
+    {
+      "card_id": "2cd799fd0c70eda2",
+      "page_count": 2
+    },
+    {
+      "card_id": "2d5ef2241949cd51",
+      "page_count": 4
+    },
+    {
+      "card_id": "31064dd56886eae1",
+      "page_count": 2
+    },
+    {
+      "card_id": "323b9443e6f5ea56",
+      "page_count": 1
+    },
+    {
+      "card_id": "347808dc9e66aa78",
+      "page_count": 77
+    },
+    {
+      "card_id": "38ee227f22a33772",
+      "page_count": 2
+    },
+    {
+      "card_id": "3bccb95aaaf026b3",
+      "page_count": 5
+    },
+    {
+      "card_id": "419ad0ffefd1343c",
+      "page_count": 59
+    },
+    {
+      "card_id": "464f81c988dcee9e",
+      "page_count": 1
+    },
+    {
+      "card_id": "468222f8338376d2",
+      "page_count": 56
+    },
+    {
+      "card_id": "47785325ca6c118d",
+      "page_count": 36
+    },
+    {
+      "card_id": "4825c416e6afe557",
+      "page_count": 2
+    },
+    {
+      "card_id": "48502ae871d53621",
+      "page_count": 3
+    },
+    {
+      "card_id": "49e0690a6f5bb74f",
+      "page_count": 5
+    },
+    {
+      "card_id": "4afde1c0cbccf94e",
+      "page_count": 20
+    },
+    {
+      "card_id": "519c181f4a5aede0",
+      "page_count": 57
+    },
+    {
+      "card_id": "5338a8eba1537603",
+      "page_count": 27
+    },
+    {
+      "card_id": "568e636bceebb3e7",
+      "page_count": 4
+    },
+    {
+      "card_id": "56bd12ff7be6f4ee",
+      "page_count": 340
+    },
+    {
+      "card_id": "57b9d4711a5ad034",
+      "page_count": 54
+    },
+    {
+      "card_id": "5a1026673150b72f",
+      "page_count": 4
+    },
+    {
+      "card_id": "619c9d455bbb6bb5",
+      "page_count": 57
+    },
+    {
+      "card_id": "626d8e51b2efc972",
+      "page_count": 2
+    },
+    {
+      "card_id": "628ebe1fba435604",
+      "page_count": 33
+    },
+    {
+      "card_id": "65bf775b2dfd9f61",
+      "page_count": 30
+    },
+    {
+      "card_id": "662eb9fef6e109d2",
+      "page_count": 223
+    },
+    {
+      "card_id": "6c3f5372eae29724",
+      "page_count": 156
+    },
+    {
+      "card_id": "765a28effad5ab93",
+      "page_count": 216
+    },
+    {
+      "card_id": "774ebdca92c34892",
+      "page_count": 6
+    },
+    {
+      "card_id": "7838ea3bee6bd8a7",
+      "page_count": 2
+    },
+    {
+      "card_id": "79507cf7383f8c6b",
+      "page_count": 38
+    },
+    {
+      "card_id": "79fc255ea64dc7be",
+      "page_count": 57
+    },
+    {
+      "card_id": "7a47542be1be6d1f",
+      "page_count": 1
+    },
+    {
+      "card_id": "7ae45b701d61a023",
+      "page_count": 1
+    },
+    {
+      "card_id": "7c0e38a8a433ebaa",
+      "page_count": 86
+    },
+    {
+      "card_id": "7f9ed9588e40c25f",
+      "page_count": 1
+    },
+    {
+      "card_id": "80e36017873c19a1",
+      "page_count": 6
+    },
+    {
+      "card_id": "811e54fbf8cff4cc",
+      "page_count": 42
+    },
+    {
+      "card_id": "8533936c8107767b",
+      "page_count": 3
+    },
+    {
+      "card_id": "859cda8991e45dd7",
+      "page_count": 2
+    },
+    {
+      "card_id": "878ff82834953ea7",
+      "page_count": 3
+    },
+    {
+      "card_id": "88443d8d0c5b0c44",
+      "page_count": 1
+    },
+    {
+      "card_id": "88479e3245f9bf15",
+      "page_count": 4
+    },
+    {
+      "card_id": "8aba1dc72a19b94a",
+      "page_count": 2
+    },
+    {
+      "card_id": "8dfcf1050947c6d3",
+      "page_count": 406
+    },
+    {
+      "card_id": "8e4cbdbd3583feba",
+      "page_count": 2
+    },
+    {
+      "card_id": "907982561e907539",
+      "page_count": 5
+    },
+    {
+      "card_id": "90fb386c2e32f003",
+      "page_count": 31
+    },
+    {
+      "card_id": "91887620fa8361e5",
+      "page_count": 3
+    },
+    {
+      "card_id": "972621a74b470223",
+      "page_count": 29
+    },
+    {
+      "card_id": "98c1575170956515",
+      "page_count": 253
+    },
+    {
+      "card_id": "9967c1c0868ab289",
+      "page_count": 44
+    },
+    {
+      "card_id": "a14bb8678727f0c0",
+      "page_count": 3
+    },
+    {
+      "card_id": "a3672ccd47d5503a",
+      "page_count": 78
+    },
+    {
+      "card_id": "a4f1672d4f893c75",
+      "page_count": 210
+    },
+    {
+      "card_id": "a814dead4ae07667",
+      "page_count": 55
+    },
+    {
+      "card_id": "a83dedef9d19fcb5",
+      "page_count": 7
+    },
+    {
+      "card_id": "a8ec637d35fd011e",
+      "page_count": 312
+    },
+    {
+      "card_id": "aa3097b4c549a67a",
+      "page_count": 6
+    },
+    {
+      "card_id": "aa5c76b65d29b476",
+      "page_count": 51
+    },
+    {
+      "card_id": "aad2f416c0513745",
+      "page_count": 55
+    },
+    {
+      "card_id": "ac9f24575bf2c5de",
+      "page_count": 32
+    },
+    {
+      "card_id": "aca09795e3f15ada",
+      "page_count": 43
+    },
+    {
+      "card_id": "ad63a61ed36f167c",
+      "page_count": 1
+    },
+    {
+      "card_id": "ae790d0f8fc88afb",
+      "page_count": 32
+    },
+    {
+      "card_id": "b02c9d82381561f8",
+      "page_count": 8
+    },
+    {
+      "card_id": "b1a2a12d04e5784e",
+      "page_count": 37
+    },
+    {
+      "card_id": "b4916a5d2b6d8f0f",
+      "page_count": 34
+    },
+    {
+      "card_id": "b73a7101dc25e2ad",
+      "page_count": 27
+    },
+    {
+      "card_id": "b869fd5353d5c853",
+      "page_count": 25
+    },
+    {
+      "card_id": "be0a81d67c57548d",
+      "page_count": 5
+    },
+    {
+      "card_id": "bf08008b8a1aa79e",
+      "page_count": 3
+    },
+    {
+      "card_id": "c094d943b5fcf8a2",
+      "page_count": 19
+    },
+    {
+      "card_id": "c0bf728e03f3f8c2",
+      "page_count": 6
+    },
+    {
+      "card_id": "c2da7eaaedbf533a",
+      "page_count": 2
+    },
+    {
+      "card_id": "c529da40cb35cf7f",
+      "page_count": 3
+    },
+    {
+      "card_id": "c8d89f235e487961",
+      "page_count": 224
+    },
+    {
+      "card_id": "c9a17def8cbea854",
+      "page_count": 36
+    },
+    {
+      "card_id": "ca69163315f5ff40",
+      "page_count": 585
+    },
+    {
+      "card_id": "ccb9a10f4d8b2c3d",
+      "page_count": 2
+    },
+    {
+      "card_id": "ce9a5971eec321e8",
+      "page_count": 4
+    },
+    {
+      "card_id": "d6220a5956fb219b",
+      "page_count": 32
+    },
+    {
+      "card_id": "d7538e35ff11c7d3",
+      "page_count": 4
+    },
+    {
+      "card_id": "d7db401d52ec0bfc",
+      "page_count": 72
+    },
+    {
+      "card_id": "d7f72a4106a917f6",
+      "page_count": 8
+    },
+    {
+      "card_id": "d983745c9c3a4709",
+      "page_count": 2
+    },
+    {
+      "card_id": "df252334c73a9019",
+      "page_count": 66
+    },
+    {
+      "card_id": "dfec531c907eaa8c",
+      "page_count": 37
+    },
+    {
+      "card_id": "e18cac08048b6c28",
+      "page_count": 222
+    },
+    {
+      "card_id": "e2371ff7657d231e",
+      "page_count": 19
+    },
+    {
+      "card_id": "e6d06ce60662cdcf",
+      "page_count": 290
+    },
+    {
+      "card_id": "e7f5382c5349c6e8",
+      "page_count": 19
+    },
+    {
+      "card_id": "ea18e274b06b352e",
+      "page_count": 4
+    },
+    {
+      "card_id": "f6935b10dea56aa5",
+      "page_count": 325
+    },
+    {
+      "card_id": "fb116547cbbf33d4",
+      "page_count": 3
+    },
+    {
+      "card_id": "fd42060875c9ee92",
+      "page_count": 50
+    },
+    {
+      "card_id": "fec5b139eb7b0a4f",
+      "page_count": 253
     }
   ],
-  "generated_at": "2026-08-08T06:16:59+00:00",
+  "generated_at": "2026-09-24T00:18:21+00:00",
   "judge_model": "claude-sonnet-4-6",
   "runner_version": "0.2.0",
   "stats": {
-    "baseline_cost_usd": 124.008,
-    "est_total_cost_usd": 87.723099,
-    "judge_calls": 5074,
-    "judge_ok": 2567,
+    "baseline_cost_usd": 270.624,
+    "est_total_cost_usd": 195.910875,
+    "indeterminate_pages": 0,
+    "judge_calls": 11165,
+    "judge_ok": 6524,
     "no_corrections": 0,
-    "operator_review": 2600,
+    "operator_review": 4752,
     "rule_applied": 0,
-    "savings_pct": 29,
-    "savings_usd": 36.28490099999999,
-    "total_pages": 5167
+    "runner_errors": 111,
+    "savings_pct": 28,
+    "savings_usd": 74.71312500000002,
+    "total_pages": 11276
   }
 }

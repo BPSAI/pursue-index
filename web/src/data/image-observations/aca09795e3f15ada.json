@@ -1,0 +1,38 @@
+{
+  "card_id": "aca09795e3f15ada",
+  "title": "DOW-UAP-D152, AAWSAP DIRD, Negative Mass Propulsion, January 2011",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-09-19T17:34:31.944179+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "blank white image",
+      "description": "The image appears to be entirely blank, consisting of a uniform white field with no visible content, markings, text, figures, or discernible features.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is a uniform white field with no visible content",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a vertical (portrait) orientation",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 4,
+      "row_key": ""
+    }
+  ]
+}

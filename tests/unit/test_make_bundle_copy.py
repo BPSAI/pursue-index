@@ -23,7 +23,7 @@ def test_bundle_copy_fails_when_source_missing(tmp_path: Path) -> None:
     nas_root.mkdir()
 
     # Create the published directory structure but no bundle file
-    (nas_root / "published" / "v1").mkdir(parents=True)
+    (nas_root / "curate/published" / "v1").mkdir(parents=True)
 
     # Set up environment with non-existent bundle
     env = {"PURSUE_DATA_ROOT": str(nas_root)}
@@ -48,7 +48,7 @@ def test_bundle_copy_copies_file_and_prints_bytes(tmp_path: Path) -> None:
     nas_root.mkdir()
 
     # Create the published directory structure with a test bundle
-    published_dir = nas_root / "published" / "v1"
+    published_dir = nas_root / "curate/published" / "v1"
     published_dir.mkdir(parents=True)
 
     bundle_content = {"qc": "test", "data": list(range(100))}
@@ -100,7 +100,7 @@ def test_bundle_copy_copies_file_and_prints_bytes(tmp_path: Path) -> None:
 
 def _stage_versions(nas_root: Path, versions: dict[str, str | None]) -> None:
     for name, payload in versions.items():
-        v_dir = nas_root / "published" / name
+        v_dir = nas_root / "curate/published" / name
         v_dir.mkdir(parents=True)
         if payload is not None:
             (v_dir / "clean-qc-bundle.json").write_text(payload, encoding="utf-8")

@@ -1,0 +1,630 @@
+{
+  "tranche_sha256": "19e6dd7a69d5c41c30bc3d9302462e922c6225cf18649298b329e68918e28a20",
+  "prior_manifest_sha": "5f5698f132245115dd9d4a5197d2748847f281e466d8b660de036aa3c4b678c7",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 72,
+    "quarantined": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 0,
+    "field_only_changes": 9,
+    "row_changes": 0
+  },
+  "renames_confirmed": [],
+  "new_content": [
+    {
+      "new_card_id": "022308e774bc2f25",
+      "title": "DOW-UAP-D106, Mission Report, Iraq, 2022",
+      "asset_filename": "DOW-UAP-D106_Mission-Report-Iraq-2022.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D106_Mission-Report-Iraq-2022.pdf",
+      "byte_sha256": "7143a38cc6c53316cd0b9bb5df8c8e17aec24b5c1a78751323cede85bac3abdb"
+    },
+    {
+      "new_card_id": "036bef3a429ef20f",
+      "title": "DOW-UAP-PR130, Unresolved UAP Report, Iraq, 2022",
+      "asset_filename": "DOW-UAP-PR130_Unresolved-UAP-Report-Iraq-2022.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-PR130_Unresolved-UAP-Report-Iraq-2022.pdf",
+      "byte_sha256": "b79812908c2835d7ee838a9713885fda67f610233d4eb030d637ff99f5b7f0e5"
+    },
+    {
+      "new_card_id": "052b7e0358386432",
+      "title": "DOW-UAP-D151, AAWSAP DIRD, Cognitive Limits on Simultaneous Control of Multiple Unmanned Spacecraft, December 2010",
+      "asset_filename": "DOW-UAP-D151_AAWSAP-DIRD-Cognitive-Limits-on-Simultaneous-Control-of-Multiple-Unmanned-Spacecraft-December-15-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D151_AAWSAP-DIRD-Cognitive-Limits-on-Simultaneous-Control-of-Multiple-Unmanned-Spacecraft-December-15-2010.pdf",
+      "byte_sha256": "7535e88d474d47ec980b7e35a394f532b297aafb1e32170e044bcc1a7b016402"
+    },
+    {
+      "new_card_id": "07ba861acb370d16",
+      "title": "DOW-UAP-PR150, Unresolved UAP Report, Yellow Sea, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "0824ea3832738511",
+      "title": "DOW-UAP-D148, AAWSAP DIRD, Detection and High-Resolution Tracking of Vehicles at Hypersonic Velocities, November 2010",
+      "asset_filename": "DOW-UAP-D148_AAWSAP-DIRD-Detection-and-High-Resolution-Tracking-of-Vehicles-at-Hypersonic-Velocities-November-20-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D148_AAWSAP-DIRD-Detection-and-High-Resolution-Tracking-of-Vehicles-at-Hypersonic-Velocities-November-20-2010.pdf",
+      "byte_sha256": "5586486eaafe104a32a83964ae2f1849432838e01b59308200b5b6f48aeeb490"
+    },
+    {
+      "new_card_id": "08b858a6b7a581fd",
+      "title": "DOW-UAP-PR133, Unresolved UAP Report, Middle East, 2025",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "171b0f8c71e0ae7d",
+      "title": "DOW-UAP-D128, AAWSAP DIRD, Anomalous Acute and Subacute Field Effects on Human Biological Tissues, March 2010",
+      "asset_filename": "DOW-UAP-D128_AAWSAP-DIRD-Anomalous-Acute-and-Subacute-Field-Effects-on-Human-Biological-Tissues-March-11-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D128_AAWSAP-DIRD-Anomalous-Acute-and-Subacute-Field-Effects-on-Human-Biological-Tissues-March-11-2010.pdf",
+      "byte_sha256": "771e64fee31722953ce9038100499d0d81d199e3249b43d656d3734aebb1a45f"
+    },
+    {
+      "new_card_id": "1770d8bd71372ef6",
+      "title": "DOW-UAP-PR144, Unresolved UAP Report, Yellow Sea, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "1b33dafd36c74c06",
+      "title": "LLE-UAP-PR001, Unresolved UAP Report, Colorado, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "1b4f11abb8ce89e0",
+      "title": "DOW-UAP-D136, AAWSAP DIRD, Biosensors and BioMEMS: A Survey of the Present Field, March 2010",
+      "asset_filename": "DOW-UAP-D136_AAWSAP-DIRD-Biosensors-and-BioMEMS-A-Survey-of-the-Present-Field-March-31-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D136_AAWSAP-DIRD-Biosensors-and-BioMEMS-A-Survey-of-the-Present-Field-March-31-2010.pdf",
+      "byte_sha256": "2591290fb5d0d89adc126b967246a9261ac85b627d0c1b348ab8190fba00abf3"
+    },
+    {
+      "new_card_id": "1c87b710594da1f8",
+      "title": "DOW-UAP-D132, AAWSAP DIRD, Advanced Space Propulsion Based on Vacuum (Spacetime Metric) Engineering, March 2010",
+      "asset_filename": "DOW-UAP-D132_AAWSAP-DIRD-Advanced-Space-Propulsion-Based-on-Vacuum-Spacetime Metric-Engineering-March-29-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D132_AAWSAP-DIRD-Advanced-Space-Propulsion-Based-on-Vacuum-Spacetime%20Metric-Engineering-March-29-2010.pdf",
+      "byte_sha256": "21fa15c3f23e131d4998947f6cdba50e6d014b35a8242abddc6e1869a797c86d"
+    },
+    {
+      "new_card_id": "1cc0bf60aba6d0eb",
+      "title": "DOW-UAP-D123, AAWSAP DIRD, Positron Aerospace Propulsion, March 2010",
+      "asset_filename": "DOW-UAP-D123_AAWSAP-DIRD-Positron-Aerospace-Propulsion-March-2-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D123_AAWSAP-DIRD-Positron-Aerospace-Propulsion-March-2-2010.pdf",
+      "byte_sha256": "96294b90e769ff43e4153438331153aa62fb01bc4345af61647fa06503801b82"
+    },
+    {
+      "new_card_id": "1f5dcf09c3bcc614",
+      "title": "DOW-UAP-D108, Mission Report, Middle East, 2025",
+      "asset_filename": "DOW-UAP-D108_Mission-Report-Middle-East-2025.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D108_Mission-Report-Middle-East-2025.pdf",
+      "byte_sha256": "9ffec164725f15d4a1d75c680fceae367b6813119d183f52df33a91c23ee116c"
+    },
+    {
+      "new_card_id": "208d494dece9b545",
+      "title": "DOW-UAP-PR160, Presentation by Captain Edward J. Ruppelt, 1952",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "22e9a98032b28fc5",
+      "title": "DOW-UAP-D139, AAWSAP DIRD, Traversable Wormholes, Stargates, and Negative Energy, April 2010",
+      "asset_filename": "DOW-UAP-D139_AAWSAP-DIRD-Traversable-Wormholes-Stargates-and-Negative-Energy-April-6-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D139_AAWSAP-DIRD-Traversable-Wormholes-Stargates-and-Negative-Energy-April-6-2010.pdf",
+      "byte_sha256": "e0cb6838bbdc1b8b1ebde201c51ffa5d8681a037661d0d9207d63745f9c71611"
+    },
+    {
+      "new_card_id": "28f551c3ef1a3d55",
+      "title": "DOW-UAP-D131, AAWSAP DIRD, The Role of Superconductors in Gravity Research, March 2010",
+      "asset_filename": "DOW-UAP-D131_AAWSAP-DIRD-The-Role-of-Superconductors-in-Gravity-Research-March-23-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D131_AAWSAP-DIRD-The-Role-of-Superconductors-in-Gravity-Research-March-23-2010.pdf",
+      "byte_sha256": "224275259e7e168019c69abd955f80ee6417649a47c5036e4783e0969e863c43"
+    },
+    {
+      "new_card_id": "2d5ef2241949cd51",
+      "title": "DOW-UAP-D110, AAWSAP Statement of Objectives, July 2008",
+      "asset_filename": "DOW-UAP-D110_AAWSAP-Statement-of-Objectives-July-18-2008.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D110_AAWSAP-Statement-of-Objectives-July-18-2008.pdf",
+      "byte_sha256": "e4f6eff0ec5c6a35e5832d4ae881ddad68c148650df77d447064c7180fafe056"
+    },
+    {
+      "new_card_id": "2fde9a0c4dee513c",
+      "title": "DOW-UAP-PR159, Historical Film of Reported UFOs, Utah, 1952",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "347808dc9e66aa78",
+      "title": "DOW-UAP-D143, AAWSAP DIRD, Laser Lightcraft Nanosatellites, November 2010",
+      "asset_filename": "DOW-UAP-D143_AAWSAP-DIRD-Laser-Lightcraft-Nanosatellites-November-1-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D143_AAWSAP-DIRD-Laser-Lightcraft-Nanosatellites-November-1-2010.pdf",
+      "byte_sha256": "2e88690520b8175d657e18b9ba3de5b9e07c9be21b304a044e2e1d48f5cb9193"
+    },
+    {
+      "new_card_id": "3bccb95aaaf026b3",
+      "title": "DOW-UAP-D113, AAWSAP Contract Modification P00002, February 2010",
+      "asset_filename": "DOW-UAP-D113_AAWSAP-Contract-Modification-P00002-February-2-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D113_AAWSAP-Contract-Modification-P00002-February-2-2010.pdf",
+      "byte_sha256": "cc0858e8869c329a26c690088f1204b36e54b10f162ee2ba36ee99828131df38"
+    },
+    {
+      "new_card_id": "419ad0ffefd1343c",
+      "title": "DOW-UAP-D111, AAWSAP Solicitation and Original Order, September 2008",
+      "asset_filename": "DOW-UAP-D111_AAWSAP-Solicitation-and-Original-Order-September-22-2008.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D111_AAWSAP-Solicitation-and-Original-Order-September-22-2008.pdf",
+      "byte_sha256": "1ddd6264f57e0e606d78a8b6717bfe66599e9a729538726d9afdf94c420ac940"
+    },
+    {
+      "new_card_id": "45f736169651df3b",
+      "title": "DOW-UAP-PR141, Unresolved UAP Report, Middle East, 2022",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "468222f8338376d2",
+      "title": "DOW-UAP-D124, AAWSAP DIRD, Space Access: Where We\u2019ve Been and Where We Could Go, March 2010",
+      "asset_filename": "DOW-UAP-D124_AAWSAP-DIRD-Space Access-Where-Weve-Been-and-Where-We-Could-Go-March-8-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D124_AAWSAP-DIRD-Space%20Access-Where-Weve-Been-and-Where-We-Could-Go-March-8-2010.pdf",
+      "byte_sha256": "861270e395ef20b92991c8dc65d5ad5a05f21b62507d358225b66210e6ac4fff"
+    },
+    {
+      "new_card_id": "47785325ca6c118d",
+      "title": "DOW-UAP-D146, AAWSAP DIRD, Aneutronic Fusion Propulsion II, November 2010",
+      "asset_filename": "DOW-UAP-D146_AAWSAP-DIRD-Aneutronic-Fusion-Propulsion-II-November-1-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D146_AAWSAP-DIRD-Aneutronic-Fusion-Propulsion-II-November-1-2010.pdf",
+      "byte_sha256": "e37ba50e7e0fc9dc8ee7c6ececc3ee39ef3d3a104763e8bd312ad552a94c750d"
+    },
+    {
+      "new_card_id": "49e0690a6f5bb74f",
+      "title": "DOW-UAP-D103, Project Blue Book Photo File Relating to Tremonton Film, Utah, 1952",
+      "asset_filename": "DOW-UAP-D103_Project-Blue-Book-Photo-File-Relating-to-Tremonton-Film-Utah-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D103_Project-Blue-Book-Photo-File-Relating-to-Tremonton-Film-Utah-1952.pdf",
+      "byte_sha256": "950cc1f3d5a9b4f74c1342784a846a2cd2d2dae95f825b89839ac229292e6fa1"
+    },
+    {
+      "new_card_id": "4afde1c0cbccf94e",
+      "title": "DOW-UAP-D118, AAWSAP DIRD, Aerospace Applications of Programmable Matter, December 2009",
+      "asset_filename": "DOW-UAP-D118_AAWSAP-DIRD-Aerospace-Applications-of-Programmable-Matter-December-14-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D118_AAWSAP-DIRD-Aerospace-Applications-of-Programmable-Matter-December-14-2009.pdf",
+      "byte_sha256": "372ce27196ee34604096282d74c5ce5cbcaec8c63a56fdb6fcc934f3db215eff"
+    },
+    {
+      "new_card_id": "519c181f4a5aede0",
+      "title": "DOW-UAP-D142, AAWSAP DIRD, Concepts for Extracting Energy from the Quantum Vacuum, April 2010",
+      "asset_filename": "DOW-UAP-D142_AAWSAP-DIRD-Concepts-for-Extracting-Energy-from-the-Quantum-Vacuum-April-6-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D142_AAWSAP-DIRD-Concepts-for-Extracting-Energy-from-the-Quantum-Vacuum-April-6-2010.pdf",
+      "byte_sha256": "c1829e999532e5239362f9d1a96527157240fddeb7bfb87310e3c522d9a6eb17"
+    },
+    {
+      "new_card_id": "5338a8eba1537603",
+      "title": "DOW-UAP-D120, AAWSAP DIRD, Materials for Advanced Aerospace Platforms, January 2010",
+      "asset_filename": "DOW-UAP-D120_AAWSAP-DIRD-Materials-for-Advanced-Aerospace-Platforms-January-12-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D120_AAWSAP-DIRD-Materials-for-Advanced-Aerospace-Platforms-January-12-2010.pdf",
+      "byte_sha256": "1a3c2675997f3b701e14c623b33b2741c3d8764f52fd9309e1928a85e11e8ac0"
+    },
+    {
+      "new_card_id": "568e636bceebb3e7",
+      "title": "DOW-UAP-D112, AAWSAP Contract Modification P00001, September 2009",
+      "asset_filename": "DOW-UAP-D112_AAWSAP-Contract-Modification-P00001-September-2-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D112_AAWSAP-Contract-Modification-P00001-September-2-2009.pdf",
+      "byte_sha256": "e855036eff934384ffa6fdb044debcae5ef4758788cb318a238ebf6d2e0fe505"
+    },
+    {
+      "new_card_id": "57b9d4711a5ad034",
+      "title": "DOW-UAP-D150, AAWSAP DIRD, Quantum Computing and Utilizing Organic Molecules in Automation Technology, December 2010",
+      "asset_filename": "DOW-UAP-D150_AAWSAP-DIRD-Quantum-Computing-and-Utilizing-Organic-Molecules-in-Automation-Technology-December-10-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D150_AAWSAP-DIRD-Quantum-Computing-and-Utilizing-Organic-Molecules-in-Automation-Technology-December-10-2010.pdf",
+      "byte_sha256": "decf55cd5ddbb9dbd437466c7d3557ffc02a4cde5fafdfabc19fca8ce180bc28"
+    },
+    {
+      "new_card_id": "59bb7a090a1c8af6",
+      "title": "DOW-UAP-PR148, Unresolved UAP Report, East China Sea, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "619c9d455bbb6bb5",
+      "title": "DOW-UAP-D140, AAWSAP DIRD, High-Frequency Gravitational Wave Communications, April 2010",
+      "asset_filename": "DOW-UAP-D140_AAWSAP-DIRD-High-Frequency-Gravitational-Wave-Communications-April-6-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D140_AAWSAP-DIRD-High-Frequency-Gravitational-Wave-Communications-April-6-2010.pdf",
+      "byte_sha256": "66b1ad17754bb67875831a87826cfba04ca3633ca740b3c0e232dbb9f052bb81"
+    },
+    {
+      "new_card_id": "628ebe1fba435604",
+      "title": "DOW-UAP-D138, AAWSAP DIRD, Warp Drive, Dark Energy, and the Manipulation of Extra Dimensions, April 2010",
+      "asset_filename": "DOW-UAP-D138_AAWSAP-DIRD-Warp-Drive-Dark-Energy-and-the-Manipulation-of-Extra-Dimensions-April-2-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D138_AAWSAP-DIRD-Warp-Drive-Dark-Energy-and-the-Manipulation-of-Extra-Dimensions-April-2-2010.pdf",
+      "byte_sha256": "4f597da9196813b852baa502bb3fdd002f5aeca84db868caba2e8c5aa23dda9c"
+    },
+    {
+      "new_card_id": "649f0e15f268915e",
+      "title": "LLE-UAP-PR004, Unresolved UAP Report, Colorado, October 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "65bf775b2dfd9f61",
+      "title": "DOW-UAP-D117, AAWSAP DIRD, Metallic Glasses for Aerospace Applications, December 2009",
+      "asset_filename": "DOW-UAP-D117_AAWSAP-DIRD-Metallic-Glasses-for-Aerospace-Applications-December-14-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D117_AAWSAP-DIRD-Metallic-Glasses-for-Aerospace-Applications-December-14-2009.pdf",
+      "byte_sha256": "e773fe838b690aab4ce30feb3e431bbeb84e152f4420e8c75a0685f61a9351a2"
+    },
+    {
+      "new_card_id": "6c3f5372eae29724",
+      "title": "DOW-UAP-D102, Project Blue Book File on Tremonton Film, Utah, 1952",
+      "asset_filename": "DOW-UAP-D102_Project-Blue-Book-File-on-Tremonton-Film-Utah-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D102_Project-Blue-Book-File-on-Tremonton-Film-Utah-1952.pdf",
+      "byte_sha256": "941f95a0ae621f3dbba1ff63dbaea54ed6396dbcc5f434cd5341e833d15f923a"
+    },
+    {
+      "new_card_id": "78236aa834b34246",
+      "title": "LLE-UAP-PR002, Unresolved UAP Report, Colorado, October 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "79507cf7383f8c6b",
+      "title": "DOW-UAP-D141, AAWSAP DIRD, Metamaterials for Aerospace Applications, April 2010",
+      "asset_filename": "DOW-UAP-D141_AAWSAP-DIRD-Metamaterials-for-Aerospace-Applications-April-6-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D141_AAWSAP-DIRD-Metamaterials-for-Aerospace-Applications-April-6-2010.pdf",
+      "byte_sha256": "c92a15a1927db0248dba6b6485d96f21d9fae82bad36c99e9ec2f3fd16737c98"
+    },
+    {
+      "new_card_id": "79fc255ea64dc7be",
+      "title": "DOW-UAP-D144, AAWSAP DIRD, Cockpits in the Era of Breakthrough Flight, November 2010",
+      "asset_filename": "DOW-UAP-D144_AAWSAP-DIRD-Cockpits-in-the-Era-of-Breakthrough-Flight-November-1-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D144_AAWSAP-DIRD-Cockpits-in-the-Era-of-Breakthrough-Flight-November-1-2010.pdf",
+      "byte_sha256": "909566d201f1613d9ad5fc338aff4668a0331ca740670904f24eeb9175bef7bf"
+    },
+    {
+      "new_card_id": "7acc575e603e3e42",
+      "title": "DOW-UAP-PR151, Unresolved UAP Report, Yellow Sea, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "7ae45b701d61a023",
+      "title": "DOW-UAP-PR131, Unresolved UAP Report, Iraq, 2022",
+      "asset_filename": "DOW-UAP-PR131_Unresolved-UAP-Report-Iraq-2022.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-PR131_Unresolved-UAP-Report-Iraq-2022.pdf",
+      "byte_sha256": "e1eb779d07e32f2ee6e8cc4b17a56f52bd373136a742130d7fae3443adca3853"
+    },
+    {
+      "new_card_id": "7f9ed9588e40c25f",
+      "title": "DOW-UAP-D115, AAWSAP Contract Modification P00004, May 2010",
+      "asset_filename": "DOW-UAP-D115_AAWSAP-Contract-Modification-P00004-May-18-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D115_AAWSAP-Contract-Modification-P00004-May-18-2010.pdf",
+      "byte_sha256": "26a9191f7438d2600515a5ec02f6841f5aaf8896711b3a97ad4dd399b5e755ed"
+    },
+    {
+      "new_card_id": "88443d8d0c5b0c44",
+      "title": "LLE-UAP-D001, Transcript of an Unresolved UAP Report, Colorado, October 2023",
+      "asset_filename": "LLE-UAP-D001_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D001_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "byte_sha256": "79ac7b9e0a6f7148b99a9b9e889fdac323b5b102eedb0b28ecf1f96f90605b46"
+    },
+    {
+      "new_card_id": "90fb386c2e32f003",
+      "title": "DOW-UAP-D137, AAWSAP DIRD, State of the Art and Evolution of High-Energy Lasers, March 2010",
+      "asset_filename": "DOW-UAP-D137_AAWSAP-DIRD-State-of-the-Art-and-Evolution-of-High-Energy-Lasers-March-31-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D137_AAWSAP-DIRD-State-of-the-Art-and-Evolution-of-High-Energy-Lasers-March-31-2010.pdf",
+      "byte_sha256": "d397fc90f994bc6002c98c9ff8de02fb91007c8357076a51eabce30ee2ac5974"
+    },
+    {
+      "new_card_id": "972621a74b470223",
+      "title": "DOW-UAP-D122, AAWSAP DIRD, Invisibility Cloaking Theory and Experiments, March 2010",
+      "asset_filename": "DOW-UAP-D122_AAWSAP-DIRD-Invisibility-Cloaking-Theory-and-Experiments-March-2-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D122_AAWSAP-DIRD-Invisibility-Cloaking-Theory-and-Experiments-March-2-2010.pdf",
+      "byte_sha256": "e603ffbc39458140aadf4610b048d44c2162ca4feb4492b1ea9270b1da8508da"
+    },
+    {
+      "new_card_id": "9967c1c0868ab289",
+      "title": "DOW-UAP-D135, AAWSAP DIRD, Antigravity for Aerospace Applications, March 2010",
+      "asset_filename": "DOW-UAP-D135_ AAWSAP-DIRD-Antigravity-for-Aerospace-Applications-March-30-2010-V2.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D135_%20AAWSAP-DIRD-Antigravity-for-Aerospace-Applications-March-30-2010-V2.pdf",
+      "byte_sha256": "a97c6847c520fdf7455bfd0d8829df910ac5aeaf6f0f7fb4186c66935ce45a33"
+    },
+    {
+      "new_card_id": "a86dbdfe36cc97a3",
+      "title": "DOW-UAP-PR140, Unresolved UAP Report, Middle East, 2022",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "aa5c76b65d29b476",
+      "title": "DOW-UAP-D153, AAWSAP DIRD, Quantum Tomography of Negative Energy States in the Vacuum, January 2011",
+      "asset_filename": "DOW-UAP-D153_AAWSAP-DIRD-Quantum-Tomography-of-Negative-Energy-States-in-the-Vacuum-January-11-2011.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D153_AAWSAP-DIRD-Quantum-Tomography-of-Negative-Energy-States-in-the-Vacuum-January-11-2011.pdf",
+      "byte_sha256": "bc2dc83edc60634dd69e8cb0dd2acdc3e1e1bfe598a70bcd6feb462a7422183e"
+    },
+    {
+      "new_card_id": "aad2f416c0513745",
+      "title": "DOW-UAP-D127, AAWSAP DIRD, An Introduction to the Statistical Drake Equation, March 2010",
+      "asset_filename": "DOW-UAP-D127_AAWSAP-DIRD-An-Introduction-to-the-Statistical-Drake-Equation-March-11-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D127_AAWSAP-DIRD-An-Introduction-to-the-Statistical-Drake-Equation-March-11-2010.pdf",
+      "byte_sha256": "82e20719abce348ceccaac0d313e2fd314d09582e7f1fdb4638b3997190ee0d9"
+    },
+    {
+      "new_card_id": "ac9f24575bf2c5de",
+      "title": "DOW-UAP-D149, AAWSAP DIRD, MHD Air Breathing Propulsion and Power for Aerospace Applications, November 2010",
+      "asset_filename": "DOW-UAP-D149_AAWSAP-DIRD-MHD-Air-Breathing-Propulsion-and-Power-for-Aerospace-Applications-November-21-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D149_AAWSAP-DIRD-MHD-Air-Breathing-Propulsion-and-Power-for-Aerospace-Applications-November-21-2010.pdf",
+      "byte_sha256": "a885a20dcb94555eb91adaddb3461313f8a79a6289de3fe1aa9530cc0aaa6aca"
+    },
+    {
+      "new_card_id": "aca09795e3f15ada",
+      "title": "DOW-UAP-D152, AAWSAP DIRD, Negative Mass Propulsion, January 2011",
+      "asset_filename": "DOW-UAP-D152_AAWSAP-DIRD-Negative-Mass-Propulsion-January-3-2011.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D152_AAWSAP-DIRD-Negative-Mass-Propulsion-January-3-2011.pdf",
+      "byte_sha256": "de517f7ce71816704e5f989936587eeade1400f339bc0cb01a14733180b41172"
+    },
+    {
+      "new_card_id": "ae790d0f8fc88afb",
+      "title": "DOW-UAP-D133, AAWSAP DIRD, The Space Communication Implications of Quantum Entanglement and Nonlocality, March 2010",
+      "asset_filename": "DOW-UAP-D133_AAWSAP-DIRD-The-Space-Communication-Implications-of-Quantum-Entanglement-and-Nonlocality-March-30-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D133_AAWSAP-DIRD-The-Space-Communication-Implications-of-Quantum-Entanglement-and-Nonlocality-March-30-2010.pdf",
+      "byte_sha256": "a659c5a968138e6165f0fb8274dc948dd35cc09d80298f792714207341336aa5"
+    },
+    {
+      "new_card_id": "b02c9d82381561f8",
+      "title": "DOW-UAP-D107, Mission Report, Middle East, 2025",
+      "asset_filename": "DOW-UAP-D107_Mission-Report-Middle-East-2025.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D107_Mission-Report-Middle-East-2025.pdf",
+      "byte_sha256": "731d38a850d1293fde776a864270602b2191b0348915800785d131abae96bc4c"
+    },
+    {
+      "new_card_id": "b1a2a12d04e5784e",
+      "title": "DOW-UAP-D121, AAWSAP DIRD, Pulsed High-Power Microwave Source Technology, January 2010",
+      "asset_filename": "DOW-UAP-D121_AAWSAP-DIRD-Pulsed-High-Power-Microwave-Source-Technology-January-28-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D121_AAWSAP-DIRD-Pulsed-High-Power-Microwave-Source-Technology-January-28-2010.pdf",
+      "byte_sha256": "78f1b9b7fb7fb967f6b3e5f05bb03e26dff864b32b8d4d5ce12e02da12e8378b"
+    },
+    {
+      "new_card_id": "b4916a5d2b6d8f0f",
+      "title": "DOW-UAP-D147, AAWSAP DIRD, Ultracapacitors as Energy and Power Storage Devices, November 2010",
+      "asset_filename": "DOW-UAP-D147_AAWSAP-DIRD-Ultracapacitors-as-Energy-and-Power-Storage-Devices-November-1-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D147_AAWSAP-DIRD-Ultracapacitors-as-Energy-and-Power-Storage-Devices-November-1-2010.pdf",
+      "byte_sha256": "7871aadc94fd87fa3ee486168d1e9bc4d85cc96a0af5e0dea9483ff487f6b0e7"
+    },
+    {
+      "new_card_id": "b73a7101dc25e2ad",
+      "title": "DOW-UAP-D129, AAWSAP DIRD, Metallic Spintronics, March 2010",
+      "asset_filename": "DOW-UAP-D129_AAWSAP-DIRD-Metallic-Spintronics-March-23-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D129_AAWSAP-DIRD-Metallic-Spintronics-March-23-2010.pdf",
+      "byte_sha256": "f4ca1d6db66a984eff37e7cc00de6aeb6e0965d26259d66a86cc1486ff3f80fe"
+    },
+    {
+      "new_card_id": "bbed279533fca922",
+      "title": "DOW-UAP-PR135, Unresolved UAP Report, Middle East, 2025",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "be0a81d67c57548d",
+      "title": "DOW-UAP-D116, AAWSAP Contract Modification P00005, September 2010",
+      "asset_filename": "DOW-UAP-D116_AAWSAP-Contract-Modification-P00005-September-28-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D116_AAWSAP-Contract-Modification-P00005-September-28-2010.pdf",
+      "byte_sha256": "98ae5282f5f2e44aa0237278099a99495b30108d049718dd68a4e27d0b3d96b6"
+    },
+    {
+      "new_card_id": "c094d943b5fcf8a2",
+      "title": "DOW-UAP-D134, AAWSAP DIRD, Maverick Inventor Versus Corporate Inventor: Where Will the Next Major Innovations Arise, March 2010",
+      "asset_filename": "DOW-UAP-D134_AAWSAP-DIRD-Maverick-Inventor-Versus-Corporate-Inventor-Where-Will-the-Next-Major-Innovations-Arise-March-30-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D134_AAWSAP-DIRD-Maverick-Inventor-Versus-Corporate-Inventor-Where-Will-the-Next-Major-Innovations-Arise-March-30-2010.pdf",
+      "byte_sha256": "52e47ca04c0de85d1c6f8ee86103e69803785fddd0ec19daa20b38cb190e0309"
+    },
+    {
+      "new_card_id": "c0bf728e03f3f8c2",
+      "title": "DOW-UAP-D109, Mission Report, Middle East, 2022",
+      "asset_filename": "DOW-UAP-D109_Mission-Report-Middle-East-2022.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D109_Mission-Report-Middle-East-2022.pdf",
+      "byte_sha256": "bcb2dc4da3380db92c5f0a234087f0bda0f29d1d14421c42ef3d29d5461dfa92"
+    },
+    {
+      "new_card_id": "c529da40cb35cf7f",
+      "title": "DOW-UAP-D114, AAWSAP Contract Modification P00003, May 2010",
+      "asset_filename": "DOW-UAP-D114_AAWSAP-Contract-Modification-P00003-May-18- 2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D114_AAWSAP-Contract-Modification-P00003-May-18-%202010.pdf",
+      "byte_sha256": "6998e57cacab3b6e53950843c67ac165c9f0cfd49972edf4dafd822eed804eb0"
+    },
+    {
+      "new_card_id": "c9a17def8cbea854",
+      "title": "DOW-UAP-D130, AAWSAP DIRD, Technological Approaches to Controlling External Devices, March 2010",
+      "asset_filename": "DOW-UAP-D130_AAWSAP-DIRD-Technological-Approaches-to-Controlling-External-Devices-March-23-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D130_AAWSAP-DIRD-Technological-Approaches-to-Controlling-External-Devices-March-23-2010.pdf",
+      "byte_sha256": "6df90d61b653620ef55ca9ccaefad11a227079a8b20c94b038a1ef819b92bb07"
+    },
+    {
+      "new_card_id": "ca69163315f5ff40",
+      "title": "DOW-UAP-D104, Final Personnel Record for Newhouse, Delbert C., U.S. Navy, 1957",
+      "asset_filename": "DOW-UAP-D104_Final-Personnel-Record-for-Newhouse-Delbert-C-US-Navy-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D104_Final-Personnel-Record-for-Newhouse-Delbert-C-US-Navy-1957.pdf",
+      "byte_sha256": "640912a325f5c611ebecfe8f969a28689c32ea40031ad30bd6b9fd47c2abece7"
+    },
+    {
+      "new_card_id": "d6220a5956fb219b",
+      "title": "DOW-UAP-D119, AAWSAP DIRD, Biomaterials, January 2010",
+      "asset_filename": "DOW-UAP-D119_AAWSAP-DIRD-Biomaterials-January-7-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D119_AAWSAP-DIRD-Biomaterials-January-7-2010.pdf",
+      "byte_sha256": "535c4e3cb92b7519c109da7d3ba173bae036463e5661ff6040ae37f8c9f8ce31"
+    },
+    {
+      "new_card_id": "d7db401d52ec0bfc",
+      "title": "DOW-UAP-D125, AAWSAP DIRD, Inertial Electrostatic Confinement Fusion, March 2010",
+      "asset_filename": "DOW-UAP-D125_AAWSA-DIRD-Inertial-Electrostatic-Confinement-Fusion-March-10-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D125_AAWSA-DIRD-Inertial-Electrostatic-Confinement-Fusion-March-10-2010.pdf",
+      "byte_sha256": "21f1dfda6f9e1e8e605eb44254052d7ae7446becea06347f2350b1a9bf4bc8a3"
+    },
+    {
+      "new_card_id": "dfec531c907eaa8c",
+      "title": "DOW-UAP-D126, AAWSAP DIRD, Advanced Nuclear Propulsion for Manned Deep Space Missions, March 2010",
+      "asset_filename": "DOW-UAP-D126_AAWSAP-DIRD-Advanced-Nuclear-Propulsion-for-Manned-Deep-Space-Missions-March-11-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D126_AAWSAP-DIRD-Advanced-Nuclear-Propulsion-for-Manned-Deep-Space-Missions-March-11-2010.pdf",
+      "byte_sha256": "087bbb392b8396590724d5eb7d39f15cac23924f8fb411723b807b2665ea9241"
+    },
+    {
+      "new_card_id": "e7f5382c5349c6e8",
+      "title": "DOW-UAP-D154, Transcript of a Presentation by Captain Edward J. Ruppelt, 1952",
+      "asset_filename": "DOW-UAP-D154_Transcript-of-a-Presentation-by-Captain-Edward-J-Ruppelt-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D154_Transcript-of-a-Presentation-by-Captain-Edward-J-Ruppelt-1952.pdf",
+      "byte_sha256": "0c1c5adfd3ca9cebcc7e5183dbff32538376ce62f075b51756f9b822f8de9e55"
+    },
+    {
+      "new_card_id": "f2a08ed7a261c1a2",
+      "title": "DOW-UAP-PR152, Unresolved UAP Report, Yellow Sea, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "f55d5c010b11b301",
+      "title": "LLE-UAP-PR003, Unresolved UAP Report, Colorado, October 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "f70c87daafb7daa0",
+      "title": "DOW-UAP-PR143, Unresolved UAP Report, Yellow Sea, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "fd42060875c9ee92",
+      "title": "DOW-UAP-D145, AAWSAP DIRD, Aneutronic Fusion Propulsion I, November 2010",
+      "asset_filename": "DOW-UAP-D145_AAWSAP-DIRD-Aneutronic-Fusion-Propulsion-I-November-1-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D145_AAWSAP-DIRD-Aneutronic-Fusion-Propulsion-I-November-1-2010.pdf",
+      "byte_sha256": "122ea541032e427492ba1bc11e569a3f667cdc8654fdbe08d4f52cc04039842a"
+    },
+    {
+      "new_card_id": "fec5b139eb7b0a4f",
+      "title": "DOW-UAP-D105, U.S. Air Force Flying Discs File, 1952",
+      "asset_filename": "DOW-UAP-D105_US-Air-Force-Flying-Discs-File-September-December-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/DOW-UAP-D105_US-Air-Force-Flying-Discs-File-September-December-1952.pdf",
+      "byte_sha256": "a3523ac3e2dd1b457feeb2309b005e2088dcc4efb8c2738b1e822c54308658ea"
+    }
+  ],
+  "quarantined": [],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [],
+  "field_only_changes": [
+    {
+      "card_id": "06c5cecc4018786c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "4cf7750d0dd1edd3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "7be8e1bf34990b50",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "87a17be77dae3d9f",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "979639dbe9247069",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "adf867b347d0d376",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b77560f5f255a661",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        },
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "DOW-UAP-D103 | DOW-UAP-D104 | DOW-UAP-D105"
+        },
+        {
+          "field": "video_pairing",
+          "old": null,
+          "new": "DOW-UAP-PR159"
+        }
+      ]
+    },
+    {
+      "card_id": "bcb9232007cbebf4",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "db390eba790bd5cd",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    }
+  ],
+  "row_changes": []
+}
