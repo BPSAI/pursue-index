@@ -189,6 +189,15 @@ def _walk_sidecars(
     for card_dir in sorted(ocr_dir.iterdir()):
         if not card_dir.is_dir():
             continue
+        # The manifest, not the filesystem, decides what ships. A card
+        # pruned as superseded keeps its sidecars on disk -- pruning does
+        # not delete them -- so walking the OCR directory alone shipped
+        # 80e36017873c19a1 and aa3097b4c549a67a into this payload with
+        # "(unknown)" titles, while every other derived payload correctly
+        # excluded them. `titles` is keyed by manifest card_id, so its
+        # membership is the authoritative filter.
+        if card_dir.name not in titles:
+            continue
         sidecar = card_dir / "pages_cleaned.jsonl"
         if not sidecar.exists():
             continue
