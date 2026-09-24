@@ -1,8 +1,8 @@
 {
   "new_sha": "19e6dd7a69d5c41c30bc3d9302462e922c6225cf18649298b329e68918e28a20",
-  "verdict": "needs-review",
-  "added": 72,
+  "verdict": "benign",
+  "added": 0,
   "removed": 0,
-  "field_changes": 9,
+  "field_changes": 0,
   "new_columns": []
 }
