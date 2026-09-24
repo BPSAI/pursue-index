@@ -190,13 +190,13 @@ bundle-copy:
 	fi
 	@nas_root="$$PURSUE_DATA_ROOT"; \
 	v_dir=""; best=-1; \
-	for d in "$$nas_root/published"/v[0-9]*; do \
+	for d in "$$nas_root/curate/published"/v[0-9]*; do \
 		n="$${d##*/v}"; \
 		case "$$n" in ""|*[!0-9]*) continue;; esac; \
 		if [ -d "$$d" ] && [ "$$n" -gt "$$best" ]; then best="$$n"; v_dir="$$d"; fi; \
 	done; \
 	if [ -z "$$v_dir" ]; then \
-		echo "bundle-copy: no published version directories found in $$nas_root/published"; \
+		echo "bundle-copy: no published version directories found in $$nas_root/curate/published"; \
 		exit 1; \
 	fi; \
 	bundle="$$v_dir/clean-qc-bundle.json"; \
