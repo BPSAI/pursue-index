@@ -76,6 +76,7 @@ def test_ship_ready_prerequisite_order() -> None:
         "registry-root",
         "snapshot-rotate",
         "astro-build",
+        "asset-budget",
         "test",
         "gate-mirror",
         "arch-check",

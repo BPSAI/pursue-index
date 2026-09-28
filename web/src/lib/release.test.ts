@@ -156,3 +156,31 @@ test("RELEASE.ocrEngineLabel is a non-empty string crediting the primary engine"
   assert.equal(typeof RELEASE.ocrEngineLabel, "string");
   assert.ok(RELEASE.ocrEngineLabel.length > 0);
 });
+
+// The corpus counts are read from web/public/data at build time, where a
+// payload over the per-asset size limit ships as parts + a manifest. A
+// reader that misses the chunked form silently falls back to a frozen
+// literal, so pin each count to an independent read of the real payload.
+test("corpus counts are derived from the (possibly chunked) data payloads", async () => {
+  const { existsSync, readFileSync } = await import("node:fs");
+  const { readAssetJsonSync } = await import("./chunked-asset.js");
+  const fs = { existsSync, readFileSync };
+  const dataDir = new URL("../../public/data/", import.meta.url).pathname;
+  const pages = readAssetJsonSync(`${dataDir}pages.json`, fs) as Array<{ text?: unknown; engine?: string }>;
+  const cleaned = readAssetJsonSync(`${dataDir}pages-cleaned.json`, fs) as {
+    pages: Array<{ text?: unknown; skip_reason?: unknown }>;
+  };
+  const nonEmpty = (t: unknown) => typeof t === "string" && t.length > 0;
+  assert.equal(RELEASE.ocrPageCount, pages.filter((r) => nonEmpty(r.text)).length);
+  assert.equal(
+    RELEASE.cleanedPageCount,
+    cleaned.pages.filter((r) => nonEmpty(r.text) && !r.skip_reason).length,
+  );
+  const engines: Record<string, number> = {};
+  for (const r of pages) {
+    if (!nonEmpty(r.text)) continue;
+    const e = typeof r.engine === "string" ? r.engine : "unknown";
+    engines[e] = (engines[e] ?? 0) + 1;
+  }
+  assert.deepEqual(RELEASE.ocrEngineCounts, engines);
+});

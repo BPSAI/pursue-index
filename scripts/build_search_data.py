@@ -38,6 +38,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 from _search_pages import emit_card_pages, emit_observation_only_pages  # noqa: E402
 
 from pursue_index.config import settings  # noqa: E402
+from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset  # noqa: E402
 from pursue_index.release.shrink_guard import (  # noqa: E402
     add_shrink_args,
     committed_pages_card_ids,
@@ -127,6 +128,7 @@ def build(
     *,
     allow_shrink_reason: str | None = None,
     audit_log: Path = DEFAULT_AUDIT_LOG,
+    budget_bytes: int = BUDGET_BYTES,
 ) -> int:
     """Materialize the search payload. Returns process exit code.
 
@@ -156,8 +158,10 @@ def build(
     if rc:
         return rc
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(docs, ensure_ascii=False), encoding="utf-8")
-    size_mb = out_path.stat().st_size / (1024 * 1024)
+    written = write_asset(
+        out_path, json.dumps(docs, ensure_ascii=False).encode("utf-8"), budget=budget_bytes
+    )
+    size_mb = sum(p.stat().st_size for p in written) / (1024 * 1024)
     obs_pages = sum(
         1 for d in docs if "IMAGE-OBSERVATIONS" in str(d["text"])
     )

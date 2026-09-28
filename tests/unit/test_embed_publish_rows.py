@@ -81,3 +81,13 @@ def test_eligible_keys_tolerate_a_missing_text_field(tmp_path: Path) -> None:
         {"card_id": "c1", "page": 2, "text": None},
     ])
     assert load_embed_eligible_keys(pages) == set()
+
+
+def test_eligible_keys_read_a_chunked_pages_json(tmp_path: Path) -> None:
+    from pursue_index.release.chunked_asset import write_asset
+
+    path = tmp_path / "pages.json"
+    rows = [{"card_id": "c", "page": i, "text": "t" if i % 2 else ""} for i in range(10)]
+    write_asset(path, json.dumps(rows).encode(), budget=100)
+    assert not path.exists()
+    assert load_embed_eligible_keys(path) == {("c", i) for i in range(1, 10, 2)}

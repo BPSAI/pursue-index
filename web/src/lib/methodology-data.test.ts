@@ -11,7 +11,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { readAssetJsonSync } from "./chunked-asset.js";
 import {
   cleanupCoverage,
   describeRetiredEngines,
@@ -29,7 +30,7 @@ const SIDECARS = new URL("../data/image-observations", import.meta.url).pathname
 // --- readCleanupStats -------------------------------------------------
 
 test("readCleanupStats: totals and skip causes are derived from pages-cleaned.json", () => {
-  const raw = JSON.parse(readFileSync(PAGES_CLEANED, "utf8")) as {
+  const raw = readAssetJsonSync(PAGES_CLEANED, { existsSync, readFileSync }) as {
     pages: Array<{ card_id?: string; text?: string; cleanup_skipped?: string }>;
   };
   const stats = readCleanupStats([PAGES_CLEANED]);
@@ -49,7 +50,7 @@ test("readCleanupStats: totals and skip causes are derived from pages-cleaned.js
 test("readCleanupStats: cards looked at and cards cleaned are counted separately", () => {
   // A card can enter the pass and leave with every page skipped. Counting
   // those as "cleaned" overstates coverage, which is what the page used to do.
-  const raw = JSON.parse(readFileSync(PAGES_CLEANED, "utf8")) as {
+  const raw = readAssetJsonSync(PAGES_CLEANED, { existsSync, readFileSync }) as {
     pages: Array<{ card_id?: string; text?: string }>;
   };
   const stats = readCleanupStats([PAGES_CLEANED]);
@@ -122,7 +123,7 @@ test("readSidecarModelBreakdown: unreadable directory throws", () => {
 // --- readOcrCardIds ---------------------------------------------------
 
 test("readOcrCardIds: the distinct cards carrying OCR text", () => {
-  const rows = JSON.parse(readFileSync(PAGES, "utf8")) as Array<{
+  const rows = readAssetJsonSync(PAGES, { existsSync, readFileSync }) as Array<{
     card_id?: string;
     text?: string;
   }>;
@@ -204,4 +205,34 @@ test("describeRetiredEngines: pages still tagged with a retired engine are count
   assert.match(note, /1,234/);
   assert.match(note, /7/);
   assert.match(note, /legacy/i);
+});
+
+test("readCleanupStats and readOcrCardIds read a payload published as parts", async () => {
+  const { mkdtempSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "methodology-"));
+  const publish = (name: string, value: unknown) => {
+    const bytes = new TextEncoder().encode(JSON.stringify(value));
+    const cut = Math.floor(bytes.length / 2);
+    const parts = [bytes.slice(0, cut), bytes.slice(cut)];
+    const ext = name.slice(name.lastIndexOf("."));
+    parts.forEach((b, i) => writeFileSync(join(dir, `${name}.part-00${i}-0123456789ab${ext}`), b));
+    writeFileSync(join(dir, `${name}.chunks.json`), JSON.stringify({
+      name,
+      size: bytes.length,
+      parts: parts.map((b, i) => ({ path: `${name}.part-00${i}-0123456789ab${ext}`, size: b.length })),
+    }));
+  };
+  publish("pages-cleaned.json", {
+    pages: [
+      { card_id: "a", text: "x" },
+      { card_id: "b", text: "", cleanup_skipped: "content_filter" },
+    ],
+  });
+  publish("pages.json", [{ card_id: "a", text: "x" }, { card_id: "c", text: "" }]);
+  const stats = readCleanupStats([join(dir, "pages-cleaned.json")]);
+  assert.equal(stats.totalPagesInCleanupPass, 2);
+  assert.equal(stats.totalCleanedPages, 1);
+  assert.deepEqual([...readOcrCardIds([join(dir, "pages.json")])], ["a"]);
 });

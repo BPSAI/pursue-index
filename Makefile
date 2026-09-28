@@ -67,7 +67,7 @@ clean:
 # because no CI job runs the unit suite; gate-mirror then mirrors release-gate.
 # (Caught 2026-05-22 on a clean rebuild — those integration tests
 # rely on web/dist being current.)
-ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build test gate-mirror arch-check staleness
+ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build asset-budget test gate-mirror arch-check staleness
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
 	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
@@ -79,6 +79,14 @@ ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rota
 .PHONY: release-completeness
 release-completeness:
 	@$(PYTHON) scripts/check_release_completeness.py
+
+.PHONY: asset-budget
+# Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).
+# Workers refuses any single static asset over 25 MiB; every file under
+# web/public and the built web/dist must be <= 24 MiB, with chunk manifests
+# matching their parts. Runs after astro-build so web/dist is current.
+asset-budget:
+	$(PYTHON) scripts/check_asset_budget.py
 
 .PHONY: gate-mirror
 # Local mirror of CI release-gate checks: snapshot mirror coverage, finds citations,
@@ -148,6 +156,11 @@ rebuild-derivatives:
 	@$(PYTHON) scripts/build_embed_data.py $(SHRINK_ARGS)
 	@$(PYTHON) scripts/build_video_posters.py
 	@$(PYTHON) scripts/build_atlas_layout.py
+	@# Catch-all: split any web/public/data payload still over the 24 MiB
+	@# static-asset budget (the builders above already write through the
+	@# chunk writer; this covers any other generator). `asset-budget` is
+	@# what fails an oversize tree.
+	@$(PYTHON) scripts/chunk_public_assets.py
 
 .PHONY: registry-root
 registry-root:

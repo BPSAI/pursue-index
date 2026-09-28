@@ -45,6 +45,9 @@ from pathlib import Path
 from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+from pursue_index.release.chunked_asset import read_asset_json  # noqa: E402
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_PAGES = _REPO_ROOT / "web" / "public" / "data" / "pages.json"
@@ -211,7 +214,7 @@ def _already_processed(output_path: Path) -> set[str]:
     return done
 
 
-def main(argv: list[str] | None = None) -> int:
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--pages", type=Path, default=DEFAULT_PAGES)
@@ -220,7 +223,76 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=None, help="Cap on cards processed this run (for testing).")
     parser.add_argument("--card-id", default=None, help="Only process a single card_id (for testing).")
     parser.add_argument("--force", action="store_true", help="Re-process cards even if already in output.")
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
+
+
+def _load_pages_by_card(pages_path: Path) -> dict[str, list[dict[str, Any]]]:
+    """OCR rows grouped by card. Read through the shared chunk-aware reader:
+    pages.json ships as parts plus a manifest once it outgrows the deploy
+    budget."""
+    pages_by_card: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for p in read_asset_json(pages_path):
+        pages_by_card[p["card_id"]].append(p)
+    return pages_by_card
+
+
+def _proposal_record(cid: str, result: dict[str, Any], model: str) -> dict[str, Any]:
+    """The JSONL row for one drafted card, with provenance pinned."""
+    proposal = dict(result["input"])
+    proposal["card_id"] = cid  # enforce against agent rewriting
+    proposal["display_date_curator"] = f"agent-{model}"
+    proposal["display_date_approved_at"] = None
+    proposal["_proposal_metadata"] = {
+        "model_id": model,
+        "drafted_at": datetime.now(timezone.utc).isoformat(),
+        "input_tokens": result["usage"]["input_tokens"],
+        "output_tokens": result["usage"]["output_tokens"],
+        "cache_creation_input_tokens": result["usage"]["cache_creation_input_tokens"],
+        "cache_read_input_tokens": result["usage"]["cache_read_input_tokens"],
+    }
+    return proposal
+
+
+def _draft_cards(
+    client: Any,
+    args: argparse.Namespace,
+    cards: list[dict[str, Any]],
+    pages_by_card: dict[str, list[dict[str, Any]]],
+    done: set[str],
+) -> dict[str, int]:
+    """Draft every not-yet-done card, appending proposals to ``args.output``."""
+    stats = dict(processed=0, skipped=0, failed=0, tokens_in=0, tokens_cached=0, tokens_out=0)
+    for i, card in enumerate(cards, 1):
+        if args.limit and stats["processed"] >= args.limit:
+            break
+        cid = card["card_id"]
+        if cid in done:
+            stats["skipped"] += 1
+            continue
+
+        user_msg = _build_user_message(card, _ocr_for_card(pages_by_card, cid))
+        try:
+            result = _call_model(client, args.model, user_msg)
+        except Exception as exc:
+            print(f"[{i}/{len(cards)}] {cid}: FAIL {exc!r}")
+            stats["failed"] += 1
+            time.sleep(2)
+            continue
+
+        proposal = _proposal_record(cid, result, args.model)
+        with open(args.output, "a") as f:
+            f.write(json.dumps(proposal, ensure_ascii=False) + "\n")
+        stats["processed"] += 1
+        stats["tokens_in"] += result["usage"]["input_tokens"]
+        stats["tokens_cached"] += result["usage"]["cache_read_input_tokens"]
+        stats["tokens_out"] += result["usage"]["output_tokens"]
+        dt = proposal.get("display_date") or "(abstain)"
+        print(f"[{i}/{len(cards)}] {cid}: {dt}")
+    return stats
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _parse_args(argv)
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
         print("ANTHROPIC_API_KEY not set; refusing to run", file=sys.stderr)
@@ -236,11 +308,7 @@ def main(argv: list[str] | None = None) -> int:
 
     manifest = json.loads(args.manifest.read_text())
     cards = manifest["cards"]
-
-    pages = json.loads(args.pages.read_text())
-    pages_by_card: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for p in pages:
-        pages_by_card[p["card_id"]].append(p)
+    pages_by_card = _load_pages_by_card(args.pages)
 
     if args.card_id:
         cards = [c for c in cards if c["card_id"] == args.card_id]
@@ -253,59 +321,14 @@ def main(argv: list[str] | None = None) -> int:
         print(f"resuming: {len(done)} cards already processed in {args.output}")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-
-    processed = 0
-    skipped = 0
-    failed = 0
-    tokens_in = tokens_cached = tokens_out = 0
-
-    for i, card in enumerate(cards, 1):
-        if args.limit and processed >= args.limit:
-            break
-        cid = card["card_id"]
-        if cid in done:
-            skipped += 1
-            continue
-
-        ocr = _ocr_for_card(pages_by_card, cid)
-        user_msg = _build_user_message(card, ocr)
-
-        try:
-            result = _call_model(client, args.model, user_msg)
-        except Exception as exc:
-            print(f"[{i}/{len(cards)}] {cid}: FAIL {exc!r}")
-            failed += 1
-            time.sleep(2)
-            continue
-
-        proposal = dict(result["input"])
-        proposal["card_id"] = cid  # enforce against agent rewriting
-        proposal["display_date_curator"] = f"agent-{args.model}"
-        proposal["display_date_approved_at"] = None
-        proposal["_proposal_metadata"] = {
-            "model_id": args.model,
-            "drafted_at": datetime.now(timezone.utc).isoformat(),
-            "input_tokens": result["usage"]["input_tokens"],
-            "output_tokens": result["usage"]["output_tokens"],
-            "cache_creation_input_tokens": result["usage"]["cache_creation_input_tokens"],
-            "cache_read_input_tokens": result["usage"]["cache_read_input_tokens"],
-        }
-
-        with open(args.output, "a") as f:
-            f.write(json.dumps(proposal, ensure_ascii=False) + "\n")
-        processed += 1
-        tokens_in += result["usage"]["input_tokens"]
-        tokens_cached += result["usage"]["cache_read_input_tokens"]
-        tokens_out += result["usage"]["output_tokens"]
-        dt = proposal.get("display_date") or "(abstain)"
-        print(f"[{i}/{len(cards)}] {cid}: {dt}")
+    st = _draft_cards(client, args, cards, pages_by_card, done)
 
     print()
-    print(f"processed={processed} skipped={skipped} failed={failed}")
+    print(f"processed={st['processed']} skipped={st['skipped']} failed={st['failed']}")
     print(
-        f"tokens: in={tokens_in:,} cache_read={tokens_cached:,} out={tokens_out:,}"
+        f"tokens: in={st['tokens_in']:,} cache_read={st['tokens_cached']:,} out={st['tokens_out']:,}"
     )
-    return 0 if failed == 0 else 1
+    return 0 if st["failed"] == 0 else 1
 
 
 if __name__ == "__main__":

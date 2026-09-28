@@ -41,6 +41,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402
+from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset  # noqa: E402
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
@@ -297,6 +298,7 @@ def build(
     manifest_path: Path,
     out_path: Path,
     source_tag: str,
+    budget_bytes: int = BUDGET_BYTES,
 ) -> int:
     """Materialize the deployed mirror. Returns process exit code."""
     if not manifest_path.exists():
@@ -306,8 +308,10 @@ def build(
     pages, covered = _walk_sidecars(ocr_dir, titles)
     payload = {"meta": _meta_block(pages, covered, source_tag), "pages": pages}
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, ensure_ascii=False))
-    size_kb = out_path.stat().st_size / 1024
+    written = write_asset(
+        out_path, json.dumps(payload, ensure_ascii=False).encode("utf-8"), budget=budget_bytes
+    )
+    size_kb = sum(p.stat().st_size for p in written) / 1024
     print(
         f"wrote {out_path} ({size_kb:.1f} KB): "
         f"{len(covered)} cards, {len(pages)} pages [source={source_tag}]"

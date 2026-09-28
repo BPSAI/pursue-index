@@ -41,6 +41,11 @@ from pursue_index.embed.publish import (  # noqa: E402
     load_embed_eligible_keys,
     select_publish_rows,
 )
+from pursue_index.release.chunked_asset import (  # noqa: E402
+    BUDGET_BYTES,
+    asset_exists,
+    write_asset,
+)
 from pursue_index.release.shrink_guard import (  # noqa: E402
     add_shrink_args,
     committed_embed_card_ids,
@@ -55,7 +60,6 @@ from pursue_index.release.shrink_guard import (  # noqa: E402
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
-DEFAULT_WARN_BYTES = 10 * 1024 * 1024  # 10 MB — chat-interface plan threshold
 
 
 def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
@@ -101,28 +105,16 @@ def _filter_vectors(arr: np.ndarray, kept_rows: list[dict], dim: int) -> np.ndar
     return arr[indices]
 
 
-def _write_index(idx_path: Path, index: dict, kept_rows: list[dict]) -> None:
+def _write_index(
+    idx_path: Path, index: dict, kept_rows: list[dict], budget_bytes: int
+) -> None:
     payload: dict[str, object] = {
         "model_id": index["model_id"],
         "dim": int(index["dim"]),
         "n": len(kept_rows),
         "pages": _compact_pages(kept_rows),
     }
-    idx_path.write_text(json.dumps(payload))
-
-
-def _maybe_warn(size: int, threshold: int) -> None:
-    if size <= threshold:
-        return
-    size_mb = size / (1024 * 1024)
-    print(
-        f"WARNING: embeddings.bin is {size_mb:.1f} MB > "
-        f"{threshold / (1024 * 1024):.0f} MB threshold; "
-        "consider server-side retrieval (chat-interface plan).",
-        file=sys.stderr,
-    )
-    # Mirror to stdout so test capture sees it regardless of stream sampled.
-    print(f"warn: payload {size_mb:.1f} MB exceeds threshold; revisit retrieval")
+    write_asset(idx_path, json.dumps(payload).encode("utf-8"), budget=budget_bytes)
 
 
 def _guard(
@@ -160,7 +152,7 @@ def build(
     embeddings_root: Path,
     model_id: str,
     out_dir: Path,
-    warn_threshold_bytes: int = DEFAULT_WARN_BYTES,
+    budget_bytes: int = BUDGET_BYTES,
     pages_json: Path | None = None,
     *,
     manifest_path: Path | None = None,
@@ -173,7 +165,7 @@ def build(
         print(f"index.json missing in {in_dir}", file=sys.stderr)
         return 1
     pages_path = pages_json or (out_dir / "pages.json")
-    if not pages_path.exists():
+    if not asset_exists(pages_path):
         print(
             f"pages.json missing at {pages_path}; cannot check publish "
             "eligibility. Build it first (scripts/build_search_data.py).",
@@ -191,26 +183,34 @@ def build(
     if rc:
         return rc
     arr = _filter_vectors(arr, kept_rows, dim)
-    arr_f16 = arr.astype(np.float16)
+    _publish(out_dir, arr, index, kept_rows, budget_bytes)
+    return 0
 
-    out_dir.mkdir(parents=True, exist_ok=True)
+
+def _publish(
+    out_dir: Path, arr: np.ndarray, index: dict, kept_rows: list[dict], budget_bytes: int
+) -> None:
+    """Write embeddings.bin + embed_index.json through the chunked writer.
+
+    Over the deploy budget the payload ships as parts (lossless); the
+    asset-budget gate, not this builder, is what fails an oversize tree.
+    """
     bin_path = out_dir / "embeddings.bin"
-
     # Little-endian float16 — explicit dtype keeps platform endianness sane.
-    bin_path.write_bytes(arr_f16.astype("<f2").tobytes(order="C"))
-    _write_index(idx_path, index, kept_rows)
+    written = write_asset(
+        bin_path, arr.astype(np.float16).astype("<f2").tobytes(order="C"), budget=budget_bytes
+    )
+    _write_index(out_dir / "embed_index.json", index, kept_rows, budget_bytes)
 
-    size = bin_path.stat().st_size
-    size_mb = size / (1024 * 1024)
+    size_mb = sum(p.stat().st_size for p in written) / (1024 * 1024)
+    shape = "" if len(written) == 1 else f" in {len(written)} parts"
     dropped = int(index["n"]) - len(kept_rows)
     print(
-        f"wrote {bin_path} ({size_mb:.2f} MB, {arr.shape[0]} vectors × "
+        f"wrote {bin_path}{shape} ({size_mb:.2f} MB, {arr.shape[0]} vectors × "
         f"{arr.shape[1]} dims float16; dropped {dropped} superseded or "
         "ineligible rows)"
     )
-    print(f"wrote {idx_path}")
-    _maybe_warn(size, warn_threshold_bytes)
-    return 0
+    print(f"wrote {out_dir / 'embed_index.json'}")
 
 
 def main() -> int:

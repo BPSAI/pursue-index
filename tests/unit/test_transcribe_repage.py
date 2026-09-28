@@ -175,3 +175,13 @@ def test_repage_proceeds_for_a_card_nothing_cites(
     _write(out_dir)
 
     assert _repage(out_dir).exit_code == 0
+
+
+def test_citation_anchors_read_a_chunked_pages_json(tmp_path: Path) -> None:
+    from pursue_index.release.chunked_asset import write_asset
+    from pursue_index.transcribe.anchors import PAGES_JSON, citation_anchors
+
+    rows = [{"card_id": "aud1", "page": i, "text": "t" * 30} for i in range(1, 4)]
+    write_asset(tmp_path / PAGES_JSON, json.dumps(rows).encode(), budget=100)
+    assert not (tmp_path / PAGES_JSON).exists()
+    assert citation_anchors("aud1", tmp_path) == [f"{PAGES_JSON} (3 pages)"]

@@ -20,6 +20,7 @@ import snapshotsIndex from "../../../data/manifests/snapshots/index.json" with {
 import type { Manifest } from "../data/types";
 
 import { readFileSync, existsSync } from "node:fs";
+import { assetExistsSync, readAssetJsonSync } from "./chunked-asset.js";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -47,6 +48,8 @@ function trancheCount(): number {
   // data/manifests/latest.json / web/src/data/manifest.json.
   return idx.snapshots.length + 1;
 }
+
+const FS = { existsSync, readFileSync };
 
 /**
  * Read a JSON file relative to this module and count rows in a list
@@ -88,9 +91,10 @@ function countMatchingRows(
   ];
   for (const path of candidates) {
     try {
-      if (!existsSync(path)) continue;
-      const text = readFileSync(path, "utf8");
-      const parsed = JSON.parse(text);
+      // Chunk-aware: a payload over the per-asset size limit ships as
+      // parts + a manifest (see ./chunked-asset.js).
+      if (!assetExistsSync(path, FS)) continue;
+      const parsed = readAssetJsonSync(path, FS);
       const list = listGetter(parsed);
       if (!Array.isArray(list)) continue;
       let n = 0;
@@ -236,9 +240,8 @@ function countByEngine(): Record<string, number> {
   ];
   for (const path of candidates) {
     try {
-      if (!existsSync(path)) continue;
-      const text = readFileSync(path, "utf8");
-      const parsed = JSON.parse(text) as Array<{ engine?: string; text?: string }>;
+      if (!assetExistsSync(path, FS)) continue;
+      const parsed = readAssetJsonSync(path, FS) as Array<{ engine?: string; text?: string }>;
       if (!Array.isArray(parsed)) continue;
       const counts: Record<string, number> = {};
       for (const row of parsed) {

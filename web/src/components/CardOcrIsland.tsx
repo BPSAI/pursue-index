@@ -15,6 +15,7 @@ import {
   type ReaderMode,
 } from "./reader-format.ts";
 import { type CleanedPayload } from "./cleaned-pages.ts";
+import { loadAssetJson } from "../lib/chunked-asset.js";
 
 interface PageDoc {
   id: string;
@@ -232,18 +233,15 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
     cleanedFetchTriggeredRef.current = true;
     let cancelled = false;
     setCleanedStatus("loading");
-    fetch(`${base}/data/pages-cleaned.json`)
-      .then((r) => {
-        if (r.status === 404) {
-          if (!cancelled) setCleanedStatus("missing");
-          return null;
-        }
-        if (!r.ok) throw new Error(`fetch cleaned: ${r.status}`);
-        return r.json() as Promise<CleanedPayload>;
-      })
+    // Shared chunk-aware loader: pages-cleaned.json is over the per-asset
+    // size limit and ships as parts; null means neither form exists (404).
+    (loadAssetJson(`${base}/data/pages-cleaned.json`) as Promise<CleanedPayload | null>)
       .then((data) => {
         if (cancelled) return;
-        if (!data) return;
+        if (!data) {
+          setCleanedStatus("missing");
+          return;
+        }
         setCleanedPayload(data);
         setCleanedStatus("loaded");
       })
@@ -261,17 +259,12 @@ export default function CardOcrIsland({ cardId, base, assetType, assetUrl }: Pro
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
-    fetch(url)
-      .then((r) => {
-        if (r.status === 404) {
-          setStatus("missing");
-          return null;
-        }
-        if (!r.ok) throw new Error(`fetch ${url}: ${r.status}`);
-        return r.json() as Promise<PageDoc[]>;
-      })
+    (loadAssetJson(url) as Promise<PageDoc[] | null>)
       .then((data) => {
-        if (!data) return;
+        if (!data) {
+          setStatus("missing");
+          return;
+        }
         const normalized = normalizePages(data, cardId);
         setPages(normalized);
         // First page expanded by default; honor #page-N hash on mount.

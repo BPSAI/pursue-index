@@ -53,7 +53,8 @@ const verdictBundleData = loadVerdictBundle();
 // import — pages.json is ~7MB and would bloat every card page's
 // build artifact otherwise). The lookup is built once per build and
 // shared across all card pages emitted by getStaticPaths.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { readAssetJsonSync } from "../../lib/chunked-asset.js";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -67,13 +68,15 @@ function loadFirstPageByCard(): Record<string, string> {
   const here = dirname(fileURLToPath(import.meta.url));
   // web/src/pages/card/[card_id].astro → web/public/data/pages.json
   const path = resolve(here, "../../../public/data/pages.json");
-  let text: string;
+  // Chunk-aware read: pages.json ships as parts + a manifest once it is
+  // over the per-asset size limit.
+  let rows: OcrPage[] | null;
   try {
-    text = readFileSync(path, "utf8");
+    rows = readAssetJsonSync(path, { existsSync, readFileSync }) as OcrPage[] | null;
   } catch {
     return {};
   }
-  const rows = JSON.parse(text) as OcrPage[];
+  if (!rows) return {};
   const byCard: Record<string, string> = {};
   for (const row of rows) {
     if (!row || typeof row.text !== "string") continue;

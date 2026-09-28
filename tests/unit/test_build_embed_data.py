@@ -133,32 +133,48 @@ def test_build_embed_data_writes_float16_binary(
     ]
 
 
-def test_build_embed_data_logs_size_warning_when_large(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+def test_build_embed_data_publishes_over_budget_payload_as_parts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Output >10 MB should raise a visible warning so we know to revisit."""
+    """Over the deploy budget, embeddings.bin ships as parts that reassemble
+    byte-for-byte; the index keeps its URL and both carry a manifest."""
+    from pursue_index.release.chunked_asset import manifest_path, read_asset_bytes
+
     embeddings_root = tmp_path / "embeddings"
-    web_root = tmp_path / "web"
-    # Write 6 vectors of 1024 dims each = 6 * 1024 * 2 = 12 KB. We force the
-    # warning path by passing a very low threshold.
-    _write_embeddings(
-        embeddings_root / "voyage-3",
-        [[0.1] * 1024 for _ in range(6)],
-    )
-    _mirror_pages_json(
-        embeddings_root / "voyage-3", web_root / "public" / "data"
-    )
+    out_dir = tmp_path / "web" / "public" / "data"
+    # 6 vectors x 1024 dims x 2 bytes = 12 KB of float16.
+    _write_embeddings(embeddings_root / "voyage-3", [[0.1] * 1024 for _ in range(6)])
+    _mirror_pages_json(embeddings_root / "voyage-3", out_dir)
 
     mod = _load_script_module()
-    rc = mod.build(
-        embeddings_root=embeddings_root,
-        model_id="voyage-3",
-        out_dir=web_root / "public" / "data",
-        warn_threshold_bytes=1024,
-    )
-    assert rc == 0
-    captured = capsys.readouterr().out
-    assert "warn" in captured.lower() or "WARNING" in captured
+    kwargs = dict(embeddings_root=embeddings_root, model_id="voyage-3", out_dir=out_dir)
+    assert mod.build(**kwargs) == 0
+    whole = (out_dir / "embeddings.bin").read_bytes()
+    assert manifest_path(out_dir / "embeddings.bin").exists()
+    assert manifest_path(out_dir / "embed_index.json").exists()
+
+    assert mod.build(**kwargs, budget_bytes=5000) == 0
+    assert not (out_dir / "embeddings.bin").exists()
+    parts = json.loads(manifest_path(out_dir / "embeddings.bin").read_text())["parts"]
+    assert len(parts) == 3 and all(p["size"] <= 5000 for p in parts)
+    assert read_asset_bytes(out_dir / "embeddings.bin") == whole
+
+
+def test_build_embed_data_shrink_guard_reads_a_chunked_committed_index(
+    tmp_path: Path,
+) -> None:
+    """The committed embed_index.json baseline is read through the loader."""
+    embeddings_root = tmp_path / "embeddings"
+    out_dir = tmp_path / "web" / "public" / "data"
+    _write_embeddings(embeddings_root / "voyage-3", [[0.1] * 4 for _ in range(4)])
+    _mirror_pages_json(embeddings_root / "voyage-3", out_dir)
+    mod = _load_script_module()
+    kwargs = dict(embeddings_root=embeddings_root, model_id="voyage-3", out_dir=out_dir)
+    assert mod.build(**kwargs, budget_bytes=16) == 0
+    assert not (out_dir / "embed_index.json").exists()
+    # Drop card_001 from the source: the chunked baseline must still catch it.
+    _write_embeddings(embeddings_root / "voyage-3", [[0.1] * 4 for _ in range(2)])
+    assert mod.build(**kwargs, budget_bytes=16) == 1
 
 
 def _write_embeddings_with_augmentation(

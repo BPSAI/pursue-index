@@ -31,6 +31,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from pursue_index.release.chunked_asset import asset_exists, read_asset_json
+
 TEXT_REQUIRED_TYPES = frozenset({"PDF"})
 
 
@@ -68,18 +70,18 @@ def _warn_no_baseline(path: Path) -> None:
 
 def committed_pages_card_ids(path: Path) -> set[str] | None:
     """``card_id``s in a committed ``pages.json``; ``None`` (warned) if absent."""
-    if not path.exists():
+    if not asset_exists(path):
         _warn_no_baseline(path)
         return None
-    return {str(d["card_id"]) for d in json.loads(path.read_text(encoding="utf-8"))}
+    return {str(d["card_id"]) for d in read_asset_json(path)}
 
 
 def committed_embed_card_ids(path: Path) -> set[str] | None:
     """``card_id``s in a committed ``embed_index.json``; ``None`` (warned) if absent."""
-    if not path.exists():
+    if not asset_exists(path):
         _warn_no_baseline(path)
         return None
-    pages = json.loads(path.read_text(encoding="utf-8"))["pages"]
+    pages = read_asset_json(path)["pages"]
     return {str(row[0]) for row in pages}
 
 

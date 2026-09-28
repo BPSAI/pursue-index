@@ -150,3 +150,15 @@ def test_enforce_blank_reason_is_not_an_exception(tmp_path: Path) -> None:
     log = tmp_path / "audit-log.jsonl"
     assert enforce("x.py", ["m1"], [], allow_reason="  ", audit_log=log) == 1
     assert not log.exists()
+
+
+def test_committed_ids_read_chunked_payloads(tmp_path: Path) -> None:
+    from pursue_index.release.chunked_asset import write_asset
+
+    pages = tmp_path / "pages.json"
+    write_asset(pages, json.dumps([{"card_id": f"c{i}"} for i in range(20)]).encode(), budget=64)
+    assert not pages.exists()
+    assert committed_pages_card_ids(pages) == {f"c{i}" for i in range(20)}
+    idx = tmp_path / "embed_index.json"
+    write_asset(idx, json.dumps({"pages": [["a", 1], ["b", 2]] * 10}).encode(), budget=64)
+    assert committed_embed_card_ids(idx) == {"a", "b"}

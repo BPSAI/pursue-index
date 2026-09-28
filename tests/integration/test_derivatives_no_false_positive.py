@@ -12,12 +12,13 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import shutil
 import struct
 import subprocess
 from pathlib import Path
 
 import pytest
+
+from pursue_index.release.chunked_asset import read_asset_bytes, read_asset_json, write_asset
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA = REPO_ROOT / "web" / "public" / "data"
@@ -75,13 +76,13 @@ def _mock_embeddings(root: Path, embed_index: dict) -> Path:
 def committed_tree(tmp_path: Path) -> Path:
     out = tmp_path / "out"
     out.mkdir()
-    shutil.copy(DATA / "pages.json", out / "pages.json")
-    shutil.copy(DATA / "embed_index.json", out / "embed_index.json")
+    for name in ("pages.json", "embed_index.json"):
+        write_asset(out / name, read_asset_bytes(DATA / name))
     return out
 
 
 def test_search_build_passes_on_committed_tree(tmp_path: Path, committed_tree: Path) -> None:
-    pages = json.loads((DATA / "pages.json").read_text())
+    pages = read_asset_json(DATA / "pages.json")
     ocr = _mock_complete_ocr_root(tmp_path / "root", pages)
 
     rc = _script("build_search_data").build(
@@ -97,8 +98,8 @@ def test_search_build_passes_on_committed_tree(tmp_path: Path, committed_tree: P
 
 
 def test_embed_build_passes_on_committed_tree(tmp_path: Path, committed_tree: Path) -> None:
-    pages = json.loads((DATA / "pages.json").read_text())
-    embed_index = json.loads((DATA / "embed_index.json").read_text())
+    pages = read_asset_json(DATA / "pages.json")
+    embed_index = read_asset_json(DATA / "embed_index.json")
     ocr = _mock_complete_ocr_root(tmp_path / "root", pages)
     store = _mock_embeddings(tmp_path / "root", embed_index)
 

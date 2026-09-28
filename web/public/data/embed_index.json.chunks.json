@@ -1,0 +1,13 @@
+{
+  "schema": "pursue-chunked-asset/1",
+  "name": "embed_index.json",
+  "size": 383487,
+  "sha256": "9471aedadf38233ce474055289acbe355e01d2571e4072202eae18e90b0e4e46",
+  "parts": [
+    {
+      "path": "embed_index.json",
+      "size": 383487,
+      "sha256": "9471aedadf38233ce474055289acbe355e01d2571e4072202eae18e90b0e4e46"
+    }
+  ]
+}

@@ -29,6 +29,9 @@ from collections import defaultdict
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+from pursue_index.release.chunked_asset import asset_exists, read_asset_json  # noqa: E402
 
 # Files to grep. Restricted to prose-bearing surfaces so we don't
 # false-positive on legitimate references (e.g., committed CSV bytes
@@ -55,8 +58,8 @@ def _load_ground_truth() -> dict:
     m = json.loads((_REPO_ROOT / "data" / "manifests" / "latest.json").read_text())
     pages_path = _REPO_ROOT / "web" / "public" / "data" / "pages.json"
     page_count = 0
-    if pages_path.exists():
-        page_count = len(json.loads(pages_path.read_text()))
+    if asset_exists(pages_path):
+        page_count = len(read_asset_json(pages_path))
     agencies = sorted({c["agency"] for c in m["cards"] if c.get("agency")})
     return {
         "card_count": len(m["cards"]),

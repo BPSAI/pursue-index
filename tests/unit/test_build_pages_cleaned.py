@@ -547,3 +547,28 @@ def test_cleanup_skip_reasons_constant_stays_aligned_with_ts_side() -> None:
         build_pages_cleaned.CLEANUP_SKIP_REASONS
     )
     assert "empty_input" not in build_pages_cleaned.CLEANUP_SKIP_REQUIRES_TEXT_CLEAR
+
+
+def test_build_publishes_over_budget_payload_as_parts(tmp_path: Path) -> None:
+    from pursue_index.release.chunked_asset import manifest_path, read_asset_json
+
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [{"page": i, "card_id": "c1", "text_cleaned": "é" * 40,
+          "model_id": "claude-haiku-4-5-20251001", "input_sha256": "a" * 64}
+         for i in range(1, 6)],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "out" / "pages-cleaned.json"
+    rc = build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t", budget_bytes=200,
+    )
+    assert rc == 0
+    assert not out_path.exists()
+    parts = json.loads(manifest_path(out_path).read_text())["parts"]
+    assert len(parts) > 1
+    payload = read_asset_json(out_path)
+    assert [p["text"] for p in payload["pages"]] == ["é" * 40] * 5
