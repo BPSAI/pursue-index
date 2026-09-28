@@ -60,3 +60,28 @@ def test_named_asset_already_chunked_is_republished_from_its_parts(tmp_path: Pat
     mod.main(["--root", str(tmp_path), "--budget-bytes", "1000", "x.bin"])
     assert mod.main(["--root", str(tmp_path), "--budget-bytes", "1000", "x.bin"]) == 0
     assert read_asset_bytes(tmp_path / "x.bin") == b"a" * 3000
+
+
+def test_sweep_refuses_to_chunk_nested_files_and_fails(tmp_path: Path, capsys) -> None:  # type: ignore[no-untyped-def]
+    """The Worker only reassembles /data/<name>; a nested oversize file is
+    left untouched and the sweep exits non-zero instead of chunking it."""
+    nested = tmp_path / "thumbs" / "big.bin"
+    nested.parent.mkdir()
+    nested.write_bytes(b"a" * 3000)
+    (tmp_path / "top.bin").write_bytes(b"b" * 3000)
+    rc = _mod().main(["--root", str(tmp_path), "--budget-bytes", "1000"])
+    assert rc == 1
+    assert nested.read_bytes() == b"a" * 3000
+    assert not manifest_path(nested).exists()
+    assert list(nested.parent.iterdir()) == [nested]
+    assert "thumbs" in capsys.readouterr().err
+    # The top-level file is still chunked.
+    assert read_asset_bytes(tmp_path / "top.bin") == b"b" * 3000
+    assert not (tmp_path / "top.bin").exists()
+
+
+def test_named_asset_must_be_top_level(tmp_path: Path) -> None:
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "x.json").write_bytes(b"[]")
+    assert _mod().main(["--root", str(tmp_path), "sub/x.json"]) == 1
+    assert not manifest_path(tmp_path / "sub" / "x.json").exists()
