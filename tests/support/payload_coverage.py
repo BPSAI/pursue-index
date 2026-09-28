@@ -16,11 +16,12 @@ history (see ``tests/support/payload_coverage_red_demo.py``).
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable, Hashable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from pursue_index.release.chunked_asset import read_asset_json
 
 Key = Hashable
 Loader = Callable[[str], Any]
@@ -81,7 +82,8 @@ def json_loader(root: Path) -> Loader:
 
     def _load(rel: str) -> Any:
         if rel not in cache:
-            cache[rel] = json.loads((root / rel).read_text())
+            # Chunk-aware: payloads over the deploy budget ship as parts.
+            cache[rel] = read_asset_json(root / rel)
         return cache[rel]
 
     return _load

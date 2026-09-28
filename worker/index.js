@@ -13,6 +13,7 @@
 import { handleRetrieve } from "./retrieve.js";
 import { handleChat } from "./chat.js";
 import { tryHandlePdfRoute, tryHandleVideoRoute, tryHandleArchiveRoute } from "./pdf.js";
+import { serveChunkedAsset } from "./chunked_assets.js";
 import {
   loadAliasIndex,
   parsePdfPath,
@@ -195,11 +196,13 @@ const CACHE_POLICY = [
     test: /^\/data\/[^/]+\.json$/,
     cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
   },
-  // Embeddings binary blob — 8.1 MB, same policy as /data/*.json. Called
-  // out explicitly because it's the largest single static asset and worth
-  // eyeballing in cache audits.
+  // Embeddings binary blob — same policy as /data/*.json. Called out
+  // explicitly because it's the largest static payload and worth eyeballing
+  // in cache audits. Over the per-asset size limit it ships as
+  // `embeddings.bin.part-NNN.bin` parts (the JSON parts and manifests are
+  // covered by the rule above).
   {
-    test: /^\/data\/embeddings\.bin$/,
+    test: /^\/data\/embeddings\.bin(\.part-\d+\.bin)?$/,
     cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
   },
   // /data/thumbs/* and /og/* — generated images, names derived from
@@ -356,8 +359,14 @@ export default {
     // Cache-Control policy (the `_headers` file was dead weight under
     // `run_worker_first: true`; see CACHE_POLICY for the why); the
     // outer `withSecurityHeaders` then layers the security set on top.
-    return withSecurityHeaders(
-      withCacheHeaders(await env.ASSETS.fetch(request), request),
-    );
+    //
+    // A 404 under /data/ may be a payload published as parts (too large to
+    // ship whole); serveChunkedAsset answers its public URL by streaming
+    // the parts, and returns null for a genuine miss.
+    let assetResponse = await env.ASSETS.fetch(request);
+    if (assetResponse.status === 404) {
+      assetResponse = (await serveChunkedAsset(request, env)) ?? assetResponse;
+    }
+    return withSecurityHeaders(withCacheHeaders(assetResponse, request));
   },
 };

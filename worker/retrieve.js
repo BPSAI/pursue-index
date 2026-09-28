@@ -2,9 +2,13 @@
 // shipped voyage-3 embeddings.
 //
 // Architecture:
-//   /data/embeddings.bin      — float16 row-major n*dim vectors (8 MB)
+//   /data/embeddings.bin      — float16 row-major n*dim vectors
 //   /data/embed_index.json    — parallel [card_id, page] tuples + meta
 //   /data/pages.json          — full per-page text used for snippets
+//
+// Each is read through the shared chunk-aware loader
+// (web/src/lib/chunked-asset.js): a payload over the 25 MiB static-asset
+// limit ships as ordered parts plus a `<name>.chunks.json` manifest.
 //
 // The Worker stays warm long enough that we cache the parsed Float32Array
 // across requests in module-level state. Cold start re-fetches via
@@ -24,6 +28,7 @@ import {
   mergeLiteralAndSemantic,
 } from "./retrieve_literal_id.js";
 import { buildPassage } from "./retrieve_passage.js";
+import { loadAssetBytes } from "../web/src/lib/chunked-asset.js";
 
 // Re-export from the extracted helper module so callers (tests,
 // adjacent worker modules) can keep importing from `retrieve.js` —
@@ -138,11 +143,25 @@ export function _resetCaches() {
   _slugCache = null;
 }
 
+/**
+ * Load a /data payload through the shared chunk-aware loader: a payload
+ * over the static-asset size limit ships as parts plus a manifest.
+ */
+async function loadDataAsset(env, name) {
+  const bytes = await loadAssetBytes(`https://assets/data/${name}`, (u) => env.ASSETS.fetch(u));
+  if (bytes === null) throw new Error(`${name} fetch failed: 404`);
+  return bytes;
+}
+
+function decodeJson(bytes) {
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
 async function loadCorpus(env) {
   if (_corpusCache) return _corpusCache;
-  const res = await env.ASSETS.fetch("https://assets/data/embeddings.bin");
-  if (!res.ok) throw new Error(`embeddings.bin fetch failed: ${res.status}`);
-  const buf = await res.arrayBuffer();
+  const bytes = await loadDataAsset(env, "embeddings.bin");
+  // Copy out of any larger backing buffer so the float16 view is aligned.
+  const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
   const vectors = float16ToFloat32(buf);
   // We don't know n/dim from the buffer alone; the index will fix that.
   _corpusCache = { vectors, n: 0, dim: 0 };
@@ -151,18 +170,14 @@ async function loadCorpus(env) {
 
 async function loadIndex(env) {
   if (_indexCache) return _indexCache;
-  const res = await env.ASSETS.fetch("https://assets/data/embed_index.json");
-  if (!res.ok) throw new Error(`embed_index.json fetch failed: ${res.status}`);
-  const meta = await res.json();
+  const meta = decodeJson(await loadDataAsset(env, "embed_index.json"));
   _indexCache = { pages: meta.pages, dim: meta.dim, n: meta.n };
   return _indexCache;
 }
 
 async function loadPages(env) {
   if (_pagesCache) return _pagesCache;
-  const res = await env.ASSETS.fetch("https://assets/data/pages.json");
-  if (!res.ok) throw new Error(`pages.json fetch failed: ${res.status}`);
-  const arr = await res.json();
+  const arr = decodeJson(await loadDataAsset(env, "pages.json"));
   const map = new Map();
   for (const p of arr) {
     map.set(`${p.card_id}-p${p.page}`, p);

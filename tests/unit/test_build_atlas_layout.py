@@ -565,3 +565,23 @@ def test_build_fails_when_pages_json_missing(
     assert rc == 1
     assert "pages.json" in capsys.readouterr().err
     assert not (out_dir / "atlas-layout.json").exists()
+
+
+def test_build_from_published_payload_reads_chunked_embeddings(tmp_path: Path) -> None:
+    """A published ``embeddings.bin`` split into parts reads back losslessly."""
+    from pursue_index.release.chunked_asset import write_asset
+
+    web_data = tmp_path / "web" / "public" / "data"
+    n, dim = 12, 4
+    vecs = np.random.default_rng(0).standard_normal((n, dim)).astype(np.float16)
+    write_asset(web_data / "embeddings.bin", vecs.tobytes(order="C"), budget=40)
+    assert not (web_data / "embeddings.bin").exists()
+    pages = [[f"card_{i // 2:03d}", (i % 2) + 1] for i in range(n)]
+    write_asset(
+        web_data / "embed_index.json",
+        json.dumps({"model_id": "voyage-3", "dim": dim, "n": n, "pages": pages}).encode(),
+        budget=64,
+    )
+    arr, index = _load_script_module()._load_published_vectors(web_data)
+    assert index["n"] == n
+    assert np.array_equal(arr, vecs.astype(np.float32))

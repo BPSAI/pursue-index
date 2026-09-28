@@ -1,0 +1,16 @@
+{
+  "schema": "pursue-chunked-asset/1",
+  "name": "pages-cleaned.json",
+  "size": 26579146,
+  "sha256": "0634af3ceabce980a85d92b9e4554acd2049d3d381ff4d59c337a0967cbab63a",
+  "parts": [
+    {
+      "path": "pages-cleaned.json.part-000.json",
+      "size": 13289573
+    },
+    {
+      "path": "pages-cleaned.json.part-001.json",
+      "size": 13289573
+    }
+  ]
+}

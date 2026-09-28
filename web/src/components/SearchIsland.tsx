@@ -25,6 +25,7 @@ import {
   hasActiveFilters,
 } from "./search-result-chrome.tsx";
 import type { CardMetadata } from "../data/types.ts";
+import { loadAssetJson } from "../lib/chunked-asset.js";
 
 // URL keys this island owns — anything else (utm_*, fbclid, ref, gclid…)
 // must survive the writer effect untouched. PR #5 review F1.
@@ -68,17 +69,13 @@ export default function SearchIsland({ base, examples, cards, enableFilters }: P
 
   useEffect(() => {
     const url = `${base}/data/pages.json`;
-    fetch(url)
-      .then((r) => {
-        if (r.status === 404) {
-          setStatus("missing");
-          return null;
-        }
-        if (!r.ok) throw new Error(`fetch ${url}: ${r.status}`);
-        return r.json() as Promise<PageDoc[]>;
-      })
+    // Shared chunk-aware loader (parts + manifest past the per-asset size
+    // limit); null means neither form exists (404).
+    (loadAssetJson(url) as Promise<PageDoc[] | null>)
       .then((d) => {
-        if (d) {
+        if (!d) {
+          setStatus("missing");
+        } else {
           // Filter out empty-text rows (cleanup-skipped pages preserved
           // in pages.json with `text: ""` for provenance, but not
           // searchable). This aligns the rendered count with the

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { loadAssetJson } from "../lib/chunked-asset.js";
 import {
   AGENCY_ORDER,
   DIM_OPACITY,
@@ -104,9 +105,11 @@ export default function AtlasIsland({ base }: Props) {
         if (!r.ok) throw new Error(`atlas-layout: ${r.status}`);
         return (await r.json()) as Layout;
       }),
-      fetch(`${base}/data/pages.json`).then(async (r) => {
-        if (!r.ok) throw new Error(`pages: ${r.status}`);
-        return (await r.json()) as PageDoc[];
+      // Shared chunk-aware loader (parts + manifest past the per-asset
+      // size limit); null means neither form exists.
+      loadAssetJson(`${base}/data/pages.json`).then((d) => {
+        if (d === null) throw new Error("pages: 404");
+        return d as PageDoc[];
       }),
     ])
       .then(([l, d]) => {

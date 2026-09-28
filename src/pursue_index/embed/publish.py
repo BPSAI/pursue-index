@@ -20,6 +20,8 @@ from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from typing import Any, TypeVar
 
+from pursue_index.release.chunked_asset import read_asset_json
+
 RowT = TypeVar("RowT")
 
 PageKey = tuple[str, int]
@@ -57,7 +59,7 @@ def load_embed_eligible_keys(pages_json_path: Path) -> set[PageKey]:
     Pages with no readable text are embed-ineligible: they carry no retrievable
     content and a citation built from one would have an empty snippet.
     """
-    entries = json.loads(pages_json_path.read_text())
+    entries = read_asset_json(pages_json_path)
     return {
         (str(e["card_id"]), int(e["page"]))
         for e in entries

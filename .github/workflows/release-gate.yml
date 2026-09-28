@@ -60,6 +60,8 @@ on:
       - "web/public/data/video-posters/index.json"
       - "web/public/data/thumbs/index.json"
       - "web/public/data/pages.json"
+      - "web/public/data/pages.json.*"
+      - "web/public/data/embed_index.json.*"
       - "tests/support/payload_coverage.py"
       - "tests/support/payload_specs.py"
       - "tests/integration/test_derived_payload_coverage.py"
@@ -110,6 +112,17 @@ on:
       - "web/src/pages/altered.astro"
       - "web/src/pages/altered/**"
       - "web/src/pages/card/*.astro"
+      # Static-asset size budget. Cloudflare Workers rejects the whole
+      # deploy when any single static asset exceeds 25 MiB, so every file
+      # that ships (anything under web/public) is gated at 24 MiB; payloads
+      # over it are published as parts + a `<name>.chunks.json` manifest.
+      # The chunk writer/loader are listed so a change to the format fires
+      # the gate too.
+      - "web/public/**"
+      - "scripts/check_asset_budget.py"
+      - "scripts/chunk_public_assets.py"
+      - "src/pursue_index/release/chunked_asset.py"
+      - "web/src/lib/chunked-asset.js"
       # Nayru PR #79 round-5 P2 #4: a PR that edits the gate itself
       # should fire the gate. Otherwise editing this file is the one
       # untestable change in the repo.
@@ -172,6 +185,14 @@ jobs:
         # NAS mount and no network, and runs here with the cheap gates
         # rather than after the Astro build.
         run: pytest tests/integration/test_derived_payload_coverage.py -v
+
+      - name: 4d — Static asset size budget (web/public)
+        # Fail-closed: Workers refuses any static asset over 25 MiB and the
+        # deploy fails on the first one. Every file under web/public must
+        # be <= 24 MiB (1 MiB margin), and every *.chunks.json manifest must
+        # match its parts. Fix an oversize payload with
+        # `python scripts/chunk_public_assets.py` (lossless split).
+        run: python scripts/check_asset_budget.py web/public
 
       - name: 5 — Citation resolution (every <Cite> in /finds)
         # Existing test; included here for the single-status-check
@@ -243,3 +264,9 @@ jobs:
 
       - name: 6b — Alias destinations (every alias terminal → dist page)
         run: pytest tests/integration/test_alias_destinations.py -v
+
+      - name: 6c — Static asset size budget (web/dist)
+        # Same gate over the built tree wrangler uploads, so an asset the
+        # build itself generates (not only what is committed under
+        # web/public) cannot slip past the 24 MiB budget.
+        run: python scripts/check_asset_budget.py web/dist

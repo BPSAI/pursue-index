@@ -125,3 +125,13 @@ def test_failure_message_renders_tuple_keys_and_stale_rows() -> None:
 
     assert "c1:1" in message  # missing (card_id, page)
     assert "STALE in payload, no longer eligible (1): c1:2" in message
+
+
+def test_json_loader_reads_a_payload_published_as_parts(tmp_path: Path) -> None:
+    from pursue_index.release.chunked_asset import write_asset
+
+    rel = "web/public/data/pages-cleaned.json"
+    payload = {"pages": [{"card_id": f"c{i}", "text": "x" * 20} for i in range(10)]}
+    write_asset(tmp_path / rel, json.dumps(payload).encode(), budget=100)
+    assert not (tmp_path / rel).exists()
+    assert json_loader(tmp_path)(rel) == payload

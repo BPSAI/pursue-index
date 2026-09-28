@@ -228,3 +228,56 @@ describe("handleRetrieve", () => {
     assert.equal(r.status, 400);
   });
 });
+
+describe("chunked corpus payloads", () => {
+  test("embeddings.bin and pages.json published as parts load identically", async () => {
+    const rows = [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ];
+    const indexPages = [
+      ["card-a", 1],
+      ["card-b", 2],
+      ["card-c", 3],
+    ];
+    const pagesArr = [
+      { card_id: "card-a", page: 1, title: "A", text: "Apollo report" },
+      { card_id: "card-b", page: 2, title: "B", text: "Roswell file" },
+      { card_id: "card-c", page: 3, title: "C", text: "Other" },
+    ];
+    const corpus = new Uint8Array(floatsToFloat16Buffer(rows));
+    const pagesBytes = new TextEncoder().encode(JSON.stringify(pagesArr));
+    const files = new Map();
+    function publish(name, bytes, cut) {
+      const parts = [bytes.slice(0, cut), bytes.slice(cut)];
+      parts.forEach((b, i) => files.set(`${name}.part-00${i}${name.slice(name.lastIndexOf("."))}`, b));
+      files.set(`${name}.chunks.json`, JSON.stringify({
+        name,
+        size: bytes.length,
+        parts: parts.map((b, i) => ({
+          path: `${name}.part-00${i}${name.slice(name.lastIndexOf("."))}`,
+          size: b.length,
+        })),
+      }));
+    }
+    publish("embeddings.bin", corpus, 7);
+    publish("pages.json", pagesBytes, 33);
+    files.set("embed_index.json", JSON.stringify({ model_id: "voyage-3", dim: 3, n: 3, pages: indexPages }));
+    const env = {
+      ASSETS: {
+        fetch: async (u) => {
+          const name = String(u).split("/data/")[1];
+          return files.has(name)
+            ? new Response(files.get(name), { status: 200 })
+            : new Response("not found", { status: 404 });
+        },
+      },
+      VOYAGE_API_KEY: "test",
+    };
+    const out = await retrievePassages("Roswell", 8, env, async () => new Float32Array([0, 1, 0]));
+    assert.equal(out.length, 1);
+    assert.equal(out[0].card_id, "card-b");
+    assert.ok(out[0].snippet.includes("Roswell"));
+  });
+});

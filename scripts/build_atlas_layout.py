@@ -40,6 +40,11 @@ from pursue_index.embed.publish import (  # noqa: E402
     load_embed_eligible_keys,
     select_publish_rows,
 )
+from pursue_index.release.chunked_asset import (  # noqa: E402
+    asset_exists,
+    read_asset_bytes,
+    read_asset_json,
+)
 
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
@@ -54,9 +59,9 @@ def _load_published_vectors(web_data_dir: Path) -> tuple[np.ndarray, dict[str, A
     """
     idx_path = web_data_dir / "embed_index.json"
     bin_path = web_data_dir / "embeddings.bin"
-    index = json.loads(idx_path.read_text())
+    index = read_asset_json(idx_path)
     dim = int(index["dim"])
-    raw = bin_path.read_bytes()
+    raw = read_asset_bytes(bin_path)
     if len(raw) % (dim * 2) != 0:
         raise RuntimeError(
             f"embeddings.bin size {len(raw)} not a multiple of dim*2 ({dim * 2})"
@@ -302,7 +307,7 @@ def build(
     publish-eligibility gate and defaults to the source directory's copy.
     """
     pages_path = pages_json or ((from_published or out_dir) / "pages.json")
-    if not pages_path.exists():
+    if not asset_exists(pages_path):
         print(
             f"pages.json missing at {pages_path}; cannot check publish "
             "eligibility. Build it first (scripts/build_search_data.py).",

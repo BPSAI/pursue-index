@@ -182,3 +182,24 @@ def test_image_only_page_blank_without_obs_index(tmp_path: Path) -> None:
     assert rc == 0
     docs = json.loads(out_path.read_text())
     assert docs[0]["text"] == ""
+
+
+def test_build_publishes_through_the_chunked_writer(tmp_path: Path) -> None:
+    """pages.json keeps its URL within budget and always carries a manifest;
+    over budget it ships as parts that reassemble to the same payload."""
+    from pursue_index.release.chunked_asset import manifest_path, read_asset_json
+
+    ocr_dir = tmp_path / "ocr"
+    _stage_card(ocr_dir, _CARD, [(1, "OCR text page one." * 20)])
+    _stage_manifest(tmp_path / "manifests", [{"card_id": _CARD, "title": "T",
+                                              "asset_url": _URL}])
+    mod = _load_script_module()
+    out_path = tmp_path / "pages.json"
+    kwargs = dict(ocr_dir=ocr_dir, manifest_path=tmp_path / "manifests" / "latest.json",
+                  out_path=out_path)
+    assert mod.build(**kwargs) == 0
+    assert manifest_path(out_path).exists()
+    whole = read_asset_json(out_path)
+    assert mod.build(**kwargs, budget_bytes=128) == 0
+    assert not out_path.exists()
+    assert read_asset_json(out_path) == whole

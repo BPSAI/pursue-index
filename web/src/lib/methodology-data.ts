@@ -13,6 +13,11 @@
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { assetExistsSync, readAssetJsonSync } from "./chunked-asset.js";
+
+// Corpus payloads over the per-asset size limit ship as parts + a manifest;
+// these readers go through the shared chunk-aware loader.
+const FS = { existsSync, readFileSync };
 
 /** One reason the cleanup pass skipped a page, with how many pages it covers. */
 export interface SkipCause {
@@ -48,7 +53,7 @@ interface CleanedPage {
 
 function firstExisting(candidates: string[], what: string): string {
   for (const path of candidates) {
-    if (existsSync(path)) return path;
+    if (assetExistsSync(path, FS)) return path;
   }
   throw new Error(
     `${what} not found — looked in: ${candidates.join(", ")}. ` +
@@ -58,7 +63,7 @@ function firstExisting(candidates: string[], what: string): string {
 
 function readJson<T>(path: string, what: string): T {
   try {
-    return JSON.parse(readFileSync(path, "utf8")) as T;
+    return readAssetJsonSync(path, FS) as T;
   } catch (err) {
     throw new Error(`${what} could not be read from ${path}: ${String(err)}`);
   }

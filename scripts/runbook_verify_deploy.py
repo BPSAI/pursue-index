@@ -31,6 +31,9 @@ import urllib.request
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+from pursue_index.release.chunked_asset import asset_exists, read_asset_json  # noqa: E402
 DEFAULT_BASE_URL = "https://pursueindex.com"
 DEFAULT_MAX_WAIT = 600  # 10 minutes
 POLL_INTERVAL = 15
@@ -77,11 +80,11 @@ def _expected_page_count() -> int:
     `release.ts` had on 2026-05-22 where countMatchingRows returned
     the literal 4161 fallback through every tranche-2 deploy)."""
     p = _REPO_ROOT / "web" / "public" / "data" / "pages.json"
-    if not p.exists():
+    if not asset_exists(p):
         return 0
     try:
-        rows = json.loads(p.read_text())
-    except (json.JSONDecodeError, OSError):
+        rows = read_asset_json(p)
+    except (json.JSONDecodeError, OSError, ValueError):
         return 0
     if not isinstance(rows, list):
         return 0
