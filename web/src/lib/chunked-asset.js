@@ -63,6 +63,13 @@ export function parseManifest(raw, where) {
  * @param {Uint8Array[]} parts
  */
 export function assembleParts(m, parts) {
+  if (parts.length === 1 && m.parts.length === 1) {
+    // A whole-file asset: hand back the part itself rather than a copy.
+    if (parts[0].length !== m.size || m.parts[0].size !== m.size) {
+      throw new Error(`${m.name}: size ${parts[0].length}, manifest says ${m.size}`);
+    }
+    return parts[0];
+  }
   const out = new Uint8Array(m.size);
   let offset = 0;
   m.parts.forEach((p, i) => {
@@ -108,6 +115,85 @@ export async function loadAssetBytes(url, fetchFn = (u) => fetch(u)) {
     }),
   );
   return assembleParts(m, parts);
+}
+
+/** @typedef {{ update: (chunk: Uint8Array) => void | Promise<void>, digestHex: () => Promise<string> }} Digest */
+
+/**
+ * Streaming SHA-256 where the runtime has one: `crypto.DigestStream` in
+ * Workers. Elsewhere (browsers, Node) returns null and callers fall back to
+ * size checks; tests inject their own digest.
+ * @returns {Digest | null}
+ */
+export function streamingSha256() {
+  const DigestStream = /** @type {any} */ (globalThis.crypto)?.DigestStream;
+  if (typeof DigestStream !== "function") return null;
+  const stream = new DigestStream("SHA-256");
+  const writer = stream.getWriter();
+  return {
+    update: (chunk) => writer.write(chunk),
+    digestHex: async () => {
+      await writer.close();
+      const bytes = new Uint8Array(await stream.digest);
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    },
+  };
+}
+
+/**
+ * Stream the asset at `url` to `onChunk` in byte order, one network chunk at
+ * a time: parts are fetched sequentially and read from their response
+ * streams, so neither a whole part nor the assembled payload is ever held.
+ * Checks each part's size against the manifest, the total, and (when the
+ * manifest carries one and a streaming digest exists) the whole-file
+ * sha256. Resolves `{ size }`, or `null` when neither a manifest nor the
+ * plain file exists.
+ * @param {string} url
+ * @param {FetchLike} fetchFn
+ * @param {(chunk: Uint8Array) => void} onChunk
+ * @param {{ createDigest?: () => Digest | null }} [opts]
+ */
+export async function forEachAssetChunk(url, fetchFn, onChunk, opts = {}) {
+  const { createDigest = streamingSha256 } = opts;
+  const mres = await fetchFn(manifestUrl(url));
+  /** @type {Array<{ url: string, name: string, size: number | null }>} */
+  let sources = [{ url, name: url.slice(url.lastIndexOf("/") + 1), size: null }];
+  let manifest = null;
+  if (mres.status !== 404) {
+    if (!mres.ok) throw new Error(`fetch ${manifestUrl(url)}: ${mres.status}`);
+    manifest = parseManifest(await mres.json(), manifestUrl(url));
+    sources = manifest.parts.map((p) => ({ url: sibling(url, p.path), name: p.path, size: p.size }));
+  }
+  const digest = manifest?.sha256 ? createDigest() : null;
+  let total = 0;
+  for (const src of sources) {
+    const res = await fetchFn(src.url);
+    if (!manifest && res.status === 404) return null;
+    if (!res.ok || !res.body) throw new Error(`fetch ${src.url}: ${res.status}`);
+    const reader = res.body.getReader();
+    let got = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      got += value.length;
+      if (src.size !== null && got > src.size) break;
+      if (digest) await digest.update(value);
+      onChunk(value);
+    }
+    if (src.size !== null && got !== src.size) {
+      await reader.cancel().catch(() => {});
+      const streamed = got > src.size ? `more than ${src.size}` : String(got);
+      throw new Error(`${src.name}: streamed size ${streamed} bytes, manifest says ${src.size}`);
+    }
+    total += got;
+  }
+  if (manifest && total !== manifest.size) {
+    throw new Error(`${manifest.name}: parts total size ${total}, manifest says ${manifest.size}`);
+  }
+  if (digest && manifest && (await digest.digestHex()) !== manifest.sha256) {
+    throw new Error(`${manifest.name}: sha256 of the streamed bytes does not match the manifest`);
+  }
+  return { size: total };
 }
 
 /**

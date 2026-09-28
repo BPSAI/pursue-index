@@ -140,3 +140,112 @@ test("readAssetSync reassembles parts from disk and falls back to the plain file
   assert.equal(readAssetSync(join(dir, "absent.json"), fs), null);
   assert.equal(assetExistsSync(join(dir, "absent.json"), fs), false);
 });
+
+// --- streaming (forEachAssetChunk) --------------------------------------
+
+import { forEachAssetChunk } from "./chunked-asset.js";
+
+/** A Response-like part whose whole-body readers throw: callers must stream. */
+function streamingPart(bytes: Uint8Array, chunk: number, log: string[], name: string) {
+  let at = 0;
+  const body = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (at >= bytes.length) {
+        log.push(`end ${name}`);
+        controller.close();
+        return;
+      }
+      controller.enqueue(bytes.slice(at, at + chunk));
+      at += chunk;
+    },
+  });
+  const refuse = () => {
+    throw new Error(`whole-body read of ${name}`);
+  };
+  return { ok: true, status: 200, body, arrayBuffer: refuse, json: refuse, text: refuse, bytes: refuse };
+}
+
+test("forEachAssetChunk streams parts in order, one at a time, never buffering a part", async () => {
+  const whole = Uint8Array.from({ length: 23 }, (_, i) => (i * 37) & 0xff);
+  const parts: Array<[string, Uint8Array]> = [
+    ["x.bin.part-000.bin", whole.slice(0, 9)],
+    ["x.bin.part-001.bin", whole.slice(9, 18)],
+    ["x.bin.part-002.bin", whole.slice(18)],
+  ];
+  const log: string[] = [];
+  const fn = async (url: string) => {
+    const name = url.slice(url.lastIndexOf("/") + 1);
+    log.push(`fetch ${name}`);
+    if (name === "x.bin.chunks.json") return new Response(JSON.stringify(manifestFor("x.bin", parts)));
+    const part = parts.find(([p]) => p === name)!;
+    return streamingPart(part[1], 4, log, name) as unknown as Response;
+  };
+  const seen: number[] = [];
+  const res = await forEachAssetChunk("/data/x.bin", fn, (c: Uint8Array) => {
+    assert.ok(c.length <= 4);
+    seen.push(...c);
+  });
+  assert.deepEqual(res, { size: 23 });
+  assert.deepEqual(seen, Array.from(whole));
+  assert.deepEqual(log, [
+    "fetch x.bin.chunks.json",
+    "fetch x.bin.part-000.bin", "end x.bin.part-000.bin",
+    "fetch x.bin.part-001.bin", "end x.bin.part-001.bin",
+    "fetch x.bin.part-002.bin", "end x.bin.part-002.bin",
+  ]);
+});
+
+test("forEachAssetChunk rejects a part whose streamed size differs from the manifest", async () => {
+  const a = new Uint8Array([1, 2, 3]);
+  const m = manifestFor("x.bin", [["x.bin.part-000.bin", a]]);
+  const fn = async (url: string) =>
+    url.endsWith(".chunks.json")
+      ? new Response(JSON.stringify(m))
+      : new Response(new Uint8Array([1, 2, 3, 4]));
+  await assert.rejects(forEachAssetChunk("/data/x.bin", fn, () => {}), /size/);
+});
+
+test("forEachAssetChunk verifies the manifest sha256 with a streaming digest", async () => {
+  const { createHash } = await import("node:crypto");
+  const nodeDigest = () => {
+    const h = createHash("sha256");
+    return { update: (c: Uint8Array) => void h.update(c), digestHex: async () => h.digest("hex") };
+  };
+  const body = new Uint8Array([5, 6, 7, 8]);
+  const good = { ...manifestFor("x.bin", [["x.bin", body]]), sha256: createHash("sha256").update(body).digest("hex") };
+  const bad = { ...good, sha256: "0".repeat(64) };
+  const serve = (m: object) => async (url: string) =>
+    url.endsWith(".chunks.json") ? new Response(JSON.stringify(m)) : new Response(body);
+  assert.deepEqual(
+    await forEachAssetChunk("/data/x.bin", serve(good), () => {}, { createDigest: nodeDigest }),
+    { size: 4 },
+  );
+  await assert.rejects(
+    forEachAssetChunk("/data/x.bin", serve(bad), () => {}, { createDigest: nodeDigest }),
+    /sha256/,
+  );
+});
+
+test("forEachAssetChunk streams a plain file without a manifest, and reports a miss as null", async () => {
+  const fn = async (url: string) =>
+    url === "/data/x.bin" ? new Response(new Uint8Array([9, 9])) : new Response("nf", { status: 404 });
+  const got: number[] = [];
+  assert.deepEqual(await forEachAssetChunk("/data/x.bin", fn, (c: Uint8Array) => got.push(...c)), { size: 2 });
+  assert.deepEqual(got, [9, 9]);
+  assert.equal(await forEachAssetChunk("/data/y.bin", fn, () => {}), null);
+});
+
+test("a single-part asset is returned without a reassembly copy", async () => {
+  const body = new Uint8Array([1, 2, 3]);
+  const m = manifestFor("p.json", [["p.json", body]]);
+  let partBytes: Uint8Array | null = null;
+  const fn = async (url: string) => {
+    if (url.endsWith(".chunks.json")) return new Response(JSON.stringify(m));
+    const res = new Response(body);
+    const buf = new Uint8Array(await res.arrayBuffer());
+    partBytes = buf;
+    return { ok: true, status: 200, arrayBuffer: async () => buf.buffer } as unknown as Response;
+  };
+  const out = await loadAssetBytes("/data/p.json", fn);
+  assert.equal(out!.buffer, partBytes!.buffer);
+});

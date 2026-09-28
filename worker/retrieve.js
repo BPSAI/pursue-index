@@ -28,7 +28,7 @@ import {
   mergeLiteralAndSemantic,
 } from "./retrieve_literal_id.js";
 import { buildPassage } from "./retrieve_passage.js";
-import { loadAssetBytes } from "../web/src/lib/chunked-asset.js";
+import { forEachAssetChunk, loadAssetBytes } from "../web/src/lib/chunked-asset.js";
 
 // Re-export from the extracted helper module so callers (tests,
 // adjacent worker modules) can keep importing from `retrieve.js` —
@@ -111,6 +111,48 @@ export function float16ToFloat32(buf) {
   return out;
 }
 
+/**
+ * Stream a little-endian float16 payload straight into one preallocated
+ * Float32Array of `floatCount` values. Parts are read sequentially from
+ * their response streams (see forEachAssetChunk), so the isolate never holds
+ * the raw bytes of more than one network chunk — no part buffer, no
+ * assembled payload, no aligned copy. A value split across a chunk or part
+ * boundary is carried as one pending byte. Resolves null when the asset does
+ * not exist; throws when its size is not exactly `floatCount * 2` bytes.
+ */
+export async function decodeFloat16Asset(url, fetchFn, floatCount, opts) {
+  const out = new Float32Array(floatCount);
+  const name = url.slice(url.lastIndexOf("/") + 1);
+  const overflow = () =>
+    new Error(`${name} holds more than ${floatCount * 2} bytes; the index expects exactly that`);
+  let i = 0;
+  let carry = -1;
+  const res = await forEachAssetChunk(
+    url,
+    fetchFn,
+    (chunk) => {
+      let j = 0;
+      if (carry >= 0 && chunk.length > 0) {
+        if (i >= floatCount) throw overflow();
+        out[i++] = halfToFloat(carry | (chunk[0] << 8));
+        carry = -1;
+        j = 1;
+      }
+      for (; j + 1 < chunk.length; j += 2) {
+        if (i >= floatCount) throw overflow();
+        out[i++] = halfToFloat(chunk[j] | (chunk[j + 1] << 8));
+      }
+      if (j < chunk.length) carry = chunk[j];
+    },
+    opts,
+  );
+  if (res === null) return null;
+  if (carry >= 0 || i !== floatCount) {
+    throw new Error(`${name} holds ${res.size} bytes; the index expects ${floatCount * 2}`);
+  }
+  return out;
+}
+
 function halfToFloat(h) {
   const sign = (h & 0x8000) >> 15;
   const exp = (h & 0x7c00) >> 10;
@@ -157,14 +199,17 @@ function decodeJson(bytes) {
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
-async function loadCorpus(env) {
+// Sized from the index, decoded part by part: the float16 bytes are never
+// held whole alongside the Float32Array (isolates have 128 MB).
+async function loadCorpus(env, index) {
   if (_corpusCache) return _corpusCache;
-  const bytes = await loadDataAsset(env, "embeddings.bin");
-  // Copy out of any larger backing buffer so the float16 view is aligned.
-  const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
-  const vectors = float16ToFloat32(buf);
-  // We don't know n/dim from the buffer alone; the index will fix that.
-  _corpusCache = { vectors, n: 0, dim: 0 };
+  const vectors = await decodeFloat16Asset(
+    "https://assets/data/embeddings.bin",
+    (u) => env.ASSETS.fetch(u),
+    index.n * index.dim,
+  );
+  if (vectors === null) throw new Error("embeddings.bin fetch failed: 404");
+  _corpusCache = { vectors, n: index.n, dim: index.dim };
   return _corpusCache;
 }
 
@@ -177,7 +222,12 @@ async function loadIndex(env) {
 
 async function loadPages(env) {
   if (_pagesCache) return _pagesCache;
-  const arr = decodeJson(await loadDataAsset(env, "pages.json"));
+  // Drop each intermediate as soon as the next exists: bytes, then text.
+  let bytes = await loadDataAsset(env, "pages.json");
+  let text = new TextDecoder().decode(bytes);
+  bytes = null;
+  const arr = JSON.parse(text);
+  text = null;
   const map = new Map();
   for (const p of arr) {
     map.set(`${p.card_id}-p${p.page}`, p);
@@ -269,15 +319,19 @@ export function makeSnippet(text, query, maxChars = SNIPPET_CHARS) {
  */
 export async function retrievePassages(query, k, env, embedFn) {
   const useEmbed = embedFn || ((q) => embedQuery(q, env.VOYAGE_API_KEY));
-  const [corpus, index, pages, queryVec] = await Promise.all([
-    loadCorpus(env),
-    loadIndex(env),
-    loadPages(env),
-    useEmbed(query),
-  ]);
-  // Patch corpus dims now that we know them.
-  corpus.dim = index.dim;
-  corpus.n = index.n;
+  // Corpus payloads load strictly one after another, never concurrently;
+  // only the Voyage call overlaps them. pages.json goes before the vectors:
+  // its parse is the largest transient (UTF-8 bytes -> UTF-16 string ->
+  // objects), and running it before the 4-bytes-per-value Float32Array
+  // exists keeps the cold-isolate peak at roughly max(parse transient,
+  // parsed pages + vectors) instead of their sum.
+  const loadAll = async () => {
+    const index = await loadIndex(env);
+    const pages = await loadPages(env);
+    const corpus = await loadCorpus(env, index);
+    return { index, corpus, pages };
+  };
+  const [{ index, corpus, pages }, queryVec] = await Promise.all([loadAll(), useEmbed(query)]);
   if (queryVec.length !== index.dim) {
     throw new Error(
       `query vector dim ${queryVec.length} != index dim ${index.dim}`,

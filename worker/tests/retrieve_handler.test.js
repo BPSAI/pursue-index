@@ -281,3 +281,127 @@ describe("chunked corpus payloads", () => {
     assert.ok(out[0].snippet.includes("Roswell"));
   });
 });
+
+// ---------------------------------------------------------------------------
+// Embedding load memory profile. A cold isolate must not hold the fetched
+// parts, an assembled copy and the Float32Array at once (Workers isolates
+// have 128 MB): vectors are decoded part by part, straight from each
+// response stream, into one preallocated Float32Array.
+// ---------------------------------------------------------------------------
+
+import { decodeFloat16Asset, float16ToFloat32 } from "../retrieve.js";
+
+function refusingStream(bytes, chunk, log, name) {
+  let at = 0;
+  const body = new ReadableStream({
+    pull(controller) {
+      if (at >= bytes.length) {
+        log.push(`end ${name}`);
+        controller.close();
+        return;
+      }
+      controller.enqueue(bytes.slice(at, at + chunk));
+      at += chunk;
+    },
+  });
+  const refuse = () => {
+    throw new Error(`whole-body read of ${name}`);
+  };
+  return { ok: true, status: 200, body, arrayBuffer: refuse, json: refuse, text: refuse, bytes: refuse };
+}
+
+function chunkedAssets(name, bytes, cuts, { chunk = 3, log = [] } = {}) {
+  const ext = name.slice(name.lastIndexOf("."));
+  const edges = [0, ...cuts, bytes.length];
+  const parts = edges.slice(0, -1).map((s, i) => [`${name}.part-00${i}${ext}`, bytes.slice(s, edges[i + 1])]);
+  const manifest = JSON.stringify({
+    name,
+    size: bytes.length,
+    parts: parts.map(([path, b]) => ({ path, size: b.length })),
+  });
+  return { parts, manifest, chunk, log };
+}
+
+describe("decodeFloat16Asset", () => {
+  // Every float16 bit pattern class: zeros, subnormals, normals, inf, NaN.
+  const u16 = Uint16Array.from({ length: 64 }, (_, i) => (i * 2654435761) >>> 16);
+  u16.set([0x0000, 0x8000, 0x0001, 0x03ff, 0x3c00, 0xbc00, 0x7c00, 0xfc00, 0x7e00], 0);
+  const whole = new Uint8Array(u16.buffer.slice(0));
+
+  test("decodes parts that split mid-value to exactly the single-file decode", async () => {
+    const log = [];
+    // Odd part sizes and 3-byte stream chunks: every float straddles a boundary somewhere.
+    const a = chunkedAssets("embeddings.bin", whole, [37, 81], { log });
+    const fetchFn = async (url) => {
+      const name = url.slice(url.lastIndexOf("/") + 1);
+      log.push(`fetch ${name}`);
+      if (name === "embeddings.bin.chunks.json") return new Response(a.manifest);
+      const part = a.parts.find(([p]) => p === name);
+      return refusingStream(part[1], a.chunk, log, name);
+    };
+    const out = await decodeFloat16Asset("https://assets/data/embeddings.bin", fetchFn, u16.length);
+    const expected = float16ToFloat32(whole.buffer);
+    assert.deepEqual(new Uint32Array(out.buffer), new Uint32Array(expected.buffer), "bitwise equal");
+    // Sequential: a part is fetched only after the previous one was fully read,
+    // and no part body was ever read whole (arrayBuffer/json/text throw).
+    assert.deepEqual(log, [
+      "fetch embeddings.bin.chunks.json",
+      "fetch embeddings.bin.part-000.bin", "end embeddings.bin.part-000.bin",
+      "fetch embeddings.bin.part-001.bin", "end embeddings.bin.part-001.bin",
+      "fetch embeddings.bin.part-002.bin", "end embeddings.bin.part-002.bin",
+    ]);
+  });
+
+  test("rejects a payload whose size disagrees with the index", async () => {
+    const fetchFn = async (url) =>
+      url.endsWith(".chunks.json") ? new Response("nf", { status: 404 }) : new Response(whole);
+    await assert.rejects(
+      decodeFloat16Asset("https://assets/data/embeddings.bin", fetchFn, u16.length + 1),
+      /embeddings\.bin/,
+    );
+    await assert.rejects(
+      decodeFloat16Asset("https://assets/data/embeddings.bin", fetchFn, u16.length - 1),
+      /embeddings\.bin/,
+    );
+  });
+});
+
+describe("retrievePassages load order", () => {
+  test("pages.json and the vectors load one after the other, never overlapping", async () => {
+    const rows = [
+      [1, 0, 0],
+      [0, 1, 0],
+    ];
+    const corpus = new Uint8Array(floatsToFloat16Buffer(rows));
+    const log = [];
+    const emb = chunkedAssets("embeddings.bin", corpus, [5], { log });
+    const pagesArr = [
+      { card_id: "a", page: 1, title: "A", text: "Apollo" },
+      { card_id: "b", page: 1, title: "B", text: "Roswell" },
+    ];
+    const env = {
+      VOYAGE_API_KEY: "test",
+      ASSETS: {
+        fetch: async (u) => {
+          const name = String(u).split("/data/")[1];
+          log.push(`fetch ${name}`);
+          if (name === "embeddings.bin.chunks.json") return new Response(emb.manifest);
+          const part = emb.parts.find(([p]) => p === name);
+          if (part) return refusingStream(part[1], emb.chunk, log, name);
+          if (name === "embed_index.json")
+            return new Response(JSON.stringify({ model_id: "voyage-3", dim: 3, n: 2, pages: [["a", 1], ["b", 1]] }));
+          if (name === "pages.json") return new Response(JSON.stringify(pagesArr));
+          return new Response("nf", { status: 404 });
+        },
+      },
+    };
+    const out = await retrievePassages("Roswell", 8, env, async () => new Float32Array([0, 1, 0]));
+    assert.equal(out[0].card_id, "b");
+    // pages.json is read in full (a plain Response, consumed before
+    // loadPages returns) before the first embeddings request is made.
+    const pagesFetch = log.indexOf("fetch pages.json");
+    const firstEmbeddings = log.indexOf("fetch embeddings.bin.chunks.json");
+    assert.ok(pagesFetch >= 0 && firstEmbeddings > pagesFetch, log.join(" | "));
+    assert.equal(log.at(-1), "end embeddings.bin.part-001.bin", log.join(" | "));
+  });
+});
