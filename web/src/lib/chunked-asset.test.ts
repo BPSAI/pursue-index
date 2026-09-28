@@ -57,15 +57,15 @@ test("reassembles a chunked asset from its parts, in manifest order", async () =
   const b = bytes.slice(7, 50);
   const c = bytes.slice(50);
   const m = manifestFor("pages-cleaned.json", [
-    ["pages-cleaned.json.part-000.json", a],
-    ["pages-cleaned.json.part-001.json", b],
-    ["pages-cleaned.json.part-002.json", c],
+    ["pages-cleaned.json.part-000-0123456789ab.json", a],
+    ["pages-cleaned.json.part-001-0123456789ab.json", b],
+    ["pages-cleaned.json.part-002-0123456789ab.json", c],
   ]);
   const { fn } = fakeFetch({
     "https://assets/data/pages-cleaned.json.chunks.json": JSON.stringify(m),
-    "https://assets/data/pages-cleaned.json.part-000.json": a,
-    "https://assets/data/pages-cleaned.json.part-001.json": b,
-    "https://assets/data/pages-cleaned.json.part-002.json": c,
+    "https://assets/data/pages-cleaned.json.part-000-0123456789ab.json": a,
+    "https://assets/data/pages-cleaned.json.part-001-0123456789ab.json": b,
+    "https://assets/data/pages-cleaned.json.part-002-0123456789ab.json": c,
   });
   const out = await loadAssetJson("https://assets/data/pages-cleaned.json", fn);
   assert.deepEqual(out, JSON.parse(text));
@@ -95,16 +95,16 @@ test("returns null when neither manifest nor file exists", async () => {
 
 test("throws when a part is missing or the wrong size", async () => {
   const a = new Uint8Array([1, 2]);
-  const m = manifestFor("x.bin", [["x.bin.part-000.bin", a], ["x.bin.part-001.bin", a]]);
+  const m = manifestFor("x.bin", [["x.bin.part-000-0123456789ab.bin", a], ["x.bin.part-001-0123456789ab.bin", a]]);
   const missing = fakeFetch({
     "/data/x.bin.chunks.json": JSON.stringify(m),
-    "/data/x.bin.part-000.bin": a,
+    "/data/x.bin.part-000-0123456789ab.bin": a,
   });
-  await assert.rejects(loadAssetBytes("/data/x.bin", missing.fn), /x\.bin\.part-001\.bin/);
+  await assert.rejects(loadAssetBytes("/data/x.bin", missing.fn), /x\.bin\.part-001-0123456789ab\.bin/);
   const short = fakeFetch({
     "/data/x.bin.chunks.json": JSON.stringify(m),
-    "/data/x.bin.part-000.bin": a,
-    "/data/x.bin.part-001.bin": new Uint8Array([1]),
+    "/data/x.bin.part-000-0123456789ab.bin": a,
+    "/data/x.bin.part-001-0123456789ab.bin": new Uint8Array([1]),
   });
   await assert.rejects(loadAssetBytes("/data/x.bin", short.fn), /size/);
 });
@@ -125,11 +125,11 @@ test("readAssetSync reassembles parts from disk and falls back to the plain file
   const fs = { existsSync, readFileSync };
   const a = enc.encode('{"pages":[');
   const b = enc.encode("1,2]}");
-  writeFileSync(join(dir, "c.json.part-000.json"), a);
-  writeFileSync(join(dir, "c.json.part-001.json"), b);
+  writeFileSync(join(dir, "c.json.part-000-0123456789ab.json"), a);
+  writeFileSync(join(dir, "c.json.part-001-0123456789ab.json"), b);
   writeFileSync(
     join(dir, "c.json.chunks.json"),
-    JSON.stringify(manifestFor("c.json", [["c.json.part-000.json", a], ["c.json.part-001.json", b]])),
+    JSON.stringify(manifestFor("c.json", [["c.json.part-000-0123456789ab.json", a], ["c.json.part-001-0123456789ab.json", b]])),
   );
   assert.deepEqual(readAssetJsonSync(join(dir, "c.json"), fs), { pages: [1, 2] });
   assert.equal(assetExistsSync(join(dir, "c.json"), fs), true);
@@ -168,9 +168,9 @@ function streamingPart(bytes: Uint8Array, chunk: number, log: string[], name: st
 test("forEachAssetChunk streams parts in order, one at a time, never buffering a part", async () => {
   const whole = Uint8Array.from({ length: 23 }, (_, i) => (i * 37) & 0xff);
   const parts: Array<[string, Uint8Array]> = [
-    ["x.bin.part-000.bin", whole.slice(0, 9)],
-    ["x.bin.part-001.bin", whole.slice(9, 18)],
-    ["x.bin.part-002.bin", whole.slice(18)],
+    ["x.bin.part-000-0123456789ab.bin", whole.slice(0, 9)],
+    ["x.bin.part-001-0123456789ab.bin", whole.slice(9, 18)],
+    ["x.bin.part-002-0123456789ab.bin", whole.slice(18)],
   ];
   const log: string[] = [];
   const fn = async (url: string) => {
@@ -189,15 +189,15 @@ test("forEachAssetChunk streams parts in order, one at a time, never buffering a
   assert.deepEqual(seen, Array.from(whole));
   assert.deepEqual(log, [
     "fetch x.bin.chunks.json",
-    "fetch x.bin.part-000.bin", "end x.bin.part-000.bin",
-    "fetch x.bin.part-001.bin", "end x.bin.part-001.bin",
-    "fetch x.bin.part-002.bin", "end x.bin.part-002.bin",
+    "fetch x.bin.part-000-0123456789ab.bin", "end x.bin.part-000-0123456789ab.bin",
+    "fetch x.bin.part-001-0123456789ab.bin", "end x.bin.part-001-0123456789ab.bin",
+    "fetch x.bin.part-002-0123456789ab.bin", "end x.bin.part-002-0123456789ab.bin",
   ]);
 });
 
 test("forEachAssetChunk rejects a part whose streamed size differs from the manifest", async () => {
   const a = new Uint8Array([1, 2, 3]);
-  const m = manifestFor("x.bin", [["x.bin.part-000.bin", a]]);
+  const m = manifestFor("x.bin", [["x.bin", a]]);
   const fn = async (url: string) =>
     url.endsWith(".chunks.json")
       ? new Response(JSON.stringify(m))
@@ -248,4 +248,47 @@ test("a single-part asset is returned without a reassembly copy", async () => {
   };
   const out = await loadAssetBytes("/data/p.json", fn);
   assert.equal(out!.buffer, partBytes!.buffer);
+});
+
+// --- content-addressed part names ---------------------------------------
+
+test("a stale manifest paired with another release's parts fails loudly", async () => {
+  // Release A's manifest (e.g. from a cache) names A's parts; the origin now
+  // serves release B, whose parts have different content-addressed names.
+  const a0 = new Uint8Array([1, 1]);
+  const a1 = new Uint8Array([2, 2]);
+  const stale = manifestFor("x.bin", [
+    ["x.bin.part-000-aaaaaaaaaaaa.bin", a0],
+    ["x.bin.part-001-aaaaaaaaaaab.bin", a1],
+  ]);
+  const { fn } = fakeFetch({
+    "/data/x.bin.chunks.json": JSON.stringify(stale),
+    "/data/x.bin.part-000-bbbbbbbbbbbb.bin": new Uint8Array([3, 3]),
+    "/data/x.bin.part-001-bbbbbbbbbbbc.bin": new Uint8Array([4, 4]),
+  });
+  await assert.rejects(loadAssetBytes("/data/x.bin", fn), /x\.bin\.part-000-aaaaaaaaaaaa\.bin: 404/);
+  await assert.rejects(forEachAssetChunk("/data/x.bin", fn, () => {}), /404/);
+});
+
+test("manifest part names must be the content-addressed name for their index", async () => {
+  const b = new Uint8Array([1]);
+  const cases: Array<[string, Array<[string, Uint8Array]>]> = [
+    ["legacy un-addressed names", [["x.bin.part-000.bin", b], ["x.bin.part-001.bin", b]]],
+    ["out of order", [["x.bin.part-001-0123456789ab.bin", b], ["x.bin.part-000-0123456789ab.bin", b]]],
+    ["another asset's part", [["y.bin.part-000-0123456789ab.bin", b], ["x.bin.part-001-0123456789ab.bin", b]]],
+    ["single part not the asset itself", [["x.bin.part-000-0123456789ab.bin", b]]],
+  ];
+  for (const [why, parts] of cases) {
+    const { fn } = fakeFetch({ "/data/x.bin.chunks.json": JSON.stringify(manifestFor("x.bin", parts)) });
+    await assert.rejects(loadAssetBytes("/data/x.bin", fn), /part name/, why);
+  }
+});
+
+test("a manifest for a different asset is rejected", async () => {
+  const body = new Uint8Array([1]);
+  const { fn } = fakeFetch({
+    "/data/x.bin.chunks.json": JSON.stringify(manifestFor("y.bin", [["y.bin", body]])),
+    "/data/y.bin": body,
+  });
+  await assert.rejects(loadAssetBytes("/data/x.bin", fn), /manifest names y\.bin/);
 });

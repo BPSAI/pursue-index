@@ -41,12 +41,12 @@ const chunked = new Map([
     name: "pages-cleaned.json",
     size: bytes.length,
     parts: [
-      { path: "pages-cleaned.json.part-000.json", size: a.length },
-      { path: "pages-cleaned.json.part-001.json", size: b.length },
+      { path: "pages-cleaned.json.part-000-0123456789ab.json", size: a.length },
+      { path: "pages-cleaned.json.part-001-0123456789ab.json", size: b.length },
     ],
   })],
-  ["/data/pages-cleaned.json.part-000.json", a],
-  ["/data/pages-cleaned.json.part-001.json", b],
+  ["/data/pages-cleaned.json.part-000-0123456789ab.json", a],
+  ["/data/pages-cleaned.json.part-001-0123456789ab.json", b],
 ]);
 
 describe("chunked /data assets", () => {

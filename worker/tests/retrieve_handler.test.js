@@ -251,12 +251,12 @@ describe("chunked corpus payloads", () => {
     const files = new Map();
     function publish(name, bytes, cut) {
       const parts = [bytes.slice(0, cut), bytes.slice(cut)];
-      parts.forEach((b, i) => files.set(`${name}.part-00${i}${name.slice(name.lastIndexOf("."))}`, b));
+      parts.forEach((b, i) => files.set(`${name}.part-00${i}-0123456789ab${name.slice(name.lastIndexOf("."))}`, b));
       files.set(`${name}.chunks.json`, JSON.stringify({
         name,
         size: bytes.length,
         parts: parts.map((b, i) => ({
-          path: `${name}.part-00${i}${name.slice(name.lastIndexOf("."))}`,
+          path: `${name}.part-00${i}-0123456789ab${name.slice(name.lastIndexOf("."))}`,
           size: b.length,
         })),
       }));
@@ -313,7 +313,7 @@ function refusingStream(bytes, chunk, log, name) {
 function chunkedAssets(name, bytes, cuts, { chunk = 3, log = [] } = {}) {
   const ext = name.slice(name.lastIndexOf("."));
   const edges = [0, ...cuts, bytes.length];
-  const parts = edges.slice(0, -1).map((s, i) => [`${name}.part-00${i}${ext}`, bytes.slice(s, edges[i + 1])]);
+  const parts = edges.slice(0, -1).map((s, i) => [`${name}.part-00${i}-0123456789ab${ext}`, bytes.slice(s, edges[i + 1])]);
   const manifest = JSON.stringify({
     name,
     size: bytes.length,
@@ -346,9 +346,9 @@ describe("decodeFloat16Asset", () => {
     // and no part body was ever read whole (arrayBuffer/json/text throw).
     assert.deepEqual(log, [
       "fetch embeddings.bin.chunks.json",
-      "fetch embeddings.bin.part-000.bin", "end embeddings.bin.part-000.bin",
-      "fetch embeddings.bin.part-001.bin", "end embeddings.bin.part-001.bin",
-      "fetch embeddings.bin.part-002.bin", "end embeddings.bin.part-002.bin",
+      "fetch embeddings.bin.part-000-0123456789ab.bin", "end embeddings.bin.part-000-0123456789ab.bin",
+      "fetch embeddings.bin.part-001-0123456789ab.bin", "end embeddings.bin.part-001-0123456789ab.bin",
+      "fetch embeddings.bin.part-002-0123456789ab.bin", "end embeddings.bin.part-002-0123456789ab.bin",
     ]);
   });
 
@@ -402,6 +402,6 @@ describe("retrievePassages load order", () => {
     const pagesFetch = log.indexOf("fetch pages.json");
     const firstEmbeddings = log.indexOf("fetch embeddings.bin.chunks.json");
     assert.ok(pagesFetch >= 0 && firstEmbeddings > pagesFetch, log.join(" | "));
-    assert.equal(log.at(-1), "end embeddings.bin.part-001.bin", log.join(" | "));
+    assert.equal(log.at(-1), "end embeddings.bin.part-001-0123456789ab.bin", log.join(" | "));
   });
 });

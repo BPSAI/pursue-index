@@ -217,11 +217,11 @@ test("readCleanupStats and readOcrCardIds read a payload published as parts", as
     const cut = Math.floor(bytes.length / 2);
     const parts = [bytes.slice(0, cut), bytes.slice(cut)];
     const ext = name.slice(name.lastIndexOf("."));
-    parts.forEach((b, i) => writeFileSync(join(dir, `${name}.part-00${i}${ext}`), b));
+    parts.forEach((b, i) => writeFileSync(join(dir, `${name}.part-00${i}-0123456789ab${ext}`), b));
     writeFileSync(join(dir, `${name}.chunks.json`), JSON.stringify({
       name,
       size: bytes.length,
-      parts: parts.map((b, i) => ({ path: `${name}.part-00${i}${ext}`, size: b.length })),
+      parts: parts.map((b, i) => ({ path: `${name}.part-00${i}-0123456789ab${ext}`, size: b.length })),
     }));
   };
   publish("pages-cleaned.json", {

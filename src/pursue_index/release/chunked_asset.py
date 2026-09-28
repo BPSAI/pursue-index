@@ -24,6 +24,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
@@ -39,9 +40,29 @@ def manifest_path(path: Path) -> Path:
     return path.with_name(path.name + MANIFEST_SUFFIX)
 
 
-def part_name(name: str, index: int) -> str:
-    """``pages.json`` → ``pages.json.part-000.json`` (extension preserved)."""
-    return f"{name}.part-{index:03d}{Path(name).suffix}"
+PART_DIGEST_HEX = 12
+
+
+def part_name(name: str, index: int, data: bytes) -> str:
+    """``pages.json`` → ``pages.json.part-000-<sha12>.json``.
+
+    Content-addressed: the name carries the first 12 hex digits of the
+    part's sha256, so a manifest can only ever name its own release's parts
+    — a cached manifest from another release points at files that no longer
+    exist (or, if served, fail the per-part sha256). The index keeps the
+    order readable; the extension keeps the content type.
+    """
+    digest = hashlib.sha256(data).hexdigest()[:PART_DIGEST_HEX]
+    return f"{name}.part-{index:03d}-{digest}{Path(name).suffix}"
+
+
+def _part_name_ok(name: str, index: int, part: str) -> bool:
+    pattern = (
+        re.escape(f"{name}.part-{index:03d}-")
+        + f"[0-9a-f]{{{PART_DIGEST_HEX}}}"
+        + re.escape(Path(name).suffix)
+    )
+    return re.fullmatch(pattern, part) is not None
 
 
 def _existing_parts(path: Path) -> list[Path]:
@@ -69,23 +90,25 @@ def write_asset(path: Path, data: bytes, *, budget: int = BUDGET_BYTES) -> list[
     if len(chunks) == 1:
         targets = [path]
     else:
-        targets = [path.with_name(part_name(path.name, i)) for i in range(len(chunks))]
+        targets = [path.with_name(part_name(path.name, i, c)) for i, c in enumerate(chunks)]
     stale = set(_existing_parts(path)) | {path}
     for target, chunk in zip(targets, chunks, strict=True):
         target.write_bytes(chunk)
         stale.discard(target)
-    for leftover in stale:
-        leftover.unlink(missing_ok=True)
     manifest = {
         "schema": SCHEMA,
         "name": path.name,
         "size": len(data),
         "sha256": hashlib.sha256(data).hexdigest(),
         "parts": [
-            {"path": t.name, "size": len(c)} for t, c in zip(targets, chunks, strict=True)
+            {"path": t.name, "size": len(c), "sha256": hashlib.sha256(c).hexdigest()}
+            for t, c in zip(targets, chunks, strict=True)
         ],
     }
     manifest_path(path).write_text(json.dumps(manifest, indent=2) + "\n")
+    # Previous releases' parts go only once the new manifest is in place.
+    for leftover in stale:
+        leftover.unlink(missing_ok=True)
     return targets
 
 
@@ -97,6 +120,16 @@ def _load_manifest(mpath: Path) -> dict[str, Any]:
         name = part.get("path") if isinstance(part, dict) else None
         if not isinstance(name, str) or Path(name).name != name or name.startswith("."):
             raise ValueError(f"{mpath.name}: bad part path {name!r}")
+    parts = manifest["parts"]
+    if len(parts) > 1:
+        for i, part in enumerate(parts):
+            if not _part_name_ok(str(manifest.get("name")), i, part["path"]):
+                raise ValueError(
+                    f"{mpath.name}: part name {part['path']!r} is not the content-addressed "
+                    f"name for part {i} of {manifest.get('name')!r}"
+                )
+    elif parts and parts[0]["path"] != manifest.get("name"):
+        raise ValueError(f"{mpath.name}: single part name {parts[0]['path']!r} is not the asset")
     return manifest
 
 
@@ -109,6 +142,10 @@ def _assemble(mpath: Path, manifest: dict[str, Any]) -> bytes:
             raise ValueError(
                 f"{manifest['name']}: part {part['path']} is {len(data)} bytes, "
                 f"manifest says {part['size']}"
+            )
+        if "sha256" in part and hashlib.sha256(data).hexdigest() != part["sha256"]:
+            raise ValueError(
+                f"{manifest['name']}: part {part['path']} sha256 does not match the manifest"
             )
         buf += data
     whole = bytes(buf)

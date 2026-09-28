@@ -5,12 +5,14 @@
   "sha256": "f43d27a334c69af3e77c5d1b6ec5d295d02ba4e4cf62bb729a9129791ef19def",
   "parts": [
     {
-      "path": "embeddings.bin.part-000.bin",
-      "size": 14827520
+      "path": "embeddings.bin.part-000-b4b1562b789a.bin",
+      "size": 14827520,
+      "sha256": "b4b1562b789a39b50bdacc4dff249e51393632d39006c2552728a9ecf6179638"
     },
     {
-      "path": "embeddings.bin.part-001.bin",
-      "size": 14827520
+      "path": "embeddings.bin.part-001-bd95ded429cf.bin",
+      "size": 14827520,
+      "sha256": "bd95ded429cfa25976485d393c1a182355ef82e6fa3d8e1968cc5f2170c187e2"
     }
   ]
 }

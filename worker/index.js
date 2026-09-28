@@ -192,6 +192,19 @@ const CACHE_POLICY = [
   // Filenames are NOT content-hashed; refreshes on each tranche deploy.
   // 1h fresh + 24h stale-while-revalidate covers most user sessions
   // and balances against the 30-min upstream poll cadence.
+  // Chunked payloads (see web/src/lib/chunked-asset.js). Part names are
+  // content-addressed (`<name>.part-NNN-<sha12><ext>`), so a part URL never
+  // changes meaning and is cached forever; the `<name>.chunks.json` manifest
+  // naming them always revalidates, so a client never pairs an old
+  // manifest with a new release's parts. Both precede the /data/*.json rule.
+  {
+    test: /^\/data\/[^/]+\.part-\d{3}-[0-9a-f]{12}\.[a-z0-9]+$/,
+    cacheControl: "public, max-age=31536000, immutable",
+  },
+  {
+    test: /^\/data\/[^/]+\.chunks\.json$/,
+    cacheControl: "public, max-age=0, must-revalidate",
+  },
   {
     test: /^\/data\/[^/]+\.json$/,
     cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
@@ -199,10 +212,9 @@ const CACHE_POLICY = [
   // Embeddings binary blob — same policy as /data/*.json. Called out
   // explicitly because it's the largest static payload and worth eyeballing
   // in cache audits. Over the per-asset size limit it ships as
-  // `embeddings.bin.part-NNN.bin` parts (the JSON parts and manifests are
-  // covered by the rule above).
+  // content-addressed parts (immutable rule above).
   {
-    test: /^\/data\/embeddings\.bin(\.part-\d+\.bin)?$/,
+    test: /^\/data\/embeddings\.bin$/,
     cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
   },
   // /data/thumbs/* and /og/* — generated images, names derived from

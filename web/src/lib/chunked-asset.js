@@ -7,8 +7,12 @@
  * manifest next to it (written by `pursue_index.release.chunked_asset`):
  *
  *   pages-cleaned.json.chunks.json   { name, size, sha256, parts: [{ path, size }] }
- *   pages-cleaned.json.part-000.json
- *   pages-cleaned.json.part-001.json
+ *   pages-cleaned.json.part-000-<sha12>.json
+ *   pages-cleaned.json.part-001-<sha12>.json
+ *
+ * Part names are content-addressed (the first 12 hex digits of the part's
+ * sha256) and readers only ever fetch the names a manifest lists, so a
+ * manifest cannot be paired with another release's parts.
  *
  * A payload within budget keeps its URL and its manifest lists the whole
  * file as the only part. Readers fetch the manifest first, then the parts in
@@ -54,7 +58,36 @@ export function parseManifest(raw, where) {
       throw new Error(`${where}: bad part path ${JSON.stringify(p?.path)}`);
     }
   }
+  // The manifest must describe the asset it sits next to...
+  const base = where.slice(Math.max(where.lastIndexOf("/"), where.lastIndexOf("\\")) + 1);
+  const asset = base.endsWith(MANIFEST_SUFFIX) ? base.slice(0, -MANIFEST_SUFFIX.length) : base;
+  if (m.name !== asset) {
+    throw new Error(`${where}: manifest names ${m.name}, expected ${asset}`);
+  }
+  // ...and name only that asset's parts, content-addressed and in order, so
+  // a manifest can never be paired with another release's parts (their
+  // names differ; a stale pairing 404s rather than mixing bytes).
+  m.parts.forEach((p, i) => {
+    if (m.parts.length === 1 ? p.path !== asset : !isPartName(asset, i, p.path)) {
+      throw new Error(`${where}: part name ${p.path} is not the content-addressed name for part ${i}`);
+    }
+  });
   return m;
+}
+
+/**
+ * `<name>.part-<NNN>-<12 hex of the part's sha256><ext>` — the name
+ * `pursue_index.release.chunked_asset.part_name` writes.
+ * @param {string} name
+ * @param {number} index
+ * @param {string} part
+ */
+export function isPartName(name, index, part) {
+  const dot = name.lastIndexOf(".");
+  const ext = dot > 0 ? name.slice(dot) : "";
+  const prefix = `${name}.part-${String(index).padStart(3, "0")}-`;
+  if (!part.startsWith(prefix) || !part.endsWith(ext)) return false;
+  return /^[0-9a-f]{12}$/.test(part.slice(prefix.length, part.length - ext.length));
 }
 
 /**

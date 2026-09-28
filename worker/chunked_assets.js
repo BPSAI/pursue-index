@@ -1,7 +1,8 @@
 // Serve `/data/<name>` for payloads published as parts.
 //
 // Cloudflare Workers refuses any static asset over 25 MiB, so an oversize
-// payload ships as `<name>.part-NNN<ext>` files plus `<name>.chunks.json`
+// payload ships as content-addressed `<name>.part-NNN-<sha12><ext>` files
+// plus `<name>.chunks.json`; only the names the manifest lists are read
 // (see web/src/lib/chunked-asset.js). Site code loads the parts directly
 // through that shared loader; this route keeps the documented public URL
 // (`/data/pages-cleaned.json`, `/data/embeddings.bin`, …) answering with

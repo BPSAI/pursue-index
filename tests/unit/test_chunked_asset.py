@@ -46,7 +46,9 @@ def test_under_budget_asset_keeps_its_url_with_a_single_part_manifest(tmp_path: 
     assert m["name"] == "pages.json"
     assert m["size"] == len(data)
     assert m["sha256"] == hashlib.sha256(data).hexdigest()
-    assert m["parts"] == [{"path": "pages.json", "size": len(data)}]
+    assert m["parts"] == [
+        {"path": "pages.json", "size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+    ]
 
 
 def test_over_budget_asset_is_split_into_ordered_parts_under_budget(tmp_path: Path) -> None:
@@ -56,11 +58,13 @@ def test_over_budget_asset_is_split_into_ordered_parts_under_budget(tmp_path: Pa
     assert not path.exists(), "the whole file must not ship alongside its parts"
     m = _manifest(path)
     names = [p["path"] for p in m["parts"]]
+    chunks = [data[0:3414], data[3414:6828], data[6828:]]
+    # Content-addressed: index plus the first 12 hex digits of the part's sha256.
     assert names == [
-        "embeddings.bin.part-000.bin",
-        "embeddings.bin.part-001.bin",
-        "embeddings.bin.part-002.bin",
+        f"embeddings.bin.part-{i:03d}-{hashlib.sha256(c).hexdigest()[:12]}.bin"
+        for i, c in enumerate(chunks)
     ]
+    assert [p["sha256"] for p in m["parts"]] == [hashlib.sha256(c).hexdigest() for c in chunks]
     for p in m["parts"]:
         part = tmp_path / p["path"]
         assert part.stat().st_size == p["size"] <= 4096
@@ -98,7 +102,8 @@ def test_read_missing_asset_raises_file_not_found(tmp_path: Path) -> None:
 def test_read_rejects_a_part_that_does_not_match_the_manifest(tmp_path: Path) -> None:
     path = tmp_path / "x.bin"
     write_asset(path, b"a" * 100, budget=40)
-    (tmp_path / "x.bin.part-001.bin").write_bytes(b"b" * 34)
+    second = _manifest(path)["parts"][1]["path"]
+    (tmp_path / second).write_bytes(b"b" * 34)
     with pytest.raises(ValueError, match="x.bin"):
         read_asset_bytes(path)
 
@@ -110,10 +115,9 @@ def test_rewrite_removes_stale_parts_and_restores_the_whole_file(tmp_path: Path)
     assert path.read_bytes() == b"a" * 10
     assert sorted(p.name for p in tmp_path.iterdir()) == ["x.bin", "x.bin.chunks.json"]
     write_asset(path, b"a" * 100, budget=40)
-    write_asset(path, b"a" * 50, budget=40)
-    assert sorted(p.name for p in tmp_path.iterdir()) == [
-        "x.bin.chunks.json", "x.bin.part-000.bin", "x.bin.part-001.bin",
-    ]
+    write_asset(path, b"b" * 50, budget=40)
+    listed = [p["path"] for p in _manifest(path)["parts"]]
+    assert sorted(p.name for p in tmp_path.iterdir()) == sorted(["x.bin.chunks.json", *listed])
 
 
 def test_find_budget_violations_lists_every_oversize_file(tmp_path: Path) -> None:
@@ -148,4 +152,43 @@ def test_read_rejects_part_paths_that_escape_the_asset_directory(tmp_path: Path)
         {"name": "x.bin", "size": 1, "sha256": "", "parts": [{"path": "../x", "size": 1}]}
     ))
     with pytest.raises(ValueError, match="part path"):
+        read_asset_bytes(tmp_path / "x.bin")
+
+
+def test_part_names_change_with_content_and_old_parts_do_not_accumulate(tmp_path: Path) -> None:
+    path = tmp_path / "x.bin"
+    write_asset(path, b"a" * 100, budget=40)
+    old = [p["path"] for p in _manifest(path)["parts"]]
+    write_asset(path, b"b" * 100, budget=40)
+    new = [p["path"] for p in _manifest(path)["parts"]]
+    assert not set(old) & set(new)
+    assert sorted(p.name for p in tmp_path.iterdir()) == sorted(["x.bin.chunks.json", *new])
+
+
+def test_a_stale_manifest_cannot_be_combined_with_another_releases_parts(tmp_path: Path) -> None:
+    """A manifest cached from release A next to release B's parts fails loudly."""
+    path = tmp_path / "x.bin"
+    write_asset(path, b"a" * 100, budget=40)
+    stale_manifest = manifest_path(path).read_text()
+    stale_names = [p["path"] for p in json.loads(stale_manifest)["parts"]]
+    write_asset(path, b"b" * 100, budget=40)  # release B
+    new_names = [p["path"] for p in _manifest(path)["parts"]]
+    manifest_path(path).write_text(stale_manifest)
+    with pytest.raises(FileNotFoundError):
+        read_asset_bytes(path)
+    # Even B's bytes served under A's part names are caught, not parsed.
+    for a, b in zip(stale_names, new_names, strict=True):
+        (tmp_path / a).write_bytes((tmp_path / b).read_bytes())
+    with pytest.raises(ValueError, match="sha256"):
+        read_asset_bytes(path)
+
+
+def test_manifest_part_names_must_be_content_addressed(tmp_path: Path) -> None:
+    (tmp_path / "x.bin.part-000.bin").write_bytes(b"ab")
+    (tmp_path / "x.bin.part-001.bin").write_bytes(b"cd")
+    (tmp_path / "x.bin.chunks.json").write_text(json.dumps({
+        "name": "x.bin", "size": 4, "sha256": hashlib.sha256(b"abcd").hexdigest(),
+        "parts": [{"path": "x.bin.part-000.bin", "size": 2}, {"path": "x.bin.part-001.bin", "size": 2}],
+    }))
+    with pytest.raises(ValueError, match="part name"):
         read_asset_bytes(tmp_path / "x.bin")

@@ -226,3 +226,33 @@ describe("withCacheHeaders — wired into the dispatcher", () => {
     assert.equal(r.headers.get("Cache-Control"), null);
   });
 });
+
+// Chunked payloads: part names are content-addressed
+// (`<name>.part-NNN-<sha12><ext>`), so a part URL never changes meaning and
+// can be cached forever; the `<name>.chunks.json` manifest that names them
+// must revalidate so a client never pairs an old manifest with new parts.
+describe("withCacheHeaders — chunked payloads", () => {
+  const cc = (path) =>
+    withCacheHeaders(new Response("x"), new Request(`https://pursueindex.com${path}`)).headers.get(
+      "Cache-Control",
+    );
+
+  test("content-addressed parts are immutable", () => {
+    for (const p of [
+      "/data/embeddings.bin.part-000-b4b1562b789a.bin",
+      "/data/pages-cleaned.json.part-001-37ef703a96c3.json",
+    ]) {
+      assert.equal(cc(p), "public, max-age=31536000, immutable", p);
+    }
+  });
+
+  test("chunk manifests always revalidate", () => {
+    for (const p of ["/data/embeddings.bin.chunks.json", "/data/pages.json.chunks.json"]) {
+      assert.equal(cc(p), "public, max-age=0, must-revalidate", p);
+    }
+  });
+
+  test("an un-addressed part name gets no immutable policy", () => {
+    assert.notEqual(cc("/data/embeddings.bin.part-000.bin"), "public, max-age=31536000, immutable");
+  });
+});
