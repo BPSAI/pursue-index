@@ -211,11 +211,13 @@ export function extractLiteralSlugs(query) {
 }
 
 /**
- * Build a `Map<canonicalSlug, card_id>` from the pages cache.
+ * Build a `Map<canonicalSlug, card_id>` from page or card records
+ * (anything with `.card_id` and `.title`; the Worker passes one record per
+ * card, from the retrieval payload's titles file, in first-page order).
  *
  * Scans every page's title for matching slugs (same regex as
  * `extractLiteralSlugs`); the first card_id seen for a given slug
- * wins. The pages cache stores one entry per (card_id, page); titles
+ * wins. Given one entry per (card_id, page), titles
  * are identical across pages of a card, so subsequent matches for the
  * same slug are no-ops via Map's overwrite semantics (same card_id).
  *

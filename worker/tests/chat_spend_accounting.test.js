@@ -13,6 +13,7 @@ import assert from "node:assert/strict";
 import { handleChat } from "../chat.js";
 import { pipeAnthropicSSE } from "../chat_sse.js";
 import { _resetCaches } from "../retrieve.js";
+import { retrieveRowsResponse } from "./support/retrieve_payload.js";
 import { anthropicSSEResponse } from "./fixtures/anthropic_sse.js";
 import {
   anthropicSSETruncatedResponse,
@@ -83,8 +84,8 @@ function makeAssetsEnv() {
         if (url.endsWith("/data/embeddings.bin")) return new Response(u16.buffer, { status: 200 });
         if (url.endsWith("/data/embed_index.json"))
           return new Response(JSON.stringify(indexJson), { status: 200 });
-        if (url.endsWith("/data/pages.json"))
-          return new Response(JSON.stringify(pagesArr), { status: 200 });
+        const rowsRes = retrieveRowsResponse(url, indexJson.pages, pagesArr);
+        if (rowsRes) return rowsRes;
         return new Response("not found", { status: 404 });
       },
     },

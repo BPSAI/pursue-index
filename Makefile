@@ -154,6 +154,10 @@ rebuild-derivatives:
 	@# env; same precondition as embed above).
 	@echo "==> Propagate derived payloads (embed / posters / atlas)"
 	@$(PYTHON) scripts/build_embed_data.py $(SHRINK_ARGS)
+	@# The Worker's retrieval text (data/retrieve/): pages.json cut to what
+	@# /api/retrieve reads, sharded in embed_index row order. Needs both of
+	@# them current, so it runs right after embed; committed files only.
+	@$(PYTHON) scripts/build_retrieve_rows.py
 	@$(PYTHON) scripts/build_video_posters.py
 	@$(PYTHON) scripts/build_atlas_layout.py
 	@# Catch-all: split any web/public/data payload still over the 24 MiB

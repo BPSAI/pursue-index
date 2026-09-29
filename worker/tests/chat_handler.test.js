@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 
 import { handleChat } from "../chat.js";
 import { _resetCaches } from "../retrieve.js";
+import { retrieveRowsResponse } from "./support/retrieve_payload.js";
 import { RATE_LIMIT, DAILY_BUDGET_USD } from "../chat_kv.js";
 import {
   anthropicSSEResponse,
@@ -66,9 +67,8 @@ function makeAssetsEnv() {
         if (url.endsWith("/data/embed_index.json")) {
           return new Response(JSON.stringify(indexJson), { status: 200 });
         }
-        if (url.endsWith("/data/pages.json")) {
-          return new Response(JSON.stringify(pagesArr), { status: 200 });
-        }
+        const rowsRes = retrieveRowsResponse(url, indexJson.pages, pagesArr);
+        if (rowsRes) return rowsRes;
         return new Response("not found", { status: 404 });
       },
     },
@@ -280,8 +280,8 @@ describe("handleChat", () => {
             return new Response(u16.buffer, { status: 200 });
           if (url.endsWith("/data/embed_index.json"))
             return new Response(JSON.stringify(indexJson), { status: 200 });
-          if (url.endsWith("/data/pages.json"))
-            return new Response(JSON.stringify(pagesArr), { status: 200 });
+          const rowsRes = retrieveRowsResponse(url, indexJson.pages, pagesArr);
+          if (rowsRes) return rowsRes;
           return new Response("404", { status: 404 });
         },
       },
