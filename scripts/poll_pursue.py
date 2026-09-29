@@ -15,7 +15,13 @@ serialization lives in ``_poll_gh_io.py``. Exit codes:
 
 * unchanged -> 0, status=unchanged
 * changed   -> 0, status=changed (commit + tranche-detected issue)
+* benign    -> 0, status=benign (commit; encoding-only, no issue)
+* pending   -> 0, status=pending (new sha seen once; guard state committed)
+* stale     -> 0, status=stale (stale cache edge; nothing committed)
 * failed    -> 1, status=failed (tranche-poll-failure issue)
+
+The stale-edge guard (#157, ``_poll_guard.py``) keeps its history in
+``data/poll-state.json`` beside the sha file.
 
 Heavy ingest is operator-attended by design. Run manually:
 
@@ -26,7 +32,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -44,19 +49,37 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from pursue_index.scrape.csv_fetcher import fetch_raw_csv  # noqa: E402
-
 from _poll_gh_io import (  # noqa: E402
     changed_issue_body,
     emit_gh_outputs,
+    emit_step_summary,
     failed_issue_body,
+    guarded_summary,
     truncate_error,
 )
-from _poll_results import Changed, Failed, PollResult, Unchanged  # noqa: E402
+from _poll_guard import (  # noqa: E402
+    GuardState,
+    encoding_only_vs_archive,
+    load_guard,
+    save_guard,
+)
+from _poll_results import (  # noqa: E402
+    Benign,
+    Changed,
+    Failed,
+    Pending,
+    PollResult,
+    Stale,
+    Unchanged,
+)
+from _poll_sha_state import resolve_old_sha, write_state  # noqa: E402
+
+from pursue_index.scrape.csv_fetcher import fetch_raw_csv  # noqa: E402
 
 DEFAULT_STATE_PATH = _REPO_ROOT / "data" / "last-known-csv-sha.txt"
 DEFAULT_MANIFEST_PATH = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_CSV_ARCHIVE_DIR = _REPO_ROOT / "data" / "raw" / "csv"
+GUARD_STATE_NAME = "poll-state.json"
 
 
 def sha256_hex(body: bytes) -> str:
@@ -64,44 +87,8 @@ def sha256_hex(body: bytes) -> str:
     return hashlib.sha256(body).hexdigest()
 
 
-def _read_last_known(state_path: Path) -> str:
-    """Sha from the state file, or ``""`` if missing/empty.
-
-    File format: ``{sha256}  {iso8601}\n`` (two spaces between fields).
-    """
-    if not state_path.exists():
-        return ""
-    text = state_path.read_text().strip()
-    return text.split()[0] if text else ""
-
-
-def _read_manifest_sha(manifest_path: Path) -> str:
-    """``csv_sha256`` from ``manifest_path``, or ``""`` on miss/parse-error.
-
-    Fallback used when the state file is missing — keeps the state
-    file and the manifest in agreement so a manual ``pursue scrape
-    run`` doesn't look like an upstream change on the next tick.
-    """
-    if not manifest_path.exists():
-        return ""
-    try:
-        data = json.loads(manifest_path.read_text())
-    except (OSError, json.JSONDecodeError):
-        return ""
-    sha = data.get("csv_sha256", "") if isinstance(data, dict) else ""
-    return sha if isinstance(sha, str) else ""
-
-
 def _now_iso() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def _resolve_old_sha(state_path: Path, manifest_path: Path | None) -> str:
-    """State file wins; manifest is fallback; both missing => bootstrap."""
-    sha = _read_last_known(state_path)
-    if sha:
-        return sha
-    return _read_manifest_sha(manifest_path) if manifest_path is not None else ""
 
 
 def _failed(exc_or_msg: BaseException | str, ts: str) -> Failed:
@@ -162,12 +149,28 @@ def poll(
     state_path: Path,
     manifest_path: Path | None = DEFAULT_MANIFEST_PATH,
     csv_archive_dir: Path | None = None,
+    guard_path: Path | None = None,
 ) -> PollResult:
     """Fetch upstream, compare to ``state_path``, return a result.
 
-    Pure observation w.r.t. ``state_path``: does NOT mutate it. The
-    caller decides whether to commit. ``manifest_path=None`` disables
-    the manifest fallback (test-only).
+    Does NOT mutate ``state_path`` or the guard file, and discards the
+    guard-state update (``poll_guarded`` returns it; ``main`` persists it).
+    Not a single request: a first sighting of a new sha is re-fetched once
+    to confirm it.
+    """
+    return poll_guarded(state_path, manifest_path, csv_archive_dir, guard_path)[0]
+
+
+def poll_guarded(
+    state_path: Path,
+    manifest_path: Path | None = DEFAULT_MANIFEST_PATH,
+    csv_archive_dir: Path | None = None,
+    guard_path: Path | None = None,
+) -> tuple[PollResult, GuardState | None]:
+    """``poll`` plus the guard state to persist (``None``: write nothing).
+
+    ``manifest_path=None`` disables the manifest fallback (test-only);
+    ``guard_path`` defaults to ``poll-state.json`` beside ``state_path``.
 
     Side effect: when ``csv_archive_dir`` is set (the default), the
     fetched bytes are written to ``<dir>/<sha>.csv`` content-addressed
@@ -176,46 +179,69 @@ def poll(
     bytes looked like.
     """
     ts = _now_iso()
-    old_sha = _resolve_old_sha(state_path, manifest_path)
+    old_sha = resolve_old_sha(state_path, manifest_path)
+    guard_path = guard_path or state_path.with_name(GUARD_STATE_NAME)
+    # Load before fetching: a missing guard is seeded from the archive as
+    # it was before this poll wrote the fetched bytes into it.
+    guard = load_guard(guard_path, old_sha, csv_archive_dir)
 
-    body_or_failed = _fetch_or_failed(ts)
-    if isinstance(body_or_failed, Failed):
-        return body_or_failed
-    body = body_or_failed
+    fetched = _fetch_body(ts, csv_archive_dir)
+    if isinstance(fetched, Failed):
+        return fetched, None
+    body, new_sha, last_modified = fetched
 
+    if not old_sha:
+        guard.promote(new_sha, last_modified)
+        return _changed(old_sha, new_sha, ts), guard
+
+    seen_kind = guard.classify(new_sha, last_modified)
+    if seen_kind == "current":
+        learned = guard.learn_last_modified(last_modified)
+        return Unchanged(sha=new_sha), guard if learned else None
+    if seen_kind == "stale":
+        return Stale(sha=new_sha, current_sha=old_sha, last_modified=last_modified), None
+
+    guard.observe(new_sha)
+    if guard.pending_sha != new_sha:
+        refetch = _fetch_body(ts, csv_archive_dir)
+        again = None if isinstance(refetch, Failed) else refetch[1:]
+        if not guard.confirm_by_refetch(new_sha, last_modified, again, ts):
+            return Pending(sha=guard.pending_sha or new_sha, current_sha=old_sha, fetched_at=ts), guard
+
+    guard.promote(new_sha, last_modified)
+    if encoding_only_vs_archive(csv_archive_dir, old_sha, body):
+        return Benign(old_sha=old_sha, new_sha=new_sha, fetched_at=ts), guard
+    return _changed(old_sha, new_sha, ts), guard
+
+
+def _fetch_body(ts: str, csv_archive_dir: Path | None) -> tuple[bytes, str, str | None] | Failed:
+    """Fetch, reject an empty body, hash, and archive the bytes.
+
+    Archive BEFORE branching on the outcome. Idempotent — same sha means
+    same path, write skips if file exists. We archive even on Unchanged
+    so that on the very first poll after the operator runs a manual
+    scrape (which doesn't currently archive to git-tracked storage), the
+    bytes for the current upstream state land in the repo without waiting
+    for the next CSV change.
+    """
+    body = _fetch_or_failed(ts)
+    if isinstance(body, Failed):
+        return body
     if not body:
         return _failed("fetch returned empty body", ts)
-
-    new_sha = sha256_hex(body)
-
-    # Archive the bytes BEFORE branching on changed/unchanged.
-    # Idempotent — same sha means same path, write skips if file exists.
-    # We archive even on Unchanged so that on the very first poll after
-    # the operator runs a manual scrape (which doesn't currently archive
-    # to git-tracked storage), the bytes for the current upstream state
-    # land in the repo without waiting for the next CSV change.
+    sha = sha256_hex(body)
     if csv_archive_dir is not None:
-        _archive_csv_bytes(body, new_sha, csv_archive_dir)
-
-    if new_sha == old_sha:
-        return Unchanged(sha=new_sha)
-
-    bootstrap = old_sha == ""
-    return Changed(
-        old_sha=old_sha,
-        new_sha=new_sha,
-        fetched_at=ts,
-        is_bootstrap=bootstrap,
-        issue_body=changed_issue_body(old_sha, new_sha, ts, bootstrap),
-    )
+        _archive_csv_bytes(body, sha, csv_archive_dir)
+    return body, sha, getattr(body, "last_modified", None)
 
 
-def _write_state(state_path: Path, sha: str, ts: str) -> None:
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    state_path.write_text(f"{sha}  {ts}\n")
+def _changed(old_sha: str, new_sha: str, ts: str) -> Changed:
+    boot = old_sha == ""
+    body = changed_issue_body(old_sha, new_sha, ts, boot)
+    return Changed(old_sha=old_sha, new_sha=new_sha, fetched_at=ts, is_bootstrap=boot, issue_body=body)
 
 
-def main(argv: list[str] | None = None) -> int:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--state",
@@ -239,15 +265,35 @@ def main(argv: list[str] | None = None) -> int:
             "Default is data/raw/csv/ in the repo root."
         ),
     )
-    args = parser.parse_args(argv)
+    parser.add_argument(
+        "--guard-state",
+        type=Path,
+        default=None,
+        help=(
+            "Stale-edge guard state (seen shas, current Last-Modified, "
+            f"pending sha). Default: {GUARD_STATE_NAME} beside --state."
+        ),
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _build_parser().parse_args(argv)
     state: Path = args.state
-    manifest: Path = args.manifest
-    csv_archive: Path = args.csv_archive_dir
+    guard_path: Path = args.guard_state or state.with_name(GUARD_STATE_NAME)
 
-    result = poll(state, manifest_path=manifest, csv_archive_dir=csv_archive)
+    result, guard = poll_guarded(
+        state,
+        manifest_path=args.manifest,
+        csv_archive_dir=args.csv_archive_dir,
+        guard_path=guard_path,
+    )
+    if guard is not None:
+        save_guard(guard_path, guard)
 
+    if isinstance(result, (Changed, Benign)):
+        write_state(state, result.new_sha, result.fetched_at)
     if isinstance(result, Changed):
-        _write_state(state, result.new_sha, result.fetched_at)
         print(
             f"changed: {result.old_sha or '(bootstrap)'} -> {result.new_sha}",
             flush=True,
@@ -256,6 +302,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if isinstance(result, Unchanged):
         print(f"unchanged: {result.sha}", flush=True)
+        emit_gh_outputs(result)
+        return 0
+    summary = guarded_summary(result)
+    if summary is not None:
+        print(summary, flush=True)
+        emit_step_summary(summary)
         emit_gh_outputs(result)
         return 0
     # Failed

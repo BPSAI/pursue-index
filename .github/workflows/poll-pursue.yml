@@ -132,16 +132,24 @@ jobs:
         # still want the issue-opening step to fire before failing the job.
         continue-on-error: true
 
+      # Stale-edge guard (#157): the poll script only reports `changed`
+      # after the same new sha is fetched twice in a row, and reports a
+      # sha seen before the current one (without a newer Last-Modified)
+      # as `stale`, which commits nothing and opens nothing. `pending`
+      # (new sha seen once) commits only the guard state + bytes, via the
+      # backfill step below. `benign` (confirmed, encoding-only) moves the
+      # sha here but opens no issue and runs no snapshot.
       - name: Commit new sha + CSV bytes (when changed)
-        if: steps.poll.outputs.status == 'changed'
+        if: steps.poll.outputs.status == 'changed' || steps.poll.outputs.status == 'benign'
         env:
           OLD_SHA: ${{ steps.poll.outputs.old_sha }}
           NEW_SHA: ${{ steps.poll.outputs.new_sha }}
           IS_BOOTSTRAP: ${{ steps.poll.outputs.is_bootstrap }}
+          STATUS: ${{ steps.poll.outputs.status }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/last-known-csv-sha.txt
+          git add data/last-known-csv-sha.txt data/poll-state.json
           # The poll script writes the fetched bytes to
           # data/raw/csv/<sha>.csv at fetch time. Stage it so the
           # canonical byte record lands in git alongside the sha update.
@@ -153,6 +161,8 @@ jobs:
           fi
           if [ "$IS_BOOTSTRAP" = "true" ]; then
             MSG="chore(poll): bootstrap last-known sha ${NEW_SHA:0:12}"
+          elif [ "$STATUS" = "benign" ]; then
+            MSG="chore(poll): encoding-only upstream change ${OLD_SHA:0:12} -> ${NEW_SHA:0:12} (benign)"
           else
             MSG="chore(poll): upstream CSV changed ${OLD_SHA:0:12} -> ${NEW_SHA:0:12} (+bytes)"
           fi
@@ -172,17 +182,31 @@ jobs:
         # change lands, the current upstream sha's bytes might not
         # yet be in git from any prior run. Commit them then.
         # Safe to no-op on every subsequent run.
-        if: steps.poll.outputs.status == 'unchanged'
+        #
+        # Also persists the stale-edge guard state when the poll updated
+        # it: a `pending` sha (seen once, awaiting its confirming second
+        # sighting on the next run) or a newly learned Last-Modified.
+        # `stale` observations never reach this step: nothing to commit.
+        if: steps.poll.outputs.status == 'unchanged' || steps.poll.outputs.status == 'pending'
         env:
           SHA: ${{ steps.poll.outputs.new_sha }}
+          STATUS: ${{ steps.poll.outputs.status }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -d data/raw/csv ]; then
             git add data/raw/csv/*.csv 2>/dev/null || true
           fi
+          if [ -f data/poll-state.json ]; then
+            git add data/poll-state.json
+          fi
           if ! git diff --cached --quiet; then
-            git commit -m "chore(poll): backfill CSV bytes for ${SHA:0:12}"
+            if [ "$STATUS" = "pending" ]; then
+              MSG="chore(poll): candidate ${SHA:0:12} seen once (pending confirmation)"
+            else
+              MSG="chore(poll): backfill CSV bytes for ${SHA:0:12}"
+            fi
+            git commit -m "$MSG"
             git pull --rebase origin main
             git push
           else
@@ -463,6 +487,11 @@ jobs:
         # by new_sha) so the commit step can ship it and the verdict-comment
         # step can read it back. --summary-out emits the operator-facing
         # markdown the comment step posts onto the existing issue.
+        #
+        # #157: diff records are append-only. If data/manifests/diffs/
+        # <sha>.json already exists and the recompute disagrees, the script
+        # exits non-zero without writing, failing this job before the commit
+        # step can rewrite history. An identical recompute is a no-op.
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
