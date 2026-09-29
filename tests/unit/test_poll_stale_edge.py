@@ -24,6 +24,7 @@ import shutil
 import sys
 from collections import deque
 from dataclasses import dataclass, field
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import pytest
@@ -510,3 +511,57 @@ def test_encoding_check_never_builds_a_path_from_a_malformed_sha(tmp_path: Path,
     if "/" not in bad_sha:
         (archive / f"{bad_sha}.csv").write_bytes(body)
     assert encoding_only_vs_archive(archive, bad_sha, body) is False
+
+
+# ---------------------------------------------------------------------------
+# Naive Last-Modified values (#157 follow-up: parsedate_to_datetime can
+# return a naive datetime for a parseable header with no recognized
+# timezone, e.g. "-0000" or no zone at all; comparing it against the
+# stored aware value raised TypeError and crashed the poll).
+# ---------------------------------------------------------------------------
+
+_NAIVE_LAST_MODIFIED = "Mon, 28 Sep 2026 00:00:00 -0000"
+
+
+def test_parse_http_date_treats_a_naive_result_as_unparseable() -> None:
+    from _poll_guard import parse_http_date
+
+    assert parsedate_to_datetime(_NAIVE_LAST_MODIFIED).tzinfo is None  # sanity: this header IS naive
+    assert parse_http_date(_NAIVE_LAST_MODIFIED) is None
+
+
+def test_is_strictly_newer_is_false_for_a_naive_candidate_or_current() -> None:
+    from _poll_guard import is_strictly_newer
+
+    assert is_strictly_newer(_NAIVE_LAST_MODIFIED, LM_NEW) is False
+    assert is_strictly_newer(LM_LATER, _NAIVE_LAST_MODIFIED) is False
+
+
+def test_classify_does_not_raise_on_a_naive_last_modified_header() -> None:
+    """This raised TypeError before the fix: quote below."""
+    from _poll_guard import GuardState
+
+    guard = GuardState(current_sha=SHA_C3F8, current_last_modified=LM_NEW, seen=[SHA_19E6, SHA_C3F8])
+    assert guard.classify(SHA_19E6, _NAIVE_LAST_MODIFIED) == "stale"
+
+
+def test_classify_does_not_raise_on_a_garbage_last_modified_header() -> None:
+    from _poll_guard import GuardState
+
+    guard = GuardState(current_sha=SHA_C3F8, current_last_modified=LM_NEW, seen=[SHA_19E6, SHA_C3F8])
+    assert guard.classify(SHA_19E6, "not a date at all") == "stale"
+
+
+def test_poll_does_not_crash_when_upstream_serves_a_naive_last_modified(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream
+) -> None:
+    """End-to-end: a previously-seen sha re-served with a naive
+    Last-Modified must classify normally (stale), not crash the run."""
+    guard = _seeded_guard(SHA_C3F8, [SHA_19E6, SHA_C3F8], LM_NEW)
+    repo = _make_repo(tmp_path, SHA_C3F8, archived=(SHA_19E6,), guard=guard)
+    upstream.serve((_bytes(SHA_19E6), _NAIVE_LAST_MODIFIED))
+
+    run = _poll_run(repo, tmp_path, monkeypatch, 0)
+
+    assert run.status == "stale"
+    assert repo.last_known() == SHA_C3F8

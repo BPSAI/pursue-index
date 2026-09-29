@@ -131,12 +131,22 @@ def encoding_only_vs_archive(archive_dir: Path | None, old_sha: str, body: bytes
 
 
 def parse_http_date(value: str | None) -> datetime | None:
+    """The header as an aware datetime, or ``None`` if it doesn't parse.
+
+    ``parsedate_to_datetime`` returns a *naive* datetime for a header with
+    no recognized timezone (e.g. ``-0000``, or no zone at all) rather than
+    raising. A naive result can't be ordered against the aware values this
+    module otherwise produces (``TypeError``), so it's treated the same as
+    an unparseable header: comparisons fall through to "not newer" instead
+    of crashing the poll.
+    """
     if not value:
         return None
     try:
-        return parsedate_to_datetime(value)
+        parsed = parsedate_to_datetime(value)
     except (TypeError, ValueError):
         return None
+    return parsed if parsed.tzinfo is not None else None
 
 
 def is_strictly_newer(candidate: str | None, current: str | None) -> bool:
