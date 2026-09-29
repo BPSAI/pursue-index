@@ -17,6 +17,9 @@ Output (stable kv format the workflow log can grep):
 
 * ``poll-snapshot.ok added=<n> removed=<n> field_changes=<n> new_columns=<csv>``
 
+Exit 3 (nothing written to ``--diff-out``) when a diff record for the sha
+already exists and the recompute disagrees: records are append-only.
+
 When ``--diff-out`` is given, also writes a diff+verdict JSON artifact
 (verdict + added/removed/field-change counts + new column names, keyed by
 new_sha) — the snapshot job commits this and the gh-comment step reads the
@@ -99,11 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     new_sha = build_manifest_sha(raw, args.source_url)
     artifact = build_verdict_artifact(result, new_sha=new_sha)
-    if args.diff_out is not None:
-        args.diff_out.parent.mkdir(parents=True, exist_ok=True)
-        args.diff_out.write_text(
-            json.dumps(artifact, indent=2) + "\n", encoding="utf-8"
-        )
+    if args.diff_out is not None and not _write_diff_record(args.diff_out, artifact):
+        return 3
     if args.summary_out is not None:
         args.summary_out.parent.mkdir(parents=True, exist_ok=True)
         args.summary_out.write_text(
@@ -118,6 +118,36 @@ def main(argv: list[str] | None = None) -> int:
         flush=True,
     )
     return 0
+
+
+def _write_diff_record(path: Path, artifact: dict) -> bool:
+    """Write ``artifact`` to ``path`` unless a record is already there.
+
+    Diff records are append-only (#157): an existing record is the diff
+    as first observed, and a recompute against a later ``latest.json``
+    would silently rewrite history. An equal recompute is a no-op; a
+    disagreeing one is reported and returns ``False`` without writing.
+    """
+    if path.exists():
+        try:
+            stored = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            stored = None
+        if stored == artifact:
+            print(f"poll-snapshot.diff-record unchanged path={path}", flush=True)
+            return True
+        print(
+            f"poll-snapshot.error diff records are append-only: {path} already"
+            " exists and the recomputed diff disagrees with it; refusing to"
+            f" rewrite.\n  stored:     {json.dumps(stored, sort_keys=True)}"
+            f"\n  recomputed: {json.dumps(artifact, sort_keys=True)}",
+            file=sys.stderr,
+            flush=True,
+        )
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
+    return True
 
 
 def build_manifest_sha(raw_csv: bytes, source_url: str) -> str:

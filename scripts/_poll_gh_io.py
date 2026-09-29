@@ -138,17 +138,64 @@ def _emit_failed(result: _FailedLike) -> list[str]:
     return lines
 
 
+def _emit_guarded(result: object, status: str) -> list[str]:
+    """Outputs for the stale-edge guard's ``stale``/``pending``/``benign``.
+
+    ``new_sha`` is the fetched (stale/pending) or adopted (benign) sha;
+    ``old_sha`` is the last-known sha, which only ``benign`` moves.
+    """
+    if status == "benign":
+        old, new = result.old_sha, result.new_sha  # type: ignore[attr-defined]
+    else:
+        old, new = result.current_sha, result.sha  # type: ignore[attr-defined]
+    return [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
+
+
+def guarded_summary(result: object) -> str | None:
+    """One-line step-summary text for a guarded result, else ``None``."""
+    status = getattr(result, "status", None)
+    if status == "stale":
+        return (
+            f"stale-edge observation: served {result.sha[:12]}, seen before the"  # type: ignore[attr-defined]
+            f" current {result.current_sha[:12]} and Last-Modified"  # type: ignore[attr-defined]
+            f" {result.last_modified or '(none)'} is not newer; not an upstream change."  # type: ignore[attr-defined]
+        )
+    if status == "pending":
+        return (
+            f"pending: new sha {result.sha[:12]} seen once; declared if the next"  # type: ignore[attr-defined]
+            " sighting agrees."
+        )
+    if status == "benign":
+        return (
+            f"benign: {result.old_sha[:12]} -> {result.new_sha[:12]} is an"  # type: ignore[attr-defined]
+            " encoding-only change (same text); no tranche declared."
+        )
+    return None
+
+
+def emit_step_summary(text: str) -> None:
+    """Append ``text`` to ``$GITHUB_STEP_SUMMARY`` (if set)."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(text.rstrip("\n") + "\n")
+
+
 def emit_gh_outputs(result: object) -> None:
     """Write step-output kv pairs to ``$GITHUB_OUTPUT`` (if set).
 
-    Accepts any of the three result variants from ``poll_pursue``;
+    Accepts any of the result variants from ``poll_pursue``;
     dispatches by attribute presence rather than importing the dataclass
     types (avoids a circular import / coupling).
     """
     out_path = os.environ.get("GITHUB_OUTPUT")
     if not out_path:
         return
-    if hasattr(result, "old_sha") and hasattr(result, "new_sha"):
+    status = getattr(result, "status", None)
+    if status in ("stale", "pending", "benign"):
+        lines = _emit_guarded(result, status)
+    elif hasattr(result, "old_sha") and hasattr(result, "new_sha"):
         lines = _emit_changed(result)  # type: ignore[arg-type]
     elif hasattr(result, "error"):
         lines = _emit_failed(result)  # type: ignore[arg-type]

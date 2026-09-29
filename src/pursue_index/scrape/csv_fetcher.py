@@ -53,7 +53,23 @@ def http_get(url: str, **kwargs: Any) -> Any:
     return curl_requests.get(url, **kwargs)
 
 
-def fetch_raw_csv(url: str | None = None) -> bytes:
+class FetchedCsv(bytes):
+    """CSV body bytes plus the response's ``Last-Modified`` header.
+
+    A ``bytes`` subclass so every existing caller keeps treating the result
+    as plain bytes; the tranche poller reads ``last_modified`` to tell a
+    stale cache edge from a real upstream change.
+    """
+
+    last_modified: str | None
+
+    def __new__(cls, body: bytes, last_modified: str | None = None) -> FetchedCsv:
+        obj = super().__new__(cls, body)
+        obj.last_modified = last_modified
+        return obj
+
+
+def fetch_raw_csv(url: str | None = None) -> FetchedCsv:
     """Download the CSV bytes from war.gov via Chrome-impersonated TLS."""
     target = url or str(settings.csv_url)
     log.info("scrape.csv.fetch", url=target)
@@ -73,8 +89,11 @@ def fetch_raw_csv(url: str | None = None) -> bytes:
         timeout=30,
     )
     resp.raise_for_status()
-    log.info("scrape.csv.fetched", bytes=len(resp.content))
-    return resp.content
+    last_modified = (getattr(resp, "headers", None) or {}).get("Last-Modified")
+    if not isinstance(last_modified, str):
+        last_modified = None
+    log.info("scrape.csv.fetched", bytes=len(resp.content), last_modified=last_modified)
+    return FetchedCsv(resp.content, last_modified)
 
 
 def parse_csv(raw: bytes) -> list[CardMetadata]:
