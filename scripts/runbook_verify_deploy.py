@@ -22,6 +22,7 @@ Exits 0 on all checks passing, 1 on any failure.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import random
 import sys
@@ -31,9 +32,27 @@ import urllib.request
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_REPO_ROOT / "src"))
 
-from pursue_index.release.chunked_asset import asset_exists, read_asset_json  # noqa: E402
+
+def _load_chunked_asset():
+    """Load ``chunked_asset.py`` by file path, not by package import.
+
+    The module is stdlib-only, but importing it as ``pursue_index.release.
+    chunked_asset`` runs the ``pursue_index`` package ``__init__`` first,
+    which requires third-party deps (structlog, pydantic-settings) that
+    this script's CI job (post-deploy-verify.yml) does not install.
+    """
+    module_path = _REPO_ROOT / "src" / "pursue_index" / "release" / "chunked_asset.py"
+    spec = importlib.util.spec_from_file_location("chunked_asset", module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_chunked_asset = _load_chunked_asset()
+asset_exists = _chunked_asset.asset_exists
+read_asset_json = _chunked_asset.read_asset_json
+
 DEFAULT_BASE_URL = "https://pursueindex.com"
 DEFAULT_MAX_WAIT = 600  # 10 minutes
 POLL_INTERVAL = 15
