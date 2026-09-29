@@ -41,6 +41,8 @@ from pursue_index.scrape import csv_fetcher  # noqa: E402
 _REPO = Path(__file__).resolve().parents[2]
 _CSV_DIR = _REPO / "data" / "raw" / "csv"
 _DIFFS = _REPO / "data" / "manifests" / "diffs"
+# Replays start from the committed 19e6 manifest, not the promoted latest.json.
+_SNAPSHOTS = _REPO / "data" / "manifests" / "snapshots"
 
 SHA_19E6 = "19e6dd7a69d5c41c30bc3d9302462e922c6225cf18649298b329e68918e28a20"
 SHA_E1F9 = "e1f9fec8d74a1044f11c2fa1f5be53937cbab78485ec90d045d2ed06ca491fb5"
@@ -222,7 +224,7 @@ def test_replay_2026_09_24_declares_exactly_one_change(
 ) -> None:
     guard = _seeded_guard(SHA_19E6, [SHA_19E6], LM_19E6) if guard_file == "seeded" else None
     repo = _make_repo(tmp_path, SHA_19E6, guard=guard)
-    shutil.copy(_REPO / "data" / "manifests" / "latest.json", repo.latest)
+    shutil.copy(_SNAPSHOTS / f"{SHA_19E6}.json", repo.latest)
     for sha in (SHA_19E6, SHA_C3F8):
         shutil.copy(_DIFFS / f"{sha}.json", repo.diffs / f"{sha}.json")
     record_19e6 = (repo.diffs / f"{SHA_19E6}.json").read_bytes()
@@ -263,7 +265,7 @@ def test_replay_of_a_clean_single_change_keeps_full_behaviour(
     is declared on the first run, opens the issue, gets its snapshot + diff,
     and moves last-known: the pre-#157 behaviour, one extra request."""
     repo = _make_repo(tmp_path, SHA_19E6, guard=_seeded_guard(SHA_19E6, [SHA_19E6], LM_19E6))
-    shutil.copy(_REPO / "data" / "manifests" / "latest.json", repo.latest)
+    shutil.copy(_SNAPSHOTS / f"{SHA_19E6}.json", repo.latest)
     upstream.serve(*[_sha_resp(SHA_C3F8)] * 3)
 
     first = _poll_run(repo, tmp_path, monkeypatch, 0)
