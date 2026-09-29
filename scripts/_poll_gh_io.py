@@ -151,12 +151,17 @@ def _emit_guarded(result: object, status: str) -> list[str]:
     return [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
 
 
+_HTTP_DATE_CHARS = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,:+-"
+)
+
+
 def _header_text(value: str | None, limit: int = 64) -> str:
-    """An upstream header, made safe for the step summary: printable ASCII
-    minus markdown/HTML punctuation, one line, at most ``limit`` chars."""
+    """An upstream header, made safe for the step summary: only the
+    characters an HTTP date uses (allowlist), one line, at most ``limit``."""
     if not value:
         return "(none)"
-    kept = "".join(ch for ch in value if ch.isascii() and ch.isprintable() and ch not in "[]()<>#*`|!_\\")
+    kept = "".join(ch for ch in value if ch in _HTTP_DATE_CHARS)
     return "`" + truncate_error(kept, limit=limit) + "`"
 
 

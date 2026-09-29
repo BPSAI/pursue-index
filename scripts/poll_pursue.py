@@ -153,8 +153,10 @@ def poll(
 ) -> PollResult:
     """Fetch upstream, compare to ``state_path``, return a result.
 
-    Pure observation w.r.t. ``state_path`` and the guard file: does NOT
-    mutate them. See ``poll_guarded`` for the guard-state update.
+    Does NOT mutate ``state_path`` or the guard file, and discards the
+    guard-state update (``poll_guarded`` returns it; ``main`` persists it).
+    Not a single request: a first sighting of a new sha is re-fetched once
+    to confirm it.
     """
     return poll_guarded(state_path, manifest_path, csv_archive_dir, guard_path)[0]
 
