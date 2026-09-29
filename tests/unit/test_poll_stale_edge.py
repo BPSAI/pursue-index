@@ -494,3 +494,19 @@ def test_stale_summary_sanitizes_the_upstream_last_modified(
     assert run.summary.count("\n") == 1
     assert "## [click]" not in run.summary
     assert len(run.summary) < 400
+
+
+@pytest.mark.parametrize("bad_sha", ["../secret", "c3f8", "C3F8" + "0" * 60, ""])
+def test_encoding_check_never_builds_a_path_from_a_malformed_sha(tmp_path: Path, bad_sha: str) -> None:
+    """The prior sha comes from repo files; only a 64-hex sha may name an
+    archive path. Anything else fails closed (not benign)."""
+    from _poll_guard import encoding_only_vs_archive
+
+    archive = tmp_path / "csv"
+    archive.mkdir()
+    body = _bytes(SHA_C3F8)
+    (tmp_path / "secret.csv").write_bytes(body)
+    (archive / f"{bad_sha}.csv").parent.mkdir(parents=True, exist_ok=True)
+    if "/" not in bad_sha:
+        (archive / f"{bad_sha}.csv").write_bytes(body)
+    assert encoding_only_vs_archive(archive, bad_sha, body) is False

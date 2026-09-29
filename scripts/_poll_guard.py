@@ -23,6 +23,7 @@ byte archive counts as seen before the current one.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from email.utils import parsedate_to_datetime
@@ -30,6 +31,8 @@ from pathlib import Path
 from typing import Literal
 
 from pursue_index.scrape.encoding_equivalence import is_encoding_only_change
+
+_SHA256_HEX = re.compile(r"[0-9a-f]{64}")
 
 Observation = Literal["current", "stale", "candidate"]
 
@@ -115,9 +118,11 @@ class GuardState:
 def encoding_only_vs_archive(archive_dir: Path | None, old_sha: str, body: bytes) -> bool:
     """Is ``body`` an encoding-only change from the archived ``old_sha``?
 
-    Fails closed: without the prior bytes the change counts as real.
+    Fails closed: without the prior bytes, or when ``old_sha`` (read from
+    repo files) isn't a 64-hex sha fit to name an archive path, the change
+    counts as real.
     """
-    if archive_dir is None:
+    if archive_dir is None or not _SHA256_HEX.fullmatch(old_sha):
         return False
     prior = archive_dir / f"{old_sha}.csv"
     if not prior.exists():
