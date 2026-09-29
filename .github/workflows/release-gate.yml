@@ -11,7 +11,7 @@ name: Release gate — deploy-side coherence
 #   "The volume is such that you will always use context, so a
 #    deterministic checklist and gated AC are the answer."
 #
-# This workflow IS that gated AC. Seven checks (some are existing tests,
+# This workflow IS that gated AC. Nine checks (some are existing tests,
 # some are new for this gate):
 #
 #   1. Manifest coherence    — latest.json == web/src/data/manifest.json
@@ -24,6 +24,12 @@ name: Release gate — deploy-side coherence
 #   6. Citation resolution   — every <Cite> in /finds resolves
 #   7. Build + coverage      — npm run build + every card has a page
 #                            + every alias terminal has a page
+#   8. CI-wiring regression  — the #162 fix stays fixed: post-deploy verify
+#                              runs with no third-party deps, and no other
+#                              workflow script slips the same way
+#   9. Worker memory budget  — Worker test suite (including the #159/#161
+#                              cold-retrieval 64 MiB isolate budget) and
+#                              the retrieve-rows payload it depends on
 #
 # Each step fails fast with an actionable one-line message so the
 # operator sees "fix X then re-push" instead of a wall of green
@@ -123,10 +129,25 @@ on:
       - "scripts/chunk_public_assets.py"
       - "src/pursue_index/release/chunked_asset.py"
       - "web/src/lib/chunked-asset.js"
-      # Nayru PR #79 round-5 P2 #4: a PR that edits the gate itself
-      # should fire the gate. Otherwise editing this file is the one
-      # untestable change in the repo.
-      - ".github/workflows/release-gate.yml"
+      # #162: the post-deploy-verify import-isolation regression test and
+      # the cross-workflow dep-free-script sweep (test 8, below) exist to
+      # catch exactly the class of change these paths cover — a workflow
+      # gaining a script invocation, or that script gaining an import,
+      # without the job installing deps first. `.github/workflows/*.yml`
+      # is broader than just this file (was `release-gate.yml` only, per
+      # Nayru PR #79 round-5 P2 #4 — a PR that edits the gate itself
+      # should fire the gate); any workflow edit can introduce the #162
+      # bug class, so any workflow edit should re-run the sweep.
+      - ".github/workflows/*.yml"
+      - "scripts/runbook_verify_deploy.py"
+      - "tests/unit/test_runbook_verify_deploy_isolated_import.py"
+      - "tests/unit/test_workflow_scripts_dep_free_when_no_install.py"
+      # #159/#161: the Worker's cold-retrieval memory budget (64 MiB, half
+      # the 128 MiB isolate limit) and the retrieve-rows payload it reads
+      # instead of parsing the whole of pages.json. Test 9, below.
+      - "worker/**"
+      - "web/public/data/retrieve/**"
+      - "scripts/build_retrieve_rows.py"
   workflow_dispatch:
 
 permissions:
@@ -193,6 +214,30 @@ jobs:
         # match its parts. Fix an oversize payload with
         # `python scripts/chunk_public_assets.py` (lossless split).
         run: python scripts/check_asset_budget.py web/public
+
+      - name: 4e — Retrieve-rows payload freshness (Worker read path)
+        # scripts/build_retrieve_rows.py derives web/public/data/retrieve/
+        # from the committed embed_index.json + pages.json; the Worker
+        # reads only this payload on /api/retrieve and /api/chat instead
+        # of parsing all of pages.json (see #159/#161). A stale committed
+        # payload here is the same class of drift as 4b/4c — reads only
+        # committed files, so it runs with the cheap gates.
+        run: python scripts/build_retrieve_rows.py --check
+
+      - name: 4f — Post-deploy verify runs with no third-party deps (#162)
+        # Regression test for the fix in PR #163: the post-deploy-verify
+        # workflow job installs no dependencies, so the script must not
+        # import pursue_index via the package path (which runs
+        # __init__.py and requires structlog/pydantic-settings).
+        run: pytest tests/unit/test_runbook_verify_deploy_isolated_import.py -v
+
+      - name: 4g — No workflow script imports pursue_index without deps (#162)
+        # Sweeps every .github/workflows/*.yml job; for any job with no
+        # `pip install` step, statically checks that its scripts don't
+        # import pursue_index at module level. Guards the whole bug class
+        # 4f fixed one instance of, so a future workflow migration can't
+        # reintroduce it elsewhere.
+        run: pytest tests/unit/test_workflow_scripts_dep_free_when_no_install.py -v
 
       - name: 5 — Citation resolution (every <Cite> in /finds)
         # Existing test; included here for the single-status-check
@@ -270,3 +315,19 @@ jobs:
         # build itself generates (not only what is committed under
         # web/public) cannot slip past the 24 MiB budget.
         run: python scripts/check_asset_budget.py web/dist
+
+      - name: Install worker deps (npm ci)
+        # Node is already set up above (22.18, for the web build) — reused
+        # here rather than a second actions/setup-node step. worker/ has
+        # its own lockfile and is not part of the web/ npm workspace.
+        working-directory: worker
+        run: npm ci
+
+      - name: 9 — Worker test suite (incl. #159/#161 cold-retrieval budget)
+        # node --test tests/*.test.js. Includes cold_memory.test.js: a
+        # child-process probe (--expose-gc) asserting a cold /api/retrieve
+        # over the committed corpus peaks under 64 MiB — half the 128 MiB
+        # Workers isolate limit — the AC #159 asked for so corpus growth
+        # regresses in CI, not production.
+        working-directory: worker
+        run: npm test
