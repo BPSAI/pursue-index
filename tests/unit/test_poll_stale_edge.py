@@ -455,3 +455,20 @@ def test_missing_prior_bytes_fails_closed_to_changed(
     upstream.serve(_sha_resp(SHA_C3F8), _sha_resp(SHA_C3F8))
 
     assert _poll_run(repo, tmp_path, monkeypatch, 0).status == "changed"
+
+
+def test_stale_summary_sanitizes_the_upstream_last_modified(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream
+) -> None:
+    """The header is upstream-controlled: one line, printable, bounded."""
+    guard = _seeded_guard(SHA_C3F8, [SHA_19E6, SHA_C3F8], LM_NEW)
+    repo = _make_repo(tmp_path, SHA_C3F8, archived=(SHA_19E6,), guard=guard)
+    hostile = "Fri, 18 Sep 2026 15:05:12 GMT\n## [click](https://x.invalid)" + "A" * 500
+    upstream.serve((_bytes(SHA_19E6), hostile))
+
+    run = _poll_run(repo, tmp_path, monkeypatch, 0)
+
+    assert run.status == "stale"
+    assert run.summary.count("\n") == 1
+    assert "## [click]" not in run.summary
+    assert len(run.summary) < 400

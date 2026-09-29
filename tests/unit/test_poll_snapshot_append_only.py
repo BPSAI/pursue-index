@@ -107,3 +107,23 @@ def test_real_19e6_record_is_not_rewritten_by_a_stale_recompute(tmp_path: Path) 
 
     assert rc != 0
     assert record.read_bytes() == original
+
+
+def test_existing_record_leaves_the_snapshot_mirror_untouched(tmp_path: Path) -> None:
+    """With a record already present the recompute runs off to the side:
+    a rejected (or no-op) run must not have touched snapshots/ or index.json,
+    whatever the calling workflow does with the exit code."""
+    diff_out = tmp_path / "diffs" / "x.json"
+    assert _run(tmp_path, _NEW, _PRIOR, diff_out) == 0
+    mirrors = [tmp_path / "canonical", tmp_path / "public"]
+    before = {p: p.read_bytes() for d in mirrors for p in sorted(d.rglob("*")) if p.is_file()}
+
+    # Disagreeing recompute against a baseline never rotated before, so a
+    # generator run against the real mirror would add its snapshot.
+    other = _csv([_row("Case 0003", 3)])
+    assert _run(tmp_path, _NEW, other, diff_out) != 0
+    # Agreeing recompute.
+    assert _run(tmp_path, _NEW, _PRIOR, diff_out) == 0
+
+    after = {p: p.read_bytes() for d in mirrors for p in sorted(d.rglob("*")) if p.is_file()}
+    assert after == before

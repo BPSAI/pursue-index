@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 # Make ``src/`` importable when running as ``python scripts/poll_snapshot.py``
@@ -94,12 +95,22 @@ def main(argv: list[str] | None = None) -> int:
     if args.public_dir is not None:
         mirror_dirs["public_dir"] = args.public_dir
 
-    result = generate_snapshot_diff(
-        raw,
-        source_url=args.source_url,
-        latest_path=args.latest,
-        **mirror_dirs,
-    )
+    if args.diff_out is not None and args.diff_out.exists():
+        # A record already exists: this sha was processed before. Recompute
+        # against throwaway mirrors so neither outcome touches the real
+        # snapshots/ or index.json (#157, append-only).
+        with tempfile.TemporaryDirectory() as scratch:
+            mirror_dirs = {
+                "canonical_dir": Path(scratch) / "canonical",
+                "public_dir": Path(scratch) / "public",
+            }
+            result = generate_snapshot_diff(
+                raw, source_url=args.source_url, latest_path=args.latest, **mirror_dirs
+            )
+    else:
+        result = generate_snapshot_diff(
+            raw, source_url=args.source_url, latest_path=args.latest, **mirror_dirs
+        )
     new_sha = build_manifest_sha(raw, args.source_url)
     artifact = build_verdict_artifact(result, new_sha=new_sha)
     if args.diff_out is not None and not _write_diff_record(args.diff_out, artifact):

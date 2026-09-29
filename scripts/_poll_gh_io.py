@@ -151,6 +151,15 @@ def _emit_guarded(result: object, status: str) -> list[str]:
     return [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
 
 
+def _header_text(value: str | None, limit: int = 64) -> str:
+    """An upstream header, made safe for the step summary: printable ASCII
+    minus markdown/HTML punctuation, one line, at most ``limit`` chars."""
+    if not value:
+        return "(none)"
+    kept = "".join(ch for ch in value if ch.isascii() and ch.isprintable() and ch not in "[]()<>#*`|!_\\")
+    return "`" + truncate_error(kept, limit=limit) + "`"
+
+
 def guarded_summary(result: object) -> str | None:
     """One-line step-summary text for a guarded result, else ``None``."""
     status = getattr(result, "status", None)
@@ -158,7 +167,7 @@ def guarded_summary(result: object) -> str | None:
         return (
             f"stale-edge observation: served {result.sha[:12]}, seen before the"  # type: ignore[attr-defined]
             f" current {result.current_sha[:12]} and Last-Modified"  # type: ignore[attr-defined]
-            f" {result.last_modified or '(none)'} is not newer; not an upstream change."  # type: ignore[attr-defined]
+            f" {_header_text(result.last_modified)} is not newer; not an upstream change."  # type: ignore[attr-defined]
         )
     if status == "pending":
         return (
