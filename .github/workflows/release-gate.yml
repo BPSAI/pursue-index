@@ -138,8 +138,15 @@ on:
       # Nayru PR #79 round-5 P2 #4 — a PR that edits the gate itself
       # should fire the gate); any workflow edit can introduce the #162
       # bug class, so any workflow edit should re-run the sweep.
+      # `scripts/**` (not just the scripts a dep-free job currently
+      # invokes) because the sweep also follows each invoked script's
+      # local-import closure — a sibling module under scripts/ (e.g.
+      # `_wayback_helpers.py`, `registry_root.py`) can introduce the same
+      # class of break without the entrypoint script itself changing.
+      # Codex PR #163 round-2 P2: a narrower list would need its own
+      # test to keep it from drifting out of sync with the sweep.
       - ".github/workflows/*.yml"
-      - "scripts/runbook_verify_deploy.py"
+      - "scripts/**"
       - "tests/unit/test_runbook_verify_deploy_isolated_import.py"
       - "tests/unit/test_workflow_scripts_dep_free_when_no_install.py"
       # #159/#161: the Worker's cold-retrieval memory budget (64 MiB, half
@@ -147,7 +154,6 @@ on:
       # instead of parsing the whole of pages.json. Test 9, below.
       - "worker/**"
       - "web/public/data/retrieve/**"
-      - "scripts/build_retrieve_rows.py"
   workflow_dispatch:
 
 permissions:
