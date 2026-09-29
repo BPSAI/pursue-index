@@ -23,6 +23,7 @@ import { describe, test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 
 import { retrievePassages, _resetCaches } from "../retrieve.js";
+import { retrieveRowsResponse } from "./support/retrieve_payload.js";
 import {
   extractLiteralCardIds,
   extractLiteralSlugs,
@@ -70,9 +71,8 @@ function makeMockEnv(rows, indexPages, pagesArr, voyageVec) {
       if (url.endsWith("/data/embed_index.json")) {
         return new Response(JSON.stringify(indexJson), { status: 200 });
       }
-      if (url.endsWith("/data/pages.json")) {
-        return new Response(JSON.stringify(pagesArr), { status: 200 });
-      }
+      const rowsRes = retrieveRowsResponse(url, indexPages, pagesArr);
+      if (rowsRes) return rowsRes;
       return new Response("not found", { status: 404 });
     },
   };

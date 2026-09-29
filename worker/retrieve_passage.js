@@ -1,10 +1,11 @@
 // Citation construction for /api/retrieve.
 //
 // Every retrieval lane (dense cosine, literal card_id, literal slug) turns
-// an index row into a citation through `buildPassage`. The index and
-// `pages.json` are built from the same corpus, so a row without a
-// text-bearing page record means the two payloads have drifted — a stale
-// row that survived a re-OCR, or a card that left the corpus. Emitting it
+// an index row into a citation through `buildPassage`. The index and the
+// page records (data/retrieve/, cut from `pages.json`) are built from the
+// same corpus, so a row without a text-bearing page record means the
+// payloads have drifted — a stale row that survived a re-OCR, or a card
+// that left the corpus. Emitting it
 // anyway produces a citation with an empty title and snippet, which the
 // chat model cites as a real source and the user sees as a blank card.
 //
@@ -28,17 +29,17 @@ export function buildPassage({
   makeSnippetFn,
 }) {
   if (!pageRec) {
-    logSkip(card_id, page, "no pages.json entry");
+    logSkip(card_id, page, "no page record");
     return null;
   }
   const title = (pageRec.title || "").trim();
   const text = (pageRec.text || "").trim();
   if (!title) {
-    logSkip(card_id, page, "pages.json entry has no title");
+    logSkip(card_id, page, "page record has no title");
     return null;
   }
   if (!text) {
-    logSkip(card_id, page, "pages.json entry has no text");
+    logSkip(card_id, page, "page record has no text");
     return null;
   }
   const snippet = makeSnippetFn(pageRec.text, query);

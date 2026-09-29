@@ -4,20 +4,18 @@
 // Architecture:
 //   /data/embeddings.bin      — float16 row-major n*dim vectors
 //   /data/embed_index.json    — parallel [card_id, page] tuples + meta
-//   /data/pages.json          — full per-page text used for snippets
+//   /data/retrieve/           — per-row card_id/page/title/text, sharded in
+//                               index row order (retrieve_rows.js)
 //
-// Each is read through the shared chunk-aware loader
-// (web/src/lib/chunked-asset.js): a payload over the 25 MiB static-asset
-// limit ships as ordered parts plus a `<name>.chunks.json` manifest.
-//
-// The Worker stays warm long enough that we cache the parsed Float32Array
-// across requests in module-level state. Cold start re-fetches via
-// env.ASSETS.fetch — which goes against the same Worker static-asset
-// pipeline, no extra origin round-trip. Voyage embedding for the query
-// is server-side both for anonymous and BYOK tiers.
-//
-// The cosine math is exposed as pure functions so they can be tested
-// without mocking ASSETS or fetch.
+// Workers isolates have 128 MB. The vectors stay float16 in memory (a
+// Uint16Array, ~30 MB at 14,480 x 1,024) and are scored through a lookup
+// table (retrieve_vectors.js); citations read only the text shards holding
+// a query's hits, never the whole pages.json. The index and vectors load
+// once per isolate — concurrent cold requests share one load — and stay
+// cached while the Worker is warm. Loads go through env.ASSETS.fetch, the
+// Worker static-asset pipeline, with no extra origin round-trip. Voyage
+// embedding for the query is server-side both for anonymous and BYOK
+// tiers.
 
 import {
   buildSlugIndex,
@@ -28,9 +26,11 @@ import {
   mergeLiteralAndSemantic,
 } from "./retrieve_literal_id.js";
 import { buildPassage } from "./retrieve_passage.js";
-import { forEachAssetChunk, loadAssetBytes } from "../web/src/lib/chunked-asset.js";
+import { loadRows, loadRowsManifest, loadTitles } from "./retrieve_rows.js";
+import { cosineTopKF16, float16Lut, loadFloat16Asset, rowNorms } from "./retrieve_vectors.js";
+import { loadAssetBytes } from "../web/src/lib/chunked-asset.js";
 
-// Re-export from the extracted helper module so callers (tests,
+// Re-export from the extracted helper modules so callers (tests,
 // adjacent worker modules) can keep importing from `retrieve.js` —
 // the central module surface — without knowing whether the helper
 // was inlined or extracted. Lets us reorganize internals without
@@ -39,6 +39,8 @@ export {
   extractLiteralCardIds,
   extractLiteralSlugs,
 } from "./retrieve_literal_id.js";
+export { cosineTopK, normalizeVector } from "./retrieve_math.js";
+export { float16ToFloat32 } from "./retrieve_vectors.js";
 
 const VOYAGE_EMBED_URL = "https://api.voyageai.com/v1/embeddings";
 const VOYAGE_MODEL = "voyage-3";
@@ -53,187 +55,92 @@ const DEFAULT_K = 8;
 const SCORE_THRESHOLD = 0.3;
 const SNIPPET_CHARS = 600; // generous — used as prompt context, not display.
 
-/**
- * Normalize a vector to unit length, in-place safe.
- * Returns a new Float32Array; leaves the input untouched. Zero vectors
- * are returned as-is (no division by zero).
- */
-export function normalizeVector(v) {
-  let sum = 0;
-  for (let i = 0; i < v.length; i += 1) sum += v[i] * v[i];
-  if (sum === 0) return new Float32Array(v);
-  const inv = 1 / Math.sqrt(sum);
-  const out = new Float32Array(v.length);
-  for (let i = 0; i < v.length; i += 1) out[i] = v[i] * inv;
-  return out;
-}
-
-/**
- * Top-k cosine similarity over a flat Float32Array corpus of shape
- * (n*dim) row-major. Returns sorted [{index, score}] descending.
- *
- * Both `query` and `corpus` may or may not be pre-normalized; we don't
- * assume. The corpus is normalized lazily by the caller (we ship
- * unit-norm voyage-3 vectors so this is essentially a dot product).
- */
-export function cosineTopK(query, corpus, k, n) {
-  const dim = query.length;
-  // Normalize the query once.
-  const q = normalizeVector(query);
-  // Use a partial sort: collect all (index, score) then sort. n=4119 is
-  // small enough that a heap is over-engineered.
-  const scores = new Array(n);
-  for (let i = 0; i < n; i += 1) {
-    let dot = 0;
-    let mag = 0;
-    const base = i * dim;
-    for (let j = 0; j < dim; j += 1) {
-      const v = corpus[base + j];
-      dot += q[j] * v;
-      mag += v * v;
-    }
-    const denom = mag === 0 ? 1 : Math.sqrt(mag);
-    scores[i] = { index: i, score: dot / denom };
-  }
-  scores.sort((a, b) => b.score - a.score);
-  return scores.slice(0, Math.min(k, n));
-}
-
-/** Decode a Float16 buffer to Float32. Voyage embeddings ship as float16. */
-export function float16ToFloat32(buf) {
-  // Manual half-precision decoder. Avoids depending on a library when
-  // the algorithm is 20 lines of bit-twiddling.
-  const u16 = new Uint16Array(buf);
-  const out = new Float32Array(u16.length);
-  for (let i = 0; i < u16.length; i += 1) {
-    out[i] = halfToFloat(u16[i]);
-  }
-  return out;
-}
-
-/**
- * Stream a little-endian float16 payload straight into one preallocated
- * Float32Array of `floatCount` values. Parts are read sequentially from
- * their response streams (see forEachAssetChunk), so the isolate never holds
- * the raw bytes of more than one network chunk — no part buffer, no
- * assembled payload, no aligned copy. A value split across a chunk or part
- * boundary is carried as one pending byte. Resolves null when the asset does
- * not exist; throws when its size is not exactly `floatCount * 2` bytes.
- */
-export async function decodeFloat16Asset(url, fetchFn, floatCount, opts) {
-  const out = new Float32Array(floatCount);
-  const name = url.slice(url.lastIndexOf("/") + 1);
-  const overflow = () =>
-    new Error(`${name} holds more than ${floatCount * 2} bytes; the index expects exactly that`);
-  let i = 0;
-  let carry = -1;
-  const res = await forEachAssetChunk(
-    url,
-    fetchFn,
-    (chunk) => {
-      let j = 0;
-      if (carry >= 0 && chunk.length > 0) {
-        if (i >= floatCount) throw overflow();
-        out[i++] = halfToFloat(carry | (chunk[0] << 8));
-        carry = -1;
-        j = 1;
-      }
-      for (; j + 1 < chunk.length; j += 2) {
-        if (i >= floatCount) throw overflow();
-        out[i++] = halfToFloat(chunk[j] | (chunk[j + 1] << 8));
-      }
-      if (j < chunk.length) carry = chunk[j];
-    },
-    opts,
-  );
-  if (res === null) return null;
-  if (carry >= 0 || i !== floatCount) {
-    throw new Error(`${name} holds ${res.size} bytes; the index expects ${floatCount * 2}`);
-  }
-  return out;
-}
-
-function halfToFloat(h) {
-  const sign = (h & 0x8000) >> 15;
-  const exp = (h & 0x7c00) >> 10;
-  const frac = h & 0x03ff;
-  if (exp === 0) {
-    if (frac === 0) return sign ? -0 : 0;
-    // subnormal
-    return (sign ? -1 : 1) * (frac / 1024) * Math.pow(2, -14);
-  }
-  if (exp === 0x1f) {
-    return frac === 0 ? (sign ? -Infinity : Infinity) : NaN;
-  }
-  return (sign ? -1 : 1) * (1 + frac / 1024) * Math.pow(2, exp - 15);
-}
-
 // ---------------------------------------------------------------------------
 // Module-level cache (warm-Worker reuse).
 // ---------------------------------------------------------------------------
 
-let _corpusCache = null; // { vectors: Float32Array, n: number, dim: number }
-let _indexCache = null; // { pages: [[card_id, page], ...], dim, n }
-let _pagesCache = null; // Map<`${card_id}-p${page}`, PageRecord>
-let _slugCache = null; // Map<canonicalSlug, card_id>
+// Each entry is the load's promise, so concurrent cold requests share one
+// load instead of each allocating their own copy. A rejected load is
+// dropped so the next request retries it.
+const _cache = new Map();
+
+function once(key, load) {
+  let p = _cache.get(key);
+  if (!p) {
+    p = load();
+    _cache.set(key, p);
+    p.catch(() => {
+      if (_cache.get(key) === p) _cache.delete(key);
+    });
+  }
+  return p;
+}
 
 /** Reset caches — for tests only. */
 export function _resetCaches() {
-  _corpusCache = null;
-  _indexCache = null;
-  _pagesCache = null;
-  _slugCache = null;
+  _cache.clear();
+}
+
+const assetsFetch = (env) => (u) => env.ASSETS.fetch(u);
+
+function loadIndex(env) {
+  return once("index", async () => {
+    const bytes = await loadAssetBytes("https://assets/data/embed_index.json", assetsFetch(env));
+    if (bytes === null) throw new Error("embed_index.json fetch failed: 404");
+    const meta = JSON.parse(new TextDecoder().decode(bytes));
+    return { pages: meta.pages, dim: meta.dim, n: meta.n };
+  });
+}
+
+// Vectors are streamed part by part into one Uint16Array sized from the
+// index; row norms are computed once so scoring is a dot product per row.
+function loadCorpus(env) {
+  return once("corpus", async () => {
+    const index = await loadIndex(env);
+    const vectors = await loadFloat16Asset(
+      "https://assets/data/embeddings.bin",
+      assetsFetch(env),
+      index.n * index.dim,
+    );
+    if (vectors === null) throw new Error("embeddings.bin fetch failed: 404");
+    const lut = float16Lut();
+    const norms = rowNorms(vectors, index.n, index.dim, lut);
+    return { index, vectors, norms, lut };
+  });
+}
+
+function loadManifest(env) {
+  return once("rows", () => loadRowsManifest(assetsFetch(env)));
+}
+
+function loadSlugIndex(env) {
+  return once("slugs", async () =>
+    buildSlugIndex(await loadTitles(assetsFetch(env), await loadManifest(env))),
+  );
+}
+
+/** First index row of `cardId`, or -1. */
+function firstRow(indexPages, cardId) {
+  for (let i = 0; i < indexPages.length; i += 1) {
+    if (indexPages[i][0] === cardId) return i;
+  }
+  return -1;
 }
 
 /**
- * Load a /data payload through the shared chunk-aware loader: a payload
- * over the static-asset size limit ships as parts plus a manifest.
+ * Page records for `rowIds`, keyed `${card_id}-p${page}` as the citation
+ * builders look them up. A shard row that does not describe its index row
+ * (the payloads drifted apart) is left out, so `buildPassage` skips the
+ * hit, logged, rather than citing the wrong page.
  */
-async function loadDataAsset(env, name) {
-  const bytes = await loadAssetBytes(`https://assets/data/${name}`, (u) => env.ASSETS.fetch(u));
-  if (bytes === null) throw new Error(`${name} fetch failed: 404`);
-  return bytes;
-}
-
-function decodeJson(bytes) {
-  return JSON.parse(new TextDecoder().decode(bytes));
-}
-
-// Sized from the index, decoded part by part: the float16 bytes are never
-// held whole alongside the Float32Array (isolates have 128 MB).
-async function loadCorpus(env, index) {
-  if (_corpusCache) return _corpusCache;
-  const vectors = await decodeFloat16Asset(
-    "https://assets/data/embeddings.bin",
-    (u) => env.ASSETS.fetch(u),
-    index.n * index.dim,
-  );
-  if (vectors === null) throw new Error("embeddings.bin fetch failed: 404");
-  _corpusCache = { vectors, n: index.n, dim: index.dim };
-  return _corpusCache;
-}
-
-async function loadIndex(env) {
-  if (_indexCache) return _indexCache;
-  const meta = decodeJson(await loadDataAsset(env, "embed_index.json"));
-  _indexCache = { pages: meta.pages, dim: meta.dim, n: meta.n };
-  return _indexCache;
-}
-
-async function loadPages(env) {
-  if (_pagesCache) return _pagesCache;
-  // Drop each intermediate as soon as the next exists: bytes, then text.
-  let bytes = await loadDataAsset(env, "pages.json");
-  let text = new TextDecoder().decode(bytes);
-  bytes = null;
-  const arr = JSON.parse(text);
-  text = null;
-  const map = new Map();
-  for (const p of arr) {
-    map.set(`${p.card_id}-p${p.page}`, p);
+async function pageRecords(env, indexPages, rowIds) {
+  const rows = await loadRows(assetsFetch(env), await loadManifest(env), rowIds);
+  const out = new Map();
+  for (const [i, rec] of rows) {
+    const [card_id, page] = indexPages[i];
+    if (rec.card_id === card_id && rec.page === page) out.set(`${card_id}-p${page}`, rec);
   }
-  _pagesCache = map;
-  return _pagesCache;
+  return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -319,29 +226,39 @@ export function makeSnippet(text, query, maxChars = SNIPPET_CHARS) {
  */
 export async function retrievePassages(query, k, env, embedFn) {
   const useEmbed = embedFn || ((q) => embedQuery(q, env.VOYAGE_API_KEY));
-  // Corpus payloads load strictly one after another, never concurrently;
-  // only the Voyage call overlaps them. pages.json goes before the vectors:
-  // its parse is the largest transient (UTF-8 bytes -> UTF-16 string ->
-  // objects), and running it before the 4-bytes-per-value Float32Array
-  // exists keeps the cold-isolate peak at roughly max(parse transient,
-  // parsed pages + vectors) instead of their sum.
-  const loadAll = async () => {
-    const index = await loadIndex(env);
-    const pages = await loadPages(env);
-    const corpus = await loadCorpus(env, index);
-    return { index, corpus, pages };
-  };
-  const [{ index, corpus, pages }, queryVec] = await Promise.all([loadAll(), useEmbed(query)]);
+  // Only the Voyage call overlaps the corpus load.
+  const [corpus, queryVec] = await Promise.all([loadCorpus(env), useEmbed(query)]);
+  const { index } = corpus;
   if (queryVec.length !== index.dim) {
     throw new Error(
       `query vector dim ${queryVec.length} != index dim ${index.dim}`,
     );
   }
-  const hits = cosineTopK(queryVec, corpus.vectors, k, index.n).filter(
+  const hits = cosineTopKF16(queryVec, corpus.vectors, corpus.norms, corpus.lut, k, index.n).filter(
     (h) => h.score >= SCORE_THRESHOLD,
   );
-  // `buildPassage` returns null for a hit whose pages.json record is
-  // missing or textless — a citation built from one would be blank.
+
+  // Sprint 4b Theme A: literal-ID bypass. Detect hex card_ids in the
+  // query, prepend exact-match chunks, dedup by `card_id+page`, cap at k.
+  // Sprint 4 follow-up (Option C, 2026-06-02): also detect
+  // agency-prefixed slugs like DOW-UAP-D017. Both literal lanes feed
+  // the same prepend-then-merge pipeline so a query mentioning a hex
+  // id AND a slug surfaces both in mention order.
+  const ids = extractLiteralCardIds(query);
+  const slugs = extractLiteralSlugs(query);
+  // The slug index is built from the small per-card titles file.
+  const slugIndex = slugs.length > 0 ? await loadSlugIndex(env) : null;
+  const literalCards = [...ids, ...slugs.map((s) => slugIndex.get(s)).filter(Boolean)];
+
+  // Fetch the text of every row any lane may cite, and nothing else.
+  const rowIds = [
+    ...hits.map((h) => h.index),
+    ...literalCards.map((c) => firstRow(index.pages, c)).filter((i) => i >= 0),
+  ];
+  const pages = await pageRecords(env, index.pages, rowIds);
+
+  // `buildPassage` returns null for a hit whose page record is missing
+  // or textless — a citation built from one would be blank.
   const semanticPassages = hits
     .map((h) => {
       const [card_id, page] = index.pages[h.index];
@@ -356,14 +273,6 @@ export async function retrievePassages(query, k, env, embedFn) {
     })
     .filter((p) => p !== null);
 
-  // Sprint 4b Theme A: literal-ID bypass. Detect hex card_ids in the
-  // query, prepend exact-match chunks, dedup by `card_id+page`, cap at k.
-  // Sprint 4 follow-up (Option C, 2026-06-02): also detect
-  // agency-prefixed slugs like DOW-UAP-D017. Both literal lanes feed
-  // the same prepend-then-merge pipeline so a query mentioning a hex
-  // id AND a slug surfaces both in mention order.
-  const ids = extractLiteralCardIds(query);
-  const slugs = extractLiteralSlugs(query);
   if (ids.length === 0 && slugs.length === 0) return semanticPassages;
   const hexHits = literalIdPassages(
     ids,
@@ -372,19 +281,9 @@ export async function retrievePassages(query, k, env, embedFn) {
     query,
     makeSnippet,
   );
-  let slugHits = [];
-  if (slugs.length > 0) {
-    // Lazy-build the slug index from the pages cache; ~O(pages × titleLen).
-    if (!_slugCache) _slugCache = buildSlugIndex(pages);
-    slugHits = literalSlugPassages(
-      slugs,
-      _slugCache,
-      index.pages,
-      pages,
-      query,
-      makeSnippet,
-    );
-  }
+  const slugHits = slugs.length > 0
+    ? literalSlugPassages(slugs, slugIndex, index.pages, pages, query, makeSnippet)
+    : [];
   // Mention order in the query is preserved by interleaving the hex
   // and slug hits in the order the regexes found them. The simpler
   // policy here (hex hits first, then slug hits) matches the mention

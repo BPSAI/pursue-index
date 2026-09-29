@@ -1,0 +1,148 @@
+{
+ "schema": "pursue-retrieve-rows/1",
+ "n": 14480,
+ "shards": [
+  {
+   "start": 0,
+   "count": 560,
+   "path": "rows-0-50ed045ea246.json",
+   "size": 1047055
+  },
+  {
+   "start": 560,
+   "count": 599,
+   "path": "rows-560-7590bb88fdd7.json",
+   "size": 1047965
+  },
+  {
+   "start": 1159,
+   "count": 616,
+   "path": "rows-1159-18d9462ab3e2.json",
+   "size": 1048376
+  },
+  {
+   "start": 1775,
+   "count": 554,
+   "path": "rows-1775-22bdc0e3ed0a.json",
+   "size": 1046625
+  },
+  {
+   "start": 2329,
+   "count": 730,
+   "path": "rows-2329-6d5031ecdcef.json",
+   "size": 1047570
+  },
+  {
+   "start": 3059,
+   "count": 624,
+   "path": "rows-3059-7084ce28b3a2.json",
+   "size": 1044094
+  },
+  {
+   "start": 3683,
+   "count": 574,
+   "path": "rows-3683-f9a197ff34ee.json",
+   "size": 1047308
+  },
+  {
+   "start": 4257,
+   "count": 622,
+   "path": "rows-4257-0d7f77763768.json",
+   "size": 1048077
+  },
+  {
+   "start": 4879,
+   "count": 698,
+   "path": "rows-4879-5c0f9f3eb6ca.json",
+   "size": 1045301
+  },
+  {
+   "start": 5577,
+   "count": 214,
+   "path": "rows-5577-593ca6e177a9.json",
+   "size": 1047803
+  },
+  {
+   "start": 5791,
+   "count": 619,
+   "path": "rows-5791-c02204db90b9.json",
+   "size": 1047265
+  },
+  {
+   "start": 6410,
+   "count": 656,
+   "path": "rows-6410-1b39c82e2eed.json",
+   "size": 1047066
+  },
+  {
+   "start": 7066,
+   "count": 540,
+   "path": "rows-7066-aad687c265ac.json",
+   "size": 1047966
+  },
+  {
+   "start": 7606,
+   "count": 608,
+   "path": "rows-7606-58d0c213db5f.json",
+   "size": 1047221
+  },
+  {
+   "start": 8214,
+   "count": 597,
+   "path": "rows-8214-7c60505aa79d.json",
+   "size": 1048234
+  },
+  {
+   "start": 8811,
+   "count": 368,
+   "path": "rows-8811-afb04e825a2b.json",
+   "size": 1045133
+  },
+  {
+   "start": 9179,
+   "count": 361,
+   "path": "rows-9179-dd7bc2623dab.json",
+   "size": 1046026
+  },
+  {
+   "start": 9540,
+   "count": 456,
+   "path": "rows-9540-fbe1bc3699ea.json",
+   "size": 1048506
+  },
+  {
+   "start": 9996,
+   "count": 387,
+   "path": "rows-9996-32e4e7bf117d.json",
+   "size": 1048248
+  },
+  {
+   "start": 10383,
+   "count": 468,
+   "path": "rows-10383-c784ba32b8b0.json",
+   "size": 1045661
+  },
+  {
+   "start": 10851,
+   "count": 280,
+   "path": "rows-10851-c474e621a3ce.json",
+   "size": 1048440
+  },
+  {
+   "start": 11131,
+   "count": 3012,
+   "path": "rows-11131-4e676a5827fc.json",
+   "size": 1048537
+  },
+  {
+   "start": 14143,
+   "count": 337,
+   "path": "rows-14143-764e3ec6f6f4.json",
+   "size": 80976
+  }
+ ],
+ "titles": {
+  "path": "titles-0-38e32fb66dc7.json",
+  "size": 25625
+ }
+}

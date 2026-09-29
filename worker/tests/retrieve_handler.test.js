@@ -2,7 +2,7 @@
 //
 // Strategy: build a tiny fixture corpus (n=4, dim=3), wrap it in a mock
 // env.ASSETS that serves embeddings.bin (float16) + embed_index.json +
-// pages.json. Inject a fake embedQuery via the retrievePassages
+// the sharded retrieval rows (data/retrieve/). Inject a fake embedQuery via the retrievePassages
 // signature. Verify the response shape, ordering, and threshold filter.
 
 import { describe, test, beforeEach } from "node:test";
@@ -13,6 +13,7 @@ import {
   handleRetrieve,
   _resetCaches,
 } from "../retrieve.js";
+import { filesAssets, publishRetrieveRows } from "./support/retrieve_payload.js";
 
 // Pack a Float32 array to Float16 bytes the same way Voyage ships them.
 function floatsToFloat16Buffer(rows) {
@@ -40,32 +41,17 @@ function floatToHalf(f) {
   return (sign << 15) | (exp << 10) | (frac & 0x3ff);
 }
 
-function makeMockEnv(rows, indexPages, pagesArr, voyageVec) {
-  const corpusBuf = floatsToFloat16Buffer(rows);
-  const indexJson = {
-    model_id: "voyage-3",
-    dim: rows[0].length,
-    n: rows.length,
-    pages: indexPages,
-  };
-  const ASSETS = {
-    fetch: async (urlOrReq) => {
-      const url = typeof urlOrReq === "string" ? urlOrReq : urlOrReq.url;
-      if (url.endsWith("/data/embeddings.bin")) {
-        return new Response(corpusBuf, { status: 200 });
-      }
-      if (url.endsWith("/data/embed_index.json")) {
-        return new Response(JSON.stringify(indexJson), { status: 200 });
-      }
-      if (url.endsWith("/data/pages.json")) {
-        return new Response(JSON.stringify(pagesArr), { status: 200 });
-      }
-      return new Response("not found", { status: 404 });
-    },
-  };
+function makeMockEnv(rows, indexPages, pagesArr, voyageVec, log = []) {
+  const files = publishRetrieveRows(new Map(), indexPages, pagesArr);
+  files.set("embeddings.bin", new Uint8Array(floatsToFloat16Buffer(rows)));
+  files.set(
+    "embed_index.json",
+    JSON.stringify({ model_id: "voyage-3", dim: rows[0].length, n: rows.length, pages: indexPages }),
+  );
   return {
-    env: { ASSETS, VOYAGE_API_KEY: "test" },
+    env: { ASSETS: filesAssets(files, log), VOYAGE_API_KEY: "test" },
     embedFn: async () => new Float32Array(voyageVec),
+    files,
   };
 }
 
@@ -125,7 +111,7 @@ describe("retrievePassages", () => {
   });
 
   test("skips a hit whose page record is missing, and logs it", async () => {
-    // The index row survives but pages.json has no entry for it — the
+    // The index row survives but the retrieval rows have no entry for it — the
     // shape a superseded or withdrawn row leaves behind. Emitting it
     // would produce a citation with a blank title and snippet.
     const rows = [
@@ -230,7 +216,7 @@ describe("handleRetrieve", () => {
 });
 
 describe("chunked corpus payloads", () => {
-  test("embeddings.bin and pages.json published as parts load identically", async () => {
+  test("embeddings.bin published as parts loads identically", async () => {
     const rows = [
       [1, 0, 0],
       [0, 1, 0],
@@ -247,8 +233,7 @@ describe("chunked corpus payloads", () => {
       { card_id: "card-c", page: 3, title: "C", text: "Other" },
     ];
     const corpus = new Uint8Array(floatsToFloat16Buffer(rows));
-    const pagesBytes = new TextEncoder().encode(JSON.stringify(pagesArr));
-    const files = new Map();
+    const files = publishRetrieveRows(new Map(), indexPages, pagesArr);
     function publish(name, bytes, cut) {
       const parts = [bytes.slice(0, cut), bytes.slice(cut)];
       parts.forEach((b, i) => files.set(`${name}.part-00${i}-0123456789ab${name.slice(name.lastIndexOf("."))}`, b));
@@ -262,19 +247,8 @@ describe("chunked corpus payloads", () => {
       }));
     }
     publish("embeddings.bin", corpus, 7);
-    publish("pages.json", pagesBytes, 33);
     files.set("embed_index.json", JSON.stringify({ model_id: "voyage-3", dim: 3, n: 3, pages: indexPages }));
-    const env = {
-      ASSETS: {
-        fetch: async (u) => {
-          const name = String(u).split("/data/")[1];
-          return files.has(name)
-            ? new Response(files.get(name), { status: 200 })
-            : new Response("not found", { status: 404 });
-        },
-      },
-      VOYAGE_API_KEY: "test",
-    };
+    const env = { ASSETS: filesAssets(files), VOYAGE_API_KEY: "test" };
     const out = await retrievePassages("Roswell", 8, env, async () => new Float32Array([0, 1, 0]));
     assert.equal(out.length, 1);
     assert.equal(out[0].card_id, "card-b");
@@ -283,125 +257,85 @@ describe("chunked corpus payloads", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Embedding load memory profile. A cold isolate must not hold the fetched
-// parts, an assembled copy and the Float32Array at once (Workers isolates
-// have 128 MB): vectors are decoded part by part, straight from each
-// response stream, into one preallocated Float32Array.
+// Cold-path shape. A cold isolate must not parse pages.json, must load the
+// vectors once however many requests arrive together, and must fetch only
+// the retrieval shards holding the rows it cites.
 // ---------------------------------------------------------------------------
 
-import { decodeFloat16Asset, float16ToFloat32 } from "../retrieve.js";
+describe("retrievePassages cold path", () => {
+  const rows = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [0.1, 0.9, 0],
+  ];
+  const indexPages = [["a", 1], ["b", 1], ["c", 1], ["d", 1]];
+  const pagesArr = [
+    { card_id: "a", page: 1, title: "A", text: "Apollo" },
+    { card_id: "b", page: 1, title: "B", text: "Roswell" },
+    { card_id: "c", page: 1, title: "C", text: "Other" },
+    { card_id: "d", page: 1, title: "D", text: "Roswell too" },
+  ];
 
-function refusingStream(bytes, chunk, log, name) {
-  let at = 0;
-  const body = new ReadableStream({
-    pull(controller) {
-      if (at >= bytes.length) {
-        log.push(`end ${name}`);
-        controller.close();
-        return;
-      }
-      controller.enqueue(bytes.slice(at, at + chunk));
-      at += chunk;
-    },
-  });
-  const refuse = () => {
-    throw new Error(`whole-body read of ${name}`);
-  };
-  return { ok: true, status: 200, body, arrayBuffer: refuse, json: refuse, text: refuse, bytes: refuse };
-}
-
-function chunkedAssets(name, bytes, cuts, { chunk = 3, log = [] } = {}) {
-  const ext = name.slice(name.lastIndexOf("."));
-  const edges = [0, ...cuts, bytes.length];
-  const parts = edges.slice(0, -1).map((s, i) => [`${name}.part-00${i}-0123456789ab${ext}`, bytes.slice(s, edges[i + 1])]);
-  const manifest = JSON.stringify({
-    name,
-    size: bytes.length,
-    parts: parts.map(([path, b]) => ({ path, size: b.length })),
-  });
-  return { parts, manifest, chunk, log };
-}
-
-describe("decodeFloat16Asset", () => {
-  // Every float16 bit pattern class: zeros, subnormals, normals, inf, NaN.
-  const u16 = Uint16Array.from({ length: 64 }, (_, i) => (i * 2654435761) >>> 16);
-  u16.set([0x0000, 0x8000, 0x0001, 0x03ff, 0x3c00, 0xbc00, 0x7c00, 0xfc00, 0x7e00], 0);
-  const whole = new Uint8Array(u16.buffer.slice(0));
-
-  test("decodes parts that split mid-value to exactly the single-file decode", async () => {
+  test("never fetches pages.json; fetches only the shards holding the hits", async () => {
     const log = [];
-    // Odd part sizes and 3-byte stream chunks: every float straddles a boundary somewhere.
-    const a = chunkedAssets("embeddings.bin", whole, [37, 81], { log });
-    const fetchFn = async (url) => {
-      const name = url.slice(url.lastIndexOf("/") + 1);
-      log.push(`fetch ${name}`);
-      if (name === "embeddings.bin.chunks.json") return new Response(a.manifest);
-      const part = a.parts.find(([p]) => p === name);
-      return refusingStream(part[1], a.chunk, log, name);
-    };
-    const out = await decodeFloat16Asset("https://assets/data/embeddings.bin", fetchFn, u16.length);
-    const expected = float16ToFloat32(whole.buffer);
-    assert.deepEqual(new Uint32Array(out.buffer), new Uint32Array(expected.buffer), "bitwise equal");
-    // Sequential: a part is fetched only after the previous one was fully read,
-    // and no part body was ever read whole (arrayBuffer/json/text throw).
-    assert.deepEqual(log, [
-      "fetch embeddings.bin.chunks.json",
-      "fetch embeddings.bin.part-000-0123456789ab.bin", "end embeddings.bin.part-000-0123456789ab.bin",
-      "fetch embeddings.bin.part-001-0123456789ab.bin", "end embeddings.bin.part-001-0123456789ab.bin",
-      "fetch embeddings.bin.part-002-0123456789ab.bin", "end embeddings.bin.part-002-0123456789ab.bin",
-    ]);
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0], log);
+    const out = await retrievePassages("Roswell", 8, env, embedFn);
+    assert.deepEqual(out.map((p) => p.card_id), ["b", "d"]);
+    assert.ok(!log.some((n) => n.startsWith("pages.json")), log.join(" | "));
+    // Rows 1 and 3 live in shards 0 (rows 0-1) and 2 (rows 2-3): both needed.
+    const shards = log.filter((n) => /^retrieve\/rows-\d/.test(n));
+    assert.deepEqual(shards, ["retrieve/rows-0-000000000000.json", "retrieve/rows-2-000000000002.json"]);
   });
 
-  test("rejects a payload whose size disagrees with the index", async () => {
-    const fetchFn = async (url) =>
-      url.endsWith(".chunks.json") ? new Response("nf", { status: 404 }) : new Response(whole);
-    await assert.rejects(
-      decodeFloat16Asset("https://assets/data/embeddings.bin", fetchFn, u16.length + 1),
-      /embeddings\.bin/,
-    );
-    await assert.rejects(
-      decodeFloat16Asset("https://assets/data/embeddings.bin", fetchFn, u16.length - 1),
-      /embeddings\.bin/,
-    );
-  });
-});
-
-describe("retrievePassages load order", () => {
-  test("pages.json and the vectors load one after the other, never overlapping", async () => {
-    const rows = [
-      [1, 0, 0],
-      [0, 1, 0],
-    ];
-    const corpus = new Uint8Array(floatsToFloat16Buffer(rows));
+  test("concurrent cold requests load the index and vectors once", async () => {
     const log = [];
-    const emb = chunkedAssets("embeddings.bin", corpus, [5], { log });
-    const pagesArr = [
-      { card_id: "a", page: 1, title: "A", text: "Apollo" },
-      { card_id: "b", page: 1, title: "B", text: "Roswell" },
-    ];
-    const env = {
-      VOYAGE_API_KEY: "test",
-      ASSETS: {
-        fetch: async (u) => {
-          const name = String(u).split("/data/")[1];
-          log.push(`fetch ${name}`);
-          if (name === "embeddings.bin.chunks.json") return new Response(emb.manifest);
-          const part = emb.parts.find(([p]) => p === name);
-          if (part) return refusingStream(part[1], emb.chunk, log, name);
-          if (name === "embed_index.json")
-            return new Response(JSON.stringify({ model_id: "voyage-3", dim: 3, n: 2, pages: [["a", 1], ["b", 1]] }));
-          if (name === "pages.json") return new Response(JSON.stringify(pagesArr));
-          return new Response("nf", { status: 404 });
-        },
-      },
-    };
-    const out = await retrievePassages("Roswell", 8, env, async () => new Float32Array([0, 1, 0]));
+    const { env, embedFn } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0], log);
+    const outs = await Promise.all([1, 2, 3].map(() => retrievePassages("Roswell", 8, env, embedFn)));
+    for (const out of outs) assert.equal(out[0].card_id, "b");
+    const count = (name) => log.filter((n) => n === name).length;
+    assert.equal(count("embeddings.bin"), 1, log.join(" | "));
+    assert.equal(count("embed_index.json"), 1, log.join(" | "));
+    assert.equal(count("retrieve/rows.json"), 1, log.join(" | "));
+  });
+
+  test("a load failure is not cached: the next request retries", async () => {
+    const log = [];
+    const { env, embedFn, files } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0], log);
+    const bin = files.get("embeddings.bin");
+    files.delete("embeddings.bin");
+    await assert.rejects(retrievePassages("Roswell", 8, env, embedFn), /embeddings\.bin/);
+    files.set("embeddings.bin", bin);
+    const out = await retrievePassages("Roswell", 8, env, embedFn);
     assert.equal(out[0].card_id, "b");
-    // pages.json is read in full (a plain Response, consumed before
-    // loadPages returns) before the first embeddings request is made.
-    const pagesFetch = log.indexOf("fetch pages.json");
-    const firstEmbeddings = log.indexOf("fetch embeddings.bin.chunks.json");
-    assert.ok(pagesFetch >= 0 && firstEmbeddings > pagesFetch, log.join(" | "));
-    assert.equal(log.at(-1), "end embeddings.bin.part-001-0123456789ab.bin", log.join(" | "));
+  });
+
+  test("a shard row that disagrees with the index row is skipped, logged", async () => {
+    const { env, embedFn, files } = makeMockEnv(rows, indexPages, pagesArr, [0, 1, 0]);
+    // Rows drifted: shard 0's row 1 now describes another page.
+    files.set("retrieve/rows-0-000000000000.json", JSON.stringify([["a", 1, "A", "Apollo"], ["zz", 9, "Z", "Roswell"]]));
+    const warnings = [];
+    const realWarn = console.warn;
+    console.warn = (...args) => warnings.push(args.join(" "));
+    try {
+      const out = await retrievePassages("Roswell", 8, env, embedFn);
+      assert.deepEqual(out.map((p) => p.card_id), ["d"]);
+      assert.ok(warnings.some((w) => /b-p1/.test(w)), warnings.join(" | "));
+    } finally {
+      console.warn = realWarn;
+    }
+  });
+
+  test("literal slug and card_id lanes cite from the shards", async () => {
+    const slugPages = pagesArr.map((p) => (p.card_id === "c" ? { ...p, title: "DOW-UAP-D017, Other" } : p));
+    const hexIndex = [["a", 1], ["b", 1], ["0123456789abcdef", 1], ["d", 1]];
+    const hexPages = slugPages.map((p) => (p.card_id === "c" ? { ...p, card_id: "0123456789abcdef" } : p));
+    const { env, embedFn } = makeMockEnv(rows, hexIndex, hexPages, [0, 1, 0]);
+    const bySlug = await retrievePassages("what is DOW-UAP-D017?", 8, env, embedFn);
+    assert.equal(bySlug[0].card_id, "0123456789abcdef");
+    assert.equal(bySlug[0].score, 1.0);
+    const byId = await retrievePassages("card 0123456789abcdef please", 8, env, embedFn);
+    assert.equal(byId[0].card_id, "0123456789abcdef");
+    assert.equal(byId[0].title, "DOW-UAP-D017, Other");
   });
 });
