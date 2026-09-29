@@ -115,8 +115,11 @@ SHRINK_ARGS ?=
 
 .PHONY: rebuild-derivatives
 rebuild-derivatives:
-	@echo "==> Rebuild derivatives (mirror, cards-summary, byte-history, csv-archive, pages.json, llms.txt, OG images)"
+	@echo "==> Rebuild derivatives (mirrors, cards-summary, byte-history, csv-archive, pages.json, llms.txt, OG images)"
 	@cp data/manifests/latest.json web/src/data/manifest.json
+	@# The Worker resolves /card/<old_id> renames from the ASSETS copy, not
+	@# data/card-aliases.json (where the ingest gate appends them).
+	@cp data/card-aliases.json web/public/data/card-aliases.json
 	@cd web && node scripts/build_byte_history.mjs > /dev/null
 	@cd web && node scripts/build_cards_summary.mjs > /dev/null
 	@cd web && node scripts/build_csv_archive.mjs > /dev/null
