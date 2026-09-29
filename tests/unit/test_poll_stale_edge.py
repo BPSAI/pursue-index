@@ -419,20 +419,42 @@ def test_unchanged_poll_makes_a_single_request_and_writes_nothing(
 def test_confirmed_encoding_only_change_is_benign(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream
 ) -> None:
+    """Same text re-exported in a legacy codec (curly quotes, NBSP, no BOM)."""
+    text = 'Title,Description Blurb\r\n"Case\u00a01","It\u2019s a \u201ctest\u201d"\r\n'
+    utf8 = ("\ufeff" + text).encode("utf-8")
+    legacy = text.encode("cp1252")
+    sha_utf8, sha_legacy = poll_pursue.sha256_hex(utf8), poll_pursue.sha256_hex(legacy)
+    repo = _make_repo(tmp_path, SHA_19E6, guard=_seeded_guard(sha_utf8, [sha_utf8], LM_NEW))
+    repo.state.write_text(f"{sha_utf8}  2026-09-24T17:33:37Z\n")
+    (repo.archive / f"{sha_utf8}.csv").write_bytes(utf8)
+    upstream.serve((legacy, LM_NEW), (legacy, LM_NEW))
+
+    run = _poll_run(repo, tmp_path, monkeypatch, 0)
+
+    assert run.status == "benign"
+    assert not _opens_tranche_issue(run)
+    assert run.outputs["old_sha"] == sha_utf8
+    assert run.outputs["new_sha"] == sha_legacy
+    assert repo.last_known() == sha_legacy
+    assert "encoding-only" in run.summary
+    # Stored data is never altered by the comparison.
+    assert (repo.archive / f"{sha_utf8}.csv").read_bytes() == utf8
+
+
+def test_real_e1f9_to_c3f8_is_a_declared_change_not_benign(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream
+) -> None:
+    """The committed pair differs in text (lossy U+202F, a trimmed trailing
+    space), so it takes the normal change path: issue + snapshot."""
     guard = _seeded_guard(SHA_E1F9, [SHA_19E6, SHA_E1F9], LM_NEW)
     repo = _make_repo(tmp_path, SHA_E1F9, guard=guard)
     upstream.serve(_sha_resp(SHA_C3F8), _sha_resp(SHA_C3F8))
 
     run = _poll_run(repo, tmp_path, monkeypatch, 0)
 
-    assert run.status == "benign"
-    assert not _opens_tranche_issue(run)
-    assert run.outputs["old_sha"] == SHA_E1F9
-    assert run.outputs["new_sha"] == SHA_C3F8
+    assert run.status == "changed"
+    assert _opens_tranche_issue(run)
     assert repo.last_known() == SHA_C3F8
-    assert "encoding-only" in run.summary
-    # Stored data is never altered by the comparison.
-    assert (repo.archive / f"{SHA_E1F9}.csv").read_bytes() == _bytes(SHA_E1F9)
 
 
 def test_confirmed_change_with_real_differences_is_not_benign(
