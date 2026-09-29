@@ -737,6 +737,24 @@
       "is_current": false
     }
   ],
+  "88443d8d0c5b0c44": [
+    {
+      "byte_sha256": "fd4a81460faf039439a5f5c1eb99087d87db5be7dc0c1b802ca683965b5d3336",
+      "byte_size": 137794,
+      "fetched_at": "2026-09-24T17:34:33.833019+00:00",
+      "archive_key": "archive/fd4a81460faf039439a5f5c1eb99087d87db5be7dc0c1b802ca683965b5d3336.pdf",
+      "asset_filename": "LLE-UAP-D001_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "is_current": true
+    },
+    {
+      "byte_sha256": "79ac7b9e0a6f7148b99a9b9e889fdac323b5b102eedb0b28ecf1f96f90605b46",
+      "byte_size": 143812,
+      "fetched_at": "2026-09-23T14:18:50.798057+00:00",
+      "archive_key": "archive/79ac7b9e0a6f7148b99a9b9e889fdac323b5b102eedb0b28ecf1f96f90605b46.pdf",
+      "asset_filename": "LLE-UAP-D001_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "is_current": false
+    }
+  ],
   "8bb54e0aec5e91ad": [
     {
       "byte_sha256": "61f7e6594e7ab6959503214c73a2a591dc231a14ba92df8e36d0bb0a0fbd6691",

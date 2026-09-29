@@ -1,13 +1,13 @@
 {
   "schema": "pursue-chunked-asset/1",
   "name": "pages.json",
-  "size": 24701664,
-  "sha256": "4bee906ef505605b316ab4369c2410c381913743632b6c798cc638ebd41cebd5",
+  "size": 24708647,
+  "sha256": "444696c814b07b8d25246136a0c74b87465fed3921e7664e11c623691e504a0e",
   "parts": [
     {
       "path": "pages.json",
-      "size": 24701664,
-      "sha256": "4bee906ef505605b316ab4369c2410c381913743632b6c798cc638ebd41cebd5"
+      "size": 24708647,
+      "sha256": "444696c814b07b8d25246136a0c74b87465fed3921e7664e11c623691e504a0e"
     }
   ]
 }

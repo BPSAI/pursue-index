@@ -126,6 +126,13 @@
       "method": "operator_manual",
       "established": "2026-06-12T17:23:59.783253+00:00",
       "tranche_sha256": "48db08be39605efd86e1d92fe6af3cda7730e1da6a4b5741d37a30712ebf5e04"
+    },
+    {
+      "old_card_id": "649f0e15f268915e",
+      "new_card_id": "cb8be77a22e07f9b",
+      "method": "operator_manual",
+      "established": "2026-09-29T20:55:52.181199+00:00",
+      "tranche_sha256": "c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7"
     }
   ]
 }

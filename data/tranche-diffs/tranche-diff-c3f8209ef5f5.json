@@ -1,0 +1,173 @@
+{
+  "tranche_sha256": "c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7",
+  "prior_manifest_sha": "19e6dd7a69d5c41c30bc3d9302462e922c6225cf18649298b329e68918e28a20",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 0,
+    "quarantined": 4,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 1,
+    "field_only_changes": 4,
+    "row_changes": 0
+  },
+  "renames_confirmed": [],
+  "new_content": [],
+  "quarantined": [
+    {
+      "new_card_id": "247e6e1bd6da7377",
+      "new_title": "LLE-UAP-D002, Transcript of an Unresolved UAP Report, Colorado, October 2023",
+      "new_asset_filename": "LLE-UAP-D002_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "new_asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D002_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "new_byte_sha256": "07ab7c9a8dc590ddf2f97be9cdbaebfb9ea536e48ed11d4f2f7d550de011d029",
+      "matched_against": [
+        "649f0e15f268915e"
+      ],
+      "matches": [
+        {
+          "card_id": "649f0e15f268915e",
+          "title": "LLE-UAP-PR004, Unresolved UAP Report, Colorado, October 2023",
+          "reasons": [
+            "same agency + same incident_date (October, 2023)",
+            "same incident_location (Colorado)"
+          ],
+          "strength": 2
+        }
+      ]
+    },
+    {
+      "new_card_id": "31656bd3e7de783d",
+      "new_title": "LLE-UAP-D003, Transcript of an Unresolved UAP Report, Colorado, October 2023",
+      "new_asset_filename": "LLE-UAP-D003_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "new_asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D003_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf",
+      "new_byte_sha256": "3fb6a932507382c052bb4c1413ff27d9fa423d1e05676557700e85fd7455d977",
+      "matched_against": [
+        "649f0e15f268915e"
+      ],
+      "matches": [
+        {
+          "card_id": "649f0e15f268915e",
+          "title": "LLE-UAP-PR004, Unresolved UAP Report, Colorado, October 2023",
+          "reasons": [
+            "same agency + same incident_date (October, 2023)",
+            "same incident_location (Colorado)"
+          ],
+          "strength": 2
+        }
+      ]
+    },
+    {
+      "new_card_id": "b1d24cb7f46cfa20",
+      "new_title": "LLE-UAP-D004, Transcript of an Unresolved UAP Report, Colorado, January 2024",
+      "new_asset_filename": "LLE-UAP-D004_Transcript-of-an-Unresolved-UAP-Report-Colorado-January-2024.pdf",
+      "new_asset_url": "https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D004_Transcript-of-an-Unresolved-UAP-Report-Colorado-January-2024.pdf",
+      "new_byte_sha256": "458d5cf945dfcb12b9e9181426a35e6449834cf8809e0999d4f3b602d4032bc9",
+      "matched_against": [
+        "649f0e15f268915e"
+      ],
+      "matches": [
+        {
+          "card_id": "649f0e15f268915e",
+          "title": "LLE-UAP-PR004, Unresolved UAP Report, Colorado, October 2023",
+          "reasons": [
+            "same incident_location (Colorado)",
+            "matching numeric id 4"
+          ],
+          "strength": 2
+        }
+      ]
+    },
+    {
+      "new_card_id": "cb8be77a22e07f9b",
+      "new_title": "LLE-UAP-PR004, Unresolved UAP Report, Colorado, January 2024",
+      "new_asset_filename": null,
+      "new_asset_url": null,
+      "new_byte_sha256": null,
+      "matched_against": [
+        "649f0e15f268915e"
+      ],
+      "matches": [
+        {
+          "card_id": "649f0e15f268915e",
+          "title": "LLE-UAP-PR004, Unresolved UAP Report, Colorado, October 2023",
+          "reasons": [
+            "same agency + same incident_date (October, 2023)",
+            "same incident_location (Colorado)",
+            "matching numeric id 4"
+          ],
+          "strength": 3
+        }
+      ]
+    }
+  ],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [
+    {
+      "card_id": "649f0e15f268915e",
+      "title": "LLE-UAP-PR004, Unresolved UAP Report, Colorado, October 2023",
+      "asset_url": null,
+      "asset_filename": null
+    }
+  ],
+  "field_only_changes": [
+    {
+      "card_id": "1b33dafd36c74c06",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "LLE-UAP-D001"
+        }
+      ]
+    },
+    {
+      "card_id": "78236aa834b34246",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "LLE-UAP-D002"
+        }
+      ]
+    },
+    {
+      "card_id": "88443d8d0c5b0c44",
+      "diffs": [
+        {
+          "field": "description",
+          "old": "This document is a transcript from a UAP sighting by local law enforcement in Colorado.  The law enforcement officer narrates what is seen as the UAP is recorded on video.  To protect the identity of the source, as well as law enforcement activities, the transcript has been edited to remove potentially identifying information.",
+          "new": "This document is a transcript of a 1-minute, 19-second video recording contained in this collection under the title LLE-UAP-PR001, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy or other protected interests of a U.S. person or commercial entity. This transcript is also redacted to protect the identity of the reporter and sensitive law enforcement information. \n\nAll descriptive and estimative language in this transcript reflects the reporter\u2019s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics."
+        },
+        {
+          "field": "image_alt_text",
+          "old": "Transcript Document",
+          "new": "Transcript Document."
+        },
+        {
+          "field": "image_virin",
+          "old": "260918-D-D0360-1146",
+          "new": "260918-O-D0360-1165"
+        },
+        {
+          "field": "video_pairing",
+          "old": "LLE-UAP-PR004",
+          "new": "LLE-UAP-PR001"
+        }
+      ]
+    },
+    {
+      "card_id": "f55d5c010b11b301",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "LLE-UAP-D003"
+        }
+      ]
+    }
+  ],
+  "row_changes": []
+}

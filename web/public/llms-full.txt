@@ -4,7 +4,7 @@ Citable archive of the U.S. Department of War PURSUE UAP document releases.
 Source documents are public-domain U.S. Government work; the indexing layer (manifest, OCR transcripts, search) is Apache-2.0.
 Canonical site: https://pursueindex.com
 
-> Manifest: 447 cards · csv_sha256 19e6dd7a69d5c41c30bc3d9302462e922c6225cf18649298b329e68918e28a20
+> Manifest: 450 cards · csv_sha256 c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7
 
 ## Project overview
 
@@ -32,7 +32,7 @@ Cite the original DOW PDF for the contents of a source document. Cite this site 
 
 ## Cards
 
-447 cards across the current corpus. Each card has a canonical URL on this site and a 
+450 cards across the current corpus. Each card has a canonical URL on this site and a 
 `sameAs` link back to its war.gov artifact. Where OCR text is available, the first page's text is included verbatim below (truncated to ~500 characters).
 
 ### 6c3f5372eae29724 — DOW-UAP-D102, Project Blue Book File on Tremonton Film, Utah, 1952
@@ -5653,11 +5653,55 @@ Excerpt (page 1):
 - Date: October, 2023
 - URL: https://pursueindex.com/card/88443d8d0c5b0c44
 - Source: https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D001_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf
-- Description: This document is a transcript from a UAP sighting by local law enforcement in Colorado.  The law enforcement officer narrates what is seen as the UAP is recorded on video.  To protect the identity of the source, as well as law enforcement activities, the transcript has been edited to remove potentially identifying information.
+- Description: This document is a transcript of a 1-minute, 19-second video recording contained in this collection under the title LLE-UAP-PR001, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy or other protected interests of a U.S. person or commercial entity. This transcript is also redacted to protect the identity of the reporter and sensitive law enforcement information. 
+
+All descriptive and estimative language in this transcript reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
 
 Excerpt (page 1):
 
 OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY Transcript of an Unresolved UAP Report, Colorado, October 2023 This document is a transcript from a UAP sighting by local law enforcement in Colorado. The law enforcement officer narrates what is seen as the UAP is recorded on video. To protect the identity of the source, as well as law enforcement activities, the transcript has been edited to remove potentially identifying information.
+
+### 247e6e1bd6da7377 — LLE-UAP-D002, Transcript of an Unresolved UAP Report, Colorado, October 2023
+
+- Agency: Local Law Enforcement
+- Date: October, 2023
+- URL: https://pursueindex.com/card/247e6e1bd6da7377
+- Source: https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D002_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf
+- Description: This document is a transcript of a 15-minute video recording contained in this collection under the title LLE-UAP-PR002, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy or other protected interests of a U.S. person or commercial entity. This transcript is also redacted to protect the identity of the reporter and sensitive law enforcement information.
+
+All descriptive and estimative language in this transcript reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY Transcript of an Unresolved UAP Report, Colorado, October 2023 This document is a transcript of a 15-minute video recording contained in this collection under the title LLE-UAP-PR002, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy
+
+### 31656bd3e7de783d — LLE-UAP-D003, Transcript of an Unresolved UAP Report, Colorado, October 2023
+
+- Agency: Local Law Enforcement
+- Date: October, 2023
+- URL: https://pursueindex.com/card/31656bd3e7de783d
+- Source: https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D003_Transcript-of-an-Unresolved-UAP-Report-Colorado-October-2023.pdf
+- Description: This document is a transcript of a 27-second video recording contained in this collection under the title LLE-UAP-PR003, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy or other protected interests of a U.S. person or commercial entity. This transcript is also redacted to protect the identity of the reporter and sensitive law enforcement information.
+
+All descriptive and estimative language in this transcript reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY Transcript of an Unresolved UAP Report, Colorado, October 2023 This document is a transcript of a 27-second video recording contained in this collection under the title LLE-UAP-PR003, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy
+
+### b1d24cb7f46cfa20 — LLE-UAP-D004, Transcript of an Unresolved UAP Report, Colorado, January 2024
+
+- Agency: Local Law Enforcement
+- Date: January, 2024
+- URL: https://pursueindex.com/card/b1d24cb7f46cfa20
+- Source: https://www.war.gov/medialink/ufo/sept-18/release-06/assets/LLE-UAP-D004_Transcript-of-an-Unresolved-UAP-Report-Colorado-January-2024.pdf
+- Description: This document is a transcript of a 1-minute, 42-second video recording contained in this collection under the title LLE-UAP-PR004, captured by a law enforcement officer in Colorado in January 2024. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy or other protected interests of a U.S. person or commercial entity. This transcript is also redacted to protect the identity of the reporter and sensitive law enforcement information.
+
+All descriptive and estimative language in this transcript reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY Transcript of an Unresolved UAP Report, Colorado, January 2024 This document is a transcript of a 1-minute, 42-second video recording contained in this collection under the title LLE-UAP-PR004, captured by a law enforcement officer in Colorado in January 2024. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect t
 
 ### f55d5c010b11b301 — LLE-UAP-PR003, Unresolved UAP Report, Colorado, October 2023
 
@@ -5672,11 +5716,11 @@ Video Description: In the first 2 seconds of this video, AARO digitally altered 
 
 AARO Comment: Cellular devices of the type used to capture this footage employ autofocus and other automated image-processing functions that may distort the apparent morphological and kinematic characteristics of distant subjects, particularly at high magnification.
 
-### 649f0e15f268915e — LLE-UAP-PR004, Unresolved UAP Report, Colorado, October 2023
+### cb8be77a22e07f9b — LLE-UAP-PR004, Unresolved UAP Report, Colorado, January 2024
 
 - Agency: Local Law Enforcement
 - Date: October, 2023
-- URL: https://pursueindex.com/card/649f0e15f268915e
+- URL: https://pursueindex.com/card/cb8be77a22e07f9b
 - Description: A local law enforcement officer submitted a report of an unidentified anomalous phenomenon to the All-domain Anomaly Resolution Office consisting of 1 minute and 42 seconds of video footage from a commercially available cellular device’s rear-facing camera in January 2024. The reporting officer described the phenomenon as “silent” and as featuring “red, blue, and green flashing lights.” 
 
 Video Description: In the first 2 seconds of this video, AARO digitally altered this footage by blurring the bottom half to obscure information whose release could be reasonably expected to affect the privacy or other protected interest of a U.S. person or commercial entity. 

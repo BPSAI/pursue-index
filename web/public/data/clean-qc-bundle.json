@@ -1068,23 +1068,35 @@
     {
       "card_id": "fec5b139eb7b0a4f",
       "page_count": 253
+    },
+    {
+      "card_id": "247e6e1bd6da7377",
+      "page_count": 2
+    },
+    {
+      "card_id": "31656bd3e7de783d",
+      "page_count": 1
+    },
+    {
+      "card_id": "b1d24cb7f46cfa20",
+      "page_count": 1
     }
   ],
-  "generated_at": "2026-09-24T01:01:36+00:00",
+  "generated_at": "2026-09-29T20:59:38+00:00",
   "judge_model": "claude-sonnet-4-6",
   "runner_version": "0.2.0",
   "stats": {
-    "baseline_cost_usd": 270.336,
-    "est_total_cost_usd": 195.690558,
+    "baseline_cost_usd": 270.432,
+    "est_total_cost_usd": 195.751563,
     "indeterminate_pages": 0,
-    "judge_calls": 11153,
-    "judge_ok": 6520,
+    "judge_calls": 11157,
+    "judge_ok": 6524,
     "no_corrections": 0,
     "operator_review": 4744,
     "rule_applied": 0,
     "runner_errors": 111,
     "savings_pct": 28,
-    "savings_usd": 74.645442,
-    "total_pages": 11264
+    "savings_usd": 74.68043700000001,
+    "total_pages": 11268
   }
 }
