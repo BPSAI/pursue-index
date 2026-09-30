@@ -11,8 +11,6 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
-
 from pursue_index.clean.qc.coverage import (
     STATUSES,
     build_coverage,
@@ -22,6 +20,8 @@ from pursue_index.embed.image_observations import OBSERVATIONS_HEADER
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+import build_qc_coverage  # type: ignore[import-not-found] # noqa: E402
 
 VISION_TEXT = f"{OBSERVATIONS_HEADER}, model-x]]\n\nA photograph."
 
@@ -145,16 +145,16 @@ def test_generated_from_carries_only_input_provenance() -> None:
     }
 
 
-def test_a_bundle_card_outside_the_manifest_is_refused() -> None:
+def test_a_bundle_card_outside_the_manifest_is_listed_not_counted() -> None:
+    """A card that left the corpus must not block a rebuild, nor be counted."""
     manifest, bundle, pages, observations = _fixture()
     bundle["cards"].append({"card_id": "gone", "page_count": 1})
-    with pytest.raises(ValueError, match="gone"):
-        build_coverage(manifest, bundle, pages, observations)
+    doc = build_coverage(manifest, bundle, pages, observations)
+    assert doc["bundle_cards_not_in_manifest"] == ["gone"]
+    assert "gone" not in {c["card_id"] for c in doc["cards"]}
 
 
 def test_script_writes_deterministic_output(tmp_path: Path) -> None:
-    import build_qc_coverage  # type: ignore[import-not-found]
-
     manifest, bundle, pages, observations = _fixture()
     paths = {}
     for name, doc in (

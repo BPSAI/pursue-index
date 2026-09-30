@@ -19,6 +19,7 @@
     "unverified_other": 0
   },
   "unverified_other": [],
+  "bundle_cards_not_in_manifest": [],
   "vision_text_pages_in_judged_cards": {
     "cards": 20,
     "pages": 33

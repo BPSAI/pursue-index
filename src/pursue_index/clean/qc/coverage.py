@@ -103,9 +103,8 @@ def build_coverage(
     """The ``qc-coverage.json`` document."""
     pages = list(pages)
     types = _asset_types(manifest)
+    # A card that left the corpus after the sweep: listed, never counted.
     stray = sorted(_judged_ids(bundle) - types.keys())
-    if stray:
-        raise ValueError(f"clean-QC bundle names cards the manifest does not: {', '.join(stray)}")
     statuses = classify_cards(manifest, bundle, pages, observations)
     judged = {cid for cid, s in statuses.items() if s == "judged"}
     vision_pages = _vision_text_pages(pages, judged)
@@ -140,6 +139,7 @@ def build_coverage(
         "total_cards": len(cards),
         "status_counts": counts,
         "unverified_other": sorted(c for c, s in statuses.items() if s == "unverified_other"),
+        "bundle_cards_not_in_manifest": stray,
         "vision_text_pages_in_judged_cards": {
             "cards": len(vision_pages),
             "pages": sum(len(p) for p in vision_pages.values()),
