@@ -121,6 +121,44 @@ def _vision_text_pages(pages: Iterable[Mapping[str, Any]], card_ids: set[str]) -
     return {cid: sorted(set(pgs)) for cid, pgs in found.items()}
 
 
+def _card_entries(
+    statuses: Mapping[str, str],
+    types: Mapping[str, set[str]],
+    bundle: Mapping[str, Any],
+    pages: list[Mapping[str, Any]],
+    vision_pages: Mapping[str, list[int]],
+) -> list[dict[str, Any]]:
+    judged_pages = _judged_page_counts(bundle)
+    current_pages = _current_page_counts(pages)
+    cards: list[dict[str, Any]] = []
+    for card_id in sorted(statuses):
+        entry: dict[str, Any] = {
+            "card_id": card_id,
+            "asset_types": sorted(types[card_id]),
+            "status": statuses[card_id],
+        }
+        if statuses[card_id] == "partially_judged":
+            entry["judged_pages"] = judged_pages[card_id]
+            entry["current_pages"] = current_pages.get(card_id, 0)
+        if card_id in vision_pages:
+            entry["vision_text_pages"] = vision_pages[card_id]
+        cards.append(entry)
+    return cards
+
+
+def _provenance(manifest: Mapping[str, Any], bundle: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "manifest_csv_sha256": manifest["csv_sha256"],
+        "manifest_fetched_at": manifest["fetched_at"],
+        "clean_qc_bundle": {
+            "bundle_schema_version": bundle["bundle_schema_version"],
+            "generated_at": bundle["generated_at"],
+            "runner_version": bundle["runner_version"],
+            "judge_model": bundle["judge_model"],
+        },
+    }
+
+
 def build_coverage(
     manifest: Mapping[str, Any],
     bundle: Mapping[str, Any],
@@ -135,22 +173,7 @@ def build_coverage(
     statuses = classify_cards(manifest, bundle, pages, observations)
     judged = {cid for cid, s in statuses.items() if s in ("judged", "partially_judged")}
     vision_pages = _vision_text_pages(pages, judged)
-    judged_pages = _judged_page_counts(bundle)
-    current_pages = _current_page_counts(pages)
-
-    cards: list[dict[str, Any]] = []
-    for card_id in sorted(statuses):
-        entry: dict[str, Any] = {
-            "card_id": card_id,
-            "asset_types": sorted(types[card_id]),
-            "status": statuses[card_id],
-        }
-        if statuses[card_id] == "partially_judged":
-            entry["judged_pages"] = judged_pages[card_id]
-            entry["current_pages"] = current_pages.get(card_id, 0)
-        if card_id in vision_pages:
-            entry["vision_text_pages"] = vision_pages[card_id]
-        cards.append(entry)
+    cards = _card_entries(statuses, types, bundle, pages, vision_pages)
 
     counts = {s: 0 for s in STATUSES}
     for status in statuses.values():
@@ -158,16 +181,7 @@ def build_coverage(
 
     return {
         "schema_version": SCHEMA_VERSION,
-        "generated_from": {
-            "manifest_csv_sha256": manifest["csv_sha256"],
-            "manifest_fetched_at": manifest["fetched_at"],
-            "clean_qc_bundle": {
-                "bundle_schema_version": bundle["bundle_schema_version"],
-                "generated_at": bundle["generated_at"],
-                "runner_version": bundle["runner_version"],
-                "judge_model": bundle["judge_model"],
-            },
-        },
+        "generated_from": _provenance(manifest, bundle),
         "total_cards": len(cards),
         "status_counts": counts,
         "unverified_other": sorted(c for c, s in statuses.items() if s == "unverified_other"),
