@@ -13,7 +13,8 @@ const fetchedDate = new Date(manifest.fetched_at).toISOString().slice(0, 10);
 interface CsvIndexEntry {
   sha256: string;
   bytes: number;
-  archived_at: string;
+  // First time the version was observed; null if it never became a manifest.
+  archived_at: string | null;
   url: string;
 }
 interface CsvIndex {
@@ -242,7 +243,7 @@ https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
           Every distinct version of the upstream PURSUE CSV is preserved
           here for citation reproducibility. The current manifest is
           built from{" "}
-          <code class="text-[color:var(--color-signal-cyan)]">{csvIndex.csvs[0].sha256.slice(0, 16)}…</code>.
+          <code class="text-[color:var(--color-signal-cyan)]">{sha.slice(0, 16)}…</code>.
           Each row shows the sha256 (load-bearing identifier), the byte
           size, and the date we first archived that version.
         </p>
@@ -270,11 +271,11 @@ https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
               </tr>
             </thead>
             <tbody>
-              {csvIndex.csvs.map((entry, i) => (
+              {csvIndex.csvs.map((entry) => (
                 <tr class="border-t border-[color:var(--color-border)]">
                   <td class="px-3 py-2">
                     <code class="text-[10px] text-[color:var(--color-text-bright)]">{entry.sha256}</code>
-                    {i === 0 && (
+                    {entry.sha256 === sha && (
                       <span class="ml-2 text-[9px] uppercase tracking-[0.15em] text-[color:var(--color-signal-green)]">
                         current
                       </span>
@@ -284,7 +285,7 @@ https://pursueindex.com/card/<card_id>#page-<n>`}</code></pre>
                     {(entry.bytes / 1024).toFixed(1)} KB
                   </td>
                   <td class="px-3 py-2 text-[color:var(--color-text-dim)] whitespace-nowrap text-[10px]">
-                    {entry.archived_at.slice(0, 10)}
+                    {entry.archived_at?.slice(0, 10) ?? "—"}
                   </td>
                   <td class="px-3 py-2">
                     <a

@@ -46,6 +46,7 @@ on:
       - "web/src/data/manifest.json"
       - "web/public/data/snapshots/**"
       - "data/card-aliases.json"
+      - "web/public/data/card-aliases.json"
       - "web/src/content/finds/**"
       # LS1.4 — GEO discovery surfaces and the generator that emits them.
       # A manifest change already fires this workflow (see above), which is
@@ -94,6 +95,10 @@ on:
       - "web/src/lib/byte-display.ts"
       - "web/scripts/build_byte_history.mjs"
       - "web/scripts/build_byte_history.test.mjs"
+      # /cite names csvs[0] as the current manifest's CSV.
+      - "web/scripts/build_csv_archive.mjs"
+      - "web/scripts/build_csv_archive.test.mjs"
+      - "web/src/pages/cite.astro"
       # Vaivora PR #79 round-7 P1 + round-9 P1 #1: the lockstep
       # test in web/src/lib/byte-display.test.ts imports
       # ARCHIVE_EXT_TO_CONTENT_TYPE from worker/pdf.js. Use a
@@ -308,7 +313,7 @@ jobs:
         working-directory: web
         env:
           PURSUE_STRICT_INVARIANTS: "1"
-        run: npm run test:byte-history && npm run test:lib
+        run: npm run test:byte-history && npm run test:csv-archive && npm run test:lib
 
       - name: 6a — Card-page coverage (every manifest card_id → dist page)
         run: pytest tests/integration/test_card_page_coverage.py -v

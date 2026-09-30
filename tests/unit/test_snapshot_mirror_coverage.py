@@ -21,6 +21,11 @@ build step:
    missing entry hides a snapshot from the UI; an extra entry points
    at nothing.
 
+4. **Alias index coherence** — `web/public/data/card-aliases.json` (the
+   copy the Worker's `loadAliasIndex` reads from ASSETS) must byte-equal
+   `data/card-aliases.json` (where the ingest gate appends aliases). A
+   drift means `/card/<old_id>` for a newer rename 404s in production.
+
 Bonus: pairwise byte equality is checked when a snapshot exists on
 both sides — if a file got desynced (corrupt copy, partial write),
 this catches it without requiring a hash recomputation.
@@ -39,6 +44,8 @@ _BUILD_MANIFEST = _REPO_ROOT / "web" / "src" / "data" / "manifest.json"
 _PIPE_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
 _WEB_SNAPSHOTS = _REPO_ROOT / "web" / "public" / "data" / "snapshots"
 _WEB_SNAPSHOTS_INDEX = _WEB_SNAPSHOTS / "index.json"
+_PIPE_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
+_WEB_ALIASES = _REPO_ROOT / "web" / "public" / "data" / "card-aliases.json"
 
 
 def _snapshot_files(d: Path) -> set[str]:
@@ -59,6 +66,24 @@ def test_pipeline_and_build_manifest_byte_equal() -> None:
             f"data/manifests/latest.json ({len(pipe)} bytes) != "
             f"web/src/data/manifest.json ({len(build)} bytes). "
             f"Run `pursue ingest run --tranche <sha>` to sync, then commit."
+        )
+
+
+def test_pipeline_and_deployed_aliases_byte_equal() -> None:
+    """The Worker resolves renames from the web/public copy, so it must
+    carry every alias the ingest gate recorded. Diff = old ids 404."""
+    pipe = _PIPE_ALIASES.read_bytes()
+    web = _WEB_ALIASES.read_bytes()
+    if pipe != web:
+        missing = sorted(
+            {a["old_card_id"] for a in json.loads(pipe)["aliases"]}
+            - {a["old_card_id"] for a in json.loads(web)["aliases"]}
+        )
+        pytest.fail(
+            f"data/card-aliases.json ({len(pipe)} bytes) != "
+            f"web/public/data/card-aliases.json ({len(web)} bytes); "
+            f"old ids missing from the deployed copy: {missing}. "
+            f"Run `make rebuild-derivatives` to sync, then commit."
         )
 
 
