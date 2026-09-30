@@ -25,6 +25,7 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
+from pursue_index.clean.qc.coverage import classify_cards
 from pursue_index.config import settings
 from pursue_index.scrape.types import Manifest
 from pursue_index.vision.eligibility import select_eligible
@@ -38,6 +39,8 @@ ATLAS_LAYOUT = "web/public/data/atlas-layout.json"
 VIDEO_POSTERS = "web/public/data/video-posters/index.json"
 THUMBS = "web/public/data/thumbs/index.json"
 IMAGE_OBSERVATIONS = "web/src/data/image-observations/index.json"
+CLEAN_QC_BUNDLE = "web/public/data/clean-qc-bundle.json"
+QC_COVERAGE = "web/public/data/qc-coverage.json"
 
 #: Asset types whose cards get a poster frame.
 AV_ASSET_TYPES = ("VID", "AUD")
@@ -114,6 +117,39 @@ def _eligible_image_observation_cards(sources: Mapping[str, Any]) -> set[Key]:
 def _shipped_image_observation_cards(doc: Any) -> set[Key]:
     """Extract card_ids from the image observations index."""
     return set(doc.get("card_ids", []))
+
+
+def _provenance_key(csv_sha256: str, bundle_generated_at: str) -> Key:
+    return ("generated_from", csv_sha256, bundle_generated_at)
+
+
+def _eligible_qc_statuses(sources: Mapping[str, Any]) -> set[Key]:
+    """(card_id, status) for every distinct manifest card, plus the inputs'
+    provenance, so a stale payload fails even when its card set still fits."""
+    statuses = classify_cards(
+        sources[MANIFEST], sources[CLEAN_QC_BUNDLE], sources[PAGES], sources[IMAGE_OBSERVATIONS]
+    )
+    keys: set[Key] = set(statuses.items())
+    keys.add(
+        _provenance_key(
+            sources[MANIFEST]["csv_sha256"], sources[CLEAN_QC_BUNDLE]["generated_at"]
+        )
+    )
+    return keys
+
+
+def _shipped_qc_statuses(doc: Any) -> set[Key]:
+    """(card_id, status) as shipped. A card listed twice yields a
+    ``(card_id, "DUPLICATE")`` key, which no source makes eligible."""
+    keys: set[Key] = set()
+    seen: set[str] = set()
+    for card in doc["cards"]:
+        cid = card["card_id"]
+        keys.add((cid, "DUPLICATE") if cid in seen else (cid, card["status"]))
+        seen.add(cid)
+    src = doc["generated_from"]
+    keys.add(_provenance_key(src["manifest_csv_sha256"], src["clean_qc_bundle"]["generated_at"]))
+    return keys
 
 
 SPECS: tuple[PayloadSpec, ...] = (
@@ -206,6 +242,25 @@ SPECS: tuple[PayloadSpec, ...] = (
         rationale=(
             "every IMG card, and every PDF card with an image-only OCR page, "
             "as selected by the vision stage (select_eligible)"
+        ),
+    ),
+    # QC coverage: one status per distinct manifest card. Key-set EQUALITY
+    # on (card_id, status): a missing card is an unverified card hidden by
+    # absence, a stale card or status misstates what was checked, and the
+    # provenance key ties the payload to the manifest and bundle it read.
+    PayloadSpec(
+        payload=QC_COVERAGE,
+        sources=(MANIFEST, CLEAN_QC_BUNDLE, PAGES, IMAGE_OBSERVATIONS),
+        eligible=_eligible_qc_statuses,
+        shipped=_shipped_qc_statuses,
+        require_no_missing=True,
+        require_no_extra=True,
+        key_label="(card_id, status)",
+        rationale=(
+            "every DISTINCT card_id in the manifest exactly once, with the "
+            "status classify_cards derives from the clean-QC bundle, pages.json "
+            "and the image-observations index; plus the manifest csv_sha256 and "
+            "bundle generated_at it was built from"
         ),
     ),
 )
