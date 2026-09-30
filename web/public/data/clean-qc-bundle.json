@@ -1082,21 +1082,21 @@
       "page_count": 1
     }
   ],
-  "generated_at": "2026-09-29T21:47:52+00:00",
+  "generated_at": "2026-09-30T04:01:24+00:00",
   "judge_model": "claude-sonnet-4-6",
   "runner_version": "0.2.0",
   "stats": {
-    "baseline_cost_usd": 270.432,
-    "est_total_cost_usd": 195.750549,
+    "baseline_cost_usd": 450.72,
+    "est_total_cost_usd": 197.80953,
     "indeterminate_pages": 0,
-    "judge_calls": 11157,
-    "judge_ok": 6524,
+    "judge_calls": 11268,
+    "judge_ok": 6573,
     "no_corrections": 0,
-    "operator_review": 4744,
+    "operator_review": 4695,
     "rule_applied": 0,
-    "runner_errors": 111,
-    "savings_pct": 28,
-    "savings_usd": 74.68145100000001,
+    "runner_errors": 0,
+    "savings_pct": 56,
+    "savings_usd": 252.91047000000003,
     "total_pages": 11268
   }
 }

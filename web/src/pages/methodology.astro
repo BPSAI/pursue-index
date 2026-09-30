@@ -12,6 +12,7 @@ import {
   readOcrCardIds,
   readSidecarModelBreakdown,
 } from "../lib/methodology-data";
+import { cleanQcCoverage, describeCleanQcAssessment } from "../lib/clean-qc-coverage";
 import cleanQcBundleJson from "../../public/data/clean-qc-bundle.json";
 
 import { resolve, dirname } from "node:path";
@@ -66,6 +67,11 @@ interface CleanQcBundle {
     total_pages: number;
     judge_ok: number;
     operator_review: number;
+    // Pages the judge could not evaluate / whose outcome is unknown. Both
+    // sit inside operator_review; optional because older bundles predate
+    // them (see lib/clean-qc-coverage.ts for the coverage rule).
+    runner_errors?: number;
+    indeterminate_pages?: number;
     rule_applied: number;
     no_corrections: number;
     judge_calls: number;
@@ -76,12 +82,10 @@ interface CleanQcBundle {
   };
 }
 const cleanQcBundle = cleanQcBundleJson as CleanQcBundle;
-const cleanQcOperatorReviewPct = Math.round(
-  (cleanQcBundle.stats.operator_review / cleanQcBundle.stats.total_pages) * 100,
-);
-const cleanQcJudgeOkPct = Math.round(
-  (cleanQcBundle.stats.judge_ok / cleanQcBundle.stats.total_pages) * 100,
-);
+// Percentages are over pages the judge actually assessed (#140).
+const cleanQc = cleanQcCoverage(cleanQcBundle.stats);
+const cleanQcAssessment = describeCleanQcAssessment(cleanQc);
+const formatPct = (pct: number | null) => (pct === null ? "n/a" : `${pct}%`);
 const cleanQcGeneratedDate = cleanQcBundle.generated_at.slice(0, 10);
 const csvShort = manifest.csv_sha256.slice(0, 12);
 const csvFull = manifest.csv_sha256;
@@ -711,17 +715,18 @@ const methodologyJsonLd = [
           {" "}<strong class="text-[color:var(--color-text-bright)]">{cleanQcBundle.stats.total_pages.toLocaleString()}</strong> pages
           {" "}across <strong class="text-[color:var(--color-text-bright)]">{cleanQcBundle.cards.length}</strong> cards
           on <span class="text-[color:var(--color-text-bright)]">{cleanQcGeneratedDate}</span>.
+          {cleanQcAssessment && <>{" "}<span data-testid="clean-qc-assessed">{cleanQcAssessment}</span></>}
         </p>
         <ul class="text-[color:var(--color-text-dim)] space-y-1">
           <li>
             <span class="text-[color:var(--color-signal-green)]">●</span>{" "}
-            <strong class="text-[color:var(--color-text-bright)]">{cleanQcBundle.stats.judge_ok.toLocaleString()}</strong>
-            {" "}<code>ok</code> ({cleanQcJudgeOkPct}%) — cleaned text faithful to the source image
+            <strong class="text-[color:var(--color-text-bright)]">{cleanQc.judgeOk.toLocaleString()}</strong>
+            {" "}<code>ok</code> ({formatPct(cleanQc.judgeOkPct)}) — cleaned text faithful to the source image
           </li>
           <li>
             <span class="text-[color:var(--color-signal-amber)]">●</span>{" "}
-            <strong class="text-[color:var(--color-text-bright)]">{cleanQcBundle.stats.operator_review.toLocaleString()}</strong>
-            {" "}<code>operator-review</code> ({cleanQcOperatorReviewPct}%) — judge flagged a possible mismatch worth a human pass
+            <strong class="text-[color:var(--color-text-bright)]">{cleanQc.operatorReview.toLocaleString()}</strong>
+            {" "}<code>operator-review</code> ({formatPct(cleanQc.operatorReviewPct)}) — judge flagged a possible mismatch worth a human pass
           </li>
         </ul>
         <p class="text-[color:var(--color-text-faint)] leading-relaxed pt-1 border-t border-[color:var(--color-border)] mt-2">
