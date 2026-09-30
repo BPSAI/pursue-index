@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from pursue_index.clean.qc.coverage import classify_cards
+from pursue_index.clean.qc.coverage import build_coverage
 from tests.support.payload_coverage import Key
 
 MANIFEST = "data/manifests/latest.json"
@@ -20,34 +20,53 @@ CLEAN_QC_BUNDLE = "web/public/data/clean-qc-bundle.json"
 QC_COVERAGE = "web/public/data/qc-coverage.json"
 
 
-def _provenance_key(csv_sha256: str, bundle_generated_at: str) -> Key:
-    return ("generated_from", csv_sha256, bundle_generated_at)
+def qc_keys(doc: Any) -> set[Key]:
+    """Every fact the payload states, as comparable keys.
 
-
-def eligible_qc_statuses(sources: Mapping[str, Any]) -> set[Key]:
-    """(card_id, status) for every distinct manifest card, plus the inputs'
-    provenance, so a stale payload fails even when its card set still fits."""
-    statuses = classify_cards(
-        sources[MANIFEST], sources[CLEAN_QC_BUNDLE], sources[PAGES], sources[IMAGE_OBSERVATIONS]
-    )
-    keys: set[Key] = set(statuses.items())
-    keys.add(
-        _provenance_key(
-            sources[MANIFEST]["csv_sha256"], sources[CLEAN_QC_BUNDLE]["generated_at"]
-        )
-    )
-    return keys
-
-
-def shipped_qc_statuses(doc: Any) -> set[Key]:
-    """(card_id, status) as shipped. A card listed twice yields a
-    ``(card_id, "DUPLICATE")`` key, which no source makes eligible."""
+    One ``(card_id, status)`` per card (a card listed twice yields
+    ``(card_id, "DUPLICATE")`` instead, which no source makes eligible), each
+    judged card's ``vision_text_pages``, every aggregate the page renders, and
+    the provenance it was built from.
+    """
     keys: set[Key] = set()
     seen: set[str] = set()
     for card in doc["cards"]:
         cid = card["card_id"]
         keys.add((cid, "DUPLICATE") if cid in seen else (cid, card["status"]))
         seen.add(cid)
+        if "vision_text_pages" in card:
+            keys.add((cid, "vision_text_pages", tuple(card["vision_text_pages"])))
+    keys.add(("total_cards", doc["total_cards"]))
+    keys.update(("status_counts", status, n) for status, n in doc["status_counts"].items())
+    keys.add(("unverified_other", tuple(doc["unverified_other"])))
+    keys.add(("bundle_cards_not_in_manifest", tuple(doc["bundle_cards_not_in_manifest"])))
+    vp = doc["vision_text_pages_in_judged_cards"]
+    keys.add(("vision_text_pages_in_judged_cards", vp["cards"], vp["pages"]))
     src = doc["generated_from"]
-    keys.add(_provenance_key(src["manifest_csv_sha256"], src["clean_qc_bundle"]["generated_at"]))
+    bundle = src["clean_qc_bundle"]
+    keys.add(
+        (
+            "generated_from",
+            src["manifest_csv_sha256"],
+            src["manifest_fetched_at"],
+            *(bundle[k] for k in sorted(bundle)),
+        )
+    )
     return keys
+
+
+def eligible_qc_statuses(sources: Mapping[str, Any]) -> set[Key]:
+    """The keys of a payload freshly built from the current sources."""
+    return qc_keys(
+        build_coverage(
+            sources[MANIFEST],
+            sources[CLEAN_QC_BUNDLE],
+            sources[PAGES],
+            sources[IMAGE_OBSERVATIONS],
+        )
+    )
+
+
+def shipped_qc_statuses(doc: Any) -> set[Key]:
+    """The keys of the payload as shipped."""
+    return qc_keys(doc)

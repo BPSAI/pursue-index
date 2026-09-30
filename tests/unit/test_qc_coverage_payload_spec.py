@@ -11,6 +11,7 @@ import copy
 from typing import Any
 
 from pursue_index.clean.qc.coverage import build_coverage
+from pursue_index.embed.image_observations import OBSERVATIONS_HEADER
 from tests.support.payload_coverage import evaluate
 from tests.support.payload_specs import (
     CLEAN_QC_BUNDLE,
@@ -20,6 +21,7 @@ from tests.support.payload_specs import (
     QC_COVERAGE,
     spec_for,
 )
+from tests.support.payload_specs_qc import shipped_qc_statuses
 
 _SOURCES: dict[str, Any] = {
     MANIFEST: {
@@ -63,7 +65,7 @@ def test_a_freshly_built_payload_passes() -> None:
     result = _run(_fresh())
     assert result.ok
     distinct = {c["card_id"] for c in _SOURCES[MANIFEST]["cards"]}
-    assert result.shipped_count == len(distinct) + 1  # + the provenance key
+    assert distinct <= {k[0] for k in shipped_qc_statuses(_fresh())}
 
 
 def test_a_missing_card_fails() -> None:
@@ -92,5 +94,20 @@ def test_a_payload_built_from_an_older_manifest_fails() -> None:
     sources = copy.deepcopy(_SOURCES)
     sources[MANIFEST]["csv_sha256"] = "b" * 64
     result = _run(doc, sources)
-    assert not result.ok
-    assert any(k[0] == "generated_from" for k in result.extra)
+    assert [k[0] for k in result.extra] == ["generated_from"]
+
+
+def test_a_hand_edited_count_fails() -> None:
+    doc = _fresh()
+    doc["status_counts"]["judged"] += 1
+    assert not _run(doc).ok
+
+
+def test_vision_text_pages_the_sources_no_longer_support_fail() -> None:
+    doc = _fresh()
+    sources = copy.deepcopy(_SOURCES)
+    sources[PAGES].append(
+        {"card_id": "pdf1", "page": 2, "text": f"{OBSERVATIONS_HEADER}, m]]\n\nphoto"}
+    )
+    result = _run(doc, sources)
+    assert ("pdf1", "vision_text_pages", (2,)) in result.missing

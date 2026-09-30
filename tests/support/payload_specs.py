@@ -214,9 +214,10 @@ SPECS: tuple[PayloadSpec, ...] = (
         ),
     ),
     # QC coverage: one status per distinct manifest card. Key-set EQUALITY
-    # on (card_id, status): a missing card is an unverified card hidden by
-    # absence, a stale card or status misstates what was checked, and the
-    # provenance key ties the payload to the manifest and bundle it read.
+    # against a payload rebuilt from the current sources: a missing card is
+    # an unverified card hidden by absence, a stale status, count or page
+    # list misstates what was checked, and the provenance key ties the
+    # payload to the manifest and bundle it read.
     PayloadSpec(
         payload=QC_COVERAGE,
         sources=(MANIFEST, CLEAN_QC_BUNDLE, PAGES, IMAGE_OBSERVATIONS),
@@ -224,12 +225,12 @@ SPECS: tuple[PayloadSpec, ...] = (
         shipped=shipped_qc_statuses,
         require_no_missing=True,
         require_no_extra=True,
-        key_label="(card_id, status)",
+        key_label="(card_id, status) and aggregate facts",
         rationale=(
             "every DISTINCT card_id in the manifest exactly once, with the "
-            "status classify_cards derives from the clean-QC bundle, pages.json "
-            "and the image-observations index; plus the manifest csv_sha256 and "
-            "bundle generated_at it was built from"
+            "status and vision_text_pages build_coverage derives from the "
+            "clean-QC bundle, pages.json and the image-observations index; "
+            "plus the counts and provenance a fresh build would state"
         ),
     ),
 )
