@@ -13,6 +13,7 @@
   "total_cards": 438,
   "status_counts": {
     "judged": 270,
+    "partially_judged": 0,
     "unverified_transcript": 16,
     "unverified_vision": 30,
     "no_text": 122,

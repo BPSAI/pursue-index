@@ -4,7 +4,12 @@ The clean-QC bundle lists the cards the page-level judge covered and says
 nothing about the rest, so an unverified card was absent rather than marked.
 This module gives every distinct card_id in the manifest exactly one status:
 
-* ``judged``                — the card is in the clean-QC bundle.
+* ``judged``                — the card is in the clean-QC bundle and the
+                              bundle's ``page_count`` equals the card's
+                              current page count (see below).
+* ``partially_judged``      — in the bundle, but its page count has changed
+                              since the sweep (e.g. a re-OCR added pages);
+                              ``judged_pages`` / ``current_pages`` recorded.
 * ``unverified_transcript`` — an AUD card with transcript text in pages.json.
 * ``unverified_vision``     — an IMG card with a vision description (listed in
                               the image-observations index).
@@ -16,6 +21,12 @@ This module gives every distinct card_id in the manifest exactly one status:
 
 Checked in that order, so a card with several asset rows (a PDF paired with
 a video) takes the strongest status its sources support.
+
+The bundle's ``page_count`` is the number of cleanup rows the judge graded
+for the card (``pursue_index.clean.qc.runner.run_card`` grades every row of
+the cleanup sidecar, one per OCR page, including pages the cleanup skipped as
+empty input). The current count is therefore every distinct page row the
+card has in pages.json, with or without text.
 
 Judged cards can also hold image-only pages whose text is our own vision
 description rather than OCR (see ``pursue_index.embed.image_observations``);
@@ -37,6 +48,7 @@ SCHEMA_VERSION = 1
 
 STATUSES: tuple[str, ...] = (
     "judged",
+    "partially_judged",
     "unverified_transcript",
     "unverified_vision",
     "no_text",
@@ -59,6 +71,18 @@ def _judged_ids(bundle: Mapping[str, Any]) -> set[str]:
     return {c["card_id"] for c in bundle["cards"]}
 
 
+def _judged_page_counts(bundle: Mapping[str, Any]) -> dict[str, int]:
+    return {c["card_id"]: int(c["page_count"]) for c in bundle["cards"]}
+
+
+def _current_page_counts(pages: Iterable[Mapping[str, Any]]) -> dict[str, int]:
+    """Distinct page rows per card, text or not (the judge's eligibility)."""
+    seen: dict[str, set[int]] = {}
+    for p in pages:
+        seen.setdefault(p["card_id"], set()).add(int(p["page"]))
+    return {cid: len(pgs) for cid, pgs in seen.items()}
+
+
 def classify_cards(
     manifest: Mapping[str, Any],
     bundle: Mapping[str, Any],
@@ -66,14 +90,17 @@ def classify_cards(
     observations: Mapping[str, Any],
 ) -> dict[str, str]:
     """``{card_id: status}`` for every distinct card_id in the manifest."""
+    pages = list(pages)
     types = _asset_types(manifest)
-    judged = _judged_ids(bundle)
+    judged_pages = _judged_page_counts(bundle)
+    current_pages = _current_page_counts(pages)
     with_text = _cards_with_text(pages)
     described = set(observations.get("card_ids", []))
     statuses: dict[str, str] = {}
     for card_id, kinds in types.items():
-        if card_id in judged:
-            status = "judged"
+        if card_id in judged_pages:
+            same = judged_pages[card_id] == current_pages.get(card_id, 0)
+            status = "judged" if same else "partially_judged"
         elif "AUD" in kinds and card_id in with_text:
             status = "unverified_transcript"
         elif "IMG" in kinds and card_id in described:
@@ -106,8 +133,10 @@ def build_coverage(
     # A card that left the corpus after the sweep: listed, never counted.
     stray = sorted(_judged_ids(bundle) - types.keys())
     statuses = classify_cards(manifest, bundle, pages, observations)
-    judged = {cid for cid, s in statuses.items() if s == "judged"}
+    judged = {cid for cid, s in statuses.items() if s in ("judged", "partially_judged")}
     vision_pages = _vision_text_pages(pages, judged)
+    judged_pages = _judged_page_counts(bundle)
+    current_pages = _current_page_counts(pages)
 
     cards: list[dict[str, Any]] = []
     for card_id in sorted(statuses):
@@ -116,6 +145,9 @@ def build_coverage(
             "asset_types": sorted(types[card_id]),
             "status": statuses[card_id],
         }
+        if statuses[card_id] == "partially_judged":
+            entry["judged_pages"] = judged_pages[card_id]
+            entry["current_pages"] = current_pages.get(card_id, 0)
         if card_id in vision_pages:
             entry["vision_text_pages"] = vision_pages[card_id]
         cards.append(entry)

@@ -76,6 +76,8 @@ on:
       # gate share, and the sources it reads beyond the manifest/pages.json.
       - "scripts/build_qc_coverage.py"
       - "src/pursue_index/clean/qc/coverage.py"
+      - "src/pursue_index/embed/image_observations.py"
+      - "tests/support/payload_specs_qc.py"
       - "web/src/data/image-observations/index.json"
       # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
       # bundle, mutating byte-history, or editing the exclusion file

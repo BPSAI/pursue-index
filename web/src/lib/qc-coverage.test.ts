@@ -18,6 +18,7 @@ function card(card_id: string, asset_types: string[], status: string, vision?: n
 function payload(cards: QcCoverageCard[]): QcCoverage {
   const status_counts: Record<string, number> = {
     judged: 0,
+    partially_judged: 0,
     unverified_transcript: 0,
     unverified_vision: 0,
     no_text: 0,
@@ -79,4 +80,27 @@ test("describeQcCoverage: omits clauses whose count is zero", () => {
 test("describeQcCoverage: formats thousands", () => {
   const cards = Array.from({ length: 1200 }, (_, i) => card(`v${i}`, ["VID"], "no_text"));
   assert.equal(describeQcCoverage(payload(cards))[0], "Of 1,200 cards, 0 are QC-judged page by page.");
+});
+
+test("describeQcCoverage: says how many judged cards were only partially judged", () => {
+  const doc = payload([
+    card("p1", ["PDF"], "judged"),
+    card("p2", ["PDF"], "partially_judged"),
+    card("p3", ["PDF", "VID"], "partially_judged"),
+    card("v1", ["VID"], "no_text"),
+  ]);
+  assert.equal(
+    describeQcCoverage(doc)[0],
+    "Of 4 cards, 3 (all PDF documents with OCR text) are QC-judged page by page, " +
+      "2 of them only partially since a later re-OCR.",
+  );
+});
+
+test("describeQcCoverage: a single partially judged card reads in the singular", () => {
+  const doc = payload([card("p1", ["PDF"], "judged"), card("p2", ["PDF"], "partially_judged")]);
+  assert.equal(
+    describeQcCoverage(doc)[0],
+    "Of 2 cards, 2 (all PDF documents with OCR text) are QC-judged page by page, " +
+      "1 of them only partially since a later re-OCR.",
+  );
 });

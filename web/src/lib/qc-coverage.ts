@@ -7,6 +7,9 @@
  * manifest card one status; this turns it into plain sentences. Every number
  * comes from the payload, and a clause whose count is zero is left out.
  *
+ * `partially_judged` cards (judged, but their page count changed after the
+ * sweep) count toward the judged figure and are named in the same sentence.
+ *
  * Two phrasings are conditional on the payload rather than assumed:
  *   - "all PDF documents with OCR text" only when every PDF card is judged
  *     and every judged card is a PDF;
@@ -18,6 +21,9 @@ export interface QcCoverageCard {
   asset_types: string[];
   status: string;
   vision_text_pages?: number[];
+  /** Set on partially_judged cards: pages judged at the sweep, pages now. */
+  judged_pages?: number;
+  current_pages?: number;
 }
 
 export interface QcCoverage {
@@ -43,19 +49,24 @@ function joinAnd(parts: string[]): string {
 
 export function describeQcCoverage(doc: QcCoverage): string[] {
   const n = (status: string) => doc.status_counts[status] ?? 0;
-  const judged = n("judged");
+  // A partially judged card was judged, but its page count has changed
+  // since the sweep; it counts as judged and is then called out.
+  const partial = n("partially_judged");
+  const judged = n("judged") + partial;
+  const isJudged = (c: QcCoverageCard) => c.status === "judged" || c.status === "partially_judged";
   const lines: string[] = [];
 
   const pdfCards = doc.cards.filter((c) => c.asset_types.includes("PDF"));
-  const judgedCards = doc.cards.filter((c) => c.status === "judged");
+  const judgedCards = doc.cards.filter(isJudged);
   const allPdfJudged =
     judged > 0 &&
-    pdfCards.every((c) => c.status === "judged") &&
+    pdfCards.every(isJudged) &&
     judgedCards.every((c) => c.asset_types.includes("PDF"));
   lines.push(
     `Of ${count(doc.total_cards, "card", "cards")}, ${fmt(judged)}` +
       (allPdfJudged ? " (all PDF documents with OCR text)" : "") +
-      ` ${verb(judged, "is", "are")} QC-judged page by page.`,
+      ` ${verb(judged, "is", "are")} QC-judged page by page` +
+      (partial > 0 ? `, ${fmt(partial)} of them only partially since a later re-OCR.` : "."),
   );
 
   const vision = n("unverified_vision");

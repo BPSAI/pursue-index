@@ -38,13 +38,13 @@ def _manifest(rows: list[dict]) -> dict:
     return {"csv_sha256": "c" * 64, "fetched_at": "2026-09-01T00:00:00+00:00", "cards": rows}
 
 
-def _bundle(card_ids: list[str]) -> dict:
+def _bundle(page_counts: dict[str, int]) -> dict:
     return {
         "bundle_schema_version": 1,
         "generated_at": "2026-09-02T00:00:00+00:00",
         "runner_version": "0.2.0",
         "judge_model": "judge-x",
-        "cards": [{"card_id": c, "page_count": 1} for c in card_ids],
+        "cards": [{"card_id": c, "page_count": n} for c, n in page_counts.items()],
     }
 
 
@@ -63,7 +63,7 @@ def _fixture() -> tuple[dict, dict, list[dict], dict]:
             _row("pdf-unjudged", "PDF"),
         ]
     )
-    bundle = _bundle(["pdf-judged", "mixed"])
+    bundle = _bundle({"pdf-judged": 2, "mixed": 1})
     pages = [
         _page("pdf-judged", 1, "OCR text"),
         _page("pdf-judged", 2, VISION_TEXT),
@@ -91,6 +91,29 @@ def test_each_card_gets_the_status_its_sources_support() -> None:
         "pdf-unjudged": "unverified_other",
     }
     assert set(statuses.values()) <= set(STATUSES)
+
+
+def test_a_card_whose_pages_changed_after_the_sweep_is_only_partially_judged() -> None:
+    """The bundle's page_count is the card's page rows at sweep time; a later
+    re-OCR that adds a page leaves that page unjudged."""
+    manifest, bundle, pages, observations = _fixture()
+    pages.append(_page("mixed", 2, "page added by a re-OCR"))
+    assert "partially_judged" in STATUSES
+    assert classify_cards(manifest, bundle, pages, observations)["mixed"] == "partially_judged"
+    doc = build_coverage(manifest, bundle, pages, observations)
+    mixed = next(c for c in doc["cards"] if c["card_id"] == "mixed")
+    assert (mixed["judged_pages"], mixed["current_pages"]) == (1, 2)
+    assert doc["status_counts"]["partially_judged"] == 1
+    judged = next(c for c in doc["cards"] if c["card_id"] == "pdf-judged")
+    assert "judged_pages" not in judged
+
+
+def test_an_empty_ocr_page_still_counts_toward_the_judged_page_count() -> None:
+    """The producer judges every cleanup row, including empty-input pages."""
+    manifest, bundle, pages, observations = _fixture()
+    pages.append(_page("mixed", 2, ""))
+    bundle["cards"][1]["page_count"] = 2
+    assert classify_cards(manifest, bundle, pages, observations)["mixed"] == "judged"
 
 
 def test_payload_lists_every_distinct_card_once_sorted() -> None:

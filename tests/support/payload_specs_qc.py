@@ -23,17 +23,23 @@ QC_COVERAGE = "web/public/data/qc-coverage.json"
 def qc_keys(doc: Any) -> set[Key]:
     """Every fact the payload states, as comparable keys.
 
-    One ``(card_id, status)`` per card (a card listed twice yields
-    ``(card_id, "DUPLICATE")`` instead, which no source makes eligible), each
-    judged card's ``vision_text_pages``, every aggregate the page renders, and
-    the provenance it was built from.
+    One ``(card_id, status, asset_types)`` per card, asset types sorted (a
+    card listed twice yields ``(card_id, "DUPLICATE", ())`` instead, which no
+    source makes eligible); a partially judged card's judged and current page
+    counts; each judged card's ``vision_text_pages``; every aggregate the page
+    renders; and the provenance it was built from.
     """
     keys: set[Key] = set()
     seen: set[str] = set()
     for card in doc["cards"]:
         cid = card["card_id"]
-        keys.add((cid, "DUPLICATE") if cid in seen else (cid, card["status"]))
+        if cid in seen:
+            keys.add((cid, "DUPLICATE", ()))
+        else:
+            keys.add((cid, card["status"], tuple(sorted(card["asset_types"]))))
         seen.add(cid)
+        if "judged_pages" in card or "current_pages" in card:
+            keys.add((cid, "page_counts", card.get("judged_pages"), card.get("current_pages")))
         if "vision_text_pages" in card:
             keys.add((cid, "vision_text_pages", tuple(card["vision_text_pages"])))
     keys.add(("total_cards", doc["total_cards"]))
