@@ -21,6 +21,7 @@ for those, matching the quarantine policy.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
 
 # Bracketed header mirrors the retired Zhang ``[[IMAGE-DESCRIPTIONS via ...]]``
@@ -118,9 +119,19 @@ def load_observation_text(
         index = json.loads(index_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return {}
-    obs_dir = obs_dir or index_path.parent
+    return observation_text_for(index.get("card_ids", []), obs_dir or index_path.parent)
+
+
+def observation_text_for(
+    card_ids: Iterable[str], obs_dir: Path
+) -> dict[tuple[str, int], str]:
+    """``{(card_id, page): rendered_text}`` for the listed cards' sidecars.
+
+    The body of :func:`load_observation_text` once the index is parsed; a card
+    whose sidecar is missing or malformed contributes nothing.
+    """
     out: dict[tuple[str, int], str] = {}
-    for card_id in index.get("card_ids", []):
+    for card_id in card_ids:
         sidecar = _load_sidecar(obs_dir, str(card_id))
         if sidecar is None:
             continue

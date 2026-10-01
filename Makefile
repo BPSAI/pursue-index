@@ -115,7 +115,7 @@ SHRINK_ARGS ?=
 
 .PHONY: rebuild-derivatives
 rebuild-derivatives:
-	@echo "==> Rebuild derivatives (mirrors, cards-summary, byte-history, csv-archive, pages.json, llms.txt, OG images)"
+	@echo "==> Rebuild derivatives (mirrors, cards-summary, byte-history, csv-archive, pages.json, llms.txt, qc-coverage, OG images)"
 	@cp data/manifests/latest.json web/src/data/manifest.json
 	@# The Worker resolves /card/<old_id> renames from the ASSETS copy, not
 	@# data/card-aliases.json (where the ingest gate appends them).
@@ -138,6 +138,11 @@ rebuild-derivatives:
 	@$(PYTHON) scripts/build_photo_card_index.py 2>&1 | tail -1
 	@$(PYTHON) scripts/build_video_card_index.py 2>&1 | tail -1
 	@$(PYTHON) scripts/build_finds_og_images.py 2>&1 | tail -1
+	@# QC status for every distinct card, from the manifest, the clean-QC
+	@# bundle, pages.json and the image-observations index. Runs after
+	@# build_search_data so it reads the current pages.json. No `| tail`: a
+	@# failing builder must fail the target.
+	@$(PYTHON) scripts/build_qc_coverage.py
 	@# Derived retrieval/browse payloads that feed /chat, /search, /atlas and
 	@# the gallery. These generators worked but nothing invoked them, so the
 	@# deployed embed_index.json / atlas-layout.json / video-posters tracked

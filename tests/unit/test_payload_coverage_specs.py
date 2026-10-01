@@ -11,7 +11,14 @@ from __future__ import annotations
 from typing import Any
 
 from tests.support.payload_coverage import evaluate
-from tests.support.payload_specs import MANIFEST, PAGES, SPECS, spec_for
+from tests.support.payload_specs import (
+    CLEAN_QC_BUNDLE,
+    IMAGE_OBSERVATIONS,
+    MANIFEST,
+    PAGES,
+    SPECS,
+    spec_for,
+)
 
 _MANIFEST = {
     "cards": [
@@ -52,7 +59,7 @@ def test_every_declared_spec_is_unique_and_sources_are_repo_committed() -> None:
         assert spec.rationale
         for source in spec.sources:
             assert not source.startswith("/")
-            assert source in {MANIFEST, PAGES}
+            assert source in {MANIFEST, PAGES, CLEAN_QC_BUNDLE, IMAGE_OBSERVATIONS}
 
 
 def test_embed_index_is_keyed_by_pages_with_non_empty_text() -> None:

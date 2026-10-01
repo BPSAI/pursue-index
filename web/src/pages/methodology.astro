@@ -14,6 +14,8 @@ import {
 } from "../lib/methodology-data";
 import { cleanQcCoverage, describeCleanQcAssessment } from "../lib/clean-qc-coverage";
 import cleanQcBundleJson from "../../public/data/clean-qc-bundle.json";
+import { describeQcCoverage, type QcCoverage } from "../lib/qc-coverage";
+import qcCoverageJson from "../../public/data/qc-coverage.json";
 
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -87,6 +89,9 @@ const cleanQc = cleanQcCoverage(cleanQcBundle.stats);
 const cleanQcAssessment = describeCleanQcAssessment(cleanQc);
 const formatPct = (pct: number | null) => (pct === null ? "n/a" : `${pct}%`);
 const cleanQcGeneratedDate = cleanQcBundle.generated_at.slice(0, 10);
+// Denominators over every manifest card, not just the judged ones: the
+// bundle cannot say what it left out (scripts/build_qc_coverage.py).
+const qcCoverageLines = describeQcCoverage(qcCoverageJson as QcCoverage);
 const csvShort = manifest.csv_sha256.slice(0, 12);
 const csvFull = manifest.csv_sha256;
 const fetchedISO = manifest.fetched_at;
@@ -693,6 +698,12 @@ const methodologyJsonLd = [
         {" "}<code class="text-[color:var(--color-signal-cyan)]">concern</code>,
         or {" "}<code class="text-[color:var(--color-signal-cyan)]">needs-fix</code>
         {" "}with a span-level evidence quote.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]" data-testid="qc-coverage">
+        <strong class="text-[color:var(--color-text-bright)]">What is covered.</strong>{" "}
+        {qcCoverageLines.join(" ")}{" "}
+        Per-card status:{" "}
+        <a href="/data/qc-coverage.json" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"><code>/data/qc-coverage.json</code></a>.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">Honest framing.</strong>{" "}

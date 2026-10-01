@@ -72,6 +72,17 @@ on:
       - "tests/support/payload_coverage.py"
       - "tests/support/payload_specs.py"
       - "tests/integration/test_derived_payload_coverage.py"
+      # QC coverage payload: its builder, the classification it and the
+      # gate share, and the sources it reads beyond the manifest/pages.json.
+      - "scripts/build_qc_coverage.py"
+      - "src/pursue_index/clean/qc/coverage.py"
+      - "src/pursue_index/embed/image_observations.py"
+      - "tests/support/payload_specs_qc.py"
+      # The /methodology sentence that renders it, and its tested helper.
+      - "web/src/lib/qc-coverage.ts"
+      - "web/src/lib/qc-coverage.test.ts"
+      - "web/src/pages/methodology.astro"
+      - "web/src/data/image-observations/index.json"
       # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
       # bundle, mutating byte-history, or editing the exclusion file
       # all need the URL-stability / stale-exclusion / bundle-symmetry
