@@ -11,13 +11,18 @@ This module gives every distinct card_id in the manifest exactly one status:
                               since the sweep (e.g. a re-OCR added pages);
                               ``judged_pages`` / ``current_pages`` recorded.
 * ``unverified_transcript`` — an AUD card with transcript text in pages.json.
-* ``unverified_vision``     — an IMG card with a vision description (listed in
-                              the image-observations index).
+* ``unverified_vision``     — an IMG card with a vision description: its
+                              image-observations sidecar renders text through
+                              the loader the site uses
+                              (``observation_text_for``). Index membership
+                              alone is not enough.
 * ``no_text``               — no text of any kind in pages.json and no vision
                               description (most VID cards).
 * ``unverified_other``      — anything else, e.g. a document with OCR text the
-                              judge has not covered. Listed by id so nothing
-                              hides.
+                              judge has not covered, or a card listed in the
+                              image-observations index whose sidecar is
+                              missing or malformed. Listed by id, each with a
+                              reason, so nothing hides.
 
 Checked in that order, so a card with several asset rows (a PDF paired with
 a video) takes the strongest status its sources support.
@@ -83,19 +88,57 @@ def _current_page_counts(pages: Iterable[Mapping[str, Any]]) -> dict[str, int]:
     return {cid: len(pgs) for cid, pgs in seen.items()}
 
 
+def _described_cards(observation_text: Mapping[tuple[str, int], str]) -> set[str]:
+    """Cards with at least one rendered page carrying more than the header."""
+    out: set[str] = set()
+    for (card_id, _page), text in observation_text.items():
+        body = text.split("]]", 1)[1] if text.startswith(OBSERVATIONS_HEADER) else text
+        if body.strip():
+            out.add(card_id)
+    return out
+
+
+_REASON_NO_SIDECAR_TEXT = (
+    "listed in the image-observations index, but its sidecar is missing, "
+    "malformed or renders no description"
+)
+_REASON_UNCATEGORISED_TEXT = "carries text that no QC status covers"
+
+
+def _other_reasons(
+    statuses: Mapping[str, str],
+    observations: Mapping[str, Any],
+    observation_text: Mapping[tuple[str, int], str],
+) -> dict[str, str]:
+    listed = set(observations.get("card_ids", []))
+    described = _described_cards(observation_text)
+    return {
+        cid: _REASON_NO_SIDECAR_TEXT if cid in listed - described else _REASON_UNCATEGORISED_TEXT
+        for cid in sorted(statuses)
+        if statuses[cid] == "unverified_other"
+    }
+
+
 def classify_cards(
     manifest: Mapping[str, Any],
     bundle: Mapping[str, Any],
     pages: Iterable[Mapping[str, Any]],
     observations: Mapping[str, Any],
+    observation_text: Mapping[tuple[str, int], str],
 ) -> dict[str, str]:
-    """``{card_id: status}`` for every distinct card_id in the manifest."""
+    """``{card_id: status}`` for every distinct card_id in the manifest.
+
+    ``observations`` is the parsed image-observations index;
+    ``observation_text`` is what ``observation_text_for`` rendered from its
+    sidecars.
+    """
     pages = list(pages)
     types = _asset_types(manifest)
     judged_pages = _judged_page_counts(bundle)
     current_pages = _current_page_counts(pages)
     with_text = _cards_with_text(pages)
-    described = set(observations.get("card_ids", []))
+    listed = set(observations.get("card_ids", []))
+    described = _described_cards(observation_text)
     statuses: dict[str, str] = {}
     for card_id, kinds in types.items():
         if card_id in judged_pages:
@@ -105,7 +148,7 @@ def classify_cards(
             status = "unverified_transcript"
         elif "IMG" in kinds and card_id in described:
             status = "unverified_vision"
-        elif card_id not in with_text and card_id not in described:
+        elif card_id not in with_text and card_id not in listed:
             status = "no_text"
         else:
             status = "unverified_other"
@@ -164,13 +207,15 @@ def build_coverage(
     bundle: Mapping[str, Any],
     pages: Iterable[Mapping[str, Any]],
     observations: Mapping[str, Any],
+    observation_text: Mapping[tuple[str, int], str],
 ) -> dict[str, Any]:
     """The ``qc-coverage.json`` document."""
     pages = list(pages)
     types = _asset_types(manifest)
     # A card that left the corpus after the sweep: listed, never counted.
     stray = sorted(_judged_ids(bundle) - types.keys())
-    statuses = classify_cards(manifest, bundle, pages, observations)
+    statuses = classify_cards(manifest, bundle, pages, observations, observation_text)
+    reasons = _other_reasons(statuses, observations, observation_text)
     judged = {cid for cid, s in statuses.items() if s in ("judged", "partially_judged")}
     vision_pages = _vision_text_pages(pages, judged)
     cards = _card_entries(statuses, types, bundle, pages, vision_pages)
@@ -184,7 +229,8 @@ def build_coverage(
         "generated_from": _provenance(manifest, bundle),
         "total_cards": len(cards),
         "status_counts": counts,
-        "unverified_other": sorted(c for c, s in statuses.items() if s == "unverified_other"),
+        "unverified_other": sorted(reasons),
+        "unverified_other_reasons": reasons,
         "bundle_cards_not_in_manifest": stray,
         "vision_text_pages_in_judged_cards": {
             "cards": len(vision_pages),

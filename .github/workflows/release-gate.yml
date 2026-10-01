@@ -78,6 +78,10 @@ on:
       - "src/pursue_index/clean/qc/coverage.py"
       - "src/pursue_index/embed/image_observations.py"
       - "tests/support/payload_specs_qc.py"
+      # The /methodology sentence that renders it, and its tested helper.
+      - "web/src/lib/qc-coverage.ts"
+      - "web/src/lib/qc-coverage.test.ts"
+      - "web/src/pages/methodology.astro"
       - "web/src/data/image-observations/index.json"
       # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
       # bundle, mutating byte-history, or editing the exclusion file

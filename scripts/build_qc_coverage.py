@@ -23,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.clean.qc.coverage import build_coverage  # noqa: E402
+from pursue_index.embed.image_observations import observation_text_for  # noqa: E402
 from pursue_index.release.chunked_asset import read_asset_json  # noqa: E402
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
@@ -41,11 +42,15 @@ def build(
     out_path: Path,
 ) -> dict:
     """Read the sources, write the coverage payload, return it."""
+    observations = json.loads(observations_path.read_text(encoding="utf-8"))
     doc = build_coverage(
         json.loads(manifest_path.read_text(encoding="utf-8")),
         json.loads(bundle_path.read_text(encoding="utf-8")),
         read_asset_json(pages_path),
-        json.loads(observations_path.read_text(encoding="utf-8")),
+        observations,
+        # The same rendering the search payload uses; a missing or malformed
+        # sidecar yields no text, so its card is not counted as described.
+        observation_text_for(observations.get("card_ids", []), observations_path.parent),
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
@@ -70,7 +75,8 @@ def main() -> int:
     counts = ", ".join(f"{k} {v}" for k, v in doc["status_counts"].items())
     print(f"qc-coverage: {doc['total_cards']} cards ({counts}) → {args.out}")
     if doc["unverified_other"]:
-        print(f"qc-coverage: unverified_other: {', '.join(doc['unverified_other'])}")
+        for card_id, reason in doc["unverified_other_reasons"].items():
+            print(f"qc-coverage: unverified_other {card_id}: {reason}")
     return 0
 
 

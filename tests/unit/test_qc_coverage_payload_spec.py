@@ -8,12 +8,16 @@ support. Synthetic sources only; no corpus figures.
 from __future__ import annotations
 
 import copy
+import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from pursue_index.clean.qc.coverage import build_coverage
 from pursue_index.embed import image_observations
-from pursue_index.embed.image_observations import OBSERVATIONS_HEADER
+from pursue_index.embed.image_observations import OBSERVATIONS_HEADER, observation_text_for
+from tests.support import payload_specs_qc
 from tests.support.payload_coverage import evaluate
 from tests.support.payload_specs import (
     CLEAN_QC_BUNDLE,
@@ -56,9 +60,22 @@ _SOURCES: dict[str, Any] = {
 }
 
 
+@pytest.fixture(autouse=True)
+def _sidecars(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """A sound sidecar for every card the synthetic index lists."""
+    for cid in _SOURCES[IMAGE_OBSERVATIONS]["card_ids"]:
+        (tmp_path / f"{cid}.json").write_text(
+            json.dumps({"pages": [{"page": 1, "description": "a photograph"}]})
+        )
+    monkeypatch.setattr(payload_specs_qc, "OBSERVATIONS_DIR", tmp_path)
+    return tmp_path
+
+
 def _fresh() -> dict[str, Any]:
     s = _SOURCES
-    return build_coverage(s[MANIFEST], s[CLEAN_QC_BUNDLE], s[PAGES], s[IMAGE_OBSERVATIONS])
+    index = s[IMAGE_OBSERVATIONS]
+    text = observation_text_for(index["card_ids"], payload_specs_qc.OBSERVATIONS_DIR)
+    return build_coverage(s[MANIFEST], s[CLEAN_QC_BUNDLE], s[PAGES], index, text)
 
 
 def _run(payload: Any, sources: dict[str, Any] = _SOURCES):
@@ -152,3 +169,29 @@ def test_release_gate_fires_on_every_file_the_qc_gate_depends_on() -> None:
         path = root + mod.replace(".", "/") + ".py"
         assert f'- "{path}"' in workflow, f"{path} missing from release-gate paths"
     assert '- "scripts/build_qc_coverage.py"' in workflow
+
+
+def test_a_vision_status_whose_sidecar_has_gone_fails(_sidecars: Path) -> None:
+    doc = _fresh()
+    (_sidecars / "img1.json").unlink()
+    result = _run(doc)
+    assert ("img1", "unverified_vision", ("IMG",)) in result.extra
+    assert ("img1", "unverified_other", ("IMG",)) in result.missing
+
+
+def test_release_gate_fires_on_every_file_that_presents_qc_coverage() -> None:
+    """The /methodology sentence and its helper render the payload; a change
+    to either must run the gate. Found by reference, so a new consumer of
+    qc-coverage is covered without editing this test."""
+    web_src = REPO_ROOT / "web/src"
+    presenters = sorted(
+        str(p.relative_to(REPO_ROOT))
+        for p in web_src.rglob("*")
+        if p.suffix in {".ts", ".tsx", ".astro", ".mjs", ".js"}
+        and "qc-coverage" in p.read_text(encoding="utf-8").replace("clean-qc-coverage", "")
+    )
+    assert "web/src/pages/methodology.astro" in presenters
+    assert "web/src/lib/qc-coverage.ts" in presenters
+    workflow = (REPO_ROOT / ".github/workflows/release-gate.yml").read_text()
+    missing = [p for p in presenters if f'- "{p}"' not in workflow]
+    assert not missing, f"missing from release-gate paths: {missing}"
