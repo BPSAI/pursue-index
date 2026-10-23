@@ -1,0 +1,21 @@
+{
+  "new_sha": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
+  "verdict": "needs-review",
+  "added": 29,
+  "removed": 1,
+  "field_changes": 56,
+  "new_columns": [
+    "Column1",
+    "Column10",
+    "Column11",
+    "Column12",
+    "Column2",
+    "Column3",
+    "Column4",
+    "Column5",
+    "Column6",
+    "Column7",
+    "Column8",
+    "Column9"
+  ]
+}
