@@ -60,15 +60,19 @@ def _new_content_two_cards() -> list[dict]:
 
 
 def _patch_gate_and_promote(monkeypatch, snapshot: Path) -> None:
-    """Approve the tranche + stub snapshot resolution/promotion (no FS mirrors)."""
+    """Approve the tranche + stub snapshot resolution/promotion (no FS mirrors).
+
+    Gate + promote now live in ``ingest_promote`` (R7C.2 / #169), not
+    ``ingest_cli`` — patch the names where ``run_cmd`` actually looks them up.
+    """
     monkeypatch.setattr(
-        "pursue_index.cli.ingest_cli.is_tranche_approved", lambda *a, **k: True
+        "pursue_index.cli.ingest_promote.is_tranche_approved", lambda *a, **k: True
     )
     monkeypatch.setattr(
-        "pursue_index.cli.ingest_cli.locate_snapshot", lambda *a, **k: snapshot
+        "pursue_index.cli.ingest_promote.locate_snapshot", lambda *a, **k: snapshot
     )
     monkeypatch.setattr(
-        "pursue_index.cli.ingest_cli.promote_snapshot", lambda *a, **k: None
+        "pursue_index.cli.ingest_promote.promote_snapshot", lambda *a, **k: []
     )
 
 
@@ -110,7 +114,12 @@ def _write_manifest(tmp_path: Path) -> Path:
     m = Manifest(
         source_url="https://example.com/data.csv",
         fetched_at=datetime(2026, 1, 1, tzinfo=UTC),
-        csv_sha256="deadbeef",
+        # Matches _TRANCHE: a real `promote_snapshot` would copy the
+        # snapshot (whose own csv_sha256 is this tranche's sha) onto this
+        # path, so the worklist header (now computed from the tranche, not
+        # read back from the manifest -- R7C.2 / #169) stays consistent
+        # with what the downstream stage executors validate against.
+        csv_sha256=_TRANCHE,
         cards=cards,
     )
     p = tmp_path / "latest.json"
@@ -262,13 +271,13 @@ def test_metadata_only_tranche_clears_a_prior_tranches_stale_worklist(tmp_path, 
     )
     assert res.exit_code == 0, res.output
     assert seen == {}
-    # The prior tranche's ids are gone; the header now names this manifest's
-    # own tranche (the fixture's manifest -- "deadbeef" -- since promotion is
-    # mocked away in this test harness).
+    # The prior tranche's ids are gone; the header now names this run's own
+    # tranche sha (R7C.2 / #169: computed from the diff/--tranche, not read
+    # back from the manifest -- which a dry run must never touch anyway).
     assert _ids(worklist) == []
     from pursue_index.cli.worklist import worklist_header_tranche
 
-    assert worklist_header_tranche(worklist) == "deadbeef"
+    assert worklist_header_tranche(worklist) == _TRANCHE
 
 
 def test_cost_cap_defaults_to_embed_default(tmp_path, monkeypatch) -> None:

@@ -28,7 +28,6 @@ import typer
 from pursue_index.cli.worklist import WorklistTrancheError, exit_on_tranche_error
 from pursue_index.ingest_run import render_av_next_steps
 from pursue_index.ingest_scope import ScopedCard, scope_worklist
-from pursue_index.scrape import load_manifest
 
 
 def scoped_av_card_ids(summary: dict[str, Any]) -> list[str]:
@@ -193,7 +192,7 @@ def _write_and_run(
     *,
     manifest: Path,
     worklist: Path,
-    promoted_sha: str,
+    tranche_sha: str,
     dry_run: bool,
     engine: str | None,
     force: bool,
@@ -204,20 +203,20 @@ def _write_and_run(
     metadata-only (write only, nothing to spend on), or a real spend (write,
     preflight, then run the scoped stages)."""
     if dry_run:
-        _write_worklists(scoped, av_card_ids, worklist, promoted_sha)
+        _write_worklists(scoped, av_card_ids, worklist, tranche_sha)
         typer.echo("")
         typer.echo(
-            f"--dry-run: wrote work-list(s) -> {worklist.parent} (no spend); "
-            "stages NOT executed. Re-run without --dry-run to ingest."
+            f"--dry-run: wrote work-list(s) -> {worklist.parent} (no spend, no "
+            "promotion); stages NOT executed. Re-run without --dry-run to ingest."
         )
         return
     if not scoped:
-        _write_worklists(scoped, av_card_ids, worklist, promoted_sha)
+        _write_worklists(scoped, av_card_ids, worklist, tranche_sha)
         typer.echo("")
         typer.echo("0 PDF/IMG cards — PDF stages skipped")
         return
     _enforce_ocr_preflight(engine, concurrency)
-    _write_worklists(scoped, av_card_ids, worklist, promoted_sha)
+    _write_worklists(scoped, av_card_ids, worklist, tranche_sha)
     typer.echo("")
     typer.echo("wrote work-list(s); running scoped download -> ocr -> embed")
     try:
@@ -250,25 +249,28 @@ def execute_from_diff(
     A metadata-only tranche runs nothing, but still rewrites the PDF
     work-list (empty) -- a stale list from a prior tranche must never
     survive into this one. ``--dry-run`` still MATERIALIZES the work-list
-    files (credential-free, no spend) so a separately-invoked OCR step gets
-    the right card set — the ``/ship-tranche`` flow relies on this. The
-    non-dry spend path first enforces the ``preflight_ocr``
+    files (credential-free, no spend, no promotion) so a separately-invoked
+    OCR step gets the right card set — the ``/ship-tranche`` flow relies on
+    this. The non-dry spend path first enforces the ``preflight_ocr``
     verify-before-spend gate. ``cost_cap_usd`` overrides the
     embed cost cap.
 
     The PDF/IMG work-list is computed by
     ``pursue_index.ingest_scope.scope_worklist`` -- Class B, approved and
     unaddressed Class C, this tranche's approved renames, and any card whose
-    registry bytes have drifted from its OCR sidecar's (R7C.1 / #168).
+    registry bytes have drifted from its OCR sidecar's (R7C.1 / #168). Scope
+    is computed from the tranche-diff + this tranche's own sha, never from
+    reading back the (possibly not-yet-promoted) manifest on disk -- a dry
+    run must be able to print the exact same scope a real run would, before
+    anything is promoted (R7C.2 / #169).
 
     Writes two separate worklists:
       - worklist (e.g. data/ingest-worklist.txt) for PDF/IMG rows, tagged
-        with each card's scope reason and headed with the promoted manifest's
-        csv_sha256 -- what every consumer actually validates against
+        with each card's scope reason and headed with this tranche's sha --
+        what every consumer actually validates the live manifest against
       - worklist-av (e.g. data/ingest-worklist-av.txt) for VID/AUD rows
     """
     tranche_sha = diff.get("tranche_sha256") or tranche
-    promoted_sha = load_manifest(manifest).csv_sha256
     scoped = scope_worklist(
         diff, tranche_sha,
         aliases_path=aliases_path, registry_path=registry_path, ocr_dir=ocr_dir,
@@ -278,7 +280,7 @@ def execute_from_diff(
     _print_worklists(scoped, av_card_ids)
     _write_and_run(
         scoped, av_card_ids,
-        manifest=manifest, worklist=worklist, promoted_sha=promoted_sha, dry_run=dry_run,
+        manifest=manifest, worklist=worklist, tranche_sha=tranche_sha, dry_run=dry_run,
         engine=engine, force=force, concurrency=concurrency, cost_cap_usd=cost_cap_usd,
     )
 

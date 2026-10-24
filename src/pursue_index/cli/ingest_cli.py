@@ -25,6 +25,7 @@ from pathlib import Path
 import typer
 
 from pursue_index.cli.ingest_from_diff import execute_from_diff
+from pursue_index.cli.ingest_promote import promote_and_report, resolve_approved_snapshot
 from pursue_index.config import settings
 from pursue_index.ingest import (
     append_aliases,
@@ -33,12 +34,7 @@ from pursue_index.ingest import (
     parse_rename_flags,
     record_approval,
 )
-from pursue_index.ingest_run import (
-    locate_snapshot,
-    promote_snapshot,
-    render_next_steps,
-    summarize_ingest_work,
-)
+from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
 from pursue_index.post_ingest_audit import (
     audit_targets,
     collect_audit_targets,
@@ -208,6 +204,12 @@ def _load_diff_or_exit(tranche: str, diff_dir: Path) -> dict:
     return json.loads(diff_path.read_text())
 
 
+def _load_diff_and_summarize(tranche: str, diff_dir: Path) -> tuple[dict, dict]:
+    """Shared prefix of every ``run`` path: load the diff, summarize the work."""
+    diff_payload = _load_diff_or_exit(tranche, diff_dir)
+    return diff_payload, summarize_ingest_work(diff_payload)
+
+
 def _run_pre_approval_audit(
     enriched_aliases: list[dict],
     diff: dict,
@@ -300,41 +302,6 @@ def approve_cmd(
     _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary)
 
 
-def _resolve_approved_snapshot(
-    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path
-) -> Path:
-    """Gate + snapshot resolution for ``run``. Raises typer.Exit on failure."""
-    if not is_tranche_approved(log, tranche):
-        typer.echo(
-            f"refusing to ingest — tranche {tranche[:12]} is not approved.\n"
-            f"  Review the tranche-diff at {diff_dir}/tranche-diff-{tranche[:12]}.md\n"
-            f"  then run `pursue ingest approve --tranche {tranche} --note ...`",
-            err=True,
-        )
-        raise typer.Exit(1)
-    snapshot = locate_snapshot(tranche, snapshots_dir)
-    if snapshot is None:
-        typer.echo(
-            f"refusing to ingest — no snapshot found in {snapshots_dir} for {tranche[:12]}",
-            err=True,
-        )
-        raise typer.Exit(2)
-    return snapshot
-
-
-def _promote_and_summarize(
-    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path, manifest: Path
-) -> tuple[dict, dict]:
-    """Gate + promote + summarize: the shared prefix of every ``run`` path.
-    Returns ``(summary, diff_payload)``."""
-    snapshot = _resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
-    diff_payload = _load_diff_or_exit(tranche, diff_dir)
-    summary = summarize_ingest_work(diff_payload)
-    promote_snapshot(snapshot, manifest)
-    typer.echo(f"promoted snapshot to {manifest}")
-    return summary, diff_payload
-
-
 @ingest_app.command("run")
 def run_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
@@ -354,15 +321,24 @@ def run_cmd(
 ) -> None:
     """Promote an approved tranche to the deployed manifest + report next steps.
 
-    Refuses if the tranche is not approved. Promotes the snapshot to
-    data/manifests/latest.json. Identifies downstream pipeline work
-    (download/ocr/embed) required by any new content in the tranche.
+    Refuses if the tranche is not approved. With ``--dry-run`` nothing is
+    promoted and no builder runs — only the work-list(s) are written (or,
+    without ``--from-diff``, just the scope is printed), so an operator can
+    inspect scope before anything is spent or mirrored. Without
+    ``--dry-run``, promotes the snapshot to data/manifests/latest.json (and
+    its deploy-side mirrors), runs the poster/thumb builders, then
+    identifies downstream pipeline work (download/ocr/embed) required by
+    any new content in the tranche.
 
     By default it prints copy-paste-ready next-step commands. With
     ``--from-diff`` it instead exports the scoped work-list and drives the
-    scoped stages itself; ``--dry-run`` shows the work-list without spending.
+    scoped stages itself; ``--dry-run`` shows the work-list without spending
+    or promoting.
     """
-    summary, diff_payload = _promote_and_summarize(tranche, log, snapshots_dir, diff_dir, manifest)
+    snapshot = resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
+    diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir)
+    if not dry_run:
+        promote_and_report(snapshot, manifest)
     if from_diff:
         execute_from_diff(
             summary, diff=diff_payload, tranche=tranche, manifest=manifest, worklist=worklist,

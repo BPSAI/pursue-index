@@ -275,6 +275,58 @@ def test_promote_snapshot_tolerates_builder_failure(
     assert manifest.read_text() == snapshot.read_text()
 
 
+def test_promote_snapshot_returns_failed_builder_names(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A non-zero builder exit must be reported back to the caller --
+    the CLI layer (R7C.2 / #169) turns this into a non-zero exit naming
+    the builder, instead of only ever printing a warning."""
+    import json as _json
+    import subprocess
+
+    repo_root, _ = _build_repo_with_scripts(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "fed" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    def _fake_run(cmd, *args, **kwargs):
+        if "build_video_posters.py" in " ".join(cmd):
+            return subprocess.CompletedProcess(cmd, 1, stdout="", stderr="boom")
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", _fake_run)
+    failed = promote_snapshot(snapshot, manifest)
+    assert failed == ["build_video_posters.py"]
+
+
+def test_promote_snapshot_returns_empty_list_when_builders_succeed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json as _json
+    import subprocess
+
+    repo_root, _ = _build_repo_with_scripts(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "cde" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    monkeypatch.setattr(
+        subprocess, "run",
+        lambda cmd, *a, **kw: subprocess.CompletedProcess(cmd, 0, stdout="", stderr=""),
+    )
+    assert promote_snapshot(snapshot, manifest) == []
+
+
 def test_promote_snapshot_surfaces_builder_output_and_exit_code(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
