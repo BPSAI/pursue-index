@@ -48,7 +48,7 @@ from pursue_index.embed.publish import (
     load_embed_eligible_keys,
     select_publish_rows,
 )
-from pursue_index.release.alias_exemption import add_exemption_args
+from pursue_index.release.alias_exemption import add_exemption_args, exemption_paths
 from pursue_index.release.chunked_asset import (
     BUDGET_BYTES,
     asset_exists,
@@ -271,6 +271,7 @@ def main() -> int:
     add_shrink_args(parser, "embed_index.json")
     args = parser.parse_args()
     allow_shrink_reason = shrink_reason(parser, args)
+    aliases_path, approval_log, audit_log = exemption_paths(parser, args, "build_embed_data.py")
     return build(
         embeddings_root=args.embeddings_root,
         model_id=args.model,
@@ -279,9 +280,9 @@ def main() -> int:
         manifest_path=args.manifest,
         ocr_dir=args.ocr_dir,
         allow_shrink_reason=allow_shrink_reason,
-        aliases_path=args.aliases,
-        approval_log=args.approval_log,
-        audit_log=args.audit_log,
+        aliases_path=aliases_path,
+        approval_log=approval_log,
+        audit_log=audit_log,
     )
 
 

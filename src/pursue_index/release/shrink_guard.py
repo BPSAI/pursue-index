@@ -36,7 +36,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from pursue_index.ingest_scope import load_aliases as _load_alias_rows
 from pursue_index.release.alias_exemption import resolve_with_audit
 from pursue_index.release.chunked_asset import asset_exists, read_asset_json
 
@@ -95,49 +94,6 @@ def committed_embed_card_ids(path: Path) -> set[str] | None:
 def find_shrink(committed: set[str] | None, rebuilt: set[str]) -> list[str]:
     """Committed ``card_id``s the rebuild no longer covers, sorted."""
     return sorted(committed - rebuilt) if committed else []
-
-
-def load_alias_map(aliases_path: Path | None) -> dict[str, str]:
-    """Resolved ``old_card_id -> new_card_id`` map from ``card-aliases.json``.
-
-    Later rows win per ``old_card_id``; ``method: operator_revoke`` tombstones
-    the mapping. Mirrors the worker's resolution rule (see
-    ``tests/integration/test_alias_destinations.py``). ``None`` or an absent
-    path is an empty map, not an error.
-    """
-    if aliases_path is None:
-        return {}
-    out: dict[str, str] = {}
-    for row in _load_alias_rows(aliases_path):
-        old_id, new_id = row.get("old_card_id"), row.get("new_card_id")
-        if not (old_id and new_id):
-            continue
-        if row.get("method") == "operator_revoke":
-            out.pop(old_id, None)
-            continue
-        out[old_id] = new_id
-    return out
-
-
-def resolve_renames(
-    shrunk: list[str], rebuilt: set[str], aliases: dict[str, str]
-) -> tuple[list[str], list[str]]:
-    """Split ``shrunk`` into ids an approved rename accounts for and ids
-    still missing.
-
-    An id only counts as renamed when its alias target is present in
-    ``rebuilt`` — otherwise the rename did not carry text and the id stays
-    missing.
-    """
-    renamed: list[str] = []
-    missing: list[str] = []
-    for old_id in shrunk:
-        new_id = aliases.get(old_id)
-        if new_id is not None and new_id in rebuilt:
-            renamed.append(f"{old_id} -> {new_id}")
-        else:
-            missing.append(old_id)
-    return renamed, missing
 
 
 def find_renamed_and_missing(

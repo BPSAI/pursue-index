@@ -44,7 +44,7 @@ REPO_ROOT = repo_root()
 from _search_pages import emit_card_pages, emit_observation_only_pages
 
 from pursue_index.config import settings
-from pursue_index.release.alias_exemption import add_exemption_args
+from pursue_index.release.alias_exemption import add_exemption_args, exemption_paths
 from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset
 from pursue_index.release.shrink_guard import (
     add_shrink_args,
@@ -239,15 +239,16 @@ def main() -> int:
     add_shrink_args(parser, "pages.json")
     args = parser.parse_args()
     allow_shrink_reason = shrink_reason(parser, args)
+    aliases_path, approval_log, audit_log = exemption_paths(parser, args, "build_search_data.py")
     return build(
         ocr_dir=args.ocr_dir,
         manifest_path=args.manifest,
         out_path=args.out,
         image_obs_index=args.image_observations_index,
         allow_shrink_reason=allow_shrink_reason,
-        aliases_path=args.aliases,
-        approval_log=args.approval_log,
-        audit_log=args.audit_log,
+        aliases_path=aliases_path,
+        approval_log=approval_log,
+        audit_log=audit_log,
     )
 
 

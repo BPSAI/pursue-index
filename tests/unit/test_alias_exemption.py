@@ -77,3 +77,16 @@ def test_revoke_row_removes_the_exemption(tmp_path: Path) -> None:
     assert resolve_with_audit("s.py", ["a"], {"c"}, aliases, log, tmp_path / "a.jsonl") == (
         [], ["a"],
     )
+
+
+def test_revoke_from_an_unapproved_tranche_still_removes_the_exemption(
+    tmp_path: Path,
+) -> None:
+    """A revoke can only narrow what is excused, so it needs no approval."""
+    aliases, log = _write(
+        tmp_path, [_row(), _row(method="operator_revoke", sha="ef" * 32)], [_SHA]
+    )
+    audit = tmp_path / "audit.jsonl"
+
+    assert resolve_with_audit("s.py", ["a"], {"c"}, aliases, log, audit) == ([], ["a"])
+    assert not audit.exists()
