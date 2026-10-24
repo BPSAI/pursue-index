@@ -38,7 +38,9 @@ from pathlib import Path
 
 # Make ``src/`` importable when running as ``python scripts/poll_pursue.py``
 # from the repo root (no install needed in the GH Actions runner).
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 _SRC = _REPO_ROOT / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
@@ -118,7 +120,7 @@ def _fetch_or_failed(ts: str) -> bytes | Failed:
         return fetch_raw_csv()
     except (KeyboardInterrupt, SystemExit):
         raise
-    except Exception as exc:  # noqa: BLE001 — surface any transport failure
+    except Exception as exc:
         return _failed(exc, ts)
 
 

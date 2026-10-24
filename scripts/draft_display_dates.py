@@ -40,11 +40,13 @@ import os
 import sys
 import time
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from pursue_index.release.chunked_asset import read_asset_json  # noqa: E402
@@ -244,7 +246,7 @@ def _proposal_record(cid: str, result: dict[str, Any], model: str) -> dict[str, 
     proposal["display_date_approved_at"] = None
     proposal["_proposal_metadata"] = {
         "model_id": model,
-        "drafted_at": datetime.now(timezone.utc).isoformat(),
+        "drafted_at": datetime.now(UTC).isoformat(),
         "input_tokens": result["usage"]["input_tokens"],
         "output_tokens": result["usage"]["output_tokens"],
         "cache_creation_input_tokens": result["usage"]["cache_creation_input_tokens"],

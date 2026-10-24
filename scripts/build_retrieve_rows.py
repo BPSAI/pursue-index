@@ -31,7 +31,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.release.chunked_asset import read_asset_json  # noqa: E402

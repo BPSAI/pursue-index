@@ -26,7 +26,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402

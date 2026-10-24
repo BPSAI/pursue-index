@@ -29,7 +29,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 DEFAULT_BYTE_HISTORY = _REPO_ROOT / "web" / "src" / "data" / "byte-history.json"
 DEFAULT_CLASSIFICATION = _REPO_ROOT / "data" / "altered-classification.json"

@@ -25,7 +25,7 @@ from pathlib import Path
 import typer
 
 from pursue_index.cli.ingest_from_diff import execute_from_diff
-from pursue_index.cli.ingest_promote import promote_and_report, resolve_approved_snapshot
+from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
 from pursue_index.config import settings
 from pursue_index.ingest import (
     append_aliases,
@@ -35,6 +35,7 @@ from pursue_index.ingest import (
     record_approval,
 )
 from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
+from pursue_index.paths import repo_root
 from pursue_index.post_ingest_audit import (
     audit_targets,
     collect_audit_targets,
@@ -42,7 +43,7 @@ from pursue_index.post_ingest_audit import (
     render_audit_summary,
 )
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = repo_root()
 DEFAULT_APPROVAL_LOG = _REPO_ROOT / "data" / "tranche-approval-log.jsonl"
 DEFAULT_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
 # Must match scripts/tranche_diff.py::DEFAULT_OUT_DIR, and must be tracked —
@@ -111,6 +112,17 @@ _OPT_WORKLIST_OUT = typer.Option(
     DEFAULT_WORKLIST,
     "--worklist",
     help="Where --from-diff writes the scoped card_id list the executors read.",
+)
+_OPT_ALLOW_BEHIND = typer.Option(
+    False,
+    "--allow-behind",
+    help="Proceed even though this checkout is behind origin/main on poll-written "
+    "paths. Requires --reason; recorded as an audited exception.",
+)
+_OPT_BEHIND_REASON = typer.Option(
+    None,
+    "--reason",
+    help="Required with --allow-behind: why it is safe to proceed behind the poller.",
 )
 
 
@@ -287,13 +299,18 @@ def approve_cmd(
     diff_dir: Path = _OPT_APPROVE_DIFF_DIR,
     snapshots_dir: Path = _OPT_APPROVE_SNAPSHOTS_DIR,
     skip_audit: bool = _OPT_SKIP_AUDIT,
+    allow_behind: bool = _OPT_ALLOW_BEHIND,
+    reason: str = _OPT_BEHIND_REASON,
 ) -> None:
     """Record an approval row + materialize the approved aliases.
 
-    Runs a pre-approval audit (re-fetches upstream bytes for byte-collision
-    renames and restored_unchanged events) to catch TOCTOU swaps between
-    tranche-diff and approval. Refuses approval if any sha mismatches.
+    Refuses if this checkout is behind origin/main on the paths the
+    poller writes (see `pursue_index.poll_freshness`); runs a pre-approval
+    audit (re-fetches upstream bytes for byte-collision renames and
+    restored_unchanged events) to catch TOCTOU swaps between tranche-diff
+    and approval. Refuses approval if any sha mismatches.
     """
+    enforce_poll_freshness(allow_behind, reason)
     diff = _load_diff_or_exit(tranche, diff_dir)
     diff_summary = diff.get("summary", {})
     auto_renames, manual_renames, enriched = _resolve_renames(diff, tranche, approve_rename)
@@ -318,10 +335,14 @@ def run_cmd(
     engine: str = _OPT_RUN_ENGINE,
     force: bool = _OPT_RUN_FORCE,
     concurrency: int = _OPT_RUN_CONCURRENCY,
+    allow_behind: bool = _OPT_ALLOW_BEHIND,
+    reason: str = _OPT_BEHIND_REASON,
 ) -> None:
     """Promote an approved tranche to the deployed manifest + report next steps.
 
-    Refuses if the tranche is not approved. With ``--dry-run`` nothing is
+    Refuses if this checkout is behind origin/main on the paths the
+    poller writes (see `pursue_index.poll_freshness`), or if the tranche
+    is not approved. With ``--dry-run`` nothing is
     promoted and no builder runs — only the work-list(s) are written (or,
     without ``--from-diff``, just the scope is printed), so an operator can
     inspect scope before anything is spent or mirrored. Without
@@ -335,10 +356,8 @@ def run_cmd(
     scoped stages itself; ``--dry-run`` shows the work-list without spending
     or promoting.
     """
-    snapshot = resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
+    gate_resolve_and_promote(tranche, log, snapshots_dir, diff_dir, manifest, dry_run, allow_behind, reason)
     diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir)
-    if not dry_run:
-        promote_and_report(snapshot, manifest)
     if from_diff:
         execute_from_diff(
             summary, diff=diff_payload, tranche=tranche, manifest=manifest, worklist=worklist,
@@ -347,8 +366,7 @@ def run_cmd(
             concurrency=concurrency, cost_cap_usd=cost_cap_usd,
         )
         return
-    typer.echo("")
-    typer.echo(render_next_steps(summary))
+    typer.echo("\n" + render_next_steps(summary))
 
 
 def main() -> None:

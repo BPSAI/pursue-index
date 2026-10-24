@@ -21,7 +21,9 @@ import json
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from pursue_index.clean.qc.priority import score_page  # noqa: E402

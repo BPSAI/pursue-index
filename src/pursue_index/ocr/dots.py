@@ -30,12 +30,12 @@ import os
 import subprocess
 import tempfile
 import threading
-from pathlib import Path
 from typing import Any
 
 from PIL import Image
 
 from pursue_index import get_logger
+from pursue_index.paths import repo_root
 
 log = get_logger(__name__)
 
@@ -52,8 +52,7 @@ _lock = threading.Lock()
 
 
 def _worker_script_default() -> str:
-    # src/pursue_index/ocr/dots.py -> repo root is parents[3]
-    return str(Path(__file__).resolve().parents[3] / "scripts" / "dots_worker.py")
+    return str(repo_root() / "scripts" / "dots_worker.py")
 
 
 class _DotsWorker:

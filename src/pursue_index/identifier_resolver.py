@@ -50,6 +50,7 @@ from pursue_index.catalogue_dates import card_release_date, entry_established_da
 from pursue_index.catalogue_load import load_catalogue
 from pursue_index.identifier_collections import entry_in_identifier_collection
 from pursue_index.identifiers import Identifier, IdentifierKind, extract_identifiers
+from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
@@ -349,7 +350,7 @@ def main() -> int:
     The catalogue is read through the shared loader, so this artifact rests on
     exactly the rows the era pass and the coverage report rest on.
     """
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = _resolve_repo_root()
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
     catalogue = load_catalogue(repo_root)
     claims: list[ResolvedClaim] = []

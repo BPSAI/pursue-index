@@ -22,7 +22,9 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 if "ANTHROPIC_API_KEY" not in os.environ:
@@ -222,7 +224,7 @@ def main():
     for g in golden:
         try:
             row = benchmark_card(g["card_id"], g, manifest)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             print(f"  ERROR on {g['card_id']}: {type(exc).__name__}: {exc}")
             row = None
         if row is not None:

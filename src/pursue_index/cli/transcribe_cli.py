@@ -31,6 +31,7 @@ import typer
 from rich.console import Console
 
 from pursue_index.config import settings
+from pursue_index.paths import repo_root
 from pursue_index.scrape import load_manifest
 from pursue_index.transcribe import _wire, client, probe
 from pursue_index.transcribe.anchors import citation_anchors
@@ -44,7 +45,7 @@ from pursue_index.transcribe.run import (
     run_transcribe,
 )
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = repo_root()
 
 transcribe_app = typer.Typer(
     name="transcribe", help="Diarized transcription for AUD content (AUD only)."

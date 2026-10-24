@@ -39,7 +39,9 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 DEFAULT_REGISTRY = REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_OUT = REPO_ROOT / "web" / "src" / "data" / "video-card-ids.json"
 

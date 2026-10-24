@@ -38,7 +38,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 _SCRIPTS_DIR = _REPO_ROOT / "scripts"
 _SRC_DIR = _REPO_ROOT / "src"
 for _p in (_SCRIPTS_DIR, _SRC_DIR):
@@ -56,7 +58,6 @@ from _reocr_helpers import (  # noqa: E402, I001
     UsageTracker,
     append_jsonl,
     estimate_cost_usd,
-    resume_from_page,
     truncate_jsonl_to_valid_prefix,
 )
 

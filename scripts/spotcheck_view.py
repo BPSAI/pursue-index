@@ -12,7 +12,9 @@ import pathlib
 import sys
 import textwrap
 
-_REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402

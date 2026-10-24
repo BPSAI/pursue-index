@@ -33,9 +33,10 @@ import json
 import shutil
 import sys
 from collections import Counter
-from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402
@@ -44,7 +45,7 @@ from pursue_index.config import settings  # noqa: E402
 NAS_ROOT = settings.data_root
 PDFS_DIR = settings.pdf_dir
 MIRROR_DIR = settings.r2_mirror_dir / "archive"
-REGISTRY = Path(__file__).resolve().parent.parent / "data" / "asset-bytes-registry.jsonl"
+REGISTRY = repo_root() / "data" / "asset-bytes-registry.jsonl"
 
 
 def _load_registry_pdf_rows() -> list[dict]:

@@ -60,7 +60,9 @@ from pathlib import Path
 from typing import Any
 
 # Make src/ importable when invoked as ``python scripts/r2_archive_assets.py``.
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 _SRC = _REPO_ROOT / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))

@@ -33,7 +33,9 @@ from typing import Any
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.embed.publish import (  # noqa: E402

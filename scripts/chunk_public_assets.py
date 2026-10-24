@@ -20,7 +20,9 @@ import argparse
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.release.chunked_asset import (  # noqa: E402

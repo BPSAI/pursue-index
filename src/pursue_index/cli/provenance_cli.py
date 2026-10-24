@@ -18,6 +18,7 @@ from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
+from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
     POSITIVE_TIER_PRECEDENCE,
     CoverageReport,
@@ -33,7 +34,7 @@ provenance_app = typer.Typer(
     help="Provenance coverage report over the Phase-A resolution chain.",
 )
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
+_REPO_ROOT = repo_root()
 _DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 
 

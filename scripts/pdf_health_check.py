@@ -26,7 +26,9 @@ from pathlib import Path
 
 # Make ``src/`` importable when running as ``python scripts/pdf_health_check.py``
 # from the repo root (no install needed in the GH Actions runner).
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 _SRC = _REPO_ROOT / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))

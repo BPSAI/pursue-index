@@ -30,7 +30,9 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402
@@ -149,7 +151,7 @@ def main(argv: list[str] | None = None) -> int:
                 f"({summary['sonnet_pages']} sonnet + "
                 f"{summary['surya_pages_kept']} surya)"
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             failures.append((cid, f"{type(exc).__name__}: {exc}"))
             print(f"{cid}: FAILED — {failures[-1][1]}", file=sys.stderr)
     return 1 if failures else 0

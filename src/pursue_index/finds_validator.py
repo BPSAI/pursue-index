@@ -46,6 +46,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from pursue_index.paths import repo_root as _resolve_repo_root
+
 # Required frontmatter fields. Per the plan's "frontmatter complete" rule
 # and the conventions established by the 21 entries committed as of
 # 2026-05-15. `updated` is treated as optional because not every entry
@@ -258,7 +260,7 @@ def main() -> int:
     if len(sys.argv) > 1:
         paths = [Path(a) for a in sys.argv[1:]]
     else:
-        repo_root = Path(__file__).resolve().parents[2]
+        repo_root = _resolve_repo_root()
         paths = sorted((repo_root / "web" / "src" / "content" / "finds").glob("*.mdx"))
 
     any_failed = False

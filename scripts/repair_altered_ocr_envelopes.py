@@ -32,7 +32,9 @@ import re
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 DEFAULT_OCR_DIR = _REPO_ROOT / "data" / "altered-ocr"
 
 # Matches the canonical envelope patterns we've observed in the

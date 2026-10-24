@@ -37,7 +37,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.config.settings import Settings  # noqa: E402

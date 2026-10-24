@@ -29,7 +29,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 DEFAULT_PROPOSALS = _REPO_ROOT / "data" / "display_dates_proposals.jsonl"
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 

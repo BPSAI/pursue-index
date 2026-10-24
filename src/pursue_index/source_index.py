@@ -45,6 +45,7 @@ import httpx
 
 from pursue_index.era_dates import parse_year
 from pursue_index.era_models import era_for_year
+from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import DateBasis, require_web_url
 from pursue_index.sitemap_fetch import (
     DEFAULT_ROBOTS_URL,
@@ -385,7 +386,7 @@ def main() -> int:
     listing-only) requests. On a non-2xx it aborts with a clear message rather
     than retrying in a loop.
     """
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = _resolve_repo_root()
     out_path = repo_root / OUTPUT_PATH
     fetcher = CourteousFetcher(get=_default_get)
     try:

@@ -21,6 +21,16 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
+
+@app.callback()
+def _print_repo_root() -> None:
+    """Every data-stage command's first line of output: which checkout
+    this process is reading and writing `data/` against. An editable
+    install stays pinned to whichever checkout ran `pip install -e .`, so
+    this is the one thing an operator standing in a second worktree or
+    fixture repo needs to see before trusting anything else it prints."""
+    console.print(f"[dim]repo root: {settings.repo_root}[/dim]")
+
 # ---------------------------------------------------------------------------
 # scrape
 # ---------------------------------------------------------------------------

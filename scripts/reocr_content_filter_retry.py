@@ -39,7 +39,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 _SCRIPTS_DIR = _REPO_ROOT / "scripts"
 _SRC_DIR = _REPO_ROOT / "src"
 for _p in (_SCRIPTS_DIR, _SRC_DIR):
@@ -58,8 +60,8 @@ from _reocr_helpers import (  # noqa: E402
     append_jsonl,
     fetch_r2_pdf,
 )
-from pursue_index.ocr._llm_parsing import parse_response  # noqa: E402
 
+from pursue_index.ocr._llm_parsing import parse_response  # noqa: E402
 
 _DEFAULT_TARGETS_POST = [
     {

@@ -30,9 +30,10 @@ import json
 import shutil
 import sys
 from datetime import UTC, datetime
-from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 # Expose the src-layout package so the shared snapshot-index writer is
 # importable when this runbook is invoked directly (matches the
 # sys.path-injection pattern in scripts/poll_pursue.py).

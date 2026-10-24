@@ -15,6 +15,43 @@ import typer
 
 from pursue_index.ingest import is_tranche_approved
 from pursue_index.ingest_run import locate_snapshot, promote_snapshot
+from pursue_index.paths import repo_root
+from pursue_index.poll_freshness import BehindPollerError, refuse_if_behind
+
+
+def enforce_poll_freshness(allow_behind: bool, reason: str | None) -> None:
+    """Refuse the calling command if this checkout is behind origin/main on
+    the paths the poller writes. See `pursue_index.poll_freshness`."""
+    if allow_behind and not reason:
+        typer.echo("--allow-behind requires --reason", err=True)
+        raise typer.Exit(2)
+    this_repo_root = repo_root()
+    try:
+        refuse_if_behind(
+            this_repo_root,
+            allow_behind=allow_behind,
+            reason=reason,
+            audit_log=this_repo_root / "data" / "poll-behind-audit-log.jsonl",
+        )
+    except BehindPollerError as exc:
+        typer.echo(
+            f"refusing — {exc}. Use --allow-behind --reason <text> to override.",
+            err=True,
+        )
+        raise typer.Exit(4) from exc
+
+
+def gate_resolve_and_promote(
+    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path, manifest: Path,
+    dry_run: bool, allow_behind: bool, reason: str | None,
+) -> Path:
+    """Poll-freshness + approval gate, snapshot resolution, and -- for a
+    real (non-dry) run -- promotion. Returns the resolved snapshot."""
+    enforce_poll_freshness(allow_behind, reason)
+    snapshot = resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
+    if not dry_run:
+        promote_and_report(snapshot, manifest)
+    return snapshot
 
 
 def resolve_approved_snapshot(

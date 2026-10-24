@@ -33,13 +33,15 @@ import argparse
 import json
 import sys
 import webbrowser
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 DEFAULT_PROPOSALS = _REPO_ROOT / "data" / "display_dates_proposals.jsonl"
 DEFAULT_CURATED = _REPO_ROOT / "data" / "display_dates.json"
@@ -106,7 +108,7 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def log_message(self, fmt: str, *args: Any) -> None:  # noqa: ANN401
+    def log_message(self, fmt: str, *args: Any) -> None:
         # Quieter logs — show one line per request
         sys.stderr.write(f"[{self.log_date_time_string()}] {fmt % args}\n")
 
@@ -170,7 +172,7 @@ class _Handler(BaseHTTPRequestHandler):
             entry = body.get("entry") or {}
             if not entry.get("card_id"):
                 entry["card_id"] = card_id
-            entry.setdefault("display_date_approved_at", datetime.now(timezone.utc).isoformat())
+            entry.setdefault("display_date_approved_at", datetime.now(UTC).isoformat())
             entry.setdefault("display_date_curator", "operator-buschleague")
             curated[card_id] = entry
             _save_curated(self.curated_path, curated)
@@ -205,7 +207,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"display-date review UI: {url}")
     print(f"  proposals: {len(proposals)} ({args.proposals.relative_to(_REPO_ROOT)})")
     print(f"  curated output: {args.curated.relative_to(_REPO_ROOT)}")
-    print(f"  press Ctrl+C to stop")
+    print("  press Ctrl+C to stop")
     if not args.no_browser:
         try:
             webbrowser.open(url)

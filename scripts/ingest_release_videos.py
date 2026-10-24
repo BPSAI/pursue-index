@@ -33,7 +33,9 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 # Helpers live in a sibling module to keep this file under arch-check limits.
 sys.path.insert(0, str(_REPO_ROOT / "scripts"))
@@ -62,7 +64,6 @@ from _video_ingest_core import (  # noqa: E402
 ensure_src_on_path(_REPO_ROOT)
 from build_video_posters import (  # noqa: E402
     USER_AGENT,
-    extract_dod_filename,
     scrape_dod_filename,
 )
 

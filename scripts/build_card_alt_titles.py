@@ -44,11 +44,13 @@ import csv
 import json
 import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 DEFAULT_CSV_DIR = _REPO_ROOT / "data" / "raw" / "csv"
 DEFAULT_SHA_FILE = _REPO_ROOT / "data" / "last-known-csv-sha.txt"
 DEFAULT_OUTPUT = _REPO_ROOT / "data" / "card_alt_titles.json"
@@ -138,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
     alts = build_alts(rows)
 
     payload = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "source_csv_sha": sha,
         "alts": alts,
     }

@@ -27,7 +27,9 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_BUCKET = "pursue-pdfs"
 
