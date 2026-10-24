@@ -31,11 +31,15 @@ import json
 import sys
 from pathlib import Path
 
-from pursue_index.paths import repo_root
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so the bootstrap runs before any pursue_index import.
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE / ".." / "src"))
+sys.path.insert(0, str(_HERE))
+
+from pursue_index.paths import repo_root  # noqa: E402
 
 REPO_ROOT = repo_root()
-sys.path.insert(0, str(REPO_ROOT / "src"))
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from _search_pages import emit_card_pages, emit_observation_only_pages  # noqa: E402
 
@@ -228,13 +232,9 @@ def main() -> int:
             "searchable text. Pass a non-existent path to disable."
         ),
     )
-    parser.add_argument(
-        "--aliases", type=Path, default=DEFAULT_ALIASES_PATH,
-        help="card-aliases.json; an old id aliased to a rebuilt id is an "
-        "approved rename, not a shrink.",
-    )
     add_exemption_args(
-        parser, approval_log=DEFAULT_APPROVAL_LOG, audit_log=DEFAULT_AUDIT_LOG
+        parser, aliases=DEFAULT_ALIASES_PATH,
+        approval_log=DEFAULT_APPROVAL_LOG, audit_log=DEFAULT_AUDIT_LOG,
     )
     add_shrink_args(parser, "pages.json")
     args = parser.parse_args()

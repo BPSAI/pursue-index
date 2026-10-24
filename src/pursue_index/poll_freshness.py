@@ -29,9 +29,9 @@ __all__ = [
     "POLL_WRITTEN_PATHS",
     "BehindPollerError",
     "PollCheckError",
-    "require_reason",
     "commits_behind_on_poll_paths",
     "refuse_if_behind",
+    "require_reason",
 ]
 
 _ORIGIN_MAIN = "refs/remotes/origin/main"

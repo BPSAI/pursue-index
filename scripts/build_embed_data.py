@@ -33,10 +33,14 @@ from pathlib import Path
 
 import numpy as np
 
-from pursue_index.paths import repo_root
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so the bootstrap runs before any pursue_index import.
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE / ".." / "src"))
+
+from pursue_index.paths import repo_root  # noqa: E402
 
 REPO_ROOT = repo_root()
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pursue_index.config import settings  # noqa: E402
 from pursue_index.embed.publish import (  # noqa: E402
@@ -259,13 +263,9 @@ def main() -> int:
         "--ocr-dir", type=Path, default=settings.ocr_dir,
         help="Data-root OCR dir checked for manifest-card coverage.",
     )
-    parser.add_argument(
-        "--aliases", type=Path, default=DEFAULT_ALIASES_PATH,
-        help="card-aliases.json; an old id aliased to a rebuilt id is an "
-        "approved rename, not a shrink.",
-    )
     add_exemption_args(
-        parser, approval_log=DEFAULT_APPROVAL_LOG, audit_log=DEFAULT_AUDIT_LOG
+        parser, aliases=DEFAULT_ALIASES_PATH,
+        approval_log=DEFAULT_APPROVAL_LOG, audit_log=DEFAULT_AUDIT_LOG,
     )
     add_shrink_args(parser, "embed_index.json")
     args = parser.parse_args()

@@ -23,8 +23,8 @@ from pursue_index.poll_freshness import (
     BehindPollerError,
     PollCheckError,
     commits_behind_on_poll_paths,
-    require_reason,
     refuse_if_behind,
+    require_reason,
 )
 
 

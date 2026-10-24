@@ -45,9 +45,14 @@ class AliasExemption:
 
 
 def add_exemption_args(
-    parser: argparse.ArgumentParser, *, approval_log: Path, audit_log: Path
+    parser: argparse.ArgumentParser, *, aliases: Path, approval_log: Path, audit_log: Path
 ) -> None:
-    """``--approval-log`` / ``--audit-log`` shared by both builders."""
+    """``--aliases`` / ``--approval-log`` / ``--audit-log`` shared by both builders."""
+    parser.add_argument(
+        "--aliases", type=Path, default=aliases,
+        help="card-aliases.json; an old id aliased to a rebuilt id is an "
+        "approved rename, not a shrink.",
+    )
     parser.add_argument(
         "--approval-log", type=Path, default=approval_log,
         help="tranche-approval-log.jsonl; an alias row only excuses a removed "
