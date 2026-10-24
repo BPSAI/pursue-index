@@ -334,3 +334,32 @@ def test_load_registry_sha_map_names_the_malformed_row(tmp_path: Path) -> None:
 
     with pytest.raises(InvalidCardIdError, match=r"registry\.jsonl:2"):
         load_registry_sha_map(registry)
+
+
+def test_confirmed_rename_new_id_is_scoped_as_renamed() -> None:
+    diff = {
+        "new_content": [],
+        "quarantined": [],
+        "renames_confirmed": [
+            {
+                "old_card_id": "b" * 16,
+                "new_card_id": "a" * 16,
+                "byte_sha256": "ff" * 32,
+                "new_asset_filename": "x.pdf",
+                "new_asset_url": "https://x/x.pdf",
+            },
+        ],
+    }
+    scoped = scope_pdf_img_cards(diff, "sha1")
+    assert scoped == [ScopedCard("a" * 16, REASON_RENAMED)]
+
+
+def test_confirmed_rename_of_a_video_is_not_scoped() -> None:
+    diff = {
+        "new_content": [],
+        "quarantined": [],
+        "renames_confirmed": [
+            {"old_card_id": "b" * 16, "new_card_id": "a" * 16, "new_asset_filename": "x.mp4"},
+        ],
+    }
+    assert scope_pdf_img_cards(diff, "sha1") == []

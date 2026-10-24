@@ -58,6 +58,12 @@ def _is_pdf_img_asset(
     return Path(name).suffix.lower() not in _AV_EXTENSIONS
 
 
+def _has_new_side_pdf_img(row: dict[str, Any]) -> bool:
+    return _is_pdf_img_asset(
+        row.get("new_asset_filename"), row.get("new_asset_url"), row.get("asset_type")
+    )
+
+
 def scope_pdf_img_cards(
     diff: dict[str, Any],
     tranche_sha: str,
@@ -76,6 +82,9 @@ def scope_pdf_img_cards(
       3. ``renamed`` -- ``aliases`` rows established for this tranche
          (``tranche_sha256 == tranche_sha``) whose new side has a PDF/IMG
          asset (looked up from the matching ``quarantined`` row).
+         Confirmed (Class A) renames in the diff's ``renames_confirmed`` are
+         scoped the same way, from their own row, since the tranche approval
+         accepts them without a per-card flag.
       4. ``bytes-changed`` -- any card_id in ``registry_sha_by_card`` whose
          current byte sha differs from the one recorded in
          ``ocr_meta_sha_by_card`` (i.e. it was OCR'd before, under
@@ -114,19 +123,19 @@ def scope_pdf_img_cards(
     for new_card_id, row in quarantined_by_new_id.items():
         if new_card_id in renamed_this_tranche:
             continue
-        if _is_pdf_img_asset(
-            row.get("new_asset_filename"), row.get("new_asset_url"), row.get("asset_type")
-        ):
+        if _has_new_side_pdf_img(row):
             _add(new_card_id, REASON_QUARANTINED_NEW)
 
     for new_card_id in renamed_this_tranche:
         row = quarantined_by_new_id.get(new_card_id)
         if row is None:
             continue
-        if _is_pdf_img_asset(
-            row.get("new_asset_filename"), row.get("new_asset_url"), row.get("asset_type")
-        ):
+        if _has_new_side_pdf_img(row):
             _add(new_card_id, REASON_RENAMED)
+
+    for row in diff.get("renames_confirmed", []) or []:
+        if _has_new_side_pdf_img(row):
+            _add(row["new_card_id"], REASON_RENAMED)
 
     for card_id, current_sha in registry_sha_by_card.items():
         recorded_sha = ocr_meta_sha_by_card.get(card_id)
