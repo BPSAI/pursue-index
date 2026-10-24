@@ -41,7 +41,8 @@ const OUT = resolve(here, "../public/data/cards-summary.json");
 
 // Explicit allowlist of fields CardExplorer uses.
 // Drops `raw` (upstream columns the scraper does not map; no UI consumer
-// reads it, see types.ts) and keeps the bundle lean. If a new field is added to types.ts and CardExplorer needs it,
+// reads it, see types.ts) and keeps the bundle lean.
+// If a new field is added to types.ts and CardExplorer needs it,
 // add it here too — the build will silently exclude unknown fields,
 // which is the right failure mode for forward-compat.
 const FIELDS = [
