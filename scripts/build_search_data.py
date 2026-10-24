@@ -40,6 +40,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 from _search_pages import emit_card_pages, emit_observation_only_pages  # noqa: E402
 
 from pursue_index.config import settings  # noqa: E402
+from pursue_index.release.alias_exemption import add_exemption_args  # noqa: E402
 from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset  # noqa: E402
 from pursue_index.release.shrink_guard import (  # noqa: E402
     add_shrink_args,
@@ -55,6 +56,7 @@ DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
 DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
 DEFAULT_ALIASES_PATH = REPO_ROOT / "data" / "card-aliases.json"
+DEFAULT_APPROVAL_LOG = REPO_ROOT / "data" / "tranche-approval-log.jsonl"
 DEFAULT_IMAGE_OBS_INDEX = (
     REPO_ROOT / "web" / "src" / "data" / "image-observations" / "index.json"
 )
@@ -130,11 +132,13 @@ def _check_shrink(
     aliases_path: Path | None,
     allow_shrink_reason: str | None,
     audit_log: Path,
+    approval_log: Path | None,
 ) -> int:
     """``enforce()`` wired to this builder's rebuilt docs. 0 is clean/allowed."""
     rebuilt_ids = {str(d["card_id"]) for d in docs}
     renamed, missing = find_renamed_and_missing(
-        committed_pages_card_ids(out_path), rebuilt_ids, aliases_path
+        "build_search_data.py", committed_pages_card_ids(out_path), rebuilt_ids,
+        aliases_path, approval_log, audit_log,
     )
     return enforce(
         "build_search_data.py",
@@ -155,6 +159,7 @@ def build(
     allow_shrink_reason: str | None = None,
     audit_log: Path = DEFAULT_AUDIT_LOG,
     aliases_path: Path | None = None,
+    approval_log: Path | None = DEFAULT_APPROVAL_LOG,
     budget_bytes: int = BUDGET_BYTES,
 ) -> int:
     """Materialize the search payload. Returns process exit code.
@@ -176,7 +181,8 @@ def build(
     titles_by_id = {str(c["card_id"]): str(c["title"]) for c in manifest_cards}
     docs, cards_seen = _walk_card_pages(ocr_dir, titles_by_id, obs_lookup)
     rc = _check_shrink(
-        docs, manifest_cards, out_path, aliases_path, allow_shrink_reason, audit_log
+        docs, manifest_cards, out_path, aliases_path, allow_shrink_reason, audit_log,
+        approval_log,
     )
     if rc:
         return rc
@@ -227,6 +233,9 @@ def main() -> int:
         help="card-aliases.json; an old id aliased to a rebuilt id is an "
         "approved rename, not a shrink.",
     )
+    add_exemption_args(
+        parser, approval_log=DEFAULT_APPROVAL_LOG, audit_log=DEFAULT_AUDIT_LOG
+    )
     add_shrink_args(parser, "pages.json")
     args = parser.parse_args()
     allow_shrink_reason = shrink_reason(parser, args)
@@ -237,6 +246,8 @@ def main() -> int:
         image_obs_index=args.image_observations_index,
         allow_shrink_reason=allow_shrink_reason,
         aliases_path=args.aliases,
+        approval_log=args.approval_log,
+        audit_log=args.audit_log,
     )
 
 

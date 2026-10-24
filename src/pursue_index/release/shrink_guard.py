@@ -15,7 +15,9 @@ An operator who really means to shrink passes ``--allow-shrink --reason ...``;
 that is recorded as an audited exception in ``data/audit-log.jsonl``. An
 approved rename removes its old ``card_id`` by design, so a shrunk id whose
 ``data/card-aliases.json`` row points at a ``card_id`` present in the rebuild
-is reported (``renamed: <old> -> <new>``) rather than refused.
+is reported (``renamed: <old> -> <new>``) rather than refused, provided the
+row's ``method`` is allowlisted and its tranche is in the approval log (see
+``alias_exemption``); each such exemption is audited.
 
 Only PDF cards are *required* to carry text. A VID has no transcript pipeline
 and an AUD/IMG card awaiting transcription or a vision pass is a backlog, not
@@ -35,6 +37,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.ingest_scope import load_aliases as _load_alias_rows
+from pursue_index.release.alias_exemption import resolve_with_audit
 from pursue_index.release.chunked_asset import asset_exists, read_asset_json
 
 TEXT_REQUIRED_TYPES = frozenset({"PDF"})
@@ -138,11 +141,22 @@ def resolve_renames(
 
 
 def find_renamed_and_missing(
-    committed: set[str] | None, rebuilt: set[str], aliases_path: Path | None
+    script: str,
+    committed: set[str] | None,
+    rebuilt: set[str],
+    aliases_path: Path | None,
+    approval_log: Path | None,
+    audit_log: Path,
 ) -> tuple[list[str], list[str]]:
-    """``find_shrink`` + ``resolve_renames`` in one call for the builders."""
-    aliases = load_alias_map(aliases_path)
-    return resolve_renames(find_shrink(committed, rebuilt), rebuilt, aliases)
+    """``find_shrink`` + audited rename resolution in one call for the builders.
+
+    Only alias rows that pass :mod:`pursue_index.release.alias_exemption`
+    excuse a removed id; each exemption is written to ``audit_log``.
+    """
+    return resolve_with_audit(
+        script, find_shrink(committed, rebuilt), rebuilt,
+        aliases_path, approval_log, audit_log,
+    )
 
 
 def ocr_dir_error(ocr_dir: Path) -> str | None:

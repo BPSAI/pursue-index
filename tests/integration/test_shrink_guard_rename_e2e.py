@@ -39,8 +39,16 @@ def _ocr(ocr_dir: Path, card_id: str) -> None:
     (card_dir / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "t"}) + "\n")
 
 
+_TRANCHE = "ab" * 32
+
+
 def _aliases(path: Path, rows: list[dict[str, str]]) -> None:
     path.write_text(json.dumps({"aliases": rows}))
+
+
+def _approval_log(path: Path) -> Path:
+    path.write_text(json.dumps({"tranche_sha256": _TRANCHE}) + "\n")
+    return path
 
 
 def test_build_search_data_cli_accepts_approved_rename_without_allow_shrink(
@@ -62,7 +70,8 @@ def test_build_search_data_cli_accepts_approved_rename_without_allow_shrink(
     )
     aliases = tmp_path / "card-aliases.json"
     _aliases(
-        aliases, [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"}]
+        aliases, [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual",
+          "tranche_sha256": _TRANCHE}]
     )
 
     result = subprocess.run(
@@ -72,6 +81,8 @@ def test_build_search_data_cli_accepts_approved_rename_without_allow_shrink(
             "--manifest", str(manifest),
             "--out", str(out),
             "--aliases", str(aliases),
+            "--approval-log", str(_approval_log(tmp_path / "approvals.jsonl")),
+            "--audit-log", str(tmp_path / "audit-log.jsonl"),
             "--image-observations-index", str(tmp_path / "no-such-index.json"),
         ],
         cwd=REPO_ROOT, capture_output=True, text=True,
@@ -79,6 +90,9 @@ def test_build_search_data_cli_accepts_approved_rename_without_allow_shrink(
 
     assert result.returncode == 0, result.stderr
     assert "renamed: a -> c" in result.stdout
+    row = json.loads((tmp_path / "audit-log.jsonl").read_text().splitlines()[-1])
+    assert (row["old_card_id"], row["new_card_id"]) == ("a", "c")
+    assert row["tranche_sha256"] == _TRANCHE
 
 
 def test_build_embed_data_cli_accepts_approved_rename_without_allow_shrink(
@@ -120,7 +134,8 @@ def test_build_embed_data_cli_accepts_approved_rename_without_allow_shrink(
     )
     aliases = tmp_path / "card-aliases.json"
     _aliases(
-        aliases, [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"}]
+        aliases, [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual",
+          "tranche_sha256": _TRANCHE}]
     )
     # No PDF cards in the manifest: the coverage rule has nothing to flag,
     # isolating this run to the shrink/rename rule under test.
@@ -134,6 +149,8 @@ def test_build_embed_data_cli_accepts_approved_rename_without_allow_shrink(
             "--model", "voyage-3",
             "--out-dir", str(out_dir),
             "--aliases", str(aliases),
+            "--approval-log", str(_approval_log(tmp_path / "approvals.jsonl")),
+            "--audit-log", str(tmp_path / "audit-log.jsonl"),
             "--manifest", str(manifest),
             "--ocr-dir", str(tmp_path / "no-ocr"),
         ],
@@ -142,3 +159,6 @@ def test_build_embed_data_cli_accepts_approved_rename_without_allow_shrink(
 
     assert result.returncode == 0, result.stderr
     assert "renamed: a -> c" in result.stdout
+    row = json.loads((tmp_path / "audit-log.jsonl").read_text().splitlines()[-1])
+    assert (row["old_card_id"], row["new_card_id"]) == ("a", "c")
+    assert row["tranche_sha256"] == _TRANCHE

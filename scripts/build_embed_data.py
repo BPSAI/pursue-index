@@ -43,6 +43,7 @@ from pursue_index.embed.publish import (  # noqa: E402
     load_embed_eligible_keys,
     select_publish_rows,
 )
+from pursue_index.release.alias_exemption import add_exemption_args  # noqa: E402
 from pursue_index.release.chunked_asset import (  # noqa: E402
     BUDGET_BYTES,
     asset_exists,
@@ -63,6 +64,7 @@ DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
 DEFAULT_ALIASES_PATH = REPO_ROOT / "data" / "card-aliases.json"
+DEFAULT_APPROVAL_LOG = REPO_ROOT / "data" / "tranche-approval-log.jsonl"
 
 
 def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
@@ -128,6 +130,7 @@ def _guard(
     allow_shrink_reason: str | None,
     audit_log: Path,
     aliases_path: Path | None = None,
+    approval_log: Path | None = None,
 ) -> int:
     """Refuse a rebuild that shrinks the committed ``embed_index.json``.
 
@@ -145,7 +148,8 @@ def _guard(
         cards = json.loads(manifest_path.read_text(encoding="utf-8"))["cards"]
         uncovered = find_uncovered(cards, ocr_covered_ids(ocr_dir))
     renamed, missing = find_renamed_and_missing(
-        committed_embed_card_ids(idx_path), rebuilt_ids, aliases_path
+        "build_embed_data.py", committed_embed_card_ids(idx_path), rebuilt_ids,
+        aliases_path, approval_log, audit_log,
     )
     return enforce(
         "build_embed_data.py",
@@ -169,6 +173,7 @@ def build(
     allow_shrink_reason: str | None = None,
     audit_log: Path = DEFAULT_AUDIT_LOG,
     aliases_path: Path | None = None,
+    approval_log: Path | None = DEFAULT_APPROVAL_LOG,
 ) -> int:
     in_dir = embeddings_root / model_id
     if not (in_dir / "index.json").exists():
@@ -189,7 +194,7 @@ def build(
     idx_path = out_dir / "embed_index.json"
     rc = _guard(
         kept_rows, idx_path, manifest_path, ocr_dir,
-        allow_shrink_reason, audit_log, aliases_path)
+        allow_shrink_reason, audit_log, aliases_path, approval_log)
     if rc:
         return rc
     arr = _filter_vectors(arr, kept_rows, dim)
@@ -259,6 +264,9 @@ def main() -> int:
         help="card-aliases.json; an old id aliased to a rebuilt id is an "
         "approved rename, not a shrink.",
     )
+    add_exemption_args(
+        parser, approval_log=DEFAULT_APPROVAL_LOG, audit_log=DEFAULT_AUDIT_LOG
+    )
     add_shrink_args(parser, "embed_index.json")
     args = parser.parse_args()
     allow_shrink_reason = shrink_reason(parser, args)
@@ -271,6 +279,8 @@ def main() -> int:
         ocr_dir=args.ocr_dir,
         allow_shrink_reason=allow_shrink_reason,
         aliases_path=args.aliases,
+        approval_log=args.approval_log,
+        audit_log=args.audit_log,
     )
 
 

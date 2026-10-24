@@ -63,6 +63,12 @@ def _ocr(ocr_dir: Path, card_id: str) -> None:
     (card_dir / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "t"}) + "\n")
 
 
+def _approval(tmp_path: Path) -> Path:
+    path = tmp_path / "approvals.jsonl"
+    path.write_text(json.dumps({"tranche_sha256": "ab" * 32}) + "\n")
+    return path
+
+
 def _aliases(path: Path, rows: list[dict[str, str]]) -> Path:
     path.write_text(json.dumps({"aliases": rows}))
     return path
@@ -148,10 +154,12 @@ def test_renamed_card_accounted_for_by_alias_exits_0(
     _stage_out(tmp_path / "out", ["b", "c"], committed=["a", "b"])
     aliases = _aliases(
         tmp_path / "card-aliases.json",
-        [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"}],
+        [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual",
+          "tranche_sha256": "ab" * 32}],
     )
 
-    rc = _run(tmp_path, aliases_path=aliases)
+    rc = _run(tmp_path, aliases_path=aliases,
+               approval_log=_approval(tmp_path))
 
     assert rc == 0
     assert "renamed: a -> c" in capsys.readouterr().out

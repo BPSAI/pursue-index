@@ -51,6 +51,12 @@ def _committed(out: Path, ids: list[str]) -> None:
     )
 
 
+def _approval(tmp_path: Path) -> Path:
+    path = tmp_path / "approvals.jsonl"
+    path.write_text(json.dumps({"tranche_sha256": "ab" * 32}) + "\n")
+    return path
+
+
 def _aliases(path: Path, rows: list[dict[str, str]]) -> Path:
     path.write_text(json.dumps({"aliases": rows}))
     return path
@@ -159,10 +165,12 @@ def test_renamed_card_accounted_for_by_alias_exits_0(
     _committed(tmp_path / "pages.json", ["a", "b"])
     aliases = _aliases(
         tmp_path / "card-aliases.json",
-        [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"}],
+        [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual",
+          "tranche_sha256": "ab" * 32}],
     )
 
-    rc = _run(tmp_path, _load(), aliases_path=aliases)
+    rc = _run(tmp_path, _load(), aliases_path=aliases,
+               approval_log=_approval(tmp_path))
 
     assert rc == 0
     assert "renamed: a -> c" in capsys.readouterr().out
@@ -195,7 +203,8 @@ def test_alias_target_absent_from_rebuilt_still_fails(
         [{"old_card_id": "a", "new_card_id": "z", "method": "operator_manual"}],
     )
 
-    rc = _run(tmp_path, _load(), aliases_path=aliases)
+    rc = _run(tmp_path, _load(), aliases_path=aliases,
+               approval_log=_approval(tmp_path))
 
     assert rc == 1
     assert "a" in capsys.readouterr().err
