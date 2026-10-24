@@ -69,6 +69,8 @@ def test_real_manifest_coverage_matches_the_chain() -> None:
     # Cards carrying a two-digit incident date that no four-digit year on the
     # card corroborates are undated rather than modern, so they sit in
     # unresolved (triage) instead of taking an era-based negative.
+    # Release 7 (tranche 096ef2c0058a, 450 -> 478 rows): of the 28 net-new
+    # cards, 2 resolve by era and 26 are unresolved; 23 + 220 + 235 = 478.
     assert report.resolved_by_era == 220
     assert report.unresolved == 235
     assert report.page_image_flagged == 19
