@@ -20,12 +20,18 @@ Usage:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
 import os
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 from pursue_index.paths import repo_root
 

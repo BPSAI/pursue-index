@@ -30,28 +30,29 @@ Heavy ingest is operator-attended by design. Run manually:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import hashlib
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 
 # Make ``src/`` importable when running as ``python scripts/poll_pursue.py``
 # from the repo root (no install needed in the GH Actions runner).
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
-_SRC = _REPO_ROOT / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
 
 # Make sibling helper module importable in the same way (scripts/ is not
 # a package, so a relative import would fail).
 _SCRIPTS_DIR = Path(__file__).resolve().parent
-if str(_SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from _poll_gh_io import (  # noqa: E402
+from _poll_gh_io import (
     changed_issue_body,
     emit_gh_outputs,
     emit_step_summary,
@@ -59,13 +60,13 @@ from _poll_gh_io import (  # noqa: E402
     guarded_summary,
     truncate_error,
 )
-from _poll_guard import (  # noqa: E402
+from _poll_guard import (
     GuardState,
     encoding_only_vs_archive,
     load_guard,
     save_guard,
 )
-from _poll_results import (  # noqa: E402
+from _poll_results import (
     Benign,
     Changed,
     Failed,
@@ -74,9 +75,9 @@ from _poll_results import (  # noqa: E402
     Stale,
     Unchanged,
 )
-from _poll_sha_state import resolve_old_sha, write_state  # noqa: E402
+from _poll_sha_state import resolve_old_sha, write_state
 
-from pursue_index.scrape.csv_fetcher import fetch_raw_csv  # noqa: E402
+from pursue_index.scrape.csv_fetcher import fetch_raw_csv
 
 DEFAULT_STATE_PATH = _REPO_ROOT / "data" / "last-known-csv-sha.txt"
 DEFAULT_MANIFEST_PATH = _REPO_ROOT / "data" / "manifests" / "latest.json"

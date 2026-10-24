@@ -26,9 +26,16 @@ Usage::
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import json
 import shutil
-import sys
 from datetime import UTC, datetime
 
 from pursue_index.paths import repo_root
@@ -37,8 +44,7 @@ _REPO_ROOT = repo_root()
 # Expose the src-layout package so the shared snapshot-index writer is
 # importable when this runbook is invoked directly (matches the
 # sys.path-injection pattern in scripts/poll_pursue.py).
-sys.path.insert(0, str(_REPO_ROOT / "src"))
-from pursue_index.scrape.snapshots import write_public_index  # noqa: E402
+from pursue_index.scrape.snapshots import write_public_index
 
 LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 SNAPSHOTS_PIPELINE = _REPO_ROOT / "data" / "manifests" / "snapshots"

@@ -26,27 +26,27 @@ you commit alongside the manifest, since OCR runs on the workstation.
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
 
 # Code is loaded from where this script lives, never from the data root
-# (cwd / PURSUE_REPO_ROOT), so the bootstrap runs before any pursue_index import.
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE / ".." / "src"))
-sys.path.insert(0, str(_HERE))
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pursue_index.paths import repo_root  # noqa: E402
+import argparse
+import json
+
+from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
 
-from _search_pages import emit_card_pages, emit_observation_only_pages  # noqa: E402
+from _search_pages import emit_card_pages, emit_observation_only_pages
 
-from pursue_index.config import settings  # noqa: E402
-from pursue_index.release.alias_exemption import add_exemption_args  # noqa: E402
-from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset  # noqa: E402
-from pursue_index.release.shrink_guard import (  # noqa: E402
+from pursue_index.config import settings
+from pursue_index.release.alias_exemption import add_exemption_args
+from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset
+from pursue_index.release.shrink_guard import (
     add_shrink_args,
     committed_pages_card_ids,
     enforce,

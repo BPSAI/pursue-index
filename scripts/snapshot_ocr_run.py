@@ -13,17 +13,22 @@ Run::
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import json
 
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from pursue_index.config import settings  # noqa: E402
+from pursue_index.config import settings
 
 OUT_DIR = REPO_ROOT / "data" / "benchmarks"
 

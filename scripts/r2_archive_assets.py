@@ -49,27 +49,30 @@ runs touch only the small handful of cards that changed.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import hashlib
 import json
 import mimetypes
 import os
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 # Make src/ importable when invoked as ``python scripts/r2_archive_assets.py``.
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
-_SRC = _REPO_ROOT / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
 
-from curl_cffi import requests as cffi_requests  # noqa: E402
+from curl_cffi import requests as cffi_requests
 
-from pursue_index.scrape.manifest import load_manifest  # noqa: E402
+from pursue_index.scrape.manifest import load_manifest
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"

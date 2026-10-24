@@ -33,18 +33,23 @@ Usage::
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from pursue_index.config import settings  # noqa: E402
+from pursue_index.config import settings
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 # Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.

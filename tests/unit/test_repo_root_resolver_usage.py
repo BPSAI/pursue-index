@@ -49,6 +49,8 @@ _ALLOWLIST = {
 # ``Path(__file__)`` -- the shape every existing ``_REPO_ROOT`` constant used.
 _MULTI_HOP = re.compile(r"Path\(__file__\)(?:\.resolve\(\))?(?:\.parent){2,}")
 _INDEXED = re.compile(r"Path\(__file__\)(?:\.resolve\(\))?\.parents\[")
+# The one sanctioned use: a script putting its OWN checkout's src/ on sys.path.
+_BOOTSTRAP = 'sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))'
 
 
 def _candidate_files() -> list[Path]:
@@ -69,6 +71,8 @@ def test_no_module_derives_repo_root_from_file_without_the_resolver() -> None:
             continue
         text = path.read_text(encoding="utf-8")
         for lineno, line in enumerate(text.splitlines(), start=1):
+            if line.strip() == _BOOTSTRAP:
+                continue
             if _MULTI_HOP.search(line) or _INDEXED.search(line):
                 violations.append(f"{path.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}")
 

@@ -24,18 +24,23 @@ includes the card with mixed-engine per-page provenance.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
-sys.path.insert(0, str(_REPO_ROOT / "src"))
 
-from pursue_index.config import settings  # noqa: E402
+from pursue_index.config import settings
 
 # Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
 NAS_OCR_ROOT = settings.ocr_dir

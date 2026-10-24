@@ -48,21 +48,24 @@ Idempotent. Read-only against R2 (GET + HEAD only, no writes).
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import hashlib
 import json
-import sys
-from pathlib import Path
 from typing import Any
 
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
-_SCRIPTS = _REPO_ROOT / "scripts"
-if str(_SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS))
 
-from r2_archive_assets import load_registry, make_r2_client  # noqa: E402
+from r2_archive_assets import load_registry, make_r2_client
 
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_BUCKET = "pursue-pdfs"

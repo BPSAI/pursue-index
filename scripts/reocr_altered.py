@@ -40,20 +40,23 @@ scripts/r2_archive_assets.py:154).
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
-import sys
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 from typing import Any
 
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
-_SCRIPTS_DIR = _REPO_ROOT / "scripts"
-if str(_SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS_DIR))
 
 # Auto-load .env so operator can run `python scripts/reocr_altered.py`
 # without sourcing first. Matches the implicit loading that
@@ -73,15 +76,19 @@ DEFAULT_BUCKET = "pursue-pdfs"
 
 # Pure helpers + IO wrappers extracted to keep this file under the
 # architecture-rules file-size / function-count caps.
-from _reocr_helpers import (  # noqa: E402, I001
+from _reocr_helpers import (
     CostCapExceededError,
     UsageTracker,
-    append_jsonl as _append_jsonl,
     estimate_cost_usd,
-    fetch_r2_pdf as _r2_fetch_pdf,
     resume_from_page,
     select_ocr_targets,
     truncate_jsonl_to_valid_prefix,
+)
+from _reocr_helpers import (
+    append_jsonl as _append_jsonl,
+)
+from _reocr_helpers import (
+    fetch_r2_pdf as _r2_fetch_pdf,
 )
 
 # Re-export for back-compat with tests + downstream consumers.

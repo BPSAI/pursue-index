@@ -49,25 +49,28 @@ Usage:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import hashlib
 import json
 import mimetypes
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
-_SCRIPTS = _REPO_ROOT / "scripts"
-if str(_SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS))
 
 # Share helpers with r2_archive_assets so the registry contract + client
 # wiring + ext allowlist stay in lockstep across the integrity tooling.
-from r2_archive_assets import (  # noqa: E402
+from r2_archive_assets import (
     append_registry,
     load_registry,
     make_r2_client,

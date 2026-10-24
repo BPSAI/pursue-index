@@ -135,6 +135,11 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+# Every script bootstraps sys.path from its own location before it imports
+# the package, so its imports intentionally follow executable statements.
+"scripts/*.py" = ["E402"]
+
 [tool.ruff.lint.flake8-bugbear]
 # Typer's CLI idiom puts typer.Option/Argument calls in argument defaults; they
 # are immutable sentinels, not the mutable-default footgun B008 targets.

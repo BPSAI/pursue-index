@@ -23,20 +23,25 @@ the embed index). ``--check`` exits 1 when the committed payload is stale.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import hashlib
 import json
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from pursue_index.release.chunked_asset import read_asset_json  # noqa: E402
+from pursue_index.release.chunked_asset import read_asset_json
 
 DEFAULT_DATA_DIR = REPO_ROOT / "web" / "public" / "data"
 OUT_DIRNAME = "retrieve"

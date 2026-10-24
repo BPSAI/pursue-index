@@ -20,17 +20,22 @@ default for a derived value.
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import json
 
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from pursue_index.web.og_image import OgImageContext, render_og_image  # noqa: E402
+from pursue_index.web.og_image import OgImageContext, render_og_image
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT = REPO_ROOT / "web" / "public" / "og.png"

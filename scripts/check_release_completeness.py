@@ -29,21 +29,26 @@ Usage::
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
 import os
-import sys
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from pursue_index.config.settings import Settings  # noqa: E402
-from pursue_index.transcribe.run import looks_channel_duplicated  # noqa: E402
+from pursue_index.config.settings import Settings
+from pursue_index.transcribe.run import looks_channel_duplicated
 
 AV_TYPES = ("VID", "AUD")
 AV_EXTENSIONS = ("mp4", "m4a", "mp3", "wav", "mov", "webm", "mkv", "aac", "ogg", "flac")

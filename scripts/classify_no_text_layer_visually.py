@@ -23,10 +23,16 @@ No new third-party deps: uses PIL + pdf2image (in venv).
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import json
 from typing import Any
 
 from pursue_index.paths import repo_root

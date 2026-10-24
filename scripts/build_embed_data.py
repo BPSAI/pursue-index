@@ -25,35 +25,36 @@ Run after ``pursue embed run`` and ``scripts/build_search_data.py``::
 
 from __future__ import annotations
 
-import argparse
-import json
-import struct
 import sys
 from pathlib import Path
 
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import json
+import struct
+
 import numpy as np
 
-# Code is loaded from where this script lives, never from the data root
-# (cwd / PURSUE_REPO_ROOT), so the bootstrap runs before any pursue_index import.
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE / ".." / "src"))
-
-from pursue_index.paths import repo_root  # noqa: E402
+from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
 
-from pursue_index.config import settings  # noqa: E402
-from pursue_index.embed.publish import (  # noqa: E402
+from pursue_index.config import settings
+from pursue_index.embed.publish import (
     load_embed_eligible_keys,
     select_publish_rows,
 )
-from pursue_index.release.alias_exemption import add_exemption_args  # noqa: E402
-from pursue_index.release.chunked_asset import (  # noqa: E402
+from pursue_index.release.alias_exemption import add_exemption_args
+from pursue_index.release.chunked_asset import (
     BUDGET_BYTES,
     asset_exists,
     write_asset,
 )
-from pursue_index.release.shrink_guard import (  # noqa: E402
+from pursue_index.release.shrink_guard import (
     add_shrink_args,
     committed_embed_card_ids,
     enforce,
