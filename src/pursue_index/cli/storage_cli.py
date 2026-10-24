@@ -14,6 +14,7 @@ from pathlib import Path
 
 import typer
 
+from pursue_index.card_id import InvalidCardIdError, require_card_ids
 from pursue_index.cli.worklist import (
     WorklistTrancheError,
     exit_on_tranche_error,
@@ -100,7 +101,11 @@ def _pdf_scope(worklist: Path) -> list[str]:
         require_worklist_tranche(worklist, manifest.csv_sha256)
     except WorklistTrancheError as exc:
         exit_on_tranche_error(exc)
-    card_ids = read_worklist(worklist)
+    try:
+        card_ids = require_card_ids(read_worklist(worklist))
+    except InvalidCardIdError as exc:
+        typer.echo(f"refusing — worklist {worklist}: {exc}", err=True)
+        raise typer.Exit(2) from exc
     in_scope, skipped = select_pdf_cards(
         card_ids, [c.model_dump() for c in manifest.cards]
     )

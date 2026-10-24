@@ -26,6 +26,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pursue_index.card_id import require_card_id
+
 REASON_NEW = "new"
 REASON_QUARANTINED_NEW = "quarantined-new"
 REASON_RENAMED = "renamed"
@@ -166,6 +168,7 @@ def load_ocr_meta_sha_map(ocr_dir: Path, card_ids: Iterable[str]) -> dict[str, s
     """``card_id -> pdf_sha256`` for every candidate card_id with an OCR sidecar."""
     out: dict[str, str] = {}
     for card_id in card_ids:
+        require_card_id(card_id)
         meta_path = ocr_dir / card_id / "meta.json"
         if not meta_path.is_file():
             continue

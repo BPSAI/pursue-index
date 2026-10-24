@@ -19,6 +19,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from pursue_index.ingest_scope import (
     REASON_BYTES_CHANGED,
     REASON_NEW,
@@ -263,22 +265,26 @@ def test_load_registry_sha_map_missing_file_is_empty(tmp_path: Path) -> None:
     assert load_registry_sha_map(tmp_path / "nope.jsonl") == {}
 
 
+_CID = "c1d2e3f4a5b6c7d8"
+_EXISTING = "e1e2e3e4e5e6e7e8"
+
+
 def test_load_ocr_meta_sha_map_reads_pdf_sha256(tmp_path: Path) -> None:
     ocr_dir = tmp_path / "ocr"
-    card_dir = ocr_dir / "cardid"
+    card_dir = ocr_dir / _CID
     card_dir.mkdir(parents=True)
-    (card_dir / "meta.json").write_text(json.dumps({"pdf_sha256": "abc123", "card_id": "cardid"}))
-    assert load_ocr_meta_sha_map(ocr_dir, ["cardid", "missing-card"]) == {"cardid": "abc123"}
+    (card_dir / "meta.json").write_text(json.dumps({"pdf_sha256": "abc123", "card_id": _CID}))
+    assert load_ocr_meta_sha_map(ocr_dir, [_CID, "0" * 16]) == {_CID: "abc123"}
 
 
 def test_scope_worklist_wires_loaders_together(tmp_path: Path) -> None:
     aliases_path = tmp_path / "card-aliases.json"
     aliases_path.write_text(json.dumps({"aliases": []}))
     registry_path = tmp_path / "registry.jsonl"
-    registry_path.write_text(json.dumps({"card_id": "existing", "byte_sha256": "new-sha"}) + "\n")
+    registry_path.write_text(json.dumps({"card_id": _EXISTING, "byte_sha256": "new-sha"}) + "\n")
     ocr_dir = tmp_path / "ocr"
-    (ocr_dir / "existing").mkdir(parents=True)
-    (ocr_dir / "existing" / "meta.json").write_text(json.dumps({"pdf_sha256": "old-sha"}))
+    (ocr_dir / _EXISTING).mkdir(parents=True)
+    (ocr_dir / _EXISTING / "meta.json").write_text(json.dumps({"pdf_sha256": "old-sha"}))
 
     diff = {
         "new_content": [
@@ -290,4 +296,12 @@ def test_scope_worklist_wires_loaders_together(tmp_path: Path) -> None:
         diff, "sha1", aliases_path=aliases_path, registry_path=registry_path, ocr_dir=ocr_dir
     )
     by_id = {c.card_id: c.reason for c in scoped}
-    assert by_id == {"n" * 16: REASON_NEW, "existing": REASON_BYTES_CHANGED}
+    assert by_id == {"n" * 16: REASON_NEW, _EXISTING: REASON_BYTES_CHANGED}
+
+
+def test_load_ocr_meta_sha_map_refuses_a_card_id_that_is_not_16_hex(tmp_path: Path) -> None:
+    from pursue_index.card_id import InvalidCardIdError
+
+    for bad in ("../../etc", "cardid", "A" * 16, "a" * 15, "a" * 17, "a/b" + "0" * 13, ""):
+        with pytest.raises(InvalidCardIdError):
+            load_ocr_meta_sha_map(tmp_path / "ocr", [bad])
