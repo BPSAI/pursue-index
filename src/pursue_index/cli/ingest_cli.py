@@ -117,7 +117,7 @@ _OPT_ALLOW_BEHIND = typer.Option(
     False,
     "--allow-behind",
     help="Proceed even though this checkout is behind origin/main on poll-written "
-    "paths. Requires --reason; recorded as an audited exception.",
+    "paths. Requires --reason (12+ characters); recorded as an audited exception.",
 )
 _OPT_BEHIND_REASON = typer.Option(
     None,
@@ -310,7 +310,7 @@ def approve_cmd(
     restored_unchanged events) to catch TOCTOU swaps between tranche-diff
     and approval. Refuses approval if any sha mismatches.
     """
-    enforce_poll_freshness(allow_behind, reason)
+    enforce_poll_freshness(allow_behind, reason, tranche)
     diff = _load_diff_or_exit(tranche, diff_dir)
     diff_summary = diff.get("summary", {})
     auto_renames, manual_renames, enriched = _resolve_renames(diff, tranche, approve_rename)

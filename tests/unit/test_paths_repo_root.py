@@ -16,7 +16,8 @@ from pathlib import Path
 
 import pytest
 
-from pursue_index.paths import repo_root
+from pursue_index import paths
+from pursue_index.paths import UntrustedRootError, repo_root
 
 
 def _make_pursue_index_checkout(root: Path) -> None:
@@ -29,6 +30,16 @@ def _make_pursue_index_checkout(root: Path) -> None:
 
 def _git_init(root: Path) -> None:
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+
+
+def _git_commit_all(root: Path) -> None:
+    for cmd in (
+        ["git", "config", "user.email", "t@example.com"],
+        ["git", "config", "user.name", "T"],
+        ["git", "add", "-A"],
+        ["git", "commit", "-q", "-m", "init"],
+    ):
+        subprocess.run(cmd, cwd=root, check=True)
 
 
 def test_env_override_wins_outright(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -56,27 +67,81 @@ def test_env_override_wins_even_from_inside_a_real_checkout(
     assert repo_root() != second_checkout.resolve()
 
 
-def test_cwd_in_a_second_checkout_resolves_to_that_checkout(
+def test_cwd_in_a_registered_worktree_of_the_installed_checkout_resolves_there(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Standing inside a *different* pursue-index checkout (a second worktree,
-    a fixture repo) resolves to THAT checkout, not the one this test's own
-    package was imported from."""
     monkeypatch.delenv("PURSUE_REPO_ROOT", raising=False)
-    second_checkout = tmp_path / "second-checkout"
-    second_checkout.mkdir()
-    _make_pursue_index_checkout(second_checkout)
-    _git_init(second_checkout)
+    installed = tmp_path / "installed"
+    installed.mkdir()
+    _make_pursue_index_checkout(installed)
+    _git_init(installed)
+    _git_commit_all(installed)
+    worktree = tmp_path / "wt"
+    subprocess.run(
+        ["git", "worktree", "add", "-q", "-b", "wt", str(worktree)],
+        cwd=installed, check=True,
+    )
+    monkeypatch.setattr(paths, "installed_checkout_root", lambda: installed)
+    monkeypatch.chdir(worktree / "src")
 
-    subdir = second_checkout / "src"
-    monkeypatch.chdir(subdir)
+    assert repo_root() == worktree.resolve()
 
-    resolved = repo_root()
 
-    assert resolved == second_checkout.resolve()
-    import pursue_index
-    this_packages_checkout = Path(pursue_index.__file__).resolve().parents[2]
-    assert resolved != this_packages_checkout
+def test_cwd_in_an_unrelated_pursue_looking_checkout_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A pursue-index-shaped clone that is not the installed checkout or
+    one of its worktrees must not become the root: it could carry its own
+    scripts and git config."""
+    monkeypatch.delenv("PURSUE_REPO_ROOT", raising=False)
+    installed = tmp_path / "installed"
+    installed.mkdir()
+    _make_pursue_index_checkout(installed)
+    _git_init(installed)
+    stranger = tmp_path / "stranger"
+    stranger.mkdir()
+    _make_pursue_index_checkout(stranger)
+    _git_init(stranger)
+    monkeypatch.setattr(paths, "installed_checkout_root", lambda: installed)
+    monkeypatch.chdir(stranger)
+
+    with pytest.raises(UntrustedRootError, match="not the installed checkout"):
+        repo_root()
+
+
+def test_installed_scripts_dir_ignores_cwd_and_env(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    stranger = tmp_path / "stranger"
+    (stranger / "scripts").mkdir(parents=True)
+    _make_pursue_index_checkout(stranger)
+    _git_init(stranger)
+    monkeypatch.setenv("PURSUE_REPO_ROOT", str(stranger))
+    monkeypatch.chdir(stranger)
+
+    scripts = paths.installed_scripts_dir()
+
+    assert scripts is None or scripts.parent != stranger.resolve()
+
+
+def test_git_probe_runs_with_fsmonitor_off_and_no_system_config(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from pursue_index import safe_git
+
+    seen: dict[str, object] = {}
+    real_run = subprocess.run
+
+    def spy(cmd, **kw):  # type: ignore[no-untyped-def]
+        seen["cmd"], seen["env"] = cmd, kw.get("env")
+        return real_run(cmd, **kw)
+
+    monkeypatch.setattr(safe_git.subprocess, "run", spy)
+    _git_init(tmp_path)
+    safe_git.run_git(tmp_path, "rev-parse", "--git-common-dir")
+
+    assert "core.fsmonitor=" in seen["cmd"]  # type: ignore[operator]
+    assert seen["env"]["GIT_CONFIG_NOSYSTEM"] == "1"  # type: ignore[index]
 
 
 def test_cwd_outside_any_checkout_falls_back_to_the_package_location(

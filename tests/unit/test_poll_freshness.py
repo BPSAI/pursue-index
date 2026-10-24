@@ -21,7 +21,9 @@ import pytest
 from pursue_index.poll_freshness import (
     POLL_WRITTEN_PATHS,
     BehindPollerError,
+    PollCheckError,
     commits_behind_on_poll_paths,
+    require_reason,
     refuse_if_behind,
 )
 
@@ -145,3 +147,56 @@ def test_refuse_if_behind_with_allow_behind_writes_audit_row(tmp_path: Path) -> 
     assert len(rows) == 1
     assert rows[0]["commit_count"] == 1
     assert rows[0]["reason"] == "operator verified snapshot by hand"
+
+
+def test_a_git_failure_other_than_a_missing_ref_raises(tmp_path: Path) -> None:
+    not_a_repo = tmp_path / "plain"
+    not_a_repo.mkdir()
+
+    with pytest.raises(PollCheckError, match="git"):
+        commits_behind_on_poll_paths(not_a_repo)
+
+
+def test_a_failing_rev_list_raises_instead_of_reading_as_caught_up(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from pursue_index import poll_freshness
+
+    origin = tmp_path / "origin"
+    _git_init_with_commit(origin, relpath="data/last-known-csv-sha.txt", content="abc\n")
+    clone = tmp_path / "clone"
+    _clone(origin, clone)
+    real = poll_freshness.run_git
+
+    def fail_rev_list(repo, *args, **kw):  # type: ignore[no-untyped-def]
+        if args[0] == "rev-list":
+            return subprocess.CompletedProcess(args, 128, "", "fatal: bad object")
+        return real(repo, *args, **kw)
+
+    monkeypatch.setattr(poll_freshness, "run_git", fail_rev_list)
+
+    with pytest.raises(PollCheckError, match="bad object"):
+        commits_behind_on_poll_paths(clone)
+
+
+def test_missing_git_binary_and_timeout_raise(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from pursue_index import safe_git
+
+    _git_init_with_commit(tmp_path / "r", relpath="data/last-known-csv-sha.txt", content="a\n")
+    for exc in (FileNotFoundError("git"), subprocess.TimeoutExpired("git", 10)):
+        def _raise(*a: object, _e: Exception = exc, **k: object) -> None:
+            raise _e
+
+        monkeypatch.setattr(safe_git.subprocess, "run", _raise)
+        with pytest.raises(PollCheckError):
+            commits_behind_on_poll_paths(tmp_path / "r")
+
+
+def test_require_reason_strips_and_enforces_twelve_characters() -> None:
+    assert require_reason("  operator verified it  ") == "operator verified it"
+    for bad in (None, "", "   ", "too short", "x" * 11, "  " + "x" * 11 + "  "):
+        with pytest.raises(ValueError, match="at least 12"):
+            require_reason(bad)
+    assert require_reason("x" * 12) == "x" * 12

@@ -16,17 +16,25 @@ gate check.
 
 from __future__ import annotations
 
+import getpass
 import json
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 
+from pursue_index.safe_git import GitUnavailableError, run_git
+
 __all__ = [
+    "MIN_REASON_LENGTH",
     "POLL_WRITTEN_PATHS",
     "BehindPollerError",
+    "PollCheckError",
+    "require_reason",
     "commits_behind_on_poll_paths",
     "refuse_if_behind",
 ]
+
+_ORIGIN_MAIN = "refs/remotes/origin/main"
 
 # R7C.31 adds its paths here.
 POLL_WRITTEN_PATHS: tuple[str, ...] = (
@@ -45,25 +53,64 @@ class BehindPollerError(RuntimeError):
         )
 
 
+MIN_REASON_LENGTH = 12
+
+
+class PollCheckError(RuntimeError):
+    """The freshness check could not be completed; the gate must refuse."""
+
+
+def require_reason(reason: str | None) -> str:
+    """The stripped override reason, or ``ValueError`` if it is too thin."""
+    cleaned = (reason or "").strip()
+    if len(cleaned) < MIN_REASON_LENGTH:
+        raise ValueError(
+            f"--reason must be at least {MIN_REASON_LENGTH} characters "
+            "(after trimming whitespace)"
+        )
+    return cleaned
+
+
 def commits_behind_on_poll_paths(repo_root: Path) -> int:
     """Commits on ``origin/main`` touching ``POLL_WRITTEN_PATHS`` that
-    ``HEAD`` lacks. Returns 0 if there is no ``origin/main`` ref (e.g. no
-    remote configured) so a bare local checkout is never refused on this
-    basis."""
-    result = subprocess.run(
-        ["git", "-C", str(repo_root), "rev-list", "--count",
-         "HEAD..origin/main", "--", *POLL_WRITTEN_PATHS],
-        capture_output=True, text=True, timeout=10,
-    )
+    ``HEAD`` lacks.
+
+    Returns 0 only when the checkout has no ``origin/main`` ref (no remote
+    configured). Every other failure -- git missing, a timeout, a non-zero
+    exit, unparseable output -- raises :class:`PollCheckError`.
+    """
+    try:
+        ref = run_git(repo_root, "rev-parse", "--verify", "--quiet", _ORIGIN_MAIN)
+        if ref.returncode == 1 and not ref.stderr.strip():
+            return 0
+        if ref.returncode != 0:
+            raise PollCheckError(_git_failure("rev-parse", ref))
+        result = run_git(
+            repo_root, "rev-list", "--count", f"HEAD..{_ORIGIN_MAIN}",
+            "--", *POLL_WRITTEN_PATHS,
+        )
+    except GitUnavailableError as exc:
+        raise PollCheckError(str(exc)) from exc
     if result.returncode != 0:
-        return 0
+        raise PollCheckError(_git_failure("rev-list", result))
     output = result.stdout.strip()
-    return int(output) if output.isdigit() else 0
+    if not output.isdigit():
+        raise PollCheckError(f"git rev-list returned unexpected output: {output!r}")
+    return int(output)
 
 
-def _record_allow_behind(audit_log: Path, *, commit_count: int, reason: str) -> None:
+def _git_failure(step: str, result: subprocess.CompletedProcess[str]) -> str:
+    detail = result.stderr.strip() or f"exit {result.returncode}"
+    return f"git {step} failed: {detail}"
+
+
+def _record_allow_behind(
+    audit_log: Path, *, commit_count: int, reason: str, tranche_sha: str | None,
+) -> None:
     row = {
         "at": datetime.now(UTC).isoformat(),
+        "user": getpass.getuser(),
+        "tranche_sha256": tranche_sha,
         "commit_count": commit_count,
         "reason": reason,
     }
@@ -74,16 +121,21 @@ def _record_allow_behind(audit_log: Path, *, commit_count: int, reason: str) -> 
 
 def refuse_if_behind(
     repo_root: Path, *, allow_behind: bool, reason: str | None, audit_log: Path,
+    tranche_sha: str | None = None,
 ) -> None:
     """Raise :class:`BehindPollerError` unless caught up or overridden.
 
-    ``allow_behind`` with no ``reason`` is a caller bug -- the CLI layer
-    is responsible for requiring a non-empty ``--reason`` alongside
-    ``--allow-behind``; this function records whatever reason it is given.
+    A failed check raises :class:`PollCheckError` regardless of
+    ``allow_behind``: an override acknowledges known staleness, not an
+    unknown state. ``reason`` is validated with :func:`require_reason`
+    before anything is recorded.
     """
     count = commits_behind_on_poll_paths(repo_root)
     if count == 0:
         return
     if not allow_behind:
         raise BehindPollerError(count)
-    _record_allow_behind(audit_log, commit_count=count, reason=reason or "")
+    _record_allow_behind(
+        audit_log, commit_count=count, reason=require_reason(reason),
+        tranche_sha=tranche_sha,
+    )

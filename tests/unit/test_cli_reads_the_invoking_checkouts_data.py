@@ -39,7 +39,30 @@ def _make_second_checkout(root: Path) -> None:
     (data_dir / "tranche-approval-log.jsonl").write_text(json.dumps(row) + "\n")
 
 
-def test_ingest_check_reads_the_second_checkouts_approval_log(tmp_path: Path) -> None:
+def test_ingest_check_reads_the_checkout_named_by_the_operator_override(
+    tmp_path: Path,
+) -> None:
+    """``PURSUE_REPO_ROOT`` is the explicit way to point a data command at
+    another checkout's ``data/``."""
+    second_checkout = tmp_path / "second-checkout"
+    second_checkout.mkdir()
+    _make_second_checkout(second_checkout)
+
+    env = dict(os.environ, PURSUE_REPO_ROOT=str(second_checkout))
+
+    result = subprocess.run(
+        [sys.executable, "-m", "pursue_index.cli.ingest_cli", "check", "--tranche", _SHA],
+        cwd=second_checkout,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, (result.stdout, result.stderr)
+    assert "approved" in result.stdout
+
+
+def test_ingest_check_refuses_a_checkout_the_install_does_not_own(tmp_path: Path) -> None:
     second_checkout = tmp_path / "second-checkout"
     second_checkout.mkdir()
     _make_second_checkout(second_checkout)
@@ -55,16 +78,5 @@ def test_ingest_check_reads_the_second_checkouts_approval_log(tmp_path: Path) ->
         text=True,
     )
 
-    assert result.returncode == 0, (result.stdout, result.stderr)
-    assert "approved" in result.stdout
-
-
-def test_ingest_check_does_not_fall_back_to_the_packages_own_checkout(tmp_path: Path) -> None:
-    """Sanity check for the test above: this repo's OWN approval log does
-    not carry the synthetic sha, so the prior test's exit 0 really does
-    prove isolation rather than a coincidence."""
-    this_repo_root = Path(__file__).resolve().parents[2]
-    real_log = this_repo_root / "data" / "tranche-approval-log.jsonl"
-    if not real_log.is_file():
-        return
-    assert _SHA not in real_log.read_text()
+    assert result.returncode != 0
+    assert "not the installed checkout" in result.stderr

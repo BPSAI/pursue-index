@@ -37,6 +37,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from pursue_index.paths import installed_scripts_dir
 from pursue_index.scrape.snapshots import write_public_index
 
 # Operator-local builders invoked from promote_snapshot as part of the
@@ -182,13 +183,16 @@ def _run_operator_local_builders(repo_root: Path) -> list[str]:
     misconfigured builder can't block manifest promotion -- the caller
     decides what a non-empty return means.
 
-    No-op when scripts/ doesn't exist on disk (fresh / partial
-    checkout) or when an individual builder file is missing.
+    No-op when the data root has no scripts/ (fresh / partial checkout) or
+    when an individual builder file is missing. The builder executed is the
+    installed checkout's copy, never one found under ``repo_root``.
 
     Returns the names of builders that failed to start or exited non-zero.
     """
-    scripts_dir = repo_root / "scripts"
-    if not scripts_dir.is_dir():
+    # Presence of scripts/ under the data root only says "this is a full
+    # checkout"; what runs is always the installed package's own copy.
+    scripts_dir = installed_scripts_dir()
+    if scripts_dir is None or not (repo_root / "scripts").is_dir():
         return []
     failed: list[str] = []
     for builder in _OPERATOR_LOCAL_BUILDERS:

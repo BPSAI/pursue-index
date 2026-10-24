@@ -35,7 +35,7 @@ from typing import Any
 from PIL import Image
 
 from pursue_index import get_logger
-from pursue_index.paths import repo_root
+from pursue_index.paths import installed_scripts_dir
 
 log = get_logger(__name__)
 
@@ -52,7 +52,15 @@ _lock = threading.Lock()
 
 
 def _worker_script_default() -> str:
-    return str(repo_root() / "scripts" / "dots_worker.py")
+    """The worker ships with the installed package; it is never looked up
+    through the working directory or ``PURSUE_REPO_ROOT``."""
+    scripts = installed_scripts_dir()
+    if scripts is None:
+        raise RuntimeError(
+            "dots worker script not found beside the installed pursue_index "
+            "package; set PURSUE_DOTS_WORKER to its path."
+        )
+    return str(scripts / "dots_worker.py")
 
 
 class _DotsWorker:

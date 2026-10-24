@@ -15,29 +15,52 @@ import typer
 
 from pursue_index.ingest import is_tranche_approved
 from pursue_index.ingest_run import locate_snapshot, promote_snapshot
-from pursue_index.paths import repo_root
-from pursue_index.poll_freshness import BehindPollerError, refuse_if_behind
+from pursue_index.paths import UntrustedRootError, repo_root
+from pursue_index.poll_freshness import (
+    BehindPollerError,
+    PollCheckError,
+    refuse_if_behind,
+    require_reason,
+)
 
 
-def enforce_poll_freshness(allow_behind: bool, reason: str | None) -> None:
+def enforce_poll_freshness(
+    allow_behind: bool, reason: str | None, tranche_sha: str | None = None,
+) -> None:
     """Refuse the calling command if this checkout is behind origin/main on
-    the paths the poller writes. See `pursue_index.poll_freshness`."""
-    if allow_behind and not reason:
-        typer.echo("--allow-behind requires --reason", err=True)
-        raise typer.Exit(2)
-    this_repo_root = repo_root()
+    the paths the poller writes, or if that cannot be determined. See
+    `pursue_index.poll_freshness`."""
+    if allow_behind:
+        try:
+            reason = require_reason(reason)
+        except ValueError as exc:
+            typer.echo(str(exc), err=True)
+            raise typer.Exit(2) from exc
+    this_repo_root = _resolve_root_or_exit()
     try:
         refuse_if_behind(
             this_repo_root,
             allow_behind=allow_behind,
             reason=reason,
             audit_log=this_repo_root / "data" / "poll-behind-audit-log.jsonl",
+            tranche_sha=tranche_sha,
         )
     except BehindPollerError as exc:
         typer.echo(
             f"refusing — {exc}. Use --allow-behind --reason <text> to override.",
             err=True,
         )
+        raise typer.Exit(4) from exc
+    except PollCheckError as exc:
+        typer.echo(f"refusing — could not verify poll freshness: {exc}", err=True)
+        raise typer.Exit(4) from exc
+
+
+def _resolve_root_or_exit() -> Path:
+    try:
+        return repo_root()
+    except UntrustedRootError as exc:
+        typer.echo(f"refusing — {exc}", err=True)
         raise typer.Exit(4) from exc
 
 
@@ -47,7 +70,7 @@ def gate_resolve_and_promote(
 ) -> Path:
     """Poll-freshness + approval gate, snapshot resolution, and -- for a
     real (non-dry) run -- promotion. Returns the resolved snapshot."""
-    enforce_poll_freshness(allow_behind, reason)
+    enforce_poll_freshness(allow_behind, reason, tranche)
     snapshot = resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
     if not dry_run:
         promote_and_report(snapshot, manifest)

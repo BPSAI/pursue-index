@@ -1,5 +1,5 @@
 """End-to-end: ``pursue ingest run --dry-run`` from a second git worktree
-writes the worklist into THAT worktree's ``data/`` (R7C.4, acceptance
+is refused when the worktree is not this install's own (R7C.4, acceptance
 criterion 5).
 
 A real ``git worktree add`` checks out a second, independent working tree
@@ -82,9 +82,11 @@ def _build_base_fixture_repo(root: Path) -> None:
     _run(["git", "commit", "-q", "-m", "initial"], root)
 
 
-def test_dry_run_from_a_second_worktree_writes_worklist_into_that_worktrees_data(
+def test_dry_run_from_a_worktree_of_an_unrelated_checkout_is_refused(
     tmp_path: Path,
 ) -> None:
+    """A worktree of some other pursue-index clone is not this install's
+    checkout or one of its worktrees, so nothing is read or written there."""
     base_repo = tmp_path / "base-repo"
     base_repo.mkdir()
     _build_base_fixture_repo(base_repo)
@@ -96,20 +98,13 @@ def test_dry_run_from_a_second_worktree_writes_worklist_into_that_worktrees_data
     )
     assert add_result.returncode == 0, add_result.stderr
 
-    worklist_in_worktree = worktree / "data" / "ingest-worklist.txt"
-    worklist_in_base = base_repo / "data" / "ingest-worklist.txt"
-    assert not worklist_in_worktree.exists()
-    assert not worklist_in_base.exists()
-
     result = _run(
         [str(_pursue_bin()), "ingest", "run", "--tranche", _SHA, "--from-diff", "--dry-run"],
         worktree,
     )
 
-    assert result.returncode == 0, (result.stdout, result.stderr)
-    first_lines = result.stdout.splitlines()[:2]
-    assert "repo root:" in first_lines[0]
-    assert str(worktree.resolve()) in "\n".join(first_lines)
-    assert worklist_in_worktree.is_file(), (result.stdout, result.stderr)
-    assert not worklist_in_base.exists(), "dry run wrote into the base checkout, not the worktree"
-    assert "newcard1" in worklist_in_worktree.read_text()
+    assert result.returncode != 0
+    assert "not the installed checkout" in (result.stdout + result.stderr)
+    assert str(worktree) not in result.stdout
+    assert not (worktree / "data" / "ingest-worklist.txt").exists()
+    assert not (base_repo / "data" / "ingest-worklist.txt").exists()

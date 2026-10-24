@@ -547,3 +547,34 @@ def test_summarize_av_rows_with_release_dates() -> None:
     # All A/V rows should have the same release_date (operator enforces this)
     assert "av_release_dates" in summary
     assert "2026-03-15" in summary["av_release_dates"]
+
+
+def test_builders_run_from_the_installed_checkout_not_the_data_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A ``scripts/`` dir beside the data root is only a "full checkout"
+    signal; the script that executes is the installed package's copy."""
+    import subprocess
+
+    from pursue_index.paths import installed_scripts_dir
+
+    repo_root = _build_repo(tmp_path)
+    planted = repo_root / "scripts"
+    planted.mkdir()
+    (planted / "build_video_posters.py").write_text("raise SystemExit(99)\n")
+    (planted / "build_pdf_thumbs.py").write_text("raise SystemExit(99)\n")
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text('{"csv_sha256": "abc", "cards": []}')
+
+    invoked: list[list[str]] = []
+    monkeypatch.setattr(
+        subprocess, "run",
+        lambda cmd, *a, **kw: (invoked.append(list(cmd)) or subprocess.CompletedProcess(cmd, 0)),
+    )
+    promote_snapshot(snapshot, pipeline / "latest.json")
+
+    installed = installed_scripts_dir()
+    assert installed is not None and invoked
+    assert all(str(planted) not in " ".join(cmd) for cmd in invoked)
+    assert all(str(installed) in " ".join(cmd) for cmd in invoked)

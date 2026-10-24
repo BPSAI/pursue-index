@@ -12,6 +12,7 @@ directly -- that module already has its own unit tests
 
 from __future__ import annotations
 
+import getpass
 import json
 import subprocess
 from pathlib import Path
@@ -19,6 +20,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from pursue_index import paths
 from pursue_index.cli.commands import app
 
 runner = CliRunner()
@@ -97,6 +99,7 @@ def behind_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
     monkeypatch.chdir(clone)
     monkeypatch.delenv("PURSUE_REPO_ROOT", raising=False)
+    monkeypatch.setattr(paths, "installed_checkout_root", lambda: clone)
     return clone
 
 
@@ -115,7 +118,7 @@ def test_approve_allow_behind_with_reason_proceeds_and_writes_audit_row(
     result = runner.invoke(
         app,
         _approve_args(
-            behind_fixture, extra=["--allow-behind", "--reason", "verified by hand"]
+            behind_fixture, extra=["--allow-behind", "--reason", "verified by hand twice"]
         ),
     )
 
@@ -127,7 +130,10 @@ def test_approve_allow_behind_with_reason_proceeds_and_writes_audit_row(
     rows = [json.loads(line) for line in audit_log.read_text().splitlines()]
     assert len(rows) == 1
     assert rows[0]["commit_count"] == 1
-    assert rows[0]["reason"] == "verified by hand"
+    assert rows[0]["reason"] == "verified by hand twice"
+    assert rows[0]["user"] == getpass.getuser()
+    assert rows[0]["tranche_sha256"] == _SHA
+    assert rows[0]["at"]
 
 
 def test_approve_allow_behind_without_reason_is_rejected(behind_fixture: Path) -> None:
@@ -145,8 +151,37 @@ def test_approve_proceeds_normally_when_caught_up(tmp_path: Path, monkeypatch: p
     _write_diff_artifact(clone)
     monkeypatch.chdir(clone)
     monkeypatch.delenv("PURSUE_REPO_ROOT", raising=False)
+    monkeypatch.setattr(paths, "installed_checkout_root", lambda: clone)
 
     result = runner.invoke(app, _approve_args(clone))
 
     assert result.exit_code == 0, result.output
     assert (clone / "data" / "tranche-approval-log.jsonl").exists()
+
+
+def test_approve_allow_behind_with_a_short_reason_is_rejected(behind_fixture: Path) -> None:
+    result = runner.invoke(
+        app, _approve_args(behind_fixture, extra=["--allow-behind", "--reason", "  ok  "])
+    )
+
+    assert result.exit_code == 2, result.output
+    assert "at least 12" in result.output
+    assert not (behind_fixture / "data" / "tranche-approval-log.jsonl").exists()
+    assert not (behind_fixture / "data" / "poll-behind-audit-log.jsonl").exists()
+
+
+def test_approve_refuses_when_the_freshness_check_cannot_run(
+    behind_fixture: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from pursue_index import safe_git
+
+    def _boom(*a: object, **k: object) -> None:
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr(safe_git.subprocess, "run", _boom)
+
+    result = runner.invoke(app, _approve_args(behind_fixture))
+
+    assert result.exit_code == 4, result.output
+    assert "could not verify poll freshness" in result.output
+    assert not (behind_fixture / "data" / "tranche-approval-log.jsonl").exists()

@@ -177,7 +177,7 @@ def test_real_run_builder_failure_exits_nonzero_names_builder_keeps_manifest(
     def _fake_run(cmd, *args, **kwargs):
         if "build_video_posters.py" in " ".join(cmd):
             return subprocess.CompletedProcess(cmd, 1, stdout="", stderr="r2 mirror missing")
-        if any(str(scripts_dir / "build_pdf_thumbs.py") in part for part in cmd):
+        if any("build_pdf_thumbs.py" in part for part in cmd):
             return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
         return real_run(cmd, *args, **kwargs)
 
