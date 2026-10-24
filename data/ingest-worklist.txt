@@ -1,5 +1,32 @@
-# worklist for tranche c3f8209ef5f5 (written by hand: --from-diff excludes quarantined-new cards; see follow-up issue)
-# 3 card_id(s): LLE-UAP-D002, D003, D004 transcript PDFs
-247e6e1bd6da7377
-31656bd3e7de783d
-b1d24cb7f46cfa20
+# worklist for tranche 096ef2c0058a (096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9)
+# 29 card_id(s): 28 Class B from --from-diff + DOW-UAP-D042 ff3939f95d878062 (operator-approved rename of a0f6663169c21caf;
+#   sidecars/coverage are keyed by card_id, so the new id needs OCR/clean/QC/embed). Rewritten by hand per pursue-index#168.
+0e2f21236a2289fa
+12a7f37083cf2b87
+149f0e075ae4517d
+1af7a333fa99bdd9
+21c9fa9b9a543068
+2570557981d64cc7
+338995394c698b33
+38e700c6f51082f0
+3acf9cf5047465bd
+3d74932e77e7868e
+55f5f0db04de21f2
+6a7a525ada83a4d6
+6f5beb626837fa74
+81fe3a1b9cd4bf42
+82f2e60220d94740
+85fd315af4b25993
+9bd42e0157fe4697
+a3a9754af3184c3b
+b63bea0452d1d4b3
+b87355e7ab051114
+cb5426fe2a0b512d
+d3cb04b8e4d55dc1
+d6016299267e9604
+e5c4575f838f0175
+ee657817d068d59b
+f52425adaa32c4f2
+fc95f65e81965edf
+ffea128d68063d60
+ff3939f95d878062
