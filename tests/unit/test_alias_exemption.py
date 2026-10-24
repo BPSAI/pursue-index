@@ -90,3 +90,26 @@ def test_revoke_from_an_unapproved_tranche_still_removes_the_exemption(
 
     assert resolve_with_audit("s.py", ["a"], {"c"}, aliases, log, audit) == ([], ["a"])
     assert not audit.exists()
+
+
+def test_byte_collision_alias_from_an_approved_tranche_is_exempt_and_audited(
+    tmp_path: Path,
+) -> None:
+    aliases, log = _write(tmp_path, [_row("byte_collision")], [_SHA])
+    audit = tmp_path / "audit.jsonl"
+
+    renamed, missing = resolve_with_audit("s.py", ["a"], {"c"}, aliases, log, audit)
+
+    assert (renamed, missing) == (["a -> c"], [])
+    rows = [json.loads(line) for line in audit.read_text().splitlines()]
+    assert [r["method"] for r in rows] == ["byte_collision"]
+
+
+def test_byte_collision_alias_from_an_unapproved_tranche_is_refused(tmp_path: Path) -> None:
+    aliases, log = _write(tmp_path, [_row("byte_collision")], ["ef" * 32])
+    audit = tmp_path / "audit.jsonl"
+
+    renamed, missing = resolve_with_audit("s.py", ["a"], {"c"}, aliases, log, audit)
+
+    assert (renamed, missing) == ([], ["a"])
+    assert not audit.exists()

@@ -34,7 +34,9 @@ __all__ = [
 ]
 
 # Methods present in data/card-aliases.json plus the revoke tombstone.
-ALLOWED_ALIAS_METHODS = frozenset({"operator_manual", "operator_revoke"})
+# ``byte_collision`` is what ``auto_approve_renames`` writes for Class A renames;
+# like the others it only excuses a shrink when its tranche is approved.
+ALLOWED_ALIAS_METHODS = frozenset({"operator_manual", "byte_collision", "operator_revoke"})
 _REVOKE = "operator_revoke"
 
 
