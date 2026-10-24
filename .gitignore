@@ -153,12 +153,21 @@ docs/launch/journalist-outreach.md
 data/audit-log.jsonl
 
 # >>> paircoder managed
+.claude/.settings-*.tmp
+.claude/agent-memory/**
 .claude/settings.local.json
+.claude/worktrees/**
 .paircoder/.cli_version
 .paircoder/cache/**
+.paircoder/engage/runs/*.log
+.paircoder/engage/runs/base_attestations.json
 .paircoder/feedback/**
 .paircoder/history/benchmarks/matrix/**
 .paircoder/hooks/**
 .paircoder/reviews/**
 .paircoder/telemetry/**
+docs/portfolio/status.yaml.lock
+.paircoder/history/*
+!.paircoder/history/bypass_log.jsonl
+!.paircoder/history/archived-tasks/
 # <<< paircoder managed
