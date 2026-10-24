@@ -135,7 +135,6 @@ def rotate(manifest: dict) -> tuple[bool, str]:
     web_idx = _backfill_missing_web_entries(web_idx)
 
     indexed_pipeline = {s["csv_sha256"] for s in pipeline_idx.get("snapshots", [])}
-    indexed_web = {fn.replace(".json", "") for fn in web_idx}
 
     rotated = False
     msgs = []
@@ -187,7 +186,7 @@ def rotate(manifest: dict) -> tuple[bool, str]:
 
 def main() -> int:
     manifest = _load_manifest()
-    rotated, msg = rotate(manifest)
+    _rotated, msg = rotate(manifest)
     print(f"snapshot-rotate: csv_sha={manifest['csv_sha256'][:16]}... "
           f"cards={len(manifest['cards'])}")
     print(msg)

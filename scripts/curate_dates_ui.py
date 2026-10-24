@@ -38,11 +38,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
+import contextlib
 import json
 import webbrowser
 from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 from pursue_index.paths import repo_root
@@ -102,9 +103,9 @@ _HTML = (Path(__file__).parent / "curate_dates_ui_assets" / "index.html").read_t
 
 
 class _Handler(BaseHTTPRequestHandler):
-    proposals: list[dict[str, Any]] = []
+    proposals: ClassVar[list[dict[str, Any]]] = []
     curated_path: Path = DEFAULT_CURATED
-    manifest_by_card: dict[str, dict[str, Any]] = {}
+    manifest_by_card: ClassVar[dict[str, dict[str, Any]]] = {}
 
     def _json(self, body: dict[str, Any], status: int = 200) -> None:
         payload = json.dumps(body).encode("utf-8")
@@ -215,14 +216,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  curated output: {args.curated.relative_to(_REPO_ROOT)}")
     print("  press Ctrl+C to stop")
     if not args.no_browser:
-        try:
+        with contextlib.suppress(Exception):
             webbrowser.open(url)
-        except Exception:
-            pass
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         server.serve_forever()
-    except KeyboardInterrupt:
-        pass
     return 0
 
 

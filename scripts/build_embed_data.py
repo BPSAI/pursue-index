@@ -270,7 +270,6 @@ def main() -> int:
     )
     add_shrink_args(parser, "embed_index.json")
     args = parser.parse_args()
-    allow_shrink_reason = shrink_reason(parser, args)
     aliases_path, approval_log, audit_log = exemption_paths(parser, args, "build_embed_data.py")
     return build(
         embeddings_root=args.embeddings_root,
@@ -279,7 +278,7 @@ def main() -> int:
         pages_json=args.pages_json,
         manifest_path=args.manifest,
         ocr_dir=args.ocr_dir,
-        allow_shrink_reason=allow_shrink_reason,
+        allow_shrink_reason=shrink_reason(parser, args),
         aliases_path=aliases_path,
         approval_log=approval_log,
         audit_log=audit_log,

@@ -149,7 +149,7 @@ def _put_archive_append_only(
     try:
         from botocore.exceptions import ClientError  # type: ignore[import-untyped]
     except ImportError:
-        ClientError = Exception  # type: ignore[assignment,misc]
+        ClientError = Exception  # type: ignore[assignment,misc]  # noqa: N806
 
     try:
         client.put_object(

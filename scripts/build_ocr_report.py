@@ -151,7 +151,9 @@ def render_per_card(results: list[dict]) -> str:
 
 
 def render_worst_failure(card, tess, sur, lm) -> str:
-    fail_text = lambda r: r["text"].strip()[:1200].replace("\n", "\n> ")
+    def fail_text(r):
+        return r["text"].strip()[:1200].replace("\n", "\n> ")
+
     page_cer = cer(tess['text'], lm['text']) * 100
     page_wer = wer(tess['text'], lm['text']) * 100
     # Levenshtein/len(truth) can exceed 100% when the hypothesis is far longer

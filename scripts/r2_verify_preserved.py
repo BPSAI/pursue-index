@@ -113,7 +113,7 @@ def _read_r2_bytes(client: Any, bucket: str, key: str) -> bytes | None:
     try:
         from botocore.exceptions import ClientError  # type: ignore[import-untyped]
     except ImportError:
-        ClientError = Exception  # type: ignore[assignment,misc]
+        ClientError = Exception  # type: ignore[assignment,misc]  # noqa: N806
 
     try:
         resp = client.get_object(Bucket=bucket, Key=key)

@@ -93,9 +93,8 @@ def _restore_one(row: dict, dry_run: bool) -> str:
     if not (card_id and filename and sha):
         return "missing-fields"
     target = PDFS_DIR / card_id / filename
-    if target.exists():
-        if expected_size and target.stat().st_size == expected_size:
-            return "ok-exists"
+    if target.exists() and expected_size and target.stat().st_size == expected_size:
+        return "ok-exists"
         # Wrong size — treat as needing restore. Existing file is stale.
     mirror = MIRROR_DIR / f"{sha}.pdf"
     if not mirror.exists():

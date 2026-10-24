@@ -254,9 +254,9 @@ def _process_card(
     # corpus at the time of writing, and an unrecognized extension
     # is signal enough to warrant operator review rather than silent
     # archival under an arbitrary key.
-    _ALLOWED_EXTS = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}
+    allowed_exts = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}
     raw_ext = Path(card.asset_filename or "").suffix.lstrip(".").lower()
-    ext = raw_ext if raw_ext in _ALLOWED_EXTS else "pdf"
+    ext = raw_ext if raw_ext in allowed_exts else "pdf"
     archive_key = f"archive/{byte_sha}.{ext}"
     current_key = f"{card.card_id}.{ext}"
     content_type = (

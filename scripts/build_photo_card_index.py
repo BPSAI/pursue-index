@@ -69,9 +69,7 @@ def is_photo_pdf(card: dict, page_count: int, page_text: str) -> bool:
         return False
     if page_count != 1:
         return False
-    if len(page_text.strip()) >= TEXT_CHAR_THRESHOLD:
-        return False
-    return True
+    return len(page_text.strip()) < TEXT_CHAR_THRESHOLD
 
 
 def _read_first_page_text(pages_jsonl: Path) -> str:

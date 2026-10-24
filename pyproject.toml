@@ -140,7 +140,8 @@ external = ["BLE001"]
 [tool.ruff.lint.per-file-ignores]
 # Every script bootstraps sys.path from its own location before it imports
 # the package, so its imports intentionally follow executable statements.
-"scripts/*.py" = ["E402"]
+# The multiplication sign in their messages and docstrings is deliberate.
+"scripts/*.py" = ["E402", "RUF001", "RUF002", "RUF003"]
 
 [tool.ruff.lint.flake8-bugbear]
 # Typer's CLI idiom puts typer.Option/Argument calls in argument defaults; they
