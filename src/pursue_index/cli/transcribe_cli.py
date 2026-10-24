@@ -45,8 +45,6 @@ from pursue_index.transcribe.run import (
     run_transcribe,
 )
 
-_REPO_ROOT = repo_root()
-
 transcribe_app = typer.Typer(
     name="transcribe", help="Diarized transcription for AUD content (AUD only)."
 )
@@ -219,7 +217,7 @@ def transcribe_repage(
     ``--force`` is given.
     """
     out_dir = out or settings.ocr_dir
-    anchors = [] if force else citation_anchors(card, _REPO_ROOT)
+    anchors = [] if force else citation_anchors(card, repo_root())
     if anchors:
         console.print(f"[red]refusing to re-page {card}: its page numbers are already cited[/red]")
         for anchor in anchors:

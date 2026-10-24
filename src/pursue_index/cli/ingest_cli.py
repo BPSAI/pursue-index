@@ -24,6 +24,7 @@ from pathlib import Path
 
 import typer
 
+from pursue_index.cli.ingest_defaults import __getattr__, _default  # noqa: F401
 from pursue_index.cli.ingest_from_diff import execute_from_diff
 from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
 from pursue_index.config import settings
@@ -35,24 +36,12 @@ from pursue_index.ingest import (
     record_approval,
 )
 from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
-from pursue_index.paths import repo_root
 from pursue_index.post_ingest_audit import (
     audit_targets,
     collect_audit_targets,
     has_blocking_mismatch,
     render_audit_summary,
 )
-
-_REPO_ROOT = repo_root()
-DEFAULT_APPROVAL_LOG = _REPO_ROOT / "data" / "tranche-approval-log.jsonl"
-DEFAULT_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
-# Must match scripts/tranche_diff.py::DEFAULT_OUT_DIR, and must be tracked —
-# `.paircoder/` is gitignored, so receipts written there never get committed.
-DEFAULT_DIFF_DIR = _REPO_ROOT / "data" / "tranche-diffs"
-DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
-DEFAULT_LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
-DEFAULT_WORKLIST = _REPO_ROOT / "data" / "ingest-worklist.txt"
-DEFAULT_ASSET_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 
 _OPT_APPROVE_RENAME = typer.Option(
     None,
@@ -83,16 +72,16 @@ _OPT_DRY_RUN = typer.Option(
     help="With --from-diff: print the work-list (the card_ids that would be "
     "OCR'd/embedded) WITHOUT running any stage or spending budget.",
 )
-_OPT_RUN_LOG = typer.Option(DEFAULT_APPROVAL_LOG, "--log")
-_OPT_RUN_SNAPSHOTS_DIR = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir")
-_OPT_RUN_MANIFEST = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest")
-_OPT_RUN_DIFF_DIR = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir")
+_OPT_RUN_LOG = typer.Option(_default("DEFAULT_APPROVAL_LOG"), "--log")
+_OPT_RUN_SNAPSHOTS_DIR = typer.Option(_default("DEFAULT_MANIFEST_SNAPSHOTS"), "--snapshots-dir")
+_OPT_RUN_MANIFEST = typer.Option(_default("DEFAULT_LATEST_MANIFEST"), "--manifest")
+_OPT_RUN_DIFF_DIR = typer.Option(_default("DEFAULT_DIFF_DIR"), "--diff-dir")
 _OPT_RUN_ALIASES = typer.Option(
-    DEFAULT_ALIASES, "--aliases",
+    _default("DEFAULT_ALIASES"), "--aliases",
     help="With --from-diff: card-aliases.json, to scope this tranche's approved renames.",
 )
 _OPT_RUN_ASSET_REGISTRY = typer.Option(
-    DEFAULT_ASSET_REGISTRY, "--asset-registry",
+    _default("DEFAULT_ASSET_REGISTRY"), "--asset-registry",
     help="With --from-diff: asset-bytes-registry.jsonl, to detect bytes-changed cards.",
 )
 _OPT_RUN_ENGINE = typer.Option(
@@ -104,12 +93,12 @@ _OPT_RUN_FORCE = typer.Option(
 _OPT_RUN_CONCURRENCY = typer.Option(
     None, "--concurrency", help="With --from-diff: OCR concurrency passthrough (operated: 8)."
 )
-_OPT_APPROVE_LOG = typer.Option(DEFAULT_APPROVAL_LOG, "--log")
-_OPT_APPROVE_ALIASES = typer.Option(DEFAULT_ALIASES, "--aliases")
-_OPT_APPROVE_DIFF_DIR = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir")
-_OPT_APPROVE_SNAPSHOTS_DIR = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir")
+_OPT_APPROVE_LOG = typer.Option(_default("DEFAULT_APPROVAL_LOG"), "--log")
+_OPT_APPROVE_ALIASES = typer.Option(_default("DEFAULT_ALIASES"), "--aliases")
+_OPT_APPROVE_DIFF_DIR = typer.Option(_default("DEFAULT_DIFF_DIR"), "--diff-dir")
+_OPT_APPROVE_SNAPSHOTS_DIR = typer.Option(_default("DEFAULT_MANIFEST_SNAPSHOTS"), "--snapshots-dir")
 _OPT_WORKLIST_OUT = typer.Option(
-    DEFAULT_WORKLIST,
+    _default("DEFAULT_WORKLIST"),
     "--worklist",
     help="Where --from-diff writes the scoped card_id list the executors read.",
 )
@@ -167,7 +156,7 @@ def _find_diff_artifact(tranche_sha: str, diff_dir: Path) -> Path | None:
 @ingest_app.command("check")
 def check_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256 (full or 12-char prefix)."),
-    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
+    log: Path = _OPT_RUN_LOG,
 ) -> None:
     """Exit 0 if approved, 1 if not."""
     if is_tranche_approved(log, tranche):

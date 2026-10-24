@@ -38,7 +38,10 @@ __all__ = [
 
 
 class UntrustedRootError(RuntimeError):
-    """The working directory is a checkout this install does not own."""
+    """The working directory is a checkout this install does not own.
+
+    The CLI entry point reports it as one line (see ``cli.commands``).
+    """
 
 
 def _looks_like_pursue_index_checkout(candidate: Path) -> bool:
@@ -86,6 +89,32 @@ def _git_common_dir(root: Path) -> Path | None:
     return (common if common.is_absolute() else root / common).resolve()
 
 
+def _is_registered_worktree_of(candidate: Path, common: Path) -> bool:
+    """True iff ``candidate`` is a worktree git registered under ``common``.
+
+    A ``.git`` file only claims a gitdir; the registered worktree's own
+    ``gitdir`` file must point back at this exact ``.git``, and git must
+    agree the candidate is its own top level.
+    """
+    link = candidate / ".git"
+    if not link.is_file():
+        return False
+    text = link.read_text(encoding="utf-8", errors="replace").strip()
+    if not text.startswith("gitdir:"):
+        return False
+    gitdir = Path(text.removeprefix("gitdir:").strip())
+    gitdir = (gitdir if gitdir.is_absolute() else candidate / gitdir).resolve()
+    if gitdir.parent != (common / "worktrees").resolve():
+        return False
+    back = gitdir / "gitdir"
+    if not back.is_file():
+        return False
+    if Path(back.read_text(encoding="utf-8", errors="replace").strip()).resolve() != link.resolve():
+        return False
+    top = run_git(candidate, "rev-parse", "--show-toplevel")
+    return top.returncode == 0 and Path(top.stdout.strip()).resolve() == candidate.resolve()
+
+
 def _owned_by_install(cwd_root: Path) -> bool:
     installed = installed_checkout_root()
     if installed is None:
@@ -93,7 +122,12 @@ def _owned_by_install(cwd_root: Path) -> bool:
     if cwd_root.resolve() == installed.resolve():
         return True
     theirs, ours = _git_common_dir(cwd_root), _git_common_dir(installed)
-    return theirs is not None and theirs == ours
+    if theirs is None or theirs != ours:
+        return False
+    try:
+        return _is_registered_worktree_of(cwd_root, ours)
+    except (GitUnavailableError, OSError):
+        return False
 
 
 def repo_root() -> Path:

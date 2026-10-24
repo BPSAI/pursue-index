@@ -6,16 +6,15 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import typer
-from rich.console import Console
 
 from pursue_index import get_logger, scrape
+from pursue_index.cli.app_base import PursueApp, console
 from pursue_index.cli.scrape_output import print_manifest_summary, print_scrape_diff
 from pursue_index.config import settings
 
 log = get_logger(__name__)
-console = Console()
 
-app = typer.Typer(
+app = PursueApp(
     name="pursue",
     help="Searchable index of DOW PURSUE UAP releases.",
     no_args_is_help=True,

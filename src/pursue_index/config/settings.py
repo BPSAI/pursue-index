@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, HttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -158,4 +158,26 @@ class Settings(BaseSettings):
             d.mkdir(parents=True, exist_ok=True)
 
 
-settings = Settings()
+class _LazySettings:
+    """Builds ``Settings`` on first use, so importing the package never
+    resolves the repo root; an untrusted root then surfaces as a one-line
+    error from the command that needs it."""
+
+    def _real(self) -> Settings:
+        real: Settings | None = self.__dict__.get("_settings")
+        if real is None:
+            real = Settings()
+            self.__dict__["_settings"] = real
+        return real
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._real(), name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        setattr(self._real(), name, value)
+
+    def __delattr__(self, name: str) -> None:
+        delattr(self._real(), name)
+
+
+settings: Settings = _LazySettings()  # type: ignore[assignment]

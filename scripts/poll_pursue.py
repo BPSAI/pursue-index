@@ -121,7 +121,7 @@ def _fetch_or_failed(ts: str) -> bytes | Failed:
         return fetch_raw_csv()
     except (KeyboardInterrupt, SystemExit):
         raise
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — surface any transport failure
         return _failed(exc, ts)
 
 

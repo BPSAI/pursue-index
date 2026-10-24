@@ -24,8 +24,11 @@ class GitUnavailableError(RuntimeError):
 def run_git(
     repo: Path, *args: str, timeout: float = 10
 ) -> subprocess.CompletedProcess[str]:
-    """``git -C <repo> <args>`` with fsmonitor disabled and no system config."""
-    env = {**os.environ, "GIT_CONFIG_NOSYSTEM": "1"}
+    """``git -C <repo> <args>`` with fsmonitor off, no system config, no ``GIT_*`` env."""
+    # Ambient GIT_* variables (GIT_DIR, GIT_WORK_TREE, GIT_CONFIG_*, ...) would
+    # override the ``-C`` target, so none of them reach the child.
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
     cmd = ["git", *_HARDENING, "-C", str(repo), *args]
     try:
         return subprocess.run(

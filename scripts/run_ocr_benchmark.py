@@ -229,7 +229,7 @@ def main():
     for g in golden:
         try:
             row = benchmark_card(g["card_id"], g, manifest)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             print(f"  ERROR on {g['card_id']}: {type(exc).__name__}: {exc}")
             row = None
         if row is not None:

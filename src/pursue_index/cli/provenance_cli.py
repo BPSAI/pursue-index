@@ -34,14 +34,15 @@ provenance_app = typer.Typer(
     help="Provenance coverage report over the Phase-A resolution chain.",
 )
 
-_REPO_ROOT = repo_root()
-_DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
+
+def _default_manifest() -> Path:
+    return repo_root() / "data" / "manifests" / "latest.json"
 
 
 def _reject_web_path(path: Path) -> None:
     """Refuse any output path under ``web/`` — this command never publishes."""
     resolved = path.resolve()
-    web_root = (_REPO_ROOT / "web").resolve()
+    web_root = (repo_root() / "web").resolve()
     if resolved == web_root or web_root in resolved.parents:
         console.print(
             f"[red]error:[/red] this is a report-only command; it refuses to "
@@ -92,7 +93,7 @@ def _print_unresolved(report: CoverageReport) -> None:
 @provenance_app.command("report")
 def provenance_report_cmd(
     manifest: Path = typer.Option(
-        _DEFAULT_MANIFEST,
+        _default_manifest,
         "--manifest",
         exists=True,
         dir_okay=False,
@@ -107,7 +108,7 @@ def provenance_report_cmd(
     """Run the resolution chain and report Phase-A coverage. Report only."""
     if json_out is not None:
         _reject_web_path(json_out)
-    report = build_report(json.loads(manifest.read_text()), load_catalogue(_REPO_ROOT))
+    report = build_report(json.loads(manifest.read_text()), load_catalogue(repo_root()))
     _print_coverage(report)
     _print_unresolved(report)
     if json_out is not None:

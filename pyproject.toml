@@ -134,6 +134,8 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
 ignore = ["E501"]
+# BLE001 is not enabled here; the markers document intentional broad catches.
+external = ["BLE001"]
 
 [tool.ruff.lint.per-file-ignores]
 # Every script bootstraps sys.path from its own location before it imports
