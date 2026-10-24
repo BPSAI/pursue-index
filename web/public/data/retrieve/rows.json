@@ -1,6 +1,6 @@
 {
  "schema": "pursue-retrieve-rows/1",
- "n": 14484,
+ "n": 15623,
  "shards": [
   {
    "start": 0,
@@ -28,121 +28,133 @@
   },
   {
    "start": 2329,
-   "count": 730,
-   "path": "rows-2329-6d5031ecdcef.json",
-   "size": 1047570
+   "count": 732,
+   "path": "rows-2329-936205a67e78.json",
+   "size": 1047403
   },
   {
-   "start": 3059,
-   "count": 624,
-   "path": "rows-3059-7084ce28b3a2.json",
-   "size": 1044094
+   "start": 3061,
+   "count": 622,
+   "path": "rows-3061-ccec792503ad.json",
+   "size": 1045784
   },
   {
    "start": 3683,
-   "count": 574,
-   "path": "rows-3683-f9a197ff34ee.json",
-   "size": 1047308
+   "count": 576,
+   "path": "rows-3683-902c8913048a.json",
+   "size": 1047539
   },
   {
-   "start": 4257,
-   "count": 622,
-   "path": "rows-4257-0d7f77763768.json",
-   "size": 1048077
+   "start": 4259,
+   "count": 623,
+   "path": "rows-4259-7406878d2d7e.json",
+   "size": 1047132
   },
   {
-   "start": 4879,
-   "count": 698,
-   "path": "rows-4879-5c0f9f3eb6ca.json",
-   "size": 1045301
+   "start": 4882,
+   "count": 695,
+   "path": "rows-4882-a54286ab3f79.json",
+   "size": 1046257
   },
   {
    "start": 5577,
    "count": 214,
-   "path": "rows-5577-593ca6e177a9.json",
-   "size": 1047803
+   "path": "rows-5577-8016eec84d5d.json",
+   "size": 1044533
   },
   {
    "start": 5791,
-   "count": 619,
-   "path": "rows-5791-c02204db90b9.json",
-   "size": 1047265
+   "count": 621,
+   "path": "rows-5791-ec64c1f3d539.json",
+   "size": 1048357
   },
   {
-   "start": 6410,
+   "start": 6412,
    "count": 656,
-   "path": "rows-6410-1b39c82e2eed.json",
-   "size": 1047066
+   "path": "rows-6412-06379831a51c.json",
+   "size": 1047735
   },
   {
-   "start": 7066,
-   "count": 540,
-   "path": "rows-7066-aad687c265ac.json",
-   "size": 1047966
+   "start": 7068,
+   "count": 541,
+   "path": "rows-7068-24f805fe179c.json",
+   "size": 1047363
   },
   {
-   "start": 7606,
-   "count": 608,
-   "path": "rows-7606-58d0c213db5f.json",
-   "size": 1047221
+   "start": 7609,
+   "count": 607,
+   "path": "rows-7609-485ec77f7e0d.json",
+   "size": 1047874
   },
   {
-   "start": 8214,
-   "count": 597,
-   "path": "rows-8214-7c60505aa79d.json",
-   "size": 1048234
+   "start": 8216,
+   "count": 596,
+   "path": "rows-8216-7f03d58bce72.json",
+   "size": 1047625
   },
   {
-   "start": 8811,
-   "count": 368,
-   "path": "rows-8811-afb04e825a2b.json",
-   "size": 1045133
+   "start": 8812,
+   "count": 367,
+   "path": "rows-8812-8f41c17e87d3.json",
+   "size": 1045928
   },
   {
    "start": 9179,
-   "count": 361,
-   "path": "rows-9179-dd7bc2623dab.json",
-   "size": 1046026
+   "count": 362,
+   "path": "rows-9179-828d293afeb7.json",
+   "size": 1047750
   },
   {
-   "start": 9540,
+   "start": 9541,
    "count": 456,
-   "path": "rows-9540-9ba454666fca.json",
-   "size": 1048113
+   "path": "rows-9541-5c41b562a6ee.json",
+   "size": 1046362
   },
   {
-   "start": 9996,
-   "count": 386,
-   "path": "rows-9996-c95dcb669c30.json",
-   "size": 1047261
+   "start": 9997,
+   "count": 388,
+   "path": "rows-9997-abe41c272d8b.json",
+   "size": 1048395
   },
   {
-   "start": 10382,
-   "count": 468,
-   "path": "rows-10382-c784ba32b8b0.json",
-   "size": 1045661
+   "start": 10385,
+   "count": 465,
+   "path": "rows-10385-b9381a8f9764.json",
+   "size": 1045168
   },
   {
    "start": 10850,
-   "count": 280,
-   "path": "rows-10850-c474e621a3ce.json",
+   "count": 284,
+   "path": "rows-10850-1d487c3b0ff4.json",
+   "size": 1047503
+  },
+  {
+   "start": 11134,
+   "count": 3026,
+   "path": "rows-11134-9612ff7f1726.json",
    "size": 1048440
   },
   {
-   "start": 11130,
-   "count": 3012,
-   "path": "rows-11130-4e676a5827fc.json",
-   "size": 1048537
+   "start": 14160,
+   "count": 734,
+   "path": "rows-14160-96e568277071.json",
+   "size": 1047596
   },
   {
-   "start": 14142,
-   "count": 342,
-   "path": "rows-14142-5c602d17890c.json",
-   "size": 88850
+   "start": 14894,
+   "count": 532,
+   "path": "rows-14894-a496b40a66b7.json",
+   "size": 1044033
+  },
+  {
+   "start": 15426,
+   "count": 197,
+   "path": "rows-15426-2db67971bfb1.json",
+   "size": 292014
   }
  ],
  "titles": {
-  "path": "titles-0-eae2f80c5228.json",
-  "size": 25925
+  "path": "titles-0-a74ddb0edfef.json",
+  "size": 28331
  }
 }

@@ -1,0 +1,847 @@
+{
+  "tranche_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
+  "prior_manifest_sha": "c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 28,
+    "quarantined": 1,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 1,
+    "field_only_changes": 56,
+    "row_changes": 0
+  },
+  "renames_confirmed": [],
+  "new_content": [
+    {
+      "new_card_id": "0e2f21236a2289fa",
+      "title": "DOW-UAP-D176, Triangular UAP AARO Memorandum for Record, 2026",
+      "asset_filename": "DOW-UAP-D176-Triangular_UAP_AARO_MFR_2026.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D176-Triangular_UAP_AARO_MFR_2026.pdf",
+      "byte_sha256": "9c093e0985018e197b6c92c43d9c7a83455d4a2e7bc2365cc641774d32e48c31"
+    },
+    {
+      "new_card_id": "12a7f37083cf2b87",
+      "title": "DOW-UAP-D170, BAASS Monthly Report, April 2009",
+      "asset_filename": "DOW-UAP-D170-BAASS_Montly_Report_April_2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D170-BAASS_Montly_Report_April_2009.pdf",
+      "byte_sha256": "9e6d09b5b5559a11119f8e69634ccaeb02b62d079a3f294686dded2da8b56523"
+    },
+    {
+      "new_card_id": "149f0e075ae4517d",
+      "title": "DOW-UAP-D167, Project Capella, December 2008",
+      "asset_filename": "DOW-UAP-D167-Project_Capella-December-2008.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D167-Project_Capella-December-2008.pdf",
+      "byte_sha256": "695cd30d0925365d06e065210d2b94e2684839e8d1ea9a0c0a8773d160aadab5"
+    },
+    {
+      "new_card_id": "1af7a333fa99bdd9",
+      "title": "DOW-UAP-D179, Air Intelligence Information Report, Catalina Island, 1952",
+      "asset_filename": "DOW-UAP-D179_Unresolved_UAP_Report_Catalina_Island-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D179_Unresolved_UAP_Report_Catalina_Island-1952.pdf",
+      "byte_sha256": "51d174e00df3ac5b62c86bed61b7a22b487a39f777f081093ed1db83b614473f"
+    },
+    {
+      "new_card_id": "21c9fa9b9a543068",
+      "title": "USG-UAP-D002, Interagency Correspondence Concerning Space Fragments, 1962-1964",
+      "asset_filename": "USG-UAP-D002-Interagency_Correspondence_Concerning_Space_Fragments-1962_1964.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/USG-UAP-D002-Interagency_Correspondence_Concerning_Space_Fragments-1962_1964.pdf",
+      "byte_sha256": "f34e073230ac81d460efcd7f45f04d0b21a81d61cd8e8a9a9b7a89088da88819"
+    },
+    {
+      "new_card_id": "2570557981d64cc7",
+      "title": "DOW-UAP-D159, Air Intelligence Information Report, Germany, 1953",
+      "asset_filename": "DOW-UAP-D159-Air_Intelligence_Information_Report_Germany-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D159-Air_Intelligence_Information_Report_Germany-1953.pdf",
+      "byte_sha256": "b41c3592aaf9e333394cedc72af497496524856126360400f54e385836f482b0"
+    },
+    {
+      "new_card_id": "338995394c698b33",
+      "title": "DOW-UAP-D156, Air Intelligence Information Report, Guam, 1956",
+      "asset_filename": "DOW-UAP-D156-Air_Intelligence_Information_Report_Guam-1956.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D156-Air_Intelligence_Information_Report_Guam-1956.pdf",
+      "byte_sha256": "7ae61c0cb7793b05f4a51ff36a2c93f1b0e5d3d6c80abcdc8883138f549ecaf3"
+    },
+    {
+      "new_card_id": "38e700c6f51082f0",
+      "title": "EOP-UAP-D002, Memorandum on Interagency Coordination for the Recovery of Foreign Materiel, May 1963",
+      "asset_filename": "EOP-UAP-D002-Memo_on_Interagency_Coordination_for_the_Recovery_of_Foreign_Materiel-May_1963.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/EOP-UAP-D002-Memo_on_Interagency_Coordination_for_the_Recovery_of_Foreign_Materiel-May_1963.pdf",
+      "byte_sha256": "11e232f70bf9544372420107c603bf86cd3ad5d58d09bd6e5e56d6479c068d45"
+    },
+    {
+      "new_card_id": "3acf9cf5047465bd",
+      "title": "DOW-UAP-D180, Final Personnel Record for McCoy, Howard M., U.S. Air Force, 1954",
+      "asset_filename": "DOW-UAP-D180_Final-Personnel-Record-for-McCoy-Howard-M-US-Air-Force-1954.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D180_Final-Personnel-Record-for-McCoy-Howard-M-US-Air-Force-1954.pdf",
+      "byte_sha256": "4d999697347279bdc4738d2e5b2d56d8730eb1afed798d2a6ca3d6bf0ff9fc40"
+    },
+    {
+      "new_card_id": "3d74932e77e7868e",
+      "title": "DOW-UAP-D157, Air Intelligence Information Report, Italy, 1952",
+      "asset_filename": "DOW-UAP-D157-Air-Intelligence_Information-Report-Italy-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D157-Air-Intelligence_Information-Report-Italy-1953.pdf",
+      "byte_sha256": "7bc569a26129217a43e068fee909baaaae4f7e88a0dc2509b08bafc9688bcd0f"
+    },
+    {
+      "new_card_id": "55f5f0db04de21f2",
+      "title": "DOW-UAP-D181, Unresolved UAP Report, Catalina Island, 1949",
+      "asset_filename": "DOW-UAP-D181_Unresolved_UAP_Report_Catalina_Island-1949.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D181_Unresolved_UAP_Report_Catalina_Island-1949.pdf",
+      "byte_sha256": "ef776d6b24b64d878ff3c3d2637e87121bfc1dcc152092ab81fc0f3391be6515"
+    },
+    {
+      "new_card_id": "6a7a525ada83a4d6",
+      "title": "DOW-UAP-D171, BAASS Monthly Report, June 2009",
+      "asset_filename": "DOW-UAP-D171-BAASS_Monthly_Report_June_2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D171-BAASS_Monthly_Report_June_2009.pdf",
+      "byte_sha256": "f3a602858ee185380d6d5c985fa1bd8e89350336d8871842029eeacbdd683f20"
+    },
+    {
+      "new_card_id": "6f5beb626837fa74",
+      "title": "DOW-UAP-D164, Flying Object Report, Indiana, 1953",
+      "asset_filename": "DOW-UAP-D164-Flying_Object_Report_Indiana-1954.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D164-Flying_Object_Report_Indiana-1954.pdf",
+      "byte_sha256": "54875a9017040b50fe42e4869e5d6ceefd4e78d88edd5a70c7aa5c75066d6fdf"
+    },
+    {
+      "new_card_id": "81fe3a1b9cd4bf42",
+      "title": "DOW-UAP-D163, Air Intelligence Information Report, Sweden, 1953",
+      "asset_filename": "DOW-UAP-D163-Air_Intelligence_Information_Report_Sweden-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D163-Air_Intelligence_Information_Report_Sweden-1953.pdf",
+      "byte_sha256": "cacc091d94b893c88a59f3bcc8c828bf83f21ec995fe2bddfce1a52b204a7534"
+    },
+    {
+      "new_card_id": "82f2e60220d94740",
+      "title": "DOW-UAP-D175, BAASS Self-Assessment of UAP Analysis Capabilities, November 2010",
+      "asset_filename": "DOW-UAP-D175-BAASS_Self-Assessment_of_UAP_Analysis_Capabilities_November_2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D175-BAASS_Self-Assessment_of_UAP_Analysis_Capabilities_November_2010.pdf",
+      "byte_sha256": "ac7ee03104afa6db5f2a247c35896f21b4a496cdcdd5b1c8604e4a58e8eeaacb"
+    },
+    {
+      "new_card_id": "85fd315af4b25993",
+      "title": "DOW-UAP-D169, BAASS Monthly Report, March 2009",
+      "asset_filename": "DOW-UAP-D169-BAASS_Monthly_Report-March_2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D169-BAASS_Monthly_Report-March_2009.pdf",
+      "byte_sha256": "dc159ac90f0cc0f2e990bac1253840d78584c08bc8fbcf96c777cf30dfcae5f8"
+    },
+    {
+      "new_card_id": "9bd42e0157fe4697",
+      "title": "DOW-UAP-D166, MUFON Reports Prepared for BAASS, November 2008",
+      "asset_filename": "DOW-UAP-D166-MUFON-Reports_Prepared_for_BAASS-November_2008.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D166-MUFON-Reports_Prepared_for_BAASS-November_2008.pdf",
+      "byte_sha256": "c7263ab15946e6b5407db19dc4e2abda7e11a670adb83c722a2f78d4c6650675"
+    },
+    {
+      "new_card_id": "a3a9754af3184c3b",
+      "title": "DOW-UAP-D178, Unresolved UAP Report, Catalina Island, 1953",
+      "asset_filename": "DOW-UAP-D178_Unresolved_UAP_Report_Catalina_Island-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D178_Unresolved_UAP_Report_Catalina_Island-1953.pdf",
+      "byte_sha256": "30163aa0db350a0216a9662573af4ccf8fe1c130cac3f01b0ed8769c8d71186e"
+    },
+    {
+      "new_card_id": "b63bea0452d1d4b3",
+      "title": "DOW-UAP-D177, Unresolved UAP Report, Catalina Island, 1955",
+      "asset_filename": "DOW-UAP-D177_Unresolved_UAP_Report_Catalina_Island-1955.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D177_Unresolved_UAP_Report_Catalina_Island-1955.pdf",
+      "byte_sha256": "dde62683bf5957c1c79890d352600c1c56518b6f0092f15b1b7fe56fbd143321"
+    },
+    {
+      "new_card_id": "b87355e7ab051114",
+      "title": "DOW-UAP-D168, BAASS Project Management Plan, December 2008",
+      "asset_filename": "DOW-UAP-D168-BAASS_Project_Management_Plan-December_2008.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D168-BAASS_Project_Management_Plan-December_2008.pdf",
+      "byte_sha256": "f72a51b4199db2d1758ac9796a4c1b669ba6013a7fae10a609150eaf0293eefd"
+    },
+    {
+      "new_card_id": "cb5426fe2a0b512d",
+      "title": "DOW-UAP-D155, Air Intelligence Information Report, Saudi Arabia, 1957",
+      "asset_filename": "DOW-UAP-D155-Air_Intelligence_Information_Report_Saudi_Arabia-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D155-Air_Intelligence_Information_Report_Saudi_Arabia-1957.pdf",
+      "byte_sha256": "c7b784b889f0b4597445a8a134ca5ce11c4a142cae74ae15c45e3e4042bbc9fc"
+    },
+    {
+      "new_card_id": "d3cb04b8e4d55dc1",
+      "title": "DOW-UAP-D162, Air Intelligence Information Report, Alaska, 1953",
+      "asset_filename": "DOW-UAP-D162-Air_Intelligence_Information_Report_Alaska-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D162-Air_Intelligence_Information_Report_Alaska-1953.pdf",
+      "byte_sha256": "57a508ffada8103a2a00c5525d8ed56866e550636d05fb667aeb138d9e1eab7e"
+    },
+    {
+      "new_card_id": "d6016299267e9604",
+      "title": "DOW-UAP-D174, Utah Ranch Investigation Report, April 2010",
+      "asset_filename": "DOW-UAP-D174-Utah_Ranch_Investigation_Report_April_2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D174-Utah_Ranch_Investigation_Report_April_2010.pdf",
+      "byte_sha256": "dbf49c096d63a44c4514179cd8305177dd725978072d598bc50228f1b6b97dd1"
+    },
+    {
+      "new_card_id": "e5c4575f838f0175",
+      "title": "DOW-UAP-D158, Flying Object Report, Canada, 1953",
+      "asset_filename": "DOW-UAP-D158-Flying_Object_Report_Canada-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D158-Flying_Object_Report_Canada-1953.pdf",
+      "byte_sha256": "b6cf5228f8978e6bf2482aec642c6bf0e30729b255fce5bd9646c159d28f89f5"
+    },
+    {
+      "new_card_id": "ee657817d068d59b",
+      "title": "FBI-UAP-D043, FD-302, Unidentified Aerial Object Observation Report, 2026",
+      "asset_filename": "FBI-UAP-D043-FD_302_Unidentified_Aerial_Object_Observation_Report-2026.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/FBI-UAP-D043-FD_302_Unidentified_Aerial_Object_Observation_Report-2026.pdf",
+      "byte_sha256": "0c7430d1f1da11cecbcf476c4cdaf16c8ed5bceb4fce6e56b51ed93b4d386298"
+    },
+    {
+      "new_card_id": "f52425adaa32c4f2",
+      "title": "DOW-UAP-D161, Air Intelligence Information Report, Alaska, 1953",
+      "asset_filename": "DOW-UAP-D161-Air_Intelligence_Information_Report_Alaska-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D161-Air_Intelligence_Information_Report_Alaska-1953.pdf",
+      "byte_sha256": "361fda5c1e66a49141e1dedd1e20d4362b2d91a603e38bb2efc8877b2a74f1b1"
+    },
+    {
+      "new_card_id": "fc95f65e81965edf",
+      "title": "DOW-UAP-D160, Air Intelligence Information Report, Morocco, 1953",
+      "asset_filename": "DOW-UAP-D160-Air_Intelligence_Information_Report_Morocco-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D160-Air_Intelligence_Information_Report_Morocco-1953.pdf",
+      "byte_sha256": "788be6ef914b583a94b183ef2cc5e87a31400d7e68217e123045117f79641c52"
+    },
+    {
+      "new_card_id": "ffea128d68063d60",
+      "title": "DOW-UAP-D173, BAASS Monthly Report, November 2009",
+      "asset_filename": "DOW-UAP-D173-BAASS_Monthly_Report_November_2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D173-BAASS_Monthly_Report_November_2009.pdf",
+      "byte_sha256": "2b895fa7bf2d714e09964595f0977f622002f442c7f5365dbaad579343d9dcfb"
+    }
+  ],
+  "quarantined": [
+    {
+      "new_card_id": "ff3939f95d878062",
+      "new_title": "DOW-UAP-D042, Range Fouler Debrief, Arabian Gulf, 2023",
+      "new_asset_filename": "DOW-UAP-D042-Range-Fouler-Debrief-Arabian-Gulf-2023.pdf",
+      "new_asset_url": "https://www.war.gov/medialink/ufo/release_1/DOW-UAP-D042-Range-Fouler-Debrief-Arabian-Gulf-2023.pdf",
+      "new_byte_sha256": "ca9563779824e306f11393612fe6503f39877c6d5be03e77c875e928ee116b54",
+      "matched_against": [
+        "a0f6663169c21caf"
+      ],
+      "matches": [
+        {
+          "card_id": "a0f6663169c21caf",
+          "title": "DOW-UAP-D042, Range Fouler Debrief, Japan, 2023",
+          "reasons": [
+            "same agency + same incident_date (8/31/20)",
+            "same incident_location (Arabian Gulf)",
+            "matching numeric id 42"
+          ],
+          "strength": 3
+        }
+      ]
+    }
+  ],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [
+    {
+      "card_id": "a0f6663169c21caf",
+      "title": "DOW-UAP-D042, Range Fouler Debrief, Japan, 2023",
+      "asset_url": "https://www.war.gov/medialink/ufo/release_1/dow-uap-d42-range-fouler-debrief-japan-2023.pdf",
+      "asset_filename": "dow-uap-d42-range-fouler-debrief-japan-2023.pdf"
+    }
+  ],
+  "field_only_changes": [
+    {
+      "card_id": "0499d6dc86c848d6",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "DOW-UAP-D044"
+        }
+      ]
+    },
+    {
+      "card_id": "052b7e0358386432",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "0824ea3832738511",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "171b0f8c71e0ae7d",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "1b33dafd36c74c06",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "1b4f11abb8ce89e0",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "1c87b710594da1f8",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "1cc0bf60aba6d0eb",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "208d494dece9b545",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "22e9a98032b28fc5",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "28f551c3ef1a3d55",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "2d5ef2241949cd51",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        },
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "2fde9a0c4dee513c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "347808dc9e66aa78",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "3bccb95aaaf026b3",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "419ad0ffefd1343c",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        },
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "4649af95e88b6643",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "DOW-UAP-D042"
+        },
+        {
+          "field": "video_pairing",
+          "old": null,
+          "new": "DOW-UAP-PR039 | DOW-UAP-PR089"
+        }
+      ]
+    },
+    {
+      "card_id": "468222f8338376d2",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "47785325ca6c118d",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "4afde1c0cbccf94e",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "519c181f4a5aede0",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "5338a8eba1537603",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "568e636bceebb3e7",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "57b9d4711a5ad034",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "619c9d455bbb6bb5",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "628ebe1fba435604",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "65bf775b2dfd9f61",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        },
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 |  DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "6c3f5372eae29724",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "78236aa834b34246",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "79507cf7383f8c6b",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "79fc255ea64dc7be",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "7f9ed9588e40c25f",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "88443d8d0c5b0c44",
+      "diffs": [
+        {
+          "field": "description",
+          "old": "This document is a transcript of a 1-minute, 19-second video recording contained in this collection under the title LLE-UAP-PR001, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy or other protected interests of a U.S. person or commercial entity. This transcript is also redacted to protect the identity of the reporter and sensitive law enforcement information. \n\nAll descriptive and estimative language in this transcript reflects the reporter\u2019s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.",
+          "new": "This document is a transcript of a 1-minute, 19-second video recording contained in this collection under the title LLE-UAP-PR001, captured by a law enforcement officer in Colorado in October 2023. AARO removed the audio from the original recording to protect information whose release could reasonably be expected to affect the privacy or other protected interests of a U.S. person or commercial entity. This transcript is also redacted to protect the identity of the reporter and sensitive law enforcement information.\n\nAll descriptive and estimative language in this transcript reflects the reporter\u2019s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics."
+        }
+      ]
+    },
+    {
+      "card_id": "90fb386c2e32f003",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "972621a74b470223",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "9967c1c0868ab289",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "aa5c76b65d29b476",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "aad2f416c0513745",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "ac9f24575bf2c5de",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "aca09795e3f15ada",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "ae790d0f8fc88afb",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "b1a2a12d04e5784e",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "b2a7526ec9774d17",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "DOW-UAP-D042"
+        },
+        {
+          "field": "video_pairing",
+          "old": null,
+          "new": "DOW-UAP-PR088 | DOW-UAP-PR039"
+        }
+      ]
+    },
+    {
+      "card_id": "b4916a5d2b6d8f0f",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "b73a7101dc25e2ad",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        },
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "be0a81d67c57548d",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "c094d943b5fcf8a2",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "c529da40cb35cf7f",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "c9a17def8cbea854",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "cc33e8c352fc80ce",
+      "diffs": [
+        {
+          "field": "video_pairing",
+          "old": null,
+          "new": "DOW-UAP-PR040"
+        }
+      ]
+    },
+    {
+      "card_id": "d6220a5956fb219b",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "d7db401d52ec0bfc",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "dfec531c907eaa8c",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D145 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    },
+    {
+      "card_id": "e7f5382c5349c6e8",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "e924a48f55719a0d",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": null,
+          "new": "DOW-UAP-D042"
+        },
+        {
+          "field": "video_pairing",
+          "old": null,
+          "new": "DOW-UAP-PR088 | DOW-UAP-PR089"
+        }
+      ]
+    },
+    {
+      "card_id": "fd42060875c9ee92",
+      "diffs": [
+        {
+          "field": "pdf_pairing",
+          "old": "DOW-UAP-D110 | DOW-UAP-D111 | DOW-UAP-D112 | DOW-UAP-D113 | DOW-UAP-D114 | DOW-UAP-D115 | DOW-UAP-D116 | DOW-UAP-D117 | DOW-UAP-D118 | DOW-UAP-D119 | DOW-UAP-D120 | DOW-UAP-D121 | DOW-UAP-D122 | DOW-UAP-D123 | DOW-UAP-D124 | DOW-UAP-D125 | DOW-UAP-D126 | DOW-UAP-D127 | DOW-UAP-D128 | DOW-UAP-D129 | DOW-UAP-D130 | DOW-UAP-D131 | DOW-UAP-D132 | DOW-UAP-D133 | DOW-UAP-D134 | DOW-UAP-D135 | DOW-UAP-D136 | DOW-UAP-D137 | DOW-UAP-D138 | DOW-UAP-D139 | DOW-UAP-D140 | DOW-UAP-D141 | DOW-UAP-D142 | DOW-UAP-D143 | DOW-UAP-D144 | DOW-UAP-D146 | DOW-UAP-D147 | DOW-UAP-D148 | DOW-UAP-D149 | DOW-UAP-D150 | DOW-UAP-D151 | DOW-UAP-D152 | DOW-UAP-D153",
+          "new": "TAG:AAWSAP"
+        }
+      ]
+    }
+  ],
+  "row_changes": []
+}

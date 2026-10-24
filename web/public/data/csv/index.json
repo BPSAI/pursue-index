@@ -1,9 +1,21 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T23:09:28.426Z",
+  "generated_at": "2026-10-24T08:13:09.229Z",
   "source_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "source_notes": "Distinct CSV versions are archived locally and exposed here for citation reproducibility. Each row's sha256 is the load-bearing identifier — verify any download with `shasum -a 256 <file>` against the filename or against this index's `sha256` field.",
   "csvs": [
+    {
+      "sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
+      "bytes": 673026,
+      "archived_at": "2026-10-23T12:10:50.436128Z",
+      "url": "/data/csv/096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9.csv"
+    },
+    {
+      "sha256": "7c3c800f90e469435170706bf638ae2c68d8e88df9f1bb5bc9d2d147042b7b11",
+      "bytes": 672915,
+      "archived_at": "2026-10-23T12:48:41.711218Z",
+      "url": "/data/csv/7c3c800f90e469435170706bf638ae2c68d8e88df9f1bb5bc9d2d147042b7b11.csv"
+    },
     {
       "sha256": "c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7",
       "bytes": 650880,

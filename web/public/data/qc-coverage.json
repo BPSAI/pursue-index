@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "manifest_csv_sha256": "c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7",
-    "manifest_fetched_at": "2026-09-24T18:11:35.542331Z",
+    "manifest_csv_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
+    "manifest_fetched_at": "2026-10-23T12:10:50.436128Z",
     "clean_qc_bundle": {
       "bundle_schema_version": 1,
-      "generated_at": "2026-09-30T04:01:24+00:00",
+      "generated_at": "2026-10-24T08:03:45+00:00",
       "runner_version": "0.2.0",
       "judge_model": "claude-sonnet-4-6"
     }
   },
-  "total_cards": 438,
+  "total_cards": 466,
   "status_counts": {
-    "judged": 270,
+    "judged": 298,
     "partially_judged": 0,
     "unverified_transcript": 16,
     "unverified_vision": 30,
@@ -23,8 +23,8 @@
   "unverified_other_reasons": {},
   "bundle_cards_not_in_manifest": [],
   "vision_text_pages_in_judged_cards": {
-    "cards": 20,
-    "pages": 33
+    "cards": 21,
+    "pages": 42
   },
   "cards": [
     {
@@ -256,6 +256,13 @@
       "status": "judged"
     },
     {
+      "card_id": "0e2f21236a2289fa",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "0e3b3ec17a9ae021",
       "asset_types": [
         "PDF"
@@ -305,6 +312,13 @@
       "status": "no_text"
     },
     {
+      "card_id": "12a7f37083cf2b87",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "12ae49ccbb59bb04",
       "asset_types": [
         "VID"
@@ -313,6 +327,13 @@
     },
     {
       "card_id": "13f86e95aed52840",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "149f0e075ae4517d",
       "asset_types": [
         "PDF"
       ],
@@ -379,6 +400,13 @@
     },
     {
       "card_id": "19d8e1d503211c84",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "1af7a333fa99bdd9",
       "asset_types": [
         "PDF"
       ],
@@ -493,6 +521,13 @@
       "status": "judged"
     },
     {
+      "card_id": "21c9fa9b9a543068",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "2201422e542ed597",
       "asset_types": [
         "PDF"
@@ -536,6 +571,13 @@
     },
     {
       "card_id": "24f4178ed9082f2c",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "2570557981d64cc7",
       "asset_types": [
         "PDF"
       ],
@@ -675,6 +717,13 @@
       "status": "judged"
     },
     {
+      "card_id": "338995394c698b33",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "33cca99659328520",
       "asset_types": [
         "PDF"
@@ -725,6 +774,13 @@
       "status": "unverified_vision"
     },
     {
+      "card_id": "38e700c6f51082f0",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "38ee227f22a33772",
       "asset_types": [
         "PDF"
@@ -753,6 +809,13 @@
       "status": "judged"
     },
     {
+      "card_id": "3acf9cf5047465bd",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "3b36f3dc3b51cf3b",
       "asset_types": [
         "PDF"
@@ -761,6 +824,13 @@
     },
     {
       "card_id": "3bccb95aaaf026b3",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "3d74932e77e7868e",
       "asset_types": [
         "PDF"
       ],
@@ -997,6 +1067,13 @@
     },
     {
       "card_id": "5338a8eba1537603",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "55f5f0db04de21f2",
       "asset_types": [
         "PDF"
       ],
@@ -1261,6 +1338,13 @@
       "status": "unverified_transcript"
     },
     {
+      "card_id": "6a7a525ada83a4d6",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "6b12c3ddc6a96008",
       "asset_types": [
         "AUD"
@@ -1301,6 +1385,13 @@
         "VID"
       ],
       "status": "no_text"
+    },
+    {
+      "card_id": "6f5beb626837fa74",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
     },
     {
       "card_id": "6fc6419676926f13",
@@ -1558,6 +1649,20 @@
       "status": "judged"
     },
     {
+      "card_id": "81fe3a1b9cd4bf42",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "82f2e60220d94740",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "83710a4764f1d256",
       "asset_types": [
         "VID"
@@ -1594,6 +1699,13 @@
     },
     {
       "card_id": "859cda8991e45dd7",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "85fd315af4b25993",
       "asset_types": [
         "PDF"
       ],
@@ -1902,6 +2014,13 @@
       "status": "judged"
     },
     {
+      "card_id": "9bd42e0157fe4697",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "9dfbbb6de5c73272",
       "asset_types": [
         "VID"
@@ -1965,13 +2084,6 @@
       "status": "unverified_vision"
     },
     {
-      "card_id": "a0f6663169c21caf",
-      "asset_types": [
-        "PDF"
-      ],
-      "status": "judged"
-    },
-    {
       "card_id": "a14bb8678727f0c0",
       "asset_types": [
         "PDF"
@@ -1987,6 +2099,13 @@
     },
     {
       "card_id": "a3672ccd47d5503a",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "a3a9754af3184c3b",
       "asset_types": [
         "PDF"
       ],
@@ -2311,6 +2430,13 @@
       "status": "judged"
     },
     {
+      "card_id": "b63bea0452d1d4b3",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "b6549669cd12c33f",
       "asset_types": [
         "VID"
@@ -2340,6 +2466,13 @@
     },
     {
       "card_id": "b869fd5353d5c853",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "b87355e7ab051114",
       "asset_types": [
         "PDF"
       ],
@@ -2618,6 +2751,13 @@
       "status": "judged"
     },
     {
+      "card_id": "cb5426fe2a0b512d",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "cb8be77a22e07f9b",
       "asset_types": [
         "VID"
@@ -2709,11 +2849,25 @@
       "status": "unverified_vision"
     },
     {
+      "card_id": "d3cb04b8e4d55dc1",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "d42052963cb29aaa",
       "asset_types": [
         "VID"
       ],
       "status": "no_text"
+    },
+    {
+      "card_id": "d6016299267e9604",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
     },
     {
       "card_id": "d6220a5956fb219b",
@@ -2888,6 +3042,13 @@
       "status": "unverified_vision"
     },
     {
+      "card_id": "e5c4575f838f0175",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "e6d06ce60662cdcf",
       "asset_types": [
         "PDF"
@@ -2977,6 +3138,24 @@
       "status": "judged"
     },
     {
+      "card_id": "ee657817d068d59b",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged",
+      "vision_text_pages": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
       "card_id": "ef779c3f0f7ba4d3",
       "asset_types": [
         "AUD"
@@ -3006,6 +3185,13 @@
     },
     {
       "card_id": "f42c11ca158aeffc",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
+      "card_id": "f52425adaa32c4f2",
       "asset_types": [
         "PDF"
       ],
@@ -3103,6 +3289,13 @@
       "status": "judged"
     },
     {
+      "card_id": "fc95f65e81965edf",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "fc9cb08cad327063",
       "asset_types": [
         "IMG"
@@ -3169,11 +3362,25 @@
       "status": "judged"
     },
     {
+      "card_id": "ff3939f95d878062",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
+    },
+    {
       "card_id": "ffd9dfd4bceb163f",
       "asset_types": [
         "AUD"
       ],
       "status": "unverified_transcript"
+    },
+    {
+      "card_id": "ffea128d68063d60",
+      "asset_types": [
+        "PDF"
+      ],
+      "status": "judged"
     }
   ]
 }

@@ -33,10 +33,12 @@ export interface CardMetadata {
   // "Confidential" | "Restricted" | "Unclassified" | null. ~13% of cards
   // have one; the rest say "Declassified" without a level.
   original_classification: string | null;
-  // NOTE: the Python `CardMetadata` ships a `raw` dict for forward-compat
-  // with future CSV columns, but it's always empty in the manifest we
-  // build. Dropping it here keeps the typed-bundle shape lean. The Python
-  // side already enforces `extra="forbid"` on the manifest schema, so
+  // NOTE: the Python `CardMetadata` ships a `raw` dict holding upstream CSV
+  // columns the scraper does not map (currently 12 blank `ColumnN` headers,
+  // so every value is an empty string). No UI consumer reads it, and the
+  // cards summary drops it. Omitting it here keeps the typed-bundle shape
+  // lean. The Python side already enforces `extra="forbid"` on the manifest
+  // schema, so
   // downstream loaders don't depend on this field existing on the wire.
 }
 

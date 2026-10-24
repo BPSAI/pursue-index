@@ -66,6 +66,7 @@ from pathlib import Path
 
 import pytest
 
+from pursue_index.release.chunked_asset import asset_exists
 from tests.support.payload_coverage import (
     CoverageResult,
     PayloadSpec,
@@ -84,9 +85,16 @@ _LOAD = json_loader(_REPO_ROOT)
 
 @pytest.mark.parametrize("spec", SPECS, ids=[s.id for s in SPECS])
 def test_payload_sources_are_committed_to_the_repo(spec: PayloadSpec) -> None:
-    """The gate is credential-free: every input is a tracked file."""
+    """The gate is credential-free: every input is in the checkout.
+
+    Presence uses the production ``asset_exists`` (a monolith or its
+    ``.chunks.json`` manifest). Chunk parts are verified (present, size,
+    sha256) when ``test_payload_covers_its_eligible_manifest_entries``
+    loads every input through ``read_asset_json``; a missing or drifted
+    part turns that test red.
+    """
     for rel in (*spec.sources, spec.payload):
-        assert (_REPO_ROOT / rel).is_file(), (
+        assert asset_exists(_REPO_ROOT / rel), (
             f"{rel} is missing from the checkout — the coverage gate for "
             f"{spec.payload} cannot run without it."
         )
