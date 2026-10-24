@@ -11,20 +11,25 @@ poll commits behind. ``ingest approve``/``ingest run`` call
 
 This only ever reads the last-fetched ``origin/main`` -- it never runs
 ``git fetch`` itself, so it can't silently pull network state into a
-gate check.
+gate check. Because of that, the check also refuses when it cannot show the
+fetch is recent: a checkout that merely has not fetched would otherwise look
+current.
 """
 
 from __future__ import annotations
 
 import getpass
 import json
+import logging
 import subprocess
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
 from pursue_index.safe_git import GitUnavailableError, run_git
 
 __all__ = [
+    "MAX_FETCH_AGE_SECONDS",
     "MIN_REASON_LENGTH",
     "POLL_WRITTEN_PATHS",
     "BehindPollerError",
@@ -35,6 +40,10 @@ __all__ = [
 ]
 
 _ORIGIN_MAIN = "refs/remotes/origin/main"
+_LOG = logging.getLogger(__name__)
+
+# The poller runs on a 6h cron; a fetch older than this proves nothing.
+MAX_FETCH_AGE_SECONDS = 12 * 3600
 
 # R7C.31 adds its paths here.
 POLL_WRITTEN_PATHS: tuple[str, ...] = (
@@ -71,20 +80,61 @@ def require_reason(reason: str | None) -> str:
     return cleaned
 
 
+def _remote_names(repo_root: Path) -> list[str]:
+    remotes = run_git(repo_root, "remote")
+    if remotes.returncode != 0:
+        raise PollCheckError(_git_failure("remote", remotes))
+    return remotes.stdout.split()
+
+
+def _require_recent_fetch(repo_root: Path) -> None:
+    """Refuse unless ``origin/main`` was fetched within ``MAX_FETCH_AGE_SECONDS``.
+
+    The evidence is the newest mtime among ``FETCH_HEAD`` (rewritten by every
+    fetch, even one that changes nothing), ``packed-refs`` and the loose
+    ``origin/main`` ref (both written by a clone).
+    """
+    common = run_git(repo_root, "rev-parse", "--git-common-dir")
+    if common.returncode != 0 or not common.stdout.strip():
+        raise PollCheckError(_git_failure("rev-parse --git-common-dir", common))
+    git_dir = Path(common.stdout.strip())
+    git_dir = git_dir if git_dir.is_absolute() else repo_root / git_dir
+    stamps = [
+        (git_dir / rel).stat().st_mtime
+        for rel in ("FETCH_HEAD", "packed-refs", _ORIGIN_MAIN)
+        if (git_dir / rel).is_file()
+    ]
+    if not stamps or time.time() - max(stamps) > MAX_FETCH_AGE_SECONDS:
+        raise PollCheckError(
+            f"origin/main has not been fetched in the last "
+            f"{MAX_FETCH_AGE_SECONDS // 3600}h; run `git fetch origin` first"
+        )
+
+
 def commits_behind_on_poll_paths(repo_root: Path) -> int:
     """Commits on ``origin/main`` touching ``POLL_WRITTEN_PATHS`` that
     ``HEAD`` lacks.
 
-    Returns 0 only when the checkout has no ``origin/main`` ref (no remote
-    configured). Every other failure -- git missing, a timeout, a non-zero
-    exit, unparseable output -- raises :class:`PollCheckError`.
+    Returns 0 only for a checkout with no remote at all (a warning is
+    logged). Every other failure -- git missing, a timeout, a non-zero exit,
+    unparseable output, a remote configured but ``origin/main`` absent, or a
+    fetch older than ``MAX_FETCH_AGE_SECONDS`` -- raises
+    :class:`PollCheckError`.
     """
     try:
         ref = run_git(repo_root, "rev-parse", "--verify", "--quiet", _ORIGIN_MAIN)
         if ref.returncode == 1 and not ref.stderr.strip():
+            remotes = _remote_names(repo_root)
+            if remotes:
+                raise PollCheckError(
+                    f"remote(s) {', '.join(remotes)} configured but origin/main "
+                    "is missing; run `git fetch origin`"
+                )
+            _LOG.warning("no remote configured; skipping the poll-freshness check")
             return 0
         if ref.returncode != 0:
             raise PollCheckError(_git_failure("rev-parse", ref))
+        _require_recent_fetch(repo_root)
         result = run_git(
             repo_root, "rev-list", "--count", f"HEAD..{_ORIGIN_MAIN}",
             "--", *POLL_WRITTEN_PATHS,
