@@ -17,8 +17,10 @@ from pursue_index.release.shrink_guard import (
     enforce,
     find_shrink,
     find_uncovered,
+    load_alias_map,
     ocr_covered_ids,
     ocr_dir_error,
+    resolve_renames,
 )
 
 
@@ -150,6 +152,75 @@ def test_enforce_blank_reason_is_not_an_exception(tmp_path: Path) -> None:
     log = tmp_path / "audit-log.jsonl"
     assert enforce("x.py", ["m1"], [], allow_reason="  ", audit_log=log) == 1
     assert not log.exists()
+
+
+def test_load_alias_map_absent_file_is_empty(tmp_path: Path) -> None:
+    assert load_alias_map(tmp_path / "card-aliases.json") == {}
+    assert load_alias_map(None) == {}
+
+
+def test_load_alias_map_resolves_old_to_new(tmp_path: Path) -> None:
+    path = tmp_path / "card-aliases.json"
+    path.write_text(json.dumps({"aliases": [
+        {"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"},
+        {"old_card_id": "d", "new_card_id": "e", "method": "operator_manual"},
+    ]}))
+    assert load_alias_map(path) == {"a": "c", "d": "e"}
+
+
+def test_load_alias_map_later_row_wins(tmp_path: Path) -> None:
+    """Two rows for the same old_card_id: the later one wins (mirrors the
+    worker's resolution rule in tests/integration/test_alias_destinations.py)."""
+    path = tmp_path / "card-aliases.json"
+    path.write_text(json.dumps({"aliases": [
+        {"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"},
+        {"old_card_id": "a", "new_card_id": "z", "method": "operator_manual"},
+    ]}))
+    assert load_alias_map(path) == {"a": "z"}
+
+
+def test_load_alias_map_revoke_tombstones(tmp_path: Path) -> None:
+    path = tmp_path / "card-aliases.json"
+    path.write_text(json.dumps({"aliases": [
+        {"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"},
+        {"old_card_id": "a", "new_card_id": "c", "method": "operator_revoke"},
+    ]}))
+    assert load_alias_map(path) == {}
+
+
+def test_resolve_renames_accounts_for_alias_present_in_rebuilt() -> None:
+    renamed, missing = resolve_renames(["a", "b"], {"b", "c"}, {"a": "c"})
+    assert renamed == ["a -> c"]
+    assert missing == ["b"]
+
+
+def test_resolve_renames_alias_target_absent_from_rebuilt_still_missing() -> None:
+    """The rename did not carry text: the new id never made it into the
+    rebuilt set, so the old id is still reported as missing."""
+    renamed, missing = resolve_renames(["a"], {"c"}, {"a": "z"})
+    assert renamed == []
+    assert missing == ["a"]
+
+
+def test_resolve_renames_no_aliases_is_a_no_op() -> None:
+    renamed, missing = resolve_renames(["a", "b"], {"x"}, {})
+    assert renamed == []
+    assert missing == ["a", "b"]
+
+
+def test_enforce_prints_renamed_line_on_clean_exit(tmp_path: Path, capsys) -> None:
+    log = tmp_path / "audit-log.jsonl"
+    rc = enforce("x.py", [], [], allow_reason=None, audit_log=log, renamed=["a -> c"])
+    assert rc == 0
+    assert capsys.readouterr().out.strip() == "renamed: a -> c"
+    assert not log.exists()
+
+
+def test_enforce_without_renamed_prints_nothing_extra(tmp_path: Path, capsys) -> None:
+    log = tmp_path / "audit-log.jsonl"
+    rc = enforce("x.py", [], [], allow_reason=None, audit_log=log)
+    assert rc == 0
+    assert capsys.readouterr().out == ""
 
 
 def test_committed_ids_read_chunked_payloads(tmp_path: Path) -> None:

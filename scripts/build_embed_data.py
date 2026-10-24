@@ -50,7 +50,7 @@ from pursue_index.release.shrink_guard import (  # noqa: E402
     add_shrink_args,
     committed_embed_card_ids,
     enforce,
-    find_shrink,
+    find_renamed_and_missing,
     find_uncovered,
     ocr_covered_ids,
     ocr_dir_error,
@@ -60,6 +60,7 @@ from pursue_index.release.shrink_guard import (  # noqa: E402
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
+DEFAULT_ALIASES_PATH = REPO_ROOT / "data" / "card-aliases.json"
 
 
 def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
@@ -124,11 +125,13 @@ def _guard(
     ocr_dir: Path | None,
     allow_shrink_reason: str | None,
     audit_log: Path,
+    aliases_path: Path | None = None,
 ) -> int:
     """Refuse a rebuild that shrinks the committed ``embed_index.json``.
 
     The manifest-coverage rule needs both ``manifest_path`` and ``ocr_dir``;
-    without them only the shrink comparison runs.
+    without them only the shrink comparison runs. A shrunk id ``aliases_path``
+    maps to a rebuilt id is an approved rename, not a loss.
     """
     rebuilt_ids = {str(r["card_id"]) for r in kept_rows}
     uncovered: list[str] = []
@@ -139,12 +142,16 @@ def _guard(
             return 1
         cards = json.loads(manifest_path.read_text(encoding="utf-8"))["cards"]
         uncovered = find_uncovered(cards, ocr_covered_ids(ocr_dir))
+    renamed, missing = find_renamed_and_missing(
+        committed_embed_card_ids(idx_path), rebuilt_ids, aliases_path
+    )
     return enforce(
         "build_embed_data.py",
-        find_shrink(committed_embed_card_ids(idx_path), rebuilt_ids),
+        missing,
         uncovered,
         allow_reason=allow_shrink_reason,
         audit_log=audit_log,
+        renamed=renamed,
     )
 
 
@@ -159,6 +166,7 @@ def build(
     ocr_dir: Path | None = None,
     allow_shrink_reason: str | None = None,
     audit_log: Path = DEFAULT_AUDIT_LOG,
+    aliases_path: Path | None = None,
 ) -> int:
     in_dir = embeddings_root / model_id
     if not (in_dir / "index.json").exists():
@@ -178,8 +186,8 @@ def build(
     kept_rows = _select_rows(index, load_embed_eligible_keys(pages_path))
     idx_path = out_dir / "embed_index.json"
     rc = _guard(
-        kept_rows, idx_path, manifest_path, ocr_dir, allow_shrink_reason, audit_log
-    )
+        kept_rows, idx_path, manifest_path, ocr_dir,
+        allow_shrink_reason, audit_log, aliases_path)
     if rc:
         return rc
     arr = _filter_vectors(arr, kept_rows, dim)
@@ -244,6 +252,11 @@ def main() -> int:
         "--ocr-dir", type=Path, default=settings.ocr_dir,
         help="Data-root OCR dir checked for manifest-card coverage.",
     )
+    parser.add_argument(
+        "--aliases", type=Path, default=DEFAULT_ALIASES_PATH,
+        help="card-aliases.json; an old id aliased to a rebuilt id is an "
+        "approved rename, not a shrink.",
+    )
     add_shrink_args(parser, "embed_index.json")
     args = parser.parse_args()
     allow_shrink_reason = shrink_reason(parser, args)
@@ -255,6 +268,7 @@ def main() -> int:
         manifest_path=args.manifest,
         ocr_dir=args.ocr_dir,
         allow_shrink_reason=allow_shrink_reason,
+        aliases_path=args.aliases,
     )
 
 

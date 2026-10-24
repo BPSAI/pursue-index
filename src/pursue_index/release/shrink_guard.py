@@ -12,7 +12,10 @@ on disk and refuses (exit 1, listing the ids) when either
   on the data root.
 
 An operator who really means to shrink passes ``--allow-shrink --reason ...``;
-that is recorded as an audited exception in ``data/audit-log.jsonl``.
+that is recorded as an audited exception in ``data/audit-log.jsonl``. An
+approved rename removes its old ``card_id`` by design, so a shrunk id whose
+``data/card-aliases.json`` row points at a ``card_id`` present in the rebuild
+is reported (``renamed: <old> -> <new>``) rather than refused.
 
 Only PDF cards are *required* to carry text. A VID has no transcript pipeline
 and an AUD/IMG card awaiting transcription or a vision pass is a backlog, not
@@ -31,6 +34,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from pursue_index.ingest_scope import load_aliases as _load_alias_rows
 from pursue_index.release.chunked_asset import asset_exists, read_asset_json
 
 TEXT_REQUIRED_TYPES = frozenset({"PDF"})
@@ -88,6 +92,57 @@ def committed_embed_card_ids(path: Path) -> set[str] | None:
 def find_shrink(committed: set[str] | None, rebuilt: set[str]) -> list[str]:
     """Committed ``card_id``s the rebuild no longer covers, sorted."""
     return sorted(committed - rebuilt) if committed else []
+
+
+def load_alias_map(aliases_path: Path | None) -> dict[str, str]:
+    """Resolved ``old_card_id -> new_card_id`` map from ``card-aliases.json``.
+
+    Later rows win per ``old_card_id``; ``method: operator_revoke`` tombstones
+    the mapping. Mirrors the worker's resolution rule (see
+    ``tests/integration/test_alias_destinations.py``). ``None`` or an absent
+    path is an empty map, not an error.
+    """
+    if aliases_path is None:
+        return {}
+    out: dict[str, str] = {}
+    for row in _load_alias_rows(aliases_path):
+        old_id, new_id = row.get("old_card_id"), row.get("new_card_id")
+        if not (old_id and new_id):
+            continue
+        if row.get("method") == "operator_revoke":
+            out.pop(old_id, None)
+            continue
+        out[old_id] = new_id
+    return out
+
+
+def resolve_renames(
+    shrunk: list[str], rebuilt: set[str], aliases: dict[str, str]
+) -> tuple[list[str], list[str]]:
+    """Split ``shrunk`` into ids an approved rename accounts for and ids
+    still missing.
+
+    An id only counts as renamed when its alias target is present in
+    ``rebuilt`` — otherwise the rename did not carry text and the id stays
+    missing.
+    """
+    renamed: list[str] = []
+    missing: list[str] = []
+    for old_id in shrunk:
+        new_id = aliases.get(old_id)
+        if new_id is not None and new_id in rebuilt:
+            renamed.append(f"{old_id} -> {new_id}")
+        else:
+            missing.append(old_id)
+    return renamed, missing
+
+
+def find_renamed_and_missing(
+    committed: set[str] | None, rebuilt: set[str], aliases_path: Path | None
+) -> tuple[list[str], list[str]]:
+    """``find_shrink`` + ``resolve_renames`` in one call for the builders."""
+    aliases = load_alias_map(aliases_path)
+    return resolve_renames(find_shrink(committed, rebuilt), rebuilt, aliases)
 
 
 def ocr_dir_error(ocr_dir: Path) -> str | None:
@@ -164,12 +219,17 @@ def enforce(
     *,
     allow_reason: str | None,
     audit_log: Path,
+    renamed: list[str] | None = None,
 ) -> int:
     """Exit code for the findings: 0 if clean or explicitly allowed, else 1.
 
     Prints every offending id to stderr. A blank reason is not an exception —
     the audit row is the only record of why the corpus was allowed to shrink.
+    ``renamed`` (ids an approved rename already accounts for) is reported on
+    its own stdout line regardless of the outcome.
     """
+    if renamed:
+        print(f"renamed: {', '.join(renamed)}")
     if not shrunk and not uncovered:
         return 0
     reason = (allow_reason or "").strip()

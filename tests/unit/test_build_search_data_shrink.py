@@ -51,6 +51,11 @@ def _committed(out: Path, ids: list[str]) -> None:
     )
 
 
+def _aliases(path: Path, rows: list[dict[str, str]]) -> Path:
+    path.write_text(json.dumps({"aliases": rows}))
+    return path
+
+
 def _run(tmp_path: Path, mod, **kw):  # type: ignore[no-untyped-def]
     return mod.build(
         ocr_dir=tmp_path / "ocr",
@@ -143,6 +148,57 @@ def test_growth_is_not_a_shrink(tmp_path: Path) -> None:
 
     assert _run(tmp_path, _load()) == 0
     assert not (tmp_path / "audit-log.jsonl").exists()
+
+
+def test_renamed_card_accounted_for_by_alias_exits_0(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _manifest(tmp_path / "manifest.json", {"b": "PDF", "c": "PDF"})
+    _ocr(tmp_path / "ocr", "b")
+    _ocr(tmp_path / "ocr", "c")
+    _committed(tmp_path / "pages.json", ["a", "b"])
+    aliases = _aliases(
+        tmp_path / "card-aliases.json",
+        [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"}],
+    )
+
+    rc = _run(tmp_path, _load(), aliases_path=aliases)
+
+    assert rc == 0
+    assert "renamed: a -> c" in capsys.readouterr().out
+
+
+def test_same_fixture_without_alias_row_exits_1_naming_a(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _manifest(tmp_path / "manifest.json", {"b": "PDF", "c": "PDF"})
+    _ocr(tmp_path / "ocr", "b")
+    _ocr(tmp_path / "ocr", "c")
+    _committed(tmp_path / "pages.json", ["a", "b"])
+
+    rc = _run(tmp_path, _load())
+
+    assert rc == 1
+    assert "a" in capsys.readouterr().err
+
+
+def test_alias_target_absent_from_rebuilt_still_fails(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The rename did not carry text: its new id never shows up in the
+    rebuild, so the old id is still reported missing."""
+    _manifest(tmp_path / "manifest.json", {"b": "PDF"})
+    _ocr(tmp_path / "ocr", "b")
+    _committed(tmp_path / "pages.json", ["a", "b"])
+    aliases = _aliases(
+        tmp_path / "card-aliases.json",
+        [{"old_card_id": "a", "new_card_id": "z", "method": "operator_manual"}],
+    )
+
+    rc = _run(tmp_path, _load(), aliases_path=aliases)
+
+    assert rc == 1
+    assert "a" in capsys.readouterr().err
 
 
 def test_cli_allow_shrink_requires_reason(

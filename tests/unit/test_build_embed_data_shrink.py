@@ -63,6 +63,11 @@ def _ocr(ocr_dir: Path, card_id: str) -> None:
     (card_dir / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "t"}) + "\n")
 
 
+def _aliases(path: Path, rows: list[dict[str, str]]) -> Path:
+    path.write_text(json.dumps({"aliases": rows}))
+    return path
+
+
 def _manifest(path: Path, cards: dict[str, str]) -> Path:
     path.write_text(
         json.dumps({"cards": [{"card_id": c, "title": c, "asset_type": t}
@@ -133,6 +138,23 @@ def test_transcript_only_card_counts_as_covered(tmp_path: Path) -> None:
     manifest = _manifest(tmp_path / "manifest.json", {"c1": "PDF", "aud": "AUD"})
 
     assert _run(tmp_path, manifest_path=manifest, ocr_dir=tmp_path / "ocr") == 0
+
+
+def test_renamed_card_accounted_for_by_alias_exits_0(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The same rename rule ``build_search_data.py`` applies, applies here too."""
+    _stage_store(tmp_path / "emb", ["b", "c"])
+    _stage_out(tmp_path / "out", ["b", "c"], committed=["a", "b"])
+    aliases = _aliases(
+        tmp_path / "card-aliases.json",
+        [{"old_card_id": "a", "new_card_id": "c", "method": "operator_manual"}],
+    )
+
+    rc = _run(tmp_path, aliases_path=aliases)
+
+    assert rc == 0
+    assert "renamed: a -> c" in capsys.readouterr().out
 
 
 def test_no_committed_baseline_and_no_manifest_builds(tmp_path: Path) -> None:

@@ -43,7 +43,7 @@ from pursue_index.release.shrink_guard import (  # noqa: E402
     add_shrink_args,
     committed_pages_card_ids,
     enforce,
-    find_shrink,
+    find_renamed_and_missing,
     find_uncovered,
     ocr_dir_error,
     shrink_reason,
@@ -52,6 +52,7 @@ from pursue_index.release.shrink_guard import (  # noqa: E402
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
 DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
+DEFAULT_ALIASES_PATH = REPO_ROOT / "data" / "card-aliases.json"
 DEFAULT_IMAGE_OBS_INDEX = (
     REPO_ROOT / "web" / "src" / "data" / "image-observations" / "index.json"
 )
@@ -120,6 +121,29 @@ def _load_obs_lookup(
     return load_observation_text(index_path) or None
 
 
+def _check_shrink(
+    docs: list[dict[str, object]],
+    manifest_cards: list[dict[str, object]],
+    out_path: Path,
+    aliases_path: Path | None,
+    allow_shrink_reason: str | None,
+    audit_log: Path,
+) -> int:
+    """``enforce()`` wired to this builder's rebuilt docs. 0 is clean/allowed."""
+    rebuilt_ids = {str(d["card_id"]) for d in docs}
+    renamed, missing = find_renamed_and_missing(
+        committed_pages_card_ids(out_path), rebuilt_ids, aliases_path
+    )
+    return enforce(
+        "build_search_data.py",
+        missing,
+        find_uncovered(manifest_cards, rebuilt_ids),
+        allow_reason=allow_shrink_reason,
+        audit_log=audit_log,
+        renamed=renamed,
+    )
+
+
 def build(
     ocr_dir: Path,
     manifest_path: Path,
@@ -128,13 +152,15 @@ def build(
     *,
     allow_shrink_reason: str | None = None,
     audit_log: Path = DEFAULT_AUDIT_LOG,
+    aliases_path: Path | None = None,
     budget_bytes: int = BUDGET_BYTES,
 ) -> int:
     """Materialize the search payload. Returns process exit code.
 
     Refuses (exit 1, payload untouched) when the rebuild would shrink the
     payload already at ``out_path`` or leave a manifest card without text; see
-    ``pursue_index.release.shrink_guard``.
+    ``pursue_index.release.shrink_guard``. A shrunk id that ``aliases_path``
+    maps to an id present in the rebuild is an approved rename, not a loss.
     """
     if not manifest_path.exists():
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
@@ -147,13 +173,8 @@ def build(
     manifest_cards = _load_manifest_cards(manifest_path)
     titles_by_id = {str(c["card_id"]): str(c["title"]) for c in manifest_cards}
     docs, cards_seen = _walk_card_pages(ocr_dir, titles_by_id, obs_lookup)
-    rebuilt_ids = {str(d["card_id"]) for d in docs}
-    rc = enforce(
-        "build_search_data.py",
-        find_shrink(committed_pages_card_ids(out_path), rebuilt_ids),
-        find_uncovered(manifest_cards, rebuilt_ids),
-        allow_reason=allow_shrink_reason,
-        audit_log=audit_log,
+    rc = _check_shrink(
+        docs, manifest_cards, out_path, aliases_path, allow_shrink_reason, audit_log
     )
     if rc:
         return rc
@@ -199,6 +220,11 @@ def main() -> int:
             "searchable text. Pass a non-existent path to disable."
         ),
     )
+    parser.add_argument(
+        "--aliases", type=Path, default=DEFAULT_ALIASES_PATH,
+        help="card-aliases.json; an old id aliased to a rebuilt id is an "
+        "approved rename, not a shrink.",
+    )
     add_shrink_args(parser, "pages.json")
     args = parser.parse_args()
     allow_shrink_reason = shrink_reason(parser, args)
@@ -208,6 +234,7 @@ def main() -> int:
         out_path=args.out,
         image_obs_index=args.image_observations_index,
         allow_shrink_reason=allow_shrink_reason,
+        aliases_path=args.aliases,
     )
 
 
