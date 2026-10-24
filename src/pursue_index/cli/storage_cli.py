@@ -14,7 +14,12 @@ from pathlib import Path
 
 import typer
 
-from pursue_index.cli.worklist import read_worklist
+from pursue_index.cli.worklist import (
+    WorklistTrancheError,
+    exit_on_tranche_error,
+    read_worklist,
+    require_worklist_tranche,
+)
 from pursue_index.config import settings
 from pursue_index.release.pdf_mirror import (
     render_mirror_report,
@@ -90,8 +95,12 @@ def _pdf_scope(worklist: Path) -> list[str]:
     they never had. Skips are printed, never silent: an unreported skip reads
     exactly like coverage.
     """
-    card_ids = read_worklist(worklist)
     manifest = load_manifest(settings.manifests_dir / "latest.json")
+    try:
+        require_worklist_tranche(worklist, manifest.csv_sha256)
+    except WorklistTrancheError as exc:
+        exit_on_tranche_error(exc)
+    card_ids = read_worklist(worklist)
     in_scope, skipped = select_pdf_cards(
         card_ids, [c.model_dump() for c in manifest.cards]
     )

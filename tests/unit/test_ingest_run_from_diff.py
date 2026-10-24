@@ -43,8 +43,10 @@ def _write_diff(diff_dir: Path, sha: str, new_content: list[dict]) -> Path:
 
 
 def _ids(path: Path) -> list[str]:
+    """Card_ids from a worklist, dropping the ``# tranche:`` header, blank
+    lines, and each row's trailing ``\\treason`` tag."""
     return [
-        ln.strip()
+        ln.strip().split()[0]
         for ln in path.read_text(encoding="utf-8").splitlines()
         if ln.strip() and not ln.strip().startswith("#")
     ]
@@ -160,12 +162,7 @@ def test_dry_run_writes_worklist_and_runs_no_stage(tmp_path, monkeypatch) -> Non
     # dry-run MATERIALIZES the worklist (credential-free) so a
     # later separately-invoked OCR step consumes the right card set...
     assert worklist.exists()
-    written = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert written == ["newcard1", "newcard2"]
+    assert _ids(worklist) == ["newcard1", "newcard2"]
     # ...but no stage may run under --dry-run.
     assert seen == {}
 
@@ -215,12 +212,7 @@ def test_non_dry_writes_worklist_and_runs_scoped_stages(tmp_path, monkeypatch) -
 
     # Worklist file written with exactly the scoped card_ids.
     assert worklist.exists()
-    written = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert written == ["newcard1", "newcard2"]
+    assert _ids(worklist) == ["newcard1", "newcard2"]
 
     # Each stage ran exactly once, scoped to the worklist (oldcard excluded).
     assert seen["download"] == [["newcard1", "newcard2"]]
@@ -246,6 +238,37 @@ def test_non_dry_metadata_only_runs_no_stage(tmp_path, monkeypatch) -> None:
     )
     assert res.exit_code == 0, res.output
     assert seen == {}
+
+
+def test_metadata_only_tranche_clears_a_prior_tranches_stale_worklist(tmp_path, monkeypatch) -> None:
+    """A metadata-only tranche must still rewrite the PDF worklist (empty) --
+    a prior tranche's ids must never survive into this one's scope (R7C.1 /
+    #168: this is exactly what let a stale `ocr --force` run reuse last
+    tranche's work-list)."""
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, [])
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    worklist = tmp_path / "worklist.txt"
+    worklist.write_text("# tranche: some-older-tranche\noldcard1\toldcard2\n")
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot), "--from-diff", "--worklist", str(worklist)],
+    )
+    assert res.exit_code == 0, res.output
+    assert seen == {}
+    # The prior tranche's ids are gone; the header now names this manifest's
+    # own tranche (the fixture's manifest -- "deadbeef" -- since promotion is
+    # mocked away in this test harness).
+    assert _ids(worklist) == []
+    from pursue_index.cli.worklist import worklist_header_tranche
+
+    assert worklist_header_tranche(worklist) == "deadbeef"
 
 
 def test_cost_cap_defaults_to_embed_default(tmp_path, monkeypatch) -> None:
@@ -328,21 +351,13 @@ def test_dry_run_writes_both_pdf_and_av_worklists(tmp_path, monkeypatch) -> None
 
     # Check PDF worklist
     assert worklist.exists(), f"PDF worklist not created at {worklist}"
-    pdf_lines = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
+    pdf_lines = _ids(worklist)
     assert pdf_lines == ["pdf1", "pdf2"], f"Expected ['pdf1', 'pdf2'], got {pdf_lines}"
 
     # Check A/V worklist
     av_worklist = worklist.parent / "worklist-av.txt"
     assert av_worklist.exists(), f"A/V worklist not created at {av_worklist}"
-    av_lines = [
-        ln.strip()
-        for ln in av_worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
+    av_lines = _ids(av_worklist)
     assert av_lines == ["vid1", "vid2", "aud1"], f"Expected ['vid1', 'vid2', 'aud1'], got {av_lines}"
 
     # No stages ran
@@ -370,12 +385,7 @@ def test_dry_run_pdf_only_no_av_worklist(tmp_path, monkeypatch) -> None:
 
     # Check PDF worklist exists
     assert worklist.exists()
-    pdf_lines = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert pdf_lines == ["newcard1", "newcard2"]
+    assert _ids(worklist) == ["newcard1", "newcard2"]
 
     # A/V worklist should NOT exist
     av_worklist = worklist.parent / "worklist-av.txt"

@@ -12,8 +12,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from pursue_index.cli.clean_cli import clean_app
 from pursue_index.clean import runner as clean_runner
+from pursue_index.cli.clean_cli import clean_app
 
 runner_cli = CliRunner()
 
@@ -99,6 +99,52 @@ def test_clean_run_drives_all_cards_when_no_filter(
     assert result.exit_code == 0, result.stdout
     card_ids = [c["card_id"] for c in _patch_runner]
     assert sorted(card_ids) == ["c1", "c2"]
+
+
+def test_clean_run_worklist_scopes_to_listed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _patch_runner,
+) -> None:
+    """--worklist c1 -> only that card runs, even though c2 is also a PDF."""
+    from pursue_index.config import settings
+    monkeypatch.setattr(settings, "data_root", tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    _write_manifest(manifest_path, ["c1", "c2"])
+    for cid in ("c1", "c2"):
+        _seed_pages(tmp_path / "ocr", cid, [{"page": 1, "text": cid}])
+    worklist_path = tmp_path / "worklist.txt"
+    worklist_path.write_text(f"# tranche: {'0' * 64}\nc1\tnew\n")
+
+    result = runner_cli.invoke(
+        clean_app,
+        ["run", "--manifest", str(manifest_path),
+         "--worklist", str(worklist_path), "--budget-usd", "5"],
+    )
+    assert result.exit_code == 0, result.stdout
+    assert [c["card_id"] for c in _patch_runner] == ["c1"]
+
+
+def test_clean_run_worklist_tranche_mismatch_exits_nonzero(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _patch_runner,
+) -> None:
+    """A worklist labeled for a different tranche than --manifest must refuse,
+    naming both shas, rather than silently running the wrong scope."""
+    from pursue_index.config import settings
+    monkeypatch.setattr(settings, "data_root", tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    _write_manifest(manifest_path, ["c1"])
+    _seed_pages(tmp_path / "ocr", "c1", [{"page": 1, "text": "c1"}])
+    worklist_path = tmp_path / "worklist.txt"
+    worklist_path.write_text("# tranche: some-other-sha\nc1\tnew\n")
+
+    result = runner_cli.invoke(
+        clean_app,
+        ["run", "--manifest", str(manifest_path),
+         "--worklist", str(worklist_path), "--budget-usd", "5"],
+    )
+    assert result.exit_code != 0
+    assert "some-other-sha" in result.output
+    assert "0" * 64 in result.output
+    assert _patch_runner == []
 
 
 def test_clean_run_filters_to_explicit_card_list(

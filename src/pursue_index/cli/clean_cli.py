@@ -21,6 +21,11 @@ from pursue_index.clean.runner import (
     run_card,
 )
 from pursue_index.cli.clean_qc_cli import clean_qc_app
+from pursue_index.cli.worklist import (
+    WorklistTrancheError,
+    exit_on_tranche_error,
+    worklist_card_ids,
+)
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 from pursue_index.text_control import console_text
@@ -63,15 +68,53 @@ DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 # clean pass and its QC pass answer to the same value.
 DEFAULT_BUDGET_USD = TRANCHE_SPEND_CEILING_USD
 
+_OPT_MANIFEST = typer.Option(..., "--manifest", exists=True, dir_okay=False)
+_OPT_WORKLIST = typer.Option(
+    None, "--worklist", exists=True, dir_okay=False,
+    help="Scope the run to the card_ids in this file (one per line). Omit to "
+    "clean every PDF card (the escape hatch). Written by `ingest run --from-diff`.",
+)
+_OPT_CARDS = typer.Option(
+    None, "--cards",
+    help="Comma-separated card_ids to clean. Defaults to every PDF card.",
+)
+_OPT_LIMIT = typer.Option(
+    None, "--limit",
+    help="Hard cap on the number of cards processed (pilot use).",
+)
+_OPT_MODEL = typer.Option(
+    DEFAULT_MODEL, "--model",
+    help="Anthropic model id. Default: claude-haiku-4-5.",
+)
+_OPT_BUDGET = typer.Option(
+    DEFAULT_BUDGET_USD, "--budget-usd",
+    help=(
+        "Hard cost cap. Run aborts when cumulative cost exceeds this. "
+        "Cap is checked after each page; up to one page's worth of "
+        "cost may be incurred past the cap at card boundaries."
+    ),
+)
+_OPT_DRY_RUN = typer.Option(
+    False, "--dry-run",
+    help="Print the planned card list and exit without spending tokens.",
+)
+
 
 def _resolve_cards(
     manifest_path: Path,
     cards_filter: str | None,
     limit: int | None,
+    worklist: Path | None = None,
 ) -> list[str]:
-    """Pick which card ids to clean, honoring --cards and --limit."""
+    """Pick which card ids to clean, honoring --worklist, --cards and --limit."""
     manifest = load_manifest(manifest_path)
     pdf_cards = [c.card_id for c in manifest.cards if c.asset_type == "PDF"]
+    if worklist is not None:
+        try:
+            wanted = worklist_card_ids(worklist, promoted_sha=manifest.csv_sha256)
+        except WorklistTrancheError as exc:
+            exit_on_tranche_error(exc)
+        pdf_cards = [c for c in pdf_cards if c in wanted]
     if cards_filter:
         wanted = {c.strip() for c in cards_filter.split(",") if c.strip()}
         pdf_cards = [c for c in pdf_cards if c in wanted]
@@ -158,40 +201,10 @@ def _fold_partial_spend(
     return running_cost + partial
 
 
-@clean_app.command("run")
-def clean_run(
-    manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
-    cards: str | None = typer.Option(
-        None, "--cards",
-        help="Comma-separated card_ids to clean. Defaults to every PDF card.",
-    ),
-    limit: int | None = typer.Option(
-        None, "--limit",
-        help="Hard cap on the number of cards processed (pilot use).",
-    ),
-    model: str = typer.Option(
-        DEFAULT_MODEL, "--model",
-        help="Anthropic model id. Default: claude-haiku-4-5.",
-    ),
-    budget_usd: float = typer.Option(
-        DEFAULT_BUDGET_USD, "--budget-usd",
-        help=(
-            "Hard cost cap. Run aborts when cumulative cost exceeds this. "
-            "Cap is checked after each page; up to one page's worth of "
-            "cost may be incurred past the cap at card boundaries."
-        ),
-    ),
-    dry_run: bool = typer.Option(
-        False, "--dry-run",
-        help="Print the planned card list and exit without spending tokens.",
-    ),
-) -> None:
-    """Run the cleanup pass. Idempotent per (text, model, prompt)."""
-    settings.ensure_dirs()
-    card_ids = _resolve_cards(manifest, cards, limit)
-    if dry_run:
-        _print_dry_run(card_ids, budget_usd, model)
-        return
+def _run_clean_pass(card_ids: list[str], model: str, budget_usd: float) -> None:
+    """Run every card in order, printing the summary table on success or
+    on a mid-run budget abort (exit 2, with the in-progress card's partial
+    spend folded into the total)."""
     reports: list[CardReport] = []
     running_cost = 0.0
     try:
@@ -208,3 +221,22 @@ def clean_run(
     console.print(
         f"[green]done[/green]: {len(reports)} cards, ${running_cost:.4f} spent."
     )
+
+
+@clean_app.command("run")
+def clean_run(
+    manifest: Path = _OPT_MANIFEST,
+    worklist: Path | None = _OPT_WORKLIST,
+    cards: str | None = _OPT_CARDS,
+    limit: int | None = _OPT_LIMIT,
+    model: str = _OPT_MODEL,
+    budget_usd: float = _OPT_BUDGET,
+    dry_run: bool = _OPT_DRY_RUN,
+) -> None:
+    """Run the cleanup pass. Idempotent per (text, model, prompt)."""
+    settings.ensure_dirs()
+    card_ids = _resolve_cards(manifest, cards, limit, worklist)
+    if dry_run:
+        _print_dry_run(card_ids, budget_usd, model)
+        return
+    _run_clean_pass(card_ids, model, budget_usd)

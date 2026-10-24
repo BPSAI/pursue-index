@@ -151,7 +151,7 @@ def test_bulk_run_honors_the_worklist_scope(tmp_path: Path, monkeypatch) -> None
     manifest = tmp_path / "m.json"
     _write_manifest(manifest, [_img_card("imgA"), _img_card("imgB")])
     worklist = tmp_path / "w.txt"
-    worklist.write_text("imgA\n")
+    worklist.write_text(f"# tranche: {'0' * 64}\nimgA\n")
     result = runner.invoke(
         app,
         ["vision", "run", "--manifest", str(manifest), "--out", str(out),

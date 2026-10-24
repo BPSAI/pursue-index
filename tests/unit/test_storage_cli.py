@@ -72,8 +72,19 @@ def _seed(root: Path, card_id: str) -> None:
 
 
 def _worklist(root: Path, *card_ids: str) -> Path:
+    """Write a worklist tagged with the *real* promoted manifest's tranche sha.
+
+    ``mirror-pdfs``/``verify-mirror`` load ``settings.manifests_dir /
+    "latest.json"`` directly (not a ``--manifest`` flag), so the worklist
+    header must name that committed manifest's ``csv_sha256`` to pass the
+    tranche-header gate — a fixed/invented sha would go stale at the next
+    Release promotion.
+    """
+    promoted_sha = json.loads(
+        (settings.manifests_dir / "latest.json").read_text(encoding="utf-8")
+    )["csv_sha256"]
     wl = root / "worklist.txt"
-    wl.write_text("# tranche worklist\n" + "\n".join(card_ids) + "\n")
+    wl.write_text(f"# tranche: {promoted_sha}\n" + "\n".join(card_ids) + "\n")
     return wl
 
 

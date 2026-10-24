@@ -25,6 +25,7 @@ from pathlib import Path
 import typer
 
 from pursue_index.cli.ingest_from_diff import execute_from_diff
+from pursue_index.config import settings
 from pursue_index.ingest import (
     append_aliases,
     auto_approve_renames,
@@ -54,6 +55,7 @@ DEFAULT_DIFF_DIR = _REPO_ROOT / "data" / "tranche-diffs"
 DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
 DEFAULT_LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_WORKLIST = _REPO_ROOT / "data" / "ingest-worklist.txt"
+DEFAULT_ASSET_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 
 _OPT_APPROVE_RENAME = typer.Option(
     None,
@@ -84,6 +86,31 @@ _OPT_DRY_RUN = typer.Option(
     help="With --from-diff: print the work-list (the card_ids that would be "
     "OCR'd/embedded) WITHOUT running any stage or spending budget.",
 )
+_OPT_RUN_LOG = typer.Option(DEFAULT_APPROVAL_LOG, "--log")
+_OPT_RUN_SNAPSHOTS_DIR = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir")
+_OPT_RUN_MANIFEST = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest")
+_OPT_RUN_DIFF_DIR = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir")
+_OPT_RUN_ALIASES = typer.Option(
+    DEFAULT_ALIASES, "--aliases",
+    help="With --from-diff: card-aliases.json, to scope this tranche's approved renames.",
+)
+_OPT_RUN_ASSET_REGISTRY = typer.Option(
+    DEFAULT_ASSET_REGISTRY, "--asset-registry",
+    help="With --from-diff: asset-bytes-registry.jsonl, to detect bytes-changed cards.",
+)
+_OPT_RUN_ENGINE = typer.Option(
+    None, "--engine", help="With --from-diff: OCR engine passthrough (operated: llm-dots)."
+)
+_OPT_RUN_FORCE = typer.Option(
+    False, "--force", help="With --from-diff: force re-OCR (overwrite status=ok)."
+)
+_OPT_RUN_CONCURRENCY = typer.Option(
+    None, "--concurrency", help="With --from-diff: OCR concurrency passthrough (operated: 8)."
+)
+_OPT_APPROVE_LOG = typer.Option(DEFAULT_APPROVAL_LOG, "--log")
+_OPT_APPROVE_ALIASES = typer.Option(DEFAULT_ALIASES, "--aliases")
+_OPT_APPROVE_DIFF_DIR = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir")
+_OPT_APPROVE_SNAPSHOTS_DIR = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir")
 _OPT_WORKLIST_OUT = typer.Option(
     DEFAULT_WORKLIST,
     "--worklist",
@@ -216,15 +243,47 @@ def _run_pre_approval_audit(
     return results
 
 
+def _resolve_renames(
+    diff: dict, tranche: str, approve_rename: list[str]
+) -> tuple[list[dict], list[dict], list[dict]]:
+    """Class A (auto) + Class C (manual) renames, enriched with provenance.
+    Returns ``(auto_renames, manual_renames, enriched)``. Exits 2 on a
+    malformed ``--approve-rename`` flag."""
+    auto_renames = auto_approve_renames(diff)
+    try:
+        manual_renames = parse_rename_flags(approve_rename or [])
+    except ValueError as exc:
+        typer.echo(f"refusing to approve — invalid --approve-rename: {exc}", err=True)
+        raise typer.Exit(2) from exc
+    enriched = _enrich_with_provenance(auto_renames + manual_renames, tranche)
+    return auto_renames, manual_renames, enriched
+
+
+def _persist_approval(
+    tranche: str, note: str, log: Path, aliases: Path,
+    diff_summary: dict, enriched: list[dict], audit_results: list,
+) -> None:
+    """Write the approval row, fold in the audit trail, materialize aliases."""
+    record_approval(
+        log_path=log, tranche_sha=tranche, note=note,
+        diff_summary=diff_summary, renames_approved=enriched,
+    )
+    if audit_results:
+        audit_log = log.parent / "audit-log.jsonl"
+        with audit_log.open("a") as fh:
+            fh.write(json.dumps({"tranche_sha256": tranche, "results": audit_results}) + "\n")
+    append_aliases(aliases, enriched)
+
+
 @ingest_app.command("approve")
 def approve_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
     note: str = typer.Option(..., "--note", help="Operator rationale; recorded in the audit log."),
     approve_rename: list[str] = _OPT_APPROVE_RENAME,
-    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
-    aliases: Path = typer.Option(DEFAULT_ALIASES, "--aliases"),
-    diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
-    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
+    log: Path = _OPT_APPROVE_LOG,
+    aliases: Path = _OPT_APPROVE_ALIASES,
+    diff_dir: Path = _OPT_APPROVE_DIFF_DIR,
+    snapshots_dir: Path = _OPT_APPROVE_SNAPSHOTS_DIR,
     skip_audit: bool = _OPT_SKIP_AUDIT,
 ) -> None:
     """Record an approval row + materialize the approved aliases.
@@ -235,34 +294,9 @@ def approve_cmd(
     """
     diff = _load_diff_or_exit(tranche, diff_dir)
     diff_summary = diff.get("summary", {})
-    auto_renames = auto_approve_renames(diff)
-    try:
-        manual_renames = parse_rename_flags(approve_rename or [])
-    except ValueError as exc:
-        typer.echo(f"refusing to approve — invalid --approve-rename: {exc}", err=True)
-        raise typer.Exit(2) from exc
-
-    enriched = _enrich_with_provenance(auto_renames + manual_renames, tranche)
-    audit_results = _run_pre_approval_audit(
-        enriched, diff, tranche, snapshots_dir, skip_audit
-    )
-    record_approval(
-        log_path=log,
-        tranche_sha=tranche,
-        note=note,
-        diff_summary=diff_summary,
-        renames_approved=enriched,
-    )
-    if audit_results:
-        # Audit results are part of the audit trail.
-        log_dir = log.parent
-        audit_log = log_dir / "audit-log.jsonl"
-        with audit_log.open("a") as fh:
-            fh.write(json.dumps({
-                "tranche_sha256": tranche,
-                "results": audit_results,
-            }) + "\n")
-    append_aliases(aliases, enriched)
+    auto_renames, manual_renames, enriched = _resolve_renames(diff, tranche, approve_rename)
+    audit_results = _run_pre_approval_audit(enriched, diff, tranche, snapshots_dir, skip_audit)
+    _persist_approval(tranche, note, log, aliases, diff_summary, enriched, audit_results)
     _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary)
 
 
@@ -288,26 +322,35 @@ def _resolve_approved_snapshot(
     return snapshot
 
 
+def _promote_and_summarize(
+    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path, manifest: Path
+) -> tuple[dict, dict]:
+    """Gate + promote + summarize: the shared prefix of every ``run`` path.
+    Returns ``(summary, diff_payload)``."""
+    snapshot = _resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
+    diff_payload = _load_diff_or_exit(tranche, diff_dir)
+    summary = summarize_ingest_work(diff_payload)
+    promote_snapshot(snapshot, manifest)
+    typer.echo(f"promoted snapshot to {manifest}")
+    return summary, diff_payload
+
+
 @ingest_app.command("run")
 def run_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
-    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
-    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
-    manifest: Path = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest"),
-    diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
+    log: Path = _OPT_RUN_LOG,
+    snapshots_dir: Path = _OPT_RUN_SNAPSHOTS_DIR,
+    manifest: Path = _OPT_RUN_MANIFEST,
+    diff_dir: Path = _OPT_RUN_DIFF_DIR,
+    aliases: Path = _OPT_RUN_ALIASES,
+    asset_registry: Path = _OPT_RUN_ASSET_REGISTRY,
     from_diff: bool = _OPT_FROM_DIFF,
     dry_run: bool = _OPT_DRY_RUN,
     worklist: Path = _OPT_WORKLIST_OUT,
     cost_cap_usd: float = _OPT_FROM_DIFF_COST_CAP,
-    engine: str = typer.Option(
-        None, "--engine", help="With --from-diff: OCR engine passthrough (operated: llm-dots)."
-    ),
-    force: bool = typer.Option(
-        False, "--force", help="With --from-diff: force re-OCR (overwrite status=ok)."
-    ),
-    concurrency: int = typer.Option(
-        None, "--concurrency", help="With --from-diff: OCR concurrency passthrough (operated: 8)."
-    ),
+    engine: str = _OPT_RUN_ENGINE,
+    force: bool = _OPT_RUN_FORCE,
+    concurrency: int = _OPT_RUN_CONCURRENCY,
 ) -> None:
     """Promote an approved tranche to the deployed manifest + report next steps.
 
@@ -319,22 +362,13 @@ def run_cmd(
     ``--from-diff`` it instead exports the scoped work-list and drives the
     scoped stages itself; ``--dry-run`` shows the work-list without spending.
     """
-    snapshot = _resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
-    diff_payload = _load_diff_or_exit(tranche, diff_dir)
-    summary = summarize_ingest_work(diff_payload)
-    promote_snapshot(snapshot, manifest)
-    typer.echo(f"promoted snapshot to {manifest}")
+    summary, diff_payload = _promote_and_summarize(tranche, log, snapshots_dir, diff_dir, manifest)
     if from_diff:
         execute_from_diff(
-            summary,
-            tranche=tranche,
-            manifest=manifest,
-            worklist=worklist,
-            dry_run=dry_run,
-            engine=engine,
-            force=force,
-            concurrency=concurrency,
-            cost_cap_usd=cost_cap_usd,
+            summary, diff=diff_payload, tranche=tranche, manifest=manifest, worklist=worklist,
+            dry_run=dry_run, aliases_path=aliases, registry_path=asset_registry,
+            ocr_dir=settings.ocr_dir, engine=engine, force=force,
+            concurrency=concurrency, cost_cap_usd=cost_cap_usd,
         )
         return
     typer.echo("")
