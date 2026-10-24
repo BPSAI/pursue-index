@@ -69,6 +69,7 @@ import pytest
 from tests.support.payload_coverage import (
     CoverageResult,
     PayloadSpec,
+    asset_is_present,
     describe_failure,
     evaluate,
     json_loader,
@@ -86,7 +87,7 @@ _LOAD = json_loader(_REPO_ROOT)
 def test_payload_sources_are_committed_to_the_repo(spec: PayloadSpec) -> None:
     """The gate is credential-free: every input is a tracked file."""
     for rel in (*spec.sources, spec.payload):
-        assert (_REPO_ROOT / rel).is_file(), (
+        assert asset_is_present(_REPO_ROOT / rel), (
             f"{rel} is missing from the checkout — the coverage gate for "
             f"{spec.payload} cannot run without it."
         )
