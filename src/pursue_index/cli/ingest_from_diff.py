@@ -25,6 +25,7 @@ from typing import Any
 
 import typer
 
+from pursue_index.card_id import require_card_ids
 from pursue_index.cli.worklist import WorklistTrancheError, exit_on_tranche_error
 from pursue_index.ingest_run import render_av_next_steps
 from pursue_index.ingest_scope import ScopedCard, scope_worklist
@@ -42,6 +43,7 @@ def write_worklist_file(path: Path, card_ids: list[str], tranche: str, suffix: s
     """
     if suffix:
         path = path.with_name(path.stem + suffix + path.suffix)
+    card_ids = require_card_ids(card_ids)
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         f"# worklist for tranche {tranche[:12]} (pursue ingest run --from-diff)",
@@ -59,6 +61,7 @@ def write_scoped_worklist(path: Path, scoped: list[ScopedCard], tranche_sha: str
     / ``renamed`` / ``bytes-changed``). Written even when ``scoped`` is
     empty, so a prior tranche's ids can never survive into this one.
     """
+    require_card_ids(c.card_id for c in scoped)
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         f"# tranche: {tranche_sha}",

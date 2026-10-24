@@ -40,8 +40,8 @@ def _init_git_repo(repo_root: Path) -> None:
 
 def _new_content_rows() -> list[dict]:
     return [
-        {"new_card_id": "newcard1", "title": "X", "asset_url": "https://x/a.pdf"},
-        {"new_card_id": "newcard2", "title": "Y", "asset_url": "https://x/b.pdf"},
+        {"new_card_id": "00000000000000a1", "title": "X", "asset_url": "https://x/a.pdf"},
+        {"new_card_id": "00000000000000a2", "title": "Y", "asset_url": "https://x/b.pdf"},
     ]
 
 

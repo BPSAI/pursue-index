@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from pursue_index.card_id import require_card_id
+from pursue_index.card_id import InvalidCardIdError, require_card_id
 
 REASON_NEW = "new"
 REASON_QUARANTINED_NEW = "quarantined-new"
@@ -92,6 +92,7 @@ def scope_pdf_img_cards(
     seen: set[str] = set()
 
     def _add(card_id: str, reason: str) -> None:
+        require_card_id(card_id)
         if card_id in seen:
             return
         seen.add(card_id)
@@ -149,7 +150,7 @@ def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
     out: dict[str, str] = {}
     if not registry_path.exists():
         return out
-    for line in registry_path.read_text(encoding="utf-8").splitlines():
+    for lineno, line in enumerate(registry_path.read_text(encoding="utf-8").splitlines(), 1):
         stripped = line.strip()
         if not stripped:
             continue
@@ -160,6 +161,10 @@ def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
         card_id = row.get("card_id")
         sha = row.get("byte_sha256")
         if card_id and sha:
+            try:
+                require_card_id(card_id)
+            except InvalidCardIdError as exc:
+                raise InvalidCardIdError(f"{registry_path}:{lineno}: {exc}") from exc
             out[card_id] = sha
     return out
 

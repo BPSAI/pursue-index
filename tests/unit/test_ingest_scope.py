@@ -135,7 +135,7 @@ def test_new_content_video_row_excluded_by_asset_type() -> None:
     diff = {
         "new_content": [
             {
-                "new_card_id": "v" * 16,
+                "new_card_id": "6" * 16,
                 "asset_filename": "x.mp4",
                 "asset_url": "https://x/x.mp4",
                 "asset_type": "VID",
@@ -153,7 +153,7 @@ def test_new_content_video_row_excluded_by_extension_when_no_asset_type() -> Non
     filename extension."""
     diff = {
         "new_content": [
-            {"new_card_id": "v" * 16, "asset_filename": "x.mp4", "asset_url": "https://x/x.mp4"},
+            {"new_card_id": "6" * 16, "asset_filename": "x.mp4", "asset_url": "https://x/x.mp4"},
         ],
         "quarantined": [],
     }
@@ -168,13 +168,13 @@ def test_quarantined_row_with_no_asset_excluded() -> None:
         "new_content": [],
         "quarantined": [
             {
-                "new_card_id": "r" * 16,
+                "new_card_id": "3" * 16,
                 "new_asset_filename": None,
                 "new_asset_url": None,
             }
         ],
     }
-    aliases = [{"old_card_id": "o" * 16, "new_card_id": "r" * 16, "tranche_sha256": "sha1"}]
+    aliases = [{"old_card_id": "4" * 16, "new_card_id": "3" * 16, "tranche_sha256": "sha1"}]
     scoped = scope_pdf_img_cards(diff, "sha1", aliases=aliases)
     assert scoped == []
 
@@ -185,12 +185,12 @@ def test_quarantined_resolved_by_an_older_tranches_alias_is_not_renamed_here() -
     diff = {
         "new_content": [],
         "quarantined": [
-            {"new_card_id": "q" * 16, "new_asset_filename": "q.pdf", "new_asset_url": "https://x/q.pdf"},
+            {"new_card_id": "2" * 16, "new_asset_filename": "q.pdf", "new_asset_url": "https://x/q.pdf"},
         ],
     }
-    aliases = [{"old_card_id": "o" * 16, "new_card_id": "q" * 16, "tranche_sha256": "some-other-tranche"}]
+    aliases = [{"old_card_id": "4" * 16, "new_card_id": "2" * 16, "tranche_sha256": "some-other-tranche"}]
     scoped = scope_pdf_img_cards(diff, "sha1", aliases=aliases)
-    assert scoped == [ScopedCard("q" * 16, REASON_QUARANTINED_NEW)]
+    assert scoped == [ScopedCard("2" * 16, REASON_QUARANTINED_NEW)]
 
 
 def test_bytes_changed_skipped_when_card_already_scoped_above() -> None:
@@ -199,17 +199,17 @@ def test_bytes_changed_skipped_when_card_already_scoped_above() -> None:
     (e.g. operator re-ran the scope mid-ingest)."""
     diff = {
         "new_content": [
-            {"new_card_id": "n" * 16, "asset_filename": "n.pdf", "asset_url": "https://x/n.pdf"},
+            {"new_card_id": "1" * 16, "asset_filename": "n.pdf", "asset_url": "https://x/n.pdf"},
         ],
         "quarantined": [],
     }
     scoped = scope_pdf_img_cards(
         diff,
         "sha1",
-        registry_sha_by_card={"n" * 16: "sha-now"},
-        ocr_meta_sha_by_card={"n" * 16: "sha-before"},
+        registry_sha_by_card={"1" * 16: "sha-now"},
+        ocr_meta_sha_by_card={"1" * 16: "sha-before"},
     )
-    assert scoped == [ScopedCard("n" * 16, REASON_NEW)]
+    assert scoped == [ScopedCard("1" * 16, REASON_NEW)]
 
 
 def test_bytes_changed_requires_a_prior_ocr_meta_entry() -> None:
@@ -218,7 +218,7 @@ def test_bytes_changed_requires_a_prior_ocr_meta_entry() -> None:
     a drift)."""
     diff = {"new_content": [], "quarantined": []}
     scoped = scope_pdf_img_cards(
-        diff, "sha1", registry_sha_by_card={"x" * 16: "sha-now"}, ocr_meta_sha_by_card={}
+        diff, "sha1", registry_sha_by_card={"5" * 16: "sha-now"}, ocr_meta_sha_by_card={}
     )
     assert scoped == []
 
@@ -228,8 +228,8 @@ def test_bytes_unchanged_not_scoped() -> None:
     scoped = scope_pdf_img_cards(
         diff,
         "sha1",
-        registry_sha_by_card={"x" * 16: "same-sha"},
-        ocr_meta_sha_by_card={"x" * 16: "same-sha"},
+        registry_sha_by_card={"5" * 16: "same-sha"},
+        ocr_meta_sha_by_card={"5" * 16: "same-sha"},
     )
     assert scoped == []
 
@@ -252,13 +252,13 @@ def test_load_registry_sha_map_last_row_wins(tmp_path: Path) -> None:
     p.write_text(
         "\n".join(
             [
-                json.dumps({"card_id": "a", "byte_sha256": "first"}),
-                json.dumps({"card_id": "a", "byte_sha256": "second"}),
-                json.dumps({"card_id": "b", "byte_sha256": "only"}),
+                json.dumps({"card_id": "a" * 16, "byte_sha256": "first"}),
+                json.dumps({"card_id": "a" * 16, "byte_sha256": "second"}),
+                json.dumps({"card_id": "b" * 16, "byte_sha256": "only"}),
             ]
         )
     )
-    assert load_registry_sha_map(p) == {"a": "second", "b": "only"}
+    assert load_registry_sha_map(p) == {"a" * 16: "second", "b" * 16: "only"}
 
 
 def test_load_registry_sha_map_missing_file_is_empty(tmp_path: Path) -> None:
@@ -288,7 +288,7 @@ def test_scope_worklist_wires_loaders_together(tmp_path: Path) -> None:
 
     diff = {
         "new_content": [
-            {"new_card_id": "n" * 16, "asset_filename": "n.pdf", "asset_url": "https://x/n.pdf"},
+            {"new_card_id": "1" * 16, "asset_filename": "n.pdf", "asset_url": "https://x/n.pdf"},
         ],
         "quarantined": [],
     }
@@ -296,7 +296,7 @@ def test_scope_worklist_wires_loaders_together(tmp_path: Path) -> None:
         diff, "sha1", aliases_path=aliases_path, registry_path=registry_path, ocr_dir=ocr_dir
     )
     by_id = {c.card_id: c.reason for c in scoped}
-    assert by_id == {"n" * 16: REASON_NEW, _EXISTING: REASON_BYTES_CHANGED}
+    assert by_id == {"1" * 16: REASON_NEW, _EXISTING: REASON_BYTES_CHANGED}
 
 
 def test_load_ocr_meta_sha_map_refuses_a_card_id_that_is_not_16_hex(tmp_path: Path) -> None:
@@ -305,3 +305,32 @@ def test_load_ocr_meta_sha_map_refuses_a_card_id_that_is_not_16_hex(tmp_path: Pa
     for bad in ("../../etc", "cardid", "A" * 16, "a" * 15, "a" * 17, "a/b" + "0" * 13, ""):
         with pytest.raises(InvalidCardIdError):
             load_ocr_meta_sha_map(tmp_path / "ocr", [bad])
+
+
+def _row_with_id(card_id: str) -> dict:
+    return {"new_card_id": card_id, "asset_type": "PDF", "asset_filename": "x.pdf"}
+
+
+def test_scope_refuses_a_diff_card_id_that_is_not_16_hex() -> None:
+    from pursue_index.card_id import InvalidCardIdError
+
+    for bad in ("a" * 16 + "\tforged", "ab\ncd", "../x", "A" * 16, ""):
+        with pytest.raises(InvalidCardIdError):
+            scope_pdf_img_cards({"new_content": [_row_with_id(bad)]}, "sha1")
+        with pytest.raises(InvalidCardIdError):
+            scope_pdf_img_cards(
+                {"quarantined": [{**_row_with_id(bad), "new_asset_filename": "x.pdf"}]},
+                "sha1",
+            )
+
+
+def test_load_registry_sha_map_names_the_malformed_row(tmp_path: Path) -> None:
+    from pursue_index.card_id import InvalidCardIdError
+
+    registry = tmp_path / "registry.jsonl"
+    good = json.dumps({"card_id": "a" * 16, "byte_sha256": "s1"})
+    bad = json.dumps({"card_id": "not-hex", "byte_sha256": "s2"})
+    registry.write_text(f"{good}\n{bad}\n")
+
+    with pytest.raises(InvalidCardIdError, match=r"registry\.jsonl:2"):
+        load_registry_sha_map(registry)
