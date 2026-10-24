@@ -302,10 +302,6 @@
       "page_count": 28
     },
     {
-      "card_id": "a0f6663169c21caf",
-      "page_count": 1
-    },
-    {
       "card_id": "a33faf4c40674462",
       "page_count": 7
     },
@@ -1080,23 +1076,139 @@
     {
       "card_id": "b1d24cb7f46cfa20",
       "page_count": 1
+    },
+    {
+      "card_id": "0e2f21236a2289fa",
+      "page_count": 3
+    },
+    {
+      "card_id": "12a7f37083cf2b87",
+      "page_count": 50
+    },
+    {
+      "card_id": "149f0e075ae4517d",
+      "page_count": 42
+    },
+    {
+      "card_id": "1af7a333fa99bdd9",
+      "page_count": 2
+    },
+    {
+      "card_id": "21c9fa9b9a543068",
+      "page_count": 72
+    },
+    {
+      "card_id": "2570557981d64cc7",
+      "page_count": 2
+    },
+    {
+      "card_id": "338995394c698b33",
+      "page_count": 5
+    },
+    {
+      "card_id": "38e700c6f51082f0",
+      "page_count": 1
+    },
+    {
+      "card_id": "3acf9cf5047465bd",
+      "page_count": 298
+    },
+    {
+      "card_id": "3d74932e77e7868e",
+      "page_count": 5
+    },
+    {
+      "card_id": "55f5f0db04de21f2",
+      "page_count": 3
+    },
+    {
+      "card_id": "6a7a525ada83a4d6",
+      "page_count": 134
+    },
+    {
+      "card_id": "6f5beb626837fa74",
+      "page_count": 6
+    },
+    {
+      "card_id": "81fe3a1b9cd4bf42",
+      "page_count": 3
+    },
+    {
+      "card_id": "82f2e60220d94740",
+      "page_count": 141
+    },
+    {
+      "card_id": "85fd315af4b25993",
+      "page_count": 42
+    },
+    {
+      "card_id": "9bd42e0157fe4697",
+      "page_count": 26
+    },
+    {
+      "card_id": "a3a9754af3184c3b",
+      "page_count": 5
+    },
+    {
+      "card_id": "b63bea0452d1d4b3",
+      "page_count": 4
+    },
+    {
+      "card_id": "b87355e7ab051114",
+      "page_count": 49
+    },
+    {
+      "card_id": "cb5426fe2a0b512d",
+      "page_count": 5
+    },
+    {
+      "card_id": "d3cb04b8e4d55dc1",
+      "page_count": 4
+    },
+    {
+      "card_id": "d6016299267e9604",
+      "page_count": 60
+    },
+    {
+      "card_id": "e5c4575f838f0175",
+      "page_count": 4
+    },
+    {
+      "card_id": "ee657817d068d59b",
+      "page_count": 11
+    },
+    {
+      "card_id": "f52425adaa32c4f2",
+      "page_count": 4
+    },
+    {
+      "card_id": "fc95f65e81965edf",
+      "page_count": 3
+    },
+    {
+      "card_id": "ffea128d68063d60",
+      "page_count": 155
+    },
+    {
+      "card_id": "ff3939f95d878062",
+      "page_count": 1
     }
   ],
-  "generated_at": "2026-09-30T04:01:24+00:00",
+  "generated_at": "2026-10-24T08:03:45+00:00",
   "judge_model": "claude-sonnet-4-6",
   "runner_version": "0.2.0",
   "stats": {
-    "baseline_cost_usd": 450.72,
-    "est_total_cost_usd": 197.80953,
+    "baseline_cost_usd": 496.28000000000003,
+    "est_total_cost_usd": 216.61662,
     "indeterminate_pages": 0,
-    "judge_calls": 11268,
-    "judge_ok": 6573,
+    "judge_calls": 12407,
+    "judge_ok": 7429,
     "no_corrections": 0,
-    "operator_review": 4695,
+    "operator_review": 4978,
     "rule_applied": 0,
     "runner_errors": 0,
     "savings_pct": 56,
-    "savings_usd": 252.91047000000003,
-    "total_pages": 11268
+    "savings_usd": 279.66338,
+    "total_pages": 12407
   }
 }

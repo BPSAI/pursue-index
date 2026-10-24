@@ -1,0 +1,395 @@
+{
+  "card_id": "ee657817d068d59b",
+  "title": "FBI-UAP-D043, FD-302, Unidentified Aerial Object Observation Report, 2026",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-10-24T06:01:01.514123+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color landscape photograph",
+      "description": "A mountainous scene viewed from an elevated vantage point, with a white border framing the image. The foreground shows a slope covered in low scrub brush, dry grasses, and reddish-brown bare earth with patches of sandy soil. The middle ground consists of rolling hills and ridges covered in dense, dark green and blue-tinted vegetation, with lighter patches suggesting rock, dry grass, or trails. In the distance to the left, a flat valley or dry lakebed appears pale gray-white, flanked by faint layered mountain ranges that recede into haze. A bright circular light resembling the sun or moon appears in the upper right area of the clear blue sky, which graduates from deeper blue at top to lighter blue-teal near the horizon. A small dark horizontal mark is visible in the middle-right portion of the image over the hillside.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The sky is clear blue with a gradient from dark at top to lighter near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright circular light source is visible in the upper right of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground contains low scrub vegetation and reddish-brown bare soil",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A flat pale valley or dry lakebed is visible in the left middle distance",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Layered mountain ranges recede into haze in the background",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small dark horizontal mark appears over the central-right hillside",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image has a white border on all sides",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 3,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph",
+      "description": "A wide mountainous landscape viewed from a vegetated hilltop, bordered by a thin white frame. The foreground shows brushy terrain with dry grasses, low shrubs, and patches of reddish-brown bare soil. The middle ground consists of rolling ridges and valleys covered in sparse scrub and chaparral vegetation. In the background are layered mountain ranges fading into blue haze, with what appears to be a flat valley or dry lakebed visible on the left side. The sky is clear and graduates from deep blue at the top to a lighter, yellowish tone near the horizon, with a few wispy clouds. A small bright circular light (possibly the sun or moon) appears in the upper right. A small dark elongated shape is visible in the sky near the center-right, above the ridgeline.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The foreground contains dry grasses, shrubs, and reddish bare soil",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Layered mountain ranges appear in the background fading into blue haze",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright circular light source is visible in the upper right of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small dark elongated shape is present in the sky near the center-right",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The sky graduates from deep blue at top to yellowish near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A flat valley or light-colored dry lakebed is visible on the left side",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image is bordered by a thin white frame",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 4,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph",
+      "description": "A wide mountainous landscape viewed from an elevated vantage point, bordered by a thin white frame. The foreground shows a brushy hillside with reddish-brown soil, scattered dry shrubs, grasses, and small patches of green and yellowish vegetation. The middle ground consists of rolling ridges and canyons covered in low vegetation, rendered in dark blue and purple tones. In the distance are layered mountain ranges fading into blue haze, with a flat valley or dry lake bed visible to the left. The sky is a clear gradient of blue, lighter near the horizon and darker toward the top. A bright circular light source, possibly the sun or moon, appears in the upper right. Near the center-right of the image, above the ridgeline, there is a small dark elongated horizontal shape resembling a disc or oval hovering in the sky.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A small dark elongated disc-shaped object appears in the sky above the central ridgeline",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright circular light source is visible in the upper right portion of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground contains reddish-brown soil with dry shrubs and grasses",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Layered mountain ranges fade into blue haze in the background",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A flat valley or dry lake bed is visible in the left middle distance",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image has a thin white border frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The overall color tone of the landscape is dominated by dark blues and purples",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 5,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph with white border",
+      "description": "A wide landscape view across a mountainous, semi-arid region taken from an elevated vantage point. The foreground shows dry brush, low shrubs, and reddish-brown dirt on a hillside. The midground consists of rolling scrub-covered hills and ridges in shadowed blue-purple tones, with a valley or plain visible in the left distance. Layered mountain ranges recede toward the horizon under a clear gradient sky that shifts from deep blue at the top to pale yellow near the horizon. A bright light source, resembling the sun or a glowing orb, appears in the upper right. In the upper center-left of the sky, a small dark triangular or wedge-shaped object is visible against the blue sky. The image has a white frame border.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A small dark triangular object is present in the sky in the upper central portion of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright circular light source appears in the upper right of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground contains dry shrubs and reddish-brown soil",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Multiple layered mountain ranges recede into the distance",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky shows a gradient from deep blue to pale yellow toward the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a white border frame around it",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is visible in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 6,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph with white border",
+      "description": "A wide landscape view of a mountainous, semi-arid region taken from an elevated vantage point. The foreground shows rolling hillsides covered with low scrub brush, dry grasses, and patches of reddish-brown bare soil. The middle ground consists of ridges and canyons covered in dark vegetation, with some lighter exposed slopes. In the far distance, layered mountain ranges fade into a hazy blue-gray valley on the left. The sky is a deep blue gradient, darker at the top and lighter near the horizon, with a few thin clouds. A small bright circular light source appears in the upper right of the sky. A dark, roughly triangular shape is visible in the sky above the central mountain ridge. The overall color tone is bluish and dusk-like.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A dark triangular shape is visible in the sky near the center of the image above a ridge",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small bright circular light appears in the upper right portion of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground contains scrub brush, dry grass, and patches of reddish-brown soil",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Layered mountain ranges recede into haze in the distance on the left",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is a graduated deep blue, darker at top and lighter toward the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a white border framing it",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 7,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph",
+      "description": "A wide landscape view of rugged, scrub-covered hills and mountains under a gradient blue sky. The foreground shows a slope of dry brush, low shrubs, and reddish-brown dirt or sand patches. Beyond this, forested and chaparral-covered ridges roll back toward a large central mountain. In the distance on the left, a flat valley or dry lakebed is visible along with faint, hazy mountain ranges on the horizon. A small bright round object resembling a sun or moon appears in the upper right sky. A small solid black triangular shape is superimposed in the sky near the center of the image, above the main mountain ridge. The image has a thin white border.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A solid black triangular shape is positioned in the sky above the central mountain ridge",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright round light source appears in the upper right of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground consists of dry shrubs and reddish-brown soil",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A flat valley or lakebed is visible in the mid-left distance",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The sky shows a blue gradient transitioning to lighter tones near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a thin white border frame",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 8,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph",
+      "description": "A wide landscape view of a mountainous, arid terrain under a graduated blue sky. The foreground shows rocky, scrub-covered hillsides with low brush, dry grasses, and patches of bare reddish-brown soil. The middle ground consists of rolling ridges and canyons covered in dark vegetation. In the distance are layered mountain ranges fading into a hazy blue-gray horizon, with a flat valley or dry lakebed visible to the left. The sky transitions from a lighter blue-green near the horizon to a deeper blue at the top, with a small bright point of light (possibly the sun or moon) in the upper right. A small dark triangular or arrowhead-shaped object appears in the sky near the center of the image, above the middle ridges. A thin light border frames the entire photograph.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "A dark triangular object is visible in the sky near the center of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Mountain ranges are visible along the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground contains scrubby vegetation and bare reddish soil",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small bright point of light appears in the upper right sky",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A flat valley or dry lakebed is visible in the left middle distance",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image has a thin light-colored border",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 9,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph",
+      "description": "A wide-angle landscape view of rugged, semi-arid mountainous terrain under a clear gradient sky that shifts from deep blue at the top to pale teal and yellowish tones near the horizon. The foreground shows dry hillsides covered with low scrub brush, sparse shrubs, reddish-brown soil, and patches of green and golden vegetation. Mid-ground features rolling ridges and canyons with chaparral-covered slopes. In the distance are layered mountain ranges, with some faint snow-dusted peaks on the right. A flat valley or dry lakebed area is visible at left. A small dark triangular shape appears in the lower-central sky area against the hillside. A faint bright circular spot resembling a sun or light source appears in the upper right portion of the sky. The image has a white border frame.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image shows mountainous terrain with scrub vegetation in the foreground",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky has a gradient from deep blue to pale teal near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small dark triangular shape is visible in the lower-central portion of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright circular light source appears in the upper right of the sky",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Distant mountain peaks appear to have light snow cover on the right side",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The image is bordered by a white frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 10,
+      "row_key": ""
+    },
+    {
+      "image_type": "color landscape photograph",
+      "description": "A wide mountain landscape photograph with a white border, showing rolling hills and mountain ranges under a gradient sky that fades from deep blue at the top to a lighter teal-yellow near the horizon. The foreground consists of dry scrubland with low brush, reddish-brown soil, and patches of green and golden vegetation on sloping hillsides. In the middle distance, dark hills covered with chaparral and sparse vegetation lead toward a central ridge. In the far distance on the left, a flat valley or dry lakebed is visible, backed by hazy layered mountain ranges. A small bright circular light source resembling the sun or moon appears in the upper right sky. A small dark triangular shape is visible in the lower-center area of the frame. The overall color tone is cool and dusk-like.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image has a white border framing the photograph",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The sky is a gradient from deep blue at top to lighter teal near the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A bright circular light source is visible in the upper right portion of the sky",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The foreground contains dry scrubland with reddish-brown soil and low brush",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A flat valley or dry lakebed is visible in the far distance on the left",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Layered hazy mountain ranges appear along the horizon",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small dark triangular shape appears in the lower-center of the image",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 11,
+      "row_key": ""
+    }
+  ]
+}

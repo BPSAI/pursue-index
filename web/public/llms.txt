@@ -4,7 +4,7 @@
 > Primary-source documents, OCR transcripts, page-level citations.
 > Source: https://pursueindex.com
 
-> Manifest: 450 cards · csv_sha256 c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7
+> Manifest: 478 cards · csv_sha256 096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9
 
 ## Meta
 
@@ -18,16 +18,14 @@
 
 ## Cards
 
-- [6c3f5372eae29724 — DOW-UAP-D102, Project Blue Book File on Tremonton Film, Utah, 1952](https://pursueindex.com/card/6c3f5372eae29724): Department of War (7/2/52).
-- [2d5ef2241949cd51 — DOW-UAP-D110, AAWSAP Statement of Objectives, July 2008](https://pursueindex.com/card/2d5ef2241949cd51): Department of War (7/18/08).
-- [419ad0ffefd1343c — DOW-UAP-D111, AAWSAP Solicitation and Original Order, September 2008](https://pursueindex.com/card/419ad0ffefd1343c): Department of War (9/22/08).
-- [65bf775b2dfd9f61 — DOW-UAP-D117, AAWSAP DIRD, Metallic Glasses for Aerospace Applications, December 2009](https://pursueindex.com/card/65bf775b2dfd9f61): Department of War (12/14/09).
-- [b73a7101dc25e2ad — DOW-UAP-D129, AAWSAP DIRD, Metallic Spintronics, March 2010](https://pursueindex.com/card/b73a7101dc25e2ad): Department of War (3/23/10).
-- [e7f5382c5349c6e8 — DOW-UAP-D154, Transcript of a Presentation by Captain Edward J. Ruppelt, 1952](https://pursueindex.com/card/e7f5382c5349c6e8): Department of War (3/26/52).
-- [2fde9a0c4dee513c — DOW-UAP-PR159, Historical Film of Reported UFOs, Utah, 1952](https://pursueindex.com/card/2fde9a0c4dee513c): Department of War (7/2/52).
-- [208d494dece9b545 — DOW-UAP-PR160, Presentation by Captain Edward J. Ruppelt, 1952](https://pursueindex.com/card/208d494dece9b545): Department of War (3/26/52).
-- [1b33dafd36c74c06 — LLE-UAP-PR001, Unresolved UAP Report, Colorado, 2023](https://pursueindex.com/card/1b33dafd36c74c06): Local Law Enforcement (October, 2023).
-- [78236aa834b34246 — LLE-UAP-PR002, Unresolved UAP Report, Colorado, October 2023](https://pursueindex.com/card/78236aa834b34246): Local Law Enforcement (October, 2023).
+- [cb5426fe2a0b512d — DOW-UAP-D155, Air Intelligence Information Report, Saudi Arabia, 1957](https://pursueindex.com/card/cb5426fe2a0b512d): Department of War (1/18/57).
+- [d6016299267e9604 — DOW-UAP-D174, Utah Ranch Investigation Report, April 2010](https://pursueindex.com/card/d6016299267e9604): Department of War (March, April 2010).
+- [0e2f21236a2289fa — DOW-UAP-D176, Triangular UAP AARO Memorandum for Record, 2026](https://pursueindex.com/card/0e2f21236a2289fa): Department of War (June, 2026).
+- [b63bea0452d1d4b3 — DOW-UAP-D177, Unresolved UAP Report, Catalina Island, 1955](https://pursueindex.com/card/b63bea0452d1d4b3): Department of War (3/15/55).
+- [a3a9754af3184c3b — DOW-UAP-D178, Unresolved UAP Report, Catalina Island, 1953](https://pursueindex.com/card/a3a9754af3184c3b): Department of War (11/16/53).
+- [1af7a333fa99bdd9 — DOW-UAP-D179, Air Intelligence Information Report, Catalina Island, 1952](https://pursueindex.com/card/1af7a333fa99bdd9): Department of War (6/25/52).
+- [55f5f0db04de21f2 — DOW-UAP-D181, Unresolved UAP Report, Catalina Island, 1949](https://pursueindex.com/card/55f5f0db04de21f2): Department of War (4/28/49).
+- [ee657817d068d59b — FBI-UAP-D043, FD-302, Unidentified Aerial Object Observation Report, 2026](https://pursueindex.com/card/ee657817d068d59b): FBI (June, 2026).
 - [9e677b8697685311 — 18_100754_ General 1946-7_Vol_2](https://pursueindex.com/card/9e677b8697685311): Department of War (12/30/47).
 - [9317a6ea91f7425c — 18_6369445_General_1948_Vol_1](https://pursueindex.com/card/9317a6ea91f7425c): Department of War (6/15/48).
 - [973c1f75f55d0d39 — 255_413270_UFO's_and_Defense_What_Should_we_Prepare_For](https://pursueindex.com/card/973c1f75f55d0d39): NASA (5/8/26).
@@ -112,7 +110,7 @@
 - [3746998b8c506e5c — DOW-UAP-D033, Mission Report, Greece, October 2023](https://pursueindex.com/card/3746998b8c506e5c): Department of War (10/27/23).
 - [c788c17e8cc32230 — DOW-UAP-D035, Mission Report, Greece, October 2023](https://pursueindex.com/card/c788c17e8cc32230): Department of War (10/29/23).
 - [88a20bf256ccce7a — DOW-UAP-D038, Range Fouler Debrief, Middle East, May 2020](https://pursueindex.com/card/88a20bf256ccce7a): Department of War (5/14/20).
-- [a0f6663169c21caf — DOW-UAP-D042, Range Fouler Debrief, Japan, 2023](https://pursueindex.com/card/a0f6663169c21caf): Department of War (8/31/20).
+- [ff3939f95d878062 — DOW-UAP-D042, Range Fouler Debrief, Arabian Gulf, 2023](https://pursueindex.com/card/ff3939f95d878062): Department of War (8/31/20).
 - [cc33e8c352fc80ce — DOW-UAP-D044, Range Fouler Reporting Form, Gulf of Aden, October 2020](https://pursueindex.com/card/cc33e8c352fc80ce): Department of War (10/15/20).
 - [17a8cc07fd8c694f — DOW-UAP-D048, Department of the Air Force Report, 1996](https://pursueindex.com/card/17a8cc07fd8c694f): Department of War (9/10/96).
 - [775d16ead1ec8fa1 — DOW-UAP-D049, Launch Summary, Vandenberg AFB, 2000](https://pursueindex.com/card/775d16ead1ec8fa1): Department of War (2/3/00).
@@ -157,6 +155,7 @@
 - [fad6007114b5eb63 — DOW-UAP-D099, Intelligence Review of “Ghost Rocket” Incidents, 1947](https://pursueindex.com/card/fad6007114b5eb63): Department of War (1/9/47).
 - [da533c72f476d84f — DOW-UAP-D100, Air Materiel Command Report on Unidentified Flying Objects, 1947-1948](https://pursueindex.com/card/da533c72f476d84f): Department of War (1947-1948).
 - [d973d98ce1f1f852 — DOW-UAP-D101, Intelligence Information Report, Unresolved UAP Report, Gulf of Oman, 2021](https://pursueindex.com/card/d973d98ce1f1f852): Department of War (9/8/21).
+- [6c3f5372eae29724 — DOW-UAP-D102, Project Blue Book File on Tremonton Film, Utah, 1952](https://pursueindex.com/card/6c3f5372eae29724): Department of War (7/2/52).
 - [49e0690a6f5bb74f — DOW-UAP-D103, Project Blue Book Photo File Relating to Tremonton Film, Utah, 1952](https://pursueindex.com/card/49e0690a6f5bb74f): Department of War (7/2/52).
 - [ca69163315f5ff40 — DOW-UAP-D104, Final Personnel Record for Newhouse, Delbert C., U.S. Navy, 1957](https://pursueindex.com/card/ca69163315f5ff40): Department of War (5/2/57).
 - [fec5b139eb7b0a4f — DOW-UAP-D105, U.S. Air Force Flying Discs File, 1952](https://pursueindex.com/card/fec5b139eb7b0a4f): Department of War (September - December 1952).
@@ -164,11 +163,14 @@
 - [b02c9d82381561f8 — DOW-UAP-D107, Mission Report, Middle East, 2025](https://pursueindex.com/card/b02c9d82381561f8): Department of War (2025).
 - [1f5dcf09c3bcc614 — DOW-UAP-D108, Mission Report, Middle East, 2025](https://pursueindex.com/card/1f5dcf09c3bcc614): Department of War (2025).
 - [c0bf728e03f3f8c2 — DOW-UAP-D109, Mission Report, Middle East, 2022](https://pursueindex.com/card/c0bf728e03f3f8c2): Department of War (2022).
+- [2d5ef2241949cd51 — DOW-UAP-D110, AAWSAP Statement of Objectives, July 2008](https://pursueindex.com/card/2d5ef2241949cd51): Department of War (7/18/08).
+- [419ad0ffefd1343c — DOW-UAP-D111, AAWSAP Solicitation and Original Order, September 2008](https://pursueindex.com/card/419ad0ffefd1343c): Department of War (9/22/08).
 - [568e636bceebb3e7 — DOW-UAP-D112, AAWSAP Contract Modification P00001, September 2009](https://pursueindex.com/card/568e636bceebb3e7): Department of War (9/2/09).
 - [3bccb95aaaf026b3 — DOW-UAP-D113, AAWSAP Contract Modification P00002, February 2010](https://pursueindex.com/card/3bccb95aaaf026b3): Department of War (2/2/10).
 - [c529da40cb35cf7f — DOW-UAP-D114, AAWSAP Contract Modification P00003, May 2010](https://pursueindex.com/card/c529da40cb35cf7f): Department of War (5/18/10).
 - [7f9ed9588e40c25f — DOW-UAP-D115, AAWSAP Contract Modification P00004, May 2010](https://pursueindex.com/card/7f9ed9588e40c25f): Department of War (5/18/10).
 - [be0a81d67c57548d — DOW-UAP-D116, AAWSAP Contract Modification P00005, September 2010](https://pursueindex.com/card/be0a81d67c57548d): Department of War (9/28/10).
+- [65bf775b2dfd9f61 — DOW-UAP-D117, AAWSAP DIRD, Metallic Glasses for Aerospace Applications, December 2009](https://pursueindex.com/card/65bf775b2dfd9f61): Department of War (12/14/09).
 - [4afde1c0cbccf94e — DOW-UAP-D118, AAWSAP DIRD, Aerospace Applications of Programmable Matter, December 2009](https://pursueindex.com/card/4afde1c0cbccf94e): Department of War (12/14/09).
 - [d6220a5956fb219b — DOW-UAP-D119, AAWSAP DIRD, Biomaterials, January 2010](https://pursueindex.com/card/d6220a5956fb219b): Department of War (1/7/10).
 - [5338a8eba1537603 — DOW-UAP-D120, AAWSAP DIRD, Materials for Advanced Aerospace Platforms, January 2010](https://pursueindex.com/card/5338a8eba1537603): Department of War (1/12/10).
@@ -180,6 +182,7 @@
 - [dfec531c907eaa8c — DOW-UAP-D126, AAWSAP DIRD, Advanced Nuclear Propulsion for Manned Deep Space Missions, March 2010](https://pursueindex.com/card/dfec531c907eaa8c): Department of War (3/11/10).
 - [aad2f416c0513745 — DOW-UAP-D127, AAWSAP DIRD, An Introduction to the Statistical Drake Equation, March 2010](https://pursueindex.com/card/aad2f416c0513745): Department of War (3/11/10).
 - [171b0f8c71e0ae7d — DOW-UAP-D128, AAWSAP DIRD, Anomalous Acute and Subacute Field Effects on Human Biological Tissues, March 2010](https://pursueindex.com/card/171b0f8c71e0ae7d): Department of War (3/11/10).
+- [b73a7101dc25e2ad — DOW-UAP-D129, AAWSAP DIRD, Metallic Spintronics, March 2010](https://pursueindex.com/card/b73a7101dc25e2ad): Department of War (3/23/10).
 - [c9a17def8cbea854 — DOW-UAP-D130, AAWSAP DIRD, Technological Approaches to Controlling External Devices, March 2010](https://pursueindex.com/card/c9a17def8cbea854): Department of War (3/23/10).
 - [28f551c3ef1a3d55 — DOW-UAP-D131, AAWSAP DIRD, The Role of Superconductors in Gravity Research, March 2010](https://pursueindex.com/card/28f551c3ef1a3d55): Department of War (3/23/10).
 - [1c87b710594da1f8 — DOW-UAP-D132, AAWSAP DIRD, Advanced Space Propulsion Based on Vacuum (Spacetime Metric) Engineering, March 2010](https://pursueindex.com/card/1c87b710594da1f8): Department of War (3/29/10).
@@ -204,6 +207,25 @@
 - [052b7e0358386432 — DOW-UAP-D151, AAWSAP DIRD, Cognitive Limits on Simultaneous Control of Multiple Unmanned Spacecraft, December 2010](https://pursueindex.com/card/052b7e0358386432): Department of War (12/15/10).
 - [aca09795e3f15ada — DOW-UAP-D152, AAWSAP DIRD, Negative Mass Propulsion, January 2011](https://pursueindex.com/card/aca09795e3f15ada): Department of War (1/3/11).
 - [aa5c76b65d29b476 — DOW-UAP-D153, AAWSAP DIRD, Quantum Tomography of Negative Energy States in the Vacuum, January 2011](https://pursueindex.com/card/aa5c76b65d29b476): Department of War (1/11/11).
+- [e7f5382c5349c6e8 — DOW-UAP-D154, Transcript of a Presentation by Captain Edward J. Ruppelt, 1952](https://pursueindex.com/card/e7f5382c5349c6e8): Department of War (3/26/52).
+- [338995394c698b33 — DOW-UAP-D156, Air Intelligence Information Report, Guam, 1956](https://pursueindex.com/card/338995394c698b33): Department of War (12/31/56).
+- [3d74932e77e7868e — DOW-UAP-D157, Air Intelligence Information Report, Italy, 1952](https://pursueindex.com/card/3d74932e77e7868e): Department of War (8/27/52).
+- [e5c4575f838f0175 — DOW-UAP-D158, Flying Object Report, Canada, 1953](https://pursueindex.com/card/e5c4575f838f0175): Department of War (11/13/53).
+- [2570557981d64cc7 — DOW-UAP-D159, Air Intelligence Information Report, Germany, 1953](https://pursueindex.com/card/2570557981d64cc7): Department of War (8/10/53).
+- [fc95f65e81965edf — DOW-UAP-D160, Air Intelligence Information Report, Morocco, 1953](https://pursueindex.com/card/fc95f65e81965edf): Department of War (12/16/53).
+- [f52425adaa32c4f2 — DOW-UAP-D161, Air Intelligence Information Report, Alaska, 1953](https://pursueindex.com/card/f52425adaa32c4f2): Department of War (10/6/53).
+- [d3cb04b8e4d55dc1 — DOW-UAP-D162, Air Intelligence Information Report, Alaska, 1953](https://pursueindex.com/card/d3cb04b8e4d55dc1): Department of War (12/1/53).
+- [81fe3a1b9cd4bf42 — DOW-UAP-D163, Air Intelligence Information Report, Sweden, 1953](https://pursueindex.com/card/81fe3a1b9cd4bf42): Department of War (12/17/53).
+- [6f5beb626837fa74 — DOW-UAP-D164, Flying Object Report, Indiana, 1953](https://pursueindex.com/card/6f5beb626837fa74): Department of War (12/1/53).
+- [9bd42e0157fe4697 — DOW-UAP-D166, MUFON Reports Prepared for BAASS, November 2008](https://pursueindex.com/card/9bd42e0157fe4697): Department of War (11/1/08).
+- [149f0e075ae4517d — DOW-UAP-D167, Project Capella, December 2008](https://pursueindex.com/card/149f0e075ae4517d): Department of War (12/10/08).
+- [b87355e7ab051114 — DOW-UAP-D168, BAASS Project Management Plan, December 2008](https://pursueindex.com/card/b87355e7ab051114): Department of War (12/2/08).
+- [85fd315af4b25993 — DOW-UAP-D169, BAASS Monthly Report, March 2009](https://pursueindex.com/card/85fd315af4b25993): Department of War (4/10/09).
+- [12a7f37083cf2b87 — DOW-UAP-D170, BAASS Monthly Report, April 2009](https://pursueindex.com/card/12a7f37083cf2b87): Department of War (4/1/09).
+- [6a7a525ada83a4d6 — DOW-UAP-D171, BAASS Monthly Report, June 2009](https://pursueindex.com/card/6a7a525ada83a4d6): Department of War (7/9/09).
+- [ffea128d68063d60 — DOW-UAP-D173, BAASS Monthly Report, November 2009](https://pursueindex.com/card/ffea128d68063d60): Department of War (11/1/09).
+- [82f2e60220d94740 — DOW-UAP-D175, BAASS Self-Assessment of UAP Analysis Capabilities, November 2010](https://pursueindex.com/card/82f2e60220d94740): Department of War (11/23/10).
+- [3acf9cf5047465bd — DOW-UAP-D180, Final Personnel Record for McCoy, Howard M., U.S. Air Force, 1954](https://pursueindex.com/card/3acf9cf5047465bd): Department of War (8/31/54).
 - [c1c59236394f7b14 — DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022](https://pursueindex.com/card/c1c59236394f7b14): Department of War (5/8/26).
 - [1b522e779e72877c — DOW-UAP-PR020, Unresolved UAP Report, Kuwait, May 2022](https://pursueindex.com/card/1b522e779e72877c): Department of War (5/8/26).
 - [43db2719407a7897 — DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022](https://pursueindex.com/card/43db2719407a7897): Department of War (5/8/26).
@@ -329,7 +351,10 @@
 - [07ba861acb370d16 — DOW-UAP-PR150, Unresolved UAP Report, Yellow Sea, 2023](https://pursueindex.com/card/07ba861acb370d16): Department of War (2023).
 - [7acc575e603e3e42 — DOW-UAP-PR151, Unresolved UAP Report, Yellow Sea, 2023](https://pursueindex.com/card/7acc575e603e3e42): Department of War (2023).
 - [f2a08ed7a261c1a2 — DOW-UAP-PR152, Unresolved UAP Report, Yellow Sea, 2023](https://pursueindex.com/card/f2a08ed7a261c1a2): Department of War (2023).
+- [2fde9a0c4dee513c — DOW-UAP-PR159, Historical Film of Reported UFOs, Utah, 1952](https://pursueindex.com/card/2fde9a0c4dee513c): Department of War (7/2/52).
+- [208d494dece9b545 — DOW-UAP-PR160, Presentation by Captain Edward J. Ruppelt, 1952](https://pursueindex.com/card/208d494dece9b545): Department of War (3/26/52).
 - [ea1e7c4a981bdd8b — EOP-UAP-D001, NASC Inquiry into Bahia, Brazil Incident, November 13, 1963](https://pursueindex.com/card/ea1e7c4a981bdd8b): Executive Office of the President (11/13/63).
+- [38e700c6f51082f0 — EOP-UAP-D002, Memorandum on Interagency Coordination for the Recovery of Foreign Materiel, May 1963](https://pursueindex.com/card/38e700c6f51082f0): Executive Office of the President (5/29/63).
 - [3893e5d0279db3b1 — FBI Photo A001](https://pursueindex.com/card/3893e5d0279db3b1): FBI (Late 2025).
 - [ba30b5fdb4f6d153 — FBI Photo A002](https://pursueindex.com/card/ba30b5fdb4f6d153): FBI (Late 2025).
 - [93cbdaad1d4ac853 — FBI Photo A003](https://pursueindex.com/card/93cbdaad1d4ac853): FBI (Late 2025).
@@ -418,6 +443,8 @@
 - [247e6e1bd6da7377 — LLE-UAP-D002, Transcript of an Unresolved UAP Report, Colorado, October 2023](https://pursueindex.com/card/247e6e1bd6da7377): Local Law Enforcement (October, 2023).
 - [31656bd3e7de783d — LLE-UAP-D003, Transcript of an Unresolved UAP Report, Colorado, October 2023](https://pursueindex.com/card/31656bd3e7de783d): Local Law Enforcement (October, 2023).
 - [b1d24cb7f46cfa20 — LLE-UAP-D004, Transcript of an Unresolved UAP Report, Colorado, January 2024](https://pursueindex.com/card/b1d24cb7f46cfa20): Local Law Enforcement (January, 2024).
+- [1b33dafd36c74c06 — LLE-UAP-PR001, Unresolved UAP Report, Colorado, 2023](https://pursueindex.com/card/1b33dafd36c74c06): Local Law Enforcement (October, 2023).
+- [78236aa834b34246 — LLE-UAP-PR002, Unresolved UAP Report, Colorado, October 2023](https://pursueindex.com/card/78236aa834b34246): Local Law Enforcement (October, 2023).
 - [f55d5c010b11b301 — LLE-UAP-PR003, Unresolved UAP Report, Colorado, October 2023](https://pursueindex.com/card/f55d5c010b11b301): Local Law Enforcement (October, 2023).
 - [cb8be77a22e07f9b — LLE-UAP-PR004, Unresolved UAP Report, Colorado, January 2024](https://pursueindex.com/card/cb8be77a22e07f9b): Local Law Enforcement (October, 2023).
 - [5d9d3147f0b62d0c — NASA-UAP-D001, Apollo 12 Transcript, 1969](https://pursueindex.com/card/5d9d3147f0b62d0c): NASA (1969).
@@ -466,6 +493,7 @@
 - [5847028ebb855cf8 — State Department UAP Cable 004, Ashgabat, Turkmenistan, November 5, 2004](https://pursueindex.com/card/5847028ebb855cf8): Department of State (11/5/04).
 - [c48c078b811c0fd7 — State Department UAP Cable 005, Mexico, September 16, 2003](https://pursueindex.com/card/c48c078b811c0fd7): Department of State (9/12/03).
 - [7c0e38a8a433ebaa — USG-UAP-D001, Congressional, White House, UFO-related Constituent Correspondence, 1998](https://pursueindex.com/card/7c0e38a8a433ebaa): U.S. Government (1998).
+- [21c9fa9b9a543068 — USG-UAP-D002, Interagency Correspondence Concerning Space Fragments, 1962-1964](https://pursueindex.com/card/21c9fa9b9a543068): U.S. Government (1962-1964).
 - [be533a4ab886eb11 — USPER Statement about UAP Sighting](https://pursueindex.com/card/be533a4ab886eb11): FBI (Late 2025).
 - [8d0b85ce46109d06 — Western US Event](https://pursueindex.com/card/8d0b85ce46109d06): Department of War (2023).
 
