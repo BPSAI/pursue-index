@@ -46,7 +46,7 @@ fi
 # compromised future releases. Maintained by the paircoder release/upgrade
 # payload -- do not hand-edit; `bpsai-pair upgrade` overwrites this value
 # from the current payload template.
-PINNED_VERSION="2.49.8"
+PINNED_VERSION="2.49.9"
 
 # Core runtime deps — the minimum set CLI startup needs to import without
 # crashing. `bpsai_pair.commands.__init__` imports every subcommand module
