@@ -39,16 +39,24 @@ ALTERNATIVES are listed.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import csv
 import json
-import sys
 from collections import defaultdict
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 DEFAULT_CSV_DIR = _REPO_ROOT / "data" / "raw" / "csv"
 DEFAULT_SHA_FILE = _REPO_ROOT / "data" / "last-known-csv-sha.txt"
 DEFAULT_OUTPUT = _REPO_ROOT / "data" / "card_alt_titles.json"
@@ -56,8 +64,7 @@ DEFAULT_OUTPUT = _REPO_ROOT / "data" / "card_alt_titles.json"
 # Import the pipeline's stable_card_id so we collapse exactly like the
 # main parser does. Local-only import keeps the script's dependency
 # surface minimal.
-sys.path.insert(0, str(_REPO_ROOT / "src"))
-from pursue_index.scrape.normalize import (  # noqa: E402
+from pursue_index.scrape.normalize import (
     clean_str,
     clean_title,
     stable_card_id,
@@ -138,7 +145,7 @@ def main(argv: list[str] | None = None) -> int:
     alts = build_alts(rows)
 
     payload = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "source_csv_sha": sha,
         "alts": alts,
     }

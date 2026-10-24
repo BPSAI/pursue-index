@@ -14,17 +14,24 @@ Usage::
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pursue_index.clean.qc.coverage import build_coverage  # noqa: E402
-from pursue_index.embed.image_observations import observation_text_for  # noqa: E402
-from pursue_index.release.chunked_asset import read_asset_json  # noqa: E402
+import argparse
+import json
+
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
+
+from pursue_index.clean.qc.coverage import build_coverage
+from pursue_index.embed.image_observations import observation_text_for
+from pursue_index.release.chunked_asset import read_asset_json
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.json"

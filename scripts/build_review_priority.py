@@ -15,17 +15,24 @@ Defaults: every PDF card in the latest manifest; full output (no limit).
 
 from __future__ import annotations
 
-import argparse
-import datetime as dt
-import json
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_REPO_ROOT / "src"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pursue_index.clean.qc.priority import score_page  # noqa: E402
-from pursue_index.config import settings  # noqa: E402
+import argparse
+import datetime as dt
+import json
+
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
+
+from pursue_index.clean.qc.priority import score_page
+from pursue_index.config import settings
 
 # Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
 DEFAULT_OCR_DIR = settings.ocr_dir

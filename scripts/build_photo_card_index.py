@@ -33,16 +33,23 @@ Usage::
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pursue_index.config import settings  # noqa: E402
+import argparse
+import json
+from datetime import UTC, datetime
+
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
+
+from pursue_index.config import settings
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 # Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
@@ -62,9 +69,7 @@ def is_photo_pdf(card: dict, page_count: int, page_text: str) -> bool:
         return False
     if page_count != 1:
         return False
-    if len(page_text.strip()) >= TEXT_CHAR_THRESHOLD:
-        return False
-    return True
+    return len(page_text.strip()) < TEXT_CHAR_THRESHOLD
 
 
 def _read_first_page_text(pages_jsonl: Path) -> str:

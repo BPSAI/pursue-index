@@ -14,14 +14,21 @@ Run::
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _ocr_metrics import (  # noqa: E402
+import json
+
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
+
+from _ocr_metrics import (
     cer,
     compute_metrics,
     find_worst_tesseract,
@@ -144,7 +151,9 @@ def render_per_card(results: list[dict]) -> str:
 
 
 def render_worst_failure(card, tess, sur, lm) -> str:
-    fail_text = lambda r: r["text"].strip()[:1200].replace("\n", "\n> ")  # noqa: E731
+    def fail_text(r):
+        return r["text"].strip()[:1200].replace("\n", "\n> ")
+
     page_cer = cer(tess['text'], lm['text']) * 100
     page_wer = wer(tess['text'], lm['text']) * 100
     # Levenshtein/len(truth) can exceed 100% when the hypothesis is far longer

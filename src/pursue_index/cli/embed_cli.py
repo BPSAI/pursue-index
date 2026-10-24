@@ -18,8 +18,13 @@ from typing import Any
 import typer
 from rich.console import Console
 
-from pursue_index.cli.worklist import worklist_card_ids
+from pursue_index.cli.worklist import (
+    WorklistTrancheError,
+    exit_on_tranche_error,
+    worklist_card_ids,
+)
 from pursue_index.config import settings
+from pursue_index.scrape import load_manifest
 
 embed_app = typer.Typer(name="embed", help="Embed OCR pages into a vector index.")
 console = Console()
@@ -115,6 +120,18 @@ def _print_summary(summary: Any) -> None:
     )
 
 
+def _resolve_only_cards(manifest: Path, worklist: Path | None) -> set[str] | None:
+    """``worklist_card_ids``, validated against ``manifest``'s tranche when a
+    worklist is given; exits 1 (naming both shas) on a stale/unlabeled one."""
+    if worklist is None:
+        return None
+    promoted_sha = load_manifest(manifest).csv_sha256
+    try:
+        return worklist_card_ids(worklist, promoted_sha=promoted_sha)
+    except WorklistTrancheError as exc:
+        exit_on_tranche_error(exc)
+
+
 @embed_app.command("run")
 def embed_run_cmd(
     manifest: Path = _OPT_MANIFEST,
@@ -129,12 +146,15 @@ def embed_run_cmd(
 ) -> None:
     """Embed every OCR'd page that doesn't already have a current vector.
 
-    ``--manifest`` is accepted for pipeline compatibility but no longer read:
-    the retired alex-zhang42 augment join was the only consumer of it.
+    ``--manifest`` is accepted for pipeline compatibility and, when
+    ``--worklist`` is also given, read for its ``csv_sha256`` to validate the
+    worklist's tranche header — otherwise it is not read: the retired
+    alex-zhang42 augment join was the only other consumer of it.
     """
     from pursue_index.embed import pipeline as embed_pipeline  # lazy
 
     settings.ensure_dirs()
+    only_cards = _resolve_only_cards(manifest, worklist)
     embedder = _make_embedder(
         provider or settings.embed_provider, model or settings.embed_model
     )
@@ -147,7 +167,7 @@ def embed_run_cmd(
         limit=limit,
         cost_cap_usd=cost_cap_usd,
         usd_per_million_tokens=usd_per_million_tokens,
-        only_cards=worklist_card_ids(worklist),
+        only_cards=only_cards,
         obs_lookup=obs_lookup,
     )
     _print_summary(summary)

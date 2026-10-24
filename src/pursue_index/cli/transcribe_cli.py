@@ -31,6 +31,7 @@ import typer
 from rich.console import Console
 
 from pursue_index.config import settings
+from pursue_index.paths import repo_root
 from pursue_index.scrape import load_manifest
 from pursue_index.transcribe import _wire, client, probe
 from pursue_index.transcribe.anchors import citation_anchors
@@ -43,8 +44,6 @@ from pursue_index.transcribe.run import (
     preflight_coverage,
     run_transcribe,
 )
-
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 transcribe_app = typer.Typer(
     name="transcribe", help="Diarized transcription for AUD content (AUD only)."
@@ -218,7 +217,7 @@ def transcribe_repage(
     ``--force`` is given.
     """
     out_dir = out or settings.ocr_dir
-    anchors = [] if force else citation_anchors(card, _REPO_ROOT)
+    anchors = [] if force else citation_anchors(card, repo_root())
     if anchors:
         console.print(f"[red]refusing to re-page {card}: its page numbers are already cited[/red]")
         for anchor in anchors:

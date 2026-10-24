@@ -15,15 +15,22 @@ Run from project root::
 
 from __future__ import annotations
 
-import json
-import os
 import sys
-import time
-from datetime import UTC, datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import json
+import os
+import time
+from datetime import UTC, datetime
+
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 
 if "ANTHROPIC_API_KEY" not in os.environ:
     sys.exit(
@@ -37,14 +44,14 @@ if "ANTHROPIC_API_KEY" not in os.environ:
 # pydantic-settings env load picks it up.
 os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 
-from pdf2image import convert_from_path  # noqa: E402
+from pdf2image import convert_from_path
 
-from pursue_index.config import settings  # noqa: E402
-from pursue_index.download.downloader import asset_path_for  # noqa: E402
-from pursue_index.ocr import llm as ocr_llm  # noqa: E402
-from pursue_index.ocr import pipeline as ocr_pipeline  # noqa: E402
-from pursue_index.ocr import surya as ocr_surya  # noqa: E402
-from pursue_index.scrape import load_manifest  # noqa: E402
+from pursue_index.config import settings
+from pursue_index.download.downloader import asset_path_for
+from pursue_index.ocr import llm as ocr_llm
+from pursue_index.ocr import pipeline as ocr_pipeline
+from pursue_index.ocr import surya as ocr_surya
+from pursue_index.scrape import load_manifest
 
 GOLDEN_FILE = REPO_ROOT / "tests" / "fixtures" / "ocr_golden.txt"
 MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"

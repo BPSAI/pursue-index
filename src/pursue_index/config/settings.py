@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, HttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from pursue_index.config.project_root import resolve_relative_data_root
 
 
 class Settings(BaseSettings):
@@ -92,25 +90,24 @@ class Settings(BaseSettings):
     @field_validator("data_root", mode="after")
     @classmethod
     def resolve_data_root(cls, v: Path) -> Path:
-        """Resolve a relative data_root to the checkout it belongs to.
-
-        A relative data_root (the default) resolves against the source
-        checkout ``pursue_index`` was imported from, so `pursue clean run`
-        works identically from any subdirectory. The checkout is located
-        by the project sentinel beside the package rather than by counting
-        parent directories, so an installed package — which has no
-        checkout — resolves against the working directory instead of
-        landing beside the installed package files. See
-        :mod:`pursue_index.config.project_root`.
+        """Resolve a relative data_root against the checkout this process is
+        running in, so `pursue clean run` works identically from any
+        subdirectory AND from a second worktree or fixture repo. See
+        :func:`pursue_index.paths.repo_root`.
         """
         if v.is_absolute():
             return v
-        import pursue_index
-        return resolve_relative_data_root(
-            v, package_dir=Path(pursue_index.__file__).parent, cwd=Path.cwd()
-        )
+        from pursue_index.paths import repo_root
+        return repo_root() / v
 
     # ---- Derived paths ----
+    @property
+    def repo_root(self) -> Path:
+        """The checkout this process is reading and writing `data/`
+        against. See :func:`pursue_index.paths.repo_root`."""
+        from pursue_index.paths import repo_root as _resolve_repo_root
+        return _resolve_repo_root()
+
     @property
     def pdf_dir(self) -> Path:
         return self.data_root / "pdfs"
@@ -161,4 +158,26 @@ class Settings(BaseSettings):
             d.mkdir(parents=True, exist_ok=True)
 
 
-settings = Settings()
+class _LazySettings:
+    """Builds ``Settings`` on first use, so importing the package never
+    resolves the repo root; an untrusted root then surfaces as a one-line
+    error from the command that needs it."""
+
+    def _real(self) -> Settings:
+        real: Settings | None = self.__dict__.get("_settings")
+        if real is None:
+            real = Settings()
+            self.__dict__["_settings"] = real
+        return real
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._real(), name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        setattr(self._real(), name, value)
+
+    def __delattr__(self, name: str) -> None:
+        delattr(self._real(), name)
+
+
+settings: Settings = _LazySettings()  # type: ignore[assignment]

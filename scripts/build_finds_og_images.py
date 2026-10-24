@@ -20,15 +20,22 @@ Usage::
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pursue_index.web.finds_og import (  # noqa: E402
+import argparse
+import json
+
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
+
+from pursue_index.web.finds_og import (
     FindsOgContext,
     parse_finds_frontmatter,
     render_finds_og_image,

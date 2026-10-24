@@ -27,22 +27,28 @@ Then run ``scripts/registry_root.py`` to refresh the Merkle root and
 
 from __future__ import annotations
 
-import argparse
 import sys
-import urllib.request
 from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import urllib.request
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 # Helpers live in a sibling module to keep this file under arch-check limits.
-sys.path.insert(0, str(_REPO_ROOT / "scripts"))
-from _ingest_tranche2_helpers import (  # noqa: E402
+from _ingest_tranche2_helpers import (
     already_archived_card_ids,
     already_current_pointer_card_ids,
     append_registry,
     build_registry_entry,
-    ensure_src_on_path,
     make_r2_client,
     push_to_r2,
     r2_head_size,
@@ -50,7 +56,7 @@ from _ingest_tranche2_helpers import (  # noqa: E402
     sha256_file,
     stage_to_nas,
 )
-from _video_ingest_core import (  # noqa: E402
+from _video_ingest_core import (
     DVIDS_ASSET_TYPES,
     is_valid_card_id,
     is_valid_dvids_id,
@@ -58,16 +64,13 @@ from _video_ingest_core import (  # noqa: E402
     match_cards_to_files,
     select_av_cards,
 )
-
-ensure_src_on_path(_REPO_ROOT)
-from build_video_posters import (  # noqa: E402
+from build_video_posters import (
     USER_AGENT,
-    extract_dod_filename,
     scrape_dod_filename,
 )
 
-from pursue_index.config import settings  # noqa: E402
-from pursue_index.scrape.manifest import load_manifest  # noqa: E402
+from pursue_index.config import settings
+from pursue_index.scrape.manifest import load_manifest
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"

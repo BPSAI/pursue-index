@@ -23,24 +23,31 @@ atlas plots exactly the rows the chat payload publishes: one per
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
 import os
 import struct
-import sys
-from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+from pursue_index.paths import repo_root
 
-from pursue_index.embed.publish import (  # noqa: E402
+REPO_ROOT = repo_root()
+
+from pursue_index.embed.publish import (
     load_embed_eligible_keys,
     select_publish_rows,
 )
-from pursue_index.release.chunked_asset import (  # noqa: E402
+from pursue_index.release.chunked_asset import (
     asset_exists,
     read_asset_bytes,
     read_asset_json,

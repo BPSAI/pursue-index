@@ -31,19 +31,22 @@ available; ``PURSUE_DATA_ROOT`` pointing at the data root that holds
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
-import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-_SCRIPTS_DIR = _REPO_ROOT / "scripts"
-_SRC_DIR = _REPO_ROOT / "src"
-for _p in (_SCRIPTS_DIR, _SRC_DIR):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 try:
     from dotenv import load_dotenv  # type: ignore[import-not-found]
@@ -51,15 +54,13 @@ try:
 except ImportError:
     pass
 
-from _reocr_helpers import (  # noqa: E402, I001
+from _reocr_helpers import (
     CostCapExceededError,
     UsageTracker,
     append_jsonl,
     estimate_cost_usd,
-    resume_from_page,
     truncate_jsonl_to_valid_prefix,
 )
-
 
 DEFAULT_BYTE_HISTORY = _REPO_ROOT / "web" / "src" / "data" / "byte-history.json"
 DEFAULT_OUT_DIR = _REPO_ROOT / "data" / "altered-ocr-pre"

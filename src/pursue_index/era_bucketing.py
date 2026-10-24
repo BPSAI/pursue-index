@@ -45,6 +45,7 @@ from pursue_index.era_models import (
     era_for_year,
     era_rationale,
 )
+from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 
 __all__ = [
@@ -301,7 +302,7 @@ def main() -> int:
     The catalogue is read through the shared loader, so this artifact rests on
     exactly the rows the coverage report and the identifier resolver rest on.
     """
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = _resolve_repo_root()
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
     catalogue = load_catalogue(repo_root)
     result = bucket(manifest, catalogue.entries)

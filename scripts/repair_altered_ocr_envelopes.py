@@ -26,13 +26,21 @@ Idempotent: re-running on already-cleaned data is a no-op.
 
 from __future__ import annotations
 
-import argparse
-import json
-import re
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import json
+import re
+
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 DEFAULT_OCR_DIR = _REPO_ROOT / "data" / "altered-ocr"
 
 # Matches the canonical envelope patterns we've observed in the

@@ -30,7 +30,11 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from pursue_index.cli.worklist import worklist_card_ids
+from pursue_index.cli.worklist import (
+    WorklistTrancheError,
+    exit_on_tranche_error,
+    worklist_card_ids,
+)
 from pursue_index.config import settings
 from pursue_index.config.project_root import resolve_relative_data_root
 from pursue_index.scrape import load_manifest
@@ -181,7 +185,10 @@ def vision_run(
         raise typer.Exit(code=2)
 
     m = load_manifest(manifest)
-    ids = worklist_card_ids(worklist)
+    try:
+        ids = worklist_card_ids(worklist, promoted_sha=m.csv_sha256)
+    except WorklistTrancheError as exc:
+        exit_on_tranche_error(exc)
     items = select_eligible(m, ids, settings.ocr_dir)
     out = out or default_observations_dir()
 

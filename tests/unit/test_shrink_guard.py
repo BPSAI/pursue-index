@@ -152,6 +152,30 @@ def test_enforce_blank_reason_is_not_an_exception(tmp_path: Path) -> None:
     assert not log.exists()
 
 
+def test_no_unchecked_alias_path_remains() -> None:
+    """Only ``alias_exemption`` may excuse a removed id: the old helpers
+    honoured any alias row with no method or approval check."""
+    import pursue_index.release.shrink_guard as guard
+
+    assert not hasattr(guard, "load_alias_map")
+    assert not hasattr(guard, "resolve_renames")
+
+
+def test_enforce_prints_renamed_line_on_clean_exit(tmp_path: Path, capsys) -> None:
+    log = tmp_path / "audit-log.jsonl"
+    rc = enforce("x.py", [], [], allow_reason=None, audit_log=log, renamed=["a -> c"])
+    assert rc == 0
+    assert capsys.readouterr().out.strip() == "renamed: a -> c"
+    assert not log.exists()
+
+
+def test_enforce_without_renamed_prints_nothing_extra(tmp_path: Path, capsys) -> None:
+    log = tmp_path / "audit-log.jsonl"
+    rc = enforce("x.py", [], [], allow_reason=None, audit_log=log)
+    assert rc == 0
+    assert capsys.readouterr().out == ""
+
+
 def test_committed_ids_read_chunked_payloads(tmp_path: Path) -> None:
     from pursue_index.release.chunked_asset import write_asset
 

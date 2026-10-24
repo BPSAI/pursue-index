@@ -44,7 +44,7 @@ def _repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     (root / "web/public/data").mkdir(parents=True)
     (root / "web/src/content/finds").mkdir(parents=True)
     (root / "web/public/data/pages.json").write_text("[]", encoding="utf-8")
-    monkeypatch.setattr(transcribe_cli, "_REPO_ROOT", root)
+    monkeypatch.setattr(transcribe_cli, "repo_root", lambda: root)
     return root
 
 
