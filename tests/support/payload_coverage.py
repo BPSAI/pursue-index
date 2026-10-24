@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from pursue_index.release.chunked_asset import manifest_path, read_asset_bytes, read_asset_json
+from pursue_index.release.chunked_asset import read_asset_json
 
 Key = Hashable
 Loader = Callable[[str], Any]
@@ -70,21 +70,6 @@ class CoverageResult:
     @property
     def ok(self) -> bool:
         return not self.missing and not self.extra
-
-
-def asset_is_present(path: Path) -> bool:
-    """True when ``path`` ships whole, or as a complete verified chunk set.
-
-    A chunked asset is read through the shared reader, so a missing part or
-    a size/sha mismatch counts as absent rather than being trusted.
-    """
-    if manifest_path(path).is_file():
-        try:
-            read_asset_bytes(path)
-        except (OSError, ValueError, KeyError, TypeError):
-            return False
-        return True
-    return path.is_file()
 
 
 def json_loader(root: Path) -> Loader:
