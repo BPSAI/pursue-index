@@ -138,7 +138,7 @@ def _run_gh(args: list[str]) -> tuple[int, str, str]:
 _GhRunner = Callable[[list[str]], tuple[int, str, str]]
 
 
-class GhCommandFailed(RuntimeError):
+class GhCommandFailedError(RuntimeError):
     """``gh`` returned a non-zero exit code.
 
     Distinct from ``FileNotFoundError`` so ``main()`` can surface a
@@ -182,7 +182,7 @@ def _list_open_tranche_issues(run_gh: _GhRunner) -> list[dict]:
         # lines could echo back bearer-token fragments on auth
         # failure, and bounds annotation-log blowup under a
         # rate-limit storm.
-        raise GhCommandFailed(
+        raise GhCommandFailedError(
             f"rc={rc}: {truncate_error(err.strip()) if err.strip() else '(no stderr)'}"
         )
     if not out.strip():
@@ -310,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
     except FileNotFoundError:
         print("::warning::gh CLI not available; skipping auto-close")
         return 0
-    except GhCommandFailed as exc:
+    except GhCommandFailedError as exc:
         # Distinguish a real gh failure (auth, rate limit, transient
         # API blip) from a legitimate no-match. Surface as a warning
         # so the operator can investigate; never fail the workflow.
