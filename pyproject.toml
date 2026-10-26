@@ -28,6 +28,9 @@ dependencies = [
     # confirming the patched series.
     "pillow>=11.1.0",
     "pypdfium2>=4.30",
+    # Page counter for the poll lane's tranche estimate (also pinned in
+    # requirements-poll.in, the hash-locked poll install).
+    "pypdf>=5.0",
     # Index / DB
     "sqlalchemy>=2.0",
     "alembic>=1.13",

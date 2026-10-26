@@ -9,7 +9,11 @@ touching any spend credential.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+
+from pursue_index.release import rates
+from pursue_index.release.estimate_text import estimate_lines, renderable_ids
 
 # --- operated OCR methodology (single source of truth for the gate) ---
 OCR_ENGINE_OF_RECORD = "llm-dots"  # Sonnet 4.6 per page + local dots on a content-filter 400
@@ -32,10 +36,6 @@ OPERATED_STAGE_SEQUENCE = (
     "ship-ready",
 )
 
-# order-of-magnitude per-page costs for the estimate (honest, not billing-exact)
-_OCR_USD_PER_PAGE = 0.012      # Sonnet 4.6 vision OCR, avg page
-_EMBED_USD_PER_PAGE = 0.00004  # voyage-3
-_AVG_PAGES_PER_CARD = 20       # heuristic when only card counts are known (pre-download)
 
 
 @dataclass
@@ -72,10 +72,14 @@ def preflight_ocr(
 
 
 def estimate_cost_usd(*, cards: int | None = None, pages: int | None = None) -> float:
-    """Rough OCR+embed $ estimate. Prefer ``pages``; fall back to a per-card heuristic."""
+    """Low-rate $ estimate across every spend stage, priced by ``rates``.
+
+    Prefer ``pages``; otherwise ``cards`` are priced with the per-card
+    fallback (``rates.AVG_PAGES_PER_CARD`` pages each).
+    """
     if pages is None:
-        pages = (cards or 0) * _AVG_PAGES_PER_CARD
-    return round(pages * (_OCR_USD_PER_PAGE + _EMBED_USD_PER_PAGE), 2)
+        pages = (cards or 0) * rates.AVG_PAGES_PER_CARD
+    return round(rates.cost_band(pages).low, 2)
 
 
 _WORKLIST_PREVIEW_CAP = 15  # cap the inline card-id list so a big tranche stays readable
@@ -85,7 +89,8 @@ def _worklist_lines(scoped_ids: list[str] | None) -> list[str]:
     """A capped, credential-free preview of the scoped card_ids (the worklist)."""
     if not scoped_ids:
         return []
-    shown = scoped_ids[:_WORKLIST_PREVIEW_CAP]
+    named = renderable_ids(scoped_ids)
+    shown = named[:_WORKLIST_PREVIEW_CAP]
     out = ["", "<details><summary>scoped card_ids</summary>", ""]
     out += [f"* `{cid}`" for cid in shown]
     remainder = len(scoped_ids) - len(shown)
@@ -93,6 +98,45 @@ def _worklist_lines(scoped_ids: list[str] | None) -> list[str]:
         out.append(f"* … and {remainder} more")
     out.append("</details>")
     return out
+
+
+def _with_uncounted(
+    n: int,
+    scoped_ids: list[str] | None,
+    page_counts: Mapping[str, int],
+    fallback_card_ids: Sequence[str],
+    av_card_ids: Sequence[str] = (),
+) -> list[str]:
+    out = list(fallback_card_ids)
+    known = set(page_counts) | set(out) | set(av_card_ids)
+    if scoped_ids:
+        return out + [c for c in dict.fromkeys(scoped_ids) if c not in known]
+    return out + [""] * max(0, n - len(known))
+
+
+def _estimate(
+    n: int,
+    scoped_ids: list[str] | None,
+    page_counts: Mapping[str, int] | None,
+    fallback_card_ids: Sequence[str],
+    judge: rates.JudgeRate | None,
+    av_card_ids: Sequence[str] = (),
+) -> list[str]:
+    """The per-page band; any scoped card with no count falls back to the guess.
+
+    The poll fetches only PDFs, but ``ingest`` OCRs every PDF/IMG card, so a
+    scoped card that is neither counted nor already a fallback is priced as one.
+    """
+    if page_counts is None:
+        fallback_card_ids = list(scoped_ids or []) or [""] * n
+        page_counts = {}
+    else:
+        fallback_card_ids = _with_uncounted(
+            n, scoped_ids, page_counts, fallback_card_ids, av_card_ids
+        )
+    return estimate_lines(
+        pages=sum(page_counts.values()), fallback_card_ids=fallback_card_ids, judge=judge
+    )
 
 
 def build_tranche_ready_summary(
@@ -105,14 +149,22 @@ def build_tranche_ready_summary(
     new_columns: int,
     scoped_count: int,
     scoped_ids: list[str] | None = None,
+    page_counts: Mapping[str, int] | None = None,
+    fallback_card_ids: Sequence[str] = (),
+    judge: rates.JudgeRate | None = None,
+    av_card_ids: Sequence[str] = (),
 ) -> str:
     """Markdown the poll alert appends so the operator sees WHAT to run.
 
-    Credential-free (no page counts pre-download, so the cost is a per-card
-    estimate; ``scoped_count`` is the new-card upper bound, exact OCR scope
-    comes from the ``--from-diff --dry-run`` preview). When ``scoped_ids`` is
+    Credential-free. ``page_counts`` (card_id -> pages, from the poll's PDF
+    fetch) and ``fallback_card_ids`` (cards whose fetch failed) price the
+    tranche per page with the judge figure labeled by ``judge``; without
+    ``page_counts`` every scoped card falls back to the per-card guess and the
+    figure is marked partial. ``scoped_count`` is the new-card upper bound,
+    exact OCR scope comes from the ``--from-diff --dry-run`` preview. When ``scoped_ids`` is
     given, a capped preview of the actual card_ids (the work-list) is folded in
-    so the operator sees which cards, not only how many. Includes a copy-paste
+    so the operator sees which cards, not only how many. ``av_card_ids`` (VID/AUD
+    cards, which ``ingest`` fetches but never OCRs) are never priced as OCR pages. Includes a copy-paste
     ``/ship-tranche <sha>`` block.
     """
     n = scoped_count
@@ -126,7 +178,7 @@ def build_tranche_ready_summary(
     if n == 0:
         lines.append("_(metadata-only tranche — no cards to OCR/embed; promote-only)_")
     else:
-        lines.append(f"**Est. OCR+embed cost:** ~${estimate_cost_usd(cards=n):.2f} (rough)")
+        lines += _estimate(n, scoped_ids, page_counts, fallback_card_ids, judge, av_card_ids)
         lines += _worklist_lines(scoped_ids)
     lines += [
         "",

@@ -159,3 +159,37 @@ def test_run_vision_is_idempotent_skips_already_produced(tmp_path: Path) -> None
     run_vision(items, tmp_path, examine_fn=counting_examine, load_image_fn=_fake_load)
     run_vision(items, tmp_path, examine_fn=counting_examine, load_image_fn=_fake_load)
     assert sum(calls) == 1  # second run skipped the already-produced page
+
+
+def test_run_vision_with_budget_covers_every_item_when_budget_suffices(
+    tmp_path: Path,
+) -> None:
+    items = [_item("imgA", 1), _item("imgB", 1), _item("imgC", 1)]
+    report = run_vision(
+        items, tmp_path, examine_fn=_fake_examine, load_image_fn=_fake_load,
+        budget_usd=1.0,
+    )
+    assert report.ok
+    assert not report.missing
+    assert {p.name for p in tmp_path.glob("*.json") if p.name != "index.json"} == {
+        "imgA.json", "imgB.json", "imgC.json",
+    }
+
+
+def test_run_vision_with_budget_stops_before_exceeding_it(tmp_path: Path) -> None:
+    items = [_item("imgA", 1), _item("imgB", 1), _item("imgC", 1)]
+    calls: list[str] = []
+
+    def counting_examine(_img: object) -> dict:
+        calls.append("x")
+        return _fake_examine(_img)
+
+    report = run_vision(
+        items, tmp_path, examine_fn=counting_examine, load_image_fn=_fake_load,
+        budget_usd=0.05, cost_per_item_usd=0.02, worst_case_item_usd=0.02,
+    )
+    # Only the items affordable under the cap were examined; the rest are
+    # left outstanding rather than risking a call that would exceed it.
+    assert len(calls) == 2
+    assert not report.ok
+    assert report.missing == [("imgC", "", 1)]

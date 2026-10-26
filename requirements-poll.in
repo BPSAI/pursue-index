@@ -10,3 +10,6 @@ curl_cffi>=0.7
 pydantic>=2.0
 structlog>=24.0
 pydantic-settings>=2.0
+# Page counter for the tranche estimate (scrape/pdf_pages.py): pure Python,
+# no binary wheel, no transitive deps on 3.12.
+pypdf>=5.0

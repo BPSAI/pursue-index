@@ -96,8 +96,13 @@ def record_approval(
     note: str,
     diff_summary: dict[str, int],
     renames_approved: list[dict[str, Any]],
+    cost_estimate: dict[str, Any] | None = None,
 ) -> None:
-    """Append one approval row to the append-only log."""
+    """Append one approval row to the append-only log.
+
+    ``cost_estimate`` (the per-page band the operator approved against, with
+    its judge label) is recorded when given.
+    """
     row = {
         "tranche_sha256": tranche_sha,
         "approved_at": _now_iso(),
@@ -106,6 +111,8 @@ def record_approval(
         "diff_summary": diff_summary,
         "renames_approved": renames_approved,
     }
+    if cost_estimate is not None:
+        row["cost_estimate"] = cost_estimate
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("a") as fh:
         fh.write(json.dumps(row) + "\n")

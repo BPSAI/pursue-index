@@ -10,6 +10,7 @@ without touching this module.
 from __future__ import annotations
 
 import json
+import resource
 from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -102,6 +103,24 @@ def run_llm_dots_fallback(
     if fallback_pages:
         log.info("ocr.llm_dots.done", pages=page_count, dots_fallback=fallback_pages)
     return page_count, None
+
+
+def peak_rss_mb() -> float:
+    """Peak resident set size of this process so far, in MB.
+
+    Linux reports ``ru_maxrss`` in KiB (macOS reports bytes, but the OCR
+    workers are only ever operated on Linux).
+    """
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+
+
+def done_all_summary(pdf_cards: int, engine: str, peak_rss_mb: float) -> dict[str, object]:
+    """Build the kwargs for the final ``ocr.done_all`` summary log line."""
+    return {
+        "pdf_cards": pdf_cards,
+        "engine": engine,
+        "peak_rss_mb": round(peak_rss_mb, 1),
+    }
 
 
 def run_auto_engine(

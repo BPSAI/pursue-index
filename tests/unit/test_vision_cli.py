@@ -4,8 +4,9 @@ Default run is the *verify-before-spend preflight*: it selects eligible items,
 diffs against produced sidecars, and exits non-zero on a coverage shortfall —
 no API calls. Live work is reached only by naming it: ``--live-smoke <card_id>``
 for a single card, ``--run`` for the operator-attended bulk pass over a
-worklist. Both are exercised here with the client/render seams monkeypatched so
-the suite (and CI) never spends.
+worklist, ``--live --budget-usd`` for the unattended pass bounded by a dollar
+cap. All three are exercised here with the client/render seams monkeypatched
+so the suite (and CI) never spends.
 """
 
 from __future__ import annotations
@@ -224,3 +225,133 @@ def test_run_and_live_smoke_together_are_refused(tmp_path: Path, monkeypatch) ->
     )
     assert result.exit_code == 2
     assert not out.exists() or list(out.glob("*.json")) == []
+
+
+def test_live_and_run_together_are_refused(tmp_path: Path, monkeypatch) -> None:
+    """``--live`` is its own live path; naming it with ``--run`` is ambiguous."""
+    _patch_seams(monkeypatch, _examination)
+    out = tmp_path / "obs"
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_img_card("imgA")])
+    result = runner.invoke(
+        app,
+        ["vision", "run", "--manifest", str(manifest), "--out", str(out),
+         "--run", "--live", "--budget-usd", "1.0"],
+    )
+    assert result.exit_code == 2
+    assert not out.exists() or list(out.glob("*.json")) == []
+
+
+def test_live_without_budget_is_refused(tmp_path: Path, monkeypatch) -> None:
+    """``--live`` is an unattended spend path; it must be given an explicit cap."""
+    calls: list[str] = []
+
+    def forbidden(item, **_kw) -> dict:
+        calls.append("called")
+        raise AssertionError("must not examine anything without a budget")
+
+    _patch_seams(monkeypatch, forbidden)
+    out = tmp_path / "obs"
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_img_card("imgA")])
+    result = runner.invoke(
+        app,
+        ["vision", "run", "--manifest", str(manifest), "--out", str(out), "--live"],
+    )
+    assert result.exit_code == 2
+    assert calls == []
+
+
+def test_live_under_ci_is_refused_before_any_call(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """CI never passes ``--live``; the CLI refuses it itself, before any call."""
+    calls: list[str] = []
+
+    def forbidden(item, **_kw) -> dict:
+        calls.append("called")
+        raise AssertionError("must not examine anything under CI")
+
+    _patch_seams(monkeypatch, forbidden)
+    monkeypatch.setenv("CI", "true")
+    out = tmp_path / "obs"
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_img_card("imgA")])
+    result = runner.invoke(
+        app,
+        ["vision", "run", "--manifest", str(manifest), "--out", str(out),
+         "--live", "--budget-usd", "1.0"],
+    )
+    assert result.exit_code != 0
+    assert calls == []
+
+
+def test_live_with_budget_covers_every_eligible_item(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A fake client under ``--live --budget-usd`` examines every eligible item."""
+    _patch_seams(monkeypatch, _examination)
+    out = tmp_path / "obs"
+    manifest = tmp_path / "m.json"
+    _write_manifest(
+        manifest, [_img_card("imgA"), _img_card("imgB"), _img_card("imgC")]
+    )
+    result = runner.invoke(
+        app,
+        ["vision", "run", "--manifest", str(manifest), "--out", str(out),
+         "--live", "--confirm-live", "--budget-usd", "1.00"],
+    )
+    assert result.exit_code == 0, result.output
+    sidecars = {p.name for p in out.glob("*.json") if p.name != "index.json"}
+    assert sidecars == {"imgA.json", "imgB.json", "imgC.json"}
+    assert "3 produced / 3 eligible" in result.stdout
+
+
+def test_live_end_to_end_against_a_worklist_fixture(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A real ``vision run --live --budget-usd`` invocation over a fixture
+    worklist, against a fake client, exits 0 with full coverage."""
+    _patch_seams(monkeypatch, _examination)
+    out = tmp_path / "obs"
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_img_card("imgA"), _img_card("imgB")])
+    worklist = tmp_path / "w.txt"
+    worklist.write_text(f"# tranche: {'0' * 64}\nimgA\nimgB\n")
+    result = runner.invoke(
+        app,
+        ["vision", "run", "--manifest", str(manifest), "--out", str(out),
+         "--worklist", str(worklist), "--live", "--confirm-live", "--budget-usd", "1.00"],
+    )
+    assert result.exit_code == 0, result.output
+    assert (out / "imgA.json").exists()
+    assert (out / "imgB.json").exists()
+    assert "2 produced / 2 eligible" in result.stdout
+
+
+def _costly_examination(_img: object, **_kw) -> dict:
+    """An examination whose reported usage prices at ~$0.24 (metered)."""
+    return {**_examination(_img),
+            "_usage": {"input_tokens": 6_000, "output_tokens": 2_048}}
+
+
+def test_live_with_a_smaller_budget_stops_before_exceeding_it(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A budget too small for the eligible set stops early, exits non-zero, and
+    lists the items left outstanding."""
+    _patch_seams(monkeypatch, _costly_examination)
+    out = tmp_path / "obs"
+    manifest = tmp_path / "m.json"
+    _write_manifest(
+        manifest, [_img_card("imgA"), _img_card("imgB"), _img_card("imgC")]
+    )
+    result = runner.invoke(
+        app,
+        ["vision", "run", "--manifest", str(manifest), "--out", str(out),
+         "--live", "--confirm-live", "--budget-usd", "0.50"],
+    )
+    assert result.exit_code == 1
+    sidecars = {p.name for p in out.glob("*.json") if p.name != "index.json"}
+    assert sidecars == {"imgA.json", "imgB.json"}
+    assert "imgC" in result.stdout

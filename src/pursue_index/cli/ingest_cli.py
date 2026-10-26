@@ -25,6 +25,7 @@ from pathlib import Path
 import typer
 
 from pursue_index.cli.ingest_defaults import __getattr__, _default  # noqa: F401
+from pursue_index.cli.ingest_estimate import ingest_estimate_record, ingest_estimate_text
 from pursue_index.cli.ingest_from_diff import execute_from_diff
 from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
 from pursue_index.config import settings
@@ -177,11 +178,14 @@ def _emit_approval_summary(
     auto_count: int,
     manual_count: int,
     diff_summary: dict,
+    estimate_text: str = "",
 ) -> None:
     typer.echo(
         f"approved tranche {tranche[:12]}: "
         f"{auto_count} byte-collision renames + {manual_count} operator-manual renames"
     )
+    if estimate_text:
+        typer.echo(estimate_text)
     quarantined = diff_summary.get("quarantined", 0)
     if quarantined > manual_count:
         unapproved = quarantined - manual_count
@@ -209,6 +213,12 @@ def _load_diff_and_summarize(tranche: str, diff_dir: Path) -> tuple[dict, dict]:
     """Shared prefix of every ``run`` path: load the diff, summarize the work."""
     diff_payload = _load_diff_or_exit(tranche, diff_dir)
     return diff_payload, summarize_ingest_work(diff_payload)
+
+
+def _echo_estimate(diff_payload: dict, summary: dict) -> None:
+    """Print the per-page cost estimate when the tranche has OCR work."""
+    if estimate := ingest_estimate_text(diff_payload, summary):
+        typer.echo("\n" + estimate)
 
 
 def _run_pre_approval_audit(
@@ -265,11 +275,12 @@ def _resolve_renames(
 def _persist_approval(
     tranche: str, note: str, log: Path, aliases: Path,
     diff_summary: dict, enriched: list[dict], audit_results: list,
+    cost_estimate: dict | None = None,
 ) -> None:
     """Write the approval row, fold in the audit trail, materialize aliases."""
     record_approval(
-        log_path=log, tranche_sha=tranche, note=note,
-        diff_summary=diff_summary, renames_approved=enriched,
+        log_path=log, tranche_sha=tranche, note=note, diff_summary=diff_summary,
+        renames_approved=enriched, cost_estimate=cost_estimate,
     )
     if audit_results:
         audit_log = log.parent / "audit-log.jsonl"
@@ -304,8 +315,11 @@ def approve_cmd(
     diff_summary = diff.get("summary", {})
     auto_renames, manual_renames, enriched = _resolve_renames(diff, tranche, approve_rename)
     audit_results = _run_pre_approval_audit(enriched, diff, tranche, snapshots_dir, skip_audit)
-    _persist_approval(tranche, note, log, aliases, diff_summary, enriched, audit_results)
-    _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary)
+    work = summarize_ingest_work(diff)
+    _persist_approval(tranche, note, log, aliases, diff_summary, enriched, audit_results,
+                      ingest_estimate_record(diff, work))
+    _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary,
+                           ingest_estimate_text(diff, work))
 
 
 @ingest_app.command("run")
@@ -347,6 +361,8 @@ def run_cmd(
     """
     gate_resolve_and_promote(tranche, log, snapshots_dir, diff_dir, manifest, dry_run, allow_behind, reason)
     diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir)
+    if not from_diff:  # --from-diff prices the exact scoped list it is about to run
+        _echo_estimate(diff_payload, summary)
     if from_diff:
         execute_from_diff(
             summary, diff=diff_payload, tranche=tranche, manifest=manifest, worklist=worklist,

@@ -136,6 +136,19 @@ def _parse_response(raw: str) -> dict[str, Any]:
     return data
 
 
+def _usage_dict(usage: Any) -> dict[str, int] | None:
+    """The billed token counts, for the run's spend meter (not a sidecar field).
+
+    None when the response carried no ``usage``: absent must stay absent so the
+    meter charges the call its worst case instead of a zero-token price.
+    """
+    if usage is None:
+        return None
+    keys = ("input_tokens", "output_tokens",
+            "cache_creation_input_tokens", "cache_read_input_tokens")
+    return {k: int(getattr(usage, k, 0) or 0) for k in keys}
+
+
 def examine_image(img: Image.Image, *, model: str = VISION_MODEL) -> dict[str, Any]:
     """Return an examination dict for one image via Anthropic vision.
 
@@ -155,4 +168,8 @@ def examine_image(img: Image.Image, *, model: str = VISION_MODEL) -> dict[str, A
         output_tokens=getattr(usage, "output_tokens", 0),
     )
     raw = response.content[0].text if response.content else ""
-    return _parse_response(raw)
+    result = _parse_response(raw)
+    counted = _usage_dict(usage)
+    if counted is not None:
+        result["_usage"] = counted
+    return result
