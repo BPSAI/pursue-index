@@ -27,7 +27,7 @@ _VISION_INVOCATION = re.compile(r"\bvision\s+run\b")
 
 # The parameters that turn on live examination, and the value each must carry
 # when the operator has not named it.
-_LIVE_PARAMS = {"run": False, "live_smoke": None, "live": False}
+_LIVE_PARAMS = {"run": False, "live_smoke": None, "live": False, "confirm_live": False}
 
 
 def _vision_run_command() -> click.Command:

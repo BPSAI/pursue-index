@@ -21,7 +21,8 @@ distinct:
 * ``--live --budget-usd X`` is the unattended counterpart to ``--run``: the
   same bulk examination, but bounded by a dollar cap so it can run without an
   operator watching it spend. It refuses to start under CI (``CI`` set in the
-  environment) — CI never passes it.
+  environment) — CI never passes it — and refuses unless ``--confirm-live``
+  is also given, so the spend is always named in the invocation itself.
 
 Naming more than one of the three is ambiguous and refused. Naming none of
 them means no API call is made, which is what an unattended caller gets by
@@ -99,7 +100,13 @@ _OPT_LIVE = typer.Option(
     False, "--live",
     help="A LIVE PATH. Unattended bulk pass under --budget-usd: examine "
     "eligible items until the worklist is covered or the next call would "
-    "exceed the budget. Refused under CI.",
+    "exceed the budget. Refused under CI, and refused unless --confirm-live "
+    "is also given.",
+)
+_OPT_CONFIRM_LIVE = typer.Option(
+    False, "--confirm-live",
+    help="Required with --live: the explicit statement that this invocation "
+    "means to spend, so a stray or scheduled command line cannot.",
 )
 _OPT_BUDGET = typer.Option(
     None, "--budget-usd",
@@ -206,7 +213,11 @@ def _run_live(items: list[EligibleItem], out: Path, budget_usd: float) -> None:
 
 
 def _check_live_preconditions(
-    run: bool, live_smoke: str | None, live: bool, budget_usd: float | None
+    run: bool,
+    live_smoke: str | None,
+    live: bool,
+    budget_usd: float | None,
+    confirm_live: bool = False,
 ) -> None:
     """Refuse an ambiguous or unsafe live invocation before any work starts."""
     named = [
@@ -231,6 +242,12 @@ def _check_live_preconditions(
     if budget_usd is None:
         console.print("[red]error:[/red] --live requires --budget-usd.")
         raise typer.Exit(code=2)
+    if not confirm_live:
+        console.print(
+            "[red]error:[/red] --live spends unattended; add --confirm-live "
+            "to say you mean it."
+        )
+        raise typer.Exit(code=2)
 
 
 @vision_app.command("run")
@@ -242,6 +259,7 @@ def vision_run(
     run: bool = _OPT_RUN,
     live: bool = _OPT_LIVE,
     budget_usd: float = _OPT_BUDGET,
+    confirm_live: bool = _OPT_CONFIRM_LIVE,
 ) -> None:
     """Preview coverage by default; examine images only with --run, --live-smoke,
     or --live.
@@ -249,7 +267,7 @@ def vision_run(
     Default: no spend — reports eligible-vs-produced and exits non-zero on a
     shortfall so a release gate can block on uncovered image content.
     """
-    _check_live_preconditions(run, live_smoke, live, budget_usd)
+    _check_live_preconditions(run, live_smoke, live, budget_usd, confirm_live)
 
     m = load_manifest(manifest)
     try:

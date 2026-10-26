@@ -299,7 +299,7 @@ def test_live_with_budget_covers_every_eligible_item(
     result = runner.invoke(
         app,
         ["vision", "run", "--manifest", str(manifest), "--out", str(out),
-         "--live", "--budget-usd", "1.00"],
+         "--live", "--confirm-live", "--budget-usd", "1.00"],
     )
     assert result.exit_code == 0, result.output
     sidecars = {p.name for p in out.glob("*.json") if p.name != "index.json"}
@@ -321,7 +321,7 @@ def test_live_end_to_end_against_a_worklist_fixture(
     result = runner.invoke(
         app,
         ["vision", "run", "--manifest", str(manifest), "--out", str(out),
-         "--worklist", str(worklist), "--live", "--budget-usd", "1.00"],
+         "--worklist", str(worklist), "--live", "--confirm-live", "--budget-usd", "1.00"],
     )
     assert result.exit_code == 0, result.output
     assert (out / "imgA.json").exists()
@@ -349,7 +349,7 @@ def test_live_with_a_smaller_budget_stops_before_exceeding_it(
     result = runner.invoke(
         app,
         ["vision", "run", "--manifest", str(manifest), "--out", str(out),
-         "--live", "--budget-usd", "0.50"],
+         "--live", "--confirm-live", "--budget-usd", "0.50"],
     )
     assert result.exit_code == 1
     sidecars = {p.name for p in out.glob("*.json") if p.name != "index.json"}
