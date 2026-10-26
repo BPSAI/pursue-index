@@ -13,7 +13,7 @@ from pathlib import Path
 
 import typer
 
-from pursue_index.cli.worklist import apply_worklist
+from pursue_index.cli.worklist import WorklistTrancheError, apply_worklist, exit_on_tranche_error
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 
@@ -27,6 +27,14 @@ _OPT_WORKLIST = typer.Option(
     "process the full manifest (the escape hatch). Written by `ingest run --from-diff`.",
 )
 
+def _scoped_manifest(manifest: Path, worklist: Path | None):
+    """``apply_worklist``, exiting 1 (naming both shas) on a stale/unlabeled worklist."""
+    try:
+        return apply_worklist(load_manifest(manifest), worklist)
+    except WorklistTrancheError as exc:
+        exit_on_tranche_error(exc)
+
+
 download_app = typer.Typer(name="download", help="Download assets referenced by a manifest.")
 
 
@@ -39,7 +47,7 @@ def download_run(
     from pursue_index.download.downloader import download_all  # lazy import
 
     settings.ensure_dirs()
-    m = apply_worklist(load_manifest(manifest), worklist)
+    m = _scoped_manifest(manifest, worklist)
     asyncio.run(download_all(m))
 
 
@@ -76,5 +84,5 @@ def ocr_run(
     from pursue_index.ocr.pipeline import ocr_all  # lazy import
 
     settings.ensure_dirs()
-    m = apply_worklist(load_manifest(manifest), worklist)
+    m = _scoped_manifest(manifest, worklist)
     asyncio.run(ocr_all(m, engine=engine, force=force, concurrency=concurrency))

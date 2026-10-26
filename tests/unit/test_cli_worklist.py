@@ -13,14 +13,24 @@ from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from typer.testing import CliRunner
 
 from pursue_index.cli.commands import app
-from pursue_index.cli.worklist import apply_worklist, read_worklist, worklist_card_ids
+from pursue_index.cli.worklist import (
+    WorklistTrancheError,
+    apply_worklist,
+    read_worklist,
+    require_worklist_tranche,
+    worklist_card_ids,
+    worklist_header_tranche,
+)
 from pursue_index.scrape.manifest import save_manifest
 from pursue_index.scrape.types import CardMetadata, Manifest
 
 runner = CliRunner()
+
+_SHA = "deadbeef"
 
 
 def _card(card_id: str) -> CardMetadata:
@@ -31,14 +41,14 @@ def _manifest(ids: list[str]) -> Manifest:
     return Manifest(
         source_url="https://example.com/data.csv",
         fetched_at=datetime(2026, 1, 1, tzinfo=UTC),
-        csv_sha256="deadbeef",
+        csv_sha256=_SHA,
         cards=[_card(i) for i in ids],
     )
 
 
-def _write_worklist(tmp_path: Path, ids: list[str]) -> Path:
+def _write_worklist(tmp_path: Path, ids: list[str], tranche_sha: str = _SHA) -> Path:
     p = tmp_path / "worklist.txt"
-    p.write_text("\n".join(ids) + "\n", encoding="utf-8")
+    p.write_text(f"# tranche: {tranche_sha}\n" + "\n".join(ids) + "\n", encoding="utf-8")
     return p
 
 
@@ -57,8 +67,69 @@ def test_read_worklist_ignores_blanks_and_comments(tmp_path: Path) -> None:
     assert read_worklist(p) == ["a", "b", "c"]
 
 
+def test_read_worklist_drops_the_reason_tag(tmp_path: Path) -> None:
+    p = tmp_path / "wl.txt"
+    p.write_text("# tranche: deadbeef\na\tnew\nb\tbytes-changed\n", encoding="utf-8")
+    assert read_worklist(p) == ["a", "b"]
+
+
+def test_worklist_header_tranche_reads_the_header_line(tmp_path: Path) -> None:
+    p = tmp_path / "wl.txt"
+    p.write_text("# tranche: abc123\n# a comment\nid1\n", encoding="utf-8")
+    assert worklist_header_tranche(p) == "abc123"
+
+
+def test_worklist_header_tranche_missing_is_none(tmp_path: Path) -> None:
+    p = tmp_path / "wl.txt"
+    p.write_text("id1\nid2\n", encoding="utf-8")
+    assert worklist_header_tranche(p) is None
+
+
+def test_worklist_header_tranche_only_recognized_before_card_rows(tmp_path: Path) -> None:
+    """A '# tranche: ...' line after the first non-comment row doesn't count
+    -- the header must come first."""
+    p = tmp_path / "wl.txt"
+    p.write_text("id1\n# tranche: abc123\n", encoding="utf-8")
+    assert worklist_header_tranche(p) is None
+
+
+def test_require_worklist_tranche_passes_on_match(tmp_path: Path) -> None:
+    p = tmp_path / "wl.txt"
+    p.write_text("# tranche: abc123\nid1\n", encoding="utf-8")
+    require_worklist_tranche(p, "abc123")  # no raise
+
+
+def test_require_worklist_tranche_raises_naming_both_shas_on_mismatch(tmp_path: Path) -> None:
+    p = tmp_path / "wl.txt"
+    p.write_text("# tranche: old-sha\nid1\n", encoding="utf-8")
+    with pytest.raises(WorklistTrancheError) as excinfo:
+        require_worklist_tranche(p, "new-sha")
+    assert "old-sha" in str(excinfo.value)
+    assert "new-sha" in str(excinfo.value)
+
+
+def test_require_worklist_tranche_raises_on_missing_header(tmp_path: Path) -> None:
+    p = tmp_path / "wl.txt"
+    p.write_text("id1\nid2\n", encoding="utf-8")
+    with pytest.raises(WorklistTrancheError) as excinfo:
+        require_worklist_tranche(p, "new-sha")
+    assert "new-sha" in str(excinfo.value)
+
+
 def test_worklist_card_ids_none_is_none() -> None:
     assert worklist_card_ids(None) is None
+
+
+def test_worklist_card_ids_requires_promoted_sha_when_path_given(tmp_path: Path) -> None:
+    p = _write_worklist(tmp_path, ["a"])
+    with pytest.raises(ValueError):
+        worklist_card_ids(p)
+
+
+def test_worklist_card_ids_raises_on_tranche_mismatch(tmp_path: Path) -> None:
+    p = _write_worklist(tmp_path, ["a"], tranche_sha="old-sha")
+    with pytest.raises(WorklistTrancheError):
+        worklist_card_ids(p, promoted_sha="new-sha")
 
 
 def test_apply_worklist_none_is_noop() -> None:

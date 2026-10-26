@@ -26,18 +26,25 @@ Usage::
 
 from __future__ import annotations
 
-import json
-import shutil
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import json
+import shutil
+from datetime import UTC, datetime
+
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 # Expose the src-layout package so the shared snapshot-index writer is
 # importable when this runbook is invoked directly (matches the
 # sys.path-injection pattern in scripts/poll_pursue.py).
-sys.path.insert(0, str(_REPO_ROOT / "src"))
-from pursue_index.scrape.snapshots import write_public_index  # noqa: E402
+from pursue_index.scrape.snapshots import write_public_index
 
 LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 SNAPSHOTS_PIPELINE = _REPO_ROOT / "data" / "manifests" / "snapshots"
@@ -128,7 +135,6 @@ def rotate(manifest: dict) -> tuple[bool, str]:
     web_idx = _backfill_missing_web_entries(web_idx)
 
     indexed_pipeline = {s["csv_sha256"] for s in pipeline_idx.get("snapshots", [])}
-    indexed_web = {fn.replace(".json", "") for fn in web_idx}
 
     rotated = False
     msgs = []
@@ -180,7 +186,7 @@ def rotate(manifest: dict) -> tuple[bool, str]:
 
 def main() -> int:
     manifest = _load_manifest()
-    rotated, msg = rotate(manifest)
+    _rotated, msg = rotate(manifest)
     print(f"snapshot-rotate: csv_sha={manifest['csv_sha256'][:16]}... "
           f"cards={len(manifest['cards'])}")
     print(msg)

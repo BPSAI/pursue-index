@@ -20,16 +20,23 @@ Output: a comma-separated list on stdout, ready to feed
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pursue_index.config import settings  # noqa: E402
+import argparse
+import json
+from dataclasses import dataclass
+
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
+
+from pursue_index.config import settings
 
 
 @dataclass

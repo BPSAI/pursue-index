@@ -4,13 +4,17 @@ The operator's one-command path after a ``needs-review`` tranche clears the
 gate: turn the tranche-diff into the scoped card-set, show it (``--dry-run``)
 or run it (download -> ocr -> embed via the ``--worklist`` path).
 
-Work-list contents: the union of ``summarize_ingest_work``'s
-``needs_download`` / ``needs_ocr`` / ``needs_embed`` lists, de-duplicated with
-first-seen order preserved. Those three lists are the same Class-B set today
-(each stage depends on the prior stage's output for the same new-asset cards),
-but unioning is forward-safe if they ever diverge -- and each scoped executor
-already skips-if-exists internally, so a superset work-list is harmless. The
-file format is the plain ``card_id``-per-line contract the executors read.
+PDF/IMG work-list contents: ``pursue_index.ingest_scope.scope_worklist`` --
+every card_id this tranche must (re)download/OCR/embed: Class B
+(``new``), approved-and-unaddressed Class C (``quarantined-new``), the new
+side of this tranche's approved renames (``renamed``), and any existing card
+whose registry byte sha has drifted from its OCR sidecar's (``bytes-changed``).
+See R7C.1 / #168 -- ``summarize_ingest_work`` alone only ever covered the
+first of those four. The work-list is ALWAYS (re)written, even when empty,
+so a prior tranche's scope can never survive into this one.
+
+A/V work-list contents (unchanged): ``summarize_ingest_work``'s
+``needs_av_fetch``, first-seen order kept.
 """
 
 from __future__ import annotations
@@ -21,19 +25,10 @@ from typing import Any
 
 import typer
 
+from pursue_index.card_id import require_card_ids
+from pursue_index.cli.worklist import WorklistTrancheError, exit_on_tranche_error
 from pursue_index.ingest_run import render_av_next_steps
-
-
-def scoped_card_ids(summary: dict[str, Any]) -> list[str]:
-    """Union of needs_download/needs_ocr/needs_embed, first-seen order kept."""
-    ordered: list[str] = []
-    seen: set[str] = set()
-    for key in ("needs_download", "needs_ocr", "needs_embed"):
-        for cid in summary.get(key, []) or []:
-            if cid not in seen:
-                seen.add(cid)
-                ordered.append(cid)
-    return ordered
+from pursue_index.ingest_scope import ScopedCard, scope_worklist
 
 
 def scoped_av_card_ids(summary: dict[str, Any]) -> list[str]:
@@ -42,18 +37,37 @@ def scoped_av_card_ids(summary: dict[str, Any]) -> list[str]:
 
 
 def write_worklist_file(path: Path, card_ids: list[str], tranche: str, suffix: str = "") -> None:
-    """Write the scoped card_ids to ``path`` (one per line, with a header).
-
-    If suffix is provided (e.g. "-av"), it's inserted between the file's stem
-    and its extension.
+    """Write the A/V work-list: scoped card_ids to ``path``, one per line, with
+    a header. If suffix is provided (e.g. "-av"), it's inserted between the
+    file's stem and its extension.
     """
     if suffix:
         path = path.with_name(path.stem + suffix + path.suffix)
+    card_ids = require_card_ids(card_ids)
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         f"# worklist for tranche {tranche[:12]} (pursue ingest run --from-diff)",
         f"# {len(card_ids)} card_id(s) scoped from the tranche-diff",
         *card_ids,
+        "",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_scoped_worklist(path: Path, scoped: list[ScopedCard], tranche_sha: str) -> None:
+    """Write the PDF/IMG work-list: one ``# tranche: <sha>`` header every
+    consumer validates against the promoted manifest, then one
+    ``card_id<TAB>reason`` row per scoped card (``new`` / ``quarantined-new``
+    / ``renamed`` / ``bytes-changed``). Written even when ``scoped`` is
+    empty, so a prior tranche's ids can never survive into this one.
+    """
+    require_card_ids(c.card_id for c in scoped)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [
+        f"# tranche: {tranche_sha}",
+        f"# {len(scoped)} card_id(s) scoped from the tranche-diff "
+        "(reason: new | quarantined-new | renamed | bytes-changed)",
+        *(f"{c.card_id}\t{c.reason}" for c in scoped),
         "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
@@ -140,15 +154,15 @@ def _enforce_ocr_preflight(engine: str | None, concurrency: int | None) -> None:
 
 
 def _print_worklists(
-    card_ids: list[str], av_card_ids: list[str]
+    scoped: list[ScopedCard], av_card_ids: list[str]
 ) -> bool:
     """Print PDF and A/V worklists. Return False if metadata-only (no work)."""
     typer.echo("")
-    typer.echo(f"work-list ({len(card_ids)} card_id(s) to download/ocr/embed):")
-    for cid in card_ids:
-        typer.echo(f"  {cid}")
-    if not card_ids:
-        typer.echo("  (none -- no PDF/IMG rows in tranche-diff)")
+    typer.echo(f"work-list ({len(scoped)} card_id(s) to download/ocr/embed):")
+    for c in scoped:
+        typer.echo(f"  {c.card_id}\t{c.reason}")
+    if not scoped:
+        typer.echo("  (none -- no PDF/IMG cards scoped for this tranche)")
 
     if av_card_ids:
         typer.echo("")
@@ -156,32 +170,78 @@ def _print_worklists(
         for cid in av_card_ids:
             typer.echo(f"  {cid}")
 
-    if not card_ids and not av_card_ids:
+    if not scoped and not av_card_ids:
         typer.echo("  (none -- metadata-only tranche; no scoped stages to run)")
         return False
     return True
 
 
 def _write_worklists(
-    card_ids: list[str], av_card_ids: list[str], worklist: Path, tranche: str
+    scoped: list[ScopedCard], av_card_ids: list[str], worklist: Path, tranche_sha: str
 ) -> None:
     """Write both PDF and A/V worklist files.
 
     The PDF list is written even when empty, so a list left by an earlier
     tranche can never be read as this one's scope.
     """
-    write_worklist_file(worklist, card_ids, tranche)
+    write_scoped_worklist(worklist, scoped, tranche_sha)
     if av_card_ids:
-        write_worklist_file(worklist, av_card_ids, tranche, suffix="-av")
+        write_worklist_file(worklist, av_card_ids, tranche_sha, suffix="-av")
+
+
+def _write_and_run(
+    scoped: list[ScopedCard],
+    av_card_ids: list[str],
+    *,
+    manifest: Path,
+    worklist: Path,
+    tranche_sha: str,
+    dry_run: bool,
+    engine: str | None,
+    force: bool,
+    concurrency: int | None,
+    cost_cap_usd: float | None,
+) -> None:
+    """The three ways ``execute_from_diff`` can end: dry-run (write only),
+    metadata-only (write only, nothing to spend on), or a real spend (write,
+    preflight, then run the scoped stages)."""
+    if dry_run:
+        _write_worklists(scoped, av_card_ids, worklist, tranche_sha)
+        typer.echo("")
+        typer.echo(
+            f"--dry-run: wrote work-list(s) -> {worklist.parent} (no spend, no "
+            "promotion); stages NOT executed. Re-run without --dry-run to ingest."
+        )
+        return
+    if not scoped:
+        _write_worklists(scoped, av_card_ids, worklist, tranche_sha)
+        typer.echo("")
+        typer.echo("0 PDF/IMG cards — PDF stages skipped")
+        return
+    _enforce_ocr_preflight(engine, concurrency)
+    _write_worklists(scoped, av_card_ids, worklist, tranche_sha)
+    typer.echo("")
+    typer.echo("wrote work-list(s); running scoped download -> ocr -> embed")
+    try:
+        run_scoped_stages(
+            manifest, worklist,
+            engine=engine, force=force, concurrency=concurrency, cost_cap_usd=cost_cap_usd,
+        )
+    except WorklistTrancheError as exc:
+        exit_on_tranche_error(exc)
 
 
 def execute_from_diff(
     summary: dict[str, Any],
     *,
+    diff: dict[str, Any],
     tranche: str,
     manifest: Path,
     worklist: Path,
     dry_run: bool,
+    aliases_path: Path,
+    registry_path: Path,
+    ocr_dir: Path,
     engine: str | None = None,
     force: bool = False,
     concurrency: int | None = None,
@@ -189,48 +249,43 @@ def execute_from_diff(
 ) -> None:
     """Print the work-list (always) and, unless ``dry_run``, run scoped stages.
 
-    A metadata-only tranche runs nothing. ``--dry-run`` still MATERIALIZES the
-    work-list files (credential-free, no spend) so a separately-invoked OCR step
-    gets the right card set — the ``/ship-tranche`` flow relies on this. The
-    non-dry spend path first enforces the ``preflight_ocr``
+    A metadata-only tranche runs nothing, but still rewrites the PDF
+    work-list (empty) -- a stale list from a prior tranche must never
+    survive into this one. ``--dry-run`` still MATERIALIZES the work-list
+    files (credential-free, no spend, no promotion) so a separately-invoked
+    OCR step gets the right card set — the ``/ship-tranche`` flow relies on
+    this. The non-dry spend path first enforces the ``preflight_ocr``
     verify-before-spend gate. ``cost_cap_usd`` overrides the
     embed cost cap.
 
+    The PDF/IMG work-list is computed by
+    ``pursue_index.ingest_scope.scope_worklist`` -- Class B, approved and
+    unaddressed Class C, this tranche's approved renames, and any card whose
+    registry bytes have drifted from its OCR sidecar's (R7C.1 / #168). Scope
+    is computed from the tranche-diff + this tranche's own sha, never from
+    reading back the (possibly not-yet-promoted) manifest on disk -- a dry
+    run must be able to print the exact same scope a real run would, before
+    anything is promoted (R7C.2 / #169).
+
     Writes two separate worklists:
-      - worklist (e.g. data/ingest-worklist.txt) for PDF/IMG rows
+      - worklist (e.g. data/ingest-worklist.txt) for PDF/IMG rows, tagged
+        with each card's scope reason and headed with this tranche's sha --
+        what every consumer actually validates the live manifest against
       - worklist-av (e.g. data/ingest-worklist-av.txt) for VID/AUD rows
     """
-    card_ids = scoped_card_ids(summary)
+    tranche_sha = diff.get("tranche_sha256") or tranche
+    scoped = scope_worklist(
+        diff, tranche_sha,
+        aliases_path=aliases_path, registry_path=registry_path, ocr_dir=ocr_dir,
+    )
     av_card_ids = scoped_av_card_ids(summary)
 
-    has_work = _print_worklists(card_ids, av_card_ids)
-    if not has_work:
-        return
-
-    if dry_run:
-        _write_worklists(card_ids, av_card_ids, worklist, tranche)
-        typer.echo("")
-        typer.echo(
-            f"--dry-run: wrote work-list(s) -> {worklist.parent} (no spend); "
-            "stages NOT executed. Re-run without --dry-run to ingest."
-        )
-    elif not card_ids:
-        _write_worklists(card_ids, av_card_ids, worklist, tranche)
-        typer.echo("")
-        typer.echo("0 PDF/IMG cards — PDF stages skipped")
-    else:
-        _enforce_ocr_preflight(engine, concurrency)
-        _write_worklists(card_ids, av_card_ids, worklist, tranche)
-        typer.echo("")
-        typer.echo("wrote work-list(s); running scoped download -> ocr -> embed")
-        run_scoped_stages(
-            manifest,
-            worklist,
-            engine=engine,
-            force=force,
-            concurrency=concurrency,
-            cost_cap_usd=cost_cap_usd,
-        )
+    _print_worklists(scoped, av_card_ids)
+    _write_and_run(
+        scoped, av_card_ids,
+        manifest=manifest, worklist=worklist, tranche_sha=tranche_sha, dry_run=dry_run,
+        engine=engine, force=force, concurrency=concurrency, cost_cap_usd=cost_cap_usd,
+    )
 
     av_steps = render_av_next_steps(summary)
     if av_steps:

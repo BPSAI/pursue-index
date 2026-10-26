@@ -24,7 +24,10 @@ from pathlib import Path
 
 import typer
 
+from pursue_index.cli.ingest_defaults import __getattr__, _default  # noqa: F401
 from pursue_index.cli.ingest_from_diff import execute_from_diff
+from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
+from pursue_index.config import settings
 from pursue_index.ingest import (
     append_aliases,
     auto_approve_renames,
@@ -32,28 +35,13 @@ from pursue_index.ingest import (
     parse_rename_flags,
     record_approval,
 )
-from pursue_index.ingest_run import (
-    locate_snapshot,
-    promote_snapshot,
-    render_next_steps,
-    summarize_ingest_work,
-)
+from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
 from pursue_index.post_ingest_audit import (
     audit_targets,
     collect_audit_targets,
     has_blocking_mismatch,
     render_audit_summary,
 )
-
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-DEFAULT_APPROVAL_LOG = _REPO_ROOT / "data" / "tranche-approval-log.jsonl"
-DEFAULT_ALIASES = _REPO_ROOT / "data" / "card-aliases.json"
-# Must match scripts/tranche_diff.py::DEFAULT_OUT_DIR, and must be tracked —
-# `.paircoder/` is gitignored, so receipts written there never get committed.
-DEFAULT_DIFF_DIR = _REPO_ROOT / "data" / "tranche-diffs"
-DEFAULT_MANIFEST_SNAPSHOTS = _REPO_ROOT / "data" / "manifests" / "snapshots"
-DEFAULT_LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
-DEFAULT_WORKLIST = _REPO_ROOT / "data" / "ingest-worklist.txt"
 
 _OPT_APPROVE_RENAME = typer.Option(
     None,
@@ -84,10 +72,46 @@ _OPT_DRY_RUN = typer.Option(
     help="With --from-diff: print the work-list (the card_ids that would be "
     "OCR'd/embedded) WITHOUT running any stage or spending budget.",
 )
+_OPT_RUN_LOG = typer.Option(_default("DEFAULT_APPROVAL_LOG"), "--log")
+_OPT_RUN_SNAPSHOTS_DIR = typer.Option(_default("DEFAULT_MANIFEST_SNAPSHOTS"), "--snapshots-dir")
+_OPT_RUN_MANIFEST = typer.Option(_default("DEFAULT_LATEST_MANIFEST"), "--manifest")
+_OPT_RUN_DIFF_DIR = typer.Option(_default("DEFAULT_DIFF_DIR"), "--diff-dir")
+_OPT_RUN_ALIASES = typer.Option(
+    _default("DEFAULT_ALIASES"), "--aliases",
+    help="With --from-diff: card-aliases.json, to scope this tranche's approved renames.",
+)
+_OPT_RUN_ASSET_REGISTRY = typer.Option(
+    _default("DEFAULT_ASSET_REGISTRY"), "--asset-registry",
+    help="With --from-diff: asset-bytes-registry.jsonl, to detect bytes-changed cards.",
+)
+_OPT_RUN_ENGINE = typer.Option(
+    None, "--engine", help="With --from-diff: OCR engine passthrough (operated: llm-dots)."
+)
+_OPT_RUN_FORCE = typer.Option(
+    False, "--force", help="With --from-diff: force re-OCR (overwrite status=ok)."
+)
+_OPT_RUN_CONCURRENCY = typer.Option(
+    None, "--concurrency", help="With --from-diff: OCR concurrency passthrough (operated: 8)."
+)
+_OPT_APPROVE_LOG = typer.Option(_default("DEFAULT_APPROVAL_LOG"), "--log")
+_OPT_APPROVE_ALIASES = typer.Option(_default("DEFAULT_ALIASES"), "--aliases")
+_OPT_APPROVE_DIFF_DIR = typer.Option(_default("DEFAULT_DIFF_DIR"), "--diff-dir")
+_OPT_APPROVE_SNAPSHOTS_DIR = typer.Option(_default("DEFAULT_MANIFEST_SNAPSHOTS"), "--snapshots-dir")
 _OPT_WORKLIST_OUT = typer.Option(
-    DEFAULT_WORKLIST,
+    _default("DEFAULT_WORKLIST"),
     "--worklist",
     help="Where --from-diff writes the scoped card_id list the executors read.",
+)
+_OPT_ALLOW_BEHIND = typer.Option(
+    False,
+    "--allow-behind",
+    help="Proceed even though this checkout is behind origin/main on poll-written "
+    "paths. Requires --reason (12+ characters); recorded as an audited exception.",
+)
+_OPT_BEHIND_REASON = typer.Option(
+    None,
+    "--reason",
+    help="Required with --allow-behind: why it is safe to proceed behind the poller.",
 )
 
 
@@ -132,7 +156,7 @@ def _find_diff_artifact(tranche_sha: str, diff_dir: Path) -> Path | None:
 @ingest_app.command("check")
 def check_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256 (full or 12-char prefix)."),
-    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
+    log: Path = _OPT_RUN_LOG,
 ) -> None:
     """Exit 0 if approved, 1 if not."""
     if is_tranche_approved(log, tranche):
@@ -181,6 +205,12 @@ def _load_diff_or_exit(tranche: str, diff_dir: Path) -> dict:
     return json.loads(diff_path.read_text())
 
 
+def _load_diff_and_summarize(tranche: str, diff_dir: Path) -> tuple[dict, dict]:
+    """Shared prefix of every ``run`` path: load the diff, summarize the work."""
+    diff_payload = _load_diff_or_exit(tranche, diff_dir)
+    return diff_payload, summarize_ingest_work(diff_payload)
+
+
 def _run_pre_approval_audit(
     enriched_aliases: list[dict],
     diff: dict,
@@ -216,129 +246,116 @@ def _run_pre_approval_audit(
     return results
 
 
-@ingest_app.command("approve")
-def approve_cmd(
-    tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
-    note: str = typer.Option(..., "--note", help="Operator rationale; recorded in the audit log."),
-    approve_rename: list[str] = _OPT_APPROVE_RENAME,
-    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
-    aliases: Path = typer.Option(DEFAULT_ALIASES, "--aliases"),
-    diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
-    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
-    skip_audit: bool = _OPT_SKIP_AUDIT,
-) -> None:
-    """Record an approval row + materialize the approved aliases.
-
-    Runs a pre-approval audit (re-fetches upstream bytes for byte-collision
-    renames and restored_unchanged events) to catch TOCTOU swaps between
-    tranche-diff and approval. Refuses approval if any sha mismatches.
-    """
-    diff = _load_diff_or_exit(tranche, diff_dir)
-    diff_summary = diff.get("summary", {})
+def _resolve_renames(
+    diff: dict, tranche: str, approve_rename: list[str]
+) -> tuple[list[dict], list[dict], list[dict]]:
+    """Class A (auto) + Class C (manual) renames, enriched with provenance.
+    Returns ``(auto_renames, manual_renames, enriched)``. Exits 2 on a
+    malformed ``--approve-rename`` flag."""
     auto_renames = auto_approve_renames(diff)
     try:
         manual_renames = parse_rename_flags(approve_rename or [])
     except ValueError as exc:
         typer.echo(f"refusing to approve — invalid --approve-rename: {exc}", err=True)
         raise typer.Exit(2) from exc
-
     enriched = _enrich_with_provenance(auto_renames + manual_renames, tranche)
-    audit_results = _run_pre_approval_audit(
-        enriched, diff, tranche, snapshots_dir, skip_audit
-    )
+    return auto_renames, manual_renames, enriched
+
+
+def _persist_approval(
+    tranche: str, note: str, log: Path, aliases: Path,
+    diff_summary: dict, enriched: list[dict], audit_results: list,
+) -> None:
+    """Write the approval row, fold in the audit trail, materialize aliases."""
     record_approval(
-        log_path=log,
-        tranche_sha=tranche,
-        note=note,
-        diff_summary=diff_summary,
-        renames_approved=enriched,
+        log_path=log, tranche_sha=tranche, note=note,
+        diff_summary=diff_summary, renames_approved=enriched,
     )
     if audit_results:
-        # Audit results are part of the audit trail.
-        log_dir = log.parent
-        audit_log = log_dir / "audit-log.jsonl"
+        audit_log = log.parent / "audit-log.jsonl"
         with audit_log.open("a") as fh:
-            fh.write(json.dumps({
-                "tranche_sha256": tranche,
-                "results": audit_results,
-            }) + "\n")
+            fh.write(json.dumps({"tranche_sha256": tranche, "results": audit_results}) + "\n")
     append_aliases(aliases, enriched)
+
+
+@ingest_app.command("approve")
+def approve_cmd(
+    tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
+    note: str = typer.Option(..., "--note", help="Operator rationale; recorded in the audit log."),
+    approve_rename: list[str] = _OPT_APPROVE_RENAME,
+    log: Path = _OPT_APPROVE_LOG,
+    aliases: Path = _OPT_APPROVE_ALIASES,
+    diff_dir: Path = _OPT_APPROVE_DIFF_DIR,
+    snapshots_dir: Path = _OPT_APPROVE_SNAPSHOTS_DIR,
+    skip_audit: bool = _OPT_SKIP_AUDIT,
+    allow_behind: bool = _OPT_ALLOW_BEHIND,
+    reason: str = _OPT_BEHIND_REASON,
+) -> None:
+    """Record an approval row + materialize the approved aliases.
+
+    Refuses if this checkout is behind origin/main on the paths the
+    poller writes (see `pursue_index.poll_freshness`); runs a pre-approval
+    audit (re-fetches upstream bytes for byte-collision renames and
+    restored_unchanged events) to catch TOCTOU swaps between tranche-diff
+    and approval. Refuses approval if any sha mismatches.
+    """
+    enforce_poll_freshness(allow_behind, reason, tranche)
+    diff = _load_diff_or_exit(tranche, diff_dir)
+    diff_summary = diff.get("summary", {})
+    auto_renames, manual_renames, enriched = _resolve_renames(diff, tranche, approve_rename)
+    audit_results = _run_pre_approval_audit(enriched, diff, tranche, snapshots_dir, skip_audit)
+    _persist_approval(tranche, note, log, aliases, diff_summary, enriched, audit_results)
     _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary)
-
-
-def _resolve_approved_snapshot(
-    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path
-) -> Path:
-    """Gate + snapshot resolution for ``run``. Raises typer.Exit on failure."""
-    if not is_tranche_approved(log, tranche):
-        typer.echo(
-            f"refusing to ingest — tranche {tranche[:12]} is not approved.\n"
-            f"  Review the tranche-diff at {diff_dir}/tranche-diff-{tranche[:12]}.md\n"
-            f"  then run `pursue ingest approve --tranche {tranche} --note ...`",
-            err=True,
-        )
-        raise typer.Exit(1)
-    snapshot = locate_snapshot(tranche, snapshots_dir)
-    if snapshot is None:
-        typer.echo(
-            f"refusing to ingest — no snapshot found in {snapshots_dir} for {tranche[:12]}",
-            err=True,
-        )
-        raise typer.Exit(2)
-    return snapshot
 
 
 @ingest_app.command("run")
 def run_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
-    log: Path = typer.Option(DEFAULT_APPROVAL_LOG, "--log"),
-    snapshots_dir: Path = typer.Option(DEFAULT_MANIFEST_SNAPSHOTS, "--snapshots-dir"),
-    manifest: Path = typer.Option(DEFAULT_LATEST_MANIFEST, "--manifest"),
-    diff_dir: Path = typer.Option(DEFAULT_DIFF_DIR, "--diff-dir"),
+    log: Path = _OPT_RUN_LOG,
+    snapshots_dir: Path = _OPT_RUN_SNAPSHOTS_DIR,
+    manifest: Path = _OPT_RUN_MANIFEST,
+    diff_dir: Path = _OPT_RUN_DIFF_DIR,
+    aliases: Path = _OPT_RUN_ALIASES,
+    asset_registry: Path = _OPT_RUN_ASSET_REGISTRY,
     from_diff: bool = _OPT_FROM_DIFF,
     dry_run: bool = _OPT_DRY_RUN,
     worklist: Path = _OPT_WORKLIST_OUT,
     cost_cap_usd: float = _OPT_FROM_DIFF_COST_CAP,
-    engine: str = typer.Option(
-        None, "--engine", help="With --from-diff: OCR engine passthrough (operated: llm-dots)."
-    ),
-    force: bool = typer.Option(
-        False, "--force", help="With --from-diff: force re-OCR (overwrite status=ok)."
-    ),
-    concurrency: int = typer.Option(
-        None, "--concurrency", help="With --from-diff: OCR concurrency passthrough (operated: 8)."
-    ),
+    engine: str = _OPT_RUN_ENGINE,
+    force: bool = _OPT_RUN_FORCE,
+    concurrency: int = _OPT_RUN_CONCURRENCY,
+    allow_behind: bool = _OPT_ALLOW_BEHIND,
+    reason: str = _OPT_BEHIND_REASON,
 ) -> None:
     """Promote an approved tranche to the deployed manifest + report next steps.
 
-    Refuses if the tranche is not approved. Promotes the snapshot to
-    data/manifests/latest.json. Identifies downstream pipeline work
-    (download/ocr/embed) required by any new content in the tranche.
+    Refuses if this checkout is behind origin/main on the paths the
+    poller writes (see `pursue_index.poll_freshness`), or if the tranche
+    is not approved. With ``--dry-run`` nothing is
+    promoted and no builder runs — only the work-list(s) are written (or,
+    without ``--from-diff``, just the scope is printed), so an operator can
+    inspect scope before anything is spent or mirrored. Without
+    ``--dry-run``, promotes the snapshot to data/manifests/latest.json (and
+    its deploy-side mirrors), runs the poster/thumb builders, then
+    identifies downstream pipeline work (download/ocr/embed) required by
+    any new content in the tranche.
 
     By default it prints copy-paste-ready next-step commands. With
     ``--from-diff`` it instead exports the scoped work-list and drives the
-    scoped stages itself; ``--dry-run`` shows the work-list without spending.
+    scoped stages itself; ``--dry-run`` shows the work-list without spending
+    or promoting.
     """
-    snapshot = _resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
-    diff_payload = _load_diff_or_exit(tranche, diff_dir)
-    summary = summarize_ingest_work(diff_payload)
-    promote_snapshot(snapshot, manifest)
-    typer.echo(f"promoted snapshot to {manifest}")
+    gate_resolve_and_promote(tranche, log, snapshots_dir, diff_dir, manifest, dry_run, allow_behind, reason)
+    diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir)
     if from_diff:
         execute_from_diff(
-            summary,
-            tranche=tranche,
-            manifest=manifest,
-            worklist=worklist,
-            dry_run=dry_run,
-            engine=engine,
-            force=force,
-            concurrency=concurrency,
-            cost_cap_usd=cost_cap_usd,
+            summary, diff=diff_payload, tranche=tranche, manifest=manifest, worklist=worklist,
+            dry_run=dry_run, aliases_path=aliases, registry_path=asset_registry,
+            ocr_dir=settings.ocr_dir, engine=engine, force=force,
+            concurrency=concurrency, cost_cap_usd=cost_cap_usd,
         )
         return
-    typer.echo("")
-    typer.echo(render_next_steps(summary))
+    typer.echo("\n" + render_next_steps(summary))
 
 
 def main() -> None:

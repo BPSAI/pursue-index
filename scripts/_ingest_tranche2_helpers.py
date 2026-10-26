@@ -8,7 +8,6 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
-import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -223,11 +222,3 @@ def build_registry_entry(
         "dod_asset_filename": dod_name,
     }
 
-
-def ensure_src_on_path(repo_root: Path) -> None:
-    src = repo_root / "src"
-    if str(src) not in sys.path:
-        sys.path.insert(0, str(src))
-    scripts_dir = repo_root / "scripts"
-    if str(scripts_dir) not in sys.path:
-        sys.path.insert(0, str(scripts_dir))

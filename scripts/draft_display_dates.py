@@ -34,20 +34,27 @@ system prompt; ~$1.58 for the full corpus (158 cards).
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
 import os
-import sys
 import time
 from collections import defaultdict
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_REPO_ROOT / "src"))
+from pursue_index.paths import repo_root
 
-from pursue_index.release.chunked_asset import read_asset_json  # noqa: E402
+_REPO_ROOT = repo_root()
+
+from pursue_index.release.chunked_asset import read_asset_json
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_PAGES = _REPO_ROOT / "web" / "public" / "data" / "pages.json"
@@ -244,7 +251,7 @@ def _proposal_record(cid: str, result: dict[str, Any], model: str) -> dict[str, 
     proposal["display_date_approved_at"] = None
     proposal["_proposal_metadata"] = {
         "model_id": model,
-        "drafted_at": datetime.now(timezone.utc).isoformat(),
+        "drafted_at": datetime.now(UTC).isoformat(),
         "input_tokens": result["usage"]["input_tokens"],
         "output_tokens": result["usage"]["output_tokens"],
         "cache_creation_input_tokens": result["usage"]["cache_creation_input_tokens"],

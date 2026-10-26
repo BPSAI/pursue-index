@@ -25,32 +25,40 @@ Run after ``pursue embed run`` and ``scripts/build_search_data.py``::
 
 from __future__ import annotations
 
-import argparse
-import json
-import struct
 import sys
 from pathlib import Path
 
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import json
+import struct
+
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+from pursue_index.paths import repo_root
 
-from pursue_index.config import settings  # noqa: E402
-from pursue_index.embed.publish import (  # noqa: E402
+REPO_ROOT = repo_root()
+
+from pursue_index.config import settings
+from pursue_index.embed.publish import (
     load_embed_eligible_keys,
     select_publish_rows,
 )
-from pursue_index.release.chunked_asset import (  # noqa: E402
+from pursue_index.release.alias_exemption import add_exemption_args, exemption_paths
+from pursue_index.release.chunked_asset import (
     BUDGET_BYTES,
     asset_exists,
     write_asset,
 )
-from pursue_index.release.shrink_guard import (  # noqa: E402
+from pursue_index.release.shrink_guard import (
     add_shrink_args,
     committed_embed_card_ids,
     enforce,
-    find_shrink,
+    find_renamed_and_missing,
     find_uncovered,
     ocr_covered_ids,
     ocr_dir_error,
@@ -60,6 +68,8 @@ from pursue_index.release.shrink_guard import (  # noqa: E402
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_AUDIT_LOG = REPO_ROOT / "data" / "audit-log.jsonl"
+DEFAULT_ALIASES_PATH = REPO_ROOT / "data" / "card-aliases.json"
+DEFAULT_APPROVAL_LOG = REPO_ROOT / "data" / "tranche-approval-log.jsonl"
 
 
 def _read_vectors(in_dir: Path) -> tuple[np.ndarray, dict]:
@@ -124,11 +134,14 @@ def _guard(
     ocr_dir: Path | None,
     allow_shrink_reason: str | None,
     audit_log: Path,
+    aliases_path: Path | None = None,
+    approval_log: Path | None = None,
 ) -> int:
     """Refuse a rebuild that shrinks the committed ``embed_index.json``.
 
     The manifest-coverage rule needs both ``manifest_path`` and ``ocr_dir``;
-    without them only the shrink comparison runs.
+    without them only the shrink comparison runs. A shrunk id ``aliases_path``
+    maps to a rebuilt id is an approved rename, not a loss.
     """
     rebuilt_ids = {str(r["card_id"]) for r in kept_rows}
     uncovered: list[str] = []
@@ -139,12 +152,17 @@ def _guard(
             return 1
         cards = json.loads(manifest_path.read_text(encoding="utf-8"))["cards"]
         uncovered = find_uncovered(cards, ocr_covered_ids(ocr_dir))
+    renamed, missing = find_renamed_and_missing(
+        "build_embed_data.py", committed_embed_card_ids(idx_path), rebuilt_ids,
+        aliases_path, approval_log, audit_log,
+    )
     return enforce(
         "build_embed_data.py",
-        find_shrink(committed_embed_card_ids(idx_path), rebuilt_ids),
+        missing,
         uncovered,
         allow_reason=allow_shrink_reason,
         audit_log=audit_log,
+        renamed=renamed,
     )
 
 
@@ -159,6 +177,8 @@ def build(
     ocr_dir: Path | None = None,
     allow_shrink_reason: str | None = None,
     audit_log: Path = DEFAULT_AUDIT_LOG,
+    aliases_path: Path | None = None,
+    approval_log: Path | None = DEFAULT_APPROVAL_LOG,
 ) -> int:
     in_dir = embeddings_root / model_id
     if not (in_dir / "index.json").exists():
@@ -178,8 +198,8 @@ def build(
     kept_rows = _select_rows(index, load_embed_eligible_keys(pages_path))
     idx_path = out_dir / "embed_index.json"
     rc = _guard(
-        kept_rows, idx_path, manifest_path, ocr_dir, allow_shrink_reason, audit_log
-    )
+        kept_rows, idx_path, manifest_path, ocr_dir,
+        allow_shrink_reason, audit_log, aliases_path, approval_log)
     if rc:
         return rc
     arr = _filter_vectors(arr, kept_rows, dim)
@@ -244,9 +264,13 @@ def main() -> int:
         "--ocr-dir", type=Path, default=settings.ocr_dir,
         help="Data-root OCR dir checked for manifest-card coverage.",
     )
+    add_exemption_args(
+        parser, aliases=DEFAULT_ALIASES_PATH,
+        approval_log=DEFAULT_APPROVAL_LOG, audit_log=DEFAULT_AUDIT_LOG,
+    )
     add_shrink_args(parser, "embed_index.json")
     args = parser.parse_args()
-    allow_shrink_reason = shrink_reason(parser, args)
+    aliases_path, approval_log, audit_log = exemption_paths(parser, args, "build_embed_data.py")
     return build(
         embeddings_root=args.embeddings_root,
         model_id=args.model,
@@ -254,7 +278,10 @@ def main() -> int:
         pages_json=args.pages_json,
         manifest_path=args.manifest,
         ocr_dir=args.ocr_dir,
-        allow_shrink_reason=allow_shrink_reason,
+        allow_shrink_reason=shrink_reason(parser, args),
+        aliases_path=aliases_path,
+        approval_log=approval_log,
+        audit_log=audit_log,
     )
 
 

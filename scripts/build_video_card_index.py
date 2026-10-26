@@ -34,12 +34,21 @@ Usage::
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
 from datetime import UTC, datetime
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 DEFAULT_REGISTRY = REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_OUT = REPO_ROOT / "web" / "src" / "data" / "video-card-ids.json"
 

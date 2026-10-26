@@ -14,7 +14,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from pursue_index.config import settings
+from pursue_index.config.settings import Settings
 from pursue_index.download.downloader import _download_one, _is_allowed_asset_url
 from pursue_index.scrape.types import CardMetadata
 
@@ -60,7 +60,7 @@ def test_rejects_off_allowlist_urls(url: str) -> None:
 
 async def test_download_one_skips_disallowed_host_without_fetching(tmp_path, monkeypatch) -> None:
     """A disallowed URL must be skipped (return None) and NEVER hit the network."""
-    monkeypatch.setattr(type(settings), "pdf_dir", property(lambda self: tmp_path))
+    monkeypatch.setattr(Settings, "pdf_dir", property(lambda self: tmp_path))
     calls: list[str] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -76,7 +76,7 @@ async def test_download_one_skips_disallowed_host_without_fetching(tmp_path, mon
 
 async def test_download_one_fetches_allowed_host(tmp_path, monkeypatch) -> None:
     """The happy path is unchanged: an allowed URL is fetched and written."""
-    monkeypatch.setattr(type(settings), "pdf_dir", property(lambda self: tmp_path))
+    monkeypatch.setattr(Settings, "pdf_dir", property(lambda self: tmp_path))
     calls: list[str] = []
 
     def handler(request: httpx.Request) -> httpx.Response:

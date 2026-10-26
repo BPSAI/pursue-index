@@ -49,23 +49,28 @@ Usage:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import hashlib
 import json
 import mimetypes
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-_SCRIPTS = _REPO_ROOT / "scripts"
-if str(_SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS))
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 # Share helpers with r2_archive_assets so the registry contract + client
 # wiring + ext allowlist stay in lockstep across the integrity tooling.
-from r2_archive_assets import (  # noqa: E402
+from r2_archive_assets import (
     append_registry,
     load_registry,
     make_r2_client,
@@ -144,7 +149,7 @@ def _put_archive_append_only(
     try:
         from botocore.exceptions import ClientError  # type: ignore[import-untyped]
     except ImportError:
-        ClientError = Exception  # type: ignore[assignment,misc]
+        ClientError = Exception  # type: ignore[assignment,misc]  # noqa: N806
 
     try:
         client.put_object(

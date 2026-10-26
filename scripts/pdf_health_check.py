@@ -20,18 +20,23 @@ Output (stable kv format the workflow log can grep):
 
 from __future__ import annotations
 
-import argparse
 import sys
 from pathlib import Path
 
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+
 # Make ``src/`` importable when running as ``python scripts/pdf_health_check.py``
 # from the repo root (no install needed in the GH Actions runner).
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-_SRC = _REPO_ROOT / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+from pursue_index.paths import repo_root
 
-from pursue_index.scrape import pdf_health  # noqa: E402
+_REPO_ROOT = repo_root()
+
+from pursue_index.scrape import pdf_health
 
 DEFAULT_MANIFEST_PATH = _REPO_ROOT / "data" / "manifests" / "latest.json"
 

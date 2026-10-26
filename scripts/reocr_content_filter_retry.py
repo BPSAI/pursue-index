@@ -30,21 +30,24 @@ resolves the "OCR INCOMPLETE" banner on those 2 cards' /altered/ pages.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import base64
 import io
 import json
 import os
-import sys
-from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-_SCRIPTS_DIR = _REPO_ROOT / "scripts"
-_SRC_DIR = _REPO_ROOT / "src"
-for _p in (_SCRIPTS_DIR, _SRC_DIR):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 try:
     from dotenv import load_dotenv  # type: ignore[import-not-found]
@@ -52,14 +55,14 @@ try:
 except ImportError:
     pass
 
-from _reocr_helpers import (  # noqa: E402
+from _reocr_helpers import (
     CostCapExceededError,
     UsageTracker,
     append_jsonl,
     fetch_r2_pdf,
 )
-from pursue_index.ocr._llm_parsing import parse_response  # noqa: E402
 
+from pursue_index.ocr._llm_parsing import parse_response
 
 _DEFAULT_TARGETS_POST = [
     {

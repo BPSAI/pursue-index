@@ -43,6 +43,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, NamedTuple
 
+from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import (
     POSITIVE_TIERS,
     DateBasis,
@@ -342,7 +343,7 @@ def build_output(manifest: dict[str, Any], result: SweepResult) -> dict[str, Any
 
 def main() -> int:
     """CLI: sweep ``data/manifests/latest.json`` -> the tracked artifact."""
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = _resolve_repo_root()
     manifest_path = repo_root / "data" / "manifests" / "latest.json"
     out_path = repo_root / OUTPUT_PATH
     manifest = json.loads(manifest_path.read_text())

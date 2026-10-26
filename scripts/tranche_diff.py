@@ -45,33 +45,38 @@ so the output location must stay tracked and must match
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import hashlib
 import json
-import sys
-from pathlib import Path
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-_SRC = _REPO_ROOT / "src"
-_SCRIPTS = _REPO_ROOT / "scripts"
-for _p in (_SRC, _SCRIPTS):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
+from pursue_index.paths import repo_root
 
-from pursue_index.tranche import (  # noqa: E402
+_REPO_ROOT = repo_root()
+
+from r2_archive_assets import load_registry
+
+from pursue_index.tranche import (
     build_byte_sha_index,
     find_title_continuity,
 )
-from pursue_index.tranche_manifest import (  # noqa: E402
+from pursue_index.tranche_manifest import (
     build_field_only_changes,
     build_removed_list,
     build_row_changes,
     display_rows_by_card_id,
     group_by_card_id,
 )
-from pursue_index.tranche_report import render_json, render_markdown  # noqa: E402
-from r2_archive_assets import load_registry  # noqa: E402
+from pursue_index.tranche_report import render_json, render_markdown
 
 DEFAULT_OLD_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"

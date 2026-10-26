@@ -29,17 +29,26 @@ approves entries, ``pursue scrape run`` picks them up automatically.
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
-import webbrowser
-from datetime import datetime, timezone
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import contextlib
+import json
+import webbrowser
+from datetime import UTC, datetime
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 DEFAULT_PROPOSALS = _REPO_ROOT / "data" / "display_dates_proposals.jsonl"
 DEFAULT_CURATED = _REPO_ROOT / "data" / "display_dates.json"
@@ -94,9 +103,9 @@ _HTML = (Path(__file__).parent / "curate_dates_ui_assets" / "index.html").read_t
 
 
 class _Handler(BaseHTTPRequestHandler):
-    proposals: list[dict[str, Any]] = []
+    proposals: ClassVar[list[dict[str, Any]]] = []
     curated_path: Path = DEFAULT_CURATED
-    manifest_by_card: dict[str, dict[str, Any]] = {}
+    manifest_by_card: ClassVar[dict[str, dict[str, Any]]] = {}
 
     def _json(self, body: dict[str, Any], status: int = 200) -> None:
         payload = json.dumps(body).encode("utf-8")
@@ -106,7 +115,7 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def log_message(self, fmt: str, *args: Any) -> None:  # noqa: ANN401
+    def log_message(self, fmt: str, *args: Any) -> None:
         # Quieter logs — show one line per request
         sys.stderr.write(f"[{self.log_date_time_string()}] {fmt % args}\n")
 
@@ -170,7 +179,7 @@ class _Handler(BaseHTTPRequestHandler):
             entry = body.get("entry") or {}
             if not entry.get("card_id"):
                 entry["card_id"] = card_id
-            entry.setdefault("display_date_approved_at", datetime.now(timezone.utc).isoformat())
+            entry.setdefault("display_date_approved_at", datetime.now(UTC).isoformat())
             entry.setdefault("display_date_curator", "operator-buschleague")
             curated[card_id] = entry
             _save_curated(self.curated_path, curated)
@@ -205,16 +214,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"display-date review UI: {url}")
     print(f"  proposals: {len(proposals)} ({args.proposals.relative_to(_REPO_ROOT)})")
     print(f"  curated output: {args.curated.relative_to(_REPO_ROOT)}")
-    print(f"  press Ctrl+C to stop")
+    print("  press Ctrl+C to stop")
     if not args.no_browser:
-        try:
+        with contextlib.suppress(Exception):
             webbrowser.open(url)
-        except Exception:
-            pass
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         server.serve_forever()
-    except KeyboardInterrupt:
-        pass
     return 0
 
 

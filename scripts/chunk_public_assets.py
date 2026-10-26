@@ -16,14 +16,21 @@ committed payloads without the data root.
 
 from __future__ import annotations
 
-import argparse
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "src"))
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pursue_index.release.chunked_asset import (  # noqa: E402
+import argparse
+
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
+
+from pursue_index.release.chunked_asset import (
     BUDGET_BYTES,
     MANIFEST_SUFFIX,
     find_budget_violations,

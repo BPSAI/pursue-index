@@ -43,8 +43,10 @@ def _write_diff(diff_dir: Path, sha: str, new_content: list[dict]) -> Path:
 
 
 def _ids(path: Path) -> list[str]:
+    """Card_ids from a worklist, dropping the ``# tranche:`` header, blank
+    lines, and each row's trailing ``\\treason`` tag."""
     return [
-        ln.strip()
+        ln.strip().split()[0]
         for ln in path.read_text(encoding="utf-8").splitlines()
         if ln.strip() and not ln.strip().startswith("#")
     ]
@@ -52,21 +54,25 @@ def _ids(path: Path) -> list[str]:
 
 def _new_content_two_cards() -> list[dict]:
     return [
-        {"new_card_id": "newcard1", "title": "X", "asset_url": "https://x/a.pdf"},
-        {"new_card_id": "newcard2", "title": "Y", "asset_url": "https://x/b.pdf"},
+        {"new_card_id": "00000000000000a1", "title": "X", "asset_url": "https://x/a.pdf"},
+        {"new_card_id": "00000000000000a2", "title": "Y", "asset_url": "https://x/b.pdf"},
     ]
 
 
 def _patch_gate_and_promote(monkeypatch, snapshot: Path) -> None:
-    """Approve the tranche + stub snapshot resolution/promotion (no FS mirrors)."""
+    """Approve the tranche + stub snapshot resolution/promotion (no FS mirrors).
+
+    Gate + promote now live in ``ingest_promote`` (R7C.2 / #169), not
+    ``ingest_cli`` — patch the names where ``run_cmd`` actually looks them up.
+    """
     monkeypatch.setattr(
-        "pursue_index.cli.ingest_cli.is_tranche_approved", lambda *a, **k: True
+        "pursue_index.cli.ingest_promote.is_tranche_approved", lambda *a, **k: True
     )
     monkeypatch.setattr(
-        "pursue_index.cli.ingest_cli.locate_snapshot", lambda *a, **k: snapshot
+        "pursue_index.cli.ingest_promote.locate_snapshot", lambda *a, **k: snapshot
     )
     monkeypatch.setattr(
-        "pursue_index.cli.ingest_cli.promote_snapshot", lambda *a, **k: None
+        "pursue_index.cli.ingest_promote.promote_snapshot", lambda *a, **k: []
     )
 
 
@@ -103,12 +109,17 @@ def _write_manifest(tmp_path: Path) -> Path:
 
     cards = [
         CardMetadata(card_id=cid, title="t", asset_type="PDF", agency="a")
-        for cid in ["newcard1", "newcard2", "oldcard"]
+        for cid in ["00000000000000a1", "00000000000000a2", "00000000000000b0"]
     ]
     m = Manifest(
         source_url="https://example.com/data.csv",
         fetched_at=datetime(2026, 1, 1, tzinfo=UTC),
-        csv_sha256="deadbeef",
+        # Matches _TRANCHE: a real `promote_snapshot` would copy the
+        # snapshot (whose own csv_sha256 is this tranche's sha) onto this
+        # path, so the worklist header (now computed from the tranche, not
+        # read back from the manifest -- R7C.2 / #169) stays consistent
+        # with what the downstream stage executors validate against.
+        csv_sha256=_TRANCHE,
         cards=cards,
     )
     p = tmp_path / "latest.json"
@@ -155,17 +166,12 @@ def test_dry_run_writes_worklist_and_runs_no_stage(tmp_path, monkeypatch) -> Non
          "--from-diff", "--dry-run", "--worklist", str(worklist)],
     )
     assert res.exit_code == 0, res.output
-    assert "newcard1" in res.output
-    assert "newcard2" in res.output
+    assert "00000000000000a1" in res.output
+    assert "00000000000000a2" in res.output
     # dry-run MATERIALIZES the worklist (credential-free) so a
     # later separately-invoked OCR step consumes the right card set...
     assert worklist.exists()
-    written = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert written == ["newcard1", "newcard2"]
+    assert _ids(worklist) == ["00000000000000a1", "00000000000000a2"]
     # ...but no stage may run under --dry-run.
     assert seen == {}
 
@@ -215,17 +221,12 @@ def test_non_dry_writes_worklist_and_runs_scoped_stages(tmp_path, monkeypatch) -
 
     # Worklist file written with exactly the scoped card_ids.
     assert worklist.exists()
-    written = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert written == ["newcard1", "newcard2"]
+    assert _ids(worklist) == ["00000000000000a1", "00000000000000a2"]
 
     # Each stage ran exactly once, scoped to the worklist (oldcard excluded).
-    assert seen["download"] == [["newcard1", "newcard2"]]
-    assert seen["ocr"] == [["newcard1", "newcard2"]]
-    assert seen["embed"] == [{"newcard1", "newcard2"}]
+    assert seen["download"] == [["00000000000000a1", "00000000000000a2"]]
+    assert seen["ocr"] == [["00000000000000a1", "00000000000000a2"]]
+    assert seen["embed"] == [{"00000000000000a1", "00000000000000a2"}]
 
 
 def test_non_dry_metadata_only_runs_no_stage(tmp_path, monkeypatch) -> None:
@@ -246,6 +247,37 @@ def test_non_dry_metadata_only_runs_no_stage(tmp_path, monkeypatch) -> None:
     )
     assert res.exit_code == 0, res.output
     assert seen == {}
+
+
+def test_metadata_only_tranche_clears_a_prior_tranches_stale_worklist(tmp_path, monkeypatch) -> None:
+    """A metadata-only tranche must still rewrite the PDF worklist (empty) --
+    a prior tranche's ids must never survive into this one's scope (R7C.1 /
+    #168: this is exactly what let a stale `ocr --force` run reuse last
+    tranche's work-list)."""
+    diff_dir = tmp_path / "plans"
+    _write_diff(diff_dir, _TRANCHE, [])
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    manifest = _write_manifest(tmp_path)
+    worklist = tmp_path / "worklist.txt"
+    worklist.write_text("# tranche: some-older-tranche\noldcard1\toldcard2\n")
+    _patch_gate_and_promote(monkeypatch, snapshot)
+    seen: dict = {}
+    _patch_stage_executors(monkeypatch, seen)
+
+    res = runner.invoke(
+        ingest_app,
+        [*_common_args(diff_dir, manifest, snapshot), "--from-diff", "--worklist", str(worklist)],
+    )
+    assert res.exit_code == 0, res.output
+    assert seen == {}
+    # The prior tranche's ids are gone; the header now names this run's own
+    # tranche sha (R7C.2 / #169: computed from the diff/--tranche, not read
+    # back from the manifest -- which a dry run must never touch anyway).
+    assert _ids(worklist) == []
+    from pursue_index.cli.worklist import worklist_header_tranche
+
+    assert worklist_header_tranche(worklist) == _TRANCHE
 
 
 def test_cost_cap_defaults_to_embed_default(tmp_path, monkeypatch) -> None:
@@ -299,11 +331,11 @@ def test_cost_cap_override_threads_to_embed(tmp_path, monkeypatch) -> None:
 def _new_content_mixed() -> list[dict]:
     """2 PDF, 2 VID, 1 AUD for mixed PDF/A/V testing."""
     return [
-        {"new_card_id": "pdf1", "title": "PDF 1", "asset_url": "https://x/a.pdf", "asset_type": "PDF", "release_date": "2026-03-15"},
-        {"new_card_id": "pdf2", "title": "PDF 2", "asset_url": "https://x/b.pdf", "asset_type": "PDF", "release_date": "2026-03-15"},
-        {"new_card_id": "vid1", "title": "Video 1", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
-        {"new_card_id": "vid2", "title": "Video 2", "asset_url": "https://x/b.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
-        {"new_card_id": "aud1", "title": "Audio 1", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-03-15"},
+        {"new_card_id": "00000000000000c1", "title": "PDF 1", "asset_url": "https://x/a.pdf", "asset_type": "PDF", "release_date": "2026-03-15"},
+        {"new_card_id": "00000000000000c2", "title": "PDF 2", "asset_url": "https://x/b.pdf", "asset_type": "PDF", "release_date": "2026-03-15"},
+        {"new_card_id": "00000000000000d1", "title": "Video 1", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+        {"new_card_id": "00000000000000d2", "title": "Video 2", "asset_url": "https://x/b.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+        {"new_card_id": "00000000000000e1", "title": "Audio 1", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-03-15"},
     ]
 
 
@@ -328,22 +360,14 @@ def test_dry_run_writes_both_pdf_and_av_worklists(tmp_path, monkeypatch) -> None
 
     # Check PDF worklist
     assert worklist.exists(), f"PDF worklist not created at {worklist}"
-    pdf_lines = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert pdf_lines == ["pdf1", "pdf2"], f"Expected ['pdf1', 'pdf2'], got {pdf_lines}"
+    pdf_lines = _ids(worklist)
+    assert pdf_lines == ["00000000000000c1", "00000000000000c2"], f"Expected ['pdf1', 'pdf2'], got {pdf_lines}"
 
     # Check A/V worklist
     av_worklist = worklist.parent / "worklist-av.txt"
     assert av_worklist.exists(), f"A/V worklist not created at {av_worklist}"
-    av_lines = [
-        ln.strip()
-        for ln in av_worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert av_lines == ["vid1", "vid2", "aud1"], f"Expected ['vid1', 'vid2', 'aud1'], got {av_lines}"
+    av_lines = _ids(av_worklist)
+    assert av_lines == ["00000000000000d1", "00000000000000d2", "00000000000000e1"], f"Expected ['vid1', 'vid2', 'aud1'], got {av_lines}"
 
     # No stages ran
     assert seen == {}
@@ -370,12 +394,7 @@ def test_dry_run_pdf_only_no_av_worklist(tmp_path, monkeypatch) -> None:
 
     # Check PDF worklist exists
     assert worklist.exists()
-    pdf_lines = [
-        ln.strip()
-        for ln in worklist.read_text(encoding="utf-8").splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
-    ]
-    assert pdf_lines == ["newcard1", "newcard2"]
+    assert _ids(worklist) == ["00000000000000a1", "00000000000000a2"]
 
     # A/V worklist should NOT exist
     av_worklist = worklist.parent / "worklist-av.txt"
@@ -386,8 +405,8 @@ def test_dry_run_av_only_writes_empty_pdf_worklist(tmp_path, monkeypatch) -> Non
     """--dry-run with A/V-only content writes worklist-av.txt and an empty worklist.txt."""
     diff_dir = tmp_path / "plans"
     av_only = [
-        {"new_card_id": "vid1", "title": "Video 1", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
-        {"new_card_id": "aud1", "title": "Audio 1", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-03-15"},
+        {"new_card_id": "00000000000000d1", "title": "Video 1", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "2026-03-15"},
+        {"new_card_id": "00000000000000e1", "title": "Audio 1", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "2026-03-15"},
     ]
     _write_diff(diff_dir, _TRANCHE, av_only)
     snapshot = tmp_path / "snap.json"
@@ -417,13 +436,13 @@ def test_dry_run_av_only_writes_empty_pdf_worklist(tmp_path, monkeypatch) -> Non
         for ln in av_worklist.read_text(encoding="utf-8").splitlines()
         if ln.strip() and not ln.strip().startswith("#")
     ]
-    assert av_lines == ["vid1", "aud1"]
+    assert av_lines == ["00000000000000d1", "00000000000000e1"]
 
 
 def _av_only_content() -> list[dict]:
     return [
-        {"new_card_id": "vid1", "title": "V", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "3/15/26"},
-        {"new_card_id": "aud1", "title": "A", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "4/2/26"},
+        {"new_card_id": "00000000000000d1", "title": "V", "asset_url": "https://x/a.mp4", "asset_type": "VID", "release_date": "3/15/26"},
+        {"new_card_id": "00000000000000e1", "title": "A", "asset_url": "https://x/a.mp3", "asset_type": "AUD", "release_date": "4/2/26"},
     ]
 
 
@@ -454,7 +473,7 @@ def test_non_dry_av_only_tranche_skips_pdf_stages_and_writes_empty_worklist(
 
     assert seen == {}  # no download / ocr / embed
     assert _ids(worklist) == []
-    assert _ids(tmp_path / "worklist-av.txt") == ["vid1", "aud1"]
+    assert _ids(tmp_path / "worklist-av.txt") == ["00000000000000d1", "00000000000000e1"]
     assert "0 PDF/IMG cards — PDF stages skipped" in res.output
     assert "pursue av-fetch run --release-date 3/15/26" in res.output
     assert "pursue av-fetch run --release-date 4/2/26" in res.output
@@ -463,8 +482,8 @@ def test_non_dry_av_only_tranche_skips_pdf_stages_and_writes_empty_worklist(
 def test_av_worklist_name_is_derived_without_string_replace(tmp_path) -> None:
     from pursue_index.cli.ingest_from_diff import write_worklist_file
 
-    write_worklist_file(tmp_path / "wl.txt.d" / "list.txt", ["a"], "t" * 12, suffix="-av")
-    write_worklist_file(tmp_path / "plain", ["b"], "t" * 12, suffix="-av")
+    write_worklist_file(tmp_path / "wl.txt.d" / "list.txt", ["a" * 16], "t" * 12, suffix="-av")
+    write_worklist_file(tmp_path / "plain", ["b" * 16], "t" * 12, suffix="-av")
     assert (tmp_path / "wl.txt.d" / "list-av.txt").exists()
     assert (tmp_path / "plain-av").exists()
     assert not (tmp_path / "plain").exists()

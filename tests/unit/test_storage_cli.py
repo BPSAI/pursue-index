@@ -62,6 +62,9 @@ _PDF = b"%PDF-1.4 cli fixture\n%%EOF\n"
 _PDF_SHA = hashlib.sha256(_PDF).hexdigest()
 
 
+_CARD = "a0b1c2d3e4f5a6b7"
+
+
 def _seed(root: Path, card_id: str) -> None:
     ocr = root / "ocr" / card_id
     ocr.mkdir(parents=True, exist_ok=True)
@@ -72,15 +75,26 @@ def _seed(root: Path, card_id: str) -> None:
 
 
 def _worklist(root: Path, *card_ids: str) -> Path:
+    """Write a worklist tagged with the *real* promoted manifest's tranche sha.
+
+    ``mirror-pdfs``/``verify-mirror`` load ``settings.manifests_dir /
+    "latest.json"`` directly (not a ``--manifest`` flag), so the worklist
+    header must name that committed manifest's ``csv_sha256`` to pass the
+    tranche-header gate — a fixed/invented sha would go stale at the next
+    Release promotion.
+    """
+    promoted_sha = json.loads(
+        (settings.manifests_dir / "latest.json").read_text(encoding="utf-8")
+    )["csv_sha256"]
     wl = root / "worklist.txt"
-    wl.write_text("# tranche worklist\n" + "\n".join(card_ids) + "\n")
+    wl.write_text(f"# tranche: {promoted_sha}\n" + "\n".join(card_ids) + "\n")
     return wl
 
 
 def test_mirror_pdfs_then_verify_mirror_roundtrip(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(settings, "data_root", tmp_path)
-    _seed(tmp_path, "cardA")
-    wl = _worklist(tmp_path, "cardA")
+    _seed(tmp_path, _CARD)
+    wl = _worklist(tmp_path, _CARD)
 
     m = runner.invoke(app, ["storage", "mirror-pdfs", "--worklist", str(wl)])
     assert m.exit_code == 0, m.output
@@ -92,8 +106,17 @@ def test_mirror_pdfs_then_verify_mirror_roundtrip(tmp_path, monkeypatch) -> None
 
 def test_verify_mirror_exit_nonzero_when_missing(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(settings, "data_root", tmp_path)
-    _seed(tmp_path, "cardA")  # OCR ran, but mirror never staged
-    wl = _worklist(tmp_path, "cardA")
+    _seed(tmp_path, _CARD)  # OCR ran, but mirror never staged
+    wl = _worklist(tmp_path, _CARD)
     v = runner.invoke(app, ["storage", "verify-mirror", "--worklist", str(wl)])
     assert v.exit_code == 1, v.output
     assert "MISSING" in v.output
+
+
+def test_a_worklist_card_id_that_is_not_16_hex_is_refused(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(settings, "data_root", tmp_path)
+    wl = _worklist(tmp_path, "../../outside")
+    for verb in ("mirror-pdfs", "verify-mirror"):
+        result = runner.invoke(app, ["storage", verb, "--worklist", str(wl)])
+        assert result.exit_code == 2, result.output
+        assert "invalid card_id" in result.output

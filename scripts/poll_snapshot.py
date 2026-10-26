@@ -28,24 +28,29 @@ verdict back onto the ``tranche-detected`` issue.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
-import sys
 import tempfile
-from pathlib import Path
 
 # Make ``src/`` importable when running as ``python scripts/poll_snapshot.py``
 # from the repo root (no install needed in the GH Actions runner).
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-_SRC = _REPO_ROOT / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+from pursue_index.paths import repo_root
 
-from pursue_index.scrape.classify_tranche import (  # noqa: E402
+_REPO_ROOT = repo_root()
+
+from pursue_index.scrape.classify_tranche import (
     build_verdict_artifact,
     render_verdict_summary,
 )
-from pursue_index.scrape.poll_snapshot import (  # noqa: E402
+from pursue_index.scrape.poll_snapshot import (
     generate_snapshot_diff,
 )
 

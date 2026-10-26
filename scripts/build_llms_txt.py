@@ -19,18 +19,25 @@ Usage:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import difflib
 import json
 import re
-import sys
-from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_REPO_ROOT / "src"))
+from pursue_index.paths import repo_root
 
-from pursue_index.config import settings  # noqa: E402
-from pursue_index.geo.llms import (  # noqa: E402
+_REPO_ROOT = repo_root()
+
+from pursue_index.config import settings
+from pursue_index.geo.llms import (
     EXCERPT_CHARS,
     build_cards_intro,
     build_provenance_line,

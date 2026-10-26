@@ -37,6 +37,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from pursue_index.paths import installed_scripts_dir
 from pursue_index.scrape.snapshots import write_public_index
 
 # Operator-local builders invoked from promote_snapshot as part of the
@@ -82,7 +83,7 @@ def _mirror_snapshot_to_web(
     write_public_index(web_snapshots_dir)
 
 
-def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
+def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> list[str]:
     """Copy the snapshot to every deployed-side surface that depends on it.
 
     Three surfaces refresh in lockstep:
@@ -113,12 +114,18 @@ def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> None:
     `build_atlas_layout.py`, `build_search_data.py`) are NOT run here — they
     depend on the embed and OCR stages that a metadata-only promote does not
     touch. `make rebuild-derivatives`, run after embed, propagates those.
+
+    Returns the names of any operator-local builder that exited non-zero
+    (empty when all succeeded, or none ran). The mirror above always
+    completes regardless -- a builder failure never rolls it back -- but
+    the caller (``pursue ingest run``) uses this to decide whether a
+    stale derived payload should turn into a non-zero exit.
     """
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(snapshot_path, manifest_path)
     repo_root = manifest_path.parent.parent.parent
     _mirror_to_deploy_surfaces(snapshot_path, repo_root)
-    _run_operator_local_builders(repo_root)
+    return _run_operator_local_builders(repo_root)
 
 
 def _mirror_to_deploy_surfaces(snapshot_path: Path, repo_root: Path) -> None:
@@ -164,7 +171,7 @@ def _report_builder_result(
         print(f"[ingest] {builder}: ok (exit 0)")
 
 
-def _run_operator_local_builders(repo_root: Path) -> None:
+def _run_operator_local_builders(repo_root: Path) -> list[str]:
     """Invoke the poster + PDF-thumb builders after a mirror, surfacing output.
 
     ``build_video_posters`` rebuilds A/V posters from the mirrored R2 bytes
@@ -172,15 +179,22 @@ def _run_operator_local_builders(repo_root: Path) -> None:
     gallery thumbnails from NAS-local PDFs. Both are idempotent. Their
     stdout/stderr and exit codes are now PRINTED via
     ``_report_builder_result`` rather than captured-and-discarded, so a real
-    failure is visible. Failures are tolerated (no raise) so a buggy or
-    misconfigured builder can't block manifest promotion.
+    failure is visible. Failures are tolerated here (no raise) so a buggy or
+    misconfigured builder can't block manifest promotion -- the caller
+    decides what a non-empty return means.
 
-    No-op when scripts/ doesn't exist on disk (fresh / partial
-    checkout) or when an individual builder file is missing.
+    No-op when the data root has no scripts/ (fresh / partial checkout) or
+    when an individual builder file is missing. The builder executed is the
+    installed checkout's copy, never one found under ``repo_root``.
+
+    Returns the names of builders that failed to start or exited non-zero.
     """
-    scripts_dir = repo_root / "scripts"
-    if not scripts_dir.is_dir():
-        return
+    # Presence of scripts/ under the data root only says "this is a full
+    # checkout"; what runs is always the installed package's own copy.
+    scripts_dir = installed_scripts_dir()
+    if scripts_dir is None or not (repo_root / "scripts").is_dir():
+        return []
+    failed: list[str] = []
     for builder in _OPERATOR_LOCAL_BUILDERS:
         script = scripts_dir / builder
         if not script.is_file():
@@ -197,8 +211,12 @@ def _run_operator_local_builders(repo_root: Path) -> None:
             # Subprocess machinery unavailable (extremely unusual; e.g.
             # restricted CI runner). Surface it; don't fail the promote.
             print(f"[ingest] builder {builder} could not start: {exc}")
+            failed.append(builder)
             continue
         _report_builder_result(builder, result)
+        if result.returncode != 0:
+            failed.append(builder)
+    return failed
 
 
 def summarize_ingest_work(diff: dict[str, Any]) -> dict[str, Any]:

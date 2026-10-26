@@ -22,16 +22,23 @@ Invocation::
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import argparse
 import json
 import os
-import sys
 import time
 from datetime import UTC, datetime
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "src"))
+from pursue_index.paths import repo_root
+
+REPO_ROOT = repo_root()
 
 if "ANTHROPIC_API_KEY" not in os.environ:
     sys.exit(
@@ -46,15 +53,15 @@ if "ANTHROPIC_API_KEY" not in os.environ:
 os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 os.environ.setdefault("PURSUE_OCR_LLM_PROVIDER", "anthropic")
 
-from pdf2image import convert_from_path  # noqa: E402
+from pdf2image import convert_from_path
 
-from pursue_index import get_logger  # noqa: E402
-from pursue_index.config import settings  # noqa: E402
-from pursue_index.download.downloader import asset_path_for  # noqa: E402
-from pursue_index.ocr import auto as ocr_auto  # noqa: E402
-from pursue_index.ocr import cached_auto  # noqa: E402
-from pursue_index.ocr import llm as ocr_llm  # noqa: E402
-from pursue_index.scrape import load_manifest  # noqa: E402
+from pursue_index import get_logger
+from pursue_index.config import settings
+from pursue_index.download.downloader import asset_path_for
+from pursue_index.ocr import auto as ocr_auto
+from pursue_index.ocr import cached_auto
+from pursue_index.ocr import llm as ocr_llm
+from pursue_index.scrape import load_manifest
 
 log = get_logger(__name__)
 

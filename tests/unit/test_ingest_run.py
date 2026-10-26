@@ -8,7 +8,6 @@ download/ocr/embed CLI surfaces.
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -275,6 +274,58 @@ def test_promote_snapshot_tolerates_builder_failure(
     assert manifest.read_text() == snapshot.read_text()
 
 
+def test_promote_snapshot_returns_failed_builder_names(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A non-zero builder exit must be reported back to the caller --
+    the CLI layer (R7C.2 / #169) turns this into a non-zero exit naming
+    the builder, instead of only ever printing a warning."""
+    import json as _json
+    import subprocess
+
+    repo_root, _ = _build_repo_with_scripts(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "fed" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    def _fake_run(cmd, *args, **kwargs):
+        if "build_video_posters.py" in " ".join(cmd):
+            return subprocess.CompletedProcess(cmd, 1, stdout="", stderr="boom")
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", _fake_run)
+    failed = promote_snapshot(snapshot, manifest)
+    assert failed == ["build_video_posters.py"]
+
+
+def test_promote_snapshot_returns_empty_list_when_builders_succeed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json as _json
+    import subprocess
+
+    repo_root, _ = _build_repo_with_scripts(tmp_path)
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text(_json.dumps({
+        "csv_sha256": "cde" + "0" * 61,
+        "fetched_at": "2026-05-12T20:00:00Z",
+        "cards": [],
+    }))
+    manifest = pipeline / "latest.json"
+
+    monkeypatch.setattr(
+        subprocess, "run",
+        lambda cmd, *a, **kw: subprocess.CompletedProcess(cmd, 0, stdout="", stderr=""),
+    )
+    assert promote_snapshot(snapshot, manifest) == []
+
+
 def test_promote_snapshot_surfaces_builder_output_and_exit_code(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -495,3 +546,34 @@ def test_summarize_av_rows_with_release_dates() -> None:
     # All A/V rows should have the same release_date (operator enforces this)
     assert "av_release_dates" in summary
     assert "2026-03-15" in summary["av_release_dates"]
+
+
+def test_builders_run_from_the_installed_checkout_not_the_data_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A ``scripts/`` dir beside the data root is only a "full checkout"
+    signal; the script that executes is the installed package's copy."""
+    import subprocess
+
+    from pursue_index.paths import installed_scripts_dir
+
+    repo_root = _build_repo(tmp_path)
+    planted = repo_root / "scripts"
+    planted.mkdir()
+    (planted / "build_video_posters.py").write_text("raise SystemExit(99)\n")
+    (planted / "build_pdf_thumbs.py").write_text("raise SystemExit(99)\n")
+    pipeline = repo_root / "data" / "manifests"
+    snapshot = pipeline / "snapshot.json"
+    snapshot.write_text('{"csv_sha256": "abc", "cards": []}')
+
+    invoked: list[list[str]] = []
+    monkeypatch.setattr(
+        subprocess, "run",
+        lambda cmd, *a, **kw: (invoked.append(list(cmd)) or subprocess.CompletedProcess(cmd, 0)),
+    )
+    promote_snapshot(snapshot, pipeline / "latest.json")
+
+    installed = installed_scripts_dir()
+    assert installed is not None and invoked
+    assert all(str(planted) not in " ".join(cmd) for cmd in invoked)
+    assert all(str(installed) in " ".join(cmd) for cmd in invoked)

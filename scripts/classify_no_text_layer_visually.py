@@ -23,13 +23,21 @@ No new third-party deps: uses PIL + pdf2image (in venv).
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
+
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import json
 from typing import Any
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+from pursue_index.paths import repo_root
+
+_REPO_ROOT = repo_root()
 
 DEFAULT_BYTE_HISTORY = _REPO_ROOT / "web" / "src" / "data" / "byte-history.json"
 DEFAULT_CLASSIFICATION = _REPO_ROOT / "data" / "altered-classification.json"
@@ -87,7 +95,7 @@ def hamming_distance(a: bytes, b: bytes) -> int:
     if len(a) != len(b):
         raise ValueError(f"hash length mismatch: {len(a)} vs {len(b)}")
     return int.from_bytes(
-        bytes(x ^ y for x, y in zip(a, b)), "big"
+        bytes(x ^ y for x, y in zip(a, b, strict=False)), "big"
     ).bit_count()
 
 
@@ -110,7 +118,7 @@ def compare_visuals(
             "pre_pages": len(pre_hashes),
             "post_pages": len(post_hashes),
         }
-    per_page = [hamming_distance(a, b) for a, b in zip(pre_hashes, post_hashes)]
+    per_page = [hamming_distance(a, b) for a, b in zip(pre_hashes, post_hashes, strict=False)]
     max_diff = max(per_page) if per_page else 0
     avg_diff = sum(per_page) / len(per_page) if per_page else 0
     visual_class = (
