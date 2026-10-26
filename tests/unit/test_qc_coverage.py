@@ -17,6 +17,7 @@ from pursue_index.clean.qc.coverage import (
     classify_cards,
 )
 from pursue_index.embed.image_observations import OBSERVATIONS_HEADER
+from pursue_index.vendor.judged_pages_digest import judged_pages_digest, page_sha256
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
@@ -119,6 +120,53 @@ def test_an_empty_ocr_page_still_counts_toward_the_judged_page_count() -> None:
     pages.append(_page("mixed", 2, ""))
     bundle["cards"][1]["page_count"] = 2
     assert classify_cards(manifest, bundle, pages, observations, _obs_text(observations))["mixed"] == "judged"
+
+
+def _page_shas(pages: list[dict], card_id: str) -> dict[int, str]:
+    return {p["page"]: page_sha256(p["text"]) for p in pages if p["card_id"] == card_id}
+
+
+def test_a_card_whose_bundle_digest_matches_its_page_rows_is_judged() -> None:
+    manifest, bundle, pages, observations = _fixture()
+    shas = _page_shas(pages, "pdf-judged")
+    bundle["cards"][0]["judged_pages_digest"] = judged_pages_digest(shas.items())
+    page_shas = {"pdf-judged": shas}
+    statuses = classify_cards(
+        manifest, bundle, pages, observations, _obs_text(observations), page_shas
+    )
+    assert statuses["pdf-judged"] == "judged"
+
+
+def test_altering_one_pages_text_makes_the_card_stale() -> None:
+    manifest, bundle, pages, observations = _fixture()
+    shas = _page_shas(pages, "pdf-judged")
+    bundle["cards"][0]["judged_pages_digest"] = judged_pages_digest(shas.items())
+    # The page's committed sha now reflects re-OCR'd (different) text, but
+    # the bundle's digest -- computed at sweep time -- is unchanged.
+    page_shas = {"pdf-judged": {**shas, 1: page_sha256("re-OCR'd text")}}
+    statuses = classify_cards(
+        manifest, bundle, pages, observations, _obs_text(observations), page_shas
+    )
+    assert statuses["pdf-judged"] == "stale"
+    doc = build_coverage(
+        manifest, bundle, pages, observations, _obs_text(observations), page_shas
+    )
+    assert doc["status_counts"]["stale"] == 1
+    stale_ids = [c["card_id"] for c in doc["cards"] if c["status"] == "stale"]
+    assert stale_ids == ["pdf-judged"]
+
+
+def test_a_legacy_bundle_without_digests_still_marks_cards_judged() -> None:
+    """A bundle published before R7C.15 carries no ``judged_pages_digest``
+    field -- cards classify ``judged`` by page_count alone, exactly as
+    before, and ``bundle_missing_digests`` flags the gap for the caller's
+    one-line notice."""
+    manifest, bundle, pages, observations = _fixture()
+    assert "judged_pages_digest" not in bundle["cards"][0]
+    doc = build_coverage(manifest, bundle, pages, observations, _obs_text(observations))
+    assert doc["status_counts"]["judged"] == 2
+    assert doc["status_counts"]["stale"] == 0
+    assert doc["bundle_missing_digests"] is True
 
 
 def test_payload_lists_every_distinct_card_once_sorted() -> None:

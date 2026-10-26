@@ -17,6 +17,7 @@ row with its card metadata, and writes a single
       "pages": [
         {"id": "<card>-p<n>", "card_id": "...", "page": N,
          "title": "...", "text": "<cleaned>",
+         "source_page_sha256": "...",
          "model_id": "...", "prompt_sha256": "...",
          "input_sha256": "...", "output_sha256": "...",
          "generated_at": "..."},
@@ -26,6 +27,14 @@ row with its card metadata, and writes a single
 
 The shape mirrors ``pages.json`` so the reader-mode component can index it
 the same way — see `web/src/components/CardOcrIsland.tsx`.
+
+``source_page_sha256`` (R7C.15) is the sha256 of the sidecar's
+``text_cleaned`` as read, BEFORE this builder's own sanitization clears or
+rewrites it for a skipped row (see ``_stamp_source_page_sha256``) -- the
+same field name and definition pursue-curate's clean-QC sidecar stamps.
+``scripts/build_qc_coverage.py`` recomputes each judged card's digest
+from these committed shas, since CI cannot read the NAS sidecars that
+would otherwise carry them.
 """
 
 from __future__ import annotations
@@ -49,6 +58,7 @@ REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
 from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset
+from pursue_index.vendor.judged_pages_digest import page_sha256
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
@@ -137,6 +147,23 @@ def _dedupe_latest_per_page(
     return [entry["row"] for entry in by_page.values()]
 
 
+def _stamp_source_page_sha256(row: dict) -> dict:
+    """Return a copy of ``row`` carrying ``source_page_sha256``.
+
+    Hashed from the sidecar's ``text_cleaned`` as read -- BEFORE
+    ``_sanitize_row_for_mirror`` clears or rewrites it for a skipped row.
+    This is the one definition (via the vendored ``page_sha256``) a
+    sanitized page's un-sanitized text hashes to, matching what
+    pursue-curate's clean-QC sidecar stamps against the same field (R7C.14
+    / R7C.15): the coverage builder recomputes a card's judged-pages
+    digest from these committed shas since CI cannot read the NAS
+    sidecars that would otherwise carry them.
+    """
+    sanitized = dict(row)
+    sanitized["source_page_sha256"] = page_sha256(row.get("text_cleaned", ""))
+    return sanitized
+
+
 def _sanitize_row_for_mirror(row: dict) -> dict:
     """Return a copy of ``row`` safe to ship in the cleaned mirror.
 
@@ -214,6 +241,7 @@ def _walk_sidecars(
             continue
         card_id = card_dir.name
         rows = _dedupe_latest_per_page(rows, card_id=card_id)
+        rows = [_stamp_source_page_sha256(r) for r in rows]
         rows = [_sanitize_row_for_mirror(r) for r in rows]
         if not rows:
             continue
@@ -249,6 +277,7 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
         "page": page,
         "title": title,
         "text": row.get("text_cleaned", ""),
+        "source_page_sha256": row.get("source_page_sha256", ""),
         "model_id": row.get("model_id", ""),
         "prompt_sha256": row.get("prompt_sha256", ""),
         "input_sha256": row.get("input_sha256", ""),

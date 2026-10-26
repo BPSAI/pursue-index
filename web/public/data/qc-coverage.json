@@ -14,6 +14,7 @@
   "status_counts": {
     "judged": 298,
     "partially_judged": 0,
+    "stale": 0,
     "unverified_transcript": 16,
     "unverified_vision": 30,
     "no_text": 122,
@@ -22,6 +23,7 @@
   "unverified_other": [],
   "unverified_other_reasons": {},
   "bundle_cards_not_in_manifest": [],
+  "bundle_missing_digests": true,
   "vision_text_pages_in_judged_cards": {
     "cards": 21,
     "pages": 42
