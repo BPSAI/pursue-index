@@ -18,11 +18,12 @@ from pursue_index.scrape.pdf_pages import PageTarget, fetch_and_count
 from tests.support.pdf_page_fakes import FakeHttpGet, pdf_bytes
 
 _BASE = "https://www.war.gov/medialink/ufo"
+_C1, _C10, _C100 = (f"{n:016x}" for n in (1, 10, 100))
 _THREE = {f"{_BASE}/p{n}.pdf": pdf_bytes(n) for n in (1, 10, 100)}
 
 
 def _targets() -> list[PageTarget]:
-    return [PageTarget(card_id=f"card{n:03d}", url=f"{_BASE}/p{n}.pdf") for n in (1, 10, 100)]
+    return [PageTarget(card_id=f"{n:016x}", url=f"{_BASE}/p{n}.pdf") for n in (1, 10, 100)]
 
 
 @pytest.fixture
@@ -34,7 +35,7 @@ def fake_get(monkeypatch: pytest.MonkeyPatch) -> FakeHttpGet:
 
 def test_three_fixture_pdfs_count_111_pages_and_price_to_the_table(fake_get) -> None:
     with fetch_and_count(_targets()) as fetched:
-        assert fetched.page_counts == {"card001": 1, "card010": 10, "card100": 100}
+        assert fetched.page_counts == {_C1: 1, _C10: 10, _C100: 100}
         assert fetched.fallback_card_ids == []
         band = cost_band(sum(fetched.page_counts.values()))
     assert band.pages == 111
@@ -55,11 +56,11 @@ def test_a_failed_fetch_is_a_per_card_fallback_and_the_band_is_partial(
     fake = FakeHttpGet(bodies=_THREE, fail=frozenset({f"{_BASE}/p10.pdf"}))
     monkeypatch.setattr(csv_fetcher, "http_get", fake)
     with fetch_and_count(_targets()) as fetched:
-        assert fetched.fallback_card_ids == ["card010"]
-        assert fetched.page_counts == {"card001": 1, "card100": 100}
+        assert fetched.fallback_card_ids == [_C10]
+        assert fetched.page_counts == {_C1: 1, _C100: 100}
         band = cost_band(101, fallback_card_ids=fetched.fallback_card_ids)
     assert band.partial is True
-    assert band.fallback_card_ids == ("card010",)
+    assert band.fallback_card_ids == (_C10,)
 
 
 def test_http_errors_and_unparseable_bytes_fall_back(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -67,12 +68,12 @@ def test_http_errors_and_unparseable_bytes_fall_back(monkeypatch: pytest.MonkeyP
     monkeypatch.setattr(csv_fetcher, "http_get", FakeHttpGet(bodies=bodies))
     with fetch_and_count(_targets()) as fetched:
         assert fetched.page_counts == {}
-        assert fetched.fallback_card_ids == ["card001", "card010", "card100"]
+        assert fetched.fallback_card_ids == [_C1, _C10, _C100]
 
 
 def test_bytes_live_only_in_the_temp_dir_for_the_with_block(fake_get) -> None:
     with fetch_and_count(_targets()) as fetched:
-        path = fetched.paths["card100"]
+        path = fetched.paths[_C100]
         assert path.parent == fetched.workdir
         assert path.read_bytes() == _THREE[f"{_BASE}/p100.pdf"]
     assert not fetched.workdir.exists()
