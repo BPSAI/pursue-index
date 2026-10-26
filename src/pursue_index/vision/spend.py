@@ -91,11 +91,19 @@ class SpendBudget:
     reservation_usd: float = 0.02
     worst_case_usd: float | None = None
     spent_usd: float = 0.0
+    max_call_usd: float = 0.0
 
     def _worst(self) -> float:
-        if self.worst_case_usd is not None:
-            return self.worst_case_usd
-        return worst_case_call_usd(self.model)
+        """The modeled worst case, or the dearest call seen if that was higher.
+
+        The modeled ceiling rests on billing assumptions (image downscale,
+        prompt size). A call that costs more than it has proved the model
+        wrong, so no later call is allowed to start on the lower figure.
+        """
+        modeled = self.worst_case_usd
+        if modeled is None:
+            modeled = worst_case_call_usd(self.model)
+        return max(modeled, self.max_call_usd)
 
     def can_start(self) -> bool:
         """True iff a worst-case call still fits under the cap."""
@@ -108,4 +116,6 @@ class SpendBudget:
     def settle(self, usage: Mapping[str, object] | None) -> None:
         """Replace the reservation with the response's real cost."""
         actual = usage_cost_usd(self.model, usage)
-        self.spent_usd += (self._worst() if actual is None else actual) - self.reservation_usd
+        cost = self._worst() if actual is None else actual
+        self.max_call_usd = max(self.max_call_usd, cost)
+        self.spent_usd += cost - self.reservation_usd

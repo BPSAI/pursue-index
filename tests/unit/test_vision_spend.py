@@ -152,3 +152,19 @@ def test_an_all_zero_usage_mapping_is_unavailable_not_free() -> None:
         ("input_tokens", "output_tokens",
          "cache_creation_input_tokens", "cache_read_input_tokens"), 0)
     assert usage_cost_usd(_MODEL, zeros) is None
+
+
+def test_a_call_that_beat_the_assumed_worst_case_raises_the_bar_for_the_next(
+    tmp_path: Path,
+) -> None:
+    """Real usage above the modeled ceiling must not let the next call overshoot."""
+    usage = {"input_tokens": 6_000, "output_tokens": 2_048}  # costs more than the model's worst
+    assert usage_cost_usd(_MODEL, usage) > worst_case_call_usd(_MODEL)
+    cap = 0.45
+    report, calls = _run(10, cap, usage, tmp_path)
+    assert calls == 1
+    assert report.spent_usd <= cap + usage_cost_usd(_MODEL, usage)
+    after_one = SpendBudget(cap_usd=cap, model=_MODEL)
+    after_one.reserve()
+    after_one.settle(usage)
+    assert not after_one.can_start()
