@@ -92,8 +92,9 @@ def bytes_dir_check(
     return check
 
 
-def _resave_row(row: dict[str, Any], old_card_id: str, old_sha: str) -> dict[str, Any]:
-    match = next(m for m in row.get("matches", []) if m["card_id"] == old_card_id)
+def _resave_row(
+    row: dict[str, Any], old_card_id: str, old_sha: str, match: dict[str, Any],
+) -> dict[str, Any]:
     return {
         "old_card_id": old_card_id,
         "new_card_id": row["new_card_id"],
@@ -112,12 +113,14 @@ def _resave_row(row: dict[str, Any], old_card_id: str, old_sha: str) -> dict[str
 
 def _first_resave(row: dict[str, Any], check: ResaveCheck, taken: set[str]) -> dict | None:
     """Strongest-ranked matched old card the new bytes re-save, if any."""
+    matches = {m["card_id"]: m for m in row.get("matches", [])}
     for old_card_id in row.get("matched_against", []):
-        if old_card_id in taken:
+        # An id with no ``matches`` entry cannot be audited; leave it quarantined.
+        if old_card_id in taken or old_card_id not in matches:
             continue
         old_sha = check(old_card_id, row.get("new_byte_sha256"))
         if old_sha is not None:
-            return _resave_row(row, old_card_id, old_sha)
+            return _resave_row(row, old_card_id, old_sha, matches[old_card_id])
     return None
 
 

@@ -36,13 +36,18 @@ def _env() -> dict[str, str]:
 
 
 def run_worker(old_path: Path, new_path: Path) -> str | None:
-    cmd = [sys.executable, "-m", WORKER_MODULE, str(old_path), str(new_path),
+    # -P: never prepend the cwd to sys.path. The cwd is a fresh empty
+    # directory, not the shared temp root, so nothing a neighbor drops can be
+    # imported; the inputs are made absolute because the cwd is not the caller's.
+    cmd = [sys.executable, "-P", "-m", WORKER_MODULE,
+           str(Path(old_path).resolve()), str(Path(new_path).resolve()),
            "--memory-bytes", str(WORKER_MEMORY_BYTES)]
     try:
-        done = subprocess.run(
-            cmd, capture_output=True, text=True, check=False, env=_env(),
-            cwd=tempfile.gettempdir(), timeout=pdf_limits.TIME_BUDGET_SECONDS,
-        )
+        with tempfile.TemporaryDirectory(prefix="classify-worker-") as scratch:
+            done = subprocess.run(
+                cmd, capture_output=True, text=True, check=False, env=_env(),
+                cwd=scratch, timeout=pdf_limits.TIME_BUDGET_SECONDS,
+            )
     except subprocess.TimeoutExpired:
         _LOG.warning("classify worker fail-safe (worker-timeout): over %ss",
                      pdf_limits.TIME_BUDGET_SECONDS)

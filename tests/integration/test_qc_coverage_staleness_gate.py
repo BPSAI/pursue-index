@@ -136,18 +136,7 @@ def _setup_fixture(tmp_path: Path, rows_by_card: dict[str, list[dict]]) -> dict:
     return pages_cleaned
 
 
-def test_canonical_vector_digest_matches_in_the_coverage_builder(tmp_path: Path) -> None:
-    """The shared ``canonical`` test vector (pages 2 and 10), run through
-    ``build_pages_cleaned.py`` and then a bundle carrying its pinned
-    digest, classifies ``judged`` (not ``stale``) in the real coverage
-    gate -- the same digest the vendored module computes directly
-    (``test_judged_pages_digest_vendor.py``) survives the full pipeline."""
-    vectors = json.loads(
-        (REPO_ROOT / "tests" / "fixtures" / "judged_pages_digest_vectors.json")
-        .read_text(encoding="utf-8")
-    )["cases"]
-    canonical = next(c for c in vectors if c["name"] == "canonical")
-
+def _build_canonical_pages_cleaned(tmp_path: Path, canonical: dict) -> Path:
     ocr_dir = tmp_path / "ocr"
     (ocr_dir / "canon0001").mkdir(parents=True)
     (ocr_dir / "canon0001" / "pages_cleaned.jsonl").write_text(
@@ -169,10 +158,10 @@ def test_canonical_vector_digest_matches_in_the_coverage_builder(tmp_path: Path)
         ocr_dir=ocr_dir, manifest_path=manifest_path,
         out_path=pages_cleaned_path, source_tag="t",
     )
-    pages_cleaned = json.loads(pages_cleaned_path.read_text())
-    assert {p["page"]: p["source_page_sha256"] for p in pages_cleaned["pages"]} == {
-        int(page): sha for page, sha in canonical["page_shas"].items()
-    }
+    return pages_cleaned_path
+
+
+def _write_canonical_gate_inputs(tmp_path: Path, canonical: dict, pages_cleaned: dict) -> None:
     (tmp_path / "pages.json").write_text(json.dumps([
         {"card_id": p["card_id"], "page": p["page"], "text": p["text"]}
         for p in pages_cleaned["pages"]
@@ -188,6 +177,26 @@ def test_canonical_vector_digest_matches_in_the_coverage_builder(tmp_path: Path)
             "judged_pages_digest": canonical["digest"],
         }],
     }))
+
+
+def test_canonical_vector_digest_matches_in_the_coverage_builder(tmp_path: Path) -> None:
+    """The shared ``canonical`` test vector (pages 2 and 10), run through
+    ``build_pages_cleaned.py`` and then a bundle carrying its pinned
+    digest, classifies ``judged`` (not ``stale``) in the real coverage
+    gate -- the same digest the vendored module computes directly
+    (``test_judged_pages_digest_vendor.py``) survives the full pipeline."""
+    vectors = json.loads(
+        (REPO_ROOT / "tests" / "fixtures" / "judged_pages_digest_vectors.json")
+        .read_text(encoding="utf-8")
+    )["cases"]
+    canonical = next(c for c in vectors if c["name"] == "canonical")
+
+    pages_cleaned_path = _build_canonical_pages_cleaned(tmp_path, canonical)
+    pages_cleaned = json.loads(pages_cleaned_path.read_text())
+    assert {p["page"]: p["source_page_sha256"] for p in pages_cleaned["pages"]} == {
+        int(page): sha for page, sha in canonical["page_shas"].items()
+    }
+    _write_canonical_gate_inputs(tmp_path, canonical, pages_cleaned)
 
     proc, out_path = _run_gate(tmp_path)
     assert proc.returncode == 0, proc.stdout + proc.stderr
