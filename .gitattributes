@@ -7,3 +7,9 @@
 # downloading from pursueindex.com and shasum-verifying.
 data/raw/csv/*.csv binary
 web/public/data/csv/*.csv binary
+
+# PDF structure uses CR/LF/CRLF line endings outside its binary streams, and
+# xref tables store exact byte offsets — CRLF→LF normalization shifts those
+# offsets and corrupts the file (verified: the staged blob differed from the
+# working-tree file byte-for-byte after a plain `git add`).
+tests/fixtures/*.pdf binary

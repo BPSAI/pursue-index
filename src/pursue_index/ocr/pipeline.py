@@ -24,7 +24,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytesseract
-from pdf2image import convert_from_path
+from pdf2image import convert_from_path, pdfinfo_from_path
 from PIL import Image
 
 from pursue_index import get_logger
@@ -47,8 +47,22 @@ DEFAULT_ENGINE: EngineName = "llm-dots"
 
 
 def rasterize_pdf(path: Path, dpi: int) -> Iterator[Image.Image]:
-    """Yield one PIL Image per PDF page, rendered at ``dpi`` DPI."""
-    yield from convert_from_path(str(path), dpi=dpi)
+    """Yield one PIL Image per PDF page, rendered at ``dpi`` DPI.
+
+    Renders pages one at a time via ``first_page``/``last_page`` instead of a
+    single whole-document ``convert_from_path`` call — that call renders every
+    page into memory before returning, so memory scaled with document length
+    (Release 7 hit 40.9 GB peak RSS on a 298-page document). Reading the page
+    count up front keeps at most one rendered page live per call.
+    """
+    page_count = pdfinfo_from_path(str(path))["Pages"]
+    img: Image.Image | None = None
+    for page_num in range(1, page_count + 1):
+        img = None  # drop the previous page before rendering the next one
+        img = convert_from_path(
+            str(path), dpi=dpi, first_page=page_num, last_page=page_num
+        )[0]
+        yield img
 
 
 def ocr_image(img: Image.Image) -> tuple[str, float]:
@@ -278,4 +292,7 @@ async def ocr_all(
             )
 
     await asyncio.gather(*(_bounded(c) for c in pdf_cards))
-    log.info("ocr.done_all", pdf_cards=len(pdf_cards), engine=chosen)
+    log.info(
+        "ocr.done_all",
+        **ocr_runners.done_all_summary(len(pdf_cards), chosen, ocr_runners.peak_rss_mb()),
+    )
