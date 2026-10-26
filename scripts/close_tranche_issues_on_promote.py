@@ -43,8 +43,8 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 # Mirror of the cross-script-import pattern used in
 # ``r2_verify_preserved.py``: scripts/ isn't on sys.path under
