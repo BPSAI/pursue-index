@@ -130,7 +130,7 @@ hash-pinned)             (NAS)    Sonnet judge) payload
 | av-fetch | shipped  | `DOD_<id>.mp4` in the staging directory the A/V ingest script already consumes |
 | ocr      | shipped  | `ocr/{card_id}/{pages.jsonl, meta.json}` — `llm-dots`: Sonnet 4.6 primary + dots.mocr content-filter backstop |
 | clean-qc | shipped  | operator-attended QC/methodology pass (rules → signal → Sonnet judge) over freshly-OCR'd pages; run in the sibling `pursue-curate` repo, then publish |
-| vision   | shipped  | `web/src/data/image-observations/{card_id}.json` — Opus-4.8 observation sidecars for IMG-card assets + image-only PDF pages; a verify-before-spend preflight gates coverage and `--run` performs the operator-attended pass |
+| vision   | shipped  | `web/src/data/image-observations/{card_id}.json` — Opus-4.8 observation sidecars for IMG-card assets + image-only PDF pages; a verify-before-spend preflight gates coverage, `--run` performs the operator-attended pass, and `--live --budget-usd` performs the unattended pass bounded by a dollar cap (refused under CI) |
 | transcribe | preflight shipped | `ocr/{card_id}/{pages.jsonl, meta.json}` — AssemblyAI diarized transcript for AUD cards (uploaded as-is, `speaker_labels`, `multichannel` set from a channel probe). The verify-before-spend preflight and the single-card `--live-smoke` are the CLI's paths; the bulk corpus pass is operator-attended, driven directly against `transcribe.run.run_transcribe`, and has not been run through the CLI |
 | embed    | shipped  | Voyage-3 embeddings, ~8.5MB float16 in-browser payload         |
 | serve    | shipped  | Astro static build deployed to Cloudflare Workers              |

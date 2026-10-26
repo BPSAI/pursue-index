@@ -22,6 +22,13 @@ its own pages.
 An examination that describes nothing is its own outcome: the call returned,
 but the page carries no text a reader could retrieve, so it is recorded as
 empty and stays outstanding rather than counting toward coverage.
+
+``run_vision`` optionally takes ``budget_usd``, for the CLI's unattended
+``--live`` path: the run stops *before* the item whose call would push
+cumulative spend past the cap, rather than checking after the fact and
+tolerating overspend. Items the budget cuts off are simply never examined,
+so they stay outstanding and the coverage report's shortfall names them —
+the same path a failure or an empty result takes.
 """
 
 from __future__ import annotations
@@ -45,6 +52,30 @@ from pursue_index.vision.sidecar import (
 )
 
 log = get_logger(__name__)
+
+# Order-of-magnitude per-call ceiling for budget bookkeeping (honest, not
+# billing-exact — same stance as ``release.ship.estimate_cost_usd``): one
+# fixed, resized image (<=1568px longest edge) plus the cached system prompt
+# as input, up to ``max_tokens=2048`` output, under the pinned model. Real
+# per-call cost varies with image size and reply length; this constant only
+# has to be a usable planning unit for "how many calls fit in $X", not a
+# token-exact prediction.
+ESTIMATED_COST_PER_CALL_USD = 0.02
+
+
+@dataclass
+class _Budget:
+    """Tracks spend against a cap, stopping before the next call exceeds it."""
+
+    cap_usd: float
+    spent_usd: float = 0.0
+
+    def try_charge(self, cost_usd: float) -> bool:
+        """Charge ``cost_usd`` and return True, or return False and charge nothing."""
+        if self.spent_usd + cost_usd > self.cap_usd:
+            return False
+        self.spent_usd += cost_usd
+        return True
 
 
 @dataclass
@@ -119,7 +150,9 @@ def _examine_new_pages(
     load_image_fn: Callable[[EligibleItem], Any],
     failures: list[tuple[CoverageKey, str]],
     empty: list[CoverageKey],
-) -> list[dict[str, Any]]:
+    budget: _Budget | None,
+    cost_per_item_usd: float,
+) -> tuple[list[dict[str, Any]], bool]:
     """Examine every not-yet-produced item, returning normalized page dicts.
 
     Each item stands alone: one that cannot be loaded or examined is appended
@@ -129,12 +162,19 @@ def _examine_new_pages(
     rather than reaching the schema unchecked. A result describing nothing is
     appended to ``empty``. Neither a failed nor an empty item is marked
     produced, so the coverage report carries it as outstanding.
+
+    When ``budget`` is given, each item is charged ``cost_per_item_usd``
+    *before* it is examined; an item the budget cannot afford is left
+    unexamined (also outstanding) and the second return value becomes True,
+    telling the caller to stop the run rather than start the next card.
     """
     new_pages: list[dict[str, Any]] = []
     for item in card_items:
         key = item.coverage_key
         if key in produced:
             continue
+        if budget is not None and not budget.try_charge(cost_per_item_usd):
+            return new_pages, True
         try:
             result = dict(examine_fn(load_image_fn(item)))
             result["observations"] = normalize_observations(result.get("observations"))
@@ -156,7 +196,7 @@ def _examine_new_pages(
             continue
         new_pages.append(result)
         produced.add(key)
-    return new_pages
+    return new_pages, False
 
 
 def _write_card_sidecar(
@@ -224,6 +264,8 @@ def run_vision(
     load_image_fn: Callable[[EligibleItem], Any],
     model: str = VISION_MODEL,
     session_id: str | None = None,
+    budget_usd: float | None = None,
+    cost_per_item_usd: float = ESTIMATED_COST_PER_CALL_USD,
 ) -> VisionRunReport:
     """Produce/extend sidecars for eligible ``items``, then report coverage.
 
@@ -233,22 +275,30 @@ def run_vision(
     consumers enumerate — so a card this run covers is a card a reader can
     retrieve. Returns the coverage report recomputed from disk, with any
     per-item failures and empty results attached.
+
+    ``budget_usd``, when given, bounds unattended spend: the run stops
+    before the item whose call would push cumulative cost past the cap,
+    leaving it (and everything after it) outstanding rather than examined.
+    A card already in progress when the cap is hit still has its completed
+    pages written — the cutoff lands between items, not mid-write.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     produced = produced_pages(out_dir)
     failures: list[tuple[CoverageKey, str]] = []
     empty: list[CoverageKey] = []
     committed: list[str] = []
+    budget = _Budget(budget_usd) if budget_usd is not None else None
     for card_id, card_items in _group_by_card(items).items():
-        new_pages = _examine_new_pages(
-            card_items, produced, examine_fn, load_image_fn, failures, empty
+        new_pages, exhausted = _examine_new_pages(
+            card_items, produced, examine_fn, load_image_fn, failures, empty,
+            budget, cost_per_item_usd,
         )
-        if not new_pages:
-            continue
-        if _persist_card(
+        if new_pages and _persist_card(
             out_dir, card_id, card_items, new_pages, model, session_id, failures
         ):
             committed.append(card_id)
+        if exhausted:
+            break
     if committed:
         register_cards(out_dir / "index.json", committed)
     report = preflight_coverage(items, out_dir)

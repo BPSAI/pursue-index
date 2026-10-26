@@ -13,9 +13,12 @@ The sidecars share the frozen May/July image-observations schema so the
 existing loader (``embed.image_observations``) reads fresh output unchanged and
 feeds it into both the static search payload and the embed vectors.
 
-Spend is operator-attended: the default ``pursue vision run`` is a
+Spend is off by default: the default ``pursue vision run`` is a
 verify-before-spend preflight (eligible-vs-produced coverage, no API calls).
-``--live-smoke <card_id>`` is the only live path and CI never invokes it.
+Live work is reached only by naming it — ``--live-smoke <card_id>`` (one
+card), ``--run`` (operator-attended bulk pass), or ``--live --budget-usd X``
+(unattended bulk pass bounded by a dollar cap) — and CI never invokes any of
+them; the CLI itself refuses ``--live`` when ``CI`` is set.
 """
 
 from __future__ import annotations
