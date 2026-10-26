@@ -54,7 +54,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from _poll_gh_io import truncate_error  # noqa: E402
+from _poll_gh_io import truncate_error
 
 # Body line shape emitted by ``scripts/_poll_gh_io.py::changed_issue_body``:
 #   * new_sha: `<64-hex>`
