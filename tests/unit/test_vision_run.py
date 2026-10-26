@@ -167,7 +167,7 @@ def test_run_vision_with_budget_covers_every_item_when_budget_suffices(
     items = [_item("imgA", 1), _item("imgB", 1), _item("imgC", 1)]
     report = run_vision(
         items, tmp_path, examine_fn=_fake_examine, load_image_fn=_fake_load,
-        budget_usd=0.10,
+        budget_usd=1.0,
     )
     assert report.ok
     assert not report.missing
@@ -186,7 +186,7 @@ def test_run_vision_with_budget_stops_before_exceeding_it(tmp_path: Path) -> Non
 
     report = run_vision(
         items, tmp_path, examine_fn=counting_examine, load_image_fn=_fake_load,
-        budget_usd=0.05, cost_per_item_usd=0.02,
+        budget_usd=0.05, cost_per_item_usd=0.02, worst_case_item_usd=0.02,
     )
     # Only the items affordable under the cap were examined; the rest are
     # left outstanding rather than risking a call that would exceed it.

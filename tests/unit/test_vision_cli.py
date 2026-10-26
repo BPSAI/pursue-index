@@ -299,7 +299,7 @@ def test_live_with_budget_covers_every_eligible_item(
     result = runner.invoke(
         app,
         ["vision", "run", "--manifest", str(manifest), "--out", str(out),
-         "--live", "--budget-usd", "0.10"],
+         "--live", "--budget-usd", "1.00"],
     )
     assert result.exit_code == 0, result.output
     sidecars = {p.name for p in out.glob("*.json") if p.name != "index.json"}
@@ -321,7 +321,7 @@ def test_live_end_to_end_against_a_worklist_fixture(
     result = runner.invoke(
         app,
         ["vision", "run", "--manifest", str(manifest), "--out", str(out),
-         "--worklist", str(worklist), "--live", "--budget-usd", "0.10"],
+         "--worklist", str(worklist), "--live", "--budget-usd", "1.00"],
     )
     assert result.exit_code == 0, result.output
     assert (out / "imgA.json").exists()
@@ -329,12 +329,18 @@ def test_live_end_to_end_against_a_worklist_fixture(
     assert "2 produced / 2 eligible" in result.stdout
 
 
+def _costly_examination(_img: object, **_kw) -> dict:
+    """An examination whose reported usage prices at ~$0.24 (metered)."""
+    return {**_examination(_img),
+            "_usage": {"input_tokens": 6_000, "output_tokens": 2_048}}
+
+
 def test_live_with_a_smaller_budget_stops_before_exceeding_it(
     tmp_path: Path, monkeypatch
 ) -> None:
     """A budget too small for the eligible set stops early, exits non-zero, and
     lists the items left outstanding."""
-    _patch_seams(monkeypatch, _examination)
+    _patch_seams(monkeypatch, _costly_examination)
     out = tmp_path / "obs"
     manifest = tmp_path / "m.json"
     _write_manifest(
@@ -343,9 +349,9 @@ def test_live_with_a_smaller_budget_stops_before_exceeding_it(
     result = runner.invoke(
         app,
         ["vision", "run", "--manifest", str(manifest), "--out", str(out),
-         "--live", "--budget-usd", "0.03"],
+         "--live", "--budget-usd", "0.50"],
     )
     assert result.exit_code == 1
     sidecars = {p.name for p in out.glob("*.json") if p.name != "index.json"}
-    assert len(sidecars) < 3
-    assert "imgC" in result.stdout or "imgB" in result.stdout
+    assert sidecars == {"imgA.json", "imgB.json"}
+    assert "imgC" in result.stdout

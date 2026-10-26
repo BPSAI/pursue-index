@@ -103,8 +103,9 @@ _OPT_LIVE = typer.Option(
 )
 _OPT_BUDGET = typer.Option(
     None, "--budget-usd",
-    help="Hard cost cap for --live. Required with --live; the run stops "
-    "before the item whose call would push spend past this cap.",
+    help="Hard cost cap for --live. Required with --live. Spend is metered "
+    "from each response's reported usage at the model's rates, and the run "
+    "stops before any call whose worst case would not fit in what is left.",
 )
 
 
@@ -195,6 +196,10 @@ def _run_live(items: list[EligibleItem], out: Path, budget_usd: float) -> None:
         f"item(s) under a ${budget_usd:.2f} budget"
     )
     report = _examine(items, out, budget_usd=budget_usd)
+    console.print(
+        f"[cyan]vision spend:[/cyan] ${report.spent_usd:.4f} metered of "
+        f"${budget_usd:.2f}"
+    )
     _print_report(report)
     if not report.ok:
         raise typer.Exit(code=1)
