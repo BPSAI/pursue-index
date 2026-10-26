@@ -19,12 +19,14 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 
+from pursue_index.release.rates import CACHE_WRITE_MULTIPLE, WORST_CASE_IMAGE_INPUT_TOKENS
+
 _M = 1_000_000
 _MAX_OUTPUT_TOKENS = 2_048  # vision.client._build_request max_tokens
-_IMAGE_TOKENS = 1_600
-_PROMPT_TOKENS = 1_000
-_WORST_CASE_INPUT_TOKENS = _IMAGE_TOKENS + _PROMPT_TOKENS + 20
-_CACHE_WRITE_MULTIPLE = 1.25
+# The image/prompt token ceiling and cache-write premium are Anthropic-billing
+# facts shared with the OCR rates table; only the per-model rate is local here.
+_WORST_CASE_INPUT_TOKENS = WORST_CASE_IMAGE_INPUT_TOKENS
+_CACHE_WRITE_MULTIPLE = CACHE_WRITE_MULTIPLE
 _CACHE_READ_MULTIPLE = 0.10
 
 

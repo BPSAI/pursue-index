@@ -86,3 +86,13 @@ def test_band_carries_the_judge_rate_and_its_label(tmp_path: Path) -> None:
     assert band.stages["judge"].low == pytest.approx(100 * 0.03)
     assert band.judge_label == JUDGE_METERED
     assert cost_band(100).judge_label == JUDGE_TABLE_ESTIMATE
+
+
+@pytest.mark.parametrize("spend,calls", [(5_000.0, 10), (-1.0, 10)])
+def test_an_out_of_range_metered_rate_falls_back_without_collapsing_the_band(
+    tmp_path: Path, spend: float, calls: int
+) -> None:
+    path = _bundle(tmp_path, {"metered_judge_spend_usd": spend, "metered_judge_calls": calls})
+    judge = read_judge_rate(path)
+    assert (judge.usd_per_page, judge.label) == (RATES_TABLE["judge"].low, JUDGE_TABLE_ESTIMATE)
+    assert cost_band(10, judge=judge).high > 0

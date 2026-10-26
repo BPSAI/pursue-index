@@ -9,13 +9,20 @@ nothing here computes a per-page figure.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+import re
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from pursue_index.release import rates
 
 _STAGE_NAMES = {"ocr": "OCR", "clean": "clean", "judge": "judge", "embed": "embed"}
 _FALLBACK_PREVIEW_CAP = 15
+_SAFE_ID = re.compile(r"[A-Za-z0-9_-]{1,64}")
+
+
+def renderable_ids(ids: Iterable[str]) -> list[str]:
+    """The ids safe to put in a Markdown code span (no backtick, newline or markup)."""
+    return [cid for cid in ids if isinstance(cid, str) and _SAFE_ID.fullmatch(cid)]
 
 
 def _band_or_error(
@@ -38,7 +45,7 @@ def _stage_line(band: rates.CostBand) -> str:
 
 
 def _fallback_lines(band: rates.CostBand) -> list[str]:
-    ids = [cid for cid in band.fallback_card_ids if cid]
+    ids = renderable_ids(band.fallback_card_ids)
     n = len(band.fallback_card_ids)
     line = (
         f"* **partial:** {n} card(s) had no page count and were priced at "

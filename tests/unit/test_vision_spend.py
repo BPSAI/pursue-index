@@ -122,3 +122,11 @@ def test_the_client_reports_the_response_usage(monkeypatch: pytest.MonkeyPatch) 
         "input_tokens": 11, "output_tokens": 7,
         "cache_creation_input_tokens": 5, "cache_read_input_tokens": 3,
     }
+
+
+def test_vision_worst_case_shares_rates_token_assumptions() -> None:
+    from pursue_index.release import rates
+    from pursue_index.vision import spend
+
+    assert spend._WORST_CASE_INPUT_TOKENS == rates.WORST_CASE_IMAGE_INPUT_TOKENS
+    assert spend._CACHE_WRITE_MULTIPLE == rates.CACHE_WRITE_MULTIPLE

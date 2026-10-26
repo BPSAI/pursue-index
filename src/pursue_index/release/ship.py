@@ -13,7 +13,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 
 from pursue_index.release import rates
-from pursue_index.release.estimate_text import estimate_lines
+from pursue_index.release.estimate_text import estimate_lines, renderable_ids
 
 # --- operated OCR methodology (single source of truth for the gate) ---
 OCR_ENGINE_OF_RECORD = "llm-dots"  # Sonnet 4.6 per page + local dots on a content-filter 400
@@ -89,7 +89,8 @@ def _worklist_lines(scoped_ids: list[str] | None) -> list[str]:
     """A capped, credential-free preview of the scoped card_ids (the worklist)."""
     if not scoped_ids:
         return []
-    shown = scoped_ids[:_WORKLIST_PREVIEW_CAP]
+    named = renderable_ids(scoped_ids)
+    shown = named[:_WORKLIST_PREVIEW_CAP]
     out = ["", "<details><summary>scoped card_ids</summary>", ""]
     out += [f"* `{cid}`" for cid in shown]
     remainder = len(scoped_ids) - len(shown)
@@ -99,6 +100,19 @@ def _worklist_lines(scoped_ids: list[str] | None) -> list[str]:
     return out
 
 
+def _with_uncounted(
+    n: int,
+    scoped_ids: list[str] | None,
+    page_counts: Mapping[str, int],
+    fallback_card_ids: Sequence[str],
+) -> list[str]:
+    out = list(fallback_card_ids)
+    known = set(page_counts) | set(out)
+    if scoped_ids:
+        return out + [c for c in dict.fromkeys(scoped_ids) if c not in known]
+    return out + [""] * max(0, n - len(known))
+
+
 def _estimate(
     n: int,
     scoped_ids: list[str] | None,
@@ -106,10 +120,16 @@ def _estimate(
     fallback_card_ids: Sequence[str],
     judge: rates.JudgeRate | None,
 ) -> list[str]:
-    """The per-page band; with no page counts, every scoped card falls back."""
+    """The per-page band; any scoped card with no count falls back to the guess.
+
+    The poll fetches only PDFs, but ``ingest`` OCRs every PDF/IMG card, so a
+    scoped card that is neither counted nor already a fallback is priced as one.
+    """
     if page_counts is None:
         fallback_card_ids = list(scoped_ids or []) or [""] * n
         page_counts = {}
+    else:
+        fallback_card_ids = _with_uncounted(n, scoped_ids, page_counts, fallback_card_ids)
     return estimate_lines(
         pages=sum(page_counts.values()), fallback_card_ids=fallback_card_ids, judge=judge
     )

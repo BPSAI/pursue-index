@@ -52,7 +52,9 @@ _M = 1_000_000
 # downscaled to a 1568px long edge, which Anthropic bills at <= ~1,600 tokens;
 # the system prompt is under 1,000. All input at the cache-write rate
 # (1.25 x $3), output at its max_tokens=8192 ceiling.
-_OCR_IN_TOKENS = 1_600 + 1_000 + 20
+WORST_CASE_IMAGE_INPUT_TOKENS = 1_600 + 1_000 + 20  # image + system prompt + slack
+CACHE_WRITE_MULTIPLE = 1.25  # Anthropic cache-write premium over the input rate
+_OCR_IN_TOKENS = WORST_CASE_IMAGE_INPUT_TOKENS
 _OCR_OUT_TOKENS = 8_192
 _SONNET_CACHE_WRITE, _SONNET_OUT = 1.25 * 3.00, 15.00
 # clean: Haiku over one OCR page (clean/client.py). The page is at most OCR's
@@ -130,8 +132,16 @@ def read_judge_rate(bundle_path: Path) -> JudgeRate:
         spend = _number(block.get("metered_judge_spend_usd"))
         calls = _number(block.get("metered_judge_calls"))
         if spend is not None and calls:
-            return JudgeRate(usd_per_page=spend / calls, label=JUDGE_METERED)
+            rate = spend / calls
+            if _plausible_judge_rate(rate):
+                return JudgeRate(usd_per_page=rate, label=JUDGE_METERED)
     return _table_judge()
+
+
+def _plausible_judge_rate(rate: float) -> bool:
+    """A metered rate outside [0, the table's judge ceiling] is bad data, not a price."""
+    judge = RATES_TABLE.get("judge")
+    return 0 <= rate and (judge is None or rate <= judge.high)
 
 
 def _number(value: object) -> float | None:

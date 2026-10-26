@@ -121,3 +121,30 @@ def test_summary_without_page_counts_is_a_partial_per_card_estimate():
     s = _summary(scoped_count=2, scoped_ids=["a", "b"])
     assert "partial" in s.lower()
     assert "40 pages" in s  # 2 cards x 20-page per-card fallback
+
+
+def test_scoped_cards_with_no_count_and_no_fetch_are_priced_as_fallbacks():
+    """An IMG card never reaches the PDF fetch, but ingest OCRs it: price it."""
+    s = _summary(scoped_count=2, scoped_ids=["a", "img"],
+                 page_counts={"a": 10}, fallback_card_ids=[])
+    assert "30 pages" in s  # 10 counted + 1 uncounted card x 20-page fallback
+    assert "partial" in s.lower()
+    assert "`img`" in s.split("partial", 1)[1]
+
+
+def test_an_all_image_tranche_is_not_priced_at_zero():
+    s = _summary(scoped_count=3, scoped_ids=["x", "y", "z"], page_counts={}, fallback_card_ids=[])
+    assert "$0.00 low" not in s
+    assert "60 pages" in s
+
+
+def test_uncounted_cards_without_ids_still_fall_back():
+    s = _summary(scoped_count=3, scoped_ids=None, page_counts={"a": 5}, fallback_card_ids=[])
+    assert "45 pages" in s  # 5 counted + 2 unnamed cards x 20
+
+
+def test_ids_that_could_break_a_markdown_code_span_are_not_rendered():
+    evil = "ab`\n# injected"
+    s = _summary(scoped_count=2, scoped_ids=["ok", evil], page_counts=None)
+    assert "injected" not in s
+    assert "`ok`" in s
