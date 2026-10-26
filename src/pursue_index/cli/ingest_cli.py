@@ -43,6 +43,7 @@ from pursue_index.post_ingest_audit import (
     has_blocking_mismatch,
     render_audit_summary,
 )
+from pursue_index.tranche_resave import RESAVE_METHOD
 
 _OPT_APPROVE_RENAME = typer.Option(
     None,
@@ -175,14 +176,16 @@ def _enrich_with_provenance(rows: list[dict], tranche_sha: str) -> list[dict]:
 
 def _emit_approval_summary(
     tranche: str,
-    auto_count: int,
+    auto_renames: list[dict],
     manual_count: int,
     diff_summary: dict,
     estimate_text: str = "",
 ) -> None:
+    resaves = sum(r["method"] == RESAVE_METHOD for r in auto_renames)
     typer.echo(
-        f"approved tranche {tranche[:12]}: "
-        f"{auto_count} byte-collision renames + {manual_count} operator-manual renames"
+        f"approved tranche {tranche[:12]}: {len(auto_renames) - resaves} byte-collision "
+        f"renames + {resaves} metadata-only re-save renames + {manual_count} "
+        "operator-manual renames"
     )
     if estimate_text:
         typer.echo(estimate_text)
@@ -259,7 +262,8 @@ def _run_pre_approval_audit(
 def _resolve_renames(
     diff: dict, tranche: str, approve_rename: list[str]
 ) -> tuple[list[dict], list[dict], list[dict]]:
-    """Class A (auto) + Class C (manual) renames, enriched with provenance.
+    """Auto (Class A + metadata-only re-save) and Class C (manual) renames,
+    enriched with provenance.
     Returns ``(auto_renames, manual_renames, enriched)``. Exits 2 on a
     malformed ``--approve-rename`` flag."""
     auto_renames = auto_approve_renames(diff)
@@ -318,7 +322,7 @@ def approve_cmd(
     work = summarize_ingest_work(diff)
     _persist_approval(tranche, note, log, aliases, diff_summary, enriched, audit_results,
                       ingest_estimate_record(diff, work))
-    _emit_approval_summary(tranche, len(auto_renames), len(manual_renames), diff_summary,
+    _emit_approval_summary(tranche, auto_renames, len(manual_renames), diff_summary,
                            ingest_estimate_text(diff, work))
 
 

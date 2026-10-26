@@ -53,6 +53,8 @@ export interface Manifest {
 // in that file is consumed by the /diff page (rename-aware grouping)
 // AND by the worker's redirect lane. `method`:
 //   - "byte_collision"  — Class A auto-rename (new card_id maps to same byte sha)
+//   - "metadata-only-resave" — auto-rename: new bytes = old bytes + a
+//                         metadata-only PDF update (tranche_diff --bytes-dir)
 //   - "operator_manual" — Class C operator-approved rename
 //   - "operator_revoke" — tombstone removing a prior alias
 export interface AliasEntry {

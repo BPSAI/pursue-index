@@ -14,8 +14,9 @@ This module owns the primitives that gate enforces:
   * is_tranche_approved(log, sha) — the boolean the orchestrator queries
   * record_approval(log, sha, note, summary, renames) — the audit row
   * auto_approve_renames(diff) — extracts Class A entries (byte-sha
-    collision, cryptographically safe) so they need no explicit operator
-    flag; operator approval of the tranche implicitly accepts them
+    collision, cryptographically safe) and metadata-only re-saves (byte
+    evidence, R7C.12) so they need no explicit operator flag; operator
+    approval of the tranche implicitly accepts them
   * parse_rename_flags(["new=old", ...]) — converts the CLI's
     --approve-rename operator_manual flags into alias-row dicts
   * append_aliases(path, rows) — append-only writer for the
@@ -31,6 +32,12 @@ Failure-mode discipline:
   * `--approve-rename` always carries `method: "operator_manual"` —
     distinct from `byte_collision` so audit trails can distinguish
     operator-judgment renames from cryptographically-confirmed ones.
+  * A `renames_metadata_only` row (a Class C candidate `tranche_diff
+    --bytes-dir` proved to be the old bytes plus a metadata-only PDF
+    update) carries `method: "metadata-only-resave"` — distinct from both:
+    it is machine-verified like `byte_collision`, but on a structural
+    reading of the PDF rather than a hash collision, and an audit reader
+    must be able to tell those two kinds of evidence apart.
 """
 
 from __future__ import annotations
@@ -40,6 +47,8 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from pursue_index.tranche_resave import RESAVE_BUCKET, RESAVE_METHOD
 
 _CARD_ID_RE = re.compile(r"^[a-f0-9]{16}$")
 
@@ -119,21 +128,26 @@ def record_approval(
 
 
 def auto_approve_renames(diff: dict[str, Any]) -> list[dict[str, Any]]:
-    """Extract Class A entries from a tranche-diff into alias-row shape.
+    """Extract machine-verified renames from a tranche-diff into alias rows.
 
-    These are renames where the new card's byte_sha256 collides with
-    an existing registry entry — cryptographically confirmed safe
-    aliases. Operator approval of the tranche implicitly accepts them
-    (no explicit per-card flag needed).
+    Class A (``renames_confirmed``): the new card's byte_sha256 collides
+    with an existing registry entry — ``method: "byte_collision"``.
+    ``renames_metadata_only``: the new bytes are the old card's bytes plus
+    a metadata-only PDF update — ``method: "metadata-only-resave"``, with
+    the NEW bytes' sha so the pre-approval audit re-checks those bytes.
+    Operator approval of the tranche implicitly accepts both (no explicit
+    per-card flag needed).
     """
     out: list[dict[str, Any]] = []
-    for r in diff.get("renames_confirmed", []) or []:
-        out.append({
-            "old_card_id": r["old_card_id"],
-            "new_card_id": r["new_card_id"],
-            "byte_sha256": r.get("byte_sha256"),
-            "method": "byte_collision",
-        })
+    for bucket, method in (("renames_confirmed", "byte_collision"),
+                           (RESAVE_BUCKET, RESAVE_METHOD)):
+        for r in diff.get(bucket, []) or []:
+            out.append({
+                "old_card_id": r["old_card_id"],
+                "new_card_id": r["new_card_id"],
+                "byte_sha256": r.get("byte_sha256"),
+                "method": method,
+            })
     return out
 
 

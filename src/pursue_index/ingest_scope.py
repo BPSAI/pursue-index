@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.card_id import InvalidCardIdError, require_card_id
+from pursue_index.tranche_resave import RESAVE_BUCKET
 
 REASON_NEW = "new"
 REASON_QUARANTINED_NEW = "quarantined-new"
@@ -64,6 +65,12 @@ def _has_new_side_pdf_img(row: dict[str, Any]) -> bool:
     )
 
 
+def _auto_rename_rows(diff: dict[str, Any]) -> list[dict[str, Any]]:
+    """Renames the tranche approval accepts without a per-card flag."""
+    return [row for key in ("renames_confirmed", RESAVE_BUCKET)
+            for row in diff.get(key, []) or []]
+
+
 def scope_pdf_img_cards(
     diff: dict[str, Any],
     tranche_sha: str,
@@ -82,8 +89,9 @@ def scope_pdf_img_cards(
       3. ``renamed`` -- ``aliases`` rows established for this tranche
          (``tranche_sha256 == tranche_sha``) whose new side has a PDF/IMG
          asset (looked up from the matching ``quarantined`` row).
-         Confirmed (Class A) renames in the diff's ``renames_confirmed`` are
-         scoped the same way, from their own row, since the tranche approval
+         Confirmed (Class A) renames in the diff's ``renames_confirmed`` and
+         byte-evidenced re-saves in its ``renames_metadata_only`` are scoped
+         the same way, from their own row, since the tranche approval
          accepts them without a per-card flag.
       4. ``bytes-changed`` -- any card_id in ``registry_sha_by_card`` whose
          current byte sha differs from the one recorded in
@@ -133,7 +141,7 @@ def scope_pdf_img_cards(
         if _has_new_side_pdf_img(row):
             _add(new_card_id, REASON_RENAMED)
 
-    for row in diff.get("renames_confirmed", []) or []:
+    for row in _auto_rename_rows(diff):
         if _has_new_side_pdf_img(row):
             _add(row["new_card_id"], REASON_RENAMED)
 

@@ -42,9 +42,17 @@ def _esc(text: str) -> str:
     return _NEWLINE_RUN.sub(" ", text).replace("|", "\\|")
 
 
+# Present only when `--bytes-dir` demoted a Class C row (R7C.12); a diff
+# without it renders exactly as it did before that bucket existed.
+_RESAVE = "renames_metadata_only"
+
+
 def _md_summary(s: dict[str, int]) -> str:
+    resave = (f"- **{s[_RESAVE]}** renames by metadata-only re-save (byte evidence — "
+              "safe to alias)\n" if _RESAVE in s else "")
     return (
         f"- **{s['renames_confirmed']}** confirmed renames (Class A — safe to alias)\n"
+        + resave +
         f"- **{s['new_content']}** net-new content (Class B — ingest normally)\n"
         f"- **{s['quarantined']}** quarantined (Class C — manual review required)\n"
         f"- **{s.get('restored_unchanged', 0)}** restorations with byte-identical content (safe)\n"
@@ -206,6 +214,13 @@ def _md_row_changes(rows: list[dict[str, Any]]) -> str:
     return "\n".join(out) + "\n"
 
 
+def _md_resave_parts(diff: dict[str, Any]) -> list[str]:
+    if _RESAVE not in diff:
+        return []
+    return ["## Renames by metadata-only re-save (old bytes + a metadata-only PDF "
+            "update — safe to alias)", "", _md_rename_rows(diff[_RESAVE])]
+
+
 def render_markdown(diff: dict[str, Any]) -> str:
     s = diff["summary"]
     parts = [
@@ -219,6 +234,7 @@ def render_markdown(diff: dict[str, Any]) -> str:
         "## Renames confirmed (Class A — safe to alias)",
         "",
         _md_rename_rows(diff["renames_confirmed"]),
+        *_md_resave_parts(diff),
         "## Net-new content (Class B — ingest normally)",
         "",
         _md_simple_rows(diff["new_content"],
