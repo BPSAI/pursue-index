@@ -96,3 +96,28 @@ def test_summary_caps_worklist_and_notes_remainder():
     # First few are shown; an overflow-count note appears rather than 40 lines.
     assert "card00" in s
     assert "more" in s.lower()
+
+
+# --- R7C.5: the per-page estimate ------------------------------------------
+
+
+def test_summary_with_page_counts_prices_pages_not_cards():
+    s = _summary(scoped_count=3, scoped_ids=["a", "b", "c"],
+                 page_counts={"a": 1, "b": 10, "c": 100}, fallback_card_ids=[])
+    assert "111 pages" in s
+    assert "recommended cap" in s
+    assert "table estimate" in s
+    assert "partial" not in s.lower()
+
+
+def test_summary_names_cards_whose_fetch_failed_and_marks_partial():
+    s = _summary(scoped_count=3, scoped_ids=["a", "b", "c"],
+                 page_counts={"a": 1, "b": 10}, fallback_card_ids=["c"])
+    assert "partial" in s.lower()
+    assert "`c`" in s.split("partial", 1)[1]
+
+
+def test_summary_without_page_counts_is_a_partial_per_card_estimate():
+    s = _summary(scoped_count=2, scoped_ids=["a", "b"])
+    assert "partial" in s.lower()
+    assert "40 pages" in s  # 2 cards x 20-page per-card fallback

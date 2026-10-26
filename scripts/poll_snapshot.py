@@ -8,8 +8,11 @@ stable kv summary of the diff.
 
 All testable logic lives in the scrape package; this file exists so the
 GH Actions runner can invoke it directly without the full ``pursue`` CLI
-(typer + click + rich) installed — see ``requirements-poll.in``. It makes
-NO network call (bytes are passed in) and touches no R2 / credential.
+(typer + click + rich) installed — see ``requirements-poll.in``. The CSV
+bytes are passed in, and it touches no R2 / credential. Its one network use
+is ``--summary-out``: each new PDF is fetched (public URL, the PDF health
+check's Chrome-impersonation client) into a temp dir to count its pages for
+the per-page estimate; a failed fetch falls back per card, never fails the run.
 
 Mirrors the ``src/``-injection pattern in ``scripts/pdf_health_check.py``.
 
@@ -46,10 +49,12 @@ from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
 
+from pursue_index.release.rates import read_judge_rate
 from pursue_index.scrape.classify_tranche import (
     build_verdict_artifact,
     render_verdict_summary,
 )
+from pursue_index.scrape.pdf_pages import fetch_and_count, page_targets
 from pursue_index.scrape.poll_snapshot import (
     generate_snapshot_diff,
 )
@@ -59,6 +64,7 @@ DEFAULT_LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 # snapshot-locator globs snapshots/<sha>*.json and the index rebuild globs
 # snapshots/*.json — a diff artifact inside snapshots/ would collide with both.
 DEFAULT_DIFF_OUT = _REPO_ROOT / "data" / "manifests" / "diffs" / "latest-diff.json"
+DEFAULT_QC_BUNDLE = _REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.json"
 DEFAULT_SOURCE_URL = "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv"
 
 
@@ -83,6 +89,12 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=None,
         help="Write the rendered verdict markdown here. Skipped if omitted.",
+    )
+    parser.add_argument(
+        "--qc-bundle",
+        type=Path,
+        default=DEFAULT_QC_BUNDLE,
+        help="Committed clean-qc bundle; source of the judge's metered per-page rate.",
     )
     parser.add_argument("--canonical-dir", type=Path, default=None)
     parser.add_argument("--public-dir", type=Path, default=None)
@@ -121,10 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.diff_out is not None and not _write_diff_record(args.diff_out, artifact):
         return 3
     if args.summary_out is not None:
-        args.summary_out.parent.mkdir(parents=True, exist_ok=True)
-        args.summary_out.write_text(
-            render_verdict_summary(result, tranche=new_sha), encoding="utf-8"
-        )
+        _write_summary(args.summary_out, result, new_sha, args.qc_bundle)
     cols = ",".join(result.new_columns) or "-"
     print(
         f"poll-snapshot.ok added={len(result.added)} "
@@ -134,6 +143,22 @@ def main(argv: list[str] | None = None) -> int:
         flush=True,
     )
     return 0
+
+
+def _write_summary(path: Path, result, new_sha: str, qc_bundle: Path) -> None:
+    """Render the verdict + tranche-ready block, priced per page.
+
+    Each new PDF is fetched (credential-free, Chrome-impersonated) into a
+    temp dir that lives only for this block, and its pages counted.
+    """
+    judge = read_judge_rate(qc_bundle)
+    with fetch_and_count(page_targets(result)) as fetched:
+        text = render_verdict_summary(
+            result, tranche=new_sha, page_counts=fetched.page_counts,
+            fallback_card_ids=fetched.fallback_card_ids, judge=judge,
+        )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
 
 
 def _write_diff_record(path: Path, artifact: dict) -> bool:

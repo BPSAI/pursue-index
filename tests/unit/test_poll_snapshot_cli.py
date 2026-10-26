@@ -23,8 +23,10 @@ if str(_SCRIPTS) not in sys.path:
 
 import poll_snapshot  # noqa: E402
 
+from pursue_index.scrape import csv_fetcher  # noqa: E402
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv  # noqa: E402
 from pursue_index.scrape.manifest import save_manifest  # noqa: E402
+from tests.support.pdf_page_fakes import FakeHttpGet, pdf_bytes  # noqa: E402
 
 _SOURCE_URL = "https://www.war.gov/UFO/uap-data.csv"
 _HEADER = (
@@ -103,8 +105,10 @@ def test_writes_verdict_artifact_benign(tmp_path: Path) -> None:
     assert art["removed"] == 0
 
 
-def test_writes_summary_markdown(tmp_path: Path) -> None:
+def test_writes_summary_markdown(tmp_path: Path, monkeypatch) -> None:
     """--summary-out writes the rendered markdown the gh-comment step posts."""
+    # The summary counts the new PDF's pages; never fetch for real in a test.
+    monkeypatch.setattr(csv_fetcher, "http_get", FakeHttpGet(bodies={_URL2: pdf_bytes(3)}))
     csv_path = tmp_path / "new.csv"
     csv_path.write_bytes(_csv([_row("Case 0001", _URL1), _row("Case 0002", _URL2)]))
     latest = tmp_path / "latest.json"

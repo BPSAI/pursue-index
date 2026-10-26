@@ -479,8 +479,11 @@ jobs:
       - name: Generate snapshot + diff
         # Bytes-in, files-out: feeds the committed CSV for the detected
         # sha to the T6.1 generator, which rotates latest.json -> the prior
-        # snapshot and writes the new snapshot (both mirrors). No network,
-        # no credential — see scripts/poll_snapshot.py.
+        # snapshot and writes the new snapshot (both mirrors). No
+        # credential — see scripts/poll_snapshot.py. R7C.5: for the summary
+        # it fetches each new PDF's public URL into a temp dir (never
+        # committed) to count pages; the estimate is priced per page from
+        # src/pursue_index/release/rates.py.
         #
         # T6.4: --diff-out persists the diff+verdict JSON artifact
         # (classify_tranche verdict + added/removed/new-column counts, keyed
@@ -538,7 +541,7 @@ jobs:
       #
       # What CI auto-does (credential-free, this job): detect the tranche →
       # generate snapshot + diff → classify verdict → append the RICH
-      # actionable surface (work-list card_ids, card counts, ~$ OCR+embed
+      # actionable surface (work-list card_ids, card counts, per-page cost band
       # estimate, and a copy-paste `/ship-tranche <sha>` block) via
       # render_verdict_summary(..., tranche=new_sha). This is the "surface
       # what changed" half of the goal.

@@ -26,6 +26,7 @@ the whole result and consumes the snapshot diff's output directly.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from typing import Any, Literal
 
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
@@ -73,7 +74,14 @@ def _safe_inline(text: str, *, limit: int = 80) -> str:
     return cleaned[:limit] + "…" if len(cleaned) > limit else cleaned
 
 
-def render_verdict_summary(diff: SnapshotDiffResult, *, tranche: str | None = None) -> str:
+def render_verdict_summary(
+    diff: SnapshotDiffResult,
+    *,
+    tranche: str | None = None,
+    page_counts: Mapping[str, int] | None = None,
+    fallback_card_ids: Sequence[str] = (),
+    judge: Any = None,
+) -> str:
     """Render the verdict + counts as operator-facing markdown.
 
     Pure formatter (no GitHub / no I/O) so it is unit-testable. The snapshot
@@ -81,6 +89,8 @@ def render_verdict_summary(diff: SnapshotDiffResult, *, tranche: str | None = No
     is ready. When ``tranche`` (the csv_sha256) is given, appends the actionable
     ship-tranche footer (work-list size, cost estimate, copy-paste
     ``/ship-tranche <sha>``) so the alert says WHAT to run, not just the verdict.
+    ``page_counts``, ``fallback_card_ids`` and ``judge`` (a
+    ``rates.JudgeRate``) pass through to the per-page estimate.
     """
     verdict = classify_tranche(diff)
     cols = list(diff.new_columns)
@@ -106,5 +116,8 @@ def render_verdict_summary(diff: SnapshotDiffResult, *, tranche: str | None = No
             new_columns=len(cols),
             scoped_count=len(diff.added),
             scoped_ids=[getattr(c, "card_id", c) for c in diff.added],
+            page_counts=page_counts,
+            fallback_card_ids=fallback_card_ids,
+            judge=judge,
         )
     return body
