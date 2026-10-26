@@ -38,6 +38,7 @@ map it to "no verdict"). Standard library + pypdf only, both already in
 from __future__ import annotations
 
 import io
+import logging
 from pathlib import Path
 from typing import Any, Literal
 
@@ -56,6 +57,13 @@ from pypdf.generic import (
     TextStringObject,
 )
 
+from pursue_index.pdf_limits import (
+    Budget,
+    LimitExceededError,
+    capped_pypdf,
+    check_update_count,
+    read_capped,
+)
 from pursue_index.pdf_update import UpdateSection, read_update
 
 __all__ = ["CONTENT_CHANGED", "METADATA_ONLY", "Verdict", "classify_bytes"]
@@ -64,6 +72,7 @@ Verdict = Literal["metadata-only", "content-changed"]
 METADATA_ONLY: Verdict = "metadata-only"
 CONTENT_CHANGED: Verdict = "content-changed"
 
+_LOG = logging.getLogger(__name__)
 _LEAVES = (BooleanObject, ByteStringObject, FloatObject, NameObject, NullObject,
            NumberObject, TextStringObject)
 
@@ -71,12 +80,21 @@ _LEAVES = (BooleanObject, ByteStringObject, FloatObject, NameObject, NullObject,
 def classify_bytes(old_path: Path, new_path: Path) -> Literal["metadata-only", "content-changed"]:
     """``metadata-only`` iff ``new_path`` is ``old_path`` plus one metadata-only
     incremental update; ``content-changed`` otherwise (module docstring)."""
-    old = Path(old_path).read_bytes()
-    new = Path(new_path).read_bytes()
-    if len(new) <= len(old) or not new.startswith(old):
-        return CONTENT_CHANGED
     try:
-        return METADATA_ONLY if _is_metadata_only(old, new) else CONTENT_CHANGED
+        old = read_capped(Path(old_path))
+        new = read_capped(Path(new_path))
+        if len(new) <= len(old) or not new.startswith(old):
+            return CONTENT_CHANGED
+        budget = Budget()
+        check_update_count(new)
+        with capped_pypdf():
+            metadata_only = _is_metadata_only(old, new, budget)
+        return METADATA_ONLY if metadata_only else CONTENT_CHANGED
+    except LimitExceededError as exc:
+        _LOG.warning("classify_bytes fail-safe %s (%s): %s", CONTENT_CHANGED, exc.reason, exc)
+        return CONTENT_CHANGED
+    except (FileNotFoundError, KeyboardInterrupt):
+        raise
     except Exception:  # noqa: BLE001 -- unparseable means "cannot vouch for it"
         return CONTENT_CHANGED
 
@@ -137,10 +155,13 @@ def _catalog_ok(catalog: DictionaryObject, old: PdfReader, new: PdfReader) -> bo
             and _role(target.idnum, new.get_object(target), new.trailer, None) == "metadata")
 
 
-def _is_metadata_only(old_bytes: bytes, new_bytes: bytes) -> bool:
+def _is_metadata_only(old_bytes: bytes, new_bytes: bytes, budget: Budget) -> bool:
+    budget.check()
     old = PdfReader(io.BytesIO(old_bytes))
+    budget.check()
     new = PdfReader(io.BytesIO(new_bytes))
-    section = read_update(old_bytes, new_bytes, new)
+    budget.check()
+    section = read_update(old_bytes, new_bytes, new, budget)
     if section is None or not _root_kept(section, old):
         return False
     old_nums = _old_numbers(old)

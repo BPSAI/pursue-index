@@ -35,6 +35,9 @@ from typing import Any
 from pypdf import PdfReader
 from pypdf.generic import DictionaryObject, PdfObject, StreamObject, read_object
 
+from pursue_index import pdf_limits
+from pursue_index.pdf_limits import Budget, LimitExceededError
+
 __all__ = ["UpdateSection", "read_update"]
 
 _TAIL = re.compile(rb"startxref\s+(\d+)\s*%%EOF\s*\Z")
@@ -88,7 +91,9 @@ def _read_indirect(data: bytes, offset: int, reader: PdfReader) -> tuple[int, in
     return int(m[1]), int(m[2]), obj, pos + 6
 
 
-def _read_table(data: bytes, at: int, reader: PdfReader) -> tuple[list[Entry], Any, int]:
+def _read_table(
+    data: bytes, at: int, reader: PdfReader, budget: Budget,
+) -> tuple[list[Entry], Any, int]:
     if data[at:at + 4] != b"xref":
         raise ValueError("no xref keyword")
     pos, entries = at + 4, []
@@ -97,7 +102,11 @@ def _read_table(data: bytes, at: int, reader: PdfReader) -> tuple[list[Entry], A
         if head is None:
             raise ValueError("malformed xref subsection")
         pos = head.end()
-        for i in range(int(head[2])):
+        count = int(head[2])
+        if count > pdf_limits.MAX_XREF_ENTRIES or len(entries) + count > pdf_limits.MAX_XREF_ENTRIES:
+            raise LimitExceededError("xref-entry-ceiling", f"{count} table rows declared")
+        for i in range(count):
+            budget.check()
             row = _TABLE_ROW.match(data, pos)
             if row is None:
                 raise ValueError("malformed xref row")
@@ -111,22 +120,49 @@ def _read_table(data: bytes, at: int, reader: PdfReader) -> tuple[list[Entry], A
     return entries, trailer, stream.tell()
 
 
-def _stream_entries(xref: StreamObject) -> list[Entry]:
+def _xref_raw(xref: StreamObject, budget: Budget) -> bytes:
+    """The decoded xref stream, its inflation capped before pypdf decodes it."""
+    filt = xref.get("/Filter")
+    names = [str(f) for f in filt] if isinstance(filt, list) else ([str(filt)] if filt else [])
+    if names not in ([], ["/FlateDecode"]):
+        raise ValueError(f"unsupported xref stream filter {names}")
+    encoded = getattr(xref, "_data", b"")
+    if names:
+        pdf_limits.inflate_capped(encoded, budget)
+    elif len(encoded) > pdf_limits.MAX_XREF_INFLATED:
+        raise LimitExceededError("xref-inflate-cap", f"{len(encoded)} raw bytes")
+    return xref.get_data()
+
+
+def _stream_geometry(xref: StreamObject) -> tuple[list[int], list[tuple[int, int]]]:
+    """``/W`` and ``/Index`` pairs, every count checked before any expansion."""
     widths = [int(w) for w in xref["/W"]]
     index = [int(i) for i in xref.get("/Index", [0, int(xref["/Size"])])]
-    if len(widths) != 3 or len(index) % 2:
+    if len(widths) != 3 or len(index) % 2 or min([*widths, *index]) < 0 or sum(widths) == 0:
         raise ValueError("malformed xref stream /W or /Index")
-    raw, row_len, entries = xref.get_data(), sum(widths), []
-    numbers = [s + i for s, c in zip(index[::2], index[1::2], strict=True) for i in range(c)]
-    if len(raw) != row_len * len(numbers):
+    pairs = list(zip(index[::2], index[1::2], strict=True))
+    total = sum(c for _, c in pairs)
+    if total > pdf_limits.MAX_XREF_ENTRIES or total * sum(widths) > pdf_limits.MAX_XREF_INFLATED:
+        raise LimitExceededError("xref-entry-ceiling", f"{total} entries declared")
+    return widths, pairs
+
+
+def _stream_entries(xref: StreamObject, budget: Budget) -> list[Entry]:
+    widths, pairs = _stream_geometry(xref)
+    row_len, total = sum(widths), sum(c for _, c in pairs)
+    raw = _xref_raw(xref, budget)
+    if len(raw) != row_len * total:
         raise ValueError("xref stream length does not match /W x /Index")
-    for k, num in enumerate(numbers):
-        row, fields, start = raw[k * row_len:(k + 1) * row_len], [], 0
-        for w in widths:
-            fields.append(int.from_bytes(row[start:start + w], "big"))
-            start += w
-        kind = fields[0] if widths[0] else 1
-        entries.append((num, kind, fields[1], fields[2]))
+    entries, k = [], 0
+    for first, count in pairs:
+        for num in range(first, first + count):
+            row, fields, start = raw[k * row_len:(k + 1) * row_len], [], 0
+            for w in widths:
+                fields.append(int.from_bytes(row[start:start + w], "big"))
+                start += w
+            kind = fields[0] if widths[0] else 1
+            entries.append((num, kind, fields[1], fields[2]))
+            k += 1
     return entries
 
 
@@ -137,11 +173,12 @@ def _trailer_ok(trailer: Any, old_startxref: int) -> bool:
 
 
 def _declared_objects(
-    new: bytes, floor: int, entries: list[Entry], reader: PdfReader,
+    new: bytes, floor: int, entries: list[Entry], reader: PdfReader, budget: Budget,
 ) -> tuple[dict[int, Any], dict[int, frozenset[int]], list[tuple[int, int]]]:
     objects, spans = {}, []
     refs: dict[int, frozenset[int]] = {}
     for num, kind, f2, f3 in entries:
+        budget.check()
         if kind == 0 and num == 0:
             continue
         if kind != 1 or f2 < floor or num in objects:
@@ -164,8 +201,14 @@ def _covered(data: bytes, start: int, spans: list[tuple[int, int]]) -> bool:
     return _FILLER.match(data, pos).end() == len(data)
 
 
-def read_update(old: bytes, new: bytes, reader: PdfReader) -> UpdateSection | None:
-    """The one update appended to ``old`` to make ``new``, or ``None``."""
+def read_update(
+    old: bytes, new: bytes, reader: PdfReader, budget: Budget | None = None,
+) -> UpdateSection | None:
+    """The one update appended to ``old`` to make ``new``, or ``None``.
+
+    Raises ``LimitExceededError`` (``pursue_index.pdf_limits``) past a resource cap.
+    """
+    budget = budget or Budget()
     old_tail, new_tail = _final_startxref(old), _final_startxref(new)
     suffix = new[len(old):]
     if (old_tail is None or new_tail is None or suffix.count(b"%%EOF") != 1
@@ -173,15 +216,15 @@ def read_update(old: bytes, new: bytes, reader: PdfReader) -> UpdateSection | No
         return None
     at, xref_num = new_tail[0], None
     if new.startswith(b"xref", at):
-        entries, trailer, end = _read_table(new, at, reader)
+        entries, trailer, end = _read_table(new, at, reader, budget)
     else:
         xref_num, _, trailer, end = _read_indirect(new, at, reader)
         if not isinstance(trailer, StreamObject) or trailer.get("/Type") != "/XRef":
             return None
-        entries = [e for e in _stream_entries(trailer) if e[0] != xref_num]
+        entries = [e for e in _stream_entries(trailer, budget) if e[0] != xref_num]
     if not _trailer_ok(trailer, old_tail[0]):
         return None
-    objects, refs, spans = _declared_objects(new, len(old), entries, reader)
+    objects, refs, spans = _declared_objects(new, len(old), entries, reader, budget)
     if xref_num is not None:
         objects[xref_num] = trailer
         refs[xref_num] = _raw_refs(new, at, end, trailer)
