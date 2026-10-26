@@ -11,6 +11,7 @@ The constants are read at call time so tests can lower them.
 
 from __future__ import annotations
 
+import threading
 import time
 import zlib
 from collections.abc import Iterator
@@ -24,6 +25,7 @@ __all__ = [
     "Budget",
     "LimitExceededError",
     "capped_pypdf",
+    "check_file_size",
     "check_update_count",
     "inflate_capped",
     "read_capped",
@@ -39,6 +41,11 @@ MAX_TOTAL_INFLATED = 16 * 1024 * 1024
 # The update chain pypdf walks (and this module refuses beyond one new section).
 MAX_UPDATES = 16
 TIME_BUDGET_SECONDS = 30.0
+
+
+# Re-entrant: serializes users of the pypdf configuration; ``apply_configuration``
+# restores the previous one on exit.
+_CONFIG_LOCK = threading.RLock()
 
 
 class LimitExceededError(Exception):
@@ -66,11 +73,16 @@ class Budget:
             raise LimitExceededError("total-bytes-budget", f"over {MAX_TOTAL_INFLATED}")
 
 
-def read_capped(path: Path) -> bytes:
-    """``path``'s bytes, refusing (before any read) a file over the cap."""
+def check_file_size(path: Path) -> None:
+    """Refuse (before any read) a file over the cap; ``stat`` raises if absent."""
     size = path.stat().st_size
     if size > MAX_FILE_BYTES:
         raise LimitExceededError("file-size-cap", f"{size} > {MAX_FILE_BYTES}")
+
+
+def read_capped(path: Path) -> bytes:
+    """``path``'s bytes, refusing (before any read) a file over the cap."""
+    check_file_size(path)
     return path.read_bytes()
 
 
@@ -83,11 +95,12 @@ def inflate_capped(data: bytes, budget: Budget) -> bytes:
     return out
 
 
-def check_update_count(data: bytes) -> None:
-    """Refuse a file whose ``startxref`` chain is longer than the cap."""
+def check_update_count(data: bytes) -> int:
+    """The file's ``startxref`` count; refuses a chain longer than the cap."""
     count = data.count(b"startxref")
     if count > MAX_UPDATES:
         raise LimitExceededError("update-count", f"{count} > {MAX_UPDATES}")
+    return count
 
 
 @contextmanager
@@ -98,7 +111,7 @@ def capped_pypdf() -> Iterator[None]:
     before this module's parser runs; its default cap is 75 MB per stream.
     """
     try:
-        with apply_configuration(zlib_maximum_output_length=MAX_XREF_INFLATED):
+        with _CONFIG_LOCK, apply_configuration(zlib_maximum_output_length=MAX_XREF_INFLATED):
             yield
     except PyPdfError as exc:
         cause: BaseException | None = exc

@@ -57,10 +57,13 @@ from pypdf.generic import (
     TextStringObject,
 )
 
+from pursue_index.classify_isolated import run_worker
+from pursue_index.pdf_crosscheck import CrossCheckError, crosscheck
 from pursue_index.pdf_limits import (
     Budget,
     LimitExceededError,
     capped_pypdf,
+    check_file_size,
     check_update_count,
     read_capped,
 )
@@ -77,21 +80,47 @@ _LEAVES = (BooleanObject, ByteStringObject, FloatObject, NameObject, NullObject,
            NumberObject, TextStringObject)
 
 
-def classify_bytes(old_path: Path, new_path: Path) -> Literal["metadata-only", "content-changed"]:
+def classify_bytes(
+    old_path: Path, new_path: Path, *, isolated: bool = True,
+) -> Literal["metadata-only", "content-changed"]:
     """``metadata-only`` iff ``new_path`` is ``old_path`` plus one metadata-only
-    incremental update; ``content-changed`` otherwise (module docstring)."""
+    incremental update that ALSO passes the independent cross-check
+    (``pdf_crosscheck``); ``content-changed`` otherwise (module docstring).
+
+    ``isolated`` (the default) runs the work in a resource-limited worker
+    (``classify_isolated``); ``False`` runs it in-process (tests, the worker).
+    """
+    if isolated:
+        old_path, new_path = Path(old_path), Path(new_path)
+        for path in (old_path, new_path):
+            check_file_size(path)  # FileNotFoundError / size cap before spawning
+        return run_worker(old_path, new_path) or CONTENT_CHANGED
+    return _classify_in_process(Path(old_path), Path(new_path))
+
+
+def _classify_in_process(old_path: Path, new_path: Path) -> Verdict:
     try:
-        old = read_capped(Path(old_path))
-        new = read_capped(Path(new_path))
+        old = read_capped(old_path)
+        new = read_capped(new_path)
         if len(new) <= len(old) or not new.startswith(old):
             return CONTENT_CHANGED
         budget = Budget()
-        check_update_count(new)
+        # ``new`` carries the whole old file as its prefix (checked above), so
+        # counting ``startxref`` in ``new`` also bounds the old file's /Prev
+        # chain that pypdf walks -- never call this with the suffix alone.
+        if check_update_count(new) < old.count(b"startxref"):
+            return CONTENT_CHANGED
         with capped_pypdf():
-            metadata_only = _is_metadata_only(old, new, budget)
-        return METADATA_ONLY if metadata_only else CONTENT_CHANGED
+            if not _is_metadata_only(old, new, budget):
+                return CONTENT_CHANGED
+            crosscheck(old, new, budget)
+        return METADATA_ONLY
     except LimitExceededError as exc:
         _LOG.warning("classify_bytes fail-safe %s (%s): %s", CONTENT_CHANGED, exc.reason, exc)
+        return CONTENT_CHANGED
+    except CrossCheckError as exc:
+        _LOG.warning("classify_bytes fail-safe %s (crosscheck %s): %s",
+                     CONTENT_CHANGED, exc.signal, exc)
         return CONTENT_CHANGED
     except (FileNotFoundError, KeyboardInterrupt):
         raise

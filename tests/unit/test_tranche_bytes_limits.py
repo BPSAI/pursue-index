@@ -44,7 +44,7 @@ def _xref_stream_update(base: BasePdf, *, index: bytes, payload: bytes,
 
 
 def _classify(tmp_path: Path, old: bytes, new: bytes) -> str:
-    return classify_bytes(*write_pair(tmp_path, old, new))
+    return classify_bytes(*write_pair(tmp_path, old, new), isolated=False)
 
 
 def test_huge_index_count_fails_safe_without_allocating(tmp_path, caplog) -> None:
@@ -114,7 +114,7 @@ def test_over_cap_file_is_refused_before_it_is_read(tmp_path, caplog, monkeypatc
     monkeypatch.setattr(pdf_limits, "MAX_FILE_BYTES", 10)
     monkeypatch.setattr(Path, "read_bytes", boom)
     with caplog.at_level(logging.WARNING):
-        assert classify_bytes(old, new) == CC
+        assert classify_bytes(old, new, isolated=False) == CC
     assert "file-size-cap" in caplog.text
 
 
@@ -124,3 +124,21 @@ def test_in_cap_pair_still_classifies_metadata_only(tmp_path) -> None:
     assert tranche_bytes.METADATA_ONLY == "metadata-only"
     with pytest.raises(FileNotFoundError):
         classify_bytes(tmp_path / "missing.pdf", tmp_path / "new.pdf")
+
+
+def test_update_count_bounds_the_old_chain_via_the_full_prefix(tmp_path, caplog, monkeypatch) -> None:
+    """``new`` carries ``old`` as its prefix, so counting ``new`` counts the
+    ``/Prev`` chain pypdf walks through the old file too."""
+    base = build_base_pdf()
+    once = metadata_only_resave(base, xref_stream=False)
+    assert pdf_limits.check_update_count(once) == once.count(b"startxref") >= 2
+    monkeypatch.setattr(pdf_limits, "MAX_UPDATES", base.data.count(b"startxref"))
+    with caplog.at_level(logging.WARNING):
+        assert _classify(tmp_path, base.data, once) == CC
+    assert "update-count" in caplog.text
+
+
+def test_suffix_alone_is_rejected(tmp_path) -> None:
+    base = build_base_pdf()
+    once = metadata_only_resave(base, xref_stream=False)
+    assert _classify(tmp_path, base.data, once[len(base.data):]) == CC

@@ -49,8 +49,8 @@ def test_one_byte_mutation_of_an_adversarial_case_is_never_metadata_only(
     seen: list[str] = []
 
     def mutating_verdict(directory: Path, old: bytes, new: bytes) -> str:
-        verdicts = [classify_bytes(*write_pair(directory, o, n)) for o, n in _mutants(old, new)]
-        verdicts.append(classify_bytes(*write_pair(directory, old, new)))
+        verdicts = [classify_bytes(*write_pair(directory, o, n), isolated=False) for o, n in _mutants(old, new)]
+        verdicts.append(classify_bytes(*write_pair(directory, old, new), isolated=False))
         seen.extend(verdicts)
         return hardening.CC
 

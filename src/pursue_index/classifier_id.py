@@ -13,11 +13,11 @@ from pathlib import Path
 
 import pypdf
 
-from pursue_index import pdf_limits, pdf_update, tranche_bytes
+from pursue_index import classify_isolated, pdf_crosscheck, pdf_limits, pdf_update, tranche_bytes
 
 __all__ = ["classifier_id"]
 
-_SOURCES = tuple(Path(m.__file__) for m in (pdf_update, pdf_limits, tranche_bytes))
+_SOURCES = tuple(Path(m.__file__) for m in (pdf_update, pdf_limits, pdf_crosscheck, classify_isolated, tranche_bytes))
 
 
 @lru_cache(maxsize=1)

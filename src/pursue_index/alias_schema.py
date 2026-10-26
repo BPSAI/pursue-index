@@ -27,6 +27,10 @@ def alias_row_errors(row: dict[str, Any]) -> list[str]:
               if not _is_text(row.get(k))]
     errors += [f"{k}: must be a non-empty string when present" for k in EVIDENCE_KEYS
                if k in row and not _is_text(row[k])]
+    if "crosscheck" in row:
+        signals = row["crosscheck"]
+        if not (isinstance(signals, list) and signals and all(_is_text(s) for s in signals)):
+            errors.append("crosscheck: must be a non-empty list of strings when present")
     nature = row.get("change_nature")
     if _is_text(nature) and nature not in CHANGE_NATURES:
         errors.insert(0, f"change_nature: {nature!r} not one of {CHANGE_NATURES}")

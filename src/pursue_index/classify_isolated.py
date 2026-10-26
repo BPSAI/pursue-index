@@ -1,0 +1,55 @@
+"""Run the byte classifier in a resource-limited subprocess.
+
+The parser and pypdf run on externally sourced PDFs; a worker with an
+address-space ceiling and a wall-clock timeout contains whatever the
+in-process caps (``pdf_limits``) miss. ``run_worker`` returns the worker's
+verdict text, or ``None`` on a crash, timeout, non-zero exit or unexpected
+output -- the caller maps ``None`` to ``content-changed``.
+"""
+
+from __future__ import annotations
+
+import logging
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+from pursue_index import pdf_limits
+
+__all__ = ["WORKER_MEMORY_BYTES", "run_worker"]
+
+WORKER_MODULE = "pursue_index.classify_worker"
+# Both files are read whole (each up to MAX_FILE_BYTES, 512 MiB) and pypdf
+# copies each into a BytesIO, so ~2 GiB of byte buffers plus the interpreter,
+# pypdf and parse structures: 6 GiB of address space is above that budget yet
+# far below a runaway allocation. RLIMIT_AS counts virtual, not resident.
+WORKER_MEMORY_BYTES = 6 * 1024 * 1024 * 1024
+_VERDICTS = ("metadata-only", "content-changed")
+_LOG = logging.getLogger(__name__)
+
+
+def _env() -> dict[str, str]:
+    paths = [os.path.abspath(p) for p in sys.path if p]
+    return {**os.environ, "PYTHONPATH": os.pathsep.join(paths)}
+
+
+def run_worker(old_path: Path, new_path: Path) -> str | None:
+    cmd = [sys.executable, "-m", WORKER_MODULE, str(old_path), str(new_path),
+           "--memory-bytes", str(WORKER_MEMORY_BYTES)]
+    try:
+        done = subprocess.run(
+            cmd, capture_output=True, text=True, check=False, env=_env(),
+            cwd=tempfile.gettempdir(), timeout=pdf_limits.TIME_BUDGET_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        _LOG.warning("classify worker fail-safe (worker-timeout): over %ss",
+                     pdf_limits.TIME_BUDGET_SECONDS)
+        return None
+    out = done.stdout.strip()
+    if done.returncode != 0 or out not in _VERDICTS:
+        _LOG.warning("classify worker fail-safe (worker-failed): exit %s, %d output bytes",
+                     done.returncode, len(out))
+        return None
+    return out

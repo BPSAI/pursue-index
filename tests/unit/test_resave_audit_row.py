@@ -53,6 +53,7 @@ def test_alias_row_records_verdict_hashes_and_classifier() -> None:
     assert alias["change_nature"] == "metadata-only"
     assert (alias["old_byte_sha256"], alias["new_byte_sha256"]) == ("d5" * 32, "ca" * 32)
     assert alias["classifier"] == classifier_id.classifier_id()
+    assert alias["crosscheck"] == ["content-streams", "text"]
 
 
 def test_schema_accepts_and_checks_the_classifier_field() -> None:
@@ -60,3 +61,6 @@ def test_schema_accepts_and_checks_the_classifier_field() -> None:
            "established": "2026-10-26"}
     assert alias_row_errors({**row, "classifier": "pdf-update-parser/pypdf6/abc"}) == []
     assert alias_row_errors({**row, "classifier": ""}) != []
+    assert alias_row_errors({**row, "crosscheck": ["content-streams", "text"]}) == []
+    assert alias_row_errors({**row, "crosscheck": []}) != []
+    assert alias_row_errors({**row, "crosscheck": "text"}) != []

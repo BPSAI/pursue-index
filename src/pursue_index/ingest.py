@@ -159,13 +159,14 @@ def auto_approve_renames(diff: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def _byte_change_evidence(r: dict[str, Any]) -> dict[str, str]:
+def _byte_change_evidence(r: dict[str, Any]) -> dict[str, Any]:
     """The known parts of a re-save row's byte change; unknowns are omitted."""
     evidence = {
         "old_byte_sha256": r.get("old_byte_sha256"),
         "new_byte_sha256": r.get("byte_sha256"),
         "change_nature": r.get("verdict"),
         "classifier": r.get("classifier"),
+        "crosscheck": r.get("crosscheck"),
     }
     return {k: v for k, v in evidence.items() if v}
 

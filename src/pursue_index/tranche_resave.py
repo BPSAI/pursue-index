@@ -31,11 +31,13 @@ when at least one row moved.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from pursue_index.classifier_id import classifier_id
+from pursue_index.pdf_crosscheck import CROSSCHECKS
 from pursue_index.tranche_bytes import METADATA_ONLY, classify_bytes
 
 __all__ = [
@@ -47,6 +49,7 @@ __all__ = [
     "resave_counts",
 ]
 
+_SHA256 = re.compile(r"[0-9a-f]{64}")
 RESAVE_BUCKET = "renames_metadata_only"
 RESAVE_METHOD = "metadata-only-resave"
 
@@ -56,7 +59,7 @@ ResaveCheck = Callable[[str, str | None], str | None]
 
 
 def _verified_path(bytes_dir: Path, sha: str | None) -> Path | None:
-    if not sha:
+    if not isinstance(sha, str) or _SHA256.fullmatch(sha) is None:
         return None
     path = bytes_dir / f"{sha}.pdf"
     try:
@@ -98,6 +101,7 @@ def _resave_row(row: dict[str, Any], old_card_id: str, old_sha: str) -> dict[str
         "old_byte_sha256": old_sha,
         "verdict": METADATA_ONLY,
         "classifier": classifier_id(),
+        "crosscheck": list(CROSSCHECKS),
         "method": RESAVE_METHOD,
         "new_title": row.get("new_title"),
         "new_asset_filename": row.get("new_asset_filename"),
