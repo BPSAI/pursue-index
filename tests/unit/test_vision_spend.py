@@ -136,4 +136,4 @@ def test_spend_worst_case_output_tokens_match_the_request_max_tokens() -> None:
     from pursue_index.vision import client, spend
 
     request = client._build_request("aGk=", "claude-opus-4-8")
-    assert spend._MAX_OUTPUT_TOKENS == request["max_tokens"]
+    assert request["max_tokens"] == spend._MAX_OUTPUT_TOKENS
