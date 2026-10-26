@@ -137,3 +137,18 @@ def test_spend_worst_case_output_tokens_match_the_request_max_tokens() -> None:
 
     request = client._build_request("aGk=", "claude-opus-4-8")
     assert request["max_tokens"] == spend._MAX_OUTPUT_TOKENS
+
+
+def test_a_response_with_no_usage_object_reports_no_usage(monkeypatch: pytest.MonkeyPatch) -> None:
+    reply = SimpleNamespace(content=[SimpleNamespace(text='{"description": "x"}')])
+    fake = SimpleNamespace(messages=SimpleNamespace(create=lambda **_k: reply))
+    monkeypatch.setattr(client, "_get_anthropic_client", lambda: fake)
+    result = client.examine_image(Image.new("RGB", (8, 8)))
+    assert result.get("_usage") is None
+
+
+def test_an_all_zero_usage_mapping_is_unavailable_not_free() -> None:
+    zeros = dict.fromkeys(
+        ("input_tokens", "output_tokens",
+         "cache_creation_input_tokens", "cache_read_input_tokens"), 0)
+    assert usage_cost_usd(_MODEL, zeros) is None

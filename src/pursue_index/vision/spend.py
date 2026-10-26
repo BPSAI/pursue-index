@@ -72,6 +72,8 @@ def usage_cost_usd(model: str, usage: Mapping[str, object] | None) -> float | No
     write = _tokens(usage, "cache_creation_input_tokens")
     read = _tokens(usage, "cache_read_input_tokens")
     out = _tokens(usage, "output_tokens")
+    if not (plain or write or read or out):
+        return None  # an all-zero report is a missing one, never a free call
     return (
         plain * r.input
         + write * r.input * _CACHE_WRITE_MULTIPLE

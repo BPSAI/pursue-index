@@ -26,6 +26,7 @@ from typing import Any
 import typer
 
 from pursue_index.card_id import require_card_ids
+from pursue_index.cli.ingest_estimate import ingest_estimate_text
 from pursue_index.cli.worklist import WorklistTrancheError, exit_on_tranche_error
 from pursue_index.ingest_run import render_av_next_steps
 from pursue_index.ingest_scope import ScopedCard, scope_worklist
@@ -280,6 +281,8 @@ def execute_from_diff(
     )
     av_card_ids = scoped_av_card_ids(summary)
 
+    if estimate := ingest_estimate_text(diff, summary, card_ids=[s.card_id for s in scoped]):
+        typer.echo("\n" + estimate)
     _print_worklists(scoped, av_card_ids)
     _write_and_run(
         scoped, av_card_ids,

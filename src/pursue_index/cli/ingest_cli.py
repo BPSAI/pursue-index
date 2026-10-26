@@ -361,7 +361,8 @@ def run_cmd(
     """
     gate_resolve_and_promote(tranche, log, snapshots_dir, diff_dir, manifest, dry_run, allow_behind, reason)
     diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir)
-    _echo_estimate(diff_payload, summary)
+    if not from_diff:  # --from-diff prices the exact scoped list it is about to run
+        _echo_estimate(diff_payload, summary)
     if from_diff:
         execute_from_diff(
             summary, diff=diff_payload, tranche=tranche, manifest=manifest, worklist=worklist,

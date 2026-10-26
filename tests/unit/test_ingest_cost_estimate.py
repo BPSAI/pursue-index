@@ -97,3 +97,23 @@ def test_approval_record_carries_the_judge_label(repo, stats, label) -> None:
     assert estimate["pages"] == 10
     assert estimate["partial"] is False
     assert estimate["cap_usd"] < estimate["high_usd"]
+
+
+def test_from_diff_run_prices_the_expanded_scope_it_will_spend_on(repo: Path) -> None:
+    """A quarantined-new PDF is scoped by ``--from-diff`` though it is not Class B."""
+    _write(repo, [_row("aaaa000000000001", 40)])
+    path = repo / "data" / "tranche-diffs" / f"tranche-diff-{_SHA[:12]}.json"
+    diff = json.loads(path.read_text())
+    diff["quarantined"] = [{
+        "new_card_id": "cccc000000000003", "new_asset_type": "PDF",
+        "new_asset_url": "https://www.war.gov/medialink/c.pdf", "page_count": 25,
+    }]
+    path.write_text(json.dumps(diff))
+    args = ["ingest", "run", "--tranche", _SHA, "--diff-dir", str(repo / "data" / "tranche-diffs"),
+            "--log", str(repo / "data" / "tranche-approval-log.jsonl"), "--from-diff",
+            "--dry-run", "--worklist", str(repo / "wl.txt"),
+            "--aliases", str(repo / "data" / "aliases.json"),
+            "--asset-registry", str(repo / "data" / "registry.json")]
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0, result.output
+    assert "over 65 pages" in result.output
