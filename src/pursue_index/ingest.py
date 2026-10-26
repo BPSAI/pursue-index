@@ -165,6 +165,7 @@ def _byte_change_evidence(r: dict[str, Any]) -> dict[str, str]:
         "old_byte_sha256": r.get("old_byte_sha256"),
         "new_byte_sha256": r.get("byte_sha256"),
         "change_nature": r.get("verdict"),
+        "classifier": r.get("classifier"),
     }
     return {k: v for k, v in evidence.items() if v}
 

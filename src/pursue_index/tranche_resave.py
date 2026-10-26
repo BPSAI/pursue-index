@@ -35,6 +35,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from pursue_index.classifier_id import classifier_id
 from pursue_index.tranche_bytes import METADATA_ONLY, classify_bytes
 
 __all__ = [
@@ -96,6 +97,7 @@ def _resave_row(row: dict[str, Any], old_card_id: str, old_sha: str) -> dict[str
         "byte_sha256": row["new_byte_sha256"],
         "old_byte_sha256": old_sha,
         "verdict": METADATA_ONLY,
+        "classifier": classifier_id(),
         "method": RESAVE_METHOD,
         "new_title": row.get("new_title"),
         "new_asset_filename": row.get("new_asset_filename"),

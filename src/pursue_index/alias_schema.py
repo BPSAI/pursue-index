@@ -3,7 +3,8 @@
 Every row names the rename (``old_card_id`` -> ``new_card_id``), how it was
 established (``method``) and when (``established``). R7C.13 adds OPTIONAL
 byte-change evidence -- ``old_byte_sha256`` / ``new_byte_sha256`` /
-``change_nature`` -- written only where a classifier verdict is actually
+``change_nature`` (plus ``classifier``, the parser id behind a re-save
+verdict) -- written only where a classifier verdict is actually
 known; rows without it (most of them) stay valid unchanged.
 """
 
@@ -12,7 +13,7 @@ from __future__ import annotations
 from typing import Any
 
 BASE_KEYS = ("old_card_id", "new_card_id", "method", "established")
-EVIDENCE_KEYS = ("old_byte_sha256", "new_byte_sha256", "change_nature")
+EVIDENCE_KEYS = ("old_byte_sha256", "new_byte_sha256", "change_nature", "classifier")
 CHANGE_NATURES = ("metadata-only", "content-changed", "unknown")
 
 
