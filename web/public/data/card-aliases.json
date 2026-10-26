@@ -139,7 +139,10 @@
       "new_card_id": "ff3939f95d878062",
       "method": "operator_manual",
       "established": "2026-10-24T02:59:55.790708+00:00",
-      "tranche_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9"
+      "tranche_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
+      "old_byte_sha256": "d52431b354af55b1e86cb454e61fd61993af3b023a38f2d9e014a9c9d18d16b4",
+      "new_byte_sha256": "ca9563779824e306f11393612fe6503f39877c6d5be03e77c875e928ee116b54",
+      "change_nature": "metadata-only"
     }
   ]
 }

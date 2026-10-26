@@ -19,6 +19,7 @@ import {
   type SnapshotOptionMeta,
   type UnpairedRow,
 } from "./diff-helpers.ts";
+import DiffRenamedSection from "./DiffRenamedSection.tsx";
 import DiffRowChanges from "./DiffRowChanges.tsx";
 import DiffTimeline from "./DiffTimeline.tsx";
 
@@ -415,7 +416,7 @@ function DiffBody({
       </div>
       <DiffSection title="ADDED" cards={diff.added} tone="green" base={base} />
       <DiffSection title="REMOVED" cards={diff.removed} tone="red" base={base} />
-      <RenamedSection renamed={diff.renamed} base={base} />
+      <DiffRenamedSection renamed={diff.renamed} base={base} />
       <FieldChangedSection fieldChanges={fieldChanges} base={base} />
       <DiffRowChanges rows={rowChanges} base={base} />
     </div>
@@ -452,40 +453,6 @@ function DiffSection({
                 <span class={`text-[color:var(${colorVar})]`}>{sym}</span>
                 <span class="text-[10px] uppercase tracking-[0.15em] text-[color:var(--color-text-faint)] w-10 shrink-0">{c.asset_type}</span>
                 <span class="text-[color:var(--color-text-bright)] line-clamp-1">{c.title}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-function RenamedSection({
-  renamed,
-  base,
-}: {
-  renamed: ReturnType<typeof diffWithAliases>["renamed"];
-  base: string;
-}) {
-  return (
-    <section class="space-y-2">
-      <h2 class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em]">
-        <span class="inline-block h-2 w-2 rounded-full bg-[color:var(--color-signal-cyan)] shadow-[0_0_8px_var(--color-signal-cyan)]"></span>
-        <span class="text-[color:var(--color-signal-cyan)]">RENAMED</span>
-        <span class="text-[color:var(--color-text-dim)]">({renamed.length})</span>
-      </h2>
-      {renamed.length === 0 ? (
-        <p class="font-mono text-[11px] text-[color:var(--color-text-faint)] uppercase tracking-[0.15em] pl-4">── NONE ──</p>
-      ) : (
-        <ul class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/40 divide-y divide-[color:var(--color-border)] font-mono text-xs">
-          {renamed.map((r) => (
-            <li class="px-3 py-1.5 hover:bg-[color:var(--color-bg-elevated)]">
-              <a href={`${base}/card/${r.to.card_id}`} class="flex items-baseline gap-3 flex-wrap">
-                <span class="text-[color:var(--color-signal-cyan)]">↻</span>
-                <span class="text-[10px] uppercase tracking-[0.15em] text-[color:var(--color-text-faint)] w-10 shrink-0">{r.to.asset_type}</span>
-                <span class="text-[color:var(--color-text-bright)] line-clamp-1 flex-1">{r.to.title}</span>
-                <span class="text-[10px] text-[color:var(--color-text-faint)]" title="alias method">{r.method}</span>
               </a>
             </li>
           ))}

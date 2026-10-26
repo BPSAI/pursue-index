@@ -14,6 +14,7 @@
  */
 
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
+import { aliasEvidence, type RenameEvidence } from "./diff-renamed.ts";
 import { pairRowsByCardId } from "./row-pairing.ts";
 
 // Re-exported so the /diff island and its tests keep a single import
@@ -166,7 +167,8 @@ function tsMillis(ts: string): number {
 
 // --- Alias resolver -------------------------------------------------
 
-export interface ResolvedAlias {
+/** Evidence fields (R7C.13) come from the FIRST hop, like `method`. */
+export interface ResolvedAlias extends RenameEvidence {
   terminal: string;
   method: string;
 }
@@ -175,14 +177,14 @@ export type AliasMap = Record<string, ResolvedAlias>;
 export function resolveAliases(rawAliases: AliasEntry[]): AliasMap {
   // Walk operator_revoke tombstones (later entry wins, removes mapping).
   // Then resolve chains so every old_card_id maps to its terminal id.
-  const direct: Record<string, { newId: string; method: string }> = {};
+  const direct: Record<string, { newId: string; method: string; evidence: RenameEvidence }> = {};
   for (const a of rawAliases) {
     if (!a.old_card_id || !a.new_card_id) continue;
     if (a.method === "operator_revoke") {
       delete direct[a.old_card_id];
       continue;
     }
-    direct[a.old_card_id] = { newId: a.new_card_id, method: a.method };
+    direct[a.old_card_id] = { newId: a.new_card_id, method: a.method, evidence: aliasEvidence(a) };
   }
 
   const out: AliasMap = {};
@@ -198,7 +200,7 @@ export function resolveAliases(rawAliases: AliasEntry[]): AliasMap {
       if (!next) break;
       cur = next.newId;
     }
-    out[oldId] = { terminal: cur, method };
+    out[oldId] = { terminal: cur, method, ...direct[oldId].evidence };
   }
   return out;
 }
@@ -313,8 +315,10 @@ export function formatPromotedStateLabel(o: PromotedStateOption): string {
 export interface DiffResult {
   added: CardMetadata[];
   removed: CardMetadata[];
-  renamed: Array<{ from: CardMetadata; to: CardMetadata; method: string }>;
+  renamed: RenamedEntry[];
 }
+
+export type RenamedEntry = { from: CardMetadata; to: CardMetadata; method: string } & RenameEvidence;
 
 export function diffWithAliases(
   prev: CardMetadata[],
@@ -326,7 +330,7 @@ export function diffWithAliases(
 
   const added: CardMetadata[] = [];
   const removed: CardMetadata[] = [];
-  const renamed: Array<{ from: CardMetadata; to: CardMetadata; method: string }> = [];
+  const renamed: RenamedEntry[] = [];
 
   // Track which prev card_ids were absorbed by a rename so we don't
   // also emit them in `removed`.
@@ -339,7 +343,8 @@ export function diffWithAliases(
     if (!a) continue;
     const target = currById.get(a.terminal);
     if (target) {
-      renamed.push({ from: prevCard, to: target, method: a.method });
+      const { terminal: _terminal, ...evidence } = a;
+      renamed.push({ from: prevCard, to: target, ...evidence });
       absorbedFromPrev.add(prevCard.card_id);
     }
     // If the alias terminal isn't in curr, fall through to the normal

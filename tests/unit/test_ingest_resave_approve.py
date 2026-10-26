@@ -34,11 +34,12 @@ _SHA = "096ef2c0058a" + "0" * 52
 OLD_ID, NEW_ID = "a0f6663169c21caf", "ff3939f95d878062"
 NEW_URL = "https://x/DOW-UAP-D042.pdf"
 NEW_BYTES_SHA = "ca" * 32
+OLD_BYTES_SHA = "d5" * 32
 
 
 def _diff() -> dict:
     row = {"old_card_id": OLD_ID, "new_card_id": NEW_ID, "byte_sha256": NEW_BYTES_SHA,
-           "old_byte_sha256": "d5" * 32, "verdict": "metadata-only", "method": RESAVE_METHOD,
+           "old_byte_sha256": OLD_BYTES_SHA, "verdict": "metadata-only", "method": RESAVE_METHOD,
            "new_title": "DOW-UAP-D042", "new_asset_filename": "DOW-UAP-D042.pdf",
            "new_asset_url": NEW_URL}
     return {"tranche_sha256": _SHA,
@@ -53,7 +54,27 @@ def test_auto_approve_emits_metadata_only_resave_method() -> None:
     assert auto_approve_renames(_diff()) == [{
         "old_card_id": OLD_ID, "new_card_id": NEW_ID,
         "byte_sha256": NEW_BYTES_SHA, "method": "metadata-only-resave",
+        "old_byte_sha256": OLD_BYTES_SHA, "new_byte_sha256": NEW_BYTES_SHA,
+        "change_nature": "metadata-only",
     }]
+
+
+def test_auto_approve_omits_byte_evidence_it_does_not_have() -> None:
+    diff = _diff()
+    for key in ("old_byte_sha256", "verdict"):
+        diff[RESAVE_BUCKET][0].pop(key)
+    [alias] = auto_approve_renames(diff)
+    assert "old_byte_sha256" not in alias and "change_nature" not in alias
+    assert alias["new_byte_sha256"] == NEW_BYTES_SHA
+
+
+def test_byte_collision_rows_carry_no_change_nature() -> None:
+    diff = _diff()
+    diff["renames_confirmed"] = [{"old_card_id": "1" * 16, "new_card_id": "2" * 16,
+                                  "byte_sha256": "ab" * 32}]
+    collision = auto_approve_renames(diff)[0]
+    assert collision["method"] == "byte_collision"
+    assert not {"old_byte_sha256", "new_byte_sha256", "change_nature"} & set(collision)
 
 
 def test_approve_materializes_alias_without_approve_rename(
@@ -73,6 +94,10 @@ def test_approve_materializes_alias_without_approve_rename(
     assert (alias["old_card_id"], alias["new_card_id"]) == (OLD_ID, NEW_ID)
     assert alias["method"] == "metadata-only-resave"
     assert alias["tranche_sha256"] == _SHA
+    assert alias["byte_sha256"] == NEW_BYTES_SHA  # the TOCTOU audit's contract
+    assert alias["old_byte_sha256"] == OLD_BYTES_SHA
+    assert alias["new_byte_sha256"] == NEW_BYTES_SHA
+    assert alias["change_nature"] == "metadata-only"
     logged = json.loads((tmp_path / "log.jsonl").read_text())["renames_approved"]
     assert [r["method"] for r in logged] == ["metadata-only-resave"]
     assert "metadata-only re-save" in result.output

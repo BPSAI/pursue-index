@@ -48,6 +48,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from pursue_index.alias_schema import alias_row_errors
 from pursue_index.tranche_resave import RESAVE_BUCKET, RESAVE_METHOD
 
 _CARD_ID_RE = re.compile(r"^[a-f0-9]{16}$")
@@ -137,18 +138,35 @@ def auto_approve_renames(diff: dict[str, Any]) -> list[dict[str, Any]]:
     the NEW bytes' sha so the pre-approval audit re-checks those bytes.
     Operator approval of the tranche implicitly accepts both (no explicit
     per-card flag needed).
+
+    Only a re-save row has a classifier byte verdict, so only it also
+    records the display evidence ``old_byte_sha256`` / ``new_byte_sha256`` /
+    ``change_nature`` (R7C.13); ``byte_sha256`` stays the audit's contract.
     """
     out: list[dict[str, Any]] = []
     for bucket, method in (("renames_confirmed", "byte_collision"),
                            (RESAVE_BUCKET, RESAVE_METHOD)):
         for r in diff.get(bucket, []) or []:
-            out.append({
+            row = {
                 "old_card_id": r["old_card_id"],
                 "new_card_id": r["new_card_id"],
                 "byte_sha256": r.get("byte_sha256"),
                 "method": method,
-            })
+            }
+            if method == RESAVE_METHOD:
+                row.update(_byte_change_evidence(r))
+            out.append(row)
     return out
+
+
+def _byte_change_evidence(r: dict[str, Any]) -> dict[str, str]:
+    """The known parts of a re-save row's byte change; unknowns are omitted."""
+    evidence = {
+        "old_byte_sha256": r.get("old_byte_sha256"),
+        "new_byte_sha256": r.get("byte_sha256"),
+        "change_nature": r.get("verdict"),
+    }
+    return {k: v for k, v in evidence.items() if v}
 
 
 def parse_rename_flags(flags: list[str]) -> list[dict[str, Any]]:
@@ -194,9 +212,13 @@ def append_aliases(aliases_path: Path, rows: list[dict[str, Any]]) -> None:
     extend the list, and write back. Atomic-ish: read once, write
     once. For the corpus-scale we're targeting (low hundreds of
     aliases lifetime) this is fine; if it grows, switch to JSONL.
+    A row that fails the alias schema is refused before anything is written.
     """
     if not rows:
         return
+    for row in rows:
+        if errors := alias_row_errors(row):
+            raise ValueError(f"refusing malformed alias row: {'; '.join(errors)}")
     aliases_path.parent.mkdir(parents=True, exist_ok=True)
     if aliases_path.exists():
         payload = json.loads(aliases_path.read_text())
