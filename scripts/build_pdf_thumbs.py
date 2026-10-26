@@ -90,6 +90,16 @@ def find_local_pdf(card_id: str, asset_filename: str | None, pdf_root: Path) -> 
     return None
 
 
+def _run_tool(cmd: list[str], timeout: int, label: str, pdf: Path) -> bool:
+    """Run one rendering tool; log and return False on any failure."""
+    try:
+        subprocess.check_call(cmd, timeout=timeout, stderr=subprocess.DEVNULL)
+    except Exception as exc:
+        print(f"[thumbs] {label} fail {pdf.name}: {exc}", flush=True)
+        return False
+    return True
+
+
 def render_thumbnail(
     pdf: Path,
     out_webp: Path,
@@ -101,49 +111,19 @@ def render_thumbnail(
     out_webp.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="pursue-thumb-") as tmpdir:
         prefix = Path(tmpdir) / "page1"
-        try:
-            # -singlefile drops the page suffix so output is exactly
-            # <prefix>.jpg (no "-1" suffix to handle).
-            subprocess.check_call(
-                [
-                    "pdftocairo",
-                    "-jpeg",
-                    "-singlefile",
-                    "-r",
-                    "100",
-                    "-f",
-                    "1",
-                    "-l",
-                    "1",
-                    str(pdf),
-                    str(prefix),
-                ],
-                timeout=60,
-                stderr=subprocess.DEVNULL,
-            )
-        except Exception as exc:
-            print(f"[thumbs] pdftocairo fail {pdf.name}: {exc}", flush=True)
+        # -singlefile drops the page suffix so output is exactly
+        # <prefix>.jpg (no "-1" suffix to handle).
+        render = ["pdftocairo", "-jpeg", "-singlefile", "-r", "100"]
+        render += ["-f", "1", "-l", "1", str(pdf), str(prefix)]
+        if not _run_tool(render, 60, "pdftocairo", pdf):
             return False
         jpg = prefix.with_suffix(".jpg")
         if not jpg.exists():
             print(f"[thumbs] pdftocairo produced no output for {pdf.name}", flush=True)
             return False
-        try:
-            subprocess.check_call(
-                [
-                    "convert",
-                    str(jpg),
-                    "-resize",
-                    f"{width}x",
-                    "-quality",
-                    str(quality),
-                    str(out_webp),
-                ],
-                timeout=30,
-                stderr=subprocess.DEVNULL,
-            )
-        except Exception as exc:
-            print(f"[thumbs] convert fail {pdf.name}: {exc}", flush=True)
+        resize = ["convert", str(jpg), "-resize", f"{width}x"]
+        resize += ["-quality", str(quality), str(out_webp)]
+        if not _run_tool(resize, 30, "convert", pdf):
             return False
         return out_webp.exists() and out_webp.stat().st_size > 0
 
@@ -164,7 +144,7 @@ def save_index(path: Path, mapping: dict[str, str]) -> None:
     path.write_text(json.dumps(payload, indent=2))
 
 
-def main(argv: list[str] | None = None) -> int:
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--pdf-root", type=Path, default=DEFAULT_PDF_ROOT)
@@ -182,17 +162,52 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Regenerate even when the sidecar sha matches.",
     )
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
 
+
+def _preflight(args: argparse.Namespace) -> bool:
+    """Check required tools and the PDF root; print the reason on failure."""
     if shutil.which("pdftocairo") is None:
         print("[thumbs] pdftocairo not on PATH (apt install poppler-utils)")
-        return 1
+        return False
     if shutil.which("convert") is None:
         print("[thumbs] convert not on PATH (apt install imagemagick)")
-        return 1
-
+        return False
     if not args.pdf_root.exists():
         print(f"[thumbs] pdf root not found: {args.pdf_root}")
+        return False
+    return True
+
+
+def _process_card(card, args: argparse.Namespace, mapping: dict[str, str]) -> str:
+    """Handle one card; return the counts key for its outcome."""
+    pdf = find_local_pdf(card.card_id, card.asset_filename, args.pdf_root)
+    if pdf is None:
+        return "no_local_pdf"
+
+    webp = args.thumbs_dir / f"{card.card_id}.webp"
+    sidecar = args.thumbs_dir / f"{card.card_id}.sha256"
+    pdf_sha = sha256_file(pdf)
+
+    had_prior = sidecar.exists() and webp.exists()
+    if not args.force and had_prior and sidecar.read_text().strip() == pdf_sha:
+        mapping[card.card_id] = webp.name
+        return "fresh"
+
+    if not render_thumbnail(pdf, webp, width=args.width, quality=args.quality):
+        return "render_fail"
+
+    sidecar.write_text(pdf_sha)
+    mapping[card.card_id] = webp.name
+    label = "regenerated" if had_prior else "new"
+    size = webp.stat().st_size
+    print(f"[thumbs] {label}: {card.card_id} -> {webp.name} ({size:,} B)", flush=True)
+    return label
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _parse_args(argv)
+    if not _preflight(args):
         return 1
 
     manifest = load_manifest(args.manifest)
@@ -211,49 +226,8 @@ def main(argv: list[str] | None = None) -> int:
         "no_local_pdf": 0,
         "render_fail": 0,
     }
-
     for card in pdf_cards:
-        pdf = find_local_pdf(card.card_id, card.asset_filename, args.pdf_root)
-        if pdf is None:
-            counts["no_local_pdf"] += 1
-            continue
-
-        webp = args.thumbs_dir / f"{card.card_id}.webp"
-        sidecar = args.thumbs_dir / f"{card.card_id}.sha256"
-
-        pdf_sha = sha256_file(pdf)
-
-        had_prior = sidecar.exists() and webp.exists()
-        if not args.force and had_prior:
-            existing_sha = sidecar.read_text().strip()
-            if existing_sha == pdf_sha:
-                mapping[card.card_id] = webp.name
-                counts["fresh"] += 1
-                continue
-
-        ok = render_thumbnail(
-            pdf,
-            webp,
-            width=args.width,
-            quality=args.quality,
-        )
-        if not ok:
-            counts["render_fail"] += 1
-            continue
-
-        sidecar.write_text(pdf_sha)
-        mapping[card.card_id] = webp.name
-        size = webp.stat().st_size
-        if had_prior:
-            counts["regenerated"] += 1
-            label = "regenerated"
-        else:
-            counts["new"] += 1
-            label = "new"
-        print(
-            f"[thumbs] {label}: {card.card_id} -> {webp.name} ({size:,} B)",
-            flush=True,
-        )
+        counts[_process_card(card, args, mapping)] += 1
 
     save_index(index_path, mapping)
     print(

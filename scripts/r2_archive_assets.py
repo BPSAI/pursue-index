@@ -70,6 +70,7 @@ from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
 
+from _r2_archive_put import put_archive_and_current
 from curl_cffi import requests as cffi_requests
 
 from pursue_index.scrape.manifest import load_manifest
@@ -215,6 +216,30 @@ def _last_known_etag(rows: list[dict[str, Any]]) -> str | None:
     return rows[-1].get("upstream_etag")
 
 
+def _build_keys(card: Any, byte_sha: str) -> tuple[str, str, str]:
+    """Return (archive_key, current_key, content_type) for a card's bytes."""
+    # Allowlist extensions before building R2 keys:
+    # asset_filename comes from the upstream CSV, not the operator —
+    # a crafted upstream filename could otherwise inject characters
+    # that R2 interprets as path separators (slashes via Path.suffix
+    # on a weirdly-shaped value) or produce keys that overwrite
+    # adjacent archive objects. Anything outside the allowlist falls
+    # back to "pdf" — there are no non-PDF/non-image assets in the
+    # corpus at the time of writing, and an unrecognized extension
+    # is signal enough to warrant operator review rather than silent
+    # archival under an arbitrary key.
+    allowed_exts = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}
+    raw_ext = Path(card.asset_filename or "").suffix.lstrip(".").lower()
+    ext = raw_ext if raw_ext in allowed_exts else "pdf"
+    archive_key = f"archive/{byte_sha}.{ext}"
+    current_key = f"{card.card_id}.{ext}"
+    content_type = (
+        mimetypes.guess_type(card.asset_filename or "")[0]
+        or "application/octet-stream"
+    )
+    return archive_key, current_key, content_type
+
+
 def _process_card(
     card: Any,
     registry: dict[str, list[dict[str, Any]]],
@@ -244,69 +269,12 @@ def _process_card(
     if any(r.get("byte_sha256") == byte_sha for r in rows):
         return "unchanged"
 
-    # Allowlist extensions before building R2 keys:
-    # asset_filename comes from the upstream CSV, not the operator —
-    # a crafted upstream filename could otherwise inject characters
-    # that R2 interprets as path separators (slashes via Path.suffix
-    # on a weirdly-shaped value) or produce keys that overwrite
-    # adjacent archive objects. Anything outside the allowlist falls
-    # back to "pdf" — there are no non-PDF/non-image assets in the
-    # corpus at the time of writing, and an unrecognized extension
-    # is signal enough to warrant operator review rather than silent
-    # archival under an arbitrary key.
-    allowed_exts = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}
-    raw_ext = Path(card.asset_filename or "").suffix.lstrip(".").lower()
-    ext = raw_ext if raw_ext in allowed_exts else "pdf"
-    archive_key = f"archive/{byte_sha}.{ext}"
-    current_key = f"{card.card_id}.{ext}"
-    content_type = (
-        mimetypes.guess_type(card.asset_filename or "")[0]
-        or "application/octet-stream"
-    )
+    archive_key, current_key, content_type = _build_keys(card, byte_sha)
 
     archive_hit = False
     if not dry_run:
-        # Some other card may already have archived these exact bytes
-        # (cross-card duplicates are rare but possible — content-addressed
-        # storage handles them automatically). Use If-None-Match: "*" on
-        # the archive PUT so even a compromised key cannot overwrite
-        # historical bytes: a write to an existing archive key fails with
-        # HTTP 412 PreconditionFailed at the R2 API layer rather than
-        # silently replacing. This is the load-bearing immutability
-        # guarantee for the byte-history claim.
-        try:
-            client.put_object(
-                Bucket=bucket,
-                Key=archive_key,
-                Body=body,
-                ContentType=content_type,
-                IfNoneMatch="*",
-            )
-        except Exception as exc:
-            # PreconditionFailed (412) when an object already exists.
-            # boto3 surfaces this as ClientError with Code 'PreconditionFailed'.
-            err = getattr(exc, "response", {}).get("Error", {})
-            if err.get("Code") in (
-                "PreconditionFailed",
-                "PreconditionFailedException",
-                "412",
-            ):
-                archive_hit = True
-            else:
-                # Any other failure is a real error — re-raise so the
-                # workflow sees it and the registry row is NOT written.
-                raise
-        # Always update the "current" pointer to the latest bytes.
-        # No IfNoneMatch here — current is deliberately overwritten on
-        # every fetch (it's the "latest known" pointer the worker
-        # serves). Byte-history is preserved by the archive PUT above
-        # + the registry row that records what was current at each
-        # timestamp.
-        client.put_object(
-            Bucket=bucket,
-            Key=current_key,
-            Body=body,
-            ContentType=content_type,
+        archive_hit = put_archive_and_current(
+            client, bucket, archive_key, current_key, body, content_type
         )
 
     entry = {
@@ -349,7 +317,7 @@ def _record_or_dryrun(
     return label
 
 
-def main(argv: list[str] | None = None) -> int:
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
@@ -365,7 +333,11 @@ def main(argv: list[str] | None = None) -> int:
         default=0,
         help="Process at most this many cards (testing). 0 = no limit.",
     )
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _parse_args(argv)
 
     manifest = load_manifest(args.manifest)
     registry = load_registry(args.registry)
@@ -392,12 +364,7 @@ def main(argv: list[str] | None = None) -> int:
 
     for card in eligible:
         result = _process_card(
-            card,
-            registry,
-            client,
-            args.bucket,
-            args.dry_run,
-            args.registry,
+            card, registry, client, args.bucket, args.dry_run, args.registry
         )
         counts[result] = counts.get(result, 0) + 1
 
