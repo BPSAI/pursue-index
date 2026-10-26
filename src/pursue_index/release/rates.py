@@ -141,7 +141,7 @@ def read_judge_rate(bundle_path: Path) -> JudgeRate:
 def _plausible_judge_rate(rate: float) -> bool:
     """A metered rate outside [0, the table's judge ceiling] is bad data, not a price."""
     judge = RATES_TABLE.get("judge")
-    return 0 <= rate and (judge is None or rate <= judge.high)
+    return rate >= 0 and (judge is None or rate <= judge.high)
 
 
 def _number(value: object) -> float | None:
