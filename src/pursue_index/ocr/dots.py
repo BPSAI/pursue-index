@@ -138,6 +138,18 @@ def _get_worker() -> _DotsWorker:
     return _worker
 
 
+def engine_version() -> str:
+    """The dots.mocr build identifier recorded on every dots-produced row.
+
+    The basename of ``PURSUE_DOTS_MODEL`` (the model directory an operator
+    points the worker at) is the only thing in this adapter's config that
+    changes between a dots.mocr upgrade and the next, so it is what a
+    model-staleness check compares across runs.
+    """
+    model_path = os.environ.get("PURSUE_DOTS_MODEL", "")
+    return os.path.basename(model_path.rstrip("/")) or "unknown"
+
+
 def ocr_image(img: Image.Image) -> tuple[str, float]:
     """Return ``(text, confidence)`` for a single page image via dots.mocr.
 

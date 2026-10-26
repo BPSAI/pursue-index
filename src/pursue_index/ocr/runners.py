@@ -33,6 +33,22 @@ OCRFn = Callable[[Image.Image], tuple[str, float]]
 PageIter = Callable[[Path, int], "object"]  # returns Iterator[Image]
 
 
+def _row_provenance(engine: str) -> dict[str, str]:
+    """Extra identity fields for one OCR row, keyed by which engine produced it.
+
+    An ``llm`` row gets the resolved model id (``settings.ocr_llm_model`` read
+    at write time, so a provider override mid-run is captured rather than
+    reconstructed later from current settings); a ``dots`` row gets the
+    dots.mocr build identifier. The retired engines (tesseract/surya) carry
+    neither — there is no "operated model" concept for them to drift against.
+    """
+    if engine == "llm":
+        return {"model": settings.ocr_llm_model}
+    if engine == "dots":
+        return {"engine_version": ocr_dots.engine_version()}
+    return {}
+
+
 def run_single_engine(
     pdf_path: Path,
     pages_path: Path,
@@ -54,6 +70,7 @@ def run_single_engine(
                             "text": text,
                             "confidence": conf,
                             "engine": engine,
+                            **_row_provenance(engine),
                         }
                     )
                     + "\n"
@@ -93,7 +110,13 @@ def run_llm_dots_fallback(
                     fallback_pages += 1
                 fh.write(
                     json.dumps(
-                        {"page": page_idx, "text": text, "confidence": conf, "engine": engine}
+                        {
+                            "page": page_idx,
+                            "text": text,
+                            "confidence": conf,
+                            "engine": engine,
+                            **_row_provenance(engine),
+                        }
                     )
                     + "\n"
                 )
