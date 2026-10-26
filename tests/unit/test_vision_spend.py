@@ -130,3 +130,10 @@ def test_vision_worst_case_shares_rates_token_assumptions() -> None:
 
     assert spend._WORST_CASE_INPUT_TOKENS == rates.WORST_CASE_IMAGE_INPUT_TOKENS
     assert spend._CACHE_WRITE_MULTIPLE == rates.CACHE_WRITE_MULTIPLE
+
+
+def test_spend_worst_case_output_tokens_match_the_request_max_tokens() -> None:
+    from pursue_index.vision import client, spend
+
+    request = client._build_request("aGk=", "claude-opus-4-8")
+    assert spend._MAX_OUTPUT_TOKENS == request["max_tokens"]
