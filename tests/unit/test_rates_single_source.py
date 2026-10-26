@@ -73,3 +73,16 @@ def test_no_module_but_rates_defines_a_per_page_cost() -> None:
         if p.name != "rates.py" and _PER_PAGE_CONSTANT.search(p.read_text(encoding="utf-8"))
     ]
     assert offenders == []
+
+
+def test_poll_summary_leaves_av_cards_out_of_the_ocr_band() -> None:
+    cards = [
+        CardMetadata(card_id="aaaa000000000001", title="t", asset_type="PDF",
+                     agency="FBI", asset_url="https://www.war.gov/a.pdf"),
+        CardMetadata(card_id="aaaa000000000002", title="t", asset_type="VID",
+                     agency="FBI", asset_url="https://www.war.gov/a.mp4"),
+    ]
+    diff = SnapshotDiffResult(added=cards, removed=[], field_changes=[], new_columns=[])
+    text = render_verdict_summary(diff, tranche=_SHA, page_counts={cards[0].card_id: 3})
+    assert "over 3 pages" in text
+    assert "partial" not in text.lower()

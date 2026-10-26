@@ -148,3 +148,10 @@ def test_ids_that_could_break_a_markdown_code_span_are_not_rendered():
     s = _summary(scoped_count=2, scoped_ids=["ok", evil], page_counts=None)
     assert "injected" not in s
     assert "`ok`" in s
+
+
+def test_av_cards_are_not_priced_as_ocr_work():
+    s = _summary(scoped_count=3, scoped_ids=["a", "clip", "song"],
+                 page_counts={"a": 10}, fallback_card_ids=[], av_card_ids=["clip", "song"])
+    assert "10 pages" in s
+    assert "partial" not in s.lower()

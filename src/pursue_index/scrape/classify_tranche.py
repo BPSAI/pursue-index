@@ -119,5 +119,8 @@ def render_verdict_summary(
             page_counts=page_counts,
             fallback_card_ids=fallback_card_ids,
             judge=judge,
+            av_card_ids=[
+                c.card_id for c in diff.added if getattr(c, "asset_type", "") in ("VID", "AUD")
+            ],
         )
     return body

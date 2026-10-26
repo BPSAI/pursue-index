@@ -105,9 +105,10 @@ def _with_uncounted(
     scoped_ids: list[str] | None,
     page_counts: Mapping[str, int],
     fallback_card_ids: Sequence[str],
+    av_card_ids: Sequence[str] = (),
 ) -> list[str]:
     out = list(fallback_card_ids)
-    known = set(page_counts) | set(out)
+    known = set(page_counts) | set(out) | set(av_card_ids)
     if scoped_ids:
         return out + [c for c in dict.fromkeys(scoped_ids) if c not in known]
     return out + [""] * max(0, n - len(known))
@@ -119,6 +120,7 @@ def _estimate(
     page_counts: Mapping[str, int] | None,
     fallback_card_ids: Sequence[str],
     judge: rates.JudgeRate | None,
+    av_card_ids: Sequence[str] = (),
 ) -> list[str]:
     """The per-page band; any scoped card with no count falls back to the guess.
 
@@ -129,7 +131,9 @@ def _estimate(
         fallback_card_ids = list(scoped_ids or []) or [""] * n
         page_counts = {}
     else:
-        fallback_card_ids = _with_uncounted(n, scoped_ids, page_counts, fallback_card_ids)
+        fallback_card_ids = _with_uncounted(
+            n, scoped_ids, page_counts, fallback_card_ids, av_card_ids
+        )
     return estimate_lines(
         pages=sum(page_counts.values()), fallback_card_ids=fallback_card_ids, judge=judge
     )
@@ -148,6 +152,7 @@ def build_tranche_ready_summary(
     page_counts: Mapping[str, int] | None = None,
     fallback_card_ids: Sequence[str] = (),
     judge: rates.JudgeRate | None = None,
+    av_card_ids: Sequence[str] = (),
 ) -> str:
     """Markdown the poll alert appends so the operator sees WHAT to run.
 
@@ -158,7 +163,8 @@ def build_tranche_ready_summary(
     figure is marked partial. ``scoped_count`` is the new-card upper bound,
     exact OCR scope comes from the ``--from-diff --dry-run`` preview. When ``scoped_ids`` is
     given, a capped preview of the actual card_ids (the work-list) is folded in
-    so the operator sees which cards, not only how many. Includes a copy-paste
+    so the operator sees which cards, not only how many. ``av_card_ids`` (VID/AUD
+    cards, which ``ingest`` fetches but never OCRs) are never priced as OCR pages. Includes a copy-paste
     ``/ship-tranche <sha>`` block.
     """
     n = scoped_count
@@ -172,7 +178,7 @@ def build_tranche_ready_summary(
     if n == 0:
         lines.append("_(metadata-only tranche — no cards to OCR/embed; promote-only)_")
     else:
-        lines += _estimate(n, scoped_ids, page_counts, fallback_card_ids, judge)
+        lines += _estimate(n, scoped_ids, page_counts, fallback_card_ids, judge, av_card_ids)
         lines += _worklist_lines(scoped_ids)
     lines += [
         "",
