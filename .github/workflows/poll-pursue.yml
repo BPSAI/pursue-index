@@ -160,7 +160,10 @@ jobs:
           # no-op. (Plugs the f07601eb-style integrity gap.)
           # Upstream-controlled bytes: refuse an oversize file or one whose
           # hash is not the polled sha (a failure stops the job before the
-          # sha moves). Stage only that verified file.
+          # sha moves). Stage only that verified file. The cap is
+          # MAX_CSV_BYTES in scripts/verify_csv_artifact.py (5 MiB; real CSVs
+          # are under 1 MiB): a larger upstream CSV fails here, loudly and
+          # before anything moves, until that constant is raised in review.
           python scripts/verify_csv_artifact.py "$NEW_SHA"
           git add "data/raw/csv/${NEW_SHA}.csv"
           if [ "$IS_BOOTSTRAP" = "true" ]; then
@@ -579,6 +582,14 @@ jobs:
         # anything is committed. File the script's --error-out body -- which
         # names the failing field -- as a poll failure issue so the refusal
         # is seen, not just a red run.
+        #
+        # Deliberate hold: a refusal writes and commits nothing (the receipt,
+        # the record and the snapshot land in one commit or not at all), and
+        # recovery is "Re-run failed jobs" -- a fresh checkout of main, with
+        # the poll job's outputs (new_sha) unchanged -- after the cause is
+        # fixed. The record's append-only contract is the vendored schema's:
+        # only detected_at / generated_at / generated_by may differ on a
+        # recompute (see tranche_ready/writer.py).
         if: failure() && steps.generate.outcome == 'failure'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
