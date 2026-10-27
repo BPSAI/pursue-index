@@ -62,6 +62,13 @@ def test_poll_written_paths_covers_the_known_poller_outputs() -> None:
     assert "data/raw/csv/" in POLL_WRITTEN_PATHS
 
 
+def test_poll_written_paths_covers_the_tranche_handoff_outputs() -> None:
+    """R7C.31: the snapshot job now commits the tranche diff and the
+    tranche-ready record, both inputs to the approval."""
+    assert "data/tranche-diffs/" in POLL_WRITTEN_PATHS
+    assert "data/tranche-ready/" in POLL_WRITTEN_PATHS
+
+
 def test_commits_behind_is_zero_when_no_origin_remote(tmp_path: Path) -> None:
     repo = tmp_path / "solo"
     _git_init_with_commit(repo, relpath="data/last-known-csv-sha.txt", content="abc\n")

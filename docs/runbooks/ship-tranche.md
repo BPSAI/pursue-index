@@ -36,7 +36,8 @@ $ARGUMENTS
    Every later expansion of `SHA` is double-quoted.
 2. **Load the already-computed diff (no recompute).** Read the diff from
    `data/tranche-diffs/tranche-diff-"${SHA:0:12}".md` (+ the `.json`) and the poll
-   verdict. Inspect the worklist header to confirm CSV SHA and source URL (byte-provenance).
+   verdict. The poll's snapshot job commits that receipt, with the byte verdicts,
+   alongside the machine-readable record `data/tranche-ready/"${SHA:0:12}".json`. Inspect the worklist header to confirm CSV SHA and source URL (byte-provenance).
    Summarize: verdict, added/removed/field-only/new-columns, the scoped
    work-list, and the `~$` estimate. Do NOT re-fetch bytes.
 3. **HUMAN GATE #1 — approval.** Present the summary. Get explicit "yes". Then:

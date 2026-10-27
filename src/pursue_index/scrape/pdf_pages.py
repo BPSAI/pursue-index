@@ -171,6 +171,16 @@ def _fetch(url: str) -> bytes:
     raise OSError("too many redirects")
 
 
+def fetch_pdf(url: str) -> bytes:
+    """One credential-free PDF GET with this module's caps; ``OSError`` on failure.
+
+    The tranche-ready job (``tranche_ready.old_bytes``) fetches the OLD side
+    of a rename candidate through this, so both sides of a byte comparison
+    come through the same allowlisted, size-capped, Chrome-impersonated client.
+    """
+    return _fetch(url)
+
+
 def _fetch_one(target: PageTarget, workdir: Path, out: FetchedPdfs) -> None:
     try:
         path = workdir / f"{require_card_id(target.card_id)}.pdf"

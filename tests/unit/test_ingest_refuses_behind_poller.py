@@ -112,6 +112,33 @@ def test_approve_refuses_when_behind_naming_commit_count(behind_fixture: Path) -
     assert not (behind_fixture / "data" / "tranche-approval-log.jsonl").exists()
 
 
+def test_approve_refuses_when_behind_only_on_a_tranche_ready_record(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """R7C.31: the poll commits ``data/tranche-ready/<sha12>.json``; a checkout
+    missing a newer record is behind the poller even if nothing else moved."""
+    origin = tmp_path / "origin"
+    _git_init_with_commit(origin)
+    clone = tmp_path / "clone"
+    _run(["git", "clone", "-q", str(origin), str(clone)], tmp_path)
+    _write_diff_artifact(clone)
+    record = origin / "data" / "tranche-ready" / f"{_SHA[:12]}.json"
+    record.parent.mkdir(parents=True)
+    record.write_text("{}\n")
+    _run(["git", "add", "-A"], origin)
+    _run(["git", "commit", "-q", "-m", "chore(poll): tranche-ready record"], origin)
+    _run(["git", "fetch", "-q", "origin"], clone)
+    monkeypatch.chdir(clone)
+    monkeypatch.delenv("PURSUE_REPO_ROOT", raising=False)
+    monkeypatch.setattr(paths, "installed_checkout_root", lambda: clone)
+
+    result = runner.invoke(app, _approve_args(clone))
+
+    assert result.exit_code == 4, result.output
+    assert "behind" in result.output and "data/tranche-ready/" in result.output
+    assert not (clone / "data" / "tranche-approval-log.jsonl").exists()
+
+
 def test_approve_allow_behind_with_reason_proceeds_and_writes_audit_row(
     behind_fixture: Path,
 ) -> None:

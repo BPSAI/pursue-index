@@ -1,10 +1,11 @@
-"""Workflow wiring for the stale-edge guard (#157).
+"""Workflow wiring for the stale-edge guard (#157, #165, #176).
 
 The poll script now reports ``stale``, ``pending`` and ``benign`` as well as
 ``unchanged``/``changed``/``failed``. Pin how ``poll-pursue.yml`` treats
 each: only ``changed`` opens an issue or runs the snapshot lane; the guard
-state is committed by the same step that commits the sha; ``stale`` commits
-nothing.
+state is committed by the same step that commits the sha; ``stale`` never
+moves the guard state or last-known and commits no CSV bytes (#165 piled them
+up without limit): the backfill step records a capped note instead.
 """
 
 from __future__ import annotations
@@ -37,12 +38,20 @@ def test_sha_commit_step_also_commits_guard_state_and_covers_benign() -> None:
     assert "stale" not in cond
 
 
-def test_backfill_step_persists_pending_guard_state_but_not_stale() -> None:
+def test_backfill_step_persists_pending_guard_state_and_archives_stale_bytes() -> None:
+    """``stale`` shares this step so its observation is recorded as a capped
+    note (``stale_edge_note.py``), not as CSV bytes. The step is idempotent
+    either way, and sharing the gate does not persist guard state for it."""
     step = _step("Archive CSV bytes on every poll")
     assert "data/poll-state.json" in step["run"]
     cond = str(step["if"])
-    assert "'unchanged'" in cond and "'pending'" in cond
-    assert "stale" not in cond
+    assert "'unchanged'" in cond and "'pending'" in cond and "'stale'" in cond
+
+
+def test_backfill_step_message_distinguishes_stale_from_pending_and_backfill() -> None:
+    run_block = _step("Archive CSV bytes on every poll")["run"]
+    assert 'STATUS" = "stale"' in run_block
+    assert "stale-edge" in run_block
 
 
 def test_issue_and_archive_steps_stay_gated_on_changed_only() -> None:

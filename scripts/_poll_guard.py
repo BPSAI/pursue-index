@@ -1,4 +1,4 @@
-"""Stale-edge guard state for the tranche poll (#157).
+"""Stale-edge guard state for the tranche poll (#157, #176).
 
 Cache edges in front of the upstream CSV have served superseded copies for
 days after a change, and a re-encoded variant of the new copy alongside
@@ -18,23 +18,24 @@ just enough history in ``data/poll-state.json`` (committed next to
 
 When the file is missing the guard fails closed: every sha already in the
 byte archive counts as seen before the current one.
+
+Security-gate fix round: ``Last-Modified`` alone, or a row set that is a
+strict subset of the current manifest's, is never enough to drop a sha. A
+subset is a candidate removal tranche (takedowns shrink the card set) and an
+older header on a first sighting is ``unconfirmed`` (clock skew); both go
+through the normal confirm-then-declare path.
 """
 
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Literal
 
-from pursue_index.scrape.encoding_equivalence import is_encoding_only_change
-
-_SHA256_HEX = re.compile(r"[0-9a-f]{64}")
-
-Observation = Literal["current", "stale", "candidate"]
+Observation = Literal["current", "stale", "candidate", "unconfirmed"]
 
 
 @dataclass
@@ -49,12 +50,22 @@ class GuardState:
         return self.pending.get("sha") if self.pending else None
 
     def classify(self, sha: str, last_modified: str | None) -> Observation:
-        """Is a fetched ``sha`` the current one, a stale edge, or a candidate?"""
+        """Is a fetched ``sha`` the current one, a stale edge, or a candidate?
+
+        Stale needs an independent signal: the sha was observed before the
+        current one (a byte copy the poll already held) and its
+        ``Last-Modified`` is not newer. A first-seen sha whose
+        ``Last-Modified`` is merely older is ``unconfirmed`` -- upstream
+        clock skew looks the same -- so it keeps polling through the normal
+        confirm-then-declare path and is never dropped.
+        """
         if sha == self.current_sha:
             return "current"
         seen_before = sha in self.seen and self.seen.index(sha) < self.seen.index(self.current_sha)
         if seen_before and not is_strictly_newer(last_modified, self.current_last_modified):
             return "stale"
+        if is_strictly_older(last_modified, self.current_last_modified):
+            return "unconfirmed"
         return "candidate"
 
     def observe(self, sha: str) -> None:
@@ -91,7 +102,7 @@ class GuardState:
             sha2, lm2 = again
             if sha2 == sha:
                 return True
-            if self.classify(sha2, lm2) == "candidate":
+            if self.classify(sha2, lm2) in ("candidate", "unconfirmed"):
                 self.observe(sha2)
                 self.set_pending(sha2, lm2, ts)
                 return False
@@ -113,21 +124,6 @@ class GuardState:
             "seen": self.seen,
         }
         return json.dumps(payload, indent=2) + "\n"
-
-
-def encoding_only_vs_archive(archive_dir: Path | None, old_sha: str, body: bytes) -> bool:
-    """Is ``body`` an encoding-only change from the archived ``old_sha``?
-
-    Fails closed: without the prior bytes, or when ``old_sha`` (read from
-    repo files) isn't a 64-hex sha fit to name an archive path, the change
-    counts as real.
-    """
-    if archive_dir is None or not _SHA256_HEX.fullmatch(old_sha):
-        return False
-    prior = archive_dir / f"{old_sha}.csv"
-    if not prior.exists():
-        return False
-    return is_encoding_only_change(prior.read_bytes(), bytes(body))
 
 
 def parse_http_date(value: str | None) -> datetime | None:
@@ -153,6 +149,12 @@ def is_strictly_newer(candidate: str | None, current: str | None) -> bool:
     """True only when both headers parse and ``candidate`` is later."""
     a, b = parse_http_date(candidate), parse_http_date(current)
     return a is not None and b is not None and a > b
+
+
+def is_strictly_older(candidate: str | None, current: str | None) -> bool:
+    """True only when both headers parse and ``candidate`` is earlier."""
+    a, b = parse_http_date(candidate), parse_http_date(current)
+    return a is not None and b is not None and a < b
 
 
 def _archived_shas(archive_dir: Path | None) -> list[str]:

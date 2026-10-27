@@ -132,12 +132,14 @@ jobs:
         # still want the issue-opening step to fire before failing the job.
         continue-on-error: true
 
-      # Stale-edge guard (#157): the poll script only reports `changed`
-      # after the same new sha is fetched twice in a row, and reports a
-      # sha seen before the current one (without a newer Last-Modified)
-      # as `stale`, which commits nothing and opens nothing. `pending`
-      # (new sha seen once) commits only the guard state + bytes, via the
-      # backfill step below. `benign` (confirmed, encoding-only) moves the
+      # Stale-edge guard (#157, #176): the poll script only reports
+      # `changed` after the same new sha is fetched twice in a row, and
+      # reports a sha seen before the current one without a newer
+      # Last-Modified as `stale` (a row subset or an older header on a first
+      # sighting is a candidate, not stale), which opens nothing and never moves
+      # last-known or the guard state. `pending` (new sha seen once)
+      # commits the guard state + bytes via the backfill step below;
+      # `stale` commits only a small capped note there, no bytes. `benign` (confirmed, encoding-only) moves the
       # sha here but opens no issue and runs no snapshot.
       - name: Commit new sha + CSV bytes (when changed)
         if: steps.poll.outputs.status == 'changed' || steps.poll.outputs.status == 'benign'
@@ -156,9 +158,14 @@ jobs:
           # Content-addressed naming means duplicates self-resolve: if
           # the file is already tracked from a prior run, git add is a
           # no-op. (Plugs the f07601eb-style integrity gap.)
-          if [ -d data/raw/csv ]; then
-            git add data/raw/csv/*.csv 2>/dev/null || true
-          fi
+          # Upstream-controlled bytes: refuse an oversize file or one whose
+          # hash is not the polled sha (a failure stops the job before the
+          # sha moves). Stage only that verified file. The cap is
+          # MAX_CSV_BYTES in scripts/verify_csv_artifact.py (5 MiB; real CSVs
+          # are under 1 MiB): a larger upstream CSV fails here, loudly and
+          # before anything moves, until that constant is raised in review.
+          python scripts/verify_csv_artifact.py "$NEW_SHA"
+          git add "data/raw/csv/${NEW_SHA}.csv"
           if [ "$IS_BOOTSTRAP" = "true" ]; then
             MSG="chore(poll): bootstrap last-known sha ${NEW_SHA:0:12}"
           elif [ "$STATUS" = "benign" ]; then
@@ -186,31 +193,47 @@ jobs:
         # Also persists the stale-edge guard state when the poll updated
         # it: a `pending` sha (seen once, awaiting its confirming second
         # sighting on the next run) or a newly learned Last-Modified.
-        # `stale` observations never reach this step: nothing to commit.
-        if: steps.poll.outputs.status == 'unchanged' || steps.poll.outputs.status == 'pending'
+        # `stale` observations never touch the guard state (#157) and no
+        # longer commit the fetched bytes (#165 piled them up without
+        # limit): scripts/stale_edge_note.py records a small note (sha,
+        # size, Last-Modified, fetch time), capped at 200 notes with the
+        # oldest pruned by the script. `unchanged`/`pending` still commit
+        # the verified bytes (size cap + sha check), idempotently.
+        if: steps.poll.outputs.status == 'unchanged' || steps.poll.outputs.status == 'pending' || steps.poll.outputs.status == 'stale'
         env:
           SHA: ${{ steps.poll.outputs.new_sha }}
           STATUS: ${{ steps.poll.outputs.status }}
+          LAST_MODIFIED: ${{ steps.poll.outputs.last_modified }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -d data/raw/csv ]; then
-            git add data/raw/csv/*.csv 2>/dev/null || true
-          fi
-          if [ -f data/poll-state.json ]; then
-            git add data/poll-state.json
-          fi
-          if ! git diff --cached --quiet; then
+          if [ "$STATUS" = "stale" ]; then
+            MSG="chore(poll): note stale-edge ${SHA:0:12}"
+            python scripts/stale_edge_note.py "$SHA" --last-modified "$LAST_MODIFIED" || true
+            if [ -d data/stale-edge-notes ]; then git add -A data/stale-edge-notes; fi
+          else
+            # Upstream-controlled bytes: commit only a size-capped file whose
+            # hash is the polled sha; otherwise skip and report.
+            if python scripts/verify_csv_artifact.py "$SHA"; then
+              git add "data/raw/csv/${SHA}.csv"
+            else
+              echo "::warning::CSV bytes for ${SHA:0:12} failed verification; not committed."
+            fi
+            if [ -f data/poll-state.json ]; then
+              git add data/poll-state.json
+            fi
             if [ "$STATUS" = "pending" ]; then
               MSG="chore(poll): candidate ${SHA:0:12} seen once (pending confirmation)"
             else
               MSG="chore(poll): backfill CSV bytes for ${SHA:0:12}"
             fi
+          fi
+          if ! git diff --cached --quiet; then
             git commit -m "$MSG"
             git pull --rebase origin main
             git push
           else
-            echo "No new CSV bytes to commit (already in git)."
+            echo "No new CSV bytes or notes to commit."
           fi
 
       # ----------------------------------------------------------------
@@ -476,6 +499,27 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --require-hashes -r requirements-poll.txt
 
+      - name: Locate tranche issue
+        # R7C.31: the tranche-ready record carries the tranche-detected issue
+        # number. Same immediately-consistent lookup as the verdict step below
+        # (REST list + client-side title filter, sha passed to jq as --arg
+        # data). Best-effort: no issue (or a gh hiccup) records null.
+        id: tranche_issue
+        if: needs.poll.outputs.is_bootstrap == 'false'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          short_sha="${NEW_SHA:0:12}"
+          number=$(gh issue list \
+            --label tranche-detected --state open --limit 100 \
+            --json number,title 2>/dev/null \
+            | jq -r --arg s "$short_sha" \
+                'map(select(.title | contains($s))) | .[0].number // empty' \
+            2>/dev/null || echo "")
+          echo "number=${number}" >> "$GITHUB_OUTPUT"
+
       - name: Generate snapshot + diff
         # Bytes-in, files-out: feeds the committed CSV for the detected
         # sha to the T6.1 generator, which rotates latest.json -> the prior
@@ -495,8 +539,22 @@ jobs:
         # <sha>.json already exists and the recompute disagrees, the script
         # exits non-zero without writing, failing this job before the commit
         # step can rewrite history. An identical recompute is a no-op.
+        #
+        # R7C.31: --tranche-ready-dir also runs the tranche diff
+        # (scripts/tranche_diff.py's classifier, with a temp --bytes-dir
+        # holding the new PDFs fetched above plus each rename/quarantine
+        # candidate's OLD bytes, fetched credential-free from the URL the site
+        # serves and kept only if they hash to the registry sha), then writes
+        # data/tranche-diffs/tranche-diff-<sha12>.{json,md} and the
+        # schema-checked data/tranche-ready/<sha12>.json. Both are append-only
+        # per sha (exit 3); an invalid record exits 4 naming the failing
+        # field in --error-out, which the failure step below files. Bytes
+        # never leave the temp dirs.
+        id: generate
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+          TRANCHE_ISSUE: ${{ steps.tranche_issue.outputs.number }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           # status=='changed' is emitted by the poll SCRIPT before the later
           # "Commit new sha + CSV bytes" step pushes the bytes. If that push
@@ -510,7 +568,40 @@ jobs:
           python scripts/poll_snapshot.py \
             --csv "data/raw/csv/${NEW_SHA}.csv" \
             --diff-out "data/manifests/diffs/${NEW_SHA}.json" \
-            --summary-out "verdict-summary.md"
+            --summary-out "verdict-summary.md" \
+            --tranche-ready-dir data/tranche-ready \
+            --tranche-diff-dir data/tranche-diffs \
+            --tranche-issue "${TRANCHE_ISSUE}" \
+            --poll-run-id "${RUN_ID}" \
+            --poll-commit "$(git rev-parse --short=7 HEAD)" \
+            --error-out tranche-ready-error.md
+
+      - name: Open tranche-ready failure issue
+        # R7C.31: a refused tranche-ready record (invalid against the vendored
+        # schema, or an append-only conflict) fails the generate step before
+        # anything is committed. File the script's --error-out body -- which
+        # names the failing field -- as a poll failure issue so the refusal
+        # is seen, not just a red run.
+        #
+        # Deliberate hold: a refusal writes and commits nothing (the receipt,
+        # the record and the snapshot land in one commit or not at all), and
+        # recovery is "Re-run failed jobs" -- a fresh checkout of main, with
+        # the poll job's outputs (new_sha) unchanged -- after the cause is
+        # fixed. The record's append-only contract is the vendored schema's:
+        # only detected_at / generated_at / generated_by may differ on a
+        # recompute (see tranche_ready/writer.py).
+        if: failure() && steps.generate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          if [ ! -s tranche-ready-error.md ]; then
+            echo "The snapshot step failed before writing a tranche-ready diagnosis; see the run log." > tranche-ready-error.md
+          fi
+          gh issue create \
+            --title "[poll] tranche-ready record refused for ${NEW_SHA:0:12}" \
+            --label "tranche-poll-failure" \
+            --body-file tranche-ready-error.md
 
       - name: Commit snapshot + diff
         # Commit both the canonical (data/manifests/snapshots) and public
@@ -521,13 +612,19 @@ jobs:
         # snapshots/<sha>*.json and would otherwise grab the diff artifact and
         # promote it as latest.json). Rebase before push to absorb any
         # concurrent advance of main, the same fast-forward discipline the poll
-        # job's commit steps use.
+        # job's commit steps use. R7C.31: the tranche diff receipt and the
+        # tranche-ready record go in the SAME commit, so a checkout never has
+        # one without the other (both are POLL_WRITTEN_PATHS).
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/manifests/snapshots web/public/data/snapshots data/manifests/diffs
+          # A path that does not exist yet (data/tranche-ready before the first
+          # record, or on a refused/bootstrap run) is a fatal pathspec for git add.
+          for p in data/manifests/snapshots web/public/data/snapshots data/manifests/diffs data/tranche-diffs data/tranche-ready; do
+            if [ -e "$p" ]; then git add "$p"; fi
+          done
           if ! git diff --cached --quiet; then
             git commit -m "chore(poll): snapshot + diff for ${NEW_SHA:0:12}"
             git pull --rebase origin main

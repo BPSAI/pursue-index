@@ -148,10 +148,14 @@ def _emit_guarded(result: object, status: str) -> list[str]:
         old, new = result.old_sha, result.new_sha  # type: ignore[attr-defined]
     else:
         old, new = result.current_sha, result.sha  # type: ignore[attr-defined]
-    return [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
+    lines = [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
+    if status == "stale":
+        kept = "".join(ch for ch in (result.last_modified or "") if ch in HTTP_DATE_CHARS)  # type: ignore[attr-defined]
+        lines.append(f"last_modified={kept[:64]}")
+    return lines
 
 
-_HTTP_DATE_CHARS = frozenset(
+HTTP_DATE_CHARS = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,:+-"
 )
 
@@ -161,7 +165,7 @@ def _header_text(value: str | None, limit: int = 64) -> str:
     characters an HTTP date uses (allowlist), one line, at most ``limit``."""
     if not value:
         return "(none)"
-    kept = "".join(ch for ch in value if ch in _HTTP_DATE_CHARS)
+    kept = "".join(ch for ch in value if ch in HTTP_DATE_CHARS)
     return "`" + truncate_error(kept, limit=limit) + "`"
 
 
@@ -169,11 +173,18 @@ def guarded_summary(result: object) -> str | None:
     """One-line step-summary text for a guarded result, else ``None``."""
     status = getattr(result, "status", None)
     if status == "stale":
-        return (
-            f"stale-edge observation: served {result.sha[:12]}, seen before the"  # type: ignore[attr-defined]
-            f" current {result.current_sha[:12]} and Last-Modified"  # type: ignore[attr-defined]
-            f" {_header_text(result.last_modified)} is not newer; not an upstream change."  # type: ignore[attr-defined]
-        )
+        reason = getattr(result, "reason", "seen_before")
+        if reason == "older_last_modified":
+            why = (
+                f"its Last-Modified {_header_text(result.last_modified)} is older"  # type: ignore[attr-defined]
+                " than the current sha's"
+            )
+        else:
+            why = (
+                f"seen before the current {result.current_sha[:12]} and Last-Modified"  # type: ignore[attr-defined]
+                f" {_header_text(result.last_modified)} is not newer"  # type: ignore[attr-defined]
+            )
+        return f"stale-edge observation: served {result.sha[:12]}, {why}; not an upstream change."  # type: ignore[attr-defined]
     if status == "pending":
         return (
             f"pending: new sha {result.sha[:12]} seen once; declared if the next"  # type: ignore[attr-defined]

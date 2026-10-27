@@ -17,10 +17,13 @@ serialization lives in ``_poll_gh_io.py``. Exit codes:
 * changed   -> 0, status=changed (commit + tranche-detected issue)
 * benign    -> 0, status=benign (commit; encoding-only, no issue)
 * pending   -> 0, status=pending (new sha seen once; guard state committed)
-* stale     -> 0, status=stale (stale cache edge; nothing committed)
+* stale     -> 0, status=stale (stale cache edge or older Last-Modified;
+              guard state untouched, a capped note is committed instead of
+              CSV bytes, no issue). A strict subset row set is NOT stale: it
+              is a candidate and goes through the pending path.
 * failed    -> 1, status=failed (tranche-poll-failure issue)
 
-The stale-edge guard (#157, ``_poll_guard.py``) keeps its history in
+The stale-edge guard (#157, #176, ``_poll_guard.py``) keeps its history in
 ``data/poll-state.json`` beside the sha file.
 
 Heavy ingest is operator-attended by design. Run manually:
@@ -62,7 +65,7 @@ from _poll_gh_io import (
 )
 from _poll_guard import (
     GuardState,
-    encoding_only_vs_archive,
+    is_strictly_older,
     load_guard,
     save_guard,
 )
@@ -76,6 +79,7 @@ from _poll_results import (
     Unchanged,
 )
 from _poll_sha_state import resolve_old_sha, write_state
+from _poll_stale_checks import encoding_only_vs_archive
 
 from pursue_index.scrape.csv_fetcher import fetch_raw_csv
 
@@ -202,7 +206,9 @@ def poll_guarded(
         learned = guard.learn_last_modified(last_modified)
         return Unchanged(sha=new_sha), guard if learned else None
     if seen_kind == "stale":
-        return Stale(sha=new_sha, current_sha=old_sha, last_modified=last_modified), None
+        older = is_strictly_older(last_modified, guard.current_last_modified)
+        reason = "older_last_modified" if older else "seen_before"
+        return Stale(sha=new_sha, current_sha=old_sha, last_modified=last_modified, reason=reason), None
 
     guard.observe(new_sha)
     if guard.pending_sha != new_sha:

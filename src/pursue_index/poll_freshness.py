@@ -1,8 +1,9 @@
 """Refuse an ingest command against a checkout behind the poller.
 
-``scripts/poll_pursue.py`` is the only writer of ``data/last-known-csv-
-sha.txt``, ``data/manifests/snapshots/`` and ``data/raw/csv/`` -- the
-inputs a tranche approval or run depends on. A checkout whose ``HEAD`` is
+The poll workflow (``scripts/poll_pursue.py`` and its snapshot job,
+``scripts/poll_snapshot.py``) is the only writer of ``POLL_WRITTEN_PATHS``
+-- the CSV sha and bytes, the manifest snapshots, the tranche diffs and the
+tranche-ready records -- the inputs a tranche approval or run depends on. A checkout whose ``HEAD`` is
 behind ``origin/main`` on those paths has stale inputs even though the
 files on disk look present, which is exactly how Release 7 shipped six
 poll commits behind. ``ingest approve``/``ingest run`` call
@@ -45,11 +46,14 @@ _LOG = logging.getLogger(__name__)
 # The poller runs on a 6h cron; a fetch older than this proves nothing.
 MAX_FETCH_AGE_SECONDS = 12 * 3600
 
-# R7C.31 adds its paths here.
+# R7C.31: the snapshot job also commits the tranche diff and the
+# tranche-ready record, both read by the approval that follows.
 POLL_WRITTEN_PATHS: tuple[str, ...] = (
     "data/last-known-csv-sha.txt",
     "data/manifests/snapshots/",
     "data/raw/csv/",
+    "data/tranche-diffs/",
+    "data/tranche-ready/",
 )
 
 

@@ -44,15 +44,19 @@ class Failed:
 
 @dataclass(frozen=True)
 class Stale:
-    """A sha seen before the current one, without a newer ``Last-Modified``.
+    """A sha that's an older or truncated copy, not an upstream change.
 
-    A stale cache edge, not an upstream change: nothing is committed.
+    ``reason`` records which signal caught it: ``"seen_before"`` (seen
+    before the current sha, without a newer ``Last-Modified``),
+    ``"older_last_modified"`` (seen before and a strictly older
+    ``Last-Modified``). No tranche state is committed for either reason.
     """
 
     status: ClassVar[str] = "stale"
     sha: str
     current_sha: str
     last_modified: str | None = None
+    reason: str = "seen_before"
 
 
 @dataclass(frozen=True)

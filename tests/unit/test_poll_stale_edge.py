@@ -355,6 +355,29 @@ def test_missing_guard_state_treats_archived_shas_as_seen(
 
 
 # ---------------------------------------------------------------------------
+# (1c) #176 follow-up: a row set that's a strict subset of the current
+# manifest's marks a never-seen sha as stale too, even with no usable
+# Last-Modified signal.
+# ---------------------------------------------------------------------------
+
+_CURRENT_CSV = (
+    b"Title,Type,PDF | Image Link\r\n"
+    b"Card One,PDF,https://example.test/one.pdf\r\n"
+    b"Card Two,PDF,https://example.test/two.pdf\r\n"
+)
+_SUBSET_CSV = b"Title,Type,PDF | Image Link\r\nCard One,PDF,https://example.test/one.pdf\r\n"
+_DISJOINT_CSV = b"Title,Type,PDF | Image Link\r\nCard Three,PDF,https://example.test/three.pdf\r\n"
+
+
+def _write_current_manifest(repo: _Repo, csv_bytes: bytes) -> None:
+    from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv
+    from pursue_index.scrape.manifest import save_manifest
+
+    manifest = build_manifest(csv_bytes, parse_csv(csv_bytes), "https://example.test/csv")
+    save_manifest(manifest, repo.latest)
+
+
+# ---------------------------------------------------------------------------
 # (3) Confirm before declaring
 # ---------------------------------------------------------------------------
 
@@ -503,7 +526,7 @@ def test_stale_summary_sanitizes_the_upstream_last_modified(
 def test_encoding_check_never_builds_a_path_from_a_malformed_sha(tmp_path: Path, bad_sha: str) -> None:
     """The prior sha comes from repo files; only a 64-hex sha may name an
     archive path. Anything else fails closed (not benign)."""
-    from _poll_guard import encoding_only_vs_archive
+    from _poll_stale_checks import encoding_only_vs_archive
 
     archive = tmp_path / "csv"
     archive.mkdir()
