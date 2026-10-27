@@ -134,10 +134,9 @@ jobs:
 
       # Stale-edge guard (#157, #176): the poll script only reports
       # `changed` after the same new sha is fetched twice in a row, and
-      # reports a sha that's an older/truncated copy -- seen before the
-      # current one without a newer Last-Modified, never seen but with an
-      # older Last-Modified, or a strict subset of the current manifest's
-      # rows -- as `stale`, which opens nothing and never moves
+      # reports a sha seen before the current one without a newer
+      # Last-Modified as `stale` (a row subset or an older header on a first
+      # sighting is a candidate, not stale), which opens nothing and never moves
       # last-known or the guard state. `pending` (new sha seen once)
       # commits the guard state + bytes via the backfill step below;
       # `stale` commits only the bytes there, and only if not already
@@ -160,9 +159,11 @@ jobs:
           # Content-addressed naming means duplicates self-resolve: if
           # the file is already tracked from a prior run, git add is a
           # no-op. (Plugs the f07601eb-style integrity gap.)
-          if [ -d data/raw/csv ]; then
-            git add data/raw/csv/*.csv 2>/dev/null || true
-          fi
+          # Upstream-controlled bytes: refuse an oversize file or one whose
+          # hash is not the polled sha (a failure stops the job before the
+          # sha moves). Stage only that verified file.
+          python scripts/verify_csv_artifact.py "$NEW_SHA"
+          git add "data/raw/csv/${NEW_SHA}.csv"
           if [ "$IS_BOOTSTRAP" = "true" ]; then
             MSG="chore(poll): bootstrap last-known sha ${NEW_SHA:0:12}"
           elif [ "$STATUS" = "benign" ]; then
@@ -203,8 +204,12 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -d data/raw/csv ]; then
-            git add data/raw/csv/*.csv 2>/dev/null || true
+          # Upstream-controlled bytes: commit only a size-capped file whose
+          # hash is the polled sha; otherwise skip and report.
+          if python scripts/verify_csv_artifact.py "$SHA"; then
+            git add "data/raw/csv/${SHA}.csv"
+          else
+            echo "::warning::CSV bytes for ${SHA:0:12} failed verification; not committed."
           fi
           if [ -f data/poll-state.json ]; then
             git add data/poll-state.json
