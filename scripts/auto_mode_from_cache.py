@@ -36,11 +36,12 @@ import os
 import time
 from datetime import UTC, datetime
 
+from pursue_index.config.credentials import anthropic_api_key
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
 
-if "ANTHROPIC_API_KEY" not in os.environ:
+if not anthropic_api_key():
     sys.exit(
         "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
         "running the cleanup pass — get a key at https://console.anthropic.com/."

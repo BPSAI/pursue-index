@@ -20,6 +20,7 @@ from pathlib import Path
 # Code is loaded from where this script lives, never from the data root.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from pursue_index.config.credentials import anthropic_api_key
 from pursue_index.release.ship import preflight_ocr
 
 
@@ -33,7 +34,7 @@ def main(argv: Sequence[str] | None = None, env: Mapping[str, str] | None = None
     result = preflight_ocr(
         engine=args.engine or env.get("PURSUE_OCR_ENGINE"),
         concurrency=args.concurrency if args.concurrency is not None else (int(raw) if raw.isascii() and raw.isdigit() else None),
-        anthropic_key_present=bool(env.get("ANTHROPIC_API_KEY")),
+        anthropic_key_present=bool(env.get("ANTHROPIC_API_KEY") or (env is os.environ and anthropic_api_key())),
     )
     print(result)
     return 0 if result.ok else 1

@@ -28,6 +28,7 @@ import typer
 from pursue_index.card_id import require_card_ids
 from pursue_index.cli.ingest_estimate import ingest_estimate_text
 from pursue_index.cli.worklist import WorklistTrancheError, exit_on_tranche_error
+from pursue_index.config.credentials import anthropic_api_key
 from pursue_index.ingest_run import render_av_next_steps
 from pursue_index.ingest_scope import ScopedCard, scope_worklist
 
@@ -141,7 +142,7 @@ def _enforce_ocr_preflight(engine: str | None, concurrency: int | None) -> None:
     result = preflight_ocr(
         engine=eng,
         concurrency=conc,
-        anthropic_key_present=bool(os.environ.get("ANTHROPIC_API_KEY")),
+        anthropic_key_present=bool(anthropic_api_key()),
     )
     if not result.ok:
         for err in result.errors:
