@@ -186,6 +186,32 @@ def held_resave_lines(diff: dict[str, Any]) -> list[str]:
     return lines
 
 
+def resave_setting_mismatch(
+    diff: dict[str, Any], enabled: bool, approve_flags: list[str],
+) -> str | None:
+    """A refusal message when the diff already moved re-save rows the current
+    (off) setting would drop, else ``None``.
+
+    A diff generated with auto-approval ON moves its re-save rows out of
+    ``quarantined``; approving it with the setting OFF records nothing for
+    them. A legacy diff without the field counts as generated OFF. Rows the
+    operator names with ``--approve-rename`` are covered and do not count.
+    """
+    if enabled or not diff.get("auto_approve_metadata_resaves", False):
+        return None
+    flags = {f.strip() for f in approve_flags}
+    rows = [f"{r['new_card_id']}={r['old_card_id']}" for r in diff.get(RESAVE_BUCKET) or []]
+    uncovered = [r for r in rows if r not in flags]
+    if not uncovered:
+        return None
+    return (
+        "refusing to approve -- this tranche diff was generated with metadata-only re-save "
+        "auto-approval ON but it is now OFF, so these moved re-save rows would be dropped: "
+        f"{', '.join(uncovered)}. Re-run tranche_diff with the setting off, or approve each "
+        "explicitly with --approve-rename <new>=<old>"
+    )
+
+
 def attach_resave_evidence(
     manual: list[dict[str, Any]], diff: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -199,6 +225,8 @@ def attach_resave_evidence(
         (r["new_card_id"], r[EVIDENCE_KEY]["old_card_id"]): r[EVIDENCE_KEY]
         for r in diff.get("quarantined") or [] if r.get(EVIDENCE_KEY)
     }
+    for r in diff.get(RESAVE_BUCKET) or []:  # rows an opted-in diff already moved
+        evidence[(r["new_card_id"], r["old_card_id"])] = _byte_change_evidence(r)
     out = []
     for row in manual:
         found = evidence.get((row["new_card_id"], row["old_card_id"]))

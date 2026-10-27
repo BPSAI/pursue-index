@@ -22,6 +22,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pursue_index.page_rows import latest_per_page
 from pursue_index.scrape.types import CardMetadata, Manifest
 
 __all__ = [
@@ -66,11 +67,14 @@ def check_card_model_staleness(
 ) -> CardModelStatus:
     """Flag ``card_id`` if its ``llm`` rows disagree, or agree off-model.
 
-    ``dots`` rows never trigger the flag — only the ``llm`` rows are
+    Only each page's latest row counts. ``dots`` rows never trigger the flag — only the ``llm`` rows are
     compared against ``operated_model``. The ``unknown`` sentinel (an older
     sidecar missing both fields) is excluded from the comparison so a
     legacy row never reads as "off the operated model".
     """
+    # The same rule the cleaned-page builder uses: a re-OCR'd page's older
+    # rows are superseded and must not keep the card flagged.
+    rows = latest_per_page(rows, card_id)
     row_models = tuple(row_model_label(r) for r in rows)
     llm_models = {row_model_label(r) for r in rows if r.get("engine") == "llm"}
     known_llm_models = llm_models - {MODEL_UNKNOWN}

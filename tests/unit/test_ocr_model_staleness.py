@@ -20,9 +20,12 @@ from pursue_index.ocr.model_staleness import (
 )
 from pursue_index.scrape.types import CardMetadata, Manifest
 
+_PAGES = iter(range(1, 10_000))
+
 
 def _row(engine: str, **kw: object) -> dict[str, object]:
-    return {"page": 1, "text": "x", "confidence": 90.0, "engine": engine, **kw}
+    """One OCR row; each call is a new page unless ``page=`` is given."""
+    return {"page": next(_PAGES), "text": "x", "confidence": 90.0, "engine": engine, **kw}
 
 
 def test_uniform_operated_model_is_not_flagged() -> None:
@@ -121,3 +124,43 @@ def test_build_staleness_report_skips_cards_with_no_ocr_output(tmp_path: Path) -
 
     statuses = build_staleness_report(manifest, ocr_dir_for, operated_model="claude-sonnet-4-6")
     assert statuses == []
+
+
+def test_a_page_re_ocrd_with_the_operated_model_is_uniform_not_stale() -> None:
+    rows = [
+        _row("llm", page=1, model="claude-opus-4"),
+        _row("llm", page=1, model="claude-sonnet-4-6"),  # the later, current row
+    ]
+    status = check_card_model_staleness("card9", rows, operated_model="claude-sonnet-4-6")
+    assert status.flagged is False
+    assert status.distinct_llm_models == ("claude-sonnet-4-6",)
+
+
+def test_the_latest_row_wins_by_generated_at_then_file_order() -> None:
+    rows = [
+        _row("llm", page=1, model="claude-sonnet-4-6", generated_at="2026-10-02T00:00:00Z"),
+        _row("llm", page=1, model="claude-opus-4", generated_at="2026-10-01T00:00:00Z"),
+    ]
+    status = check_card_model_staleness("card10", rows, operated_model="claude-sonnet-4-6")
+    assert status.flagged is False  # the earlier-by-timestamp row is superseded
+
+
+def test_a_genuinely_mixed_current_set_is_still_stale() -> None:
+    rows = [
+        _row("llm", page=1, model="claude-opus-4"),
+        _row("llm", page=1, model="claude-sonnet-4-6"),
+        _row("llm", page=2, model="claude-opus-4"),  # page 2 never re-OCR'd
+    ]
+    status = check_card_model_staleness("card11", rows, operated_model="claude-sonnet-4-6")
+    assert status.flagged is True and status.mixed_models is True
+
+
+def test_the_report_applies_the_same_selection_to_a_real_pages_jsonl(tmp_path) -> None:
+    from pursue_index.ocr import model_staleness
+    path = tmp_path / "pages.jsonl"
+    path.write_text("\n".join(json.dumps(r) for r in [
+        _row("llm", page=1, model="claude-opus-4"),
+        _row("llm", page=1, model="claude-sonnet-4-6"),
+    ]) + "\n")
+    rows = model_staleness._load_rows(path)
+    assert check_card_model_staleness("c", rows, "claude-sonnet-4-6").flagged is False

@@ -37,6 +37,7 @@ from pursue_index.ingest import (
     is_tranche_approved,
     parse_rename_flags,
     record_approval,
+    resave_setting_mismatch,
 )
 from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
 from pursue_index.post_ingest_audit import (
@@ -269,6 +270,9 @@ def _resolve_renames(
     Returns ``(auto_renames, manual_renames, enriched)``. Exits 2 on a
     malformed ``--approve-rename`` flag."""
     opted_in = settings.ingest_auto_approve_metadata_resaves
+    if refusal := resave_setting_mismatch(diff, opted_in, approve_rename or []):
+        typer.echo(refusal, err=True)
+        raise typer.Exit(2)
     auto_renames = auto_approve_renames(diff, metadata_resaves=opted_in)
     for line in [] if opted_in else held_resave_lines(diff):
         typer.echo(line, err=True)

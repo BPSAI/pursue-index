@@ -288,6 +288,9 @@ def diff_tranches(
 
     return {
         "tranche_sha256": new_manifest.get("csv_sha256"),
+        # Recorded only when ON: a diff without it was generated OFF, and the
+        # committed receipts (generated before the opt-in) stay reproducible.
+        **({"auto_approve_metadata_resaves": True} if move_resaves else {}),
         "prior_manifest_sha": old_manifest.get("csv_sha256"),
         "summary": {
             "renames_confirmed": len(buckets["renames_confirmed"]),

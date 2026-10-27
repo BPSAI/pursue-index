@@ -57,6 +57,7 @@ from pursue_index.paths import repo_root
 REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
+from pursue_index.page_rows import latest_per_page
 from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset
 from pursue_index.vendor.judged_pages_digest import page_sha256
 
@@ -108,43 +109,10 @@ def _dedupe_latest_per_page(
 ) -> list[dict]:
     """Keep one row per page, latest by (generated_at, file order).
 
-    Append-only sidecars accumulate duplicates after re-runs. Also
-    tolerate corrupt rows whose ``page`` is missing or non-numeric —
-    log a structured warning to stderr and skip, matching
-    ``_iter_sidecar``'s "skip bad JSON, don't crash the build" stance.
+    The rule lives in ``pursue_index.page_rows`` so the model-staleness
+    report applies exactly the same selection.
     """
-    by_page: dict[int, dict] = {}
-    for idx, row in enumerate(rows):
-        # A missing ``page`` field is a corrupt row, not page 0 (issue
-        # #38). Treating absence as 0 used to silently emit garbage
-        # rows into pages-cleaned.json at page 0 and break the
-        # index-by-page-N navigation contract in CardReaderView. Skip
-        # + log instead.
-        raw_page = row.get("page")
-        if raw_page is None:
-            print(
-                f"warning clean.build.skip_missing_page "
-                f"card_id={card_id} row_index={idx}",
-                file=sys.stderr,
-            )
-            continue
-        try:
-            page = int(raw_page)
-        except (ValueError, TypeError):
-            print(
-                f"warning clean.build.skip_corrupt_row "
-                f"card_id={card_id} row_index={idx} "
-                f"bad_page={raw_page!r}",
-                file=sys.stderr,
-            )
-            continue
-        prior = by_page.get(page)
-        if prior is None:
-            by_page[page] = {"row": row, "ts": row.get("generated_at", ""), "i": idx}
-            continue
-        if (row.get("generated_at", ""), idx) >= (prior["ts"], prior["i"]):
-            by_page[page] = {"row": row, "ts": row.get("generated_at", ""), "i": idx}
-    return [entry["row"] for entry in by_page.values()]
+    return latest_per_page(rows, card_id)
 
 
 def _stamp_source_page_sha256(row: dict) -> dict:
