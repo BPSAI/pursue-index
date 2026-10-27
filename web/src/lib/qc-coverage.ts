@@ -79,6 +79,14 @@ export function describeQcCoverage(doc: QcCoverage): string[] {
     lines.push(`${joinAnd(unverified)} ${plural ? "are" : "is"} not yet independently verified.`);
   }
 
+  const stale = n("stale");
+  if (stale > 0) {
+    lines.push(
+      `${count(stale, "card", "cards")} ${verb(stale, "has", "have")} changed since the QC sweep ` +
+        `and ${verb(stale, "is", "are")} not counted as judged until re-judged.`,
+    );
+  }
+
   const noText = n("no_text");
   if (noText > 0) {
     const allVideo = doc.cards

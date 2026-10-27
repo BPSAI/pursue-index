@@ -110,3 +110,21 @@ def test_dots_runs_serially() -> None:
     from pursue_index.ocr import pipeline
 
     assert pipeline._concurrency_for("dots") == 1
+
+
+def test_engine_version_is_the_model_dir_basename(monkeypatch: pytest.MonkeyPatch) -> None:
+    """``engine_version`` names the dots.mocr build an OCR row was produced
+    under, so a card re-OCR'd under a different model snapshot is
+    distinguishable from one OCR'd under the currently operated build."""
+    monkeypatch.setenv("PURSUE_DOTS_MODEL", "/models/dots-mocr-v3")
+    assert ocr_dots.engine_version() == "dots-mocr-v3"
+
+
+def test_engine_version_strips_a_trailing_slash(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PURSUE_DOTS_MODEL", "/models/dots-mocr-v3/")
+    assert ocr_dots.engine_version() == "dots-mocr-v3"
+
+
+def test_engine_version_unknown_when_unset(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("PURSUE_DOTS_MODEL", raising=False)
+    assert ocr_dots.engine_version() == "unknown"

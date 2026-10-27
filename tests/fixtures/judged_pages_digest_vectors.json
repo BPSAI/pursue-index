@@ -1,0 +1,158 @@
+{
+  "cases": [
+    {
+      "name": "empty_text",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": ""
+        }
+      ],
+      "page_shas": {
+        "1": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "digest": "d1358d2356895edff76313041ff4e81077388401f97c347fc462eed8e5e69d48"
+    },
+    {
+      "name": "single_char",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": "a"
+        }
+      ],
+      "page_shas": {
+        "1": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+      },
+      "digest": "3d9cedb25f960c337636aa3c7e363d67a1870b9df3d9b97da7180ef85e2cf028"
+    },
+    {
+      "name": "trailing_whitespace",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": "hello   \n"
+        }
+      ],
+      "page_shas": {
+        "1": "13c0b51b8e776a1757dc91ecad5e0fe1e09b1c8ea8a05daa4b48fec7c45be4da"
+      },
+      "digest": "5a015f971b9502ab5a0bd78ed437982d5545a48f06c94cf26562cc3de7cce41c"
+    },
+    {
+      "name": "leading_whitespace",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": "   hello"
+        }
+      ],
+      "page_shas": {
+        "1": "f3c302faedaa34aa53962dd7a5685ca486f89aa6470c9b1a43142c7ffa3a8dc2"
+      },
+      "digest": "31d8dd9fd760d964947e87ab450e59291f278b6720b1672db4c7853b8382819b"
+    },
+    {
+      "name": "crlf",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": "line1\r\nline2\r\n"
+        }
+      ],
+      "page_shas": {
+        "1": "4ad3ef64dfb83f7a8f789bce6f30cc1f8d18491b14db4c875309b150d2a7d213"
+      },
+      "digest": "02a07e1b6876e629baaf750f06a4271e8dffdad19752b5a3e714beeec217f284"
+    },
+    {
+      "name": "non_ascii",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": "café éè 中文 emoji 😀"
+        }
+      ],
+      "page_shas": {
+        "1": "16922d2fef91b4dc693670002da674fc9cbff7435c32c2582bb1efd3ada85c85"
+      },
+      "digest": "0a494361df9825c251a0c3b33cba074865144e7c17eab20512416cad96e5f1cb"
+    },
+    {
+      "name": "two_sequential_pages",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": "A"
+        },
+        {
+          "page": 2,
+          "text_cleaned": "B"
+        }
+      ],
+      "page_shas": {
+        "1": "559aead08264d5795d3909718cdd05abd49572e84fe55590eef31a88a08fdffd",
+        "2": "df7e70e5021544f4834bbee64a9e3789febc4be81470df629cad6ddb03320a5c"
+      },
+      "digest": "a6f7eabe898cb2ff5ff530f241166684b12924842091a90e67289844967678b8"
+    },
+    {
+      "name": "pages_2_and_10",
+      "pages": [
+        {
+          "page": 2,
+          "text_cleaned": "two"
+        },
+        {
+          "page": 10,
+          "text_cleaned": "ten"
+        }
+      ],
+      "page_shas": {
+        "2": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3",
+        "10": "e4432baa90819aaef51d2a7f8e148bf7e679610f3173752fabb4dcb2d0f418d3"
+      },
+      "digest": "c44a9843433e92fe16d786c5e86f60c0361d1088175c870d3bd8e8cca4e6a359"
+    },
+    {
+      "name": "pages_2_and_10_reversed_input_order",
+      "pages": [
+        {
+          "page": 10,
+          "text_cleaned": "ten"
+        },
+        {
+          "page": 2,
+          "text_cleaned": "two"
+        }
+      ],
+      "page_shas": {
+        "10": "e4432baa90819aaef51d2a7f8e148bf7e679610f3173752fabb4dcb2d0f418d3",
+        "2": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3"
+      },
+      "digest": "c44a9843433e92fe16d786c5e86f60c0361d1088175c870d3bd8e8cca4e6a359"
+    },
+    {
+      "name": "unicode_and_newline_mix",
+      "pages": [
+        {
+          "page": 1,
+          "text_cleaned": "naïve\nsentence"
+        }
+      ],
+      "page_shas": {
+        "1": "87724ab49942606a3a4676f4d94d076d049cabd6c0e125c4e9532cac70c7c87a"
+      },
+      "digest": "3e22898f576ae22f0566b76bbff09fb07589beaa6abe926e6add3639fdc66644"
+    },
+    {
+      "name": "canonical",
+      "pages_cleaned_jsonl": "{\"card_id\": \"canon0001\", \"page\": 2, \"text_cleaned\": \"Report line one.\\r\\nReport line two.\\r\\n\"}\n{\"card_id\": \"canon0001\", \"page\": 10, \"text_cleaned\": \"R\\u00e9sum\\u00e9 of findings: \\u4e2d\\u6587 note \\u2014 caf\\u00e9\"}\n",
+      "page_shas": {
+        "2": "8a709b2e7ea13ff7ef5f68978be65a2ef6b27497ca7a458cb8e2bcabf06f84c7",
+        "10": "608fc0050b548b6eeccea194dd533e397a168d0ad24f840b358c0ee9565375af"
+      },
+      "digest": "997d73a99eef6a3a45c3387478a118c0910e0da992cd6dd4aa02c080e9c25025"
+    }
+  ]
+}

@@ -14,8 +14,9 @@ This module owns the primitives that gate enforces:
   * is_tranche_approved(log, sha) — the boolean the orchestrator queries
   * record_approval(log, sha, note, summary, renames) — the audit row
   * auto_approve_renames(diff) — extracts Class A entries (byte-sha
-    collision, cryptographically safe) so they need no explicit operator
-    flag; operator approval of the tranche implicitly accepts them
+    collision, cryptographically safe) and metadata-only re-saves (byte
+    evidence, R7C.12) so they need no explicit operator flag; operator
+    approval of the tranche implicitly accepts them
   * parse_rename_flags(["new=old", ...]) — converts the CLI's
     --approve-rename operator_manual flags into alias-row dicts
   * append_aliases(path, rows) — append-only writer for the
@@ -31,6 +32,12 @@ Failure-mode discipline:
   * `--approve-rename` always carries `method: "operator_manual"` —
     distinct from `byte_collision` so audit trails can distinguish
     operator-judgment renames from cryptographically-confirmed ones.
+  * A `renames_metadata_only` row (a Class C candidate `tranche_diff
+    --bytes-dir` proved to be the old bytes plus a metadata-only PDF
+    update) carries `method: "metadata-only-resave"` — distinct from both:
+    it is machine-verified like `byte_collision`, but on a structural
+    reading of the PDF rather than a hash collision, and an audit reader
+    must be able to tell those two kinds of evidence apart.
 """
 
 from __future__ import annotations
@@ -40,6 +47,9 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from pursue_index.alias_schema import alias_row_errors
+from pursue_index.tranche_resave import EVIDENCE_KEY, RESAVE_BUCKET, RESAVE_METHOD
 
 _CARD_ID_RE = re.compile(r"^[a-f0-9]{16}$")
 
@@ -118,23 +128,123 @@ def record_approval(
         fh.write(json.dumps(row) + "\n")
 
 
-def auto_approve_renames(diff: dict[str, Any]) -> list[dict[str, Any]]:
-    """Extract Class A entries from a tranche-diff into alias-row shape.
+def auto_approve_renames(
+    diff: dict[str, Any], *, metadata_resaves: bool = False,
+) -> list[dict[str, Any]]:
+    """Extract machine-verified renames from a tranche-diff into alias rows.
 
-    These are renames where the new card's byte_sha256 collides with
-    an existing registry entry — cryptographically confirmed safe
-    aliases. Operator approval of the tranche implicitly accepts them
-    (no explicit per-card flag needed).
+    Class A (``renames_confirmed``): the new card's byte_sha256 collides
+    with an existing registry entry — ``method: "byte_collision"``.
+    ``renames_metadata_only``: the new bytes are the old card's bytes plus
+    a metadata-only PDF update — ``method: "metadata-only-resave"``, with
+    the NEW bytes' sha so the pre-approval audit re-checks those bytes.
+    Operator approval of the tranche implicitly accepts Class A; the
+    re-save bucket is included only with ``metadata_resaves=True`` (the
+    ``ingest_auto_approve_metadata_resaves`` opt-in, default off) -- until
+    then those renames stay quarantined for an explicit ``--approve-rename``.
+
+    Only a re-save row has a classifier byte verdict, so only it also
+    records the display evidence ``old_byte_sha256`` / ``new_byte_sha256`` /
+    ``change_nature`` (R7C.13); ``byte_sha256`` stays the audit's contract.
     """
     out: list[dict[str, Any]] = []
-    for r in diff.get("renames_confirmed", []) or []:
-        out.append({
-            "old_card_id": r["old_card_id"],
-            "new_card_id": r["new_card_id"],
-            "byte_sha256": r.get("byte_sha256"),
-            "method": "byte_collision",
-        })
+    buckets = [("renames_confirmed", "byte_collision")]
+    if metadata_resaves:
+        buckets.append((RESAVE_BUCKET, RESAVE_METHOD))
+    for bucket, method in buckets:
+        for r in diff.get(bucket, []) or []:
+            row = {
+                "old_card_id": r["old_card_id"],
+                "new_card_id": r["new_card_id"],
+                "byte_sha256": r.get("byte_sha256"),
+                "method": method,
+            }
+            if method == RESAVE_METHOD:
+                row.update(_byte_change_evidence(r))
+            out.append(row)
     return out
+
+
+def _held_resaves(diff: dict[str, Any]) -> list[tuple[str, str]]:
+    """``(new_card_id, old_card_id)`` for each metadata-only verdict not auto-approved."""
+    held = [(r["new_card_id"], r["old_card_id"]) for r in diff.get(RESAVE_BUCKET) or []]
+    held += [(r["new_card_id"], r[EVIDENCE_KEY]["old_card_id"])
+             for r in diff.get("quarantined") or [] if r.get(EVIDENCE_KEY)]
+    return held
+
+
+def held_resave_lines(diff: dict[str, Any]) -> list[str]:
+    """Operator-facing lines for re-save renames held back (auto-approval off)."""
+    held = _held_resaves(diff)
+    lines = [
+        f"held: metadata-only re-save {new}={old} stays quarantined "
+        f"(auto-approval off); approve with --approve-rename {new}={old}"
+        for new, old in held
+    ]
+    if held:
+        lines.append(f"{len(held)} metadata-only re-save rename(s) held for the operator")
+    return lines
+
+
+def resave_setting_mismatch(
+    diff: dict[str, Any], enabled: bool, approve_flags: list[str],
+) -> str | None:
+    """A refusal message when the diff already moved re-save rows the current
+    (off) setting would drop, else ``None``.
+
+    A diff generated with auto-approval ON moves its re-save rows out of
+    ``quarantined``; approving it with the setting OFF records nothing for
+    them. A legacy diff without the field counts as generated OFF. Rows the
+    operator names with ``--approve-rename`` are covered and do not count.
+    """
+    if enabled or not diff.get("auto_approve_metadata_resaves", False):
+        return None
+    flags = {f.strip() for f in approve_flags}
+    rows = [f"{r['new_card_id']}={r['old_card_id']}" for r in diff.get(RESAVE_BUCKET) or []]
+    uncovered = [r for r in rows if r not in flags]
+    if not uncovered:
+        return None
+    return (
+        "refusing to approve -- this tranche diff was generated with metadata-only re-save "
+        "auto-approval ON but it is now OFF, so these moved re-save rows would be dropped: "
+        f"{', '.join(uncovered)}. Re-run tranche_diff with the setting off, or approve each "
+        "explicitly with --approve-rename <new>=<old>"
+    )
+
+
+def attach_resave_evidence(
+    manual: list[dict[str, Any]], diff: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Operator-approved renames of a held re-save carry the verdict evidence.
+
+    The method stays ``operator_manual`` -- the operator made the call -- but
+    the alias row records what the classifier found (shas, nature, parser,
+    cross-check) so the continuity evidence is not lost.
+    """
+    evidence = {
+        (r["new_card_id"], r[EVIDENCE_KEY]["old_card_id"]): r[EVIDENCE_KEY]
+        for r in diff.get("quarantined") or [] if r.get(EVIDENCE_KEY)
+    }
+    for r in diff.get(RESAVE_BUCKET) or []:  # rows an opted-in diff already moved
+        evidence[(r["new_card_id"], r["old_card_id"])] = _byte_change_evidence(r)
+    out = []
+    for row in manual:
+        found = evidence.get((row["new_card_id"], row["old_card_id"]))
+        extra = {k: v for k, v in (found or {}).items() if k != "old_card_id"}
+        out.append({**row, **extra})
+    return out
+
+
+def _byte_change_evidence(r: dict[str, Any]) -> dict[str, Any]:
+    """The known parts of a re-save row's byte change; unknowns are omitted."""
+    evidence = {
+        "old_byte_sha256": r.get("old_byte_sha256"),
+        "new_byte_sha256": r.get("byte_sha256"),
+        "change_nature": r.get("verdict"),
+        "classifier": r.get("classifier"),
+        "crosscheck": r.get("crosscheck"),
+    }
+    return {k: v for k, v in evidence.items() if v}
 
 
 def parse_rename_flags(flags: list[str]) -> list[dict[str, Any]]:
@@ -180,9 +290,13 @@ def append_aliases(aliases_path: Path, rows: list[dict[str, Any]]) -> None:
     extend the list, and write back. Atomic-ish: read once, write
     once. For the corpus-scale we're targeting (low hundreds of
     aliases lifetime) this is fine; if it grows, switch to JSONL.
+    A row that fails the alias schema is refused before anything is written.
     """
     if not rows:
         return
+    for row in rows:
+        if errors := alias_row_errors(row):
+            raise ValueError(f"refusing malformed alias row: {'; '.join(errors)}")
     aliases_path.parent.mkdir(parents=True, exist_ok=True)
     if aliases_path.exists():
         payload = json.loads(aliases_path.read_text())

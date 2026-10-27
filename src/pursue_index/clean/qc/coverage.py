@@ -10,6 +10,16 @@ This module gives every distinct card_id in the manifest exactly one status:
 * ``partially_judged``      — in the bundle, but its page count has changed
                               since the sweep (e.g. a re-OCR added pages);
                               ``judged_pages`` / ``current_pages`` recorded.
+* ``stale``                 — page count matches, but the bundle's
+                              ``judged_pages_digest`` no longer matches the
+                              card's current ``source_page_sha256`` values
+                              (a re-OCR or re-clean changed page CONTENTS
+                              without changing the page COUNT). See
+                              ``pursue_index.clean.qc.staleness`` (R7C.15).
+                              Only assessed when both the bundle carries a
+                              digest and ``page_shas`` is complete for the
+                              card; otherwise it is unverifiable and the
+                              legacy ``judged`` classification stands.
 * ``unverified_transcript`` — an AUD card with transcript text in pages.json.
 * ``unverified_vision``     — an IMG card with a vision description: its
                               image-observations sidecar renders text through
@@ -47,6 +57,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from typing import Any
 
+from pursue_index.clean.qc.staleness import is_stale
 from pursue_index.embed.image_observations import OBSERVATIONS_HEADER
 
 SCHEMA_VERSION = 1
@@ -54,6 +65,7 @@ SCHEMA_VERSION = 1
 STATUSES: tuple[str, ...] = (
     "judged",
     "partially_judged",
+    "stale",
     "unverified_transcript",
     "unverified_vision",
     "no_text",
@@ -78,6 +90,29 @@ def _judged_ids(bundle: Mapping[str, Any]) -> set[str]:
 
 def _judged_page_counts(bundle: Mapping[str, Any]) -> dict[str, int]:
     return {c["card_id"]: int(c["page_count"]) for c in bundle["cards"]}
+
+
+def _judged_digests(bundle: Mapping[str, Any]) -> dict[str, str]:
+    """``{card_id: judged_pages_digest}`` for bundle cards that carry one.
+
+    A card absent here (older bundle, published before R7C.15) is
+    unverifiable, not stale -- see ``staleness.is_stale``.
+    """
+    return {
+        c["card_id"]: c["judged_pages_digest"]
+        for c in bundle["cards"]
+        if "judged_pages_digest" in c
+    }
+
+
+def bundle_missing_digests(bundle: Mapping[str, Any]) -> bool:
+    """True when any bundle card predates the ``judged_pages_digest`` field.
+
+    Drives the one-line backward-compatibility notice
+    ``scripts/build_qc_coverage.py`` prints -- a legacy bundle still
+    classifies its cards ``judged`` by page_count alone.
+    """
+    return any("judged_pages_digest" not in c for c in bundle["cards"])
 
 
 def _current_page_counts(pages: Iterable[Mapping[str, Any]]) -> dict[str, int]:
@@ -125,16 +160,22 @@ def classify_cards(
     pages: Iterable[Mapping[str, Any]],
     observations: Mapping[str, Any],
     observation_text: Mapping[tuple[str, int], str],
+    page_shas: Mapping[str, Mapping[int, str]] | None = None,
 ) -> dict[str, str]:
     """``{card_id: status}`` for every distinct card_id in the manifest.
 
     ``observations`` is the parsed image-observations index;
     ``observation_text`` is what ``observation_text_for`` rendered from its
-    sidecars.
+    sidecars. ``page_shas`` (R7C.15) is ``{card_id: {page: source_page_sha256}}``
+    from ``pages-cleaned.json`` (see ``staleness.card_page_shas``); omitted
+    or incomplete for a card, that card's digest is unverifiable and the
+    legacy page-count-only classification stands.
     """
     pages = list(pages)
     types = _asset_types(manifest)
     judged_pages = _judged_page_counts(bundle)
+    judged_digests = _judged_digests(bundle)
+    page_shas = page_shas or {}
     current_pages = _current_page_counts(pages)
     with_text = _cards_with_text(pages)
     listed = set(observations.get("card_ids", []))
@@ -142,8 +183,15 @@ def classify_cards(
     statuses: dict[str, str] = {}
     for card_id, kinds in types.items():
         if card_id in judged_pages:
-            same = judged_pages[card_id] == current_pages.get(card_id, 0)
-            status = "judged" if same else "partially_judged"
+            page_count = current_pages.get(card_id, 0)
+            if judged_pages[card_id] != page_count:
+                status = "partially_judged"
+            elif is_stale(
+                judged_digests.get(card_id), page_count, page_shas.get(card_id, {})
+            ):
+                status = "stale"
+            else:
+                status = "judged"
         elif "AUD" in kinds and card_id in with_text:
             status = "unverified_transcript"
         elif "IMG" in kinds and card_id in described:
@@ -208,13 +256,20 @@ def build_coverage(
     pages: Iterable[Mapping[str, Any]],
     observations: Mapping[str, Any],
     observation_text: Mapping[tuple[str, int], str],
+    page_shas: Mapping[str, Mapping[int, str]] | None = None,
 ) -> dict[str, Any]:
-    """The ``qc-coverage.json`` document."""
+    """The ``qc-coverage.json`` document.
+
+    ``page_shas`` (R7C.15) is ``{card_id: {page: source_page_sha256}}`` from
+    ``pages-cleaned.json`` -- see ``classify_cards``.
+    """
     pages = list(pages)
     types = _asset_types(manifest)
     # A card that left the corpus after the sweep: listed, never counted.
     stray = sorted(_judged_ids(bundle) - types.keys())
-    statuses = classify_cards(manifest, bundle, pages, observations, observation_text)
+    statuses = classify_cards(
+        manifest, bundle, pages, observations, observation_text, page_shas
+    )
     reasons = _other_reasons(statuses, observations, observation_text)
     judged = {cid for cid, s in statuses.items() if s in ("judged", "partially_judged")}
     vision_pages = _vision_text_pages(pages, judged)
@@ -232,6 +287,7 @@ def build_coverage(
         "unverified_other": sorted(reasons),
         "unverified_other_reasons": reasons,
         "bundle_cards_not_in_manifest": stray,
+        "bundle_missing_digests": bundle_missing_digests(bundle),
         "vision_text_pages_in_judged_cards": {
             "cards": len(vision_pages),
             "pages": sum(len(p) for p in vision_pages.values()),

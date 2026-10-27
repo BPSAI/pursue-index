@@ -14,6 +14,7 @@
  */
 
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
+import { aliasEvidence, type RenameEvidence } from "./diff-renamed.ts";
 import { pairRowsByCardId } from "./row-pairing.ts";
 
 // Re-exported so the /diff island and its tests keep a single import
@@ -166,23 +167,60 @@ function tsMillis(ts: string): number {
 
 // --- Alias resolver -------------------------------------------------
 
-export interface ResolvedAlias {
+export interface AliasHop {
+  from: string;
+  to: string;
+  changeNature?: string;
+}
+
+/**
+ * Evidence fields (R7C.13). A single hop carries its own. A chain shows
+ * first-old -> last-new byte shas only when EVERY hop is metadata-only AND
+ * each hop's new sha is the next hop's old sha (an unbroken byte lineage);
+ * otherwise no hop's evidence stands in for another's: `changeNature` reads
+ * "chain, see hops" and `hops` lists each one. `method` is the first hop's.
+ */
+export interface ResolvedAlias extends RenameEvidence {
   terminal: string;
   method: string;
+  hops?: AliasHop[];
+}
+
+const CHAIN_NATURE = "chain, see hops";
+
+function chainEvidence(
+  hops: AliasHop[],
+  chain: RenameEvidence[],
+): Pick<ResolvedAlias, "hops"> & RenameEvidence {
+  const continuous = chain.every(
+    (e, i) =>
+      e.changeNature === "metadata-only" &&
+      (i === 0 || (!!e.oldByteSha256 && e.oldByteSha256 === chain[i - 1].newByteSha256)),
+  );
+  if (continuous) {
+    return {
+      changeNature: "metadata-only",
+      ...(chain[0].oldByteSha256 ? { oldByteSha256: chain[0].oldByteSha256 } : {}),
+      ...(chain[chain.length - 1].newByteSha256
+        ? { newByteSha256: chain[chain.length - 1].newByteSha256 }
+        : {}),
+    };
+  }
+  return { changeNature: CHAIN_NATURE, hops };
 }
 export type AliasMap = Record<string, ResolvedAlias>;
 
 export function resolveAliases(rawAliases: AliasEntry[]): AliasMap {
   // Walk operator_revoke tombstones (later entry wins, removes mapping).
   // Then resolve chains so every old_card_id maps to its terminal id.
-  const direct: Record<string, { newId: string; method: string }> = {};
+  const direct: Record<string, { newId: string; method: string; evidence: RenameEvidence }> = {};
   for (const a of rawAliases) {
     if (!a.old_card_id || !a.new_card_id) continue;
     if (a.method === "operator_revoke") {
       delete direct[a.old_card_id];
       continue;
     }
-    direct[a.old_card_id] = { newId: a.new_card_id, method: a.method };
+    direct[a.old_card_id] = { newId: a.new_card_id, method: a.method, evidence: aliasEvidence(a) };
   }
 
   const out: AliasMap = {};
@@ -190,15 +228,20 @@ export function resolveAliases(rawAliases: AliasEntry[]): AliasMap {
   for (const oldId of Object.keys(direct)) {
     const seen = new Set<string>();
     let cur = oldId;
-    let method = direct[oldId].method;
+    const method = direct[oldId].method;
+    const hops: AliasHop[] = [];
+    const chain: RenameEvidence[] = [];
     for (let i = 0; i < MAX_HOPS; i++) {
       if (seen.has(cur)) break; // cycle defense
       seen.add(cur);
       const next = direct[cur];
       if (!next) break;
+      hops.push({ from: cur, to: next.newId, ...(next.evidence.changeNature ? { changeNature: next.evidence.changeNature } : {}) });
+      chain.push(next.evidence);
       cur = next.newId;
     }
-    out[oldId] = { terminal: cur, method };
+    const evidence = hops.length > 1 ? chainEvidence(hops, chain) : direct[oldId].evidence;
+    out[oldId] = { terminal: cur, method, ...evidence };
   }
   return out;
 }
@@ -313,8 +356,10 @@ export function formatPromotedStateLabel(o: PromotedStateOption): string {
 export interface DiffResult {
   added: CardMetadata[];
   removed: CardMetadata[];
-  renamed: Array<{ from: CardMetadata; to: CardMetadata; method: string }>;
+  renamed: RenamedEntry[];
 }
+
+export type RenamedEntry = { from: CardMetadata; to: CardMetadata; method: string } & RenameEvidence;
 
 export function diffWithAliases(
   prev: CardMetadata[],
@@ -326,7 +371,7 @@ export function diffWithAliases(
 
   const added: CardMetadata[] = [];
   const removed: CardMetadata[] = [];
-  const renamed: Array<{ from: CardMetadata; to: CardMetadata; method: string }> = [];
+  const renamed: RenamedEntry[] = [];
 
   // Track which prev card_ids were absorbed by a rename so we don't
   // also emit them in `removed`.
@@ -339,7 +384,8 @@ export function diffWithAliases(
     if (!a) continue;
     const target = currById.get(a.terminal);
     if (target) {
-      renamed.push({ from: prevCard, to: target, method: a.method });
+      const { terminal: _terminal, ...evidence } = a;
+      renamed.push({ from: prevCard, to: target, ...evidence });
       absorbedFromPrev.add(prevCard.card_id);
     }
     // If the alias terminal isn't in curr, fall through to the normal

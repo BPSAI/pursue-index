@@ -203,7 +203,8 @@ def test_append_aliases_appends_to_existing_file(tmp_path: Path) -> None:
         {"old_card_id": "existing", "new_card_id": "existing_new", "method": "byte_collision"},
     ]}))
     append_aliases(aliases, [
-        {"old_card_id": "new", "new_card_id": "new_new", "method": "operator_manual"},
+        {"old_card_id": "new", "new_card_id": "new_new", "method": "operator_manual",
+         "established": "2026-05-12T00:00:00Z"},
     ])
     payload = _aliases_payload(aliases)
     assert len(payload["aliases"]) == 2

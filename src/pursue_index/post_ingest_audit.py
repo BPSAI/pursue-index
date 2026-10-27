@@ -18,6 +18,11 @@ Three target classes:
     different sha, the rename was being used as cover for content
     substitution.
 
+  * metadata_only_resave_rename — ``renames_metadata_only`` entries
+    (R7C.12). Same contract as byte_collision_rename: expected_sha is the
+    new bytes' sha at tranche-diff time, the bytes the metadata-only
+    verdict was reached on; a mismatch blocks.
+
   * restored_unchanged — Class D entries. expected_sha is the pinned
     byte_sha from when the card was archived (typically via
     r2_pin_removed). Re-fetch; if upstream now serves different
@@ -39,6 +44,14 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
+# Alias method -> audit kind for renames whose new bytes were machine-verified
+# at tranche-diff time; a re-fetch mismatch on either refuses the approval.
+_VERIFIED_KINDS = {
+    "byte_collision": "byte_collision_rename",
+    "metadata-only-resave": "metadata_only_resave_rename",
+}
+_BLOCKING_KINDS = (*_VERIFIED_KINDS.values(), "restored_unchanged")
+
 
 def collect_audit_targets(
     enriched_aliases: list[dict[str, Any]],
@@ -49,7 +62,8 @@ def collect_audit_targets(
 
     Each target carries:
       - card_id: the new card_id being audited
-      - kind: byte_collision_rename | restored_unchanged | operator_manual_rename
+      - kind: byte_collision_rename | metadata_only_resave_rename |
+        restored_unchanged | operator_manual_rename
       - asset_url: where to fetch (may be None for metadata-only cards)
       - expected_sha: what to compare against (None when no expectation)
     """
@@ -59,10 +73,10 @@ def collect_audit_targets(
         cid = alias["new_card_id"]
         card = new_by_id.get(cid, {})
         method = alias.get("method")
-        if method == "byte_collision":
+        if method in _VERIFIED_KINDS:
             targets.append({
                 "card_id": cid,
-                "kind": "byte_collision_rename",
+                "kind": _VERIFIED_KINDS[method],
                 "asset_url": card.get("asset_url"),
                 "expected_sha": alias.get("byte_sha256"),
             })
@@ -128,14 +142,14 @@ def audit_targets(
 def has_blocking_mismatch(results: list[dict[str, Any]]) -> bool:
     """Return True iff any result requires refusing the approval.
 
-    `mismatch` for byte_collision_rename or restored_unchanged is
-    blocking. Other statuses (ok, skipped, fetch_failed) are not
+    `mismatch` for byte_collision_rename, metadata_only_resave_rename or
+    restored_unchanged is blocking. Other statuses (ok, skipped, fetch_failed) are not
     blocking by themselves — though fetch_failed warrants operator
     attention and is surfaced in the audit report.
     """
     return any(
         r["status"] == "mismatch"
-        and r["kind"] in ("byte_collision_rename", "restored_unchanged")
+        and r["kind"] in _BLOCKING_KINDS
         for r in results
     )
 

@@ -86,3 +86,24 @@ def ocr_run(
     settings.ensure_dirs()
     m = _scoped_manifest(manifest, worklist)
     asyncio.run(ocr_all(m, engine=engine, force=force, concurrency=concurrency))
+
+
+@ocr_app.command("staleness")
+def ocr_staleness(
+    manifest: Path = _OPT_MANIFEST,
+    worklist: Path = _OPT_WORKLIST,
+) -> None:
+    """Flag cards whose OCR rows carry more than one model, or a model
+    other than the currently operated one (R7C.16 / #171)."""
+    from pursue_index.ocr.model_staleness import build_staleness_report
+    from pursue_index.ocr.pipeline import card_ocr_dir
+
+    m = _scoped_manifest(manifest, worklist)
+    statuses = build_staleness_report(m, card_ocr_dir, settings.ocr_llm_model)
+    flagged = [s for s in statuses if s.flagged]
+    for status in flagged:
+        typer.echo(f"{status.card_id}: models={list(status.distinct_llm_models)}")
+    if flagged:
+        typer.echo(f"{len(flagged)} card(s) flagged for model staleness.")
+        raise typer.Exit(code=1)
+    typer.echo(f"{len(statuses)} card(s) checked; no model staleness found.")

@@ -53,14 +53,26 @@ export interface Manifest {
 // in that file is consumed by the /diff page (rename-aware grouping)
 // AND by the worker's redirect lane. `method`:
 //   - "byte_collision"  — Class A auto-rename (new card_id maps to same byte sha)
+//   - "metadata-only-resave" — auto-rename: new bytes = old bytes + a
+//                         metadata-only PDF update (tranche_diff --bytes-dir)
 //   - "operator_manual" — Class C operator-approved rename
 //   - "operator_revoke" — tombstone removing a prior alias
+// Optional byte-change evidence (R7C.13), present only where a byte
+// verdict is actually known; rows without it render as before:
+//   - `old_byte_sha256` / `new_byte_sha256` — sha256 of the bytes on each side
+//   - `change_nature`:
+//       "metadata-only"   — new bytes = old bytes + a metadata-only PDF update
+//       "content-changed" — the document content itself differs
+//       "unknown"         — bytes recorded, nature not established
 export interface AliasEntry {
   old_card_id: string;
   new_card_id: string;
   method: "byte_collision" | "operator_manual" | "operator_revoke" | string;
   established: string;
   tranche_sha256?: string;
+  old_byte_sha256?: string;
+  new_byte_sha256?: string;
+  change_nature?: "metadata-only" | "content-changed" | "unknown" | string;
 }
 
 export interface PageRecord {

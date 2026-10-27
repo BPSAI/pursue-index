@@ -24,7 +24,9 @@ The three classes:
     but at least one title-continuity heuristic matches a prior card.
     Quarantined for manual operator review — could be a legitimate
     re-redaction the upstream owns OR could be tampering disguised as
-    a rename.
+    a rename. With `--bytes-dir DIR` (files named `<byte_sha256>.pdf`;
+    see `pursue_index.tranche_resave`), one whose new bytes are the old
+    bytes plus a metadata-only PDF update moves to `renames_metadata_only`.
 
 Also reports:
   * Removed cards (in old manifest, no byte-sha match in new) →
@@ -59,6 +61,7 @@ import json
 from collections.abc import Callable
 from typing import Any
 
+from pursue_index.config import settings
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
@@ -77,6 +80,7 @@ from pursue_index.tranche_manifest import (
     group_by_card_id,
 )
 from pursue_index.tranche_report import render_json, render_markdown
+from pursue_index.tranche_resave import ResaveCheck, bytes_dir_check, demote_resaves, resave_counts
 
 DEFAULT_OLD_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
@@ -244,12 +248,17 @@ def diff_tranches(
     new_manifest: dict[str, Any],
     registry: dict[str, list[dict[str, Any]]],
     fetch_byte_sha: Callable[[str], str | None] | None = None,
+    resave_check: ResaveCheck | None = None,
+    move_resaves: bool = False,
 ) -> dict[str, Any]:
     """Compute the structured diff between two manifests.
 
     `registry` is the `{card_id: [rows]}` shape produced by
     `r2_archive_assets.load_registry`. `fetch_byte_sha` is injected
     so tests can provide a synthetic byte-sha map without network.
+    `resave_check` (from `--bytes-dir`) classifies metadata-only re-saves;
+    `move_resaves` (the ingest_auto_approve_metadata_resaves opt-in) moves
+    them out of `quarantined`, else the verdict is only attached as evidence.
     """
     if fetch_byte_sha is None:
         fetch_byte_sha = _fetch_byte_sha_via_curl
@@ -272,17 +281,22 @@ def diff_tranches(
         registry, fetch_byte_sha,
     )
     matched_old_ids = buckets.pop("matched_old_ids")
+    matched_old_ids |= demote_resaves(buckets, resave_check, matched_old_ids, move=move_resaves)
     removed = build_removed_list(removed_ids, matched_old_ids, old_by_id)
     field_only_changes = build_field_only_changes(unchanged_ids, old_groups, new_groups)
     row_change_list = build_row_changes(unchanged_ids, old_groups, new_groups)
 
     return {
         "tranche_sha256": new_manifest.get("csv_sha256"),
+        # Recorded only when ON: a diff without it was generated OFF, and the
+        # committed receipts (generated before the opt-in) stay reproducible.
+        **({"auto_approve_metadata_resaves": True} if move_resaves else {}),
         "prior_manifest_sha": old_manifest.get("csv_sha256"),
         "summary": {
             "renames_confirmed": len(buckets["renames_confirmed"]),
             "new_content": len(buckets["new_content"]),
             "quarantined": len(buckets["quarantined"]),
+            **resave_counts(buckets),
             "restored_unchanged": len(buckets["restored_unchanged"]),
             "restored_modified": len(buckets["restored_modified"]),
             "restored_unknown": len(buckets["restored_unknown"]),
@@ -312,12 +326,16 @@ def main() -> int:
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
     parser.add_argument("--dry-run", action="store_true",
                         help="Print to stdout instead of writing files")
+    parser.add_argument("--bytes-dir", type=Path, default=None,
+                        help="Dir of <byte_sha256>.pdf files for Class C byte evidence")
     args = parser.parse_args()
 
     old_manifest = _load_manifest(args.old_manifest)
     new_manifest = _load_manifest(args.new_manifest)
     registry = load_registry(args.registry)
-    diff = diff_tranches(old_manifest, new_manifest, registry)
+    diff = diff_tranches(old_manifest, new_manifest, registry,
+                         resave_check=bytes_dir_check(args.bytes_dir, registry),
+                         move_resaves=settings.ingest_auto_approve_metadata_resaves)
 
     sha = (diff.get("tranche_sha256") or "unknown")[:12]
     if args.dry_run:

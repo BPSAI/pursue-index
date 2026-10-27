@@ -549,6 +549,99 @@ def test_cleanup_skip_reasons_constant_stays_aligned_with_ts_side() -> None:
     assert "empty_input" not in build_pages_cleaned.CLEANUP_SKIP_REQUIRES_TEXT_CLEAR
 
 
+def test_source_page_sha256_matches_the_unsanitized_text_cleaned(
+    tmp_path: Path,
+) -> None:
+    """A ``length_divergence`` row's ``text_cleaned`` is cleared by
+    ``_sanitize_row_for_mirror``, but ``source_page_sha256`` must still be
+    the hash of the ORIGINAL (unsanitized) sidecar text -- otherwise a
+    sanitized page would read as content drift to the coverage builder
+    even though nothing about the source OCR changed."""
+    import hashlib
+
+    raw_text = "raw OCR fallback text, later cleared by sanitization"
+    expected_sha = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [
+            {
+                "page": 1, "card_id": "c1", "text_cleaned": raw_text,
+                "model_id": "m", "input_sha256": "a" * 64,
+                "cleanup_skipped": "length_divergence",
+            },
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    page1 = next(p for p in payload["pages"] if p["page"] == 1)
+    # The shipped text was cleared...
+    assert page1["text"] == ""
+    # ...but the digest still reflects the un-sanitized source text.
+    assert page1["source_page_sha256"] == expected_sha
+
+
+def test_source_page_sha256_present_on_an_ordinary_row(tmp_path: Path) -> None:
+    import hashlib
+
+    ocr_dir = tmp_path / "ocr"
+    _write_sidecar(
+        ocr_dir / "c1" / "pages_cleaned.jsonl",
+        [{"page": 1, "card_id": "c1", "text_cleaned": "cleaned text",
+          "model_id": "m", "input_sha256": "a" * 64}],
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["c1"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    page1 = next(p for p in payload["pages"] if p["page"] == 1)
+    assert page1["source_page_sha256"] == hashlib.sha256(
+        b"cleaned text"
+    ).hexdigest()
+
+
+def test_canonical_vector_reproduces_its_shas_through_this_builder(
+    tmp_path: Path,
+) -> None:
+    """The shared ``canonical`` test vector (R7C.14/R7C.15) is a literal
+    ``pages_cleaned.jsonl`` excerpt; run through this builder it must
+    yield exactly the vector's pinned per-page ``source_page_sha256``
+    values -- the same bytes ``judged_pages_digest`` hashes on the
+    coverage side."""
+    vectors = json.loads(
+        (REPO_ROOT / "tests" / "fixtures" / "judged_pages_digest_vectors.json")
+        .read_text(encoding="utf-8")
+    )["cases"]
+    canonical = next(c for c in vectors if c["name"] == "canonical")
+    ocr_dir = tmp_path / "ocr"
+    (ocr_dir / "canon0001").mkdir(parents=True)
+    (ocr_dir / "canon0001" / "pages_cleaned.jsonl").write_text(
+        canonical["pages_cleaned_jsonl"]
+    )
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, ["canon0001"])
+    out_path = tmp_path / "pages-cleaned.json"
+    build_pages_cleaned.build(
+        ocr_dir=ocr_dir, manifest_path=manifest, out_path=out_path,
+        source_tag="t",
+    )
+    payload = json.loads(out_path.read_text())
+    shas = {p["page"]: p["source_page_sha256"] for p in payload["pages"]}
+    assert shas == {
+        int(page): sha for page, sha in canonical["page_shas"].items()
+    }
+
+
 def test_build_publishes_over_budget_payload_as_parts(tmp_path: Path) -> None:
     from pursue_index.release.chunked_asset import manifest_path, read_asset_json
 

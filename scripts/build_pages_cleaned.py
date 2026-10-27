@@ -17,6 +17,7 @@ row with its card metadata, and writes a single
       "pages": [
         {"id": "<card>-p<n>", "card_id": "...", "page": N,
          "title": "...", "text": "<cleaned>",
+         "source_page_sha256": "...",
          "model_id": "...", "prompt_sha256": "...",
          "input_sha256": "...", "output_sha256": "...",
          "generated_at": "..."},
@@ -26,6 +27,14 @@ row with its card metadata, and writes a single
 
 The shape mirrors ``pages.json`` so the reader-mode component can index it
 the same way — see `web/src/components/CardOcrIsland.tsx`.
+
+``source_page_sha256`` (R7C.15) is the sha256 of the sidecar's
+``text_cleaned`` as read, BEFORE this builder's own sanitization clears or
+rewrites it for a skipped row (see ``_stamp_source_page_sha256``) -- the
+same field name and definition pursue-curate's clean-QC sidecar stamps.
+``scripts/build_qc_coverage.py`` recomputes each judged card's digest
+from these committed shas, since CI cannot read the NAS sidecars that
+would otherwise carry them.
 """
 
 from __future__ import annotations
@@ -48,9 +57,17 @@ from pursue_index.paths import repo_root
 REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
-from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset
+from pursue_index.page_rows import latest_per_page
+from pursue_index.release.chunked_asset import (
+    BUDGET_BYTES,
+    asset_exists,
+    read_asset_bytes,
+    write_asset,
+)
+from pursue_index.vendor.judged_pages_digest import page_sha256
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
+DEFAULT_PAGES_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
 
 # Canonical list of ``cleanup_skipped`` reasons. Mirrors
@@ -98,43 +115,27 @@ def _dedupe_latest_per_page(
 ) -> list[dict]:
     """Keep one row per page, latest by (generated_at, file order).
 
-    Append-only sidecars accumulate duplicates after re-runs. Also
-    tolerate corrupt rows whose ``page`` is missing or non-numeric —
-    log a structured warning to stderr and skip, matching
-    ``_iter_sidecar``'s "skip bad JSON, don't crash the build" stance.
+    The rule lives in ``pursue_index.page_rows`` so the model-staleness
+    report applies exactly the same selection.
     """
-    by_page: dict[int, dict] = {}
-    for idx, row in enumerate(rows):
-        # A missing ``page`` field is a corrupt row, not page 0 (issue
-        # #38). Treating absence as 0 used to silently emit garbage
-        # rows into pages-cleaned.json at page 0 and break the
-        # index-by-page-N navigation contract in CardReaderView. Skip
-        # + log instead.
-        raw_page = row.get("page")
-        if raw_page is None:
-            print(
-                f"warning clean.build.skip_missing_page "
-                f"card_id={card_id} row_index={idx}",
-                file=sys.stderr,
-            )
-            continue
-        try:
-            page = int(raw_page)
-        except (ValueError, TypeError):
-            print(
-                f"warning clean.build.skip_corrupt_row "
-                f"card_id={card_id} row_index={idx} "
-                f"bad_page={raw_page!r}",
-                file=sys.stderr,
-            )
-            continue
-        prior = by_page.get(page)
-        if prior is None:
-            by_page[page] = {"row": row, "ts": row.get("generated_at", ""), "i": idx}
-            continue
-        if (row.get("generated_at", ""), idx) >= (prior["ts"], prior["i"]):
-            by_page[page] = {"row": row, "ts": row.get("generated_at", ""), "i": idx}
-    return [entry["row"] for entry in by_page.values()]
+    return latest_per_page(rows, card_id)
+
+
+def _stamp_source_page_sha256(row: dict) -> dict:
+    """Return a copy of ``row`` carrying ``source_page_sha256``.
+
+    Hashed from the sidecar's ``text_cleaned`` as read -- BEFORE
+    ``_sanitize_row_for_mirror`` clears or rewrites it for a skipped row.
+    This is the one definition (via the vendored ``page_sha256``) a
+    sanitized page's un-sanitized text hashes to, matching what
+    pursue-curate's clean-QC sidecar stamps against the same field (R7C.14
+    / R7C.15): the coverage builder recomputes a card's judged-pages
+    digest from these committed shas since CI cannot read the NAS
+    sidecars that would otherwise carry them.
+    """
+    sanitized = dict(row)
+    sanitized["source_page_sha256"] = page_sha256(row.get("text_cleaned", ""))
+    return sanitized
 
 
 def _sanitize_row_for_mirror(row: dict) -> dict:
@@ -214,6 +215,7 @@ def _walk_sidecars(
             continue
         card_id = card_dir.name
         rows = _dedupe_latest_per_page(rows, card_id=card_id)
+        rows = [_stamp_source_page_sha256(r) for r in rows]
         rows = [_sanitize_row_for_mirror(r) for r in rows]
         if not rows:
             continue
@@ -249,6 +251,7 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
         "page": page,
         "title": title,
         "text": row.get("text_cleaned", ""),
+        "source_page_sha256": row.get("source_page_sha256", ""),
         "model_id": row.get("model_id", ""),
         "prompt_sha256": row.get("prompt_sha256", ""),
         "input_sha256": row.get("input_sha256", ""),
@@ -283,6 +286,13 @@ def _assert_homogeneous_provenance(pages: list[dict]) -> None:
         )
 
 
+def _pages_json_sha256(pages_path: Path | None) -> str | None:
+    """sha256 of the (possibly chunked) pages.json this build ran against."""
+    if pages_path is None or not asset_exists(pages_path):
+        return None
+    return hashlib.sha256(read_asset_bytes(pages_path)).hexdigest()
+
+
 def _meta_block(
     pages: list[dict], covered: list[str], source_tag: str,
 ) -> dict:
@@ -306,14 +316,23 @@ def build(
     out_path: Path,
     source_tag: str,
     budget_bytes: int = BUDGET_BYTES,
+    pages_path: Path | None = None,
 ) -> int:
-    """Materialize the deployed mirror. Returns process exit code."""
+    """Materialize the deployed mirror. Returns process exit code.
+
+    ``pages_path`` is the pages.json this run sits beside: its sha256 is
+    recorded as ``meta.pages_json_sha256`` so the coverage gate can prove the
+    cleaned asset was built from the current OCR rows.
+    """
     if not manifest_path.exists():
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
         return 1
     titles = _load_titles(manifest_path)
     pages, covered = _walk_sidecars(ocr_dir, titles)
-    payload = {"meta": _meta_block(pages, covered, source_tag), "pages": pages}
+    meta = _meta_block(pages, covered, source_tag)
+    if pages_sha := _pages_json_sha256(pages_path):
+        meta["pages_json_sha256"] = pages_sha
+    payload = {"meta": meta, "pages": pages}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     written = write_asset(
         out_path, json.dumps(payload, ensure_ascii=False).encode("utf-8"), budget=budget_bytes
@@ -344,12 +363,17 @@ def main() -> int:
         "--source-tag", type=str, default="pilot-30-cards",
         help="Label embedded in `meta.source` (e.g. pilot-30-cards or full-corpus).",
     )
+    parser.add_argument(
+        "--pages", type=Path, default=DEFAULT_PAGES_PATH,
+        help="pages.json this build sits beside; its sha256 is recorded as provenance.",
+    )
     args = parser.parse_args()
     return build(
         ocr_dir=args.ocr_dir,
         manifest_path=args.manifest,
         out_path=args.out,
         source_tag=args.source_tag,
+        pages_path=args.pages,
     )
 
 

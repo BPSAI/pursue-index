@@ -19,6 +19,7 @@ function payload(cards: QcCoverageCard[]): QcCoverage {
   const status_counts: Record<string, number> = {
     judged: 0,
     partially_judged: 0,
+    stale: 0,
     unverified_transcript: 0,
     unverified_vision: 0,
     no_text: 0,
@@ -103,4 +104,15 @@ test("describeQcCoverage: a single partially judged card reads in the singular",
     "Of 2 cards, 2 (all PDF documents with OCR text) are QC-judged page by page, " +
       "1 of them only partially since a later re-OCR.",
   );
+});
+
+test("describeQcCoverage: stale cards are called out, not counted as judged", () => {
+  const doc = payload([
+    card("p1", ["PDF"], "judged"),
+    card("p2", ["PDF"], "stale"),
+    card("p3", ["PDF"], "stale"),
+  ]);
+  const lines = describeQcCoverage(doc);
+  assert.match(lines[0], /^Of 3 cards, 1 is QC-judged/);
+  assert.ok(lines.some((l) => /2 cards? .*(changed|stale)/i.test(l)), lines.join("\n"));
 });

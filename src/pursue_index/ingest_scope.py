@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.card_id import InvalidCardIdError, require_card_id
+from pursue_index.tranche_resave import RESAVE_BUCKET
 
 REASON_NEW = "new"
 REASON_QUARANTINED_NEW = "quarantined-new"
@@ -64,6 +65,16 @@ def _has_new_side_pdf_img(row: dict[str, Any]) -> bool:
     )
 
 
+def _auto_rename_rows(diff: dict[str, Any]) -> list[dict[str, Any]]:
+    """Renames the tranche approval accepts without a per-card flag.
+
+    Only Class A: a metadata-only re-save is scoped through its established
+    alias (``renamed_this_tranche``), whether the opt-in auto-approval wrote
+    it or the operator approved it by hand.
+    """
+    return list(diff.get("renames_confirmed", []) or [])
+
+
 def scope_pdf_img_cards(
     diff: dict[str, Any],
     tranche_sha: str,
@@ -82,9 +93,11 @@ def scope_pdf_img_cards(
       3. ``renamed`` -- ``aliases`` rows established for this tranche
          (``tranche_sha256 == tranche_sha``) whose new side has a PDF/IMG
          asset (looked up from the matching ``quarantined`` row).
-         Confirmed (Class A) renames in the diff's ``renames_confirmed`` are
-         scoped the same way, from their own row, since the tranche approval
-         accepts them without a per-card flag.
+         A re-save row in ``renames_metadata_only`` is looked up the same
+         way, so it is scoped only once its alias is established. Confirmed
+         (Class A) renames in the diff's ``renames_confirmed`` are scoped from
+         their own row, since the tranche approval accepts them without a
+         per-card flag.
       4. ``bytes-changed`` -- any card_id in ``registry_sha_by_card`` whose
          current byte sha differs from the one recorded in
          ``ocr_meta_sha_by_card`` (i.e. it was OCR'd before, under
@@ -126,14 +139,15 @@ def scope_pdf_img_cards(
         if _has_new_side_pdf_img(row):
             _add(new_card_id, REASON_QUARANTINED_NEW)
 
+    resave_by_new_id = {r["new_card_id"]: r for r in diff.get(RESAVE_BUCKET, []) or []}
     for new_card_id in renamed_this_tranche:
-        row = quarantined_by_new_id.get(new_card_id)
+        row = quarantined_by_new_id.get(new_card_id) or resave_by_new_id.get(new_card_id)
         if row is None:
             continue
         if _has_new_side_pdf_img(row):
             _add(new_card_id, REASON_RENAMED)
 
-    for row in diff.get("renames_confirmed", []) or []:
+    for row in _auto_rename_rows(diff):
         if _has_new_side_pdf_img(row):
             _add(row["new_card_id"], REASON_RENAMED)
 
