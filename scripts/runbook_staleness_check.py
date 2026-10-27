@@ -34,6 +34,8 @@ import json
 import re
 from collections import defaultdict
 
+from runbook_finds_record_check import check_finds_record
+
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
@@ -206,6 +208,7 @@ def _check_file(path: Path) -> list[tuple[int, str, str]]:
     # Additional check: unchained clean-qc run/publish (for runbooks only)
     if "ship-tranche" in path.name.lower():
         hits.extend(_check_unchained_clean_qc(lines))
+        hits.extend(check_finds_record(lines))
 
     return hits
 
