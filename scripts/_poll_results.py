@@ -48,10 +48,8 @@ class Stale:
 
     ``reason`` records which signal caught it: ``"seen_before"`` (seen
     before the current sha, without a newer ``Last-Modified``),
-    ``"older_last_modified"`` (a strictly older ``Last-Modified``, even on
-    a first sighting -- #176), or ``"row_subset"`` (its CSV rows are a
-    strict subset of the current manifest's). No tranche state is
-    committed for any reason.
+    ``"older_last_modified"`` (seen before and a strictly older
+    ``Last-Modified``). No tranche state is committed for either reason.
     """
 
     status: ClassVar[str] = "stale"

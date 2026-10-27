@@ -175,8 +175,6 @@ def guarded_summary(result: object) -> str | None:
                 f"its Last-Modified {_header_text(result.last_modified)} is older"  # type: ignore[attr-defined]
                 " than the current sha's"
             )
-        elif reason == "row_subset":
-            why = "its rows are a strict subset of the current manifest's"
         else:
             why = (
                 f"seen before the current {result.current_sha[:12]} and Last-Modified"  # type: ignore[attr-defined]

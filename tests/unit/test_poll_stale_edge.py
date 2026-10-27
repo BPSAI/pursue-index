@@ -360,27 +360,6 @@ def test_missing_guard_state_treats_archived_shas_as_seen(
 # ---------------------------------------------------------------------------
 
 
-def test_never_seen_sha_with_older_last_modified_is_stale_edge(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream
-) -> None:
-    """Release 7 (#176): 7c3c800f90e4 was an older upstream copy the guard
-    had never seen, served with an older Last-Modified than the current
-    sha's. It must be stale, not a candidate change."""
-    guard = _seeded_guard(SHA_C3F8, [SHA_C3F8], LM_NEW)
-    repo = _make_repo(tmp_path, SHA_C3F8, archived=(SHA_19E6,), guard=guard)
-    state_before, guard_before = repo.state.read_bytes(), repo.guard.read_bytes()
-    upstream.serve(_sha_resp(SHA_19E6))  # LM_19E6 < LM_NEW, never in `seen`
-
-    run = _poll_run(repo, tmp_path, monkeypatch, 0)
-
-    assert run.status == "stale"
-    assert not _opens_tranche_issue(run)
-    assert repo.state.read_bytes() == state_before
-    assert repo.guard.read_bytes() == guard_before
-    assert "stale-edge" in run.summary and SHA_19E6[:12] in run.summary
-    assert upstream.requests == 1
-
-
 def test_never_seen_sha_with_newer_last_modified_is_still_pending_then_changed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream
 ) -> None:
@@ -436,29 +415,6 @@ def _write_current_manifest(repo: _Repo, csv_bytes: bytes) -> None:
 
     manifest = build_manifest(csv_bytes, parse_csv(csv_bytes), "https://example.test/csv")
     save_manifest(manifest, repo.latest)
-
-
-def test_never_seen_sha_with_subset_rows_is_stale_edge(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream
-) -> None:
-    current_sha = poll_pursue.sha256_hex(_CURRENT_CSV)
-    repo = _Repo(tmp_path / "repo")
-    repo.archive.mkdir(parents=True)
-    repo.diffs.mkdir(parents=True)
-    repo.state.write_text(f"{current_sha}  2026-09-18T15:06:36Z\n")
-    (repo.archive / f"{current_sha}.csv").write_bytes(_CURRENT_CSV)
-    repo.guard.write_text(json.dumps(_seeded_guard(current_sha, [current_sha], LM_NEW), indent=2) + "\n")
-    _write_current_manifest(repo, _CURRENT_CSV)
-    state_before, guard_before = repo.state.read_bytes(), repo.guard.read_bytes()
-    upstream.serve((_SUBSET_CSV, None))  # no Last-Modified at all
-
-    run = _poll_run(repo, tmp_path, monkeypatch, 0)
-
-    assert run.status == "stale"
-    assert not _opens_tranche_issue(run)
-    assert repo.state.read_bytes() == state_before
-    assert repo.guard.read_bytes() == guard_before
-    assert "stale-edge" in run.summary
 
 
 def test_never_seen_sha_with_disjoint_rows_is_a_candidate_not_stale(

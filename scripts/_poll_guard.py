@@ -19,13 +19,11 @@ just enough history in ``data/poll-state.json`` (committed next to
 When the file is missing the guard fails closed: every sha already in the
 byte archive counts as seen before the current one.
 
-#176 (Release 7): an older upstream copy the guard had never seen before
-(so the ``seen``-before rule above didn't catch it) was still treated as a
-candidate change, opening a duplicate tranche issue. ``is_strictly_older``
-below marks a sha stale on a first sighting when its ``Last-Modified`` is
-strictly older than the current sha's. ``_poll_stale_checks.py`` adds a
-second, independent signal: a CSV whose rows are a non-empty, strict
-subset of the current manifest's.
+Security-gate fix round: ``Last-Modified`` alone, or a row set that is a
+strict subset of the current manifest's, is never enough to drop a sha. A
+subset is a candidate removal tranche (takedowns shrink the card set) and an
+older header on a first sighting is ``unconfirmed`` (clock skew); both go
+through the normal confirm-then-declare path.
 """
 
 from __future__ import annotations
@@ -37,7 +35,7 @@ from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Literal
 
-Observation = Literal["current", "stale", "candidate"]
+Observation = Literal["current", "stale", "candidate", "unconfirmed"]
 
 
 @dataclass
@@ -54,18 +52,20 @@ class GuardState:
     def classify(self, sha: str, last_modified: str | None) -> Observation:
         """Is a fetched ``sha`` the current one, a stale edge, or a candidate?
 
-        A sha with a strictly older ``Last-Modified`` than the current
-        one is stale on its own terms, whether or not it's ever been seen
-        before (#176) — only an unseen sha with a newer or unresolvable
-        ``Last-Modified`` falls through to the seen-before check.
+        Stale needs an independent signal: the sha was observed before the
+        current one (a byte copy the poll already held) and its
+        ``Last-Modified`` is not newer. A first-seen sha whose
+        ``Last-Modified`` is merely older is ``unconfirmed`` -- upstream
+        clock skew looks the same -- so it keeps polling through the normal
+        confirm-then-declare path and is never dropped.
         """
         if sha == self.current_sha:
             return "current"
-        if is_strictly_older(last_modified, self.current_last_modified):
-            return "stale"
         seen_before = sha in self.seen and self.seen.index(sha) < self.seen.index(self.current_sha)
         if seen_before and not is_strictly_newer(last_modified, self.current_last_modified):
             return "stale"
+        if is_strictly_older(last_modified, self.current_last_modified):
+            return "unconfirmed"
         return "candidate"
 
     def observe(self, sha: str) -> None:
@@ -102,7 +102,7 @@ class GuardState:
             sha2, lm2 = again
             if sha2 == sha:
                 return True
-            if self.classify(sha2, lm2) == "candidate":
+            if self.classify(sha2, lm2) in ("candidate", "unconfirmed"):
                 self.observe(sha2)
                 self.set_pending(sha2, lm2, ts)
                 return False

@@ -78,7 +78,7 @@ from _poll_results import (
     Unchanged,
 )
 from _poll_sha_state import resolve_old_sha, write_state
-from _poll_stale_checks import encoding_only_vs_archive, is_row_subset_of_manifest
+from _poll_stale_checks import encoding_only_vs_archive
 
 from pursue_index.scrape.csv_fetcher import fetch_raw_csv
 
@@ -208,8 +208,6 @@ def poll_guarded(
         older = is_strictly_older(last_modified, guard.current_last_modified)
         reason = "older_last_modified" if older else "seen_before"
         return Stale(sha=new_sha, current_sha=old_sha, last_modified=last_modified, reason=reason), None
-    if is_row_subset_of_manifest(manifest_path, body):
-        return Stale(sha=new_sha, current_sha=old_sha, last_modified=last_modified, reason="row_subset"), None
 
     guard.observe(new_sha)
     if guard.pending_sha != new_sha:
