@@ -102,7 +102,9 @@ def _get_anthropic_client() -> Any:
         return _client
     import anthropic  # type: ignore[import-not-found]
 
-    _client = anthropic.Anthropic()
+    from pursue_index.config.credentials import anthropic_api_key
+
+    _client = anthropic.Anthropic(api_key=anthropic_api_key())
     return _client
 
 

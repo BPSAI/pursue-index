@@ -52,6 +52,7 @@ os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 from pdf2image import convert_from_path
 
 from pursue_index.config import settings
+from pursue_index.config.credentials import anthropic_api_key
 from pursue_index.download.downloader import asset_path_for
 from pursue_index.ocr import llm as ocr_llm
 from pursue_index.ocr import pipeline as ocr_pipeline
@@ -256,7 +257,7 @@ def main(argv: list[str] | None = None):
         print(dry_run_report(golden, PAGES_PER_CARD))
         return None
 
-    if "ANTHROPIC_API_KEY" not in os.environ:
+    if not anthropic_api_key():
         sys.exit(
             "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
             "running the benchmark — get a key at https://console.anthropic.com/."
