@@ -207,7 +207,7 @@ jobs:
           if [ "$STATUS" = "stale" ]; then
             MSG="chore(poll): note stale-edge ${SHA:0:12}"
             python scripts/stale_edge_note.py "$SHA" --last-modified "$LAST_MODIFIED" || true
-            git add -A data/stale-edge-notes
+            if [ -d data/stale-edge-notes ]; then git add -A data/stale-edge-notes; fi
           else
             # Upstream-controlled bytes: commit only a size-capped file whose
             # hash is the polled sha; otherwise skip and report.
