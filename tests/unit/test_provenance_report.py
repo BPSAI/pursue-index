@@ -35,12 +35,17 @@ from pursue_index.provenance_report import (
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
+_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "provenance_report_fixture.json"
 
 runner = CliRunner()
 
 
 def _manifest() -> dict:
     return json.loads(_MANIFEST.read_text())
+
+
+def _fixture_manifest() -> dict:
+    return json.loads(_FIXTURE.read_text())
 
 
 # --------------------------------------------------------------------------- #
@@ -58,27 +63,32 @@ def test_every_card_is_resolved_by_exactly_one_route() -> None:
     assert len(report.outcomes) == report.card_count
 
 
-def test_real_manifest_coverage_matches_the_chain() -> None:
-    """The committed manifest resolves to a stable, known coverage split.
+def test_real_manifest_satisfies_partition_invariants() -> None:
+    """The live corpus partitions cards exactly once and maintains invariants.
 
-    These figures are pinned against the currently promoted manifest and are
-    updated as part of a release promote when the corpus grows.
+    Rather than pinning corpus-wide figures that change on every promote,
+    the test checks invariants that should hold on any manifest:
+    - Every card is in exactly one route (partitioning)
+    - All counts are non-negative
+    - page_image_flagged subset is a subset of unresolved
+    - Tier counts sum to resolved_by_claim
+
+    Exact figures are pinned only in the small fixture, which does not
+    change with releases.
     """
     report = build_report(_manifest())
-    assert report.resolved_by_claim == 23
-    # Cards carrying a two-digit incident date that no four-digit year on the
-    # card corroborates are undated rather than modern, so they sit in
-    # unresolved (triage) instead of taking an era-based negative.
-    # Release 7 (tranche 096ef2c0058a, 450 -> 478 rows): of the 28 net-new
-    # cards, 2 resolve by era and 26 are unresolved; 23 + 220 + 235 = 478.
-    assert report.resolved_by_era == 220
-    assert report.unresolved == 235
-    assert report.page_image_flagged == 19
-    assert report.tier_counts == {
-        "previously_released": 3,
-        "previously_released_in_part": 19,
-        "content_previously_published": 1,
-    }
+    assert (
+        report.resolved_by_claim + report.resolved_by_era + report.unresolved
+        == report.card_count
+    )
+    assert all(count >= 0 for count in [
+        report.resolved_by_claim,
+        report.resolved_by_era,
+        report.unresolved,
+        report.page_image_flagged,
+    ])
+    assert report.page_image_flagged <= report.unresolved
+    assert sum(report.tier_counts.values()) == report.resolved_by_claim
 
 
 def test_tier_counts_sum_to_the_claim_total() -> None:
@@ -217,3 +227,49 @@ def test_cli_optional_json_out_writes_outside_web(tmp_path) -> None:
     assert payload["resolved_by_claim"] + payload["resolved_by_era"] + payload[
         "unresolved"
     ] == payload["card_count"]
+
+
+# --------------------------------------------------------------------------- #
+# Fixture tests: exact figures for a small, committed manifest               #
+# --------------------------------------------------------------------------- #
+
+
+def test_fixture_exact_figures() -> None:
+    """Verify exact figures on a small, committed fixture manifest.
+
+    The fixture is used to pin exact figures; live corpus tests check
+    invariants instead, so the live corpus figures do not need re-pinning
+    on every promote.
+    """
+    report = build_report(_fixture_manifest())
+    assert report.card_count == 4
+    assert report.resolved_by_claim == 2
+    assert report.resolved_by_era == 1
+    assert report.unresolved == 1
+    assert report.page_image_flagged == 1
+
+
+def test_fixture_with_added_card_still_satisfies_invariants() -> None:
+    """Invariants hold when fixture gains one extra card."""
+    manifest = _fixture_manifest()
+    manifest["cards"].append({
+        "card_id": "c5-extra-card",
+        "title": "Extra Card",
+        "agency": "Test Agency",
+        "description": "Another unresolved card.",
+        "display_date": None,
+    })
+    report = build_report(manifest)
+
+    assert report.card_count == 5
+    assert (
+        report.resolved_by_claim + report.resolved_by_era + report.unresolved
+        == report.card_count
+    )
+    assert all(count >= 0 for count in [
+        report.resolved_by_claim,
+        report.resolved_by_era,
+        report.unresolved,
+        report.page_image_flagged,
+    ])
+    assert report.page_image_flagged <= report.unresolved

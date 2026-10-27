@@ -1,0 +1,35 @@
+{
+  "source_url": "https://example.com",
+  "fetched_at": "2024-01-01T00:00:00Z",
+  "csv_sha256": "abc123",
+  "cards": [
+    {
+      "card_id": "c1-fully-released",
+      "title": "Test Card 1",
+      "agency": "Test Agency",
+      "description": "These pages were previously released to the public.",
+      "display_date": "1960-01-01"
+    },
+    {
+      "card_id": "c2-partially-released",
+      "title": "Test Card 2",
+      "agency": "Test Agency",
+      "description": "This file was partially posted on the FBI vault; some pages missing.",
+      "display_date": "1960-01-01"
+    },
+    {
+      "card_id": "c3-modern-no-claim",
+      "title": "Test Card 3",
+      "agency": "Test Agency",
+      "description": "Modern document without any release information.",
+      "display_date": "2020-01-01"
+    },
+    {
+      "card_id": "c4-old-unresolved",
+      "title": "Test Card 4",
+      "agency": "Test Agency",
+      "description": "Old document without any claim or date.",
+      "display_date": null
+    }
+  ]
+}
