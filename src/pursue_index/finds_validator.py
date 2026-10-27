@@ -38,6 +38,12 @@ Used in two places:
 Hand-rolled parser — no PyYAML dep so this can run in lean CI matrices
 with just `pip install pytest`. The frontmatter format is YAML-shaped
 but constrained enough that a regex-based extractor suffices.
+
+The cross-entry "shared card needs a link or a declared supplement"
+gate lives in the sibling module `finds_overlap` (re-exported here as
+`check_finds_overlap`) to keep this module under the architecture
+line-count cap; frontmatter/body splitting shared by both lives in
+`finds_frontmatter`.
 """
 
 from __future__ import annotations
@@ -46,7 +52,12 @@ import re
 from pathlib import Path
 from typing import Any
 
+from pursue_index.finds_frontmatter import body_text as _body_text
+from pursue_index.finds_frontmatter import extract_frontmatter as _extract_frontmatter
+from pursue_index.finds_overlap import check_finds_overlap
 from pursue_index.paths import repo_root as _resolve_repo_root
+
+__all__ = ["check_finds_overlap", "validate_finds_entry"]
 
 # Required frontmatter fields. Per the plan's "frontmatter complete" rule
 # and the conventions established by the 21 entries committed as of
@@ -117,20 +128,9 @@ _METHODOLOGY_HEADING_PATTERN = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 
-_FRONTMATTER_DELIMITER = re.compile(
-    r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL
-)
 _CITE_TAG = re.compile(r"<Cite\s+card=", re.IGNORECASE)
 _FRONTMATTER_FIELD = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)\s*:", re.MULTILINE)
 _H2_HEADING = re.compile(r"^##\s+\S", re.MULTILINE)
-
-
-def _extract_frontmatter(text: str) -> str | None:
-    """Return the frontmatter block text (between --- delimiters) or None."""
-    m = _FRONTMATTER_DELIMITER.match(text)
-    if not m:
-        return None
-    return m.group(1)
 
 
 def _frontmatter_fields(fm_text: str) -> set[str]:
@@ -147,15 +147,6 @@ def _frontmatter_fields(fm_text: str) -> set[str]:
             if m:
                 found.add(m.group(1))
     return found
-
-
-def _body_text(text: str) -> str:
-    """Return the body — everything after the frontmatter, or the whole
-    text if no frontmatter delimiter."""
-    m = _FRONTMATTER_DELIMITER.match(text)
-    if not m:
-        return text
-    return text[m.end():]
 
 
 def _word_count(body: str) -> int:
@@ -264,11 +255,19 @@ def main() -> int:
         paths = sorted((repo_root / "web" / "src" / "content" / "finds").glob("*.mdx"))
 
     any_failed = False
+    entries: dict[str, str] = {}
     for p in paths:
-        result = validate_finds_entry(p.read_text())
+        text = p.read_text()
+        entries[p.stem] = text
+        result = validate_finds_entry(text)
         print(_format_report(p, result))
         if not result["ok"]:
             any_failed = True
+
+    for overlap_error in check_finds_overlap(entries):
+        print(f"OVERLAP: {overlap_error}")
+        any_failed = True
+
     return 1 if any_failed else 0
 
 

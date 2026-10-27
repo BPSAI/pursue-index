@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from pursue_index.finds_validator import validate_finds_entry
+from pursue_index.finds_validator import check_finds_overlap, validate_finds_entry
 
 
 _VALID_FRONTMATTER = """---
@@ -224,6 +224,73 @@ def test_stats_includes_word_count_and_citation_count() -> None:
     assert result["stats"]["word_count"] > 0
 
 
+# --- Overlap gate: a shared card needs a link or a declared supplement ---
+
+
+def _mini_entry(
+    cards: list[str], link_to: str | None = None, supplements: str | None = None
+) -> str:
+    lines = ["---", 'title: "Sample"', "cards:"]
+    lines += [f"  - {c}" for c in cards]
+    if supplements is not None:
+        lines.append(f"supplements: {supplements}")
+    lines.append("---")
+    body = f"\nSee [the other entry](/finds/{link_to}).\n" if link_to else "\n"
+    return "\n".join(lines) + body
+
+
+def test_shared_card_without_link_fails_overlap_gate() -> None:
+    entries = {
+        "entry-a": _mini_entry(["sharedcard123"]),
+        "entry-b": _mini_entry(["sharedcard123"]),
+    }
+    errors = check_finds_overlap(entries)
+    assert len(errors) == 1
+    assert "entry-a" in errors[0]
+    assert "entry-b" in errors[0]
+    assert "sharedcard123" in errors[0]
+
+
+def test_shared_card_with_one_way_link_passes() -> None:
+    entries = {
+        "entry-a": _mini_entry(["sharedcard123"], link_to="entry-b"),
+        "entry-b": _mini_entry(["sharedcard123"]),
+    }
+    assert check_finds_overlap(entries) == []
+
+
+def test_shared_card_with_reverse_link_passes() -> None:
+    entries = {
+        "entry-a": _mini_entry(["sharedcard123"]),
+        "entry-b": _mini_entry(["sharedcard123"], link_to="entry-a"),
+    }
+    assert check_finds_overlap(entries) == []
+
+
+def test_shared_card_with_supplements_declaration_passes() -> None:
+    entries = {
+        "entry-a": _mini_entry(["sharedcard123"], supplements="entry-b"),
+        "entry-b": _mini_entry(["sharedcard123"]),
+    }
+    assert check_finds_overlap(entries) == []
+
+
+def test_supplements_naming_nonexistent_slug_fails() -> None:
+    entries = {
+        "entry-a": _mini_entry(["sharedcard123"], supplements="does-not-exist"),
+    }
+    errors = check_finds_overlap(entries)
+    assert any("does-not-exist" in e and "entry-a" in e for e in errors)
+
+
+def test_no_overlap_when_no_shared_cards() -> None:
+    entries = {
+        "entry-a": _mini_entry(["cardone"]),
+        "entry-b": _mini_entry(["cardtwo"]),
+    }
+    assert check_finds_overlap(entries) == []
+
+
 # --- Integration: every committed finds entry passes the gate ---
 
 
@@ -246,3 +313,19 @@ def test_every_committed_finds_entry_validates() -> None:
     if failed:
         msgs = "\n".join(f"  {n}: {errs}" for n, errs in failed[:10])
         pytest.fail(f"{len(failed)} merged entry/entries fail validation:\n{msgs}")
+
+
+def test_every_committed_finds_entry_passes_overlap_gate() -> None:
+    """Every shared-card pair in the committed corpus must be linked (in
+    either direction) or have a `supplements:` declaration. If this
+    fails, add the missing cross-link or `supplements:` field."""
+    from pathlib import Path
+
+    finds_dir = Path(__file__).resolve().parents[2] / "web" / "src" / "content" / "finds"
+    if not finds_dir.is_dir():
+        pytest.skip("finds dir not present")
+
+    entries = {path.stem: path.read_text() for path in finds_dir.glob("*.mdx")}
+    errors = check_finds_overlap(entries)
+    if errors:
+        pytest.fail("finds overlap gate failed:\n" + "\n".join(f"  {e}" for e in errors))
