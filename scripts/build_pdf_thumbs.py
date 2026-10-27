@@ -144,6 +144,25 @@ def save_index(path: Path, mapping: dict[str, str]) -> None:
     path.write_text(json.dumps(payload, indent=2))
 
 
+def _prune_orphans(
+    thumbs_dir: Path, valid_ids: set[str], mapping: dict[str, str]
+) -> list[str]:
+    """Drop index entries + files keyed to card_ids no longer in the manifest.
+
+    A card that was superseded (new id for the same upstream asset) or
+    dropped from the manifest otherwise keeps its stale thumbnail and
+    sidecar on disk, and the dangling id in the index, forever.
+    """
+    removed: list[str] = []
+    for cid in list(mapping):
+        if cid not in valid_ids:
+            mapping.pop(cid, None)
+            removed.append(cid)
+            (thumbs_dir / f"{cid}.webp").unlink(missing_ok=True)
+            (thumbs_dir / f"{cid}.sha256").unlink(missing_ok=True)
+    return removed
+
+
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
@@ -229,13 +248,17 @@ def main(argv: list[str] | None = None) -> int:
     for card in pdf_cards:
         counts[_process_card(card, args, mapping)] += 1
 
+    valid_ids = {c.card_id for c in pdf_cards}
+    pruned = _prune_orphans(args.thumbs_dir, valid_ids, mapping)
+
     save_index(index_path, mapping)
     print(
         f"[thumbs] done: new={counts['new']} "
         f"regenerated={counts['regenerated']} "
         f"fresh={counts['fresh']} "
         f"render_fail={counts['render_fail']} "
-        f"no_local_pdf={counts['no_local_pdf']}"
+        f"no_local_pdf={counts['no_local_pdf']} "
+        f"pruned={len(pruned)}"
     )
     print(f"[thumbs] index.json: {len(mapping)} card→thumb mappings")
     return 0
