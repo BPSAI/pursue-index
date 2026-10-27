@@ -25,3 +25,11 @@ def test_csv_commit_steps_verify_bytes_first(name: str) -> None:
     assert verify >= 0, "step must call the verifier"
     assert verify < run.find('git add "data/raw/csv'), "verify before staging"
     assert "data/raw/csv/*.csv" not in run, "stage only the verified sha file"
+
+
+def test_stale_branch_commits_a_note_not_bytes() -> None:
+    run = _run("Archive CSV bytes on every poll")
+    stale = run[run.index('"$STATUS" = "stale"'):run.index("else\n")]
+    assert "scripts/stale_edge_note.py" in stale
+    assert "data/raw/csv" not in stale and "verify_csv_artifact" not in stale
+    assert "scripts/verify_csv_artifact.py" in run[run.index("else\n"):]

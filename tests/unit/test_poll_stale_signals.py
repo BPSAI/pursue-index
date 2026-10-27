@@ -106,3 +106,18 @@ def test_clock_skew_new_sha_is_kept_polling_then_declared(
 
     upstream.serve(_sha_resp(SHA_19E6))
     assert _poll_run(repo, tmp_path, monkeypatch, 1).status == "changed"
+
+
+def test_stale_outputs_carry_a_sanitized_last_modified(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upstream: _Upstream  # noqa: F811
+) -> None:
+    from tests.unit.test_poll_stale_edge import _make_repo
+
+    guard = _seeded_guard(SHA_C3F8, [SHA_19E6, SHA_C3F8], LM_NEW)
+    repo = _make_repo(tmp_path, SHA_C3F8, archived=(SHA_19E6,), guard=guard)
+    upstream.serve((_bytes(SHA_19E6), LM_19E6))
+
+    run = _poll_run(repo, tmp_path, monkeypatch, 0)
+
+    assert run.status == "stale"
+    assert run.outputs["last_modified"] == LM_19E6

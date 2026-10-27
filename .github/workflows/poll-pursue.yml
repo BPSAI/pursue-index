@@ -139,8 +139,7 @@ jobs:
       # sighting is a candidate, not stale), which opens nothing and never moves
       # last-known or the guard state. `pending` (new sha seen once)
       # commits the guard state + bytes via the backfill step below;
-      # `stale` commits only the bytes there, and only if not already
-      # archived (#165). `benign` (confirmed, encoding-only) moves the
+      # `stale` commits only a small capped note there, no bytes. `benign` (confirmed, encoding-only) moves the
       # sha here but opens no issue and runs no snapshot.
       - name: Commit new sha + CSV bytes (when changed)
         if: steps.poll.outputs.status == 'changed' || steps.poll.outputs.status == 'benign'
@@ -191,42 +190,47 @@ jobs:
         # Also persists the stale-edge guard state when the poll updated
         # it: a `pending` sha (seen once, awaiting its confirming second
         # sighting on the next run) or a newly learned Last-Modified.
-        # `stale` observations never touch the guard state (#157) -- the
-        # poll script writes nothing to data/poll-state.json for them --
-        # but the bytes it just fetched are still staged here so a stale
-        # sha with no prior archive isn't lost when the runner is torn
-        # down (#165). Idempotent either way: a sha already archived
-        # stages no diff and the commit is skipped.
+        # `stale` observations never touch the guard state (#157) and no
+        # longer commit the fetched bytes (#165 piled them up without
+        # limit): scripts/stale_edge_note.py records a small note (sha,
+        # size, Last-Modified, fetch time), capped at 200 notes with the
+        # oldest pruned by the script. `unchanged`/`pending` still commit
+        # the verified bytes (size cap + sha check), idempotently.
         if: steps.poll.outputs.status == 'unchanged' || steps.poll.outputs.status == 'pending' || steps.poll.outputs.status == 'stale'
         env:
           SHA: ${{ steps.poll.outputs.new_sha }}
           STATUS: ${{ steps.poll.outputs.status }}
+          LAST_MODIFIED: ${{ steps.poll.outputs.last_modified }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Upstream-controlled bytes: commit only a size-capped file whose
-          # hash is the polled sha; otherwise skip and report.
-          if python scripts/verify_csv_artifact.py "$SHA"; then
-            git add "data/raw/csv/${SHA}.csv"
+          if [ "$STATUS" = "stale" ]; then
+            MSG="chore(poll): note stale-edge ${SHA:0:12}"
+            python scripts/stale_edge_note.py "$SHA" --last-modified "$LAST_MODIFIED" || true
+            git add -A data/stale-edge-notes
           else
-            echo "::warning::CSV bytes for ${SHA:0:12} failed verification; not committed."
-          fi
-          if [ -f data/poll-state.json ]; then
-            git add data/poll-state.json
-          fi
-          if ! git diff --cached --quiet; then
+            # Upstream-controlled bytes: commit only a size-capped file whose
+            # hash is the polled sha; otherwise skip and report.
+            if python scripts/verify_csv_artifact.py "$SHA"; then
+              git add "data/raw/csv/${SHA}.csv"
+            else
+              echo "::warning::CSV bytes for ${SHA:0:12} failed verification; not committed."
+            fi
+            if [ -f data/poll-state.json ]; then
+              git add data/poll-state.json
+            fi
             if [ "$STATUS" = "pending" ]; then
               MSG="chore(poll): candidate ${SHA:0:12} seen once (pending confirmation)"
-            elif [ "$STATUS" = "stale" ]; then
-              MSG="chore(poll): preserve bytes for stale-edge ${SHA:0:12}"
             else
               MSG="chore(poll): backfill CSV bytes for ${SHA:0:12}"
             fi
+          fi
+          if ! git diff --cached --quiet; then
             git commit -m "$MSG"
             git pull --rebase origin main
             git push
           else
-            echo "No new CSV bytes to commit (already in git)."
+            echo "No new CSV bytes or notes to commit."
           fi
 
       # ----------------------------------------------------------------

@@ -148,7 +148,11 @@ def _emit_guarded(result: object, status: str) -> list[str]:
         old, new = result.old_sha, result.new_sha  # type: ignore[attr-defined]
     else:
         old, new = result.current_sha, result.sha  # type: ignore[attr-defined]
-    return [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
+    lines = [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
+    if status == "stale":
+        kept = "".join(ch for ch in (result.last_modified or "") if ch in _HTTP_DATE_CHARS)  # type: ignore[attr-defined]
+        lines.append(f"last_modified={kept[:64]}")
+    return lines
 
 
 _HTTP_DATE_CHARS = frozenset(
