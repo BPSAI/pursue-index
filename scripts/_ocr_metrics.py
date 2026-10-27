@@ -94,6 +94,25 @@ def _accumulate_page(agg: dict, tess: dict, sur: dict, lm: dict) -> None:
     agg["llm"]["tokens_out"] += tok.get("output_tokens", 0)
 
 
+def compute_candidate_metrics(results: list[dict]) -> dict[str, dict]:
+    """Per-addendum-candidate aggregates, keyed by candidate name.
+
+    Candidates are optional per card (older benchmark JSON predates
+    ``engines.llm_candidates``), so cards missing the key just contribute
+    nothing rather than raising.
+    """
+    agg: dict[str, dict] = {}
+    for card in results:
+        for name, rows in card.get("engines", {}).get("llm_candidates", {}).items():
+            a = agg.setdefault(name, {"pages": 0, "wallclock": 0.0, "conf_sum": 0.0, "cost": 0.0})
+            for row in rows:
+                a["pages"] += 1
+                a["wallclock"] += row["wall_clock_s"]
+                a["conf_sum"] += row["confidence"]
+                a["cost"] += row["cost_usd"]
+    return agg
+
+
 def find_worst_tesseract(results: list[dict]) -> tuple[dict, dict, dict, dict]:
     """Return (card, tess_row, sur_row, llm_row) for the highest-CER tesseract page."""
     worst = None

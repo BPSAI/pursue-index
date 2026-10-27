@@ -30,6 +30,7 @@ REPO_ROOT = repo_root()
 
 from _ocr_metrics import (
     cer,
+    compute_candidate_metrics,
     compute_metrics,
     find_worst_tesseract,
     projection,
@@ -93,13 +94,25 @@ def _engine_row(name, agg_eng, n, cost):
     return (name, n, agg_eng["conf_sum"]/n, None, None, None, agg_eng["wallclock"], cost)
 
 
+def _candidate_rows(candidate_agg: dict[str, dict] | None) -> list[tuple]:
+    rows = []
+    for name, cand in (candidate_agg or {}).items():
+        n = cand["pages"]
+        mean_conf = cand["conf_sum"] / n if n else 0.0
+        rows.append((f"LLM candidate ({name})", n, mean_conf, None, None, None,
+                      cand["wallclock"], cand["cost"]))
+    return rows
+
+
 def render_summary_table(agg: dict, snapshot: list[dict],
-                          surya_snapshot: list[dict] | None = None) -> str:
+                          surya_snapshot: list[dict] | None = None,
+                          candidate_agg: dict[str, dict] | None = None) -> str:
     n_t, n_s, n_l = agg["tesseract"]["pages"], agg["surya"]["pages"], agg["llm"]["pages"]
     rows = [
         _engine_row("Tesseract", agg["tesseract"], n_t, 0.0),
         _engine_row("Surya", agg["surya"], n_s, 0.0),
         _engine_row("LLM (Anthropic Haiku 4.5)", agg["llm"], n_l, agg["llm"]["cost"]),
+        *_candidate_rows(candidate_agg),
     ]
     lines = [
         "| Engine | Pages | Mean conf | Median CER | Capped mean CER | Median WER | Total wall-clock | Total cost |",
@@ -256,7 +269,7 @@ covering the engine-failure modes named in the benchmark plan:
    mixed-quality omnibus). Stress test for engine consistency."""
 
 
-def _build_md(bench, results, snapshot, surya_snapshot, agg, worst, bench_path):
+def _build_md(bench, results, snapshot, surya_snapshot, agg, worst, bench_path, candidate_agg=None):
     rel = bench_path.relative_to(REPO_ROOT)
     return f"""# OCR benchmark — {bench['started_at'][:10]}
 
@@ -268,7 +281,7 @@ def _build_md(bench, results, snapshot, surya_snapshot, agg, worst, bench_path):
 
 ## Per-engine summary (golden set, 25 pages)
 
-{render_summary_table(agg, snapshot, surya_snapshot)}
+{render_summary_table(agg, snapshot, surya_snapshot, candidate_agg)}
 
 {render_worst_failure(*worst)}
 
@@ -295,8 +308,9 @@ def main() -> int:
     surya_snapshot = load_surya_snapshot()
 
     agg = compute_metrics(results)
+    candidate_agg = compute_candidate_metrics(results)
     worst = find_worst_tesseract(results)
-    md = _build_md(bench, results, snapshot, surya_snapshot, agg, worst, bench_path)
+    md = _build_md(bench, results, snapshot, surya_snapshot, agg, worst, bench_path, candidate_agg)
 
     DOCS_PATH.parent.mkdir(parents=True, exist_ok=True)
     DOCS_PATH.write_text(md, encoding="utf-8")

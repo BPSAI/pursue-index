@@ -23,6 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import argparse
 import json
 import os
 import time
@@ -32,11 +33,15 @@ from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
 
-if "ANTHROPIC_API_KEY" not in os.environ:
-    sys.exit(
-        "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
-        "running the benchmark — get a key at https://console.anthropic.com/."
-    )
+from _ocr_benchmark_candidates import (
+    ADDENDUM_CANDIDATES,
+    DEFAULT_CANDIDATE,
+    PRICE_CACHE_READ_PER_M,
+    PRICE_INPUT_PER_M,
+    PRICE_OUTPUT_PER_M,
+    Candidate,
+    dry_run_report,
+)
 
 # Default to Haiku for benchmarks. Sonnet's higher per-token cost isn't
 # justified for a comparison run; Haiku produced strong quality lift on
@@ -59,11 +64,6 @@ OUT_DIR = REPO_ROOT / "data" / "benchmarks"
 
 PAGES_PER_CARD = 5
 DPI = 300
-
-# Anthropic pricing (per million tokens) — claude-haiku-4-5 in 2026-05.
-PRICE_INPUT_PER_M = 1.0
-PRICE_OUTPUT_PER_M = 5.0
-PRICE_CACHE_READ_PER_M = 0.10  # 10% of input rate
 
 # Polite pacing between LLM calls — some headroom under any observed 429s on
 # the OAuth token without dragging the wall-clock too long.
@@ -108,15 +108,15 @@ def run_engine_simple(images, fn):
     return rows
 
 
-def _llm_cost(captured: dict) -> float:
+def _llm_cost(captured: dict, candidate: Candidate = DEFAULT_CANDIDATE) -> float:
     return (
-        captured.get("input_tokens", 0) / 1_000_000 * PRICE_INPUT_PER_M
-        + captured.get("output_tokens", 0) / 1_000_000 * PRICE_OUTPUT_PER_M
-        + captured.get("cache_read", 0) / 1_000_000 * PRICE_CACHE_READ_PER_M
+        captured.get("input_tokens", 0) / 1_000_000 * candidate.price_input_per_m
+        + captured.get("output_tokens", 0) / 1_000_000 * candidate.price_output_per_m
+        + captured.get("cache_read", 0) / 1_000_000 * candidate.price_cache_read_per_m
     )
 
 
-def _llm_one(img) -> tuple[str, float, float, dict, float]:
+def _llm_one(img, candidate: Candidate = DEFAULT_CANDIDATE) -> tuple[str, float, float, dict, float]:
     """Wrap ``ocr_llm.ocr_image`` so we capture per-call token usage."""
     captured: dict = {}
     original_log = ocr_llm._log_usage
@@ -137,15 +137,15 @@ def _llm_one(img) -> tuple[str, float, float, dict, float]:
     if not captured:
         return text, conf, dt, {"cache_hit": True, "input_tokens": 0, "output_tokens": 0,
                                 "cache_read": 0, "cache_creation": 0}, 0.0
-    return text, conf, dt, {**captured, "cache_hit": False}, _llm_cost(captured)
+    return text, conf, dt, {**captured, "cache_hit": False}, _llm_cost(captured, candidate)
 
 
-def run_llm(images):
+def run_llm(images, candidate: Candidate = DEFAULT_CANDIDATE):
     rows = []
     for idx, img in enumerate(images, start=1):
         if idx > 1:
             time.sleep(LLM_CALL_DELAY_S)
-        text, conf, dt, tokens, cost = _llm_one(img)
+        text, conf, dt, tokens, cost = _llm_one(img, candidate)
         rows.append({"page": idx, "text": text, "confidence": conf,
                      "wall_clock_s": dt, "cost_usd": cost, "tokens": tokens})
     return rows
@@ -155,6 +155,25 @@ def _summarize_rows(rows, label, extra=""):
     total_t = sum(r["wall_clock_s"] for r in rows)
     mean_c = sum(r["confidence"] for r in rows) / len(rows) if rows else 0
     print(f"    {label}: {total_t:.1f}s total, mean conf {mean_c:.1f}{extra}")
+
+
+def run_llm_candidate(images, candidate: Candidate, cache_root: Path | None = None) -> list[dict]:
+    """Run ``run_llm`` under a different model, in its own cache namespace.
+
+    ``ocr_llm``'s cache key has no model dimension, so a different
+    candidate gets its own subdirectory under ``cache_root`` (default
+    ``settings.ocr_dir``) rather than replaying the truth proxy's cache.
+    """
+    root = cache_root if cache_root is not None else settings.ocr_dir
+    original_model = settings.ocr_llm_model
+    original_cache_dir = ocr_llm._cache_dir
+    settings.ocr_llm_model = candidate.model
+    ocr_llm._cache_dir = lambda: root / ".llm-cache-benchmark" / candidate.name
+    try:
+        return run_llm(images, candidate)
+    finally:
+        settings.ocr_llm_model = original_model
+        ocr_llm._cache_dir = original_cache_dir
 
 
 def benchmark_card(card_id: str, entry: dict, manifest) -> dict | None:
@@ -186,12 +205,20 @@ def benchmark_card(card_id: str, entry: dict, manifest) -> dict | None:
     total_cost = sum(r["cost_usd"] for r in lm)
     _summarize_rows(lm, "llm", extra=f", cost ${total_cost:.4f}")
 
+    llm_candidates = {}
+    for candidate in ADDENDUM_CANDIDATES:
+        print(f"  {candidate.name} ...")
+        rows = run_llm_candidate(images, candidate)
+        cand_cost = sum(r["cost_usd"] for r in rows)
+        _summarize_rows(rows, candidate.name, extra=f", cost ${cand_cost:.4f}")
+        llm_candidates[candidate.name] = rows
+
     return {
         "card_id": card_id,
         "category": entry["category"],
         "description": entry["description"],
         "pdf_filename": pdf_path.name,
-        "engines": {"tesseract": tess, "surya": sur, "llm": lm},
+        "engines": {"tesseract": tess, "surya": sur, "llm": lm, "llm_candidates": llm_candidates},
     }
 
 
@@ -216,11 +243,29 @@ def _write_payload(out_path: Path, started_at: datetime, finished_at: datetime,
     out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def main():
+def main(argv: list[str] | None = None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="Print a per-candidate cost estimate for the v3 document set; no API calls.",
+    )
+    args = parser.parse_args(argv)
+    golden = parse_golden()
+
+    if args.dry_run:
+        print(dry_run_report(golden, PAGES_PER_CARD))
+        return None
+
+    if "ANTHROPIC_API_KEY" not in os.environ:
+        sys.exit(
+            "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
+            "running the benchmark — get a key at https://console.anthropic.com/."
+        )
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     manifest = load_manifest(MANIFEST_PATH)
-    golden = parse_golden()
-    print(f"Benchmarking {len(golden)} cards × {PAGES_PER_CARD} pages × 3 engines")
+    print(f"Benchmarking {len(golden)} cards × {PAGES_PER_CARD} pages × "
+          f"{2 + 1 + len(ADDENDUM_CANDIDATES)} engines")
 
     started_at = datetime.now(UTC)
     timestamp = started_at.strftime("%Y%m%dT%H%M%SZ")
@@ -247,4 +292,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
