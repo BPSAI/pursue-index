@@ -49,6 +49,7 @@ class BasePdf:
     image_num: int
     size: int
     annot_num: int = 0
+    action_num: int = 0
 
 
 def _stream(data: bytes, **entries: object) -> DecodedStreamObject:
@@ -59,8 +60,31 @@ def _stream(data: bytes, **entries: object) -> DecodedStreamObject:
     return s
 
 
+def _add_hazards(w, page, metadata_ref, annot_is_metadata: bool,
+                 info_is_open_action: bool, aa_action: bool) -> tuple[int, int]:
+    """Optional shared-reference hazards; returns ``(annot_num, action_num)``."""
+    annot_num = action_num = 0
+    if aa_action:  # a JavaScript action reachable only through the catalog's /AA
+        action_ref = w._add_object(DictionaryObject({NameObject("/S"): NameObject("/JavaScript")}))
+        action_num = action_ref.idnum
+        w.root_object[NameObject("/AA")] = DictionaryObject({NameObject("/WC"): action_ref})
+    if annot_is_metadata:
+        annot = DictionaryObject({
+            NameObject("/Type"): NameObject("/Annot"), NameObject("/Subtype"): NameObject("/Stamp"),
+            NameObject("/Rect"): ArrayObject([NumberObject(n) for n in (0, 0, 10, 10)]),
+            NameObject("/AP"): DictionaryObject({NameObject("/N"): metadata_ref}),
+        })
+        annot_ref = w._add_object(annot)
+        annot_num = annot_ref.idnum
+        page[NameObject("/Annots")] = ArrayObject([annot_ref])
+    if info_is_open_action:  # the /Info dictionary doubles as the catalog's /OpenAction
+        w.root_object[NameObject("/OpenAction")] = w._info_obj
+    return annot_num, action_num
+
+
 def build_base_pdf(
     text: bytes = b"(D042 debrief) Tj", *, annot_appearance_is_metadata: bool = False,
+    info_is_open_action: bool = False, aa_action: bool = False,
 ) -> BasePdf:
     """A one-page PDF with Info, XMP, a content stream and an image.
 
@@ -84,17 +108,9 @@ def build_base_pdf(
                   Subtype=NameObject("/XML"))
     metadata_ref = w._add_object(xmp)
     w.root_object[NameObject("/Metadata")] = metadata_ref
-    annot_num = 0
-    if annot_appearance_is_metadata:
-        annot = DictionaryObject({
-            NameObject("/Type"): NameObject("/Annot"), NameObject("/Subtype"): NameObject("/Stamp"),
-            NameObject("/Rect"): ArrayObject([NumberObject(n) for n in (0, 0, 10, 10)]),
-            NameObject("/AP"): DictionaryObject({NameObject("/N"): metadata_ref}),
-        })
-        annot_ref = w._add_object(annot)
-        annot_num = annot_ref.idnum
-        page[NameObject("/Annots")] = ArrayObject([annot_ref])
     w.add_metadata({"/Title": "DOW-UAP-D042", "/Producer": "base"})
+    annot_num, action_num = _add_hazards(
+        w, page, metadata_ref, annot_appearance_is_metadata, info_is_open_action, aa_action)
     buf = io.BytesIO()
     w.write(buf)
     data = buf.getvalue()
@@ -108,6 +124,7 @@ def build_base_pdf(
         image_num=image_ref.idnum,
         size=int(reader.trailer["/Size"]),
         annot_num=annot_num,
+        action_num=action_num,
     )
 
 

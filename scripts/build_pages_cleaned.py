@@ -58,10 +58,16 @@ REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
 from pursue_index.page_rows import latest_per_page
-from pursue_index.release.chunked_asset import BUDGET_BYTES, write_asset
+from pursue_index.release.chunked_asset import (
+    BUDGET_BYTES,
+    asset_exists,
+    read_asset_bytes,
+    write_asset,
+)
 from pursue_index.vendor.judged_pages_digest import page_sha256
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "manifests" / "latest.json"
+DEFAULT_PAGES_PATH = REPO_ROOT / "web" / "public" / "data" / "pages.json"
 DEFAULT_OUT_PATH = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
 
 # Canonical list of ``cleanup_skipped`` reasons. Mirrors
@@ -280,6 +286,13 @@ def _assert_homogeneous_provenance(pages: list[dict]) -> None:
         )
 
 
+def _pages_json_sha256(pages_path: Path | None) -> str | None:
+    """sha256 of the (possibly chunked) pages.json this build ran against."""
+    if pages_path is None or not asset_exists(pages_path):
+        return None
+    return hashlib.sha256(read_asset_bytes(pages_path)).hexdigest()
+
+
 def _meta_block(
     pages: list[dict], covered: list[str], source_tag: str,
 ) -> dict:
@@ -303,14 +316,23 @@ def build(
     out_path: Path,
     source_tag: str,
     budget_bytes: int = BUDGET_BYTES,
+    pages_path: Path | None = None,
 ) -> int:
-    """Materialize the deployed mirror. Returns process exit code."""
+    """Materialize the deployed mirror. Returns process exit code.
+
+    ``pages_path`` is the pages.json this run sits beside: its sha256 is
+    recorded as ``meta.pages_json_sha256`` so the coverage gate can prove the
+    cleaned asset was built from the current OCR rows.
+    """
     if not manifest_path.exists():
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
         return 1
     titles = _load_titles(manifest_path)
     pages, covered = _walk_sidecars(ocr_dir, titles)
-    payload = {"meta": _meta_block(pages, covered, source_tag), "pages": pages}
+    meta = _meta_block(pages, covered, source_tag)
+    if pages_sha := _pages_json_sha256(pages_path):
+        meta["pages_json_sha256"] = pages_sha
+    payload = {"meta": meta, "pages": pages}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     written = write_asset(
         out_path, json.dumps(payload, ensure_ascii=False).encode("utf-8"), budget=budget_bytes
@@ -341,12 +363,17 @@ def main() -> int:
         "--source-tag", type=str, default="pilot-30-cards",
         help="Label embedded in `meta.source` (e.g. pilot-30-cards or full-corpus).",
     )
+    parser.add_argument(
+        "--pages", type=Path, default=DEFAULT_PAGES_PATH,
+        help="pages.json this build sits beside; its sha256 is recorded as provenance.",
+    )
     args = parser.parse_args()
     return build(
         ocr_dir=args.ocr_dir,
         manifest_path=args.manifest,
         out_path=args.out,
         source_tag=args.source_tag,
+        pages_path=args.pages,
     )
 
 

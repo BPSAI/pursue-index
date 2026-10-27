@@ -32,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
+import hashlib
 import json
 
 from pursue_index.paths import repo_root
@@ -41,7 +42,7 @@ REPO_ROOT = repo_root()
 from pursue_index.clean.qc.coverage import build_coverage
 from pursue_index.clean.qc.staleness import card_page_shas
 from pursue_index.embed.image_observations import observation_text_for
-from pursue_index.release.chunked_asset import asset_exists, read_asset_json
+from pursue_index.release.chunked_asset import asset_exists, read_asset_bytes, read_asset_json
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.json"
@@ -67,8 +68,25 @@ def _page_shas(pages_cleaned_path: Path) -> dict[str, dict[int, str]]:
         return {}
 
 
+def _provenance_gap(pages_cleaned_path: Path, pages_path: Path) -> str | None:
+    """Why the cleaned asset cannot be tied to the current pages.json."""
+    try:
+        meta = read_asset_json(pages_cleaned_path).get("meta", {})
+        recorded = meta.get("pages_json_sha256")
+        current = hashlib.sha256(read_asset_bytes(pages_path)).hexdigest()
+    except (OSError, ValueError, AttributeError, TypeError):
+        return f"{pages_cleaned_path.name} provenance unavailable: cannot read it or {pages_path.name}"
+    if not recorded:
+        return (f"{pages_cleaned_path.name} provenance unavailable: no pages_json_sha256 "
+                "(built before provenance was recorded; rebuild it)")
+    if recorded != current:
+        return f"cleaned asset stale: rebuilt from {recorded[:12]}, current {current[:12]}"
+    return None
+
+
 def _verification_gaps(
     bundle_path: Path, pages_cleaned_path: Path, statuses: dict[str, str],
+    pages_path: Path,
 ) -> list[str]:
     """Why digests cannot be checked: one entry per problem, ``[]`` when fine.
 
@@ -86,6 +104,8 @@ def _verification_gaps(
     shas = _page_shas(pages_cleaned_path)
     if not shas:
         return [f"{pages_cleaned_path.name} is unreadable or carries no page shas"]
+    if provenance := _provenance_gap(pages_cleaned_path, pages_path):
+        return [provenance]
     return [
         f"{c['card_id']}: {len(shas.get(c['card_id'], {}))} page sha(s) for "
         f"{c.get('page_count')} judged page(s)"
@@ -142,6 +162,7 @@ def main() -> int:
     )
     gaps = _verification_gaps(
         args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},
+        args.pages,
     )
     if gaps:
         for gap in gaps:

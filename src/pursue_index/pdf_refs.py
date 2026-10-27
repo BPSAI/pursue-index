@@ -17,7 +17,9 @@ from pypdf.generic import IndirectObject
 from pursue_index import pdf_limits
 from pursue_index.pdf_limits import Budget, LimitExceededError
 
-__all__ = ["referenced_elsewhere"]
+__all__ = ["action_reachable", "referenced_elsewhere"]
+
+ACTION_KEYS = ("/OpenAction", "/AA", "/Names")  # JavaScript, launch, embedded files
 
 MAX_NODES = 10_000_000
 
@@ -46,7 +48,10 @@ def referenced_elsewhere(num: int, reader: PdfReader, budget: Budget) -> bool:
         budget.check()
         if member == num:
             continue
-        stack: list[Any] = [reader.get_object(member)]
+        first = reader.get_object(member)
+        if isinstance(first, dict) and first.get("/Type") == "/XRef":
+            continue  # an xref stream's dict IS the trailer (/Root, /Info), not a reference
+        stack: list[Any] = [first]
         skip = "/Metadata" if member == root_num else None
         while stack:
             obj = stack.pop()
@@ -60,3 +65,30 @@ def referenced_elsewhere(num: int, reader: PdfReader, budget: Budget) -> bool:
             stack.extend(_children(obj, skip))
             skip = None
     return False
+
+
+def action_reachable(reader: PdfReader, budget: Budget) -> set[int]:
+    """Object numbers reachable from the catalog's ``/OpenAction``, ``/AA`` or
+    ``/Names``: where JavaScript, launch actions and embedded files live.
+
+    An update touching any of them is never metadata-only, whatever role the
+    object would otherwise play (an ``/Info`` dictionary can double as an
+    ``/OpenAction``).
+    """
+    root = reader.trailer.get("/Root")
+    found: set[int] = set()
+    stack: list[Any] = [root.raw_get(k) for k in ACTION_KEYS if root is not None and k in root]
+    nodes = 0
+    while stack:
+        budget.check()
+        obj = stack.pop()
+        nodes += 1
+        if nodes > MAX_NODES:
+            raise LimitExceededError("ref-scan-node-cap", f"over {MAX_NODES}")
+        if isinstance(obj, IndirectObject):
+            if obj.idnum in found:
+                continue
+            found.add(obj.idnum)
+            obj = reader.get_object(obj.idnum)
+        stack.extend(_children(obj, None))
+    return found

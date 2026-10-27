@@ -113,6 +113,16 @@ def _run_gate(tmp_path: Path) -> tuple[subprocess.CompletedProcess, Path]:
     return proc, out_path
 
 
+def restamp_provenance(tmp_path: Path) -> None:
+    """Rebuild pages-cleaned.json beside the current pages.json so the asset
+    records the sha256 of the pages.json it was built against."""
+    build_pages_cleaned.build(
+        ocr_dir=tmp_path / "ocr", manifest_path=tmp_path / "manifest.json",
+        out_path=tmp_path / "pages-cleaned.json", source_tag="t",
+        pages_path=tmp_path / "pages.json",
+    )
+
+
 def _setup_fixture(tmp_path: Path, rows_by_card: dict[str, list[dict]]) -> dict:
     """Build the full fixture tree; returns the pages-cleaned.json payload."""
     ocr_dir = tmp_path / "ocr"
@@ -129,6 +139,7 @@ def _setup_fixture(tmp_path: Path, rows_by_card: dict[str, list[dict]]) -> dict:
         {"card_id": p["card_id"], "page": p["page"], "text": p["text"]}
         for p in pages_cleaned["pages"]
     ]))
+    restamp_provenance(tmp_path)
     (tmp_path / "observations.json").write_text(json.dumps({"card_ids": []}))
     (tmp_path / "clean-qc-bundle.json").write_text(
         json.dumps(_bundle_from_pages_cleaned(pages_cleaned))
@@ -166,6 +177,7 @@ def _write_canonical_gate_inputs(tmp_path: Path, canonical: dict, pages_cleaned:
         {"card_id": p["card_id"], "page": p["page"], "text": p["text"]}
         for p in pages_cleaned["pages"]
     ]))
+    restamp_provenance(tmp_path)
     (tmp_path / "observations.json").write_text(json.dumps({"card_ids": []}))
     (tmp_path / "clean-qc-bundle.json").write_text(json.dumps({
         "bundle_schema_version": 1,
@@ -257,6 +269,7 @@ def test_one_changed_page_fails_the_gate_on_the_stale_card(tmp_path: Path) -> No
         {"card_id": p["card_id"], "page": p["page"], "text": p["text"]}
         for p in pages_cleaned["pages"]
     ]))
+    restamp_provenance(tmp_path)
 
     proc, out_path = _run_gate(tmp_path)
     assert proc.returncode == 1, proc.stdout + proc.stderr
