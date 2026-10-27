@@ -131,3 +131,10 @@ def test_corrupt_asr_bundle_is_logged_not_silent(tmp_path: Path, monkeypatch) ->
     bad.write_text("{not json")
     assert build_qc_coverage._asr_diff_status(bad) == {}
     assert seen == ["asr_diff.bundle.unreadable"]
+
+
+def test_an_out_of_range_agreement_is_never_judged() -> None:
+    for bad in (1.5, -0.1, float("inf"), float("nan")):
+        bundle = {"cards": [{"card_id": CARD, "status": "judged", "agreement": bad,
+                             "threshold": 0.9, "min_words": 20}]}
+        assert build_asr_diff_bundle.as_status_map(bundle) == {CARD: "review"}, bad

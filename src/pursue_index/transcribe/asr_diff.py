@@ -20,6 +20,7 @@ text and write the sidecar.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 
@@ -119,13 +120,14 @@ def derive_status(
     """Re-derive ``judged``/``review`` from raw evidence; fail closed.
 
     ``judged`` needs numeric agreement at/above numeric threshold AND at
-    least one word on both sides -- two silent transcripts agree on nothing.
+    least one word on both sides -- two silent transcripts agree on nothing --
+    and an agreement inside [0, 1]; a ratio outside it is not evidence.
     Anything missing or malformed is ``review``.
     """
     nums = (agreement, threshold, min_words)
     if any(isinstance(n, bool) or not isinstance(n, (int, float)) for n in nums):
         return "review"
-    if min_words < 1:
+    if min_words < 1 or not math.isfinite(agreement) or not 0.0 <= agreement <= 1.0:
         return "review"
     return classify_agreement(float(agreement), float(threshold))
 

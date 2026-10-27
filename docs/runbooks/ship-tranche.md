@@ -48,7 +48,7 @@ $ARGUMENTS
    ```
    pursue storage verify   # NAS + main R2 (pursue-pdfs) + backup R2 (pursue-pdfs-backup) all configured
    pursue ingest run --tranche "$SHA" --from-diff --dry-run   # scope + WRITES data/ingest-worklist.txt, no spend
-   python scripts/ship_preflight_ocr.py   # engine llm-dots, concurrency 8, key present
+   python scripts/ship_preflight_ocr.py --engine llm-dots --concurrency 8   # same values as step 6; key present
    ```
    If the preflight fails (engine not llm-dots/llm, concurrency < 8, or no key), STOP and fix — do not spend.
    `pursue storage verify` exits non-zero if any tier is unconfigured; read its

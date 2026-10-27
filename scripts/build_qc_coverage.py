@@ -35,6 +35,8 @@ import argparse
 import hashlib
 import json
 
+import build_asr_diff_bundle
+
 from pursue_index import get_logger
 from pursue_index.paths import repo_root
 
@@ -60,8 +62,6 @@ def _asr_diff_status(asr_diff_bundle_path: Path) -> dict[str, str]:
     """``{card_id: status}`` from the published asr-diff bundle, or ``{}``
     when absent -- no second-engine comparison has been published yet,
     which is the state of the repo until an operator runs one (R7C.27)."""
-    import build_asr_diff_bundle  # local import: avoids a hard dependency for callers that never pass this
-
     if not asset_exists(asr_diff_bundle_path):
         return {}
     try:
