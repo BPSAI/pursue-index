@@ -780,6 +780,50 @@ const methodologyJsonLd = [
       </p>
     </section>
 
+    {/* Second-engine ASR cross-check for AUD transcripts (R7C.27) */}
+    <section id="asr-diff" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
+      <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">
+        ▸ Audio transcript cross-check
+      </h2>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        AUD transcripts are produced by a single ASR engine and are not
+        independently verified by default (see{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">unverified_transcript</code>{" "}
+        in <a href="/data/qc-coverage.json" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]"><code>qc-coverage.json</code></a>).
+        Where a cross-check has run, we transcribe the same audio a{" "}
+        <strong class="text-[color:var(--color-text-bright)]">second engine</strong>,
+        align the two outputs at the word level, and record a per-transcript
+        agreement figure plus the exact spans where the engines disagree, as a
+        sidecar next to the transcript. A transcript at or above the
+        committed agreement threshold is classified{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">asr_verified</code>{" "}
+        (a separate status from the page-by-page{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">judged</code> QC); below
+        it, the disagreeing spans are sent to{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">review</code>{" "}
+        for a human pass.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        <strong class="text-[color:var(--color-text-bright)]">What this catches, and what it doesn't.</strong>{" "}
+        Two independent engines reading the same audio occasionally disagree on
+        a word — a homophone, a mumbled syllable, crosstalk — and that
+        disagreement is exactly what this cross-check surfaces: a{" "}
+        <strong class="text-[color:var(--color-text-bright)]">mishearing</strong>{" "}
+        one engine made that the other didn't. It does{" "}
+        <strong class="text-[color:var(--color-text-bright)]">not</strong>{" "}
+        catch a word <strong class="text-[color:var(--color-text-bright)]">both engines mishear the same way</strong>,
+        nor an error already present in the source audio itself (a speaker's
+        own misstatement, a garbled recording). Two engines agreeing is
+        necessary but not sufficient for correctness — agreement is a floor,
+        not a guarantee. When precision matters, listen to the source audio.
+      </p>
+      <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
+        Spend on the second-engine pass is operator-attended: the command-line
+        tool only previews the projected cost and never calls a second engine
+        itself; the live pass is run by the operator against a stated budget cap.
+      </p>
+    </section>
+
     {/* Idempotency */}
     <section id="idempotency" class="border border-[color:var(--color-border)] bg-[color:var(--color-bg)]/60 p-5 space-y-3 scroll-mt-20">
       <h2 class="font-mono text-[12px] uppercase tracking-[0.2em] text-[color:var(--color-signal-green)]">

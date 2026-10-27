@@ -79,6 +79,27 @@ export function describeQcCoverage(doc: QcCoverage): string[] {
     lines.push(`${joinAnd(unverified)} ${plural ? "are" : "is"} not yet independently verified.`);
   }
 
+  // A transcript whose second-engine cross-check landed below the agreement
+  // threshold: the comparison ran, but its disagreeing spans need a human
+  // pass before the transcript counts as judged.
+  const review = n("review");
+  if (review > 0) {
+    lines.push(
+      `${count(review, "audio transcript", "audio transcripts")} ${verb(review, "has", "have")} ` +
+        `a second-engine cross-check flagging spans for human review.`,
+    );
+  }
+
+  // Two engines agreeing is a different verification than the page-by-page
+  // QC judge, so it is reported on its own line and never counted as judged.
+  const asrVerified = n("asr_verified");
+  if (asrVerified > 0) {
+    lines.push(
+      `${count(asrVerified, "audio transcript", "audio transcripts")} ${verb(asrVerified, "was", "were")} ` +
+        `cross-checked by a second ASR engine (word-level agreement, not page-judged).`,
+    );
+  }
+
   const stale = n("stale");
   if (stale > 0) {
     lines.push(

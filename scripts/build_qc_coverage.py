@@ -35,6 +35,9 @@ import argparse
 import hashlib
 import json
 
+import build_asr_diff_bundle
+
+from pursue_index import get_logger
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
@@ -43,13 +46,57 @@ from pursue_index.clean.qc.coverage import build_coverage
 from pursue_index.clean.qc.staleness import card_page_shas
 from pursue_index.embed.image_observations import observation_text_for
 from pursue_index.release.chunked_asset import asset_exists, read_asset_bytes, read_asset_json
+from pursue_index.transcribe import asr_diff_sidecar as sidecar
+
+log = get_logger(__name__)
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.json"
 DEFAULT_PAGES = REPO_ROOT / "web" / "public" / "data" / "pages.json"
 DEFAULT_PAGES_CLEANED = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
 DEFAULT_OBSERVATIONS = REPO_ROOT / "web" / "src" / "data" / "image-observations" / "index.json"
+DEFAULT_ASR_DIFF_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "asr-diff-bundle.json"
 DEFAULT_OUT = REPO_ROOT / "web" / "public" / "data" / "qc-coverage.json"
+
+
+def _published_digests(pages: list[dict]) -> dict[str, str]:
+    """``{card_id: digest}`` of the text pages.json publishes for each card."""
+    by_card: dict[str, list[tuple[int, str]]] = {}
+    for p in pages:
+        by_card.setdefault(p["card_id"], []).append((p["page"], p.get("text") or ""))
+    return {cid: sidecar.pages_digest(rows) for cid, rows in by_card.items()}
+
+
+def _asr_diff_status(asr_diff_bundle_path: Path, pages: list[dict]) -> dict[str, str]:
+    """``{card_id: status}`` from the published asr-diff bundle, or ``{}``
+    when absent -- no second-engine comparison has been published yet,
+    which is the state of the repo until an operator runs one (R7C.27).
+
+    A ``judged`` verdict is honored only when the bundle's ``pages_digest``
+    matches the text ``pages`` publishes for that card now; otherwise the
+    comparison saw different text and the card stays unverified. ``review``
+    needs no such binding: it only asks for a human look.
+    """
+    if not asset_exists(asr_diff_bundle_path):
+        return {}
+    try:
+        bundle = read_asset_json(asr_diff_bundle_path)
+        statuses = build_asr_diff_bundle.as_status_map(bundle)
+        digests = {c["card_id"]: c.get("pages_digest") for c in bundle["cards"]
+                   if isinstance(c, dict) and "card_id" in c}
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+        # Fails safe (cards revert to unverified_transcript) but never silently.
+        log.warning("asr_diff.bundle.unreadable", path=str(asr_diff_bundle_path.name),
+                    error=type(exc).__name__)
+        return {}
+    published = _published_digests(pages)
+    out = {}
+    for card_id, status in statuses.items():
+        if status == "judged" and digests.get(card_id) != published.get(card_id):
+            log.warning("asr_diff.bundle.text_mismatch", card_id=card_id)
+            continue
+        out[card_id] = status
+    return out
 
 
 def _page_shas(pages_cleaned_path: Path) -> dict[str, dict[int, str]]:
@@ -125,18 +172,21 @@ def build(
     observations_path: Path,
     out_path: Path,
     pages_cleaned_path: Path | None = None,
+    asr_diff_bundle_path: Path | None = None,
 ) -> dict:
     """Read the sources, write the coverage payload, return it."""
     observations = json.loads(observations_path.read_text(encoding="utf-8"))
+    pages = read_asset_json(pages_path)
     doc = build_coverage(
         json.loads(manifest_path.read_text(encoding="utf-8")),
         read_asset_json(bundle_path),
-        read_asset_json(pages_path),
+        pages,
         observations,
         # The same rendering the search payload uses; a missing or malformed
         # sidecar yields no text, so its card is not counted as described.
         observation_text_for(observations.get("card_ids", []), observations_path.parent),
         _page_shas(pages_cleaned_path) if pages_cleaned_path else {},
+        _asr_diff_status(asr_diff_bundle_path, pages) if asr_diff_bundle_path else {},
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
@@ -150,6 +200,7 @@ def main() -> int:
     parser.add_argument("--pages", type=Path, default=DEFAULT_PAGES)
     parser.add_argument("--pages-cleaned", type=Path, default=DEFAULT_PAGES_CLEANED)
     parser.add_argument("--observations", type=Path, default=DEFAULT_OBSERVATIONS)
+    parser.add_argument("--asr-diff-bundle", type=Path, default=DEFAULT_ASR_DIFF_BUNDLE)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
     doc = build(
@@ -159,6 +210,7 @@ def main() -> int:
         observations_path=args.observations,
         out_path=args.out,
         pages_cleaned_path=args.pages_cleaned,
+        asr_diff_bundle_path=args.asr_diff_bundle,
     )
     gaps = _verification_gaps(
         args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},

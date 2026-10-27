@@ -24,6 +24,8 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import build_qc_coverage  # type: ignore[import-not-found] # noqa: E402
 
+from pursue_index.transcribe import asr_diff_sidecar as sidecar  # noqa: E402
+
 VISION_TEXT = f"{OBSERVATIONS_HEADER}, model-x]]\n\nA photograph."
 
 
@@ -257,6 +259,96 @@ def test_script_writes_deterministic_output(tmp_path: Path) -> None:
     build_qc_coverage.build(**kwargs)
     assert out.read_bytes() == first
     assert json.loads(first)["status_counts"]["judged"] == 2
+
+
+def test_an_aud_card_with_a_completed_asr_diff_is_asr_verified_or_review() -> None:
+    """A completed second-engine comparison (R7C.27) overrides
+    ``unverified_transcript`` with the comparison's own verdict -- the
+    classifier trusts whatever status the comparison already settled on,
+    the same way a pre-computed ``judged_pages_digest`` is trusted rather
+    than recomputed here."""
+    manifest, bundle, pages, observations = _fixture()
+    assert "review" in STATUSES
+    statuses = classify_cards(
+        manifest, bundle, pages, observations, _obs_text(observations),
+        asr_diff_status={"aud": "judged", "aud-silent": "review"},
+    )
+    assert statuses["aud"] == "asr_verified"
+    # aud-silent carries only whitespace text in pages.json: nothing to
+    # verify, so no comparison verdict can lift it out of no_text.
+    assert statuses["aud-silent"] == "no_text"
+
+
+def test_an_asr_diff_override_is_ignored_for_a_non_aud_card() -> None:
+    """The override is scoped to AUD cards -- a stray id in the mapping
+    (e.g. a stale sidecar for a card that changed asset type) never
+    reclassifies a PDF or IMG card."""
+    manifest, bundle, pages, observations = _fixture()
+    statuses = classify_cards(
+        manifest, bundle, pages, observations, _obs_text(observations),
+        asr_diff_status={"img": "judged"},
+    )
+    assert statuses["img"] == "unverified_vision"
+
+
+def test_build_coverage_counts_asr_diff_review_cards() -> None:
+    manifest, bundle, pages, observations = _fixture()
+    doc = build_coverage(
+        manifest, bundle, pages, observations, _obs_text(observations),
+        asr_diff_status={"aud": "review"},
+    )
+    assert doc["status_counts"]["review"] == 1
+    assert doc["status_counts"]["unverified_transcript"] == 0
+    card = next(c for c in doc["cards"] if c["card_id"] == "aud")
+    assert card["status"] == "review"
+
+
+def test_script_reads_an_optional_asr_diff_bundle_and_overrides_aud_status(
+    tmp_path: Path,
+) -> None:
+    """``build_qc_coverage.build`` passes a published asr-diff bundle
+    (R7C.27) through to ``build_coverage`` -- the script-level wiring, not
+    just the pure classifier the earlier test exercises directly."""
+    manifest, bundle, pages, observations = _fixture()
+    paths = {}
+    for name, doc in (
+        ("manifest", manifest), ("bundle", bundle), ("pages", pages),
+        ("observations", observations),
+    ):
+        paths[name] = tmp_path / f"{name}.json"
+        paths[name].write_text(json.dumps(doc))
+    asr_diff_bundle_path = tmp_path / "asr-diff-bundle.json"
+    asr_diff_bundle_path.write_text(json.dumps({"cards": [{
+        "card_id": "aud", "status": "judged", "agreement": 0.97, "threshold": 0.9,
+        "min_words": 20, "pages_digest": sidecar.pages_digest([(1, "transcript")]),
+    }]}))
+    out = tmp_path / "qc-coverage.json"
+    doc = build_qc_coverage.build(
+        manifest_path=paths["manifest"], bundle_path=paths["bundle"],
+        pages_path=paths["pages"], observations_path=paths["observations"],
+        out_path=out, asr_diff_bundle_path=asr_diff_bundle_path,
+    )
+    assert next(c for c in doc["cards"] if c["card_id"] == "aud")["status"] == "asr_verified"
+
+
+def test_script_tolerates_a_missing_asr_diff_bundle(tmp_path: Path) -> None:
+    """The bundle is optional: absent (no second-engine comparison has been
+    published yet) classifies exactly as before this feature existed."""
+    manifest, bundle, pages, observations = _fixture()
+    paths = {}
+    for name, doc in (
+        ("manifest", manifest), ("bundle", bundle), ("pages", pages),
+        ("observations", observations),
+    ):
+        paths[name] = tmp_path / f"{name}.json"
+        paths[name].write_text(json.dumps(doc))
+    out = tmp_path / "qc-coverage.json"
+    doc = build_qc_coverage.build(
+        manifest_path=paths["manifest"], bundle_path=paths["bundle"],
+        pages_path=paths["pages"], observations_path=paths["observations"],
+        out_path=out, asr_diff_bundle_path=tmp_path / "does-not-exist.json",
+    )
+    assert next(c for c in doc["cards"] if c["card_id"] == "aud")["status"] == "unverified_transcript"
 
 
 def test_a_listed_card_without_a_readable_sidecar_is_not_a_vision_description(

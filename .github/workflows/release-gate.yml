@@ -75,13 +75,19 @@ on:
       # QC coverage payload: its builder, the classification it and the
       # gate share, and the sources it reads beyond the manifest/pages.json.
       - "scripts/build_qc_coverage.py"
+      - "scripts/build_asr_diff_bundle.py"
+      - "web/public/data/asr-diff-bundle.json"
+      - "src/pursue_index/cli/asr_diff_cli.py"
       - "src/pursue_index/clean/qc/coverage.py"
       - "src/pursue_index/embed/image_observations.py"
+      - "src/pursue_index/transcribe/asr_diff.py"
+      - "src/pursue_index/transcribe/asr_diff_sidecar.py"
       - "tests/support/payload_specs_qc.py"
       # The /methodology sentence that renders it, and its tested helper.
       - "web/src/lib/qc-coverage.ts"
       - "web/src/lib/qc-coverage.test.ts"
       - "web/src/pages/methodology.astro"
+      - "web/src/lib/methodology-asr-diff.test.ts"
       - "web/src/data/image-observations/index.json"
       # ALTR Phase 2 (PR #79) data surfaces — refreshing the verdict
       # bundle, mutating byte-history, or editing the exclusion file

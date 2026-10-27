@@ -46,7 +46,7 @@ from pursue_index.release.chunked_asset import asset_exists, read_asset_json
 TARGET_FILES = [
     "README.md",
     ".paircoder/context/project.md",
-    ".claude/commands/ship-tranche.md",
+    "docs/runbooks/ship-tranche.md",
     "web/src/pages/*.astro",
     "web/src/components/*.astro",
     "web/src/components/*.tsx",
@@ -110,6 +110,10 @@ _PATTERNS = [
         "stale 'Release 01 only' claim — tranche-2 has landed",
     ),
     (
+        r"\.paircoder/plans/tranche-diff",
+        "old tranche-diff path — should be data/tranche-diffs/",
+    ),
+    (
         r"git\s+push\s+origin\s+main",
         "git push origin main instruction in runbook",
     ),
@@ -139,6 +143,29 @@ _HISTORICAL_CONTEXT_MARKERS = (
 )
 
 
+# The negation must sit right before the command: at most a few filler words
+# ("use", "run", "the", ...) and an optional opening quote/backtick between.
+_NEAR_NEGATION_RE = re.compile(
+    r"\b(?:do\s+not|don't|never|instead\s+of|avoid|must\s+not)\W{0,3}"
+    r"(?:(?:use|run|using|running|the|a|an|to|of)\s+){0,3}[`\"']?$",
+    re.IGNORECASE,
+)
+
+
+def _is_negated_mention(line: str, pattern: str) -> bool:
+    """True when every match of `pattern` is directly negated: a negation
+    sits immediately before it (a few filler words at most). A negation word
+    elsewhere on the line forgives nothing."""
+    matches = list(re.finditer(pattern, line, re.IGNORECASE))
+    if not matches:
+        return False
+    for m in matches:
+        if _NEAR_NEGATION_RE.search(line[: m.start()]):
+            continue
+        return False
+    return True
+
+
 def _gather_files() -> list[Path]:
     """Expand the TARGET_FILES patterns to a flat list of existing paths."""
     out: list[Path] = []
@@ -160,6 +187,8 @@ def _check_file(path: Path) -> list[tuple[int, str, str]]:
         for pat, label in _PATTERNS:
             if not re.search(pat, line, re.IGNORECASE):
                 continue
+            if _is_negated_mention(line, pat):
+                continue
             # Check historical-context forgiveness on this + 2 lines above
             # AND 2 lines below (multi-line prose context is common in mdx).
             window = lines[max(0, i - 2): min(len(lines), i + 3)]
@@ -167,7 +196,48 @@ def _check_file(path: Path) -> list[tuple[int, str, str]]:
             if any(m in joined for m in _HISTORICAL_CONTEXT_MARKERS):
                 continue
             hits.append((i + 1, label, line.strip()))
+
+    # Additional check: unchained clean-qc run/publish (for runbooks only)
+    if "ship-tranche" in path.name.lower():
+        hits.extend(_check_unchained_clean_qc(lines))
+
     return hits
+
+
+def _logical_lines(lines: list[str]) -> list[tuple[int, str]]:
+    """``(first_line_number, text)`` with ``\\``/``&&`` continuations joined."""
+    out: list[tuple[int, str]] = []
+    buf: list[str] = []
+    start = 0
+    for i, line in enumerate(lines):
+        if not buf:
+            start = i
+        buf.append(line.rstrip())
+        if not line.rstrip().endswith(("\\", "&&")):
+            out.append((start + 1, " ".join(b.rstrip("\\").strip() for b in buf)))
+            buf = []
+    if buf:
+        out.append((start + 1, " ".join(b.rstrip("\\").strip() for b in buf)))
+    return out
+
+
+_PUBLISH_RE = re.compile(r"curate\s+(?:publish\s+clean-qc|clean-qc\s+publish)\b")
+_CHAINED_RE = re.compile(r"clean-qc\s+run\b[^;|]*&&[^;|]*\bpublish\b")
+
+
+def _check_unchained_clean_qc(lines: list[str]) -> list[tuple[int, str, str]]:
+    """Flag any ``curate`` clean-qc publish not joined to a run by ``&&``.
+
+    Run and publish must be one chained command so publish never follows a
+    failed run. Works on logical lines (continuations joined), so a publish
+    placed anywhere else in the runbook -- far from a run, or with none --
+    is a hit.
+    """
+    return [
+        (lineno, "unchained clean-qc run/publish", text.strip())
+        for lineno, text in _logical_lines(lines)
+        if _PUBLISH_RE.search(text) and not _CHAINED_RE.search(text)
+    ]
 
 
 def main(argv: list[str] | None = None) -> int:

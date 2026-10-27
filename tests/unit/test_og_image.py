@@ -17,6 +17,7 @@ web package, so we grep the source.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -273,7 +274,7 @@ def test_build_og_image_script_handles_out_path_outside_repo(
     repo_root = REPO_ROOT
     result = subprocess.run(
         [
-            "python",
+            sys.executable,
             str(repo_root / "scripts" / "build_og_image.py"),
             "--out",
             str(out),

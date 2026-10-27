@@ -94,6 +94,35 @@ def _accumulate_page(agg: dict, tess: dict, sur: dict, lm: dict) -> None:
     agg["llm"]["tokens_out"] += tok.get("output_tokens", 0)
 
 
+def compute_candidate_metrics(results: list[dict]) -> dict[str, dict]:
+    """Per-addendum-candidate aggregates, keyed by candidate name.
+
+    Each candidate page is scored (CER/WER) against the same ``llm`` truth
+    proxy the other engines use, matched by page position. Candidates are
+    optional per card (older benchmark JSON predates ``engines.llm_candidates``),
+    so cards missing the key contribute nothing rather than raising. A card
+    whose candidate page count differs from the truth's is left unscored
+    (its cost and timing still count) rather than mis-aligned.
+    """
+    agg: dict[str, dict] = {}
+    for card in results:
+        engines = card.get("engines", {})
+        truth_rows = engines.get("llm", [])
+        for name, rows in engines.get("llm_candidates", {}).items():
+            a = agg.setdefault(name, {"pages": 0, "wallclock": 0.0, "conf_sum": 0.0,
+                                      "cost": 0.0, "cer_list": [], "wer_list": []})
+            aligned = len(rows) == len(truth_rows)
+            for i, row in enumerate(rows):
+                a["pages"] += 1
+                a["wallclock"] += row["wall_clock_s"]
+                a["conf_sum"] += row["confidence"]
+                a["cost"] += row["cost_usd"]
+                if aligned:
+                    a["cer_list"].append(cer(row["text"], truth_rows[i]["text"]))
+                    a["wer_list"].append(wer(row["text"], truth_rows[i]["text"]))
+    return agg
+
+
 def find_worst_tesseract(results: list[dict]) -> tuple[dict, dict, dict, dict]:
     """Return (card, tess_row, sur_row, llm_row) for the highest-CER tesseract page."""
     worst = None
