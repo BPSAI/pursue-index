@@ -79,7 +79,7 @@ def test_one_card_with_incomplete_shas_fails_the_gate_while_others_are_complete(
 ) -> None:
     _setup_fixture(tmp_path, _sidecar_rows())
     _drop_a_page_sha(tmp_path, "card-two")
-    proc, out_path = _run_gate(tmp_path)
+    proc, _ = _run_gate(tmp_path)
     assert proc.returncode == 1, proc.stdout + proc.stderr
     assert MESSAGE in proc.stdout
     assert "card-two" in proc.stdout
