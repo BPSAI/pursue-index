@@ -145,11 +145,30 @@ test("datasetJsonLd distribution contentUrls resolve to files that actually exis
     );
     const relPath = (d.contentUrl as string).slice(`${SITE_ORIGIN}/`.length);
     const diskPath = PUBLIC_DIR + relPath;
+    // Chunked payloads are published as parts + `<name>.chunks.json`; the
+    // Worker (`serveChunkedAsset`) answers the public name with the
+    // reassembled bytes, so a chunk manifest next to it counts as present.
     assert.ok(
-      existsSync(diskPath),
-      `contentUrl ${d.contentUrl} has no file at ${diskPath}`,
+      existsSync(diskPath) || existsSync(`${diskPath}.chunks.json`),
+      `contentUrl ${d.contentUrl} has no file or chunk manifest at ${diskPath}`,
+    );
+    assert.ok(
+      !(d.contentUrl as string).includes(".chunks.json") &&
+        !(d.contentUrl as string).includes(".part-"),
+      `contentUrl ${d.contentUrl} names a chunk descriptor or part, not the whole asset`,
     );
   }
+});
+
+test("datasetJsonLd OCR distribution points at the reassembled pages.json", () => {
+  const ld = datasetJsonLd({
+    cardCount: 158,
+    ocrPageCount: 4161,
+    lastTrancheDate: "2026-05-15",
+    release01Date: "2026-05-08",
+  });
+  const urls = ld.distribution.map((d) => d.contentUrl);
+  assert.ok(urls.includes(`${SITE_ORIGIN}/data/pages.json`));
 });
 
 // ---------------- DigitalDocument ----------------

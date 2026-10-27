@@ -123,11 +123,11 @@ export function datasetJsonLd(inputs: DatasetInputs): JsonLdObject {
       {
         "@type": "DataDownload",
         encodingFormat: "application/json",
-        // `pages.json` itself ships as byte-range chunks (see
-        // `chunked-asset.js`) once it crosses the Workers static-asset size
-        // budget — only the chunk index is guaranteed to resolve at this
-        // URL, so that's what crawlers get pointed at.
-        contentUrl: `${SITE_ORIGIN}/data/pages.json.chunks.json`,
+        // `pages.json` ships as parts + a chunk manifest (see
+        // `chunked-asset.js`), but the Worker answers this public URL with
+        // the reassembled bytes (`serveChunkedAsset`), so crawlers get the
+        // whole dataset here, not the internal chunk descriptor.
+        contentUrl: `${SITE_ORIGIN}/data/pages.json`,
       },
     ],
   };
