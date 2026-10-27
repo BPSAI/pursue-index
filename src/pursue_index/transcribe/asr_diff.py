@@ -86,8 +86,10 @@ def align_transcripts(text_a: str, text_b: str) -> AsrDiffResult:
     alone is never counted as a disagreement). Each non-``equal`` opcode
     becomes one :class:`DisagreeingSpan`.
     """
-    words_a = _words(text_a)
-    words_b = _words(text_b)
+    # A token that normalizes to nothing ("...", "!!!") is not a word: it must
+    # neither count toward the word totals nor match anything.
+    words_a = [w for w in _words(text_a) if _normalized(w)]
+    words_b = [w for w in _words(text_b) if _normalized(w)]
     norm_a = [_normalized(w) for w in words_a]
     norm_b = [_normalized(w) for w in words_b]
     matcher = SequenceMatcher(a=norm_a, b=norm_b, autojunk=False)

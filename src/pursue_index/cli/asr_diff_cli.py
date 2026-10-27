@@ -133,4 +133,8 @@ def asr_diff_run(
     except InvalidCardIdError as exc:
         console.print(f"[red]{console_text(str(exc))}[/red]")
         raise typer.Exit(code=2) from exc
-    _print_dry_run(rows, engine_b, rate_usd_per_minute)
+    try:
+        _print_dry_run(rows, engine_b, rate_usd_per_minute)
+    except ValueError as exc:  # negative/non-finite duration or rate
+        console.print(f"[red]{console_text(str(exc))}[/red]")
+        raise typer.Exit(code=2) from exc

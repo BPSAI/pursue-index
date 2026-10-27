@@ -98,9 +98,12 @@ def _candidate_rows(candidate_agg: dict[str, dict] | None) -> list[tuple]:
     rows = []
     for name, cand in (candidate_agg or {}).items():
         n = cand["pages"]
-        mean_conf = cand["conf_sum"] / n if n else 0.0
-        rows.append((f"LLM candidate ({name})", n, mean_conf, None, None, None,
-                      cand["wallclock"], cand["cost"]))
+        label = f"LLM candidate ({name})"
+        if n and len(cand["cer_list"]) == n:
+            rows.append(_engine_row(label, cand, n, cand["cost"]))
+        else:
+            mean_conf = cand["conf_sum"] / n if n else 0.0
+            rows.append((label, n, mean_conf, None, None, None, cand["wallclock"], cand["cost"]))
     return rows
 
 

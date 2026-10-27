@@ -42,3 +42,10 @@ def test_runbook_runs_the_script_not_inline_python() -> None:
     assert "Bash(git:*)" not in text
     # A tracked doc grants nothing; the operator-local command carries its own tool grants.
     assert "allowed-tools" not in text
+
+
+def test_runbook_transcribe_step_uses_only_supported_flags() -> None:
+    text = (REPO_ROOT / "docs" / "runbooks" / "ship-tranche.md").read_text()
+    step = text[text.index("5d. **Transcribe audio") : text.index("6. **OCR")]
+    assert "--worklist" not in step
+    assert "--release-date" in step

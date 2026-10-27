@@ -95,11 +95,15 @@ $ARGUMENTS
    `<card_id>.mp4` pointer) and appends a registry row. Then
    `scripts/build_video_posters.py`.
 5d. **Transcribe audio (A/V cards with audio):**
-    After A/V fetch, transcribe eligible audio tracks:
+    After A/V fetch, run the verify-before-spend coverage check for the tranche:
     ```
-    pursue transcribe run --manifest data/manifests/latest.json --worklist data/ingest-worklist.txt
+    pursue transcribe run --manifest data/manifests/latest.json --release-date <tranche release date>
     ```
-    Transcription creates sidecars under `web/src/data/transcriptions/` and auto-indexes into the manifest.
+    This is a preflight only: it lists eligible AUD rows against produced transcripts,
+    makes no AssemblyAI call, and exits non-zero on a coverage shortfall. The bulk
+    transcription pass is operator-attended (see the private ops runbook); use
+    `--live-smoke <card_id>` to smoke-test a single card. Transcript sidecars land
+    under the OCR data root next to each card's other sidecars.
 6. **OCR (the spend):** `pursue ocr run --manifest data/manifests/latest.json --worklist data/ingest-worklist.txt --engine llm-dots --concurrency 8 --force`.
    **Read the first log lines and confirm `engine=llm-dots` / `model=claude-sonnet-4-6` — kill immediately on `auto`/`tesseract`.**
    Note `ocr.start_all` reports `pdf_cards=N` — N counts **PDF cards only**.

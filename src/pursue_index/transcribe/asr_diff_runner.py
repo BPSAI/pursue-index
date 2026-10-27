@@ -11,6 +11,7 @@ gate the task requires.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -47,6 +48,10 @@ class AsrDiffBudget:
     cap_usd: float
     spent_usd: float = 0.0
 
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.cap_usd) or self.cap_usd < 0:
+            raise ValueError(f"budget cap must be a finite, non-negative USD amount, got {self.cap_usd!r}")
+
     def can_afford(self, cost_usd: float) -> bool:
         return self.spent_usd + cost_usd <= self.cap_usd
 
@@ -67,7 +72,14 @@ class RowAsrDiffReport:
 
 
 def estimate_cost_usd(audio_duration_s: float, rate_usd_per_minute: float) -> float:
-    """Projected spend for one second-engine pass over ``audio_duration_s``."""
+    """Projected spend for one second-engine pass over ``audio_duration_s``.
+
+    Raises ``ValueError`` for a negative or non-finite duration or rate: a
+    negative projection would pass the budget gate and then refund the cap.
+    """
+    for label, value in (("duration", audio_duration_s), ("rate", rate_usd_per_minute)):
+        if not math.isfinite(value) or value < 0:
+            raise ValueError(f"audio {label} must be finite and non-negative, got {value!r}")
     return (audio_duration_s / 60.0) * rate_usd_per_minute
 
 
