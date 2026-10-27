@@ -12,6 +12,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import {
   organizationJsonLd,
   websiteJsonLd,
@@ -21,9 +23,13 @@ import {
   breadcrumbJsonLd,
   speakableJsonLd,
   itemListJsonLd,
+  SITE_ORIGIN,
 } from "./seo.ts";
 
 const SITE = "https://pursueindex.com";
+
+/** `web/public` — the directory Astro serves `/…` paths from verbatim. */
+const PUBLIC_DIR = fileURLToPath(new URL("../../public/", import.meta.url));
 
 // ---------------- Organization ----------------
 
@@ -119,6 +125,50 @@ test("datasetJsonLd distribution lists machine-readable endpoints", () => {
     assert.ok(typeof d.contentUrl === "string");
     assert.ok(typeof d.encodingFormat === "string");
   }
+});
+
+test("datasetJsonLd distribution contentUrls resolve to files that actually exist", () => {
+  // Crawlers follow `contentUrl` literally. `pages.json` ships chunked
+  // (see `chunked-asset.js`) and `manifest.json` is build-time-only —
+  // a `contentUrl` naming either by its un-published name 404s. This
+  // guards every distribution entry against that regression.
+  const ld = datasetJsonLd({
+    cardCount: 158,
+    ocrPageCount: 4161,
+    lastTrancheDate: "2026-05-15",
+    release01Date: "2026-05-08",
+  });
+  for (const d of ld.distribution) {
+    assert.ok(
+      (d.contentUrl as string).startsWith(`${SITE_ORIGIN}/`),
+      `contentUrl ${d.contentUrl} is not site-relative`,
+    );
+    const relPath = (d.contentUrl as string).slice(`${SITE_ORIGIN}/`.length);
+    const diskPath = PUBLIC_DIR + relPath;
+    // Chunked payloads are published as parts + `<name>.chunks.json`; the
+    // Worker (`serveChunkedAsset`) answers the public name with the
+    // reassembled bytes, so a chunk manifest next to it counts as present.
+    assert.ok(
+      existsSync(diskPath) || existsSync(`${diskPath}.chunks.json`),
+      `contentUrl ${d.contentUrl} has no file or chunk manifest at ${diskPath}`,
+    );
+    assert.ok(
+      !(d.contentUrl as string).includes(".chunks.json") &&
+        !(d.contentUrl as string).includes(".part-"),
+      `contentUrl ${d.contentUrl} names a chunk descriptor or part, not the whole asset`,
+    );
+  }
+});
+
+test("datasetJsonLd OCR distribution points at the reassembled pages.json", () => {
+  const ld = datasetJsonLd({
+    cardCount: 158,
+    ocrPageCount: 4161,
+    lastTrancheDate: "2026-05-15",
+    release01Date: "2026-05-08",
+  });
+  const urls = ld.distribution.map((d) => d.contentUrl);
+  assert.ok(urls.includes(`${SITE_ORIGIN}/data/pages.json`));
 });
 
 // ---------------- DigitalDocument ----------------

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { CardMetadata } from "../data/types";
 import { loadCardsSummary } from "./card-summary-loader";
+import { cardHasTag } from "../lib/pairing-display.ts";
 
 interface Props {
   /**
@@ -98,6 +99,11 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
   const [redactedOnly, setRedactedOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>("title");
   const [view, setView] = useState<ViewMode>("cards");
+  // Collection filter — driven by `#tag=<name>` links from the card
+  // page's `TAG:<name>` pairing chip (see pairing-display.ts). Not
+  // exposed in the Filters UI; it's a deep-link target, not a manual
+  // filter control.
+  const [tag, setTag] = useState<string>("");
 
   // Effect-ordering guard: the URL-sync effect must NOT run on the very
   // first render (state is still defaults), or it will overwrite the hash
@@ -115,6 +121,7 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
       if (params.get("agency")) setAgency(params.get("agency")!);
       if (params.get("type")) setType(params.get("type")!);
       if (params.get("redacted") === "1") setRedactedOnly(true);
+      if (params.get("tag")) setTag(params.get("tag")!);
       const s = params.get("sort");
       if (s === "release" || s === "incident" || s === "type") setSort(s);
       const v = params.get("view");
@@ -131,12 +138,13 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
     if (agency) params.set("agency", agency);
     if (type) params.set("type", type);
     if (redactedOnly) params.set("redacted", "1");
+    if (tag) params.set("tag", tag);
     if (sort !== "title") params.set("sort", sort);
     if (view !== "cards") params.set("view", view);
     const next = params.toString();
     const url = next ? `#${next}` : window.location.pathname;
     history.replaceState(null, "", url);
-  }, [query, agency, type, redactedOnly, sort, view]);
+  }, [query, agency, type, redactedOnly, tag, sort, view]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -144,6 +152,7 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
       if (agency && c.agency !== agency) return false;
       if (type && c.asset_type !== type) return false;
       if (redactedOnly && !c.redacted) return false;
+      if (tag && !cardHasTag(c, tag)) return false;
       if (q) {
         const hay =
           `${c.title} ${c.description ?? ""} ${c.incident_location ?? ""}`.toLowerCase();
@@ -163,7 +172,7 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
           return a.title.localeCompare(b.title);
       }
     });
-  }, [resolvedCards, query, agency, type, redactedOnly, sort]);
+  }, [resolvedCards, query, agency, type, redactedOnly, tag, sort]);
 
   return (
     <div class="space-y-6">
@@ -180,6 +189,19 @@ export default function CardExplorer({ cards: cardsProp, base }: Props) {
         setSort={setSort}
         agencies={agencies}
       />
+
+      {tag && (
+        <div class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.15em] text-[color:var(--color-signal-cyan)]">
+          <span>Collection: {tag}</span>
+          <button
+            type="button"
+            onClick={() => setTag("")}
+            class="text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text-bright)] normal-case tracking-normal"
+          >
+            [clear]
+          </button>
+        </div>
+      )}
 
       <div class="flex items-center justify-between border-b border-[color:var(--color-border)] pb-2">
         {/* Suppress the `0 / 0 RECORDS` flash before the first fetch

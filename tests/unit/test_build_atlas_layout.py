@@ -567,6 +567,53 @@ def test_build_fails_when_pages_json_missing(
     assert not (out_dir / "atlas-layout.json").exists()
 
 
+def test_unmapped_agencies_in_layout_detects_unknown_agency() -> None:
+    """A fixture layout carrying an agency with no AGENCY_ORDER slot must
+    be flagged — this is the guard against the R7C.17 bug class (an
+    agency silently rendering as grey UNKNOWN with no legend entry)."""
+    mod = _load_script_module()
+    layout = {"points": [{"agency": "Ministry of Silly Walks"}]}
+    assert mod.unmapped_agencies_in_layout(layout) == {"Ministry of Silly Walks"}
+
+
+def test_unmapped_agencies_in_layout_allows_the_unknown_fallback() -> None:
+    """``"UNKNOWN"`` is the documented fallback for cards missing from the
+    manifest (see ``_make_points``) — it already has a legend/color slot
+    and must not be flagged as unmapped."""
+    mod = _load_script_module()
+    layout = {"points": [{"agency": "UNKNOWN"}, {"agency": "FBI"}]}
+    assert mod.unmapped_agencies_in_layout(layout) == set()
+
+
+def test_unmapped_agencies_in_layout_passes_for_the_committed_atlas_layout() -> None:
+    """The real, published ``atlas-layout.json`` must have a slot for every
+    agency it carries — this is the AC's "passes on the committed one"."""
+    mod = _load_script_module()
+    committed_path = REPO_ROOT / "web" / "public" / "data" / "atlas-layout.json"
+    layout = json.loads(committed_path.read_text())
+    assert mod.unmapped_agencies_in_layout(layout) == set()
+
+
+def test_build_fails_when_an_agency_has_no_slot(tmp_path: Path) -> None:
+    """``build()`` must fail closed rather than silently writing a layout
+    with agencies no AGENCY_ORDER slot covers."""
+    embed_root, manifest, out_dir = _seed_inputs(tmp_path)
+    agencies = {f"card_{i:03d}": "FBI" for i in range(6)}
+    agencies["card_000"] = "Ministry of Silly Walks"
+    _write_manifest(manifest, agencies)
+    mod = _load_script_module()
+    rc = mod.build(
+        embeddings_root=embed_root,
+        model_id="voyage-3",
+        manifest_path=manifest,
+        out_dir=out_dir,
+        n_neighbors=2,
+        random_state=42,
+    )
+    assert rc == 1
+    assert not (out_dir / "atlas-layout.json").exists()
+
+
 def test_build_from_published_payload_reads_chunked_embeddings(tmp_path: Path) -> None:
     """A published ``embeddings.bin`` split into parts reads back losslessly."""
     from pursue_index.release.chunked_asset import write_asset

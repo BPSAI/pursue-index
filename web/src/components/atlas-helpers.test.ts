@@ -9,6 +9,9 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import {
   AGENCY_ORDER,
   agencyToCategory,
@@ -25,12 +28,21 @@ import type { AtlasPoint } from "./atlas-helpers.ts";
 test("AGENCY_ORDER is the canonical agency ordering", () => {
   // Stable ordering matters: the regl-scatterplot category index is the
   // index into this array, so reordering it would silently re-color
-  // every point in deployed builds.
+  // every point in deployed builds. Append-only — new agencies land at
+  // the end (R7C.17: the committed atlas-layout.json carries 7 agencies
+  // this list didn't cover yet).
   assert.deepEqual(AGENCY_ORDER, [
     "Department of War",
     "FBI",
     "NASA",
     "Department of State",
+    "CIA",
+    "Department of Energy",
+    "Executive Office of the President",
+    "Intelligence Community Agency",
+    "Local Law Enforcement",
+    "Office of the Director of National Intelligence",
+    "U.S. Government",
   ]);
 });
 
@@ -39,14 +51,41 @@ test("agencyToCategory maps known agencies to their stable index", () => {
   assert.equal(agencyToCategory("FBI"), 1);
   assert.equal(agencyToCategory("NASA"), 2);
   assert.equal(agencyToCategory("Department of State"), 3);
+  assert.equal(agencyToCategory("CIA"), 4);
+  assert.equal(agencyToCategory("Department of Energy"), 5);
+  assert.equal(agencyToCategory("Executive Office of the President"), 6);
+  assert.equal(agencyToCategory("Intelligence Community Agency"), 7);
+  assert.equal(agencyToCategory("Local Law Enforcement"), 8);
+  assert.equal(agencyToCategory("Office of the Director of National Intelligence"), 9);
+  assert.equal(agencyToCategory("U.S. Government"), 10);
 });
 
 test("agencyToCategory returns the unknown bucket for missing agencies", () => {
   // Unknowns land at AGENCY_ORDER.length so the color palette can pad
   // a neutral entry at that index.
-  assert.equal(agencyToCategory("UNKNOWN"), 4);
-  assert.equal(agencyToCategory(""), 4);
-  assert.equal(agencyToCategory("Some Mystery Agency"), 4);
+  assert.equal(agencyToCategory("UNKNOWN"), AGENCY_ORDER.length);
+  assert.equal(agencyToCategory(""), AGENCY_ORDER.length);
+  assert.equal(agencyToCategory("Some Mystery Agency"), AGENCY_ORDER.length);
+});
+
+test("every agency in the committed atlas-layout.json maps to a named AGENCY_ORDER slot", () => {
+  // Regression guard for R7C.17: before this fix, 7 of the 11 agencies in
+  // the committed layout had no AGENCY_ORDER slot and silently rendered
+  // (and legended) as grey UNKNOWN — over 1,000 points mislabeled.
+  const layoutPath = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../public/data/atlas-layout.json",
+  );
+  const layout = JSON.parse(readFileSync(layoutPath, "utf-8")) as {
+    points: { agency: string }[];
+  };
+  const known = new Set<string>(AGENCY_ORDER);
+  const unmapped = new Set(
+    layout.points
+      .map((p) => p.agency)
+      .filter((agency) => agency !== "UNKNOWN" && !known.has(agency)),
+  );
+  assert.deepEqual([...unmapped], []);
 });
 
 test("categoryColors has one entry per category index, including unknown", () => {

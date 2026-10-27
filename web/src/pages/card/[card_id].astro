@@ -18,6 +18,7 @@ import {
   sizeDeltaPct,
 } from "../../lib/byte-display.ts";
 import { loadVerdictBundle } from "../../lib/verdict-bundle.ts";
+import { pairingDisplay } from "../../lib/pairing-display.ts";
 // Native ES imports for build-time data (matches diff.astro + the
 // timeline.astro fix on 2026-05-15; the readFileSync pattern was
 // unreliable on the Cloudflare Pages build context).
@@ -213,10 +214,14 @@ const TYPE_COLORS: Record<string, { fg: string; bg: string; border: string }> = 
 };
 const tc = TYPE_COLORS[card.asset_type] ?? TYPE_COLORS.PDF;
 
+// `TAG:<name>` pairing values (upstream collection tags, since tranche
+// 096ef2c0058a) render as a labelled chip linking to the homepage's
+// `tag` filter rather than the literal string — operator ruling, #179.
+// Explicit document references render unchanged.
 const pairings = [
-  card.pdf_pairing ? { label: "PDF pairing", value: card.pdf_pairing } : null,
-  card.video_pairing ? { label: "Video pairing", value: card.video_pairing } : null,
-].filter((p): p is { label: string; value: string } => p !== null);
+  card.pdf_pairing ? pairingDisplay("PDF pairing", card.pdf_pairing, base) : null,
+  card.video_pairing ? pairingDisplay("Video pairing", card.video_pairing, base) : null,
+].filter((p): p is NonNullable<typeof p> => p !== null);
 
 // INCIDENT line uses the curated display_date when present; the
 // manifest's raw incident_date is preserved as a sub-line in the
@@ -744,9 +749,19 @@ const cardJsonLd = [
             </h2>
             <ul class="font-mono text-xs space-y-1.5">
               {pairings.map((p) => (
-                <li class="text-[color:var(--color-text)]">
+                <li class="text-[color:var(--color-text)]" data-pairing-raw={p.raw}>
                   <span class="text-[color:var(--color-text-faint)] uppercase">{p.label}:</span>
-                  <span class="ml-2 text-[color:var(--color-signal-cyan)]">{p.value}</span>
+                  {p.kind === "tag" ? (
+                    <a
+                      href={p.href}
+                      class="ml-2 inline-block px-1.5 py-0.5 border border-[color:var(--color-signal-cyan)]/40 text-[color:var(--color-signal-cyan)] hover:bg-[color:var(--color-signal-cyan)]/10"
+                      title={`View every card in the ${p.tag} collection`}
+                    >
+                      {p.chipText}
+                    </a>
+                  ) : (
+                    <span class="ml-2 text-[color:var(--color-signal-cyan)]">{p.raw}</span>
+                  )}
                 </li>
               ))}
             </ul>

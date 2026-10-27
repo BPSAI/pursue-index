@@ -33,6 +33,16 @@
   --color-signal-red: #ff5c5c;
   --color-signal-cyan: #5fd4ff;
   --color-signal-violet: #b78fff;
+  /* atlas-only agency palette (web/src/components/atlas-helpers.ts
+     AGENCY_ORDER) — not used as prose accents like the signal colors
+     above, but held to the same WCAG AA bar by tests/unit/test_a11y_contrast.py. */
+  --color-signal-orange: #ffa15c;
+  --color-signal-blue: #7aa9ff;
+  --color-signal-yellow: #f5e663;
+  --color-signal-teal: #4ddbc0;
+  --color-signal-magenta: #e37bff;
+  --color-signal-lilac: #c6a9ff;
+  --color-signal-mint: #7dffb0;
 
   /* fonts */
   --font-mono: "JetBrains Mono", "Berkeley Mono", "IBM Plex Mono",

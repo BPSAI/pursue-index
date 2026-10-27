@@ -33,6 +33,13 @@ export const AGENCY_ORDER = [
   "FBI",
   "NASA",
   "Department of State",
+  "CIA",
+  "Department of Energy",
+  "Executive Office of the President",
+  "Intelligence Community Agency",
+  "Local Law Enforcement",
+  "Office of the Director of National Intelligence",
+  "U.S. Government",
 ] as const;
 
 /** RGB triplet (0..1) plus alpha (0..1) — regl-scatterplot color shape. */
@@ -52,11 +59,19 @@ export function agencyToCategory(agency: string): number {
  * Trailing entry is the neutral fallback for "UNKNOWN".
  *
  * Hex sources (mirrored from global.css):
- *   - Department of War   → signal-green   #a4ff5a
- *   - FBI                 → signal-cyan    #5fd4ff
- *   - NASA                → signal-violet  #b78fff
- *   - Department of State → signal-amber   #ffc857
- *   - UNKNOWN             → text-dim       #9ba6b3
+ *   - Department of War                        → signal-green   #a4ff5a
+ *   - FBI                                       → signal-cyan    #5fd4ff
+ *   - NASA                                      → signal-violet  #b78fff
+ *   - Department of State                       → signal-amber   #ffc857
+ *   - CIA                                        → signal-orange  #ffa15c
+ *   - Department of Energy                       → signal-blue    #7aa9ff
+ *   - Executive Office of the President          → signal-yellow  #f5e663
+ *   - Intelligence Community Agency              → signal-teal    #4ddbc0
+ *   - Local Law Enforcement                      → signal-magenta #e37bff
+ *   - Office of the Director of National
+ *     Intelligence                               → signal-lilac   #c6a9ff
+ *   - U.S. Government                            → signal-mint    #7dffb0
+ *   - UNKNOWN                                    → text-dim       #9ba6b3
  *
  * (text-dim was #6b7783 prior to the WCAG AA bump; if you re-tune it
  * in global.css, mirror the new value here so the legend swatch keeps
@@ -68,6 +83,13 @@ export function categoryColors(): RgbaColor[] {
     hexToRgba("#5fd4ff"),
     hexToRgba("#b78fff"),
     hexToRgba("#ffc857"),
+    hexToRgba("#ffa15c"),
+    hexToRgba("#7aa9ff"),
+    hexToRgba("#f5e663"),
+    hexToRgba("#4ddbc0"),
+    hexToRgba("#e37bff"),
+    hexToRgba("#c6a9ff"),
+    hexToRgba("#7dffb0"),
     hexToRgba("#9ba6b3"),
   ];
 }
