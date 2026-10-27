@@ -54,17 +54,23 @@ def _row_evidence(row: dict) -> tuple[object, object, object]:
 
 def _card_entry(
     card_id: str, rows: dict[str, dict], expected: set[str] | None,
+    version: str | None,
 ) -> dict | None:
     """One card's entry: the WORST re-derived row (lowest agreement wins).
 
     Only rows the card's ``meta.json`` lists count (a stale sidecar row for a
-    vanished row key is ignored). A card with an uncompared row, or with no
+    vanished row key is ignored), and only rows compared against the card's
+    CURRENT transcript version: a row from before a re-transcription saw
+    different text and counts as uncompared. A card with an uncompared row, or with no
     readable meta, never graduates: it gets an entry only when a compared
     row already needs human review, so a disagreement is never hidden.
     """
     if expected is None:
         return None
-    rows = {k: r for k, r in rows.items() if k in expected}
+    rows = {
+        k: r for k, r in rows.items()
+        if k in expected and version is not None and r.get("transcript_version") == version
+    }
     if not rows:
         return None
     worst = None
@@ -91,11 +97,35 @@ def build(*, ocr_dir: Path, card_ids: list[str]) -> dict:
         card_dir = ocr_dir / card_id
         rows = sidecar.load_existing(card_dir / sidecar.SIDECAR_FILE)
         expected = sidecar.expected_row_keys(sidecar.read_meta(card_dir))
-        entry = _card_entry(card_id, rows, expected)
+        entry = _card_entry(card_id, rows, expected, sidecar.transcript_version(card_dir))
         if entry is not None:
             cards.append(entry)
     cards.sort(key=lambda c: c["card_id"])
     return {"cards": cards}
+
+
+def merge_bundles(existing: dict, new: dict, *, requested: list[str]) -> dict:
+    """``existing`` with every ``requested`` card replaced by ``new``'s verdict.
+
+    A rebuild for a few cards must not drop the verdicts already published
+    for the others; a requested card that no longer qualifies is removed.
+    """
+    asked = set(requested)
+    kept = [
+        c for c in existing.get("cards", [])
+        if isinstance(c, dict) and c.get("card_id") not in asked
+    ]
+    cards = sorted([*kept, *new["cards"]], key=lambda c: c["card_id"])
+    return {"cards": cards}
+
+
+def _load_published(path: Path) -> dict:
+    """The bundle already at ``path``, or an empty one when absent/unreadable."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"cards": []}
+    return data if isinstance(data, dict) else {"cards": []}
 
 
 def as_status_map(bundle: dict) -> dict[str, str]:
@@ -105,6 +135,9 @@ def as_status_map(bundle: dict) -> dict[str, str]:
     status other than ``judged``/``review`` becomes ``review`` (logged)."""
     out: dict[str, str] = {}
     for c in bundle["cards"]:
+        if not isinstance(c, dict) or not isinstance(c.get("card_id"), str):
+            log.warning("asr_diff.bundle.bad_entry", entry=str(c)[:60])
+            continue
         published = c.get("status")
         derived = derive_status(
             c.get("agreement"), effective_threshold(c.get("threshold")), c.get("min_words"),
@@ -144,6 +177,7 @@ def main() -> int:
     except InvalidCardIdError as exc:
         print(f"asr-diff-bundle: {exc}", file=sys.stderr)
         return 2
+    bundle = merge_bundles(_load_published(args.out), bundle, requested=card_ids)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
     print(f"asr-diff-bundle: {len(bundle['cards'])} card(s) -> {args.out}")

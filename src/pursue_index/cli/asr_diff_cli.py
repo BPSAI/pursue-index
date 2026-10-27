@@ -70,10 +70,13 @@ def _eligible_rows(
             continue
         engine_a = meta.get("engine", "")
         existing = sidecar.load_existing(card_dir / sidecar.SIDECAR_FILE)
+        version = sidecar.transcript_version(card_dir)
         for row in meta.get("rows") or [{"row_key": ""}]:
             row_key = str(row.get("row_key", "") or "")
             prior = existing.get(row_key)
-            if prior and sidecar.should_skip(prior, engine_a=engine_a, engine_b=engine_b):
+            if prior and sidecar.should_skip(
+                prior, engine_a=engine_a, engine_b=engine_b, transcript_version=version,
+            ):
                 continue
             duration_s = float(row.get("audio_duration_s") or 0.0)
             rows.append((card_id, row_key, duration_s))

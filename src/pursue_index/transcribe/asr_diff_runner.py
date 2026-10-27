@@ -103,16 +103,18 @@ def run_row(
 ) -> RowAsrDiffReport:
     """Diff one row against a second engine; write its sidecar row.
 
-    Idempotent on ``(engine_a, engine_b, sha256(text_a))`` -- a row already
+    Idempotent on ``(engine_a, engine_b, sha256(text_a), transcript version)`` -- a row already
     compared under the same pair and transcript is returned from the
     sidecar with ``cost_usd=0.0`` and ``second_engine_fn`` is never called. Otherwise the projected cost is
     checked against the shared ``budget`` (spend so far plus this row) BEFORE
     the call, so a bulk run never spends past its cap.
     """
     text_sha = sidecar.text_sha256(text_a)
+    version = sidecar.transcript_version(sidecar_path.parent)
     existing = sidecar.load_existing(sidecar_path).get(row_key)
     if existing and sidecar.should_skip(
-        existing, engine_a=engine_a, engine_b=engine_b, text_a_sha256=text_sha,
+        existing, engine_a=engine_a, engine_b=engine_b,
+        text_a_sha256=text_sha, transcript_version=version,
     ):
         return _from_existing(card_id, row_key, existing)
 
@@ -131,7 +133,7 @@ def run_row(
     row = sidecar.build_row(
         row_key=row_key, engine_a=engine_a, engine_b=engine_b,
         result=result, threshold=threshold, status=status,
-        text_a_sha256=text_sha,
+        text_a_sha256=text_sha, transcript_version=version,
     )
     sidecar.write_row(sidecar_path, row)
     log.info(

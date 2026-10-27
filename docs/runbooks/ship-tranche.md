@@ -1,6 +1,5 @@
 ---
 description: Drive a detected war.gov tranche through the operated release, deterministically
-allowed-tools: Bash(gh issue list:*), Bash(gh pr:*), Bash(gh release create:*), Bash(pursue:*), Bash(curate:*), Bash(make:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git tag:*), Bash(python scripts/*), Bash(npm run:*), Read, Edit
 argument-hint: [<csv_sha256>]  (omit to use the newest open tranche-detected issue)
 ---
 

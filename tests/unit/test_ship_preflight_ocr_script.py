@@ -25,3 +25,5 @@ def test_runbook_runs_the_script_not_inline_python() -> None:
     assert "python scripts/ship_preflight_ocr.py" in text
     assert "python -c" not in text
     assert "Bash(git:*)" not in text
+    # A tracked doc grants nothing; the operator-local command carries its own tool grants.
+    assert "allowed-tools" not in text

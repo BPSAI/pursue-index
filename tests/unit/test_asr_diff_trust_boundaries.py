@@ -34,8 +34,10 @@ def _card(tmp_path: Path, meta_rows: list[str] | None, rows: list[dict]) -> None
     if meta_rows is not None:
         (d / "meta.json").write_text(json.dumps({
             "status": "ok", "rows": [{"row_key": k} for k in meta_rows],
+            "finished_at": "v1",
         }))
-    (d / sidecar.SIDECAR_FILE).write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+    stamped = [{**r, "transcript_version": "v1"} for r in rows]
+    (d / sidecar.SIDECAR_FILE).write_text("\n".join(json.dumps(r) for r in stamped) + "\n")
 
 
 def _status(tmp_path: Path) -> list[tuple[str, str]]:

@@ -4,9 +4,11 @@ One JSON object per line, keyed by ``row_key`` (``""`` for a card with a
 single AUD row) -- the same card directory as ``pages.jsonl``/
 ``meta.json``/``utterances.jsonl`` (see ``pursue_index.transcribe.pages``).
 Idempotent on the (engine_a, engine_b) pair AND the sha256 of engine A's
-transcript text: a regenerated transcript is a different comparison, so
-the old verdict never carries over to new text. A row written before the
-hash existed matches no hash and is compared again.
+transcript text, and carries the card's ``meta.json`` ``finished_at`` as
+``transcript_version``: a regenerated transcript is a different comparison,
+so the old verdict never carries over to new text (the bundle drops a row
+whose version is no longer current). A row written before these fields
+existed matches neither and is compared again.
 
 Pure I/O, mirrors ``clean.qc.sidecar``'s shape.
 """
@@ -63,10 +65,12 @@ def build_row(
     threshold: float,
     status: str,
     text_a_sha256: str | None = None,
+    transcript_version: str | None = None,
 ) -> dict[str, Any]:
     """The sidecar row for one row's completed comparison."""
     return {
         "text_a_sha256": text_a_sha256,
+        "transcript_version": transcript_version,
         "row_key": row_key,
         "engine_a": engine_a,
         "engine_b": engine_b,
@@ -83,17 +87,19 @@ def text_sha256(text: str) -> str:
 
 def should_skip(
     existing_row: dict[str, Any], *, engine_a: str, engine_b: str,
-    text_a_sha256: str | None = None,
+    text_a_sha256: str | None = None, transcript_version: str | None = None,
 ) -> bool:
     """True iff the existing row already compares this exact comparison.
 
-    ``text_a_sha256`` is the current transcript's fingerprint; when given
-    the row must carry the same one. ``None`` (a cost preview that holds no
-    transcript text) checks the engine pair only.
+    ``text_a_sha256`` / ``transcript_version`` identify the current
+    transcript; each, when given, must match the row's. ``None`` (a cost
+    preview holds no transcript text) skips that check.
     """
     if existing_row.get("engine_a") != engine_a or existing_row.get("engine_b") != engine_b:
         return False
-    return text_a_sha256 is None or existing_row.get("text_a_sha256") == text_a_sha256
+    if text_a_sha256 is not None and existing_row.get("text_a_sha256") != text_a_sha256:
+        return False
+    return transcript_version is None or existing_row.get("transcript_version") == transcript_version
 
 
 def expected_row_keys(meta: object) -> set[str] | None:
@@ -103,6 +109,13 @@ def expected_row_keys(meta: object) -> set[str] | None:
         return None
     rows = meta.get("rows") or [{"row_key": ""}]
     return {str(r.get("row_key", "") or "") for r in rows if isinstance(r, dict)}
+
+
+def transcript_version(card_dir: Path) -> str | None:
+    """The card's current transcript version (``meta.json`` ``finished_at``),
+    or ``None`` when it cannot be read."""
+    version = (read_meta(card_dir) or {}).get("finished_at")
+    return version if isinstance(version, str) and version else None
 
 
 def read_meta(card_dir: Path) -> dict[str, Any] | None:
