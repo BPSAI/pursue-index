@@ -98,6 +98,18 @@ def _from_existing(card_id: str, row_key: str, existing: dict) -> RowAsrDiffRepo
     )
 
 
+def _reserve(budget: AsrDiffBudget, projected: float, card_id: str, row_key: str) -> None:
+    """Check ``projected`` against the cap, then charge it BEFORE the engine
+    call: a vendor bills the attempt, so a call that raises still counts."""
+    if not budget.can_afford(projected):
+        raise AsrDiffBudgetExceededError(
+            f"estimated ${projected:.2f} on top of ${budget.spent_usd:.2f} spent "
+            f"exceeds cap ${budget.cap_usd:.2f} before diffing {card_id} row {row_key!r}",
+            partial_cost_usd=budget.spent_usd,
+        )
+    budget.charge(projected)
+
+
 def run_row(
     *,
     card_id: str,
@@ -115,32 +127,26 @@ def run_row(
 ) -> RowAsrDiffReport:
     """Diff one row against a second engine; write its sidecar row.
 
-    Idempotent on ``(engine_a, engine_b, sha256(text_a), transcript version)`` -- a row already
-    compared under the same pair and transcript is returned from the
-    sidecar with ``cost_usd=0.0`` and ``second_engine_fn`` is never called. Otherwise the projected cost is
+    Idempotent on ``(engine_a, engine_b, sha256(text_a), transcript version,
+    pages digest)`` -- a row already compared under the same pair and
+    transcript is returned from the sidecar with ``cost_usd=0.0`` and
+    ``second_engine_fn`` is never called. Otherwise the projected cost is
     checked against the shared ``budget`` (spend so far plus this row) BEFORE
     the call, so a bulk run never spends past its cap.
     """
     text_sha = sidecar.text_sha256(text_a)
     version = sidecar.transcript_version(sidecar_path.parent)
+    digest = sidecar.card_pages_digest(sidecar_path.parent)
     existing = sidecar.load_existing(sidecar_path).get(row_key)
     if existing and sidecar.should_skip(
         existing, engine_a=engine_a, engine_b=engine_b,
         text_a_sha256=text_sha, transcript_version=version,
+        pages_digest=digest,
     ):
         return _from_existing(card_id, row_key, existing)
 
     projected = estimate_cost_usd(audio_duration_s, rate_usd_per_minute)
-    if not budget.can_afford(projected):
-        raise AsrDiffBudgetExceededError(
-            f"estimated ${projected:.2f} on top of ${budget.spent_usd:.2f} spent "
-            f"exceeds cap ${budget.cap_usd:.2f} before diffing {card_id} row {row_key!r}",
-            partial_cost_usd=budget.spent_usd,
-        )
-
-    # Charged before the call: a vendor bills the attempt, so a call that
-    # raises still counts against the cap.
-    budget.charge(projected)
+    _reserve(budget, projected, card_id, row_key)
     text_b = second_engine_fn(audio_path)
     result = align_transcripts(text_a, text_b)
     status = classify_result(result, threshold)
@@ -148,6 +154,7 @@ def run_row(
         row_key=row_key, engine_a=engine_a, engine_b=engine_b,
         result=result, threshold=threshold, status=status,
         text_a_sha256=text_sha, transcript_version=version,
+        pages_digest=digest,
     )
     sidecar.write_row(sidecar_path, row)
     log.info(

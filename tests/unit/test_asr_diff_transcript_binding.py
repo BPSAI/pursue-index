@@ -21,6 +21,7 @@ C2 = "e2" * 8
 
 def _meta(card_dir: Path, finished_at: str) -> None:
     card_dir.mkdir(parents=True, exist_ok=True)
+    (card_dir / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "x"}) + "\n")
     (card_dir / "meta.json").write_text(json.dumps({
         "status": "ok", "rows": [{"row_key": ""}], "finished_at": finished_at,
     }))

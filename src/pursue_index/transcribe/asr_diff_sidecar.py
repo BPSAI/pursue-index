@@ -68,9 +68,11 @@ def build_row(
     status: str,
     text_a_sha256: str | None = None,
     transcript_version: str | None = None,
+    pages_digest: str | None = None,
 ) -> dict[str, Any]:
     """The sidecar row for one row's completed comparison."""
     return {
+        "pages_digest": pages_digest,
         "text_a_sha256": text_a_sha256,
         "transcript_version": transcript_version,
         "row_key": row_key,
@@ -90,18 +92,21 @@ def text_sha256(text: str) -> str:
 def should_skip(
     existing_row: dict[str, Any], *, engine_a: str, engine_b: str,
     text_a_sha256: str | None = None, transcript_version: str | None = None,
+    pages_digest: str | None = None,
 ) -> bool:
     """True iff the existing row already compares this exact comparison.
 
-    ``text_a_sha256`` / ``transcript_version`` identify the current
-    transcript; each, when given, must match the row's. ``None`` (a cost
+    ``text_a_sha256`` / ``transcript_version`` / ``pages_digest`` identify
+    the current transcript; each, when given, must match the row's. ``None`` (a cost
     preview holds no transcript text) skips that check.
     """
     if existing_row.get("engine_a") != engine_a or existing_row.get("engine_b") != engine_b:
         return False
     if text_a_sha256 is not None and existing_row.get("text_a_sha256") != text_a_sha256:
         return False
-    return transcript_version is None or existing_row.get("transcript_version") == transcript_version
+    if transcript_version is not None and existing_row.get("transcript_version") != transcript_version:
+        return False
+    return pages_digest is None or existing_row.get("pages_digest") == pages_digest
 
 
 def expected_row_keys(meta: object) -> set[str] | None:

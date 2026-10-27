@@ -36,7 +36,9 @@ def _card(tmp_path: Path, meta_rows: list[str] | None, rows: list[dict]) -> None
             "status": "ok", "rows": [{"row_key": k} for k in meta_rows],
             "finished_at": "v1",
         }))
-    stamped = [{**r, "transcript_version": "v1"} for r in rows]
+    (d / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "x"}) + "\n")
+    digest = sidecar.pages_digest([(1, "x")])
+    stamped = [{**r, "transcript_version": "v1", "pages_digest": digest} for r in rows]
     (d / sidecar.SIDECAR_FILE).write_text("\n".join(json.dumps(r) for r in stamped) + "\n")
 
 

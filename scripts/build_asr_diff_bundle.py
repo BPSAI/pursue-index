@@ -60,8 +60,8 @@ def _card_entry(
 
     Only rows the card's ``meta.json`` lists count (a stale sidecar row for a
     vanished row key is ignored), and only rows compared against the card's
-    CURRENT transcript version: a row from before a re-transcription saw
-    different text and counts as uncompared. A card with an uncompared row, or with no
+    CURRENT transcript version and pages digest: a row from before a
+    re-transcription or a pages change saw different text and counts as uncompared. A card with an uncompared row, or with no
     readable meta, never graduates: it gets an entry only when a compared
     row already needs human review, so a disagreement is never hidden.
     """
@@ -70,6 +70,7 @@ def _card_entry(
     rows = {
         k: r for k, r in rows.items()
         if k in expected and version is not None and r.get("transcript_version") == version
+        and pages_digest is not None and r.get("pages_digest") == pages_digest
     }
     if not rows:
         return None

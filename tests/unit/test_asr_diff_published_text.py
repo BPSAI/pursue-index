@@ -104,3 +104,18 @@ def test_a_failed_second_engine_call_still_spends_against_the_cap(tmp_path: Path
             budget=budget,
         )
     assert budget.spent_usd == pytest.approx(1.0)
+
+
+def test_a_comparison_made_before_the_pages_changed_is_not_published(tmp_path: Path) -> None:
+    root = tmp_path / "ocr"
+    _bundle(root)
+    # pages.jsonl changes after the comparison ran (meta version untouched)
+    (root / CARD / "pages.jsonl").write_text(json.dumps({"page": 1, "text": TEXT + " more"}) + "\n")
+    assert build_asr_diff_bundle.build(ocr_dir=root, card_ids=[CARD])["cards"] == []
+
+
+def test_the_runner_records_the_pages_digest_it_compared_against(tmp_path: Path) -> None:
+    root = tmp_path / "ocr"
+    _bundle(root)
+    row = sidecar.load_existing(root / CARD / sidecar.SIDECAR_FILE)[""]
+    assert row["pages_digest"] == sidecar.pages_digest([(1, TEXT)])

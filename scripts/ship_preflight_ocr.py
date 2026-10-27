@@ -32,7 +32,7 @@ def main(argv: Sequence[str] | None = None, env: Mapping[str, str] | None = None
     raw = env.get("PURSUE_OCR_LLM_CONCURRENCY", "")
     result = preflight_ocr(
         engine=args.engine or env.get("PURSUE_OCR_ENGINE"),
-        concurrency=args.concurrency if args.concurrency is not None else (int(raw) if raw.isdigit() else None),
+        concurrency=args.concurrency if args.concurrency is not None else (int(raw) if raw.isascii() and raw.isdigit() else None),
         anthropic_key_present=bool(env.get("ANTHROPIC_API_KEY")),
     )
     print(result)

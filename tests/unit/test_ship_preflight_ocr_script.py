@@ -49,3 +49,9 @@ def test_runbook_transcribe_step_uses_only_supported_flags() -> None:
     step = text[text.index("5d. **Transcribe audio") : text.index("6. **OCR")]
     assert "--worklist" not in step
     assert "--release-date" in step
+
+
+def test_a_non_ascii_digit_concurrency_is_treated_as_unset_not_a_crash() -> None:
+    env = {"ANTHROPIC_API_KEY": "k", "PURSUE_OCR_ENGINE": "llm-dots",
+           "PURSUE_OCR_LLM_CONCURRENCY": "٨"}  # Arabic-indic digit eight
+    assert ship_preflight_ocr.main([], env) == 1

@@ -17,6 +17,8 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import build_asr_diff_bundle  # type: ignore[import-not-found] # noqa: E402
 
+from pursue_index.transcribe import asr_diff_sidecar as sidecar  # noqa: E402
+
 
 def _write_sidecar(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -24,7 +26,9 @@ def _write_sidecar(path: Path, rows: list[dict]) -> None:
         "status": "ok", "rows": [{"row_key": r["row_key"]} for r in rows],
         "finished_at": "v1",
     }))
-    rows = [{**r, "transcript_version": "v1"} for r in rows]
+    (path.parent / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "x"}) + "\n")
+    digest = sidecar.pages_digest([(1, "x")])
+    rows = [{**r, "transcript_version": "v1", "pages_digest": digest} for r in rows]
     path.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
 
 

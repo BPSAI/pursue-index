@@ -95,9 +95,11 @@ def test_bundle_build_carries_agreement_evidence(tmp_path: Path) -> None:
     d = tmp_path / CARD
     d.mkdir()
     (d / "meta.json").write_text(json.dumps({"status": "ok", "rows": [{"row_key": ""}], "finished_at": "v1"}))
+    (d / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "x"}) + "\n")
     (d / sidecar.SIDECAR_FILE).write_text(json.dumps({
         "row_key": "", "status": "judged", "agreement": 0.95, "threshold": 0.9,
         "word_count_a": 10, "word_count_b": 10, "transcript_version": "v1",
+        "pages_digest": sidecar.pages_digest([(1, "x")]),
     }) + "\n")
     card = build_asr_diff_bundle.build(ocr_dir=tmp_path, card_ids=[CARD])["cards"][0]
     assert card["agreement"] == 0.95 and card["threshold"] == 0.9 and card["status"] == "judged"
