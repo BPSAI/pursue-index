@@ -169,11 +169,20 @@ def guarded_summary(result: object) -> str | None:
     """One-line step-summary text for a guarded result, else ``None``."""
     status = getattr(result, "status", None)
     if status == "stale":
-        return (
-            f"stale-edge observation: served {result.sha[:12]}, seen before the"  # type: ignore[attr-defined]
-            f" current {result.current_sha[:12]} and Last-Modified"  # type: ignore[attr-defined]
-            f" {_header_text(result.last_modified)} is not newer; not an upstream change."  # type: ignore[attr-defined]
-        )
+        reason = getattr(result, "reason", "seen_before")
+        if reason == "older_last_modified":
+            why = (
+                f"its Last-Modified {_header_text(result.last_modified)} is older"  # type: ignore[attr-defined]
+                " than the current sha's"
+            )
+        elif reason == "row_subset":
+            why = "its rows are a strict subset of the current manifest's"
+        else:
+            why = (
+                f"seen before the current {result.current_sha[:12]} and Last-Modified"  # type: ignore[attr-defined]
+                f" {_header_text(result.last_modified)} is not newer"  # type: ignore[attr-defined]
+            )
+        return f"stale-edge observation: served {result.sha[:12]}, {why}; not an upstream change."  # type: ignore[attr-defined]
     if status == "pending":
         return (
             f"pending: new sha {result.sha[:12]} seen once; declared if the next"  # type: ignore[attr-defined]

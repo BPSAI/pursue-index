@@ -1,4 +1,4 @@
-"""Stale-edge guard state for the tranche poll (#157).
+"""Stale-edge guard state for the tranche poll (#157, #176).
 
 Cache edges in front of the upstream CSV have served superseded copies for
 days after a change, and a re-encoded variant of the new copy alongside
@@ -18,21 +18,24 @@ just enough history in ``data/poll-state.json`` (committed next to
 
 When the file is missing the guard fails closed: every sha already in the
 byte archive counts as seen before the current one.
+
+#176 (Release 7): an older upstream copy the guard had never seen before
+(so the ``seen``-before rule above didn't catch it) was still treated as a
+candidate change, opening a duplicate tranche issue. ``is_strictly_older``
+below marks a sha stale on a first sighting when its ``Last-Modified`` is
+strictly older than the current sha's. ``_poll_stale_checks.py`` adds a
+second, independent signal: a CSV whose rows are a non-empty, strict
+subset of the current manifest's.
 """
 
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Literal
-
-from pursue_index.scrape.encoding_equivalence import is_encoding_only_change
-
-_SHA256_HEX = re.compile(r"[0-9a-f]{64}")
 
 Observation = Literal["current", "stale", "candidate"]
 
@@ -49,9 +52,17 @@ class GuardState:
         return self.pending.get("sha") if self.pending else None
 
     def classify(self, sha: str, last_modified: str | None) -> Observation:
-        """Is a fetched ``sha`` the current one, a stale edge, or a candidate?"""
+        """Is a fetched ``sha`` the current one, a stale edge, or a candidate?
+
+        A sha with a strictly older ``Last-Modified`` than the current
+        one is stale on its own terms, whether or not it's ever been seen
+        before (#176) — only an unseen sha with a newer or unresolvable
+        ``Last-Modified`` falls through to the seen-before check.
+        """
         if sha == self.current_sha:
             return "current"
+        if is_strictly_older(last_modified, self.current_last_modified):
+            return "stale"
         seen_before = sha in self.seen and self.seen.index(sha) < self.seen.index(self.current_sha)
         if seen_before and not is_strictly_newer(last_modified, self.current_last_modified):
             return "stale"
@@ -115,21 +126,6 @@ class GuardState:
         return json.dumps(payload, indent=2) + "\n"
 
 
-def encoding_only_vs_archive(archive_dir: Path | None, old_sha: str, body: bytes) -> bool:
-    """Is ``body`` an encoding-only change from the archived ``old_sha``?
-
-    Fails closed: without the prior bytes, or when ``old_sha`` (read from
-    repo files) isn't a 64-hex sha fit to name an archive path, the change
-    counts as real.
-    """
-    if archive_dir is None or not _SHA256_HEX.fullmatch(old_sha):
-        return False
-    prior = archive_dir / f"{old_sha}.csv"
-    if not prior.exists():
-        return False
-    return is_encoding_only_change(prior.read_bytes(), bytes(body))
-
-
 def parse_http_date(value: str | None) -> datetime | None:
     """The header as an aware datetime, or ``None`` if it doesn't parse.
 
@@ -153,6 +149,12 @@ def is_strictly_newer(candidate: str | None, current: str | None) -> bool:
     """True only when both headers parse and ``candidate`` is later."""
     a, b = parse_http_date(candidate), parse_http_date(current)
     return a is not None and b is not None and a > b
+
+
+def is_strictly_older(candidate: str | None, current: str | None) -> bool:
+    """True only when both headers parse and ``candidate`` is earlier."""
+    a, b = parse_http_date(candidate), parse_http_date(current)
+    return a is not None and b is not None and a < b
 
 
 def _archived_shas(archive_dir: Path | None) -> list[str]:
