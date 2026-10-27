@@ -14,6 +14,12 @@ const finds = defineCollection({
     cards: z.array(z.string()).default([]),
     published: z.coerce.date(),
     updated: z.coerce.date().optional(),
+    /**
+     * Slug of another /finds entry this one supplements (adds later
+     * material to) rather than duplicates. Satisfies the finds overlap
+     * gate for a shared-card pair without requiring a body cross-link.
+     */
+    supplements: z.string().optional(),
     draft: z.boolean().default(false),
     /**
      * Optional author byline. When set,

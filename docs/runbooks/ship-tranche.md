@@ -195,8 +195,13 @@ $ARGUMENTS
     (Native CF Workers Builds fire on merge; do NOT use `git push origin main`.)
     After merge, auto-fires close-tranche, registry-root, post-deploy-verify, indexnow.
     Then purge/confirm the live card count (edge cache may lag).
-14. **Finds + tag:** fan out finds reviewers over the new cards → publish quote-verified,
-    cross-linked `/finds` (astro build re-validates every `<Cite>`), then
+14. **Finds + tag:** fan out finds reviewers over the new cards. Before any entry is
+    drafted, check every candidate against every existing `/finds` entry and against the
+    cross-tranche tables of earlier digests, and record "new entry" or "supplements `<slug>`"
+    for each candidate (the coverage audit pattern: a card- and event-level overlap table with
+    one decision per pair). The finds overlap gate (`finds_validator`, R7C.37) enforces it at
+    build time: two entries sharing a card need a cross-link or a declared `supplements:`.
+    Then publish quote-verified, cross-linked `/finds` (astro build re-validates every `<Cite>`) and
     `git tag vX.Y.Z && gh release create vX.Y.Z --latest` (both — a tag alone is not the release).
 15. **Record:** update the private operations checkout's session record + write the finds digest (see the private ops runbook).
 
