@@ -98,6 +98,7 @@ def _read_table(
         raise ValueError("no xref keyword")
     pos, entries = at + 4, []
     while not data.startswith(b"trailer", _FILLER.match(data, pos).end()):
+        budget.check()  # also spent by subsections that declare zero rows
         head = _SUBSECTION.match(data, pos)
         if head is None:
             raise ValueError("malformed xref subsection")

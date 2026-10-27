@@ -109,6 +109,10 @@ def capped_pypdf() -> Iterator[None]:
 
     ``PdfReader`` inflates every xref stream it meets (old file's included)
     before this module's parser runs; its default cap is 75 MB per stream.
+
+    pypdf's configuration is process-global and the lock serializes only
+    this context manager, so use it only where no other pypdf reader runs in
+    the process: the isolated classify worker, which is single-threaded.
     """
     try:
         with _CONFIG_LOCK, apply_configuration(zlib_maximum_output_length=MAX_XREF_INFLATED):

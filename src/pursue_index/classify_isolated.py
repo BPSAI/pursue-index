@@ -30,9 +30,15 @@ _VERDICTS = ("metadata-only", "content-changed")
 _LOG = logging.getLogger(__name__)
 
 
+# The worker parses untrusted PDFs, so it gets no credentials: only what the
+# interpreter and locale handling need.
+_ENV_ALLOWLIST = ("PATH", "LANG", "LC_ALL", "LC_CTYPE", "TMPDIR", "VIRTUAL_ENV")
+
+
 def _env() -> dict[str, str]:
     paths = [os.path.abspath(p) for p in sys.path if p]
-    return {**os.environ, "PYTHONPATH": os.pathsep.join(paths)}
+    env = {k: os.environ[k] for k in _ENV_ALLOWLIST if k in os.environ}
+    return {**env, "PYTHONPATH": os.pathsep.join(paths)}
 
 
 def run_worker(old_path: Path, new_path: Path) -> str | None:
