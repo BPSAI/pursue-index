@@ -67,6 +67,7 @@ from pursue_index.pdf_limits import (
     check_update_count,
     read_capped,
 )
+from pursue_index.pdf_refs import referenced_elsewhere
 from pursue_index.pdf_update import UpdateSection, read_update
 
 __all__ = ["CONTENT_CHANGED", "METADATA_ONLY", "Verdict", "classify_bytes"]
@@ -210,6 +211,8 @@ def _is_metadata_only(old_bytes: bytes, new_bytes: bytes, budget: Budget) -> boo
     if any(r == "catalog" and not _catalog_ok(section.objects[n], old, new)
            for n, r in roles.items()):
         return False
+    if any(r == "metadata" and referenced_elsewhere(n, new, budget) for n, r in roles.items()):
+        return False  # a metadata-typed stream used as content is content
     referenced = set().union(*(section.refs[n] for n, r in roles.items() if r))
     return all(r is not None or _is_aux_leaf(n, section, old_nums, referenced)
                for n, r in roles.items())

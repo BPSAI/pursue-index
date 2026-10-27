@@ -6,10 +6,11 @@ stream of a page, in order, with its filter entries) and extracts each page's
 text, then requires page-for-page equality. Raw (still-encoded) bytes are
 hashed so no content stream is ever inflated just to be compared; the text
 signal is the second, decode-based view. Whitespace is the only text
-normalization tolerated. A third signal hashes each page's resolved ``/Resources`` (every XObject's
-raw stream bytes plus its dictionary, recursively, under a depth and node
-cap). Any disagreement, any pypdf exception and any cap
-hit refuses (``CrossCheckError`` / ``LimitExceededError``).
+normalization tolerated. A third signal hashes each page's resolved
+``/Resources`` and ``/Annots`` (every XObject's or appearance stream's raw
+bytes plus its dictionary, recursively, under a depth and node cap). Any
+disagreement, any pypdf exception and any cap hit refuses (``CrossCheckError``
+/ ``LimitExceededError``).
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ __all__ = ["CROSSCHECKS", "CrossCheckError", "crosscheck"]
 
 CROSSCHECKS = ("content-streams", "resources", "text")
 MAX_RESOURCE_DEPTH = 12
+_BACK_REFS = frozenset({"/P", "/Parent"})  # point back up the page tree
 MAX_RESOURCE_NODES = 20_000
 
 
@@ -77,19 +79,29 @@ def _canon(obj: Any, depth: int, seen: frozenset[int], count: list[int], budget:
         obj = obj.get_object()
         if obj is None:
             raise CrossCheckError("resources", "unresolvable resource")
+        if isinstance(obj, dict) and obj.get("/Type") in ("/Page", "/Pages"):
+            return "page-ref"  # a link target, not part of this page's content
     if hasattr(obj, "_data"):  # a stream: raw bytes hash plus its dictionary
         entries = {str(k): _canon(v, depth + 1, seen, count, budget) for k, v in sorted(obj.items())}
         return ["stream", hashlib.sha256(obj._data).hexdigest(), entries]
     if isinstance(obj, dict):
-        return {str(k): _canon(v, depth + 1, seen, count, budget) for k, v in sorted(obj.items())}
+        return {str(k): _canon(v, depth + 1, seen, count, budget)
+                for k, v in sorted(obj.items()) if k not in _BACK_REFS}
     if isinstance(obj, list):
         return [_canon(v, depth + 1, seen, count, budget) for v in obj]
     return repr(obj)
 
 
 def _page_resources(page: Any, budget: Budget) -> str:
+    """Digest of the page's resolved /Resources AND its /Annots (each
+    annotation dictionary plus the raw hash of every appearance stream)."""
     resources = _resolved_resources(page)
-    value = _canon(resources, 0, frozenset(), [0], budget) if resources is not None else None
+    annots = page.get_object().get("/Annots")
+    count = [0]
+    value = (
+        _canon(resources, 0, frozenset(), count, budget) if resources is not None else None,
+        _canon(annots, 0, frozenset(), count, budget) if annots is not None else None,
+    )
     return hashlib.sha256(repr(value).encode()).hexdigest()
 
 

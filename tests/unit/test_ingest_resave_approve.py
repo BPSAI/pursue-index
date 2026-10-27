@@ -20,6 +20,7 @@ from typer.testing import CliRunner
 
 from pursue_index.cli import ingest_cli
 from pursue_index.cli.commands import app
+from pursue_index.config import settings
 from pursue_index.ingest import auto_approve_renames
 from pursue_index.ingest_scope import REASON_RENAMED, scope_pdf_img_cards
 from pursue_index.post_ingest_audit import (
@@ -51,7 +52,7 @@ def _diff() -> dict:
 
 
 def test_auto_approve_emits_metadata_only_resave_method() -> None:
-    assert auto_approve_renames(_diff()) == [{
+    assert auto_approve_renames(_diff(), metadata_resaves=True) == [{
         "old_card_id": OLD_ID, "new_card_id": NEW_ID,
         "byte_sha256": NEW_BYTES_SHA, "method": "metadata-only-resave",
         "old_byte_sha256": OLD_BYTES_SHA, "new_byte_sha256": NEW_BYTES_SHA,
@@ -63,7 +64,7 @@ def test_auto_approve_omits_byte_evidence_it_does_not_have() -> None:
     diff = _diff()
     for key in ("old_byte_sha256", "verdict"):
         diff[RESAVE_BUCKET][0].pop(key)
-    [alias] = auto_approve_renames(diff)
+    [alias] = auto_approve_renames(diff, metadata_resaves=True)
     assert "old_byte_sha256" not in alias and "change_nature" not in alias
     assert alias["new_byte_sha256"] == NEW_BYTES_SHA
 
@@ -81,6 +82,7 @@ def test_approve_materializes_alias_without_approve_rename(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(ingest_cli, "enforce_poll_freshness", lambda *a, **k: None)
+    monkeypatch.setattr(settings, "ingest_auto_approve_metadata_resaves", True)  # opted in
     diff_dir = tmp_path / "diffs"
     diff_dir.mkdir()
     (diff_dir / f"tranche-diff-{_SHA[:12]}.json").write_text(json.dumps(_diff()))
@@ -105,7 +107,7 @@ def test_approve_materializes_alias_without_approve_rename(
 
 
 def test_audit_blocks_when_resaved_bytes_moved_since_the_diff() -> None:
-    aliases = auto_approve_renames(_diff())
+    aliases = auto_approve_renames(_diff(), metadata_resaves=True)
     manifest = {"cards": [{"card_id": NEW_ID, "asset_url": NEW_URL}]}
     [target] = collect_audit_targets(aliases, _diff(), manifest)
     assert target["expected_sha"] == NEW_BYTES_SHA

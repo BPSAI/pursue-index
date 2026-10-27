@@ -175,7 +175,8 @@ export interface AliasHop {
 
 /**
  * Evidence fields (R7C.13). A single hop carries its own. A chain shows
- * first-old -> last-new byte shas only when EVERY hop is metadata-only;
+ * first-old -> last-new byte shas only when EVERY hop is metadata-only AND
+ * each hop's new sha is the next hop's old sha (an unbroken byte lineage);
  * otherwise no hop's evidence stands in for another's: `changeNature` reads
  * "chain, see hops" and `hops` lists each one. `method` is the first hop's.
  */
@@ -191,7 +192,12 @@ function chainEvidence(
   hops: AliasHop[],
   chain: RenameEvidence[],
 ): Pick<ResolvedAlias, "hops"> & RenameEvidence {
-  if (chain.every((e) => e.changeNature === "metadata-only")) {
+  const continuous = chain.every(
+    (e, i) =>
+      e.changeNature === "metadata-only" &&
+      (i === 0 || (!!e.oldByteSha256 && e.oldByteSha256 === chain[i - 1].newByteSha256)),
+  );
+  if (continuous) {
     return {
       changeNature: "metadata-only",
       ...(chain[0].oldByteSha256 ? { oldByteSha256: chain[0].oldByteSha256 } : {}),

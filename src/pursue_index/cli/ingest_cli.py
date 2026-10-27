@@ -32,6 +32,7 @@ from pursue_index.config import settings
 from pursue_index.ingest import (
     append_aliases,
     auto_approve_renames,
+    held_resave_lines,
     is_tranche_approved,
     parse_rename_flags,
     record_approval,
@@ -266,7 +267,10 @@ def _resolve_renames(
     enriched with provenance.
     Returns ``(auto_renames, manual_renames, enriched)``. Exits 2 on a
     malformed ``--approve-rename`` flag."""
-    auto_renames = auto_approve_renames(diff)
+    opted_in = settings.ingest_auto_approve_metadata_resaves
+    auto_renames = auto_approve_renames(diff, metadata_resaves=opted_in)
+    for line in [] if opted_in else held_resave_lines(diff):
+        typer.echo(line, err=True)
     try:
         manual_renames = parse_rename_flags(approve_rename or [])
     except ValueError as exc:

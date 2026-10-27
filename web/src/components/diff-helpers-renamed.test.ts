@@ -63,6 +63,23 @@ test("resolveAliases: an all-metadata-only chain spans first old sha to last new
   assert.equal(a.newByteSha256, SHA_C);
 });
 
+test("resolveAliases: a metadata-only chain with a sha discontinuity is not collapsed", () => {
+  const hop2 = alias("ff3939f95d878062", "1111222233334444", {
+    old_byte_sha256: "e".repeat(64), new_byte_sha256: SHA_C, change_nature: "metadata-only",
+  });
+  const a = resolveAliases([D042, hop2])["a0f6663169c21caf"];
+  assert.equal(a.changeNature, "chain, see hops");
+  assert.equal(a.oldByteSha256, undefined);
+  assert.equal(a.newByteSha256, undefined);
+  assert.equal(a.hops?.length, 2);
+});
+
+test("resolveAliases: a hop missing its byte shas breaks continuity", () => {
+  const hop2 = alias("ff3939f95d878062", "1111222233334444", { change_nature: "metadata-only" });
+  const a = resolveAliases([D042, hop2])["a0f6663169c21caf"];
+  assert.equal(a.changeNature, "chain, see hops");
+});
+
 test("resolveAliases: a single hop is unchanged by the chain rule", () => {
   const a = resolveAliases([D042])["a0f6663169c21caf"];
   assert.equal(a.changeNature, "metadata-only");

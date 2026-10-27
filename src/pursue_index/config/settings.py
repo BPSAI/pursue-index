@@ -44,6 +44,14 @@ class Settings(BaseSettings):
     csv_url: HttpUrl = Field(default="https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv")
     scrape_user_agent: str = ""  # empty → use the realistic Chrome UA in csv_fetcher
 
+    # ---- Ingest ----
+    # Unattended auto-approval of metadata-only PDF re-saves (R7C.12/R7C.14).
+    # OFF by default until the differential fuzz harness for the byte
+    # classifier lands: a metadata-only verdict is still recorded in the
+    # tranche diff and the audit row, but the rename stays quarantined for
+    # the operator (``ingest approve --approve-rename <new>=<old>``).
+    ingest_auto_approve_metadata_resaves: bool = False
+
     # ---- Download ----
     download_concurrency: int = 4
     download_retries: int = 5

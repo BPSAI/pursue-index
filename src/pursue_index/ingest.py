@@ -128,7 +128,9 @@ def record_approval(
         fh.write(json.dumps(row) + "\n")
 
 
-def auto_approve_renames(diff: dict[str, Any]) -> list[dict[str, Any]]:
+def auto_approve_renames(
+    diff: dict[str, Any], *, metadata_resaves: bool = False,
+) -> list[dict[str, Any]]:
     """Extract machine-verified renames from a tranche-diff into alias rows.
 
     Class A (``renames_confirmed``): the new card's byte_sha256 collides
@@ -136,16 +138,20 @@ def auto_approve_renames(diff: dict[str, Any]) -> list[dict[str, Any]]:
     ``renames_metadata_only``: the new bytes are the old card's bytes plus
     a metadata-only PDF update — ``method: "metadata-only-resave"``, with
     the NEW bytes' sha so the pre-approval audit re-checks those bytes.
-    Operator approval of the tranche implicitly accepts both (no explicit
-    per-card flag needed).
+    Operator approval of the tranche implicitly accepts Class A; the
+    re-save bucket is included only with ``metadata_resaves=True`` (the
+    ``ingest_auto_approve_metadata_resaves`` opt-in, default off) -- until
+    then those renames stay quarantined for an explicit ``--approve-rename``.
 
     Only a re-save row has a classifier byte verdict, so only it also
     records the display evidence ``old_byte_sha256`` / ``new_byte_sha256`` /
     ``change_nature`` (R7C.13); ``byte_sha256`` stays the audit's contract.
     """
     out: list[dict[str, Any]] = []
-    for bucket, method in (("renames_confirmed", "byte_collision"),
-                           (RESAVE_BUCKET, RESAVE_METHOD)):
+    buckets = [("renames_confirmed", "byte_collision")]
+    if metadata_resaves:
+        buckets.append((RESAVE_BUCKET, RESAVE_METHOD))
+    for bucket, method in buckets:
         for r in diff.get(bucket, []) or []:
             row = {
                 "old_card_id": r["old_card_id"],
@@ -157,6 +163,19 @@ def auto_approve_renames(diff: dict[str, Any]) -> list[dict[str, Any]]:
                 row.update(_byte_change_evidence(r))
             out.append(row)
     return out
+
+
+def held_resave_lines(diff: dict[str, Any]) -> list[str]:
+    """Operator-facing lines for re-save renames held back (auto-approval off)."""
+    held = diff.get(RESAVE_BUCKET) or []
+    lines = [
+        f"held: metadata-only re-save {r['new_card_id']}={r['old_card_id']} stays quarantined "
+        f"(auto-approval off); approve with --approve-rename {r['new_card_id']}={r['old_card_id']}"
+        for r in held
+    ]
+    if held:
+        lines.append(f"{len(held)} metadata-only re-save rename(s) held for the operator")
+    return lines
 
 
 def _byte_change_evidence(r: dict[str, Any]) -> dict[str, Any]:
