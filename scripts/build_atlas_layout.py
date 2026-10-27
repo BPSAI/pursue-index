@@ -56,6 +56,25 @@ from pursue_index.release.chunked_asset import (
 DEFAULT_OUT_DIR = REPO_ROOT / "web" / "public" / "data"
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 
+# Mirrors AGENCY_ORDER in web/src/components/atlas-helpers.ts. Every agency
+# this build emits must have a slot there (color + legend label) or its
+# points silently render as grey UNKNOWN with no legend entry — see
+# ``unmapped_agencies_in_layout``. Keep both lists in sync when a new
+# agency enters the manifest.
+AGENCY_ORDER = (
+    "Department of War",
+    "FBI",
+    "NASA",
+    "Department of State",
+    "CIA",
+    "Department of Energy",
+    "Executive Office of the President",
+    "Intelligence Community Agency",
+    "Local Law Enforcement",
+    "Office of the Director of National Intelligence",
+    "U.S. Government",
+)
+
 
 def _load_published_vectors(web_data_dir: Path) -> tuple[np.ndarray, dict[str, Any]]:
     """Read deployed float16 payload, return ``(arr_f32, index)``.
@@ -226,6 +245,21 @@ def _make_points(
     return points
 
 
+def unmapped_agencies_in_layout(layout: dict[str, Any]) -> set[str]:
+    """Agencies in ``layout["points"]`` with no ``AGENCY_ORDER`` slot.
+
+    ``"UNKNOWN"`` is the documented fallback for cards missing from the
+    manifest (see ``_make_points``) and already has a color/legend slot —
+    it is not itself a violation. Callable both as a build()-time guard
+    and directly against any layout dict (fixture or committed).
+    """
+    return {
+        p["agency"]
+        for p in layout.get("points", [])
+        if p.get("agency") not in AGENCY_ORDER and p.get("agency") != "UNKNOWN"
+    }
+
+
 def _write_layout(
     out_path: Path,
     *,
@@ -339,6 +373,15 @@ def build(
     )
     agency_map = _load_agency_map(manifest_path)
     points = _make_points(kept_rows, coords, agency_map)
+    unmapped = unmapped_agencies_in_layout({"points": points})
+    if unmapped:
+        print(
+            f"agencies with no AGENCY_ORDER slot: {sorted(unmapped)} — add them "
+            "to AGENCY_ORDER in both scripts/build_atlas_layout.py and "
+            "web/src/components/atlas-helpers.ts",
+            file=sys.stderr,
+        )
+        return 1
     out_path = out_dir / "atlas-layout.json"
     _write_layout(
         out_path,

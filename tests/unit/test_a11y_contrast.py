@@ -47,6 +47,16 @@ TEXT_FOREGROUNDS = {
     "signal-red": "#ff5c5c",
     "signal-cyan": "#5fd4ff",
     "signal-violet": "#b78fff",
+    # Atlas-only agency palette (R7C.17) — not prose accents like the
+    # signal-* colors above, but held to the same WCAG AA bar since the
+    # legend/canvas render them at small font sizes too.
+    "signal-orange": "#ffa15c",
+    "signal-blue": "#7aa9ff",
+    "signal-yellow": "#f5e663",
+    "signal-teal": "#4ddbc0",
+    "signal-magenta": "#e37bff",
+    "signal-lilac": "#c6a9ff",
+    "signal-mint": "#7dffb0",
 }
 
 WCAG_AA_NORMAL = 4.5  # body text
