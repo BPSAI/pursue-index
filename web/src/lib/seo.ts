@@ -83,7 +83,10 @@ export function datasetJsonLd(inputs: DatasetInputs): JsonLdObject {
     description:
       `Hash-pinned, OCR-indexed archive of U.S. Department of War PURSUE UAP document releases. ${inputs.cardCount} cards across ${inputs.ocrPageCount} OCR'd pages; sha-256-addressed bytes, page-level citations, machine-readable manifest.`,
     url: SITE_ORIGIN,
-    identifier: `${SITE_ORIGIN}/data/manifest.json`,
+    // `manifest.json` is a build-time source file under `src/data/`, never
+    // published — `cards-summary.json` is its public, machine-readable
+    // derivative (prebuild-generated, see `scripts/build_cards_summary.mjs`).
+    identifier: `${SITE_ORIGIN}/data/cards-summary.json`,
     keywords: [
       "UAP",
       "UFO",
@@ -115,12 +118,16 @@ export function datasetJsonLd(inputs: DatasetInputs): JsonLdObject {
       {
         "@type": "DataDownload",
         encodingFormat: "application/json",
-        contentUrl: `${SITE_ORIGIN}/data/manifest.json`,
+        contentUrl: `${SITE_ORIGIN}/data/cards-summary.json`,
       },
       {
         "@type": "DataDownload",
         encodingFormat: "application/json",
-        contentUrl: `${SITE_ORIGIN}/data/pages.json`,
+        // `pages.json` itself ships as byte-range chunks (see
+        // `chunked-asset.js`) once it crosses the Workers static-asset size
+        // budget — only the chunk index is guaranteed to resolve at this
+        // URL, so that's what crawlers get pointed at.
+        contentUrl: `${SITE_ORIGIN}/data/pages.json.chunks.json`,
       },
     ],
   };
