@@ -7,13 +7,9 @@ import re
 from pathlib import Path
 
 
-def test_no_bare_python_in_subprocess_calls() -> None:
-    """Scan tests/ and scripts/ for bare 'python' or 'python3' in subprocess calls.
-
-    When venv is not first on PATH, bare 'python' fails. Use sys.executable instead.
-    """
-    repo_root = Path(__file__).resolve().parents[2]
-    violations = []
+def find_bare_python_violations(repo_root: Path) -> list[str]:
+    """Scan tests/ and scripts/ under `repo_root` for bare python in subprocess calls."""
+    violations: list[str] = []
 
     # Scan both tests/ and scripts/ directories
     for pattern in ["tests/**/*.py", "scripts/**/*.py"]:
@@ -63,6 +59,16 @@ def test_no_bare_python_in_subprocess_calls() -> None:
                                 f"bare python in string subprocess call"
                             )
 
+    return violations
+
+
+def test_no_bare_python_in_subprocess_calls() -> None:
+    """Bare 'python'/'python3' fails when the venv is not first on PATH.
+
+    Use sys.executable instead.
+    """
+    repo_root = Path(__file__).resolve().parents[2]
+    violations = find_bare_python_violations(repo_root)
     if violations:
         msg = "Found bare 'python' or 'python3' in subprocess calls:\n"
         msg += "\n".join(violations)

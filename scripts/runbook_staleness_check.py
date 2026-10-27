@@ -143,6 +143,22 @@ _HISTORICAL_CONTEXT_MARKERS = (
 )
 
 
+# A hit is a warning, not a stale usage, when a negation precedes it on the
+# same line ("do NOT use `git push origin main`", "instead of ...").
+_NEGATION_RE = re.compile(
+    r"\b(?:do\s+not|don't|never|instead\s+of|avoid|must\s+not)\b",
+    re.IGNORECASE,
+)
+
+
+def _is_negated_mention(line: str, pattern: str) -> bool:
+    """True when every match of `pattern` on `line` follows a negation word."""
+    matches = list(re.finditer(pattern, line, re.IGNORECASE))
+    return bool(matches) and all(
+        _NEGATION_RE.search(line[: m.start()]) for m in matches
+    )
+
+
 def _gather_files() -> list[Path]:
     """Expand the TARGET_FILES patterns to a flat list of existing paths."""
     out: list[Path] = []
@@ -163,6 +179,8 @@ def _check_file(path: Path) -> list[tuple[int, str, str]]:
     for i, line in enumerate(lines):
         for pat, label in _PATTERNS:
             if not re.search(pat, line, re.IGNORECASE):
+                continue
+            if _is_negated_mention(line, pat):
                 continue
             # Check historical-context forgiveness on this + 2 lines above
             # AND 2 lines below (multi-line prose context is common in mdx).
