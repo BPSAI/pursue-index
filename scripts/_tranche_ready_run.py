@@ -60,14 +60,18 @@ def publish(diff: dict, record: dict, cfg: JobConfig) -> list[Path]:
     sha12 = record["tranche_sha12"]
     receipt = cfg.diff_dir / f"tranche-diff-{sha12}.json"
     target = cfg.ready_dir / f"{sha12}.json"
-    write_receipt = needs_write(receipt, json.loads(render_json(diff)), ignore=())
+    receipt_md = receipt.with_suffix(".md")
+    # A receipt is complete only with its worklist: a missing .md (interrupted
+    # prior run) counts as unwritten even when the JSON already matches.
+    write_receipt = (needs_write(receipt, json.loads(render_json(diff)), ignore=())
+                     or not receipt_md.exists())
     write_target = needs_write(target, record)
     written = []
     if write_receipt:
         cfg.diff_dir.mkdir(parents=True, exist_ok=True)
         receipt.write_text(render_json(diff) + "\n", encoding="utf-8")
-        receipt.with_suffix(".md").write_text(render_markdown(diff), encoding="utf-8")
-        written += [receipt, receipt.with_suffix(".md")]
+        receipt_md.write_text(render_markdown(diff), encoding="utf-8")
+        written += [receipt, receipt_md]
     if write_target:
         write_record(target, record)
         written.append(target)

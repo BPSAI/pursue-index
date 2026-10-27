@@ -116,3 +116,15 @@ def test_an_identical_second_run_is_a_no_op(
     before = _outputs(out)
     assert _run(tmp_path / "second", out, 3, monkeypatch) == 0
     assert _outputs(out) == before
+
+
+def test_a_rerun_restores_a_missing_markdown_receipt_without_touching_the_rest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    out = tmp_path / "out"
+    assert _run(tmp_path / "first", out, 3, monkeypatch) == 0
+    before = _outputs(out)
+    md = next(p for p in before if p.suffix == ".md")
+    md.unlink()
+    assert _run(tmp_path / "second", out, 3, monkeypatch) == 0
+    assert _outputs(out) == before
