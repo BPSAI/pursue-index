@@ -1,6 +1,6 @@
 ---
 description: Drive a detected war.gov tranche through the operated release, deterministically
-allowed-tools: Bash(*), Read, Edit
+allowed-tools: Bash(gh issue list:*), Bash(gh pr:*), Bash(gh release create:*), Bash(pursue:*), Bash(curate:*), Bash(make:*), Bash(git:*), Bash(python scripts/*), Bash(python -c:*), Bash(npm run:*), Read, Edit
 argument-hint: [<csv_sha256>]  (omit to use the newest open tranche-detected issue)
 ---
 
@@ -15,9 +15,9 @@ stale model) cannot recur. Two human gates only: **approval** and **deploy**.
 $ARGUMENTS
 
 ## Preconditions
-- Run from `pursue-index/` on a release branch. First: `set -a; source ../pursue-opsec-staging/.env; set +a`
-  (the symlink resolves, but always source opsec/.env explicitly — it is the
-  single source of truth for the operated env).
+- Run from `pursue-index/` on a release branch. Do NOT load credentials yet:
+  the operator's credential file is sourced only after HUMAN GATE #1 (step 3).
+  Details of that file live in the private ops runbook.
 - The operated config is non-negotiable: OCR `--engine llm-dots` (Sonnet 4.6, dots
   content-filter backstop) at `--concurrency 8`. tesseract/surya/auto are retired.
 - Each spending stage runs in its own memory scope (no budget carryover between stages).
@@ -25,32 +25,41 @@ $ARGUMENTS
 ## Workflow
 
 1. **Resolve the tranche.** If `$ARGUMENTS` is a sha, use it. Else take the newest
-   open `tranche-detected` issue: `gh issue list --state open --search "tranche detected" --json number,title`.
-   Set `SHA=<csv_sha256>`.
+   open issue carrying the `tranche-detected` label that was filed by the poll bot:
+   `gh issue list --state open --label tranche-detected --author "app/github-actions" --limit 1 --json number,title,body`.
+   Never select by free-text title search (the repo is public; anyone can file a
+   look-alike issue). Extract the sha and set `SHA` from it, then validate
+   IMMEDIATELY, before any other use:
+   ```
+   printf '%s' "$SHA" | grep -Eq '^[0-9a-f]{64}$' || { echo "bad SHA"; exit 1; }
+   ```
+   `SHA` must match `^[0-9a-f]{64}$`. On mismatch, STOP — do not run any later step.
+   Every later expansion of `SHA` is double-quoted.
 2. **Load the already-computed diff (no recompute).** Read the diff from
-   `data/tranche-diffs/tranche-diff-${SHA:0:12}.md` (+ the `.json`) and the poll
+   `data/tranche-diffs/tranche-diff-"${SHA:0:12}".md` (+ the `.json`) and the poll
    verdict. Inspect the worklist header to confirm CSV SHA and source URL (byte-provenance).
    Summarize: verdict, added/removed/field-only/new-columns, the scoped
    work-list, and the `~$` estimate. Do NOT re-fetch bytes.
 3. **HUMAN GATE #1 — approval.** Present the summary. Get explicit "yes". Then:
-   `pursue ingest approve --tranche $SHA --note "<operator note>"` (runs the TOCTOU re-audit).
+   `pursue ingest approve --tranche "$SHA" --note "<operator note>"` (runs the TOCTOU re-audit).
+   Only now load the operator's credential file (the private operations checkout
+   holds it; see the private ops runbook): `set -a; source "$OPERATOR_ENV_FILE"; set +a`.
 4. **VERIFY-BEFORE-SPEND (the guard).** Before any OCR, confirm the operated
    methodology + the 3-tier storage contract, or REFUSE:
    ```
    pursue storage verify   # NAS + main R2 (pursue-pdfs) + backup R2 (pursue-pdfs-backup) all configured
-   pursue ingest run --tranche $SHA --from-diff --dry-run   # scope + WRITES data/ingest-worklist.txt, no spend
+   pursue ingest run --tranche "$SHA" --from-diff --dry-run   # scope + WRITES data/ingest-worklist.txt, no spend
    python -c "import os; from pursue_index.release.ship import preflight_ocr; \
      r=preflight_ocr(engine='llm-dots', concurrency=8, anthropic_key_present=bool(os.environ.get('ANTHROPIC_API_KEY'))); \
      print(r); import sys; sys.exit(0 if r.ok else 1)"
    ```
    If the preflight fails (engine not llm-dots/llm, concurrency < 8, or no key), STOP and fix — do not spend.
-   `pursue storage verify` exits non-zero if any tier is unconfigured; note its
-   same-account-backup WARNING (backup R2 shares the primary CF account today —
-   not true DR; see `../pursue-opsec-staging/findings/2026-07-12-same-account-r2-backup.md`).
+   `pursue storage verify` exits non-zero if any tier is unconfigured; read its
+   WARNING lines; backup-tier caveats are documented in the private ops runbook.
    The `--from-diff --dry-run` step MATERIALIZES `data/ingest-worklist.txt` for
    the detected tranche (credential-free, no spend) so the OCR step below runs on
    the RIGHT card set — do not skip it (Codex #101 P1).
-5. **Promote:** `pursue ingest run --tranche $SHA` (deterministic, no spend). Does
+5. **Promote:** `pursue ingest run --tranche "$SHA"` (deterministic, no spend). Does
    NOT rewrite the worklist — step 4's dry-run already wrote it for this tranche.
    It also does **not** download: it prints the remaining pipeline and exits.
 5b. **Download the bytes** (deterministic, no LLM spend — a separate stage, easy to
@@ -73,7 +82,7 @@ $ARGUMENTS
    pursue av-fetch run --manifest data/manifests/latest.json \
        --release-date "<M/D/YY>" --staging-dir <dir>             # the fetch; exits non-zero on any shortfall
    python scripts/ingest_release_videos.py --release-date "<M/D/YY>" \
-       --desktop <dir> --env ../pursue-opsec-staging/.env \
+       --desktop <dir> --env "$OPERATOR_ENV_FILE" \
        --source-label "war.gov/release_NN (DVIDS videos)" --dry-run
    ```
    `av-fetch run` resolves each card's DOD asset URL from its `/video/<id>`
@@ -187,7 +196,7 @@ $ARGUMENTS
 14. **Finds + tag:** fan out finds reviewers over the new cards → publish quote-verified,
     cross-linked `/finds` (astro build re-validates every `<Cite>`), then
     `git tag vX.Y.Z && gh release create vX.Y.Z --latest` (both — a tag alone is not the release).
-15. **Record:** update `pursue-opsec-staging/.paircoder/context/state.md` + write the finds digest.
+15. **Record:** update the private operations checkout's session record + write the finds digest (see the private ops runbook).
 
 ## Gates (MANDATORY)
 - **Approval** (step 3) and **deploy** (step 13) require explicit human "yes" — these are the spend and the outward-facing, hard-to-reverse actions.

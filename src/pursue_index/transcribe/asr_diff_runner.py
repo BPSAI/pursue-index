@@ -11,9 +11,9 @@ gate the task requires.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 from pursue_index import get_logger
 from pursue_index.transcribe import asr_diff_sidecar as sidecar
@@ -21,7 +21,7 @@ from pursue_index.transcribe.asr_diff import (
     AGREEMENT_THRESHOLD,
     DisagreeingSpan,
     align_transcripts,
-    classify_agreement,
+    classify_result,
 )
 
 log = get_logger(__name__)
@@ -38,6 +38,20 @@ class AsrDiffBudgetExceededError(RuntimeError):
     def __init__(self, message: str, *, partial_cost_usd: float = 0.0) -> None:
         super().__init__(message)
         self.partial_cost_usd = partial_cost_usd
+
+
+@dataclass
+class AsrDiffBudget:
+    """One USD cap shared by every row of a bulk pass; ``run_row`` charges it."""
+
+    cap_usd: float
+    spent_usd: float = 0.0
+
+    def can_afford(self, cost_usd: float) -> bool:
+        return self.spent_usd + cost_usd <= self.cap_usd
+
+    def charge(self, cost_usd: float) -> None:
+        self.spent_usd += cost_usd
 
 
 @dataclass
@@ -84,7 +98,7 @@ def run_row(
     second_engine_fn: SecondEngineFn,
     audio_duration_s: float,
     rate_usd_per_minute: float,
-    budget_usd: float,
+    budget: AsrDiffBudget,
     threshold: float = AGREEMENT_THRESHOLD,
 ) -> RowAsrDiffReport:
     """Diff one row against a second engine; write its sidecar row.
@@ -92,24 +106,25 @@ def run_row(
     Idempotent on ``(engine_a, engine_b)`` -- a row already compared under
     the same pair is returned from the sidecar with ``cost_usd=0.0`` and
     ``second_engine_fn`` is never called. Otherwise the projected cost is
-    checked against ``budget_usd`` BEFORE the call, so a run never spends
-    past its cap.
+    checked against the shared ``budget`` (spend so far plus this row) BEFORE
+    the call, so a bulk run never spends past its cap.
     """
     existing = sidecar.load_existing(sidecar_path).get(row_key)
     if existing and sidecar.should_skip(existing, engine_a=engine_a, engine_b=engine_b):
         return _from_existing(card_id, row_key, existing)
 
     projected = estimate_cost_usd(audio_duration_s, rate_usd_per_minute)
-    if projected > budget_usd:
+    if not budget.can_afford(projected):
         raise AsrDiffBudgetExceededError(
-            f"estimated ${projected:.2f} exceeds cap ${budget_usd:.2f} "
-            f"before diffing {card_id} row {row_key!r}",
-            partial_cost_usd=0.0,
+            f"estimated ${projected:.2f} on top of ${budget.spent_usd:.2f} spent "
+            f"exceeds cap ${budget.cap_usd:.2f} before diffing {card_id} row {row_key!r}",
+            partial_cost_usd=budget.spent_usd,
         )
 
     text_b = second_engine_fn(audio_path)
     result = align_transcripts(text_a, text_b)
-    status = classify_agreement(result.agreement, threshold)
+    status = classify_result(result, threshold)
+    budget.charge(projected)
     row = sidecar.build_row(
         row_key=row_key, engine_a=engine_a, engine_b=engine_b,
         result=result, threshold=threshold, status=status,
@@ -123,3 +138,21 @@ def run_row(
         card_id=card_id, row_key=row_key, status=status, agreement=result.agreement,
         cost_usd=projected, disagreeing_spans=result.disagreeing_spans,
     )
+
+
+def run_rows(
+    calls: Iterable[Callable[[], RowAsrDiffReport]],
+) -> tuple[list[RowAsrDiffReport], AsrDiffBudgetExceededError | None]:
+    """Run per-row calls sharing one budget; stop at the first cap breach.
+
+    Returns the reports completed so far and the breach (``None`` if the
+    whole loop fit under the cap).
+    """
+    reports: list[RowAsrDiffReport] = []
+    for call in calls:
+        try:
+            reports.append(call())
+        except AsrDiffBudgetExceededError as exc:
+            log.warning("asr_diff.budget.stop", spent_usd=exc.partial_cost_usd)
+            return reports, exc
+    return reports, None

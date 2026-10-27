@@ -49,10 +49,10 @@ def _write_transcript_meta(
 
 def test_dry_run_previews_cost_for_every_eligible_row_without_spending(tmp_path: Path) -> None:
     manifest = tmp_path / "m.json"
-    _write_manifest(manifest, ["aud1", "aud2"])
+    _write_manifest(manifest, ["a1a1a1a1a1a1a1a1", "a2a2a2a2a2a2a2a2"])
     out_dir = tmp_path / "ocr"
-    _write_transcript_meta(out_dir, "aud1", audio_duration_s=120.0)
-    _write_transcript_meta(out_dir, "aud2", audio_duration_s=60.0)
+    _write_transcript_meta(out_dir, "a1a1a1a1a1a1a1a1", audio_duration_s=120.0)
+    _write_transcript_meta(out_dir, "a2a2a2a2a2a2a2a2", audio_duration_s=60.0)
 
     result = runner.invoke(app, [
         "transcribe", "asr-diff", "run",
@@ -63,14 +63,14 @@ def test_dry_run_previews_cost_for_every_eligible_row_without_spending(tmp_path:
     ])
     assert result.exit_code == 0, result.output
     assert "DRY-RUN" in result.output
-    assert "aud1" in result.output and "aud2" in result.output
+    assert "a1a1a1a1a1a1a1a1" in result.output and "a2a2a2a2a2a2a2a2" in result.output
     # 120s + 60s = 3 minutes total @ $0.03/min = $0.09
     assert "0.09" in result.output
 
 
 def test_a_card_with_no_transcript_yet_is_not_eligible(tmp_path: Path) -> None:
     manifest = tmp_path / "m.json"
-    _write_manifest(manifest, ["aud1"])
+    _write_manifest(manifest, ["a1a1a1a1a1a1a1a1"])
     out_dir = tmp_path / "ocr"  # no meta.json written: not yet transcribed
 
     result = runner.invoke(app, [
@@ -86,10 +86,10 @@ def test_a_card_with_no_transcript_yet_is_not_eligible(tmp_path: Path) -> None:
 
 def test_a_row_already_compared_under_the_same_engine_pair_is_excluded(tmp_path: Path) -> None:
     manifest = tmp_path / "m.json"
-    _write_manifest(manifest, ["aud1"])
+    _write_manifest(manifest, ["a1a1a1a1a1a1a1a1"])
     out_dir = tmp_path / "ocr"
-    _write_transcript_meta(out_dir, "aud1", audio_duration_s=120.0)
-    (out_dir / "aud1" / "asr_diff.jsonl").write_text(json.dumps({
+    _write_transcript_meta(out_dir, "a1a1a1a1a1a1a1a1", audio_duration_s=120.0)
+    (out_dir / "a1a1a1a1a1a1a1a1" / "asr_diff.jsonl").write_text(json.dumps({
         "row_key": "", "engine_a": "assemblyai", "engine_b": "fake-engine-b",
         "status": "judged", "agreement": 1.0,
     }) + "\n")

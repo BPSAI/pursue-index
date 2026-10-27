@@ -316,7 +316,7 @@ def test_script_reads_an_optional_asr_diff_bundle_and_overrides_aud_status(
         paths[name] = tmp_path / f"{name}.json"
         paths[name].write_text(json.dumps(doc))
     asr_diff_bundle_path = tmp_path / "asr-diff-bundle.json"
-    asr_diff_bundle_path.write_text(json.dumps({"cards": [{"card_id": "aud", "status": "judged"}]}))
+    asr_diff_bundle_path.write_text(json.dumps({"cards": [{"card_id": "aud", "status": "judged", "agreement": 0.97, "threshold": 0.9, "min_words": 20}]}))
     out = tmp_path / "qc-coverage.json"
     doc = build_qc_coverage.build(
         manifest_path=paths["manifest"], bundle_path=paths["bundle"],

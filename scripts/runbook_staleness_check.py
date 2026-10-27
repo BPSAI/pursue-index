@@ -151,12 +151,30 @@ _NEGATION_RE = re.compile(
 )
 
 
+# The negation must sit right before the command: at most a few filler words
+# ("use", "run", "the", ...) and an optional opening quote/backtick between.
+_NEAR_NEGATION_RE = re.compile(
+    r"\b(?:do\s+not|don't|never|instead\s+of|avoid|must\s+not)\W{0,3}"
+    r"(?:(?:use|run|using|running|the|a|an|to|of)\s+){0,3}[`\"']?$",
+    re.IGNORECASE,
+)
+
+
 def _is_negated_mention(line: str, pattern: str) -> bool:
-    """True when every match of `pattern` on `line` follows a negation word."""
+    """True when every match of `pattern` is directly negated, or sits in an
+    inline code span on a line that carries a negation."""
     matches = list(re.finditer(pattern, line, re.IGNORECASE))
-    return bool(matches) and all(
-        _NEGATION_RE.search(line[: m.start()]) for m in matches
-    )
+    if not matches:
+        return False
+    has_negation = bool(_NEGATION_RE.search(line))
+    for m in matches:
+        prefix = line[: m.start()]
+        if _NEAR_NEGATION_RE.search(prefix):
+            continue
+        if has_negation and prefix.count("`") % 2 == 1:  # inside an inline code span
+            continue
+        return False
+    return True
 
 
 def _gather_files() -> list[Path]:
@@ -204,8 +222,6 @@ def _check_unchained_clean_qc(lines: list[str]) -> list[tuple[int, str, str]]:
     with && to ensure publish never follows a failed run.
     """
     hits: list[tuple[int, str, str]] = []
-    content = "\n".join(lines)
-
     # Look for clean-qc run commands
     for i, line in enumerate(lines):
         if "clean-qc run" in line and "curate" in line:
@@ -228,10 +244,8 @@ def _check_unchained_clean_qc(lines: list[str]) -> list[tuple[int, str, str]]:
 
             if not found_chain:
                 # Check if publish appears within the next 3 lines without chaining
-                publish_found = False
                 for j in range(i + 1, min(i + 4, len(lines))):
                     if "clean-qc" in lines[j] and "publish" in lines[j]:
-                        publish_found = True
                         # This is a hit only if there's no && between run and publish
                         between_text = "\n".join(lines[i:j+1])
                         if "&&" not in between_text:

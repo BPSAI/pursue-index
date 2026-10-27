@@ -28,8 +28,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import json
 
+from pursue_index import get_logger
+from pursue_index.card_id import InvalidCardIdError, require_card_ids
 from pursue_index.paths import repo_root
 from pursue_index.transcribe import asr_diff_sidecar as sidecar
+from pursue_index.transcribe.asr_diff import derive_status
+
+log = get_logger(__name__)
 
 REPO_ROOT = repo_root()
 
@@ -40,30 +45,61 @@ DEFAULT_OUT = REPO_ROOT / "web" / "public" / "data" / "asr-diff-bundle.json"
 _STATUS_RANK = {"judged": 0, "review": 1}
 
 
-def _card_status(rows: dict[str, dict]) -> str | None:
-    statuses = [r.get("status") for r in rows.values() if r.get("status") in _STATUS_RANK]
-    if not statuses:
+def _row_evidence(row: dict) -> tuple[object, object, object]:
+    """``(agreement, threshold, min_words)`` for one sidecar row."""
+    wa, wb = row.get("word_count_a"), row.get("word_count_b")
+    words = min(wa, wb) if isinstance(wa, int) and isinstance(wb, int) else None
+    return row.get("agreement"), row.get("threshold"), words
+
+
+def _card_entry(card_id: str, rows: dict[str, dict]) -> dict | None:
+    """One card's entry: the WORST re-derived row (lowest agreement wins)."""
+    if not rows:
         return None
-    return max(statuses, key=lambda s: _STATUS_RANK[s])
+    worst = None
+    for row in rows.values():
+        agreement, threshold, words = _row_evidence(row)
+        status = derive_status(agreement, threshold, words)
+        rank = (_STATUS_RANK[status], -(agreement if isinstance(agreement, (int, float)) else -1.0))
+        if worst is None or rank > worst[0]:
+            worst = (rank, status, agreement, threshold, words)
+    _, status, agreement, threshold, words = worst
+    return {
+        "card_id": card_id, "status": status, "agreement": agreement,
+        "threshold": threshold, "min_words": words,
+    }
 
 
 def build(*, ocr_dir: Path, card_ids: list[str]) -> dict:
-    """``{"cards": [{"card_id", "status"}, ...]}`` for every card with a
-    completed comparison, sorted by card_id."""
+    """``{"cards": [...]}`` for every card with a completed comparison, sorted
+    by card_id. ``card_id`` is validated before it is joined into a path."""
     cards = []
-    for card_id in card_ids:
+    for card_id in require_card_ids(card_ids):
         rows = sidecar.load_existing(ocr_dir / card_id / sidecar.SIDECAR_FILE)
-        status = _card_status(rows)
-        if status is not None:
-            cards.append({"card_id": card_id, "status": status})
+        entry = _card_entry(card_id, rows)
+        if entry is not None:
+            cards.append(entry)
     cards.sort(key=lambda c: c["card_id"])
     return {"cards": cards}
 
 
 def as_status_map(bundle: dict) -> dict[str, str]:
     """``{card_id: status}`` -- what ``build_qc_coverage.py`` passes to
-    ``build_coverage``'s ``asr_diff_status`` parameter."""
-    return {c["card_id"]: c["status"] for c in bundle["cards"]}
+    ``build_coverage``. The published status is NOT trusted: ``judged`` is
+    re-derived from the card's agreement, threshold and word count, and any
+    status other than ``judged``/``review`` becomes ``review`` (logged)."""
+    out: dict[str, str] = {}
+    for c in bundle["cards"]:
+        published = c.get("status")
+        derived = derive_status(c.get("agreement"), c.get("threshold"), c.get("min_words"))
+        if published not in _STATUS_RANK:
+            log.warning("asr_diff.bundle.bad_status", card_id=c.get("card_id"), status=str(published)[:40])
+            derived = "review"
+        elif published != derived:
+            log.warning("asr_diff.bundle.status_mismatch", card_id=c.get("card_id"),
+                        published=published, derived=derived)
+        out[c["card_id"]] = "review" if "review" in (published, derived) else "judged"
+    return out
 
 
 def main() -> int:
@@ -86,7 +122,11 @@ def main() -> int:
         ocr_dir = args.ocr_dir
     card_ids = [c.strip() for c in args.cards.split(",") if c.strip()]
 
-    bundle = build(ocr_dir=ocr_dir, card_ids=card_ids)
+    try:
+        bundle = build(ocr_dir=ocr_dir, card_ids=card_ids)
+    except InvalidCardIdError as exc:
+        print(f"asr-diff-bundle: {exc}", file=sys.stderr)
+        return 2
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
     print(f"asr-diff-bundle: {len(bundle['cards'])} card(s) -> {args.out}")

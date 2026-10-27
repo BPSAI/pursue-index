@@ -183,9 +183,10 @@ def classify_cards(
     or incomplete for a card, that card's digest is unverifiable and the
     legacy page-count-only classification stands. ``asr_diff_status``
     (R7C.27) is ``{card_id: "judged" | "review"}`` from a completed
-    second-engine comparison (``pursue_index.transcribe.asr_diff``); it is
-    trusted as-is -- the threshold decision already happened at comparison
-    time -- and only ever overrides an AUD card's classification.
+    second-engine comparison (``pursue_index.transcribe.asr_diff``); the
+    caller (``build_asr_diff_bundle.as_status_map``) has already re-derived it
+    from the agreement evidence, so a tampered bundle cannot mint ``judged``.
+    It only ever overrides an AUD card's classification.
     """
     pages = list(pages)
     types = _asset_types(manifest)

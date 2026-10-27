@@ -41,3 +41,17 @@ def test_real_stale_usage_still_flagged_beside_negated_one(tmp_path: Path) -> No
 def test_negation_word_on_another_line_does_not_forgive(tmp_path: Path) -> None:
     body = f"Never skip review.\n{_PUSH}\n"
     assert len(_hits(tmp_path, body)) == 1
+
+
+def test_distant_earlier_negation_does_not_forgive(tmp_path: Path) -> None:
+    body = f"Never mind, run {_PUSH}\n"
+    assert len(_hits(tmp_path, body)) == 1
+
+
+def test_code_span_with_a_negation_on_the_line_is_forgiven(tmp_path: Path) -> None:
+    body = f"Do not rely on the old flow, which was `{_PUSH}`.\n"
+    assert _hits(tmp_path, body) == []
+
+
+def test_negation_then_few_filler_words_is_forgiven(tmp_path: Path) -> None:
+    assert _hits(tmp_path, f"Never run the {_PUSH}\n") == []

@@ -111,3 +111,27 @@ def align_transcripts(text_a: str, text_b: str) -> AsrDiffResult:
 def classify_agreement(agreement: float, threshold: float = AGREEMENT_THRESHOLD) -> str:
     """``judged`` at/above ``threshold``, else ``review``."""
     return "judged" if agreement >= threshold else "review"
+
+
+def derive_status(
+    agreement: object, threshold: object, min_words: object,
+) -> str:
+    """Re-derive ``judged``/``review`` from raw evidence; fail closed.
+
+    ``judged`` needs numeric agreement at/above numeric threshold AND at
+    least one word on both sides -- two silent transcripts agree on nothing.
+    Anything missing or malformed is ``review``.
+    """
+    nums = (agreement, threshold, min_words)
+    if any(isinstance(n, bool) or not isinstance(n, (int, float)) for n in nums):
+        return "review"
+    if min_words < 1:
+        return "review"
+    return classify_agreement(float(agreement), float(threshold))
+
+
+def classify_result(result: AsrDiffResult, threshold: float = AGREEMENT_THRESHOLD) -> str:
+    """Classify a full alignment result; zero words on either side is ``review``."""
+    return derive_status(
+        result.agreement, threshold, min(result.word_count_a, result.word_count_b),
+    )

@@ -6,6 +6,7 @@ are present, with updated staleness checks.
 
 import re
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 import pytest
@@ -61,7 +62,7 @@ class TestAC2_StalenesCheckValidatesUnchainedPair:
         assert "_check_unchained_clean_qc" in script_content or "unchained" in script_content.lower(), \
             "Staleness check must have logic to validate unchained clean-qc run/publish"
 
-    def test_staleness_check_detects_unchained_fixture(self):
+    def test_staleness_check_detects_unchained_fixture(self, tmp_path):
         """Staleness check must fail on a fixture with unchained run/publish."""
         # Create a temporary fixture with unchained clean-qc commands
         fixture_content = """# Test Ship Tranche Runbook
@@ -82,7 +83,7 @@ class TestAC2_StalenesCheckValidatesUnchainedPair:
 """
 
         with tempfile.NamedTemporaryFile(mode='w', suffix='_ship-tranche.md',
-                                        dir=REPO_ROOT, delete=False) as f:
+                                        dir=tmp_path, delete=False) as f:
             f.write(fixture_content)
             fixture_path = Path(f.name)
 
@@ -140,7 +141,7 @@ class TestAC3_StalenesCheckReadsTrackedPath:
         """Running the staleness check must pass (exit code 0) on the tracked runbook."""
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 str(STALENESS_SCRIPT)
             ],
             cwd=str(REPO_ROOT),
@@ -214,7 +215,7 @@ class TestAC5_EndToEndIntegration:
     def test_staleness_check_invocation_succeeds(self):
         """Running python scripts/runbook_staleness_check.py must exit with 0."""
         result = subprocess.run(
-            ["python", str(STALENESS_SCRIPT)],
+            [sys.executable, str(STALENESS_SCRIPT)],
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True
@@ -301,7 +302,7 @@ class TestAC_SummaryIntegration:
         assert "docs/runbooks/ship-tranche.md" in script_content, \
             "AC3: Must reference tracked path"
         result = subprocess.run(
-            ["python", str(STALENESS_SCRIPT)],
+            [sys.executable, str(STALENESS_SCRIPT)],
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True

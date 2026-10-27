@@ -19,6 +19,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from pursue_index.card_id import InvalidCardIdError, require_card_id, require_card_ids
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 from pursue_index.text_control import console_text
@@ -34,10 +35,13 @@ console = Console()
 
 
 def _aud_card_ids(manifest_path: Path, cards_filter: str | None) -> list[str]:
+    wanted = (
+        set(require_card_ids(c.strip() for c in cards_filter.split(",") if c.strip()))
+        if cards_filter else None
+    )
     manifest = load_manifest(manifest_path)
     aud_cards = [c.card_id for c in manifest.cards if c.asset_type == "AUD"]
-    if cards_filter:
-        wanted = {c.strip() for c in cards_filter.split(",") if c.strip()}
+    if wanted is not None:
         aud_cards = [c for c in aud_cards if c in wanted]
     return aud_cards
 
@@ -60,7 +64,7 @@ def _eligible_rows(
     transcript but no completed comparison against ``engine_b`` yet."""
     rows: list[tuple[str, str, float]] = []
     for card_id in card_ids:
-        card_dir = out_dir / card_id
+        card_dir = out_dir / require_card_id(card_id)
         meta = _read_meta(card_dir)
         if not meta or meta.get("status") != "ok":
             continue
@@ -120,6 +124,10 @@ def asr_diff_run(
     """Preview the cost of a second-engine pass over every AUD row not yet
     compared under ``engine_b``. Never spends -- see module docstring."""
     out_dir = out or settings.ocr_dir
-    card_ids = _aud_card_ids(manifest, cards)
-    rows = _eligible_rows(out_dir, card_ids, engine_b)
+    try:
+        card_ids = _aud_card_ids(manifest, cards)
+        rows = _eligible_rows(out_dir, card_ids, engine_b)
+    except InvalidCardIdError as exc:
+        console.print(f"[red]{console_text(str(exc))}[/red]")
+        raise typer.Exit(code=2) from exc
     _print_dry_run(rows, engine_b, rate_usd_per_minute)
