@@ -117,6 +117,12 @@ _PATTERNS = [
         r"git\s+push\s+origin\s+main",
         "git push origin main instruction in runbook",
     ),
+    # R7C.31: the poll's snapshot job commits the tranche diff; the runbook
+    # loads it. Regenerating it by hand would recompute an append-only receipt.
+    (
+        r"\bpython3?\s+scripts/tranche_diff\.py|\bgenerat(?:e|ing)\s+the\s+(?:tranche[- ])?diff\b",
+        "hand-run tranche diff — the poll commits it to data/tranche-diffs/; load it",
+    ),
 ]
 
 # A pattern hit is FORGIVEN if any of these markers appears on the same

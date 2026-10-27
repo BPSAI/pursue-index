@@ -27,6 +27,17 @@ When ``--diff-out`` is given, also writes a diff+verdict JSON artifact
 (verdict + added/removed/field-change counts + new column names, keyed by
 new_sha) — the snapshot job commits this and the gh-comment step reads the
 verdict back onto the ``tranche-detected`` issue.
+
+When ``--tranche-ready-dir`` is given (R7C.31, ``_tranche_ready_run.py``),
+the same fetch's PDFs also feed the tranche diff (``tranche_diff.py``'s
+classifier with a temp ``--bytes-dir``, plus each rename/quarantine
+candidate's old bytes fetched credential-free and checked against the
+registry) and the schema-checked tranche-ready record; the job commits
+``--tranche-diff-dir``/``tranche-diff-<sha12>.{json,md}`` and
+``<sha12>.json``. Both are append-only per sha (exit 3, nothing written); a
+record that fails the vendored schema exits 4, nothing written, with the
+failing field in ``--error-out``. No PDF byte is ever written outside a
+temp dir.
 """
 
 from __future__ import annotations
@@ -66,6 +77,8 @@ DEFAULT_LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_DIFF_OUT = _REPO_ROOT / "data" / "manifests" / "diffs" / "latest-diff.json"
 DEFAULT_QC_BUNDLE = _REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.json"
 DEFAULT_SOURCE_URL = "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv"
+DEFAULT_TRANCHE_DIFF_DIR = _REPO_ROOT / "data" / "tranche-diffs"
+DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -98,7 +111,27 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--canonical-dir", type=Path, default=None)
     parser.add_argument("--public-dir", type=Path, default=None)
+    _add_tranche_ready_args(parser)
     return parser
+
+
+def _add_tranche_ready_args(parser: argparse.ArgumentParser) -> None:
+    """R7C.31: the tranche diff + tranche-ready record, both committed."""
+    parser.add_argument("--tranche-ready-dir", type=Path, default=None,
+                        help="Write <sha12>.json here (and the diff receipt). Skipped if omitted.")
+    parser.add_argument("--tranche-diff-dir", type=Path, default=DEFAULT_TRANCHE_DIFF_DIR)
+    parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    parser.add_argument("--poll-state", type=Path, default=_REPO_ROOT / "data" / "poll-state.json")
+    parser.add_argument("--csv-archive", type=Path, default=_REPO_ROOT / "data" / "raw" / "csv")
+    parser.add_argument("--tranche-issue", type=_optional_int, default=None)
+    parser.add_argument("--poll-run-id", type=_optional_int, default=None)
+    parser.add_argument("--poll-commit", type=lambda s: s or None, default=None)
+    parser.add_argument("--error-out", type=Path, default=None,
+                        help="On a tranche-ready failure, write the failure-issue body here.")
+
+
+def _optional_int(value: str) -> int | None:
+    return int(value) if value.strip() else None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -132,8 +165,10 @@ def main(argv: list[str] | None = None) -> int:
     artifact = build_verdict_artifact(result, new_sha=new_sha)
     if args.diff_out is not None and not _write_diff_record(args.diff_out, artifact):
         return 3
-    if args.summary_out is not None:
-        _write_summary(args.summary_out, result, new_sha, args.qc_bundle)
+    if args.summary_out is not None or args.tranche_ready_dir is not None:
+        rc = _fetched_outputs(args, raw, result, new_sha)
+        if rc:
+            return rc
     cols = ",".join(result.new_columns) or "-"
     print(
         f"poll-snapshot.ok added={len(result.added)} "
@@ -145,18 +180,32 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def _write_summary(path: Path, result, new_sha: str, qc_bundle: Path) -> None:
-    """Render the verdict + tranche-ready block, priced per page.
+def _fetched_outputs(args: argparse.Namespace, raw: bytes, result, new_sha: str) -> int:
+    """The outputs that need the new PDFs' bytes, from ONE fetch.
 
     Each new PDF is fetched (credential-free, Chrome-impersonated) into a
-    temp dir that lives only for this block, and its pages counted.
+    temp dir that lives only for this block: its pages price the summary,
+    and R7C.31's tranche-ready step reuses the same files as the new side
+    of every byte comparison. Returns the tranche-ready step's exit code.
     """
-    judge = read_judge_rate(qc_bundle)
+    judge = read_judge_rate(args.qc_bundle)
     with fetch_and_count(page_targets(result)) as fetched:
-        text = render_verdict_summary(
-            result, tranche=new_sha, page_counts=fetched.page_counts,
-            fallback_card_ids=fetched.fallback_card_ids, judge=judge,
-        )
+        if args.summary_out is not None:
+            _write_summary(args.summary_out, result, new_sha, fetched, judge)
+        if args.tranche_ready_dir is None:
+            return 0
+        from _tranche_ready_run import config_from_args, run_job
+
+        return run_job(raw, args.latest, args.source_url, config_from_args(args),
+                       fetched, judge, error_out=args.error_out)
+
+
+def _write_summary(path: Path, result, new_sha: str, fetched, judge) -> None:
+    """Render the verdict + tranche-ready block, priced per page."""
+    text = render_verdict_summary(
+        result, tranche=new_sha, page_counts=fetched.page_counts,
+        fallback_card_ids=fetched.fallback_card_ids, judge=judge,
+    )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
 

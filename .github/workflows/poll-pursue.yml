@@ -487,6 +487,27 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --require-hashes -r requirements-poll.txt
 
+      - name: Locate tranche issue
+        # R7C.31: the tranche-ready record carries the tranche-detected issue
+        # number. Same immediately-consistent lookup as the verdict step below
+        # (REST list + client-side title filter, sha passed to jq as --arg
+        # data). Best-effort: no issue (or a gh hiccup) records null.
+        id: tranche_issue
+        if: needs.poll.outputs.is_bootstrap == 'false'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          short_sha="${NEW_SHA:0:12}"
+          number=$(gh issue list \
+            --label tranche-detected --state open --limit 100 \
+            --json number,title 2>/dev/null \
+            | jq -r --arg s "$short_sha" \
+                'map(select(.title | contains($s))) | .[0].number // empty' \
+            2>/dev/null || echo "")
+          echo "number=${number}" >> "$GITHUB_OUTPUT"
+
       - name: Generate snapshot + diff
         # Bytes-in, files-out: feeds the committed CSV for the detected
         # sha to the T6.1 generator, which rotates latest.json -> the prior
@@ -506,8 +527,22 @@ jobs:
         # <sha>.json already exists and the recompute disagrees, the script
         # exits non-zero without writing, failing this job before the commit
         # step can rewrite history. An identical recompute is a no-op.
+        #
+        # R7C.31: --tranche-ready-dir also runs the tranche diff
+        # (scripts/tranche_diff.py's classifier, with a temp --bytes-dir
+        # holding the new PDFs fetched above plus each rename/quarantine
+        # candidate's OLD bytes, fetched credential-free from the URL the site
+        # serves and kept only if they hash to the registry sha), then writes
+        # data/tranche-diffs/tranche-diff-<sha12>.{json,md} and the
+        # schema-checked data/tranche-ready/<sha12>.json. Both are append-only
+        # per sha (exit 3); an invalid record exits 4 naming the failing
+        # field in --error-out, which the failure step below files. Bytes
+        # never leave the temp dirs.
+        id: generate
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+          TRANCHE_ISSUE: ${{ steps.tranche_issue.outputs.number }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           # status=='changed' is emitted by the poll SCRIPT before the later
           # "Commit new sha + CSV bytes" step pushes the bytes. If that push
@@ -521,7 +556,32 @@ jobs:
           python scripts/poll_snapshot.py \
             --csv "data/raw/csv/${NEW_SHA}.csv" \
             --diff-out "data/manifests/diffs/${NEW_SHA}.json" \
-            --summary-out "verdict-summary.md"
+            --summary-out "verdict-summary.md" \
+            --tranche-ready-dir data/tranche-ready \
+            --tranche-diff-dir data/tranche-diffs \
+            --tranche-issue "${TRANCHE_ISSUE}" \
+            --poll-run-id "${RUN_ID}" \
+            --poll-commit "$(git rev-parse --short=7 HEAD)" \
+            --error-out tranche-ready-error.md
+
+      - name: Open tranche-ready failure issue
+        # R7C.31: a refused tranche-ready record (invalid against the vendored
+        # schema, or an append-only conflict) fails the generate step before
+        # anything is committed. File the script's --error-out body -- which
+        # names the failing field -- as a poll failure issue so the refusal
+        # is seen, not just a red run.
+        if: failure() && steps.generate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+        run: |
+          if [ ! -s tranche-ready-error.md ]; then
+            echo "The snapshot step failed before writing a tranche-ready diagnosis; see the run log." > tranche-ready-error.md
+          fi
+          gh issue create \
+            --title "[poll] tranche-ready record refused for ${NEW_SHA:0:12}" \
+            --label "tranche-poll-failure" \
+            --body-file tranche-ready-error.md
 
       - name: Commit snapshot + diff
         # Commit both the canonical (data/manifests/snapshots) and public
@@ -532,13 +592,15 @@ jobs:
         # snapshots/<sha>*.json and would otherwise grab the diff artifact and
         # promote it as latest.json). Rebase before push to absorb any
         # concurrent advance of main, the same fast-forward discipline the poll
-        # job's commit steps use.
+        # job's commit steps use. R7C.31: the tranche diff receipt and the
+        # tranche-ready record go in the SAME commit, so a checkout never has
+        # one without the other (both are POLL_WRITTEN_PATHS).
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/manifests/snapshots web/public/data/snapshots data/manifests/diffs
+          git add data/manifests/snapshots web/public/data/snapshots data/manifests/diffs data/tranche-diffs data/tranche-ready
           if ! git diff --cached --quiet; then
             git commit -m "chore(poll): snapshot + diff for ${NEW_SHA:0:12}"
             git pull --rebase origin main

@@ -1,0 +1,300 @@
+{
+  "schema_version": "1.0.0",
+  "example_provenance": "Reconstructed from the committed tranche-diff receipt data/tranche-diffs/tranche-diff-096ef2c0058a.json and findings/2026-10-24-r7-tranche-096ef-d042-quarantine.md. The Release 7 poll predates R7C.31, so no live record was written; this is the pinned reference example and test vector.",
+  "tranche_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
+  "tranche_sha12": "096ef2c0058a",
+  "detected_at": "2026-10-24T02:55:00+00:00",
+  "generated_at": "2026-10-24T03:02:00+00:00",
+  "status": "ready",
+  "tranche_issue": 177,
+  "supersedes": [
+    {
+      "tranche_sha256": "7c3c800f90e469435170706bf638ae2c68d8e88df9f1bb5bc9d2d147042b7b11",
+      "tranche_sha12": "7c3c800f90e4",
+      "issue": 176,
+      "reason": "subset-of-current"
+    }
+  ],
+  "manifest": {
+    "old_row_count": 450,
+    "new_row_count": 478,
+    "prior_manifest_sha256": "c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7",
+    "new_snapshot_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9"
+  },
+  "diff": {
+    "renames_confirmed": 0,
+    "new_content": 28,
+    "quarantined": 1,
+    "removed": 1,
+    "field_only_changes": 56,
+    "row_changes": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0
+  },
+  "candidates": [
+    {
+      "kind": "quarantine",
+      "new_card_id": "ff3939f95d878062",
+      "old_card_id": "a0f6663169c21caf",
+      "new_title": "DOW-UAP-D042, Range Fouler Debrief, Arabian Gulf, 2023",
+      "old_title": "DOW-UAP-D042, Range Fouler Debrief, Japan, 2023",
+      "continuity_signals": [
+        "same agency + same incident_date (8/31/20)",
+        "same incident_location (Arabian Gulf)",
+        "matching numeric id 42"
+      ],
+      "old_byte_sha256": "d52431b354af55b1e86cb454e61fd61993af3b023a38f2d9e014a9c9d18d16b4",
+      "new_byte_sha256": "ca9563779824e306f11393612fe6503f39877c6d5be03e77c875e928ee116b54",
+      "old_byte_size": 295621,
+      "new_byte_size": 301060,
+      "byte_verdict": "metadata-only",
+      "byte_verdict_reason": null,
+      "evidence": {
+        "old_prefix_of_new": true,
+        "appended_bytes": 5439,
+        "incremental_update": true,
+        "changed_objects": [
+          "Info dict (Title, Subject, Author, Keywords, ModDate)",
+          "XMP metadata stream",
+          "xref stream",
+          "1 referenced object"
+        ],
+        "text_layer_identical": true,
+        "render_identical": true,
+        "render_dpi": 300
+      },
+      "stop_and_ask": false,
+      "recommended_disposition": "approve-rename-metadata-only-resave"
+    }
+  ],
+  "scope": {
+    "card_count": 29,
+    "cards": [
+      {
+        "card_id": "0e2f21236a2289fa",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D176"
+      },
+      {
+        "card_id": "12a7f37083cf2b87",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D170"
+      },
+      {
+        "card_id": "149f0e075ae4517d",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D167"
+      },
+      {
+        "card_id": "1af7a333fa99bdd9",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D179"
+      },
+      {
+        "card_id": "21c9fa9b9a543068",
+        "reason": "new",
+        "doc_id": "USG-UAP-D002"
+      },
+      {
+        "card_id": "2570557981d64cc7",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D159"
+      },
+      {
+        "card_id": "338995394c698b33",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D156"
+      },
+      {
+        "card_id": "38e700c6f51082f0",
+        "reason": "new",
+        "doc_id": "EOP-UAP-D002"
+      },
+      {
+        "card_id": "3acf9cf5047465bd",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D180"
+      },
+      {
+        "card_id": "3d74932e77e7868e",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D157"
+      },
+      {
+        "card_id": "55f5f0db04de21f2",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D181"
+      },
+      {
+        "card_id": "6a7a525ada83a4d6",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D171"
+      },
+      {
+        "card_id": "6f5beb626837fa74",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D164"
+      },
+      {
+        "card_id": "81fe3a1b9cd4bf42",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D163"
+      },
+      {
+        "card_id": "82f2e60220d94740",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D175"
+      },
+      {
+        "card_id": "85fd315af4b25993",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D169"
+      },
+      {
+        "card_id": "9bd42e0157fe4697",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D166"
+      },
+      {
+        "card_id": "a3a9754af3184c3b",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D178"
+      },
+      {
+        "card_id": "b63bea0452d1d4b3",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D177"
+      },
+      {
+        "card_id": "b87355e7ab051114",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D168"
+      },
+      {
+        "card_id": "cb5426fe2a0b512d",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D155"
+      },
+      {
+        "card_id": "d3cb04b8e4d55dc1",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D162"
+      },
+      {
+        "card_id": "d6016299267e9604",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D174"
+      },
+      {
+        "card_id": "e5c4575f838f0175",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D158"
+      },
+      {
+        "card_id": "ee657817d068d59b",
+        "reason": "new",
+        "doc_id": "FBI-UAP-D043"
+      },
+      {
+        "card_id": "f52425adaa32c4f2",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D161"
+      },
+      {
+        "card_id": "fc95f65e81965edf",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D160"
+      },
+      {
+        "card_id": "ffea128d68063d60",
+        "reason": "new",
+        "doc_id": "DOW-UAP-D173"
+      },
+      {
+        "card_id": "ff3939f95d878062",
+        "reason": "renamed",
+        "doc_id": "DOW-UAP-D042"
+      }
+    ]
+  },
+  "pages": {
+    "total": 1140,
+    "source": "fetched",
+    "largest": [
+      {
+        "card_id": "3acf9cf5047465bd",
+        "doc_id": "DOW-UAP-D180",
+        "pages": 298
+      },
+      {
+        "card_id": "ffea128d68063d60",
+        "doc_id": "DOW-UAP-D173",
+        "pages": 155
+      },
+      {
+        "card_id": "82f2e60220d94740",
+        "doc_id": "DOW-UAP-D175",
+        "pages": 141
+      },
+      {
+        "card_id": "6a7a525ada83a4d6",
+        "doc_id": "DOW-UAP-D171",
+        "pages": 134
+      }
+    ]
+  },
+  "estimate": {
+    "basis": "page-counted",
+    "partial": false,
+    "judge_figure_label": "metered",
+    "cap_margin": 0.5,
+    "low_usd": 36.62,
+    "high_usd": 185.87,
+    "recommended_cap_usd": 55.0,
+    "fallback_cards": [],
+    "per_stage": [
+      {
+        "stage": "ocr",
+        "low_rate_per_page": 0.013,
+        "high_rate_per_page": 0.016,
+        "low_usd": 14.82,
+        "high_usd": 18.24
+      },
+      {
+        "stage": "clean",
+        "low_rate_per_page": 0.0026,
+        "high_rate_per_page": 0.007,
+        "low_usd": 2.96,
+        "high_usd": 7.98
+      },
+      {
+        "stage": "judge",
+        "low_rate_per_page": 0.0165,
+        "high_rate_per_page": 0.14,
+        "low_usd": 18.81,
+        "high_usd": 159.6
+      },
+      {
+        "stage": "embed",
+        "low_rate_per_page": 3e-05,
+        "high_rate_per_page": 4e-05,
+        "low_usd": 0.03,
+        "high_usd": 0.05
+      }
+    ]
+  },
+  "fetch": {
+    "new_fetched": 29,
+    "new_failed": 0,
+    "old_fetched": 1,
+    "old_failed": 0,
+    "failures": []
+  },
+  "generated_by": {
+    "tool": "poll_snapshot.py",
+    "version": "r7c31",
+    "poll_run_id": null,
+    "poll_commit": "b3cac29"
+  }
+}

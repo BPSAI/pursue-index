@@ -67,3 +67,31 @@ def test_classifier_imports_and_runs_on_the_poll_install(
     )
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "metadata-only"
+
+
+def test_tranche_ready_job_imports_and_validates_on_the_poll_install(
+    poll_venv_python: Path, tmp_path: Path,
+) -> None:
+    """R7C.31: the snapshot job's tranche-ready step -- the classifier, the
+    dependency-free schema validator and the job entry point with its
+    ``tranche_diff`` import closure -- runs on the hash-locked set alone, and
+    the validator accepts the vendored Release-7 vector there."""
+    code = (
+        "import sys; sys.path[:0] = [sys.argv[1], sys.argv[2]]\n"
+        "import json\n"
+        "from pathlib import Path\n"
+        "import pursue_index.tranche_bytes\n"
+        "from pursue_index.tranche_ready.schema import load_schema, validate\n"
+        "import _tranche_ready_run\n"
+        "vector = json.loads(Path(sys.argv[3]).read_text())\n"
+        "print(len(validate(vector, load_schema())))\n"
+    )
+    result = subprocess.run(
+        [str(poll_venv_python), "-I", "-c", code, str(_REPO_ROOT / "src"),
+         str(_REPO_ROOT / "scripts"),
+         str(_REPO_ROOT / "tests" / "fixtures" / "tranche-ready-096ef.json")],
+        capture_output=True, text=True, cwd=tmp_path,
+        env={"PATH": "/usr/bin:/bin", "PURSUE_REPO_ROOT": str(_REPO_ROOT)},
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip().splitlines()[-1] == "0"
