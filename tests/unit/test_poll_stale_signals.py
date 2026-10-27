@@ -11,7 +11,8 @@ import json
 from pathlib import Path
 
 import pytest
-from test_poll_stale_edge import (
+
+from tests.unit.test_poll_stale_edge import (
     _CURRENT_CSV,
     _SUBSET_CSV,
     LM_19E6,
