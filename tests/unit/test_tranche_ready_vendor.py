@@ -27,7 +27,11 @@ VECTOR_PATH = REPO_ROOT / "tests" / "fixtures" / "tranche-ready-096ef.json"
 # Pinned from pursue-opsec's plans/specs/ copies at the commit this repo
 # vendored them from (pursue-opsec-staging 5b89ade, R7C.29).
 PINNED_SCHEMA_VERSION = "1.0.0"
-_UPSTREAM_SCHEMA_SHA256 = "f28581ddde0bdf5323bf0e4639bdd5f55189b3ed6ec18505fd4e5e28765079e9"
+# Security-gate fix round: this copy adds maxLength bounds (titles 512,
+# continuity_signals items 256, doc_id 64 + pattern) on top of the vendored
+# 5b89ade bytes (f28581dd...). pursue-opsec's copy needs the same change to
+# be byte-identical again; until then this pin is the local, bounded fork.
+_UPSTREAM_SCHEMA_SHA256 = "7fb15b812b4a32b3e193c366c7e75e01a337b3cacde275f69eadb94e4f744758"
 _UPSTREAM_VECTOR_SHA256 = "46ae4c7e4e590b637cbe4aa527817ccc017b2ac52592346c046de7dc4cb95884"
 
 

@@ -8,6 +8,9 @@ the single source of the rules -- implementing exactly the JSON Schema
 :class:`UnsupportedSchemaError` when the schema is loaded, so a future
 schema version that adds one fails closed instead of going half-checked.
 
+Error messages name the field and the rule, never the offending value: the
+messages reach an auto-filed issue body and the values are upstream text.
+
 Every error carries ``field``, the ``/``-joined path of the offending value
 (``fetch``, ``candidates/0/byte_verdict``), because that is what the poll's
 failure issue names. ``format: date-time`` is enforced (RFC 3339), not only
@@ -31,7 +34,7 @@ _SCHEMA_RELPATH = Path("schemas") / "tranche-ready.schema.json"
 
 _SUPPORTED = frozenset({
     "$schema", "$id", "$ref", "$defs", "title", "description", "type", "const", "enum",
-    "pattern", "minimum", "format", "required", "properties", "additionalProperties",
+    "pattern", "maxLength", "minimum", "format", "required", "properties", "additionalProperties",
     "items", "minItems", "maxItems",
 })
 _DATE_TIME = re.compile(r"\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[+-]\d{2}:\d{2})")
@@ -106,12 +109,12 @@ def _check(value: Any, node: dict, path: tuple, root: dict, errors: list[SchemaE
     if "const" in node and not _json_equal(value, node["const"]):
         errors.append(SchemaError(where, f"must equal {node['const']!r}"))
     if "enum" in node and not any(_json_equal(value, e) for e in node["enum"]):
-        errors.append(SchemaError(where, f"{value!r} is not one of {node['enum']!r}"))
+        errors.append(SchemaError(where, f"is not one of {node['enum']!r}"))
     if isinstance(value, str):
         _check_string(value, node, where, errors)
     elif isinstance(value, int | float) and not isinstance(value, bool):
         if "minimum" in node and value < node["minimum"]:
-            errors.append(SchemaError(where, f"{value} is below the minimum {node['minimum']}"))
+            errors.append(SchemaError(where, f"is below the minimum {node['minimum']}"))
     elif isinstance(value, dict):
         _check_object(value, node, path, root, errors)
     elif isinstance(value, list):
@@ -119,10 +122,12 @@ def _check(value: Any, node: dict, path: tuple, root: dict, errors: list[SchemaE
 
 
 def _check_string(value: str, node: dict, where: str, errors: list[SchemaError]) -> None:
+    if "maxLength" in node and len(value) > node["maxLength"]:
+        errors.append(SchemaError(where, f"is longer than {node['maxLength']} characters"))
     if "pattern" in node and re.search(node["pattern"], value) is None:
-        errors.append(SchemaError(where, f"{value!r} does not match {node['pattern']}"))
+        errors.append(SchemaError(where, f"does not match {node['pattern']}"))
     if node.get("format") == "date-time" and not _is_date_time(value):
-        errors.append(SchemaError(where, f"{value!r} is not an RFC 3339 date-time"))
+        errors.append(SchemaError(where, "is not an RFC 3339 date-time"))
 
 
 def _check_object(value: dict, node: dict, path: tuple, root: dict, errors: list) -> None:

@@ -143,7 +143,7 @@
                 "enum": ["new", "quarantined-new", "renamed", "bytes-changed"],
                 "description": "The worklist header's per-card scope reason (R7C.1)."
               },
-              "doc_id": { "type": "string", "description": "Optional human document id (e.g. DOW-UAP-D176) for readability." }
+              "doc_id": { "type": "string", "maxLength": 64, "pattern": "^[A-Z]+(-[A-Z0-9]+)+$", "description": "Optional human document id (e.g. DOW-UAP-D176) for readability." }
             }
           }
         }
@@ -170,7 +170,7 @@
             "required": ["card_id", "pages"],
             "properties": {
               "card_id": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
-              "doc_id": { "type": "string" },
+              "doc_id": { "type": "string", "maxLength": 64, "pattern": "^[A-Z]+(-[A-Z0-9]+)+$" },
               "pages": { "type": "integer", "minimum": 0 }
             }
           }
@@ -235,11 +235,11 @@
         },
         "new_card_id": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
         "old_card_id": { "type": ["string", "null"], "pattern": "^[0-9a-f]{16}$" },
-        "new_title": { "type": "string" },
-        "old_title": { "type": "string" },
+        "new_title": { "type": "string", "maxLength": 512 },
+        "old_title": { "type": "string", "maxLength": 512 },
         "continuity_signals": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": { "type": "string", "maxLength": 256 },
           "description": "Why the classifier paired the new card with the old one (e.g. same agency + incident_date, matching numeric id)."
         },
         "old_byte_sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
@@ -374,7 +374,7 @@
             "required": ["card_id", "kind", "verdict", "evidence_line", "recommended"],
             "properties": {
               "card_id": { "type": "string" },
-              "doc_id": { "type": "string" },
+              "doc_id": { "type": "string", "maxLength": 64, "pattern": "^[A-Z]+(-[A-Z0-9]+)+$" },
               "kind": { "enum": ["rename-candidate", "quarantine"] },
               "verdict": { "enum": ["metadata-only", "content-changed", "unknown"] },
               "evidence_line": { "type": "string" },
