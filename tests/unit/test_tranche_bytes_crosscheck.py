@@ -45,7 +45,7 @@ def test_content_stream_differs_by_one_byte_is_content_changed(
 
 def test_text_signal_alone_refuses_when_streams_agree(monkeypatch) -> None:
     base = build_base_pdf()
-    monkeypatch.setattr(pdf_crosscheck, "_page_digest", lambda page: "same")
+    monkeypatch.setattr(pdf_crosscheck, "_page_digest", lambda page, budget: "same")
     with pytest.raises(pdf_crosscheck.CrossCheckError) as err:
         pdf_crosscheck.crosscheck(base.data, content_changed_resave(base), Budget())
     assert err.value.signal == "text"

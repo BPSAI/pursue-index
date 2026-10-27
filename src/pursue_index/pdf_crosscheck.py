@@ -33,7 +33,7 @@ class CrossCheckError(Exception):
         self.signal = signal
 
 
-def _page_digest(page: Any) -> str:
+def _page_digest(page: Any, budget: Budget) -> str:
     contents = page.get_object().get("/Contents")
     contents = contents.get_object() if contents is not None else None
     streams = contents if isinstance(contents, list) else [contents]
@@ -46,14 +46,21 @@ def _page_digest(page: Any) -> str:
     return digest.hexdigest()
 
 
-def _page_text(page: Any) -> str:
+def _page_text(page: Any, budget: Budget) -> str:
+    # extract_text inflates the page's content streams; charge that output to
+    # the same total-inflated-bytes budget the xref parser draws on.
+    contents = page.get_object().get("/Contents")
+    contents = contents.get_object() if contents is not None else None
+    for item in contents if isinstance(contents, list) else [contents]:
+        if item is not None:
+            budget.charge(len(item.get_object().get_data()))
     return " ".join(page.extract_text().split())
 
 
 def _compare(signal: str, per_page: Any, old: PdfReader, new: PdfReader, budget: Budget) -> None:
     for number, (a, b) in enumerate(zip(old.pages, new.pages, strict=True)):
         budget.check()
-        if per_page(a) != per_page(b):
+        if per_page(a, budget) != per_page(b, budget):
             raise CrossCheckError(signal, f"page {number} differs")
 
 

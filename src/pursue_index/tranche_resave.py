@@ -98,7 +98,7 @@ def bytes_dir_check(
         if old_path is None or new_path is None:
             return None
         try:
-            verdict = classify_bytes(old_path, new_path)
+            verdict = classify_bytes(old_path, new_path, old_sha256=old_sha, new_sha256=new_sha)
         except FileNotFoundError:
             return None
         return old_sha if verdict == METADATA_ONLY else None

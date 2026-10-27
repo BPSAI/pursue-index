@@ -11,6 +11,9 @@ The constants are read at call time so tests can lower them.
 
 from __future__ import annotations
 
+import hashlib
+import os
+import stat
 import threading
 import time
 import zlib
@@ -33,6 +36,7 @@ __all__ = [
 
 # Largest PDF in data/asset-bytes-registry.jsonl is ~370 MB; 512 MiB leaves
 # ~45% margin. Both files are read whole, so this bounds peak memory.
+_CHUNK = 1024 * 1024
 MAX_FILE_BYTES = 512 * 1024 * 1024
 # A legitimate xref stream is ~7 bytes per object; 8 MiB covers ~1M objects.
 MAX_XREF_INFLATED = 8 * 1024 * 1024
@@ -74,16 +78,41 @@ class Budget:
 
 
 def check_file_size(path: Path) -> None:
-    """Refuse (before any read) a file over the cap; ``stat`` raises if absent."""
-    size = path.stat().st_size
-    if size > MAX_FILE_BYTES:
-        raise LimitExceededError("file-size-cap", f"{size} > {MAX_FILE_BYTES}")
+    """Refuse (before any read) a non-regular file or one over the cap.
+
+    ``lstat`` raises if the file is absent; a symlink, FIFO or device is not
+    a regular file and is refused rather than followed or opened.
+    """
+    info = path.lstat()
+    if not stat.S_ISREG(info.st_mode):
+        raise LimitExceededError("not-regular-file", str(path.name))
+    if info.st_size > MAX_FILE_BYTES:
+        raise LimitExceededError("file-size-cap", f"{info.st_size} > {MAX_FILE_BYTES}")
 
 
-def read_capped(path: Path) -> bytes:
-    """``path``'s bytes, refusing (before any read) a file over the cap."""
+def read_capped(path: Path, expected_sha256: str | None = None) -> bytes:
+    """``path``'s bytes, streamed under the size cap from a regular file.
+
+    The descriptor is opened without following symlinks or blocking, then
+    re-checked with ``fstat`` so a swap after ``check_file_size`` cannot hand
+    back a FIFO or device. With ``expected_sha256`` the bytes actually read
+    must hash to it (the worker's re-verification against a parent-side swap).
+    """
     check_file_size(path)
-    return path.read_bytes()
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, "rb") as handle:
+        if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+            raise LimitExceededError("not-regular-file", str(path.name))
+        chunks, total = [], 0
+        while chunk := handle.read(_CHUNK):
+            total += len(chunk)
+            if total > MAX_FILE_BYTES:
+                raise LimitExceededError("file-size-cap", f"over {MAX_FILE_BYTES}")
+            chunks.append(chunk)
+    data = b"".join(chunks)
+    if expected_sha256 is not None and hashlib.sha256(data).hexdigest() != expected_sha256:
+        raise LimitExceededError("sha-mismatch", "sha mismatch inside worker")
+    return data
 
 
 def inflate_capped(data: bytes, budget: Budget) -> bytes:

@@ -41,13 +41,18 @@ def _env() -> dict[str, str]:
     return {**env, "PYTHONPATH": os.pathsep.join(paths)}
 
 
-def run_worker(old_path: Path, new_path: Path) -> str | None:
+def run_worker(
+    old_path: Path, new_path: Path, old_sha256: str | None = None, new_sha256: str | None = None,
+) -> str | None:
     # -P: never prepend the cwd to sys.path. The cwd is a fresh empty
     # directory, not the shared temp root, so nothing a neighbor drops can be
     # imported; the inputs are made absolute because the cwd is not the caller's.
     cmd = [sys.executable, "-P", "-m", WORKER_MODULE,
            str(Path(old_path).resolve()), str(Path(new_path).resolve()),
            "--memory-bytes", str(WORKER_MEMORY_BYTES)]
+    for flag, sha in (("--old-sha256", old_sha256), ("--new-sha256", new_sha256)):
+        if sha is not None:
+            cmd += [flag, sha]
     try:
         with tempfile.TemporaryDirectory(prefix="classify-worker-") as scratch:
             done = subprocess.run(

@@ -82,6 +82,7 @@ _LEAVES = (BooleanObject, ByteStringObject, FloatObject, NameObject, NullObject,
 
 def classify_bytes(
     old_path: Path, new_path: Path, *, isolated: bool = True,
+    old_sha256: str | None = None, new_sha256: str | None = None,
 ) -> Literal["metadata-only", "content-changed"]:
     """``metadata-only`` iff ``new_path`` is ``old_path`` plus one metadata-only
     incremental update that ALSO passes the independent cross-check
@@ -89,6 +90,8 @@ def classify_bytes(
 
     ``isolated`` (the default) runs the work in a resource-limited worker
     (``classify_isolated``); ``False`` runs it in-process (tests, the worker).
+    ``old_sha256``/``new_sha256`` make the reading side re-verify each file's
+    bytes (the worker does, so a swap after the parent's check is refused).
     """
     if isolated:
         old_path, new_path = Path(old_path), Path(new_path)
@@ -98,14 +101,16 @@ def classify_bytes(
         except LimitExceededError as exc:
             _LOG.warning("classify fail-safe: %s", exc)
             return CONTENT_CHANGED
-        return run_worker(old_path, new_path) or CONTENT_CHANGED
-    return _classify_in_process(Path(old_path), Path(new_path))
+        return run_worker(old_path, new_path, old_sha256, new_sha256) or CONTENT_CHANGED
+    return _classify_in_process(Path(old_path), Path(new_path), old_sha256, new_sha256)
 
 
-def _classify_in_process(old_path: Path, new_path: Path) -> Verdict:
+def _classify_in_process(
+    old_path: Path, new_path: Path, old_sha256: str | None = None, new_sha256: str | None = None,
+) -> Verdict:
     try:
-        old = read_capped(old_path)
-        new = read_capped(new_path)
+        old = read_capped(old_path, old_sha256)
+        new = read_capped(new_path, new_sha256)
         if len(new) <= len(old) or not new.startswith(old):
             return CONTENT_CHANGED
         budget = Budget()
