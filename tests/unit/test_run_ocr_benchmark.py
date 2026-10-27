@@ -195,3 +195,19 @@ def test_estimate_candidate_cost_is_pure_math_over_the_golden_set() -> None:
         + obc.EST_OUTPUT_TOKENS_PER_PAGE / 1_000_000 * 10.0
     )
     assert cost == pytest.approx(expected)
+
+
+def test_live_run_accepts_key_from_settings_not_environ(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The 'put it in .env' hint is true: a settings-only key passes the gate."""
+    from pydantic import SecretStr
+
+    from pursue_index.config import settings
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setattr(settings, "anthropic_api_key", SecretStr("dummy-settings-key"))
+    monkeypatch.setattr(rb, "parse_golden", lambda: [])
+    monkeypatch.setattr(rb, "load_manifest", lambda p: (_ for _ in ()).throw(RuntimeError("past-gate")))
+    with pytest.raises(RuntimeError, match="past-gate"):
+        rb.main([])

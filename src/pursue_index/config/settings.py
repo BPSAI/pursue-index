@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import Field, HttpUrl, field_validator
+from pydantic import AliasChoices, Field, HttpUrl, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -78,6 +78,12 @@ class Settings(BaseSettings):
     ocr_llm_provider: Literal["anthropic", "openai"] = "anthropic"
     ocr_llm_model: str = "claude-sonnet-4-6"
     ocr_llm_threshold: float = 70.0
+
+    # Read from ANTHROPIC_API_KEY (no PURSUE_ prefix) in the environment or .env.
+    # Clients resolve it via ``config.credentials.anthropic_api_key`` (env wins).
+    anthropic_api_key: SecretStr = Field(
+        default=SecretStr(""), validation_alias=AliasChoices("ANTHROPIC_API_KEY")
+    )
 
     # ---- Embed ----
     # ``voyage`` is the embed-stage default; ``openai`` is a stub seam for v2

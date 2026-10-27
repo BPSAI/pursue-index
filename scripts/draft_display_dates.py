@@ -44,12 +44,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
 import json
-import os
 import time
 from collections import defaultdict
 from datetime import UTC, datetime
 from typing import Any
 
+from pursue_index.config.credentials import anthropic_api_key
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
@@ -301,7 +301,7 @@ def _draft_cards(
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not anthropic_api_key():
         print("ANTHROPIC_API_KEY not set; refusing to run", file=sys.stderr)
         return 2
 
@@ -311,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
         print("anthropic package not installed; refusing to run", file=sys.stderr)
         return 2
 
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(api_key=anthropic_api_key())
 
     manifest = json.loads(args.manifest.read_text())
     cards = manifest["cards"]
