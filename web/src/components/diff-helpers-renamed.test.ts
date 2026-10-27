@@ -36,13 +36,37 @@ test("resolveAliases: carries the byte-change evidence of the alias row", () => 
   assert.equal(a.newByteSha256, NEW_SHA);
 });
 
-test("resolveAliases: a chain keeps the FIRST hop's evidence, like its method", () => {
+const SHA_C = "c".repeat(64);
+
+test("resolveAliases: a chain with a non-metadata hop never shows one hop's evidence as another's", () => {
   const map = resolveAliases([D042, alias("ff3939f95d878062", "1111222233334444", { method: "byte_collision" })]);
   const a = map["a0f6663169c21caf"];
   assert.equal(a.terminal, "1111222233334444");
   assert.equal(a.method, "operator_manual");
-  assert.equal(a.changeNature, "metadata-only");
+  assert.equal(a.changeNature, "chain, see hops");
+  assert.equal(a.oldByteSha256, undefined);
+  assert.equal(a.newByteSha256, undefined);
+  assert.deepEqual(
+    a.hops?.map((h) => [h.from, h.to, h.changeNature ?? null]),
+    [["a0f6663169c21caf", "ff3939f95d878062", "metadata-only"], ["ff3939f95d878062", "1111222233334444", null]],
+  );
   assert.equal(map["ff3939f95d878062"].changeNature, undefined);
+});
+
+test("resolveAliases: an all-metadata-only chain spans first old sha to last new sha", () => {
+  const hop2 = alias("ff3939f95d878062", "1111222233334444", {
+    old_byte_sha256: NEW_SHA, new_byte_sha256: SHA_C, change_nature: "metadata-only",
+  });
+  const a = resolveAliases([D042, hop2])["a0f6663169c21caf"];
+  assert.equal(a.changeNature, "metadata-only");
+  assert.equal(a.oldByteSha256, OLD_SHA);
+  assert.equal(a.newByteSha256, SHA_C);
+});
+
+test("resolveAliases: a single hop is unchanged by the chain rule", () => {
+  const a = resolveAliases([D042])["a0f6663169c21caf"];
+  assert.equal(a.changeNature, "metadata-only");
+  assert.equal(a.hops, undefined);
 });
 
 test("diffWithAliases: the renamed entry carries the evidence", () => {

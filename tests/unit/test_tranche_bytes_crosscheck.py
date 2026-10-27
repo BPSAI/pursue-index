@@ -55,7 +55,7 @@ def test_text_signal_alone_refuses_when_streams_agree(monkeypatch) -> None:
 def test_metadata_only_fixtures_pass_both_crosschecks(xref_stream: bool) -> None:
     base = build_base_pdf()
     new = metadata_only_resave(base, xref_stream=xref_stream)
-    assert pdf_crosscheck.crosscheck(base.data, new, Budget()) == ("content-streams", "text")
+    assert pdf_crosscheck.crosscheck(base.data, new, Budget()) == ("content-streams", "resources", "text")
 
 
 @pytest.mark.parametrize("failing_call", [1, 2])

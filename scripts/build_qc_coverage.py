@@ -52,15 +52,31 @@ DEFAULT_OUT = REPO_ROOT / "web" / "public" / "data" / "qc-coverage.json"
 
 
 def _page_shas(pages_cleaned_path: Path) -> dict[str, dict[int, str]]:
-    """``{card_id: {page: source_page_sha256}}``, or ``{}`` if absent.
+    """``{card_id: {page: source_page_sha256}}``, or ``{}`` if absent/unreadable.
 
     ``pages-cleaned.json`` is itself optional (an OCR-pipeline output, not
-    every checkout rebuilds it) — its absence just means no card can be
-    verified as stale, the same as a legacy bundle with no digest field.
+    every checkout rebuilds it). Its absence alone verifies nothing, which is
+    fine for a legacy bundle with no digest field; ``_verification_gap``
+    fails the gate closed when the bundle DOES carry digests.
     """
-    if not asset_exists(pages_cleaned_path):
+    try:
+        if not asset_exists(pages_cleaned_path):
+            return {}
+        return card_page_shas(read_asset_json(pages_cleaned_path))
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
         return {}
-    return card_page_shas(read_asset_json(pages_cleaned_path))
+
+
+def _verification_gap(bundle_path: Path, pages_cleaned_path: Path) -> str | None:
+    """Why the digests cannot be checked, or ``None`` when they can (or need not)."""
+    bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+    if not any(c.get("judged_pages_digest") for c in bundle.get("cards", [])):
+        return None
+    if not asset_exists(pages_cleaned_path):
+        return f"{pages_cleaned_path.name} is missing"
+    if not _page_shas(pages_cleaned_path):
+        return f"{pages_cleaned_path.name} is unreadable or carries no page shas"
+    return None
 
 
 def build(
@@ -106,6 +122,11 @@ def main() -> int:
         out_path=args.out,
         pages_cleaned_path=args.pages_cleaned,
     )
+    gap = _verification_gap(args.bundle, args.pages_cleaned)
+    if gap:
+        print(f"qc-coverage: digest verification unavailable: {gap} but the "
+              "clean-qc bundle carries judged_pages_digest values -- failing the gate")
+        return 1
     counts = ", ".join(f"{k} {v}" for k, v in doc["status_counts"].items())
     print(f"qc-coverage: {doc['total_cards']} cards ({counts}) → {args.out}")
     if doc["unverified_other"]:

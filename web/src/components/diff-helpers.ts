@@ -167,10 +167,40 @@ function tsMillis(ts: string): number {
 
 // --- Alias resolver -------------------------------------------------
 
-/** Evidence fields (R7C.13) come from the FIRST hop, like `method`. */
+export interface AliasHop {
+  from: string;
+  to: string;
+  changeNature?: string;
+}
+
+/**
+ * Evidence fields (R7C.13). A single hop carries its own. A chain shows
+ * first-old -> last-new byte shas only when EVERY hop is metadata-only;
+ * otherwise no hop's evidence stands in for another's: `changeNature` reads
+ * "chain, see hops" and `hops` lists each one. `method` is the first hop's.
+ */
 export interface ResolvedAlias extends RenameEvidence {
   terminal: string;
   method: string;
+  hops?: AliasHop[];
+}
+
+const CHAIN_NATURE = "chain, see hops";
+
+function chainEvidence(
+  hops: AliasHop[],
+  chain: RenameEvidence[],
+): Pick<ResolvedAlias, "hops"> & RenameEvidence {
+  if (chain.every((e) => e.changeNature === "metadata-only")) {
+    return {
+      changeNature: "metadata-only",
+      ...(chain[0].oldByteSha256 ? { oldByteSha256: chain[0].oldByteSha256 } : {}),
+      ...(chain[chain.length - 1].newByteSha256
+        ? { newByteSha256: chain[chain.length - 1].newByteSha256 }
+        : {}),
+    };
+  }
+  return { changeNature: CHAIN_NATURE, hops };
 }
 export type AliasMap = Record<string, ResolvedAlias>;
 
@@ -192,15 +222,20 @@ export function resolveAliases(rawAliases: AliasEntry[]): AliasMap {
   for (const oldId of Object.keys(direct)) {
     const seen = new Set<string>();
     let cur = oldId;
-    let method = direct[oldId].method;
+    const method = direct[oldId].method;
+    const hops: AliasHop[] = [];
+    const chain: RenameEvidence[] = [];
     for (let i = 0; i < MAX_HOPS; i++) {
       if (seen.has(cur)) break; // cycle defense
       seen.add(cur);
       const next = direct[cur];
       if (!next) break;
+      hops.push({ from: cur, to: next.newId, ...(next.evidence.changeNature ? { changeNature: next.evidence.changeNature } : {}) });
+      chain.push(next.evidence);
       cur = next.newId;
     }
-    out[oldId] = { terminal: cur, method, ...direct[oldId].evidence };
+    const evidence = hops.length > 1 ? chainEvidence(hops, chain) : direct[oldId].evidence;
+    out[oldId] = { terminal: cur, method, ...evidence };
   }
   return out;
 }

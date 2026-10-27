@@ -6,7 +6,9 @@ stream of a page, in order, with its filter entries) and extracts each page's
 text, then requires page-for-page equality. Raw (still-encoded) bytes are
 hashed so no content stream is ever inflated just to be compared; the text
 signal is the second, decode-based view. Whitespace is the only text
-normalization tolerated. Any disagreement, any pypdf exception and any cap
+normalization tolerated. A third signal hashes each page's resolved ``/Resources`` (every XObject's
+raw stream bytes plus its dictionary, recursively, under a depth and node
+cap). Any disagreement, any pypdf exception and any cap
 hit refuses (``CrossCheckError`` / ``LimitExceededError``).
 """
 
@@ -22,7 +24,9 @@ from pursue_index.pdf_limits import Budget, LimitExceededError
 
 __all__ = ["CROSSCHECKS", "CrossCheckError", "crosscheck"]
 
-CROSSCHECKS = ("content-streams", "text")
+CROSSCHECKS = ("content-streams", "resources", "text")
+MAX_RESOURCE_DEPTH = 12
+MAX_RESOURCE_NODES = 20_000
 
 
 class CrossCheckError(Exception):
@@ -44,6 +48,49 @@ def _page_digest(page: Any, budget: Budget) -> str:
         head = repr((stream.get("/Filter"), stream.get("/DecodeParms"))) if stream is not None else ""
         digest.update(len(raw).to_bytes(8, "big") + head.encode() + b"\0" + raw)
     return digest.hexdigest()
+
+
+def _resolved_resources(page: Any) -> Any:
+    """The page's /Resources, inherited from /Parent when the page has none."""
+    node = page.get_object()
+    for _ in range(MAX_RESOURCE_DEPTH):
+        if "/Resources" in node:
+            return node["/Resources"]
+        parent = node.get("/Parent")
+        if parent is None:
+            return None
+        node = parent.get_object()
+    raise CrossCheckError("resources", "page tree too deep")
+
+
+def _canon(obj: Any, depth: int, seen: frozenset[int], count: list[int], budget: Budget) -> Any:
+    """A canonical, id-free value for ``obj``: what it points at, not where."""
+    budget.check()
+    count[0] += 1
+    if depth > MAX_RESOURCE_DEPTH or count[0] > MAX_RESOURCE_NODES:
+        raise CrossCheckError("resources", "resource graph over the depth or node cap")
+    idnum = getattr(obj, "idnum", None)
+    if idnum is not None:
+        if idnum in seen:
+            raise CrossCheckError("resources", "resource cycle")
+        seen = seen | {idnum}
+        obj = obj.get_object()
+        if obj is None:
+            raise CrossCheckError("resources", "unresolvable resource")
+    if hasattr(obj, "_data"):  # a stream: raw bytes hash plus its dictionary
+        entries = {str(k): _canon(v, depth + 1, seen, count, budget) for k, v in sorted(obj.items())}
+        return ["stream", hashlib.sha256(obj._data).hexdigest(), entries]
+    if isinstance(obj, dict):
+        return {str(k): _canon(v, depth + 1, seen, count, budget) for k, v in sorted(obj.items())}
+    if isinstance(obj, list):
+        return [_canon(v, depth + 1, seen, count, budget) for v in obj]
+    return repr(obj)
+
+
+def _page_resources(page: Any, budget: Budget) -> str:
+    resources = _resolved_resources(page)
+    value = _canon(resources, 0, frozenset(), [0], budget) if resources is not None else None
+    return hashlib.sha256(repr(value).encode()).hexdigest()
 
 
 def _page_text(page: Any, budget: Budget) -> str:
@@ -72,6 +119,7 @@ def crosscheck(old: bytes, new: bytes, budget: Budget) -> tuple[str, ...]:
         if len(old_reader.pages) != len(new_reader.pages):
             raise CrossCheckError("content-streams", "page count differs")
         _compare("content-streams", _page_digest, old_reader, new_reader, budget)
+        _compare("resources", _page_resources, old_reader, new_reader, budget)
         _compare("text", _page_text, old_reader, new_reader, budget)
     except (CrossCheckError, LimitExceededError):
         raise
