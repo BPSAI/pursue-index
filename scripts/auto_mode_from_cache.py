@@ -41,18 +41,19 @@ from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
 
-if not anthropic_api_key():
-    sys.exit(
-        "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
-        "running the cleanup pass — get a key at https://console.anthropic.com/."
-    )
-
 # Default to Haiku for the cleanup pass; Sonnet's higher per-token cost
 # isn't justified for the LLM-fallback step where Haiku already produces
 # strong quality on faded scans. Set BEFORE importing settings so
 # pydantic-settings env loading picks it up.
 os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 os.environ.setdefault("PURSUE_OCR_LLM_PROVIDER", "anthropic")
+
+# Resolve the key only AFTER the defaults above: it builds the lazy Settings.
+if not anthropic_api_key():
+    sys.exit(
+        "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
+        "running the cleanup pass — get a key at https://console.anthropic.com/."
+    )
 
 from pdf2image import convert_from_path
 

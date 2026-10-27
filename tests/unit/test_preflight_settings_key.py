@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
 from pydantic import SecretStr
 
 from pursue_index.config import settings
@@ -47,3 +48,25 @@ def test_ship_preflight_script_refuses_with_no_key_anywhere(monkeypatch) -> None
     monkeypatch.setattr(settings, "anthropic_api_key", SecretStr(""))
     argv = ["--engine", "llm-dots", "--concurrency", "8"]
     assert ship_preflight_ocr.main(argv) == 1
+
+
+def test_auto_mode_script_sets_haiku_default_before_resolving_the_key(monkeypatch) -> None:
+    """Resolving the key builds the lazy Settings; the script's Haiku defaults
+    must already be in the environment by then."""
+    import runpy
+
+    from pursue_index.config import credentials
+
+    monkeypatch.delenv("PURSUE_OCR_LLM_MODEL", raising=False)
+    seen: dict[str, str | None] = {}
+
+    def _spy() -> None:
+        import os
+
+        seen["model"] = os.environ.get("PURSUE_OCR_LLM_MODEL")
+        raise SystemExit(0)
+
+    monkeypatch.setattr(credentials, "anthropic_api_key", _spy)
+    with pytest.raises(SystemExit):
+        runpy.run_path(str(_SCRIPTS / "auto_mode_from_cache.py"), run_name="not_main")
+    assert seen["model"] == "claude-haiku-4-5"
