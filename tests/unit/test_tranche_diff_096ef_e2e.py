@@ -30,6 +30,7 @@ from typer.testing import CliRunner
 
 from pursue_index.cli import ingest_cli
 from pursue_index.cli.commands import app
+from pursue_index.config import settings
 from tests.support.tranche_096ef import (
     D042_NEW_ID,
     D042_OLD_ID,
@@ -62,10 +63,23 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+OPT_IN = "PURSUE_INGEST_AUTO_APPROVE_METADATA_RESAVES"
+
+
 @pytest.fixture(scope="module")
 def replay(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """The script run with metadata-only re-save auto-approval opted in."""
+    return _run_replay(tmp_path_factory.mktemp("replay"), opted_in=True)
+
+
+@pytest.fixture(scope="module")
+def replay_default(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """The same run with the default (auto-approval off)."""
+    return _run_replay(tmp_path_factory.mktemp("replay-default"), opted_in=False)
+
+
+def _run_replay(tmp: Path, *, opted_in: bool) -> Path:
     """Run the script once; return its ``--out-dir``."""
-    tmp = tmp_path_factory.mktemp("replay")
     base = build_base_pdf()
     old_bytes, new_bytes = base.data, metadata_only_resave(base)
     bytes_dir = tmp / "bytes"
@@ -80,9 +94,14 @@ def replay(tmp_path_factory: pytest.TempPathFactory) -> Path:
         "card_id": D042_OLD_ID, "byte_sha256": _sha(old_bytes),
         "fetched_at": "2099-01-01T00:00:00+00:00",
     }])
-    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
-    env.update(PYTHONPATH=str(tmp / "site"), E2E_BODIES=str(tmp / "bodies.json"),
+    env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", OPT_IN)}
+    # The fake curl_cffi comes first; inherited entries (a runner that supplies
+    # pypdf from outside the project venv) follow it.
+    path = os.pathsep.join([str(tmp / "site"), os.environ.get("PYTHONPATH", "")]).rstrip(os.pathsep)
+    env.update(PYTHONPATH=path, E2E_BODIES=str(tmp / "bodies.json"),
                PURSUE_REPO_ROOT=str(REPO_ROOT))
+    if opted_in:
+        env[OPT_IN] = "1"
     proc = subprocess.run(
         [sys.executable, str(REPO_ROOT / "scripts" / "tranche_diff.py"),
          "--old-manifest", str(OLD_MANIFEST), "--new-manifest", str(NEW_MANIFEST),
@@ -109,10 +128,11 @@ def test_d042_is_a_metadata_only_rename_not_a_quarantine(replay: Path) -> None:
     assert "Renames by metadata-only re-save" in md
 
 
-def test_ingest_approve_aliases_d042_without_a_flag(
+def test_ingest_approve_aliases_d042_without_a_flag_when_opted_in(
     replay: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(ingest_cli, "enforce_poll_freshness", lambda *a, **k: None)
+    monkeypatch.setattr(settings, "ingest_auto_approve_metadata_resaves", True)
     result = CliRunner().invoke(app, [
         "ingest", "approve", "--tranche", receipt()["tranche_sha256"],
         "--note", "D042 metadata-only re-save", "--skip-audit",
@@ -123,3 +143,28 @@ def test_ingest_approve_aliases_d042_without_a_flag(
     aliases = json.loads((tmp_path / "aliases.json").read_text())["aliases"]
     assert [(a["old_card_id"], a["new_card_id"], a["method"]) for a in aliases] == [
         (D042_OLD_ID, D042_NEW_ID, "metadata-only-resave")]
+
+
+def test_default_diff_keeps_d042_quarantined_with_evidence(replay_default: Path) -> None:
+    diff = json.loads((replay_default / "tranche-diff-096ef2c0058a.json").read_text())
+    assert "renames_metadata_only" not in diff
+    [row] = [q for q in diff["quarantined"] if q["new_card_id"] == D042_NEW_ID]
+    assert row["resave_evidence"]["old_card_id"] == D042_OLD_ID
+    assert row["resave_evidence"]["change_nature"] == "metadata-only"
+    assert any(r["card_id"] == D042_OLD_ID for r in diff["removed"])
+
+
+def test_default_ingest_approve_holds_d042_and_says_so(
+    replay_default: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(ingest_cli, "enforce_poll_freshness", lambda *a, **k: None)
+    monkeypatch.setattr(settings, "ingest_auto_approve_metadata_resaves", False)
+    result = CliRunner().invoke(app, [
+        "ingest", "approve", "--tranche", receipt()["tranche_sha256"],
+        "--note", "D042 held", "--skip-audit",
+        "--log", str(tmp_path / "log.jsonl"), "--aliases", str(tmp_path / "aliases.json"),
+        "--diff-dir", str(replay_default), "--snapshots-dir", str(tmp_path / "snaps"),
+    ])
+    assert result.exit_code == 0, result.output
+    assert f"held: metadata-only re-save {D042_NEW_ID}={D042_OLD_ID}" in result.output
+    assert not (tmp_path / "aliases.json").exists()

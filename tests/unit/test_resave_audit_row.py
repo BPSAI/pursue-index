@@ -42,13 +42,13 @@ def test_classifier_id_changes_when_a_parser_source_changes(monkeypatch, tmp_pat
 
 def test_demoted_row_carries_the_classifier_id() -> None:
     buckets = _quarantined()
-    demote_resaves(buckets, lambda old_id, new_sha: "d5" * 32, set())
+    demote_resaves(buckets, lambda old_id, new_sha: "d5" * 32, set(), move=True)
     assert buckets[RESAVE_BUCKET][0]["classifier"] == classifier_id.classifier_id()
 
 
 def test_alias_row_records_verdict_hashes_and_classifier() -> None:
     buckets = _quarantined()
-    demote_resaves(buckets, lambda old_id, new_sha: "d5" * 32, set())
+    demote_resaves(buckets, lambda old_id, new_sha: "d5" * 32, set(), move=True)
     [alias] = auto_approve_renames(buckets, metadata_resaves=True)
     assert alias["change_nature"] == "metadata-only"
     assert (alias["old_byte_sha256"], alias["new_byte_sha256"]) == ("d5" * 32, "ca" * 32)

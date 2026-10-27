@@ -49,7 +49,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.alias_schema import alias_row_errors
-from pursue_index.tranche_resave import RESAVE_BUCKET, RESAVE_METHOD
+from pursue_index.tranche_resave import EVIDENCE_KEY, RESAVE_BUCKET, RESAVE_METHOD
 
 _CARD_ID_RE = re.compile(r"^[a-f0-9]{16}$")
 
@@ -165,17 +165,46 @@ def auto_approve_renames(
     return out
 
 
+def _held_resaves(diff: dict[str, Any]) -> list[tuple[str, str]]:
+    """``(new_card_id, old_card_id)`` for each metadata-only verdict not auto-approved."""
+    held = [(r["new_card_id"], r["old_card_id"]) for r in diff.get(RESAVE_BUCKET) or []]
+    held += [(r["new_card_id"], r[EVIDENCE_KEY]["old_card_id"])
+             for r in diff.get("quarantined") or [] if r.get(EVIDENCE_KEY)]
+    return held
+
+
 def held_resave_lines(diff: dict[str, Any]) -> list[str]:
     """Operator-facing lines for re-save renames held back (auto-approval off)."""
-    held = diff.get(RESAVE_BUCKET) or []
+    held = _held_resaves(diff)
     lines = [
-        f"held: metadata-only re-save {r['new_card_id']}={r['old_card_id']} stays quarantined "
-        f"(auto-approval off); approve with --approve-rename {r['new_card_id']}={r['old_card_id']}"
-        for r in held
+        f"held: metadata-only re-save {new}={old} stays quarantined "
+        f"(auto-approval off); approve with --approve-rename {new}={old}"
+        for new, old in held
     ]
     if held:
         lines.append(f"{len(held)} metadata-only re-save rename(s) held for the operator")
     return lines
+
+
+def attach_resave_evidence(
+    manual: list[dict[str, Any]], diff: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Operator-approved renames of a held re-save carry the verdict evidence.
+
+    The method stays ``operator_manual`` -- the operator made the call -- but
+    the alias row records what the classifier found (shas, nature, parser,
+    cross-check) so the continuity evidence is not lost.
+    """
+    evidence = {
+        (r["new_card_id"], r[EVIDENCE_KEY]["old_card_id"]): r[EVIDENCE_KEY]
+        for r in diff.get("quarantined") or [] if r.get(EVIDENCE_KEY)
+    }
+    out = []
+    for row in manual:
+        found = evidence.get((row["new_card_id"], row["old_card_id"]))
+        extra = {k: v for k, v in (found or {}).items() if k != "old_card_id"}
+        out.append({**row, **extra})
+    return out
 
 
 def _byte_change_evidence(r: dict[str, Any]) -> dict[str, Any]:

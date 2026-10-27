@@ -31,6 +31,7 @@ from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve
 from pursue_index.config import settings
 from pursue_index.ingest import (
     append_aliases,
+    attach_resave_evidence,
     auto_approve_renames,
     held_resave_lines,
     is_tranche_approved,
@@ -276,6 +277,7 @@ def _resolve_renames(
     except ValueError as exc:
         typer.echo(f"refusing to approve — invalid --approve-rename: {exc}", err=True)
         raise typer.Exit(2) from exc
+    manual_renames = attach_resave_evidence(manual_renames, diff)
     enriched = _enrich_with_provenance(auto_renames + manual_renames, tranche)
     return auto_renames, manual_renames, enriched
 

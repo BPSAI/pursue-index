@@ -138,14 +138,36 @@ def _first_resave(row: dict[str, Any], check: ResaveCheck, taken: set[str]) -> d
     return None
 
 
+EVIDENCE_KEY = "resave_evidence"
+
+
+def _evidence(resave: dict[str, Any]) -> dict[str, Any]:
+    """The classifier verdict as operator-facing evidence on a held row."""
+    return {
+        "old_card_id": resave["old_card_id"],
+        "old_byte_sha256": resave["old_byte_sha256"],
+        "new_byte_sha256": resave["byte_sha256"],
+        "change_nature": resave["verdict"],
+        "classifier": resave["classifier"],
+        "crosscheck": resave["crosscheck"],
+    }
+
+
 def demote_resaves(
     buckets: dict[str, Any], check: ResaveCheck | None, matched_old_ids: set[str],
+    *, move: bool = False,
 ) -> set[str]:
-    """Move metadata-only re-saves out of ``buckets["quarantined"]``.
+    """Act on metadata-only re-save verdicts for ``buckets["quarantined"]``.
 
-    Adds ``buckets[RESAVE_BUCKET]`` only when a row moved; returns the old
-    card_ids those rows alias (so they leave the ``removed`` list, as Class A
-    old ids do). An old card already claimed by a rename is never re-used.
+    ``move=False`` (the default, the ``ingest_auto_approve_metadata_resaves``
+    setting off): the verdict is evidence only. The row stays quarantined and
+    its old card stays in ``removed``, exactly as an unclassified rename; the
+    row just gains ``resave_evidence`` for the operator. Returns ``set()``.
+
+    ``move=True``: the row moves into ``buckets[RESAVE_BUCKET]`` (added only
+    when a row moved) and the old card_ids those rows alias are returned (so
+    they leave the ``removed`` list, as Class A old ids do). An old card
+    already claimed by a rename is never re-used.
     """
     if check is None:
         return set()
@@ -154,11 +176,14 @@ def demote_resaves(
         resave = _first_resave(row, check, taken)
         if resave is None:
             kept.append(row)
-        else:
+        elif move:
             moved.append(resave)
             taken.add(resave["old_card_id"])
+        else:
+            kept.append({**row, EVIDENCE_KEY: _evidence(resave)})
+            taken.add(resave["old_card_id"])
+    buckets["quarantined"] = kept
     if moved:
-        buckets["quarantined"] = kept
         buckets[RESAVE_BUCKET] = moved
     return {r["old_card_id"] for r in moved}
 

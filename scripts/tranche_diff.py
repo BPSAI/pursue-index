@@ -61,6 +61,7 @@ import json
 from collections.abc import Callable
 from typing import Any
 
+from pursue_index.config import settings
 from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
@@ -248,13 +249,16 @@ def diff_tranches(
     registry: dict[str, list[dict[str, Any]]],
     fetch_byte_sha: Callable[[str], str | None] | None = None,
     resave_check: ResaveCheck | None = None,
+    move_resaves: bool = False,
 ) -> dict[str, Any]:
     """Compute the structured diff between two manifests.
 
     `registry` is the `{card_id: [rows]}` shape produced by
     `r2_archive_assets.load_registry`. `fetch_byte_sha` is injected
     so tests can provide a synthetic byte-sha map without network.
-    `resave_check` (from `--bytes-dir`) demotes metadata-only re-saves.
+    `resave_check` (from `--bytes-dir`) classifies metadata-only re-saves;
+    `move_resaves` (the ingest_auto_approve_metadata_resaves opt-in) moves
+    them out of `quarantined`, else the verdict is only attached as evidence.
     """
     if fetch_byte_sha is None:
         fetch_byte_sha = _fetch_byte_sha_via_curl
@@ -277,7 +281,7 @@ def diff_tranches(
         registry, fetch_byte_sha,
     )
     matched_old_ids = buckets.pop("matched_old_ids")
-    matched_old_ids |= demote_resaves(buckets, resave_check, matched_old_ids)
+    matched_old_ids |= demote_resaves(buckets, resave_check, matched_old_ids, move=move_resaves)
     removed = build_removed_list(removed_ids, matched_old_ids, old_by_id)
     field_only_changes = build_field_only_changes(unchanged_ids, old_groups, new_groups)
     row_change_list = build_row_changes(unchanged_ids, old_groups, new_groups)
@@ -327,7 +331,8 @@ def main() -> int:
     new_manifest = _load_manifest(args.new_manifest)
     registry = load_registry(args.registry)
     diff = diff_tranches(old_manifest, new_manifest, registry,
-                         resave_check=bytes_dir_check(args.bytes_dir, registry))
+                         resave_check=bytes_dir_check(args.bytes_dir, registry),
+                         move_resaves=settings.ingest_auto_approve_metadata_resaves)
 
     sha = (diff.get("tranche_sha256") or "unknown")[:12]
     if args.dry_run:

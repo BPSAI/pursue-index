@@ -120,5 +120,6 @@ def test_shrink_guard_accepts_the_method() -> None:
 
 
 def test_worklist_scopes_the_new_side_as_renamed() -> None:
-    scoped = scope_pdf_img_cards(_diff(), _SHA)
+    alias = {"old_card_id": OLD_ID, "new_card_id": NEW_ID, "tranche_sha256": _SHA}
+    scoped = scope_pdf_img_cards(_diff(), _SHA, aliases=[alias])
     assert [(s.card_id, s.reason) for s in scoped] == [(NEW_ID, REASON_RENAMED)]

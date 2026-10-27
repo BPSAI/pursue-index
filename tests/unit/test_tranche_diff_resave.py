@@ -46,7 +46,9 @@ def _card(card_id: str, url: str, location: str) -> dict:
             "asset_url": url}
 
 
-def _diff(old_bytes: bytes, new_bytes: bytes, bytes_dir: Path | None, files: dict) -> dict:
+def _diff(
+    old_bytes: bytes, new_bytes: bytes, bytes_dir: Path | None, files: dict, *, move: bool = True,
+) -> dict:
     """Run the D042-shaped diff; ``files`` maps sha -> bytes written."""
     if bytes_dir is not None:
         for name, data in files.items():
@@ -58,6 +60,7 @@ def _diff(old_bytes: bytes, new_bytes: bytes, bytes_dir: Path | None, files: dic
         registry=registry,
         fetch_byte_sha={NEW_URL: _sha(new_bytes)}.get,
         resave_check=bytes_dir_check(bytes_dir, registry),
+        move_resaves=move,
     )
 
 
