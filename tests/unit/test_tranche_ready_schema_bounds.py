@@ -96,3 +96,31 @@ def test_invalid_record_error_message_does_not_echo_the_value() -> None:
         check_record(record)
     assert "new_title" in str(info.value)
     assert "SECRET-TOKEN" not in str(info.value)
+
+
+def test_doc_id_with_a_trailing_newline_fails() -> None:
+    record = copy.deepcopy(VECTOR)
+    target = next(r for r in _walk(record) if "doc_id" in r)
+    target["doc_id"] = "DOW-UAP-D159\n"
+    assert len(_fields(record)) == 1
+
+
+def test_free_text_arrays_are_capped() -> None:
+    record = copy.deepcopy(VECTOR)
+    record["candidates"][0]["continuity_signals"] = ["s"] * 51
+    assert _fields(record) == {"candidates/0/continuity_signals"}
+    record["candidates"][0]["continuity_signals"] = ["s"] * 50
+    record["stop_reasons"] = ["r"] * 201
+    assert _fields(record) == {"stop_reasons"}
+
+
+def test_every_string_array_in_the_schema_has_a_max_items() -> None:
+    def walk(node, where):
+        if isinstance(node, dict):
+            if node.get("type") == "array" and isinstance(node.get("items"), dict) \
+                    and node["items"].get("type") == "string":
+                assert "maxItems" in node, where
+            for k, v in node.items():
+                walk(v, f"{where}/{k}")
+
+    walk(load_schema(), "")

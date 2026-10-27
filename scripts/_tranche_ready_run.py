@@ -29,6 +29,7 @@ from pursue_index.release.rates import JudgeRate
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv
 from pursue_index.scrape.manifest import save_manifest
 from pursue_index.scrape.pdf_pages import FetchedPdfs
+from pursue_index.tranche_ready.refusal import MAX_BODY_BYTES, cap, neutralize
 from pursue_index.tranche_ready.writer import (
     AppendOnlyError,
     InvalidRecordError,
@@ -73,14 +74,23 @@ def publish(diff: dict, record: dict, cfg: JobConfig) -> list[Path]:
     return written
 
 
-def _fail(code: int, message: str, sha12: str, error_out: Path | None) -> int:
-    print(f"poll-snapshot.error {message}", file=sys.stderr, flush=True)
-    if error_out is not None:
-        error_out.parent.mkdir(parents=True, exist_ok=True)
-        error_out.write_text(
-            f"The snapshot job refused to publish the tranche-ready record for "
-            f"`{sha12}`; nothing was written or committed.\n\n```\n{message}\n```\n",
-            encoding="utf-8")
+def _fail(code: int, message: str, sha12: str, error_out: Path | None,
+          full_diff: str | None = None) -> int:
+    """Report a refusal. The issue body (``error_out``) is public: value-free,
+    neutralized and capped. ``full_diff`` goes to a local gitignored file."""
+    safe = cap(neutralize(message), MAX_BODY_BYTES - 1024)
+    print(f"poll-snapshot.error {safe}", file=sys.stderr, flush=True)
+    if error_out is None:
+        return code
+    error_out.parent.mkdir(parents=True, exist_ok=True)
+    note = ""
+    if full_diff is not None:
+        diff_path = error_out.with_name(f"{error_out.stem}-{sha12}.diff.json")
+        diff_path.write_text(full_diff, encoding="utf-8")
+        note = f"\nFull diff (local, not committed): {neutralize(str(diff_path))}\n"
+    body = (f"The snapshot job refused to publish the tranche-ready record for "
+            f"`{sha12}`; nothing was written or committed.\n\n```\n{safe}\n```\n{note}")
+    error_out.write_text(cap(body), encoding="utf-8")
     return code
 
 
@@ -102,7 +112,7 @@ def run_job(raw: bytes, latest: Path, source_url: str, cfg: JobConfig, fetched: 
     except InvalidRecordError as exc:
         return _fail(EXIT_INVALID, str(exc), sha12, error_out)
     except AppendOnlyError as exc:
-        return _fail(EXIT_APPEND_ONLY, str(exc), sha12, error_out)
+        return _fail(EXIT_APPEND_ONLY, str(exc), sha12, error_out, exc.full_diff())
     state = "written" if written else "unchanged"
     print(f"poll-snapshot.tranche-ready {state} sha={sha12} status={record['status']}",
           flush=True)

@@ -101,7 +101,11 @@ def test_a_disagreeing_second_run_exits_non_zero_and_writes_nothing(
     before = _outputs(out)
     assert _run(tmp_path / "second", out, 7, monkeypatch) == 3
     assert _outputs(out) == before
-    assert "append-only" in (tmp_path / "second" / "error.md").read_text()
+    body = (tmp_path / "second" / "error.md").read_text()
+    assert "append-only" in body and "sha256=" in body
+    assert len(body.encode()) <= 8 * 1024
+    assert body.count("`") == 8  # two fences plus the quoted sha12
+    assert list((tmp_path / "second").glob("error-*.diff.json"))  # full diff stays local
 
 
 def test_an_identical_second_run_is_a_no_op(

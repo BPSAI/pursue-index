@@ -124,7 +124,7 @@ def _check(value: Any, node: dict, path: tuple, root: dict, errors: list[SchemaE
 def _check_string(value: str, node: dict, where: str, errors: list[SchemaError]) -> None:
     if "maxLength" in node and len(value) > node["maxLength"]:
         errors.append(SchemaError(where, f"is longer than {node['maxLength']} characters"))
-    if "pattern" in node and re.search(node["pattern"], value) is None:
+    if "pattern" in node and re.fullmatch(node["pattern"], value) is None:
         errors.append(SchemaError(where, f"does not match {node['pattern']}"))
     if node.get("format") == "date-time" and not _is_date_time(value):
         errors.append(SchemaError(where, "is not an RFC 3339 date-time"))

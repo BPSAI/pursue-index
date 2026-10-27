@@ -22,6 +22,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from pursue_index.tranche_ready.refusal import describe_conflict, full_diff
 from pursue_index.tranche_ready.schema import SchemaError, load_schema, validate
 
 __all__ = ["VOLATILE_FIELDS", "AppendOnlyError", "InvalidRecordError", "check_record",
@@ -41,7 +42,18 @@ class InvalidRecordError(ValueError):
 
 
 class AppendOnlyError(RuntimeError):
-    """A record already exists for this sha and the recompute disagrees."""
+    """A record already exists for this sha and the recompute disagrees.
+
+    The message is value-free (it is filed as a public issue); the full
+    records stay on the exception for a local file via :meth:`full_diff`.
+    """
+
+    def __init__(self, message: str, stored: Any = None, recomputed: Any = None) -> None:
+        super().__init__(message)
+        self.stored, self.recomputed = stored, recomputed
+
+    def full_diff(self) -> str:
+        return full_diff(self.stored, self.recomputed)
 
 
 def check_record(record: dict[str, Any], schema: dict[str, Any] | None = None) -> None:
@@ -66,12 +78,8 @@ def needs_write(path: Path, doc: Any, *, ignore: tuple[str, ...] = VOLATILE_FIEL
         stored = None
     if _content(stored, ignore) == _content(doc, ignore):
         return False
-    raise AppendOnlyError(
-        f"tranche-ready outputs are append-only: {path} already exists and the"
-        " recomputed content disagrees with it; refusing to rewrite."
-        f"\n  stored:     {json.dumps(_content(stored, ignore), sort_keys=True)}"
-        f"\n  recomputed: {json.dumps(_content(doc, ignore), sort_keys=True)}"
-    )
+    stored_c, doc_c = _content(stored, ignore), _content(doc, ignore)
+    raise AppendOnlyError(describe_conflict(path, stored_c, doc_c), stored_c, doc_c)
 
 
 def write_record(

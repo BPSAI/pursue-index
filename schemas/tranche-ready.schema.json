@@ -58,6 +58,7 @@
     },
     "stop_reasons": {
       "type": "array",
+      "maxItems": 200,
       "items": { "type": "string" },
       "description": "Human-readable reasons, one per unresolved item. Non-empty iff status == stop-and-ask."
     },
@@ -239,6 +240,7 @@
         "old_title": { "type": "string", "maxLength": 512 },
         "continuity_signals": {
           "type": "array",
+          "maxItems": 50,
           "items": { "type": "string", "maxLength": 256 },
           "description": "Why the classifier paired the new card with the old one (e.g. same agency + incident_date, matching numeric id)."
         },
@@ -262,7 +264,7 @@
             "old_prefix_of_new": { "type": "boolean" },
             "appended_bytes": { "type": "integer", "minimum": 0 },
             "incremental_update": { "type": "boolean" },
-            "changed_objects": { "type": "array", "items": { "type": "string" } },
+            "changed_objects": { "type": "array", "maxItems": 200, "items": { "type": "string" } },
             "text_layer_identical": { "type": "boolean" },
             "render_identical": { "type": "boolean" },
             "render_dpi": { "type": "integer", "minimum": 1 }
@@ -309,6 +311,7 @@
         "recommended_cap_usd": { "type": "number", "minimum": 0 },
         "fallback_cards": {
           "type": "array",
+          "maxItems": 200,
           "items": { "type": "string" },
           "description": "Cards whose page count fell back to the per-card heuristic."
         },

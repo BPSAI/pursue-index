@@ -171,3 +171,6 @@ docs/portfolio/status.yaml.lock
 !.paircoder/history/bypass_log.jsonl
 !.paircoder/history/archived-tasks/
 # <<< paircoder managed
+
+# Refused tranche-ready diagnosis + local full diff (public issue body is value-free)
+/tranche-ready-error*
