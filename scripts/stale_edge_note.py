@@ -15,17 +15,18 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 
+from _poll_gh_io import HTTP_DATE_CHARS
+
 MAX_NOTE_BYTES = 2 * 1024
 MAX_NOTES = 200
 _SHA256_HEX = re.compile(r"[0-9a-f]{64}")
-_HEADER_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,:+-")
 _MAX_HEADER = 64
 
 
 def _clean_header(value: str | None) -> str | None:
     if not value:
         return None
-    return "".join(ch for ch in value if ch in _HEADER_CHARS)[:_MAX_HEADER] or None
+    return "".join(ch for ch in value if ch in HTTP_DATE_CHARS)[:_MAX_HEADER] or None
 
 
 def _prune(notes_dir: Path) -> None:

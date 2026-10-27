@@ -609,7 +609,11 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/manifests/snapshots web/public/data/snapshots data/manifests/diffs data/tranche-diffs data/tranche-ready
+          # A path that does not exist yet (data/tranche-ready before the first
+          # record, or on a refused/bootstrap run) is a fatal pathspec for git add.
+          for p in data/manifests/snapshots web/public/data/snapshots data/manifests/diffs data/tranche-diffs data/tranche-ready; do
+            if [ -e "$p" ]; then git add "$p"; fi
+          done
           if ! git diff --cached --quiet; then
             git commit -m "chore(poll): snapshot + diff for ${NEW_SHA:0:12}"
             git pull --rebase origin main

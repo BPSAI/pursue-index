@@ -18,7 +18,9 @@ Credential isolation for the whole job is pinned in
 
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -49,9 +51,37 @@ def _flag(run: str, flag: str) -> str:
 
 def test_the_commit_step_stages_both_new_outputs_with_the_existing_artifacts() -> None:
     _, commit = _step("Commit snapshot")
-    [add] = [ln for ln in str(commit["run"]).splitlines() if "git add" in ln]
-    staged = add.split("git add", 1)[1].split()
-    assert set(_STAGED) <= set(staged)
+    run = str(commit["run"])
+    assert all(path in run for path in _STAGED)
+    assert run.count("git commit") == 1, "one job, one commit"
+
+
+def _git(cwd: Path, *args: str) -> str:
+    return subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True,
+                          text=True).stdout
+
+
+def test_the_commit_step_survives_a_missing_output_dir(tmp_path: Path) -> None:
+    """``data/tranche-ready`` does not exist until a record is written (bootstrap,
+    or a refused record): ``git add`` on a missing pathspec is fatal under ``bash -e``."""
+    origin, work = tmp_path / "origin.git", tmp_path / "work"
+    _git(tmp_path, "init", "--bare", "-b", "main", str(origin))
+    _git(tmp_path, "clone", str(origin), str(work))
+    _git(work, "checkout", "-b", "main")
+    (work / "seed.txt").write_text("seed")
+    _git(work, "-c", "user.name=t", "-c", "user.email=t@t", "add", "seed.txt")
+    _git(work, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-m", "seed")
+    _git(work, "push", "origin", "main")
+    snap = work / "data" / "manifests" / "snapshots"
+    snap.mkdir(parents=True)
+    (snap / "s.json").write_text("{}")
+    _, commit = _step("Commit snapshot")
+    result = subprocess.run(["bash", "-e", "-c", str(commit["run"])], cwd=work,
+                            env={**os.environ, "NEW_SHA": "a" * 64},
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    assert "snapshot + diff" in _git(work, "log", "-1", "--format=%s")
+    assert "data/manifests/snapshots/s.json" in _git(work, "ls-files")
 
 
 def test_the_generate_step_writes_the_outputs_where_the_commit_step_stages_them() -> None:

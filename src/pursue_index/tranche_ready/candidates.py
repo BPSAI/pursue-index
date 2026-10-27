@@ -61,6 +61,20 @@ def candidate_rows(diff: dict[str, Any]) -> list[CandidateRow]:
     return out
 
 
+# The vendored schema's bounds on upstream-controlled free text.
+_TITLE_MAX, _SIGNAL_MAX, _SIGNALS_MAX = 512, 256, 50
+
+
+def _clamp_text(value: str | None) -> str | None:
+    return value if value is None else str(value)[:_TITLE_MAX]
+
+
+def _clamp_signals(signals: list[str] | None) -> list[str] | None:
+    if signals is None:
+        return None
+    return [str(s)[:_SIGNAL_MAX] for s in signals[:_SIGNALS_MAX]]
+
+
 def _signals(c: CandidateRow) -> list[str] | None:
     if "continuity_reasons" in c.row:
         return list(c.row["continuity_reasons"])
@@ -113,8 +127,9 @@ def build_candidate(
     old_ok = old_side.failure is None
     out: dict[str, Any] = {"kind": c.kind, "new_card_id": c.new_card_id,
                            "old_card_id": c.old_card_id}
-    for key, value in (("new_title", c.row.get("new_title")), ("old_title", old_title),
-                       ("continuity_signals", _signals(c))):
+    for key, value in (("new_title", _clamp_text(c.row.get("new_title"))),
+                       ("old_title", _clamp_text(old_title)),
+                       ("continuity_signals", _clamp_signals(_signals(c)))):
         if value is not None:
             out[key] = value
     out.update(

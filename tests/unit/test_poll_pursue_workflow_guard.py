@@ -4,8 +4,8 @@ The poll script now reports ``stale``, ``pending`` and ``benign`` as well as
 ``unchanged``/``changed``/``failed``. Pin how ``poll-pursue.yml`` treats
 each: only ``changed`` opens an issue or runs the snapshot lane; the guard
 state is committed by the same step that commits the sha; ``stale`` never
-moves the guard state or last-known, but (#165) still gets its fetched
-bytes committed via the backfill step when they weren't already archived.
+moves the guard state or last-known and commits no CSV bytes (#165 piled them
+up without limit): the backfill step records a capped note instead.
 """
 
 from __future__ import annotations
@@ -39,10 +39,9 @@ def test_sha_commit_step_also_commits_guard_state_and_covers_benign() -> None:
 
 
 def test_backfill_step_persists_pending_guard_state_and_archives_stale_bytes() -> None:
-    """(#165) ``stale`` now shares this step so a never-archived stale sha's
-    bytes aren't discarded. The step is idempotent either way -- a sha
-    already in ``data/raw/csv`` stages no diff -- so widening the gate to
-    ``stale`` can't accidentally start persisting guard state for it."""
+    """``stale`` shares this step so its observation is recorded as a capped
+    note (``stale_edge_note.py``), not as CSV bytes. The step is idempotent
+    either way, and sharing the gate does not persist guard state for it."""
     step = _step("Archive CSV bytes on every poll")
     assert "data/poll-state.json" in step["run"]
     cond = str(step["if"])

@@ -17,9 +17,10 @@ serialization lives in ``_poll_gh_io.py``. Exit codes:
 * changed   -> 0, status=changed (commit + tranche-detected issue)
 * benign    -> 0, status=benign (commit; encoding-only, no issue)
 * pending   -> 0, status=pending (new sha seen once; guard state committed)
-* stale     -> 0, status=stale (stale cache edge, older Last-Modified, or
-              subset row set; guard state untouched, bytes backfilled if
-              not already archived, no issue)
+* stale     -> 0, status=stale (stale cache edge or older Last-Modified;
+              guard state untouched, a capped note is committed instead of
+              CSV bytes, no issue). A strict subset row set is NOT stale: it
+              is a candidate and goes through the pending path.
 * failed    -> 1, status=failed (tranche-poll-failure issue)
 
 The stale-edge guard (#157, #176, ``_poll_guard.py``) keeps its history in

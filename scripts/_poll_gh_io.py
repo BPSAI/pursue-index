@@ -150,12 +150,12 @@ def _emit_guarded(result: object, status: str) -> list[str]:
         old, new = result.current_sha, result.sha  # type: ignore[attr-defined]
     lines = [f"status={status}", f"old_sha={old}", f"new_sha={new}", "is_bootstrap=false"]
     if status == "stale":
-        kept = "".join(ch for ch in (result.last_modified or "") if ch in _HTTP_DATE_CHARS)  # type: ignore[attr-defined]
+        kept = "".join(ch for ch in (result.last_modified or "") if ch in HTTP_DATE_CHARS)  # type: ignore[attr-defined]
         lines.append(f"last_modified={kept[:64]}")
     return lines
 
 
-_HTTP_DATE_CHARS = frozenset(
+HTTP_DATE_CHARS = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,:+-"
 )
 
@@ -165,7 +165,7 @@ def _header_text(value: str | None, limit: int = 64) -> str:
     characters an HTTP date uses (allowlist), one line, at most ``limit``."""
     if not value:
         return "(none)"
-    kept = "".join(ch for ch in value if ch in _HTTP_DATE_CHARS)
+    kept = "".join(ch for ch in value if ch in HTTP_DATE_CHARS)
     return "`" + truncate_error(kept, limit=limit) + "`"
 
 

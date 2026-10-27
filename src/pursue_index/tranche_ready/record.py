@@ -68,6 +68,9 @@ def _fetch_block(inp: RecordInputs) -> dict[str, Any]:
             "failures": failures}
 
 
+_REASONS_MAX = 200
+
+
 def _stop_reasons(candidates: list[dict[str, Any]], fallback: list[str]) -> list[str]:
     reasons = []
     for c in candidates:
@@ -78,6 +81,9 @@ def _stop_reasons(candidates: list[dict[str, Any]], fallback: list[str]) -> list
     if fallback:
         reasons.append(f"estimate partial: {len(fallback)} scoped card(s) priced per card "
                        "(page count unavailable)")
+    if len(reasons) > _REASONS_MAX:  # the schema's stop_reasons maxItems
+        dropped = len(reasons) - (_REASONS_MAX - 1)
+        reasons = [*reasons[:_REASONS_MAX - 1], f"...and {dropped} more unresolved items"]
     return reasons
 
 

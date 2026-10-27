@@ -23,12 +23,13 @@ __all__ = ["LARGEST_SHOWN", "pages_block", "scope_cards"]
 
 # How many of the largest documents the record lists (the pinned example's four).
 LARGEST_SHOWN = 4
+_DOC_ID_MAX = 64  # the schema's doc_id maxLength
 _DOC_ID = re.compile(r"[A-Z]+(?:-[A-Z0-9]+)+")
 
 
 def _doc_id(title: object) -> str | None:
     head = str(title or "").split(",", 1)[0].strip()
-    return head if _DOC_ID.fullmatch(head) else None
+    return head if len(head) <= _DOC_ID_MAX and _DOC_ID.fullmatch(head) else None
 
 
 def _with_doc_id(card_id: str, titles: Mapping[str, Any], **fields: Any) -> dict[str, Any]:
