@@ -49,7 +49,22 @@ DEFAULT_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.json"
 DEFAULT_PAGES = REPO_ROOT / "web" / "public" / "data" / "pages.json"
 DEFAULT_PAGES_CLEANED = REPO_ROOT / "web" / "public" / "data" / "pages-cleaned.json"
 DEFAULT_OBSERVATIONS = REPO_ROOT / "web" / "src" / "data" / "image-observations" / "index.json"
+DEFAULT_ASR_DIFF_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "asr-diff-bundle.json"
 DEFAULT_OUT = REPO_ROOT / "web" / "public" / "data" / "qc-coverage.json"
+
+
+def _asr_diff_status(asr_diff_bundle_path: Path) -> dict[str, str]:
+    """``{card_id: status}`` from the published asr-diff bundle, or ``{}``
+    when absent -- no second-engine comparison has been published yet,
+    which is the state of the repo until an operator runs one (R7C.27)."""
+    import build_asr_diff_bundle  # local import: avoids a hard dependency for callers that never pass this
+
+    if not asset_exists(asr_diff_bundle_path):
+        return {}
+    try:
+        return build_asr_diff_bundle.as_status_map(read_asset_json(asr_diff_bundle_path))
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return {}
 
 
 def _page_shas(pages_cleaned_path: Path) -> dict[str, dict[int, str]]:
@@ -125,6 +140,7 @@ def build(
     observations_path: Path,
     out_path: Path,
     pages_cleaned_path: Path | None = None,
+    asr_diff_bundle_path: Path | None = None,
 ) -> dict:
     """Read the sources, write the coverage payload, return it."""
     observations = json.loads(observations_path.read_text(encoding="utf-8"))
@@ -137,6 +153,7 @@ def build(
         # sidecar yields no text, so its card is not counted as described.
         observation_text_for(observations.get("card_ids", []), observations_path.parent),
         _page_shas(pages_cleaned_path) if pages_cleaned_path else {},
+        _asr_diff_status(asr_diff_bundle_path) if asr_diff_bundle_path else {},
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
@@ -150,6 +167,7 @@ def main() -> int:
     parser.add_argument("--pages", type=Path, default=DEFAULT_PAGES)
     parser.add_argument("--pages-cleaned", type=Path, default=DEFAULT_PAGES_CLEANED)
     parser.add_argument("--observations", type=Path, default=DEFAULT_OBSERVATIONS)
+    parser.add_argument("--asr-diff-bundle", type=Path, default=DEFAULT_ASR_DIFF_BUNDLE)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
     doc = build(
@@ -159,6 +177,7 @@ def main() -> int:
         observations_path=args.observations,
         out_path=args.out,
         pages_cleaned_path=args.pages_cleaned,
+        asr_diff_bundle_path=args.asr_diff_bundle,
     )
     gaps = _verification_gaps(
         args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},

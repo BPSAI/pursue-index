@@ -30,6 +30,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
+from pursue_index.cli.asr_diff_cli import asr_diff_app
 from pursue_index.config import settings
 from pursue_index.paths import repo_root
 from pursue_index.scrape import load_manifest
@@ -48,6 +49,7 @@ from pursue_index.transcribe.run import (
 transcribe_app = typer.Typer(
     name="transcribe", help="Diarized transcription for AUD content (AUD only)."
 )
+transcribe_app.add_typer(asr_diff_app)
 console = Console()
 
 _OPT_MANIFEST = typer.Option(..., "--manifest", exists=True, dir_okay=False)

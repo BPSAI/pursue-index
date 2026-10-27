@@ -20,7 +20,17 @@ This module gives every distinct card_id in the manifest exactly one status:
                               digest and ``page_shas`` is complete for the
                               card; otherwise it is unverifiable and the
                               legacy ``judged`` classification stands.
-* ``unverified_transcript`` — an AUD card with transcript text in pages.json.
+* ``unverified_transcript`` — an AUD card with transcript text in pages.json,
+                              and no completed second-engine comparison yet.
+* ``review``                — an AUD card whose second-engine comparison
+                              (see ``pursue_index.transcribe.asr_diff``,
+                              R7C.27) completed below the committed agreement
+                              threshold: the disagreeing spans need a human
+                              pass. Above threshold the comparison instead
+                              reports ``judged`` (folded into the main
+                              ``judged`` status, since the comparison's
+                              purpose is to let a transcript graduate out of
+                              "unverified").
 * ``unverified_vision``     — an IMG card with a vision description: its
                               image-observations sidecar renders text through
                               the loader the site uses
@@ -67,6 +77,7 @@ STATUSES: tuple[str, ...] = (
     "partially_judged",
     "stale",
     "unverified_transcript",
+    "review",
     "unverified_vision",
     "no_text",
     "unverified_other",
@@ -161,6 +172,7 @@ def classify_cards(
     observations: Mapping[str, Any],
     observation_text: Mapping[tuple[str, int], str],
     page_shas: Mapping[str, Mapping[int, str]] | None = None,
+    asr_diff_status: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """``{card_id: status}`` for every distinct card_id in the manifest.
 
@@ -169,13 +181,18 @@ def classify_cards(
     sidecars. ``page_shas`` (R7C.15) is ``{card_id: {page: source_page_sha256}}``
     from ``pages-cleaned.json`` (see ``staleness.card_page_shas``); omitted
     or incomplete for a card, that card's digest is unverifiable and the
-    legacy page-count-only classification stands.
+    legacy page-count-only classification stands. ``asr_diff_status``
+    (R7C.27) is ``{card_id: "judged" | "review"}`` from a completed
+    second-engine comparison (``pursue_index.transcribe.asr_diff``); it is
+    trusted as-is -- the threshold decision already happened at comparison
+    time -- and only ever overrides an AUD card's classification.
     """
     pages = list(pages)
     types = _asset_types(manifest)
     judged_pages = _judged_page_counts(bundle)
     judged_digests = _judged_digests(bundle)
     page_shas = page_shas or {}
+    asr_diff_status = asr_diff_status or {}
     current_pages = _current_page_counts(pages)
     with_text = _cards_with_text(pages)
     listed = set(observations.get("card_ids", []))
@@ -192,6 +209,8 @@ def classify_cards(
                 status = "stale"
             else:
                 status = "judged"
+        elif "AUD" in kinds and card_id in asr_diff_status:
+            status = asr_diff_status[card_id]
         elif "AUD" in kinds and card_id in with_text:
             status = "unverified_transcript"
         elif "IMG" in kinds and card_id in described:
@@ -257,18 +276,22 @@ def build_coverage(
     observations: Mapping[str, Any],
     observation_text: Mapping[tuple[str, int], str],
     page_shas: Mapping[str, Mapping[int, str]] | None = None,
+    asr_diff_status: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     """The ``qc-coverage.json`` document.
 
     ``page_shas`` (R7C.15) is ``{card_id: {page: source_page_sha256}}`` from
-    ``pages-cleaned.json`` -- see ``classify_cards``.
+    ``pages-cleaned.json``; ``asr_diff_status`` (R7C.27) is
+    ``{card_id: "judged" | "review"}`` from a completed second-engine
+    comparison -- see ``classify_cards``.
     """
     pages = list(pages)
     types = _asset_types(manifest)
     # A card that left the corpus after the sweep: listed, never counted.
     stray = sorted(_judged_ids(bundle) - types.keys())
     statuses = classify_cards(
-        manifest, bundle, pages, observations, observation_text, page_shas
+        manifest, bundle, pages, observations, observation_text, page_shas,
+        asr_diff_status,
     )
     reasons = _other_reasons(statuses, observations, observation_text)
     judged = {cid for cid, s in statuses.items() if s in ("judged", "partially_judged")}

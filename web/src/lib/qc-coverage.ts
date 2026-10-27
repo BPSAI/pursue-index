@@ -79,6 +79,17 @@ export function describeQcCoverage(doc: QcCoverage): string[] {
     lines.push(`${joinAnd(unverified)} ${plural ? "are" : "is"} not yet independently verified.`);
   }
 
+  // A transcript whose second-engine cross-check landed below the agreement
+  // threshold: the comparison ran, but its disagreeing spans need a human
+  // pass before the transcript counts as judged.
+  const review = n("review");
+  if (review > 0) {
+    lines.push(
+      `${count(review, "audio transcript", "audio transcripts")} ${verb(review, "has", "have")} ` +
+        `a second-engine cross-check flagging spans for human review.`,
+    );
+  }
+
   const stale = n("stale");
   if (stale > 0) {
     lines.push(

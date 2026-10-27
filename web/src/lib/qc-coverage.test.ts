@@ -21,6 +21,7 @@ function payload(cards: QcCoverageCard[]): QcCoverage {
     partially_judged: 0,
     stale: 0,
     unverified_transcript: 0,
+    review: 0,
     unverified_vision: 0,
     no_text: 0,
     unverified_other: 0,
@@ -104,6 +105,20 @@ test("describeQcCoverage: a single partially judged card reads in the singular",
     "Of 2 cards, 2 (all PDF documents with OCR text) are QC-judged page by page, " +
       "1 of them only partially since a later re-OCR.",
   );
+});
+
+test("describeQcCoverage: a second-engine review flag is called out, not folded into unverified", () => {
+  const doc = payload([
+    card("p1", ["PDF"], "judged"),
+    card("a1", ["AUD"], "review"),
+    card("a2", ["AUD"], "unverified_transcript"),
+  ]);
+  const lines = describeQcCoverage(doc);
+  assert.ok(
+    lines.includes("1 audio transcript has a second-engine cross-check flagging spans for human review."),
+    lines.join("\n"),
+  );
+  assert.ok(lines.includes("1 audio transcript is not yet independently verified."));
 });
 
 test("describeQcCoverage: stale cards are called out, not counted as judged", () => {
