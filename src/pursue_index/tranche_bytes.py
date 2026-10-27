@@ -92,8 +92,12 @@ def classify_bytes(
     """
     if isolated:
         old_path, new_path = Path(old_path), Path(new_path)
-        for path in (old_path, new_path):
-            check_file_size(path)  # FileNotFoundError / size cap before spawning
+        try:
+            for path in (old_path, new_path):
+                check_file_size(path)  # FileNotFoundError / size cap before spawning
+        except LimitExceededError as exc:
+            _LOG.warning("classify fail-safe: %s", exc)
+            return CONTENT_CHANGED
         return run_worker(old_path, new_path) or CONTENT_CHANGED
     return _classify_in_process(Path(old_path), Path(new_path))
 

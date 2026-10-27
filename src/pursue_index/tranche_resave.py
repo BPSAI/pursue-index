@@ -31,6 +31,7 @@ when at least one row moved.
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 from collections.abc import Callable
 from pathlib import Path
@@ -38,6 +39,7 @@ from typing import Any
 
 from pursue_index.classifier_id import classifier_id
 from pursue_index.pdf_crosscheck import CROSSCHECKS
+from pursue_index.pdf_limits import LimitExceededError, check_file_size
 from pursue_index.tranche_bytes import METADATA_ONLY, classify_bytes
 
 __all__ = [
@@ -49,6 +51,8 @@ __all__ = [
     "resave_counts",
 ]
 
+_LOG = logging.getLogger(__name__)
+_CHUNK = 1024 * 1024
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 RESAVE_BUCKET = "renames_metadata_only"
 RESAVE_METHOD = "metadata-only-resave"
@@ -63,10 +67,20 @@ def _verified_path(bytes_dir: Path, sha: str | None) -> Path | None:
         return None
     path = bytes_dir / f"{sha}.pdf"
     try:
-        data = path.read_bytes()
+        check_file_size(path)  # stat before any read: an oversized file never loads
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            while chunk := handle.read(_CHUNK):
+                digest.update(chunk)
     except FileNotFoundError:
         return None
-    return path if hashlib.sha256(data).hexdigest() == sha else None
+    except LimitExceededError as exc:
+        _LOG.warning("re-save candidate left quarantined: %s", exc)
+        return None
+    except OSError as exc:
+        _LOG.warning("re-save candidate unreadable (%s): left quarantined", type(exc).__name__)
+        return None
+    return path if digest.hexdigest() == sha else None
 
 
 def bytes_dir_check(
