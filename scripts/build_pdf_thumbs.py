@@ -234,6 +234,8 @@ def main(argv: list[str] | None = None) -> int:
 
     manifest = load_manifest(args.manifest)
     pdf_cards = [c for c in manifest.cards if c.asset_type == "PDF"]
+    # --limit bounds rendering work only; pruning must see the full set.
+    valid_ids = {c.card_id for c in pdf_cards}
     if args.limit:
         pdf_cards = pdf_cards[: args.limit]
     print(f"[thumbs] processing {len(pdf_cards)} PDF cards")
@@ -251,7 +253,6 @@ def main(argv: list[str] | None = None) -> int:
     for card in pdf_cards:
         counts[_process_card(card, args, mapping)] += 1
 
-    valid_ids = {c.card_id for c in pdf_cards}
     pruned = _prune_orphans(args.thumbs_dir, valid_ids, mapping)
 
     save_index(index_path, mapping)

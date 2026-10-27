@@ -152,3 +152,38 @@ def test_prune_orphans_ignores_ids_that_are_not_plain_filenames(tmp_path: Path):
     assert victim.exists()
     assert removed == ["gone"]
     assert "../victim" not in mapping
+
+
+def test_main_limit_does_not_prune_cards_beyond_the_limit(tmp_path: Path, capsys):
+    """--limit bounds rendering work, not which cards count as in the manifest."""
+    mod = _load_module()
+    mod._preflight = lambda args: True
+
+    manifest = tmp_path / "manifest.json"
+    _write_manifest(manifest, [("first", "PDF"), ("second", "PDF")])
+
+    thumbs_dir = tmp_path / "thumbs"
+    thumbs_dir.mkdir()
+    (thumbs_dir / "second.webp").write_bytes(b"second-webp")
+    (thumbs_dir / "second.sha256").write_text("sha")
+    (thumbs_dir / "index.json").write_text(
+        json.dumps({"thumbs": {"second": "second.webp"}, "count": 1})
+    )
+
+    rc = mod.main(
+        [
+            "--manifest",
+            str(manifest),
+            "--pdf-root",
+            str(tmp_path / "pdfs"),
+            "--thumbs-dir",
+            str(thumbs_dir),
+            "--limit",
+            "1",
+        ]
+    )
+
+    assert rc == 0
+    assert "pruned=0" in capsys.readouterr().out
+    assert (thumbs_dir / "second.webp").exists()
+    assert "second" in json.loads((thumbs_dir / "index.json").read_text())["thumbs"]
