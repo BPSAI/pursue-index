@@ -213,7 +213,7 @@ def classify_cards(
                 status = "stale"
             else:
                 status = "judged"
-        elif "AUD" in kinds and card_id in asr_diff_status:
+        elif "AUD" in kinds and card_id in asr_diff_status and card_id in with_text:
             status = "asr_verified" if asr_diff_status[card_id] == "judged" else "review"
         elif "AUD" in kinds and card_id in with_text:
             status = "unverified_transcript"

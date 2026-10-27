@@ -54,7 +54,7 @@ def _row_evidence(row: dict) -> tuple[object, object, object]:
 
 def _card_entry(
     card_id: str, rows: dict[str, dict], expected: set[str] | None,
-    version: str | None,
+    version: str | None, pages_digest: str | None = None,
 ) -> dict | None:
     """One card's entry: the WORST re-derived row (lowest agreement wins).
 
@@ -85,7 +85,7 @@ def _card_entry(
         return None
     return {
         "card_id": card_id, "status": status, "agreement": agreement,
-        "threshold": threshold, "min_words": words,
+        "threshold": threshold, "min_words": words, "pages_digest": pages_digest,
     }
 
 
@@ -97,7 +97,10 @@ def build(*, ocr_dir: Path, card_ids: list[str]) -> dict:
         card_dir = ocr_dir / card_id
         rows = sidecar.load_existing(card_dir / sidecar.SIDECAR_FILE)
         expected = sidecar.expected_row_keys(sidecar.read_meta(card_dir))
-        entry = _card_entry(card_id, rows, expected, sidecar.transcript_version(card_dir))
+        entry = _card_entry(
+            card_id, rows, expected, sidecar.transcript_version(card_dir),
+            sidecar.card_pages_digest(card_dir),
+        )
         if entry is not None:
             cards.append(entry)
     cards.sort(key=lambda c: c["card_id"])

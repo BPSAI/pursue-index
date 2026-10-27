@@ -129,7 +129,7 @@ def test_corrupt_asr_bundle_is_logged_not_silent(tmp_path: Path, monkeypatch) ->
     monkeypatch.setattr(build_qc_coverage, "log", _Log())
     bad = tmp_path / "asr.json"
     bad.write_text("{not json")
-    assert build_qc_coverage._asr_diff_status(bad) == {}
+    assert build_qc_coverage._asr_diff_status(bad, []) == {}
     assert seen == ["asr_diff.bundle.unreadable"]
 
 

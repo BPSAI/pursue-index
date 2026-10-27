@@ -138,10 +138,12 @@ def run_row(
             partial_cost_usd=budget.spent_usd,
         )
 
+    # Charged before the call: a vendor bills the attempt, so a call that
+    # raises still counts against the cap.
+    budget.charge(projected)
     text_b = second_engine_fn(audio_path)
     result = align_transcripts(text_a, text_b)
     status = classify_result(result, threshold)
-    budget.charge(projected)
     row = sidecar.build_row(
         row_key=row_key, engine_a=engine_a, engine_b=engine_b,
         result=result, threshold=threshold, status=status,

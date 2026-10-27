@@ -17,10 +17,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 from pursue_index.transcribe.asr_diff import AsrDiffResult
+from pursue_index.vendor.judged_pages_digest import judged_pages_digest, page_sha256
 
 SIDECAR_FILE = "asr_diff.jsonl"
 
@@ -125,3 +127,24 @@ def read_meta(card_dir: Path) -> dict[str, Any] | None:
     except (OSError, ValueError):
         return None
     return data if isinstance(data, dict) else None
+
+
+def pages_digest(pages: Iterable[tuple[int, str]]) -> str:
+    """One digest over a card's ``(page, text)`` rows (last row per page wins).
+
+    The same function runs on a card's ``pages.jsonl`` when the bundle is
+    built and on the ``pages.json`` rows when coverage is built, so a verdict
+    is only honored for the exact text the site publishes.
+    """
+    by_page = {int(page): page_sha256(text) for page, text in pages}
+    return judged_pages_digest(by_page.items())
+
+
+def card_pages_digest(card_dir: Path) -> str | None:
+    """``pages_digest`` of the card's ``pages.jsonl``, or ``None`` if unreadable."""
+    try:
+        rows = [json.loads(line) for line in (card_dir / "pages.jsonl").read_text(
+            encoding="utf-8").splitlines() if line.strip()]
+        return pages_digest((r["page"], r["text"]) for r in rows)
+    except (OSError, ValueError, KeyError, TypeError):
+        return None

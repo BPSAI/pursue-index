@@ -24,6 +24,8 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import build_qc_coverage  # type: ignore[import-not-found] # noqa: E402
 
+from pursue_index.transcribe import asr_diff_sidecar as sidecar  # noqa: E402
+
 VISION_TEXT = f"{OBSERVATIONS_HEADER}, model-x]]\n\nA photograph."
 
 
@@ -271,10 +273,10 @@ def test_an_aud_card_with_a_completed_asr_diff_is_asr_verified_or_review() -> No
         manifest, bundle, pages, observations, _obs_text(observations),
         asr_diff_status={"aud": "judged", "aud-silent": "review"},
     )
-    # aud-silent carries only whitespace text in pages.json, so without an
-    # asr_diff override it would classify no_text; the override still wins.
     assert statuses["aud"] == "asr_verified"
-    assert statuses["aud-silent"] == "review"
+    # aud-silent carries only whitespace text in pages.json: nothing to
+    # verify, so no comparison verdict can lift it out of no_text.
+    assert statuses["aud-silent"] == "no_text"
 
 
 def test_an_asr_diff_override_is_ignored_for_a_non_aud_card() -> None:
@@ -316,7 +318,10 @@ def test_script_reads_an_optional_asr_diff_bundle_and_overrides_aud_status(
         paths[name] = tmp_path / f"{name}.json"
         paths[name].write_text(json.dumps(doc))
     asr_diff_bundle_path = tmp_path / "asr-diff-bundle.json"
-    asr_diff_bundle_path.write_text(json.dumps({"cards": [{"card_id": "aud", "status": "judged", "agreement": 0.97, "threshold": 0.9, "min_words": 20}]}))
+    asr_diff_bundle_path.write_text(json.dumps({"cards": [{
+        "card_id": "aud", "status": "judged", "agreement": 0.97, "threshold": 0.9,
+        "min_words": 20, "pages_digest": sidecar.pages_digest([(1, "transcript")]),
+    }]}))
     out = tmp_path / "qc-coverage.json"
     doc = build_qc_coverage.build(
         manifest_path=paths["manifest"], bundle_path=paths["bundle"],
