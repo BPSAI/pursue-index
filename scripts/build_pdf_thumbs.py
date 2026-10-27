@@ -157,6 +157,9 @@ def _prune_orphans(
     for cid in list(mapping):
         if cid not in valid_ids:
             mapping.pop(cid, None)
+            if Path(cid).name != cid or cid in {"", ".", ".."}:
+                # Not a plain filename: drop the entry, never build a path.
+                continue
             removed.append(cid)
             (thumbs_dir / f"{cid}.webp").unlink(missing_ok=True)
             (thumbs_dir / f"{cid}.sha256").unlink(missing_ok=True)

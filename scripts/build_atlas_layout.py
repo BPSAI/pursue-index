@@ -378,7 +378,9 @@ def build(
         print(
             f"agencies with no AGENCY_ORDER slot: {sorted(unmapped)} — add them "
             "to AGENCY_ORDER in both scripts/build_atlas_layout.py and "
-            "web/src/components/atlas-helpers.ts",
+            "web/src/components/atlas-helpers.ts, then add a matching color "
+            "token in web/src/styles/global.css and update "
+            "tests/unit/test_a11y_contrast.py",
             file=sys.stderr,
         )
         return 1

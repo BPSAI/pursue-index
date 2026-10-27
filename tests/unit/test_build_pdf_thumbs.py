@@ -135,3 +135,20 @@ def test_main_prunes_card_that_left_manifest(tmp_path: Path, capsys):
     index = json.loads((thumbs_dir / "index.json").read_text())
     assert index["thumbs"] == {"keep": "keep.webp"}
     assert index["count"] == 1
+
+
+def test_prune_orphans_ignores_ids_that_are_not_plain_filenames(tmp_path: Path):
+    """A hostile index key must never reach an unlink outside thumbs_dir."""
+    mod = _load_module()
+    thumbs_dir = tmp_path / "thumbs"
+    thumbs_dir.mkdir()
+    victim = tmp_path / "victim.webp"
+    victim.write_bytes(b"outside")
+    mapping = {"../victim": "x.webp", "gone": "gone.webp"}
+    (thumbs_dir / "gone.webp").write_bytes(b"gone")
+
+    removed = mod._prune_orphans(thumbs_dir, set(), mapping)
+
+    assert victim.exists()
+    assert removed == ["gone"]
+    assert "../victim" not in mapping
