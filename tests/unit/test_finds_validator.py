@@ -291,6 +291,24 @@ def test_no_overlap_when_no_shared_cards() -> None:
     assert check_finds_overlap(entries) == []
 
 
+def test_supplements_naming_itself_fails() -> None:
+    entries = {
+        "entry-a": _mini_entry(["sharedcard123"], supplements="entry-a"),
+        "entry-b": _mini_entry(["sharedcard123"]),
+    }
+    errors = check_finds_overlap(entries)
+    assert any("entry-a" in e and "itself" in e for e in errors)
+    assert any("entry-b" in e and "no link" in e for e in errors)
+
+
+def test_inline_cards_list_is_read_by_the_gate() -> None:
+    inline = '---\ntitle: "Sample"\ncards: ["sharedcard123", \'other\']\n---\n\nbody\n'
+    entries = {"entry-a": inline, "entry-b": _mini_entry(["sharedcard123"])}
+    errors = check_finds_overlap(entries)
+    assert len(errors) == 1
+    assert "sharedcard123" in errors[0]
+
+
 # --- Integration: every committed finds entry passes the gate ---
 
 

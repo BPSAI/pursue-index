@@ -22,6 +22,7 @@ from pursue_index.finds_frontmatter import body_text as _body_text
 from pursue_index.finds_frontmatter import extract_frontmatter as _extract_frontmatter
 
 _SUPPLEMENTS_FIELD = re.compile(r'^supplements:[ \t]*"?([^"\n]+?)"?[ \t]*$', re.MULTILINE)
+_INLINE_CARDS = re.compile(r"^cards:\s*\[(.*)\]\s*$")
 _FINDS_BODY_LINK = re.compile(r"\]\(/finds/([a-zA-Z0-9][a-zA-Z0-9_-]*)\)")
 
 
@@ -36,6 +37,10 @@ def _frontmatter_cards(fm_text: str) -> list[str]:
     cards: list[str] = []
     in_cards = False
     for line in fm_text.splitlines():
+        inline = _INLINE_CARDS.match(line)
+        if inline:
+            parts = (p.strip().strip('"').strip("'") for p in inline.group(1).split(","))
+            return [p for p in parts if p]
         if not in_cards:
             if re.match(r"^cards:\s*$", line):
                 in_cards = True
@@ -70,6 +75,8 @@ def check_finds_overlap(entries: dict[str, str]) -> list[str]:
     the other. A `supplements:` value that does not name a known slug
     is also an error.
 
+    A `supplements:` value naming the entry itself is also an error.
+
     Returns a list of error strings, each naming the offending pair and
     the shared card id(s), or the bad `supplements:` reference.
     """
@@ -86,7 +93,9 @@ def check_finds_overlap(entries: dict[str, str]) -> list[str]:
 
     for slug, info in sorted(parsed.items()):
         supplements = info["supplements"]
-        if supplements is not None and supplements not in parsed:
+        if supplements is not None and supplements == slug:
+            errors.append(f"'{slug}' declares supplements: itself, which names no other entry")
+        elif supplements is not None and supplements not in parsed:
             errors.append(
                 f"'{slug}' declares supplements: '{supplements}', "
                 "which is not a known /finds entry"
