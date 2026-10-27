@@ -67,16 +67,34 @@ def _page_shas(pages_cleaned_path: Path) -> dict[str, dict[int, str]]:
         return {}
 
 
-def _verification_gap(bundle_path: Path, pages_cleaned_path: Path) -> str | None:
-    """Why the digests cannot be checked, or ``None`` when they can (or need not)."""
-    bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-    if not any(c.get("judged_pages_digest") for c in bundle.get("cards", [])):
-        return None
+def _verification_gaps(
+    bundle_path: Path, pages_cleaned_path: Path, statuses: dict[str, str],
+) -> list[str]:
+    """Why digests cannot be checked: one entry per problem, ``[]`` when fine.
+
+    Fails closed per card as well as globally: a digest-bearing card whose
+    committed shas are not one-per-judged-page reads as unverifiable here
+    rather than silently classifying ``judged``. A legacy bundle (no digest
+    on any card) has nothing to verify and yields ``[]``.
+    """
+    bundle = read_asset_json(bundle_path)
+    cards = [c for c in bundle.get("cards", []) if c.get("judged_pages_digest")]
+    if not cards:
+        return []
     if not asset_exists(pages_cleaned_path):
-        return f"{pages_cleaned_path.name} is missing"
-    if not _page_shas(pages_cleaned_path):
-        return f"{pages_cleaned_path.name} is unreadable or carries no page shas"
-    return None
+        return [f"{pages_cleaned_path.name} is missing"]
+    shas = _page_shas(pages_cleaned_path)
+    if not shas:
+        return [f"{pages_cleaned_path.name} is unreadable or carries no page shas"]
+    return [
+        f"{c['card_id']}: {len(shas.get(c['card_id'], {}))} page sha(s) for "
+        f"{c.get('page_count')} judged page(s)"
+        for c in cards
+        # Only a card the classifier called judged was meant to be verified;
+        # a partially judged one (page count changed) is legitimately skipped.
+        if statuses.get(c["card_id"]) == "judged"
+        and len(shas.get(c["card_id"], {})) != c.get("page_count")
+    ]
 
 
 def build(
@@ -92,7 +110,7 @@ def build(
     observations = json.loads(observations_path.read_text(encoding="utf-8"))
     doc = build_coverage(
         json.loads(manifest_path.read_text(encoding="utf-8")),
-        json.loads(bundle_path.read_text(encoding="utf-8")),
+        read_asset_json(bundle_path),
         read_asset_json(pages_path),
         observations,
         # The same rendering the search payload uses; a missing or malformed
@@ -122,10 +140,13 @@ def main() -> int:
         out_path=args.out,
         pages_cleaned_path=args.pages_cleaned,
     )
-    gap = _verification_gap(args.bundle, args.pages_cleaned)
-    if gap:
-        print(f"qc-coverage: digest verification unavailable: {gap} but the "
-              "clean-qc bundle carries judged_pages_digest values -- failing the gate")
+    gaps = _verification_gaps(
+        args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},
+    )
+    if gaps:
+        for gap in gaps:
+            print(f"qc-coverage: digest verification unavailable: {gap}")
+        print(f"qc-coverage: {len(gaps)} digest verification gap(s) -- failing the gate")
         return 1
     counts = ", ".join(f"{k} {v}" for k, v in doc["status_counts"].items())
     print(f"qc-coverage: {doc['total_cards']} cards ({counts}) → {args.out}")
