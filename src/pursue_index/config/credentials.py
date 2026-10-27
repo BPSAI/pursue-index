@@ -18,4 +18,8 @@ def anthropic_api_key() -> str | None:
 
     Returns ``None`` when neither has one, so the SDK raises its own error.
     """
-    return os.environ.get("ANTHROPIC_API_KEY") or settings.anthropic_api_key or None
+    return (
+        os.environ.get("ANTHROPIC_API_KEY")
+        or settings.anthropic_api_key.get_secret_value()
+        or None
+    )

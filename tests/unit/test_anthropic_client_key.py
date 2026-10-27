@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from pydantic import SecretStr
 
 from pursue_index.clean import client as clean_client
 from pursue_index.clean.qc import judge as qc_judge
@@ -46,19 +47,19 @@ def captured(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
 
 def test_helper_prefers_settings_when_env_absent(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setattr(settings, "anthropic_api_key", _SETTINGS_KEY)
+    monkeypatch.setattr(settings, "anthropic_api_key", SecretStr(_SETTINGS_KEY))
     assert anthropic_api_key() == _SETTINGS_KEY
 
 
 def test_helper_env_wins_over_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", _ENV_KEY)
-    monkeypatch.setattr(settings, "anthropic_api_key", _SETTINGS_KEY)
+    monkeypatch.setattr(settings, "anthropic_api_key", SecretStr(_SETTINGS_KEY))
     assert anthropic_api_key() == _ENV_KEY
 
 
 def test_helper_none_when_neither(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setattr(settings, "anthropic_api_key", "")
+    monkeypatch.setattr(settings, "anthropic_api_key", SecretStr(""))
     assert anthropic_api_key() is None
 
 
@@ -67,7 +68,7 @@ def test_client_receives_settings_key(
     monkeypatch: pytest.MonkeyPatch, captured: dict[str, Any], mod: Any, name: str
 ) -> None:
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setattr(settings, "anthropic_api_key", _SETTINGS_KEY)
+    monkeypatch.setattr(settings, "anthropic_api_key", SecretStr(_SETTINGS_KEY))
     getattr(mod, name)()
     assert captured["api_key"] == _SETTINGS_KEY
 
@@ -77,6 +78,11 @@ def test_client_env_wins_when_both_set(
     monkeypatch: pytest.MonkeyPatch, captured: dict[str, Any], mod: Any, name: str
 ) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", _ENV_KEY)
-    monkeypatch.setattr(settings, "anthropic_api_key", _SETTINGS_KEY)
+    monkeypatch.setattr(settings, "anthropic_api_key", SecretStr(_SETTINGS_KEY))
     getattr(mod, name)()
     assert captured["api_key"] == _ENV_KEY
+
+
+def test_settings_repr_does_not_leak_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(settings, "anthropic_api_key", SecretStr(_SETTINGS_KEY))
+    assert _SETTINGS_KEY not in repr(settings._real())

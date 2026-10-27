@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import AliasChoices, Field, HttpUrl, field_validator
+from pydantic import AliasChoices, Field, HttpUrl, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -81,8 +81,8 @@ class Settings(BaseSettings):
 
     # Read from ANTHROPIC_API_KEY (no PURSUE_ prefix) in the environment or .env.
     # Clients resolve it via ``config.credentials.anthropic_api_key`` (env wins).
-    anthropic_api_key: str = Field(
-        default="", validation_alias=AliasChoices("ANTHROPIC_API_KEY")
+    anthropic_api_key: SecretStr = Field(
+        default=SecretStr(""), validation_alias=AliasChoices("ANTHROPIC_API_KEY")
     )
 
     # ---- Embed ----
