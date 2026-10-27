@@ -1,10 +1,6 @@
 """Tests for runbook staleness check rules and path updates."""
 
-import subprocess
-import tempfile
 from pathlib import Path
-import pytest
-import sys
 
 
 def test_staleness_check_reads_tracked_path():
@@ -50,32 +46,6 @@ def test_staleness_check_has_unchained_pattern():
            "Staleness check should have rules about clean-qc chaining"
 
 
-def test_staleness_check_fixture_with_unchained_pair_fails():
-    """Staleness check must fail on a runbook with unchained clean-qc run/publish."""
-    # Create a temporary fixture file with unchained commands
-    fixture_content = """# Test Runbook
-
-Here are the commands:
-
-curate clean-qc run --cards <card_ids>
-
-(separate paragraph)
-
-curate publish clean-qc --version <N>
-"""
-
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
-        f.write(fixture_content)
-        fixture_path = Path(f.name)
-
-    try:
-        # Run the staleness check with this fixture (this would need to be added to the script)
-        # For now, we'll just verify the fixture is created correctly
-        assert fixture_path.exists()
-        assert "curate clean-qc run" in fixture_path.read_text()
-        assert "curate publish clean-qc" in fixture_path.read_text()
-    finally:
-        fixture_path.unlink()
 
 
 def test_staleness_check_passes_on_tracked_runbook():

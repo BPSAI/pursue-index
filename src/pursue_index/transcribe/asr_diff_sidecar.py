@@ -3,15 +3,17 @@
 One JSON object per line, keyed by ``row_key`` (``""`` for a card with a
 single AUD row) -- the same card directory as ``pages.jsonl``/
 ``meta.json``/``utterances.jsonl`` (see ``pursue_index.transcribe.pages``).
-Idempotent on the (engine_a, engine_b) pair: engine A's transcript is
-already final once written, so the pair alone is enough to say "this
-exact comparison already ran."
+Idempotent on the (engine_a, engine_b) pair AND the sha256 of engine A's
+transcript text: a regenerated transcript is a different comparison, so
+the old verdict never carries over to new text. A row written before the
+hash existed matches no hash and is compared again.
 
 Pure I/O, mirrors ``clean.qc.sidecar``'s shape.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -60,9 +62,11 @@ def build_row(
     result: AsrDiffResult,
     threshold: float,
     status: str,
+    text_a_sha256: str | None = None,
 ) -> dict[str, Any]:
     """The sidecar row for one row's completed comparison."""
     return {
+        "text_a_sha256": text_a_sha256,
         "row_key": row_key,
         "engine_a": engine_a,
         "engine_b": engine_b,
@@ -72,9 +76,39 @@ def build_row(
     }
 
 
-def should_skip(existing_row: dict[str, Any], *, engine_a: str, engine_b: str) -> bool:
-    """True iff the existing row already compares this exact engine pair."""
-    return (
-        existing_row.get("engine_a") == engine_a
-        and existing_row.get("engine_b") == engine_b
-    )
+def text_sha256(text: str) -> str:
+    """Fingerprint of engine A's transcript text for the idempotency check."""
+    return hashlib.sha256(str(text or "").encode("utf-8")).hexdigest()
+
+
+def should_skip(
+    existing_row: dict[str, Any], *, engine_a: str, engine_b: str,
+    text_a_sha256: str | None = None,
+) -> bool:
+    """True iff the existing row already compares this exact comparison.
+
+    ``text_a_sha256`` is the current transcript's fingerprint; when given
+    the row must carry the same one. ``None`` (a cost preview that holds no
+    transcript text) checks the engine pair only.
+    """
+    if existing_row.get("engine_a") != engine_a or existing_row.get("engine_b") != engine_b:
+        return False
+    return text_a_sha256 is None or existing_row.get("text_a_sha256") == text_a_sha256
+
+
+def expected_row_keys(meta: object) -> set[str] | None:
+    """Row keys a card's ``meta.json`` says carry a transcript, or ``None``
+    when the meta is unusable (not ``status: ok``), so coverage is unknowable."""
+    if not isinstance(meta, dict) or meta.get("status") != "ok":
+        return None
+    rows = meta.get("rows") or [{"row_key": ""}]
+    return {str(r.get("row_key", "") or "") for r in rows if isinstance(r, dict)}
+
+
+def read_meta(card_dir: Path) -> dict[str, Any] | None:
+    """The card's ``meta.json`` as a dict, or ``None`` when absent/unreadable."""
+    try:
+        data = json.loads((card_dir / "meta.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None

@@ -22,15 +22,17 @@ This module gives every distinct card_id in the manifest exactly one status:
                               legacy ``judged`` classification stands.
 * ``unverified_transcript`` — an AUD card with transcript text in pages.json,
                               and no completed second-engine comparison yet.
-* ``review``                — an AUD card whose second-engine comparison
+* ``asr_verified``          — an AUD card whose second-engine comparison
                               (see ``pursue_index.transcribe.asr_diff``,
-                              R7C.27) completed below the committed agreement
+                              R7C.27) completed at/above the committed
+                              agreement threshold. A distinct status, NOT
+                              ``judged``: two engines agreeing is a different
+                              verification than a page-by-page QC judge, and
+                              it never enters the judged set the digest and
+                              vision-text checks read.
+* ``review``                — the same comparison completed below the
                               threshold: the disagreeing spans need a human
-                              pass. Above threshold the comparison instead
-                              reports ``judged`` (folded into the main
-                              ``judged`` status, since the comparison's
-                              purpose is to let a transcript graduate out of
-                              "unverified").
+                              pass.
 * ``unverified_vision``     — an IMG card with a vision description: its
                               image-observations sidecar renders text through
                               the loader the site uses
@@ -77,6 +79,7 @@ STATUSES: tuple[str, ...] = (
     "partially_judged",
     "stale",
     "unverified_transcript",
+    "asr_verified",
     "review",
     "unverified_vision",
     "no_text",
@@ -211,7 +214,7 @@ def classify_cards(
             else:
                 status = "judged"
         elif "AUD" in kinds and card_id in asr_diff_status:
-            status = asr_diff_status[card_id]
+            status = "asr_verified" if asr_diff_status[card_id] == "judged" else "review"
         elif "AUD" in kinds and card_id in with_text:
             status = "unverified_transcript"
         elif "IMG" in kinds and card_id in described:

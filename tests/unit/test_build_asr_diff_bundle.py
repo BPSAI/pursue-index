@@ -20,6 +20,9 @@ import build_asr_diff_bundle  # type: ignore[import-not-found] # noqa: E402
 
 def _write_sidecar(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    (path.parent / "meta.json").write_text(json.dumps({
+        "status": "ok", "rows": [{"row_key": r["row_key"]} for r in rows],
+    }))
     path.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
 
 

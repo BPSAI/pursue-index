@@ -90,6 +90,16 @@ export function describeQcCoverage(doc: QcCoverage): string[] {
     );
   }
 
+  // Two engines agreeing is a different verification than the page-by-page
+  // QC judge, so it is reported on its own line and never counted as judged.
+  const asrVerified = n("asr_verified");
+  if (asrVerified > 0) {
+    lines.push(
+      `${count(asrVerified, "audio transcript", "audio transcripts")} ${verb(asrVerified, "was", "were")} ` +
+        `cross-checked by a second ASR engine (word-level agreement, not page-judged).`,
+    );
+  }
+
   const stale = n("stale");
   if (stale > 0) {
     lines.push(

@@ -70,7 +70,8 @@ def test_real_manifest_satisfies_partition_invariants() -> None:
     the test checks invariants that should hold on any manifest:
     - Every card is in exactly one route (partitioning)
     - All counts are non-negative
-    - page_image_flagged subset is a subset of unresolved
+    - page_image_flagged is exactly the previously_released_in_part tier
+      (a claim-resolved card), so it never exceeds resolved_by_claim
     - Tier counts sum to resolved_by_claim
 
     Exact figures are pinned only in the small fixture, which does not
@@ -87,7 +88,8 @@ def test_real_manifest_satisfies_partition_invariants() -> None:
         report.unresolved,
         report.page_image_flagged,
     ])
-    assert report.page_image_flagged <= report.unresolved
+    assert report.page_image_flagged <= report.resolved_by_claim
+    assert report.page_image_flagged == report.tier_counts.get("previously_released_in_part", 0)
     assert sum(report.tier_counts.values()) == report.resolved_by_claim
 
 
@@ -272,4 +274,5 @@ def test_fixture_with_added_card_still_satisfies_invariants() -> None:
         report.unresolved,
         report.page_image_flagged,
     ])
-    assert report.page_image_flagged <= report.unresolved
+    assert report.page_image_flagged <= report.resolved_by_claim
+    assert report.page_image_flagged == report.tier_counts.get("previously_released_in_part", 0)

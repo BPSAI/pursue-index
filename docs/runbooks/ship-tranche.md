@@ -1,6 +1,6 @@
 ---
 description: Drive a detected war.gov tranche through the operated release, deterministically
-allowed-tools: Bash(gh issue list:*), Bash(gh pr:*), Bash(gh release create:*), Bash(pursue:*), Bash(curate:*), Bash(make:*), Bash(git:*), Bash(python scripts/*), Bash(python -c:*), Bash(npm run:*), Read, Edit
+allowed-tools: Bash(gh issue list:*), Bash(gh pr:*), Bash(gh release create:*), Bash(pursue:*), Bash(curate:*), Bash(make:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git tag:*), Bash(python scripts/*), Bash(npm run:*), Read, Edit
 argument-hint: [<csv_sha256>]  (omit to use the newest open tranche-detected issue)
 ---
 
@@ -49,9 +49,7 @@ $ARGUMENTS
    ```
    pursue storage verify   # NAS + main R2 (pursue-pdfs) + backup R2 (pursue-pdfs-backup) all configured
    pursue ingest run --tranche "$SHA" --from-diff --dry-run   # scope + WRITES data/ingest-worklist.txt, no spend
-   python -c "import os; from pursue_index.release.ship import preflight_ocr; \
-     r=preflight_ocr(engine='llm-dots', concurrency=8, anthropic_key_present=bool(os.environ.get('ANTHROPIC_API_KEY'))); \
-     print(r); import sys; sys.exit(0 if r.ok else 1)"
+   python scripts/ship_preflight_ocr.py   # engine llm-dots, concurrency 8, key present
    ```
    If the preflight fails (engine not llm-dots/llm, concurrency < 8, or no key), STOP and fix — do not spend.
    `pursue storage verify` exits non-zero if any tier is unconfigured; read its

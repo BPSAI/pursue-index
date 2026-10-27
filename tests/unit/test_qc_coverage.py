@@ -259,7 +259,7 @@ def test_script_writes_deterministic_output(tmp_path: Path) -> None:
     assert json.loads(first)["status_counts"]["judged"] == 2
 
 
-def test_an_aud_card_with_a_completed_asr_diff_is_judged_or_review() -> None:
+def test_an_aud_card_with_a_completed_asr_diff_is_asr_verified_or_review() -> None:
     """A completed second-engine comparison (R7C.27) overrides
     ``unverified_transcript`` with the comparison's own verdict -- the
     classifier trusts whatever status the comparison already settled on,
@@ -273,7 +273,7 @@ def test_an_aud_card_with_a_completed_asr_diff_is_judged_or_review() -> None:
     )
     # aud-silent carries only whitespace text in pages.json, so without an
     # asr_diff override it would classify no_text; the override still wins.
-    assert statuses["aud"] == "judged"
+    assert statuses["aud"] == "asr_verified"
     assert statuses["aud-silent"] == "review"
 
 
@@ -323,7 +323,7 @@ def test_script_reads_an_optional_asr_diff_bundle_and_overrides_aud_status(
         pages_path=paths["pages"], observations_path=paths["observations"],
         out_path=out, asr_diff_bundle_path=asr_diff_bundle_path,
     )
-    assert next(c for c in doc["cards"] if c["card_id"] == "aud")["status"] == "judged"
+    assert next(c for c in doc["cards"] if c["card_id"] == "aud")["status"] == "asr_verified"
 
 
 def test_script_tolerates_a_missing_asr_diff_bundle(tmp_path: Path) -> None:

@@ -76,6 +76,8 @@ on:
       # gate share, and the sources it reads beyond the manifest/pages.json.
       - "scripts/build_qc_coverage.py"
       - "scripts/build_asr_diff_bundle.py"
+      - "web/public/data/asr-diff-bundle.json"
+      - "src/pursue_index/cli/asr_diff_cli.py"
       - "src/pursue_index/clean/qc/coverage.py"
       - "src/pursue_index/embed/image_observations.py"
       - "src/pursue_index/transcribe/asr_diff.py"

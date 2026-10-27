@@ -130,6 +130,18 @@ def derive_status(
     return classify_agreement(float(agreement), float(threshold))
 
 
+def effective_threshold(published: object) -> object:
+    """The cutoff a re-derivation may use: never below the committed one.
+
+    A bundle or sidecar is data an editor can change, so the threshold it
+    carries is only ever allowed to be STRICTER than ``AGREEMENT_THRESHOLD``.
+    A non-numeric value is returned unchanged so ``derive_status`` fails closed.
+    """
+    if isinstance(published, bool) or not isinstance(published, (int, float)):
+        return published
+    return max(float(published), AGREEMENT_THRESHOLD)
+
+
 def classify_result(result: AsrDiffResult, threshold: float = AGREEMENT_THRESHOLD) -> str:
     """Classify a full alignment result; zero words on either side is ``review``."""
     return derive_status(

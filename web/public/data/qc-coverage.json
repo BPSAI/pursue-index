@@ -16,6 +16,7 @@
     "partially_judged": 0,
     "stale": 0,
     "unverified_transcript": 16,
+    "asr_verified": 0,
     "review": 0,
     "unverified_vision": 30,
     "no_text": 122,

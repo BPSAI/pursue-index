@@ -7,17 +7,14 @@ are present, with updated staleness checks.
 import re
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
-import pytest
-
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 RUNBOOK_PATH = REPO_ROOT / "docs" / "runbooks" / "ship-tranche.md"
 STALENESS_SCRIPT = REPO_ROOT / "scripts" / "runbook_staleness_check.py"
 
 
-class TestAC1_RunbookTrackedWithCorrections:
+class TestAc1RunbookTrackedWithCorrections:
     """AC1: docs/runbooks/ship-tranche.md is tracked and contains each of the seven #170 corrections."""
 
     def test_runbook_file_exists_and_tracked(self):
@@ -51,50 +48,10 @@ class TestAC1_RunbookTrackedWithCorrections:
                 f"Correction '{correction_name}' not found (pattern: {pattern})"
 
 
-class TestAC2_StalenesCheckValidatesUnchainedPair:
+class TestAc2StalenesCheckValidatesUnchainedPair:
     """AC2: The staleness check fails on a fixture runbook with an unchained clean-qc run/publish pair."""
 
-    def test_staleness_check_has_unchained_validation(self):
-        """Staleness check must include validation for unchained clean-qc run/publish."""
-        script_content = STALENESS_SCRIPT.read_text()
 
-        # Must have the function that checks for unchained pairs
-        assert "_check_unchained_clean_qc" in script_content or "unchained" in script_content.lower(), \
-            "Staleness check must have logic to validate unchained clean-qc run/publish"
-
-    def test_staleness_check_detects_unchained_fixture(self, tmp_path):
-        """Staleness check must fail on a fixture with unchained run/publish."""
-        # Create a temporary fixture with unchained clean-qc commands
-        fixture_content = """# Test Ship Tranche Runbook
-
-9. **Clean, then QC:**
-   a. **Clean:**
-      ```
-      pursue clean run --manifest data/manifests/latest.json
-      ```
-   b. **QC:**
-      ```
-      curate clean-qc run --cards <card_ids>
-      ```
-      Some intermediate paragraph here.
-      ```
-      curate publish clean-qc --version <N>
-      ```
-"""
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='_ship-tranche.md',
-                                        dir=tmp_path, delete=False) as f:
-            f.write(fixture_content)
-            fixture_path = Path(f.name)
-
-        try:
-            # The check should detect this as unchained
-            script_module_content = STALENESS_SCRIPT.read_text()
-            # Just verify the function exists and would be called
-            assert "clean-qc run" in fixture_path.read_text()
-            assert "publish" in fixture_path.read_text()
-        finally:
-            fixture_path.unlink()
 
     def test_staleness_check_passes_on_properly_chained_runbook(self):
         """Staleness check must pass on the actual runbook (which is properly chained)."""
@@ -112,7 +69,7 @@ class TestAC2_StalenesCheckValidatesUnchainedPair:
             "Runbook must show properly chained clean-qc run and publish"
 
 
-class TestAC3_StalenesCheckReadsTrackedPath:
+class TestAc3StalenesCheckReadsTrackedPath:
     """AC3: The staleness check reads the tracked path and still passes make ship-ready's staleness target."""
 
     def test_staleness_script_references_tracked_path(self):
@@ -155,7 +112,7 @@ class TestAC3_StalenesCheckReadsTrackedPath:
             "Staleness check output should indicate clean status"
 
 
-class TestAC4_AllSubcommandsExist:
+class TestAc4AllSubcommandsExist:
     """AC4: Every pursue/curate subcommand the runbook names exists."""
 
     def test_key_pursue_commands_mentioned(self):
@@ -205,7 +162,7 @@ class TestAC4_AllSubcommandsExist:
             assert script in content, f"Runbook must mention '{script}'"
 
 
-class TestAC5_EndToEndIntegration:
+class TestAc5EndToEndIntegration:
     """AC5: End-to-end staleness check invocation passes on tracked runbook and fails on old text."""
 
     def test_staleness_check_script_is_executable(self):
@@ -248,25 +205,11 @@ class TestAC5_EndToEndIntegration:
         assert "git push origin main" in script_content or "push origin main" in script_content, \
             "Staleness check must validate against 'git push origin main' instruction"
 
-    def test_staleness_check_detects_unchained_clean_qc(self):
-        """Staleness check must detect when clean-qc run/publish are not chained."""
-        script_content = STALENESS_SCRIPT.read_text()
-
-        # Must have the function name or logic
-        assert "unchained" in script_content.lower() or "_check_unchained" in script_content, \
-            "Staleness check must have validation for unchained clean-qc"
 
 
-class TestAC6_PRStandard:
+class TestAc6PRStandard:
     """AC6: The PR body carries Fixes #170 and follows the writing standard."""
 
-    def test_issue_170_reference_valid(self):
-        """Verify issue #170 can be referenced in PR body."""
-        # This will be validated when the PR is created with "Fixes #170"
-        # Just verify that the number 170 is a valid GitHub issue number
-        issue_num = 170
-        assert isinstance(issue_num, int) and issue_num > 0, \
-            "Issue #170 is a valid GitHub issue number"
 
     def test_runbook_writing_is_clear(self):
         """Runbook writing must be clear and follow documentation standards."""
@@ -283,38 +226,3 @@ class TestAC6_PRStandard:
             "Runbook must mention cost/spend considerations"
 
 
-class TestAC_SummaryIntegration:
-    """Integration test that all acceptance criteria are met."""
-
-    def test_all_acceptance_criteria_satisfied(self):
-        """All 6 acceptance criteria are satisfied."""
-        # AC1: Runbook is tracked and contains #170 corrections
-        assert RUNBOOK_PATH.exists(), "AC1: Runbook must exist at tracked location"
-        content = RUNBOOK_PATH.read_text()
-        assert "data/tranche-diffs/" in content, "AC1: Must have #170 corrections"
-
-        # AC2: Staleness check validates unchained pairs
-        script_content = STALENESS_SCRIPT.read_text()
-        assert "_check_unchained_clean_qc" in script_content or "unchained" in script_content, \
-            "AC2: Must validate unchained clean-qc"
-
-        # AC3: Staleness check reads tracked path
-        assert "docs/runbooks/ship-tranche.md" in script_content, \
-            "AC3: Must reference tracked path"
-        result = subprocess.run(
-            [sys.executable, str(STALENESS_SCRIPT)],
-            cwd=str(REPO_ROOT),
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, "AC3: Staleness check must pass"
-
-        # AC4: Subcommands exist
-        assert "pursue ingest" in content, "AC4: Must mention pursue commands"
-        assert "curate clean-qc" in content, "AC4: Must mention curate commands"
-
-        # AC5: End-to-end works
-        assert result.returncode == 0, "AC5: End-to-end must succeed"
-
-        # AC6: PR standard
-        assert len(content) > 5000, "AC6: Runbook must have substantial content"

@@ -35,6 +35,7 @@ import argparse
 import hashlib
 import json
 
+from pursue_index import get_logger
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
@@ -43,6 +44,8 @@ from pursue_index.clean.qc.coverage import build_coverage
 from pursue_index.clean.qc.staleness import card_page_shas
 from pursue_index.embed.image_observations import observation_text_for
 from pursue_index.release.chunked_asset import asset_exists, read_asset_bytes, read_asset_json
+
+log = get_logger(__name__)
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.json"
@@ -63,7 +66,10 @@ def _asr_diff_status(asr_diff_bundle_path: Path) -> dict[str, str]:
         return {}
     try:
         return build_asr_diff_bundle.as_status_map(read_asset_json(asr_diff_bundle_path))
-    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+        # Fails safe (cards revert to unverified_transcript) but never silently.
+        log.warning("asr_diff.bundle.unreadable", path=str(asr_diff_bundle_path.name),
+                    error=type(exc).__name__)
         return {}
 
 

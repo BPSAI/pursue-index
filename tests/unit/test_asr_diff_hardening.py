@@ -94,6 +94,7 @@ def test_unknown_status_and_missing_evidence_become_review(caplog) -> None:
 def test_bundle_build_carries_agreement_evidence(tmp_path: Path) -> None:
     d = tmp_path / CARD
     d.mkdir()
+    (d / "meta.json").write_text(json.dumps({"status": "ok", "rows": [{"row_key": ""}]}))
     (d / sidecar.SIDECAR_FILE).write_text(json.dumps({
         "row_key": "", "status": "judged", "agreement": 0.95, "threshold": 0.9,
         "word_count_a": 10, "word_count_b": 10,

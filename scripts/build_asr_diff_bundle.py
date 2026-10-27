@@ -32,7 +32,7 @@ from pursue_index import get_logger
 from pursue_index.card_id import InvalidCardIdError, require_card_ids
 from pursue_index.paths import repo_root
 from pursue_index.transcribe import asr_diff_sidecar as sidecar
-from pursue_index.transcribe.asr_diff import derive_status
+from pursue_index.transcribe.asr_diff import derive_status, effective_threshold
 
 log = get_logger(__name__)
 
@@ -49,11 +49,22 @@ def _row_evidence(row: dict) -> tuple[object, object, object]:
     """``(agreement, threshold, min_words)`` for one sidecar row."""
     wa, wb = row.get("word_count_a"), row.get("word_count_b")
     words = min(wa, wb) if isinstance(wa, int) and isinstance(wb, int) else None
-    return row.get("agreement"), row.get("threshold"), words
+    return row.get("agreement"), effective_threshold(row.get("threshold")), words
 
 
-def _card_entry(card_id: str, rows: dict[str, dict]) -> dict | None:
-    """One card's entry: the WORST re-derived row (lowest agreement wins)."""
+def _card_entry(
+    card_id: str, rows: dict[str, dict], expected: set[str] | None,
+) -> dict | None:
+    """One card's entry: the WORST re-derived row (lowest agreement wins).
+
+    Only rows the card's ``meta.json`` lists count (a stale sidecar row for a
+    vanished row key is ignored). A card with an uncompared row, or with no
+    readable meta, never graduates: it gets an entry only when a compared
+    row already needs human review, so a disagreement is never hidden.
+    """
+    if expected is None:
+        return None
+    rows = {k: r for k, r in rows.items() if k in expected}
     if not rows:
         return None
     worst = None
@@ -64,6 +75,8 @@ def _card_entry(card_id: str, rows: dict[str, dict]) -> dict | None:
         if worst is None or rank > worst[0]:
             worst = (rank, status, agreement, threshold, words)
     _, status, agreement, threshold, words = worst
+    if status == "judged" and expected - rows.keys():
+        return None
     return {
         "card_id": card_id, "status": status, "agreement": agreement,
         "threshold": threshold, "min_words": words,
@@ -75,8 +88,10 @@ def build(*, ocr_dir: Path, card_ids: list[str]) -> dict:
     by card_id. ``card_id`` is validated before it is joined into a path."""
     cards = []
     for card_id in require_card_ids(card_ids):
-        rows = sidecar.load_existing(ocr_dir / card_id / sidecar.SIDECAR_FILE)
-        entry = _card_entry(card_id, rows)
+        card_dir = ocr_dir / card_id
+        rows = sidecar.load_existing(card_dir / sidecar.SIDECAR_FILE)
+        expected = sidecar.expected_row_keys(sidecar.read_meta(card_dir))
+        entry = _card_entry(card_id, rows, expected)
         if entry is not None:
             cards.append(entry)
     cards.sort(key=lambda c: c["card_id"])
@@ -91,7 +106,9 @@ def as_status_map(bundle: dict) -> dict[str, str]:
     out: dict[str, str] = {}
     for c in bundle["cards"]:
         published = c.get("status")
-        derived = derive_status(c.get("agreement"), c.get("threshold"), c.get("min_words"))
+        derived = derive_status(
+            c.get("agreement"), effective_threshold(c.get("threshold")), c.get("min_words"),
+        )
         if published not in _STATUS_RANK:
             log.warning("asr_diff.bundle.bad_status", card_id=c.get("card_id"), status=str(published)[:40])
             derived = "review"

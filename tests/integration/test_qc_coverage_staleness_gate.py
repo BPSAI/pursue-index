@@ -215,7 +215,8 @@ def test_canonical_vector_digest_matches_in_the_coverage_builder(tmp_path: Path)
     doc = json.loads(out_path.read_text())
     assert doc["status_counts"] == {
         "judged": 1, "partially_judged": 0, "stale": 0,
-        "unverified_transcript": 0, "review": 0, "unverified_vision": 0,
+        "unverified_transcript": 0, "asr_verified": 0, "review": 0,
+        "unverified_vision": 0,
         "no_text": 0, "unverified_other": 0,
     }
 
