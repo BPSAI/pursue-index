@@ -46,7 +46,7 @@ from pursue_index.release.chunked_asset import asset_exists, read_asset_json
 TARGET_FILES = [
     "README.md",
     ".paircoder/context/project.md",
-    ".claude/commands/ship-tranche.md",
+    "docs/runbooks/ship-tranche.md",
     "web/src/pages/*.astro",
     "web/src/components/*.astro",
     "web/src/components/*.tsx",
@@ -110,6 +110,10 @@ _PATTERNS = [
         "stale 'Release 01 only' claim — tranche-2 has landed",
     ),
     (
+        r"\.paircoder/plans/tranche-diff",
+        "old tranche-diff path — should be data/tranche-diffs/",
+    ),
+    (
         r"git\s+push\s+origin\s+main",
         "git push origin main instruction in runbook",
     ),
@@ -167,6 +171,55 @@ def _check_file(path: Path) -> list[tuple[int, str, str]]:
             if any(m in joined for m in _HISTORICAL_CONTEXT_MARKERS):
                 continue
             hits.append((i + 1, label, line.strip()))
+
+    # Additional check: unchained clean-qc run/publish (for runbooks only)
+    if "ship-tranche" in path.name.lower():
+        hits.extend(_check_unchained_clean_qc(lines))
+
+    return hits
+
+
+def _check_unchained_clean_qc(lines: list[str]) -> list[tuple[int, str, str]]:
+    """Check for unchained curate clean-qc run and publish commands.
+
+    Returns hits for cases where run and publish are not properly chained
+    with && to ensure publish never follows a failed run.
+    """
+    hits: list[tuple[int, str, str]] = []
+    content = "\n".join(lines)
+
+    # Look for clean-qc run commands
+    for i, line in enumerate(lines):
+        if "clean-qc run" in line and "curate" in line:
+            # Check if the next non-empty line has && or if there's a && on this line
+            # that leads to publish
+            found_chain = False
+
+            # Check if && is on the same line
+            if "&&" in line:
+                # Check if publish is nearby
+                window = "\n".join(lines[i:min(i+5, len(lines))])
+                if "publish" in window:
+                    found_chain = True
+            else:
+                # Check the next few lines for && and publish
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    if "&&" in lines[j] and "publish" in lines[j]:
+                        found_chain = True
+                        break
+
+            if not found_chain:
+                # Check if publish appears within the next 3 lines without chaining
+                publish_found = False
+                for j in range(i + 1, min(i + 4, len(lines))):
+                    if "clean-qc" in lines[j] and "publish" in lines[j]:
+                        publish_found = True
+                        # This is a hit only if there's no && between run and publish
+                        between_text = "\n".join(lines[i:j+1])
+                        if "&&" not in between_text:
+                            hits.append((i + 1, "unchained clean-qc run/publish", line.strip()))
+                        break
+
     return hits
 
 
