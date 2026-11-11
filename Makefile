@@ -9,6 +9,11 @@ PYTHON ?= .venv/bin/python
 # to be tolerated must say so explicitly in its recipe.
 SHELL := /bin/bash
 .SHELLFLAGS := -eo pipefail -c
+# .SHELLFLAGS needs GNU make >= 3.82 (which also added the `oneshell`
+# feature); older makes ignore it silently, so refuse to run there.
+ifeq ($(filter oneshell,$(.FEATURES)),)
+$(error GNU make >= 3.82 is required (.SHELLFLAGS); this is $(MAKE_VERSION))
+endif
 
 .PHONY: install install-dev scrape-inspect scrape download ocr ingest serve \
         test lint typecheck fmt db-up db-down clean

@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from pursue_index.config.settings import Settings, settings
+from pursue_index.config.settings import Settings, reset_settings
 
 
 @pytest.fixture(autouse=True)
@@ -31,9 +31,9 @@ def _hermetic_pursue_env(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
         if name.upper().startswith("PURSUE_"):
             monkeypatch.delenv(name)
     monkeypatch.setitem(Settings.model_config, "env_file", None)
-    settings.__dict__.pop("_settings", None)
+    reset_settings()
     yield
-    settings.__dict__.pop("_settings", None)
+    reset_settings()
 
 
 @pytest.fixture
