@@ -37,8 +37,10 @@ def put_archive_and_current(
     except Exception as exc:
         # PreconditionFailed (412) when an object already exists.
         # boto3 surfaces this as ClientError with Code 'PreconditionFailed'.
-        err = getattr(exc, "response", {}).get("Error", {})
-        if err.get("Code") in (
+        response = getattr(exc, "response", None)
+        err = response.get("Error") if isinstance(response, dict) else None
+        code = err.get("Code") if isinstance(err, dict) else None
+        if code in (
             "PreconditionFailed",
             "PreconditionFailedException",
             "412",
