@@ -127,11 +127,12 @@ def _ocr_page_shas(card_dir: Path, card_id: str) -> dict[int, str]:
     return ocr_page_shas(latest_per_page(_iter_sidecar(ocr), card_id))
 
 
-def _pages_json_text_shas(pages_path: Path | None) -> dict[tuple[str, int], str] | None:
-    """``{(card_id, page): sha256(text)}`` of the pages.json beside this build."""
+def _read_pages_json(pages_path: Path | None) -> bytes | None:
+    """The (possibly chunked) pages.json this build sits beside, read once so
+    the file-level and per-page hashes describe the same bytes."""
     if pages_path is None or not asset_exists(pages_path):
         return None
-    return text_shas_by_page(json.loads(read_asset_bytes(pages_path)))
+    return read_asset_bytes(pages_path)
 
 
 def _dedupe_latest_per_page(
@@ -316,13 +317,6 @@ def _assert_homogeneous_provenance(pages: list[dict]) -> None:
         )
 
 
-def _pages_json_sha256(pages_path: Path | None) -> str | None:
-    """sha256 of the (possibly chunked) pages.json this build ran against."""
-    if pages_path is None or not asset_exists(pages_path):
-        return None
-    return hashlib.sha256(read_asset_bytes(pages_path)).hexdigest()
-
-
 def _meta_block(
     pages: list[dict], covered: list[str], source_tag: str,
 ) -> dict:
@@ -358,10 +352,12 @@ def build(
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
         return 1
     titles = _load_titles(manifest_path)
-    pages, covered = _walk_sidecars(ocr_dir, titles, _pages_json_text_shas(pages_path))
+    pages_bytes = _read_pages_json(pages_path)
+    text_shas = text_shas_by_page(json.loads(pages_bytes)) if pages_bytes is not None else None
+    pages, covered = _walk_sidecars(ocr_dir, titles, text_shas)
     meta = _meta_block(pages, covered, source_tag)
-    if pages_sha := _pages_json_sha256(pages_path):
-        meta["pages_json_sha256"] = pages_sha
+    if pages_bytes is not None:
+        meta["pages_json_sha256"] = hashlib.sha256(pages_bytes).hexdigest()
     payload = {"meta": meta, "pages": pages}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     written = write_asset(

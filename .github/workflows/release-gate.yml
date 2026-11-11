@@ -83,6 +83,7 @@ on:
       - "src/pursue_index/cli/asr_diff_cli.py"
       - "src/pursue_index/clean/qc/coverage.py"
       - "src/pursue_index/clean/qc/staleness.py"
+      - "src/pursue_index/clean/qc/page_provenance.py"
       - "src/pursue_index/vendor/judged_pages_digest.py"
       - "scripts/build_pages_cleaned.py"
       - "src/pursue_index/embed/image_observations.py"
