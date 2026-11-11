@@ -175,6 +175,14 @@ app.add_typer(ingest_app)
 
 
 # ---------------------------------------------------------------------------
+# tranche (unattended local promote of a metadata-only tranche)
+# ---------------------------------------------------------------------------
+from pursue_index.cli.tranche_cli import tranche_app  # noqa: E402
+
+app.add_typer(tranche_app)
+
+
+# ---------------------------------------------------------------------------
 # storage (3-tier durability contract preflight)
 # ---------------------------------------------------------------------------
 from pursue_index.cli.storage_cli import storage_app  # noqa: E402

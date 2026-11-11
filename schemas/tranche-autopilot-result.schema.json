@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/BPSAI/pursue-index/schemas/tranche-autopilot-result.schema.json",
+  "title": "pursue tranche autopilot result",
+  "description": "Written by `pursue tranche autopilot --result <path>` on every exit. operator_next is text for a human; the autopilot never pushes, opens pull requests or merges.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "tranche_sha", "exit_code", "outcome", "message",
+               "started_at", "finished_at", "repo_root", "branch", "eligibility", "steps",
+               "failed_step", "promote_commits", "changed_paths", "operator_next"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "tranche_sha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "exit_code": {"enum": [10, 20, 21, 30, 40]},
+    "outcome": {"enum": ["done-needs-operator", "refused-needs-lease", "refused-ineligible",
+                         "refused-superseded", "gate-failed", "precondition-missing"]},
+    "message": {"type": "string"},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "repo_root": {"type": "string"},
+    "branch": {"type": ["string", "null"]},
+    "eligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "reasons", "fields_changed", "summary", "field_change_cards"],
+      "properties": {
+        "verdict": {"enum": ["eligible", "needs-lease", "ineligible", "unknown"]},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "fields_changed": {"type": "array", "items": {"type": "string"}},
+        "summary": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "field_change_cards": {"type": "integer", "minimum": 0}
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {"$ref": "#/$defs/step"}
+    },
+    "failed_step": {"type": ["string", "null"]},
+    "promote_commits": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"}
+    },
+    "changed_paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "by_top_dir", "paths", "truncated"],
+      "properties": {
+        "count": {"type": "integer", "minimum": 0},
+        "by_top_dir": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "paths": {"type": "array", "items": {"type": "string"}},
+        "truncated": {"type": "boolean"}
+      }
+    },
+    "operator_next": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "command", "status", "duration_s", "exit_code", "detail"],
+      "properties": {
+        "name": {"enum": ["approve", "dry-run-scope", "storage-verify", "ocr-preflight",
+                          "data-root-preflight", "promote", "ship-ready", "web-tests",
+                          "commit", "freshness-recheck"]},
+        "command": {"type": ["string", "null"]},
+        "status": {"enum": ["ok", "skipped", "failed", "not-run"]},
+        "duration_s": {"type": "number", "minimum": 0},
+        "exit_code": {"type": ["integer", "null"]},
+        "detail": {"type": "string"}
+      }
+    }
+  }
+}

@@ -205,8 +205,44 @@ $ARGUMENTS
     `git tag vX.Y.Z && gh release create vX.Y.Z --latest` (both — a tag alone is not the release).
 15. **Record:** update the private operations checkout's session record + write the finds digest (see the private ops runbook).
 
+## Metadata-only tranches (autopilot)
+
+A tranche whose receipt shows nothing but edits to allowlisted metadata fields
+(dates, description, title and other display text, agency, location, pairing
+and accessibility text) on cards that already exist needs no OCR, no A/V
+fetch and no spend. For such a tranche, steps 3-12 may run unattended:
+
+```
+pursue tranche autopilot --tranche "$SHA" --result <path outside the checkout>.json
+```
+
+It runs from a clean checkout on a release branch (never `main`) and refuses
+unless every receipt bucket other than `field_only_changes` is zero and every
+edited field is on the allowlist in `pursue_index.tranche_autopilot.eligibility`.
+It then runs, in order: approve (skipped when `pursue ingest check` already
+passes), the `--from-diff --dry-run` scope check (both work-lists must be
+empty), `pursue storage verify`, the OCR preflight (recorded as skipped: an
+empty work-list has nothing to OCR), a `PURSUE_DATA_ROOT` preflight, promote,
+`make ship-ready`, `cd web && npm run test`, one local commit, and a poll
+freshness re-check.
+
+Exit codes: `10` promoted and committed locally; `20` the tranche needs the
+full attended release above; `21` ineligible, or superseded by a newer poll
+commit; `30` a gate failed (the result names the step); `40` a precondition is
+missing. The result JSON (`schemas/tranche-autopilot-result.schema.json`)
+records every step with its status and duration, the commit sha, the changed
+paths, and `operator_next`: the push, pull-request and merge commands, as text.
+
+The autopilot has no push, pull-request or merge path. **Step 13 (deploy) is
+unchanged and stays a human gate**: a person reviews the commit, pushes the
+branch, opens the PR and merges it. Steps 14-15 also stay attended.
+
 ## Gates (MANDATORY)
 - **Approval** (step 3) and **deploy** (step 13) require explicit human "yes" — these are the spend and the outward-facing, hard-to-reverse actions.
+  For a metadata-only tranche there is no spend, so the autopilot records the
+  approval itself; deploy still requires the human "yes".
 - **Never** move the OCR/embed spend or CF deploy into CI — the poll workflow's credential isolation is load-bearing.
 - **Never** use `git push origin main` directly — create a PR and merge it (CF Workers Builds fire on merge).
 - If running headless with no human to approve, STOP after step 4 and report.
+  Exception: a metadata-only tranche may run `pursue tranche autopilot` (see
+  above) through a local commit; the deploy gate still waits for a human.
