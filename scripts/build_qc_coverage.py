@@ -135,7 +135,10 @@ def _page_provenance_gaps(
         current = text_shas_by_page(read_asset_json(pages_path))
     except (OSError, ValueError):
         return [f"{pages_path.name} unreadable: cannot tie cleaned pages to it"]
-    doc = read_asset_json(pages_cleaned_path)
+    try:
+        doc = read_asset_json(pages_cleaned_path)
+    except (OSError, ValueError) as exc:
+        return [f"{pages_cleaned_path.name} unreadable: {type(exc).__name__}: {exc}"]
     rows = doc.get("pages", []) if isinstance(doc, dict) else []
     return provenance_gaps(rows, current, card_ids, pages_cleaned_path.name)
 
