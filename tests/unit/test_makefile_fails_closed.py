@@ -19,9 +19,21 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MAKEFILE = REPO_ROOT / "Makefile"
 
+
+def _gnu_make_with_shellflags() -> bool:
+    """GNU make >= 3.82 (``.SHELLFLAGS``); the Makefile refuses older ones."""
+    if shutil.which("make") is None:
+        return False
+    out = subprocess.run(
+        ["make", "--version"], capture_output=True, text=True, check=False
+    ).stdout
+    m = re.match(r"GNU Make (\d+)\.(\d+)", out)
+    return m is not None and (int(m.group(1)), int(m.group(2))) >= (3, 82)
+
+
 pytestmark = pytest.mark.skipif(
-    shutil.which("make") is None or not Path("/bin/bash").exists(),
-    reason="needs make and /bin/bash",
+    not _gnu_make_with_shellflags() or not Path("/bin/bash").exists(),
+    reason="needs GNU make >= 3.82 and /bin/bash",
 )
 
 

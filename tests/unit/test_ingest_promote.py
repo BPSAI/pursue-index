@@ -122,14 +122,14 @@ def test_require_data_root_accepts_a_value_from_a_dotenv_file(
 ) -> None:
     """``.env`` is a supported source for the data root, not only the
     process environment."""
-    from pursue_index.config.settings import Settings, reset_settings
+    from pursue_index.config.settings import Settings, settings
 
     root = tmp_path / "data-root"
     root.mkdir()
     env_file = tmp_path / ".env"
     env_file.write_text(f"PURSUE_DATA_ROOT={root}\n", encoding="utf-8")
     monkeypatch.setitem(Settings.model_config, "env_file", str(env_file))
-    reset_settings()
+    monkeypatch.delitem(settings.__dict__, "_settings", raising=False)
 
     assert require_data_root() == root
 

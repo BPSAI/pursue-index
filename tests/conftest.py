@@ -22,7 +22,13 @@ from pathlib import Path
 
 import pytest
 
-from pursue_index.config.settings import Settings, reset_settings
+from pursue_index.config.settings import Settings, settings
+
+
+def reset_pursue_settings() -> None:
+    """Drop the lazy ``settings`` singleton's cached ``Settings`` so the next
+    attribute access rebuilds it from the current environment."""
+    settings.__dict__.pop("_settings", None)
 
 
 @pytest.fixture(autouse=True)
@@ -31,9 +37,9 @@ def _hermetic_pursue_env(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
         if name.upper().startswith("PURSUE_"):
             monkeypatch.delenv(name)
     monkeypatch.setitem(Settings.model_config, "env_file", None)
-    reset_settings()
+    reset_pursue_settings()
     yield
-    reset_settings()
+    reset_pursue_settings()
 
 
 @pytest.fixture

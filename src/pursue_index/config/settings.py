@@ -195,9 +195,3 @@ class _LazySettings:
 
 
 settings: Settings = _LazySettings()  # type: ignore[assignment]
-
-
-def reset_settings() -> None:
-    """Drop the cached ``Settings`` so the next attribute access rebuilds it
-    from the current environment. For tests that change ``PURSUE_*``."""
-    settings.__dict__.pop("_settings", None)
