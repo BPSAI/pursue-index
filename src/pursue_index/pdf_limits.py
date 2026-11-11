@@ -102,7 +102,11 @@ def open_regular(path: Path) -> BinaryIO:
     """
     check_file_size(path)
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    handle = os.fdopen(fd, "rb")
+    try:
+        handle = os.fdopen(fd, "rb")
+    except BaseException:
+        os.close(fd)
+        raise
     try:
         info = os.fstat(handle.fileno())
         if not stat.S_ISREG(info.st_mode):

@@ -88,7 +88,8 @@ def referenced_outside(
     return False
 
 
-_RAW_REF = re.compile(rb"(?<![\d.])(\d+)\s+\d+\s+R(?![A-Za-z0-9])")
+# Object numbers are bounded by the xref ceiling; a longer digit run is not one.
+_RAW_REF = re.compile(rb"(?<![\d.])(\d{1,10})\s+\d{1,10}\s+R(?![A-Za-z0-9])")
 _RAW_SCAN_CHECK_EVERY = 4096
 
 

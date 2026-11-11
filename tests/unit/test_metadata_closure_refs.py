@@ -158,3 +158,8 @@ def test_raw_reference_scan_checks_the_budget_as_it_goes(monkeypatch) -> None:
     except LimitExceededError:
         return
     raise AssertionError("budget never interrupted the scan")
+
+
+def test_raw_reference_in_ignores_an_overlong_digit_run() -> None:
+    assert not raw_reference_in(b"9" * 5000 + b" 0 R", {12}, Budget())
+    assert raw_reference_in(b"9" * 5000 + b" 12 0 R", {12}, Budget())
