@@ -13,10 +13,10 @@ the bundle's ``judged_pages_digest`` (R7C.15). A mismatch is a ``stale``
 card -- a re-OCR or re-clean that changed page CONTENTS without changing
 the page COUNT -- and this script's exit code fails the gate when any
 card is stale. Each judged page must also be tied, per page, to the OCR
-text published now: its cleaned row's ``input_sha256`` must equal the
-``ocr_page_sha256`` the builder recorded from the selected OCR row, and the
-``pages_json_text_sha256`` it recorded must equal the page's current
-pages.json text hash; any page that cannot be tied fails the gate. A bundle published before R7C.15 (no digest field) prints
+text published now (``pursue_index.clean.qc.page_provenance``): cleaned from
+the OCR row the corpus selects, and that OCR text is what pages.json
+publishes (or, for an image-only page, pages.json publishes a vision
+description or nothing); any page that cannot be tied fails the gate. A bundle published before R7C.15 (no digest field) prints
 a one-line backward-compatibility notice instead and classifies as
 before.
 
@@ -46,7 +46,7 @@ from pursue_index.paths import repo_root
 REPO_ROOT = repo_root()
 
 from pursue_index.clean.qc.coverage import build_coverage
-from pursue_index.clean.qc.page_provenance import provenance_gaps, text_shas_by_page
+from pursue_index.clean.qc.page_provenance import provenance_gaps, published_pages
 from pursue_index.clean.qc.staleness import card_page_shas
 from pursue_index.embed.image_observations import observation_text_for
 from pursue_index.release.chunked_asset import asset_exists, read_asset_json
@@ -132,7 +132,7 @@ def _page_provenance_gaps(
     """Per judged page: tied to its current OCR row and pages.json text?
     (``pursue_index.clean.qc.page_provenance``)."""
     try:
-        current = text_shas_by_page(read_asset_json(pages_path))
+        current = published_pages(read_asset_json(pages_path))
     except (OSError, ValueError):
         return [f"{pages_path.name} unreadable: cannot tie cleaned pages to it"]
     try:

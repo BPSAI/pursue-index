@@ -88,17 +88,27 @@ def referenced_outside(
     return False
 
 
+_RAW_REF = re.compile(rb"(?<![\d.])(\d+)\s+\d+\s+R(?![A-Za-z0-9])")
+_RAW_SCAN_CHECK_EVERY = 4096
+
+
 def raw_reference_in(data: bytes, targets: set[int], budget: Budget) -> bool:
     """True iff ``data`` holds the raw syntax ``N G R`` for any ``N`` in
-    ``targets``. Conservative: a match inside stream data also counts."""
+    ``targets``. Conservative: a match inside stream data also counts.
+
+    One fixed pattern, whatever the number of targets; each match's object
+    number is looked up in the set, and the budget is checked as the scan
+    goes."""
     if not targets:
         return False
     budget.check()
-    alternatives = b"|".join(str(n).encode() for n in sorted(targets))
-    pattern = re.compile(rb"(?<![\d.])(?:" + alternatives + rb")\s+\d+\s+R(?![A-Za-z0-9])")
-    found = pattern.search(data) is not None
+    for count, match in enumerate(_RAW_REF.finditer(data), 1):
+        if int(match[1]) in targets:
+            return True
+        if count % _RAW_SCAN_CHECK_EVERY == 0:
+            budget.check()
     budget.check()
-    return found
+    return False
 
 
 def action_reachable(reader: PdfReader, budget: Budget) -> set[int]:

@@ -12,7 +12,9 @@ from tests.integration.test_qc_coverage_staleness_gate import (
     _run_gate,
     _setup_fixture,
     _sidecar_rows,
+    raw_ocr_text,
     restamp_provenance,
+    text_sha,
     write_ocr_rows,
 )
 
@@ -22,6 +24,16 @@ def _rewrite_pages_json(tmp_path: Path, card_id: str = "card-one") -> None:
     path = tmp_path / "pages.json"
     rows = json.loads(path.read_text())
     next(r for r in rows if r["card_id"] == card_id)["text"] += " (re-OCR'd)"
+    path.write_text(json.dumps(rows))
+
+
+def _publish_ocr(tmp_path: Path, card_id: str, revision: str) -> None:
+    """pages.json rebuilt from the card's re-OCR'd rows."""
+    path = tmp_path / "pages.json"
+    rows = json.loads(path.read_text())
+    for r in rows:
+        if r["card_id"] == card_id:
+            r["text"] = raw_ocr_text(card_id, r["page"], revision)
     path.write_text(json.dumps(rows))
 
 
@@ -44,7 +56,8 @@ def test_builder_records_per_page_provenance(tmp_path: Path) -> None:
     doc = json.loads((tmp_path / "pages-cleaned.json").read_text())
     for row in doc["pages"]:
         assert row["ocr_page_sha256"] == row["input_sha256"]
-        assert len(row["pages_json_text_sha256"]) == 64
+        assert row["ocr_published_sha256"] == text_sha(raw_ocr_text(row["card_id"], row["page"]))
+        assert row["ocr_image_only"] is False
 
 
 def test_pages_json_moved_on_without_a_rebuild_fails_on_that_page(tmp_path: Path) -> None:
@@ -52,7 +65,7 @@ def test_pages_json_moved_on_without_a_rebuild_fails_on_that_page(tmp_path: Path
     _rewrite_pages_json(tmp_path)
     proc, _ = _run_gate(tmp_path)
     assert proc.returncode == 1, proc.stdout + proc.stderr
-    assert "card-one page 1: pages.json text changed since pages-cleaned.json was built" in proc.stdout
+    assert "card-one page 1: pages.json does not publish the OCR text this page was cleaned from" in proc.stdout
     assert "card-two" not in proc.stdout  # per page, not one file-level hash
 
 
@@ -63,13 +76,14 @@ def test_rebuild_from_unchanged_cleaned_sidecars_after_a_re_ocr_fails(tmp_path: 
     pages.json, but its pages were cleaned from the old OCR text."""
     _setup_fixture(tmp_path, _sidecar_rows())
     write_ocr_rows(tmp_path / "ocr" / "card-two", "card-two", [1, 2], revision=" v2")
-    _rewrite_pages_json(tmp_path, "card-two")
+    _publish_ocr(tmp_path, "card-two", " v2")
     restamp_provenance(tmp_path)
     proc, _ = _run_gate(tmp_path)
     assert proc.returncode == 1, proc.stdout + proc.stderr
     assert "card-two page 1: cleaned from other OCR text than the page's current OCR row" in proc.stdout
     assert "card-two page 2: cleaned from other OCR text" in proc.stdout
-    assert "pages.json text changed" not in proc.stdout  # the rebuild recorded the new text
+    # pages.json was rebuilt from the new OCR, so only the stale cleaning is reported.
+    assert "does not publish" not in proc.stdout
     assert "card-one" not in proc.stdout
 
 
@@ -89,7 +103,7 @@ def test_cleaned_asset_without_per_page_provenance_fails_closed(tmp_path: Path) 
     def strip(doc: dict) -> None:
         for row in doc["pages"]:
             row.pop("ocr_page_sha256")
-            row.pop("pages_json_text_sha256")
+            row.pop("ocr_published_sha256")
 
     _rewrite_cleaned(tmp_path, strip)
     proc, _ = _run_gate(tmp_path)
@@ -122,3 +136,54 @@ def test_a_legacy_bundle_without_digests_needs_no_provenance(tmp_path: Path) -> 
     _rewrite_pages_json(tmp_path)
     proc, _ = _run_gate(tmp_path)
     assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+def test_rebuild_beside_a_stale_pages_json_fails(tmp_path: Path) -> None:
+    """Re-OCR card-two and re-clean it from the new OCR rows, but leave
+    pages.json publishing the old OCR text, then rebuild pages-cleaned.json
+    beside that stale pages.json. Every cleaned page agrees with the OCR
+    sidecar and the asset was built beside the current pages.json, yet the
+    site publishes text the cleaned pages were not derived from."""
+    rows_by_card = _sidecar_rows()
+    _setup_fixture(tmp_path, rows_by_card)
+    card_dir = tmp_path / "ocr" / "card-two"
+    write_ocr_rows(card_dir, "card-two", [1, 2], revision=" v2")
+    for row in rows_by_card["card-two"]:
+        row["input_sha256"] = text_sha(raw_ocr_text("card-two", row["page"], " v2"))
+    (card_dir / "pages_cleaned.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in rows_by_card["card-two"]) + "\n")
+    restamp_provenance(tmp_path)  # pages.json untouched: still the old OCR text
+    proc, _ = _run_gate(tmp_path)
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    assert "card-two page 1: pages.json does not publish the OCR text this page was cleaned from" in proc.stdout
+    assert "card-one" not in proc.stdout
+
+
+def test_image_only_page_may_publish_a_vision_description_but_not_ocr_text(tmp_path: Path) -> None:
+    """An image-only page (blank OCR, cleaned from empty input) is tied when
+    pages.json publishes our vision description or nothing for it, and fails
+    when pages.json publishes OCR text the cleaned page never saw."""
+    rows_by_card = _sidecar_rows()
+    _setup_fixture(tmp_path, rows_by_card)
+    card_dir = tmp_path / "ocr" / "card-one"
+    (card_dir / "pages.jsonl").write_text(json.dumps({"card_id": "card-one", "page": 1, "text": "<b> </b>"}) + "\n")
+    rows_by_card["card-one"][0]["input_sha256"] = text_sha("<b> </b>")
+    (card_dir / "pages_cleaned.jsonl").write_text(json.dumps(rows_by_card["card-one"][0]) + "\n")
+    restamp_provenance(tmp_path)
+
+    def publish(text: str) -> None:
+        path = tmp_path / "pages.json"
+        rows = json.loads(path.read_text())
+        next(r for r in rows if r["card_id"] == "card-one")["text"] = text
+        path.write_text(json.dumps(rows))
+
+    publish("[[IMAGE-OBSERVATIONS via pursue vision pass]] a photograph of a field")
+    proc, _ = _run_gate(tmp_path)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    publish("")
+    proc, _ = _run_gate(tmp_path)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    publish("text from a later OCR run")
+    proc, _ = _run_gate(tmp_path)
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    assert "card-one page 1: pages.json publishes OCR text for a page cleaned as image-only" in proc.stdout

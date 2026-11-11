@@ -117,3 +117,44 @@ def test_xmp_body_helper_still_classifies(tmp_path) -> None:
     new = append_update(base.data, {base.metadata_num: xmp_body()}, root=base.root_num,
                         info=base.info_num, size=base.size)
     assert _verdict(tmp_path, base.data, new) == "metadata-only"
+
+
+def test_raw_reference_in_scales_to_many_targets_with_one_fixed_pattern(monkeypatch) -> None:
+    import re
+
+    from pursue_index import pdf_refs
+
+    compiled: list[bytes] = []
+    real_compile = re.compile
+
+    def spy(pattern, *a, **k):  # type: ignore[no-untyped-def]
+        compiled.append(pattern)
+        return real_compile(pattern, *a, **k)
+
+    monkeypatch.setattr(pdf_refs.re, "compile", spy)
+    targets = set(range(100_000, 400_000))
+    data = b"/Kids [1 0 R 2 0 R] /Rotate 399999 0 R"
+    assert raw_reference_in(data, targets, Budget())
+    assert not raw_reference_in(b"/Kids [1 0 R 2 0 R]", targets, Budget())
+    assert compiled == []  # no pattern built per call, however many targets
+
+
+def test_raw_reference_scan_checks_the_budget_as_it_goes(monkeypatch) -> None:
+    from pursue_index import pdf_refs
+    from pursue_index.pdf_limits import LimitExceededError
+
+    class Counting(Budget):
+        calls = 0
+
+        def check(self) -> None:
+            Counting.calls += 1
+            if Counting.calls > 3:
+                raise LimitExceededError("time-budget", "test")
+
+    monkeypatch.setattr(pdf_refs, "_RAW_SCAN_CHECK_EVERY", 10)
+    data = b" ".join(b"%d 0 R" % n for n in range(1, 200))
+    try:
+        raw_reference_in(data, {999_999}, Counting())
+    except LimitExceededError:
+        return
+    raise AssertionError("budget never interrupted the scan")

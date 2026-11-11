@@ -7,15 +7,15 @@ sidecar, into the search-payload page docs.
 from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 
-_SURYA_TAG_RE = re.compile(r"</?(?:b|u|i)>")
+from pursue_index.clean.qc.page_provenance import published_ocr_text
 
 
 def _clean_text(text: str) -> str:
-    return _SURYA_TAG_RE.sub("", text)
+    # One definition, shared with the cleaned-page provenance check.
+    return published_ocr_text(text)
 
 
 def emit_observation_only_pages(

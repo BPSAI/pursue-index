@@ -36,9 +36,10 @@ same field name and definition pursue-curate's clean-QC sidecar stamps.
 from these committed shas, since CI cannot read the NAS sidecars that
 would otherwise carry them.
 
-Per-page provenance (``ocr_page_sha256``, ``pages_json_text_sha256``; see
-``pursue_index.clean.qc.page_provenance``) lets the gate prove each cleaned
-page was derived from the OCR text the corpus publishes now.
+Per-page provenance (``ocr_page_sha256``, ``ocr_published_sha256``,
+``ocr_image_only``; see ``pursue_index.clean.qc.page_provenance``) lets the
+gate prove each cleaned page was derived from the OCR text pages.json
+publishes now.
 """
 
 from __future__ import annotations
@@ -61,9 +62,11 @@ from pursue_index.paths import repo_root
 REPO_ROOT = repo_root()
 
 from pursue_index.clean.qc.page_provenance import (
-    ocr_page_shas,
+    IMAGE_ONLY_KEY,
+    OCR_KEY,
+    PUBLISHED_KEY,
+    ocr_page_provenance,
     stamp_page_provenance,
-    text_shas_by_page,
 )
 from pursue_index.config import settings
 from pursue_index.page_rows import latest_per_page
@@ -119,12 +122,12 @@ def _iter_sidecar(path: Path) -> list[dict]:
     return rows
 
 
-def _ocr_page_shas(card_dir: Path, card_id: str) -> dict[int, str]:
-    """``{page: sha256(text)}`` of the OCR row selected for each page."""
+def _ocr_provenance(card_dir: Path, card_id: str) -> dict[int, dict]:
+    """Provenance of the OCR row selected for each page (``page_provenance``)."""
     ocr = card_dir / "pages.jsonl"
     if not ocr.exists():
         return {}
-    return ocr_page_shas(latest_per_page(_iter_sidecar(ocr), card_id))
+    return ocr_page_provenance(latest_per_page(_iter_sidecar(ocr), card_id))
 
 
 def _read_pages_json(pages_path: Path | None) -> bytes | None:
@@ -205,7 +208,6 @@ def _sanitize_row_for_mirror(row: dict) -> dict:
 
 def _walk_sidecars(
     ocr_dir: Path, titles: dict[str, str],
-    pages_json_shas: dict[tuple[str, int], str] | None = None,
 ) -> tuple[list[dict], list[str]]:
     """Return ``(pages_list, cards_covered)`` — deduped + sanitized.
 
@@ -242,8 +244,7 @@ def _walk_sidecars(
         card_id = card_dir.name
         rows = _dedupe_latest_per_page(rows, card_id=card_id)
         rows = [_stamp_source_page_sha256(r) for r in rows]
-        rows = stamp_page_provenance(rows, _ocr_page_shas(card_dir, card_id),
-                                     pages_json_shas, card_id)
+        rows = stamp_page_provenance(rows, _ocr_provenance(card_dir, card_id))
         rows = [_sanitize_row_for_mirror(r) for r in rows]
         if not rows:
             continue
@@ -280,15 +281,15 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
         "title": title,
         "text": row.get("text_cleaned", ""),
         "source_page_sha256": row.get("source_page_sha256", ""),
-        "ocr_page_sha256": row.get("ocr_page_sha256", ""),
+        OCR_KEY: row.get(OCR_KEY, ""),
+        PUBLISHED_KEY: row.get(PUBLISHED_KEY, ""),
+        IMAGE_ONLY_KEY: bool(row.get(IMAGE_ONLY_KEY, False)),
         "model_id": row.get("model_id", ""),
         "prompt_sha256": row.get("prompt_sha256", ""),
         "input_sha256": row.get("input_sha256", ""),
         "output_sha256": row.get("output_sha256", ""),
         "generated_at": row.get("generated_at", ""),
     }
-    if "pages_json_text_sha256" in row:
-        out["pages_json_text_sha256"] = row["pages_json_text_sha256"]
     skipped = row.get("cleanup_skipped")
     if skipped:
         out["cleanup_skipped"] = skipped
@@ -353,8 +354,7 @@ def build(
         return 1
     titles = _load_titles(manifest_path)
     pages_bytes = _read_pages_json(pages_path)
-    text_shas = text_shas_by_page(json.loads(pages_bytes)) if pages_bytes is not None else None
-    pages, covered = _walk_sidecars(ocr_dir, titles, text_shas)
+    pages, covered = _walk_sidecars(ocr_dir, titles)
     meta = _meta_block(pages, covered, source_tag)
     if pages_bytes is not None:
         meta["pages_json_sha256"] = hashlib.sha256(pages_bytes).hexdigest()

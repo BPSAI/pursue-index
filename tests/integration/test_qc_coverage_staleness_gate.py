@@ -159,7 +159,7 @@ def _setup_fixture(tmp_path: Path, rows_by_card: dict[str, list[dict]]) -> dict:
     )
     pages_cleaned = json.loads(pages_cleaned_path.read_text())
     (tmp_path / "pages.json").write_text(json.dumps([
-        {"card_id": p["card_id"], "page": p["page"], "text": p["text"]}
+        {"card_id": p["card_id"], "page": p["page"], "text": raw_ocr_text(p["card_id"], p["page"])}
         for p in pages_cleaned["pages"]
     ]))
     restamp_provenance(tmp_path)
@@ -199,7 +199,7 @@ def _build_canonical_pages_cleaned(tmp_path: Path, canonical: dict) -> Path:
 
 def _write_canonical_gate_inputs(tmp_path: Path, canonical: dict, pages_cleaned: dict) -> None:
     (tmp_path / "pages.json").write_text(json.dumps([
-        {"card_id": p["card_id"], "page": p["page"], "text": p["text"]}
+        {"card_id": p["card_id"], "page": p["page"], "text": raw_ocr_text(p["card_id"], p["page"])}
         for p in pages_cleaned["pages"]
     ]))
     restamp_provenance(tmp_path)
@@ -292,7 +292,7 @@ def test_one_changed_page_fails_the_gate_on_the_stale_card(tmp_path: Path) -> No
     )
     pages_cleaned = json.loads(pages_cleaned_path.read_text())
     (tmp_path / "pages.json").write_text(json.dumps([
-        {"card_id": p["card_id"], "page": p["page"], "text": p["text"]}
+        {"card_id": p["card_id"], "page": p["page"], "text": raw_ocr_text(p["card_id"], p["page"])}
         for p in pages_cleaned["pages"]
     ]))
     restamp_provenance(tmp_path)
