@@ -18,7 +18,13 @@ from typing import Any
 from pursue_index.poll_freshness import PollCheckError, commits_behind_on_poll_paths
 from pursue_index.tranche_autopilot import steps as rs
 from pursue_index.tranche_autopilot.eligibility import Eligibility, ReceiptError, assess
-from pursue_index.tranche_autopilot.gitops import GitError, current_branch, is_clean
+from pursue_index.tranche_autopilot.gitops import (
+    GitError,
+    current_branch,
+    is_clean,
+    modified_tracked_paths,
+    origin_url,
+)
 from pursue_index.tranche_autopilot.outcome import AutopilotStopError, ExitCode, Outcome
 from pursue_index.tranche_autopilot.result import (
     SCHEMA_VERSION,
@@ -26,6 +32,7 @@ from pursue_index.tranche_autopilot.result import (
     now_iso,
     operator_next,
     redact,
+    repo_slug,
     write_result,
 )
 from pursue_index.tranche_autopilot.runner import CommandResult, Runner
@@ -125,6 +132,8 @@ class _Run:
         self.steps = {name: Step(name) for name in rs.STEP_NAMES}
         self.branch: str | None = None
         self.eligibility: Eligibility | None = None
+        self.slug: str | None = None
+        self.left_modified: list[str] = []
         self.ctx: rs.Context | None = None
 
     def execute(self) -> None:
@@ -132,6 +141,8 @@ class _Run:
         if not _SHA.fullmatch(cfg.tranche_sha):
             raise _stop(ExitCode.PRECONDITION, "--tranche must match ^[0-9a-f]{64}$")
         self.branch = _check_checkout(cfg)
+        url = origin_url(cfg.runner, cfg.repo_root)
+        self.slug = repo_slug(url) if url else None
         baseline = _freshness_baseline(cfg)
         receipt = _load_receipt(cfg)
         self.eligibility = _assess(cfg, receipt)
@@ -166,7 +177,9 @@ class _Run:
             "promote_commits": list(ctx.commits) if ctx else [],
             "changed_paths": (ctx.changed if ctx and ctx.changed else
                               {"count": 0, "by_top_dir": {}, "paths": [], "truncated": False}),
-            "operator_next": (operator_next(cfg.repo_root, self.branch, cfg.tranche_sha)
+            "left_modified": self.left_modified,
+            "operator_next": (operator_next(cfg.repo_root, self.branch, cfg.tranche_sha,
+                                            self.slug)
                               if done else []),
         }
 
@@ -186,10 +199,22 @@ def run_autopilot(cfg: AutopilotConfig) -> int:
             running.finish("failed", f"internal error: {type(exc).__name__}")
         code, outcome = ExitCode.GATE_FAILED, Outcome.GATE_FAILED
         message = redact(f"internal error: {type(exc).__name__}: {exc}")
+    if code is not ExitCode.DONE and run.ctx is not None:
+        run.left_modified = _left_modified(cfg)
     if _result_inside_checkout(cfg):  # refused above; never dirty the checkout
         return int(code)
     write_result(cfg.result_path, run.document(code, outcome, message))
     return int(code)
+
+
+def _left_modified(cfg: AutopilotConfig) -> list[str]:
+    """Tracked paths a stopped run left changed. The tree was clean at the
+    start, so these are this run's; they are reported, never discarded (a
+    retry runs in a fresh checkout)."""
+    try:
+        return modified_tracked_paths(cfg.runner, cfg.repo_root)
+    except GitError as exc:
+        return [f"<unknown: {exc}>"]
 
 
 def _no_runner(*_args: object, **_kwargs: object) -> CommandResult:

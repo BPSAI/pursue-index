@@ -235,6 +235,11 @@ missing. The result JSON (`schemas/tranche-autopilot-result.schema.json`)
 records every step with its status and duration, the commit sha, the changed
 paths, and `operator_next`: the push, pull-request and merge commands, as text.
 
+A run that stops after it started changing the checkout (the approval log,
+the work-list, a promoted manifest) does not undo anything: the result lists
+those tracked paths under `left_modified`. A retry runs in a fresh checkout on
+a new branch, never in the stopped one.
+
 The autopilot has no push, pull-request or merge path. **Step 13 (deploy) is
 unchanged and stays a human gate**: a person reviews the commit, pushes the
 branch, opens the PR and merges it. Steps 14-15 also stay attended.

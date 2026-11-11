@@ -157,3 +157,66 @@ def test_more_credential_shapes_are_redacted(leak: str) -> None:
 
     out = redact(leak)
     assert not any(s in out for s in ("abcdef0123456789", "AKIAABCDEFGHIJKLMNOP", "hunter2pass"))
+
+
+def test_stopped_run_reports_tracked_paths_it_left_modified(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    runner = FakeRunner(repo)
+    runner.handlers[("make", "ship-ready")] = lambda a, c: CommandResult(2, "", "red")
+    code, doc = _run(tmp_path, repo, runner)
+    assert code == ExitCode.GATE_FAILED
+    # dry run rewrote the work-list, promote rewrote the manifest; nothing is undone
+    assert doc["left_modified"] == ["data/ingest-worklist.txt", "data/manifests/latest.json"]
+    status = subprocess.run(["git", "status", "--porcelain"], cwd=repo, capture_output=True,
+                            text=True, check=True).stdout
+    assert "latest.json" in status
+
+
+def test_refusal_before_any_step_reports_nothing_left_modified(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, None)
+    code, doc = _run(tmp_path, repo, FakeRunner(repo))
+    assert code == ExitCode.PRECONDITION
+    assert doc["left_modified"] == []
+
+
+def test_success_leaves_nothing_modified(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    code, doc = _run(tmp_path, repo, FakeRunner(repo))
+    assert code == ExitCode.DONE
+    assert doc["left_modified"] == []
+
+
+@pytest.mark.parametrize("url", ["git@github.com:acme/widgets.git",
+                                 "https://github.com/acme/widgets",
+                                 "ssh://git@github.com/acme/widgets.git"])
+def test_gh_lines_name_the_repo_from_origin(tmp_path: Path, url: str) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    subprocess.run(["git", "remote", "add", "origin", url], cwd=repo, check=True)
+    code, doc = _run(tmp_path, repo, FakeRunner(repo))
+    assert code == ExitCode.DONE
+    gh = [line for line in doc["operator_next"] if "gh pr" in line]
+    assert len(gh) == 2
+    assert all(line.startswith("gh pr") and "--repo acme/widgets " in line for line in gh)
+
+
+def test_gh_lines_cd_into_the_checkout_without_a_usable_origin(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    subprocess.run(["git", "remote", "add", "origin", "https://example.invalid/a;b/c"],
+                   cwd=repo, check=True)
+    code, doc = _run(tmp_path, repo, FakeRunner(repo))
+    assert code == ExitCode.DONE
+    gh = [line for line in doc["operator_next"] if "gh pr" in line]
+    assert all(line.startswith(f"cd {repo} && gh pr") and "--repo" not in line for line in gh)
+
+
+@pytest.mark.parametrize("url,slug", [
+    ("git@github.com:acme/widgets.git", "acme/widgets"),
+    ("https://github.com/acme/widgets.git/", "acme/widgets"),
+    ("https://github.com/acme/wid;gets", None),
+    ("https://gitlab.com/acme/widgets", None),
+    ("git@github.com:acme/../x", None),
+])
+def test_repo_slug_is_validated(url: str, slug: str | None) -> None:
+    from pursue_index.tranche_autopilot.result import repo_slug
+
+    assert repo_slug(url) == slug

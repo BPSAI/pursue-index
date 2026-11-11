@@ -12,7 +12,8 @@ from pathlib import Path
 from pursue_index.tranche_autopilot.runner import Runner
 
 __all__ = ["GitError", "changed_paths", "commit_paths", "current_branch", "head_sha",
-           "is_clean", "path_summary", "untracked_paths"]
+           "is_clean", "modified_tracked_paths", "origin_url", "path_summary",
+           "untracked_paths"]
 
 _GIT_TIMEOUT = 120.0
 _PATH_LIST_CAP = 200
@@ -56,6 +57,17 @@ def changed_paths(runner: Runner, repo: Path) -> list[str]:
 def untracked_paths(runner: Runner, repo: Path) -> list[str]:
     """Only the new, untracked paths."""
     return sorted({path for xy, path in _status(runner, repo) if xy == "??"})
+
+
+def modified_tracked_paths(runner: Runner, repo: Path) -> list[str]:
+    """Tracked paths with uncommitted changes (untracked files excluded)."""
+    return sorted({path for xy, path in _status(runner, repo) if xy != "??"})
+
+
+def origin_url(runner: Runner, repo: Path) -> str | None:
+    result = runner(["git", "remote", "get-url", "origin"], cwd=repo, timeout=_GIT_TIMEOUT)
+    url = result.stdout.strip()
+    return url if result.returncode == 0 and url else None
 
 
 def is_clean(runner: Runner, repo: Path) -> bool:

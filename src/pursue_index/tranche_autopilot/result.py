@@ -22,7 +22,7 @@ from typing import Any
 from pursue_index.paths import installed_checkout_root
 
 __all__ = ["SCHEMA_RELPATH", "SCHEMA_VERSION", "Step", "commit_message", "operator_next",
-           "redact", "schema_path", "write_result"]
+           "redact", "repo_slug", "schema_path", "write_result"]
 
 SCHEMA_VERSION = "1.0.0"
 SCHEMA_RELPATH = Path("schemas") / "tranche-autopilot-result.schema.json"
@@ -90,16 +90,40 @@ def commit_message(tranche_sha: str, summary: dict[str, int], fields: list[str])
     )
 
 
-def operator_next(repo_root: Path, branch: str, tranche_sha: str) -> list[str]:
-    """What a human runs to publish the local commit (text only)."""
+_SLUG = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
+_REMOTE = re.compile(
+    r"(?:git@github\.com:|ssh://git@github\.com/|https://github\.com/)"
+    r"(?P<slug>[^/\s]+/[^/\s]+?)(?:\.git)?/?"
+)
+
+
+def repo_slug(origin_url: str) -> str | None:
+    """``owner/name`` from a GitHub origin URL, or ``None`` if it is not one."""
+    match = _REMOTE.fullmatch(origin_url.strip())
+    if match is None:
+        return None
+    slug = match.group("slug")
+    return slug if _SLUG.fullmatch(slug) and ".." not in slug else None
+
+
+def operator_next(repo_root: Path, branch: str, tranche_sha: str,
+                  slug: str | None = None) -> list[str]:
+    """What a human runs to publish the local commit (text only).
+
+    The ``gh`` lines name the repository with ``--repo`` when the origin
+    remote gave a valid ``owner/name``; otherwise they ``cd`` into the
+    checkout first, so neither resolves the repository from a stray cwd.
+    """
     title = shlex.quote(f"release: promote tranche {tranche_sha[:12]} (metadata-only)")
     repo, head = shlex.quote(str(repo_root)), shlex.quote(branch)
     body = shlex.quote("Metadata-only tranche promoted by the autopilot; see the result JSON.")
+    target, prefix = (f" --repo {shlex.quote(slug)}", "") if slug else ("", f"cd {repo} && ")
     return [
         f"git -C {repo} log --stat -1   # review the promote commit",
         f"git -C {repo} push --set-upstream origin {head}",
-        f"gh pr create --base main --head {head} --title {title} --body {body}",
-        "gh pr merge <PR-number>   # after review; merging deploys (runbook step 13)",
+        f"{prefix}gh pr create{target} --base main --head {head} --title {title} --body {body}",
+        f"{prefix}gh pr merge{target} <PR-number>   # after review; merging deploys "
+        "(runbook step 13)",
     ]
 
 

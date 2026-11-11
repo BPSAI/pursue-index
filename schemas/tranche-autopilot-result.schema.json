@@ -7,7 +7,8 @@
   "additionalProperties": false,
   "required": ["schema_version", "tranche_sha", "exit_code", "outcome", "message",
                "started_at", "finished_at", "repo_root", "branch", "eligibility", "steps",
-               "failed_step", "promote_commits", "changed_paths", "operator_next"],
+               "failed_step", "promote_commits", "changed_paths", "left_modified",
+               "operator_next"],
   "properties": {
     "schema_version": {"const": "1.0.0"},
     "tranche_sha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
@@ -53,6 +54,10 @@
         "paths": {"type": "array", "items": {"type": "string"}},
         "truncated": {"type": "boolean"}
       }
+    },
+    "left_modified": {
+      "description": "Tracked paths a stopped run left changed after it began mutating the checkout; reported, never discarded. Empty on success.",
+      "type": "array", "items": {"type": "string"}
     },
     "operator_next": {"type": "array", "items": {"type": "string"}}
   },

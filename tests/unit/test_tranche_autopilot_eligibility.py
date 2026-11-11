@@ -140,3 +140,35 @@ def test_field_change_without_field_name_is_refused() -> None:
     doc = receipt(field_only_changes=[{"card_id": "c", "diffs": [{"old": 1}]}])
     with pytest.raises(ReceiptError, match="field name"):
         assess(doc, SHA)
+
+
+@pytest.mark.parametrize("bucket", ["renames_metadata_only", "new_content", "removed"])
+def test_rows_without_a_summary_count_are_refused(bucket: str) -> None:
+    doc = receipt()
+    doc["summary"].pop(bucket, None)
+    doc[bucket] = [{"new_card_id": "x"}]
+    with pytest.raises(ReceiptError):
+        assess(doc, SHA)
+
+
+def test_unknown_top_level_bucket_with_rows_and_no_count_is_refused() -> None:
+    doc = receipt()
+    doc["surprise_bucket"] = [{"x": 1}]
+    with pytest.raises(ReceiptError, match="surprise_bucket"):
+        assess(doc, SHA)
+
+
+def test_unknown_top_level_non_list_key_is_refused() -> None:
+    with pytest.raises(ReceiptError, match="unrecognised"):
+        assess(receipt(extra_blob={"a": 1}), SHA)
+
+
+def test_resave_bucket_count_mismatch_is_refused() -> None:
+    doc = with_bucket(receipt(), "renames_metadata_only", [{"new_card_id": "x"}])
+    doc["summary"]["renames_metadata_only"] = 0
+    with pytest.raises(ReceiptError, match="disagrees"):
+        assess(doc, SHA)
+
+
+def test_auto_approve_flag_is_not_a_bucket() -> None:
+    assert assess(receipt(auto_approve_metadata_resaves=True), SHA).verdict == "eligible"

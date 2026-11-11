@@ -67,7 +67,7 @@ def test_happy_path_runs_every_step_in_order_and_commits(tmp_path: Path) -> None
                                              "data/manifests/latest.json"]
     assert doc["changed_paths"]["by_top_dir"] == {"data": 2}
     assert any("push --set-upstream origin release/t" in line for line in doc["operator_next"])
-    assert any(line.startswith("gh pr create") for line in doc["operator_next"])
+    assert any(line.startswith(f"cd {repo} && gh pr create") for line in doc["operator_next"])
     status = subprocess.run(["git", "status", "--porcelain"], cwd=repo, capture_output=True,
                             text=True, check=True).stdout
     assert status == ""

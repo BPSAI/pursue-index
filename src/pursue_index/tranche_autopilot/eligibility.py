@@ -101,6 +101,11 @@ REQUIRED_BUCKETS: tuple[str, ...] = (
 )
 _FIELD_BUCKET = "field_only_changes"
 _ROW_BUCKET = "row_changes"
+# Top-level receipt keys that are not buckets. Every other top-level key is
+# read as a bucket and must agree with its summary count; an unrecognised
+# key that is not a list is refused outright.
+_RECEIPT_META_KEYS = frozenset({"tranche_sha256", "prior_manifest_sha", "summary",
+                                "auto_approve_metadata_resaves"})
 
 
 class ReceiptError(ValueError):
@@ -126,6 +131,7 @@ def _checked_summary(receipt: dict[str, Any], tranche_sha: str) -> dict[str, int
     missing = [b for b in REQUIRED_BUCKETS if b not in summary]
     if missing:
         raise ReceiptError(f"receipt summary lacks bucket(s): {', '.join(missing)}")
+    _check_top_level(receipt, summary)
     for name, count in summary.items():
         if not isinstance(count, int) or isinstance(count, bool) or count < 0:
             raise ReceiptError(f"summary bucket {name} is not a non-negative integer")
@@ -134,6 +140,19 @@ def _checked_summary(receipt: dict[str, Any], tranche_sha: str) -> dict[str, int
         if (listed is None and count) or (listed is not None and listed != count):
             raise ReceiptError(f"summary bucket {name}={count} disagrees with its rows")
     return dict(summary)
+
+
+def _check_top_level(receipt: dict[str, Any], summary: dict[str, Any]) -> None:
+    """Every top-level bucket with rows must have a summary count (fail closed:
+    a ``summary.get`` default of 0 would hide it), and unknown non-list keys
+    are refused."""
+    for name, value in receipt.items():
+        if name in _RECEIPT_META_KEYS:
+            continue
+        if not isinstance(value, list):
+            raise ReceiptError(f"unrecognised receipt key {name}")
+        if value and name not in summary:
+            raise ReceiptError(f"bucket {name} has {len(value)} row(s) but no summary count")
 
 
 def _row_change_sides(receipt: dict[str, Any]) -> set[str]:
