@@ -14,7 +14,7 @@
  */
 
 import type { AliasEntry, CardMetadata } from "../data/types.ts";
-import { aliasEvidence, type RenameEvidence } from "./diff-renamed.ts";
+import { aliasEvidence, type RenameEvidence, type RenameHop } from "./diff-renamed.ts";
 import { pairRowsByCardId } from "./row-pairing.ts";
 
 // Re-exported so the /diff island and its tests keep a single import
@@ -167,11 +167,7 @@ function tsMillis(ts: string): number {
 
 // --- Alias resolver -------------------------------------------------
 
-export interface AliasHop {
-  from: string;
-  to: string;
-  changeNature?: string;
-}
+export type AliasHop = RenameHop;
 
 /**
  * Evidence fields (R7C.13). A single hop carries its own. A chain shows
@@ -359,7 +355,13 @@ export interface DiffResult {
   renamed: RenamedEntry[];
 }
 
-export type RenamedEntry = { from: CardMetadata; to: CardMetadata; method: string } & RenameEvidence;
+export type RenamedEntry = {
+  from: CardMetadata;
+  to: CardMetadata;
+  method: string;
+  /** Present when a chain's evidence could not be collapsed ("chain, see hops"). */
+  hops?: AliasHop[];
+} & RenameEvidence;
 
 export function diffWithAliases(
   prev: CardMetadata[],

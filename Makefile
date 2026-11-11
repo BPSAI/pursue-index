@@ -98,6 +98,7 @@ gate-mirror:
 	       tests/integration/test_card_page_coverage.py \
 	       tests/integration/test_alias_destinations.py \
 	       tests/integration/test_derived_payload_coverage.py
+	$(PYTHON) scripts/build_qc_coverage.py --out "$$(mktemp -t qc-coverage.XXXXXX.json)"
 
 .PHONY: staleness
 staleness:

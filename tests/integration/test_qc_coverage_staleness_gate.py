@@ -12,6 +12,7 @@ the corpus was built from. Then runs the real
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -51,8 +52,30 @@ def _sidecar_rows() -> dict[str, list[dict]]:
     }
 
 
+def raw_ocr_text(card_id: str, page: int, revision: str = "") -> str:
+    return f"raw ocr {card_id} p{page}{revision}"
+
+
+def text_sha(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def write_ocr_rows(card_dir: Path, card_id: str, pages: list[int], revision: str = "") -> None:
+    """The card's OCR sidecar (``pages.jsonl``): one row per page."""
+    _write_sidecar(card_dir / "pages.jsonl", [
+        {"card_id": card_id, "page": page, "text": raw_ocr_text(card_id, page, revision)}
+        for page in pages
+    ])
+
+
 def _write_ocr_dir(ocr_dir: Path, rows_by_card: dict[str, list[dict]]) -> None:
+    """Each card's cleaned sidecar plus the OCR rows it was cleaned from: a
+    cleaned row's ``input_sha256`` is the hash of its page's OCR text, as
+    the cleanup runner records it."""
     for card_id, rows in rows_by_card.items():
+        for row in rows:
+            row["input_sha256"] = text_sha(raw_ocr_text(card_id, row["page"]))
+        write_ocr_rows(ocr_dir / card_id, card_id, [r["page"] for r in rows])
         _write_sidecar(ocr_dir / card_id / "pages_cleaned.jsonl", rows)
 
 
@@ -150,9 +173,11 @@ def _setup_fixture(tmp_path: Path, rows_by_card: dict[str, list[dict]]) -> dict:
 def _build_canonical_pages_cleaned(tmp_path: Path, canonical: dict) -> Path:
     ocr_dir = tmp_path / "ocr"
     (ocr_dir / "canon0001").mkdir(parents=True)
-    (ocr_dir / "canon0001" / "pages_cleaned.jsonl").write_text(
-        canonical["pages_cleaned_jsonl"]
-    )
+    rows = [json.loads(line) for line in canonical["pages_cleaned_jsonl"].splitlines() if line.strip()]
+    for row in rows:  # tie each cleaned page to an OCR row (does not touch its source sha)
+        row["input_sha256"] = text_sha(raw_ocr_text("canon0001", int(row["page"])))
+    write_ocr_rows(ocr_dir / "canon0001", "canon0001", [int(r["page"]) for r in rows])
+    _write_sidecar(ocr_dir / "canon0001" / "pages_cleaned.jsonl", rows)
     manifest_path = tmp_path / "manifest.json"
     manifest_path.write_text(json.dumps({
         "source_url": "https://example.test/x.csv",

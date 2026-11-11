@@ -12,7 +12,11 @@ Also reads ``pages-cleaned.json`` (chunk-aware) for each page's committed
 the bundle's ``judged_pages_digest`` (R7C.15). A mismatch is a ``stale``
 card -- a re-OCR or re-clean that changed page CONTENTS without changing
 the page COUNT -- and this script's exit code fails the gate when any
-card is stale. A bundle published before R7C.15 (no digest field) prints
+card is stale. Each judged page must also be tied, per page, to the OCR
+text published now: its cleaned row's ``input_sha256`` must equal the
+``ocr_page_sha256`` the builder recorded from the selected OCR row, and the
+``pages_json_text_sha256`` it recorded must equal the page's current
+pages.json text hash; any page that cannot be tied fails the gate. A bundle published before R7C.15 (no digest field) prints
 a one-line backward-compatibility notice instead and classifies as
 before.
 
@@ -32,7 +36,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
-import hashlib
 import json
 
 import build_asr_diff_bundle
@@ -43,9 +46,10 @@ from pursue_index.paths import repo_root
 REPO_ROOT = repo_root()
 
 from pursue_index.clean.qc.coverage import build_coverage
+from pursue_index.clean.qc.page_provenance import provenance_gaps, text_shas_by_page
 from pursue_index.clean.qc.staleness import card_page_shas
 from pursue_index.embed.image_observations import observation_text_for
-from pursue_index.release.chunked_asset import asset_exists, read_asset_bytes, read_asset_json
+from pursue_index.release.chunked_asset import asset_exists, read_asset_json
 from pursue_index.transcribe import asr_diff_sidecar as sidecar
 
 log = get_logger(__name__)
@@ -99,36 +103,41 @@ def _asr_diff_status(asr_diff_bundle_path: Path, pages: list[dict]) -> dict[str,
     return out
 
 
-def _page_shas(pages_cleaned_path: Path) -> dict[str, dict[int, str]]:
-    """``{card_id: {page: source_page_sha256}}``, or ``{}`` if absent/unreadable.
+def _page_shas(pages_cleaned_path: Path) -> tuple[dict[str, dict[int, str]], list[str]]:
+    """``({card_id: {page: source_page_sha256}}, problems)``.
 
     ``pages-cleaned.json`` is itself optional (an OCR-pipeline output, not
     every checkout rebuilds it). Its absence alone verifies nothing, which is
-    fine for a legacy bundle with no digest field; ``_verification_gap``
-    fails the gate closed when the bundle DOES carry digests.
+    fine for a legacy bundle with no digest field; ``_verification_gaps``
+    fails the gate closed when the bundle DOES carry digests. A malformed row
+    is skipped on its own and named in ``problems`` -- one bad row never
+    hides every card's shas or the row itself.
     """
+    problems: list[str] = []
     try:
         if not asset_exists(pages_cleaned_path):
-            return {}
-        return card_page_shas(read_asset_json(pages_cleaned_path))
-    except (OSError, ValueError, KeyError, TypeError, AttributeError):
-        return {}
+            return {}, problems
+        doc = read_asset_json(pages_cleaned_path)
+    except (OSError, ValueError) as exc:
+        return {}, [f"{pages_cleaned_path.name} unreadable: {type(exc).__name__}: {exc}"]
+    if not isinstance(doc, dict):
+        return {}, [f"{pages_cleaned_path.name} is {type(doc).__name__}, not an object"]
+    shas = card_page_shas(doc, problems)
+    return shas, [f"{pages_cleaned_path.name} {p}" for p in problems]
 
 
-def _provenance_gap(pages_cleaned_path: Path, pages_path: Path) -> str | None:
-    """Why the cleaned asset cannot be tied to the current pages.json."""
+def _page_provenance_gaps(
+    pages_cleaned_path: Path, pages_path: Path, card_ids: set[str],
+) -> list[str]:
+    """Per judged page: tied to its current OCR row and pages.json text?
+    (``pursue_index.clean.qc.page_provenance``)."""
     try:
-        meta = read_asset_json(pages_cleaned_path).get("meta", {})
-        recorded = meta.get("pages_json_sha256")
-        current = hashlib.sha256(read_asset_bytes(pages_path)).hexdigest()
-    except (OSError, ValueError, AttributeError, TypeError):
-        return f"{pages_cleaned_path.name} provenance unavailable: cannot read it or {pages_path.name}"
-    if not recorded:
-        return (f"{pages_cleaned_path.name} provenance unavailable: no pages_json_sha256 "
-                "(built before provenance was recorded; rebuild it)")
-    if recorded != current:
-        return f"cleaned asset stale: rebuilt from {recorded[:12]}, current {current[:12]}"
-    return None
+        current = text_shas_by_page(read_asset_json(pages_path))
+    except (OSError, ValueError):
+        return [f"{pages_path.name} unreadable: cannot tie cleaned pages to it"]
+    doc = read_asset_json(pages_cleaned_path)
+    rows = doc.get("pages", []) if isinstance(doc, dict) else []
+    return provenance_gaps(rows, current, card_ids, pages_cleaned_path.name)
 
 
 def _verification_gaps(
@@ -138,9 +147,10 @@ def _verification_gaps(
     """Why digests cannot be checked: one entry per problem, ``[]`` when fine.
 
     Fails closed per card as well as globally: a digest-bearing card whose
-    committed shas are not one-per-judged-page reads as unverifiable here
-    rather than silently classifying ``judged``. A legacy bundle (no digest
-    on any card) has nothing to verify and yields ``[]``.
+    committed shas are not one-per-judged-page, or any of whose pages cannot
+    be tied to its current OCR row and pages.json text, reads as
+    unverifiable here rather than silently classifying ``judged``. A legacy
+    bundle (no digest on any card) has nothing to verify and yields ``[]``.
     """
     bundle = read_asset_json(bundle_path)
     cards = [c for c in bundle.get("cards", []) if c.get("judged_pages_digest")]
@@ -148,20 +158,18 @@ def _verification_gaps(
         return []
     if not asset_exists(pages_cleaned_path):
         return [f"{pages_cleaned_path.name} is missing"]
-    shas = _page_shas(pages_cleaned_path)
+    shas, problems = _page_shas(pages_cleaned_path)
     if not shas:
-        return [f"{pages_cleaned_path.name} is unreadable or carries no page shas"]
-    if provenance := _provenance_gap(pages_cleaned_path, pages_path):
-        return [provenance]
-    return [
+        return problems or [f"{pages_cleaned_path.name} carries no page shas"]
+    # Only a card the classifier called judged was meant to be verified;
+    # a partially judged one (page count changed) is legitimately skipped.
+    judged = [c for c in cards if statuses.get(c["card_id"]) == "judged"]
+    return problems + [
         f"{c['card_id']}: {len(shas.get(c['card_id'], {}))} page sha(s) for "
         f"{c.get('page_count')} judged page(s)"
-        for c in cards
-        # Only a card the classifier called judged was meant to be verified;
-        # a partially judged one (page count changed) is legitimately skipped.
-        if statuses.get(c["card_id"]) == "judged"
-        and len(shas.get(c["card_id"], {})) != c.get("page_count")
-    ]
+        for c in judged
+        if len(shas.get(c["card_id"], {})) != c.get("page_count")
+    ] + _page_provenance_gaps(pages_cleaned_path, pages_path, {c["card_id"] for c in judged})
 
 
 def build(
@@ -185,7 +193,7 @@ def build(
         # The same rendering the search payload uses; a missing or malformed
         # sidecar yields no text, so its card is not counted as described.
         observation_text_for(observations.get("card_ids", []), observations_path.parent),
-        _page_shas(pages_cleaned_path) if pages_cleaned_path else {},
+        _page_shas(pages_cleaned_path)[0] if pages_cleaned_path else {},
         _asr_diff_status(asr_diff_bundle_path, pages) if asr_diff_bundle_path else {},
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)

@@ -5,10 +5,20 @@ catalog's ``/Metadata`` entry is the sole reference to it. Referenced from
 anything else (an annotation's appearance stream, an XObject, a page), it is
 content that happens to carry a metadata type, and rewriting it is a content
 change.
+
+The same rule covers the closure: a brand-new leaf object the update adds
+for the ``/Info`` dictionary or the XMP stream (an indirect ``/Title``, an
+indirect ``/Length``) must be referenced from nowhere but those objects. An
+old page that pointed at a then-undefined object number (``/Rotate 12 0 R``
+resolves to null) is changed by an update that defines it, whichever
+metadata object also names it. ``referenced_outside`` scans pypdf's parsed
+objects and ``raw_reference_in`` the raw bytes, since pypdf resolves (and
+drops) an indirect stream ``/Length`` while parsing.
 """
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from pypdf import PdfReader
@@ -17,7 +27,7 @@ from pypdf.generic import IndirectObject
 from pursue_index import pdf_limits
 from pursue_index.pdf_limits import Budget, LimitExceededError
 
-__all__ = ["action_reachable", "referenced_elsewhere"]
+__all__ = ["action_reachable", "raw_reference_in", "referenced_elsewhere", "referenced_outside"]
 
 ACTION_KEYS = ("/OpenAction", "/AA", "/Names")  # JavaScript, launch, embedded files
 
@@ -38,6 +48,17 @@ def _object_numbers(reader: PdfReader) -> set[int]:
 def referenced_elsewhere(num: int, reader: PdfReader, budget: Budget) -> bool:
     """True iff any object in ``reader`` other than the catalog's
     ``/Metadata`` entry references object ``num`` (time- and node-capped)."""
+    return referenced_outside({num}, {num}, reader, budget)
+
+
+def referenced_outside(
+    targets: set[int], allowed: set[int], reader: PdfReader, budget: Budget,
+) -> bool:
+    """True iff any object in ``reader`` outside ``allowed`` references one of
+    ``targets``. The catalog's ``/Metadata`` entry and the xref streams' own
+    dictionaries (they ARE the trailer) never count (time- and node-capped)."""
+    if not targets:
+        return False
     root = reader.trailer.raw_get("/Root")
     root_num = root.idnum if isinstance(root, IndirectObject) else None
     numbers = _object_numbers(reader)
@@ -46,7 +67,7 @@ def referenced_elsewhere(num: int, reader: PdfReader, budget: Budget) -> bool:
     nodes = 0
     for member in sorted(numbers):
         budget.check()
-        if member == num:
+        if member in allowed:
             continue
         first = reader.get_object(member)
         if isinstance(first, dict) and first.get("/Type") == "/XRef":
@@ -59,12 +80,25 @@ def referenced_elsewhere(num: int, reader: PdfReader, budget: Budget) -> bool:
             if nodes > MAX_NODES:
                 raise LimitExceededError("ref-scan-node-cap", f"over {MAX_NODES}")
             if isinstance(obj, IndirectObject):
-                if obj.idnum == num:
+                if obj.idnum in targets:
                     return True
                 continue  # other objects are visited as members in their own right
             stack.extend(_children(obj, skip))
             skip = None
     return False
+
+
+def raw_reference_in(data: bytes, targets: set[int], budget: Budget) -> bool:
+    """True iff ``data`` holds the raw syntax ``N G R`` for any ``N`` in
+    ``targets``. Conservative: a match inside stream data also counts."""
+    if not targets:
+        return False
+    budget.check()
+    alternatives = b"|".join(str(n).encode() for n in sorted(targets))
+    pattern = re.compile(rb"(?<![\d.])(?:" + alternatives + rb")\s+\d+\s+R(?![A-Za-z0-9])")
+    found = pattern.search(data) is not None
+    budget.check()
+    return found
 
 
 def action_reachable(reader: PdfReader, budget: Budget) -> set[int]:
