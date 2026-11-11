@@ -20,6 +20,12 @@ $ARGUMENTS
 - The operated config is non-negotiable: OCR `--engine llm-dots` (Sonnet 4.6, dots
   content-filter backstop) at `--concurrency 8`. tesseract/surya/auto are retired.
 - Each spending stage runs in its own memory scope (no budget carryover between stages).
+- Running from a secondary checkout (a `git worktree` or a second clone that
+  shares another checkout's virtualenv): the editable install resolves
+  `pursue_index` to the checkout the virtualenv was installed from, not this
+  one. Prefix tests, `make` targets and `scripts/*.py` builders with
+  `PYTHONPATH=src` (for example `PYTHONPATH=src make ship-ready`) so they
+  import this checkout's code.
 
 ## Workflow
 
@@ -59,6 +65,9 @@ $ARGUMENTS
    the RIGHT card set — do not skip it (Codex #101 P1).
 5. **Promote:** `pursue ingest run --tranche "$SHA"` (deterministic, no spend). Does
    NOT rewrite the worklist — step 4's dry-run already wrote it for this tranche.
+   It refuses (exit 5) before promoting anything when `PURSUE_DATA_ROOT` is unset
+   or not a directory, because the poster/thumb builders it runs after
+   promotion read the data root.
    It also does **not** download: it prints the remaining pipeline and exits.
 5b. **Download the bytes** (deterministic, no LLM spend — a separate stage, easy to
    miss because step 5 looks like it ingested):

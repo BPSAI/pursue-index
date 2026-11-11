@@ -58,6 +58,7 @@ def test_resolve_approved_snapshot_returns_snapshot_path(tmp_path: Path) -> None
     assert resolve_approved_snapshot(tranche, log, snapshots_dir, tmp_path / "diffs") == target
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_promote_and_report_promotes_and_prints(tmp_path: Path, capsys) -> None:
     snapshot = tmp_path / "snapshot.json"
     snapshot.write_text('{"csv_sha256": "abc", "cards": []}')
@@ -70,6 +71,7 @@ def test_promote_and_report_promotes_and_prints(tmp_path: Path, capsys) -> None:
     assert "promoted snapshot" in out
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_promote_and_report_exits_nonzero_naming_builder_but_keeps_manifest(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
 ) -> None:

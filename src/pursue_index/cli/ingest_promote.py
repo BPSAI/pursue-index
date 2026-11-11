@@ -13,6 +13,7 @@ from pathlib import Path
 
 import typer
 
+from pursue_index.config.settings import settings
 from pursue_index.ingest import is_tranche_approved
 from pursue_index.ingest_run import locate_snapshot, promote_snapshot
 from pursue_index.paths import UntrustedRootError, repo_root
@@ -99,9 +100,38 @@ def resolve_approved_snapshot(
     return snapshot
 
 
+def require_data_root() -> Path:
+    """Refuse a real promotion unless ``PURSUE_DATA_ROOT`` names a directory.
+
+    The poster/thumb builders that run right after promotion read the data
+    root. Left unset, it silently falls back to the checkout's ``data/``,
+    where the builders find nothing and fail only after the manifest has
+    already been promoted. Checking first keeps a misconfigured run from
+    promoting at all. The value may come from the environment or ``.env``.
+    """
+    if "data_root" not in settings.model_fields_set:
+        typer.echo(
+            "refusing to promote — PURSUE_DATA_ROOT is not set. The derived "
+            "builders that run after promotion read it; set it (environment "
+            "or .env) to the data root and re-run. --dry-run does not need it.",
+            err=True,
+        )
+        raise typer.Exit(5)
+    data_root = settings.data_root
+    if not data_root.is_dir():
+        typer.echo(
+            f"refusing to promote — PURSUE_DATA_ROOT ({data_root}) is not a "
+            "directory. Mount or fix it and re-run. --dry-run does not need it.",
+            err=True,
+        )
+        raise typer.Exit(5)
+    return data_root
+
+
 def promote_and_report(snapshot: Path, manifest: Path) -> None:
     """Promote ``snapshot`` to every deploy-side surface and run the
-    operator-local poster/thumb builders.
+    operator-local poster/thumb builders. Refuses (exit 5) before touching
+    anything when the data root is unset or missing; see `require_data_root`.
 
     The manifest mirror always lands -- a builder failure never rolls it
     back, and this prints the promotion confirmation before checking the
@@ -109,6 +139,7 @@ def promote_and_report(snapshot: Path, manifest: Path) -> None:
     poster, a PDF thumb) stale with no further signal downstream, so this
     now exits non-zero naming the builder instead of only warning.
     """
+    require_data_root()
     failed = promote_snapshot(snapshot, manifest)
     typer.echo(f"promoted snapshot to {manifest}")
     if failed:

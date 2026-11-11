@@ -17,6 +17,7 @@ sys.path.insert(0, str(_SCRIPTS))
 import ship_preflight_ocr  # type: ignore[import-not-found]  # noqa: E402
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_from_diff_spend_accepts_settings_only_key(tmp_path, monkeypatch) -> None:
     diff_dir = tmp_path / "plans"
     base._write_diff(diff_dir, base._TRANCHE, base._new_content_two_cards())
