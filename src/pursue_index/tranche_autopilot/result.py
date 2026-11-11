@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shlex
 import tempfile
 import time
 from dataclasses import dataclass, field
@@ -88,12 +89,13 @@ def commit_message(tranche_sha: str, summary: dict[str, int], fields: list[str])
 
 def operator_next(repo_root: Path, branch: str, tranche_sha: str) -> list[str]:
     """What a human runs to publish the local commit (text only)."""
-    title = f"release: promote tranche {tranche_sha[:12]} (metadata-only)"
+    title = shlex.quote(f"release: promote tranche {tranche_sha[:12]} (metadata-only)")
+    repo, head = shlex.quote(str(repo_root)), shlex.quote(branch)
+    body = shlex.quote("Metadata-only tranche promoted by the autopilot; see the result JSON.")
     return [
-        f"git -C {repo_root} log --stat -1   # review the promote commit",
-        f"git -C {repo_root} push --set-upstream origin {branch}",
-        f'gh pr create --base main --head {branch} --title "{title}" '
-        "--body \"Metadata-only tranche promoted by the autopilot; see the result JSON.\"",
+        f"git -C {repo} log --stat -1   # review the promote commit",
+        f"git -C {repo} push --set-upstream origin {head}",
+        f"gh pr create --base main --head {head} --title {title} --body {body}",
         "gh pr merge <PR-number>   # after review; merging deploys (runbook step 13)",
     ]
 

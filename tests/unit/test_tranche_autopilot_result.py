@@ -66,3 +66,20 @@ def test_cli_exits_with_the_engine_code_and_writes_the_result(tmp_path: Path) ->
     doc = json.loads(out.read_text())
     assert doc["outcome"] == "precondition-missing"
     assert validate(doc, _schema()) == []
+
+
+def test_untrusted_root_still_writes_a_result(tmp_path: Path, monkeypatch) -> None:
+    from pursue_index.cli import tranche_cli
+    from pursue_index.paths import UntrustedRootError
+
+    def untrusted():
+        raise UntrustedRootError("not the installed checkout")
+
+    monkeypatch.setattr(tranche_cli, "repo_root", untrusted)
+    out = tmp_path / "r.json"
+    result = CliRunner().invoke(app, ["tranche", "autopilot", "--tranche", SHA,
+                                      "--result", str(out)])
+    assert result.exit_code == ExitCode.PRECONDITION
+    doc = json.loads(out.read_text())
+    assert doc["outcome"] == "precondition-missing"
+    assert validate(doc, _schema()) == []

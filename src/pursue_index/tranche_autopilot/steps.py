@@ -61,8 +61,9 @@ class Context:
 
 
 def _tail(result: CommandResult) -> str:
-    text = (result.stderr or result.stdout or "").strip()
-    return redact(text[-_DETAIL_CHARS:])
+    # Redact the whole output first: a cut could split a secret from its prefix.
+    text = redact((result.stderr or result.stdout or "").strip())
+    return text[-_DETAIL_CHARS:]
 
 
 def _refuse_content_work(step: Step, lists: WorklistCheck, what: str) -> None:
@@ -199,6 +200,9 @@ def commit(ctx: Context) -> None:
 
 
 def freshness_recheck(ctx: Context) -> None:
+    # No fetch here (poll_freshness never fetches inside a gate). Worktrees
+    # share refs with the primary checkout, so any fetch made during the run
+    # -- by the operator, the host or another session -- is what this sees.
     step = ctx.steps["freshness-recheck"]
     step.start()
     try:

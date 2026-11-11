@@ -136,12 +136,13 @@ def test_main_branch_is_refused(tmp_path: Path) -> None:
     assert code == ExitCode.PRECONDITION
 
 
-def test_result_inside_checkout_is_refused(tmp_path: Path) -> None:
+def test_result_inside_checkout_is_refused_and_not_written(tmp_path: Path) -> None:
     repo = make_checkout(tmp_path, receipt())
     code = run_autopilot(AutopilotConfig(
         tranche_sha=SHA, result_path=repo / "result.json", repo_root=repo,
         runner=FakeRunner(repo), env={}, behind=lambda _r: 0))
     assert code == ExitCode.PRECONDITION
+    assert not (repo / "result.json").exists()
 
 
 def test_ineligible_receipt_exits_21_without_running_steps(tmp_path: Path) -> None:
@@ -305,6 +306,24 @@ def test_children_get_the_configured_env(tmp_path: Path) -> None:
     _run(tmp_path, repo, runner)
     envs = [e for c, e in zip(runner.calls, runner.envs, strict=True) if c[0] != "git"]
     assert envs and all(e and "PURSUE_DATA_ROOT" in e for e in envs)
+    assert all(e["PURSUE_REPO_ROOT"] == str(repo) for e in envs)
+
+
+def test_redaction_happens_before_truncation(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    runner = FakeRunner(repo)
+    secret = "API_KEY=" + "x" * 700  # the 600-char tail would drop the API_KEY= prefix
+    runner.handlers[("pursue", "storage", "verify")] = lambda a, c: CommandResult(1, "", secret)
+    _code, doc = _run(tmp_path, repo, runner)
+    assert "xxxx" not in _steps(doc)["storage-verify"]["detail"]
+
+
+def test_operator_next_quotes_the_branch(tmp_path: Path) -> None:
+    from pursue_index.tranche_autopilot.result import operator_next
+
+    lines = operator_next(Path("/repo dir"), "x;touch pwned", SHA)
+    assert "'x;touch pwned'" in lines[1]
+    assert "'/repo dir'" in lines[0]
 
 
 def _drift_bytes(repo: Path, data_root: Path, card_id: str = "0123456789abcdef") -> None:

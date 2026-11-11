@@ -27,9 +27,9 @@ from pursue_index.tranche_autopilot.result import (
     operator_next,
     write_result,
 )
-from pursue_index.tranche_autopilot.runner import Runner
+from pursue_index.tranche_autopilot.runner import CommandResult, Runner
 
-__all__ = ["AutopilotConfig", "receipt_path", "run_autopilot"]
+__all__ = ["AutopilotConfig", "receipt_path", "refuse_without_checkout", "run_autopilot"]
 
 _SHA = re.compile(r"[0-9a-f]{64}")
 _PROTECTED_BRANCHES = frozenset({"main", "master"})
@@ -69,10 +69,13 @@ def _load_receipt(cfg: AutopilotConfig) -> dict[str, Any]:
     return doc
 
 
+def _result_inside_checkout(cfg: AutopilotConfig) -> bool:
+    return cfg.result_path.resolve().is_relative_to(cfg.repo_root.resolve())
+
+
 def _check_checkout(cfg: AutopilotConfig) -> str:
     """The branch to commit on; refuses a dirty tree, detached HEAD or main."""
-    result = cfg.result_path.resolve()
-    if result.is_relative_to(cfg.repo_root.resolve()):
+    if _result_inside_checkout(cfg):
         raise _stop(ExitCode.PRECONDITION, "--result must be outside the checkout")
     try:
         clean = is_clean(cfg.runner, cfg.repo_root)
@@ -133,7 +136,10 @@ class _Run:
         self.eligibility = _assess(cfg, receipt)
         if self.eligibility.code is not None:
             raise _stop(self.eligibility.code, "; ".join(self.eligibility.reasons))
-        self.ctx = rs.Context(cfg.tranche_sha, cfg.repo_root, cfg.runner, cfg.env, cfg.behind,
+        # Children resolve the data paths against the checkout being promoted,
+        # not whichever checkout the package was imported from.
+        env = {**cfg.env, "PURSUE_REPO_ROOT": str(cfg.repo_root)}
+        self.ctx = rs.Context(cfg.tranche_sha, cfg.repo_root, cfg.runner, env, cfg.behind,
                              self.eligibility, self.steps, receipt, behind_baseline=baseline)
         for step_fn in _RUN_ORDER:
             step_fn(self.ctx)
@@ -179,5 +185,19 @@ def run_autopilot(cfg: AutopilotConfig) -> int:
             running.finish("failed", f"internal error: {type(exc).__name__}")
         code, outcome = ExitCode.GATE_FAILED, Outcome.GATE_FAILED
         message = f"internal error: {type(exc).__name__}: {exc}"
+    if _result_inside_checkout(cfg):  # refused above; never dirty the checkout
+        return int(code)
     write_result(cfg.result_path, run.document(code, outcome, message))
     return int(code)
+
+
+def _no_runner(*_args: object, **_kwargs: object) -> CommandResult:
+    raise AssertionError("no command runs without a checkout")
+
+
+def refuse_without_checkout(tranche_sha: str, result_path: Path, message: str) -> int:
+    """Write a precondition-missing result when no checkout could be resolved."""
+    cfg = AutopilotConfig(tranche_sha, result_path, Path.cwd(), _no_runner, {})
+    write_result(result_path, _Run(cfg).document(ExitCode.PRECONDITION, Outcome.PRECONDITION,
+                                                 message))
+    return int(ExitCode.PRECONDITION)

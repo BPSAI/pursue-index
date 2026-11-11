@@ -15,7 +15,6 @@ import typer
 
 import pursue_index
 from pursue_index.paths import UntrustedRootError, repo_root
-from pursue_index.tranche_autopilot.outcome import ExitCode
 
 tranche_app = typer.Typer(name="tranche", help="Tranche release automation (local only).")
 
@@ -49,14 +48,18 @@ def autopilot_cmd(
     """
     # Imported here: the engine reads ``cli.worklist``, and ``cli/__init__``
     # loads this module while building the app, so a top-level import cycles.
-    from pursue_index.tranche_autopilot.engine import AutopilotConfig, run_autopilot
+    from pursue_index.tranche_autopilot.engine import (
+        AutopilotConfig,
+        refuse_without_checkout,
+        run_autopilot,
+    )
     from pursue_index.tranche_autopilot.runner import SubprocessRunner
 
     try:
         checkout = (root or repo_root()).resolve()
     except UntrustedRootError as exc:
         typer.echo(f"refusing -- {exc}", err=True)
-        raise typer.Exit(int(ExitCode.PRECONDITION)) from exc
+        raise typer.Exit(refuse_without_checkout(tranche, result, str(exc))) from exc
     code = run_autopilot(AutopilotConfig(
         tranche_sha=tranche, result_path=result, repo_root=checkout,
         runner=SubprocessRunner(), env=_child_env(),
