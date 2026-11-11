@@ -26,7 +26,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from pursue_index.scrape.types import CardMetadata
 from pursue_index.tranche_autopilot.outcome import ExitCode
 
 __all__ = [
@@ -39,7 +38,8 @@ __all__ = [
     "assess",
 ]
 
-# Manifest card fields (``scrape.types.CardMetadata``) whose edit changes
+# Manifest card fields (``scrape.types.CardMetadata``; a test pins every one
+# of them to this list or EXCLUDED_FIELDS) whose edit changes
 # only what the site says about a card, never which bytes it serves:
 # upstream display text, dates, agency and location, pairing cross-references,
 # accessibility text and the curated display-date overlay.
@@ -191,8 +191,3 @@ def assess(receipt: dict[str, Any], tranche_sha: str) -> Eligibility:
     if other:
         return Eligibility("ineligible", ExitCode.INELIGIBLE, other, **base)
     return Eligibility("eligible", None, ["only allowlisted field edits"], **base)
-
-
-def schema_fields() -> frozenset[str]:
-    """Every manifest card field, for the allowlist completeness test."""
-    return frozenset(CardMetadata.model_fields)

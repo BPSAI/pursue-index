@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
+from pursue_index.scrape.types import CardMetadata
 from pursue_index.tranche_autopilot.eligibility import (
     ALLOWED_FIELDS,
     EXCLUDED_FIELDS,
     HEAVY_BUCKETS,
     ReceiptError,
     assess,
-    schema_fields,
 )
 from pursue_index.tranche_autopilot.outcome import ExitCode
 from tests.support.autopilot_fakes import OTHER_SHA, SHA, receipt, with_bucket
@@ -48,7 +48,7 @@ def test_non_allowlisted_field_is_ineligible(field: str) -> None:
 
 def test_allowlist_decides_every_manifest_field() -> None:
     # A new CardMetadata field must be placed on one list or the other.
-    assert schema_fields() == ALLOWED_FIELDS | EXCLUDED_FIELDS
+    assert set(CardMetadata.model_fields) == ALLOWED_FIELDS | EXCLUDED_FIELDS
     assert not ALLOWED_FIELDS & EXCLUDED_FIELDS
 
 

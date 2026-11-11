@@ -7,6 +7,9 @@ the only place in the package that starts a process.
 
 from __future__ import annotations
 
+import contextlib
+import os
+import signal
 import subprocess
 import sys
 from collections.abc import Mapping, Sequence
@@ -45,9 +48,11 @@ def pursue_argv(argv: Sequence[str]) -> list[str]:
 class SubprocessRunner:
     """Run a command, capture its output, and bound it with ``timeout``.
 
-    A timeout or a missing executable is reported as a failed command
-    (returncode 124 / 127), never raised, so the engine records it as the
-    step's failure.
+    Each command gets its own process group, and a timeout kills the whole
+    group: ``make`` and ``npm`` fork children that would otherwise keep
+    writing into the checkout after the step was reported failed. A timeout
+    or a missing executable is reported as a failed command (returncode 124 /
+    127), never raised, so the engine records it as the step's failure.
     """
 
     def __call__(
@@ -55,12 +60,23 @@ class SubprocessRunner:
         env: Mapping[str, str] | None = None,
     ) -> CommandResult:
         try:
-            done = subprocess.run(  # argv list, no shell
-                pursue_argv(argv), cwd=cwd, timeout=timeout, env=dict(env) if env else None,
-                capture_output=True, text=True, check=False,
+            proc = subprocess.Popen(  # argv list, no shell
+                pursue_argv(argv), cwd=cwd, env=dict(env) if env else None,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                start_new_session=True,
             )
-        except subprocess.TimeoutExpired:
-            return CommandResult(124, "", f"timed out after {timeout:.0f}s")
         except FileNotFoundError as exc:
             return CommandResult(127, "", str(exc))
-        return CommandResult(done.returncode, done.stdout, done.stderr)
+        try:
+            out, err = proc.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            _kill_group(proc)
+            return CommandResult(124, "", f"timed out after {timeout:.0f}s")
+        return CommandResult(proc.returncode, out, err)
+
+
+def _kill_group(proc: subprocess.Popen[str]) -> None:
+    """SIGKILL the process group this runner created for ``proc``, then reap it."""
+    with contextlib.suppress(ProcessLookupError):
+        os.killpg(proc.pid, signal.SIGKILL)
+    proc.communicate()

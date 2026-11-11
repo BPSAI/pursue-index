@@ -19,10 +19,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from pursue_index.cli.worklist import read_worklist, worklist_header_tranche
+from pursue_index.ingest_run import summarize_ingest_work
+from pursue_index.ingest_scope import scope_worklist
 
-__all__ = ["AV_WORKLIST", "PDF_WORKLIST", "WorklistCheck", "WorklistError", "check_worklists"]
+__all__ = ["AV_WORKLIST", "PDF_WORKLIST", "WorklistCheck", "WorklistError", "check_worklists",
+           "preview_scope"]
 
 PDF_WORKLIST = Path("data") / "ingest-worklist.txt"
 # Named by ``cli.ingest_from_diff.write_worklist_file(..., suffix="-av")``.
@@ -72,3 +76,23 @@ def check_worklists(repo_root: Path, tranche_sha: str) -> WorklistCheck:
         raise WorklistError(f"{PDF_WORKLIST} is not headed for this tranche")
     av_ids, note = _av_ids(repo_root, tranche_sha)
     return WorklistCheck(read_worklist(pdf), av_ids, note)
+
+
+def preview_scope(repo_root: Path, receipt: dict[str, Any], tranche_sha: str,
+                  data_root: Path) -> WorklistCheck:
+    """The scope the dry run will write, computed in-process before approval.
+
+    Same functions and inputs ``ingest run --from-diff`` uses (card aliases,
+    the asset-bytes registry, the OCR sidecars under ``data_root``), so a
+    tranche whose registry bytes drifted is caught before anything is
+    recorded. The dry run re-checks the same thing on disk afterwards.
+    """
+    data = repo_root / "data"
+    scoped = scope_worklist(
+        receipt, tranche_sha,
+        aliases_path=data / "card-aliases.json",
+        registry_path=data / "asset-bytes-registry.jsonl",
+        ocr_dir=data_root / "ocr",
+    )
+    av_ids = list(summarize_ingest_work(receipt).get("needs_av_fetch") or [])
+    return WorklistCheck([c.card_id for c in scoped], av_ids, "computed in-process")

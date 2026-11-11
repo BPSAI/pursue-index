@@ -33,8 +33,8 @@
     },
     "steps": {
       "type": "array",
-      "minItems": 10,
-      "maxItems": 10,
+      "minItems": 11,
+      "maxItems": 11,
       "items": {"$ref": "#/$defs/step"}
     },
     "failed_step": {"type": ["string", "null"]},
@@ -62,7 +62,7 @@
       "additionalProperties": false,
       "required": ["name", "command", "status", "duration_s", "exit_code", "detail"],
       "properties": {
-        "name": {"enum": ["approve", "dry-run-scope", "storage-verify", "ocr-preflight",
+        "name": {"enum": ["scope-preview", "approve", "dry-run-scope", "storage-verify", "ocr-preflight",
                           "data-root-preflight", "promote", "ship-ready", "web-tests",
                           "commit", "freshness-recheck"]},
         "command": {"type": ["string", "null"]},

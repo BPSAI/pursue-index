@@ -1,8 +1,12 @@
 """The autopilot's release steps, in runbook order.
 
 Each function takes the run :class:`Context`, records its own :class:`Step`
-and raises :class:`AutopilotStopError` to end the run. The order (and the
-``STEP_NAMES`` tuple the result lists) is fixed in ``engine.run_steps``.
+and raises :class:`AutopilotStopError` to end the run. The order is
+``STEP_NAMES`` (``engine._RUN_ORDER`` runs them). Two checks run ahead of the
+first state change: the data-root preflight, and an in-process preview of the
+dry run's scope -- so an approval is only ever recorded for a tranche already
+shown to scope no content work. The dry run itself (which requires approval)
+then re-proves it.
 """
 
 from __future__ import annotations
@@ -22,14 +26,22 @@ from pursue_index.tranche_autopilot.gitops import (
     path_summary,
 )
 from pursue_index.tranche_autopilot.outcome import AutopilotStopError, ExitCode, Outcome
-from pursue_index.tranche_autopilot.result import Step, commit_message
+from pursue_index.tranche_autopilot.result import Step, commit_message, redact
 from pursue_index.tranche_autopilot.runner import PURSUE, CommandResult, Runner
-from pursue_index.tranche_autopilot.worklists import WorklistError, check_worklists
+from pursue_index.tranche_autopilot.worklists import (
+    WorklistCheck,
+    WorklistError,
+    check_worklists,
+    preview_scope,
+)
 
 STEP_NAMES: tuple[str, ...] = (
-    "approve", "dry-run-scope", "storage-verify", "ocr-preflight", "data-root-preflight",
-    "promote", "ship-ready", "web-tests", "commit", "freshness-recheck",
+    "data-root-preflight", "scope-preview", "approve", "dry-run-scope", "storage-verify",
+    "ocr-preflight", "promote", "ship-ready", "web-tests", "commit", "freshness-recheck",
 )
+# A promote of a metadata-only tranche rewrites the manifest and its derived
+# payloads; anything changed outside these top-level directories is refused.
+COMMITTABLE_TOP_DIRS = frozenset({"data", "web"})
 _DETAIL_CHARS = 600
 
 
@@ -42,6 +54,7 @@ class Context:
     behind: Callable[[Path], int]
     eligibility: Eligibility
     steps: dict[str, Step]
+    receipt: dict[str, Any]
     behind_baseline: int = 0
     commits: list[str] = field(default_factory=list)
     changed: dict[str, Any] | None = None
@@ -49,7 +62,16 @@ class Context:
 
 def _tail(result: CommandResult) -> str:
     text = (result.stderr or result.stdout or "").strip()
-    return text[-_DETAIL_CHARS:]
+    return redact(text[-_DETAIL_CHARS:])
+
+
+def _refuse_content_work(step: Step, lists: WorklistCheck, what: str) -> None:
+    step.detail = (f"{what}: {len(lists.pdf_ids)} PDF/IMG, {len(lists.av_ids)} A/V; "
+                   f"{lists.note}")
+    if not lists.empty:
+        step.status = "failed"
+        raise AutopilotStopError(ExitCode.NEEDS_LEASE,
+                                 f"{what} scoped content work; run the attended release")
 
 
 def _run(ctx: Context, step: Step, argv: Sequence[str], timeout: float,
@@ -93,12 +115,7 @@ def dry_run_scope(ctx: Context) -> None:
     except WorklistError as exc:
         step.finish("failed", str(exc), step.exit_code)
         raise AutopilotStopError(ExitCode.GATE_FAILED, f"step dry-run-scope failed: {exc}") from exc
-    step.detail = (f"work-lists: {len(lists.pdf_ids)} PDF/IMG, {len(lists.av_ids)} A/V; "
-                   f"{lists.note}")
-    if not lists.empty:
-        step.status = "failed"
-        raise AutopilotStopError(ExitCode.NEEDS_LEASE,
-                            "dry run scoped content work; run the attended release")
+    _refuse_content_work(step, lists, "dry run")
 
 
 def storage_verify(ctx: Context) -> None:
@@ -112,13 +129,36 @@ def ocr_preflight(ctx: Context) -> None:
     step.finish("skipped", "work-lists empty; no OCR to preflight")
 
 
+def scope_preview(ctx: Context) -> None:
+    step = ctx.steps["scope-preview"]
+    step.command = "(in-process) ingest_scope.scope_worklist + summarize_ingest_work"
+    step.start()
+    root = data_root(ctx)
+    assert root is not None  # data_root_preflight ran first
+    lists = preview_scope(ctx.repo_root, ctx.receipt, ctx.tranche_sha, root)
+    step.finish("ok")
+    _refuse_content_work(step, lists, "scope preview")
+
+
+def data_root(ctx: Context) -> Path | None:
+    """``PURSUE_DATA_ROOT`` from the child environment, relative to the checkout."""
+    raw = ctx.env.get("PURSUE_DATA_ROOT", "")
+    if not raw:
+        return None
+    path = Path(raw)
+    return path if path.is_absolute() else ctx.repo_root / path
+
+
 def data_root_preflight(ctx: Context) -> None:
+    # Explicit env only (not a .env fallback): the scheduler exports it, and a
+    # silent default of ./data must never stand in for the real data root.
     step = ctx.steps["data-root-preflight"]
     step.start()
-    raw = ctx.env.get("PURSUE_DATA_ROOT", "")
-    if not raw or not Path(raw).is_dir():
+    root = data_root(ctx)
+    if root is None or not root.is_dir():
         step.finish("failed", "PURSUE_DATA_ROOT is unset or not a directory")
-        raise AutopilotStopError(ExitCode.PRECONDITION, "PURSUE_DATA_ROOT is unset or not a directory")
+        raise AutopilotStopError(ExitCode.PRECONDITION,
+                                 "PURSUE_DATA_ROOT is unset or not a directory")
     step.finish("ok", "PURSUE_DATA_ROOT is a directory")
 
 
@@ -144,6 +184,10 @@ def commit(ctx: Context) -> None:
         paths = changed_paths(ctx.runner, ctx.repo_root)
         if not paths:
             raise GitError("promote and ship-ready left no changes to commit")
+        stray = [p for p in paths if p.split("/", 1)[0] not in COMMITTABLE_TOP_DIRS]
+        if stray:
+            raise GitError(f"refusing to commit paths outside {sorted(COMMITTABLE_TOP_DIRS)}: "
+                           f"{', '.join(stray[:10])}")
         message = commit_message(ctx.tranche_sha, ctx.eligibility.summary,
                                  ctx.eligibility.fields_changed)
         ctx.commits.append(commit_paths(ctx.runner, ctx.repo_root, paths, message))
@@ -164,6 +208,9 @@ def freshness_recheck(ctx: Context) -> None:
         raise AutopilotStopError(ExitCode.GATE_FAILED, f"step freshness-recheck failed: {exc}") from exc
     if now != ctx.behind_baseline:
         step.finish("failed", f"origin/main gained {now} poll commit(s) during the run")
-        raise AutopilotStopError(ExitCode.INELIGIBLE, "superseded: the poller moved origin/main",
-                            Outcome.SUPERSEDED)
+        raise AutopilotStopError(
+            ExitCode.INELIGIBLE,
+            f"superseded: the poller moved origin/main during the run; the local commit "
+            f"{ctx.commits[-1][:12] if ctx.commits else ''} is stale -- do not publish it",
+            Outcome.SUPERSEDED)
     step.finish("ok", "origin/main unchanged on poll-written paths")

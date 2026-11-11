@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 import time
 from dataclasses import dataclass, field
@@ -20,10 +21,15 @@ from typing import Any
 from pursue_index.paths import installed_checkout_root
 
 __all__ = ["SCHEMA_RELPATH", "SCHEMA_VERSION", "Step", "commit_message", "operator_next",
-           "schema_path", "write_result"]
+           "redact", "schema_path", "write_result"]
 
 SCHEMA_VERSION = "1.0.0"
 SCHEMA_RELPATH = Path("schemas") / "tranche-autopilot-result.schema.json"
+# Child output lands in ``steps[].detail``; mask anything shaped like a secret.
+_SECRETS = re.compile(
+    r"(?i)\b([A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*)\s*[=:]\s*\S+"
+    r"|\b(?:sk|pk|rk)-[A-Za-z0-9_-]{12,}"
+)
 
 
 @dataclass
@@ -39,6 +45,11 @@ class Step:
     def start(self) -> None:
         self._started = time.monotonic()
 
+    @property
+    def running(self) -> bool:
+        """Started but not yet finished (an exception escaped it)."""
+        return self.status == "not-run" and self._started > 0
+
     def finish(self, status: str, detail: str = "", exit_code: int | None = None) -> None:
         self.status = status
         self.detail = detail
@@ -49,6 +60,12 @@ class Step:
         return {"name": self.name, "command": self.command, "status": self.status,
                 "duration_s": self.duration_s, "exit_code": self.exit_code,
                 "detail": self.detail}
+
+
+def redact(text: str) -> str:
+    """Mask ``NAME_KEY=value``-style assignments and API-key-shaped tokens."""
+    return _SECRETS.sub(lambda m: f"{m.group(1)}=<redacted>" if m.group(1) else "<redacted>",
+                        text)
 
 
 def now_iso() -> str:
@@ -63,9 +80,9 @@ def commit_message(tranche_sha: str, summary: dict[str, int], fields: list[str])
         f"Tranche: {tranche_sha}\n"
         f"Receipt summary: {counts}\n"
         f"Fields edited: {', '.join(fields) or '(none)'}\n\n"
-        "Promoted locally by `pursue tranche autopilot`: approve, dry-run scope\n"
-        "check (both work-lists empty), storage verify, data-root preflight,\n"
-        "promote, make ship-ready, web tests.\n"
+        "Promoted locally by `pursue tranche autopilot`: data-root preflight,\n"
+        "scope preview, approve, dry-run scope check (both work-lists empty),\n"
+        "storage verify, promote, make ship-ready, web tests.\n"
     )
 
 

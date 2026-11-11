@@ -2,8 +2,9 @@
 
 ``pursue tranche autopilot`` runs the release steps that need no human
 judgement for a tranche whose receipt shows only allowlisted field edits:
-approve, the dry-run scope check, the storage and data-root preflights, the
-local promote, ``make ship-ready`` and the web tests, then one local commit.
+the data-root preflight and a scope preview, approve, the dry-run scope
+check, storage verify, the local promote, ``make ship-ready`` and the web
+tests, then one local commit.
 It never publishes anything: pushing the branch, opening the pull request and
 merging it stay with the operator, and the result JSON spells out those
 commands as text.

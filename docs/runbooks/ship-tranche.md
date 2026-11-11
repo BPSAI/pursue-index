@@ -219,12 +219,14 @@ pursue tranche autopilot --tranche "$SHA" --result <path outside the checkout>.j
 It runs from a clean checkout on a release branch (never `main`) and refuses
 unless every receipt bucket other than `field_only_changes` is zero and every
 edited field is on the allowlist in `pursue_index.tranche_autopilot.eligibility`.
-It then runs, in order: approve (skipped when `pursue ingest check` already
-passes), the `--from-diff --dry-run` scope check (both work-lists must be
-empty), `pursue storage verify`, the OCR preflight (recorded as skipped: an
-empty work-list has nothing to OCR), a `PURSUE_DATA_ROOT` preflight, promote,
-`make ship-ready`, `cd web && npm run test`, one local commit, and a poll
-freshness re-check.
+It then runs, in order: a `PURSUE_DATA_ROOT` preflight; an in-process preview
+of the work-list scope (so nothing is approved for a tranche that turns out
+to need OCR or A/V work); approve (skipped when `pursue ingest check` already
+passes); the `--from-diff --dry-run` scope check (both work-lists must be
+empty); `pursue storage verify`; the OCR preflight (recorded as skipped: an
+empty work-list has nothing to OCR); promote; `make ship-ready`;
+`cd web && npm run test`; one local commit (only paths under `data/` and
+`web/`); and a poll freshness re-check.
 
 Exit codes: `10` promoted and committed locally; `20` the tranche needs the
 full attended release above; `21` ineligible, or superseded by a newer poll

@@ -2,7 +2,7 @@
 
 Order: validate the sha; check the checkout (result path outside it, clean
 tree, on a branch other than main) and poll freshness; load and assess the
-receipt; then the ten steps in ``steps.STEP_NAMES``. The result is written on
+receipt; then the steps in ``steps.STEP_NAMES``. The result is written on
 every exit; the return value is the process exit code.
 """
 
@@ -33,8 +33,8 @@ __all__ = ["AutopilotConfig", "receipt_path", "run_autopilot"]
 
 _SHA = re.compile(r"[0-9a-f]{64}")
 _PROTECTED_BRANCHES = frozenset({"main", "master"})
-_RUN_ORDER = (rs.approve, rs.dry_run_scope, rs.storage_verify, rs.ocr_preflight,
-              rs.data_root_preflight, rs.promote, rs.ship_ready, rs.web_tests,
+_RUN_ORDER = (rs.data_root_preflight, rs.scope_preview, rs.approve, rs.dry_run_scope,
+              rs.storage_verify, rs.ocr_preflight, rs.promote, rs.ship_ready, rs.web_tests,
               rs.commit, rs.freshness_recheck)
 
 
@@ -61,9 +61,12 @@ def _load_receipt(cfg: AutopilotConfig) -> dict[str, Any]:
     if not path.is_file():
         raise _stop(ExitCode.PRECONDITION, f"receipt missing: {path.name}")
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        doc = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise _stop(ExitCode.PRECONDITION, f"receipt unreadable: {exc}") from exc
+    if not isinstance(doc, dict):
+        raise _stop(ExitCode.PRECONDITION, "receipt is not a JSON object")
+    return doc
 
 
 def _check_checkout(cfg: AutopilotConfig) -> str:
@@ -94,13 +97,11 @@ def _freshness_baseline(cfg: AutopilotConfig) -> int:
     return behind
 
 
-def _assess(cfg: AutopilotConfig) -> Eligibility:
-    receipt = _load_receipt(cfg)
+def _assess(cfg: AutopilotConfig, receipt: dict[str, Any]) -> Eligibility:
     try:
-        verdict = assess(receipt, cfg.tranche_sha)
+        return assess(receipt, cfg.tranche_sha)
     except ReceiptError as exc:
         raise _stop(ExitCode.PRECONDITION, f"receipt not usable: {exc}") from exc
-    return verdict
 
 
 def _eligibility_doc(e: Eligibility | None) -> dict[str, Any]:
@@ -128,11 +129,12 @@ class _Run:
             raise _stop(ExitCode.PRECONDITION, "--tranche must match ^[0-9a-f]{64}$")
         self.branch = _check_checkout(cfg)
         baseline = _freshness_baseline(cfg)
-        self.eligibility = _assess(cfg)
+        receipt = _load_receipt(cfg)
+        self.eligibility = _assess(cfg, receipt)
         if self.eligibility.code is not None:
             raise _stop(self.eligibility.code, "; ".join(self.eligibility.reasons))
         self.ctx = rs.Context(cfg.tranche_sha, cfg.repo_root, cfg.runner, cfg.env, cfg.behind,
-                             self.eligibility, self.steps, behind_baseline=baseline)
+                             self.eligibility, self.steps, receipt, behind_baseline=baseline)
         for step_fn in _RUN_ORDER:
             step_fn(self.ctx)
 
@@ -171,5 +173,11 @@ def run_autopilot(cfg: AutopilotConfig) -> int:
             "promoted and committed locally; publish with operator_next")
     except AutopilotStopError as stop:
         code, outcome, message = stop.code, stop.outcome, stop.message
+    except Exception as exc:  # the result file and a documented code, always
+        running = next((s for s in run.steps.values() if s.running), None)
+        if running is not None:
+            running.finish("failed", f"internal error: {type(exc).__name__}")
+        code, outcome = ExitCode.GATE_FAILED, Outcome.GATE_FAILED
+        message = f"internal error: {type(exc).__name__}: {exc}"
     write_result(cfg.result_path, run.document(code, outcome, message))
     return int(code)
