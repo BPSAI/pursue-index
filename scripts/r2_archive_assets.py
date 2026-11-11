@@ -189,21 +189,6 @@ def make_r2_client():
     )
 
 
-def r2_head_exists(client, bucket: str, key: str) -> bool:
-    """head_object → bool; False on 404 only, other errors raise."""
-    try:
-        from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-    except ImportError:
-        return False
-    try:
-        client.head_object(Bucket=bucket, Key=key)
-        return True
-    except ClientError as exc:
-        if exc.response["Error"]["Code"] in ("404", "NoSuchKey"):
-            return False
-        raise
-
-
 def _last_known_size(rows: list[dict[str, Any]]) -> int | None:
     if not rows:
         return None
