@@ -28,8 +28,11 @@ SCHEMA_VERSION = "1.0.0"
 SCHEMA_RELPATH = Path("schemas") / "tranche-autopilot-result.schema.json"
 # Child output lands in ``steps[].detail``; mask anything shaped like a secret.
 _SECRETS = re.compile(
-    r"(?i)\b([A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*)\s*[=:]\s*\S+"
+    r"(?i)\b([A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*)[\"']?\s*[=:]\s*\S+"
     r"|\b(?:sk|pk|rk)-[A-Za-z0-9_-]{12,}"
+    r"|(?i:\bbearer\s+\S+)"
+    r"|\bAKIA[0-9A-Z]{16}\b"
+    r"|(?<=://)[^/\s:@]+:[^@\s]+(?=@)"
 )
 
 

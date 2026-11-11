@@ -12,7 +12,7 @@ from pathlib import Path
 from pursue_index.tranche_autopilot.runner import Runner
 
 __all__ = ["GitError", "changed_paths", "commit_paths", "current_branch", "head_sha",
-           "is_clean", "path_summary"]
+           "is_clean", "path_summary", "untracked_paths"]
 
 _GIT_TIMEOUT = 120.0
 _PATH_LIST_CAP = 200
@@ -30,22 +30,32 @@ def _git(runner: Runner, repo: Path, *args: str) -> str:
     return result.stdout
 
 
-def changed_paths(runner: Runner, repo: Path) -> list[str]:
-    """Every modified, added, deleted or untracked path (``status -z``)."""
+def _status(runner: Runner, repo: Path) -> list[tuple[str, str]]:
+    """``(XY status, path)`` for every change, untracked files included."""
     out = _git(runner, repo, "status", "--porcelain=v1", "-z", "--untracked-files=all")
     entries = out.split("\0")
-    paths: list[str] = []
+    rows: list[tuple[str, str]] = []
     i = 0
     while i < len(entries):
         entry = entries[i]
         i += 1
         if len(entry) < 4:
             continue
-        paths.append(entry[3:])
+        rows.append((entry[:2], entry[3:]))
         if entry[0] in "RC":  # a rename/copy carries its source as the next entry
-            paths.append(entries[i])
+            rows.append((entry[:2], entries[i]))
             i += 1
-    return sorted(set(paths))
+    return rows
+
+
+def changed_paths(runner: Runner, repo: Path) -> list[str]:
+    """Every modified, added, deleted or untracked path."""
+    return sorted({path for _, path in _status(runner, repo)})
+
+
+def untracked_paths(runner: Runner, repo: Path) -> list[str]:
+    """Only the new, untracked paths."""
+    return sorted({path for xy, path in _status(runner, repo) if xy == "??"})
 
 
 def is_clean(runner: Runner, repo: Path) -> bool:

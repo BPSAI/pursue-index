@@ -25,6 +25,7 @@ from pursue_index.tranche_autopilot.result import (
     Step,
     now_iso,
     operator_next,
+    redact,
     write_result,
 )
 from pursue_index.tranche_autopilot.runner import CommandResult, Runner
@@ -184,7 +185,7 @@ def run_autopilot(cfg: AutopilotConfig) -> int:
         if running is not None:
             running.finish("failed", f"internal error: {type(exc).__name__}")
         code, outcome = ExitCode.GATE_FAILED, Outcome.GATE_FAILED
-        message = f"internal error: {type(exc).__name__}: {exc}"
+        message = redact(f"internal error: {type(exc).__name__}: {exc}")
     if _result_inside_checkout(cfg):  # refused above; never dirty the checkout
         return int(code)
     write_result(cfg.result_path, run.document(code, outcome, message))
@@ -198,6 +199,9 @@ def _no_runner(*_args: object, **_kwargs: object) -> CommandResult:
 def refuse_without_checkout(tranche_sha: str, result_path: Path, message: str) -> int:
     """Write a precondition-missing result when no checkout could be resolved."""
     cfg = AutopilotConfig(tranche_sha, result_path, Path.cwd(), _no_runner, {})
+    target = result_path.resolve()
+    if any((d / ".git").exists() for d in target.parents):  # never dirty a checkout
+        return int(ExitCode.PRECONDITION)
     write_result(result_path, _Run(cfg).document(ExitCode.PRECONDITION, Outcome.PRECONDITION,
                                                  message))
     return int(ExitCode.PRECONDITION)

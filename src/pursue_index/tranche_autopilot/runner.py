@@ -61,7 +61,7 @@ class SubprocessRunner:
     ) -> CommandResult:
         try:
             proc = subprocess.Popen(  # argv list, no shell
-                pursue_argv(argv), cwd=cwd, env=dict(env) if env else None,
+                pursue_argv(argv), cwd=cwd, env=dict(env) if env is not None else None,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
                 start_new_session=True,
             )

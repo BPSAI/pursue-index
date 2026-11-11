@@ -12,6 +12,7 @@ import subprocess
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
+from pursue_index.tranche_autopilot import AutopilotConfig, run_autopilot
 from pursue_index.tranche_autopilot.runner import CommandResult
 
 SHA = "ab" * 32
@@ -128,3 +129,19 @@ class FakeRunner:
 
     def release_calls(self) -> list[list[str]]:
         return [c for c in self.calls if c[0] != "git"]
+
+
+def run_engine(tmp_path: Path, repo: Path, runner: FakeRunner, *, behind=lambda _r: 0,
+         sha: str = SHA, data_root: Path | None = None) -> tuple[int, dict]:
+    root = data_root if data_root is not None else tmp_path / "data-root"
+    root.mkdir(exist_ok=True)
+    out = tmp_path / "out" / "result.json"
+    code = run_autopilot(AutopilotConfig(
+        tranche_sha=sha, result_path=out, repo_root=repo, runner=runner,
+        env={"PURSUE_DATA_ROOT": str(root)}, behind=behind,
+    ))
+    return code, json.loads(out.read_text())
+
+
+def steps_by_name(doc: dict) -> dict[str, dict]:
+    return {s["name"]: s for s in doc["steps"]}

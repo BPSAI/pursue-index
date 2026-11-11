@@ -83,3 +83,11 @@ def test_untrusted_root_still_writes_a_result(tmp_path: Path, monkeypatch) -> No
     doc = json.loads(out.read_text())
     assert doc["outcome"] == "precondition-missing"
     assert validate(doc, _schema()) == []
+
+
+def test_refusal_without_checkout_never_writes_into_a_checkout(tmp_path: Path) -> None:
+    from pursue_index.tranche_autopilot.engine import refuse_without_checkout
+
+    repo = make_checkout(tmp_path, receipt())
+    assert refuse_without_checkout(SHA, repo / "r.json", "x") == ExitCode.PRECONDITION
+    assert not (repo / "r.json").exists()

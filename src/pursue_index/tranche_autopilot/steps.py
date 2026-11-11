@@ -24,6 +24,7 @@ from pursue_index.tranche_autopilot.gitops import (
     changed_paths,
     commit_paths,
     path_summary,
+    untracked_paths,
 )
 from pursue_index.tranche_autopilot.outcome import AutopilotStopError, ExitCode, Outcome
 from pursue_index.tranche_autopilot.result import Step, commit_message, redact
@@ -40,8 +41,11 @@ STEP_NAMES: tuple[str, ...] = (
     "ocr-preflight", "promote", "ship-ready", "web-tests", "commit", "freshness-recheck",
 )
 # A promote of a metadata-only tranche rewrites the manifest and its derived
-# payloads; anything changed outside these top-level directories is refused.
+# payloads. Tracked files may change anywhere under COMMITTABLE_TOP_DIRS; a NEW
+# file must sit under NEW_FILE_PREFIXES (data, published site data, generated
+# site sources), so build or test byproducts are refused, not committed.
 COMMITTABLE_TOP_DIRS = frozenset({"data", "web"})
+NEW_FILE_PREFIXES = ("data/", "web/public/", "web/src/")
 _DETAIL_CHARS = 600
 
 
@@ -116,7 +120,13 @@ def dry_run_scope(ctx: Context) -> None:
     except WorklistError as exc:
         step.finish("failed", str(exc), step.exit_code)
         raise AutopilotStopError(ExitCode.GATE_FAILED, f"step dry-run-scope failed: {exc}") from exc
-    _refuse_content_work(step, lists, "dry run")
+    try:
+        _refuse_content_work(step, lists, "dry run")
+    except AutopilotStopError as stop:
+        if ctx.steps["approve"].status == "ok":  # this run recorded the approval
+            stop.message += ("; note: this run recorded an autopilot approval for the "
+                             "tranche -- the attended release must review it afresh")
+        raise
 
 
 def storage_verify(ctx: Context) -> None:
@@ -186,6 +196,8 @@ def commit(ctx: Context) -> None:
         if not paths:
             raise GitError("promote and ship-ready left no changes to commit")
         stray = [p for p in paths if p.split("/", 1)[0] not in COMMITTABLE_TOP_DIRS]
+        stray += [p for p in untracked_paths(ctx.runner, ctx.repo_root)
+                  if not p.startswith(NEW_FILE_PREFIXES) and p not in stray]
         if stray:
             raise GitError(f"refusing to commit paths outside {sorted(COMMITTABLE_TOP_DIRS)}: "
                            f"{', '.join(stray[:10])}")
