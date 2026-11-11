@@ -206,3 +206,24 @@ def test_load_display_dates_skips_rows_missing_card_id(tmp_path):
     overlay = load_display_dates(path)
     assert len(overlay) == 1
     assert "abc1234567890def" in overlay
+
+
+def test_repo_proposes_a_display_date_for_the_upstream_four_digit_year_typo():
+    """NASA-UAP-D013 (Mercury Atlas 7, May 24, 1962): upstream incident_date
+    reads 5/24/2962. A display date from the title is proposed for operator
+    approval; it is not in the approved overlay until the operator approves it."""
+    from pathlib import Path
+
+    data = Path(__file__).resolve().parents[2] / "data"
+    rows = [
+        json.loads(line)
+        for line in (data / "display_dates_proposals.jsonl").read_text().splitlines()
+        if line.strip()
+    ]
+    proposals = [r for r in rows if r["card_id"] == "6b12c3ddc6a96008"]
+    assert len(proposals) == 1
+    row = proposals[0]
+    assert row["display_date"] == "1962-05-24"
+    assert row["display_date_abstention"] is None
+    assert row["display_date_approved_at"] is None
+    assert "May 24, 1962" in row["display_date_evidence"]

@@ -9,6 +9,9 @@ export interface CardMetadata {
   agency: string;
   release_date: string | null;
   incident_date: string | null;
+  // Curated display date (data/display_dates.json overlay). The deployed
+  // manifest does not carry it; pages that honor it attach it at build time.
+  display_date?: string | null;
   incident_location: string | null;
   redacted: boolean;
   // Upstream "feature this card" flag (added in tranche a62a76884e52,
