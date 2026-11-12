@@ -65,6 +65,18 @@ def test_only_the_named_cards_are_checked() -> None:
     assert provenance_gaps([{"card_id": "other", "page": 1}], {}, {"c"}) == []
 
 
+def test_provenance_gaps_skips_a_row_whose_card_id_is_not_a_string() -> None:
+    rows = [
+        {"card_id": ["c"], "page": 1},
+        {"card_id": {"c": 1}, "page": 1},
+        {"card_id": 7, "page": 1},
+        "not a row",
+    ]
+    assert provenance_gaps(rows, {}, {"c"}) == []
+    [gap] = provenance_gaps([*rows, {"card_id": "c", "page": 1}], {}, {"c"})
+    assert "no per-page provenance" in gap
+
+
 def test_published_pages_skips_a_row_whose_card_id_is_not_a_string() -> None:
     rows = [
         {"card_id": ["a"], "page": 1, "text": "x"},

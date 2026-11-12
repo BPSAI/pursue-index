@@ -388,3 +388,13 @@ def test_a_listed_card_without_a_readable_sidecar_is_not_a_vision_description(
     assert doc["unverified_other"] == ["img-bad", "img-missing"]
     assert set(doc["unverified_other_reasons"]) == {"img-bad", "img-missing"}
     assert all("sidecar" in r for r in doc["unverified_other_reasons"].values())
+
+
+def test_a_cleaned_row_with_an_unhashable_card_id_is_named_not_a_crash(tmp_path: Path) -> None:
+    pages_path = tmp_path / "pages.json"
+    pages_path.write_text(json.dumps({"pages": [_page("c1", 1, "text")]}))
+    cleaned = tmp_path / "pages-cleaned.json"
+    cleaned.write_text(json.dumps({"pages": [{"card_id": ["c1"], "page": 1}]}))
+    assert build_qc_coverage._page_provenance_gaps(cleaned, pages_path, {"c1"}) == []
+    _shas, problems = build_qc_coverage._page_shas(cleaned)
+    assert problems == ["pages-cleaned.json pages[0]: no card_id"]

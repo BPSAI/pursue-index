@@ -147,6 +147,10 @@ def provenance_gaps(
     pages.json). ``[]`` when every such page is tied."""
     gaps: list[str] = []
     for row in cleaned_rows if isinstance(cleaned_rows, list) else []:
-        if isinstance(row, Mapping) and row.get("card_id") in card_ids:
+        # A non-string card_id (a list or dict is unhashable) is not one of
+        # ``card_ids``; card_page_shas reports the row as malformed.
+        if not isinstance(row, Mapping) or not isinstance(row.get("card_id"), str):
+            continue
+        if row["card_id"] in card_ids:
             gaps += _row_gaps(row, current, asset_name)
     return gaps
