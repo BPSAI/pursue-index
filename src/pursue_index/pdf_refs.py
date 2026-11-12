@@ -40,9 +40,12 @@ def _children(obj: Any, skip_key: str | None) -> list[Any]:
     return list(obj) if isinstance(obj, list) else []
 
 
-def _object_numbers(reader: PdfReader) -> set[int]:
-    nums = {n for table in reader.xref.values() for n in table}
-    return nums | set(reader.xref_objStm)
+def _object_ids(reader: PdfReader) -> set[tuple[int, int]]:
+    """Every ``(number, generation)`` the xref defines. Objects inside object
+    streams are generation 0. The generation is kept so an object defined at
+    generation 1 or above is read as itself, not as ``N 0``."""
+    ids = {(num, gen) for gen, table in reader.xref.items() for num in table}
+    return ids | {(num, 0) for num in reader.xref_objStm}
 
 
 def referenced_elsewhere(num: int, reader: PdfReader, budget: Budget) -> bool:
@@ -61,15 +64,15 @@ def referenced_outside(
         return False
     root = reader.trailer.raw_get("/Root")
     root_num = root.idnum if isinstance(root, IndirectObject) else None
-    numbers = _object_numbers(reader)
-    if len(numbers) > pdf_limits.MAX_XREF_ENTRIES:
-        raise LimitExceededError("xref-entry-ceiling", f"{len(numbers)} objects")
+    ids = _object_ids(reader)
+    if len(ids) > pdf_limits.MAX_XREF_ENTRIES:
+        raise LimitExceededError("xref-entry-ceiling", f"{len(ids)} objects")
     nodes = 0
-    for member in sorted(numbers):
+    for member, generation in sorted(ids):
         budget.check()
         if member in allowed:
             continue
-        first = reader.get_object(member)
+        first = reader.get_object(IndirectObject(member, generation, reader))
         if isinstance(first, dict) and first.get("/Type") == "/XRef":
             continue  # an xref stream's dict IS the trailer (/Root, /Info), not a reference
         stack: list[Any] = [first]
@@ -89,7 +92,12 @@ def referenced_outside(
 
 
 # Object numbers are bounded by the xref ceiling; a longer digit run is not one.
-_RAW_REF = re.compile(rb"(?<![\d.])(\d{1,10})\s+\d{1,10}\s+R(?![A-Za-z0-9])")
+# Between the tokens PDF allows any whitespace (NUL and form feed included) and
+# comments (``%`` to end of line). Possessive quantifiers keep the separator
+# linear: a run of comments has exactly one way to match.
+_PDF_SEP = rb"(?:[\x00\t\n\x0c\r ]|%[^\r\n]*+)++"
+_RAW_REF = re.compile(
+    rb"(?<![\d.])(\d{1,10})" + _PDF_SEP + rb"\d{1,10}" + _PDF_SEP + rb"R(?![A-Za-z0-9])")
 _RAW_SCAN_CHECK_EVERY = 4096
 
 

@@ -163,3 +163,50 @@ def test_raw_reference_scan_checks_the_budget_as_it_goes(monkeypatch) -> None:
 def test_raw_reference_in_ignores_an_overlong_digit_run() -> None:
     assert not raw_reference_in(b"9" * 5000 + b" 0 R", {12}, Budget())
     assert raw_reference_in(b"9" * 5000 + b" 12 0 R", {12}, Budget())
+
+
+def test_raw_reference_in_sees_through_comments_and_pdf_whitespace() -> None:
+    budget = Budget()
+    assert raw_reference_in(b"/Rotate 12%comment\n0 R >>", {12}, budget)
+    assert raw_reference_in(b"/Rotate 12 0%c1\r%c2\nR", {12}, budget)
+    assert raw_reference_in(b"/Rotate 12\x000\x0cR", {12}, budget)
+    assert not raw_reference_in(b"/Rotate 12%comment 0 R", {12}, budget)  # same line: a comment
+    assert not raw_reference_in(b"/Rotate 112%c\n0 R", {12}, budget)
+
+
+def test_raw_reference_separator_stays_linear_on_many_comments() -> None:
+    import time
+    data = b"12" + b"%" * 20000 + b"x"  # no EOL, no R: must fail fast
+    start = time.monotonic()
+    assert not raw_reference_in(data, {12}, Budget())
+    assert time.monotonic() - start < 1.0
+
+
+def _with_generation_one_object(base_data: bytes, num: int, body: bytes, *, root: int,
+                                info: int | None, size: int) -> bytes:
+    """``base_data`` plus an update defining object ``num`` at generation 1."""
+    from tests.support.tranche_bytes_fakes import last_startxref
+
+    out = bytearray(base_data if base_data.endswith(b"\n") else base_data + b"\n")
+    at_obj = len(out)
+    out += b"%d 1 obj\n" % num + body + b"\nendobj\n"
+    at = len(out)
+    info_ref = b" /Info %d 0 R" % info if info is not None else b""
+    out += b"xref\n0 1\n0000000000 65535 f \n%d 1\n%010d 00001 n \n" % (num, at_obj)
+    out += b"trailer\n<< /Size %d /Root %d 0 R%s /Prev %d >>\n" % (
+        max(size, num + 1), root, info_ref, last_startxref(base_data))
+    out += b"startxref\n%d\n%%%%EOF\n" % at
+    return bytes(out)
+
+
+def test_referenced_outside_reads_a_generation_one_object_as_itself() -> None:
+    base = build_base_pdf()
+    target = base.size  # a number nothing defines yet
+    holder = base.size + 1
+    data = _with_generation_one_object(
+        base.data, holder, b"<< /Rotate %d 0 R >>" % target,
+        root=base.root_num, info=base.info_num, size=base.size + 2)
+    reader = PdfReader(io.BytesIO(data))
+    assert 1 in reader.xref and holder in reader.xref[1]
+    assert referenced_outside({target}, set(), reader, Budget())
+    assert not referenced_outside({target}, {holder}, reader, Budget())
