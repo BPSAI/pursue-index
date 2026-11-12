@@ -19,6 +19,7 @@ if str(_SRC) not in sys.path:
 
 from pursue_index.cli.ingest_promote import (  # noqa: E402
     promote_and_report,
+    require_data_root,
     resolve_approved_snapshot,
 )
 
@@ -58,6 +59,7 @@ def test_resolve_approved_snapshot_returns_snapshot_path(tmp_path: Path) -> None
     assert resolve_approved_snapshot(tranche, log, snapshots_dir, tmp_path / "diffs") == target
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_promote_and_report_promotes_and_prints(tmp_path: Path, capsys) -> None:
     snapshot = tmp_path / "snapshot.json"
     snapshot.write_text('{"csv_sha256": "abc", "cards": []}')
@@ -70,6 +72,7 @@ def test_promote_and_report_promotes_and_prints(tmp_path: Path, capsys) -> None:
     assert "promoted snapshot" in out
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_promote_and_report_exits_nonzero_naming_builder_but_keeps_manifest(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
 ) -> None:
@@ -106,3 +109,43 @@ def test_promote_and_report_exits_nonzero_naming_builder_but_keeps_manifest(
     assert manifest.read_text() == snapshot.read_text()
     captured = capsys.readouterr()
     assert "build_video_posters.py" in captured.out + captured.err
+
+
+def test_require_data_root_accepts_a_value_from_the_environment(
+    pursue_data_root: Path,
+) -> None:
+    assert require_data_root() == pursue_data_root
+
+
+def test_require_data_root_accepts_a_value_from_a_dotenv_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``.env`` is a supported source for the data root, not only the
+    process environment."""
+    from pursue_index.config.settings import Settings, settings
+
+    root = tmp_path / "data-root"
+    root.mkdir()
+    env_file = tmp_path / ".env"
+    env_file.write_text(f"PURSUE_DATA_ROOT={root}\n", encoding="utf-8")
+    monkeypatch.setitem(Settings.model_config, "env_file", str(env_file))
+    monkeypatch.delitem(settings.__dict__, "_settings", raising=False)
+
+    assert require_data_root() == root
+
+
+def test_require_data_root_refuses_when_unset() -> None:
+    with pytest.raises(typer.Exit) as exc:
+        require_data_root()
+    assert exc.value.exit_code == 5
+
+
+def test_require_data_root_refuses_a_path_that_is_not_a_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    not_a_dir = tmp_path / "file"
+    not_a_dir.write_text("", encoding="utf-8")
+    monkeypatch.setenv("PURSUE_DATA_ROOT", str(not_a_dir))
+    with pytest.raises(typer.Exit) as exc:
+        require_data_root()
+    assert exc.value.exit_code == 5

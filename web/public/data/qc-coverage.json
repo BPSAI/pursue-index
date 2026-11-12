@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "manifest_csv_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
-    "manifest_fetched_at": "2026-10-23T12:10:50.436128Z",
+    "manifest_csv_sha256": "92b3ec7dd87286ea7092a33b476566b4416d3bb02970b02757b237d8322fe81a",
+    "manifest_fetched_at": "2026-10-26T21:41:48.594584Z",
     "clean_qc_bundle": {
       "bundle_schema_version": 1,
       "generated_at": "2026-10-24T08:03:45+00:00",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any, Literal
 
@@ -10,8 +11,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    # NO_PURSUE_DOTENV (test-only; read at import) disables .env, also in subprocesses.
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=None if os.environ.get("NO_PURSUE_DOTENV") else ".env",
         env_file_encoding="utf-8",
         env_prefix="PURSUE_",
         extra="ignore",

@@ -140,6 +140,7 @@ def test_dry_run_touches_only_the_two_worklists(tmp_path: Path) -> None:
     )
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_dry_run_and_real_run_print_the_same_scope(tmp_path: Path) -> None:
     dry_repo = _build_fixture_repo(tmp_path / "dry")
     real_repo = _build_fixture_repo(tmp_path / "real")
@@ -161,6 +162,7 @@ def test_dry_run_and_real_run_print_the_same_scope(tmp_path: Path) -> None:
     assert _scope_lines(dry_result.output) == _scope_lines(real_result.output)
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_real_run_builder_failure_exits_nonzero_names_builder_keeps_manifest(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -201,3 +203,55 @@ def test_real_run_builder_failure_exits_nonzero_names_builder_keeps_manifest(
     assert "build_video_posters.py" in result.output
     manifest = repo_root / "data" / "manifests" / "latest.json"
     assert json.loads(manifest.read_text())["csv_sha256"] == _SHA
+
+
+def _promote_only_args(repo_root: Path) -> list[str]:
+    return [
+        "ingest", "run",
+        "--tranche", _SHA,
+        "--manifest", str(repo_root / "data" / "manifests" / "latest.json"),
+        "--log", str(repo_root / "data" / "tranche-approval-log.jsonl"),
+        "--snapshots-dir", str(repo_root / "data" / "manifests" / "snapshots"),
+        "--diff-dir", str(repo_root / "data" / "tranche-diffs"),
+    ]
+
+
+def test_real_run_without_a_data_root_refuses_before_promoting(tmp_path: Path) -> None:
+    """The derived builders read the data root, so a real run with none
+    configured must refuse before the manifest or any mirror changes,
+    instead of promoting and then failing in the builders."""
+    repo_root = _build_fixture_repo(tmp_path)
+
+    result = runner.invoke(app, _promote_only_args(repo_root))
+
+    assert result.exit_code == 5, result.output
+    assert "PURSUE_DATA_ROOT is not set" in result.output
+    assert "promoted snapshot" not in result.output
+    assert _git_status_porcelain(repo_root) == []
+
+
+def test_real_run_with_a_missing_data_root_refuses_before_promoting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo_root = _build_fixture_repo(tmp_path)
+    missing = tmp_path / "not-mounted"
+    monkeypatch.setenv("PURSUE_DATA_ROOT", str(missing))
+
+    result = runner.invoke(app, _promote_only_args(repo_root))
+
+    assert result.exit_code == 5, result.output
+    assert "is not a directory" in result.output
+    assert str(missing) in result.output
+    assert _git_status_porcelain(repo_root) == []
+
+
+def test_dry_run_does_not_need_a_data_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo_root = _build_fixture_repo(tmp_path)
+    monkeypatch.setenv("PURSUE_DATA_ROOT", str(tmp_path / "not-mounted"))
+
+    result = runner.invoke(app, _run_args(repo_root, dry_run=True))
+
+    assert result.exit_code == 0, result.output
+    assert "refusing to promote" not in result.output
