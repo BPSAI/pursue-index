@@ -97,6 +97,8 @@ def published_pages(rows: object) -> dict[tuple[str, int], tuple[str, bool]]:
             key = (row["card_id"], int(row["page"]))
         except (AttributeError, KeyError, TypeError, ValueError):
             continue
+        if not isinstance(key[0], str):
+            continue  # a card_id is a string; a list or dict would not even hash
         out[key] = (text_sha256(text), not text.strip() or text.startswith(OBSERVATIONS_HEADER))
     return out
 

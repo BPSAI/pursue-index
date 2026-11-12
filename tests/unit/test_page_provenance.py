@@ -63,3 +63,13 @@ def test_a_page_with_no_ocr_row_is_untied() -> None:
 
 def test_only_the_named_cards_are_checked() -> None:
     assert provenance_gaps([{"card_id": "other", "page": 1}], {}, {"c"}) == []
+
+
+def test_published_pages_skips_a_row_whose_card_id_is_not_a_string() -> None:
+    rows = [
+        {"card_id": ["a"], "page": 1, "text": "x"},
+        {"card_id": {"a": 1}, "page": 1, "text": "x"},
+        {"card_id": 7, "page": 1, "text": "x"},
+        {"card_id": "c1", "page": 2, "text": "kept"},
+    ]
+    assert list(published_pages(rows)) == [("c1", 2)]
