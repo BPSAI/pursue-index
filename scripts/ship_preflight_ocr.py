@@ -11,14 +11,17 @@ Exits 0 when the operated methodology is satisfied, 1 otherwise.
 
 from __future__ import annotations
 
-import argparse
-import os
 import sys
-from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-# Code is loaded from where this script lives, never from the data root.
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import os
+from collections.abc import Mapping, Sequence
 
 from pursue_index.config.credentials import anthropic_api_key
 from pursue_index.release.ship import preflight_ocr

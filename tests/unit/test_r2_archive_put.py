@@ -51,3 +51,20 @@ def test_other_errors_propagate_and_current_is_not_written():
     with pytest.raises(_PreconditionError):
         _put(client)
     assert [c["Key"] for c in client.calls] == ["archive/x.pdf"]
+
+
+class _NoneResponseError(Exception):
+    response = None
+
+
+class _CodelessResponseError(Exception):
+    def __init__(self) -> None:
+        self.response = {"Error": None}
+
+
+@pytest.mark.parametrize("error", [_NoneResponseError(), _CodelessResponseError(), RuntimeError("boom")])
+def test_errors_without_a_usable_response_propagate_unchanged(error):
+    client = _Client(error)
+    with pytest.raises(type(error)):
+        _put(client)
+    assert [c["Key"] for c in client.calls] == ["archive/x.pdf"]

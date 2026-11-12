@@ -17,6 +17,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from typer.testing import CliRunner
 
 from pursue_index.cli.ingest_cli import ingest_app
@@ -176,6 +177,7 @@ def test_dry_run_writes_worklist_and_runs_no_stage(tmp_path, monkeypatch) -> Non
     assert seen == {}
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_from_diff_refuses_spend_when_engine_not_operated(tmp_path, monkeypatch) -> None:
     """A non-dry --from-diff with a retired engine must refuse
     BEFORE any stage runs (verify-before-spend), even with a key present."""
@@ -201,6 +203,7 @@ def test_from_diff_refuses_spend_when_engine_not_operated(tmp_path, monkeypatch)
     assert seen == {}  # no download/ocr/embed ran
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_non_dry_writes_worklist_and_runs_scoped_stages(tmp_path, monkeypatch) -> None:
     diff_dir = tmp_path / "plans"
     _write_diff(diff_dir, _TRANCHE, _new_content_two_cards())
@@ -229,6 +232,7 @@ def test_non_dry_writes_worklist_and_runs_scoped_stages(tmp_path, monkeypatch) -
     assert seen["embed"] == [{"00000000000000a1", "00000000000000a2"}]
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_non_dry_metadata_only_runs_no_stage(tmp_path, monkeypatch) -> None:
     """A metadata-only tranche has an empty work-list: nothing to OCR/embed."""
     diff_dir = tmp_path / "plans"
@@ -249,6 +253,7 @@ def test_non_dry_metadata_only_runs_no_stage(tmp_path, monkeypatch) -> None:
     assert seen == {}
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_metadata_only_tranche_clears_a_prior_tranches_stale_worklist(tmp_path, monkeypatch) -> None:
     """A metadata-only tranche must still rewrite the PDF worklist (empty) --
     a prior tranche's ids must never survive into this one's scope (R7C.1 /
@@ -280,6 +285,7 @@ def test_metadata_only_tranche_clears_a_prior_tranches_stale_worklist(tmp_path, 
     assert worklist_header_tranche(worklist) == _TRANCHE
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_cost_cap_defaults_to_embed_default(tmp_path, monkeypatch) -> None:
     """Without --cost-cap-usd, the embed stage gets embed_cli's own default
     (sourced from _OPT_COST_CAP, not a divergent hardcode)."""
@@ -303,6 +309,7 @@ def test_cost_cap_defaults_to_embed_default(tmp_path, monkeypatch) -> None:
     assert seen["embed_cost_cap"] == [embed_cli._OPT_COST_CAP.default]
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_cost_cap_override_threads_to_embed(tmp_path, monkeypatch) -> None:
     """--cost-cap-usd is the operator escape hatch for a large tranche; it must
     reach the embed stage."""
@@ -446,6 +453,7 @@ def _av_only_content() -> list[dict]:
     ]
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_non_dry_av_only_tranche_skips_pdf_stages_and_writes_empty_worklist(
     tmp_path, monkeypatch
 ) -> None:

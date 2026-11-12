@@ -3,6 +3,18 @@
 # default to the repo venv. Override with `make PYTHON=... <target>`.
 PYTHON ?= .venv/bin/python
 
+# Fail closed: every recipe line runs under bash with errexit + pipefail, so a
+# builder piped through `| tail` fails the target when the builder fails
+# (plain /bin/sh reports only tail's status). A step whose failure is meant
+# to be tolerated must say so explicitly in its recipe.
+SHELL := /bin/bash
+.SHELLFLAGS := -eo pipefail -c
+# .SHELLFLAGS needs GNU make >= 3.82 (which also added the `oneshell`
+# feature); older makes ignore it silently, so refuse to run there.
+ifeq ($(filter oneshell,$(.FEATURES)),)
+$(error GNU make >= 3.82 is required (.SHELLFLAGS); this is $(MAKE_VERSION))
+endif
+
 .PHONY: install install-dev scrape-inspect scrape download ocr ingest serve \
         test lint typecheck fmt db-up db-down clean
 
@@ -136,6 +148,8 @@ rebuild-derivatives:
 	@# emits no provenance line, so leaving it here silently reverted the
 	@# gate-required output and reddened CI on every release that ran the
 	@# generator before `make ship-ready`, exactly as the runbook said to.
+	@# The `| tail -1` lines below fail the target when the builder fails
+	@# (pipefail, see SHELL/.SHELLFLAGS at the top).
 	@$(PYTHON) scripts/build_llms_txt.py 2>&1 | tail -1
 	@$(PYTHON) scripts/build_pages_cleaned.py 2>&1 | tail -1
 	@$(PYTHON) scripts/build_photo_card_index.py 2>&1 | tail -1
@@ -193,9 +207,14 @@ snapshot-rotate:
 .PHONY: arch-check
 arch-check:
 	@echo "==> Arch check (modified .py source files)"
-	@modified=$$(git diff --name-only HEAD | grep -E '^(src|scripts)/.*\.py$$' | head -20); \
+	@# Advisory by design: a finding is printed, not fatal. Under pipefail
+	@# that has to be explicit, as does "no modified files" (grep exits 1).
+	@modified=$$(git diff --name-only HEAD | { grep -E '^(src|scripts)/.*\.py$$' || true; } | sed -n '1,20p'); \
 	if [ -n "$$modified" ]; then \
-		for f in $$modified; do bpsai-pair arch check "$$f" 2>&1 | tail -3; done; \
+		for f in $$modified; do \
+			bpsai-pair arch check "$$f" 2>&1 | tail -3 \
+				|| echo "  arch check exited non-zero for $$f (advisory, not blocking)"; \
+		done; \
 	else \
 		echo "  (no modified .py source files to check)"; \
 	fi
@@ -203,7 +222,9 @@ arch-check:
 .PHONY: astro-build
 astro-build:
 	@echo "==> Astro build"
-	@cd web && npm run build 2>&1 | tail -3
+	@# Fails the target when the build fails; prints the full build output
+	@# in that case, only the summary tail on success.
+	@cd web && { out=$$(npm run build 2>&1) || { echo "$$out"; exit 1; }; echo "$$out" | tail -3; }
 
 .PHONY: hooks-install
 hooks-install:

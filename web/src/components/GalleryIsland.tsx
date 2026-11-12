@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import type { CardMetadata } from "../data/types";
+import { tileYear } from "./gallery-helpers";
 
 interface Props {
   cards: CardMetadata[];
@@ -67,32 +68,6 @@ function buildFilters(photoPdfIds: ReadonlySet<string>): {
 function imageAlt(card: CardMetadata, fallback: string): string {
   const base = card.image_alt_text || fallback;
   return card.redacted ? `${base} (contains redactions)` : base;
-}
-
-/**
- * Year-bucket label for the tile's date stamp. Prefers `incident_date`
- * (when present and parseable) and falls back to `release_date`. The
- * manifest fields are free-form strings like "5/8/26" or "Late 2025"
- * so a strict Date parse would refuse most of them; we extract a 4-digit
- * year or a 2-digit year with a 19xx/20xx heuristic instead.
- */
-function tileYear(c: CardMetadata): string {
-  const sources = [c.incident_date, c.release_date].filter(Boolean) as string[];
-  for (const s of sources) {
-    // 4-digit year
-    const m4 = s.match(/(\b19|20)\d{2}\b/);
-    if (m4) return m4[0];
-    // 2-digit year — pick up "26" → 2026, "47" → 1947, etc.
-    const m2 = s.match(/\b(\d{2})\b/g);
-    if (m2 && m2.length) {
-      const last = m2[m2.length - 1];
-      const n = parseInt(last, 10);
-      if (!Number.isNaN(n)) {
-        return n < 50 ? `20${last}` : `19${last}`;
-      }
-    }
-  }
-  return "—";
 }
 
 function GalleryTile({

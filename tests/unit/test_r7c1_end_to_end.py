@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from pursue_index.cli.commands import app
@@ -84,6 +85,7 @@ def test_real_dry_run_scopes_29_cards_for_096ef(tmp_path: Path) -> None:
     assert worklist_header_tranche(worklist) == _096EF_SHA
 
 
+@pytest.mark.usefixtures("pursue_data_root")
 def test_real_ocr_run_on_a_stale_worklist_exits_nonzero(tmp_path: Path) -> None:
     """After a real (non-dry) promote-only run, a worklist left over from
     an *older* tranche (c3f8) must make a real ``pursue ocr run``

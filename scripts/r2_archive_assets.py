@@ -60,7 +60,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import hashlib
 import json
-import mimetypes
 import os
 from datetime import UTC, datetime
 from typing import Any
@@ -73,6 +72,7 @@ _REPO_ROOT = repo_root()
 from _r2_archive_put import put_archive_and_current
 from curl_cffi import requests as cffi_requests
 
+from pursue_index.card_id import require_card_id
 from pursue_index.scrape.manifest import load_manifest
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
@@ -189,21 +189,6 @@ def make_r2_client():
     )
 
 
-def r2_head_exists(client, bucket: str, key: str) -> bool:
-    """head_object → bool; False on 404 only, other errors raise."""
-    try:
-        from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-    except ImportError:
-        return False
-    try:
-        client.head_object(Bucket=bucket, Key=key)
-        return True
-    except ClientError as exc:
-        if exc.response["Error"]["Code"] in ("404", "NoSuchKey"):
-            return False
-        raise
-
-
 def _last_known_size(rows: list[dict[str, Any]]) -> int | None:
     if not rows:
         return None
@@ -216,27 +201,38 @@ def _last_known_etag(rows: list[dict[str, Any]]) -> str | None:
     return rows[-1].get("upstream_etag")
 
 
+# Allowlisted asset extensions and the Content-Type stored for each.
+# asset_filename comes from the upstream CSV, so both the key suffix and
+# the stored Content-Type are taken from this map, never derived from
+# the raw filename. A filename whose extension is not listed here is
+# refused rather than archived under a guessed key or type.
+_EXT_CONTENT_TYPES: dict[str, str] = {
+    "pdf": "application/pdf",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "gif": "image/gif",
+    "webp": "image/webp",
+    "tif": "image/tiff",
+    "tiff": "image/tiff",
+}
+
+
 def _build_keys(card: Any, byte_sha: str) -> tuple[str, str, str]:
-    """Return (archive_key, current_key, content_type) for a card's bytes."""
-    # Allowlist extensions before building R2 keys:
-    # asset_filename comes from the upstream CSV, not the operator —
-    # a crafted upstream filename could otherwise inject characters
-    # that R2 interprets as path separators (slashes via Path.suffix
-    # on a weirdly-shaped value) or produce keys that overwrite
-    # adjacent archive objects. Anything outside the allowlist falls
-    # back to "pdf" — there are no non-PDF/non-image assets in the
-    # corpus at the time of writing, and an unrecognized extension
-    # is signal enough to warrant operator review rather than silent
-    # archival under an arbitrary key.
-    allowed_exts = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}
-    raw_ext = Path(card.asset_filename or "").suffix.lstrip(".").lower()
-    ext = raw_ext if raw_ext in allowed_exts else "pdf"
+    """Return (archive_key, current_key, content_type) for a card's bytes.
+
+    Raises ``ValueError`` when the card_id is not a well-formed corpus id
+    or the filename's extension is not in ``_EXT_CONTENT_TYPES``.
+    """
+    card_id = require_card_id(card.card_id)
+    ext = Path(card.asset_filename or "").suffix.lstrip(".").lower()
+    content_type = _EXT_CONTENT_TYPES.get(ext)
+    if content_type is None:
+        raise ValueError(
+            f"unsupported asset extension {ext[:16]!r} for card {card_id}"
+        )
     archive_key = f"archive/{byte_sha}.{ext}"
-    current_key = f"{card.card_id}.{ext}"
-    content_type = (
-        mimetypes.guess_type(card.asset_filename or "")[0]
-        or "application/octet-stream"
-    )
+    current_key = f"{card_id}.{ext}"
     return archive_key, current_key, content_type
 
 
@@ -249,6 +245,14 @@ def _process_card(
     registry_path: Path,
 ) -> str:
     """Return 'new' | 'unchanged' | 'archive-hit' | 'fail'."""
+    # Validate id and extension before any network or storage call; the
+    # sha placeholder is replaced once the real bytes are hashed.
+    try:
+        _build_keys(card, "0" * 64)
+    except ValueError as exc:
+        print(f"[r2-archive] refused {str(card.card_id)[:40]!r}: {exc}")
+        return "fail"
+
     rows = registry.get(card.card_id, [])
     cl, etag = head_asset(card.asset_url)
     if (

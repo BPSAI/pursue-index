@@ -3,6 +3,8 @@ import Base from "../layouts/Base.astro";
 import GalleryIsland from "../components/GalleryIsland.tsx";
 import { manifest } from "../data/manifest-loader";
 import photoCardIds from "../data/photo-card-ids.json";
+import displayDatesJson from "../../../data/display_dates.json";
+import { withDisplayDates } from "../components/gallery-helpers";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -28,7 +30,7 @@ const photoPdfIds = (photoCardIds as { card_ids: string[] }).card_ids;
 // 2-3× for colliding card_ids and produce duplicate React keys.
 // First-row-wins matches the video-poster extractor's behavior.
 const _seenCardIds = new Set<string>();
-const galleryCards = manifest.cards.filter((c) => {
+const _filteredCards = manifest.cards.filter((c) => {
   // AUD added to the allow-list — GalleryIsland's VIDEOS
   // lane predicate unions VID and AUD, but a card has to pass this
   // page-level filter first to reach the island. Without this, AUD
@@ -46,6 +48,13 @@ const galleryCards = manifest.cards.filter((c) => {
   _seenCardIds.add(c.card_id);
   return true;
 });
+
+// Curated display dates (data/display_dates.json, the overlay the card
+// page reads) win over the manifest's incident_date for the tile year.
+const galleryCards = withDisplayDates(
+  _filteredCards,
+  (displayDatesJson as { entries?: { card_id: string; display_date?: string | null }[] }).entries ?? [],
+);
 ---
 
 <Base title="GALLERY — PURSUE://INDEX" active="gallery">

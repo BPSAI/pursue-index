@@ -1,0 +1,5485 @@
+{
+  "tranche_sha256": "92b3ec7dd87286ea7092a33b476566b4416d3bb02970b02757b237d8322fe81a",
+  "prior_manifest_sha": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 0,
+    "quarantined": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 0,
+    "field_only_changes": 466,
+    "row_changes": 0
+  },
+  "renames_confirmed": [],
+  "new_content": [],
+  "quarantined": [],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [],
+  "field_only_changes": [
+    {
+      "card_id": "002eaa383e76a277",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/7/72",
+          "new": "12/7/1972"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "01765a63bbd3f02f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/21/61",
+          "new": "7/21/1961"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "022308e774bc2f25",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "02fa613f21662149",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "034173b3a4641614",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "036bef3a429ef20f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "03b017d5b76f3a7e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "042b3e178a68a19c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0499d6dc86c848d6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "04b9179a7637d6ad",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "051a07582a23df10",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "052b7e0358386432",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/15/10",
+          "new": "12/15/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0699b4948ba6fb90",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "06c5cecc4018786c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "07214d7d1343a4b4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "076e3a3c73273efe",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "07ba861acb370d16",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0824ea3832738511",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/20/10",
+          "new": "11/20/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "085c019c9899db9b",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/31/23",
+          "new": "3/31/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "08b858a6b7a581fd",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "09001c140b97a5db",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "09ab9032c16fbaa2",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/14/63",
+          "new": "11/14/1963"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "09aba3bd555a2a03",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "09fb644cefa66f93",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "09fef4b135f48798",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0aa52db3ec97c002",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0afe3cfea622505c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0b298cfc9c65a4d6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0cb19530b1379e8c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/8/21",
+          "new": "9/8/2021"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0cccf7db865c827c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0d7a23b29e6de1bf",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0e2f21236a2289fa",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0e3b3ec17a9ae021",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0e40c556fc072f29",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0f025bcbd048e738",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "0f469fcf6fb42875",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/20/73",
+          "new": "12/20/1973"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "108379f8a86dbe9c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "10d757c7b1bf6aa1",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "11913b109df5d044",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/8/21",
+          "new": "9/8/2021"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "12a7f37083cf2b87",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/1/09",
+          "new": "4/1/2009"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "12ae49ccbb59bb04",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "13f86e95aed52840",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "149f0e075ae4517d",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/10/08",
+          "new": "12/10/2008"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "15d23b5f88df64fa",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/25/24",
+          "new": "1/25/2024"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "167f6a21c7238d0c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/5/65",
+          "new": "12/5/1965"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1701a0f307714921",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/1/23",
+          "new": "9/1/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "171b0f8c71e0ae7d",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/11/10",
+          "new": "3/11/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1770d8bd71372ef6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "17a8cc07fd8c694f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/10/96",
+          "new": "9/10/1996"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "19b18b71420602c5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1af7a333fa99bdd9",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "6/25/52",
+          "new": "6/25/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1b33dafd36c74c06",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1b4f11abb8ce89e0",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/31/10",
+          "new": "3/31/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1b522e779e72877c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1bc28d0e03b79e35",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/15/63",
+          "new": "5/15/1963"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1c2287cdf770e344",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1c87b710594da1f8",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/29/10",
+          "new": "3/29/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1cc0bf60aba6d0eb",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/2/10",
+          "new": "3/2/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1e5e506cfdc6e993",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1e63919cc6c3daf4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "1f5dcf09c3bcc614",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "205f9d0f627074c3",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "8/24/20",
+          "new": "8/24/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "208d494dece9b545",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/26/52",
+          "new": "3/26/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "213ab63a7aefa8fd",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/10/48",
+          "new": "12/10/1948"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2163031bf38f0a63",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "218e167fbd265d91",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/9/50",
+          "new": "1/9/1950"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "21c9fa9b9a543068",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2201422e542ed597",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "22e9a98032b28fc5",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/6/10",
+          "new": "4/6/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "22f4d050e1dad88c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "239d049dab8c81d5",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/17/58",
+          "new": "4/17/1958"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "23e7db6d552332e5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "247e6e1bd6da7377",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "24f4178ed9082f2c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2570557981d64cc7",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "8/10/53",
+          "new": "8/10/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "260eb5f4eba61b65",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2681dbf5da52e042",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "26b02d358ec20061",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/7/57",
+          "new": "11/7/1957"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "28f551c3ef1a3d55",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/23/10",
+          "new": "3/23/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "29f1035b2cdde6b7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2a9f746d66a05666",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2b6de60628336eb8",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2b80b41d1b25a46f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2b98fd7cde9b31bc",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2cd799fd0c70eda2",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2d5ef2241949cd51",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/18/08",
+          "new": "7/18/2008"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2d67ff61a60197c1",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2fde9a0c4dee513c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/2/52",
+          "new": "7/2/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "2fecc4f3b434e64d",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/2/20",
+          "new": "11/2/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "303ad110cb5fa8b4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "31064dd56886eae1",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "31656bd3e7de783d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "323b9443e6f5ea56",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "338995394c698b33",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/31/56",
+          "new": "12/31/1956"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "33cca99659328520",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "347808dc9e66aa78",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/1/10",
+          "new": "11/1/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "34f3278ad20d348f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "35e0a7cff95a3e93",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/3/62",
+          "new": "10/3/1962"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "36bcfe2cfb5f3f54",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3746998b8c506e5c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/27/23",
+          "new": "10/27/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3893e5d0279db3b1",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "38e700c6f51082f0",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/29/63",
+          "new": "5/29/1963"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "38ee227f22a33772",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "39c999bd61b2e20f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "8/8/20",
+          "new": "8/8/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3a0d83f3e51179db",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "6/7/24",
+          "new": "6/7/2024"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3acf9cf5047465bd",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "8/31/54",
+          "new": "8/31/1954"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3bccb95aaaf026b3",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "2/2/10",
+          "new": "2/2/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3d74932e77e7868e",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "8/27/52",
+          "new": "8/27/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "3deb237b1d68e203",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "40a4c3e0843b0de7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "414f485a5a580d74",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "419ad0ffefd1343c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/22/08",
+          "new": "9/22/2008"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "41ba3dea9b211d5c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "42158cfc89c7ab84",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4382ccbf2a39513d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "43db2719407a7897",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/29/22",
+          "new": "5/29/2022"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "44209964c97d2c53",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4555d94dd6067f57",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/31/22",
+          "new": "7/31/2022"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "45588f73ddfaad6d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "45f736169651df3b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4649af95e88b6643",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "464f81c988dcee9e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "468222f8338376d2",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/8/10",
+          "new": "3/8/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "46d871c93e4585fd",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "47785325ca6c118d",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/1/10",
+          "new": "11/1/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "47cb76adb62d7e44",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4825c416e6afe557",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4844321219e306af",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "48502ae871d53621",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "48e4bc1bdb5a66e8",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/5/65",
+          "new": "12/5/1965"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "49e0690a6f5bb74f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/2/52",
+          "new": "7/2/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4af74afe8dc054bc",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4afde1c0cbccf94e",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/14/09",
+          "new": "12/14/2009"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4b0bd5b1c75a0c6f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4b68726be4af8ff9",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4cf7750d0dd1edd3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "4ea340f612c3f8c2",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5193addba248e2e6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "519c181f4a5aede0",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/6/10",
+          "new": "4/6/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5338a8eba1537603",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/12/10",
+          "new": "1/12/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "55f5f0db04de21f2",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/28/49",
+          "new": "4/28/1949"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "568e636bceebb3e7",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/2/09",
+          "new": "9/2/2009"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "56bd12ff7be6f4ee",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "6/9/65",
+          "new": "6/9/1965"
+        },
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "56c379b8fb673028",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "57b9d4711a5ad034",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/10/10",
+          "new": "12/10/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "57e9cc7f9942e2cf",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "2/21/23",
+          "new": "2/21/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "58402012053be609",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5847028ebb855cf8",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/5/04",
+          "new": "11/5/2004"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "59bb7a090a1c8af6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5a1026673150b72f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5a487c793b488382",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5d9d3147f0b62d0c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5e7c32c5682fc491",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5ecebc7c28a8d8c7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5ef405481cb69a03",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5f526642200e3985",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5f5553c56c931b34",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5f5e3ee158c91a63",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "5ffbe11403179567",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6058b5fa79221835",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "613dc8ef961f9399",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "619c9d455bbb6bb5",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/6/10",
+          "new": "4/6/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "626d8e51b2efc972",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "628ebe1fba435604",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/2/10",
+          "new": "4/2/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "62abad9fdfc1652e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "63c47bad93af4c92",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "645f4e5fb99f3a03",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "64b4b5770a796616",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "65bf775b2dfd9f61",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/14/09",
+          "new": "12/14/2009"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "662eb9fef6e109d2",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "669dd29723dd423f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/18/16",
+          "new": "11/18/2016"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "66aa3ed8dece9d00",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/8/21",
+          "new": "9/8/2021"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "672ae7eab15481ff",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "67ab3ffef2aecf70",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "67c2ef13cc69891c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "69f1874d972fb44c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "2/18/71",
+          "new": "2/18/1971"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6a7a525ada83a4d6",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/9/09",
+          "new": "7/9/2009"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6b12c3ddc6a96008",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/24/62",
+          "new": "5/24/2962"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6bda02c546051f43",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/8/48",
+          "new": "11/8/1948"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6c3f5372eae29724",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/2/52",
+          "new": "7/2/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6d7faf71150107e9",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6e05a612ac25118f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/8/21",
+          "new": "9/8/2021"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6f5beb626837fa74",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/1/53",
+          "new": "12/1/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "6fc6419676926f13",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "71758de42a2df926",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/23/26",
+          "new": "3/23/2026"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "765a28effad5ab93",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "76780f0336af79e1",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "774ebdca92c34892",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "775d16ead1ec8fa1",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "2/3/00",
+          "new": "2/3/2000"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "78236aa834b34246",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "78312c1c607632c6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7838ea3bee6bd8a7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "784dc42f885dc12e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "78dc972c0c143d1e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "79507cf7383f8c6b",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/6/10",
+          "new": "4/6/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "79efc12f4c2ebae9",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "79fc255ea64dc7be",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/1/10",
+          "new": "11/1/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7a47542be1be6d1f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7acc575e603e3e42",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7ae45b701d61a023",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7aede23a09ee4c6b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7b2fec96cf493ed7",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "2/1/65",
+          "new": "2/1/1965"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7bd99ac64660258e",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/18/45",
+          "new": "3/18/1945"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7be8e1bf34990b50",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7c0e38a8a433ebaa",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7c49f1a10e1d45ec",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7c5da8ac3a325589",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/8/21",
+          "new": "9/8/2021"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7d58f0cac741650a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7d5b9bff15c9a44d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7e0b4624ee81788e",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/1/15",
+          "new": "9/1/2015"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7f9ed9588e40c25f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/18/10",
+          "new": "5/18/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "7fd3d2656cbc83a6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "804d5367a7e29ee0",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "811e54fbf8cff4cc",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "814d0aa44e632c73",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8156067f7ff4b983",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "819e725592d1ba79",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "81a3947abfb387af",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/22/49",
+          "new": "3/22/1949"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "81fe3a1b9cd4bf42",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/17/53",
+          "new": "12/17/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "82f2e60220d94740",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/23/10",
+          "new": "11/23/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "83710a4764f1d256",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "83aa439781e60e7b",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/1/23",
+          "new": "9/1/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "83de7afa55d15b09",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "852224ee097b52cf",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/14/24",
+          "new": "7/14/2024"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8533936c8107767b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "859cda8991e45dd7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "85fd315af4b25993",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/10/09",
+          "new": "4/10/2009"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "86c966cdd1f9f31a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "878ff82834953ea7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "87a17be77dae3d9f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "88443d8d0c5b0c44",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "88479e3245f9bf15",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "88a20bf256ccce7a",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/14/20",
+          "new": "5/14/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8aba1dc72a19b94a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8bb54e0aec5e91ad",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8bfd94484138d59b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8c22358135a85824",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/17/67",
+          "new": "4/17/1967"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8c4dcc4cb8f0126f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8d0b85ce46109d06",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8d3833f36d05ec03",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8dfcf1050947c6d3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8e4cbdbd3583feba",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8e727ae36892cba9",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/1/20",
+          "new": "10/1/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8f354cf1d1f821f0",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/24/85",
+          "new": "1/24/1985"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "8f68a0b98c4647ab",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "907982561e907539",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "90a8c6493f04d6e3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "90fb386c2e32f003",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/31/10",
+          "new": "3/31/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9151e15016109463",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/20/24",
+          "new": "9/20/2024"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "91887620fa8361e5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "92b2d78bb19ee094",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9317a6ea91f7425c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "6/15/48",
+          "new": "6/15/1948"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "93cbdaad1d4ac853",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "942f77cebc0a64c6",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/20/63",
+          "new": "11/20/1963"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9532749afe2d4273",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "954d1e1944bc6d17",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "96f4d5e8c8f90ee5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "972621a74b470223",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/2/10",
+          "new": "3/2/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "973c1f75f55d0d39",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "979639dbe9247069",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9877727cd0d1bbfe",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/27/94",
+          "new": "1/27/1994"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "98a873861e250b9e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "98c1575170956515",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9961adf6adf1010b",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/1/22",
+          "new": "12/1/2022"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9967c1c0868ab289",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/30/10",
+          "new": "3/30/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "99c12a9c49a91750",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "99c19cd85911e400",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9a0a2d62e9f47eb8",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/20/22",
+          "new": "5/20/2022"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9a3f23d9136eddf3",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/27/20",
+          "new": "10/27/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9bd42e0157fe4697",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/1/08",
+          "new": "11/1/2008"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9dfbbb6de5c73272",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9e2c2621d67dde12",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/18/63",
+          "new": "7/18/1963"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9e677b8697685311",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/30/47",
+          "new": "12/30/1947"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9ed140b9186c20c5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9fdc75d250206f65",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "9fedb1373b50d856",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a021a640e3108c35",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a0c6bbafa1b45010",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a0ec63eff6d4d643",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a14bb8678727f0c0",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a33faf4c40674462",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "8/27/20",
+          "new": "8/27/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a3672ccd47d5503a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a3a9754af3184c3b",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/16/53",
+          "new": "11/16/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a3f68d208681dc64",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/31/24",
+          "new": "10/31/2024"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a4f1672d4f893c75",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a7455a1d0c406174",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a7ec8e0ae80d9061",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a814dead4ae07667",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a83dedef9d19fcb5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a86dbdfe36cc97a3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a86f79c3de423c13",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a878d3e7a9cae5be",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "a8ec637d35fd011e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aa2e4d84861d5006",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/21/72",
+          "new": "12/21/1972"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aa5c76b65d29b476",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/11/11",
+          "new": "1/11/2011"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aa638778a043c89c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aaafecbc47103f4b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aad2f416c0513745",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/11/10",
+          "new": "3/11/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ac9f24575bf2c5de",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/21/10",
+          "new": "11/21/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aca09795e3f15ada",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/3/11",
+          "new": "1/3/2011"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ad63a61ed36f167c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ad721de274bb7d6c",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "adf867b347d0d376",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ae5a00986bae42be",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ae790d0f8fc88afb",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/30/10",
+          "new": "3/30/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aec4d4da8ac17636",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "aef933642db8134a",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/16/20",
+          "new": "7/16/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "af42a6774881c110",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b02c9d82381561f8",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b03309df6758ab15",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/1/23",
+          "new": "9/1/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b0fa7140b0776b42",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "4/28/49",
+          "new": "4/28/1949"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b1a2a12d04e5784e",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/28/10",
+          "new": "1/28/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b1c6f5c4a7fbeee1",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/20/86",
+          "new": "5/20/1986"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b1d24cb7f46cfa20",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b21122b1b7b2d953",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b242f32347c819a5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b246c782b16be168",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b279eac8e49cf4fe",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b27e6c5aaf095d57",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b2a7526ec9774d17",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b3cb1b38bffcb4eb",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b4916a5d2b6d8f0f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/1/10",
+          "new": "11/1/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b496575fcd6e393d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b4dc3f79f7616313",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b60b84a66715204a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b63bea0452d1d4b3",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/15/55",
+          "new": "3/15/1955"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b6549669cd12c33f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b73a7101dc25e2ad",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/23/10",
+          "new": "3/23/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b771e5a588793b5d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b77560f5f255a661",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b869fd5353d5c853",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b87355e7ab051114",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/2/08",
+          "new": "12/2/2008"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "b8b5b17a6d70ef39",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/16/20",
+          "new": "9/16/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ba30b5fdb4f6d153",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bb61c203319b4b25",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bbc494426d526bdc",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/9/23",
+          "new": "11/9/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bbd205a2256b39c9",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bbed279533fca922",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bcb9232007cbebf4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bcf2e688dfbc220d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bd0ac2e91db204dd",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bd9411951868bc3e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "be0a81d67c57548d",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/28/10",
+          "new": "9/28/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "be226374e719c729",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "be533a4ab886eb11",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bec4cc1e81a258eb",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bf08008b8a1aa79e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "bff6df8420d4cbdc",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c094d943b5fcf8a2",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/30/10",
+          "new": "3/30/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c0bf728e03f3f8c2",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c142741e8cafc659",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c1c59236394f7b14",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/6/22",
+          "new": "5/6/2022"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c2961d7ccb95ae45",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/4/20",
+          "new": "9/4/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c2da7eaaedbf533a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c304734c04357887",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c48c078b811c0fd7",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/12/03",
+          "new": "9/12/2003"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c4da38582fc64334",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c50be3b65e2340d6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c529da40cb35cf7f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/18/10",
+          "new": "5/18/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c5850afb384c768b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c788c17e8cc32230",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/29/23",
+          "new": "10/29/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c86ed74d472f44e2",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c8d89f235e487961",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c97db00a65aa4abe",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c9a17def8cbea854",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/23/10",
+          "new": "3/23/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "c9ce3532ab1da4db",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/8/21",
+          "new": "9/8/2021"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ca537f49a429b502",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ca69163315f5ff40",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/2/57",
+          "new": "5/2/1957"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cb5426fe2a0b512d",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/18/57",
+          "new": "1/18/1957"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cb8be77a22e07f9b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cc33e8c352fc80ce",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/15/20",
+          "new": "10/15/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cc72a9adcc562f7a",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ccb9a10f4d8b2c3d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ccd932b4f40e8de7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cd8858cf829e6ef7",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ce9a5971eec321e8",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cf19931bc3e5efda",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cf4f6f5ebf7dfd51",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "cf5c53c84485c70d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d02f9eac223b1525",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d14e0371a5bf0f5e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d1f561b646aaed40",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d3cb04b8e4d55dc1",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/1/53",
+          "new": "12/1/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d42052963cb29aaa",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d6016299267e9604",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d6220a5956fb219b",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/7/10",
+          "new": "1/7/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d6efb186cd925560",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d7538e35ff11c7d3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d7c07f24a96f8bac",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d7db401d52ec0bfc",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/10/10",
+          "new": "3/10/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d7f72a4106a917f6",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d8944e2bc6627e5d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d8e5687dc870892d",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/31/23",
+          "new": "10/31/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d973d98ce1f1f852",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/8/21",
+          "new": "9/8/2021"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "d983745c9c3a4709",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "da533c72f476d84f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "da746aeac188479d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "db390eba790bd5cd",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "df252334c73a9019",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "df43a479bc891969",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "7/28/52",
+          "new": "7/28/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "dfec531c907eaa8c",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/11/10",
+          "new": "3/11/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e04b05b132f03e28",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e07aead6d20b2925",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e07c4debd3995e21",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e18cac08048b6c28",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e2371ff7657d231e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e277f0b4d0fa62b9",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e418f6fe8d2a4595",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e5c4575f838f0175",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/13/53",
+          "new": "11/13/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e6d06ce60662cdcf",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "6/9/65",
+          "new": "6/9/1965"
+        },
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e7f5382c5349c6e8",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "3/26/52",
+          "new": "3/26/1952"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e897e67f95bc1e1b",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e924a48f55719a0d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "e93f6997811954dc",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "9/1/23",
+          "new": "9/1/2023"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ea029a05470b8f4e",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/20/24",
+          "new": "10/20/2024"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ea18e274b06b352e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ea1e7c4a981bdd8b",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/13/63",
+          "new": "11/13/1963"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ea2e2a6496bbdbb1",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ed534f618f0c3501",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/21/72",
+          "new": "12/21/1972"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ed585fe68e3c4e7e",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/14/55",
+          "new": "10/14/1955"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ee657817d068d59b",
+      "diffs": [
+        {
+          "field": "description",
+          "old": "This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 interview with two Federal Special Agents, in which the interviewees describe an incident reported as involving unidentified anomalous phenomena (UAP) at a national security site in 2026.",
+          "new": "This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 interview with two Federal Special Agents, in which the interviewees describe an incident reported as involving unidentified anomalous phenomena (UAP) at a national security site in 2026. The report is accompanied by 9 digitally rendered FBI forensic sketches depicting the primary incident, as confirmed by the Special Agents in their eyewitness account."
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ef779c3f0f7ba4d3",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "5/15/63",
+          "new": "5/15/1963"
+        },
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f101096677191bf4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f2a08ed7a261c1a2",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f3ef3a248b605aa0",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f42c11ca158aeffc",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f52425adaa32c4f2",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/6/53",
+          "new": "10/6/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f55d5c010b11b301",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f634a8f291eb0280",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f6935b10dea56aa5",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f6d9556247ebeb2d",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f70c87daafb7daa0",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f85532f0514320be",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f8810c11687af675",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fa01f053b19d1511",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fa24eb58219a8dff",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fab845f51c10fdc0",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "10/10/74",
+          "new": "10/10/1974"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fad6007114b5eb63",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "1/9/47",
+          "new": "1/9/1947"
+        },
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fb116547cbbf33d4",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fc95f65e81965edf",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "12/16/53",
+          "new": "12/16/1953"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fc9cb08cad327063",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fcbd7e953ec292de",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "6/12/26",
+          "new": "6/12/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fd342b7508668b0e",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/22/26",
+          "new": "5/22/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fd42060875c9ee92",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/1/10",
+          "new": "11/1/2010"
+        },
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fd8286ffc6fbc1fb",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fd8bfb9481bcbdd3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "fec5b139eb7b0a4f",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "9/18/26",
+          "new": "9/18/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ff28c2957fe10ad3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "8/7/26",
+          "new": "8/7/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ff30c985595153f3",
+      "diffs": [
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ff3939f95d878062",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "8/31/20",
+          "new": "8/31/2020"
+        },
+        {
+          "field": "release_date",
+          "old": "5/8/26",
+          "new": "5/8/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ffd9dfd4bceb163f",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "2/18/71",
+          "new": "2/18/1971"
+        },
+        {
+          "field": "release_date",
+          "old": "7/10/26",
+          "new": "7/10/2026"
+        }
+      ]
+    },
+    {
+      "card_id": "ffea128d68063d60",
+      "diffs": [
+        {
+          "field": "incident_date",
+          "old": "11/1/09",
+          "new": "11/1/2009"
+        },
+        {
+          "field": "release_date",
+          "old": "10/23/26",
+          "new": "10/23/2026"
+        }
+      ]
+    }
+  ],
+  "row_changes": []
+}
