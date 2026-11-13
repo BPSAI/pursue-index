@@ -287,6 +287,13 @@ def rebuild_check(tarball: Path, expect: str | None = None,
         raise SystemExit("intermediates: pass --expect-sha256 (from the release notes), or "
                          "--allow-unpinned to accept SHA256SUMS alone, which only catches "
                          "corruption")
+    # The builders (beside this script) and the payloads they are compared with
+    # (repo_root()) must come from one checkout, or the check compares one
+    # checkout's code with another's data.
+    code_root, data_root = SCRIPTS_DIR.parent, repo_root().resolve()
+    if code_root != data_root:
+        raise SystemExit(f"intermediates: builders are from {code_root} but the "
+                         f"committed payloads are from {data_root}; run from one checkout")
     with tempfile.TemporaryDirectory(prefix="intermediates-") as tmp:
         # Hash and unpack one private copy, so the file cannot change between
         # the hash check and the unpack.

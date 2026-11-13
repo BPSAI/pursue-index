@@ -174,3 +174,10 @@ def test_pack_refuses_a_symlinked_parent_directory(tmp_path: Path, which: str) -
     (root / which).symlink_to(real, target_is_directory=True)
     with pytest.raises(SystemExit, match="must be a real directory"):
         intermediates.collect(root)
+
+
+def test_rebuild_check_refuses_builders_and_payloads_from_different_checkouts(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(intermediates, "repo_root", lambda: tmp_path)
+    with pytest.raises(SystemExit, match="run from one checkout"):
+        intermediates.rebuild_check(tmp_path / "unused.tar.gz", expect="0" * 64)
