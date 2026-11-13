@@ -238,3 +238,23 @@ def test_status_keeps_the_source_of_an_unstaged_rename() -> None:
     rows = gitops._status(runner, Path("."))
     paths = sorted(p for _, p in rows)
     assert paths == ["a1.json", "a2.json", "new.json", "old.json", "other.json"]
+
+
+def test_a_refused_step_keeps_no_success_exit_code(tmp_path: Path) -> None:
+    from pursue_index.tranche_autopilot.result import schema_path
+    from pursue_index.tranche_ready.schema import load_schema, validate
+
+    repo = make_checkout(tmp_path, receipt())
+    runner = FakeRunner(repo)
+
+    def dry_run(argv, cwd):
+        write_pdf_worklist(repo, SHA, ["0123456789abcdef"])
+        return CommandResult(0)  # the command succeeded; the scope is refused
+
+    runner.dry_run = dry_run
+    code, doc = _run(tmp_path, repo, runner)
+    assert code == ExitCode.NEEDS_LEASE
+    step = _steps(doc)["dry-run-scope"]
+    assert step["status"] == "failed"
+    assert step["exit_code"] is None
+    assert validate(doc, load_schema(schema_path())) == []

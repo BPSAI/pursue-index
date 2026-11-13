@@ -74,7 +74,10 @@ def _refuse_content_work(step: Step, lists: WorklistCheck, what: str) -> None:
     step.detail = (f"{what}: {len(lists.pdf_ids)} PDF/IMG, {len(lists.av_ids)} A/V; "
                    f"{lists.note}")
     if not lists.empty:
+        # The step's command may have exited 0; the refusal is ours, so the
+        # record must not keep that success code beside status "failed".
         step.status = "failed"
+        step.exit_code = None
         raise AutopilotStopError(ExitCode.NEEDS_LEASE,
                                  f"{what} scoped content work; run the attended release")
 
