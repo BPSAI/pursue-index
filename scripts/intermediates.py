@@ -27,8 +27,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Code is loaded from where this script lives, never from the data root.
+# Code is loaded from where this script lives, never from the data root
+# (cwd / PURSUE_REPO_ROOT), so this runs before any pursue_index import.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
 import collections
@@ -43,10 +45,17 @@ import tarfile
 import tempfile
 from typing import Any
 
+from pursue_index.paths import repo_root
 from pursue_index.release.chunked_asset import read_asset_bytes, read_asset_json
 
-REPO = Path(__file__).resolve().parents[1]
-PUBLISHED = REPO / "web" / "public" / "data"
+# The builders run from beside this script (each bootstraps its own src/).
+SCRIPTS_DIR = Path(__file__).resolve().parent
+
+
+def published_dir() -> Path:
+    """The committed payloads the rebuild is compared with."""
+    return repo_root() / "web" / "public" / "data"
+
 MANIFEST_NAME = "MANIFEST.json"
 SCHEMA = "pursue-intermediates/v1"
 # Per card, what the builders read from the OCR directory.
@@ -197,9 +206,10 @@ def unpack(tarball: Path, dest: Path) -> dict[str, Any]:
 
 def _run(script: str, *args: str) -> None:
     env = {k: v for k, v in os.environ.items() if not k.startswith("PURSUE_")}
-    env["PYTHONPATH"] = str(REPO / "src")
-    done = subprocess.run([sys.executable, str(REPO / "scripts" / script), *args],
-                          cwd=REPO, env=env, capture_output=True, text=True, check=False)
+    env.pop("PYTHONPATH", None)
+    done = subprocess.run([sys.executable, str(SCRIPTS_DIR / script), *args],
+                          cwd=repo_root(), env=env, capture_output=True, text=True,
+                          check=False)
     if done.returncode != 0:
         raise SystemExit(f"intermediates: {script} failed:\n{done.stderr or done.stdout}")
     print(f"  {script}: {(done.stdout.strip().splitlines() or [''])[-1]}")
@@ -245,8 +255,9 @@ def _field_diff(committed: Any, rebuilt: Any) -> str:
     return f"{len(rows_a)} rows; differing fields {dict(sorted(fields.items()))}{meta}"
 
 
-def compare(out: Path, published: Path = PUBLISHED) -> list[str]:
+def compare(out: Path, published: Path | None = None) -> list[str]:
     """``[]`` when every rebuilt payload equals the committed one."""
+    published = published_dir() if published is None else published
     problems: list[str] = []
     for name in PAYLOADS:
         committed, rebuilt = published / name, out / name
