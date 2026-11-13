@@ -180,4 +180,4 @@ def test_rebuild_check_refuses_builders_and_payloads_from_different_checkouts(
         tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(intermediates, "repo_root", lambda: tmp_path)
     with pytest.raises(SystemExit, match="run from one checkout"):
-        intermediates._check_same_checkout()
+        intermediates.rebuild_check(tmp_path / "unused.tar.gz", expect="0" * 64)
