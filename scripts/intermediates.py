@@ -79,13 +79,18 @@ def collect(data_root: Path) -> list[tuple[str, Path]]:
     """``(archive path, source path)`` for every intermediate, sorted."""
     out: list[tuple[str, Path]] = []
     ocr = data_root / "ocr"
+    emb = data_root / "embeddings" / EMBED_MODEL
+    # The parent directories must be real directories too: a symlinked
+    # ocr/ or embeddings/ would pull files from outside the data root.
+    for parent in (ocr, data_root / "embeddings", emb):
+        if parent.is_symlink() or not parent.is_dir():
+            raise SystemExit(f"intermediates: {parent} must be a real directory")
     # Never follow a symlinked card directory out of the data root.
     for card_dir in sorted(p for p in ocr.iterdir() if p.is_dir() and not p.is_symlink()):
         for name in CARD_FILES:
             src = card_dir / name
             if src.is_file() and not src.is_symlink():
                 out.append((f"ocr/{card_dir.name}/{name}", src))
-    emb = data_root / "embeddings" / EMBED_MODEL
     for name in EMBED_FILES:
         src = emb / name
         if not src.is_file() or src.is_symlink():
