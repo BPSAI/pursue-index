@@ -37,6 +37,7 @@ import hashlib
 import io
 import json
 import os
+import shutil
 import subprocess
 import tarfile
 import tempfile
@@ -54,6 +55,11 @@ EMBED_MODEL = "voyage-3"
 EMBED_FILES = ("index.json", "vectors.bin")
 # Payload name -> builder output name, compared as logical (unchunked) bytes.
 PAYLOADS = ("pages.json", "pages-cleaned.json", "embed_index.json", "embeddings.bin")
+# Unpack limits for an untrusted tarball, checked from the headers before any
+# byte is written. The real asset is ~1,240 files and ~180 MB unpacked.
+MAX_MEMBERS = 20_000
+MAX_MEMBER_BYTES = 1 << 30  # 1 GiB
+MAX_TOTAL_BYTES = 4 << 30  # 4 GiB
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -107,39 +113,63 @@ def pack(data_root: Path, out_dir: Path, label: str) -> Path:
     with tar_path.open("wb") as fh, gzip.GzipFile(fileobj=fh, mode="wb", mtime=0,
                                                   compresslevel=9, filename="") as gz:
         gz.write(raw.getvalue())
-    digest = sha256_bytes(tar_path.read_bytes())
+    digest = _sha256_file(tar_path)
     (out_dir / "SHA256SUMS").write_text(f"{digest}  {tar_path.name}\n", encoding="utf-8")
     print(f"intermediates: {len(blobs)} files -> {tar_path} "
           f"({tar_path.stat().st_size / 1e6:.1f} MB), sha256 {digest}")
     return tar_path
 
 
-def _check_sums(tarball: Path) -> str:
-    """The tarball's sha256, checked against SHA256SUMS beside it when present."""
-    digest = sha256_bytes(tarball.read_bytes())
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _check_sums(tarball: Path, expect: str | None = None) -> str:
+    """The tarball's sha256, which must match SHA256SUMS beside it.
+
+    SHA256SUMS comes with the tarball, so it catches corruption, not
+    tampering. ``expect`` pins the sha256 from an independent source (the
+    release notes, or a value recorded in this repository), which does.
+    """
+    digest = _sha256_file(tarball)
     sums = tarball.parent / "SHA256SUMS"
-    if sums.is_file():
-        listed = {ln.split()[1]: ln.split()[0] for ln in sums.read_text().splitlines()
-                  if len(ln.split()) == 2}
-        if listed.get(tarball.name) != digest:
-            raise SystemExit(f"intermediates: {tarball.name} does not match SHA256SUMS")
+    if not sums.is_file():
+        raise SystemExit(f"intermediates: no SHA256SUMS beside {tarball.name}")
+    listed = {ln.split()[1]: ln.split()[0] for ln in sums.read_text().splitlines()
+              if len(ln.split()) == 2}
+    if listed.get(tarball.name) != digest:
+        raise SystemExit(f"intermediates: {tarball.name} does not match SHA256SUMS")
+    if expect is not None and expect.lower() != digest:
+        raise SystemExit(f"intermediates: {tarball.name} sha256 {digest} is not the "
+                         f"expected {expect}")
     return digest
 
 
 def unpack(tarball: Path, dest: Path) -> dict[str, Any]:
     """Extract regular files only, inside ``dest``; verify every manifest hash."""
     with tarfile.open(tarball, mode="r:gz") as tar:
-        members = tar.getmembers()
-        for m in members:
+        members = []
+        total = 0
+        for m in tar:  # headers only; stops at the first bad member
             parts = Path(m.name).parts
             if not m.isfile() or m.name.startswith("/") or ".." in parts or not parts:
                 raise SystemExit(f"intermediates: refusing tar member {m.name!r}")
+            total += m.size
+            if (len(members) >= MAX_MEMBERS or m.size > MAX_MEMBER_BYTES
+                    or total > MAX_TOTAL_BYTES):
+                raise SystemExit("intermediates: tarball exceeds the unpack limits")
+            members.append(m)
         for m in members:
             target = dest / m.name
             target.parent.mkdir(parents=True, exist_ok=True)
             src = tar.extractfile(m)
             assert src is not None
-            target.write_bytes(src.read())
+            with target.open("wb") as out:  # streamed, never whole in memory
+                shutil.copyfileobj(src, out, 1 << 20)
     manifest = json.loads((dest / MANIFEST_NAME).read_text(encoding="utf-8"))
     if manifest.get("schema") != SCHEMA:
         raise SystemExit(f"intermediates: manifest schema {manifest.get('schema')!r}")
@@ -222,8 +252,8 @@ def compare(out: Path, published: Path = PUBLISHED) -> list[str]:
     return problems
 
 
-def rebuild_check(tarball: Path) -> int:
-    digest = _check_sums(tarball)
+def rebuild_check(tarball: Path, expect: str | None = None) -> int:
+    digest = _check_sums(tarball, expect)
     print(f"intermediates: checking {tarball.name} (sha256 {digest})")
     with tempfile.TemporaryDirectory(prefix="intermediates-") as tmp:
         root, out = Path(tmp) / "root", Path(tmp) / "out"
@@ -249,11 +279,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--label", required=True, help="the release tag, e.g. v1.7.0")
     c = sub.add_parser("rebuild-check", help="rebuild the payloads from a tarball alone")
     c.add_argument("--tarball", type=Path, required=True)
+    c.add_argument("--expect-sha256", default=None,
+                   help="the tarball's sha256 from an independent source; fail on any other")
     args = parser.parse_args(argv)
     if args.cmd == "pack":
         pack(args.data_root, args.out_dir, args.label)
         return 0
-    return rebuild_check(args.tarball)
+    return rebuild_check(args.tarball, args.expect_sha256)
 
 
 if __name__ == "__main__":

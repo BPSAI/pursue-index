@@ -23,13 +23,19 @@ On a release that carries the asset:
 gh release download <tag> -R BPSAI/pursue-index -p 'intermediates-*' -p SHA256SUMS -D intermediates/
 sha256sum -c intermediates/SHA256SUMS
 git checkout <tag>
-python scripts/intermediates.py rebuild-check --tarball intermediates/intermediates-<tag>.tar.gz
+python scripts/intermediates.py rebuild-check --tarball intermediates/intermediates-<tag>.tar.gz \
+    --expect-sha256 <sha256 from the release notes>
 ```
+
+`SHA256SUMS` travels with the tarball, so it only catches a corrupted
+download. `--expect-sha256` pins the tarball to a value published separately
+(the release notes), which also catches a substituted file.
 
 `rebuild-check` needs no data root, no network and no API keys. It:
 
-1. checks the tarball against `SHA256SUMS` and every file inside it against
-   the tarball's `MANIFEST.json`;
+1. checks the tarball against `SHA256SUMS` (required) and the pinned sha256,
+   refuses anything over its unpack limits, and checks every file inside it
+   against the tarball's `MANIFEST.json`;
 2. runs this checkout's three builders on the unpacked files alone;
 3. compares their output with the committed `pages.json`,
    `pages-cleaned.json`, `embed_index.json` and `embeddings.bin`.

@@ -108,3 +108,26 @@ def test_compare_ignores_only_the_build_timestamp(tmp_path: Path) -> None:
     problems = intermediates.compare(tmp_path / "out", tmp_path / "pub")
     assert problems == [
         "pages-cleaned.json: 1 rows; differing fields {'ocr_page_sha256': 1}"]
+
+
+def test_sums_are_required_and_a_pinned_sha256_must_match(tmp_path: Path) -> None:
+    tar = intermediates.pack(_data_root(tmp_path), tmp_path / "o", "v1")
+    digest = intermediates._check_sums(tar, intermediates._sha256_file(tar))
+    with pytest.raises(SystemExit, match="is not the expected"):
+        intermediates._check_sums(tar, "0" * 64)
+    (tmp_path / "o" / "SHA256SUMS").unlink()
+    with pytest.raises(SystemExit, match="no SHA256SUMS"):
+        intermediates._check_sums(tar, digest)
+
+
+def test_unpack_refuses_a_tarball_over_the_limits_before_writing(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    tar = _tar(tmp_path, {"ocr/a/pages.jsonl": b"x" * 64})
+    monkeypatch.setattr(intermediates, "MAX_MEMBER_BYTES", 16)
+    with pytest.raises(SystemExit, match="unpack limits"):
+        intermediates.unpack(tar, tmp_path / "dest")
+    assert not (tmp_path / "dest").exists()
+    monkeypatch.setattr(intermediates, "MAX_MEMBER_BYTES", 1 << 20)
+    monkeypatch.setattr(intermediates, "MAX_TOTAL_BYTES", 16)
+    with pytest.raises(SystemExit, match="unpack limits"):
+        intermediates.unpack(tar, tmp_path / "dest")
