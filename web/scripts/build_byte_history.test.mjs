@@ -190,7 +190,7 @@ describe("loadExclusionKeys + exclusion filtering", () => {
         fetched_at: "2026-05-11T17:46:04+00:00",
         superseded_url: "https://www.dvidshub.net/video/1006080",
         reason: "pipeline-evolution-misroute",
-        opsec_ref: "findings/2026-05-28-pipeline-byte-misroute-9-cards.md",
+        opsec_ref: "internal-note",
       }],
     });
     assert.equal(keys.size, 1);
@@ -292,8 +292,7 @@ function _readJson(path) {
 
 describe("registry invariant — URL-stability across non-excluded entries", () => {
   // This is the recurrence-detector for the 2026-05-11/12 pipeline-
-  // evolution misroute event (see opsec finding
-  // 2026-05-28-pipeline-byte-misroute-9-cards.md). Every card_id in
+  // evolution misroute event. Every card_id in
   // the registry should have exactly one distinct asset_url across all
   // non-excluded fetches. If a future event registers a different URL
   // under an existing card_id, this test fails before anything ships
@@ -346,7 +345,7 @@ describe("registry invariant — URL-stability across non-excluded entries", () 
         `Cards with multiple asset_urls (after exclusions): ${JSON.stringify(offenders, null, 2)}\n\n` +
         `If this fires for a new card, the pipeline registered a different URL under an existing card_id. ` +
         `Either add an entry to data/byte-history-exclusions.json (with operator justification + opsec_ref) ` +
-        `or investigate the pipeline. See findings/2026-05-28-pipeline-byte-misroute-9-cards.md in pursue-opsec for the prior incident.`
+        `or investigate the pipeline.`
       );
     },
   );

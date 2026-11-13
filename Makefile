@@ -70,7 +70,7 @@ clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
 
 # ---- Sprint 4n: release runbook automation ----
-# Codifies pursue-opsec-staging/runbooks/site-release-checklist.md.
+# Codifies the site release checklist (docs/runbooks/ship-tranche.md).
 # `make ship-ready` runs the full deterministic-AC chain pre-commit.
 
 .PHONY: ship-ready

@@ -48,6 +48,8 @@ def test_env_is_sourced_only_after_the_approval_gate() -> None:
 
 def test_runbook_does_not_name_private_sibling_material() -> None:
     text = _text()
-    for needle in ("pursue-opsec-staging", "same-account", "findings/", "state.md"):
+    # A private sibling's directory name, assembled so this file doesn't spell it.
+    sibling = "-".join(("pursue", "opsec", "staging"))
+    for needle in (sibling, "same-account", "findings/", "state.md"):
         assert needle not in text, needle
     assert "private ops runbook" in text

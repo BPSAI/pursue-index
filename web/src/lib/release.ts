@@ -321,8 +321,7 @@ export const RELEASE: ReleaseConst = {
   //
   // v1.3.0 — un-retire /altered/ as a facts-only surface (71 byte-changed
   // cards): listing at /altered/, per-card byte-history timelines, operator
-  // commentary. Plan: pursue-opsec/findings/2026-05-27-altered-surface-
-  // un-retirement-and-verdict-vocabulary.md.
+  // commentary.
   version: "v1.5.0",
   currentTrancheId,
   currentTrancheIdShort: currentTrancheId.slice(0, 12),

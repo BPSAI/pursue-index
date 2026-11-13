@@ -30,7 +30,7 @@ def test_release_7_pages_reproduce_the_example_low_and_cap() -> None:
 
 
 def test_totals_are_the_sums_of_the_stage_figures_the_record_shows() -> None:
-    """pursue-opsec's check holds sum(per_stage.low_usd) to low_usd within a
+    """The consumer's check holds sum(per_stage.low_usd) to low_usd within a
     cent; ``round(band.low, 2)`` (36.63) would miss the example's 36.62."""
     est = estimate_block(1140, [], _METERED)
     assert est["low_usd"] == round(sum(s["low_usd"] for s in est["per_stage"]), 2)

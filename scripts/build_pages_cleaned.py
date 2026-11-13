@@ -31,7 +31,7 @@ the same way — see `web/src/components/CardOcrIsland.tsx`.
 ``source_page_sha256`` (R7C.15) is the sha256 of the sidecar's
 ``text_cleaned`` as read, BEFORE this builder's own sanitization clears or
 rewrites it for a skipped row (see ``_stamp_source_page_sha256``) -- the
-same field name and definition pursue-curate's clean-QC sidecar stamps.
+same field name and definition the clean-QC sidecar stamps.
 ``scripts/build_qc_coverage.py`` recomputes each judged card's digest
 from these committed shas, since CI cannot read the NAS sidecars that
 would otherwise carry them.
@@ -156,7 +156,7 @@ def _stamp_source_page_sha256(row: dict) -> dict:
     ``_sanitize_row_for_mirror`` clears or rewrites it for a skipped row.
     This is the one definition (via the vendored ``page_sha256``) a
     sanitized page's un-sanitized text hashes to, matching what
-    pursue-curate's clean-QC sidecar stamps against the same field (R7C.14
+    the clean-QC sidecar stamps against the same field (R7C.14
     / R7C.15): the coverage builder recomputes a card's judged-pages
     digest from these committed shas since CI cannot read the NAS
     sidecars that would otherwise carry them.

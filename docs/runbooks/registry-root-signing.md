@@ -1,7 +1,6 @@
 # Operator runbook — registry-root signing
 
-Tier-2 signing layer. Read alongside
-`pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md`.
+Tier-2 signing layer.
 
 ## What this is
 

@@ -9,7 +9,7 @@ bundle's per-card ``judged_pages_digest`` from the ``source_page_sha256``
 values ``scripts/build_pages_cleaned.py`` commits into
 ``pages-cleaned.json``, using the vendored, dependency-free
 :func:`pursue_index.vendor.judged_pages_digest.judged_pages_digest` --
-the one implementation this repo and pursue-curate both compute over.
+the one implementation this repo and the clean-QC stage both compute over.
 
 A card whose bundle entry carries no digest (an older bundle, published
 before this field existed) or whose committed page shas are incomplete is

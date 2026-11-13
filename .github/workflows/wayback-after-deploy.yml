@@ -67,10 +67,8 @@ permissions:
 # once) doesn't serialize N redundant runs through this group. Only
 # the latest release-snapshot has informational value; earlier ones
 # in a burst are obsolete the moment the next release ships.
-# Previous `false` setting let 8 release events from a 19-second
-# backfill window queue 7 runs behind the first, burning 11h 15m of
-# GHA runtime across two surviving runs. See
-# `findings/2026-05-29-wayback-workflow-11h-burn.md` in pursue-opsec.
+# With `false`, a burst of release events queues one full run per event
+# behind the first, each re-saving the same pages.
 concurrency:
   group: wayback-after-deploy
   cancel-in-progress: true
@@ -154,7 +152,6 @@ jobs:
         # itself creates. ``--autostash`` lets git stash the working-
         # tree change, run the rebase, then re-apply — the standard fix
         # for "I have local changes and need to sync with main."
-        # See findings/2026-05-29-wayback-workflow-11h-burn.md in opsec.
         if: always()
         run: |
           git config user.name "github-actions[bot]"

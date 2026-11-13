@@ -1,11 +1,11 @@
 """The vendored ``judged_pages_digest`` contract module (R7C.15).
 
-CI cannot read the NAS OCR sidecars, so pursue-curate's per-page sha and
+CI cannot read the OCR sidecars, so the clean-QC stage's per-page sha and
 per-card digest definitions travel into this repo as a byte-for-byte
 vendored copy (``src/pursue_index/vendor/judged_pages_digest.py``) rather
 than a reimplementation — the two repos must never compute diverging
 digests for the same input. These tests pin that the vendored file and
-its shared test-vector fixture are byte-identical to pursue-curate's own
+its shared test-vector fixture are byte-identical to the upstream
 copies, reproduce every vector, and remain the single place in this repo
 that computes the digest.
 """
@@ -25,8 +25,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _MODULE_PATH = REPO_ROOT / "src" / "pursue_index" / "vendor" / "judged_pages_digest.py"
 _VECTORS_PATH = REPO_ROOT / "tests" / "fixtures" / "judged_pages_digest_vectors.json"
 
-# Pinned from pursue-curate's own copies (src/curate/judged_pages_digest.py
-# and tests/fixtures/judged_pages_digest_vectors.json) at the commit this
+# Pinned from the upstream copies (judged_pages_digest.py and
+# judged_pages_digest_vectors.json) at the commit this
 # repo vendored them from. A mismatch means one side drifted from the other.
 _UPSTREAM_MODULE_SHA256 = (
     "d6d8e55a1ad73e59a9bc6fcda8c16a0c50cdb89854ac8a6c609eaa6145584c28"
@@ -54,7 +54,7 @@ def test_vendored_vectors_fixture_is_byte_identical_to_pursue_curates() -> None:
 
 def test_vendored_module_imports_only_the_standard_library() -> None:
     """Dependency-free on purpose — a vendored copy has no access to this
-    repo's other modules (or pursue-curate's), so an import here would
+    repo's other modules (or the upstream's), so an import here would
     break at the vendoring seam."""
     tree = ast.parse(_MODULE_PATH.read_text(encoding="utf-8"))
     allowed_stdlib = {"__future__", "hashlib", "collections.abc"}
@@ -69,7 +69,7 @@ def test_vendored_module_imports_only_the_standard_library() -> None:
             assert name in allowed_stdlib, (
                 f"vendored judged_pages_digest.py imports {name!r}, which "
                 "is not standard library -- the vendored copy must stay "
-                "byte-identical to pursue-curate's dependency-free original."
+                "byte-identical to its dependency-free upstream original."
             )
 
 

@@ -2,7 +2,7 @@
 
 On a confirmed upstream change the credential-free snapshot job writes
 ``data/tranche-ready/<sha12>.json``: one record per tranche CSV sha, shaped
-by the schema pursue-opsec owns (vendored byte-for-byte at
+by the tranche-ready schema (vendored byte-for-byte at
 ``schemas/tranche-ready.schema.json``). Modules:
 
 * ``schema``     -- a dependency-free validator for that schema document;

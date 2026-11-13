@@ -44,7 +44,7 @@ def estimate_block(
         for name, stage in band.stages.items()
     ]
     # Totals are the sums of the per-stage figures the record shows, so the
-    # record adds up (pursue-opsec's check holds the stage sum to low_usd
+    # record adds up (the consumer's check holds the stage sum to low_usd
     # within a cent), and the cap is the rates formula over that low.
     low = round(sum(s["low_usd"] for s in stages), 2)
     high = round(sum(s["high_usd"] for s in stages), 2)

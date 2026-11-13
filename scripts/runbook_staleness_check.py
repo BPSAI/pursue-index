@@ -9,8 +9,7 @@ finds entries, Astro pages) and flags hits. Designed to be:
 - Reports `path:line:excerpt` for each hit so the operator can fix
   with one keystroke
 
-Codifies the staleness grep from `pursue-opsec-staging/runbooks/
-site-release-checklist.md` Phase 4.
+Codifies the staleness grep from the site release checklist, Phase 4.
 
 Usage::
 

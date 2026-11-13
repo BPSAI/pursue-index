@@ -1,6 +1,6 @@
 {
   "schema": "bpsai-wiring-baseline/v1",
-  "note": "Standalone CLI entrypoints, not package modules: nothing imports them by design. build_pages_cleaned and build_qc_coverage run from .github/workflows/release-gate.yml and the Makefile; fuzz_classify_bytes runs from .github/workflows/classify-fuzz.yml; build_stamp runs from the Makefile (stamp, ship-ready) and release-gate.yml; intermediates runs from the Makefile (intermediates-check). Add an entry here only for a script a workflow or the Makefile runs.",
+  "note": "Standalone CLI entrypoints, not package modules: nothing imports them by design. build_pages_cleaned and build_qc_coverage run from .github/workflows/release-gate.yml and the Makefile; fuzz_classify_bytes runs from .github/workflows/classify-fuzz.yml; build_stamp runs from the Makefile (stamp, ship-ready) and release-gate.yml; intermediates runs from the Makefile (intermediates-check). runbook_staleness_check runs from the Makefile; verify_registry_root runs from registry-root-on-promote.yml; ingest_release_videos runs from the ship-tranche runbook. Add an entry here only for a script a workflow, the Makefile or an operator runbook runs.",
   "entries": [
     {
       "file": "scripts/build_pages_cleaned.py",
@@ -25,6 +25,21 @@
     {
       "file": "scripts/intermediates.py",
       "symbol": "intermediates",
+      "kind": "module"
+    },
+    {
+      "file": "scripts/runbook_staleness_check.py",
+      "symbol": "runbook_staleness_check",
+      "kind": "module"
+    },
+    {
+      "file": "scripts/verify_registry_root.py",
+      "symbol": "verify_registry_root",
+      "kind": "module"
+    },
+    {
+      "file": "scripts/ingest_release_videos.py",
+      "symbol": "ingest_release_videos",
       "kind": "module"
     }
   ]

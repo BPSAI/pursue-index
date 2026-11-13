@@ -1,6 +1,6 @@
 """``pursue_index.tranche_ready.record`` -- assembling the whole record.
 
-Status follows the hand-off spec (pursue-opsec ``tranche-handoff.md`` §2):
+Status follows the tranche hand-off spec (§2):
 ``ready`` only when every candidate has a verdict and no stop, and the page
 count is complete; otherwise ``stop-and-ask`` with one ``stop_reasons``
 entry per cause. Scope is the R7C.1 worklist (``ingest_scope``) as data,
