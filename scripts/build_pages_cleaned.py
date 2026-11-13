@@ -346,8 +346,9 @@ def build(
     """Materialize the deployed mirror. Returns process exit code.
 
     ``pages_path`` is the pages.json this run sits beside: its sha256 is
-    recorded as ``meta.pages_json_sha256`` so the coverage gate can prove the
-    cleaned asset was built from the current OCR rows.
+    recorded as ``meta.pages_json_sha256``, a record of which pages.json the
+    build used. The coverage gate does not read it; it checks provenance per
+    page (``ocr_page_sha256`` / ``ocr_published_sha256``).
     """
     if not manifest_path.exists():
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
