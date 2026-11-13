@@ -87,7 +87,7 @@ export default function TimelineIsland({ cards, approved, proposals, base }: Pro
           )}
         </div>
         <div class="text-[10px] text-[color:var(--color-text-faint)]">
-          Approved entries come from <code class="text-[color:var(--color-signal-cyan)]">data/display_dates.json</code> (operator-curated, point or range). Tentative entries are the writer-agent's draft proposals shown as faint ghosts; they become solid once the operator approves them in the curate UI.
+          Approved entries come from <code class="text-[color:var(--color-signal-cyan)]">data/display_dates.json</code> (operator-curated, point or range). Tentative entries are the writer-agent's draft proposals shown as faint ghosts; they become solid once the operator approves them.
         </div>
       </div>
 

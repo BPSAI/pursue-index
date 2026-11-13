@@ -79,9 +79,9 @@ export function datasetJsonLd(inputs: DatasetInputs): JsonLdObject {
   return {
     "@context": "https://schema.org",
     "@type": "Dataset",
-    name: "PURSUE Release 01 — Department of War UAP Document Corpus (pursue-index)",
+    name: "PURSUE — Department of War UAP Document Corpus (pursue-index)",
     description:
-      `Hash-pinned, OCR-indexed archive of U.S. Department of War PURSUE UAP document releases. ${inputs.cardCount} cards across ${inputs.ocrPageCount} OCR'd pages; sha-256-addressed bytes, page-level citations, machine-readable manifest.`,
+      `Hash-pinned, OCR-indexed archive of U.S. Department of War PURSUE UAP document releases. ${inputs.cardCount} manifest rows across ${inputs.ocrPageCount} OCR'd pages; sha-256-addressed bytes, page-level citations, machine-readable manifest.`,
     url: SITE_ORIGIN,
     // `manifest.json` is a build-time source file under `src/data/`, never
     // published — `cards-summary.json` is its public, machine-readable
@@ -94,7 +94,7 @@ export function datasetJsonLd(inputs: DatasetInputs): JsonLdObject {
       "primary sources",
       "declassified documents",
       "OCR",
-      "PURSUE Release 01",
+      "PURSUE",
       "FBI",
       "NASA",
       "Department of State",

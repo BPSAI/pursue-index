@@ -47,9 +47,9 @@ import Base from "../layouts/Base.astro";
         </li>
         <li>
           We hold a daily global budget cap. If the site sees an unexpected
-          traffic spike, the chat surface degrades to keyword-only search
-          for the rest of the day rather than burning a credit card. The
-          archive itself remains fully usable.
+          traffic spike and the cap is reached, the anonymous chat stops
+          answering until the next UTC day and points you to the BYOK setup
+          below. Search and the archive itself remain fully usable.
         </li>
       </ul>
     </section>
@@ -160,9 +160,7 @@ import Base from "../layouts/Base.astro";
         <li>
           <strong class="text-[color:var(--color-text-bright)]">Submit a correction</strong>{" "}
           via GitHub if you spot an OCR error or a citation that doesn't
-          resolve. We log every correction;{" "}
-          <a href="/methodology" class="text-[color:var(--color-signal-cyan)] underline decoration-[color:var(--color-border-bright)] hover:decoration-[color:var(--color-signal-cyan)]">/methodology</a>{" "}
-          surfaces correction stats.
+          resolve.
         </li>
       </ul>
       <p class="text-sm leading-relaxed text-[color:var(--color-text-dim)] pt-2">
