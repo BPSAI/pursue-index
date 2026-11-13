@@ -160,3 +160,6 @@ files = ["src"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "-ra --strict-markers"
+markers = [
+    "needs_web_dist: checks the built site in web/dist; the release gate runs it after its Astro build, the PR test job deselects it",
+]

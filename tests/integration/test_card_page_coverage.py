@@ -26,6 +26,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.needs_web_dist
+
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _LATEST_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 _DIST_DIR = _REPO_ROOT / "web" / "dist"
