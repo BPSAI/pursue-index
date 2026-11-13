@@ -1,7 +1,6 @@
 """Merkle-root commitment over ``data/asset-bytes-registry.jsonl``.
 
-Phase 1 (per
-``pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md``).
+Phase 1 of the registry signing scheme (``docs/runbooks/registry-root-signing.md``).
 
 The registry is a JSONL log of every preserved asset's
 ``byte_sha256`` + ``archive_key``. Tier-1 (the daily byte-verify cron)

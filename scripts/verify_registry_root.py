@@ -1,8 +1,6 @@
 """Verify ``data/registry-root.txt`` matches the current registry.
 
-Phase 2 (per
-``pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md``
-§5.1 #2).
+Phase 2 of the registry signing scheme (``docs/runbooks/registry-root-signing.md``).
 
 Two concerns this script handles:
 

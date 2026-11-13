@@ -18,7 +18,7 @@ Run from repo root, e.g. for Release 3:
     python scripts/ingest_release_videos.py \
         --release-date 6/12/26 \
         --desktop ~/Desktop/uap_videos_061226/AARO061226 \
-        --env ../pursue-opsec-staging/.env \
+        --env <path to your .env> \
         --source-label "war.gov/release_03 (DVIDS videos+audio)"
 
 Then run ``scripts/registry_root.py`` to refresh the Merkle root and

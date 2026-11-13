@@ -9,9 +9,7 @@
 //
 // Detection patterns:
 //   * 16-hex card_id   (`/\b[a-f0-9]{16}\b/g` case-insensitive)
-//   * AGENCY-D/PR/VM slug  (Sprint 4 follow-up, Option C — see
-//     findings/2026-06-02-chat-retrieval-d-pattern-bypass-and-telemetry-gap.md
-//     for the decision rationale)
+//   * AGENCY-D/PR/VM slug  (Sprint 4 follow-up, Option C)
 //
 // (We deliberately do NOT detect ad-hoc patterns like bare `D##`
 // without an agency prefix — those are inherently ambiguous across
@@ -291,8 +289,6 @@ describe("retrievePassages — literal-ID bypass", () => {
 // three different agencies) and semantic embedding handles them well
 // when surrounding context is present.
 //
-// Decision lineage:
-//   findings/2026-06-02-chat-retrieval-d-pattern-bypass-and-telemetry-gap.md
 // ---------------------------------------------------------------------------
 
 describe("extractLiteralSlugs", () => {

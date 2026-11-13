@@ -164,7 +164,7 @@ $ARGUMENTS
       ```
       **The default `--budget-usd` is `8.0`,** the per-tranche spend ceiling.
       Pass PDF card ids only.
-   b. **QC (pursue-curate, Sonnet vision judge):** Run and publish must be chained
+   b. **QC (clean-QC stage, Sonnet vision judge):** Run and publish must be chained
       so publish never follows a failed run:
       ```
       curate clean-qc run --cards <PDF card ids> && curate publish clean-qc --version <N>

@@ -18,9 +18,9 @@ adversary who would prefer that the archive be unreliable or
 compromised.
 
 The following types of finding go to a private channel
-(`security@bpsaisoftware.com` for external reporters; the private
-`pursue-opsec` companion repo for internal review cycles and reviewer
-agent reports), never to a public issue or commit message:
+(`security@bpsaisoftware.com` for external reporters; a private
+tracker for internal review cycles and reviewer agent reports), never
+to a public issue or commit message:
 
 - Supply-chain weaknesses (unpinned deps, missing SRI, etc.)
 - Workflow / CI exposure (token scoping, branch protection gaps,
@@ -45,7 +45,7 @@ project's credibility as an archive:
 
 A reviewer (automated or human) doing a pass
 against this repo should default to filing security-relevant findings
-in `pursue-opsec` rather than on the public issue tracker. If unsure
+privately rather than on the public issue tracker. If unsure
 which side of the line a finding sits on, file privately first and
 move public if/when the finding is patched and the public exposure no
 longer matters.

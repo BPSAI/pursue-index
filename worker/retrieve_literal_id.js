@@ -138,9 +138,7 @@ export function mergeLiteralAndSemantic(literal, semantic, k) {
 //
 // Companion to LITERAL_CARD_ID_RE for the OTHER common literal-lookup
 // shape in this corpus: title-form slugs like DOW-UAP-D017 /
-// CIA-UAP-D001 / NASA-UAP-VM001. Decision rationale, alternative
-// options, and trigger conditions for revisiting are in
-// findings/2026-06-02-chat-retrieval-d-pattern-bypass-and-telemetry-gap.md.
+// CIA-UAP-D001 / NASA-UAP-VM001.
 //
 // Canonical form: AGENCY-CODE (UAP middle token dropped — it's noise;
 // every code in this corpus is UAP-themed). Examples:

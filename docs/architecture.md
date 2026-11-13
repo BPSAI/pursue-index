@@ -46,8 +46,8 @@ This numbering is the one every stage refers to, in code and in docs.
 | 8 | embed      | OCR + transcripts + observations | Voyage-3 float16 browser payload | ✅ shipped |
 | 9 | serve      | embed payload + worker  | Static site + Cloudflare Worker chat | ✅ shipped |
 
-Stage 5 runs in the sibling `pursue-curate` repo over freshly-OCR'd pages and
-publishes its bundle back here.
+Stage 5 runs as a separate operator-attended stage over freshly-OCR'd pages
+and publishes its bundle back here.
 
 The 30-minute CSV poll drives a parallel **archive** lane: per-fetch CSV bytes are committed content-addressed, prior manifests rotate into `data/manifests/snapshots/<csv_sha>.json`, and every referenced PDF/IMG asset is mirrored into R2 keyed by `byte_sha256`. A daily verify cron catches silent upstream overlays.
 

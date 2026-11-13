@@ -51,8 +51,8 @@ export function assertBundleSchema(bundle: {
     );
   }
   // PR #79: gate the per-verdict schema too.
-  // The two dimensions can drift independently (PR #3
-  // in pursue-curate); a future curate change that bumps only the
+  // The two dimensions can drift independently; a future
+  // clean-QC change that bumps only the
   // inner schema (e.g., a new mandatory per-verdict field) would
   // otherwise slip through the bundle-version gate.
   if (

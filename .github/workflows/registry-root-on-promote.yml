@@ -1,7 +1,7 @@
 name: Verify registry-root on promote
 
 # Sprint 4e Phase 3. Companion to the operator-signed git tag scheme
-# in pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md.
+# (docs/runbooks/registry-root-signing.md).
 #
 # Triggers on every push to main that touches the registry OR its
 # committed root file. Re-derives the Merkle root from

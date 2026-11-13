@@ -391,7 +391,7 @@ jobs:
           gh issue create \
             --title "[integrity] Signing verification failed on $FAILED_TAG" \
             --label "signing-failure" \
-            --body "$(printf 'git tag -v failed on %s against the pinned operator key (from the OPERATOR_ALLOWED_SIGNERS secret). Either (a) a key rotation is in progress (update the secret with the new key, then re-sign the latest tag), or (b) tier-2 tampering. Check pursue-opsec-staging/findings/2026-05-18-tier2-registry-signing-rfc.md §5.2 for the rotation playbook.\n\nVerify log:\n```\n%s\n```\n\nRun log: %s' "$FAILED_TAG" "$log_excerpt" "$RUN_URL")"
+            --body "$(printf 'git tag -v failed on %s against the pinned operator key (from the OPERATOR_ALLOWED_SIGNERS secret). Either (a) a key rotation is in progress (update the secret with the new key, then re-sign the latest tag), or (b) tier-2 tampering. See docs/runbooks/registry-root-signing.md for key rotation.\n\nVerify log:\n```\n%s\n```\n\nRun log: %s' "$FAILED_TAG" "$log_excerpt" "$RUN_URL")"
 
       - name: Open issue when latest signed tag is stale (does not cover HEAD)
         # Codex P1 #1: the latest tag's signature verifies, but the

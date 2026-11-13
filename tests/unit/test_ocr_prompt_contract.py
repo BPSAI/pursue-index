@@ -1,7 +1,7 @@
 """S7.1 OCR prompt-contract tests.
 
 Pins the three operator-approved transcription-policy rules into the LLM OCR
-system prompt (see opsec `findings/2026-06-15-s71-vlm-bakeoff.md` §5), plus the
+system prompt (from the S7.1 VLM bake-off), plus the
 load-bearing cache-correctness behavior: the image-content cache must key on the
 prompt version, so a contract change actually busts the cache instead of
 silently returning old-prompt transcriptions on re-OCR.
