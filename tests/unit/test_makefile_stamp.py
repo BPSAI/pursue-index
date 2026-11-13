@@ -142,3 +142,11 @@ def test_gitignored_code_is_refused_but_bytecode_caches_are_not(tmp_path: Path) 
     out = _make(repo, "build-commit")
     assert out.returncode != 0
     assert "gitignored files" in out.stderr
+
+
+def test_a_git_failure_fails_the_checks_closed(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    (repo / ".git" / "index").write_bytes(b"not an index")  # git status and ls-files now fail
+    out = _make(repo, "build-commit")
+    assert out.returncode != 0
+    assert not (repo / ".git" / "pursue-build-commit").exists()
