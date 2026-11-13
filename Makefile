@@ -281,6 +281,12 @@ astro-build:
 hooks-install:
 	@bash scripts/install-hooks.sh
 
+# The operator's local display-date approval UI (port 5555 by default):
+#   make dates-ui [DATES_UI_ARGS='--port 5556 --no-browser']
+.PHONY: dates-ui
+dates-ui:
+	$(PYTHON) scripts/curate_dates_ui.py $(DATES_UI_ARGS)
+
 # ---- Release artifacts ----
 # Rebuild the published payloads from a release's intermediates asset alone
 # (docs/intermediates.md):
