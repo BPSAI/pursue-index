@@ -104,7 +104,7 @@ david@bpsaisoftware.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...
 
 Source options:
 * `cat ~/.ssh/id_ed25519.pub` (or the corresponding `.pub` for whichever key you signed with).
-* `curl -s https://github.com/Buschleague.keys` to fetch GitHub's record of your keys.
+* `curl -s https://github.com/<your-github-user>.keys` to fetch GitHub's record of your keys.
 
 Commit + push. Readers can now run local `git tag -v` against this
 file for offline verification; the CI lane uses the
