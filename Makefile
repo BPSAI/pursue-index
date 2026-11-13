@@ -83,6 +83,41 @@ ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rota
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
 	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
+
+# ---- release, split between the build repository and this one ----
+# The data builders now run from the build repository, against this
+# checkout. A release is four commands, in order:
+#
+#   1. build-into     (build repository)  moved data builders + snapshot
+#   2. make publish-derivatives  (here)   this repo's generators
+#   3. stamp-into     (build repository)  data/build-stamp.json, last write
+#   4. make publish-checks       (here)   site build + every gate
+#
+# ship-ready above stays until the first release ships this way.
+
+.PHONY: publish-derivatives publish-checks
+# This repo's own generators. They read what step 1 wrote (manifest, aliases,
+# pages.json, embed index), so they run after it and before the stamp.
+publish-derivatives:
+	@echo "==> Site generators (byte-history, cards-summary, csv-archive)"
+	@cd web && node scripts/build_byte_history.mjs > /dev/null
+	@cd web && node scripts/build_cards_summary.mjs > /dev/null
+	@cd web && node scripts/build_csv_archive.mjs > /dev/null
+	@$(PYTHON) scripts/build_llms_txt.py 2>&1 | tail -1
+	@$(PYTHON) scripts/build_finds_og_images.py 2>&1 | tail -1
+	@# Needs pages.json and embed_index.json from step 1, current.
+	@$(PYTHON) scripts/build_retrieve_rows.py
+	@$(MAKE) --no-print-directory registry-root
+	@# Last generator: splits any oversize payload the steps above wrote.
+	@$(PYTHON) scripts/chunk_public_assets.py
+	@echo "publish-derivatives: done. Next: stamp-into in the build repository"
+
+# Every gate, after the stamp. The stamp is required here: a release whose
+# published data does not match it, or has none, fails.
+publish-checks: astro-build asset-budget test gate-mirror arch-check staleness
+	@$(PYTHON) scripts/build_stamp.py verify --root . --require
+	@echo ""
+	@echo "publish-checks: ALL GATES PASSED. Safe to commit."
 	@echo ""
 
 # First prerequisite of ship-ready: refuse a release before spending build time
