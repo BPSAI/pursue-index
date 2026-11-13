@@ -98,9 +98,10 @@ ship-ready: release-completeness build-commit rebuild-derivatives registry-root 
 # environment, so the publication check cannot be pointed at another ref.
 override PUBLIC_REF := origin/main
 # Code paths: a change here, committed or not, is code the stamp would not cite.
-# The builders, and the site code and build config. web/src/data is excluded:
-# it is stamped data that the build writes.
-STAMP_CODE_PATHS := src scripts web/scripts web/src ':(exclude)web/src/data' \
+# The builders, and the site code and build config. The JSON under web/src/data
+# is excluded: it is stamped data that the build writes. The code beside it
+# (manifest-loader.ts, types.ts) stays checked.
+STAMP_CODE_PATHS := src scripts web/scripts web/src ':(exclude,glob)web/src/data/**/*.json' \
 	web/package.json web/package-lock.json web/astro.config.mjs Makefile pyproject.toml
 # Recorded inside .git (never tracked, never published).
 BUILT_WITH = $$(git rev-parse --git-path pursue-build-commit)

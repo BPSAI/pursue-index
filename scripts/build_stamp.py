@@ -9,7 +9,8 @@ to be published is exactly what that code wrote, and can check out that commit:
     python scripts/build_stamp.py write  --root . --builder-commit <sha>
     python scripts/build_stamp.py verify --root . [--require] [--public-ref origin/main]
 
-The bundle is every git-tracked file under ``BUNDLE_ROOTS`` except code
+The bundle is every file under ``BUNDLE_ROOTS`` that git tracks or would add
+(untracked, not ignored) except code
 (``EXCLUDED``, two fixed code files). Hand-authored editorial content (finds) is not
 bundle: it is reviewed in its own pull requests.
 
@@ -50,12 +51,21 @@ _SHA1 = re.compile(r"[0-9a-f]{40}")
 
 
 def bundle_files(root: Path) -> list[str]:
-    """Tracked bundle paths under ``root``, sorted, POSIX-relative."""
+    """Bundle paths under ``root``, sorted, POSIX-relative.
+
+    Tracked files plus untracked ones that are not gitignored: a release writes
+    new bundle files (a new manifest snapshot, say) before they are committed,
+    and the commit adds them, so the stamp must cover them already. Tracked
+    paths deleted from the working tree are left out, as the commit removes
+    them.
+    """
     out = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z", "--", *BUNDLE_ROOTS],
+        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+         "--exclude-standard", "--", *BUNDLE_ROOTS],
         capture_output=True, check=True,
     ).stdout.decode("utf-8")
-    return sorted(p for p in out.split("\0") if p and p not in EXCLUDED)
+    paths = {p for p in out.split("\0") if p and p not in EXCLUDED}
+    return sorted(p for p in paths if (root / p).is_symlink() or (root / p).exists())
 
 
 def is_bundle_path(rel: object) -> bool:

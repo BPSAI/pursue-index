@@ -150,3 +150,19 @@ def test_a_git_failure_fails_the_checks_closed(tmp_path: Path) -> None:
     out = _make(repo, "build-commit")
     assert out.returncode != 0
     assert not (repo / ".git" / "pursue-build-commit").exists()
+
+
+def test_code_beside_the_stamped_site_data_stays_checked(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    data = repo / "web" / "src" / "data"
+    data.mkdir(parents=True)
+    (data / "types.ts").write_text("export type X = 1;\n")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "site code")
+    _git(repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+    (data / "cards.json").write_text("{}")  # stamped data: allowed
+    assert _make(repo, "build-commit").returncode == 0
+    (data / "types.ts").write_text("export type X = 2;\n")  # code: refused
+    out = _make(repo, "build-commit")
+    assert out.returncode != 0
+    assert "uncommitted code" in out.stderr

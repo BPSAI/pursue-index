@@ -182,3 +182,22 @@ def test_public_ref_requires_the_builder_commit_on_the_published_branch(index: P
             index, bad, "origin/main")[0]
     # Without --public-ref, only the bytes are checked.
     assert build_stamp.main(["verify", "--root", str(index), "--require"]) == 0
+
+
+def test_a_new_untracked_bundle_file_is_stamped_and_survives_the_commit(index: Path) -> None:
+    snap = index / "data" / "manifests" / "snapshot-abc.json"
+    snap.write_text("{}")  # written by the build, committed afterwards
+    (index / "data" / "manifests" / "ignored.json").write_text("{}")
+    (index / ".gitignore").write_text("data/manifests/ignored.json\n")
+    stamp = _write(index)
+    assert "data/manifests/snapshot-abc.json" in stamp["files"]
+    assert "data/manifests/ignored.json" not in stamp["files"]
+    subprocess.run(["git", "-C", str(index), "add", "-A"], check=True)
+    assert build_stamp.problems(index, stamp) == []
+
+
+def test_a_tracked_bundle_file_deleted_by_the_build_is_left_out(index: Path) -> None:
+    (index / "web" / "public" / "llms.txt").unlink()
+    stamp = _write(index)
+    assert "web/public/llms.txt" not in stamp["files"]
+    assert build_stamp.problems(index, stamp) == []
