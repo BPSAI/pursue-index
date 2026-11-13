@@ -122,3 +122,25 @@ test("describeRenamedRow: one known sha shows the other side as unknown", () => 
   assert.equal(d.changeNature, null);
   assert.deepEqual(d.shaChange, { short: "? → ca9563779824", full: `? → ${NEW_SHA}` });
 });
+
+test("describeRenamedRow: an uncollapsed chain lists every hop with its own nature", () => {
+  const map = resolveAliases([D042, alias("ff3939f95d878062", "1111222233334444", { method: "byte_collision" })]);
+  const prev = [card("a0f6663169c21caf", "D42")];
+  const curr = [card("1111222233334444", "DOW-UAP-D042 v3")];
+  const [r] = diffWithAliases(prev, curr, map).renamed;
+  const d = describeRenamedRow(r);
+  assert.equal(d.changeNature, "chain, see hops");
+  assert.deepEqual(d.hops, [
+    { from: "a0f6663169c21caf", to: "ff3939f95d878062", changeNature: "metadata-only" },
+    { from: "ff3939f95d878062", to: "1111222233334444", changeNature: "unrecorded" },
+  ]);
+});
+
+test("describeRenamedRow: a single hop or a collapsed chain lists no hops", () => {
+  assert.equal(describeRenamedRow({ method: "byte_collision" }).hops, undefined);
+  const hop2 = alias("ff3939f95d878062", "1111222233334444", {
+    old_byte_sha256: NEW_SHA, new_byte_sha256: SHA_C, change_nature: "metadata-only",
+  });
+  const a = resolveAliases([D042, hop2])["a0f6663169c21caf"];
+  assert.equal(describeRenamedRow({ ...a, method: a.method }).hops, undefined);
+});

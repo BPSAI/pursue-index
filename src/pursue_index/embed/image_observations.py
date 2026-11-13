@@ -24,11 +24,9 @@ import json
 from collections.abc import Iterable
 from pathlib import Path
 
-# Bracketed header mirrors the retired Zhang ``[[IMAGE-DESCRIPTIONS via ...]]``
-# marker so chat snippets and the citation surface make clear this text is our
-# own vision pass, not OCR. ``worker/retrieve.js::makeSnippet`` centers on it
-# naturally when a query matches inside the description.
-OBSERVATIONS_HEADER = "[[IMAGE-OBSERVATIONS via pursue vision pass"
+# Defined once in the stdlib-only leaf ``pursue_index.page_text`` (the search
+# payload loads it without the package); re-exported here for existing callers.
+from pursue_index.page_text import OBSERVATIONS_HEADER
 
 DEFAULT_MODEL = "claude-opus-4-8"
 

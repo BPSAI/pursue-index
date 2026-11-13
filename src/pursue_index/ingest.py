@@ -165,20 +165,34 @@ def auto_approve_renames(
     return out
 
 
-def _held_resaves(diff: dict[str, Any]) -> list[tuple[str, str]]:
-    """``(new_card_id, old_card_id)`` for each metadata-only verdict not auto-approved."""
-    held = [(r["new_card_id"], r["old_card_id"]) for r in diff.get(RESAVE_BUCKET) or []]
+def _held_resaves(diff: dict[str, Any], enabled: bool = False) -> list[tuple[str, str]]:
+    """``(new_card_id, old_card_id)`` for each metadata-only verdict not auto-approved.
+
+    With the setting off, every verdict is held. With it on, the rows the
+    diff already moved are approved; a verdict the diff left quarantined (a
+    diff generated with the setting off) is still held.
+    """
+    held = [] if enabled else [(r["new_card_id"], r["old_card_id"])
+                               for r in diff.get(RESAVE_BUCKET) or []]
     held += [(r["new_card_id"], r[EVIDENCE_KEY]["old_card_id"])
              for r in diff.get("quarantined") or [] if r.get(EVIDENCE_KEY)]
     return held
 
 
-def held_resave_lines(diff: dict[str, Any]) -> list[str]:
-    """Operator-facing lines for re-save renames held back (auto-approval off)."""
-    held = _held_resaves(diff)
+def held_resave_lines(diff: dict[str, Any], enabled: bool = False) -> list[str]:
+    """Operator-facing lines for re-save renames held back from auto-approval.
+
+    ``enabled`` is the current ``ingest_auto_approve_metadata_resaves``
+    setting. On, a held row is one the diff was generated to leave
+    quarantined (the setting was off then); the line says so and names both
+    ways out instead of staying silent.
+    """
+    held = _held_resaves(diff, enabled)
+    reason = ("tranche diff generated with auto-approval off; re-run tranche_diff or"
+              if enabled else "auto-approval off;")
     lines = [
         f"held: metadata-only re-save {new}={old} stays quarantined "
-        f"(auto-approval off); approve with --approve-rename {new}={old}"
+        f"({reason} approve with --approve-rename {new}={old})"
         for new, old in held
     ]
     if held:

@@ -20,6 +20,7 @@ import zlib
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import BinaryIO
 
 from pypdf import apply_configuration
 from pypdf.errors import LimitReachedError, PyPdfError
@@ -31,6 +32,7 @@ __all__ = [
     "check_file_size",
     "check_update_count",
     "inflate_capped",
+    "open_regular",
     "read_capped",
 ]
 
@@ -90,19 +92,39 @@ def check_file_size(path: Path) -> None:
         raise LimitExceededError("file-size-cap", f"{info.st_size} > {MAX_FILE_BYTES}")
 
 
-def read_capped(path: Path, expected_sha256: str | None = None) -> bytes:
-    """``path``'s bytes, streamed under the size cap from a regular file.
+def open_regular(path: Path) -> BinaryIO:
+    """``path`` opened for reading as a regular file under the size cap.
 
-    The descriptor is opened without following symlinks or blocking, then
-    re-checked with ``fstat`` so a swap after ``check_file_size`` cannot hand
-    back a FIFO or device. With ``expected_sha256`` the bytes actually read
-    must hash to it (the worker's re-verification against a parent-side swap).
+    ``check_file_size`` first (``lstat``: absent, non-regular or oversized
+    is refused before any open); then the descriptor is opened without
+    following symlinks or blocking and re-checked with ``fstat``, so a swap
+    between the two cannot hand back a FIFO, a device or a larger file.
     """
     check_file_size(path)
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    with os.fdopen(fd, "rb") as handle:
-        if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+    try:
+        handle = os.fdopen(fd, "rb")
+    except BaseException:
+        os.close(fd)
+        raise
+    try:
+        info = os.fstat(handle.fileno())
+        if not stat.S_ISREG(info.st_mode):
             raise LimitExceededError("not-regular-file", str(path.name))
+        if info.st_size > MAX_FILE_BYTES:
+            raise LimitExceededError("file-size-cap", f"{info.st_size} > {MAX_FILE_BYTES}")
+    except BaseException:
+        handle.close()
+        raise
+    return handle
+
+
+def read_capped(path: Path, expected_sha256: str | None = None) -> bytes:
+    """``path``'s bytes, streamed under the size cap from a regular file
+    (``open_regular``). With ``expected_sha256`` the bytes actually read
+    must hash to it (the worker's re-verification against a parent-side swap).
+    """
+    with open_regular(path) as handle:
         chunks, total = [], 0
         while chunk := handle.read(_CHUNK):
             total += len(chunk)

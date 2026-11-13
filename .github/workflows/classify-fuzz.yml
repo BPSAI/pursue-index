@@ -1,0 +1,71 @@
+name: Classifier differential fuzz (nightly)
+
+# Runs scripts/fuzz_classify_bytes.py: generates incremental-update PDF
+# pairs, classifies each with tranche_bytes.classify_bytes, and re-checks
+# every metadata-only verdict against PDFium renders of both files (a second
+# PDF implementation). Fails on any pair the classifier calls metadata-only
+# that PDFium sees differ, and on a run with no metadata-only verdict at all.
+#
+# Credential-free and offline: no secrets, no network beyond the package
+# install, read-only token. Bounded: a fixed iteration count, an in-script
+# time budget and a job timeout. The seed is the run id (printed in the
+# summary line) so a failure is reproducible locally with
+#   python scripts/fuzz_classify_bytes.py --iterations N --seed SEED
+# and the failing pairs are uploaded as an artifact.
+
+on:
+  schedule:
+    # 04:23 UTC — clear of the 30-minute poll boundaries and the 06:07 lane.
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "Pairs to generate"
+        required: false
+        default: "5000"
+      seed:
+        description: "Seed (default: the run id)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: classify-fuzz
+  cancel-in-progress: false
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      # actions/setup-python v6.0.0 — pinned to SHA per SEC-001.
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Install the package (pypdf + pypdfium2)
+        run: pip install -e .
+
+      - name: Differential fuzz run
+        env:
+          ITERATIONS: ${{ inputs.iterations || '5000' }}
+          SEED: ${{ inputs.seed || github.run_id }}
+        run: |
+          python scripts/fuzz_classify_bytes.py \
+            --iterations "$ITERATIONS" --seed "$SEED" \
+            --time-budget 1200 --findings-dir fuzz-findings
+
+      # actions/upload-artifact v7.0.1 — pinned to SHA per SEC-001.
+      - name: Upload failing pairs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: classify-fuzz-findings
+          path: fuzz-findings/
+          if-no-files-found: ignore
+          retention-days: 14

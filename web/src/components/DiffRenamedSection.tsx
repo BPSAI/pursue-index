@@ -6,6 +6,8 @@ import { describeRenamedRow } from "./diff-renamed.ts";
  * `data/card-aliases.json`. Where the alias records the byte change behind
  * the rename (R7C.13), the row also shows its nature and the short byte
  * shas on each side; otherwise it shows the alias method alone, as before.
+ * A chain whose hops cannot be collapsed into one byte lineage reads
+ * "chain, see hops" and lists each hop beneath the row.
  */
 export default function DiffRenamedSection({
   renamed,
@@ -45,6 +47,20 @@ export default function DiffRenamedSection({
                   )}
                   <span class="text-[10px] text-[color:var(--color-text-faint)]" title="alias method">{d.method}</span>
                 </a>
+                {d.hops && (
+                  <ol class="mt-1 ml-6 space-y-0.5 text-[10px] text-[color:var(--color-text-dim)]" aria-label="rename hops">
+                    {d.hops.map((h) => (
+                      <li class="flex items-baseline gap-2 flex-wrap">
+                        <code class="break-all">{h.from}</code>
+                        <span aria-hidden="true">→</span>
+                        <code class="break-all">{h.to}</code>
+                        <span class="uppercase tracking-[0.15em] text-[color:var(--color-signal-cyan)]" title="nature of change">
+                          {h.changeNature}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
               </li>
             );
           })}
