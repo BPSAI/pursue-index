@@ -89,6 +89,7 @@ on:
       - "src/pursue_index/vendor/judged_pages_digest.py"
       - "scripts/build_pages_cleaned.py"
       - "src/pursue_index/embed/image_observations.py"
+      - "src/pursue_index/page_text.py"
       - "src/pursue_index/transcribe/asr_diff.py"
       - "src/pursue_index/transcribe/asr_diff_sidecar.py"
       - "tests/support/payload_specs_qc.py"
@@ -287,22 +288,10 @@ jobs:
         # Reads only committed files; writes its payload to a temp path so
         # the checkout is untouched.
         #
-        # Armed by default. QC_COVERAGE_GATE_MODE=warn (a repository
-        # variable) downgrades a failure to a warning annotation: an
-        # explicit, visible switch for the window between a digest-bearing
-        # bundle landing and the cleaned asset being rebuilt beside it.
-        env:
-          QC_COVERAGE_GATE_MODE: ${{ vars.QC_COVERAGE_GATE_MODE || 'enforce' }}
-        run: |
-          set +e
-          python scripts/build_qc_coverage.py --out "$RUNNER_TEMP/qc-coverage.json"
-          status=$?
-          set -e
-          if [ "$status" -ne 0 ] && [ "$QC_COVERAGE_GATE_MODE" = "warn" ]; then
-            echo "::warning title=QC coverage gate (warn mode)::build_qc_coverage.py exited $status; QC_COVERAGE_GATE_MODE=warn lets the release gate pass. See the lines above."
-            exit 0
-          fi
-          exit "$status"
+        # Fail-closed: no switch downgrades a failure. A stale or
+        # unverifiable judged page blocks the release until the cleaned
+        # asset is rebuilt beside the bundle.
+        run: python scripts/build_qc_coverage.py --out "$RUNNER_TEMP/qc-coverage.json"
 
       - name: 5 — Citation resolution (every <Cite> in /finds)
         # Existing test; included here for the single-status-check

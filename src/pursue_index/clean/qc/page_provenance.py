@@ -11,7 +11,8 @@ stamps every cleaned row it ships in ``pages-cleaned.json`` with:
   (``clean.prompt.input_sha256``: the UTF-8 bytes).
 * ``ocr_published_sha256`` -- the text hash of what ``pages.json`` publishes
   for that OCR text: ``published_ocr_text`` (the same markup strip
-  ``scripts/build_search_data.py`` applies; it imports it from here).
+  ``scripts/build_search_data.py`` applies; both take it from the stdlib-only
+  leaf ``pursue_index.page_text``).
 * ``ocr_image_only`` -- true when that published OCR text is blank. Such a
   page is image-only: ``pages.json`` publishes our vision description for
   it (``embed.image_observations``) or nothing, never OCR text.
@@ -33,11 +34,10 @@ re-run fail (1); a pages.json that was never rebuilt fails (2) or (3).
 from __future__ import annotations
 
 import hashlib
-import re
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from pursue_index.embed.image_observations import OBSERVATIONS_HEADER
+from pursue_index.page_text import OBSERVATIONS_HEADER, published_ocr_text
 
 __all__ = [
     "IMAGE_ONLY_KEY",
@@ -54,15 +54,6 @@ __all__ = [
 OCR_KEY = "ocr_page_sha256"
 PUBLISHED_KEY = "ocr_published_sha256"
 IMAGE_ONLY_KEY = "ocr_image_only"
-
-# Surya emits <b>/<u>/<i> markup even with math_mode=False; the corpus has no
-# markup semantics, so pages.json publishes the text between the tags.
-_OCR_MARKUP = re.compile(r"</?(?:b|u|i)>")
-
-
-def published_ocr_text(raw: str) -> str:
-    """The text pages.json publishes for a page's raw OCR text."""
-    return _OCR_MARKUP.sub("", raw)
 
 
 def text_sha256(text: object) -> str:

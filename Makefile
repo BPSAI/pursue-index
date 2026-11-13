@@ -110,9 +110,8 @@ gate-mirror:
 	       tests/integration/test_card_page_coverage.py \
 	       tests/integration/test_alias_destinations.py \
 	       tests/integration/test_derived_payload_coverage.py
-	@# Mirrors release-gate step 4h, including its QC_COVERAGE_GATE_MODE=warn switch.
-	$(PYTHON) scripts/build_qc_coverage.py --out "$$(mktemp -t qc-coverage.XXXXXX.json)" \
-	    || { [ "$$QC_COVERAGE_GATE_MODE" = "warn" ] && echo "qc-coverage: gate failure downgraded (QC_COVERAGE_GATE_MODE=warn)"; }
+	@# Mirrors release-gate step 4h: fail-closed, no downgrade switch.
+	$(PYTHON) scripts/build_qc_coverage.py --out "$$(mktemp -t qc-coverage.XXXXXX.json)"
 
 .PHONY: staleness
 staleness:

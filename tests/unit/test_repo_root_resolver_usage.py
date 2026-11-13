@@ -21,6 +21,11 @@ resolver: ``check_cf_managed_bots_drift.py``, ``indexnow_ping.py``,
 importing ``pursue_index.paths`` would pull in ``pursue_index/__init__.py``'s
 third-party deps (structlog, pydantic-settings) and break them in that bare
 interpreter. They keep the plain ``__file__``-counting form on purpose.
+
+``_search_pages.py`` is allowlisted for the same reason: it loads the
+stdlib-only ``src/pursue_index/page_text.py`` from its own checkout by file
+path, so it imports without the package (``test_page_text_is_a_leaf.py``).
+It locates code, not a data root.
 """
 
 from __future__ import annotations
@@ -43,6 +48,7 @@ _ALLOWLIST = {
     _SCRIPTS / "runbook_verify_deploy.py",
     _SCRIPTS / "wayback_save.py",
     _SCRIPTS / "registry_root.py",
+    _SCRIPTS / "_search_pages.py",
 }
 
 # Two or more ``.parent`` hops, or any ``.parents[...]`` indexing, off

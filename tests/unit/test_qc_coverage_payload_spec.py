@@ -14,6 +14,7 @@ from typing import Any
 
 import pytest
 
+from pursue_index import page_text
 from pursue_index.clean.qc.coverage import build_coverage
 from pursue_index.embed import image_observations
 from pursue_index.embed.image_observations import OBSERVATIONS_HEADER, observation_text_for
@@ -30,7 +31,8 @@ from tests.support.payload_specs import (
 from tests.support.payload_specs_qc import shipped_qc_statuses
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-OBSERVATIONS_HEADER_MODULE = image_observations.__name__
+# The header is defined in the leaf; image_observations writes the vision text.
+OBSERVATIONS_HEADER_MODULE = page_text.__name__
 
 _SOURCES: dict[str, Any] = {
     MANIFEST: {
@@ -161,6 +163,7 @@ def test_release_gate_fires_on_every_file_the_qc_gate_depends_on() -> None:
         spec.shipped.__module__,
         build_coverage.__module__,
         OBSERVATIONS_HEADER_MODULE,
+        image_observations.__name__,
         "tests.support.payload_specs",
     }
     workflow = (REPO_ROOT / ".github/workflows/release-gate.yml").read_text()
