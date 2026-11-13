@@ -190,7 +190,9 @@ $ARGUMENTS
     same check, so skipping this reds the PR).
 12. **Ship-ready gate:** `make ship-ready`. Confirm astro built (~pages) and `cd web && npm run test` all-green. (Note: `make test` runs pytest under the .venv only if activated — validate the web tests explicitly.)
     ship-ready first records the commit it builds with. It refuses uncommitted
-    code (`src`, `scripts`, `web/scripts`, `Makefile`, `pyproject.toml`) and a
+    code (`src`, `scripts`, `web/scripts`, the site code under `web/src`, the site
+    build config, `Makefile`, `pyproject.toml`), gitignored files there other
+    than bytecode caches, and a
     HEAD that is not on `origin/main`, so build on a branch cut from a fresh
     `origin/main` and commit the release only after this step. After the last data
     write it stamps `data/build-stamp.json` with that commit, then verifies the

@@ -104,11 +104,18 @@ STAMP_CODE_PATHS := src scripts web/scripts web/src ':(exclude)web/src/data' \
 	web/package.json web/package-lock.json web/astro.config.mjs Makefile pyproject.toml
 # Recorded inside .git (never tracked, never published).
 BUILT_WITH = $$(git rev-parse --git-path pursue-build-commit)
+# Gitignored files under the code paths can still be imported (a stray
+# scripts/x.py shadows a real module). Bytecode caches and egg-info are the only
+# ignored files allowed there.
+STAMP_IGNORED_CODE = $$(git ls-files --others --ignored --exclude-standard -- $(STAMP_CODE_PATHS) \
+	| grep -vE '(^|/)__pycache__/|\.egg-info/' || true)
 
 .PHONY: build-commit stamp
 build-commit:
 	@test -z "$$(git status --porcelain --untracked-files=all -- $(STAMP_CODE_PATHS))" \
 		|| { echo "build-commit: uncommitted code under $(STAMP_CODE_PATHS)" >&2; exit 1; }
+	@test -z "$(STAMP_IGNORED_CODE)" \
+		|| { echo "build-commit: gitignored files under the code paths" >&2; exit 1; }
 	@git merge-base --is-ancestor HEAD '$(PUBLIC_REF)' \
 		|| { echo "build-commit: HEAD is not on $(PUBLIC_REF); build from published code" >&2; exit 1; }
 	@git rev-parse HEAD > "$(BUILT_WITH)"
@@ -120,6 +127,8 @@ stamp:
 		|| { echo "stamp: HEAD moved since build-commit" >&2; exit 1; }
 	@test -z "$$(git status --porcelain --untracked-files=all -- $(STAMP_CODE_PATHS))" \
 		|| { echo "stamp: code changed during the build" >&2; exit 1; }
+	@test -z "$(STAMP_IGNORED_CODE)" \
+		|| { echo "stamp: gitignored files appeared under the code paths" >&2; exit 1; }
 	@$(PYTHON) scripts/build_stamp.py write --root . --builder-commit "$$(cat "$(BUILT_WITH)")"
 
 # First prerequisite of ship-ready: refuse a release before spending build time

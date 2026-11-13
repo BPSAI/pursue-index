@@ -127,3 +127,18 @@ def test_the_published_ref_cannot_be_overridden(tmp_path: Path) -> None:
                              capture_output=True, text=True, timeout=60, env=env)
         assert out.returncode != 0, how
         assert "not on origin/main" in out.stderr
+
+
+def test_gitignored_code_is_refused_but_bytecode_caches_are_not(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    (repo / ".gitignore").write_text("__pycache__/\nlocal_*.py\n")
+    _git(repo, "add", ".gitignore")
+    _git(repo, "commit", "-qm", "ignore")
+    _git(repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+    (repo / "scripts" / "__pycache__").mkdir()
+    (repo / "scripts" / "__pycache__" / "build_stamp.cpython-312.pyc").write_bytes(b"\0")
+    assert _make(repo, "build-commit").returncode == 0
+    (repo / "scripts" / "local_umap.py").write_text("raise SystemExit\n")
+    out = _make(repo, "build-commit")
+    assert out.returncode != 0
+    assert "gitignored files" in out.stderr
