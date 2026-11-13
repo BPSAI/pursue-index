@@ -95,3 +95,15 @@ def test_script_exit_codes(monkeypatch: pytest.MonkeyPatch, capsys: pytest.Captu
 def test_script_flags_a_vacuous_run(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(tranche_bytes, "_is_metadata_only", lambda *a, **k: False)
     assert fuzz_classify_bytes.main(["--iterations", "20", "--seed", "4"]) == 2
+
+
+def test_the_resources_operator_always_changes_content() -> None:
+    # Every page, every seed: the middle page of an odd page count used to
+    # swap its image for itself, a silent no-op the harness counted as a change.
+    op = next(k for k, v in classify_fuzz.CONTENT_OPS.items() if v.__name__ == "_op_resources")
+    for seed in range(200):
+        rng = random.Random(seed)
+        old, layout = classify_fuzz.build_base(rng)
+        update = classify_fuzz.Update(next_num=layout.size)
+        classify_fuzz.CONTENT_OPS[op](rng, layout, update)
+        assert oracle_difference(old, classify_fuzz.append(old, layout, update, rng)) is not None, seed

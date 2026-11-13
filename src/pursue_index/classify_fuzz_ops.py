@@ -110,8 +110,12 @@ def _op_dangling_define(rng: random.Random, layout: Layout, u: Update) -> None:
 def _op_resources(rng: random.Random, layout: Layout, u: Update) -> None:
     i = rng.randrange(len(layout.pages))
     body = layout.objects[layout.pages[i]]
+    # The next page's image, never this page's own: a mirrored pick
+    # (images[-1 - i]) is the same image for the middle of an odd count,
+    # which rewrote the page with identical bytes.
+    other = layout.images[(i + 1) % len(layout.images)]
     u.objects[layout.pages[i]] = body.replace(b"/Im0 %d 0 R" % layout.images[i],
-                                              b"/Im0 %d 0 R" % layout.images[-1 - i])
+                                              b"/Im0 %d 0 R" % other)
     if len(layout.images) == 1:
         _op_image(rng, layout, u)
 
