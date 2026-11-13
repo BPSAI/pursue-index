@@ -43,7 +43,9 @@ def _status(runner: Runner, repo: Path) -> list[tuple[str, str]]:
         if len(entry) < 4:
             continue
         rows.append((entry[:2], entry[3:]))
-        if entry[0] in "RC":  # a rename/copy carries its source as the next entry
+        # A rename/copy carries its source as the next entry, whether it is
+        # staged (X column) or only in the worktree (Y column, e.g. " R").
+        if "R" in entry[:2] or "C" in entry[:2]:
             rows.append((entry[:2], entries[i]))
             i += 1
     return rows

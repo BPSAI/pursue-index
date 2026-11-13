@@ -220,3 +220,21 @@ def test_repo_slug_is_validated(url: str, slug: str | None) -> None:
     from pursue_index.tranche_autopilot.result import repo_slug
 
     assert repo_slug(url) == slug
+
+
+def test_status_keeps_the_source_of_an_unstaged_rename() -> None:
+    # opsec#72 row 1: porcelain reports a worktree-only rename as " R"; the
+    # source path must still be read (and committed as a deletion), not
+    # consumed as the next entry's status line.
+    from types import SimpleNamespace
+
+    from pursue_index.tranche_autopilot import gitops
+
+    out = "\0".join([" R new.json", "old.json", "R  a2.json", "a1.json", " M other.json", ""])
+
+    def runner(args, cwd=None, timeout=None):
+        return SimpleNamespace(returncode=0, stdout=out, stderr="")
+
+    rows = gitops._status(runner, Path("."))
+    paths = sorted(p for _, p in rows)
+    assert paths == ["a1.json", "a2.json", "new.json", "old.json", "other.json"]
