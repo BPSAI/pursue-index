@@ -125,6 +125,8 @@ def problems(root: Path, stamp: dict) -> list[str]:
 def commit_problems(root: Path, commit: str, public_ref: str) -> list[str]:
     """Why ``commit`` is not public code in ``root``; ``[]`` when it is an
     existing commit and an ancestor of ``public_ref``."""
+    if not _SHA1.fullmatch(commit):  # never hand git a ref name or an option
+        return [f"builder commit {commit!r} is not a 40-hex commit sha"]
     git = ["git", "-C", str(root)]
     exists = subprocess.run([*git, "cat-file", "-e", f"{commit}^{{commit}}"],
                             capture_output=True, check=False)

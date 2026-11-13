@@ -86,7 +86,7 @@ clean:
 # commit must be on the published branch, so every release cites code anyone
 # can check out.
 ship-ready: release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate stamp astro-build asset-budget test gate-mirror arch-check staleness
-	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref $(PUBLIC_REF)
+	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
 	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
@@ -94,9 +94,14 @@ ship-ready: release-completeness build-commit rebuild-derivatives registry-root 
 # ---- build stamp ----
 # The published branch. A release's builder commit must already be on it, so
 # the stamp cites code that anyone can fetch and rebuild from.
-PUBLIC_REF ?= origin/main
+# Fixed: `override` ignores a PUBLIC_REF given on the command line or in the
+# environment, so the publication check cannot be pointed at another ref.
+override PUBLIC_REF := origin/main
 # Code paths: a change here, committed or not, is code the stamp would not cite.
-STAMP_CODE_PATHS := src scripts web/scripts Makefile pyproject.toml
+# The builders, and the site code and build config. web/src/data is excluded:
+# it is stamped data that the build writes.
+STAMP_CODE_PATHS := src scripts web/scripts web/src ':(exclude)web/src/data' \
+	web/package.json web/package-lock.json web/astro.config.mjs Makefile pyproject.toml
 # Recorded inside .git (never tracked, never published).
 BUILT_WITH = $$(git rev-parse --git-path pursue-build-commit)
 
@@ -104,7 +109,7 @@ BUILT_WITH = $$(git rev-parse --git-path pursue-build-commit)
 build-commit:
 	@test -z "$$(git status --porcelain --untracked-files=all -- $(STAMP_CODE_PATHS))" \
 		|| { echo "build-commit: uncommitted code under $(STAMP_CODE_PATHS)" >&2; exit 1; }
-	@git merge-base --is-ancestor HEAD $(PUBLIC_REF) \
+	@git merge-base --is-ancestor HEAD '$(PUBLIC_REF)' \
 		|| { echo "build-commit: HEAD is not on $(PUBLIC_REF); build from published code" >&2; exit 1; }
 	@git rev-parse HEAD > "$(BUILT_WITH)"
 	@echo "build-commit: building with $$(git rev-parse --short HEAD)"

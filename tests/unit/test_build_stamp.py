@@ -177,5 +177,8 @@ def test_public_ref_requires_the_builder_commit_on_the_published_branch(index: P
     assert build_stamp.main(verify) == 1
     assert "not a commit in this repository" in build_stamp.commit_problems(
         index, COMMIT, "origin/main")[0]
+    for bad in ("HEAD", "--output=x", "a" * 39):
+        assert "not a 40-hex commit sha" in build_stamp.commit_problems(
+            index, bad, "origin/main")[0]
     # Without --public-ref, only the bytes are checked.
     assert build_stamp.main(["verify", "--root", str(index), "--require"]) == 0

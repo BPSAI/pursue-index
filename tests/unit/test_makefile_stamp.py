@@ -9,6 +9,7 @@ verifying the stamp, its commit included.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -39,7 +40,7 @@ def test_ship_ready_records_the_commit_before_building_and_stamps_last() -> None
     stamp = _at(lines, "build_stamp.py write")
     assert _at(lines, "runbook_snapshot_rotate.py") < stamp < _at(lines, "npm run build")
     last = [ln for ln in lines if "build_stamp.py" in ln][-1]
-    assert "verify" in last and "--require" in last and "--public-ref origin/main" in last
+    assert "verify" in last and "--require" in last and "--public-ref 'origin/main'" in last
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -102,3 +103,27 @@ def test_a_commit_made_during_the_build_is_refused(tmp_path: Path) -> None:
     assert out.returncode != 0
     assert "HEAD moved" in out.stderr
     assert not (repo / "data" / "build-stamp.json").exists()
+
+
+def test_uncommitted_site_code_is_refused_but_stamped_data_is_not(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    (repo / "web" / "src" / "data").mkdir(parents=True)
+    (repo / "web" / "src" / "data" / "cards.json").write_text("{}")  # data the build writes
+    assert _make(repo, "build-commit").returncode == 0
+    (repo / "web" / "src" / "pages").mkdir(parents=True)
+    (repo / "web" / "src" / "pages" / "x.astro").write_text("---\n---\n")
+    out = _make(repo, "build-commit")
+    assert out.returncode != 0
+    assert "uncommitted code" in out.stderr
+
+
+def test_the_published_ref_cannot_be_overridden(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    _git(repo, "commit", "-q", "--allow-empty", "-m", "local only")
+    for how in (["PUBLIC_REF=HEAD"], []):
+        env = {**os.environ, "PUBLIC_REF": "HEAD"} if not how else None
+        out = subprocess.run(["make", "-C", str(repo), "build-commit", *how,
+                              f"PYTHON={sys.executable}"],
+                             capture_output=True, text=True, timeout=60, env=env)
+        assert out.returncode != 0, how
+        assert "not on origin/main" in out.stderr
