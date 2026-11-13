@@ -158,6 +158,12 @@ pursue embed run --manifest data/manifests/latest.json
 Each stage is content-addressed by `card_id = sha256(asset_url || title)[:16]`,
 so partial reruns converge on the same final state regardless of order.
 
+OCR, cleanup and embedding need paid model calls, and LLM OCR gives different
+text on a rerun. To rebuild the published payloads without either, use a
+release's intermediates asset (the OCR text, cleaning sidecars and vectors)
+and `scripts/intermediates.py rebuild-check`. See
+[docs/intermediates.md](docs/intermediates.md).
+
 The CSV archive (`data/raw/csv/<sha>.csv`, content-addressed and
 committed to the repo) is a forensic trail of how the source has
 evolved over time. The manifest carries `csv_sha256` so upstream

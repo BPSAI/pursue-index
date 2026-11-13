@@ -282,6 +282,13 @@ hooks-install:
 	@bash scripts/install-hooks.sh
 
 # ---- Release artifacts ----
+# Rebuild the published payloads from a release's intermediates asset alone
+# (docs/intermediates.md): make intermediates-check TARBALL=<path to .tar.gz>
+.PHONY: intermediates-check
+intermediates-check:
+	@test -n "$(TARBALL)" || { echo "TARBALL=<intermediates-<tag>.tar.gz> is required" >&2; exit 2; }
+	$(PYTHON) scripts/intermediates.py rebuild-check --tarball "$(TARBALL)"
+
 .PHONY: bundle-copy
 bundle-copy:
 	@if [ -z "$$PURSUE_DATA_ROOT" ]; then \

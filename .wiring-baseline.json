@@ -1,6 +1,6 @@
 {
   "schema": "bpsai-wiring-baseline/v1",
-  "note": "Standalone CLI entrypoints, not package modules: nothing imports them by design. build_pages_cleaned and build_qc_coverage run from .github/workflows/release-gate.yml and the Makefile; fuzz_classify_bytes runs from .github/workflows/classify-fuzz.yml; build_stamp runs from the Makefile (stamp, ship-ready) and release-gate.yml. Add an entry here only for a script a workflow or the Makefile runs.",
+  "note": "Standalone CLI entrypoints, not package modules: nothing imports them by design. build_pages_cleaned and build_qc_coverage run from .github/workflows/release-gate.yml and the Makefile; fuzz_classify_bytes runs from .github/workflows/classify-fuzz.yml; build_stamp runs from the Makefile (stamp, ship-ready) and release-gate.yml; intermediates runs from the Makefile (intermediates-check). Add an entry here only for a script a workflow or the Makefile runs.",
   "entries": [
     {
       "file": "scripts/build_pages_cleaned.py",
@@ -20,6 +20,11 @@
     {
       "file": "scripts/build_stamp.py",
       "symbol": "build_stamp",
+      "kind": "module"
+    },
+    {
+      "file": "scripts/intermediates.py",
+      "symbol": "intermediates",
       "kind": "module"
     }
   ]
