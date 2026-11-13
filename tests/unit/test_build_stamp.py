@@ -201,3 +201,9 @@ def test_a_tracked_bundle_file_deleted_by_the_build_is_left_out(index: Path) -> 
     stamp = _write(index)
     assert "web/public/llms.txt" not in stamp["files"]
     assert build_stamp.problems(index, stamp) == []
+
+
+def test_public_ref_must_not_look_like_an_option(index: Path) -> None:
+    sha = _commit(index, "c")
+    for bad in ("--output=/tmp/x", "-h", ""):
+        assert "is not a ref name" in build_stamp.commit_problems(index, sha, bad)[0]

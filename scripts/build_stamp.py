@@ -142,6 +142,8 @@ def commit_problems(root: Path, commit: str, public_ref: str) -> list[str]:
                             capture_output=True, check=False)
     if exists.returncode != 0:
         return [f"builder commit {commit} is not a commit in this repository"]
+    if not public_ref or public_ref.startswith("-"):  # a ref, never an option
+        return [f"public ref {public_ref!r} is not a ref name"]
     ancestor = subprocess.run([*git, "merge-base", "--is-ancestor", commit, public_ref],
                               capture_output=True, text=True, check=False)
     if ancestor.returncode == 1:

@@ -164,3 +164,13 @@ def test_binary_mode_sha256sums_are_accepted(tmp_path: Path) -> None:
     digest = intermediates._sha256_file(tar)
     (tmp_path / "o" / "SHA256SUMS").write_text(f"{digest} *{tar.name}\n")
     assert intermediates._check_sums(tar, digest) == digest
+
+
+@pytest.mark.parametrize("which", ["ocr", "embeddings"])
+def test_pack_refuses_a_symlinked_parent_directory(tmp_path: Path, which: str) -> None:
+    root = _data_root(tmp_path)
+    real = tmp_path / f"real-{which}"
+    (root / which).rename(real)
+    (root / which).symlink_to(real, target_is_directory=True)
+    with pytest.raises(SystemExit, match="must be a real directory"):
+        intermediates.collect(root)
