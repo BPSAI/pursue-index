@@ -132,9 +132,13 @@ def _page_provenance_gaps(
     """Per judged page: tied to its current OCR row and pages.json text?
     (``pursue_index.clean.qc.page_provenance``)."""
     try:
-        current = published_pages(read_asset_json(pages_path))
+        pages = read_asset_json(pages_path)
     except (OSError, ValueError):
         return [f"{pages_path.name} unreadable: cannot tie cleaned pages to it"]
+    if not isinstance(pages, list):
+        # Name the shape, not every judged page as "not in pages.json".
+        return [f"{pages_path.name} is {type(pages).__name__}, not a list of page rows"]
+    current = published_pages(pages)
     try:
         doc = read_asset_json(pages_cleaned_path)
     except (OSError, ValueError) as exc:

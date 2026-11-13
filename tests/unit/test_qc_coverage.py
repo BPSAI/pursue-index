@@ -392,9 +392,18 @@ def test_a_listed_card_without_a_readable_sidecar_is_not_a_vision_description(
 
 def test_a_cleaned_row_with_an_unhashable_card_id_is_named_not_a_crash(tmp_path: Path) -> None:
     pages_path = tmp_path / "pages.json"
-    pages_path.write_text(json.dumps({"pages": [_page("c1", 1, "text")]}))
+    pages_path.write_text(json.dumps([_page("c1", 1, "text")]))
     cleaned = tmp_path / "pages-cleaned.json"
     cleaned.write_text(json.dumps({"pages": [{"card_id": ["c1"], "page": 1}]}))
     assert build_qc_coverage._page_provenance_gaps(cleaned, pages_path, {"c1"}) == []
     _shas, problems = build_qc_coverage._page_shas(cleaned)
     assert problems == ["pages-cleaned.json pages[0]: no card_id"]
+
+
+def test_a_pages_json_that_is_not_a_list_is_named_once(tmp_path: Path) -> None:
+    pages_path = tmp_path / "pages.json"
+    pages_path.write_text(json.dumps({"pages": [_page("c1", 1, "text")]}))
+    cleaned = tmp_path / "pages-cleaned.json"
+    cleaned.write_text(json.dumps({"pages": [{"card_id": "c1", "page": 1}]}))
+    gaps = build_qc_coverage._page_provenance_gaps(cleaned, pages_path, {"c1"})
+    assert gaps == ["pages.json is dict, not a list of page rows"]
