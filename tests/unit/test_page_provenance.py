@@ -85,3 +85,24 @@ def test_published_pages_skips_a_row_whose_card_id_is_not_a_string() -> None:
         {"card_id": "c1", "page": 2, "text": "kept"},
     ]
     assert list(published_pages(rows)) == [("c1", 2)]
+
+
+def test_search_pages_publish_the_row_the_cleaning_build_selects(tmp_path: Path) -> None:
+    # pages.jsonl is append-only. A physically later row with an older
+    # generated_at must not win: the emitter applies latest_per_page, as
+    # build_pages_cleaned does, so the gate's provenance compares like rows.
+    import json
+
+    from pursue_index.page_rows import latest_per_page
+
+    rows = [
+        {"page": 2, "text": "two", "generated_at": "2026-01-01"},
+        {"page": 1, "text": "one new", "generated_at": "2026-03-01"},
+        {"page": 1, "text": "one old", "generated_at": "2026-02-01"},
+    ]
+    path = tmp_path / "pages.jsonl"
+    path.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    out = _search_pages.emit_card_pages("c", "t", path)
+    assert [(d["page"], d["text"]) for d in out] == [(1, "one new"), (2, "two")]
+    chosen = {r["page"]: r["text"] for r in latest_per_page(rows, "c")}
+    assert {d["page"]: d["text"] for d in out} == chosen
