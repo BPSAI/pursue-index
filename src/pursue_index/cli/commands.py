@@ -99,105 +99,14 @@ def scrape_run_cmd(
 
 
 # ---------------------------------------------------------------------------
-# download + ocr
+# sub-apps (download, ocr, embed, vision, av-fetch, transcribe, clean, ops,
+# ingest, tranche, storage, provenance, index + serve)
 # ---------------------------------------------------------------------------
-# Split into ``download_ocr_cli.py`` (same rationale as embed_app/ops_app) to
-# keep this module slim; that module also owns the ``--worklist`` scoping.
-from pursue_index.cli.download_ocr_cli import download_app, ocr_app  # noqa: E402
+# Each lives in its own ``*_cli.py`` so this module stays under the per-file
+# size and import budgets; ``cli/subapps.py`` attaches them in help order.
+from pursue_index.cli.subapps import register_subapps  # noqa: E402
 
-app.add_typer(download_app)
-app.add_typer(ocr_app)
-
-# ---------------------------------------------------------------------------
-# embed
-# ---------------------------------------------------------------------------
-# The embed sub-app is split into ``embed_cli.py`` so this file stays under
-# the per-file size budget. Re-attach it here so the CLI surface is unchanged.
-from pursue_index.cli.embed_cli import embed_app  # noqa: E402
-
-app.add_typer(embed_app)
-
-# ---------------------------------------------------------------------------
-# vision (per-tranche image-observation generator — pipeline stage 6)
-# ---------------------------------------------------------------------------
-# Same split rationale as embed_app/ops_app: keep this module slim. The default
-# `vision run` is a verify-before-spend preflight; live spend is operator-
-# attended (see cli/vision_cli.py).
-from pursue_index.cli.vision_cli import vision_app  # noqa: E402
-
-app.add_typer(vision_app)
-
-# ---------------------------------------------------------------------------
-# av-fetch (DVIDS A/V direct-fetch stage — pipeline stage 3)
-# ---------------------------------------------------------------------------
-# Same split rationale as embed_app/ops_app: keep this module slim. Automates
-# the operator's manual DVIDS download step; output feeds
-# scripts/ingest_release_videos.py --desktop unchanged.
-from pursue_index.cli.av_fetch_cli import av_fetch_app  # noqa: E402
-
-app.add_typer(av_fetch_app)
-
-# ---------------------------------------------------------------------------
-# transcribe (direct AssemblyAI transcription, AUD only — pipeline stage 7)
-# ---------------------------------------------------------------------------
-# Same split rationale as embed_app/ops_app: keep this module slim. The
-# default `transcribe run` is a verify-before-spend preflight; live spend is
-# operator-attended (see cli/transcribe_cli.py).
-from pursue_index.cli.transcribe_cli import transcribe_app  # noqa: E402
-
-app.add_typer(transcribe_app)
-
-# ---------------------------------------------------------------------------
-# clean (LLM cleanup of OCR text — pilot-gated)
-# ---------------------------------------------------------------------------
-# Same split rationale as embed_app/ops_app: keep this module slim. The
-# cleanup stage is opt-in and feeds the reader-mode `Cleaned` overlay; it
-# never modifies the canonical OCR output.
-from pursue_index.cli.clean_cli import clean_app  # noqa: E402
-
-app.add_typer(clean_app)
-
-# ---------------------------------------------------------------------------
-# ops (health checks driven by GH Actions cron)
-# ---------------------------------------------------------------------------
-# Same split rationale as ``embed_app`` — keep this module slim.
-from pursue_index.cli.ops_cli import ops_app  # noqa: E402
-
-app.add_typer(ops_app)
-
-
-# ---------------------------------------------------------------------------
-# ingest (tranche-approval gate)
-# ---------------------------------------------------------------------------
-from pursue_index.cli.ingest_cli import ingest_app  # noqa: E402
-
-app.add_typer(ingest_app)
-
-
-# ---------------------------------------------------------------------------
-# storage (3-tier durability contract preflight)
-# ---------------------------------------------------------------------------
-from pursue_index.cli.storage_cli import storage_app  # noqa: E402
-
-app.add_typer(storage_app)
-
-
-# ---------------------------------------------------------------------------
-# provenance (Phase-A coverage report — read-only, publishes nothing)
-# ---------------------------------------------------------------------------
-from pursue_index.cli.provenance_cli import provenance_app  # noqa: E402
-
-app.add_typer(provenance_app)
-
-
-# ---------------------------------------------------------------------------
-# index + serve (Postgres/API runtime)
-# ---------------------------------------------------------------------------
-# Same split rationale as embed_app/ops_app: keep this module slim.
-from pursue_index.cli.index_serve_cli import index_app, serve  # noqa: E402
-
-app.add_typer(index_app)
-app.command("serve")(serve)
+register_subapps(app)
 
 
 if __name__ == "__main__":
