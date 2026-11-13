@@ -292,7 +292,8 @@ def main() -> int:
         counts[status] = counts.get(status, 0) + 1
 
     print(f"[r2-pin] done: {counts}")
-    return 0
+    # A refused card is bad upstream data or a crafted input: fail the run.
+    return 1 if counts.get("refused") else 0
 
 
 if __name__ == "__main__":

@@ -283,3 +283,15 @@ def test_a_put_error_without_a_response_reraises_the_original() -> None:
         r2_pin_removed._put_archive_append_only(
             client, "pursue-pdfs", "archive/x.pdf", b"x", "application/pdf"
         )
+
+
+def test_main_exits_nonzero_when_a_card_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    removed = tmp_path / "removed-cards.json"
+    removed.write_text(json.dumps({"removed": [
+        _removed_card("abc1230000000001", asset_filename="x.exe")]}))
+    monkeypatch.setattr(r2_pin_removed, "make_r2_client", MagicMock)
+    monkeypatch.setattr(sys, "argv", ["r2_pin_removed.py", "--removed", str(removed),
+                                      "--registry", str(tmp_path / "registry.jsonl")])
+    assert r2_pin_removed.main() == 1
