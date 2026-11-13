@@ -287,6 +287,13 @@ hooks-install:
 dates-ui:
 	$(PYTHON) scripts/curate_dates_ui.py $(DATES_UI_ARGS)
 
+# Pin /removed preservation copies into the integrity layer (operator-run,
+# needs R2 credentials in the environment):
+#   make pin-removed [PIN_REMOVED_ARGS=--dry-run]
+.PHONY: pin-removed
+pin-removed:
+	$(PYTHON) scripts/r2_pin_removed.py $(PIN_REMOVED_ARGS)
+
 # ---- Release artifacts ----
 # Rebuild the published payloads from a release's intermediates asset alone
 # (docs/intermediates.md):
