@@ -65,6 +65,7 @@ def _terminal_destination(card_id: str, aliases: dict[str, str]) -> str:
     return cur
 
 
+@pytest.mark.needs_web_dist
 def test_every_alias_terminal_has_a_dist_page() -> None:
     """Each alias's terminal `new_card_id` must have a built page.
 
