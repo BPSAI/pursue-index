@@ -37,9 +37,9 @@ def test_over_cap_candidate_is_unverified_without_a_read(tmp_path, monkeypatch, 
 
 def test_unreadable_candidate_is_unverified(tmp_path, monkeypatch) -> None:
     sha = _stage(tmp_path, b"%PDF-1.4 small")
-    def boom(self, *a, **k):
+    def boom(*a, **k):
         raise PermissionError("denied")
-    monkeypatch.setattr(Path, "open", boom)
+    monkeypatch.setattr(pdf_limits.os, "open", boom)
     assert _verified_path(tmp_path, sha) is None
 
 

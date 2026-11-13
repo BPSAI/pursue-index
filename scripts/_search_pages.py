@@ -6,16 +6,32 @@ sidecar, into the search-payload page docs.
 
 from __future__ import annotations
 
+import importlib.util
 import json
-import re
 import sys
 from pathlib import Path
 
-_SURYA_TAG_RE = re.compile(r"</?(?:b|u|i)>")
+
+def _load_page_text():
+    """``pursue_index/page_text.py``, loaded by file path.
+
+    It is stdlib-only, but importing it as ``pursue_index.page_text`` would
+    run the package ``__init__`` and its third-party deps first, so this
+    script stays importable without the package installed.
+    """
+    path = Path(__file__).resolve().parents[1] / "src" / "pursue_index" / "page_text.py"
+    spec = importlib.util.spec_from_file_location("_pursue_page_text", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_published_ocr_text = _load_page_text().published_ocr_text
 
 
 def _clean_text(text: str) -> str:
-    return _SURYA_TAG_RE.sub("", text)
+    # One definition, shared with the cleaned-page provenance check.
+    return _published_ocr_text(text)
 
 
 def emit_observation_only_pages(

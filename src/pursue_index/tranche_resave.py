@@ -39,7 +39,7 @@ from typing import Any
 
 from pursue_index.classifier_id import classifier_id
 from pursue_index.pdf_crosscheck import CROSSCHECKS
-from pursue_index.pdf_limits import LimitExceededError, check_file_size
+from pursue_index.pdf_limits import LimitExceededError, open_regular
 from pursue_index.tranche_bytes import METADATA_ONLY, classify_bytes
 
 __all__ = [
@@ -67,9 +67,10 @@ def _verified_path(bytes_dir: Path, sha: str | None) -> Path | None:
         return None
     path = bytes_dir / f"{sha}.pdf"
     try:
-        check_file_size(path)  # stat before any read: an oversized file never loads
+        # lstat, then O_NOFOLLOW open + fstat recheck: a symlink, FIFO or a
+        # file swapped after the stat is refused before any read.
         digest = hashlib.sha256()
-        with path.open("rb") as handle:
+        with open_regular(path) as handle:
             while chunk := handle.read(_CHUNK):
                 digest.update(chunk)
     except FileNotFoundError:

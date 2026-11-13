@@ -35,6 +35,11 @@ same field name and definition pursue-curate's clean-QC sidecar stamps.
 ``scripts/build_qc_coverage.py`` recomputes each judged card's digest
 from these committed shas, since CI cannot read the NAS sidecars that
 would otherwise carry them.
+
+Per-page provenance (``ocr_page_sha256``, ``ocr_published_sha256``,
+``ocr_image_only``; see ``pursue_index.clean.qc.page_provenance``) lets the
+gate prove each cleaned page was derived from the OCR text pages.json
+publishes now.
 """
 
 from __future__ import annotations
@@ -56,6 +61,13 @@ from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
 
+from pursue_index.clean.qc.page_provenance import (
+    IMAGE_ONLY_KEY,
+    OCR_KEY,
+    PUBLISHED_KEY,
+    ocr_page_provenance,
+    stamp_page_provenance,
+)
 from pursue_index.config import settings
 from pursue_index.page_rows import latest_per_page
 from pursue_index.release.chunked_asset import (
@@ -108,6 +120,22 @@ def _iter_sidecar(path: Path) -> list[dict]:
                 # Corrupt row — skip rather than crash the whole build.
                 continue
     return rows
+
+
+def _ocr_provenance(card_dir: Path, card_id: str) -> dict[int, dict]:
+    """Provenance of the OCR row selected for each page (``page_provenance``)."""
+    ocr = card_dir / "pages.jsonl"
+    if not ocr.exists():
+        return {}
+    return ocr_page_provenance(latest_per_page(_iter_sidecar(ocr), card_id))
+
+
+def _read_pages_json(pages_path: Path | None) -> bytes | None:
+    """The (possibly chunked) pages.json this build sits beside, read once so
+    the file-level and per-page hashes describe the same bytes."""
+    if pages_path is None or not asset_exists(pages_path):
+        return None
+    return read_asset_bytes(pages_path)
 
 
 def _dedupe_latest_per_page(
@@ -216,6 +244,7 @@ def _walk_sidecars(
         card_id = card_dir.name
         rows = _dedupe_latest_per_page(rows, card_id=card_id)
         rows = [_stamp_source_page_sha256(r) for r in rows]
+        rows = stamp_page_provenance(rows, _ocr_provenance(card_dir, card_id))
         rows = [_sanitize_row_for_mirror(r) for r in rows]
         if not rows:
             continue
@@ -252,6 +281,9 @@ def _normalize_row(row: dict, card_id: str, title: str) -> dict:
         "title": title,
         "text": row.get("text_cleaned", ""),
         "source_page_sha256": row.get("source_page_sha256", ""),
+        OCR_KEY: row.get(OCR_KEY, ""),
+        PUBLISHED_KEY: row.get(PUBLISHED_KEY, ""),
+        IMAGE_ONLY_KEY: bool(row.get(IMAGE_ONLY_KEY, False)),
         "model_id": row.get("model_id", ""),
         "prompt_sha256": row.get("prompt_sha256", ""),
         "input_sha256": row.get("input_sha256", ""),
@@ -284,13 +316,6 @@ def _assert_homogeneous_provenance(pages: list[dict]) -> None:
             f"mixed prompt_sha256 values in sidecars: {sorted(prompt_shas)}. "
             "Re-clean affected cards or split the build by prompt revision."
         )
-
-
-def _pages_json_sha256(pages_path: Path | None) -> str | None:
-    """sha256 of the (possibly chunked) pages.json this build ran against."""
-    if pages_path is None or not asset_exists(pages_path):
-        return None
-    return hashlib.sha256(read_asset_bytes(pages_path)).hexdigest()
 
 
 def _meta_block(
@@ -328,10 +353,11 @@ def build(
         print(f"manifest not found: {manifest_path}", file=sys.stderr)
         return 1
     titles = _load_titles(manifest_path)
+    pages_bytes = _read_pages_json(pages_path)
     pages, covered = _walk_sidecars(ocr_dir, titles)
     meta = _meta_block(pages, covered, source_tag)
-    if pages_sha := _pages_json_sha256(pages_path):
-        meta["pages_json_sha256"] = pages_sha
+    if pages_bytes is not None:
+        meta["pages_json_sha256"] = hashlib.sha256(pages_bytes).hexdigest()
     payload = {"meta": meta, "pages": pages}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     written = write_asset(

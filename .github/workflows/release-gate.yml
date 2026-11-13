@@ -30,6 +30,9 @@ name: Release gate — deploy-side coherence
 #   9. Worker memory budget  — Worker test suite (including the #159/#161
 #                              cold-retrieval 64 MiB isolate budget) and
 #                              the retrieve-rows payload it depends on
+#  4h. QC coverage gate      — no judged card is stale, and every judged
+#                              cleaned page is tied per page to the OCR
+#                              text published now
 #
 # Each step fails fast with an actionable one-line message so the
 # operator sees "fix X then re-push" instead of a wall of green
@@ -79,7 +82,14 @@ on:
       - "web/public/data/asr-diff-bundle.json"
       - "src/pursue_index/cli/asr_diff_cli.py"
       - "src/pursue_index/clean/qc/coverage.py"
+      - "src/pursue_index/clean/qc/staleness.py"
+      - "src/pursue_index/clean/qc/page_provenance.py"
+      - "scripts/_search_pages.py"
+      - "scripts/build_search_data.py"
+      - "src/pursue_index/vendor/judged_pages_digest.py"
+      - "scripts/build_pages_cleaned.py"
       - "src/pursue_index/embed/image_observations.py"
+      - "src/pursue_index/page_text.py"
       - "src/pursue_index/transcribe/asr_diff.py"
       - "src/pursue_index/transcribe/asr_diff_sidecar.py"
       - "tests/support/payload_specs_qc.py"
@@ -266,6 +276,22 @@ jobs:
         # 4f fixed one instance of, so a future workflow migration can't
         # reintroduce it elsewhere.
         run: pytest tests/unit/test_workflow_scripts_dep_free_when_no_install.py -v
+
+      - name: 4h — QC coverage digest + per-page provenance gate
+        # scripts/build_qc_coverage.py classifies every card and exits 1 when
+        # a judged card is stale (its page content changed since the clean-QC
+        # sweep) or cannot be verified: a judged page that cannot be tied to
+        # the OCR text published now (pages-cleaned.json's per-page
+        # ocr_page_sha256 / pages_json_text_sha256), or a malformed
+        # pages-cleaned.json row (named in the output). A bundle with no
+        # judged_pages_digest has nothing to verify and passes with a notice.
+        # Reads only committed files; writes its payload to a temp path so
+        # the checkout is untouched.
+        #
+        # Fail-closed: no switch downgrades a failure. A stale or
+        # unverifiable judged page blocks the release until the cleaned
+        # asset is rebuilt beside the bundle.
+        run: python scripts/build_qc_coverage.py --out "$RUNNER_TEMP/qc-coverage.json"
 
       - name: 5 — Citation resolution (every <Cite> in /finds)
         # Existing test; included here for the single-status-check

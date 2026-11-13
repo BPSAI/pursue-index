@@ -23,8 +23,10 @@ Verdicts:
       - the update's own xref stream;
       - the trailer's ``/Root`` catalog, if it differs from the old catalog
         only in ``/Metadata`` and that pointer resolves to an XMP stream;
-      - a brand-new leaf object (number/string/name) referenced from one of
-        the above -- e.g. an XMP stream's indirect ``/Length``.
+      - a brand-new leaf object (number/string/name) referenced from the
+        Info dict, an XMP stream or the xref stream -- e.g. an XMP stream's
+        indirect ``/Length`` -- and from nothing else, old bytes included
+        (``pdf_refs``: the reference rule covers the whole closure).
     An object number that already existed in the old file may only be
     rewritten in the SAME role it had there (an old content stream cannot
     be re-used as the "XMP stream"), and the trailer may not switch
@@ -67,7 +69,12 @@ from pursue_index.pdf_limits import (
     check_update_count,
     read_capped,
 )
-from pursue_index.pdf_refs import action_reachable, referenced_elsewhere
+from pursue_index.pdf_refs import (
+    action_reachable,
+    raw_reference_in,
+    referenced_elsewhere,
+    referenced_outside,
+)
 from pursue_index.pdf_update import UpdateSection, read_update
 
 __all__ = ["CONTENT_CHANGED", "METADATA_ONLY", "Verdict", "classify_bytes"]
@@ -220,9 +227,30 @@ def _is_metadata_only(old_bytes: bytes, new_bytes: bytes, budget: Budget) -> boo
     live_actions = action_reachable(old, budget) | action_reachable(new, budget)
     if live_actions & set(section.objects):
         return False
-    referenced = set().union(*(section.refs[n] for n, r in roles.items() if r))
-    return all(r is not None or _is_aux_leaf(n, section, old_nums, referenced)
-               for n, r in roles.items())
+    owners = {n for n, r in roles.items() if r in ("metadata", "info", "xref")}
+    referenced = set().union(*(section.refs[n] for n in owners))
+    leaves = {n for n, r in roles.items() if r is None}
+    if not all(_is_aux_leaf(n, section, old_nums, referenced) for n in leaves):
+        return False
+    return not _leaf_referenced_outside(leaves, owners, section, old_bytes, new, budget)
+
+
+def _leaf_referenced_outside(
+    leaves: set[int], owners: set[int], section: UpdateSection, old_bytes: bytes,
+    new: PdfReader, budget: Budget,
+) -> bool:
+    """A new leaf belongs to the metadata closure only if nothing outside it
+    (``owners``: the /Info dict, the XMP stream, the xref stream) refers to
+    it: not another object of the update, not any object pypdf parses from
+    the new file, and not the raw old bytes (an old page's ``/Rotate N 0 R``
+    or a stream's indirect ``/Length`` naming a then-undefined number)."""
+    if not leaves:
+        return False
+    if any(section.refs[n] & leaves for n in section.objects if n not in owners | leaves):
+        return True
+    if raw_reference_in(old_bytes, leaves, budget):
+        return True
+    return referenced_outside(leaves, owners | leaves, new, budget)
 
 
 def _root_kept(section: UpdateSection, old: PdfReader) -> bool:

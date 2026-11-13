@@ -106,8 +106,11 @@ def _page_resources(page: Any, budget: Budget) -> str:
 
 
 def _page_text(page: Any, budget: Budget) -> str:
-    # extract_text inflates the page's content streams; charge that output to
-    # the same total-inflated-bytes budget the xref parser draws on.
+    # Inflate each content stream once, here, and charge the output to the
+    # same total-inflated-bytes budget the xref parser draws on. pypdf keeps
+    # the decoded copy on the (reader-cached) stream object, so extract_text
+    # below reuses it rather than inflating again
+    # (test_text_signal_inflates_each_content_stream_once pins this).
     contents = page.get_object().get("/Contents")
     contents = contents.get_object() if contents is not None else None
     for item in contents if isinstance(contents, list) else [contents]:

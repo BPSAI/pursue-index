@@ -18,12 +18,29 @@ export interface RenameEvidence {
   changeNature?: string;
 }
 
+/** One link of an alias chain (`from` -> `to`), with its own nature when recorded. */
+export interface RenameHop {
+  from: string;
+  to: string;
+  changeNature?: string;
+}
+
+/** A hop as the RENAMED row lists it. */
+export interface RenamedHopDisplay {
+  from: string;
+  to: string;
+  /** The hop's own nature of change, or "unrecorded" when its alias row has none. */
+  changeNature: string;
+}
+
 export interface RenamedRowDisplay {
   method: string;
   /** Nature of change, or null when the alias row doesn't record one. */
   changeNature: string | null;
   /** `old → new` byte shas (short for display, full for the tooltip), or null. */
   shaChange: { short: string; full: string } | null;
+  /** Each hop of a chain whose hops could not be collapsed; absent otherwise. */
+  hops?: RenamedHopDisplay[];
 }
 
 /** Pull the optional evidence off a raw alias row (absent fields stay absent). */
@@ -36,7 +53,9 @@ export function aliasEvidence(a: AliasEntry): RenameEvidence {
 }
 
 /** What a RENAMED row shows beyond its titles. */
-export function describeRenamedRow(r: RenameEvidence & { method: string }): RenamedRowDisplay {
+export function describeRenamedRow(
+  r: RenameEvidence & { method: string; hops?: RenameHop[] },
+): RenamedRowDisplay {
   const { oldByteSha256: oldSha, newByteSha256: newSha } = r;
   const shaChange =
     oldSha || newSha
@@ -45,5 +64,9 @@ export function describeRenamedRow(r: RenameEvidence & { method: string }): Rena
           full: `${oldSha ?? "?"} → ${newSha ?? "?"}`,
         }
       : null;
-  return { method: r.method, changeNature: r.changeNature ?? null, shaChange };
+  const display: RenamedRowDisplay = { method: r.method, changeNature: r.changeNature ?? null, shaChange };
+  if (r.hops && r.hops.length > 0) {
+    display.hops = r.hops.map((h) => ({ from: h.from, to: h.to, changeNature: h.changeNature ?? "unrecorded" }));
+  }
+  return display;
 }

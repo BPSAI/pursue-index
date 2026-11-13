@@ -106,3 +106,28 @@ def test_explicit_approve_rename_of_a_moved_row_records_its_evidence(tmp_path, m
     assert result.exit_code == 0, result.output
     [alias] = json.loads((tmp_path / "aliases.json").read_text())["aliases"]
     assert alias["change_nature"] == "metadata-only"
+
+
+def test_off_diff_on_setting_keeps_the_row_held_and_says_so(tmp_path, monkeypatch) -> None:
+    # Generated with auto-approval off, approved after it was turned on: the
+    # verdict stayed in quarantine, so nothing is aliased -- and the operator
+    # is told why and how to approve it rather than seeing nothing.
+    from tests.unit.test_resave_held_evidence import _held_diff
+    diff = {**_held_diff(), "auto_approve_metadata_resaves": False}
+    result = _approve(tmp_path, monkeypatch, diff, setting=True)
+    assert result.exit_code == 0, result.output
+    assert f"held: metadata-only re-save {NEW_ID}={OLD_ID}" in result.output
+    assert "re-run tranche_diff" in result.output
+    assert f"--approve-rename {NEW_ID}={OLD_ID}" in result.output
+    aliases = tmp_path / "aliases.json"
+    assert not aliases.exists() or json.loads(aliases.read_text())["aliases"] == []
+
+
+def test_held_lines_with_the_setting_on_skip_rows_the_diff_moved() -> None:
+    from pursue_index.ingest import held_resave_lines
+    from tests.unit.test_resave_held_evidence import _held_diff
+    moved = {**_on_diff()}
+    assert held_resave_lines(moved, enabled=True) == []
+    assert held_resave_lines(moved, enabled=False)
+    lines = held_resave_lines(_held_diff(), enabled=True)
+    assert len(lines) == 2 and "re-run tranche_diff" in lines[0]

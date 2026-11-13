@@ -274,7 +274,7 @@ def _resolve_renames(
         typer.echo(refusal, err=True)
         raise typer.Exit(2)
     auto_renames = auto_approve_renames(diff, metadata_resaves=opted_in)
-    for line in [] if opted_in else held_resave_lines(diff):
+    for line in held_resave_lines(diff, enabled=opted_in):
         typer.echo(line, err=True)
     try:
         manual_renames = parse_rename_flags(approve_rename or [])
