@@ -146,3 +146,21 @@ def test_rebuild_check_needs_a_pin_or_an_explicit_waiver(tmp_path: Path) -> None
     tar = intermediates.pack(_data_root(tmp_path), tmp_path / "o", "v1")
     with pytest.raises(SystemExit, match="--expect-sha256"):
         intermediates.rebuild_check(tar)
+
+
+def test_unpack_refuses_a_missing_manifest_or_duplicate_members(tmp_path: Path) -> None:
+    with pytest.raises(SystemExit, match=r"no readable MANIFEST\.json"):
+        intermediates.unpack(_tar(tmp_path, {"ocr/a/pages.jsonl": b"x"}), tmp_path / "d1")
+    path = tmp_path / "dup.tar.gz"
+    with tarfile.open(path, mode="w:gz") as tar:
+        for _ in range(2):
+            tar.addfile(intermediates._tarinfo("ocr/a/pages.jsonl", 1), io.BytesIO(b"x"))
+    with pytest.raises(SystemExit, match="duplicate tar member"):
+        intermediates.unpack(path, tmp_path / "d2")
+
+
+def test_binary_mode_sha256sums_are_accepted(tmp_path: Path) -> None:
+    tar = intermediates.pack(_data_root(tmp_path), tmp_path / "o", "v1")
+    digest = intermediates._sha256_file(tar)
+    (tmp_path / "o" / "SHA256SUMS").write_text(f"{digest} *{tar.name}\n")
+    assert intermediates._check_sums(tar, digest) == digest

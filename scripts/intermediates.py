@@ -140,8 +140,9 @@ def _check_sums(tarball: Path, expect: str | None = None) -> str:
     sums = tarball.parent / "SHA256SUMS"
     if not sums.is_file():
         raise SystemExit(f"intermediates: no SHA256SUMS beside {tarball.name}")
-    listed = {ln.split()[1]: ln.split()[0] for ln in sums.read_text().splitlines()
-              if len(ln.split()) == 2}
+    # `digest  name` (text mode) or `digest *name` (sha256sum -b).
+    listed = {ln.split()[1].removeprefix("*"): ln.split()[0]
+              for ln in sums.read_text().splitlines() if len(ln.split()) == 2}
     if listed.get(tarball.name) != digest:
         raise SystemExit(f"intermediates: {tarball.name} does not match SHA256SUMS")
     if expect is not None and expect.lower() != digest:
@@ -154,11 +155,15 @@ def unpack(tarball: Path, dest: Path) -> dict[str, Any]:
     """Extract regular files only, inside ``dest``; verify every manifest hash."""
     with tarfile.open(tarball, mode="r:gz") as tar:
         members = []
+        names: set[str] = set()
         total = 0
         for m in tar:  # headers only; stops at the first bad member
             parts = Path(m.name).parts
             if not m.isfile() or m.name.startswith("/") or ".." in parts or not parts:
                 raise SystemExit(f"intermediates: refusing tar member {m.name!r}")
+            if m.name in names:
+                raise SystemExit(f"intermediates: duplicate tar member {m.name!r}")
+            names.add(m.name)
             total += m.size
             if (len(members) >= MAX_MEMBERS or m.size > MAX_MEMBER_BYTES
                     or total > MAX_TOTAL_BYTES):
@@ -171,14 +176,21 @@ def unpack(tarball: Path, dest: Path) -> dict[str, Any]:
             assert src is not None
             with target.open("wb") as out:  # streamed, never whole in memory
                 shutil.copyfileobj(src, out, 1 << 20)
-    manifest = json.loads((dest / MANIFEST_NAME).read_text(encoding="utf-8"))
-    if manifest.get("schema") != SCHEMA:
-        raise SystemExit(f"intermediates: manifest schema {manifest.get('schema')!r}")
+    try:
+        manifest = json.loads((dest / MANIFEST_NAME).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise SystemExit(f"intermediates: no readable {MANIFEST_NAME}: {exc}") from exc
+    files = manifest.get("files") if isinstance(manifest, dict) else None
+    if (not isinstance(manifest, dict) or manifest.get("schema") != SCHEMA
+            or not isinstance(files, dict)
+            or not all(isinstance(v, dict) and isinstance(v.get("sha256"), str)
+                       for v in files.values())):
+        raise SystemExit(f"intermediates: {MANIFEST_NAME} is not a {SCHEMA} manifest")
     on_disk = {m.name for m in members} - {MANIFEST_NAME}
-    if on_disk != set(manifest["files"]):
+    if on_disk != set(files):
         raise SystemExit("intermediates: tarball members differ from MANIFEST.json")
-    for arc, meta in manifest["files"].items():
-        if sha256_bytes((dest / arc).read_bytes()) != meta["sha256"]:
+    for arc, meta in files.items():
+        if _sha256_file(dest / arc) != meta["sha256"]:  # streamed
             raise SystemExit(f"intermediates: {arc} does not match MANIFEST.json")
     return manifest
 
@@ -259,11 +271,18 @@ def rebuild_check(tarball: Path, expect: str | None = None,
         raise SystemExit("intermediates: pass --expect-sha256 (from the release notes), or "
                          "--allow-unpinned to accept SHA256SUMS alone, which only catches "
                          "corruption")
-    digest = _check_sums(tarball, expect)
-    print(f"intermediates: checking {tarball.name} (sha256 {digest})")
     with tempfile.TemporaryDirectory(prefix="intermediates-") as tmp:
+        # Hash and unpack one private copy, so the file cannot change between
+        # the hash check and the unpack.
+        copy = Path(tmp) / tarball.name
+        shutil.copyfile(tarball, copy)
+        sums = tarball.parent / "SHA256SUMS"
+        if sums.is_file():  # _check_sums refuses the copy when it is missing
+            shutil.copyfile(sums, Path(tmp) / "SHA256SUMS")
+        digest = _check_sums(copy, expect)
+        print(f"intermediates: checking {tarball.name} (sha256 {digest})")
         root, out = Path(tmp) / "root", Path(tmp) / "out"
-        manifest = unpack(tarball, root)
+        manifest = unpack(copy, root)
         print(f"  unpacked {len(manifest['files'])} files; every hash matches MANIFEST.json")
         rebuild(root, out)
         problems = compare(out)
