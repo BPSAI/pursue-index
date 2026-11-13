@@ -12,21 +12,24 @@ import sys
 from pathlib import Path
 
 
-def _load_page_text():
-    """``pursue_index/page_text.py``, loaded by file path.
+def _load_leaf(name: str):
+    """``pursue_index/<name>.py``, a stdlib-only module, loaded by file path.
 
-    It is stdlib-only, but importing it as ``pursue_index.page_text`` would
-    run the package ``__init__`` and its third-party deps first, so this
-    script stays importable without the package installed.
+    Importing it as ``pursue_index.<name>`` would run the package
+    ``__init__`` and its third-party deps first, so this script stays
+    importable without the package installed.
     """
-    path = Path(__file__).resolve().parents[1] / "src" / "pursue_index" / "page_text.py"
-    spec = importlib.util.spec_from_file_location("_pursue_page_text", path)
+    path = Path(__file__).resolve().parents[1] / "src" / "pursue_index" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"_pursue_{name}", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
-_published_ocr_text = _load_page_text().published_ocr_text
+_published_ocr_text = _load_leaf("page_text").published_ocr_text
+# The same one-row-per-page choice the cleaning build makes, so the text
+# published for a page is the text its cleaned row was stamped against.
+_latest_per_page = _load_leaf("page_rows").latest_per_page
 
 
 def _clean_text(text: str) -> str:
@@ -94,21 +97,25 @@ def emit_card_pages(
 ) -> list[dict[str, object]]:
     out: list[dict[str, object]] = []
     with pages_path.open(encoding="utf-8") as fh:
-        for line in fh:
-            row = json.loads(line)
-            page = int(row["page"])
-            text = _resolve_page_text(
-                card_id, page, row["text"], obs_lookup
-            )
-            out.append(
-                {
-                    "id": f"{card_id}-p{page}",
-                    "card_id": card_id,
-                    "page": page,
-                    "title": title,
-                    "text": text,
-                    "engine": row.get("engine", "unknown"),
-                    "confidence": row.get("confidence", 0),
-                }
-            )
+        rows = [json.loads(line) for line in fh if line.strip()]
+    # pages.jsonl is append-only: a re-OCR adds a row for a page that already
+    # has one. Publish one row per page, chosen as build_pages_cleaned chooses
+    # (latest by generated_at, then file order), so the release gate's
+    # per-page provenance compares like with like.
+    for row in sorted(_latest_per_page(rows, card_id), key=lambda r: int(r["page"])):
+        page = int(row["page"])
+        text = _resolve_page_text(
+            card_id, page, row["text"], obs_lookup
+        )
+        out.append(
+            {
+                "id": f"{card_id}-p{page}",
+                "card_id": card_id,
+                "page": page,
+                "title": title,
+                "text": text,
+                "engine": row.get("engine", "unknown"),
+                "confidence": row.get("confidence", 0),
+            }
+        )
     return out
