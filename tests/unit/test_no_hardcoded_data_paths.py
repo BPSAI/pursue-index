@@ -157,20 +157,18 @@ def relocated_data_root(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     path, because the operator's configured root is the very path that used to
     be baked in. Moving the root is what actually proves the coupling.
     """
-    # `pursue_index.config` re-exports the Settings *instance* under the name
-    # `settings`, which shadows the submodule of the same name — so resolve the
-    # module by dotted name rather than by attribute access.
-    settings_mod = importlib.import_module("pursue_index.config.settings")
-    config_pkg = importlib.import_module("pursue_index.config")
+    # The singleton is lazy: dropping its cached Settings makes the next
+    # access rebuild from the current environment. Reloading the settings
+    # modules instead would replace the `settings` proxy object, leaving
+    # modules that imported the old one (config.credentials, for one) reading
+    # a different instance than later tests patch.
+    from tests.conftest import reset_pursue_settings
 
     monkeypatch.setenv("PURSUE_DATA_ROOT", str(tmp_path))
-    importlib.reload(settings_mod)
-    importlib.reload(config_pkg)
+    reset_pursue_settings()
     yield tmp_path
-    # Restore the process-wide singleton for any test that runs after this one.
     monkeypatch.undo()
-    importlib.reload(settings_mod)
-    importlib.reload(config_pkg)
+    reset_pursue_settings()
 
 
 @pytest.mark.parametrize(("script", "attr", "settings_attr"), _SCRIPT_DEFAULTS)

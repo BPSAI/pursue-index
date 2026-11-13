@@ -118,6 +118,10 @@ def _patch_seams(monkeypatch, examine) -> None:
 
     monkeypatch.setattr(client_mod, "examine_image", examine)
     monkeypatch.setattr(render_mod, "load_image_for", lambda item, **kw: item)
+    # These tests drive the operator's --live path against a fake client. The
+    # CLI refuses --live whenever CI is set (GitHub Actions sets CI=true), so
+    # clear it; the CI-refusal test sets it again after this call.
+    monkeypatch.delenv("CI", raising=False)
 
 
 def _examination(_img: object, **_kw) -> dict:
