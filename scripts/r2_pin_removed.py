@@ -60,7 +60,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import hashlib
 import json
-import mimetypes
 from datetime import UTC, datetime
 from typing import Any
 
@@ -71,28 +70,32 @@ _REPO_ROOT = repo_root()
 # Share helpers with r2_archive_assets so the registry contract + client
 # wiring + ext allowlist stay in lockstep across the integrity tooling.
 from r2_archive_assets import (
+    _EXT_CONTENT_TYPES,
     append_registry,
     load_registry,
     make_r2_client,
 )
 
+from pursue_index.card_id import require_card_id
+
 DEFAULT_REMOVED = _REPO_ROOT / "web" / "public" / "data" / "removed-cards.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_BUCKET = "pursue-pdfs"
 
-# Same allowlist as r2_archive_assets. Anything
-# outside the allowlist falls back to "pdf" — see the comment in
-# r2_archive_assets._process_card for the threat model.
-_ALLOWED_EXTS = {"pdf", "jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"}
 
 
 def _now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def _ext_for(asset_filename: str | None) -> str:
-    raw_ext = Path(asset_filename or "").suffix.lstrip(".").lower()
-    return raw_ext if raw_ext in _ALLOWED_EXTS else "pdf"
+def _ext_for(asset_filename: str | None) -> str | None:
+    """The asset's extension when r2_archive_assets' map allows it, else None.
+
+    asset_filename comes from the upstream CSV, so the key suffix and the
+    stored Content-Type both come from that fixed map, never from the raw name.
+    """
+    ext = Path(asset_filename or "").suffix.lstrip(".").lower()
+    return ext if ext in _EXT_CONTENT_TYPES else None
 
 
 def _r2_head_exists(client: Any, bucket: str, key: str) -> bool:
@@ -104,7 +107,9 @@ def _r2_head_exists(client: Any, bucket: str, key: str) -> bool:
         client.head_object(Bucket=bucket, Key=key)
         return True
     except ClientError as exc:
-        code = exc.response.get("Error", {}).get("Code", "")
+        # A missing or None response must not mask the original error.
+        response = getattr(exc, "response", None) or {}
+        code = (response.get("Error") or {}).get("Code", "")
         if code in ("404", "NoSuchKey", "NotFound"):
             return False
         raise
@@ -161,7 +166,9 @@ def _put_archive_append_only(
         )
         return False
     except ClientError as exc:
-        code = exc.response.get("Error", {}).get("Code", "")
+        # A missing or None response must not mask the original error.
+        response = getattr(exc, "response", None) or {}
+        code = (response.get("Error") or {}).get("Code", "")
         if code in ("PreconditionFailed", "412"):
             # Append-only contract held — existing bytes are what we want.
             return True
@@ -200,18 +207,27 @@ def pin_card(
 ) -> str:
     """Pin one /removed card into the integrity layer.
 
-    Returns: ``already-pinned`` | ``missing-in-r2`` | ``would-pin`` |
-    ``archive-existed`` | ``pinned``.
+    Returns: ``refused`` | ``already-pinned`` | ``missing-in-r2`` |
+    ``would-pin`` | ``archive-existed`` | ``pinned``. ``refused`` means a
+    malformed card_id or an extension outside the map; no request is made.
     """
     card = card_entry.get("card", {})
-    card_id = card.get("card_id")
-    if not card_id:
+    raw_id = card.get("card_id")
+    if not raw_id:
         return "missing-in-r2"
+    try:
+        card_id = require_card_id(raw_id)
+    except ValueError:
+        print(f"[r2-pin] refused: malformed card_id {str(raw_id)[:32]!r}")
+        return "refused"
     if registry.get(card_id):
         return "already-pinned"
 
     asset_filename = card.get("asset_filename")
     ext = _ext_for(asset_filename)
+    if ext is None:
+        print(f"[r2-pin] refused {card_id}: unsupported asset extension")
+        return "refused"
     current_key = f"{card_id}.{ext}"
     if not _r2_head_exists(client, bucket, current_key):
         print(f"[r2-pin] missing-in-r2 {card_id}: no object at {current_key}")
@@ -226,9 +242,7 @@ def pin_card(
         print(f"[r2-pin] would-pin {detail}")
         return "would-pin"
 
-    content_type = (
-        mimetypes.guess_type(asset_filename or "")[0] or "application/octet-stream"
-    )
+    content_type = _EXT_CONTENT_TYPES[ext]
     archive_existed = _put_archive_append_only(
         client, bucket, archive_key, body, content_type
     )
