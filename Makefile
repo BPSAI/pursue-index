@@ -284,12 +284,14 @@ hooks-install:
 # ---- Release artifacts ----
 # Rebuild the published payloads from a release's intermediates asset alone
 # (docs/intermediates.md):
-#   make intermediates-check TARBALL=<path to .tar.gz> [EXPECT=<sha256 from the release notes>]
+#   make intermediates-check TARBALL=<path to .tar.gz> EXPECT=<sha256 from the release notes>
+# (ALLOW_UNPINNED=1 in place of EXPECT accepts SHA256SUMS alone, which only
+# catches corruption.)
 .PHONY: intermediates-check
 intermediates-check:
 	@test -n "$(TARBALL)" || { echo "TARBALL=<intermediates-<tag>.tar.gz> is required" >&2; exit 2; }
 	$(PYTHON) scripts/intermediates.py rebuild-check --tarball "$(TARBALL)" \
-		$(if $(EXPECT),--expect-sha256 "$(EXPECT)")
+		$(if $(EXPECT),--expect-sha256 "$(EXPECT)") $(if $(ALLOW_UNPINNED),--allow-unpinned)
 
 .PHONY: bundle-copy
 bundle-copy:

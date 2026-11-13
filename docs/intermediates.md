@@ -29,7 +29,8 @@ python scripts/intermediates.py rebuild-check --tarball intermediates/intermedia
 
 `SHA256SUMS` travels with the tarball, so it only catches a corrupted
 download. `--expect-sha256` pins the tarball to a value published separately
-(the release notes), which also catches a substituted file.
+(the release notes), which also catches a substituted file. The check refuses
+to run without it unless you pass `--allow-unpinned`.
 
 `rebuild-check` needs no data root, no network and no API keys. It:
 
@@ -52,9 +53,13 @@ was built from:
 
 ```bash
 python scripts/intermediates.py pack --data-root <data root> --out-dir <dir> --label <tag>
-python scripts/intermediates.py rebuild-check --tarball <dir>/intermediates-<tag>.tar.gz
+python scripts/intermediates.py rebuild-check --tarball <dir>/intermediates-<tag>.tar.gz \
+    --expect-sha256 "$(cut -d' ' -f1 <dir>/SHA256SUMS)"
 ```
+
+The release notes then carry that sha256, so readers can pin it.
 
 The archive is deterministic: members are sorted and their times and owners
 are zeroed, so the same inputs always give the same sha256. Backup and partial
-files beside the intermediates are never packed.
+files beside the intermediates are never packed, and neither is anything
+reached through a symlink.

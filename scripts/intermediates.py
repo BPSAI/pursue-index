@@ -70,7 +70,8 @@ def collect(data_root: Path) -> list[tuple[str, Path]]:
     """``(archive path, source path)`` for every intermediate, sorted."""
     out: list[tuple[str, Path]] = []
     ocr = data_root / "ocr"
-    for card_dir in sorted(p for p in ocr.iterdir() if p.is_dir()):
+    # Never follow a symlinked card directory out of the data root.
+    for card_dir in sorted(p for p in ocr.iterdir() if p.is_dir() and not p.is_symlink()):
         for name in CARD_FILES:
             src = card_dir / name
             if src.is_file() and not src.is_symlink():
@@ -252,7 +253,12 @@ def compare(out: Path, published: Path = PUBLISHED) -> list[str]:
     return problems
 
 
-def rebuild_check(tarball: Path, expect: str | None = None) -> int:
+def rebuild_check(tarball: Path, expect: str | None = None,
+                  allow_unpinned: bool = False) -> int:
+    if expect is None and not allow_unpinned:
+        raise SystemExit("intermediates: pass --expect-sha256 (from the release notes), or "
+                         "--allow-unpinned to accept SHA256SUMS alone, which only catches "
+                         "corruption")
     digest = _check_sums(tarball, expect)
     print(f"intermediates: checking {tarball.name} (sha256 {digest})")
     with tempfile.TemporaryDirectory(prefix="intermediates-") as tmp:
@@ -281,11 +287,13 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--tarball", type=Path, required=True)
     c.add_argument("--expect-sha256", default=None,
                    help="the tarball's sha256 from an independent source; fail on any other")
+    c.add_argument("--allow-unpinned", action="store_true",
+                   help="run without --expect-sha256 (SHA256SUMS then only catches corruption)")
     args = parser.parse_args(argv)
     if args.cmd == "pack":
         pack(args.data_root, args.out_dir, args.label)
         return 0
-    return rebuild_check(args.tarball, args.expect_sha256)
+    return rebuild_check(args.tarball, args.expect_sha256, args.allow_unpinned)
 
 
 if __name__ == "__main__":

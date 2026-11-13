@@ -131,3 +131,18 @@ def test_unpack_refuses_a_tarball_over_the_limits_before_writing(
     monkeypatch.setattr(intermediates, "MAX_TOTAL_BYTES", 16)
     with pytest.raises(SystemExit, match="unpack limits"):
         intermediates.unpack(tar, tmp_path / "dest")
+
+
+def test_a_symlinked_card_directory_is_never_packed(tmp_path: Path) -> None:
+    root = _data_root(tmp_path)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "pages.jsonl").write_text("secret\n")
+    (root / "ocr" / "cccc000000000003").symlink_to(outside, target_is_directory=True)
+    assert not any("cccc" in arc for arc, _src in intermediates.collect(root))
+
+
+def test_rebuild_check_needs_a_pin_or_an_explicit_waiver(tmp_path: Path) -> None:
+    tar = intermediates.pack(_data_root(tmp_path), tmp_path / "o", "v1")
+    with pytest.raises(SystemExit, match="--expect-sha256"):
+        intermediates.rebuild_check(tar)
