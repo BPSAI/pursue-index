@@ -52,6 +52,11 @@ on:
       - "web/public/data/card-aliases.json"
       - "data/build-stamp.json"
       - "scripts/build_stamp.py"
+      # Every folder the build stamp covers, so a hand edit to any stamped
+      # file runs step 4d.1 (test_release_gate_triggers_on_every_stamped_root).
+      - "data/display_dates.json"
+      - "web/src/data/**"
+      - "web/public/data/**"
       - "web/src/content/finds/**"
       # LS1.4 — GEO discovery surfaces and the generator that emits them.
       # A manifest change already fires this workflow (see above), which is
