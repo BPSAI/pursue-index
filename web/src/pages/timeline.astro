@@ -18,11 +18,19 @@ interface RawDateEntry {
   display_date_range?: [string, string] | null;
   display_date_evidence?: string | null;
   display_date_abstention?: string | null;
-  display_date_curator?: string | null;
 }
 
-const approved: RawDateEntry[] = (displayDatesJson as any).entries ?? [];
-const proposals: RawDateEntry[] = proposalsJson as RawDateEntry[];
+// The island's props are serialized into the page, so pass only the fields
+// the timeline draws: not the curator, approval time or proposal metadata.
+const toDateEntry = (e: any): RawDateEntry => ({
+  card_id: e.card_id,
+  display_date: e.display_date ?? null,
+  display_date_range: e.display_date_range ?? null,
+  display_date_evidence: e.display_date_evidence ?? null,
+  display_date_abstention: e.display_date_abstention ?? null,
+});
+const approved: RawDateEntry[] = ((displayDatesJson as any).entries ?? []).map(toDateEntry);
+const proposals: RawDateEntry[] = (proposalsJson as any[]).map(toDateEntry);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
