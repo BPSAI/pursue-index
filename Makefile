@@ -111,10 +111,10 @@ BUILT_WITH = $$(git rev-parse --git-path pursue-build-commit)
 STAMP_CODE_CLEAN = out=$$(git status --porcelain --untracked-files=all -- $(STAMP_CODE_PATHS)) \
 	&& test -z "$$out"
 # Gitignored files under the code paths can still be imported (a stray
-# scripts/x.py shadows a real module). Bytecode caches and egg-info are the only
-# ignored files allowed there.
+# scripts/x.py shadows a real module). Only .pyc files inside __pycache__/ and
+# the package's egg-info directly under src/ are allowed there.
 STAMP_NO_IGNORED_CODE = ign=$$(git ls-files --others --ignored --exclude-standard -- $(STAMP_CODE_PATHS)) \
-	&& test -z "$$(printf '%s\n' "$$ign" | grep -vE '^$$|(^|/)__pycache__/|\.egg-info/' || true)"
+	&& test -z "$$(printf '%s\n' "$$ign" | grep -vE '^$$|(^|/)__pycache__/[^/]+\.pyc$$|^src/[^/]+\.egg-info/' || true)"
 
 .PHONY: build-commit stamp
 build-commit:

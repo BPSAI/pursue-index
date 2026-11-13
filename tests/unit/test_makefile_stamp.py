@@ -166,3 +166,24 @@ def test_code_beside_the_stamped_site_data_stays_checked(tmp_path: Path) -> None
     out = _make(repo, "build-commit")
     assert out.returncode != 0
     assert "uncommitted code" in out.stderr
+
+
+def test_only_bytecode_and_src_egg_info_are_allowed_ignored(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    (repo / "src" / "pkg.egg-info").mkdir(parents=True)
+    (repo / ".gitignore").write_text("__pycache__/\n*.egg-info/\n")
+    _git(repo, "add", ".gitignore")
+    _git(repo, "commit", "-qm", "ignore")
+    _git(repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+    (repo / "scripts" / "__pycache__").mkdir()
+    (repo / "scripts" / "__pycache__" / "x.cpython-312.pyc").write_bytes(b"\0")
+    (repo / "src" / "pkg.egg-info" / "PKG-INFO").write_text("x")
+    assert _make(repo, "build-commit").returncode == 0
+    for path in ("scripts/__pycache__/shadow.py", "scripts/fake.egg-info/mod.py"):
+        target = repo / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("raise SystemExit\n")
+        out = _make(repo, "build-commit")
+        assert out.returncode != 0, path
+        assert "gitignored files" in out.stderr
+        target.unlink()
