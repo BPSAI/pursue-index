@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 """Write or verify ``data/build-stamp.json``, the promote bundle's digest record.
 
-The build writes the approved content into a checkout of the site
-repository (pursue-index). The stamp records, for every bundle file, its
-sha256, plus the builder's commit, so the site can prove that what it is about
-to publish is exactly what the build wrote:
+The release build (``make ship-ready``) writes the approved content into this
+checkout. The stamp records, for every bundle file, its sha256, plus the commit
+of this repository whose code built it, so anyone can prove that what is about
+to be published is exactly what that code wrote, and can check out that commit:
 
-    python scripts/build_stamp.py write  --root <index checkout> --builder-commit <sha>
-    python scripts/build_stamp.py verify --root <index checkout> [--require]
+    python scripts/build_stamp.py write  --root . --builder-commit <sha>
+    python scripts/build_stamp.py verify --root . [--require] [--public-ref origin/main]
 
-The bundle is every git-tracked file under ``BUNDLE_ROOTS`` except code
+The bundle is every file under ``BUNDLE_ROOTS`` that git tracks or would add
+(untracked, not ignored) except code
 (``EXCLUDED``, two fixed code files). Hand-authored editorial content (finds) is not
 bundle: it is reviewed in its own pull requests.
 
 ``verify`` fails (exit 1) when a stamped file is missing or its bytes differ,
 or a bundle file is not in the stamp. Without a stamp it passes with a notice,
-unless ``--require`` (the stamp becomes mandatory once every promote writes one).
+unless ``--require``. With ``--public-ref``, it also fails unless the builder
+commit is in this repository and is an ancestor of that ref (the published
+branch), so the stamp never cites code a reader cannot fetch.
 
-Standard library only, and byte-identical in the build repository (writer)
-and the site repository (verifier), so either can run it without the other's
-dependencies. The stamp names no repository and no internal path.
+Standard library only. The stamp names no repository and no internal path.
 """
 
 from __future__ import annotations
@@ -50,12 +51,21 @@ _SHA1 = re.compile(r"[0-9a-f]{40}")
 
 
 def bundle_files(root: Path) -> list[str]:
-    """Tracked bundle paths under ``root``, sorted, POSIX-relative."""
+    """Bundle paths under ``root``, sorted, POSIX-relative.
+
+    Tracked files plus untracked ones that are not gitignored: a release writes
+    new bundle files (a new manifest snapshot, say) before they are committed,
+    and the commit adds them, so the stamp must cover them already. Tracked
+    paths deleted from the working tree are left out, as the commit removes
+    them.
+    """
     out = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z", "--", *BUNDLE_ROOTS],
+        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+         "--exclude-standard", "--", *BUNDLE_ROOTS],
         capture_output=True, check=True,
     ).stdout.decode("utf-8")
-    return sorted(p for p in out.split("\0") if p and p not in EXCLUDED)
+    paths = {p for p in out.split("\0") if p and p not in EXCLUDED}
+    return sorted(p for p in paths if (root / p).is_symlink() or (root / p).exists())
 
 
 def is_bundle_path(rel: object) -> bool:
@@ -122,15 +132,37 @@ def problems(root: Path, stamp: dict) -> list[str]:
     return out
 
 
+def commit_problems(root: Path, commit: str, public_ref: str) -> list[str]:
+    """Why ``commit`` is not public code in ``root``; ``[]`` when it is an
+    existing commit and an ancestor of ``public_ref``."""
+    if not _SHA1.fullmatch(commit):  # never hand git a ref name or an option
+        return [f"builder commit {commit!r} is not a 40-hex commit sha"]
+    git = ["git", "-C", str(root)]
+    exists = subprocess.run([*git, "cat-file", "-e", f"{commit}^{{commit}}"],
+                            capture_output=True, check=False)
+    if exists.returncode != 0:
+        return [f"builder commit {commit} is not a commit in this repository"]
+    ancestor = subprocess.run([*git, "merge-base", "--is-ancestor", commit, public_ref],
+                              capture_output=True, text=True, check=False)
+    if ancestor.returncode == 1:
+        return [f"builder commit {commit} is not on {public_ref}"]
+    if ancestor.returncode != 0:
+        return [f"cannot check builder commit against {public_ref}: "
+                f"{ancestor.stderr.strip() or 'git failed'}"]
+    return []
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
-    w = sub.add_parser("write", help="stamp the bundle in a pursue-index checkout")
+    w = sub.add_parser("write", help="stamp the bundle in this checkout")
     w.add_argument("--root", type=Path, required=True)
     w.add_argument("--builder-commit", required=True)
     v = sub.add_parser("verify", help="check a checkout's bundle against its stamp")
     v.add_argument("--root", type=Path, default=Path("."))
     v.add_argument("--require", action="store_true", help="fail when there is no stamp")
+    v.add_argument("--public-ref", default=None,
+                   help="fail unless the builder commit is an ancestor of this ref")
     args = parser.parse_args(argv)
 
     stamp_file = args.root / STAMP_PATH
@@ -146,7 +178,10 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         print(f"build-stamp: no {STAMP_PATH} yet; nothing to verify (not yet required)")
         return 0
-    found = problems(args.root, json.loads(stamp_file.read_text(encoding="utf-8")))
+    stamp = json.loads(stamp_file.read_text(encoding="utf-8"))
+    found = problems(args.root, stamp)
+    if not found and args.public_ref:
+        found = commit_problems(args.root, stamp["builder_commit"], args.public_ref)
     if found:
         print(f"build-stamp: {len(found)} problem(s):", file=sys.stderr)
         for line in found[:50]:

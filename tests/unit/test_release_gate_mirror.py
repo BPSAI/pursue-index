@@ -72,9 +72,11 @@ def test_ship_ready_prerequisite_order() -> None:
     """The unit suite runs after the build it may read, before the CI mirror."""
     assert _ship_ready_prereqs() == [
         "release-completeness",
+        "build-commit",
         "rebuild-derivatives",
         "registry-root",
         "snapshot-rotate",
+        "stamp",
         "astro-build",
         "asset-budget",
         "test",

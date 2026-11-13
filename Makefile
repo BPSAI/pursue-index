@@ -79,46 +79,63 @@ clean:
 # because no CI job runs the unit suite; gate-mirror then mirrors release-gate.
 # (Caught 2026-05-22 on a clean rebuild — those integration tests
 # rely on web/dist being current.)
-ship-ready: release-completeness rebuild-derivatives registry-root snapshot-rotate astro-build asset-budget test gate-mirror arch-check staleness
+#
+# build-commit runs before any builder and records the commit whose code builds
+# the release. stamp writes data/build-stamp.json after the last data write
+# (snapshot-rotate), naming that commit. The stamp is then required, and its
+# commit must be on the published branch, so every release cites code anyone
+# can check out.
+ship-ready: release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate stamp astro-build asset-budget test gate-mirror arch-check staleness
+	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
 	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
 
-# ---- release, split between the build repository and this one ----
-# The data builders now run from the build repository, against this
-# checkout. A release is four commands, in order:
-#
-#   1. build-into     (build repository)  moved data builders + snapshot
-#   2. make publish-derivatives  (here)   this repo's generators
-#   3. stamp-into     (build repository)  data/build-stamp.json, last write
-#   4. make publish-checks       (here)   site build + every gate
-#
-# ship-ready above stays until the first release ships this way.
+# ---- build stamp ----
+# The published branch. A release's builder commit must already be on it, so
+# the stamp cites code that anyone can fetch and rebuild from.
+# Fixed: `override` ignores a PUBLIC_REF given on the command line or in the
+# environment, so the publication check cannot be pointed at another ref.
+override PUBLIC_REF := origin/main
+# Code paths: a change here, committed or not, is code the stamp would not cite.
+# The builders, and the site code and build config. The JSON under web/src/data
+# is excluded: it is stamped data that the build writes. The code beside it
+# (manifest-loader.ts, types.ts) stays checked.
+STAMP_CODE_PATHS := src scripts web/scripts web/src ':(exclude,glob)web/src/data/**/*.json' \
+	web/package.json web/package-lock.json web/astro.config.mjs Makefile pyproject.toml
+# Recorded inside .git (never tracked, never published).
+BUILT_WITH = $$(git rev-parse --git-path pursue-build-commit)
+# Shell checks that fail closed: if git itself fails, the check fails (an empty
+# capture from a failed git must not read as "clean").
+# No tracked change and no untracked file under the code paths:
+STAMP_CODE_CLEAN = out=$$(git status --porcelain --untracked-files=all -- $(STAMP_CODE_PATHS)) \
+	&& test -z "$$out"
+# Gitignored files under the code paths can still be imported (a stray
+# scripts/x.py shadows a real module). Bytecode caches and egg-info are the only
+# ignored files allowed there.
+STAMP_NO_IGNORED_CODE = ign=$$(git ls-files --others --ignored --exclude-standard -- $(STAMP_CODE_PATHS)) \
+	&& test -z "$$(printf '%s\n' "$$ign" | grep -vE '^$$|(^|/)__pycache__/|\.egg-info/' || true)"
 
-.PHONY: publish-derivatives publish-checks
-# This repo's own generators. They read what step 1 wrote (manifest, aliases,
-# pages.json, embed index), so they run after it and before the stamp.
-publish-derivatives:
-	@echo "==> Site generators (byte-history, cards-summary, csv-archive)"
-	@cd web && node scripts/build_byte_history.mjs > /dev/null
-	@cd web && node scripts/build_cards_summary.mjs > /dev/null
-	@cd web && node scripts/build_csv_archive.mjs > /dev/null
-	@$(PYTHON) scripts/build_llms_txt.py 2>&1 | tail -1
-	@$(PYTHON) scripts/build_finds_og_images.py 2>&1 | tail -1
-	@# Needs pages.json and embed_index.json from step 1, current.
-	@$(PYTHON) scripts/build_retrieve_rows.py
-	@$(MAKE) --no-print-directory registry-root
-	@# Last generator: splits any oversize payload the steps above wrote.
-	@$(PYTHON) scripts/chunk_public_assets.py
-	@echo "publish-derivatives: done. Next: stamp-into in the build repository"
+.PHONY: build-commit stamp
+build-commit:
+	@$(STAMP_CODE_CLEAN) \
+		|| { echo "build-commit: uncommitted code under $(STAMP_CODE_PATHS)" >&2; exit 1; }
+	@$(STAMP_NO_IGNORED_CODE) \
+		|| { echo "build-commit: gitignored files under the code paths" >&2; exit 1; }
+	@git merge-base --is-ancestor HEAD '$(PUBLIC_REF)' \
+		|| { echo "build-commit: HEAD is not on $(PUBLIC_REF); build from published code" >&2; exit 1; }
+	@git rev-parse HEAD > "$(BUILT_WITH)"
+	@echo "build-commit: building with $$(git rev-parse --short HEAD)"
 
-# Every gate, after the stamp. The stamp is required here: a release whose
-# published data does not match it, or has none, fails.
-publish-checks: astro-build asset-budget test gate-mirror arch-check staleness
-	@$(PYTHON) scripts/build_stamp.py verify --root . --require
-	@echo ""
-	@echo "publish-checks: ALL GATES PASSED. Safe to commit."
-	@echo ""
+stamp:
+	@test -f "$(BUILT_WITH)" || { echo "stamp: no build-commit recorded" >&2; exit 1; }
+	@test "$$(cat "$(BUILT_WITH)")" = "$$(git rev-parse HEAD)" \
+		|| { echo "stamp: HEAD moved since build-commit" >&2; exit 1; }
+	@$(STAMP_CODE_CLEAN) \
+		|| { echo "stamp: code changed during the build" >&2; exit 1; }
+	@$(STAMP_NO_IGNORED_CODE) \
+		|| { echo "stamp: gitignored files appeared under the code paths" >&2; exit 1; }
+	@$(PYTHON) scripts/build_stamp.py write --root . --builder-commit "$$(cat "$(BUILT_WITH)")"
 
 # First prerequisite of ship-ready: refuse a release before spending build time
 # on it when an AUD card has no transcript, a VID/AUD card has no registered
