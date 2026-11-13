@@ -42,6 +42,8 @@ jobs:
     steps:
       # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
 
       # actions/setup-python v6.0.0 — pinned to SHA per SEC-001.
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
@@ -58,7 +60,18 @@ jobs:
         run: |
           python scripts/fuzz_classify_bytes.py \
             --iterations "$ITERATIONS" --seed "$SEED" \
-            --time-budget 1200 --findings-dir fuzz-findings
+            --time-budget 900 --findings-dir fuzz-findings
+
+      # Production classifies in the resource-limited worker (classify_bytes'
+      # default, isolated=True). It is ~100x slower per pair, so it gets a
+      # smaller fixed count on the same seed.
+      - name: Differential fuzz run (isolated worker, the production path)
+        env:
+          SEED: ${{ inputs.seed || github.run_id }}
+        run: |
+          python scripts/fuzz_classify_bytes.py \
+            --iterations 1000 --seed "$SEED" --isolated \
+            --time-budget 600 --findings-dir fuzz-findings/isolated
 
       # actions/upload-artifact v7.0.1 — pinned to SHA per SEC-001.
       - name: Upload failing pairs
