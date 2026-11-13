@@ -292,8 +292,7 @@ function _readJson(path) {
 
 describe("registry invariant — URL-stability across non-excluded entries", () => {
   // This is the recurrence-detector for the 2026-05-11/12 pipeline-
-  // evolution misroute event (see opsec finding
-  // 2026-05-28-pipeline-byte-misroute-9-cards.md). Every card_id in
+  // evolution misroute event. Every card_id in
   // the registry should have exactly one distinct asset_url across all
   // non-excluded fetches. If a future event registers a different URL
   // under an existing card_id, this test fails before anything ships

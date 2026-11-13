@@ -89,7 +89,7 @@ def test_video_nas_default_follows_data_root_from_the_supplied_env_file(
     module = _load_script("ingest_release_videos")
 
     nas_root = tmp_path / "nas-root"
-    env_file = tmp_path / "opsec.env"
+    env_file = tmp_path / "operator.env"
     env_file.write_text(
         f"PURSUE_DATA_ROOT={nas_root}\nR2_ACCESS_KEY_ID=ak\nR2_SECRET_ACCESS_KEY=sk\n",
         encoding="utf-8",

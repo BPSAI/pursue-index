@@ -15,7 +15,7 @@ The contract: every archived asset (PDF / IMG / A/V bytes) must land in
                       ``archive/<sha>.<ext>`` plus a ``<card_id>.<ext>``
                       current-pointer here (this is the serving tier).
   3. ``r2_backup``  — the backup bucket ``pursue-pdfs-backup``; filled by the
-                      opsec daily mirror cron (``mirror_to_backup.py``), NOT by
+                      operator daily mirror cron (``mirror_to_backup.py``), NOT by
                       the inline ingest run.
 
 KNOWN RISK (documented finding, surfaced by ``verify_storage_contract``): the
@@ -69,7 +69,7 @@ STORAGE_CONTRACT: tuple[StorageTier, ...] = (
         name="r2_backup",
         display=f"backup R2 ({BACKUP_R2_BUCKET})",
         bucket=BACKUP_R2_BUCKET,
-        written_by="opsec daily mirror cron (mirror_to_backup.py), not inline ingest",
+        written_by="operator daily mirror cron (mirror_to_backup.py), not inline ingest",
         required_env=(
             "BACKUP_R2_ACCOUNT_ID",
             "BACKUP_R2_ACCESS_KEY_ID",

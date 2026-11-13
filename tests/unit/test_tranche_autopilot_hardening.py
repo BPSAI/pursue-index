@@ -223,7 +223,7 @@ def test_repo_slug_is_validated(url: str, slug: str | None) -> None:
 
 
 def test_status_keeps_the_source_of_an_unstaged_rename() -> None:
-    # opsec#72 row 1: porcelain reports a worktree-only rename as " R"; the
+    # Porcelain reports a worktree-only rename as " R"; the
     # source path must still be read (and committed as a deletion), not
     # consumed as the next entry's status line.
     from types import SimpleNamespace
