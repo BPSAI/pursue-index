@@ -125,3 +125,26 @@ def test_a_symlinked_bundle_file_is_refused(index: Path, tmp_path: Path) -> None
     assert "symlink, not a file: web/public/data/pages.json" in build_stamp.problems(index, stamp)
     with pytest.raises(ValueError):
         build_stamp.build(index, COMMIT)
+
+
+def test_only_the_two_named_code_files_are_excluded(index: Path) -> None:
+    # Native review P2 on the verifier: a .ts suffix alone must not exempt a
+    # file under a bundle root from the stamp.
+    stamp = _write(index)
+    (index / "web/public/data/sneaky.ts").write_text("x")
+    subprocess.run(["git", "-C", str(index), "add", "web/public/data/sneaky.ts"], check=True)
+    assert "not in the stamp: web/public/data/sneaky.ts" in build_stamp.problems(index, stamp)
+
+
+def test_a_symlinked_parent_directory_is_refused(index: Path, tmp_path: Path) -> None:
+    # Native review P2: a bundle file reached through a symlinked directory
+    # resolves outside the checkout.
+    stamp = _write(index)
+    outside = tmp_path / "elsewhere"
+    outside.mkdir()
+    (outside / "pages.json").write_text("[]")
+    data = index / "web/public/data"
+    (data / "pages.json").unlink()
+    data.rmdir()
+    data.symlink_to(outside, target_is_directory=True)
+    assert "symlink, not a file: web/public/data/pages.json" in build_stamp.problems(index, stamp)

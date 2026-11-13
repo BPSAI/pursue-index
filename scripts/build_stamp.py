@@ -10,7 +10,7 @@ to publish is exactly what the build wrote:
     python scripts/build_stamp.py verify --root <index checkout> [--require]
 
 The bundle is every git-tracked file under ``BUNDLE_ROOTS`` except code
-(``EXCLUDE_SUFFIXES``). Hand-authored editorial content (finds) is not
+(``EXCLUDED``, two fixed code files). Hand-authored editorial content (finds) is not
 bundle: it is reviewed in its own pull requests.
 
 ``verify`` fails (exit 1) when a stamped file is missing or its bytes differ,
@@ -43,7 +43,9 @@ BUNDLE_ROOTS = (
     "web/public/llms.txt",
     "web/public/llms-full.txt",
 )
-EXCLUDE_SUFFIXES = (".ts",)
+# The only code under the bundle roots, named exactly: any other file there,
+# whatever its suffix, is bundle and must be stamped.
+EXCLUDED = frozenset({"web/src/data/manifest-loader.ts", "web/src/data/types.ts"})
 _SHA1 = re.compile(r"[0-9a-f]{40}")
 
 
@@ -53,7 +55,7 @@ def bundle_files(root: Path) -> list[str]:
         ["git", "-C", str(root), "ls-files", "-z", "--", *BUNDLE_ROOTS],
         capture_output=True, check=True,
     ).stdout.decode("utf-8")
-    return sorted(p for p in out.split("\0") if p and not p.endswith(EXCLUDE_SUFFIXES))
+    return sorted(p for p in out.split("\0") if p and p not in EXCLUDED)
 
 
 def is_bundle_path(rel: object) -> bool:
@@ -64,9 +66,14 @@ def is_bundle_path(rel: object) -> bool:
     parts = PurePosixPath(rel).parts
     if rel.startswith("/") or any(p in ("", ".", "..") for p in rel.split("/")):
         return False
-    if rel.endswith(EXCLUDE_SUFFIXES):
+    if rel in EXCLUDED:
         return False
     return any(rel == r or rel.startswith(r + "/") for r in BUNDLE_ROOTS) and bool(parts)
+
+
+def _inside(root: Path, path: Path) -> bool:
+    """True when ``path``, with every symlinked parent resolved, stays in ``root``."""
+    return path.resolve().is_relative_to(root.resolve())
 
 
 def sha256_file(path: Path) -> str:
@@ -80,7 +87,8 @@ def sha256_file(path: Path) -> str:
 def build(root: Path, builder_commit: str) -> dict:
     if not _SHA1.fullmatch(builder_commit):
         raise ValueError(f"--builder-commit must be a 40-hex commit sha, got {builder_commit!r}")
-    links = [rel for rel in bundle_files(root) if (root / rel).is_symlink()]
+    links = [rel for rel in bundle_files(root)
+             if (root / rel).is_symlink() or not _inside(root, root / rel)]
     if links:
         raise ValueError(f"bundle files must be regular files, not symlinks: {links[:5]}")
     files = {rel: sha256_file(root / rel) for rel in bundle_files(root)}
@@ -104,7 +112,7 @@ def problems(root: Path, stamp: dict) -> list[str]:
             out.append(f"not a bundle path: {rel!r}")
             continue
         path = root / rel
-        if path.is_symlink():
+        if path.is_symlink() or not _inside(root, path):
             out.append(f"symlink, not a file: {rel}")
         elif not path.is_file():
             out.append(f"missing: {rel}")
