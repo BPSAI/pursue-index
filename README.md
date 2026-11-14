@@ -30,7 +30,8 @@ useless for searching the actual contents of the documents.
 5. Serve the result as a static site with mandatory citations on every claim.
 
 Every record traces back to a specific page of a specific war.gov PDF.
-Methodology is published. Numbers are reproducible from a clean clone.
+Methodology is published. Releases can be verified, and their derived files rebuilt,
+from a clean clone (see [Reproducibility](#reproducibility)).
 
 ## What's live
 
@@ -143,8 +144,23 @@ See [`docs/architecture.md`](docs/architecture.md) for the full design.
 
 ## Reproducibility
 
-The manifest is **hash-pinned and version-controlled**. From a clean clone
-with the upstream CSV available, any reader can rebuild the entire index:
+What a reader can repeat comes in three tiers:
+
+1. **Verify (free).** The manifest is hash-pinned to the archived upstream CSV,
+   and the signed registry root covers the archived document bytes. From v1.7.1
+   on, each release's build stamp (`data/build-stamp.json`) also records the
+   sha256 of every published data file and the public commit that built it
+   (`python scripts/build_stamp.py verify --root . --require --public-ref origin/main`).
+2. **Rebuild the derivatives (free).** From v1.7.1 on, each release carries its
+   intermediates (the OCR and transcript text, the cleaning sidecars and the
+   page embeddings) as an asset. `scripts/intermediates.py rebuild-check` rebuilds the search,
+   cleaned-text and embedding payloads from that asset alone, with no API keys,
+   and compares them with the published ones. See
+   [docs/intermediates.md](docs/intermediates.md).
+3. **Regenerate (paid, not repeatable).** The pipeline below reruns every stage
+   from the source documents. OCR, cleanup, vision and embedding need your own
+   paid API keys, and LLM OCR and cleanup produce different text on a rerun, so
+   expect text that differs in the details, not the same bytes.
 
 ```bash
 pursue scrape run                                        # writes manifests/latest.json + archives raw CSV
@@ -157,12 +173,6 @@ pursue embed run --manifest data/manifests/latest.json
 
 Each stage is content-addressed by `card_id = sha256(asset_url || title)[:16]`,
 so partial reruns converge on the same final state regardless of order.
-
-OCR, cleanup and embedding need paid model calls, and LLM OCR gives different
-text on a rerun. To rebuild the published payloads without either, use a
-release's intermediates asset (the OCR text, cleaning sidecars and vectors)
-and `scripts/intermediates.py rebuild-check`. See
-[docs/intermediates.md](docs/intermediates.md).
 
 The CSV archive (`data/raw/csv/<sha>.csv`, content-addressed and
 committed to the repo) is a forensic trail of how the source has
