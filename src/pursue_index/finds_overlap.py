@@ -33,7 +33,16 @@ class _StringLoader(yaml.SafeLoader):
     Astro's schema (``web/src/content.config.ts``) types ``cards`` and
     ``supplements`` as strings. A card id written without quotes that happens
     to be all digits must not become an integer and lose its leading zeros.
+    Aliases are refused, so a frontmatter block can't expand itself into an
+    unbounded document ("billion laughs"); no entry needs them.
     """
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            raise yaml.composer.ComposerError(
+                None, None, "YAML aliases are not allowed in /finds frontmatter",
+                self.peek_event().start_mark)
+        return super().compose_node(parent, index)
 
 
 _StringLoader.yaml_implicit_resolvers = {

@@ -396,6 +396,12 @@ def test_invalid_frontmatter_yaml_is_reported() -> None:
     assert len(errors) == 1 and "'entry-a' frontmatter is not valid YAML" in errors[0]
 
 
+def test_yaml_aliases_are_refused() -> None:
+    fm = "title: A\na: &x [sharedcard123, sharedcard123]\ncards: *x"
+    errors = check_finds_overlap({"entry-a": _raw_entry(fm)})
+    assert len(errors) == 1 and "aliases are not allowed" in errors[0]
+
+
 # --- main() checks a given entry for overlap against the whole corpus (#195) ---
 
 
