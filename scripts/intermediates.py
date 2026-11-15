@@ -7,12 +7,15 @@ the cleaning sidecars, and the float32 embedding vectors. Regenerating them
 costs money and does not reproduce them (LLM OCR and cleanup are
 nondeterministic), so they are published as a versioned release asset instead:
 
-    python scripts/intermediates.py pack --data-root <data root> --out-dir <dir> --label v1.7.0
-    python scripts/intermediates.py rebuild-check --tarball <dir>/intermediates-v1.7.0.tar.gz
+    python scripts/intermediates.py pack --data-root <data root> --out-dir <dir> --label <tag>
+    python scripts/intermediates.py rebuild-check --tarball <dir>/intermediates-<tag>.tar.gz \
+        --expect-sha256 <the tarball's sha256, from the release notes>
 
 ``pack`` writes ``intermediates-<label>.tar.gz`` (deterministic: sorted
 members, zeroed times and owners, so the same inputs give the same bytes) with
 a ``MANIFEST.json`` of every file's sha256, plus ``SHA256SUMS`` beside it.
+The label is fixed when the tarball is packed, so a release whose intermediates
+did not change can ship an earlier release's tarball under its original name.
 
 ``rebuild-check`` unpacks a tarball into a scratch directory, checks every file
 against its manifest, runs this checkout's builders on it alone (no data root,
