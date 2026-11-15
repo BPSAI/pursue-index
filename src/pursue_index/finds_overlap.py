@@ -17,48 +17,51 @@ integration test).
 from __future__ import annotations
 
 import re
+from typing import Any
+
+import yaml
 
 from pursue_index.finds_frontmatter import body_text as _body_text
 from pursue_index.finds_frontmatter import extract_frontmatter as _extract_frontmatter
 
-_SUPPLEMENTS_FIELD = re.compile(r'^supplements:[ \t]*"?([^"\n]+?)"?[ \t]*$', re.MULTILINE)
-_INLINE_CARDS = re.compile(r"^cards:\s*\[(.*)\]\s*$")
 _FINDS_BODY_LINK = re.compile(r"\]\(/finds/([a-zA-Z0-9][a-zA-Z0-9_-]*)\)")
 
 
-def _frontmatter_cards(fm_text: str) -> list[str]:
-    """Card ids in the frontmatter `cards:` list, quotes stripped.
+class _StringLoader(yaml.SafeLoader):
+    """SafeLoader that keeps numbers and dates as the strings they were written as.
 
-    Line-based rather than a single block regex, so it doesn't depend
-    on `cards:` being followed by a trailing newline — true for every
-    real entry (there's always a later field) but not guaranteed for a
-    minimal fixture where `cards:` is the last frontmatter line.
+    Astro's schema (``web/src/content.config.ts``) types ``cards`` and
+    ``supplements`` as strings. A card id written without quotes that happens
+    to be all digits must not become an integer and lose its leading zeros.
     """
-    cards: list[str] = []
-    in_cards = False
-    for line in fm_text.splitlines():
-        inline = _INLINE_CARDS.match(line)
-        if inline:
-            parts = (p.strip().strip('"').strip("'") for p in inline.group(1).split(","))
-            return [p for p in parts if p]
-        if not in_cards:
-            if re.match(r"^cards:\s*$", line):
-                in_cards = True
-            continue
-        if line.strip() == "":
-            continue
-        if line[0].isspace() and line.strip().startswith("-"):
-            item = line.strip()[1:].strip().strip('"').strip("'")
-            cards.append(item)
-        else:
-            break
-    return cards
 
 
-def _frontmatter_supplements(fm_text: str) -> str | None:
-    """The slug named by a `supplements:` frontmatter field, if present."""
-    m = _SUPPLEMENTS_FIELD.search(fm_text)
-    return m.group(1).strip() if m else None
+_StringLoader.yaml_implicit_resolvers = {
+    first: [(tag, rx) for tag, rx in resolvers
+            if tag not in ("tag:yaml.org,2002:int", "tag:yaml.org,2002:float",
+                           "tag:yaml.org,2002:timestamp")]
+    for first, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+
+
+def _frontmatter(text: str) -> dict[str, Any]:
+    """The entry's frontmatter as a mapping; raises ``yaml.YAMLError`` if invalid."""
+    block = _extract_frontmatter(text)
+    # _StringLoader is a SafeLoader subclass, so this builds no Python objects.
+    data = yaml.load(block, Loader=_StringLoader) if block else None
+    return data if isinstance(data, dict) else {}
+
+
+def _frontmatter_cards(fm: dict[str, Any]) -> list[str]:
+    """Card ids in the frontmatter ``cards:`` list, in either YAML list form."""
+    cards = fm.get("cards")
+    return [c.strip() for c in cards if isinstance(c, str) and c.strip()] if isinstance(cards, list) else []
+
+
+def _frontmatter_supplements(fm: dict[str, Any]) -> str | None:
+    """The slug named by a ``supplements:`` frontmatter field, if present."""
+    value = fm.get("supplements")
+    return value.strip() or None if isinstance(value, str) else None
 
 
 def _body_finds_links(body: str) -> set[str]:
@@ -80,16 +83,19 @@ def check_finds_overlap(entries: dict[str, str]) -> list[str]:
     Returns a list of error strings, each naming the offending pair and
     the shared card id(s), or the bad `supplements:` reference.
     """
-    parsed = {
-        slug: {
-            "cards": _frontmatter_cards(_extract_frontmatter(text) or ""),
-            "links": _body_finds_links(_body_text(text)),
-            "supplements": _frontmatter_supplements(_extract_frontmatter(text) or ""),
-        }
-        for slug, text in entries.items()
-    }
-
     errors: list[str] = []
+    parsed = {}
+    for slug, text in entries.items():
+        try:
+            fm = _frontmatter(text)
+        except yaml.YAMLError as exc:
+            errors.append(f"'{slug}' frontmatter is not valid YAML: {exc}".splitlines()[0])
+            fm = {}
+        parsed[slug] = {
+            "cards": _frontmatter_cards(fm),
+            "links": _body_finds_links(_body_text(text)),
+            "supplements": _frontmatter_supplements(fm),
+        }
 
     for slug, info in sorted(parsed.items()):
         supplements = info["supplements"]

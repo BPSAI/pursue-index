@@ -17,6 +17,7 @@ dependencies = [
     "httpx>=0.27",
     "curl-cffi>=0.7",
     "python-dotenv>=1.0",
+    "pyyaml>=6.0",  # finds frontmatter (finds_overlap); also pulled in by uvicorn[standard]
     "tenacity>=8.4",
     # OCR
     "pytesseract>=0.3.10",

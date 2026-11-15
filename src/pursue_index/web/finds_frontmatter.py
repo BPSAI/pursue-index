@@ -7,8 +7,8 @@ fields (``tags``, ``summary``, ``published``) can change without
 breaking the OG build.
 
 If the schema ever grows beyond what this parser handles cleanly,
-swap to PyYAML and add ``pyyaml`` to ``pyproject.toml`` — but that's
-not necessary today.
+swap to PyYAML, which is already a dependency (``finds_overlap`` reads
+frontmatter with it).
 
 Parity contract with ``web/src/content.config.ts``:
 
