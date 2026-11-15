@@ -38,7 +38,8 @@ def test_ship_ready_records_the_commit_before_building_and_stamps_last() -> None
     assert _at(lines, "check_release_completeness.py") < record
     assert record < _at(lines, "build_search_data.py")  # before every builder
     stamp = _at(lines, "build_stamp.py write")
-    assert _at(lines, "runbook_snapshot_rotate.py") < stamp < _at(lines, "npm run build")
+    # After the site build: its npm prebuild rewrites stamped files (csv/index.json).
+    assert _at(lines, "runbook_snapshot_rotate.py") < _at(lines, "npm run build") < stamp
     last = [ln for ln in lines if "build_stamp.py" in ln][-1]
     assert "verify" in last and "--require" in last and "--public-ref 'origin/main'" in last
 
