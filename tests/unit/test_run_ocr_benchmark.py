@@ -12,6 +12,7 @@ The Anthropic SDK is faked throughout; nothing here makes a network call.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,8 @@ _SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
+import _ocr_benchmark_candidates as obcands  # noqa: E402
+import _ocr_benchmark_llm as obl  # noqa: E402
 import _ocr_metrics as om  # noqa: E402
 import build_ocr_report as br  # noqa: E402
 import run_ocr_benchmark as rb  # noqa: E402
@@ -208,6 +211,124 @@ def test_live_run_accepts_key_from_settings_not_environ(
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(settings, "anthropic_api_key", SecretStr("dummy-settings-key"))
     monkeypatch.setattr(rb, "parse_golden", lambda: [])
+    monkeypatch.setattr(rb, "missing_engines", lambda: [])
+    monkeypatch.setattr(rb.settings, "ocr_llm_model", "claude-haiku-4-5")
     monkeypatch.setattr(rb, "load_manifest", lambda p: (_ for _ in ()).throw(RuntimeError("past-gate")))
     with pytest.raises(RuntimeError, match="past-gate"):
         rb.main([])
+
+
+# ---------------------------------------------------------------------------
+# #198 — price from the invoked model, a hard spend cap, engines checked first
+# ---------------------------------------------------------------------------
+def _images(n: int) -> list:
+    from pdf2image import convert_from_path
+
+    return convert_from_path(str(FIXTURE_PDF), dpi=72)[:n]
+
+
+def test_the_truth_pass_is_priced_at_the_resolved_models_rate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(ocr_llm, "_get_anthropic_client", lambda: _FakeAnthropic())
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path)
+    truth = rb.candidate_for_model("claude-sonnet-4-6")
+    rows = rb.run_llm(_images(1), truth)
+    # 1200 input and 400 output tokens at $3 and $15 per million, not Haiku's $1 and $5.
+    assert rows[0]["cost_usd"] == pytest.approx(1200 / 1e6 * 3.0 + 400 / 1e6 * 15.0)
+
+
+def test_an_unpriced_model_is_refused() -> None:
+    with pytest.raises(SystemExit, match="no price for model 'claude-unknown'"):
+        rb.candidate_for_model("claude-unknown")
+
+
+def test_main_refuses_an_unpriced_resolved_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(rb, "parse_golden", lambda: [])
+    monkeypatch.setattr(rb.settings, "ocr_llm_model", "claude-unknown")
+    with pytest.raises(SystemExit, match="no price"):
+        rb.main([])
+
+
+def test_the_budget_refuses_a_call_that_could_pass_the_cap() -> None:
+    budget = rb.Budget(cap_usd=0.01)
+    budget.reserve(0.01)  # exactly at the cap is allowed
+    budget.add(0.008)
+    with pytest.raises(rb.CapReachedError, match="hard cap"):
+        budget.reserve(0.003)
+    rb.Budget().reserve(1e9)  # no cap, never refused
+
+
+def test_run_llm_stops_before_the_call_that_would_pass_the_cap(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    fake = _FakeAnthropic()
+    monkeypatch.setattr(ocr_llm, "_get_anthropic_client", lambda: fake)
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path)
+    monkeypatch.setattr(obl, "LLM_CALL_DELAY_S", 0)
+    truth = rb.candidate_for_model("claude-haiku-4-5")
+    per_page = obcands.estimate_candidate_cost(truth, 1)
+    with pytest.raises(rb.CapReachedError):
+        rb.run_llm(_images(3), truth, rb.Budget(cap_usd=per_page * 0.5))
+    assert fake.messages.calls == []  # refused before any paid call
+    budget = rb.Budget(cap_usd=per_page * 1.5)
+    with pytest.raises(rb.CapReachedError):
+        rb.run_llm(_images(3), truth, budget)
+    assert len(fake.messages.calls) == 1
+    assert budget.spent_usd > 0
+
+
+def test_a_hard_cap_must_be_positive(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(rb, "parse_golden", lambda: [])
+    with pytest.raises(SystemExit) as exc:
+        rb.main(["--hard-cap-usd", "0"])
+    assert exc.value.code == 2
+
+
+def test_a_run_stopped_on_the_cap_says_so_and_keeps_finished_cards(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from datetime import UTC, datetime
+
+    calls: list[str] = []
+
+    def fake_card(card_id, entry, manifest, truth, budget):
+        calls.append(card_id)
+        if len(calls) == 2:
+            raise rb.CapReachedError("stopped on the hard cap: test")
+        return {"card_id": card_id}
+
+    monkeypatch.setattr(rb, "benchmark_card", fake_card)
+    monkeypatch.setattr(rb, "OUT_DIR", tmp_path)
+    golden = [{"card_id": c} for c in ("a", "b", "c")]
+    truth = rb.candidate_for_model("claude-sonnet-4-6")
+    out = rb._run_all(golden, None, truth, rb.Budget(cap_usd=1.0), datetime.now(UTC))
+    payload = json.loads(out.read_text())
+    assert calls == ["a", "b"]
+    assert [r["card_id"] for r in payload["results"]] == ["a"]
+    assert payload["stopped_on_cap"] == "stopped on the hard cap: test"
+    assert payload["llm_model"] == "claude-sonnet-4-6"
+    assert payload["llm_pricing"]["input_per_m"] == 3.0
+    assert payload["hard_cap_usd"] == 1.0
+    assert not list(tmp_path.glob("_checkpoint-*"))
+
+
+def test_missing_engines_names_each_one() -> None:
+    assert rb.missing_engines(find_spec=lambda name: object(), which=lambda name: "/bin/x") == []
+    problems = rb.missing_engines(find_spec=lambda name: None, which=lambda name: None)
+    assert [p.split(":")[0] for p in problems] == ["surya", "tesseract"]
+
+
+def test_main_refuses_at_startup_when_an_engine_is_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(rb, "parse_golden", lambda: [])
+    monkeypatch.setattr(rb.settings, "ocr_llm_model", "claude-haiku-4-5")
+    monkeypatch.setattr(rb, "missing_engines", lambda: ["surya: not installed"])
+    monkeypatch.setattr(rb, "load_manifest", lambda p: pytest.fail("ran past the engine check"))
+    with pytest.raises(SystemExit, match="surya: not installed"):
+        rb.main([])
+
+
+def test_the_engine_listing_names_each_model_and_its_per_page_cost() -> None:
+    text = rb.engine_lines(rb.candidate_for_model("claude-sonnet-4-6"), 2.5)
+    assert "claude-sonnet-4-6" in text and "claude-sonnet-5-5" in text
+    assert "/page" in text and "hard cap: $2.5000" in text
