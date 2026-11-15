@@ -139,3 +139,19 @@ def test_build_missing_registry_yields_empty_list(tmp_path: Path) -> None:
 
     out = json.loads(out_path.read_text())
     assert out["card_ids"] == []
+
+
+def test_rebuilding_unchanged_input_keeps_the_bytes(tmp_path: Path) -> None:
+    registry = tmp_path / "registry.jsonl"
+    out_path = tmp_path / "out.json"
+    registry.write_text(_reg_line("vid1", "vid1.mp4") + "\n")
+    build_video_card_index.build(registry_path=registry, out_path=out_path)
+    first = json.loads(out_path.read_text())
+    first["generated_at"] = "2000-01-01T00:00:00+00:00"  # an older build
+    out_path.write_text(json.dumps(first, indent=2) + "\n")
+    before = out_path.read_bytes()
+    build_video_card_index.build(registry_path=registry, out_path=out_path)
+    assert out_path.read_bytes() == before
+    registry.write_text(_reg_line("vid1", "vid1.mp4") + "\n" + _reg_line("vid2", "vid2.mp4") + "\n")
+    build_video_card_index.build(registry_path=registry, out_path=out_path)
+    assert json.loads(out_path.read_text())["generated_at"] != "2000-01-01T00:00:00+00:00"
