@@ -396,6 +396,17 @@ def test_invalid_frontmatter_yaml_is_reported() -> None:
     assert len(errors) == 1 and "'entry-a' frontmatter is not valid YAML" in errors[0]
 
 
+def test_deeply_nested_yaml_is_reported_not_raised() -> None:
+    fm = "title: A\ncards: " + "[" * 5000 + "]" * 5000
+    errors = check_finds_overlap({"entry-a": _raw_entry(fm)})
+    assert len(errors) == 1 and "not valid YAML" in errors[0]
+
+
+def test_a_card_item_that_is_not_a_string_is_reported() -> None:
+    errors = check_finds_overlap({"entry-a": _raw_entry("title: A\ncards:\n  - [nested]\n  - abc")})
+    assert errors == ["'entry-a' cards: lists an item that is not a card id string"]
+
+
 def test_yaml_aliases_are_refused() -> None:
     fm = "title: A\na: &x [sharedcard123, sharedcard123]\ncards: *x"
     errors = check_finds_overlap({"entry-a": _raw_entry(fm)})

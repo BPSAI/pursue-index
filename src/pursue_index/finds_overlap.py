@@ -97,9 +97,12 @@ def check_finds_overlap(entries: dict[str, str]) -> list[str]:
     for slug, text in entries.items():
         try:
             fm = _frontmatter(text)
-        except yaml.YAMLError as exc:
+        except (yaml.YAMLError, RecursionError) as exc:
             errors.append(f"'{slug}' frontmatter is not valid YAML: {exc}".splitlines()[0])
             fm = {}
+        cards = fm.get("cards")
+        if isinstance(cards, list) and not all(isinstance(c, str) for c in cards):
+            errors.append(f"'{slug}' cards: lists an item that is not a card id string")
         parsed[slug] = {
             "cards": _frontmatter_cards(fm),
             "links": _body_finds_links(_body_text(text)),
