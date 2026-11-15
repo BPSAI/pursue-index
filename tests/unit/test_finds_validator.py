@@ -13,10 +13,11 @@ validator is the bottom-of-the-stack baseline that any draft must pass.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from pursue_index.finds_validator import check_finds_overlap, validate_finds_entry
-
 
 _VALID_FRONTMATTER = """---
 title: "Sample Entry"
@@ -347,3 +348,89 @@ def test_every_committed_finds_entry_passes_overlap_gate() -> None:
     errors = check_finds_overlap(entries)
     if errors:
         pytest.fail("finds overlap gate failed:\n" + "\n".join(f"  {e}" for e in errors))
+
+
+# --- Frontmatter is read as YAML (#195) ---
+
+
+def _raw_entry(frontmatter: str, body: str = "\n") -> str:
+    return f"---\n{frontmatter}\n---\n{body}"
+
+
+def test_single_quoted_supplements_is_read() -> None:
+    entries = {
+        "entry-a": _raw_entry("title: A\ncards:\n  - sharedcard123\nsupplements: 'entry-b'"),
+        "entry-b": _raw_entry("title: B\ncards:\n  - sharedcard123"),
+    }
+    assert check_finds_overlap(entries) == []
+
+
+def test_supplements_with_a_trailing_comment_is_read() -> None:
+    entries = {
+        "entry-a": _raw_entry("title: A\ncards: [sharedcard123]\nsupplements: entry-b  # follow-up"),
+        "entry-b": _raw_entry("title: B\ncards: [sharedcard123]"),
+    }
+    assert check_finds_overlap(entries) == []
+
+
+def test_a_multi_line_flow_list_of_cards_is_read() -> None:
+    entries = {
+        "entry-a": _raw_entry('title: A\ncards: [\n  "othercard",\n  "sharedcard123",\n]'),
+        "entry-b": _raw_entry("title: B\ncards:\n  - sharedcard123"),
+    }
+    errors = check_finds_overlap(entries)
+    assert len(errors) == 1 and "sharedcard123" in errors[0]
+
+
+def test_an_all_digit_card_id_keeps_its_leading_zeros() -> None:
+    entries = {
+        "entry-a": _raw_entry("title: A\ncards:\n  - 0123456789012345"),
+        "entry-b": _raw_entry('title: B\ncards:\n  - "0123456789012345"'),
+    }
+    errors = check_finds_overlap(entries)
+    assert len(errors) == 1 and "0123456789012345" in errors[0]
+
+
+def test_invalid_frontmatter_yaml_is_reported() -> None:
+    errors = check_finds_overlap({"entry-a": _raw_entry("title: [unclosed")})
+    assert len(errors) == 1 and "'entry-a' frontmatter is not valid YAML" in errors[0]
+
+
+def test_deeply_nested_yaml_is_reported_not_raised() -> None:
+    fm = "title: A\ncards: " + "[" * 5000 + "]" * 5000
+    errors = check_finds_overlap({"entry-a": _raw_entry(fm)})
+    assert len(errors) == 1 and "not valid YAML" in errors[0]
+
+
+def test_a_card_item_that_is_not_a_string_is_reported() -> None:
+    errors = check_finds_overlap({"entry-a": _raw_entry("title: A\ncards:\n  - [nested]\n  - abc")})
+    assert errors == ["'entry-a' cards: lists an item that is not a card id string"]
+
+
+def test_yaml_aliases_are_refused() -> None:
+    fm = "title: A\na: &x [sharedcard123, sharedcard123]\ncards: *x"
+    errors = check_finds_overlap({"entry-a": _raw_entry(fm)})
+    assert len(errors) == 1 and "aliases are not allowed" in errors[0]
+
+
+# --- main() checks a given entry for overlap against the whole corpus (#195) ---
+
+
+def test_main_with_a_path_checks_overlap_against_the_corpus(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import sys
+
+    from pursue_index import finds_validator
+
+    corpus = tmp_path / "web" / "src" / "content" / "finds"
+    corpus.mkdir(parents=True)
+    (corpus / "existing.mdx").write_text(_valid_entry())
+    new = tmp_path / "new-entry.mdx"
+    new.write_text(_valid_entry())  # cites the same cards, with no link
+    monkeypatch.setattr(finds_validator, "_resolve_repo_root", lambda: tmp_path)
+    monkeypatch.setattr(sys, "argv", ["finds_validator", str(new)])
+    assert finds_validator.main() == 1
+    out = capsys.readouterr().out
+    assert "OVERLAP" in out and "existing" in out and "new-entry" in out
+    assert "existing.mdx: PASS" not in out  # structural checks stay on the given path

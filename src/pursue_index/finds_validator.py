@@ -243,19 +243,21 @@ def _format_report(path: Path, result: dict[str, Any]) -> str:
 def main() -> int:
     """CLI entry: `python -m pursue_index.finds_validator <path...>`.
 
-    Exits 0 if every path passes; exits 1 if any path fails.
-    With no args, validates every `.mdx` in `web/src/content/finds/`.
+    Exits 0 if every path passes; exits 1 if any path fails. With no args,
+    validates every `.mdx` in `web/src/content/finds/`. Structural checks run
+    on the given paths only; the overlap check runs on the given paths plus
+    the whole corpus.
     """
     import sys
 
-    if len(sys.argv) > 1:
-        paths = [Path(a) for a in sys.argv[1:]]
-    else:
-        repo_root = _resolve_repo_root()
-        paths = sorted((repo_root / "web" / "src" / "content" / "finds").glob("*.mdx"))
+    corpus = sorted((_resolve_repo_root() / "web" / "src" / "content" / "finds").glob("*.mdx"))
+    paths = [Path(a) for a in sys.argv[1:]] if len(sys.argv) > 1 else corpus
 
+    # The overlap check always sees the whole corpus, so a new entry passed
+    # alone is still checked against every existing one; a given path
+    # replaces the corpus copy of the same slug.
+    entries: dict[str, str] = {p.stem: p.read_text() for p in corpus}
     any_failed = False
-    entries: dict[str, str] = {}
     for p in paths:
         text = p.read_text()
         entries[p.stem] = text

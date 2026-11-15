@@ -51,3 +51,9 @@ def test_a_finds_step_naming_the_record_but_not_the_gate_is_flagged(tmp_path: Pa
 
 def test_the_current_runbook_passes() -> None:
     assert [h for h in _check_file(_RUNBOOK) if h[1] == _LABEL] == []
+
+
+def test_a_runbook_with_no_finds_step_is_flagged(tmp_path: Path) -> None:
+    body = "13. **Deploy.** Merge the PR.\n15. **Record:** update the session record.\n"
+    assert [text for _, _, text in _hits(tmp_path, body)] == ["no numbered **Finds** step found"]
+
