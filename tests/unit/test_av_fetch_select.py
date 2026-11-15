@@ -52,3 +52,8 @@ def test_select_av_rows_honors_explicit_asset_types() -> None:
 
 def test_select_av_rows_empty_for_no_match() -> None:
     assert select_av_rows(_CARDS, "1/1/00") == []
+
+
+def test_a_two_digit_operator_year_matches_a_four_digit_manifest_year() -> None:
+    cards = [FakeCard("a", "VID", "6/12/2026", "1001"), FakeCard("d", "VID", "5/22/2026", "1003")]
+    assert [c.card_id for c in select_av_rows(cards, "6/12/26")] == ["a"]

@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index import get_logger
+from pursue_index.release_dates import same_release_date
 from pursue_index.scrape.types import CardMetadata, Manifest
 
 log = get_logger(__name__)
@@ -96,7 +97,7 @@ def select_eligible(
     for card in manifest.cards:
         if card.asset_type != "AUD":
             continue
-        if release_date is not None and card.release_date != release_date:
+        if release_date is not None and not same_release_date(card.release_date, release_date):
             continue
         groups.setdefault(card.card_id, []).append(card)
 

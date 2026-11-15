@@ -194,3 +194,8 @@ def test_match_reports_unmatched_file_when_no_card_claims_it():
     assert set(matched) == {"vid1"}
     assert unmatched_cards == []
     assert [p.name for p in unmatched_files] == ["DOD_222222222.mp4"]
+
+
+def test_select_av_matches_a_four_digit_manifest_year():
+    cards = [FakeCard("vid1", "VID", "6/12/2026", "1010263"), FakeCard("old", "VID", "5/22/2026", "1")]
+    assert {c.card_id for c in core.select_av_cards(cards, "6/12/26")} == {"vid1"}
