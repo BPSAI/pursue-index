@@ -214,7 +214,9 @@ def main(argv: list[str] | None = None):
     )
     parser.add_argument(
         "--hard-cap-usd", type=float, default=None,
-        help="Stop before the next paid call once it could take total spend past this.",
+        help="Stop before the next paid call once it could take total spend past this. "
+             "Each call is checked against the larger of its estimate and the costliest "
+             "call so far, so spend can pass the cap by at most one call's overrun.",
     )
     args = parser.parse_args(argv)
     if args.hard_cap_usd is not None and args.hard_cap_usd <= 0:

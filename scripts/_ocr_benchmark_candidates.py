@@ -100,25 +100,29 @@ class CapReachedError(Exception):
 
 @dataclass
 class Budget:
-    """Running spend against an optional hard cap, checked before each paid call."""
+    """Running spend against an optional cap, checked before each paid call.
+
+    Each call is checked against the larger of its estimate and the costliest
+    call so far, so a run can pass the cap by at most one call's overrun. A
+    call that raises is charged its estimate, since it may have been billed.
+    """
 
     cap_usd: float | None = None
     spent_usd: float = 0.0
+    max_call_usd: float = 0.0
 
     def reserve(self, next_cost_usd: float) -> None:
-        """Refuse the next call if it could take spend past the cap.
-
-        The check uses the call's estimate, so a cached page (which costs
-        nothing) is still counted until it has run.
-        """
-        if self.cap_usd is not None and self.spent_usd + next_cost_usd > self.cap_usd:
+        """Refuse the next call if it could take spend past the cap."""
+        expected = max(next_cost_usd, self.max_call_usd)
+        if self.cap_usd is not None and self.spent_usd + expected > self.cap_usd:
             raise CapReachedError(
                 f"stopped on the hard cap: spent ${self.spent_usd:.4f} of "
-                f"${self.cap_usd:.4f}, and the next call is estimated at ${next_cost_usd:.4f}"
+                f"${self.cap_usd:.4f}, and the next call could cost ${expected:.4f}"
             )
 
     def add(self, cost_usd: float) -> None:
         self.spent_usd += cost_usd
+        self.max_call_usd = max(self.max_call_usd, cost_usd)
 
 
 def candidate_for_model(model: str) -> Candidate:

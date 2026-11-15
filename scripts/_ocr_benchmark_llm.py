@@ -63,15 +63,21 @@ def run_llm(images, candidate: Candidate = DEFAULT_CANDIDATE, budget: Budget | N
     """OCR each page with ``candidate``'s model, priced at ``candidate``'s rates.
 
     With a ``budget``, each page is refused (``CapReachedError``) before its call
-    when its estimate would take the run past the cap.
+    when it could take the run past the cap, and a call that raises is charged
+    its estimate (see ``Budget``).
     """
     budget = budget if budget is not None else Budget()
     rows = []
     for idx, img in enumerate(images, start=1):
-        budget.reserve(estimate_candidate_cost(candidate, 1))
+        estimate = estimate_candidate_cost(candidate, 1)
+        budget.reserve(estimate)
         if idx > 1:
             time.sleep(LLM_CALL_DELAY_S)
-        text, conf, dt, tokens, cost = _llm_one(img, candidate)
+        try:
+            text, conf, dt, tokens, cost = _llm_one(img, candidate)
+        except Exception:
+            budget.add(estimate)  # it may have been billed before it failed
+            raise
         budget.add(cost)
         rows.append({"page": idx, "text": text, "confidence": conf,
                      "wall_clock_s": dt, "cost_usd": cost, "tokens": tokens})

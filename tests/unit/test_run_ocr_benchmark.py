@@ -332,3 +332,25 @@ def test_the_engine_listing_names_each_model_and_its_per_page_cost() -> None:
     text = rb.engine_lines(rb.candidate_for_model("claude-sonnet-4-6"), 2.5)
     assert "claude-sonnet-4-6" in text and "claude-sonnet-5-5" in text
     assert "/page" in text and "hard cap: $2.5000" in text
+
+
+def test_the_budget_checks_against_the_costliest_call_so_far() -> None:
+    budget = rb.Budget(cap_usd=0.05)
+    budget.add(0.03)  # a dense page cost far more than its estimate
+    with pytest.raises(rb.CapReachedError, match=r"could cost \$0\.0300"):
+        budget.reserve(0.001)
+
+
+def test_a_call_that_raises_is_charged_its_estimate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def boom(img, candidate):
+        raise RuntimeError("billed, then failed")
+
+    monkeypatch.setattr(obl, "_llm_one", boom)
+    truth = rb.candidate_for_model("claude-haiku-4-5")
+    budget = rb.Budget(cap_usd=1.0)
+    with pytest.raises(RuntimeError, match="billed"):
+        rb.run_llm(_images(1), truth, budget)
+    assert budget.spent_usd == pytest.approx(obcands.estimate_candidate_cost(truth, 1))
+
