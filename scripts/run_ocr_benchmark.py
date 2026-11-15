@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
 import json
+import math
 import os
 import time
 from datetime import UTC, datetime
@@ -36,11 +37,13 @@ REPO_ROOT = repo_root()
 from _ocr_benchmark_candidates import (
     ADDENDUM_CANDIDATES,
     DEFAULT_CANDIDATE,
-    PRICE_CACHE_READ_PER_M,
-    PRICE_INPUT_PER_M,
-    PRICE_OUTPUT_PER_M,
+    Budget,
     Candidate,
+    CapReachedError,
+    candidate_for_model,
     dry_run_report,
+    engine_lines,
+    missing_engines,
 )
 
 # Default to Haiku for benchmarks. Sonnet's higher per-token cost isn't
@@ -49,12 +52,16 @@ from _ocr_benchmark_candidates import (
 # pydantic-settings env load picks it up.
 os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 
+# After the env default above, so the LLM pass sees the same settings.
+from _ocr_benchmark_llm import (
+    _timed,
+    run_llm_candidate,
+)
 from pdf2image import convert_from_path
 
 from pursue_index.config import settings
 from pursue_index.config.credentials import anthropic_api_key
 from pursue_index.download.downloader import asset_path_for
-from pursue_index.ocr import llm as ocr_llm
 from pursue_index.ocr import pipeline as ocr_pipeline
 from pursue_index.ocr import surya as ocr_surya
 from pursue_index.scrape import load_manifest
@@ -65,11 +72,6 @@ OUT_DIR = REPO_ROOT / "data" / "benchmarks"
 
 PAGES_PER_CARD = 5
 DPI = 300
-
-# Polite pacing between LLM calls — some headroom under any observed 429s on
-# the OAuth token without dragging the wall-clock too long.
-LLM_CALL_DELAY_S = 1.5
-
 
 def parse_golden() -> list[dict[str, str]]:
     out = []
@@ -94,61 +96,11 @@ def rasterize_first_n(pdf_path: Path, n: int):
     return convert_from_path(str(pdf_path), dpi=DPI, first_page=1, last_page=n)
 
 
-def _timed(fn, img):
-    """Run ``fn(img)`` returning ``(text, conf, wall_clock_s)``."""
-    t0 = time.perf_counter()
-    text, conf = fn(img)
-    return text, conf, time.perf_counter() - t0
-
-
 def run_engine_simple(images, fn):
     rows = []
     for idx, img in enumerate(images, start=1):
         text, conf, dt = _timed(fn, img)
         rows.append({"page": idx, "text": text, "confidence": conf, "wall_clock_s": dt, "cost_usd": 0.0})
-    return rows
-
-
-def _llm_cost(captured: dict, candidate: Candidate = DEFAULT_CANDIDATE) -> float:
-    return (
-        captured.get("input_tokens", 0) / 1_000_000 * candidate.price_input_per_m
-        + captured.get("output_tokens", 0) / 1_000_000 * candidate.price_output_per_m
-        + captured.get("cache_read", 0) / 1_000_000 * candidate.price_cache_read_per_m
-    )
-
-
-def _llm_one(img, candidate: Candidate = DEFAULT_CANDIDATE) -> tuple[str, float, float, dict, float]:
-    """Wrap ``ocr_llm.ocr_image`` so we capture per-call token usage."""
-    captured: dict = {}
-    original_log = ocr_llm._log_usage
-
-    def capture(usage, _captured=captured):
-        _captured["input_tokens"] = getattr(usage, "input_tokens", 0)
-        _captured["output_tokens"] = getattr(usage, "output_tokens", 0)
-        _captured["cache_read"] = getattr(usage, "cache_read_input_tokens", 0)
-        _captured["cache_creation"] = getattr(usage, "cache_creation_input_tokens", 0)
-        return original_log(usage)
-
-    ocr_llm._log_usage = capture
-    try:
-        text, conf, dt = _timed(ocr_llm.ocr_image, img)
-    finally:
-        ocr_llm._log_usage = original_log
-
-    if not captured:
-        return text, conf, dt, {"cache_hit": True, "input_tokens": 0, "output_tokens": 0,
-                                "cache_read": 0, "cache_creation": 0}, 0.0
-    return text, conf, dt, {**captured, "cache_hit": False}, _llm_cost(captured, candidate)
-
-
-def run_llm(images, candidate: Candidate = DEFAULT_CANDIDATE):
-    rows = []
-    for idx, img in enumerate(images, start=1):
-        if idx > 1:
-            time.sleep(LLM_CALL_DELAY_S)
-        text, conf, dt, tokens, cost = _llm_one(img, candidate)
-        rows.append({"page": idx, "text": text, "confidence": conf,
-                     "wall_clock_s": dt, "cost_usd": cost, "tokens": tokens})
     return rows
 
 
@@ -158,26 +110,8 @@ def _summarize_rows(rows, label, extra=""):
     print(f"    {label}: {total_t:.1f}s total, mean conf {mean_c:.1f}{extra}")
 
 
-def run_llm_candidate(images, candidate: Candidate, cache_root: Path | None = None) -> list[dict]:
-    """Run ``run_llm`` under a different model, in its own cache namespace.
-
-    ``ocr_llm``'s cache key has no model dimension, so a different
-    candidate gets its own subdirectory under ``cache_root`` (default
-    ``settings.ocr_dir``) rather than replaying the truth proxy's cache.
-    """
-    root = cache_root if cache_root is not None else settings.ocr_dir
-    original_model = settings.ocr_llm_model
-    original_cache_dir = ocr_llm._cache_dir
-    settings.ocr_llm_model = candidate.model
-    ocr_llm._cache_dir = lambda: root / ".llm-cache-benchmark" / candidate.name
-    try:
-        return run_llm(images, candidate)
-    finally:
-        settings.ocr_llm_model = original_model
-        ocr_llm._cache_dir = original_cache_dir
-
-
-def benchmark_card(card_id: str, entry: dict, manifest) -> dict | None:
+def benchmark_card(card_id: str, entry: dict, manifest, truth: Candidate = DEFAULT_CANDIDATE,
+                   budget: Budget | None = None) -> dict | None:
     try:
         card = find_card(manifest, card_id)
     except KeyError:
@@ -201,15 +135,17 @@ def benchmark_card(card_id: str, entry: dict, manifest) -> dict | None:
     sur = run_engine_simple(images, ocr_surya.ocr_image)
     _summarize_rows(sur, "surya")
 
-    print("  llm ...")
-    lm = run_llm(images)
+    print(f"  llm ({truth.model}) ...")
+    # Its own cache namespace per model: the OCR cache key has no model in it,
+    # so the shared cache could replay another model's text as this truth.
+    lm = run_llm_candidate(images, truth, budget=budget)
     total_cost = sum(r["cost_usd"] for r in lm)
     _summarize_rows(lm, "llm", extra=f", cost ${total_cost:.4f}")
 
     llm_candidates = {}
     for candidate in ADDENDUM_CANDIDATES:
-        print(f"  {candidate.name} ...")
-        rows = run_llm_candidate(images, candidate)
+        print(f"  {candidate.name} ({candidate.model}) ...")
+        rows = run_llm_candidate(images, candidate, budget=budget)
         cand_cost = sum(r["cost_usd"] for r in rows)
         _summarize_rows(rows, candidate.name, extra=f", cost ${cand_cost:.4f}")
         llm_candidates[candidate.name] = rows
@@ -223,25 +159,55 @@ def benchmark_card(card_id: str, entry: dict, manifest) -> dict | None:
     }
 
 
-def _checkpoint_path(timestamp: str) -> Path:
-    return OUT_DIR / f"_checkpoint-{timestamp}.json"
-
-
 def _write_payload(out_path: Path, started_at: datetime, finished_at: datetime,
-                   results: list[dict]) -> None:
+                   results: list[dict], truth: Candidate = DEFAULT_CANDIDATE,
+                   budget: Budget | None = None, stopped: str | None = None) -> None:
+    budget = budget if budget is not None else Budget()
     payload = {
         "started_at": started_at.isoformat(),
         "finished_at": finished_at.isoformat(),
         "duration_s": (finished_at - started_at).total_seconds(),
         "pages_per_card": PAGES_PER_CARD,
         "dpi": DPI,
-        "llm_model": settings.ocr_llm_model,
-        "llm_pricing": {"input_per_m": PRICE_INPUT_PER_M,
-                        "output_per_m": PRICE_OUTPUT_PER_M,
-                        "cache_read_per_m": PRICE_CACHE_READ_PER_M},
+        "llm_model": truth.model,
+        "llm_pricing": {"input_per_m": truth.price_input_per_m,
+                        "output_per_m": truth.price_output_per_m,
+                        "cache_read_per_m": truth.price_cache_read_per_m},
+        "hard_cap_usd": budget.cap_usd,
+        "spent_usd": budget.spent_usd,
+        "stopped_on_cap": stopped,
         "results": results,
     }
     out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _run_all(golden: list[dict], manifest, truth: Candidate, budget: Budget,
+             started_at: datetime) -> Path:
+    """Benchmark every golden card, checkpointing after each; stop on the cap."""
+    checkpoint = OUT_DIR / f"_checkpoint-{started_at.strftime('%Y%m%dT%H%M%SZ')}.json"
+    results: list[dict] = []
+    stopped: str | None = None
+    for g in golden:
+        try:
+            row = benchmark_card(g["card_id"], g, manifest, truth, budget)
+        except CapReachedError as exc:
+            # The stopped card's partial rows are dropped, but its calls were
+            # billed, so spent_usd keeps them; the payload names the card.
+            stopped = f"{exc} (during card {g['card_id']}, which is not in results)"
+            print(f"\n{stopped}")
+            break
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ERROR on {g['card_id']}: {type(exc).__name__}: {exc}")
+            row = None
+        if row is not None:
+            results.append(row)
+            # Write a checkpoint after every card so partial progress is preserved.
+            _write_payload(checkpoint, started_at, datetime.now(UTC), results, truth, budget)
+    out_path = OUT_DIR / f"ocr-{started_at.strftime('%Y%m%dT%H%M%SZ')}.json"
+    _write_payload(out_path, started_at, datetime.now(UTC), results, truth, budget, stopped)
+    if checkpoint.exists():
+        checkpoint.unlink()
+    return out_path
 
 
 def main(argv: list[str] | None = None):
@@ -250,13 +216,27 @@ def main(argv: list[str] | None = None):
         "--dry-run", action="store_true",
         help="Print a per-candidate cost estimate for the v3 document set; no API calls.",
     )
+    parser.add_argument(
+        "--hard-cap-usd", type=float, default=None,
+        help="Stop before the next paid call once it could take total spend past this. "
+             "Each call is checked against the larger of its estimate and the costliest "
+             "call so far, so spend can pass the cap by at most one call's overrun.",
+    )
     args = parser.parse_args(argv)
+    if args.hard_cap_usd is not None and not (math.isfinite(args.hard_cap_usd)
+                                              and args.hard_cap_usd > 0):
+        parser.error("--hard-cap-usd must be a finite amount greater than 0")
     golden = parse_golden()
 
     if args.dry_run:
         print(dry_run_report(golden, PAGES_PER_CARD))
         return None
 
+    truth = candidate_for_model(settings.ocr_llm_model)
+    problems = missing_engines()
+    if problems:
+        sys.exit("run_ocr_benchmark: an engine can't run here, so the benchmark "
+                 "would fail on every card:\n  " + "\n  ".join(problems))
     if not anthropic_api_key():
         sys.exit(
             "ANTHROPIC_API_KEY is not set. Export it (or put it in .env) before "
@@ -267,27 +247,8 @@ def main(argv: list[str] | None = None):
     manifest = load_manifest(MANIFEST_PATH)
     print(f"Benchmarking {len(golden)} cards × {PAGES_PER_CARD} pages × "
           f"{2 + 1 + len(ADDENDUM_CANDIDATES)} engines")
-
-    started_at = datetime.now(UTC)
-    timestamp = started_at.strftime("%Y%m%dT%H%M%SZ")
-    checkpoint = _checkpoint_path(timestamp)
-    results: list[dict] = []
-    for g in golden:
-        try:
-            row = benchmark_card(g["card_id"], g, manifest)
-        except Exception as exc:  # noqa: BLE001
-            print(f"  ERROR on {g['card_id']}: {type(exc).__name__}: {exc}")
-            row = None
-        if row is not None:
-            results.append(row)
-            # Write a checkpoint after every card so partial progress is preserved.
-            _write_payload(checkpoint, started_at, datetime.now(UTC), results)
-
-    finished_at = datetime.now(UTC)
-    out_path = OUT_DIR / f"ocr-{timestamp}.json"
-    _write_payload(out_path, started_at, finished_at, results)
-    if checkpoint.exists():
-        checkpoint.unlink()
+    print(engine_lines(truth, args.hard_cap_usd))
+    out_path = _run_all(golden, manifest, truth, Budget(args.hard_cap_usd), datetime.now(UTC))
     print(f"\nWrote {out_path}")
     return out_path
 
