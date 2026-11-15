@@ -81,11 +81,13 @@ clean:
 # rely on web/dist being current.)
 #
 # build-commit runs before any builder and records the commit whose code builds
-# the release. stamp writes data/build-stamp.json after the last data write
-# (snapshot-rotate), naming that commit. The stamp is then required, and its
+# the release. stamp writes data/build-stamp.json after the last data write,
+# naming that commit. That is after astro-build: its npm prebuild reruns the
+# site generators, and build_csv_archive.mjs stamps a fresh generated_at into
+# web/public/data/csv/index.json on every run. The stamp is then required, and its
 # commit must be on the published branch, so every release cites code anyone
 # can check out.
-ship-ready: release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate stamp astro-build asset-budget test gate-mirror arch-check staleness
+ship-ready: release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
 	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
