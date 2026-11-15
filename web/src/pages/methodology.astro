@@ -1066,12 +1066,12 @@ const methodologyJsonLd = [
           Check that the published files are what the release says they are:
           the manifest is hash-pinned to the archived upstream CSV, and the
           signed registry root covers the archived document bytes. From
-          v1.7.1 on, each release's build stamp also records the sha256 of
+          v1.7.2 on, each release's build stamp also records the sha256 of
           every published data file and the public commit that built it.
         </li>
         <li>
           <span class="text-[color:var(--color-text-bright)]">Rebuild the derivatives (free).</span>
-          From v1.7.1 on, each release carries its intermediates (the OCR and
+          From v1.7.2 on, each release carries its intermediates (the OCR and
           transcript text, the cleaning sidecars and the page embeddings) as
           an asset.
           <code class="text-[color:var(--color-signal-cyan)]">scripts/intermediates.py rebuild-check</code>

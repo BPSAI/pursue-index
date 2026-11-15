@@ -147,11 +147,11 @@ See [`docs/architecture.md`](docs/architecture.md) for the full design.
 What a reader can repeat comes in three tiers:
 
 1. **Verify (free).** The manifest is hash-pinned to the archived upstream CSV,
-   and the signed registry root covers the archived document bytes. From v1.7.1
+   and the signed registry root covers the archived document bytes. From v1.7.2
    on, each release's build stamp (`data/build-stamp.json`) also records the
    sha256 of every published data file and the public commit that built it
    (`python scripts/build_stamp.py verify --root . --require --public-ref origin/main`).
-2. **Rebuild the derivatives (free).** From v1.7.1 on, each release carries its
+2. **Rebuild the derivatives (free).** From v1.7.2 on, each release carries its
    intermediates (the OCR and transcript text, the cleaning sidecars and the
    page embeddings) as an asset. `scripts/intermediates.py rebuild-check` rebuilds the search,
    cleaned-text and embedding payloads from that asset alone, with no API keys,
