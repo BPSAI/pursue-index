@@ -166,3 +166,27 @@ def test_build_emits_deterministic_sorted_order(tmp_path: Path) -> None:
     )
     out = json.loads(out_path.read_text())
     assert out["card_ids"] == ["aaa", "mmm", "zzz"]
+
+
+def test_rebuilding_unchanged_input_keeps_the_bytes(tmp_path: Path) -> None:
+    ocr_root = tmp_path / "ocr"
+    manifest_path = tmp_path / "manifest.json"
+    out_path = tmp_path / "photo-card-ids.json"
+    manifest_path.write_text(json.dumps({"cards": [{"card_id": "photo1", "asset_type": "PDF", "title": "P"}]}))
+    (ocr_root / "photo1").mkdir(parents=True)
+    (ocr_root / "photo1" / "meta.json").write_text(json.dumps(_meta(page_count=1)))
+    (ocr_root / "photo1" / "pages.jsonl").write_text(_pages_jsonl("12/31/99"))
+
+    def build() -> None:
+        build_photo_card_index.build(manifest_path=manifest_path, ocr_root=ocr_root, out_path=out_path)
+
+    build()
+    first = json.loads(out_path.read_text())
+    first["generated_at"] = "2000-01-01T00:00:00+00:00"  # an older build
+    out_path.write_text(json.dumps(first, indent=2) + "\n")
+    before = out_path.read_bytes()
+    build()
+    assert out_path.read_bytes() == before
+    (ocr_root / "photo1" / "meta.json").write_text(json.dumps(_meta(page_count=3)))  # now excluded
+    build()
+    assert json.loads(out_path.read_text())["generated_at"] != "2000-01-01T00:00:00+00:00"

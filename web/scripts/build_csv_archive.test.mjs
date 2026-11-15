@@ -103,4 +103,28 @@ describe("buildCsvArchive", () => {
       assert.equal(readFileSync(join(paths.outDir, `${sha}.csv`), "utf8"), `csv ${sha}\n`);
     }
   });
+
+  test("an unchanged archive keeps the old build time and bytes", () => {
+    const { paths } = fixture();
+    buildCsvArchive(paths);
+    const indexPath = join(paths.outDir, "index.json");
+    const older = JSON.parse(readFileSync(indexPath, "utf8"));
+    older.generated_at = "2000-01-01T00:00:00.000Z";
+    writeFileSync(indexPath, JSON.stringify(older, null, 2) + "\n");
+    const before = readFileSync(indexPath, "utf8");
+    buildCsvArchive(paths);
+    assert.equal(readFileSync(indexPath, "utf8"), before);
+  });
+
+  test("a changed archive takes a new build time", () => {
+    const { paths } = fixture();
+    buildCsvArchive(paths);
+    const indexPath = join(paths.outDir, "index.json");
+    const older = JSON.parse(readFileSync(indexPath, "utf8"));
+    older.generated_at = "2000-01-01T00:00:00.000Z";
+    older.csvs = older.csvs.slice(1);
+    writeFileSync(indexPath, JSON.stringify(older, null, 2) + "\n");
+    buildCsvArchive(paths);
+    assert.notEqual(JSON.parse(readFileSync(indexPath, "utf8")).generated_at, "2000-01-01T00:00:00.000Z");
+  });
 });

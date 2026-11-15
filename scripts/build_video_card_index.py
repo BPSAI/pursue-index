@@ -47,6 +47,7 @@ import json
 from datetime import UTC, datetime
 
 from pursue_index.paths import repo_root
+from pursue_index.release.stable_timestamp import keep_unchanged_timestamp
 
 REPO_ROOT = repo_root()
 DEFAULT_REGISTRY = REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
@@ -89,6 +90,7 @@ def build(*, registry_path: Path, out_path: Path) -> None:
         "count": len(ordered),
         "generated_at": datetime.now(UTC).isoformat(),
     }
+    payload = keep_unchanged_timestamp(out_path, payload)
     out_path.write_text(json.dumps(payload, indent=2) + "\n")
 
 

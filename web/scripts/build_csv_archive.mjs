@@ -34,6 +34,20 @@ import { join, dirname, basename, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function readPreviousIndex(path) {
+  try {
+    const parsed = JSON.parse(readFileSync(path, "utf8"));
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function sameApartFromTimestamp(a, b) {
+  const strip = (o) => JSON.stringify({ ...o, generated_at: undefined });
+  return strip(a) === strip(b);
+}
 const REPO_ROOT = resolve(__dirname, "..", "..");
 
 export const DEFAULT_PATHS = {
@@ -97,7 +111,15 @@ export function buildCsvArchive({ srcDir, outDir, manifestPath, snapshotIndexPat
       "against the filename or against this index's `sha256` field.",
     csvs: entries,
   };
-  writeFileSync(join(outDir, "index.json"), JSON.stringify(index, null, 2) + "\n");
+  const indexPath = join(outDir, "index.json");
+  // Keep the old build time when nothing else changed, so an unchanged
+  // archive gives identical bytes and no release diff.
+  const previous = readPreviousIndex(indexPath);
+  if (previous && typeof previous.generated_at === "string" &&
+      sameApartFromTimestamp(previous, index)) {
+    index.generated_at = previous.generated_at;
+  }
+  writeFileSync(indexPath, JSON.stringify(index, null, 2) + "\n");
   return index;
 }
 

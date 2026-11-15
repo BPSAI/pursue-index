@@ -46,6 +46,7 @@ import json
 from datetime import UTC, datetime
 
 from pursue_index.paths import repo_root
+from pursue_index.release.stable_timestamp import keep_unchanged_timestamp
 
 REPO_ROOT = repo_root()
 
@@ -119,6 +120,7 @@ def build(
         "generated_at": datetime.now(UTC).isoformat(),
         "threshold_chars": TEXT_CHAR_THRESHOLD,
     }
+    payload = keep_unchanged_timestamp(out_path, payload)
     out_path.write_text(json.dumps(payload, indent=2) + "\n")
 
 
