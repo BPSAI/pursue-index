@@ -1,5 +1,5 @@
 {
-  "note": "Reviewed /finds citations whose page or q does not check out against the published page text (tests/unit/test_finds_citations.py). Each needs an editorial fix: the right page, a verbatim quote, or a q dropped. The list may only shrink: a new citation must check out, and an entry that has been fixed must be removed.",
+  "note": "Reviewed /finds citations whose page or q does not check out against the published page text (tests/unit/test_finds_citations.py). Each needs an editorial fix: the right page, a verbatim quote, or a q dropped. The list should only shrink. A new citation that does not check out fails the test, and so does an entry here that has been fixed but not removed. The test reads only this checkout, so it cannot stop an entry from being added in the same change as its citation: an addition must carry a reason and be approved in review.",
   "entries": [
     {
       "file": "apollo-11-debriefing.mdx",

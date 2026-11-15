@@ -155,8 +155,10 @@ def test_finds_citation_count_baseline_nonzero() -> None:
 # ---------------------------------------------------------------------------
 # page and q: a reader can check the citation against the published text
 # ---------------------------------------------------------------------------
-# One <Cite .../> tag; its attributes are read separately so their order is free.
-CITE_TAG = re.compile(r"<Cite\s([^>]*?)/?>", re.DOTALL)
+# One <Cite .../> tag. A quoted or braced attribute value may hold ">", so the
+# tag ends at the first ">" outside one. Attributes are read separately, so
+# their order is free.
+CITE_TAG = re.compile(r"""<Cite\s((?:[^>"'{]|"[^"]*"|'[^']*'|\{[^}]*\})*?)/?>""", re.DOTALL)
 QUOTE_BASELINE = _REPO_ROOT / "tests" / "fixtures" / "finds-quote-baseline.json"
 
 
@@ -173,11 +175,14 @@ def _norm(text: str) -> str:
 
 
 def _cites(name: str, mdx_text: str) -> list[tuple[str, str, int, str | None]]:
+    """Every <Cite> tag as (file, card, page, q). A tag without a readable card
+    or page comes back with card "" or page 0, so it fails rather than being
+    skipped."""
     out = []
     for tag in CITE_TAG.finditer(mdx_text):
         card, page = _attr(tag.group(1), "card"), _attr(tag.group(1), "page")
-        if card and page and page.isdigit():
-            out.append((name, card, int(page), _attr(tag.group(1), "q")))
+        out.append((name, card or "", int(page) if page and page.isdigit() else 0,
+                    _attr(tag.group(1), "q")))
     return out
 
 
@@ -201,6 +206,10 @@ def quote_problems(cites: list[tuple[str, str, int, str | None]],
     cards) are left to the resolvability test above."""
     problems: list[dict[str, object]] = []
     for name, card, page, q in cites:
+        if not card or not page:
+            problems.append({"file": name, "card": card, "page": page, "q": q,
+                             "problem": "the <Cite> tag has no readable card or page"})
+            continue
         card_pages = pages.get(_resolve_card(card, aliases))
         if card_pages is None:
             continue
@@ -262,6 +271,17 @@ def test_q_matches_across_whitespace_case_and_entities() -> None:
 def test_an_aliased_card_is_checked_against_its_new_pages() -> None:
     cites = [("x.mdx", "b" * 16, 1, "silver")]
     assert quote_problems(cites, _FIXTURE_PAGES, {"b" * 16: "a" * 16}) == []
+
+
+def test_a_gt_inside_q_does_not_end_the_tag() -> None:
+    text = '<Cite q="A > B" card="aaaaaaaaaaaaaaaa" page={1} />'
+    assert _cites("x.mdx", text) == [("x.mdx", "a" * 16, 1, "A > B")]
+
+
+def test_a_tag_without_card_or_page_fails() -> None:
+    cites = _cites("x.mdx", '<Cite card="aaaaaaaaaaaaaaaa" q="silver" />')
+    assert [r["problem"] for r in quote_problems(cites, _FIXTURE_PAGES, {})] == [
+        "the <Cite> tag has no readable card or page"]
 
 
 def test_cite_tags_are_parsed_in_any_attribute_order() -> None:
