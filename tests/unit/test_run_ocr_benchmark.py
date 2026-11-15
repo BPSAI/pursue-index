@@ -233,7 +233,7 @@ def test_the_truth_pass_is_priced_at_the_resolved_models_rate(
     monkeypatch.setattr(ocr_llm, "_get_anthropic_client", lambda: _FakeAnthropic())
     monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path)
     truth = rb.candidate_for_model("claude-sonnet-4-6")
-    rows = rb.run_llm(_images(1), truth)
+    rows = obl.run_llm(_images(1), truth)
     # 1200 input and 400 output tokens at $3 and $15 per million, not Haiku's $1 and $5.
     assert rows[0]["cost_usd"] == pytest.approx(1200 / 1e6 * 3.0 + 400 / 1e6 * 15.0)
 
@@ -269,11 +269,11 @@ def test_run_llm_stops_before_the_call_that_would_pass_the_cap(
     truth = rb.candidate_for_model("claude-haiku-4-5")
     per_page = obcands.estimate_candidate_cost(truth, 1)
     with pytest.raises(rb.CapReachedError):
-        rb.run_llm(_images(3), truth, rb.Budget(cap_usd=per_page * 0.5))
+        obl.run_llm(_images(3), truth, rb.Budget(cap_usd=per_page * 0.5))
     assert fake.messages.calls == []  # refused before any paid call
     budget = rb.Budget(cap_usd=per_page * 1.5)
     with pytest.raises(rb.CapReachedError):
-        rb.run_llm(_images(3), truth, budget)
+        obl.run_llm(_images(3), truth, budget)
     assert len(fake.messages.calls) == 1
     assert budget.spent_usd > 0
 
@@ -353,7 +353,7 @@ def test_a_call_that_raises_is_charged_its_estimate(
     truth = rb.candidate_for_model("claude-haiku-4-5")
     budget = rb.Budget(cap_usd=1.0)
     with pytest.raises(RuntimeError, match="billed"):
-        rb.run_llm(_images(1), truth, budget)
+        obl.run_llm(_images(1), truth, budget)
     assert budget.spent_usd == pytest.approx(obcands.estimate_candidate_cost(truth, 1))
 
 
@@ -361,4 +361,69 @@ def test_cache_writes_are_priced() -> None:
     truth = rb.candidate_for_model("claude-sonnet-4-6")
     cost = obl._llm_cost({"cache_creation": 1_000_000}, truth)
     assert cost == pytest.approx(3.0 * 1.25)
+
+
+def test_a_billed_failure_is_charged_its_real_cost(monkeypatch: pytest.MonkeyPatch) -> None:
+    def billed_then_failed(img, candidate):
+        exc = RuntimeError("parse failed after billing")
+        exc.benchmark_cost_usd = 0.25  # type: ignore[attr-defined]
+        raise exc
+
+    monkeypatch.setattr(obl, "_llm_one", billed_then_failed)
+    budget = rb.Budget(cap_usd=10.0)
+    with pytest.raises(RuntimeError):
+        obl.run_llm(_images(1), rb.candidate_for_model("claude-haiku-4-5"), budget)
+    assert budget.spent_usd == pytest.approx(0.25)
+
+
+def test_an_unbilled_failure_is_charged_the_costliest_call_so_far(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def boom(img, candidate):
+        raise RuntimeError("no response")
+
+    monkeypatch.setattr(obl, "_llm_one", boom)
+    budget = rb.Budget(cap_usd=10.0)
+    budget.add(0.5)
+    with pytest.raises(RuntimeError):
+        obl.run_llm(_images(1), rb.candidate_for_model("claude-haiku-4-5"), budget)
+    assert budget.spent_usd == pytest.approx(1.0)
+
+
+def test_a_billed_response_that_fails_to_parse_carries_its_cost(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(ocr_llm, "_get_anthropic_client", lambda: _FakeAnthropic())
+    monkeypatch.setattr(ocr_llm, "_cache_dir", lambda: tmp_path)
+
+    def bad_parse(raw):
+        raise ValueError("unparseable")
+
+    monkeypatch.setattr(ocr_llm, "parse_response", bad_parse)
+    truth = rb.candidate_for_model("claude-sonnet-4-6")
+    with pytest.raises(ValueError) as exc:
+        obl._llm_one(_images(1)[0], truth)
+    assert exc.value.benchmark_cost_usd == pytest.approx(1200 / 1e6 * 3.0 + 400 / 1e6 * 15.0)
+
+
+def test_the_truth_pass_reads_its_own_models_cache(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    pdf = tmp_path / "x.pdf"
+    pdf.write_bytes(b"%PDF")
+    calls: list[str] = []
+    monkeypatch.setattr(rb, "find_card", lambda manifest, card_id: {"card_id": card_id})
+    monkeypatch.setattr(rb, "asset_path_for", lambda card: pdf)
+    monkeypatch.setattr(rb, "rasterize_first_n", lambda path, n: ["img"])
+    monkeypatch.setattr(rb, "run_engine_simple", lambda images, fn: [])
+    monkeypatch.setattr(rb, "_summarize_rows", lambda *a, **k: None)
+    monkeypatch.setattr(rb, "ADDENDUM_CANDIDATES", ())
+
+    def fake_candidate(images, candidate, cache_root=None, budget=None):
+        calls.append(candidate.model)
+        return []
+
+    monkeypatch.setattr(rb, "run_llm_candidate", fake_candidate)
+    truth = rb.candidate_for_model("claude-sonnet-4-6")
+    entry = {"category": "c", "description": "d"}
+    rb.benchmark_card("abc", entry, None, truth, rb.Budget())
+    assert calls == ["claude-sonnet-4-6"]
 

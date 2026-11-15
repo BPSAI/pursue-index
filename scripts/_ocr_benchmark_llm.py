@@ -52,6 +52,12 @@ def _llm_one(img, candidate: Candidate = DEFAULT_CANDIDATE) -> tuple[str, float,
     ocr_llm._log_usage = capture
     try:
         text, conf, dt = _timed(ocr_llm.ocr_image, img)
+    except Exception as exc:
+        # The response's usage is logged before it is parsed, so a call that
+        # failed after billing carries its real cost for the budget.
+        if captured:
+            exc.benchmark_cost_usd = _llm_cost(captured, candidate)  # type: ignore[attr-defined]
+        raise
     finally:
         ocr_llm._log_usage = original_log
 
@@ -65,8 +71,9 @@ def run_llm(images, candidate: Candidate = DEFAULT_CANDIDATE, budget: Budget | N
     """OCR each page with ``candidate``'s model, priced at ``candidate``'s rates.
 
     With a ``budget``, each page is refused (``CapReachedError``) before its call
-    when it could take the run past the cap, and a call that raises is charged
-    its estimate (see ``Budget``).
+    when it could take the run past the cap. A call that raises is charged its
+    real cost if its response was billed, else the larger of its estimate and
+    the costliest call so far.
     """
     budget = budget if budget is not None else Budget()
     rows = []
@@ -77,8 +84,11 @@ def run_llm(images, candidate: Candidate = DEFAULT_CANDIDATE, budget: Budget | N
             time.sleep(LLM_CALL_DELAY_S)
         try:
             text, conf, dt, tokens, cost = _llm_one(img, candidate)
-        except Exception:
-            budget.add(estimate)  # it may have been billed before it failed
+        except Exception as exc:
+            # Charge the real cost when the call was billed before it failed;
+            # otherwise the most it could plausibly have cost.
+            billed = getattr(exc, "benchmark_cost_usd", None)
+            budget.add(billed if billed is not None else max(estimate, budget.max_call_usd))
             raise
         budget.add(cost)
         rows.append({"page": idx, "text": text, "confidence": conf,

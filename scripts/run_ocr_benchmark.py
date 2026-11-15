@@ -55,7 +55,6 @@ os.environ.setdefault("PURSUE_OCR_LLM_MODEL", "claude-haiku-4-5")
 # After the env default above, so the LLM pass sees the same settings.
 from _ocr_benchmark_llm import (
     _timed,
-    run_llm,
     run_llm_candidate,
 )
 from pdf2image import convert_from_path
@@ -137,7 +136,9 @@ def benchmark_card(card_id: str, entry: dict, manifest, truth: Candidate = DEFAU
     _summarize_rows(sur, "surya")
 
     print(f"  llm ({truth.model}) ...")
-    lm = run_llm(images, truth, budget)
+    # Its own cache namespace per model: the OCR cache key has no model in it,
+    # so the shared cache could replay another model's text as this truth.
+    lm = run_llm_candidate(images, truth, budget=budget)
     total_cost = sum(r["cost_usd"] for r in lm)
     _summarize_rows(lm, "llm", extra=f", cost ${total_cost:.4f}")
 

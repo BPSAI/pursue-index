@@ -103,8 +103,9 @@ class Budget:
     """Running spend against an optional cap, checked before each paid call.
 
     Each call is checked against the larger of its estimate and the costliest
-    call so far, so a run can pass the cap by at most one call's overrun. A
-    call that raises is charged its estimate, since it may have been billed.
+    call so far, so a run can pass the cap by at most one call's overrun. The
+    caller charges a call that raises too (see ``run_llm``), since it may have
+    been billed.
     """
 
     cap_usd: float | None = None
