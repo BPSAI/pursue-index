@@ -32,6 +32,8 @@ def _llm_cost(captured: dict, candidate: Candidate = DEFAULT_CANDIDATE) -> float
         captured.get("input_tokens", 0) / 1_000_000 * candidate.price_input_per_m
         + captured.get("output_tokens", 0) / 1_000_000 * candidate.price_output_per_m
         + captured.get("cache_read", 0) / 1_000_000 * candidate.price_cache_read_per_m
+        # Prompt-cache writes bill at 1.25x the input rate (5-minute cache).
+        + captured.get("cache_creation", 0) / 1_000_000 * candidate.price_input_per_m * 1.25
     )
 
 

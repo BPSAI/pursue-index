@@ -278,11 +278,12 @@ def test_run_llm_stops_before_the_call_that_would_pass_the_cap(
     assert budget.spent_usd > 0
 
 
-def test_a_hard_cap_must_be_positive(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_a_hard_cap_must_be_finite_and_positive(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(rb, "parse_golden", lambda: [])
-    with pytest.raises(SystemExit) as exc:
-        rb.main(["--hard-cap-usd", "0"])
-    assert exc.value.code == 2
+    for bad in ("0", "-1", "nan", "inf"):
+        with pytest.raises(SystemExit) as exc:
+            rb.main(["--hard-cap-usd", bad])
+        assert exc.value.code == 2, bad
 
 
 def test_a_run_stopped_on_the_cap_says_so_and_keeps_finished_cards(
@@ -306,7 +307,8 @@ def test_a_run_stopped_on_the_cap_says_so_and_keeps_finished_cards(
     payload = json.loads(out.read_text())
     assert calls == ["a", "b"]
     assert [r["card_id"] for r in payload["results"]] == ["a"]
-    assert payload["stopped_on_cap"] == "stopped on the hard cap: test"
+    assert payload["stopped_on_cap"] == (
+        "stopped on the hard cap: test (during card b, which is not in results)")
     assert payload["llm_model"] == "claude-sonnet-4-6"
     assert payload["llm_pricing"]["input_per_m"] == 3.0
     assert payload["hard_cap_usd"] == 1.0
@@ -353,4 +355,10 @@ def test_a_call_that_raises_is_charged_its_estimate(
     with pytest.raises(RuntimeError, match="billed"):
         rb.run_llm(_images(1), truth, budget)
     assert budget.spent_usd == pytest.approx(obcands.estimate_candidate_cost(truth, 1))
+
+
+def test_cache_writes_are_priced() -> None:
+    truth = rb.candidate_for_model("claude-sonnet-4-6")
+    cost = obl._llm_cost({"cache_creation": 1_000_000}, truth)
+    assert cost == pytest.approx(3.0 * 1.25)
 

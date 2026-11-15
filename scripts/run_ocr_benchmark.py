@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
 import json
+import math
 import os
 import time
 from datetime import UTC, datetime
@@ -189,7 +190,9 @@ def _run_all(golden: list[dict], manifest, truth: Candidate, budget: Budget,
         try:
             row = benchmark_card(g["card_id"], g, manifest, truth, budget)
         except CapReachedError as exc:
-            stopped = str(exc)
+            # The stopped card's partial rows are dropped, but its calls were
+            # billed, so spent_usd keeps them; the payload names the card.
+            stopped = f"{exc} (during card {g['card_id']}, which is not in results)"
             print(f"\n{stopped}")
             break
         except Exception as exc:  # noqa: BLE001
@@ -219,8 +222,9 @@ def main(argv: list[str] | None = None):
              "call so far, so spend can pass the cap by at most one call's overrun.",
     )
     args = parser.parse_args(argv)
-    if args.hard_cap_usd is not None and args.hard_cap_usd <= 0:
-        parser.error("--hard-cap-usd must be greater than 0")
+    if args.hard_cap_usd is not None and not (math.isfinite(args.hard_cap_usd)
+                                              and args.hard_cap_usd > 0):
+        parser.error("--hard-cap-usd must be a finite amount greater than 0")
     golden = parse_golden()
 
     if args.dry_run:
