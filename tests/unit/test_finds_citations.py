@@ -16,11 +16,14 @@ walked transitively).
 
 from __future__ import annotations
 
+import html
 import json
 import re
 from pathlib import Path
 
 import pytest
+
+from pursue_index.release.chunked_asset import read_asset_json
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -147,3 +150,141 @@ def test_finds_citation_count_baseline_nonzero() -> None:
     text = target.read_text()
     hits = _extract_cite_card_ids(text)
     assert len(hits) > 0, "extraction regex matched zero <Cite> entries in apollo-17.mdx"
+
+
+# ---------------------------------------------------------------------------
+# page and q: a reader can check the citation against the published text
+# ---------------------------------------------------------------------------
+# One <Cite .../> tag. A quoted or braced attribute value may hold ">", so the
+# tag ends at the first ">" outside one. Attributes are read separately, so
+# their order is free.
+CITE_TAG = re.compile(r"""<Cite\s((?:[^>"'{]|"[^"]*"|'[^']*'|\{[^}]*\})*?)/?>""", re.DOTALL)
+QUOTE_BASELINE = _REPO_ROOT / "tests" / "fixtures" / "finds-quote-baseline.json"
+
+
+def _attr(attrs: str, name: str) -> str | None:
+    hit = re.search(rf"\b{name}=(?:\{{(\d+)\}}|\"([^\"]*)\"|'([^']*)')", attrs)
+    return next((g for g in hit.groups() if g is not None), None) if hit else None
+
+
+def _norm(text: str) -> str:
+    """The match rule: whitespace runs collapse to one space, case is ignored
+    (the card page highlights q case-insensitively), and HTML entities in an
+    MDX attribute are read as the characters they stand for."""
+    return re.sub(r"\s+", " ", html.unescape(text)).strip().casefold()
+
+
+def _cites(name: str, mdx_text: str) -> list[tuple[str, str, int, str | None]]:
+    """Every <Cite> tag as (file, card, page, q). A tag without a readable card
+    or page comes back with card "" or page 0, so it fails rather than being
+    skipped."""
+    out = []
+    for tag in CITE_TAG.finditer(mdx_text):
+        card, page = _attr(tag.group(1), "card"), _attr(tag.group(1), "page")
+        out.append((name, card or "", int(page) if page and page.isdigit() else 0,
+                    _attr(tag.group(1), "q")))
+    return out
+
+
+def _published_pages() -> dict[str, dict[int, list[str]]]:
+    """{card_id: {page: [OCR text, cleaned text]}}, normalised, from the payloads
+    the site ships."""
+    pages: dict[str, dict[int, list[str]]] = {}
+    data = _REPO_ROOT / "web" / "public" / "data"
+    for row in read_asset_json(data / "pages.json"):
+        pages.setdefault(row["card_id"], {}).setdefault(row["page"], []).append(_norm(row["text"]))
+    for row in read_asset_json(data / "pages-cleaned.json")["pages"]:
+        pages.setdefault(row["card_id"], {}).setdefault(row["page"], []).append(_norm(row["text"]))
+    return pages
+
+
+def quote_problems(cites: list[tuple[str, str, int, str | None]],
+                   pages: dict[str, dict[int, list[str]]],
+                   aliases: dict[str, str]) -> list[dict[str, object]]:
+    """Each citation whose page is outside its card's pages, or whose q is not
+    in that page's OCR or cleaned text. Cards with no published pages (removed
+    cards) are left to the resolvability test above."""
+    problems: list[dict[str, object]] = []
+    for name, card, page, q in cites:
+        if not card or not page:
+            problems.append({"file": name, "card": card, "page": page, "q": q,
+                             "problem": "the <Cite> tag has no readable card or page"})
+            continue
+        card_pages = pages.get(_resolve_card(card, aliases))
+        if card_pages is None:
+            continue
+        if page not in card_pages:
+            problem = f"page {page} is outside the card's pages 1-{max(card_pages)}"
+        elif q and not any(_norm(q) in text for text in card_pages[page]):
+            problem = "q is not in the page's OCR or cleaned text"
+        else:
+            continue
+        problems.append({"file": name, "card": card, "page": page, "q": q, "problem": problem})
+    return problems
+
+
+def _corpus_problems() -> list[dict[str, object]]:
+    cites = [c for path in _all_finds_files() for c in _cites(path.name, path.read_text())]
+    return quote_problems(cites, _published_pages(), _load_alias_map())
+
+
+def _key(row: dict[str, object]) -> tuple[object, ...]:
+    return (row["file"], row["card"], row["page"], row["q"])
+
+
+def test_every_cited_page_and_quote_is_in_the_published_text() -> None:
+    """New citations must check out. The baseline lists the reviewed ones that
+    don't yet, with why; it may only shrink, so a fixed entry must leave it."""
+    baseline = {_key(r): r for r in json.loads(QUOTE_BASELINE.read_text())["entries"]}
+    found = {_key(r): r for r in _corpus_problems()}
+    new = [found[k] for k in found.keys() - baseline.keys()]
+    fixed = [baseline[k] for k in baseline.keys() - found.keys()]
+    msg = []
+    if new:
+        msg.append("Citations whose page or q is not in the published text:\n  " + "\n  ".join(
+            f"{r['file']}: card {r['card']} page {r['page']} q={r['q']!r}: {r['problem']}" for r in new))
+    if fixed:
+        msg.append(f"These now check out; remove them from {QUOTE_BASELINE.name}:\n  " + "\n  ".join(
+            f"{r['file']}: card {r['card']} page {r['page']} q={r['q']!r}" for r in fixed))
+    assert not msg, "\n\n".join(msg)
+
+
+_FIXTURE_PAGES = {"a" * 16: {1: [_norm("The object was\n  SILVER and round.")], 2: [_norm("page two")]}}
+
+
+def test_a_q_not_on_the_cited_page_fails() -> None:
+    cites = [("x.mdx", "a" * 16, 1, "gold and round"), ("x.mdx", "a" * 16, 2, "silver")]
+    assert [r["problem"] for r in quote_problems(cites, _FIXTURE_PAGES, {})] == [
+        "q is not in the page's OCR or cleaned text"] * 2
+
+
+def test_a_page_past_the_cards_last_page_fails() -> None:
+    problems = quote_problems([("x.mdx", "a" * 16, 3, None)], _FIXTURE_PAGES, {})
+    assert problems[0]["problem"] == "page 3 is outside the card's pages 1-2"
+
+
+def test_q_matches_across_whitespace_case_and_entities() -> None:
+    cites = [("x.mdx", "a" * 16, 1, "object was silver"), ("x.mdx", "a" * 16, 1, "the  object&#32;was")]
+    assert quote_problems(cites, _FIXTURE_PAGES, {}) == []
+
+
+def test_an_aliased_card_is_checked_against_its_new_pages() -> None:
+    cites = [("x.mdx", "b" * 16, 1, "silver")]
+    assert quote_problems(cites, _FIXTURE_PAGES, {"b" * 16: "a" * 16}) == []
+
+
+def test_a_gt_inside_q_does_not_end_the_tag() -> None:
+    text = '<Cite q="A > B" card="aaaaaaaaaaaaaaaa" page={1} />'
+    assert _cites("x.mdx", text) == [("x.mdx", "a" * 16, 1, "A > B")]
+
+
+def test_a_tag_without_card_or_page_fails() -> None:
+    cites = _cites("x.mdx", '<Cite card="aaaaaaaaaaaaaaaa" q="silver" />')
+    assert [r["problem"] for r in quote_problems(cites, _FIXTURE_PAGES, {})] == [
+        "the <Cite> tag has no readable card or page"]
+
+
+def test_cite_tags_are_parsed_in_any_attribute_order() -> None:
+    text = '<Cite q="silver" page={2} card="aaaaaaaaaaaaaaaa" />\n<Cite card=\'bbbbbbbbbbbbbbbb\' page={1} />'
+    assert _cites("x.mdx", text) == [("x.mdx", "a" * 16, 2, "silver"), ("x.mdx", "b" * 16, 1, None)]
+
