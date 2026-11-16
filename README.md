@@ -37,9 +37,9 @@ from a clean clone (see [Reproducibility](#reproducibility)).
 
 - **Custom domain.** [pursueindex.com](https://pursueindex.com) on Cloudflare
   Workers + Static Assets.
-- **Full-text + semantic search** across **~7,800 OCR'd pages** spanning
-  **175 PDF cards** (294 total cards incl. video/audio/image) from PURSUE
-  Releases 01–03. MiniSearch lexical index +
+- **Full-text + semantic search** across **~15,600 pages** spanning
+  **298 PDF cards** (478 cards in all, incl. video/audio/image) from PURSUE
+  Releases 01–07, as of v1.7.2. MiniSearch lexical index +
   Voyage-3 embeddings, both browser-side; no server. The `/search` route
   adds a faceted filter rail (agency multi-select, incident-date range,
   redacted-only) over the lexical index; filter state round-trips through
@@ -279,7 +279,7 @@ cd web && npm install && npm run dev
 
 Public. Site is live at [pursueindex.com](https://pursueindex.com),
 the full pipeline (scrape → download → OCR → embed → serve) has run
-end-to-end against PURSUE Releases 01–03 (294 cards across 7 agencies),
+end-to-end against PURSUE Releases 01–07 (478 cards across 11 agencies as of v1.7.2),
 and the chat interface is open.
 
 ## License
