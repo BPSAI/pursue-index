@@ -208,3 +208,12 @@ def test_workflow_uses_pinned_action_shas() -> None:
     text = WORKFLOW.read_text()
     assert "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" in text
     assert "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405" in text
+
+
+def test_a_new_run_never_cancels_one_in_progress() -> None:
+    """A run takes hours; cancel-in-progress: true cancelled most runs
+    before they finished. One group keeps the commit-back serialised, and
+    GitHub keeps at most one pending run per group, so bursts don't queue."""
+    concurrency = _load()["concurrency"]
+    assert concurrency["group"] == "wayback-after-deploy"
+    assert concurrency["cancel-in-progress"] is False
