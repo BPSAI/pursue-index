@@ -35,7 +35,7 @@ def test_the_search_payload_publishes_ocr_text_through_the_same_transform() -> N
 
 
 def _published(*rows: tuple[str, int, str]) -> dict:
-    return published_pages([{"card_id": c, "page": p, "text": t} for c, p, t in rows])
+    return published_pages([{"card_id": c, "page": p, "text": t} for c, p, t in rows], {})
 
 
 def test_stamp_and_check_round_trip() -> None:
@@ -51,8 +51,8 @@ def test_stamp_and_check_round_trip() -> None:
 
 
 def test_published_pages_ignores_malformed_rows() -> None:
-    assert published_pages([{"page": 3}, "junk", {"card_id": "c", "page": "x"}]) == {}
-    assert published_pages("not a list") == {}
+    assert published_pages([{"page": 3}, "junk", {"card_id": "c", "page": "x"}], {}) == {}
+    assert published_pages("not a list", {}) == {}
 
 
 def test_a_page_with_no_ocr_row_is_untied() -> None:
@@ -85,7 +85,7 @@ def test_published_pages_skips_a_row_whose_card_id_is_not_a_string() -> None:
         {"card_id": 7, "page": 1, "text": "x"},
         {"card_id": "c1", "page": 2, "text": "kept"},
     ]
-    assert list(published_pages(rows)) == [("c1", 2)]
+    assert list(published_pages(rows, {})) == [("c1", 2)]
 
 
 def test_search_pages_publish_the_row_the_cleaning_build_selects(tmp_path: Path) -> None:
@@ -114,7 +114,7 @@ def test_search_pages_publish_the_row_the_cleaning_build_selects(tmp_path: Path)
 _VISION = OBSERVATIONS_HEADER + ", claude-opus-4-8]]\n\nA photograph of a field."
 
 
-def _vision_flags(text: str, observations: dict | None) -> bool:
+def _vision_flags(text: str, observations: dict) -> bool:
     rows = [{"card_id": "c", "page": 1, "text": text}]
     return published_pages(rows, observations)[("c", 1)][1]
 
@@ -131,6 +131,5 @@ def test_a_header_page_with_no_sidecar_description_is_not_vision() -> None:
     assert _vision_flags(_VISION, {}) is False
 
 
-def test_blank_is_still_allowed_and_no_lookup_keeps_the_prefix_rule() -> None:
+def test_blank_is_still_allowed() -> None:
     assert _vision_flags("  ", {}) is True
-    assert _vision_flags(_VISION + " extra", None) is True

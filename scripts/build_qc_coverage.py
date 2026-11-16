@@ -128,7 +128,7 @@ def _page_shas(pages_cleaned_path: Path) -> tuple[dict[str, dict[int, str]], lis
 
 def _page_provenance_gaps(
     pages_cleaned_path: Path, pages_path: Path, card_ids: set[str],
-    observations: dict[tuple[str, int], str] | None = None,
+    observations: dict[tuple[str, int], str],
 ) -> list[str]:
     """Per judged page: tied to its current OCR row and pages.json text?
     (``pursue_index.clean.qc.page_provenance``)."""
@@ -162,7 +162,7 @@ def _observation_lookup(index_path: Path) -> dict[tuple[str, int], str]:
 
 def _verification_gaps(
     bundle_path: Path, pages_cleaned_path: Path, statuses: dict[str, str],
-    pages_path: Path, observations: dict[tuple[str, int], str] | None = None,
+    pages_path: Path, observations: dict[tuple[str, int], str],
 ) -> list[str]:
     """Why digests cannot be checked: one entry per problem, ``[]`` when fine.
 

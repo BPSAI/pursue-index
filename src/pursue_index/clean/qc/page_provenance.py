@@ -37,7 +37,7 @@ import hashlib
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from pursue_index.page_text import OBSERVATIONS_HEADER, published_ocr_text
+from pursue_index.page_text import published_ocr_text
 
 __all__ = [
     "IMAGE_ONLY_KEY",
@@ -79,16 +79,16 @@ def ocr_page_provenance(
 
 
 def published_pages(
-    rows: object, observations: Mapping[tuple[str, int], str] | None = None,
+    rows: object, observations: Mapping[tuple[str, int], str],
 ) -> dict[tuple[str, int], tuple[str, bool]]:
     """``{(card_id, page): (text_sha256, blank_or_vision)}`` of a pages.json
     row list; a malformed row has no page to vouch for and is left out.
 
-    With ``observations`` (``{(card_id, page): text}`` rendered from the
-    committed image-observation sidecars, as the search payload does), a page
+    ``observations`` is ``{(card_id, page): text}`` rendered from the
+    committed image-observation sidecars, as the search payload does. A page
     counts as vision text only if it is exactly that page's description, so
-    OCR text appended after the header is caught. Without it, the header
-    prefix alone is checked.
+    OCR text appended after the header is caught; a page missing from the
+    lookup is never vision text.
     """
     out: dict[tuple[str, int], tuple[str, bool]] = {}
     for row in rows if isinstance(rows, list) else []:
@@ -99,11 +99,7 @@ def published_pages(
             continue
         if not isinstance(key[0], str):
             continue  # a card_id is a string; a list or dict would not even hash
-        if observations is None:
-            vision = text.startswith(OBSERVATIONS_HEADER)
-        else:
-            vision = observations.get(key) == text
-        out[key] = (text_sha256(text), not text.strip() or vision)
+        out[key] = (text_sha256(text), not text.strip() or observations.get(key) == text)
     return out
 
 
