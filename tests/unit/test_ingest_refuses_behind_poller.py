@@ -170,6 +170,9 @@ def test_approve_allow_behind_without_reason_is_rejected(behind_fixture: Path) -
                                               reason=False))
 
     assert result.exit_code != 0, result.output
+    # The behind check refused it, before the audit's own --reason check ran.
+    assert "--skip-audit needs --reason" not in result.output
+    assert "--reason must be at least" in result.output
     assert not (behind_fixture / "data" / "tranche-approval-log.jsonl").exists()
 
 

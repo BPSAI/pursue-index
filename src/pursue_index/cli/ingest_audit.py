@@ -12,6 +12,7 @@ import importlib.util
 import json
 import re
 from pathlib import Path
+from typing import NoReturn
 
 import typer
 
@@ -49,7 +50,7 @@ def _load_new_manifest(tranche_sha: str, snapshots_dir: Path) -> dict | None:
     return None
 
 
-def _refuse(why: str) -> None:
+def _refuse(why: str) -> NoReturn:
     typer.echo(f"refusing to approve — {why}. Pass --skip-audit --reason <why> to approve "
                "without the audit; the reason is recorded on the approval row.", err=True)
     raise typer.Exit(3)
