@@ -7,9 +7,9 @@
 OCR runs (`pursue ocr run`, `scripts/reocr_altered.py`) cache every
 per-page Anthropic vision call to disk by image-content sha256. A
 cache hit costs $0; a cache miss costs ~$0.013 per page. The
-`reocr_altered` run spent **$46.24** across 3,425 page OCRs. A
-fresh checkout on a different host would re-spend that $46 without
-the cache.
+full `reocr_altered` pass is 3,425 page OCRs, about $46 at that rate. A
+fresh checkout on a different host would pay that again without the
+cache.
 
 The cache is the only artifact in the pipeline whose cost is in the
 high tens of dollars to regenerate. Everything else — manifests,

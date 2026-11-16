@@ -166,7 +166,7 @@ Content-Type: application/json
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">Anonymous tier limits.</strong>
-        5 chats per IP per UTC day. Global daily spend cap of $100 USD
+        5 chats per IP per UTC day. A global daily spend cap applies
         across all callers; once that's hit, the endpoint returns 503
         until the next UTC day rolls over. A 24-hour semantic cache means
         repeated identical queries replay without burning rate budget or
@@ -299,7 +299,7 @@ data: {"usage":{"input_tokens":1234,"output_tokens":456}}`}</code></pre>
             </tr>
             <tr>
               <td class="py-2 pr-4 text-[color:var(--color-signal-amber)]">503</td>
-              <td class="py-2 pr-4">Daily $100 global budget cap reached (chat only)</td>
+              <td class="py-2 pr-4">Global daily budget cap reached (chat only)</td>
               <td class="py-2 text-[color:var(--color-text-dim)]"><code>{`{"error":"…try BYOK…"}`}</code></td>
             </tr>
           </tbody>

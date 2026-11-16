@@ -66,7 +66,7 @@ from a clean clone (see [Reproducibility](#reproducibility)).
   at the prior-manifest snapshot's byte-history archive so the cited
   bytes stay reachable.
 - **RAG chat with mandatory citations.** Anonymous tier (server-funded,
-  5/IP/24h, $100/day budget cap) and BYOK tier (browser-direct to
+  5/IP/24h, under a global daily budget cap) and BYOK tier (browser-direct to
   Anthropic). Both share the same UI. Off-corpus questions abstain
   rather than hallucinate; every cited claim is `[card_id:page]` and
   resolves to a primary-source page.
