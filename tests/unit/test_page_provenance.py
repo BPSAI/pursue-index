@@ -15,6 +15,7 @@ from pursue_index.clean.qc.page_provenance import (
     stamp_page_provenance,
     text_sha256,
 )
+from pursue_index.page_text import OBSERVATIONS_HEADER
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 
@@ -106,3 +107,30 @@ def test_search_pages_publish_the_row_the_cleaning_build_selects(tmp_path: Path)
     assert [(d["page"], d["text"]) for d in out] == [(1, "one new"), (2, "two")]
     chosen = {r["page"]: r["text"] for r in latest_per_page(rows, "c")}
     assert {d["page"]: d["text"] for d in out} == chosen
+
+
+# --- image-only pages must publish exactly their sidecar description ---
+
+_VISION = OBSERVATIONS_HEADER + ", claude-opus-4-8]]\n\nA photograph of a field."
+
+
+def _vision_flags(text: str, observations: dict | None) -> bool:
+    rows = [{"card_id": "c", "page": 1, "text": text}]
+    return published_pages(rows, observations)[("c", 1)][1]
+
+
+def test_the_exact_sidecar_description_counts_as_vision() -> None:
+    assert _vision_flags(_VISION, {("c", 1): _VISION}) is True
+
+
+def test_ocr_text_after_the_header_is_not_vision() -> None:
+    assert _vision_flags(_VISION + "\nOCR TEXT THE CLEANED PAGE NEVER SAW", {("c", 1): _VISION}) is False
+
+
+def test_a_header_page_with_no_sidecar_description_is_not_vision() -> None:
+    assert _vision_flags(_VISION, {}) is False
+
+
+def test_blank_is_still_allowed_and_no_lookup_keeps_the_prefix_rule() -> None:
+    assert _vision_flags("  ", {}) is True
+    assert _vision_flags(_VISION + " extra", None) is True

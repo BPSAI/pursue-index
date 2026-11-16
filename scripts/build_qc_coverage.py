@@ -128,6 +128,7 @@ def _page_shas(pages_cleaned_path: Path) -> tuple[dict[str, dict[int, str]], lis
 
 def _page_provenance_gaps(
     pages_cleaned_path: Path, pages_path: Path, card_ids: set[str],
+    observations: dict[tuple[str, int], str] | None = None,
 ) -> list[str]:
     """Per judged page: tied to its current OCR row and pages.json text?
     (``pursue_index.clean.qc.page_provenance``)."""
@@ -138,7 +139,7 @@ def _page_provenance_gaps(
     if not isinstance(pages, list):
         # Name the shape, not every judged page as "not in pages.json".
         return [f"{pages_path.name} is {type(pages).__name__}, not a list of page rows"]
-    current = published_pages(pages)
+    current = published_pages(pages, observations)
     try:
         doc = read_asset_json(pages_cleaned_path)
     except (OSError, ValueError) as exc:
@@ -149,7 +150,7 @@ def _page_provenance_gaps(
 
 def _verification_gaps(
     bundle_path: Path, pages_cleaned_path: Path, statuses: dict[str, str],
-    pages_path: Path,
+    pages_path: Path, observations: dict[tuple[str, int], str] | None = None,
 ) -> list[str]:
     """Why digests cannot be checked: one entry per problem, ``[]`` when fine.
 
@@ -176,7 +177,8 @@ def _verification_gaps(
         f"{c.get('page_count')} judged page(s)"
         for c in judged
         if len(shas.get(c["card_id"], {})) != c.get("page_count")
-    ] + _page_provenance_gaps(pages_cleaned_path, pages_path, {c["card_id"] for c in judged})
+    ] + _page_provenance_gaps(pages_cleaned_path, pages_path, {c["card_id"] for c in judged},
+                              observations)
 
 
 def build(
@@ -227,9 +229,12 @@ def main() -> int:
         pages_cleaned_path=args.pages_cleaned,
         asr_diff_bundle_path=args.asr_diff_bundle,
     )
+    observations = json.loads(args.observations.read_text(encoding="utf-8"))
     gaps = _verification_gaps(
         args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},
         args.pages,
+        # An image-only page must publish exactly its sidecar description.
+        observation_text_for(observations.get("card_ids", []), args.observations.parent),
     )
     if gaps:
         for gap in gaps:

@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from pursue_index.embed.image_observations import observation_text_for
 from tests.integration.test_qc_coverage_staleness_gate import (
     _run_gate,
     _setup_fixture,
@@ -177,9 +178,22 @@ def test_image_only_page_may_publish_a_vision_description_but_not_ocr_text(tmp_p
         next(r for r in rows if r["card_id"] == "card-one")["text"] = text
         path.write_text(json.dumps(rows))
 
-    publish("[[IMAGE-OBSERVATIONS via pursue vision pass]] a photograph of a field")
+    # The vision text must be exactly the page's sidecar description, rendered
+    # the way the search payload renders it.
+    (tmp_path / "card-one.json").write_text(json.dumps(
+        {"card_id": "card-one", "pages": [{"page": 1, "description": "a photograph of a field"}]}))
+    obs_index = tmp_path / "observations.json"
+    obs = json.loads(obs_index.read_text())
+    obs["card_ids"] = sorted({*obs.get("card_ids", []), "card-one"})
+    obs_index.write_text(json.dumps(obs))
+    vision = observation_text_for(["card-one"], tmp_path)[("card-one", 1)]
+    publish(vision)
     proc, _ = _run_gate(tmp_path)
     assert proc.returncode == 0, proc.stdout + proc.stderr
+    publish(vision + "\ntext from a later OCR run")  # OCR text after the header
+    proc, _ = _run_gate(tmp_path)
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    assert "card-one page 1: pages.json publishes OCR text for a page cleaned as image-only" in proc.stdout
     publish("")
     proc, _ = _run_gate(tmp_path)
     assert proc.returncode == 0, proc.stdout + proc.stderr
