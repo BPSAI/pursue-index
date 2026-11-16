@@ -314,3 +314,37 @@ def test_operator_next_quotes_the_branch(tmp_path: Path) -> None:
     assert "'x;touch pwned'" in lines[1]
     assert "'/repo dir'" in lines[0]
 
+
+
+def test_the_freshness_recheck_fetches_origin_first(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    runner = FakeRunner(repo)
+    _run(tmp_path, repo, runner)
+    fetches = [argv for argv in runner.calls if argv[0] == "git" and "fetch" in argv]
+    # No GitHub origin in this checkout, so it fetches the remote named origin.
+    assert fetches and fetches[0][-2:] == ["origin", "+refs/heads/main:refs/remotes/origin/main"]
+
+
+def test_a_failed_fetch_fails_the_freshness_recheck_closed(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    runner = FakeRunner(repo)
+    runner.handlers[("git", "-c")] = lambda a, c: CommandResult(128, "", "could not read from remote")
+    code, doc = _run(tmp_path, repo, runner)
+    assert code == ExitCode.GATE_FAILED
+    assert doc["failed_step"] == "freshness-recheck"
+    assert "failed" in doc["message"] and doc["failed_step"] == "freshness-recheck"
+    assert doc["operator_next"] == []
+
+
+def test_a_github_origin_is_fetched_over_anonymous_https(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    subprocess.run(["git", "remote", "add", "origin", "git@github.com:BPSAI/pursue-index.git"],
+                   cwd=repo, check=True)
+    runner = FakeRunner(repo)
+    _run(tmp_path, repo, runner)
+    fetches = [argv for argv in runner.calls if argv[0] == "git" and "fetch" in argv]
+    assert fetches[0][-2:] == ["https://github.com/BPSAI/pursue-index.git",
+                               "+refs/heads/main:refs/remotes/origin/main"]
+    for setting in ("credential.helper=", "core.sshCommand=false", "protocol.allow=never",
+                    "protocol.https.allow=always"):
+        assert setting in fetches[0], setting

@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.poll_freshness import PollCheckError
+from pursue_index.tranche_autopilot.child_env import FETCH_ENV, fetch_argv
 from pursue_index.tranche_autopilot.eligibility import Eligibility
 from pursue_index.tranche_autopilot.gitops import (
     GitError,
@@ -62,6 +63,8 @@ class Context:
     behind_baseline: int = 0
     commits: list[str] = field(default_factory=list)
     changed: dict[str, Any] | None = None
+    storage_env: Mapping[str, str] = field(default_factory=dict, repr=False)
+    slug: str | None = None
 
 
 def _tail(result: CommandResult) -> str:
@@ -83,10 +86,11 @@ def _refuse_content_work(step: Step, lists: WorklistCheck, what: str) -> None:
 
 
 def _run(ctx: Context, step: Step, argv: Sequence[str], timeout: float,
-         cwd: Path | None = None) -> CommandResult:
+         cwd: Path | None = None, env: Mapping[str, str] | None = None) -> CommandResult:
     step.command = shlex.join(argv)
     step.start()
-    result = ctx.runner(argv, cwd=cwd or ctx.repo_root, timeout=timeout, env=ctx.env)
+    result = ctx.runner(argv, cwd=cwd or ctx.repo_root, timeout=timeout,
+                        env=ctx.env if env is None else env)
     if result.returncode != 0:
         step.finish("failed", _tail(result), result.returncode)
         raise AutopilotStopError(ExitCode.GATE_FAILED,
@@ -133,7 +137,9 @@ def dry_run_scope(ctx: Context) -> None:
 
 
 def storage_verify(ctx: Context) -> None:
-    _run(ctx, ctx.steps["storage-verify"], [PURSUE, "storage", "verify"], timeout=300)
+    # The only step that gets the storage credentials.
+    _run(ctx, ctx.steps["storage-verify"], [PURSUE, "storage", "verify"], timeout=300,
+         env={**ctx.env, **ctx.storage_env})
 
 
 def ocr_preflight(ctx: Context) -> None:
@@ -214,12 +220,20 @@ def commit(ctx: Context) -> None:
     step.finish("ok", f"committed {len(paths)} path(s) as {ctx.commits[-1][:12]}", 0)
 
 
+FETCH_TIMEOUT_S = 120
 def freshness_recheck(ctx: Context) -> None:
-    # No fetch here (poll_freshness never fetches inside a gate). Worktrees
-    # share refs with the primary checkout, so any fetch made during the run
-    # -- by the operator, the host or another session -- is what this sees.
+    # Fetch first, so a poll commit that landed on GitHub during the run is
+    # seen even if nothing else fetched; a failed or timed-out fetch fails the
+    # step closed rather than comparing against a stale origin/main.
     step = ctx.steps["freshness-recheck"]
     step.start()
+    fetched = ctx.runner(fetch_argv(ctx.slug), cwd=ctx.repo_root, timeout=FETCH_TIMEOUT_S,
+                         env={**ctx.env, **FETCH_ENV})
+    if fetched.returncode != 0:
+        detail = (f"git fetch of {ctx.slug or 'origin'} main failed "
+                  f"(exit {fetched.returncode}): {_tail(fetched)}")
+        step.finish("failed", detail, fetched.returncode)
+        raise AutopilotStopError(ExitCode.GATE_FAILED, f"step freshness-recheck failed: {detail}")
     try:
         now = ctx.behind(ctx.repo_root)
     except PollCheckError as exc:
