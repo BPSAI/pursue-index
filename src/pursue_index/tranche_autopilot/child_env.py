@@ -72,7 +72,8 @@ def storage_env(environ: Mapping[str, str]) -> dict[str, str]:
 # be https. Either way it updates the origin/main ref the comparison reads.
 _FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
                  "-c", "credential.helper=", "-c", "core.sshCommand=false",
-                 "-c", "protocol.allow=never", "-c", "protocol.https.allow=always")
+                 "-c", "protocol.allow=never", "-c", "protocol.https.allow=always",
+                 "-c", "core.alternateRefsCommand=", "-c", "gc.auto=0", "-c", "http.proxy=")
 
 
 def fetch_argv(slug: str | None) -> list[str]:
