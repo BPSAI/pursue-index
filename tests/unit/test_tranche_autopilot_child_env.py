@@ -74,3 +74,9 @@ def test_every_pursue_name_in_the_code_is_allowed_or_excluded() -> None:
     unclassified = names - set(PURSUE_ALLOWED) - set(PURSUE_EXCLUDED)
     assert not unclassified, f"classify these in tranche_autopilot/child_env.py: {unclassified}"
 
+
+def test_the_storage_credentials_are_not_in_the_config_repr(tmp_path: Path) -> None:
+    cfg = AutopilotConfig(SHA, tmp_path / "r.json", tmp_path, FakeRunner(tmp_path), {},
+                          lambda _r: 0, storage_env={"R2_SECRET_ACCESS_KEY": "s3cr3t-value"})
+    assert "s3cr3t-value" not in repr(cfg)
+

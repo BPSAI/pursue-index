@@ -55,7 +55,7 @@ class AutopilotConfig:
     env: Mapping[str, str]
     behind: Callable[[Path], int] = commits_behind_on_poll_paths
     # Given to `pursue storage verify` only (see tranche_autopilot.child_env).
-    storage_env: Mapping[str, str] = field(default_factory=dict)
+    storage_env: Mapping[str, str] = field(default_factory=dict, repr=False)
 
 
 def receipt_path(repo_root: Path, tranche_sha: str) -> Path:

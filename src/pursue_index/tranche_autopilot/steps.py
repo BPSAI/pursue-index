@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.poll_freshness import PollCheckError
-from pursue_index.tranche_autopilot.child_env import fetch_argv
+from pursue_index.tranche_autopilot.child_env import FETCH_ENV, fetch_argv
 from pursue_index.tranche_autopilot.eligibility import Eligibility
 from pursue_index.tranche_autopilot.gitops import (
     GitError,
@@ -63,7 +63,7 @@ class Context:
     behind_baseline: int = 0
     commits: list[str] = field(default_factory=list)
     changed: dict[str, Any] | None = None
-    storage_env: Mapping[str, str] = field(default_factory=dict)
+    storage_env: Mapping[str, str] = field(default_factory=dict, repr=False)
     slug: str | None = None
 
 
@@ -228,7 +228,7 @@ def freshness_recheck(ctx: Context) -> None:
     step = ctx.steps["freshness-recheck"]
     step.start()
     fetched = ctx.runner(fetch_argv(ctx.slug), cwd=ctx.repo_root, timeout=FETCH_TIMEOUT_S,
-                         env=ctx.env)
+                         env={**ctx.env, **FETCH_ENV})
     if fetched.returncode != 0:
         detail = (f"git fetch of {ctx.slug or 'origin'} main failed "
                   f"(exit {fetched.returncode}): {_tail(fetched)}")
