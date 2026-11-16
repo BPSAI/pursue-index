@@ -148,6 +148,18 @@ def _page_provenance_gaps(
     return provenance_gaps(rows, current, card_ids, pages_cleaned_path.name)
 
 
+def _observation_lookup(index_path: Path) -> dict[tuple[str, int], str]:
+    """Each image-only page's vision text, rendered from the committed sidecars
+    as the search payload renders it: an image-only page must publish exactly
+    this. ``build`` has already read the index, so an unreadable one never
+    reaches here; if it did, the empty lookup fails every vision page closed."""
+    try:
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return observation_text_for(index.get("card_ids", []), index_path.parent)
+
+
 def _verification_gaps(
     bundle_path: Path, pages_cleaned_path: Path, statuses: dict[str, str],
     pages_path: Path, observations: dict[tuple[str, int], str] | None = None,
@@ -229,12 +241,9 @@ def main() -> int:
         pages_cleaned_path=args.pages_cleaned,
         asr_diff_bundle_path=args.asr_diff_bundle,
     )
-    observations = json.loads(args.observations.read_text(encoding="utf-8"))
     gaps = _verification_gaps(
         args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},
-        args.pages,
-        # An image-only page must publish exactly its sidecar description.
-        observation_text_for(observations.get("card_ids", []), args.observations.parent),
+        args.pages, _observation_lookup(args.observations),
     )
     if gaps:
         for gap in gaps:
