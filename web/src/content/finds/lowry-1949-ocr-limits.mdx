@@ -51,33 +51,30 @@ This is recoverable because the original was a clean carbon, the form is a types
 
 ## What the file is, when it is not recoverable
 
-Now the same file's **page 2** — the routing slip that sits behind the McLeod cover transmission described above:
+Now the same file's **page 2** — the routing slip that sits behind the McLeod cover transmission described above. The page is scanned upside down and mirrored, so the body text is unrecoverable; only the header stamp and the footer survive. The published OCR of the footer reads:
 
 > "TRANSMITTED
-> JAN 9 4 00 PM '50
-> LOWEY
+> JAN 9 4 08 PM '50
+> LOWRY
 > FLIGHT SERVICE CENTER
-> [ILLEGIBLE - faded text throughout middle section]
-> FLIGHT:
-> [ILLEGIBLE - faded text]
-> [Several paragraphs of heavily faded and illegible typewritten text]
-> [ILLEGIBLE - bottom section contains faded text]
-> DENLEH' COГOBVДO
-> ГOMБA VIБ LOHCE БУДЕ
-> ГOMБA ERIГIГIРI ЗЕВДICE CEИДЕБ" <Cite card="218e167fbd265d91" page={2} q="LOWEY" />
+>
+> DENVER, COLORADO
+> LOMBA AIR FORCE BASE
+> LOMBA FLIGHT SERVICE CENTER" <Cite card="218e167fbd265d91" page={2} q="LOMBA AIR FORCE BASE" />
 
-That last block of text is not Cyrillic. It is the LLM-vision pipeline attempting to transcribe an upside-down, mirror-image, heavily-faded carbon impression where individual character glyphs have degraded toward a state in which the model's tokenizer is reaching for whichever character set best matches what looks like a series of curls and dots. "DENLEH' COГOBVДO" is almost certainly a partly-rotated rendering of *DENVER, COLORADO*; "ГOMБA" and similar tokens are almost certainly faded artifacts of the form's printed *FORM* and similar header text. The page is unrecoverable; the model's best-effort produces glyph-soup.
+The stamp reads LOWRY correctly two lines above, yet the faded footer comes out as "LOMBA". There was no Lomba Air Force Base; the footer is the same *Lowry Air Force Base* the stamp names, and the site's cleaned text for this page reads it that way. An earlier OCR pass on this page was much worse: it read the stamp as "LOWEY" and turned the footer into strings of mixed Latin and Cyrillic glyphs. Re-running OCR recovered the city and the base name's shape, but not every letter, so a name search for "Lowry" can still miss a page like this.
 
 The pipeline exposed `[ILLEGIBLE]` and `[REDACTED]` markers so that downstream search and LLM consumers don't accidentally confuse model hallucination with archival text.
 
-A second, more compact example is page 21:
+A second example, page 21, shows the same re-OCR fixing a name outright. This entry first quoted it as "WM. ROOHOOFER FIELD", a garble with no matching Air Force installation, which it read as almost certainly *McCHORD FIELD* near Tacoma, Washington. The re-OCR now reads it correctly:
 
 > "TRANSMITTED
-> AUG 10 3 [illegible] PM '49
-> FILED SENT RETURN
-> WM. ROOHOOFER FIELD" <Cite card="218e167fbd265d91" page={21} q="ROOHOOFER" />
+> Aug 10 3 40 PM '49
+>
+> McCHORD FIELD
+> FLT SERV CENTER" <Cite card="218e167fbd265d91" page={21} q="McCHORD FIELD" />
 
-"WM. ROOHOOFER FIELD" is not a real Air Force installation. Surya's confidence score is 45 on this page, and the LLM has rendered what is presumably a faded date stamp in the form `WM. ROOFNOFER` or `MCCHORD` (it is in fact almost certainly *McCHORD FIELD* — a 1949 Air Force base near Tacoma, Washington — but the model is not certain enough to commit). The reader should treat this page as: a routing slip exists; it is dated approximately August 10, 1949; it appears to involve a Flight Service installation; nothing more.
+That is the before-and-after this entry is about: the same routing slip, read twice. A reader who relies on any single OCR pass of a degraded carbon should treat proper names as provisional until the page image confirms them.
 
 ## Where the LLM-vision fallback succeeds
 

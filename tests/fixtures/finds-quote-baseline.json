@@ -9,41 +9,6 @@
       "reason": "quotes the card's description, which is not page text"
     },
     {
-      "file": "doe-uap-d002-james-tuck-correspondence-1970s.mdx",
-      "card": "8156067f7ff4b983",
-      "page": 2,
-      "q": "Protection Force logs",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "fbi-1947-dallas-teletype.mdx",
-      "card": "b246c782b16be168",
-      "page": 68,
-      "q": "approximately 50 feet in diameter",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "fbi-1947-dallas-teletype.mdx",
-      "card": "bcf2e688dfbc220d",
-      "page": 70,
-      "q": "HAD NOT SOUND BORNE OUT THIS BELIEF",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "fbi-62-hq-83894-readers-guide.mdx",
-      "card": "4844321219e306af",
-      "page": 100,
-      "q": "Strafford",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "fbi-usper-2025-orb.mdx",
-      "card": "ccd932b4f40e8de7",
-      "page": 1,
-      "q": "Grayscale video frame of a helicopter",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
       "file": "helicopter-case-2025-imagery.mdx",
       "card": "be533a4ab886eb11",
       "page": 1,
@@ -51,53 +16,11 @@
       "reason": "quotes the card's description, which is not page text"
     },
     {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "fd342b7508668b0e",
-      "page": 1,
-      "q": "they observed it through NVGs",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "lowry-1949-ocr-limits.mdx",
-      "card": "218e167fbd265d91",
-      "page": 2,
-      "q": "LOWEY",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "lowry-1949-ocr-limits.mdx",
-      "card": "218e167fbd265d91",
-      "page": 21,
-      "q": "ROOHOOFER",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
       "file": "lowry-1949-ocr-limits.mdx",
       "card": "218e167fbd265d91",
       "page": 119,
       "q": "ILLEGIBLE",
       "reason": "q is on page 2, 8, 13, 16, 23 and others of this card, not the cited page"
-    },
-    {
-      "file": "muroc-1947.mdx",
-      "card": "99c12a9c49a91750",
-      "page": 67,
-      "q": "too tight and too severe",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "nasc-state-extraterrestrial-policy-memo-1963.mdx",
-      "card": "df43a479bc891969",
-      "page": 1,
-      "q": "a two page memorandum, dated July 28, 1952",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "oak-ridge-radar-january-1951.mdx",
-      "card": "f85532f0514320be",
-      "page": 73,
-      "q": "radar 'lock'",
-      "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
     }
   ]
 }
