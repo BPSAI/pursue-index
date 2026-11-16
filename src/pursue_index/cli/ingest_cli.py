@@ -23,23 +23,16 @@ from pathlib import Path
 
 import typer
 
+from pursue_index import ingest as ing
 from pursue_index.cli import ingest_options as opt
 from pursue_index.cli.ingest_audit import _run_pre_approval_audit
-from pursue_index.cli.ingest_defaults import __getattr__, _default  # noqa: F401
+
+# Re-exports the DEFAULT_* data paths (resolved on access) for importers.
+from pursue_index.cli.ingest_defaults import __getattr__  # noqa: F401
 from pursue_index.cli.ingest_estimate import ingest_estimate_record, ingest_estimate_text
 from pursue_index.cli.ingest_from_diff import execute_from_diff
 from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
 from pursue_index.config import settings
-from pursue_index.ingest import (
-    append_aliases,
-    attach_resave_evidence,
-    auto_approve_renames,
-    held_resave_lines,
-    is_tranche_approved,
-    parse_rename_flags,
-    record_approval,
-    resave_setting_mismatch,
-)
 from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
 from pursue_index.tranche_resave import RESAVE_METHOD
 
@@ -66,7 +59,7 @@ def check_cmd(
     log: Path = opt._OPT_RUN_LOG,
 ) -> None:
     """Exit 0 if approved, 1 if not."""
-    if is_tranche_approved(log, tranche):
+    if ing.is_tranche_approved(log, tranche):
         typer.echo(f"approved: {tranche}")
         raise typer.Exit(0)
     typer.echo(f"NOT approved: {tranche}", err=True)
@@ -137,18 +130,18 @@ def _resolve_renames(
     Returns ``(auto_renames, manual_renames, enriched)``. Exits 2 on a
     malformed ``--approve-rename`` flag."""
     opted_in = settings.ingest_auto_approve_metadata_resaves
-    if refusal := resave_setting_mismatch(diff, opted_in, approve_rename or []):
+    if refusal := ing.resave_setting_mismatch(diff, opted_in, approve_rename or []):
         typer.echo(refusal, err=True)
         raise typer.Exit(2)
-    auto_renames = auto_approve_renames(diff, metadata_resaves=opted_in)
-    for line in held_resave_lines(diff, enabled=opted_in):
+    auto_renames = ing.auto_approve_renames(diff, metadata_resaves=opted_in)
+    for line in ing.held_resave_lines(diff, enabled=opted_in):
         typer.echo(line, err=True)
     try:
-        manual_renames = parse_rename_flags(approve_rename or [])
+        manual_renames = ing.parse_rename_flags(approve_rename or [])
     except ValueError as exc:
         typer.echo(f"refusing to approve — invalid --approve-rename: {exc}", err=True)
         raise typer.Exit(2) from exc
-    manual_renames = attach_resave_evidence(manual_renames, diff)
+    manual_renames = ing.attach_resave_evidence(manual_renames, diff)
     enriched = _enrich_with_provenance(auto_renames + manual_renames, tranche)
     return auto_renames, manual_renames, enriched
 
@@ -159,7 +152,7 @@ def _persist_approval(
     cost_estimate: dict | None = None,
 ) -> None:
     """Write the approval row, fold in the audit trail, materialize aliases."""
-    record_approval(
+    ing.record_approval(
         log_path=log, tranche_sha=tranche, note=note, diff_summary=diff_summary,
         renames_approved=enriched, cost_estimate=cost_estimate,
     )
@@ -167,7 +160,7 @@ def _persist_approval(
         audit_log = log.parent / "audit-log.jsonl"
         with audit_log.open("a") as fh:
             fh.write(json.dumps({"tranche_sha256": tranche, "results": audit_results}) + "\n")
-    append_aliases(aliases, enriched)
+    ing.append_aliases(aliases, enriched)
 
 
 @ingest_app.command("approve")
