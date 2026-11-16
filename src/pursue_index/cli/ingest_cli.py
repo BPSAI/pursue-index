@@ -23,33 +23,11 @@ from pathlib import Path
 
 import typer
 
+from pursue_index.cli import ingest_options as opt
 from pursue_index.cli.ingest_audit import _run_pre_approval_audit
 from pursue_index.cli.ingest_defaults import __getattr__, _default  # noqa: F401
 from pursue_index.cli.ingest_estimate import ingest_estimate_record, ingest_estimate_text
 from pursue_index.cli.ingest_from_diff import execute_from_diff
-from pursue_index.cli.ingest_options import (
-    _OPT_ALLOW_BEHIND,
-    _OPT_APPROVE_ALIASES,
-    _OPT_APPROVE_DIFF_DIR,
-    _OPT_APPROVE_LOG,
-    _OPT_APPROVE_RENAME,
-    _OPT_APPROVE_SNAPSHOTS_DIR,
-    _OPT_BEHIND_REASON,
-    _OPT_DRY_RUN,
-    _OPT_FROM_DIFF,
-    _OPT_FROM_DIFF_COST_CAP,
-    _OPT_RUN_ALIASES,
-    _OPT_RUN_ASSET_REGISTRY,
-    _OPT_RUN_CONCURRENCY,
-    _OPT_RUN_DIFF_DIR,
-    _OPT_RUN_ENGINE,
-    _OPT_RUN_FORCE,
-    _OPT_RUN_LOG,
-    _OPT_RUN_MANIFEST,
-    _OPT_RUN_SNAPSHOTS_DIR,
-    _OPT_SKIP_AUDIT,
-    _OPT_WORKLIST_OUT,
-)
 from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
 from pursue_index.config import settings
 from pursue_index.ingest import (
@@ -85,7 +63,7 @@ def _find_diff_artifact(tranche_sha: str, diff_dir: Path) -> Path | None:
 @ingest_app.command("check")
 def check_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256 (full or 12-char prefix)."),
-    log: Path = _OPT_RUN_LOG,
+    log: Path = opt._OPT_RUN_LOG,
 ) -> None:
     """Exit 0 if approved, 1 if not."""
     if is_tranche_approved(log, tranche):
@@ -196,14 +174,14 @@ def _persist_approval(
 def approve_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
     note: str = typer.Option(..., "--note", help="Operator rationale; recorded in the audit log."),
-    approve_rename: list[str] = _OPT_APPROVE_RENAME,
-    log: Path = _OPT_APPROVE_LOG,
-    aliases: Path = _OPT_APPROVE_ALIASES,
-    diff_dir: Path = _OPT_APPROVE_DIFF_DIR,
-    snapshots_dir: Path = _OPT_APPROVE_SNAPSHOTS_DIR,
-    skip_audit: bool = _OPT_SKIP_AUDIT,
-    allow_behind: bool = _OPT_ALLOW_BEHIND,
-    reason: str = _OPT_BEHIND_REASON,
+    approve_rename: list[str] = opt._OPT_APPROVE_RENAME,
+    log: Path = opt._OPT_APPROVE_LOG,
+    aliases: Path = opt._OPT_APPROVE_ALIASES,
+    diff_dir: Path = opt._OPT_APPROVE_DIFF_DIR,
+    snapshots_dir: Path = opt._OPT_APPROVE_SNAPSHOTS_DIR,
+    skip_audit: bool = opt._OPT_SKIP_AUDIT,
+    allow_behind: bool = opt._OPT_ALLOW_BEHIND,
+    reason: str = opt._OPT_BEHIND_REASON,
 ) -> None:
     """Record an approval row + materialize the approved aliases.
 
@@ -228,21 +206,21 @@ def approve_cmd(
 @ingest_app.command("run")
 def run_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
-    log: Path = _OPT_RUN_LOG,
-    snapshots_dir: Path = _OPT_RUN_SNAPSHOTS_DIR,
-    manifest: Path = _OPT_RUN_MANIFEST,
-    diff_dir: Path = _OPT_RUN_DIFF_DIR,
-    aliases: Path = _OPT_RUN_ALIASES,
-    asset_registry: Path = _OPT_RUN_ASSET_REGISTRY,
-    from_diff: bool = _OPT_FROM_DIFF,
-    dry_run: bool = _OPT_DRY_RUN,
-    worklist: Path = _OPT_WORKLIST_OUT,
-    cost_cap_usd: float = _OPT_FROM_DIFF_COST_CAP,
-    engine: str = _OPT_RUN_ENGINE,
-    force: bool = _OPT_RUN_FORCE,
-    concurrency: int = _OPT_RUN_CONCURRENCY,
-    allow_behind: bool = _OPT_ALLOW_BEHIND,
-    reason: str = _OPT_BEHIND_REASON,
+    log: Path = opt._OPT_RUN_LOG,
+    snapshots_dir: Path = opt._OPT_RUN_SNAPSHOTS_DIR,
+    manifest: Path = opt._OPT_RUN_MANIFEST,
+    diff_dir: Path = opt._OPT_RUN_DIFF_DIR,
+    aliases: Path = opt._OPT_RUN_ALIASES,
+    asset_registry: Path = opt._OPT_RUN_ASSET_REGISTRY,
+    from_diff: bool = opt._OPT_FROM_DIFF,
+    dry_run: bool = opt._OPT_DRY_RUN,
+    worklist: Path = opt._OPT_WORKLIST_OUT,
+    cost_cap_usd: float = opt._OPT_FROM_DIFF_COST_CAP,
+    engine: str = opt._OPT_RUN_ENGINE,
+    force: bool = opt._OPT_RUN_FORCE,
+    concurrency: int = opt._OPT_RUN_CONCURRENCY,
+    allow_behind: bool = opt._OPT_ALLOW_BEHIND,
+    reason: str = opt._OPT_BEHIND_REASON,
 ) -> None:
     """Promote an approved tranche to the deployed manifest + report next steps.
 
