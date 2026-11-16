@@ -80,7 +80,7 @@ def test_verified_and_nothing_to_audit_are_labelled(snapshots: Path,
     results, label = _audit(snapshots)
     assert len(results) == 2 and label == "verified (2 ok, 0 skipped by design)"
     _with_targets(monkeypatch, ["ok", "mismatch"], kind="operator_manual_rename")
-    assert _audit(snapshots)[1] == "verified (1 ok, 0 skipped by design, 1 other (see the audit log))"
+    assert _audit(snapshots)[1].startswith("partly verified (1 ok, 1 not ok but non-blocking")
     _with_targets(monkeypatch, [])
     assert _audit(snapshots) == ([], "nothing to audit (no byte-changing targets)")
 

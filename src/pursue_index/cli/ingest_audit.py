@@ -29,6 +29,14 @@ from pursue_index.post_ingest_audit import (
 _TRANCHE = re.compile(r"[0-9a-f]{12,64}")
 
 
+def check_tranche(tranche: str) -> None:
+    """Refuse (exit 2) a --tranche that isn't 12-64 lowercase hex, before it
+    reaches any path or glob."""
+    if not _TRANCHE.fullmatch(tranche):
+        typer.echo(f"--tranche must be 12-64 lowercase hex characters, got {tranche!r}", err=True)
+        raise typer.Exit(2)
+
+
 def _fetch_byte_sha_via_curl(url: str) -> str | None:
     try:
         from curl_cffi import requests as cffi_requests
@@ -89,8 +97,10 @@ def _audit_label(results: list[dict]) -> str:
                 "no asset_url by design)")
     ok = sum(r.get("status") == "ok" for r in results)
     other = len(results) - ok - len(skipped)  # e.g. a non-blocking operator_manual mismatch
-    extra = f", {other} other (see the audit log)" if other else ""
-    return f"verified ({ok} ok, {len(skipped)} skipped by design{extra})"
+    if other:
+        return (f"partly verified ({ok} ok, {other} not ok but non-blocking, see the audit "
+                f"log; {len(skipped)} skipped by design)")
+    return f"verified ({ok} ok, {len(skipped)} skipped by design)"
 
 
 def _run_pre_approval_audit(
@@ -110,9 +120,7 @@ def _run_pre_approval_audit(
     so the approval row never reads as verified. ``--skip-audit`` bypasses it
     only with a ``--reason``. The label is printed and recorded on the row.
     """
-    if not _TRANCHE.fullmatch(tranche):
-        typer.echo(f"--tranche must be 12-64 lowercase hex characters, got {tranche!r}", err=True)
-        raise typer.Exit(2)
+    check_tranche(tranche)
     if skip_audit:
         label = f"skipped: {_skip_reason(reason)}"
         typer.echo(f"[audit] --skip-audit set; TOCTOU re-verification {label}", err=True)

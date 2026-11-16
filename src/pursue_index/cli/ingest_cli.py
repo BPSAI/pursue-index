@@ -25,7 +25,7 @@ import typer
 
 from pursue_index import ingest as ing
 from pursue_index.cli import ingest_options as opt
-from pursue_index.cli.ingest_audit import _run_pre_approval_audit
+from pursue_index.cli.ingest_audit import _run_pre_approval_audit, check_tranche
 
 # Re-exports the DEFAULT_* data paths (resolved on access) for importers.
 from pursue_index.cli.ingest_defaults import __getattr__  # noqa: F401
@@ -185,6 +185,7 @@ def approve_cmd(
     restored_unchanged events) to catch TOCTOU swaps between tranche-diff
     and approval. Refuses approval if any sha mismatches.
     """
+    check_tranche(tranche)
     enforce_poll_freshness(allow_behind, reason, tranche)
     diff = _load_diff_or_exit(tranche, diff_dir)
     diff_summary = diff.get("summary", {})
