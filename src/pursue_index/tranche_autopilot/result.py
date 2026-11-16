@@ -39,8 +39,12 @@ _SECRETS = re.compile(
     r"|(?<![A-Za-z0-9])(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})"
     r"|(?<![A-Za-z0-9])pa-[A-Za-z0-9_-]{30,}"
     r"|(?<![A-Za-z0-9])(?:xox[abeprs]|xapp)-[A-Za-z0-9-]{10,}"
-    # A JWT, and a PEM or PGP private key up to its END line (or the end of the text).
-    r"|(?<![A-Za-z0-9])eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}"
+    # A PEM or PGP private key up to its END line (or the end of the text).
+    r"|(?<![A-Za-z0-9])(?:sk|rk|pk)_(?:live|test)_[A-Za-z0-9]{10,}"
+    r"|(?<![A-Za-z0-9])AIza[0-9A-Za-z_-]{35}"
+    r"|hooks\.slack\.com/services/[A-Za-z0-9/]+"
+    # A JWT; an unsigned one ("alg": "none") ends in a bare "." with no signature.
+    r"|(?<![A-Za-z0-9])eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*"
     r"|-----BEGIN [A-Z ]*PRIVATE KEY(?: BLOCK)?-----[\s\S]*?"
     r"(?:-----END [A-Z ]*PRIVATE KEY(?: BLOCK)?-----|$)"
 )

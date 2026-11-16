@@ -175,11 +175,23 @@ _FILLER = "Ab3" * 12
     "slack " + "xapp" + "-" + _FILLER,
     "slack " + "xox" + "e-" + _FILLER,
     "GH_TOKEN_" + "ghp" + "_" + _FILLER,
+    "stripe " + "sk" + "_live_" + _FILLER,
+    "google " + "AIza" + _FILLER[:35],
+    "posted to https://" + "hooks.slack.com/services/" + _FILLER,
+    "unsigned " + "eyJ" + _FILLER + "." + _FILLER + ".",
 ])
 def test_prefixed_tokens_jwts_and_private_keys_are_redacted(leak: str) -> None:
     from pursue_index.tranche_autopilot.result import redact
 
     assert _FILLER not in redact(leak)
+
+
+def test_redaction_keeps_the_surrounding_text_and_stops_at_the_pem_end() -> None:
+    from pursue_index.tranche_autopilot.result import redact
+
+    pem = "-----BEGIN " + "PRIVATE KEY-----\n" + _FILLER + "\n-----END " + "PRIVATE KEY-----"
+    out = redact("before " + "ghp" + "_" + _FILLER + " middle\n" + pem + "\nafter")
+    assert out == "before <redacted> middle\n<redacted>\nafter"
 
 
 def test_hashes_and_ordinary_text_are_not_redacted() -> None:
