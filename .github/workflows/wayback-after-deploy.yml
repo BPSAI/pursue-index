@@ -62,16 +62,19 @@ on:
 permissions:
   contents: write   # commit-back wayback-history.json
 
-# 2026-05-29 incident fix: cancel-in-progress: true so a burst of
-# release events (e.g. backfilling multiple missing release tags at
-# once) doesn't serialize N redundant runs through this group. Only
-# the latest release-snapshot has informational value; earlier ones
-# in a burst are obsolete the moment the next release ships.
-# With `false`, a burst of release events queues one full run per event
-# behind the first, each re-saving the same pages.
+# cancel-in-progress: false, so a new run never cancels a run in
+# progress. A run takes hours (Wayback's /save/ is ~60 s per URL), and
+# with `true` each release or weekly run cancelled the one before it:
+# 7 of 12 runs ended cancelled before finishing the sitemap.
+# A burst of release events still doesn't queue N runs: GitHub keeps at
+# most one *pending* run per concurrency group and cancels an older
+# pending run when a newer one arrives. So a burst becomes the running
+# run plus the latest pending one, and the pending run skips every URL
+# the first one saved inside the 24 h window. One group also serialises
+# the commit-back of data/wayback-history.json.
 concurrency:
   group: wayback-after-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   wayback-save:
