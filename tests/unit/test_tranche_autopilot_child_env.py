@@ -80,3 +80,27 @@ def test_the_storage_credentials_are_not_in_the_config_repr(tmp_path: Path) -> N
                           lambda _r: 0, storage_env={"R2_SECRET_ACCESS_KEY": "s3cr3t-value"})
     assert "s3cr3t-value" not in repr(cfg)
 
+
+
+def test_a_local_url_rewrite_cannot_run_code_during_the_fetch(tmp_path: Path) -> None:
+    """Real git: an insteadOf that rewrites the URL to ext:: or ssh is refused
+    by the transport allowlist before anything runs (no network needed)."""
+    import os
+
+    from pursue_index.tranche_autopilot.child_env import FETCH_ENV, fetch_argv
+
+    repo = tmp_path / "repo"
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    marker = tmp_path / "ran"
+    for rewrite in (f"ext::sh -c touch% {marker}", "ssh://git@example.invalid/"):
+        subprocess.run(["git", "-C", str(repo), "config", "--replace-all",
+                        f"url.{rewrite}.insteadOf", "https://github.com/"], check=True)
+        subprocess.run(["git", "-C", str(repo), "config", "core.sshCommand", f"touch {marker}"],
+                       check=True)
+        done = subprocess.run(fetch_argv("BPSAI/pursue-index"), cwd=repo, capture_output=True,
+                              text=True, timeout=30,
+                              env={"PATH": os.environ["PATH"], "HOME": str(tmp_path), **FETCH_ENV})
+        assert done.returncode != 0 and "not allowed" in done.stderr, done.stderr
+        assert not marker.exists()
+        subprocess.run(["git", "-C", str(repo), "config", "--unset-all",
+                        f"url.{rewrite}.insteadOf"], check=True)

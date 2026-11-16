@@ -62,16 +62,17 @@ def storage_env(environ: Mapping[str, str]) -> dict[str, str]:
     return {k: environ[k] for k in STORAGE_KEYS if k in environ}
 
 
-# The checkout's own config must not run code during the fetch (fsmonitor,
-# hooks, credential helpers), and FETCH_ENV ignores system and global git
-# config. With a GitHub origin the fetch goes to that repo over anonymous HTTPS
-# (pursue-index is public), so no SSH agent or credential is involved; without
-# one it fetches the remote named origin, which fails closed if unreachable.
-# A url.*.insteadOf in the checkout's own .git/config could still rewrite the
-# URL, but with no credentials the worst it can do is fetch the wrong refs,
-# which the recheck then reports. Either way it updates origin/main.
+# The checkout's own config must not run code during the fetch, and FETCH_ENV
+# ignores system and global git config. Only the https transport is allowed:
+# a url.*.insteadOf in the checkout that rewrites the URL to ssh, file or
+# ext:: makes the fetch fail closed instead of running core.sshCommand or a
+# helper, and core.sshCommand is set to false as a second stop. With a GitHub
+# origin the fetch goes to that repo over anonymous HTTPS (pursue-index is
+# public); without one it fetches the remote named origin, which must then
+# be https. Either way it updates the origin/main ref the comparison reads.
 _FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
-                 "-c", "credential.helper=")
+                 "-c", "credential.helper=", "-c", "core.sshCommand=false",
+                 "-c", "protocol.allow=never", "-c", "protocol.https.allow=always")
 
 
 def fetch_argv(slug: str | None) -> list[str]:

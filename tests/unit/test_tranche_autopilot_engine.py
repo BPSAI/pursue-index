@@ -345,4 +345,6 @@ def test_a_github_origin_is_fetched_over_anonymous_https(tmp_path: Path) -> None
     fetches = [argv for argv in runner.calls if argv[0] == "git" and "fetch" in argv]
     assert fetches[0][-2:] == ["https://github.com/BPSAI/pursue-index.git",
                                "+refs/heads/main:refs/remotes/origin/main"]
-    assert "credential.helper=" in fetches[0]
+    for setting in ("credential.helper=", "core.sshCommand=false", "protocol.allow=never",
+                    "protocol.https.allow=always"):
+        assert setting in fetches[0], setting
