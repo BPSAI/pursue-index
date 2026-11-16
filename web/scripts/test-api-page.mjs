@@ -100,6 +100,11 @@ const FORBIDDEN_CONSTANTS = [
   {
     label: "worker DAILY_BUDGET_USD",
     needle: `$${DAILY_BUDGET_USD}`,
+    // "$N", "$ N", "$N.00", "N USD", "N dollars" (any case)
+    pattern: new RegExp(
+      String.raw`\$\s*${DAILY_BUDGET_USD}(?:\.0+)?\b|\b${DAILY_BUDGET_USD}(?:\.0+)?\s*(?:USD|dollars?)\b`,
+      "i",
+    ),
     hint: "Remove the amount from web/src/pages/api.astro; say only that a global daily cap applies",
   },
 ];
@@ -118,7 +123,7 @@ async function main() {
   const failedConstants = CONSTANT_ASSERTIONS.filter(
     (c) => !html.includes(c.needle),
   );
-  const leakedConstants = FORBIDDEN_CONSTANTS.filter((c) => html.includes(c.needle));
+  const leakedConstants = FORBIDDEN_CONSTANTS.filter((c) => c.pattern.test(html));
   if (!html.toLowerCase().includes(BUDGET_STATED)) {
     missingFragments.push(`"${BUDGET_STATED}" (the page must say a daily budget cap applies)`);
   }
