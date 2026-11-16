@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.poll_freshness import PollCheckError
+from pursue_index.tranche_autopilot.child_env import fetch_argv
 from pursue_index.tranche_autopilot.eligibility import Eligibility
 from pursue_index.tranche_autopilot.gitops import (
     GitError,
@@ -220,22 +221,6 @@ def commit(ctx: Context) -> None:
 
 
 FETCH_TIMEOUT_S = 120
-# The checkout's own config must not run code during the fetch. With a GitHub
-# origin the fetch goes to that repo over anonymous HTTPS (pursue-index is
-# public), so no SSH agent or credential is involved and url rewrites in the
-# checkout can't redirect it; without one it fetches the remote named origin,
-# which fails closed if that isn't reachable. Either way it updates the
-# origin/main ref the comparison reads.
-_FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
-                 "-c", "credential.helper=")
-
-
-def fetch_argv(slug: str | None) -> list[str]:
-    source = f"https://github.com/{slug}.git" if slug else "origin"
-    return ["git", *_FETCH_CONFIG, "fetch", "--quiet", source,
-            "+refs/heads/main:refs/remotes/origin/main"]
-
-
 def freshness_recheck(ctx: Context) -> None:
     # Fetch first, so a poll commit that landed on GitHub during the run is
     # seen even if nothing else fetched; a failed or timed-out fetch fails the

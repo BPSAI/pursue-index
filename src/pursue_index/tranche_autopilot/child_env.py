@@ -61,3 +61,18 @@ def storage_env(environ: Mapping[str, str]) -> dict[str, str]:
     """The storage credentials, for `pursue storage verify` only."""
     return {k: environ[k] for k in STORAGE_KEYS if k in environ}
 
+
+# The checkout's own config must not run code during the fetch. With a GitHub
+# origin the fetch goes to that repo over anonymous HTTPS (pursue-index is
+# public), so no SSH agent or credential is involved and url rewrites in the
+# checkout can't redirect it; without one it fetches the remote named origin,
+# which fails closed if that isn't reachable. Either way it updates the
+# origin/main ref the comparison reads.
+_FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
+                 "-c", "credential.helper=")
+
+
+def fetch_argv(slug: str | None) -> list[str]:
+    source = f"https://github.com/{slug}.git" if slug else "origin"
+    return ["git", *_FETCH_CONFIG, "fetch", "--quiet", source,
+            "+refs/heads/main:refs/remotes/origin/main"]

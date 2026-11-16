@@ -16,7 +16,7 @@ from pathlib import Path
 import pursue_index.cli.tranche_cli as tranche_cli
 import pursue_index.tranche_autopilot as package
 from pursue_index.tranche_autopilot import AutopilotConfig, ExitCode, run_autopilot
-from pursue_index.tranche_autopilot.steps import fetch_argv
+from pursue_index.tranche_autopilot.child_env import fetch_argv
 from tests.support.autopilot_fakes import SHA, FakeRunner, make_checkout, receipt
 
 _FORBIDDEN_TOKENS = {"push", "merge", "pr"}
