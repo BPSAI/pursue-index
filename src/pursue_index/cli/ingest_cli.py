@@ -18,15 +18,38 @@ This is thin glue over `pursue_index.ingest`. All logic lives there.
 
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
 import typer
 
+from pursue_index.cli.ingest_audit import _run_pre_approval_audit
 from pursue_index.cli.ingest_defaults import __getattr__, _default  # noqa: F401
 from pursue_index.cli.ingest_estimate import ingest_estimate_record, ingest_estimate_text
 from pursue_index.cli.ingest_from_diff import execute_from_diff
+from pursue_index.cli.ingest_options import (
+    _OPT_ALLOW_BEHIND,
+    _OPT_APPROVE_ALIASES,
+    _OPT_APPROVE_DIFF_DIR,
+    _OPT_APPROVE_LOG,
+    _OPT_APPROVE_RENAME,
+    _OPT_APPROVE_SNAPSHOTS_DIR,
+    _OPT_BEHIND_REASON,
+    _OPT_DRY_RUN,
+    _OPT_FROM_DIFF,
+    _OPT_FROM_DIFF_COST_CAP,
+    _OPT_RUN_ALIASES,
+    _OPT_RUN_ASSET_REGISTRY,
+    _OPT_RUN_CONCURRENCY,
+    _OPT_RUN_DIFF_DIR,
+    _OPT_RUN_ENGINE,
+    _OPT_RUN_FORCE,
+    _OPT_RUN_LOG,
+    _OPT_RUN_MANIFEST,
+    _OPT_RUN_SNAPSHOTS_DIR,
+    _OPT_SKIP_AUDIT,
+    _OPT_WORKLIST_OUT,
+)
 from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
 from pursue_index.config import settings
 from pursue_index.ingest import (
@@ -40,106 +63,7 @@ from pursue_index.ingest import (
     resave_setting_mismatch,
 )
 from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
-from pursue_index.post_ingest_audit import (
-    audit_targets,
-    collect_audit_targets,
-    has_blocking_mismatch,
-    render_audit_summary,
-)
 from pursue_index.tranche_resave import RESAVE_METHOD
-
-_OPT_APPROVE_RENAME = typer.Option(
-    None,
-    "--approve-rename",
-    help="Repeatable. Format: <new_card_id>=<old_card_id>. Each flag promotes a Class C "
-    "quarantined card into an operator_manual alias.",
-)
-_OPT_SKIP_AUDIT = typer.Option(
-    False,
-    "--skip-audit",
-    help="Skip the TOCTOU re-fetch audit. NOT RECOMMENDED — use only with explicit reason.",
-)
-_OPT_FROM_DIFF_COST_CAP = typer.Option(
-    None,
-    "--cost-cap-usd",
-    help="With --from-diff: override the embed stage cost cap (USD) so a large "
-    "tranche isn't blocked at the default cap. Omit to use the embed default.",
-)
-_OPT_FROM_DIFF = typer.Option(
-    False,
-    "--from-diff",
-    help="One-command path: export the scoped work-list from the tranche-diff "
-    "and run the scoped download -> ocr -> embed stages via --worklist.",
-)
-_OPT_DRY_RUN = typer.Option(
-    False,
-    "--dry-run",
-    help="With --from-diff: print the work-list (the card_ids that would be "
-    "OCR'd/embedded) WITHOUT running any stage or spending budget.",
-)
-_OPT_RUN_LOG = typer.Option(_default("DEFAULT_APPROVAL_LOG"), "--log")
-_OPT_RUN_SNAPSHOTS_DIR = typer.Option(_default("DEFAULT_MANIFEST_SNAPSHOTS"), "--snapshots-dir")
-_OPT_RUN_MANIFEST = typer.Option(_default("DEFAULT_LATEST_MANIFEST"), "--manifest")
-_OPT_RUN_DIFF_DIR = typer.Option(_default("DEFAULT_DIFF_DIR"), "--diff-dir")
-_OPT_RUN_ALIASES = typer.Option(
-    _default("DEFAULT_ALIASES"), "--aliases",
-    help="With --from-diff: card-aliases.json, to scope this tranche's approved renames.",
-)
-_OPT_RUN_ASSET_REGISTRY = typer.Option(
-    _default("DEFAULT_ASSET_REGISTRY"), "--asset-registry",
-    help="With --from-diff: asset-bytes-registry.jsonl, to detect bytes-changed cards.",
-)
-_OPT_RUN_ENGINE = typer.Option(
-    None, "--engine", help="With --from-diff: OCR engine passthrough (operated: llm-dots)."
-)
-_OPT_RUN_FORCE = typer.Option(
-    False, "--force", help="With --from-diff: force re-OCR (overwrite status=ok)."
-)
-_OPT_RUN_CONCURRENCY = typer.Option(
-    None, "--concurrency", help="With --from-diff: OCR concurrency passthrough (operated: 8)."
-)
-_OPT_APPROVE_LOG = typer.Option(_default("DEFAULT_APPROVAL_LOG"), "--log")
-_OPT_APPROVE_ALIASES = typer.Option(_default("DEFAULT_ALIASES"), "--aliases")
-_OPT_APPROVE_DIFF_DIR = typer.Option(_default("DEFAULT_DIFF_DIR"), "--diff-dir")
-_OPT_APPROVE_SNAPSHOTS_DIR = typer.Option(_default("DEFAULT_MANIFEST_SNAPSHOTS"), "--snapshots-dir")
-_OPT_WORKLIST_OUT = typer.Option(
-    _default("DEFAULT_WORKLIST"),
-    "--worklist",
-    help="Where --from-diff writes the scoped card_id list the executors read.",
-)
-_OPT_ALLOW_BEHIND = typer.Option(
-    False,
-    "--allow-behind",
-    help="Proceed even though this checkout is behind origin/main on poll-written "
-    "paths. Requires --reason (12+ characters); recorded as an audited exception.",
-)
-_OPT_BEHIND_REASON = typer.Option(
-    None,
-    "--reason",
-    help="Required with --allow-behind: why it is safe to proceed behind the poller.",
-)
-
-
-def _fetch_byte_sha_via_curl(url: str) -> str | None:
-    try:
-        from curl_cffi import requests as cffi_requests
-    except ImportError:
-        return None
-    try:
-        resp = cffi_requests.get(url, impersonate="chrome", timeout=300)
-        resp.raise_for_status()
-        return hashlib.sha256(resp.content).hexdigest()
-    except Exception as exc:
-        typer.echo(f"[audit] fetch fail {url}: {exc}", err=True)
-        return None
-
-
-def _load_new_manifest(tranche_sha: str, snapshots_dir: Path) -> dict | None:
-    """Find the snapshot manifest for the given tranche sha."""
-    for path in snapshots_dir.glob(f"{tranche_sha}*.json"):
-        return json.loads(path.read_text())
-    return None
-
 
 ingest_app = typer.Typer(
     name="ingest",
@@ -225,41 +149,6 @@ def _echo_estimate(diff_payload: dict, summary: dict) -> None:
     """Print the per-page cost estimate when the tranche has OCR work."""
     if estimate := ingest_estimate_text(diff_payload, summary):
         typer.echo("\n" + estimate)
-
-
-def _run_pre_approval_audit(
-    enriched_aliases: list[dict],
-    diff: dict,
-    tranche: str,
-    snapshots_dir: Path,
-    skip_audit: bool,
-) -> list[dict]:
-    """Run the TOCTOU re-verification audit. Returns audit results.
-    Raises typer.Exit(3) on blocking mismatch."""
-    if skip_audit:
-        typer.echo("[audit] --skip-audit set; TOCTOU re-verification skipped", err=True)
-        return []
-    new_manifest = _load_new_manifest(tranche, snapshots_dir)
-    if new_manifest is None:
-        typer.echo(
-            f"[audit] WARNING: no snapshot manifest found at {snapshots_dir} for "
-            f"tranche {tranche[:12]} — skipping audit (operator_manual-only approval?)",
-            err=True,
-        )
-        return []
-    targets = collect_audit_targets(enriched_aliases, diff, new_manifest)
-    results = audit_targets(targets, _fetch_byte_sha_via_curl)
-    typer.echo(render_audit_summary(results), err=True)
-    if has_blocking_mismatch(results):
-        typer.echo(
-            "refusing to approve — audit detected upstream sha mismatch. "
-            "Bytes changed between tranche-diff and approval. "
-            "Review the mismatched cards before re-attempting "
-            "(or use --skip-audit if you have an explicit reason).",
-            err=True,
-        )
-        raise typer.Exit(3)
-    return results
 
 
 def _resolve_renames(
