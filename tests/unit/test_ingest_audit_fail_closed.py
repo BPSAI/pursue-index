@@ -39,6 +39,8 @@ def _exit_code(fn) -> int:
 
 
 def _with_targets(monkeypatch: pytest.MonkeyPatch, statuses: list[str]) -> None:
+    # The fetcher is mocked, so the tests must not depend on curl_cffi being installed.
+    monkeypatch.setattr(ingest_audit.importlib.util, "find_spec", lambda name: object())
     monkeypatch.setattr(ingest_audit, "collect_audit_targets", lambda *a: [{"x": i} for i in statuses])
     monkeypatch.setattr(ingest_audit, "audit_targets", lambda targets, fetch: [
         {"status": s, "kind": "byte_collision_rename", "card_id": "c"} for s in statuses])
