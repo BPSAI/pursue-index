@@ -131,18 +131,15 @@ def _check_applicators(value: Any, node: dict, path: tuple, root: dict, errors: 
     """``allOf``, ``if``/``then``/``else`` and ``not``, on the same value."""
     for sub in node.get("allOf", []):
         _check(value, sub, path, root, errors)
+    probes: dict[str, list[SchemaError]] = {k: [] for k in ("if", "not") if k in node}
+    for key, probe in probes.items():  # a subschema "matches" when it yields no errors
+        _check(value, node[key], path, root, probe)
     if "if" in node:
-        branch = "then" if _matches(value, node["if"], path, root) else "else"
+        branch = "else" if probes["if"] else "then"
         if branch in node:
             _check(value, node[branch], path, root, errors)
-    if "not" in node and _matches(value, node["not"], path, root):
+    if "not" in node and not probes["not"]:
         errors.append(SchemaError("/".join(map(str, path)), "matches a disallowed combination"))
-
-
-def _matches(value: Any, node: dict, path: tuple, root: dict) -> bool:
-    probe: list[SchemaError] = []
-    _check(value, node, path, root, probe)
-    return not probe
 
 
 def _check_string(value: str, node: dict, where: str, errors: list[SchemaError]) -> None:
