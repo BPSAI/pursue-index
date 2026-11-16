@@ -63,6 +63,7 @@ class Context:
     commits: list[str] = field(default_factory=list)
     changed: dict[str, Any] | None = None
     storage_env: Mapping[str, str] = field(default_factory=dict)
+    ssh_env: Mapping[str, str] = field(default_factory=dict)
 
 
 def _tail(result: CommandResult) -> str:
@@ -219,6 +220,10 @@ def commit(ctx: Context) -> None:
 
 
 FETCH_TIMEOUT_S = 120
+# The checkout's own config must not run code during the fetch.
+FETCH_ARGV = ("git", "-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
+              "-c", "core.sshCommand=ssh", "-c", "credential.helper=",
+              "fetch", "--quiet", "origin", "main")
 
 
 def freshness_recheck(ctx: Context) -> None:
@@ -227,8 +232,8 @@ def freshness_recheck(ctx: Context) -> None:
     # step closed rather than comparing against a stale origin/main.
     step = ctx.steps["freshness-recheck"]
     step.start()
-    fetched = ctx.runner(["git", "fetch", "--quiet", "origin", "main"], cwd=ctx.repo_root,
-                         timeout=FETCH_TIMEOUT_S, env=ctx.env)
+    fetched = ctx.runner(list(FETCH_ARGV), cwd=ctx.repo_root, timeout=FETCH_TIMEOUT_S,
+                         env={**ctx.env, **ctx.ssh_env})
     if fetched.returncode != 0:
         detail = f"git fetch origin main failed (exit {fetched.returncode}): {_tail(fetched)}"
         step.finish("failed", detail, fetched.returncode)

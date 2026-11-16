@@ -26,12 +26,14 @@ _OPT_REPO_ROOT = typer.Option(None, "--repo-root", help="The pursue-index checko
                               "promote in (default: the resolved repo root).")
 
 
-def _child_env() -> tuple[dict[str, str], dict[str, str]]:
-    """``(base, storage)``: the allowlisted environment every child gets, with
-    this package's source as PYTHONPATH so every child ``pursue``/``make``
-    runs the same code, and the storage credentials for `storage verify`."""
+def _child_env() -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
+    """``(base, storage, ssh)``: the allowlisted environment every child gets,
+    with this package's source as PYTHONPATH so every child ``pursue``/``make``
+    runs the same code; the storage credentials for `storage verify`; and the
+    SSH agent for the freshness recheck's fetch."""
     src = str(Path(pursue_index.__file__).resolve().parents[1])
-    return child_env.base_env(os.environ, src), child_env.storage_env(os.environ)
+    return (child_env.base_env(os.environ, src), child_env.storage_env(os.environ),
+            child_env.ssh_env(os.environ))
 
 
 @tranche_app.command("autopilot")
@@ -60,10 +62,10 @@ def autopilot_cmd(
     except UntrustedRootError as exc:
         typer.echo(f"refusing -- {exc}", err=True)
         raise typer.Exit(refuse_without_checkout(tranche, result, str(exc))) from exc
-    base_env, storage_env = _child_env()
+    base_env, storage_env, ssh_env = _child_env()
     code = run_autopilot(AutopilotConfig(
         tranche_sha=tranche, result_path=result, repo_root=checkout,
-        runner=SubprocessRunner(), env=base_env, storage_env=storage_env,
+        runner=SubprocessRunner(), env=base_env, storage_env=storage_env, ssh_env=ssh_env,
     ))
     typer.echo(f"autopilot exit {code}; result -> {result}")
     raise typer.Exit(code)
