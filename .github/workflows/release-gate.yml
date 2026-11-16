@@ -376,6 +376,14 @@ jobs:
           PURSUE_STRICT_INVARIANTS: "1"
         run: npm run test:byte-history && npm run test:csv-archive && npm run test:lib
 
+      - name: 5d — /api page drift check (worker constants, private values)
+        # The same check deploy-cf runs before `wrangler deploy`. It runs here
+        # too because deploy-cf is dispatch-only now: without this, a page
+        # change that breaks the check merges green and is found only when a
+        # fallback deploy fails. Needs the web/dist build from step 5b.
+        working-directory: web
+        run: npm run test:api-page
+
       - name: 6a — Card-page coverage (every manifest card_id → dist page)
         run: pytest tests/integration/test_card_page_coverage.py -v
 
