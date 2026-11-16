@@ -51,7 +51,7 @@ def _approve(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *extra: str):
     diff_dir.mkdir(exist_ok=True)
     (diff_dir / f"tranche-diff-{_SHA[:12]}.json").write_text(json.dumps(_diff()))
     return CliRunner().invoke(app, [
-        "ingest", "approve", "--tranche", _SHA, "--note", "n", "--skip-audit",
+        "ingest", "approve", "--tranche", _SHA, "--note", "n", "--skip-audit", "--reason", "fixture approval: no live audit",
         "--log", str(tmp_path / "log.jsonl"), "--aliases", str(tmp_path / "aliases.json"),
         "--diff-dir", str(diff_dir), "--snapshots-dir", str(tmp_path / "snaps"), *extra,
     ])

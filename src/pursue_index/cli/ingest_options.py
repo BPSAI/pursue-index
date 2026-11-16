@@ -19,7 +19,8 @@ _OPT_APPROVE_RENAME = typer.Option(
 _OPT_SKIP_AUDIT = typer.Option(
     False,
     "--skip-audit",
-    help="Skip the TOCTOU re-fetch audit. NOT RECOMMENDED — use only with explicit reason.",
+    help="Skip the TOCTOU re-fetch audit. NOT RECOMMENDED. Requires --reason, which is "
+    "recorded on the approval row.",
 )
 _OPT_FROM_DIFF_COST_CAP = typer.Option(
     None,
@@ -78,5 +79,6 @@ _OPT_ALLOW_BEHIND = typer.Option(
 _OPT_BEHIND_REASON = typer.Option(
     None,
     "--reason",
-    help="Required with --allow-behind: why it is safe to proceed behind the poller.",
+    help="Required with --allow-behind (why it is safe to proceed behind the poller) and "
+    "with --skip-audit (why the audit is skipped); 12+ characters, recorded.",
 )

@@ -68,12 +68,14 @@ def _write_diff_artifact(repo_root: Path) -> None:
     )
 
 
-def _approve_args(repo_root: Path, *, extra: list[str] | None = None) -> list[str]:
+def _approve_args(repo_root: Path, *, extra: list[str] | None = None,
+                  reason: bool = True) -> list[str]:
+    # --reason serves both --skip-audit and --allow-behind; reason=False drops it.
     args = [
         "ingest", "approve",
         "--tranche", _SHA,
         "--note", "test approval",
-        "--skip-audit",
+        "--skip-audit", *(["--reason", "fixture approval: no live audit"] if reason else []),
         "--log", str(repo_root / "data" / "tranche-approval-log.jsonl"),
         "--aliases", str(repo_root / "data" / "card-aliases.json"),
         "--diff-dir", str(repo_root / "data" / "tranche-diffs"),
@@ -164,7 +166,8 @@ def test_approve_allow_behind_with_reason_proceeds_and_writes_audit_row(
 
 
 def test_approve_allow_behind_without_reason_is_rejected(behind_fixture: Path) -> None:
-    result = runner.invoke(app, _approve_args(behind_fixture, extra=["--allow-behind"]))
+    result = runner.invoke(app, _approve_args(behind_fixture, extra=["--allow-behind"],
+                                              reason=False))
 
     assert result.exit_code != 0, result.output
     assert not (behind_fixture / "data" / "tranche-approval-log.jsonl").exists()
