@@ -33,6 +33,13 @@ _SECRETS = re.compile(
     r"|(?i:\bbearer\s+\S+)"
     r"|\bAKIA[0-9A-Z]{16}\b"
     r"|(?<=://)[^/\s:@]+:[^@\s]+(?=@)"
+    # Prefixed tokens a child can print: GitHub (git, gh), Voyage, Slack.
+    r"|\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})"
+    r"|\bpa-[A-Za-z0-9_-]{20,}"
+    r"|\bxox[abprs]-[A-Za-z0-9-]{10,}"
+    # A JWT, and a PEM private key up to its END line (or the end of the text).
+    r"|\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}"
+    r"|-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)"
 )
 
 

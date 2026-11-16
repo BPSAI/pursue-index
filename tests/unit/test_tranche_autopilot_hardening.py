@@ -159,6 +159,32 @@ def test_more_credential_shapes_are_redacted(leak: str) -> None:
     assert not any(s in out for s in ("abcdef0123456789", "AKIAABCDEFGHIJKLMNOP", "hunter2pass"))
 
 
+# Built by concatenation so no literal here looks like a live token to a scanner.
+_FILLER = "Ab3" * 12
+
+
+@pytest.mark.parametrize("leak", [
+    "remote: https://github.com/x " + "ghp" + "_" + _FILLER,
+    "token " + "github" + "_pat_" + _FILLER,
+    "voyage " + "pa" + "-" + _FILLER,
+    "slack " + "xox" + "b-" + _FILLER,
+    "jwt " + "eyJ" + _FILLER + "." + _FILLER + "." + _FILLER,
+    "-----BEGIN " + "PRIVATE KEY-----\n" + _FILLER + "\n-----END " + "PRIVATE KEY-----",
+    "-----BEGIN RSA " + "PRIVATE KEY-----\n" + _FILLER + " (truncated output)",
+])
+def test_prefixed_tokens_jwts_and_private_keys_are_redacted(leak: str) -> None:
+    from pursue_index.tranche_autopilot.result import redact
+
+    assert _FILLER not in redact(leak)
+
+
+def test_hashes_and_ordinary_text_are_not_redacted() -> None:
+    from pursue_index.tranche_autopilot.result import redact
+
+    text = "tranche " + "a1" * 32 + " promoted; see pa-ge 3 and eyJ.x"
+    assert redact(text) == text
+
+
 def test_stopped_run_reports_tracked_paths_it_left_modified(tmp_path: Path) -> None:
     repo = make_checkout(tmp_path, receipt())
     runner = FakeRunner(repo)
