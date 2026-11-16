@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pursue_index.release_dates import same_release_date
+
 # Asset types whose bytes are DVIDS-hosted and so must be fetched by this
 # stage rather than the ordinary asset_url download path.
 DVIDS_ASSET_TYPES = ("VID", "AUD")
@@ -24,5 +26,6 @@ def select_av_rows(
 ) -> list[Any]:
     """Cards in this release whose bytes come from a DVIDS download."""
     return [
-        c for c in cards if c.asset_type in asset_types and c.release_date == release_date
+        c for c in cards
+        if c.asset_type in asset_types and same_release_date(c.release_date, release_date)
     ]

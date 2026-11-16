@@ -21,6 +21,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from pursue_index.release_dates import same_release_date
+
 # DOD asset id as it appears in both the DVIDS page body and the operator's
 # downloaded filename. 8-12 digits, optionally followed by a resolution suffix.
 _DOD_ID_RE = re.compile(r"DOD_(\d{8,12})")
@@ -72,7 +74,7 @@ def select_av_cards(
     return [
         c
         for c in cards
-        if c.asset_type in asset_types and c.release_date == release_date
+        if c.asset_type in asset_types and same_release_date(c.release_date, release_date)
     ]
 
 

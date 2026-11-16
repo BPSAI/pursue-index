@@ -16,7 +16,7 @@ Idempotent — HEAD-checks R2 + dedupes the registry before each upload.
 
 Run from repo root, e.g. for Release 3:
     python scripts/ingest_release_videos.py \
-        --release-date 6/12/26 \
+        --release-date 6/12/2026 \
         --desktop ~/Desktop/uap_videos_061226/AARO061226 \
         --env <path to your .env> \
         --source-label "war.gov/release_03 (DVIDS videos+audio)"

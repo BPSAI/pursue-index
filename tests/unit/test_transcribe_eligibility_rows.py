@@ -77,3 +77,13 @@ def test_release_date_scopes_selection_to_that_release() -> None:
     )
     items = select_eligible(m, "2026-08-01")
     assert [i.card_id for i in items] == ["new"]
+
+
+def test_release_date_matches_across_year_widths() -> None:
+    m = _manifest(
+        [
+            _card("old", "AUD", release_date="5/12/2026"),
+            _card("new", "AUD", release_date="8/1/2026"),
+        ]
+    )
+    assert [i.card_id for i in select_eligible(m, "8/1/26")] == ["new"]
