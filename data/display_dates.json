@@ -29,6 +29,16 @@
       "display_date_abstention": null,
       "display_date_curator": "operator-buschleague (via 2026-05-16 patch on Graves social-post context)",
       "display_date_approved_at": "2026-05-16T13:11:35.198367+00:00"
+    },
+    {
+      "card_id": "6b12c3ddc6a96008",
+      "display_date": "1962-05-24",
+      "display_date_range": null,
+      "display_date_evidence": "Card title: 'NASA-UAP-D013, Mercury Atlas 7, May 24, 1962'. The upstream CSV incident_date read 5/24/62 before the CSV moved to four-digit years and reads 5/24/2962 since; the later century is a transcription error, so the display date follows the title.",
+      "display_date_evidence_card_ref": "6b12c3ddc6a96008",
+      "display_date_abstention": null,
+      "display_date_curator": "operator",
+      "display_date_approved_at": "2026-11-16T14:43:22.474Z"
     }
   ]
 }

@@ -132,5 +132,5 @@
     ]
   },
   "quarantine_policy": "Cards in this index have operator-verified image observations that supersede the retired alex-zhang42/ufo-pursue-open-atlas (Zhang) VLM pass. For cards that carry OCR text, the observations are provenance only. For the genuinely image-only pages added under the 'zhang-corpus-retirement-image-only-2026-07-11' cluster (zero base OCR), the observation description is rendered into the page's searchable text in both pages.json and the embed vectors.",
-  "source_plan": "pursue-opsec-staging/findings/2026-05-25-vision-augmentation-and-image-observations-architecture.md; residual set retired the Zhang corpus 2026-07-11"
+  "source_plan": "operator plan 2026-05-25 (vision augmentation and image-observations architecture); residual set retired the Zhang corpus 2026-07-11"
 }
