@@ -99,6 +99,8 @@ class FakeRunner:
             ("pursue", "storage", "verify"): lambda a, c: CommandResult(0, "ok"),
             ("make", "ship-ready"): lambda a, c: CommandResult(0, "ALL GATES PASSED"),
             ("npm", "run", "test"): lambda a, c: CommandResult(0, "passed"),
+            # The freshness recheck fetches origin; tests simulate it.
+            ("git", "fetch"): lambda a, c: CommandResult(0, ""),
         }
 
     def dry_run(self, argv: Sequence[str], cwd: Path) -> CommandResult:
@@ -121,7 +123,7 @@ class FakeRunner:
                  env: Mapping[str, str] | None = None) -> CommandResult:
         self.calls.append(list(argv))
         self.envs.append(env)
-        if argv[0] == "git":
+        if argv[0] == "git" and list(argv[:2]) != ["git", "fetch"]:
             done = subprocess.run(list(argv), cwd=cwd, capture_output=True, text=True,
                                   check=False, timeout=timeout)
             return CommandResult(done.returncode, done.stdout, done.stderr)

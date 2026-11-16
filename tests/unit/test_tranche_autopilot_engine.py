@@ -314,3 +314,21 @@ def test_operator_next_quotes_the_branch(tmp_path: Path) -> None:
     assert "'x;touch pwned'" in lines[1]
     assert "'/repo dir'" in lines[0]
 
+
+
+def test_the_freshness_recheck_fetches_origin_first(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    runner = FakeRunner(repo)
+    _run(tmp_path, repo, runner)
+    assert ["git", "fetch", "--quiet", "origin", "main"] in runner.calls
+
+
+def test_a_failed_fetch_fails_the_freshness_recheck_closed(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    runner = FakeRunner(repo)
+    runner.handlers[("git", "fetch")] = lambda a, c: CommandResult(128, "", "could not read from remote")
+    code, doc = _run(tmp_path, repo, runner)
+    assert code == ExitCode.GATE_FAILED
+    assert doc["failed_step"] == "freshness-recheck"
+    assert "git fetch origin main failed" in doc["message"]
+    assert doc["operator_next"] == []

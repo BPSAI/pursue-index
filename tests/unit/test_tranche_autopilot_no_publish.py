@@ -79,6 +79,9 @@ def test_a_successful_run_never_publishes(tmp_path: Path) -> None:
         assert argv[0] != "gh", argv
         assert not _FORBIDDEN_TOKENS & set(argv[:2]), argv
     git_verbs = {argv[1] for argv in runner.calls if argv[0] == "git"}
-    assert git_verbs <= {"status", "symbolic-ref", "add", "commit", "rev-parse", "remote"}
+    # fetch reads origin for the freshness recheck; it publishes nothing.
+    assert git_verbs <= {"status", "symbolic-ref", "add", "commit", "rev-parse", "remote", "fetch"}
+    fetches = [argv for argv in runner.calls if argv[:2] == ["git", "fetch"]]
+    assert fetches and all(argv == ["git", "fetch", "--quiet", "origin", "main"] for argv in fetches)
     # The publish commands exist only as text for the operator.
     assert json.loads(out.read_text())["operator_next"]

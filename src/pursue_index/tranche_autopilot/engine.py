@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -54,6 +54,8 @@ class AutopilotConfig:
     runner: Runner
     env: Mapping[str, str]
     behind: Callable[[Path], int] = commits_behind_on_poll_paths
+    # Given to `pursue storage verify` only (see tranche_autopilot.child_env).
+    storage_env: Mapping[str, str] = field(default_factory=dict)
 
 
 def receipt_path(repo_root: Path, tranche_sha: str) -> Path:
@@ -152,7 +154,8 @@ class _Run:
         # not whichever checkout the package was imported from.
         env = {**cfg.env, "PURSUE_REPO_ROOT": str(cfg.repo_root)}
         self.ctx = rs.Context(cfg.tranche_sha, cfg.repo_root, cfg.runner, env, cfg.behind,
-                             self.eligibility, self.steps, receipt, behind_baseline=baseline)
+                             self.eligibility, self.steps, receipt, behind_baseline=baseline,
+                             storage_env=cfg.storage_env)
         for step_fn in _RUN_ORDER:
             step_fn(self.ctx)
 
