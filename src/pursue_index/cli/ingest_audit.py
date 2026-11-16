@@ -65,6 +65,31 @@ def _skip_reason(reason: str | None) -> str:
         raise typer.Exit(2) from exc
 
 
+# A target of this kind has no asset_url by design (an operator-approved rename
+# of a metadata-only card); any other kind without one is a data defect.
+_NO_URL_BY_DESIGN = "operator_manual_rename"
+
+
+def _audit_label(results: list[dict]) -> str:
+    """What the approval row records about the audit; refuses (exit 3) when it
+    tried to verify a target and couldn't."""
+    failed = [r for r in results if r.get("status") == "fetch_failed"]
+    if failed:
+        _refuse(f"{len(failed)} of {len(results)} audit fetch(es) failed, so those targets "
+                "are unverified")
+    skipped = [r for r in results if r.get("status") == "skipped"]
+    defects = sorted({r.get("kind", "?") for r in skipped if r.get("kind") != _NO_URL_BY_DESIGN})
+    if defects:
+        _refuse(f"{sum(r.get('kind') != _NO_URL_BY_DESIGN for r in skipped)} target(s) of kind "
+                f"{', '.join(defects)} have no asset_url, which they should (a data defect)")
+    if not results:
+        return "nothing to audit (no byte-changing targets)"
+    if len(skipped) == len(results):
+        return (f"nothing fetchable ({len(skipped)} skipped: operator_manual rename, "
+                "no asset_url by design)")
+    return f"verified ({len(results) - len(skipped)} ok, {len(skipped)} skipped by design)"
+
+
 def _run_pre_approval_audit(
     enriched_aliases: list[dict],
     diff: dict,
@@ -72,28 +97,29 @@ def _run_pre_approval_audit(
     snapshots_dir: Path,
     skip_audit: bool,
     reason: str | None = None,
-) -> tuple[list[dict], str | None]:
-    """Run the TOCTOU re-verification audit; return ``(results, skip_reason)``.
+) -> tuple[list[dict], str]:
+    """Run the TOCTOU re-verification audit; return ``(results, audit_label)``.
 
-    Fails closed: refuses (exit 3) on a blocking mismatch, and also when the
-    audit could verify nothing -- no snapshot manifest, ``curl_cffi`` not
-    installed, or every fetchable target ``fetch_failed``. ``--skip-audit``
-    bypasses it only with a ``--reason``, which the caller records. A tranche
-    with no byte-changing targets has nothing to verify and passes.
+    Fails closed (exit 3) on a blocking mismatch and whenever it tried to verify
+    a target and couldn't: no snapshot manifest, ``curl_cffi`` not installed,
+    any fetch failing, or a target that should have an ``asset_url`` lacking one.
+    Targets with no ``asset_url`` by design pass, labelled "nothing fetchable"
+    so the approval row never reads as verified. ``--skip-audit`` bypasses it
+    only with a ``--reason``. The label is printed and recorded on the row.
     """
     if not _TRANCHE.fullmatch(tranche):
         typer.echo(f"--tranche must be 12-64 lowercase hex characters, got {tranche!r}", err=True)
         raise typer.Exit(2)
     if skip_audit:
-        why = _skip_reason(reason)
-        typer.echo(f"[audit] --skip-audit set; TOCTOU re-verification skipped: {why}", err=True)
-        return [], why
+        label = f"skipped: {_skip_reason(reason)}"
+        typer.echo(f"[audit] --skip-audit set; TOCTOU re-verification {label}", err=True)
+        return [], label
     new_manifest = _load_new_manifest(tranche, snapshots_dir)
     if new_manifest is None:
         _refuse(f"no snapshot manifest at {snapshots_dir} for tranche {tranche[:12]}, "
                 "so the audit cannot verify anything")
     targets = collect_audit_targets(enriched_aliases, diff, new_manifest)
-    if targets and importlib.util.find_spec("curl_cffi") is None:
+    if any(t.get("asset_url") for t in targets) and importlib.util.find_spec("curl_cffi") is None:
         _refuse("the audit needs curl_cffi to re-fetch upstream bytes and it is not installed")
     results = audit_targets(targets, _fetch_byte_sha_via_curl)
     typer.echo(render_audit_summary(results), err=True)
@@ -106,7 +132,6 @@ def _run_pre_approval_audit(
             err=True,
         )
         raise typer.Exit(3)
-    fetchable = [r for r in results if r.get("status") != "skipped"]
-    if fetchable and all(r.get("status") == "fetch_failed" for r in fetchable):
-        _refuse(f"every one of the {len(fetchable)} audit fetch(es) failed, so nothing was verified")
-    return results, None
+    label = _audit_label(results)
+    typer.echo(f"[audit] {label}", err=True)
+    return results, label

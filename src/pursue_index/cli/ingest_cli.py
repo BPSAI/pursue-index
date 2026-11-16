@@ -149,13 +149,13 @@ def _resolve_renames(
 def _persist_approval(
     tranche: str, note: str, log: Path, aliases: Path,
     diff_summary: dict, enriched: list[dict], audit_results: list,
-    cost_estimate: dict | None = None, audit_skip_reason: str | None = None,
+    cost_estimate: dict | None = None, audit: str | None = None,
 ) -> None:
     """Write the approval row, fold in the audit trail, materialize aliases."""
     ing.record_approval(
         log_path=log, tranche_sha=tranche, note=note, diff_summary=diff_summary,
         renames_approved=enriched, cost_estimate=cost_estimate,
-        audit_skip_reason=audit_skip_reason,
+        audit=audit,
     )
     if audit_results:
         audit_log = log.parent / "audit-log.jsonl"
@@ -189,11 +189,11 @@ def approve_cmd(
     diff = _load_diff_or_exit(tranche, diff_dir)
     diff_summary = diff.get("summary", {})
     auto_renames, manual_renames, enriched = _resolve_renames(diff, tranche, approve_rename)
-    audit_results, skip_reason = _run_pre_approval_audit(
+    audit_results, audit_label = _run_pre_approval_audit(
         enriched, diff, tranche, snapshots_dir, skip_audit, reason)
     work = summarize_ingest_work(diff)
     _persist_approval(tranche, note, log, aliases, diff_summary, enriched, audit_results,
-                      ingest_estimate_record(diff, work), skip_reason)
+                      ingest_estimate_record(diff, work), audit_label)
     _emit_approval_summary(tranche, auto_renames, len(manual_renames), diff_summary,
                            ingest_estimate_text(diff, work))
 

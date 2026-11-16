@@ -1,9 +1,9 @@
-"""The pre-approval audit fails closed when it can verify nothing.
+"""The pre-approval audit fails closed when it tries to verify and can't.
 
-`ingest approve` refuses (exit 3) unless the audit verified something: a
-missing snapshot, a missing curl_cffi, or every fetch failing all refuse.
-`--skip-audit` bypasses it only with a `--reason`, recorded on the approval
-row. A tranche with no byte-changing targets has nothing to verify and passes.
+`ingest approve` refuses (exit 3) on a missing snapshot, a missing curl_cffi,
+any fetch failing, or a target that should have an asset_url lacking one.
+Targets with no asset_url by design pass, labelled "nothing fetchable". The
+label (or "skipped: <reason>" for `--skip-audit`) is recorded on the row.
 """
 
 from __future__ import annotations
@@ -38,12 +38,14 @@ def _exit_code(fn) -> int:
     return exc.value.exit_code
 
 
-def _with_targets(monkeypatch: pytest.MonkeyPatch, statuses: list[str]) -> None:
+def _with_targets(monkeypatch: pytest.MonkeyPatch, statuses: list[str],
+                  kind: str = "byte_collision_rename") -> None:
     # The fetcher is mocked, so the tests must not depend on curl_cffi being installed.
     monkeypatch.setattr(ingest_audit.importlib.util, "find_spec", lambda name: object())
-    monkeypatch.setattr(ingest_audit, "collect_audit_targets", lambda *a: [{"x": i} for i in statuses])
+    monkeypatch.setattr(ingest_audit, "collect_audit_targets",
+                        lambda *a: [{"asset_url": "https://x"} for _ in statuses])
     monkeypatch.setattr(ingest_audit, "audit_targets", lambda targets, fetch: [
-        {"status": s, "kind": "byte_collision_rename", "card_id": "c"} for s in statuses])
+        {"status": s, "kind": kind, "card_id": "c"} for s in statuses])
     monkeypatch.setattr(ingest_audit, "render_audit_summary", lambda results: "")
 
 
@@ -65,31 +67,50 @@ def test_missing_curl_cffi_refuses_by_name(snapshots: Path, monkeypatch: pytest.
     assert "curl_cffi" in capsys.readouterr().err
 
 
-def test_every_fetch_failing_refuses(snapshots: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _with_targets(monkeypatch, ["fetch_failed", "fetch_failed", "skipped"])
+def test_any_fetch_failing_refuses(snapshots: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _with_targets(monkeypatch, ["fetch_failed", "fetch_failed"])
+    assert _exit_code(lambda: _audit(snapshots)) == 3
+    _with_targets(monkeypatch, ["ok", "fetch_failed"])  # a mixed tranche stays strict
     assert _exit_code(lambda: _audit(snapshots)) == 3
 
 
-def test_some_verified_or_nothing_to_verify_passes(snapshots: Path,
-                                                   monkeypatch: pytest.MonkeyPatch) -> None:
-    _with_targets(monkeypatch, ["ok", "fetch_failed"])
-    results, skipped = _audit(snapshots)
-    assert len(results) == 2 and skipped is None
+def test_verified_and_nothing_to_audit_are_labelled(snapshots: Path,
+                                                    monkeypatch: pytest.MonkeyPatch) -> None:
+    _with_targets(monkeypatch, ["ok", "ok"])
+    results, label = _audit(snapshots)
+    assert len(results) == 2 and label == "verified (2 ok, 0 skipped by design)"
     _with_targets(monkeypatch, [])
-    assert _audit(snapshots) == ([], None)
+    assert _audit(snapshots) == ([], "nothing to audit (no byte-changing targets)")
+
+
+def test_all_skipped_by_design_passes_as_nothing_fetchable(
+    snapshots: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    _with_targets(monkeypatch, ["skipped", "skipped"], kind="operator_manual_rename")
+    _, label = _audit(snapshots)
+    assert label.startswith("nothing fetchable (2 skipped")
+    assert label in capsys.readouterr().err
+
+
+def test_a_skipped_target_that_should_have_a_url_is_a_data_defect(
+    snapshots: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    _with_targets(monkeypatch, ["skipped"], kind="restored_unchanged")
+    assert _exit_code(lambda: _audit(snapshots)) == 3
+    assert "restored_unchanged have no asset_url" in capsys.readouterr().err
 
 
 def test_skip_audit_needs_a_reason(snapshots: Path) -> None:
     assert _exit_code(lambda: _audit(snapshots, skip=True)) == 2
     assert _exit_code(lambda: _audit(snapshots, skip=True, reason="too short")) == 2
     assert _audit(snapshots, skip=True, reason="  upstream down; bytes checked by hand  ") == (
-        [], "upstream down; bytes checked by hand")
+        [], "skipped: upstream down; bytes checked by hand")
 
 
-def test_the_skip_reason_is_recorded_on_the_approval_row(tmp_path: Path) -> None:
+def test_the_audit_label_is_recorded_on_the_approval_row(tmp_path: Path) -> None:
     log = tmp_path / "log.jsonl"
-    record_approval(log, SHA, "n", {}, [], audit_skip_reason="upstream down; checked by hand")
+    record_approval(log, SHA, "n", {}, [], audit="skipped: upstream down; checked by hand")
     record_approval(log, SHA, "n", {}, [])
     rows = [json.loads(line) for line in log.read_text().splitlines()]
-    assert rows[0]["audit_skipped"] == {"reason": "upstream down; checked by hand"}
-    assert "audit_skipped" not in rows[1]
+    assert rows[0]["audit"] == "skipped: upstream down; checked by hand"
+    assert "audit" not in rows[1]
