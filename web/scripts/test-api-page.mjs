@@ -12,7 +12,8 @@
 //   1. Forward (REQUIRED_FRAGMENTS): doc removes a section/event/number
 //      → test fails. Catches accidental deletions during edits.
 //   2. Backward (CONSTANT_ASSERTIONS): worker constants change but doc
-//      doesn't → test fails. Imports the actual values from
+//      doesn't → test fails. FORBIDDEN_CONSTANTS is the reverse: values
+//      the doc must NOT publish (the chat budget amount). Imports the actual values from
 //      `worker/chat_kv.js` and `worker/chat.js` so a constant flip on
 //      the worker side surfaces here loudly. Closes the gap flagged in
 //      PR #4 review (snapshot caught only forward drift).
@@ -89,10 +90,21 @@ const CONSTANT_ASSERTIONS = [
     needle: `${RATE_LIMIT} chats`,
     hint: "Update web/src/pages/api.astro to match worker/chat_kv.js#RATE_LIMIT",
   },
+];
+
+// The chat tier's daily budget is stated as existing, never as an amount:
+// publishing the figure maps out how much load exhausts it. The page must
+// say a global daily cap applies, and must not contain the worker's value.
+const BUDGET_STATED = "global daily";
+const FORBIDDEN_CONSTANTS = [
   {
     label: "worker DAILY_BUDGET_USD",
-    needle: `$${DAILY_BUDGET_USD}`,
-    hint: "Update web/src/pages/api.astro to match worker/chat_kv.js#DAILY_BUDGET_USD",
+    // "$N", "$ N", "$N.00", "N USD", "N dollars" (any case). Matched, never printed.
+    pattern: new RegExp(
+      String.raw`\$\s*${DAILY_BUDGET_USD}(?:\.0+)?\b|\b${DAILY_BUDGET_USD}(?:\.0+)?\s*(?:USD|dollars?)\b`,
+      "i",
+    ),
+    hint: "Remove the amount from web/src/pages/api.astro; say only that a global daily cap applies",
   },
 ];
 
@@ -110,8 +122,12 @@ async function main() {
   const failedConstants = CONSTANT_ASSERTIONS.filter(
     (c) => !html.includes(c.needle),
   );
+  const leakedConstants = FORBIDDEN_CONSTANTS.filter((c) => c.pattern.test(html));
+  if (!html.toLowerCase().includes(BUDGET_STATED)) {
+    missingFragments.push(`"${BUDGET_STATED}" (the page must say a daily budget cap applies)`);
+  }
 
-  if (missingFragments.length > 0 || failedConstants.length > 0) {
+  if (missingFragments.length > 0 || failedConstants.length > 0 || leakedConstants.length > 0) {
     if (missingFragments.length > 0) {
       console.error("FAIL: /api page is missing required fragments:");
       for (const m of missingFragments) console.error("  -", m);
@@ -123,11 +139,19 @@ async function main() {
         console.error(`    ${c.hint}`);
       }
     }
+    if (leakedConstants.length > 0) {
+      console.error("FAIL: /api page publishes a value that must stay private:");
+      for (const c of leakedConstants) {
+        // Never echo the value itself: CI logs of this public repo are public.
+        console.error(`  - ${c.label}: the page states its amount`);
+        console.error(`    ${c.hint}`);
+      }
+    }
     process.exit(1);
   }
 
   console.log(
-    `PASS: /api page (${html.length} bytes) contains all ${REQUIRED_FRAGMENTS.length} required fragments and ${CONSTANT_ASSERTIONS.length} worker-constant assertions.`,
+    `PASS: /api page (${html.length} bytes) contains all ${REQUIRED_FRAGMENTS.length} required fragments and ${CONSTANT_ASSERTIONS.length} worker-constant assertions, and none of ${FORBIDDEN_CONSTANTS.length} private values.`,
   );
 }
 
