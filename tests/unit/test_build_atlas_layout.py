@@ -11,6 +11,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import struct
+import sys
 from pathlib import Path
 
 import pytest
@@ -25,6 +26,12 @@ def _load_script_module():  # type: ignore[no-untyped-def]
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+def _load_parts_module():  # type: ignore[no-untyped-def]
+    """The sibling the script imports its loaders and projection from."""
+    _load_script_module()  # puts scripts/ on sys.path and imports it
+    return sys.modules["_atlas_parts"]
 
 
 def _write_native_embeddings(
@@ -380,7 +387,7 @@ def test_normalize_coords_maps_into_unit_square() -> None:
     Without this, UMAP output (typically ``x ∈ [-6, 19], y ∈ [-3, 21]``)
     ships off-camera and the deployed canvas renders empty.
     """
-    mod = _load_script_module()
+    parts = _load_parts_module()
     coords = np.array(
         [
             [-6.17, -2.98],
@@ -389,7 +396,7 @@ def test_normalize_coords_maps_into_unit_square() -> None:
         ],
         dtype=np.float32,
     )
-    out = mod._normalize_coords(coords)
+    out = parts._normalize_coords(coords)
     assert out.shape == coords.shape
     assert float(out[:, 0].min()) >= -1.0 - 1e-6
     assert float(out[:, 0].max()) <= 1.0 + 1e-6
@@ -402,7 +409,7 @@ def test_normalize_coords_preserves_aspect_ratio() -> None:
     relative spans after scaling — UMAP's geometry must not be squashed
     along one axis.
     """
-    mod = _load_script_module()
+    parts = _load_parts_module()
     coords = np.array(
         [
             [0.0, 0.0],
@@ -412,7 +419,7 @@ def test_normalize_coords_preserves_aspect_ratio() -> None:
         ],
         dtype=np.float32,
     )
-    out = mod._normalize_coords(coords)
+    out = parts._normalize_coords(coords)
     raw_aspect = (coords[:, 0].max() - coords[:, 0].min()) / (
         coords[:, 1].max() - coords[:, 1].min()
     )
@@ -433,14 +440,14 @@ def test_normalize_coords_known_point_maps_as_expected() -> None:
     """Spec a specific input/output pair so regressions in the centering
     formula surface as a single-line failure.
     """
-    mod = _load_script_module()
+    parts = _load_parts_module()
     # x ∈ [-6, 18] → center 6, half_range 12.
     # y ∈ [-2, 22] → center 10, half_range 12 (same span).
     coords = np.array(
         [[-6.0, -2.0], [18.0, 22.0], [6.0, 10.0]],
         dtype=np.float32,
     )
-    out = mod._normalize_coords(coords)
+    out = parts._normalize_coords(coords)
     # Min corner → (-1, -1); max corner → (1, 1); center → (0, 0).
     assert out[0].tolist() == pytest.approx([-1.0, -1.0], abs=1e-6)
     assert out[1].tolist() == pytest.approx([1.0, 1.0], abs=1e-6)
@@ -451,9 +458,9 @@ def test_normalize_coords_handles_degenerate_zero_range() -> None:
     """All-coincident points must not divide by zero; output should land
     at the origin (any finite point is fine, but origin is the convention).
     """
-    mod = _load_script_module()
+    parts = _load_parts_module()
     coords = np.array([[3.0, 3.0], [3.0, 3.0]], dtype=np.float32)
-    out = mod._normalize_coords(coords)
+    out = parts._normalize_coords(coords)
     assert np.all(np.isfinite(out))
     assert np.allclose(out, np.zeros_like(coords), atol=1e-6)
 
@@ -499,7 +506,7 @@ def test_select_rows_keeps_the_latest_row_per_page() -> None:
     the test doesn't have to feed UMAP a degenerate two-point input
     (UMAP fails on N<5 manifolds with disconnected vertices).
     """
-    mod = _load_script_module()
+    parts = _load_parts_module()
     rows = [
         {"card_id": "card_000", "page": 1, "text_sha": "a", "offset": 0},
         {"card_id": "card_001", "page": 1, "text_sha": "b", "offset": 16},
@@ -507,7 +514,7 @@ def test_select_rows_keeps_the_latest_row_per_page() -> None:
         {"card_id": "card_000", "page": 1, "text_sha": "c", "offset": 32},
     ]
     eligible = {("card_000", 1), ("card_001", 1)}
-    kept = mod._select_rows({"pages": rows}, eligible)
+    kept = parts._select_rows({"pages": rows}, eligible)
     assert [(r["card_id"], r["text_sha"]) for r in kept] == [
         ("card_001", "b"),
         ("card_000", "c"),
@@ -515,12 +522,12 @@ def test_select_rows_keeps_the_latest_row_per_page() -> None:
 
 
 def test_select_rows_drops_pages_that_are_not_publish_eligible() -> None:
-    mod = _load_script_module()
+    parts = _load_parts_module()
     rows = [
         {"card_id": "card_000", "page": 1, "text_sha": "a", "offset": 0},
         {"card_id": "gone_card", "page": 1, "text_sha": "b", "offset": 16},
     ]
-    kept = mod._select_rows({"pages": rows}, {("card_000", 1)})
+    kept = parts._select_rows({"pages": rows}, {("card_000", 1)})
     assert [r["card_id"] for r in kept] == ["card_000"]
 
 
@@ -629,6 +636,6 @@ def test_build_from_published_payload_reads_chunked_embeddings(tmp_path: Path) -
         json.dumps({"model_id": "voyage-3", "dim": dim, "n": n, "pages": pages}).encode(),
         budget=64,
     )
-    arr, index = _load_script_module()._load_published_vectors(web_data)
+    arr, index = _load_parts_module()._load_published_vectors(web_data)
     assert index["n"] == n
     assert np.array_equal(arr, vecs.astype(np.float32))
