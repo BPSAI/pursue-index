@@ -25,7 +25,7 @@ from pursue_index.tranche_resave import RESAVE_BUCKET
 
 __all__ = ["SCHEMA_VERSION", "RecordInputs", "build_record"]
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 _DIFF_KEYS = ("renames_confirmed", "new_content", "quarantined", "removed",
               "field_only_changes", "row_changes", "restored_unchanged",
               "restored_modified", "restored_unknown")

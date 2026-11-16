@@ -74,8 +74,11 @@ def test_type_const_minimum_and_date_time_are_enforced() -> None:
 def test_nullable_fields_accept_null_and_ref_definitions_resolve() -> None:
     record = copy.deepcopy(VECTOR)
     cand = record["candidates"][0]
+    # Schema 1.1.0: a null verdict forces a well-formed stop-and-ask record.
+    record.update(status="stop-and-ask", stop_reasons=["old bytes could not be fetched"])
     cand.update(byte_verdict=None, byte_verdict_reason="old_fetch_failed", evidence=None,
-                old_byte_sha256=None, old_byte_size=None)
+                old_byte_sha256=None, old_byte_size=None, stop_and_ask=True,
+                recommended_disposition="operator-rule-required")
     record["estimate"]["per_stage"] = []  # $defs/estimate: minItems 1
     assert {e.field for e in validate(record, load_schema())} == {"estimate/per_stage"}
 

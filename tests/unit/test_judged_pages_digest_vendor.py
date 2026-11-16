@@ -29,7 +29,7 @@ _VECTORS_PATH = REPO_ROOT / "tests" / "fixtures" / "judged_pages_digest_vectors.
 # judged_pages_digest_vectors.json) at the commit this
 # repo vendored them from. A mismatch means one side drifted from the other.
 _UPSTREAM_MODULE_SHA256 = (
-    "d6d8e55a1ad73e59a9bc6fcda8c16a0c50cdb89854ac8a6c609eaa6145584c28"
+    "f6219fbce4fa8da08eb29913e61240517844ee7b82765030cadd571917f1d8b3"
 )
 _UPSTREAM_VECTORS_SHA256 = (
     "a8a864d3aa02e768940810631a27da248e44984ee0b06224ba17fb749d0dbed9"

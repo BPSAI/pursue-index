@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "example_provenance": "Reconstructed from the committed tranche-diff receipt data/tranche-diffs/tranche-diff-096ef2c0058a.json and findings/2026-10-24-r7-tranche-096ef-d042-quarantine.md. The Release 7 poll predates R7C.31, so no live record was written; this is the pinned reference example and test vector.",
   "tranche_sha256": "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9",
   "tranche_sha12": "096ef2c0058a",
