@@ -171,6 +171,10 @@ _FILLER = "Ab3" * 12
     "jwt " + "eyJ" + _FILLER + "." + _FILLER + "." + _FILLER,
     "-----BEGIN " + "PRIVATE KEY-----\n" + _FILLER + "\n-----END " + "PRIVATE KEY-----",
     "-----BEGIN RSA " + "PRIVATE KEY-----\n" + _FILLER + " (truncated output)",
+    "-----BEGIN PGP " + "PRIVATE KEY BLOCK-----\n" + _FILLER + "\n-----END PGP " + "PRIVATE KEY BLOCK-----",
+    "slack " + "xapp" + "-" + _FILLER,
+    "slack " + "xox" + "e-" + _FILLER,
+    "GH_TOKEN_" + "ghp" + "_" + _FILLER,
 ])
 def test_prefixed_tokens_jwts_and_private_keys_are_redacted(leak: str) -> None:
     from pursue_index.tranche_autopilot.result import redact
