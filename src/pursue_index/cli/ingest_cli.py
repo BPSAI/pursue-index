@@ -58,7 +58,8 @@ def check_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256 (full or 12-char prefix)."),
     log: Path = opt._OPT_RUN_LOG,
 ) -> None:
-    """Exit 0 if approved, 1 if not."""
+    """Exit 0 if approved, 1 if not (2 for a malformed --tranche)."""
+    check_tranche(tranche)
     if ing.is_tranche_approved(log, tranche):
         typer.echo(f"approved: {tranche}")
         raise typer.Exit(0)

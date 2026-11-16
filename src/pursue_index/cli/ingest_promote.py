@@ -13,6 +13,7 @@ from pathlib import Path
 
 import typer
 
+from pursue_index.cli.ingest_audit import check_tranche
 from pursue_index.config.settings import settings
 from pursue_index.ingest import is_tranche_approved
 from pursue_index.ingest_run import locate_snapshot, promote_snapshot
@@ -71,6 +72,7 @@ def gate_resolve_and_promote(
 ) -> Path:
     """Poll-freshness + approval gate, snapshot resolution, and -- for a
     real (non-dry) run -- promotion. Returns the resolved snapshot."""
+    check_tranche(tranche)
     enforce_poll_freshness(allow_behind, reason, tranche)
     snapshot = resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
     if not dry_run:

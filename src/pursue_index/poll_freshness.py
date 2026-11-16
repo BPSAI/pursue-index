@@ -74,8 +74,11 @@ class PollCheckError(RuntimeError):
 
 
 def require_reason(reason: str | None) -> str:
-    """The stripped override reason, or ``ValueError`` if it is too thin."""
-    cleaned = (reason or "").strip()
+    """The override reason with non-printable characters (control and ANSI
+    escape bytes, newlines) removed and whitespace trimmed, or ``ValueError``
+    if what is left is too thin. It is echoed to the terminal and recorded in
+    the audit logs, so it must not carry terminal control sequences."""
+    cleaned = "".join(ch for ch in (reason or "") if ch.isprintable()).strip()
     if len(cleaned) < MIN_REASON_LENGTH:
         raise ValueError(
             f"--reason must be at least {MIN_REASON_LENGTH} characters "
