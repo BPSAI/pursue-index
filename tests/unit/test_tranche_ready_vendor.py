@@ -34,7 +34,7 @@ PINNED_SCHEMA_VERSION = "1.1.0"
 # 1.0.0 with those caps. The pin below is 1.1.0: card_id patterns on fetch
 # failures and operator verdicts, the status/stop-and-ask invariants as allOf
 # rules, numeric bounds, and per-position gate names.
-_UPSTREAM_SCHEMA_SHA256 = "3668a3266f5cff668c1f69e68a5ca3478f3531f54567da20af22b8a65880e2b1"
+_UPSTREAM_SCHEMA_SHA256 = "71a166245c2e1ab6378d457c45032aa141ad0d14a02c66b5429f238165932b38"
 _UPSTREAM_VECTOR_SHA256 = "65e95bca1ab88fbb3dda81011ae04a8a7a6f34d41ab3374302f8a3fc150e5990"
 
 

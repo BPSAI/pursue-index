@@ -90,3 +90,17 @@ def test_an_unimplemented_keyword_fails_closed_at_load(tmp_path: Path) -> None:
     path.write_text(json.dumps(schema))
     with pytest.raises(UnsupportedSchemaError, match="multipleOf"):
         load_schema(path)
+
+
+@pytest.mark.parametrize("first_gate, ok", [
+    ({"id": "spend", "prompt": "p", "reply_grant": "g", "reply_deny": "d"}, True),
+    ({"id": "spend"}, False),                                          # no payload
+    ({"id": "deploy", "prompt": "p", "reply_grant": "g", "reply_deny": "d"}, False),  # wrong position
+    ({"id": "spend", "prompt": "p", "reply_grant": "g", "reply_deny": "d", "x": 1}, False),
+])
+def test_prefix_items_apply_the_full_gate_shape_at_each_position(first_gate, ok) -> None:
+    """prefixItems + allOf + $ref: each gate position carries the whole gate shape."""
+    schema = load_schema()
+    gates_schema = {"$defs": schema["$defs"], "$ref": "#/$defs/operator_message/properties/gates"}
+    deploy = {"id": "deploy", "prompt": "p", "reply_grant": "g", "reply_deny": "d"}
+    assert (validate([first_gate, deploy], gates_schema) == []) is ok
