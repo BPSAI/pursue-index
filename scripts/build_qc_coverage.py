@@ -128,6 +128,7 @@ def _page_shas(pages_cleaned_path: Path) -> tuple[dict[str, dict[int, str]], lis
 
 def _page_provenance_gaps(
     pages_cleaned_path: Path, pages_path: Path, card_ids: set[str],
+    observations: dict[tuple[str, int], str],
 ) -> list[str]:
     """Per judged page: tied to its current OCR row and pages.json text?
     (``pursue_index.clean.qc.page_provenance``)."""
@@ -138,7 +139,7 @@ def _page_provenance_gaps(
     if not isinstance(pages, list):
         # Name the shape, not every judged page as "not in pages.json".
         return [f"{pages_path.name} is {type(pages).__name__}, not a list of page rows"]
-    current = published_pages(pages)
+    current = published_pages(pages, observations)
     try:
         doc = read_asset_json(pages_cleaned_path)
     except (OSError, ValueError) as exc:
@@ -147,9 +148,21 @@ def _page_provenance_gaps(
     return provenance_gaps(rows, current, card_ids, pages_cleaned_path.name)
 
 
+def _observation_lookup(index_path: Path) -> dict[tuple[str, int], str]:
+    """Each image-only page's vision text, rendered from the committed sidecars
+    as the search payload renders it: an image-only page must publish exactly
+    this. ``build`` has already read the index, so an unreadable one never
+    reaches here; if it did, the empty lookup fails every vision page closed."""
+    try:
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return observation_text_for(index.get("card_ids", []), index_path.parent)
+
+
 def _verification_gaps(
     bundle_path: Path, pages_cleaned_path: Path, statuses: dict[str, str],
-    pages_path: Path,
+    pages_path: Path, observations: dict[tuple[str, int], str],
 ) -> list[str]:
     """Why digests cannot be checked: one entry per problem, ``[]`` when fine.
 
@@ -176,7 +189,8 @@ def _verification_gaps(
         f"{c.get('page_count')} judged page(s)"
         for c in judged
         if len(shas.get(c["card_id"], {})) != c.get("page_count")
-    ] + _page_provenance_gaps(pages_cleaned_path, pages_path, {c["card_id"] for c in judged})
+    ] + _page_provenance_gaps(pages_cleaned_path, pages_path, {c["card_id"] for c in judged},
+                              observations)
 
 
 def build(
@@ -229,7 +243,7 @@ def main() -> int:
     )
     gaps = _verification_gaps(
         args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},
-        args.pages,
+        args.pages, _observation_lookup(args.observations),
     )
     if gaps:
         for gap in gaps:
