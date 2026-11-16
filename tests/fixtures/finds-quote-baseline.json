@@ -2,39 +2,11 @@
   "note": "Reviewed /finds citations whose page or q does not check out against the published page text (tests/unit/test_finds_citations.py). Each needs an editorial fix: the right page, a verbatim quote, or a q dropped. The list should only shrink. A new citation that does not check out fails the test, and so does an entry here that has been fixed but not removed. The test reads only this checkout, so it cannot stop an entry from being added in the same change as its citation: an addition must carry a reason and be approved in review.",
   "entries": [
     {
-      "file": "apollo-11-debriefing.mdx",
-      "card": "d14e0371a5bf0f5e",
-      "page": 10,
-      "q": "possible laser",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
       "file": "doe-uap-d002-james-tuck-correspondence-1970s.mdx",
       "card": "8156067f7ff4b983",
       "page": 2,
       "q": "Protection Force logs",
       "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "dow-incidents-1-100.mdx",
-      "card": "b60b84a66715204a",
-      "page": 70,
-      "q": "Godman Field",
-      "reason": "q is on page 77 of this card, not the cited page"
-    },
-    {
-      "file": "dow-incidents-1-100.mdx",
-      "card": "b60b84a66715204a",
-      "page": 80,
-      "q": "Mantell",
-      "reason": "q is on page 71, 74, 77 of this card, not the cited page"
-    },
-    {
-      "file": "dow-uap-d017-sandia-1948-1950.mdx",
-      "card": "09001c140b97a5db",
-      "page": 59,
-      "q": "2 objects",
-      "reason": "q is on page 48 of this card, not the cited page"
     },
     {
       "file": "fbi-1947-dallas-teletype.mdx",
@@ -58,74 +30,11 @@
       "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
     },
     {
-      "file": "fbi-62-hq-83894-readers-guide.mdx",
-      "card": "5ecebc7c28a8d8c7",
-      "page": 60,
-      "q": "SIGH",
-      "reason": "q is on page 2, 4, 5, 7, 24 and others of this card, not the cited page"
-    },
-    {
-      "file": "fbi-62-hq-83894-section-6-removed-2026-05.mdx",
-      "card": "13f86e95aed52840",
-      "page": 47,
-      "q": "Land-Air",
-      "reason": "q is on page 2, 4, 13, 16, 25 of this card, not the cited page"
-    },
-    {
-      "file": "fbi-62-hq-83894-section-6-removed-2026-05.mdx",
-      "card": "13f86e95aed52840",
-      "page": 170,
-      "q": "only as a courtesy",
-      "reason": "q is on page 173, 182, 185 of this card, not the cited page"
-    },
-    {
-      "file": "fbi-62-hq-83894-section-6-removed-2026-05.mdx",
-      "card": "9c86c04b5e4a50e8",
-      "page": 1,
-      "q": "N/A",
-      "reason": "quotes the card's CSV listing (Image Link: N/A), which is not page text"
-    },
-    {
       "file": "fbi-usper-2025-orb.mdx",
       "card": "ccd932b4f40e8de7",
       "page": 1,
       "q": "Grayscale video frame of a helicopter",
       "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "1e63919cc6c3daf4",
-      "page": 1,
-      "q": "The date in the image is incorrect",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "1e63919cc6c3daf4",
-      "page": 1,
-      "q": "unable to positively identify",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "be533a4ab886eb11",
-      "page": 1,
-      "q": "taken through night vision devices by ground-based personnel",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "be533a4ab886eb11",
-      "page": 1,
-      "q": "too fast for the helicopter",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "fd342b7508668b0e",
-      "page": 1,
-      "q": "accompanied by infrared imagery",
-      "reason": "quotes the card's description, which is not page text"
     },
     {
       "file": "helicopter-case-2025-imagery.mdx",
@@ -147,13 +56,6 @@
       "page": 21,
       "q": "ROOHOOFER",
       "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
-    },
-    {
-      "file": "lowry-1949-ocr-limits.mdx",
-      "card": "218e167fbd265d91",
-      "page": 119,
-      "q": "ILLEGIBLE",
-      "reason": "q is on page 2, 8, 13, 16, 23 and others of this card, not the cited page"
     },
     {
       "file": "muroc-1947.mdx",
