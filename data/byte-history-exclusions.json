@@ -8,7 +8,7 @@
       "fetched_at": "2026-05-11T17:46:04+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006080",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "43db2719407a7897",
@@ -16,7 +16,7 @@
       "fetched_at": "2026-05-11T17:45:44+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006059",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "4555d94dd6067f57",
@@ -24,7 +24,7 @@
       "fetched_at": "2026-05-11T17:45:46+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006060",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "88a20bf256ccce7a",
@@ -32,7 +32,7 @@
       "fetched_at": "2026-05-11T17:46:10+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006083",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "9961adf6adf1010b",
@@ -40,7 +40,7 @@
       "fetched_at": "2026-05-11T17:45:46+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006062",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "c1c59236394f7b14",
@@ -48,7 +48,7 @@
       "fetched_at": "2026-05-11T17:45:44+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006056",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "c788c17e8cc32230",
@@ -56,7 +56,7 @@
       "fetched_at": "2026-05-11T17:46:06+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006082",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -64,7 +64,7 @@
       "fetched_at": "2026-05-11T17:45:46+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006063",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -72,7 +72,7 @@
       "fetched_at": "2026-05-11T17:45:52+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006067",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -80,7 +80,7 @@
       "fetched_at": "2026-05-11T17:45:56+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006076",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -88,7 +88,7 @@
       "fetched_at": "2026-05-11T17:45:56+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006078",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -96,7 +96,7 @@
       "fetched_at": "2026-05-11T17:45:56+00:00",
       "superseded_url": "https://www.dvidshub.net/video/1006079",
       "reason": "pipeline-evolution-misroute",
-      "opsec_ref": "findings/2026-05-28-pipeline-byte-misroute-9-cards.md"
+      "opsec_ref": "operator finding 2026-05-28: pipeline byte misroute, 9 cards"
     }
   ]
 }
