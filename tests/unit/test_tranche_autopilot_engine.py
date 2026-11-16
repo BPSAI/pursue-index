@@ -320,8 +320,9 @@ def test_the_freshness_recheck_fetches_origin_first(tmp_path: Path) -> None:
     repo = make_checkout(tmp_path, receipt())
     runner = FakeRunner(repo)
     _run(tmp_path, repo, runner)
-    assert any(argv[0] == "git" and argv[-4:] == ["fetch", "--quiet", "origin", "main"]
-               for argv in runner.calls)
+    fetches = [argv for argv in runner.calls if argv[0] == "git" and "fetch" in argv]
+    # No GitHub origin in this checkout, so it fetches the remote named origin.
+    assert fetches and fetches[0][-2:] == ["origin", "+refs/heads/main:refs/remotes/origin/main"]
 
 
 def test_a_failed_fetch_fails_the_freshness_recheck_closed(tmp_path: Path) -> None:
@@ -331,5 +332,17 @@ def test_a_failed_fetch_fails_the_freshness_recheck_closed(tmp_path: Path) -> No
     code, doc = _run(tmp_path, repo, runner)
     assert code == ExitCode.GATE_FAILED
     assert doc["failed_step"] == "freshness-recheck"
-    assert "git fetch origin main failed" in doc["message"]
+    assert "failed" in doc["message"] and doc["failed_step"] == "freshness-recheck"
     assert doc["operator_next"] == []
+
+
+def test_a_github_origin_is_fetched_over_anonymous_https(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    subprocess.run(["git", "remote", "add", "origin", "git@github.com:BPSAI/pursue-index.git"],
+                   cwd=repo, check=True)
+    runner = FakeRunner(repo)
+    _run(tmp_path, repo, runner)
+    fetches = [argv for argv in runner.calls if argv[0] == "git" and "fetch" in argv]
+    assert fetches[0][-2:] == ["https://github.com/BPSAI/pursue-index.git",
+                               "+refs/heads/main:refs/remotes/origin/main"]
+    assert "credential.helper=" in fetches[0]

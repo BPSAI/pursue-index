@@ -16,7 +16,7 @@ from pathlib import Path
 import pursue_index.cli.tranche_cli as tranche_cli
 import pursue_index.tranche_autopilot as package
 from pursue_index.tranche_autopilot import AutopilotConfig, ExitCode, run_autopilot
-from pursue_index.tranche_autopilot.steps import FETCH_ARGV
+from pursue_index.tranche_autopilot.steps import fetch_argv
 from tests.support.autopilot_fakes import SHA, FakeRunner, make_checkout, receipt
 
 _FORBIDDEN_TOKENS = {"push", "merge", "pr"}
@@ -84,6 +84,6 @@ def test_a_successful_run_never_publishes(tmp_path: Path) -> None:
     # fetch reads origin for the freshness recheck; it publishes nothing.
     assert git_verbs <= {"status", "symbolic-ref", "add", "commit", "rev-parse", "remote", "fetch"}
     fetches = [argv for argv in runner.calls if argv[0] == "git" and "fetch" in argv]
-    assert fetches and all(tuple(argv) == FETCH_ARGV for argv in fetches)
+    assert fetches and all(argv == fetch_argv(None) for argv in fetches)
     # The publish commands exist only as text for the operator.
     assert json.loads(out.read_text())["operator_next"]

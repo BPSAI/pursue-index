@@ -63,7 +63,7 @@ class Context:
     commits: list[str] = field(default_factory=list)
     changed: dict[str, Any] | None = None
     storage_env: Mapping[str, str] = field(default_factory=dict)
-    ssh_env: Mapping[str, str] = field(default_factory=dict)
+    slug: str | None = None
 
 
 def _tail(result: CommandResult) -> str:
@@ -220,10 +220,20 @@ def commit(ctx: Context) -> None:
 
 
 FETCH_TIMEOUT_S = 120
-# The checkout's own config must not run code during the fetch.
-FETCH_ARGV = ("git", "-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
-              "-c", "core.sshCommand=ssh", "-c", "credential.helper=",
-              "fetch", "--quiet", "origin", "main")
+# The checkout's own config must not run code during the fetch. With a GitHub
+# origin the fetch goes to that repo over anonymous HTTPS (pursue-index is
+# public), so no SSH agent or credential is involved and url rewrites in the
+# checkout can't redirect it; without one it fetches the remote named origin,
+# which fails closed if that isn't reachable. Either way it updates the
+# origin/main ref the comparison reads.
+_FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
+                 "-c", "credential.helper=")
+
+
+def fetch_argv(slug: str | None) -> list[str]:
+    source = f"https://github.com/{slug}.git" if slug else "origin"
+    return ["git", *_FETCH_CONFIG, "fetch", "--quiet", source,
+            "+refs/heads/main:refs/remotes/origin/main"]
 
 
 def freshness_recheck(ctx: Context) -> None:
@@ -232,10 +242,11 @@ def freshness_recheck(ctx: Context) -> None:
     # step closed rather than comparing against a stale origin/main.
     step = ctx.steps["freshness-recheck"]
     step.start()
-    fetched = ctx.runner(list(FETCH_ARGV), cwd=ctx.repo_root, timeout=FETCH_TIMEOUT_S,
-                         env={**ctx.env, **ctx.ssh_env})
+    fetched = ctx.runner(fetch_argv(ctx.slug), cwd=ctx.repo_root, timeout=FETCH_TIMEOUT_S,
+                         env=ctx.env)
     if fetched.returncode != 0:
-        detail = f"git fetch origin main failed (exit {fetched.returncode}): {_tail(fetched)}"
+        detail = (f"git fetch of {ctx.slug or 'origin'} main failed "
+                  f"(exit {fetched.returncode}): {_tail(fetched)}")
         step.finish("failed", detail, fetched.returncode)
         raise AutopilotStopError(ExitCode.GATE_FAILED, f"step freshness-recheck failed: {detail}")
     try:

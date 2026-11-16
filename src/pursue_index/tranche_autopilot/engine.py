@@ -56,8 +56,6 @@ class AutopilotConfig:
     behind: Callable[[Path], int] = commits_behind_on_poll_paths
     # Given to `pursue storage verify` only (see tranche_autopilot.child_env).
     storage_env: Mapping[str, str] = field(default_factory=dict)
-    # Given to the freshness recheck's `git fetch` only.
-    ssh_env: Mapping[str, str] = field(default_factory=dict)
 
 
 def receipt_path(repo_root: Path, tranche_sha: str) -> Path:
@@ -157,7 +155,7 @@ class _Run:
         env = {**cfg.env, "PURSUE_REPO_ROOT": str(cfg.repo_root)}
         self.ctx = rs.Context(cfg.tranche_sha, cfg.repo_root, cfg.runner, env, cfg.behind,
                              self.eligibility, self.steps, receipt, behind_baseline=baseline,
-                             storage_env=cfg.storage_env, ssh_env=cfg.ssh_env)
+                             storage_env=cfg.storage_env, slug=self.slug)
         for step_fn in _RUN_ORDER:
             step_fn(self.ctx)
 

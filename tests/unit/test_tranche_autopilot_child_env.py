@@ -7,15 +7,24 @@ settings, this package's PYTHONPATH and NO_PURSUE_DOTENV=1. Only
 
 from __future__ import annotations
 
+import re
+import subprocess
 from pathlib import Path
 
 from pursue_index.tranche_autopilot import AutopilotConfig, ExitCode, run_autopilot
-from pursue_index.tranche_autopilot.child_env import STORAGE_KEYS, base_env, ssh_env, storage_env
+from pursue_index.tranche_autopilot.child_env import (
+    PURSUE_ALLOWED,
+    PURSUE_EXCLUDED,
+    STORAGE_KEYS,
+    base_env,
+    storage_env,
+)
 from tests.support.autopilot_fakes import SHA, FakeRunner, make_checkout, receipt
 
 _PARENT = {
     "PATH": "/usr/bin", "HOME": "/home/op", "SSH_AUTH_SOCK": "/tmp/agent",
-    "PURSUE_DATA_ROOT": "/data", "PURSUE_LOG_LEVEL": "INFO", "PURSUE_VOYAGE_API_KEY": "x",
+    "PURSUE_DATA_ROOT": "/data", "PURSUE_LOG_LEVEL": "INFO", "PURSUE_CF_API_TOKEN": "x",
+    "PURSUE_DB_URL": "postgres://u:p@h/db", "PURSUE_SOMETHING_NEW": "x",
     "ANTHROPIC_API_KEY": "x", "VOYAGE_API_KEY": "x", "GH_TOKEN": "x", "GITHUB_TOKEN": "x",
     "GIT_SSH_COMMAND": "x", "PYTHONPATH": "/evil", "LD_PRELOAD": "x",
     "R2_ACCESS_KEY_ID": "x", "R2_SECRET_ACCESS_KEY": "x", "BACKUP_R2_SECRET_ACCESS_KEY": "x",
@@ -24,7 +33,7 @@ _PARENT = {
 
 def test_the_base_env_is_an_allowlist() -> None:
     env = base_env(_PARENT, "/pkg/src")
-    # No SSH agent, and no PURSUE_* name that looks like a credential.
+    # No SSH agent, no credential, and no PURSUE_* name off the allowlist.
     assert set(env) == {"PATH", "HOME", "PURSUE_DATA_ROOT", "PURSUE_LOG_LEVEL",
                         "NO_PURSUE_DOTENV", "PYTHONPATH"}
     assert env["NO_PURSUE_DOTENV"] == "1" and env["PYTHONPATH"] == "/pkg/src"
@@ -43,12 +52,25 @@ def test_only_storage_verify_gets_the_storage_credentials(tmp_path: Path) -> Non
     code = run_autopilot(AutopilotConfig(
         SHA, tmp_path / "result.json", repo, runner,
         base_env(_PARENT | {"PURSUE_DATA_ROOT": str(tmp_path / "root")}, "/pkg/src"),
-        lambda _r: 0, storage_env=storage_env(_PARENT), ssh_env=ssh_env(_PARENT)))
+        lambda _r: 0, storage_env=storage_env(_PARENT)))
     assert code == ExitCode.DONE
     for argv, env in zip(runner.calls, runner.envs, strict=True):
         if env is None:
             continue
         has_storage = "R2_SECRET_ACCESS_KEY" in env
         assert has_storage == (argv[-2:] == ["storage", "verify"]), argv
-        assert ("SSH_AUTH_SOCK" in env) == ("fetch" in argv), argv
+        assert "SSH_AUTH_SOCK" not in env, argv
         assert "ANTHROPIC_API_KEY" not in env and "GH_TOKEN" not in env
+
+
+def test_every_pursue_name_in_the_code_is_allowed_or_excluded() -> None:
+    root = Path(__file__).resolve().parents[2]
+    found = subprocess.run(
+        ["git", "-C", str(root), "grep", "-ohE", r"PURSUE_[A-Z0-9_]+", "--",
+         "src", "scripts", "Makefile", "web/scripts", "web/src"],
+        capture_output=True, text=True, check=True).stdout.split()
+    names = {n for n in found if re.fullmatch(r"PURSUE_[A-Z0-9_]*[A-Z0-9]", n)}
+    names -= {"PURSUE_ALLOWED", "PURSUE_EXCLUDED"}  # the lists themselves
+    unclassified = names - set(PURSUE_ALLOWED) - set(PURSUE_EXCLUDED)
+    assert not unclassified, f"classify these in tranche_autopilot/child_env.py: {unclassified}"
+
