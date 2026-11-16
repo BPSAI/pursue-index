@@ -99,8 +99,7 @@ const BUDGET_STATED = "global daily";
 const FORBIDDEN_CONSTANTS = [
   {
     label: "worker DAILY_BUDGET_USD",
-    needle: `$${DAILY_BUDGET_USD}`,
-    // "$N", "$ N", "$N.00", "N USD", "N dollars" (any case)
+    // "$N", "$ N", "$N.00", "N USD", "N dollars" (any case). Matched, never printed.
     pattern: new RegExp(
       String.raw`\$\s*${DAILY_BUDGET_USD}(?:\.0+)?\b|\b${DAILY_BUDGET_USD}(?:\.0+)?\s*(?:USD|dollars?)\b`,
       "i",
@@ -143,7 +142,8 @@ async function main() {
     if (leakedConstants.length > 0) {
       console.error("FAIL: /api page publishes a value that must stay private:");
       for (const c of leakedConstants) {
-        console.error(`  - ${c.label}: found "${c.needle}"`);
+        // Never echo the value itself: CI logs of this public repo are public.
+        console.error(`  - ${c.label}: the page states its amount`);
         console.error(`    ${c.hint}`);
       }
     }
