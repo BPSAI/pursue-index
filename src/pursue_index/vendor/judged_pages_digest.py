@@ -39,8 +39,8 @@ def page_sha256(text_cleaned: str) -> str:
 
     Hashes the UTF-8 bytes of ``text_cleaned`` exactly as decoded from
     its ``pages_cleaned.jsonl`` line -- no stripping, no newline or
-    Unicode normalization. This is the single hash both pursue-curate
-    (judging) and pursue-index's ``build_pages_cleaned.py`` compute over
+    Unicode normalization. This is the single hash both the clean-QC judge
+    and pursue-index's ``build_pages_cleaned.py`` compute over
     the same ``text_cleaned`` field.
     """
     return hashlib.sha256(text_cleaned.encode("utf-8")).hexdigest()
@@ -52,10 +52,14 @@ def judged_pages_digest(pages: Iterable[tuple[int, str]]) -> str:
     See the module docstring for the pinned serialization this hashes
     over. Order of ``pages`` does not matter -- the lines are sorted by
     page number (as integers) before joining, so a caller handing pages
-    in any order gets the same digest.
+    in any order gets the same digest. Two entries for one page number
+    would make the digest depend on input order (the sort is stable), so
+    they raise ``ValueError`` rather than diverge across repos.
     """
-    lines = [
-        f"{page}\t{sha}" for page, sha in sorted(pages, key=lambda item: item[0])
-    ]
+    ordered = sorted(pages, key=lambda item: item[0])
+    numbers = [page for page, _ in ordered]
+    if len(set(numbers)) != len(numbers):
+        raise ValueError("judged_pages_digest: duplicate page number in input")
+    lines = [f"{page}\t{sha}" for page, sha in ordered]
     blob = "\n".join(lines).encode("utf-8")
     return hashlib.sha256(blob).hexdigest()

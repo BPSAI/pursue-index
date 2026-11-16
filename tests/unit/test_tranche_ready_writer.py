@@ -74,7 +74,7 @@ def test_a_disagreeing_recompute_is_refused_and_writes_nothing(
     write_record(path, record)
     before = path.read_bytes()
     rerun = copy.deepcopy(record)
-    rerun["candidates"][0]["byte_verdict"] = None
+    rerun["candidates"][0]["new_title"] += " (recomputed)"  # still valid, but different
     with pytest.raises(AppendOnlyError) as excinfo:
         write_record(path, rerun)
     message = str(excinfo.value)

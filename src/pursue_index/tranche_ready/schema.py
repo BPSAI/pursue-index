@@ -35,8 +35,10 @@ _SCHEMA_RELPATH = Path("schemas") / "tranche-ready.schema.json"
 _SUPPORTED = frozenset({
     "$schema", "$id", "$ref", "$defs", "title", "description", "type", "const", "enum",
     "pattern", "maxLength", "minimum", "format", "required", "properties", "additionalProperties",
-    "items", "minItems", "maxItems",
+    "items", "minItems", "maxItems", "prefixItems", "allOf", "if", "then", "else", "not",
 })
+_SUBSCHEMA = ("items", "additionalProperties", "if", "then", "else", "not")
+_SUBSCHEMA_LISTS = ("allOf", "prefixItems")
 _DATE_TIME = re.compile(r"\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[+-]\d{2}:\d{2})")
 _TYPES: dict[str, tuple[type, ...]] = {
     "object": (dict,), "array": (list,), "string": (str,), "boolean": (bool,),
@@ -88,8 +90,11 @@ def _assert_supported(node: Any, where: str) -> None:
         if key in ("properties", "$defs"):
             for name, sub in value.items():
                 _assert_supported(sub, f"{where}/{key}/{name}")
-        elif key in ("items", "additionalProperties"):
+        elif key in _SUBSCHEMA:
             _assert_supported(value, f"{where}/{key}")
+        elif key in _SUBSCHEMA_LISTS:
+            for i, sub in enumerate(value):
+                _assert_supported(sub, f"{where}/{key}/{i}")
 
 
 def validate(instance: Any, schema: dict[str, Any]) -> list[SchemaError]:
@@ -119,6 +124,22 @@ def _check(value: Any, node: dict, path: tuple, root: dict, errors: list[SchemaE
         _check_object(value, node, path, root, errors)
     elif isinstance(value, list):
         _check_array(value, node, path, root, errors)
+    _check_applicators(value, node, path, root, errors)
+
+
+def _check_applicators(value: Any, node: dict, path: tuple, root: dict, errors: list) -> None:
+    """``allOf``, ``if``/``then``/``else`` and ``not``, on the same value."""
+    for sub in node.get("allOf", []):
+        _check(value, sub, path, root, errors)
+    probes: dict[str, list[SchemaError]] = {k: [] for k in ("if", "not") if k in node}
+    for key, probe in probes.items():  # a subschema "matches" when it yields no errors
+        _check(value, node[key], path, root, probe)
+    if "if" in node:
+        branch = "else" if probes["if"] else "then"
+        if branch in node:
+            _check(value, node[branch], path, root, errors)
+    if "not" in node and not probes["not"]:
+        errors.append(SchemaError("/".join(map(str, path)), "matches a disallowed combination"))
 
 
 def _check_string(value: str, node: dict, where: str, errors: list[SchemaError]) -> None:
@@ -151,9 +172,12 @@ def _check_array(value: list, node: dict, path: tuple, root: dict, errors: list)
         errors.append(SchemaError(where, f"needs at least {node['minItems']} item(s)"))
     if "maxItems" in node and len(value) > node["maxItems"]:
         errors.append(SchemaError(where, f"allows at most {node['maxItems']} item(s)"))
+    prefix = node.get("prefixItems", [])
+    for i, sub in enumerate(prefix[: len(value)]):
+        _check(value[i], sub, (*path, i), root, errors)
     if isinstance(node.get("items"), dict):
-        for i, item in enumerate(value):
-            _check(item, node["items"], (*path, i), root, errors)
+        for i in range(len(prefix), len(value)):
+            _check(value[i], node["items"], (*path, i), root, errors)
 
 
 def _resolve(ref: str, root: dict) -> dict:

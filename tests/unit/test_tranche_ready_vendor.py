@@ -24,16 +24,18 @@ VECTOR_PATH = REPO_ROOT / "tests" / "fixtures" / "tranche-ready-096ef.json"
 
 # Pinned from the upstream copies at the commit this repo vendored them
 # from (R7C.29).
-PINNED_SCHEMA_VERSION = "1.0.0"
+PINNED_SCHEMA_VERSION = "1.1.0"
 # The schema pin is the sha256 of the upstream copy as of the commit that
 # mirrored these bytes, so this test detects drift on EITHER side: edit the
 # schema here without the upstream (or the reverse) and the pin stops matching.
 # History: 7fb15b81... carried the maxLength bounds (titles 512, signals 256,
 # doc_id 64 + pattern); the pin below adds the maxItems caps (stop_reasons,
-# fallback_cards, changed_objects 200; continuity_signals 50). The upstream must
-# mirror this exact file, then this comment's "as of" commit is updated.
-_UPSTREAM_SCHEMA_SHA256 = "a231f58e6a6115f91f0fc932956b63be44c2af88e64fe357c09b2f83c5e673d0"
-_UPSTREAM_VECTOR_SHA256 = "46ae4c7e4e590b637cbe4aa527817ccc017b2ac52592346c046de7dc4cb95884"
+# fallback_cards, changed_objects 200; continuity_signals 50); a231f58e... was
+# 1.0.0 with those caps. The pin below is 1.1.0: card_id patterns on fetch
+# failures and operator verdicts, the status/stop-and-ask invariants as allOf
+# rules, numeric bounds, and per-position gate names.
+_UPSTREAM_SCHEMA_SHA256 = "71a166245c2e1ab6378d457c45032aa141ad0d14a02c66b5429f238165932b38"
+_UPSTREAM_VECTOR_SHA256 = "65e95bca1ab88fbb3dda81011ae04a8a7a6f34d41ab3374302f8a3fc150e5990"
 
 
 def _sha256_of(path: Path) -> str:

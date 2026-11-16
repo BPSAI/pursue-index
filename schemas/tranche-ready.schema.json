@@ -2,9 +2,26 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pursueindex.com/schemas/tranche-ready.schema.json",
   "title": "Tranche-ready record",
-  "description": "Machine-readable record the poll writes on a confirmed war.gov tranche change, before any spend. One record per tranche CSV sha256, committed at data/tranche-ready/<sha12>.json in pursue-index. This file is the single source: pursue-index (R7C.31) vendors it byte-for-byte, and pursue-opsec (R7C.32) pins its sha256. The operator-message payload is defined under $defs/operator_message.",
+  "description": "Machine-readable record the poll writes on a confirmed war.gov tranche change, before any spend. One record per tranche CSV sha256, committed at data/tranche-ready/<sha12>.json in pursue-index. This file is the single source: pursue-index vendors it byte-for-byte, and every consumer pins its sha256. The operator-message payload is defined under $defs/operator_message.",
   "type": "object",
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "stop-and-ask" } }, "required": ["status"] },
+      "then": { "required": ["stop_reasons"], "properties": { "stop_reasons": { "minItems": 1 } } },
+      "else": { "properties": { "stop_reasons": { "maxItems": 0 } } }
+    },
+    {
+      "if": { "properties": { "status": { "const": "ready" } }, "required": ["status"] },
+      "then": {
+        "description": "ready: no candidate needs a ruling and the estimate is complete.",
+        "properties": {
+          "candidates": { "items": { "properties": { "stop_and_ask": { "const": false } } } },
+          "estimate": { "properties": { "partial": { "const": false } } }
+        }
+      }
+    }
+  ],
   "required": [
     "schema_version",
     "tranche_sha256",
@@ -25,8 +42,8 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Semantic version of this schema. Vendored copies and pinned test vectors must carry the same value (R7C.31, R7C.32).",
-      "const": "1.0.0"
+      "description": "Semantic version of this schema. Vendored copies and pinned test vectors must carry the same value.",
+      "const": "1.1.0"
     },
     "example_provenance": {
       "type": "string",
@@ -59,8 +76,8 @@
     "stop_reasons": {
       "type": "array",
       "maxItems": 200,
-      "items": { "type": "string" },
-      "description": "Human-readable reasons, one per unresolved item. Non-empty iff status == stop-and-ask."
+      "items": { "type": "string", "maxLength": 1000 },
+      "description": "Human-readable reasons, one per unresolved item. Non-empty iff status == stop-and-ask (enforced by the top-level allOf)."
     },
     "tranche_issue": {
       "type": ["integer", "null"],
@@ -123,6 +140,7 @@
     "candidates": {
       "type": "array",
       "description": "Every rename or quarantine candidate that needs a verdict. Net-new and removed rows are not candidates. Byte evidence is present when both old and new bytes were fetched credential-free (R7C.31).",
+      "maxItems": 1000,
       "items": { "$ref": "#/$defs/candidate" }
     },
     "scope": {
@@ -196,7 +214,7 @@
             "additionalProperties": false,
             "required": ["card_id", "side", "reason"],
             "properties": {
-              "card_id": { "type": "string" },
+              "card_id": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
               "side": { "enum": ["new", "old"] },
               "reason": { "enum": ["new_fetch_failed", "old_fetch_failed", "old_sha_mismatch"] }
             }
@@ -217,9 +235,43 @@
     }
   },
   "$defs": {
+    "gate": {
+      "description": "One operator gate. prefixItems covers both positions, so each position applies this shape explicitly; `items` would never reach them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "prompt", "reply_grant", "reply_deny"],
+      "properties": {
+        "id": { "enum": ["spend", "deploy"] },
+        "prompt": { "type": "string" },
+        "reply_grant": { "type": "string" },
+        "reply_deny": { "type": "string" },
+        "reply_adjust": { "type": "string" }
+      }
+    },
     "candidate": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "byte_verdict": { "const": null } }, "required": ["byte_verdict"] },
+          "then": {
+            "description": "No verdict: the card forces stop-and-ask, names its cause, and carries no evidence.",
+            "properties": {
+              "stop_and_ask": { "const": true },
+              "byte_verdict_reason": { "not": { "const": null } },
+              "evidence": { "type": "null" }
+            }
+          },
+          "else": {
+            "description": "A verdict: it has no failure reason and carries its evidence.",
+            "required": ["evidence"],
+            "properties": {
+              "byte_verdict_reason": { "const": null },
+              "evidence": { "type": "object" }
+            }
+          }
+        }
+      ],
       "required": [
         "kind",
         "new_card_id",
@@ -376,7 +428,7 @@
             "additionalProperties": false,
             "required": ["card_id", "kind", "verdict", "evidence_line", "recommended"],
             "properties": {
-              "card_id": { "type": "string" },
+              "card_id": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
               "doc_id": { "type": "string", "maxLength": 64, "pattern": "^[A-Z]+(-[A-Z0-9]+)+$" },
               "kind": { "enum": ["rename-candidate", "quarantine"] },
               "verdict": { "enum": ["metadata-only", "content-changed", "unknown"] },
@@ -403,18 +455,10 @@
           "minItems": 2,
           "maxItems": 2,
           "description": "Exactly two gates: spend then deploy. Each carries the exact replies that answer it.",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "prompt", "reply_grant", "reply_deny"],
-            "properties": {
-              "id": { "enum": ["spend", "deploy"] },
-              "prompt": { "type": "string" },
-              "reply_grant": { "type": "string" },
-              "reply_deny": { "type": "string" },
-              "reply_adjust": { "type": "string" }
-            }
-          }
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "spend" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "deploy" } } }] }
+          ]
         },
         "brief_path": { "type": "string" },
         "session": {
@@ -436,7 +480,7 @@
             "record_path": { "type": "string" }
           }
         },
-        "rendered_text": { "type": "string" }
+        "rendered_text": { "type": "string", "maxLength": 20000 }
       }
     }
   }
