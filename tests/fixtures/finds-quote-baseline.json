@@ -16,27 +16,6 @@
       "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
     },
     {
-      "file": "dow-incidents-1-100.mdx",
-      "card": "b60b84a66715204a",
-      "page": 70,
-      "q": "Godman Field",
-      "reason": "q is on page 77 of this card, not the cited page"
-    },
-    {
-      "file": "dow-incidents-1-100.mdx",
-      "card": "b60b84a66715204a",
-      "page": 80,
-      "q": "Mantell",
-      "reason": "q is on page 71, 74, 77 of this card, not the cited page"
-    },
-    {
-      "file": "dow-uap-d017-sandia-1948-1950.mdx",
-      "card": "09001c140b97a5db",
-      "page": 59,
-      "q": "2 objects",
-      "reason": "q is on page 48 of this card, not the cited page"
-    },
-    {
       "file": "fbi-1947-dallas-teletype.mdx",
       "card": "b246c782b16be168",
       "page": 68,
@@ -58,34 +37,6 @@
       "reason": "q is not in this card's published OCR or cleaned text (it may come from an earlier OCR pass)"
     },
     {
-      "file": "fbi-62-hq-83894-readers-guide.mdx",
-      "card": "5ecebc7c28a8d8c7",
-      "page": 60,
-      "q": "SIGH",
-      "reason": "q is on page 2, 4, 5, 7, 24 and others of this card, not the cited page"
-    },
-    {
-      "file": "fbi-62-hq-83894-section-6-removed-2026-05.mdx",
-      "card": "13f86e95aed52840",
-      "page": 47,
-      "q": "Land-Air",
-      "reason": "q is on page 2, 4, 13, 16, 25 of this card, not the cited page"
-    },
-    {
-      "file": "fbi-62-hq-83894-section-6-removed-2026-05.mdx",
-      "card": "13f86e95aed52840",
-      "page": 170,
-      "q": "only as a courtesy",
-      "reason": "q is on page 173, 182, 185 of this card, not the cited page"
-    },
-    {
-      "file": "fbi-62-hq-83894-section-6-removed-2026-05.mdx",
-      "card": "9c86c04b5e4a50e8",
-      "page": 1,
-      "q": "N/A",
-      "reason": "quotes the card's CSV listing (Image Link: N/A), which is not page text"
-    },
-    {
       "file": "fbi-usper-2025-orb.mdx",
       "card": "ccd932b4f40e8de7",
       "page": 1,
@@ -94,37 +45,9 @@
     },
     {
       "file": "helicopter-case-2025-imagery.mdx",
-      "card": "1e63919cc6c3daf4",
-      "page": 1,
-      "q": "The date in the image is incorrect",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "1e63919cc6c3daf4",
-      "page": 1,
-      "q": "unable to positively identify",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "be533a4ab886eb11",
-      "page": 1,
-      "q": "taken through night vision devices by ground-based personnel",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
       "card": "be533a4ab886eb11",
       "page": 1,
       "q": "too fast for the helicopter",
-      "reason": "quotes the card's description, which is not page text"
-    },
-    {
-      "file": "helicopter-case-2025-imagery.mdx",
-      "card": "fd342b7508668b0e",
-      "page": 1,
-      "q": "accompanied by infrared imagery",
       "reason": "quotes the card's description, which is not page text"
     },
     {
