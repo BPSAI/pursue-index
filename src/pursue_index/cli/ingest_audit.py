@@ -87,7 +87,10 @@ def _audit_label(results: list[dict]) -> str:
     if len(skipped) == len(results):
         return (f"nothing fetchable ({len(skipped)} skipped: operator_manual rename, "
                 "no asset_url by design)")
-    return f"verified ({len(results) - len(skipped)} ok, {len(skipped)} skipped by design)"
+    ok = sum(r.get("status") == "ok" for r in results)
+    other = len(results) - ok - len(skipped)  # e.g. a non-blocking operator_manual mismatch
+    extra = f", {other} other (see the audit log)" if other else ""
+    return f"verified ({ok} ok, {len(skipped)} skipped by design{extra})"
 
 
 def _run_pre_approval_audit(
