@@ -54,7 +54,7 @@ def _invoke(repo: Path, command: str) -> str:
     args = ["ingest", command, "--tranche", _SHA, "--diff-dir", str(repo / "data" / "tranche-diffs"),
             "--log", str(repo / "data" / "tranche-approval-log.jsonl")]
     if command == "approve":
-        args += ["--note", "ok", "--skip-audit", "--aliases", str(repo / "data" / "aliases.json")]
+        args += ["--note", "ok", "--skip-audit", "--reason", "fixture approval: no live audit", "--aliases", str(repo / "data" / "aliases.json")]
     result = runner.invoke(app, args)
     assert result.exit_code == 0, result.output
     return result.output

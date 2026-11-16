@@ -107,11 +107,15 @@ def record_approval(
     diff_summary: dict[str, int],
     renames_approved: list[dict[str, Any]],
     cost_estimate: dict[str, Any] | None = None,
+    audit: str | None = None,
 ) -> None:
     """Append one approval row to the append-only log.
 
     ``cost_estimate`` (the per-page band the operator approved against, with
-    its judge label) is recorded when given.
+    its judge label) is recorded when given, and so is ``audit``: what the
+    pre-approval audit established ("verified ...", "nothing fetchable ...",
+    "nothing to audit ..." or "skipped: <reason>"), so a skip or an
+    unverifiable tranche never reads as verified.
     """
     row = {
         "tranche_sha256": tranche_sha,
@@ -123,6 +127,8 @@ def record_approval(
     }
     if cost_estimate is not None:
         row["cost_estimate"] = cost_estimate
+    if audit is not None:
+        row["audit"] = audit
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("a") as fh:
         fh.write(json.dumps(row) + "\n")

@@ -87,7 +87,7 @@ def test_approve_materializes_alias_without_approve_rename(
     diff_dir.mkdir()
     (diff_dir / f"tranche-diff-{_SHA[:12]}.json").write_text(json.dumps(_diff()))
     result = CliRunner().invoke(app, [
-        "ingest", "approve", "--tranche", _SHA, "--note", "D042 re-save", "--skip-audit",
+        "ingest", "approve", "--tranche", _SHA, "--note", "D042 re-save", "--skip-audit", "--reason", "fixture approval: no live audit",
         "--log", str(tmp_path / "log.jsonl"), "--aliases", str(tmp_path / "aliases.json"),
         "--diff-dir", str(diff_dir), "--snapshots-dir", str(tmp_path / "snaps"),
     ])

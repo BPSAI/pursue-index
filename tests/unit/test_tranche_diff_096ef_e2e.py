@@ -135,7 +135,7 @@ def test_ingest_approve_aliases_d042_without_a_flag_when_opted_in(
     monkeypatch.setattr(settings, "ingest_auto_approve_metadata_resaves", True)
     result = CliRunner().invoke(app, [
         "ingest", "approve", "--tranche", receipt()["tranche_sha256"],
-        "--note", "D042 metadata-only re-save", "--skip-audit",
+        "--note", "D042 metadata-only re-save", "--skip-audit", "--reason", "fixture approval: no live audit",
         "--log", str(tmp_path / "log.jsonl"), "--aliases", str(tmp_path / "aliases.json"),
         "--diff-dir", str(replay), "--snapshots-dir", str(tmp_path / "snaps"),
     ])
@@ -161,7 +161,7 @@ def test_default_ingest_approve_holds_d042_and_says_so(
     monkeypatch.setattr(settings, "ingest_auto_approve_metadata_resaves", False)
     result = CliRunner().invoke(app, [
         "ingest", "approve", "--tranche", receipt()["tranche_sha256"],
-        "--note", "D042 held", "--skip-audit",
+        "--note", "D042 held", "--skip-audit", "--reason", "fixture approval: no live audit",
         "--log", str(tmp_path / "log.jsonl"), "--aliases", str(tmp_path / "aliases.json"),
         "--diff-dir", str(replay_default), "--snapshots-dir", str(tmp_path / "snaps"),
     ])
