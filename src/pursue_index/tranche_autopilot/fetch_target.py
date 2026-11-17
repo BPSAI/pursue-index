@@ -27,6 +27,9 @@ from pursue_index.tranche_autopilot.urlmatch import config_url_applies
 
 __all__ = ["fetch_target_problem", "valid_slug"]
 
+# The userinfo of a URL inside a config key: everything from "://" to the "@".
+_USERINFO_RE = re.compile(r"(://)[^/@\s]*@")
+
 _SLUG = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
 
 
@@ -57,17 +60,24 @@ def fetch_target_problem(runner: Runner, repo: Path, expected: str,
     target = fetch_url(expected)
     # An empty prefix matches every URL (git prepends the base); a blank one is
     # refused too, failing closed.
-    hits = sorted(key for key, prefix in rewrites
+    hits = sorted(_redact(key) for key, prefix in rewrites
                   if not prefix.strip() or target.startswith(prefix))
     if hits:
         return (f"the checkout's config rewrites the fetch URL of {expected} "
                 f"({', '.join(hits)}); remove the insteadOf to run the autopilot")
     for section, keys in (("http", http_keys), ("credential", credential_keys)):
-        applied = sorted(key for key in keys if _scoped_key_applies(section, key, target))
+        applied = sorted(_redact(key) for key in keys
+                         if _scoped_key_applies(section, key, target))
         if applied:
             return (f"the checkout's config sets {section} options for the fetch of "
                     f"{expected} ({', '.join(applied)}); remove them to run the autopilot")
     return None
+
+
+def _redact(key: str) -> str:
+    """``key`` with any URL userinfo (``user:token@``) masked, for messages: the
+    refusal lands in the result JSON and logs."""
+    return _USERINFO_RE.sub(r"\1***@", key)
 
 
 def _scoped_key_applies(section: str, key: str, target: str) -> bool:

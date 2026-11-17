@@ -219,3 +219,27 @@ def test_another_config_failure_keeps_the_generic_error(tmp_path: Path) -> None:
 
     with pytest.raises(GitError, match="git config failed: fatal: bad config line 3"):
         local_http_keys(broken, tmp_path)
+
+
+def test_refusals_never_echo_url_userinfo(tmp_path: Path) -> None:
+    """Config keys can embed a URL's userinfo (a token); the refusal, which lands
+    in the result JSON and logs, names the key with that part redacted."""
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "credential.https://someone:s3cr3t-token@github.com.helper", "x")
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "s3cr3t-token" not in doc["message"] and "someone" not in doc["message"]
+    assert "credential.https://***@github.com.helper" in doc["message"]
+    assert _fetches(runner) == []
+
+
+def test_insteadof_refusals_never_echo_url_userinfo(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "url.https://someone:s3cr3t-token@evil.example/.insteadOf",
+         "https://github.com/")
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "s3cr3t-token" not in doc["message"]
+    assert _fetches(runner) == []
