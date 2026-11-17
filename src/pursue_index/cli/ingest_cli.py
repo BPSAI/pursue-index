@@ -200,6 +200,15 @@ def approve_cmd(
                            ingest_estimate_text(diff, work))
 
 
+def _report_or_drive(summary, diff_payload, from_diff: bool, **drive_kwargs) -> None:
+    """Print the estimate and next steps, or (``--from-diff``) drive the scoped stages."""
+    if not from_diff:  # --from-diff prices the exact scoped list it is about to run
+        _echo_estimate(diff_payload, summary)
+        typer.echo("\n" + render_next_steps(summary))
+        return
+    execute_from_diff(summary, diff=diff_payload, ocr_dir=settings.ocr_dir, **drive_kwargs)
+
+
 @ingest_app.command("run")
 def run_cmd(
     tranche: str = typer.Option(..., "--tranche", help="Tranche csv_sha256."),
@@ -239,17 +248,11 @@ def run_cmd(
     """
     gate_resolve_and_promote(tranche, log, snapshots_dir, diff_dir, manifest, dry_run, allow_behind, reason)
     diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir)
-    if not from_diff:  # --from-diff prices the exact scoped list it is about to run
-        _echo_estimate(diff_payload, summary)
-    if from_diff:
-        execute_from_diff(
-            summary, diff=diff_payload, tranche=tranche, manifest=manifest, worklist=worklist,
-            dry_run=dry_run, aliases_path=aliases, registry_path=asset_registry,
-            ocr_dir=settings.ocr_dir, engine=engine, force=force,
-            concurrency=concurrency, cost_cap_usd=cost_cap_usd,
-        )
-        return
-    typer.echo("\n" + render_next_steps(summary))
+    _report_or_drive(
+        summary, diff_payload, from_diff, tranche=tranche, manifest=manifest, worklist=worklist,
+        dry_run=dry_run, aliases_path=aliases, registry_path=asset_registry, engine=engine,
+        force=force, concurrency=concurrency, cost_cap_usd=cost_cap_usd,
+    )
 
 
 def main() -> None:

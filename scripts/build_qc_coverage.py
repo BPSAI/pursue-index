@@ -63,6 +63,30 @@ DEFAULT_ASR_DIFF_BUNDLE = REPO_ROOT / "web" / "public" / "data" / "asr-diff-bund
 DEFAULT_OUT = REPO_ROOT / "web" / "public" / "data" / "qc-coverage.json"
 
 
+class _AssetReader:
+    """Reads each chunked asset once per run and replays the outcome.
+
+    ``read_asset_json`` reassembles a chunked asset on every call; ``build`` and
+    the digest-verification pass need the same assets, so the first read of a
+    path is kept -- the parsed data, or the exception it raised, which is
+    re-raised on each later request so error handling is unchanged.
+    """
+
+    def __init__(self) -> None:
+        self._seen: dict[Path, tuple[object, BaseException | None]] = {}
+
+    def read(self, path: Path):
+        if path not in self._seen:
+            try:
+                self._seen[path] = (read_asset_json(path), None)
+            except (OSError, ValueError) as exc:
+                self._seen[path] = (None, exc)
+        data, exc = self._seen[path]
+        if exc is not None:
+            raise exc
+        return data
+
+
 def _published_digests(pages: list[dict]) -> dict[str, str]:
     """``{card_id: digest}`` of the text pages.json publishes for each card."""
     by_card: dict[str, list[tuple[int, str]]] = {}
@@ -103,7 +127,9 @@ def _asr_diff_status(asr_diff_bundle_path: Path, pages: list[dict]) -> dict[str,
     return out
 
 
-def _page_shas(pages_cleaned_path: Path) -> tuple[dict[str, dict[int, str]], list[str]]:
+def _page_shas(
+    pages_cleaned_path: Path, reader: _AssetReader | None = None,
+) -> tuple[dict[str, dict[int, str]], list[str]]:
     """``({card_id: {page: source_page_sha256}}, problems)``.
 
     ``pages-cleaned.json`` is itself optional (an OCR-pipeline output, not
@@ -117,7 +143,7 @@ def _page_shas(pages_cleaned_path: Path) -> tuple[dict[str, dict[int, str]], lis
     try:
         if not asset_exists(pages_cleaned_path):
             return {}, problems
-        doc = read_asset_json(pages_cleaned_path)
+        doc = (reader or _AssetReader()).read(pages_cleaned_path)
     except (OSError, ValueError) as exc:
         return {}, [f"{pages_cleaned_path.name} unreadable: {type(exc).__name__}: {exc}"]
     if not isinstance(doc, dict):
@@ -128,12 +154,13 @@ def _page_shas(pages_cleaned_path: Path) -> tuple[dict[str, dict[int, str]], lis
 
 def _page_provenance_gaps(
     pages_cleaned_path: Path, pages_path: Path, card_ids: set[str],
-    observations: dict[tuple[str, int], str],
+    observations: dict[tuple[str, int], str], reader: _AssetReader | None = None,
 ) -> list[str]:
     """Per judged page: tied to its current OCR row and pages.json text?
     (``pursue_index.clean.qc.page_provenance``)."""
+    reader = reader or _AssetReader()
     try:
-        pages = read_asset_json(pages_path)
+        pages = reader.read(pages_path)
     except (OSError, ValueError):
         return [f"{pages_path.name} unreadable: cannot tie cleaned pages to it"]
     if not isinstance(pages, list):
@@ -141,7 +168,7 @@ def _page_provenance_gaps(
         return [f"{pages_path.name} is {type(pages).__name__}, not a list of page rows"]
     current = published_pages(pages, observations)
     try:
-        doc = read_asset_json(pages_cleaned_path)
+        doc = reader.read(pages_cleaned_path)
     except (OSError, ValueError) as exc:
         return [f"{pages_cleaned_path.name} unreadable: {type(exc).__name__}: {exc}"]
     rows = doc.get("pages", []) if isinstance(doc, dict) else []
@@ -163,6 +190,7 @@ def _observation_lookup(index_path: Path) -> dict[tuple[str, int], str]:
 def _verification_gaps(
     bundle_path: Path, pages_cleaned_path: Path, statuses: dict[str, str],
     pages_path: Path, observations: dict[tuple[str, int], str],
+    reader: _AssetReader | None = None,
 ) -> list[str]:
     """Why digests cannot be checked: one entry per problem, ``[]`` when fine.
 
@@ -172,13 +200,14 @@ def _verification_gaps(
     unverifiable here rather than silently classifying ``judged``. A legacy
     bundle (no digest on any card) has nothing to verify and yields ``[]``.
     """
-    bundle = read_asset_json(bundle_path)
+    reader = reader or _AssetReader()
+    bundle = reader.read(bundle_path)
     cards = [c for c in bundle.get("cards", []) if c.get("judged_pages_digest")]
     if not cards:
         return []
     if not asset_exists(pages_cleaned_path):
         return [f"{pages_cleaned_path.name} is missing"]
-    shas, problems = _page_shas(pages_cleaned_path)
+    shas, problems = _page_shas(pages_cleaned_path, reader)
     if not shas:
         return problems or [f"{pages_cleaned_path.name} carries no page shas"]
     # Only a card the classifier called judged was meant to be verified;
@@ -190,7 +219,7 @@ def _verification_gaps(
         for c in judged
         if len(shas.get(c["card_id"], {})) != c.get("page_count")
     ] + _page_provenance_gaps(pages_cleaned_path, pages_path, {c["card_id"] for c in judged},
-                              observations)
+                              observations, reader)
 
 
 def build(
@@ -202,19 +231,25 @@ def build(
     out_path: Path,
     pages_cleaned_path: Path | None = None,
     asr_diff_bundle_path: Path | None = None,
+    reader: _AssetReader | None = None,
 ) -> dict:
-    """Read the sources, write the coverage payload, return it."""
+    """Read the sources, write the coverage payload, return it.
+
+    Pass the ``reader`` the verification pass will use so each chunked asset
+    is reassembled once for the whole run.
+    """
+    reader = reader or _AssetReader()
     observations = json.loads(observations_path.read_text(encoding="utf-8"))
-    pages = read_asset_json(pages_path)
+    pages = reader.read(pages_path)
     doc = build_coverage(
         json.loads(manifest_path.read_text(encoding="utf-8")),
-        read_asset_json(bundle_path),
+        reader.read(bundle_path),
         pages,
         observations,
         # The same rendering the search payload uses; a missing or malformed
         # sidecar yields no text, so its card is not counted as described.
         observation_text_for(observations.get("card_ids", []), observations_path.parent),
-        _page_shas(pages_cleaned_path)[0] if pages_cleaned_path else {},
+        _page_shas(pages_cleaned_path, reader)[0] if pages_cleaned_path else {},
         _asr_diff_status(asr_diff_bundle_path, pages) if asr_diff_bundle_path else {},
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -232,7 +267,9 @@ def main() -> int:
     parser.add_argument("--asr-diff-bundle", type=Path, default=DEFAULT_ASR_DIFF_BUNDLE)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
+    reader = _AssetReader()
     doc = build(
+        reader=reader,
         manifest_path=args.manifest,
         bundle_path=args.bundle,
         pages_path=args.pages,
@@ -243,7 +280,7 @@ def main() -> int:
     )
     gaps = _verification_gaps(
         args.bundle, args.pages_cleaned, {c["card_id"]: c["status"] for c in doc["cards"]},
-        args.pages, _observation_lookup(args.observations),
+        args.pages, _observation_lookup(args.observations), reader,
     )
     if gaps:
         for gap in gaps:
