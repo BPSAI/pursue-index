@@ -57,7 +57,17 @@ class Find:
     body: str
 
 
+_DOUBLE_QUOTED_ESCAPE_RE = re.compile(r'\\(["\\])')
+
+
 def _unquote(value: str) -> str:
+    """Drop the outer quotes; in a double-quoted scalar, also undo ``\\"`` and ``\\\\``.
+
+    The site's YAML parser renders those escapes as the bare characters, so the
+    LLM-facing text must too. Single-quoted and bare scalars keep backslashes.
+    """
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        return _DOUBLE_QUOTED_ESCAPE_RE.sub(r"\1", value[1:-1])
     return _OUTER_QUOTES_RE.sub("", value)
 
 

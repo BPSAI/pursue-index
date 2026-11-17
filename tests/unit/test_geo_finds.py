@@ -53,6 +53,19 @@ class TestFrontmatter:
         assert meta["tags"] == ["a", "b"]
         assert body.startswith("\nimport Cite")
 
+    def test_escaped_quotes_in_a_double_quoted_scalar_are_unescaped(self):
+        # YAML escapes inside "...": the site renders the bare characters, so
+        # the LLM-facing text must not carry the backslashes.
+        raw = '---\ntitle: "Twenty-Five \\"Cold Orbs\\" and a \\\\ path"\n---\nbody\n'
+        meta, _ = parse_frontmatter(raw)
+        assert meta["title"] == 'Twenty-Five "Cold Orbs" and a \\ path'
+
+    def test_single_quoted_and_bare_scalars_keep_their_backslashes(self):
+        raw = "---\nsummary: 'a \\\" b'\nnote: c \\\" d\n---\n"
+        meta, _ = parse_frontmatter(raw)
+        assert meta["summary"] == 'a \\" b'
+        assert meta["note"] == 'c \\" d'
+
     def test_no_frontmatter_returns_the_whole_text_as_body(self):
         assert parse_frontmatter("just text\n") == ({}, "just text\n")
 
