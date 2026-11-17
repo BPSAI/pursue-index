@@ -16,6 +16,7 @@ doesn't write into this checkout's own ``data/``.
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import pytest
@@ -31,13 +32,23 @@ _096EF_SHA = "096ef2c0058abd412a568d630df31cb836241c1c08c4f67bdc8cdb7e5c8418b9"
 _C3F8_SHA = "c3f8209ef5f53a124bf3f30c4a36106ffaa63ea9770ad2d33e2ba5c4fec347c7"
 
 
-_GATE_ARGS = [
-    "--log", str(_REPO_ROOT / "data" / "tranche-approval-log.jsonl"),
-    "--snapshots-dir", str(_REPO_ROOT / "data" / "manifests" / "snapshots"),
-    "--diff-dir", str(_REPO_ROOT / "data" / "tranche-diffs"),
-    "--aliases", str(_REPO_ROOT / "data" / "card-aliases.json"),
-    "--asset-registry", str(_REPO_ROOT / "data" / "asset-bytes-registry.jsonl"),
-]
+def _gate_args(scratch: Path) -> list[str]:
+    """The gate's inputs. The two a promote could append to (the approval log
+    and the snapshots dir) are copies in ``scratch``, so no run writes into
+    this checkout; the diff dir, aliases and registry are only read."""
+    log = scratch / "tranche-approval-log.jsonl"
+    snapshots = scratch / "snapshots"
+    if not log.exists():
+        shutil.copy2(_REPO_ROOT / "data" / "tranche-approval-log.jsonl", log)
+    if not snapshots.exists():
+        shutil.copytree(_REPO_ROOT / "data" / "manifests" / "snapshots", snapshots)
+    return [
+        "--log", str(log),
+        "--snapshots-dir", str(snapshots),
+        "--diff-dir", str(_REPO_ROOT / "data" / "tranche-diffs"),
+        "--aliases", str(_REPO_ROOT / "data" / "card-aliases.json"),
+        "--asset-registry", str(_REPO_ROOT / "data" / "asset-bytes-registry.jsonl"),
+    ]
 
 
 def _run_dry_run_ingest(manifest: Path, worklist: Path):
@@ -49,7 +60,7 @@ def _run_dry_run_ingest(manifest: Path, worklist: Path):
             "--from-diff", "--dry-run",
             "--manifest", str(manifest),
             "--worklist", str(worklist),
-            *_GATE_ARGS,
+            *_gate_args(manifest.parent),
         ],
     )
 
@@ -65,7 +76,7 @@ def _run_real_promote(manifest: Path, worklist: Path):
             "--tranche", _096EF_SHA,
             "--manifest", str(manifest),
             "--worklist", str(worklist),
-            *_GATE_ARGS,
+            *_gate_args(manifest.parent),
         ],
     )
 
@@ -106,3 +117,21 @@ def test_real_ocr_run_on_a_stale_worklist_exits_nonzero(tmp_path: Path) -> None:
     assert result.exit_code != 0, result.output
     assert _096EF_SHA in result.output
     assert _C3F8_SHA in result.output
+
+
+def _tree_digest(path: Path) -> list[tuple[str, int, int]]:
+    files = [path] if path.is_file() else sorted(p for p in path.rglob("*") if p.is_file())
+    return [(str(p.relative_to(_REPO_ROOT)), p.stat().st_size, p.stat().st_mtime_ns) for p in files]
+
+
+def test_a_real_promote_writes_nothing_in_the_checkout(tmp_path: Path) -> None:
+    """The approval log and the snapshots dir the gate can append to are
+    copies in tmp_path; the checkout's own files are left as they were."""
+    log = _REPO_ROOT / "data" / "tranche-approval-log.jsonl"
+    snapshots = _REPO_ROOT / "data" / "manifests" / "snapshots"
+    before = (_tree_digest(log), _tree_digest(snapshots))
+    args = _gate_args(tmp_path)
+    assert str(_REPO_ROOT) not in args[args.index("--log") + 1]
+    assert str(_REPO_ROOT) not in args[args.index("--snapshots-dir") + 1]
+    _run_real_promote(tmp_path / "latest.json", tmp_path / "ingest-worklist.txt")
+    assert (_tree_digest(log), _tree_digest(snapshots)) == before
