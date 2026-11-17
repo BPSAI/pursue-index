@@ -20,7 +20,6 @@ from pursue_index.tranche_autopilot.gitops import (
     local_credential_keys,
     local_http_keys,
     local_url_rewrites,
-    origin_url,
 )
 from pursue_index.tranche_autopilot.result import repo_slug
 from pursue_index.tranche_autopilot.runner import Runner
@@ -38,10 +37,14 @@ def valid_slug(slug: str) -> bool:
     return all(part.strip(".") for part in slug.split("/"))
 
 
-def fetch_target_problem(runner: Runner, repo: Path, expected: str) -> str | None:
-    """Why fetching ``expected`` into this checkout must be refused, or ``None``."""
-    url = origin_url(runner, repo)
-    found = repo_slug(url) if url else None
+def fetch_target_problem(runner: Runner, repo: Path, expected: str,
+                         origin: str | None) -> str | None:
+    """Why fetching ``expected`` into this checkout must be refused, or ``None``.
+
+    ``origin`` is the checkout's ``origin`` URL (``gitops.origin_url``), read
+    by the caller so the same value can drive anything else it reports.
+    """
+    found = repo_slug(origin) if origin else None
     if found is not None and found.casefold() != expected.casefold():
         return (f"origin names {found}, not the index {expected}: this checkout is not "
                 "the index (set --expected-repo to promote another one)")

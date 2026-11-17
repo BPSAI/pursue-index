@@ -149,6 +149,21 @@ def test_an_origin_changed_during_the_run_fails_the_recheck(tmp_path: Path) -> N
     assert _fetches(runner) == []
 
 
+
+def test_the_engine_reads_origin_once_for_the_guard_and_operator_next(tmp_path: Path) -> None:
+    """The start-of-run guard and the operator_next lines use one origin read,
+    so they cannot disagree (the recheck reads it again, on purpose)."""
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "remote", "add", "origin", "git@github.com:bpsai/Pursue-Index.git")
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.DONE
+    first_step = next(i for i, argv in enumerate(runner.calls) if argv[0] != "git")
+    origin_reads = [argv for argv in runner.calls[:first_step]
+                    if argv[:3] == ["git", "remote", "get-url"]]
+    assert len(origin_reads) == 1
+    assert any("--repo bpsai/Pursue-Index" in line for line in doc["operator_next"])
+
 # -- the fetch environment -------------------------------------------------------
 
 def test_only_the_fetch_gets_a_fresh_empty_home(tmp_path: Path) -> None:
