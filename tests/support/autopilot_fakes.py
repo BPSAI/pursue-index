@@ -134,13 +134,15 @@ class FakeRunner:
 
 
 def run_engine(tmp_path: Path, repo: Path, runner: FakeRunner, *, behind=lambda _r: 0,
-         sha: str = SHA, data_root: Path | None = None) -> tuple[int, dict]:
+         sha: str = SHA, data_root: Path | None = None, expected_slug: str | None = None,
+         env: Mapping[str, str] | None = None) -> tuple[int, dict]:
     root = data_root if data_root is not None else tmp_path / "data-root"
     root.mkdir(exist_ok=True)
     out = tmp_path / "out" / "result.json"
+    pinned = {"expected_slug": expected_slug} if expected_slug is not None else {}
     code = run_autopilot(AutopilotConfig(
         tranche_sha=sha, result_path=out, repo_root=repo, runner=runner,
-        env={"PURSUE_DATA_ROOT": str(root)}, behind=behind,
+        env={"PURSUE_DATA_ROOT": str(root), **(env or {})}, behind=behind, **pinned,
     ))
     return code, json.loads(out.read_text())
 

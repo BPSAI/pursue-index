@@ -24,6 +24,9 @@ _OPT_RESULT = typer.Option(..., "--result", help="Where to write the result JSON
                            "(outside the checkout).")
 _OPT_REPO_ROOT = typer.Option(None, "--repo-root", help="The pursue-index checkout to "
                               "promote in (default: the resolved repo root).")
+_OPT_EXPECTED_REPO = typer.Option(child_env.INDEX_SLUG, "--expected-repo",
+                                  help="owner/name of the GitHub repo the freshness "
+                                  "recheck fetches; the checkout's origin must match.")
 
 
 def _child_env() -> tuple[dict[str, str], dict[str, str]]:
@@ -39,6 +42,7 @@ def autopilot_cmd(
     tranche: str = _OPT_TRANCHE,
     result: Path = _OPT_RESULT,
     root: Path | None = _OPT_REPO_ROOT,
+    expected_repo: str = _OPT_EXPECTED_REPO,
 ) -> None:
     """Approve, gate and promote a metadata-only tranche, then commit locally.
 
@@ -64,6 +68,7 @@ def autopilot_cmd(
     code = run_autopilot(AutopilotConfig(
         tranche_sha=tranche, result_path=result, repo_root=checkout,
         runner=SubprocessRunner(), env=base_env, storage_env=storage_env,
+        expected_slug=expected_repo,
     ))
     typer.echo(f"autopilot exit {code}; result -> {result}")
     raise typer.Exit(code)

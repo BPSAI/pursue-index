@@ -62,25 +62,38 @@ def storage_env(environ: Mapping[str, str]) -> dict[str, str]:
     return {k: environ[k] for k in STORAGE_KEYS if k in environ}
 
 
+# The repo the freshness recheck fetches: the public index, pinned here and
+# overridable only by the autopilot's own config or CLI, never by git config.
+INDEX_SLUG = "BPSAI/pursue-index"
+
 # The checkout's own config must not run code during the fetch, and FETCH_ENV
 # ignores system and global git config. Only the https transport is allowed:
 # a url.*.insteadOf in the checkout that rewrites the URL to ssh, file or
 # ext:: makes the fetch fail closed instead of running core.sshCommand or a
-# helper, and core.sshCommand is set to false as a second stop. With a GitHub
-# origin the fetch goes to that repo over anonymous HTTPS (pursue-index is
-# public); without one it fetches the remote named origin, which must then
-# be https. Either way it updates the origin/main ref the comparison reads.
+# helper, and core.sshCommand is set to false as a second stop. The fetch
+# goes to the pinned repo over anonymous HTTPS (pursue-index is public) and
+# updates the origin/main ref the comparison reads; the engine refuses a
+# checkout whose origin, or a local rewrite, names another repo.
 _FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
                  "-c", "credential.helper=", "-c", "core.sshCommand=false",
                  "-c", "protocol.allow=never", "-c", "protocol.https.allow=always",
                  "-c", "core.alternateRefsCommand=", "-c", "gc.auto=0", "-c", "http.proxy=")
 
 
-def fetch_argv(slug: str | None) -> list[str]:
-    source = f"https://github.com/{slug}.git" if slug else "origin"
-    return ["git", *_FETCH_CONFIG, "fetch", "--quiet", source,
+def fetch_url(slug: str) -> str:
+    return f"https://github.com/{slug}.git"
+
+
+def fetch_argv(slug: str) -> list[str]:
+    return ["git", *_FETCH_CONFIG, "fetch", "--quiet", fetch_url(slug),
             "+refs/heads/main:refs/remotes/origin/main"]
 
 # For the fetch only: ignore system and global git config.
 FETCH_ENV = {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null"}
 
+
+def fetch_env(base: Mapping[str, str], home: str) -> dict[str, str]:
+    """The fetch's environment: ``base`` plus FETCH_ENV, with ``HOME`` an empty
+    directory the caller created (so git and curl find no ``~/.netrc`` or other
+    home config) and no terminal prompt for credentials."""
+    return {**base, **FETCH_ENV, "HOME": home, "GIT_TERMINAL_PROMPT": "0"}

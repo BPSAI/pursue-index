@@ -17,7 +17,9 @@ from typing import Any
 
 from pursue_index.poll_freshness import PollCheckError, commits_behind_on_poll_paths
 from pursue_index.tranche_autopilot import steps as rs
+from pursue_index.tranche_autopilot.child_env import INDEX_SLUG
 from pursue_index.tranche_autopilot.eligibility import Eligibility, ReceiptError, assess
+from pursue_index.tranche_autopilot.fetch_target import fetch_target_problem, valid_slug
 from pursue_index.tranche_autopilot.gitops import (
     GitError,
     current_branch,
@@ -56,6 +58,8 @@ class AutopilotConfig:
     behind: Callable[[Path], int] = commits_behind_on_poll_paths
     # Given to `pursue storage verify` only (see tranche_autopilot.child_env).
     storage_env: Mapping[str, str] = field(default_factory=dict, repr=False)
+    # The repo the freshness recheck fetches; never read from git config.
+    expected_slug: str = INDEX_SLUG
 
 
 def receipt_path(repo_root: Path, tranche_sha: str) -> Path:
@@ -142,7 +146,12 @@ class _Run:
         cfg = self.cfg
         if not _SHA.fullmatch(cfg.tranche_sha):
             raise _stop(ExitCode.PRECONDITION, "--tranche must match ^[0-9a-f]{64}$")
+        if not valid_slug(cfg.expected_slug):
+            raise _stop(ExitCode.PRECONDITION, "--expected-repo must be owner/name")
         self.branch = _check_checkout(cfg)
+        problem = fetch_target_problem(cfg.runner, cfg.repo_root, cfg.expected_slug)
+        if problem is not None:
+            raise _stop(ExitCode.PRECONDITION, f"refusing -- {problem}")
         url = origin_url(cfg.runner, cfg.repo_root)
         self.slug = repo_slug(url) if url else None
         baseline = _freshness_baseline(cfg)
@@ -155,7 +164,8 @@ class _Run:
         env = {**cfg.env, "PURSUE_REPO_ROOT": str(cfg.repo_root)}
         self.ctx = rs.Context(cfg.tranche_sha, cfg.repo_root, cfg.runner, env, cfg.behind,
                              self.eligibility, self.steps, receipt, behind_baseline=baseline,
-                             storage_env=cfg.storage_env, slug=self.slug)
+                             storage_env=cfg.storage_env,
+                             fetch_slug=cfg.expected_slug)
         for step_fn in _RUN_ORDER:
             step_fn(self.ctx)
 

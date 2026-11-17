@@ -245,6 +245,13 @@ empty work-list has nothing to OCR); promote; `make ship-ready`;
 `cd web && npm run test`; one local commit (only paths under `data/` and
 `web/`); and a poll freshness re-check.
 
+The re-check fetches `main` from `BPSAI/pursue-index` over anonymous HTTPS,
+with an empty temporary `HOME`. That repo is pinned and is never read from
+git config; `--expected-repo owner/name` overrides it. A checkout whose
+GitHub `origin` names another repo is refused, and so is one whose local
+`url.*.insteadOf` would rewrite the fetch URL. A failed fetch fails the step
+closed.
+
 Exit codes: `10` promoted and committed locally; `20` the tranche needs the
 full attended release above; `21` ineligible, or superseded by a newer poll
 commit; `30` a gate failed (the result names the step); `40` a precondition is

@@ -234,7 +234,7 @@ def test_success_leaves_nothing_modified(tmp_path: Path) -> None:
 def test_gh_lines_name_the_repo_from_origin(tmp_path: Path, url: str) -> None:
     repo = make_checkout(tmp_path, receipt())
     subprocess.run(["git", "remote", "add", "origin", url], cwd=repo, check=True)
-    code, doc = _run(tmp_path, repo, FakeRunner(repo))
+    code, doc = _run(tmp_path, repo, FakeRunner(repo), expected_slug="acme/widgets")
     assert code == ExitCode.DONE
     gh = [line for line in doc["operator_next"] if "gh pr" in line]
     assert len(gh) == 2

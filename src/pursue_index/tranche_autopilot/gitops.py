@@ -12,8 +12,8 @@ from pathlib import Path
 from pursue_index.tranche_autopilot.runner import Runner
 
 __all__ = ["GitError", "changed_paths", "commit_paths", "current_branch", "head_sha",
-           "is_clean", "modified_tracked_paths", "origin_url", "path_summary",
-           "untracked_paths"]
+           "is_clean", "local_url_rewrites", "modified_tracked_paths", "origin_url",
+           "path_summary", "untracked_paths"]
 
 _GIT_TIMEOUT = 120.0
 _PATH_LIST_CAP = 200
@@ -70,6 +70,26 @@ def origin_url(runner: Runner, repo: Path) -> str | None:
     result = runner(["git", "remote", "get-url", "origin"], cwd=repo, timeout=_GIT_TIMEOUT)
     url = result.stdout.strip()
     return url if result.returncode == 0 and url else None
+
+
+def local_url_rewrites(runner: Runner, repo: Path) -> list[tuple[str, str]]:
+    """``(key, prefix)`` for every ``url.<base>.insteadOf`` in the checkout's own
+    config (local and worktree scope, includes followed). System and global
+    config are left out: the fetch ignores them."""
+    result = runner(["git", "config", "--show-scope", "--includes", "--get-regexp",
+                     r"^url\..*\.insteadof$"], cwd=repo, timeout=_GIT_TIMEOUT)
+    if result.returncode == 1:  # no match
+        return []
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout).strip() or f"exit {result.returncode}"
+        raise GitError(f"git config failed: {detail}")
+    rewrites = []
+    for line in result.stdout.splitlines():
+        scope, _, entry = line.partition("\t")
+        key, _, prefix = entry.partition(" ")
+        if scope in ("local", "worktree"):
+            rewrites.append((key, prefix))
+    return rewrites
 
 
 def is_clean(runner: Runner, repo: Path) -> bool:
