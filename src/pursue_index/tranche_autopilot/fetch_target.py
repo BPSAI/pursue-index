@@ -23,7 +23,10 @@ _SLUG = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
 
 
 def valid_slug(slug: str) -> bool:
-    return bool(_SLUG.fullmatch(slug)) and ".." not in slug
+    """``owner/name`` with neither part ``.``, ``..`` or only dots."""
+    if not _SLUG.fullmatch(slug) or ".." in slug:
+        return False
+    return all(part.strip(".") for part in slug.split("/"))
 
 
 def fetch_target_problem(runner: Runner, repo: Path, expected: str) -> str | None:

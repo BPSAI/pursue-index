@@ -122,7 +122,8 @@ def test_the_expected_repo_is_set_by_the_autopilot_config(tmp_path: Path) -> Non
     assert _fetches(runner)[0][-2:] == ["https://github.com/acme/widgets.git", _REFSPEC]
 
 
-@pytest.mark.parametrize("slug", ["", "acme", "acme/../x", "acme/wid;gets", "a/b/c"])
+@pytest.mark.parametrize("slug", ["", "acme", "acme/../x", "acme/wid;gets", "a/b/c",
+                                  "./x", "../x", "acme/.", "acme/..", "acme/...", ".../x"])
 def test_a_malformed_expected_repo_is_refused(tmp_path: Path, slug: str) -> None:
     repo = make_checkout(tmp_path, receipt())
     runner = FakeRunner(repo)
