@@ -134,3 +134,51 @@ def test_the_fetch_forces_tls_verification_and_no_extra_headers() -> None:
     pairs = {argv[i + 1] for i, a in enumerate(argv) if a == "-c"}
     assert "http.sslVerify=true" in pairs
     assert "http.extraHeader=" in pairs
+
+
+# -- credential.<url>.* ----------------------------------------------------------
+
+@pytest.mark.parametrize(("key", "value"), [
+    ("credential.https://github.com.helper", "!touch pwned"),
+    ("credential.https://github.com/BPSAI/.helper", "!touch pwned"),
+    ("credential.https://github.com.username", "someone"),
+    ("credential.helper", "!touch pwned"),
+])
+def test_local_credential_config_that_applies_to_the_fetch_refuses(
+        tmp_path: Path, key: str, value: str) -> None:
+    """Real git: a URL-scoped credential helper can run code during the fetch."""
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", key, value)
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "credential" in doc["message"]
+    assert key in doc["message"]  # git keeps the URL as written; the rest is lowercase
+    assert runner.release_calls() == [] and _fetches(runner) == []
+
+
+def test_worktree_credential_config_refuses(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "extensions.worktreeConfig", "true")
+    _git(repo, "config", "--worktree", "credential.https://github.com.helper", "!true")
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "credential.https://github.com.helper" in doc["message"]
+    assert _fetches(runner) == []
+
+
+def test_credential_config_for_another_host_is_allowed(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "credential.https://example.invalid.helper", "!true")
+    runner = FakeRunner(repo)
+    code, _doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.DONE
+    assert _fetches(runner)
+
+
+def test_the_fetch_clears_askpass() -> None:
+    argv = fetch_argv("acme/widgets")
+    pairs = {argv[i + 1] for i, a in enumerate(argv) if a == "-c"}
+    assert "core.askPass=" in pairs
+    assert "credential.helper=" in pairs

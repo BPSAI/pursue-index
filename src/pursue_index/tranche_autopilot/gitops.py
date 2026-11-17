@@ -104,6 +104,12 @@ def local_http_keys(runner: Runner, repo: Path) -> list[str]:
     return [key for key, _value in _local_config(runner, repo, r"^http\.")]
 
 
+def local_credential_keys(runner: Runner, repo: Path) -> list[str]:
+    """Every local ``credential.*`` key, general (``credential.<var>``) or
+    URL-scoped (``credential.<url>.<var>``)."""
+    return [key for key, _value in _local_config(runner, repo, r"^credential\.")]
+
+
 def is_clean(runner: Runner, repo: Path) -> bool:
     return not changed_paths(runner, repo)
 

@@ -76,9 +76,12 @@ INDEX_SLUG = "BPSAI/pursue-index"
 # checkout whose origin, or a local rewrite, names another repo. TLS
 # verification is forced on and extra headers cleared, but a URL-scoped
 # http.<url>.* key in the checkout beats these, so the engine also refuses any
-# local http.* key that applies to the fetch URL (fetch_target).
+# local http.* key that applies to the fetch URL (fetch_target). Likewise a
+# local credential.* key that applies to it, since a URL-scoped helper can run
+# code; core.askPass is cleared here too.
 _FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
-                 "-c", "credential.helper=", "-c", "core.sshCommand=false",
+                 "-c", "credential.helper=", "-c", "core.askPass=",
+                 "-c", "core.sshCommand=false",
                  "-c", "protocol.allow=never", "-c", "protocol.https.allow=always",
                  "-c", "core.alternateRefsCommand=", "-c", "gc.auto=0", "-c", "http.proxy=",
                  "-c", "http.sslVerify=true", "-c", "http.extraHeader=")

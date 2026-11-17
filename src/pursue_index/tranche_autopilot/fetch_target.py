@@ -3,9 +3,10 @@
 The fetch target is a slug the autopilot is given (``child_env.INDEX_SLUG``
 unless its config or CLI says otherwise), never one read from git config.
 This module only refuses: a GitHub ``origin`` naming another repo, a local
-``insteadOf`` that would rewrite the fetch URL, or a local ``http.*`` key that
-applies to it (a proxy, TLS or header setting) means the checkout is not the
-index or its config is redirecting or reshaping the fetch, so the run stops.
+``insteadOf`` that would rewrite the fetch URL, or a local ``http.*`` or
+``credential.*`` key that applies to it (a proxy, TLS or header setting, or a
+credential helper that could run code) means the checkout is not the index or
+its config is redirecting or reshaping the fetch, so the run stops.
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from pathlib import Path
 from pursue_index.tranche_autopilot.child_env import fetch_url
 from pursue_index.tranche_autopilot.gitops import (
     GitError,
+    local_credential_keys,
     local_http_keys,
     local_url_rewrites,
     origin_url,
@@ -46,6 +48,7 @@ def fetch_target_problem(runner: Runner, repo: Path, expected: str) -> str | Non
     try:
         rewrites = local_url_rewrites(runner, repo)
         http_keys = local_http_keys(runner, repo)
+        credential_keys = local_credential_keys(runner, repo)
     except GitError as exc:
         return f"cannot read the checkout's fetch config: {exc}"
     target = fetch_url(expected)
@@ -56,15 +59,17 @@ def fetch_target_problem(runner: Runner, repo: Path, expected: str) -> str | Non
     if hits:
         return (f"the checkout's config rewrites the fetch URL of {expected} "
                 f"({', '.join(hits)}); remove the insteadOf to run the autopilot")
-    applied = sorted(key for key in http_keys if _http_key_applies(key, target))
-    if applied:
-        return (f"the checkout's config sets http options for the fetch of {expected} "
-                f"({', '.join(applied)}); remove them to run the autopilot")
+    for section, keys in (("http", http_keys), ("credential", credential_keys)):
+        applied = sorted(key for key in keys if _scoped_key_applies(section, key, target))
+        if applied:
+            return (f"the checkout's config sets {section} options for the fetch of "
+                    f"{expected} ({', '.join(applied)}); remove them to run the autopilot")
     return None
 
 
-def _http_key_applies(key: str, target: str) -> bool:
-    """``http.<var>`` applies to every URL; ``http.<url>.<var>`` to the URLs git
-    matches it against (URL-specific keys win over the fetch's ``-c`` ones)."""
-    config_url = key[len("http."):].rpartition(".")[0]
+def _scoped_key_applies(section: str, key: str, target: str) -> bool:
+    """``<section>.<var>`` applies to every URL; ``<section>.<url>.<var>`` to
+    the URLs git matches it against (URL-specific http keys win over the
+    fetch's ``-c`` ones, and a credential helper can run code)."""
+    config_url = key[len(section) + 1:].rpartition(".")[0]
     return not config_url or config_url_applies(config_url, target)
