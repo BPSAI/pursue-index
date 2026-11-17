@@ -27,9 +27,9 @@ from pursue_index.transcribe.asr_diff import (
 
 log = get_logger(__name__)
 
-#: Audio path -> engine B's transcript text. Production wiring (which
-#: vendor, which credentials) is the operator's call and is made at the
-#: call site, not here.
+#: Audio path -> engine B's transcript text. The local engine is
+#: ``engine_b_parakeet.make_parakeet_engine`` (wired by ``asr-diff live``);
+#: any other engine is the operator's call, made at the call site.
 SecondEngineFn = Callable[[Path], str]
 
 
