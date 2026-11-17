@@ -63,8 +63,24 @@ committed payload predates.
 
 ## Making the asset
 
-The release operator packs the intermediates from the data root the release
-was built from:
+The release build packs the intermediates itself when given the release's
+label:
+
+```bash
+make ship-ready INTERMEDIATES_LABEL=vX.Y.Z    # PURSUE_DATA_ROOT set to the data root
+```
+
+After the derived payloads are rebuilt and the site is built (the data root
+is final by then), just before stamping, ship-ready packs the intermediates into
+`$PURSUE_DATA_ROOT/release-assets/vX.Y.Z/`, outside the repository, runs
+`rebuild-check` on the result pinned to the `SHA256SUMS` it just wrote, and
+then stamps `data/build-stamp.json` with the tarball's name and sha256. Its
+closing `build_stamp.py verify` checks the tarball against the stamp too. It
+refuses a label that is not `vX.Y.Z`, a label without `PURSUE_DATA_ROOT`, and a
+`PURSUE_DATA_ROOT` inside the repository, before any build time is spent.
+Without `INTERMEDIATES_LABEL`, ship-ready neither packs nor pins anything.
+
+The same steps by hand:
 
 ```bash
 python scripts/intermediates.py pack --data-root <data root> --out-dir <dir> --label <tag>
@@ -72,7 +88,22 @@ python scripts/intermediates.py rebuild-check --tarball <dir>/intermediates-<tag
     --expect-sha256 "$(cut -d' ' -f1 <dir>/SHA256SUMS)"
 ```
 
-The release notes then carry that sha256, so readers can pin it.
+## Attaching the asset to the Release
+
+After the release commit carrying that stamp is merged, tagged, and its
+Release created (`gh release create vX.Y.Z`):
+
+```bash
+make release-intermediates TAG=vX.Y.Z
+```
+
+It runs `sha256sum -c` on the packed files, then refuses unless the stamp
+committed at `HEAD` pins the tarball, and unless no packed QC row carries a
+field the pack drops. Only then does it run
+`gh release upload vX.Y.Z intermediates-vX.Y.Z.tar.gz SHA256SUMS`. It never
+creates the Release, edits its notes, or replaces an asset already attached
+(no `--clobber`); replacing one is a deliberate manual step. It prints the
+`SHA256SUMS` line; paste it into the release notes, so readers can pin it.
 
 The archive is deterministic: members are sorted and their times and owners
 are zeroed, so the same inputs always give the same sha256. Backup and partial
