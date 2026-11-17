@@ -185,13 +185,15 @@ def run_pending(
     would follow as a playlist -- is skipped and reported.
     """
     budget = AsrDiffBudget(cap_usd=0.0)
+    pending = [row for row in rows if row.state == "pending"]
     calls = [_row_call(row, ocr_dir, engine_b, engine, budget, on_row, expected_sha)
-             for row in rows if row.state == "pending"]
+             for row in pending]
     # run_rows is the runner's shared-budget loop: it stops at the first cap
     # breach. The local engine's $0 rate never breaches, but the loop is the same.
     done, stopped = run_rows(calls)
     if stopped is not None and on_row:
-        on_row(rows[0], None, "stopped: budget cap reached")
+        # done holds one entry per call that returned, so the breach was the next row.
+        on_row(pending[len(done)], None, "stopped: budget cap reached")
     return [r for r in done if r is not None]
 
 

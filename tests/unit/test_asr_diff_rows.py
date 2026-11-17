@@ -174,3 +174,41 @@ def test_a_card_listed_twice_is_one_row_in_the_preview_as_in_the_live_plan(tmp_p
     manifest = _manifest(tmp_path, [CID, CID])
     assert aud_card_ids(manifest, None) == [CID]
     assert "1 row(s) would be compared" in _preview(tmp_path, manifest)
+
+
+# -- row 4: the cap-stop notice names the row that stopped the pass -------------
+
+class _RefuseThird:
+    """A budget that affords two rows and refuses the third."""
+
+    def __init__(self, cap_usd: float) -> None:
+        self.cap_usd, self.spent_usd, self.asked = cap_usd, 0.0, 0
+
+    def can_afford(self, cost_usd: float) -> bool:
+        self.asked += 1
+        return self.asked < 3
+
+    def charge(self, cost_usd: float) -> None:
+        self.spent_usd += cost_usd
+
+
+def test_the_cap_stop_notice_names_the_row_that_stopped_the_pass(tmp_path, monkeypatch) -> None:
+    ids = ["e1" * 8, "e2" * 8, "e3" * 8, "e4" * 8]
+    audio = tmp_path / "audio"
+    (audio / "by-card").mkdir(parents=True)
+    for cid in ids:
+        card_dir = _meta(tmp_path, cid, {"audio_duration_s": 60.0})
+        (card_dir / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "roger"}) + "\n")
+        (audio / "by-card" / f"{cid}.mp4").write_bytes(b"x")
+    plan = asr_diff_live.plan_rows([(c, "", None) for c in ids], tmp_path / "ocr", audio, "fake")
+    assert [r.state for r in plan] == ["pending"] * 4
+    monkeypatch.setattr(asr_diff_live, "AsrDiffBudget", _RefuseThird)
+    heard: list[Path] = []
+    notices: list[tuple[str, str]] = []
+    reports = asr_diff_live.run_pending(
+        plan, tmp_path / "ocr", "fake", lambda p: heard.append(p) or "roger",
+        on_row=lambda row, report, problem: notices.append((row.card_id, problem)),
+    )
+    assert len(reports) == 2 and len(heard) == 2
+    assert (ids[2], "stopped: budget cap reached") in notices
+    assert all(cid != ids[0] for cid, problem in notices if problem.startswith("stopped"))
