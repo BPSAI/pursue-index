@@ -71,6 +71,11 @@
       "file": "scripts/build_atlas_layout.py",
       "symbol": "build_atlas_layout",
       "kind": "module"
+    },
+    {
+      "file": "scripts/build_llms_txt.py",
+      "symbol": "build_llms_txt",
+      "kind": "module"
     }
   ]
 }
