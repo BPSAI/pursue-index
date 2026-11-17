@@ -407,3 +407,40 @@ def test_a_pages_json_that_is_not_a_list_is_named_once(tmp_path: Path) -> None:
     cleaned.write_text(json.dumps({"pages": [{"card_id": "c1", "page": 1}]}))
     gaps = build_qc_coverage._page_provenance_gaps(cleaned, pages_path, {"c1"}, {})
     assert gaps == ["pages.json is dict, not a list of page rows"]
+
+
+def test_each_chunked_asset_is_read_once_per_run(tmp_path: Path, monkeypatch) -> None:
+    """``build`` and the digest-verification pass share one read per asset."""
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps(_manifest([_row("c1", "pdf")])))
+    bundle = tmp_path / "bundle.json"
+    # A digest-bearing card so the verification pass reaches pages and cleaned.
+    bundle_doc = _bundle({"c1": 1})
+    bundle_doc["cards"][0]["judged_pages_digest"] = "x"
+    bundle.write_text(json.dumps(bundle_doc))
+    pages_path = tmp_path / "pages.json"
+    pages_path.write_text(json.dumps([_page("c1", 1, "text")]))
+    cleaned = tmp_path / "pages-cleaned.json"
+    cleaned.write_text(json.dumps({"pages": [{"card_id": "c1", "page": 1}]}))
+    obs = tmp_path / "index.json"
+    obs.write_text(json.dumps({"card_ids": []}))
+
+    reads: list[str] = []
+    real = build_qc_coverage.read_asset_json
+
+    def counting(path):
+        reads.append(Path(path).name)
+        return real(path)
+
+    monkeypatch.setattr(build_qc_coverage, "read_asset_json", counting)
+    reader = build_qc_coverage._AssetReader()
+    doc = build_qc_coverage.build(
+        manifest_path=manifest, bundle_path=bundle, pages_path=pages_path,
+        observations_path=obs, out_path=tmp_path / "out.json",
+        pages_cleaned_path=cleaned, reader=reader,
+    )
+    build_qc_coverage._verification_gaps(
+        bundle, cleaned, {c["card_id"]: "judged" for c in doc["cards"]}, pages_path, {}, reader,
+    )
+    assert reads.count("pages.json") == 1
+    assert reads.count("pages-cleaned.json") == 1
