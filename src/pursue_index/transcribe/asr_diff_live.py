@@ -17,6 +17,7 @@ engine's text is treated as correct, and agreement is not an accuracy score.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from collections.abc import Callable
@@ -102,6 +103,29 @@ def mirror_audio(registry_path: Path, mirror_dir: Path) -> dict[str, Path]:
     return out
 
 
+def registry_shas(registry_path: Path) -> dict[str, str]:
+    """``{card_id: byte_sha256}`` from the asset-bytes registry (last row wins)."""
+    out: dict[str, str] = {}
+    if not registry_path.is_file():
+        return out
+    for line in registry_path.read_text(encoding="utf-8").splitlines():
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(row, dict) and row.get("card_id") and isinstance(row.get("byte_sha256"), str):
+            out[str(row["card_id"])] = row["byte_sha256"]
+    return out
+
+
+def file_sha256(path: Path, chunk: int = 1 << 20) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for block in iter(lambda: fh.read(chunk), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def _duration(meta: dict, row: dict) -> float:
     value = row.get("audio_duration_s")
     if value is None and len(meta.get("rows") or []) <= 1:
@@ -173,8 +197,15 @@ def estimate(rows: list[LiveRow]) -> dict[str, float]:
 def run_pending(
     rows: list[LiveRow], ocr_dir: Path, engine_b: str, engine: SecondEngineFn,
     on_row: Callable[[LiveRow, RowAsrDiffReport | None, str], None] | None = None,
+    expected_sha: dict[str, str] | None = None,
 ) -> list[RowAsrDiffReport]:
-    """Run ``engine`` over every pending row whose audio is staged."""
+    """Run ``engine`` over every pending row whose audio is staged.
+
+    With ``expected_sha`` (the registry's ``byte_sha256`` per card), a row's
+    audio is hashed first and only bytes matching the registry reach the
+    engine: anything else -- including a substituted file, or one ffmpeg
+    would follow as a playlist -- is skipped and reported.
+    """
     budget = AsrDiffBudget(cap_usd=0.0)
     reports: list[RowAsrDiffReport] = []
     for row in rows:
@@ -184,6 +215,12 @@ def run_pending(
             if on_row:
                 on_row(row, None, "audio not staged")
             continue
+        if expected_sha is not None:
+            want = expected_sha.get(row.card_id)
+            if want is None or file_sha256(row.audio_path) != want:
+                if on_row:
+                    on_row(row, None, "audio sha256 does not match the registry")
+                continue
         card_dir = ocr_dir / row.card_id
         meta = sidecar.read_meta(card_dir) or {}
         report = run_row(

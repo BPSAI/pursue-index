@@ -112,7 +112,9 @@ def asr_diff_live(
         console.print("Not started: pass --confirm to run the second engine.")
         return
     engine = engine_factory(device)
-    reports = live.run_pending(rows, out_dir, ENGINE_B_NAME, engine, on_row=_report_row)
+    shas = live.registry_shas(registry or ingest_defaults.DEFAULT_ASSET_REGISTRY)
+    reports = live.run_pending(rows, out_dir, ENGINE_B_NAME, engine, on_row=_report_row,
+                               expected_sha=shas)
     flagged = sum(r.status == "review" for r in reports)
     console.print(
         f"Compared {len(reports)} row(s): {flagged} flagged for human review. "

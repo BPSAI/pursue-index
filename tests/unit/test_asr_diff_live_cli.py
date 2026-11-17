@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -40,12 +41,16 @@ def _setup(tmp_path: Path) -> tuple[Path, Path, Path]:
             {"page": 1, "text": "Speaker A: Roger, I see it.\n\nSpeaker B: Copy that."}) + "\n")
     (audio / "by-card").mkdir(parents=True)
     (audio / "by-card" / f"{A}.mp4").write_bytes(b"x")
+    # The staged audio's registered sha: the live pass only sends matching bytes.
+    (tmp_path / "reg.jsonl").write_text(json.dumps(
+        {"card_id": A, "byte_sha256": hashlib.sha256(b"x").hexdigest()}) + "\n")
     return manifest, ocr, audio
 
 
 def _args(manifest: Path, ocr: Path, audio: Path, *extra: str) -> list[str]:
     return ["transcribe", "asr-diff", "live", "--manifest", str(manifest),
-            "--out", str(ocr), "--audio-dir", str(audio), *extra]
+            "--out", str(ocr), "--audio-dir", str(audio),
+            "--registry", str(manifest.parent / "reg.jsonl"), *extra]
 
 
 @pytest.fixture
@@ -139,3 +144,28 @@ def test_a_mirror_copy_of_the_wrong_size_is_not_used(tmp_path) -> None:
     registry = tmp_path / "reg.jsonl"
     registry.write_text(json.dumps({"card_id": A, "archive_key": "archive/x.mp4", "byte_size": 4}) + "\n")
     assert asr_diff_live.mirror_audio(registry, mirror) == {}
+
+
+def _engine_spy(monkeypatch) -> list:
+    heard: list = []
+    monkeypatch.setattr(asr_diff_live_cli, "engine_factory",
+                        lambda _device: (lambda path: heard.append(path) or "Roger, I see it. Copy that."))
+    return heard
+
+
+def test_audio_that_does_not_match_its_registered_sha_never_reaches_the_engine(
+        tmp_path, monkeypatch) -> None:
+    manifest, ocr, audio = _setup(tmp_path)
+    (audio / "by-card" / f"{A}.mp4").write_bytes(b"substituted")  # same path, other bytes
+    heard = _engine_spy(monkeypatch)
+    result = runner.invoke(app, _args(manifest, ocr, audio, "--confirm"))
+    assert heard == []
+    assert "does not match the registry" in result.output
+
+
+def test_audio_with_no_registered_sha_never_reaches_the_engine(tmp_path, monkeypatch) -> None:
+    manifest, ocr, audio = _setup(tmp_path)
+    (tmp_path / "reg.jsonl").write_text("")
+    heard = _engine_spy(monkeypatch)
+    result = runner.invoke(app, _args(manifest, ocr, audio, "--confirm"))
+    assert heard == [] and "does not match the registry" in result.output
