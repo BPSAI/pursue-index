@@ -334,6 +334,9 @@ SEMVER_TAG_RE = ^v[0-9]+\.[0-9]+\.[0-9]+$$
 # rebuild-check compares).
 ifneq ($(INTERMEDIATES_LABEL),)
 release-completeness: intermediates-label
+# Declared, not left to ship-ready's prerequisite order, so `make -j` can't
+# pack before the data root is final.
+intermediates-pack: rebuild-derivatives
 stamp: intermediates-pack
 endif
 

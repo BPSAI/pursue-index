@@ -11,7 +11,8 @@ refuses (non-zero, with the reason) unless:
 2. the build stamp committed at ``HEAD`` pins this tarball's sha256 (the check
    ``build_stamp.py verify --intermediates`` makes, against the committed
    stamp, not a working-tree edit of it);
-3. no packed QC sidecar row still carries a field the pack drops.
+3. no packed QC sidecar row still carries a field the pack drops;
+4. ``HEAD`` is the tag's commit, so the stamp that vouches is the release's own.
 
 Only then does it run ``gh release upload <tag> <tarball> <SHA256SUMS>``. It
 never creates the Release, edits its notes, or replaces an existing asset
@@ -71,10 +72,33 @@ def dropped_field_rows(tarball: Path) -> list[str]:
             src = tar.extractfile(member)
             assert src is not None
             for n, line in enumerate(src, 1):
-                row = json.loads(line) if line.strip() else None
+                try:
+                    row = json.loads(line) if line.strip() else None
+                except ValueError as exc:
+                    raise SystemExit(f"release-intermediates: {member.name}:{n} "
+                                     "is not JSON") from exc
                 if isinstance(row, dict) and any(f in row for f in QC_DROP_FIELDS):
                     hits.append(f"{member.name}:{n}")
     return hits
+
+
+def head_tag_problem(root: Path, tag: str) -> str | None:
+    """Why ``HEAD`` in ``root`` is not the tagged release, or ``None`` if it is.
+
+    The stamp that pins the archive is read at ``HEAD``, so ``HEAD`` must be
+    the tag's commit, or another release's stamp could vouch for this upload.
+    """
+    def rev(ref: str) -> str | None:
+        out = subprocess.run(["git", "-C", str(root), "rev-parse", "--verify", "--quiet",
+                              f"{ref}^{{commit}}"], capture_output=True, text=True, check=False)
+        return out.stdout.strip() if out.returncode == 0 else None
+
+    tagged = rev(f"refs/tags/{tag}")
+    if tagged is None:
+        return f"no tag {tag} in {root}; fetch tags first"
+    if rev("HEAD") != tagged:
+        return f"HEAD is not {tag}; check out the tag before attaching its archive"
+    return None
 
 
 def release(tag: str, out_dir: Path, root: Path, run: Runner | None = None) -> int:
@@ -94,6 +118,9 @@ def release(tag: str, out_dir: Path, root: Path, run: Runner | None = None) -> i
     if leaked:
         raise SystemExit(f"release-intermediates: {len(leaked)} packed QC row(s) still carry "
                          f"{', '.join(QC_DROP_FIELDS)}: {', '.join(leaked[:5])}")
+    problem = head_tag_problem(root, tag)
+    if problem:
+        raise SystemExit(f"release-intermediates: {problem}")
     argv = ["gh", "release", "upload", tag, str(tarball), str(sums)]
     rc = (run or run_upload)(argv)
     if rc != 0:

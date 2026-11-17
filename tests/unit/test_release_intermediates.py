@@ -59,6 +59,7 @@ def _repo(tmp_path: Path, tarball: Path | None) -> Path:
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
     subprocess.run(["git", "-C", str(repo), *_IDENT, "add", "-A"], check=True)
     subprocess.run(["git", "-C", str(repo), *_IDENT, "commit", "-qm", "stamp"], check=True)
+    subprocess.run(["git", "-C", str(repo), "tag", TAG], check=True)
     return repo
 
 
@@ -200,3 +201,36 @@ def test_main_wires_the_default_runner(tmp_path: Path, monkeypatch: pytest.Monke
     monkeypatch.setattr(release_intermediates, "run_upload", runner)
     rc = release_intermediates.main(["--tag", TAG, "--dir", str(out), "--root", str(repo)])
     assert rc == 0 and runner.calls[0][:4] == ["gh", "release", "upload", TAG]
+
+
+def test_head_not_at_the_tag_is_refused(tmp_path: Path) -> None:
+    # The stamp that pins the archive must be the tagged release's stamp.
+    out = _pack(tmp_path)
+    repo = _repo(tmp_path, out / f"intermediates-{TAG}.tar.gz")
+    subprocess.run(["git", "-C", str(repo), *_IDENT, "commit", "-q", "--allow-empty",
+                    "-m", "later"], check=True)
+    _refused(out, repo, f"HEAD is not {TAG}")
+
+
+def test_a_tag_missing_locally_is_refused(tmp_path: Path) -> None:
+    out = _pack(tmp_path)
+    repo = _repo(tmp_path, out / f"intermediates-{TAG}.tar.gz")
+    subprocess.run(["git", "-C", str(repo), "tag", "-d", TAG], check=True,
+                   capture_output=True)
+    _refused(out, repo, f"no tag {TAG}")
+
+
+def test_a_malformed_qc_row_is_a_clean_refusal(tmp_path: Path) -> None:
+    out = _pack(tmp_path)
+    tarball = out / f"intermediates-{TAG}.tar.gz"
+    with tarfile.open(tarball, "r:gz") as tar:
+        blobs = {m.name: tar.extractfile(m).read() for m in tar}  # type: ignore[union-attr]
+    qc = next(n for n in blobs if n.endswith("/pages_cleaned_qc.jsonl"))
+    blobs[qc] = b"{not json\n"
+    with tarfile.open(tarball, "w:gz") as tar:
+        for name, data in blobs.items():
+            info = tarfile.TarInfo(name)
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+    (out / "SHA256SUMS").write_text(f"{build_stamp.sha256_file(tarball)}  {tarball.name}\n")
+    _refused(out, _repo(tmp_path, tarball), "is not JSON")
