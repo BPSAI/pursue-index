@@ -30,6 +30,7 @@ from pursue_index.transcribe.asr_diff_runner import (
     RowAsrDiffReport,
     SecondEngineFn,
     run_row,
+    run_rows,
 )
 from pursue_index.transcribe.eligibility import EligibleItem, audio_path_for
 
@@ -207,20 +208,31 @@ def run_pending(
     would follow as a playlist -- is skipped and reported.
     """
     budget = AsrDiffBudget(cap_usd=0.0)
-    reports: list[RowAsrDiffReport] = []
-    for row in rows:
-        if row.state != "pending":
-            continue
+    calls = [_row_call(row, ocr_dir, engine_b, engine, budget, on_row, expected_sha)
+             for row in rows if row.state == "pending"]
+    # run_rows is the runner's shared-budget loop: it stops at the first cap
+    # breach. The local engine's $0 rate never breaches, but the loop is the same.
+    done, stopped = run_rows(calls)
+    if stopped is not None and on_row:
+        on_row(rows[0], None, "stopped: budget cap reached")
+    return [r for r in done if r is not None]
+
+
+def _row_call(
+    row: LiveRow, ocr_dir: Path, engine_b: str, engine: SecondEngineFn, budget: AsrDiffBudget,
+    on_row: Callable[[LiveRow, RowAsrDiffReport | None, str], None] | None,
+    expected_sha: dict[str, str] | None,
+) -> Callable[[], RowAsrDiffReport | None]:
+    """One row's call for ``run_rows``. The audio is checked inside the call, just
+    before the engine reads it, so the check-to-read gap stays small. A row
+    that fails a check is reported and yields ``None``."""
+    def call() -> RowAsrDiffReport | None:
         if row.audio_path is None or not row.audio_path.is_file():
-            if on_row:
-                on_row(row, None, "audio not staged")
-            continue
+            return _skip(row, on_row, "audio not staged")
         if expected_sha is not None:
             want = expected_sha.get(row.card_id)
             if want is None or file_sha256(row.audio_path) != want:
-                if on_row:
-                    on_row(row, None, "audio sha256 does not match the registry")
-                continue
+                return _skip(row, on_row, "audio sha256 does not match the registry")
         card_dir = ocr_dir / row.card_id
         meta = sidecar.read_meta(card_dir) or {}
         report = run_row(
@@ -230,7 +242,13 @@ def run_pending(
             audio_duration_s=row.duration_s, rate_usd_per_minute=RATE_USD_PER_MINUTE,
             budget=budget,
         )
-        reports.append(report)
         if on_row:
             on_row(row, report, "")
-    return reports
+        return report
+    return call
+
+
+def _skip(row: LiveRow, on_row: Callable | None, reason: str) -> None:
+    if on_row:
+        on_row(row, None, reason)
+    return None
