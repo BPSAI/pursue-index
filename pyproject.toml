@@ -139,6 +139,11 @@ pursue = "pursue_index.cli.commands:app"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv]
+# The gpu extra pins transformers<5 and asr-b needs >=5.23: never resolve them
+# together (each needs its own environment).
+conflicts = [[{ extra = "gpu" }, { extra = "asr-b" }]]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/pursue_index"]
 

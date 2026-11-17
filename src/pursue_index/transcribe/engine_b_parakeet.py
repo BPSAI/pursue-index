@@ -47,8 +47,11 @@ def decode_audio(path: Path) -> Any:
     """``path`` as 16 kHz mono float32 samples (numpy), via ffmpeg."""
     import numpy as np
 
+    # ``file:`` plus a file-only protocol whitelist: the path can never be read
+    # as a URL or another ffmpeg protocol, whatever it contains.
     proc = subprocess.run(
-        ["ffmpeg", "-nostdin", "-v", "error", "-i", str(path), "-vn", "-ac", "1",
+        ["ffmpeg", "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+         "-i", f"file:{Path(path).resolve()}", "-vn", "-ac", "1",
          "-ar", str(SAMPLE_RATE), "-f", "f32le", "pipe:1"],
         capture_output=True, check=True,
     )

@@ -106,3 +106,23 @@ def test_loader_uses_the_pinned_revision(monkeypatch) -> None:
 def test_make_engine_wraps_the_loader() -> None:
     engine = eb.make_parakeet_engine("cpu", loader=lambda device: (lambda _s: device))
     assert isinstance(engine, eb.ParakeetEngine)
+
+
+def test_decode_audio_reads_a_local_file_through_the_file_protocol_only(tmp_path) -> None:
+    """Real ffmpeg on a generated 1 s tone; a URL-like name stays a local path."""
+    import shutil
+    import subprocess
+
+    import pytest
+
+    np = pytest.importorskip("numpy")
+    if shutil.which("ffmpeg") is None:
+        pytest.skip("ffmpeg not installed")
+    from pursue_index.transcribe import engine_b_parakeet as eb
+
+    wav = tmp_path / "http:evil.wav"  # would be a URL if passed without file:
+    subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-f", "lavfi", "-i",
+                    "sine=frequency=440:duration=1", "-ar", "16000", "-ac", "1", str(wav)],
+                   check=True)
+    samples = eb.decode_audio(wav)
+    assert isinstance(samples, np.ndarray) and abs(len(samples) - 16000) < 400
