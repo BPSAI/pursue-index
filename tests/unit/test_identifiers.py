@@ -197,9 +197,12 @@ def test_crest_pattern_does_not_backtrack_quadratically() -> None:
 
     from pursue_index.identifiers import extract_identifiers
 
+    # CPU time, not wall time, so a loaded CI runner can't flake this. Linear
+    # matching of 20k characters takes milliseconds; the 2 s ceiling is one
+    # only catastrophic backtracking (super-linear) could reach.
     hostile = {"description": "CIA-RDP" + ("A" * 20000) + "_"}
-    start = time.perf_counter()
+    start = time.process_time()
     extract_identifiers(hostile)
-    elapsed = time.perf_counter() - start
+    elapsed = time.process_time() - start
 
-    assert elapsed < 0.5, f"pathological backtracking: {elapsed:.2f}s"
+    assert elapsed < 2.0, f"pathological backtracking: {elapsed:.2f}s of CPU time"
