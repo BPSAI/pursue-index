@@ -1,7 +1,7 @@
 """The live second-engine pass over AUD rows: plan, dry-run estimate, run.
 
-``plan_rows`` walks the same rows as the ``asr-diff run`` preview and labels
-each one ``pending`` (to compare), ``compared`` (a comparison under this
+``plan_rows`` walks the same rows as the ``asr-diff run`` preview, with the
+same check (``asr_diff_rows.card_row_states``), and labels each one ``pending`` (to compare), ``compared`` (a comparison under this
 engine pair already covers the current transcript) or ``skipped`` (with the
 reason). ``run_pending`` hands each pending row to
 ``asr_diff_runner.run_row`` with the second engine supplied by the caller.
@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pursue_index.transcribe import asr_diff_sidecar as sidecar
-from pursue_index.transcribe.asr_diff_rows import row_duration
+from pursue_index.transcribe.asr_diff_rows import card_row_states
 from pursue_index.transcribe.asr_diff_runner import (
     AsrDiffBudget,
     RowAsrDiffReport,
@@ -132,29 +132,15 @@ def _card_rows(
     card_id: str, title: str, ocr_dir: Path, audio_dir: Path, engine_b: str,
     dvids_video_id: str | None, mirrored: dict[str, Path],
 ) -> list[LiveRow]:
-    card_dir = ocr_dir / card_id
-    meta = sidecar.read_meta(card_dir)
-    if not meta or meta.get("status") != "ok":
-        return [LiveRow(card_id, "", "skipped", 0.0, reason="no completed transcript")]
-    rows = meta.get("rows") or [{"row_key": ""}]
-    if len(rows) > 1:
-        return [LiveRow(card_id, str(r.get("row_key", "") or ""), "skipped", row_duration(meta, r),
-                        reason="multi-row card: pages are not separable per row") for r in rows]
-    row = rows[0]
-    row_key = str(row.get("row_key", "") or "")
-    engine_a = str(meta.get("engine", ""))
-    prior = sidecar.load_existing(card_dir / sidecar.SIDECAR_FILE).get(row_key)
-    current = prior and sidecar.should_skip(
-        prior, engine_a=engine_a, engine_b=engine_b,
-        transcript_version=sidecar.transcript_version(card_dir),
-        pages_digest=sidecar.card_pages_digest(card_dir),
-    )
-    item = EligibleItem(card_id=card_id, title=title, dvids_video_id=dvids_video_id, row_key=row_key)
+    states = card_row_states(ocr_dir / card_id, engine_b)
+    if any(s.state == "skipped" for s in states):
+        return [LiveRow(card_id, s.row_key, s.state, s.duration_s, reason=s.reason) for s in states]
+    (row,) = states
+    item = EligibleItem(card_id=card_id, title=title, dvids_video_id=dvids_video_id, row_key=row.row_key)
     audio = audio_path_for(item, audio_dir)
     if not audio.is_file() and card_id in mirrored:
         audio = mirrored[card_id]
-    state = "compared" if current else "pending"
-    return [LiveRow(card_id, row_key, state, row_duration(meta, row), audio, engine_a)]
+    return [LiveRow(card_id, row.row_key, row.state, row.duration_s, audio, row.engine_a)]
 
 
 def plan_rows(

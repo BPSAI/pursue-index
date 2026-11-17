@@ -14,6 +14,7 @@ from pursue_index.cli import asr_diff_cli, asr_diff_live_cli
 from pursue_index.cli.commands import app
 from pursue_index.scrape.types import CardMetadata, Manifest
 from pursue_index.transcribe import asr_diff_live
+from pursue_index.transcribe import asr_diff_sidecar as sidecar
 from pursue_index.transcribe.asr_diff_rows import aud_card_ids, row_duration
 
 runner = CliRunner()
@@ -114,3 +115,62 @@ def test_both_clis_use_the_public_selection() -> None:
     assert not hasattr(asr_diff_live_cli, "_aud_card_ids")
     assert asr_diff_cli.aud_card_ids is aud_card_ids
     assert asr_diff_live_cli.aud_card_ids is aud_card_ids
+
+
+# -- row 1: one "already compared" check ---------------------------------------
+
+def _compared(card_dir: Path, engine_b: str, **extra: object) -> None:
+    (card_dir / sidecar.SIDECAR_FILE).write_text(json.dumps({
+        "row_key": "", "engine_a": "assemblyai", "engine_b": engine_b,
+        "status": "judged", "agreement": 1.0, **extra}) + "\n")
+
+
+def _plan_split(tmp_path: Path, card_ids: list[str], engine_b: str = "fake") -> dict[str, float]:
+    plan = asr_diff_live.plan_rows([(c, "", None) for c in card_ids], tmp_path / "ocr",
+                                   tmp_path / "audio", engine_b)
+    return asr_diff_live.estimate(plan)
+
+
+def test_a_multi_row_card_is_skipped_by_the_preview_as_by_the_live_plan(tmp_path: Path) -> None:
+    """The old preview costed each row of a multi-row card; the live plan skips them."""
+    _meta(tmp_path, CID, {"rows": [{"row_key": "r1", "audio_duration_s": 60.0},
+                                   {"row_key": "r2", "audio_duration_s": 60.0}]})
+    out = _preview(tmp_path, _manifest(tmp_path, [CID]))
+    split = _plan_split(tmp_path, [CID])
+    assert split["pending"] == 0 and split["skipped"] == 2
+    assert "0 row(s) would be compared" in out
+    assert "0 already compared, 2 skipped" in out
+
+
+def test_a_comparison_of_older_pages_is_pending_in_the_preview_as_in_the_live_plan(
+    tmp_path: Path,
+) -> None:
+    """The old preview ignored the pages digest, so a comparison of pages since
+    re-written still read as compared there while the live plan re-runs it."""
+    card_dir = _meta(tmp_path, CID, {"audio_duration_s": 60.0})
+    (card_dir / "pages.jsonl").write_text(json.dumps({"page": 1, "text": "new text"}) + "\n")
+    _compared(card_dir, "fake", pages_digest="0" * 64)
+    out = _preview(tmp_path, _manifest(tmp_path, [CID]))
+    split = _plan_split(tmp_path, [CID])
+    assert split["pending"] == 1
+    assert "1 row(s) would be compared" in out
+
+
+def test_preview_reports_the_live_plans_split(tmp_path: Path) -> None:
+    ids = ["d1" * 8, "d2" * 8, "d3" * 8, "d4" * 8]
+    _meta(tmp_path, ids[0], {"audio_duration_s": 60.0})                      # pending
+    _compared(_meta(tmp_path, ids[1], {"audio_duration_s": 60.0}), "fake")   # compared
+    _meta(tmp_path, ids[2], {"rows": [{"row_key": "a"}, {"row_key": "b"}]})  # 2 skipped
+    # ids[3]: no transcript -> skipped
+    out = _preview(tmp_path, _manifest(tmp_path, ids))
+    s = _plan_split(tmp_path, ids)
+    assert (s["pending"], s["compared"], s["skipped"]) == (1, 1, 3)
+    assert "1 row(s) would be compared" in out
+    assert "1 already compared, 3 skipped" in out
+
+
+def test_a_card_listed_twice_is_one_row_in_the_preview_as_in_the_live_plan(tmp_path: Path) -> None:
+    _meta(tmp_path, CID, {"audio_duration_s": 60.0})
+    manifest = _manifest(tmp_path, [CID, CID])
+    assert aud_card_ids(manifest, None) == [CID]
+    assert "1 row(s) would be compared" in _preview(tmp_path, manifest)
