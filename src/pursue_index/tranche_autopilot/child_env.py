@@ -73,11 +73,15 @@ INDEX_SLUG = "BPSAI/pursue-index"
 # helper, and core.sshCommand is set to false as a second stop. The fetch
 # goes to the pinned repo over anonymous HTTPS (pursue-index is public) and
 # updates the origin/main ref the comparison reads; the engine refuses a
-# checkout whose origin, or a local rewrite, names another repo.
+# checkout whose origin, or a local rewrite, names another repo. TLS
+# verification is forced on and extra headers cleared, but a URL-scoped
+# http.<url>.* key in the checkout beats these, so the engine also refuses any
+# local http.* key that applies to the fetch URL (fetch_target).
 _FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
                  "-c", "credential.helper=", "-c", "core.sshCommand=false",
                  "-c", "protocol.allow=never", "-c", "protocol.https.allow=always",
-                 "-c", "core.alternateRefsCommand=", "-c", "gc.auto=0", "-c", "http.proxy=")
+                 "-c", "core.alternateRefsCommand=", "-c", "gc.auto=0", "-c", "http.proxy=",
+                 "-c", "http.sslVerify=true", "-c", "http.extraHeader=")
 
 
 def fetch_url(slug: str) -> str:

@@ -72,24 +72,36 @@ def origin_url(runner: Runner, repo: Path) -> str | None:
     return url if result.returncode == 0 and url else None
 
 
-def local_url_rewrites(runner: Runner, repo: Path) -> list[tuple[str, str]]:
-    """``(key, prefix)`` for every ``url.<base>.insteadOf`` in the checkout's own
+def _local_config(runner: Runner, repo: Path, pattern: str) -> list[tuple[str, str]]:
+    """``(key, value)`` for every key matching ``pattern`` in the checkout's own
     config (local and worktree scope, includes followed). System and global
-    config are left out: the fetch ignores them."""
+    config are left out: the fetch ignores them. Keys come back lowercased
+    except for a subsection, which git keeps as written."""
     result = runner(["git", "config", "--show-scope", "--includes", "--get-regexp",
-                     r"^url\..*\.insteadof$"], cwd=repo, timeout=_GIT_TIMEOUT)
+                     pattern], cwd=repo, timeout=_GIT_TIMEOUT)
     if result.returncode == 1:  # no match
         return []
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip() or f"exit {result.returncode}"
         raise GitError(f"git config failed: {detail}")
-    rewrites = []
+    entries = []
     for line in result.stdout.splitlines():
         scope, _, entry = line.partition("\t")
-        key, _, prefix = entry.partition(" ")
+        key, _, value = entry.partition(" ")
         if scope in ("local", "worktree"):
-            rewrites.append((key, prefix))
-    return rewrites
+            entries.append((key, value))
+    return entries
+
+
+def local_url_rewrites(runner: Runner, repo: Path) -> list[tuple[str, str]]:
+    """``(key, prefix)`` for every local ``url.<base>.insteadOf``."""
+    return _local_config(runner, repo, r"^url\..*\.insteadof$")
+
+
+def local_http_keys(runner: Runner, repo: Path) -> list[str]:
+    """Every local ``http.*`` key, general (``http.<var>``) or URL-scoped
+    (``http.<url>.<var>``)."""
+    return [key for key, _value in _local_config(runner, repo, r"^http\.")]
 
 
 def is_clean(runner: Runner, repo: Path) -> bool:
