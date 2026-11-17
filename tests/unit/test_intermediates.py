@@ -181,3 +181,31 @@ def test_rebuild_check_refuses_builders_and_payloads_from_different_checkouts(
     monkeypatch.setattr(intermediates, "repo_root", lambda: tmp_path)
     with pytest.raises(SystemExit, match="run from one checkout"):
         intermediates.rebuild_check(tmp_path / "unused.tar.gz", expect="0" * 64)
+
+
+def test_pack_drops_the_per_row_cost_field_and_keeps_the_rest(tmp_path: Path) -> None:
+    root = _data_root(tmp_path)
+    qc = root / "ocr" / "bbbb000000000002" / "pages_cleaned_qc.jsonl"
+    rows = [
+        {"card_id": "bbbb000000000002", "cost_estimate_usd": 0.019, "page_number": 1,
+         "judge_evidence": "fine — ok", "verdict": "accept"},
+        {"card_id": "bbbb000000000002", "page_number": 2, "verdict": "accept"},
+    ]
+    qc.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    tarball = intermediates.pack(root, tmp_path / "out", "v9.9.9")
+    with tarfile.open(tarball) as tar:
+        member = tar.extractfile("ocr/bbbb000000000002/pages_cleaned_qc.jsonl")
+        packed = member.read().decode("utf-8")
+        names = tar.getnames()
+        everything = b"".join(
+            tar.extractfile(n).read() for n in names if tar.getmember(n).isfile()
+        )
+    assert b"cost_estimate_usd" not in everything
+    first = dict(rows[0])
+    del first["cost_estimate_usd"]
+    # Only the field is removed: the other bytes of each row are unchanged.
+    assert packed == json.dumps(first) + "\n" + json.dumps(rows[1]) + "\n"
+    manifest = intermediates.unpack(tarball, tmp_path / "x")
+    assert manifest["files"]["ocr/bbbb000000000002/pages_cleaned_qc.jsonl"]["sha256"] == (
+        intermediates.sha256_bytes(packed.encode("utf-8"))
+    )
