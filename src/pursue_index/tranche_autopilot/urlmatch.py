@@ -32,6 +32,10 @@ def _host_matches(pattern: str, host: str) -> bool:
 
 def _path_matches(prefix: str, path: str) -> bool:
     prefix, path = unquote(prefix) or "/", unquote(path) or "/"
+    # git normalises "." and ".." segments before matching; this matcher does
+    # not, so a config path that contains one is treated as matching.
+    if any(seg in (".", "..") for seg in prefix.split("/")):
+        return True
     if prefix.endswith("/"):
         return path.startswith(prefix)
     return path == prefix or path.startswith(prefix + "/")

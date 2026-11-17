@@ -78,6 +78,23 @@ def test_an_unparseable_config_url_applies_failing_closed() -> None:
     assert config_url_applies("not a url", _PINNED)
 
 
+@pytest.mark.parametrize("config_url", [
+    "https://github.com/x/../BPSAI/",          # git normalises this to /BPSAI/
+    "https://github.com/./BPSAI",
+    "https://github.com/acme/%2e%2e/BPSAI/",    # encoded dot segment
+    "https://github.com/acme/%2E%2E",
+    "https://github.com/BPSAI/pursue-index/..",
+])
+def test_a_config_url_with_dot_segments_applies_failing_closed(config_url: str) -> None:
+    """git normalises dot segments before matching and this matcher doesn't, so
+    any config path with one is treated as covering the fetch."""
+    assert config_url_applies(config_url, _PINNED)
+
+
+def test_a_dot_inside_a_path_name_is_not_a_dot_segment() -> None:
+    assert not config_url_applies("https://github.com/acme/.config/", _PINNED)
+
+
 def test_url_scoped_http_config_for_github_refuses(tmp_path: Path) -> None:
     """Real git: a local proxy with verification off could serve a forged main."""
     repo = make_checkout(tmp_path, receipt())
