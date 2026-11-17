@@ -3,13 +3,16 @@
 
 These two discovery surfaces were hand-maintained, so a tranche that added cards
 left them describing the previous release with nothing to catch it. This script
-rewrites the `## Cards` section of each from the manifest and stamps a
-provenance line the ship path can check.
+rewrites the `## Cards` section of each from the manifest, rewrites the
+`## Finds` section of each from the `/finds` MDX sources
+(`web/src/content/finds/`: a linked list in llms.txt, the full articles in
+llms-full.txt), and stamps a provenance line the ship path can check.
 
-Deliberately narrow: a tranche changes cards, counts and the manifest sha. The
-hand-written prose sections and the editorial `/finds` articles inlined in
-llms-full.txt are preserved byte-for-byte — this is not a whole-document
-rewriter, and it must not become one.
+Deliberately narrow: only those derived sections are rebuilt. The hand-written
+prose sections (the intro, Project overview, Methodology, About, How to cite)
+are preserved byte-for-byte — this is not a whole-document rewriter, and it
+must not become one. The finds are derived because a corrected article must
+reach the LLM-facing text too; see `pursue_index.geo.finds` for the conversion.
 
 Usage:
     python scripts/build_llms_txt.py            # regenerate in place
@@ -37,6 +40,7 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
+from pursue_index.geo.finds import sync_finds_section
 from pursue_index.geo.llms import (
     EXCERPT_CHARS,
     build_cards_intro,
@@ -55,6 +59,7 @@ from pursue_index.geo.llms import (
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 LLMS_TXT = _REPO_ROOT / "web" / "public" / "llms.txt"
 LLMS_FULL_TXT = _REPO_ROOT / "web" / "public" / "llms-full.txt"
+FINDS_DIR = _REPO_ROOT / "web" / "src" / "content" / "finds"
 
 EXCERPT_PAGE = "1"
 
@@ -133,6 +138,9 @@ def render_documents(manifest: dict, *, ocr_dir: Path) -> dict[Path, str]:
     )
     full_body = f"{build_cards_intro(card_count=len(cards))}\n\n{detail_body}"
 
+    index_doc = sync_finds_section(index_doc, FINDS_DIR, index=True)
+    full_doc = sync_finds_section(full_doc, FINDS_DIR)
+
     out: dict[Path, str] = {}
     for path, document, body in (
         (LLMS_TXT, index_doc, index_body),
@@ -161,7 +169,8 @@ def main(argv: list[str] | None = None) -> int:
         # Compare RENDERED CONTENT, not just the provenance line. Card metadata
         # can change without moving the count or the upstream csv_sha256 — a
         # curated display_date overlay does exactly that — and a hand-edit moves
-        # neither. Rendering and diffing catches all three.
+        # neither; nor does a corrected `/finds` article. Rendering and diffing
+        # catches all four.
         #
         # Safe without the NAS mounted: with no live OCR every excerpt falls
         # back to the published text, so the render is deterministic in CI.
