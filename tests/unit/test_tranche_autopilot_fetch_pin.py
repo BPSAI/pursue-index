@@ -241,3 +241,24 @@ def test_the_cli_passes_the_expected_repo_to_the_engine(tmp_path: Path, monkeypa
     assert captured["cfg"].expected_slug == INDEX_SLUG
     CliRunner().invoke(app, [*base, "--expected-repo", "acme/widgets"])
     assert captured["cfg"].expected_slug == "acme/widgets"
+
+
+_HOSTILE = {
+    "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "url.https://evil.invalid/.insteadOf",
+    "GIT_CONFIG_VALUE_0": "https://github.com/", "GIT_CONFIG_PARAMETERS": "'http.sslverify'='false'",
+    "GIT_SSL_NO_VERIFY": "1", "GIT_SSL_CAINFO": "/x/ca.pem", "GIT_PROXY_COMMAND": "/x/p",
+    "GIT_DIR": "/x/.git", "GIT_ASKPASS": "/x/askpass", "SSH_ASKPASS": "/x/askpass",
+    "http_proxy": "http://p:1", "HTTPS_PROXY": "http://p:1", "ALL_PROXY": "socks5://p:1",
+    "CURL_CA_BUNDLE": "/x/ca.pem", "SSL_CERT_FILE": "/x/ca.pem", "SSL_CERT_DIR": "/x",
+}
+
+
+def test_the_fetch_env_drops_git_tls_and_proxy_variables_whatever_the_caller_passes() -> None:
+    """fetch_env enforces this itself: an env that injects config through
+    GIT_CONFIG_*, or turns off TLS checks, never reaches the fetch."""
+    env = fetch_env({"PATH": "/bin", "LANG": "C", **_HOSTILE}, "/tmp/empty-home")
+    leaked = sorted(set(_HOSTILE) & set(env))
+    assert leaked == [], leaked
+    assert env["PATH"] == "/bin" and env["LANG"] == "C"
+    assert env["GIT_CONFIG_NOSYSTEM"] == "1" and env["GIT_CONFIG_GLOBAL"] == "/dev/null"
+    assert env["GIT_TERMINAL_PROMPT"] == "0" and env["HOME"] == "/tmp/empty-home"
