@@ -243,3 +243,25 @@ def test_insteadof_refusals_never_echo_url_userinfo(tmp_path: Path) -> None:
     assert code == ExitCode.PRECONDITION
     assert "s3cr3t-token" not in doc["message"]
     assert _fetches(runner) == []
+
+
+def test_redaction_covers_an_at_sign_inside_the_password() -> None:
+    from pursue_index.tranche_autopilot.fetch_target import _redact
+
+    key = "credential.https://someone:p@ss@w0rd@github.com/BPSAI/.helper"
+    assert _redact(key) == "credential.https://***@github.com/BPSAI/.helper"
+    assert _redact("http.https://github.com/.proxy") == "http.https://github.com/.proxy"
+
+
+def test_a_config_read_error_is_redacted_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from pursue_index.tranche_autopilot import fetch_target
+
+    def boom(runner, repo):
+        raise GitError("bad config key credential.https://someone:s3cr3t@github.com.helper")
+
+    repo = make_checkout(tmp_path, receipt())
+    monkeypatch.setattr(fetch_target, "local_url_rewrites", boom)
+    problem = fetch_target.fetch_target_problem(FakeRunner(repo), repo, "BPSAI/pursue-index", None)
+    assert problem is not None and "s3cr3t" not in problem

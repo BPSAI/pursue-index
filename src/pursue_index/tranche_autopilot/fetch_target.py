@@ -27,8 +27,9 @@ from pursue_index.tranche_autopilot.urlmatch import config_url_applies
 
 __all__ = ["fetch_target_problem", "valid_slug"]
 
-# The userinfo of a URL inside a config key: everything from "://" to the "@".
-_USERINFO_RE = re.compile(r"(://)[^/@\s]*@")
+# The userinfo of a URL inside a config key: from "://" to the LAST "@" before
+# the path, since a password may itself contain "@".
+_USERINFO_RE = re.compile(r"(://)[^/\s]*@")
 
 _SLUG = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
 
@@ -56,7 +57,7 @@ def fetch_target_problem(runner: Runner, repo: Path, expected: str,
         http_keys = local_http_keys(runner, repo)
         credential_keys = local_credential_keys(runner, repo)
     except GitError as exc:
-        return f"cannot read the checkout's fetch config: {exc}"
+        return f"cannot read the checkout's fetch config: {_redact(str(exc))}"
     target = fetch_url(expected)
     # An empty prefix matches every URL (git prepends the base); a blank one is
     # refused too, failing closed.
