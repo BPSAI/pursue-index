@@ -32,6 +32,21 @@ download. `--expect-sha256` pins the tarball to a value published separately
 (the release notes), which also catches a substituted file. The check refuses
 to run without it unless you pass `--allow-unpinned`.
 
+A second pin, carried by git itself rather than the release notes: when
+`data/build-stamp.json` at `<tag>` has an `intermediates` key, it records the
+archive's name and sha256, and the checked-out stamp can vouch for the
+download:
+
+```bash
+python scripts/build_stamp.py verify --root . --require \
+    --intermediates intermediates/intermediates-<tag>.tar.gz
+```
+
+It exits 1, naming both sha256s, when the tarball differs from the stamped
+one, and also when the stamp has no `intermediates` key (stamps from before
+the key was added do not). On a pass, the stamped sha256 is the value to give
+`--expect-sha256`.
+
 `rebuild-check` needs no data root, no network and no API keys. It:
 
 1. checks the tarball against `SHA256SUMS` (required) and the pinned sha256,
