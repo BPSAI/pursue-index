@@ -139,7 +139,7 @@ def test_check_fails_when_a_find_changes_until_regenerated(tmp_path):
 
 def test_an_unchanged_published_find_round_trips_byte_identically():
     """A real article: the committed block is exactly what its `.mdx` renders."""
-    slug = "apollo-12-light-flashes"
+    slug = "air-intelligence-study-203-1948"
     finds = [f for f in load_finds(REPO / "web" / "src" / "content" / "finds") if f.slug == slug]
     rendered = render_finds_section(finds).split("\n", 2)[2]
     published = (REPO / "web" / "public" / "llms-full.txt").read_bytes().decode("utf-8")

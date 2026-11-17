@@ -40,10 +40,11 @@ _LIST_ITEM_RE = re.compile(r"^\s+-\s+")
 _OUTER_QUOTES_RE = re.compile(r"^[\"']|[\"']\Z")
 
 _IMPORT_RE = re.compile(r"^import\s.*$", re.MULTILINE)
-_CITE_RE = re.compile(
-    r"<Cite\s+card=[\"']([^\"']+)[\"']\s+page=\{?([0-9]+)\}?"
-    r"(?:\s+q=[\"']([^\"']*)[\"'])?\s*/>"
-)
+# A self-closing <Cite .../>. Quoted values may hold ">" or "/", so the tag is
+# matched attribute by attribute rather than up to the first ">".
+_CITE_RE = re.compile(r"<Cite((?:\s+[A-Za-z]+=(?:\"[^\"]*\"|'[^']*'|\{[^}]*\}))*)\s*/>")
+_CITE_ATTR_RE = re.compile(r"([A-Za-z]+)=(?:\"([^\"]*)\"|'([^']*)'|\{([^}]*)\})")
+_PAGE_RE = re.compile(r"[0-9]+")
 _SELF_CLOSING_JSX_RE = re.compile(r"<[A-Z][A-Za-z]*\s[^>]*/>")
 _JSX_TAG_RE = re.compile(r"</?[A-Z][A-Za-z]*[^>]*>")
 
@@ -99,7 +100,20 @@ def parse_frontmatter(raw: str) -> tuple[dict, str]:
 
 
 def _cite_marker(match: re.Match) -> str:
-    card, page, quote = match.groups()
+    """``[cite: card X p.N "q"]``, or ``[cite: card X p.N]`` with no quote.
+
+    Attributes may come in any order and either quote style, so a quote holding
+    an apostrophe keeps its citation. ``label`` is display text, not a quote
+    from the source, so it is not carried. A Cite missing ``card`` or a numeric
+    ``page`` is left for the generic tag strip.
+    """
+    attrs = {
+        m.group(1): next(v for v in m.groups()[1:] if v is not None)
+        for m in _CITE_ATTR_RE.finditer(match.group(1))
+    }
+    card, page, quote = attrs.get("card"), attrs.get("page", ""), attrs.get("q")
+    if not card or not _PAGE_RE.fullmatch(page):
+        return match.group(0)
     return f"[cite: card {card} p.{page}{f' \"{quote}\"' if quote else ''}]"
 
 

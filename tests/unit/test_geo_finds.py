@@ -77,12 +77,25 @@ class TestStripMdx:
         assert out.endswith('> "a quote" [cite: card 9ed140b9186c20c5 p.1 "a quote"]')
         assert out.startswith("## Heading")
 
-    def test_a_cite_whose_q_holds_an_apostrophe_is_dropped(self):
-        # The original converter's attribute pattern excludes both quote
-        # characters, so such a cite falls through to the generic JSX strip.
-        # Kept as-is: changing it would rewrite every unchanged article.
+    def test_a_cite_whose_q_holds_an_apostrophe_keeps_its_marker(self):
         out = strip_mdx('x <Cite card="abc" page={2} q="it\'s here" /> y')
-        assert out == "x  y"
+        assert out == 'x [cite: card abc p.2 "it\'s here"] y'
+
+    def test_a_single_quoted_q_may_hold_double_quotes(self):
+        out = strip_mdx("x <Cite card='abc' page={2} q='the \"T\" shape' /> y")
+        assert out == 'x [cite: card abc p.2 "the "T" shape"] y'
+
+    def test_a_labelled_cite_becomes_a_page_marker(self):
+        # label is display text, not a quote from the source.
+        out = strip_mdx('see <Cite card="abc" page={66} label="the FBI file" /> here')
+        assert out == "see [cite: card abc p.66] here"
+
+    def test_attribute_order_does_not_matter(self):
+        out = strip_mdx('<Cite q="a b" page={3} card="abc" />')
+        assert out == '[cite: card abc p.3 "a b"]'
+
+    def test_a_cite_without_card_or_page_is_stripped(self):
+        assert strip_mdx('x <Cite card="abc" /> y') == "x  y"
 
     def test_bare_component_tags_are_removed(self):
         assert strip_mdx("anchored with `<Cite>` to") == "anchored with `` to"
