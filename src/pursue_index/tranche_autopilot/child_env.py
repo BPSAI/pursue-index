@@ -76,9 +76,12 @@ INDEX_SLUG = "BPSAI/pursue-index"
 # checkout whose origin, or a local rewrite, names another repo. TLS
 # verification is forced on and extra headers cleared, but a URL-scoped
 # http.<url>.* key in the checkout beats these, so the engine also refuses any
-# local http.* key that applies to the fetch URL (fetch_target).
+# local http.* key that applies to the fetch URL (fetch_target). Likewise a
+# local credential.* key that applies to it, since a URL-scoped helper can run
+# code; core.askPass is cleared here too.
 _FETCH_CONFIG = ("-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
-                 "-c", "credential.helper=", "-c", "core.sshCommand=false",
+                 "-c", "credential.helper=", "-c", "core.askPass=",
+                 "-c", "core.sshCommand=false",
                  "-c", "protocol.allow=never", "-c", "protocol.https.allow=always",
                  "-c", "core.alternateRefsCommand=", "-c", "gc.auto=0", "-c", "http.proxy=",
                  "-c", "http.sslVerify=true", "-c", "http.extraHeader=")
@@ -97,26 +100,16 @@ FETCH_ENV = {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null"}
 
 
 def fetch_env(base: Mapping[str, str], home: str) -> dict[str, str]:
-    """The fetch's environment: ``base`` plus FETCH_ENV, with ``HOME`` an empty
-    directory the caller created (so git and curl find no ``~/.netrc`` or other
-    home config) and no terminal prompt for credentials.
+    """The fetch's environment: an allowlist, never ``base`` minus known-bad names.
 
-    Enforced here, whatever ``base`` holds: every ``GIT_*`` variable
-    (``GIT_CONFIG_COUNT``/``_KEY_``/``_VALUE_`` and ``GIT_CONFIG_PARAMETERS``
-    can inject config the local-config guard never sees; ``GIT_SSL_NO_VERIFY``
-    overrides ``-c http.sslVerify=true``) and the proxy, CA and askpass
-    variables git and curl read are dropped before FETCH_ENV is applied.
+    Only the process basics and locale in the base allowlist are taken from
+    ``base``; ``HOME`` is replaced by an empty directory the caller created (so
+    git and curl find no ``~/.netrc`` or other home config), FETCH_ENV is
+    applied and the terminal prompt for credentials is off. Everything else is
+    dropped, whatever ``base`` holds: ``GIT_*`` (which can inject config the
+    local-config guard never sees), proxy, CA and askpass variables, and the
+    ones a deny-list misses, such as ``OPENSSL_CONF``, ``LD_PRELOAD`` and
+    ``SSLKEYLOGFILE``.
     """
-    kept = {k: v for k, v in base.items() if not _fetch_unsafe(k)}
+    kept = {k: base[k] for k in _BASE_KEYS if k in base}
     return {**kept, **FETCH_ENV, "HOME": home, "GIT_TERMINAL_PROMPT": "0"}
-
-
-_FETCH_UNSAFE_NAMES = frozenset({
-    "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "FTP_PROXY",
-    "CURL_CA_BUNDLE", "CURL_HOME", "SSL_CERT_FILE", "SSL_CERT_DIR", "SSH_ASKPASS",
-})
-
-
-def _fetch_unsafe(name: str) -> bool:
-    upper = name.upper()
-    return upper.startswith("GIT_") or upper in _FETCH_UNSAFE_NAMES

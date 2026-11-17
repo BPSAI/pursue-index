@@ -26,6 +26,7 @@ from pursue_index.tranche_autopilot.gitops import (
     GitError,
     changed_paths,
     commit_paths,
+    origin_url,
     path_summary,
     untracked_paths,
 )
@@ -231,7 +232,8 @@ def freshness_recheck(ctx: Context) -> None:
     # config; the fetch gets an empty HOME so no ~/.netrc is in reach.
     step = ctx.steps["freshness-recheck"]
     step.start()
-    problem = fetch_target_problem(ctx.runner, ctx.repo_root, ctx.fetch_slug)
+    problem = fetch_target_problem(ctx.runner, ctx.repo_root, ctx.fetch_slug,
+                                   origin_url(ctx.runner, ctx.repo_root))
     if problem is not None:
         step.finish("failed", problem)
         raise AutopilotStopError(ExitCode.GATE_FAILED, f"step freshness-recheck failed: {problem}")

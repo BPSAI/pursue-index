@@ -12,10 +12,12 @@ from pathlib import Path
 from pursue_index.tranche_autopilot.runner import Runner
 
 __all__ = ["GitError", "changed_paths", "commit_paths", "current_branch", "head_sha",
-           "is_clean", "local_url_rewrites", "modified_tracked_paths", "origin_url",
-           "path_summary", "untracked_paths"]
+           "is_clean", "local_credential_keys", "local_http_keys", "local_url_rewrites",
+           "modified_tracked_paths", "origin_url", "path_summary", "untracked_paths"]
 
 _GIT_TIMEOUT = 120.0
+# `git config --show-scope` arrived in git 2.26; older git rejects the option.
+_SHOW_SCOPE_MIN_GIT = "2.26"
 _PATH_LIST_CAP = 200
 
 
@@ -83,6 +85,10 @@ def _local_config(runner: Runner, repo: Path, pattern: str) -> list[tuple[str, s
         return []
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip() or f"exit {result.returncode}"
+        if "unknown option" in detail and "show-scope" in detail:
+            raise GitError(f"git {_SHOW_SCOPE_MIN_GIT} or newer is required to read the "
+                           "checkout's config by scope (git config --show-scope); "
+                           "upgrade git to run the autopilot")
         raise GitError(f"git config failed: {detail}")
     entries = []
     for line in result.stdout.splitlines():
@@ -102,6 +108,12 @@ def local_http_keys(runner: Runner, repo: Path) -> list[str]:
     """Every local ``http.*`` key, general (``http.<var>``) or URL-scoped
     (``http.<url>.<var>``)."""
     return [key for key, _value in _local_config(runner, repo, r"^http\.")]
+
+
+def local_credential_keys(runner: Runner, repo: Path) -> list[str]:
+    """Every local ``credential.*`` key, general (``credential.<var>``) or
+    URL-scoped (``credential.<url>.<var>``)."""
+    return [key for key, _value in _local_config(runner, repo, r"^credential\.")]
 
 
 def is_clean(runner: Runner, repo: Path) -> bool:

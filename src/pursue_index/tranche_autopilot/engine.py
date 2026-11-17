@@ -149,10 +149,11 @@ class _Run:
         if not valid_slug(cfg.expected_slug):
             raise _stop(ExitCode.PRECONDITION, "--expected-repo must be owner/name")
         self.branch = _check_checkout(cfg)
-        problem = fetch_target_problem(cfg.runner, cfg.repo_root, cfg.expected_slug)
+        # One origin read for the guard and the operator_next lines, so they agree.
+        url = origin_url(cfg.runner, cfg.repo_root)
+        problem = fetch_target_problem(cfg.runner, cfg.repo_root, cfg.expected_slug, url)
         if problem is not None:
             raise _stop(ExitCode.PRECONDITION, f"refusing -- {problem}")
-        url = origin_url(cfg.runner, cfg.repo_root)
         self.slug = repo_slug(url) if url else None
         baseline = _freshness_baseline(cfg)
         receipt = _load_receipt(cfg)

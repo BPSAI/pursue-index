@@ -14,6 +14,9 @@ import pytest
 
 from pursue_index.tranche_autopilot import ExitCode
 from pursue_index.tranche_autopilot.child_env import fetch_argv
+from pursue_index.tranche_autopilot.fetch_target import fetch_target_problem
+from pursue_index.tranche_autopilot.gitops import GitError, local_http_keys
+from pursue_index.tranche_autopilot.runner import CommandResult
 from pursue_index.tranche_autopilot.urlmatch import config_url_applies
 from tests.support.autopilot_fakes import FakeRunner, make_checkout, receipt, run_engine
 
@@ -134,3 +137,131 @@ def test_the_fetch_forces_tls_verification_and_no_extra_headers() -> None:
     pairs = {argv[i + 1] for i, a in enumerate(argv) if a == "-c"}
     assert "http.sslVerify=true" in pairs
     assert "http.extraHeader=" in pairs
+
+
+# -- credential.<url>.* ----------------------------------------------------------
+
+@pytest.mark.parametrize(("key", "value"), [
+    ("credential.https://github.com.helper", "!touch pwned"),
+    ("credential.https://github.com/BPSAI/.helper", "!touch pwned"),
+    ("credential.https://github.com.username", "someone"),
+    ("credential.helper", "!touch pwned"),
+])
+def test_local_credential_config_that_applies_to_the_fetch_refuses(
+        tmp_path: Path, key: str, value: str) -> None:
+    """Real git: a URL-scoped credential helper can run code during the fetch."""
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", key, value)
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "credential" in doc["message"]
+    assert key in doc["message"]  # git keeps the URL as written; the rest is lowercase
+    assert runner.release_calls() == [] and _fetches(runner) == []
+
+
+def test_worktree_credential_config_refuses(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "extensions.worktreeConfig", "true")
+    _git(repo, "config", "--worktree", "credential.https://github.com.helper", "!true")
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "credential.https://github.com.helper" in doc["message"]
+    assert _fetches(runner) == []
+
+
+def test_credential_config_for_another_host_is_allowed(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "credential.https://example.invalid.helper", "!true")
+    runner = FakeRunner(repo)
+    code, _doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.DONE
+    assert _fetches(runner)
+
+
+def test_the_fetch_clears_askpass() -> None:
+    argv = fetch_argv("acme/widgets")
+    pairs = {argv[i + 1] for i, a in enumerate(argv) if a == "-c"}
+    assert "core.askPass=" in pairs
+    assert "credential.helper=" in pairs
+
+
+def test_the_local_config_readers_are_exported() -> None:
+    from pursue_index.tranche_autopilot import gitops
+
+    for name in ("local_url_rewrites", "local_http_keys", "local_credential_keys"):
+        assert name in gitops.__all__
+        assert callable(getattr(gitops, name))
+
+
+# -- git too old for --show-scope ------------------------------------------------
+
+_OLD_GIT = CommandResult(129, "", "error: unknown option `show-scope'\nusage: git config [<options>]\n")
+
+
+def _old_git(argv, *, cwd, timeout, env=None) -> CommandResult:
+    if argv[:2] == ["git", "config"]:
+        return _OLD_GIT
+    raise AssertionError(f"unexpected command: {argv}")
+
+
+def test_git_without_show_scope_names_the_minimum_version(tmp_path: Path) -> None:
+    with pytest.raises(GitError, match=r"git 2\.26 or newer"):
+        local_http_keys(_old_git, tmp_path)
+    problem = fetch_target_problem(_old_git, tmp_path, "BPSAI/pursue-index", None)
+    assert problem is not None and "git 2.26 or newer" in problem
+
+
+def test_another_config_failure_keeps_the_generic_error(tmp_path: Path) -> None:
+    def broken(argv, *, cwd, timeout, env=None) -> CommandResult:
+        return CommandResult(128, "", "fatal: bad config line 3")
+
+    with pytest.raises(GitError, match="git config failed: fatal: bad config line 3"):
+        local_http_keys(broken, tmp_path)
+
+
+def test_refusals_never_echo_url_userinfo(tmp_path: Path) -> None:
+    """Config keys can embed a URL's userinfo (a token); the refusal, which lands
+    in the result JSON and logs, names the key with that part redacted."""
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "credential.https://someone:s3cr3t-token@github.com.helper", "x")
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "s3cr3t-token" not in doc["message"] and "someone" not in doc["message"]
+    assert "credential.https://***@github.com.helper" in doc["message"]
+    assert _fetches(runner) == []
+
+
+def test_insteadof_refusals_never_echo_url_userinfo(tmp_path: Path) -> None:
+    repo = make_checkout(tmp_path, receipt())
+    _git(repo, "config", "url.https://someone:s3cr3t-token@evil.example/.insteadOf",
+         "https://github.com/")
+    runner = FakeRunner(repo)
+    code, doc = run_engine(tmp_path, repo, runner)
+    assert code == ExitCode.PRECONDITION
+    assert "s3cr3t-token" not in doc["message"]
+    assert _fetches(runner) == []
+
+
+def test_redaction_covers_an_at_sign_inside_the_password() -> None:
+    from pursue_index.tranche_autopilot.fetch_target import _redact
+
+    key = "credential.https://someone:p@ss@w0rd@github.com/BPSAI/.helper"
+    assert _redact(key) == "credential.https://***@github.com/BPSAI/.helper"
+    assert _redact("http.https://github.com/.proxy") == "http.https://github.com/.proxy"
+
+
+def test_a_config_read_error_is_redacted_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from pursue_index.tranche_autopilot import fetch_target
+
+    def boom(runner, repo):
+        raise GitError("bad config key credential.https://someone:s3cr3t@github.com.helper")
+
+    repo = make_checkout(tmp_path, receipt())
+    monkeypatch.setattr(fetch_target, "local_url_rewrites", boom)
+    problem = fetch_target.fetch_target_problem(FakeRunner(repo), repo, "BPSAI/pursue-index", None)
+    assert problem is not None and "s3cr3t" not in problem
