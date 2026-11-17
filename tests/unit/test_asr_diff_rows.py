@@ -9,10 +9,12 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from pursue_index.card_id import InvalidCardIdError
+from pursue_index.cli import asr_diff_cli, asr_diff_live_cli
 from pursue_index.cli.commands import app
 from pursue_index.scrape.types import CardMetadata, Manifest
 from pursue_index.transcribe import asr_diff_live
-from pursue_index.transcribe.asr_diff_rows import row_duration
+from pursue_index.transcribe.asr_diff_rows import aud_card_ids, row_duration
 
 runner = CliRunner()
 CID = "a1" * 8
@@ -88,3 +90,27 @@ def test_preview_and_live_plan_agree_on_durations(tmp_path: Path) -> None:
                                    tmp_path / "audio", "fake")
     total_min = sum(r.duration_s for r in plan if r.state == "pending") / 60
     assert f"total projected ${total_min:.2f}" in out
+
+
+# -- row 3: public row/card selection ------------------------------------------
+
+def test_aud_card_ids_selects_aud_cards_and_honours_the_filter(tmp_path: Path) -> None:
+    path = tmp_path / "m.json"
+    path.write_text(Manifest(
+        source_url="https://www.war.gov/uap-csv.csv", fetched_at=datetime.now(UTC),
+        csv_sha256="0" * 64,
+        cards=[CardMetadata(card_id="c1" * 8, title="a", asset_type="AUD", agency="NASA"),
+               CardMetadata(card_id="c2" * 8, title="b", asset_type="VID", agency="NASA"),
+               CardMetadata(card_id="c3" * 8, title="c", asset_type="AUD", agency="NASA")],
+    ).model_dump_json(by_alias=True))
+    assert aud_card_ids(path, None) == ["c1" * 8, "c3" * 8]
+    assert aud_card_ids(path, f" {'c3' * 8} , {'c2' * 8},") == ["c3" * 8]
+    with pytest.raises(InvalidCardIdError):
+        aud_card_ids(path, "not-a-card")
+
+
+def test_both_clis_use_the_public_selection() -> None:
+    assert not hasattr(asr_diff_cli, "_aud_card_ids")
+    assert not hasattr(asr_diff_live_cli, "_aud_card_ids")
+    assert asr_diff_cli.aud_card_ids is aud_card_ids
+    assert asr_diff_live_cli.aud_card_ids is aud_card_ids
