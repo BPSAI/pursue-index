@@ -28,8 +28,9 @@ from pursue_index.tranche_autopilot.urlmatch import config_url_applies
 __all__ = ["fetch_target_problem", "valid_slug"]
 
 # The userinfo of a URL inside a config key: from "://" to the LAST "@" before
-# the path, since a password may itself contain "@".
-_USERINFO_RE = re.compile(r"(://)[^/\s]*@")
+# any whitespace. A password may contain "@", and a free-text key may even
+# carry a raw "/" there; masking a path that holds an "@" too is the safe side.
+_USERINFO_RE = re.compile(r"(://)\S*@")
 
 _SLUG = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
 

@@ -265,3 +265,17 @@ def test_a_config_read_error_is_redacted_too(
     monkeypatch.setattr(fetch_target, "local_url_rewrites", boom)
     problem = fetch_target.fetch_target_problem(FakeRunner(repo), repo, "BPSAI/pursue-index", None)
     assert problem is not None and "s3cr3t" not in problem
+
+
+def test_redaction_covers_a_slash_inside_the_userinfo() -> None:
+    """A raw "/" is invalid in URL userinfo, but a config key is free text: the
+    mask must not stop at it and leave the rest of the token visible."""
+    from pursue_index.tranche_autopilot.fetch_target import _redact
+
+    key = "credential.https://someone:ab/cd/s3cr3t@github.com/BPSAI/.helper"
+    out = _redact(key)
+    assert "s3cr3t" not in out and "ab/cd" not in out
+    assert out == "credential.https://***@github.com/BPSAI/.helper"
+    # Masking stays per URL: whitespace ends it, so two URLs mask separately.
+    two = "a https://u:p@one.example/x and https://v:q@two.example/y"
+    assert _redact(two) == "a https://***@one.example/x and https://***@two.example/y"
