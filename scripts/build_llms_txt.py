@@ -39,11 +39,7 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
-from pursue_index.geo.finds import (
-    load_finds,
-    render_finds_section,
-    replace_finds_section,
-)
+from pursue_index.geo.finds import sync_finds_section
 from pursue_index.geo.llms import (
     EXCERPT_CHARS,
     build_cards_intro,
@@ -141,9 +137,7 @@ def render_documents(manifest: dict, *, ocr_dir: Path) -> dict[Path, str]:
     )
     full_body = f"{build_cards_intro(card_count=len(cards))}\n\n{detail_body}"
 
-    full_doc = replace_finds_section(
-        full_doc, render_finds_section(load_finds(FINDS_DIR))
-    )
+    full_doc = sync_finds_section(full_doc, FINDS_DIR)
 
     out: dict[Path, str] = {}
     for path, document, body in (

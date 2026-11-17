@@ -131,7 +131,7 @@ def _render_find(find: Find) -> list[str]:
         lines.append(f"- Cards: {', '.join(cards)}")
     if meta.get("summary"):
         lines += ["", meta["summary"]]
-    return lines + ["", strip_mdx(find.body), ""]
+    return [*lines, "", strip_mdx(find.body), ""]
 
 
 def render_finds_section(finds: list[Find]) -> str:
@@ -153,3 +153,8 @@ def replace_finds_section(document: str, body: str) -> str:
     if match is None:
         raise ValueError("section 'Finds' not found — refusing to append blindly")
     return f"{document[: match.end()]}\n{body}"
+
+
+def sync_finds_section(document: str, finds_dir: Path) -> str:
+    """``document`` with its ``## Finds`` section regenerated from ``finds_dir``."""
+    return replace_finds_section(document, render_finds_section(load_finds(finds_dir)))
