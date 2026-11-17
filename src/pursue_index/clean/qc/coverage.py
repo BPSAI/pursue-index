@@ -25,10 +25,12 @@ This module gives every distinct card_id in the manifest exactly one status:
 * ``asr_verified``          — an AUD card whose second-engine comparison
                               (see ``pursue_index.transcribe.asr_diff``,
                               R7C.27) completed at/above the committed
-                              agreement threshold. A distinct status, NOT
-                              ``judged``: two engines agreeing is a different
-                              verification than a page-by-page QC judge, and
-                              it never enters the judged set the digest and
+                              agreement threshold, so no span was flagged.
+                              Despite the name, this is not an accuracy
+                              check: it records that two engines agreed,
+                              which a shared mishearing would also produce.
+                              A distinct status, NOT ``judged``: it never
+                              enters the judged set the digest and
                               vision-text checks read.
 * ``review``                — the same comparison completed below the
                               threshold: the disagreeing spans need a human

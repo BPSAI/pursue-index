@@ -90,8 +90,8 @@ export function describeQcCoverage(doc: QcCoverage): string[] {
     );
   }
 
-  // Two engines agreeing is a different verification than the page-by-page
-  // QC judge, so it is reported on its own line and never counted as judged.
+  // Two engines agreeing is not the page-by-page QC judge, and not an
+  // accuracy check, so it is reported on its own line and never counted as judged.
   const asrVerified = n("asr_verified");
   if (asrVerified > 0) {
     lines.push(

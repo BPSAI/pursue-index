@@ -5,13 +5,15 @@ word -- a homophone, a mumbled syllable, crosstalk. Aligning their output at
 the word level and reporting the exact spans where they diverge turns "this
 transcript is unverified" into "here are the N words a human should listen
 to." ``AGREEMENT_THRESHOLD`` is the committed cutoff:
-at/above it the transcript is accepted (``judged``), below it the
-disagreeing spans go to human review (``review``).
+at/above it no review is requested (``judged``), below it the
+disagreeing spans go to human review (``review``). Both are flag states,
+not verdicts on which engine is right; agreement is not an accuracy score.
 
-This catches *mishearings* -- a word one engine got right and the other
-didn't. It does NOT catch a word both engines mishear the same way, or an
-error already present in the source audio; two engines agreeing is
-necessary but not sufficient for correctness. See the methodology page for
+This surfaces *possible mishearings* -- a word where the two engines
+differ, which a listener then settles. It does NOT catch a word both
+engines mishear the same way, or an error already present in the source
+audio; two engines agreeing is necessary but not sufficient for
+correctness. See the methodology page for
 the reader-facing statement of that limit.
 
 Pure: no I/O, no network. Callers (``asr_diff_runner``) supply both engines'
