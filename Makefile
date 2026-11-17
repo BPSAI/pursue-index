@@ -87,8 +87,15 @@ clean:
 # web/public/data/csv/index.json on every run. The stamp is then required, and its
 # commit must be on the published branch, so every release cites code anyone
 # can check out.
+#
+# INTERMEDIATES_LABEL=vX.Y.Z (optional) also packs the release's intermediates
+# archive (docs/intermediates.md) after the derivatives are rebuilt and the data
+# root is final, rebuild-checks it, and pins it in the stamp; the label is
+# checked before any build time is spent. Both hang off the prerequisites
+# below (see "Intermediates release asset"), so this line is the same either
+# way. Unset, ship-ready is unchanged.
 ship-ready: release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
-	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'
+	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'$(INTERMEDIATES_STAMP_ARG)
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
 	@echo "  next: git add -A && git commit -m '...' && git push origin feature-branch && open PR to main"
@@ -137,7 +144,7 @@ stamp:
 		|| { echo "stamp: code changed during the build" >&2; exit 1; }
 	@$(STAMP_NO_IGNORED_CODE) \
 		|| { echo "stamp: gitignored files appeared under the code paths" >&2; exit 1; }
-	@$(PYTHON) scripts/build_stamp.py write --root . --builder-commit "$$(cat "$(BUILT_WITH)")"
+	@$(PYTHON) scripts/build_stamp.py write --root . --builder-commit "$$(cat "$(BUILT_WITH)")"$(INTERMEDIATES_STAMP_ARG)
 
 # First prerequisite of ship-ready: refuse a release before spending build time
 # on it when an AUD card has no transcript, a VID/AUD card has no registered
@@ -307,6 +314,65 @@ intermediates-check:
 	@test -n "$(TARBALL)" || { echo "TARBALL=<intermediates-<tag>.tar.gz> is required" >&2; exit 2; }
 	$(PYTHON) scripts/intermediates.py rebuild-check --tarball "$(TARBALL)" \
 		$(if $(EXPECT),--expect-sha256 "$(EXPECT)") $(if $(ALLOW_UNPINNED),--allow-unpinned)
+
+# ---- Intermediates release asset ----
+# Packed outside the repository, under the data root, one directory per label.
+# INTERMEDIATES_LABEL feeds ship-ready (above); TAG feeds release-intermediates.
+INTERMEDIATES_LABEL ?=
+RELEASE_ASSETS = $(PURSUE_DATA_ROOT)/release-assets
+INTERMEDIATES_DIR = $(RELEASE_ASSETS)/$(INTERMEDIATES_LABEL)
+INTERMEDIATES_TARBALL = $(INTERMEDIATES_DIR)/intermediates-$(INTERMEDIATES_LABEL).tar.gz
+INTERMEDIATES_STAMP_ARG = $(if $(INTERMEDIATES_LABEL), --intermediates "$(INTERMEDIATES_TARBALL)")
+# A value single-quoted for the shell, so a label is tested, never run.
+shq = '$(subst ','\'',$(1))'
+SEMVER_TAG_RE = ^v[0-9]+\.[0-9]+\.[0-9]+$$
+
+.PHONY: intermediates-label intermediates-pack release-intermediates
+# Only with a label: refuse a bad one before ship-ready's first gate, and pack
+# before stamp, which pins the tarball. In ship-ready that is after
+# rebuild-derivatives (astro-build's prebuild does not touch the payloads
+# rebuild-check compares).
+ifneq ($(INTERMEDIATES_LABEL),)
+release-completeness: intermediates-label
+# Declared, not left to ship-ready's prerequisite order, so `make -j` can't
+# pack before the data root is final.
+intermediates-pack: rebuild-derivatives
+stamp: intermediates-pack
+endif
+
+intermediates-label:
+	@[[ $(call shq,$(INTERMEDIATES_LABEL)) =~ $(SEMVER_TAG_RE) ]] \
+		|| { printf 'intermediates-label: INTERMEDIATES_LABEL=%s is not vX.Y.Z\n' \
+			$(call shq,$(INTERMEDIATES_LABEL)) >&2; exit 2; }
+	@test -n $(call shq,$(PURSUE_DATA_ROOT)) \
+		|| { echo "intermediates-label: INTERMEDIATES_LABEL needs PURSUE_DATA_ROOT, the data root to pack from" >&2; exit 2; }
+	@repo=$$(realpath .); out=$$(realpath -m $(call shq,$(INTERMEDIATES_DIR))); \
+	case "$$out/" in "$$repo"/*) \
+		echo "intermediates-label: the out dir $$out must be outside the repository" >&2; exit 2;; esac
+
+# Pack from the data root, then prove the payloads rebuild from the archive
+# alone, pinned to the SHA256SUMS the pack just wrote.
+intermediates-pack: intermediates-label
+	@echo "==> Pack intermediates $(INTERMEDIATES_LABEL) into $(INTERMEDIATES_DIR)"
+	@$(PYTHON) scripts/intermediates.py pack --data-root "$(PURSUE_DATA_ROOT)" \
+		--out-dir "$(INTERMEDIATES_DIR)" --label "$(INTERMEDIATES_LABEL)"
+	@$(PYTHON) scripts/intermediates.py rebuild-check --tarball "$(INTERMEDIATES_TARBALL)" \
+		--expect-sha256 "$$(cut -d' ' -f1 "$(INTERMEDIATES_DIR)/SHA256SUMS")"
+
+# Operator-run, after `gh release create <tag>` (docs/runbooks/ship-tranche.md):
+#   make release-intermediates TAG=vX.Y.Z
+# Checks the packed files against SHA256SUMS, then scripts/release_intermediates.py
+# refuses unless the stamp at HEAD pins the tarball and no QC row carries a
+# dropped field, and only then uploads both files to the existing Release. It
+# never creates the Release, edits its notes, or replaces an asset.
+release-intermediates:
+	@[[ $(call shq,$(TAG)) =~ $(SEMVER_TAG_RE) ]] \
+		|| { printf 'release-intermediates: TAG=vX.Y.Z is required (got %s)\n' \
+			$(call shq,$(TAG)) >&2; exit 2; }
+	@test -n $(call shq,$(PURSUE_DATA_ROOT)) \
+		|| { echo "release-intermediates: PURSUE_DATA_ROOT is not set" >&2; exit 2; }
+	cd "$(RELEASE_ASSETS)/$(TAG)" && sha256sum -c SHA256SUMS
+	$(PYTHON) scripts/release_intermediates.py --tag "$(TAG)" --dir "$(RELEASE_ASSETS)/$(TAG)" --root .
 
 .PHONY: bundle-copy
 bundle-copy:

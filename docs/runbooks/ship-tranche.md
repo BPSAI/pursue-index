@@ -188,7 +188,8 @@ $ARGUMENTS
     these live in `web/public/`, so the build copies whatever is on disk. Verify
     with `python scripts/build_llms_txt.py --check` (release-gate step 4b runs the
     same check, so skipping this reds the PR).
-12. **Ship-ready gate:** `make ship-ready`. Confirm astro built (~pages) and `cd web && npm run test` all-green. (Note: `make test` runs pytest under the .venv only if activated — validate the web tests explicitly.)
+12. **Ship-ready gate:** `make ship-ready INTERMEDIATES_LABEL=vX.Y.Z` (the tag this
+    release will get; `PURSUE_DATA_ROOT` set). Confirm astro built (~pages) and `cd web && npm run test` all-green. (Note: `make test` runs pytest under the .venv only if activated — validate the web tests explicitly.)
     ship-ready first records the commit it builds with. It refuses uncommitted
     code (`src`, `scripts`, `web/scripts`, the site code under `web/src`, the site
     build config, `Makefile`, `pyproject.toml`), gitignored files there other
@@ -197,6 +198,10 @@ $ARGUMENTS
     `origin/main` and commit the release only after this step. After the last data
     write it stamps `data/build-stamp.json` with that commit, then verifies the
     stamp, including that the commit is on `origin/main`.
+    With `INTERMEDIATES_LABEL`, it also packs the intermediates archive into
+    `$PURSUE_DATA_ROOT/release-assets/vX.Y.Z/` after `rebuild-derivatives` and the
+    site build, rebuild-checks it, and pins its sha256 in the stamp
+    (see `docs/intermediates.md`).
     `rebuild-derivatives` (inside ship-ready) now rebuilds the DERIVED SITE
     PAYLOADS per tranche — embed index, video posters, atlas layout (atlas
     last; it needs the `.[build-tools]` extra installed in the venv or it
@@ -220,6 +225,9 @@ $ARGUMENTS
     build time: two entries sharing a card need a cross-link or a declared `supplements:`.
     Then publish quote-verified, cross-linked `/finds` (astro build re-validates every `<Cite>`) and
     `git tag vX.Y.Z && gh release create vX.Y.Z --latest` (both — a tag alone is not the release).
+    Then, with the release commit checked out, `make release-intermediates TAG=vX.Y.Z`
+    attaches the archive packed in step 12 and its `SHA256SUMS`; it refuses unless the
+    stamp at `HEAD` pins that archive. Paste the sha256 line it prints into the release notes.
 15. **Record:** update the private operations checkout's session record + write the finds digest (see the private ops runbook).
 
 ## Metadata-only tranches (autopilot)
