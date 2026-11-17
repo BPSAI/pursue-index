@@ -444,3 +444,30 @@ def test_each_chunked_asset_is_read_once_per_run(tmp_path: Path, monkeypatch) ->
     )
     assert reads.count("pages.json") == 1
     assert reads.count("pages-cleaned.json") == 1
+
+
+def test_a_full_cli_run_reads_each_chunked_asset_once(tmp_path: Path, monkeypatch) -> None:
+    """Through ``main()``, the gate's real entry point: no internals wired in
+    by hand, so this fails on the version that read each asset twice."""
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps(_manifest([_row("c1", "pdf")])))
+    bundle_doc = _bundle({"c1": 1})
+    bundle_doc["cards"][0]["judged_pages_digest"] = "x"
+    (tmp_path / "bundle.json").write_text(json.dumps(bundle_doc))
+    (tmp_path / "pages.json").write_text(json.dumps([_page("c1", 1, "text")]))
+    (tmp_path / "pages-cleaned.json").write_text(json.dumps({"pages": [{"card_id": "c1", "page": 1}]}))
+    (tmp_path / "index.json").write_text(json.dumps({"card_ids": []}))
+
+    reads: list[str] = []
+    real = build_qc_coverage.read_asset_json
+    monkeypatch.setattr(build_qc_coverage, "read_asset_json",
+                        lambda path: reads.append(Path(path).name) or real(path))
+    monkeypatch.setattr(sys, "argv", [
+        "build_qc_coverage.py", "--manifest", str(manifest), "--bundle", str(tmp_path / "bundle.json"),
+        "--pages", str(tmp_path / "pages.json"), "--pages-cleaned", str(tmp_path / "pages-cleaned.json"),
+        "--observations", str(tmp_path / "index.json"), "--out", str(tmp_path / "out.json"),
+        "--asr-diff-bundle", str(tmp_path / "absent-asr.json"),
+    ])
+    build_qc_coverage.main()
+    assert reads.count("pages.json") == 1, reads
+    assert reads.count("pages-cleaned.json") == 1, reads
