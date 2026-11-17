@@ -16,6 +16,8 @@ __all__ = ["GitError", "changed_paths", "commit_paths", "current_branch", "head_
            "modified_tracked_paths", "origin_url", "path_summary", "untracked_paths"]
 
 _GIT_TIMEOUT = 120.0
+# `git config --show-scope` arrived in git 2.26; older git rejects the option.
+_SHOW_SCOPE_MIN_GIT = "2.26"
 _PATH_LIST_CAP = 200
 
 
@@ -83,6 +85,10 @@ def _local_config(runner: Runner, repo: Path, pattern: str) -> list[tuple[str, s
         return []
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip() or f"exit {result.returncode}"
+        if "unknown option" in detail and "show-scope" in detail:
+            raise GitError(f"git {_SHOW_SCOPE_MIN_GIT} or newer is required to read the "
+                           "checkout's config by scope (git config --show-scope); "
+                           "upgrade git to run the autopilot")
         raise GitError(f"git config failed: {detail}")
     entries = []
     for line in result.stdout.splitlines():

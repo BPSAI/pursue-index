@@ -14,6 +14,9 @@ import pytest
 
 from pursue_index.tranche_autopilot import ExitCode
 from pursue_index.tranche_autopilot.child_env import fetch_argv
+from pursue_index.tranche_autopilot.fetch_target import fetch_target_problem
+from pursue_index.tranche_autopilot.gitops import GitError, local_http_keys
+from pursue_index.tranche_autopilot.runner import CommandResult
 from pursue_index.tranche_autopilot.urlmatch import config_url_applies
 from tests.support.autopilot_fakes import FakeRunner, make_checkout, receipt, run_engine
 
@@ -190,3 +193,31 @@ def test_the_local_config_readers_are_exported() -> None:
     for name in ("local_url_rewrites", "local_http_keys", "local_credential_keys"):
         assert name in gitops.__all__
         assert callable(getattr(gitops, name))
+
+
+# -- git too old for --show-scope ------------------------------------------------
+
+_OLD_GIT = CommandResult(129, "", "error: unknown option `show-scope'\nusage: git config [<options>]\n")
+
+
+def _old_git(argv, *, cwd, timeout, env=None) -> CommandResult:
+    if argv[:2] == ["git", "config"]:
+        return _OLD_GIT
+    if argv[:3] == ["git", "remote", "get-url"]:
+        return CommandResult(2, "", "error: No such remote 'origin'")
+    raise AssertionError(f"unexpected command: {argv}")
+
+
+def test_git_without_show_scope_names_the_minimum_version(tmp_path: Path) -> None:
+    with pytest.raises(GitError, match=r"git 2\.26 or newer"):
+        local_http_keys(_old_git, tmp_path)
+    problem = fetch_target_problem(_old_git, tmp_path, "BPSAI/pursue-index")
+    assert problem is not None and "git 2.26 or newer" in problem
+
+
+def test_another_config_failure_keeps_the_generic_error(tmp_path: Path) -> None:
+    def broken(argv, *, cwd, timeout, env=None) -> CommandResult:
+        return CommandResult(128, "", "fatal: bad config line 3")
+
+    with pytest.raises(GitError, match="git config failed: fatal: bad config line 3"):
+        local_http_keys(broken, tmp_path)
