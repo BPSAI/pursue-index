@@ -29,6 +29,7 @@ __all__ = [
     "Find",
     "load_finds",
     "parse_frontmatter",
+    "render_finds_index",
     "render_finds_section",
     "replace_finds_section",
     "strip_mdx",
@@ -166,6 +167,28 @@ def render_finds_section(finds: list[Find]) -> str:
     return "\n".join(lines)
 
 
+_INDEX_SUMMARY_MAX = 160
+_WHITESPACE_RE = re.compile(r"\s+")
+
+
+def render_finds_index(finds: list[Find]) -> str:
+    """llms.txt's ``## Finds`` list: one linked line per article.
+
+    The summary is whitespace-collapsed and, past 160 characters, cut to 157
+    plus an ellipsis, as the original generator wrote it.
+    """
+    lines = []
+    for find in finds:
+        summary = _WHITESPACE_RE.sub(" ", find.meta.get("summary") or "").strip()
+        if len(summary) > _INDEX_SUMMARY_MAX:
+            summary = summary[: _INDEX_SUMMARY_MAX - 3] + "…"
+        lines.append(
+            f"- [{find.slug} — {find.meta.get('title')}]"
+            f"({SITE_ORIGIN}/finds/{find.slug}): {summary}"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def replace_finds_section(document: str, body: str) -> str:
     """Replace everything from the ``## Finds`` heading to the end of the file.
 
@@ -179,6 +202,12 @@ def replace_finds_section(document: str, body: str) -> str:
     return f"{document[: match.end()]}\n{body}"
 
 
-def sync_finds_section(document: str, finds_dir: Path) -> str:
-    """``document`` with its ``## Finds`` section regenerated from ``finds_dir``."""
-    return replace_finds_section(document, render_finds_section(load_finds(finds_dir)))
+def sync_finds_section(document: str, finds_dir: Path, *, index: bool = False) -> str:
+    """``document`` with its ``## Finds`` section regenerated from ``finds_dir``.
+
+    ``index=True`` writes llms.txt's one-line-per-article list; otherwise the
+    full inlined articles of llms-full.txt.
+    """
+    finds = load_finds(finds_dir)
+    render = render_finds_index if index else render_finds_section
+    return replace_finds_section(document, render(finds))

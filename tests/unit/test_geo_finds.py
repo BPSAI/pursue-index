@@ -14,8 +14,10 @@ from pathlib import Path
 import pytest
 
 from pursue_index.geo.finds import (
+    Find,
     load_finds,
     parse_frontmatter,
+    render_finds_index,
     render_finds_section,
     replace_finds_section,
     strip_mdx,
@@ -139,3 +141,26 @@ class TestSection:
     def test_replace_refuses_a_document_without_the_section(self):
         with pytest.raises(ValueError):
             replace_finds_section("# T\n\n## Cards\n\nc\n", "x\n")
+
+
+class TestIndex:
+    def _find(self, summary):
+        meta = {"title": "T", "summary": summary} if summary is not None else {"title": "T"}
+        return Find(slug="s", meta=meta, body="")
+
+    def test_summary_whitespace_collapses(self):
+        out = render_finds_index([self._find("  a\n  b  ")])
+        assert out == "- [s — T](https://pursueindex.com/finds/s): a b\n"
+
+    def test_long_summary_is_cut_to_157_chars_and_an_ellipsis(self):
+        out = render_finds_index([self._find("x" * 161)])
+        assert out.endswith(": " + "x" * 157 + "…\n")
+
+    def test_a_160_char_summary_is_kept_whole(self):
+        assert render_finds_index([self._find("x" * 160)]).endswith(": " + "x" * 160 + "\n")
+
+    def test_no_summary_leaves_an_empty_tail(self):
+        assert (
+            render_finds_index([self._find(None)])
+            == "- [s — T](https://pursueindex.com/finds/s): \n"
+        )

@@ -4,8 +4,9 @@
 These two discovery surfaces were hand-maintained, so a tranche that added cards
 left them describing the previous release with nothing to catch it. This script
 rewrites the `## Cards` section of each from the manifest, rewrites the
-`## Finds` section of llms-full.txt from the `/finds` MDX sources
-(`web/src/content/finds/`), and stamps a provenance line the ship path can check.
+`## Finds` section of each from the `/finds` MDX sources
+(`web/src/content/finds/`: a linked list in llms.txt, the full articles in
+llms-full.txt), and stamps a provenance line the ship path can check.
 
 Deliberately narrow: only those derived sections are rebuilt. The hand-written
 prose sections (the intro, Project overview, Methodology, About, How to cite)
@@ -137,6 +138,7 @@ def render_documents(manifest: dict, *, ocr_dir: Path) -> dict[Path, str]:
     )
     full_body = f"{build_cards_intro(card_count=len(cards))}\n\n{detail_body}"
 
+    index_doc = sync_finds_section(index_doc, FINDS_DIR, index=True)
     full_doc = sync_finds_section(full_doc, FINDS_DIR)
 
     out: dict[Path, str] = {}

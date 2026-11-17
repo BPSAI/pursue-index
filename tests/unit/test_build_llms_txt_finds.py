@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from pursue_index.geo.finds import load_finds, render_finds_section
+from pursue_index.geo.finds import load_finds, render_finds_index, render_finds_section
 from pursue_index.geo.llms import build_provenance_line
 
 REPO = Path(__file__).resolve().parents[2]
@@ -61,7 +61,7 @@ def _root(tmp_path: Path) -> Path:
     }
     (root / "data" / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (root / "web" / "public" / "llms.txt").write_text(
-        "# pursue-index\n\n## Cards\n\nstale\n", encoding="utf-8"
+        "# pursue-index\n\n## Cards\n\nstale\n\n## Finds\n\n- stale\n", encoding="utf-8"
     )
     (root / "web" / "public" / "llms-full.txt").write_text(
         f"{_PROSE}## Cards\n\nstale\n\n## Finds\n\n0 stale.\n", encoding="utf-8"
@@ -146,3 +146,40 @@ def test_an_unchanged_published_find_round_trips_byte_identically():
     start = published.index(f"\n### {slug} — ") + 1
     end = published.index("\n### ", start) + 1
     assert rendered == published[start:end].rstrip("\n") + "\n"
+
+
+def _index(root: Path) -> str:
+    return (root / "web" / "public" / "llms.txt").read_text(encoding="utf-8")
+
+
+def test_llms_txt_finds_list_is_regenerated(tmp_path):
+    root = _root(tmp_path)
+    assert _run(root).returncode == 0
+    index = _index(root)
+    assert "- stale" not in index
+    finds = load_finds(root / "web" / "src" / "content" / "finds")
+    assert index.endswith("\n## Finds\n\n" + render_finds_index(finds))
+    assert "](https://pursueindex.com/finds/a-find): One summary line." in index
+
+
+def test_check_fails_when_a_find_is_added_until_llms_txt_is_regenerated(tmp_path):
+    root = _root(tmp_path)
+    _run(root)
+    finds_dir = root / "web" / "src" / "content" / "finds"
+    (finds_dir / "b-find.mdx").write_text(_MDX.replace("A Find", "B Find"), encoding="utf-8")
+    stale = _run(root, "--check")
+    assert stale.returncode == 1
+    assert "llms.txt" in stale.stdout.replace("llms-full.txt", "")
+
+    _run(root)
+    assert _run(root, "--check").returncode == 0
+    assert "/finds/b-find" in _index(root)
+
+
+def test_an_unchanged_published_find_index_line_round_trips():
+    """A real article: the committed llms.txt line is exactly what its `.mdx` renders."""
+    slug = "air-intelligence-study-203-1948"
+    finds = [f for f in load_finds(REPO / "web" / "src" / "content" / "finds") if f.slug == slug]
+    published = (REPO / "web" / "public" / "llms.txt").read_bytes().decode("utf-8")
+    line = next(row for row in published.split("\n") if row.startswith(f"- [{slug} — "))
+    assert render_finds_index(finds) == line + "\n"
