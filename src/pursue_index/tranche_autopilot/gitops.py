@@ -12,8 +12,8 @@ from pathlib import Path
 from pursue_index.tranche_autopilot.runner import Runner
 
 __all__ = ["GitError", "changed_paths", "commit_paths", "current_branch", "head_sha",
-           "is_clean", "modified_tracked_paths", "origin_url", "path_summary",
-           "untracked_paths"]
+           "is_clean", "local_url_rewrites", "modified_tracked_paths", "origin_url",
+           "path_summary", "untracked_paths"]
 
 _GIT_TIMEOUT = 120.0
 _PATH_LIST_CAP = 200
@@ -70,6 +70,38 @@ def origin_url(runner: Runner, repo: Path) -> str | None:
     result = runner(["git", "remote", "get-url", "origin"], cwd=repo, timeout=_GIT_TIMEOUT)
     url = result.stdout.strip()
     return url if result.returncode == 0 and url else None
+
+
+def _local_config(runner: Runner, repo: Path, pattern: str) -> list[tuple[str, str]]:
+    """``(key, value)`` for every key matching ``pattern`` in the checkout's own
+    config (local and worktree scope, includes followed). System and global
+    config are left out: the fetch ignores them. Keys come back lowercased
+    except for a subsection, which git keeps as written."""
+    result = runner(["git", "config", "--show-scope", "--includes", "--get-regexp",
+                     pattern], cwd=repo, timeout=_GIT_TIMEOUT)
+    if result.returncode == 1:  # no match
+        return []
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout).strip() or f"exit {result.returncode}"
+        raise GitError(f"git config failed: {detail}")
+    entries = []
+    for line in result.stdout.splitlines():
+        scope, _, entry = line.partition("\t")
+        key, _, value = entry.partition(" ")
+        if scope in ("local", "worktree"):
+            entries.append((key, value))
+    return entries
+
+
+def local_url_rewrites(runner: Runner, repo: Path) -> list[tuple[str, str]]:
+    """``(key, prefix)`` for every local ``url.<base>.insteadOf``."""
+    return _local_config(runner, repo, r"^url\..*\.insteadof$")
+
+
+def local_http_keys(runner: Runner, repo: Path) -> list[str]:
+    """Every local ``http.*`` key, general (``http.<var>``) or URL-scoped
+    (``http.<url>.<var>``)."""
+    return [key for key, _value in _local_config(runner, repo, r"^http\.")]
 
 
 def is_clean(runner: Runner, repo: Path) -> bool:

@@ -12,14 +12,16 @@ then re-proves it.
 from __future__ import annotations
 
 import shlex
+import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from pursue_index.poll_freshness import PollCheckError
-from pursue_index.tranche_autopilot.child_env import FETCH_ENV, fetch_argv
+from pursue_index.tranche_autopilot.child_env import INDEX_SLUG, fetch_argv, fetch_env
 from pursue_index.tranche_autopilot.eligibility import Eligibility
+from pursue_index.tranche_autopilot.fetch_target import fetch_target_problem
 from pursue_index.tranche_autopilot.gitops import (
     GitError,
     changed_paths,
@@ -64,7 +66,7 @@ class Context:
     commits: list[str] = field(default_factory=list)
     changed: dict[str, Any] | None = None
     storage_env: Mapping[str, str] = field(default_factory=dict, repr=False)
-    slug: str | None = None
+    fetch_slug: str = INDEX_SLUG
 
 
 def _tail(result: CommandResult) -> str:
@@ -225,12 +227,19 @@ def freshness_recheck(ctx: Context) -> None:
     # Fetch first, so a poll commit that landed on GitHub during the run is
     # seen even if nothing else fetched; a failed or timed-out fetch fails the
     # step closed rather than comparing against a stale origin/main.
+    # The target is re-checked first, in case a step changed the checkout's
+    # config; the fetch gets an empty HOME so no ~/.netrc is in reach.
     step = ctx.steps["freshness-recheck"]
     step.start()
-    fetched = ctx.runner(fetch_argv(ctx.slug), cwd=ctx.repo_root, timeout=FETCH_TIMEOUT_S,
-                         env={**ctx.env, **FETCH_ENV})
+    problem = fetch_target_problem(ctx.runner, ctx.repo_root, ctx.fetch_slug)
+    if problem is not None:
+        step.finish("failed", problem)
+        raise AutopilotStopError(ExitCode.GATE_FAILED, f"step freshness-recheck failed: {problem}")
+    with tempfile.TemporaryDirectory(prefix="pursue-fetch-home-") as home:
+        fetched = ctx.runner(fetch_argv(ctx.fetch_slug), cwd=ctx.repo_root,
+                             timeout=FETCH_TIMEOUT_S, env=fetch_env(ctx.env, home))
     if fetched.returncode != 0:
-        detail = (f"git fetch of {ctx.slug or 'origin'} main failed "
+        detail = (f"git fetch of {ctx.fetch_slug} main failed "
                   f"(exit {fetched.returncode}): {_tail(fetched)}")
         step.finish("failed", detail, fetched.returncode)
         raise AutopilotStopError(ExitCode.GATE_FAILED, f"step freshness-recheck failed: {detail}")

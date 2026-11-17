@@ -321,8 +321,9 @@ def test_the_freshness_recheck_fetches_origin_first(tmp_path: Path) -> None:
     runner = FakeRunner(repo)
     _run(tmp_path, repo, runner)
     fetches = [argv for argv in runner.calls if argv[0] == "git" and "fetch" in argv]
-    # No GitHub origin in this checkout, so it fetches the remote named origin.
-    assert fetches and fetches[0][-2:] == ["origin", "+refs/heads/main:refs/remotes/origin/main"]
+    # No origin in this checkout: the fetch still targets the pinned index repo.
+    assert fetches and fetches[0][-2:] == ["https://github.com/BPSAI/pursue-index.git",
+                                           "+refs/heads/main:refs/remotes/origin/main"]
 
 
 def test_a_failed_fetch_fails_the_freshness_recheck_closed(tmp_path: Path) -> None:
