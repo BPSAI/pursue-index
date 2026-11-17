@@ -59,7 +59,7 @@ def _repo(tmp_path: Path, tarball: Path | None) -> Path:
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
     subprocess.run(["git", "-C", str(repo), *_IDENT, "add", "-A"], check=True)
     subprocess.run(["git", "-C", str(repo), *_IDENT, "commit", "-qm", "stamp"], check=True)
-    subprocess.run(["git", "-C", str(repo), "tag", TAG], check=True)
+    subprocess.run(["git", "-C", str(repo), "-c", "tag.gpgsign=false", "tag", TAG], check=True)
     return repo
 
 

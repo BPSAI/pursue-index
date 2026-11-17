@@ -1,8 +1,9 @@
 """``pursue transcribe asr-diff run`` -- dry-run cost preview only.
 
 ``run`` previews the projected cost of running a second engine over every
-AUD row that does not yet carry a completed comparison under the given
-engine pair, and NEVER calls a second engine itself. The live pass for the
+AUD row the live plan counts as pending -- the same check
+(``asr_diff_rows.card_row_states``), so the two report one
+pending/compared/skipped split -- and NEVER calls a second engine itself. The live pass for the
 local second engine is ``pursue transcribe asr-diff live``
 (``asr_diff_live_cli``), which is a dry run unless given ``--confirm``.
 Any other second engine is invoked directly against
@@ -15,18 +16,16 @@ engine is right, and agreement is not an accuracy score.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
-from pursue_index.card_id import InvalidCardIdError, require_card_id, require_card_ids
+from pursue_index.card_id import InvalidCardIdError, require_card_id
 from pursue_index.config import settings
-from pursue_index.scrape import load_manifest
 from pursue_index.text_control import console_text
-from pursue_index.transcribe import asr_diff_sidecar as sidecar
+from pursue_index.transcribe.asr_diff_rows import aud_card_ids, card_row_states
 from pursue_index.transcribe.asr_diff_runner import estimate_cost_usd
 
 asr_diff_app = typer.Typer(
@@ -37,58 +36,26 @@ asr_diff_app = typer.Typer(
 console = Console()
 
 
-def _aud_card_ids(manifest_path: Path, cards_filter: str | None) -> list[str]:
-    wanted = (
-        set(require_card_ids(c.strip() for c in cards_filter.split(",") if c.strip()))
-        if cards_filter else None
-    )
-    manifest = load_manifest(manifest_path)
-    aud_cards = [c.card_id for c in manifest.cards if c.asset_type == "AUD"]
-    if wanted is not None:
-        aud_cards = [c for c in aud_cards if c in wanted]
-    return aud_cards
-
-
-def _read_meta(card_dir: Path) -> dict | None:
-    meta_path = card_dir / "meta.json"
-    if not meta_path.exists():
-        return None
-    try:
-        data = json.loads(meta_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return None
-    return data if isinstance(data, dict) else None
-
-
-def _eligible_rows(
+def _preview_rows(
     out_dir: Path, card_ids: list[str], engine_b: str,
-) -> list[tuple[str, str, float]]:
-    """``(card_id, row_key, audio_duration_s)`` for every AUD row carrying a
-    transcript but no completed comparison against ``engine_b`` yet."""
-    rows: list[tuple[str, str, float]] = []
+) -> tuple[list[tuple[str, str, float]], int, int]:
+    """``(card_id, row_key, audio_duration_s)`` for every row the live plan
+    would compare against ``engine_b``, then how many rows it counts as
+    already compared and as skipped (``asr_diff_rows.card_row_states``)."""
+    pending: list[tuple[str, str, float]] = []
+    compared = skipped = 0
     for card_id in card_ids:
-        card_dir = out_dir / require_card_id(card_id)
-        meta = _read_meta(card_dir)
-        if not meta or meta.get("status") != "ok":
-            continue
-        engine_a = meta.get("engine", "")
-        existing = sidecar.load_existing(card_dir / sidecar.SIDECAR_FILE)
-        version = sidecar.transcript_version(card_dir)
-        for row in meta.get("rows") or [{"row_key": ""}]:
-            row_key = str(row.get("row_key", "") or "")
-            prior = existing.get(row_key)
-            if prior and sidecar.should_skip(
-                prior, engine_a=engine_a, engine_b=engine_b, transcript_version=version,
-            ):
-                continue
-            duration_s = float(row.get("audio_duration_s") or (
-                meta.get("audio_duration_s") if len(meta.get("rows") or []) <= 1 else 0.0) or 0.0)
-            rows.append((card_id, row_key, duration_s))
-    return rows
+        for row in card_row_states(out_dir / require_card_id(card_id), engine_b):
+            if row.state == "pending":
+                pending.append((card_id, row.row_key, row.duration_s))
+            compared += row.state == "compared"
+            skipped += row.state == "skipped"
+    return pending, compared, skipped
 
 
 def _print_dry_run(
-    rows: list[tuple[str, str, float]], engine_b: str, rate_usd_per_minute: float,
+    rows: list[tuple[str, str, float]], compared: int, skipped: int,
+    engine_b: str, rate_usd_per_minute: float,
 ) -> None:
     table = Table(title="asr-diff DRY-RUN -- nothing spent")
     table.add_column("Card")
@@ -107,7 +74,8 @@ def _print_dry_run(
     console.print(
         f"[yellow]DRY-RUN[/yellow]: {len(rows)} row(s) would be compared against "
         f"[bold]{console_text(engine_b)}[/bold] at ${rate_usd_per_minute:.4f}/min "
-        f"-- total projected ${total:.2f}. Nothing was spent."
+        f"-- total projected ${total:.2f}. Nothing was spent. "
+        f"{compared} already compared, {skipped} skipped."
     )
 
 
@@ -128,17 +96,17 @@ def asr_diff_run(
         ..., "--rate-usd-per-minute", help="Second engine's per-audio-minute rate.",
     ),
 ) -> None:
-    """Preview the cost of a second-engine pass over every AUD row not yet
-    compared under ``engine_b``. Never spends -- see module docstring."""
+    """Preview the cost of a second-engine pass over every AUD row still
+    pending under ``engine_b``. Never spends -- see module docstring."""
     out_dir = out or settings.ocr_dir
     try:
-        card_ids = _aud_card_ids(manifest, cards)
-        rows = _eligible_rows(out_dir, card_ids, engine_b)
+        card_ids = aud_card_ids(manifest, cards)
+        rows, compared, skipped = _preview_rows(out_dir, card_ids, engine_b)
     except InvalidCardIdError as exc:
         console.print(f"[red]{console_text(str(exc))}[/red]")
         raise typer.Exit(code=2) from exc
     try:
-        _print_dry_run(rows, engine_b, rate_usd_per_minute)
+        _print_dry_run(rows, compared, skipped, engine_b, rate_usd_per_minute)
     except ValueError as exc:  # negative/non-finite duration or rate
         console.print(f"[red]{console_text(str(exc))}[/red]")
         raise typer.Exit(code=2) from exc

@@ -26,11 +26,11 @@ from rich.table import Table
 
 from pursue_index.card_id import InvalidCardIdError
 from pursue_index.cli import ingest_defaults
-from pursue_index.cli.asr_diff_cli import _aud_card_ids
 from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 from pursue_index.text_control import console_text
 from pursue_index.transcribe import asr_diff_live as live
+from pursue_index.transcribe.asr_diff_rows import aud_card_ids
 from pursue_index.transcribe.engine_b_parakeet import ENGINE_B_NAME, make_parakeet_engine
 
 console = Console()
@@ -40,7 +40,7 @@ engine_factory = make_parakeet_engine
 
 
 def _cards(manifest: Path, cards: str | None) -> list[tuple[str, str, str | None]]:
-    wanted = set(_aud_card_ids(manifest, cards))
+    wanted = set(aud_card_ids(manifest, cards))
     out, seen = [], set()
     for c in load_manifest(manifest).cards:
         if c.card_id in wanted and c.card_id not in seen:
