@@ -12,8 +12,8 @@ from pathlib import Path
 from pursue_index.tranche_autopilot.runner import Runner
 
 __all__ = ["GitError", "changed_paths", "commit_paths", "current_branch", "head_sha",
-           "is_clean", "local_url_rewrites", "modified_tracked_paths", "origin_url",
-           "path_summary", "untracked_paths"]
+           "is_clean", "local_credential_keys", "local_http_keys", "local_url_rewrites",
+           "modified_tracked_paths", "origin_url", "path_summary", "untracked_paths"]
 
 _GIT_TIMEOUT = 120.0
 _PATH_LIST_CAP = 200

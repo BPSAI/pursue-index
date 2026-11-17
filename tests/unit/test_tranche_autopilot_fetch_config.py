@@ -182,3 +182,11 @@ def test_the_fetch_clears_askpass() -> None:
     pairs = {argv[i + 1] for i, a in enumerate(argv) if a == "-c"}
     assert "core.askPass=" in pairs
     assert "credential.helper=" in pairs
+
+
+def test_the_local_config_readers_are_exported() -> None:
+    from pursue_index.tranche_autopilot import gitops
+
+    for name in ("local_url_rewrites", "local_http_keys", "local_credential_keys"):
+        assert name in gitops.__all__
+        assert callable(getattr(gitops, name))
