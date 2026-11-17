@@ -7,9 +7,9 @@ regeneration of the manifest-derived sections, and the staleness check that
 fails the ship step when they disagree with the manifest.
 
 Scope note: a tranche changes cards, counts and the manifest sha. It does not
-change the hand-written prose sections or the editorial `/finds` articles that
-`llms-full.txt` inlines. So the generator rewrites the derived sections and
-preserves everything else verbatim.
+change the hand-written prose sections, so the generator rewrites the derived
+sections and preserves the prose verbatim. The `/finds` articles inlined in
+`llms-full.txt` are derived from their `.mdx` sources (see test_geo_finds.py).
 """
 
 from __future__ import annotations
