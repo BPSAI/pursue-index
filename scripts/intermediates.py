@@ -48,6 +48,8 @@ import tarfile
 import tempfile
 from typing import Any
 
+from _intermediates_scrub import QC_SIDECAR, scrub_qc_rows
+
 from pursue_index.paths import repo_root
 from pursue_index.release.chunked_asset import read_asset_bytes, read_asset_json
 
@@ -114,7 +116,10 @@ def pack(data_root: Path, out_dir: Path, label: str) -> Path:
     if not label or "/" in label or label.startswith("."):
         raise SystemExit(f"intermediates: bad --label {label!r}")
     files = collect(data_root)
-    blobs = {arc: src.read_bytes() for arc, src in files}
+    blobs = {
+        arc: scrub_qc_rows(src.read_bytes()) if arc.endswith(f"/{QC_SIDECAR}") else src.read_bytes()
+        for arc, src in files
+    }
     manifest = {
         "schema": SCHEMA,
         "label": label,
