@@ -250,6 +250,9 @@ _HOSTILE = {
     "GIT_DIR": "/x/.git", "GIT_ASKPASS": "/x/askpass", "SSH_ASKPASS": "/x/askpass",
     "http_proxy": "http://p:1", "HTTPS_PROXY": "http://p:1", "ALL_PROXY": "socks5://p:1",
     "CURL_CA_BUNDLE": "/x/ca.pem", "SSL_CERT_FILE": "/x/ca.pem", "SSL_CERT_DIR": "/x",
+    # Not on any deny-list: the fetch env is an allowlist.
+    "OPENSSL_CONF": "/x/openssl.cnf", "LD_PRELOAD": "/x/evil.so", "SSLKEYLOGFILE": "/x/keys",
+    "LD_LIBRARY_PATH": "/x", "PYTHONPATH": "/x", "PURSUE_DATA_ROOT": "/data",
 }
 
 
@@ -262,3 +265,11 @@ def test_the_fetch_env_drops_git_tls_and_proxy_variables_whatever_the_caller_pas
     assert env["PATH"] == "/bin" and env["LANG"] == "C"
     assert env["GIT_CONFIG_NOSYSTEM"] == "1" and env["GIT_CONFIG_GLOBAL"] == "/dev/null"
     assert env["GIT_TERMINAL_PROMPT"] == "0" and env["HOME"] == "/tmp/empty-home"
+
+
+def test_the_fetch_env_is_an_allowlist() -> None:
+    """Only process basics, locale and the fixed git settings reach the fetch."""
+    env = fetch_env({"PATH": "/bin", "LANG": "C", "LC_ALL": "C", "TZ": "UTC",
+                     "HOME": "/home/someone", **_HOSTILE}, "/tmp/empty-home")
+    assert set(env) == {"PATH", "LANG", "LC_ALL", "TZ", "HOME", "GIT_TERMINAL_PROMPT",
+                        *FETCH_ENV}
