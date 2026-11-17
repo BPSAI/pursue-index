@@ -27,6 +27,7 @@ from pursue_index.config import settings
 from pursue_index.scrape import load_manifest
 from pursue_index.text_control import console_text
 from pursue_index.transcribe import asr_diff_sidecar as sidecar
+from pursue_index.transcribe.asr_diff_rows import row_duration
 from pursue_index.transcribe.asr_diff_runner import estimate_cost_usd
 
 asr_diff_app = typer.Typer(
@@ -81,9 +82,7 @@ def _eligible_rows(
                 prior, engine_a=engine_a, engine_b=engine_b, transcript_version=version,
             ):
                 continue
-            duration_s = float(row.get("audio_duration_s") or (
-                meta.get("audio_duration_s") if len(meta.get("rows") or []) <= 1 else 0.0) or 0.0)
-            rows.append((card_id, row_key, duration_s))
+            rows.append((card_id, row_key, row_duration(meta, row)))
     return rows
 
 

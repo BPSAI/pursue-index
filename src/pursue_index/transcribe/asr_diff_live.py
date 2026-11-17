@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pursue_index.transcribe import asr_diff_sidecar as sidecar
+from pursue_index.transcribe.asr_diff_rows import row_duration
 from pursue_index.transcribe.asr_diff_runner import (
     AsrDiffBudget,
     RowAsrDiffReport,
@@ -127,16 +128,6 @@ def file_sha256(path: Path, chunk: int = 1 << 20) -> str:
     return digest.hexdigest()
 
 
-def _duration(meta: dict, row: dict) -> float:
-    value = row.get("audio_duration_s")
-    if value is None and len(meta.get("rows") or []) <= 1:
-        value = meta.get("audio_duration_s")  # older single-row meta keeps it top-level
-    try:
-        return max(0.0, float(value or 0.0))
-    except (TypeError, ValueError):
-        return 0.0
-
-
 def _card_rows(
     card_id: str, title: str, ocr_dir: Path, audio_dir: Path, engine_b: str,
     dvids_video_id: str | None, mirrored: dict[str, Path],
@@ -147,7 +138,7 @@ def _card_rows(
         return [LiveRow(card_id, "", "skipped", 0.0, reason="no completed transcript")]
     rows = meta.get("rows") or [{"row_key": ""}]
     if len(rows) > 1:
-        return [LiveRow(card_id, str(r.get("row_key", "") or ""), "skipped", _duration(meta, r),
+        return [LiveRow(card_id, str(r.get("row_key", "") or ""), "skipped", row_duration(meta, r),
                         reason="multi-row card: pages are not separable per row") for r in rows]
     row = rows[0]
     row_key = str(row.get("row_key", "") or "")
@@ -163,7 +154,7 @@ def _card_rows(
     if not audio.is_file() and card_id in mirrored:
         audio = mirrored[card_id]
     state = "compared" if current else "pending"
-    return [LiveRow(card_id, row_key, state, _duration(meta, row), audio, engine_a)]
+    return [LiveRow(card_id, row_key, state, row_duration(meta, row), audio, engine_a)]
 
 
 def plan_rows(
