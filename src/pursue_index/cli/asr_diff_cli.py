@@ -1,13 +1,16 @@
 """``pursue transcribe asr-diff run`` -- dry-run cost preview only.
 
-Spend on the second-engine ASR cross-check (R7C.27) is operator-attended:
-this command previews the projected cost of running a second engine over
-every AUD row that does not yet carry a completed comparison under the
-given engine pair, and NEVER calls a second engine itself -- no vendor is
-wired into this CLI. The live pass is invoked directly against
+``run`` previews the projected cost of running a second engine over every
+AUD row that does not yet carry a completed comparison under the given
+engine pair, and NEVER calls a second engine itself. The live pass for the
+local second engine is ``pursue transcribe asr-diff live``
+(``asr_diff_live_cli``), which is a dry run unless given ``--confirm``.
+Any other second engine is invoked directly against
 ``pursue_index.transcribe.asr_diff_runner.run_row`` with the operator's own
-second-engine client, the same way the bulk transcribe pass bypasses
-``pursue transcribe run`` (see that command's docstring).
+client.
+
+A comparison flags where two engines disagree. It does not say which
+engine is right, and agreement is not an accuracy score.
 """
 
 from __future__ import annotations
@@ -28,7 +31,7 @@ from pursue_index.transcribe.asr_diff_runner import estimate_cost_usd
 
 asr_diff_app = typer.Typer(
     name="asr-diff",
-    help="Second-engine ASR cross-check for AUD transcripts (dry-run cost preview only).",
+    help="Second-engine ASR cross-check for AUD transcripts: run previews cost; live runs the local engine.",
     no_args_is_help=True,
 )
 console = Console()
@@ -78,7 +81,8 @@ def _eligible_rows(
                 prior, engine_a=engine_a, engine_b=engine_b, transcript_version=version,
             ):
                 continue
-            duration_s = float(row.get("audio_duration_s") or 0.0)
+            duration_s = float(row.get("audio_duration_s") or (
+                meta.get("audio_duration_s") if len(meta.get("rows") or []) <= 1 else 0.0) or 0.0)
             rows.append((card_id, row_key, duration_s))
     return rows
 

@@ -801,15 +801,18 @@ const methodologyJsonLd = [
         <code class="text-[color:var(--color-signal-cyan)]">judged</code> QC); below
         it, the disagreeing spans are sent to{" "}
         <code class="text-[color:var(--color-signal-cyan)]">review</code>{" "}
-        for a human pass.
+        for a human pass. Both labels are flags, not verdicts:{" "}
+        <code class="text-[color:var(--color-signal-cyan)]">asr_verified</code>{" "}
+        records only that no span was flagged, neither engine's text is
+        treated as the correct one, and agreement is not an accuracy score.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
         <strong class="text-[color:var(--color-text-bright)]">What this catches, and what it doesn't.</strong>{" "}
         Two independent engines reading the same audio occasionally disagree on
         a word — a homophone, a mumbled syllable, crosstalk — and that
-        disagreement is exactly what this cross-check surfaces: a{" "}
+        disagreement is exactly what this cross-check surfaces: a possible{" "}
         <strong class="text-[color:var(--color-text-bright)]">mishearing</strong>{" "}
-        one engine made that the other didn't. It does{" "}
+        by one of the two engines, which a listener then settles. It does{" "}
         <strong class="text-[color:var(--color-text-bright)]">not</strong>{" "}
         catch a word <strong class="text-[color:var(--color-text-bright)]">both engines mishear the same way</strong>,
         nor an error already present in the source audio itself (a speaker's
@@ -818,9 +821,11 @@ const methodologyJsonLd = [
         not a guarantee. When precision matters, listen to the source audio.
       </p>
       <p class="text-sm leading-relaxed text-[color:var(--color-text)]">
-        Spend on the second-engine pass is operator-attended: the command-line
-        tool only previews the projected cost and never calls a second engine
-        itself; the live pass is run by the operator against a stated budget cap.
+        The second engine is NVIDIA Parakeet TDT 0.6B v3, an open-weights model
+        run locally from a pinned revision, chosen in a bake-off of local
+        engines. It has no per-minute cost. The pass is operator-attended: the
+        command-line tool prints a dry run (rows pending, audio minutes,
+        estimated runtime) and runs the engine only when the operator confirms.
       </p>
     </section>
 

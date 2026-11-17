@@ -81,6 +81,18 @@ gpu = [
     # see SECURITY.md "Documented exceptions" before relaxing.
     "transformers>=4.56,<5",
 ]
+asr-b = [
+    # Local second ASR engine for the AUD cross-check (``pursue transcribe
+    # asr-diff live``; ``pursue_index.transcribe.engine_b_parakeet``): NVIDIA
+    # Parakeet TDT 0.6B v3 through Transformers, which needs the 5.x line
+    # (``AutoModelForTDT``). That conflicts with the ``gpu`` extra's
+    # ``transformers<5`` pin, so install this extra in its own venv. Also
+    # needs ffmpeg on PATH and a CUDA build of torch for the host's GPU.
+    "torch>=2.9",
+    "transformers>=5.23",
+    "accelerate>=1.0",  # transformers needs it for device_map placement
+    "numpy>=2.0",
+]
 llm = [
     # LLM-based OCR fallback for low-confidence pages. The Anthropic SDK is
     # the v1 implementation; the OpenAI provider is a stub for v2.
@@ -126,6 +138,11 @@ pursue = "pursue_index.cli.commands:app"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.uv]
+# The gpu extra pins transformers<5 and asr-b needs >=5.23: never resolve them
+# together (each needs its own environment).
+conflicts = [[{ extra = "gpu" }, { extra = "asr-b" }]]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pursue_index"]

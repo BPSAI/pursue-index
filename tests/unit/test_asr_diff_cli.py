@@ -103,3 +103,21 @@ def test_a_row_already_compared_under_the_same_engine_pair_is_excluded(tmp_path:
     ])
     assert result.exit_code == 0, result.output
     assert "0 row" in result.output
+
+
+def test_a_single_row_meta_with_top_level_duration_is_costed(tmp_path: Path) -> None:
+    """Older single-row meta.json keeps audio_duration_s at the top level."""
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, ["a1a1a1a1a1a1a1a1"])
+    card_dir = tmp_path / "ocr" / "a1a1a1a1a1a1a1a1"
+    card_dir.mkdir(parents=True)
+    (card_dir / "meta.json").write_text(json.dumps({
+        "card_id": "a1a1a1a1a1a1a1a1", "engine": "assemblyai", "status": "ok",
+        "audio_duration_s": 120.0,
+    }))
+    result = runner.invoke(app, [
+        "transcribe", "asr-diff", "run", "--manifest", str(manifest),
+        "--out", str(tmp_path / "ocr"), "--engine-b", "fake", "--rate-usd-per-minute", "0.03",
+    ])
+    assert result.exit_code == 0, result.output
+    assert "0.06" in result.output
