@@ -3,14 +3,15 @@
 Receipt keys (each present only when it has something to say, so a receipt
 for a manifest without 2-digit years keeps its earlier shape byte for byte):
 
-* ``summary.two_digit_priors_passed_through`` -- 2-digit values left as
-  given because the prior holds that field only in 2-digit form; present
-  whenever any new row carried a 2-digit year;
 * ``date_unresolved`` + ``summary.date_unresolved`` -- values no rule fixed;
 * ``release_window`` (``{lower, upper, source}``) + ``release_window_rows``
   (each with ``evidence: release-window``) + ``summary.release_window_resolved``.
 
-The source CSV's data-row number is not shown: the parse does not keep it.
+The count of 2-digit values passed through because the prior holds that
+field only in 2-digit form is NOT a receipt key: receipts are replayed byte
+for byte. It goes only to the verdict summary (``verdict_date_lines``) and
+the scripts' stdout. The source CSV's data-row number is not shown: the
+parse does not keep it.
 """
 
 from __future__ import annotations
@@ -24,14 +25,11 @@ __all__ = ["attach_date_report", "date_md_parts", "date_summary_lines", "verdict
 
 WINDOW_SOURCE = ("lower: earliest 4-digit release_date year in the prior manifest; "
                  "upper: year of the new manifest's fetched_at")
-_PASSED = "two_digit_priors_passed_through"
 
 
 def attach_date_report(diff: dict[str, Any], report: DateReport) -> dict[str, Any]:
     """Add the report's receipt keys to a tranche diff; returns ``diff``."""
     s = diff["summary"]
-    if report.considered:
-        s[_PASSED] = report.passed_through
     if report.unresolved:
         s["date_unresolved"] = len(report.unresolved)
         diff["date_unresolved"] = report.unresolved
@@ -51,8 +49,6 @@ def _cell(value: Any, limit: int = 80) -> str:
 def date_summary_lines(summary: Mapping[str, Any]) -> str:
     """The receipt's summary bullets; empty when the receipt has none."""
     out = ""
-    if _PASSED in summary:
-        out += f"- **{summary[_PASSED]}** 2-digit priors passed through\n"
     if "date_unresolved" in summary:
         out += (f"- **{summary['date_unresolved']}** dates unresolved "
                 "(2-digit year, manual review)\n")

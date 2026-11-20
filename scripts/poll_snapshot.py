@@ -18,7 +18,8 @@ Mirrors the ``src/``-injection pattern in ``scripts/pdf_health_check.py``.
 
 Output (stable kv format the workflow log can grep):
 
-* ``poll-snapshot.ok added=<n> removed=<n> field_changes=<n> new_columns=<csv>``
+* ``poll-snapshot.ok added=<n> removed=<n> field_changes=<n> new_columns=<csv>
+  verdict=<v> two_digit_priors_passed_through=<n>``
 
 Exit 3 (nothing written to ``--diff-out``) when a diff record for the sha
 already exists and the recompute disagrees: records are append-only.
@@ -174,7 +175,8 @@ def main(argv: list[str] | None = None) -> int:
         f"poll-snapshot.ok added={len(result.added)} "
         f"removed={len(result.removed)} "
         f"field_changes={len(result.field_changes)} "
-        f"new_columns={cols} verdict={artifact['verdict']}",
+        f"new_columns={cols} verdict={artifact['verdict']} "
+        f"two_digit_priors_passed_through={result.date_report.passed_through}",
         flush=True,
     )
     return 0

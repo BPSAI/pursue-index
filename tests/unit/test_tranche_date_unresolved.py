@@ -5,6 +5,7 @@ operator sees them before approving."""
 from __future__ import annotations
 
 import copy
+import json
 import sys
 from pathlib import Path
 
@@ -61,7 +62,7 @@ def test_markdown_worklist_has_labelled_section() -> None:
     assert ("| `2222222222222222` | Report on lights | incident_date | `1/18/57` "
             "| no_century_evidence |") in md
     assert "- **1** dates unresolved" in md
-    assert "- **0** 2-digit priors passed through" in md
+    assert "2-digit priors passed through" not in md
 
 
 def test_receipt_records_release_window_bounds_and_rows() -> None:
@@ -76,14 +77,28 @@ def test_receipt_records_release_window_bounds_and_rows() -> None:
     assert "## Release window (2026-2026)" in render_markdown(diff)
 
 
-def test_receipt_counts_two_digit_priors_passed_through() -> None:
+def test_passthrough_count_is_on_stdout_never_in_the_receipt(
+        monkeypatch, tmp_path: Path, capsys) -> None:
+    """Receipts are replayed byte for byte, so the 2-digit passthrough count
+    is reported on the run's stdout only."""
     old = {"csv_sha256": SHA_OLD, "cards": [_card("1" * 16, release_date="5/8/26")]}
     new = {"csv_sha256": SHA_NEW, "cards": [_card("1" * 16, release_date="5/8/26"),
                                             _card("2" * 16, release_date="6/1/26")]}
-    diff = tranche_diff.diff_tranches(old, new, {}, fetch_byte_sha=lambda _url: None)
-    assert diff["summary"]["two_digit_priors_passed_through"] == 2
-    assert "date_unresolved" not in diff
-    assert "- **2** 2-digit priors passed through" in render_markdown(diff)
+    paths = {}
+    for name, manifest in (("old", old), ("new", new)):
+        paths[name] = tmp_path / f"{name}.json"
+        paths[name].write_text(json.dumps(manifest), encoding="utf-8")
+    (tmp_path / "registry.jsonl").write_text("", encoding="utf-8")
+    monkeypatch.setattr(tranche_diff, "_fetch_byte_sha_via_curl", lambda _url: None)
+    monkeypatch.setattr(sys, "argv", [
+        "tranche_diff.py", "--old-manifest", str(paths["old"]), "--new-manifest",
+        str(paths["new"]), "--registry", str(tmp_path / "registry.jsonl"),
+        "--out-dir", str(tmp_path / "out")])
+    assert tranche_diff.main() == 0
+    assert "[tranche-diff] two_digit_priors_passed_through=2" in capsys.readouterr().out
+    written = tmp_path / "out" / f"tranche-diff-{SHA_NEW[:12]}"
+    assert "two_digit_priors_passed_through" not in written.with_suffix(".json").read_text()
+    assert "passed through" not in written.with_suffix(".md").read_text()
 
 
 def _record_inputs(diff: dict) -> RecordInputs:

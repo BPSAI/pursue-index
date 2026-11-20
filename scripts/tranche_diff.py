@@ -35,8 +35,9 @@ Also reports:
   * 2-digit-year dates: the new manifest's 2-digit years are restored
     first (`scrape.year_normalize`, reproducible on an already-normalized
     snapshot); the receipt lists rows no rule could fix (`date_unresolved`),
-    the release window and the rows it resolved, and the count of 2-digit
-    priors passed through (`scrape.year_normalize_report`)
+    and the release window and the rows it resolved
+    (`scrape.year_normalize_report`); the count of 2-digit priors passed
+    through is printed on stdout only, never written to the receipt
 
 Outputs:
   * `data/tranche-diffs/tranche-diff-<csv_sha>.json` — machine-readable
@@ -356,6 +357,8 @@ def main() -> int:
     md_path.write_text(render_markdown(diff))
     print(f"[tranche-diff] wrote {json_path} and {md_path}")
     print(f"[tranche-diff] summary: {diff['summary']}")
+    passed = normalize_manifest_dict(new_manifest, old_manifest)[1].passed_through
+    print(f"[tranche-diff] two_digit_priors_passed_through={passed}")
     return 0
 
 

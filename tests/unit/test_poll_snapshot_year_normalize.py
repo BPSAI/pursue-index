@@ -78,6 +78,27 @@ def test_new_release_date_resolves_by_release_window(tmp_path: Path) -> None:
     assert "release window 2026-" in render_verdict_summary(result)
 
 
+def test_passthrough_count_on_the_poll_stdout_line(tmp_path: Path, capsys) -> None:
+    import sys
+
+    scripts = Path(__file__).resolve().parents[2] / "scripts"
+    if str(scripts) not in sys.path:
+        sys.path.insert(0, str(scripts))
+    import poll_snapshot
+
+    latest = tmp_path / "latest.json"
+    prior = _csv([("5/8/26", "Case 1", "1/18/1957", _URL1)])
+    save_manifest(build_manifest(prior, parse_csv(prior), _SOURCE_URL), latest)
+    csv_path = tmp_path / "new.csv"
+    csv_path.write_bytes(_csv([("5/8/26", "Case 1", "1/18/57", _URL1)]))
+    assert poll_snapshot.main(["--csv", str(csv_path), "--latest", str(latest),
+                               "--canonical-dir", str(tmp_path / "c"),
+                               "--public-dir", str(tmp_path / "p")]) == 0
+    line = [ln for ln in capsys.readouterr().out.splitlines()
+            if ln.startswith("poll-snapshot.ok")]
+    assert line and line[0].endswith(" two_digit_priors_passed_through=1")
+
+
 def test_artifact_omits_date_unresolved_when_none(tmp_path: Path) -> None:
     prior = _csv([("10/23/2026", "Case 1", "1/18/1957", _URL1)])
     result, _, sha = _run(tmp_path, prior, _csv([("10/23/26", "Case 1", "1/18/57", _URL1)]))
