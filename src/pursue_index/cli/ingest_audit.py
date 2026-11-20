@@ -23,6 +23,7 @@ from pursue_index.post_ingest_audit import (
     has_blocking_mismatch,
     render_audit_summary,
 )
+from pursue_index.scrape.variants import VariantMismatchError, resolve_snapshot
 
 # A tranche is a csv sha256; operators may pass a 12+ character prefix. Checked
 # before it goes into a glob pattern.
@@ -52,10 +53,13 @@ def _fetch_byte_sha_via_curl(url: str) -> str | None:
 
 
 def _load_new_manifest(tranche_sha: str, snapshots_dir: Path) -> dict | None:
-    """Find the snapshot manifest for the given tranche sha."""
-    for path in snapshots_dir.glob(f"{tranche_sha}*.json"):
-        return json.loads(path.read_text())
-    return None
+    """Find the snapshot manifest for the given tranche sha: the one made with
+    the current date-resolution overlay (``variants.resolve_snapshot``)."""
+    try:
+        path = resolve_snapshot(tranche_sha, snapshots_dir)
+    except VariantMismatchError as exc:
+        _refuse(str(exc))
+    return json.loads(path.read_text()) if path is not None else None
 
 
 def _refuse(why: str) -> NoReturn:

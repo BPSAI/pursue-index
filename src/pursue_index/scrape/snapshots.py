@@ -33,6 +33,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from pursue_index.scrape.variants import snapshot_name
 
 # Public + canonical snapshot locations. The public mirror is what the
 # DiffIsland fetches at runtime; the canonical copy is what we treat as
@@ -61,7 +62,8 @@ def rotate_to_snapshot(
     public_dir: Path = DEFAULT_PUBLIC_DIR,
 ) -> Path | None:
     """Copy the current ``latest.json`` to a snapshot file named by its
-    ``csv_sha256`` and update the index. No-op if no prior manifest exists
+    ``csv_sha256`` (plus its ``resolutions_digest`` suffix when it has one,
+    ``variants.snapshot_name``) and update the index. No-op if no prior manifest exists
     (first scrape) or if the prior manifest's csv_sha is already snapshotted.
 
     Returns the canonical snapshot path on success, ``None`` when there
@@ -75,8 +77,9 @@ def rotate_to_snapshot(
         return None
     canonical_dir.mkdir(parents=True, exist_ok=True)
     public_dir.mkdir(parents=True, exist_ok=True)
-    snapshot_path = canonical_dir / f"{sha}.json"
-    public_path = public_dir / f"{sha}.json"
+    name = snapshot_name(sha, prior.get("resolutions_digest"))
+    snapshot_path = canonical_dir / name
+    public_path = public_dir / name
     if snapshot_path.exists():
         # Idempotent — already rotated; ensure public mirror exists too.
         if not public_path.exists():
@@ -140,6 +143,8 @@ def _rebuild_index(canonical_dir: Path, public_dir: Path) -> None:
                 "csv_sha256": m.get("csv_sha256"),
                 "fetched_at": m.get("fetched_at"),
                 "card_count": len(m.get("cards", [])),
+                **({"resolutions_digest": m["resolutions_digest"]}
+                   if m.get("resolutions_digest") else {}),
             }
         )
     # Canonical index: full metadata for offline tooling.

@@ -76,6 +76,7 @@ _REPO_ROOT = repo_root()
 from r2_archive_assets import load_registry
 
 from pursue_index.scrape.date_resolutions import DATE_RESOLUTIONS_FILE, load_date_resolutions
+from pursue_index.scrape.variants import variant_path
 from pursue_index.scrape.year_normalize import normalize_manifest_dict
 from pursue_index.scrape.year_normalize_report import attach_date_report
 from pursue_index.tranche import (
@@ -359,8 +360,9 @@ def main() -> int:
         print(render_markdown(diff))
         return 0
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    json_path = args.out_dir / f"tranche-diff-{sha}.json"
-    md_path = args.out_dir / f"tranche-diff-{sha}.md"
+    digest = new_manifest.get("resolutions_digest")
+    json_path = variant_path(args.out_dir / f"tranche-diff-{sha}.json", digest)
+    md_path = variant_path(args.out_dir / f"tranche-diff-{sha}.md", digest)
     json_path.write_text(render_json(diff) + "\n")
     md_path.write_text(render_markdown(diff))
     print(f"[tranche-diff] wrote {json_path} and {md_path}")

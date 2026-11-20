@@ -24,6 +24,7 @@ from pursue_index.poll_freshness import (
     refuse_if_behind,
     require_reason,
 )
+from pursue_index.scrape.variants import VariantMismatchError
 
 
 def enforce_poll_freshness(
@@ -92,7 +93,11 @@ def resolve_approved_snapshot(
             err=True,
         )
         raise typer.Exit(1)
-    snapshot = locate_snapshot(tranche, snapshots_dir)
+    try:
+        snapshot = locate_snapshot(tranche, snapshots_dir)
+    except VariantMismatchError as exc:
+        typer.echo(f"refusing to ingest — {exc}", err=True)
+        raise typer.Exit(2) from exc
     if snapshot is None:
         typer.echo(
             f"refusing to ingest — no snapshot found in {snapshots_dir} for {tranche[:12]}",

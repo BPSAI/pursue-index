@@ -38,7 +38,9 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.paths import installed_scripts_dir
+from pursue_index.scrape.date_resolutions import Overlay
 from pursue_index.scrape.snapshots import write_public_index
+from pursue_index.scrape.variants import resolve_snapshot, snapshot_name
 
 # Operator-local builders invoked from promote_snapshot as part of the
 # release-pipeline-gate lockstep refresh. Both are idempotent. posters now
@@ -54,18 +56,18 @@ _OPERATOR_LOCAL_BUILDERS = (
 )
 
 
-def locate_snapshot(tranche_sha: str, snapshots_dir: Path) -> Path | None:
-    """Find the snapshot manifest for the given (full or prefix) sha."""
-    if not snapshots_dir.exists():
-        return None
-    for path in snapshots_dir.glob(f"{tranche_sha}*.json"):
-        return path
-    return None
+def locate_snapshot(tranche_sha: str, snapshots_dir: Path,
+                    overlay: Overlay | None = None) -> Path | None:
+    """Find the snapshot manifest for the given (full or prefix) sha: the one
+    made with the current date-resolution overlay (``overlay``, by default
+    the checkout's ``data/date_resolutions.json``). Raises
+    ``variants.VariantMismatchError`` when snapshots exist but none matches."""
+    return resolve_snapshot(tranche_sha, snapshots_dir, overlay)
 
 
 def _mirror_snapshot_to_web(
     snapshot_path: Path,
-    snapshot_sha: str,
+    snapshot_file: str,
     web_snapshots_dir: Path,
 ) -> None:
     """Copy the snapshot file into web/public/data/snapshots/ and refresh
@@ -73,7 +75,7 @@ def _mirror_snapshot_to_web(
     no external deps required."""
     if not web_snapshots_dir.exists():
         return
-    target = web_snapshots_dir / f"{snapshot_sha}.json"
+    target = web_snapshots_dir / snapshot_file
     shutil.copyfile(snapshot_path, target)
     # Refresh the index from the on-disk listing (so any prior snapshot
     # added through other means stays listed) via the shared writer —
@@ -136,12 +138,15 @@ def _mirror_to_deploy_surfaces(snapshot_path: Path, repo_root: Path) -> None:
     if build_manifest.parent.exists():
         shutil.copyfile(snapshot_path, build_manifest)
     try:
-        snapshot_sha = json.loads(snapshot_path.read_text()).get("csv_sha256", "")
+        doc = json.loads(snapshot_path.read_text())
     except (json.JSONDecodeError, OSError):
-        snapshot_sha = ""
-    if snapshot_sha:
+        doc = {}
+    if doc.get("csv_sha256"):
+        # Named like the canonical file (``<sha>.json`` or its ``.r<digest12>``
+        # variant), so a variant never overwrites the base public copy.
+        snapshot_file = snapshot_name(doc["csv_sha256"], doc.get("resolutions_digest"))
         web_snapshots = repo_root / "web" / "public" / "data" / "snapshots"
-        _mirror_snapshot_to_web(snapshot_path, snapshot_sha, web_snapshots)
+        _mirror_snapshot_to_web(snapshot_path, snapshot_file, web_snapshots)
 
 
 def _report_builder_result(

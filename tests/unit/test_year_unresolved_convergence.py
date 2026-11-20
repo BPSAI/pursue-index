@@ -194,9 +194,13 @@ def test_poll_cli_reads_the_overlay_for_snapshot_and_job(tmp_path: Path) -> None
             "--canonical-dir", str(tmp_path / "c1"), "--public-dir", str(tmp_path / "p1"),
             "--diff-out", str(tmp_path / "diff.json")]
     assert poll_snapshot.main(argv) == 0
-    assert json.loads((tmp_path / "diff.json").read_text())["verdict"] == "needs-review"  # added
-    assert "date_unresolved" not in json.loads((tmp_path / "diff.json").read_text())
-    snap = _promote(tmp_path, _TRANCHE, 1, latest)
+    [record] = tmp_path.glob("diff.r*.json")  # an applied entry names the variant
+    artifact = json.loads(record.read_text())
+    assert artifact["verdict"] == "needs-review"  # added
+    assert "date_unresolved" not in artifact
+    [snapshot] = (tmp_path / "c1").glob(f"{artifact['new_sha']}.r*.json")
+    snap = json.loads(snapshot.read_text())
+    assert snap["resolutions_digest"] == artifact["resolutions_digest"]
     assert snap["cards"][1]["incident_date"] == "1/18/1957"
     args = poll_snapshot._build_parser().parse_args([*argv, "--tranche-ready-dir", "x"])
     assert config_from_args(args).date_resolutions == overlay

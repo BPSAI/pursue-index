@@ -34,6 +34,7 @@ from pursue_index.cli.ingest_from_diff import execute_from_diff
 from pursue_index.cli.ingest_promote import enforce_poll_freshness, gate_resolve_and_promote
 from pursue_index.config import settings
 from pursue_index.ingest_run import render_next_steps, summarize_ingest_work
+from pursue_index.scrape.variants import VariantMismatchError, current_digest, variant_path
 from pursue_index.tranche_resave import RESAVE_METHOD
 
 ingest_app = typer.Typer(
@@ -42,14 +43,17 @@ ingest_app = typer.Typer(
 )
 
 
-def _find_diff_artifact(tranche_sha: str, diff_dir: Path) -> Path | None:
+def _find_diff_artifact(tranche_sha: str, diff_dir: Path,
+                        snapshots_dir: Path | None = None) -> Path | None:
     """Locate the tranche-diff JSON for a given (full or prefix) sha.
 
     The diff artifacts use the first 12 chars of the sha. Accept either
-    the full sha or the prefix as input.
+    the full sha or the prefix as input. With ``snapshots_dir``, the name
+    carries the current date-resolution overlay's suffix (``variants``).
     """
     prefix = tranche_sha[:12]
-    candidate = diff_dir / f"tranche-diff-{prefix}.json"
+    digest = current_digest(tranche_sha, snapshots_dir) if snapshots_dir else None
+    candidate = variant_path(diff_dir / f"tranche-diff-{prefix}.json", digest)
     return candidate if candidate.exists() else None
 
 
@@ -99,21 +103,26 @@ def _emit_approval_summary(
         )
 
 
-def _load_diff_or_exit(tranche: str, diff_dir: Path) -> dict:
-    diff_path = _find_diff_artifact(tranche, diff_dir)
+def _load_diff_or_exit(tranche: str, diff_dir: Path, snapshots_dir: Path | None = None) -> dict:
+    try:
+        diff_path = _find_diff_artifact(tranche, diff_dir, snapshots_dir)
+    except VariantMismatchError as exc:
+        typer.echo(f"refusing — {exc}", err=True)
+        raise typer.Exit(2) from exc
     if diff_path is None:
         typer.echo(
             f"refusing to approve — no tranche-diff artifact found for {tranche} "
-            f"in {diff_dir} (expected tranche-diff-{tranche[:12]}.json)",
+            f"in {diff_dir} (expected tranche-diff-{tranche[:12]}[.r<digest12>].json)",
             err=True,
         )
         raise typer.Exit(2)
     return json.loads(diff_path.read_text())
 
 
-def _load_diff_and_summarize(tranche: str, diff_dir: Path) -> tuple[dict, dict]:
+def _load_diff_and_summarize(tranche: str, diff_dir: Path,
+                             snapshots_dir: Path | None = None) -> tuple[dict, dict]:
     """Shared prefix of every ``run`` path: load the diff, summarize the work."""
-    diff_payload = _load_diff_or_exit(tranche, diff_dir)
+    diff_payload = _load_diff_or_exit(tranche, diff_dir, snapshots_dir)
     return diff_payload, summarize_ingest_work(diff_payload)
 
 
@@ -188,7 +197,7 @@ def approve_cmd(
     """
     check_tranche(tranche)
     enforce_poll_freshness(allow_behind, reason, tranche)
-    diff = _load_diff_or_exit(tranche, diff_dir)
+    diff = _load_diff_or_exit(tranche, diff_dir, snapshots_dir)
     diff_summary = diff.get("summary", {})
     auto_renames, manual_renames, enriched = _resolve_renames(diff, tranche, approve_rename)
     audit_results, audit_label = _run_pre_approval_audit(
@@ -247,7 +256,7 @@ def run_cmd(
     or promoting.
     """
     gate_resolve_and_promote(tranche, log, snapshots_dir, diff_dir, manifest, dry_run, allow_behind, reason)
-    diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir)
+    diff_payload, summary = _load_diff_and_summarize(tranche, diff_dir, snapshots_dir)
     _report_or_drive(
         summary, diff_payload, from_diff, tranche=tranche, manifest=manifest, worklist=worklist,
         dry_run=dry_run, aliases_path=aliases, registry_path=asset_registry, engine=engine,

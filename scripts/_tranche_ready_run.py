@@ -31,6 +31,7 @@ from pursue_index.scrape.date_resolutions import Overlay, load_date_resolutions
 from pursue_index.scrape.manifest import save_manifest
 from pursue_index.scrape.pdf_pages import FetchedPdfs
 from pursue_index.scrape.types import Manifest
+from pursue_index.scrape.variants import overlay_digest, variant_path
 from pursue_index.scrape.year_normalize import normalize_rows
 from pursue_index.tranche_ready.refusal import MAX_BODY_BYTES, cap, neutralize
 from pursue_index.tranche_ready.writer import (
@@ -65,18 +66,21 @@ def normalized_manifest(raw: bytes, source_url: str, old_m: dict,
     rows, _ = normalize_rows(dumped["cards"], old_m.get("cards", []), manifest.fetched_at.year,
                              overlay=overlay, tranche=manifest.csv_sha256,
                              fetched_at=dumped["fetched_at"])
-    return Manifest.model_validate({**dumped, "cards": rows})
+    digest = overlay_digest(overlay or {}, rows)
+    return Manifest.model_validate({**dumped, "cards": rows, "resolutions_digest": digest})
 
 
-def publish(diff: dict, record: dict, cfg: JobConfig) -> list[Path]:
+def publish(diff: dict, record: dict, cfg: JobConfig, digest: str | None = None) -> list[Path]:
     """Validate, check append-only for both outputs, then write what changed.
 
-    Raises ``InvalidRecordError``/``AppendOnlyError`` before writing anything.
+    ``digest`` (the snapshot's ``resolutions_digest``) suffixes both names
+    (``variants.variant_path``). Raises ``InvalidRecordError``/
+    ``AppendOnlyError`` before writing anything.
     """
     check_record(record)
     sha12 = record["tranche_sha12"]
-    receipt = cfg.diff_dir / f"tranche-diff-{sha12}.json"
-    target = cfg.ready_dir / f"{sha12}.json"
+    receipt = variant_path(cfg.diff_dir / f"tranche-diff-{sha12}.json", digest)
+    target = variant_path(cfg.ready_dir / f"{sha12}.json", digest)
     receipt_md = receipt.with_suffix(".md")
     # A receipt is complete only with its worklist: a missing .md (interrupted
     # prior run) counts as unwritten even when the JSON already matches.
@@ -130,7 +134,7 @@ def run_job(raw: bytes, latest: Path, source_url: str, cfg: JobConfig, fetched: 
         new_path = save_manifest(manifest, Path(tmp) / f"{manifest.csv_sha256}.json")
         diff, record = build(new_m, old_m, cfg, fetched, judge, new_path)
     try:
-        written = publish(diff, record, cfg)
+        written = publish(diff, record, cfg, manifest.resolutions_digest)
     except InvalidRecordError as exc:
         return _fail(EXIT_INVALID, str(exc), sha12, error_out)
     except AppendOnlyError as exc:

@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.poll_freshness import PollCheckError, commits_behind_on_poll_paths
+from pursue_index.scrape.variants import current_digest, variant_path
 from pursue_index.tranche_autopilot import steps as rs
 from pursue_index.tranche_autopilot.child_env import INDEX_SLUG
 from pursue_index.tranche_autopilot.eligibility import Eligibility, ReceiptError, assess
@@ -63,7 +64,11 @@ class AutopilotConfig:
 
 
 def receipt_path(repo_root: Path, tranche_sha: str) -> Path:
-    return repo_root / "data" / "tranche-diffs" / f"tranche-diff-{tranche_sha[:12]}.json"
+    """The receipt for the sha's snapshot made with the checkout's current
+    date-resolution overlay (``variants``); the base name without one."""
+    digest = current_digest(tranche_sha, repo_root / "data" / "manifests" / "snapshots")
+    return variant_path(
+        repo_root / "data" / "tranche-diffs" / f"tranche-diff-{tranche_sha[:12]}.json", digest)
 
 
 def _stop(code: ExitCode, message: str, outcome: str | None = None) -> AutopilotStopError:

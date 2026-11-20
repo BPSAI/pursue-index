@@ -44,6 +44,7 @@ from pursue_index.scrape.snapshots import (
     rotate_to_snapshot,
 )
 from pursue_index.scrape.types import CardMetadata, Manifest, ManifestDiff
+from pursue_index.scrape.variants import overlay_digest, snapshot_name
 from pursue_index.scrape.year_normalize import DateReport, normalize_cards
 from pursue_index.tranche import field_diff
 
@@ -58,6 +59,8 @@ class SnapshotDiffResult:
     new_columns: list[str]
     # What the 2-digit-year normalization did (``year_normalize``).
     date_report: DateReport = field(default_factory=DateReport)
+    # Digest of the applicable date-resolution entries (``variants``), or None.
+    resolutions_digest: str | None = None
 
     @property
     def date_unresolved(self) -> list[dict[str, Any]]:
@@ -92,7 +95,8 @@ def generate_snapshot_diff(
     cards, dates = normalize_cards(new_manifest.cards, prior.cards if prior else [],
                                    new_manifest.fetched_at, overlay=overlay,
                                    tranche=new_manifest.csv_sha256)
-    new_manifest = new_manifest.model_copy(update={"cards": cards})
+    digest = overlay_digest(overlay, [c.model_dump(mode="json") for c in cards])
+    new_manifest = new_manifest.model_copy(update={"cards": cards, "resolutions_digest": digest})
 
     # Rotate the prior latest.json into snapshots/<prior_sha>.json (public +
     # canonical) BEFORE we add the new side, so both ends of the diff land
@@ -107,6 +111,7 @@ def generate_snapshot_diff(
             field_changes=[],
             new_columns=_new_columns(raw_csv, prior_cards=[]),
             date_report=dates,
+            resolutions_digest=digest,
         )
 
     diff: ManifestDiff = new_manifest.diff(prior)
@@ -116,6 +121,7 @@ def generate_snapshot_diff(
         field_changes=_field_changes(prior, new_manifest),
         new_columns=_new_columns(raw_csv, prior_cards=prior.cards),
         date_report=dates,
+        resolutions_digest=digest,
     )
 
 
@@ -129,7 +135,7 @@ def _write_new_snapshot(
     """
     canonical_dir.mkdir(parents=True, exist_ok=True)
     public_dir.mkdir(parents=True, exist_ok=True)
-    name = f"{manifest.csv_sha256}.json"
+    name = snapshot_name(manifest.csv_sha256, manifest.resolutions_digest)
     canonical_path = canonical_dir / name
     public_path = public_dir / name
     if canonical_path.exists():

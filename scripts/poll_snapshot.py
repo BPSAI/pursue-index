@@ -24,6 +24,13 @@ Output (stable kv format the workflow log can grep):
 Exit 3 (nothing written to ``--diff-out``) when a diff record for the sha
 already exists and the recompute disagrees: records are append-only.
 
+A manual date-resolution entry (``--date-resolutions``) that applies to the
+CSV is part of the outputs' identity (``scrape.variants``): the snapshot, the
+diff record, the receipt and the record take a ``.r<digest12>`` suffix, so a
+changed overlay regenerates instead of being skipped. ``--check-up-to-date``
+writes nothing and exits 0 when the diff record for this CSV + overlay
+exists, ``EXIT_NEEDS_REGEN`` (10) otherwise -- the poll job's skip decision.
+
 When ``--diff-out`` is given, also writes a diff+verdict JSON artifact
 (verdict + added/removed/field-change counts + new column names, keyed by
 new_sha) — the snapshot job commits this and the gh-comment step reads the
@@ -66,10 +73,12 @@ from pursue_index.scrape.classify_tranche import (
     build_verdict_artifact,
     render_verdict_summary,
 )
+from pursue_index.scrape.date_resolutions import load_date_resolutions
 from pursue_index.scrape.pdf_pages import fetch_and_count, page_targets
 from pursue_index.scrape.poll_snapshot import (
     generate_snapshot_diff,
 )
+from pursue_index.scrape.variants import overlay_digest, variant_path
 
 DEFAULT_LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 # Diffs live in a SIBLING dir of snapshots/, never inside it: the ingest
@@ -81,6 +90,7 @@ DEFAULT_SOURCE_URL = "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-dat
 DEFAULT_TRANCHE_DIFF_DIR = _REPO_ROOT / "data" / "tranche-diffs"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_DATE_RESOLUTIONS = _REPO_ROOT / "data" / "date_resolutions.json"
+EXIT_NEEDS_REGEN = 10
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -113,6 +123,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--date-resolutions", type=Path, default=DEFAULT_DATE_RESOLUTIONS,
                         help="Manual 2-digit-year resolutions overlay (absent = none).")
+    parser.add_argument("--check-up-to-date", action="store_true",
+                        help="Exit 0 if the diff record for this CSV + overlay exists, "
+                             f"{EXIT_NEEDS_REGEN} if it must be regenerated; writes nothing.")
     parser.add_argument("--canonical-dir", type=Path, default=None)
     parser.add_argument("--public-dir", type=Path, default=None)
     _add_tranche_ready_args(parser)
@@ -142,34 +155,18 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
 
     raw = args.csv.read_bytes() if args.csv else sys.stdin.buffer.read()
-
-    mirror_dirs: dict[str, Path] = {}
-    if args.canonical_dir is not None:
-        mirror_dirs["canonical_dir"] = args.canonical_dir
-    if args.public_dir is not None:
-        mirror_dirs["public_dir"] = args.public_dir
-
-    if args.diff_out is not None and args.diff_out.exists():
-        # A record already exists: this sha was processed before. Recompute
-        # against throwaway mirrors so neither outcome touches the real
-        # snapshots/ or index.json (#157, append-only).
-        with tempfile.TemporaryDirectory() as scratch:
-            mirror_dirs = {
-                "canonical_dir": Path(scratch) / "canonical",
-                "public_dir": Path(scratch) / "public",
-            }
-            result = generate_snapshot_diff(
-                raw, source_url=args.source_url, latest_path=args.latest,
-                date_resolutions=args.date_resolutions, **mirror_dirs
-            )
-    else:
-        result = generate_snapshot_diff(
-            raw, source_url=args.source_url, latest_path=args.latest,
-            date_resolutions=args.date_resolutions, **mirror_dirs
-        )
+    digest = _resolutions_digest(raw, args.date_resolutions)
+    diff_out = variant_path(args.diff_out, digest) if args.diff_out is not None else None
+    if args.check_up_to_date:
+        return _check_up_to_date(diff_out)
+    result = _generate(args, raw, diff_out)
+    if result.resolutions_digest != digest:  # both name the same variant
+        raise RuntimeError("resolutions digest of the CSV and of its snapshot disagree")
     new_sha = build_manifest_sha(raw, args.source_url)
     artifact = build_verdict_artifact(result, new_sha=new_sha)
-    if args.diff_out is not None and not _write_diff_record(args.diff_out, artifact):
+    if result.resolutions_digest:
+        artifact["resolutions_digest"] = result.resolutions_digest
+    if diff_out is not None and not _write_diff_record(diff_out, artifact):
         return 3
     if args.summary_out is not None or args.tranche_ready_dir is not None:
         rc = _fetched_outputs(args, raw, result, new_sha)
@@ -185,6 +182,46 @@ def main(argv: list[str] | None = None) -> int:
         flush=True,
     )
     return 0
+
+
+def _resolutions_digest(raw: bytes, overlay_path: Path) -> str | None:
+    """The applicable date-resolution entries' digest for these CSV bytes
+    (``variants``): it names the snapshot and the diff record."""
+    from pursue_index.scrape.csv_fetcher import parse_csv
+
+    cards = [c.model_dump(mode="json") for c in parse_csv(raw)]
+    return overlay_digest(load_date_resolutions(overlay_path), cards)
+
+
+def _check_up_to_date(diff_out: Path | None) -> int:
+    """0 when the diff record for this CSV + overlay exists, else
+    ``EXIT_NEEDS_REGEN``. Writes nothing."""
+    if diff_out is None:
+        print("poll-snapshot.error --check-up-to-date needs --diff-out", file=sys.stderr)
+        return 2
+    if diff_out.exists():
+        print(f"poll-snapshot.up-to-date path={diff_out}", flush=True)
+        return 0
+    print(f"poll-snapshot.needs-regen path={diff_out}", flush=True)
+    return EXIT_NEEDS_REGEN
+
+
+def _generate(args: argparse.Namespace, raw: bytes, diff_out: Path | None):
+    """Run the generator; against throwaway mirrors when a diff record for
+    this CSV + overlay already exists (#157, append-only), so neither
+    outcome touches the real snapshots/ or index.json."""
+    mirror_dirs: dict[str, Path] = {}
+    if args.canonical_dir is not None:
+        mirror_dirs["canonical_dir"] = args.canonical_dir
+    if args.public_dir is not None:
+        mirror_dirs["public_dir"] = args.public_dir
+    kwargs = {"source_url": args.source_url, "latest_path": args.latest,
+              "date_resolutions": args.date_resolutions}
+    if diff_out is None or not diff_out.exists():
+        return generate_snapshot_diff(raw, **kwargs, **mirror_dirs)
+    with tempfile.TemporaryDirectory() as scratch:
+        return generate_snapshot_diff(raw, canonical_dir=Path(scratch) / "canonical",
+                                      public_dir=Path(scratch) / "public", **kwargs)
 
 
 def _fetched_outputs(args: argparse.Namespace, raw: bytes, result, new_sha: str) -> int:

@@ -45,13 +45,15 @@ from pursue_index.scrape.year_resolve import (
     two_digit_fields,
 )
 
-__all__ = ["DateReport", "normalize_cards", "normalize_manifest_dict", "normalize_rows"]
+__all__ = ["DATE_FIELDS", "DateReport", "normalize_cards", "normalize_manifest_dict",
+           "normalize_rows", "upstream_value"]
 
 # field -> the upstream CSV column it is parsed from (csv_fetcher).
 _FIELDS = {"release_date": "Release Date", "incident_date": "Incident Date"}
+DATE_FIELDS = tuple(_FIELDS)
 
 
-def _upstream(row: Mapping[str, Any], fld: str) -> str | None:
+def upstream_value(row: Mapping[str, Any], fld: str) -> str | None:
     """The 2-digit value upstream gave, from ``raw`` on a rewritten row."""
     for value in ((row.get("raw") or {}).get(_FIELDS[fld]), row.get(fld)):
         if isinstance(value, str) and TWO_DIGIT.match(value):
@@ -77,7 +79,7 @@ def _row_update(row: Mapping[str, Any], fields: Sequence[str], ctx: RunContext,
     raw_out = dict(row.get("raw") or {})
     markers: list[dict[str, Any]] = []
     for fld in fields:
-        raw = _upstream(row, fld)
+        raw = upstream_value(row, fld)
         if raw is None:
             continue
         key = (row.get("card_id"), fld)
@@ -111,7 +113,7 @@ def _updates(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str
         # A field the prior marks open is never passed through.
         fields = [f for f in _FIELDS
                   if f not in skipped or (row.get("card_id"), f) in ctx.markers]
-        seen = [f for f in _FIELDS if _upstream(row, f) is not None]
+        seen = [f for f in _FIELDS if upstream_value(row, f) is not None]
         report.considered = report.considered or bool(seen)
         report.passed_through += sum(1 for f in seen if f not in fields)
         updates.append(_row_update(row, fields, ctx, report, paired))
