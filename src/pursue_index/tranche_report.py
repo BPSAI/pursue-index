@@ -11,6 +11,8 @@ import json
 import re
 from typing import Any
 
+from pursue_index.scrape.year_normalize_report import unresolved_md_parts, unresolved_summary_line
+
 # A run of newlines, with or without carriage returns, and any horizontal
 # whitespace hugging it — collapsed whole so a CRLF or a blank line between
 # paragraphs does not leave a double space behind.
@@ -61,6 +63,7 @@ def _md_summary(s: dict[str, int]) -> str:
         f"- **{s['removed']}** removed upstream (no rename match)\n"
         f"- **{s['field_only_changes']}** field-only changes on existing cards\n"
         f"- **{s.get('row_changes', 0)}** existing cards with a row added or withdrawn\n"
+        + unresolved_summary_line(s)
     )
 
 
@@ -266,5 +269,6 @@ def render_markdown(diff: dict[str, Any]) -> str:
         "## Row-level changes (same card_id, a row added or withdrawn)",
         "",
         _md_row_changes(diff.get("row_changes", [])),
+        *unresolved_md_parts(diff),
     ]
     return "\n".join(parts)

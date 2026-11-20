@@ -32,6 +32,10 @@ Also reports:
   * Removed cards (in old manifest, no byte-sha match in new) →
     candidates for `/removed` editorial-public surface
   * Field-only changes (same card_id, different metadata fields)
+  * Dates left unresolved (`date_unresolved`): the new manifest's 2-digit
+    years are restored first (`scrape.year_normalize`, idempotent on an
+    already-normalized snapshot); rows no stored value or own-row evidence
+    can fix are listed, present only when non-empty
 
 Outputs:
   * `data/tranche-diffs/tranche-diff-<csv_sha>.json` — machine-readable
@@ -68,6 +72,8 @@ _REPO_ROOT = repo_root()
 
 from r2_archive_assets import load_registry
 
+from pursue_index.scrape.year_normalize import normalize_manifest_dict
+from pursue_index.scrape.year_normalize_report import attach_unresolved
 from pursue_index.tranche import (
     build_byte_sha_index,
     find_title_continuity,
@@ -262,6 +268,7 @@ def diff_tranches(
     """
     if fetch_byte_sha is None:
         fetch_byte_sha = _fetch_byte_sha_via_curl
+    new_manifest, dates = normalize_manifest_dict(new_manifest, old_manifest)
     old_groups = group_by_card_id(old_manifest.get("cards", []))
     new_groups = group_by_card_id(new_manifest.get("cards", []))
     # A card_id can be backed by several rows; the PDF row is the one
@@ -286,7 +293,7 @@ def diff_tranches(
     field_only_changes = build_field_only_changes(unchanged_ids, old_groups, new_groups)
     row_change_list = build_row_changes(unchanged_ids, old_groups, new_groups)
 
-    return {
+    return attach_unresolved({
         "tranche_sha256": new_manifest.get("csv_sha256"),
         # Recorded only when ON: a diff without it was generated OFF, and the
         # committed receipts (generated before the opt-in) stay reproducible.
@@ -308,7 +315,7 @@ def diff_tranches(
         "removed": removed,
         "field_only_changes": field_only_changes,
         "row_changes": row_change_list,
-    }
+    }, dates)
 
 
 def _load_manifest(path: Path) -> dict[str, Any]:

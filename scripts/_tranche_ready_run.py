@@ -29,6 +29,8 @@ from pursue_index.release.rates import JudgeRate
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv
 from pursue_index.scrape.manifest import save_manifest
 from pursue_index.scrape.pdf_pages import FetchedPdfs
+from pursue_index.scrape.types import Manifest
+from pursue_index.scrape.year_normalize import normalize_rows
 from pursue_index.tranche_ready.refusal import MAX_BODY_BYTES, cap, neutralize
 from pursue_index.tranche_ready.writer import (
     AppendOnlyError,
@@ -49,6 +51,15 @@ def config_from_args(args: argparse.Namespace) -> JobConfig:
         tranche_issue=args.tranche_issue,
         poll_run_id=args.poll_run_id, poll_commit=args.poll_commit,
     )
+
+
+def normalized_manifest(raw: bytes, source_url: str, old_m: dict) -> Manifest:
+    """The new manifest as ``generate_snapshot_diff`` writes its snapshot:
+    parsed from ``raw`` with 2-digit years restored against ``old_m``."""
+    manifest = build_manifest(raw, parse_csv(raw), source_url)
+    rows, _ = normalize_rows([c.model_dump(mode="json") for c in manifest.cards],
+                             old_m.get("cards", []))
+    return Manifest.model_validate({**manifest.model_dump(mode="json"), "cards": rows})
 
 
 def publish(diff: dict, record: dict, cfg: JobConfig) -> list[Path]:
@@ -105,7 +116,7 @@ def run_job(raw: bytes, latest: Path, source_url: str, cfg: JobConfig, fetched: 
         print("poll-snapshot.tranche-ready skipped: no prior manifest (bootstrap)", flush=True)
         return 0
     old_m = json.loads(latest.read_text(encoding="utf-8"))
-    manifest = build_manifest(raw, parse_csv(raw), source_url)
+    manifest = normalized_manifest(raw, source_url, old_m)
     new_m = json.loads(manifest.model_dump_json(by_alias=True))
     sha12 = manifest.csv_sha256[:12]
     with tempfile.TemporaryDirectory(prefix="pursue-tranche-manifest-") as tmp:

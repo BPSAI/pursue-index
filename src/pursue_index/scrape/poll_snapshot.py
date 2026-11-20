@@ -10,6 +10,10 @@ network-free, credential-free entry point that:
   * writes the new manifest as ``snapshots/<new_sha>.json`` so the
     DiffIsland has the new side immediately, without waiting for the next
     poll to rotate it out;
+  * restores 4-digit years on upstream's 2-digit raw ``release_date`` /
+    ``incident_date`` (``year_normalize``) before the
+    diff and the snapshot write, reporting rows it cannot resolve as
+    ``date_unresolved``;
   * computes the ``ManifestDiff`` (added/removed) against the prior
     ``latest.json``, the per-card ``field_changes`` (reusing the
     tranche-diff ``field_diff`` comparison), and any brand-new CSV column
@@ -25,7 +29,7 @@ from __future__ import annotations
 
 import csv
 import io
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +42,7 @@ from pursue_index.scrape.snapshots import (
     rotate_to_snapshot,
 )
 from pursue_index.scrape.types import CardMetadata, Manifest, ManifestDiff
+from pursue_index.scrape.year_normalize import normalize_cards
 from pursue_index.tranche import field_diff
 
 
@@ -49,6 +54,9 @@ class SnapshotDiffResult:
     removed: list[CardMetadata]
     field_changes: list[dict[str, Any]]
     new_columns: list[str]
+    # Rows whose 2-digit year could not be restored without a guess:
+    # ``{card_id, field, raw, reason}`` (``year_normalize``).
+    date_unresolved: list[dict[str, str]] = field(default_factory=list)
 
 
 def generate_snapshot_diff(
@@ -68,6 +76,8 @@ def generate_snapshot_diff(
     new_manifest = build_manifest(raw_csv, parse_csv(raw_csv), source_url)
 
     prior = load_manifest(latest_path) if latest_path.exists() else None
+    cards, unresolved = normalize_cards(new_manifest.cards, prior.cards if prior else [])
+    new_manifest = new_manifest.model_copy(update={"cards": cards})
 
     # Rotate the prior latest.json into snapshots/<prior_sha>.json (public +
     # canonical) BEFORE we add the new side, so both ends of the diff land
@@ -81,6 +91,7 @@ def generate_snapshot_diff(
             removed=[],
             field_changes=[],
             new_columns=_new_columns(raw_csv, prior_cards=[]),
+            date_unresolved=unresolved,
         )
 
     diff: ManifestDiff = new_manifest.diff(prior)
@@ -89,6 +100,7 @@ def generate_snapshot_diff(
         removed=diff.removed,
         field_changes=_field_changes(prior, new_manifest),
         new_columns=_new_columns(raw_csv, prior_cards=prior.cards),
+        date_unresolved=unresolved,
     )
 
 

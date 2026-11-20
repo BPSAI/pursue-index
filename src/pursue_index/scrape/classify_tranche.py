@@ -50,9 +50,11 @@ def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[st
 
     Pure: just the verdict + structural counts (and the new column names),
     keyed by ``new_sha`` so it can be located against the detected change.
-    No I/O — the caller serializes + writes it.
+    No I/O — the caller serializes + writes it. ``date_unresolved`` (rows
+    whose 2-digit year could not be restored) is present only when
+    non-empty, so records written before it existed recompute equal.
     """
-    return {
+    artifact: dict[str, Any] = {
         "new_sha": new_sha,
         "verdict": classify_tranche(diff),
         "added": len(diff.added),
@@ -60,6 +62,9 @@ def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[st
         "field_changes": len(diff.field_changes),
         "new_columns": list(diff.new_columns),
     }
+    if diff.date_unresolved:
+        artifact["date_unresolved"] = [dict(u) for u in diff.date_unresolved]
+    return artifact
 
 
 def _safe_inline(text: str, *, limit: int = 80) -> str:
@@ -72,6 +77,21 @@ def _safe_inline(text: str, *, limit: int = 80) -> str:
     """
     cleaned = text.replace("`", "").replace("\n", " ").replace("\r", " ").strip()
     return cleaned[:limit] + "…" if len(cleaned) > limit else cleaned
+
+
+def _date_unresolved_lines(rows: Sequence[Mapping[str, Any]]) -> str:
+    """The labelled ``date_unresolved`` list: rows left with upstream's
+    2-digit year because no stored value or own-row evidence fixed the
+    century. Empty string when there are none."""
+    if not rows:
+        return ""
+    lines = [f"* date_unresolved: {len(rows)} (2-digit year left as upstream gave it)"]
+    lines += [
+        f"  * `{_safe_inline(str(r['card_id']))}` {r['field']} "
+        f"`{_safe_inline(str(r['raw']))}` ({r['reason']})"
+        for r in rows
+    ]
+    return "\n".join(lines) + "\n"
 
 
 def render_verdict_summary(
@@ -103,6 +123,7 @@ def render_verdict_summary(
         f"* removed: {len(diff.removed)}\n"
         f"* field changes: {len(diff.field_changes)}\n"
         f"{col_line}\n"
+        f"{_date_unresolved_lines(diff.date_unresolved)}"
     )
     if tranche:
         from pursue_index.release.ship import build_tranche_ready_summary
