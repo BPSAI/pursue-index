@@ -21,11 +21,29 @@ name: Poll PURSUE for new tranches
 # `gh issue create` pipeline so the alert pathway stays unified.
 #
 # Operational dependencies (SEC-004):
-# * Direct push: the "Commit new sha" step pushes straight to `main`
-#   using the auto-provisioned `GITHUB_TOKEN`. If branch protection is
-#   later enabled on `main` requiring PRs/reviews, this push will fail
-#   and the sha update will be lost. Either keep `github-actions[bot]`
-#   exempt from those rules, or rework this step to open a PR.
+# * PR route, never a direct push: `main` is protected (ruleset
+#   27414272 refuses every push to refs/heads/main), and the files this
+#   workflow writes include D-103 published-data paths, so a merge to
+#   `main` IS the promote and stays the operator's. The bot therefore
+#   pushes only bot branches, with the auto-provisioned `GITHUB_TOKEN`:
+#     - `poll/<new_sha12>` for a changed/benign sha: the sha + CSV bytes,
+#       the registry rows and the snapshot + diff, on one branch with ONE
+#       `needs-operator` PR (opened by the `promote` job). Until it is
+#       merged every tick re-detects the same sha, so each write is
+#       idempotent: an existing branch is never re-committed, an open PR
+#       or issue is never re-opened.
+#     - `poll/observations` for pending/stale/unchanged backfills: one
+#       rolling branch with one open PR; a new commit is based on the
+#       existing branch, never force-pushed.
+#   Fetched CSV bytes (changed/benign/pending) are verified, then saved as a
+#   90-day workflow artifact BEFORE any commit or push: on 2026-11-20 a
+#   short-lived upstream CSV existed only in a refused commit and was lost.
+#   Write failures are continue-on-error and re-raised by the final
+#   "Propagate failure exit code" step, so they can no longer skip the R2
+#   archive or the tranche-detected issue (run 44745191817).
+#   Requires "Allow GitHub Actions to create ... pull requests" on the
+#   repo. A `GITHUB_TOKEN` PR triggers no other workflow, so tests and
+#   gates must be re-run by hand on it before merging.
 # * Bot commit surface: the bot writes BOTH
 #   `data/last-known-csv-sha.txt` (the canonical state file) AND
 #   `data/raw/csv/<sha>.csv` (the content-addressed byte archive,
@@ -58,8 +76,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # commit data/last-known-csv-sha.txt on change
+  contents: write   # push the poll/* bot branches (never main)
   issues: write     # open tranche-detected / tranche-poll-failure issues
+  pull-requests: write  # keep the single poll/observations PR open
 
 concurrency:
   # Shared with verify-assets-daily.yml so the two registry-writing
@@ -83,12 +102,16 @@ jobs:
       new_sha: ${{ steps.poll.outputs.new_sha }}
       old_sha: ${{ steps.poll.outputs.old_sha }}
       is_bootstrap: ${{ steps.poll.outputs.is_bootstrap }}
+      # poll/<new_sha12>, and whether it is on origin after this run
+      # (already there, or pushed now). The snapshot + promote jobs gate on it.
+      poll_branch: ${{ steps.branch.outputs.name }}
+      branch_ready: ${{ steps.branch.outputs.exists == 'true' || steps.sha_commit.outcome == 'success' }}
     steps:
       # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          # Shallow checkout is fine — we make a single fast-forward
-          # commit and rebase before push if main advanced concurrently.
+          # Shallow checkout is fine — writes go to new or rolling poll/*
+          # branches built on this commit or a fetched branch tip (SEC-004).
           fetch-depth: 1
 
       # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
@@ -116,6 +139,10 @@ jobs:
             --color D93F0B \
             --description "The 6h cron sentinel PDF fetch failed (likely Akamai gating shift)" \
             --force
+          gh label create needs-operator \
+            --color FBCA04 \
+            --description "Bot PR to main: a promote the operator reviews and merges" \
+            --force
 
       - name: Install minimal scrape deps
         # Hash-locked install (SEC-002). Source list:
@@ -132,6 +159,38 @@ jobs:
         # still want the issue-opening step to fire before failing the job.
         continue-on-error: true
 
+      # Durable copy BEFORE any write (SEC-004). Verify first, in its own
+      # step: an oversize file or a sha mismatch is refused and nothing is
+      # saved. continue-on-error so a refusal can't skip the steps below;
+      # the commit steps re-verify on their own and refuse the same way.
+      - name: Verify fetched CSV bytes (before saving)
+        id: csv_verify
+        if: steps.poll.outputs.status == 'changed' || steps.poll.outputs.status == 'benign' || steps.poll.outputs.status == 'pending'
+        continue-on-error: true
+        env:
+          NEW_SHA: ${{ steps.poll.outputs.new_sha }}
+        run: python scripts/verify_csv_artifact.py "$NEW_SHA"
+
+      # Depends only on the poll + verify, never on a branch, commit or push
+      # step, and runs before all of them, so a refused push can't lose the
+      # bytes. The name carries run_id AND run_attempt (a re-run keeps the
+      # run_id), so no upload ever replaces an earlier copy and none collides;
+      # deliberately no `overwrite`. continue-on-error so an upload hiccup can't skip the commit, R2
+      # archive or issue steps.
+      # actions/upload-artifact v7.0.1 — pinned to SHA per SEC-001.
+      - name: Save fetched CSV bytes as a workflow artifact
+        id: csv_artifact
+        if: steps.csv_verify.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tranche-${{ steps.poll.outputs.new_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            data/raw/csv/${{ steps.poll.outputs.new_sha }}.csv
+            data/poll-state.json
+          retention-days: 90
+          if-no-files-found: error
+
       # Stale-edge guard (#157, #176): the poll script only reports
       # `changed` after the same new sha is fetched twice in a row, and
       # reports a sha seen before the current one without a newer
@@ -141,16 +200,59 @@ jobs:
       # commits the guard state + bytes via the backfill step below;
       # `stale` commits only a small capped note there, no bytes. `benign` (confirmed, encoding-only) moves the
       # sha here but opens no issue and runs no snapshot.
-      - name: Commit new sha + CSV bytes (when changed)
+      - name: Resolve poll/<sha12> branch (when changed)
+        # SEC-004 PR route. Until the operator merges the promote PR, main
+        # still holds the old sha, so EVERY tick re-detects this sha as
+        # changed/benign. The branch existing on origin means an earlier
+        # tick already wrote it: skip every write for it this tick.
+        # ls-remote exit 2 = no such branch; any other non-zero is an error,
+        # and the writes below then fail closed (skipped) while the R2
+        # archive and the issue still run (continue-on-error).
+        id: branch
         if: steps.poll.outputs.status == 'changed' || steps.poll.outputs.status == 'benign'
+        continue-on-error: true
+        env:
+          NEW_SHA: ${{ steps.poll.outputs.new_sha }}
+        run: |
+          if ! [[ "$NEW_SHA" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::poll new_sha is not a sha256; refusing to name a branch after it."
+            exit 1
+          fi
+          name="poll/${NEW_SHA:0:12}"
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+          rc=0
+          git ls-remote --exit-code --heads origin "refs/heads/${name}" > /dev/null || rc=$?
+          case "$rc" in
+            0) echo "exists=true" >> "$GITHUB_OUTPUT"
+               echo "${name} already exists on origin: skipping the sha/bytes commit, push, R2 archive and registry commit." ;;
+            2) echo "exists=false" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::git ls-remote failed (exit ${rc}) for ${name}"
+               exit 1 ;;
+          esac
+
+      # continue-on-error (rather than a reorder) is deliberate: the R2
+      # archive must run on a changed sha whatever happens here, and the
+      # registry commit must come after the sha commit on the same branch,
+      # so the order cannot be inverted. A failure here is re-raised by
+      # "Propagate failure exit code" at the end of the job, so the run
+      # still goes red (run 44745191817 lost the archive and the issue to
+      # an un-guarded push).
+      - name: Commit new sha + CSV bytes onto poll/<sha12> (when changed)
+        id: sha_commit
+        if: (steps.poll.outputs.status == 'changed' || steps.poll.outputs.status == 'benign') && steps.branch.outputs.exists == 'false'
+        continue-on-error: true
         env:
           OLD_SHA: ${{ steps.poll.outputs.old_sha }}
           NEW_SHA: ${{ steps.poll.outputs.new_sha }}
           IS_BOOTSTRAP: ${{ steps.poll.outputs.is_bootstrap }}
           STATUS: ${{ steps.poll.outputs.status }}
+          POLL_BRANCH: ${{ steps.branch.outputs.name }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Branch from the checked-out main; the poll's working-tree
+          # writes come along uncommitted.
+          git switch -c "$POLL_BRANCH"
           git add data/last-known-csv-sha.txt data/poll-state.json
           # The poll script writes the fetched bytes to
           # data/raw/csv/<sha>.csv at fetch time. Stage it so the
@@ -174,11 +276,9 @@ jobs:
             MSG="chore(poll): upstream CSV changed ${OLD_SHA:0:12} -> ${NEW_SHA:0:12} (+bytes)"
           fi
           git commit -m "$MSG"
-          # Rebase against any concurrent advance of main (e.g. a human
-          # merge between checkout and push). Without this, fetch-depth: 1
-          # plus a bare push races on non-fast-forward. (vaivora P1#2)
-          git pull --rebase origin main
-          git push
+          # A new branch: no rebase needed. If main advances meanwhile the
+          # PR is simply behind; the operator's merge resolves it.
+          git push origin "HEAD:refs/heads/${POLL_BRANCH}"
 
       - name: Archive CSV bytes on every poll (idempotent)
         # On UNCHANGED polls, the poll script still wrote the bytes to
@@ -199,28 +299,57 @@ jobs:
         # size, Last-Modified, fetch time), capped at 200 notes with the
         # oldest pruned by the script. `unchanged`/`pending` still commit
         # the verified bytes (size cap + sha check), idempotently.
+        #
+        # SEC-004 PR route: these commits go to ONE rolling branch,
+        # `poll/observations`, never main. If the branch exists the commit is
+        # built on its tip in a worktree (never a force push); otherwise on
+        # main. The poll itself still reads its state from main, so a
+        # `pending` sighting that is not yet merged is re-confirmed by the
+        # in-run refetch on the next tick rather than read back from here.
+        # Only files that differ from the branch tip make a commit, so quiet
+        # ticks commit nothing.
+        id: observe
         if: steps.poll.outputs.status == 'unchanged' || steps.poll.outputs.status == 'pending' || steps.poll.outputs.status == 'stale'
         env:
           SHA: ${{ steps.poll.outputs.new_sha }}
           STATUS: ${{ steps.poll.outputs.status }}
           LAST_MODIFIED: ${{ steps.poll.outputs.last_modified }}
+          OBS_BRANCH: poll/observations
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          obs="$RUNNER_TEMP/poll-observations"
+          rc=0
+          git ls-remote --exit-code --heads origin "refs/heads/${OBS_BRANCH}" > /dev/null || rc=$?
+          case "$rc" in
+            0) git fetch --no-tags --depth=1 origin "refs/heads/${OBS_BRANCH}"
+               git worktree add --detach "$obs" FETCH_HEAD
+               echo "on_origin=true" >> "$GITHUB_OUTPUT" ;;
+            2) git worktree add --detach "$obs" HEAD ;;
+            *) echo "::error::git ls-remote failed (exit ${rc}) for ${OBS_BRANCH}"
+               exit 1 ;;
+          esac
           if [ "$STATUS" = "stale" ]; then
             MSG="chore(poll): note stale-edge ${SHA:0:12}"
-            python scripts/stale_edge_note.py "$SHA" --last-modified "$LAST_MODIFIED" || true
-            if [ -d data/stale-edge-notes ]; then git add -A data/stale-edge-notes; fi
+            # Notes dir is the branch's, so the 200-note cap prunes there.
+            python scripts/stale_edge_note.py "$SHA" --last-modified "$LAST_MODIFIED" \
+              --notes-dir "$obs/data/stale-edge-notes" --csv-dir data/raw/csv || true
+            if [ -d "$obs/data/stale-edge-notes" ]; then git -C "$obs" add -A data/stale-edge-notes; fi
           else
             # Upstream-controlled bytes: commit only a size-capped file whose
             # hash is the polled sha; otherwise skip and report.
             if python scripts/verify_csv_artifact.py "$SHA"; then
-              git add "data/raw/csv/${SHA}.csv"
+              mkdir -p "$obs/data/raw/csv"
+              cp "data/raw/csv/${SHA}.csv" "$obs/data/raw/csv/${SHA}.csv"
+              git -C "$obs" add "data/raw/csv/${SHA}.csv"
             else
               echo "::warning::CSV bytes for ${SHA:0:12} failed verification; not committed."
             fi
-            if [ -f data/poll-state.json ]; then
-              git add data/poll-state.json
+            # Carry the guard state only when THIS poll rewrote it, so a quiet
+            # tick never reverts a newer state already on the branch.
+            if [ -f data/poll-state.json ] && [ -n "$(git status --porcelain -- data/poll-state.json)" ]; then
+              cp data/poll-state.json "$obs/data/poll-state.json"
+              git -C "$obs" add data/poll-state.json
             fi
             if [ "$STATUS" = "pending" ]; then
               MSG="chore(poll): candidate ${SHA:0:12} seen once (pending confirmation)"
@@ -228,13 +357,32 @@ jobs:
               MSG="chore(poll): backfill CSV bytes for ${SHA:0:12}"
             fi
           fi
-          if ! git diff --cached --quiet; then
-            git commit -m "$MSG"
-            git pull --rebase origin main
-            git push
+          if ! git -C "$obs" diff --cached --quiet; then
+            git -C "$obs" commit -m "$MSG"
+            # Push from the main checkout (it holds the checkout credentials;
+            # the worktree shares its object store). Fast-forward only.
+            git push origin "$(git -C "$obs" rev-parse HEAD):refs/heads/${OBS_BRANCH}"
+            echo "on_origin=true" >> "$GITHUB_OUTPUT"
           else
             echo "No new CSV bytes or notes to commit."
           fi
+
+      - name: Keep one open poll/observations PR
+        if: steps.observe.outputs.on_origin == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OBS_BRANCH: poll/observations
+        run: |
+          # Fail closed on a lookup error: gh pr create would refuse a
+          # duplicate anyway, but don't guess.
+          open=$(gh pr list --head "$OBS_BRANCH" --base main --state open --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then
+            echo "Open PR #${open} already carries ${OBS_BRANCH}; not opening another."
+            exit 0
+          fi
+          gh pr create --base main --head "$OBS_BRANCH" --label needs-operator \
+            --title "chore(poll): rolling poll observations (backfill bytes, pending/stale notes)" \
+            --body "Rolling bot branch for the poll's pending/stale/unchanged observations (CSV byte backfills, stale-edge notes, guard state). Each tick that sees something new adds a commit on top of this branch; it is never force-pushed. Merge to record them on main (the branch is deleted on merge and restarts from main). If it conflicts with a poll/<sha12> promote PR on data/poll-state.json, merge the promote PR first: its guard state supersedes this one."
 
       # ----------------------------------------------------------------
       # Asset archive lane (added 2026-05-11). Content-addresses every
@@ -264,12 +412,15 @@ jobs:
         # un-pinned dep is a write-the-bucket attack vector). Skipped
         # on unchanged/failed so we don't make a broken poll worse and
         # don't HEAD 130 URLs on every quiet 30-min tick.
-        if: steps.poll.outputs.status == 'changed'
+        if: steps.poll.outputs.status == 'changed' && steps.branch.outputs.exists != 'true'
         run: |
           python -m pip install --require-hashes -r requirements-archive.txt
 
       - name: Run R2 asset archive
-        # Runs ONLY on detected CSV change. The CSV is the primary
+        # Runs ONLY on detected CSV change, and once per sha: the first
+        # tick that sees it (poll/<sha12> not yet on origin, or its
+        # ls-remote failed, so the archive fails OPEN). It does NOT depend
+        # on the sha commit succeeding (SEC-004). The CSV is the primary
         # signal — if the upstream listing didn't change, the assets
         # almost certainly didn't either, and HEADing 130 war.gov URLs
         # every 30 min would be ~6k requests/day against Akamai with
@@ -277,7 +428,7 @@ jobs:
         # follow-up) catches silent same-URL-different-bytes overlays
         # that the CSV poll cannot.
         id: r2_archive
-        if: steps.poll.outputs.status == 'changed'
+        if: steps.poll.outputs.status == 'changed' && steps.branch.outputs.exists != 'true'
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -298,7 +449,17 @@ jobs:
         # The signing-stale issue lane in verify-assets-daily.yml
         # picks up the "root advanced past the last signed tag"
         # state and pings the operator to sign a fresh tag.
-        if: steps.r2_archive.outcome == 'success'
+        #
+        # SEC-004: committed onto the same poll/<sha12> branch, on top of
+        # the sha commit, never main. Gated on that commit having landed
+        # (otherwise the next tick redoes both from scratch, and the R2
+        # archive is idempotent). continue-on-error so a failure can't skip
+        # the tranche-detected issue; re-raised at the end of the job.
+        id: registry_commit
+        if: steps.r2_archive.outcome == 'success' && steps.sha_commit.outcome == 'success'
+        continue-on-error: true
+        env:
+          POLL_BRANCH: ${{ steps.branch.outputs.name }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -311,8 +472,7 @@ jobs:
           if ! git diff --cached --quiet; then
             new_rows=$(git diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')
             git commit -m "chore(poll): r2 archive +${new_rows} byte-sha row(s)"
-            git pull --rebase origin main
-            git push
+            git push origin "HEAD:refs/heads/${POLL_BRANCH}"
           else
             echo "No new registry rows."
           fi
@@ -320,13 +480,32 @@ jobs:
       - name: Open tranche-detected issue
         # Skip the issue on bootstrap — there's no actual change to alert on,
         # we just hadn't been watching yet.
+        #
+        # SEC-004 dedupe: every tick re-detects the sha until its promote PR
+        # merges, so open the issue once per sha. Same immediately-consistent
+        # lookup as the snapshot job's "Locate tranche issue" (REST list +
+        # title filter, sha as jq --arg data). A lookup error falls through
+        # to create: a duplicate alert beats a missed one. The promote job
+        # comments the PR link here.
         if: steps.poll.outputs.status == 'changed' && steps.poll.outputs.is_bootstrap == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_SHA: ${{ steps.poll.outputs.new_sha }}
           ISSUE_TITLE: ${{ steps.poll.outputs.issue_title }}
           ISSUE_BODY: ${{ steps.poll.outputs.issue_body }}
           ISSUE_LABELS: ${{ steps.poll.outputs.issue_labels }}
         run: |
+          short_sha="${NEW_SHA:0:12}"
+          existing=$(gh issue list \
+            --label tranche-detected --state open --limit 100 \
+            --json number,title 2>/dev/null \
+            | jq -r --arg s "$short_sha" \
+                'map(select(.title | contains($s))) | .[0].number // empty' \
+            2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "Open tranche-detected issue #${existing} already covers ${short_sha}; not opening another."
+            exit 0
+          fi
           gh issue create \
             --title "$ISSUE_TITLE" \
             --body  "$ISSUE_BODY" \
@@ -426,8 +605,14 @@ jobs:
       - name: Propagate failure exit code
         # Workflow goes red on EITHER failure mode (CSV poll OR PDF health).
         # Without this, a green checkmark could ship while one of the two
-        # surveillance lanes was actively broken.
-        if: steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure' || steps.pdf_health.outcome == 'failure'
+        # surveillance lanes was actively broken. SEC-004: also re-raises
+        # the continue-on-error branch writes and the CSV artifact save, so a
+        # refused push or a failed save is red.
+        if: >-
+          steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure' ||
+          steps.pdf_health.outcome == 'failure' || steps.branch.outcome == 'failure' ||
+          steps.sha_commit.outcome == 'failure' || steps.registry_commit.outcome == 'failure' ||
+          steps.csv_artifact.outcome == 'failure'
         run: exit 1
 
   # ==================================================================
@@ -438,7 +623,8 @@ jobs:
   # DiffIsland diff — it rotates the prior data/manifests/latest.json
   # into snapshots/<old_sha>.json and writes the new
   # snapshots/<new_sha>.json (canonical + public mirrors) — then
-  # commits those JSON artifacts to main.
+  # commits those JSON artifacts to the poll/<sha12> branch (SEC-004;
+  # the promote job opens its PR once this job has succeeded).
   #
   # WHY A SEPARATE JOB (the load-bearing hardening rationale):
   # this lane runs as its own job with NO R2_ACCESS_KEY_ID /
@@ -471,20 +657,25 @@ jobs:
     # losing the credential-free snapshot for exactly the detected change it
     # exists to preserve. We decouple from the poll job's overall result but
     # still gate strictly on the detected-change output. (Codex PR #84 P2.)
-    if: always() && needs.poll.outputs.status == 'changed'
+    #
+    # SEC-004: it also needs poll/<sha12> on origin (it checks that branch
+    # out). It runs on every tick until the PR merges, and is a no-op once
+    # the branch already carries this sha's diff (see "Generate").
+    if: always() && needs.poll.outputs.status == 'changed' && needs.poll.outputs.branch_ready == 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # commit snapshot + diff JSON to main
+      contents: write   # commit snapshot + diff JSON to poll/<sha12> (never main)
       issues: write     # append the verdict comment to the tranche-detected issue
     # NOTE: no `env:` with R2_*/CF_* secrets here, by design (see header).
     steps:
       # actions/checkout v6.0.2 — pinned to SHA per SEC-001.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          # Check out the tip of main, not the stale cron SHA: the poll
-          # job just pushed data/raw/csv/<new_sha>.csv + the sha file, and
-          # we need those committed bytes as the generator's input.
-          ref: main
+          # Check out the poll/<sha12> branch, not main or the stale cron
+          # SHA: the poll job pushed data/raw/csv/<new_sha>.csv + the sha
+          # file there (SEC-004), and we need those committed bytes as the
+          # generator's input.
+          ref: ${{ needs.poll.outputs.poll_branch }}
           fetch-depth: 1
 
       # actions/setup-python v6.2.0 — pinned to SHA per SEC-001.
@@ -555,14 +746,25 @@ jobs:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
           TRANCHE_ISSUE: ${{ steps.tranche_issue.outputs.number }}
           RUN_ID: ${{ github.run_id }}
+          POLL_BRANCH: ${{ needs.poll.outputs.poll_branch }}
         run: |
           # status=='changed' is emitted by the poll SCRIPT before the later
-          # "Commit new sha + CSV bytes" step pushes the bytes. If that push
-          # failed (rejected after rebase retries), the CSV isn't on main and
-          # the generator would FileNotFoundError. Skip-with-warning instead of
-          # a red job — the early tranche-detected alert still stands (Vaivora P2).
+          # "Commit new sha + CSV bytes" step pushes the bytes to
+          # poll/<sha12>. If the checked-out branch lacks them, the generator
+          # would FileNotFoundError. Skip-with-warning instead of a red job —
+          # the early tranche-detected alert still stands (Vaivora P2).
           if [ ! -f "data/raw/csv/${NEW_SHA}.csv" ]; then
-            echo "::warning::data/raw/csv/${NEW_SHA}.csv not on main (poll CSV commit may have failed despite status=changed); skipping snapshot + verdict."
+            echo "::warning::data/raw/csv/${NEW_SHA}.csv not on ${POLL_BRANCH} (poll CSV commit may have failed despite status=changed); skipping snapshot + verdict."
+            exit 0
+          fi
+          # SEC-004 idempotency: every tick re-runs this job until the PR
+          # merges. The diff record lands in the same commit as the snapshot
+          # and the tranche-ready record, so its presence on the branch means
+          # an earlier tick finished: skip (no regeneration, no PDF fetch, no
+          # second verdict comment). A refused earlier tick wrote nothing, so
+          # it is retried here automatically.
+          if [ -f "data/manifests/diffs/${NEW_SHA}.json" ]; then
+            echo "Snapshot + diff for ${NEW_SHA:0:12} already on ${POLL_BRANCH}; skipping regeneration."
             exit 0
           fi
           python scripts/poll_snapshot.py \
@@ -575,6 +777,7 @@ jobs:
             --poll-run-id "${RUN_ID}" \
             --poll-commit "$(git rev-parse --short=7 HEAD)" \
             --error-out tranche-ready-error.md
+          echo "generated=true" >> "$GITHUB_OUTPUT"
 
       - name: Open tranche-ready failure issue
         # R7C.31: a refused tranche-ready record (invalid against the vendored
@@ -595,11 +798,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
         run: |
+          # SEC-004: the job now retries on every tick until the PR merges,
+          # so file one open issue per sha, not one per tick.
+          title="[poll] tranche-ready record refused for ${NEW_SHA:0:12}"
+          existing=$(gh issue list --label tranche-poll-failure --state open --limit 100 \
+            --json number,title 2>/dev/null \
+            | jq -r --arg t "$title" 'map(select(.title == $t)) | .[0].number // empty' \
+            2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "Open issue #${existing} already records this refusal; not opening another."
+            exit 0
+          fi
           if [ ! -s tranche-ready-error.md ]; then
             echo "The snapshot step failed before writing a tranche-ready diagnosis; see the run log." > tranche-ready-error.md
           fi
           gh issue create \
-            --title "[poll] tranche-ready record refused for ${NEW_SHA:0:12}" \
+            --title "$title" \
             --label "tranche-poll-failure" \
             --body-file tranche-ready-error.md
 
@@ -615,8 +829,11 @@ jobs:
         # job's commit steps use. R7C.31: the tranche diff receipt and the
         # tranche-ready record go in the SAME commit, so a checkout never has
         # one without the other (both are POLL_WRITTEN_PATHS).
+        #
+        # SEC-004: pushed to poll/<sha12> (the checked-out branch), never main.
         env:
           NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+          POLL_BRANCH: ${{ needs.poll.outputs.poll_branch }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -627,8 +844,8 @@ jobs:
           done
           if ! git diff --cached --quiet; then
             git commit -m "chore(poll): snapshot + diff for ${NEW_SHA:0:12}"
-            git pull --rebase origin main
-            git push
+            git pull --rebase origin "$POLL_BRANCH"
+            git push origin "HEAD:refs/heads/${POLL_BRANCH}"
           else
             echo "No snapshot changes to commit."
           fi
@@ -662,8 +879,9 @@ jobs:
         # credential-isolation job split). Locate the existing open issue by
         # the new_sha embedded in its title, then comment the rendered
         # markdown summary. `continue-on-error` so a transient gh hiccup
-        # can't lose the just-committed snapshot.
-        if: needs.poll.outputs.is_bootstrap == 'false'
+        # can't lose the just-committed snapshot. SEC-004: only on the tick
+        # that generated it, so repeat ticks don't re-post the verdict.
+        if: needs.poll.outputs.is_bootstrap == 'false' && steps.generate.outputs.generated == 'true'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -689,3 +907,79 @@ jobs:
             exit 0
           fi
           gh issue comment "$issue" --body-file verdict-summary.md
+
+  # ==================================================================
+  # Promote PR (SEC-004) — the final step of the PR route.
+  #
+  # Opens the ONE `needs-operator` PR for poll/<sha12>, base main. Runs
+  # after the snapshot job so the PR is not offered for merge before the
+  # snapshot + diff are on the branch: for `changed` it needs the snapshot
+  # job to have succeeded (a refused snapshot withholds the PR; the next
+  # tick or "Re-run failed jobs" retries both), for `benign` there is no
+  # snapshot. Idempotent: an open PR for the branch means do nothing, so
+  # every tick until the merge is a no-op. A new PR's link is commented
+  # on the tranche-detected issue. The operator's merge is the promote
+  # (D-103); the repo deletes the branch on merge.
+  #
+  # Credentials: GITHUB_TOKEN only, no checkout, no R2/CF secrets.
+  # ==================================================================
+  promote:
+    needs: [poll, snapshot]
+    if: >-
+      always() && needs.poll.outputs.branch_ready == 'true' &&
+      (needs.poll.outputs.status == 'benign' || needs.snapshot.result == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # open the poll/<sha12> -> main PR
+      issues: write         # comment the PR link on the tranche-detected issue
+    steps:
+      - name: Open promote PR for poll/<sha12> (once)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          POLL_BRANCH: ${{ needs.poll.outputs.poll_branch }}
+          NEW_SHA: ${{ needs.poll.outputs.new_sha }}
+          OLD_SHA: ${{ needs.poll.outputs.old_sha }}
+          STATUS: ${{ needs.poll.outputs.status }}
+          IS_BOOTSTRAP: ${{ needs.poll.outputs.is_bootstrap }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          short_sha="${NEW_SHA:0:12}"
+          # Fail closed on a lookup error rather than risk a duplicate PR.
+          open=$(gh pr list --head "$POLL_BRANCH" --base main --state open --json url --jq '.[0].url // empty')
+          if [ -n "$open" ]; then
+            echo "Open PR ${open} already carries ${POLL_BRANCH}; not opening another."
+            exit 0
+          fi
+          if [ "$IS_BOOTSTRAP" = "true" ]; then
+            title="chore(poll): bootstrap last-known sha ${short_sha}"
+          elif [ "$STATUS" = "benign" ]; then
+            title="chore(poll): encoding-only upstream change ${OLD_SHA:0:12} -> ${short_sha} (benign)"
+          else
+            title="chore(poll): upstream CSV changed ${OLD_SHA:0:12} -> ${short_sha}"
+          fi
+          cat > pr-body.md <<EOF
+          Bot branch \`${POLL_BRANCH}\` from the PURSUE poll (status: ${STATUS}).
+
+          It records upstream CSV sha \`${NEW_SHA}\` on main: the sha file and guard state, the CSV bytes, and for a changed sha the R2 registry rows and the snapshot + diff + tranche-ready record. Several of these are D-103 published-data paths, so merging this PR is the promote.
+
+          Until it merges, every 30-minute tick re-detects this sha; the workflow skips every write for it while this branch exists, and opens no second PR or issue.
+
+          This PR was opened with GITHUB_TOKEN, so no other workflow ran on it: re-run the tests and the release gate before merging.
+
+          Poll run: ${RUN_URL}
+          EOF
+          url=$(gh pr create --base main --head "$POLL_BRANCH" --label needs-operator \
+            --title "$title" --body-file pr-body.md)
+          echo "Opened ${url}"
+          # Link it on the tranche-detected issue (none for benign/bootstrap).
+          issue=$(gh issue list \
+            --label tranche-detected --state open --limit 100 \
+            --json number,title 2>/dev/null \
+            | jq -r --arg s "$short_sha" \
+                'map(select(.title | contains($s))) | .[0].number // empty' \
+            2>/dev/null || echo "")
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "Promote PR for ${short_sha}: ${url} (needs-operator; merging it records this sha on main)."
+          fi

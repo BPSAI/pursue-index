@@ -30,6 +30,15 @@ name: Daily byte-verify of every referenced asset
 #
 # Cadence: 06:00 UTC daily. Spread out from the 30-min CSV poll
 # cron times so the two lanes don't pile up on the same minute.
+#
+# PR route (SEC-004, as in poll-pursue.yml): `main` is protected
+# (ruleset 27414272), so appended registry rows go to ONE rolling bot
+# branch, `verify/registry`, with one open `needs-operator` PR; the
+# operator's merge records them on main. When the branch exists the
+# verify appends to ITS registry (in a worktree), so rows already
+# waiting there are not appended twice, and the new commit is built on
+# its tip (never a force push). A refused write no longer skips the
+# alert steps: it is continue-on-error and re-raised at the end.
 
 on:
   schedule:
@@ -43,8 +52,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write       # push verify/registry (never main)
   issues: write
+  pull-requests: write  # keep the single verify/registry PR open
 
 concurrency:
   # Shared with poll-pursue.yml so the two registry-writing workflows
@@ -86,13 +96,39 @@ jobs:
           python -m pip install --require-hashes -r requirements-poll.txt
           python -m pip install --require-hashes -r requirements-archive.txt
 
+      - name: Prepare verify/registry worktree
+        # SEC-004: the registry the verify appends to. The rolling branch's
+        # tip if it exists (so rows still awaiting merge aren't re-appended),
+        # else main. ls-remote exit 2 = no branch; any other error fails this
+        # step, and the verify then runs against main's registry with the
+        # commit skipped (archive fails open, writes fail closed).
+        id: wt
+        continue-on-error: true
+        env:
+          VERIFY_BRANCH: verify/registry
+        run: |
+          wt="$RUNNER_TEMP/verify-registry"
+          rc=0
+          git ls-remote --exit-code --heads origin "refs/heads/${VERIFY_BRANCH}" > /dev/null || rc=$?
+          case "$rc" in
+            0) git fetch --no-tags --depth=1 origin "refs/heads/${VERIFY_BRANCH}"
+               git worktree add --detach "$wt" FETCH_HEAD
+               echo "on_origin=true" >> "$GITHUB_OUTPUT" ;;
+            2) git worktree add --detach "$wt" HEAD ;;
+            *) echo "::error::git ls-remote failed (exit ${rc}) for ${VERIFY_BRANCH}"
+               exit 1 ;;
+          esac
+          echo "dir=${wt}" >> "$GITHUB_OUTPUT"
+          echo "registry=${wt}/data/asset-bytes-registry.jsonl" >> "$GITHUB_OUTPUT"
+
       - name: Run R2 byte-verify
         id: verify
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-        run: python scripts/r2_archive_assets.py
+          REGISTRY: ${{ steps.wt.outputs.registry || 'data/asset-bytes-registry.jsonl' }}
+        run: python scripts/r2_archive_assets.py --registry "$REGISTRY"
         continue-on-error: true
 
       - name: Verify /removed + VID preservation copies
@@ -132,24 +168,61 @@ jobs:
         # appends (vaivora H1 / nayru H1.2). The signing-stale issue
         # lane below pings the operator to sign a fresh tag covering
         # the new root.
-        if: steps.verify.outcome == 'success'
+        #
+        # SEC-004: committed in the verify/registry worktree and pushed to
+        # that branch (fast-forward only), never main. continue-on-error so
+        # a refused push can't skip the alert steps below; re-raised by the
+        # last step.
+        id: registry_commit
+        if: steps.verify.outcome == 'success' && steps.wt.outcome == 'success'
+        continue-on-error: true
+        env:
+          WT: ${{ steps.wt.outputs.dir }}
+          VERIFY_BRANCH: verify/registry
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -f data/asset-bytes-registry.jsonl ]; then
-            python scripts/registry_root.py
-            git add data/asset-bytes-registry.jsonl \
+          if [ -f "$WT/data/asset-bytes-registry.jsonl" ]; then
+            python scripts/registry_root.py \
+              --registry "$WT/data/asset-bytes-registry.jsonl" \
+              --root "$WT/data/registry-root.txt" \
+              --manifest "$WT/data/registry-root-manifest.txt"
+            git -C "$WT" add data/asset-bytes-registry.jsonl \
                     data/registry-root.txt \
                     data/registry-root-manifest.txt
           fi
-          if ! git diff --cached --quiet; then
-            new_rows=$(git diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')
-            git commit -m "chore(verify): daily byte-verify caught +${new_rows} row(s)"
-            git pull --rebase origin main
-            git push
+          if ! git -C "$WT" diff --cached --quiet; then
+            new_rows=$(git -C "$WT" diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')
+            git -C "$WT" commit -m "chore(verify): daily byte-verify caught +${new_rows} row(s)"
+            # Push from the main checkout (it holds the checkout credentials;
+            # the worktree shares its object store).
+            git push origin "$(git -C "$WT" rev-parse HEAD):refs/heads/${VERIFY_BRANCH}"
+            echo "appended=true" >> "$GITHUB_OUTPUT"
           else
             echo "No byte changes detected today."
           fi
+
+      - name: Keep one open verify/registry PR
+        id: verify_pr
+        if: steps.wt.outputs.on_origin == 'true' || steps.registry_commit.outputs.appended == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERIFY_BRANCH: verify/registry
+        run: |
+          # Fail closed on a lookup error rather than risk a duplicate PR.
+          open=$(gh pr list --head "$VERIFY_BRANCH" --base main --state open --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then
+            echo "Open PR #${open} already carries ${VERIFY_BRANCH}; not opening another."
+            exit 0
+          fi
+          gh label create needs-operator \
+            --color "FBCA04" \
+            --description "Bot PR to main: a promote the operator reviews and merges" \
+            --force 2>/dev/null || true
+          gh pr create --base main --head "$VERIFY_BRANCH" --label needs-operator \
+            --title "chore(verify): daily byte-verify registry rows" \
+            --body "Rolling bot branch for the daily byte-verify's appended asset-bytes-registry rows (with registry-root.txt + registry-root-manifest.txt refreshed in lockstep). Later days add commits on top of this branch; it is never force-pushed. Merge to record the rows on main, then sign a fresh registry-root tag. If main's registry moved while this was open (a promote), update this branch from main before merging. Opened with GITHUB_TOKEN, so no other workflow ran on it."
 
       - name: Open issue when silent overlay caught
         # If the daily verify added new registry rows, that means an
@@ -160,9 +233,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          APPENDED: ${{ steps.registry_commit.outputs.appended }}
+          WT: ${{ steps.wt.outputs.dir }}
         run: |
-          # Only consider runs where the verify step appended rows.
-          if ! git log -1 --pretty=%s | grep -q "byte-verify caught"; then
+          # Only consider runs where the verify step appended rows. SEC-004:
+          # read from the commit step's output, not `git log -1`, because the
+          # rolling branch's tip can be an EARLIER day's catch.
+          if [ "$APPENDED" != "true" ]; then
             echo "No registry rows appended on this run."
             exit 0
           fi
@@ -172,8 +249,9 @@ jobs:
           # byte_sha256 is the threat. Firing on every appended row
           # false-fires after each promote and erodes signal on this
           # channel (see scripts/classify_overlay.py).
-          git show HEAD^:data/asset-bytes-registry.jsonl > /tmp/prior-registry.jsonl 2>/dev/null || : > /tmp/prior-registry.jsonl
-          git show HEAD:data/asset-bytes-registry.jsonl  > /tmp/current-registry.jsonl 2>/dev/null || : > /tmp/current-registry.jsonl
+          # (HEAD here is the commit just made in the verify/registry worktree.)
+          git -C "$WT" show HEAD^:data/asset-bytes-registry.jsonl > /tmp/prior-registry.jsonl 2>/dev/null || : > /tmp/prior-registry.jsonl
+          git -C "$WT" show HEAD:data/asset-bytes-registry.jsonl  > /tmp/current-registry.jsonl 2>/dev/null || : > /tmp/current-registry.jsonl
           # Fail LOUD, never silent: if the classifier errors or emits no
           # summary line, surface it rather than letting an empty result
           # default overlays to 0 and swallow a possible real overlay.
@@ -427,3 +505,12 @@ jobs:
             --title "[integrity] Current registry-root not covered by signed tag" \
             --label "signing-stale" \
             --body "$(printf 'The latest signed tag %s verifies, but the registry-root it covers does not match the current HEAD root file.\n\nCurrent root (unsigned): %s\n\nThis is the expected state after the daily silent-overlay catch (or 30-min poll) appends a new registry row — the bot writers refresh `data/registry-root.txt` in lockstep, but only the operator can sign a fresh `registry-root-*` tag. Re-sign per the per-promote workflow in `docs/runbooks/registry-root-signing.md`.\n\nRun log: %s' "$STALE_TAG" "$current_root" "$RUN_URL")"
+
+      - name: Propagate branch-write failure exit code
+        # SEC-004: the verify/registry writes are continue-on-error so a
+        # refused push can't skip the alert steps above; fail the run here.
+        if: >-
+          always() && (steps.wt.outcome == 'failure' ||
+          steps.registry_commit.outcome == 'failure' ||
+          steps.verify_pr.outcome == 'failure')
+        run: exit 1
