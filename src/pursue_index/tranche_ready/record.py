@@ -84,8 +84,8 @@ def _stop_reasons(candidates: list[dict[str, Any]], fallback: list[str],
     if fallback:
         reasons.append(f"estimate partial: {len(fallback)} scoped card(s) priced per card "
                        "(page count unavailable)")
-    reasons += [f"{d['card_id']}: date_unresolved {d['field']} '{d['raw']}' ({d['reason']})"
-                for d in dates]
+    reasons += [f"{d['card_id']} ({str(d.get('title') or '')[:200]}): date_unresolved "
+                f"{d['field']} '{d['raw']}' ({d['reason']})" for d in dates]
     if len(reasons) > _REASONS_MAX:  # the schema's stop_reasons maxItems
         dropped = len(reasons) - (_REASONS_MAX - 1)
         reasons = [*reasons[:_REASONS_MAX - 1], f"...and {dropped} more unresolved items"]

@@ -30,6 +30,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, Literal
 
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
+from pursue_index.scrape.year_normalize_report import verdict_date_lines
 
 TrancheVerdict = Literal["benign", "needs-review"]
 
@@ -79,21 +80,6 @@ def _safe_inline(text: str, *, limit: int = 80) -> str:
     return cleaned[:limit] + "…" if len(cleaned) > limit else cleaned
 
 
-def _date_unresolved_lines(rows: Sequence[Mapping[str, Any]]) -> str:
-    """The labelled ``date_unresolved`` list: rows left with upstream's
-    2-digit year because no stored value or own-row evidence fixed the
-    century. Empty string when there are none."""
-    if not rows:
-        return ""
-    lines = [f"* date_unresolved: {len(rows)} (2-digit year left as upstream gave it)"]
-    lines += [
-        f"  * `{_safe_inline(str(r['card_id']))}` {r['field']} "
-        f"`{_safe_inline(str(r['raw']))}` ({r['reason']})"
-        for r in rows
-    ]
-    return "\n".join(lines) + "\n"
-
-
 def render_verdict_summary(
     diff: SnapshotDiffResult,
     *,
@@ -123,7 +109,7 @@ def render_verdict_summary(
         f"* removed: {len(diff.removed)}\n"
         f"* field changes: {len(diff.field_changes)}\n"
         f"{col_line}\n"
-        f"{_date_unresolved_lines(diff.date_unresolved)}"
+        f"{verdict_date_lines(diff.date_report)}"
     )
     if tranche:
         from pursue_index.release.ship import build_tranche_ready_summary

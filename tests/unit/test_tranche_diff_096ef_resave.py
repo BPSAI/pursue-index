@@ -3,7 +3,9 @@
 Without ``--bytes-dir`` -- and with a ``--bytes-dir`` holding nothing
 usable -- ``scripts/tranche_diff.py``'s ``main()`` must reproduce the
 committed receipt ``data/tranche-diffs/tranche-diff-096ef2c0058a.{json,md}``
-byte for byte. Inputs are the receipt's own (``tests/support/tranche_096ef``);
+byte for byte, apart from one count the receipt predates: the 637 2-digit
+dates passed through because both sides of 096ef carry 2-digit years
+(``two_digit_priors_passed_through``). Inputs are the receipt's own (``tests/support/tranche_096ef``);
 network fetches return the byte shas the receipt recorded. Output goes to
 ``tmp_path`` -- the committed receipt is a permanent record and is only read.
 
@@ -13,6 +15,7 @@ The ``--bytes-dir`` end-to-end replay, as a real subprocess, is
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -34,6 +37,11 @@ if str(REPO_ROOT / "scripts") not in sys.path:
 
 import tranche_diff
 
+from pursue_index.tranche_report import render_json
+
+# Every 2-digit release/incident date in the 096ef manifest, passed through.
+_PASSED_THROUGH = 637
+
 
 def _run_main(monkeypatch, tmp_path: Path, shas: dict, *extra: str) -> Path:
     out_dir = tmp_path / "out"
@@ -49,8 +57,13 @@ def _run_main(monkeypatch, tmp_path: Path, shas: dict, *extra: str) -> Path:
 
 
 def _assert_matches_receipt(written: Path) -> None:
-    for suffix in (".json", ".md"):
-        assert written.with_suffix(suffix).read_bytes() == RECEIPT.with_suffix(suffix).read_bytes()
+    diff = json.loads(written.with_suffix(".json").read_text(encoding="utf-8"))
+    assert diff["summary"].pop("two_digit_priors_passed_through") == _PASSED_THROUGH
+    assert (render_json(diff) + "\n").encode() == RECEIPT.with_suffix(".json").read_bytes()
+    line = f"- **{_PASSED_THROUGH}** 2-digit priors passed through\n"
+    md = written.with_suffix(".md").read_text(encoding="utf-8")
+    assert md.count(line) == 1
+    assert md.replace(line, "").encode() == RECEIPT.with_suffix(".md").read_bytes()
 
 
 def test_no_bytes_dir_reproduces_committed_receipt(monkeypatch, tmp_path: Path) -> None:

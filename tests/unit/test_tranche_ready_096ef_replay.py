@@ -122,6 +122,9 @@ def test_replay_commits_the_tranche_diff_with_the_byte_evidence(replay: Path) ->
     out = replay / "tranche-diffs" / "tranche-diff-096ef2c0058a"
     diff = json.loads(out.with_suffix(".json").read_text())
     assert out.with_suffix(".md").exists()
+    # The committed receipt predates the 2-digit passthrough count; 096ef's
+    # 637 2-digit dates pass through because its prior is 2-digit too.
+    assert diff["summary"].pop("two_digit_priors_passed_through") == 637
     assert diff["summary"] == receipt()["summary"]
     [row] = diff["quarantined"]
     assert row["resave_evidence"]["change_nature"] == "metadata-only"

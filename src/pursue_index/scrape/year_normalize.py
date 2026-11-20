@@ -2,180 +2,154 @@
 
 Upstream CSV ``bae7455d`` switched raw ``Release Date`` / ``Incident Date``
 from ``1/18/1957`` to ``1/18/57``. The snapshot generator normalizes them
-back so the promoted manifest keeps 4-digit years, without ever guessing a
-century:
-
-* a card_id already in the prior manifest gets the 4-digit value stored
-  there, when the group's non-empty stored values agree and the one value
-  has the same month, day and last two year digits; otherwise UNRESOLVED;
-* a row with no stored value takes its century only from the row's own
-  4-digit ``display_date`` (same month, day, 2-digit year) or -- for
-  ``incident_date`` only -- a 4-digit year in its ``title`` /
-  ``asset_filename`` whose last two digits match. One distinct year
-  resolves; none or several is UNRESOLVED.
+back so the promoted manifest keeps 4-digit years; the per-value rules are
+in ``year_resolve`` (stored prior value, then the row's own evidence, then
+-- for ``release_date`` only -- the release window). Nothing is guessed: a
+value no rule fixes stays as upstream gave it and is reported UNRESOLVED.
 
 Only ``release_date`` and ``incident_date`` are touched; 4-digit and empty
 values pass through. A field the prior manifest carries only in 2-digit
-form (every snapshot before ``92b3``) has no 4-digit convention to keep:
-it passes through unflagged, so historical receipts replay unchanged. A rewritten row keeps upstream's string in ``raw``
-under the CSV column name, so the change stays auditable. Pure: inputs are
-never mutated.
+form (every snapshot before ``92b3``) has no 4-digit convention to keep: it
+passes through unflagged, and the count of such values is reported. A
+rewritten row keeps upstream's string in ``raw`` under the CSV column name,
+and a row already rewritten is re-resolved from that string, so running the
+normalization on a normalized manifest reproduces the same report. Pure:
+inputs are never mutated.
 """
 
 from __future__ import annotations
 
-import re
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
 from pursue_index.scrape.types import CardMetadata
+from pursue_index.scrape.year_resolve import (
+    TWO_DIGIT,
+    Window,
+    release_window,
+    resolve_value,
+    two_digit_fields,
+)
 
-__all__ = ["Unresolved", "normalize_cards", "normalize_manifest_dict", "normalize_rows"]
+__all__ = ["DateReport", "normalize_cards", "normalize_manifest_dict", "normalize_rows"]
 
 # field -> the upstream CSV column it is parsed from (csv_fetcher).
 _FIELDS = {"release_date": "Release Date", "incident_date": "Incident Date"}
-_TWO_DIGIT = re.compile(r"^\s*(\d{1,2})/(\d{1,2})/(\d{2})\s*$")
-_FOUR_DIGIT_MDY = re.compile(r"^\s*(\d{1,2})/(\d{1,2})/(\d{4})\s*$")
-_FOUR_DIGIT_ISO = re.compile(r"^\s*(\d{4})-(\d{1,2})-(\d{1,2})\s*$")
-_YEAR_IN_TEXT = re.compile(r"(?<!\d)(1\d{3}|20\d{2})(?!\d)")
-
-Unresolved = dict[str, str]
 
 
-def _mdy(value: Any) -> tuple[int, int, int] | None:
-    """``(month, day, 4-digit year)`` from a 4-digit M/D/YYYY or ISO date."""
-    if not isinstance(value, str):
-        return None
-    if m := _FOUR_DIGIT_MDY.match(value):
-        return int(m[1]), int(m[2]), int(m[3])
-    if m := _FOUR_DIGIT_ISO.match(value):
-        return int(m[2]), int(m[3]), int(m[1])
+@dataclass
+class DateReport:
+    """What the normalization did, for the receipt and the summaries.
+
+    ``considered`` is True when any new row carried a 2-digit-year value.
+    ``window`` is the release window, set only when a row reached that rule.
+    """
+
+    unresolved: list[dict[str, Any]] = field(default_factory=list)
+    window_rows: list[dict[str, Any]] = field(default_factory=list)
+    window: Window | None = None
+    passed_through: int = 0
+    considered: bool = False
+
+
+def _upstream(row: Mapping[str, Any], fld: str) -> str | None:
+    """The 2-digit value upstream gave, from ``raw`` on a rewritten row."""
+    for value in ((row.get("raw") or {}).get(_FIELDS[fld]), row.get(fld)):
+        if isinstance(value, str) and TWO_DIGIT.match(value):
+            return value
     return None
 
 
-def _agrees(value: Any, month: int, day: int, yy: int) -> int | None:
-    """The 4-digit year of ``value`` if it is the same date as M/D/YY."""
-    parsed = _mdy(value)
-    if parsed and parsed[:2] == (month, day) and parsed[2] % 100 == yy:
-        return parsed[2]
-    return None
-
-
-def _from_prior(stored: list[str], month: int, day: int, yy: int) -> tuple[str | None, str]:
-    """Restore from the group's stored values: ``(value, '')`` or ``(None, reason)``."""
-    distinct = list(dict.fromkeys(s.strip() for s in stored))
-    if len(distinct) > 1:
-        return None, "prior_disagree"
-    if _agrees(distinct[0], month, day, yy) is None:
-        return None, "prior_mismatch"
-    return distinct[0], ""
-
-
-def _evidence_years(row: Mapping[str, Any], field: str, month: int, day: int,
-                    yy: int) -> set[int]:
-    """Candidate 4-digit years from the row's own metadata."""
-    years: set[int] = set()
-    from_display = _agrees(row.get("display_date"), month, day, yy)
-    if from_display is not None:
-        years.add(from_display)
-    if field == "incident_date":
-        for text in (row.get("title"), row.get("asset_filename")):
-            for y in _YEAR_IN_TEXT.findall(text or ""):
-                if int(y) % 100 == yy:
-                    years.add(int(y))
-    return years
-
-
-def _from_row(row: Mapping[str, Any], field: str, parts: tuple[str, str, str]
-              ) -> tuple[str | None, str]:
-    """Derive the century from the row's own metadata, never a guess."""
-    month, day, yy = (int(p) for p in parts)
-    years = _evidence_years(row, field, month, day, yy)
-    if not years:
-        return None, "no_century_evidence"
-    if len(years) > 1:
-        return None, "ambiguous_evidence"
-    return f"{parts[0]}/{parts[1]}/{years.pop()}", ""
-
-
-def _resolve(row: Mapping[str, Any], field: str, stored: list[str]
-             ) -> tuple[str | None, str]:
-    """``(4-digit value, '')``, ``(None, reason)``, or ``(None, '')`` when
-    the value is not a 2-digit-year date and passes through."""
-    m = _TWO_DIGIT.match(row.get(field) or "")
-    if m is None:
-        return None, ""
-    if stored:
-        return _from_prior(stored, int(m[1]), int(m[2]), int(m[3]))
-    return _from_row(row, field, (m[1], m[2], m[3]))
-
-
-def _stored_values(prior_rows: Sequence[Mapping[str, Any]]) -> dict[tuple[str, str], list[str]]:
+def _stored_values(prior_rows: Sequence[Mapping[str, Any]]) -> dict[tuple[Any, str], list[str]]:
     """``(card_id, field) -> non-empty stored values``, over every row of a
     card_id group (upstream duplicates card_ids; they are never deduped)."""
-    out: dict[tuple[str, str], list[str]] = {}
+    out: dict[tuple[Any, str], list[str]] = {}
     for row in prior_rows:
-        for field in _FIELDS:
-            value = row.get(field)
+        for fld in _FIELDS:
+            value = row.get(fld)
             if isinstance(value, str) and value.strip():
-                out.setdefault((row.get("card_id"), field), []).append(value)
+                out.setdefault((row.get("card_id"), fld), []).append(value)
     return out
 
 
-def _two_digit_era(prior_rows: Sequence[Mapping[str, Any]]) -> set[str]:
-    """Fields the prior holds in 2-digit form and never in 4-digit M/D/YYYY."""
-    def has(field: str, pattern: re.Pattern[str]) -> bool:
-        return any(pattern.match(str(r.get(field) or "")) for r in prior_rows)
-    return {f for f in _FIELDS if has(f, _TWO_DIGIT) and not has(f, _FOUR_DIGIT_MDY)}
+def _entry(row: Mapping[str, Any], fld: str, raw: str) -> dict[str, Any]:
+    return {"card_id": row.get("card_id"), "title": row.get("title"), "field": fld, "raw": raw}
 
 
-def _updates(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str, Any]]
-             ) -> tuple[list[dict[str, Any]], list[Unresolved]]:
-    """Per-row ``{field: value, 'raw': {...}}`` updates plus the unresolved list."""
+def _row_update(row: Mapping[str, Any], fields: Sequence[str], stored: Mapping,
+                window: Window, report: DateReport) -> dict[str, Any]:
+    update: dict[str, Any] = {}
+    for fld in fields:
+        raw = _upstream(row, fld)
+        if raw is None:
+            continue
+        res = resolve_value(raw, row, fld, stored.get((row.get("card_id"), fld), []), window)
+        if res.evidence == "release-window" or res.reason == "outside_release_window":
+            report.window = window
+        if res.value is None:
+            report.unresolved.append({**_entry(row, fld, raw), "reason": res.reason})
+            continue
+        update[fld] = res.value
+        update.setdefault("raw", dict(row.get("raw") or {}))[_FIELDS[fld]] = raw
+        if res.evidence == "release-window":
+            report.window_rows.append({**_entry(row, fld, raw), "value": res.value,
+                                       "evidence": res.evidence})
+    return update
+
+
+def _updates(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str, Any]],
+             fetch_year: int | None) -> tuple[list[dict[str, Any]], DateReport]:
+    report = DateReport()
+    skipped = two_digit_fields(prior_rows, list(_FIELDS))
+    fields = [f for f in _FIELDS if f not in skipped]
     stored = _stored_values(prior_rows)
-    fields = {f: c for f, c in _FIELDS.items() if f not in _two_digit_era(prior_rows)}
-    updates: list[dict[str, Any]] = []
-    unresolved: list[Unresolved] = []
+    window = release_window(prior_rows, fetch_year)
+    updates = []
     for row in rows:
-        update: dict[str, Any] = {}
-        for field, column in fields.items():
-            value, reason = _resolve(row, field, stored.get((row.get("card_id"), field), []))
-            if value is not None:
-                update[field] = value
-                update.setdefault("raw", dict(row.get("raw") or {}))[column] = row[field]
-            elif reason:
-                unresolved.append({"card_id": row.get("card_id"), "field": field,
-                                   "raw": row[field], "reason": reason})
-        updates.append(update)
-    return updates, unresolved
+        seen = [f for f in _FIELDS if _upstream(row, f) is not None]
+        report.considered = report.considered or bool(seen)
+        report.passed_through += sum(1 for f in seen if f in skipped)
+        updates.append(_row_update(row, fields, stored, window, report))
+    return updates, report
 
 
-def normalize_rows(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str, Any]]
-                   ) -> tuple[list[dict[str, Any]], list[Unresolved]]:
+def normalize_rows(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str, Any]],
+                   fetch_year: int | None = None) -> tuple[list[dict[str, Any]], DateReport]:
     """Normalize JSON-shaped manifest rows against the prior manifest's rows.
 
-    Returns ``(rows, unresolved)``; each unresolved entry is
-    ``{card_id, field, raw, reason}``.
+    ``fetch_year`` (the new manifest's fetch year) is the release window's
+    upper bound; without it the window rule never applies.
     """
-    updates, unresolved = _updates(rows, prior_rows)
-    return [{**row, **upd} for row, upd in zip(rows, updates, strict=True)], unresolved
+    updates, report = _updates(rows, prior_rows, fetch_year)
+    return [{**row, **upd} for row, upd in zip(rows, updates, strict=True)], report
+
+
+def _year(fetched_at: Any) -> int | None:
+    if isinstance(fetched_at, datetime):
+        return fetched_at.year
+    try:
+        return datetime.fromisoformat(str(fetched_at).replace("Z", "+00:00")).year
+    except ValueError:
+        return None
 
 
 def normalize_manifest_dict(new: Mapping[str, Any], prior: Mapping[str, Any]
-                            ) -> tuple[dict[str, Any], dict[str, list[Unresolved]]]:
-    """A JSON manifest with its cards normalized against ``prior``'s, plus
-    ``{"date_unresolved": [...]}`` -- or ``{}`` when none, so a receipt
-    without unresolved dates keeps its prior shape."""
-    cards, unresolved = normalize_rows(new.get("cards", []), prior.get("cards", []))
-    return {**new, "cards": cards}, ({"date_unresolved": unresolved} if unresolved else {})
+                            ) -> tuple[dict[str, Any], DateReport]:
+    """A JSON manifest with its cards normalized against ``prior``'s; the
+    window's upper bound is the year of ``new['fetched_at']``."""
+    cards, report = normalize_rows(new.get("cards", []), prior.get("cards", []),
+                                   _year(new.get("fetched_at")))
+    return {**new, "cards": cards}, report
 
 
-def normalize_cards(cards: Sequence[CardMetadata], prior_cards: Sequence[CardMetadata]
-                    ) -> tuple[list[CardMetadata], list[Unresolved]]:
+def normalize_cards(cards: Sequence[CardMetadata], prior_cards: Sequence[CardMetadata],
+                    fetched_at: datetime | None = None
+                    ) -> tuple[list[CardMetadata], DateReport]:
     """``normalize_rows`` over ``CardMetadata``; unchanged cards are returned as-is."""
     rows = [c.model_dump(mode="json") for c in cards]
     prior = [c.model_dump(mode="json") for c in prior_cards]
-    updates, unresolved = _updates(rows, prior)
+    updates, report = _updates(rows, prior, _year(fetched_at) if fetched_at else None)
     out = [c.model_copy(update=upd) if upd else c for c, upd in zip(cards, updates, strict=True)]
-    return out, unresolved
-
+    return out, report

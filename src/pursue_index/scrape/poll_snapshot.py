@@ -42,7 +42,7 @@ from pursue_index.scrape.snapshots import (
     rotate_to_snapshot,
 )
 from pursue_index.scrape.types import CardMetadata, Manifest, ManifestDiff
-from pursue_index.scrape.year_normalize import normalize_cards
+from pursue_index.scrape.year_normalize import DateReport, normalize_cards
 from pursue_index.tranche import field_diff
 
 
@@ -54,9 +54,13 @@ class SnapshotDiffResult:
     removed: list[CardMetadata]
     field_changes: list[dict[str, Any]]
     new_columns: list[str]
-    # Rows whose 2-digit year could not be restored without a guess:
-    # ``{card_id, field, raw, reason}`` (``year_normalize``).
-    date_unresolved: list[dict[str, str]] = field(default_factory=list)
+    # What the 2-digit-year normalization did (``year_normalize``).
+    date_report: DateReport = field(default_factory=DateReport)
+
+    @property
+    def date_unresolved(self) -> list[dict[str, Any]]:
+        """Rows whose 2-digit year no rule could restore."""
+        return self.date_report.unresolved
 
 
 def generate_snapshot_diff(
@@ -76,7 +80,8 @@ def generate_snapshot_diff(
     new_manifest = build_manifest(raw_csv, parse_csv(raw_csv), source_url)
 
     prior = load_manifest(latest_path) if latest_path.exists() else None
-    cards, unresolved = normalize_cards(new_manifest.cards, prior.cards if prior else [])
+    cards, dates = normalize_cards(new_manifest.cards, prior.cards if prior else [],
+                                   new_manifest.fetched_at)
     new_manifest = new_manifest.model_copy(update={"cards": cards})
 
     # Rotate the prior latest.json into snapshots/<prior_sha>.json (public +
@@ -91,7 +96,7 @@ def generate_snapshot_diff(
             removed=[],
             field_changes=[],
             new_columns=_new_columns(raw_csv, prior_cards=[]),
-            date_unresolved=unresolved,
+            date_report=dates,
         )
 
     diff: ManifestDiff = new_manifest.diff(prior)
@@ -100,7 +105,7 @@ def generate_snapshot_diff(
         removed=diff.removed,
         field_changes=_field_changes(prior, new_manifest),
         new_columns=_new_columns(raw_csv, prior_cards=prior.cards),
-        date_unresolved=unresolved,
+        date_report=dates,
     )
 
 

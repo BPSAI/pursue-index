@@ -20,8 +20,8 @@ from pursue_index.tranche_ready.schema import load_schema, validate  # noqa: E40
 from pursue_index.tranche_report import render_markdown  # noqa: E402
 
 SHA_OLD, SHA_NEW = "b" * 64, "a" * 64
-_UNRESOLVED = {"card_id": "2" * 16, "field": "incident_date", "raw": "1/18/57",
-               "reason": "no_century_evidence"}
+_UNRESOLVED = {"card_id": "2" * 16, "title": "Report on lights", "field": "incident_date",
+               "raw": "1/18/57", "reason": "no_century_evidence"}
 
 
 def _card(card_id: str, **fields) -> dict:
@@ -31,14 +31,17 @@ def _card(card_id: str, **fields) -> dict:
 
 
 def _diff(new_cards: list[dict]) -> dict:
-    old = {"csv_sha256": SHA_OLD, "cards": [_card("1" * 16, incident_date="1/18/1957")]}
-    new = {"csv_sha256": SHA_NEW, "cards": new_cards}
+    old = {"csv_sha256": SHA_OLD, "cards": [_card("1" * 16, incident_date="1/18/1957"),
+                                            _card("0" * 16, release_date="5/8/2026")]}
+    keep = _card("0" * 16, release_date="5/8/2026")
+    new = {"csv_sha256": SHA_NEW, "fetched_at": "2026-11-20T12:00:00Z",
+           "cards": [keep, *new_cards]}
     return tranche_diff.diff_tranches(old, new, {}, fetch_byte_sha=lambda _url: None)
 
 
 def test_receipt_restores_existing_rows_and_lists_unresolved() -> None:
     diff = _diff([_card("1" * 16, incident_date="1/18/57"),
-                  _card("2" * 16, incident_date="1/18/57")])
+                  _card("2" * 16, title="Report on lights", incident_date="1/18/57")])
     assert diff["field_only_changes"] == []
     assert diff["date_unresolved"] == [_UNRESOLVED]
     assert diff["summary"]["date_unresolved"] == 1
@@ -52,10 +55,35 @@ def test_receipt_omits_date_unresolved_when_none() -> None:
 
 
 def test_markdown_worklist_has_labelled_section() -> None:
-    md = render_markdown(_diff([_card("2" * 16, incident_date="1/18/57")]))
+    md = render_markdown(_diff([_card("2" * 16, title="Report on lights",
+                                      incident_date="1/18/57")]))
     assert "## Date unresolved (2-digit year left as upstream gave it — MANUAL REVIEW)" in md
-    assert "| `2222222222222222` | incident_date | `1/18/57` | no_century_evidence |" in md
+    assert ("| `2222222222222222` | Report on lights | incident_date | `1/18/57` "
+            "| no_century_evidence |") in md
     assert "- **1** dates unresolved" in md
+    assert "- **0** 2-digit priors passed through" in md
+
+
+def test_receipt_records_release_window_bounds_and_rows() -> None:
+    diff = _diff([_card("3" * 16, title="New doc", release_date="11/20/26")])
+    assert diff["release_window"] == {
+        "lower": 2026, "upper": 2026,
+        "source": "lower: earliest 4-digit release_date year in the prior manifest; "
+                  "upper: year of the new manifest's fetched_at"}
+    assert [(r["card_id"], r["value"], r["evidence"]) for r in diff["release_window_rows"]] == [
+        ("3" * 16, "11/20/2026", "release-window")]
+    assert diff["summary"]["release_window_resolved"] == 1
+    assert "## Release window (2026-2026)" in render_markdown(diff)
+
+
+def test_receipt_counts_two_digit_priors_passed_through() -> None:
+    old = {"csv_sha256": SHA_OLD, "cards": [_card("1" * 16, release_date="5/8/26")]}
+    new = {"csv_sha256": SHA_NEW, "cards": [_card("1" * 16, release_date="5/8/26"),
+                                            _card("2" * 16, release_date="6/1/26")]}
+    diff = tranche_diff.diff_tranches(old, new, {}, fetch_byte_sha=lambda _url: None)
+    assert diff["summary"]["two_digit_priors_passed_through"] == 2
+    assert "date_unresolved" not in diff
+    assert "- **2** 2-digit priors passed through" in render_markdown(diff)
 
 
 def _record_inputs(diff: dict) -> RecordInputs:
@@ -74,7 +102,8 @@ def test_record_stops_and_asks_on_unresolved_dates_and_validates() -> None:
     record = build_record(_record_inputs(diff))
     assert record["status"] == "stop-and-ask"
     assert record["stop_reasons"] == [
-        "2222222222222222: date_unresolved incident_date '1/18/57' (no_century_evidence)"]
+        "2222222222222222 (Report on lights): date_unresolved incident_date '1/18/57' "
+        "(no_century_evidence)"]
     assert validate(record, load_schema()) == []
 
 

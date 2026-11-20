@@ -58,7 +58,7 @@ def normalized_manifest(raw: bytes, source_url: str, old_m: dict) -> Manifest:
     parsed from ``raw`` with 2-digit years restored against ``old_m``."""
     manifest = build_manifest(raw, parse_csv(raw), source_url)
     rows, _ = normalize_rows([c.model_dump(mode="json") for c in manifest.cards],
-                             old_m.get("cards", []))
+                             old_m.get("cards", []), manifest.fetched_at.year)
     return Manifest.model_validate({**manifest.model_dump(mode="json"), "cards": rows})
 
 

@@ -49,8 +49,9 @@ def test_new_row_without_evidence_is_flagged_and_left_as_given(tmp_path: Path) -
     result, snapshot, _ = _run(tmp_path, prior, new)
     added = result.added[0]
     assert added.incident_date == "1/18/57"
-    assert result.date_unresolved == [{"card_id": added.card_id, "field": "incident_date",
-                                       "raw": "1/18/57", "reason": "no_century_evidence"}]
+    assert result.date_unresolved == [{"card_id": added.card_id, "title": "Case 2",
+                                       "field": "incident_date", "raw": "1/18/57",
+                                       "reason": "no_century_evidence"}]
     assert snapshot["cards"][1]["incident_date"] == "1/18/57"
 
 
@@ -62,7 +63,19 @@ def test_unresolved_rows_reach_the_verdict_artifact_and_summary(tmp_path: Path) 
     assert artifact["date_unresolved"] == result.date_unresolved
     summary = render_verdict_summary(result)
     assert "date_unresolved: 1" in summary
-    assert f"`{result.added[0].card_id}` incident_date `1/18/57` (no_century_evidence)" in summary
+    assert (f"`{result.added[0].card_id}` Case 2 — incident_date `1/18/57` "
+            "(no_century_evidence)") in summary
+    assert "* 2-digit priors passed through: 0" in summary
+
+
+def test_new_release_date_resolves_by_release_window(tmp_path: Path) -> None:
+    prior = _csv([("10/23/2026", "Case 1", "1/18/1957", _URL1)])
+    new = _csv([("10/23/26", "Case 1", "1/18/57", _URL1), ("11/20/26", "Case 2", "", _URL2)])
+    result, snapshot, _ = _run(tmp_path, prior, new)
+    assert snapshot["cards"][1]["release_date"] == "11/20/2026"
+    assert result.date_unresolved == []
+    assert [r["evidence"] for r in result.date_report.window_rows] == ["release-window"]
+    assert "release window 2026-" in render_verdict_summary(result)
 
 
 def test_artifact_omits_date_unresolved_when_none(tmp_path: Path) -> None:
