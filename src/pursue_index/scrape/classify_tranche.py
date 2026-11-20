@@ -14,10 +14,11 @@ registry). The verdict keys only on:
   * ``diff.added``    — cards present in the new snapshot but not the prior
   * ``diff.removed``  — cards present in the prior snapshot but not the new
   * ``diff.new_columns`` — brand-new, unmodeled CSV headers
+  * ``diff.date_unresolved`` — 2-digit-year dates no rule could restore
 
 Per-card ``field_changes`` (an existing card's metadata edited in place) do
-**not** flip the verdict — only structural additions/removals or a schema
-addition do.
+**not** flip the verdict — only structural additions/removals, a schema
+addition, or an unresolved date do.
 
 Note: the backlog phrased this as ``classify_tranche(diff, new_columns)``, but
 ``SnapshotDiffResult`` already carries ``new_columns``, so the function takes
@@ -38,10 +39,12 @@ TrancheVerdict = Literal["benign", "needs-review"]
 def classify_tranche(diff: SnapshotDiffResult) -> TrancheVerdict:
     """Return the lightweight verdict for a snapshot diff.
 
-    ``benign`` iff there are zero added cards, zero removed cards, and no new
-    unmodeled column. Anything else is ``needs-review``.
+    ``benign`` iff there are zero added cards, zero removed cards, no new
+    unmodeled column, and no 2-digit-year date left unresolved (the
+    tranche-ready record stops and asks on those too). Anything else is
+    ``needs-review``.
     """
-    if diff.added or diff.removed or diff.new_columns:
+    if diff.added or diff.removed or diff.new_columns or diff.date_unresolved:
         return "needs-review"
     return "benign"
 
