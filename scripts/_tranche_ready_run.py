@@ -27,6 +27,7 @@ from _tranche_ready_job import JobConfig, build
 
 from pursue_index.release.rates import JudgeRate
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv
+from pursue_index.scrape.date_resolutions import Overlay, load_date_resolutions
 from pursue_index.scrape.manifest import save_manifest
 from pursue_index.scrape.pdf_pages import FetchedPdfs
 from pursue_index.scrape.types import Manifest
@@ -50,16 +51,21 @@ def config_from_args(args: argparse.Namespace) -> JobConfig:
         registry=args.registry, poll_state=args.poll_state, csv_archive=args.csv_archive,
         tranche_issue=args.tranche_issue,
         poll_run_id=args.poll_run_id, poll_commit=args.poll_commit,
+        date_resolutions=args.date_resolutions,
     )
 
 
-def normalized_manifest(raw: bytes, source_url: str, old_m: dict) -> Manifest:
+def normalized_manifest(raw: bytes, source_url: str, old_m: dict,
+                        overlay: Overlay | None = None) -> Manifest:
     """The new manifest as ``generate_snapshot_diff`` writes its snapshot:
-    parsed from ``raw`` with 2-digit years restored against ``old_m``."""
+    parsed from ``raw`` with 2-digit years restored against ``old_m`` and
+    the manual resolutions ``overlay``."""
     manifest = build_manifest(raw, parse_csv(raw), source_url)
-    rows, _ = normalize_rows([c.model_dump(mode="json") for c in manifest.cards],
-                             old_m.get("cards", []), manifest.fetched_at.year)
-    return Manifest.model_validate({**manifest.model_dump(mode="json"), "cards": rows})
+    dumped = manifest.model_dump(mode="json")
+    rows, _ = normalize_rows(dumped["cards"], old_m.get("cards", []), manifest.fetched_at.year,
+                             overlay=overlay, tranche=manifest.csv_sha256,
+                             fetched_at=dumped["fetched_at"])
+    return Manifest.model_validate({**dumped, "cards": rows})
 
 
 def publish(diff: dict, record: dict, cfg: JobConfig) -> list[Path]:
@@ -116,7 +122,8 @@ def run_job(raw: bytes, latest: Path, source_url: str, cfg: JobConfig, fetched: 
         print("poll-snapshot.tranche-ready skipped: no prior manifest (bootstrap)", flush=True)
         return 0
     old_m = json.loads(latest.read_text(encoding="utf-8"))
-    manifest = normalized_manifest(raw, source_url, old_m)
+    overlay = load_date_resolutions(cfg.date_resolutions) if cfg.date_resolutions else {}
+    manifest = normalized_manifest(raw, source_url, old_m, overlay)
     new_m = json.loads(manifest.model_dump_json(by_alias=True))
     sha12 = manifest.csv_sha256[:12]
     with tempfile.TemporaryDirectory(prefix="pursue-tranche-manifest-") as tmp:

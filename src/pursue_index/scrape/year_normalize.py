@@ -3,31 +3,43 @@
 Upstream CSV ``bae7455d`` switched raw ``Release Date`` / ``Incident Date``
 from ``1/18/1957`` to ``1/18/57``. The snapshot generator normalizes them
 back so the promoted manifest keeps 4-digit years; the per-value rules are
-in ``year_resolve`` (stored prior value, then the row's own evidence, then
--- for ``release_date`` only -- the release window). Nothing is guessed: a
-value no rule fixes stays as upstream gave it and is reported UNRESOLVED.
+in ``year_resolve`` (a manual overlay entry, the stored prior value, then
+the row's own evidence, then -- for ``release_date`` only -- the release
+window). Nothing is guessed: a value no rule fixes is reported UNRESOLVED;
+its field keeps the prior's stored 4-digit value unchanged, or is left
+EMPTY when the prior stores none, so it never becomes a 2-digit prior;
+``year_marker`` carries it as an open item across polls (reported under
+``open``, not as a new flag, while upstream's value is unchanged).
 
 Only ``release_date`` and ``incident_date`` are touched; 4-digit and empty
 values pass through. A field the prior manifest carries only in 2-digit
 form (every snapshot before ``92b3``) has no 4-digit convention to keep: it
-passes through unflagged, and the count of such values is reported. A
-rewritten row keeps upstream's string in ``raw`` under the CSV column name,
-and a row already rewritten is re-resolved from that string, so running the
-normalization on a normalized manifest reproduces the same report. Pure:
-inputs are never mutated.
+passes through unflagged, and the count of such values is reported -- but
+never for a field the prior marks open. A rewritten row keeps upstream's
+string in ``raw`` under the CSV column name, and a row already rewritten is
+re-resolved from that string, so running the normalization on a normalized
+manifest reproduces the same report. Pure: inputs are never mutated.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from pursue_index.scrape.date_resolutions import Overlay
 from pursue_index.scrape.types import CardMetadata
+from pursue_index.scrape.year_marker import iso, prior_markers, with_markers
+from pursue_index.scrape.year_outcome import (
+    DateReport,
+    RunContext,
+    kept_value,
+    paired_priors,
+    record_resolved,
+    record_unresolved,
+)
 from pursue_index.scrape.year_resolve import (
     TWO_DIGIT,
-    Window,
     release_window,
     resolve_value,
     two_digit_fields,
@@ -37,21 +49,6 @@ __all__ = ["DateReport", "normalize_cards", "normalize_manifest_dict", "normaliz
 
 # field -> the upstream CSV column it is parsed from (csv_fetcher).
 _FIELDS = {"release_date": "Release Date", "incident_date": "Incident Date"}
-
-
-@dataclass
-class DateReport:
-    """What the normalization did, for the receipt and the summaries.
-
-    ``considered`` is True when any new row carried a 2-digit-year value.
-    ``window`` is the release window, set only when a row reached that rule.
-    """
-
-    unresolved: list[dict[str, Any]] = field(default_factory=list)
-    window_rows: list[dict[str, Any]] = field(default_factory=list)
-    window: Window | None = None
-    passed_through: int = 0
-    considered: bool = False
 
 
 def _upstream(row: Mapping[str, Any], fld: str) -> str | None:
@@ -74,55 +71,66 @@ def _stored_values(prior_rows: Sequence[Mapping[str, Any]]) -> dict[tuple[Any, s
     return out
 
 
-def _entry(row: Mapping[str, Any], fld: str, raw: str) -> dict[str, Any]:
-    return {"card_id": row.get("card_id"), "title": row.get("title"), "field": fld, "raw": raw}
-
-
-def _row_update(row: Mapping[str, Any], fields: Sequence[str], stored: Mapping,
-                window: Window, report: DateReport) -> dict[str, Any]:
+def _row_update(row: Mapping[str, Any], fields: Sequence[str], ctx: RunContext,
+                report: DateReport, paired: Mapping[str, Any] | None) -> dict[str, Any]:
     update: dict[str, Any] = {}
+    raw_out = dict(row.get("raw") or {})
+    markers: list[dict[str, Any]] = []
     for fld in fields:
         raw = _upstream(row, fld)
         if raw is None:
             continue
-        res = resolve_value(raw, row, fld, stored.get((row.get("card_id"), fld), []), window)
+        key = (row.get("card_id"), fld)
+        stored, manual = ctx.stored.get(key, []), ctx.overlay.get(key)
+        res = resolve_value(raw, row, fld, stored, ctx.window,
+                            manual["value"] if manual else None)
         if res.evidence == "release-window" or res.reason == "outside_release_window":
-            report.window = window
+            report.window = ctx.window
+        raw_out[_FIELDS[fld]] = raw
         if res.value is None:
-            report.unresolved.append({**_entry(row, fld, raw), "reason": res.reason})
-            continue
-        update[fld] = res.value
-        update.setdefault("raw", dict(row.get("raw") or {}))[_FIELDS[fld]] = raw
-        if res.evidence == "release-window":
-            report.window_rows.append({**_entry(row, fld, raw), "value": res.value,
-                                       "evidence": res.evidence})
+            update[fld] = kept_value(paired, fld)
+            markers.append(record_unresolved(row, fld, raw, res.reason, ctx, report))
+        else:
+            update[fld] = res.value
+            record_resolved(row, fld, raw, res, stored, ctx, report)
+    raw_out = with_markers(raw_out, markers)
+    if update or raw_out != (row.get("raw") or {}):
+        update["raw"] = raw_out
     return update
 
 
 def _updates(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str, Any]],
-             fetch_year: int | None) -> tuple[list[dict[str, Any]], DateReport]:
+             fetch_year: int | None, overlay: Overlay | None, tranche: str | None,
+             fetched_at: str | None) -> tuple[list[dict[str, Any]], DateReport]:
     report = DateReport()
     skipped = two_digit_fields(prior_rows, list(_FIELDS))
-    fields = [f for f in _FIELDS if f not in skipped]
-    stored = _stored_values(prior_rows)
-    window = release_window(prior_rows, fetch_year)
+    ctx = RunContext(_stored_values(prior_rows), release_window(prior_rows, fetch_year),
+               prior_markers(prior_rows), overlay or {}, tranche, fetched_at)
     updates = []
-    for row in rows:
+    for row, paired in zip(rows, paired_priors(rows, prior_rows), strict=True):
+        # A field the prior marks open is never passed through.
+        fields = [f for f in _FIELDS
+                  if f not in skipped or (row.get("card_id"), f) in ctx.markers]
         seen = [f for f in _FIELDS if _upstream(row, f) is not None]
         report.considered = report.considered or bool(seen)
-        report.passed_through += sum(1 for f in seen if f in skipped)
-        updates.append(_row_update(row, fields, stored, window, report))
+        report.passed_through += sum(1 for f in seen if f not in fields)
+        updates.append(_row_update(row, fields, ctx, report, paired))
     return updates, report
 
 
 def normalize_rows(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str, Any]],
-                   fetch_year: int | None = None) -> tuple[list[dict[str, Any]], DateReport]:
+                   fetch_year: int | None = None, *, overlay: Overlay | None = None,
+                   tranche: str | None = None, fetched_at: str | None = None
+                   ) -> tuple[list[dict[str, Any]], DateReport]:
     """Normalize JSON-shaped manifest rows against the prior manifest's rows.
 
     ``fetch_year`` (the new manifest's fetch year) is the release window's
-    upper bound; without it the window rule never applies.
+    upper bound; without it the window rule never applies. ``overlay`` is
+    the manual resolutions (``date_resolutions``); ``tranche`` and
+    ``fetched_at`` (the new manifest's ``csv_sha256`` and serialized fetch
+    time) stamp a new flag's marker.
     """
-    updates, report = _updates(rows, prior_rows, fetch_year)
+    updates, report = _updates(rows, prior_rows, fetch_year, overlay, tranche, fetched_at)
     return [{**row, **upd} for row, upd in zip(rows, updates, strict=True)], report
 
 
@@ -135,21 +143,25 @@ def _year(fetched_at: Any) -> int | None:
         return None
 
 
-def normalize_manifest_dict(new: Mapping[str, Any], prior: Mapping[str, Any]
+def normalize_manifest_dict(new: Mapping[str, Any], prior: Mapping[str, Any],
+                            overlay: Overlay | None = None
                             ) -> tuple[dict[str, Any], DateReport]:
     """A JSON manifest with its cards normalized against ``prior``'s; the
     window's upper bound is the year of ``new['fetched_at']``."""
     cards, report = normalize_rows(new.get("cards", []), prior.get("cards", []),
-                                   _year(new.get("fetched_at")))
+                                   _year(new.get("fetched_at")), overlay=overlay,
+                                   tranche=new.get("csv_sha256"),
+                                   fetched_at=new.get("fetched_at"))
     return {**new, "cards": cards}, report
 
 
 def normalize_cards(cards: Sequence[CardMetadata], prior_cards: Sequence[CardMetadata],
-                    fetched_at: datetime | None = None
-                    ) -> tuple[list[CardMetadata], DateReport]:
+                    fetched_at: datetime | None = None, *, overlay: Overlay | None = None,
+                    tranche: str | None = None) -> tuple[list[CardMetadata], DateReport]:
     """``normalize_rows`` over ``CardMetadata``; unchanged cards are returned as-is."""
     rows = [c.model_dump(mode="json") for c in cards]
     prior = [c.model_dump(mode="json") for c in prior_cards]
-    updates, report = _updates(rows, prior, _year(fetched_at) if fetched_at else None)
+    updates, report = _updates(rows, prior, _year(fetched_at) if fetched_at else None,
+                               overlay, tranche, iso(fetched_at))
     out = [c.model_copy(update=upd) if upd else c for c, upd in zip(cards, updates, strict=True)]
     return out, report

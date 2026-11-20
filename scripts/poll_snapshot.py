@@ -80,6 +80,7 @@ DEFAULT_QC_BUNDLE = _REPO_ROOT / "web" / "public" / "data" / "clean-qc-bundle.js
 DEFAULT_SOURCE_URL = "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv"
 DEFAULT_TRANCHE_DIFF_DIR = _REPO_ROOT / "data" / "tranche-diffs"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
+DEFAULT_DATE_RESOLUTIONS = _REPO_ROOT / "data" / "date_resolutions.json"
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -110,6 +111,8 @@ def _build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_QC_BUNDLE,
         help="Committed clean-qc bundle; source of the judge's metered per-page rate.",
     )
+    parser.add_argument("--date-resolutions", type=Path, default=DEFAULT_DATE_RESOLUTIONS,
+                        help="Manual 2-digit-year resolutions overlay (absent = none).")
     parser.add_argument("--canonical-dir", type=Path, default=None)
     parser.add_argument("--public-dir", type=Path, default=None)
     _add_tranche_ready_args(parser)
@@ -156,11 +159,13 @@ def main(argv: list[str] | None = None) -> int:
                 "public_dir": Path(scratch) / "public",
             }
             result = generate_snapshot_diff(
-                raw, source_url=args.source_url, latest_path=args.latest, **mirror_dirs
+                raw, source_url=args.source_url, latest_path=args.latest,
+                date_resolutions=args.date_resolutions, **mirror_dirs
             )
     else:
         result = generate_snapshot_diff(
-            raw, source_url=args.source_url, latest_path=args.latest, **mirror_dirs
+            raw, source_url=args.source_url, latest_path=args.latest,
+            date_resolutions=args.date_resolutions, **mirror_dirs
         )
     new_sha = build_manifest_sha(raw, args.source_url)
     artifact = build_verdict_artifact(result, new_sha=new_sha)

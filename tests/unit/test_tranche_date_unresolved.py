@@ -58,7 +58,7 @@ def test_receipt_omits_date_unresolved_when_none() -> None:
 def test_markdown_worklist_has_labelled_section() -> None:
     md = render_markdown(_diff([_card("2" * 16, title="Report on lights",
                                       incident_date="1/18/57")]))
-    assert "## Date unresolved (2-digit year left as upstream gave it — MANUAL REVIEW)" in md
+    assert "## Date unresolved (2-digit year; stored value kept, else card field empty — MANUAL REVIEW)" in md
     assert ("| `2222222222222222` | Report on lights | incident_date | `1/18/57` "
             "| no_century_evidence |") in md
     assert "- **1** dates unresolved" in md

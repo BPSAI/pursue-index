@@ -8,8 +8,9 @@ the old-side fetch outcomes and the judge rate. No I/O.
 ``status`` follows the hand-off spec: ``stop-and-ask`` when any candidate
 has a null verdict or ``stop_and_ask`` set, or the page count is partial;
 ``stop_reasons`` then names each cause. A row the receipt lists under
-``date_unresolved`` (a 2-digit year no stored value fixed) is a cause too:
-the operator rules on it before approving. Otherwise ``ready``. ``superseded``
+``date_unresolved`` (a 2-digit year no stored value fixed) is a cause too,
+and so is one under ``date_open`` (flagged by an earlier tranche and still
+open): the operator rules on it before approving. Otherwise ``ready``. ``superseded``
 is never produced here -- a record is append-only, so a later sha lists this
 one in its own ``supersedes`` instead.
 """
@@ -74,7 +75,8 @@ _REASONS_MAX = 200
 
 
 def _stop_reasons(candidates: list[dict[str, Any]], fallback: list[str],
-                  dates: Sequence[dict[str, Any]] = ()) -> list[str]:
+                  dates: Sequence[dict[str, Any]] = (),
+                  still_open: Sequence[dict[str, Any]] = ()) -> list[str]:
     reasons = []
     for c in candidates:
         if c["byte_verdict"] is None:
@@ -86,6 +88,9 @@ def _stop_reasons(candidates: list[dict[str, Any]], fallback: list[str],
                        "(page count unavailable)")
     reasons += [f"{d['card_id']} ({str(d.get('title') or '')[:200]}): date_unresolved "
                 f"{d['field']} '{d['raw']}' ({d['reason']})" for d in dates]
+    reasons += [f"{d['card_id']} ({str(d.get('title') or '')[:200]}): date_unresolved "
+                f"still open since {str(d.get('first_flagged_in') or '?')[:12]} "
+                f"{d['field']} '{d['raw']}' ({d['reason']})" for d in still_open]
     if len(reasons) > _REASONS_MAX:  # the schema's stop_reasons maxItems
         dropped = len(reasons) - (_REASONS_MAX - 1)
         reasons = [*reasons[:_REASONS_MAX - 1], f"...and {dropped} more unresolved items"]
@@ -97,7 +102,8 @@ def build_record(inp: RecordInputs) -> dict[str, Any]:
     sha = inp.new_manifest["csv_sha256"]
     scoped = scope_cards(inp.diff, sha, inp.new_manifest, inp.candidates)
     pages, fallback = pages_block(scoped, inp.page_counts)
-    reasons = _stop_reasons(inp.candidates, fallback, inp.diff.get("date_unresolved", []))
+    reasons = _stop_reasons(inp.candidates, fallback, inp.diff.get("date_unresolved", []),
+                            inp.diff.get("date_open", []))
     record: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "tranche_sha256": sha,

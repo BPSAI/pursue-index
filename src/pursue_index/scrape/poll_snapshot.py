@@ -13,7 +13,8 @@ network-free, credential-free entry point that:
   * restores 4-digit years on upstream's 2-digit raw ``release_date`` /
     ``incident_date`` (``year_normalize``) before the
     diff and the snapshot write, reporting rows it cannot resolve as
-    ``date_unresolved``;
+    ``date_unresolved`` (new) or ``date_open`` (carried from the prior);
+    ``date_resolutions`` names the manual-resolution overlay;
   * computes the ``ManifestDiff`` (added/removed) against the prior
     ``latest.json``, the per-card ``field_changes`` (reusing the
     tranche-diff ``field_diff`` comparison), and any brand-new CSV column
@@ -34,6 +35,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.scrape.csv_fetcher import _MAPPED_KEYS, build_manifest, parse_csv
+from pursue_index.scrape.date_resolutions import load_date_resolutions
 from pursue_index.scrape.manifest import load_manifest, save_manifest
 from pursue_index.scrape.snapshots import (
     DEFAULT_CANONICAL_DIR,
@@ -62,6 +64,11 @@ class SnapshotDiffResult:
         """Rows whose 2-digit year no rule could restore."""
         return self.date_report.unresolved
 
+    @property
+    def date_open(self) -> list[dict[str, Any]]:
+        """Unresolved rows a prior marker already carries (not new flags)."""
+        return self.date_report.open
+
 
 def generate_snapshot_diff(
     raw_csv: bytes,
@@ -70,6 +77,7 @@ def generate_snapshot_diff(
     latest_path: Path,
     canonical_dir: Path = DEFAULT_CANONICAL_DIR,
     public_dir: Path = DEFAULT_PUBLIC_DIR,
+    date_resolutions: Path | None = None,
 ) -> SnapshotDiffResult:
     """Build a manifest from ``raw_csv`` and diff it against the prior
     ``latest_path`` manifest, writing both sides into the snapshot mirror.
@@ -80,8 +88,10 @@ def generate_snapshot_diff(
     new_manifest = build_manifest(raw_csv, parse_csv(raw_csv), source_url)
 
     prior = load_manifest(latest_path) if latest_path.exists() else None
+    overlay = load_date_resolutions(date_resolutions) if date_resolutions else {}
     cards, dates = normalize_cards(new_manifest.cards, prior.cards if prior else [],
-                                   new_manifest.fetched_at)
+                                   new_manifest.fetched_at, overlay=overlay,
+                                   tranche=new_manifest.csv_sha256)
     new_manifest = new_manifest.model_copy(update={"cards": cards})
 
     # Rotate the prior latest.json into snapshots/<prior_sha>.json (public +

@@ -2,6 +2,9 @@
 
 Used by ``year_normalize``. A value ``M/D/YY`` is resolved, in order, from:
 
+0. a manual overlay entry (``date_resolutions``) whose month, day and last
+   two year digits match (``manual``); an entry that does not match is
+   UNRESOLVED (``manual_mismatch``) -- nothing later overrides it;
 1. the prior manifest's stored value for the same card_id group, when the
    group's non-empty stored values agree and the one value has the same
    month, day and last two year digits (``prior``); a group that has stored
@@ -25,8 +28,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-__all__ = ["TWO_DIGIT", "Resolution", "Window", "release_window", "resolve_value",
-           "two_digit_fields"]
+__all__ = ["TWO_DIGIT", "Resolution", "Window", "is_four_digit", "release_window",
+           "resolve_value", "two_digit_fields"]
 
 TWO_DIGIT = re.compile(r"^\s*(\d{1,2})/(\d{1,2})/(\d{2})\s*$")
 _FOUR_DIGIT_MDY = re.compile(r"^\s*(\d{1,2})/(\d{1,2})/(\d{4})\s*$")
@@ -60,6 +63,11 @@ def _mdy(value: Any) -> tuple[int, int, int] | None:
     if m := _FOUR_DIGIT_ISO.match(value):
         return int(m[2]), int(m[3]), int(m[1])
     return None
+
+
+def is_four_digit(value: Any) -> bool:
+    """Whether ``value`` is a 4-digit-year M/D/YYYY or ISO date."""
+    return _mdy(value) is not None
 
 
 def _agrees(value: Any, month: int, day: int, yy: int) -> int | None:
@@ -104,10 +112,16 @@ def _from_window(yy: int, window: Window) -> tuple[int | None, str]:
 
 
 def resolve_value(value: str, row: Mapping[str, Any], field: str, stored: list[str],
-                  window: Window) -> Resolution:
-    """Resolve one 2-digit-year ``value`` of ``row[field]``."""
+                  window: Window, manual: str | None = None) -> Resolution:
+    """Resolve one 2-digit-year ``value`` of ``row[field]``; ``manual`` is the
+    overlay's value for this row and field, if any."""
     m = TWO_DIGIT.match(value)
     month, day, yy = int(m[1]), int(m[2]), int(m[3])
+    if manual is not None:
+        year = _agrees(manual, month, day, yy)
+        if year is None:
+            return Resolution(reason="manual_mismatch")
+        return Resolution(f"{m[1]}/{m[2]}/{year}", "manual")
     if stored:
         return _from_prior(stored, month, day, yy)
     years = _own_years(row, field, month, day, yy)

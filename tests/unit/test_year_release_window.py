@@ -32,7 +32,7 @@ def test_window_hit_resolves_and_is_labelled() -> None:
 
 def test_outside_window_stays_unresolved() -> None:
     out, report = normalize_rows([_row(release_date="11/20/19")], _PRIOR_2026, 2026)
-    assert out[0]["release_date"] == "11/20/19"
+    assert out[0]["release_date"] is None
     assert [u["reason"] for u in report.unresolved] == ["outside_release_window"]
     assert report.window == Window(2026, 2026)
     assert report.window_rows == []
@@ -41,7 +41,7 @@ def test_outside_window_stays_unresolved() -> None:
 def test_no_four_digit_prior_release_date_means_no_window() -> None:
     prior = [_row("old", release_date="June, 2026", incident_date="1/18/1957")]
     out, report = normalize_rows([_row(release_date="11/20/26")], prior, 2026)
-    assert out[0]["release_date"] == "11/20/26"
+    assert out[0]["release_date"] is None
     assert [u["reason"] for u in report.unresolved] == ["no_century_evidence"]
     assert report.window is None
 
@@ -49,7 +49,7 @@ def test_no_four_digit_prior_release_date_means_no_window() -> None:
 def test_incident_date_never_uses_the_window() -> None:
     prior = [_row("old", release_date="5/8/2026", incident_date="1/18/1957")]
     out, report = normalize_rows([_row(incident_date="11/20/26")], prior, 2026)
-    assert out[0]["incident_date"] == "11/20/26"
+    assert out[0]["incident_date"] is None
     assert [u["reason"] for u in report.unresolved] == ["no_century_evidence"]
     assert report.window is None
 

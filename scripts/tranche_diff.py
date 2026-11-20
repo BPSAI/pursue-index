@@ -35,8 +35,9 @@ Also reports:
   * 2-digit-year dates: the new manifest's 2-digit years are restored
     first (`scrape.year_normalize`, reproducible on an already-normalized
     snapshot); the receipt lists rows no rule could fix (`date_unresolved`),
-    and the release window and the rows it resolved
-    (`scrape.year_normalize_report`); the count of 2-digit priors passed
+    rows still open from an earlier tranche (`date_open`), rows a manual
+    entry in `data/date_resolutions.json` resolved, and the release window
+    and the rows it resolved (`scrape.year_normalize_report`); the count of 2-digit priors passed
     through is printed on stdout only, never written to the receipt
 
 Outputs:
@@ -74,6 +75,7 @@ _REPO_ROOT = repo_root()
 
 from r2_archive_assets import load_registry
 
+from pursue_index.scrape.date_resolutions import DATE_RESOLUTIONS_FILE, load_date_resolutions
 from pursue_index.scrape.year_normalize import normalize_manifest_dict
 from pursue_index.scrape.year_normalize_report import attach_date_report
 from pursue_index.tranche import (
@@ -95,6 +97,7 @@ DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 # Receipts are a permanent record, so they must live in a TRACKED directory.
 # `.paircoder/` is gitignored — writing here would drop them silently.
 DEFAULT_OUT_DIR = _REPO_ROOT / "data" / "tranche-diffs"
+DEFAULT_DATE_RESOLUTIONS = _REPO_ROOT / DATE_RESOLUTIONS_FILE
 
 
 def _fetch_byte_sha_via_curl(url: str) -> str | None:
@@ -257,7 +260,7 @@ def diff_tranches(
     registry: dict[str, list[dict[str, Any]]],
     fetch_byte_sha: Callable[[str], str | None] | None = None,
     resave_check: ResaveCheck | None = None,
-    move_resaves: bool = False,
+    move_resaves: bool = False, date_overlay: dict | None = None,
 ) -> dict[str, Any]:
     """Compute the structured diff between two manifests.
 
@@ -267,10 +270,11 @@ def diff_tranches(
     `resave_check` (from `--bytes-dir`) classifies metadata-only re-saves;
     `move_resaves` (the ingest_auto_approve_metadata_resaves opt-in) moves
     them out of `quarantined`, else the verdict is only attached as evidence.
+    `date_overlay` is the manual date resolutions (`load_date_resolutions`).
     """
     if fetch_byte_sha is None:
         fetch_byte_sha = _fetch_byte_sha_via_curl
-    new_manifest, dates = normalize_manifest_dict(new_manifest, old_manifest)
+    new_manifest, dates = normalize_manifest_dict(new_manifest, old_manifest, date_overlay)
     old_groups = group_by_card_id(old_manifest.get("cards", []))
     new_groups = group_by_card_id(new_manifest.get("cards", []))
     # A card_id can be backed by several rows; the PDF row is the one
@@ -337,14 +341,18 @@ def main() -> int:
                         help="Print to stdout instead of writing files")
     parser.add_argument("--bytes-dir", type=Path, default=None,
                         help="Dir of <byte_sha256>.pdf files for Class C byte evidence")
+    parser.add_argument("--date-resolutions", type=Path, default=DEFAULT_DATE_RESOLUTIONS,
+                        help="Manual 2-digit-year resolutions overlay")
     args = parser.parse_args()
+    overlay = load_date_resolutions(args.date_resolutions)
 
     old_manifest = _load_manifest(args.old_manifest)
     new_manifest = _load_manifest(args.new_manifest)
     registry = load_registry(args.registry)
     diff = diff_tranches(old_manifest, new_manifest, registry,
                          resave_check=bytes_dir_check(args.bytes_dir, registry),
-                         move_resaves=settings.ingest_auto_approve_metadata_resaves)
+                         move_resaves=settings.ingest_auto_approve_metadata_resaves,
+                         date_overlay=overlay)
 
     sha = (diff.get("tranche_sha256") or "unknown")[:12]
     if args.dry_run:
@@ -357,7 +365,7 @@ def main() -> int:
     md_path.write_text(render_markdown(diff))
     print(f"[tranche-diff] wrote {json_path} and {md_path}")
     print(f"[tranche-diff] summary: {diff['summary']}")
-    passed = normalize_manifest_dict(new_manifest, old_manifest)[1].passed_through
+    passed = normalize_manifest_dict(new_manifest, old_manifest, overlay)[1].passed_through
     print(f"[tranche-diff] two_digit_priors_passed_through={passed}")
     return 0
 

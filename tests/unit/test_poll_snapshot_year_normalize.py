@@ -43,16 +43,17 @@ def test_existing_rows_restored_so_no_field_changes(tmp_path: Path) -> None:
     assert card["raw"] == {"Release Date": "10/23/26", "Incident Date": "1/18/57"}
 
 
-def test_new_row_without_evidence_is_flagged_and_left_as_given(tmp_path: Path) -> None:
+def test_new_row_without_evidence_is_flagged_and_left_empty(tmp_path: Path) -> None:
     prior = _csv([("10/23/2026", "Case 1", "1/18/1957", _URL1)])
     new = _csv([("10/23/26", "Case 1", "1/18/57", _URL1), ("", "Case 2", "1/18/57", _URL2)])
     result, snapshot, _ = _run(tmp_path, prior, new)
     added = result.added[0]
-    assert added.incident_date == "1/18/57"
+    assert added.incident_date is None
     assert result.date_unresolved == [{"card_id": added.card_id, "title": "Case 2",
                                        "field": "incident_date", "raw": "1/18/57",
                                        "reason": "no_century_evidence"}]
-    assert snapshot["cards"][1]["incident_date"] == "1/18/57"
+    assert snapshot["cards"][1]["incident_date"] is None
+    assert snapshot["cards"][1]["raw"]["Incident Date"] == "1/18/57"
 
 
 def test_unresolved_rows_reach_the_verdict_artifact_and_summary(tmp_path: Path) -> None:

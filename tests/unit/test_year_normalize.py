@@ -54,7 +54,7 @@ def test_rerun_on_normalized_rows_reproduces_rows_and_report() -> None:
 def test_stored_value_with_other_day_is_unresolved_not_restored() -> None:
     prior = [_row(incident_date="1/19/1957")]
     out, report = normalize_rows([_row(incident_date="1/18/57")], prior)
-    assert out[0]["incident_date"] == "1/18/57"
+    assert out[0]["incident_date"] == "1/19/1957"  # the stored value, unchanged
     assert report.unresolved == [_flag("c1", "incident_date", "1/18/57", "prior_mismatch")]
 
 
@@ -62,7 +62,7 @@ def test_stored_value_with_other_month_or_year_is_unresolved() -> None:
     prior = [_row("a", incident_date="2/18/1957"), _row("b", incident_date="1/18/1958")]
     new = [_row("a", incident_date="1/18/57"), _row("b", incident_date="1/18/57")]
     out, report = normalize_rows(new, prior)
-    assert [r["incident_date"] for r in out] == ["1/18/57", "1/18/57"]
+    assert [r["incident_date"] for r in out] == ["2/18/1957", "1/18/1958"]
     assert [u["reason"] for u in report.unresolved] == ["prior_mismatch", "prior_mismatch"]
 
 
@@ -78,7 +78,7 @@ def test_duplicate_card_id_group_that_agrees_is_restored() -> None:
 def test_duplicate_card_id_group_that_disagrees_is_unresolved() -> None:
     prior = [_row(incident_date="5/6/2022"), _row(incident_date="5/6/1922")]
     out, report = normalize_rows([_row(incident_date="5/6/22")], prior)
-    assert out[0]["incident_date"] == "5/6/22"
+    assert out[0]["incident_date"] == "5/6/2022"  # its paired prior row's value
     assert report.unresolved == [_flag("c1", "incident_date", "5/6/22", "prior_disagree")]
 
 
@@ -123,8 +123,8 @@ def test_two_digit_era_prior_passes_through_unflagged_and_is_counted() -> None:
 
 
 def test_mixed_prior_still_normalizes() -> None:
-    """A prior with any 4-digit date for the field (e.g. one carrying a few
-    rows left unresolved by an earlier tranche) is in the 4-digit era."""
+    """A prior with any 4-digit date for the field (e.g. one still carrying a
+    few historic 2-digit rows) is in the 4-digit era."""
     prior = [_row("a", incident_date="1/18/1957"), _row("b", incident_date="2/2/60")]
     new = [_row("a", incident_date="1/18/57"), _row("b", incident_date="2/2/60")]
     out, report = normalize_rows(new, prior)

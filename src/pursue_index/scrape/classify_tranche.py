@@ -15,6 +15,8 @@ registry). The verdict keys only on:
   * ``diff.removed``  — cards present in the prior snapshot but not the new
   * ``diff.new_columns`` — brand-new, unmodeled CSV headers
   * ``diff.date_unresolved`` — 2-digit-year dates no rule could restore
+  * ``diff.date_open`` — such dates already flagged by an earlier tranche
+    and still open (carried, not new)
 
 Per-card ``field_changes`` (an existing card's metadata edited in place) do
 **not** flip the verdict — only structural additions/removals, a schema
@@ -40,11 +42,12 @@ def classify_tranche(diff: SnapshotDiffResult) -> TrancheVerdict:
     """Return the lightweight verdict for a snapshot diff.
 
     ``benign`` iff there are zero added cards, zero removed cards, no new
-    unmodeled column, and no 2-digit-year date left unresolved (the
-    tranche-ready record stops and asks on those too). Anything else is
-    ``needs-review``.
+    unmodeled column, and no 2-digit-year date left unresolved -- new or
+    still open from an earlier tranche (the tranche-ready record stops and
+    asks on those too). Anything else is ``needs-review``.
     """
-    if diff.added or diff.removed or diff.new_columns or diff.date_unresolved:
+    if (diff.added or diff.removed or diff.new_columns or diff.date_unresolved
+            or diff.date_open):
         return "needs-review"
     return "benign"
 
@@ -55,8 +58,9 @@ def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[st
     Pure: just the verdict + structural counts (and the new column names),
     keyed by ``new_sha`` so it can be located against the detected change.
     No I/O — the caller serializes + writes it. ``date_unresolved`` (rows
-    whose 2-digit year could not be restored) is present only when
-    non-empty, so records written before it existed recompute equal.
+    whose 2-digit year could not be restored) and ``date_open`` (such rows
+    still open from an earlier tranche) are present only when non-empty, so
+    records written before they existed recompute equal.
     """
     artifact: dict[str, Any] = {
         "new_sha": new_sha,
@@ -68,6 +72,8 @@ def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[st
     }
     if diff.date_unresolved:
         artifact["date_unresolved"] = [dict(u) for u in diff.date_unresolved]
+    if diff.date_open:
+        artifact["date_open"] = [dict(u) for u in diff.date_open]
     return artifact
 
 
