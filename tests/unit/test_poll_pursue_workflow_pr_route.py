@@ -3,9 +3,11 @@
 Structure pins on ``.github/workflows/poll-pursue.yml`` and
 ``verify-assets-daily.yml``:
 
-* no step pushes to ``main``: every ``git push`` names an explicit
-  ``refs/heads/<branch>`` whose branch resolves (through step env, job
-  outputs and the step that names it) to ``poll/...`` or ``verify/...``;
+* no step pushes to ``main``: every line that runs a push (``git push``,
+  ``git -C <dir> push``, ...) must have the one accepted form, naming an
+  explicit ``refs/heads/${VAR}`` whose branch resolves (through step env, job
+  outputs and the step that names it) to ``poll/...`` or ``verify/...`` --
+  any other form, or an expression the resolver does not know, fails;
 * the fetched CSV bytes are saved as a workflow artifact before any step
   commits or pushes, gated only on the poll and the byte verification;
 * a promote job, after ``poll`` and ``snapshot``, opens one PR from the
@@ -24,9 +26,14 @@ yaml = pytest.importorskip("yaml")
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 _ALLOWED = ("poll/", "verify/")
-_PUSH = re.compile(r"\bgit\s+push\b[^\n]*")
-_DEST = re.compile(r'^git\s+push\s+origin\s+"[^"\s:]+(?:\([^)]*\))?[^"\s:]*:refs/heads/'
-                   r'\$\{(\w+)\}"\s*$')
+_FORBIDDEN = {"main", "master"}
+# A line that names both `git` and `push` as words is treated as a push and
+# must parse into the one accepted form below -- anything else fails, so a
+# new spelling (`git -C dir push`, `|| git push`, a bare push) can't slip by.
+_PUSH_WORDS = re.compile(r"\bgit\b.*\bpush\b")
+_C_OPT = r"""\s+-C\s+(?:"[^"]*"|'[^']*'|[^\s"']+)"""
+_DEST = re.compile(rf'^git(?:{_C_OPT})*\s+push\s+origin\s+"[^"\s:]+(?:\([^)]*\))?[^"\s:]*'
+                   r':refs/heads/\$\{(\w+)\}"\s*$')
 _EXPR = re.compile(r"^\$\{\{\s*([\w.]+)\s*\}\}$")
 
 
@@ -62,23 +69,65 @@ def _push_targets(workflow: dict) -> list[tuple[str, str]]:
     for job_id, job in workflow["jobs"].items():
         for step in job.get("steps", []):
             for line in _command_lines(str(step.get("run", ""))):
-                for push in _PUSH.findall(line):
-                    dest = _DEST.match(push)
-                    assert dest, f"push without an explicit refs/heads/ target: {push!r}"
-                    var = dest.group(1)
-                    value = (step.get("env") or {}).get(var)
-                    assert value, f"{push!r}: ${var} is not set in the step's env"
-                    out.append((push, _resolve(str(value), workflow, job_id)))
+                if not _PUSH_WORDS.search(line):
+                    continue
+                dest = _DEST.match(line)
+                assert dest, f"push not in the accepted refs/heads/${{VAR}} form: {line!r}"
+                var = dest.group(1)
+                value = (step.get("env") or {}).get(var)
+                assert value, f"{line!r}: ${var} is not set in the step's env"
+                out.append((line, _resolve(str(value), workflow, job_id)))
     return out
+
+
+def _check_pushes(workflow: dict) -> list[tuple[str, str]]:
+    """Every push resolves to a ``poll/`` or ``verify/`` branch, never main."""
+    targets = _push_targets(workflow)
+    for push, branch in targets:
+        assert branch not in _FORBIDDEN, f"{push!r} targets {branch!r}"
+        assert branch.startswith(_ALLOWED), f"{push!r} targets {branch!r}"
+    return targets
 
 
 @pytest.mark.parametrize("name", ["poll-pursue.yml", "verify-assets-daily.yml"])
 def test_no_step_pushes_to_main(name: str) -> None:
-    targets = _push_targets(_load(name))
-    assert targets, "expected the workflow to push its bot branch"
-    for push, branch in targets:
-        assert "main" not in push.split(":")[-1], push
-        assert branch.startswith(_ALLOWED), f"{push!r} targets {branch!r}"
+    assert _check_pushes(_load(name)), "expected the workflow to push its bot branch"
+
+
+def _one_step(run: str, env: dict | None = None) -> dict:
+    return {"jobs": {"j": {"steps": [{"run": run, "env": env or {}}]}}}
+
+
+def test_push_guard_accepts_repeated_c_options() -> None:
+    run = 'git -C "$wt" -C sub push origin "$(git -C "$wt" rev-parse HEAD):refs/heads/${B}"'
+    assert _check_pushes(_one_step(run, {"B": "poll/x"})) == [(run, "poll/x")]
+
+
+@pytest.mark.parametrize("run", [
+    'git -C "$wt" push origin HEAD:refs/heads/main',
+    "git -C /tmp/x push origin HEAD:main",
+    "git push",
+    'if git push origin "HEAD:refs/heads/${B}"; then :; fi',
+    'git push origin "HEAD:refs/heads/main"',
+])
+def test_push_guard_fails_closed_on_any_other_push_form(run: str) -> None:
+    with pytest.raises(AssertionError, match="accepted refs/heads"):
+        _check_pushes(_one_step(run, {"B": "poll/x"}))
+
+
+_PUSH_VAR = 'git -C "$wt" push origin "HEAD:refs/heads/${B}"'
+
+
+@pytest.mark.parametrize("branch", ["main", "master", "release/x", "${{ github.ref_name }}",
+                                    "${{ inputs.branch }}", "${{ env.BRANCH }}"])
+def test_push_guard_rejects_main_and_unresolvable_branches(branch: str) -> None:
+    with pytest.raises(AssertionError, match=r"targets|cannot resolve"):
+        _check_pushes(_one_step(_PUSH_VAR, {"B": branch}))
+
+
+def test_push_guard_rejects_a_branch_variable_missing_from_the_step_env() -> None:
+    with pytest.raises(AssertionError, match=r"not set in the step's env"):
+        _check_pushes(_one_step(_PUSH_VAR))
 
 
 def _poll_steps() -> list[dict]:
