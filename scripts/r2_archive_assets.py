@@ -5,8 +5,10 @@ For every card in the new manifest with an ``asset_url``, this script:
 
   1. HEADs the URL to get current content-length / ETag.
   2. Compares against the most recent registry row for that
-     ``card_id`` — skip when both length and ETag (if available)
-     match a prior recording.
+     ``card_id``. Only a HEAD whose length AND ETag both equal that row's
+     skips the GET, and the card is then counted ``head-unchanged
+     (unverified)``: a HEAD never certifies bytes. A changed or missing
+     length or ETag, or a HEAD error, fetches and hashes the card.
   3. Otherwise GETs the bytes via the same curl_cffi Chrome-TLS
      impersonation path the CSV fetcher uses (war.gov sits behind
      Akamai for PDFs too).
@@ -48,10 +50,9 @@ Failure modes:
   * Same byte sha already in archive → idempotent: still upload to
     ``<card_id>.<ext>`` (current pointer) but skip the archive PUT.
 
-Bandwidth note: first run is ~5 GB total across the ~130 referenced
-assets. Subsequent runs HEAD first and re-GET only when the content
-length differs from the last registry entry — typical poll-driven
-runs touch only the small handful of cards that changed.
+Bandwidth note: first run is ~5 GB total across the referenced assets.
+Subsequent runs HEAD first and re-GET only cards whose HEAD differs from
+the last registry entry; ``--full-hash`` re-GETs everything.
 """
 
 from __future__ import annotations
@@ -69,7 +70,7 @@ import hashlib
 import json
 import os
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 # Make src/ importable when invoked as ``python scripts/r2_archive_assets.py``.
@@ -224,6 +225,17 @@ def _last_known_size(rows: list[dict[str, Any]]) -> int | None:
     return rows[-1].get("byte_size")
 
 
+def _head_identical(rows: list[dict[str, Any]], cl: int | None, etag: str | None) -> bool:
+    """True only when HEAD reports a size and an ETag that both equal the last row's."""
+    return (
+        bool(rows)
+        and cl is not None
+        and etag is not None
+        and cl == _last_known_size(rows)
+        and etag == _last_known_etag(rows)
+    )
+
+
 def _last_known_etag(rows: list[dict[str, Any]]) -> str | None:
     if not rows:
         return None
@@ -281,7 +293,11 @@ def _process_card(
     registry_path: Path,
     state: RunState | None = None,
 ) -> str:
-    """Return 'new' | 'unchanged' | 'archive-hit' | 'fail'."""
+    """Return 'new' | 'unchanged' | 'archive-hit' | 'head-unchanged' | 'fail'.
+
+    ``unchanged`` means the bytes were fetched, hashed and matched a prior row.
+    ``head-unchanged`` means HEAD matched and nothing was hashed (unverified).
+    """
     state = state or RunState()
     # Validate id and extension before any network or storage call; the
     # sha placeholder is replaced once the real bytes are hashed.
@@ -293,13 +309,12 @@ def _process_card(
 
     rows = registry.get(card.card_id, [])
     cl, etag = head_asset(card.asset_url)
-    if (
-        not state.full_hash
-        and cl is not None
-        and cl == _last_known_size(rows)
-        and (etag is None or etag == _last_known_etag(rows))
-    ):
-        return "unchanged"
+    # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
+    # with the last row on both size and ETag is trusted to skip the fetch, and
+    # then the card is reported as unverified, not unchanged. A missing size, a
+    # missing ETag, a changed value or a HEAD error all fetch and hash.
+    if not state.full_hash and _head_identical(rows, cl, etag):
+        return "head-unchanged"
 
     try:
         body = fetch_asset(card.asset_url)
@@ -407,6 +422,13 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         "resave-content-verified disposition covers it.",
     )
     parser.add_argument("--dispositions", type=Path, default=DEFAULT_DISPOSITIONS)
+    parser.add_argument(
+        "--max-full-hash-age-days",
+        type=int,
+        default=None,
+        help="Exit non-zero, after the run, when the newest complete --full-hash "
+        "record is older than this many days or there is none.",
+    )
     args = parser.parse_args(argv)
     if args.full_hash and not (args.max_bytes_per_run and args.max_bytes_per_run > 0):
         parser.error("--full-hash requires --max-bytes-per-run N (a positive byte count)")
@@ -452,7 +474,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     state = RunState(full_hash=args.full_hash)
-    counts = {"new": 0, "unchanged": 0, "archive-hit": 0, "fail": 0}
+    counts = {"new": 0, "unchanged": 0, "head-unchanged": 0, "archive-hit": 0, "fail": 0}
     in_scope = [c for c in manifest.cards if c.asset_type in ASSET_TYPES]
     eligible = [c for c in in_scope if c.asset_url]
     no_upstream_url = len(in_scope) - len(eligible)
@@ -480,12 +502,14 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f"[r2-archive] done: "
         f"new={counts['new']} unchanged={counts['unchanged']} "
+        f"head-unchanged (unverified)={counts['head-unchanged']} "
         f"archive-hit={counts['archive-hit']} fail={counts['fail']} "
         f"no-upstream-url={no_upstream_url}"
     )
     rc = _full_hash_outcome(args, state, counts, over_budget, unhashed, limited, eligible,
                             no_upstream_url) if args.full_hash else 0
-    return max(rc, _drift_outcome(args, state, dispositions))
+    rc = max(rc, _drift_outcome(args, state, dispositions))
+    return max(rc, _staleness_outcome(args))
 
 
 def _full_hash_outcome(args, state, counts, over_budget, unhashed, limited, eligible,
@@ -518,6 +542,50 @@ def _full_hash_outcome(args, state, counts, over_budget, unhashed, limited, elig
                 "no_upstream_url": no_upstream_url,
             },
         )
+    return 0
+
+
+def newest_complete_run(path: Path, now: datetime | None = None) -> datetime | None:
+    """Newest ``completed_at`` in the run records; junk lines and future dates are ignored."""
+    now = now or datetime.now(UTC)
+    newest: datetime | None = None
+    if not path.exists():
+        return None
+    for line in path.read_text().splitlines():
+        try:
+            when = datetime.fromisoformat(json.loads(line)["completed_at"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        if when > now + timedelta(minutes=5):
+            continue  # a record dated in the future is not evidence of a past run
+        if newest is None or when > newest:
+            newest = when
+    return newest
+
+
+def _staleness_outcome(args) -> int:
+    """1 when the weekly full-hash record is missing or older than the allowed age."""
+    if args.max_full_hash_age_days is None or args.full_hash:
+        return 0
+    path = args.run_record or args.registry.parent / RUN_RECORD_NAME
+    newest = newest_complete_run(path)
+    if newest is None:
+        print(
+            f"[r2-archive] STALE: no complete full-hash run on record in {path}",
+            file=sys.stderr,
+        )
+        return 1
+    age = datetime.now(UTC) - newest
+    if age > timedelta(days=args.max_full_hash_age_days):
+        print(
+            f"[r2-archive] STALE: the newest complete full-hash run finished "
+            f"{newest.isoformat()}, {age.days} days ago "
+            f"(more than {args.max_full_hash_age_days} days)",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 

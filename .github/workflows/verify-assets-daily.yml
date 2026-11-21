@@ -9,15 +9,16 @@ name: Daily byte-verify of every referenced asset
 # upstream CSV sha changes — efficient, but blind to silent same-URL-
 # different-bytes overlays. This workflow closes that hole: once a
 # day it runs the same r2_archive_assets.py script against the
-# current manifest. The script's HEAD-then-GET path short-circuits
-# unchanged assets cheaply (one HEAD per card, ~50ms each), and only
-# fetches + archives the few (typically zero) whose content-length
-# differs from their last registry entry. So a full daily verify
-# costs ~130 lightweight HEAD requests against war.gov and zero R2
-# writes when nothing changed — the day a silent overlay lands, the
-# script catches it, archives the new byte_sha at archive/<sha>.<ext>
-# (never touching the prior archive entry), and appends a registry
-# row. Diff queryable on next inspection.
+# current manifest. The script HEADs every asset (PDF, IMG, VID, AUD) and
+# fetches + hashes any whose size or ETag differs, is missing, or whose HEAD
+# failed. A card whose HEAD matches is counted `head-unchanged (unverified)`:
+# HEAD never certifies bytes. That proof is the weekly full-hash
+# (verify-assets-weekly.yml), and this run FAILS when the newest complete
+# weekly record is more than 8 days old. The day a silent overlay lands, the
+# script archives the new byte_sha at archive/<sha>.<ext> (never touching the
+# prior archive entry), appends a registry row, and FAILS the job after the
+# rows are committed to verify/registry, unless a matching
+# resave-content-verified disposition covers the card.
 #
 # Idempotency contract: byte_sha == filename means a re-archived
 # unchanged byte stream costs zero R2 storage. Registry only appends
@@ -25,8 +26,7 @@ name: Daily byte-verify of every referenced asset
 #
 # Same credentials required as the poll workflow's asset-archive
 # lane — see comments in poll-pursue.yml for the operator setup.
-# If credentials are missing this workflow exits 0 with a one-line
-# log message; it doesn't fail.
+# If credentials are missing this workflow FAILS (no silent pass).
 #
 # Cadence: 06:00 UTC daily. Spread out from the 30-min CSV poll
 # cron times so the two lanes don't pile up on the same minute.
@@ -131,7 +131,18 @@ jobs:
         # --fail-on-drift: a published card whose bytes changed fails this step,
         # after the new rows are written. continue-on-error keeps the rows
         # committed and the alert steps running; the last step re-raises.
-        run: python scripts/r2_archive_assets.py --registry "$REGISTRY" --fail-on-drift
+        #
+        # The HEAD pass never certifies a card unchanged: a HEAD that matches is
+        # counted `head-unchanged (unverified)`. The weekly full-hash is what
+        # proves bytes, so this run also fails when the newest complete weekly
+        # record (data/full-hash-runs.jsonl beside the registry) is more than 8
+        # days old, or absent: a dropped weekly schedule surfaces here.
+        run: |
+          python scripts/r2_archive_assets.py \
+            --registry "$REGISTRY" \
+            --run-record "$(dirname "$REGISTRY")/full-hash-runs.jsonl" \
+            --fail-on-drift \
+            --max-full-hash-age-days 8
         continue-on-error: true
 
       - name: Verify /removed + VID preservation copies
