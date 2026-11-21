@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from pursue_index.config import settings
@@ -18,6 +19,7 @@ from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import CardMetadata
 
 _CHUNK = 1 << 20
+_SHA256_RE = re.compile(r"[0-9a-f]{64}")
 
 
 def default_registry_path() -> Path:
@@ -26,12 +28,17 @@ def default_registry_path() -> Path:
     return repo_root() / "data" / "asset-bytes-registry.jsonl"
 
 
-def newest_registry_sha(card_id: str, registry_path: Path) -> str | None:
-    """``byte_sha256`` of the card's newest (last) registry row, or ``None``."""
-    if not registry_path.exists():
-        return None
-    sha: str | None = None
-    with registry_path.open(encoding="utf-8") as fh:
+def load_registry(registry_path: Path | None = None) -> dict[str, str]:
+    """``{card_id: byte_sha256}`` of each card's newest (last) registry row.
+
+    Read once per planning call and handed to ``resolve_img_path``, so the
+    cost is one pass over the registry however many cards are resolved.
+    """
+    path = registry_path if registry_path is not None else default_registry_path()
+    newest: dict[str, str] = {}
+    if not path.exists():
+        return newest
+    with path.open(encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -40,9 +47,9 @@ def newest_registry_sha(card_id: str, registry_path: Path) -> str | None:
                 row = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if row.get("card_id") == card_id and row.get("byte_sha256"):
-                sha = str(row["byte_sha256"])
-    return sha
+            if isinstance(row, dict) and row.get("card_id") and row.get("byte_sha256"):
+                newest[str(row["card_id"])] = str(row["byte_sha256"])
+    return newest
 
 
 def _file_sha256(path: Path) -> str:
@@ -53,11 +60,15 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _mirror_path(card: CardMetadata) -> tuple[Path | None, str | None]:
+def _mirror_path(
+    card: CardMetadata, registry: dict[str, str]
+) -> tuple[Path | None, str | None]:
     """The verified mirror copy for ``card``, else ``(None, why not)``."""
-    sha = newest_registry_sha(card.card_id, default_registry_path())
+    sha = registry.get(card.card_id)
     if sha is None:
         return None, "no registry row for the mirror fallback"
+    if not _SHA256_RE.fullmatch(sha):
+        return None, f"registry byte_sha256 {sha!r} is not 64 lowercase hex digits"
     ext = Path(card.asset_filename or "").suffix
     mirror = settings.r2_mirror_dir / "archive" / f"{sha}{ext}"
     if not mirror.is_file():
@@ -68,18 +79,21 @@ def _mirror_path(card: CardMetadata) -> tuple[Path | None, str | None]:
     return mirror, None
 
 
-def resolve_img_path(card: CardMetadata) -> tuple[Path | None, str | None]:
+def resolve_img_path(
+    card: CardMetadata, registry: dict[str, str] | None = None
+) -> tuple[Path | None, str | None]:
     """``(path, None)`` for the bytes to read, or ``(None, reason)``.
 
     An existing ``images/`` copy always wins. Otherwise the verified mirror
-    copy. A card with no downloadable asset gets ``(None, "no asset bytes")``.
+    copy. ``registry`` is the preloaded ``load_registry()`` map (loaded here
+    only when absent, and only if the mirror is needed). A card with no downloadable asset gets ``(None, "no asset bytes")``.
     """
     primary = asset_path_for(card)
     if primary is None:
         return None, "no asset bytes"
     if primary.is_file():
         return primary, None
-    mirror, why = _mirror_path(card)
+    mirror, why = _mirror_path(card, load_registry() if registry is None else registry)
     if mirror is None:
         return None, f"no images/ copy and {why}"
     return mirror, None

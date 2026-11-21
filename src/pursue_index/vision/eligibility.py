@@ -23,7 +23,7 @@ from pathlib import Path
 from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import CardMetadata, Manifest
 from pursue_index.tranche_rows import row_identity_key
-from pursue_index.vision.img_source import resolve_img_path
+from pursue_index.vision.img_source import load_registry, resolve_img_path
 
 CoverageKey = tuple[str, str, int]
 
@@ -107,7 +107,9 @@ def _row_keys(rows: list[CardMetadata]) -> list[str]:
     return keys
 
 
-def _img_card_item(card: CardMetadata, row_key: str) -> EligibleItem | None:
+def _img_card_item(
+    card: CardMetadata, row_key: str, registry: dict[str, str]
+) -> EligibleItem | None:
     """One eligible item for an IMG card, or ``None`` if it has no asset bytes."""
     path = asset_path_for(card)
     if path is None:
@@ -115,7 +117,7 @@ def _img_card_item(card: CardMetadata, row_key: str) -> EligibleItem | None:
     if not path.is_file():
         # Not on disk under images/: use the verified mirror copy if there is
         # one, otherwise leave the images/ path (it fails at load, as before).
-        path = resolve_img_path(card)[0] or path
+        path = resolve_img_path(card, registry)[0] or path
     return EligibleItem(
         card_id=card.card_id, page=1, kind="img_card",
         image_path=path, title=card.title, row_key=row_key,
@@ -138,11 +140,11 @@ def _pdf_card_items(
 
 
 def _items_for_row(
-    card: CardMetadata, row_key: str, ocr_dir: Path
+    card: CardMetadata, row_key: str, ocr_dir: Path, registry: dict[str, str]
 ) -> list[EligibleItem]:
     """Every eligible item contributed by one manifest row."""
     if card.asset_type == "IMG":
-        item = _img_card_item(card, row_key)
+        item = _img_card_item(card, row_key, registry)
         return [] if item is None else [item]
     if card.asset_type == "PDF":
         return _pdf_card_items(card, row_key, ocr_dir)
@@ -168,10 +170,11 @@ def select_eligible(
         if card.asset_type in ("IMG", "PDF"):
             groups.setdefault(card.card_id, []).append(card)
 
+    registry = load_registry()
     items: list[EligibleItem] = []
     for rows in groups.values():
         for card, row_key in zip(rows, _row_keys(rows), strict=True):
-            items.extend(_items_for_row(card, row_key, ocr_dir))
+            items.extend(_items_for_row(card, row_key, ocr_dir, registry))
     return items
 
 

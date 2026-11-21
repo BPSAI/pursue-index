@@ -293,9 +293,10 @@ def test_sidecar_schema_accepts_and_checks_superseded_passes():
 def test_malformed_sidecar_page_is_refused_by_name_others_still_planned(
     tmp_path, bad
 ):
+    from datetime import UTC, datetime
+
     from pursue_index.scrape.types import Manifest
     from pursue_index.vision.redescribe import plan_redescribe
-    from datetime import UTC, datetime
 
     out = tmp_path / "obs"
     out.mkdir()

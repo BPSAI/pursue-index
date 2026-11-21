@@ -32,7 +32,7 @@ from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import Manifest
 from pursue_index.vision.client import VISION_MODEL
 from pursue_index.vision.eligibility import CoverageKey, EligibleItem, keyed_rows
-from pursue_index.vision.img_source import resolve_img_path
+from pursue_index.vision.img_source import load_registry, resolve_img_path
 from pursue_index.vision.run import ESTIMATED_COST_PER_CALL_USD, VisionRunReport, _examine_one
 from pursue_index.vision.sidecar import page_has_content, validate_sidecar
 from pursue_index.vision.spend import SpendBudget, rates_for, worst_case_call_usd
@@ -93,21 +93,28 @@ def _read_sidecar(path: Path) -> dict[str, Any] | str:
 
 
 def _items_for_sidecar(
-    card_id: str, sidecar: dict[str, Any], rows: dict[str, Any]
+    card_id: str, sidecar: dict[str, Any], rows: dict[str, Any],
+    registry: dict[str, str],
 ) -> tuple[list[EligibleItem], list[str]]:
     """One item per page the sidecar describes, plus any reasons one cannot be built."""
     items: list[EligibleItem] = []
     problems: list[str] = []
     for page in sidecar.get("pages", []):
-        if not isinstance(page, dict) or "page" not in page:
+        if not isinstance(page, dict):
             continue
-        number = int(page["page"])
+        if "page" not in page:
+            problems.append(f"{card_id}: sidecar page has no page number")
+            continue
+        number = page["page"]
+        if isinstance(number, bool) or not isinstance(number, int):
+            problems.append(f"{card_id}: sidecar page has a malformed page number {number!r}")
+            continue
         row_key = str(page.get("row_key", "") or "")
         row = rows.get(row_key)
         if row is None:
             path, why = None, "no manifest row"
         elif row.asset_type == "IMG":
-            path, why = resolve_img_path(row)
+            path, why = resolve_img_path(row, registry)
         else:
             path = asset_path_for(row)
             why = "no asset bytes"
@@ -133,6 +140,7 @@ def plan_redescribe(manifest: Manifest, card_ids: set[str], out_dir: Path) -> Re
     """
     plan = RedescribePlan()
     rows_by_card = keyed_rows(manifest, card_ids)
+    registry = load_registry()
     for card_id in sorted(card_ids):
         sidecar = _read_sidecar(out_dir / f"{card_id}.json")
         if isinstance(sidecar, str):
@@ -142,7 +150,7 @@ def plan_redescribe(manifest: Manifest, card_ids: set[str], out_dir: Path) -> Re
         if not rows:
             plan.refusals.append(f"{card_id}: not an IMG/PDF card in the manifest")
             continue
-        items, problems = _items_for_sidecar(card_id, sidecar, rows)
+        items, problems = _items_for_sidecar(card_id, sidecar, rows, registry)
         plan.refusals.extend(problems)
         if items and not problems:
             plan.items_by_card[card_id] = items
