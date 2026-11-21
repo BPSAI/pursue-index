@@ -96,7 +96,9 @@ asr-b = [
 llm = [
     # LLM-based OCR fallback for low-confidence pages. The Anthropic SDK is
     # the v1 implementation; the OpenAI provider is a stub for v2.
-    "anthropic>=0.40",
+    # 0.77.0 is the first SDK release with the output_config request
+    # parameter (CHANGELOG 0.77.0, 2026-01-29), which vision/client.py sends.
+    "anthropic>=0.77.0",
 ]
 embed = [
     # Voyage-3 embeddings for the chat retrieval surface (embed-stage plan).

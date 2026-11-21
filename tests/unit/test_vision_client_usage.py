@@ -109,3 +109,21 @@ def test_the_stop_reason_never_reaches_the_sidecar(tmp_path: Any) -> None:
     run_vision([item], tmp_path, examine_fn=examine, load_image_fn=lambda _i: object())
     page = json.loads((tmp_path / "c0.json").read_text())["pages"][0]
     assert "_stop_reason" not in page
+
+
+def test_the_sdk_floor_supports_output_config() -> None:
+    """The client sends ``output_config`` (vision/client.py). The SDK added that
+    request parameter in 0.77.0, so the declared floor must be at least that."""
+    import re
+    import tomllib
+    from pathlib import Path
+
+    pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
+    project = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]
+    deps = list(project.get("dependencies", []))
+    for group in project.get("optional-dependencies", {}).values():
+        deps.extend(group)
+    spec = next(d for d in deps if re.match(r"anthropic\b", d))
+    floor = re.search(r">=\s*([0-9]+)\.([0-9]+)(?:\.([0-9]+))?", spec)
+    assert floor, spec
+    assert tuple(int(x or 0) for x in floor.groups()) >= (0, 77, 0), spec
