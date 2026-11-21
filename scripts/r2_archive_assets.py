@@ -80,11 +80,17 @@ _REPO_ROOT = repo_root()
 from _r2_archive_put import put_archive_and_current
 from curl_cffi import requests as cffi_requests
 
+from pursue_index.byte_dispositions import (
+    RESAVE_CONTENT_VERIFIED,
+    ByteDispositionError,
+    load_byte_change_dispositions,
+)
 from pursue_index.card_id import require_card_id
 from pursue_index.scrape.manifest import load_manifest
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
+DEFAULT_DISPOSITIONS = _REPO_ROOT / "data" / "byte-change-dispositions.jsonl"
 DEFAULT_BUCKET = "pursue-pdfs"
 RUN_RECORD_NAME = "full-hash-runs.jsonl"
 RUN_RECORD_SCHEMA = "pursue-full-hash-run/v1"
@@ -393,6 +399,14 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         help=f"Where a complete --full-hash run is recorded "
         f"(default: {RUN_RECORD_NAME} beside the registry).",
     )
+    parser.add_argument(
+        "--fail-on-drift",
+        action="store_true",
+        help="Exit non-zero, after the rows are written, when a card that already "
+        "had registry rows now has a different sha, unless a matching "
+        "resave-content-verified disposition covers it.",
+    )
+    parser.add_argument("--dispositions", type=Path, default=DEFAULT_DISPOSITIONS)
     args = parser.parse_args(argv)
     if args.full_hash and not (args.max_bytes_per_run and args.max_bytes_per_run > 0):
         parser.error("--full-hash requires --max-bytes-per-run N (a positive byte count)")
@@ -410,6 +424,14 @@ def write_run_record(path: Path, entry: dict[str, Any]) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
+
+    dispositions = {}
+    if args.fail_on_drift:
+        try:
+            dispositions = load_byte_change_dispositions(args.dispositions)
+        except ByteDispositionError as exc:
+            print(f"[r2-archive] ERROR: {exc}", file=sys.stderr)
+            return 1
 
     manifest = load_manifest(args.manifest)
     registry = load_registry(args.registry)
@@ -461,9 +483,14 @@ def main(argv: list[str] | None = None) -> int:
         f"archive-hit={counts['archive-hit']} fail={counts['fail']} "
         f"no-upstream-url={no_upstream_url}"
     )
-    if not args.full_hash:
-        return 0
+    rc = _full_hash_outcome(args, state, counts, over_budget, unhashed, limited, eligible,
+                            no_upstream_url) if args.full_hash else 0
+    return max(rc, _drift_outcome(args, state, dispositions))
 
+
+def _full_hash_outcome(args, state, counts, over_budget, unhashed, limited, eligible,
+                       no_upstream_url) -> int:
+    """Exit code for a ``--full-hash`` run; writes the complete-run record on success."""
     if over_budget:
         print(
             f"[r2-archive] FULL-HASH FAILED: byte budget {args.max_bytes_per_run} exceeded "
@@ -492,6 +519,26 @@ def main(argv: list[str] | None = None) -> int:
             },
         )
     return 0
+
+
+def _drift_outcome(args, state, dispositions) -> int:
+    """1 when ``--fail-on-drift`` and a drifted card has no covering disposition."""
+    if not args.fail_on_drift:
+        return 0
+    uncovered = []
+    for card_id, old, new in state.drift:
+        disp = dispositions.get((card_id, new))
+        if disp is not None and disp.disposition == RESAVE_CONTENT_VERIFIED:
+            print(f"[r2-archive] drift covered by a disposition: {card_id} {old} -> {new}")
+        else:
+            uncovered.append((card_id, old, new))
+    for card_id, old, new in uncovered:
+        print(
+            f"[r2-archive] BYTE DRIFT: {card_id} old sha {old} -> new sha {new} "
+            "(no resave-content-verified disposition covers it)",
+            file=sys.stderr,
+        )
+    return 1 if uncovered else 0
 
 
 if __name__ == "__main__":

@@ -128,7 +128,10 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           REGISTRY: ${{ steps.wt.outputs.registry || 'data/asset-bytes-registry.jsonl' }}
-        run: python scripts/r2_archive_assets.py --registry "$REGISTRY"
+        # --fail-on-drift: a published card whose bytes changed fails this step,
+        # after the new rows are written. continue-on-error keeps the rows
+        # committed and the alert steps running; the last step re-raises.
+        run: python scripts/r2_archive_assets.py --registry "$REGISTRY" --fail-on-drift
         continue-on-error: true
 
       - name: Verify /removed + VID preservation copies
@@ -174,7 +177,9 @@ jobs:
         # a refused push can't skip the alert steps below; re-raised by the
         # last step.
         id: registry_commit
-        if: steps.verify.outcome == 'success' && steps.wt.outcome == 'success'
+        if: >-
+          (steps.verify.outcome == 'success' || steps.verify.outcome == 'failure')
+          && steps.wt.outcome == 'success'
         continue-on-error: true
         env:
           WT: ${{ steps.wt.outputs.dir }}
@@ -229,7 +234,7 @@ jobs:
         # asset's bytes changed without the CSV changing — exactly the
         # threat we're watching for. Open an issue so the operator
         # sees it on first sign-in. Dedup guard avoids spamming.
-        if: steps.verify.outcome == 'success'
+        if: steps.verify.outcome == 'success' || steps.verify.outcome == 'failure'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -506,11 +511,18 @@ jobs:
             --label "signing-stale" \
             --body "$(printf 'The latest signed tag %s verifies, but the registry-root it covers does not match the current HEAD root file.\n\nCurrent root (unsigned): %s\n\nThis is the expected state after the daily silent-overlay catch (or 30-min poll) appends a new registry row — the bot writers refresh `data/registry-root.txt` in lockstep, but only the operator can sign a fresh `registry-root-*` tag. Re-sign per the per-promote workflow in `docs/runbooks/registry-root-signing.md`.\n\nRun log: %s' "$STALE_TAG" "$current_root" "$RUN_URL")"
 
-      - name: Propagate branch-write failure exit code
+      - name: Propagate verify and branch-write failure exit codes
         # SEC-004: the verify/registry writes are continue-on-error so a
         # refused push can't skip the alert steps above; fail the run here.
+        # The same goes for the verify step itself: byte drift on a published
+        # card exits non-zero after its rows are committed, and the job must
+        # still end red.
+        id: propagate
         if: >-
           always() && (steps.wt.outcome == 'failure' ||
+          steps.verify.outcome == 'failure' ||
           steps.registry_commit.outcome == 'failure' ||
           steps.verify_pr.outcome == 'failure')
-        run: exit 1
+        run: |
+          echo "::error::byte-verify did not finish clean: see the verify step (drift, a stale full-hash record, or an error) and the branch-write steps"
+          exit 1

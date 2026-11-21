@@ -99,6 +99,7 @@ jobs:
           python scripts/r2_archive_assets.py \
             --registry "$REGISTRY" \
             --full-hash \
+            --fail-on-drift \
             --max-bytes-per-run "$MAX_BYTES"
 
       - name: Commit registry rows and the run record
