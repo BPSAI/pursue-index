@@ -41,7 +41,7 @@ jobs:
       # build (package.json engines), so a stale runner fails here, not silently.
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
-          node-version: "22.19"
+          node-version-file: web/.nvmrc
       - name: npm audit (production dependencies)
         working-directory: web
         # npm exits non-zero when it finds anything; the gate decides. If the

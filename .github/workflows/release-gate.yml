@@ -341,7 +341,7 @@ jobs:
           # (the first, the missing package install, masked it via
           # fail-fast). Pin ≥22.18 so stripping is default, matching the
           # comment's own stated requirement and the Node 24 local dev env.
-          node-version: "22.19"
+          node-version-file: web/.nvmrc
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 

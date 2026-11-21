@@ -91,7 +91,7 @@ jobs:
           # so a future engines bump touches one place + the four
           # pins. Wrangler supports >=20 and Astro 6 supports >=20.10,
           # but the project's manifest is the authority.
-          node-version: "22.19"
+          node-version-file: web/.nvmrc
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
