@@ -87,6 +87,30 @@ def _deploy_step_succeeded(fetch, repo_path: str, run_id) -> bool:
     return False
 
 
+def _check_fallback(fetch, repo_path: str, sha: str) -> tuple[bool, bool, str]:
+    """Evaluate the fallback runs: ``(deployed, unknown, description)``.
+
+    A green run counts only when its deploy step succeeded; any lookup error
+    makes the answer "unknown" (the caller retries), never a pass.
+    """
+    try:
+        fb = _fallback_runs(fetch, repo_path, sha)
+    except Exception as exc:
+        return False, True, f"fallback status unknown ({exc})"
+    green = [r for r in fb if r.get("status") == "completed" and r.get("conclusion") == "success"]
+    for r in sorted(green, key=lambda r: r.get("id", 0), reverse=True):
+        try:
+            if _deploy_step_succeeded(fetch, repo_path, r.get("id")):
+                return True, False, (f"fallback {FALLBACK_WORKFLOW} run {r.get('id')} deployed "
+                                     f"({DEPLOY_STEP!r} succeeded) on {sha}")
+        except Exception as exc:
+            return False, True, f"fallback status unknown (jobs lookup failed: {exc})"
+    if green:
+        return False, False, (f"fallback {FALLBACK_WORKFLOW} run green but its deploy step "
+                              f"({DEPLOY_STEP!r}) did not succeed")
+    return False, False, _describe_fb(fb)
+
+
 def _is_superseded(fetch, repo_path: str, sha: str) -> bool:
     """True when ``main`` has moved strictly ahead of ``sha`` (a descendant)."""
     try:
@@ -140,28 +164,9 @@ def wait(fetch, *, sha: str, name: str, timeout_secs: float, interval_secs: floa
             wb_desc = _describe_wb(name, sha, wb)
             wb_done = wb and wb.get("status") == "completed"
             if wb is None or wb_done:  # absent or failed: the fallback may still cover the deploy
-                try:
-                    fb = _fallback_runs(fetch, repo_path, sha)
-                except Exception as exc:
-                    fb = None
-                    fb_unknown = True
-                    fb_desc = f"fallback status unknown ({exc})"
-                else:
-                    green = [r for r in fb if r.get("status") == "completed" and r.get("conclusion") == "success"]
-                    skipped = 0
-                    for r in sorted(green, key=lambda r: r.get("id", 0), reverse=True):
-                        try:
-                            if _deploy_step_succeeded(fetch, repo_path, r.get("id")):
-                                return "ok", (f"fallback {FALLBACK_WORKFLOW} run {r.get('id')} deployed "
-                                              f"({DEPLOY_STEP!r} succeeded) on {sha}")
-                            skipped += 1
-                        except Exception as exc:
-                            fb_unknown = True
-                            fb_desc = f"fallback status unknown (jobs lookup failed: {exc})"
-                            break
-                    else:
-                        fb_desc = (f"fallback {FALLBACK_WORKFLOW} run green but its deploy step "
-                                   f"({DEPLOY_STEP!r}) did not succeed" if skipped else _describe_fb(fb))
+                fb_ok, fb_unknown, fb_desc = _check_fallback(fetch, repo_path, sha)
+                if fb_ok:
+                    return "ok", fb_desc
             else:
                 fb_desc = "fallback not consulted"
             last = f"{wb_desc}; {fb_desc}"
