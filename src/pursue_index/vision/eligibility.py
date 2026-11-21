@@ -23,6 +23,7 @@ from pathlib import Path
 from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import CardMetadata, Manifest
 from pursue_index.tranche_rows import row_identity_key
+from pursue_index.vision.img_source import resolve_img_path
 
 CoverageKey = tuple[str, str, int]
 
@@ -111,6 +112,10 @@ def _img_card_item(card: CardMetadata, row_key: str) -> EligibleItem | None:
     path = asset_path_for(card)
     if path is None:
         return None
+    if not path.is_file():
+        # Not on disk under images/: use the verified mirror copy if there is
+        # one, otherwise leave the images/ path (it fails at load, as before).
+        path = resolve_img_path(card)[0] or path
     return EligibleItem(
         card_id=card.card_id, page=1, kind="img_card",
         image_path=path, title=card.title, row_key=row_key,

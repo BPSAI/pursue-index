@@ -42,6 +42,18 @@ CURATED = {
 }
 
 
+@pytest.fixture(autouse=True)
+def _assets_resolve(monkeypatch) -> None:
+    """These tests are about superseding, not byte lookup: let every card's
+    asset path resolve (the resolver itself is covered in test_vision_img_source)."""
+    from pursue_index.download.downloader import asset_path_for
+    from pursue_index.vision import redescribe
+
+    monkeypatch.setattr(
+        redescribe, "resolve_img_path", lambda card: (asset_path_for(card), None)
+    )
+
+
 def _pdf_card(card_id: str) -> CardMetadata:
     return CardMetadata(
         card_id=card_id, title=f"PDF {card_id}", asset_type="PDF", agency="FBI",

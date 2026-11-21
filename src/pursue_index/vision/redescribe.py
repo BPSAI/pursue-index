@@ -32,6 +32,7 @@ from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import Manifest
 from pursue_index.vision.client import VISION_MODEL
 from pursue_index.vision.eligibility import CoverageKey, EligibleItem, keyed_rows
+from pursue_index.vision.img_source import resolve_img_path
 from pursue_index.vision.run import ESTIMATED_COST_PER_CALL_USD, VisionRunReport, _examine_one
 from pursue_index.vision.sidecar import page_has_content, validate_sidecar
 from pursue_index.vision.spend import SpendBudget, rates_for, worst_case_call_usd
@@ -103,9 +104,14 @@ def _items_for_sidecar(
         number = int(page["page"])
         row_key = str(page.get("row_key", "") or "")
         row = rows.get(row_key)
-        path = asset_path_for(row) if row is not None else None
-        if row is None or path is None:
-            why = "no manifest row" if row is None else "no asset bytes"
+        if row is None:
+            path, why = None, "no manifest row"
+        elif row.asset_type == "IMG":
+            path, why = resolve_img_path(row)
+        else:
+            path = asset_path_for(row)
+            why = "no asset bytes"
+        if path is None:
             problems.append(f"{card_id} p{number}: {why} for row {row_key!r}")
             continue
         items.append(EligibleItem(
