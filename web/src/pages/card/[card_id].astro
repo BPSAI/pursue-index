@@ -677,9 +677,9 @@ const cardJsonLd = [
             <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-text-faint)] mb-2">
               DESCRIPTION
             </h3>
-            <p class="text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">
-              {card.description}
-            </p>
+            {/* No whitespace inside the tag: this element is whitespace-pre-wrap,
+                so any source indentation would render as visible text. */}
+            <p class="text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">{card.description}</p>
           </section>
         )}
       </section>

@@ -1,0 +1,20 @@
+{
+  "_comment": "Read by scripts/web_audit_gate.py. The site is a fully static build served by Cloudflare static assets; the Worker (worker/) imports no npm package. build_only lists packages whose code runs only while the site is built (or in the local dev server) and is never part of the browser bundle or the Worker, each with the reason. A package not listed here counts as runtime, so a high advisory in it fails the gate. astro is deliberately not listed. accepted_advisories lists individual advisories left open on purpose.",
+  "build_only": {
+    "browserslist": "Target resolution for the build toolchain (via @babel/core in the Preact preset); not present in dist/.",
+    "devalue": "Used by astro at build time to serialise island props into HTML; the browser hydration script does not include it (absent from dist/_astro).",
+    "esbuild": "Bundler used by vite and astro while building and in the dev server.",
+    "js-yaml": "Parses frontmatter in markdown and mdx content at build time.",
+    "nanoid": "Id generator pulled in by postcss at build time.",
+    "postcss": "CSS processing inside vite at build time.",
+    "sharp": "Image optimisation inside astro at build time. The site uses no astro:assets image service.",
+    "smol-toml": "Parses TOML frontmatter in markdown content at build time.",
+    "source-map-js": "Source map support for postcss and svgo at build time.",
+    "svgo": "SVG optimisation inside astro at build time.",
+    "vite": "Build tool and dev server; its advisories concern the dev server. Not present in dist/.",
+    "zod": "Validates astro configuration and content schemas at build time."
+  },
+  "accepted_advisories": {
+    "GHSA-26w7-cxv4-gfx2": "astro: remote code execution through AVIF image optimisation. Fixed only in astro 7 (a major upgrade, planned separately). The site is static, has no server runtime and uses no image optimisation, so the vulnerable code path is not reachable. Revisit when moving to astro 7."
+  }
+}
