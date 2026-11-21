@@ -67,7 +67,8 @@ def download_run(
 
     settings.ensure_dirs()
     m = _scoped_manifest(manifest, worklist)
-    asyncio.run(download_all(m, refresh_shas=_bytes_changed_shas(worklist)))
+    refresh = _bytes_changed_shas(worklist)
+    asyncio.run(download_all(m, refresh_shas=refresh) if refresh else download_all(m))
 
 
 ocr_app = typer.Typer(name="ocr", help="OCR downloaded PDFs.")
