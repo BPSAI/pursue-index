@@ -41,3 +41,27 @@ def test_max_wait_validation(monkeypatch, v, ok):
     monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
     monkeypatch.setenv("MAX_WAIT_SECS", v)
     assert (mod.main([]) == 0) is ok
+
+
+def test_max_wait_above_the_cap_is_refused_with_a_clear_message(monkeypatch, capsys):
+    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
+    monkeypatch.setenv("MAX_WAIT_SECS_CAP", "780")
+    monkeypatch.setenv("MAX_WAIT_SECS", "781")
+    assert mod.main([]) == 1
+    err = capsys.readouterr().err
+    assert "781" in err and "780" in err and "timeout" in err
+
+
+@pytest.mark.parametrize("v", ["780", "600", "0"])
+def test_max_wait_at_or_below_the_cap_passes(monkeypatch, v):
+    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
+    monkeypatch.setenv("MAX_WAIT_SECS_CAP", "780")
+    monkeypatch.setenv("MAX_WAIT_SECS", v)
+    assert mod.main([]) == 0
+
+
+def test_a_malformed_cap_is_an_error(monkeypatch):
+    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
+    monkeypatch.setenv("MAX_WAIT_SECS_CAP", "lots")
+    monkeypatch.setenv("MAX_WAIT_SECS", "10")
+    assert mod.main([]) == 1

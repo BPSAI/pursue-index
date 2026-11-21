@@ -112,3 +112,28 @@ def test_skip_build_wait_still_runs_the_deployed_commit_check_and_warns():
 
 def test_app_id_defined_once_in_workflow_env():
     assert _wf()["env"]["WORKERS_BUILD_APP_ID"] == "85455"
+
+
+FAILURE_ISSUE_RESERVE_SECS = 120  # room left in the job for the failure-issue step
+
+
+def _flag(step_name_needle: str, flag: str) -> int:
+    import re
+
+    run = str(_steps()[_index(step_name_needle)]["run"])
+    return int(re.search(re.escape(flag) + r"\s+(\d+)", run).group(1))
+
+
+def test_max_wait_cap_fits_inside_the_job_timeout():
+    wf = _wf()
+    budget = wf["jobs"]["verify"]["timeout-minutes"] * 60
+    cap = int(wf["env"]["MAX_WAIT_SECS_CAP"])
+    build_wait = _flag("wait_for_check_run.py", "--timeout-secs")
+    stamp_wait = _flag("check_deployed_commit.py", "--timeout-secs")
+    assert cap + build_wait + stamp_wait + FAILURE_ISSUE_RESERVE_SECS <= budget
+    assert int(wf["env"]["MAX_WAIT_SECS"].split("'")[-2]) <= cap  # the default fits too
+
+
+def test_validate_step_receives_the_cap_through_the_workflow_env():
+    # validate_base_url.py reads MAX_WAIT_SECS and MAX_WAIT_SECS_CAP from the job env
+    assert "MAX_WAIT_SECS" in _wf()["env"] and "MAX_WAIT_SECS_CAP" in _wf()["env"]
