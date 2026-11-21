@@ -177,3 +177,53 @@ def test_moving_a_file_out_of_src_runs_the_suite(tmp_path: Path) -> None:
     out = subprocess.run([sys.executable, str(CLASSIFIER)], input=diff,
                          capture_output=True, check=True)
     assert out.stdout.decode().strip() == "true"
+
+
+# --- the classifier runs from the base ref; unknown paths run the suite ------
+
+
+def _decision_run() -> str:
+    step = next(s for s in _workflow()["jobs"]["pytest"]["steps"] if s.get("id") == "changes")
+    return step["run"]
+
+
+def test_the_decision_step_runs_the_classifier_from_the_base_ref() -> None:
+    """A PR must not be able to edit the classifier that decides its own suite."""
+    run = _decision_run()
+    assert 'git show "$BASE_SHA:scripts/ci_code_paths_changed.py"' in run
+    assert "RUNNER_TEMP" in run, "the base copy lives outside the checkout"
+    assert "python3 scripts/ci_code_paths_changed.py" not in run, "never the PR's own copy"
+
+
+def test_a_missing_base_classifier_runs_the_suite() -> None:
+    run = _decision_run()
+    # If the base has no classifier (first PR after it is added, unreadable
+    # base) the step must not pass on an empty result: code stays true.
+    assert '[ "$code" = "false" ] || code=true' in run
+    assert "code=true" in run.split('git show')[1].split('[ "$code" = "false"')[0]
+
+
+@pytest.mark.parametrize("path", [
+    "tools/x.py", "newdir/anything.json", "web/src/pages/index.astro",
+    "web/public/robots.txt", "web/package.json", "a.txt", ".github/CODEOWNERS",
+    "data", "docsish/x.md", "docs.py", "notes/README.md",
+])
+def test_an_unknown_path_runs_the_suite(path: str) -> None:
+    assert _classify([path]) == "true"
+
+
+@pytest.mark.parametrize("path", [
+    "data/manifests/latest.json", "web/public/data/x.json", "web/src/data/x.json",
+    "docs/guide/a.png", "README.md", "CHANGELOG.md",
+])
+def test_each_skip_safe_path_skips(path: str) -> None:
+    assert _classify([path]) == "false"
+
+
+@pytest.mark.parametrize("paths", [
+    ["data/x.json", "tools/x.py"],
+    ["README.md", "newdir/y.txt"],
+    ["docs/a.md", "web/package.json"],
+])
+def test_a_mix_of_skip_safe_and_unknown_paths_runs(paths: list[str]) -> None:
+    assert _classify(paths) == "true"
