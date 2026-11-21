@@ -11,6 +11,12 @@ published PDF card with no registry PDF row has nothing to compare: it is listed
 and counted (``unregistered``) and recorded, never silently skipped, but does not
 fail the gate.
 
+A published PDF card that is still without a registry PDF row more than
+``--unregistered-days`` (default 3) days after its manifest ``release_date`` (the
+publication date; a card with no parseable one is never aged) is ``unregistered-stale``:
+counted, listed with the date used, and failing above ``--max-unregistered-stale N``
+exactly as ``unverifiable`` does.
+
 A card with no ``meta.json`` or no recorded ``pdf_sha256`` has no input sha to
 compare, and the scoping rule never re-OCRs it. It is reported as
 ``unverifiable provenance`` (warned, exit code unaffected) and its count and card
@@ -21,7 +27,7 @@ at or below it the class stays warn-only. Repo and data root only; no network.
 Usage::
 
     python scripts/check_ocr_input_freshness.py [--data-root DIR] [--record FILE]
-        [--max-unverifiable N]
+        [--max-unverifiable N] [--unregistered-days N] [--max-unregistered-stale N]
 """
 
 from __future__ import annotations
@@ -37,6 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import json
 from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta
 
 from pursue_index.byte_dispositions import (
     ByteDispositionError,
@@ -51,21 +58,32 @@ from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
 RECORD_SCHEMA = "pursue-ocr-input-freshness/v1"
+# A published PDF card with no registry row this many days after its release date is
+# ``unregistered-stale``: longer than the daily archive's normal lag.
+UNREGISTERED_STALE_DAYS = 3
 
 
 class FreshnessError(Exception):
     """An input the gate needs is missing or unreadable, so the run cannot pass."""
 
 
-def _manifest_cards(manifest: Path) -> list[tuple[str, bool]]:
-    """``(card_id, is_pdf_card)`` for every manifest card, ids validated."""
+def _release_date(raw: object) -> date | None:
+    """The manifest's ``M/D/YYYY`` release date, or None when absent or unparseable."""
+    try:
+        return datetime.strptime(str(raw).strip(), "%m/%d/%Y").date()
+    except ValueError:
+        return None
+
+
+def _manifest_cards(manifest: Path) -> list[tuple[str, bool, date | None]]:
+    """``(card_id, is_pdf_card, earliest PDF release_date)`` per manifest card, ids validated."""
     try:
         cards = json.loads(manifest.read_text(encoding="utf-8")).get("cards")
     except (OSError, json.JSONDecodeError, AttributeError) as exc:
         raise FreshnessError(f"cannot read manifest {manifest}: {exc}") from exc
     if not isinstance(cards, list):
         raise FreshnessError(f"manifest {manifest} has no 'cards' list")
-    out: dict[str, bool] = {}
+    out: dict[str, tuple[bool, date | None]] = {}
     for card in cards:
         if not isinstance(card, dict) or not card.get("card_id"):
             continue
@@ -74,8 +92,12 @@ def _manifest_cards(manifest: Path) -> list[tuple[str, bool]]:
         except InvalidCardIdError as exc:
             raise FreshnessError(f"manifest {manifest}: {exc}") from exc
         is_pdf = str(card.get("asset_type", "")).upper() == "PDF"
-        out[card_id] = out.get(card_id, False) or is_pdf
-    return sorted(out.items())
+        was_pdf, released = out.get(card_id, (False, None))
+        if is_pdf:
+            when = _release_date(card.get("release_date"))
+            released = min(filter(None, (released, when)), default=None)
+        out[card_id] = (was_pdf or is_pdf, released)
+    return sorted((cid, pdf, rel) for cid, (pdf, rel) in out.items())
 
 
 @dataclass
@@ -84,17 +106,27 @@ class Result:
     covered: list[str] = field(default_factory=list)
     unregistered: list[str] = field(default_factory=list)
     unverifiable: list[tuple[str, str]] = field(default_factory=list)
+    unregistered_stale: list[tuple[str, date]] = field(default_factory=list)
     checked: int = 0
 
     max_unverifiable: int | None = None
+    max_unregistered_stale: int | None = None
+    unregistered_days: int = UNREGISTERED_STALE_DAYS
 
     @property
     def over_ceiling(self) -> bool:
         return self.max_unverifiable is not None and len(self.unverifiable) > self.max_unverifiable
 
     @property
+    def over_stale_ceiling(self) -> bool:
+        return (
+            self.max_unregistered_stale is not None
+            and len(self.unregistered_stale) > self.max_unregistered_stale
+        )
+
+    @property
     def failed(self) -> bool:
-        return bool(self.stale) or self.over_ceiling
+        return bool(self.stale) or self.over_ceiling or self.over_stale_ceiling
 
     def record(self) -> dict:
         """Deterministic release record (no timestamps, so a rerun is byte-stable)."""
@@ -105,6 +137,11 @@ class Result:
             "covered": len(self.covered),
             "unregistered_pdf_cards": {
                 "count": len(self.unregistered), "cards": sorted(self.unregistered),
+            },
+            "unregistered_stale_pdf_cards": {
+                "count": len(self.unregistered_stale),
+                "cards": sorted(c for c, _ in self.unregistered_stale),
+                "days": self.unregistered_days,
             },
             "unverifiable_provenance": {
                 "count": len(self.unverifiable),
@@ -118,6 +155,8 @@ def check(
     registry: Path,
     dispositions: dict[tuple[str, str], Disposition],
     data_root: Path,
+    today: date | None = None,
+    unregistered_days: int = UNREGISTERED_STALE_DAYS,
 ) -> Result:
     """Classify every published PDF card; see the module docstring."""
     if not (data_root / "ocr").is_dir():
@@ -131,12 +170,15 @@ def check(
         registry_sha = load_registry_sha_map(registry)
     except (OSError, ValueError) as exc:
         raise FreshnessError(f"cannot read registry {registry}: {exc}") from exc
-    res = Result()
-    for card_id, is_pdf in _manifest_cards(manifest):
+    res = Result(unregistered_days=unregistered_days)
+    cutoff = (today or date.today()) - timedelta(days=unregistered_days)
+    for card_id, is_pdf, released in _manifest_cards(manifest):
         new = registry_sha.get(card_id)
         if new is None:
             if is_pdf:
                 res.unregistered.append(card_id)
+                if released is not None and released < cutoff:
+                    res.unregistered_stale.append((card_id, released))
             continue
         res.checked += 1
         meta = data_root / "ocr" / card_id / "meta.json"
@@ -182,12 +224,25 @@ def main(argv: list[str] | None = None) -> int:
         "--max-unverifiable", type=_non_negative, default=None, metavar="N",
         help="fail when more than N cards have unverifiable provenance (default: warn only)",
     )
+    parser.add_argument(
+        "--unregistered-days", type=_non_negative, default=UNREGISTERED_STALE_DAYS, metavar="N",
+        help="days after a card's release_date before a missing registry row is stale (default 3)",
+    )
+    parser.add_argument(
+        "--max-unregistered-stale", type=_non_negative, default=None, metavar="N",
+        help="fail when more than N PDF cards are unregistered-stale (default: warn only)",
+    )
+    parser.add_argument("--today", type=date.fromisoformat, default=None, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     try:
         data_root = args.data_root or Settings().data_root
         dispositions = load_byte_change_dispositions(args.dispositions)
-        res = check(args.manifest, args.registry, dispositions, data_root)
+        res = check(
+            args.manifest, args.registry, dispositions, data_root,
+            today=args.today, unregistered_days=args.unregistered_days,
+        )
         res.max_unverifiable = args.max_unverifiable
+        res.max_unregistered_stale = args.max_unregistered_stale
         if args.record is not None:
             args.record.write_text(
                 json.dumps(res.record(), indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -198,16 +253,27 @@ def main(argv: list[str] | None = None) -> int:
     lines = [f"stale OCR input: {s}" for s in res.stale]
     lines += [f"covered: {c}" for c in res.covered]
     lines += [f"PDF card with no registry PDF row: {c}" for c in res.unregistered]
+    lines += [
+        f"unregistered-stale: {c} (released {d.isoformat()}, from the manifest release_date; "
+        f"no registry row after more than {res.unregistered_days} days)"
+        for c, d in res.unregistered_stale
+    ]
     lines += [f"unverifiable provenance: {c} ({why})" for c, why in res.unverifiable]
     counts = (
         f"{res.checked} PDF cards checked, ok {res.checked - len(res.stale) - len(res.covered) - len(res.unverifiable)}, "
         f"{len(res.stale)} stale, {len(res.covered)} covered, "
-        f"unregistered: {len(res.unregistered)}, unverifiable provenance: {len(res.unverifiable)}"
+        f"unregistered: {len(res.unregistered)}, "
+        f"unregistered-stale: {len(res.unregistered_stale)}, unverifiable provenance: {len(res.unverifiable)}"
     )
     if res.over_ceiling:
         lines.append(
             f"unverifiable provenance count {len(res.unverifiable)} exceeds the ceiling "
             f"{res.max_unverifiable} (--max-unverifiable)"
+        )
+    if res.over_stale_ceiling:
+        lines.append(
+            f"unregistered-stale count {len(res.unregistered_stale)} exceeds the ceiling "
+            f"{res.max_unregistered_stale} (--max-unregistered-stale)"
         )
     lines.append(f"ocr input freshness: {'FAILED' if res.failed else 'OK'} ({counts})")
     print("\n".join(lines))
