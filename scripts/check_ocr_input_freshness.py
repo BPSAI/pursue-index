@@ -63,7 +63,10 @@ def check(
 ) -> tuple[list[str], list[str], list[str], int]:
     """``(stale, covered, missing, checked)``: report lines for the first three."""
     if not (data_root / "ocr").is_dir():
-        raise FreshnessError(f"data root {data_root} has no ocr/ directory")
+        raise FreshnessError(
+            "PURSUE_DATA_ROOT must point at the data root containing ocr/ "
+            f"(looked in {data_root}, which has no ocr/ directory)"
+        )
     try:
         registry_sha = load_registry_sha_map(registry)
     except (OSError, ValueError) as exc:
