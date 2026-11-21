@@ -92,6 +92,7 @@ jobs:
             --timeout-secs 1200
 
       - name: Confirm the deployed build is this commit
+        id: stamp
         if: steps.wait.outputs.superseded != 'true'
         run: |
           python scripts/check_deployed_commit.py \
@@ -112,6 +113,9 @@ jobs:
         with:
           script: |
             const commit_sha = context.sha;
+            // A 403 on every stamp read is the CDN refusing the runner, not a
+            // broken deploy: file it under its own title, without deploy-broken.
+            const edgeBlocked = '${{ steps.stamp.outputs.edge_blocked }}' === 'true';
             const short = commit_sha.substring(0, 8);
             const run_url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const body = [
@@ -130,6 +134,24 @@ jobs:
               `2. Re-run the failing workflow if the build just took too long`,
               `3. If failures persist, run \`make verify-deploy\` locally + investigate`,
             ].join('\n');
+            if (edgeBlocked) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `deploy-verify-blocked: the edge refused /deploy-stamp.json (HTTP 403) at ${short}`,
+                body: [
+                  `post-deploy verify could not read /deploy-stamp.json for commit ${short}:`,
+                  `every request was refused with HTTP 403 by the edge, so the deployed`,
+                  `commit is unknown. This is not evidence of a broken deploy.`,
+                  ``,
+                  `Workflow run: ${run_url}`,
+                  ``,
+                  `Check the edge's security events for the runner's requests to`,
+                  `/deploy-stamp.json, then re-run the workflow.`,
+                ].join('\n'),
+              });
+              return;
+            }
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
