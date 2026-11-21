@@ -162,3 +162,9 @@ def test_scope_worklist_reads_dispositions_beside_the_registry(tmp_path):
     assert [s.card_id for s in scope_worklist({}, "t", **kw)] == [CARD]
     _write(tmp_path, _row())
     assert scope_worklist({}, "t", **kw) == []
+
+
+def test_committed_file_holds_the_three_verified_may_resaves():
+    got = load_byte_change_dispositions(REPO_DATA / "byte-change-dispositions.jsonl")
+    cards = {d.card_id for d in got.values() if d.disposition == "resave-content-verified"}
+    assert cards >= {"7d1b50162c29378a", "3a5445e8aa7985d4", "b279eac8e49cf4fe"}
