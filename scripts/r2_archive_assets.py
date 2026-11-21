@@ -32,10 +32,17 @@ lands at a new archive/<sha> key, and the registry now carries two
 rows for that card_id — the diff is queryable from the JSONL
 without re-fetching anything.
 
-Failure modes (all graceful — never abort the workflow):
+``--full-hash`` mode (the weekly verify) skips the HEAD shortcut: every
+published asset (PDF, IMG, VID, AUD) is fetched and hashed. It requires
+``--max-bytes-per-run``; exceeding the budget fails the run non-zero and
+names how many cards were left unhashed, never a partial run with a green
+exit. A completed run appends one record to ``full-hash-runs.jsonl`` (next
+to the registry, or ``--run-record``); an incomplete run writes none.
 
-  * Missing R2 credentials → log a single line and exit 0; operator
-    adds the secrets, the next poll picks them up.
+Failure modes:
+
+  * Missing R2 credentials → exit non-zero with a clear message, in every
+    mode, unless ``--dry-run`` is given.
   * Per-card fetch failures → log the URL + error, continue to the
     next card. The registry only records successful archives.
   * Same byte sha already in archive → idempotent: still upload to
@@ -61,6 +68,7 @@ import argparse
 import hashlib
 import json
 import os
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
@@ -78,6 +86,21 @@ from pursue_index.scrape.manifest import load_manifest
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_BUCKET = "pursue-pdfs"
+RUN_RECORD_NAME = "full-hash-runs.jsonl"
+RUN_RECORD_SCHEMA = "pursue-full-hash-run/v1"
+# Every asset type the registry tracks.
+ASSET_TYPES = ("PDF", "IMG", "VID", "AUD")
+
+
+@dataclass
+class RunState:
+    """Per-run tallies shared by ``_process_card`` and ``main``."""
+
+    full_hash: bool = False
+    bytes_hashed: int = 0
+    # (card_id, old_sha, new_sha) for each card that already had registry rows
+    # and now has a row with different bytes.
+    drift: list[tuple[str, str, str]] = field(default_factory=list)
 
 
 def _now_iso() -> str:
@@ -215,6 +238,13 @@ _EXT_CONTENT_TYPES: dict[str, str] = {
     "webp": "image/webp",
     "tif": "image/tiff",
     "tiff": "image/tiff",
+    "mp4": "video/mp4",
+    "m4v": "video/x-m4v",
+    "mov": "video/quicktime",
+    "webm": "video/webm",
+    "mp3": "audio/mpeg",
+    "m4a": "audio/mp4",
+    "wav": "audio/wav",
 }
 
 
@@ -243,8 +273,10 @@ def _process_card(
     bucket: str,
     dry_run: bool,
     registry_path: Path,
+    state: RunState | None = None,
 ) -> str:
     """Return 'new' | 'unchanged' | 'archive-hit' | 'fail'."""
+    state = state or RunState()
     # Validate id and extension before any network or storage call; the
     # sha placeholder is replaced once the real bytes are hashed.
     try:
@@ -256,7 +288,8 @@ def _process_card(
     rows = registry.get(card.card_id, [])
     cl, etag = head_asset(card.asset_url)
     if (
-        cl is not None
+        not state.full_hash
+        and cl is not None
         and cl == _last_known_size(rows)
         and (etag is None or etag == _last_known_etag(rows))
     ):
@@ -268,6 +301,7 @@ def _process_card(
         print(f"[r2-archive] fetch fail {card.card_id}: {exc}")
         return "fail"
 
+    state.bytes_hashed += len(body)
     byte_sha = hashlib.sha256(body).hexdigest()
     # Already saw these exact bytes for this card_id — no upload needed.
     if any(r.get("byte_sha256") == byte_sha for r in rows):
@@ -292,6 +326,8 @@ def _process_card(
         "current_key": current_key,
         "fetched_at": _now_iso(),
     }
+    if rows:
+        state.drift.append((card.card_id, rows[-1].get("byte_sha256", ""), byte_sha))
     return _record_or_dryrun(entry, dry_run, archive_hit, registry_path)
 
 
@@ -337,7 +373,39 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         default=0,
         help="Process at most this many cards (testing). 0 = no limit.",
     )
-    return parser.parse_args(argv)
+    parser.add_argument(
+        "--full-hash",
+        action="store_true",
+        help="Fetch and hash every published asset, whatever HEAD reports. "
+        "Requires --max-bytes-per-run.",
+    )
+    parser.add_argument(
+        "--max-bytes-per-run",
+        type=int,
+        default=None,
+        help="Byte budget for --full-hash. Exceeding it fails the run, naming "
+        "the cards left unhashed.",
+    )
+    parser.add_argument(
+        "--run-record",
+        type=Path,
+        default=None,
+        help=f"Where a complete --full-hash run is recorded "
+        f"(default: {RUN_RECORD_NAME} beside the registry).",
+    )
+    args = parser.parse_args(argv)
+    if args.full_hash and not (args.max_bytes_per_run and args.max_bytes_per_run > 0):
+        parser.error("--full-hash requires --max-bytes-per-run N (a positive byte count)")
+    if args.max_bytes_per_run is not None and not args.full_hash:
+        parser.error("--max-bytes-per-run only applies with --full-hash")
+    return args
+
+
+def write_run_record(path: Path, entry: dict[str, Any]) -> None:
+    """Append one complete-run record (one JSON object per line)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a") as fh:
+        fh.write(json.dumps(entry, sort_keys=True) + "\n")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -352,31 +420,77 @@ def main(argv: list[str] | None = None) -> int:
 
     client = None if args.dry_run else make_r2_client()
     if client is None and not args.dry_run:
-        # Graceful exit — workflow doesn't fail, operator gets a chance
-        # to add the secrets without blocking subsequent runs.
-        return 0
+        # Fail closed: a run that cannot archive must not look like a pass.
+        print(
+            "[r2-archive] ERROR: R2 credentials are required (CF_ACCOUNT_ID, "
+            "R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY) and boto3 must be installed; "
+            "use --dry-run to run without them.",
+            file=sys.stderr,
+        )
+        return 1
 
+    state = RunState(full_hash=args.full_hash)
     counts = {"new": 0, "unchanged": 0, "archive-hit": 0, "fail": 0}
-    eligible = [
-        c
-        for c in manifest.cards
-        if c.asset_url and c.asset_type in ("PDF", "IMG")
-    ]
+    in_scope = [c for c in manifest.cards if c.asset_type in ASSET_TYPES]
+    eligible = [c for c in in_scope if c.asset_url]
+    no_upstream_url = len(in_scope) - len(eligible)
+    limited = bool(args.limit) and args.limit < len(eligible)
     if args.limit:
         eligible = eligible[: args.limit]
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
 
-    for card in eligible:
+    unhashed = 0
+    over_budget = False
+    for i, card in enumerate(eligible):
+        if args.full_hash:
+            expected = _last_known_size(registry.get(card.card_id, [])) or 0
+            if state.bytes_hashed + expected > args.max_bytes_per_run:
+                over_budget, unhashed = True, len(eligible) - i
+                break
         result = _process_card(
-            card, registry, client, args.bucket, args.dry_run, args.registry
+            card, registry, client, args.bucket, args.dry_run, args.registry, state
         )
         counts[result] = counts.get(result, 0) + 1
+        if args.full_hash and state.bytes_hashed > args.max_bytes_per_run:
+            over_budget, unhashed = True, len(eligible) - i - 1
+            break
 
     print(
         f"[r2-archive] done: "
         f"new={counts['new']} unchanged={counts['unchanged']} "
-        f"archive-hit={counts['archive-hit']} fail={counts['fail']}"
+        f"archive-hit={counts['archive-hit']} fail={counts['fail']} "
+        f"no-upstream-url={no_upstream_url}"
     )
+    if not args.full_hash:
+        return 0
+
+    if over_budget:
+        print(
+            f"[r2-archive] FULL-HASH FAILED: byte budget {args.max_bytes_per_run} exceeded "
+            f"after {state.bytes_hashed} bytes; {unhashed} card(s) left unhashed. "
+            "No complete-run record written.",
+            file=sys.stderr,
+        )
+        return 1
+    if counts["fail"] or limited:
+        why = f"{counts['fail']} card(s) failed to fetch" if counts["fail"] else "--limit was set"
+        print(
+            f"[r2-archive] FULL-HASH INCOMPLETE: {why}. No complete-run record written.",
+            file=sys.stderr,
+        )
+        return 1
+    if not args.dry_run:
+        write_run_record(
+            args.run_record or args.registry.parent / RUN_RECORD_NAME,
+            {
+                "schema": RUN_RECORD_SCHEMA,
+                "completed_at": _now_iso(),
+                "cards_hashed": len(eligible),
+                "bytes_hashed": state.bytes_hashed,
+                "drift_count": len(state.drift),
+                "no_upstream_url": no_upstream_url,
+            },
+        )
     return 0
 
 

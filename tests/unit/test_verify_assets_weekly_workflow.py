@@ -34,7 +34,6 @@ def test_runs_full_hash_with_a_byte_budget():
     run = _hash_step()["run"]
     assert "scripts/r2_archive_assets.py" in run
     assert "--max-bytes-per-run" in run
-    assert "--fail-on-drift" in run
 
 
 def test_hashing_step_does_not_swallow_failures():

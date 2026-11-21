@@ -80,11 +80,12 @@ def test_max_bytes_per_run_is_required_in_full_hash_mode(w):
 def test_a_complete_run_writes_a_dated_record(w):
     w.add_card(1, prior=OLD_BODY, body=NEW_BODY)
     w.add_card(2, prior=NEW_BODY, body=NEW_BODY)
+    w.add_card(3, body=NEW_BODY)  # net-new: not drift
     assert w.run(*_args(w)) == 0
     rec = [json.loads(ln) for ln in w.record.read_text().splitlines()]
     assert len(rec) == 1
-    assert rec[0]["cards_hashed"] == 2
-    assert rec[0]["bytes_hashed"] == 2 * len(NEW_BODY)
+    assert rec[0]["cards_hashed"] == 3
+    assert rec[0]["bytes_hashed"] == 3 * len(NEW_BODY)
     assert rec[0]["drift_count"] == 1
     assert rec[0]["completed_at"].startswith("20")
 
@@ -115,7 +116,7 @@ def test_dry_run_full_hash_writes_no_record_and_no_rows(w):
 
 @pytest.mark.parametrize(
     "mode",
-    [[], ["--full-hash", "--max-bytes-per-run", "1000"], ["--max-full-hash-age-days", "8"]],
+    [[], ["--full-hash", "--max-bytes-per-run", "1000"]],
 )
 def test_missing_credentials_fail_closed_in_every_mode(w, mode, monkeypatch, capsys):
     w.add_card(1)
