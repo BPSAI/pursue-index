@@ -63,12 +63,16 @@ def download_run(
     worklist: Path = _OPT_WORKLIST,
 ) -> None:
     """Download every PDF/IMG (and optionally video) referenced by ``manifest``."""
-    from pursue_index.download.downloader import download_all  # lazy import
+    from pursue_index.download.downloader import DownloadBatchError, download_all  # lazy import
 
     settings.ensure_dirs()
     m = _scoped_manifest(manifest, worklist)
     refresh = _bytes_changed_shas(worklist)
-    asyncio.run(download_all(m, refresh_shas=refresh) if refresh else download_all(m))
+    try:
+        asyncio.run(download_all(m, refresh_shas=refresh) if refresh else download_all(m))
+    except DownloadBatchError as exc:
+        typer.echo(f"download failed for {exc}", err=True)
+        raise typer.Exit(code=1) from exc
 
 
 ocr_app = typer.Typer(name="ocr", help="OCR downloaded PDFs.")
