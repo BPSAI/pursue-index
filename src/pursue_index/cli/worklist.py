@@ -98,6 +98,16 @@ def read_worklist(path: Path) -> list[str]:
     return ids
 
 
+def read_worklist_reasons(path: Path) -> dict[str, str]:
+    """``card_id -> reason tag`` ("" when a row has none), same rows as ``read_worklist``."""
+    out: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        parts = line.split()
+        if parts and not parts[0].startswith("#"):
+            out[parts[0]] = parts[1] if len(parts) > 1 else ""
+    return out
+
+
 def worklist_card_ids(path: Path | None, promoted_sha: str | None = None) -> set[str] | None:
     """The worklist as a set, or ``None`` when no worklist (full-corpus escape hatch).
 

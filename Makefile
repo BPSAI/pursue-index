@@ -94,7 +94,7 @@ clean:
 # checked before any build time is spent. Both hang off the prerequisites
 # below (see "Intermediates release asset"), so this line is the same either
 # way. Unset, ship-ready is unchanged.
-ship-ready: release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
+ship-ready: ship-env release-completeness ocr-input-freshness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
 	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'$(INTERMEDIATES_STAMP_ARG)
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
@@ -146,12 +146,31 @@ stamp:
 		|| { echo "stamp: gitignored files appeared under the code paths" >&2; exit 1; }
 	@$(PYTHON) scripts/build_stamp.py write --root . --builder-commit "$$(cat "$(BUILT_WITH)")"$(INTERMEDIATES_STAMP_ARG)
 
-# First prerequisite of ship-ready: refuse a release before spending build time
+# Refuse a release before spending build time
 # on it when an AUD card has no transcript, a VID/AUD card has no registered
 # bytes, or a transcript is channel-duplicated. Repo + data root only.
 .PHONY: release-completeness
 release-completeness:
 	@$(PYTHON) scripts/check_release_completeness.py
+
+# First prerequisite of ship-ready: refuse a run whose interpreter imports another
+# checkout's code, that sets PYTHONPATH, or that carries a placeholder label.
+# Declared so no other target can run before it, even under `make -j`.
+.PHONY: ship-env
+# Under `make -j` the first gate must still wait for it.
+release-completeness: ship-env
+ship-env:
+	@INTERMEDIATES_LABEL=$(call shq,$(INTERMEDIATES_LABEL)) $(PYTHON) scripts/check_ship_env.py --root .
+
+# Third prerequisite of ship-ready (after ship-env and release-completeness): every published PDF card's OCR must have read
+# the registry's latest bytes, or a verified-re-save disposition must cover the pair.
+# Writes data/ocr-input-freshness.json (counts + unverifiable-provenance cards), the
+# release record that ship-ready leaves for the commit.
+.PHONY: ocr-input-freshness
+# Under `make -j` it must still wait for the ship-env guard.
+ocr-input-freshness: ship-env
+ocr-input-freshness:
+	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).

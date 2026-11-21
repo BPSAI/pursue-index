@@ -21,7 +21,21 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 _SHA = "deadbeef" * 8  # 64 hex chars; present only in the second checkout's log
+
+
+# Variables that change which code a child Python imports. A caller's
+# relative ``PYTHONPATH=src`` would resolve against the fixture checkout's
+# stub package, so every child starts without them.
+_IMPORT_PATH_LEAKS = ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE")
+
+
+def _clean_env(**extra: str) -> dict[str, str]:
+    env = {k: v for k, v in os.environ.items() if k not in _IMPORT_PATH_LEAKS}
+    env.update(extra)
+    return env
 
 
 def _make_second_checkout(root: Path) -> None:
@@ -48,7 +62,7 @@ def test_ingest_check_reads_the_checkout_named_by_the_operator_override(
     second_checkout.mkdir()
     _make_second_checkout(second_checkout)
 
-    env = dict(os.environ, PURSUE_REPO_ROOT=str(second_checkout))
+    env = _clean_env(PURSUE_REPO_ROOT=str(second_checkout))
 
     result = subprocess.run(
         [sys.executable, "-m", "pursue_index.cli.ingest_cli", "check", "--tranche", _SHA],
@@ -67,7 +81,7 @@ def test_ingest_check_refuses_a_checkout_the_install_does_not_own(tmp_path: Path
     second_checkout.mkdir()
     _make_second_checkout(second_checkout)
 
-    env = dict(os.environ)
+    env = _clean_env()
     env.pop("PURSUE_REPO_ROOT", None)
 
     result = subprocess.run(
@@ -80,3 +94,25 @@ def test_ingest_check_refuses_a_checkout_the_install_does_not_own(tmp_path: Path
 
     assert result.returncode != 0
     assert "not the installed checkout" in result.stderr
+
+
+def test_a_relative_pythonpath_in_the_caller_does_not_reach_the_child(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``PYTHONPATH=src`` set by a caller must not make the child import the
+    fixture checkout's stub ``src/pursue_index``."""
+    second_checkout = tmp_path / "second-checkout"
+    second_checkout.mkdir()
+    _make_second_checkout(second_checkout)
+    monkeypatch.setenv("PYTHONPATH", "src")
+
+    env = _clean_env(PURSUE_REPO_ROOT=str(second_checkout))
+    result = subprocess.run(
+        [sys.executable, "-m", "pursue_index.cli.ingest_cli", "check", "--tranche", _SHA],
+        cwd=second_checkout,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, (result.stdout, result.stderr)
