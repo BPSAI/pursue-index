@@ -2,7 +2,18 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
+
+
+def _put(client: Any, **kwargs: Any) -> None:
+    """``client.put_object``, opening a Path body as a file object for the call."""
+    body = kwargs["Body"]
+    if isinstance(body, Path):
+        with body.open("rb") as fh:
+            client.put_object(**{**kwargs, "Body": fh})
+    else:
+        client.put_object(**kwargs)
 
 
 def put_archive_and_current(
@@ -10,12 +21,14 @@ def put_archive_and_current(
     bucket: str,
     archive_key: str,
     current_key: str,
-    body: bytes,
+    body: bytes | Path,
     content_type: str,
 ) -> bool:
     """PUT the bytes to the archive key and the current key.
 
-    Returns True when the archive key already existed (archive hit).
+    ``body`` is bytes, or a Path streamed from disk (each PUT opens it afresh, so
+    a large video is never read into memory). Returns True when the archive key
+    already existed (archive hit).
     """
     archive_hit = False
     # Some other card may already have archived these exact bytes
@@ -27,7 +40,8 @@ def put_archive_and_current(
     # silently replacing. This is the load-bearing immutability
     # guarantee for the byte-history claim.
     try:
-        client.put_object(
+        _put(
+            client,
             Bucket=bucket,
             Key=archive_key,
             Body=body,
@@ -56,7 +70,8 @@ def put_archive_and_current(
     # serves). Byte-history is preserved by the archive PUT above
     # + the registry row that records what was current at each
     # timestamp.
-    client.put_object(
+    _put(
+        client,
         Bucket=bucket,
         Key=current_key,
         Body=body,

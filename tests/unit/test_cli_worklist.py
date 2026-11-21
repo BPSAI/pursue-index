@@ -158,7 +158,7 @@ def test_apply_worklist_ignores_unknown_ids(tmp_path: Path) -> None:
 def test_download_run_worklist_scopes_to_listed(tmp_path, monkeypatch) -> None:
     seen: dict = {}
 
-    async def fake_download_all(m):
+    async def fake_download_all(m, **_kw):
         seen["ids"] = [c.card_id for c in m.cards]
         return []
 
@@ -173,7 +173,7 @@ def test_download_run_worklist_scopes_to_listed(tmp_path, monkeypatch) -> None:
 def test_download_run_without_worklist_is_full_corpus(tmp_path, monkeypatch) -> None:
     seen: dict = {}
 
-    async def fake_download_all(m):
+    async def fake_download_all(m, **_kw):
         seen["ids"] = [c.card_id for c in m.cards]
         return []
 
@@ -187,7 +187,7 @@ def test_download_run_without_worklist_is_full_corpus(tmp_path, monkeypatch) -> 
 def test_download_run_exits_nonzero_naming_every_failed_card(tmp_path, monkeypatch) -> None:
     from pursue_index.download.downloader import DownloadBatchError
 
-    async def fake_download_all(m):
+    async def fake_download_all(m, **_kw):
         raise DownloadBatchError({"a": "sha mismatch", "c": "sha mismatch"})
 
     monkeypatch.setattr("pursue_index.download.downloader.download_all", fake_download_all)

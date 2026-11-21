@@ -1,0 +1,165 @@
+name: Weekly full-hash of every published asset
+
+# Once a week, fetch and hash EVERY published asset (PDF, IMG, VID, AUD)
+# against upstream, whatever its HEAD size or ETag says. The daily verify
+# is a cheap HEAD pass and never certifies a card unchanged; this run is
+# the one that proves the bytes are the bytes we hold.
+#
+# Budget: scripts/r2_archive_assets.py --full-hash requires
+# --max-bytes-per-run. Exceeding it FAILS the run, naming how many cards
+# were left unhashed. It never ends partially hashed with a green exit.
+# A run that completes appends a record to data/full-hash-runs.jsonl on
+# the rolling verify/registry branch; the daily verify fails when the
+# newest record is more than 8 days old, so a silently dropped schedule
+# surfaces within a day.
+#
+# Same registry-writer lock, credentials and PR route as the daily verify
+# (see verify-assets-daily.yml): appended rows go to ONE rolling bot branch,
+# `verify/registry`, with one open `needs-operator` PR. Rows written before
+# a failure are still committed, so the evidence is kept.
+#
+# Missing R2 credentials FAIL this workflow (no silent pass); this is the only
+# caller of r2_archive_assets.py that fails closed on them.
+#
+# Byte budget: the default below is 10 GB. Measured 2026-11-21 on the real
+# corpus (latest registry row per fetchable published asset, 380 cards):
+# 6,613,609,176 bytes (PDF 5,900,971,346; VID 685,242,652; IMG 27,395,178),
+# so 10 GB leaves ~51% headroom. If the corpus outgrows it the run FAILS loudly
+# naming the unhashed cards; raise the default (and this number) then.
+# tests/unit/test_r2_round1.py fails first, from the committed registry.
+
+on:
+  schedule:
+    # Sundays 03:23 UTC: off any 30-minute boundary and well clear of the
+    # 06:07 daily verify, with room for a multi-gigabyte pass.
+    - cron: "23 3 * * 0"
+  workflow_dispatch:
+    inputs:
+      max_bytes_per_run:
+        description: "Byte budget for the full-hash pass (the run fails if it is exceeded)"
+        required: false
+        default: "10000000000"
+
+permissions:
+  contents: write       # push verify/registry (never main)
+  pull-requests: write  # keep the single verify/registry PR open
+
+concurrency:
+  # Shared with poll-pursue.yml and verify-assets-daily.yml so every
+  # registry-writing workflow serializes on one lock.
+  group: pursue-registry-writers
+  cancel-in-progress: false
+
+jobs:
+  full-hash:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Install verify deps
+        # Hash-pinned, as in the daily verify: this lane holds R2 credentials.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements-poll.txt
+          python -m pip install --require-hashes -r requirements-archive.txt
+
+      - name: Prepare verify/registry worktree
+        # The registry the pass appends to: the rolling branch's tip if it
+        # exists (rows awaiting merge are not appended twice), else main.
+        # Fails closed: a weekly pass that cannot find its registry must not
+        # run against a guess.
+        id: wt
+        env:
+          VERIFY_BRANCH: verify/registry
+        run: |
+          wt="$RUNNER_TEMP/verify-registry"
+          rc=0
+          git ls-remote --exit-code --heads origin "refs/heads/${VERIFY_BRANCH}" > /dev/null || rc=$?
+          case "$rc" in
+            0) git fetch --no-tags --depth=1 origin "refs/heads/${VERIFY_BRANCH}"
+               git worktree add --detach "$wt" FETCH_HEAD
+               echo "on_origin=true" >> "$GITHUB_OUTPUT" ;;
+            2) git worktree add --detach "$wt" HEAD ;;
+            *) echo "::error::git ls-remote failed (exit ${rc}) for ${VERIFY_BRANCH}"
+               exit 1 ;;
+          esac
+          echo "dir=${wt}" >> "$GITHUB_OUTPUT"
+          echo "registry=${wt}/data/asset-bytes-registry.jsonl" >> "$GITHUB_OUTPUT"
+
+      - name: Full-hash every published asset
+        id: hash
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          REGISTRY: ${{ steps.wt.outputs.registry }}
+          MAX_BYTES: ${{ github.event.inputs.max_bytes_per_run || '10000000000' }}
+        # No continue-on-error: a failed or over-budget pass fails the run.
+        # Later steps use always() so rows already written are still committed.
+        run: |
+          python scripts/r2_archive_assets.py \
+            --registry "$REGISTRY" \
+            --full-hash \
+            --fail-on-drift \
+            --max-bytes-per-run "$MAX_BYTES"
+
+      - name: Commit registry rows and the run record
+        id: registry_commit
+        if: always() && steps.wt.outcome == 'success' && (steps.hash.outcome == 'success' || steps.hash.outcome == 'failure')
+        env:
+          WT: ${{ steps.wt.outputs.dir }}
+          VERIFY_BRANCH: verify/registry
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f "$WT/data/asset-bytes-registry.jsonl" ]; then
+            python scripts/registry_root.py \
+              --registry "$WT/data/asset-bytes-registry.jsonl" \
+              --root "$WT/data/registry-root.txt" \
+              --manifest "$WT/data/registry-root-manifest.txt"
+            git -C "$WT" add data/asset-bytes-registry.jsonl \
+                    data/registry-root.txt \
+                    data/registry-root-manifest.txt
+          fi
+          if [ -f "$WT/data/full-hash-runs.jsonl" ]; then
+            git -C "$WT" add data/full-hash-runs.jsonl
+          fi
+          if [ -f "$WT/data/drift-gate-passes.jsonl" ]; then
+            git -C "$WT" add data/drift-gate-passes.jsonl
+          fi
+          if ! git -C "$WT" diff --cached --quiet; then
+            new_rows=$(git -C "$WT" diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{' || true)
+            git -C "$WT" commit -m "chore(verify): weekly full-hash +${new_rows} row(s)"
+            # Push from the main checkout (it holds the checkout credentials).
+            git push origin "$(git -C "$WT" rev-parse HEAD):refs/heads/${VERIFY_BRANCH}"
+            echo "appended=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nothing new to record."
+          fi
+
+      - name: Keep one open verify/registry PR
+        id: verify_pr
+        if: always() && (steps.wt.outputs.on_origin == 'true' || steps.registry_commit.outputs.appended == 'true')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERIFY_BRANCH: verify/registry
+        run: |
+          open=$(gh pr list --head "$VERIFY_BRANCH" --base main --state open --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then
+            echo "Open PR #${open} already carries ${VERIFY_BRANCH}; not opening another."
+            exit 0
+          fi
+          gh label create needs-operator \
+            --color "FBCA04" \
+            --description "Bot PR to main: a promote the operator reviews and merges" \
+            --force 2>/dev/null || true
+          gh pr create --base main --head "$VERIFY_BRANCH" --label needs-operator \
+            --title "chore(verify): daily byte-verify registry rows" \
+            --body "Rolling bot branch for the byte-verify's appended asset-bytes-registry rows and full-hash run records. Later runs add commits on top of this branch; it is never force-pushed. Merge to record them on main, then sign a fresh registry-root tag."

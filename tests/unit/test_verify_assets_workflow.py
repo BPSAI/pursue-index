@@ -58,3 +58,34 @@ def test_overlay_step_fails_loud_not_open_on_classifier_error() -> None:
     assert "if ! classify=$(python scripts/classify_overlay.py" in run
     assert "grep -q '^overlay-classify '" in run
     assert run.count("exit 1") >= 2  # crash guard + missing-summary guard
+
+
+# ---- UBV1.2: byte drift fails the job, after the rows are committed ----
+
+
+def _steps() -> dict[str, dict]:
+    jobs = yaml.safe_load(WORKFLOW.read_text())["jobs"]
+    return {s["id"]: s for job in jobs.values() for s in job["steps"] if "id" in s}
+
+
+def test_verify_step_fails_on_drift():
+    assert "--fail-on-drift" in _steps()["verify"]["run"]
+
+
+def test_registry_rows_are_committed_even_when_the_verify_step_failed():
+    cond = _steps()["registry_commit"]["if"]
+    assert "steps.verify.outcome == 'failure'" in cond
+    assert "steps.verify.outcome == 'success'" in cond
+
+
+def test_overlay_issue_still_files_when_drift_failed_the_step():
+    for step in yaml.safe_load(WORKFLOW.read_text())["jobs"]["verify"]["steps"]:
+        if "silent overlay" in (step.get("name") or "").lower():
+            assert "steps.verify.outcome == 'failure'" in step["if"]
+            return
+    raise AssertionError("silent-overlay step not found")
+
+
+def test_the_job_fails_after_the_alert_steps_when_verify_failed():
+    cond = _steps()["propagate"]["if"] if "propagate" in _steps() else ""
+    assert "steps.verify.outcome == 'failure'" in cond

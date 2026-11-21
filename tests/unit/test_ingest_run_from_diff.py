@@ -80,7 +80,7 @@ def _patch_gate_and_promote(monkeypatch, snapshot: Path) -> None:
 def _patch_stage_executors(monkeypatch, seen: dict) -> None:
     """Capture the manifest card-ids / only_cards each scoped stage receives."""
 
-    async def fake_download_all(m):
+    async def fake_download_all(m, **_kw):
         seen.setdefault("download", []).append([c.card_id for c in m.cards])
         return []
 

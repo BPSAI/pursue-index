@@ -161,3 +161,212 @@ async def test_every_failed_card_is_named(monkeypatch):
     with pytest.raises(DownloadBatchError) as err:
         await download_all(type("M", (), {"cards": cards})(), refresh_shas={})
     assert sorted(err.value.failed) == ["aaaa234567890def", "bbbb234567890def"]
+
+
+# ---- non-refresh downloads verify their sha; every failure joins the batch ----
+
+
+@pytest.fixture
+def no_retry_wait(monkeypatch):
+    from tenacity import wait_none
+
+    from pursue_index.download.downloader import _download_one as fn
+
+    monkeypatch.setattr(fn.retry, "wait", wait_none())
+
+
+@pytest.fixture
+def empty_dir(tmp_path, monkeypatch):
+    monkeypatch.setattr(Settings, "pdf_dir", property(lambda self: tmp_path))
+    return tmp_path
+
+
+async def test_fresh_download_with_wrong_sha_is_not_kept(empty_dir):
+    calls: list[str] = []
+    async with _client(b"not what the registry has", calls) as client:
+        with pytest.raises(DownloadShaMismatchError):
+            await _download_one(client, _card(), registry_sha=NEW_SHA)
+    assert not (empty_dir / "abc1234567890def" / "x.pdf").exists()
+    assert [p.name for p in (empty_dir / "abc1234567890def").iterdir()] == []
+
+
+async def test_fresh_download_with_matching_registry_sha_is_kept(empty_dir):
+    async with _client(NEW, []) as client:
+        result = await _download_one(client, _card(), registry_sha=NEW_SHA)
+    assert result is not None and result.read_bytes() == NEW
+
+
+async def test_fresh_download_with_no_registry_row_is_unchecked(empty_dir):
+    async with _client(NEW, []) as client:
+        result = await _download_one(client, _card())
+    assert result is not None and result.read_bytes() == NEW
+
+
+async def test_existing_file_is_still_skipped_when_a_registry_sha_is_known(target):
+    calls: list[str] = []
+    async with _client(NEW, calls) as client:
+        result = await _download_one(client, _card(), registry_sha=NEW_SHA)
+    assert result == target and calls == [] and target.read_bytes() == OLD
+
+
+async def test_download_all_passes_the_registry_sha_only_to_pdf_cards(monkeypatch):
+    import pursue_index.download.downloader as dl
+
+    seen: dict[str, dict] = {}
+
+    async def fake(client, card, **kw):
+        seen[card.card_id] = kw
+
+    monkeypatch.setattr(dl, "_download_one", fake)
+    img = _card_named("img1234567890def").model_copy(update={"asset_type": "IMG"})
+    pdf = _card_named("pdf1234567890def")
+    manifest = type("M", (), {"cards": [img, pdf]})()
+    await download_all(
+        manifest, registry_shas={img.card_id: NEW_SHA, pdf.card_id: NEW_SHA}
+    )
+    assert seen[pdf.card_id] == {"registry_sha": NEW_SHA}
+    assert seen[img.card_id] == {}
+
+
+async def test_http_status_error_joins_the_batch_and_the_rest_finish(
+    empty_dir, monkeypatch, no_retry_wait
+):
+    import pursue_index.download.downloader as dl
+
+    bad, good = _card_named("bad1234567890def"), _card_named("good234567890def")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if "bad1234567890def" in str(request.url):
+            return httpx.Response(503)
+        return httpx.Response(200, content=NEW)
+
+    bad = bad.model_copy(update={"asset_url": "https://www.war.gov/bad1234567890def.pdf"})
+    good = good.model_copy(update={"asset_url": "https://www.war.gov/good234567890def.pdf"})
+    real = httpx.AsyncClient
+    monkeypatch.setattr(
+        dl.httpx, "AsyncClient",
+        lambda **kw: real(transport=httpx.MockTransport(handler), **kw),
+    )
+    with pytest.raises(DownloadBatchError) as err:
+        await download_all(type("M", (), {"cards": [bad, good]})())
+    assert list(err.value.failed) == [bad.card_id]
+    assert "503" in err.value.failed[bad.card_id]
+    assert (empty_dir / good.card_id / good.asset_filename).read_bytes() == NEW
+
+
+async def test_network_error_joins_the_batch(empty_dir, monkeypatch, no_retry_wait):
+    import pursue_index.download.downloader as dl
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("boom")
+
+    real = httpx.AsyncClient
+    monkeypatch.setattr(
+        dl.httpx, "AsyncClient",
+        lambda **kw: real(transport=httpx.MockTransport(handler), **kw),
+    )
+    with pytest.raises(DownloadBatchError) as err:
+        await download_all(type("M", (), {"cards": [_card()]})())
+    assert "abc1234567890def" in err.value.failed and "boom" in err.value.failed["abc1234567890def"]
+
+
+async def test_write_error_joins_the_batch(monkeypatch, tmp_path, no_retry_wait):
+    import pursue_index.download.downloader as dl
+
+    # pdf_dir is a file, so creating the card's directory fails with OSError.
+    blocker = tmp_path / "blocked"
+    blocker.write_text("x")
+    monkeypatch.setattr(Settings, "pdf_dir", property(lambda self: blocker))
+    real = httpx.AsyncClient
+    monkeypatch.setattr(
+        dl.httpx, "AsyncClient",
+        lambda **kw: real(
+            transport=httpx.MockTransport(lambda r: httpx.Response(200, content=NEW)), **kw
+        ),
+    )
+    with pytest.raises(DownloadBatchError) as err:
+        await download_all(type("M", (), {"cards": [_card()]})())
+    assert list(err.value.failed) == ["abc1234567890def"]
+
+
+def test_download_cli_exits_non_zero_naming_each_card(monkeypatch, tmp_path):
+    from typer.testing import CliRunner
+
+    import pursue_index.cli.download_ocr_cli as cli
+    import pursue_index.download.downloader as dl
+
+    async def boom(manifest, **kw):
+        raise DownloadBatchError({"aaaa234567890def": "503", "bbbb234567890def": "timeout"})
+
+    monkeypatch.setattr(dl, "download_all", boom)
+    monkeypatch.setattr(cli, "_scoped_manifest", lambda m, w: object())
+    monkeypatch.setattr(cli, "_registry_shas", lambda: {})
+    monkeypatch.setattr(type(cli.settings), "ensure_dirs", lambda self: None, raising=False)
+    manifest = tmp_path / "m.json"
+    manifest.write_text("{}")
+    from pursue_index.cli.commands import app
+
+    result = CliRunner().invoke(app, ["download", "run", "--manifest", str(manifest)])
+    assert result.exit_code == 1
+    out = result.output
+    assert "aaaa234567890def" in out and "bbbb234567890def" in out
+
+
+# ---- UBV P1-2: ingest does not wait on the archive; only a real mismatch fails ----
+
+
+def _serving(content: bytes):
+    real = httpx.AsyncClient
+    return lambda **kw: real(transport=httpx.MockTransport(lambda r: httpx.Response(200, content=content)), **kw)
+
+
+async def test_no_registry_row_warns_records_and_the_download_succeeds(
+    empty_dir, monkeypatch
+):
+    from structlog.testing import capture_logs
+
+    import pursue_index.download.downloader as dl
+
+    monkeypatch.setattr(dl.httpx, "AsyncClient", _serving(NEW))
+    card, outcomes = _card(), {}
+    with capture_logs() as logs:
+        results = await download_all(
+            type("M", (), {"cards": [card]})(), registry_shas={}, outcomes=outcomes
+        )
+    assert results[0] is not None and results[0].read_bytes() == NEW
+    assert outcomes == {card.card_id: "no-registry-row"}
+    assert any(e["event"] == "download.no_registry_row" and e["log_level"] == "warning" for e in logs)
+    summary = next(e for e in logs if e["event"] == "download.summary")
+    assert summary["no_registry_row"] == 1
+
+
+async def test_a_matching_latest_row_succeeds_with_no_outcome(empty_dir, monkeypatch):
+    import pursue_index.download.downloader as dl
+
+    monkeypatch.setattr(dl.httpx, "AsyncClient", _serving(NEW))
+    card, outcomes = _card(), {}
+    results = await download_all(
+        type("M", (), {"cards": [card]})(), registry_shas={card.card_id: NEW_SHA}, outcomes=outcomes
+    )
+    assert results[0] is not None and outcomes == {}
+
+
+async def test_a_mismatching_latest_row_is_a_per_card_batch_failure(
+    empty_dir, monkeypatch, no_retry_wait
+):
+    import pursue_index.download.downloader as dl
+
+    monkeypatch.setattr(dl.httpx, "AsyncClient", _serving(b"something else"))
+    card = _card()
+    with pytest.raises(DownloadBatchError) as err:
+        await download_all(
+            type("M", (), {"cards": [card]})(), registry_shas={card.card_id: NEW_SHA}
+        )
+    assert list(err.value.failed) == [card.card_id]
+    assert "fetched sha" in err.value.failed[card.card_id]
+
+
+async def test_an_existing_file_with_no_registry_row_is_not_recorded(target, monkeypatch):
+    outcomes = {}
+    await download_all(type("M", (), {"cards": [_card()]})(), registry_shas={}, outcomes=outcomes)
+    assert outcomes == {}
