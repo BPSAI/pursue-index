@@ -27,8 +27,8 @@
   "bundle_cards_not_in_manifest": [],
   "bundle_missing_digests": false,
   "vision_text_pages_in_judged_cards": {
-    "cards": 21,
-    "pages": 42
+    "cards": 22,
+    "pages": 49
   },
   "cards": [
     {
@@ -852,7 +852,16 @@
       "asset_types": [
         "PDF"
       ],
-      "status": "judged"
+      "status": "judged",
+      "vision_text_pages": [
+        1,
+        2,
+        4,
+        6,
+        502,
+        536,
+        537
+      ]
     },
     {
       "card_id": "38e700c6f51082f0",

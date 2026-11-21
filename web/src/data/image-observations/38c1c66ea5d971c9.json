@@ -1,0 +1,217 @@
+{
+  "card_id": "38c1c66ea5d971c9",
+  "title": "DOW-UAP-D172, BAASS Ten-Month Report, July 2009",
+  "schema_version": 1,
+  "operator": "primary",
+  "decided_at": "2026-11-21T14:19:41.333046+00:00",
+  "our_pass": {
+    "model": "claude-opus-4-8",
+    "method": "direct-vision-examination-via-pursue-vision",
+    "context": "vision-observation-generator"
+  },
+  "pages": [
+    {
+      "image_type": "color photograph",
+      "description": "A hazy color photograph dominated by cool blue-gray tones with drifting plumes of smoke or mist across the frame. At the center is an elongated vertical structure glowing in orange, red, and pink hues, appearing to be burning debris, wreckage, or a fire-engulfed object partially obscured by smoke. The surrounding area is darker blue with lighter wispy streaks suggesting smoke billowing upward and outward. A thin light-colored diagonal line or scratch runs across the upper left portion of the image. The overall scene is indistinct and atmospheric, with the fiery central mass contrasting against the smoky blue background.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The central object glows in orange, red, and pink colors",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Blue-gray smoke or mist covers much of the frame",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A thin light diagonal line crosses the upper left area",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The central glowing mass is elongated and vertically oriented",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No legible text is present in the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a light-colored border on its edges",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 1,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank white image",
+      "description": "The image appears to be entirely blank, consisting of a uniform white field with no visible content, markings, figures, or text.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is a solid white area with no discernible content.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No text is visible anywhere in the image.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No figures, photographs, or illustrations are present.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image is in portrait orientation, taller than it is wide.",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 2,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank white image",
+      "description": "The image appears to be entirely blank, consisting of a uniform white field with no visible text, markings, figures, or discernible content.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is uniformly white with no visible content",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No text or lettering is present",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No figures, photographs, or illustrations are visible",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a vertical (portrait) orientation",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 4,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank white page scan",
+      "description": "An essentially blank white page with no discernible subject matter. The surface is uniformly white except for a few faint, thin gray marks near the right side, including a short diagonal line in the upper-right area and a faint vertical streak lower on the right. No text, figures, or photographs are visible.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is almost entirely white with no central subject.",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A faint short diagonal gray mark appears in the upper-right portion.",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A faint vertical gray streak appears on the lower-right side.",
+          "kind": "observation",
+          "confidence": "low"
+        },
+        {
+          "claim": "No legible text is present.",
+          "kind": "observation",
+          "confidence": "high"
+        }
+      ],
+      "page": 6,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank white image",
+      "description": "The image appears to be entirely blank, consisting of a uniform white field with no visible content, text, markings, figures, or discernible features.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is uniformly white with no visible content",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No text or lettering is present",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No figures, photographs, or illustrations are visible",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a portrait (taller than wide) aspect ratio",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 502,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank white image",
+      "description": "The image is entirely blank, consisting of a uniform white field with no visible content, markings, text, or discernible features of any kind.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image appears entirely white with no visible content",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No text or markings are present",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has a portrait orientation (taller than wide)",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 536,
+      "row_key": ""
+    },
+    {
+      "image_type": "blank white image",
+      "description": "The image appears entirely blank with a uniform white field. No discernible shapes, lines, text, figures, or markings are visible anywhere in the frame.",
+      "visible_text": "",
+      "observations": [
+        {
+          "claim": "The image is uniformly white with no visible content",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "No text or markings are present",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image is in portrait orientation",
+          "kind": "observation",
+          "confidence": "medium"
+        }
+      ],
+      "page": 537,
+      "row_key": ""
+    }
+  ]
+}
