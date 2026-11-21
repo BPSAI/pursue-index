@@ -19,9 +19,23 @@ ROOT = Path(__file__).resolve().parents[2]
 _IDENT = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"]
 
 
+# An outer ``make ship-ready INTERMEDIATES_LABEL=...`` runs this suite, and
+# make hands its command-line variables to child processes through MAKEFLAGS
+# (and its siblings), so every nested make here starts from an env without
+# them, or the label leaks in and demands PURSUE_DATA_ROOT.
+_LEAKED = ("MAKEFLAGS", "MFLAGS", "MAKEOVERRIDES", "MAKELEVEL", "GNUMAKEFLAGS",
+           "PURSUE_DATA_ROOT", "INTERMEDIATES_LABEL", "TAG")
+
+
+def _clean_env(**extra: str) -> dict[str, str]:
+    env = {k: v for k, v in os.environ.items() if k not in _LEAKED}
+    env.update(extra)
+    return env
+
+
 def _dry(target: str) -> list[str]:
     out = subprocess.run(["make", "-C", str(ROOT), "-n", target, "PYTHON=python3"],
-                         capture_output=True, text=True, timeout=60)
+                         capture_output=True, text=True, timeout=60, env=_clean_env())
     assert out.returncode == 0, out.stderr
     return [ln for ln in out.stdout.splitlines() if ln.strip()]
 
@@ -67,7 +81,7 @@ def _repo(tmp_path: Path) -> Path:
 
 def _make(repo: Path, *targets: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(["make", "-C", str(repo), *targets, f"PYTHON={sys.executable}"],
-                          capture_output=True, text=True, timeout=60)
+                          capture_output=True, text=True, timeout=60, env=_clean_env())
 
 
 def test_a_release_built_from_published_code_is_stamped_with_it(tmp_path: Path) -> None:
@@ -122,7 +136,7 @@ def test_the_published_ref_cannot_be_overridden(tmp_path: Path) -> None:
     repo = _repo(tmp_path)
     _git(repo, "commit", "-q", "--allow-empty", "-m", "local only")
     for how in (["PUBLIC_REF=HEAD"], []):
-        env = {**os.environ, "PUBLIC_REF": "HEAD"} if not how else None
+        env = _clean_env(PUBLIC_REF="HEAD") if not how else _clean_env()
         out = subprocess.run(["make", "-C", str(repo), "build-commit", *how,
                               f"PYTHON={sys.executable}"],
                              capture_output=True, text=True, timeout=60, env=env)
@@ -188,3 +202,17 @@ def test_only_bytecode_and_src_egg_info_are_allowed_ignored(tmp_path: Path) -> N
         assert out.returncode != 0, path
         assert "gitignored files" in out.stderr
         target.unlink()
+
+
+_OUTER_MAKE = " -- INTERMEDIATES_LABEL=v1.8.0 PURSUE_DATA_ROOT=/outer TAG=v9.9.9"
+
+
+def test_an_outer_make_invocation_does_not_leak_into_these_runs(monkeypatch) -> None:
+    """``make ship-ready INTERMEDIATES_LABEL=...`` runs this suite: make passes
+    its command-line variables to children through ``MAKEFLAGS``, so a nested
+    ``make`` here must not see them."""
+    for k, v in (("MAKEFLAGS", _OUTER_MAKE), ("MFLAGS", "-s"), ("MAKELEVEL", "1"),
+                 ("MAKEOVERRIDES", "${-*-command-variables-*-}")):
+        monkeypatch.setenv(k, v)
+    lines = _dry("ship-ready")
+    assert not [ln for ln in lines if "intermediates.py" in ln]

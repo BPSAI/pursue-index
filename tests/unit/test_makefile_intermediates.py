@@ -18,11 +18,22 @@ DATA_ROOT = "/srv/pursue-data"
 TARBALL = f"{DATA_ROOT}/release-assets/v1.2.3/intermediates-v1.2.3.tar.gz"
 
 
+# An outer ``make ship-ready INTERMEDIATES_LABEL=...`` runs this suite, and
+# make hands its command-line variables to child processes through MAKEFLAGS
+# (and its siblings), so every nested make here starts from an env without
+# them, or the label leaks in and demands PURSUE_DATA_ROOT.
+_LEAKED = ("MAKEFLAGS", "MFLAGS", "MAKEOVERRIDES", "MAKELEVEL", "GNUMAKEFLAGS",
+           "PURSUE_DATA_ROOT", "INTERMEDIATES_LABEL", "TAG")
+
+
+def _clean_env(**extra: str) -> dict[str, str]:
+    env = {k: v for k, v in os.environ.items() if k not in _LEAKED}
+    env.update(extra)
+    return env
+
+
 def _make(*args: str, data_root: str | None = DATA_ROOT) -> subprocess.CompletedProcess[str]:
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("PURSUE_DATA_ROOT", "INTERMEDIATES_LABEL", "TAG")}
-    if data_root is not None:
-        env["PURSUE_DATA_ROOT"] = data_root
+    env = _clean_env() if data_root is None else _clean_env(PURSUE_DATA_ROOT=data_root)
     return subprocess.run(["make", "-C", str(ROOT), *args, "PYTHON=python3"],
                           capture_output=True, text=True, timeout=60, env=env)
 
@@ -128,3 +139,17 @@ def test_release_intermediates_needs_a_well_formed_tag() -> None:
         out = _make("release-intermediates", *args)
         assert out.returncode != 0, args
         assert "TAG" in out.stderr and "vX.Y.Z" in out.stderr, args
+
+
+_OUTER_MAKE = " -- INTERMEDIATES_LABEL=v1.8.0 PURSUE_DATA_ROOT=/outer TAG=v9.9.9"
+
+
+def test_an_outer_make_invocation_does_not_leak_into_these_runs(monkeypatch) -> None:
+    """``make ship-ready INTERMEDIATES_LABEL=...`` runs this suite: make passes
+    its command-line variables to children through ``MAKEFLAGS``, so a nested
+    ``make`` here must not see them."""
+    for k, v in (("MAKEFLAGS", _OUTER_MAKE), ("MFLAGS", "-s"), ("MAKELEVEL", "1"),
+                 ("MAKEOVERRIDES", "${-*-command-variables-*-}")):
+        monkeypatch.setenv(k, v)
+    lines = _dry("ship-ready")
+    assert not [ln for ln in lines if "intermediates.py" in ln]

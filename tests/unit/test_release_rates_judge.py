@@ -69,9 +69,52 @@ def test_either_field_missing_or_zero_calls_falls_back(tmp_path: Path, stats: di
     assert read_judge_rate(_bundle(tmp_path, stats)).label == JUDGE_TABLE_ESTIMATE
 
 
-def test_the_committed_bundle_has_no_metered_fields_yet_and_says_so() -> None:
-    """Today's committed bundle predates the judge's spend ledger (R7C.6)."""
-    assert read_judge_rate(_COMMITTED_BUNDLE).label == JUDGE_TABLE_ESTIMATE
+def _assert_labeled_truthfully(path: Path) -> None:
+    """A ``metered`` rate is the bundle's own spend / calls; a ``table
+    estimate`` is the table's figure. Neither label ever carries the other's
+    number, whichever the bundle happens to contain."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    stats = data.get("stats") if isinstance(data.get("stats"), dict) else {}
+    judge = read_judge_rate(path)
+    assert judge.label in (JUDGE_METERED, JUDGE_TABLE_ESTIMATE)
+    if judge.label == JUDGE_METERED:
+        block = stats if "metered_judge_calls" in stats else data
+        assert judge.usd_per_page == pytest.approx(
+            block["metered_judge_spend_usd"] / block["metered_judge_calls"])
+    else:
+        assert judge.usd_per_page == RATES_TABLE["judge"].low
+
+
+def test_the_committed_bundle_is_labeled_truthfully() -> None:
+    """The committed bundle may predate the judge's spend ledger (R7C.6) or
+    carry it, as clean-qc bundles from the metered judge do."""
+    _assert_labeled_truthfully(_COMMITTED_BUNDLE)
+
+
+def test_the_committed_bundle_with_metered_fields_folded_in_reads_metered(
+    tmp_path: Path,
+) -> None:
+    """The same bundle once the metered judge has written its spend."""
+    data = json.loads(_COMMITTED_BUNDLE.read_text(encoding="utf-8"))
+    data.setdefault("stats", {}).update(
+        {"metered_judge_spend_usd": 10.11, "metered_judge_calls": 574})
+    path = tmp_path / "clean-qc-bundle.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    assert read_judge_rate(path).label == JUDGE_METERED
+    _assert_labeled_truthfully(path)
+
+
+def test_the_committed_bundle_without_metered_fields_reads_table_estimate(
+    tmp_path: Path,
+) -> None:
+    data = json.loads(_COMMITTED_BUNDLE.read_text(encoding="utf-8"))
+    for block in (data, data.get("stats") or {}):
+        block.pop("metered_judge_spend_usd", None)
+        block.pop("metered_judge_calls", None)
+    path = tmp_path / "clean-qc-bundle.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    assert read_judge_rate(path).label == JUDGE_TABLE_ESTIMATE
+    _assert_labeled_truthfully(path)
 
 
 def test_rates_module_never_names_the_projection_field() -> None:
