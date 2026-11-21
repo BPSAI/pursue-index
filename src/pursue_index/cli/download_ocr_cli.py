@@ -54,6 +54,14 @@ def _bytes_changed_shas(worklist: Path | None) -> dict[str, str]:
     return {c: latest[c] for c in ids}
 
 
+def _registry_shas() -> dict[str, str]:
+    """Registry-latest PDF sha per card, so first downloads are verified too."""
+    from pursue_index.ingest_scope import load_registry_sha_map
+    from pursue_index.paths import repo_root
+
+    return load_registry_sha_map(repo_root() / "data" / "asset-bytes-registry.jsonl")
+
+
 download_app = typer.Typer(name="download", help="Download assets referenced by a manifest.")
 
 
@@ -69,7 +77,7 @@ def download_run(
     m = _scoped_manifest(manifest, worklist)
     refresh = _bytes_changed_shas(worklist)
     try:
-        asyncio.run(download_all(m, refresh_shas=refresh) if refresh else download_all(m))
+        asyncio.run(download_all(m, refresh_shas=refresh, registry_shas=_registry_shas()))
     except DownloadBatchError as exc:
         typer.echo(f"download failed for {exc}", err=True)
         raise typer.Exit(code=1) from exc

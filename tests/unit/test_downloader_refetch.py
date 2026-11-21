@@ -289,7 +289,7 @@ async def test_write_error_joins_the_batch(monkeypatch, tmp_path, no_retry_wait)
     assert list(err.value.failed) == ["abc1234567890def"]
 
 
-def test_download_cli_exits_non_zero_naming_each_card(monkeypatch):
+def test_download_cli_exits_non_zero_naming_each_card(monkeypatch, tmp_path):
     from typer.testing import CliRunner
 
     import pursue_index.cli.download_ocr_cli as cli
@@ -301,8 +301,12 @@ def test_download_cli_exits_non_zero_naming_each_card(monkeypatch):
     monkeypatch.setattr(dl, "download_all", boom)
     monkeypatch.setattr(cli, "_scoped_manifest", lambda m, w: object())
     monkeypatch.setattr(cli, "_registry_shas", lambda: {})
-    monkeypatch.setattr(cli.settings, "ensure_dirs", lambda: None)
-    result = CliRunner().invoke(cli.download_app, ["run"])
+    monkeypatch.setattr(type(cli.settings), "ensure_dirs", lambda self: None, raising=False)
+    manifest = tmp_path / "m.json"
+    manifest.write_text("{}")
+    from pursue_index.cli.commands import app
+
+    result = CliRunner().invoke(app, ["download", "run", "--manifest", str(manifest)])
     assert result.exit_code == 1
     out = result.output
     assert "aaaa234567890def" in out and "bbbb234567890def" in out

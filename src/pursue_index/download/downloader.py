@@ -5,7 +5,11 @@ size, except for cards named in ``refresh_shas`` (``bytes-changed`` cards):
 those are re-fetched to a temporary file, checked against the registry's
 latest sha, and only then replace the file. A card whose bytes fail that check
 keeps its old file; the rest of the batch finishes, then ``DownloadBatchError``
-names the failed cards. Routes by ``asset_type``:
+names the failed cards. A PDF fetched for the first time is checked the same way
+against the registry's latest row for its card, when one exists, and the bytes are
+dropped on a mismatch. Every per-card error (network, HTTP status, write, sha)
+joins that one aggregation; one bad card never aborts the gather. Routes by
+``asset_type``:
 
   * PDF → ``settings.pdf_dir / {card_id} / {filename}``
   * IMG → ``settings.image_dir / {card_id} / {filename}``
@@ -25,7 +29,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
-from tenacity import retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
+from tenacity import RetryError, retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
 
 from pursue_index import get_logger
 from pursue_index.config import settings
@@ -104,10 +108,16 @@ def asset_path_for(card: CardMetadata) -> Path | None:
     retry=retry_if_not_exception_type(DownloadShaMismatchError),
 )
 async def _download_one(
-    client: httpx.AsyncClient, card: CardMetadata, *, expected_sha: str | None = None
+    client: httpx.AsyncClient,
+    card: CardMetadata,
+    *,
+    expected_sha: str | None = None,
+    registry_sha: str | None = None,
 ) -> Path | None:
     """Fetch one card's asset. ``expected_sha`` marks a refresh: re-fetch even if
-    the file exists, and replace it only when the fetched bytes hash to it."""
+    the file exists, and replace it only when the fetched bytes hash to it.
+    ``registry_sha`` (the registry's latest row, when one exists) is checked the
+    same way on a first download; an existing file is still skipped."""
     target = asset_path_for(card)
     if target is None:
         log.warning("download.skip.no_url", card_id=card.card_id, title=card.title)
@@ -148,10 +158,12 @@ async def _download_one(
                 async for chunk in resp.aiter_bytes(chunk_size=1 << 20):
                     digest.update(chunk)
                     fh.write(chunk)
-        if expected_sha is not None and digest.hexdigest() != expected_sha:
+        required = expected_sha or registry_sha
+        if required is not None and digest.hexdigest() != required:
+            kept = "kept the existing file" if expected_sha else "did not keep the download"
             raise DownloadShaMismatchError(
-                f"card {card.card_id}: re-fetched sha {digest.hexdigest()} != registry "
-                f"latest {expected_sha}; kept the existing file"
+                f"card {card.card_id}: fetched sha {digest.hexdigest()} != registry "
+                f"latest {required}; {kept}"
             )
         os.replace(tmp, target)
     finally:
@@ -160,15 +172,27 @@ async def _download_one(
     return target
 
 
+def _failure_reason(exc: BaseException) -> str:
+    """The underlying error of a retried call, as ``Type: message``."""
+    if isinstance(exc, RetryError) and exc.last_attempt.exception() is not None:
+        exc = exc.last_attempt.exception()  # type: ignore[assignment]
+    return f"{type(exc).__name__}: {exc}"
+
+
 async def download_all(
-    manifest: Manifest, refresh_shas: dict[str, str] | None = None
+    manifest: Manifest,
+    refresh_shas: dict[str, str] | None = None,
+    registry_shas: dict[str, str] | None = None,
 ) -> list[Path | None]:
     """Download every asset in the manifest with bounded concurrency.
 
     ``refresh_shas`` maps ``bytes-changed`` card_ids to the registry's latest sha;
     those cards are re-fetched and verified even when a local file exists.
+    ``registry_shas`` maps card_ids to the registry's latest PDF sha; a PDF card
+    downloaded for the first time must hash to it.
     """
     refresh_shas = refresh_shas or {}
+    registry_shas = registry_shas or {}
     sem = asyncio.Semaphore(settings.download_concurrency)
     failed: dict[str, str] = {}
     headers = {
@@ -188,14 +212,18 @@ async def download_all(
 
         async def _bounded(card: CardMetadata) -> Path | None:
             async with sem:
+                kwargs: dict[str, str] = {}
+                if card.card_id in refresh_shas:
+                    kwargs["expected_sha"] = refresh_shas[card.card_id]
+                elif card.asset_type == "PDF" and card.card_id in registry_shas:
+                    kwargs["registry_sha"] = registry_shas[card.card_id]
                 try:
-                    return await _download_one(
-                        client, card, expected_sha=refresh_shas.get(card.card_id)
-                    )
-                except DownloadShaMismatchError as exc:
-                    # Keep the old file, record the card, carry on with the rest.
-                    log.error("download.sha_mismatch", card_id=card.card_id, error=str(exc))
-                    failed[card.card_id] = str(exc)
+                    return await _download_one(client, card, **kwargs)
+                except Exception as exc:  # noqa: BLE001 - one bad card must not abort the gather
+                    # Record the card and carry on with the rest.
+                    reason = _failure_reason(exc)
+                    log.error("download.failed", card_id=card.card_id, error=reason)
+                    failed[card.card_id] = reason
                     return None
 
         results = await asyncio.gather(

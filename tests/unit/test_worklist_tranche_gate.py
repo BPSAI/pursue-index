@@ -45,7 +45,7 @@ def _write_manifest(path: Path, card_ids: list[str], csv_sha256: str = _GOOD_SHA
 
 
 def _invoke_download(tmp_path: Path, monkeypatch, worklist: Path):
-    async def fake_download_all(m):
+    async def fake_download_all(m, **_kw):
         return []
 
     monkeypatch.setattr("pursue_index.download.downloader.download_all", fake_download_all)
