@@ -574,7 +574,6 @@ def test_cli_runtime_mode(tmp_path):
 
 
 def test_workflow_audits_the_worker_with_the_runtime_gate():
-    text = WORKFLOW.read_text(encoding="utf-8")
     steps = [st for st in _wf()["jobs"]["audit"]["steps"] if "run" in st]
     worker = [st for st in steps if st.get("working-directory") == "worker"]
     assert worker and "npm audit --omit=dev --json" in worker[0]["run"]
@@ -582,7 +581,6 @@ def test_workflow_audits_the_worker_with_the_runtime_gate():
     # No exemptions: the runtime step never takes the build-only allowlist.
     runtime_step = next(st for st in steps if "--runtime" in st["run"])
     assert "--allowlist" not in runtime_step["run"]
-    assert "worker/**" in text
 
 
 def test_the_worker_has_a_lockfile_for_the_audit():
@@ -601,15 +599,14 @@ def _on(data: dict) -> dict:
     return data.get("on", data.get(True))
 
 
-def test_workflow_runs_on_prs_touching_web_and_weekly():
+def test_workflow_runs_on_every_pr_and_weekly():
     on = _on(_wf())
-    pr = on["pull_request"]
-    assert any(p.startswith("web/") for p in pr["paths"])
-    assert any("web_audit_gate" in p for p in pr["paths"])
+    assert "pull_request" in on
+    # No paths filter: see tests/unit/test_web_audit_paths_changed.py.
+    assert not on["pull_request"] or "paths" not in on["pull_request"]
     crons = [s["cron"] for s in on["schedule"]]
     assert crons and all(len(c.split()) == 5 for c in crons)
-    # The gate must not depend on the schedule alone.
-    assert "pull_request" in on
+    assert "workflow_dispatch" in on
 
 
 def test_workflow_is_read_only_and_secretless():
