@@ -9,8 +9,6 @@ import pytest
 from tests.unit.r2_verify_harness import NEW_BODY, OLD_BODY, World, r2, sha
 
 
-
-
 @pytest.fixture
 def w(tmp_path, monkeypatch) -> World:
     return World(tmp_path, monkeypatch)

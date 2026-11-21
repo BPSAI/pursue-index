@@ -26,7 +26,7 @@ def test_weekly_schedule_and_manual_dispatch():
     assert "workflow_dispatch" in on
     crons = [e["cron"] for e in on["schedule"]]
     assert len(crons) == 1
-    minute, hour, dom, month, dow = crons[0].split()
+    _, _, dom, month, dow = crons[0].split()
     assert dom == "*" and month == "*" and dow.isdigit(), "a weekly cron names one weekday"
 
 

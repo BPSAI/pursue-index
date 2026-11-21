@@ -29,7 +29,13 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
-from tenacity import RetryError, retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
+from tenacity import (
+    RetryError,
+    retry,
+    retry_if_not_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from pursue_index import get_logger
 from pursue_index.config import settings
