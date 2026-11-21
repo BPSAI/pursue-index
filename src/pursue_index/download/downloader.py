@@ -1,7 +1,9 @@
 """Asset download stage.
 
 Idempotent against the manifest: skips files that already exist with non-zero
-size. Routes by ``asset_type``:
+size, except for cards named in ``refresh_shas`` (``bytes-changed`` cards):
+those are re-fetched to a temporary file, checked against the registry's
+latest sha, and only then replace the file. Routes by ``asset_type``:
 
   * PDF → ``settings.pdf_dir / {card_id} / {filename}``
   * IMG → ``settings.image_dir / {card_id} / {filename}``
@@ -15,11 +17,13 @@ Cards without an ``asset_url`` are skipped with a warning.
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import os
 from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
 
 from pursue_index import get_logger
 from pursue_index.config import settings
@@ -35,6 +39,10 @@ log = get_logger(__name__)
 # that attests tranche legitimacy, not per-URL safety.
 _ALLOWED_ASSET_SCHEMES = frozenset({"https"})
 _ALLOWED_ASSET_HOSTS = frozenset({"www.war.gov", "war.gov"})
+
+
+class DownloadShaMismatchError(RuntimeError):
+    """A re-fetched file's sha differs from the registry's latest; the old file is kept."""
 
 
 def _is_allowed_asset_url(url: str) -> bool:
@@ -76,8 +84,16 @@ def asset_path_for(card: CardMetadata) -> Path | None:
     return base / card.card_id / card.asset_filename
 
 
-@retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=30))
-async def _download_one(client: httpx.AsyncClient, card: CardMetadata) -> Path | None:
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=1, min=2, max=30),
+    retry=retry_if_not_exception_type(DownloadShaMismatchError),
+)
+async def _download_one(
+    client: httpx.AsyncClient, card: CardMetadata, *, expected_sha: str | None = None
+) -> Path | None:
+    """Fetch one card's asset. ``expected_sha`` marks a refresh: re-fetch even if
+    the file exists, and replace it only when the fetched bytes hash to it."""
     target = asset_path_for(card)
     if target is None:
         log.warning("download.skip.no_url", card_id=card.card_id, title=card.title)
@@ -89,7 +105,7 @@ async def _download_one(client: httpx.AsyncClient, card: CardMetadata) -> Path |
 
     target.parent.mkdir(parents=True, exist_ok=True)
 
-    if target.exists() and target.stat().st_size > 0:
+    if expected_sha is None and target.exists() and target.stat().st_size > 0:
         log.info("download.skip.exists", card_id=card.card_id, path=str(target))
         return target
 
@@ -108,17 +124,37 @@ async def _download_one(client: httpx.AsyncClient, card: CardMetadata) -> Path |
         type=card.asset_type,
         url=str(card.asset_url),
     )
-    async with client.stream("GET", str(card.asset_url)) as resp:
-        resp.raise_for_status()
-        with target.open("wb") as fh:
-            async for chunk in resp.aiter_bytes(chunk_size=1 << 20):
-                fh.write(chunk)
+    # Write beside the target, so the final replace stays on one filesystem.
+    tmp = target.with_name(f".{target.name}.part")
+    digest = hashlib.sha256()
+    try:
+        async with client.stream("GET", str(card.asset_url)) as resp:
+            resp.raise_for_status()
+            with tmp.open("wb") as fh:
+                async for chunk in resp.aiter_bytes(chunk_size=1 << 20):
+                    digest.update(chunk)
+                    fh.write(chunk)
+        if expected_sha is not None and digest.hexdigest() != expected_sha:
+            raise DownloadShaMismatchError(
+                f"card {card.card_id}: re-fetched sha {digest.hexdigest()} != registry "
+                f"latest {expected_sha}; kept the existing file"
+            )
+        os.replace(tmp, target)
+    finally:
+        tmp.unlink(missing_ok=True)
     log.info("download.done", card_id=card.card_id, bytes=target.stat().st_size)
     return target
 
 
-async def download_all(manifest: Manifest) -> list[Path | None]:
-    """Download every asset in the manifest with bounded concurrency."""
+async def download_all(
+    manifest: Manifest, refresh_shas: dict[str, str] | None = None
+) -> list[Path | None]:
+    """Download every asset in the manifest with bounded concurrency.
+
+    ``refresh_shas`` maps ``bytes-changed`` card_ids to the registry's latest sha;
+    those cards are re-fetched and verified even when a local file exists.
+    """
+    refresh_shas = refresh_shas or {}
     sem = asyncio.Semaphore(settings.download_concurrency)
     headers = {
         "User-Agent": settings.scrape_user_agent
@@ -137,7 +173,9 @@ async def download_all(manifest: Manifest) -> list[Path | None]:
 
         async def _bounded(card: CardMetadata) -> Path | None:
             async with sem:
-                return await _download_one(client, card)
+                return await _download_one(
+                    client, card, expected_sha=refresh_shas.get(card.card_id)
+                )
 
         results = await asyncio.gather(
             *(_bounded(c) for c in manifest.cards), return_exceptions=False

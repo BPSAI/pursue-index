@@ -35,6 +35,25 @@ def _scoped_manifest(manifest: Path, worklist: Path | None):
         exit_on_tranche_error(exc)
 
 
+def _bytes_changed_shas(worklist: Path | None) -> dict[str, str]:
+    """Registry-latest sha of every ``bytes-changed`` card in ``worklist``: these
+    are re-fetched and verified rather than skipped as already downloaded."""
+    if worklist is None:
+        return {}
+    from pursue_index.cli.worklist import read_worklist_reasons
+    from pursue_index.ingest_scope import REASON_BYTES_CHANGED, load_registry_sha_map
+    from pursue_index.paths import repo_root
+
+    ids = [c for c, why in read_worklist_reasons(worklist).items() if why == REASON_BYTES_CHANGED]
+    if not ids:
+        return {}
+    latest = load_registry_sha_map(repo_root() / "data" / "asset-bytes-registry.jsonl")
+    missing = [c for c in ids if c not in latest]
+    if missing:
+        raise typer.BadParameter(f"bytes-changed cards with no registry sha: {missing}")
+    return {c: latest[c] for c in ids}
+
+
 download_app = typer.Typer(name="download", help="Download assets referenced by a manifest.")
 
 
@@ -48,7 +67,7 @@ def download_run(
 
     settings.ensure_dirs()
     m = _scoped_manifest(manifest, worklist)
-    asyncio.run(download_all(m))
+    asyncio.run(download_all(m, refresh_shas=_bytes_changed_shas(worklist)))
 
 
 ocr_app = typer.Typer(name="ocr", help="OCR downloaded PDFs.")
