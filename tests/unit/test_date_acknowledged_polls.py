@@ -64,7 +64,7 @@ def _overlay(tmp: Path, card_id: str) -> Path:
     path.write_text(json.dumps({"entries": [{
         "card_id": card_id, "field": "incident_date", "value": None,
         "status": "acknowledged-unknown", "reason": "upstream year conflicts with the title",
-        "curator": "<who>", "approved_at": "2026-11-21T00:00:00Z",
+        "curator": "a curator", "approved_at": "2026-11-21T00:00:00Z",
         "upstream_value": "7/15/05"}]}), encoding="utf-8")
     return path
 
@@ -148,7 +148,7 @@ def test_receipt_and_record_with_an_acknowledged_row(tmp_path: Path) -> None:
                                       date_overlay=load_date_resolutions(overlay))
     assert diff["summary"]["date_acknowledged"] == 1
     assert "date_unresolved" not in diff and "date_open" not in diff
-    assert diff["date_acknowledged"][0]["curator"] == "<who>"
+    assert diff["date_acknowledged"][0]["curator"] == "a curator"
     record = _record(old, diff)
     assert record["status"] == "ready" and "stop_reasons" not in record
     assert validate(record, load_schema()) == []
