@@ -20,9 +20,10 @@ touches VID/AUD content -- those stay on the existing A/V worklist path.
 
 from __future__ import annotations
 
+import itertools
 import json
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -118,52 +119,63 @@ def scope_pdf_img_cards(
     ``aliases``/``registry_sha_by_card``/``ocr_meta_sha_by_card`` default to
     empty -- a bare diff scopes only Class B.
     """
-    aliases = aliases or []
     registry_sha_by_card = registry_sha_by_card or {}
     ocr_meta_sha_by_card = ocr_meta_sha_by_card or {}
-    dispositions = dispositions or {}
-
+    scoped = itertools.chain(
+        _new_content_ids(diff),
+        _quarantined_and_renamed_ids(diff, tranche_sha, aliases or []),
+        _bytes_changed_ids(registry_sha_by_card, ocr_meta_sha_by_card, dispositions or {}),
+    )
     out: list[ScopedCard] = []
     seen: set[str] = set()
-
-    def _add(card_id: str, reason: str) -> None:
+    for card_id, reason in scoped:
         require_card_id(card_id)
-        if card_id in seen:
-            return
-        seen.add(card_id)
-        out.append(ScopedCard(card_id, reason))
+        if card_id not in seen:
+            seen.add(card_id)
+            out.append(ScopedCard(card_id, reason))
+    return out
 
+
+def _new_content_ids(diff: dict[str, Any]) -> Iterator[tuple[str, str]]:
+    """Rule 1: ``new_content`` rows with a PDF/IMG asset."""
     for row in diff.get("new_content", []) or []:
         if _is_pdf_img_asset(
             row.get("asset_filename"), row.get("asset_url"), row.get("asset_type")
         ):
-            _add(row["new_card_id"], REASON_NEW)
+            yield row["new_card_id"], REASON_NEW
 
+
+def _quarantined_and_renamed_ids(
+    diff: dict[str, Any], tranche_sha: str, aliases: list[dict[str, Any]]
+) -> Iterator[tuple[str, str]]:
+    """Rules 2 and 3: quarantined-new cards, then renamed ones (aliases, then Class A)."""
     quarantined_by_new_id: dict[str, dict[str, Any]] = {
         row["new_card_id"]: row for row in (diff.get("quarantined", []) or [])
     }
     renamed_this_tranche = {
         row["new_card_id"] for row in aliases if row.get("tranche_sha256") == tranche_sha
     }
-
     for new_card_id, row in quarantined_by_new_id.items():
-        if new_card_id in renamed_this_tranche:
-            continue
-        if _has_new_side_pdf_img(row):
-            _add(new_card_id, REASON_QUARANTINED_NEW)
+        if new_card_id not in renamed_this_tranche and _has_new_side_pdf_img(row):
+            yield new_card_id, REASON_QUARANTINED_NEW
 
     resave_by_new_id = {r["new_card_id"]: r for r in diff.get(RESAVE_BUCKET, []) or []}
     for new_card_id in renamed_this_tranche:
         row = quarantined_by_new_id.get(new_card_id) or resave_by_new_id.get(new_card_id)
-        if row is None:
-            continue
-        if _has_new_side_pdf_img(row):
-            _add(new_card_id, REASON_RENAMED)
+        if row is not None and _has_new_side_pdf_img(row):
+            yield new_card_id, REASON_RENAMED
 
     for row in _auto_rename_rows(diff):
         if _has_new_side_pdf_img(row):
-            _add(row["new_card_id"], REASON_RENAMED)
+            yield row["new_card_id"], REASON_RENAMED
 
+
+def _bytes_changed_ids(
+    registry_sha_by_card: dict[str, str],
+    ocr_meta_sha_by_card: dict[str, str],
+    dispositions: dict[tuple[str, str], Disposition],
+) -> Iterator[tuple[str, str]]:
+    """Rule 4: cards OCR'd under bytes other than the registry's, with no covering row."""
     for card_id, current_sha in registry_sha_by_card.items():
         recorded_sha = ocr_meta_sha_by_card.get(card_id)
         if (
@@ -171,9 +183,7 @@ def scope_pdf_img_cards(
             and recorded_sha != current_sha
             and not covers(dispositions, card_id, recorded_sha, current_sha)
         ):
-            _add(card_id, REASON_BYTES_CHANGED)
-
-    return out
+            yield card_id, REASON_BYTES_CHANGED
 
 
 def load_aliases(aliases_path: Path) -> list[dict[str, Any]]:
