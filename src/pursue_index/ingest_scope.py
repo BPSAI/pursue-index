@@ -27,6 +27,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pursue_index.byte_dispositions import (
+    DISPOSITIONS_FILENAME,
+    Disposition,
+    covers,
+    load_byte_change_dispositions,
+)
 from pursue_index.card_id import InvalidCardIdError, require_card_id
 from pursue_index.tranche_resave import RESAVE_BUCKET
 
@@ -85,6 +91,7 @@ def scope_pdf_img_cards(
     aliases: list[dict[str, Any]] | None = None,
     registry_sha_by_card: dict[str, str] | None = None,
     ocr_meta_sha_by_card: dict[str, str] | None = None,
+    dispositions: dict[tuple[str, str], Disposition] | None = None,
 ) -> list[ScopedCard]:
     """Every PDF/IMG card_id this tranche must (re)download/OCR/embed.
 
@@ -104,7 +111,9 @@ def scope_pdf_img_cards(
       4. ``bytes-changed`` -- any card_id in ``registry_sha_by_card`` whose
          current byte sha differs from the one recorded in
          ``ocr_meta_sha_by_card`` (i.e. it was OCR'd before, under
-         different bytes).
+         different bytes). A ``resave-content-verified`` disposition for
+         exactly that (OCR sha, registry sha) pair suppresses it; a
+         ``content-changed`` one never does.
 
     ``aliases``/``registry_sha_by_card``/``ocr_meta_sha_by_card`` default to
     empty -- a bare diff scopes only Class B.
@@ -112,6 +121,7 @@ def scope_pdf_img_cards(
     aliases = aliases or []
     registry_sha_by_card = registry_sha_by_card or {}
     ocr_meta_sha_by_card = ocr_meta_sha_by_card or {}
+    dispositions = dispositions or {}
 
     out: list[ScopedCard] = []
     seen: set[str] = set()
@@ -156,7 +166,11 @@ def scope_pdf_img_cards(
 
     for card_id, current_sha in registry_sha_by_card.items():
         recorded_sha = ocr_meta_sha_by_card.get(card_id)
-        if recorded_sha and recorded_sha != current_sha:
+        if (
+            recorded_sha
+            and recorded_sha != current_sha
+            and not covers(dispositions, card_id, recorded_sha, current_sha)
+        ):
             _add(card_id, REASON_BYTES_CHANGED)
 
     return out
@@ -245,8 +259,15 @@ def scope_worklist(
     aliases_path: Path,
     registry_path: Path,
     ocr_dir: Path,
+    dispositions_path: Path | None = None,
 ) -> list[ScopedCard]:
-    """``scope_pdf_img_cards`` wired to the on-disk aliases/registry/OCR state."""
+    """``scope_pdf_img_cards`` wired to the on-disk aliases/registry/OCR state.
+
+    ``dispositions_path`` defaults to the dispositions file beside the registry.
+    """
+    dispositions = load_byte_change_dispositions(
+        dispositions_path or registry_path.with_name(DISPOSITIONS_FILENAME)
+    )
     aliases = load_aliases(aliases_path)
     registry_sha = load_registry_sha_map(registry_path)
     ocr_meta_sha = load_ocr_meta_sha_map(ocr_dir, registry_sha.keys())
@@ -256,4 +277,5 @@ def scope_worklist(
         aliases=aliases,
         registry_sha_by_card=registry_sha,
         ocr_meta_sha_by_card=ocr_meta_sha,
+        dispositions=dispositions,
     )
