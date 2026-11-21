@@ -168,3 +168,22 @@ def select_eligible(
         for card, row_key in zip(rows, _row_keys(rows), strict=True):
             items.extend(_items_for_row(card, row_key, ocr_dir))
     return items
+
+
+def keyed_rows(
+    manifest: Manifest, card_ids: set[str]
+) -> dict[str, dict[str, CardMetadata]]:
+    """``{card_id: {row_key: manifest row}}`` for IMG/PDF rows of ``card_ids``.
+
+    The same row keys ``select_eligible`` assigns, without its image-only
+    filter, so a caller that already knows which pages it wants (a re-describe)
+    can find the backing row of each one.
+    """
+    groups: OrderedDict[str, list[CardMetadata]] = OrderedDict()
+    for card in manifest.cards:
+        if card.card_id in card_ids and card.asset_type in ("IMG", "PDF"):
+            groups.setdefault(card.card_id, []).append(card)
+    return {
+        card_id: dict(zip(_row_keys(rows), rows, strict=True))
+        for card_id, rows in groups.items()
+    }
