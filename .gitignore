@@ -174,3 +174,6 @@ docs/portfolio/status.yaml.lock
 
 # Refused tranche-ready diagnosis + local full diff (public issue body is value-free)
 /tranche-ready-error*
+
+# Written at build time from the host-provided commit; never committed.
+/web/public/deploy-stamp.json

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/build_byte_history.mjs && node scripts/build_cards_summary.mjs && node scripts/build_csv_archive.mjs",
+    "prebuild": "node scripts/build_byte_history.mjs && node scripts/build_cards_summary.mjs && node scripts/build_csv_archive.mjs && node scripts/write_deploy_stamp.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -18,7 +18,8 @@
     "test:cards-summary": "node --test scripts/build_cards_summary.test.mjs",
     "test:byte-history": "node --test scripts/build_byte_history.test.mjs",
     "test:csv-archive": "node --test scripts/build_csv_archive.test.mjs",
-    "test": "npm run test:api-page && npm run test:lib && npm run test:cards-summary && npm run test:byte-history && npm run test:csv-archive"
+    "test:deploy-stamp": "node --test scripts/write_deploy_stamp.test.mjs",
+    "test": "npm run test:api-page && npm run test:lib && npm run test:cards-summary && npm run test:byte-history && npm run test:csv-archive && npm run test:deploy-stamp"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.6",
