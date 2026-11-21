@@ -415,3 +415,40 @@ def test_newest_pdf_row_wins_over_an_older_one_with_mp4_between(tmp_path: Path) 
     ]
     assert load_registry_sha_map(_reg(tmp_path, rows)) == {_CID: "new"}
     assert _scope(tmp_path, rows, "new") == {}
+
+
+def _write_rows(tmp_path: Path, rows: list[dict]) -> Path:
+    p = tmp_path / "registry.jsonl"
+    p.write_text("\n".join(json.dumps(r) for r in rows))
+    return p
+
+
+def test_keyless_row_with_a_pdf_asset_filename_is_used(tmp_path: Path) -> None:
+    p = _write_rows(tmp_path, [{"card_id": _CID, "byte_sha256": "s", "asset_filename": "A.PDF"}])
+    assert load_registry_sha_map(p) == {_CID: "s"}
+
+
+def test_keyless_row_falls_back_to_archive_key(tmp_path: Path) -> None:
+    p = _write_rows(tmp_path, [{"card_id": _CID, "byte_sha256": "s", "archive_key": "archive/x.pdf"}])
+    assert load_registry_sha_map(p) == {_CID: "s"}
+
+
+def test_keyless_mp4_row_is_ignored_without_a_warning(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    p = _write_rows(tmp_path, [{"card_id": _CID, "byte_sha256": "s", "asset_filename": "v.mp4"}])
+    with caplog.at_level("WARNING"):
+        assert load_registry_sha_map(p) == {}
+    assert caplog.records == []
+
+
+def test_row_with_nothing_usable_warns_and_is_excluded(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    good = {"card_id": "a" * 16, "byte_sha256": "g", "current_key": "g.pdf"}
+    p = _write_rows(tmp_path, [good, {"card_id": _CID, "byte_sha256": "s"}])
+    with caplog.at_level("WARNING"):
+        assert load_registry_sha_map(p) == {"a" * 16: "g"}
+    assert len(caplog.records) == 1
+    msg = caplog.records[0].getMessage()
+    assert _CID in msg and ":2" in msg
