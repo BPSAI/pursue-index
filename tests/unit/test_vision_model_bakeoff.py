@@ -13,6 +13,14 @@ from typing import Any
 
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def _not_under_ci(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The harness refuses ``--live`` whenever ``CI`` is set, a deliberate guard
+    against spending from CI. The live-path tests drive a stubbed client, so
+    they run with ``CI`` cleared; the guard's own test sets it back."""
+    monkeypatch.delenv("CI", raising=False)
+
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "vision_model_bakeoff.py"
 spec = importlib.util.spec_from_file_location("vision_model_bakeoff", SCRIPT)
 assert spec and spec.loader
@@ -214,13 +222,13 @@ def _pdf_manifest(tmp_path: Path) -> tuple[Any, Path]:
             "card_id": cid, "title": cid, "asset_type": "PDF", "agency": "A",
             "asset_url": f"https://www.war.gov/x/{name}", "asset_filename": name})
 
-    cards = [card("c_disk", "a.pdf"), card("c_gone", "b.pdf"), card("c_mirror", "c.pdf")]
+    cards = [card("aaaaaaaaaaaaaaaa", "a.pdf"), card("bbbbbbbbbbbbbbbb", "b.pdf"), card("cccccccccccccccc", "c.pdf")]
     return Manifest.model_construct(cards=cards), tmp_path
 
 
 def test_page_resolution_covers_text_bearing_pages_of_multi_page_pdfs(tmp_path: Path) -> None:
     manifest, root = _pdf_manifest(tmp_path)
-    pdf = root / "pdfs" / "c_disk"
+    pdf = root / "pdfs" / "aaaaaaaaaaaaaaaa"
     pdf.mkdir(parents=True)
     (pdf / "a.pdf").write_bytes(b"%PDF")
     mirror = root / "mirror"
@@ -228,20 +236,20 @@ def test_page_resolution_covers_text_bearing_pages_of_multi_page_pdfs(tmp_path: 
     (mirror / "archive" / ("ab" * 32 + ".pdf")).write_bytes(b"%PDF")
     registry = root / "registry.jsonl"
     registry.write_text(
-        json.dumps({"card_id": "c_mirror", "byte_sha256": "00" * 32}) + "\n"
-        + json.dumps({"card_id": "c_mirror", "byte_sha256": "ab" * 32}) + "\n")
+        json.dumps({"card_id": "cccccccccccccccc", "byte_sha256": "00" * 32}) + "\n"
+        + json.dumps({"card_id": "cccccccccccccccc", "byte_sha256": "ab" * 32}) + "\n")
     resolve = bk.build_resolver(manifest, pdf_dir=root / "pdfs", image_dir=root / "images",
                                 mirror_dir=mirror, registry=registry)
 
     def base(cid: str, page: int) -> Any:
         return bk.Baseline(cid, "", page, "photo", "d", "", ())
 
-    on_disk = resolve(base("c_disk", 4))
+    on_disk = resolve(base("aaaaaaaaaaaaaaaa", 4))
     assert on_disk.kind == "image_only_page" and on_disk.page == 4  # not limited to image-only pages
     assert on_disk.image_path == pdf / "a.pdf"
-    via_mirror = resolve(base("c_mirror", 9))  # last registry row wins
+    via_mirror = resolve(base("cccccccccccccccc", 9))  # last registry row wins
     assert via_mirror.image_path == mirror / "archive" / ("ab" * 32 + ".pdf") and via_mirror.page == 9
-    assert resolve(base("c_gone", 1)) is None
+    assert resolve(base("bbbbbbbbbbbbbbbb", 1)) is None
     assert resolve(base("not_in_manifest", 1)) is None
 
 
