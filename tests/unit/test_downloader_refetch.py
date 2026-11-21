@@ -10,6 +10,7 @@ import pytest
 from pursue_index.cli.worklist import read_worklist_reasons
 from pursue_index.config.settings import Settings
 from pursue_index.download.downloader import (
+    DownloadBatchError,
     DownloadShaMismatchError,
     _download_one,
     download_all,
@@ -112,3 +113,51 @@ def test_download_cli_maps_bytes_changed_cards_to_registry_sha(tmp_path, monkeyp
     wl.write_text("# tranche: x\nabc1234567890def\tbytes-changed\n1111111111111111\tnew\n")
     assert _bytes_changed_shas(wl) == {"abc1234567890def": NEW_SHA}
     assert _bytes_changed_shas(None) == {}
+
+
+def _card_named(card_id: str) -> CardMetadata:
+    card = _card()
+    return card.model_copy(update={"card_id": card_id, "asset_filename": f"{card_id}.pdf"})
+
+
+async def test_one_sha_mismatch_does_not_abort_the_other_cards(tmp_path, monkeypatch):
+    import pursue_index.download.downloader as dl
+
+    monkeypatch.setattr(Settings, "pdf_dir", property(lambda self: tmp_path))
+    bad, good = _card_named("bad1234567890def"), _card_named("good234567890def")
+    paths = {c.card_id: tmp_path / c.card_id / c.asset_filename for c in (bad, good)}
+    for path in paths.values():
+        path.parent.mkdir(parents=True)
+        path.write_bytes(OLD)
+    served = {bad.card_id: b"not what the registry has", good.card_id: NEW}
+
+    async def fake_one(client, card, *, expected_sha=None):
+        data = served[card.card_id]
+        if hashlib.sha256(data).hexdigest() != expected_sha:
+            raise DownloadShaMismatchError(f"card {card.card_id}: mismatch")
+        paths[card.card_id].write_bytes(data)
+        return paths[card.card_id]
+
+    monkeypatch.setattr(dl, "_download_one", fake_one)
+    manifest = type("M", (), {"cards": [bad, good]})()
+    with pytest.raises(DownloadBatchError) as err:
+        await download_all(
+            manifest, refresh_shas={bad.card_id: NEW_SHA, good.card_id: NEW_SHA}
+        )
+    assert paths[good.card_id].read_bytes() == NEW, "the healthy card still refreshed"
+    assert paths[bad.card_id].read_bytes() == OLD, "the failed card keeps its old file"
+    assert list(err.value.failed) == [bad.card_id]
+    assert bad.card_id in str(err.value) and good.card_id not in str(err.value)
+
+
+async def test_every_failed_card_is_named(monkeypatch):
+    import pursue_index.download.downloader as dl
+
+    async def fake_one(client, card, *, expected_sha=None):
+        raise DownloadShaMismatchError(f"card {card.card_id}: mismatch")
+
+    monkeypatch.setattr(dl, "_download_one", fake_one)
+    cards = [_card_named("aaaa234567890def"), _card_named("bbbb234567890def")]
+    with pytest.raises(DownloadBatchError) as err:
+        await download_all(type("M", (), {"cards": cards})(), refresh_shas={})
+    assert sorted(err.value.failed) == ["aaaa234567890def", "bbbb234567890def"]
