@@ -73,14 +73,26 @@ test("readCleanupStats: cards looked at and cards cleaned are counted separately
   );
 });
 
+// The causes the cleanup pass writes into `cleanup_skipped`
+// (pursue_index/clean/runner.py).
+const CLEANUP_SKIP_CAUSES = ["content_filter", "empty_input", "length_divergence"];
+
 test("readCleanupStats: every skipped page is attributed to a cause", () => {
   const stats = readCleanupStats([PAGES_CLEANED]);
   const summed = stats.skipCauses.reduce((n, c) => n + c.count, 0);
   assert.equal(summed, stats.skippedPages);
-  assert.deepEqual(
-    stats.skipCauses.map((c) => c.cause).sort(),
-    ["content_filter", "empty_input", "length_divergence"],
-  );
+  // The causes are whatever the committed pages actually record -- a
+  // re-clean can legitimately clear a cause (a page the content filter
+  // refused once, cleaned on retry) -- but every one must be a cause the
+  // cleanup pass writes, never "unrecorded".
+  const raw = readAssetJsonSync(PAGES_CLEANED, { existsSync, readFileSync }) as {
+    pages: Array<{ cleanup_skipped?: string }>;
+  };
+  const recorded = [...new Set(raw.pages.map((p) => p.cleanup_skipped).filter(Boolean))].sort();
+  assert.deepEqual(stats.skipCauses.map((c) => c.cause).sort(), recorded);
+  for (const c of stats.skipCauses) {
+    assert.ok(CLEANUP_SKIP_CAUSES.includes(c.cause), `unknown skip cause: ${c.cause}`);
+  }
   // Ordered largest-first so the page reads worst-cause-first.
   for (let i = 1; i < stats.skipCauses.length; i++) {
     assert.ok(stats.skipCauses[i - 1].count >= stats.skipCauses[i].count);
