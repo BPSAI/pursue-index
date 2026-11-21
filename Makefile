@@ -166,11 +166,13 @@ ship-env:
 # the registry's latest bytes, or a verified-re-save disposition must cover the pair.
 # Writes data/ocr-input-freshness.json (counts + unverifiable-provenance cards), the
 # release record that ship-ready leaves for the commit.
+# Ceiling on cards whose OCR input has no recorded sha (warn-only at or below it).
+OCR_MAX_UNVERIFIABLE ?= 0
 .PHONY: ocr-input-freshness
 # Under `make -j` it must still wait for the ship-env guard.
 ocr-input-freshness: ship-env
 ocr-input-freshness:
-	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json
+	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json --max-unverifiable $(OCR_MAX_UNVERIFIABLE)
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).
