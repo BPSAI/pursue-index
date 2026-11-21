@@ -44,6 +44,15 @@ names how many cards were left unhashed, never a partial run with a green
 exit. A completed run appends one record to ``full-hash-runs.jsonl`` (next
 to the registry, or ``--run-record``); an incomplete run writes none.
 
+``--fail-on-drift`` (the daily and weekly gates) reads the registry itself, not
+only what the run fetched: the poll lane appends new-sha rows without that flag,
+so by the next run the fetched sha equals the latest row. Every row appended
+since the previous complete verify run (the newest ``drift-gate-passes.jsonl``
+marker a passing gate wrote, else the newest complete ``--full-hash`` record in
+``full-hash-runs.jsonl``, else the last 8 days) whose sha differs from the same
+card's previous row fails the run unless a ``resave-content-verified`` disposition
+covers ``(card_id, new sha)``. A card's first row is net-new, never drift.
+
 Failure modes:
 
   * Missing R2 credentials → ``--full-hash`` (the weekly verify) fails closed,
@@ -88,12 +97,17 @@ _REPO_ROOT = repo_root()
 from _r2_archive_put import put_archive_and_current
 from _r2_fetch import fetch_asset, head_asset, head_identical, last_known_size
 from _r2_run_state import (
+    GATE_MARKER_SCHEMA,
     RUN_RECORD_NAME,
     RunState,
     drift_outcome,
+    drift_window_start,
     full_hash_outcome,
+    gate_marker_path,
     now_iso,
+    registry_drift_since,
     staleness_outcome,
+    write_run_record,
 )
 
 from pursue_index.byte_dispositions import (
@@ -369,7 +383,8 @@ def _verify_args(parser: argparse.ArgumentParser) -> None:
         "--full-hash",
         action="store_true",
         help="Fetch and hash every published asset, whatever HEAD reports. "
-        "Requires --max-bytes-per-run; missing R2 credentials fail the run.",
+        "Requires --max-bytes-per-run. This is the only mode that fails when R2 "
+        "credentials are missing; every other mode warns, skips and exits 0.",
     )
     parser.add_argument(
         "--max-bytes-per-run",
@@ -389,10 +404,20 @@ def _verify_args(parser: argparse.ArgumentParser) -> None:
         "--fail-on-drift",
         action="store_true",
         help="Exit non-zero, after the rows are written, when a card that already "
-        "had registry rows now has a different sha, unless a matching "
+        "had registry rows now has a different sha (detected by this run, or by any "
+        "lane's row appended since the previous complete run), unless a matching "
         "resave-content-verified disposition covers it.",
     )
     parser.add_argument("--dispositions", type=Path, default=DEFAULT_DISPOSITIONS)
+    parser.add_argument(
+        "--gate-marker",
+        type=Path,
+        default=None,
+        help="Where a passing --fail-on-drift run is marked (default: drift-gate-passes.jsonl "
+        "beside the registry). The drift gate also scans every registry row appended since "
+        "the newest marker, else since the newest complete --full-hash record, else the "
+        "last 8 days.",
+    )
     parser.add_argument(
         "--max-full-hash-age-days",
         type=int,
@@ -481,6 +506,9 @@ def main(argv: list[str] | None = None) -> int:
         f"prior rows across {len(registry)} card_ids"
     )
 
+    started = now_iso()
+    since = drift_window_start(args)  # read before this run appends anything
+
     client = None if args.dry_run else make_r2_client()
     if client is None and not args.dry_run:
         return _no_credentials(args)
@@ -500,8 +528,15 @@ def main(argv: list[str] | None = None) -> int:
         f"no-upstream-url={state.no_upstream_url}"
     )
     rc = full_hash_outcome(args, state) if args.full_hash else 0
-    rc = max(rc, drift_outcome(args, state, dispositions))
-    return max(rc, staleness_outcome(args))
+    # The registry itself, not only this run's own findings: the poll lane appends
+    # new-sha rows without --fail-on-drift, so the fetched sha can equal the latest row.
+    seen = registry_drift_since(load_registry(args.registry), since) if args.fail_on_drift else ()
+    drift_rc = drift_outcome(args, state, dispositions, seen)
+    if args.fail_on_drift and not drift_rc and not args.dry_run:
+        write_run_record(
+            gate_marker_path(args), {"schema": GATE_MARKER_SCHEMA, "completed_at": started}
+        )
+    return max(rc, drift_rc, staleness_outcome(args))
 
 
 if __name__ == "__main__":

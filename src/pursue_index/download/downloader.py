@@ -119,11 +119,15 @@ async def _download_one(
     *,
     expected_sha: str | None = None,
     registry_sha: str | None = None,
+    accept_shas: frozenset[str] = frozenset(),
+    outcomes: dict[str, str] | None = None,
 ) -> Path | None:
     """Fetch one card's asset. ``expected_sha`` marks a refresh: re-fetch even if
     the file exists, and replace it only when the fetched bytes hash to it.
     ``registry_sha`` (the registry's latest row, when one exists) is checked the
-    same way on a first download; an existing file is still skipped."""
+    same way on a first download; an existing file is still skipped. ``accept_shas``
+    are the new shas a reviewed ``resave-content-verified`` disposition covers for
+    that registry row: fetching one is accepted and recorded in ``outcomes``."""
     target = asset_path_for(card)
     if target is None:
         log.warning("download.skip.no_url", card_id=card.card_id, title=card.title)
@@ -154,7 +158,13 @@ async def _download_one(
         type=card.asset_type,
         url=str(card.asset_url),
     )
-    await _fetch_verified(client, card, target, expected_sha or registry_sha, bool(expected_sha))
+    fetched = await _fetch_verified(
+        client, card, target, expected_sha or registry_sha, bool(expected_sha), accept_shas
+    )
+    required = expected_sha or registry_sha
+    if outcomes is not None and required is not None and fetched != required:
+        outcomes[card.card_id] = DISPOSITIONED_RESAVE
+        log.warning("download.dispositioned_resave", card_id=card.card_id, sha=fetched)
     log.info("download.done", card_id=card.card_id, bytes=target.stat().st_size)
     return target
 
@@ -165,7 +175,8 @@ async def _fetch_verified(
     target: Path,
     required_sha: str | None,
     is_refresh: bool,
-) -> None:
+    accept_shas: frozenset[str] = frozenset(),
+) -> str:
     """Stream the card's URL beside ``target`` and replace it only if the sha is acceptable."""
     # Write beside the target, so the final replace stays on one filesystem.
     tmp = target.with_name(f".{target.name}.part")
@@ -177,13 +188,18 @@ async def _fetch_verified(
                 async for chunk in resp.aiter_bytes(chunk_size=1 << 20):
                     digest.update(chunk)
                     fh.write(chunk)
-        if required_sha is not None and digest.hexdigest() != required_sha:
+        got = digest.hexdigest()
+        if required_sha is not None and got != required_sha and got not in accept_shas:
             kept = "kept the existing file" if is_refresh else "did not keep the download"
             raise DownloadShaMismatchError(
-                f"card {card.card_id}: fetched sha {digest.hexdigest()} != registry "
-                f"latest {required_sha}; {kept}"
+                f"card {card.card_id}: fetched sha {got} != registry latest {required_sha}; "
+                f"{kept}. If upstream legitimately re-saved this file, review the change and "
+                f"append a resave-content-verified row for ({card.card_id}, {got}) with "
+                f"old_sha256 {required_sha} to data/byte-change-dispositions.jsonl, then "
+                "re-run; otherwise the registry or the upstream file is wrong."
             )
         os.replace(tmp, target)
+        return got
     finally:
         tmp.unlink(missing_ok=True)
 
@@ -196,6 +212,20 @@ def _failure_reason(exc: BaseException) -> str:
 
 
 NO_REGISTRY_ROW = "no-registry-row"
+DISPOSITIONED_RESAVE = "dispositioned-resave"
+
+
+def _accepted_shas(dispositions, card_id: str, registry_sha: str) -> frozenset[str]:
+    """New shas a ``resave-content-verified`` row allows over ``registry_sha`` for the card."""
+    from pursue_index.byte_dispositions import RESAVE_CONTENT_VERIFIED
+
+    return frozenset(
+        d.new_sha256
+        for (cid, _), d in (dispositions or {}).items()
+        if cid == card_id
+        and d.disposition == RESAVE_CONTENT_VERIFIED
+        and d.old_sha256 == registry_sha
+    )
 
 
 def _is_unchecked_first_download(card: CardMetadata, kwargs: dict[str, str]) -> bool:
@@ -222,6 +252,7 @@ async def download_all(
     refresh_shas: dict[str, str] | None = None,
     registry_shas: dict[str, str] | None = None,
     outcomes: dict[str, str] | None = None,
+    dispositions=None,
 ) -> list[Path | None]:
     """Download every asset in the manifest with bounded concurrency.
 
@@ -231,7 +262,10 @@ async def download_all(
     downloaded for the first time must hash to it. A PDF with no registry row yet
     (ingest runs before the daily archive registers it) is downloaded unchecked,
     warned about, and recorded in ``outcomes`` as ``no-registry-row``; only a row
-    that exists and disagrees with the fetched bytes fails the card.
+    that exists and disagrees with the fetched bytes fails the card, unless
+    ``dispositions`` holds a ``resave-content-verified`` row whose ``old_sha256`` is
+    that registry sha and whose ``new_sha256`` is the fetched sha (outcome
+    ``dispositioned-resave``).
     """
     refresh_shas = refresh_shas or {}
     outcomes = outcomes if outcomes is not None else {}
@@ -254,7 +288,14 @@ async def download_all(
                 elif card.asset_type == "PDF" and card.card_id in registry_shas:
                     kwargs["registry_sha"] = registry_shas[card.card_id]
                 unchecked = _is_unchecked_first_download(card, kwargs)
+                accept = (
+                    _accepted_shas(dispositions, card.card_id, kwargs["registry_sha"])
+                    if "registry_sha" in kwargs
+                    else frozenset()
+                )
                 try:
+                    if accept:  # a disposition can only matter when one covers this card
+                        kwargs.update(accept_shas=accept, outcomes=outcomes)
                     path = await _download_one(client, card, **kwargs)
                     if unchecked and path is not None:
                         outcomes[card.card_id] = NO_REGISTRY_ROW

@@ -26,7 +26,16 @@ name: Daily byte-verify of every referenced asset
 #
 # Same credentials required as the poll workflow's asset-archive
 # lane — see comments in poll-pursue.yml for the operator setup.
-# If credentials are missing this workflow FAILS (no silent pass).
+# If credentials are missing this workflow WARNS, skips the archive step and
+# exits 0 (a poll/daily tick before the secrets exist is not a failure); only
+# the weekly --full-hash job fails closed on missing credentials.
+#
+# Drift gate: --fail-on-drift reads the registry itself. Every row appended
+# since the previous complete verify run (the newest data/drift-gate-passes.jsonl
+# marker, else the newest data/full-hash-runs.jsonl record, else the last 8 days)
+# whose sha differs from that card's previous row fails the run, even when the
+# poll lane wrote it, unless a resave-content-verified disposition covers it.
+# A card's first row (net-new) never fails.
 #
 # Cadence: 06:00 UTC daily. Spread out from the 30-min CSV poll
 # cron times so the two lanes don't pile up on the same minute.
@@ -206,6 +215,9 @@ jobs:
             git -C "$WT" add data/asset-bytes-registry.jsonl \
                     data/registry-root.txt \
                     data/registry-root-manifest.txt
+          fi
+          if [ -f "$WT/data/drift-gate-passes.jsonl" ]; then
+            git -C "$WT" add data/drift-gate-passes.jsonl
           fi
           if ! git -C "$WT" diff --cached --quiet; then
             new_rows=$(git -C "$WT" diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')

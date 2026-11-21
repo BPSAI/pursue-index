@@ -131,6 +131,9 @@ jobs:
           if [ -f "$WT/data/full-hash-runs.jsonl" ]; then
             git -C "$WT" add data/full-hash-runs.jsonl
           fi
+          if [ -f "$WT/data/drift-gate-passes.jsonl" ]; then
+            git -C "$WT" add data/drift-gate-passes.jsonl
+          fi
           if ! git -C "$WT" diff --cached --quiet; then
             new_rows=$(git -C "$WT" diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{' || true)
             git -C "$WT" commit -m "chore(verify): weekly full-hash +${new_rows} row(s)"
