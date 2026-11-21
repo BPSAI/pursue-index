@@ -185,10 +185,21 @@ def test_recorded_report_before_upgrade_fails_without_allowlist():
 
 def test_committed_allowlist_passes_the_current_report():
     allow = gate.load_allowlist(ALLOWLIST)
-    report = json.loads((FIXTURES / "audit_after.json").read_text())
+    report = json.loads((FIXTURES / "audit_astro7.json").read_text())
     d = gate.decide(report, allow)
     assert d.ok, d.failures
-    assert d.accepted == ["GHSA-26w7-cxv4-gfx2"]
+    assert d.accepted == []
+
+
+def test_the_avif_advisory_is_no_longer_accepted():
+    # astro 7 fixes GHSA-26w7-cxv4-gfx2, so the acceptance is gone: the same
+    # advisory reappearing (a downgrade) must fail the gate.
+    allow = gate.load_allowlist(ALLOWLIST)
+    assert "GHSA-26w7-cxv4-gfx2" not in allow["accepted_advisories"]
+    report = json.loads((FIXTURES / "audit_after.json").read_text())
+    d = gate.decide(report, allow)
+    assert not d.ok
+    assert any("GHSA-26w7-cxv4-gfx2" in f for f in d.failures)
 
 
 def test_committed_allowlist_classifies_every_package_in_the_old_report():

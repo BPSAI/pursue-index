@@ -14,7 +14,5 @@
     "vite": "Build tool and dev server; its advisories concern the dev server. Not present in dist/.",
     "zod": "Validates astro configuration and content schemas at build time."
   },
-  "accepted_advisories": {
-    "GHSA-26w7-cxv4-gfx2": "astro: remote code execution through AVIF image optimisation. Fixed only in astro 7 (a major upgrade, planned separately). The site is static, has no server runtime and uses no image optimisation, so the vulnerable code path is not reachable. Revisit when moving to astro 7."
-  }
+  "accepted_advisories": {}
 }
