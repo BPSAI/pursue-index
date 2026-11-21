@@ -73,6 +73,7 @@ def test_ship_ready_prerequisite_order() -> None:
     assert _ship_ready_prereqs() == [
         "ship-env",
         "release-completeness",
+        "ocr-input-freshness",
         "build-commit",
         "rebuild-derivatives",
         "registry-root",

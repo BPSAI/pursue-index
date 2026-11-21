@@ -94,7 +94,7 @@ clean:
 # checked before any build time is spent. Both hang off the prerequisites
 # below (see "Intermediates release asset"), so this line is the same either
 # way. Unset, ship-ready is unchanged.
-ship-ready: ship-env release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
+ship-ready: ship-env release-completeness ocr-input-freshness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
 	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'$(INTERMEDIATES_STAMP_ARG)
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
@@ -161,6 +161,16 @@ release-completeness:
 release-completeness: ship-env
 ship-env:
 	@INTERMEDIATES_LABEL=$(call shq,$(INTERMEDIATES_LABEL)) $(PYTHON) scripts/check_ship_env.py --root .
+
+# Third prerequisite of ship-ready (after ship-env and release-completeness): every published PDF card's OCR must have read
+# the registry's latest bytes, or a verified-re-save disposition must cover the pair.
+# Writes data/ocr-input-freshness.json (counts + unverifiable-provenance cards), the
+# release record that ship-ready leaves for the commit.
+.PHONY: ocr-input-freshness
+# Under `make -j` it must still wait for the ship-env guard.
+ocr-input-freshness: ship-env
+ocr-input-freshness:
+	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).
