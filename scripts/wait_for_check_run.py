@@ -9,9 +9,12 @@ exactly ``--name`` is ``completed``.
     GITHUB_TOKEN=... GITHUB_REPOSITORY=owner/repo \\
         python scripts/wait_for_check_run.py --sha <40-hex> [--timeout-secs 1200]
 
-Exit 0 only when the run completed with conclusion ``success``. Any other
-conclusion, a timeout, or no run of that name appearing is a failure: a missing
-check run is never a pass. The token is read from the environment only.
+Exit 0 when the run completed with conclusion ``success``, OR when the manual
+fallback workflow ``deploy-cf.yml`` has a successful run for the same sha (both
+are polled within one timeout). Exit 0 also, with ``superseded=true`` written to
+``$GITHUB_OUTPUT``, when the build was cancelled/skipped/never appeared and
+``main`` is now a descendant of the sha. A failed build is never superseded;
+any other outcome or a timeout is a failure. The token is read from the environment only.
 
 Standard library only.
 """
@@ -27,6 +30,13 @@ import time
 import urllib.request
 
 DEFAULT_NAME = "Workers Builds: pursue-index"
+NAME_ENV = "WORKERS_BUILD_CHECK_NAME"  # the workflow sets this once; DEFAULT_NAME is the only literal
+FALLBACK_WORKFLOW = "deploy-cf.yml"
+
+
+def default_name() -> str:
+    return os.environ.get(NAME_ENV) or DEFAULT_NAME
+
 API = "https://api.github.com"
 _SHA1 = re.compile(r"[0-9a-f]{40}")
 PER_PAGE = 100
@@ -45,27 +55,67 @@ def _list_runs(fetch, repo_path: str, sha: str) -> list[dict]:
     return runs
 
 
+def _fallback_runs(fetch, repo_path: str, sha: str) -> list[dict]:
+    url = f"{repo_path}/actions/workflows/{FALLBACK_WORKFLOW}/runs?head_sha={sha}&per_page={PER_PAGE}"
+    return fetch(url).get("workflow_runs") or []
+
+
+def _is_superseded(fetch, repo_path: str, sha: str) -> bool:
+    """True when ``main`` has moved strictly ahead of ``sha`` (a descendant)."""
+    try:
+        cmp_ = fetch(f"{repo_path}/compare/{sha}...main")
+    except Exception:
+        return False
+    return int(cmp_.get("ahead_by", 0)) > 0 and int(cmp_.get("behind_by", 0)) == 0
+
+
+def _describe_wb(name: str, sha: str, run: dict | None) -> str:
+    if run is None:
+        return f"no check run named {name!r} on {sha}"
+    if run.get("status") != "completed":
+        return f"{name!r} on {sha} is {run.get('status')!r}"
+    return f"{name!r} on {sha} completed with conclusion {run.get('conclusion')!r}"
+
+
+def _describe_fb(runs: list[dict]) -> str:
+    if not runs:
+        return "no fallback run"
+    run = max(runs, key=lambda r: r.get("id", 0))
+    if run.get("status") != "completed":
+        return f"fallback {FALLBACK_WORKFLOW} run is {run.get('status')!r}"
+    return f"fallback {FALLBACK_WORKFLOW} run completed with conclusion {run.get('conclusion')!r}"
+
+
 def wait(fetch, *, sha: str, name: str, timeout_secs: float, interval_secs: float,
-         sleep=time.sleep, clock=time.monotonic, repo_path: str = "") -> tuple[bool, str]:
-    """Poll until the named run completes. Returns ``(ok, message)``."""
+         sleep=time.sleep, clock=time.monotonic, repo_path: str = "") -> tuple[str, str]:
+    """Poll until this commit's deploy succeeds. Returns ``(status, message)``.
+
+    ``status`` is ``"ok"`` (Workers Builds check run succeeded, or the manual
+    ``deploy-cf.yml`` fallback run succeeded), ``"superseded"`` (the build
+    never ran/was cancelled/skipped and ``main`` is now a descendant of ``sha``
+    -- a failed build is never superseded), or ``"fail"``.
+    """
     deadline = clock() + timeout_secs
-    last = f"no check run named {name!r} on {sha}"
+    last = f"{_describe_wb(name, sha, None)}; no fallback run"
     while True:
         try:
             matches = [r for r in _list_runs(fetch, repo_path, sha) if r.get("name") == name]
-            if matches:
-                run = max(matches, key=lambda r: r.get("id", 0))  # newest rerun wins
-                if run.get("status") == "completed":
-                    if run.get("conclusion") == "success":
-                        return True, f"{name!r} completed successfully on {sha}"
-                    return False, f"{name!r} on {sha} completed with conclusion {run.get('conclusion')!r}"
-                last = f"{name!r} on {sha} is {run.get('status')!r}"
-            else:
-                last = f"no check run named {name!r} on {sha}"
+            wb = max(matches, key=lambda r: r.get("id", 0)) if matches else None  # newest rerun wins
+            fb = _fallback_runs(fetch, repo_path, sha)
+            if wb and wb.get("status") == "completed" and wb.get("conclusion") == "success":
+                return "ok", f"{name!r} completed successfully on {sha}"
+            if any(r.get("status") == "completed" and r.get("conclusion") == "success" for r in fb):
+                return "ok", f"fallback {FALLBACK_WORKFLOW} run completed successfully on {sha}"
+            last = f"{_describe_wb(name, sha, wb)}; {_describe_fb(fb)}"
+            wb_gone = wb is None or (wb.get("status") == "completed"
+                                     and wb.get("conclusion") in ("cancelled", "skipped"))
+            if wb_gone and _is_superseded(fetch, repo_path, sha):
+                return "superseded", (f"superseded: {last}; main is ahead of {sha}, so the newer "
+                                      "commit's own verify run covers the deploy")
         except Exception as exc:  # transient API/network error: keep polling until the deadline
-            last = f"check-runs request failed: {exc}"
+            last = f"request failed: {exc}"
         if clock() >= deadline:
-            return False, f"timed out after {timeout_secs:g}s waiting for {name!r}: {last}"
+            return "fail", f"timed out after {timeout_secs:g}s waiting for {name!r}: {last}"
         print(f"waiting: {last}", flush=True)
         sleep(interval_secs)
 
@@ -85,7 +135,7 @@ def _fetcher(token: str):
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--sha", required=True, help="commit whose build to wait for (40-hex)")
-    ap.add_argument("--name", default=DEFAULT_NAME)
+    ap.add_argument("--name", default=None, help=f"check run name (default: ${NAME_ENV} or the built-in)")
     ap.add_argument("--timeout-secs", type=float, default=1200)
     ap.add_argument("--interval-secs", type=float, default=15)
     args = ap.parse_args(argv)
@@ -97,10 +147,19 @@ def main(argv: list[str] | None = None) -> int:
     if not _SHA1.fullmatch(args.sha):
         print(f"--sha must be a 40-hex commit sha, got {args.sha!r}", file=sys.stderr)
         return 2
-    ok, msg = wait(_fetcher(token), sha=args.sha, name=args.name, timeout_secs=args.timeout_secs,
-                   interval_secs=args.interval_secs, repo_path=f"/repos/{repo}")
-    print(msg, file=sys.stdout if ok else sys.stderr)
-    return 0 if ok else 1
+    status, msg = wait(_fetcher(token), sha=args.sha, name=args.name or default_name(),
+                       timeout_secs=args.timeout_secs, interval_secs=args.interval_secs,
+                       repo_path=f"/repos/{repo}")
+    if status == "superseded":
+        print(f"::notice title=superseded::{msg}")
+        out = os.environ.get("GITHUB_OUTPUT")
+        if out:
+            with open(out, "a", encoding="utf-8") as fh:
+                fh.write("superseded=true\n")
+        print(msg)
+        return 0
+    print(msg, file=sys.stdout if status == "ok" else sys.stderr)
+    return 0 if status == "ok" else 1
 
 
 if __name__ == "__main__":

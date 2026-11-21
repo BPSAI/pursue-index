@@ -1,7 +1,8 @@
 name: Post-deploy verify
 
 # Runs Phase 8 of the site-release runbook after every push to main:
-# waits for THIS commit's "Workers Builds: pursue-index" check run to
+# waits for THIS commit's Workers Builds check run (name: WORKERS_BUILD_CHECK_NAME
+# below) -- or a successful manual deploy-cf.yml fallback run -- to
 # complete successfully, confirms the live site's /deploy-stamp.json names
 # this commit, then HEAD-checks homepage / methodology / sample card pages
 # on pursueindex.com. If anything fails, opens a `deploy-broken` issue.
@@ -32,7 +33,15 @@ on:
 permissions:
   contents: read
   checks: read
+  actions: read   # list deploy-cf.yml fallback runs for this sha
   issues: write
+
+env:
+  # The one place the build's check-run name is defined.
+  WORKERS_BUILD_CHECK_NAME: "Workers Builds: pursue-index"
+  # Inputs reach scripts only through env (never interpolated into run:).
+  BASE_URL: ${{ inputs.base_url || 'https://pursueindex.com' }}
+  MAX_WAIT_SECS: ${{ inputs.max_wait_secs || '600' }}
 
 concurrency:
   # Only one verify per branch at a time; new pushes cancel in-progress
@@ -53,36 +62,44 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Validate dispatch inputs
+        run: python scripts/validate_base_url.py
+
       - name: Report build-wait mode
+        env:
+          SKIP_BUILD_WAIT: ${{ inputs.skip_build_wait || 'false' }}
         run: |
-          echo "event=${{ github.event_name }} skip_build_wait=${{ inputs.skip_build_wait || 'false' }}"
+          echo "event=$GITHUB_EVENT_NAME skip_build_wait=$SKIP_BUILD_WAIT"
 
       - name: Wait for this commit's build
-        # Pushes never skip: the check run on github.sha must complete with
-        # success (a missing run is a failure), so a broken or still-running
-        # build cannot read green.
+        id: wait
+        # Pushes never skip: either the Workers Builds check run or a manual
+        # deploy-cf.yml run on github.sha must complete with success (a missing
+        # run is a failure), so a broken or still-running build cannot read
+        # green. A build superseded by a newer commit reports `superseded`
+        # (exit 0) and the stamp/URL steps below are skipped.
         if: github.event_name != 'workflow_dispatch' || !inputs.skip_build_wait
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python scripts/wait_for_check_run.py \
             --sha "${{ github.sha }}" \
-            --name "Workers Builds: pursue-index" \
             --timeout-secs 1200
 
       - name: Confirm the deployed build is this commit
-        if: github.event_name != 'workflow_dispatch' || !inputs.skip_build_wait
+        if: (github.event_name != 'workflow_dispatch' || !inputs.skip_build_wait) && steps.wait.outputs.superseded != 'true'
         run: |
           python scripts/check_deployed_commit.py \
             --sha "${{ github.sha }}" \
-            --base-url "${{ inputs.base_url || 'https://pursueindex.com' }}" \
+            --base-url "$BASE_URL" \
             --timeout-secs 300
 
       - name: Run verify-deploy
+        if: steps.wait.outputs.superseded != 'true'
         run: |
           python scripts/runbook_verify_deploy.py \
-            --base-url "${{ inputs.base_url || 'https://pursueindex.com' }}" \
-            --max-wait-secs "${{ inputs.max_wait_secs || '600' }}"
+            --base-url "$BASE_URL" \
+            --max-wait-secs "$MAX_WAIT_SECS"
 
       - name: Open issue on failure
         if: failure()
