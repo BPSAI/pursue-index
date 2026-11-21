@@ -26,6 +26,9 @@ $ARGUMENTS
   one. Prefix tests, `make` targets and `scripts/*.py` builders with
   `PYTHONPATH=src` (for example `PYTHONPATH=src make ship-ready`) so they
   import this checkout's code.
+  A fresh `git worktree` also has no `web/node_modules`: run
+  `cd web && npm ci` once before `make ship-ready` or any web test, or the
+  astro build fails with `astro: not found`.
 
 ## Workflow
 
