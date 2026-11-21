@@ -82,9 +82,48 @@ jobs:
         # audit itself fails (registry unreachable) the output is not a valid
         # report and the gate fails closed.
         run: npm audit --omit=dev --json > "$RUNNER_TEMP/audit.json" || true
+      # Pick the gate and its allowlist. On a pull request they are the BASE
+      # commit's copies, written outside the workspace (like tests.yml's
+      # classifier), so a PR cannot loosen the gate or add exemptions and be
+      # judged by its own edits; a change to either takes effect once merged.
+      # First introduction (neither exists at the base) uses the PR's copies.
+      # Exactly one existing at the base, or an unreadable base commit, fails.
+      # Schedule and manual runs use the checked-out copies.
+      - name: Select the gate and allowlist
+        id: inputs
+        if: steps.changes.outputs.audit == 'true'
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          gate=scripts/web_audit_gate.py
+          allow=web/audit-build-only.json
+          if [ "$EVENT" = "pull_request" ]; then
+            git cat-file -e "$BASE_SHA^{commit}" || { echo "::error::base commit $BASE_SHA is not readable"; exit 1; }
+            have_gate=false
+            have_allow=false
+            git cat-file -e "$BASE_SHA:$gate" 2>/dev/null && have_gate=true
+            git cat-file -e "$BASE_SHA:$allow" 2>/dev/null && have_allow=true
+            if [ "$have_gate" = true ] && [ "$have_allow" = true ]; then
+              git show "$BASE_SHA:$gate" > "$RUNNER_TEMP/web_audit_gate_base.py"
+              git show "$BASE_SHA:$allow" > "$RUNNER_TEMP/audit-build-only_base.json"
+              gate="$RUNNER_TEMP/web_audit_gate_base.py"
+              allow="$RUNNER_TEMP/audit-build-only_base.json"
+            elif [ "$have_gate" = false ] && [ "$have_allow" = false ]; then
+              echo "::notice::first introduction of the gate: neither it nor its allowlist exists at the base, so this PR's own copies are used"
+            else
+              echo "::error::exactly one of $gate and $allow exists at the base commit; refusing to fall back to the PR's copy"
+              exit 1
+            fi
+          fi
+          echo "gate=$gate" >> "$GITHUB_OUTPUT"
+          echo "allowlist=$allow" >> "$GITHUB_OUTPUT"
       - name: Gate
         if: steps.changes.outputs.audit == 'true'
-        run: python3 -I scripts/web_audit_gate.py "$RUNNER_TEMP/audit.json" --allowlist web/audit-build-only.json --lockfile web/package-lock.json
+        env:
+          GATE: ${{ steps.inputs.outputs.gate }}
+          ALLOWLIST: ${{ steps.inputs.outputs.allowlist }}
+        run: python3 -I "$GATE" "$RUNNER_TEMP/audit.json" --allowlist "$ALLOWLIST" --lockfile web/package-lock.json
       # The Worker ships at runtime, so there are no build-only exemptions:
       # any high or critical advisory fails.
       - name: npm audit (Worker production dependencies)
@@ -93,4 +132,6 @@ jobs:
         run: npm audit --omit=dev --json > "$RUNNER_TEMP/worker-audit.json" || true
       - name: Gate (Worker, runtime)
         if: steps.changes.outputs.audit == 'true'
-        run: python3 -I scripts/web_audit_gate.py "$RUNNER_TEMP/worker-audit.json" --runtime
+        env:
+          GATE: ${{ steps.inputs.outputs.gate }}
+        run: python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --runtime

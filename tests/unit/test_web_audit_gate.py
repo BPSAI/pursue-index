@@ -672,3 +672,137 @@ def test_invalid_json_is_rejected(tmp_path: Path) -> None:
 def test_a_clean_well_formed_report_still_passes(tmp_path: Path) -> None:
     r = _cli(tmp_path, json.dumps(_report()))
     assert r.returncode == 0, r.stdout
+
+
+# --- the PR runs the BASE ref's gate and allowlist ------------------------
+#
+# A PR that edits scripts/web_audit_gate.py or web/audit-build-only.json must
+# not be judged by its own edits, so the workflow reads both from the base
+# commit, the way tests.yml reads its classifier. These tests run the
+# workflow's own "inputs" step in a throwaway git repository.
+
+import os  # noqa: E402
+import tempfile  # noqa: E402
+
+GATE_PATH = "scripts/web_audit_gate.py"
+ALLOW_PATH = "web/audit-build-only.json"
+
+
+def _inputs_step() -> dict:
+    steps = _wf()["jobs"]["audit"]["steps"]
+    found = [s for s in steps if s.get("id") == "inputs"]
+    assert found, "the workflow needs a step with id 'inputs'"
+    return found[0]
+
+
+def _git(cwd: Path, *args: str) -> str:
+    env = {
+        **os.environ,
+        "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",
+        "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid",
+    }
+    return subprocess.run(
+        ["git", *args], cwd=cwd, env=env, check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+
+def _write(repo: Path, rel: str, text: str) -> None:
+    (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+    (repo / rel).write_text(text, encoding="utf-8")
+
+
+def _run_inputs(event: str, base_files: dict, head_files: dict, base_sha: str | None = None):
+    step = _inputs_step()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp) / "repo"
+        runner_temp = Path(tmp) / "rt"
+        repo.mkdir()
+        runner_temp.mkdir()
+        _git(repo, "init", "-q")
+        _write(repo, "README", "x")
+        for rel, text in base_files.items():
+            _write(repo, rel, text)
+        _git(repo, "add", "-A")
+        _git(repo, "commit", "-q", "-m", "base")
+        sha = _git(repo, "rev-parse", "HEAD")
+        for rel, text in head_files.items():
+            _write(repo, rel, text)
+        _git(repo, "add", "-A")
+        _git(repo, "commit", "-q", "--allow-empty", "-m", "head")
+        out = Path(tmp) / "out"
+        out.write_text("")
+        env = {
+            **os.environ,
+            "EVENT": event,
+            "BASE_SHA": base_sha or sha,
+            "RUNNER_TEMP": str(runner_temp),
+            "GITHUB_OUTPUT": str(out),
+        }
+        r = subprocess.run(
+            ["bash", "-e", "-c", step["run"]], cwd=repo, env=env, capture_output=True, text=True
+        )
+        outputs = dict(
+            line.split("=", 1) for line in out.read_text().splitlines() if "=" in line
+        )
+        copied = {str(p): p.read_text() for p in runner_temp.iterdir()}
+        return r, outputs, copied, runner_temp
+
+
+def test_pr_uses_the_base_copies_not_the_prs_own():
+    r, out, copied, rt = _run_inputs(
+        "pull_request",
+        {GATE_PATH: "BASE GATE", ALLOW_PATH: '{"base": 1}'},
+        {GATE_PATH: "PR GATE (weakened)", ALLOW_PATH: '{"pr": 1}'},
+    )
+    assert r.returncode == 0, r.stderr
+    assert out["gate"].startswith(str(rt)) and out["allowlist"].startswith(str(rt))
+    assert copied[out["gate"]] == "BASE GATE"
+    assert copied[out["allowlist"]] == '{"base": 1}'
+
+
+def test_pr_falls_back_to_its_own_copies_on_first_introduction_only():
+    r, out, _, _ = _run_inputs("pull_request", {}, {GATE_PATH: "G", ALLOW_PATH: "{}"})
+    assert r.returncode == 0, r.stderr
+    assert out["gate"] == GATE_PATH and out["allowlist"] == ALLOW_PATH
+    assert "first introduction" in (r.stdout + r.stderr)
+
+
+@pytest.mark.parametrize("present", [GATE_PATH, ALLOW_PATH])
+def test_pr_fails_when_only_one_of_the_two_exists_at_the_base(present):
+    r, out, _, _ = _run_inputs(
+        "pull_request", {present: "x"}, {GATE_PATH: "G", ALLOW_PATH: "{}"}
+    )
+    assert r.returncode != 0
+    assert "gate" not in out
+
+
+def test_pr_fails_when_the_base_commit_is_unreadable():
+    r, out, _, _ = _run_inputs(
+        "pull_request", {GATE_PATH: "G", ALLOW_PATH: "{}"}, {}, base_sha="0" * 40
+    )
+    assert r.returncode != 0
+
+
+@pytest.mark.parametrize("event", ["schedule", "workflow_dispatch"])
+def test_non_pr_events_use_the_checked_out_copies(event):
+    r, out, copied, _ = _run_inputs(
+        event, {GATE_PATH: "BASE", ALLOW_PATH: "{}"}, {GATE_PATH: "HEAD"}
+    )
+    assert r.returncode == 0, r.stderr
+    assert out["gate"] == GATE_PATH and out["allowlist"] == ALLOW_PATH
+    assert copied == {}
+
+
+def test_the_gate_steps_take_the_selected_paths_through_env():
+    steps = _wf()["jobs"]["audit"]["steps"]
+    gates = [s for s in steps if s.get("name", "").startswith("Gate")]
+    assert len(gates) == 2
+    web, worker = gates
+    assert web["env"]["GATE"] == "${{ steps.inputs.outputs.gate }}"
+    assert web["env"]["ALLOWLIST"] == "${{ steps.inputs.outputs.allowlist }}"
+    assert '"$GATE"' in web["run"] and '"$ALLOWLIST"' in web["run"]
+    assert "--lockfile web/package-lock.json" in web["run"]
+    # The Worker run also uses the selected gate, never the PR's own file.
+    assert worker["env"]["GATE"] == "${{ steps.inputs.outputs.gate }}"
+    assert "scripts/web_audit_gate.py" not in worker["run"]
+    assert "${{" not in web["run"] and "${{" not in worker["run"]
