@@ -762,10 +762,21 @@ jobs:
           # and the tranche-ready record, so its presence on the branch means
           # an earlier tick finished: skip (no regeneration, no PDF fetch, no
           # second verdict comment). A refused earlier tick wrote nothing, so
-          # it is retried here automatically.
-          if [ -f "data/manifests/diffs/${NEW_SHA}.json" ]; then
+          # it is retried here automatically. The record's name carries the
+          # digest of the data/date_resolutions.json entries that apply to
+          # this CSV (diffs/<sha>.r<digest12>.json), so a changed overlay
+          # regenerates; the script decides: exit 0 = up to date, 10 = needs
+          # regeneration, anything else fails the step.
+          rc=0
+          python scripts/poll_snapshot.py --check-up-to-date \
+            --csv "data/raw/csv/${NEW_SHA}.csv" \
+            --diff-out "data/manifests/diffs/${NEW_SHA}.json" || rc=$?
+          if [ "$rc" -eq 0 ]; then
             echo "Snapshot + diff for ${NEW_SHA:0:12} already on ${POLL_BRANCH}; skipping regeneration."
             exit 0
+          elif [ "$rc" -ne 10 ]; then
+            echo "::error::poll_snapshot.py --check-up-to-date failed (exit ${rc})"
+            exit "$rc"
           fi
           python scripts/poll_snapshot.py \
             --csv "data/raw/csv/${NEW_SHA}.csv" \
