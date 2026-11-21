@@ -1,8 +1,7 @@
 """Anthropic vision client for the observation stage.
 
-Mirrors the Anthropic client patterns in ``ocr.llm``: a cached client, a
-system prompt sent with ``cache_control=ephemeral``, and the same 1568px
-longest-edge cap the vision API wants. The model is pinned as a **code
+Mirrors the Anthropic client patterns in ``ocr.llm``: a cached client and the
+same 1568px longest-edge cap the vision API wants. The model is pinned as a **code
 constant** (``VISION_MODEL``), not read from ``.env`` — following the
 judge-model precedent (``clean_qc_cli.DEFAULT_JUDGE_MODEL``): a corpus's
 observation provenance must not silently change with an operator's environment.
@@ -33,6 +32,17 @@ VISION_MODEL = "claude-opus-4-8"
 # Anthropic vision rejects images whose base64 exceeds ~5 MB; cap the longest
 # edge as ``ocr.llm`` does.
 _MAX_IMAGE_EDGE_PX = 1568
+
+# Why the system block carries no ``cache_control`` marker: prompt caching only
+# applies to a prefix of at least 1,024 tokens on claude-opus-4-8 (512 on
+# claude-opus-5-5). ``_SYSTEM_PROMPT`` is about 230 tokens, so a marker would
+# silently do nothing (``cache_creation_input_tokens`` stays 0, no error), and
+# padding the prompt up to the minimum would cost more than it could save. The
+# prompt text is also left as is, because changing it would change the
+# provenance of the observations already made with it. Do not re-add a marker
+# unless the prefix really exceeds the minimum; the ``vision.usage`` log line
+# reports the cache token counts so that can be checked.
+_DEFAULT_MAX_TOKENS = 2048
 
 _SYSTEM_PROMPT = """You are a meticulous vision examiner for declassified U.S. \
 government image releases (photographs, illustrations, composite figures, and \
@@ -90,14 +100,20 @@ def _image_to_b64(img: Image.Image) -> str:
     return base64.standard_b64encode(buf.getvalue()).decode("ascii")
 
 
-def _build_request(image_b64: str, model: str) -> dict[str, Any]:
-    return {
+def _build_request(
+    image_b64: str,
+    model: str,
+    *,
+    max_tokens: int = _DEFAULT_MAX_TOKENS,
+    effort: str | None = None,
+) -> dict[str, Any]:
+    """The request body. ``max_tokens`` and ``effort`` exist for models whose
+    thinking tokens count against ``max_tokens`` (claude-opus-5-5); the pinned
+    model's request is unchanged by leaving them at their defaults."""
+    request: dict[str, Any] = {
         "model": model,
-        "max_tokens": 2048,
-        "system": [
-            {"type": "text", "text": _SYSTEM_PROMPT,
-             "cache_control": {"type": "ephemeral"}},
-        ],
+        "max_tokens": max_tokens,
+        "system": [{"type": "text", "text": _SYSTEM_PROMPT}],
         "messages": [
             {
                 "role": "user",
@@ -110,6 +126,16 @@ def _build_request(image_b64: str, model: str) -> dict[str, Any]:
             }
         ],
     }
+    if effort is not None:
+        request["output_config"] = {"effort": effort}
+    return request
+
+
+def _reply_text(response: Any) -> str:
+    """The reply's text blocks, skipping thinking blocks that may lead it."""
+    texts = [t for b in (response.content or [])
+             if isinstance(t := getattr(b, "text", None), str)]
+    return "".join(texts)
 
 
 def _parse_response(raw: str) -> dict[str, Any]:
@@ -151,16 +177,24 @@ def _usage_dict(usage: Any) -> dict[str, int] | None:
     return {k: int(getattr(usage, k, 0) or 0) for k in keys}
 
 
-def examine_image(img: Image.Image, *, model: str = VISION_MODEL) -> dict[str, Any]:
+def examine_image(
+    img: Image.Image,
+    *,
+    model: str = VISION_MODEL,
+    max_tokens: int = _DEFAULT_MAX_TOKENS,
+    effort: str | None = None,
+) -> dict[str, Any]:
     """Return an examination dict for one image via Anthropic vision.
 
     The dict has ``image_type`` / ``description`` / ``visible_text`` /
     ``observations`` — the page shape ``sidecar.build_sidecar`` consumes. This
     performs a live API call; it is only reached from the ``--live-smoke`` path
-    or an operator-attended bulk run.
+    or an operator-attended bulk run. ``_usage`` and ``_stop_reason`` are
+    metering/diagnostic records, not page data.
     """
     client = _get_anthropic_client()
-    request = _build_request(_image_to_b64(img), model)
+    request = _build_request(_image_to_b64(img), model,
+                             max_tokens=max_tokens, effort=effort)
     log.info("vision.call", model=model)
     response = client.messages.create(**request)
     usage = getattr(response, "usage", None)
@@ -168,10 +202,14 @@ def examine_image(img: Image.Image, *, model: str = VISION_MODEL) -> dict[str, A
         "vision.usage", model=model,
         input_tokens=getattr(usage, "input_tokens", 0),
         output_tokens=getattr(usage, "output_tokens", 0),
+        cache_creation_input_tokens=getattr(usage, "cache_creation_input_tokens", 0) or 0,
+        cache_read_input_tokens=getattr(usage, "cache_read_input_tokens", 0) or 0,
     )
-    raw = response.content[0].text if response.content else ""
-    result = _parse_response(raw)
+    result = _parse_response(_reply_text(response))
     counted = _usage_dict(usage)
     if counted is not None:
         result["_usage"] = counted
+    stop_reason = getattr(response, "stop_reason", None)
+    if stop_reason is not None:
+        result["_stop_reason"] = str(stop_reason)
     return result
