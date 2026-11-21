@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""Decide whether the web app's production dependency audit passes.
+
+Input is the JSON from ``npm audit --omit=dev --json`` (a path, or ``-`` for
+stdin). The allowlist (default ``web/audit-build-only.json``) holds:
+
+``build_only``
+    ``{package: reason}``. Packages whose code runs only while the site is
+    built, never in the browser bundle or the Worker. A high advisory in one
+    of these does not fail the gate.
+
+``accepted_advisories``
+    ``{GHSA id: reason}``. A specific advisory that is known and consciously
+    left open (for example one that is only fixed in a major release). The
+    only way a critical advisory passes.
+
+The gate fails on:
+  * any critical advisory that is not individually accepted;
+  * any high advisory in a package that is not listed as build-only (so a
+    package nobody classified counts as runtime);
+  * an audit report that is missing, empty, errored or malformed.
+
+Moderate and low findings are reported by npm but do not fail the gate.
+
+Exit status: 0 pass, 1 fail.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+
+DEFAULT_ALLOWLIST = Path(__file__).resolve().parents[1] / "web" / "audit-build-only.json"
+
+
+@dataclass
+class Decision:
+    failures: list[str] = field(default_factory=list)
+    build_only: list[str] = field(default_factory=list)
+    accepted: list[str] = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return not self.failures
+
+
+def load_allowlist_data(data: object) -> dict:
+    """Validate allowlist content; every entry needs a non-empty reason."""
+    if not isinstance(data, dict):
+        raise ValueError("allowlist must be a JSON object")
+    out: dict[str, dict[str, str]] = {}
+    for key in ("build_only", "accepted_advisories"):
+        section = data.get(key, {})
+        if not isinstance(section, dict):
+            raise ValueError(f"{key} must map names to reasons")
+        for name, reason in section.items():
+            if not isinstance(reason, str) or not reason.strip():
+                raise ValueError(f"{key}[{name!r}] needs a reason")
+        out[key] = dict(section)
+    return out
+
+
+def load_allowlist(path: Path) -> dict:
+    return load_allowlist_data(json.loads(path.read_text(encoding="utf-8")))
+
+
+def _ghsa(advisory: dict) -> str:
+    url = advisory.get("url")
+    if isinstance(url, str) and url:
+        return url.rstrip("/").rsplit("/", 1)[-1]
+    return str(advisory.get("source", "unknown"))
+
+
+def decide(report: object, allowlist: dict) -> Decision:
+    d = Decision()
+    vulns = report.get("vulnerabilities") if isinstance(report, dict) else None
+    if isinstance(report, dict) and report.get("error"):
+        d.failures.append(f"npm audit reported an error: {report['error']!r}")
+        return d
+    if not isinstance(vulns, dict):
+        d.failures.append("audit report is malformed (no 'vulnerabilities' object)")
+        return d
+
+    build_only = allowlist.get("build_only", {})
+    accepted = allowlist.get("accepted_advisories", {})
+    seen_build_only: set[str] = set()
+    seen_accepted: set[str] = set()
+
+    for name, entry in sorted(vulns.items()):
+        if not isinstance(entry, dict):
+            d.failures.append(f"{name}: malformed entry")
+            continue
+        severity = entry.get("severity")
+        if severity not in ("high", "critical"):
+            continue
+        via = entry.get("via") or []
+        advisories = [v for v in via if isinstance(v, dict)]
+        if not advisories:
+            # Affected only through another package. Covered by that package's
+            # own entry when present; otherwise judge it as a package.
+            sources = [v for v in via if isinstance(v, str)]
+            if sources and all(s in vulns for s in sources):
+                continue
+            advisories = [{"name": name, "severity": severity, "url": None}]
+        for adv in advisories:
+            sev = adv.get("severity")
+            pkg = adv.get("name") or name
+            ghsa = _ghsa(adv)
+            if sev == "critical":
+                if ghsa in accepted:
+                    seen_accepted.add(ghsa)
+                else:
+                    d.failures.append(f"{pkg}: critical advisory {ghsa} is not accepted")
+            elif sev == "high":
+                if ghsa in accepted:
+                    seen_accepted.add(ghsa)
+                elif pkg in build_only:
+                    seen_build_only.add(pkg)
+                else:
+                    d.failures.append(
+                        f"{pkg}: high advisory {ghsa} in a package not classified build-only"
+                        " (treated as runtime)"
+                    )
+    d.build_only = sorted(seen_build_only)
+    d.accepted = sorted(seen_accepted)
+    return d
+
+
+def _read(source: str) -> object:
+    text = sys.stdin.read() if source == "-" else Path(source).read_text(encoding="utf-8")
+    return json.loads(text)
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("audit", help="npm audit --json output file, or - for stdin")
+    ap.add_argument("--allowlist", type=Path, default=DEFAULT_ALLOWLIST)
+    args = ap.parse_args(argv)
+    try:
+        allowlist = load_allowlist(args.allowlist)
+        report = _read(args.audit)
+    except (OSError, ValueError) as exc:  # JSONDecodeError is a ValueError
+        print(f"web-audit gate: FAIL (cannot read input: {exc})")
+        return 1
+    d = decide(report, allowlist)
+    if d.build_only:
+        print("build-only high advisories (allowed): " + ", ".join(d.build_only))
+    if d.accepted:
+        print("accepted advisories: " + ", ".join(d.accepted))
+    if d.ok:
+        print("web-audit gate: PASS")
+        return 0
+    for f in d.failures:
+        print(f"FAIL {f}")
+    print("web-audit gate: FAIL")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

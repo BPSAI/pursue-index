@@ -1,0 +1,47 @@
+name: web-audit
+
+# Production dependency audit for the web app. Fails on a critical advisory
+# that is not individually accepted, and on a high advisory in any package not
+# listed as build-only in web/audit-build-only.json (an unlisted package counts
+# as runtime). The decision lives in scripts/web_audit_gate.py and is unit
+# tested; this workflow only feeds it `npm audit --omit=dev --json`.
+#
+# Runs on every pull request that touches the web app, its audit allowlist or
+# the gate, and weekly. The pull request run is the dependable one: scheduled
+# runs have been dropped by GitHub before, so nothing relies on the schedule
+# alone. Credential-free: read-only token, no secrets.
+on:
+  pull_request:
+    paths:
+      - "web/**"
+      - "scripts/web_audit_gate.py"
+      - ".github/workflows/web-audit.yml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    # Keep this name stable; it is the reported check name.
+    name: web-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - name: npm audit (production dependencies)
+        working-directory: web
+        # npm exits non-zero when it finds anything; the gate decides. If the
+        # audit itself fails (registry unreachable) the output is not a valid
+        # report and the gate fails closed.
+        run: npm audit --omit=dev --json > "$RUNNER_TEMP/audit.json" || true
+      - name: Gate
+        run: python3 -I scripts/web_audit_gate.py "$RUNNER_TEMP/audit.json" --allowlist web/audit-build-only.json
