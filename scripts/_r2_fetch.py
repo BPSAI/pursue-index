@@ -15,8 +15,8 @@ from curl_cffi import requests as cffi_requests
 CHUNK_SIZE = 1 << 20
 
 
-def head_asset(url: Any) -> tuple[int | None, str | None]:
-    """Return (content_length, etag) or (None, None) on failure.
+def head_asset(url: Any) -> tuple[int | None, str | None, str | None]:
+    """Return (content_length, etag, last_modified); all None on failure.
 
     Used as a cheap pre-flight check. ``url`` may be a pydantic ``HttpUrl`` or a
     plain string; we coerce to str so curl_cffi gets a regular string.
@@ -24,12 +24,15 @@ def head_asset(url: Any) -> tuple[int | None, str | None]:
     try:
         resp = cffi_requests.head(str(url), impersonate="chrome", timeout=30)
         if resp.status_code >= 400:
-            return None, None
+            return None, None, None
         cl = resp.headers.get("content-length")
-        etag = resp.headers.get("etag")
-        return (int(cl) if cl else None, etag)
+        return (
+            int(cl) if cl else None,
+            resp.headers.get("etag"),
+            resp.headers.get("last-modified"),
+        )
     except Exception:
-        return None, None
+        return None, None, None
 
 
 def fetch_asset(url: Any, dest: Path) -> tuple[str, int]:
@@ -59,12 +62,24 @@ def last_known_etag(rows: list[dict[str, Any]]) -> str | None:
     return rows[-1].get("upstream_etag") if rows else None
 
 
-def head_identical(rows: list[dict[str, Any]], cl: int | None, etag: str | None) -> bool:
-    """True only when HEAD reports a size and an ETag that both equal the last row's."""
-    return (
-        bool(rows)
-        and cl is not None
-        and etag is not None
-        and cl == last_known_size(rows)
-        and etag == last_known_etag(rows)
-    )
+def head_identical(
+    rows: list[dict[str, Any]],
+    cl: int | None,
+    etag: str | None,
+    last_modified: str | None = None,
+) -> bool:
+    """True only when HEAD agrees with the last row's recorded validators.
+
+    With an ETag on both sides, size and ETag must be equal. Without one, the
+    fallback is Content-Length plus Last-Modified: both present and equal to the
+    values recorded on the last row (a row without Last-Modified cannot use it).
+    """
+    if not rows or cl is None or cl != last_known_size(rows):
+        return False
+    recorded_etag = last_known_etag(rows)
+    if etag is not None and recorded_etag is not None:
+        return etag == recorded_etag
+    if etag is not None or recorded_etag is not None:
+        return False  # one side has an ETag and the other does not: not comparable
+    recorded_lm = rows[-1].get("upstream_last_modified")
+    return last_modified is not None and last_modified == recorded_lm

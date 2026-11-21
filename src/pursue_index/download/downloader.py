@@ -195,23 +195,19 @@ def _failure_reason(exc: BaseException) -> str:
     return f"{type(exc).__name__}: {exc}"
 
 
-async def download_all(
-    manifest: Manifest,
-    refresh_shas: dict[str, str] | None = None,
-    registry_shas: dict[str, str] | None = None,
-) -> list[Path | None]:
-    """Download every asset in the manifest with bounded concurrency.
+NO_REGISTRY_ROW = "no-registry-row"
 
-    ``refresh_shas`` maps ``bytes-changed`` card_ids to the registry's latest sha;
-    those cards are re-fetched and verified even when a local file exists.
-    ``registry_shas`` maps card_ids to the registry's latest PDF sha; a PDF card
-    downloaded for the first time must hash to it.
-    """
-    refresh_shas = refresh_shas or {}
-    registry_shas = registry_shas or {}
-    sem = asyncio.Semaphore(settings.download_concurrency)
-    failed: dict[str, str] = {}
-    headers = {
+
+def _is_unchecked_first_download(card: CardMetadata, kwargs: dict[str, str]) -> bool:
+    """A PDF about to be fetched for the first time with no sha to verify against."""
+    if card.asset_type != "PDF" or kwargs:
+        return False
+    target = asset_path_for(card)
+    return target is not None and not (target.exists() and target.stat().st_size > 0)
+
+
+def _request_headers() -> dict[str, str]:
+    return {
         "User-Agent": settings.scrape_user_agent
         or (
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -219,6 +215,30 @@ async def download_all(
         ),
         "Referer": "https://www.war.gov/UFO/",
     }
+
+
+async def download_all(
+    manifest: Manifest,
+    refresh_shas: dict[str, str] | None = None,
+    registry_shas: dict[str, str] | None = None,
+    outcomes: dict[str, str] | None = None,
+) -> list[Path | None]:
+    """Download every asset in the manifest with bounded concurrency.
+
+    ``refresh_shas`` maps ``bytes-changed`` card_ids to the registry's latest sha;
+    those cards are re-fetched and verified even when a local file exists.
+    ``registry_shas`` maps card_ids to the registry's latest PDF sha; a PDF card
+    downloaded for the first time must hash to it. A PDF with no registry row yet
+    (ingest runs before the daily archive registers it) is downloaded unchecked,
+    warned about, and recorded in ``outcomes`` as ``no-registry-row``; only a row
+    that exists and disagrees with the fetched bytes fails the card.
+    """
+    refresh_shas = refresh_shas or {}
+    outcomes = outcomes if outcomes is not None else {}
+    registry_shas = registry_shas or {}
+    sem = asyncio.Semaphore(settings.download_concurrency)
+    failed: dict[str, str] = {}
+    headers = _request_headers()
 
     async with httpx.AsyncClient(
         timeout=httpx.Timeout(60.0, read=300.0),
@@ -233,8 +253,13 @@ async def download_all(
                     kwargs["expected_sha"] = refresh_shas[card.card_id]
                 elif card.asset_type == "PDF" and card.card_id in registry_shas:
                     kwargs["registry_sha"] = registry_shas[card.card_id]
+                unchecked = _is_unchecked_first_download(card, kwargs)
                 try:
-                    return await _download_one(client, card, **kwargs)
+                    path = await _download_one(client, card, **kwargs)
+                    if unchecked and path is not None:
+                        outcomes[card.card_id] = NO_REGISTRY_ROW
+                        log.warning("download.no_registry_row", card_id=card.card_id)
+                    return path
                 except Exception as exc:  # noqa: BLE001 - one bad card must not abort the gather
                     # Record the card and carry on with the rest.
                     reason = _failure_reason(exc)
@@ -248,7 +273,11 @@ async def download_all(
 
     downloaded = sum(1 for r in results if r is not None)
     log.info(
-        "download.summary", downloaded=downloaded, total=len(manifest.cards), failed=len(failed)
+        "download.summary",
+        downloaded=downloaded,
+        total=len(manifest.cards),
+        failed=len(failed),
+        no_registry_row=sum(1 for v in outcomes.values() if v == NO_REGISTRY_ROW),
     )
     if failed:
         raise DownloadBatchError(failed)

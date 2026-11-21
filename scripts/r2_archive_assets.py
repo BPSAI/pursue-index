@@ -257,11 +257,12 @@ def _process_card(
         return "fail"
 
     rows = registry.get(card.card_id, [])
-    cl, etag = head_asset(card.asset_url)
+    cl, etag, last_modified = head_asset(card.asset_url)
     # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
-    # with the last row on both size and ETag is trusted to skip the fetch, and
+    # with the last row (size + ETag, or size + Last-Modified when there is no
+    # ETag) is trusted to skip the fetch, and
     # then the card is reported as unverified, not unchanged.
-    if not state.full_hash and head_identical(rows, cl, etag):
+    if not state.full_hash and head_identical(rows, cl, etag, last_modified):
         return "head-unchanged"
 
     with tempfile.TemporaryDirectory(prefix="r2-archive-") as tmp:
@@ -275,7 +276,7 @@ def _process_card(
         # Only the LATEST row decides: bytes equal to an older row are a revert.
         if rows and rows[-1].get("byte_sha256") == byte_sha:
             return "unchanged"
-        fetched = (body, byte_sha, size, etag)
+        fetched = (body, byte_sha, size, (etag, last_modified))
         sink = (client, bucket, dry_run, registry_path)
         return _archive_new_bytes(card, rows, fetched, sink, state)
 
@@ -283,12 +284,12 @@ def _process_card(
 def _archive_new_bytes(
     card: Any,
     rows: list[dict[str, Any]],
-    fetched: tuple[Path, str, int, str | None],
+    fetched: tuple[Path, str, int, tuple[str | None, str | None]],
     sink: tuple[Any, str, bool, Path],
     state: RunState,
 ) -> str:
     """PUT the fetched file, append the registry row, and note drift against the latest row."""
-    body, byte_sha, size, etag = fetched
+    body, byte_sha, size, (etag, last_modified) = fetched
     client, bucket, dry_run, registry_path = sink
     archive_key, current_key, content_type = _build_keys(card, byte_sha)
     archive_hit = False
@@ -303,6 +304,7 @@ def _archive_new_bytes(
         "byte_sha256": byte_sha,
         "byte_size": size,
         "upstream_etag": etag,
+        "upstream_last_modified": last_modified,
         "archive_key": archive_key,
         "current_key": current_key,
         "fetched_at": now_iso(),

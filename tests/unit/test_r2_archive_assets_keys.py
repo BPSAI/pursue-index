@@ -122,7 +122,7 @@ def test_process_card_refuses_before_any_fetch_or_put(card, monkeypatch, tmp_pat
 
 
 def test_process_card_uploads_with_mapped_content_type(monkeypatch, tmp_path):
-    monkeypatch.setattr(r2_archive_assets, "head_asset", lambda _url: (None, None))
+    monkeypatch.setattr(r2_archive_assets, "head_asset", lambda _url: (None, None, None))
     monkeypatch.setattr(r2_archive_assets, "fetch_asset", _stub_fetch(b"jpeg-bytes"))
     client = _FakeClient()
     registry_path = tmp_path / "registry.jsonl"

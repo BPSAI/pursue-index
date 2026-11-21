@@ -39,7 +39,7 @@ class World:
         self.tmp = tmp_path
         self.cards: list[dict] = []
         self.rows: list[dict] = []
-        self.head: dict[str, tuple[int | None, str | None]] = {}
+        self.head: dict[str, tuple] = {}
         self.bodies: dict[str, bytes] = {}
         self.fetched: list[str] = []
         self.headed: list[str] = []
@@ -55,7 +55,8 @@ class World:
 
     def _head(self, u):
         self.headed.append(str(u))
-        return self.head.get(str(u), (None, None))
+        got = tuple(self.head.get(str(u), (None, None)))
+        return (*got, None)[:3]  # (content_length, etag, last_modified)
 
     def _fetch(self, u, dest):
         """The streaming seam: write the body to ``dest``; return ``(sha256, size)``."""
@@ -67,7 +68,7 @@ class World:
     def add_card(
         self, n: int, asset_type: str = "PDF", *, prior: bytes | None = None,
         body: bytes = NEW_BODY, ext: str = "pdf", etag: str | None = '"e1"',
-        head_matches_prior: bool = True,
+        head_matches_prior: bool = True, last_modified: str | None = None,
     ) -> str:
         cid, u = card_id(n), url(n, ext)
         self.cards.append({
@@ -79,11 +80,12 @@ class World:
             self.rows.append({
                 "card_id": cid, "asset_url": u, "asset_filename": f"c{n}.{ext}",
                 "byte_sha256": sha(prior), "byte_size": len(prior), "upstream_etag": etag,
+                **({"upstream_last_modified": last_modified} if last_modified else {}),
                 "archive_key": f"archive/{sha(prior)}.{ext}", "current_key": f"{cid}.{ext}",
                 "fetched_at": "2026-05-11T00:00:00+00:00",
             })
             if head_matches_prior:
-                self.head[u] = (len(prior), etag)
+                self.head[u] = (len(prior), etag, last_modified)
         return cid
 
     def write(self) -> None:

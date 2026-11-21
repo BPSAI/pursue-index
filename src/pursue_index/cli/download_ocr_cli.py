@@ -76,11 +76,16 @@ def download_run(
     settings.ensure_dirs()
     m = _scoped_manifest(manifest, worklist)
     refresh = _bytes_changed_shas(worklist)
+    outcomes: dict[str, str] = {}
     try:
-        asyncio.run(download_all(m, refresh_shas=refresh, registry_shas=_registry_shas()))
+        asyncio.run(
+            download_all(m, refresh_shas=refresh, registry_shas=_registry_shas(), outcomes=outcomes)
+        )
     except DownloadBatchError as exc:
         typer.echo(f"download failed for {exc}", err=True)
         raise typer.Exit(code=1) from exc
+    if outcomes:
+        typer.echo(f"no-registry-row: {len(outcomes)} card(s) downloaded unchecked (not yet archived)")
 
 
 ocr_app = typer.Typer(name="ocr", help="OCR downloaded PDFs.")

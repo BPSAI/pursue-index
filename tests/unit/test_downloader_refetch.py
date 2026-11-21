@@ -310,3 +310,63 @@ def test_download_cli_exits_non_zero_naming_each_card(monkeypatch, tmp_path):
     assert result.exit_code == 1
     out = result.output
     assert "aaaa234567890def" in out and "bbbb234567890def" in out
+
+
+# ---- UBV P1-2: ingest does not wait on the archive; only a real mismatch fails ----
+
+
+def _serving(content: bytes):
+    real = httpx.AsyncClient
+    return lambda **kw: real(transport=httpx.MockTransport(lambda r: httpx.Response(200, content=content)), **kw)
+
+
+async def test_no_registry_row_warns_records_and_the_download_succeeds(
+    empty_dir, monkeypatch
+):
+    from structlog.testing import capture_logs
+
+    import pursue_index.download.downloader as dl
+
+    monkeypatch.setattr(dl.httpx, "AsyncClient", _serving(NEW))
+    card, outcomes = _card(), {}
+    with capture_logs() as logs:
+        results = await download_all(
+            type("M", (), {"cards": [card]})(), registry_shas={}, outcomes=outcomes
+        )
+    assert results[0] is not None and results[0].read_bytes() == NEW
+    assert outcomes == {card.card_id: "no-registry-row"}
+    assert any(e["event"] == "download.no_registry_row" and e["log_level"] == "warning" for e in logs)
+    summary = next(e for e in logs if e["event"] == "download.summary")
+    assert summary["no_registry_row"] == 1
+
+
+async def test_a_matching_latest_row_succeeds_with_no_outcome(empty_dir, monkeypatch):
+    import pursue_index.download.downloader as dl
+
+    monkeypatch.setattr(dl.httpx, "AsyncClient", _serving(NEW))
+    card, outcomes = _card(), {}
+    results = await download_all(
+        type("M", (), {"cards": [card]})(), registry_shas={card.card_id: NEW_SHA}, outcomes=outcomes
+    )
+    assert results[0] is not None and outcomes == {}
+
+
+async def test_a_mismatching_latest_row_is_a_per_card_batch_failure(
+    empty_dir, monkeypatch, no_retry_wait
+):
+    import pursue_index.download.downloader as dl
+
+    monkeypatch.setattr(dl.httpx, "AsyncClient", _serving(b"something else"))
+    card = _card()
+    with pytest.raises(DownloadBatchError) as err:
+        await download_all(
+            type("M", (), {"cards": [card]})(), registry_shas={card.card_id: NEW_SHA}
+        )
+    assert list(err.value.failed) == [card.card_id]
+    assert "fetched sha" in err.value.failed[card.card_id]
+
+
+async def test_an_existing_file_with_no_registry_row_is_not_recorded(target, monkeypatch):
+    outcomes = {}
+    await download_all(type("M", (), {"cards": [_card()]})(), registry_shas={}, outcomes=outcomes)
+    assert outcomes == {}
