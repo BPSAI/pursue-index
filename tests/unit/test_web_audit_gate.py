@@ -1,4 +1,4 @@
-"""The web dependency audit gate.
+"""The web dependency audit gate: critical, runtime and build-only verdicts.
 
 ``scripts/web_audit_gate.py`` reads ``npm audit --omit=dev --json`` output and
 fails on any unaccepted critical advisory, and on any high advisory in a
@@ -8,125 +8,28 @@ allowlist counts as runtime.
 
 from __future__ import annotations
 
-import datetime
 import json
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
-import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "scripts" / "web_audit_gate.py"
-ALLOWLIST = ROOT / "web" / "audit-build-only.json"
-FIXTURES = ROOT / "tests" / "fixtures" / "web_audit"
-WEB_LOCK = ROOT / "web" / "package-lock.json"
-REAL_LOCK = json.loads(WEB_LOCK.read_text(encoding="utf-8"))
-WORKFLOW = ROOT / ".github" / "workflows" / "web-audit.yml"
-
-sys.path.insert(0, str(ROOT / "scripts"))
-import web_audit_gate as gate  # noqa: E402
-
-
-def _advisory(name: str, severity: str, ghsa: str = "GHSA-aaaa-bbbb-cccc") -> dict:
-    return {
-        "source": 1,
-        "name": name,
-        "dependency": name,
-        "title": "t",
-        "url": f"https://github.com/advisories/{ghsa}",
-        "severity": severity,
-        "range": "<1",
-    }
-
-
-def _report(*entries: dict) -> dict:
-    counts = {k: 0 for k in ("info", "low", "moderate", "high", "critical")}
-    for e in entries:
-        counts[e["severity"]] = counts.get(e["severity"], 0) + 1
-    counts["total"] = len(entries)
-    return {
-        "auditReportVersion": 2,
-        "vulnerabilities": {e["name"]: e for e in entries},
-        "metadata": {"vulnerabilities": counts},
-    }
-
-
-def _vuln(name: str, severity: str, ghsa: str = "GHSA-aaaa-bbbb-cccc") -> dict:
-    return {
-        "name": name,
-        "severity": severity,
-        "via": [_advisory(name, severity, ghsa)],
-        "effects": [],
-        "range": "<1",
-        "nodes": [f"node_modules/{name}"],
-        "fixAvailable": True,
-    }
-
-
-TODAY = datetime.date(2026, 11, 21)
-
-def _lock(**versions: str) -> dict:
-    """A minimal package-lock.json: one top-level install per name."""
-    pkgs: dict[str, dict] = {"": {"name": "web", "version": "0.0.1"}}
-    for name, version in versions.items():
-        pkgs[f"node_modules/{name}"] = {"version": version}
-    return {"lockfileVersion": 3, "packages": pkgs}
-
-
-LOCK = _lock(postcss="8.5.0", preact="10.0.0", astro="7.0.0", somepkg="1.0.0")
-
-def _graph_lock(roots: dict, pkgs: dict) -> dict:
-    """A lockfile with a dependency graph.
-
-    ``roots`` maps the project's production dependencies to a version;
-    ``pkgs`` maps a lock path (``node_modules/x``) to ``(version, deps)`` where
-    ``deps`` is a list of names, or a dict with ``dependencies``,
-    ``optionalDependencies`` and ``peerDependencies`` lists.
-    """
-    packages: dict[str, dict] = {
-        "": {"name": "web", "version": "0.0.1", "dependencies": {r: "*" for r in roots}}
-    }
-    for key, (version, deps) in pkgs.items():
-        meta: dict = {"version": version}
-        kinds = deps if isinstance(deps, dict) else {"dependencies": deps}
-        for kind, names in kinds.items():
-            meta[kind] = {n: "*" for n in names}
-        packages[key] = meta
-    for r, v in roots.items():
-        packages.setdefault(f"node_modules/{r}", {"version": v})
-    return {"lockfileVersion": 3, "packages": packages}
-
-
-ROOTS_ALLOW = {
-    "build_only": {"postcss@8.5.0": "build time", "nanoid@3.0.0": "build time"},
-    "build_only_roots": {"astro": "the site generator runs only at build time"},
-    "accepted_advisories": {},
-}
-
-
-def _pc(*extra: tuple[str, tuple]) -> dict:
-    """astro (build-only root) -> postcss; plus whatever ``extra`` adds."""
-    pkgs = {
-        "node_modules/astro": ("7.0.0", ["postcss"]),
-        "node_modules/postcss": ("8.5.0", ["nanoid"]),
-        "node_modules/nanoid": ("3.0.0", []),
-        "node_modules/preact": ("10.0.0", []),
-    }
-    pkgs.update(dict(extra))
-    return _graph_lock({"astro": "7.0.0", "preact": "10.0.0"}, pkgs)
-
-
-ALLOW = {
-    "build_only": {"postcss@8.5.0": "bundled at build time, never shipped"},
-    "accepted_advisories": {
-        "GHSA-crit-0000-0000": {
-            "reason": "image optimisation is unused",
-            "review_by": "2099-12-31",
-        }
-    },
-}
+from tests.support.web_audit_support import (
+    ALLOW,
+    ALLOWLIST,
+    LOCK,
+    ROOT,
+    SCRIPT,
+    TODAY,
+    WEB_LOCK,
+    _advisory,
+    _lock,
+    _report,
+    _vuln,
+    _wf,
+    gate,
+)
 
 
 def test_critical_fails():
@@ -204,325 +107,15 @@ def test_package_absent_from_the_lockfile_is_not_exempt():
     assert not d.ok
 
 
-def test_a_bare_name_is_not_a_valid_build_only_key():
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data({"build_only": {"postcss": "reason"}})
+def test_a_bare_name_build_only_key_loads_only_as_the_previous_shape():
+    allow = gate.load_allowlist_data({"build_only": {"postcss": "reason"}})
+    assert any("'postcss'] is a bare package name" in n for n in allow["legacy"])
     with pytest.raises(ValueError):
         gate.load_allowlist_data({"build_only": {"postcss@": "reason"}})
     with pytest.raises(ValueError):
-        gate.load_allowlist_data({"build_only": {"@scope/pkg": "reason"}})
-    gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})
+        gate.load_allowlist_data({"build_only": {"@scope/pkg/x": "reason"}})
+    assert gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})["legacy"] == []
 
-
-# --- a transitive skip needs EVERY path to come from a build-only root.
-
-
-def _roots_decide(lock, pkg="postcss"):
-    return gate.decide(_report(_vuln(pkg, "high")), ROOTS_ALLOW, lock=lock, today=TODAY)
-
-
-def test_reached_only_from_a_build_only_root_is_exempt():
-    assert _roots_decide(_pc()).ok
-
-
-def test_a_runtime_root_reaching_it_directly_makes_it_runtime():
-    lock = _pc(("node_modules/preact", ("10.0.0", ["postcss"])))
-    d = _roots_decide(lock)
-    assert not d.ok
-    assert any("preact" in f and "runtime" in f for f in d.failures)
-
-
-def test_a_deep_transitive_runtime_path_makes_it_runtime():
-    lock = _pc(
-        ("node_modules/preact", ("10.0.0", ["a"])),
-        ("node_modules/a", ("1.0.0", ["b"])),
-        ("node_modules/b", ("1.0.0", ["postcss"])),
-    )
-    assert not _roots_decide(lock).ok
-
-
-def test_a_runtime_path_to_a_transitive_of_the_exempt_package_is_caught():
-    # nanoid is exempt, but preact -> nanoid is a runtime path to it.
-    lock = _pc(("node_modules/preact", ("10.0.0", ["nanoid"])))
-    assert not _roots_decide(lock, pkg="nanoid").ok
-
-
-def test_optional_and_peer_edges_count_as_paths():
-    for kind in ("optionalDependencies", "peerDependencies"):
-        lock = _pc(("node_modules/preact", ("10.0.0", {kind: ["postcss"]})))
-        assert not _roots_decide(lock).ok, kind
-
-
-def test_a_runtime_root_that_is_itself_the_package_is_runtime():
-    allow = {**ROOTS_ALLOW, "build_only": {"preact@10.0.0": "wrongly listed"}}
-    d = gate.decide(_report(_vuln("preact", "high")), allow, lock=_pc(), today=TODAY)
-    assert not d.ok
-
-
-def test_a_nested_copy_is_resolved_the_way_node_does():
-    # preact's own nested postcss shadows the top-level one for preact only.
-    nested = ("node_modules/preact/node_modules/postcss", ("8.5.0", []))
-    on_runtime = _pc(("node_modules/preact", ("10.0.0", ["postcss"])), nested)
-    assert not _roots_decide(on_runtime).ok
-    # With no edge from preact, the nested copy is not reachable from it.
-    off_runtime = _pc(nested)
-    assert _roots_decide(off_runtime).ok
-
-
-def test_without_build_only_roots_nothing_is_exempt():
-    allow = {**ROOTS_ALLOW}
-    allow.pop("build_only_roots")
-    d = gate.decide(_report(_vuln("postcss", "high")), allow, lock=_pc(), today=TODAY)
-    assert not d.ok
-
-
-def test_a_root_that_depends_on_a_package_by_a_missing_lock_entry_is_ignored():
-    lock = _pc(("node_modules/preact", ("10.0.0", ["not-installed"])))
-    assert _roots_decide(lock).ok
-
-
-def test_build_only_roots_need_reasons():
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data({"build_only_roots": {"astro": ""}})
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data({"build_only_roots": ["astro"]})
-
-
-def test_committed_exemptions_are_not_reachable_from_a_runtime_root():
-    allow = gate.load_allowlist(ALLOWLIST)
-    assert allow["build_only_roots"], "the committed allowlist must name its build-only roots"
-    runtime = gate.runtime_roots(REAL_LOCK, allow["build_only_roots"])
-    assert {"preact", "minisearch", "regl-scatterplot", "@preact/signals"} <= set(runtime)
-    for key in allow["build_only"]:
-        name = key.rsplit("@", 1)[0]
-        assert gate.not_build_only(name, allow, REAL_LOCK) is None, key
-
-
-def test_unknown_package_counts_as_runtime():
-    d = gate.decide(_report(_vuln("brand-new-lib", "high")), {"build_only": {}})
-    assert not d.ok
-
-
-def test_moderate_and_low_do_not_fail():
-    d = gate.decide(
-        _report(_vuln("preact", "moderate"), _vuln("minisearch", "low")), ALLOW
-    )
-    assert d.ok
-
-
-def test_transitive_entry_is_covered_by_its_source_package():
-    # @astrojs/mdx is critical only because it depends on astro.
-    mdx = {
-        "name": "@astrojs/mdx",
-        "severity": "critical",
-        "via": ["astro"],
-        "effects": [],
-        "range": "*",
-        "nodes": [],
-        "fixAvailable": False,
-    }
-    astro = _vuln("astro", "critical", "GHSA-crit-0000-0000")
-    assert gate.decide(_report(astro, mdx), ALLOW, lock=LOCK, today=TODAY).ok
-    # With the source unaccepted, the failure is reported on the source.
-    bad = gate.decide(_report(_vuln("astro", "critical"), mdx), ALLOW, lock=LOCK, today=TODAY)
-    assert not bad.ok
-
-
-def test_high_with_only_string_via_and_no_source_fails():
-    orphan = {
-        "name": "ghost",
-        "severity": "high",
-        "via": ["missing"],
-        "effects": [],
-        "range": "*",
-        "nodes": [],
-        "fixAvailable": False,
-    }
-    assert not gate.decide(_report(orphan), ALLOW, lock=LOCK, today=TODAY).ok
-
-
-@pytest.mark.parametrize("sev", ["none", "severe", "HIGH", "", None, 3])
-def test_unknown_severity_fails_closed(sev):
-    entry = _vuln("preact", "low")
-    entry["severity"] = sev
-    d = gate.decide(_report(entry), ALLOW, lock=LOCK, today=TODAY)
-    assert not d.ok
-    assert any("severity" in f for f in d.failures)
-
-
-def test_unknown_severity_on_an_advisory_fails_closed():
-    entry = _vuln("preact", "low")
-    entry["via"][0]["severity"] = "catastrophic"
-    d = gate.decide(_report(entry), ALLOW, lock=LOCK, today=TODAY)
-    assert not d.ok
-
-
-@pytest.mark.parametrize("sev", ["info", "low", "moderate", "high", "critical"])
-def test_every_documented_severity_is_understood(sev):
-    d = gate.decide(_report(_vuln("postcss", sev)), ALLOW, lock=LOCK, today=TODAY)
-    assert not any("severity" in f for f in d.failures)
-
-
-# --- review_by: an accepted advisory is re-reviewed by a date, against a fixed clock.
-
-
-def _accepting(review_by: object) -> dict:
-    return {
-        "build_only": {},
-        "accepted_advisories": {
-            "GHSA-crit-0000-0000": {"reason": "unused path", "review_by": review_by}
-        },
-    }
-
-
-def _accepted_report() -> dict:
-    return _report(_vuln("astro", "critical", "GHSA-crit-0000-0000"))
-
-
-def test_accepted_advisory_passes_before_and_on_its_review_date():
-    allow = _accepting("2026-11-21")
-    assert gate.decide(_accepted_report(), allow, today=datetime.date(2026, 11, 20)).ok
-    assert gate.decide(_accepted_report(), allow, today=datetime.date(2026, 11, 21)).ok
-
-
-def test_accepted_advisory_fails_the_day_after_its_review_date():
-    d = gate.decide(_accepted_report(), _accepting("2026-11-21"), today=datetime.date(2026, 11, 22))
-    assert not d.ok
-    assert any("GHSA-crit-0000-0000" in f and "review_by" in f for f in d.failures)
-
-
-def test_an_expired_acceptance_fails_even_when_the_advisory_is_absent():
-    d = gate.decide(_report(), _accepting("2026-01-01"), today=TODAY)
-    assert not d.ok
-
-
-@pytest.mark.parametrize("bad", [None, "", "soon", "2026-13-01", "21-11-2026", 20261121])
-def test_allowlist_rejects_a_missing_or_malformed_review_by(bad):
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data(_accepting(bad))
-    entry = {"reason": "unused path"}
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data({"accepted_advisories": {"GHSA-x": entry}})
-
-
-def test_a_bare_string_acceptance_is_rejected():
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data({"accepted_advisories": {"GHSA-x": "just a reason"}})
-
-
-def test_empty_report_passes():
-    assert gate.decide({"auditReportVersion": 2, "vulnerabilities": {}}, ALLOW, lock=LOCK, today=TODAY).ok
-
-
-@pytest.mark.parametrize(
-    "bad",
-    [
-        {},
-        {"error": {"code": "ENOAUDIT", "summary": "registry unreachable"}},
-        {"vulnerabilities": []},
-        [],
-        "x",
-    ],
-)
-def test_malformed_or_errored_report_fails_closed(bad):
-    d = gate.decide(bad, ALLOW, lock=LOCK, today=TODAY)
-    assert not d.ok
-
-
-def test_allowlist_requires_a_reason_for_each_entry():
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data({"build_only": {"x": ""}})
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data(
-            {"accepted_advisories": {"GHSA-x": {"reason": "  ", "review_by": "2027-01-01"}}}
-        )
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data({"build_only": ["x"]})
-
-
-def test_recorded_report_before_upgrade_fails_without_allowlist():
-    report = json.loads((FIXTURES / "audit_before.json").read_text())
-    d = gate.decide(report, {"build_only": {}})
-    assert not d.ok
-    failing = " ".join(d.failures)
-    assert "astro" in failing and "vite" in failing and "sharp" in failing
-
-
-def test_committed_allowlist_passes_the_current_report():
-    allow = gate.load_allowlist(ALLOWLIST)
-    report = json.loads((FIXTURES / "audit_astro7.json").read_text())
-    d = gate.decide(report, allow, lock=REAL_LOCK, today=TODAY)
-    assert d.ok, d.failures
-    assert d.accepted == []
-
-
-def test_the_avif_advisory_is_no_longer_accepted():
-    # astro 7 fixes GHSA-26w7-cxv4-gfx2, so the acceptance is gone: the same
-    # advisory reappearing (a downgrade) must fail the gate.
-    allow = gate.load_allowlist(ALLOWLIST)
-    assert "GHSA-26w7-cxv4-gfx2" not in allow["accepted_advisories"]
-    report = json.loads((FIXTURES / "audit_after.json").read_text())
-    d = gate.decide(report, allow, lock=REAL_LOCK, today=TODAY)
-    assert not d.ok
-    assert any("GHSA-26w7-cxv4-gfx2" in f for f in d.failures)
-
-
-def test_cli_exit_codes(tmp_path):
-    good = tmp_path / "good.json"
-    good.write_text(json.dumps(_report(_vuln("postcss", "high"))))
-    bad = tmp_path / "bad.json"
-    bad.write_text(json.dumps(_report(_vuln("preact", "high"))))
-    allow = tmp_path / "allow.json"
-    allow.write_text(json.dumps(ALLOW))
-    lock = tmp_path / "lock.json"
-    lock.write_text(json.dumps(LOCK))
-
-    def run(p):
-        return subprocess.run(
-            [sys.executable, "-I", str(SCRIPT), str(p), "--allowlist", str(allow),
-             "--lockfile", str(lock)],
-            capture_output=True,
-            text=True,
-        )
-
-    assert run(good).returncode == 0
-    r = run(bad)
-    assert r.returncode == 1
-    assert "preact" in r.stdout
-    # An unreadable report is unusable, like invalid JSON: exit 2, never a pass.
-    assert run(tmp_path / "missing.json").returncode == 2
-    empty = tmp_path / "empty.json"
-    empty.write_text("")
-    assert run(empty).returncode == 2
-
-
-def test_cli_fails_when_the_lockfile_is_unreadable(tmp_path):
-    allow = tmp_path / "allow.json"
-    allow.write_text(json.dumps(ALLOW))
-    rep = tmp_path / "rep.json"
-    rep.write_text(json.dumps(_report()))
-    r = subprocess.run(
-        [sys.executable, "-I", str(SCRIPT), str(rep), "--allowlist", str(allow),
-         "--lockfile", str(tmp_path / "nope.json")],
-        capture_output=True, text=True,
-    )
-    assert r.returncode == 1
-    assert "lockfile" in r.stdout
-
-
-def test_cli_reads_stdin(tmp_path):
-    allow = tmp_path / "allow.json"
-    allow.write_text(json.dumps(ALLOW))
-    lock = tmp_path / "lock.json"
-    lock.write_text(json.dumps(LOCK))
-    r = subprocess.run(
-        [sys.executable, "-I", str(SCRIPT), "-", "--allowlist", str(allow),
-         "--lockfile", str(lock)],
-        input=json.dumps(_report(_vuln("preact", "high"))),
-        capture_output=True,
-        text=True,
-    )
-    assert r.returncode == 1
 
 
 # --- the Worker is runtime: any high or critical fails, nothing is exempt.
@@ -578,56 +171,18 @@ def test_workflow_audits_the_worker_with_the_runtime_gate():
     worker = [st for st in steps if st.get("working-directory") == "worker"]
     assert worker and "npm audit --omit=dev --json" in worker[0]["run"]
     assert any("--runtime" in st["run"] and "worker-audit.json" in st["run"] for st in steps)
-    # No exemptions: the runtime step never takes the build-only allowlist.
+    # No exemptions: the runtime step never takes the build-only allowlist. Only
+    # a gate that predates --runtime gets an allowlist, and that one is empty.
     runtime_step = next(st for st in steps if "--runtime" in st["run"])
-    assert "--allowlist" not in runtime_step["run"]
+    run = runtime_step["run"]
+    assert "ALLOWLIST" not in run and "audit-build-only" not in run
+    assert "--runtime" in run.split("else")[0] and "--allowlist" not in run.split("else")[0]
+    assert "echo '{}'" in run
 
 
 def test_the_worker_has_a_lockfile_for_the_audit():
     assert (ROOT / "worker" / "package-lock.json").is_file()
 
-
-# --- workflow shape -------------------------------------------------------
-
-
-def _wf() -> dict:
-    return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
-
-
-def _on(data: dict) -> dict:
-    # YAML 1.1 reads a bare `on:` key as boolean True.
-    return data.get("on", data.get(True))
-
-
-def test_workflow_runs_on_every_pr_and_weekly():
-    on = _on(_wf())
-    assert "pull_request" in on
-    # No paths filter: see tests/unit/test_web_audit_paths_changed.py.
-    assert not on["pull_request"] or "paths" not in on["pull_request"]
-    crons = [s["cron"] for s in on["schedule"]]
-    assert crons and all(len(c.split()) == 5 for c in crons)
-    assert "workflow_dispatch" in on
-
-
-def test_workflow_is_read_only_and_secretless():
-    text = WORKFLOW.read_text(encoding="utf-8")
-    data = _wf()
-    assert data["permissions"] == {"contents": "read"}
-    assert "${{ secrets" not in text
-    assert "persist-credentials: false" in text
-
-
-def test_workflow_check_name_is_stable():
-    data = _wf()
-    assert data["name"] == "web-audit"
-    assert list(data["jobs"]) == ["audit"]
-    assert data["jobs"]["audit"]["name"] == "web-audit"
-
-
-def test_workflow_runs_the_gate_on_npm_audit_json():
-    text = WORKFLOW.read_text(encoding="utf-8")
-    assert "npm audit --omit=dev --json" in text
-    assert "web_audit_gate.py" in text
 
 
 # --- An unusable audit report is rejected (exit 2), never read as zero findings.
@@ -672,137 +227,3 @@ def test_invalid_json_is_rejected(tmp_path: Path) -> None:
 def test_a_clean_well_formed_report_still_passes(tmp_path: Path) -> None:
     r = _cli(tmp_path, json.dumps(_report()))
     assert r.returncode == 0, r.stdout
-
-
-# --- the PR runs the BASE ref's gate and allowlist ------------------------
-#
-# A PR that edits scripts/web_audit_gate.py or web/audit-build-only.json must
-# not be judged by its own edits, so the workflow reads both from the base
-# commit, the way tests.yml reads its classifier. These tests run the
-# workflow's own "inputs" step in a throwaway git repository.
-
-import os  # noqa: E402
-import tempfile  # noqa: E402
-
-GATE_PATH = "scripts/web_audit_gate.py"
-ALLOW_PATH = "web/audit-build-only.json"
-
-
-def _inputs_step() -> dict:
-    steps = _wf()["jobs"]["audit"]["steps"]
-    found = [s for s in steps if s.get("id") == "inputs"]
-    assert found, "the workflow needs a step with id 'inputs'"
-    return found[0]
-
-
-def _git(cwd: Path, *args: str) -> str:
-    env = {
-        **os.environ,
-        "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",
-        "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid",
-    }
-    return subprocess.run(
-        ["git", *args], cwd=cwd, env=env, check=True, capture_output=True, text=True
-    ).stdout.strip()
-
-
-def _write(repo: Path, rel: str, text: str) -> None:
-    (repo / rel).parent.mkdir(parents=True, exist_ok=True)
-    (repo / rel).write_text(text, encoding="utf-8")
-
-
-def _run_inputs(event: str, base_files: dict, head_files: dict, base_sha: str | None = None):
-    step = _inputs_step()
-    with tempfile.TemporaryDirectory() as tmp:
-        repo = Path(tmp) / "repo"
-        runner_temp = Path(tmp) / "rt"
-        repo.mkdir()
-        runner_temp.mkdir()
-        _git(repo, "init", "-q")
-        _write(repo, "README", "x")
-        for rel, text in base_files.items():
-            _write(repo, rel, text)
-        _git(repo, "add", "-A")
-        _git(repo, "commit", "-q", "-m", "base")
-        sha = _git(repo, "rev-parse", "HEAD")
-        for rel, text in head_files.items():
-            _write(repo, rel, text)
-        _git(repo, "add", "-A")
-        _git(repo, "commit", "-q", "--allow-empty", "-m", "head")
-        out = Path(tmp) / "out"
-        out.write_text("")
-        env = {
-            **os.environ,
-            "EVENT": event,
-            "BASE_SHA": base_sha or sha,
-            "RUNNER_TEMP": str(runner_temp),
-            "GITHUB_OUTPUT": str(out),
-        }
-        r = subprocess.run(
-            ["bash", "-e", "-c", step["run"]], cwd=repo, env=env, capture_output=True, text=True
-        )
-        outputs = dict(
-            line.split("=", 1) for line in out.read_text().splitlines() if "=" in line
-        )
-        copied = {str(p): p.read_text() for p in runner_temp.iterdir()}
-        return r, outputs, copied, runner_temp
-
-
-def test_pr_uses_the_base_copies_not_the_prs_own():
-    r, out, copied, rt = _run_inputs(
-        "pull_request",
-        {GATE_PATH: "BASE GATE", ALLOW_PATH: '{"base": 1}'},
-        {GATE_PATH: "PR GATE (weakened)", ALLOW_PATH: '{"pr": 1}'},
-    )
-    assert r.returncode == 0, r.stderr
-    assert out["gate"].startswith(str(rt)) and out["allowlist"].startswith(str(rt))
-    assert copied[out["gate"]] == "BASE GATE"
-    assert copied[out["allowlist"]] == '{"base": 1}'
-
-
-def test_pr_falls_back_to_its_own_copies_on_first_introduction_only():
-    r, out, _, _ = _run_inputs("pull_request", {}, {GATE_PATH: "G", ALLOW_PATH: "{}"})
-    assert r.returncode == 0, r.stderr
-    assert out["gate"] == GATE_PATH and out["allowlist"] == ALLOW_PATH
-    assert "first introduction" in (r.stdout + r.stderr)
-
-
-@pytest.mark.parametrize("present", [GATE_PATH, ALLOW_PATH])
-def test_pr_fails_when_only_one_of_the_two_exists_at_the_base(present):
-    r, out, _, _ = _run_inputs(
-        "pull_request", {present: "x"}, {GATE_PATH: "G", ALLOW_PATH: "{}"}
-    )
-    assert r.returncode != 0
-    assert "gate" not in out
-
-
-def test_pr_fails_when_the_base_commit_is_unreadable():
-    r, out, _, _ = _run_inputs(
-        "pull_request", {GATE_PATH: "G", ALLOW_PATH: "{}"}, {}, base_sha="0" * 40
-    )
-    assert r.returncode != 0
-
-
-@pytest.mark.parametrize("event", ["schedule", "workflow_dispatch"])
-def test_non_pr_events_use_the_checked_out_copies(event):
-    r, out, copied, _ = _run_inputs(
-        event, {GATE_PATH: "BASE", ALLOW_PATH: "{}"}, {GATE_PATH: "HEAD"}
-    )
-    assert r.returncode == 0, r.stderr
-    assert out["gate"] == GATE_PATH and out["allowlist"] == ALLOW_PATH
-    assert copied == {}
-
-
-def test_the_gate_steps_take_the_selected_paths_through_env():
-    steps = _wf()["jobs"]["audit"]["steps"]
-    gates = [s for s in steps if s.get("name", "").startswith("Gate")]
-    assert len(gates) == 2
-    web, worker = gates
-    assert web["env"]["GATE"] == "${{ steps.inputs.outputs.gate }}"
-    assert web["env"]["ALLOWLIST"] == "${{ steps.inputs.outputs.allowlist }}"
-    assert '"$GATE"' in web["run"] and '"$ALLOWLIST"' in web["run"]
-    assert "--lockfile web/package-lock.json" in web["run"]
-    # The Worker run also uses the selected gate, never the PR's own file.
-    assert worker["env"]["GATE"] == "${{ steps.inputs.outputs.gate }}"
-    assert "scripts/web_audit_gate.py" not in worker["run"]
-    assert "${{" not in web["run"] and "${{" not in worker["run"]

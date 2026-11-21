@@ -107,6 +107,12 @@ jobs:
             if [ "$have_gate" = true ] && [ "$have_allow" = true ]; then
               git show "$BASE_SHA:$gate" > "$RUNNER_TEMP/web_audit_gate_base.py"
               git show "$BASE_SHA:$allow" > "$RUNNER_TEMP/audit-build-only_base.json"
+              # The gate loads its helpers (scripts/_web_audit_*.py) from beside
+              # itself, so the base's copies go next to the base's gate. A base
+              # from before they existed has none, and its gate needs none.
+              for helper in $(git ls-tree --name-only "$BASE_SHA" scripts/ | grep -E '^scripts/_web_audit_[a-z_]+\.py$' || true); do
+                git show "$BASE_SHA:$helper" > "$RUNNER_TEMP/$(basename "$helper")"
+              done
               gate="$RUNNER_TEMP/web_audit_gate_base.py"
               allow="$RUNNER_TEMP/audit-build-only_base.json"
             elif [ "$have_gate" = false ] && [ "$have_allow" = false ]; then
@@ -118,12 +124,24 @@ jobs:
           fi
           echo "gate=$gate" >> "$GITHUB_OUTPUT"
           echo "allowlist=$allow" >> "$GITHUB_OUTPUT"
+      # The selected gate can be a release older than this workflow (a PR that
+      # upgrades the gate is judged by the base's gate), so what to pass it
+      # depends on what it understands, read from its --help. A gate that
+      # predates --lockfile checks names only, and one that predates --runtime
+      # gets an allowlist with no exemptions, which is the same rule.
       - name: Gate
         if: steps.changes.outputs.audit == 'true'
         env:
           GATE: ${{ steps.inputs.outputs.gate }}
           ALLOWLIST: ${{ steps.inputs.outputs.allowlist }}
-        run: python3 -I "$GATE" "$RUNNER_TEMP/audit.json" --allowlist "$ALLOWLIST" --lockfile web/package-lock.json
+        run: |
+          args=()
+          if python3 -I "$GATE" --help | grep -q -e '--lockfile'; then
+            args=(--lockfile web/package-lock.json)
+          else
+            echo "::notice::the selected gate predates --lockfile; running it without the lockfile check"
+          fi
+          python3 -I "$GATE" "$RUNNER_TEMP/audit.json" --allowlist "$ALLOWLIST" "${args[@]}"
       # The Worker ships at runtime, so there are no build-only exemptions:
       # any high or critical advisory fails.
       - name: npm audit (Worker production dependencies)
@@ -134,4 +152,11 @@ jobs:
         if: steps.changes.outputs.audit == 'true'
         env:
           GATE: ${{ steps.inputs.outputs.gate }}
-        run: python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --runtime
+        run: |
+          if python3 -I "$GATE" --help | grep -q -e '--runtime'; then
+            python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --runtime
+          else
+            echo "::notice::the selected gate predates --runtime; running it with an allowlist that exempts nothing"
+            echo '{}' > "$RUNNER_TEMP/no-exemptions.json"
+            python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --allowlist "$RUNNER_TEMP/no-exemptions.json"
+          fi

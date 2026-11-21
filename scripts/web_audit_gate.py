@@ -39,80 +39,50 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import importlib.util
 import json
-import re
 import sys
-from dataclasses import dataclass, field
 from pathlib import Path
+
+
+def _load_sibling(name: str):
+    """Import the helper module that sits next to this file.
+
+    The gate runs as a bare ``python3 -I`` (no script directory on sys.path),
+    and the workflow runs a copy of the base commit's gate from a temp
+    directory with its helper beside it. Loaded by path, so nothing else in
+    that directory can shadow a standard-library import.
+    """
+    spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name(f"{name}.py"))
+    if spec is None or spec.loader is None:
+        raise ImportError(f"cannot load {name} next to {__file__}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_graph = _load_sibling("_web_audit_graph")
+_allow = _load_sibling("_web_audit_allowlist")
+_report = _load_sibling("_web_audit_report")
+Decision = _report.Decision
+KNOWN_SEVERITIES = _report.KNOWN_SEVERITIES
+decide_runtime = _report.decide_runtime
+unusable_report = _report.unusable_report
+read_report = _report.read_report
+_review_date = _allow.review_date
+load_allowlist_data = _allow.load_allowlist_data
+load_allowlist = _allow.load_allowlist
+installed_copies = _graph.installed_copies
+runtime_roots = _graph.runtime_roots
+not_build_only = _graph.not_build_only
 
 # Relative to the working directory: the workflow runs this from the repo root
 # with a bare `python3 -I` (no package install), so it must not import the
 # project package, and it must not derive a repo root from its own __file__.
 # CI passes --allowlist explicitly.
-KNOWN_SEVERITIES = ("info", "low", "moderate", "high", "critical")
 DEFAULT_ALLOWLIST = Path("web") / "audit-build-only.json"
 DEFAULT_LOCKFILE = Path("web") / "package-lock.json"
-
-
-@dataclass
-class Decision:
-    failures: list[str] = field(default_factory=list)
-    build_only: list[str] = field(default_factory=list)
-    accepted: list[str] = field(default_factory=list)
-
-    @property
-    def ok(self) -> bool:
-        return not self.failures
-
-
-def _review_date(value: object, where: str) -> datetime.date:
-    if not isinstance(value, str):
-        raise ValueError(f"{where} needs a review_by date (YYYY-MM-DD)")
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
-        raise ValueError(f"{where} review_by must be a YYYY-MM-DD date, got {value!r}")
-    try:
-        return datetime.date.fromisoformat(value)
-    except ValueError:
-        raise ValueError(f"{where} review_by is not a real date: {value!r}") from None
-
-
-def load_allowlist_data(data: object) -> dict:
-    """Validate allowlist content.
-
-    ``build_only`` entries need a non-empty reason. ``accepted_advisories``
-    entries are ``{"reason": ..., "review_by": "YYYY-MM-DD"}``; both fields are
-    required, so an acceptance can't sit forever without a re-review.
-    """
-    if not isinstance(data, dict):
-        raise ValueError("allowlist must be a JSON object")
-    out: dict[str, dict] = {}
-    for key in ("build_only", "build_only_roots", "accepted_advisories"):
-        section = data.get(key, {})
-        if not isinstance(section, dict):
-            raise ValueError(f"{key} must map names to reasons")
-        for name, entry in section.items():
-            if key == "build_only_roots":
-                if not isinstance(entry, str) or not entry.strip():
-                    raise ValueError(f"{key}[{name!r}] needs a reason")
-                continue
-            if key == "build_only":
-                if not re.fullmatch(r"(@[^/@\s]+/)?[^/@\s]+@[^@\s]+", name):
-                    raise ValueError(f"{key}[{name!r}] must be an exact name@version")
-                if not isinstance(entry, str) or not entry.strip():
-                    raise ValueError(f"{key}[{name!r}] needs a reason")
-                continue
-            if not isinstance(entry, dict):
-                raise ValueError(f"{key}[{name!r}] must be an object with reason and review_by")
-            reason = entry.get("reason")
-            if not isinstance(reason, str) or not reason.strip():
-                raise ValueError(f"{key}[{name!r}] needs a reason")
-            _review_date(entry.get("review_by"), f"{key}[{name!r}]")
-        out[key] = dict(section)
-    return out
-
-
-def load_allowlist(path: Path) -> dict:
-    return load_allowlist_data(json.loads(path.read_text(encoding="utf-8")))
 
 
 def _ghsa(advisory: dict) -> str:
@@ -122,81 +92,77 @@ def _ghsa(advisory: dict) -> str:
     return str(advisory.get("source", "unknown"))
 
 
-def installed_copies(lock: dict | None, name: str) -> list[tuple[str, str]]:
-    """``(lock path, version)`` for every production copy of ``name`` installed."""
-    packages = (lock or {}).get("packages")
-    if not isinstance(packages, dict):
-        return []
+def _expired_acceptances(accepted: dict, today: datetime.date) -> list[str]:
+    """An expired acceptance fails whether or not the advisory is present: it
+    is a prompt to re-decide, and a stale line is a liability. A legacy plain
+    reason string has no date and never expires."""
     out = []
-    for key, meta in packages.items():
-        if not isinstance(meta, dict) or meta.get("dev"):
+    for ghsa, entry in sorted(accepted.items()):
+        if isinstance(entry, str):
             continue
-        if key == f"node_modules/{name}" or key.endswith(f"/node_modules/{name}"):
-            out.append((key, str(meta.get("version", ""))))
-    return sorted(out)
-
-
-_EDGE_KINDS = ("dependencies", "optionalDependencies", "peerDependencies")
-
-
-def _resolve(packages: dict, frm: str, dep: str) -> str | None:
-    """The lock path ``dep`` resolves to from ``frm``, the way node looks it up."""
-    base = frm
-    while True:
-        cand = f"{base}/node_modules/{dep}" if base else f"node_modules/{dep}"
-        if cand in packages:
-            return cand
-        if not base:
-            return None
-        base = base[: base.rfind("node_modules/")].rstrip("/")
-
-
-def _reachable(packages: dict, start: str) -> set[str]:
-    """Lock paths reachable from ``start`` over production, optional and peer edges."""
-    seen: set[str] = set()
-    todo = [start]
-    while todo:
-        key = todo.pop()
-        meta = packages.get(key)
-        if key in seen or not isinstance(meta, dict):
+        try:
+            due = _review_date(entry.get("review_by") if isinstance(entry, dict) else None, ghsa)
+        except ValueError as exc:
+            out.append(f"{ghsa}: {exc}")
             continue
-        seen.add(key)
-        for kind in _EDGE_KINDS:
-            for dep in meta.get(kind) or {}:
-                nxt = _resolve(packages, key, dep)
-                if nxt is not None:
-                    todo.append(nxt)
-    return seen
+        if today > due:
+            out.append(f"{ghsa}: acceptance is past its review_by date {due.isoformat()}")
+    return out
 
 
-def runtime_roots(lock: dict | None, build_only_roots: dict) -> list[str]:
-    """Production dependencies of the project that are not listed build-only."""
-    root = ((lock or {}).get("packages") or {}).get("")
-    if not isinstance(root, dict):
+def _entry_advisories(name: str, entry: dict, vulns: dict, d: Decision) -> list[dict]:
+    """The advisories of one report entry that need a verdict.
+
+    Empty when the entry is harmless or already covered. Fail closed on an
+    unknown severity, on the entry or on any advisory under it.
+    """
+    severity = entry.get("severity")
+    if not isinstance(severity, str) or severity not in KNOWN_SEVERITIES:
+        d.failures.append(f"{name}: unknown severity {severity!r}")
         return []
-    names = set(root.get("dependencies") or {}) | set(root.get("optionalDependencies") or {})
-    return sorted(n for n in names if n not in build_only_roots)
+    via = entry.get("via") or []
+    unknown = [
+        a for a in via
+        if isinstance(a, dict)
+        and (not isinstance(a.get("severity"), str) or a["severity"] not in KNOWN_SEVERITIES)
+    ]
+    for a in unknown:
+        d.failures.append(f"{name}: unknown severity {a.get('severity')!r} on an advisory")
+    if unknown or severity not in ("high", "critical"):
+        return []
+    advisories = [v for v in via if isinstance(v, dict)]
+    if advisories:
+        return advisories
+    # Affected only through another package. Covered by that package's own
+    # entry when present; otherwise judge it as a package.
+    sources = [v for v in via if isinstance(v, str)]
+    if sources and all(s in vulns for s in sources):
+        return []
+    return [{"name": name, "severity": severity, "url": None}]
 
 
-def not_build_only(name: str, allowlist: dict, lock: dict | None) -> str | None:
-    """None if ``name`` is build-only: every installed copy is exempted by exact
-    version, and no dependency path from a runtime root reaches any copy."""
-    build_only = allowlist.get("build_only", {})
-    packages = (lock or {}).get("packages")
-    if not isinstance(packages, dict) or not isinstance(packages.get(""), dict):
-        return "no usable lockfile to verify the dependency paths"
-    copies = installed_copies(lock, name)
-    if not copies:
-        return "no installed copy found in the lockfile"
-    unlisted = sorted({f"{name}@{v}" for _, v in copies if f"{name}@{v}" not in build_only})
-    if unlisted:
-        return "installed " + ", ".join(unlisted) + " is not listed as build-only"
-    keys = {k for k, _ in copies}
-    for root in runtime_roots(lock, allowlist.get("build_only_roots", {})):
-        start = f"node_modules/{root}"
-        if start in packages and keys & _reachable(packages, start):
-            return f"reachable from the runtime dependency {root}"
-    return None
+def _judge_advisory(adv: dict, name: str, allowlist: dict, lock: dict | None, d: Decision) -> None:
+    sev = adv.get("severity")
+    pkg = adv.get("name") or name
+    ghsa = _ghsa(adv)
+    if ghsa in allowlist.get("accepted_advisories", {}):
+        _add(d.accepted, ghsa)
+    elif sev == "critical":
+        d.failures.append(f"{pkg}: critical advisory {ghsa} is not accepted")
+    elif sev == "high":
+        why = not_build_only(pkg, allowlist, lock)
+        if why is None:
+            _add(d.build_only, pkg)
+        else:
+            d.failures.append(
+                f"{pkg}: high advisory {ghsa} in a package not classified"
+                f" build-only (treated as runtime): {why}"
+            )
+
+
+def _add(items: list[str], item: str) -> None:
+    if item not in items:
+        items.append(item)
 
 
 def decide(
@@ -206,138 +172,31 @@ def decide(
     today: datetime.date | None = None,
 ) -> Decision:
     d = Decision()
-    today = today or datetime.date.today()
-    vulns = report.get("vulnerabilities") if isinstance(report, dict) else None
     if isinstance(report, dict) and report.get("error"):
         d.failures.append(f"npm audit reported an error: {report['error']!r}")
         return d
+    vulns = report.get("vulnerabilities") if isinstance(report, dict) else None
     if not isinstance(vulns, dict):
         d.failures.append("audit report is malformed (no 'vulnerabilities' object)")
         return d
-
-    build_only = allowlist.get("build_only", {})
-    accepted = allowlist.get("accepted_advisories", {})
-    for ghsa, entry in sorted(accepted.items()):
-        # An expired acceptance fails whether or not the advisory is present:
-        # it is a prompt to re-decide, and a stale line is a liability.
-        try:
-            due = _review_date(entry.get("review_by") if isinstance(entry, dict) else None, ghsa)
-        except ValueError as exc:
-            d.failures.append(f"{ghsa}: {exc}")
-            continue
-        if today > due:
-            d.failures.append(f"{ghsa}: acceptance is past its review_by date {due.isoformat()}")
-    seen_build_only: set[str] = set()
-    seen_accepted: set[str] = set()
-
+    d.legacy = list(allowlist.get("legacy", []))
+    d.failures.extend(
+        _expired_acceptances(allowlist.get("accepted_advisories", {}), today or datetime.date.today())
+    )
     for name, entry in sorted(vulns.items()):
         if not isinstance(entry, dict):
             d.failures.append(f"{name}: malformed entry")
             continue
-        severity = entry.get("severity")
-        if not isinstance(severity, str) or severity not in KNOWN_SEVERITIES:
-            # Fail closed: a severity npm adds later must not read as harmless.
-            d.failures.append(f"{name}: unknown severity {severity!r}")
-            continue
-        via = entry.get("via") or []
-        unknown_adv = [
-            a for a in via
-            if isinstance(a, dict)
-            and (not isinstance(a.get("severity"), str) or a["severity"] not in KNOWN_SEVERITIES)
-        ]
-        for a in unknown_adv:
-            d.failures.append(f"{name}: unknown severity {a.get('severity')!r} on an advisory")
-        if unknown_adv:
-            continue
-        if severity not in ("high", "critical"):
-            continue
-        advisories = [v for v in via if isinstance(v, dict)]
-        if not advisories:
-            # Affected only through another package. Covered by that package's
-            # own entry when present; otherwise judge it as a package.
-            sources = [v for v in via if isinstance(v, str)]
-            if sources and all(s in vulns for s in sources):
-                continue
-            advisories = [{"name": name, "severity": severity, "url": None}]
-        for adv in advisories:
-            sev = adv.get("severity")
-            pkg = adv.get("name") or name
-            ghsa = _ghsa(adv)
-            if sev == "critical":
-                if ghsa in accepted:
-                    seen_accepted.add(ghsa)
-                else:
-                    d.failures.append(f"{pkg}: critical advisory {ghsa} is not accepted")
-            elif sev == "high":
-                if ghsa in accepted:
-                    seen_accepted.add(ghsa)
-                else:
-                    why = not_build_only(pkg, allowlist, lock)
-                    if why is None:
-                        seen_build_only.add(pkg)
-                    else:
-                        d.failures.append(
-                            f"{pkg}: high advisory {ghsa} in a package not classified"
-                            f" build-only (treated as runtime): {why}"
-                        )
-    d.build_only = sorted(seen_build_only)
-    d.accepted = sorted(seen_accepted)
+        for adv in _entry_advisories(name, entry, vulns, d):
+            _judge_advisory(adv, name, allowlist, lock, d)
+    d.build_only.sort()
+    d.accepted.sort()
     return d
-
-
-def decide_runtime(report: object) -> Decision:
-    """Gate for a package that ships at runtime (the Worker): no exemptions.
-
-    Any high or critical advisory, or a severity outside the known set, fails.
-    A transitive-only entry is judged as a vulnerability in its own right.
-    """
-    d = Decision()
-    vulns = report.get("vulnerabilities") if isinstance(report, dict) else None
-    if not isinstance(vulns, dict):
-        d.failures.append("audit report is malformed (no 'vulnerabilities' object)")
-        return d
-    for name, entry in sorted(vulns.items()):
-        severities = [entry.get("severity") if isinstance(entry, dict) else None]
-        if isinstance(entry, dict):
-            severities += [v.get("severity") for v in entry.get("via") or [] if isinstance(v, dict)]
-        for sev in severities:
-            if not isinstance(sev, str) or sev not in KNOWN_SEVERITIES:
-                d.failures.append(f"{name}: unknown severity {sev!r}")
-            elif sev in ("high", "critical"):
-                d.failures.append(f"{name}: {sev} advisory in a runtime dependency (no exemptions)")
-    d.failures = sorted(set(d.failures))
-    return d
-
-
-def _read(source: str) -> object:
-    text = sys.stdin.read() if source == "-" else Path(source).read_text(encoding="utf-8")
-    return json.loads(text)
-
-
-def unusable_report(report: object) -> str | None:
-    """Why ``report`` can't be trusted as an audit result, or None if it can.
-
-    The workflow runs ``npm audit ... || true``, so a network, registry or auth
-    failure still leaves a file behind. Such output must never be read as
-    "zero findings". Any ``error`` key (whatever its value), a missing
-    ``metadata.vulnerabilities`` summary, or a missing ``vulnerabilities``
-    object makes the report unusable.
-    """
-    if not isinstance(report, dict):
-        return "the report is not a JSON object"
-    if "error" in report:
-        return f"npm audit reported an error: {report['error']!r}"
-    meta = report.get("metadata")
-    if not isinstance(meta, dict) or not isinstance(meta.get("vulnerabilities"), dict):
-        return "the report has no metadata.vulnerabilities summary"
-    if not isinstance(report.get("vulnerabilities"), dict):
-        return "the report has no 'vulnerabilities' object"
-    return None
 
 
 def _main_runtime(source: str) -> int:
     try:
-        report = _read(source)
+        report = read_report(source)
     except (OSError, ValueError) as exc:
         print(f"web-audit gate: REJECT (the audit report is not valid JSON: {exc})")
         return 2
@@ -376,7 +235,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"web-audit gate: FAIL (cannot read the lockfile: {exc})")
         return 1
     try:
-        report = _read(args.audit)
+        report = read_report(args.audit)
     except (OSError, ValueError) as exc:
         print(f"web-audit gate: REJECT (the audit report is not valid JSON: {exc})")
         return 2
@@ -389,6 +248,8 @@ def main(argv: list[str] | None = None) -> int:
         print("build-only high advisories (allowed): " + ", ".join(d.build_only))
     if d.accepted:
         print("accepted advisories: " + ", ".join(d.accepted))
+    for note in d.legacy:
+        print(f"allowlist (previous shape, migrate it): {note}")
     if d.ok:
         print("web-audit gate: PASS")
         return 0
