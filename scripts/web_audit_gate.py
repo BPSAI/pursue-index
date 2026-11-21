@@ -33,7 +33,11 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-DEFAULT_ALLOWLIST = Path(__file__).resolve().parents[1] / "web" / "audit-build-only.json"
+# Relative to the working directory: the workflow runs this from the repo root
+# with a bare `python3 -I` (no package install), so it must not import the
+# project package, and it must not derive a repo root from its own __file__.
+# CI passes --allowlist explicitly.
+DEFAULT_ALLOWLIST = Path("web") / "audit-build-only.json"
 
 
 @dataclass
