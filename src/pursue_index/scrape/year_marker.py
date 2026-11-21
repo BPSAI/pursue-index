@@ -17,6 +17,10 @@ so no card schema change and no new field change.
 On the next poll a row whose prior marker has the same upstream value
 carries that marker (``first_flagged_*`` kept)
 as an open item, not a new flag; a different upstream value is a new flag.
+
+A field an acknowledged-unknown overlay entry covers (``date_resolutions``)
+carries ``ACK_KEY`` instead: ``{field, raw, reason, curator, approved_at}``,
+so the card itself shows that the date is unknown on purpose.
 """
 
 from __future__ import annotations
@@ -27,10 +31,11 @@ from typing import Any
 
 from pydantic import TypeAdapter
 
-__all__ = ["MARKER_KEY", "carries", "iso", "new_marker", "open_entry", "prior_markers",
-           "with_markers"]
+__all__ = ["ACK_KEY", "MARKER_KEY", "ack_marker", "carries", "iso", "new_marker", "open_entry",
+           "prior_markers", "with_markers"]
 
 MARKER_KEY = "_date_unresolved"
+ACK_KEY = "_date_acknowledged"
 _DATETIME = TypeAdapter(datetime)
 
 
@@ -39,12 +44,12 @@ def iso(value: datetime | None) -> str | None:
     return None if value is None else _DATETIME.dump_python(value, mode="json")
 
 
-def prior_markers(prior_rows: Sequence[Mapping[str, Any]]
+def prior_markers(prior_rows: Sequence[Mapping[str, Any]], key: str = MARKER_KEY
                   ) -> dict[tuple[Any, str], dict[str, Any]]:
-    """``(card_id, field) -> marker`` over every prior row's ``raw``."""
+    """``(card_id, field) -> marker`` under ``key`` over every prior row's ``raw``."""
     out: dict[tuple[Any, str], dict[str, Any]] = {}
     for row in prior_rows:
-        markers = (row.get("raw") or {}).get(MARKER_KEY)
+        markers = (row.get("raw") or {}).get(key)
         for m in markers if isinstance(markers, list) else []:
             if isinstance(m, dict) and isinstance(m.get("field"), str):
                 out[(row.get("card_id"), m["field"])] = m
@@ -62,6 +67,12 @@ def new_marker(field: str, raw: str, reason: str, tranche: str | None,
             "first_flagged_in": tranche, "first_flagged_at": fetched_at}
 
 
+def ack_marker(field: str, raw: str, entry: Mapping[str, Any]) -> dict[str, Any]:
+    """The marker for a field an acknowledged-unknown ``entry`` covers."""
+    return {"field": field, "raw": raw, "reason": entry["reason"],
+            "curator": entry["curator"], "approved_at": entry["approved_at"]}
+
+
 def open_entry(entry: Mapping[str, Any], marker: Mapping[str, Any]) -> dict[str, Any]:
     """A report entry for a carried item: ``entry`` plus when it was first flagged."""
     return {**entry, "reason": marker["reason"],
@@ -69,9 +80,13 @@ def open_entry(entry: Mapping[str, Any], marker: Mapping[str, Any]) -> dict[str,
             "first_flagged_at": marker.get("first_flagged_at")}
 
 
-def with_markers(raw: Mapping[str, Any], markers: list[dict[str, Any]]) -> dict[str, Any]:
-    """A copy of ``raw`` holding ``markers`` (key dropped when there are none)."""
-    out = {k: v for k, v in raw.items() if k != MARKER_KEY}
+def with_markers(raw: Mapping[str, Any], markers: list[dict[str, Any]],
+                 acknowledged: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """A copy of ``raw`` holding ``markers`` and ``acknowledged`` markers
+    (each key dropped when it has none)."""
+    out = {k: v for k, v in raw.items() if k not in (MARKER_KEY, ACK_KEY)}
     if markers:
         out[MARKER_KEY] = markers
+    if acknowledged:
+        out[ACK_KEY] = acknowledged
     return out
