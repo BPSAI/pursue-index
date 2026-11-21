@@ -1,0 +1,804 @@
+{
+  "tranche_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
+  "prior_manifest_sha": "92b3ec7dd87286ea7092a33b476566b4416d3bb02970b02757b237d8322fe81a",
+  "summary": {
+    "renames_confirmed": 0,
+    "new_content": 43,
+    "quarantined": 0,
+    "restored_unchanged": 0,
+    "restored_modified": 0,
+    "restored_unknown": 0,
+    "removed": 0,
+    "field_only_changes": 8,
+    "row_changes": 0,
+    "date_unresolved": 6,
+    "release_window_resolved": 43
+  },
+  "renames_confirmed": [],
+  "new_content": [
+    {
+      "new_card_id": "02e22fd004affc47",
+      "title": "CIA-UAP-D025, Proposal to Consider Psychological Warfare Implications of UFO-Related Issues, 1952",
+      "asset_filename": "CIA-UAP-D025-Proposal_to_Consider_Psychological_Warfare_Implications_of_UFO_Related_Issues-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D025-Proposal_to_Consider_Psychological_Warfare_Implications_of_UFO_Related_Issues-1952.pdf",
+      "byte_sha256": "7c313718bcb8445fb17e84fbc79c5f8822cfea96b0cc15ccb07817b912462ca9"
+    },
+    {
+      "new_card_id": "04a82a0332cfe988",
+      "title": "DOW-UAP-PR166, Unresolved UAP Report, Middle East, 2020",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "0fc485e6efefdd92",
+      "title": "CIA-UAP-D029, Official Diary Entry on \u201cFlying Saucers,\u201d 1952",
+      "asset_filename": "CIA-UAP-D029-Official_Diary_Entry_on_Flying_Saucers-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D029-Official_Diary_Entry_on_Flying_Saucers-1952.pdf",
+      "byte_sha256": "c16239abc63bf145befc043e768e6b63231dfe73b944ee64a0f2de498ff80c0f"
+    },
+    {
+      "new_card_id": "1112b7dd6ccb2120",
+      "title": "DOW-UAP-D196, Air Intelligence Information Report, Washington, 1957",
+      "asset_filename": "DOW-UAP-D196-Air_Intelligence_Information_Report_Washington-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D196-Air_Intelligence_Information_Report_Washington-1957.pdf",
+      "byte_sha256": "689fc36c5b9497ac7940a9253134e37c626847bdf5bf864210109b8d616c7d8d"
+    },
+    {
+      "new_card_id": "12fdfdceb484077d",
+      "title": "DOW-UAP-D193, Air Intelligence Information Report, New Mexico, 1957",
+      "asset_filename": "DOW-UAP-D193-Air_Intelligence_Information_Report_New_Mexico-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D193-Air_Intelligence_Information_Report_New_Mexico-1957.pdf",
+      "byte_sha256": "4a0bbbf4191db06f27ba87babe157dde21c67300ac239b639f81115303361fc3"
+    },
+    {
+      "new_card_id": "1692a5ac126b1882",
+      "title": "DOW-UAP-D195, Air Intelligence Information Report, New Mexico, 1957",
+      "asset_filename": "DOW-UAP-D195-Air_Intelligence_Information_Report_New_Mexico-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D195-Air_Intelligence_Information_Report_New_Mexico-1957.pdf",
+      "byte_sha256": "c624c30edbb0ea09976246e21b63b23b411009a57903ef2d3c2e33088a919674"
+    },
+    {
+      "new_card_id": "277c4861b2c8f432",
+      "title": "DOW-UAP-D201, Air Intelligence Information Report, Iran, 1957",
+      "asset_filename": "DOW-UAP-D201-Air_Intelligence_Information_Report_Iran-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D201-Air_Intelligence_Information_Report_Iran-1957.pdf",
+      "byte_sha256": "d97b5fe67f8bc3b1c9eb15e295ebe89264bd0effdd2ec72dbc798db80e0da28c"
+    },
+    {
+      "new_card_id": "2c859e85c982478e",
+      "title": "DOW-UAP-D188, Review of AAWSAP Contract Deliverables October 2009",
+      "asset_filename": "DOW-UAP-D188-Review_of_AAWSAP_Contract_Deliverables_October-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D188-Review_of_AAWSAP_Contract_Deliverables_October-2009.pdf",
+      "byte_sha256": "2ace705eb17fd8ba2c46020cc53b43ee2df16c14a8816e5a720002dae1e92320"
+    },
+    {
+      "new_card_id": "3450511c8f84fe3d",
+      "title": "DOW-UAP-D183-Correspondence from Senator Harry Reid, June 2009",
+      "asset_filename": "DOW-UAP-D183-Correspondence_from_Senator_Harry_Reid_June_24-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D183-Correspondence_from_Senator_Harry_Reid_June_24-2009.pdf",
+      "byte_sha256": "f7dce86c6a5256b0d84a3e4444bd174f487a2cb7e690bb7ca710041179bda915"
+    },
+    {
+      "new_card_id": "3733c21347b9cf9c",
+      "title": "DOW-UAP-D202, Air Intelligence Information Report, Peru, 1957",
+      "asset_filename": "DOW-UAP-D202-Air_Intelligence_Information_Report_Peru-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D202-Air_Intelligence_Information_Report_Peru-1957.pdf",
+      "byte_sha256": "79f08d66a981199c32f4f2595fd1c2d31925cb01f19b9fb43b8c54d873fce0ea"
+    },
+    {
+      "new_card_id": "38c1c66ea5d971c9",
+      "title": "DOW-UAP-D172, BAASS Ten-Month Report, July 2009",
+      "asset_filename": "DOW-UAP-D172-BAASS_Ten_Month_Report_July-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D172-BAASS_Ten_Month_Report_July-2009.pdf",
+      "byte_sha256": "e77a2ce47520686fe2cacc55ce8fdf7820a7614a4eefe9cc0c75b19dff7f4472"
+    },
+    {
+      "new_card_id": "40fedc1b5ac50804",
+      "title": "DOW-UAP-D192, Air Intelligence Information Report, Nebraska, 1957",
+      "asset_filename": "DOW-UAP-D192-Air_Intelligence_Information_Report_Nebraska-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D192-Air_Intelligence_Information_Report_Nebraska-1957.pdf",
+      "byte_sha256": "e51a571a8cde60179645face924b6e3467145fe042b76e095d64129579496961"
+    },
+    {
+      "new_card_id": "410d4f43f987ebe0",
+      "title": "DOW-UAP-D194, Air Intelligence Information Report, New Mexico, 1957",
+      "asset_filename": "DOW-UAP-D194-Air_Intelligence_Information_Report_New_Mexico-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D194-Air_Intelligence_Information_Report_New_Mexico-1957.pdf",
+      "byte_sha256": "293e533abd44248390fbd0c91ad8f15c5ad78016378682ffb05d37b7688b63e6"
+    },
+    {
+      "new_card_id": "41b2beb95f631614",
+      "title": "DOW-UAP-D213, Unresolved UAP Report, California, 1949",
+      "asset_filename": "DOW-UAP-D213-Unresolved_UAP_Report_California-1949.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D213-Unresolved_UAP_Report_California-1949.pdf",
+      "byte_sha256": "c01f37b81070119cf91077888eff34b5f7c85ea717694422edb90a2306f8f76f"
+    },
+    {
+      "new_card_id": "43981ff03d1a20cd",
+      "title": "DOW-UAP-D207, Unresolved UAP Report, California, 1956",
+      "asset_filename": "DOW-UAP-D207-Unresolved_UAP_Report_California-1956.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D207-Unresolved_UAP_Report_California-1956.pdf",
+      "byte_sha256": "3cea20ac9d66cb0432220c74e65825781fbca6733d8950efb0425c26d8d8ffbf"
+    },
+    {
+      "new_card_id": "46b0bdbffa5057ca",
+      "title": "DOW-UAP-D198, Air Intelligence Information Report, Japan, 1957",
+      "asset_filename": "DOW-UAP-D198-Air_Intelligence_Information_Report_Japan-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D198-Air_Intelligence_Information_Report_Japan-1957.pdf",
+      "byte_sha256": "aa08a3d2c6af81767d9a01ee4b278b347932739caf1611c2425c03fe5ded4300"
+    },
+    {
+      "new_card_id": "6c65ac68d3cf00f3",
+      "title": "DOW-UAP-PR168, Unresolved UAP Report, Middle East, 2026",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "71634d539b50cb08",
+      "title": "DOW-UAP-D190, Air Intelligence Information Report, Massachusetts, 1957",
+      "asset_filename": "DOW-UAP-D190-Air_Intelligence_Information_Report_Massachusetts-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D190-Air_Intelligence_Information_Report_Massachusetts-1957.pdf",
+      "byte_sha256": "28a26b391e981ad2ee347548b7fd7cc51eba5ba1a97faa0ff80e2b22f814febe"
+    },
+    {
+      "new_card_id": "78cc379f877a9b6f",
+      "title": "DOW-UAP-D200, Air Intelligence Information Report, Peru, 1957",
+      "asset_filename": "DOW-UAP-D200-Air_Intelligence_Information_Report_Peru-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D200-Air_Intelligence_Information_Report_Peru-1957.pdf",
+      "byte_sha256": "621735603f8d9b1362eec40e10b52680b1eaf1f3320f76b75143b3c01fd78e46"
+    },
+    {
+      "new_card_id": "7b0ca66a91c704d1",
+      "title": "DOW-UAP-D184, AAWSAP Talking Paper for Senator Reid Engagement, May 2009",
+      "asset_filename": "DOW-UAP-D184-AAWSAP_Talking_Paper_for_Senator_Reid_Engagement_May-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D184-AAWSAP_Talking_Paper_for_Senator_Reid_Engagement_May-2009.pdf",
+      "byte_sha256": "00d35350e4f29b915f8279b0c4fcbef7a29147df67a52b8a4fc37a16fd53787f"
+    },
+    {
+      "new_card_id": "82159bfd9c8a37a2",
+      "title": "CIA-UAP-D027, Office of Scientific Intelligence Briefing on \u201cFlying Saucers,\u201d 1952",
+      "asset_filename": "CIA-UAP-D027-Office_of_Scientific_Intelligence_Briefing_on_Flying_Saucers-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D027-Office_of_Scientific_Intelligence_Briefing_on_Flying_Saucers-1952.pdf",
+      "byte_sha256": "cc7b83c815f91f1a8e1710cff3b287b1c578a69665f56a0140ee755a9f48983a"
+    },
+    {
+      "new_card_id": "85845b4df2788776",
+      "title": "DOW-UAP-D185, Review of AAWSAP Special Access Program Request, November 2009",
+      "asset_filename": "DOW-UAP-D185-Review_of_AAWSAP_Special_Access_Program_Request_November-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D185-Review_of_AAWSAP_Special_Access_Program_Request_November-2009.pdf",
+      "byte_sha256": "eb7c8e63dba1faced3947a1b0500a5b9f9e7ab7c043c740ffd876896b19c967a"
+    },
+    {
+      "new_card_id": "87e825d57fc835d5",
+      "title": "DOW-UAP-D182, AAWSAP Statement of Work, August 2008",
+      "asset_filename": "DOW-UAP-D182-AAWSAP_Statement_of_Work_August-2008.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D182-AAWSAP_Statement_of_Work_August-2008.pdf",
+      "byte_sha256": "fc84698755632a7b9f00784d765952f5b81a93acc0fc430287c2dff6d520ccb5"
+    },
+    {
+      "new_card_id": "8a91112c87333afb",
+      "title": "DOW-UAP-D210, Unresolved UAP Report, California, 1957",
+      "asset_filename": "DOW-UAP-D210_Unresolved_UAP_Report_California-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D210_Unresolved_UAP_Report_California-1957.pdf",
+      "byte_sha256": "e33a87a63b61b72cc688233a736cb482734ff1766e04774d83723aa9a4bf1234"
+    },
+    {
+      "new_card_id": "91c156310f4b438a",
+      "title": "DOW-UAP-D211, Unresolved UAP Report, California, 1956",
+      "asset_filename": "DOW-UAP-D211_Unresolved_UAP_Report_California-1956.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D211_Unresolved_UAP_Report_California-1956.pdf",
+      "byte_sha256": "c0a300d594792a2b2cd136255f29f77ca6bfefd20d5c9ee22befaea9de1d9a4d"
+    },
+    {
+      "new_card_id": "92ae35347234224a",
+      "title": "CIA-UAP-D026, Summary Assessment of \u201cFlying Saucers,\u201d 1952",
+      "asset_filename": "CIA-UAP-D026-Summary_Assessment_of_Flying_Saucers-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D026-Summary_Assessment_of_Flying_Saucers-1952.pdf",
+      "byte_sha256": "595957b4d0be80043217d2e2e1836a799fde708da8ee569a22fc23779590fa8f"
+    },
+    {
+      "new_card_id": "9c56a31448466b18",
+      "title": "DOW-UAP-D205, Air Intelligence Information Report, Japan, 1956",
+      "asset_filename": "DOW-UAP-D205_Air_Intelligence_Information_Report_Japan-1956.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D205_Air_Intelligence_Information_Report_Japan-1956.pdf",
+      "byte_sha256": "e6bd0d26ec339371945f751c272cf1a05a6cc3c6db47270290acd87330a8a12e"
+    },
+    {
+      "new_card_id": "a0af4c515f2652c5",
+      "title": "DOW-UAP-D203, Air Intelligence Information Report, California, 1957",
+      "asset_filename": "DOW-UAP-D203-Air_Intelligence_Information_Report_California-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D203-Air_Intelligence_Information_Report_California-1957.pdf",
+      "byte_sha256": "3a895b66d9edbb015de59ec5ed7e1e5b6a49e596b20b6ab2d22414b7b86d4b45"
+    },
+    {
+      "new_card_id": "a174b43c290ec6b8",
+      "title": "DOW-UAP-D199, Air Intelligence Information Report, Iran, 1957",
+      "asset_filename": "DOW-UAP-D199-Air_Intelligence_Information_Report_Iran-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D199-Air_Intelligence_Information_Report_Iran-1957.pdf",
+      "byte_sha256": "9a71cca06d58214853d74a106b36bfefc412750219266bd0521771391543e4f1"
+    },
+    {
+      "new_card_id": "aabeb328d198e646",
+      "title": "DOW-UAP-D191, Air Intelligence Information Report, Texas, 1957",
+      "asset_filename": "DOW-UAP-D191-Air_Intelligence_Information_Report_Texas-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D191-Air_Intelligence_Information_Report_Texas-1957.pdf",
+      "byte_sha256": "f68183478c9024c0c14b1042a927e17c362e9dd66d67fcf3189bc29e27773bfb"
+    },
+    {
+      "new_card_id": "b3eb75295aabe90f",
+      "title": "DOW-UAP-D212, Unresolved UAP Report, California, 1966",
+      "asset_filename": "DOW-UAP-D212-Unresolved_UAP_Report_California-1966.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D212-Unresolved_UAP_Report_California-1966.pdf",
+      "byte_sha256": "70c42e63e165f1c82f9a0ae19930c7ba261080ad39806cde56f21e030e751004"
+    },
+    {
+      "new_card_id": "ba7b99c93f272808",
+      "title": "DOW-UAP-D206, Unresolved UAP Report, California, 1953",
+      "asset_filename": "DOW-UAP-D206_Unresolved_UAP_Report_California-1953.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D206_Unresolved_UAP_Report_California-1953.pdf",
+      "byte_sha256": "b0957ab5c2df409e3370811ee5bbbcc8ccbb1595ec6e3291a3b3c2f48b0f1756"
+    },
+    {
+      "new_card_id": "c0a0002c885b68f4",
+      "title": "DOW-UAP-D204, Air Intelligence Information Report, Virginia, 1957",
+      "asset_filename": "DOW-UAP-D204-Air_Intelligence_Information_Report_Virginia-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D204-Air_Intelligence_Information_Report_Virginia-1957.pdf",
+      "byte_sha256": "ecbf02ef0e984c6f1d12621c261473d102f52d4aa8bf9bc08baf4bfeeb7e821e"
+    },
+    {
+      "new_card_id": "c178dd1cd7415f1c",
+      "title": "DOW-UAP-PR169, Unresolved UAP Report, Middle East, 2023",
+      "asset_filename": null,
+      "asset_url": null,
+      "byte_sha256": null
+    },
+    {
+      "new_card_id": "ca4a3d21010eda4b",
+      "title": "DOW-UAP-D165, Unresolved Radar Detection, North America, 2023",
+      "asset_filename": "DOW-UAP-D165-Unresolved_Radar_Detection_North_America-2023.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D165-Unresolved_Radar_Detection_North_America-2023.pdf",
+      "byte_sha256": "3ed1d55124c1bd0063ebd62c47ed29719636402247bcd97a4c066201239ee012"
+    },
+    {
+      "new_card_id": "d7fb87e7264437e1",
+      "title": "DOW-UAP-D189, Air Intelligence Information Report, Virginia, 1957",
+      "asset_filename": "DOW-UAP-D189-Air_Intelligence_Information_Report_Virginia-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D189-Air_Intelligence_Information_Report_Virginia-1957.pdf",
+      "byte_sha256": "5e57da39e316e669a69472125dd7f88c27beed1cbf73c302783ce82b1473431e"
+    },
+    {
+      "new_card_id": "e17f6bbdcf28f734",
+      "title": "DOW-UAP-D208, Unresolved UAP Report, California, 1965",
+      "asset_filename": "DOW-UAP-D208-Unresolved_UAP_Report_California-1965.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D208-Unresolved_UAP_Report_California-1965.pdf",
+      "byte_sha256": "fe0bf7fdc0452d7779237fb7d8d5795e2e969cbb245bec113a3e8b59e282448c"
+    },
+    {
+      "new_card_id": "e19fbb338efc608c",
+      "title": "DOW-UAP-D186, DIA Information Memorandum on AATIP (AAWSAP), December 2010",
+      "asset_filename": "DOW-UAP-D186-DIA_Information_Memorandum_on_AATIP_AAWSAP_December-2010.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D186-DIA_Information_Memorandum_on_AATIP_AAWSAP_December-2010.pdf",
+      "byte_sha256": "7cad36cd5860f42d04e786d3960dfb593ea1b9e5c705163adcc2b2121c23ae2e"
+    },
+    {
+      "new_card_id": "e7fe45b51f32ed87",
+      "title": "CIA-UAP-D024, Approval in Principle, Research Concerned with UFOs, 1952",
+      "asset_filename": "CIA-UAP-D024-Approval_in_Principle_Research_Concerned_with_UFOs-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D024-Approval_in_Principle_Research_Concerned_with_UFOs-1952.pdf",
+      "byte_sha256": "a7f6c2359afbb5c63a040e6e86915ec7a90c9aea878b148fcb22be36637c6d49"
+    },
+    {
+      "new_card_id": "eb84be089be1d2ad",
+      "title": "DOW-UAP-D187, DIA Talking Paper for Senator Reid Engagement, January 2009",
+      "asset_filename": "DOW-UAP-D187-DIA_Talking_Paper_for_Senator_Reid_Engagement_January-2009.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D187-DIA_Talking_Paper_for_Senator_Reid_Engagement_January-2009.pdf",
+      "byte_sha256": "fa4ccf3c5f4845b727d61afbcc910711c1aa4f299d940e7bd846af935ffccf1e"
+    },
+    {
+      "new_card_id": "f2ddd70dd412e9a6",
+      "title": "DOW-UAP-D209, Unresolved UAP Report, California, 1955",
+      "asset_filename": "DOW-UAP-D209_Unresolved_UAP_Report_California-1955.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D209_Unresolved_UAP_Report_California-1955.pdf",
+      "byte_sha256": "01ef9cd3d51ada517008acc3d7103db801e601b7b3516f770bf75488ca032ec8"
+    },
+    {
+      "new_card_id": "f4ab0c81beca7768",
+      "title": "DOW-UAP-D197, Air Intelligence Information Report, Michigan, 1957",
+      "asset_filename": "DOW-UAP-D197-Air_Intelligence_Information_Report_Michigan-1957.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D197-Air_Intelligence_Information_Report_Michigan-1957.pdf",
+      "byte_sha256": "444c4feba08658822441ed484d0ea542fbd7a87db213eac3424596438d7d0023"
+    },
+    {
+      "new_card_id": "fa93265239231a44",
+      "title": "CIA-UAP-D028, Assessment of National Security Issues Relating to \u201cFlying Saucers,\u201d 1952",
+      "asset_filename": "CIA-UAP-D028-Assessment_of_National_Security_Issues_Relating_to_Flying_Saucers-1952.pdf",
+      "asset_url": "https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D028-Assessment_of_National_Security_Issues_Relating_to_Flying_Saucers-1952.pdf",
+      "byte_sha256": "f17fd0343afa76340d11906f7bcfa92aa05a0bfb06b8da05ad4dee951be4c817"
+    }
+  ],
+  "quarantined": [],
+  "restored_unchanged": [],
+  "restored_modified": [],
+  "restored_unknown": [],
+  "removed": [],
+  "field_only_changes": [
+    {
+      "card_id": "0e2f21236a2289fa",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "1af7a333fa99bdd9",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "55f5f0db04de21f2",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "a3a9754af3184c3b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "b63bea0452d1d4b3",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "cb5426fe2a0b512d",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "d6016299267e9604",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    },
+    {
+      "card_id": "ee657817d068d59b",
+      "diffs": [
+        {
+          "field": "featured",
+          "old": true,
+          "new": false
+        }
+      ]
+    }
+  ],
+  "row_changes": [],
+  "date_unresolved": [
+    {
+      "card_id": "ca4a3d21010eda4b",
+      "title": "DOW-UAP-D165, Unresolved Radar Detection, North America, 2023",
+      "field": "incident_date",
+      "raw": "7/15/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "e19fbb338efc608c",
+      "title": "DOW-UAP-D186, DIA Information Memorandum on AATIP (AAWSAP), December 2010",
+      "field": "incident_date",
+      "raw": "12/10/26",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "277c4861b2c8f432",
+      "title": "DOW-UAP-D201, Air Intelligence Information Report, Iran, 1957",
+      "field": "incident_date",
+      "raw": "5/10/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "04a82a0332cfe988",
+      "title": "DOW-UAP-PR166, Unresolved UAP Report, Middle East, 2020",
+      "field": "incident_date",
+      "raw": "7/12/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "6c65ac68d3cf00f3",
+      "title": "DOW-UAP-PR168, Unresolved UAP Report, Middle East, 2026",
+      "field": "incident_date",
+      "raw": "7/18/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "c178dd1cd7415f1c",
+      "title": "DOW-UAP-PR169, Unresolved UAP Report, Middle East, 2023",
+      "field": "incident_date",
+      "raw": "7/15/05",
+      "reason": "no_century_evidence"
+    }
+  ],
+  "release_window": {
+    "lower": 2026,
+    "upper": 2026,
+    "source": "lower: earliest 4-digit release_date year in the prior manifest; upper: year of the new manifest's fetched_at"
+  },
+  "release_window_rows": [
+    {
+      "card_id": "82159bfd9c8a37a2",
+      "title": "CIA-UAP-D027, Office of Scientific Intelligence Briefing on \u201cFlying Saucers,\u201d 1952",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "0fc485e6efefdd92",
+      "title": "CIA-UAP-D029, Official Diary Entry on \u201cFlying Saucers,\u201d 1952",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "ca4a3d21010eda4b",
+      "title": "DOW-UAP-D165, Unresolved Radar Detection, North America, 2023",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "38c1c66ea5d971c9",
+      "title": "DOW-UAP-D172, BAASS Ten-Month Report, July 2009",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "71634d539b50cb08",
+      "title": "DOW-UAP-D190, Air Intelligence Information Report, Massachusetts, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "f4ab0c81beca7768",
+      "title": "DOW-UAP-D197, Air Intelligence Information Report, Michigan, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "e7fe45b51f32ed87",
+      "title": "CIA-UAP-D024, Approval in Principle, Research Concerned with UFOs, 1952",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "02e22fd004affc47",
+      "title": "CIA-UAP-D025, Proposal to Consider Psychological Warfare Implications of UFO-Related Issues, 1952",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "92ae35347234224a",
+      "title": "CIA-UAP-D026, Summary Assessment of \u201cFlying Saucers,\u201d 1952",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "fa93265239231a44",
+      "title": "CIA-UAP-D028, Assessment of National Security Issues Relating to \u201cFlying Saucers,\u201d 1952",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "87e825d57fc835d5",
+      "title": "DOW-UAP-D182, AAWSAP Statement of Work, August 2008",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "3450511c8f84fe3d",
+      "title": "DOW-UAP-D183-Correspondence from Senator Harry Reid, June 2009",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "7b0ca66a91c704d1",
+      "title": "DOW-UAP-D184, AAWSAP Talking Paper for Senator Reid Engagement, May 2009",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "85845b4df2788776",
+      "title": "DOW-UAP-D185, Review of AAWSAP Special Access Program Request, November 2009",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "e19fbb338efc608c",
+      "title": "DOW-UAP-D186, DIA Information Memorandum on AATIP (AAWSAP), December 2010",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "eb84be089be1d2ad",
+      "title": "DOW-UAP-D187, DIA Talking Paper for Senator Reid Engagement, January 2009",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "2c859e85c982478e",
+      "title": "DOW-UAP-D188, Review of AAWSAP Contract Deliverables October 2009",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "d7fb87e7264437e1",
+      "title": "DOW-UAP-D189, Air Intelligence Information Report, Virginia, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "aabeb328d198e646",
+      "title": "DOW-UAP-D191, Air Intelligence Information Report, Texas, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "40fedc1b5ac50804",
+      "title": "DOW-UAP-D192, Air Intelligence Information Report, Nebraska, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "12fdfdceb484077d",
+      "title": "DOW-UAP-D193, Air Intelligence Information Report, New Mexico, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "410d4f43f987ebe0",
+      "title": "DOW-UAP-D194, Air Intelligence Information Report, New Mexico, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "1692a5ac126b1882",
+      "title": "DOW-UAP-D195, Air Intelligence Information Report, New Mexico, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "1112b7dd6ccb2120",
+      "title": "DOW-UAP-D196, Air Intelligence Information Report, Washington, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "46b0bdbffa5057ca",
+      "title": "DOW-UAP-D198, Air Intelligence Information Report, Japan, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "a174b43c290ec6b8",
+      "title": "DOW-UAP-D199, Air Intelligence Information Report, Iran, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "78cc379f877a9b6f",
+      "title": "DOW-UAP-D200, Air Intelligence Information Report, Peru, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "277c4861b2c8f432",
+      "title": "DOW-UAP-D201, Air Intelligence Information Report, Iran, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "3733c21347b9cf9c",
+      "title": "DOW-UAP-D202, Air Intelligence Information Report, Peru, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "a0af4c515f2652c5",
+      "title": "DOW-UAP-D203, Air Intelligence Information Report, California, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "c0a0002c885b68f4",
+      "title": "DOW-UAP-D204, Air Intelligence Information Report, Virginia, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "9c56a31448466b18",
+      "title": "DOW-UAP-D205, Air Intelligence Information Report, Japan, 1956",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "ba7b99c93f272808",
+      "title": "DOW-UAP-D206, Unresolved UAP Report, California, 1953",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "43981ff03d1a20cd",
+      "title": "DOW-UAP-D207, Unresolved UAP Report, California, 1956",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "e17f6bbdcf28f734",
+      "title": "DOW-UAP-D208, Unresolved UAP Report, California, 1965",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "f2ddd70dd412e9a6",
+      "title": "DOW-UAP-D209, Unresolved UAP Report, California, 1955",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "8a91112c87333afb",
+      "title": "DOW-UAP-D210, Unresolved UAP Report, California, 1957",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "91c156310f4b438a",
+      "title": "DOW-UAP-D211, Unresolved UAP Report, California, 1956",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "b3eb75295aabe90f",
+      "title": "DOW-UAP-D212, Unresolved UAP Report, California, 1966",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "41b2beb95f631614",
+      "title": "DOW-UAP-D213, Unresolved UAP Report, California, 1949",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "04a82a0332cfe988",
+      "title": "DOW-UAP-PR166, Unresolved UAP Report, Middle East, 2020",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "6c65ac68d3cf00f3",
+      "title": "DOW-UAP-PR168, Unresolved UAP Report, Middle East, 2026",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    },
+    {
+      "card_id": "c178dd1cd7415f1c",
+      "title": "DOW-UAP-PR169, Unresolved UAP Report, Middle East, 2023",
+      "field": "release_date",
+      "raw": "11/20/26",
+      "value": "11/20/2026",
+      "evidence": "release-window"
+    }
+  ]
+}

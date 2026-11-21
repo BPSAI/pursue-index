@@ -1,2 +1,42 @@
-# tranche: 92b3ec7dd87286ea7092a33b476566b4416d3bb02970b02757b237d8322fe81a
-# 0 card_id(s) scoped from the tranche-diff (reason: new | quarantined-new | renamed | bytes-changed)
+# tranche: bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247
+# 52 card_id(s) scoped from the tranche-diff (reason: new | quarantined-new | renamed | bytes-changed)
+02e22fd004affc47	new
+0fc485e6efefdd92	new
+1112b7dd6ccb2120	new
+12fdfdceb484077d	new
+1692a5ac126b1882	new
+277c4861b2c8f432	new
+2c859e85c982478e	new
+3450511c8f84fe3d	new
+3733c21347b9cf9c	new
+38c1c66ea5d971c9	new
+40fedc1b5ac50804	new
+410d4f43f987ebe0	new
+41b2beb95f631614	new
+43981ff03d1a20cd	new
+46b0bdbffa5057ca	new
+71634d539b50cb08	new
+78cc379f877a9b6f	new
+7b0ca66a91c704d1	new
+82159bfd9c8a37a2	new
+85845b4df2788776	new
+87e825d57fc835d5	new
+8a91112c87333afb	new
+91c156310f4b438a	new
+92ae35347234224a	new
+9c56a31448466b18	new
+a0af4c515f2652c5	new
+a174b43c290ec6b8	new
+aabeb328d198e646	new
+b3eb75295aabe90f	new
+ba7b99c93f272808	new
+c0a0002c885b68f4	new
+ca4a3d21010eda4b	new
+d7fb87e7264437e1	new
+e17f6bbdcf28f734	new
+e19fbb338efc608c	new
+e7fe45b51f32ed87	new
+eb84be089be1d2ad	new
+f2ddd70dd412e9a6	new
+f4ab0c81beca7768	new
+fa93265239231a44	new
