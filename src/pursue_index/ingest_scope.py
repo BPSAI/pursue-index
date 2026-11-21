@@ -169,7 +169,13 @@ def load_aliases(aliases_path: Path) -> list[dict[str, Any]]:
 
 
 def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
-    """``card_id -> byte_sha256`` from the append-only registry (last row wins)."""
+    """``card_id -> byte_sha256`` of the PDF bytes, from the append-only registry.
+
+    Only rows whose ``current_key`` ends in ``.pdf`` (case-insensitive) count:
+    those are the bytes OCR reads and records as ``pdf_sha256``. A card paired
+    with a video also has ``.mp4`` rows, which must never be compared with the
+    OCR sha. Last row wins within the PDF rows; a card with none is absent.
+    """
     out: dict[str, str] = {}
     if not registry_path.exists():
         return out
@@ -188,7 +194,8 @@ def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
                 require_card_id(card_id)
             except InvalidCardIdError as exc:
                 raise InvalidCardIdError(f"{registry_path}:{lineno}: {exc}") from exc
-            out[card_id] = sha
+            if str(row.get("current_key") or "").lower().endswith(".pdf"):
+                out[card_id] = sha
     return out
 
 
