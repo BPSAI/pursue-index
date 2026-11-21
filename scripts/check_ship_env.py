@@ -77,7 +77,8 @@ def check(root: Path, environ: dict[str, str]) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    ap.add_argument("--root", type=Path, default=Path.cwd(),
+                    help="this checkout (default: the current directory)")
     args = ap.parse_args(argv)
     problems = check(args.root.resolve(), dict(os.environ))
     if not problems:

@@ -146,6 +146,13 @@ stamp:
 		|| { echo "stamp: gitignored files appeared under the code paths" >&2; exit 1; }
 	@$(PYTHON) scripts/build_stamp.py write --root . --builder-commit "$$(cat "$(BUILT_WITH)")"$(INTERMEDIATES_STAMP_ARG)
 
+# Refuse a release before spending build time
+# on it when an AUD card has no transcript, a VID/AUD card has no registered
+# bytes, or a transcript is channel-duplicated. Repo + data root only.
+.PHONY: release-completeness
+release-completeness:
+	@$(PYTHON) scripts/check_release_completeness.py
+
 # First prerequisite of ship-ready: refuse a run whose interpreter imports another
 # checkout's code, that sets PYTHONPATH, or that carries a placeholder label.
 # Declared so no other target can run before it, even under `make -j`.
@@ -153,14 +160,7 @@ stamp:
 # Under `make -j` the first gate must still wait for it.
 release-completeness: ship-env
 ship-env:
-	@INTERMEDIATES_LABEL=$(call shq,$(INTERMEDIATES_LABEL)) $(PYTHON) scripts/check_ship_env.py
-
-# Next prerequisite of ship-ready: refuse a release before spending build time
-# on it when an AUD card has no transcript, a VID/AUD card has no registered
-# bytes, or a transcript is channel-duplicated. Repo + data root only.
-.PHONY: release-completeness
-release-completeness:
-	@$(PYTHON) scripts/check_release_completeness.py
+	@INTERMEDIATES_LABEL=$(call shq,$(INTERMEDIATES_LABEL)) $(PYTHON) scripts/check_ship_env.py --root .
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).

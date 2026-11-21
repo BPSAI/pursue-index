@@ -106,8 +106,9 @@ def _ship_ready_prereqs() -> list[str]:
 
 def test_completeness_check_is_the_first_ship_ready_prerequisite():
     prereqs = _ship_ready_prereqs()
-    assert prereqs[0] == "release-completeness"
-    assert len(prereqs) > 1
+    # ship-env (the interpreter/label guard) only refuses a bad environment.
+    assert prereqs[:2] == ["ship-env", "release-completeness"]
+    assert len(prereqs) > 2
 
 
 def test_release_completeness_target_runs_the_script():
