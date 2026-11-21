@@ -6,11 +6,10 @@ import json
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
+import _r2_run_state
 import pytest
 
 from tests.unit.r2_verify_harness import NEW_BODY, OLD_BODY, World, r2, sha
-
-import _r2_run_state  # noqa: E402  (scripts/ is on sys.path via the harness)
 
 BOOTSTRAP_WINDOW_DAYS = _r2_run_state.BOOTSTRAP_WINDOW_DAYS
 

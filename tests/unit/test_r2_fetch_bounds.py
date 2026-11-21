@@ -12,6 +12,7 @@ if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
 import _r2_fetch  # noqa: E402
+
 from tests.unit.r2_verify_harness import NEW_BODY, OLD_BODY, World, sha  # noqa: E402
 
 HOSTS = frozenset({"www.war.gov"})

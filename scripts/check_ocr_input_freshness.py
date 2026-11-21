@@ -43,7 +43,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import json
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
+
+from _freshness_manifest import FreshnessError, _manifest_cards
 
 from pursue_index.byte_dispositions import (
     ByteDispositionError,
@@ -51,7 +53,6 @@ from pursue_index.byte_dispositions import (
     covers,
     load_byte_change_dispositions,
 )
-from pursue_index.card_id import InvalidCardIdError, require_card_id
 from pursue_index.config.settings import Settings
 from pursue_index.ingest_scope import load_registry_sha_map
 from pursue_index.paths import repo_root
@@ -61,43 +62,6 @@ RECORD_SCHEMA = "pursue-ocr-input-freshness/v1"
 # A published PDF card with no registry row this many days after its release date is
 # ``unregistered-stale``: longer than the daily archive's normal lag.
 UNREGISTERED_STALE_DAYS = 3
-
-
-class FreshnessError(Exception):
-    """An input the gate needs is missing or unreadable, so the run cannot pass."""
-
-
-def _release_date(raw: object) -> date | None:
-    """The manifest's ``M/D/YYYY`` release date, or None when absent or unparseable."""
-    try:
-        return datetime.strptime(str(raw).strip(), "%m/%d/%Y").date()
-    except ValueError:
-        return None
-
-
-def _manifest_cards(manifest: Path) -> list[tuple[str, bool, date | None]]:
-    """``(card_id, is_pdf_card, earliest PDF release_date)`` per manifest card, ids validated."""
-    try:
-        cards = json.loads(manifest.read_text(encoding="utf-8")).get("cards")
-    except (OSError, json.JSONDecodeError, AttributeError) as exc:
-        raise FreshnessError(f"cannot read manifest {manifest}: {exc}") from exc
-    if not isinstance(cards, list):
-        raise FreshnessError(f"manifest {manifest} has no 'cards' list")
-    out: dict[str, tuple[bool, date | None]] = {}
-    for card in cards:
-        if not isinstance(card, dict) or not card.get("card_id"):
-            continue
-        try:
-            card_id = require_card_id(card["card_id"])
-        except InvalidCardIdError as exc:
-            raise FreshnessError(f"manifest {manifest}: {exc}") from exc
-        is_pdf = str(card.get("asset_type", "")).upper() == "PDF"
-        was_pdf, released = out.get(card_id, (False, None))
-        if is_pdf:
-            when = _release_date(card.get("release_date"))
-            released = min(filter(None, (released, when)), default=None)
-        out[card_id] = (was_pdf or is_pdf, released)
-    return sorted((cid, pdf, rel) for cid, (pdf, rel) in out.items())
 
 
 @dataclass
@@ -207,6 +171,37 @@ def _non_negative(text: str) -> int:
     return value
 
 
+def _report_lines(res: Result) -> list[str]:
+    """Every report line for a finished check, ending with the verdict."""
+    lines = [f"stale OCR input: {s}" for s in res.stale]
+    lines += [f"covered: {c}" for c in res.covered]
+    lines += [f"PDF card with no registry PDF row: {c}" for c in res.unregistered]
+    lines += [
+        f"unregistered-stale: {c} (released {d.isoformat()}, from the manifest release_date; "
+        f"no registry row after more than {res.unregistered_days} days)"
+        for c, d in res.unregistered_stale
+    ]
+    lines += [f"unverifiable provenance: {c} ({why})" for c, why in res.unverifiable]
+    counts = (
+        f"{res.checked} PDF cards checked, ok {res.checked - len(res.stale) - len(res.covered) - len(res.unverifiable)}, "
+        f"{len(res.stale)} stale, {len(res.covered)} covered, "
+        f"unregistered: {len(res.unregistered)}, "
+        f"unregistered-stale: {len(res.unregistered_stale)}, unverifiable provenance: {len(res.unverifiable)}"
+    )
+    if res.over_ceiling:
+        lines.append(
+            f"unverifiable provenance count {len(res.unverifiable)} exceeds the ceiling "
+            f"{res.max_unverifiable} (--max-unverifiable)"
+        )
+    if res.over_stale_ceiling:
+        lines.append(
+            f"unregistered-stale count {len(res.unregistered_stale)} exceeds the ceiling "
+            f"{res.max_unregistered_stale} (--max-unregistered-stale)"
+        )
+    lines.append(f"ocr input freshness: {'FAILED' if res.failed else 'OK'} ({counts})")
+    return lines
+
+
 def main(argv: list[str] | None = None) -> int:
     data = REPO_ROOT / "data"
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -250,32 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     except (FreshnessError, ByteDispositionError, OSError) as exc:
         print(f"ocr input freshness: ERROR: {exc}", file=sys.stderr)
         return 1
-    lines = [f"stale OCR input: {s}" for s in res.stale]
-    lines += [f"covered: {c}" for c in res.covered]
-    lines += [f"PDF card with no registry PDF row: {c}" for c in res.unregistered]
-    lines += [
-        f"unregistered-stale: {c} (released {d.isoformat()}, from the manifest release_date; "
-        f"no registry row after more than {res.unregistered_days} days)"
-        for c, d in res.unregistered_stale
-    ]
-    lines += [f"unverifiable provenance: {c} ({why})" for c, why in res.unverifiable]
-    counts = (
-        f"{res.checked} PDF cards checked, ok {res.checked - len(res.stale) - len(res.covered) - len(res.unverifiable)}, "
-        f"{len(res.stale)} stale, {len(res.covered)} covered, "
-        f"unregistered: {len(res.unregistered)}, "
-        f"unregistered-stale: {len(res.unregistered_stale)}, unverifiable provenance: {len(res.unverifiable)}"
-    )
-    if res.over_ceiling:
-        lines.append(
-            f"unverifiable provenance count {len(res.unverifiable)} exceeds the ceiling "
-            f"{res.max_unverifiable} (--max-unverifiable)"
-        )
-    if res.over_stale_ceiling:
-        lines.append(
-            f"unregistered-stale count {len(res.unregistered_stale)} exceeds the ceiling "
-            f"{res.max_unregistered_stale} (--max-unregistered-stale)"
-        )
-    lines.append(f"ocr input freshness: {'FAILED' if res.failed else 'OK'} ({counts})")
+    lines = _report_lines(res)
     print("\n".join(lines))
     return 1 if res.failed else 0
 
