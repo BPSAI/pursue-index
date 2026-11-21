@@ -3,7 +3,9 @@
 Idempotent against the manifest: skips files that already exist with non-zero
 size, except for cards named in ``refresh_shas`` (``bytes-changed`` cards):
 those are re-fetched to a temporary file, checked against the registry's
-latest sha, and only then replace the file. Routes by ``asset_type``:
+latest sha, and only then replace the file. A card whose bytes fail that check
+keeps its old file; the rest of the batch finishes, then ``DownloadBatchError``
+names the failed cards. Routes by ``asset_type``:
 
   * PDF → ``settings.pdf_dir / {card_id} / {filename}``
   * IMG → ``settings.image_dir / {card_id} / {filename}``
@@ -43,6 +45,18 @@ _ALLOWED_ASSET_HOSTS = frozenset({"www.war.gov", "war.gov"})
 
 class DownloadShaMismatchError(RuntimeError):
     """A re-fetched file's sha differs from the registry's latest; the old file is kept."""
+
+
+class DownloadBatchError(RuntimeError):
+    """Some cards failed verification; every other card was still processed.
+
+    ``failed`` maps each failed card_id to the reason; their old files are kept.
+    """
+
+    def __init__(self, failed: dict[str, str]) -> None:
+        self.failed = dict(failed)
+        lines = "".join(f"\n  {card_id}: {why}" for card_id, why in self.failed.items())
+        super().__init__(f"{len(self.failed)} card(s) failed verification:{lines}")
 
 
 def _is_allowed_asset_url(url: str) -> bool:
@@ -156,6 +170,7 @@ async def download_all(
     """
     refresh_shas = refresh_shas or {}
     sem = asyncio.Semaphore(settings.download_concurrency)
+    failed: dict[str, str] = {}
     headers = {
         "User-Agent": settings.scrape_user_agent
         or (
@@ -173,14 +188,24 @@ async def download_all(
 
         async def _bounded(card: CardMetadata) -> Path | None:
             async with sem:
-                return await _download_one(
-                    client, card, expected_sha=refresh_shas.get(card.card_id)
-                )
+                try:
+                    return await _download_one(
+                        client, card, expected_sha=refresh_shas.get(card.card_id)
+                    )
+                except DownloadShaMismatchError as exc:
+                    # Keep the old file, record the card, carry on with the rest.
+                    log.error("download.sha_mismatch", card_id=card.card_id, error=str(exc))
+                    failed[card.card_id] = str(exc)
+                    return None
 
         results = await asyncio.gather(
             *(_bounded(c) for c in manifest.cards), return_exceptions=False
         )
 
     downloaded = sum(1 for r in results if r is not None)
-    log.info("download.summary", downloaded=downloaded, total=len(manifest.cards))
+    log.info(
+        "download.summary", downloaded=downloaded, total=len(manifest.cards), failed=len(failed)
+    )
+    if failed:
+        raise DownloadBatchError(failed)
     return results
