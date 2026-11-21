@@ -56,7 +56,8 @@ def test_resolve_approved_snapshot_returns_snapshot_path(tmp_path: Path) -> None
     snapshots_dir.mkdir()
     target = snapshots_dir / f"{tranche}.json"
     target.write_text("{}")
-    assert resolve_approved_snapshot(tranche, log, snapshots_dir, tmp_path / "diffs") == target
+    assert resolve_approved_snapshot(tranche, log, snapshots_dir, tmp_path / "diffs",
+                                     tmp_path / "date_resolutions.json") == target
 
 
 @pytest.mark.usefixtures("pursue_data_root")

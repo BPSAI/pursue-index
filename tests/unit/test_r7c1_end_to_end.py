@@ -45,6 +45,9 @@ def _gate_args(scratch: Path) -> list[str]:
     return [
         "--log", str(log),
         "--snapshots-dir", str(snapshots),
+        # The scratch dir is not a checkout layout, so the overlay is named:
+        # this checkout's own (read only), as a default run would read it.
+        "--date-resolutions", str(_REPO_ROOT / "data" / "date_resolutions.json"),
         "--diff-dir", str(_REPO_ROOT / "data" / "tranche-diffs"),
         "--aliases", str(_REPO_ROOT / "data" / "card-aliases.json"),
         "--asset-registry", str(_REPO_ROOT / "data" / "asset-bytes-registry.jsonl"),

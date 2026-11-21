@@ -38,9 +38,8 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.paths import installed_scripts_dir
-from pursue_index.scrape.date_resolutions import Overlay
 from pursue_index.scrape.snapshots import write_public_index
-from pursue_index.scrape.variants import resolve_snapshot, snapshot_name
+from pursue_index.scrape.variants import OverlaySource, resolve_snapshot, snapshot_name
 
 # Operator-local builders invoked from promote_snapshot as part of the
 # release-pipeline-gate lockstep refresh. Both are idempotent. posters now
@@ -57,11 +56,12 @@ _OPERATOR_LOCAL_BUILDERS = (
 
 
 def locate_snapshot(tranche_sha: str, snapshots_dir: Path,
-                    overlay: Overlay | None = None) -> Path | None:
+                    overlay: OverlaySource) -> Path | None:
     """Find the snapshot manifest for the given (full or prefix) sha: the one
-    made with the current date-resolution overlay (``overlay``, by default
-    the checkout's ``data/date_resolutions.json``). Raises
-    ``variants.VariantMismatchError`` when snapshots exist but none matches."""
+    made with the current date-resolution ``overlay`` (``variants.load_overlay``:
+    the entries, the overlay file, or None for a standard-layout dir). Raises
+    ``variants.VariantMismatchError`` when snapshots exist but none matches,
+    and its ``OverlayLocationError`` when None is given for another dir."""
     return resolve_snapshot(tranche_sha, snapshots_dir, overlay)
 
 
@@ -69,6 +69,7 @@ def _mirror_snapshot_to_web(
     snapshot_path: Path,
     snapshot_file: str,
     web_snapshots_dir: Path,
+    sha: str = "",
 ) -> None:
     """Copy the snapshot file into web/public/data/snapshots/ and refresh
     the index.json the /diff page reads. Safe filesystem-only operation;
@@ -82,7 +83,8 @@ def _mirror_snapshot_to_web(
     # the ONE source of truth for the enriched {filename, fetched_at,
     # card_count} shape the /diff selectors need. Using it here keeps
     # this path byte-identical to the scrape-run + runbook paths.
-    write_public_index(web_snapshots_dir)
+    # The promoted file is that sha's one index entry (a variant replaces the base).
+    write_public_index(web_snapshots_dir, {sha: snapshot_file} if sha else None)
 
 
 def promote_snapshot(snapshot_path: Path, manifest_path: Path) -> list[str]:
@@ -146,7 +148,7 @@ def _mirror_to_deploy_surfaces(snapshot_path: Path, repo_root: Path) -> None:
         # variant), so a variant never overwrites the base public copy.
         snapshot_file = snapshot_name(doc["csv_sha256"], doc.get("resolutions_digest"))
         web_snapshots = repo_root / "web" / "public" / "data" / "snapshots"
-        _mirror_snapshot_to_web(snapshot_path, snapshot_file, web_snapshots)
+        _mirror_snapshot_to_web(snapshot_path, snapshot_file, web_snapshots, doc["csv_sha256"])
 
 
 def _report_builder_result(

@@ -148,7 +148,7 @@ def _write_new_snapshot(
             # Refresh the public index too: a restored mirror file that the
             # index doesn't enumerate is a canonical/public inconsistency
             # DiffIsland would trip on.
-            _rebuild_index(canonical_dir, public_dir)
+            _rebuild_index(canonical_dir, public_dir, {manifest.csv_sha256: name})
         return
     # save_manifest is the SINGLE serializer for snapshot bytes — DiffIsland
     # reads snapshots written by BOTH this CI lane and a local scrape-run
@@ -156,7 +156,7 @@ def _write_new_snapshot(
     # Write canonical via save_manifest, then mirror the exact bytes to public.
     save_manifest(manifest, canonical_path)
     public_path.write_bytes(canonical_path.read_bytes())
-    _rebuild_index(canonical_dir, public_dir)
+    _rebuild_index(canonical_dir, public_dir, {manifest.csv_sha256: name})
 
 
 def _group_by_card_id(cards: list[CardMetadata]) -> dict[str, list[dict[str, Any]]]:

@@ -101,7 +101,7 @@ def test_overlay_added_after_the_snapshot_regenerates_and_promotes_resolved(repo
     assert json.loads(variant.read_text())["resolutions_digest"] == digest
     assert poll_snapshot.main(repo.argv("--check-up-to-date")) == 0
 
-    located = locate_snapshot(_SHA, repo.snapshots)  # overlay read from the checkout
+    located = locate_snapshot(_SHA, repo.snapshots, None)  # None: the checkout's overlay
     assert located == variant
     promote_snapshot(located, repo.latest)
     promoted = json.loads(repo.latest.read_text())
@@ -126,7 +126,7 @@ def test_no_overlay_keeps_names_and_bytes(repo) -> None:
     snap = (repo.snapshots / f"{_SHA}.json").read_text(encoding="utf-8")
     assert "resolutions_digest" not in snap
     assert "resolutions_digest" not in (repo.snapshots / "index.json").read_text()
-    assert locate_snapshot(_SHA, repo.snapshots) == repo.snapshots / f"{_SHA}.json"
+    assert locate_snapshot(_SHA, repo.snapshots, None) == repo.snapshots / f"{_SHA}.json"
     assert poll_snapshot.main(repo.argv("--check-up-to-date")) == 0
 
 
@@ -152,7 +152,7 @@ def test_same_overlay_rerun_is_a_noop_and_a_changed_one_a_new_variant(repo) -> N
     assert poll_snapshot.main(repo.argv()) == 0
     assert {p.name for p in repo.snapshots.glob(f"{_SHA}*.json")} == {
         f"{_SHA}.r{first[:12]}.json", f"{_SHA}.r{second[:12]}.json"}
-    assert locate_snapshot(_SHA, repo.snapshots) == repo.snapshots / f"{_SHA}.r{second[:12]}.json"
+    assert locate_snapshot(_SHA, repo.snapshots, None) == repo.snapshots / f"{_SHA}.r{second[:12]}.json"
 
 
 def test_variants_with_none_matching_is_a_hard_error(repo) -> None:
@@ -160,18 +160,18 @@ def test_variants_with_none_matching_is_a_hard_error(repo) -> None:
     assert poll_snapshot.main(repo.argv()) == 0
     repo.resolve(_case2_id(), who="someone else")  # current overlay matches no variant
     with pytest.raises(VariantMismatchError, match="regenerate"):
-        locate_snapshot(_SHA, repo.snapshots)
+        locate_snapshot(_SHA, repo.snapshots, None)
 
 
 def test_base_only_with_an_applicable_overlay_is_a_hard_error(repo) -> None:
     assert poll_snapshot.main(repo.argv()) == 0
     repo.resolve(_case2_id())
     with pytest.raises(VariantMismatchError):
-        locate_snapshot(_SHA, repo.snapshots)
+        locate_snapshot(_SHA, repo.snapshots, None)
 
 
 def test_overlay_for_another_card_keeps_the_base_identity(repo) -> None:
     repo.resolve("0" * 16)
     assert poll_snapshot.main(repo.argv()) == 0
     assert (repo.snapshots / f"{_SHA}.json").is_file()
-    assert locate_snapshot(_SHA, repo.snapshots) == repo.snapshots / f"{_SHA}.json"
+    assert locate_snapshot(_SHA, repo.snapshots, None) == repo.snapshots / f"{_SHA}.json"

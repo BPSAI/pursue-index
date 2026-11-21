@@ -29,7 +29,8 @@ def snapshots(tmp_path: Path) -> Path:
 
 
 def _audit(snapshots: Path, *, tranche: str = SHA, skip: bool = False, reason: str | None = None):
-    return ingest_audit._run_pre_approval_audit([], {}, tranche, snapshots, skip, reason)
+    return ingest_audit._run_pre_approval_audit([], {}, tranche, snapshots, skip, reason,
+                                                snapshots.parent / "date_resolutions.json")
 
 
 def _exit_code(fn) -> int:
