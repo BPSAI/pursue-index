@@ -181,13 +181,15 @@ def _workflow_helper_regex() -> str:
     return m.group(1)
 
 
-def test_the_workflow_helper_pattern_and_the_classifier_accept_the_same_names():
+def test_the_classifier_audits_a_superset_of_what_the_workflow_copies():
     import re
 
     pattern = re.compile(_workflow_helper_regex())
     for name in HELPER_NAMES:
-        # Every helper-shaped name is audited by the classifier, so only the
-        # names the classifier treats as helpers (and not otherwise audited)
-        # can be compared; the others must be rejected by both.
-        assert bool(pattern.search(name)) == pc.is_helper(name), name
+        # Anything the workflow would copy from the base must be audited; the
+        # classifier may audit more (the broad rule), never less.
+        if pattern.search(name):
+            assert pc.needs_audit(name), name
     assert pc.is_helper("scripts/_web_audit_v2.py")
+    assert pc.needs_audit("scripts/_web_audit_Upper.py")
+    assert pc.needs_audit("scripts/_web_audit_x-y.py")

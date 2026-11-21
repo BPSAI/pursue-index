@@ -225,6 +225,85 @@ def test_every_npm_audit_pins_the_registry():
         assert "--registry=https://registry.npmjs.org/" in line, line
 
 
+# --- each audit runs from a clean directory with empty npm configs --------
+#
+# --registry alone does not stop a PR-supplied .npmrc from steering the audit
+# (proxy, https-proxy, strict-ssl, cafile, a scoped registry). So each audit
+# runs in a fresh temporary directory holding only the package's manifest and
+# lockfile, with empty user and global configs.
+
+AUDIT_STEPS = [
+    ("npm audit (production dependencies)", "web", "audit.json"),
+    ("npm audit (Worker production dependencies)", "worker", "worker-audit.json"),
+]
+
+
+def _audit_step(name: str) -> dict:
+    found = [s for s in _wf()["jobs"]["audit"]["steps"] if s.get("name") == name]
+    assert found, name
+    return found[0]
+
+
+@pytest.mark.parametrize(("name", "pkg", "out"), AUDIT_STEPS)
+def test_each_audit_runs_in_a_clean_directory_with_empty_configs(name, pkg, out):
+    step = _audit_step(name)
+    run = step["run"]
+    assert "working-directory" not in step
+    assert "mktemp -d" in run
+    assert f"{pkg}/package.json" in run and f"{pkg}/package-lock.json" in run
+    assert "--registry=https://registry.npmjs.org/" in run
+    assert "--userconfig=" in run and "--globalconfig=" in run
+    assert "--omit=dev --json" in run
+
+
+@pytest.mark.parametrize(("name", "pkg", "out"), AUDIT_STEPS)
+def test_each_audit_ignores_a_hostile_npmrc_in_the_package(name, pkg, out):
+    step = _audit_step(name)
+    with tempfile.TemporaryDirectory() as tmp:
+        repo, rt, bindir = Path(tmp) / "repo", Path(tmp) / "rt", Path(tmp) / "bin"
+        for d in (repo / pkg, rt, bindir):
+            d.mkdir(parents=True)
+        (repo / pkg / "package.json").write_text("{}", encoding="utf-8")
+        (repo / pkg / "package-lock.json").write_text("{}", encoding="utf-8")
+        (repo / pkg / ".npmrc").write_text("https-proxy=http://evil.invalid\n", encoding="utf-8")
+        (repo / ".npmrc").write_text("strict-ssl=false\n", encoding="utf-8")
+        fake = bindir / "npm"
+        fake.write_text(
+            "#!/bin/bash\n"
+            'echo "CWD=$PWD"\n'
+            'echo "LS=$(ls -A | sort | tr \'\\n\' \',\')"\n'
+            'for a in "$@"; do echo "ARG=$a"; case "$a" in'
+            ' --userconfig=*|--globalconfig=*) f=${a#*=};'
+            ' echo "SIZE=$(wc -c < "$f")";; esac; done\n',
+            encoding="utf-8",
+        )
+        fake.chmod(0o755)
+        env = {**os.environ, "RUNNER_TEMP": str(rt), "PATH": f"{bindir}:{os.environ['PATH']}"}
+        r = subprocess.run(
+            ["bash", "-e", "-o", "pipefail", "-c", step["run"]],
+            cwd=repo, env=env, capture_output=True, text=True,
+        )
+        assert r.returncode == 0, r.stderr
+        lines = (rt / out).read_text(encoding="utf-8").splitlines()
+        cwd = next(x for x in lines if x.startswith("CWD="))[4:]
+        assert cwd.startswith(str(rt)) and Path(cwd) != repo / pkg
+        assert "LS=package-lock.json,package.json," in lines
+        args = [x[4:] for x in lines if x.startswith("ARG=")]
+        assert "--registry=https://registry.npmjs.org/" in args
+        user = next(a for a in args if a.startswith("--userconfig="))
+        glob = next(a for a in args if a.startswith("--globalconfig="))
+        assert lines.count("SIZE=0") == 2, lines
+        assert not Path(user.split("=", 1)[1]).is_relative_to(cwd)
+        assert not Path(glob.split("=", 1)[1]).is_relative_to(cwd)
+
+
+def test_the_gate_flag_rule_is_documented():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    rule = "a new gate flag lands in its own PR first"
+    assert rule in text
+    assert rule in Path(gate.__file__).read_text(encoding="utf-8")
+
+
 def test_the_gate_steps_pass_full_arguments_and_do_not_probe_help():
     text = WORKFLOW.read_text(encoding="utf-8")
     assert "--help" not in text
