@@ -50,6 +50,8 @@ class RunState:
     partial_reason: str = ""  # why a run covered fewer cards than the manifest has
     cards_hashed: int = 0
     no_upstream_url: int = 0
+    # Hosts of the manifest's asset URLs; every fetch and redirect must stay inside it.
+    allowed_hosts: frozenset[str] | None = None
 
 
 def write_run_record(path: Path, entry: dict[str, Any]) -> None:

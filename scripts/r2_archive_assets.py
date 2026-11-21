@@ -95,7 +95,15 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from _r2_archive_put import put_archive_and_current
-from _r2_fetch import fetch_asset, head_asset, head_identical, last_known_size, rows_for_asset
+from _r2_fetch import (
+    allowed_hosts_from_urls,
+    byte_cap,
+    fetch_asset,
+    head_asset,
+    head_identical,
+    last_known_size,
+    rows_for_asset,
+)
 from _r2_run_state import (
     GATE_MARKER_SCHEMA,
     RUN_RECORD_NAME,
@@ -272,7 +280,8 @@ def _process_card(
 
     # Only this asset's rows: a card's newest row may belong to another asset.
     rows = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
-    cl, etag, last_modified = head_asset(card.asset_url)
+    hosts = state.allowed_hosts
+    cl, etag, last_modified = head_asset(card.asset_url, hosts)
     # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
     # with the last row (size + ETag, or size + Last-Modified when there is no
     # ETag) is trusted to skip the fetch, and
@@ -283,7 +292,9 @@ def _process_card(
     with tempfile.TemporaryDirectory(prefix="r2-archive-") as tmp:
         body = Path(tmp) / "asset"
         try:
-            byte_sha, size = fetch_asset(card.asset_url, body)
+            byte_sha, size = fetch_asset(
+                card.asset_url, body, max_bytes=byte_cap(rows), allowed_hosts=hosts
+            )
         except Exception as exc:
             print(f"[r2-archive] fetch fail {card.card_id}: {exc}")
             return "fail"
@@ -516,6 +527,7 @@ def main(argv: list[str] | None = None) -> int:
         return _no_credentials(args)
 
     state = RunState(full_hash=args.full_hash)
+    state.allowed_hosts = allowed_hosts_from_urls(c.asset_url for c in manifest.cards)
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
