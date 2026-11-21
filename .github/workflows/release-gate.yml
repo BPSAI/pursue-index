@@ -341,7 +341,8 @@ jobs:
           # (the first, the missing package install, masked it via
           # fail-fast). Pin ≥22.18 so stripping is default, matching the
           # comment's own stated requirement and the Node 24 local dev env.
-          node-version: "22.18"
+          # Now "22.23.4", the minimum Node that Astro 7 accepts.
+          node-version: "22.23.4"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
