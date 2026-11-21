@@ -15,15 +15,28 @@ nothing about the test harness can paper over a wrong resolution.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 _SHA = "a1b2c3d4e5f6" + "0" * 52  # 64 hex chars
 
 
+# Variables that change which code a child Python imports. A caller's
+# relative ``PYTHONPATH=src`` would resolve against the fixture checkout's
+# stub package, so every child starts without them.
+_IMPORT_PATH_LEAKS = ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE")
+
+
+def _clean_env() -> dict[str, str]:
+    return {k: v for k, v in os.environ.items() if k not in _IMPORT_PATH_LEAKS}
+
+
 def _run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+    return subprocess.run(args, cwd=cwd, capture_output=True, text=True, env=_clean_env())
 
 
 def _pursue_bin() -> Path:
@@ -84,9 +97,12 @@ def _build_base_fixture_repo(root: Path) -> None:
 
 def test_dry_run_from_a_worktree_of_an_unrelated_checkout_is_refused(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A worktree of some other pursue-index clone is not this install's
     checkout or one of its worktrees, so nothing is read or written there."""
+    # An inherited relative PYTHONPATH must not reach the child processes.
+    monkeypatch.setenv("PYTHONPATH", "src")
     base_repo = tmp_path / "base-repo"
     base_repo.mkdir()
     _build_base_fixture_repo(base_repo)
