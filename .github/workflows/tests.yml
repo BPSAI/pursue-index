@@ -29,17 +29,24 @@ jobs:
           # The job runs PR code; it needs no token after checkout.
           persist-credentials: false
       # Decide whether the suite is needed. Shas come in through env, never
-      # inline. Paths are NUL-separated and unquoted, so a non-ASCII path still
+      # inline. The classifier is the BASE branch's copy, written outside the
+      # workspace, so a PR cannot edit it to skip its own suite; if the base
+      # has none (first PR after it is added, unreadable base) the suite runs.
+      # Paths are NUL-separated and unquoted, so a non-ASCII path still
       # matches its prefix. --no-renames lists both sides of a move, so moving a
-      # file out of a code path still counts. If the diff can't be computed, the classifier gets no input
-      # and fails safe to running the suite.
+      # file out of a code path still counts. If the diff can't be computed, the
+      # classifier gets no input and fails safe to running the suite.
       - name: Did any code or test path change?
         id: changes
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          code=$( { git -c core.quotePath=false diff --no-renames --name-only -z "$BASE_SHA...$HEAD_SHA" || true; } | python3 scripts/ci_code_paths_changed.py)
+          code=true
+          base_classifier="$RUNNER_TEMP/ci_code_paths_changed_base.py"
+          if git show "$BASE_SHA:scripts/ci_code_paths_changed.py" > "$base_classifier"; then
+            code=$( { git -c core.quotePath=false diff --no-renames --name-only -z "$BASE_SHA...$HEAD_SHA" || true; } | python3 "$base_classifier") || code=true
+          fi
           # Only an explicit "false" skips; an empty or odd result runs the suite.
           [ "$code" = "false" ] || code=true
           echo "code=$code" >> "$GITHUB_OUTPUT"
