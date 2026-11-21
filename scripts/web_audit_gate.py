@@ -5,9 +5,11 @@ Input is the JSON from ``npm audit --omit=dev --json`` (a path, or ``-`` for
 stdin). The allowlist (default ``web/audit-build-only.json``) holds:
 
 ``build_only``
-    ``{package: reason}``. Packages whose code runs only while the site is
-    built, never in the browser bundle or the Worker. A high advisory in one
-    of these does not fail the gate.
+    ``{"name@version": reason}``. Exact installed versions of packages whose
+    code runs only while the site is built, never in the browser bundle or the
+    Worker. A high advisory in one of these does not fail the gate. The match
+    is on the version in the lockfile, so a bump to another version of the same
+    name is runtime again until someone lists it.
 
 ``accepted_advisories``
     ``{GHSA id: {"reason": ..., "review_by": "YYYY-MM-DD"}}``. A specific advisory that is known and consciously
@@ -42,6 +44,7 @@ from pathlib import Path
 # CI passes --allowlist explicitly.
 KNOWN_SEVERITIES = ("info", "low", "moderate", "high", "critical")
 DEFAULT_ALLOWLIST = Path("web") / "audit-build-only.json"
+DEFAULT_LOCKFILE = Path("web") / "package-lock.json"
 
 
 @dataclass
@@ -82,6 +85,8 @@ def load_allowlist_data(data: object) -> dict:
             raise ValueError(f"{key} must map names to reasons")
         for name, entry in section.items():
             if key == "build_only":
+                if not re.fullmatch(r"(@[^/@\s]+/)?[^/@\s]+@[^@\s]+", name):
+                    raise ValueError(f"{key}[{name!r}] must be an exact name@version")
                 if not isinstance(entry, str) or not entry.strip():
                     raise ValueError(f"{key}[{name!r}] needs a reason")
                 continue
@@ -106,8 +111,36 @@ def _ghsa(advisory: dict) -> str:
     return str(advisory.get("source", "unknown"))
 
 
+def installed_copies(lock: dict | None, name: str) -> list[tuple[str, str]]:
+    """``(lock path, version)`` for every production copy of ``name`` installed."""
+    packages = (lock or {}).get("packages")
+    if not isinstance(packages, dict):
+        return []
+    out = []
+    for key, meta in packages.items():
+        if not isinstance(meta, dict) or meta.get("dev"):
+            continue
+        if key == f"node_modules/{name}" or key.endswith(f"/node_modules/{name}"):
+            out.append((key, str(meta.get("version", ""))))
+    return sorted(out)
+
+
+def not_build_only(name: str, build_only: dict, lock: dict | None) -> str | None:
+    """None if every installed copy of ``name`` is exempted by exact version."""
+    copies = installed_copies(lock, name)
+    if not copies:
+        return "no installed copy found in the lockfile"
+    unlisted = sorted({f"{name}@{v}" for _, v in copies if f"{name}@{v}" not in build_only})
+    if unlisted:
+        return "installed " + ", ".join(unlisted) + " is not listed as build-only"
+    return None
+
+
 def decide(
-    report: object, allowlist: dict, today: datetime.date | None = None
+    report: object,
+    allowlist: dict,
+    lock: dict | None = None,
+    today: datetime.date | None = None,
 ) -> Decision:
     d = Decision()
     today = today or datetime.date.today()
@@ -175,13 +208,15 @@ def decide(
             elif sev == "high":
                 if ghsa in accepted:
                     seen_accepted.add(ghsa)
-                elif pkg in build_only:
-                    seen_build_only.add(pkg)
                 else:
-                    d.failures.append(
-                        f"{pkg}: high advisory {ghsa} in a package not classified build-only"
-                        " (treated as runtime)"
-                    )
+                    why = not_build_only(pkg, build_only, lock)
+                    if why is None:
+                        seen_build_only.add(pkg)
+                    else:
+                        d.failures.append(
+                            f"{pkg}: high advisory {ghsa} in a package not classified"
+                            f" build-only (treated as runtime): {why}"
+                        )
     d.build_only = sorted(seen_build_only)
     d.accepted = sorted(seen_accepted)
     return d
@@ -217,11 +252,17 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("audit", help="npm audit --json output file, or - for stdin")
     ap.add_argument("--allowlist", type=Path, default=DEFAULT_ALLOWLIST)
+    ap.add_argument("--lockfile", type=Path, default=DEFAULT_LOCKFILE)
     args = ap.parse_args(argv)
     try:
         allowlist = load_allowlist(args.allowlist)
     except (OSError, ValueError) as exc:  # JSONDecodeError is a ValueError
         print(f"web-audit gate: FAIL (cannot read the allowlist: {exc})")
+        return 1
+    try:
+        lock = json.loads(args.lockfile.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print(f"web-audit gate: FAIL (cannot read the lockfile: {exc})")
         return 1
     try:
         report = _read(args.audit)
@@ -232,7 +273,7 @@ def main(argv: list[str] | None = None) -> int:
     if reason:
         print(f"web-audit gate: REJECT (unusable audit report: {reason})")
         return 2
-    d = decide(report, allowlist)
+    d = decide(report, allowlist, lock)
     if d.build_only:
         print("build-only high advisories (allowed): " + ", ".join(d.build_only))
     if d.accepted:

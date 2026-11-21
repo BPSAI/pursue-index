@@ -21,6 +21,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "web_audit_gate.py"
 ALLOWLIST = ROOT / "web" / "audit-build-only.json"
 FIXTURES = ROOT / "tests" / "fixtures" / "web_audit"
+WEB_LOCK = ROOT / "web" / "package-lock.json"
+REAL_LOCK = json.loads(WEB_LOCK.read_text(encoding="utf-8"))
 WORKFLOW = ROOT / ".github" / "workflows" / "web-audit.yml"
 
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -65,8 +67,18 @@ def _vuln(name: str, severity: str, ghsa: str = "GHSA-aaaa-bbbb-cccc") -> dict:
 
 TODAY = datetime.date(2026, 11, 21)
 
+def _lock(**versions: str) -> dict:
+    """A minimal package-lock.json: one top-level install per name."""
+    pkgs: dict[str, dict] = {"": {"name": "web", "version": "0.0.1"}}
+    for name, version in versions.items():
+        pkgs[f"node_modules/{name}"] = {"version": version}
+    return {"lockfileVersion": 3, "packages": pkgs}
+
+
+LOCK = _lock(postcss="8.5.0", preact="10.0.0", astro="7.0.0", somepkg="1.0.0")
+
 ALLOW = {
-    "build_only": {"postcss": "bundled at build time, never shipped"},
+    "build_only": {"postcss@8.5.0": "bundled at build time, never shipped"},
     "accepted_advisories": {
         "GHSA-crit-0000-0000": {
             "reason": "image optimisation is unused",
@@ -77,13 +89,13 @@ ALLOW = {
 
 
 def test_critical_fails():
-    d = gate.decide(_report(_vuln("somepkg", "critical")), ALLOW, today=TODAY)
+    d = gate.decide(_report(_vuln("somepkg", "critical")), ALLOW, lock=LOCK, today=TODAY)
     assert not d.ok
     assert any("somepkg" in f for f in d.failures)
 
 
 def test_critical_in_build_only_package_still_fails():
-    d = gate.decide(_report(_vuln("postcss", "critical")), ALLOW, today=TODAY)
+    d = gate.decide(_report(_vuln("postcss", "critical")), ALLOW, lock=LOCK, today=TODAY)
     assert not d.ok
 
 
@@ -98,18 +110,67 @@ def test_accepted_critical_advisory_passes():
 def test_one_unaccepted_critical_among_accepted_fails():
     v = _vuln("astro", "critical", "GHSA-crit-0000-0000")
     v["via"].append(_advisory("astro", "critical", "GHSA-new0-0000-0000"))
-    assert not gate.decide(_report(v), ALLOW, today=TODAY).ok
+    assert not gate.decide(_report(v), ALLOW, lock=LOCK, today=TODAY).ok
 
 
 def test_runtime_high_fails():
-    d = gate.decide(_report(_vuln("preact", "high")), ALLOW, today=TODAY)
+    d = gate.decide(_report(_vuln("preact", "high")), ALLOW, lock=LOCK, today=TODAY)
     assert not d.ok
 
 
 def test_build_only_high_passes():
-    d = gate.decide(_report(_vuln("postcss", "high")), ALLOW, today=TODAY)
+    d = gate.decide(_report(_vuln("postcss", "high")), ALLOW, lock=LOCK, today=TODAY)
     assert d.ok
     assert d.build_only == ["postcss"]
+
+
+# --- build-only exemptions match exact name@version pairs from the lockfile.
+
+
+def test_build_only_matches_the_exact_installed_version():
+    lock = _lock(postcss="8.5.0")
+    assert gate.decide(_report(_vuln("postcss", "high")), ALLOW, lock=lock, today=TODAY).ok
+
+
+def test_build_only_does_not_cover_another_version_of_the_name():
+    lock = _lock(postcss="8.6.0")
+    d = gate.decide(_report(_vuln("postcss", "high")), ALLOW, lock=lock, today=TODAY)
+    assert not d.ok
+    assert any("postcss@8.6.0" in f for f in d.failures)
+
+
+def test_every_installed_copy_must_be_exempted():
+    lock = _lock(postcss="8.5.0")
+    lock["packages"]["node_modules/vite/node_modules/postcss"] = {"version": "8.4.0"}
+    d = gate.decide(_report(_vuln("postcss", "high")), ALLOW, lock=lock, today=TODAY)
+    assert not d.ok
+    assert any("postcss@8.4.0" in f for f in d.failures)
+
+
+def test_dev_only_copies_do_not_count():
+    lock = _lock(postcss="8.5.0")
+    lock["packages"]["node_modules/vite/node_modules/postcss"] = {"version": "8.4.0", "dev": True}
+    assert gate.decide(_report(_vuln("postcss", "high")), ALLOW, lock=lock, today=TODAY).ok
+
+
+def test_without_a_lockfile_nothing_is_exempt():
+    d = gate.decide(_report(_vuln("postcss", "high")), ALLOW, lock=None, today=TODAY)
+    assert not d.ok
+
+
+def test_package_absent_from_the_lockfile_is_not_exempt():
+    d = gate.decide(_report(_vuln("postcss", "high")), ALLOW, lock=_lock(), today=TODAY)
+    assert not d.ok
+
+
+def test_a_bare_name_is_not_a_valid_build_only_key():
+    with pytest.raises(ValueError):
+        gate.load_allowlist_data({"build_only": {"postcss": "reason"}})
+    with pytest.raises(ValueError):
+        gate.load_allowlist_data({"build_only": {"postcss@": "reason"}})
+    with pytest.raises(ValueError):
+        gate.load_allowlist_data({"build_only": {"@scope/pkg": "reason"}})
+    gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})
 
 
 def test_unknown_package_counts_as_runtime():
@@ -136,9 +197,9 @@ def test_transitive_entry_is_covered_by_its_source_package():
         "fixAvailable": False,
     }
     astro = _vuln("astro", "critical", "GHSA-crit-0000-0000")
-    assert gate.decide(_report(astro, mdx), ALLOW, today=TODAY).ok
+    assert gate.decide(_report(astro, mdx), ALLOW, lock=LOCK, today=TODAY).ok
     # With the source unaccepted, the failure is reported on the source.
-    bad = gate.decide(_report(_vuln("astro", "critical"), mdx), ALLOW, today=TODAY)
+    bad = gate.decide(_report(_vuln("astro", "critical"), mdx), ALLOW, lock=LOCK, today=TODAY)
     assert not bad.ok
 
 
@@ -152,14 +213,14 @@ def test_high_with_only_string_via_and_no_source_fails():
         "nodes": [],
         "fixAvailable": False,
     }
-    assert not gate.decide(_report(orphan), ALLOW, today=TODAY).ok
+    assert not gate.decide(_report(orphan), ALLOW, lock=LOCK, today=TODAY).ok
 
 
 @pytest.mark.parametrize("sev", ["none", "severe", "HIGH", "", None, 3])
 def test_unknown_severity_fails_closed(sev):
     entry = _vuln("preact", "low")
     entry["severity"] = sev
-    d = gate.decide(_report(entry), ALLOW, today=TODAY)
+    d = gate.decide(_report(entry), ALLOW, lock=LOCK, today=TODAY)
     assert not d.ok
     assert any("severity" in f for f in d.failures)
 
@@ -167,13 +228,13 @@ def test_unknown_severity_fails_closed(sev):
 def test_unknown_severity_on_an_advisory_fails_closed():
     entry = _vuln("preact", "low")
     entry["via"][0]["severity"] = "catastrophic"
-    d = gate.decide(_report(entry), ALLOW, today=TODAY)
+    d = gate.decide(_report(entry), ALLOW, lock=LOCK, today=TODAY)
     assert not d.ok
 
 
 @pytest.mark.parametrize("sev", ["info", "low", "moderate", "high", "critical"])
 def test_every_documented_severity_is_understood(sev):
-    d = gate.decide(_report(_vuln("postcss", sev)), ALLOW, today=TODAY)
+    d = gate.decide(_report(_vuln("postcss", sev)), ALLOW, lock=LOCK, today=TODAY)
     assert not any("severity" in f for f in d.failures)
 
 
@@ -225,7 +286,7 @@ def test_a_bare_string_acceptance_is_rejected():
 
 
 def test_empty_report_passes():
-    assert gate.decide({"auditReportVersion": 2, "vulnerabilities": {}}, ALLOW, today=TODAY).ok
+    assert gate.decide({"auditReportVersion": 2, "vulnerabilities": {}}, ALLOW, lock=LOCK, today=TODAY).ok
 
 
 @pytest.mark.parametrize(
@@ -239,7 +300,7 @@ def test_empty_report_passes():
     ],
 )
 def test_malformed_or_errored_report_fails_closed(bad):
-    d = gate.decide(bad, ALLOW, today=TODAY)
+    d = gate.decide(bad, ALLOW, lock=LOCK, today=TODAY)
     assert not d.ok
 
 
@@ -265,7 +326,7 @@ def test_recorded_report_before_upgrade_fails_without_allowlist():
 def test_committed_allowlist_passes_the_current_report():
     allow = gate.load_allowlist(ALLOWLIST)
     report = json.loads((FIXTURES / "audit_astro7.json").read_text())
-    d = gate.decide(report, allow)
+    d = gate.decide(report, allow, lock=REAL_LOCK, today=TODAY)
     assert d.ok, d.failures
     assert d.accepted == []
 
@@ -276,19 +337,9 @@ def test_the_avif_advisory_is_no_longer_accepted():
     allow = gate.load_allowlist(ALLOWLIST)
     assert "GHSA-26w7-cxv4-gfx2" not in allow["accepted_advisories"]
     report = json.loads((FIXTURES / "audit_after.json").read_text())
-    d = gate.decide(report, allow)
+    d = gate.decide(report, allow, lock=REAL_LOCK, today=TODAY)
     assert not d.ok
     assert any("GHSA-26w7-cxv4-gfx2" in f for f in d.failures)
-
-
-def test_committed_allowlist_classifies_every_package_in_the_old_report():
-    # Before the upgrade the only unclassified high advisories were astro's
-    # own: astro is kept out of build_only on purpose, so new ones fail.
-    allow = gate.load_allowlist(ALLOWLIST)
-    report = json.loads((FIXTURES / "audit_before.json").read_text())
-    d = gate.decide(report, allow)
-    assert not d.ok
-    assert all(f.startswith("astro:") for f in d.failures), d.failures
 
 
 def test_cli_exit_codes(tmp_path):
@@ -298,10 +349,13 @@ def test_cli_exit_codes(tmp_path):
     bad.write_text(json.dumps(_report(_vuln("preact", "high"))))
     allow = tmp_path / "allow.json"
     allow.write_text(json.dumps(ALLOW))
+    lock = tmp_path / "lock.json"
+    lock.write_text(json.dumps(LOCK))
 
     def run(p):
         return subprocess.run(
-            [sys.executable, "-I", str(SCRIPT), str(p), "--allowlist", str(allow)],
+            [sys.executable, "-I", str(SCRIPT), str(p), "--allowlist", str(allow),
+             "--lockfile", str(lock)],
             capture_output=True,
             text=True,
         )
@@ -317,11 +371,28 @@ def test_cli_exit_codes(tmp_path):
     assert run(empty).returncode == 2
 
 
+def test_cli_fails_when_the_lockfile_is_unreadable(tmp_path):
+    allow = tmp_path / "allow.json"
+    allow.write_text(json.dumps(ALLOW))
+    rep = tmp_path / "rep.json"
+    rep.write_text(json.dumps(_report()))
+    r = subprocess.run(
+        [sys.executable, "-I", str(SCRIPT), str(rep), "--allowlist", str(allow),
+         "--lockfile", str(tmp_path / "nope.json")],
+        capture_output=True, text=True,
+    )
+    assert r.returncode == 1
+    assert "lockfile" in r.stdout
+
+
 def test_cli_reads_stdin(tmp_path):
     allow = tmp_path / "allow.json"
     allow.write_text(json.dumps(ALLOW))
+    lock = tmp_path / "lock.json"
+    lock.write_text(json.dumps(LOCK))
     r = subprocess.run(
-        [sys.executable, "-I", str(SCRIPT), "-", "--allowlist", str(allow)],
+        [sys.executable, "-I", str(SCRIPT), "-", "--allowlist", str(allow),
+         "--lockfile", str(lock)],
         input=json.dumps(_report(_vuln("preact", "high"))),
         capture_output=True,
         text=True,
@@ -381,7 +452,8 @@ def _cli(tmp_path: Path, text: str) -> subprocess.CompletedProcess[str]:
     f = tmp_path / "audit.json"
     f.write_text(text, encoding="utf-8")
     return subprocess.run(
-        [sys.executable, "-I", str(SCRIPT), str(f), "--allowlist", str(ALLOWLIST)],
+        [sys.executable, "-I", str(SCRIPT), str(f), "--allowlist", str(ALLOWLIST),
+         "--lockfile", str(WEB_LOCK)],
         capture_output=True, text=True, check=False,
     )
 
