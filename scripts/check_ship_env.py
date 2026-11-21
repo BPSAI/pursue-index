@@ -23,7 +23,7 @@ import re
 import sys
 from pathlib import Path
 
-_LABEL_RE = re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$")
+_LABEL_RE = re.compile(r"v[0-9]+\.[0-9]+\.[0-9]+")
 _PLACEHOLDER = "vX.Y.Z"
 
 
@@ -68,7 +68,7 @@ def check(root: Path, environ: dict[str, str]) -> list[str]:
             problems.append(
                 f"INTERMEDIATES_LABEL={_PLACEHOLDER} is a placeholder; "
                 "set the real tag this release gets, e.g. v1.8.1.")
-        elif not _LABEL_RE.match(label):
+        elif not _LABEL_RE.fullmatch(label):
             problems.append(f"INTERMEDIATES_LABEL={label!r} is not a vX.Y.Z tag such as v1.8.1.")
         if not environ.get("PURSUE_DATA_ROOT"):
             problems.append("INTERMEDIATES_LABEL needs PURSUE_DATA_ROOT, the data root to pack from.")

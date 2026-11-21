@@ -78,7 +78,7 @@ def test_refuses_the_placeholder_label_by_name() -> None:
 
 
 def test_refuses_a_label_that_is_not_a_semver_tag() -> None:
-    for bad in ("1.8.1", "v1.8", "v1.8.1-rc1", "latest"):
+    for bad in ("1.8.1", "v1.8", "v1.8.1-rc1", "latest", "v1.8.1\n"):
         out = _run(root=ROOT, env=_env(INTERMEDIATES_LABEL=bad, PURSUE_DATA_ROOT="/x"),
                    module_dir=ROOT / "src")
         assert out.returncode == 2, bad
