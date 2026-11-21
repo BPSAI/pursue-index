@@ -124,7 +124,7 @@ def test_a_git_quoted_path_is_treated_as_needing_tests() -> None:
 def test_the_decision_step_asks_git_for_unquoted_nul_separated_paths() -> None:
     step = next(s for s in _workflow()["jobs"]["pytest"]["steps"] if s.get("id") == "changes")
     assert "core.quotePath=false" in step["run"]
-    assert "--name-only -z" in step["run"]
+    assert "--name-only -z" in step["run"] or "--no-renames --name-only -z" in step["run"]
 
 
 def test_undecodable_bytes_do_not_crash_the_classifier() -> None:
@@ -139,3 +139,41 @@ def test_anything_but_an_explicit_false_runs_the_suite() -> None:
     """A classifier crash leaves `code` empty: that must still run the suite."""
     step = next(s for s in _workflow()["jobs"]["pytest"]["steps"] if s.get("id") == "changes")
     assert '[ "$code" = "false" ] || code=true' in step["run"]
+
+
+def _decision_diff_command() -> str:
+    step = next(s for s in _workflow()["jobs"]["pytest"]["steps"] if s.get("id") == "changes")
+    line = next(ln for ln in step["run"].splitlines() if "git " in ln and " diff " in ln)
+    return line[line.index("git "):line.index('"$BASE_SHA...$HEAD_SHA"')].strip()
+
+
+def test_the_decision_step_disables_rename_detection() -> None:
+    assert "--no-renames" in _decision_diff_command()
+
+
+def test_moving_a_file_out_of_src_runs_the_suite(tmp_path: Path) -> None:
+    """With rename detection a move lists only the NEW path; both must appear."""
+    def git(*args: str) -> str:
+        return subprocess.run(
+            ["git", "-C", str(tmp_path), "-c", "user.name=t", "-c", "user.email=t@t",
+             "-c", "commit.gpgsign=false", *args],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+
+    git("init", "-q")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "x.py").write_text("print('x')\n" * 20)
+    git("add", "-A"); git("commit", "-q", "-m", "base")
+    base = git("rev-parse", "HEAD")
+    (tmp_path / "docs").mkdir()
+    git("mv", "src/x.py", "docs/x.py"); git("commit", "-q", "-m", "move")
+    head = git("rev-parse", "HEAD")
+
+    cmd = _decision_diff_command().split()[1:]  # drop the leading "git"
+    diff = subprocess.run(
+        ["git", "-C", str(tmp_path), *cmd, f"{base}...{head}"],
+        capture_output=True, check=True,
+    ).stdout
+    out = subprocess.run([sys.executable, str(CLASSIFIER)], input=diff,
+                         capture_output=True, check=True)
+    assert out.stdout.decode().strip() == "true"
