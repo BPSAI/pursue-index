@@ -1,10 +1,10 @@
 name: Post-deploy verify
 
 # Runs Phase 8 of the site-release runbook after every push to main:
-# waits for CF Pages to finish building (polls), then HEAD-checks
-# homepage / methodology / sample card pages on pursueindex.com. If
-# anything 4xx/5xx after the polling window, opens a `deploy-broken`
-# issue.
+# waits for THIS commit's "Workers Builds: pursue-index" check run to
+# complete successfully, confirms the live site's /deploy-stamp.json names
+# this commit, then HEAD-checks homepage / methodology / sample card pages
+# on pursueindex.com. If anything fails, opens a `deploy-broken` issue.
 #
 # This is the safety net that catches anything `make ship-ready`
 # missed — e.g., a worker-route change that builds locally but fails in
@@ -23,9 +23,15 @@ on:
         description: "Max polling time in seconds"
         required: false
         default: "600"
+      skip_build_wait:
+        description: "Skip the build wait and deployed-commit check (manual runs with no build for this sha)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+  checks: read
   issues: write
 
 concurrency:
@@ -37,7 +43,7 @@ jobs:
   verify:
     name: Post-deploy URL verification
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v4.4.2
@@ -47,13 +53,30 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Wait for CF Pages deploy
-        # CF Pages doesn't expose a webhook into GH Actions; the
-        # post-deploy verify polls until the deployed page reflects the
-        # commit, with a hard timeout from the workflow input.
+      - name: Report build-wait mode
         run: |
-          sleep 120  # Initial soft wait for CF Pages to even start
-          echo "Initial 2-minute wait complete; starting polling verify..."
+          echo "event=${{ github.event_name }} skip_build_wait=${{ inputs.skip_build_wait || 'false' }}"
+
+      - name: Wait for this commit's build
+        # Pushes never skip: the check run on github.sha must complete with
+        # success (a missing run is a failure), so a broken or still-running
+        # build cannot read green.
+        if: github.event_name != 'workflow_dispatch' || !inputs.skip_build_wait
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/wait_for_check_run.py \
+            --sha "${{ github.sha }}" \
+            --name "Workers Builds: pursue-index" \
+            --timeout-secs 1200
+
+      - name: Confirm the deployed build is this commit
+        if: github.event_name != 'workflow_dispatch' || !inputs.skip_build_wait
+        run: |
+          python scripts/check_deployed_commit.py \
+            --sha "${{ github.sha }}" \
+            --base-url "${{ inputs.base_url || 'https://pursueindex.com' }}" \
+            --timeout-secs 300
 
       - name: Run verify-deploy
         run: |
@@ -75,12 +98,13 @@ jobs:
               `Workflow run: ${run_url}`,
               ``,
               `Likely causes:`,
-              `- CF Pages build failed or took >10 min`,
+              `- the Workers Builds check run failed, never appeared, or took >20 min`,
+              `- the live site is still serving an older deploy (/deploy-stamp.json)`,
               `- pages.json / manifest / cards-summary out of sync at deploy time`,
               `- Worker route gap (e.g., new asset_type without route coverage)`,
               ``,
               `Next steps:`,
-              `1. Check the CF Pages dashboard for build errors`,
+              `1. Check the Workers Builds log for this commit`,
               `2. Re-run the failing workflow if the build just took too long`,
               `3. If failures persist, run \`make verify-deploy\` locally + investigate`,
             ].join('\n');
