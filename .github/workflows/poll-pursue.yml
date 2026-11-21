@@ -473,7 +473,7 @@ jobs:
                     data/registry-root-manifest.txt
           fi
           if ! git diff --cached --quiet; then
-            new_rows=$(git diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')
+            new_rows=$(git diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{' || true)
             git commit -m "chore(poll): r2 archive +${new_rows} byte-sha row(s)"
             git push origin "HEAD:refs/heads/${POLL_BRANCH}"
           else

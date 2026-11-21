@@ -7,12 +7,31 @@ the sha256 and to a file, so a multi-hundred-megabyte video costs one chunk of R
 from __future__ import annotations
 
 import hashlib
+import time
 from pathlib import Path
 from typing import Any
 
 from curl_cffi import requests as cffi_requests
 
 CHUNK_SIZE = 1 << 20
+
+# Read-progress timeout, not a fixed total: a large video arriving steadily must not
+# be cut off, while a stalled connection fails after IDLE_TIMEOUT_S without bytes.
+IDLE_TIMEOUT_S = 60
+# Overall bound so a server trickling bytes cannot hold the job: one asset may use at
+# most a third of the weekly workflow's 180-minute ``timeout-minutes`` budget.
+TOTAL_CEILING_S = 60 * 60
+
+# libcurl option numbers (curl_cffi's CurlOpt enum values, inlined so importing this
+# module does not need curl_cffi.const).
+_CURLOPT_LOW_SPEED_LIMIT = 19
+_CURLOPT_LOW_SPEED_TIME = 20
+
+_now = time.monotonic
+
+
+class FetchTimeoutError(TimeoutError):
+    """The stream went idle, or the overall per-asset ceiling was passed."""
 
 
 def head_asset(url: Any) -> tuple[int | None, str | None, str | None]:
@@ -38,16 +57,33 @@ def head_asset(url: Any) -> tuple[int | None, str | None, str | None]:
 def fetch_asset(url: Any, dest: Path) -> tuple[str, int]:
     """Stream a GET (curl_cffi Chrome impersonation) into ``dest``; return ``(sha256, size)``.
 
-    The body is hashed and written chunk by chunk, never read whole.
+    The body is hashed and written chunk by chunk, never read whole. curl enforces the
+    idle limit (below ``LOW_SPEED_LIMIT`` bytes/s for ``IDLE_TIMEOUT_S``) and the
+    overall ceiling; the loop checks both between chunks as well.
     """
     digest = hashlib.sha256()
     size = 0
+    started = last = _now()
     with cffi_requests.get(
-        str(url), impersonate="chrome", timeout=300, stream=True
+        str(url),
+        impersonate="chrome",
+        timeout=TOTAL_CEILING_S,
+        stream=True,
+        curl_options={_CURLOPT_LOW_SPEED_LIMIT: 1, _CURLOPT_LOW_SPEED_TIME: IDLE_TIMEOUT_S},
     ) as resp:
         resp.raise_for_status()
         with Path(dest).open("wb") as fh:
             for chunk in resp.iter_content(chunk_size=CHUNK_SIZE):
+                now = _now()
+                if now - last > IDLE_TIMEOUT_S:
+                    raise FetchTimeoutError(
+                        f"idle: no bytes for {now - last:.0f}s (limit {IDLE_TIMEOUT_S}s)"
+                    )
+                if now - started > TOTAL_CEILING_S:
+                    raise FetchTimeoutError(
+                        f"ceiling: fetch ran {now - started:.0f}s (limit {TOTAL_CEILING_S}s)"
+                    )
+                last = now
                 digest.update(chunk)
                 fh.write(chunk)
                 size += len(chunk)

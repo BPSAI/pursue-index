@@ -220,7 +220,7 @@ jobs:
             git -C "$WT" add data/drift-gate-passes.jsonl
           fi
           if ! git -C "$WT" diff --cached --quiet; then
-            new_rows=$(git -C "$WT" diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{')
+            new_rows=$(git -C "$WT" diff --cached -- data/asset-bytes-registry.jsonl | grep -c '^+{' || true)
             git -C "$WT" commit -m "chore(verify): daily byte-verify caught +${new_rows} row(s)"
             # Push from the main checkout (it holds the checkout credentials;
             # the worktree shares its object store).

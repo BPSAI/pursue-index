@@ -76,10 +76,7 @@ def _is_allowed_asset_url(url: str) -> bool:
     so suffix-spoofs like ``www.war.gov.evil.com`` are rejected.
     """
     parsed = urlparse(url)
-    return (
-        parsed.scheme in _ALLOWED_ASSET_SCHEMES
-        and parsed.hostname in _ALLOWED_ASSET_HOSTS
-    )
+    return parsed.scheme in _ALLOWED_ASSET_SCHEMES and parsed.hostname in _ALLOWED_ASSET_HOSTS
 
 
 def asset_path_for(card: CardMetadata) -> Path | None:
@@ -247,6 +244,43 @@ def _request_headers() -> dict[str, str]:
     }
 
 
+async def _fetch_card(
+    client: httpx.AsyncClient,
+    card: CardMetadata,
+    refresh_shas: dict[str, str],
+    registry_shas: dict[str, str],
+    outcomes: dict[str, str],
+    dispositions,
+    failed: dict[str, str],
+) -> Path | None:
+    """One card's download: pick its sha check, fetch, record its outcome or failure."""
+    kwargs: dict[str, str] = {}
+    if card.card_id in refresh_shas:
+        kwargs["expected_sha"] = refresh_shas[card.card_id]
+    elif card.asset_type == "PDF" and card.card_id in registry_shas:
+        kwargs["registry_sha"] = registry_shas[card.card_id]
+    unchecked = _is_unchecked_first_download(card, kwargs)
+    accept = (
+        _accepted_shas(dispositions, card.card_id, kwargs["registry_sha"])
+        if "registry_sha" in kwargs
+        else frozenset()
+    )
+    try:
+        if accept:  # a disposition can only matter when one covers this card
+            kwargs.update(accept_shas=accept, outcomes=outcomes)
+        path = await _download_one(client, card, **kwargs)
+        if unchecked and path is not None:
+            outcomes[card.card_id] = NO_REGISTRY_ROW
+            log.warning("download.no_registry_row", card_id=card.card_id)
+        return path
+    except Exception as exc:  # noqa: BLE001 - one bad card must not abort the gather
+        # Record the card and carry on with the rest.
+        reason = _failure_reason(exc)
+        log.error("download.failed", card_id=card.card_id, error=reason)
+        failed[card.card_id] = reason
+        return None
+
+
 async def download_all(
     manifest: Manifest,
     refresh_shas: dict[str, str] | None = None,
@@ -282,31 +316,9 @@ async def download_all(
 
         async def _bounded(card: CardMetadata) -> Path | None:
             async with sem:
-                kwargs: dict[str, str] = {}
-                if card.card_id in refresh_shas:
-                    kwargs["expected_sha"] = refresh_shas[card.card_id]
-                elif card.asset_type == "PDF" and card.card_id in registry_shas:
-                    kwargs["registry_sha"] = registry_shas[card.card_id]
-                unchecked = _is_unchecked_first_download(card, kwargs)
-                accept = (
-                    _accepted_shas(dispositions, card.card_id, kwargs["registry_sha"])
-                    if "registry_sha" in kwargs
-                    else frozenset()
+                return await _fetch_card(
+                    client, card, refresh_shas, registry_shas, outcomes, dispositions, failed
                 )
-                try:
-                    if accept:  # a disposition can only matter when one covers this card
-                        kwargs.update(accept_shas=accept, outcomes=outcomes)
-                    path = await _download_one(client, card, **kwargs)
-                    if unchecked and path is not None:
-                        outcomes[card.card_id] = NO_REGISTRY_ROW
-                        log.warning("download.no_registry_row", card_id=card.card_id)
-                    return path
-                except Exception as exc:  # noqa: BLE001 - one bad card must not abort the gather
-                    # Record the card and carry on with the rest.
-                    reason = _failure_reason(exc)
-                    log.error("download.failed", card_id=card.card_id, error=reason)
-                    failed[card.card_id] = reason
-                    return None
 
         results = await asyncio.gather(
             *(_bounded(c) for c in manifest.cards), return_exceptions=False

@@ -136,8 +136,15 @@ def test_the_default_still_covers_every_asset_type(w):
 
 def test_a_full_hash_over_a_filtered_run_is_never_recorded_complete(w):
     w.add_card(1)
-    rc = w.run("--full-hash", "--max-bytes-per-run", "1000", "--run-record", str(w.record),
-               "--asset-types", "PDF")
+    rc = w.run(
+        "--full-hash",
+        "--max-bytes-per-run",
+        "1000",
+        "--run-record",
+        str(w.record),
+        "--asset-types",
+        "PDF",
+    )
     assert rc != 0 and not w.record.exists()
 
 
@@ -183,11 +190,25 @@ def test_the_weekly_default_budget_exceeds_the_corpus_with_headroom():
 def test_reverting_to_earlier_bytes_is_a_change_and_drift(w, capsys):
     cid = w.add_card(1, prior=OLD_BODY, body=OLD_BODY, head_matches_prior=False)
     # Registry history: OLD -> NEW (latest). Upstream now serves OLD again.
-    w.rows.append({**w.rows[0], "byte_sha256": sha(NEW_BODY), "byte_size": len(NEW_BODY),
-                   "archive_key": f"archive/{sha(NEW_BODY)}.pdf",
-                   "fetched_at": "2026-06-01T00:00:00+00:00"})
-    rc = w.run("--full-hash", "--max-bytes-per-run", "1000", "--run-record", str(w.record),
-               "--fail-on-drift", "--dispositions", str(w.dispositions))
+    w.rows.append(
+        {
+            **w.rows[0],
+            "byte_sha256": sha(NEW_BODY),
+            "byte_size": len(NEW_BODY),
+            "archive_key": f"archive/{sha(NEW_BODY)}.pdf",
+            "fetched_at": "2026-06-01T00:00:00+00:00",
+        }
+    )
+    rc = w.run(
+        "--full-hash",
+        "--max-bytes-per-run",
+        "1000",
+        "--run-record",
+        str(w.record),
+        "--fail-on-drift",
+        "--dispositions",
+        str(w.dispositions),
+    )
     new = w.new_rows()
     assert [(r["card_id"], r["byte_sha256"]) for r in new] == [(cid, sha(OLD_BODY))]
     assert rc != 0 and "BYTE DRIFT" in capsys.readouterr().err
@@ -207,3 +228,79 @@ def test_the_makefile_ceiling_is_a_margin_not_zero():
     assert m and 0 < int(m.group(1)) <= 10, "warn and count below a small ceiling; zero gates"
     runbook = (ROOT / "docs/runbooks/ship-tranche.md").read_text()
     assert "OCR_MAX_UNVERIFIABLE" in runbook
+
+
+# --- idle (read-progress) timeout with an overall ceiling on the fetch-and-hash path ---
+
+
+class _Clock:
+    def __init__(self) -> None:
+        self.now = 0.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+class _TimedResp(_StreamResp):
+    """Yields ``(advance_seconds, chunk)`` pairs, moving a fake clock before each chunk."""
+
+    def __init__(self, clock: _Clock, steps: list[tuple[float, bytes]]) -> None:
+        super().__init__([])
+        self._clock, self._steps = clock, steps
+
+    def iter_content(self, chunk_size: int = 0):
+        for advance, chunk in self._steps:
+            self._clock.now += advance
+            yield chunk
+
+
+def _patch_fetch(monkeypatch, resp, seen=None):
+    import _r2_fetch
+
+    def fake_get(url, **kw):
+        if seen is not None:
+            seen.update(kw)
+        return resp
+
+    monkeypatch.setattr(_r2_fetch.cffi_requests, "get", fake_get)
+    return _r2_fetch
+
+
+def test_a_large_body_arriving_steadily_does_not_time_out(monkeypatch, tmp_path):
+    clock = _Clock()
+    # 100 chunks, 30s apart = 3000s total: far past the old fixed 300s, under the ceiling.
+    resp = _TimedResp(clock, [(30.0, b"x" * 4) for _ in range(100)])
+    mod = _patch_fetch(monkeypatch, resp)
+    monkeypatch.setattr(mod, "_now", clock)
+    digest, size = mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4")
+    assert size == 400 and digest == hashlib.sha256(b"x" * 400).hexdigest()
+
+
+def test_a_stalled_stream_fails_at_the_idle_timeout(monkeypatch, tmp_path):
+    clock = _Clock()
+    resp = _TimedResp(clock, [(1.0, b"a"), (61.0, b"b")])
+    mod = _patch_fetch(monkeypatch, resp)
+    monkeypatch.setattr(mod, "_now", clock)
+    with pytest.raises(mod.FetchTimeoutError, match="idle"):
+        mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4")
+
+
+def test_the_overall_ceiling_still_applies_to_a_trickling_server(monkeypatch, tmp_path):
+    clock = _Clock()
+    # every gap is under the idle limit, but the sum passes the ceiling
+    resp = _TimedResp(clock, [(50.0, b"t") for _ in range(200)])
+    mod = _patch_fetch(monkeypatch, resp)
+    monkeypatch.setattr(mod, "_now", clock)
+    with pytest.raises(mod.FetchTimeoutError, match="ceiling"):
+        mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4")
+
+
+def test_the_request_enforces_idle_and_ceiling_in_curl_itself(monkeypatch, tmp_path):
+    seen: dict = {}
+    mod = _patch_fetch(monkeypatch, _StreamResp([b"z"]), seen)
+    mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4")
+    assert seen["timeout"] == mod.TOTAL_CEILING_S
+    assert mod.TOTAL_CEILING_S > 300 and mod.IDLE_TIMEOUT_S == 60
+    assert mod.TOTAL_CEILING_S <= 180 * 60  # inside the weekly job's timeout-minutes
+    opts = seen["curl_options"]
+    assert 60 in opts.values()  # low-speed time: a connection stalled mid-read errors out
