@@ -93,10 +93,12 @@ def test_disposition_for_another_ocr_sha_does_not_cover(env, capsys):
     assert code == 1
 
 
-def test_missing_meta_is_reported_separately_and_counted(env, capsys):
+def test_missing_meta_fails_and_is_listed_separately(env, capsys):
     code, out = env.run(capsys)
-    assert "missing OCR: 1" in out
-    assert code == 0  # absent OCR is reported, not a stale-input failure
+    assert code == 1
+    assert f"missing OCR meta.json: {CARD}" in out
+    assert "missing OCR: 1" in out and "0 stale" in out
+    assert "FAILED" in out
 
 
 def test_unreadable_meta_fails_closed(env, capsys):
