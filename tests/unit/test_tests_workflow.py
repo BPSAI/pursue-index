@@ -96,3 +96,46 @@ def test_a_mixed_change_runs_the_suite() -> None:
 def test_an_empty_or_unknown_diff_fails_safe_to_running() -> None:
     """No diff available (e.g. the base could not be resolved) means run."""
     assert _classify([]) == "true"
+
+
+def _classify_raw(data: str) -> str:
+    out = subprocess.run(
+        [sys.executable, str(CLASSIFIER)], input=data,
+        capture_output=True, text=True, check=True,
+    )
+    return out.stdout.strip()
+
+
+def test_nul_separated_input_with_a_non_ascii_code_path_runs_the_suite() -> None:
+    """`git diff -z` output: NUL-separated, paths unquoted even when non-ASCII."""
+    assert _classify_raw("data/manifests/latest.json\0src/pursue_index/café.py\0") == "true"
+
+
+def test_nul_separated_data_only_input_does_not() -> None:
+    assert _classify_raw("data/manifests/latest.json\0web/src/data/café.json\0") == "false"
+
+
+def test_a_git_quoted_path_is_treated_as_needing_tests() -> None:
+    """Backstop: a C-quoted path (git's default for non-ASCII) never skips."""
+    assert _classify_raw('"src/\\303\\251.py"\n') == "true"
+    assert _classify_raw('data/x.json\n"web/\\303\\251.json"\n') == "true"
+
+
+def test_the_decision_step_asks_git_for_unquoted_nul_separated_paths() -> None:
+    step = next(s for s in _workflow()["jobs"]["pytest"]["steps"] if s.get("id") == "changes")
+    assert "core.quotePath=false" in step["run"]
+    assert "--name-only -z" in step["run"]
+
+
+def test_undecodable_bytes_do_not_crash_the_classifier() -> None:
+    out = subprocess.run(
+        [sys.executable, str(CLASSIFIER)], input=b"data/x.json\0src/\xff\xfe.py\0",
+        capture_output=True, check=True,
+    )
+    assert out.stdout.decode().strip() == "true"
+
+
+def test_anything_but_an_explicit_false_runs_the_suite() -> None:
+    """A classifier crash leaves `code` empty: that must still run the suite."""
+    step = next(s for s in _workflow()["jobs"]["pytest"]["steps"] if s.get("id") == "changes")
+    assert '[ "$code" = "false" ] || code=true' in step["run"]
