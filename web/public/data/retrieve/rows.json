@@ -1,6 +1,6 @@
 {
  "schema": "pursue-retrieve-rows/1",
- "n": 15623,
+ "n": 16457,
  "shards": [
   {
    "start": 0,
@@ -148,13 +148,19 @@
   },
   {
    "start": 15426,
-   "count": 197,
-   "path": "rows-15426-2db67971bfb1.json",
-   "size": 292014
+   "count": 613,
+   "path": "rows-15426-a144c3d15963.json",
+   "size": 1045816
+  },
+  {
+   "start": 16039,
+   "count": 418,
+   "path": "rows-16039-67c02cef3b4d.json",
+   "size": 795538
   }
  ],
  "titles": {
-  "path": "titles-0-a74ddb0edfef.json",
-  "size": 28331
+  "path": "titles-0-5f4980fba751.json",
+  "size": 31861
  }
 }

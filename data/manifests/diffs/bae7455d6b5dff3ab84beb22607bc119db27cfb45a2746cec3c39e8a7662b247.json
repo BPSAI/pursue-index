@@ -1,0 +1,52 @@
+{
+  "new_sha": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
+  "verdict": "needs-review",
+  "added": 43,
+  "removed": 0,
+  "field_changes": 8,
+  "new_columns": [],
+  "date_unresolved": [
+    {
+      "card_id": "ca4a3d21010eda4b",
+      "title": "DOW-UAP-D165, Unresolved Radar Detection, North America, 2023",
+      "field": "incident_date",
+      "raw": "7/15/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "e19fbb338efc608c",
+      "title": "DOW-UAP-D186, DIA Information Memorandum on AATIP (AAWSAP), December 2010",
+      "field": "incident_date",
+      "raw": "12/10/26",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "277c4861b2c8f432",
+      "title": "DOW-UAP-D201, Air Intelligence Information Report, Iran, 1957",
+      "field": "incident_date",
+      "raw": "5/10/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "04a82a0332cfe988",
+      "title": "DOW-UAP-PR166, Unresolved UAP Report, Middle East, 2020",
+      "field": "incident_date",
+      "raw": "7/12/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "6c65ac68d3cf00f3",
+      "title": "DOW-UAP-PR168, Unresolved UAP Report, Middle East, 2026",
+      "field": "incident_date",
+      "raw": "7/18/05",
+      "reason": "no_century_evidence"
+    },
+    {
+      "card_id": "c178dd1cd7415f1c",
+      "title": "DOW-UAP-PR169, Unresolved UAP Report, Middle East, 2023",
+      "field": "incident_date",
+      "raw": "7/15/05",
+      "reason": "no_century_evidence"
+    }
+  ]
+}

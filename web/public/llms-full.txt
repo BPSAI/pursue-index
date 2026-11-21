@@ -4,7 +4,7 @@ Citable archive of the U.S. Department of War PURSUE UAP document releases.
 Source documents are public-domain U.S. Government work; the indexing layer (manifest, OCR transcripts, search) is Apache-2.0.
 Canonical site: https://pursueindex.com
 
-> Manifest: 478 cards · csv_sha256 92b3ec7dd87286ea7092a33b476566b4416d3bb02970b02757b237d8322fe81a
+> Manifest: 521 cards · csv_sha256 bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247
 
 ## Project overview
 
@@ -32,118 +32,84 @@ Cite the original DOW PDF for the contents of a source document. Cite this site 
 
 ## Cards
 
-478 cards across the current corpus. Each card has a canonical URL on this site and a 
+521 cards across the current corpus. Each card has a canonical URL on this site and a 
 `sameAs` link back to its war.gov artifact. Where OCR text is available, the first page's text is included verbatim below (truncated to ~500 characters).
 
-### cb5426fe2a0b512d — DOW-UAP-D155, Air Intelligence Information Report, Saudi Arabia, 1957
+### 82159bfd9c8a37a2 — CIA-UAP-D027, Office of Scientific Intelligence Briefing on “Flying Saucers,” 1952
 
-- Agency: Department of War
-- Date: 1/18/1957
-- URL: https://pursueindex.com/card/cb5426fe2a0b512d
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D155-Air_Intelligence_Information_Report_Saudi_Arabia-1957.pdf
-- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
-
-This AIIR records a January 18, 1957, incident over Saudi Arabia in which the crew of a U.S. Air Force B-52 aircraft reported detecting an unidentified return on the aircraft’s gunnery scope for approximately five to seven minutes. The report characterizes the unidentified return as smaller than one produced by another B-52 operating in the area.
-
-All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+- Agency: CIA
+- Date: 8/14/1952
+- URL: https://pursueindex.com/card/82159bfd9c8a37a2
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D027-Office_of_Scientific_Intelligence_Briefing_on_Flying_Saucers-1952.pdf
+- Description: This 14 August 1952 Central Intelligence Agency (CIA) Office of Scientific Intelligence (OSI) briefing evaluates the U.S. Air Force’s investigation of “flying saucer” reports and considers their potential intelligence implications. OSI prepared the briefing amid heightened public and official interest following an increase in reports during July 1952 and recent public statements by U.S. Air Force officials.
+The briefing summarizes the history of reported sightings, the Air Technical Intelligence Center’s (ATIC) reporting and analytical processes, selected unexplained cases, and several theories advanced to explain the reports. The materials state that approximately 1,500 official reports had been received since 1947, including 250 during July 1952, and that ATIC categorized approximately 20 percent as unexplained. It states that OSI reviewed its own intelligence holdings, official reports, press and popular accounts, and Soviet press indexes; consulted an Air Force special-study representative and ATIC personnel at Wright Field; and sought input from selected scientific consultants. The briefing states that OSI recommended no further action following those inquiries.
 
 Excerpt (page 1):
 
-AF FORM 112—PART I SECRET 1971367 19 APPROVED 1 JUNE 1948 (CLASSIFICATION) COUNTRY REPORT NO. (LEAVE BLANK) U.S.A. IR-1-57 1071367 AIR INTELLIGENCE INFORMATION REPORT SUBJECT Report of Unidentified Aircraft Sighting AREA REPORTED ON FROM (Agency) Saudi Arabia 22d Bombardment Wing (M), March AFB, Calif. DATE OF REPORT DATE OF INFORMATION EVALUATION 19 January 1957 18 January 1957 B - 2 PREPARED BY (Officer) SOURCE Capt Alva Smith Crew, B-52 Aircraft Number 394 REFERENCES (Control number, directiv
+Approved for Release 2026 SECRET Security Information 14 August 1952 BEST COPY AVAILABLE FLYING SAUCERS During the past weeks, with the phenomenal increase in the number of Flying Saucer reports there has been a tremendous stimulation of both public and official interest in the subject. Requests for information have poured in on the Air Force, including an official query from the White House. Finally, on July 29, General Samford held a press conference in which he stated, that analysis showed "n
 
-### d6016299267e9604 — DOW-UAP-D174, Utah Ranch Investigation Report, April 2010
+### 0fc485e6efefdd92 — CIA-UAP-D029, Official Diary Entry on “Flying Saucers,” 1952
+
+- Agency: CIA
+- Date: 10/28/1952
+- URL: https://pursueindex.com/card/0fc485e6efefdd92
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D029-Official_Diary_Entry_on_Flying_Saucers-1952.pdf
+- Description: This 28 October 1952 entry in a Central Intelligence Agency (CIA) official diary records a discussion of new information concerning “flying saucers.” Mr. Clark reported that CIA had received additional information, including reports of objects observed from the ground by individuals the entry characterized as relatively reliable.
+The entry notes that the absence of reported noise or flaring associated with certain reports posed a theoretical difficulty for interpreting them. It further states that several scientists had presented papers describing a possible propulsion method that would not involve noise or flares. Dr. Clark proposed a briefing on the subject and recommended bringing the information to the attention of the U.S. Air Force and the Research and Development Board; the diary’s author concurred.
+
+Excerpt (page 1):
+
+Approved for Release 2026 TOP SECRET Security Information ρυ→ Official Diary Tuesday, 28 October 1952 BEST COPY AVAILABLE 1. Passed to DCI Contact Division information received from [REDACTED] and [REDACTED] respecting their future plans, and secured his approval to having this information restricted to CIA only. 2. After my talk with Mr. Noyes, I felt that he was not fully informed as to the activities of Paul Nitze [REDACTED] and called this to the attention of Fisher Howe. It subsequently dev
+
+### ca4a3d21010eda4b — DOW-UAP-D165, Unresolved Radar Detection, North America, 2023
 
 - Agency: Department of War
-- Date: March, April 2010
-- URL: https://pursueindex.com/card/d6016299267e9604
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D174-Utah_Ranch_Investigation_Report_April_2010.pdf
+- Date: 11/20/2026
+- URL: https://pursueindex.com/card/ca4a3d21010eda4b
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D165-Unresolved_Radar_Detection_North_America-2023.pdf
+- Description: This slide summarizes the All-domain Anomaly Resolution Office’s (AARO) preliminary analysis of an unresolved radar event in the western United States. In 2023, a civil air-surveillance radar system recorded eight detections over 84 seconds at an estimated altitude of 55,000–70,000 feet. If the detections were associated with a single continuous track, their cumulative point-to-point displacement would be approximately 38.5 miles, yielding a minimum mean horizontal ground-speed estimate of 1,650 mph. Successive detection segments also showed an apparent 39-degree change in bearing after approximately 48 seconds, although the available data are not sufficient to enable a comprehensive kinematic characterization. Available data do not independently establish that all detections originated from the same object or represented a continuous track. The nature and origin of the detections remain unresolved due to data insufficiency.
+
+Excerpt (page 1):
+
+Unresolved Radar Detection, United States, 2023 Apparent supersonic kinematics* reported during an 84-second radar track T+0s T+84s N 10 mi. 50 mi. Green and red points: Commercial air traffic Blue-shaded areas: Weather data Highlighted area: Reported detections Red line connects detections in sequence using the shortest straight-line distance to show displacement over time; not a reconstructed trajectory. *Apparent speed and bearing are bounded estimates derived from discontinuous detections. E
+
+### 38c1c66ea5d971c9 — DOW-UAP-D172, BAASS Ten-Month Report, July 2009
+
+- Agency: Department of War
+- Date: 7/30/2009
+- URL: https://pursueindex.com/card/38c1c66ea5d971c9
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D172-BAASS_Ten_Month_Report_July-2009.pdf
 - Description: This document is an administrative, programmatic, or contractor-produced record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As part of the broader program record, the file documents how AAWSAP was scoped, organized, tasked, funded, executed, or described at a particular point in time.
+This file contains a program report produced by Bigelow Aerospace Advanced Space Studies (BAASS), summarizing its work under the AAWSAP contract through July 30, 2009, while also including substantial forward-looking discussion of planned or proposed work. It includes unresolved internal process questions and comparative assessments of equipment options.
+In addition to documenting the production of a series of technical research papers, the report describes archival and documentary research concerning historical incidents reported to involve unidentified anomalous phenomena. The report also documents BAASS inquiries into parapsychological and paranormal phenomena, including research activities at a Utah site with a reported history of anomalous activity.
 
-This April 2010 Bigelow Aerospace Advanced Space Studies (BAASS) investigation report documents field deployments to a Utah property and surrounding communities during March and April 2010. The report states that BAASS personnel interviewed local residents, law enforcement officers, ranchers, business owners, and tribal community members about reported anomalous events; used handheld sensors to collect environmental measurements; planned plant-based biosensor experiments; and sought photographic, acoustic, and chemical evidence of purported anomalous phenomena. It also records extensive reported accounts involving “dog-like bipedal creatures,” orbs of light, “little people,” “prehistoric-looking” birds, among other phenomena, and states that BAASS intended to use interactive methods to attempt communication with the presumed source of reported anomalous activity.
-
-Excerpt (page 1):
-
-BAASS BIGELOW AEROSPACE ADVANCED SPACE STUDIES® Utah Ranch Investigation Utah Task Force Investigation: March 22 – 26, April 19 – 23, 2010 AAP Person 7 (Task Force Director) Inv. AAP Person 41 Inv. AAP Person 14 AAP Person 29 Scientist AAP Person 28 Scientist
-
-### 0e2f21236a2289fa — DOW-UAP-D176, Triangular UAP AARO Memorandum for Record, 2026
+### 71634d539b50cb08 — DOW-UAP-D190, Air Intelligence Information Report, Massachusetts, 1957
 
 - Agency: Department of War
-- Date: June, 2026
-- URL: https://pursueindex.com/card/0e2f21236a2289fa
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D176-Triangular_UAP_AARO_MFR_2026.pdf
-- Description: This document is a memorandum for record documenting an AARO witness debrief concerning reported unidentified anomalous phenomena (UAP) observations at a sensitive national security site in the western United States over two days in 2026. AARO considers this incident to warrant further investigation due to the close alignment of the phenomena’s reported morphological features and kinematic profiles with those of other reported incidents in the western United States region. The memorandum records an interview with two Federal Special Agents and incorporates a corroborating account from a third official positioned at a separate observation post.
-
-The memorandum describes a primary event in which the reporting individuals stated that a triangular object rose vertically, remained stationary, and then banked and descended into a canyon. It records their descriptions of the object’s shape, color, apparent thermal signature, perceived lack of conventional propulsion features, and absence of an associated audible signature. The memorandum further records a secondary observation on the following evening, and a subsequent ground search that found no visible debris or evidence of an impact in the accessible survey area.
-
-The file is an investigative record preserving witness accounts, chronology, and associated analytic support material developed by the All-domain Anomaly Resolution Office (AARO) and does not present a conclusive finding regarding the nature or origin of the reported object or objects. All descriptive and estimative language reported by the individuals interviewed reflects their subjective interpretations at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
-
-Excerpt (page 1):
-
-OFFICE OF THE UNDER SECRETARY OF DEFENSE 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY MEMORANDUM FOR RECORD All-domain Anomaly Resolution Office | Department of War Subject: All-domain Anomaly Resolution Office (AARO) Witness Debrief: Unidentified Anomalous Phenomena (UAP) Observation, 1843(a)(1)(C) 1843(a)(1)(C) 2026. Interviewers: 1843(a)(3) 1843(a)(3) Primary Interviewees: - 1843(a)(2) (SOURCE 1): 1843(a)(2) 1843(a)(2) 1843(a)(2) (SOURCE 2): 1843(a)(2) 1843(a)(2) 
-
-### b63bea0452d1d4b3 — DOW-UAP-D177, Unresolved UAP Report, Catalina Island, 1955
-
-- Agency: Department of War
-- Date: 3/15/1955
-- URL: https://pursueindex.com/card/b63bea0452d1d4b3
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D177_Unresolved_UAP_Report_Catalina_Island-1955.pdf
-- Description: The file contains a report by Paul J. Carr of Avalon, California, who reported observing a bright orange object, approximately the size of a nickel held at arm’s length, on the evening of March 15, 1955. The provisional assessment associated with the report includes a comment from the preparing officer that the sighting is possibly astronomical, and that the incident did not warrant further investigation.
-
-Excerpt (page 1):
-
-PROJECT 10073 RECORD CARD 1. DATE 2. LOCATION 12. CONCLUSIONS California 15 March 1955 . Avalon, Catalina Isle □ Was Balloon □ Probably Balloon 3. DATE-TIME GROUP 4. TYPE OF OBSERVATION □ Possibly Balloon Local ___________________ XX Ground-Visual □ Ground-Radar □ Was Aircraft GMT unknown □ Air-Visual □ Air-Intercept Radar □ Probably Aircraft □ Possibly Aircraft 5. PHOTOS 6. SOURCE □ Was Astronomical Meteor □ Yes □ Probably Astronomical XX No Civilian □ Possibly Astronomical 7. LENGTH OF OBSERVA
-
-### a3a9754af3184c3b — DOW-UAP-D178, Unresolved UAP Report, Catalina Island, 1953
-
-- Agency: Department of War
-- Date: 11/16/1953
-- URL: https://pursueindex.com/card/a3a9754af3184c3b
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D178_Unresolved_UAP_Report_Catalina_Island-1953.pdf
-- Description: The file contains a report of a round, purplish-white object above Catalina Island on November 16, 1953. The report describes the object as remaining stationary, then moving northwest toward Los Angeles over approximately 10 minutes on a level flight path. The report characterizes the observer as fairly reliable due to his association with military jet aircraft activities while stationed at Long Beach Air Force Base, Los Angeles, CA. The report refers to an assessment by local astronomers that Jupiter provided a possible explanation.
-
-Excerpt (page 1):
-
-1. DATE - TIME GROUP 2. LOCATION 16 November 53 16/1305Z Catalina, California 3. SOURCE 10. CONCLUSION Military • Astronomical (JUPITER) 4. NUMBER OF OBJECTS Movement of object does not coincide with winds aloft. Astronomer at Griffis Park observatory evaluated observation as possibly One planets. Angular velocity, unknown. 5. LENGTH OF OBSERVATION 11. BRIEF SUMMARY AND ANALYSIS 10 Minutes Round purplish white object appeared to be stationary in first sighting over Catalina and moved NW toward L
-
-### 1af7a333fa99bdd9 — DOW-UAP-D179, Air Intelligence Information Report, Catalina Island, 1952
-
-- Agency: Department of War
-- Date: 6/25/1952
-- URL: https://pursueindex.com/card/1af7a333fa99bdd9
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D179_Unresolved_UAP_Report_Catalina_Island-1952.pdf
-- Description: This file contains an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
-
-This AIIR records a June 25, 1952, incident over Catalina Island, California, in which three Boy Scouts attending a summer camp at Camp Fox reported observing silver “flying saucers” moving at an estimated speed faster than that of a conventional jet. The report also describes the object as climbing quickly before apparently disintegrating. A comment by the preparing officer indicated that no attempt was made to establish the reliability of the report and characterized the experience of the observers as “probably meager at best.”
-
+- Date: 10/12/1957
+- URL: https://pursueindex.com/card/71634d539b50cb08
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D190-Air_Intelligence_Information_Report_Massachusetts-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR records an October 12, 1957, incident 800 yards off Martha’s Vineyard and one to two miles east-southeast of Woods Hole, Massachusetts. At approximately 2035Z (4:35 p.m. local time), a group of two Air Force officers, two sailing masters assigned to research vessels with the Oceangraph Institute, and a civilian reported observing a cylindrical, metallic-colored object with protrusions while fishing. The report describes the object as appearing to descend rapidly, changing direction twice, and disappearing at high speed after approximately 20 seconds. The reporting office stated that it did not conduct further investigation or analysis of the report.
 All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
 
 Excerpt (page 1):
 
-25 June 1952 SANTA CATALINA, CALIFORNIA 1200 PDT 3 Boy Scouts One Silver object faster than jet, which apparent- Disintegrated. ly made a climbing turn before disintegrating. DECLASSIFIED Authority: NND 923007
+SOURCE ___________________ DISTRIBUTION CONTROL RECORD NUMBER 1141134 SRI NUMBER _______________ · CLASSIFICATION: S C (U) DATE RECEIVED NOV 5 1957 CIRCLED S INDICATES SEPIA (15) ACS / INTELLIGENCE HEADQUARTERS USAF AFSSOP 1 1 LIB. CON.-AID ATIC 1 1 SAFGC 1 1 MATS (1) 1 AEC 1A1 1 1 AFDAP 1 1 SAC 1 1 ASC-AF SECT. 1A2 1 1 RAND 1 1 TAC 1 1 OASD-ISA 1B1 1 1 AFCSI 1 1 TRC 1 1 ASPPA 2A2 1 1 AFDRQ 1 1 USIA 2A5 1 1 AFOAT 1 1 JCS/JMEPC 2B 1 1 AFOAT-1 1 1 OVERSEAS COMMANDS 2C 1 1 AFOPD 1 1 AAC 1 1 2C1 1 1
 
-### 55f5f0db04de21f2 — DOW-UAP-D181, Unresolved UAP Report, Catalina Island, 1949
+### f4ab0c81beca7768 — DOW-UAP-D197, Air Intelligence Information Report, Michigan, 1957
 
 - Agency: Department of War
-- Date: 4/28/1949
-- URL: https://pursueindex.com/card/55f5f0db04de21f2
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D181_Unresolved_UAP_Report_Catalina_Island-1949.pdf
-- Description: This file contains correspondence from Mr. Percy Wackey of Avalon, California to Mr. Kenneth Arnold of Boise, Idaho. Mr. Wackey relayed that his wife and another individual reported observing six objects over Catalina Island on the night of April 28, 1949. A handwritten annotation and contemporary documentation associated with the letter indicate a conclusion by the U.S. Air Force that the incident lacked sufficient data for evaluation.
+- Date: 10/13/1957
+- URL: https://pursueindex.com/card/f4ab0c81beca7768
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D197-Air_Intelligence_Information_Report_Michigan-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents an October 13, 1957, incident involving an unidentified flying object (UFO) near Indian Trails on Lake Erie, Michigan. At approximately 10:05 p.m. local time, two observers reported a single silver-gray, bell-shaped object, with an apparent size comparable to a basketball, and a visible division between its upper and lower sections, featuring possible lights or portholes, and emitting a high-pitched humming sound. The observers reported that the object initially appeared similar to a falling object, then leveled off at an estimated 1,500 feet and traveled from south-southwest to north-northeast for approximately 8–10 seconds before being obscured by trees. The report estimated the object’s speed at about 225 mph and distance from the observers to be approximately 150 yards.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
 
 Excerpt (page 1):
 
-PROJECT 10073 RECORD 1. DATE - TIME GROUP LOCATION 28 April 49 29/0400Z Catalina Island, California 3. SOURCE 10. CONCLUSION Civilian INSUFFICIENT DATA FOR EVALUATION 4. NUMBER OF OBJECTS Six 5. LENGTH OF OBSERVATION 11. BRIEF SUMMARY AND ANALYSIS Not Reported Observer sighted six objects. Each flew by alone. 6. TYPE OF OBSERVATION Ground-Visual 7. COURSE Not Reported 8. PHOTOS □ Yes ☒ No 9. PHYSICAL EVIDENCE □ Yes ☒ No FORM FTD SEP 63 0-329 (TDE) Previous editions of this form may be used. DECL
-
-### ee657817d068d59b — FBI-UAP-D043, FD-302, Unidentified Aerial Object Observation Report, 2026
-
-- Agency: FBI
-- Date: June, 2026
-- URL: https://pursueindex.com/card/ee657817d068d59b
-- Source: https://www.war.gov/medialink/ufo/release-07/documents/FBI-UAP-D043-FD_302_Unidentified_Aerial_Object_Observation_Report-2026.pdf
-- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 interview with two Federal Special Agents, in which the interviewees describe an incident reported as involving unidentified anomalous phenomena (UAP) at a national security site in 2026. The report is accompanied by 9 digitally rendered FBI forensic sketches depicting the primary incident, as confirmed by the Special Agents in their eyewitness account.
-
-Excerpt (page 1):
-
-FD-302 (Rev. 5-8-10) - 1 of 2 - OFFICIAL RECORD FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED]2026 [REDACTED] On or about [REDACTED]2026, FBI [REDACTED] [REDACTED] received from [REDACTED] Special Agent [REDACTED] a written statement co-signed by [REDACTED] Special Agent [REDACTED] The statement will be attached to this FD-302 and is provided verbatim below for ease of reading: "Unidentified Aerial Object Observation Report evening of [REDACTED]26 "On [REDACTED] 2026, at approximately 
+SOURCE ___________ DISTRIBUTION CONTROL RECORD NUMBER___ 1142252 CLASSIFICATION S C U NOV 7 1957 SRI NUMBER___________ DATE RECEIVED_____ CIRCLED S INDICATES SEPIA ACS / INTELLIGENCE | HEADQUARTERS USAF | AFSSOP | 1 | 1 | | LIB. CON.-AID | ATIC | 1 | 1 | SAFGC | 1 | 1 | MATS | (1)| 1 | AEC 1A1 | 1 | 1 | AFDAP | 1 | 1 | SAC | 1 | 1 | ASC-AF SECT. 1A2 | 1 | 1 | RAND | 1 | 1 | TAC | 1 | 1 | OASD-ISA 1B1 | 1 | 1 | AFCSI | 1 | 1 | TRC | 1 | 1 | ASPPA 2A2 | 1 | 1 | AFDRQ | 1 | 1 | USIA 2A5 | 1 | 1 | A
 
 ### 9e677b8697685311 — 18_100754_ General 1946-7_Vol_2
 
@@ -810,6 +776,58 @@ The briefing states that a radar system aboard USS Gyatt, a guided missile destr
 Excerpt (page 1):
 
 SECRET SECRET urgent BRIEFING NOTES FOR MR. WALTER N. ELDER UNIDENTIFIED OBJECT FLYING IN THE VICINITY OF PUERTO RICO ON 16, 17, 18, 19, AND 24 NOVEMBER 1. On 19 November, the U. S. S. Gyatt picked up on its radar a contact tracking in excess of 3,800 knots. At this time the Gyatt was working an F-8 (Crusader) Fighter Aircraft at 35,000 feet when a high- altitude, high-speed object was detected. The object slowed and steadied down, maintaining a position to the fighter at nine o'clock, about nin
+
+### e7fe45b51f32ed87 — CIA-UAP-D024, Approval in Principle, Research Concerned with UFOs, 1952
+
+- Agency: CIA
+- Date: Late 1952
+- URL: https://pursueindex.com/card/e7fe45b51f32ed87
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D024-Approval_in_Principle_Research_Concerned_with_UFOs-1952.pdf
+- Description: This memorandum requests approval in principle for a Central Intelligence Agency-sponsored external research project focusing on Unidentified Flying Objects (UFOs). The proposed effort would convene an ad hoc panel of leading scientists to analyze and evaluate available UFO evidence and recommend any further government action warranted to address the matter. The memorandum describes the project as an important component of the office’s effort to improve intelligence on UFOs and support an Office of Scientific Intelligence task force working with the U.S. Air Force since 20 August 1952. Although the memorandum is undated, its reference to Dr. Max Millikan as Director of CENIS (a position he held 1951-1952) and to the ongoing Air Force collaboration supports a late-1952 date.
+
+Excerpt (page 1):
+
+Approved for Release 2026 TOP SECRET SECRET CONFIDENTIAL [REDACTED]ICTED UNCLASSIFIED ( SECURITY CLASSIFICATION OF ATTACHED MATERIAL SHOULD BE CIRCLED TOP AND BOTTOM ) ACTION SHEET DATE REC'D IN IC IC # DESCRIPTION OF ATTACHED MATERIAL: TYPE OF MATERIAL DATED Memorandum FROM TO AD/SI Deputy Director (Intelligence) SUBJECT Approval in Principle--External Research Project DELIVERED TO DEADLINE DATE FOLLOW-UP DATE DIVISION ROUTING TO DATE ACTION REQUIRED INIT. COMMENTS* 1. 12/1 Review [ILLEGIBLE] 2
+
+### 02e22fd004affc47 — CIA-UAP-D025, Proposal to Consider Psychological Warfare Implications of UFO-Related Issues, 1952
+
+- Agency: CIA
+- Date: 10/2/1952
+- URL: https://pursueindex.com/card/02e22fd004affc47
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D025-Proposal_to_Consider_Psychological_Warfare_Implications_of_UFO_Related_Issues-1952.pdf
+- Description: This circa 2 October 1952 draft memorandum from Central Intelligence Agency Director Walter B. Smith to the Director of the Psychological Strategy Board transmits a proposal to the National Security Council concerning “Flying Saucers,” or Unidentified Flying Objects (UFOs). The memorandum states that UFO-related issues may have implications for psychological warfare, intelligence, and operations, and recommends that the Board discuss potential offensive and defensive psychological warfare considerations. Documents in the file summarize the issue, describe related Air Force investigative activity, and identify intelligence and research questions concerning the reported phenomena, including possible implications for U.S. national security.
+The materials state that, since 1947, the U.S. Government had received approximately 1,500 official reports of UFO sightings, in addition to a substantial volume of letters, telephone calls, and press reports from the public. They further state that the Air Force considered approximately 20 percent of the official reports unexplained, with a higher unexplained rate reported for cases received during 1952. The attached proposal recommended a centrally administered research program under the Research and Development Board to address operational, intelligence, and psychological-warfare requirements identified by the Secretary of Defense, the Director of Central Intelligence, and the Director of the Psychological Strategy Board.
+
+Excerpt (page 1):
+
+Approved for Release 2026 SECRET Security Information ER - 3 - 2809 CENTRAL INTELLIGENCE AGENCY WASHINGTON 25. D. C. 1950 OFFICE OF THE DIRECTOR BEST COPY AVAILABLE MEMORANDUM TO: Director, Psychological Strategy Board SUBJECT: Flying Saucers 1. I am today transmitting to the National Security Council a proposal (TAB A) in which it is concluded that the problems connected with unidentified flying objects appear to have implications for psychological warfare as well as for intelligence and operat
+
+### 92ae35347234224a — CIA-UAP-D026, Summary Assessment of “Flying Saucers,” 1952
+
+- Agency: CIA
+- Date: 8/1/1952
+- URL: https://pursueindex.com/card/92ae35347234224a
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D026-Summary_Assessment_of_Flying_Saucers-1952.pdf
+- Description: This 1 August 1952 memorandum from Edward Tauss, Acting Chief of the Weapons and Equipment Division in the Central Intelligence Agency’s (CIA) Office of Scientific Intelligence, provides an initial assessment of “flying saucers” and associated reports. The memorandum states that the Air Technical Intelligence Center had received between 1,000 and 2,000 reports, many of which it assessed as false, attributable to known U.S. equipment, or explainable as natural phenomena. It states that fewer than 100 reasonably credible reports remained unexplained and that the available information did not identify a consistent pattern in their reported characteristics or locations.
+The memorandum recommends that CIA continue to monitor the issue in coordination with the Air Technical Intelligence Center while avoiding public disclosure of CIA interest. It also notes that Tauss had arranged a comprehensive briefing with the Air Technical Intelligence Center at Wright-Patterson Air Force Base for 8 August 1952 and would prepare a detailed analysis afterward.
+
+Excerpt (page 1):
+
+Approved for Release 2026 INFORMAL Deputy Assistant Director/SI 1 August 1952 Acting Chief, Weapons & Equipment Division "Flying Saucers" BEST COPY AVAILABLE 1. Pursuant to your request for overall evaluation of "flying saucers" and associated reports, the following is pertinent: a. Of 1000 to 2000 such reports received by ATIC, a large percentage are clearly "phoney". An equally large percentage can be satisfactorily explained as known flights of currently operational U.S. equipment (aircraft, 
+
+### fa93265239231a44 — CIA-UAP-D028, Assessment of National Security Issues Relating to “Flying Saucers,” 1952
+
+- Agency: CIA
+- Date: 10/13/1952
+- URL: https://pursueindex.com/card/fa93265239231a44
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/CIA-UAP-D028-Assessment_of_National_Security_Issues_Relating_to_Flying_Saucers-1952.pdf
+- Description: This 13 October 1952 memorandum from S. Q. Reber, Assistant Director for Intelligence Coordination, to the Deputy Director (Intelligence) assesses “flying saucers” as a potential national security concern. It notes that the U.S. Air Force had investigated approximately 1,500 reported sightings through the Air Technical Intelligence Center and had explained all but approximately 20 percent of them.
+The memorandum states that the Office of Scientific Intelligence had not concluded that the reported objects were created or controlled by the Soviet Union. It identifies priority intelligence questions concerning Soviet knowledge of the phenomena, potential Soviet ability to exploit them against U.S. security interests, and possible effects on the U.S. warning system. It also concludes that the Department of Defense held primary responsibility for initiating fundamental scientific research to develop a comprehensive understanding of the phenomena and improve rapid identification.
+The memorandum recommends that the Director of Central Intelligence communicate with Secretary of Defense Robert A. Lovett to formalize areas of responsibility as they pertain to unidentified flying objects. It further concludes that available information did not yet provide a basis for psychological-warfare planners to consider employing the phenomena and that a National Intelligence Estimate should precede any development of a public policy intended to reduce or restrain public concern.
+
+Excerpt (page 1):
+
+Approved for Release 2026 SECRET Security Information Executive Registry 43 3-2172-0 13 October 1952 MEMORANDUM FOR: Deputy Director (Intelligence) SUBJECT: Flying Saucers 1. Flying unidentified objects (Flying Saucers) have been the subject of Air Force observation and analysis because of the possibility that such objects might conceivably be an attack on the U.S. If they are not, it is conceivable that the enemy might take advantage of the confusion created by the by the Flying Saucers to use 
 
 ### aaafecbc47103f4b — DOE-UAP-D001, Enhanced PANTEX Imagery
 
@@ -2554,6 +2572,22 @@ Excerpt (page 1):
 
 OFFICE OF THE UNDER SECRETARY OF WAR 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY Transcript of a Presentation by Captain Edward J. Ruppelt, 1952 This document is a transcript of a March 1952 presentation by Captain Edward J. Ruppelt outlining the U.S. Air Force's reorganized investigation into unidentified flying objects (UFOs). The presentation previews prospective technical methodologies, such as diffraction-grating photography and radar-scope synchronization, tha
 
+### cb5426fe2a0b512d — DOW-UAP-D155, Air Intelligence Information Report, Saudi Arabia, 1957
+
+- Agency: Department of War
+- Date: 1/18/1957
+- URL: https://pursueindex.com/card/cb5426fe2a0b512d
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D155-Air_Intelligence_Information_Report_Saudi_Arabia-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+
+This AIIR records a January 18, 1957, incident over Saudi Arabia in which the crew of a U.S. Air Force B-52 aircraft reported detecting an unidentified return on the aircraft’s gunnery scope for approximately five to seven minutes. The report characterizes the unidentified return as smaller than one produced by another B-52 operating in the area.
+
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+AF FORM 112—PART I SECRET 1971367 19 APPROVED 1 JUNE 1948 (CLASSIFICATION) COUNTRY REPORT NO. (LEAVE BLANK) U.S.A. IR-1-57 1071367 AIR INTELLIGENCE INFORMATION REPORT SUBJECT Report of Unidentified Aircraft Sighting AREA REPORTED ON FROM (Agency) Saudi Arabia 22d Bombardment Wing (M), March AFB, Calif. DATE OF REPORT DATE OF INFORMATION EVALUATION 19 January 1957 18 January 1957 B - 2 PREPARED BY (Officer) SOURCE Capt Alva Smith Crew, B-52 Aircraft Number 394 REFERENCES (Control number, directiv
+
 ### 338995394c698b33 — DOW-UAP-D156, Air Intelligence Information Report, Guam, 1956
 
 - Agency: Department of War
@@ -2800,6 +2834,20 @@ Excerpt (page 1):
 
 BAASS BIGELOW AEROSPACE ADVANCED SPACE STUDIES® November 2009 Monthly Report
 
+### d6016299267e9604 — DOW-UAP-D174, Utah Ranch Investigation Report, April 2010
+
+- Agency: Department of War
+- Date: March, April 2010
+- URL: https://pursueindex.com/card/d6016299267e9604
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D174-Utah_Ranch_Investigation_Report_April_2010.pdf
+- Description: This document is an administrative, programmatic, or contractor-produced record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As part of the broader program record, the file documents how AAWSAP was scoped, organized, tasked, funded, executed, or described at a particular point in time.
+
+This April 2010 Bigelow Aerospace Advanced Space Studies (BAASS) investigation report documents field deployments to a Utah property and surrounding communities during March and April 2010. The report states that BAASS personnel interviewed local residents, law enforcement officers, ranchers, business owners, and tribal community members about reported anomalous events; used handheld sensors to collect environmental measurements; planned plant-based biosensor experiments; and sought photographic, acoustic, and chemical evidence of purported anomalous phenomena. It also records extensive reported accounts involving “dog-like bipedal creatures,” orbs of light, “little people,” “prehistoric-looking” birds, among other phenomena, and states that BAASS intended to use interactive methods to attempt communication with the presumed source of reported anomalous activity.
+
+Excerpt (page 1):
+
+BAASS BIGELOW AEROSPACE ADVANCED SPACE STUDIES® Utah Ranch Investigation Utah Task Force Investigation: March 22 – 26, April 19 – 23, 2010 AAP Person 7 (Task Force Director) Inv. AAP Person 41 Inv. AAP Person 14 AAP Person 29 Scientist AAP Person 28 Scientist
+
 ### 82f2e60220d94740 — DOW-UAP-D175, BAASS Self-Assessment of UAP Analysis Capabilities, November 2010
 
 - Agency: Department of War
@@ -2814,6 +2862,62 @@ Excerpt (page 1):
 
 Summary Report on BAASS UAP Analysis Capabilities BIGELOW AEROSPACE ADVANCED SPACE STUDIES ® November 23, 2010
 
+### 0e2f21236a2289fa — DOW-UAP-D176, Triangular UAP AARO Memorandum for Record, 2026
+
+- Agency: Department of War
+- Date: June, 2026
+- URL: https://pursueindex.com/card/0e2f21236a2289fa
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D176-Triangular_UAP_AARO_MFR_2026.pdf
+- Description: This document is a memorandum for record documenting an AARO witness debrief concerning reported unidentified anomalous phenomena (UAP) observations at a sensitive national security site in the western United States over two days in 2026. AARO considers this incident to warrant further investigation due to the close alignment of the phenomena’s reported morphological features and kinematic profiles with those of other reported incidents in the western United States region. The memorandum records an interview with two Federal Special Agents and incorporates a corroborating account from a third official positioned at a separate observation post.
+
+The memorandum describes a primary event in which the reporting individuals stated that a triangular object rose vertically, remained stationary, and then banked and descended into a canyon. It records their descriptions of the object’s shape, color, apparent thermal signature, perceived lack of conventional propulsion features, and absence of an associated audible signature. The memorandum further records a secondary observation on the following evening, and a subsequent ground search that found no visible debris or evidence of an impact in the accessible survey area.
+
+The file is an investigative record preserving witness accounts, chronology, and associated analytic support material developed by the All-domain Anomaly Resolution Office (AARO) and does not present a conclusive finding regarding the nature or origin of the reported object or objects. All descriptive and estimative language reported by the individuals interviewed reflects their subjective interpretations at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+OFFICE OF THE UNDER SECRETARY OF DEFENSE 5000 DEFENSE PENTAGON WASHINGTON, DC 20301-5000 INTELLIGENCE AND SECURITY MEMORANDUM FOR RECORD All-domain Anomaly Resolution Office | Department of War Subject: All-domain Anomaly Resolution Office (AARO) Witness Debrief: Unidentified Anomalous Phenomena (UAP) Observation, 1843(a)(1)(C) 1843(a)(1)(C) 2026. Interviewers: 1843(a)(3) 1843(a)(3) Primary Interviewees: - 1843(a)(2) (SOURCE 1): 1843(a)(2) 1843(a)(2) 1843(a)(2) (SOURCE 2): 1843(a)(2) 1843(a)(2) 
+
+### b63bea0452d1d4b3 — DOW-UAP-D177, Unresolved UAP Report, Catalina Island, 1955
+
+- Agency: Department of War
+- Date: 3/15/1955
+- URL: https://pursueindex.com/card/b63bea0452d1d4b3
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D177_Unresolved_UAP_Report_Catalina_Island-1955.pdf
+- Description: The file contains a report by Paul J. Carr of Avalon, California, who reported observing a bright orange object, approximately the size of a nickel held at arm’s length, on the evening of March 15, 1955. The provisional assessment associated with the report includes a comment from the preparing officer that the sighting is possibly astronomical, and that the incident did not warrant further investigation.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD CARD 1. DATE 2. LOCATION 12. CONCLUSIONS California 15 March 1955 . Avalon, Catalina Isle □ Was Balloon □ Probably Balloon 3. DATE-TIME GROUP 4. TYPE OF OBSERVATION □ Possibly Balloon Local ___________________ XX Ground-Visual □ Ground-Radar □ Was Aircraft GMT unknown □ Air-Visual □ Air-Intercept Radar □ Probably Aircraft □ Possibly Aircraft 5. PHOTOS 6. SOURCE □ Was Astronomical Meteor □ Yes □ Probably Astronomical XX No Civilian □ Possibly Astronomical 7. LENGTH OF OBSERVA
+
+### a3a9754af3184c3b — DOW-UAP-D178, Unresolved UAP Report, Catalina Island, 1953
+
+- Agency: Department of War
+- Date: 11/16/1953
+- URL: https://pursueindex.com/card/a3a9754af3184c3b
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D178_Unresolved_UAP_Report_Catalina_Island-1953.pdf
+- Description: The file contains a report of a round, purplish-white object above Catalina Island on November 16, 1953. The report describes the object as remaining stationary, then moving northwest toward Los Angeles over approximately 10 minutes on a level flight path. The report characterizes the observer as fairly reliable due to his association with military jet aircraft activities while stationed at Long Beach Air Force Base, Los Angeles, CA. The report refers to an assessment by local astronomers that Jupiter provided a possible explanation.
+
+Excerpt (page 1):
+
+1. DATE - TIME GROUP 2. LOCATION 16 November 53 16/1305Z Catalina, California 3. SOURCE 10. CONCLUSION Military • Astronomical (JUPITER) 4. NUMBER OF OBJECTS Movement of object does not coincide with winds aloft. Astronomer at Griffis Park observatory evaluated observation as possibly One planets. Angular velocity, unknown. 5. LENGTH OF OBSERVATION 11. BRIEF SUMMARY AND ANALYSIS 10 Minutes Round purplish white object appeared to be stationary in first sighting over Catalina and moved NW toward L
+
+### 1af7a333fa99bdd9 — DOW-UAP-D179, Air Intelligence Information Report, Catalina Island, 1952
+
+- Agency: Department of War
+- Date: 6/25/1952
+- URL: https://pursueindex.com/card/1af7a333fa99bdd9
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D179_Unresolved_UAP_Report_Catalina_Island-1952.pdf
+- Description: This file contains an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+
+This AIIR records a June 25, 1952, incident over Catalina Island, California, in which three Boy Scouts attending a summer camp at Camp Fox reported observing silver “flying saucers” moving at an estimated speed faster than that of a conventional jet. The report also describes the object as climbing quickly before apparently disintegrating. A comment by the preparing officer indicated that no attempt was made to establish the reliability of the report and characterized the experience of the observers as “probably meager at best.”
+
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+25 June 1952 SANTA CATALINA, CALIFORNIA 1200 PDT 3 Boy Scouts One Silver object faster than jet, which apparent- Disintegrated. ly made a climbing turn before disintegrating. DECLASSIFIED Authority: NND 923007
+
 ### 3acf9cf5047465bd — DOW-UAP-D180, Final Personnel Record for McCoy, Howard M., U.S. Air Force, 1954
 
 - Agency: Department of War
@@ -2825,6 +2929,426 @@ Summary Report on BAASS UAP Analysis Capabilities BIGELOW AEROSPACE ADVANCED SPA
 Excerpt (page 1):
 
 NFFC F 1 7C2 075 MCCOY HOWARD M AF C00 00 055C NPRC F 1 7C2 C75 MCCOY HOWARD M AF CCC 01 8C54 NPRC F 1 702 075 MCCOY HOWARD M AF 042 30 3763 DECLASSIFIED Authority: NW 90262 RETIRED
+
+### 55f5f0db04de21f2 — DOW-UAP-D181, Unresolved UAP Report, Catalina Island, 1949
+
+- Agency: Department of War
+- Date: 4/28/1949
+- URL: https://pursueindex.com/card/55f5f0db04de21f2
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/DOW-UAP-D181_Unresolved_UAP_Report_Catalina_Island-1949.pdf
+- Description: This file contains correspondence from Mr. Percy Wackey of Avalon, California to Mr. Kenneth Arnold of Boise, Idaho. Mr. Wackey relayed that his wife and another individual reported observing six objects over Catalina Island on the night of April 28, 1949. A handwritten annotation and contemporary documentation associated with the letter indicate a conclusion by the U.S. Air Force that the incident lacked sufficient data for evaluation.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD 1. DATE - TIME GROUP LOCATION 28 April 49 29/0400Z Catalina Island, California 3. SOURCE 10. CONCLUSION Civilian INSUFFICIENT DATA FOR EVALUATION 4. NUMBER OF OBJECTS Six 5. LENGTH OF OBSERVATION 11. BRIEF SUMMARY AND ANALYSIS Not Reported Observer sighted six objects. Each flew by alone. 6. TYPE OF OBSERVATION Ground-Visual 7. COURSE Not Reported 8. PHOTOS □ Yes ☒ No 9. PHYSICAL EVIDENCE □ Yes ☒ No FORM FTD SEP 63 0-329 (TDE) Previous editions of this form may be used. DECL
+
+### 87e825d57fc835d5 — DOW-UAP-D182, AAWSAP Statement of Work, August 2008
+
+- Agency: Department of War
+- Date: 8/22/2008
+- URL: https://pursueindex.com/card/87e825d57fc835d5
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D182-AAWSAP_Statement_of_Work_August-2008.pdf
+- Description: This document is an administrative or programmatic record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As an administrative record, the file documents how AAWSAP was scoped, organized, tasked, funded, or described at a particular point in time.
+This statement of work establishes the program’s formal mission for exploring far-term foreign aerospace threats by examining possible breakthrough technologies out to 2050 rather than extrapolating from then-current aerospace trends. The document lays out AAWSAP’s research areas and contractual deliverables at program start, including 12 technical topics to be studied, recurring status and management reporting, comprehensive technical reports and briefings for each area, and a final integrated threat assessment. It also documents the acquisition structure of the effort, including its firm-fixed-price contracting model, small-business set-aside status, security and clearance requirements, and anticipated multi-year period of performance.
+
+Excerpt (page 1):
+
+ADVANCED AEROSPACE WEAPON SYSTEM APPLICATIONS PROGRAM - HH... Page 1 of 7 ADVANCED AEROSPACE WEAPON SYSTEM APPLICATIONS PROGRAM Solicitation Number: HHM40208R0211 1843(a)(2) Notice Type: Original Posted Date: Combined Synopsis/Solicitation August 18, 2008 Posted Date: Response Date: August 22, 2008 Sep 05, 2008 4:00 pm Original Response Date: Archiving Policy: Sep 05, 2008 4:00 pm Eastern Automatic, on specified date Original Archive Date: Archive Date: October 31, 2008 October 31, 2008 31, 2008
+
+### 3450511c8f84fe3d — DOW-UAP-D183-Correspondence from Senator Harry Reid, June 2009
+
+- Agency: Department of War
+- Date: 6/24/2009
+- URL: https://pursueindex.com/card/3450511c8f84fe3d
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D183-Correspondence_from_Senator_Harry_Reid_June_24-2009.pdf
+- Description: This document is an administrative or programmatic record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As an administrative record, the file documents how AAWSAP was scoped, organized, tasked, funded, or described at a particular point in time.
+This June 2009 letter from Senator Harry Reid (D-NV) to Deputy Secretary of Defense William Lynn III requests that portions of the Advanced Aerospace Threat Identification Program (AATIP) be placed under a restricted Special Access Program (SAP) with a tightly controlled access list. The letter states that the Senate had directed DIA to assess far-term foreign advanced aerospace threats, describes ongoing technical work aligning with AAWSAP’s program areas, and asserts that the program had already produced several highly sensitive unconventional findings. On that basis, Reid states that ordinary classified information handling practices, and even conventional SAP procedures, would be insufficient to safeguard some parts of the effort, particularly those involving collection methodology, engineering application, industry participation, and the identities of specialized personnel. The attached material proposes a preliminary SAP structure, including a bigoted-access list, a tentative program timeline through Fiscal Year 2013, and continued roles for both government and BAASS personnel.
+AARO Comment: In the administrative record surrounding this program, “Advanced Aerospace Threat Identification Program” (AATIP) appears in some documents as an alternate name for the same underlying AAWSAP effort, rather than as a wholly separate program. In this context, Senator Reid used the term in public correspondence in lieu of the AAWSAP program name.
+
+Excerpt (page 1):
+
+HARRY REID NEVADA MAJORITY LEADER United States Senate WASHINGTON, DC 20510-7012 June 24, 2009 Honorable William Lynn III Deputy Secretary of Defense 1010 Defense Pentagon Washington, DC 20301-1010 Dear Secretary Lynn: Beginning this past September, the U.S. Senate has mandated that the Defense Intelligence Agency assess far-term foreign advanced aerospace threats to the United States. The scope of program interest covers from the present out to forty years and beyond. In order to further our ef
+
+### 7b0ca66a91c704d1 — DOW-UAP-D184, AAWSAP Talking Paper for Senator Reid Engagement, May 2009
+
+- Agency: Department of War
+- Date: 5/4/2009
+- URL: https://pursueindex.com/card/7b0ca66a91c704d1
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D184-AAWSAP_Talking_Paper_for_Senator_Reid_Engagement_May-2009.pdf
+- Description: This document is an administrative or programmatic record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As an administrative record, the file documents how AAWSAP was scoped, organized, tasked, funded, or described at a particular point in time.
+This document is preparatory material for a scheduled senior-leadership meeting involving Senator Harry Reid (D-NV) in May 2009, intended to equip the Director of the DIA with concise status points on the AAWSAP contract should Reid raise the topic. The document states that Senators Daniel Inouye (D-HI) and Harry Reid sponsored the July 2008 supplemental-appropriations language directing DIA to investigate foreign advanced aerospace threats over a 40-year horizon, and it presents Reid’s interest in unconventional aerospace technologies as part of the background for the engagement. It further notes that the request for proposals had sought work across 12 advanced technical areas, that Bigelow Aerospace Advanced Space Studies remained the sole bidder and contract awardee, and that Program Management Plans for all 12 areas had been approved. The talking points also state that approximately two research reports per technical area were expected by the end of July 2009 and that planning had begun for a prospective Fiscal Year 2010 university grant program in advanced aerospace research.
+
+Excerpt (page 1):
+
+UNCLASSIFIED//FOUO U-973-09/DWO 04 May 2009 Talking Paper for the Director SUBJECT: (U) Senator Reid Visit to Director, DIA 1. (U) PURPOSE: To provide LTG Burgess with the current status of the Advanced Aerospace Weapon System Applications contract should Senator Reid raise the topic. 2. (U//FOUO) BACKGROUND: Senator Inouye (D-HI) and Senator Reid (D-Nev) sponsored language in the July 2008 Supplemental Appropriation bill for DIA to initiate an investigation of foreign advanced aerospace weapon 
+
+### 85845b4df2788776 — DOW-UAP-D185, Review of AAWSAP Special Access Program Request, November 2009
+
+- Agency: Department of War
+- Date: 11/13/2009
+- URL: https://pursueindex.com/card/85845b4df2788776
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D185-Review_of_AAWSAP_Special_Access_Program_Request_November-2009.pdf
+- Description: This document is an administrative or programmatic record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As an administrative record, the file documents how AAWSAP was scoped, organized, tasked, funded, or described at a particular point in time.
+This November 2009 DIA information memorandum evaluates Senator Harry Reid’s June 2009 request (DOW-UAP-D183) to place portions of the AAWSAP contract, described in his letter under the alternate name “Advanced Aerospace Threat and Identification Program” (AAITP), into a restricted Special Access Program (SAP). The memorandum concludes that DIA could not find adequate justification for such a step, stating that all first-year program documents had been unclassified, that the contractor had not established a secure facility during that period, and that DIA was unaware of any delivered report containing information sensitive enough to warrant additional compartmentation. It further argues that the available material did not meet the threshold for original classification, in part because much of it consisted of publicly available scientific or technical information, and it characterizes Reid’s claims of highly sensitive findings as more plausibly referring to future phases of the effort than to the reports already delivered. In effect, the document is a formal internal finding that Senator Reid’s SAP request was not warranted, grounded in DIA’s view that the program’s first-year outputs did not justify heightened protection beyond normal classification procedures.
+
+Excerpt (page 1):
+
+UNCLASSIFIED//FOUO• DEFENSE INTELLIGENCE AGENCY WASHINGTON, D.C. 20340-5100 INFO MEMO U-09-2660/CE NOV 1 3 2009 FOR: DIRECTOR, SPECIAL PROGRAMS, OFFICE OF THE UNDER SECRETARY OF DEFENSE FOR INTELLIGENCE Letitia A. Long FROM: Letitia A. Long, Deputy Director, Defense Intelligence Agency SUBJECT: (U) Review of Special Access Program Request (U//FOUO) This info memo responds to your request for the Defense Intelligence Agency (DIA) Defense Warning Office (DWO) to evaluate a request from Senator Har
+
+### e19fbb338efc608c — DOW-UAP-D186, DIA Information Memorandum on AATIP (AAWSAP), December 2010
+
+- Agency: Department of War
+- Date: 11/20/2026
+- URL: https://pursueindex.com/card/e19fbb338efc608c
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D186-DIA_Information_Memorandum_on_AATIP_AAWSAP_December-2010.pdf
+- Description: This document is an administrative or programmatic record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As an administrative record, the file documents how AAWSAP was scoped, organized, tasked, funded, or described at a particular point in time.
+This December 2010 DIA information memorandum provides a retrospective summary of the Advanced Aerospace Threat Identification Program (AATIP), describing its congressional origins, contract execution, and accumulated outputs through the end of Fiscal Year 2010. The memo states that the effort was first funded in the Fiscal Year 2008 Defense Supplemental Appropriation Act through a $10 million appropriation sponsored by Senators Harry Reid (D-NV) and Daniel Inouye (D-HI), and that DIA subsequently awarded the contract to Bigelow Aerospace Advanced Space Studies LLC (BAASS), the only bidder. It reports that BAASS produced 26 technical reports in the initial phase and that a further $12 million appropriation in Fiscal Year 2010 supported production of 12 additional reports. The memo also recounts Senator Reid’s June 2009 request for special access protections for the program and DIA’s subsequent conclusion that there were insufficient grounds to classify the program at that level. It concludes by recounting an earlier determination that the program offered limited value to DIA, but upon completion of the term of the contract, could be transitioned to another agency better suited to oversee it.
+
+Excerpt (page 1):
+
+UNCLASSIFIED//FOR OFFICIAL USE ONLY INFO MEMO U-10-2552/CE FOR: UNDER SECRETARY OF DEFENSE FOR ACQUISITION, TECHNOLOGY, AND LOGISTICS FROM: Ronald L. Burgess, Jr., Lieutenant General, USA, Director, Defense Intelligence Agency SUBJECT: (U) Advanced Aerospace Threat and Identification Program (U//FOUO) The Advanced Aerospace Threat Identification Program was first sponsored in the Fiscal Year (FY) 2008 Defense Supplemental Appropriation Act by Senators Reid and Inouye with a $10 million add. The 
+
+### eb84be089be1d2ad — DOW-UAP-D187, DIA Talking Paper for Senator Reid Engagement, January 2009
+
+- Agency: Department of War
+- Date: 1/2/2009
+- URL: https://pursueindex.com/card/eb84be089be1d2ad
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D187-DIA_Talking_Paper_for_Senator_Reid_Engagement_January-2009.pdf
+- Description: This document is an administrative or programmatic record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As an administrative record, the file documents how AAWSAP was scoped, organized, tasked, funded, or described at a particular point in time.
+This document is preparatory material for a scheduled senior leadership meeting involving Senator Harry Reid (D-NV) on 2 January 2009, intended to equip DIA leadership with concise status talking points on the AAWSAP contract in case he raised the subject. The document states that Senators Daniel Inouye (D-HI) and Harry Reid sponsored the July 2008 supplemental appropriations language directing DIA to investigate foreign advanced aerospace threats over a 40-year horizon, and it presents Reid’s interest in aerospace technologies as part of the background for the engagement. It further notes that Bigelow Aerospace Advanced Space Studies had been the only respondent to the August 2008 request for proposals, that its proposal was judged responsive, and that the contract had been signed on 22 September 2008. The document notes that DIA assessed the program to have produced reports of limited value, along with a recommendation that AAWSAP be transitioned to another agency.
+
+Excerpt (page 1):
+
+UNCLASSIFIED//FOUO U-326-09/DWO 02 January 2009 Talking Paper for the Director SUBJECT: (U) Senator Reid Visit to Director, DIA, 05 January 2009 1. (U) PURPOSE: To provide LTG Maples with the current status of the Advanced Aerospace Weapon System Applications contract should Senator Reid raise the topic. 2. (U//FOUO) BACKGROUND: Senator Inouye (D-HI) and Senator Reid (D-Nev) sponsored language in the July 2008 Supplemental Appropriation bill for DIA to investigate foreign advanced aerospace weap
+
+### 2c859e85c982478e — DOW-UAP-D188, Review of AAWSAP Contract Deliverables October 2009
+
+- Agency: Department of War
+- Date: 10/30/2009
+- URL: https://pursueindex.com/card/2c859e85c982478e
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D188-Review_of_AAWSAP_Contract_Deliverables_October-2009.pdf
+- Description: This document is an administrative or programmatic record related to the Advanced Aerospace Weapon System Applications Program (AAWSAP), a Defense Intelligence Agency (DIA)-administered program active from 2008 to 2012. AAWSAP’s official scope of work identified 12 technical research areas relating to potential aerospace threats over a time horizon of more than 40 years. As an administrative record, the file documents how AAWSAP was scoped, organized, tasked, funded, or described at a particular point in time.
+This file contains an internal DIA review of AAWAP contract deliverables produced through October 2009. The reviewing officials and consulting contractors who prepared this report were associated with the broader AAWSAP program.
+
+Excerpt (page 1):
+
+UNCLASSIFIED INFO MEMO U-429-09/DWO 30 October 2009 FOR: DIRECTOR, DEFENSE INTELLIGENCE AGENCY FROM: 1843(a)(3) for Analysis, Defense Intelligence Agency SUBJECT: (U) Review of Advanced Aerospace Contract Deliverables (U) This info memo responds to your request for the Defense Warning Office (DWO) to review the quality and value of the first-year technical reports delivered under the Advanced Aerospace Weapon System Applications contract with Bigelow Aerospace Advanced Space Studies (BAASS), LLC
+
+### d7fb87e7264437e1 — DOW-UAP-D189, Air Intelligence Information Report, Virginia, 1957
+
+- Agency: Department of War
+- Date: 10/13/1957
+- URL: https://pursueindex.com/card/d7fb87e7264437e1
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D189-Air_Intelligence_Information_Report_Virginia-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR records an October 13, 1957, incident approximately one half-mile south of Great Falls, Viginia, near the Potomac River. At approximately 2105Z (5:05 p.m. local time), two civilians reported observing an unidentified flying object (UFO) while attempting to locate Sputnik, a Soviet satellite. The report describes the object as a single, black, round “dot” with an approximate apparent size comparable to the head of a pin. The report characterizes the object as moving along a true course of 007 degrees directly overhead, as measured with a compass. It also indicates that the object remained in view for approximately 5-6 seconds before being obscured by trees.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE _______________ DISTRIBUTION CONTROL RECORD NUMBER 1141133 SRI NUMBER _______________ CLASSIFICATION S C (U) DATE RECEIVED CIRCLED S INDICATES SEPIA NOV 5 1957 ACS / INTELLIGENCE | HEADQUARTERS USAF | AFSSOP 1 1 | LIB. CON.-AID ATIC 1 1 | SAFGC 1 1 | MATS (1) 1 | AEC 1A1 1 1 | AFDAP 1 1 | SAC 1 1 | ASC-AF SECT. 1A2 1 1 | RAND 1 1 | TAC 1 1 | OASD-ISA 1D1 1 1 | AFCSI 1 1 | TRC 1 1 | ASPPA 2A2 1 1 | AFDRQ 1 1 | | USIA 2A5 1 1 | AFOAT 1 1 | | JCS/JMEPC 2B 1 1 | AFOAT-1 1 1 | OVERSEAS COMMAND
+
+### aabeb328d198e646 — DOW-UAP-D191, Air Intelligence Information Report, Texas, 1957
+
+- Agency: Department of War
+- Date: 11/2/1957
+- URL: https://pursueindex.com/card/aabeb328d198e646
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D191-Air_Intelligence_Information_Report_Texas-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR records six observer accounts of incidents reportedly involving unidentified phenomena on November 2 and 3, 1957, in and around the municipalities of Levelland, Smyer, Shallowater, and Sundown, Texas. The report contains descriptions of bright, oval-shaped lights and objects; as well as temporary disruptions to vehicle engines, headlights, radios, and electrical systems. The file summarizes observer interviews and includes sketched depictions of reported objects. It also includes supplementary investigative materials such as a map of the area, weather data, and deconfliction with known aircraft traffic, weather-balloon activity, oil-field gas flaring, and downed power lines. The file also includes comments by the preparing officer, assessing the credibility of the individuals’ reports. He noted inconsistencies among the reports and noted that meteorological explanations may account for a portion of the reported activity. Ultimately, the officer stated that available knowledge within his office and the available evidence were insufficient to resolve the incident.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE _______________ DISTRIBUTION CONTROL RECORD NUMBER 1141957 GRI NUMBER _______________ CLASSIFICATION: S (C) U DATE RECEIVED NOV1 8 1957 CIRCLED S INDICATES SEPIA ACS / INTELLIGENCE | HEADQUARTERS U S A F | AFSSOP | 1 | 1 | LTD. CON.-AID AIIC | 1 | 1 | SAFGC | 1 | 1 | MATS |(1)| 1 | AEC 1A1 | 1 | 1 | AFDAP | 1 | 1 | SAC | 1 | 1 | ACC-AF SECT. 1A2 | 1 | 1 | RAND | 1 | 1 | TAC | 1 | 1 | OASD-ISA 1B1 | 1 | 1 | AFCSI | 1 | 1 | TRC | 1 | 1 | ASPPA 2A2 | 1 | 1 | AFDRO | 1 | 1 | USIA 2A5 | 1 | 1 
+
+### 40fedc1b5ac50804 — DOW-UAP-D192, Air Intelligence Information Report, Nebraska, 1957
+
+- Agency: Department of War
+- Date: 11/5/1957
+- URL: https://pursueindex.com/card/40fedc1b5ac50804
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D192-Air_Intelligence_Information_Report_Nebraska-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR records an investigation of a reported unidentified flying object (UFO) sighting near Kearney, Nebraska. The reporting individual stated that, on November 5, 1957, at approximately 2 p.m. local time, he observed an object on the ground about three miles southeast of Kearney. The individual reported that he spoke with the occupants of the object and entered it before it departed. Investigators conducted interviews and a site examination, assessed reported physical evidence, and examined a nearby vehicle malfunction. The report states that there was no corroborating witness or supporting physical evidence and concluded that the reported incident had no factual basis.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE _______________ DISTRIBUTION CONTROL RECORD NUMBER 1141958 NOV1 8 1957 GRI NUMBER _______________ CLASSIFICATION: S (C) U .4 DATE RECEIVED ________ CIRCLED S INDICATES SEPIA ACS /INTELLIGENCE | HEADQUARTERS USAF | AFSSOP | 1 | 1 | | LID. CON.-AID | ATIC | 1 | 1 | | SAFGC | 1 | 1 | | MATS | (1)| 1 | | AEC | 1A1 | 1 | 1 | | AFDAP | 1 | 1 | | SAC | 1 | 1 | | ACC-AF SECT. | 1A2 | 1 | 1 | | RAND | 1 | 1 | | TAC | 1 | 1 | | OASD-ISA | 1B1 | 1 | 1 | | AFCSI | 1 | 1 | | TRC | 1 | 1 | | ASPPA | 2A
+
+### 12fdfdceb484077d — DOW-UAP-D193, Air Intelligence Information Report, New Mexico, 1957
+
+- Agency: Department of War
+- Date: 11/13/1957
+- URL: https://pursueindex.com/card/12fdfdceb484077d
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D193-Air_Intelligence_Information_Report_New_Mexico-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents a November 13, 1957, incident involving two sightings of bright lights in the sky, reported by separate U.S. Army military police patrols near Stallion Site Camp, approximately 90 miles north of White Sands Proving Grounds headquarters. One patrol reported a bright object descending near the bunker area during the early morning; a second patrol reported a pulsating red-and-white light near the Trinity Site at approximately 8 p.m. The preparing officer consulted with Dr. Lincoln La Paz, Head of the Department of Meteoretics at the University of New Mexico; Dr. La Paz stated that no unusual meteorological or astronomical phenomena had been recorded in the area during the incident. The preparing officer assessed that the first patrol had likely observed a moonset and that the second had likely observed the planet Venus.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+AARO Comment: The “Trinity Site” is the location of the first successful nuclear weapons test during World War II. “White Sands Proving Range” is the contemporary name for the modern U.S. Army installation White Sands Missile Range.
+
+Excerpt (page 1):
+
+SOURCE ___________ DISTRIBUTION CONTROL RECORD NUMBER 1141959 CLASSIFICATION S C (U) NOV1 8 1957 GRI NUMBER ___________ DATE RECEIVED ___ CIRCLED S INDICATES SEPIA ACS / INTELLIGENCE | HEADQUARTERS U S A F | AFSSOP | 1 | 1 | | LID. CON.-AID | AIIC | 1 | 1 | SAFGC | 1 | 1 | MATS | (1) | 1 | AEC 1A1 | 1 | 1 | AFDAP | 1 | 1 | SAC | 1 | 1 | ASC - AF SECT. 1A2 | 1 | 1 | RAND | 1 | 1 | TAC | 1 | 1 | OASD - ISA 1B1 | 1 | 1 | AFCSI | 1 | 1 | TRC | 1 | 1 | ASPPA 2A2 | 1 | 1 | AFDRO | 1 | 1 | USIA 2A5 | 1
+
+### 410d4f43f987ebe0 — DOW-UAP-D194, Air Intelligence Information Report, New Mexico, 1957
+
+- Agency: Department of War
+- Date: 11/4/1957
+- URL: https://pursueindex.com/card/410d4f43f987ebe0
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D194-Air_Intelligence_Information_Report_New_Mexico-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents a November 4, 1957, incident involving a report of an unidentified flying object approximately 8–10 miles south of Orogrande, New Mexico, on U.S. Highway 54. The reporting individual stated that an egg-shaped object made two apparent passes near the Sacramento and San Andres Mountains. An Air Force follow-on inquiry found no unidentified aircraft reported in the area. The report also noted inconsistencies in the observer’s account and noted the absence of corroborating accounts from any third-party observer. The preparing officer assessed that the observation was possibly an optical phenomenon, noting that mirages were not unusual over the area’s flat, light-colored terrain.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE ___________________ GRI NUMBER _______________ DISTRIBUTION CONTROL RECORD NUMBER 1141960 CLASSIFICATION: S C (U) DATE RECEIVED NOV1 8 1957 CIRCLED S INDICATES SEPIA | ACS /INTELLIGENCE | | HEADQUARTERS USAF | | AFSSOP | 1 | 1 | | LID. CON.-AID | | | AFIC | 1 | 1 | | SAFGC | 1 | 1 | | MATS | (1)| 1 | | AEC | | | 1A1 | 1 | 1 | | AFDAP | 1 | 1 | | SAC | 1 | 1 | | ACC-AF SECT. | | | 1A2 | 1 | 1 | | RAND | 1 | 1 | | TAC | 1 | 1 | | OASD-ISA | | | 1B1 | 1 | 1 | | AFCSI | 1 | 1 | | TRC | 1 | 1 
+
+### 1692a5ac126b1882 — DOW-UAP-D195, Air Intelligence Information Report, New Mexico, 1957
+
+- Agency: Department of War
+- Date: 11/4/1957
+- URL: https://pursueindex.com/card/1692a5ac126b1882
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D195-Air_Intelligence_Information_Report_New_Mexico-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents a November 4, 1957, incident in the vicinity of Kirtland Air Force Base, New Mexico, at approximately 10:45 p.m. Mountain Standard Time. Two U.S. Air Force servicemembers positioned in the Kirtland control tower reported observing a white light and an object through binoculars; the observation lasted approximately five to six minutes. A Kirtland radar operator also reported an unidentified radar return that appeared similar to a conventional aircraft return. A subsequent Air Force investigation reviewed radar information, local weather conditions, and possible astronomical phenomena; the latter check found no unusual or distinctive astronomical event that night. The preparing officer assessed that the object may have been an unidentified standard aircraft operating in the area. The report includes a diagram depicting the reported flight path near the control tower, radar site, runway, and the area identified as “Drumhead.”
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE _______________ DISTRIBUTION CONTROL RECORD NUMBER 1141961 CLASSIFICATION: S C (S) DATE RECEIVED NOV1 8 1957 GRI NUMBER ___________ CIRCLED S INDICATES SEPIA ACS /INTELLIGENCE | HEADQUARTERS USAF | AFSSOP 1 1 | LID. CON.-AID AIIC 1 1 | SAFGC 1 1 | MATS (1) 1 | AEC 1A1 1 1 | AFDAP 1 1 | SAC 1 1 | ACC-AF SECT. 1A2 1 1 | RAND 1 1 | TAC 1 1 | OASD-ISA 1B1 1 1 | AFCSI 1 1 | TRC 1 1 | ASPPA 2A2 1 1 | AFDRO 1 1 | | USIA 2A5 1 1 | AFOAT 1 1 | | JCS/JMEPC 2D 1 1 | AFOAT-1 1 1 | OVERSEAS COMMANDS 2
+
+### 1112b7dd6ccb2120 — DOW-UAP-D196, Air Intelligence Information Report, Washington, 1957
+
+- Agency: Department of War
+- Date: 10/19/1957
+- URL: https://pursueindex.com/card/1112b7dd6ccb2120
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D196-Air_Intelligence_Information_Report_Washington-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents an October 19, 1957, observation made from the Larson Air Force Base Operations and Control Tower, Washington, from 0110Z to 0250Z (5:10 p.m. to 6:50 p.m. local). The report describes a bright, silvery, apparently circular object observed south-southwest of Moses Lake and moving westward. Observers reported changing colors, an apparent smaller adjacent object late in the observation, and clear, cloudless weather conditions. Personnel contacted “Igloo Control,” which did not obtain a radar track but reported a visual observation; it assessed the object as “PLUTO,” and deemed that no interception was necessary.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+AARO Comment: In this context, the term “PLUTO” almost certainly did not refer to the celestial body Pluto, which cannot be seen with the unaided eye. The report states that “Igloo Control” visually observed the reported object, said it believed the object to be “PLUTO,” and stated that no interception was necessary. This sequence suggests that the term functioned as an operational assessment or identifier indicating that the reported object did not warrant interception. However, the report does not define “PLUTO” or establish its precise operational meaning.
+
+Excerpt (page 1):
+
+SOURCE ___________________ DISTRIBUTION CONTROL RECORD NUMBER ___ 1142251 CLASSIFICATION S C (U) NOV 7 1957 SRI NUMBER ________________ 6 DATE RECEIVED __ 1142251 CIRCLED S INDICATES SEPIA ACS / INTELLIGENCE- HEADQUARTERS USAF AFSSOP 1 1 LIB. CON.-AID ATIC 1 1 SAFGC 1 1 MATS (1) 1 AEC 1A1 1 1 AFDAP 1 1 SAC 1 1 ASC-AF SECT. 1A2 1 1 RAND 1 1 TAC 1 1 OASD-ISA 1D1 1 1 AFCSI 1 1 TRC 1 1 ASPPA 2A2 1 1 AFDRQ 1 1 USIA 2A5 1 1 AFOAT 1 1 JCS/JMEPC 2B 1 1 AFOAT-1 1 1 OVERSEAS COMMANDS 2C 1 1 AFOPD 1 1 AAC 
+
+### 46b0bdbffa5057ca — DOW-UAP-D198, Air Intelligence Information Report, Japan, 1957
+
+- Agency: Department of War
+- Date: 10/2/1957
+- URL: https://pursueindex.com/card/46b0bdbffa5057ca
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D198-Air_Intelligence_Information_Report_Japan-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents and translates excerpts from an October 2, 1957, article from the Japanese newspaper Tokyo Shimbun. The article carried a statement from a Soviet scientific publication claiming that the USSR was manufacturing a circular, vertically operating “flying disk” aircraft. The report was produced through routine open-source screening of Japanese-language publications and noted that this was the first information received by the reviewing office regarding this alleged Soviet aircraft; it did not independently confirm that such a vehicle existed or was being manufactured.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+DISTRIBUTION CONTROL RECORD NUMBER 1142594 SOURCE ___________ DATE RECEIVED NOV 8 1957 CLASSIFICATION S C O GRI NUMBER ___________ CIRCLED 3 INDICATES SEPIA ACS / INTELLIGENCE HEADQUARTERS USAF AFSSOP 1 1 LID. COM.—AID AIIC (1) 1 SAFGC 1 1 MATS 1 1 AEC 1A1 1 1 AFDAP 1 1 SAC (1) 1 ACC - AF SECT. ___ 1A2 (1) 1 RAND (1) 1 TAC 1 1 OASD - ISA 1B1 1 1 AFCSI 1 1 TRC (1) 1 ASPPA 2A2 1 1 AFDRO 1 1 USIA 2A5 1 1 AFOAT 1 1 JCS/JMEPC 2D 1 1 AFOAT-1 1 1 OVERSEAS COMMANDS 2C 1 1 AFOPD 1 1 AAC (1) 1 2C1 1 1 OPD
+
+### a174b43c290ec6b8 — DOW-UAP-D199, Air Intelligence Information Report, Iran, 1957
+
+- Agency: Department of War
+- Date: 10/23/1957
+- URL: https://pursueindex.com/card/a174b43c290ec6b8
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D199-Air_Intelligence_Information_Report_Iran-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents an October 23, 1957, incident in which a U.S. Army observer reported a high-altitude vapor trail proceeding from east to west over Tehran, Iran, for about three and a half minutes. The reporter states that he did not directly observe any object associated with the vapor trail, and that he did not perceive any sound such an object may have produced. The report continues by describing the trail as entering or passing above thin cirrus clouds to the west and disappearing.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE _______________ DISTRIBUTION CONTROL RECORD *NUMBER 1142648 - 5 NOV 7 1957 SRI NUMBER ___________ CLASSIFICATION: S C U DATE RECEIVED ________ 8 CIRCLED S INDICATES SEPIA ACS / INTELLIGENCE | HEADQUARTERS USAF | AFSSOP 1 1 | | LID. CON.-AID AHC (1) 1 | SAFGC 1 1 | MATS 1 1 | | AEC 1A1 (1) 1 | AFDAP 1 1 | SAC (1) 1 | | ACC-AF SECT. (1) 1A2 (1) 1 | RAND (1) 1 | TAC 1 1 | | OASD-ISA 1B1 1 1 | AFCSI 1 1 | TRC (1) 1 | | ASPPA 2A2 1 1 | AFDRQ 1 1 | | | USIA 2A5 1 1 | AFOAT 1 1 | | | JCS/JMEPC 2
+
+### 78cc379f877a9b6f — DOW-UAP-D200, Air Intelligence Information Report, Peru, 1957
+
+- Agency: Department of War
+- Date: 10/28/1957
+- URL: https://pursueindex.com/card/78cc379f877a9b6f
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D200-Air_Intelligence_Information_Report_Peru-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents two reported observations of unidentified flying objects (UFOs) in Peru. The report recounts an October 28, 1957, observation near Talavera District, Apurímac Department, of a luminous, aqua-colored spherical object reportedly seen descending with sparks; a subsequent search did not locate the object. It also records reports from November 1957 near Succhabamba of a bright, high-altitude object that appeared balloon-like.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE ___________________ DISTRIBUTION CONTROL RECORD NUMBER 1144335 SRI NUMBER _______________ CLASSIFICATION S C U NOFORN C15 CIRCLED S INDICATES SEPIA DATE RECEIVED NOV 2 5 1957 ACS/INTELLIGENCE XPD-PY 1 1 JOINT ORGS MISCELLANEOUS X1A 1 1 2D1 1 1 XPD-PL 1 1 ALCMD 1 1 PRSD 1 1 X1C 1 1 2D2 1 1 XPD-SP 1 1 GMIC 1 1 1 1 X1D 1 1 2D3 1 1 MMS 1 1 CONAD 1 1 1 1 1X 1 1 3X3 1 1 USAF CMDS EXTNL AGCYS 1 1 1X1 1 1 ARD 1 1 SAC 1 1 ISA 1 1 1 1 1AR 1 1 3A 1 1 TAC 1 1 JMEPC 1 1 SPEC ROUTING 1AS 1 1 3B 1 1 APG
+
+### 277c4861b2c8f432 — DOW-UAP-D201, Air Intelligence Information Report, Iran, 1957
+
+- Agency: Department of War
+- Date: 11/20/2026
+- URL: https://pursueindex.com/card/277c4861b2c8f432
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D201-Air_Intelligence_Information_Report_Iran-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents several sightings of unidentified flying objects (UFOs) over Iranian Azerbaijan between May and October 1957. It cites reporting by a local media outlet, “Ettilaat,” of a comet over Rezaieh on May 21, and later coverage of an incident in October that the outlet speculated may have been a sighting of Sputnik I, a Soviet satellite. The report also refers to July sightings by Americans in Tabriz of a large red light moving east to west after sunset and an October 14 sighting south of Tabriz, at approximately 2:30 p.m., of a bright white object moving east to west.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE ___________________ DISTRIBUTION CONTROL RECORD NUMBER 1144953 SRI NUMBER ___________________ CLASSIFICATION S C (U) NOFORN DATE RECEIVED DEC 4 1957 CIRCLED S INDICATES SEPIA ACS/INTELLIGENCE XPD-PY 1 1 JOINT ORGS MISCELLANEOUS X1A 1 1 2D1 1 1 XPD-PL 1 1 ALCMD 1 1 PRSD 1 1 X1C 1 1 2D2 1 1 XPD-SP 1 1 GMIC 1 1 1 1 X1D 1 1 2D3 1 1 MMS 1 1 CONAD 1 1 1 1 1X 1 1 3X3 1 1 USAF CMDS EXTNL AGCYS 1 1 1X1 1 1 ARD 1 1 SAC (1) 1 ISA 1 1 1 1 1AR 1 1 3A (1) 1 TAC 1 1 JMEPC 1 1 SPEC ROUTING 1AS 1 1 3B (1)
+
+### 3733c21347b9cf9c — DOW-UAP-D202, Air Intelligence Information Report, Peru, 1957
+
+- Agency: Department of War
+- Date: 11/8/1957
+- URL: https://pursueindex.com/card/3733c21347b9cf9c
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D202-Air_Intelligence_Information_Report_Peru-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents reported observations of an unidentified flying object (UFO) near Cajamarca, Peru. A weather observer at the Compañía Peruana de Servicios Meteorológicos observatory, approximately 35 miles south of Cajamarca, reported sightings on October 26, 28, and 29 and November 8, 1957. The observer described a “white-steel-gleaming” object. The report contains descriptive observations and measurement data but did not identify the object or provide a final analytical conclusion on its nature or origin.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE _______________ DISTRIBUTION CONTROL RECORD NUMBER 1146184 SRI NUMBER _______________ CLASSIFICATION S C U NOFORN DATE RECEIVED DEC 4 1957 CIRCLED S INDICATES SEPIA ACS/INTELLIGENCE XPD-PY 1 1. JOINT ORGS MISCELLANEOUS X1A 1 1. 2D1 1 1. XPD-PL 1 1 ALCMD 1 1. PRSD 1 1 X1C 1 1 2D2 1 1 XPD-SP 1 1 GMIC 1 1 1 1 X1D 1 1 2D3 1 1 MMS 1 1 CONAD 1 1 1 1 1X 1 1 3X9 1 1 USAF CMDS EXTNL AGCYS 1 1 1X1 1 1 ARD 1 1 SAC (1) 1 ISA 1 1 I 1 1AR 1 1 3A 1 1 TAC 1 1 JMEPC 1 1 SPEC ROUTING 1AS 1 1 3B 1 1 APG 1 1
+
+### a0af4c515f2652c5 — DOW-UAP-D203, Air Intelligence Information Report, California, 1957
+
+- Agency: Department of War
+- Date: 9/5/1957
+- URL: https://pursueindex.com/card/a0af4c515f2652c5
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D203-Air_Intelligence_Information_Report_California-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents two observations of unidentified flying objects (UFOs) near Upland, California, on or about September 5 and 6, 1957, between 1215Z and 1230Z (5:15 a.m. and 5:30 a.m. local time). A civilian reported observing one UFO each morning, describing each as a green flash with red tails, at an estimated altitude of 2,000 feet. The reporting officer assessed that the information available was insufficient for further analysis.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE ___________________ DISTRIBUTION CONTROL RECORD NUMBER 1146209 SRI NUMBER $_______________ CLASSIFICATION S (C) U NOFORN CIRCLED S INDICATES SEPIA DATE RECEIVED DEC 9 1957 ACS/INTELLIGENCE XPD-PY 1 1 JOINT ORGS MISCELLANEOUS X1A 1 1 2D1 1 1 XPD-PL 1 1 ALCMD 1 1 PRSD 1 1 X1C 1 1 2D2 1 1 XPD-SP 1 1 GMIC 1 1 1 1 X1D 1 1 2D3 1 1 MMS 1 1 CONAD 1 1 1 1 1X 1 1 3X3 1 1 USAF CMDS EXTNL AGCYS 1 1 1X1 1 1 ARD 1 1 SAC (1) 1 ISA 1 1 1 1 1AR 1 1 3A 1 1 TAC 1 1 JMEPC 1 1 SPEC ROUTING 1AS 1 1 3B 1 1 APG 
+
+### c0a0002c885b68f4 — DOW-UAP-D204, Air Intelligence Information Report, Virginia, 1957
+
+- Agency: Department of War
+- Date: 11/6/1957
+- URL: https://pursueindex.com/card/c0a0002c885b68f4
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D204-Air_Intelligence_Information_Report_Virginia-1957.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR documents a November 6, 1957, incident in which three civilian observers reported an unidentified flying object (UFO) near Abingdon and Lebanon, Virginia. At approximately 1735 (5:35 p.m.) The observers described a bright red-orange object high in the sky, observed for approximately five minutes and traveling generally northwest or north. Descriptions of its apparent shape varied, including carrot-shaped, elongated egg-shaped, and elongated diamond-shaped.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+SOURCE ___________________ DISTRIBUTION CONTROL RECORD NUMBER 1148050 SRI NUMBER _______________ CLASSIFICATION S C U NOFORN CIRCLED S INDICATES SEPIA DATE RECEIVED DEC 1 7 1957 ACS/INTELLIGENCE XPD-PY 1 1 JOINT ORGS MISCELLANEOUS X1A 1 1 2D1 1 1 XPD-PL 1 1 ALCMD 1 1 PRSD 1 1 X1C 1 1 2D2 1 1 XPD-SP 1 1 GMIC 1 1 - 1 1 X1D 1 1 2D3 1 1 MMS 1 1 CONAD 1 1 1 1 1X 1 1 3X3 1 1 USAF CMDS EXTNL AGCYS 1 1 1X1 1 1 ARD 1 1 SAC 1 1 ISA 1 1 1 1 1AR 1 1 3A 1 1 TAC 1 1 JMEPC 1 1 SPEC ROUTING 1AS 1 1 3B 1 1 APG 1
+
+### 9c56a31448466b18 — DOW-UAP-D205, Air Intelligence Information Report, Japan, 1956
+
+- Agency: Department of War
+- Date: 12/17/1956
+- URL: https://pursueindex.com/card/9c56a31448466b18
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D205_Air_Intelligence_Information_Report_Japan-1956.pdf
+- Description: This document is an Air Intelligence Information Report (AIIR), a standardized U.S. Air Force reporting form used to record raw information of potential intelligence value for later analysis. The form served as a primary vehicle for U.S. Air Force field intelligence collection throughout the early Cold War, until defense-wide reporting standards were established in the early 1960s.
+This AIIR records a December 17, 1956, incident in the vicinity of Ube, Japan, in which two U.S. Air Force F-86D pilots were conducting practice intercepts under ground-controlled radar direction when one pilot reported detecting a second radar target, separate from the other F-86D, at a range of 20 nautical miles. The report states that the unidentified return appeared larger than the return from the other aircraft and remained visible on the interceptor’s radar scope for approximately seven to eight minutes. It further states that the pilot later obtained intermittent visual contact for approximately three to four minutes after closing to within about five nautical miles, describing the object as best resembling the upper half of a sphere. The report also notes possible electronic countermeasures interference on the F-86D radar scope and estimates the object’s rate of departure at 1,500 to 1,800 knots (1,726–2,071 mph) after the radar return moved rapidly off the top of the scope, while noting that the figure exceeded what the radar set could directly indicate for a negative rate of closure. The report further states that neither ground-based radar sites nor the second pilot acquired the object on radar.
+All descriptive and estimative language contained in this report reflects the reporter’s subjective interpretation at the time of the event. Such characterizations should not be interpreted as a conclusive indication of the presence or absence of any intrinsic object features or performance characteristics.
+
+Excerpt (page 1):
+
+confidential CONFIDENTIAL (CLASSIFICATION) AF FORM 112 1079475 2 APPROVED 1 JUNE 1948 COUNTRY | REPORT NO. | (LEAVE BLANK) Japan | IR-12-57 | 1079475 AIR INTELLIGENCE INFORMATION REPORT SUBJECT (U) Unidentified Flying Object Report AREA REPORTED ON FROM (Agency) Japan DI FEAF ATILO DATE OF REPORT DATE OF INFORMATION EVALUATION 20 February 1957 20 December 1956 B-2 PREPARED BY (Officer) Captain Alan G. Pound, ATILO and SOURCE Captain William J. Buchanan, ATILO Debriefing REFERENCES (Control numbe
+
+### ba7b99c93f272808 — DOW-UAP-D206, Unresolved UAP Report, California, 1953
+
+- Agency: Department of War
+- Date: 12/16/1953
+- URL: https://pursueindex.com/card/ba7b99c93f272808
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D206_Unresolved_UAP_Report_California-1953.pdf
+- Description: This file contains a confirmed, complete, high-quality digitization of reports by Lockheed Aircraft Corporation personnel concerning the observation of an unidentified flying object (UFO) near Agoura and Point Mugu, California, on December 16, 1953. Clarence L. Johnson, Lockheed’s Chief Engineer, transmitted the reports to the Air Technical Intelligence Center at Wright Patterson Air Force Base for scientific evaluation, along with a request for comments regarding the incident. The file also includes individual accounts from Johnson and Lockheed flight-test personnel.  This report is significant, due to Johnson’s reputation as one of the foremost aerospace engineers in American history, and his virtually unmatched familiarity with high-performance aircraft.
+Johnson reported observing a dark, elliptical object from his ranch west of Agoura at approximately 5:00 p.m. He initially considered whether it might be a cloud or smoke trail; he reported that it appeared stationary for several minutes before moving westward and disappearing. Separately, personnel aboard a Lockheed test flight reported seeing an object in the vicinity of Point Mugu while flying off the southern California coast at approximately the same time. Their accounts described an apparently stationary, dark, wing-like or elongated object that moved westward and disappeared from view.
+
+Excerpt (page 1):
+
+1. DATE - TIME GROUP 1700 local 16 Dec 53 17/0100Z 3. SOURCE civilian 4. NUMBER OF OBJECTS one 5. LENGTH OF OBSERVATION 5-7 mins 6. TYPE OF OBSERVATION ground & air visual 7. COURSE stationary 8. PHOTOS □ Yes ☒ No 9. PHYSICAL EVIDENCE □ Yes □ No 2. LOCATION Agoura, Calif 10. CONCLUSION OTHER: CLOUD Lenticular Cloud. 11. BRIEF SUMMARY AND ANALYSIS First appeared as black stationary cloud, then rapid movement in long shallow climb DECLASSIFIED Authority: NND 823007 FORM FTD SEP 63 0-329 (TDE) Prev
+
+### 43981ff03d1a20cd — DOW-UAP-D207, Unresolved UAP Report, California, 1956
+
+- Agency: Department of War
+- Date: 8/22/1956
+- URL: https://pursueindex.com/card/43981ff03d1a20cd
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D207-Unresolved_UAP_Report_California-1956.pdf
+- Description: This file contains documentation of three visual observations of aerial lights near Fontana and La Jolla, California, on August 22, 1956. The first two reports, from the Fontana area, described a single bright red light with a fiery tail resembling a comet or an aircraft using afterburner. The reporting individuals described the light as moving slowly westward toward Catalina Island, with an estimated speed of 115 knots (132 mph). A third report from La Jolla described two yellow-white lights moving slowly, making turns while maintaining formation, and fading into light fog or haze. The summary card preceding the observer accounts records the Air Force evaluation of all three reports as being attributable to aircraft.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD CARD 1. DATE 2. LOCATION 12. CONCLUSIONS 22 August 1956 Fontana & La Jolla, Calif. o Was Balloon o Probably Balloon 3. DATE-TIME GROUP 4. TYPE OF OBSERVATION o Possibly Balloon Local ___________________ ☑ Ground-Visual o Ground-Radar ☑X Was Aircraft GMT 23/0225,0335,0300 o Air-Visual o Air-Intercept Radar o Probably Aircraft o Possibly Aircraft 5. PHOTOS 6. SOURCE o Was Astronomical o Yes o Probably Astronomical X☑ No three civilians o Possibly Astronomical 7. LENGTH OF OBSE
+
+### e17f6bbdcf28f734 — DOW-UAP-D208, Unresolved UAP Report, California, 1965
+
+- Agency: Department of War
+- Date: 8/8/1965
+- URL: https://pursueindex.com/card/e17f6bbdcf28f734
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D208-Unresolved_UAP_Report_California-1965.pdf
+- Description: This file contains a Flying Objects Report prepared in accordance with Air Force Regulation 200-2, which established guidance for reporting unidentified flying objects, concerning an August 8, 1965, incident involving an observation of an unidentified flying object (UFO) near Palos Verdes, California. The initial report states that two civilian report observers reported a round object with flashing red, white, and blue lights at approximately 9:30 p.m. local time. They reported that the object moved between the Palos Verdes Peninsula and Catalina Island at a high estimated speed and remained in view for approximately 10 minutes. The file includes an Air Force assessment that the available information was insufficient for evaluation.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD 1. DATE - TIME GROUP 2. LOCATION 8 August 65 09/0530Z Palos Verdes, California 3. SOURCE 10. CONCLUSION ASTRO (MARS) Civilians INSUFFICIENT DATA FOR EVALUATION 4. NUMBER OF OBJECTS Form 164 sent and not returned as of this date. Will be reevaluated if form is returned. One 5. LENGTH OF OBSERVATION 11. BRIEF SUMMARY AND ANALYSIS 15/10 Minutes Object was round with red, white and blue flashing lights. It was moving back and forth across Catalina at an estimated 6. TYPE OF OBSE
+
+### f2ddd70dd412e9a6 — DOW-UAP-D209, Unresolved UAP Report, California, 1955
+
+- Agency: Department of War
+- Date: 3/15/1955
+- URL: https://pursueindex.com/card/f2ddd70dd412e9a6
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D209_Unresolved_UAP_Report_California-1955.pdf
+- Description: This file contains a U.S. Air Force Project 10073 Record Card and associated message traffic concerning a reported observation of an unidentified flying object near Avalon, Catalina Island, California, on 15 March 1955. A civilian observer described a single, very bright, round object, approximately the size of a nickel held at arm’s length, that changed from orange to red and moved straight downward. The report states that the observation lasted approximately two seconds; no photographs or physical evidence accompanied the report.
+The associated message records clear, dry, and cool weather conditions with unrestricted visibility. An Air Force intelligence officer assessed that the object’s reported flight path and brief duration in view suggested it was probably a meteor. The attached record card correspondingly records the Air Force evaluation as “possibly astronomical.”
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD CARD 1. DATE 2. LOCATION 12. CONCLUSIONS California □ Was Balloon 15 March 1955 d o Avalon, Catalina Isle □ Probably Balloon □ Possibly Balloon 3. DATE-TIME GROUP 4. TYPE OF OBSERVATION Local ___________________ ☒ Ground-Visual □ Ground-Radar □ Was Aircraft □ Probably Aircraft GMT unknown □ Air Visual □ Air-Intercept Radar □ Possibly Aircraft 5. PHOTOS 6. SOURCE □ Was Astronomical Meteor □ Yes □ Probably Astronomical ☒ No Civilian □ Possibly Astronomical 7. LENGTH OF OBSERVA
+
+### 8a91112c87333afb — DOW-UAP-D210, Unresolved UAP Report, California, 1957
+
+- Agency: Department of War
+- Date: 12/1/1957
+- URL: https://pursueindex.com/card/8a91112c87333afb
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D210_Unresolved_UAP_Report_California-1957.pdf
+- Description: This file contains a U.S. Air Force Project 10073 Record Card and associated material documenting six visual reports of unidentified flying objects from locations across Southern California. The reports occurred between 0306Z and 0310Z on 1 December 1957 (7:06 p.m. to 7:10 p.m. Pacific Standard Time on 30 November local time) and included locations near San Clemente Island, Borrego Springs, Blythe, Oxnard, Ventura, and San Bernardino.
+Civilian and military observers described a bright object moving generally northeastward. Accounts variously characterized the object as a falling star, bright light, or ball, with some reporting a bluish-white or reddish color, flame, or a trailing tail. Individual observation durations ranged from several seconds to approximately 30 seconds.
+The record card states that the Air Force evaluated the object to be astronomical in nature, attributing the incident to a meteor. Associated messages state that Air Defense Command personnel and Mount Wilson Observatory also assessed reported objects as meteors.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD CARD 1. DATE 2. LOCATION 12. CONCLUSIONS o Was Balloon 30 November 1957 Southern California o Probably Balloon o Possibly Balloon 3. DATE-TIME GROUP 4. TYPE OF OBSERVATION o Was Aircraft Local around XXGround-Visual o Ground-Radar o Probably Aircraft GMT 01/0306Z (see below) XXAir-Visual o Air-Intercept Radar o Possibly Aircraft 5. PHOTOS 6. SOURCE XX Was Astronomical Meteor o Probably Astronomical o Yes o Possibly Astronomical XXNo Military 7. LENGTH OF OBSERVATION 8. NUMBE
+
+### 91c156310f4b438a — DOW-UAP-D211, Unresolved UAP Report, California, 1956
+
+- Agency: Department of War
+- Date: 8/21/1956
+- URL: https://pursueindex.com/card/91c156310f4b438a
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D211_Unresolved_UAP_Report_California-1956.pdf
+- Description: This file contains a U.S. Air Force Project 10073 Record Card and associated materials concerning a reported observation of an unidentified flying object near Fontana, California, on August 21, 1956. A civilian Ground Observer Corps supervisor reported seeing one round, red object with a tail. The observer described the object as approximately the size of a basketball at arm’s length, moving eastward, and disappearing into fog after approximately two minutes. No photographs or physical evidence accompanied the report. The associated record card assesses the reported object as probably a jet aircraft, with the apparent tail likely a contrail, though lists the cause as undetermined at the time of the initial duty officer review.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD CARD 1. DATE 2. LOCATION 12. CONCLUSIONS 21 August 1956 Fontana, California □ Was Balloon □ Probably Balloon 3. DATE-TIME GROUP 4. TYPE OF OBSERVATION □ Possibly Balloon Local ___________________ X☒ Ground-Visual □ Ground-Radar □ Was Aircraft GMT 22/0645Z □ Air-Visual □ Air-Intercept Radar X☒ Probably Aircraft □ Possibly Aircraft 5. PHOTOS 6. SOURCE □ Was Astronomical □ Yes □ Probably Astronomical X☒ No Civilian (GOC) □ Possibly Astronomical 7. LENGTH OF OBSERVATION 8. NUMBE
+
+### b3eb75295aabe90f — DOW-UAP-D212, Unresolved UAP Report, California, 1966
+
+- Agency: Department of War
+- Date: 11/30/1966
+- URL: https://pursueindex.com/card/b3eb75295aabe90f
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D212-Unresolved_UAP_Report_California-1966.pdf
+- Description: This file contains a U.S. Air Force Project 10073 Record Card and related correspondence, including drawn depictions, concerning a reported observation of an unidentified flying object from San Pedro, California, on November 30, 1966. Two observers described seeing a bright light in the direction of Catalina Island. The record card summarizes the reported object as white with a red center, brighter than the brightest star, and comparable in brightness to the moon. It records that the object moved northwest and disappeared slowly after an observation lasting approximately five minutes and 10 seconds.
+The file also includes a March 15, 1967, Air Force letter requesting that one of the reporting individuals complete a technical questionnaire because the information initially received was insufficient for a scientific evaluation. In the completed questionnaire, the observer described seeing the object outdoors from San Pedro at approximately 5:45 p.m. Pacific Standard Time and stated that an airplane appeared to approach before the object began to disappear. The Air Force assessed the reported object as a possible hot-air balloon. However, the file does not document the basis for that assessment.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD 1. DATE & TIME GROUP 2. LOCATION 30 Nov 66 1/0045 San Pedro, California (2 witnesses) 3. SOURCE 10. CONCLUSION Civlian Possible (Hot Air) BALLOON 4. NUMBER OF OBJECTS One 5. LENGTH OF OBSERVATION 11. BRIEF SUMMARY AND ANALYSIS 5minutes 10 seconds Observer stated object appeared as a light. It appeared brighter than the brightest star. Object brightness was 6. TYPE OF OBSERVATION compared to that of the moon. The object was white and a red center. Disappeared ver slowly. Obje
+
+### 41b2beb95f631614 — DOW-UAP-D213, Unresolved UAP Report, California, 1949
+
+- Agency: Department of War
+- Date: 6/17/1949
+- URL: https://pursueindex.com/card/41b2beb95f631614
+- Source: https://www.war.gov/medialink/ufo/docs-112026-release-08/DOW-UAP-D213-Unresolved_UAP_Report_California-1949.pdf
+- Description: This file contains U.S. Air Force investigative records and related correspondence concerning two separate reported observations of unidentified flying objects in Southern California on June 17, 1949. The materials include an Office of Special Investigations report regarding an observation from La Jolla and a later Air Materiel Command inquiry into a report from Glendale.
+In the La Jolla report, an observer described seeing one large, bright, round object at approximately 11:10 a.m. local time. The individual estimated that the object was about four miles away and 4,000 feet above the ground, compared its apparent size to a Douglas DC-4 aircraft, and described it as resembling a “chromium plated pie tin.” The report states that the object moved rapidly away, made a wide turn, and remained visible for approximately 30 seconds.
+A separate report documents an observation from a moving automobile near Grand Central Airport in Glendale at approximately 3:30 p.m. local time. The reporting individual described two bright metallic, oval objects that reflected sunlight, approached from the northeast, traveled slowly across the valley, then tilted and departed rapidly toward the northwest. The objects remained in view for approximately one and a half minutes.
+The Project 10073 Record Card associated with the Glendale observation assessed the reported objects as aircraft, stating that the available information did not indicate that they could not have been aircraft. The file does not document a comparable final evaluation of the La Jolla report.
+
+Excerpt (page 1):
+
+PROJECT 10073 RECORD 1. DATE - TIME GROUP 2. L[REDACTED]ATION 17 June 1949 18/0330Z Glendale, California 372 3. SOURCE 10. CONCLUSION Civilian AIRCRAFT 4. NUMBER OF OBJECTS Two No data presented to indicate objects could not have been A/C. 5. LENGTH OF OBSERVATION 11. BRIEF SUMMARY AND ANALYSIS 1 1/2 Minute Observers attention was attracted to the reflection the object made off the sun. Object was a bright metallic and oval. 6. TYPE OF OBSERVATION It approached from NE, took off to NW. Object di
 
 ### c1c59236394f7b14 — DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022
 
@@ -5022,6 +5546,39 @@ This video description is provided for informational purposes only. Readers shou
 - URL: https://pursueindex.com/card/208d494dece9b545
 - Description: This audio file records a March 1952 presentation by Captain Edward J. Ruppelt, outlining the U.S. Air Force’s reorganized investigation into unidentified flying objects (UFOs). The presentation previews prospective technical methodologies, such as diffraction-grating photography and radar-scope synchronization, that were subsequently incorporated into Project Blue Book, a U.S. Air Force program active from 1952 to 1969 that investigated the nature and origin of UFOs. Ruppelt explains that out of approximately 800 historical cases reviewed by the Air Force, approximately 20% remained unexplained after technical analysis. These unresolved reports were sourced from credible military personnel, commercial pilots, and other qualified technical observers. He highlights geographic report concentrations around sensitive national security and nuclear weapons installations (including Los Alamos, Albuquerque, and Oak Ridge National Laboratories) and notes recurring anomalous characteristics, including silent high-speed flight and radar detections indicating unconfirmed air speeds between 1,000 and 3,500 miles per hour. Emphasizing that the Air Force found no conclusive evidence regarding the nature or origin of the phenomena, Ruppelt underscores the national security need for a systematic physical data collection effort to better evaluate these sightings.
 
+### 04a82a0332cfe988 — DOW-UAP-PR166, Unresolved UAP Report, Middle East, 2020
+
+- Agency: Department of War
+- Date: 11/20/2026
+- URL: https://pursueindex.com/card/04a82a0332cfe988
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of 20 seconds of video footage from an infrared sensor aboard a U.S. Military platform in 2020.
+Video description:
+00:00-00:09: An area of contrast enters the sensor field-of-view from the right edge of the frame, proceeding from right to left.
+00:10-00:20: The sensor pans and cycles the level of magnification to track the area of contrast, keeping it generally within the center of the frame.
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### 6c65ac68d3cf00f3 — DOW-UAP-PR168, Unresolved UAP Report, Middle East, 2026
+
+- Agency: Department of War
+- Date: 11/20/2026
+- URL: https://pursueindex.com/card/6c65ac68d3cf00f3
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of 54 seconds of video footage from an electro-optical and infrared system aboard a U.S. Military platform in 2026.
+Video description:
+00:00-00:15: The sensor pans to track multiple areas of contrast, moving generally from right to left across the frame.
+00:16-00:28: The sensor pans and adjusts its level of magnification several times.
+00:29-00:54: The sensor zooms in to track two areas of contrast, panning up and to the left of the frame. The sensor intermittently loses contact with the areas of contrast.
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
+### c178dd1cd7415f1c — DOW-UAP-PR169, Unresolved UAP Report, Middle East, 2023
+
+- Agency: Department of War
+- Date: 11/20/2026
+- URL: https://pursueindex.com/card/c178dd1cd7415f1c
+- Description: The United States Central Command submitted a report of an unidentified anomalous phenomenon (UAP) to the All-domain Anomaly Resolution Office (AARO) consisting of 13 seconds of video footage from an electro-optical and infrared system aboard a U.S. Military platform in 2023.
+Video description:
+00:00-00:13: The sensor pans to track an area of contrast, keeping it generally within the center of the frame.
+This video description is provided for informational purposes only. Readers should not interpret any part of this description as reflecting an analytical judgment, investigative conclusion, or factual determination regarding the described event’s validity, nature, or significance.
+
 ### ea1e7c4a981bdd8b — EOP-UAP-D001, NASC Inquiry into Bahia, Brazil Incident, November 13, 1963
 
 - Agency: Executive Office of the President
@@ -5943,6 +6500,18 @@ FD-302 (Rev. 5-8-10) - 1 of 2 - OFFICIAL RECORD FEDERAL BUREAU OF INVESTIGATION 
 Excerpt (page 1):
 
 [ILLEGIBLE] [ILLEGIBLE] [ILLEGIBLE] 1,[ILLEGIBLE]
+
+### ee657817d068d59b — FBI-UAP-D043, FD-302, Unidentified Aerial Object Observation Report, 2026
+
+- Agency: FBI
+- Date: June, 2026
+- URL: https://pursueindex.com/card/ee657817d068d59b
+- Source: https://www.war.gov/medialink/ufo/release-07/documents/FBI-UAP-D043-FD_302_Unidentified_Aerial_Object_Observation_Report-2026.pdf
+- Description: This document is an FBI FD-302, a form the Federal Bureau of Investigation (FBI) uses to record interviews. This FD-302 records a 2026 interview with two Federal Special Agents, in which the interviewees describe an incident reported as involving unidentified anomalous phenomena (UAP) at a national security site in 2026. The report is accompanied by 9 digitally rendered FBI forensic sketches depicting the primary incident, as confirmed by the Special Agents in their eyewitness account.
+
+Excerpt (page 1):
+
+FD-302 (Rev. 5-8-10) - 1 of 2 - OFFICIAL RECORD FEDERAL BUREAU OF INVESTIGATION Date of entry [REDACTED]2026 [REDACTED] On or about [REDACTED]2026, FBI [REDACTED] [REDACTED] received from [REDACTED] Special Agent [REDACTED] a written statement co-signed by [REDACTED] Special Agent [REDACTED] The statement will be attached to this FD-302 and is provided verbatim below for ease of reading: "Unidentified Aerial Object Observation Report evening of [REDACTED]26 "On [REDACTED] 2026, at approximately 
 
 ### fcbd7e953ec292de — FBI-UAP-PR001, “Triangle Orbs,” Northeastern United States, 2021
 
