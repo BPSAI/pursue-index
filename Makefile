@@ -166,11 +166,17 @@ ship-env:
 # the registry's latest bytes, or a verified-re-save disposition must cover the pair.
 # Writes data/ocr-input-freshness.json (counts + unverifiable-provenance cards), the
 # release record that ship-ready leaves for the commit.
+# Ceiling on cards whose OCR input has no recorded sha: warned and counted at or below it,
+# failing only above it. Measured on the real corpus 2026-11-21 (PURSUE_DATA_ROOT=
+# /mnt/nas/personal/pursue): 0 unverifiable cards; the default is that count + 5, so a
+# few unprovenanced cards warn instead of gating the release. 0 would make the class a
+# gate. Lower it as cards are re-OCR'd (see docs/runbooks/ship-tranche.md, step 12).
+OCR_MAX_UNVERIFIABLE ?= 5
 .PHONY: ocr-input-freshness
 # Under `make -j` it must still wait for the ship-env guard.
 ocr-input-freshness: ship-env
 ocr-input-freshness:
-	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json
+	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json --max-unverifiable $(OCR_MAX_UNVERIFIABLE)
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).

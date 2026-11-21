@@ -14,12 +14,14 @@ fail the gate.
 A card with no ``meta.json`` or no recorded ``pdf_sha256`` has no input sha to
 compare, and the scoping rule never re-OCRs it. It is reported as
 ``unverifiable provenance`` (warned, exit code unaffected) and its count and card
-list go in the release record written with ``--record``. Repo and data root only;
-no network.
+list go in the release record written with ``--record``. ``--max-unverifiable N``
+sets a ceiling on that class: above N the gate fails (the ``make`` target passes one);
+at or below it the class stays warn-only. Repo and data root only; no network.
 
 Usage::
 
     python scripts/check_ocr_input_freshness.py [--data-root DIR] [--record FILE]
+        [--max-unverifiable N]
 """
 
 from __future__ import annotations
@@ -84,9 +86,15 @@ class Result:
     unverifiable: list[tuple[str, str]] = field(default_factory=list)
     checked: int = 0
 
+    max_unverifiable: int | None = None
+
+    @property
+    def over_ceiling(self) -> bool:
+        return self.max_unverifiable is not None and len(self.unverifiable) > self.max_unverifiable
+
     @property
     def failed(self) -> bool:
-        return bool(self.stale)
+        return bool(self.stale) or self.over_ceiling
 
     def record(self) -> dict:
         """Deterministic release record (no timestamps, so a rerun is byte-stable)."""
@@ -150,6 +158,13 @@ def check(
     return res
 
 
+def _non_negative(text: str) -> int:
+    value = int(text)
+    if value < 0:
+        raise argparse.ArgumentTypeError("must be 0 or more")
+    return value
+
+
 def main(argv: list[str] | None = None) -> int:
     data = REPO_ROOT / "data"
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -163,11 +178,16 @@ def main(argv: list[str] | None = None) -> int:
         "--record", type=Path, default=None,
         help="write the release record (counts, unverifiable cards) to this JSON file",
     )
+    parser.add_argument(
+        "--max-unverifiable", type=_non_negative, default=None, metavar="N",
+        help="fail when more than N cards have unverifiable provenance (default: warn only)",
+    )
     args = parser.parse_args(argv)
     try:
         data_root = args.data_root or Settings().data_root
         dispositions = load_byte_change_dispositions(args.dispositions)
         res = check(args.manifest, args.registry, dispositions, data_root)
+        res.max_unverifiable = args.max_unverifiable
         if args.record is not None:
             args.record.write_text(
                 json.dumps(res.record(), indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -184,6 +204,11 @@ def main(argv: list[str] | None = None) -> int:
         f"{len(res.stale)} stale, {len(res.covered)} covered, "
         f"unregistered: {len(res.unregistered)}, unverifiable provenance: {len(res.unverifiable)}"
     )
+    if res.over_ceiling:
+        lines.append(
+            f"unverifiable provenance count {len(res.unverifiable)} exceeds the ceiling "
+            f"{res.max_unverifiable} (--max-unverifiable)"
+        )
     lines.append(f"ocr input freshness: {'FAILED' if res.failed else 'OK'} ({counts})")
     print("\n".join(lines))
     return 1 if res.failed else 0

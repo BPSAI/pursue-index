@@ -5,13 +5,18 @@ For every card in the new manifest with an ``asset_url``, this script:
 
   1. HEADs the URL to get current content-length / ETag.
   2. Compares against the most recent registry row for that
-     ``card_id`` — skip when both length and ETag (if available)
-     match a prior recording.
+     ``card_id``. Only a HEAD whose length AND ETag both equal that row's
+     skips the GET, and the card is then counted ``head-unchanged
+     (unverified)``: a HEAD never certifies bytes. A changed or missing
+     length or ETag, or a HEAD error, fetches and hashes the card.
   3. Otherwise GETs the bytes via the same curl_cffi Chrome-TLS
      impersonation path the CSV fetcher uses (war.gov sits behind
-     Akamai for PDFs too).
-  4. Computes ``sha256`` over the bytes.
-  5. PUTs the bytes to BOTH:
+     Akamai for PDFs too). Every type is STREAMED: chunks feed the sha256
+     and a temporary file, so no response body is ever held in memory.
+  4. Computes ``sha256`` over the bytes. Equal to the card's LATEST registry
+     row = unchanged. Anything else is a new row and drift, even when the
+     sha equals an OLDER row (a revert to earlier bytes is a change).
+  5. PUTs the file to BOTH:
 
        ``archive/<sha256>.<ext>``       — append-only, content-addressed
        ``<card_id>.<ext>``              — current-version serving path
@@ -32,19 +37,40 @@ lands at a new archive/<sha> key, and the registry now carries two
 rows for that card_id — the diff is queryable from the JSONL
 without re-fetching anything.
 
-Failure modes (all graceful — never abort the workflow):
+``--full-hash`` mode (the weekly verify) skips the HEAD shortcut: every
+published asset (PDF, IMG, VID, AUD) is fetched and hashed. It requires
+``--max-bytes-per-run``; exceeding the budget fails the run non-zero and
+names how many cards were left unhashed, never a partial run with a green
+exit. A completed run appends one record to ``full-hash-runs.jsonl`` (next
+to the registry, or ``--run-record``); an incomplete run writes none.
 
-  * Missing R2 credentials → log a single line and exit 0; operator
-    adds the secrets, the next poll picks them up.
+``--fail-on-drift`` (the daily and weekly gates) reads the registry itself, not
+only what the run fetched: the poll lane appends new-sha rows without that flag,
+so by the next run the fetched sha equals the latest row. Every row appended
+since the previous complete verify run (the newest ``drift-gate-passes.jsonl``
+marker a passing gate wrote, else the newest complete ``--full-hash`` record in
+``full-hash-runs.jsonl``, else the last 8 days) whose sha differs from the same
+card's previous row fails the run unless a ``resave-content-verified`` disposition
+covers ``(card_id, new sha)``. A card's first row is net-new, never drift.
+
+Failure modes:
+
+  * Missing R2 credentials → ``--full-hash`` (the weekly verify) fails closed,
+    exit 1. Every other caller warns, skips the archive step and exits 0, so a
+    poll tick before the secrets exist is not a failure. ``--dry-run`` needs none.
   * Per-card fetch failures → log the URL + error, continue to the
     next card. The registry only records successful archives.
   * Same byte sha already in archive → idempotent: still upload to
     ``<card_id>.<ext>`` (current pointer) but skip the archive PUT.
 
-Bandwidth note: first run is ~5 GB total across the ~130 referenced
-assets. Subsequent runs HEAD first and re-GET only when the content
-length differs from the last registry entry — typical poll-driven
-runs touch only the small handful of cards that changed.
+``--asset-types PDF,IMG`` restricts a run to those types (the poll lane uses it
+to keep large VID/AUD fetches out of the 30-minute tick; the daily HEAD pass and
+the weekly full hash cover all four). A filtered ``--full-hash`` is never recorded
+as complete.
+
+Bandwidth note: first run is ~5 GB total across the referenced assets.
+Subsequent runs HEAD first and re-GET only cards whose HEAD differs from
+the last registry entry; ``--full-hash`` re-GETs everything.
 """
 
 from __future__ import annotations
@@ -58,10 +84,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
-import hashlib
 import json
 import os
-from datetime import UTC, datetime
+import tempfile
 from typing import Any
 
 # Make src/ importable when invoked as ``python scripts/r2_archive_assets.py``.
@@ -70,44 +95,34 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from _r2_archive_put import put_archive_and_current
-from curl_cffi import requests as cffi_requests
+from _r2_fetch import fetch_asset, head_asset, head_identical, last_known_size
+from _r2_run_state import (
+    GATE_MARKER_SCHEMA,
+    RUN_RECORD_NAME,
+    RunState,
+    drift_outcome,
+    drift_window_start,
+    full_hash_outcome,
+    gate_marker_path,
+    now_iso,
+    registry_drift_since,
+    staleness_outcome,
+    write_run_record,
+)
 
+from pursue_index.byte_dispositions import (
+    ByteDispositionError,
+    load_byte_change_dispositions,
+)
 from pursue_index.card_id import require_card_id
 from pursue_index.scrape.manifest import load_manifest
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
+DEFAULT_DISPOSITIONS = _REPO_ROOT / "data" / "byte-change-dispositions.jsonl"
 DEFAULT_BUCKET = "pursue-pdfs"
-
-
-def _now_iso() -> str:
-    return datetime.now(UTC).isoformat()
-
-
-def head_asset(url: Any) -> tuple[int | None, str | None]:
-    """Return (content_length, etag) or (None, None) on failure.
-
-    Used as a cheap pre-flight check — skip the full GET when the
-    length matches our last registry entry for this card_id. ``url``
-    may be a pydantic ``HttpUrl`` or a plain string; we coerce to str
-    so curl_cffi gets a regular string.
-    """
-    try:
-        resp = cffi_requests.head(str(url), impersonate="chrome", timeout=30)
-        if resp.status_code >= 400:
-            return None, None
-        cl = resp.headers.get("content-length")
-        etag = resp.headers.get("etag")
-        return (int(cl) if cl else None, etag)
-    except Exception:
-        return None, None
-
-
-def fetch_asset(url: Any) -> bytes:
-    """Full GET via curl_cffi Chrome impersonation. ``url`` coerces to str."""
-    resp = cffi_requests.get(str(url), impersonate="chrome", timeout=300)
-    resp.raise_for_status()
-    return resp.content
+# Every asset type the registry tracks.
+ASSET_TYPES = ("PDF", "IMG", "VID", "AUD")
 
 
 def load_registry(path: Path) -> dict[str, list[dict[str, Any]]]:
@@ -189,18 +204,6 @@ def make_r2_client():
     )
 
 
-def _last_known_size(rows: list[dict[str, Any]]) -> int | None:
-    if not rows:
-        return None
-    return rows[-1].get("byte_size")
-
-
-def _last_known_etag(rows: list[dict[str, Any]]) -> str | None:
-    if not rows:
-        return None
-    return rows[-1].get("upstream_etag")
-
-
 # Allowlisted asset extensions and the Content-Type stored for each.
 # asset_filename comes from the upstream CSV, so both the key suffix and
 # the stored Content-Type are taken from this map, never derived from
@@ -215,6 +218,13 @@ _EXT_CONTENT_TYPES: dict[str, str] = {
     "webp": "image/webp",
     "tif": "image/tiff",
     "tiff": "image/tiff",
+    "mp4": "video/mp4",
+    "m4v": "video/x-m4v",
+    "mov": "video/quicktime",
+    "webm": "video/webm",
+    "mp3": "audio/mpeg",
+    "m4a": "audio/mp4",
+    "wav": "audio/wav",
 }
 
 
@@ -243,8 +253,15 @@ def _process_card(
     bucket: str,
     dry_run: bool,
     registry_path: Path,
+    state: RunState | None = None,
 ) -> str:
-    """Return 'new' | 'unchanged' | 'archive-hit' | 'fail'."""
+    """Return 'new' | 'unchanged' | 'archive-hit' | 'head-unchanged' | 'fail'.
+
+    ``unchanged`` means the bytes were fetched, hashed and equal the card's LATEST
+    registry row. ``head-unchanged`` means HEAD matched and nothing was hashed
+    (unverified). Bytes equal to an older row are a change, not unchanged.
+    """
+    state = state or RunState()
     # Validate id and extension before any network or storage call; the
     # sha placeholder is replaced once the real bytes are hashed.
     try:
@@ -254,44 +271,60 @@ def _process_card(
         return "fail"
 
     rows = registry.get(card.card_id, [])
-    cl, etag = head_asset(card.asset_url)
-    if (
-        cl is not None
-        and cl == _last_known_size(rows)
-        and (etag is None or etag == _last_known_etag(rows))
-    ):
-        return "unchanged"
+    cl, etag, last_modified = head_asset(card.asset_url)
+    # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
+    # with the last row (size + ETag, or size + Last-Modified when there is no
+    # ETag) is trusted to skip the fetch, and
+    # then the card is reported as unverified, not unchanged.
+    if not state.full_hash and head_identical(rows, cl, etag, last_modified):
+        return "head-unchanged"
 
-    try:
-        body = fetch_asset(card.asset_url)
-    except Exception as exc:
-        print(f"[r2-archive] fetch fail {card.card_id}: {exc}")
-        return "fail"
+    with tempfile.TemporaryDirectory(prefix="r2-archive-") as tmp:
+        body = Path(tmp) / "asset"
+        try:
+            byte_sha, size = fetch_asset(card.asset_url, body)
+        except Exception as exc:
+            print(f"[r2-archive] fetch fail {card.card_id}: {exc}")
+            return "fail"
+        state.bytes_hashed += size
+        # Only the LATEST row decides: bytes equal to an older row are a revert.
+        if rows and rows[-1].get("byte_sha256") == byte_sha:
+            return "unchanged"
+        fetched = (body, byte_sha, size, (etag, last_modified))
+        sink = (client, bucket, dry_run, registry_path)
+        return _archive_new_bytes(card, rows, fetched, sink, state)
 
-    byte_sha = hashlib.sha256(body).hexdigest()
-    # Already saw these exact bytes for this card_id — no upload needed.
-    if any(r.get("byte_sha256") == byte_sha for r in rows):
-        return "unchanged"
 
+def _archive_new_bytes(
+    card: Any,
+    rows: list[dict[str, Any]],
+    fetched: tuple[Path, str, int, tuple[str | None, str | None]],
+    sink: tuple[Any, str, bool, Path],
+    state: RunState,
+) -> str:
+    """PUT the fetched file, append the registry row, and note drift against the latest row."""
+    body, byte_sha, size, (etag, last_modified) = fetched
+    client, bucket, dry_run, registry_path = sink
     archive_key, current_key, content_type = _build_keys(card, byte_sha)
-
     archive_hit = False
     if not dry_run:
         archive_hit = put_archive_and_current(
             client, bucket, archive_key, current_key, body, content_type
         )
-
     entry = {
         "card_id": card.card_id,
         "asset_url": str(card.asset_url),
         "asset_filename": card.asset_filename,
         "byte_sha256": byte_sha,
-        "byte_size": len(body),
+        "byte_size": size,
         "upstream_etag": etag,
+        "upstream_last_modified": last_modified,
         "archive_key": archive_key,
         "current_key": current_key,
-        "fetched_at": _now_iso(),
+        "fetched_at": now_iso(),
     }
+    if rows:
+        state.drift.append((card.card_id, rows[-1].get("byte_sha256", ""), byte_sha))
     return _record_or_dryrun(entry, dry_run, archive_hit, registry_path)
 
 
@@ -321,8 +354,7 @@ def _record_or_dryrun(
     return label
 
 
-def _parse_args(argv: list[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
+def _core_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--bucket", type=str, default=DEFAULT_BUCKET)
@@ -337,11 +369,135 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         default=0,
         help="Process at most this many cards (testing). 0 = no limit.",
     )
-    return parser.parse_args(argv)
+    parser.add_argument(
+        "--asset-types",
+        type=lambda v: tuple(t.strip().upper() for t in v.split(",") if t.strip()),
+        default=ASSET_TYPES,
+        help=f"Comma-separated asset types to process (default: {','.join(ASSET_TYPES)}). "
+        "The poll lane passes PDF,IMG.",
+    )
+
+
+def _verify_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--full-hash",
+        action="store_true",
+        help="Fetch and hash every published asset, whatever HEAD reports. "
+        "Requires --max-bytes-per-run. This is the only mode that fails when R2 "
+        "credentials are missing; every other mode warns, skips and exits 0.",
+    )
+    parser.add_argument(
+        "--max-bytes-per-run",
+        type=int,
+        default=None,
+        help="Byte budget for --full-hash. Exceeding it fails the run, naming "
+        "the cards left unhashed.",
+    )
+    parser.add_argument(
+        "--run-record",
+        type=Path,
+        default=None,
+        help=f"Where a complete --full-hash run is recorded "
+        f"(default: {RUN_RECORD_NAME} beside the registry).",
+    )
+    parser.add_argument(
+        "--fail-on-drift",
+        action="store_true",
+        help="Exit non-zero, after the rows are written, when a card that already "
+        "had registry rows now has a different sha (detected by this run, or by any "
+        "lane's row appended since the previous complete run), unless a matching "
+        "resave-content-verified disposition covers it.",
+    )
+    parser.add_argument("--dispositions", type=Path, default=DEFAULT_DISPOSITIONS)
+    parser.add_argument(
+        "--gate-marker",
+        type=Path,
+        default=None,
+        help="Where a passing --fail-on-drift run is marked (default: drift-gate-passes.jsonl "
+        "beside the registry). The drift gate also scans every registry row appended since "
+        "the newest marker, else since the newest complete --full-hash record, else the "
+        "last 8 days.",
+    )
+    parser.add_argument(
+        "--max-full-hash-age-days",
+        type=int,
+        default=None,
+        help="Exit non-zero, after the run, when the newest complete --full-hash "
+        "record is older than this many days or there is none.",
+    )
+
+
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    _core_args(parser)
+    _verify_args(parser)
+    args = parser.parse_args(argv)
+    if args.full_hash and not (args.max_bytes_per_run and args.max_bytes_per_run > 0):
+        parser.error("--full-hash requires --max-bytes-per-run N (a positive byte count)")
+    if args.max_bytes_per_run is not None and not args.full_hash:
+        parser.error("--max-bytes-per-run only applies with --full-hash")
+    if not args.asset_types or set(args.asset_types) - set(ASSET_TYPES):
+        parser.error(f"--asset-types must be a non-empty subset of {','.join(ASSET_TYPES)}")
+    return args
+
+
+def _no_credentials(args) -> int:
+    """No R2 client: the weekly full-hash fails closed; every other caller warns and skips."""
+    if args.full_hash:
+        print(
+            "[r2-archive] ERROR: R2 credentials are required for --full-hash (CF_ACCOUNT_ID, "
+            "R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY) and boto3 must be installed; a weekly "
+            "pass that cannot archive must not look like a pass.",
+            file=sys.stderr,
+        )
+        return 1
+    print(
+        "[r2-archive] WARNING: R2 credentials not set (or boto3 missing); "
+        "skipping the archive step.",
+        file=sys.stderr,
+    )
+    return staleness_outcome(args)
+
+
+def _select_cards(manifest, args, state: RunState) -> list[Any]:
+    """The cards this run covers; records why a ``--full-hash`` run is not a complete one."""
+    in_scope = [c for c in manifest.cards if c.asset_type in args.asset_types]
+    eligible = [c for c in in_scope if c.asset_url]
+    state.no_upstream_url = len(in_scope) - len(eligible)
+    if set(args.asset_types) != set(ASSET_TYPES):
+        state.partial_reason = f"--asset-types {','.join(args.asset_types)} is a subset"
+    if args.limit and args.limit < len(eligible):
+        state.partial_reason = "--limit was set"
+    return eligible[: args.limit] if args.limit else eligible
+
+
+def _run_cards(args, eligible, registry, client, state: RunState) -> None:
+    """Process each card in order, stopping when the ``--full-hash`` byte budget is spent."""
+    for i, card in enumerate(eligible):
+        if args.full_hash:
+            expected = last_known_size(registry.get(card.card_id, [])) or 0
+            if state.bytes_hashed + expected > args.max_bytes_per_run:
+                state.over_budget, state.unhashed = True, len(eligible) - i
+                return
+        result = _process_card(
+            card, registry, client, args.bucket, args.dry_run, args.registry, state
+        )
+        state.counts[result] = state.counts.get(result, 0) + 1
+        if args.full_hash and state.bytes_hashed > args.max_bytes_per_run:
+            state.over_budget, state.unhashed = True, len(eligible) - i - 1
+            return
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
+
+    dispositions = {}
+    if args.fail_on_drift:
+        try:
+            dispositions = load_byte_change_dispositions(args.dispositions)
+        except ByteDispositionError as exc:
+            print(f"[r2-archive] ERROR: {exc}", file=sys.stderr)
+            return 1
 
     manifest = load_manifest(args.manifest)
     registry = load_registry(args.registry)
@@ -350,34 +506,37 @@ def main(argv: list[str] | None = None) -> int:
         f"prior rows across {len(registry)} card_ids"
     )
 
+    started = now_iso()
+    since = drift_window_start(args)  # read before this run appends anything
+
     client = None if args.dry_run else make_r2_client()
     if client is None and not args.dry_run:
-        # Graceful exit — workflow doesn't fail, operator gets a chance
-        # to add the secrets without blocking subsequent runs.
-        return 0
+        return _no_credentials(args)
 
-    counts = {"new": 0, "unchanged": 0, "archive-hit": 0, "fail": 0}
-    eligible = [
-        c
-        for c in manifest.cards
-        if c.asset_url and c.asset_type in ("PDF", "IMG")
-    ]
-    if args.limit:
-        eligible = eligible[: args.limit]
+    state = RunState(full_hash=args.full_hash)
+    eligible = _select_cards(manifest, args, state)
+    state.cards_hashed = len(eligible)
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
+    _run_cards(args, eligible, registry, client, state)
 
-    for card in eligible:
-        result = _process_card(
-            card, registry, client, args.bucket, args.dry_run, args.registry
-        )
-        counts[result] = counts.get(result, 0) + 1
-
+    c = state.counts
     print(
         f"[r2-archive] done: "
-        f"new={counts['new']} unchanged={counts['unchanged']} "
-        f"archive-hit={counts['archive-hit']} fail={counts['fail']}"
+        f"new={c['new']} unchanged={c['unchanged']} "
+        f"head-unchanged (unverified)={c['head-unchanged']} "
+        f"archive-hit={c['archive-hit']} fail={c['fail']} "
+        f"no-upstream-url={state.no_upstream_url}"
     )
-    return 0
+    rc = full_hash_outcome(args, state) if args.full_hash else 0
+    # The registry itself, not only this run's own findings: the poll lane appends
+    # new-sha rows without --fail-on-drift, so the fetched sha can equal the latest row.
+    seen = registry_drift_since(load_registry(args.registry), since) if args.fail_on_drift else ()
+    drift_rc = drift_outcome(args, state, dispositions, seen)
+    if args.fail_on_drift and not drift_rc and not args.dry_run:
+        write_run_record(
+            gate_marker_path(args), {"schema": GATE_MARKER_SCHEMA, "completed_at": started}
+        )
+    return max(rc, drift_rc, staleness_outcome(args))
 
 
 if __name__ == "__main__":

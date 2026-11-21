@@ -54,6 +54,21 @@ def _bytes_changed_shas(worklist: Path | None) -> dict[str, str]:
     return {c: latest[c] for c in ids}
 
 
+def _registry_shas() -> dict[str, str]:
+    """Registry-latest PDF sha per card, so first downloads are verified too."""
+    from pursue_index.ingest_scope import load_registry_sha_map
+    from pursue_index.paths import repo_root
+
+    return load_registry_sha_map(repo_root() / "data" / "asset-bytes-registry.jsonl")
+
+
+def _dispositions():
+    from pursue_index.byte_dispositions import load_byte_change_dispositions
+    from pursue_index.paths import repo_root
+
+    return load_byte_change_dispositions(repo_root() / "data" / "byte-change-dispositions.jsonl")
+
+
 download_app = typer.Typer(name="download", help="Download assets referenced by a manifest.")
 
 
@@ -63,16 +78,33 @@ def download_run(
     worklist: Path = _OPT_WORKLIST,
 ) -> None:
     """Download every PDF/IMG (and optionally video) referenced by ``manifest``."""
+    from pursue_index.byte_dispositions import ByteDispositionError
     from pursue_index.download.downloader import DownloadBatchError, download_all  # lazy import
 
     settings.ensure_dirs()
     m = _scoped_manifest(manifest, worklist)
     refresh = _bytes_changed_shas(worklist)
+    outcomes: dict[str, str] = {}
     try:
-        asyncio.run(download_all(m, refresh_shas=refresh) if refresh else download_all(m))
+        asyncio.run(
+            download_all(
+                m, refresh_shas=refresh, registry_shas=_registry_shas(), outcomes=outcomes,
+                dispositions=_dispositions(),
+            )
+        )
+    except ByteDispositionError as exc:
+        typer.echo(f"byte-change dispositions unreadable: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
     except DownloadBatchError as exc:
         typer.echo(f"download failed for {exc}", err=True)
         raise typer.Exit(code=1) from exc
+    for kind, note in (
+        ("no-registry-row", "downloaded unchecked (not yet archived)"),
+        ("dispositioned-resave", "downloaded over a stale registry row (reviewed re-save)"),
+    ):
+        n = sum(1 for v in outcomes.values() if v == kind)
+        if n:
+            typer.echo(f"{kind}: {n} card(s) {note}")
 
 
 ocr_app = typer.Typer(name="ocr", help="OCR downloaded PDFs.")
