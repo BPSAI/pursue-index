@@ -216,3 +216,43 @@ def test_gate_is_in_ship_ready_right_after_release_completeness():
     assert "check_ship_env.py" in lines[0]
     assert "check_release_completeness.py" in lines[1]
     assert "check_ocr_input_freshness.py" in lines[2]
+
+
+def _run_with_ceiling(env, capsys, ceiling):
+    code = gate.main([
+        "--manifest", str(env.manifest), "--registry", str(env.registry),
+        "--dispositions", str(env.dispositions), "--data-root", str(env.data_root),
+        "--max-unverifiable", str(ceiling),
+    ])
+    captured = capsys.readouterr()
+    return code, captured.out + captured.err
+
+
+def test_unverifiable_count_over_the_ceiling_fails(env, capsys):
+    # One card with no meta.json is one unverifiable; a ceiling of 0 is exceeded.
+    code, out = _run_with_ceiling(env, capsys, 0)
+    assert code == 1
+    assert "unverifiable provenance" in out and "exceeds" in out and "0" in out
+    assert "FAILED" in out
+
+
+def test_unverifiable_count_at_the_ceiling_still_warns_only(env, capsys):
+    code, out = _run_with_ceiling(env, capsys, 1)
+    assert code == 0 and "OK" in out
+    assert f"unverifiable provenance: {CARD} (no meta.json)" in out
+
+
+def test_no_ceiling_flag_stays_warn_only(env, capsys):
+    code, _ = env.run(capsys)
+    assert code == 0
+
+
+def test_negative_ceiling_is_refused(env, capsys):
+    with pytest.raises(SystemExit):
+        _run_with_ceiling(env, capsys, -1)
+
+
+def test_makefile_target_passes_a_ceiling():
+    text = (_REPO_ROOT / "Makefile").read_text()
+    line = next(ln for ln in text.splitlines() if "check_ocr_input_freshness.py" in ln)
+    assert "--max-unverifiable" in line
