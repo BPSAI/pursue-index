@@ -60,11 +60,12 @@ class _StreamResp:
         self.chunk_sizes.append(chunk_size)
         yield from self._chunks
 
-    def __enter__(self):
-        return self
+    # Mirrors curl_cffi's streamed Response: it has close() and is NOT a
+    # context manager (a stub that was one hid a production failure).
+    closed = False
 
-    def __exit__(self, *exc) -> None:
-        return None
+    def close(self) -> None:
+        self.closed = True
 
 
 @pytest.mark.parametrize("ext", ["pdf", "jpg", "mp4", "mp3"])
