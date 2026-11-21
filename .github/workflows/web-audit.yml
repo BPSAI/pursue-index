@@ -11,7 +11,8 @@ name: web-audit
 # Runs on every pull request, and weekly. It must report on every pull request
 # because branch protection requires it: a `paths:` filter leaves the check
 # unreported, and the PR blocked, when nothing matching changed. So the job
-# decides inside itself whether web/, worker/, the gate or this workflow
+# decides inside itself whether web/, worker/, the gate, its helpers
+# (scripts/_web_audit_*.py) or this workflow
 # changed (scripts/web_audit_paths_changed.py, the base branch's copy); if none
 # did it passes in seconds with a notice. Scheduled and manual runs always
 # audit. The pull request run is the dependable one: scheduled runs have been

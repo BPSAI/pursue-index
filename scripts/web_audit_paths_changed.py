@@ -27,8 +27,15 @@ AUDITED_FILES = {
 }
 
 
+# The gate loads its helper modules from beside itself, so an edit to any of
+# them changes the gate's decision. New helpers are covered by the pattern.
+AUDITED_HELPER_PREFIX = "scripts/_web_audit_"
+
+
 def needs_audit(path: str) -> bool:
     if path.startswith('"'):
+        return True
+    if path.startswith(AUDITED_HELPER_PREFIX) and path.endswith(".py") and path.count("/") == 1:
         return True
     return path.startswith(AUDITED_PREFIXES) or path in AUDITED_FILES
 

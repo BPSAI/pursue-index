@@ -128,3 +128,25 @@ def test_scheduled_and_dispatch_runs_always_audit():
     text = WORKFLOW.read_text(encoding="utf-8")
     assert 'audit=true' in text
     assert "github.event_name" in text
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "scripts/_web_audit_allowlist.py",
+        "scripts/_web_audit_graph.py",
+        "scripts/_web_audit_report.py",
+        "scripts/_web_audit_future_helper.py",
+    ],
+)
+def test_gate_helper_modules_need_the_audit(path):
+    """The gate loads its helpers from beside itself, so editing one changes
+    the gate's decision and must run the audit."""
+    assert pc.needs_audit(path)
+
+
+def test_every_helper_on_disk_is_covered():
+    helpers = sorted(p for p in (ROOT / "scripts").glob("_web_audit_*.py"))
+    assert helpers, "expected gate helper modules"
+    for p in helpers:
+        assert pc.needs_audit(f"scripts/{p.name}"), p.name
