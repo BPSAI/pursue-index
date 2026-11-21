@@ -31,7 +31,7 @@ def test_locate_snapshot_finds_full_sha_match(tmp_path: Path) -> None:
     full_sha = "abc123" + "0" * 58
     target = snapshots / f"{full_sha}.json"
     target.write_text("{}")
-    assert locate_snapshot(full_sha, snapshots) == target
+    assert locate_snapshot(full_sha, snapshots, {}) == target
 
 
 def test_locate_snapshot_finds_prefix_match(tmp_path: Path) -> None:
@@ -39,13 +39,13 @@ def test_locate_snapshot_finds_prefix_match(tmp_path: Path) -> None:
     snapshots.mkdir()
     target = snapshots / ("65572b38d27c" + "0" * 52 + ".json")
     target.write_text("{}")
-    assert locate_snapshot("65572b38d27c", snapshots) == target
+    assert locate_snapshot("65572b38d27c", snapshots, {}) == target
 
 
 def test_locate_snapshot_returns_none_when_missing(tmp_path: Path) -> None:
     snapshots = tmp_path / "snapshots"
     snapshots.mkdir()
-    assert locate_snapshot("doesnotexist", snapshots) is None
+    assert locate_snapshot("doesnotexist", snapshots, {}) is None
 
 
 def test_promote_snapshot_copies_to_manifest_path(tmp_path: Path) -> None:

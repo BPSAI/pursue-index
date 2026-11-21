@@ -45,6 +45,7 @@ _REPO_ROOT = repo_root()
 # importable when this runbook is invoked directly (matches the
 # sys.path-injection pattern in scripts/poll_pursue.py).
 from pursue_index.scrape.snapshots import write_public_index
+from pursue_index.scrape.variants import snapshot_name
 
 LATEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 SNAPSHOTS_PIPELINE = _REPO_ROOT / "data" / "manifests" / "snapshots"
@@ -91,13 +92,16 @@ def _backfill_missing_pipeline_entries(idx: dict) -> dict:
     for snap in sorted(SNAPSHOTS_PIPELINE.glob("*.json")):
         if snap.name == "index.json":
             continue
-        sha = snap.stem
-        if sha in indexed_shas:
-            continue
         try:
             body = json.loads(snap.read_text())
         except json.JSONDecodeError:
             continue
+        # Keyed by the content's sha, so a .r<digest12> variant never adds a
+        # second entry for a sha the index already lists.
+        sha = body.get("csv_sha256") or snap.stem
+        if sha in indexed_shas:
+            continue
+        indexed_shas.add(sha)
         idx.setdefault("snapshots", []).append({
             "filename": snap.name,
             "csv_sha256": sha,
@@ -126,6 +130,30 @@ def _backfill_missing_web_entries(idx_list: list[str]) -> list[str]:
     return idx_list
 
 
+def _upsert_pipeline_entry(pipeline_idx: dict, manifest: dict, name: str,
+                           indexed: bool) -> str | None:
+    """Add the sha's one pipeline-index entry, or point it at ``name`` (a
+    ``.r<digest12>`` variant replaces the sha's entry); the log line, or
+    None when the index already lists ``name``."""
+    sha = _current_sha(manifest)
+    entry = {
+        "filename": name,
+        "csv_sha256": sha,
+        "fetched_at": manifest.get("fetched_at", datetime.now(UTC).isoformat()),
+        "card_count": len(manifest.get("cards", [])),
+        **({"resolutions_digest": manifest["resolutions_digest"]}
+           if manifest.get("resolutions_digest") else {}),
+    }
+    if not indexed:
+        pipeline_idx["snapshots"].append(entry)
+        return f"  added pipeline index entry for {sha[:12]}"
+    if any(s.get("filename") == name for s in pipeline_idx["snapshots"]):
+        return None
+    pipeline_idx["snapshots"] = [entry if s.get("csv_sha256") == sha else s
+                                 for s in pipeline_idx["snapshots"]]
+    return f"  replaced pipeline index entry for {sha[:12]} with {name}"
+
+
 def rotate(manifest: dict) -> tuple[bool, str]:
     """Return (rotated_new_snapshot, message)."""
     sha = _current_sha(manifest)
@@ -139,31 +167,28 @@ def rotate(manifest: dict) -> tuple[bool, str]:
     rotated = False
     msgs = []
 
-    # Pipeline-side: write the snapshot file + add the index entry
-    pipeline_snap = SNAPSHOTS_PIPELINE / f"{sha}.json"
+    # Pipeline-side: write the snapshot file + add (or, for a .r<digest12>
+    # variant, replace) the sha's one index entry
+    name = snapshot_name(sha, manifest.get("resolutions_digest"))
+    pipeline_snap = SNAPSHOTS_PIPELINE / name
     if not pipeline_snap.exists():
         pipeline_snap.write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
         msgs.append(f"  wrote pipeline snapshot {pipeline_snap.relative_to(_REPO_ROOT)}")
         rotated = True
-    if sha not in indexed_pipeline:
-        pipeline_idx["snapshots"].append({
-            "filename": f"{sha}.json",
-            "csv_sha256": sha,
-            "fetched_at": manifest.get("fetched_at", datetime.now(UTC).isoformat()),
-            "card_count": len(manifest.get("cards", [])),
-        })
-        msgs.append(f"  added pipeline index entry for {sha[:12]}")
+    upserted = _upsert_pipeline_entry(pipeline_idx, manifest, name, sha in indexed_pipeline)
+    if upserted:
+        msgs.append(upserted)
         rotated = True
 
     # Web-side: copy snapshot file + add index entry
-    web_snap = SNAPSHOTS_WEB / f"{sha}.json"
+    web_snap = SNAPSHOTS_WEB / name
     if not web_snap.exists():
         web_snap.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(pipeline_snap, web_snap)
         msgs.append(f"  copied web snapshot {web_snap.relative_to(_REPO_ROOT)}")
         rotated = True
-    if f"{sha}.json" not in web_idx:
-        web_idx.append(f"{sha}.json")
+    if name not in web_idx:
+        web_idx.append(name)
         msgs.append(f"  added web index entry for {sha[:12]}")
         rotated = True
 
@@ -177,7 +202,7 @@ def rotate(manifest: dict) -> tuple[bool, str]:
     (SNAPSHOTS_PIPELINE / "index.json").write_text(
         json.dumps(pipeline_idx, indent=2, ensure_ascii=False)
     )
-    write_public_index(SNAPSHOTS_WEB)
+    write_public_index(SNAPSHOTS_WEB, {sha: name})
 
     if not rotated:
         msgs.append(f"  no-op (sha {sha[:12]} already in both indexes)")
