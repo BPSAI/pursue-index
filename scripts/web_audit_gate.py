@@ -10,7 +10,7 @@ stdin). The allowlist (default ``web/audit-build-only.json``) holds:
     of these does not fail the gate.
 
 ``accepted_advisories``
-    ``{GHSA id: reason}``. A specific advisory that is known and consciously
+    ``{GHSA id: {"reason": ..., "review_by": "YYYY-MM-DD"}}``. A specific advisory that is known and consciously
     left open (for example one that is only fixed in a major release). The
     only way a critical advisory passes.
 
@@ -29,7 +29,9 @@ Exit status: 0 pass, 1 fail.
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -53,18 +55,42 @@ class Decision:
         return not self.failures
 
 
+def _review_date(value: object, where: str) -> datetime.date:
+    if not isinstance(value, str):
+        raise ValueError(f"{where} needs a review_by date (YYYY-MM-DD)")
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        raise ValueError(f"{where} review_by must be a YYYY-MM-DD date, got {value!r}")
+    try:
+        return datetime.date.fromisoformat(value)
+    except ValueError:
+        raise ValueError(f"{where} review_by is not a real date: {value!r}") from None
+
+
 def load_allowlist_data(data: object) -> dict:
-    """Validate allowlist content; every entry needs a non-empty reason."""
+    """Validate allowlist content.
+
+    ``build_only`` entries need a non-empty reason. ``accepted_advisories``
+    entries are ``{"reason": ..., "review_by": "YYYY-MM-DD"}``; both fields are
+    required, so an acceptance can't sit forever without a re-review.
+    """
     if not isinstance(data, dict):
         raise ValueError("allowlist must be a JSON object")
-    out: dict[str, dict[str, str]] = {}
+    out: dict[str, dict] = {}
     for key in ("build_only", "accepted_advisories"):
         section = data.get(key, {})
         if not isinstance(section, dict):
             raise ValueError(f"{key} must map names to reasons")
-        for name, reason in section.items():
+        for name, entry in section.items():
+            if key == "build_only":
+                if not isinstance(entry, str) or not entry.strip():
+                    raise ValueError(f"{key}[{name!r}] needs a reason")
+                continue
+            if not isinstance(entry, dict):
+                raise ValueError(f"{key}[{name!r}] must be an object with reason and review_by")
+            reason = entry.get("reason")
             if not isinstance(reason, str) or not reason.strip():
                 raise ValueError(f"{key}[{name!r}] needs a reason")
+            _review_date(entry.get("review_by"), f"{key}[{name!r}]")
         out[key] = dict(section)
     return out
 
@@ -80,8 +106,11 @@ def _ghsa(advisory: dict) -> str:
     return str(advisory.get("source", "unknown"))
 
 
-def decide(report: object, allowlist: dict) -> Decision:
+def decide(
+    report: object, allowlist: dict, today: datetime.date | None = None
+) -> Decision:
     d = Decision()
+    today = today or datetime.date.today()
     vulns = report.get("vulnerabilities") if isinstance(report, dict) else None
     if isinstance(report, dict) and report.get("error"):
         d.failures.append(f"npm audit reported an error: {report['error']!r}")
@@ -92,6 +121,16 @@ def decide(report: object, allowlist: dict) -> Decision:
 
     build_only = allowlist.get("build_only", {})
     accepted = allowlist.get("accepted_advisories", {})
+    for ghsa, entry in sorted(accepted.items()):
+        # An expired acceptance fails whether or not the advisory is present:
+        # it is a prompt to re-decide, and a stale line is a liability.
+        try:
+            due = _review_date(entry.get("review_by") if isinstance(entry, dict) else None, ghsa)
+        except ValueError as exc:
+            d.failures.append(f"{ghsa}: {exc}")
+            continue
+        if today > due:
+            d.failures.append(f"{ghsa}: acceptance is past its review_by date {due.isoformat()}")
     seen_build_only: set[str] = set()
     seen_accepted: set[str] = set()
 
