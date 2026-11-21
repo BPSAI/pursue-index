@@ -525,6 +525,70 @@ def test_cli_reads_stdin(tmp_path):
     assert r.returncode == 1
 
 
+# --- the Worker is runtime: any high or critical fails, nothing is exempt.
+
+
+def test_runtime_mode_fails_any_high_even_if_it_is_listed_build_only():
+    d = gate.decide_runtime(_report(_vuln("postcss", "high")))
+    assert not d.ok
+    assert any("postcss" in f for f in d.failures)
+
+
+def test_runtime_mode_fails_a_critical():
+    assert not gate.decide_runtime(_report(_vuln("x", "critical", "GHSA-crit-0000-0000"))).ok
+
+
+def test_runtime_mode_ignores_moderate_and_low():
+    assert gate.decide_runtime(_report(_vuln("x", "moderate"), _vuln("y", "low"))).ok
+
+
+def test_runtime_mode_fails_closed_on_unknown_severity():
+    entry = _vuln("x", "low")
+    entry["severity"] = "bogus"
+    assert not gate.decide_runtime(_report(entry)).ok
+
+
+def test_runtime_mode_passes_a_clean_report():
+    assert gate.decide_runtime(_report()).ok
+
+
+def test_runtime_mode_rejects_a_transitive_only_high():
+    # A high that appears only as "via another package" still fails here.
+    v = {"name": "wrapper", "severity": "high", "via": ["inner"], "nodes": [], "range": "*"}
+    assert not gate.decide_runtime(_report(v, _vuln("inner", "high"))).ok
+
+
+def test_cli_runtime_mode(tmp_path):
+    def run(body):
+        f = tmp_path / "w.json"
+        f.write_text(json.dumps(body))
+        return subprocess.run(
+            [sys.executable, "-I", str(SCRIPT), str(f), "--runtime"],
+            capture_output=True, text=True,
+        )
+
+    assert run(_report()).returncode == 0
+    r = run(_report(_vuln("postcss", "high")))
+    assert r.returncode == 1 and "postcss" in r.stdout
+    assert run({"error": {}}).returncode == 2
+
+
+def test_workflow_audits_the_worker_with_the_runtime_gate():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    steps = [st for st in _wf()["jobs"]["audit"]["steps"] if "run" in st]
+    worker = [st for st in steps if st.get("working-directory") == "worker"]
+    assert worker and "npm audit --omit=dev --json" in worker[0]["run"]
+    assert any("--runtime" in st["run"] and "worker-audit.json" in st["run"] for st in steps)
+    # No exemptions: the runtime step never takes the build-only allowlist.
+    runtime_step = next(st for st in steps if "--runtime" in st["run"])
+    assert "--allowlist" not in runtime_step["run"]
+    assert "worker/**" in text
+
+
+def test_the_worker_has_a_lockfile_for_the_audit():
+    assert (ROOT / "worker" / "package-lock.json").is_file()
+
+
 # --- workflow shape -------------------------------------------------------
 
 

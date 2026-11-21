@@ -14,6 +14,7 @@ on:
   pull_request:
     paths:
       - "web/**"
+      - "worker/**"
       - "scripts/web_audit_gate.py"
       - ".github/workflows/web-audit.yml"
   schedule:
@@ -49,4 +50,11 @@ jobs:
         # report and the gate fails closed.
         run: npm audit --omit=dev --json > "$RUNNER_TEMP/audit.json" || true
       - name: Gate
-        run: python3 -I scripts/web_audit_gate.py "$RUNNER_TEMP/audit.json" --allowlist web/audit-build-only.json
+        run: python3 -I scripts/web_audit_gate.py "$RUNNER_TEMP/audit.json" --allowlist web/audit-build-only.json --lockfile web/package-lock.json
+      # The Worker ships at runtime, so there are no build-only exemptions:
+      # any high or critical advisory fails.
+      - name: npm audit (Worker production dependencies)
+        working-directory: worker
+        run: npm audit --omit=dev --json > "$RUNNER_TEMP/worker-audit.json" || true
+      - name: Gate (Worker, runtime)
+        run: python3 -I scripts/web_audit_gate.py "$RUNNER_TEMP/worker-audit.json" --runtime

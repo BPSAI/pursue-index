@@ -285,6 +285,30 @@ def decide(
     return d
 
 
+def decide_runtime(report: object) -> Decision:
+    """Gate for a package that ships at runtime (the Worker): no exemptions.
+
+    Any high or critical advisory, or a severity outside the known set, fails.
+    A transitive-only entry is judged as a vulnerability in its own right.
+    """
+    d = Decision()
+    vulns = report.get("vulnerabilities") if isinstance(report, dict) else None
+    if not isinstance(vulns, dict):
+        d.failures.append("audit report is malformed (no 'vulnerabilities' object)")
+        return d
+    for name, entry in sorted(vulns.items()):
+        severities = [entry.get("severity") if isinstance(entry, dict) else None]
+        if isinstance(entry, dict):
+            severities += [v.get("severity") for v in entry.get("via") or [] if isinstance(v, dict)]
+        for sev in severities:
+            if not isinstance(sev, str) or sev not in KNOWN_SEVERITIES:
+                d.failures.append(f"{name}: unknown severity {sev!r}")
+            elif sev in ("high", "critical"):
+                d.failures.append(f"{name}: {sev} advisory in a runtime dependency (no exemptions)")
+    d.failures = sorted(set(d.failures))
+    return d
+
+
 def _read(source: str) -> object:
     text = sys.stdin.read() if source == "-" else Path(source).read_text(encoding="utf-8")
     return json.loads(text)
@@ -311,12 +335,36 @@ def unusable_report(report: object) -> str | None:
     return None
 
 
+def _main_runtime(source: str) -> int:
+    try:
+        report = _read(source)
+    except (OSError, ValueError) as exc:
+        print(f"web-audit gate: REJECT (the audit report is not valid JSON: {exc})")
+        return 2
+    reason = unusable_report(report)
+    if reason:
+        print(f"web-audit gate: REJECT (unusable audit report: {reason})")
+        return 2
+    d = decide_runtime(report)
+    for f in d.failures:
+        print(f"FAIL {f}")
+    print("web-audit gate (runtime): " + ("PASS" if d.ok else "FAIL"))
+    return 0 if d.ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("audit", help="npm audit --json output file, or - for stdin")
     ap.add_argument("--allowlist", type=Path, default=DEFAULT_ALLOWLIST)
     ap.add_argument("--lockfile", type=Path, default=DEFAULT_LOCKFILE)
+    ap.add_argument(
+        "--runtime",
+        action="store_true",
+        help="runtime package (the Worker): any high or critical fails, no allowlist",
+    )
     args = ap.parse_args(argv)
+    if args.runtime:
+        return _main_runtime(args.audit)
     try:
         allowlist = load_allowlist(args.allowlist)
     except (OSError, ValueError) as exc:  # JSONDecodeError is a ValueError
