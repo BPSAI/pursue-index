@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
 from pathlib import Path
 
@@ -9,6 +10,8 @@ import pytest
 
 from pursue_index.byte_dispositions import (
     ByteDispositionError,
+    Disposition,
+    covers,
     load_byte_change_dispositions,
 )
 from pursue_index.ingest_scope import (
@@ -99,6 +102,35 @@ def test_loader_rejects_missing_evidence_ref(tmp_path):
         load_byte_change_dispositions(_write(tmp_path, row))
 
 
+@pytest.mark.parametrize("kind", ["resave-content-verified", "content-changed"])
+def test_loader_rejects_missing_ocr_from(tmp_path, kind):
+    row = _row(disposition=kind)
+    del row["ocr_from"]
+    with pytest.raises(ByteDispositionError, match="ocr_from"):
+        load_byte_change_dispositions(_write(tmp_path, row))
+
+
+@pytest.mark.parametrize("kind", ["resave-content-verified", "content-changed"])
+def test_loader_rejects_null_or_malformed_ocr_from(tmp_path, kind):
+    for bad in (None, "xyz"):
+        with pytest.raises(ByteDispositionError, match="ocr_from"):
+            load_byte_change_dispositions(_write(tmp_path, _row(disposition=kind, ocr_from=bad)))
+
+
+def test_covers_checks_ocr_from_itself():
+    disp = Disposition(CARD, OLD, NEW, "resave-content-verified", "2026-11-21", "e", REF, OLD)
+    assert covers({(CARD, NEW): disp}, CARD, OLD, NEW)
+    for bad in (None, "c" * 64):
+        broken = dataclasses.replace(disp, ocr_from=bad)
+        assert not covers({(CARD, NEW): broken}, CARD, OLD, NEW)
+
+
+def test_committed_rows_all_carry_ocr_from_equal_to_old_sha():
+    got = load_byte_change_dispositions(REPO_DATA / "byte-change-dispositions.jsonl")
+    assert got
+    assert all(d.ocr_from == d.old_sha256 for d in got.values())
+
+
 def test_loader_rejects_duplicate_pair(tmp_path):
     with pytest.raises(ByteDispositionError, match="duplicate"):
         load_byte_change_dispositions(_write(tmp_path, _row(), _row()))
@@ -134,7 +166,7 @@ def test_matching_resave_row_suppresses(tmp_path):
 
 def test_content_changed_row_still_scopes(tmp_path):
     disp = load_byte_change_dispositions(
-        _write(tmp_path, _row(disposition="content-changed", ocr_from=None))
+        _write(tmp_path, _row(disposition="content-changed"))
     )
     assert [s.card_id for s in _scope(disp)] == [CARD]
 

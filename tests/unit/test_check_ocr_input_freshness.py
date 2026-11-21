@@ -81,7 +81,7 @@ def test_matching_disposition_passes(env, capsys):
 
 def test_content_changed_disposition_does_not_cover(env, capsys):
     env.meta(OLD)
-    env.disposition(disposition="content-changed", ocr_from=None)
+    env.disposition(disposition="content-changed")
     code, _ = env.run(capsys)
     assert code == 1
 
