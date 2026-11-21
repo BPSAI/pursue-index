@@ -154,6 +154,19 @@ async def _download_one(
         type=card.asset_type,
         url=str(card.asset_url),
     )
+    await _fetch_verified(client, card, target, expected_sha or registry_sha, bool(expected_sha))
+    log.info("download.done", card_id=card.card_id, bytes=target.stat().st_size)
+    return target
+
+
+async def _fetch_verified(
+    client: httpx.AsyncClient,
+    card: CardMetadata,
+    target: Path,
+    required_sha: str | None,
+    is_refresh: bool,
+) -> None:
+    """Stream the card's URL beside ``target`` and replace it only if the sha is acceptable."""
     # Write beside the target, so the final replace stays on one filesystem.
     tmp = target.with_name(f".{target.name}.part")
     digest = hashlib.sha256()
@@ -164,18 +177,15 @@ async def _download_one(
                 async for chunk in resp.aiter_bytes(chunk_size=1 << 20):
                     digest.update(chunk)
                     fh.write(chunk)
-        required = expected_sha or registry_sha
-        if required is not None and digest.hexdigest() != required:
-            kept = "kept the existing file" if expected_sha else "did not keep the download"
+        if required_sha is not None and digest.hexdigest() != required_sha:
+            kept = "kept the existing file" if is_refresh else "did not keep the download"
             raise DownloadShaMismatchError(
                 f"card {card.card_id}: fetched sha {digest.hexdigest()} != registry "
-                f"latest {required}; {kept}"
+                f"latest {required_sha}; {kept}"
             )
         os.replace(tmp, target)
     finally:
         tmp.unlink(missing_ok=True)
-    log.info("download.done", card_id=card.card_id, bytes=target.stat().st_size)
-    return target
 
 
 def _failure_reason(exc: BaseException) -> str:

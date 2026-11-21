@@ -18,7 +18,15 @@ name: Weekly full-hash of every published asset
 # `verify/registry`, with one open `needs-operator` PR. Rows written before
 # a failure are still committed, so the evidence is kept.
 #
-# Missing R2 credentials FAIL this workflow (no silent pass).
+# Missing R2 credentials FAIL this workflow (no silent pass); this is the only
+# caller of r2_archive_assets.py that fails closed on them.
+#
+# Byte budget: the default below is 10 GB. Measured 2026-11-21 on the real
+# corpus (latest registry row per fetchable published asset, 380 cards):
+# 6,613,609,176 bytes (PDF 5,900,971,346; VID 685,242,652; IMG 27,395,178),
+# so 10 GB leaves ~51% headroom. If the corpus outgrows it the run FAILS loudly
+# naming the unhashed cards; raise the default (and this number) then.
+# tests/unit/test_r2_round1.py fails first, from the committed registry.
 
 on:
   schedule:

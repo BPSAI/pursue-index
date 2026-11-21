@@ -57,9 +57,12 @@ class World:
         self.headed.append(str(u))
         return self.head.get(str(u), (None, None))
 
-    def _fetch(self, u):
+    def _fetch(self, u, dest):
+        """The streaming seam: write the body to ``dest``; return ``(sha256, size)``."""
         self.fetched.append(str(u))
-        return self.bodies[str(u)]
+        body = self.bodies[str(u)]
+        Path(dest).write_bytes(body)
+        return sha(body), len(body)
 
     def add_card(
         self, n: int, asset_type: str = "PDF", *, prior: bytes | None = None,

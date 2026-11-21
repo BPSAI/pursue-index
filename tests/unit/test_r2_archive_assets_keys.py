@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -90,6 +91,14 @@ class _FakeClient:
         self.calls.append(kwargs)
 
 
+def _stub_fetch(body: bytes):
+    def fetch(_url, dest):
+        dest.write_bytes(body)
+        return hashlib.sha256(body).hexdigest(), len(body)
+
+    return fetch
+
+
 def _no_network(*_args, **_kwargs):
     raise AssertionError("network must not be touched for a refused card")
 
@@ -114,7 +123,7 @@ def test_process_card_refuses_before_any_fetch_or_put(card, monkeypatch, tmp_pat
 
 def test_process_card_uploads_with_mapped_content_type(monkeypatch, tmp_path):
     monkeypatch.setattr(r2_archive_assets, "head_asset", lambda _url: (None, None))
-    monkeypatch.setattr(r2_archive_assets, "fetch_asset", lambda _url: b"jpeg-bytes")
+    monkeypatch.setattr(r2_archive_assets, "fetch_asset", _stub_fetch(b"jpeg-bytes"))
     client = _FakeClient()
     registry_path = tmp_path / "registry.jsonl"
 

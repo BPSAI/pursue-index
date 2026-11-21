@@ -433,7 +433,10 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-        run: python scripts/r2_archive_assets.py
+        # PDF and IMG only: large VID/AUD fetches stay out of the 30-minute tick.
+        # The daily HEAD pass and the weekly full hash cover them. Missing R2
+        # credentials warn and skip here (exit 0); only the weekly fails closed.
+        run: python scripts/r2_archive_assets.py --asset-types PDF,IMG
         continue-on-error: true
 
       - name: Commit registry updates (when archive ran)

@@ -91,7 +91,7 @@ def test_a_complete_run_writes_a_dated_record(w):
 def test_a_fetch_failure_means_no_complete_record(w, monkeypatch):
     w.add_card(1, body=NEW_BODY)
 
-    def boom(u):
+    def boom(u, dest):
         raise OSError("down")
 
     monkeypatch.setattr(r2, "fetch_asset", boom)
@@ -112,15 +112,12 @@ def test_dry_run_full_hash_writes_no_record_and_no_rows(w):
     assert w.new_rows() == [] and not w.record.exists()
 
 
-@pytest.mark.parametrize(
-    "mode",
-    [[], ["--full-hash", "--max-bytes-per-run", "1000"]],
-)
-def test_missing_credentials_fail_closed_in_every_mode(w, mode, monkeypatch, capsys):
+def test_missing_credentials_fail_closed_in_the_weekly_full_hash(w, capsys):
     w.add_card(1)
     w.creds = False
-    assert w.run(*mode) != 0
+    assert w.run(*_args(w)) != 0
     assert "credential" in (capsys.readouterr().err).lower()
+    assert not w.record.exists()
 
 
 def test_missing_credentials_are_fine_under_dry_run(w):

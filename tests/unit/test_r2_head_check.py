@@ -149,11 +149,12 @@ def test_a_full_hash_run_does_not_check_staleness_of_itself(w):
     assert rc == 0
 
 
-def test_staleness_check_needs_credentials_like_every_mode(w, capsys):
+def test_the_daily_without_credentials_warns_and_skips_the_archive(w, capsys):
     w.add_card(1)
     w.creds = False
-    assert w.run(*_record(w, 1)) != 0
+    assert w.run(*_record(w, 1)) == 0
     assert "credential" in capsys.readouterr().err.lower()
+    assert w.headed == [] and w.fetched == []
 
 
 def test_daily_workflow_checks_the_weekly_record():

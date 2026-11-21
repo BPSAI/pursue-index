@@ -214,6 +214,7 @@ $ARGUMENTS
     `$PURSUE_DATA_ROOT/release-assets/vX.Y.Z/` after `rebuild-derivatives` and the
     site build, rebuild-checks it, and pins its sha256 in the stamp
     (see `docs/intermediates.md`).
+    The OCR-input freshness gate warns and counts cards with no recorded OCR input sha and fails only above `OCR_MAX_UNVERIFIABLE` (Makefile default 5 = the measured 0 on 2026-11-21 + 5): after clearing unverifiable cards, lower the default to the new count + a small margin, or pass `make ship-ready OCR_MAX_UNVERIFIABLE=N`.
     `rebuild-derivatives` (inside ship-ready) now rebuilds the DERIVED SITE
     PAYLOADS per tranche — embed index, video posters, atlas layout (atlas
     last; it needs the `.[build-tools]` extra installed in the venv or it
