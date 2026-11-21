@@ -18,6 +18,10 @@ registry). The verdict keys only on:
   * ``diff.date_open`` — such dates already flagged by an earlier tranche
     and still open (carried, not new)
 
+A date an acknowledged-unknown overlay entry covers
+(``diff.date_report.acknowledged``) is listed in the artifact but does not
+flip the verdict.
+
 Per-card ``field_changes`` (an existing card's metadata edited in place) do
 **not** flip the verdict — only structural additions/removals, a schema
 addition, or an unresolved date do.
@@ -59,7 +63,8 @@ def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[st
     keyed by ``new_sha`` so it can be located against the detected change.
     No I/O — the caller serializes + writes it. ``date_unresolved`` (rows
     whose 2-digit year could not be restored) and ``date_open`` (such rows
-    still open from an earlier tranche) are present only when non-empty, so
+    still open from an earlier tranche) and ``date_acknowledged`` (rows an
+    acknowledged-unknown entry covers) are present only when non-empty, so
     records written before they existed recompute equal.
     """
     artifact: dict[str, Any] = {
@@ -74,6 +79,8 @@ def build_verdict_artifact(diff: SnapshotDiffResult, *, new_sha: str) -> dict[st
         artifact["date_unresolved"] = [dict(u) for u in diff.date_unresolved]
     if diff.date_open:
         artifact["date_open"] = [dict(u) for u in diff.date_open]
+    if diff.date_report.acknowledged:
+        artifact["date_acknowledged"] = [dict(a) for a in diff.date_report.acknowledged]
     return artifact
 
 

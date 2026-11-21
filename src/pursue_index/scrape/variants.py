@@ -11,7 +11,8 @@ without re-running the normalization.
 * No applicable entry: digest ``None``; names are exactly as before
   (``<csv_sha>.json``, ``tranche-diff-<sha12>.json``, ``<sha12>.json``).
 * Otherwise: ``resolutions_digest`` is the sha256 of the applicable entries
-  (``[card_id, field, value, curator, approved_at]``, sorted, canonical
+  (``[card_id, field, value, curator, approved_at]``, an acknowledged-unknown
+  entry followed by ``status, reason, upstream_value``; sorted, canonical
   JSON); every output takes the suffix ``.r<digest12>`` before ``.json``
   and the snapshot records the full digest.
 
@@ -35,6 +36,7 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.scrape.date_resolutions import (
+    ACKNOWLEDGED,
     DATE_RESOLUTIONS_FILE,
     Overlay,
     load_date_resolutions,
@@ -42,9 +44,8 @@ from pursue_index.scrape.date_resolutions import (
 from pursue_index.scrape.year_normalize import DATE_FIELDS, upstream_value
 
 __all__ = ["OverlayLocationError", "OverlaySource", "VariantMismatchError", "checkout_digest",
-           "current_digest",
-           "load_overlay", "one_per_sha", "overlay_digest", "resolve_snapshot", "snapshot_name",
-           "variant_path"]
+           "current_digest", "load_overlay", "one_per_sha", "overlay_digest", "resolve_snapshot",
+           "snapshot_name", "variant_path"]
 
 _NAME = re.compile(r"^(?P<sha>[^.]+)(?:\.r(?P<digest>[0-9a-f]{12}))?\.json$")
 
@@ -57,12 +58,17 @@ class OverlayLocationError(VariantMismatchError):
     """No overlay was given and the snapshots dir does not say where it is."""
 
 
+def _digest_row(cid: str, fld: str, e: Mapping[str, Any]) -> list[Any]:
+    ack = [e["status"], e["reason"], e["upstream_value"]] if e.get("status") == ACKNOWLEDGED else []
+    return [cid, fld, e.get("value"), e.get("curator"), e.get("approved_at"), *ack]
+
+
 def overlay_digest(overlay: Overlay, cards: Sequence[Mapping[str, Any]]) -> str | None:
     """The digest of the overlay entries that apply to ``cards``, or None."""
     targets = {(c.get("card_id"), f) for c in cards for f in DATE_FIELDS
                if upstream_value(c, f) is not None}
-    rows = sorted([cid, fld, e.get("value"), e.get("curator"), e.get("approved_at")]
-                  for (cid, fld), e in overlay.items() if (cid, fld) in targets)
+    rows = sorted(_digest_row(cid, fld, e) for (cid, fld), e in overlay.items()
+                  if (cid, fld) in targets)
     if not rows:
         return None
     blob = json.dumps(rows, separators=(",", ":"), ensure_ascii=True)

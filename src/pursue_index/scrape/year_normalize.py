@@ -9,7 +9,9 @@ window). Nothing is guessed: a value no rule fixes is reported UNRESOLVED;
 its field keeps the prior's stored 4-digit value unchanged, or is left
 EMPTY when the prior stores none, so it never becomes a 2-digit prior;
 ``year_marker`` carries it as an open item across polls (reported under
-``open``, not as a new flag, while upstream's value is unchanged).
+``open``, not as a new flag, while upstream's value is unchanged). An
+acknowledged-unknown overlay entry leaves the field the same way but
+reports the row under ``acknowledged`` instead (``year_outcome``).
 
 Only ``release_date`` and ``incident_date`` are touched; 4-digit and empty
 values pass through. A field the prior manifest carries only in 2-digit
@@ -29,12 +31,15 @@ from typing import Any
 
 from pursue_index.scrape.date_resolutions import Overlay
 from pursue_index.scrape.types import CardMetadata
-from pursue_index.scrape.year_marker import iso, prior_markers, with_markers
+from pursue_index.scrape.year_marker import ACK_KEY, iso, prior_markers, with_markers
 from pursue_index.scrape.year_outcome import (
+    ACKNOWLEDGED_EVIDENCE,
     DateReport,
     RunContext,
+    acknowledgement,
     kept_value,
     paired_priors,
+    record_acknowledged,
     record_resolved,
     record_unresolved,
 )
@@ -78,24 +83,28 @@ def _row_update(row: Mapping[str, Any], fields: Sequence[str], ctx: RunContext,
     update: dict[str, Any] = {}
     raw_out = dict(row.get("raw") or {})
     markers: list[dict[str, Any]] = []
+    acked: list[dict[str, Any]] = []
     for fld in fields:
         raw = upstream_value(row, fld)
         if raw is None:
             continue
         key = (row.get("card_id"), fld)
         stored, manual = ctx.stored.get(key, []), ctx.overlay.get(key)
-        res = resolve_value(raw, row, fld, stored, ctx.window,
-                            manual["value"] if manual else None)
+        res = acknowledgement(manual, raw) or resolve_value(
+            raw, row, fld, stored, ctx.window, manual["value"] if manual else None)
         if res.evidence == "release-window" or res.reason == "outside_release_window":
             report.window = ctx.window
         raw_out[_FIELDS[fld]] = raw
-        if res.value is None:
+        if res.evidence == ACKNOWLEDGED_EVIDENCE:
+            update[fld] = kept_value(paired, fld)
+            acked.append(record_acknowledged(row, fld, raw, ctx, report))
+        elif res.value is None:
             update[fld] = kept_value(paired, fld)
             markers.append(record_unresolved(row, fld, raw, res.reason, ctx, report))
         else:
             update[fld] = res.value
             record_resolved(row, fld, raw, res, stored, ctx, report)
-    raw_out = with_markers(raw_out, markers)
+    raw_out = with_markers(raw_out, markers, acked)
     if update or raw_out != (row.get("raw") or {}):
         update["raw"] = raw_out
     return update
@@ -108,11 +117,11 @@ def _updates(rows: Sequence[Mapping[str, Any]], prior_rows: Sequence[Mapping[str
     skipped = two_digit_fields(prior_rows, list(_FIELDS))
     ctx = RunContext(_stored_values(prior_rows), release_window(prior_rows, fetch_year),
                prior_markers(prior_rows), overlay or {}, tranche, fetched_at)
+    held = set(ctx.markers) | set(prior_markers(prior_rows, ACK_KEY))
     updates = []
     for row, paired in zip(rows, paired_priors(rows, prior_rows), strict=True):
-        # A field the prior marks open is never passed through.
-        fields = [f for f in _FIELDS
-                  if f not in skipped or (row.get("card_id"), f) in ctx.markers]
+        # A field the prior marks open or acknowledged is never passed through.
+        fields = [f for f in _FIELDS if f not in skipped or (row.get("card_id"), f) in held]
         seen = [f for f in _FIELDS if upstream_value(row, f) is not None]
         report.considered = report.considered or bool(seen)
         report.passed_through += sum(1 for f in seen if f not in fields)

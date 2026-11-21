@@ -12,6 +12,11 @@ each row keeps its own), so good published data is never emptied or
 overwritten and no field change is reported; EMPTY when the paired prior
 row stores no 4-digit value. Rows are paired with the prior exactly as the
 field diff pairs them (``tranche_rows.pair_rows_by_identity``).
+
+A field an acknowledged-unknown overlay entry covers is written the same
+way and recorded as ``acknowledged`` while upstream's value is the entry's
+``upstream_value``; once it differs the row is a new UNRESOLVED flag
+(``acknowledged_value_changed``).
 """
 
 from __future__ import annotations
@@ -20,13 +25,15 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from pursue_index.scrape.date_resolutions import Overlay
-from pursue_index.scrape.year_marker import carries, new_marker, open_entry
+from pursue_index.scrape.date_resolutions import ACKNOWLEDGED, Overlay
+from pursue_index.scrape.year_marker import ack_marker, carries, new_marker, open_entry
 from pursue_index.scrape.year_resolve import Resolution, Window, is_four_digit
 from pursue_index.tranche_rows import pair_rows_by_identity
 
-__all__ = ["DateReport", "RunContext", "kept_value", "paired_priors", "record_resolved",
-           "record_unresolved"]
+__all__ = ["ACKNOWLEDGED_EVIDENCE", "DateReport", "RunContext", "acknowledgement", "kept_value",
+           "paired_priors", "record_acknowledged", "record_resolved", "record_unresolved"]
+
+ACKNOWLEDGED_EVIDENCE = "acknowledged-unknown"
 
 
 @dataclass
@@ -36,15 +43,17 @@ class DateReport:
     ``unresolved`` are new flags; ``open`` are items a prior marker already
     carries (same upstream value), still unresolved but not counted as new.
     ``manual_rows`` are rows a manual overlay entry resolved where the prior
-    did not already store that value. ``considered`` is True when any new
-    row carried a 2-digit-year value. ``window`` is the release window, set
-    only when a row reached that rule.
+    did not already store that value. ``acknowledged`` are rows an
+    acknowledged-unknown entry covers: no date, and no review forced.
+    ``considered`` is True when any new row carried a 2-digit-year value.
+    ``window`` is the release window, set only when a row reached that rule.
     """
 
     unresolved: list[dict[str, Any]] = field(default_factory=list)
     open: list[dict[str, Any]] = field(default_factory=list)
     window_rows: list[dict[str, Any]] = field(default_factory=list)
     manual_rows: list[dict[str, Any]] = field(default_factory=list)
+    acknowledged: list[dict[str, Any]] = field(default_factory=list)
     window: Window | None = None
     passed_through: int = 0
     considered: bool = False
@@ -111,3 +120,24 @@ def record_resolved(row: Mapping[str, Any], fld: str, raw: str, res: Resolution,
         report.manual_rows.append({**_entry(row, fld, raw), "value": res.value,
                                    "evidence": res.evidence, "curator": entry.get("curator"),
                                    "approved_at": entry.get("approved_at")})
+
+
+def acknowledgement(entry: Mapping[str, Any] | None, raw: str) -> Resolution | None:
+    """What an acknowledged-unknown overlay ``entry`` makes of upstream's
+    ``raw``: acknowledged (no value) while it is the entry's
+    ``upstream_value``, else UNRESOLVED. None for any other entry."""
+    if entry is None or entry.get("status") != ACKNOWLEDGED:
+        return None
+    if str(entry["upstream_value"]).strip() == raw.strip():
+        return Resolution(evidence=ACKNOWLEDGED_EVIDENCE)
+    return Resolution(reason="acknowledged_value_changed")
+
+
+def record_acknowledged(row: Mapping[str, Any], fld: str, raw: str, ctx: RunContext,
+                        report: DateReport) -> dict[str, Any]:
+    """Report one acknowledged-unknown value; its marker."""
+    entry = ctx.overlay[(row.get("card_id"), fld)]
+    marker = ack_marker(fld, raw, entry)
+    report.acknowledged.append({"card_id": row.get("card_id"), "title": row.get("title"),
+                                **marker})
+    return marker
