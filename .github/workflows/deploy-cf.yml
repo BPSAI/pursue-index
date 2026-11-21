@@ -156,6 +156,10 @@ jobs:
 
       - name: Build web assets (Astro -> web/dist)
         working-directory: web
+        env:
+          # The same variable Cloudflare Workers Builds sets, so this fallback
+          # deploy also publishes /deploy-stamp.json for post-deploy-verify.
+          WORKERS_CI_COMMIT_SHA: ${{ github.sha }}
         run: npm run build
 
       - name: Drift snapshot (worker constants <-> /api docs page)

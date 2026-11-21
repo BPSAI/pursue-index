@@ -77,3 +77,11 @@ def test_setup_python_uses_pinned_sha() -> None:
     assert "actions/setup-python@" in text, "setup-python step missing"
     # Match the same SHA used in poll-pursue.yml for consistency.
     assert "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405" in text
+
+
+def test_fallback_build_stamps_the_deployed_commit() -> None:
+    """post-deploy-verify reads /deploy-stamp.json, which the build writes from
+    WORKERS_CI_COMMIT_SHA (set by Cloudflare Workers Builds). The fallback
+    deploy must set the same variable, or a fallback deploy has no stamp."""
+    build = next(s for s in _load_steps() if s.get("run") == "npm run build")
+    assert build.get("env", {}).get("WORKERS_CI_COMMIT_SHA") == "${{ github.sha }}"
