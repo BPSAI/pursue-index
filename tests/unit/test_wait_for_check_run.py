@@ -10,6 +10,7 @@ import pytest
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "wait_for_check_run.py"
 NAME = "Workers Builds: pursue-index"
 SHA = "a" * 40
+APP_ID = 85455  # the cloudflare-workers-and-pages GitHub App
 
 
 def _load():
@@ -30,13 +31,16 @@ def run(pages, *, timeout=60, name=NAME, fallback=None, compare=None):
     """
     calls = []
     queue = list(pages)
-    fb = list(fallback or [{"total_count": 0, "workflow_runs": []}])
+    fb = list(fallback or [{"total_count": 0, "workflow_runs": []}])  # items may be Exceptions
     cmp_ = compare or {"ahead_by": 0, "behind_by": 0}
 
     def fetch(url):
         calls.append(url)
         if "/actions/workflows/" in url:
-            return fb.pop(0) if len(fb) > 1 else fb[0]
+            item = fb.pop(0) if len(fb) > 1 else fb[0]
+            if isinstance(item, Exception):
+                raise item
+            return item
         if "/compare/" in url:
             return cmp_
         return queue.pop(0) if len(queue) > 1 else queue[0]
@@ -56,8 +60,8 @@ def wf(status, conclusion=None, id_=1):
     return {"total_count": 1, "workflow_runs": [{"id": id_, "status": status, "conclusion": conclusion}]}
 
 
-def cr(status, conclusion=None, name=NAME, id_=1):
-    return {"id": id_, "name": name, "status": status, "conclusion": conclusion}
+def cr(status, conclusion=None, name=NAME, id_=1, app_id=APP_ID):
+    return {"id": id_, "name": name, "status": status, "conclusion": conclusion, "app": {"id": app_id}}
 
 
 def page(*runs, total=None):
@@ -188,9 +192,20 @@ def test_cancelled_or_skipped_with_main_ahead_is_superseded(conclusion):
     assert any(f"/compare/{SHA}...main" in c for c in calls)
 
 
-def test_never_appeared_with_main_ahead_is_superseded():
-    run([page()], compare=AHEAD)
-    assert run.status == "superseded"
+def test_no_check_run_yet_with_main_ahead_keeps_waiting_not_superseded():
+    ok, msg, _ = run([page(), page(), page(cr("completed", "success"))], compare=AHEAD)
+    assert ok and run.status == "ok", msg
+
+
+def test_no_check_run_ever_with_main_ahead_is_a_timeout_failure():
+    ok, msg, calls = run([page()], timeout=30, compare=AHEAD)
+    assert not ok and run.status == "fail" and "timed out" in msg
+    assert not any("/compare/" in c for c in calls)
+
+
+def test_no_check_run_ever_main_ahead_still_passes_on_fallback_success():
+    ok, _, _ = run([page()], compare=AHEAD, fallback=[wf("completed", "success")])
+    assert ok and run.status == "ok"
 
 
 def test_failure_with_main_ahead_is_not_superseded():
@@ -214,7 +229,8 @@ def test_main_writes_superseded_output(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("GITHUB_TOKEN", "t")
     monkeypatch.setenv("GITHUB_REPOSITORY", "o/r")
     monkeypatch.setattr(mod, "_fetcher", lambda t: (lambda url: {"ahead_by": 1, "behind_by": 0} if "/compare/" in url
-                                                    else {"total_count": 0, "check_runs": [], "workflow_runs": []}))
+                                                    else {"total_count": 1, "check_runs": [cr("completed", "cancelled")],
+                                                          "workflow_runs": []}))
     assert mod.main(["--sha", SHA, "--timeout-secs", "5"]) == 0
     assert "superseded=true" in out.read_text()
     assert "::notice" in capsys.readouterr().out
@@ -225,3 +241,46 @@ def test_check_name_default_is_single_constant_and_env_overridable(monkeypatch):
     assert src.count("Workers Builds: pursue-index") == 1
     monkeypatch.setenv("WORKERS_BUILD_CHECK_NAME", "Other")
     assert _load().default_name() == "Other"
+
+
+# ---- fallback lookup errors never override a successful build ------------
+
+def test_workers_builds_success_with_fallback_api_erroring_passes():
+    ok, msg, calls = run([page(cr("completed", "success"))], fallback=[OSError("500")])
+    assert ok and run.status == "ok", msg
+    assert not any("/actions/workflows/" in c for c in calls)  # not consulted on success
+
+
+def test_workers_builds_failure_then_fallback_error_then_success_passes():
+    ok, msg, _ = run([page(cr("completed", "failure"))], fallback=[OSError("500"), wf("completed", "success")])
+    assert ok and run.status == "ok", msg
+
+
+def test_workers_builds_failure_and_fallback_erroring_until_timeout_fails_unknown():
+    ok, msg, _ = run([page(cr("completed", "failure"))], timeout=30, fallback=[OSError("500")])
+    assert not ok and run.status == "fail"
+    assert "fallback status unknown" in msg
+
+
+def test_fallback_not_consulted_while_build_in_progress():
+    _, _, calls = run([page(cr("in_progress")), page(cr("completed", "success"))])
+    assert not any("/actions/workflows/" in c for c in calls)
+
+
+# ---- matching by app id and name -----------------------------------------
+
+def test_same_name_run_from_another_app_is_ignored():
+    ok, _, _ = run([page(cr("completed", "success", app_id=15368))], timeout=30)
+    assert not ok and run.status == "fail"
+
+
+def test_run_without_app_is_ignored():
+    bare = {"id": 1, "name": NAME, "status": "completed", "conclusion": "success"}
+    ok, _, _ = run([page(bare)], timeout=30)
+    assert not ok
+
+
+def test_app_id_default_is_single_constant_and_env_overridable(monkeypatch):
+    assert SCRIPT.read_text().count("85455") == 1
+    monkeypatch.setenv("WORKERS_BUILD_APP_ID", "7")
+    assert _load().default_app_id() == 7

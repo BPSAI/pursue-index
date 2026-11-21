@@ -11,10 +11,13 @@ exactly ``--name`` is ``completed``.
 
 Exit 0 when the run completed with conclusion ``success``, OR when the manual
 fallback workflow ``deploy-cf.yml`` has a successful run for the same sha (both
-are polled within one timeout). Exit 0 also, with ``superseded=true`` written to
-``$GITHUB_OUTPUT``, when the build was cancelled/skipped/never appeared and
-``main`` is now a descendant of the sha. A failed build is never superseded;
-any other outcome or a timeout is a failure. The token is read from the environment only.
+are polled within one timeout). The check run is matched by app id (``$WORKERS_BUILD_APP_ID``) and name; the
+fallback is consulted only when it is absent or failed, and a fallback lookup
+error is "unknown", never a failure that overrides a success. Exit 0 also, with
+``superseded=true`` written to ``$GITHUB_OUTPUT``, when the build was
+cancelled/skipped and ``main`` is strictly ahead of the sha. A run that does
+not exist yet keeps waiting; a failed build is never superseded; any other
+outcome or a timeout is a failure. The token is read from the environment only.
 
 Standard library only.
 """
@@ -31,11 +34,18 @@ import urllib.request
 
 DEFAULT_NAME = "Workers Builds: pursue-index"
 NAME_ENV = "WORKERS_BUILD_CHECK_NAME"  # the workflow sets this once; DEFAULT_NAME is the only literal
+# GitHub App id of cloudflare-workers-and-pages (from the check run's `app.id`).
+DEFAULT_APP_ID = 85455
+APP_ID_ENV = "WORKERS_BUILD_APP_ID"  # the workflow sets this next to the name
 FALLBACK_WORKFLOW = "deploy-cf.yml"
 
 
 def default_name() -> str:
     return os.environ.get(NAME_ENV) or DEFAULT_NAME
+
+
+def default_app_id() -> int:
+    return int(os.environ.get(APP_ID_ENV) or DEFAULT_APP_ID)
 
 API = "https://api.github.com"
 _SHA1 = re.compile(r"[0-9a-f]{40}")
@@ -71,7 +81,7 @@ def _is_superseded(fetch, repo_path: str, sha: str) -> bool:
 
 def _describe_wb(name: str, sha: str, run: dict | None) -> str:
     if run is None:
-        return f"no check run named {name!r} on {sha}"
+        return f"no check run named {name!r} (app {default_app_id()}) on {sha}"
     if run.get("status") != "completed":
         return f"{name!r} on {sha} is {run.get('status')!r}"
     return f"{name!r} on {sha} completed with conclusion {run.get('conclusion')!r}"
@@ -87,29 +97,46 @@ def _describe_fb(runs: list[dict]) -> str:
 
 
 def wait(fetch, *, sha: str, name: str, timeout_secs: float, interval_secs: float,
-         sleep=time.sleep, clock=time.monotonic, repo_path: str = "") -> tuple[str, str]:
+         sleep=time.sleep, clock=time.monotonic, repo_path: str = "",
+         app_id: int | None = None) -> tuple[str, str]:
     """Poll until this commit's deploy succeeds. Returns ``(status, message)``.
 
-    ``status`` is ``"ok"`` (Workers Builds check run succeeded, or the manual
-    ``deploy-cf.yml`` fallback run succeeded), ``"superseded"`` (the build
-    never ran/was cancelled/skipped and ``main`` is now a descendant of ``sha``
-    -- a failed build is never superseded), or ``"fail"``.
+    The Workers Builds check run (matched by app id AND name) is evaluated
+    first: ``completed``/``success`` passes at once and the fallback is never
+    consulted. Only when that run is absent or failed is the ``deploy-cf.yml``
+    fallback looked up; an error in that lookup is "unknown" (retried until the
+    overall deadline) and never overrides a success. ``"superseded"`` requires
+    a ``cancelled``/``skipped`` run and ``main`` strictly ahead; a run that does
+    not exist yet keeps waiting.
     """
+    app_id = default_app_id() if app_id is None else app_id
     deadline = clock() + timeout_secs
-    last = f"{_describe_wb(name, sha, None)}; no fallback run"
+    last = f"{_describe_wb(name, sha, None)}; fallback not consulted"
     while True:
+        fb_unknown = False
         try:
-            matches = [r for r in _list_runs(fetch, repo_path, sha) if r.get("name") == name]
+            matches = [r for r in _list_runs(fetch, repo_path, sha)
+                       if r.get("name") == name and (r.get("app") or {}).get("id") == app_id]
             wb = max(matches, key=lambda r: r.get("id", 0)) if matches else None  # newest rerun wins
-            fb = _fallback_runs(fetch, repo_path, sha)
             if wb and wb.get("status") == "completed" and wb.get("conclusion") == "success":
                 return "ok", f"{name!r} completed successfully on {sha}"
-            if any(r.get("status") == "completed" and r.get("conclusion") == "success" for r in fb):
-                return "ok", f"fallback {FALLBACK_WORKFLOW} run completed successfully on {sha}"
-            last = f"{_describe_wb(name, sha, wb)}; {_describe_fb(fb)}"
-            wb_gone = wb is None or (wb.get("status") == "completed"
-                                     and wb.get("conclusion") in ("cancelled", "skipped"))
-            if wb_gone and _is_superseded(fetch, repo_path, sha):
+            wb_desc = _describe_wb(name, sha, wb)
+            wb_done = wb and wb.get("status") == "completed"
+            if wb is None or wb_done:  # absent or failed: the fallback may still cover the deploy
+                try:
+                    fb = _fallback_runs(fetch, repo_path, sha)
+                except Exception as exc:
+                    fb = None
+                    fb_unknown = True
+                    fb_desc = f"fallback status unknown ({exc})"
+                else:
+                    if any(r.get("status") == "completed" and r.get("conclusion") == "success" for r in fb):
+                        return "ok", f"fallback {FALLBACK_WORKFLOW} run completed successfully on {sha}"
+                    fb_desc = _describe_fb(fb)
+            else:
+                fb_desc = "fallback not consulted"
+            last = f"{wb_desc}; {fb_desc}"
+            if wb_done and wb.get("conclusion") in ("cancelled", "skipped") and _is_superseded(fetch, repo_path, sha):
                 return "superseded", (f"superseded: {last}; main is ahead of {sha}, so the newer "
                                       "commit's own verify run covers the deploy")
         except Exception as exc:  # transient API/network error: keep polling until the deadline

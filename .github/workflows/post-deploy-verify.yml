@@ -25,7 +25,7 @@ on:
         required: false
         default: "600"
       skip_build_wait:
-        description: "Skip the build wait and deployed-commit check (manual runs with no build for this sha)"
+        description: "Skip only the build wait (manual runs with no build for this sha); the deployed-commit check still runs"
         required: false
         type: boolean
         default: false
@@ -39,6 +39,8 @@ permissions:
 env:
   # The one place the build's check-run name is defined.
   WORKERS_BUILD_CHECK_NAME: "Workers Builds: pursue-index"
+  # GitHub App id of cloudflare-workers-and-pages; a same-name run from another app is ignored.
+  WORKERS_BUILD_APP_ID: "85455"
   # Inputs reach scripts only through env (never interpolated into run:).
   BASE_URL: ${{ inputs.base_url || 'https://pursueindex.com' }}
   MAX_WAIT_SECS: ${{ inputs.max_wait_secs || '600' }}
@@ -70,13 +72,16 @@ jobs:
           SKIP_BUILD_WAIT: ${{ inputs.skip_build_wait || 'false' }}
         run: |
           echo "event=$GITHUB_EVENT_NAME skip_build_wait=$SKIP_BUILD_WAIT"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$SKIP_BUILD_WAIT" = "true" ]; then
+            echo "::warning title=build wait skipped::skip_build_wait is set: not waiting for this commit's build; the deployed-commit check still runs"
+          fi
 
       - name: Wait for this commit's build
         id: wait
         # Pushes never skip: either the Workers Builds check run or a manual
         # deploy-cf.yml run on github.sha must complete with success (a missing
         # run is a failure), so a broken or still-running build cannot read
-        # green. A build superseded by a newer commit reports `superseded`
+        # green. A build cancelled/skipped with main strictly ahead reports `superseded`
         # (exit 0) and the stamp/URL steps below are skipped.
         if: github.event_name != 'workflow_dispatch' || !inputs.skip_build_wait
         env:
@@ -87,7 +92,7 @@ jobs:
             --timeout-secs 1200
 
       - name: Confirm the deployed build is this commit
-        if: (github.event_name != 'workflow_dispatch' || !inputs.skip_build_wait) && steps.wait.outputs.superseded != 'true'
+        if: steps.wait.outputs.superseded != 'true'
         run: |
           python scripts/check_deployed_commit.py \
             --sha "${{ github.sha }}" \

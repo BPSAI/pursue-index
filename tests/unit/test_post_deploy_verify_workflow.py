@@ -52,10 +52,8 @@ def test_no_fixed_sleep():
 def test_skip_build_wait_input_defaults_false_and_push_never_skips():
     inputs = _wf()[True]["workflow_dispatch"]["inputs"]
     assert str(inputs["skip_build_wait"]["default"]).lower() == "false"
-    for name in ("wait_for_check_run.py", "check_deployed_commit.py"):
-        step = _steps()[_index(name)]
-        cond = step["if"]
-        assert "github.event_name" in cond and "inputs.skip_build_wait" in cond
+    cond = _steps()[_index("wait_for_check_run.py")]["if"]
+    assert "github.event_name" in cond and "inputs.skip_build_wait" in cond
     assert any("skip_build_wait" in str(s.get("run", "")) for s in _steps())
 
 
@@ -103,3 +101,14 @@ def test_npm_test_includes_deploy_stamp():
     scripts = json.loads((WORKFLOW.parents[2] / "web" / "package.json").read_text())["scripts"]
     assert "test:deploy-stamp" in scripts
     assert "npm run test:deploy-stamp" in scripts["test"]
+
+
+def test_skip_build_wait_still_runs_the_deployed_commit_check_and_warns():
+    cond = _steps()[_index("check_deployed_commit.py")].get("if", "")
+    assert "skip_build_wait" not in cond
+    warn = [s for s in _steps() if "::warning" in str(s.get("run", ""))]
+    assert warn and "SKIP_BUILD_WAIT" in str(warn[0]["env"])
+
+
+def test_app_id_defined_once_in_workflow_env():
+    assert _wf()["env"]["WORKERS_BUILD_APP_ID"] == "85455"
