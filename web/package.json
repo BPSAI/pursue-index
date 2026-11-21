@@ -33,5 +33,10 @@
     "@tailwindcss/vite": "^4.3.0",
     "tailwindcss": "^4.3.0",
     "wrangler": "^4.90.0"
+  },
+  "overrides": {
+    "sharp": "^0.35.5",
+    "esbuild": "^0.28.2",
+    "vite": "^7.3.8"
   }
 }
