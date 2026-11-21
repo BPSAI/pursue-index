@@ -2,11 +2,16 @@
   "schema_version": "1.1.0",
   "tranche_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
   "tranche_sha12": "bae7455d6b5d",
-  "detected_at": "2026-11-20T16:02:02+00:00",
-  "generated_at": "2026-11-20T16:02:02+00:00",
+  "detected_at": "2026-11-21T00:49:32+00:00",
+  "generated_at": "2026-11-21T00:49:32+00:00",
   "status": "stop-and-ask",
   "stop_reasons": [
-    "estimate partial: 40 scoped card(s) priced per card (page count unavailable)"
+    "ca4a3d21010eda4b (DOW-UAP-D165, Unresolved Radar Detection, North America, 2023): date_unresolved incident_date '7/15/05' (no_century_evidence)",
+    "e19fbb338efc608c (DOW-UAP-D186, DIA Information Memorandum on AATIP (AAWSAP), December 2010): date_unresolved incident_date '12/10/26' (no_century_evidence)",
+    "277c4861b2c8f432 (DOW-UAP-D201, Air Intelligence Information Report, Iran, 1957): date_unresolved incident_date '5/10/05' (no_century_evidence)",
+    "04a82a0332cfe988 (DOW-UAP-PR166, Unresolved UAP Report, Middle East, 2020): date_unresolved incident_date '7/12/05' (no_century_evidence)",
+    "6c65ac68d3cf00f3 (DOW-UAP-PR168, Unresolved UAP Report, Middle East, 2026): date_unresolved incident_date '7/18/05' (no_century_evidence)",
+    "c178dd1cd7415f1c (DOW-UAP-PR169, Unresolved UAP Report, Middle East, 2023): date_unresolved incident_date '7/15/05' (no_century_evidence)"
   ],
   "tranche_issue": 261,
   "supersedes": [],
@@ -21,7 +26,7 @@
     "new_content": 43,
     "quarantined": 0,
     "removed": 0,
-    "field_only_changes": 466,
+    "field_only_changes": 8,
     "row_changes": 0,
     "restored_unchanged": 0,
     "restored_modified": 0,
@@ -233,303 +238,82 @@
     ]
   },
   "pages": {
-    "total": 0,
-    "source": "unavailable",
-    "largest": []
+    "total": 841,
+    "source": "fetched",
+    "largest": [
+      {
+        "card_id": "38c1c66ea5d971c9",
+        "doc_id": "DOW-UAP-D172",
+        "pages": 538
+      },
+      {
+        "card_id": "b3eb75295aabe90f",
+        "doc_id": "DOW-UAP-D212",
+        "pages": 34
+      },
+      {
+        "card_id": "aabeb328d198e646",
+        "doc_id": "DOW-UAP-D191",
+        "pages": 21
+      },
+      {
+        "card_id": "41b2beb95f631614",
+        "doc_id": "DOW-UAP-D213",
+        "pages": 17
+      }
+    ]
   },
   "estimate": {
-    "basis": "per-card-fallback",
-    "partial": true,
+    "basis": "page-counted",
+    "partial": false,
     "judge_figure_label": "table-estimate",
     "cap_margin": 0.5,
-    "low_usd": 25.7,
-    "high_usd": 196.27,
-    "recommended_cap_usd": 39.0,
-    "fallback_cards": [
-      "02e22fd004affc47",
-      "0fc485e6efefdd92",
-      "1112b7dd6ccb2120",
-      "12fdfdceb484077d",
-      "1692a5ac126b1882",
-      "277c4861b2c8f432",
-      "2c859e85c982478e",
-      "3450511c8f84fe3d",
-      "3733c21347b9cf9c",
-      "38c1c66ea5d971c9",
-      "40fedc1b5ac50804",
-      "410d4f43f987ebe0",
-      "41b2beb95f631614",
-      "43981ff03d1a20cd",
-      "46b0bdbffa5057ca",
-      "71634d539b50cb08",
-      "78cc379f877a9b6f",
-      "7b0ca66a91c704d1",
-      "82159bfd9c8a37a2",
-      "85845b4df2788776",
-      "87e825d57fc835d5",
-      "8a91112c87333afb",
-      "91c156310f4b438a",
-      "92ae35347234224a",
-      "9c56a31448466b18",
-      "a0af4c515f2652c5",
-      "a174b43c290ec6b8",
-      "aabeb328d198e646",
-      "b3eb75295aabe90f",
-      "ba7b99c93f272808",
-      "c0a0002c885b68f4",
-      "ca4a3d21010eda4b",
-      "d7fb87e7264437e1",
-      "e17f6bbdcf28f734",
-      "e19fbb338efc608c",
-      "e7fe45b51f32ed87",
-      "eb84be089be1d2ad",
-      "f2ddd70dd412e9a6",
-      "f4ab0c81beca7768",
-      "fa93265239231a44"
-    ],
+    "low_usd": 27.03,
+    "high_usd": 206.33,
+    "recommended_cap_usd": 41.0,
+    "fallback_cards": [],
     "per_stage": [
       {
         "stage": "ocr",
         "low_rate_per_page": 0.013,
         "high_rate_per_page": 0.132705,
-        "low_usd": 10.4,
-        "high_usd": 106.16
+        "low_usd": 10.93,
+        "high_usd": 111.6
       },
       {
         "stage": "clean",
         "low_rate_per_page": 0.0026,
         "high_rate_per_page": 0.025596,
-        "low_usd": 2.08,
-        "high_usd": 20.48
+        "low_usd": 2.19,
+        "high_usd": 21.53
       },
       {
         "stage": "judge",
         "low_rate_per_page": 0.0165,
         "high_rate_per_page": 0.08655,
-        "low_usd": 13.2,
-        "high_usd": 69.24
+        "low_usd": 13.88,
+        "high_usd": 72.79
       },
       {
         "stage": "embed",
         "low_rate_per_page": 3e-05,
         "high_rate_per_page": 0.000492,
-        "low_usd": 0.02,
-        "high_usd": 0.39
+        "low_usd": 0.03,
+        "high_usd": 0.41
       }
     ]
   },
   "fetch": {
-    "new_fetched": 0,
-    "new_failed": 40,
+    "new_fetched": 40,
+    "new_failed": 0,
     "old_fetched": 0,
     "old_failed": 0,
-    "failures": [
-      {
-        "card_id": "82159bfd9c8a37a2",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "0fc485e6efefdd92",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "ca4a3d21010eda4b",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "38c1c66ea5d971c9",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "71634d539b50cb08",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "f4ab0c81beca7768",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "e7fe45b51f32ed87",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "02e22fd004affc47",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "92ae35347234224a",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "fa93265239231a44",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "87e825d57fc835d5",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "3450511c8f84fe3d",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "7b0ca66a91c704d1",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "85845b4df2788776",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "e19fbb338efc608c",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "eb84be089be1d2ad",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "2c859e85c982478e",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "d7fb87e7264437e1",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "aabeb328d198e646",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "40fedc1b5ac50804",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "12fdfdceb484077d",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "410d4f43f987ebe0",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "1692a5ac126b1882",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "1112b7dd6ccb2120",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "46b0bdbffa5057ca",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "a174b43c290ec6b8",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "78cc379f877a9b6f",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "277c4861b2c8f432",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "3733c21347b9cf9c",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "a0af4c515f2652c5",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "c0a0002c885b68f4",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "9c56a31448466b18",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "ba7b99c93f272808",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "43981ff03d1a20cd",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "e17f6bbdcf28f734",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "f2ddd70dd412e9a6",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "8a91112c87333afb",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "91c156310f4b438a",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "b3eb75295aabe90f",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      },
-      {
-        "card_id": "41b2beb95f631614",
-        "side": "new",
-        "reason": "new_fetch_failed"
-      }
-    ]
+    "failures": []
   },
   "generated_by": {
     "tool": "poll_snapshot.py",
     "version": "r7c31",
     "poll_run_id": 44768661836,
-    "poll_commit": "994d19e"
+    "poll_commit": "6f81e24"
   }
 }
