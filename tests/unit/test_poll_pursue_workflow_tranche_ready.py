@@ -63,8 +63,10 @@ def _git(cwd: Path, *args: str) -> str:
 
 def test_the_commit_step_survives_a_missing_output_dir(tmp_path: Path) -> None:
     """``data/tranche-ready`` does not exist until a record is written (bootstrap,
-    or a refused record): ``git add`` on a missing pathspec is fatal under ``bash -e``."""
+    or a refused record): ``git add`` on a missing pathspec is fatal under ``bash -e``.
+    The job runs on the ``poll/<sha12>`` branch and pushes only to it."""
     origin, work = tmp_path / "origin.git", tmp_path / "work"
+    branch = "poll/" + "a" * 12
     _git(tmp_path, "init", "--bare", "-b", "main", str(origin))
     _git(tmp_path, "clone", str(origin), str(work))
     _git(work, "checkout", "-b", "main")
@@ -72,16 +74,21 @@ def test_the_commit_step_survives_a_missing_output_dir(tmp_path: Path) -> None:
     _git(work, "-c", "user.name=t", "-c", "user.email=t@t", "add", "seed.txt")
     _git(work, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-m", "seed")
     _git(work, "push", "origin", "main")
+    _git(work, "checkout", "-b", branch)
+    _git(work, "push", "origin", branch)
+    main_before = _git(origin, "rev-parse", "main")
     snap = work / "data" / "manifests" / "snapshots"
     snap.mkdir(parents=True)
     (snap / "s.json").write_text("{}")
     _, commit = _step("Commit snapshot")
     result = subprocess.run(["bash", "-e", "-c", str(commit["run"])], cwd=work,
-                            env={**os.environ, "NEW_SHA": "a" * 64},
+                            env={**os.environ, "NEW_SHA": "a" * 64, "POLL_BRANCH": branch},
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
-    assert "snapshot + diff" in _git(work, "log", "-1", "--format=%s")
-    assert "data/manifests/snapshots/s.json" in _git(work, "ls-files")
+    assert "snapshot + diff" in _git(origin, "log", "-1", "--format=%s", branch)
+    assert "data/manifests/snapshots/s.json" in _git(origin, "ls-tree", "-r", "--name-only",
+                                                     branch)
+    assert _git(origin, "rev-parse", "main") == main_before
 
 
 def test_the_generate_step_writes_the_outputs_where_the_commit_step_stages_them() -> None:
