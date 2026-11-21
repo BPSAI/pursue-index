@@ -11,6 +11,13 @@ stdin). The allowlist (default ``web/audit-build-only.json``) holds:
     is on the version in the lockfile, so a bump to another version of the same
     name is runtime again until someone lists it.
 
+``build_only_roots``
+    ``{package: reason}``. The project's own production dependencies that are
+    build-only. Every other production dependency is a runtime root. An
+    exemption above holds only if no dependency path from a runtime root
+    reaches any installed copy of the package (checked on the lockfile graph,
+    over dependencies, optional and peer edges).
+
 ``accepted_advisories``
     ``{GHSA id: {"reason": ..., "review_by": "YYYY-MM-DD"}}``. A specific advisory that is known and consciously
     left open (for example one that is only fixed in a major release). The
@@ -79,11 +86,15 @@ def load_allowlist_data(data: object) -> dict:
     if not isinstance(data, dict):
         raise ValueError("allowlist must be a JSON object")
     out: dict[str, dict] = {}
-    for key in ("build_only", "accepted_advisories"):
+    for key in ("build_only", "build_only_roots", "accepted_advisories"):
         section = data.get(key, {})
         if not isinstance(section, dict):
             raise ValueError(f"{key} must map names to reasons")
         for name, entry in section.items():
+            if key == "build_only_roots":
+                if not isinstance(entry, str) or not entry.strip():
+                    raise ValueError(f"{key}[{name!r}] needs a reason")
+                continue
             if key == "build_only":
                 if not re.fullmatch(r"(@[^/@\s]+/)?[^/@\s]+@[^@\s]+", name):
                     raise ValueError(f"{key}[{name!r}] must be an exact name@version")
@@ -125,14 +136,66 @@ def installed_copies(lock: dict | None, name: str) -> list[tuple[str, str]]:
     return sorted(out)
 
 
-def not_build_only(name: str, build_only: dict, lock: dict | None) -> str | None:
-    """None if every installed copy of ``name`` is exempted by exact version."""
+_EDGE_KINDS = ("dependencies", "optionalDependencies", "peerDependencies")
+
+
+def _resolve(packages: dict, frm: str, dep: str) -> str | None:
+    """The lock path ``dep`` resolves to from ``frm``, the way node looks it up."""
+    base = frm
+    while True:
+        cand = f"{base}/node_modules/{dep}" if base else f"node_modules/{dep}"
+        if cand in packages:
+            return cand
+        if not base:
+            return None
+        base = base[: base.rfind("node_modules/")].rstrip("/")
+
+
+def _reachable(packages: dict, start: str) -> set[str]:
+    """Lock paths reachable from ``start`` over production, optional and peer edges."""
+    seen: set[str] = set()
+    todo = [start]
+    while todo:
+        key = todo.pop()
+        meta = packages.get(key)
+        if key in seen or not isinstance(meta, dict):
+            continue
+        seen.add(key)
+        for kind in _EDGE_KINDS:
+            for dep in meta.get(kind) or {}:
+                nxt = _resolve(packages, key, dep)
+                if nxt is not None:
+                    todo.append(nxt)
+    return seen
+
+
+def runtime_roots(lock: dict | None, build_only_roots: dict) -> list[str]:
+    """Production dependencies of the project that are not listed build-only."""
+    root = ((lock or {}).get("packages") or {}).get("")
+    if not isinstance(root, dict):
+        return []
+    names = set(root.get("dependencies") or {}) | set(root.get("optionalDependencies") or {})
+    return sorted(n for n in names if n not in build_only_roots)
+
+
+def not_build_only(name: str, allowlist: dict, lock: dict | None) -> str | None:
+    """None if ``name`` is build-only: every installed copy is exempted by exact
+    version, and no dependency path from a runtime root reaches any copy."""
+    build_only = allowlist.get("build_only", {})
+    packages = (lock or {}).get("packages")
+    if not isinstance(packages, dict) or not isinstance(packages.get(""), dict):
+        return "no usable lockfile to verify the dependency paths"
     copies = installed_copies(lock, name)
     if not copies:
         return "no installed copy found in the lockfile"
     unlisted = sorted({f"{name}@{v}" for _, v in copies if f"{name}@{v}" not in build_only})
     if unlisted:
         return "installed " + ", ".join(unlisted) + " is not listed as build-only"
+    keys = {k for k, _ in copies}
+    for root in runtime_roots(lock, allowlist.get("build_only_roots", {})):
+        start = f"node_modules/{root}"
+        if start in packages and keys & _reachable(packages, start):
+            return f"reachable from the runtime dependency {root}"
     return None
 
 
@@ -209,7 +272,7 @@ def decide(
                 if ghsa in accepted:
                     seen_accepted.add(ghsa)
                 else:
-                    why = not_build_only(pkg, build_only, lock)
+                    why = not_build_only(pkg, allowlist, lock)
                     if why is None:
                         seen_build_only.add(pkg)
                     else:

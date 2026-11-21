@@ -1,5 +1,5 @@
 {
-  "_comment": "Read by scripts/web_audit_gate.py. The site is a fully static build served by Cloudflare static assets; the Worker (worker/) imports no npm package. build_only lists exact name@version pairs (as installed in web/package-lock.json; another version of the same name is not covered) of packages whose code runs only while the site is built (or in the local dev server) and is never part of the browser bundle or the Worker, each with the reason. A package not listed here counts as runtime, so a high advisory in it fails the gate. astro is deliberately not listed. accepted_advisories lists individual advisories left open on purpose.",
+  "_comment": "Read by scripts/web_audit_gate.py. The site is a fully static build served by Cloudflare static assets; the Worker (worker/) imports no npm package. build_only lists exact name@version pairs (as installed in web/package-lock.json; another version of the same name is not covered) of packages whose code runs only while the site is built (or in the local dev server) and is never part of the browser bundle or the Worker, each with the reason. A package not listed here counts as runtime, so a high advisory in it fails the gate. astro is deliberately not listed. accepted_advisories lists individual advisories left open on purpose. build_only_roots names the project's own production dependencies that are build-only; every other production dependency is a runtime root, and an exemption holds only if no dependency path from a runtime root reaches the package (scripts/web_audit_gate.py checks this on the lockfile graph). accepted_advisories entries carry a reason and a review_by date.",
   "build_only": {
     "browserslist@4.29.6": "Target resolution for the build toolchain (via @babel/core in the Preact preset); not present in dist/.",
     "devalue@6.0.3": "Used by astro at build time to serialise island props into HTML; the browser hydration script does not include it (absent from dist/_astro).",
@@ -12,6 +12,12 @@
     "svgo@4.1.0": "SVG optimisation inside astro at build time.",
     "vite@8.3.8": "Build tool and dev server; its advisories concern the dev server. Not present in dist/.",
     "zod@4.6.7": "Validates astro configuration and content schemas at build time."
+  },
+  "build_only_roots": {
+    "astro": "The site generator; it runs at build time and emits static files. Its own advisories are not exempted (astro is not listed in build_only).",
+    "@astrojs/mdx": "Compiles mdx at build time; nothing from it is imported by the browser bundle.",
+    "@astrojs/preact": "Build-time integration (vite preset, JSX transform). Its small client entry only imports preact and @preact/signals, which are separate runtime roots and are not exempted.",
+    "@astrojs/sitemap": "Writes sitemap-index.xml at build time."
   },
   "accepted_advisories": {}
 }

@@ -77,6 +77,47 @@ def _lock(**versions: str) -> dict:
 
 LOCK = _lock(postcss="8.5.0", preact="10.0.0", astro="7.0.0", somepkg="1.0.0")
 
+def _graph_lock(roots: dict, pkgs: dict) -> dict:
+    """A lockfile with a dependency graph.
+
+    ``roots`` maps the project's production dependencies to a version;
+    ``pkgs`` maps a lock path (``node_modules/x``) to ``(version, deps)`` where
+    ``deps`` is a list of names, or a dict with ``dependencies``,
+    ``optionalDependencies`` and ``peerDependencies`` lists.
+    """
+    packages: dict[str, dict] = {
+        "": {"name": "web", "version": "0.0.1", "dependencies": {r: "*" for r in roots}}
+    }
+    for key, (version, deps) in pkgs.items():
+        meta: dict = {"version": version}
+        kinds = deps if isinstance(deps, dict) else {"dependencies": deps}
+        for kind, names in kinds.items():
+            meta[kind] = {n: "*" for n in names}
+        packages[key] = meta
+    for r, v in roots.items():
+        packages.setdefault(f"node_modules/{r}", {"version": v})
+    return {"lockfileVersion": 3, "packages": packages}
+
+
+ROOTS_ALLOW = {
+    "build_only": {"postcss@8.5.0": "build time", "nanoid@3.0.0": "build time"},
+    "build_only_roots": {"astro": "the site generator runs only at build time"},
+    "accepted_advisories": {},
+}
+
+
+def _pc(*extra: tuple[str, tuple]) -> dict:
+    """astro (build-only root) -> postcss; plus whatever ``extra`` adds."""
+    pkgs = {
+        "node_modules/astro": ("7.0.0", ["postcss"]),
+        "node_modules/postcss": ("8.5.0", ["nanoid"]),
+        "node_modules/nanoid": ("3.0.0", []),
+        "node_modules/preact": ("10.0.0", []),
+    }
+    pkgs.update(dict(extra))
+    return _graph_lock({"astro": "7.0.0", "preact": "10.0.0"}, pkgs)
+
+
 ALLOW = {
     "build_only": {"postcss@8.5.0": "bundled at build time, never shipped"},
     "accepted_advisories": {
@@ -171,6 +212,90 @@ def test_a_bare_name_is_not_a_valid_build_only_key():
     with pytest.raises(ValueError):
         gate.load_allowlist_data({"build_only": {"@scope/pkg": "reason"}})
     gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})
+
+
+# --- a transitive skip needs EVERY path to come from a build-only root.
+
+
+def _roots_decide(lock, pkg="postcss"):
+    return gate.decide(_report(_vuln(pkg, "high")), ROOTS_ALLOW, lock=lock, today=TODAY)
+
+
+def test_reached_only_from_a_build_only_root_is_exempt():
+    assert _roots_decide(_pc()).ok
+
+
+def test_a_runtime_root_reaching_it_directly_makes_it_runtime():
+    lock = _pc(("node_modules/preact", ("10.0.0", ["postcss"])))
+    d = _roots_decide(lock)
+    assert not d.ok
+    assert any("preact" in f and "runtime" in f for f in d.failures)
+
+
+def test_a_deep_transitive_runtime_path_makes_it_runtime():
+    lock = _pc(
+        ("node_modules/preact", ("10.0.0", ["a"])),
+        ("node_modules/a", ("1.0.0", ["b"])),
+        ("node_modules/b", ("1.0.0", ["postcss"])),
+    )
+    assert not _roots_decide(lock).ok
+
+
+def test_a_runtime_path_to_a_transitive_of_the_exempt_package_is_caught():
+    # nanoid is exempt, but preact -> nanoid is a runtime path to it.
+    lock = _pc(("node_modules/preact", ("10.0.0", ["nanoid"])))
+    assert not _roots_decide(lock, pkg="nanoid").ok
+
+
+def test_optional_and_peer_edges_count_as_paths():
+    for kind in ("optionalDependencies", "peerDependencies"):
+        lock = _pc(("node_modules/preact", ("10.0.0", {kind: ["postcss"]})))
+        assert not _roots_decide(lock).ok, kind
+
+
+def test_a_runtime_root_that_is_itself_the_package_is_runtime():
+    allow = {**ROOTS_ALLOW, "build_only": {"preact@10.0.0": "wrongly listed"}}
+    d = gate.decide(_report(_vuln("preact", "high")), allow, lock=_pc(), today=TODAY)
+    assert not d.ok
+
+
+def test_a_nested_copy_is_resolved_the_way_node_does():
+    # preact's own nested postcss shadows the top-level one for preact only.
+    nested = ("node_modules/preact/node_modules/postcss", ("8.5.0", []))
+    on_runtime = _pc(("node_modules/preact", ("10.0.0", ["postcss"])), nested)
+    assert not _roots_decide(on_runtime).ok
+    # With no edge from preact, the nested copy is not reachable from it.
+    off_runtime = _pc(nested)
+    assert _roots_decide(off_runtime).ok
+
+
+def test_without_build_only_roots_nothing_is_exempt():
+    allow = {**ROOTS_ALLOW}
+    allow.pop("build_only_roots")
+    d = gate.decide(_report(_vuln("postcss", "high")), allow, lock=_pc(), today=TODAY)
+    assert not d.ok
+
+
+def test_a_root_that_depends_on_a_package_by_a_missing_lock_entry_is_ignored():
+    lock = _pc(("node_modules/preact", ("10.0.0", ["not-installed"])))
+    assert _roots_decide(lock).ok
+
+
+def test_build_only_roots_need_reasons():
+    with pytest.raises(ValueError):
+        gate.load_allowlist_data({"build_only_roots": {"astro": ""}})
+    with pytest.raises(ValueError):
+        gate.load_allowlist_data({"build_only_roots": ["astro"]})
+
+
+def test_committed_exemptions_are_not_reachable_from_a_runtime_root():
+    allow = gate.load_allowlist(ALLOWLIST)
+    assert allow["build_only_roots"], "the committed allowlist must name its build-only roots"
+    runtime = gate.runtime_roots(REAL_LOCK, allow["build_only_roots"])
+    assert {"preact", "minisearch", "regl-scatterplot", "@preact/signals"} <= set(runtime)
+    for key in allow["build_only"]:
+        name = key.rsplit("@", 1)[0]
+        assert gate.not_build_only(name, allow, REAL_LOCK) is None, key
 
 
 def test_unknown_package_counts_as_runtime():
