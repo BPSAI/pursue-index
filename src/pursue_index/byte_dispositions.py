@@ -10,7 +10,8 @@ Row fields (all required, no others)::
     card_id, old_sha256 (the bytes the OCR read), new_sha256 (the registry's
     latest), disposition, reviewed_at (ISO date), evidence (short public note),
     evidence_ref (sha256 of the evidence report's UTF-8 bytes, lowercase hex),
-    ocr_from (must equal old_sha256 for ``resave-content-verified``)
+    ocr_from (sha256 of the bytes the OCR read; must equal old_sha256 for
+    ``resave-content-verified``, and ``covers`` checks it again)
 
 The file is public, so ``evidence`` and ``evidence_ref`` must not name a
 repository, a URL or an issue reference.
@@ -54,7 +55,7 @@ class Disposition:
     reviewed_at: str
     evidence: str
     evidence_ref: str
-    ocr_from: str | None
+    ocr_from: str
 
 
 def _hex(value: Any, name: str) -> str:
@@ -66,7 +67,7 @@ def _hex(value: Any, name: str) -> str:
 def _parse(row: Any) -> Disposition:
     if not isinstance(row, dict):
         raise ValueError("row is not a JSON object")
-    missing = _FIELDS - row.keys() - {"ocr_from"}
+    missing = _FIELDS - row.keys()
     if missing:
         raise ValueError(f"missing field(s): {sorted(missing)}")
     extra = row.keys() - _FIELDS
@@ -90,11 +91,9 @@ def _parse(row: Any) -> Disposition:
         raise ValueError("evidence must be a non-empty string")
     if _PRIVATE_REFERENCE.search(evidence):
         raise ValueError("evidence names a repository, URL or issue reference")
-    ocr_from = row.get("ocr_from")
+    ocr_from = _hex(row["ocr_from"], "ocr_from")
     if kind == RESAVE_CONTENT_VERIFIED and ocr_from != old:
         raise ValueError("ocr_from must equal old_sha256 for resave-content-verified")
-    if ocr_from is not None:
-        _hex(ocr_from, "ocr_from")
     return Disposition(card_id, old, new, kind, row["reviewed_at"], evidence, ref, ocr_from)
 
 
@@ -126,4 +125,5 @@ def covers(
         disp is not None
         and disp.disposition == RESAVE_CONTENT_VERIFIED
         and disp.old_sha256 == ocr_sha
+        and disp.ocr_from == disp.old_sha256
     )
