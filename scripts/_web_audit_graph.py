@@ -73,8 +73,8 @@ def usable_lock(lock: dict | None) -> bool:
 
 
 def not_build_only(name: str, allowlist: dict, lock: dict | None) -> str | None:
-    """None if ``name`` is build-only: every installed copy is exempted (by exact
-    version, or by bare name in a legacy allowlist), and no dependency path
+    """None if ``name`` is build-only: every installed copy is exempted by exact
+    name@version, and no dependency path
     from a runtime root reaches any copy."""
     build_only = allowlist.get("build_only", {})
     if not usable_lock(lock):
@@ -84,7 +84,7 @@ def not_build_only(name: str, allowlist: dict, lock: dict | None) -> str | None:
     if not copies:
         return "no installed copy found in the lockfile"
     unlisted = sorted(
-        {f"{name}@{v}" for _, v in copies if f"{name}@{v}" not in build_only and name not in build_only}
+        {f"{name}@{v}" for _, v in copies if f"{name}@{v}" not in build_only}
     )
     if unlisted:
         return "installed " + ", ".join(unlisted) + " is not listed as build-only"

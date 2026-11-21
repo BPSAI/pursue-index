@@ -81,8 +81,9 @@ jobs:
         working-directory: web
         # npm exits non-zero when it finds anything; the gate decides. If the
         # audit itself fails (registry unreachable) the output is not a valid
-        # report and the gate fails closed.
-        run: npm audit --omit=dev --json > "$RUNNER_TEMP/audit.json" || true
+        # report and the gate fails closed. The registry is pinned on the
+        # command line so an .npmrc added in a pull request cannot redirect it.
+        run: npm audit --omit=dev --json --registry=https://registry.npmjs.org/ > "$RUNNER_TEMP/audit.json" || true
       # Pick the gate and its allowlist. On a pull request they are the BASE
       # commit's copies, written outside the workspace (like tests.yml's
       # classifier), so a PR cannot loosen the gate or add exemptions and be
@@ -111,7 +112,7 @@ jobs:
               # The gate loads its helpers (scripts/_web_audit_*.py) from beside
               # itself, so the base's copies go next to the base's gate. A base
               # from before they existed has none, and its gate needs none.
-              for helper in $(git ls-tree --name-only "$BASE_SHA" scripts/ | grep -E '^scripts/_web_audit_[a-z_]+\.py$' || true); do
+              for helper in $(git ls-tree --name-only "$BASE_SHA" scripts/ | grep -E '^scripts/_web_audit_[a-z0-9_]+\.py$' || true); do
                 git show "$BASE_SHA:$helper" > "$RUNNER_TEMP/$(basename "$helper")"
               done
               gate="$RUNNER_TEMP/web_audit_gate_base.py"
@@ -125,39 +126,22 @@ jobs:
           fi
           echo "gate=$gate" >> "$GITHUB_OUTPUT"
           echo "allowlist=$allow" >> "$GITHUB_OUTPUT"
-      # The selected gate can be a release older than this workflow (a PR that
-      # upgrades the gate is judged by the base's gate), so what to pass it
-      # depends on what it understands, read from its --help. A gate that
-      # predates --lockfile checks names only, and one that predates --runtime
-      # gets an allowlist with no exemptions, which is the same rule.
+      # The gate is always given its full arguments; one that does not
+      # understand them fails the step.
       - name: Gate
         if: steps.changes.outputs.audit == 'true'
         env:
           GATE: ${{ steps.inputs.outputs.gate }}
           ALLOWLIST: ${{ steps.inputs.outputs.allowlist }}
-        run: |
-          args=()
-          if python3 -I "$GATE" --help | grep -q -e '--lockfile'; then
-            args=(--lockfile web/package-lock.json)
-          else
-            echo "::notice::the selected gate predates --lockfile; running it without the lockfile check"
-          fi
-          python3 -I "$GATE" "$RUNNER_TEMP/audit.json" --allowlist "$ALLOWLIST" "${args[@]}"
+        run: python3 -I "$GATE" "$RUNNER_TEMP/audit.json" --allowlist "$ALLOWLIST" --lockfile web/package-lock.json
       # The Worker ships at runtime, so there are no build-only exemptions:
       # any high or critical advisory fails.
       - name: npm audit (Worker production dependencies)
         if: steps.changes.outputs.audit == 'true'
         working-directory: worker
-        run: npm audit --omit=dev --json > "$RUNNER_TEMP/worker-audit.json" || true
+        run: npm audit --omit=dev --json --registry=https://registry.npmjs.org/ > "$RUNNER_TEMP/worker-audit.json" || true
       - name: Gate (Worker, runtime)
         if: steps.changes.outputs.audit == 'true'
         env:
           GATE: ${{ steps.inputs.outputs.gate }}
-        run: |
-          if python3 -I "$GATE" --help | grep -q -e '--runtime'; then
-            python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --runtime
-          else
-            echo "::notice::the selected gate predates --runtime; running it with an allowlist that exempts nothing"
-            echo '{}' > "$RUNNER_TEMP/no-exemptions.json"
-            python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --allowlist "$RUNNER_TEMP/no-exemptions.json"
-          fi
+        run: python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --runtime

@@ -20,7 +20,6 @@ class Decision:
     failures: list[str] = field(default_factory=list)
     build_only: list[str] = field(default_factory=list)
     accepted: list[str] = field(default_factory=list)
-    legacy: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:

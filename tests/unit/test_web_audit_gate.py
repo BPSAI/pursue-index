@@ -170,13 +170,11 @@ def test_workflow_audits_the_worker_with_the_runtime_gate():
     worker = [st for st in steps if st.get("working-directory") == "worker"]
     assert worker and "npm audit --omit=dev --json" in worker[0]["run"]
     assert any("--runtime" in st["run"] and "worker-audit.json" in st["run"] for st in steps)
-    # No exemptions: the runtime step never takes the build-only allowlist. Only
-    # a gate that predates --runtime gets an allowlist, and that one is empty.
+    # No exemptions: the runtime step never takes an allowlist.
     runtime_step = next(st for st in steps if "--runtime" in st["run"])
     run = runtime_step["run"]
     assert "ALLOWLIST" not in run and "audit-build-only" not in run
-    assert "--runtime" in run.split("else")[0] and "--allowlist" not in run.split("else")[0]
-    assert "echo '{}'" in run
+    assert "--runtime" in run and "--allowlist" not in run
 
 
 def test_the_worker_has_a_lockfile_for_the_audit():

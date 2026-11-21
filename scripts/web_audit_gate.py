@@ -94,12 +94,9 @@ def _ghsa(advisory: dict) -> str:
 
 def _expired_acceptances(accepted: dict, today: datetime.date) -> list[str]:
     """An expired acceptance fails whether or not the advisory is present: it
-    is a prompt to re-decide, and a stale line is a liability. A legacy plain
-    reason string has no date and never expires."""
+    is a prompt to re-decide, and a stale line is a liability."""
     out = []
     for ghsa, entry in sorted(accepted.items()):
-        if isinstance(entry, str):
-            continue
         try:
             due = _review_date(entry.get("review_by") if isinstance(entry, dict) else None, ghsa)
         except ValueError as exc:
@@ -179,7 +176,6 @@ def decide(
     if not isinstance(vulns, dict):
         d.failures.append("audit report is malformed (no 'vulnerabilities' object)")
         return d
-    d.legacy = list(allowlist.get("legacy", []))
     d.failures.extend(
         _expired_acceptances(allowlist.get("accepted_advisories", {}), today or datetime.date.today())
     )
@@ -248,8 +244,6 @@ def main(argv: list[str] | None = None) -> int:
         print("build-only high advisories (allowed): " + ", ".join(d.build_only))
     if d.accepted:
         print("accepted advisories: " + ", ".join(d.accepted))
-    for note in d.legacy:
-        print(f"allowlist (previous shape, migrate it): {note}")
     if d.ok:
         print("web-audit gate: PASS")
         return 0
