@@ -138,6 +138,27 @@ def _read(source: str) -> object:
     return json.loads(text)
 
 
+def unusable_report(report: object) -> str | None:
+    """Why ``report`` can't be trusted as an audit result, or None if it can.
+
+    The workflow runs ``npm audit ... || true``, so a network, registry or auth
+    failure still leaves a file behind. Such output must never be read as
+    "zero findings". Any ``error`` key (whatever its value), a missing
+    ``metadata.vulnerabilities`` summary, or a missing ``vulnerabilities``
+    object makes the report unusable.
+    """
+    if not isinstance(report, dict):
+        return "the report is not a JSON object"
+    if "error" in report:
+        return f"npm audit reported an error: {report['error']!r}"
+    meta = report.get("metadata")
+    if not isinstance(meta, dict) or not isinstance(meta.get("vulnerabilities"), dict):
+        return "the report has no metadata.vulnerabilities summary"
+    if not isinstance(report.get("vulnerabilities"), dict):
+        return "the report has no 'vulnerabilities' object"
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("audit", help="npm audit --json output file, or - for stdin")
@@ -145,10 +166,18 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     try:
         allowlist = load_allowlist(args.allowlist)
-        report = _read(args.audit)
     except (OSError, ValueError) as exc:  # JSONDecodeError is a ValueError
-        print(f"web-audit gate: FAIL (cannot read input: {exc})")
+        print(f"web-audit gate: FAIL (cannot read the allowlist: {exc})")
         return 1
+    try:
+        report = _read(args.audit)
+    except (OSError, ValueError) as exc:
+        print(f"web-audit gate: REJECT (the audit report is not valid JSON: {exc})")
+        return 2
+    reason = unusable_report(report)
+    if reason:
+        print(f"web-audit gate: REJECT (unusable audit report: {reason})")
+        return 2
     d = decide(report, allowlist)
     if d.build_only:
         print("build-only high advisories (allowed): " + ", ".join(d.build_only))

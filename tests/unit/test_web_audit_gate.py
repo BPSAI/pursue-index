@@ -39,9 +39,14 @@ def _advisory(name: str, severity: str, ghsa: str = "GHSA-aaaa-bbbb-cccc") -> di
 
 
 def _report(*entries: dict) -> dict:
+    counts = {k: 0 for k in ("info", "low", "moderate", "high", "critical")}
+    for e in entries:
+        counts[e["severity"]] = counts.get(e["severity"], 0) + 1
+    counts["total"] = len(entries)
     return {
         "auditReportVersion": 2,
         "vulnerabilities": {e["name"]: e for e in entries},
+        "metadata": {"vulnerabilities": counts},
     }
 
 
@@ -215,10 +220,11 @@ def test_cli_exit_codes(tmp_path):
     r = run(bad)
     assert r.returncode == 1
     assert "preact" in r.stdout
-    assert run(tmp_path / "missing.json").returncode == 1
+    # An unreadable report is unusable, like invalid JSON: exit 2, never a pass.
+    assert run(tmp_path / "missing.json").returncode == 2
     empty = tmp_path / "empty.json"
     empty.write_text("")
-    assert run(empty).returncode == 1
+    assert run(empty).returncode == 2
 
 
 def test_cli_reads_stdin(tmp_path):
@@ -275,3 +281,46 @@ def test_workflow_runs_the_gate_on_npm_audit_json():
     text = WORKFLOW.read_text(encoding="utf-8")
     assert "npm audit --omit=dev --json" in text
     assert "web_audit_gate.py" in text
+
+
+# --- An unusable audit report is rejected (exit 2), never read as zero findings.
+# The workflow runs `npm audit ... || true`, so an npm or registry error still
+# produces a file; the gate must refuse it rather than pass.
+
+def _cli(tmp_path: Path, text: str) -> subprocess.CompletedProcess[str]:
+    f = tmp_path / "audit.json"
+    f.write_text(text, encoding="utf-8")
+    return subprocess.run(
+        [sys.executable, "-I", str(SCRIPT), str(f), "--allowlist", str(ALLOWLIST)],
+        capture_output=True, text=True, check=False,
+    )
+
+
+def test_a_report_with_an_error_key_is_rejected(tmp_path: Path) -> None:
+    body = {"error": {"code": "ENOTFOUND", "summary": "registry unreachable"}}
+    r = _cli(tmp_path, json.dumps(body))
+    assert r.returncode == 2, r.stdout
+    assert "error" in r.stdout
+
+
+def test_an_empty_error_key_is_still_rejected(tmp_path: Path) -> None:
+    body = {**_report(), "error": {}}
+    r = _cli(tmp_path, json.dumps(body))
+    assert r.returncode == 2, r.stdout
+
+
+def test_a_report_without_metadata_vulnerabilities_is_rejected(tmp_path: Path) -> None:
+    body = {"auditReportVersion": 2, "vulnerabilities": {}}
+    r = _cli(tmp_path, json.dumps(body))
+    assert r.returncode == 2, r.stdout
+    assert "metadata.vulnerabilities" in r.stdout
+
+
+def test_invalid_json_is_rejected(tmp_path: Path) -> None:
+    r = _cli(tmp_path, "npm ERR! network request failed\n")
+    assert r.returncode == 2, r.stdout
+
+
+def test_a_clean_well_formed_report_still_passes(tmp_path: Path) -> None:
+    r = _cli(tmp_path, json.dumps(_report()))
+    assert r.returncode == 0, r.stdout
