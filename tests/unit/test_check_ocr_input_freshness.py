@@ -93,12 +93,89 @@ def test_disposition_for_another_ocr_sha_does_not_cover(env, capsys):
     assert code == 1
 
 
-def test_missing_meta_fails_and_is_listed_separately(env, capsys):
+def test_missing_meta_is_unverifiable_not_failed(env, capsys):
+    code, out = env.run(capsys)
+    assert code == 0
+    assert f"unverifiable provenance: {CARD} (no meta.json)" in out
+    assert "unverifiable provenance: 1" in out and "0 stale" in out
+    assert "OK" in out
+
+
+def test_meta_without_pdf_sha256_is_unverifiable_not_failed(env, capsys):
+    d = env.data_root / "ocr" / CARD
+    d.mkdir(parents=True)
+    (d / "meta.json").write_text(json.dumps({"pages": 3}))
+    code, out = env.run(capsys)
+    assert code == 0
+    assert f"unverifiable provenance: {CARD} (no pdf_sha256)" in out
+
+
+def test_real_mismatch_still_fails_alongside_unverifiable(env, capsys):
+    other = "1234567890abcdef"
+    env.manifest.write_text(json.dumps({"cards": [
+        {"card_id": CARD, "asset_type": "PDF"}, {"card_id": other, "asset_type": "PDF"},
+    ]}))
+    env.registry.write_text(
+        json.dumps({"card_id": CARD, "byte_sha256": NEW, "current_key": f"{CARD}.pdf"}) + "\n"
+        + json.dumps({"card_id": other, "byte_sha256": NEW, "current_key": f"{other}.pdf"}) + "\n"
+    )
+    env.meta(OLD)  # CARD: real mismatch; `other`: no meta.json
     code, out = env.run(capsys)
     assert code == 1
-    assert f"missing OCR meta.json: {CARD}" in out
-    assert "missing OCR: 1" in out and "0 stale" in out
-    assert "FAILED" in out
+    assert f"stale OCR input: {CARD}" in out and f"unverifiable provenance: {other}" in out
+
+
+def test_record_lists_unverifiable_cards_and_count(env, capsys, tmp_path):
+    record = tmp_path / "rec.json"
+    code = gate.main([
+        "--manifest", str(env.manifest), "--registry", str(env.registry),
+        "--dispositions", str(env.dispositions), "--data-root", str(env.data_root),
+        "--record", str(record),
+    ])
+    assert code == 0
+    rec = json.loads(record.read_text())
+    assert rec["unverifiable_provenance"] == {
+        "count": 1, "cards": [{"card_id": CARD, "reason": "no meta.json"}],
+    }
+    assert rec["stale"] == 0 and rec["checked"] == 1
+
+
+def test_gate_and_scoping_agree_on_stale(env, capsys):
+    """A card the gate calls stale is exactly one rule 4 scopes ``bytes-changed``."""
+    from pursue_index.ingest_scope import REASON_BYTES_CHANGED, _bytes_changed_ids
+
+    env.meta(OLD)
+    code, out = env.run(capsys)
+    assert code == 1 and f"stale OCR input: {CARD}" in out
+    assert list(_bytes_changed_ids({CARD: NEW}, {CARD: OLD}, {})) == [(CARD, REASON_BYTES_CHANGED)]
+
+
+def test_gate_and_scoping_agree_unverifiable_is_never_scoped(env, capsys):
+    from pursue_index.ingest_scope import _bytes_changed_ids
+
+    code, out = env.run(capsys)  # no meta.json: nothing recorded
+    assert code == 0 and "unverifiable provenance" in out
+    assert list(_bytes_changed_ids({CARD: NEW}, {}, {})) == []
+
+
+def test_pdf_card_with_no_registry_row_is_listed_not_silently_skipped(env, capsys):
+    env.registry.write_text("")
+    code, out = env.run(capsys)
+    assert code == 0
+    assert f"PDF card with no registry PDF row: {CARD}" in out and "unregistered: 1" in out
+
+
+def test_missing_registry_fails_closed(env, capsys):
+    env.registry.unlink()
+    code, out = env.run(capsys)
+    assert code == 1 and "registry" in out and "missing" in out
+
+
+@pytest.mark.parametrize("bad", ["../x", "/etc", "ABCDEF0123456789", "abc", "7d1b50162c29378"])
+def test_invalid_manifest_card_id_fails_before_any_path_is_built(env, capsys, bad):
+    env.manifest.write_text(json.dumps({"cards": [{"card_id": bad, "asset_type": "PDF"}]}))
+    code, out = env.run(capsys)
+    assert code == 1 and "ERROR" in out
 
 
 def test_unreadable_meta_fails_closed(env, capsys):

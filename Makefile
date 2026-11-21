@@ -155,9 +155,11 @@ release-completeness:
 
 # Second prerequisite of ship-ready: every published PDF card's OCR must have read
 # the registry's latest bytes, or a verified-re-save disposition must cover the pair.
+# Writes data/ocr-input-freshness.json (counts + unverifiable-provenance cards), the
+# release record that ship-ready leaves for the commit.
 .PHONY: ocr-input-freshness
 ocr-input-freshness:
-	@$(PYTHON) scripts/check_ocr_input_freshness.py
+	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).

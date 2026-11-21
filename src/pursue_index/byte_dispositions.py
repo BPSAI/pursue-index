@@ -119,11 +119,15 @@ def load_byte_change_dispositions(path: Path) -> dict[tuple[str, str], Dispositi
 def covers(
     dispositions: dict[tuple[str, str], Disposition], card_id: str, ocr_sha: str, registry_sha: str
 ) -> bool:
-    """True when a ``resave-content-verified`` row covers exactly this pair of shas."""
+    """True when a ``resave-content-verified`` row covers exactly this pair of shas.
+
+    ``ocr_sha`` is the card's actual OCR ``pdf_sha256``; the row's ``ocr_from`` must
+    equal it (the loader's ``ocr_from == old_sha256`` check compares the row with
+    itself, so this is the check that ties the row to the real OCR input)."""
     disp = dispositions.get((card_id, registry_sha))
     return (
         disp is not None
         and disp.disposition == RESAVE_CONTENT_VERIFIED
         and disp.old_sha256 == ocr_sha
-        and disp.ocr_from == disp.old_sha256
+        and disp.ocr_from == ocr_sha  # the OCR's actual pdf_sha256, not the row's own field
     )

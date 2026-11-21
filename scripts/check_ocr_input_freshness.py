@@ -6,13 +6,20 @@ asset-bytes registry, or a ``resave-content-verified`` row in
 ``data/byte-change-dispositions.jsonl`` must cover exactly that pair.
 
 A mismatch exits 1 and lists the card, both shas and the disposition status.
-A card with no ``meta.json`` also exits 1; it is listed and counted separately
-(``missing OCR``) from stale inputs. An unreadable input fails closed. Repo and data root
-only; no network.
+A missing or unreadable registry and an invalid card id also fail closed. A
+published PDF card with no registry PDF row has nothing to compare: it is listed
+and counted (``unregistered``) and recorded, never silently skipped, but does not
+fail the gate.
+
+A card with no ``meta.json`` or no recorded ``pdf_sha256`` has no input sha to
+compare, and the scoping rule never re-OCRs it. It is reported as
+``unverifiable provenance`` (warned, exit code unaffected) and its count and card
+list go in the release record written with ``--record``. Repo and data root only;
+no network.
 
 Usage::
 
-    python scripts/check_ocr_input_freshness.py [--data-root DIR]
+    python scripts/check_ocr_input_freshness.py [--data-root DIR] [--record FILE]
 """
 
 from __future__ import annotations
@@ -27,6 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
 import json
+from dataclasses import dataclass, field
 
 from pursue_index.byte_dispositions import (
     ByteDispositionError,
@@ -34,25 +42,67 @@ from pursue_index.byte_dispositions import (
     covers,
     load_byte_change_dispositions,
 )
+from pursue_index.card_id import InvalidCardIdError, require_card_id
 from pursue_index.config.settings import Settings
 from pursue_index.ingest_scope import load_registry_sha_map
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
+RECORD_SCHEMA = "pursue-ocr-input-freshness/v1"
 
 
 class FreshnessError(Exception):
     """An input the gate needs is missing or unreadable, so the run cannot pass."""
 
 
-def _pdf_card_ids(manifest: Path) -> list[str]:
+def _manifest_cards(manifest: Path) -> list[tuple[str, bool]]:
+    """``(card_id, is_pdf_card)`` for every manifest card, ids validated."""
     try:
         cards = json.loads(manifest.read_text(encoding="utf-8")).get("cards")
     except (OSError, json.JSONDecodeError, AttributeError) as exc:
         raise FreshnessError(f"cannot read manifest {manifest}: {exc}") from exc
     if not isinstance(cards, list):
         raise FreshnessError(f"manifest {manifest} has no 'cards' list")
-    return sorted({c["card_id"] for c in cards if isinstance(c, dict) and c.get("card_id")})
+    out: dict[str, bool] = {}
+    for card in cards:
+        if not isinstance(card, dict) or not card.get("card_id"):
+            continue
+        try:
+            card_id = require_card_id(card["card_id"])
+        except InvalidCardIdError as exc:
+            raise FreshnessError(f"manifest {manifest}: {exc}") from exc
+        is_pdf = str(card.get("asset_type", "")).upper() == "PDF"
+        out[card_id] = out.get(card_id, False) or is_pdf
+    return sorted(out.items())
+
+
+@dataclass
+class Result:
+    stale: list[str] = field(default_factory=list)
+    covered: list[str] = field(default_factory=list)
+    unregistered: list[str] = field(default_factory=list)
+    unverifiable: list[tuple[str, str]] = field(default_factory=list)
+    checked: int = 0
+
+    @property
+    def failed(self) -> bool:
+        return bool(self.stale)
+
+    def record(self) -> dict:
+        """Deterministic release record (no timestamps, so a rerun is byte-stable)."""
+        return {
+            "schema": RECORD_SCHEMA,
+            "checked": self.checked,
+            "stale": len(self.stale),
+            "covered": len(self.covered),
+            "unregistered_pdf_cards": {
+                "count": len(self.unregistered), "cards": sorted(self.unregistered),
+            },
+            "unverifiable_provenance": {
+                "count": len(self.unverifiable),
+                "cards": [{"card_id": c, "reason": r} for c, r in self.unverifiable],
+            },
+        }
 
 
 def check(
@@ -60,42 +110,44 @@ def check(
     registry: Path,
     dispositions: dict[tuple[str, str], Disposition],
     data_root: Path,
-) -> tuple[list[str], list[str], list[str], int]:
-    """``(stale, covered, missing, checked)``: report lines for the first three."""
+) -> Result:
+    """Classify every published PDF card; see the module docstring."""
     if not (data_root / "ocr").is_dir():
         raise FreshnessError(
             "PURSUE_DATA_ROOT must point at the data root containing ocr/ "
             f"(looked in {data_root}, which has no ocr/ directory)"
         )
+    if not registry.is_file():
+        raise FreshnessError(f"registry {registry} is missing or not a file")
     try:
         registry_sha = load_registry_sha_map(registry)
     except (OSError, ValueError) as exc:
         raise FreshnessError(f"cannot read registry {registry}: {exc}") from exc
-    stale: list[str] = []
-    covered: list[str] = []
-    missing: list[str] = []
-    checked = 0
-    # Published PDF cards: in the manifest, with a PDF row in the registry.
-    for card_id in _pdf_card_ids(manifest):
+    res = Result()
+    for card_id, is_pdf in _manifest_cards(manifest):
         new = registry_sha.get(card_id)
         if new is None:
+            if is_pdf:
+                res.unregistered.append(card_id)
             continue
-        checked += 1
+        res.checked += 1
         meta = data_root / "ocr" / card_id / "meta.json"
         if not meta.is_file():
-            missing.append(card_id)
+            res.unverifiable.append((card_id, "no meta.json"))
             continue
         try:
             old = json.loads(meta.read_text(encoding="utf-8")).get("pdf_sha256")
         except (OSError, json.JSONDecodeError, AttributeError) as exc:
             raise FreshnessError(f"cannot read {meta}: {exc}") from exc
-        if old == new:
+        if not old:
+            res.unverifiable.append((card_id, "no pdf_sha256"))
+        elif old == new:
             continue
-        if old and covers(dispositions, card_id, old, new):
-            covered.append(f"{card_id} ocr={old} registry={new} (covered by disposition)")
+        elif covers(dispositions, card_id, old, new):
+            res.covered.append(f"{card_id} ocr={old} registry={new} (covered by disposition)")
         else:
-            stale.append(f"{card_id} ocr={old} registry={new} (no disposition covers this pair)")
-    return stale, covered, missing, checked
+            res.stale.append(f"{card_id} ocr={old} registry={new} (no disposition covers this pair)")
+    return res
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -107,27 +159,34 @@ def main(argv: list[str] | None = None) -> int:
         "--dispositions", type=Path, default=data / "byte-change-dispositions.jsonl"
     )
     parser.add_argument("--data-root", type=Path, default=None)
+    parser.add_argument(
+        "--record", type=Path, default=None,
+        help="write the release record (counts, unverifiable cards) to this JSON file",
+    )
     args = parser.parse_args(argv)
     try:
         data_root = args.data_root or Settings().data_root
         dispositions = load_byte_change_dispositions(args.dispositions)
-        stale, covered, missing, checked = check(
-            args.manifest, args.registry, dispositions, data_root
-        )
-    except (FreshnessError, ByteDispositionError) as exc:
+        res = check(args.manifest, args.registry, dispositions, data_root)
+        if args.record is not None:
+            args.record.write_text(
+                json.dumps(res.record(), indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
+    except (FreshnessError, ByteDispositionError, OSError) as exc:
         print(f"ocr input freshness: ERROR: {exc}", file=sys.stderr)
         return 1
-    lines = [f"stale OCR input: {s}" for s in stale]
-    lines += [f"covered: {c}" for c in covered]
-    lines += [f"missing OCR meta.json: {c}" for c in missing]
+    lines = [f"stale OCR input: {s}" for s in res.stale]
+    lines += [f"covered: {c}" for c in res.covered]
+    lines += [f"PDF card with no registry PDF row: {c}" for c in res.unregistered]
+    lines += [f"unverifiable provenance: {c} ({why})" for c, why in res.unverifiable]
     counts = (
-        f"{checked} PDF cards checked, {len(stale)} stale, {len(covered)} covered, "
-        f"missing OCR: {len(missing)}"
+        f"{res.checked} PDF cards checked, ok {res.checked - len(res.stale) - len(res.covered) - len(res.unverifiable)}, "
+        f"{len(res.stale)} stale, {len(res.covered)} covered, "
+        f"unregistered: {len(res.unregistered)}, unverifiable provenance: {len(res.unverifiable)}"
     )
-    failed = bool(stale or missing)
-    lines.append(f"ocr input freshness: {'FAILED' if failed else 'OK'} ({counts})")
+    lines.append(f"ocr input freshness: {'FAILED' if res.failed else 'OK'} ({counts})")
     print("\n".join(lines))
-    return 1 if failed else 0
+    return 1 if res.failed else 0
 
 
 if __name__ == "__main__":
