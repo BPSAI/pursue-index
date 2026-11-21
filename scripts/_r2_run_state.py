@@ -52,6 +52,7 @@ class RunState:
     no_upstream_url: int = 0
     # Hosts of the manifest's asset URLs; every fetch and redirect must stay inside it.
     allowed_hosts: frozenset[str] | None = None
+    started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
 
 
 def write_run_record(path: Path, entry: dict[str, Any]) -> None:
@@ -84,6 +85,7 @@ def full_hash_outcome(args, state: RunState) -> int:
             args.run_record or args.registry.parent / RUN_RECORD_NAME,
             {
                 "schema": RUN_RECORD_SCHEMA,
+                "started_at": state.started_at or now_iso(),
                 "completed_at": now_iso(),
                 "cards_hashed": state.cards_hashed,
                 "bytes_hashed": state.bytes_hashed,
@@ -142,18 +144,50 @@ def gate_marker_path(args) -> Path:
     return args.gate_marker or args.registry.parent / GATE_MARKER_NAME
 
 
-def drift_window_start(args, now: datetime | None = None) -> datetime:
-    """Where the registry drift scan starts: the previous complete verify run.
+def newest_run_start(path: Path, now: datetime | None = None) -> datetime | None:
+    """When the newest complete run in ``path`` BEGAN.
 
-    That is the newest gate-pass marker (the daily's, and the weekly's); with none,
-    the newest complete ``--full-hash`` record; with neither, the last 8 days."""
+    A complete weekly record is written whether or not its drift gate passed, and the
+    rows it wrote are dated inside the run, before ``completed_at``. Only ``started_at``
+    is safe as a scan start. A legacy record without one is not trusted: it yields the
+    bootstrap window instead, which reaches at least as far back."""
+    now = now or datetime.now(UTC)
+    finished = newest_complete_run(path, now)
+    if finished is None:
+        return None
+    started: datetime | None = None
+    for line in path.read_text().splitlines():
+        try:
+            row = json.loads(line)
+            done = datetime.fromisoformat(row["completed_at"])
+            when = datetime.fromisoformat(row["started_at"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if done.tzinfo is None:
+            done = done.replace(tzinfo=UTC)
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        if done == finished:
+            started = when
+    if started is None:
+        return min(finished, now - timedelta(days=BOOTSTRAP_WINDOW_DAYS))
+    return started
+
+
+def drift_window_start(args, now: datetime | None = None) -> datetime:
+    """Where the registry drift scan starts: the EARLIEST of the last passing gate marker
+    and the start of the last complete ``--full-hash`` run.
+
+    The weekly record exists even when that run's drift gate failed, so a run with no
+    marker must not start after the rows it wrote. With neither, the last 8 days."""
     now = now or datetime.now(UTC)
     record = args.run_record or args.registry.parent / RUN_RECORD_NAME
-    return (
-        newest_complete_run(gate_marker_path(args), now)
-        or newest_complete_run(record, now)
-        or now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
-    )
+    starts = [
+        t
+        for t in (newest_complete_run(gate_marker_path(args), now), newest_run_start(record, now))
+        if t is not None
+    ]
+    return min(starts) if starts else now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
 
 
 def file_type(asset_filename: Any, asset_url: Any) -> str:

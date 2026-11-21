@@ -526,7 +526,7 @@ def main(argv: list[str] | None = None) -> int:
     if client is None and not args.dry_run:
         return _no_credentials(args)
 
-    state = RunState(full_hash=args.full_hash)
+    state = RunState(full_hash=args.full_hash, started_at=started)
     state.allowed_hosts = allowed_hosts_from_urls(c.asset_url for c in manifest.cards)
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)
