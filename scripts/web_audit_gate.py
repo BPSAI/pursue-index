@@ -33,6 +33,12 @@ The gate fails on:
 Moderate and low findings are reported by npm but do not fail the gate.
 
 Exit status: 0 pass, 1 fail.
+
+Adding a command-line flag: the workflow runs the BASE branch's copy of this
+file and always passes it its full arguments (it does not probe ``--help``).
+So the rule is: "a new gate flag lands in its own PR first; the workflow
+starts passing it in a later PR". A PR that adds a flag and uses it in the
+workflow in the same change fails against the base gate.
 """
 
 from __future__ import annotations

@@ -76,14 +76,22 @@ jobs:
         if: steps.changes.outputs.audit == 'true'
         with:
           node-version-file: web/.nvmrc
+      # npm exits non-zero when it finds anything; the gate decides. If the
+      # audit itself fails (registry unreachable) the output is not a valid
+      # report and the gate fails closed. Each audit runs in a fresh temporary
+      # directory holding only the package's manifest and lockfile, with empty
+      # user and global npm configs and the registry pinned, so an .npmrc added
+      # in a pull request (proxy, https-proxy, strict-ssl, cafile, a scoped
+      # registry) cannot steer it.
       - name: npm audit (production dependencies)
         if: steps.changes.outputs.audit == 'true'
-        working-directory: web
-        # npm exits non-zero when it finds anything; the gate decides. If the
-        # audit itself fails (registry unreachable) the output is not a valid
-        # report and the gate fails closed. The registry is pinned on the
-        # command line so an .npmrc added in a pull request cannot redirect it.
-        run: npm audit --omit=dev --json --registry=https://registry.npmjs.org/ > "$RUNNER_TEMP/audit.json" || true
+        run: |
+          dir=$(mktemp -d "$RUNNER_TEMP/audit-web.XXXXXX")
+          user_rc=$(mktemp "$RUNNER_TEMP/empty-user-npmrc.XXXXXX")
+          global_rc=$(mktemp "$RUNNER_TEMP/empty-global-npmrc.XXXXXX")
+          cp web/package.json web/package-lock.json "$dir/"
+          cd "$dir"
+          npm audit --omit=dev --json --registry=https://registry.npmjs.org/ --userconfig="$user_rc" --globalconfig="$global_rc" > "$RUNNER_TEMP/audit.json" || true
       # Pick the gate and its allowlist. On a pull request they are the BASE
       # commit's copies, written outside the workspace (like tests.yml's
       # classifier), so a PR cannot loosen the gate or add exemptions and be
@@ -127,7 +135,10 @@ jobs:
           echo "gate=$gate" >> "$GITHUB_OUTPUT"
           echo "allowlist=$allow" >> "$GITHUB_OUTPUT"
       # The gate is always given its full arguments; one that does not
-      # understand them fails the step.
+      # understand them fails the step. There is deliberately no probe of the
+      # base gate's flags, so the rule is: "a new gate flag lands in its own PR first;
+      # the workflow starts passing it in a later PR". A PR that adds a flag and
+      # uses it here in the same change fails against the base gate.
       - name: Gate
         if: steps.changes.outputs.audit == 'true'
         env:
@@ -138,8 +149,13 @@ jobs:
       # any high or critical advisory fails.
       - name: npm audit (Worker production dependencies)
         if: steps.changes.outputs.audit == 'true'
-        working-directory: worker
-        run: npm audit --omit=dev --json --registry=https://registry.npmjs.org/ > "$RUNNER_TEMP/worker-audit.json" || true
+        run: |
+          dir=$(mktemp -d "$RUNNER_TEMP/audit-worker.XXXXXX")
+          user_rc=$(mktemp "$RUNNER_TEMP/empty-user-npmrc.XXXXXX")
+          global_rc=$(mktemp "$RUNNER_TEMP/empty-global-npmrc.XXXXXX")
+          cp worker/package.json worker/package-lock.json "$dir/"
+          cd "$dir"
+          npm audit --omit=dev --json --registry=https://registry.npmjs.org/ --userconfig="$user_rc" --globalconfig="$global_rc" > "$RUNNER_TEMP/worker-audit.json" || true
       - name: Gate (Worker, runtime)
         if: steps.changes.outputs.audit == 'true'
         env:

@@ -30,10 +30,11 @@ AUDITED_FILES = {
 
 
 # The gate loads its helper modules from beside itself, so an edit to any of
-# them changes the gate's decision. New helpers are covered by the pattern.
-# The workflow copies the base's helpers with grep -E over this same shape
-# (^scripts/_web_audit_[a-z0-9_]+\.py$); a test keeps the two in agreement.
-HELPER_RE = re.compile(r"scripts/_web_audit_[a-z0-9_]+\.py")
+# them changes the gate's decision. The rule here is deliberately broad: ANY
+# scripts/_web_audit_*.py counts, whatever its name. The workflow's base-copy
+# loop is narrower ([a-z0-9_]+); a test keeps this set a superset of that one,
+# so a helper the workflow does not copy is still audited, never skipped.
+HELPER_RE = re.compile(r"scripts/_web_audit_[^/]*\.py")
 
 
 def is_helper(path: str) -> bool:

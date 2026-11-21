@@ -167,7 +167,7 @@ def test_cli_runtime_mode(tmp_path):
 
 def test_workflow_audits_the_worker_with_the_runtime_gate():
     steps = [st for st in _wf()["jobs"]["audit"]["steps"] if "run" in st]
-    worker = [st for st in steps if st.get("working-directory") == "worker"]
+    worker = [st for st in steps if "worker/package.json" in st["run"]]
     assert worker and "npm audit --omit=dev --json" in worker[0]["run"]
     assert any("--runtime" in st["run"] and "worker-audit.json" in st["run"] for st in steps)
     # No exemptions: the runtime step never takes an allowlist.

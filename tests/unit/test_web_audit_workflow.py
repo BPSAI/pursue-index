@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from tests.support.web_audit_support import (
+    SCRIPT,
     WORKFLOW,
     _on,
     _wf,
@@ -271,7 +272,7 @@ def test_each_audit_ignores_a_hostile_npmrc_in_the_package(name, pkg, out):
         fake.write_text(
             "#!/bin/bash\n"
             'echo "CWD=$PWD"\n'
-            'echo "LS=$(ls -A | sort | tr \'\\n\' \',\')"\n'
+            'echo "LS=$(ls -A | LC_ALL=C sort | tr \'\\n\' \',\')"\n'
             'for a in "$@"; do echo "ARG=$a"; case "$a" in'
             ' --userconfig=*|--globalconfig=*) f=${a#*=};'
             ' echo "SIZE=$(wc -c < "$f")";; esac; done\n',
@@ -293,6 +294,8 @@ def test_each_audit_ignores_a_hostile_npmrc_in_the_package(name, pkg, out):
         user = next(a for a in args if a.startswith("--userconfig="))
         glob = next(a for a in args if a.startswith("--globalconfig="))
         assert lines.count("SIZE=0") == 2, lines
+        # npm refuses to load one file as both the user and global config.
+        assert user.split("=", 1)[1] != glob.split("=", 1)[1]
         assert not Path(user.split("=", 1)[1]).is_relative_to(cwd)
         assert not Path(glob.split("=", 1)[1]).is_relative_to(cwd)
 
@@ -301,7 +304,7 @@ def test_the_gate_flag_rule_is_documented():
     text = WORKFLOW.read_text(encoding="utf-8")
     rule = "a new gate flag lands in its own PR first"
     assert rule in text
-    assert rule in Path(gate.__file__).read_text(encoding="utf-8")
+    assert rule in SCRIPT.read_text(encoding="utf-8")
 
 
 def test_the_gate_steps_pass_full_arguments_and_do_not_probe_help():
