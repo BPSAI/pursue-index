@@ -29,7 +29,8 @@ _steps = steps_by_name
 def _drift_bytes(repo: Path, data_root: Path, card_id: str = "0123456789abcdef") -> None:
     """A registry byte sha that differs from the card's OCR sidecar."""
     (repo / "data" / "asset-bytes-registry.jsonl").write_text(
-        json.dumps({"card_id": card_id, "byte_sha256": "1" * 64}) + "\n")
+        json.dumps({"card_id": card_id, "byte_sha256": "1" * 64,
+                    "current_key": f"{card_id}.pdf"}) + "\n")
     meta = data_root / "ocr" / card_id / "meta.json"
     meta.parent.mkdir(parents=True)
     meta.write_text(json.dumps({"pdf_sha256": "2" * 64}))

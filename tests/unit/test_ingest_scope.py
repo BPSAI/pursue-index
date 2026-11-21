@@ -252,9 +252,9 @@ def test_load_registry_sha_map_last_row_wins(tmp_path: Path) -> None:
     p.write_text(
         "\n".join(
             [
-                json.dumps({"card_id": "a" * 16, "byte_sha256": "first"}),
-                json.dumps({"card_id": "a" * 16, "byte_sha256": "second"}),
-                json.dumps({"card_id": "b" * 16, "byte_sha256": "only"}),
+                json.dumps({"card_id": "a" * 16, "byte_sha256": "first", "current_key": "a.pdf"}),
+                json.dumps({"card_id": "a" * 16, "byte_sha256": "second", "current_key": "a.pdf"}),
+                json.dumps({"card_id": "b" * 16, "byte_sha256": "only", "current_key": "b.PDF"}),
             ]
         )
     )
@@ -281,7 +281,7 @@ def test_scope_worklist_wires_loaders_together(tmp_path: Path) -> None:
     aliases_path = tmp_path / "card-aliases.json"
     aliases_path.write_text(json.dumps({"aliases": []}))
     registry_path = tmp_path / "registry.jsonl"
-    registry_path.write_text(json.dumps({"card_id": _EXISTING, "byte_sha256": "new-sha"}) + "\n")
+    registry_path.write_text(json.dumps({"card_id": _EXISTING, "byte_sha256": "new-sha", "current_key": "x.pdf"}) + "\n")
     ocr_dir = tmp_path / "ocr"
     (ocr_dir / _EXISTING).mkdir(parents=True)
     (ocr_dir / _EXISTING / "meta.json").write_text(json.dumps({"pdf_sha256": "old-sha"}))
@@ -363,3 +363,92 @@ def test_confirmed_rename_of_a_video_is_not_scoped() -> None:
         ],
     }
     assert scope_pdf_img_cards(diff, "sha1") == []
+
+
+def _reg(tmp_path: Path, rows: list[tuple[str, str, str]]) -> Path:
+    p = tmp_path / "registry.jsonl"
+    p.write_text(
+        "\n".join(
+            json.dumps({"card_id": c, "byte_sha256": sha, "current_key": key})
+            for c, sha, key in rows
+        )
+    )
+    return p
+
+
+def _scope(tmp_path: Path, rows: list[tuple[str, str, str]], ocr_sha: str | None) -> dict:
+    aliases = tmp_path / "card-aliases.json"
+    aliases.write_text(json.dumps({"aliases": []}))
+    ocr_dir = tmp_path / "ocr"
+    if ocr_sha:
+        (ocr_dir / _CID).mkdir(parents=True)
+        (ocr_dir / _CID / "meta.json").write_text(json.dumps({"pdf_sha256": ocr_sha}))
+    out = scope_worklist(
+        {"new_content": [], "quarantined": []},
+        "t",
+        aliases_path=aliases,
+        registry_path=_reg(tmp_path, rows),
+        ocr_dir=ocr_dir,
+    )
+    return {c.card_id: c.reason for c in out}
+
+
+def test_paired_pdf_then_mp4_with_matching_ocr_is_not_scoped(tmp_path: Path) -> None:
+    rows = [(_CID, "pdf-sha", f"{_CID}.pdf"), (_CID, "mp4-sha", f"{_CID}.mp4")]
+    assert _scope(tmp_path, rows, "pdf-sha") == {}
+
+
+def test_changed_pdf_rows_are_scoped_bytes_changed(tmp_path: Path) -> None:
+    rows = [(_CID, "old", f"{_CID}.pdf"), (_CID, "new", f"{_CID}.pdf")]
+    assert _scope(tmp_path, rows, "old") == {_CID: REASON_BYTES_CHANGED}
+
+
+def test_mp4_only_card_is_not_scoped(tmp_path: Path) -> None:
+    assert _scope(tmp_path, [(_CID, "mp4-sha", f"{_CID}.mp4")], "pdf-sha") == {}
+
+
+def test_newest_pdf_row_wins_over_an_older_one_with_mp4_between(tmp_path: Path) -> None:
+    rows = [
+        (_CID, "old", f"{_CID}.pdf"),
+        (_CID, "mp4-sha", f"{_CID}.mp4"),
+        (_CID, "new", f"{_CID}.pdf"),
+    ]
+    assert load_registry_sha_map(_reg(tmp_path, rows)) == {_CID: "new"}
+    assert _scope(tmp_path, rows, "new") == {}
+
+
+def _write_rows(tmp_path: Path, rows: list[dict]) -> Path:
+    p = tmp_path / "registry.jsonl"
+    p.write_text("\n".join(json.dumps(r) for r in rows))
+    return p
+
+
+def test_keyless_row_with_a_pdf_asset_filename_is_used(tmp_path: Path) -> None:
+    p = _write_rows(tmp_path, [{"card_id": _CID, "byte_sha256": "s", "asset_filename": "A.PDF"}])
+    assert load_registry_sha_map(p) == {_CID: "s"}
+
+
+def test_keyless_row_falls_back_to_archive_key(tmp_path: Path) -> None:
+    p = _write_rows(tmp_path, [{"card_id": _CID, "byte_sha256": "s", "archive_key": "archive/x.pdf"}])
+    assert load_registry_sha_map(p) == {_CID: "s"}
+
+
+def test_keyless_mp4_row_is_ignored_without_a_warning(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    p = _write_rows(tmp_path, [{"card_id": _CID, "byte_sha256": "s", "asset_filename": "v.mp4"}])
+    with caplog.at_level("WARNING"):
+        assert load_registry_sha_map(p) == {}
+    assert caplog.records == []
+
+
+def test_row_with_nothing_usable_warns_and_is_excluded(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    good = {"card_id": "a" * 16, "byte_sha256": "g", "current_key": "g.pdf"}
+    p = _write_rows(tmp_path, [good, {"card_id": _CID, "byte_sha256": "s"}])
+    with caplog.at_level("WARNING"):
+        assert load_registry_sha_map(p) == {"a" * 16: "g"}
+    assert len(caplog.records) == 1
+    msg = caplog.records[0].getMessage()
+    assert _CID in msg and ":2" in msg

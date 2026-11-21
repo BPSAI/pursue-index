@@ -21,6 +21,7 @@ touches VID/AUD content -- those stay on the existing A/V worklist path.
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,6 +29,8 @@ from typing import Any
 
 from pursue_index.card_id import InvalidCardIdError, require_card_id
 from pursue_index.tranche_resave import RESAVE_BUCKET
+
+logger = logging.getLogger(__name__)
 
 REASON_NEW = "new"
 REASON_QUARANTINED_NEW = "quarantined-new"
@@ -168,8 +171,25 @@ def load_aliases(aliases_path: Path) -> list[dict[str, Any]]:
     return list(rows)
 
 
+def _row_is_pdf(row: dict[str, Any]) -> bool | None:
+    """Classify a registry row: ``current_key``, else ``asset_filename``, else
+    ``archive_key``. ``None`` when none of them is usable."""
+    for field in ("current_key", "asset_filename", "archive_key"):
+        value = row.get(field)
+        if isinstance(value, str) and value.strip():
+            return value.strip().lower().endswith(".pdf")
+    return None
+
+
 def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
-    """``card_id -> byte_sha256`` from the append-only registry (last row wins)."""
+    """``card_id -> byte_sha256`` of the PDF bytes, from the append-only registry.
+
+    Only rows classified as PDF count (``current_key``, else ``asset_filename``,
+    else ``archive_key``, ending in ``.pdf`` case-insensitively):
+    those are the bytes OCR reads and records as ``pdf_sha256``. A card paired
+    with a video also has ``.mp4`` rows, which must never be compared with the
+    OCR sha. Last row wins within the PDF rows; a card with none is absent.
+    """
     out: dict[str, str] = {}
     if not registry_path.exists():
         return out
@@ -188,7 +208,15 @@ def load_registry_sha_map(registry_path: Path) -> dict[str, str]:
                 require_card_id(card_id)
             except InvalidCardIdError as exc:
                 raise InvalidCardIdError(f"{registry_path}:{lineno}: {exc}") from exc
-            out[card_id] = sha
+            is_pdf = _row_is_pdf(row)
+            if is_pdf is None:
+                logger.warning(
+                    "registry row %s:%d for card %s has no current_key, asset_filename "
+                    "or archive_key; excluded from the PDF sha map",
+                    registry_path, lineno, card_id,
+                )
+            elif is_pdf:
+                out[card_id] = sha
     return out
 
 
