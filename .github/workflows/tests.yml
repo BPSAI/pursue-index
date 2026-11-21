@@ -29,7 +29,8 @@ jobs:
           # The job runs PR code; it needs no token after checkout.
           persist-credentials: false
       # Decide whether the suite is needed. Shas come in through env, never
-      # inline. If the diff can't be computed, the classifier gets no input
+      # inline. Paths are NUL-separated and unquoted, so a non-ASCII path still
+      # matches its prefix. If the diff can't be computed, the classifier gets no input
       # and fails safe to running the suite.
       - name: Did any code or test path change?
         id: changes
@@ -37,7 +38,9 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          code=$( { git diff --name-only "$BASE_SHA...$HEAD_SHA" || true; } | python3 scripts/ci_code_paths_changed.py)
+          code=$( { git -c core.quotePath=false diff --name-only -z "$BASE_SHA...$HEAD_SHA" || true; } | python3 scripts/ci_code_paths_changed.py)
+          # Only an explicit "false" skips; an empty or odd result runs the suite.
+          [ "$code" = "false" ] || code=true
           echo "code=$code" >> "$GITHUB_OUTPUT"
           echo "code or test paths changed: $code"
       - name: No code or test path changed; the suite is not needed
