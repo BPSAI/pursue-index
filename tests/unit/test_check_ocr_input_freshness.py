@@ -109,10 +109,12 @@ def test_unreadable_meta_fails_closed(env, capsys):
     assert code == 1
 
 
-def test_missing_data_root_fails_closed(env, capsys):
+def test_missing_data_root_fails_closed_and_says_what_to_set(env, capsys):
     shutil.rmtree(env.data_root)
-    code, _ = env.run(capsys)
+    code, out = env.run(capsys)
     assert code == 1
+    assert "PURSUE_DATA_ROOT must point at the data root containing ocr/" in out
+    assert str(env.data_root) in out
 
 
 def test_non_pdf_cards_are_ignored(env, capsys):
