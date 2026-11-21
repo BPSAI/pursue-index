@@ -21,21 +21,38 @@ def load():
 mod = load()
 
 
-def run(pages, *, timeout=60, name=NAME, fallback=None, compare=None):
+DEPLOY_STEP = "Deploy with wrangler"
+
+
+def jobs_body(step_name, conclusion, *, job_conclusion="success"):
+    """A run's jobs payload: one job whose steps include ``step_name``."""
+    steps = [{"name": "Set up job", "status": "completed", "conclusion": "success"},
+             {"name": step_name, "status": "completed" if conclusion else "in_progress", "conclusion": conclusion}]
+    return {"total_count": 1, "jobs": [{"id": 9, "conclusion": job_conclusion, "steps": steps}]}
+
+
+def run(pages, *, timeout=60, name=NAME, fallback=None, compare=None, jobs=None):
     """Drive ``wait`` with scripted API responses and a fake clock.
 
     ``pages`` script the check-runs endpoint, ``fallback`` the deploy-cf
-    workflow-runs endpoint, ``compare`` the compare endpoint.
+    workflow-runs endpoint, ``compare`` the compare endpoint, ``jobs`` the fallback run's jobs endpoint
+    (default: the deploy step succeeded; items may be Exceptions).
     """
     calls = []
     queue = list(pages)
     fb = list(fallback or [{"total_count": 0, "workflow_runs": []}])  # items may be Exceptions
     cmp_ = compare or {"ahead_by": 0, "behind_by": 0}
+    jb = list(jobs or [jobs_body(DEPLOY_STEP, "success")])
 
     def fetch(url):
         calls.append(url)
         if "/actions/workflows/" in url:
             item = fb.pop(0) if len(fb) > 1 else fb[0]
+            if isinstance(item, Exception):
+                raise item
+            return item
+        if "/jobs" in url:
+            item = jb.pop(0) if len(jb) > 1 else jb[0]
             if isinstance(item, Exception):
                 raise item
             return item
