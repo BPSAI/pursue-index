@@ -94,7 +94,7 @@ clean:
 # checked before any build time is spent. Both hang off the prerequisites
 # below (see "Intermediates release asset"), so this line is the same either
 # way. Unset, ship-ready is unchanged.
-ship-ready: release-completeness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
+ship-ready: release-completeness ocr-input-freshness build-commit rebuild-derivatives registry-root snapshot-rotate astro-build stamp asset-budget test gate-mirror arch-check staleness
 	@$(PYTHON) scripts/build_stamp.py verify --root . --require --public-ref '$(PUBLIC_REF)'$(INTERMEDIATES_STAMP_ARG)
 	@echo ""
 	@echo "ship-ready: ALL GATES PASSED. Safe to commit."
@@ -152,6 +152,12 @@ stamp:
 .PHONY: release-completeness
 release-completeness:
 	@$(PYTHON) scripts/check_release_completeness.py
+
+# Second prerequisite of ship-ready: every published PDF card's OCR must have read
+# the registry's latest bytes, or a verified-re-save disposition must cover the pair.
+.PHONY: ocr-input-freshness
+ocr-input-freshness:
+	@$(PYTHON) scripts/check_ocr_input_freshness.py
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).
