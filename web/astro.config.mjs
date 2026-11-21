@@ -13,6 +13,11 @@ export default defineConfig({
   site: "https://pursueindex.com",
   base: "/",
   trailingSlash: "ignore",
+  // Astro 7 defaults to JSX whitespace rules, which drop the space between
+  // an inline element and neighbouring text when they sit on separate source
+  // lines. Our templates are written with HTML whitespace semantics, so keep
+  // the lossless compression that earlier versions used.
+  compressHTML: true,
   // mdx() registers `.mdx` as a renderable Markdown variant so Astro
   // components (e.g. <Cite>) can be embedded directly inside finds entries.
   // Plain `.md` content (about, methodology, etc.) keeps working unchanged.

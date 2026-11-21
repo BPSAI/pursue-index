@@ -1,20 +1,23 @@
 {
-  "_comment": "Read by scripts/web_audit_gate.py. The site is a fully static build served by Cloudflare static assets; the Worker (worker/) imports no npm package. build_only lists packages whose code runs only while the site is built (or in the local dev server) and is never part of the browser bundle or the Worker, each with the reason. A package not listed here counts as runtime, so a high advisory in it fails the gate. astro is deliberately not listed. accepted_advisories lists individual advisories left open on purpose.",
+  "_comment": "Read by scripts/web_audit_gate.py. The site is a fully static build served by Cloudflare static assets; the Worker (worker/) imports no npm package. build_only lists exact name@version pairs (as installed in web/package-lock.json; another version of the same name is not covered) of packages whose code runs only while the site is built (or in the local dev server) and is never part of the browser bundle or the Worker, each with the reason. A package not listed here counts as runtime, so a high advisory in it fails the gate. astro is deliberately not listed. accepted_advisories lists individual advisories left open on purpose. build_only_roots names the project's own production dependencies that are build-only; every other production dependency is a runtime root, and an exemption holds only if no dependency path from a runtime root reaches the package (scripts/web_audit_gate.py checks this on the lockfile graph). accepted_advisories entries carry a reason and a review_by date. The gate still reads the previous shape (bare package names in build_only, plain reason strings in accepted_advisories) so it can run beside an older allowlist, and prints a migrate note when it does.",
   "build_only": {
-    "browserslist": "Target resolution for the build toolchain (via @babel/core in the Preact preset); not present in dist/.",
-    "devalue": "Used by astro at build time to serialise island props into HTML; the browser hydration script does not include it (absent from dist/_astro).",
-    "esbuild": "Bundler used by vite and astro while building and in the dev server.",
-    "js-yaml": "Parses frontmatter in markdown and mdx content at build time.",
-    "nanoid": "Id generator pulled in by postcss at build time.",
-    "postcss": "CSS processing inside vite at build time.",
-    "sharp": "Image optimisation inside astro at build time. The site uses no astro:assets image service.",
-    "smol-toml": "Parses TOML frontmatter in markdown content at build time.",
-    "source-map-js": "Source map support for postcss and svgo at build time.",
-    "svgo": "SVG optimisation inside astro at build time.",
-    "vite": "Build tool and dev server; its advisories concern the dev server. Not present in dist/.",
-    "zod": "Validates astro configuration and content schemas at build time."
+    "browserslist@4.29.6": "Target resolution for the build toolchain (via @babel/core in the Preact preset); not present in dist/. Re-checked on the astro 7 build: dist/ has no hit for browserslist|caniuse.",
+    "devalue@6.0.3": "Used by astro at build time to serialise island props into the astro-island props attribute (and by astro's server-side session and content-store code). Re-verified after the astro 7 hydration rework: grep of dist/ for devalue's own code (DevalueError, uneval, unflatten, its 'Invalid input' / 'Cannot stringify' / 'Cannot parse an object' messages) finds nothing, and npm ls devalue shows it only under astro@7.4.13 and @astrojs/vite-plugin-astro. The browser parses island props with astro's own inline astro-island script.",
+    "esbuild@0.28.2": "Bundler used by vite and astro while building and in the dev server. Re-checked on the astro 7 build: dist/ has no hit for esbuild.",
+    "nanoid@3.3.20": "Id generator pulled in by postcss at build time. Re-checked on the astro 7 build: dist/ has no hit for nanoid|urlAlphabet.",
+    "postcss@8.5.33": "CSS processing inside vite at build time. Re-checked on the astro 7 build: dist/ has no hit for postcss|CssSyntaxError.",
+    "sharp@0.35.5": "Image optimisation inside astro at build time. The site uses no astro:assets image service. Re-checked on the astro 7 build: dist/ has no hit for sharp|libvips.",
+    "smol-toml@1.9.1": "Parses TOML frontmatter in markdown content at build time. Re-checked on the astro 7 build: dist/ has no hit for smol-toml|TomlError.",
+    "source-map-js@1.2.4": "Source map support for postcss and svgo at build time. Re-checked on the astro 7 build: dist/ has no hit for SourceMapGenerator|SourceMapConsumer.",
+    "svgo@4.1.0": "SVG optimisation inside astro at build time. Re-checked on the astro 7 build: dist/ has no hit for svgo|csso.",
+    "vite@8.3.8": "Build tool and dev server; its advisories concern the dev server. Not present in dist/. Re-checked on the astro 7 build: dist/ has no hit for vite dev client (createServer, ssrLoadModule, @vite/client).",
+    "zod@4.6.7": "Validates astro configuration and content schemas at build time. Re-checked on the astro 7 build: dist/ has no hit for ZodError|$ZodType."
   },
-  "accepted_advisories": {
-    "GHSA-26w7-cxv4-gfx2": "astro: remote code execution through AVIF image optimisation. Fixed only in astro 7 (a major upgrade, planned separately). The site is static, has no server runtime and uses no image optimisation, so the vulnerable code path is not reachable. Revisit when moving to astro 7."
-  }
+  "build_only_roots": {
+    "astro": "The site generator; it runs at build time and emits static files. Its own advisories are not exempted (astro is not listed in build_only).",
+    "@astrojs/mdx": "Compiles mdx at build time; nothing from it is imported by the browser bundle.",
+    "@astrojs/preact": "Build-time integration (vite preset, JSX transform). Its small client entry only imports preact and @preact/signals, which are separate runtime roots and are not exempted.",
+    "@astrojs/sitemap": "Writes sitemap-index.xml at build time."
+  },
+  "accepted_advisories": {}
 }

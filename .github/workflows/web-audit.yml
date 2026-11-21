@@ -1,21 +1,24 @@
 name: web-audit
 
-# Production dependency audit for the web app. Fails on a critical advisory
-# that is not individually accepted, and on a high advisory in any package not
-# listed as build-only in web/audit-build-only.json (an unlisted package counts
-# as runtime). The decision lives in scripts/web_audit_gate.py and is unit
+# Production dependency audit for the web app and the Worker. The web app fails
+# on a critical advisory that is not individually accepted, and on a high
+# advisory in any package not exempted as build-only in
+# web/audit-build-only.json (an unlisted package counts as runtime). The Worker
+# is runtime, so any high or critical advisory there fails, with no
+# exemptions. The decision lives in scripts/web_audit_gate.py and is unit
 # tested; this workflow only feeds it `npm audit --omit=dev --json`.
 #
-# Runs on every pull request that touches the web app, its audit allowlist or
-# the gate, and weekly. The pull request run is the dependable one: scheduled
-# runs have been dropped by GitHub before, so nothing relies on the schedule
-# alone. Credential-free: read-only token, no secrets.
+# Runs on every pull request, and weekly. It must report on every pull request
+# because branch protection requires it: a `paths:` filter leaves the check
+# unreported, and the PR blocked, when nothing matching changed. So the job
+# decides inside itself whether web/, worker/, the gate, its helpers
+# (scripts/_web_audit_*.py) or this workflow
+# changed (scripts/web_audit_paths_changed.py, the base branch's copy); if none
+# did it passes in seconds with a notice. Scheduled and manual runs always
+# audit. The pull request run is the dependable one: scheduled runs have been
+# dropped by GitHub before. Credential-free: read-only token, no secrets.
 on:
   pull_request:
-    paths:
-      - "web/**"
-      - "scripts/web_audit_gate.py"
-      - ".github/workflows/web-audit.yml"
   schedule:
     - cron: "17 6 * * 1"
   workflow_dispatch:
@@ -36,17 +39,125 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
+          # Full history: the base commit must be readable for `git show`.
+          fetch-depth: 0
           persist-credentials: false
+      # Decide whether the audit is needed. Shas come in through env, never
+      # inline. The classifier is the BASE branch's copy, written outside the
+      # workspace, so a PR cannot edit it to skip its own audit; if the base
+      # has none (first PR after it is added, unreadable base) the audit runs.
+      # Paths are NUL-separated and unquoted; --no-renames lists both sides of
+      # a move. If the diff can't be computed the classifier gets no input and
+      # fails safe to auditing. Non-PR events always audit.
+      - name: Did anything audited change?
+        id: changes
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          audit=true
+          if [ "$EVENT" = "pull_request" ]; then
+            classifier="$RUNNER_TEMP/web_audit_paths_changed_base.py"
+            if git show "$BASE_SHA:scripts/web_audit_paths_changed.py" > "$classifier"; then
+              audit=$( { git -c core.quotePath=false diff --no-renames --name-only -z "$BASE_SHA...$HEAD_SHA" || true; } | python3 -I "$classifier") || audit=true
+            fi
+          fi
+          # Only an explicit "false" skips; an empty or odd result audits.
+          [ "$audit" = "false" ] || audit=true
+          echo "audit=$audit" >> "$GITHUB_OUTPUT"
+          echo "web, worker, gate or workflow changed (or not a PR): $audit"
+      - name: Nothing audited changed; the audit is not needed
+        if: steps.changes.outputs.audit != 'true'
+        run: echo "::notice title=web-audit skipped::No web/, worker/, gate, Node pin or workflow path changed in this pull request, so the dependency audit was not run. The scheduled weekly run still audits."
       # actions/setup-node v6.4.0, pinned to SHA per SEC-001. Same Node as the
       # build (package.json engines), so a stale runner fails here, not silently.
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        if: steps.changes.outputs.audit == 'true'
         with:
           node-version-file: web/.nvmrc
       - name: npm audit (production dependencies)
+        if: steps.changes.outputs.audit == 'true'
         working-directory: web
         # npm exits non-zero when it finds anything; the gate decides. If the
         # audit itself fails (registry unreachable) the output is not a valid
         # report and the gate fails closed.
         run: npm audit --omit=dev --json > "$RUNNER_TEMP/audit.json" || true
+      # Pick the gate and its allowlist. On a pull request they are the BASE
+      # commit's copies, written outside the workspace (like tests.yml's
+      # classifier), so a PR cannot loosen the gate or add exemptions and be
+      # judged by its own edits; a change to either takes effect once merged.
+      # First introduction (neither exists at the base) uses the PR's copies.
+      # Exactly one existing at the base, or an unreadable base commit, fails.
+      # Schedule and manual runs use the checked-out copies.
+      - name: Select the gate and allowlist
+        id: inputs
+        if: steps.changes.outputs.audit == 'true'
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          gate=scripts/web_audit_gate.py
+          allow=web/audit-build-only.json
+          if [ "$EVENT" = "pull_request" ]; then
+            git cat-file -e "$BASE_SHA^{commit}" || { echo "::error::base commit $BASE_SHA is not readable"; exit 1; }
+            have_gate=false
+            have_allow=false
+            git cat-file -e "$BASE_SHA:$gate" 2>/dev/null && have_gate=true
+            git cat-file -e "$BASE_SHA:$allow" 2>/dev/null && have_allow=true
+            if [ "$have_gate" = true ] && [ "$have_allow" = true ]; then
+              git show "$BASE_SHA:$gate" > "$RUNNER_TEMP/web_audit_gate_base.py"
+              git show "$BASE_SHA:$allow" > "$RUNNER_TEMP/audit-build-only_base.json"
+              # The gate loads its helpers (scripts/_web_audit_*.py) from beside
+              # itself, so the base's copies go next to the base's gate. A base
+              # from before they existed has none, and its gate needs none.
+              for helper in $(git ls-tree --name-only "$BASE_SHA" scripts/ | grep -E '^scripts/_web_audit_[a-z_]+\.py$' || true); do
+                git show "$BASE_SHA:$helper" > "$RUNNER_TEMP/$(basename "$helper")"
+              done
+              gate="$RUNNER_TEMP/web_audit_gate_base.py"
+              allow="$RUNNER_TEMP/audit-build-only_base.json"
+            elif [ "$have_gate" = false ] && [ "$have_allow" = false ]; then
+              echo "::notice::first introduction of the gate: neither it nor its allowlist exists at the base, so this PR's own copies are used"
+            else
+              echo "::error::exactly one of $gate and $allow exists at the base commit; refusing to fall back to the PR's copy"
+              exit 1
+            fi
+          fi
+          echo "gate=$gate" >> "$GITHUB_OUTPUT"
+          echo "allowlist=$allow" >> "$GITHUB_OUTPUT"
+      # The selected gate can be a release older than this workflow (a PR that
+      # upgrades the gate is judged by the base's gate), so what to pass it
+      # depends on what it understands, read from its --help. A gate that
+      # predates --lockfile checks names only, and one that predates --runtime
+      # gets an allowlist with no exemptions, which is the same rule.
       - name: Gate
-        run: python3 -I scripts/web_audit_gate.py "$RUNNER_TEMP/audit.json" --allowlist web/audit-build-only.json
+        if: steps.changes.outputs.audit == 'true'
+        env:
+          GATE: ${{ steps.inputs.outputs.gate }}
+          ALLOWLIST: ${{ steps.inputs.outputs.allowlist }}
+        run: |
+          args=()
+          if python3 -I "$GATE" --help | grep -q -e '--lockfile'; then
+            args=(--lockfile web/package-lock.json)
+          else
+            echo "::notice::the selected gate predates --lockfile; running it without the lockfile check"
+          fi
+          python3 -I "$GATE" "$RUNNER_TEMP/audit.json" --allowlist "$ALLOWLIST" "${args[@]}"
+      # The Worker ships at runtime, so there are no build-only exemptions:
+      # any high or critical advisory fails.
+      - name: npm audit (Worker production dependencies)
+        if: steps.changes.outputs.audit == 'true'
+        working-directory: worker
+        run: npm audit --omit=dev --json > "$RUNNER_TEMP/worker-audit.json" || true
+      - name: Gate (Worker, runtime)
+        if: steps.changes.outputs.audit == 'true'
+        env:
+          GATE: ${{ steps.inputs.outputs.gate }}
+        run: |
+          if python3 -I "$GATE" --help | grep -q -e '--runtime'; then
+            python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --runtime
+          else
+            echo "::notice::the selected gate predates --runtime; running it with an allowlist that exempts nothing"
+            echo '{}' > "$RUNNER_TEMP/no-exemptions.json"
+            python3 -I "$GATE" "$RUNNER_TEMP/worker-audit.json" --allowlist "$RUNNER_TEMP/no-exemptions.json"
+          fi
