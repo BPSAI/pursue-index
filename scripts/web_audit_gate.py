@@ -18,6 +18,7 @@ The gate fails on:
   * any critical advisory that is not individually accepted;
   * any high advisory in a package that is not listed as build-only (so a
     package nobody classified counts as runtime);
+  * a severity outside info/low/moderate/high/critical (fail closed);
   * an audit report that is missing, empty, errored or malformed.
 
 Moderate and low findings are reported by npm but do not fail the gate.
@@ -37,6 +38,7 @@ from pathlib import Path
 # with a bare `python3 -I` (no package install), so it must not import the
 # project package, and it must not derive a repo root from its own __file__.
 # CI passes --allowlist explicitly.
+KNOWN_SEVERITIES = ("info", "low", "moderate", "high", "critical")
 DEFAULT_ALLOWLIST = Path("web") / "audit-build-only.json"
 
 
@@ -98,9 +100,22 @@ def decide(report: object, allowlist: dict) -> Decision:
             d.failures.append(f"{name}: malformed entry")
             continue
         severity = entry.get("severity")
-        if severity not in ("high", "critical"):
+        if not isinstance(severity, str) or severity not in KNOWN_SEVERITIES:
+            # Fail closed: a severity npm adds later must not read as harmless.
+            d.failures.append(f"{name}: unknown severity {severity!r}")
             continue
         via = entry.get("via") or []
+        unknown_adv = [
+            a for a in via
+            if isinstance(a, dict)
+            and (not isinstance(a.get("severity"), str) or a["severity"] not in KNOWN_SEVERITIES)
+        ]
+        for a in unknown_adv:
+            d.failures.append(f"{name}: unknown severity {a.get('severity')!r} on an advisory")
+        if unknown_adv:
+            continue
+        if severity not in ("high", "critical"):
+            continue
         advisories = [v for v in via if isinstance(v, dict)]
         if not advisories:
             # Affected only through another package. Covered by that package's

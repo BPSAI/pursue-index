@@ -147,6 +147,28 @@ def test_high_with_only_string_via_and_no_source_fails():
     assert not gate.decide(_report(orphan), ALLOW).ok
 
 
+@pytest.mark.parametrize("sev", ["none", "severe", "HIGH", "", None, 3])
+def test_unknown_severity_fails_closed(sev):
+    entry = _vuln("preact", "low")
+    entry["severity"] = sev
+    d = gate.decide(_report(entry), ALLOW)
+    assert not d.ok
+    assert any("severity" in f for f in d.failures)
+
+
+def test_unknown_severity_on_an_advisory_fails_closed():
+    entry = _vuln("preact", "low")
+    entry["via"][0]["severity"] = "catastrophic"
+    d = gate.decide(_report(entry), ALLOW)
+    assert not d.ok
+
+
+@pytest.mark.parametrize("sev", ["info", "low", "moderate", "high", "critical"])
+def test_every_documented_severity_is_understood(sev):
+    d = gate.decide(_report(_vuln("postcss", sev)), ALLOW)
+    assert not any("severity" in f for f in d.failures)
+
+
 def test_empty_report_passes():
     assert gate.decide({"auditReportVersion": 2, "vulnerabilities": {}}, ALLOW).ok
 
