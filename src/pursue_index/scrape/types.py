@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_serializer
 
 AssetType = Literal["PDF", "VID", "IMG", "AUD"]
 
@@ -97,6 +97,17 @@ class Manifest(BaseModel):
     fetched_at: datetime
     csv_sha256: str = Field(..., description="Hash of the raw CSV bytes")
     cards: list[CardMetadata]
+    # Digest of the manual date-resolution entries applied to this CSV
+    # (``scrape.variants``); set only when one applies, and left out of the
+    # serialized form when unset so every other snapshot keeps its bytes.
+    resolutions_digest: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unset_digest(self, handler: Any) -> dict[str, Any]:
+        data = handler(self)
+        if data.get("resolutions_digest") is None:
+            data.pop("resolutions_digest", None)
+        return data
 
     @property
     def card_count(self) -> int:

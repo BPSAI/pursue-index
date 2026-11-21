@@ -29,10 +29,12 @@ Removed cards become a "preserved record" — the bytes are still ours.
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from pursue_index.scrape.variants import one_per_sha, snapshot_name
 
 # Public + canonical snapshot locations. The public mirror is what the
 # DiffIsland fetches at runtime; the canonical copy is what we treat as
@@ -61,7 +63,8 @@ def rotate_to_snapshot(
     public_dir: Path = DEFAULT_PUBLIC_DIR,
 ) -> Path | None:
     """Copy the current ``latest.json`` to a snapshot file named by its
-    ``csv_sha256`` and update the index. No-op if no prior manifest exists
+    ``csv_sha256`` (plus its ``resolutions_digest`` suffix when it has one,
+    ``variants.snapshot_name``) and update the index. No-op if no prior manifest exists
     (first scrape) or if the prior manifest's csv_sha is already snapshotted.
 
     Returns the canonical snapshot path on success, ``None`` when there
@@ -75,8 +78,9 @@ def rotate_to_snapshot(
         return None
     canonical_dir.mkdir(parents=True, exist_ok=True)
     public_dir.mkdir(parents=True, exist_ok=True)
-    snapshot_path = canonical_dir / f"{sha}.json"
-    public_path = public_dir / f"{sha}.json"
+    name = snapshot_name(sha, prior.get("resolutions_digest"))
+    snapshot_path = canonical_dir / name
+    public_path = public_dir / name
     if snapshot_path.exists():
         # Idempotent — already rotated; ensure public mirror exists too.
         if not public_path.exists():
@@ -85,11 +89,46 @@ def rotate_to_snapshot(
     payload = latest_path.read_bytes()
     snapshot_path.write_bytes(payload)
     public_path.write_bytes(payload)
-    _rebuild_index(canonical_dir, public_dir)
+    _rebuild_index(canonical_dir, public_dir, {sha: name})
     return snapshot_path
 
 
-def build_public_index(public_dir: Path) -> list[dict[str, Any]]:
+def _indexed_names(index_path: Path) -> set[str]:
+    """Filenames an existing index (either shape) lists; empty if unreadable."""
+    try:
+        raw = _read_json(index_path)
+    except (OSError, json.JSONDecodeError):
+        return set()
+    rows = raw.get("snapshots", []) if isinstance(raw, dict) else raw
+    return {r if isinstance(r, str) else r.get("filename") for r in rows
+            if isinstance(r, str | dict)}
+
+
+def _snapshot_docs(directory: Path, current: Mapping[str, str] | None,
+                   strict: bool) -> list[tuple[Path, dict[str, Any]]]:
+    """``(path, manifest)`` for the files the index lists: one per csv_sha256
+    (``variants.one_per_sha``), the written/promoted ``current`` file first."""
+    docs = []
+    for path in sorted(directory.glob("*.json")):
+        if path.name == "index.json":
+            continue
+        try:
+            docs.append((path, _read_json(path)))
+        except (OSError, json.JSONDecodeError):
+            if strict:
+                raise
+    keep = one_per_sha([(p.name, m.get("csv_sha256"), m.get("fetched_at") or "")
+                        for p, m in docs], _indexed_names(directory / "index.json"),
+                       current or {})
+    return [(p, m) for p, m in docs if p.name in keep]
+
+
+def _digest_field(m: Mapping[str, Any]) -> dict[str, Any]:
+    return {"resolutions_digest": m["resolutions_digest"]} if m.get("resolutions_digest") else {}
+
+
+def build_public_index(public_dir: Path,
+                       current: Mapping[str, str] | None = None) -> list[dict[str, Any]]:
     """Build the enriched web snapshot index — ``[{filename, fetched_at,
     card_count}]`` sorted oldest→newest by ``fetched_at``.
 
@@ -100,53 +139,39 @@ def build_public_index(public_dir: Path) -> list[dict[str, Any]]:
     list — which would revert the /diff selector labels to "?? cards"
     (PR #82 review P1). The metadata lets DiffIsland label every snapshot
     without first lazily fetching its full manifest.
+
+    Exactly one entry per csv_sha256: a ``.r<digest12>`` variant written or
+    promoted (``current``: ``{csv_sha256: filename}``) replaces its sha's
+    entry and carries its ``resolutions_digest``.
     """
-    entries: list[dict[str, Any]] = []
-    for path in sorted(public_dir.glob("*.json")):
-        if path.name == "index.json":
-            continue
-        try:
-            m = _read_json(path)
-        except (OSError, json.JSONDecodeError):
-            continue
-        entries.append(
-            {
-                "filename": path.name,
-                "fetched_at": m.get("fetched_at") or "",
-                "card_count": len(m.get("cards", [])),
-            }
-        )
+    entries: list[dict[str, Any]] = [
+        {"filename": path.name, "fetched_at": m.get("fetched_at") or "",
+         "card_count": len(m.get("cards", [])), **_digest_field(m)}
+        for path, m in _snapshot_docs(public_dir, current, strict=False)]
     entries.sort(key=lambda e: e["fetched_at"])
     return entries
 
 
-def write_public_index(public_dir: Path) -> None:
+def write_public_index(public_dir: Path, current: Mapping[str, str] | None = None) -> None:
     """Atomically write the enriched web snapshot index. The ONE writer
     every path uses, so the committed file stays byte-stable regardless
     of which path last touched it (PR #82 review P2: three writers had
     three serialization styles, churning the file)."""
-    _atomic_write_json(public_dir / "index.json", build_public_index(public_dir))
+    _atomic_write_json(public_dir / "index.json", build_public_index(public_dir, current))
 
 
-def _rebuild_index(canonical_dir: Path, public_dir: Path) -> None:
-    entries: list[dict[str, Any]] = []
-    for path in sorted(canonical_dir.glob("*.json")):
-        if path.name == "index.json":
-            continue
-        m = _read_json(path)
-        entries.append(
-            {
-                "filename": path.name,
-                "csv_sha256": m.get("csv_sha256"),
-                "fetched_at": m.get("fetched_at"),
-                "card_count": len(m.get("cards", [])),
-            }
-        )
+def _rebuild_index(canonical_dir: Path, public_dir: Path,
+                   current: Mapping[str, str] | None = None) -> None:
+    entries: list[dict[str, Any]] = [
+        {"filename": path.name, "csv_sha256": m.get("csv_sha256"),
+         "fetched_at": m.get("fetched_at"), "card_count": len(m.get("cards", [])),
+         **_digest_field(m)}
+        for path, m in _snapshot_docs(canonical_dir, current, strict=True)]
     # Canonical index: full metadata for offline tooling.
     _atomic_write_json(canonical_dir / "index.json", {"snapshots": entries})
     # Public index: enriched objects via the shared writer (DiffIsland's
     # contract — labels need fetched_at + card_count).
-    write_public_index(public_dir)
+    write_public_index(public_dir, current)
 
 
 def detect_removals(

@@ -24,6 +24,7 @@ from pursue_index.poll_freshness import (
     refuse_if_behind,
     require_reason,
 )
+from pursue_index.scrape.variants import VariantMismatchError
 
 
 def enforce_poll_freshness(
@@ -69,21 +70,26 @@ def _resolve_root_or_exit() -> Path:
 def gate_resolve_and_promote(
     tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path, manifest: Path,
     dry_run: bool, allow_behind: bool, reason: str | None,
+    date_resolutions: Path | None = None,
 ) -> Path:
     """Poll-freshness + approval gate, snapshot resolution, and -- for a
     real (non-dry) run -- promotion. Returns the resolved snapshot."""
     check_tranche(tranche)
     enforce_poll_freshness(allow_behind, reason, tranche)
-    snapshot = resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir)
+    snapshot = resolve_approved_snapshot(tranche, log, snapshots_dir, diff_dir, date_resolutions)
     if not dry_run:
         promote_and_report(snapshot, manifest)
     return snapshot
 
 
 def resolve_approved_snapshot(
-    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path
+    tranche: str, log: Path, snapshots_dir: Path, diff_dir: Path,
+    date_resolutions: Path | None = None,
 ) -> Path:
-    """Gate + snapshot resolution for ``run``. Raises ``typer.Exit`` on failure."""
+    """Gate + snapshot resolution for ``run``. Raises ``typer.Exit`` on failure.
+
+    ``date_resolutions`` is the overlay file; None reads the checkout's, which
+    is refused (exit 2) for a non-standard ``snapshots_dir``."""
     if not is_tranche_approved(log, tranche):
         typer.echo(
             f"refusing to ingest — tranche {tranche[:12]} is not approved.\n"
@@ -92,7 +98,11 @@ def resolve_approved_snapshot(
             err=True,
         )
         raise typer.Exit(1)
-    snapshot = locate_snapshot(tranche, snapshots_dir)
+    try:
+        snapshot = locate_snapshot(tranche, snapshots_dir, date_resolutions)
+    except VariantMismatchError as exc:
+        typer.echo(f"refusing to ingest — {exc}", err=True)
+        raise typer.Exit(2) from exc
     if snapshot is None:
         typer.echo(
             f"refusing to ingest — no snapshot found in {snapshots_dir} for {tranche[:12]}",

@@ -54,7 +54,8 @@ def derive_supersedes(
             continue
         if is_row_subset_of_manifest(new_manifest_path, csv_path.read_bytes()):
             reason = "subset-of-current"
-        elif (ready_dir / f"{sha[:12]}.json").is_file():
+        elif ((ready_dir / f"{sha[:12]}.json").is_file()
+              or any(ready_dir.glob(f"{sha[:12]}.r*.json"))):  # or a .r<digest12> variant
             reason = "replaced-by-newer"
         else:
             continue

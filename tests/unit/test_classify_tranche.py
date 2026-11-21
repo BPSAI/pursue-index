@@ -14,6 +14,7 @@ from pathlib import Path
 from pursue_index.scrape.classify_tranche import classify_tranche, render_verdict_summary
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
 from pursue_index.scrape.types import CardMetadata
+from pursue_index.scrape.year_normalize import DateReport
 
 
 def _card(card_id: str = "c0") -> CardMetadata:
@@ -38,6 +39,24 @@ def _diff(
 
 def test_empty_diff_is_benign() -> None:
     assert classify_tranche(_diff()) == "benign"
+
+
+def _encoding_only(unresolved: list[dict]) -> SnapshotDiffResult:
+    """An encoding-only upstream change: the CSV bytes moved but every card
+    parses to the same metadata -- no added/removed card, no field change,
+    no new column."""
+    return SnapshotDiffResult(added=[], removed=[], field_changes=[], new_columns=[],
+                              date_report=DateReport(unresolved=unresolved, considered=True))
+
+
+def test_encoding_only_diff_without_unresolved_dates_is_benign() -> None:
+    assert classify_tranche(_encoding_only([])) == "benign"
+
+
+def test_encoding_only_diff_with_an_unresolved_date_is_needs_review() -> None:
+    row = {"card_id": "c0", "title": "t", "field": "incident_date", "raw": "7/15/05",
+           "reason": "no_century_evidence"}
+    assert classify_tranche(_encoding_only([row])) == "needs-review"
 
 
 def test_added_card_is_needs_review() -> None:

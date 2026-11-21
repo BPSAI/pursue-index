@@ -10,6 +10,11 @@ network-free, credential-free entry point that:
   * writes the new manifest as ``snapshots/<new_sha>.json`` so the
     DiffIsland has the new side immediately, without waiting for the next
     poll to rotate it out;
+  * restores 4-digit years on upstream's 2-digit raw ``release_date`` /
+    ``incident_date`` (``year_normalize``) before the
+    diff and the snapshot write, reporting rows it cannot resolve as
+    ``date_unresolved`` (new) or ``date_open`` (carried from the prior);
+    ``date_resolutions`` names the manual-resolution overlay;
   * computes the ``ManifestDiff`` (added/removed) against the prior
     ``latest.json``, the per-card ``field_changes`` (reusing the
     tranche-diff ``field_diff`` comparison), and any brand-new CSV column
@@ -25,11 +30,12 @@ from __future__ import annotations
 
 import csv
 import io
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from pursue_index.scrape.csv_fetcher import _MAPPED_KEYS, build_manifest, parse_csv
+from pursue_index.scrape.date_resolutions import load_date_resolutions
 from pursue_index.scrape.manifest import load_manifest, save_manifest
 from pursue_index.scrape.snapshots import (
     DEFAULT_CANONICAL_DIR,
@@ -38,6 +44,8 @@ from pursue_index.scrape.snapshots import (
     rotate_to_snapshot,
 )
 from pursue_index.scrape.types import CardMetadata, Manifest, ManifestDiff
+from pursue_index.scrape.variants import overlay_digest, snapshot_name
+from pursue_index.scrape.year_normalize import DateReport, normalize_cards
 from pursue_index.tranche import field_diff
 
 
@@ -49,6 +57,20 @@ class SnapshotDiffResult:
     removed: list[CardMetadata]
     field_changes: list[dict[str, Any]]
     new_columns: list[str]
+    # What the 2-digit-year normalization did (``year_normalize``).
+    date_report: DateReport = field(default_factory=DateReport)
+    # Digest of the applicable date-resolution entries (``variants``), or None.
+    resolutions_digest: str | None = None
+
+    @property
+    def date_unresolved(self) -> list[dict[str, Any]]:
+        """Rows whose 2-digit year no rule could restore."""
+        return self.date_report.unresolved
+
+    @property
+    def date_open(self) -> list[dict[str, Any]]:
+        """Unresolved rows a prior marker already carries (not new flags)."""
+        return self.date_report.open
 
 
 def generate_snapshot_diff(
@@ -58,6 +80,7 @@ def generate_snapshot_diff(
     latest_path: Path,
     canonical_dir: Path = DEFAULT_CANONICAL_DIR,
     public_dir: Path = DEFAULT_PUBLIC_DIR,
+    date_resolutions: Path | None = None,
 ) -> SnapshotDiffResult:
     """Build a manifest from ``raw_csv`` and diff it against the prior
     ``latest_path`` manifest, writing both sides into the snapshot mirror.
@@ -68,6 +91,12 @@ def generate_snapshot_diff(
     new_manifest = build_manifest(raw_csv, parse_csv(raw_csv), source_url)
 
     prior = load_manifest(latest_path) if latest_path.exists() else None
+    overlay = load_date_resolutions(date_resolutions) if date_resolutions else {}
+    cards, dates = normalize_cards(new_manifest.cards, prior.cards if prior else [],
+                                   new_manifest.fetched_at, overlay=overlay,
+                                   tranche=new_manifest.csv_sha256)
+    digest = overlay_digest(overlay, [c.model_dump(mode="json") for c in cards])
+    new_manifest = new_manifest.model_copy(update={"cards": cards, "resolutions_digest": digest})
 
     # Rotate the prior latest.json into snapshots/<prior_sha>.json (public +
     # canonical) BEFORE we add the new side, so both ends of the diff land
@@ -81,6 +110,8 @@ def generate_snapshot_diff(
             removed=[],
             field_changes=[],
             new_columns=_new_columns(raw_csv, prior_cards=[]),
+            date_report=dates,
+            resolutions_digest=digest,
         )
 
     diff: ManifestDiff = new_manifest.diff(prior)
@@ -89,6 +120,8 @@ def generate_snapshot_diff(
         removed=diff.removed,
         field_changes=_field_changes(prior, new_manifest),
         new_columns=_new_columns(raw_csv, prior_cards=prior.cards),
+        date_report=dates,
+        resolutions_digest=digest,
     )
 
 
@@ -102,7 +135,7 @@ def _write_new_snapshot(
     """
     canonical_dir.mkdir(parents=True, exist_ok=True)
     public_dir.mkdir(parents=True, exist_ok=True)
-    name = f"{manifest.csv_sha256}.json"
+    name = snapshot_name(manifest.csv_sha256, manifest.resolutions_digest)
     canonical_path = canonical_dir / name
     public_path = public_dir / name
     if canonical_path.exists():
@@ -115,7 +148,7 @@ def _write_new_snapshot(
             # Refresh the public index too: a restored mirror file that the
             # index doesn't enumerate is a canonical/public inconsistency
             # DiffIsland would trip on.
-            _rebuild_index(canonical_dir, public_dir)
+            _rebuild_index(canonical_dir, public_dir, {manifest.csv_sha256: name})
         return
     # save_manifest is the SINGLE serializer for snapshot bytes — DiffIsland
     # reads snapshots written by BOTH this CI lane and a local scrape-run
@@ -123,7 +156,7 @@ def _write_new_snapshot(
     # Write canonical via save_manifest, then mirror the exact bytes to public.
     save_manifest(manifest, canonical_path)
     public_path.write_bytes(canonical_path.read_bytes())
-    _rebuild_index(canonical_dir, public_dir)
+    _rebuild_index(canonical_dir, public_dir, {manifest.csv_sha256: name})
 
 
 def _group_by_card_id(cards: list[CardMetadata]) -> dict[str, list[dict[str, Any]]]:

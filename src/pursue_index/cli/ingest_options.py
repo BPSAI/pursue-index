@@ -42,6 +42,12 @@ _OPT_DRY_RUN = typer.Option(
 )
 _OPT_RUN_LOG = typer.Option(_default("DEFAULT_APPROVAL_LOG"), "--log")
 _OPT_RUN_SNAPSHOTS_DIR = typer.Option(_default("DEFAULT_MANIFEST_SNAPSHOTS"), "--snapshots-dir")
+_OPT_DATE_RESOLUTIONS = typer.Option(
+    None, "--date-resolutions",
+    help="Manual date-resolution overlay; picks the snapshot variant made with it. "
+         "Default: data/date_resolutions.json of the checkout --snapshots-dir is in "
+         "(refused for a --snapshots-dir outside the standard layout).",
+)
 _OPT_RUN_MANIFEST = typer.Option(_default("DEFAULT_LATEST_MANIFEST"), "--manifest")
 _OPT_RUN_DIFF_DIR = typer.Option(_default("DEFAULT_DIFF_DIR"), "--diff-dir")
 _OPT_RUN_ALIASES = typer.Option(

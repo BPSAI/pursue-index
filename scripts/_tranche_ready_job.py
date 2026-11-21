@@ -35,6 +35,7 @@ from tranche_diff import diff_tranches
 
 from pursue_index.config import settings
 from pursue_index.release.rates import JudgeRate
+from pursue_index.scrape.date_resolutions import load_date_resolutions
 from pursue_index.scrape.pdf_pages import FetchedPdfs
 from pursue_index.tranche_manifest import display_rows_by_card_id
 from pursue_index.tranche_ready import candidates as cands
@@ -57,6 +58,7 @@ class JobConfig:
     tranche_issue: int | None = None
     poll_run_id: int | None = None
     poll_commit: str | None = None
+    date_resolutions: Path | None = None
 
 
 def _sha_lookup(new_manifest: dict, fetched: FetchedPdfs) -> Callable[[str], str | None]:
@@ -100,12 +102,14 @@ def _classify(old_m: dict, new_m: dict, cfg: JobConfig, fetched: FetchedPdfs) ->
     registry = load_registry(cfg.registry)
     old_by_id = display_rows_by_card_id(old_m.get("cards", []))
     sha_of = _sha_lookup(new_m, fetched)
-    first = diff_tranches(old_m, new_m, registry, fetch_byte_sha=sha_of)
+    overlay = load_date_resolutions(cfg.date_resolutions) if cfg.date_resolutions else {}
+    first = diff_tranches(old_m, new_m, registry, fetch_byte_sha=sha_of, date_overlay=overlay)
     with tempfile.TemporaryDirectory(prefix="pursue-tranche-bytes-") as tmp:
         old, new = _stage(first, old_by_id, registry, fetched, Path(tmp))
         diff = diff_tranches(old_m, new_m, registry, fetch_byte_sha=sha_of,
                              resave_check=bytes_dir_check(Path(tmp), registry),
-                             move_resaves=settings.ingest_auto_approve_metadata_resaves)
+                             move_resaves=settings.ingest_auto_approve_metadata_resaves,
+                             date_overlay=overlay)
         candidates = _candidates(diff, old_by_id, old, new)
     used_old = {c["old_card_id"] for c in candidates if c["old_card_id"] in old}
     failures = [(oid, old[oid].failure) for oid in sorted(used_old) if old[oid].failure]
