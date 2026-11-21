@@ -33,9 +33,13 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.0",
     "tailwindcss": "^4.3.0",
-    "wrangler": "^4.90.0"
+    "wrangler": "4.116.0"
   },
   "overrides": {
-    "esbuild": "^0.28.2"
+    "esbuild": "^0.28.2",
+    "miniflare": {
+      "undici": "7.30.2",
+      "sharp": "0.35.5"
+    }
   }
 }
