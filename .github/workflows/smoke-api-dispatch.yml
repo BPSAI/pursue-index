@@ -60,11 +60,13 @@ jobs:
           fetch-depth: 1
 
       # actions/setup-node v6.4.0 — pinned to SHA per SEC-001.
-      # Vaivora PR #79 round-9 P1 #2: aligned to "22.12" across all
-      # four workflows to match web/package.json:engines ">=22.12.0".
+      # Node comes from web/.nvmrc (22.22.1), the one pin shared with the
+      # Workers build's root .node-version; web/package.json engines is
+      # node >=22.22.1 and web/.npmrc sets engine-strict, so an older Node
+      # fails npm ci instead of building.
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
-          node-version: "22.12"
+          node-version-file: web/.nvmrc
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
