@@ -50,7 +50,7 @@ def _assets_resolve(monkeypatch) -> None:
     from pursue_index.vision import redescribe
 
     monkeypatch.setattr(
-        redescribe, "resolve_img_path", lambda card: (asset_path_for(card), None)
+        redescribe, "resolve_img_path", lambda card, registry=None: (asset_path_for(card), None)
     )
 
 
@@ -287,3 +287,30 @@ def test_sidecar_schema_accepts_and_checks_superseded_passes():
         {"our_pass": {"model": "m"}, "pages": [{"page": 1}], "superseded_at": "t"}]})
     with pytest.raises(Exception):  # noqa: B017 - pydantic.ValidationError
         validate_sidecar({**base, "superseded_passes": [{"our_pass": {"model": "m"}}]})
+
+
+@pytest.mark.parametrize("bad", [None, "two", True, 1.5])
+def test_malformed_sidecar_page_is_refused_by_name_others_still_planned(
+    tmp_path, bad
+):
+    from pursue_index.scrape.types import Manifest
+    from pursue_index.vision.redescribe import plan_redescribe
+    from datetime import UTC, datetime
+
+    out = tmp_path / "obs"
+    out.mkdir()
+    page = {"observations": []} if bad is None else {"page": bad, "observations": []}
+    (out / "badcard00000000a.json").write_text(json.dumps(
+        {"card_id": "badcard00000000a", "our_pass": {}, "pages": [page]}))
+    (out / "goodcard0000000b.json").write_text(json.dumps(
+        {"card_id": "goodcard0000000b", "our_pass": {},
+         "pages": [{"page": 1, "observations": []}]}))
+    cards = [_img_card("badcard00000000a"), _img_card("goodcard0000000b")]
+    manifest = Manifest(
+        source_url="https://www.war.gov/uap-csv.csv",
+        fetched_at=datetime.now(UTC), csv_sha256="0" * 64, cards=cards,
+    )
+    plan = plan_redescribe(manifest, {"badcard00000000a", "goodcard0000000b"}, out)
+    assert "badcard00000000a" not in plan.items_by_card
+    assert any("badcard00000000a" in r and "page" in r for r in plan.refusals)
+    assert "goodcard0000000b" in plan.items_by_card

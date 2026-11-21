@@ -138,3 +138,59 @@ def test_run_path_keeps_images_path_when_mirror_unverified(world, tmp_path: Path
     _mirror(world["root"], SHA, data=b"corrupt")
     items = select_eligible(_manifest(), {CARD}, tmp_path / "ocr")
     assert [i.image_path for i in items] == [world["root"] / "images" / CARD / "fbi-photo-a5.png"]
+
+
+def _many_manifest(n: int) -> Manifest:
+    cards = [
+        CardMetadata(
+            card_id=f"{i:016x}", title=f"P{i}", asset_type="IMG", agency="FBI",
+            asset_url=f"https://www.war.gov/x/p{i}.png", asset_filename=f"p{i}.png",
+        )
+        for i in range(n)
+    ]
+    return Manifest(
+        source_url="https://www.war.gov/uap-csv.csv",
+        fetched_at=datetime.now(UTC), csv_sha256="0" * 64, cards=cards,
+    )
+
+
+def _count_registry_opens(monkeypatch, registry: Path) -> list[int]:
+    opens = [0]
+    real = Path.open
+
+    def spy(self, *a, **k):
+        if self == registry:
+            opens[0] += 1
+        return real(self, *a, **k)
+
+    monkeypatch.setattr(Path, "open", spy)
+    return opens
+
+
+def test_select_eligible_reads_the_registry_once(world, tmp_path: Path, monkeypatch) -> None:
+    _registry(world["registry"], *[(f"{i:016x}", "a" * 64) for i in range(5)])
+    opens = _count_registry_opens(monkeypatch, world["registry"])
+    select_eligible(_many_manifest(5), None, tmp_path / "ocr")
+    assert opens[0] == 1
+
+
+def test_plan_redescribe_reads_the_registry_once(world, monkeypatch) -> None:
+    ids = {f"{i:016x}" for i in range(4)}
+    for cid in ids:
+        (world["obs"] / f"{cid}.json").write_text(json.dumps({
+            "card_id": cid, "our_pass": {}, "pages": [{"page": 1, "observations": []}],
+        }))
+    _registry(world["registry"], *[(cid, "a" * 64) for cid in ids])
+    opens = _count_registry_opens(monkeypatch, world["registry"])
+    plan_redescribe(_many_manifest(4), ids, world["obs"])
+    assert opens[0] == 1
+
+
+@pytest.mark.parametrize("bad", ["../x", "abc123", "A" * 64, "g" * 64])
+def test_malformed_registry_sha_is_refused_by_name(world, bad: str) -> None:
+    _registry(world["registry"], (CARD, bad))
+    _mirror(world["root"], SHA)
+    plan = plan_redescribe(_manifest(), {CARD}, world["obs"])
+    assert CARD not in plan.items_by_card
+    assert len(plan.refusals) == 1
+    assert CARD in plan.refusals[0] and "byte_sha256" in plan.refusals[0]
