@@ -21,7 +21,7 @@ on:
         required: false
         default: "https://pursueindex.com"
       max_wait_secs:
-        description: "Max polling time in seconds"
+        description: "Max polling time in seconds (at most 780, so the job fits its timeout)"
         required: false
         default: "600"
       skip_build_wait:
@@ -44,6 +44,10 @@ env:
   # Inputs reach scripts only through env (never interpolated into run:).
   BASE_URL: ${{ inputs.base_url || 'https://pursueindex.com' }}
   MAX_WAIT_SECS: ${{ inputs.max_wait_secs || '600' }}
+  # Ceiling for MAX_WAIT_SECS: the job's timeout-minutes (2400s) less the build wait
+  # (1200s), the deploy-stamp wait (300s) and 120s for the failure-issue step.
+  # scripts/validate_base_url.py refuses a larger input; a test keeps this in step.
+  MAX_WAIT_SECS_CAP: "780"
 
 concurrency:
   # Only one verify per branch at a time; new pushes cancel in-progress
