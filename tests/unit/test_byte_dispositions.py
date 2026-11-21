@@ -83,7 +83,7 @@ def test_loader_missing_file_is_empty(tmp_path):
         {"reviewed_at": "yesterday"},
         {"evidence": "see https://example.org/x"},
         {"evidence": "see issue #42"},
-        {"evidence": "checked in pursue-opsec"},
+        {"evidence": "checked in pursue-example"},
         {"unexpected": 1},
     ],
 )
