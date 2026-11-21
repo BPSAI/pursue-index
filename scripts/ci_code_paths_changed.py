@@ -1,4 +1,4 @@
-"""Print ``true`` when any changed path needs the Python test suite, else ``false``.
+"""Print ``true`` unless every changed path is on the skip-safe allowlist.
 
 Reads changed paths on stdin: NUL-separated (``git -c core.quotePath=false
 diff --name-only -z``, the form the workflow uses, which never quotes), or one
@@ -9,25 +9,30 @@ only needs to run the suite when code or tests changed.
 
 Fails safe: empty input (no diff could be computed) prints ``true``, and so
 does any C-quoted path (git's default output for a non-ASCII name), since a
-quoted path can't be matched against the code prefixes.
+quoted path can't be matched against the allowlist. Any path not on the
+allowlist also prints ``true``.
+
+The workflow runs the BASE branch's copy of this file, so a pull request
+cannot edit it to skip its own suite.
 """
 
 from __future__ import annotations
 
 import sys
 
-# Paths whose change needs the suite. Same set the workflow's trigger used
-# to filter on.
-CODE_PREFIXES = ("src/", "tests/", "scripts/", "schemas/", ".github/workflows/")
-CODE_FILES = ("pyproject.toml", "Makefile")
+# Allowlist: only these paths never need the suite. Everything else, including
+# any new top-level directory, runs it.
+SKIP_SAFE_PREFIXES = ("data/", "web/public/data/", "web/src/data/", "docs/")
 
 
 def needs_tests(path: str) -> bool:
     if path.startswith('"'):
         return True
-    if path.startswith(CODE_PREFIXES) or path in CODE_FILES:
-        return True
-    return path.startswith("requirements-") and path.endswith(".txt") and "/" not in path
+    if path.startswith(SKIP_SAFE_PREFIXES):
+        return False
+    if path.endswith(".md") and "/" not in path:
+        return False
+    return True
 
 
 def main() -> int:
