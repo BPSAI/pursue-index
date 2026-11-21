@@ -184,6 +184,19 @@ def test_download_run_without_worklist_is_full_corpus(tmp_path, monkeypatch) -> 
     assert seen["ids"] == ["a", "b", "c"]
 
 
+def test_download_run_exits_nonzero_naming_every_failed_card(tmp_path, monkeypatch) -> None:
+    from pursue_index.download.downloader import DownloadBatchError
+
+    async def fake_download_all(m):
+        raise DownloadBatchError({"a": "sha mismatch", "c": "sha mismatch"})
+
+    monkeypatch.setattr("pursue_index.download.downloader.download_all", fake_download_all)
+    mpath = _write_manifest(tmp_path, ["a", "b", "c"])
+    res = runner.invoke(app, ["download", "run", "--manifest", str(mpath)])
+    assert res.exit_code != 0
+    assert "a" in res.output and "c" in res.output and "2 card(s)" in res.output
+
+
 # --- ocr run ---------------------------------------------------------------
 
 
