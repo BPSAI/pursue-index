@@ -209,3 +209,26 @@ def test_pr_without_a_base_helper_copies_none():
     assert r.returncode == 0, r.stderr
     assert str(rt / "_web_audit_graph.py") not in copied
     assert str(rt / "_web_audit_allowlist.py") not in copied
+
+
+# --- the registry is pinned; no --help probe ------------------------------
+
+
+def _run_texts() -> list[str]:
+    return [st["run"] for st in _wf()["jobs"]["audit"]["steps"] if "run" in st]
+
+
+def test_every_npm_audit_pins_the_registry():
+    audits = [line for t in _run_texts() for line in t.splitlines() if "npm audit" in line]
+    assert len(audits) == 2, audits
+    for line in audits:
+        assert "--registry=https://registry.npmjs.org/" in line, line
+
+
+def test_the_gate_steps_pass_full_arguments_and_do_not_probe_help():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "--help" not in text
+    steps = {s.get("name"): s for s in _wf()["jobs"]["audit"]["steps"]}
+    assert "--lockfile web/package-lock.json" in steps["Gate"]["run"]
+    assert "--runtime" in steps["Gate (Worker, runtime)"]["run"]
+    assert "predates" not in text

@@ -65,9 +65,9 @@ def test_allowlist_rejects_a_missing_or_malformed_review_by(bad):
         gate.load_allowlist_data({"accepted_advisories": {"GHSA-x": entry}})
 
 
-def test_a_bare_string_acceptance_loads_only_as_the_previous_shape():
-    allow = gate.load_allowlist_data({"accepted_advisories": {"GHSA-x": "just a reason"}})
-    assert allow["legacy"] == ["accepted_advisories['GHSA-x'] has no review_by date"]
+def test_a_bare_string_acceptance_is_refused_as_the_old_shape():
+    with pytest.raises(ValueError, match="review_by"):
+        gate.load_allowlist_data({"accepted_advisories": {"GHSA-x": "just a reason"}})
 
 
 def test_empty_report_passes():

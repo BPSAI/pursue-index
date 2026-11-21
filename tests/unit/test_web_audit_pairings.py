@@ -25,15 +25,12 @@ from tests.support.web_audit_support import (
     gate,
 )
 
-# --- the gate beside an older gate or allowlist ---------------------------
+# --- the gate step, run through the workflow ------------------------------
 #
-# A PR is judged by the BASE commit's gate and allowlist, so while the gate
-# schema changes the workflow meets every pairing of old and new. The legacy
-# fixtures are main's gate and allowlist from before exact name@version
-# entries, --lockfile and --runtime existed.
+# The workflow passes the full arguments to the selected gate and no longer
+# probes its --help: main's gate understands --lockfile and --runtime, and an
+# unknown flag fails the step.
 
-LEGACY_GATE = FIXTURES / "legacy_gate.py"
-LEGACY_ALLOW = FIXTURES / "legacy_allowlist.json"
 HELPERS = sorted((ROOT / "scripts").glob("_web_audit_*.py"))
 
 
@@ -70,46 +67,7 @@ def _copy_gate(tmp: Path) -> Path:
 
 
 def test_the_committed_allowlist_is_in_the_current_shape():
-    assert gate.load_allowlist(ALLOWLIST)["legacy"] == []
-
-
-def test_the_gate_reads_the_previous_allowlist_shape_and_says_so():
-    allow = gate.load_allowlist(LEGACY_ALLOW)
-    assert any("'vite'] is a bare package name" in n for n in allow["legacy"])
-    assert any("GHSA-26w7-cxv4-gfx2" in n and "no review_by" in n for n in allow["legacy"])
-
-
-def test_a_plain_string_acceptance_never_expires_but_is_reported(tmp_path):
-    allow = gate.load_allowlist_data({"accepted_advisories": {"GHSA-x": "kept on purpose"}})
-    crit = _report(_vuln("astro", "critical", "GHSA-x"))
-    d = gate.decide(crit, allow, REAL_LOCK, today=datetime.date(2099, 1, 1))
-    assert d.ok and d.accepted == ["GHSA-x"] and d.legacy
-
-
-@pytest.mark.parametrize(
-    "bad",
-    [
-        {"build_only": {"vite": ""}},
-        {"build_only": {"not a name": "r"}},
-        {"build_only": {"a/b/c": "r"}},
-        {"accepted_advisories": {"GHSA-x": ""}},
-        {"accepted_advisories": {"GHSA-x": 5}},
-        {"accepted_advisories": {"GHSA-x": {"reason": "r"}}},
-    ],
-)
-def test_the_previous_shape_does_not_loosen_validation(bad):
-    with pytest.raises(ValueError):
-        gate.load_allowlist_data(bad)
-
-
-def test_a_bare_name_exemption_still_fails_closed_when_reachable_from_a_runtime_root():
-    # The previous shape has no build_only_roots, so every production dependency
-    # is a runtime root and a bare-name vite exemption cannot hold. It must
-    # fail with a reason, not crash.
-    allow = gate.load_allowlist(LEGACY_ALLOW)
-    d = gate.decide(_vite_high_report(), allow, REAL_LOCK)
-    assert not d.ok
-    assert "reachable from the runtime dependency" in d.failures[0]
+    assert "legacy" not in gate.load_allowlist(ALLOWLIST)
 
 
 def test_the_gate_runs_from_a_bare_directory_beside_its_helper(tmp_path):
@@ -125,52 +83,31 @@ def test_the_gate_runs_from_a_bare_directory_beside_its_helper(tmp_path):
 
 
 @pytest.mark.parametrize("step", ["Gate", "Gate (Worker, runtime)"])
-@pytest.mark.parametrize(
-    "gate_kind,allow_kind",
-    [("legacy", "legacy"), ("legacy", "current"), ("current", "legacy"), ("current", "current")],
-)
-def test_every_gate_and_allowlist_pairing_runs_without_a_crash(
-    step, gate_kind, allow_kind, tmp_path
-):
-    g = LEGACY_GATE if gate_kind == "legacy" else _copy_gate(tmp_path)
-    allow = LEGACY_ALLOW if allow_kind == "legacy" else ALLOWLIST
-    r = _run_gate_step(step, g, allow, tmp_path, _report())
+def test_the_current_gate_runs_through_the_workflow_on_a_clean_report(step, tmp_path):
+    r = _run_gate_step(step, _copy_gate(tmp_path), ALLOWLIST, tmp_path, _report())
     assert r.returncode == 0, r.stdout + r.stderr
     assert "Traceback" not in r.stdout + r.stderr
 
 
-def test_the_pr_own_run_is_the_legacy_gate_on_the_legacy_allowlist_and_it_passes(tmp_path):
-    # What web-audit does on this very PR: main's gate and allowlist, run by this
-    # workflow. It must pass because the PR's audit is clean, not by crashing
-    # on flags the old gate lacks.
-    for step in ("Gate", "Gate (Worker, runtime)"):
-        r = _run_gate_step(step, LEGACY_GATE, LEGACY_ALLOW, tmp_path, _report())
-        assert r.returncode == 0, r.stdout + r.stderr
-        assert "predates" in r.stdout
-
-
-def test_the_legacy_gate_still_fails_a_runtime_high_through_the_workflow(tmp_path):
-    report = _report(_vuln("preact", "high", "GHSA-pppp-0000-0000"))
-    for step in ("Gate", "Gate (Worker, runtime)"):
-        r = _run_gate_step(step, LEGACY_GATE, LEGACY_ALLOW, tmp_path, report)
-        assert r.returncode == 1, r.stdout + r.stderr
-        assert "preact" in r.stdout
-
-
-def test_the_legacy_gate_gets_no_exemptions_for_the_worker(tmp_path):
-    # vite is exempt for the web app in the legacy allowlist, never for the Worker.
-    web = _run_gate_step("Gate", LEGACY_GATE, LEGACY_ALLOW, tmp_path, _vite_high_report())
-    worker = _run_gate_step("Gate (Worker, runtime)", LEGACY_GATE, LEGACY_ALLOW, tmp_path, _vite_high_report())
-    assert web.returncode == 0, web.stdout
-    assert worker.returncode == 1, worker.stdout
-
-
-def test_the_legacy_gate_fails_closed_on_the_current_allowlist(tmp_path):
-    # Not relied on (the base gate pairs with the base allowlist) but it must
-    # fail with a message, not a traceback.
-    r = _run_gate_step("Gate", LEGACY_GATE, ALLOWLIST, tmp_path, _vite_high_report())
-    assert r.returncode == 1, r.stdout + r.stderr
+def test_an_old_shape_allowlist_fails_closed_with_a_message(tmp_path):
+    old = tmp_path / "old.json"
+    old.write_text(json.dumps({"build_only": {"vite": "reason"}}), encoding="utf-8")
+    r = _run_gate_step("Gate", _copy_gate(tmp_path), old, tmp_path, _report())
+    assert r.returncode != 0
     assert "Traceback" not in r.stdout + r.stderr
+    assert "exact name@version" in r.stdout + r.stderr
+
+
+def test_a_gate_that_lacks_a_flag_fails_the_step(tmp_path):
+    stub = tmp_path / "old_gate.py"
+    stub.write_text(
+        "import argparse\nap = argparse.ArgumentParser()\n"
+        "ap.add_argument('audit'); ap.add_argument('--allowlist')\nap.parse_args()\n",
+        encoding="utf-8",
+    )
+    for step in ("Gate", "Gate (Worker, runtime)"):
+        r = _run_gate_step(step, stub, ALLOWLIST, tmp_path, _report())
+        assert r.returncode != 0, step
 
 
 def test_the_current_gate_exempts_a_build_only_package_through_the_workflow(tmp_path):

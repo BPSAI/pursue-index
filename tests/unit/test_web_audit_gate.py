@@ -107,15 +107,14 @@ def test_package_absent_from_the_lockfile_is_not_exempt():
     assert not d.ok
 
 
-def test_a_bare_name_build_only_key_loads_only_as_the_previous_shape():
-    allow = gate.load_allowlist_data({"build_only": {"postcss": "reason"}})
-    assert any("'postcss'] is a bare package name" in n for n in allow["legacy"])
+def test_a_bare_name_build_only_key_is_refused_as_the_old_shape():
+    with pytest.raises(ValueError, match="exact name@version"):
+        gate.load_allowlist_data({"build_only": {"postcss": "reason"}})
     with pytest.raises(ValueError):
         gate.load_allowlist_data({"build_only": {"postcss@": "reason"}})
     with pytest.raises(ValueError):
         gate.load_allowlist_data({"build_only": {"@scope/pkg/x": "reason"}})
-    assert gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})["legacy"] == []
-
+    assert "legacy" not in gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})
 
 
 # --- the Worker is runtime: any high or critical fails, nothing is exempt.
