@@ -20,15 +20,24 @@ $ARGUMENTS
 - The operated config is non-negotiable: OCR `--engine llm-dots` (Sonnet 4.6, dots
   content-filter backstop) at `--concurrency 8`. tesseract/surya/auto are retired.
 - Each spending stage runs in its own memory scope (no budget carryover between stages).
-- Running from a secondary checkout (a `git worktree` or a second clone that
-  shares another checkout's virtualenv): the editable install resolves
-  `pursue_index` to the checkout the virtualenv was installed from, not this
-  one. Prefix tests, `make` targets and `scripts/*.py` builders with
-  `PYTHONPATH=src` (for example `PYTHONPATH=src make ship-ready`) so they
-  import this checkout's code.
-  A fresh `git worktree` also has no `web/node_modules`: run
-  `cd web && npm ci` once before `make ship-ready` or any web test, or the
-  astro build fails with `astro: not found`.
+- **Fresh worktree setup.** A new `git worktree` shares nothing with the checkout
+  it came from, and a shared virtualenv's editable install imports the *other*
+  checkout's `pursue_index`, so the gates would test the wrong code. Once per
+  worktree:
+  1. A worktree-local virtualenv, outside the worktree:
+     ```
+     python3 -m venv /tmp/pursue-venv-<name>
+     /tmp/pursue-venv-<name>/bin/pip install -e '.[dev,llm,embed,r2,og,build-tools]'
+     ```
+     Then run every gate with `make ship-ready PYTHON=/tmp/pursue-venv-<name>/bin/python`.
+  2. `cd web && npm ci`, once. Without it the astro build fails with `astro: not found`.
+  3. **No `PYTHONPATH` at all.** Do not prefix `PYTHONPATH=src` on any command: it
+     leaks into the test subprocesses, which build stub checkouts. `make ship-ready`
+     now refuses to start when it is set, and when `pursue_index` imports from
+     anywhere but this checkout's `src/pursue_index`.
+  4. `INTERMEDIATES_LABEL` is the real tag this release gets, for example `v1.8.1`;
+     never the `vX.Y.Z` placeholder (it is refused). A label also requires
+     `PURSUE_DATA_ROOT`, the data root the archive is packed from.
 
 ## Workflow
 
@@ -191,7 +200,7 @@ $ARGUMENTS
     these live in `web/public/`, so the build copies whatever is on disk. Verify
     with `python scripts/build_llms_txt.py --check` (release-gate step 4b runs the
     same check, so skipping this reds the PR).
-12. **Ship-ready gate:** `make ship-ready INTERMEDIATES_LABEL=vX.Y.Z` (the tag this
+12. **Ship-ready gate:** `make ship-ready INTERMEDIATES_LABEL=vX.Y.Z` (substitute the real tag, e.g. `v1.8.1`, never the literal `vX.Y.Z`; the tag this
     release will get; `PURSUE_DATA_ROOT` set). Confirm astro built (~pages) and `cd web && npm run test` all-green. (Note: `make test` runs pytest under the .venv only if activated — validate the web tests explicitly.)
     ship-ready first records the commit it builds with. It refuses uncommitted
     code (`src`, `scripts`, `web/scripts`, the site code under `web/src`, the site
