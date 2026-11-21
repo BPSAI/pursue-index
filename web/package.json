@@ -36,7 +36,6 @@
     "wrangler": "^4.90.0"
   },
   "overrides": {
-    "esbuild": "^0.28.2",
-    "vite": "^7.3.8"
+    "esbuild": "^0.28.2"
   }
 }
