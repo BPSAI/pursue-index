@@ -6,8 +6,8 @@ asset-bytes registry, or a ``resave-content-verified`` row in
 ``data/byte-change-dispositions.jsonl`` must cover exactly that pair.
 
 A mismatch exits 1 and lists the card, both shas and the disposition status.
-A card with no ``meta.json`` is reported and counted separately; it is not a
-stale-input failure. An unreadable input fails closed. Repo and data root
+A card with no ``meta.json`` also exits 1; it is listed and counted separately
+(``missing OCR``) from stale inputs. An unreadable input fails closed. Repo and data root
 only; no network.
 
 Usage::
@@ -121,11 +121,10 @@ def main(argv: list[str] | None = None) -> int:
         f"{checked} PDF cards checked, {len(stale)} stale, {len(covered)} covered, "
         f"missing OCR: {len(missing)}"
     )
-    lines.append(
-        f"ocr input freshness: {'FAILED' if stale else 'OK'} ({counts})"
-    )
+    failed = bool(stale or missing)
+    lines.append(f"ocr input freshness: {'FAILED' if failed else 'OK'} ({counts})")
     print("\n".join(lines))
-    return 1 if stale else 0
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
