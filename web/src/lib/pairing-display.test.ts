@@ -98,30 +98,37 @@ describe("cardsInTagCollection", () => {
     );
   });
 
-  // Pins the filter against the real, committed manifest: the
-  // AAWSAP collection is exactly 53 cards (upstream tranche
-  // 096ef2c0058a, #177/#178), and every one of them carries the tag
-  // on pdf_pairing specifically (none on video_pairing, today).
-  test("against the committed manifest: AAWSAP collection is exactly 53 cards", () => {
+  // Checks the filter against the real, committed manifest. The size of
+  // the AAWSAP collection grows as upstream releases add cards, so the
+  // expected count is taken from the manifest's own pairing fields by a
+  // plain string match, independent of the code under test. Every tagged
+  // card carries the tag on pdf_pairing specifically (none on
+  // video_pairing, today).
+  test("against the committed manifest: the AAWSAP collection matches the manifest's tagged cards", () => {
     const manifest = JSON.parse(
       readFileSync(
         new URL("../data/manifest.json", import.meta.url),
         "utf-8",
       ),
     );
+    const expected = manifest.cards.filter(
+      (c: { pdf_pairing: string | null; video_pairing: string | null }) =>
+        c.pdf_pairing === "TAG:AAWSAP" || c.video_pairing === "TAG:AAWSAP",
+    ).length;
+    assert.ok(expected > 0, "the committed manifest has an AAWSAP collection");
     const tagged = cardsInTagCollection(manifest.cards, "AAWSAP");
-    assert.equal(tagged.length, 53);
+    assert.equal(tagged.length, expected);
     for (const c of tagged) {
       assert.equal(c.pdf_pairing, "TAG:AAWSAP");
     }
     const idSet = new Set(tagged.map((c) => c.card_id));
-    assert.equal(idSet.size, 53, "card_ids must be unique");
+    assert.equal(idSet.size, expected, "card_ids must be unique");
 
     // Cross-check: cardHasTag must agree with cardsInTagCollection for
     // every card in the manifest, not just the ones it returned.
     const bruteForce = manifest.cards.filter((c: unknown) =>
       cardHasTag(c as { pdf_pairing: string | null; video_pairing: string | null }, "AAWSAP"),
     );
-    assert.equal(bruteForce.length, 53);
+    assert.equal(bruteForce.length, expected);
   });
 });
