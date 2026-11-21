@@ -211,5 +211,8 @@ def test_gate_is_in_ship_ready_right_after_release_completeness():
         check=False, timeout=60,
     )
     lines = [ln for ln in proc.stdout.splitlines() if "scripts/check_" in ln]
-    assert "check_release_completeness.py" in lines[0]
-    assert "check_ocr_input_freshness.py" in lines[1]
+    # The environment guard (check_ship_env.py) runs first, then release
+    # completeness, then this gate.
+    assert "check_ship_env.py" in lines[0]
+    assert "check_release_completeness.py" in lines[1]
+    assert "check_ocr_input_freshness.py" in lines[2]

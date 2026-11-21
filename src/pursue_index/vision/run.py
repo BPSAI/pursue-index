@@ -135,12 +135,13 @@ def _examine_one(
 ) -> dict[str, Any]:
     """Examine one item and settle its metered cost against ``budget``.
 
-    The ``_usage`` the client attaches is the billing record, not page data:
-    it is removed here so it can never reach a sidecar. A call that raises
+    The ``_usage`` and ``_stop_reason`` the client attaches are records, not
+    page data: they are removed here so they can never reach a sidecar. A call that raises
     keeps the flat reservation charged.
     """
     result = dict(examine_fn(load_image_fn(item)))
     usage = result.pop("_usage", None)
+    result.pop("_stop_reason", None)
     if budget is not None:
         budget.settle(usage)
     result["observations"] = normalize_observations(result.get("observations"))

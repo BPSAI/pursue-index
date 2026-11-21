@@ -23,11 +23,17 @@ _ROOT_DERIVED_PATH = re.compile(
 )
 
 
+# Scripts that must see the interpreter's own pursue_index, so a bootstrap
+# that put this checkout's src/ first would hide exactly what they check.
+_NO_BOOTSTRAP = {"check_ship_env.py"}
+
+
 def _package_scripts() -> list[Path]:
     return [
         p
         for p in sorted(SCRIPTS.glob("*.py"))
         if not p.name.startswith("_")
+        and p.name not in _NO_BOOTSTRAP
         and "pursue_index" in p.read_text(encoding="utf-8")
     ]
 

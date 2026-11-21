@@ -1,19 +1,13 @@
 name: tests
 
-# The Python test suite on every PR that changes code, so a PR touching only
-# src/ or tests/ no longer opens with no checks (#205). Credential-free:
-# read-only token, no secrets.
+# The Python test suite. Branch protection requires the `pytest` check, so the
+# workflow runs on EVERY pull request: a trigger-level `paths` filter would
+# leave a data-only PR with the required check never reported, and blocked.
+# The job decides inside itself whether any code or test path changed
+# (scripts/ci_code_paths_changed.py); if none did it passes in seconds.
+# Credential-free: read-only token, no secrets.
 on:
   pull_request:
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "scripts/**"
-      - "schemas/**"
-      - "pyproject.toml"
-      - "requirements-*.txt"
-      - "Makefile"
-      - ".github/workflows/**"
 
 permissions:
   contents: read
@@ -34,20 +28,50 @@ jobs:
           fetch-depth: 0
           # The job runs PR code; it needs no token after checkout.
           persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+      # Decide whether the suite is needed. Shas come in through env, never
+      # inline. The classifier is the BASE branch's copy, written outside the
+      # workspace, so a PR cannot edit it to skip its own suite; if the base
+      # has none (first PR after it is added, unreadable base) the suite runs.
+      # Paths are NUL-separated and unquoted, so a non-ASCII path still
+      # matches its prefix. --no-renames lists both sides of a move, so moving a
+      # file out of a code path still counts. If the diff can't be computed, the
+      # classifier gets no input and fails safe to running the suite.
+      - name: Did any code or test path change?
+        id: changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          code=true
+          base_classifier="$RUNNER_TEMP/ci_code_paths_changed_base.py"
+          if git show "$BASE_SHA:scripts/ci_code_paths_changed.py" > "$base_classifier"; then
+            code=$( { git -c core.quotePath=false diff --no-renames --name-only -z "$BASE_SHA...$HEAD_SHA" || true; } | python3 "$base_classifier") || code=true
+          fi
+          # Only an explicit "false" skips; an empty or odd result runs the suite.
+          [ "$code" = "false" ] || code=true
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "code or test paths changed: $code"
+      - name: No code or test path changed; the suite is not needed
+        if: steps.changes.outputs.code != 'true'
+        run: echo "Only non-code paths changed; pytest passes without running the suite."
+      - if: steps.changes.outputs.code == 'true'
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: "3.12"
       - name: Install poppler and tesseract (pdf2image, pytesseract)
+        if: steps.changes.outputs.code == 'true'
         run: sudo apt-get update -q && sudo apt-get install -y -q poppler-utils tesseract-ocr
       # Installed from this checkout, so the tests that run the `pursue` CLI
       # exercise the code under review. No GPU stack: OCR models are not
       # needed by the suite.
       - name: Install the package
+        if: steps.changes.outputs.code == 'true'
         run: python -m pip install -e ".[dev,llm,embed,r2,og,build-tools]"
       # needs_web_dist tests check the built site (web/dist). They run in the
       # release gate after its Astro build; here they are deselected by name,
       # visibly, rather than left to fail.
       - name: Pytest
+        if: steps.changes.outputs.code == 'true'
         env:
           NO_COLOR: "1"
           TERM: dumb
