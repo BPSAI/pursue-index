@@ -53,6 +53,12 @@ marker a passing gate wrote, else the newest complete ``--full-hash`` record in
 card's previous row fails the run unless a ``resave-content-verified`` disposition
 covers ``(card_id, new sha)``. A card's first row is net-new, never drift.
 
+Fetch bounds: a redirect is followed only to a host of the manifest's own asset URLs or
+one listed in ``data/approved-asset-hosts.json`` (``--approved-hosts``), and only over
+https on the default port; each hop is logged by host. An asset past twice its last
+recorded size is fetched and hashed as usual and raises a ``SIZE ALERT`` (counted as
+``size_alerts=N``, never a failure); one past the absolute ceiling fails that card.
+
 Failure modes:
 
   * Missing R2 credentials → ``--full-hash`` (the weekly verify) fails closed,
@@ -94,18 +100,20 @@ from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
 
-import _r2_cap_override as cap_override
 from _r2_archive_put import put_archive_and_current
 from _r2_fetch import (
     FetchOverCapError,
     allowed_hosts_from_urls,
     byte_cap,
     fetch_asset,
+    for_card,
+    hard_ceiling,
     head_asset,
     head_identical,
     last_known_size,
     rows_for_asset,
 )
+from _r2_hosts import ApprovedHostsError, load_approved_hosts
 from _r2_run_state import (
     GATE_MARKER_SCHEMA,
     RUN_RECORD_NAME,
@@ -130,6 +138,7 @@ from pursue_index.scrape.manifest import load_manifest
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 DEFAULT_REGISTRY = _REPO_ROOT / "data" / "asset-bytes-registry.jsonl"
 DEFAULT_DISPOSITIONS = _REPO_ROOT / "data" / "byte-change-dispositions.jsonl"
+DEFAULT_APPROVED_HOSTS = _REPO_ROOT / "data" / "approved-asset-hosts.json"
 DEFAULT_BUCKET = "pursue-pdfs"
 # Every asset type the registry tracks.
 ASSET_TYPES = ("PDF", "IMG", "VID", "AUD")
@@ -283,7 +292,8 @@ def _process_card(
     # Only this asset's rows: a card's newest row may belong to another asset.
     rows = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
     hosts = state.allowed_hosts
-    cl, etag, last_modified = head_asset(card.asset_url, hosts)
+    with for_card(card.card_id):
+        cl, etag, last_modified = head_asset(card.asset_url, hosts)
     # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
     # with the last row (size + ETag, or size + Last-Modified when there is no
     # ETag) is trusted to skip the fetch, and
@@ -294,19 +304,17 @@ def _process_card(
     with tempfile.TemporaryDirectory(prefix="r2-archive-") as tmp:
         body = Path(tmp) / "asset"
         try:
-            cap = byte_cap(rows, lifted=card.card_id in state.allow_over_cap)
-            byte_sha, size = fetch_asset(
-                card.asset_url, body, max_bytes=cap, allowed_hosts=hosts
-            )
+            with for_card(card.card_id):
+                byte_sha, size = fetch_asset(
+                    card.asset_url, body, max_bytes=hard_ceiling(rows), allowed_hosts=hosts
+                )
         except FetchOverCapError as exc:
-            print(
-                f"[r2-archive] over-cap {card.card_id}: {exc}; if the bigger file is "
-                f'expected, re-run with --allow-over-cap {card.card_id} --reason "..."'
-            )
+            print(f"[r2-archive] over the hard ceiling {card.card_id}: {exc}")
             return "fail"
         except Exception as exc:
             print(f"[r2-archive] fetch fail {card.card_id}: {exc}")
             return "fail"
+        state.note_growth(card.card_id, last_known_size(rows), size, byte_cap(rows))
         state.bytes_hashed += size
         # Only the LATEST row decides: bytes equal to an older row are a revert.
         if rows and rows[-1].get("byte_sha256") == byte_sha:
@@ -378,6 +386,13 @@ def _record_or_dryrun(
 def _core_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    parser.add_argument(
+        "--approved-hosts",
+        type=Path,
+        default=DEFAULT_APPROVED_HOSTS,
+        help="JSON list of hosts a redirect may reach besides the manifest's own "
+        "(add a CDN host there when the upstream starts redirecting to one).",
+    )
     parser.add_argument("--bucket", type=str, default=DEFAULT_BUCKET)
     parser.add_argument(
         "--dry-run",
@@ -451,10 +466,8 @@ def _verify_args(parser: argparse.ArgumentParser) -> None:
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     _core_args(parser)
-    cap_override.add_args(parser)
     _verify_args(parser)
     args = parser.parse_args(argv)
-    cap_override.validate(parser, args)
     if args.full_hash and not (args.max_bytes_per_run and args.max_bytes_per_run > 0):
         parser.error("--full-hash requires --max-bytes-per-run N (a positive byte count)")
     if args.max_bytes_per_run is not None and not args.full_hash:
@@ -523,6 +536,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[r2-archive] ERROR: {exc}", file=sys.stderr)
             return 1
 
+    try:
+        approved = load_approved_hosts(args.approved_hosts)
+    except ApprovedHostsError as exc:
+        print(f"[r2-archive] ERROR: {exc}", file=sys.stderr)
+        return 1
+
     manifest = load_manifest(args.manifest)
     registry = load_registry(args.registry)
     print(
@@ -538,9 +557,7 @@ def main(argv: list[str] | None = None) -> int:
         return _no_credentials(args)
 
     state = RunState(full_hash=args.full_hash, started_at=started)
-    state.allow_over_cap, state.over_cap_reason = args.allow_over_cap, args.reason.strip()
-    cap_override.announce(args)
-    state.allowed_hosts = allowed_hosts_from_urls(c.asset_url for c in manifest.cards)
+    state.allowed_hosts = allowed_hosts_from_urls(c.asset_url for c in manifest.cards) | approved
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
@@ -552,6 +569,7 @@ def main(argv: list[str] | None = None) -> int:
         f"new={c['new']} unchanged={c['unchanged']} "
         f"head-unchanged (unverified)={c['head-unchanged']} "
         f"archive-hit={c['archive-hit']} fail={c['fail']} "
+        f"size_alerts={state.size_alerts} "
         f"no-upstream-url={state.no_upstream_url}"
     )
     rc = full_hash_outcome(args, state) if args.full_hash else 0

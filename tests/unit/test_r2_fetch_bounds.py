@@ -200,6 +200,35 @@ def test_main_hands_each_card_its_cap_and_the_manifest_hosts(tmp_path, monkeypat
     monkeypatch.setattr(r2, "fetch_asset", fetch)
     w.run()
     first, second = seen["https://www.war.gov/medialink/ufo/c1.pdf"], seen["https://www.war.gov/medialink/ufo/c2.pdf"]
-    assert first["max_bytes"] == 2 * len(OLD_BODY)
-    assert second["max_bytes"] == _r2_fetch.MAX_ASSET_BYTES
+    assert first["max_bytes"] == _r2_fetch.hard_ceiling([])
+    assert second["max_bytes"] == _r2_fetch.hard_ceiling([])
     assert first["allowed_hosts"] == frozenset({"www.war.gov"})
+
+
+# --- the hard ceiling scales with the asset's own known size ---------------
+# The corpus already holds a 3.2 GB video; a fixed 2 GiB ceiling would fail it
+# on every run. An asset with no known size keeps the 2 GiB ceiling.
+
+def test_hard_ceiling_for_an_unknown_size_is_the_absolute_ceiling():
+    assert _r2_fetch.hard_ceiling([]) == _r2_fetch.MAX_ASSET_BYTES
+    assert _r2_fetch.hard_ceiling([{"byte_size": None}]) == _r2_fetch.MAX_ASSET_BYTES
+
+
+def test_hard_ceiling_never_drops_below_the_absolute_ceiling():
+    assert _r2_fetch.hard_ceiling([{"byte_size": 1000}]) == _r2_fetch.MAX_ASSET_BYTES
+
+
+def test_a_known_asset_larger_than_the_absolute_ceiling_is_not_refused():
+    known = 3_212_900_000  # the largest asset in the registry today
+    ceiling = _r2_fetch.hard_ceiling([{"byte_size": known}])
+    assert ceiling == known * _r2_fetch.HARD_GROWTH_FACTOR
+    assert ceiling > known > _r2_fetch.MAX_ASSET_BYTES
+    # the growth alert still fires at 2x, well below the hard ceiling
+    assert _r2_fetch.byte_cap([{"byte_size": known}]) < ceiling
+
+
+def test_every_registered_asset_fits_under_its_own_hard_ceiling():
+    import json
+    rows = [json.loads(line) for line in (Path(__file__).resolve().parents[2] / "data" / "asset-bytes-registry.jsonl").read_text().splitlines() if line.strip()]
+    too_big = [r["card_id"] for r in rows if (r.get("byte_size") or 0) > _r2_fetch.hard_ceiling([r])]
+    assert too_big == []

@@ -1,5 +1,5 @@
 """Second-round bounds: the host allowlist is required, redirects cannot downgrade the
-scheme or switch ports, a grown asset is reported (and can be allowed) as over-cap, and a
+scheme or switch ports, a body past the cap raises the over-cap error, and a
 weekly record with no start falls back to the bootstrap window."""
 
 from __future__ import annotations
@@ -21,8 +21,6 @@ if str(_SCRIPTS) not in sys.path:
 
 import _r2_fetch  # noqa: E402
 import _r2_run_state  # noqa: E402
-
-from tests.unit.r2_verify_harness import NEW_BODY, OLD_BODY, World, r2, sha  # noqa: E402
 
 HOSTS = frozenset({"www.war.gov"})
 URL = "https://www.war.gov/a.pdf"
@@ -145,64 +143,7 @@ def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path):
             s.server_close()
 
 
-# --- 3. over-cap is its own reason, with an override -----------------------------------
-
-
-def _grown_world(tmp_path, monkeypatch):
-    w = World(tmp_path, monkeypatch)
-    cid = w.add_card(1, prior=OLD_BODY, body=NEW_BODY, head_matches_prior=False)
-    other = w.add_card(2, prior=OLD_BODY, body=NEW_BODY, head_matches_prior=False)
-    caps: dict[str, int] = {}
-
-    def fetch(u, dest, *, max_bytes=None, allowed_hosts=None):
-        caps[str(u)] = max_bytes
-        if max_bytes is not None and max_bytes < 100:
-            raise _r2_fetch.FetchOverCapError(observed=4321, cap=max_bytes, declared=True)
-        Path(dest).write_bytes(NEW_BODY)
-        return sha(NEW_BODY), len(NEW_BODY)
-
-    monkeypatch.setattr(r2, "fetch_asset", fetch)
-    return w, cid, other, caps
-
-
-def test_over_cap_is_reported_with_its_size_and_cap(tmp_path, monkeypatch, capsys):
-    w, cid, _other, _caps = _grown_world(tmp_path, monkeypatch)
-    w.run()
-    out = capsys.readouterr().out
-    line = next(ln for ln in out.splitlines() if cid in ln and "over-cap" in ln)
-    assert "4321" in line and str(2 * len(OLD_BODY)) in line
-    assert "--allow-over-cap" in line
-
-
-def test_the_override_lifts_the_cap_for_the_named_card_only(tmp_path, monkeypatch, capsys):
-    w, cid, other, caps = _grown_world(tmp_path, monkeypatch)
-    rc = w.run("--allow-over-cap", cid, "--reason", "publisher re-saved at higher quality")
-    out = capsys.readouterr().out
-    assert caps["https://www.war.gov/medialink/ufo/c1.pdf"] == _r2_fetch.MAX_ASSET_BYTES
-    assert caps["https://www.war.gov/medialink/ufo/c2.pdf"] == 2 * len(OLD_BODY)
-    assert [r["card_id"] for r in w.new_rows()] == [cid]
-    assert cid in out and "publisher re-saved at higher quality" in out
-    assert any("over-cap" in ln and other in ln for ln in out.splitlines())
-    assert rc == 0
-
-
-def test_the_override_takes_a_comma_separated_list(tmp_path, monkeypatch):
-    w, cid, other, caps = _grown_world(tmp_path, monkeypatch)
-    w.run("--allow-over-cap", f"{cid},{other}", "--reason", "both re-saved")
-    assert set(caps.values()) == {_r2_fetch.MAX_ASSET_BYTES}
-
-
-def test_the_override_needs_a_reason(tmp_path, monkeypatch, capsys):
-    w, cid, _o, _c = _grown_world(tmp_path, monkeypatch)
-    with pytest.raises(SystemExit):
-        w.run("--allow-over-cap", cid)
-    assert "--reason" in capsys.readouterr().err
-
-
-def test_the_override_never_lifts_the_absolute_ceiling():
-    huge = [{"byte_size": _r2_fetch.MAX_ASSET_BYTES}]
-    assert _r2_fetch.byte_cap(huge, lifted=True) == _r2_fetch.MAX_ASSET_BYTES
-    assert _r2_fetch.byte_cap([{"byte_size": 10}], lifted=True) == _r2_fetch.MAX_ASSET_BYTES
+# --- 3. a streamed body past the cap raises the over-cap error ---------------------------
 
 
 def test_a_streamed_body_past_the_cap_raises_the_over_cap_error(monkeypatch, tmp_path):

@@ -20,6 +20,8 @@ from _r2_hosts import (  # noqa: F401  (re-exported: callers import these from h
     allowed_hosts_from_urls,
     check_hop,
     check_host,
+    for_card,
+    log_hop,
 )
 from _r2_run_state import rows_of_asset
 from curl_cffi import requests as cffi_requests
@@ -39,9 +41,13 @@ _CURLOPT_LOW_SPEED_LIMIT = 19
 _CURLOPT_LOW_SPEED_TIME = 20
 
 # Upstream-fetch bounds. An asset may grow to twice its last recorded size, but never past
-# the absolute ceiling; redirects are capped and must stay on the manifest's own hosts.
+# the absolute ceiling (growth past 2x is an alert, past the ceiling a failure); redirects are
+# capped and must stay on the manifest's own hosts or the approved list.
 MAX_ASSET_BYTES = 2 * 1024**3
 SIZE_GROWTH_FACTOR = 2
+# The hard ceiling for an asset of known size: growth past this many times its
+# last recorded size fails the card. Growth past SIZE_GROWTH_FACTOR only alerts.
+HARD_GROWTH_FACTOR = 10
 MAX_REDIRECTS = 5
 _REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
 
@@ -61,16 +67,24 @@ class FetchOverCapError(FetchLimitError):
         super().__init__(f"{kind} size {observed} bytes is over the {cap}-byte cap")
 
 
-def byte_cap(rows: list[dict[str, Any]], *, lifted: bool = False) -> int:
-    """Most bytes one asset may stream: twice its last recorded size, never above the ceiling.
-
-    ``lifted`` (an operator override for one card) drops the growth factor only; the
-    absolute ceiling still applies."""
-    if lifted:
-        return MAX_ASSET_BYTES
+def byte_cap(rows: list[dict[str, Any]]) -> int:
+    """The growth cap: twice the last recorded size, never above the ceiling. Past it is an alert."""
     known = last_known_size(rows)
     if isinstance(known, int) and known > 0:
         return min(known * SIZE_GROWTH_FACTOR, MAX_ASSET_BYTES)
+    return MAX_ASSET_BYTES
+
+
+def hard_ceiling(rows: list[dict[str, Any]]) -> int:
+    """The most bytes a fetch may read before the card fails.
+
+    ``MAX_ASSET_BYTES`` for an asset with no recorded size; otherwise the larger of
+    that and ``HARD_GROWTH_FACTOR`` times the last recorded size, so an asset that is
+    already bigger than the absolute ceiling is never refused for its own size.
+    """
+    known = last_known_size(rows)
+    if isinstance(known, int) and known > 0:
+        return max(MAX_ASSET_BYTES, known * HARD_GROWTH_FACTOR)
     return MAX_ASSET_BYTES
 
 
@@ -92,6 +106,7 @@ def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any
             raise FetchLimitError(f"more than {MAX_REDIRECTS} redirects")
         target = urljoin(current, location)
         check_hop(current, target)
+        log_hop(current, target, resp.status_code)
         current = target
     raise AssertionError("unreachable")  # pragma: no cover
 

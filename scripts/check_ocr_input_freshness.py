@@ -13,9 +13,10 @@ fail the gate.
 
 A published PDF card that is still without a registry PDF row more than
 ``--unregistered-days`` (default 3) days after its manifest ``release_date`` (the
-publication date; a card with no parseable one is never aged) is ``unregistered-stale``:
-counted, listed with the date used, and failing above ``--max-unregistered-stale N``
-exactly as ``unverifiable`` does.
+publication date) is ``unregistered-stale``: counted, listed with the date used, and
+failing above ``--max-unregistered-stale N`` exactly as ``unverifiable`` does. One with
+no parseable ``release_date`` cannot be aged, so it is ``unregistered-undated``: listed,
+recorded, and counted against that same ceiling, never skipped.
 
 A card with no ``meta.json`` or no recorded ``pdf_sha256`` has no input sha to
 compare, and the scoping rule never re-OCRs it. It is reported as
@@ -42,10 +43,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
 import json
-from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from _freshness_manifest import FreshnessError, _manifest_cards
+from _freshness_result import UNREGISTERED_STALE_DAYS, Result
 
 from pursue_index.byte_dispositions import (
     ByteDispositionError,
@@ -58,60 +59,6 @@ from pursue_index.ingest_scope import load_registry_sha_map
 from pursue_index.paths import repo_root
 
 REPO_ROOT = repo_root()
-RECORD_SCHEMA = "pursue-ocr-input-freshness/v1"
-# A published PDF card with no registry row this many days after its release date is
-# ``unregistered-stale``: longer than the daily archive's normal lag.
-UNREGISTERED_STALE_DAYS = 3
-
-
-@dataclass
-class Result:
-    stale: list[str] = field(default_factory=list)
-    covered: list[str] = field(default_factory=list)
-    unregistered: list[str] = field(default_factory=list)
-    unverifiable: list[tuple[str, str]] = field(default_factory=list)
-    unregistered_stale: list[tuple[str, date]] = field(default_factory=list)
-    checked: int = 0
-
-    max_unverifiable: int | None = None
-    max_unregistered_stale: int | None = None
-    unregistered_days: int = UNREGISTERED_STALE_DAYS
-
-    @property
-    def over_ceiling(self) -> bool:
-        return self.max_unverifiable is not None and len(self.unverifiable) > self.max_unverifiable
-
-    @property
-    def over_stale_ceiling(self) -> bool:
-        return (
-            self.max_unregistered_stale is not None
-            and len(self.unregistered_stale) > self.max_unregistered_stale
-        )
-
-    @property
-    def failed(self) -> bool:
-        return bool(self.stale) or self.over_ceiling or self.over_stale_ceiling
-
-    def record(self) -> dict:
-        """Deterministic release record (no timestamps, so a rerun is byte-stable)."""
-        return {
-            "schema": RECORD_SCHEMA,
-            "checked": self.checked,
-            "stale": len(self.stale),
-            "covered": len(self.covered),
-            "unregistered_pdf_cards": {
-                "count": len(self.unregistered), "cards": sorted(self.unregistered),
-            },
-            "unregistered_stale_pdf_cards": {
-                "count": len(self.unregistered_stale),
-                "cards": sorted(c for c, _ in self.unregistered_stale),
-                "days": self.unregistered_days,
-            },
-            "unverifiable_provenance": {
-                "count": len(self.unverifiable),
-                "cards": [{"card_id": c, "reason": r} for c, r in self.unverifiable],
-            },
-        }
 
 
 def check(
@@ -141,7 +88,9 @@ def check(
         if new is None:
             if is_pdf:
                 res.unregistered.append(card_id)
-                if released is not None and released < cutoff:
+                if released is None:
+                    res.unregistered_undated.append(card_id)
+                elif released < cutoff:
                     res.unregistered_stale.append((card_id, released))
             continue
         res.checked += 1
@@ -181,12 +130,18 @@ def _report_lines(res: Result) -> list[str]:
         f"no registry row after more than {res.unregistered_days} days)"
         for c, d in res.unregistered_stale
     ]
+    lines += [
+        f"unregistered-undated: {c} (no parseable release_date, so it cannot be aged; "
+        "no registry row)"
+        for c in res.unregistered_undated
+    ]
     lines += [f"unverifiable provenance: {c} ({why})" for c, why in res.unverifiable]
     counts = (
         f"{res.checked} PDF cards checked, ok {res.checked - len(res.stale) - len(res.covered) - len(res.unverifiable)}, "
         f"{len(res.stale)} stale, {len(res.covered)} covered, "
         f"unregistered: {len(res.unregistered)}, "
-        f"unregistered-stale: {len(res.unregistered_stale)}, unverifiable provenance: {len(res.unverifiable)}"
+        f"unregistered-stale: {len(res.unregistered_stale)}, "
+        f"unregistered-undated: {len(res.unregistered_undated)}, unverifiable provenance: {len(res.unverifiable)}"
     )
     if res.over_ceiling:
         lines.append(
@@ -195,14 +150,16 @@ def _report_lines(res: Result) -> list[str]:
         )
     if res.over_stale_ceiling:
         lines.append(
-            f"unregistered-stale count {len(res.unregistered_stale)} exceeds the ceiling "
+            f"unregistered-stale + undated count "
+            f"{len(res.unregistered_stale) + len(res.unregistered_undated)} exceeds the ceiling "
             f"{res.max_unregistered_stale} (--max-unregistered-stale)"
         )
     lines.append(f"ocr input freshness: {'FAILED' if res.failed else 'OK'} ({counts})")
     return lines
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, today: date | None = None) -> int:
+    """Run the gate. ``today`` is a test seam for the clock; it is not a command-line option."""
     data = REPO_ROOT / "data"
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--manifest", type=Path, default=data / "manifests" / "latest.json")
@@ -225,16 +182,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--max-unregistered-stale", type=_non_negative, default=None, metavar="N",
-        help="fail when more than N PDF cards are unregistered-stale (default: warn only)",
+        help="fail when more than N PDF cards are unregistered-stale or unregistered-undated "
+        "(default: warn only)",
     )
-    parser.add_argument("--today", type=date.fromisoformat, default=None, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     try:
         data_root = args.data_root or Settings().data_root
         dispositions = load_byte_change_dispositions(args.dispositions)
         res = check(
             args.manifest, args.registry, dispositions, data_root,
-            today=args.today, unregistered_days=args.unregistered_days,
+            today=today, unregistered_days=args.unregistered_days,
         )
         res.max_unverifiable = args.max_unverifiable
         res.max_unregistered_stale = args.max_unregistered_stale

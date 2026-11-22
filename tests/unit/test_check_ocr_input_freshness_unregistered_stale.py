@@ -48,8 +48,8 @@ class Env:
         code = gate.main([
             "--manifest", str(self.manifest), "--registry", str(self.registry),
             "--dispositions", str(self.dispositions), "--data-root", str(self.data_root),
-            "--today", TODAY.isoformat(), *extra,
-        ])
+            *extra,
+        ], today=TODAY)
         got = capsys.readouterr()
         return code, got.out + got.err
 
@@ -111,7 +111,7 @@ def test_non_pdf_cards_are_not_flagged(env, capsys):
 def test_a_card_without_a_usable_release_date_is_not_aged(env, capsys):
     env.card(1, days_ago=None)
     env.cards.append({"card_id": _cid(2), "asset_type": "PDF", "release_date": "soon"})
-    code, out = env.run(capsys, "--max-unregistered-stale", "0")
+    code, out = env.run(capsys)
     assert code == 0 and "unregistered-stale: 0" in out and "unregistered: 2" in out
 
 
@@ -121,3 +121,44 @@ def test_the_release_record_lists_the_stale_cards(env, capsys, tmp_path):
     env.run(capsys, "--record", str(rec))
     got = json.loads(rec.read_text())["unregistered_stale_pdf_cards"]
     assert got == {"count": 1, "cards": [cid], "days": 3}
+
+
+def test_a_card_without_a_usable_release_date_is_unregistered_undated(env, capsys):
+    cid = env.card(1, days_ago=None)
+    env.cards.append({"card_id": _cid(2), "asset_type": "PDF", "release_date": "soon"})
+    code, out = env.run(capsys)
+    assert code == 0, "warn-only without a ceiling"
+    assert f"unregistered-undated: {cid}" in out and "unregistered-undated: 2" in out
+
+
+def test_undated_cards_fail_above_the_same_ceiling_as_stale(env, capsys):
+    env.card(1, days_ago=None)
+    env.card(2, days_ago=9)
+    code, out = env.run(capsys, "--max-unregistered-stale", "1")
+    assert code == 1 and "exceeds the ceiling 1 (--max-unregistered-stale)" in out
+    code, _ = env.run(capsys, "--max-unregistered-stale", "2")
+    assert code == 0
+
+
+def test_an_undated_card_with_a_registry_row_is_not_listed(env, capsys):
+    cid = env.card(1, days_ago=None)
+    env.registry.write_text(json.dumps({"card_id": cid, "byte_sha256": "b" * 64,
+                                        "current_key": f"{cid}.pdf"}) + "\n")
+    _, out = env.run(capsys)
+    assert "unregistered-undated: 0" in out
+
+
+def test_the_release_record_lists_the_undated_cards(env, capsys, tmp_path):
+    cid = env.card(1, days_ago=None)
+    rec = tmp_path / "rec.json"
+    env.run(capsys, "--record", str(rec))
+    got = json.loads(rec.read_text())["unregistered_undated_pdf_cards"]
+    assert got == {"count": 1, "cards": [cid]}
+
+
+def test_today_is_not_a_command_line_argument(env, capsys):
+    env.manifest.write_text(json.dumps({"cards": []}))
+    with pytest.raises(SystemExit) as exc:
+        gate.main(["--manifest", str(env.manifest), "--today", "2026-01-01"])
+    assert exc.value.code == 2
+    assert "--today" in capsys.readouterr().err

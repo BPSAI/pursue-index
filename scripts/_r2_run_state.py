@@ -55,12 +55,17 @@ class RunState:
     partial_reason: str = ""  # why a run covered fewer cards than the manifest has
     cards_hashed: int = 0
     no_upstream_url: int = 0
-    # Hosts of the manifest's asset URLs; every fetch and redirect must stay inside it.
+    # Hosts of the manifest's asset URLs plus the approved list; every fetch and redirect
+    # must stay inside it.
     allowed_hosts: frozenset[str] = frozenset()
-    # Cards whose x2 growth cap is lifted for this run, and why (operator override).
-    allow_over_cap: frozenset[str] = frozenset()
-    over_cap_reason: str = ""
+    size_alerts: int = 0  # assets past the x2 growth cap (alerts, not failures)
     started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
+
+    def note_growth(self, card_id: str, known: int | None, size: int, cap: int) -> None:
+        """Alert, without failing the card, when an asset with a known size passed its cap."""
+        if isinstance(known, int) and known > 0 and size > cap:
+            self.size_alerts += 1
+            print(f"[r2-archive] SIZE ALERT: {card_id} {known} -> {size} (over the 2x growth cap)")
 
 
 def write_run_record(path: Path, entry: dict[str, Any]) -> None:
