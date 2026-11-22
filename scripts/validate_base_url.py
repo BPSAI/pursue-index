@@ -61,6 +61,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     parts = {k: os.environ.get(k) for k in BUDGET_ENV}
     given = {k: v for k, v in parts.items() if v is not None}
+    if wait is not None and not given:
+        # A max wait with no budget cannot be checked against the job timeout:
+        # refuse it rather than skip the cap.
+        print("::error::MAX_WAIT_SECS is set but the wait budget is missing "
+              f"({', '.join(BUDGET_ENV)}); the cap cannot be checked", file=sys.stderr)
+        return 1
     if given:
         for k, v in given.items():
             if not re.fullmatch(r"[0-9]+", v):

@@ -36,13 +36,6 @@ def test_main_exit_codes(monkeypatch, capsys):
     assert mod.main([]) == 0
 
 
-@pytest.mark.parametrize("v,ok", [("600", True), ("0", True), ("6;rm", False), ("", False), ("-1", False)])
-def test_max_wait_validation(monkeypatch, v, ok):
-    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
-    monkeypatch.setenv("MAX_WAIT_SECS", v)
-    assert (mod.main([]) == 0) is ok
-
-
 def _budget(monkeypatch, *, job=40, build=1200, stamp=300, margin=120):
     """Set the budget inputs the workflow passes: 40 min - 1200 - 300 - 120 = 780s of cap."""
     monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
@@ -108,3 +101,28 @@ def test_a_budget_that_leaves_no_room_is_an_error(monkeypatch):
     _budget(monkeypatch, job=10)  # 600s less 1200 + 300 + 120
     monkeypatch.setenv("MAX_WAIT_SECS", "0")
     assert mod.main([]) == 1
+
+
+@pytest.mark.parametrize("v,ok", [("600", True), ("0", True), ("6;rm", False), ("", False), ("-1", False)])
+def test_max_wait_validation(monkeypatch, v, ok):
+    _budget(monkeypatch)
+    monkeypatch.setenv("MAX_WAIT_SECS", v)
+    assert (mod.main([]) == 0) is ok
+
+
+def test_max_wait_without_any_budget_is_refused_not_skipped(monkeypatch, capsys):
+    """A max wait with no budget at all must fail closed, not skip the cap check."""
+    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
+    for k in mod.BUDGET_ENV:
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("MAX_WAIT_SECS", "600")
+    assert mod.main([]) == 1
+    assert "wait budget is missing" in capsys.readouterr().err
+
+
+def test_base_url_alone_needs_no_budget(monkeypatch):
+    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
+    monkeypatch.delenv("MAX_WAIT_SECS", raising=False)
+    for k in mod.BUDGET_ENV:
+        monkeypatch.delenv(k, raising=False)
+    assert mod.main([]) == 0
