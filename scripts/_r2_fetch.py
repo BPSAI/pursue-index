@@ -23,8 +23,9 @@ from _r2_hosts import (  # noqa: F401  (re-exported: callers import these from h
     for_card,
     log_hop,
 )
-from _r2_run_state import rows_of_asset
 from curl_cffi import requests as cffi_requests
+
+from pursue_index.asset_rows import rows_of_asset
 
 CHUNK_SIZE = 1 << 20
 

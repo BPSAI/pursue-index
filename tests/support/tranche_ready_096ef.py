@@ -34,6 +34,7 @@ from tests.support.pdf_page_fakes import FakeHttpGet, pdf_bytes
 from tests.support.tranche_096ef import (
     D042_NEW_ID,
     D042_OLD_ID,
+    d042_old_row,
     DATA,
     NEW_MANIFEST,
     OLD_MANIFEST,
@@ -94,9 +95,7 @@ def replay_args(tmp: Path, *extra: str) -> list[str]:
     if not (tmp / "latest.json").exists():
         shutil.copy(OLD_MANIFEST, tmp / "latest.json")
     old, _ = d042_bytes()
-    registry = receipt_time_registry(tmp / "registry.jsonl", [{
-        "card_id": D042_OLD_ID, "byte_sha256": sha256(old),
-        "fetched_at": "2099-01-01T00:00:00+00:00"}])
+    registry = receipt_time_registry(tmp / "registry.jsonl", [d042_old_row(sha256(old))])
     bundle = tmp / "clean-qc-bundle.json"
     bundle.write_text(json.dumps({"stats": {"metered_judge_spend_usd": 16.5,
                                             "metered_judge_calls": 1000}}))

@@ -54,5 +54,7 @@ def test_over_cap_pair_is_content_changed_not_an_exception(tmp_path, monkeypatch
 def test_check_quarantines_when_a_candidate_is_over_cap(tmp_path, monkeypatch) -> None:
     old_sha, new_sha = _stage(tmp_path, b"o" * 64), _stage(tmp_path, b"n" * 64)
     monkeypatch.setattr(pdf_limits, "MAX_FILE_BYTES", 10)
-    check = bytes_dir_check(tmp_path, {"old": [{"byte_sha256": old_sha}]})
+    row = {"asset_url": "https://x/o.pdf", "asset_filename": "o.pdf", "byte_sha256": old_sha}
+    cards = [{"card_id": "old", "asset_url": "https://x/o.pdf", "asset_filename": "o.pdf"}]
+    check = bytes_dir_check(tmp_path, {"old": [row]}, cards)
     assert check("old", new_sha) is None

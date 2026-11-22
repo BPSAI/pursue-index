@@ -39,6 +39,15 @@ def receipt_shas() -> dict[str, str]:
     return out
 
 
+def d042_old_row(byte_sha256: str, fetched_at: str = "2099-01-01T00:00:00+00:00") -> dict:
+    """A registry row pinning the old D042 asset, keyed by its own URL like a real row."""
+    [card] = [c for c in json.loads(OLD_MANIFEST.read_text())["cards"]
+              if c["card_id"] == D042_OLD_ID and c["asset_type"] == "PDF"]
+    return {"card_id": D042_OLD_ID, "asset_url": card["asset_url"],
+            "asset_filename": card["asset_filename"], "byte_sha256": byte_sha256,
+            "fetched_at": fetched_at}
+
+
 def d042_new_url() -> str:
     [row] = [q for q in receipt()["quarantined"] if q["new_card_id"] == D042_NEW_ID]
     return row["new_asset_url"]

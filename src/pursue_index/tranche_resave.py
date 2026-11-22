@@ -37,10 +37,12 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from pursue_index.asset_rows import rows_of_asset
 from pursue_index.classifier_id import classifier_id
 from pursue_index.pdf_crosscheck import CROSSCHECKS
 from pursue_index.pdf_limits import LimitExceededError, open_regular
 from pursue_index.tranche_bytes import METADATA_ONLY, classify_bytes
+from pursue_index.tranche_manifest import display_rows_by_card_id
 
 __all__ = [
     "RESAVE_BUCKET",
@@ -48,6 +50,7 @@ __all__ = [
     "ResaveCheck",
     "bytes_dir_check",
     "demote_resaves",
+    "old_asset_sha",
     "resave_counts",
 ]
 
@@ -84,16 +87,36 @@ def _verified_path(bytes_dir: Path, sha: str | None) -> Path | None:
     return path if digest.hexdigest() == sha else None
 
 
+def old_asset_sha(
+    old_by_id: dict[str, dict[str, Any]], registry: dict[str, list[dict[str, Any]]],
+    old_card_id: str,
+) -> str | None:
+    """Byte sha of an old card's own asset: the one place that choice is made.
+
+    ``old_by_id`` maps card ids to the display row (the PDF row of a multi-asset card);
+    that row's asset picks the registry rows by the archive rule, so a card whose newest
+    row is a video still reads its PDF's bytes. ``None`` when the asset has no row."""
+    card = old_by_id.get(old_card_id) or {}
+    rows = rows_of_asset(
+        registry.get(old_card_id), card.get("asset_url"), card.get("asset_filename"))
+    return rows[-1].get("byte_sha256") if rows else None
+
+
 def bytes_dir_check(
     bytes_dir: Path | None, registry: dict[str, list[dict[str, Any]]],
+    old_cards: list[dict[str, Any]],
 ) -> ResaveCheck | None:
-    """The ``resave_check`` for ``diff_tranches``; ``None`` without a dir."""
+    """The ``resave_check`` for ``diff_tranches``; ``None`` without a dir.
+
+    ``old_cards`` (required) are the old manifest's rows: each old card's own asset picks
+    the registry rows its bytes are read from (the card's newest row may be a video's).
+    An old card with no row for its asset gives no evidence."""
     if bytes_dir is None:
         return None
+    old_by_id = display_rows_by_card_id(old_cards)
 
     def check(old_card_id: str, new_sha: str | None) -> str | None:
-        rows = registry.get(old_card_id) or []
-        old_sha = rows[-1].get("byte_sha256") if rows else None
+        old_sha = old_asset_sha(old_by_id, registry, old_card_id)
         old_path = _verified_path(bytes_dir, old_sha)
         new_path = _verified_path(bytes_dir, new_sha)
         if old_path is None or new_path is None:

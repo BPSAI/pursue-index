@@ -206,7 +206,7 @@ def main() -> int:
     registry = load_registry(args.registry)
     normalized = normalize_manifest_dict(new_manifest, old_manifest, overlay)
     diff = diff_tranches(old_manifest, new_manifest, registry,
-                         resave_check=bytes_dir_check(args.bytes_dir, registry),
+                         resave_check=bytes_dir_check(args.bytes_dir, registry, old_manifest.get("cards", [])),
                          move_resaves=settings.ingest_auto_approve_metadata_resaves,
                          date_overlay=overlay, normalized=normalized)
 
