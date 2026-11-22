@@ -1,0 +1,147 @@
+"""Where the registry drift scan starts and what it covers, for ``r2_archive_assets.py``.
+
+The window starts at the earliest of the last passing gate marker and the last complete
+``--full-hash`` run; a marker also records how many registry rows its gate covered, so the
+next scan starts after them. Imported by ``r2_archive_assets.py`` after its bootstrap.
+"""
+
+from __future__ import annotations
+
+import json
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from typing import Any
+
+from _r2_hosts import type_change_line
+from _r2_registry import group_registry, load_registry_rows
+from _r2_run_state import (
+    BOOTSTRAP_WINDOW_DAYS,
+    GATE_MARKER_NAME,
+    RUN_RECORD_NAME,
+    newest_complete_run,
+)
+
+from pursue_index.asset_rows import rows_of_asset, type_change
+
+
+def gate_marker_path(args) -> Path:
+    return args.gate_marker or args.registry.parent / GATE_MARKER_NAME
+
+
+def newest_run_start(path: Path, now: datetime | None = None) -> datetime | None:
+    """When the newest complete run in ``path`` BEGAN.
+
+    A complete weekly record is written whether or not its drift gate passed, and the
+    rows it wrote are dated inside the run, before ``completed_at``. Only ``started_at``
+    is safe as a scan start. A legacy record without one is not trusted: it yields the
+    bootstrap window instead, which reaches at least as far back."""
+    now = now or datetime.now(UTC)
+    finished = newest_complete_run(path, now)
+    if finished is None:
+        return None
+    started: datetime | None = None
+    for line in path.read_text().splitlines():
+        try:
+            row = json.loads(line)
+            done = datetime.fromisoformat(row["completed_at"])
+            when = datetime.fromisoformat(row["started_at"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if done.tzinfo is None:
+            done = done.replace(tzinfo=UTC)
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        if done == finished:
+            started = when
+    if started is None:
+        return min(finished, now - timedelta(days=BOOTSTRAP_WINDOW_DAYS))
+    return started
+
+
+def gated_row_count(args, now: datetime | None = None) -> int | None:
+    """Registry rows (in file order) the newest passing gate covered, or ``None`` when that
+    marker is missing or in the old format (then the whole window is rescanned)."""
+    now = now or datetime.now(UTC)
+    path = gate_marker_path(args)
+    if not path.exists():
+        return None
+    newest: datetime | None = None
+    count: int | None = None
+    for line in path.read_text().splitlines():
+        try:
+            row = json.loads(line)
+            when = datetime.fromisoformat(row["completed_at"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        if when > now + timedelta(minutes=5) or (newest is not None and when <= newest):
+            continue
+        rows = row.get("gated_rows")
+        newest, count = when, rows if isinstance(rows, int) and not isinstance(rows, bool) and rows >= 0 else None
+    return count
+
+
+def drift_window_start(args, now: datetime | None = None) -> datetime:
+    """Where the registry drift scan starts: the EARLIEST of the last passing gate marker
+    and the start of the last complete ``--full-hash`` run.
+
+    The weekly record exists even when that run's drift gate failed, so a run with no
+    marker must not start after the rows it wrote. With neither, the last 8 days."""
+    now = now or datetime.now(UTC)
+    record = args.run_record or args.registry.parent / RUN_RECORD_NAME
+    starts = [
+        t
+        for t in (newest_complete_run(gate_marker_path(args), now), newest_run_start(record, now))
+        if t is not None
+    ]
+    return min(starts) if starts else now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
+
+
+def registry_drift_since(
+    registry: dict[str, list[dict[str, Any]]],
+    since: datetime,
+    rows_after: list[dict[str, Any]] | None = None,
+):
+    """``(card_id, previous_sha, new_sha)`` for each row fetched at/after ``since`` whose sha
+    differs from the previous row of the same card AND the same ``asset_url``, or
+    (for a moved URL) the newest earlier row of the same file type. A first row with no
+    such earlier row is net-new, never drift (one whose file type changed with its URL is
+    printed as a ``TYPE CHANGE`` warning).
+
+    ``rows_after`` (row objects of ``registry``, as ``load_registry`` returns them) limits the
+    scan to those rows: the ones a passing gate has not covered yet. ``None`` scans them all."""
+    fresh = None if rows_after is None else {id(r) for r in rows_after}
+    out = []
+    for card_id, rows in registry.items():
+        for i, row in enumerate(rows):
+            if fresh is not None and id(row) not in fresh:
+                continue
+            try:
+                when = datetime.fromisoformat(row["fetched_at"])
+            except (KeyError, ValueError, TypeError):
+                continue
+            if when.tzinfo is None:
+                when = when.replace(tzinfo=UTC)
+            earlier = rows_of_asset(rows[:i], row.get("asset_url"), row.get("asset_filename"))
+            prev = earlier[-1] if earlier else None
+            if prev is None:
+                change = type_change(rows[:i], row.get("asset_url"), row.get("asset_filename"))
+                if change and when >= since and not any(
+                    r.get("asset_url") == change[0].get("asset_url") for r in rows[i + 1 :]
+                ):
+                    print(type_change_line(card_id, *change, row.get("asset_url")))
+                continue
+            old, new = prev.get("byte_sha256"), row.get("byte_sha256")
+            if when >= since and old and new and old != new:
+                out.append((card_id, old, new))
+    return out
+
+
+def scan_registry(args, since: datetime, gated: int | None) -> tuple[Any, int]:
+    """``(drift rows, rows scanned)``: the registry rows appended since the last passing gate."""
+    if not args.fail_on_drift:
+        return (), 0
+    rows = load_registry_rows(args.registry)
+    after = rows[gated:] if gated is not None and gated <= len(rows) else None
+    return registry_drift_since(group_registry(rows), since, after), len(rows)

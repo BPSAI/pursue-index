@@ -90,7 +90,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
-import json
 import os
 import tempfile
 from typing import Any
@@ -101,6 +100,13 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from _r2_archive_put import put_archive_and_current
+from _r2_drift_scan import (
+    drift_window_start,
+    gate_marker_path,
+    gated_row_count,
+    registry_drift_since,  # noqa: F401  (re-exported)
+    scan_registry,
+)
 from _r2_fetch import (
     FetchOverCapError,
     byte_cap,
@@ -112,18 +118,15 @@ from _r2_fetch import (
     last_known_size,
     rows_for_asset,
 )
-from _r2_hosts import ApprovedHostsError, load_approved_hosts, unlisted_hosts
+from _r2_hosts import ApprovedHostsError, load_approved_hosts, unlisted_hosts_error
+from _r2_registry import append_registry, load_registry
 from _r2_run_state import (
     GATE_MARKER_SCHEMA,
     RUN_RECORD_NAME,
     RunState,
     drift_outcome,
-    drift_window_start,
     full_hash_outcome,
-    gate_marker_path,
-    gated_row_count,
     now_iso,
-    registry_drift_since,
     staleness_outcome,
     write_run_record,
 )
@@ -142,64 +145,6 @@ DEFAULT_APPROVED_HOSTS = _REPO_ROOT / "data" / "approved-asset-hosts.json"
 DEFAULT_BUCKET = "pursue-pdfs"
 # Every asset type the registry tracks.
 ASSET_TYPES = ("PDF", "IMG", "VID", "AUD")
-
-
-def load_registry(path: Path) -> dict[str, list[dict[str, Any]]]:
-    """Return ``{card_id: [row, row, ...]}`` sorted newest-last by fetched_at.
-
-    Robust against malformed rows: a line missing ``card_id`` or
-    failing JSON parse is skipped, not raised. The registry is
-    append-only + content-addressed and is committed by multiple
-    workflows; a single corrupt mid-write line shouldn't take down
-    every subsequent run.
-    """
-    return group_registry(load_registry_rows(path))
-
-
-def load_registry_rows(path: Path) -> list[dict[str, Any]]:
-    """The registry's usable rows in file order (a position here is what a gate marker counts)."""
-    rows: list[dict[str, Any]] = []
-    if not path.exists():
-        return rows
-    with path.open() as fh:
-        for line in fh:
-            if not line.strip():
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if row.get("card_id"):
-                rows.append(row)
-    return rows
-
-
-def group_registry(rows: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
-    """``{card_id: [row, ...]}`` newest-last; the row objects are shared with ``rows``."""
-    out: dict[str, list[dict[str, Any]]] = {}
-    for row in rows:
-        out.setdefault(row["card_id"], []).append(row)
-    for card_rows in out.values():
-        card_rows.sort(key=lambda r: r.get("fetched_at", ""))
-    return out
-
-
-def append_registry(path: Path, entry: dict[str, Any]) -> None:
-    """Append one JSONL row to the asset-bytes registry.
-
-    Contract pin: every row MUST be on a single line. The workflow's
-    "count new rows" step uses `grep -c '^+{'` on the diff to report
-    how many rows landed in a given commit; that grep relies on each
-    row starting with `{` and ending with `}\n` — i.e., no pretty-
-    printed multi-line JSON. ``json.dumps`` with default settings
-    enforces this (no indent argument supplied), but the contract is
-    load-bearing for the workflow's row-count source, so this comment
-    serves as the regression alert: do NOT add `indent=` here.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a") as fh:
-        # json.dumps default: compact, no indent → single-line per row.
-        fh.write(json.dumps(entry) + "\n")
 
 
 def make_r2_client():
@@ -561,13 +506,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     manifest = load_manifest(args.manifest)
-    unlisted = unlisted_hosts((c.asset_url for c in manifest.cards), approved)
-    if unlisted:
-        print(
-            f"[r2-archive] ERROR: manifest asset host(s) {', '.join(unlisted)} not listed in "
-            f"{args.approved_hosts}; add them there on purpose, in a reviewed change.",
-            file=sys.stderr,
-        )
+    if unlisted_hosts_error(manifest.cards, approved, args.approved_hosts):
         return 1
     registry = load_registry(args.registry)
     print(
@@ -576,18 +515,13 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     started = now_iso()
-    since = drift_window_start(args)  # read before this run appends anything
-    gated = gated_row_count(args)
+    since, gated = drift_window_start(args), gated_row_count(args)  # read before this run appends
 
     client = None if args.dry_run else make_r2_client()
     if client is None and not args.dry_run:
         return _no_credentials(args)
 
-    state = RunState(full_hash=args.full_hash, started_at=started)
-    state.byte_budget = args.max_bytes_per_run
-    state.allowed_hosts = approved  # the committed list only; the manifest may not widen it
-    for mc in manifest.cards:
-        state.card_urls.setdefault(mc.card_id, set()).add(str(mc.asset_url))
+    state = RunState.for_run(args, manifest, approved, started)
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
@@ -605,14 +539,12 @@ def main(argv: list[str] | None = None) -> int:
     rc = full_hash_outcome(args, state) if args.full_hash else 0
     # The registry itself, not only this run's own findings: the poll lane appends
     # new-sha rows without --fail-on-drift, so the fetched sha can equal the latest row.
-    scanned = load_registry_rows(args.registry) if args.fail_on_drift else []
-    after = scanned[gated:] if gated is not None and gated <= len(scanned) else None
-    seen = registry_drift_since(group_registry(scanned), since, after) if args.fail_on_drift else ()
+    seen, scanned = scan_registry(args, since, gated)
     drift_rc = drift_outcome(args, state, dispositions, seen)
     if args.fail_on_drift and not drift_rc and not args.dry_run:
         write_run_record(
             gate_marker_path(args),
-            {"schema": GATE_MARKER_SCHEMA, "completed_at": started, "gated_rows": len(scanned)},
+            {"schema": GATE_MARKER_SCHEMA, "completed_at": started, "gated_rows": scanned},
         )
     return max(rc, drift_rc, staleness_outcome(args))
 

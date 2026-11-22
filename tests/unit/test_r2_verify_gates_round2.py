@@ -14,6 +14,7 @@ from collections import namedtuple
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from typing import ClassVar
 
 import pytest
 
@@ -21,6 +22,7 @@ _SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
+import _r2_drift_scan  # noqa: E402
 import _r2_fetch  # noqa: E402
 import _r2_hosts  # noqa: E402
 import _r2_run_state  # noqa: E402
@@ -172,10 +174,10 @@ def test_http_to_other_scheme_hop_is_refused():
 
 
 class _Local(http.server.BaseHTTPRequestHandler):
-    hits: list[str] = []
+    hits: ClassVar[list[str]] = []
     body = b"pursue-real-client-" * 4000
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         type(self).hits.append(self.path)
         if self.path == "/gz":
             data = gzip.compress(type(self).body)
@@ -218,7 +220,7 @@ def test_real_client_never_requests_an_http_url_without_the_test_seam(local, tmp
 def test_real_client_refuses_loopback_without_the_test_seam(local, tmp_path, monkeypatch):
     # https URL to a loopback literal: refused on the resolved address, nothing is sent.
     port = local.rsplit(":", 1)[1]
-    with pytest.raises(_r2_fetch.FetchLimitError, match="private|loopback|address"):
+    with pytest.raises(_r2_fetch.FetchLimitError, match=r"private|loopback|address"):
         _r2_fetch.fetch_asset(
             f"https://127.0.0.1:{port}/a.pdf", tmp_path / "a", max_bytes=10**6, allowed_hosts=LOCAL
         )
@@ -378,7 +380,7 @@ def test_the_marker_carries_the_gated_row_count_and_the_next_gate_starts_after_i
         {"schema": _r2_run_state.GATE_MARKER_SCHEMA, "completed_at": (NOW - timedelta(days=2)).isoformat(),
          "gated_rows": len(w.rows)},
     )
-    assert _r2_run_state.gated_row_count(args) == len(w.rows)
+    assert _r2_drift_scan.gated_row_count(args) == len(w.rows)
     # The drift row is behind the marker's count: the next gate does not rescan it, and its own marker says so.
     assert w.run(*flags) == 0
     last = json.loads(marker.read_text().splitlines()[-1])
@@ -399,13 +401,13 @@ def test_a_new_row_after_the_gated_count_is_still_scanned(tmp_path, monkeypatch)
 
 def test_a_missing_or_old_format_marker_falls_back_to_the_whole_window(tmp_path):
     args = SimpleNamespace(registry=tmp_path / "r.jsonl", gate_marker=tmp_path / "m.jsonl", run_record=tmp_path / "x")
-    assert _r2_run_state.gated_row_count(args) is None
+    assert _r2_drift_scan.gated_row_count(args) is None
     _r2_run_state.write_run_record(args.gate_marker, {"completed_at": NOW.isoformat()})
-    assert _r2_run_state.gated_row_count(args) is None
+    assert _r2_drift_scan.gated_row_count(args) is None
     _r2_run_state.write_run_record(args.gate_marker, {"completed_at": NOW.isoformat(), "gated_rows": "x"})
-    assert _r2_run_state.gated_row_count(args) is None
+    assert _r2_drift_scan.gated_row_count(args) is None
     _r2_run_state.write_run_record(args.gate_marker, {"completed_at": NOW.isoformat(), "gated_rows": -3})
-    assert _r2_run_state.gated_row_count(args) is None
+    assert _r2_drift_scan.gated_row_count(args) is None
 
 
 def test_a_registry_shorter_than_the_gated_count_is_scanned_whole(tmp_path, monkeypatch):

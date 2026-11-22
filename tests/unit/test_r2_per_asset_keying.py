@@ -12,7 +12,7 @@ import pytest
 from tests.unit.r2_verify_harness import NEW_BODY, OLD_BODY, World, r2, sha
 
 import _r2_fetch  # noqa: E402  (scripts/ is on sys.path via the harness)
-import _r2_run_state  # noqa: E402
+import _r2_drift_scan  # noqa: E402
 
 _REPO = Path(__file__).resolve().parents[2]
 VIDEO_URL = "https://www.dvidshub.net/video/1006056"
@@ -102,7 +102,7 @@ SINCE = datetime.fromisoformat("2026-01-01T00:00:00+00:00")
 def test_a_pdf_row_then_a_video_row_in_the_window_is_not_drift():
     reg = {"c": [_row("c", "https://x/a.pdf", "a" * 64, "2026-05-01T00:00:00+00:00"),
                  _row("c", VIDEO_URL, "b" * 64, "2026-06-01T00:00:00+00:00")]}
-    assert _r2_run_state.registry_drift_since(reg, SINCE) == []
+    assert _r2_drift_scan.registry_drift_since(reg, SINCE) == []
 
 
 def test_two_pdf_rows_with_different_shas_are_drift():
@@ -110,7 +110,7 @@ def test_two_pdf_rows_with_different_shas_are_drift():
     reg = {"c": [_row("c", u, "a" * 64, "2026-05-01T00:00:00+00:00"),
                  _row("c", VIDEO_URL, "b" * 64, "2026-05-15T00:00:00+00:00"),
                  _row("c", u, "d" * 64, "2026-06-01T00:00:00+00:00")]}
-    assert _r2_run_state.registry_drift_since(reg, SINCE) == [("c", "a" * 64, "d" * 64)]
+    assert _r2_drift_scan.registry_drift_since(reg, SINCE) == [("c", "a" * 64, "d" * 64)]
 
 
 # 9 observed fetches: (card_id, sha of the manifest PDF as fetched).
@@ -220,16 +220,16 @@ def test_registry_drift_since_compares_a_moved_pdf_with_the_old_pdf_row():
     reg = {"c": [_moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00"),
                  _moved_row(VIDEO_URL, "b" * 64, "2026-05-15T00:00:00+00:00", "1.mp4"),
                  _moved_row(NEW_PDF_URL, "d" * 64, "2026-06-01T00:00:00+00:00")]}
-    assert _r2_run_state.registry_drift_since(reg, SINCE) == [("c", "a" * 64, "d" * 64)]
+    assert _r2_drift_scan.registry_drift_since(reg, SINCE) == [("c", "a" * 64, "d" * 64)]
 
 
 def test_registry_drift_since_ignores_a_moved_pdf_with_the_same_sha():
     reg = {"c": [_moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00"),
                  _moved_row(NEW_PDF_URL, "a" * 64, "2026-06-01T00:00:00+00:00")]}
-    assert _r2_run_state.registry_drift_since(reg, SINCE) == []
+    assert _r2_drift_scan.registry_drift_since(reg, SINCE) == []
 
 
 def test_a_video_row_after_a_pdf_row_is_still_net_new_in_the_registry_scan():
     reg = {"c": [_moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00"),
                  _moved_row(VIDEO_URL, "b" * 64, "2026-06-01T00:00:00+00:00", "1.mp4")]}
-    assert _r2_run_state.registry_drift_since(reg, SINCE) == []
+    assert _r2_drift_scan.registry_drift_since(reg, SINCE) == []

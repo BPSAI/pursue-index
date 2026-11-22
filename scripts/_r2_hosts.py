@@ -5,6 +5,7 @@ from __future__ import annotations
 import ipaddress
 import json
 import socket
+import sys
 from collections.abc import Collection, Iterable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -86,9 +87,16 @@ def load_approved_hosts(path: Path) -> frozenset[str]:
     return frozenset(h.strip().lower() for h in hosts)
 
 
-def unlisted_hosts(urls: Iterable[Any], approved: Collection[str]) -> list[str]:
-    """Hosts of ``urls`` that the approved list does not contain, sorted."""
-    return sorted(allowed_hosts_from_urls(urls) - set(approved))
+def unlisted_hosts_error(cards: Iterable[Any], approved: Collection[str], where: Any) -> bool:
+    """True, after naming them on stderr, when a card's asset host is not on the approved list."""
+    unlisted = sorted(allowed_hosts_from_urls(c.asset_url for c in cards) - set(approved))
+    if unlisted:
+        print(
+            f"[r2-archive] ERROR: manifest asset host(s) {', '.join(unlisted)} not listed in "
+            f"{where}; add them there on purpose, in a reviewed change.",
+            file=sys.stderr,
+        )
+    return bool(unlisted)
 
 
 def check_host(url: str, allowed_hosts: Collection[str] | AnyHost | None) -> None:
@@ -154,3 +162,11 @@ def check_hop(current: str, target: str) -> None:
         raise FetchLimitError(f"redirect to scheme {nxt.scheme!r} from {cur.scheme!r} is refused")
     if _port(target) not in (_DEFAULT_PORTS[nxt.scheme], _port(current)):
         raise FetchLimitError(f"redirect to port {_port(target)} is refused")
+
+
+def type_change_line(card_id: str, prev: dict[str, Any], old: str, new: str, new_url: Any) -> str:
+    """The warning for an asset whose file type changed along with its URL (not a drift failure)."""
+    return (
+        f"[r2-archive] TYPE CHANGE: {card_id} {old} -> {new} "
+        f"({host_of(prev.get('asset_url'))} -> {host_of(new_url)})"
+    )
