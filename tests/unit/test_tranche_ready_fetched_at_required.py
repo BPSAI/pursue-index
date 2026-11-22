@@ -5,11 +5,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-import _tranche_ready_run
 import pytest
 from pydantic import ValidationError
 
 from tests.unit.test_tranche_ready_job_guard import _run  # noqa: F401  (puts scripts/ on sys.path)
+
+import _tranche_ready_run  # noqa: E402
 
 _RAW = ("﻿Release Date,Title,Type,Agency,Incident Date,PDF | Image Link\r\n"
         '10/23/26,"Case 1",PDF,FBI,1/18/57,https://www.war.gov/medialink/c1.pdf\r\n').encode()
