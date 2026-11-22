@@ -43,9 +43,22 @@ def test_max_wait_validation(monkeypatch, v, ok):
     assert (mod.main([]) == 0) is ok
 
 
-def test_max_wait_above_the_cap_is_refused_with_a_clear_message(monkeypatch, capsys):
+def _budget(monkeypatch, *, job=40, build=1200, stamp=300, margin=120):
+    """Set the budget inputs the workflow passes: 40 min - 1200 - 300 - 120 = 780s of cap."""
     monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
-    monkeypatch.setenv("MAX_WAIT_SECS_CAP", "780")
+    monkeypatch.setenv("JOB_TIMEOUT_MINUTES", str(job))
+    monkeypatch.setenv("BUILD_WAIT_SECS", str(build))
+    monkeypatch.setenv("STAMP_WAIT_SECS", str(stamp))
+    monkeypatch.setenv("FAILURE_ISSUE_MARGIN_SECS", str(margin))
+
+
+def test_the_cap_is_derived_from_the_budget_parts():
+    assert mod.wait_cap_secs(40, 1200, 300, 120) == 780
+    assert mod.wait_cap_secs(60, 1200, 300, 120) == 1980
+
+
+def test_max_wait_above_the_derived_cap_is_refused_with_a_clear_message(monkeypatch, capsys):
+    _budget(monkeypatch)
     monkeypatch.setenv("MAX_WAIT_SECS", "781")
     assert mod.main([]) == 1
     err = capsys.readouterr().err
@@ -53,15 +66,45 @@ def test_max_wait_above_the_cap_is_refused_with_a_clear_message(monkeypatch, cap
 
 
 @pytest.mark.parametrize("v", ["780", "600", "0"])
-def test_max_wait_at_or_below_the_cap_passes(monkeypatch, v):
-    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
-    monkeypatch.setenv("MAX_WAIT_SECS_CAP", "780")
+def test_max_wait_at_or_below_the_derived_cap_passes(monkeypatch, v):
+    _budget(monkeypatch)
     monkeypatch.setenv("MAX_WAIT_SECS", v)
     assert mod.main([]) == 0
 
 
-def test_a_malformed_cap_is_an_error(monkeypatch):
-    monkeypatch.setenv("BASE_URL", "https://pursueindex.com")
-    monkeypatch.setenv("MAX_WAIT_SECS_CAP", "lots")
+def test_the_cap_follows_the_budget_not_a_constant(monkeypatch):
+    _budget(monkeypatch, job=60)  # a longer job allows a longer wait
+    monkeypatch.setenv("MAX_WAIT_SECS", "1980")
+    assert mod.main([]) == 0
+    monkeypatch.setenv("MAX_WAIT_SECS", "1981")
+    assert mod.main([]) == 1
+
+
+def test_a_hand_set_cap_variable_is_ignored(monkeypatch):
+    _budget(monkeypatch)
+    monkeypatch.setenv("MAX_WAIT_SECS_CAP", "99999")
+    monkeypatch.setenv("MAX_WAIT_SECS", "781")
+    assert mod.main([]) == 1
+
+
+@pytest.mark.parametrize("name", ["JOB_TIMEOUT_MINUTES", "BUILD_WAIT_SECS", "STAMP_WAIT_SECS",
+                                  "FAILURE_ISSUE_MARGIN_SECS"])
+@pytest.mark.parametrize("bad", ["lots", ""])
+def test_a_malformed_budget_part_is_an_error(monkeypatch, name, bad):
+    _budget(monkeypatch)
     monkeypatch.setenv("MAX_WAIT_SECS", "10")
+    monkeypatch.setenv(name, bad)
+    assert mod.main([]) == 1
+
+
+def test_a_partly_given_budget_is_an_error(monkeypatch):
+    _budget(monkeypatch)
+    monkeypatch.setenv("MAX_WAIT_SECS", "10")
+    monkeypatch.delenv("STAMP_WAIT_SECS")
+    assert mod.main([]) == 1
+
+
+def test_a_budget_that_leaves_no_room_is_an_error(monkeypatch):
+    _budget(monkeypatch, job=10)  # 600s less 1200 + 300 + 120
+    monkeypatch.setenv("MAX_WAIT_SECS", "0")
     assert mod.main([]) == 1

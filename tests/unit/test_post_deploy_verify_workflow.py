@@ -114,26 +114,41 @@ def test_app_id_defined_once_in_workflow_env():
     assert _wf()["env"]["WORKERS_BUILD_APP_ID"] == "85455"
 
 
-FAILURE_ISSUE_RESERVE_SECS = 120  # room left in the job for the failure-issue step
+BUDGET_ENV = ("JOB_TIMEOUT_MINUTES", "BUILD_WAIT_SECS", "STAMP_WAIT_SECS", "FAILURE_ISSUE_MARGIN_SECS")
 
 
-def _flag(step_name_needle: str, flag: str) -> int:
-    import re
-
-    run = str(_steps()[_index(step_name_needle)]["run"])
-    return int(re.search(re.escape(flag) + r"\s+(\d+)", run).group(1))
+def _budget() -> tuple[int, int, int, int]:
+    env = _wf()["env"]
+    return tuple(int(env[k]) for k in BUDGET_ENV)
 
 
 def test_max_wait_cap_fits_inside_the_job_timeout():
     wf = _wf()
-    budget = wf["jobs"]["verify"]["timeout-minutes"] * 60
-    cap = int(wf["env"]["MAX_WAIT_SECS_CAP"])
-    build_wait = _flag("wait_for_check_run.py", "--timeout-secs")
-    stamp_wait = _flag("check_deployed_commit.py", "--timeout-secs")
-    assert cap + build_wait + stamp_wait + FAILURE_ISSUE_RESERVE_SECS <= budget
+    job_min, build_wait, stamp_wait, margin = _budget()
+    cap = job_min * 60 - build_wait - stamp_wait - margin
+    assert cap > 0
     assert int(wf["env"]["MAX_WAIT_SECS"].split("'")[-2]) <= cap  # the default fits too
 
 
-def test_validate_step_receives_the_cap_through_the_workflow_env():
-    # validate_base_url.py reads MAX_WAIT_SECS and MAX_WAIT_SECS_CAP from the job env
-    assert "MAX_WAIT_SECS" in _wf()["env"] and "MAX_WAIT_SECS_CAP" in _wf()["env"]
+def test_the_job_timeout_matches_the_budget_env():
+    # GitHub Actions cannot read `env` in a job's `timeout-minutes`, so the literal stays and is pinned here
+    assert _wf()["jobs"]["verify"]["timeout-minutes"] == _budget()[0]
+
+
+def test_the_waits_use_the_budget_env_not_literals():
+    build = str(_steps()[_index("wait_for_check_run.py")]["run"])
+    stamp = str(_steps()[_index("check_deployed_commit.py")]["run"])
+    assert '--timeout-secs "$BUILD_WAIT_SECS"' in build
+    assert '--timeout-secs "$STAMP_WAIT_SECS"' in stamp
+
+
+def test_there_is_no_hand_kept_wait_cap_constant():
+    text = WORKFLOW.read_text()
+    assert "MAX_WAIT_SECS_CAP" not in text
+    assert "MAX_WAIT_SECS_CAP" not in (WORKFLOW.parents[2] / "scripts" / "validate_base_url.py").read_text()
+    assert "780" not in text
+
+
+def test_validate_step_receives_the_budget_through_the_workflow_env():
+    env = _wf()["env"]
+    assert "MAX_WAIT_SECS" in env and all(k in env for k in BUDGET_ENV)
