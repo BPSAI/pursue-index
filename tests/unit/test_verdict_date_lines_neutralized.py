@@ -3,6 +3,8 @@ titles and values in its date lines carry no @-mention, link or HTML syntax."""
 
 from __future__ import annotations
 
+import html
+
 from pursue_index.scrape.year_normalize import DateReport
 from pursue_index.scrape.year_normalize_report import verdict_date_lines
 
@@ -149,3 +151,66 @@ def test_issue_and_pr_references_are_broken() -> None:
         assert "#" not in out.replace("&#", ""), hostile
         assert not re.search(r"(?i)\bgh-\d", out), hostile
         assert re.search(r"\d", out), hostile  # still readable
+
+
+def _split_row(row: str) -> list[str]:
+    """Cells of a GFM table row: a pipe separates unless an odd run of backslashes escapes it."""
+    import re
+
+    parts = re.split(r"(?<!\\)((?:\\\\)*)\|", row)
+    cells, cur = [], parts[0]
+    for i in range(1, len(parts), 2):
+        cur += parts[i]
+        cells.append(cur)
+        cur = parts[i + 1]
+    cells.append(cur)
+    return cells
+
+
+def _render_literal(out: str) -> str:
+    """What a markdown renderer shows for ``out``: escapes resolved, entities decoded."""
+    import re
+
+    return html.unescape(re.sub(r"\\([\\\[\]|])", r"\1", out))
+
+
+def test_pipes_survive_the_table_cell_escape() -> None:
+    value = r"a|b \| c \ d [a](http://e)"
+    out = _inert_text(value)
+    cells = _split_row(f"| x | {out} | y |")
+    assert len(cells) == 5, (out, cells)  # leading and trailing empty strings plus three cells
+    shown = _render_literal(out).replace("／", "/")
+    assert shown == value
+
+
+def test_backslash_pipe_is_not_a_separator() -> None:
+    for value in ("|", r"\|", r"\\|", "a\\", "a\\|b"):
+        out = _inert_text(value)
+        assert len(_split_row(f"| {out} |")) == 3, (value, out)
+        assert _render_literal(out) == value
+
+
+def test_truncation_never_splits_an_escape_or_entity() -> None:
+    out = _inert_text("[" * 10, limit=5)
+    assert out == "\\[" * 5
+    out = _inert_text("&" * 10, limit=3)
+    assert out == "&amp;" * 3
+    out = _inert_text("\\" * 10, limit=4)
+    assert out == "\\\\" * 4
+    out = _inert_text("a|" * 10, limit=3)
+    assert out == "a\\|a"
+
+
+def test_only_reference_forms_lose_their_hash() -> None:
+    for kept in ("Case # of 7", "C# and F#", "#hashtag", "a #  b", "##"):
+        assert _inert_text(kept) == kept.replace("&", "&amp;"), kept
+    for ref in ("see #5", "(#99)", "o/r#12", "GH-4"):
+        out = _inert_text(ref)
+        assert "#" not in out and "GH-" not in out.upper().replace("GH－", ""), ref
+
+
+def test_bidi_and_zero_width_controls_are_stripped() -> None:
+    bad = "".join(chr(c) for c in (*range(0x200B, 0x2010), *range(0x202A, 0x202F),
+                                   *range(0x2066, 0x206A), 0xFEFF))
+    assert _inert_text(f"a{bad}b") == "ab"
+    assert _inert_text("a&#x202E;b&#8203;c") == "abc"
