@@ -141,3 +141,33 @@ def test_tranche_ready_job_normalizes_the_manifest_it_builds_from_raw() -> None:
                       "release_date": "10/23/2026", "incident_date": "1/18/1957"}]}
     card = normalized_manifest(raw, "https://www.war.gov/x.csv", old).cards[0]
     assert (card.release_date, card.incident_date) == ("10/23/2026", "1/18/1957")
+
+
+def test_a_run_normalizes_the_manifest_once(monkeypatch, tmp_path: Path, capsys) -> None:
+    """``main`` normalizes the new manifest once and hands the result to the
+    diff, rather than normalizing again for the passthrough count."""
+    calls: list[int] = []
+    real = tranche_diff.normalize_manifest_dict
+
+    def counting(*args, **kwargs):
+        calls.append(1)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(tranche_diff, "normalize_manifest_dict", counting)
+    old = {"csv_sha256": SHA_OLD, "cards": [_card("1" * 16, release_date="5/8/26")]}
+    new = {"csv_sha256": SHA_NEW, "cards": [_card("1" * 16, release_date="5/8/26"),
+                                            _card("2" * 16, release_date="6/1/26")]}
+    paths = {}
+    for name, manifest in (("old", old), ("new", new)):
+        paths[name] = tmp_path / f"{name}.json"
+        paths[name].write_text(json.dumps(manifest), encoding="utf-8")
+    (tmp_path / "registry.jsonl").write_text("", encoding="utf-8")
+    monkeypatch.setattr(tranche_diff, "_fetch_byte_sha_via_curl", lambda _url: None)
+    monkeypatch.setattr(sys, "argv", [
+        "tranche_diff.py", "--old-manifest", str(paths["old"]), "--new-manifest",
+        str(paths["new"]), "--registry", str(tmp_path / "registry.jsonl"),
+        "--out-dir", str(tmp_path / "out"),
+        "--date-resolutions", str(empty_overlay(tmp_path))])
+    assert tranche_diff.main() == 0
+    assert "[tranche-diff] two_digit_priors_passed_through=2" in capsys.readouterr().out
+    assert len(calls) == 1
