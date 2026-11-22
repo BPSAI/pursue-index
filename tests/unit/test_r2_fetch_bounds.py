@@ -37,12 +37,6 @@ class _Resp:
     def close(self) -> None:
         self.closed = True
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc) -> None:
-        self.close()
-
 
 def _serve(monkeypatch, routes: dict[str, _Resp]):
     """Replace curl's GET: each URL maps to one response; the request log is returned."""
