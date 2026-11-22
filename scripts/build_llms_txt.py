@@ -55,6 +55,7 @@ from pursue_index.geo.llms import (
     resolve_excerpt,
     should_include_excerpt,
 )
+from pursue_index.page_rows import read_latest_pages
 
 DEFAULT_MANIFEST = _REPO_ROOT / "data" / "manifests" / "latest.json"
 LLMS_TXT = _REPO_ROOT / "web" / "public" / "llms.txt"
@@ -76,18 +77,14 @@ def first_page_excerpt(card_id: str, *, ocr_dir: Path) -> str | None:
         return None
 
     try:
-        with path.open(encoding="utf-8") as handle:
-            for line in handle:
-                line = line.strip()
-                if not line:
-                    continue
-                record = json.loads(line)
-                if str(record.get("page")) != EXCERPT_PAGE:
-                    continue
-                text = re.sub(r"\s+", " ", record.get("text") or "").strip()
-                return text[:EXCERPT_CHARS] or None
-    except (OSError, json.JSONDecodeError):
+        rows = read_latest_pages(path, card_id)
+    except OSError:
         return None
+    for record in rows:
+        if str(record.get("page")) != EXCERPT_PAGE:
+            continue
+        text = re.sub(r"\s+", " ", record.get("text") or "").strip()
+        return text[:EXCERPT_CHARS] or None
     return None
 
 

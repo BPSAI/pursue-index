@@ -15,7 +15,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import json
 import pathlib
 import textwrap
 
@@ -24,19 +23,16 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
+from pursue_index.page_rows import read_latest_pages
 
 # Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
 ROOT = settings.ocr_dir
 
 
 def find_row(path: pathlib.Path, page: int) -> dict | None:
-    if not path.exists():
-        return None
-    for line in path.read_text().splitlines():
-        if not line.strip():
-            continue
-        row = json.loads(line)
-        if row.get("page") == page:
+    """The newest row for ``page`` (the sidecar is append-only)."""
+    for row in read_latest_pages(path):
+        if int(row["page"]) == page:
             return row
     return None
 
