@@ -38,6 +38,7 @@ from tests.support.tranche_096ef import (
     OLD_MANIFEST,
     REPO_ROOT,
     d042_new_url,
+    d042_old_row,
     receipt,
     receipt_time_registry,
 )
@@ -90,10 +91,7 @@ def _run_replay(tmp: Path, *, opted_in: bool) -> Path:
     (tmp / "site" / "sitecustomize.py").write_text(_SITECUSTOMIZE)
     (tmp / "bodies.json").write_text(json.dumps(
         {d042_new_url(): str(bytes_dir / f"{_sha(new_bytes)}.pdf")}))
-    registry = receipt_time_registry(tmp / "registry.jsonl", [{
-        "card_id": D042_OLD_ID, "byte_sha256": _sha(old_bytes),
-        "fetched_at": "2099-01-01T00:00:00+00:00",
-    }])
+    registry = receipt_time_registry(tmp / "registry.jsonl", [d042_old_row(_sha(old_bytes))])
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", OPT_IN)}
     # The fake curl_cffi comes first; inherited entries (a runner that supplies
     # pypdf from outside the project venv) follow it.

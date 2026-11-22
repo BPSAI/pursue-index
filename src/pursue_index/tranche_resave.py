@@ -37,10 +37,12 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from pursue_index.asset_rows import rows_of_asset
 from pursue_index.classifier_id import classifier_id
 from pursue_index.pdf_crosscheck import CROSSCHECKS
 from pursue_index.pdf_limits import LimitExceededError, open_regular
 from pursue_index.tranche_bytes import METADATA_ONLY, classify_bytes
+from pursue_index.tranche_manifest import display_rows_by_card_id
 
 __all__ = [
     "RESAVE_BUCKET",
@@ -86,13 +88,21 @@ def _verified_path(bytes_dir: Path, sha: str | None) -> Path | None:
 
 def bytes_dir_check(
     bytes_dir: Path | None, registry: dict[str, list[dict[str, Any]]],
+    old_cards: list[dict[str, Any]] | None = None,
 ) -> ResaveCheck | None:
-    """The ``resave_check`` for ``diff_tranches``; ``None`` without a dir."""
+    """The ``resave_check`` for ``diff_tranches``; ``None`` without a dir.
+
+    ``old_cards`` are the old manifest's rows: each old card's own asset picks the
+    registry rows its bytes are read from (the card's newest row may be a video's).
+    An old card with no row for its asset gives no evidence."""
     if bytes_dir is None:
         return None
+    old_by_id = display_rows_by_card_id(old_cards or [])
 
     def check(old_card_id: str, new_sha: str | None) -> str | None:
-        rows = registry.get(old_card_id) or []
+        card = old_by_id.get(old_card_id) or {}
+        rows = rows_of_asset(
+            registry.get(old_card_id), card.get("asset_url"), card.get("asset_filename"))
         old_sha = rows[-1].get("byte_sha256") if rows else None
         old_path = _verified_path(bytes_dir, old_sha)
         new_path = _verified_path(bytes_dir, new_sha)

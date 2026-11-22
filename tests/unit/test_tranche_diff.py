@@ -403,8 +403,8 @@ def test_diff_restored_unchanged_when_bytes_match_pinned() -> None:
     """Previously preserved card_id reappears upstream with same bytes."""
     pinned_sha = "aa" * 32
     registry = _registry_with(
-        {"card_id": "13f8", "byte_sha256": pinned_sha, "preserved": True,
-         "fetched_at": "2026-05-12T14:44:09+00:00"},
+        {"card_id": "13f8", "asset_url": "https://x/restored.pdf",
+         "byte_sha256": pinned_sha, "preserved": True, "fetched_at": "2026-05-12T14:44:09+00:00"},
     )
     old_manifest = _manifest([])  # card was removed in prior tranche
     new_manifest = _manifest([
@@ -429,8 +429,8 @@ def test_diff_restored_modified_when_bytes_differ_from_pinned() -> None:
     pinned_sha = "aa" * 32
     actual_new_sha = "ff" * 32
     registry = _registry_with(
-        {"card_id": "13f8", "byte_sha256": pinned_sha, "preserved": True,
-         "fetched_at": "2026-05-12T14:44:09+00:00"},
+        {"card_id": "13f8", "asset_url": "https://x/restored.pdf",
+         "byte_sha256": pinned_sha, "preserved": True, "fetched_at": "2026-05-12T14:44:09+00:00"},
     )
     old_manifest = _manifest([])
     new_manifest = _manifest([
@@ -471,7 +471,8 @@ def test_diff_restoration_takes_precedence_over_class_a() -> None:
     sha would otherwise match another card_id under Class A."""
     shared_sha = "aa" * 32
     registry = _registry_with(
-        {"card_id": "13f8", "byte_sha256": shared_sha, "preserved": True,
+        {"card_id": "13f8", "asset_url": "https://x/r.pdf",
+         "byte_sha256": shared_sha, "preserved": True,
          "fetched_at": "2026-05-12T14:44:09+00:00"},
         {"card_id": "9999", "byte_sha256": shared_sha,
          "fetched_at": "2026-05-12T14:00:00+00:00"},

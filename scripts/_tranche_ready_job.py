@@ -33,6 +33,7 @@ from _tranche_ready_supersedes import derive_supersedes
 from r2_archive_assets import load_registry
 from tranche_diff import diff_tranches
 
+from pursue_index.asset_rows import rows_of_asset
 from pursue_index.config import settings
 from pursue_index.release.rates import JudgeRate
 from pursue_index.scrape.date_resolutions import load_date_resolutions
@@ -82,8 +83,10 @@ def _stage(diff: dict, old_by_id: dict, registry: dict, fetched: FetchedPdfs,
            for r in cands.candidate_rows(diff)}
     old = {}
     for oid in dict.fromkeys(old_ids):
-        rows = registry.get(oid) or []
-        old[oid] = stage_old((old_by_id.get(oid) or {}).get("asset_url"),
+        card = old_by_id.get(oid) or {}
+        # The old asset's own rows: the card's newest row may be another asset's.
+        rows = rows_of_asset(registry.get(oid), card.get("asset_url"), card.get("asset_filename"))
+        old[oid] = stage_old(card.get("asset_url"),
                              rows[-1].get("byte_sha256") if rows else None, bytes_dir)
     return old, new
 
@@ -107,7 +110,7 @@ def _classify(old_m: dict, new_m: dict, cfg: JobConfig, fetched: FetchedPdfs) ->
     with tempfile.TemporaryDirectory(prefix="pursue-tranche-bytes-") as tmp:
         old, new = _stage(first, old_by_id, registry, fetched, Path(tmp))
         diff = diff_tranches(old_m, new_m, registry, fetch_byte_sha=sha_of,
-                             resave_check=bytes_dir_check(Path(tmp), registry),
+                             resave_check=bytes_dir_check(Path(tmp), registry, old_m.get("cards", [])),
                              move_resaves=settings.ingest_auto_approve_metadata_resaves,
                              date_overlay=overlay)
         candidates = _candidates(diff, old_by_id, old, new)

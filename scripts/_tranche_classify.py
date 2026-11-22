@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
+from pursue_index.asset_rows import rows_of_asset
 from pursue_index.tranche import build_byte_sha_index, find_title_continuity
 from pursue_index.tranche_resave import resave_counts
 
@@ -60,7 +61,9 @@ def _classify_added_card(
     /removed pin), the reappearance is a restoration event regardless
     of byte-sha collisions with other card_ids.
     """
-    prior_rows = registry.get(cid, [])
+    # Only this asset's rows: a card's newest row may belong to another asset.
+    prior_rows = rows_of_asset(
+        registry.get(cid), new_card.get("asset_url"), new_card.get("asset_filename"))
     if prior_rows:
         return _classify_restoration(cid, new_card, sha, prior_rows)
     if sha and sha in sha_to_old_card_ids:

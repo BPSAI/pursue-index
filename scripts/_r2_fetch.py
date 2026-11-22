@@ -11,8 +11,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from _r2_run_state import rows_of_asset
 from curl_cffi import requests as cffi_requests
+
+from pursue_index.asset_rows import rows_of_asset
 
 CHUNK_SIZE = 1 << 20
 

@@ -11,10 +11,10 @@ import json
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
+from pursue_index.asset_rows import file_type, rows_of_asset  # noqa: F401  (re-exported)
 from pursue_index.byte_dispositions import RESAVE_CONTENT_VERIFIED
 
 RUN_RECORD_NAME = "full-hash-runs.jsonl"
@@ -152,30 +152,6 @@ def drift_window_start(args, now: datetime | None = None) -> datetime:
         or newest_complete_run(record, now)
         or now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
     )
-
-
-def file_type(asset_filename: Any, asset_url: Any) -> str:
-    """Lowercase extension of the filename, or of the URL path when there is no filename."""
-    name = str(asset_filename or "")
-    if not name:
-        name = urlparse(str(asset_url or "")).path
-    return PurePosixPath(name).suffix.lower()
-
-
-def rows_of_asset(rows: list[dict[str, Any]] | None, asset_url: Any, asset_filename: Any = None):
-    """The earlier rows an asset is compared with, oldest first.
-
-    A card's asset is identified by ``(card_id, asset_url)``. With no row at that URL (the
-    asset moved), fall back to the card's rows of the same file type, newest last; with
-    none of that type either, the asset is net-new (empty)."""
-    url = str(asset_url)
-    same = [r for r in rows or [] if str(r.get("asset_url")) == url]
-    if same:
-        return same
-    kind = file_type(asset_filename, asset_url)
-    if not kind:
-        return []
-    return [r for r in rows or [] if file_type(r.get("asset_filename"), r.get("asset_url")) == kind]
 
 
 def registry_drift_since(registry: dict[str, list[dict[str, Any]]], since: datetime):
