@@ -8,11 +8,19 @@ from __future__ import annotations
 
 import hashlib
 import time
-from collections.abc import Callable, Collection, Iterable
+from collections.abc import Callable, Collection
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urljoin
 
+from _r2_hosts import (  # noqa: F401  (re-exported: callers import these from here)
+    ANY_HOST,
+    AnyHost,
+    FetchLimitError,
+    allowed_hosts_from_urls,
+    check_hop,
+    check_host,
+)
 from _r2_run_state import rows_of_asset
 from curl_cffi import requests as cffi_requests
 
@@ -44,33 +52,26 @@ class FetchTimeoutError(TimeoutError):
     """The stream went idle, or the overall per-asset ceiling was passed."""
 
 
-class FetchLimitError(Exception):
-    """A fetch broke a bound: too large, too many redirects, or a host off the allowlist."""
+class FetchOverCapError(FetchLimitError):
+    """The asset is bigger than its byte cap (declared up front, or observed mid-stream)."""
+
+    def __init__(self, *, observed: int, cap: int, declared: bool) -> None:
+        self.observed, self.cap, self.declared = observed, cap, declared
+        kind = "declared" if declared else "observed"
+        super().__init__(f"{kind} size {observed} bytes is over the {cap}-byte cap")
 
 
-def allowed_hosts_from_urls(urls: Iterable[Any]) -> frozenset[str]:
-    """Lower-cased hostnames of ``urls``; the set every fetch and redirect must stay inside."""
-    return frozenset(h for h in (_host(u) for u in urls if u) if h)
+def byte_cap(rows: list[dict[str, Any]], *, lifted: bool = False) -> int:
+    """Most bytes one asset may stream: twice its last recorded size, never above the ceiling.
 
-
-def byte_cap(rows: list[dict[str, Any]]) -> int:
-    """Most bytes one asset may stream: twice its last recorded size, never above the ceiling."""
+    ``lifted`` (an operator override for one card) drops the growth factor only; the
+    absolute ceiling still applies."""
+    if lifted:
+        return MAX_ASSET_BYTES
     known = last_known_size(rows)
     if isinstance(known, int) and known > 0:
         return min(known * SIZE_GROWTH_FACTOR, MAX_ASSET_BYTES)
     return MAX_ASSET_BYTES
-
-
-def _host(url: Any) -> str:
-    return (urlsplit(str(url)).hostname or "").lower()
-
-
-def _check_host(url: str, allowed_hosts: Collection[str] | None) -> None:
-    if allowed_hosts is None:
-        return
-    host = _host(url)
-    if host not in allowed_hosts:
-        raise FetchLimitError(f"host {host or '(none)'!r} is not one of the manifest's asset hosts")
 
 
 def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any:
@@ -81,7 +82,7 @@ def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any
     """
     current = url
     for hop in range(MAX_REDIRECTS + 1):
-        _check_host(current, allowed_hosts)
+        check_host(current, allowed_hosts)
         resp = method(current, allow_redirects=False, **kw)
         location = (getattr(resp, "headers", None) or {}).get("location")
         if getattr(resp, "status_code", 200) not in _REDIRECT_STATUSES or not location:
@@ -89,7 +90,9 @@ def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any
         _close(resp)
         if hop == MAX_REDIRECTS:
             raise FetchLimitError(f"more than {MAX_REDIRECTS} redirects")
-        current = urljoin(current, location)
+        target = urljoin(current, location)
+        check_hop(current, target)
+        current = target
     raise AssertionError("unreachable")  # pragma: no cover
 
 
@@ -100,7 +103,7 @@ def _close(resp: Any) -> None:
 
 
 def head_asset(
-    url: Any, allowed_hosts: Collection[str] | None = None
+    url: Any, allowed_hosts: Collection[str] | AnyHost
 ) -> tuple[int | None, str | None, str | None]:
     """Return (content_length, etag, last_modified); all None on failure.
 
@@ -128,8 +131,8 @@ def fetch_asset(
     url: Any,
     dest: Path,
     *,
+    allowed_hosts: Collection[str] | AnyHost,
     max_bytes: int | None = None,
-    allowed_hosts: Collection[str] | None = None,
 ) -> tuple[str, int]:
     """Stream a GET (curl_cffi Chrome impersonation) into ``dest``; return ``(sha256, size)``.
 
@@ -138,8 +141,8 @@ def fetch_asset(
     overall ceiling; the loop checks both between chunks as well.
 
     ``max_bytes`` aborts a body that grows past it (a declared Content-Length over it
-    is refused before any byte is read); ``allowed_hosts`` confines the URL and every
-    redirect; more than ``MAX_REDIRECTS`` redirects is refused. Each violation raises
+    is refused before any byte is read); ``allowed_hosts`` (required; ``ANY_HOST`` to opt
+    out) confines the URL and every redirect; more than ``MAX_REDIRECTS`` redirects is refused. Each violation raises
     ``FetchLimitError``.
     """
     digest = hashlib.sha256()
@@ -160,7 +163,7 @@ def fetch_asset(
         resp.raise_for_status()
         declared = (getattr(resp, "headers", None) or {}).get("content-length")
         if max_bytes is not None and declared and declared.isdigit() and int(declared) > max_bytes:
-            raise FetchLimitError(f"declared size {declared} is over the {max_bytes}-byte cap")
+            raise FetchOverCapError(observed=int(declared), cap=max_bytes, declared=True)
         with Path(dest).open("wb") as fh:
             for chunk in resp.iter_content(chunk_size=CHUNK_SIZE):
                 now = _now()
@@ -175,7 +178,7 @@ def fetch_asset(
                 last = now
                 size += len(chunk)
                 if max_bytes is not None and size > max_bytes:
-                    raise FetchLimitError(f"body passed the {max_bytes}-byte cap; aborted")
+                    raise FetchOverCapError(observed=size, cap=max_bytes, declared=False)
                 digest.update(chunk)
                 fh.write(chunk)
     finally:

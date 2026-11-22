@@ -94,8 +94,10 @@ from pursue_index.paths import repo_root
 
 _REPO_ROOT = repo_root()
 
+import _r2_cap_override as cap_override
 from _r2_archive_put import put_archive_and_current
 from _r2_fetch import (
+    FetchOverCapError,
     allowed_hosts_from_urls,
     byte_cap,
     fetch_asset,
@@ -292,9 +294,16 @@ def _process_card(
     with tempfile.TemporaryDirectory(prefix="r2-archive-") as tmp:
         body = Path(tmp) / "asset"
         try:
+            cap = byte_cap(rows, lifted=card.card_id in state.allow_over_cap)
             byte_sha, size = fetch_asset(
-                card.asset_url, body, max_bytes=byte_cap(rows), allowed_hosts=hosts
+                card.asset_url, body, max_bytes=cap, allowed_hosts=hosts
             )
+        except FetchOverCapError as exc:
+            print(
+                f"[r2-archive] over-cap {card.card_id}: {exc}; if the bigger file is "
+                f'expected, re-run with --allow-over-cap {card.card_id} --reason "..."'
+            )
+            return "fail"
         except Exception as exc:
             print(f"[r2-archive] fetch fail {card.card_id}: {exc}")
             return "fail"
@@ -442,8 +451,10 @@ def _verify_args(parser: argparse.ArgumentParser) -> None:
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     _core_args(parser)
+    cap_override.add_args(parser)
     _verify_args(parser)
     args = parser.parse_args(argv)
+    cap_override.validate(parser, args)
     if args.full_hash and not (args.max_bytes_per_run and args.max_bytes_per_run > 0):
         parser.error("--full-hash requires --max-bytes-per-run N (a positive byte count)")
     if args.max_bytes_per_run is not None and not args.full_hash:
@@ -527,6 +538,8 @@ def main(argv: list[str] | None = None) -> int:
         return _no_credentials(args)
 
     state = RunState(full_hash=args.full_hash, started_at=started)
+    state.allow_over_cap, state.over_cap_reason = args.allow_over_cap, args.reason.strip()
+    cap_override.announce(args)
     state.allowed_hosts = allowed_hosts_from_urls(c.asset_url for c in manifest.cards)
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)

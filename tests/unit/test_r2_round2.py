@@ -109,7 +109,7 @@ def test_a_redirect_to_an_explicit_default_port_is_followed(monkeypatch, tmp_pat
 
 def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path):
     class _Target(http.server.BaseHTTPRequestHandler):
-        def do_GET(self):  # noqa: N802
+        def do_GET(self):
             self.send_response(200)
             self.send_header("Content-Length", "2")
             self.end_headers()
@@ -121,7 +121,7 @@ def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path):
     port = target.server_address[1]
 
     class _Hop(http.server.BaseHTTPRequestHandler):
-        def do_GET(self):  # noqa: N802
+        def do_GET(self):
             self.send_response(302)
             self.send_header("Location", f"http://127.0.0.1:{port}/x")
             self.send_header("Content-Length", "0")

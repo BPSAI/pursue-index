@@ -30,6 +30,11 @@ def now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def bootstrap_start(now: datetime) -> str:
+    """The scan start used when a run's own start is unknown: the whole bootstrap window."""
+    return (now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)).isoformat()
+
+
 @dataclass
 class RunState:
     """Per-run tallies shared by ``_process_card`` and ``main``."""
@@ -51,7 +56,10 @@ class RunState:
     cards_hashed: int = 0
     no_upstream_url: int = 0
     # Hosts of the manifest's asset URLs; every fetch and redirect must stay inside it.
-    allowed_hosts: frozenset[str] | None = None
+    allowed_hosts: frozenset[str] = frozenset()
+    # Cards whose x2 growth cap is lifted for this run, and why (operator override).
+    allow_over_cap: frozenset[str] = frozenset()
+    over_cap_reason: str = ""
     started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
 
 
@@ -81,12 +89,13 @@ def full_hash_outcome(args, state: RunState) -> int:
         )
         return 1
     if not args.dry_run:
+        done = datetime.now(UTC)
         write_run_record(
             args.run_record or args.registry.parent / RUN_RECORD_NAME,
             {
                 "schema": RUN_RECORD_SCHEMA,
-                "started_at": state.started_at or now_iso(),
-                "completed_at": now_iso(),
+                "started_at": state.started_at or bootstrap_start(done),
+                "completed_at": done.isoformat(),
                 "cards_hashed": state.cards_hashed,
                 "bytes_hashed": state.bytes_hashed,
                 "drift_count": len(state.drift),
