@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 _SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
@@ -34,6 +35,7 @@ from pursue_index.tranche_ready.record import RecordInputs, build_record  # noqa
 from pursue_index.tranche_ready.schema import load_schema, validate  # noqa: E402
 from pursue_index.tranche_report import render_markdown  # noqa: E402
 
+_NOW = datetime(2026, 11, 1, tzinfo=UTC)
 _URL = "https://www.war.gov/UFO/uap-data.csv"
 _HEADER = "Release Date,Title,Type,Agency,Incident Date,PDF | Image Link"
 _U1 = "https://www.war.gov/medialink/case_0001.pdf"
@@ -56,7 +58,7 @@ def _poll(tmp: Path, latest: Path, raw: bytes, n: int, overlay: Path | None = No
                                     date_resolutions=overlay)
     old = json.loads(latest.read_text(encoding="utf-8"))
     overlay_rows = _load(overlay)
-    manifest = json.loads(normalized_manifest(raw, _URL, old, overlay_rows)
+    manifest = json.loads(normalized_manifest(raw, _URL, old, overlay_rows, _NOW)
                           .model_dump_json(by_alias=True))
     return result, manifest
 
@@ -182,7 +184,7 @@ def test_poll_cli_reads_the_overlay_for_snapshot_and_job(tmp_path: Path) -> None
     from _tranche_ready_run import config_from_args
 
     latest = _setup(tmp_path)
-    cid = json.loads(normalized_manifest(_TRANCHE, _URL, {"cards": []})
+    cid = json.loads(normalized_manifest(_TRANCHE, _URL, {"cards": []}, None, _NOW)
                      .model_dump_json())["cards"][1]["card_id"]
     overlay = tmp_path / "date_resolutions.json"
     overlay.write_text(json.dumps({"entries": [

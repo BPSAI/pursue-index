@@ -41,3 +41,9 @@ def test_open_and_acknowledged_rows_are_neutralized() -> None:
 def test_values_and_reason_are_neutralized() -> None:
     text = _lines(unresolved=[_row(raw=_HOSTILE, reason=_HOSTILE, card_id=_HOSTILE)])
     _assert_inert(text)
+
+
+def test_field_name_is_neutralized() -> None:
+    for hostile in ("@x", "[a](http://e)", "<b>"):
+        text = _lines(unresolved=[_row(field=hostile)])
+        _assert_inert(text)

@@ -131,15 +131,19 @@ def test_record_without_unresolved_dates_is_unchanged() -> None:
 
 
 def test_tranche_ready_job_normalizes_the_manifest_it_builds_from_raw() -> None:
+    from datetime import UTC, datetime
+
     from _tranche_ready_run import normalized_manifest
+
+    now = datetime(2026, 11, 1, tzinfo=UTC)
 
     raw = ("﻿Release Date,Title,Type,Agency,Incident Date,PDF | Image Link\r\n"
            '10/23/26,"Case 1",PDF,FBI,1/18/57,https://www.war.gov/medialink/c1.pdf\r\n'
            ).encode()
-    first = normalized_manifest(raw, "https://www.war.gov/x.csv", {"cards": []})
+    first = normalized_manifest(raw, "https://www.war.gov/x.csv", {"cards": []}, None, now)
     old = {"cards": [{**first.cards[0].model_dump(mode="json"),
                       "release_date": "10/23/2026", "incident_date": "1/18/1957"}]}
-    card = normalized_manifest(raw, "https://www.war.gov/x.csv", old).cards[0]
+    card = normalized_manifest(raw, "https://www.war.gov/x.csv", old, None, now).cards[0]
     assert (card.release_date, card.incident_date) == ("10/23/2026", "1/18/1957")
 
 
