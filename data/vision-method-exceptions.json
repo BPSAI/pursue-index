@@ -1,0 +1,197 @@
+{
+  "description": "Cards that stay on their curated passes as a deliberate method exception, not an older model. `pursue vision run --redescribe` refuses these unless --override-method-exception and --reason are given. See docs/vision-model-bakeoff.md.",
+  "exceptions": [
+    {
+      "card_id": "04b9179a7637d6ad",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "0d7a23b29e6de1bf",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "0e3b3ec17a9ae021",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "16fcb501de623b9c",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "19d8e1d503211c84",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "1e63919cc6c3daf4",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "2b947223739f5bd4",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "36bcfe2cfb5f3f54",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "3893e5d0279db3b1",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "3a5445e8aa7985d4",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "3b36f3dc3b51cf3b",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "5a487c793b488382",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "613dc8ef961f9399",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "672ae7eab15481ff",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "67ab3ffef2aecf70",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "6ded7ef20ded84c7",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "7d1b50162c29378a",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "819e725592d1ba79",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "93cbdaad1d4ac853",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "a417f61b2dbd671f",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "af047a976bac0c89",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "b279eac8e49cf4fe",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "ba30b5fdb4f6d153",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "bdf033d4a47eaad3",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "c142741e8cafc659",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-a-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "c304734c04357887",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "c568aea24f3aef31",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "ccd932b4f40e8de7",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "dc9f45a9ec6feb00",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "eda0a3d37c6dbbc3",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "f8bd1f11b7a2ae48",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    },
+    {
+      "card_id": "fd8286ffc6fbc1fb",
+      "reason": "curated multi-frame study",
+      "cluster_label": "helicopter-case-2025-imagery-b-series",
+      "decided_at": "2026-11-22"
+    }
+  ]
+}

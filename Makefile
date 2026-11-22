@@ -172,11 +172,14 @@ ship-env:
 # few unprovenanced cards warn instead of gating the release. 0 would make the class a
 # gate. Lower it as cards are re-OCR'd (see docs/runbooks/ship-tranche.md, step 12).
 OCR_MAX_UNVERIFIABLE ?= 5
+# Same shape for a published PDF card still without a registry row more than 3 days after
+# its release date (unregistered-stale). Measured 2026-11-21: 0 such cards; default 2.
+OCR_MAX_UNREGISTERED_STALE ?= 2
 .PHONY: ocr-input-freshness
 # Under `make -j` it must still wait for the ship-env guard.
 ocr-input-freshness: ship-env
 ocr-input-freshness:
-	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json --max-unverifiable $(OCR_MAX_UNVERIFIABLE)
+	@$(PYTHON) scripts/check_ocr_input_freshness.py --record data/ocr-input-freshness.json --max-unverifiable $(OCR_MAX_UNVERIFIABLE) --max-unregistered-stale $(OCR_MAX_UNREGISTERED_STALE)
 
 .PHONY: asset-budget
 # Fail-closed static-asset size gate (mirrors release-gate steps 4d + 6c).

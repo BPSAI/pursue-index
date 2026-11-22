@@ -30,6 +30,11 @@ def now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def bootstrap_start(now: datetime) -> str:
+    """The scan start used when a run's own start is unknown: the whole bootstrap window."""
+    return (now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)).isoformat()
+
+
 @dataclass
 class RunState:
     """Per-run tallies shared by ``_process_card`` and ``main``."""
@@ -50,6 +55,17 @@ class RunState:
     partial_reason: str = ""  # why a run covered fewer cards than the manifest has
     cards_hashed: int = 0
     no_upstream_url: int = 0
+    # Hosts of the manifest's asset URLs plus the approved list; every fetch and redirect
+    # must stay inside it.
+    allowed_hosts: frozenset[str] = frozenset()
+    size_alerts: int = 0  # assets past the x2 growth cap (alerts, not failures)
+    started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
+
+    def note_growth(self, card_id: str, known: int | None, size: int, cap: int) -> None:
+        """Alert, without failing the card, when an asset with a known size passed its cap."""
+        if isinstance(known, int) and known > 0 and size > cap:
+            self.size_alerts += 1
+            print(f"[r2-archive] SIZE ALERT: {card_id} {known} -> {size} (over the 2x growth cap)")
 
 
 def write_run_record(path: Path, entry: dict[str, Any]) -> None:
@@ -78,11 +94,13 @@ def full_hash_outcome(args, state: RunState) -> int:
         )
         return 1
     if not args.dry_run:
+        done = datetime.now(UTC)
         write_run_record(
             args.run_record or args.registry.parent / RUN_RECORD_NAME,
             {
                 "schema": RUN_RECORD_SCHEMA,
-                "completed_at": now_iso(),
+                "started_at": state.started_at or bootstrap_start(done),
+                "completed_at": done.isoformat(),
                 "cards_hashed": state.cards_hashed,
                 "bytes_hashed": state.bytes_hashed,
                 "drift_count": len(state.drift),
@@ -140,18 +158,50 @@ def gate_marker_path(args) -> Path:
     return args.gate_marker or args.registry.parent / GATE_MARKER_NAME
 
 
-def drift_window_start(args, now: datetime | None = None) -> datetime:
-    """Where the registry drift scan starts: the previous complete verify run.
+def newest_run_start(path: Path, now: datetime | None = None) -> datetime | None:
+    """When the newest complete run in ``path`` BEGAN.
 
-    That is the newest gate-pass marker (the daily's, and the weekly's); with none,
-    the newest complete ``--full-hash`` record; with neither, the last 8 days."""
+    A complete weekly record is written whether or not its drift gate passed, and the
+    rows it wrote are dated inside the run, before ``completed_at``. Only ``started_at``
+    is safe as a scan start. A legacy record without one is not trusted: it yields the
+    bootstrap window instead, which reaches at least as far back."""
+    now = now or datetime.now(UTC)
+    finished = newest_complete_run(path, now)
+    if finished is None:
+        return None
+    started: datetime | None = None
+    for line in path.read_text().splitlines():
+        try:
+            row = json.loads(line)
+            done = datetime.fromisoformat(row["completed_at"])
+            when = datetime.fromisoformat(row["started_at"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if done.tzinfo is None:
+            done = done.replace(tzinfo=UTC)
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        if done == finished:
+            started = when
+    if started is None:
+        return min(finished, now - timedelta(days=BOOTSTRAP_WINDOW_DAYS))
+    return started
+
+
+def drift_window_start(args, now: datetime | None = None) -> datetime:
+    """Where the registry drift scan starts: the EARLIEST of the last passing gate marker
+    and the start of the last complete ``--full-hash`` run.
+
+    The weekly record exists even when that run's drift gate failed, so a run with no
+    marker must not start after the rows it wrote. With neither, the last 8 days."""
     now = now or datetime.now(UTC)
     record = args.run_record or args.registry.parent / RUN_RECORD_NAME
-    return (
-        newest_complete_run(gate_marker_path(args), now)
-        or newest_complete_run(record, now)
-        or now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
-    )
+    starts = [
+        t
+        for t in (newest_complete_run(gate_marker_path(args), now), newest_run_start(record, now))
+        if t is not None
+    ]
+    return min(starts) if starts else now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
 
 
 def registry_drift_since(registry: dict[str, list[dict[str, Any]]], since: datetime):

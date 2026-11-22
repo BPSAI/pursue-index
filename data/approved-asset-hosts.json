@@ -1,0 +1,4 @@
+{
+  "comment": "Hosts a redirect from an asset URL may reach, besides the manifest's own hosts. Add a CDN host here when the upstream starts redirecting to one; any other host is refused.",
+  "hosts": ["www.war.gov"]
+}

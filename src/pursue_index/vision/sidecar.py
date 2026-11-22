@@ -11,6 +11,7 @@ output — validate against the same contract.
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime
 from typing import Any
 
@@ -19,7 +20,19 @@ from pydantic import BaseModel, ConfigDict
 # Method/context strings recorded in ``our_pass`` for provenance, matching the
 # July residual-pages artifact's vocabulary.
 _METHOD = "direct-vision-examination-via-pursue-vision"
-_DEFAULT_CONTEXT = "vision-observation-generator"
+DEFAULT_CONTEXT = "vision-observation-generator"
+
+
+_CARD_ID = re.compile(r"[0-9a-f]{16}")
+
+
+def is_card_id(value: object) -> bool:
+    """True for exactly 16 lowercase hex characters, the only shape a card_id has.
+
+    ``fullmatch``, not ``$``: a trailing newline must not pass, since the id
+    becomes a file name.
+    """
+    return isinstance(value, str) and _CARD_ID.fullmatch(value) is not None
 
 
 class Observation(BaseModel):
@@ -132,7 +145,7 @@ def build_sidecar(
     model: str,
     pages: list[dict[str, Any]],
     session_id: str | None = None,
-    context: str = _DEFAULT_CONTEXT,
+    context: str = DEFAULT_CONTEXT,
 ) -> dict[str, Any]:
     """Build a sidecar dict in the frozen schema from examined ``pages``.
 

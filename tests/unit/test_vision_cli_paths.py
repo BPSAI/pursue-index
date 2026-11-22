@@ -64,6 +64,7 @@ def test_a_live_smoke_that_produced_nothing_exits_non_zero(
         raise RuntimeError("image could not be examined")
 
     monkeypatch.setattr(client_mod, "examine_image", refusing_examine)
+    monkeypatch.setattr(client_mod, "require_client", lambda: None)
     monkeypatch.setattr(render_mod, "load_image_for", lambda item, **kw: item)
 
     manifest = tmp_path / "m.json"
