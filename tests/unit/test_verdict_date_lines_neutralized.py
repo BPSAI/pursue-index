@@ -47,3 +47,39 @@ def test_field_name_is_neutralized() -> None:
     for hostile in ("@x", "[a](http://e)", "<b>"):
         text = _lines(unresolved=[_row(field=hostile)])
         _assert_inert(text)
+
+
+def _inert_text(value: str) -> str:
+    from pursue_index.scrape.year_normalize_report import _inert
+
+    return _inert(value)
+
+
+def test_entity_encoded_mentions_are_neutralized() -> None:
+    for hostile in ("&#64;someone", "&commat;someone", "&#x40;someone"):
+        out = _inert_text(hostile)
+        assert "@" not in out.replace("＠", ""), hostile
+        assert "&#64" not in out and "&commat" not in out
+        assert "someone" in out
+
+
+def test_bare_autolinks_are_broken() -> None:
+    for url in ("http://evil.example/x", "https://evil.example/x", "HTTPS://evil.example"):
+        out = _inert_text(f"see {url} now")
+        assert "://" not in out, url
+        assert "evil.example" in out
+
+
+def test_entity_encoded_autolink_is_broken() -> None:
+    assert "://" not in _inert_text("&#104;ttp&colon;//evil.example")
+
+
+def test_backslash_before_bracket_cannot_unescape_it() -> None:
+    for hostile in (r"\[a](http://e)", r"\\[a](http://e)", r"\\\[a](http://e)"):
+        out = _inert_text(hostile)
+        # Every "[" is preceded by an odd run of backslashes (so it is literal).
+        for m in __import__("re").finditer(r"(\\*)\[", out):
+            assert len(m.group(1)) % 2 == 1, (hostile, out)
+        for m in __import__("re").finditer(r"(\\*)\]", out):
+            assert len(m.group(1)) % 2 == 1, (hostile, out)
+        assert "://" not in out
