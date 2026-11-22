@@ -118,3 +118,18 @@ def test_a_call_that_raises_keeps_its_reservation(tmp_path) -> None:
                         budget_usd=1.0)
     assert report.spent_usd == pytest.approx(ESTIMATED_COST_PER_CALL_USD)
     assert json.dumps(report.failures)
+
+
+def test_any_key_lookup_failure_is_a_client_error_without_the_value(monkeypatch) -> None:
+    monkeypatch.setattr(client, "_client", None)
+    monkeypatch.setitem(sys.modules, "anthropic", type(sys)("anthropic"))
+
+    def boom() -> str:
+        raise ValueError("bad value sk-ant-SECRET123")
+
+    monkeypatch.setattr("pursue_index.config.credentials.anthropic_api_key", boom)
+    with pytest.raises(client.VisionClientError) as info:
+        client.require_client()
+    assert "ANTHROPIC_API_KEY" in str(info.value)
+    assert "SECRET123" not in str(info.value)
+    assert info.value.__cause__ is None or "SECRET123" not in str(info.value.__cause__)

@@ -135,3 +135,61 @@ def test_a_malformed_file_refuses_the_run_before_any_call(tmp_path, monkeypatch)
     assert "method exceptions" in result.output
 
 
+
+
+@pytest.mark.parametrize("flags", [
+    ["--override-method-exception", "--reason", "because"],
+    ["--override-method-exception"],
+    ["--reason", "because"],
+])
+def test_override_flags_are_refused_without_redescribe(tmp_path, flags) -> None:
+    from typer.testing import CliRunner
+
+    from pursue_index.cli.commands import app
+
+    manifest = tmp_path / "m.json"
+    from tests.unit.test_vision_cli_paths import _write_manifest
+
+    _write_manifest(manifest, [_img_card(CARD)])
+    result = CliRunner().invoke(
+        app, ["vision", "run", "--manifest", str(manifest), "--out", str(tmp_path / "o"), *flags]
+    )
+    assert result.exit_code == 2
+    assert "--redescribe" in result.output
+
+
+def test_override_without_a_reason_is_refused_under_redescribe(tmp_path, monkeypatch) -> None:
+    monkeypatch.delenv("CI", raising=False)
+    from typer.testing import CliRunner
+
+    from pursue_index.cli.commands import app
+    from tests.unit.test_vision_cli_paths import _write_manifest
+
+    manifest = tmp_path / "m.json"
+    _write_manifest(manifest, [_img_card(CARD)])
+    from tests.unit.test_vision_redescribe import _worklist
+
+    wl = _worklist(tmp_path, [CARD])
+    result = CliRunner().invoke(app, [
+        "vision", "run", "--manifest", str(manifest), "--out", str(tmp_path / "o"),
+        "--redescribe", "--worklist", str(wl), "--budget-usd", "1",
+        "--override-method-exception",
+    ])
+    assert result.exit_code == 2
+    assert "--reason" in result.output
+
+
+def test_default_path_resolves_like_other_committed_data(tmp_path, monkeypatch) -> None:
+    from pursue_index.paths import repo_root
+
+    expected = repo_root() / "data" / "vision-method-exceptions.json"
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+    assert method_exceptions.default_exceptions_path() == expected
+    assert len(load_method_exceptions()) == 32
+    # and it follows the repo-root override the other data files follow
+    monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path / "other"))
+    assert method_exceptions.default_exceptions_path() == (
+        (tmp_path / "other").resolve() / "data" / "vision-method-exceptions.json"
+    )

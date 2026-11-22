@@ -49,3 +49,32 @@ def test_live_spend_line_format(tmp_path, monkeypatch) -> None:
     # 1000 in + 1000 out: ceiling 0.0900, list 0.0300
     assert "vision spend: $0.0900 metered at ceiling rates (≈ $0.0300 at list) of $1.00" in (
         " ".join(result.output.split()))
+
+
+def test_list_figure_prices_the_metered_token_counts_not_a_ratio(monkeypatch) -> None:
+    # List input/output rates whose ratio differs from the ceiling's, with an
+    # input-heavy mix: scaling the ceiling total by any one ratio misprices it.
+    monkeypatch.setitem(
+        spend.LIST_RATES_BY_MODEL, "claude-opus-4-8", spend.ModelRates(input=2.0, output=25.0)
+    )
+    b = spend.SpendBudget(cap_usd=100.0, model="claude-opus-4-8")
+    usages = [
+        {"input_tokens": 90_000, "cache_creation_input_tokens": 10_000,
+         "cache_read_input_tokens": 40_000, "output_tokens": 1_000},
+        {"input_tokens": 50_000, "output_tokens": 2_000},
+    ]
+    for u in usages:
+        b.reserve()
+        b.settle(u)
+    plain, write, read, out = 140_000, 10_000, 40_000, 3_000
+    expected = (plain * 2 + write * 2 * 1.25 + read * 2 * 0.10 + out * 25) / 1e6
+    assert b.spent_list_usd == pytest.approx(expected)
+    assert abs(b.spent_usd * (25 / 75) - expected) > 0.01
+
+
+def test_a_missing_usage_report_is_listed_at_worst_case_tokens() -> None:
+    b = spend.SpendBudget(cap_usd=100.0, model="claude-opus-4-8")
+    b.reserve()
+    b.settle(None)
+    worst = spend.worst_case_list_usd("claude-opus-4-8")
+    assert b.spent_list_usd == pytest.approx(worst)
