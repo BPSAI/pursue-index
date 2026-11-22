@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from _r2_run_state import rows_of_asset
 from curl_cffi import requests as cffi_requests
 
 CHUNK_SIZE = 1 << 20
@@ -95,14 +96,12 @@ def fetch_asset(url: Any, dest: Path) -> tuple[str, int]:
     return digest.hexdigest(), size
 
 
-def rows_for_asset(rows: list[dict[str, Any]] | None, asset_url: Any) -> list[dict[str, Any]]:
-    """The rows of one asset: those whose ``asset_url`` equals the URL being fetched.
-
-    A card can own several assets (a PDF plus a video), so its newest row is not
-    necessarily the row of the asset in hand. Order (oldest first) is kept.
-    """
-    url = str(asset_url)
-    return [r for r in rows or [] if str(r.get("asset_url")) == url]
+def rows_for_asset(
+    rows: list[dict[str, Any]] | None, asset_url: Any, asset_filename: Any = None
+) -> list[dict[str, Any]]:
+    """The earlier rows of one asset (oldest first): those at the fetched URL, else the
+    card's rows of the same file type when the asset moved; empty means net-new."""
+    return rows_of_asset(rows, asset_url, asset_filename)
 
 
 def last_known_size(rows: list[dict[str, Any]]) -> int | None:

@@ -271,7 +271,7 @@ def _process_card(
         return "fail"
 
     # Only this asset's rows: a card's newest row may belong to another asset.
-    rows = rows_for_asset(registry.get(card.card_id), card.asset_url)
+    rows = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
     cl, etag, last_modified = head_asset(card.asset_url)
     # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
     # with the last row (size + ETag, or size + Last-Modified when there is no
@@ -476,7 +476,7 @@ def _run_cards(args, eligible, registry, client, state: RunState) -> None:
     """Process each card in order, stopping when the ``--full-hash`` byte budget is spent."""
     for i, card in enumerate(eligible):
         if args.full_hash:
-            known = rows_for_asset(registry.get(card.card_id), card.asset_url)
+            known = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
             expected = last_known_size(known) or 0
             if state.bytes_hashed + expected > args.max_bytes_per_run:
                 state.over_budget, state.unhashed = True, len(eligible) - i

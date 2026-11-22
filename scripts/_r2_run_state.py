@@ -11,8 +11,9 @@ import json
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
+from urllib.parse import urlparse
 
 from pursue_index.byte_dispositions import RESAVE_CONTENT_VERIFIED
 
@@ -153,17 +154,40 @@ def drift_window_start(args, now: datetime | None = None) -> datetime:
     )
 
 
+def file_type(asset_filename: Any, asset_url: Any) -> str:
+    """Lowercase extension of the filename, or of the URL path when there is no filename."""
+    name = str(asset_filename or "")
+    if not name:
+        name = urlparse(str(asset_url or "")).path
+    return PurePosixPath(name).suffix.lower()
+
+
+def rows_of_asset(rows: list[dict[str, Any]] | None, asset_url: Any, asset_filename: Any = None):
+    """The earlier rows an asset is compared with, oldest first.
+
+    A card's asset is identified by ``(card_id, asset_url)``. With no row at that URL (the
+    asset moved), fall back to the card's rows of the same file type, newest last; with
+    none of that type either, the asset is net-new (empty)."""
+    url = str(asset_url)
+    same = [r for r in rows or [] if str(r.get("asset_url")) == url]
+    if same:
+        return same
+    kind = file_type(asset_filename, asset_url)
+    if not kind:
+        return []
+    return [r for r in rows or [] if file_type(r.get("asset_filename"), r.get("asset_url")) == kind]
+
+
 def registry_drift_since(registry: dict[str, list[dict[str, Any]]], since: datetime):
     """``(card_id, previous_sha, new_sha)`` for each row fetched at/after ``since`` whose sha
-    differs from the previous row of the same card AND the same ``asset_url``. A card's
-    first row for an asset (net-new) is never drift, and rows of different assets never
-    compare."""
+    differs from the previous row of the same card AND the same ``asset_url``, or
+    (for a moved URL) the newest earlier row of the same file type. A first row with no
+    such earlier row is net-new, never drift."""
     out = []
     for card_id, rows in registry.items():
-        last_by_url: dict[Any, dict[str, Any]] = {}
-        for row in rows:
-            prev = last_by_url.get(row.get("asset_url"))
-            last_by_url[row.get("asset_url")] = row
+        for i, row in enumerate(rows):
+            earlier = rows_of_asset(rows[:i], row.get("asset_url"), row.get("asset_filename"))
+            prev = earlier[-1] if earlier else None
             if prev is None:
                 continue
             try:
