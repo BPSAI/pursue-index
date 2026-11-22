@@ -262,6 +262,7 @@ def diff_tranches(
     fetch_byte_sha: Callable[[str], str | None] | None = None,
     resave_check: ResaveCheck | None = None,
     move_resaves: bool = False, date_overlay: dict | None = None,
+    normalized: tuple[dict[str, Any], Any] | None = None,
 ) -> dict[str, Any]:
     """Compute the structured diff between two manifests.
 
@@ -272,10 +273,13 @@ def diff_tranches(
     `move_resaves` (the ingest_auto_approve_metadata_resaves opt-in) moves
     them out of `quarantined`, else the verdict is only attached as evidence.
     `date_overlay` is the manual date resolutions (`load_date_resolutions`).
+    `normalized` is an already-computed `normalize_manifest_dict` result for
+    these manifests and overlay; when given, the manifest is not normalized again.
     """
     if fetch_byte_sha is None:
         fetch_byte_sha = _fetch_byte_sha_via_curl
-    new_manifest, dates = normalize_manifest_dict(new_manifest, old_manifest, date_overlay)
+    new_manifest, dates = normalized or normalize_manifest_dict(
+        new_manifest, old_manifest, date_overlay)
     old_groups = group_by_card_id(old_manifest.get("cards", []))
     new_groups = group_by_card_id(new_manifest.get("cards", []))
     # A card_id can be backed by several rows; the PDF row is the one
@@ -350,10 +354,11 @@ def main() -> int:
     old_manifest = _load_manifest(args.old_manifest)
     new_manifest = _load_manifest(args.new_manifest)
     registry = load_registry(args.registry)
+    normalized = normalize_manifest_dict(new_manifest, old_manifest, overlay)
     diff = diff_tranches(old_manifest, new_manifest, registry,
                          resave_check=bytes_dir_check(args.bytes_dir, registry),
                          move_resaves=settings.ingest_auto_approve_metadata_resaves,
-                         date_overlay=overlay)
+                         date_overlay=overlay, normalized=normalized)
 
     sha = (diff.get("tranche_sha256") or "unknown")[:12]
     if args.dry_run:
@@ -367,7 +372,7 @@ def main() -> int:
     md_path.write_text(render_markdown(diff))
     print(f"[tranche-diff] wrote {json_path} and {md_path}")
     print(f"[tranche-diff] summary: {diff['summary']}")
-    passed = normalize_manifest_dict(new_manifest, old_manifest, overlay)[1].passed_through
+    passed = normalized[1].passed_through
     print(f"[tranche-diff] two_digit_priors_passed_through={passed}")
     return 0
 
