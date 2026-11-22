@@ -75,7 +75,7 @@ def test_a_declared_length_over_the_cap_is_refused_before_any_byte(monkeypatch, 
 
 def test_a_body_exactly_at_the_cap_passes(monkeypatch, tmp_path):
     _serve(monkeypatch, {URL: _Resp(chunks=[b"x" * 10])})
-    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10)[1] == 10
+    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10, allowed_hosts=HOSTS)[1] == 10
 
 
 def test_the_cap_is_twice_the_last_known_size_and_never_above_the_ceiling():

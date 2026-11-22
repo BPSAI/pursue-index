@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import _r2_fetch  # noqa: E402
 
+LOCAL = frozenset({"127.0.0.1"})
 BODY = (b"pursue-real-client-fixture-" * 40000)  # ~1 MB, several chunks
 
 
@@ -65,7 +66,7 @@ def server():
 
 def test_real_client_streams_the_body_into_the_file_and_hash(server, tmp_path):
     dest = tmp_path / "asset.pdf"
-    sha, size = _r2_fetch.fetch_asset(f"{server}/asset.pdf", dest)
+    sha, size = _r2_fetch.fetch_asset(f"{server}/asset.pdf", dest, allowed_hosts=LOCAL)
     assert size == len(BODY)
     assert sha == hashlib.sha256(BODY).hexdigest()
     assert dest.read_bytes() == BODY
@@ -73,26 +74,27 @@ def test_real_client_streams_the_body_into_the_file_and_hash(server, tmp_path):
 
 def test_real_client_raises_on_an_http_error(server, tmp_path):
     with pytest.raises(Exception) as exc:
-        _r2_fetch.fetch_asset(f"{server}/missing", tmp_path / "x.pdf")
+        _r2_fetch.fetch_asset(f"{server}/missing", tmp_path / "x.pdf", allowed_hosts=LOCAL)
     assert "context manager" not in str(exc.value)
 
 
 def test_real_client_follows_a_redirect_within_the_limit(server, tmp_path):
     dest = tmp_path / "asset.pdf"
-    sha, size = _r2_fetch.fetch_asset(f"{server}/hop", dest)
+    sha, size = _r2_fetch.fetch_asset(f"{server}/hop", dest, allowed_hosts=LOCAL)
     assert size == len(BODY)
     assert sha == hashlib.sha256(BODY).hexdigest()
 
 
 def test_real_client_refuses_a_redirect_loop_past_the_limit(server, tmp_path):
     with pytest.raises(_r2_fetch.FetchLimitError, match="redirects"):
-        _r2_fetch.fetch_asset(f"{server}/loop", tmp_path / "x.pdf")
+        _r2_fetch.fetch_asset(f"{server}/loop", tmp_path / "x.pdf", allowed_hosts=LOCAL)
 
 
 def test_real_client_aborts_a_body_over_max_bytes(server, tmp_path):
     with pytest.raises(_r2_fetch.FetchLimitError, match="cap"):
         _r2_fetch.fetch_asset(
-            f"{server}/asset.pdf", tmp_path / "x.pdf", max_bytes=len(BODY) // 2
+            f"{server}/asset.pdf", tmp_path / "x.pdf", max_bytes=len(BODY) // 2,
+            allowed_hosts=LOCAL,
         )
 
 
