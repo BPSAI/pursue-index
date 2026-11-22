@@ -187,6 +187,10 @@ $ARGUMENTS
       tier does not catch**. Sanity check against a prior release: sidecar rows
       should be ~100% judged with a `judge-ok` / `operator-review` mix,
       never 100% `no-corrections`. Budget ≈ $0.024/page.
+      To spot-check one page's raw OCR beside its cleaned text and provenance before publishing:
+      ```
+      python scripts/spotcheck_view.py <card_id> <page>
+      ```
       After `curate publish` completes, copy the bundle to the web checkout:
       ```
       make bundle-copy

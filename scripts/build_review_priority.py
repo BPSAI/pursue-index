@@ -33,6 +33,7 @@ _REPO_ROOT = repo_root()
 
 from pursue_index.clean.qc.priority import score_page
 from pursue_index.config import settings
+from pursue_index.page_rows import read_latest_pages
 
 # Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
 DEFAULT_OCR_DIR = settings.ocr_dir
@@ -68,8 +69,8 @@ def _qc_verdict_by_page(qc_path: Path) -> dict[int, str | None]:
 
 
 def score_card(card_id: str, card_dir: Path, *, qc_path: Path | None = None) -> list[dict]:
-    raw_rows = _load_jsonl(card_dir / "pages.jsonl")
-    cleaned_rows = _load_jsonl(card_dir / "pages_cleaned.jsonl")
+    raw_rows = read_latest_pages(card_dir / "pages.jsonl", card_id)
+    cleaned_rows = read_latest_pages(card_dir / "pages_cleaned.jsonl", card_id)
     if not cleaned_rows:
         return []
     raw_by_page = {int(r.get("page", 0)): r for r in raw_rows}

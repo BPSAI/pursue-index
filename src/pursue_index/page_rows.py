@@ -9,11 +9,13 @@ for staleness cannot drift apart.
 
 from __future__ import annotations
 
+import json
 import sys
 from collections.abc import Iterable
+from pathlib import Path
 from typing import Any
 
-__all__ = ["latest_per_page"]
+__all__ = ["latest_per_page", "read_latest_pages"]
 
 
 def latest_per_page(rows: Iterable[dict[str, Any]], card_id: str = "") -> list[dict[str, Any]]:
@@ -31,6 +33,9 @@ def latest_per_page(rows: Iterable[dict[str, Any]], card_id: str = "") -> list[d
                   file=sys.stderr)
             continue
         try:
+            # A boolean is not a page number, although int(True) == 1.
+            if isinstance(raw_page, bool):
+                raise TypeError("boolean page")
             page = int(raw_page)
         except (ValueError, TypeError):
             print(f"warning clean.build.skip_corrupt_row card_id={card_id} row_index={idx} "
@@ -41,3 +46,26 @@ def latest_per_page(rows: Iterable[dict[str, Any]], card_id: str = "") -> list[d
         if prior is None or key >= prior[0]:
             by_page[page] = (key, row)
     return [row for _, row in by_page.values()]
+
+
+def read_latest_pages(path: Path, card_id: str = "") -> list[dict[str, Any]]:
+    """The newest row per page of a JSONL sidecar; ``[]`` when it is absent.
+
+    Reads tolerantly: blank lines are ignored and a malformed line is skipped,
+    so one torn write does not hide the rest of the card.
+    """
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                row = json.loads(stripped)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(row, dict):
+                rows.append(row)
+    return latest_per_page(rows, card_id)

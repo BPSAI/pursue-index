@@ -51,6 +51,7 @@ from pursue_index.release.stable_timestamp import keep_unchanged_timestamp
 REPO_ROOT = repo_root()
 
 from pursue_index.config import settings
+from pursue_index.page_rows import read_latest_pages
 
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "manifests" / "latest.json"
 # Tracks PURSUE_DATA_ROOT rather than baking in one operator's mount point.
@@ -74,19 +75,9 @@ def is_photo_pdf(card: dict, page_count: int, page_text: str) -> bool:
 
 
 def _read_first_page_text(pages_jsonl: Path) -> str:
-    """Read the first valid row from pages.jsonl and return its text."""
-    if not pages_jsonl.exists():
-        return ""
-    with pages_jsonl.open() as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            return row.get("text", "") or ""
+    """The text of the first page's newest row in pages.jsonl."""
+    for row in read_latest_pages(pages_jsonl):
+        return row.get("text", "") or ""
     return ""
 
 
