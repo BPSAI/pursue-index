@@ -53,13 +53,16 @@ def _diff(
     if bytes_dir is not None:
         for name, data in files.items():
             (bytes_dir / f"{name}.pdf").write_bytes(data)
-    registry = {OLD_ID: [{"card_id": OLD_ID, "byte_sha256": _sha(old_bytes)}]}
+    old_card = _card(OLD_ID, "https://x/d042.pdf", "Japan")
+    registry = {OLD_ID: [{"card_id": OLD_ID, "asset_url": old_card["asset_url"],
+                          "asset_filename": old_card["asset_filename"],
+                          "byte_sha256": _sha(old_bytes)}]}
     return tranche_diff.diff_tranches(
-        old_manifest={"csv_sha256": "old", "cards": [_card(OLD_ID, "https://x/d042.pdf", "Japan")]},
+        old_manifest={"csv_sha256": "old", "cards": [old_card]},
         new_manifest={"csv_sha256": "new", "cards": [_card(NEW_ID, NEW_URL, "Japan")]},
         registry=registry,
         fetch_byte_sha={NEW_URL: _sha(new_bytes)}.get,
-        resave_check=bytes_dir_check(bytes_dir, registry),
+        resave_check=bytes_dir_check(bytes_dir, registry, [old_card]),
         move_resaves=move,
     )
 

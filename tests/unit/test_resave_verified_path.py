@@ -19,7 +19,9 @@ def test_malformed_sha_is_refused_before_any_path_is_built(
 ) -> None:
     reads: list[Path] = []
     monkeypatch.setattr(Path, "read_bytes", lambda self: reads.append(self) or b"")
-    check = bytes_dir_check(tmp_path, {"old": [{"byte_sha256": bad}]})
+    row = {"asset_url": "https://x/o.pdf", "asset_filename": "o.pdf", "byte_sha256": bad}
+    cards = [{"card_id": "old", "asset_url": "https://x/o.pdf", "asset_filename": "o.pdf"}]
+    check = bytes_dir_check(tmp_path, {"old": [row]}, cards)
     assert check("old", bad) is None
     assert reads == []
 
