@@ -294,3 +294,22 @@ def test_backfill_missing_public_mirror_refreshes_index(tmp_path: Path) -> None:
     )
     assert (public / f"{new_sha}.json").exists()  # mirror restored
     assert new_sha in (public / "index.json").read_text()  # ...AND re-enumerated
+
+
+def test_result_fetched_at_is_a_required_datetime(tmp_path: Path) -> None:
+    from datetime import datetime
+
+    latest, canonical, public = _dirs(tmp_path)
+    raw = _csv([_row("Case 0001", _URL1)])
+    result = generate_snapshot_diff(raw, source_url=_SOURCE_URL, latest_path=latest,
+                                    canonical_dir=canonical, public_dir=public)
+    assert isinstance(result.fetched_at, datetime)
+
+    with pytest.raises(TypeError):  # no default: every producer must supply it
+        SnapshotDiffResult(added=[], removed=[], field_changes=[], new_columns=[])  # type: ignore[call-arg]
+
+
+def test_result_refuses_a_missing_fetched_at() -> None:
+    with pytest.raises(ValueError, match="fetched_at"):
+        SnapshotDiffResult(added=[], removed=[], field_changes=[], new_columns=[],
+                           fetched_at=None)  # type: ignore[arg-type]

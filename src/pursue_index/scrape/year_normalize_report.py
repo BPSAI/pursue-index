@@ -24,11 +24,12 @@ parse does not keep it. The worklist's sections (``date_md_parts``) are in ``yea
 
 from __future__ import annotations
 
+import html
+import re
 from collections.abc import Mapping
 from typing import Any
 
 from pursue_index.scrape.year_normalize import DateReport
-from pursue_index.scrape.year_normalize_md import cell as _cell
 from pursue_index.scrape.year_normalize_md import date_md_parts
 from pursue_index.text_safety import neutralize
 
@@ -105,11 +106,58 @@ def verdict_date_lines(report: DateReport) -> str:
     return "\n".join(lines) + "\n"
 
 
+_MAX_DECODE_PASSES = 256
+# Any "scheme://", plus "mailto:" and a leading "www.", is a bare autolink.
+_SCHEME_SLASHES = re.compile(r"([a-z][a-z0-9+.\-]*):/{2}", re.I)
+_MAILTO = re.compile(r"(mailto):", re.I)
+_WWW = re.compile(r"\b(www)\.", re.I)
+# "GH-123" is an issue reference; "#123" and "owner/repo#123" end in "#".
+_GH_REF = re.compile(r"\b(gh)-(?=\d)", re.I)
+
+
+def _decoded(value: Any) -> str:
+    """``value`` with HTML entities decoded until the text stops changing, so a
+    nested ``&amp;amp;#64;`` is judged as the ``@`` it eventually renders as.
+
+    Every pass that changes the text shortens it, so the loop ends; the pass cap
+    only bounds the cost of a hostile value, and ``_inert`` escapes any ``&`` left over.
+    """
+    text = "" if value is None else str(value)
+    for _ in range(min(len(text), _MAX_DECODE_PASSES)):
+        decoded = html.unescape(text)
+        if decoded == text:
+            break
+        text = decoded
+    return text
+
+
+# Bidirectional and zero-width controls hide or reorder text.
+_INVISIBLE = {c: None for c in (*range(0x200B, 0x2010), *range(0x202A, 0x202F),
+                                *range(0x2066, 0x206A), 0xFEFF)}
+# "#123" and "owner/repo#123" are cross-references; any other "#" is plain text.
+_HASH_REF = re.compile(r"(?<!\w)#(?=\d)")
+_REPO_HASH_REF = re.compile(r"([\w.\-]+/[\w.\-]+)#(?=\d)")
+
+
 def _inert(value: Any, limit: int = 80) -> str:
     """Upstream-derived text for a verdict-summary line, which is posted as an
-    issue comment: table-safe (``cell``), no backticks or angle brackets, no
-    live @-mention, and square brackets escaped so no link can form."""
-    return neutralize(_cell(value, limit)).replace("[", "\\[").replace("]", "\\]")
+    issue comment. The raw value is decoded (entities), stripped of invisible
+    controls, collapsed and cut to ``limit`` first, so no escape is ever split;
+    then made inert: no backticks or angle brackets, no live @-mention, no bare
+    autolink (``scheme://``, ``mailto:``, ``www.``: one separator becomes its
+    fullwidth form), no ``#123``/``owner/repo#123``/``GH-123`` cross-reference,
+    backslashes, square brackets and ``&`` escaped. ``|`` is escaped last, so
+    the table-cell backslash is never doubled."""
+    text = _decoded(value).translate(_INVISIBLE)
+    text = neutralize(" ".join(text.split())[:limit])
+    text = _SCHEME_SLASHES.sub(lambda m: f"{m.group(1)}:\uff0f\uff0f", text)
+    text = _MAILTO.sub(lambda m: f"{m.group(1)}\uff1a", text)
+    text = _WWW.sub(lambda m: f"{m.group(1)}\uff0e", text)
+    text = _GH_REF.sub(lambda m: f"{m.group(1)}\uff0d", text)
+    text = _REPO_HASH_REF.sub(lambda m: f"{m.group(1)}\uff03", text)
+    text = _HASH_REF.sub("\uff03", text)
+    text = text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+    return text.replace("&", "&amp;").replace("|", "\\|")
 
 
 def _row_lines(rows: list[dict[str, Any]]) -> list[str]:

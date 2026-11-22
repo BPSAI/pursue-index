@@ -10,6 +10,7 @@ count.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -24,6 +25,9 @@ from tests.support.pdf_page_fakes import FakeHttpGet, pdf_bytes
 _BASE = "https://www.war.gov/medialink/ufo"
 _OK_ID = "00000000000000aa"
 _OK_URL = f"{_BASE}/a.pdf"
+
+
+_FETCHED_AT = datetime(2026, 1, 1, tzinfo=UTC)
 
 
 @pytest.mark.parametrize("url", [
@@ -67,7 +71,7 @@ def _card(card_id: str, url: str) -> CardMetadata:
 
 
 def _diff(added=(), field_changes=()) -> SnapshotDiffResult:
-    return SnapshotDiffResult(added=list(added), removed=[],
+    return SnapshotDiffResult(fetched_at=_FETCHED_AT, added=list(added), removed=[],
                               field_changes=list(field_changes), new_columns=[])
 
 

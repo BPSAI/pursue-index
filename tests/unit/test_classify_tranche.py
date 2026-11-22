@@ -9,12 +9,15 @@ classifier in ``scripts/tranche_diff.py`` (which fetches bytes).
 from __future__ import annotations
 
 import ast
+from datetime import UTC, datetime
 from pathlib import Path
 
 from pursue_index.scrape.classify_tranche import classify_tranche, render_verdict_summary
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
 from pursue_index.scrape.types import CardMetadata
 from pursue_index.scrape.year_normalize import DateReport
+
+_FETCHED_AT = datetime(2026, 1, 1, tzinfo=UTC)
 
 
 def _card(card_id: str = "c0") -> CardMetadata:
@@ -29,7 +32,7 @@ def _diff(
     field_changes: list | None = None,
     new_columns: list[str] | None = None,
 ) -> SnapshotDiffResult:
-    return SnapshotDiffResult(
+    return SnapshotDiffResult(fetched_at=_FETCHED_AT, 
         added=added or [],
         removed=removed or [],
         field_changes=field_changes or [],
@@ -45,7 +48,7 @@ def _encoding_only(unresolved: list[dict]) -> SnapshotDiffResult:
     """An encoding-only upstream change: the CSV bytes moved but every card
     parses to the same metadata -- no added/removed card, no field change,
     no new column."""
-    return SnapshotDiffResult(added=[], removed=[], field_changes=[], new_columns=[],
+    return SnapshotDiffResult(fetched_at=_FETCHED_AT, added=[], removed=[], field_changes=[], new_columns=[],
                               date_report=DateReport(unresolved=unresolved, considered=True))
 
 

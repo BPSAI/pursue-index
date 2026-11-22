@@ -8,11 +8,16 @@ against. One target per card_id; non-PDF assets are not fetched.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from pursue_index.scrape.pdf_pages import PageTarget, page_targets
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
 from pursue_index.scrape.types import CardMetadata
 
 _BASE = "https://www.war.gov/medialink/ufo"
+
+
+_FETCHED_AT = datetime(2026, 1, 1, tzinfo=UTC)
 
 
 def _card(card_id: str, asset_type: str, url: str | None) -> CardMetadata:
@@ -21,7 +26,7 @@ def _card(card_id: str, asset_type: str, url: str | None) -> CardMetadata:
 
 
 def _diff(added=(), field_changes=()) -> SnapshotDiffResult:
-    return SnapshotDiffResult(added=list(added), removed=[],
+    return SnapshotDiffResult(fetched_at=_FETCHED_AT, added=list(added), removed=[],
                               field_changes=list(field_changes), new_columns=[])
 
 

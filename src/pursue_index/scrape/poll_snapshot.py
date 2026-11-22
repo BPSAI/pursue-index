@@ -58,13 +58,18 @@ class SnapshotDiffResult:
     removed: list[CardMetadata]
     field_changes: list[dict[str, Any]]
     new_columns: list[str]
+    # The one fetch timestamp this poll's manifest carries; later steps that
+    # rebuild a manifest from the same CSV reuse it. Required: the producer
+    # always has it, and no consumer has to guess.
+    fetched_at: datetime
     # What the 2-digit-year normalization did (``year_normalize``).
     date_report: DateReport = field(default_factory=DateReport)
     # Digest of the applicable date-resolution entries (``variants``), or None.
     resolutions_digest: str | None = None
-    # The one fetch timestamp this poll's manifest carries; later steps that
-    # rebuild a manifest from the same CSV reuse it.
-    fetched_at: datetime | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.fetched_at, datetime):
+            raise ValueError("fetched_at is required: the poll's one fetch timestamp")
 
     @property
     def date_unresolved(self) -> list[dict[str, Any]]:
