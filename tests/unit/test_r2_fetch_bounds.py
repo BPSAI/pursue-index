@@ -202,7 +202,7 @@ def test_main_hands_each_card_its_cap_and_the_manifest_hosts(tmp_path, monkeypat
     monkeypatch.setattr(r2, "fetch_asset", fetch)
     w.run()
     first, second = seen["https://www.war.gov/medialink/ufo/c1.pdf"], seen["https://www.war.gov/medialink/ufo/c2.pdf"]
-    assert first["max_bytes"] == _r2_fetch.hard_ceiling([])
+    assert first["max_bytes"] == _r2_fetch.hard_ceiling([{"byte_size": len(OLD_BODY)}])
     assert second["max_bytes"] == _r2_fetch.hard_ceiling([])
     assert first["allowed_hosts"] == frozenset({"www.war.gov"})
 

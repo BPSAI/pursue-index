@@ -14,7 +14,9 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from pursue_index.asset_rows import file_type, rows_of_asset  # noqa: F401  (re-exported)
+from _r2_hosts import host_of
+
+from pursue_index.asset_rows import file_type, rows_of_asset, type_change  # noqa: F401
 from pursue_index.byte_dispositions import RESAVE_CONTENT_VERIFIED
 
 RUN_RECORD_NAME = "full-hash-runs.jsonl"
@@ -60,12 +62,35 @@ class RunState:
     allowed_hosts: frozenset[str] = frozenset()
     size_alerts: int = 0  # assets past the x2 growth cap (alerts, not failures)
     started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
+    byte_budget: int | None = None  # ``--max-bytes-per-run``; caps each fetch's ceiling
+    budget_hit: bool = False  # a fetch stopped at the budget left, not at its own ceiling
+    card_urls: dict[str, set[str]] = field(default_factory=dict)  # asset URLs per manifest card
+
+    def fetch_ceiling(self, ceiling: int) -> int:
+        """``ceiling``, cut to what is left of the run's byte budget when there is one."""
+        if self.byte_budget is None:
+            return ceiling
+        return min(ceiling, max(self.byte_budget - self.bytes_hashed, 0))
+
+    def note_type_change(self, card_id: str, card_rows, asset_url: Any, asset_filename: Any) -> None:
+        """Warn when an asset's URL and file type both changed (its old asset is gone from the manifest)."""
+        found = type_change(card_rows, asset_url, asset_filename)
+        if found and str(found[0].get("asset_url")) not in self.card_urls.get(card_id, ()):
+            print(type_change_line(card_id, *found, asset_url))
 
     def note_growth(self, card_id: str, known: int | None, size: int, cap: int) -> None:
         """Alert, without failing the card, when an asset with a known size passed its cap."""
         if isinstance(known, int) and known > 0 and size > cap:
             self.size_alerts += 1
             print(f"[r2-archive] SIZE ALERT: {card_id} {known} -> {size} (over the 2x growth cap)")
+
+
+def type_change_line(card_id: str, prev: dict[str, Any], old: str, new: str, new_url: Any) -> str:
+    """The warning for an asset whose file type changed along with its URL (not a drift failure)."""
+    return (
+        f"[r2-archive] TYPE CHANGE: {card_id} {old} -> {new} "
+        f"({host_of(prev.get('asset_url'))} -> {host_of(new_url)})"
+    )
 
 
 def write_run_record(path: Path, entry: dict[str, Any]) -> None:
@@ -188,6 +213,30 @@ def newest_run_start(path: Path, now: datetime | None = None) -> datetime | None
     return started
 
 
+def gated_row_count(args, now: datetime | None = None) -> int | None:
+    """Registry rows (in file order) the newest passing gate covered, or ``None`` when that
+    marker is missing or in the old format (then the whole window is rescanned)."""
+    now = now or datetime.now(UTC)
+    path = gate_marker_path(args)
+    if not path.exists():
+        return None
+    newest: datetime | None = None
+    count: int | None = None
+    for line in path.read_text().splitlines():
+        try:
+            row = json.loads(line)
+            when = datetime.fromisoformat(row["completed_at"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        if when > now + timedelta(minutes=5) or (newest is not None and when <= newest):
+            continue
+        rows = row.get("gated_rows")
+        newest, count = when, rows if isinstance(rows, int) and not isinstance(rows, bool) and rows >= 0 else None
+    return count
+
+
 def drift_window_start(args, now: datetime | None = None) -> datetime:
     """Where the registry drift scan starts: the EARLIEST of the last passing gate marker
     and the start of the last complete ``--full-hash`` run.
@@ -204,17 +253,24 @@ def drift_window_start(args, now: datetime | None = None) -> datetime:
     return min(starts) if starts else now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
 
 
-def registry_drift_since(registry: dict[str, list[dict[str, Any]]], since: datetime):
+def registry_drift_since(
+    registry: dict[str, list[dict[str, Any]]],
+    since: datetime,
+    rows_after: list[dict[str, Any]] | None = None,
+):
     """``(card_id, previous_sha, new_sha)`` for each row fetched at/after ``since`` whose sha
     differs from the previous row of the same card AND the same ``asset_url``, or
     (for a moved URL) the newest earlier row of the same file type. A first row with no
-    such earlier row is net-new, never drift."""
+    such earlier row is net-new, never drift (one whose file type changed with its URL is
+    printed as a ``TYPE CHANGE`` warning).
+
+    ``rows_after`` (row objects of ``registry``, as ``load_registry`` returns them) limits the
+    scan to those rows: the ones a passing gate has not covered yet. ``None`` scans them all."""
+    fresh = None if rows_after is None else {id(r) for r in rows_after}
     out = []
     for card_id, rows in registry.items():
         for i, row in enumerate(rows):
-            earlier = rows_of_asset(rows[:i], row.get("asset_url"), row.get("asset_filename"))
-            prev = earlier[-1] if earlier else None
-            if prev is None:
+            if fresh is not None and id(row) not in fresh:
                 continue
             try:
                 when = datetime.fromisoformat(row["fetched_at"])
@@ -222,6 +278,15 @@ def registry_drift_since(registry: dict[str, list[dict[str, Any]]], since: datet
                 continue
             if when.tzinfo is None:
                 when = when.replace(tzinfo=UTC)
+            earlier = rows_of_asset(rows[:i], row.get("asset_url"), row.get("asset_filename"))
+            prev = earlier[-1] if earlier else None
+            if prev is None:
+                change = type_change(rows[:i], row.get("asset_url"), row.get("asset_filename"))
+                if change and when >= since and not any(
+                    r.get("asset_url") == change[0].get("asset_url") for r in rows[i + 1 :]
+                ):
+                    print(type_change_line(card_id, *change, row.get("asset_url")))
+                continue
             old, new = prev.get("byte_sha256"), row.get("byte_sha256")
             if when >= since and old and new and old != new:
                 out.append((card_id, old, new))

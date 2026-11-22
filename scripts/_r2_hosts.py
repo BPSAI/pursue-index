@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import ipaddress
 import json
+import socket
 from collections.abc import Collection, Iterable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -11,6 +13,10 @@ from typing import Any
 from urllib.parse import urlsplit
 
 _DEFAULT_PORTS = {"http": 80, "https": 443}
+
+# Test-only seam: lets a local-server test fetch plain http from a loopback address. Nothing
+# in production sets it; a test turns it on explicitly with ``monkeypatch.setattr``.
+TEST_ONLY_ALLOW_LOCAL = False
 
 
 class FetchLimitError(Exception):
@@ -35,9 +41,15 @@ def for_card(card_id: str) -> Iterator[None]:
 
 
 def log_hop(current: str, target: str, status: int) -> None:
-    """One line per redirect hop: hosts only, never a path or query string."""
+    """One line per redirect hop: hosts only, never a path or query string.
+
+    An http to https upgrade says so on the same line."""
+    upgrade = ""
+    if urlsplit(current).scheme == "http" and urlsplit(target).scheme == "https":
+        upgrade = " scheme upgrade http -> https"
     print(
-        f"[r2-archive] redirect: {_CARD.get()} {host_of(current)} -> {host_of(target)} ({status})"
+        f"[r2-archive] redirect: {_CARD.get()} {host_of(current)} -> {host_of(target)} "
+        f"({status}){upgrade}"
     )
 
 
@@ -74,6 +86,11 @@ def load_approved_hosts(path: Path) -> frozenset[str]:
     return frozenset(h.strip().lower() for h in hosts)
 
 
+def unlisted_hosts(urls: Iterable[Any], approved: Collection[str]) -> list[str]:
+    """Hosts of ``urls`` that the approved list does not contain, sorted."""
+    return sorted(allowed_hosts_from_urls(urls) - set(approved))
+
+
 def check_host(url: str, allowed_hosts: Collection[str] | AnyHost | None) -> None:
     if allowed_hosts is ANY_HOST:
         return
@@ -82,13 +99,56 @@ def check_host(url: str, allowed_hosts: Collection[str] | AnyHost | None) -> Non
         raise FetchLimitError(f"host {host or '(none)'!r} is not a manifest or approved asset host")
 
 
+def check_scheme(url: str) -> None:
+    """The URL a fetch starts from must be https (plain http only through the test seam)."""
+    scheme = urlsplit(url).scheme
+    if scheme != "https" and not (TEST_ONLY_ALLOW_LOCAL and scheme == "http"):
+        raise FetchLimitError(f"scheme {scheme or '(none)'!r} is refused: a fetch must start on https")
+
+
+def _public(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    mapped = getattr(ip, "ipv4_mapped", None)
+    if mapped is not None:
+        ip = mapped
+    return not (
+        ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_unspecified
+        or ip.is_multicast or ip.is_reserved
+    )
+
+
+def check_resolved(url: str, allowed_hosts: Collection[str] | AnyHost | None = None) -> None:
+    """Refuse a URL whose host resolves to a private, loopback, link-local or unspecified address.
+
+    Every address the name resolves to must be public; a host that does not resolve is refused.
+    Skipped with ``ANY_HOST`` (the explicit no-restriction opt-out) and through the test seam."""
+    if allowed_hosts is ANY_HOST or TEST_ONLY_ALLOW_LOCAL:
+        return
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower()
+    try:
+        infos = socket.getaddrinfo(host, parts.port or _DEFAULT_PORTS.get(parts.scheme, 443))
+    except (OSError, UnicodeError) as exc:
+        raise FetchLimitError(f"host {host!r} could not be resolved: {exc}") from exc
+    for info in infos:
+        addr = str(info[4][0]).split("%", 1)[0]
+        try:
+            ip = ipaddress.ip_address(addr)
+        except ValueError as exc:
+            raise FetchLimitError(f"host {host!r} resolved to an unreadable address") from exc
+        if not _public(ip):
+            raise FetchLimitError(f"host {host!r} resolves to a non-public address ({ip})")
+    if not infos:
+        raise FetchLimitError(f"host {host!r} could not be resolved")
+
+
 def _port(url: str) -> int | None:
     parts = urlsplit(url)
     return parts.port or _DEFAULT_PORTS.get(parts.scheme)
 
 
 def check_hop(current: str, target: str) -> None:
-    """A redirect never leaves https, and stays on the port it came from (or the default)."""
+    """A redirect stays on https (an http to https upgrade is the one scheme change allowed),
+    and stays on the port it came from (or the default)."""
     cur, nxt = urlsplit(current), urlsplit(target)
     if nxt.scheme not in _DEFAULT_PORTS or (cur.scheme == "https" and nxt.scheme != "https"):
         raise FetchLimitError(f"redirect to scheme {nxt.scheme!r} from {cur.scheme!r} is refused")

@@ -7,6 +7,7 @@ the sha256 and to a file, so a multi-hundred-megabyte video costs one chunk of R
 from __future__ import annotations
 
 import hashlib
+import shutil
 import time
 from collections.abc import Callable, Collection
 from pathlib import Path
@@ -20,6 +21,8 @@ from _r2_hosts import (  # noqa: F401  (re-exported: callers import these from h
     allowed_hosts_from_urls,
     check_hop,
     check_host,
+    check_resolved,
+    check_scheme,
     for_card,
     log_hop,
 )
@@ -49,6 +52,11 @@ SIZE_GROWTH_FACTOR = 2
 # The hard ceiling for an asset of known size: growth past this many times its
 # last recorded size fails the card. Growth past SIZE_GROWTH_FACTOR only alerts.
 HARD_GROWTH_FACTOR = 10
+# A small asset still gets this much room, so ten times a tiny size is not a trap; it is far
+# below ``MAX_ASSET_BYTES``, so the ceiling stays a real bound for small assets.
+HARD_CEILING_FLOOR = 64 * 1024**2
+# Free space that must remain beyond a fetch's ceiling before it starts.
+DISK_MARGIN_BYTES = 256 * 1024**2
 MAX_REDIRECTS = 5
 _REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
 
@@ -57,6 +65,14 @@ _now = time.monotonic
 
 class FetchTimeoutError(TimeoutError):
     """The stream went idle, or the overall per-asset ceiling was passed."""
+
+
+class InsufficientDiskError(FetchLimitError):
+    """The temp directory has no room for the fetch's ceiling plus the safety margin."""
+
+    def __init__(self, *, need: int, free: int) -> None:
+        self.need, self.free = need, free
+        super().__init__(f"insufficient disk: {free} bytes free, {need} needed (ceiling + margin)")
 
 
 class FetchOverCapError(FetchLimitError):
@@ -79,13 +95,14 @@ def byte_cap(rows: list[dict[str, Any]]) -> int:
 def hard_ceiling(rows: list[dict[str, Any]]) -> int:
     """The most bytes a fetch may read before the card fails.
 
-    ``MAX_ASSET_BYTES`` for an asset with no recorded size; otherwise the larger of
-    that and ``HARD_GROWTH_FACTOR`` times the last recorded size, so an asset that is
-    already bigger than the absolute ceiling is never refused for its own size.
+    ``MAX_ASSET_BYTES`` for an asset with no recorded size; otherwise
+    ``HARD_GROWTH_FACTOR`` times the last recorded size, never below ``HARD_CEILING_FLOOR``.
+    The ceiling follows the asset, so one already bigger than ``MAX_ASSET_BYTES`` is never
+    refused for its own size and a small one cannot grow to gigabytes.
     """
     known = last_known_size(rows)
     if isinstance(known, int) and known > 0:
-        return max(MAX_ASSET_BYTES, known * HARD_GROWTH_FACTOR)
+        return max(HARD_CEILING_FLOOR, known * HARD_GROWTH_FACTOR)
     return MAX_ASSET_BYTES
 
 
@@ -93,11 +110,16 @@ def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any
     """Issue a request, following at most ``MAX_REDIRECTS`` redirects by hand.
 
     The host allowlist is checked on the original URL and on every redirect target
-    before anything is requested from it. Returns the final (non-redirect) response.
+    before anything is requested from it, and the initial URL and every hop must be https (an
+    http to https upgrade hop is the one allowed change). The host is resolved first and
+    refused when any address is not public. Returns the final (non-redirect) response.
     """
     current = url
     for hop in range(MAX_REDIRECTS + 1):
+        if hop == 0:
+            check_scheme(current)
         check_host(current, allowed_hosts)
+        check_resolved(current, allowed_hosts)
         resp = method(current, allow_redirects=False, **kw)
         location = (getattr(resp, "headers", None) or {}).get("location")
         if getattr(resp, "status_code", 200) not in _REDIRECT_STATUSES or not location:
@@ -118,6 +140,12 @@ def _close(resp: Any) -> None:
         close()
 
 
+def _encoded(resp: Any) -> bool:
+    """True when the body is content-encoded, so its declared length counts compressed bytes."""
+    enc = str((getattr(resp, "headers", None) or {}).get("content-encoding") or "")
+    return enc.strip().lower() not in ("", "identity")
+
+
 def head_asset(
     url: Any, allowed_hosts: Collection[str] | AnyHost
 ) -> tuple[int | None, str | None, str | None]:
@@ -133,7 +161,8 @@ def head_asset(
         )
         if resp.status_code >= 400:
             return None, None, None
-        cl = resp.headers.get("content-length")
+        # A compressed response's length is not the stored (decoded) size: report none.
+        cl = None if _encoded(resp) else resp.headers.get("content-length")
         return (
             int(cl) if cl else None,
             resp.headers.get("etag"),
@@ -148,7 +177,7 @@ def fetch_asset(
     dest: Path,
     *,
     allowed_hosts: Collection[str] | AnyHost,
-    max_bytes: int | None = None,
+    max_bytes: int,
 ) -> tuple[str, int]:
     """Stream a GET (curl_cffi Chrome impersonation) into ``dest``; return ``(sha256, size)``.
 
@@ -156,11 +185,18 @@ def fetch_asset(
     idle limit (below ``LOW_SPEED_LIMIT`` bytes/s for ``IDLE_TIMEOUT_S``) and the
     overall ceiling; the loop checks both between chunks as well.
 
-    ``max_bytes`` aborts a body that grows past it (a declared Content-Length over it
-    is refused before any byte is read); ``allowed_hosts`` (required; ``ANY_HOST`` to opt
-    out) confines the URL and every redirect; more than ``MAX_REDIRECTS`` redirects is refused. Each violation raises
+    ``max_bytes`` (required) aborts a body that grows past it; a declared Content-Length
+    over it is refused before any byte is read, unless the body is content-encoded. The bytes
+    stored and hashed are the DECODED ones, so an encoded response is capped on its decoded
+    size only (its Content-Length counts compressed bytes and is not comparable).
+    ``allowed_hosts`` (required; ``ANY_HOST`` to opt out) confines the URL and every redirect;
+    more than ``MAX_REDIRECTS`` redirects is refused. Before anything is requested the temp
+    directory must have ``max_bytes`` plus ``DISK_MARGIN_BYTES`` free. Each violation raises
     ``FetchLimitError``.
     """
+    free = shutil.disk_usage(Path(dest).parent).free
+    if free < max_bytes + DISK_MARGIN_BYTES:
+        raise InsufficientDiskError(need=max_bytes + DISK_MARGIN_BYTES, free=free)
     digest = hashlib.sha256()
     size = 0
     started = last = _now()
@@ -178,7 +214,7 @@ def fetch_asset(
     try:
         resp.raise_for_status()
         declared = (getattr(resp, "headers", None) or {}).get("content-length")
-        if max_bytes is not None and declared and declared.isdigit() and int(declared) > max_bytes:
+        if not _encoded(resp) and declared and declared.isdigit() and int(declared) > max_bytes:
             raise FetchOverCapError(observed=int(declared), cap=max_bytes, declared=True)
         with Path(dest).open("wb") as fh:
             for chunk in resp.iter_content(chunk_size=CHUNK_SIZE):
@@ -193,7 +229,7 @@ def fetch_asset(
                     )
                 last = now
                 size += len(chunk)
-                if max_bytes is not None and size > max_bytes:
+                if size > max_bytes:
                     raise FetchOverCapError(observed=size, cap=max_bytes, declared=False)
                 digest.update(chunk)
                 fh.write(chunk)

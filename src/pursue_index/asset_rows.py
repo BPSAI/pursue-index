@@ -11,7 +11,7 @@ from pathlib import PurePosixPath
 from typing import Any
 from urllib.parse import urlparse
 
-__all__ = ["file_type", "rows_of_asset"]
+__all__ = ["file_type", "rows_of_asset", "type_change"]
 
 
 def file_type(asset_filename: Any, asset_url: Any) -> str:
@@ -36,3 +36,17 @@ def rows_of_asset(rows: list[dict[str, Any]] | None, asset_url: Any, asset_filen
     if not kind:
         return []
     return [r for r in rows or [] if file_type(r.get("asset_filename"), r.get("asset_url")) == kind]
+
+
+def type_change(card_rows: list[dict[str, Any]] | None, asset_url: Any, asset_filename: Any = None):
+    """``(previous_row, old_ext, new_ext)`` when an asset is net-new because its URL AND its file
+    type both differ from the card's newest earlier row; otherwise ``None``.
+
+    Extensions come without the dot. An asset with an earlier row at its URL, or of its own
+    file type, or with no determinable type, is not a type change."""
+    if not card_rows or rows_of_asset(card_rows, asset_url, asset_filename):
+        return None
+    prev = card_rows[-1]
+    old = file_type(prev.get("asset_filename"), prev.get("asset_url")).lstrip(".")
+    new = file_type(asset_filename, asset_url).lstrip(".")
+    return (prev, old, new) if old and new and old != new else None
